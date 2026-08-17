@@ -843,7 +843,7 @@ unsigned int start_dust(short obj, FixedVector origin,
     FixedVector offset;
     short streak;
 
-    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
+    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1, 0);
     ScaleFixedVector(&g_aShipForwardVector_00494208[WC1_EYE_OBJECT],
                      (int)forwardDistance << 8, &offset);
     AddFixedVectors(&origin, &offset, &origin);
@@ -948,7 +948,7 @@ unsigned int update_star_field(void)
                     (int)g_aeObjectClass_00495328[objectIndex] == 0x21 ||
                     g_aeObjectClass_00495328[objectIndex] ==
                         OBJECT_CLASS_NULL) {
-                    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1);
+                    set_objects_data(obj, OBJECT_TYPE_SPACE_DUST, -1, 0);
                     randomChoice = 0;
                 }
             } else if (obj < 42) {
@@ -1134,7 +1134,7 @@ unsigned int house_keep_objects(void)
                                 obj,
                                 (enum ObjectType)
                                     g_abShipNavPointIndex_00495f60[obj],
-                                -1);
+                                -1, 0);
                             reset_maneuver(obj, -1);
                         } else {
                             remove_object(obj);
@@ -1444,7 +1444,7 @@ unsigned int animate_object(short obj)
             effect,
             (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
                               OBJECT_TYPE_RED_SPARK),
-            obj);
+            obj, 0);
         g_asObjectScale_0059de40[effect] =
             g_asObjectScale_0059de40[obj];
         if (RandomInRange(0, 3) == 0)
@@ -1550,7 +1550,7 @@ int object_collision(short obj)
             inflict_damage(obj, partner, damage, &relativeVelocity);
         }
         savedScale = g_asObjectScale_0059de40[obj];
-        set_objects_data(obj, OBJECT_TYPE_LASER_SPARK, owner);
+        set_objects_data(obj, OBJECT_TYPE_LASER_SPARK, owner, 0);
         g_asObjectScale_0059de40[obj] = (short)(savedScale * 2);
         g_aShipVelocity_0059c010[obj] =
             g_aShipVelocity_0059c010[partner];

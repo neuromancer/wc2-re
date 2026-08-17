@@ -70,7 +70,7 @@ void make_shard(short asteroid, FixedVector direction)
     fragment = find_vacant_3d_object();
     if (fragment == -1)
         return;
-    set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid);
+    set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
     g_asObjectCounter_00494be0[fragment] = 40;
     g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
     SetVectorFixedPoint((unsigned int *)&direction,
@@ -201,7 +201,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     if (g_pActiveHazardField_00493278->type == OBJECT_TYPE_ASTEROID_FIELD)
         type = (enum ObjectType)(OBJECT_TYPE_ASTEROID1 +
                                 RandomBelowOrEqual(5));
-    set_objects_data(obj, type, -1);
+    set_objects_data(obj, type, -1, 0);
     g_aShipPosition_00494550[obj] = position;
 
     if (type == OBJECT_TYPE_SPACE_MINE) {

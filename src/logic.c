@@ -180,7 +180,7 @@ unsigned int place_exhaust_on_ships(void)
                         if (object == -1)
                             return 0;
                         set_objects_data(object, OBJECT_TYPE_THRUSTERS,
-                                         ship);
+                                         ship, 0);
                         frame = *animation++;
                         scale = *animation++;
                         scale -= RandomInRange(0, 32);
@@ -1115,7 +1115,7 @@ unsigned int LoadSpaceflightResources(void)
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+    g_aObjectTypeData_00496d30[WC1_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
         debrisShapeSet;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
         debrisShapeSet;
@@ -3300,7 +3300,7 @@ unsigned int load_common_3Space_objects(void)
     LoadShapeSet(g_aCommon3SpaceResources_0049c728, 0, -1);
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+    g_aObjectTypeData_00496d30[WC1_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
@@ -3390,7 +3390,7 @@ unsigned int free_3Space_objects(void)
     g_aObjectTypeData_00496d30[OBJECT_TYPE_FF_MISSILE].animation = 0;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+    g_aObjectTypeData_00496d30[WC1_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;

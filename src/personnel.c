@@ -111,7 +111,7 @@ void DrawPersonnelMenuBackdrop(unsigned char *shape)
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       shape, 0);
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
-                                  g_cPersonnelTextColour_0049cb50, -1);
+                                  g_bPrimaryViewBufferColour_0049cb50, -1);
     if (g_pszPersonnelFooter_00492658 != 0) {
         width = MeasureTextPixelWidthClamped(
             g_pszPersonnelFooter_00492658);
@@ -670,9 +670,9 @@ short RunPilotDatabaseMenu(void)
     SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
     DisableMouseCursorDrawing();
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
-                                  g_cPersonnelTextColour_0049cb50, -1);
+                                  g_bPrimaryViewBufferColour_0049cb50, -1);
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
-                                  g_cPersonnelTextColour_0049cb50, -1);
+                                  g_bPrimaryViewBufferColour_0049cb50, -1);
     g_pPersonnelMenuBackdrop_0049a6b8 = FetchDiskPacketRetrying(
         "options.v00", (short)(g_nCockpitArchiveVariant_005c901a * 3 + 1),
         0);

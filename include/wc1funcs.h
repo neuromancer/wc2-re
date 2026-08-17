@@ -116,14 +116,18 @@ void CompleteStarSystemJump(void);                                    /* 0x4251F
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* WC2 unmapped */
 unsigned int ParseMouthAnimation(char *text, short *commands);          /* WC2 unmapped */
 char *AddPCName(const char *text);                                      /* WC2 unmapped */
-unsigned int LoadFace(short face);                                      /* 0x4099A8 */
+short RunCampaignContinuePromptLoop(unsigned char *promptShapes,
+                                    unsigned char *fieldShape,
+                                    short promptFrame);               /* 0x4098F2 */
+short PromptToContinueCampaign(short promptFrame);                    /* 0x4099A8 */
+unsigned int LoadFace(short face);                                    /* WC2 unmapped */
 unsigned int LongTalk(unsigned char *talker, char *text,
                       short *mouthCommands, short *faceCommands,
                       short duration);                                 /* WC2 unmapped */
 unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
-                       short faceFrame);                               /* 0x4098F2 */
+                       short faceFrame);                              /* WC2 unmapped */
 unsigned int Briefing(short series, short mission);                    /* WC2 unmapped */
-unsigned int DeBriefing(short series, short mission);                  /* 0x424D4D */
+unsigned int DeBriefing(short series, short mission);                 /* WC2 unmapped */
 void MarkPilotDead(short pilot);                                       /* 0x424E8C */
 unsigned int RunWc1OfficeScene(void);                                  /* WC2 unmapped */
 void ReleaseSpaceflightResources(void);                               /* 0x409B80 */
@@ -827,7 +831,7 @@ short ShipHasTorpedo(short ship);                                     /* 0x41021
 short any_selected(unsigned char *loadout, short objectClass);       /* 0x410680 */
 unsigned int remove_weapon(short obj, short weapon);                 /* 0x410715 */
 void set_objects_data(short obj, enum ObjectType type,
-                      short owner);                                  /* 0x410999 */
+                      short owner, short matchObjectClass);          /* 0x410999 */
 unsigned int match_rotation_goal(short *rotation, short *goal,
                                  short totalError, short rate);         /* 0x411172 */
 void rotate_object_to_goal(short obj);                                  /* 0x41133D */
@@ -1226,6 +1230,8 @@ void ProcessCannedSceneInput(void);                                   /* 0x446FC
 void FinishCannedScenePlayback(void);                                 /* 0x44698F */
 void ResetCannedSceneRecording(void);                                 /* 0x401A10 */
 void InitializeCannedSceneFrameIndex(void);                           /* 0x401A62 */
+void CheckCannedSceneBufferCapacity(void);                            /* 0x401C1A */
+void RecordCannedSceneObjectEvent(short obj, int event);              /* 0x401FDD */
 void WriteTapeInitialState(void);                                     /* 0x40230E */
 int calculate_damage_level(void);                                     /* 0x4695FD */
 void UpdateWc1TrainSimMenuCursor(void);                            /* WC2 unmapped */
@@ -1238,8 +1244,8 @@ void FadeViewportPaletteToColour(Viewport *viewport,
                                  short enabled);                       /* 0x453820 */
 short find_objective(int type, short index);                         /* 0x424A60 */
 void arrive_from_warp(short obj);                                      /* 0x424AEE */
-unsigned int unwarp(short obj);                                       /* 0x424C05 */
-unsigned int warp(short obj);                                         /* WC2 unmapped */
+void unwarp(short obj);                                                /* 0x424C05 */
+void warp(short obj);                                                  /* 0x424D4D */
 int drop_player_mine(short obj);                                      /* WC2 unmapped */
 unsigned int personality_killed(short personality);                   /* WC2 unmapped */
 void clean_up_cockpit(void);                                          /* WC2 unmapped */

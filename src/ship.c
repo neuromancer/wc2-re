@@ -13,14 +13,14 @@ static const enum ObjectType g_aaeExplosionDebris_004698e0[4][7] = {
         OBJECT_TYPE_DEBRIS_PIPE, OBJECT_TYPE_DEBRIS_O_RING,
         OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
         OBJECT_TYPE_DEBRIS_SHIP_TUBING, OBJECT_TYPE_DEBRIS_METAL_SHEET,
-        OBJECT_TYPE_DEBRIS_WING, OBJECT_TYPE_DEBRIS_GLASS
+        OBJECT_TYPE_DEBRIS_WING, WC1_OBJECT_TYPE_DEBRIS_GLASS
     },
     {
         OBJECT_TYPE_DEBRIS_O_RING, OBJECT_TYPE_DEBRIS_O_RING,
         OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
         OBJECT_TYPE_DEBRIS_SHIP_TUBING, OBJECT_TYPE_DEBRIS_METAL_SHEET,
         OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
-        OBJECT_TYPE_DEBRIS_GLASS
+        WC1_OBJECT_TYPE_DEBRIS_GLASS
     },
     {
         OBJECT_TYPE_DEBRIS_PIPE, OBJECT_TYPE_DEBRIS_O_RING,
@@ -29,10 +29,10 @@ static const enum ObjectType g_aaeExplosionDebris_004698e0[4][7] = {
         OBJECT_TYPE_DEBRIS_WING, OBJECT_TYPE_DEBRIS_SHIP_TUBING
     },
     {
-        OBJECT_TYPE_DEBRIS_GLASS, OBJECT_TYPE_DEBRIS_SHIP_TUBING,
+        WC1_OBJECT_TYPE_DEBRIS_GLASS, OBJECT_TYPE_DEBRIS_SHIP_TUBING,
         OBJECT_TYPE_DEBRIS_METAL_SHEET, OBJECT_TYPE_DEBRIS_WING,
         OBJECT_TYPE_DEBRIS_PIPE, OBJECT_TYPE_DEBRIS_O_RING,
-        OBJECT_TYPE_DEBRIS_GLASS
+        WC1_OBJECT_TYPE_DEBRIS_GLASS
     }
 };
 
@@ -206,7 +206,7 @@ short onboard_explosion(short obj)
 
     debris = find_vacant_3d_object();
     if (debris != -1) {
-        set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj);
+        set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj, 0);
         objectOffset = (int)obj * sizeof(FixedVector);
         g_asObjectScale_0059de40[debris] <<= 2;
         g_asObjectCounter_00494be0[debris] = 6;
@@ -623,7 +623,7 @@ void Create_ship_hit_debris(short obj, short count)
             return;
         set_objects_data(debris,
             g_aeShipHitDebrisTypes_00469950[
-                RandomBelowOrEqual(2)], -1);
+                RandomBelowOrEqual(2)], -1, 0);
         g_asObjectCounter_00494be0[debris] = 40;
         FillFixedVectorWithRandomComponents(10, &offset);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
@@ -724,7 +724,7 @@ unsigned int Create_explosion_debris(short obj)
         if (debris == -1)
             break;
         set_objects_data(debris,
-                         g_aaeExplosionDebris_004698e0[set][index], -1);
+                         g_aaeExplosionDebris_004698e0[set][index], -1, 0);
         g_asObjectCounter_00494be0[debris] = 40;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &vector,
@@ -957,7 +957,7 @@ short ShipExplosion(short obj)
         g_acObjectOwner_00495208[explosion] = (signed char)obj;
     }
     set_objects_data(explosion, OBJECT_TYPE_EXPLOSION1,
-                     (short)g_acObjectOwner_00495208[explosion]);
+                     (short)g_acObjectOwner_00495208[explosion], 0);
     g_asObjectScale_0059de40[explosion] = (short)(
         (unsigned short)g_asObjectScale_0059de40[explosion] *
         originalScale >> 8);
@@ -1024,7 +1024,7 @@ short Explosion(short obj)
             objectClass == OBJECT_CLASS_ASTEROID)
             explosionType = OBJECT_TYPE_EXPLOSION0;
         set_objects_data(obj, explosionType,
-                         g_acObjectOwner_00495208[obj]);
+                         g_acObjectOwner_00495208[obj], 0);
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_ASTEROID)
             g_asObjectScale_0059de40[obj] = 0x380;
     }
@@ -1502,7 +1502,7 @@ int fire_flack(short owner, short explosion, short range,
 
     projectileVelocity =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_TURRET].maximumVelocity;
-    set_objects_data(explosion, OBJECT_TYPE_TURRET, owner);
+    set_objects_data(explosion, OBJECT_TYPE_TURRET, owner, 0);
     lifetime = (short)(range / projectileVelocity -
                        RandomBelowOrEqual(8) - 5);
     lifetime = MaxShort(5, lifetime);

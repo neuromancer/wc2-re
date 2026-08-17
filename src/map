@@ -1,7 +1,7 @@
 # Address-sorted mapped developer functions in WC2.EXE.
 # Generated from reports/wc2-address-remap.tsv; unresolved functions are
 # intentionally omitted until a WC2 destination is established.
-# 1372 mapped source functions; 282 unresolved.
+# 1448 mapped source functions; 287 unresolved.
 
 0x00401000 LoadWingCmdrCfgFile
 0x00401120 show_damage_disp
@@ -10,6 +10,8 @@
 0x00401978 PrintPaletteAllocationMap
 0x00401A10 ResetCannedSceneRecording
 0x00401A62 InitializeCannedSceneFrameIndex
+0x00401C1A CheckCannedSceneBufferCapacity
+0x00401FDD RecordCannedSceneObjectEvent
 0x004021A7 DrawBriefingCharacter
 0x00402258 RecordMusicCommandHook
 0x0040230E WriteTapeInitialState
@@ -83,8 +85,8 @@
 0x00409417 FindSceneHotspotAtPosition
 0x0040963B PollSceneHotspotInput
 0x00409850 InitializeNewPilotCampaign
-0x004098F2 CloseTalk
-0x004099A8 LoadFace
+0x004098F2 RunCampaignContinuePromptLoop
+0x004099A8 PromptToContinueCampaign
 0x00409B80 ReleaseSpaceflightResources
 0x0040A27A LoadStartingCampaignGlobals
 0x0040A2A3 RunSelectedCampaign
@@ -172,9 +174,25 @@
 0x0040CFF8 get_right_shape
 0x0040D6B0 ReleasePacketSlot
 0x0040D6E1 SwapSceneChunkSizeEndian
+0x0040D762 AreCutsceneResourceNamesEqual
 0x0040D812 ReadNextSceneForm
+0x0040D88E SkipCutsceneChunk
+0x0040D8D7 FindCutsceneResourceSymbolIndex
 0x0040D9AD AllocateScenePointerTable
+0x0040DA0C CreateCutsceneResourceInstance
+0x0040DE5A LinkCutsceneObjectResources
 0x0040E130 DecodeSceneResourceChunk
+0x0040E230 PushCutsceneFileResource
+0x0040E285 DecodeCutsceneFileResource
+0x0040E31F ParseCutsceneContainer
+0x0040E726 DecodeCutsceneObjectResource
+0x0040E985 ReleaseCutsceneObjectResourceData
+0x0040EA0F PushCutsceneObjectResource
+0x0040EAA4 ReleaseCutsceneObjectResource
+0x0040ED9F ReleaseCutsceneFileResourceExceptPacket
+0x0040EE41 ReleaseCutsceneFileResource
+0x0040EEC7 ReleaseCutsceneTextResource
+0x0040EF15 ReleaseCutsceneResourceLevel
 0x0040F040 MinShort
 0x0040F072 MaxShort
 0x0040F0A4 FreePacketAndClear
@@ -390,6 +408,7 @@
 0x004240AE ReleaseFinishedSoundEntries
 0x00424113 StopSoundsUsingWave
 0x0042418C playWAVE
+0x00424417 PlayRawSpeechBuffer
 0x004245A2 stop_all_sounds
 0x004245F8 PlaySnowStaticSound
 0x0042476B ServiceSoundSystem
@@ -401,7 +420,7 @@
 0x00424A60 find_objective
 0x00424AEE arrive_from_warp
 0x00424C05 unwarp
-0x00424D4D DeBriefing
+0x00424D4D warp
 0x00424E8C MarkPilotDead
 0x004251F2 CompleteStarSystemJump
 0x004254C0 CheckHeapBlockSignature
@@ -532,20 +551,60 @@
 0x0042BAC0 FillGraphicSuffix
 0x0042BB17 ConvertChar_Int
 0x0042BB70 PostMission
+0x0042BDDB HasCutsceneMusicNode
 0x0042BDFE WriteMemoryStateReportHook
 0x0042BE09 LogMemoryStateToFile
+0x0042BFB8 RouteCutsceneViewportToDisplay
+0x0042C04B ClearActiveCutscenePixelAlias
+0x0042C0A2 IsCutsceneSpeechLoaded
 0x0042C0F1 print_subtitle
-0x0042C43D DisplayTrainSimHighScoreTable
+0x0042C373 LoadCutsceneCockpitOverlay
+0x0042C3A7 DrawCutsceneCockpitOverlay
+0x0042C43D RunCutsceneWipeTransition
+0x0042C607 FindActiveCutsceneFileResources
+0x0042C659 FindActiveCutsceneObjectResources
+0x0042C6AC RemoveCutsceneMemberIndex
+0x0042C725 FatalCutsceneError
+0x0042C75D ResetCutsceneSpriteDrawTicks
+0x0042C7BC PresentCutsceneFrame
+0x0042C8E1 ConsumeCutscenePalettePacket
+0x0042CB08 ReleaseCutsceneSoundEffects
+0x0042CC42 LoadCutsceneSpeechSlot
+0x0042CFDB ReleaseCutsceneMusicNodes
+0x0042D181 FindLoadedCutsceneMusic
+0x0042D227 InitializeCutsceneRuntimeResources
+0x0042D444 InitializeCutsceneViewports
 0x0042D4C1 ReleaseSceneMusicPacket
+0x0042D4FA ReleaseCutsceneSpeechPackets
 0x0042D568 RunLoadedCutscene
+0x0042D81C ExecuteCutsceneScene
+0x0042D8E2 CopyCutsceneSpriteDisplay
+0x0042D98C LinkCutsceneSpriteScript
+0x0042DA25 DrawCutsceneSprite
+0x0042DD9F DrawCutscenePlane
+0x0042DE62 ClearCutsceneViewport
+0x0042DE9D RestoreCutsceneTextBacking
+0x0042DF32 ClearCutsceneTextViewport
+0x0042DF80 ExpandCutsceneText
+0x0042E12A ExecuteCutsceneSequence
 0x0042E3CF UpdateCutscenePlaneObject
+0x0042E553 UpdateCutsceneSpriteObject
+0x0042E692 DispatchCutsceneSpriteHandler
 0x0042E6EB InitializeSceneFlicStream
 0x0042E762 ReleaseSceneFlicPackets
 0x0042E868 AdvanceSceneFlicStream
 0x0042EBD0 ReleaseActiveCutscenePacket
+0x0042EC7F ReleaseCutsceneFontPacket
 0x0042ECCB UpdateMap
+0x0042EE86 ReleaseCutsceneViewport
+0x0042F135 PopCutsceneScriptValue
+0x0042F19A PushCutsceneScriptValue
+0x0042F1FD RunCutsceneScript
 0x00432DCC GetPackedStringByIndex
 0x00432E23 RewriteDiskFileGraphicsExtensions
+0x00432F2A LoadCachedCutsceneResource
+0x00433269 ReleaseCutsceneSpriteShape
+0x00433328 ReleaseLoadedCutsceneResource
 0x004333F8 SceneEnterHook
 0x00433410 PanToScreen
 0x00433690 DrawCinematicFontCharacter
@@ -561,7 +620,7 @@
 0x00434177 HasSavedPilotCampaign
 0x004342E8 OpenDiskDataFile
 0x0043456E RestorePersonnelMenuBackground
-0x004345A1 EraseLastTextInputCharacter
+0x004345A1 DrawPilotSaveMenuChoices
 0x004346E9 DrawPersonnelSourceChoices
 0x004347D6 DrawPersonnelMenuChoices
 0x004348C3 PromptForPilotField
@@ -681,7 +740,6 @@
 0x0043C6D8 draw_target_box
 0x0043CBD3 remove_nav_pointer
 0x0043CBFD draw_nav_pointer
-0x0043CE8F CanSelectedGunReachDistance
 0x0043D386 overlay_head_up_display
 0x0043D7F2 RestoreCockpitExplosionIfVisible
 0x0043D81F RestoreTransientCockpitGraphics
@@ -844,8 +902,15 @@
 0x00448100 ShowCentredPrompt
 0x00448136 ExpandCommMessageTokens
 0x004482CA real_vid_transmit
+0x00448570 InitializeViewportWipe
 0x00448D1A SetViewportHorizontalBounds
 0x00448D39 SetViewportVerticalBounds
+0x00448D58 AdvanceViewportWipe
+0x00449FAE OffsetViewportBounds
+0x0044A009 SetViewportRectangleBounds
+0x0044A03C FinishViewportWipe
+0x0044A910 GenerateWipeRadialEdges
+0x0044AAE5 BlitWipeRadialBands
 0x0044ADE0 SetFleetOverviewView
 0x0044B200 set_sphere_point
 0x0044B239 is_alive
@@ -881,7 +946,9 @@
 0x0044F1C7 CloseDataFileByHandle
 0x0044F1F0 SampleBothJoysticks
 0x0044F247 SampleJoystickDevice
-0x0044F332 SetAwakenBarracksMenuLabel
+0x0044F332 LoadSpeechPacketIntoBuffer
+0x0044F3A4 PlaySpeechPacketBuffer
+0x0044F52E LoadAndPlaySpeechPacket
 0x0044F84F InitializeSpeechCache
 0x0044FA31 ShutdownSpeechCache
 0x0044FA70 DrawNavTextLine
@@ -929,6 +996,7 @@
 0x00452A10 SetMusBreakpt
 0x00452A26 StopMusic
 0x00452A40 StartMusic
+0x00452A64 StartInteractiveMusic
 0x00452A99 PaletteFadeHook
 0x00452AAB FlushSoundEffect
 0x00452AC8 FlushSoundEffects
@@ -1024,7 +1092,9 @@
 0x00459082 ReleasePacketHandle
 0x00459134 GetAvailableFarMemoryByType
 0x00459149 GetLargestFreeMemoryBlockByType
-0x00459160 DrawLaunchDoorFrame
+0x00459160 EraseLastTextInputCharacter
+0x00459294 DrawTextInputCursor
+0x0045930A EraseCharacterAfterTextCursor
 0x00459348 ClearTextInputCharacter
 0x004593D6 InitializeModalTextPanel
 0x00459527 DrawModalTextPanel
@@ -1138,8 +1208,10 @@
 0x00462465 DosStrrchr
 0x00462486 DosStrchr
 0x004624A7 DosStrcpy
+0x004624C7 CopyStringAndReturnEnd
 0x0046250B DosStrlen
 0x00462527 DosMemcpy
+0x00462550 DosMemset
 0x0046257A InitializePostPaletteState
 0x0046259D InitializeInputManagerMemory
 0x00462625 TranslatePolledInputEvent

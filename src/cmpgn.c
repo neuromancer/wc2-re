@@ -170,7 +170,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
             FetchDiskPacketRetrying(2, 2, 0);
         g_nEjectedPilotObject_0046c044 = find_vacant_3d_object();
         set_objects_data(g_nEjectedPilotObject_0046c044,
-                         OBJECT_TYPE_EJECTED_PILOT, -1);
+                         OBJECT_TYPE_EJECTED_PILOT, -1, 0);
         g_asObjectCounter_00494be0[g_nEjectedPilotObject_0046c044] =
             32000;
         copy_frame(0, g_nEjectedPilotObject_0046c044);
@@ -467,7 +467,90 @@ char *AddPCName(const char *text)
     }
 }
 
+/* Function start: 0x4098F2 */
+short RunCampaignContinuePromptLoop(unsigned char *promptShapes,
+                                    unsigned char *fieldShape,
+                                    short promptFrame)
+{
+    short selection;
+
+    selection = 0;
+    while (selection == 0) {
+        selection = PollSceneHotspotInput(promptShapes, 0, 0, 0, 0);
+        if (selection == 0) {
+            DisableMouseCursorDrawing();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 0, fieldShape, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 66, promptShapes, promptFrame);
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 126, promptShapes, 2);
+            EnableMouseCursorDrawing();
+            WaitForVerticalBlankThunk();
+            CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                                 &g_stScreenViewport_005d21a0);
+        }
+    }
+    return selection;
+}
+
 /* Function start: 0x4099A8 */
+short PromptToContinueCampaign(short promptFrame)
+{
+    unsigned char *promptShapes;
+    unsigned char *fieldShape;
+    short selection;
+
+    promptShapes = 0;
+    fieldShape = 0;
+    selection = 0;
+    StopMusicUnlessSuppressed();
+    free_view_buffer();
+    g_stSecondaryViewBuffer_005d2c90.left = 0;
+    g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
+    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    if ((short)AllocateViewport(
+            &g_stSecondaryViewBuffer_005d2c90,
+            g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
+        ReportFatalErrorCode("016");
+    }
+    ClearViewport(&g_stSecondaryViewBuffer_005d2c90,
+                  g_cSecondaryViewBufferColour_0049cb4c);
+    init_constellation(0);
+    InitializeConstellationField(&g_stSecondaryViewBuffer_005d2c90,
+                                 0, 16);
+    SetMenuInputPump();
+    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    EnableMouseCursorDrawing();
+    promptShapes = FetchDiskPacketRetrying("continue.vga", 0, 0);
+    fieldShape = FetchDiskPacketRetrying("field.v00", 1, 0);
+    while (selection == 0) {
+        switch (selection = RunCampaignContinuePromptLoop(
+                    promptShapes, fieldShape, promptFrame)) {
+        case 1:
+            FreePacketAndClear(&promptShapes, 0);
+            FreePacketAndClear(&fieldShape, 0);
+            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+            ClearInputPump();
+            DisableMouseCursorDrawing();
+            return 1;
+        case 2:
+            FreePacketAndClear(&promptShapes, 0);
+            FreePacketAndClear(&fieldShape, 0);
+            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+            ClearInputPump();
+            DisableMouseCursorDrawing();
+            return 0;
+        }
+    }
+    return selection;
+}
+
+/* Function start: WC2_UNMAPPED */
 unsigned int LoadFace(short face)
 {
     switch (g_nConversationCharacter_0046e580) {
@@ -626,7 +709,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
     return 0;
 }
 
-/* Function start: 0x4098F2 */
+/* Function start: WC2_UNMAPPED */
 unsigned int CloseTalk(unsigned char *talker, short mouthFrame,
                        short faceFrame)
 {
@@ -707,7 +790,7 @@ unsigned int Briefing(short series, short mission)
     return 0;
 }
 
-/* Function start: 0x424D4D */
+/* Function start: WC2_UNMAPPED */
 unsigned int DeBriefing(short series, short mission)
 {
     short fullScore;
@@ -825,7 +908,7 @@ void CompleteStarSystemJump(void)
         }
 
         ClearViewport(&g_stViewBuffer_005d2b00,
-                      g_cPersonnelTextColour_0049cb50);
+                      g_bPrimaryViewBufferColour_0049cb50);
         g_bViewportDirty_0049d76c = 1;
         g_bJumpSequenceActive_004962f0 = 0;
         if (g_bHighMemoryBuffersReady_005d2ad8 != 0)

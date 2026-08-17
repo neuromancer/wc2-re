@@ -821,7 +821,7 @@ short RunCampaignSelectionFrame(void *scene, void *field)
                     &g_stSecondaryViewBuffer_005d2c90;
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 1,
-                    g_cPersonnelTextColour_0049cb50, -1);
+                    g_bPrimaryViewBufferColour_0049cb50, -1);
                 SetTextCursor(
                     (unsigned short)((320 -
                         MeasureTextPixelWidthClamped(

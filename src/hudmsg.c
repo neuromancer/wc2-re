@@ -1059,6 +1059,63 @@ void InitializeCannedSceneFrameIndex(void)
     header->byteCount = 0x29a;
 }
 
+/* Function start: 0x401C1A */
+void CheckCannedSceneBufferCapacity(void)
+{
+    if ((int)(unsigned short)g_wHighMemoryBlockBytes_004901fc - 1000 <=
+            (int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8) {
+        if ((int)(unsigned short)g_wHighMemoryBlockBytes_004901fc <=
+                (int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8) {
+            ReportFatalErrorCode(g_abCannedSceneBufferOverflowCode_00490224);
+        }
+        g_nCannedSceneBufferNearCapacityFlag_00490214 = 1;
+    }
+}
+
+/* Function start: 0x401FDD */
+void RecordCannedSceneObjectEvent(short obj, int event)
+{
+    CannedSceneObjectEventRecord *record;
+
+    if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
+        if (g_nCannedSceneMode_0049021c == 0) {
+            g_dwHighMemoryParagraph_005d3fb4 =
+                IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+            record = (CannedSceneObjectEventRecord *)(
+                (unsigned int)(unsigned short)
+                    g_nCannedSceneWriteIndex_005d3fa8 +
+                g_dwHighMemoryParagraph_005d3fb4);
+            record->opcode = 3;
+            record->event = event;
+            record->frame = g_nSpaceFrame_00493134;
+            record->object = (signed char)obj;
+            switch (event) {
+            case 0:
+                record->position = g_aShipPosition_00494550[obj];
+                record->velocity = g_aShipVelocity_0059c010[obj];
+                record->objectType = g_asObjectType_00495298[obj];
+                record->owner = g_acObjectOwner_00495208[obj];
+                record->counter = g_asObjectCounter_00494be0[obj];
+                record->scale = g_asObjectScale_00494d90[obj];
+                record->endMarker = -1;
+                record->nextOffset = 0x29c;
+                break;
+            case 1:
+                record->endMarker = -1;
+                record->nextOffset = 0x29f;
+                break;
+            case 3:
+                record->endMarker = -1;
+                record->nextOffset = 0x2a0;
+                break;
+            }
+            g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 + 0x2a);
+            CheckCannedSceneBufferCapacity();
+        }
+    }
+}
+
 /* Function start: 0x401A10 */
 void ResetCannedSceneRecording(void)
 {
@@ -1609,47 +1666,60 @@ void arrive_from_warp(short obj)
 }
 
 /* Function start: 0x424C05 */
-unsigned int unwarp(short obj)
+void unwarp(short obj)
 {
     short effect;
 
-    ClearViewport(&g_stViewBuffer_005d2b00, g_cViewportClearColour_004699a0);
+    ClearViewport(&g_stViewBuffer_005d2b00,
+                  g_bPrimaryViewBufferColour_0049cb50);
     g_bViewportDirty_0049d76c = 1;
+    PlaySfxWaveFileByNumber(0x34, obj, 0);
     effect = find_vacant_3d_object();
     if (effect != -1) {
-        set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
+        set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                         obj, 0);
         g_aShipPosition_00494550[effect] = g_aShipPosition_00494550[obj];
         g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
         g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         g_asObjectCounter_00494be0[obj] = 6;
-        return 0;
+        RecordCannedSceneObjectEvent(effect, 0);
+    } else {
+        g_abShipNavPointIndex_00495f60[obj] = (signed char)
+            g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].field_16;
+        set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                         obj, 0);
+        RecordCannedSceneObjectEvent(obj, 0);
     }
-    g_abShipNavPointIndex_00495f60[obj] =
-        (signed char)g_acObjectType_00493980[obj];
-    set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH, obj);
-    return 0;
+    if (obj == 0)
+        g_asShipManeuver_00495f48[0] = MANEUVER_WARPING_IN;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int warp(short obj)
+/* Function start: 0x424D4D */
+void warp(short obj)
 {
     short effect;
 
-    ClearViewport(&g_stViewBuffer_005d2b00, g_cViewportClearColour_004699a0);
+    ClearViewport(&g_stViewBuffer_005d2b00,
+                  g_bPrimaryViewBufferColour_0049cb50);
     g_bViewportDirty_0049d76c = 1;
+    PlaySfxWaveFileByNumber(0x34, obj, 0);
     effect = find_vacant_3d_object();
     if (effect != -1) {
         set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
-                         g_acObjectOwner_00495208[obj]);
+                         (short)g_acObjectOwner_00495208[obj], 0);
         g_aShipPosition_00494550[effect] = g_aShipPosition_00494550[obj];
         g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
         g_asShipManeuver_00495f48[obj] = MANEUVER_WARPING_OUT;
         g_asObjectCounter_00494be0[obj] = 6;
-        return 0;
+        RecordCannedSceneObjectEvent(effect, 0);
+    } else {
+        set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
+                         (short)g_acObjectOwner_00495208[obj], 0);
+        RecordCannedSceneObjectEvent(obj, 0);
     }
-    set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
-                     g_acObjectOwner_00495208[obj]);
-    return 0;
+    if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+        g_nEscapedEnemyCount_004962e8++;
 }
 
 /* Function start: WC2_UNMAPPED */

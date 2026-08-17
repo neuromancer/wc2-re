@@ -95,7 +95,7 @@ enum ObjectType {
     OBJECT_TYPE_DEBRIS_SHIP_TUBING        = 42,
     OBJECT_TYPE_DEBRIS_METAL_SHEET        = 43,
     OBJECT_TYPE_DEBRIS_WING               = 44,
-    OBJECT_TYPE_DEBRIS_GLASS              = 45,
+    OBJECT_TYPE_HYPERSPACE_JUMP_FLASH     = 45,
     OBJECT_TYPE_DEBRIS_O_RING             = 46,
     OBJECT_TYPE_DEBRIS_PIPE               = 47,
     OBJECT_TYPE_EXPLOSION0                = 48,
@@ -107,7 +107,7 @@ enum ObjectType {
     OBJECT_TYPE_SPARK_TRAIL               = 54,
     OBJECT_TYPE_THRUSTERS                 = 55,
     OBJECT_TYPE_EJECTED_PILOT             = 56,
-    OBJECT_TYPE_HYPERSPACE_JUMP_FLASH     = 57,
+    WC1_OBJECT_TYPE_DEBRIS_GLASS          = 57,
     OBJECT_TYPE_TYPES                     = 58, /* original enum terminator */
     OBJECT_TYPE_COUNT                     = OBJECT_TYPE_TYPES,
     OBJECT_TYPE_SPACE_DUST                = 59,
@@ -558,7 +558,25 @@ typedef struct CannedSceneBufferHeader {
     unsigned int byteCount;
     short nextFrame;
 } CannedSceneBufferHeader;
+
+typedef struct CannedSceneObjectEventRecord {
+    unsigned int opcode;
+    short frame;
+    int event;
+    signed char object;
+    signed char owner;
+    short objectType;
+    short counter;
+    short scale;
+    FixedVector velocity;
+    FixedVector position;
+    unsigned int nextOffset;
+    short endMarker;
+} CannedSceneObjectEventRecord;
 #pragma pack(pop)
+
+typedef char CannedSceneObjectEventRecord_size_must_be_0x30[
+    sizeof(CannedSceneObjectEventRecord) == 0x30 ? 1 : -1];
 
 typedef char InputManagerState_size_must_be_0x21[
     sizeof(InputManagerState) == 0x21 ? 1 : -1];

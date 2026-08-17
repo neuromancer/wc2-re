@@ -3728,7 +3728,7 @@ void prepare_mission(void)
         &g_aMissionShips_00492290[g_stMissionHeader_005d3e70.playerMissionShip];
     g_nPlayerShipType_00493464 = playerRecord->type;
     load_ship(g_nPlayerShipType_00493464, 0, 0, 0);
-    set_objects_data(0, g_nPlayerShipType_00493464, -1);
+    set_objects_data(0, g_nPlayerShipType_00493464, -1, 0);
     playerRecord->navPoint = g_stMissionHeader_005d3e70.entryNavPoint;
     if (g_nTrainSimActive_0049d758 == 0 && g_nMissionEntryNavOverride_0049d790 != -1)
         playerRecord->navPoint = g_nMissionEntryNavOverride_0049d790;
@@ -3799,7 +3799,7 @@ void prepare_mission(void)
     load_ship(g_nPlayerShipType_00493464,
               g_aMissionShips_00492290[playerMissionShip].objectType,
               objectClass, 0);
-    set_objects_data(0, g_nPlayerShipType_00493464, -1);
+    set_objects_data(0, g_nPlayerShipType_00493464, -1, 0);
     g_aMissionShips_00492290[playerMissionShip].navPoint =
         (signed char)g_stMissionHeader_005d3e70.entryNavPoint;
     if (g_nMissionEntryNavOverride_0049d790 != -1) {

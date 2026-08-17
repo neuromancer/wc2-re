@@ -938,7 +938,7 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
             &g_stSecondaryViewBuffer_005d2c90;
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 0,
-            g_cPersonnelTextColour_0049cb50, -1);
+            g_bPrimaryViewBufferColour_0049cb50, -1);
         if (g_pszPersonnelFooter_00492658 != 0) {
             SetTextCursor(
                 (unsigned short)((320 -

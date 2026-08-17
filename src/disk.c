@@ -1771,7 +1771,7 @@ short ShipHasTorpedo(short ship)
 short initialize_object(short obj, enum ObjectType type, short owner)
 {
     if (obj != -1) {
-        set_objects_data(obj, type, owner);
+        set_objects_data(obj, type, owner, 0);
         zero_vector(&g_aShipPosition_00494550[obj]);
         zero_vector(&g_aShipVelocity_0059c010[obj]);
     }
@@ -1950,7 +1950,8 @@ unsigned int remove_weapon(short obj, short weapon)
 }
 
 /* Function start: 0x410999 */
-void set_objects_data(short obj, enum ObjectType type, short owner)
+void set_objects_data(short obj, enum ObjectType type, short owner,
+                      short matchObjectClass)
 {
     ObjectTypeData *typeData;
     unsigned char *loadout;

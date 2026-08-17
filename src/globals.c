@@ -737,6 +737,8 @@ const char g_szHighScoreRowFormat_00469f88[16] =
 const char g_szSelectEnemy_00469f98[16] = "SELECT\nENEMY%P";
 short g_nCannedSceneMode_0049021c;
 const char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
+short g_nCannedSceneBufferNearCapacityFlag_00490214;
+const char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
 const char g_szCannedSceneCreateError_00490270[4] = "029";
 int g_bFullScreenSpaceView_0049d718;
 int g_nArcadeState_0049d75c;
@@ -3823,7 +3825,7 @@ SceneResourceTable g_stSceneHotspotTable_005d3bf8;
 SceneResourceTable g_stSceneTextTable_005d3c00;
 char *g_pszPersonnelFooter_00492658;
 unsigned char *g_pCampaignChalkboardShape_0049ca54;
-unsigned char g_cPersonnelTextColour_0049cb50;
+unsigned char g_bPrimaryViewBufferColour_0049cb50;
 short g_bDisableChalkboardReplay_0049ca58;
 short g_bSceneBackgroundClicked_005c9018;
 unsigned char *g_pRoomPlanetShapes_005d2c4c;

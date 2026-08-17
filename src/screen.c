@@ -988,7 +988,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             if (effect != -1) {
                 set_objects_data(effect,
                                  OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
-                                 -1);
+                                 -1, 0);
                 ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                                  0x271000, &jumpOffset);
                 g_asObjectScale_0059de40[effect] =

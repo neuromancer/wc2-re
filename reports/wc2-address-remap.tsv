@@ -1700,3 +1700,7 @@ src/screens.c	73		0042C3A7	DrawCutsceneCockpitOverlay	DrawCutsceneCockpitOverlay
 src/screens.c	497		0042CFDB	ReleaseCutsceneMusicNodes	ReleaseCutsceneMusicNodes	WC2-only		wc2-only
 src/screens.c	1221		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only
 src/screens.c	1193		0042EBD0	ReleaseActiveCutscenePacket	ReleaseActiveCutscenePacket	WC2-only		wc2-only
+src/cmpgn.c	471		004098F2	RunCampaignContinuePromptLoop	RunCampaignContinuePromptLoop	WC2-only		wc2-only
+src/cmpgn.c	499		004099A8	PromptToContinueCampaign	PromptToContinueCampaign	WC2-only		wc2-only
+src/hudmsg.c	1063		00401C1A	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity	WC2-only		wc2-only
+src/hudmsg.c	1076		00401FDD	RecordCannedSceneObjectEvent	RecordCannedSceneObjectEvent	WC2-only		wc2-only
