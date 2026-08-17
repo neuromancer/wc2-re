@@ -1670,7 +1670,7 @@ src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSprite
 src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
 src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
 src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
-src/screens.c	960		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
+src/screens.c	1281		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
 src/screens.c	2290		00432F2A	LoadCachedCutsceneResource	LoadCachedCutsceneResource	WC2-only		wc2-only
 src/screens.c	2343		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
 src/screens.c	2376		00433328	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource	WC2-only		wc2-only
@@ -1684,7 +1684,7 @@ src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only	
 src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only
 src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
 src/screens.c	236		0042CC42	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot	WC2-only		wc2-only
-src/screens.c	64		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only
+src/screens.c	97		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only
 src/sound.c	179		00424417	PlayRawSpeechBuffer	PlayRawSpeechBuffer	WC2-only		wc2-only
 src/music.c	28		0044F3A4	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer	WC2-only		wc2-only
 src/music.c	35		0044F52E	LoadAndPlaySpeechPacket	LoadAndPlaySpeechPacket	WC2-only		wc2-only
@@ -1695,3 +1695,7 @@ src/gr.c	935		0044A009	SetViewportRectangleBounds	SetViewportRectangleBounds	WC2
 src/gr.c	945		0044A03C	FinishViewportWipe	FinishViewportWipe	WC2-only		wc2-only
 src/gr.c	1240		0044A910	GenerateWipeRadialEdges	GenerateWipeRadialEdges	WC2-only		wc2-only
 src/gr.c	1299		0044AAE5	BlitWipeRadialBands	BlitWipeRadialBands	WC2-only		wc2-only
+src/screens.c	64		0042C373	LoadCutsceneCockpitOverlay	LoadCutsceneCockpitOverlay	WC2-only		wc2-only
+src/screens.c	73		0042C3A7	DrawCutsceneCockpitOverlay	DrawCutsceneCockpitOverlay	WC2-only		wc2-only
+src/screens.c	497		0042CFDB	ReleaseCutsceneMusicNodes	ReleaseCutsceneMusicNodes	WC2-only		wc2-only
+src/screens.c	1192		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only

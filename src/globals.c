@@ -2544,6 +2544,7 @@ signed char g_acShipRating_0059cd80[16];
 short g_asObjectScreenAngle_004936b8[WC2_SPACE_OBJECT_COUNT];
 short g_nTargetRange_0059ce10;
 unsigned int DAT_0059ce18[2];
+short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
 signed char g_acObjectOwner_00495208[64];
 short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
 signed char g_acShipTarget_00495f20[16];

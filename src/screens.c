@@ -60,6 +60,40 @@ signed char IsCutsceneSpeechLoaded(void)
     return 0;
 }
 
+/* Function start: 0x42C373 */
+void LoadCutsceneCockpitOverlay(int scriptValue)
+{
+    if (g_pCutsceneCockpitPacket_00499c04 == 0) {
+        g_pCutsceneCockpitPacket_00499c04 = LoadNamedPacket(
+            g_szCockpitResourceFilename_005d1030, 8, 0, 0, 0, 1);
+    }
+    (void)scriptValue;
+}
+
+/* Function start: 0x42C3A7 */
+void DrawCutsceneCockpitOverlay(int unused, short verticalOffset)
+{
+    short damage;
+    short x;
+    short y;
+
+    if (g_pCutsceneCockpitPacket_00499c04 != 0) {
+        for (damage = 0; damage < 4; damage++) {
+            if (g_asCockpitDamageState_005d1ee8[damage] == 1) {
+                x = g_aCockpitDamagePositions_0049ae98[damage].x;
+                y = (short)(
+                    g_aCockpitDamagePositions_0049ae98[damage].y +
+                    verticalOffset);
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  x, y,
+                                  g_pCutsceneCockpitPacket_00499c04,
+                                  damage);
+            }
+        }
+    }
+    (void)unused;
+}
+
 /* Function start: 0x42C43D */
 void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
                                int wipeType, short duration)
@@ -458,6 +492,49 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     g_bCutsceneSpeechActive_00499eb8 = 0;
     g_pszCutsceneSpeechCursor_00499eb0 = 0;
     sprite->currentFrame = 11;
+}
+
+/* Function start: 0x42CFDB */
+void ReleaseCutsceneMusicNodes(CutsceneMusicNode **head,
+                               short resourceIndex)
+{
+    CutsceneMusicNode *node;
+    CutsceneMusicNode *previous;
+
+    node = *head;
+    if ((g_nMusicDriverMode_0049be8c == 1 ||
+         g_nMusicDriverMode_0049be8c == 2) &&
+        HasCutsceneMusicNode(node) != 0) {
+        while (HasCutsceneMusicNode(node->next) != 0)
+            node = node->next;
+        *head = node;
+        while (HasCutsceneMusicNode(node) != 0) {
+            previous = node->previous;
+            if (node->resourceIndex == resourceIndex ||
+                resourceIndex == 0xff) {
+                if (HasCutsceneMusicNode(previous) != 0)
+                    previous->next = node->next;
+                if (HasCutsceneMusicNode(node->next) != 0)
+                    node->next->previous = previous;
+                if (*head == node)
+                    *head = previous;
+                ReleaseLoadedCutsceneResource(
+                    FindActiveCutsceneFileResources(
+                        g_pCutsceneMusicResources_004928bc),
+                    node->resourceIndex);
+                free(node);
+                if (g_pMemoryLogFile_00499da8 != 0) {
+                    fprintf(g_pMemoryLogFile_00499da8,
+                            "Free Music: %p free: %d\n",
+                            node, (int)(short)GetOriginalFreeMemory());
+                }
+                node = 0;
+                if (resourceIndex != 0xff)
+                    return;
+            }
+            node = previous;
+        }
+    }
 }
 
 /* Function start: 0x42D181 */
@@ -1110,6 +1187,39 @@ void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
 {
     if (handlerType == 0 && sprite->field_3 == 0)
         AnimateCutsceneSpeakerMouth(sprite);
+}
+
+/* Function start: 0x42EC7F */
+void ReleaseCutsceneFontPacket(void)
+{
+    CutsceneResourceTable *resources;
+    void **packetSlot;
+    short index;
+    short savedOwner;
+
+    savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
+    g_nActiveCutsceneResourceLevel_00499d9c =
+        g_nCutsceneFontOwner_005d2fa0;
+    resources = FindActiveCutsceneFileResources(
+        g_pCutsceneFontResources_004928a0);
+    packetSlot = resources->loadedPackets;
+    for (index = 0; index < resources->count; index++, packetSlot++) {
+        if (*packetSlot == g_stCutsceneTextContext_005d2f40.font) {
+            ReleasePacketSlot(packetSlot);
+            if (g_pMemoryLogFile_00499da8 != 0) {
+                fprintf(g_pMemoryLogFile_00499da8,
+                        "--- Dumped (reset): %Fp  item: %3d  "
+                        "level = %d free = %8lu\n",
+                        g_stCutsceneTextContext_005d2f40.font,
+                        (int)index,
+                        (int)g_nActiveCutsceneResourceLevel_00499d9c,
+                        GetAvailableMainMemory());
+            }
+            break;
+        }
+    }
+    g_stCutsceneTextContext_005d2f40.font = 0;
+    g_nActiveCutsceneResourceLevel_00499d9c = savedOwner;
 }
 
 /* Function start: 0x42EE86 */
@@ -2301,8 +2411,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             break;
         case 0x93:
             resourceIndex = *instruction++;
-            if ((signed char)resourceIndex == -1)
-                FlushSoundEffects();
+            ReleaseCutsceneSoundEffects((short)(signed char)resourceIndex);
             break;
         case 0x94:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2328,6 +2437,14 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             break;
         case 0x95:
             g_cCutsceneTextStyle_00499f40 = (signed char)*instruction++;
+            break;
+        case 0x96:
+            ReleaseCutsceneFontPacket();
+            break;
+        case 0x97:
+            resourceIndex = *instruction++;
+            ReleaseCutsceneMusicNodes(
+                &g_pCutsceneMusicPackets_00499c34, resourceIndex);
             break;
         case 0x98:
             FlushSoundEffects();
@@ -2373,19 +2490,31 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_cCutsceneSoundVolume_00499c2c = (signed char)
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
+        case 0xa1:
+            WriteMemoryStateReportHook();
+            break;
         case 0xa2:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             LoadCutsceneSpeechSlot(*instruction++, value);
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
                                  &g_stSecondaryViewBuffer_005d2c90);
             break;
+        case 0xa3:
+            PushCutsceneScriptValue(
+                &stack, stackStorage,
+                (short)(signed char)g_nOriginDevUnlock_0049d774);
+            break;
         case 0xa4:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             if (value == 0) {
                 g_bCutsceneSkipAll_00499c58 = 0;
                 g_bCutsceneSkipFrame_00499c54 = 0;
+                ServiceInputDevices(-1);
+                FlushInputEvents();
             } else if (value == 1) {
                 g_bCutsceneSkipFrame_00499c54 = 0;
+                ServiceInputDevices(-1);
+                FlushInputEvents();
             } else if (value == -2) {
                 g_bCutsceneSkipAll_00499c58 = 1;
                 g_bCutsceneSkipFrame_00499c54 = 1;
@@ -2400,10 +2529,39 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                 (int)(signed char)*instruction++,
                 PopCutsceneScriptValue(&stack, stackStorage + 10));
             break;
+        case 0xa6:
+            resourceIndex = *instruction++;
+            textIndex = *(short *)instruction;
+            instruction += 2;
+            g_nCutsceneTextIndex_005d2ea4 = textIndex;
+            g_pszCutsceneSourceText_005d2dcc =
+                g_pCutsceneTextResources_0049289c->entries[textIndex];
+            if (g_bCutsceneSkipFrame_00499c54 == 0) {
+                UpdateMap(g_pszCutsceneSourceText_005d2dcc,
+                          resourceIndex);
+            }
+            break;
+        case 0xa7:
+            value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+            otherValue = PopCutsceneScriptValue(
+                &stack, stackStorage + 10);
+            if (g_bCutsceneSkipFrame_00499c54 == 0)
+                DrawCutsceneCockpitOverlay(otherValue, value);
+            break;
         case 0xa8:
             value = *instruction++;
             otherValue = *instruction++;
             LinkCutsceneSpriteScript(value, otherValue);
+            break;
+        case 0xa9:
+            value = 0;
+            if ((g_aObjectTypeData_00496d30[
+                     g_acObjectType_00493980[g_nYourWingman_0049346c]].
+                     damageCapacity >> 1) - 1 <=
+                g_asObjectDamage_00495178[g_nYourWingman_0049346c]) {
+                value = 1;
+            }
+            PushCutsceneScriptValue(&stack, stackStorage, value);
             break;
         case 0xaa:
             waitTicks = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2472,7 +2630,13 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_asCutsceneSpeechSections_005d2dd0[value] = 0;
             break;
         case 0xb1:
+            value = *(short *)instruction;
             instruction += 2;
+            if (g_pMemoryLogFile_00499da8 != 0) {
+                fprintf(g_pMemoryLogFile_00499da8,
+                        "@@@@@@@@@@@@@@@@ Logged: %d\n", value);
+                WriteMemoryStateReportHook();
+            }
             break;
         case 0xb2:
             resourceIndex = *instruction++;
@@ -2482,9 +2646,31 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                 FadeMusic(resourceIndex);
             }
             break;
+        case 0xb3:
+            otherValue = PopCutsceneScriptValue(
+                &stack, stackStorage + 10);
+            stackStorage[0] = PopCutsceneScriptValue(
+                &stack, stackStorage + 10);
+            g_nCutsceneFormatValue_005d2f0c =
+                PopCutsceneScriptValue(&stack, stackStorage + 10);
+            textIndex = *(short *)instruction;
+            instruction += 2;
+            g_nCutsceneTextIndex_005d2ea4 = textIndex;
+            g_pszCutsceneSourceText_005d2dcc =
+                g_pCutsceneTextResources_0049289c->entries[textIndex];
+            ExpandCutsceneText(
+                (unsigned char *)g_pszCutsceneSourceText_005d2dcc,
+                g_pszCutsceneFormattedText_005d2dc8);
+            DrawCutsceneTextAt(stackStorage[0], otherValue, 4,
+                               g_pszCutsceneFormattedText_005d2dc8);
+            break;
         case 0xb4:
             g_nCutsceneMusicVolume_0049be90 =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
+            break;
+        case 0xb5:
+            value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+            LoadCutsceneCockpitOverlay(value);
             break;
         case 0xb6:
             ReleasePacketSlot(&g_pCutsceneCockpitPacket_00499c04);

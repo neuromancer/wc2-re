@@ -1697,6 +1697,9 @@ signed char HasCutsceneMusicNode(CutsceneMusicNode *node);           /* 0x42BDDB
 void RouteCutsceneViewportToDisplay(void);                           /* 0x42BFB8 */
 void ClearActiveCutscenePixelAlias(void);                            /* 0x42C04B */
 signed char IsCutsceneSpeechLoaded(void);                            /* 0x42C0A2 */
+void LoadCutsceneCockpitOverlay(int scriptValue);                    /* 0x42C373 */
+void DrawCutsceneCockpitOverlay(int unused,
+                                short verticalOffset);               /* 0x42C3A7 */
 void FatalCutsceneError(const char *format, ...);                     /* 0x42C725 */
 CutsceneResourceTable *FindActiveCutsceneFileResources(
     CutsceneResourceTable *resources);                                /* 0x42C607 */
@@ -1726,6 +1729,8 @@ void ConsumeCutscenePalettePacket(short firstColour, short count,
                                   signed char releasePacket);       /* 0x42C8E1 */
 void ReleaseCutsceneSoundEffects(short resourceIndex);               /* 0x42CB08 */
 void LoadCutsceneSpeechSlot(short resourceIndex, short slot);         /* 0x42CC42 */
+void ReleaseCutsceneMusicNodes(CutsceneMusicNode **head,
+                               short resourceIndex);                  /* 0x42CFDB */
 void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
                                int wipeType, short duration);         /* 0x42C43D */
 void DrawCutsceneTextAt(short x, short y, short viewportIndex,
@@ -1738,6 +1743,7 @@ void UpdateCutscenePlaneObject(CutscenePlane *plane,
 void UpdateCutsceneSpriteObject(SceneFlicObject *sprite);             /* 0x42E553 */
 void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
                                    short handlerType);                /* 0x42E692 */
+void ReleaseCutsceneFontPacket(void);                                /* 0x42EC7F */
 void ReleaseCutsceneViewport(Viewport *viewport);                     /* 0x42EE86 */
 short PopCutsceneScriptValue(short **stack, short *stackBottom);       /* 0x42F135 */
 void PushCutsceneScriptValue(short **stack, short *stackTop,
