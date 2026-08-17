@@ -542,7 +542,7 @@
 0x0042E6EB InitializeSceneFlicStream
 0x0042E762 ReleaseSceneFlicPackets
 0x0042E868 AdvanceSceneFlicStream
-0x0042EBD0 ShowTrainSimTextMessage
+0x0042EBD0 ReleaseActiveCutscenePacket
 0x0042ECCB UpdateMap
 0x00432DCC GetPackedStringByIndex
 0x00432E23 RewriteDiskFileGraphicsExtensions

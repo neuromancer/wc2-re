@@ -1124,7 +1124,7 @@ void PromptForPilotField(short x, short y, const char *label,
                          char *destination, short maximumLength,
                          const char *defaultText);                    /* 0x4348C3 */
 void InitializeWc1TrainSimTextPanel(void);                             /* WC2 unmapped */
-void ShowTrainSimTextMessage(const char *message);                    /* 0x42EBD0 */
+void ShowTrainSimTextMessage(const char *message);                    /* WC2 unmapped */
 void EnterPilotNameAndCallsign(void);                                 /* WC2 unmapped */
 void UpdateTrainSimHighScores(int score);                             /* WC2 unmapped */
 void ShowTrainSimHighScores(void);                                    /* WC2 unmapped */
@@ -1743,6 +1743,8 @@ void UpdateCutscenePlaneObject(CutscenePlane *plane,
 void UpdateCutsceneSpriteObject(SceneFlicObject *sprite);             /* 0x42E553 */
 void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
                                    short handlerType);                /* 0x42E692 */
+void ReleaseActiveCutscenePacket(CutsceneResourceTable *resources,
+                                 void *packet);                       /* 0x42EBD0 */
 void ReleaseCutsceneFontPacket(void);                                /* 0x42EC7F */
 void ReleaseCutsceneViewport(Viewport *viewport);                     /* 0x42EE86 */
 short PopCutsceneScriptValue(short **stack, short *stackBottom);       /* 0x42F135 */

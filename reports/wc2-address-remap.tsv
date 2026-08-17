@@ -1195,7 +1195,7 @@ src/pilot.cpp	577	00426200	004597E3	ReadTextInput	ReadTextInput	WC1-fuzzy-follow
 src/pilot.cpp	708	004265A0	0042075F	ReadRequiredPilotField	ReadRequiredPilotField	WC1-fuzzy-low		mapped
 src/pilot.cpp	724	00426600	004348C3	PromptForPilotField	PromptForPilotField	WC1-callgraph-single-low		mapped
 src/pilot.cpp	738	00426660	004347D6	InitializeTrainSimTextPanel	InitializeTrainSimTextPanel	WC1-callgraph-propagated		mapped
-src/pilot.cpp	756	00426700	0042EBD0	ShowTrainSimTextMessage	ShowTrainSimTextMessage	WC1-callgraph-single-low		mapped
+src/pilot.cpp	756	00426700		ShowTrainSimTextMessage				unmapped
 src/pilot.cpp	769	00426750		EnterPilotNameAndCallsign				unmapped
 src/pilot.cpp	798	00426820		UpdateTrainSimHighScores				unmapped
 src/pilot.cpp	832	004268E0		ShowTrainSimHighScores				unmapped
@@ -1670,9 +1670,9 @@ src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSprite
 src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
 src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
 src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
-src/screens.c	1281		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
+src/screens.c	1292		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
 src/screens.c	2290		00432F2A	LoadCachedCutsceneResource	LoadCachedCutsceneResource	WC2-only		wc2-only
-src/screens.c	2343		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
+src/screens.c	2771		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
 src/screens.c	2376		00433328	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource	WC2-only		wc2-only
 src/screens.c	9		0042C04B	ClearActiveCutscenePixelAlias	ClearActiveCutscenePixelAlias	WC2-only		wc2-only
 src/screens.c	138		0042CB08	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffects	WC2-only		wc2-only
@@ -1698,4 +1698,5 @@ src/gr.c	1299		0044AAE5	BlitWipeRadialBands	BlitWipeRadialBands	WC2-only		wc2-on
 src/screens.c	64		0042C373	LoadCutsceneCockpitOverlay	LoadCutsceneCockpitOverlay	WC2-only		wc2-only
 src/screens.c	73		0042C3A7	DrawCutsceneCockpitOverlay	DrawCutsceneCockpitOverlay	WC2-only		wc2-only
 src/screens.c	497		0042CFDB	ReleaseCutsceneMusicNodes	ReleaseCutsceneMusicNodes	WC2-only		wc2-only
-src/screens.c	1192		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only
+src/screens.c	1221		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only
+src/screens.c	1193		0042EBD0	ReleaseActiveCutscenePacket	ReleaseActiveCutscenePacket	WC2-only		wc2-only

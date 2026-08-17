@@ -783,7 +783,7 @@ void InitializeWc1TrainSimTextPanel(void)
     EraseTextContextBackground(&g_stTrainSimTextContext_005a7bd0);
 }
 
-/* Function start: 0x42EBD0 */
+/* Function start: WC2_UNMAPPED */
 void ShowTrainSimTextMessage(const char *message)
 {
     SetTextCursor(

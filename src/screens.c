@@ -1189,35 +1189,45 @@ void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
         AnimateCutsceneSpeakerMouth(sprite);
 }
 
-/* Function start: 0x42EC7F */
-void ReleaseCutsceneFontPacket(void)
+/* Function start: 0x42EBD0 */
+void ReleaseActiveCutscenePacket(CutsceneResourceTable *resources,
+                                 void *packet)
 {
-    CutsceneResourceTable *resources;
+    CutsceneResourceTable *activeResources;
     void **packetSlot;
+    short resourceCount;
     short index;
-    short savedOwner;
 
-    savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
-    g_nActiveCutsceneResourceLevel_00499d9c =
-        g_nCutsceneFontOwner_005d2fa0;
-    resources = FindActiveCutsceneFileResources(
-        g_pCutsceneFontResources_004928a0);
-    packetSlot = resources->loadedPackets;
-    for (index = 0; index < resources->count; index++, packetSlot++) {
-        if (*packetSlot == g_stCutsceneTextContext_005d2f40.font) {
+    activeResources = FindActiveCutsceneFileResources(resources);
+    resourceCount = activeResources->count;
+    packetSlot = activeResources->loadedPackets;
+    for (index = 0; index < resourceCount; index++, packetSlot++) {
+        if (*packetSlot == packet) {
             ReleasePacketSlot(packetSlot);
             if (g_pMemoryLogFile_00499da8 != 0) {
                 fprintf(g_pMemoryLogFile_00499da8,
                         "--- Dumped (reset): %Fp  item: %3d  "
                         "level = %d free = %8lu\n",
-                        g_stCutsceneTextContext_005d2f40.font,
-                        (int)index,
+                        packet, (int)index,
                         (int)g_nActiveCutsceneResourceLevel_00499d9c,
                         GetAvailableMainMemory());
             }
             break;
         }
     }
+}
+
+/* Function start: 0x42EC7F */
+void ReleaseCutsceneFontPacket(void)
+{
+    short savedOwner;
+
+    savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
+    g_nActiveCutsceneResourceLevel_00499d9c =
+        g_nCutsceneFontOwner_005d2fa0;
+    ReleaseActiveCutscenePacket(
+        g_pCutsceneFontResources_004928a0,
+        g_stCutsceneTextContext_005d2f40.font);
     g_stCutsceneTextContext_005d2f40.font = 0;
     g_nActiveCutsceneResourceLevel_00499d9c = savedOwner;
 }
@@ -2760,33 +2770,26 @@ void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
 /* Function start: 0x433269 */
 void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite)
 {
-    CutsceneResourceTable *resources;
     SceneFlicObject *other;
     void *shape;
-    short savedOwner;
     short index;
 
     shape = sprite->shape;
-    savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
+    g_nSavedCutsceneResourceOwner_005d2d68 =
+        g_nActiveCutsceneResourceLevel_00499d9c;
     if (shape != 0) {
         for (index = 0; index < 0x80; index++) {
             other = g_apSceneObjects_00499c38[index];
-            if (other != 0 && other->shape == shape && other != sprite)
-                break;
-        }
-        if (index == 0x80) {
-            g_nActiveCutsceneResourceLevel_00499d9c = sprite->owner;
-            resources = FindActiveCutsceneFileResources(
-                g_pCutsceneShapeResources_004928a8);
-            for (index = 0; index < resources->count; index++) {
-                if (resources->loadedPackets[index] == shape) {
-                    ReleasePacketSlot(&resources->loadedPackets[index]);
-                    break;
-                }
+            if (other != 0 && other->shape == shape && other != sprite) {
+                goto shape_is_shared;
             }
         }
     }
-    g_nActiveCutsceneResourceLevel_00499d9c = savedOwner;
+    g_nActiveCutsceneResourceLevel_00499d9c = sprite->owner;
+    ReleaseActiveCutscenePacket(g_pCutsceneShapeResources_004928a8, shape);
+shape_is_shared:
+    g_nActiveCutsceneResourceLevel_00499d9c =
+        g_nSavedCutsceneResourceOwner_005d2d68;
     sprite->shape = 0;
 }
 
