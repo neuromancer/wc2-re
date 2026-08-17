@@ -172,7 +172,7 @@ void FreeBarracksMenuLabel(char **label)
     }
 }
 
-/* Function start: 0x44F332 */
+/* Function start: WC2_UNMAPPED */
 void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
                                 char *description)
 {

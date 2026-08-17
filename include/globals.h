@@ -442,7 +442,7 @@ extern CutsceneResourceTable *g_pCutsceneFilmResources_004928b4;
 extern CutsceneResourceTable *g_pCutsceneFxResources_004928b8;
 extern CutsceneResourceTable *g_pCutsceneMusicResources_004928bc;
 extern signed char g_cCutsceneVideoMode_00499c48;
-extern short g_bCutsceneViewportPreallocated_00499c4c;
+extern signed char g_bCutsceneViewportPreallocated_00499c4c;
 extern SceneFlicObject **g_apSceneObjects_00499c38;
 extern CutscenePlane **g_apCutscenePlanes_00499c3c;
 extern CutsceneSequence **g_apCutsceneSequences_00499c40;

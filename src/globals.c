@@ -839,7 +839,7 @@ CutsceneResourceTable *g_pCutsceneFilmResources_004928b4;
 CutsceneResourceTable *g_pCutsceneFxResources_004928b8;
 CutsceneResourceTable *g_pCutsceneMusicResources_004928bc;
 signed char g_cCutsceneVideoMode_00499c48 = 0x13;
-short g_bCutsceneViewportPreallocated_00499c4c;
+signed char g_bCutsceneViewportPreallocated_00499c4c;
 SceneFlicObject **g_apSceneObjects_00499c38;
 CutscenePlane **g_apCutscenePlanes_00499c3c;
 CutsceneSequence **g_apCutsceneSequences_00499c40;

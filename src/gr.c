@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-#pragma function(memset)
+#pragma function(abs, memset)
 
 /* Function start: 0x425A16 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
@@ -642,16 +642,33 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
 /* Function start: 0x427047 */
 void CopyViewportContents(Viewport *source, Viewport *destination)
 {
+    RasterSurface sourceSurface;
     RasterClip destinationClip;
+    int blitResult;
     RasterClip sourceClip;
     RasterSurface destinationSurface;
-    RasterSurface sourceSurface;
 
+    if (destination->left < 0)
+        return;
+    if (source->left < 0)
+        return;
     ValidateViewportBounds(source, &sourceSurface, &sourceClip);
     ValidateViewportBounds(destination, &destinationSurface,
                            &destinationClip);
-    BlitRasterClip(&sourceClip, 0, 0, &destinationClip, 0, 0,
-                   0xffffffff);
+    blitResult = BlitRasterClip(
+        &sourceClip, 0, 0, &destinationClip, 0, 0, 0xffffffff);
+    if (blitResult != 0)
+        abs(blitResult);
+    if (g_nCockpitDisplayMode_0049d71c == 9)
+        return;
+    if (g_bRenderingSpaceFrame_0049d858 != 0 &&
+        g_bSceneDisplayUpdateActive_00499bb8 == 0) {
+        return;
+    }
+    if (GetDIBPixelBuffer() == destination->pixels) {
+        MarkDibDirty();
+        DIBslamReal();
+    }
 }
 
 /* Function start: 0x427123 */

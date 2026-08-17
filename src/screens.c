@@ -60,6 +60,19 @@ signed char IsCutsceneSpeechLoaded(void)
     return 0;
 }
 
+/* Function start: 0x42C43D */
+void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
+                               int wipeType, short duration)
+{
+    g_bRoomTransitionAnimationEnabled_00499c00 = 1;
+    if (g_bCutsceneSkipFrame_00499c54 == 0 &&
+        g_bCutsceneViewportPreallocated_00499c4c == 0) {
+        CopyViewportContents(source, destination);
+    }
+    (void)wipeType;
+    (void)duration;
+}
+
 /* Function start: 0x42C607 */
 CutsceneResourceTable *FindActiveCutsceneFileResources(
     CutsceneResourceTable *resources)
@@ -214,6 +227,45 @@ void ReleaseCutsceneSoundEffects(short resourceIndex)
                 }
                 previous = effect;
                 effect = effect->next;
+            }
+        }
+    }
+}
+
+/* Function start: 0x42CC42 */
+void LoadCutsceneSpeechSlot(short resourceIndex, short slot)
+{
+    CutsceneResourceTable *resources;
+    int packetSize;
+
+    if (g_bSpeechCacheEnabled_005c8de8 != 0 &&
+        g_bCutsceneViewportPreallocated_00499c4c == 0 &&
+        g_bCutsceneSkipAll_00499c58 == 0) {
+        resources = FindActiveCutsceneFileResources(
+            g_pCutsceneSpeechResources_004928a4);
+        while (g_wSpeechCacheState_0049bb60 != 0)
+            PumpWindowMessages(0);
+        ReleasePacketSlot(&g_apCutsceneSpeechPackets_005d2f80[slot]);
+        g_asCutsceneSpeechChannels_005d2d70[slot] = 0;
+        g_apszCutsceneSpeechFiles_005d2ee0[slot] =
+            GetPackedStringByIndex(
+                resources, resources->filenameIndices[resourceIndex]);
+        g_asCutsceneSpeechSections_005d2dd0[slot] =
+            resources->sectionIndices[resourceIndex];
+        packetSize = (int)GetNamedPacketSize(
+            g_apszCutsceneSpeechFiles_005d2ee0[slot],
+            g_asCutsceneSpeechSections_005d2dd0[slot]);
+        if (packetSize < 1) {
+            g_apszCutsceneSpeechFiles_005d2ee0[slot] = 0;
+            g_asCutsceneSpeechSections_005d2dd0[slot] = 0;
+        } else {
+            g_apCutsceneSpeechPackets_005d2f80[slot] =
+                LoadSpeechPacketIntoBuffer(
+                    g_apszCutsceneSpeechFiles_005d2ee0[slot],
+                    g_asCutsceneSpeechSections_005d2dd0[slot], 0);
+            if (g_apCutsceneSpeechPackets_005d2f80[slot] != 0) {
+                g_asCutsceneSpeechChannels_005d2d70[slot] =
+                    (short)packetSize;
             }
         }
     }
@@ -2291,6 +2343,12 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_cCutsceneSoundVolume_00499c2c = (signed char)
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
+        case 0xa2:
+            value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+            LoadCutsceneSpeechSlot(*instruction++, value);
+            CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
+                                 &g_stSecondaryViewBuffer_005d2c90);
+            break;
         case 0xa4:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             if (value == 0) {
@@ -2304,6 +2362,13 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             } else if (value == -1) {
                 g_bCutsceneSkipFrame_00499c54 = 1;
             }
+            break;
+        case 0xa5:
+            RunCutsceneWipeTransition(
+                &g_stSceneFlicScratchViewport_005d2eb0,
+                &g_stSecondaryViewBuffer_005d2c90,
+                (int)(signed char)*instruction++,
+                PopCutsceneScriptValue(&stack, stackStorage + 10));
             break;
         case 0xa8:
             value = *instruction++;

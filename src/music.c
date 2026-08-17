@@ -6,6 +6,24 @@
  */
 #include "wc1.h"
 
+/* Function start: 0x44F332 */
+void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
+                                 void *destination)
+{
+    void *packet;
+
+    packet = destination;
+    if (packet == 0) {
+        packet = AllocateTaggedMemory(
+            (unsigned int)g_wSpeechCacheCodeBytes_0048e0e0, 0x44);
+    }
+    if (packet == 0)
+        return 0;
+    if (LoadPacketIntoBuffer(fileName, section, packet, 1) == 0)
+        return 0;
+    return packet;
+}
+
 /* Function start: 0x44F84F */
 short InitializeSpeechCache(short unitCount, short sizeCode)
 {

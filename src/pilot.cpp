@@ -299,7 +299,7 @@ unsigned short EraseTextContextBackground(TextContext *context)
     return 0;
 }
 
-/* Function start: 0x42C43D */
+/* Function start: WC2_UNMAPPED */
 int DisplayTrainSimHighScoreTable(short phase)
 {
     short completed;

@@ -8,7 +8,7 @@ src/barracks.c	10	0041ADA0		CreateEmptySaveGameFile				unmapped
 src/barracks.c	122	0041B020		EnsureSaveGameFile				unmapped
 src/barracks.c	140	0041B070		InitializeBarracksAnimation				unmapped
 src/barracks.c	164	0041B0E0		FreeBarracksMenuLabel				unmapped
-src/barracks.c	175	0041B110	0044F332	SetAwakenBarracksMenuLabel	PromptAwakenPilot	WC1-callgraph-single-low		mapped
+src/barracks.c	175			SetAwakenBarracksMenuLabel				unmapped
 src/barracks.c	192	0041B180		FreeBarracksMenuLabels				unmapped
 src/barracks.c	215	0041B1E0		SaveGame				unmapped
 src/barracks.c	306	0041B420		RunWc1TextInputPrompt				unmapped
@@ -1176,7 +1176,7 @@ src/pilot.cpp	267		0040FFA0	DebugOverlayConsole::Reset	DebugOverlayConsole::Rese
 src/pilot.cpp	273		0040FFC0	DebugOverlayConsole::TakeStepFlag	DebugOverlayConsole::TakeStepFlag	WC2-only		wc2-only
 src/pilot.cpp	283		0040FFF0	DebugOverlayConsole::ClearPauseFlags	DebugOverlayConsole::ClearPauseFlags	WC2-only		wc2-only
 src/pilot.cpp	290	00425C30		EraseTextContextBackground				unmapped
-src/pilot.cpp	302	00425C60	0042C43D	DisplayTrainSimHighScoreTable	DisplayTrainSimHighScoreTable	WC1-callgraph-propagated		mapped
+src/pilot.cpp	302			DisplayTrainSimHighScoreTable				unmapped
 src/pilot.cpp	335	00425D00		AnimateTrainSimTitle				unmapped
 src/pilot.cpp	380	00425DF0		GetHighScoreEntry				unmapped
 src/pilot.cpp	390	00425E20		GetHighScoreValue				unmapped
@@ -1682,3 +1682,6 @@ src/screens.c	11		0042BDDB	HasCutsceneMusicNode	HasCutsceneMusicNode	WC2-only		w
 src/screens.c	361		0042D181	FindLoadedCutsceneMusic	FindLoadedCutsceneMusic	WC2-only		wc2-only
 src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only		wc2-only
 src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only
+src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
+src/screens.c	236		0042CC42	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot	WC2-only		wc2-only
+src/screens.c	64		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only

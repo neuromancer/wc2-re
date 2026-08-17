@@ -721,7 +721,7 @@ void EnsureSaveGameFile(void);                                         /* WC2 un
 void InitializeBarracksAnimation(BarracksAnimationState *state);       /* WC2 unmapped */
 void FreeBarracksMenuLabel(char **label);                              /* WC2 unmapped */
 void SetAwakenBarracksMenuLabel(char **label, int series, int mission,
-                                char *description);                    /* 0x44F332 */
+                                char *description);                    /* WC2 unmapped */
 void FreeBarracksMenuLabels(void);                                     /* WC2 unmapped */
 short SaveGame(short slot, SaveGameRecord *gameRecord);                /* WC2 unmapped */
 short RunWc1TextInputPrompt(short x, short y, const char *prompt,
@@ -912,6 +912,8 @@ void LoadOriginFxDrivers(void);                                         /* 0x45B
 short QueryCurrentGraphicsMode(void);                                   /* 0x45B7E0 */
 short LoadGraphicsDriver(short rewritePacketExtensions);               /* 0x446560 */
 short InitializeSpeechCache(short unitCount, short sizeCode);           /* 0x44F84F */
+void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
+                                 void *destination);                     /* 0x44F332 */
 void ShutdownSpeechCache(void);                                         /* 0x44FA31 */
 void InitializeHighMemoryGraphicsBuffers(void);                         /* 0x45BF30 */
 void LogMemoryStateToFile(FILE *file);                                  /* 0x42BE09 */
@@ -1093,7 +1095,7 @@ void ResetDebugOverlay(void);                                         /* 0x40FEA
 void ClearDebugOverlay(void);                                         /* 0x40FEBE */
 void ClearDebugPauseFlags(void);                                              /* 0x40FED9 */
 unsigned short EraseTextContextBackground(TextContext *context);      /* WC2 unmapped */
-int DisplayTrainSimHighScoreTable(short phase);                       /* 0x42C43D */
+int DisplayTrainSimHighScoreTable(short phase);                       /* WC2 unmapped */
 int AnimateTrainSimTitle(void);                                       /* WC2 unmapped */
 unsigned char *GetHighScoreEntry(short i);                           /* WC2 unmapped */
 unsigned int GetHighScoreValue(short i);                                      /* WC2 unmapped */
@@ -1719,6 +1721,9 @@ void PresentCutsceneFrame(Viewport *source, Viewport *destination);  /* 0x42C7BC
 void ConsumeCutscenePalettePacket(short firstColour, short count,
                                   signed char releasePacket);       /* 0x42C8E1 */
 void ReleaseCutsceneSoundEffects(short resourceIndex);               /* 0x42CB08 */
+void LoadCutsceneSpeechSlot(short resourceIndex, short slot);         /* 0x42CC42 */
+void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
+                               int wipeType, short duration);         /* 0x42C43D */
 void DrawCutsceneTextAt(short x, short y, short viewportIndex,
                         const char *text);                           /* WC2 unmapped */
 void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* WC2 unmapped */
