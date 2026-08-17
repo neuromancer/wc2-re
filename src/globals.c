@@ -825,17 +825,133 @@ ShortPoint g_aDefaultWeaponDisplayPositions_0049afa0[16];
 short *g_pPilotStatus_005d2fcc;
 Wc2CampaignGlobals *g_pCampaignGlobals_00499c94;
 short g_bKilrathiAceGreetingSent_00499bf4;
-signed char g_cCutsceneVideoMode_00499c48;
+CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c;
+CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890;
+CutsceneObjectResourceList *g_pCutsceneSequenceResources_00492894;
+CutsceneObjectResourceList *g_pCutsceneSceneResources_00492898;
+CutsceneTextResource *g_pCutsceneTextResources_0049289c;
+CutsceneResourceTable *g_pCutsceneFontResources_004928a0;
+CutsceneResourceTable *g_pCutsceneSpeechResources_004928a4;
+CutsceneResourceTable *g_pCutsceneShapeResources_004928a8;
+CutsceneResourceTable *g_pCutsceneMouseResources_004928ac;
+CutsceneResourceTable *g_pCutscenePaletteResources_004928b0;
+CutsceneResourceTable *g_pCutsceneFilmResources_004928b4;
+CutsceneResourceTable *g_pCutsceneFxResources_004928b8;
+CutsceneResourceTable *g_pCutsceneMusicResources_004928bc;
+signed char g_cCutsceneVideoMode_00499c48 = 0x13;
 short g_bCutsceneViewportPreallocated_00499c4c;
 SceneFlicObject **g_apSceneObjects_00499c38;
+CutscenePlane **g_apCutscenePlanes_00499c3c;
+CutsceneSequence **g_apCutsceneSequences_00499c40;
+CutsceneScene **g_apCutsceneScenes_00499c44;
 short g_nSceneFlicContext_00499c50;
+short g_nCutsceneResourceLevel_00499d98;
+short g_nActiveCutsceneResourceLevel_00499d9c;
+void *g_pCutsceneCockpitPacket_00499c04;
+void *g_pCutsceneCockpitPalette_00499c0c;
+unsigned char *g_pActiveCutscenePixels_005c83dc;
+short g_nCutsceneSpritesDrawn_00499c10;
+CutsceneSoundEffect *g_pCutsceneSoundEffects_00499c28;
+signed char g_cCutsceneSoundVolume_00499c2c = 0x40;
+void *g_pCutsceneFxPacket_00499c30;
+CutsceneMusicNode *g_pCutsceneMusicPackets_00499c34;
+signed char g_bCutsceneSkipFrame_00499c54;
+signed char g_bCutsceneSkipAll_00499c58;
+signed char g_bCutsceneDrawingEnabled_00499c60;
+SceneFlicObject *g_pLinkedCutsceneSprite_00499c64;
+CutscenePlane *g_pLinkedCutscenePlane_00499c68;
+CutsceneSequence *g_pLinkedCutsceneSequence_00499c6c;
+SceneFlicObject *g_pCurrentCutsceneSprite_00499c78;
+CutscenePlane *g_pCurrentCutscenePlane_00499c7c;
+CutsceneSequence *g_pCurrentCutsceneSequence_00499c80;
+CutsceneScene *g_pCurrentCutsceneScene_00499c84;
+short g_nCutsceneFrameTick_00499c88;
+unsigned short g_nCutsceneFrameDelay_00499c8c;
+unsigned int g_nNextCutsceneFrameClock_00499c90;
+unsigned char g_abCutscenePaletteTranslation_00499c98[256] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    7, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 6, 6, 6, 6, 6,
+    11, 11, 11, 9, 9, 9, 9, 9, 9, 9, 9, 9, 1, 1, 1, 1,
+    15, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+    14, 14, 14, 14, 14, 14, 14, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+    12, 12, 12, 12, 12, 12, 12, 12, 14, 10, 10, 10, 10, 10, 2, 2,
+    14, 14, 14, 14, 14, 14, 14, 14, 6, 6, 6, 6, 6, 6, 6, 6,
+    12, 12, 12, 12, 12, 12, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+    10, 10, 10, 10, 10, 10, 10, 10, 4, 4, 4, 4, 4, 4, 4, 4,
+    11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 9, 9, 9, 9, 1,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8,
+    12, 12, 12, 12, 12, 12, 12, 12, 4, 4, 4, 4, 4, 4, 4, 4,
+    13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13,
+    10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 2, 2, 2, 2, 2, 2,
+    7, 7, 7, 7, 8, 8, 8, 8, 12, 12, 12, 12, 4, 4, 4, 4,
+    10, 10, 10, 10, 2, 2, 2, 2, 13, 13, 13, 13, 13, 13, 13, 13
+};
+signed char g_bCutsceneTextRestorePending_00499da0;
+char *g_pszCurrentCutsceneText_00499da4;
+signed char g_acCutsceneMouthFrames_00499db0[128] = {
+    10, 13, 14, 12, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+    3, 5, 5, 1, 5, 9, 5, 5, 1, 2, 5, -1, -1, -1, -1, -1,
+    -1, 1, 0, 5, 5, 1, 9, 5, 3, 2, 5, 5, 8, 0, 5, 3,
+    0, 6, 5, 5, 5, 4, 9, 6, 5, 5, 5, 1, -1, -1, -1, -1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+signed char g_acCutsceneMouthDurations_00499e30[128] = {
+    40, 3, 3, 50, 60, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1,
+    1, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
+char *g_pszCutsceneSpeechCursor_00499eb0;
+signed char g_cCutsceneSpeechSpeed_00499eb4 = 1;
+signed char g_bCutsceneSpeechActive_00499eb8;
+signed char g_bCutsceneTextBoundsOverride_00499edc;
+short g_nCutsceneTextLeft_00499ee0;
+short g_nCutsceneTextTop_00499ee2;
+short g_nCutsceneTextRight_00499ee4 = 319;
+short g_nCutsceneTextBottom_00499ee6 = 199;
+CutscenePlane *g_pCutsceneSpriteParentPlane_00499ef0;
+signed char g_cCutsceneTextStyle_00499f40;
+signed char g_bCutsceneCockpitLoaded_005d2d66;
+short g_nSavedCutsceneResourceOwner_005d2d68;
+short g_asCutsceneSpeechChannels_005d2d70[8];
+Viewport g_stCutsceneTextViewport_005d2d90;
+Viewport g_stCutsceneTextBackingViewport_005d2db0;
+char *g_pszCutsceneFormattedText_005d2dc8;
+char *g_pszCutsceneSourceText_005d2dcc;
+short g_asCutsceneSpeechSections_005d2dd0[8];
+signed char g_bCutsceneFramePresented_005d2de0;
+unsigned int g_nCutsceneInitialAvailableMemory_005d2e88;
+short g_nCutsceneBranchOffset_005d2e8c;
+void *g_pCutscenePalettePacket_005d2e98;
+short g_nCutsceneResourceScratch_005d2e9c;
+short g_nCutsceneTextIndex_005d2ea4;
+unsigned int g_nCutsceneInitialLargestBlock_005d2ea8;
+int g_nCutsceneMemoryDelta_005d2ec8;
+char *g_pszCutsceneWorkBuffer_005d2ecc;
+short g_bCutsceneTextAdvance_005d2ed0;
+char *g_apszCutsceneSpeechFiles_005d2ee0[8];
+short *g_pCutsceneLocalsScratch_005d2f00;
+InputEventState *g_pCutsceneInputEvent_005d2f08;
+short g_nCutsceneFormatValue_005d2f0c;
+char *g_pszCutscenePrintBuffer_005d2f10;
+TextContext g_stCutsceneTextContext_005d2f40;
+TextContext g_stCutsceneDrawingTextContext_005d2f60;
+void *g_apCutsceneSpeechPackets_005d2f80[8];
+short g_nCutsceneFontOwner_005d2fa0;
 int g_bPlayerCollisionsEnabled_00469ff8 = 1;
 int DAT_00469ffc = 1;
 int DAT_0046a000 = 1;
 short g_bSpaceViewBufferEnabled_0049d7a4;
 unsigned char *g_pNavLocationText_0049bc54;
 int g_nCockpitDisplayMode_0049d71c;
-short g_nShowMemoryStatus_0049d784;
+signed char g_nShowMemoryStatus_0049d784;
 int g_bKeyboardMouseEnabled_0049be68;
 int g_anShipCloakState_00496020[10];
 short g_asShipCloakCooldown_00496048[10];
@@ -985,6 +1101,7 @@ const char g_szTargetTooFar_0046a9b0[8] = "TOO FAR";
 const char g_szRangeMetresSuffix_0046a9b8[4] = " m";
 const char g_szTargetOffscreenRange_0046a9bc[8] = "----- m";
 short g_nMusicDriverMode_0049be8c = 1;
+short g_nCutsceneMusicVolume_0049be90;
 short g_nTitleMusicSequenceStage_0049be94;
 void *g_pLimitedMusicBufferA_0049bea0;
 short g_nLimitedMusicBufferAState_0049bea4 = -1;

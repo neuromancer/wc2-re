@@ -1490,7 +1490,7 @@ src/strdos.c	35	00435470	004624A7	DosStrcpy	DosStrcpy	WC2-manual-verified		mappe
 src/strdos.c	41	004354A0		CopyFarString				unmapped
 src/strdos.c	47	004354D0	0046250B	DosStrlen	DosStrlen	WC1-callgraph-propagated		mapped
 src/strdos.c	53	004354F0	00462527	DosMemcpy	DosMemcpy	WC1-manual-verified		mapped
-src/strdos.c	59	00435510		DosMemset				unmapped
+src/strdos.c	59	00435510	00462550	DosMemset	DosMemset	WC2-manual-verified		mapped
 src/strdos.c	65	00435550		GetEventManagerStatus				unmapped
 src/strdos.c	71	00435560		RegisterEventManagerShutdown				unmapped
 src/strdos.c	76	00435570		InitializeEventManager				unmapped
@@ -1629,3 +1629,56 @@ src/hudmsg.c	1002		0044698F	FinishCannedScenePlayback	FinishCannedScenePlayback	
 src/hudmsg.c	1027		0040230E	WriteTapeInitialState	WriteTapeInitialState	WC2-only		wc2-only
 src/hudmsg.c	1048		00401A62	InitializeCannedSceneFrameIndex	InitializeCannedSceneFrameIndex	WC2-only		wc2-only
 src/hudmsg.c	1063		00401A10	ResetCannedSceneRecording	ResetCannedSceneRecording	WC2-only		wc2-only
+src/disk.c	194		0040D762	AreCutsceneResourceNamesEqual	AreCutsceneResourceNamesEqual	WC2-only		wc2-only
+src/disk.c	237		0040D88E	SkipCutsceneChunk	SkipCutsceneChunk	WC2-only		wc2-only
+src/disk.c	248		0040D8D7	FindCutsceneResourceSymbolIndex	FindCutsceneResourceSymbolIndex	WC2-only		wc2-only
+src/disk.c	292		0040DA0C	CreateCutsceneResourceInstance	CreateCutsceneResourceInstance	WC2-only		wc2-only
+src/disk.c	398		0040DE5A	LinkCutsceneObjectResources	LinkCutsceneObjectResources	WC2-only		wc2-only
+src/disk.c	514		0040E230	PushCutsceneFileResource	PushCutsceneFileResource	WC2-only		wc2-only
+src/disk.c	531		0040E285	DecodeCutsceneFileResource	DecodeCutsceneFileResource	WC2-only		wc2-only
+src/disk.c	661		0040E726	DecodeCutsceneObjectResource	DecodeCutsceneObjectResource	WC2-only		wc2-only
+src/disk.c	730		0040E985	ReleaseCutsceneObjectResourceData	ReleaseCutsceneObjectResourceData	WC2-only		wc2-only
+src/disk.c	745		0040EA0F	PushCutsceneObjectResource	PushCutsceneObjectResource	WC2-only		wc2-only
+src/disk.c	768		0040EAA4	ReleaseCutsceneObjectResource	ReleaseCutsceneObjectResource	WC2-only		wc2-only
+src/disk.c	828		0040ED9F	ReleaseCutsceneFileResourceExceptPacket	ReleaseCutsceneFileResourceExceptPacket	WC2-only		wc2-only
+src/disk.c	850		0040EE41	ReleaseCutsceneFileResource	ReleaseCutsceneFileResource	WC2-only		wc2-only
+src/disk.c	870		0040EEC7	ReleaseCutsceneTextResource	ReleaseCutsceneTextResource	WC2-only		wc2-only
+src/disk.c	884		0040EF15	ReleaseCutsceneResourceLevel	ReleaseCutsceneResourceLevel	WC2-only		wc2-only
+src/screens.c	10		0042C607	FindActiveCutsceneFileResources	FindActiveCutsceneFileResources	WC2-only		wc2-only
+src/screens.c	23		0042C659	FindActiveCutsceneObjectResources	FindActiveCutsceneObjectResources	WC2-only		wc2-only
+src/screens.c	36		0042C6AC	RemoveCutsceneMemberIndex	RemoveCutsceneMemberIndex	WC2-only		wc2-only
+src/screens.c	51		0042C725	FatalCutsceneError	FatalCutsceneError	WC2-only		wc2-only
+src/screens.c	62		0042C75D	ResetCutsceneSpriteDrawTicks	ResetCutsceneSpriteDrawTicks	WC2-only		wc2-only
+src/screens.c	74		0042C7BC	PresentCutsceneFrame	PresentCutsceneFrame	WC2-only		wc2-only
+src/screens.c	88		0042C8E1	ConsumeCutscenePalettePacket	ConsumeCutscenePalettePacket	WC2-only		wc2-only
+src/screens.c	293		0042D227	InitializeCutsceneRuntimeResources	InitializeCutsceneRuntimeResources	WC2-only		wc2-only
+src/screens.c	340		0042D444	InitializeCutsceneViewports	InitializeCutsceneViewports	WC2-only		wc2-only
+src/screens.c	361		0042D4FA	ReleaseCutsceneSpeechPackets	ReleaseCutsceneSpeechPackets	WC2-only		wc2-only
+src/screens.c	480		0042D81C	ExecuteCutsceneScene	ExecuteCutsceneScene	WC2-only		wc2-only
+src/screens.c	507		0042D8E2	CopyCutsceneSpriteDisplay	CopyCutsceneSpriteDisplay	WC2-only		wc2-only
+src/screens.c	528		0042D98C	LinkCutsceneSpriteScript	LinkCutsceneSpriteScript	WC2-only		wc2-only
+src/screens.c	548		0042DA25	DrawCutsceneSprite	DrawCutsceneSprite	WC2-only		wc2-only
+src/screens.c	635		0042DD9F	DrawCutscenePlane	DrawCutscenePlane	WC2-only		wc2-only
+src/screens.c	654		0042DE62	ClearCutsceneViewport	ClearCutsceneViewport	WC2-only		wc2-only
+src/screens.c	662		0042DE9D	RestoreCutsceneTextBacking	RestoreCutsceneTextBacking	WC2-only		wc2-only
+src/screens.c	683		0042DF32	ClearCutsceneTextViewport	ClearCutsceneTextViewport	WC2-only		wc2-only
+src/screens.c	694		0042DF80	ExpandCutsceneText	ExpandCutsceneText	WC2-only		wc2-only
+src/screens.c	746		0042E12A	ExecuteCutsceneSequence	ExecuteCutsceneSequence	WC2-only		wc2-only
+src/screens.c	830		0042E3CF	UpdateCutscenePlaneObject	UpdateCutscenePlaneObject	WC2-only		wc2-only
+src/screens.c	872		0042E553	UpdateCutsceneSpriteObject	UpdateCutsceneSpriteObject	WC2-only		wc2-only
+src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSpriteHandler	WC2-only		wc2-only
+src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
+src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
+src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
+src/screens.c	960		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
+src/screens.c	2290		00432F2A	LoadCachedCutsceneResource	LoadCachedCutsceneResource	WC2-only		wc2-only
+src/screens.c	2343		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
+src/screens.c	2376		00433328	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource	WC2-only		wc2-only
+src/screens.c	9		0042C04B	ClearActiveCutscenePixelAlias	ClearActiveCutscenePixelAlias	WC2-only		wc2-only
+src/screens.c	138		0042CB08	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffects	WC2-only		wc2-only
+src/screens.c	24		0042C0A2	IsCutsceneSpeechLoaded	IsCutsceneSpeechLoaded	WC2-only		wc2-only
+src/strdos.c	41		004624C7	CopyStringAndReturnEnd	CopyStringAndReturnEnd	WC2-only		wc2-only
+src/screens.c	11		0042BDDB	HasCutsceneMusicNode	HasCutsceneMusicNode	WC2-only		wc2-only
+src/screens.c	361		0042D181	FindLoadedCutsceneMusic	FindLoadedCutsceneMusic	WC2-only		wc2-only
+src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only		wc2-only
+src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only

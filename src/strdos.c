@@ -6,7 +6,7 @@
  */
 #include "wc1.h"
 
-#pragma function(strlen, strcpy, memcpy)
+#pragma function(strlen, strcpy, memcpy, memset)
 
 /* Function start: 0x46243F */
 unsigned int DosFarPtrToNear(void *v)
@@ -38,6 +38,13 @@ char *DosStrcpy(char *dst, const char *src)
     return strcpy(dst, src);
 }
 
+/* Function start: 0x4624C7 */
+char *CopyStringAndReturnEnd(char *destination, const char *source)
+{
+    strcpy(destination, source);
+    return destination + strlen(destination);
+}
+
 /* Function start: WC2_UNMAPPED */
 char *__stdcall CopyFarString(char *destination, const char *source)
 {
@@ -56,8 +63,8 @@ void DosMemcpy(void *dst, const void *src, size_t n)
     memcpy(dst, src, n & 0xffff);
 }
 
-/* Function start: WC2_UNMAPPED */
-void __stdcall DosMemset(void *destination, unsigned int count, short value)
+/* Function start: 0x462550 */
+void DosMemset(void *destination, unsigned int count, short value)
 {
     memset(destination, value, (unsigned short)count);
 }

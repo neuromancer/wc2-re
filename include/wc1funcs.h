@@ -1323,6 +1323,7 @@ void SetMusicOn(short enabled);                                         /* WC2 u
 void StopMusicStream(void);                                            /* 0x452A00 */
 void StopMusic(int enabled);                                           /* 0x452A26 */
 short StartMusic(void *music);                                        /* 0x452A40 */
+short StartInteractiveMusic(short track);                            /* 0x452A64 */
 void SetMusBreakpt(int first, int second);                             /* 0x452A10 */
 unsigned int PaletteFadeHook(void);                                    /* 0x452A99 */
 void FlushSoundEffect(void);                                               /* 0x452AAB */
@@ -1391,7 +1392,40 @@ unsigned int ShowCampaignVictorySequence(void);                    /* WC2 unmapp
 unsigned int ShowTigerClawEscapeScene(void);                          /* WC2 unmapped */
 void RunCampaignScript(short campaignSlot);                            /* 0x429261 */
 unsigned int ShowWc1EndScreen(short enableFireworks);                 /* WC2 unmapped */
+signed char AreCutsceneResourceNamesEqual(const char *left,
+                                          const char *right);         /* 0x40D762 */
+void SkipCutsceneChunk(unsigned char **cursor);                       /* 0x40D88E */
+short FindCutsceneResourceSymbolIndex(CutsceneObjectResourceList *list,
+                                      short scriptHalf,
+                                      const char *symbol);            /* 0x40D8D7 */
+short CreateCutsceneResourceInstance(unsigned int formType,
+                                     CutsceneObjectResourceList *list,
+                                     short index);                    /* 0x40DA0C */
+signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
+                                        short scriptHalf,
+                                        unsigned int formType);       /* 0x40DE5A */
+CutsceneResourceTable *PushCutsceneFileResource(
+    CutsceneResourceTable **head);                                    /* 0x40E230 */
+void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
+                                unsigned char **cursor);              /* 0x40E285 */
 unsigned int ParseCutsceneContainer(void *scenePacket);               /* 0x40E31F */
+signed char DecodeCutsceneObjectResource(
+    CutsceneObjectResourceList *resource, unsigned char **cursor,
+    unsigned char *end, unsigned int formType);                       /* 0x40E726 */
+unsigned int ReleaseCutsceneObjectResourceData(
+    CutsceneObjectResourceList *resource);                            /* 0x40E985 */
+CutsceneObjectResourceList *PushCutsceneObjectResource(
+    CutsceneObjectResourceList **head);                               /* 0x40EA0F */
+void ReleaseCutsceneObjectResource(short owner,
+                                   CutsceneObjectResourceList **head,
+                                   unsigned int formType);            /* 0x40EAA4 */
+void ReleaseCutsceneFileResourceExceptPacket(
+    short owner, CutsceneResourceTable **head, void *retainedPacket); /* 0x40ED9F */
+void ReleaseCutsceneFileResource(short owner,
+                                 CutsceneResourceTable **head);       /* 0x40EE41 */
+void ReleaseCutsceneTextResource(short owner,
+                                 CutsceneTextResource **head);        /* 0x40EEC7 */
+void ReleaseCutsceneResourceLevel(short owner);                       /* 0x40EF15 */
 signed char DecodeSceneStructChunk(unsigned char **cursor,
                                    SceneResourceTable **resource);     /* 0x458A90 */
 signed char DecodeSceneOffsetChunk(unsigned char **cursor,
@@ -1549,12 +1583,14 @@ void *DosNearPtrToFar(unsigned int v);                                 /* 0x4624
 char *DosStrrchr(char *s, short c);                                    /* 0x462465 */
 char *DosStrchr(const char *s, short c);                               /* 0x462486 */
 char *DosStrcpy(char *dst, const char *src);                         /* 0x4624A7 */
+char *CopyStringAndReturnEnd(char *destination,
+                             const char *source);                    /* 0x4624C7 */
 char *__stdcall CopyFarString(char *destination,
                               const char *source);                   /* WC2 unmapped */
 short DosStrlen(const char *s);                                       /* 0x46250B */
 void DosMemcpy(void *dst, const void *src, size_t n);                 /* 0x462527 */
-void __stdcall DosMemset(void *destination, unsigned int count,
-                         short value);                               /* WC2 unmapped */
+void DosMemset(void *destination, unsigned int count,
+               short value);                                        /* 0x462550 */
 unsigned short GetEventManagerStatus(void);                            /* WC2 unmapped */
 void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* WC2 unmapped */
 short __stdcall InitializeEventManager(short period,
@@ -1651,8 +1687,54 @@ void __stdcall FillGraphicSuffix(char *path, short number,
                                  short digits);                        /* 0x42BAC0 */
 void __stdcall ConvertChar_Int(char *text, short number,
                               short digits);                          /* 0x42BB17 */
+signed char HasCutsceneMusicNode(CutsceneMusicNode *node);           /* 0x42BDDB */
+void RouteCutsceneViewportToDisplay(void);                           /* 0x42BFB8 */
+void ClearActiveCutscenePixelAlias(void);                            /* 0x42C04B */
+signed char IsCutsceneSpeechLoaded(void);                            /* 0x42C0A2 */
+void FatalCutsceneError(const char *format, ...);                     /* 0x42C725 */
+CutsceneResourceTable *FindActiveCutsceneFileResources(
+    CutsceneResourceTable *resources);                                /* 0x42C607 */
+CutsceneObjectResourceList *FindActiveCutsceneObjectResources(
+    CutsceneObjectResourceList *resources);                           /* 0x42C659 */
+short RemoveCutsceneMemberIndex(short count, unsigned char *indices,
+                                signed char index);                   /* 0x42C6AC */
+void InitializeCutsceneRuntimeResources(void);                        /* 0x42D227 */
+void InitializeCutsceneViewports(void);                               /* 0x42D444 */
+void ReleaseCutsceneSpeechPackets(void);                              /* 0x42D4FA */
+void *FindLoadedCutsceneMusic(short resourceIndex);                  /* 0x42D181 */
 unsigned int LoadBriefingRoom(void);                                  /* WC2 unmapped */
 void RunLoadedCutscene(void);                                         /* 0x42D568 */
+void ExecuteCutsceneScene(CutsceneScene *scene);                      /* 0x42D81C */
+void CopyCutsceneSpriteDisplay(short destination, short source);      /* 0x42D8E2 */
+void LinkCutsceneSpriteScript(short destination, short source);       /* 0x42D98C */
+void DrawCutsceneSprite(SceneFlicObject *sprite);                     /* 0x42DA25 */
+void DrawCutscenePlane(CutscenePlane *plane);                         /* 0x42DD9F */
+void ClearCutsceneViewport(Viewport *viewport, unsigned char colour); /* 0x42DE62 */
+void RestoreCutsceneTextBacking(void);                                /* 0x42DE9D */
+void ClearCutsceneTextViewport(void);                                 /* 0x42DF32 */
+void ExpandCutsceneText(const unsigned char *source,
+                        char *destination);                           /* 0x42DF80 */
+void ResetCutsceneSpriteDrawTicks(void);                             /* 0x42C75D */
+void PresentCutsceneFrame(Viewport *source, Viewport *destination);  /* 0x42C7BC */
+void ConsumeCutscenePalettePacket(short firstColour, short count,
+                                  signed char releasePacket);       /* 0x42C8E1 */
+void ReleaseCutsceneSoundEffects(short resourceIndex);               /* 0x42CB08 */
+void DrawCutsceneTextAt(short x, short y, short viewportIndex,
+                        const char *text);                           /* WC2 unmapped */
+void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* WC2 unmapped */
+void ExecuteCutsceneSequence(CutsceneSequence *sequence,
+                             unsigned char *text, signed char draw); /* 0x42E12A */
+void UpdateCutscenePlaneObject(CutscenePlane *plane,
+                               signed char updateChildren);          /* 0x42E3CF */
+void UpdateCutsceneSpriteObject(SceneFlicObject *sprite);             /* 0x42E553 */
+void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
+                                   short handlerType);                /* 0x42E692 */
+void ReleaseCutsceneViewport(Viewport *viewport);                     /* 0x42EE86 */
+short PopCutsceneScriptValue(short **stack, short *stackBottom);       /* 0x42F135 */
+void PushCutsceneScriptValue(short **stack, short *stackTop,
+                             short value);                            /* 0x42F19A */
+signed char RunCutsceneScript(unsigned char **cursor,
+                              short objectType);                      /* 0x42F1FD */
 unsigned int ViewWc1Medals(void);                                     /* WC2 unmapped */
 unsigned int AwardCampaignMedal(short medal);                         /* WC2 unmapped */
 int no_objectives_achieved(void);                                      /* WC2 unmapped */
@@ -1693,6 +1775,11 @@ void InitializeSceneFlicStream(CutsceneResourceTable *resources,
                                SceneFlicObject *object);            /* 0x42E6EB */
 void ReleaseSceneFlicPackets(void);                                  /* 0x42E762 */
 void AdvanceSceneFlicStream(SceneFlicObject *object);                /* 0x42E868 */
+void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
+                                 short index, short resourceType);    /* 0x432F2A */
+void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite);             /* 0x433269 */
+void ReleaseLoadedCutsceneResource(CutsceneResourceTable *resources,
+                                   short index);                      /* 0x433328 */
 void __stdcall SetWc1ViewportRect(Viewport *viewport,
                                   unsigned short left,
                                   unsigned short top,

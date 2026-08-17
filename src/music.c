@@ -1020,6 +1020,14 @@ short StartMusic(void *music)
     return 0;
 }
 
+/* Function start: 0x452A64 */
+short StartInteractiveMusic(short track)
+{
+    SoundDebugPrintf("startIntMusic %d\n", (int)track);
+    ProcessMusicScriptCommand(track, 1, 0);
+    return track;
+}
+
 /* Function start: 0x452A10 */
 void SetMusBreakpt(int first, int second)
 {

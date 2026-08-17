@@ -755,15 +755,107 @@ typedef struct SceneAnimationObject {
     short goalFrame;                  /* +0x34 */
 } SceneAnimationObject;
 
-/* WC2's cinematic interpreter keeps packed resource-table pointers separate
- * from the runtime objects that consume them.  The byte-index arrays select a
- * name from packedFilenames and the first packet section of its FLIC stream. */
+/* WC2's cinematic interpreter keeps packet-backed resource lists in a packed
+ * linked record.  The byte-index arrays select a name from packedFilenames and
+ * the first packet section to load; loadedPackets caches the resulting packet. */
 typedef struct CutsceneResourceTable {
-    unsigned int count;                    /* +0x00 */
+    short owner;                           /* +0x00 */
+    short count;                           /* +0x02 */
     const unsigned char *filenameIndices;  /* +0x04 */
     const unsigned char *sectionIndices;   /* +0x08 */
     char *packedFilenames;                  /* +0x0C */
+    void **loadedPackets;                  /* +0x10 */
+    struct CutsceneResourceTable *next;    /* +0x14 */
 } CutsceneResourceTable;
+
+/* A SPRT/PLNE/SEQU/SCNE resource group has parallel DATA and SCRP halves.
+ * Each half carries resource pointers, symbol names, and the runtime indices
+ * assigned while the container is linked to its parent resource level. */
+typedef struct CutsceneObjectResourceList {
+    unsigned char inheritedDataCount;       /* +0x00 */
+    unsigned char dataCount;                /* +0x01 */
+    void **dataEntries;                     /* +0x02 */
+    short *dataRuntimeIndices;              /* +0x06 */
+    short localDataCount;                   /* +0x0A */
+    char **dataSymbols;                     /* +0x0C */
+    short *dataSymbolIndices;               /* +0x10 */
+    short dataSymbolCount;                  /* +0x14 */
+    unsigned char inheritedScriptCount;     /* +0x16 */
+    unsigned char scriptCount;              /* +0x17 */
+    unsigned char **scripts;                /* +0x18 */
+    short *scriptRuntimeIndices;            /* +0x1C */
+    short localScriptCount;                 /* +0x20 */
+    char **scriptSymbols;                   /* +0x22 */
+    short *scriptSymbolIndices;             /* +0x26 */
+    short scriptSymbolCount;                /* +0x2A */
+    short owner;                            /* +0x2C */
+    struct CutsceneObjectResourceList *next;/* +0x2E */
+} CutsceneObjectResourceList;
+
+typedef struct CutsceneTextResource {
+    short owner;                            /* +0x00 */
+    char **entries;                         /* +0x02 */
+    struct CutsceneTextResource *next;      /* +0x06 */
+} CutsceneTextResource;
+
+typedef struct CutsceneSoundEffect {
+    struct CutsceneSoundEffect *next;       /* +0x00 */
+    short resourceIndex;                    /* +0x04 */
+    void *sound;                            /* +0x06 */
+} CutsceneSoundEffect;
+
+typedef struct CutsceneMusicNode {
+    unsigned char resourceIndex;            /* +0x00 */
+    void *packet;                           /* +0x01 */
+    struct CutsceneMusicNode *next;         /* +0x05 */
+    struct CutsceneMusicNode *previous;     /* +0x09 */
+} CutsceneMusicNode;
+
+typedef struct CutscenePlane {
+    signed char active;                     /* +0x00 */
+    signed char visible;                    /* +0x01 */
+    unsigned char *scriptStart;             /* +0x02 */
+    unsigned char *scriptCursor;            /* +0x06 */
+    short *locals;                          /* +0x0A */
+    short spriteCount;                      /* +0x0E */
+    unsigned char *spriteIndices;           /* +0x10 */
+    signed char deltaX;                     /* +0x14 */
+    signed char deltaY;                     /* +0x15 */
+    signed char deltaDepth;                 /* +0x16 */
+    short x;                                /* +0x17 */
+    short y;                                /* +0x19 */
+    short depth;                            /* +0x1B */
+    short rotation;                         /* +0x1D */
+    short scale;                            /* +0x1F */
+    unsigned short drawFlags;               /* +0x21 */
+    short owner;                            /* +0x23 */
+    short waitTicks;                        /* +0x25 */
+    int waitStart;                          /* +0x27 */
+} CutscenePlane;
+
+typedef struct CutsceneSequence {
+    signed char active;                     /* +0x00 */
+    short planeCount;                       /* +0x01 */
+    unsigned char *planeIndices;            /* +0x03 */
+    unsigned char field_7[4];               /* +0x07 */
+    unsigned char *scriptStart;             /* +0x0B */
+    unsigned char *scriptCursor;            /* +0x0F */
+    short *locals;                          /* +0x13 */
+    short waitTicks;                        /* +0x17 */
+    int waitStart;                          /* +0x19 */
+    short owner;                            /* +0x1D */
+} CutsceneSequence;
+
+typedef struct CutsceneScene {
+    signed char active;                     /* +0x00 */
+    short sequenceCount;                    /* +0x01 */
+    unsigned char *sequenceIndices;         /* +0x03 */
+    unsigned char field_7[4];               /* +0x07 */
+    unsigned char *scriptStart;             /* +0x0B */
+    unsigned char *scriptCursor;            /* +0x0F */
+    short *locals;                          /* +0x13 */
+    short owner;                            /* +0x17 */
+} CutsceneScene;
 
 /* Type 4 objects in the WC2 cinematic renderer stream a long FLIC as batches
  * of packet sections.  The unaligned pointer fields prove that this remains a
@@ -778,7 +870,16 @@ typedef struct SceneFlicObject {
     short baseFrame;                       /* +0x0A */
     short finalFrame;                      /* +0x0C */
     short currentFrame;                    /* +0x0E */
-    unsigned char field_10[0x1b];          /* +0x10 */
+    unsigned char *linkedScript;            /* +0x10 */
+    unsigned char *scriptStart;             /* +0x14 */
+    unsigned char *scriptCursor;            /* +0x18 */
+    short waitTicks;                        /* +0x1C */
+    int waitStart;                          /* +0x1E */
+    short delayFrames;                      /* +0x22 */
+    short *locals;                          /* +0x24 */
+    signed char deltaX;                     /* +0x28 */
+    signed char deltaY;                     /* +0x29 */
+    signed char deltaDepth;                 /* +0x2A */
     short x;                               /* +0x2B */
     short y;                               /* +0x2D */
     short field_2f;                        /* +0x2F */
@@ -791,6 +892,8 @@ typedef struct SceneFlicObject {
     short nextSection;                     /* +0x3F */
     short context;                         /* +0x41 */
     unsigned int decoderState;             /* +0x43 */
+    short owner;                           /* +0x47 */
+    short linkedOwner;                     /* +0x49 */
 } SceneFlicObject;
 
 typedef struct SceneFlicCacheEntry {
@@ -948,10 +1051,24 @@ typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char SceneAnimationObject_size_must_be_0x36[
     sizeof(SceneAnimationObject) == 0x36 ? 1 : -1];
-typedef char CutsceneResourceTable_size_must_be_0x10[
-    sizeof(CutsceneResourceTable) == 0x10 ? 1 : -1];
-typedef char SceneFlicObject_size_must_be_0x47[
-    sizeof(SceneFlicObject) == 0x47 ? 1 : -1];
+typedef char CutsceneResourceTable_size_must_be_0x18[
+    sizeof(CutsceneResourceTable) == 0x18 ? 1 : -1];
+typedef char CutsceneObjectResourceList_size_must_be_0x32[
+    sizeof(CutsceneObjectResourceList) == 0x32 ? 1 : -1];
+typedef char CutsceneTextResource_size_must_be_0x0a[
+    sizeof(CutsceneTextResource) == 0x0a ? 1 : -1];
+typedef char CutsceneSoundEffect_size_must_be_0x0a[
+    sizeof(CutsceneSoundEffect) == 0x0a ? 1 : -1];
+typedef char CutsceneMusicNode_size_must_be_0x0d[
+    sizeof(CutsceneMusicNode) == 0x0d ? 1 : -1];
+typedef char CutscenePlane_size_must_be_0x2b[
+    sizeof(CutscenePlane) == 0x2b ? 1 : -1];
+typedef char CutsceneSequence_size_must_be_0x1f[
+    sizeof(CutsceneSequence) == 0x1f ? 1 : -1];
+typedef char CutsceneScene_size_must_be_0x19[
+    sizeof(CutsceneScene) == 0x19 ? 1 : -1];
+typedef char SceneFlicObject_size_must_be_0x4b[
+    sizeof(SceneFlicObject) == 0x4b ? 1 : -1];
 typedef char SceneFlicCacheEntry_size_must_be_0x08[
     sizeof(SceneFlicCacheEntry) == 0x08 ? 1 : -1];
 typedef char ScrambleAnimationActor_size_must_be_0x18[

@@ -1,7 +1,7 @@
 # version=1
 # source_sha256=d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4
 # destination_sha256=f5e133e8eca8eb1a02e21a7d1afbb44d082e384a38d39db58a694371fa583bbe
-# rows=1266
+# rows=1267
 source_address	destination_address	function_name	evidence	review_flags	similarity	confidence	association_votes	source_length	destination_length	source_callers	destination_callers	source_callees	destination_callees	correlator	audit_comment
 0042c580	00401000	LoadWingCmdrCfgFile	WC1-fuzzy-followup		0.42	0.782	0	223	274	main@004274e0	GameFlow@0046591a	_fclose@004492e0|_fscanf@00449440|_fopen@00449600|FUN_0044d820@0044d820	_strchr@0046e0f0|FUN_0046e1b0@0046e1b0|_fclose@0046e2a0|_fscanf@0046e400|_fopen@0046e5c0	Manual Match	[WC1 transfer] WC1-fuzzy-followup from LoadWingCmdrCfgFile @0042c580; structural=0.4196, composite=0.7816, graph=3/0, candidates=1
 0042c800	00401120	show_damage_disp	WC1-fuzzy-followup		0.504	0.804	0	355	449	update_VDUs@00417b70	update_VDUs@0043f2f5	set_new_vdu@00414910|ShowComponentHitHudMessage@00414b70|DrawTextAt@0041d5f0|DrawSpriteDefault@00441400|DrawViewportLine@00441ba0|_sprintf@00449bb0	DrawTextAt@0040f96e|DrawSpriteDefault@004266e7|DrawFilledViewportRect@0042722e|set_new_vdu@004393e1|ShowComponentHitHudMessage@0043984f|_sprintf@0046e5f0	Manual Match	[WC1 transfer] WC1-fuzzy-followup from show_damage_disp @0042c800; structural=0.5036, composite=0.8036, graph=2/0, candidates=1
@@ -1269,3 +1269,4 @@ source_address	destination_address	function_name	evidence	review_flags	similarit
 00430710	00421210	UpdateInputDeviceTransitions	WC1-manual-verified		1.0	1.0	0	0	0					Manual Match	[WC1 transfer] Verified from adjacency, callers, and instruction-level comparison.
 0040cae0	0044f247	SampleJoystickDevice	WC1-manual-verified		1.0	1.0	0	0	0					Manual Match	[WC1 transfer] Verified from adjacency, callers, and instruction-level comparison.
 0041d200	0040f40e	LoadPacketIntoBuffer	WC1-manual-verified		1.0	1.0	0	32	54					Manual Match	[WC1 transfer] Same packet-into-caller-buffer operation, preserved disk-module order, and matching caller contract.
+00435510	00462550	DosMemset	WC2-manual-verified		0.95	1.0	0	0	0					Manual Match	[WC1 transfer] Verified by instruction-level comparison and preserved string-runtime module order.
