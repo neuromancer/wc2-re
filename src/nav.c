@@ -6,6 +6,13 @@
  */
 #include "wc1.h"
 
+typedef struct TitleActorMotion {
+    short x;
+    short y;
+    short velocityX;
+    short velocityY;
+} TitleActorMotion;
+
 short g_nNavMapCoordinateScaling_00468660 = 0;
 short g_nNavMapScale_00468664 = 1;
 NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
@@ -136,6 +143,36 @@ PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0[3] = {
 };
 
 int g_bTitleMenuSceneInitialized_00468ad8 = 0;
+
+char g_szTitleConductorFrames_00491c68[] =
+    "opoqopoqopoqopoqqrstrq";
+char *g_apszTitleActorFrames_00491c80[10] = {
+    "abcdefghijkaakkkkaaaalllllllmmll",
+    "aaaaaaaabcddeeddccffgghhgghhiiih",
+    "aaaaaaaaaabbccbbaaccccccccccaccc",
+    "aaaabbbcccddeeddccffggaaggffcaaa",
+    "aabbbaacccddddddccddeeeeeeddccca",
+    "aaaaaabbbaaabbaaaabbbbaabbbbaccc",
+    "aabbcdbbbeaaaaaaeeaaaaaaaaaabaaa",
+    "abbbaacccdeeaaeeddaaaaaaaaaadacc",
+    "aaaaaaaaabbbccbbbbccddddddccaaaa",
+    "abccdefgghiijjiihhkkllmmllkkhnnn"
+};
+TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
+    { 58, 94, -1, 1 },
+    { 186, 94, 0, 1 },
+    { 278, 94, 1, 1 },
+    { 58, 102, -3, 2 },
+    { 186, 102, 0, 2 },
+    { 278, 102, 3, 2 },
+    { 58, 110, -5, 3 },
+    { 186, 110, 0, 3 },
+    { 278, 110, 5, 3 },
+    { 158, 74, 0, 4 }
+};
+unsigned char *g_pTitleFieldShape_00491cf8;
+unsigned char *g_apTitleSections_005d3f70[13];
+void *g_pTitleMusic_005d3fa4;
 
 /* Function start: WC2_UNMAPPED */
 short NavMapPointInsideReservedArea(short area, short x, short y)
@@ -708,7 +745,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                         g_aShipPosition_00494550[0].z);
     }
     CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
 }
 
@@ -804,7 +841,7 @@ void CentreMouseOnCurrentNavObjective(void)
     y = (short)(y + 22);
     SuspendWc1MouseCursor();
     WarpWc1MouseTo(x, y);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
 }
 
 /* Function start: 0x451E57 */
@@ -813,7 +850,7 @@ void ShowConfedNavScan(void)
     SetRectBounds(&g_stScreenViewport_005d21a0, 30, 22, 289, 177);
     SuspendWc1MouseCursor();
     DrawNavLocationReadout(g_szConfedNavScan_004688b0, 1);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
 }
 
@@ -887,7 +924,7 @@ void InflightComputer(void)
         SetEventManagerPump(PollMenuInputDevices);
         EventManagerHook(ResetMouseCursorFrame);
         g_nMenuInputRepeatDelay_005a8208 = 6;
-        ResumeMouseCursor();
+        ResumeMouseCursorHook();
         CentreMouseOnCurrentNavObjective();
 
         do {
@@ -933,7 +970,7 @@ void InflightComputer(void)
             }
             SelectNavObjectiveAtPoint(g_stMouseCursorState_0059ab10.x,
                                       g_stMouseCursorState_0059ab10.y);
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         } while (done == 0 && g_bSceneEscapeRequested_0049d4b0 == 0);
 
@@ -1754,7 +1791,7 @@ short RunWc1GameFlow(void)
             if (barracksSelection == 7)
                 launchMission++;
         }
-        PumpWindowMessages();
+        PumpWindowMessages(0);
     } while (launchMission == 0);
 
     DAT_0046505c = 1;
@@ -1792,7 +1829,7 @@ short RunWc1GameFlow(void)
             1);
         check_stranded();
         if (g_nArcadeState_0049d75c == 3)
-            stranded_sequence();
+            RunWc1StrandedSequence();
         free_3Space();
         if (g_nArcadeState_0049d75c == 3)
             return 0;
@@ -1806,13 +1843,13 @@ short RunWc1GameFlow(void)
         DAT_004688cc = 1;
         break;
     case 3:
-        stranded_sequence();
+        RunWc1StrandedSequence();
         free_3Space();
         return 0;
     case 4:
         death_sequence();
         free_3Space();
-        funeral_sequence(1);
+        RunWc1FuneralSequence(1);
         DAT_004688f0 = 0;
         return 0;
     default:
@@ -1867,15 +1904,15 @@ short RunWc1GameFlow(void)
             ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
             flightResult = DAT_004688ec >= 1;
         }
-        ShowTheEndScreen((short)flightResult);
+        ShowWc1EndScreen((short)flightResult);
         DAT_004688f0 = 0;
         return 0;
     }
 
     if (g_bWingmanKilledThisMission_005d2fb8 != 0)
-        funeral_sequence(0);
+        RunWc1FuneralSequence(0);
     if (DAT_004688cc == 1)
-        Office();
+        RunWc1OfficeScene();
     if (DAT_004688e4 != -1) {
         AwardCampaignMedal(DAT_004688e4);
         DAT_004688e4 = -1;
@@ -1996,8 +2033,8 @@ void UpdateTitleMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
-/* Function start: 0x407E40 */
-int Title_Sequence(void)
+/* Function start: WC2_UNMAPPED */
+int RunWc1TitleSequence(void)
 {
     short frame;
     short credit;
@@ -2037,7 +2074,7 @@ int Title_Sequence(void)
         g_bSceneEscapeRequested_0049d4b0 = 0;
 
         while (state == 0) {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             missionShip = 32;
             do {
                 g_aMissionShips_00492290[missionShip].state = 0;
@@ -2060,7 +2097,7 @@ int Title_Sequence(void)
                     print_subtitle(&g_stViewBuffer_005d2b00, 0x32,
                                    g_pszIntroOpeningText_00468910);
                     dump_buffer_to_screen();
-                    DIBslam();
+                    MarkDibDirty();
                     DIBslamReal();
                     intro_drawbackgroundships();
                     if (CheckEscaped() != 0) {
@@ -2083,7 +2120,7 @@ int Title_Sequence(void)
                     break;
                 }
                 frame++;
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
             } while (frame < 110);
             if (state != 0)
@@ -2094,9 +2131,9 @@ int Title_Sequence(void)
                 Update_3Space();
                 if (Draw_3Space_Frame() != 0) {
                     DrawTitleLogo(titleDistance,
-                                  (short)(g_nViewCenterY_0059a854 - 6));
+                                  (short)(g_nViewCenterY_005c80da - 6));
                     dump_buffer_to_screen();
-                    DIBslam();
+                    MarkDibDirty();
                     DIBslamReal();
                     clear_view_buffer();
                 }
@@ -2130,7 +2167,7 @@ int Title_Sequence(void)
                         print_subtitle(&g_stViewBuffer_005d2b00, 0x32,
                             g_apszIntroCredits_00468a38[credit]);
                         dump_buffer_to_screen();
-                        DIBslam();
+                        MarkDibDirty();
                         DIBslamReal();
                         clear_view_buffer();
                     }
@@ -2147,7 +2184,7 @@ int Title_Sequence(void)
                 do {
                     Update_3Space();
                     RenderSpaceViewFrame();
-                    DIBslam();
+                    MarkDibDirty();
                     DIBslamReal();
                     if (CheckEscaped() != 0) {
                         state++;
@@ -2163,7 +2200,7 @@ int Title_Sequence(void)
             do {
                 Update_3Space();
                 RenderSpaceViewFrame();
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
                 if (CheckEscaped() != 0) {
                     state++;
@@ -2258,14 +2295,14 @@ int Title_Sequence(void)
         }
         menuIndex++;
     } while (menuIndex < 4);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
 
     g_stMouseCursorState_0059ab10.viewport = &g_stScreenViewport_005d21a0;
     SetEventManagerPump(PollMenuInputDevices);
     g_nMenuInputRepeatDelay_005a8208 = 6;
     WarpWc1MouseTo(160, 100);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     g_bInputMode_0059a848 = 1;
     DAT_0046505c = 0;
     while (state == 0) {
@@ -2309,7 +2346,7 @@ int Title_Sequence(void)
             else
                 state = (signed char)(menuOptions[selectedIndex] + 1);
         }
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
 
@@ -2322,8 +2359,547 @@ int Title_Sequence(void)
     SuspendWc1MouseCursor();
     FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     RestoreGamePalette();
     return state - 1;
+}
+
+/* Function start: 0x407E40 */
+void Title_Sequence(void)
+{
+    int waitCount;
+    short section;
+
+    waitCount = 0;
+    g_nUiInputMode_005c8d3c = 0;
+    g_pTitleMusic_005d3fa4 =
+        FetchDiskPacketRetrying("music.r00", 19, 0);
+    g_pTitleFieldShape_00491cf8 =
+        FetchDiskPacketRetrying("field.v00", 1, 0);
+    for (section = 0; section < 12; section++) {
+        g_apTitleSections_005d3f70[section] =
+            FetchDiskPacketRetrying("title.vga",
+                                    (short)(section + 1), 0);
+    }
+    g_pTitleFireworkShape_005c8f58 =
+        g_apTitleSections_005d3f70[11];
+    g_apTitleSections_005d3f70[12] =
+        FetchDiskPacketRetrying("title.vga", 0, 0);
+    InitializeConversationViewport();
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    StartMusic(g_pTitleMusic_005d3fa4);
+    DrawTitleOrchestra();
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        goto cleanup;
+    AnimateTitleOrchestra();
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        goto cleanup;
+    PlayTitleConductorCue();
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        goto cleanup;
+    PushTitleOrchestraAway();
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        goto cleanup;
+    section = RevealTitleLogo();
+    if (g_nMusicDriverMode_0049be8c == 2 ||
+        g_nMusicDriverMode_0049be8c == 1) {
+        while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
+               waitCount < 3) {
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+            if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                break;
+            waitCount++;
+        }
+    }
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        goto cleanup;
+    ShowVictoryScreen(section);
+
+cleanup:
+    StopMusic(0);
+    FadeViewportPaletteToColour(
+        &g_stModalSourceViewport_005d2c50,
+        g_cSecondaryViewBufferColour_0049cb4c, 1);
+    ClearViewport(&g_stModalSourceViewport_005d2c50,
+                  g_cSecondaryViewBufferColour_0049cb4c);
+    free_all_slots();
+    for (section = 0; section < 13; section++)
+        ReleasePacketHandle(g_apTitleSections_005d3f70[section]);
+    FreePacketAndClear(&g_pTitleFieldShape_00491cf8, 0);
+    ReleasePacketHandle(g_pTitleMusic_005d3fa4);
+    ResetScreenClipToFullHeight();
+}
+
+/* Function start: 0x40809D */
+void DrawTitleSky(short planetY)
+{
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pTitleFieldShape_00491cf8, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, planetY,
+                      g_apTitleSections_005d3f70[12], 0);
+}
+
+/* Function start: 0x4080DF */
+void DrawTitleOrchestra(void)
+{
+    short actor;
+
+    DrawTitleSky(24);
+    for (actor = 0; actor < 10; actor++) {
+        DrawSpriteDefault(
+            &g_stSecondaryViewBuffer_005d2c90,
+            g_aTitleActorMotion_00491ca8[actor].x,
+            g_aTitleActorMotion_00491ca8[actor].y,
+            g_apTitleSections_005d3f70[actor + 1], 0);
+    }
+    PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
+                &g_stScreenViewport_005d21a0);
+}
+
+/* Function start: 0x40815F */
+void AnimateTitleOrchestra(void)
+{
+    int repeat;
+    short frame;
+    short actor;
+    short minimumFrame;
+    short totalFrames;
+
+    minimumFrame = 0;
+    totalFrames = 0;
+    repeat = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
+    do {
+        for (frame = minimumFrame; frame < 32; frame++) {
+            g_nFrameSkipCountdown_0049d760--;
+            if (g_nFrameSkipCountdown_0049d760 < 1) {
+                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+                DrawTitleSky(24);
+                for (actor = 0; actor < 10; actor++) {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBuffer_005d2c90,
+                        g_aTitleActorMotion_00491ca8[actor].x,
+                        g_aTitleActorMotion_00491ca8[actor].y,
+                        g_apTitleSections_005d3f70[actor + 1],
+                        (short)(g_apszTitleActorFrames_00491c80[actor]
+                                    [frame] - 'a'));
+                }
+                RefreshMemoryStatusOverlay();
+            }
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
+                g_bSceneEscapeRequested_0049d4b0 != 0)
+                goto done;
+            totalFrames++;
+        }
+        minimumFrame = (short)(
+            (unsigned short)RandomInRange(0, 13) + 9);
+        for (frame = 31; frame >= minimumFrame; frame--) {
+            g_nFrameSkipCountdown_0049d760--;
+            if (g_nFrameSkipCountdown_0049d760 < 1) {
+                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+                DrawTitleSky(24);
+                for (actor = 0; actor < 10; actor++) {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBuffer_005d2c90,
+                        g_aTitleActorMotion_00491ca8[actor].x,
+                        g_aTitleActorMotion_00491ca8[actor].y,
+                        g_apTitleSections_005d3f70[actor + 1],
+                        (short)(g_apszTitleActorFrames_00491c80[actor]
+                                    [frame] - 'a'));
+                }
+                RefreshMemoryStatusOverlay();
+            }
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
+                g_bSceneEscapeRequested_0049d4b0 != 0)
+                goto done;
+            totalFrames++;
+        }
+        if ((g_nMusicDriverMode_0049be8c == 0 ||
+             g_nMusicDriverMode_0049be8c == 3) &&
+            totalFrames > 30)
+            goto done;
+        repeat++;
+        if (repeat > 1)
+            goto done;
+    } while (1);
+
+done:
+    return;
+}
+
+/* Function start: 0x4083E6 */
+void PlayTitleConductorCue(void)
+{
+    int waitCount;
+    short cue;
+    short actor;
+
+    waitCount = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
+    for (cue = 0; cue < 20; cue++) {
+        if (g_szTitleConductorFrames_00491c68[cue] == 'p') {
+            if (g_nMusicDriverMode_0049be8c == 2)
+                g_nFrameSkipCountdown_0049d760 = 1;
+            else if (g_nMusicDriverMode_0049be8c == 1)
+                g_nFrameSkipCountdown_0049d760 = 1;
+        } else if (g_szTitleConductorFrames_00491c68[cue] == 'q') {
+            if (g_nMusicDriverMode_0049be8c == 2)
+                g_nFrameSkipCountdown_0049d760 = 1;
+            else if (g_nMusicDriverMode_0049be8c == 1)
+                g_nFrameSkipCountdown_0049d760 = 1;
+        }
+        g_nFrameSkipCountdown_0049d760--;
+        if (g_nFrameSkipCountdown_0049d760 < 1) {
+            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            DrawTitleSky(24);
+            for (actor = 0; actor < 9; actor++) {
+                DrawSpriteDefault(
+                    &g_stSecondaryViewBuffer_005d2c90,
+                    g_aTitleActorMotion_00491ca8[actor].x,
+                    g_aTitleActorMotion_00491ca8[actor].y,
+                    g_apTitleSections_005d3f70[actor + 1],
+                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
+                                - 'a'));
+            }
+            DrawSpriteDefault(
+                &g_stSecondaryViewBuffer_005d2c90,
+                g_aTitleActorMotion_00491ca8[9].x,
+                g_aTitleActorMotion_00491ca8[9].y,
+                g_apTitleSections_005d3f70[10],
+                (short)(g_szTitleConductorFrames_00491c68[cue] - 'a'));
+            RefreshMemoryStatusOverlay();
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested_0049d4b0 = 1;
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            goto done;
+    }
+
+    DrawTitleSky(24);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[0].x,
+        g_aTitleActorMotion_00491ca8[0].y,
+        g_apTitleSections_005d3f70[1],
+        (short)(g_apszTitleActorFrames_00491c80[0][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[1].x,
+        g_aTitleActorMotion_00491ca8[1].y,
+        g_apTitleSections_005d3f70[2],
+        (short)(g_apszTitleActorFrames_00491c80[1][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[2].x,
+        g_aTitleActorMotion_00491ca8[2].y,
+        g_apTitleSections_005d3f70[3],
+        (short)(g_apszTitleActorFrames_00491c80[2][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[3].x,
+        g_aTitleActorMotion_00491ca8[3].y,
+        g_apTitleSections_005d3f70[4],
+        (short)(g_apszTitleActorFrames_00491c80[3][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[4].x,
+        g_aTitleActorMotion_00491ca8[4].y,
+        g_apTitleSections_005d3f70[5],
+        (short)(g_apszTitleActorFrames_00491c80[4][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[5].x,
+        g_aTitleActorMotion_00491ca8[5].y,
+        g_apTitleSections_005d3f70[6],
+        (short)(g_apszTitleActorFrames_00491c80[5][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[6].x,
+        g_aTitleActorMotion_00491ca8[6].y,
+        g_apTitleSections_005d3f70[7],
+        (short)(g_apszTitleActorFrames_00491c80[6][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[7].x,
+        g_aTitleActorMotion_00491ca8[7].y,
+        g_apTitleSections_005d3f70[8],
+        (short)(g_apszTitleActorFrames_00491c80[7][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[8].x,
+        g_aTitleActorMotion_00491ca8[8].y,
+        g_apTitleSections_005d3f70[9],
+        (short)(g_apszTitleActorFrames_00491c80[8][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        g_aTitleActorMotion_00491ca8[9].x,
+        g_aTitleActorMotion_00491ca8[9].y,
+        g_apTitleSections_005d3f70[10],
+        (short)(g_szTitleConductorFrames_00491c68[20] - 'a'));
+    if (g_nMusicDriverMode_0049be8c == 2 ||
+        g_nMusicDriverMode_0049be8c == 1) {
+        do {
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+            if (g_nTitleMusicSequenceStage_0049be94 >= 2 ||
+                g_bSceneEscapeRequested_0049d4b0 != 0) {
+                RefreshMemoryStatusOverlay();
+                break;
+            }
+            waitCount++;
+            if (waitCount > 1)
+                break;
+        } while (1);
+    }
+
+done:
+    return;
+}
+
+/* Function start: 0x4087FF */
+void DrawScaledTitleLogo(short y, short scale)
+{
+    short bounds[4];
+
+    GetTransformedShapeBounds(
+        &g_stSecondaryViewBuffer_005d2c90, 162, y,
+        g_apTitleSections_005d3f70[0], 1, 0, scale, 0, bounds);
+    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, bounds[0], y,
+                     g_apTitleSections_005d3f70[0], 0, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 163, y,
+                     g_apTitleSections_005d3f70[0], 1, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                     (short)(bounds[2] + 1), y,
+                     g_apTitleSections_005d3f70[0], 2, 0, scale, 0);
+}
+
+/* Function start: 0x4088A9 */
+void PushTitleOrchestraAway(void)
+{
+    short x;
+    short y;
+    short distance;
+    short actor;
+
+    g_nFrameSkipCountdown_0049d760 = 1;
+    for (distance = 1; distance < 120;
+         distance = (short)(distance + distance / 4 + 1)) {
+        g_nFrameSkipCountdown_0049d760--;
+        if (g_nFrameSkipCountdown_0049d760 < 1) {
+            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            DrawTitleSky(24);
+            for (actor = 0; actor < 9; actor++) {
+                x = (short)(g_aTitleActorMotion_00491ca8[actor].x +
+                    g_aTitleActorMotion_00491ca8[actor].velocityX *
+                        distance);
+                y = (short)(g_aTitleActorMotion_00491ca8[actor].y +
+                    g_aTitleActorMotion_00491ca8[actor].velocityY *
+                        distance);
+                DrawSpriteScaled(
+                    &g_stSecondaryViewBuffer_005d2c90, x, y,
+                    g_apTitleSections_005d3f70[actor + 1],
+                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
+                                - 'a'),
+                    0,
+                    (short)(g_aTitleActorMotion_00491ca8[actor].velocityY *
+                                distance * 4 + 0x100),
+                    0);
+            }
+            x = (short)(g_aTitleActorMotion_00491ca8[9].x +
+                g_aTitleActorMotion_00491ca8[9].velocityX * distance);
+            y = (short)(g_aTitleActorMotion_00491ca8[9].y +
+                g_aTitleActorMotion_00491ca8[9].velocityY * distance);
+            DrawSpriteScaled(
+                &g_stSecondaryViewBuffer_005d2c90, x, y,
+                g_apTitleSections_005d3f70[10],
+                (short)(g_szTitleConductorFrames_00491c68[21] - 'a'),
+                0,
+                (short)(g_aTitleActorMotion_00491ca8[9].velocityY *
+                            distance * 4 + 0x100),
+                0);
+            RefreshMemoryStatusOverlay();
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested_0049d4b0 = 1;
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            break;
+    }
+}
+
+/* Function start: 0x408A88 */
+short RevealTitleLogo(void)
+{
+    short scale;
+    short distance;
+    short logoY;
+    short bounds[4];
+    short redraw;
+    short drawPlanetFirst;
+    short scaleDelay;
+    short planetY;
+    short positionDelay;
+
+    drawPlanetFirst = 0;
+    logoY = 59;
+    g_nFrameSkipCountdown_0049d760 = 1;
+    distance = 5000;
+    scaleDelay = 0;
+    positionDelay = 0;
+    for (; distance >= 1000;
+         distance--, scaleDelay--, positionDelay--) {
+        redraw = 0;
+        if (scaleDelay == 0) {
+            redraw = 1;
+            planetY = (short)(120000 / (int)distance);
+            scaleDelay = 200;
+        }
+        if (positionDelay == 0) {
+            redraw = 1;
+            scale = (short)(256000 / (int)distance);
+            if (distance > 3000)
+                logoY = (short)(logoY - 2);
+            else
+                logoY = (short)(logoY + 2);
+            positionDelay = 100;
+        }
+        if (redraw != 0) {
+            g_nFrameSkipCountdown_0049d760--;
+            if (g_nFrameSkipCountdown_0049d760 < 1) {
+                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  0, 0,
+                                  g_pTitleFieldShape_00491cf8, 0);
+                GetTransformedShapeBounds(
+                    &g_stSecondaryViewBuffer_005d2c90, 162, logoY,
+                    g_apTitleSections_005d3f70[0], 1, 0,
+                    scale, 0, bounds);
+                if (bounds[3] < planetY)
+                    drawPlanetFirst = 1;
+                if (drawPlanetFirst == 0) {
+                    DrawScaledTitleLogo(logoY, scale);
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBuffer_005d2c90,
+                        160, planetY,
+                        g_apTitleSections_005d3f70[12], 0);
+                } else {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBuffer_005d2c90,
+                        160, planetY,
+                        g_apTitleSections_005d3f70[12], 0);
+                    DrawScaledTitleLogo(logoY, scale);
+                }
+                RefreshMemoryStatusOverlay();
+            }
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested_0049d4b0 = 1;
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            return logoY;
+    }
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pTitleFieldShape_00491cf8, 0);
+    DrawScaledTitleLogo(logoY, scale);
+    RefreshMemoryStatusOverlay();
+    return logoY;
+}
+
+/* Function start: 0x408CC8 */
+void ShowVictoryScreen(short logoY)
+{
+    short finishing;
+    int loopCount;
+    short emptyCount;
+    short finalEmptyCount;
+    short index;
+    short frameCount;
+    short spawnFirework;
+
+    finishing = 0;
+    frameCount = 0;
+    loopCount = 0;
+    FlushSoundEffects();
+    InitializeFireworks();
+    do {
+        if (finishing == 0) {
+            if (g_nMusicDriverMode_0049be8c == 2 ||
+                g_nMusicDriverMode_0049be8c == 1) {
+                if (g_nTitleMusicSequenceStage_0049be94 >= 4) {
+                    spawnFirework = (short)(
+                        (unsigned short)RandomInRange(0, 0) == 0);
+                } else {
+                    spawnFirework = (short)(
+                        (unsigned short)RandomInRange(0, 5) == 0);
+                }
+            } else {
+                spawnFirework = (short)(
+                    (unsigned short)RandomInRange(0, 0) == 0);
+            }
+        }
+        if (spawnFirework != 0 && finishing == 0) {
+            for (index = 0; index < 5; index++) {
+                if (g_aFireworks_005c8df0[index].frame == -1) {
+                    g_aFireworks_005c8df0[index].frame = 0;
+                    g_aFireworks_005c8df0[index].x =
+                        RandomInRange(0, 319);
+                    g_aFireworks_005c8df0[index].y =
+                        RandomInRange(0, 127);
+                    g_aFireworks_005c8df0[index].variant =
+                        RandomInRange(0, 2);
+                    break;
+                }
+            }
+        }
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                          g_pTitleFieldShape_00491cf8, 0);
+        emptyCount = TheEndFireWorks(
+            &g_stSecondaryViewBuffer_005d2c90, 5);
+        DrawScaledTitleLogo(logoY, 0x100);
+        RefreshMemoryStatusOverlay();
+        frameCount++;
+        if (finishing == 1 && emptyCount == 5)
+            break;
+        if (g_nMusicDriverMode_0049be8c == 2 ||
+            g_nMusicDriverMode_0049be8c == 1) {
+            if (g_nTitleMusicSequenceStage_0049be94 > 4)
+                finishing = 1;
+        } else if (frameCount > 10) {
+            finishing = 1;
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested_0049d4b0 = 1;
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            return;
+        loopCount++;
+    } while (loopCount <= 10);
+
+    for (index = 0; index < 29; index++) {
+        g_aFireworks_005c8df0[index].frame = 0;
+        g_aFireworks_005c8df0[index].x = RandomInRange(0, 319);
+        g_aFireworks_005c8df0[index].y = RandomInRange(0, 127);
+        g_aFireworks_005c8df0[index].variant = RandomInRange(0, 2);
+    }
+    emptyCount = 0;
+    finalEmptyCount = 0;
+    do {
+        if (emptyCount == 30)
+            break;
+        finalEmptyCount++;
+        if (finalEmptyCount == 4) {
+            g_aFireworks_005c8df0[29].frame = 0;
+            g_aFireworks_005c8df0[29].x = RandomInRange(0, 319);
+            g_aFireworks_005c8df0[29].y = RandomInRange(0, 127);
+            g_aFireworks_005c8df0[29].variant = RandomInRange(0, 2);
+        }
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                          g_pTitleFieldShape_00491cf8, 0);
+        emptyCount = TheEndFireWorks(
+            &g_stSecondaryViewBuffer_005d2c90, 30);
+        DrawScaledTitleLogo(logoY, 0x100);
+        RefreshMemoryStatusOverlay();
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested_0049d4b0 = 1;
+    } while (g_bSceneEscapeRequested_0049d4b0 == 0);
+
+    for (index = 29; index >= 0; index--) {
+        if (g_aFireworks_005c8df0[index].frame != -1) {
+            ((void (__cdecl *)(int, short))FlushSoundEffect)(
+                g_aFireworks_005c8df0[index].soundHandle, index);
+        }
+    }
 }

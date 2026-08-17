@@ -99,7 +99,7 @@ extern "C" void ix_system_shutdown(void)
     }
 }
 
-/* Function start: 0x4624A7 */
+/* Function start: 0x469EA6 */
 extern "C" void ix_system_configure(int option, void *value)
 {
     ix_dsp_configure(option, value);

@@ -253,7 +253,7 @@ void ix_dsp_static_initialization_hook(void);    /* WC2 unmapped */
 extern "C" int  ix_system_init(void);            /* 0x469C80 */
 extern "C" void ix_system_service_sounds(void); /* 0x469D27 */
 extern "C" void ix_system_shutdown(void);        /* 0x469E73 */
-extern "C" void ix_system_configure(int option, void *value); /* 0x4624A7 */
+extern "C" void ix_system_configure(int option, void *value); /* 0x469EA6 */
 extern "C" unsigned short ix_system_get_master_volume(void); /* 0x469EC6 */
 extern "C" void ix_system_set_master_volume(unsigned short vol); /* 0x469EDB */
 extern "C" int ix_system_get_voice_count(void);  /* 0x469EF7 */
@@ -395,7 +395,7 @@ struct IxStreamFile {
 
 extern "C" int ix_streamer_init(void);           /* 0x46BD50 */
 extern "C" void ix_streamer_destroy(void);       /* 0x46BE6F */
-extern "C" void ix_streamer_configure(int option, void *value); /* 0x469EA6 */
+extern "C" void ix_streamer_configure(int option, void *value); /* 0x46BF1E */
 void ix_streamer_set_dev_mode(int mode);         /* 0x46BF3E */
 extern "C" int ix_streamer_open_stream_file(char *path); /* 0x46BFB6 */
 extern "C" void ix_streamer_close_stream_file(void); /* 0x46C67A */

@@ -28,7 +28,7 @@ void visit_the_cinema(int view, int obj, short frames)
     while (frames-- > 0) {
         Update_3Space();
         RenderSpaceViewFrame();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
     g_nOriginDevUnlock_0049d774 = savedOriginUnlock;
@@ -120,9 +120,9 @@ void auto_pilot_sequence(void)
         if (g_bAutopilotDebugEnabled_00499bfc != 0)
             debugFile = fopen("auto.$$$", "w+");
         if (g_cPendingEjectionTransition_0049b8ac != -1 &&
-            g_bEjectionSequencePending_0049b8b8 != 0) {
+            g_nPendingEjectionSequenceCount_0049b8b8 != 0) {
             g_nEjectionSequenceState_0049b8c0 = 0;
-            g_bEjectionSequencePending_0049b8b8 = 0;
+            g_nPendingEjectionSequenceCount_0049b8b8 = 0;
             ejection_sequence(
                 (unsigned char)g_cPendingEjectionTransition_0049b8ac, 1);
             g_cPendingEjectionTransition_0049b8ac = -1;
@@ -300,7 +300,7 @@ void auto_pilot_sequence(void)
             initialize_view_buffer();
             SetMousePosition(
                 (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2,
-                g_nViewCenterY_0059a854);
+                g_nViewCenterY_005c80da);
         }
         if (debugFile != 0)
             fclose(debugFile);

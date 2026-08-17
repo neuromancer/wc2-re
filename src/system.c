@@ -28,7 +28,7 @@ void RunTrainSim(void)
 
     if (DAT_004688e0 == 0) {
         ShowTrainSimHighScores();
-        proceed = SelectTrainSimMission(&g_nTrainSimMission_00469e30);
+        proceed = SelectWc1TrainSimMission(&g_nTrainSimMission_00469e30);
     } else {
         g_nArcadeScore_005a7bc4 = 4000;
         g_nTrainSimMission_00469e30 = 2;
@@ -36,7 +36,7 @@ void RunTrainSim(void)
 
     if (proceed != 0) {
         g_nCannedSceneMode_0049021c = 0;
-        g_nTrainSimActive_00469e2c = 1;
+        g_nTrainSimActive_0049d758 = 1;
         PreloadMusicTrackHook(20);
         PreloadMusicTrackHook(21);
         PreloadMusicTrackHook(22);
@@ -47,7 +47,7 @@ void RunTrainSim(void)
         g_nCampaignDataSet_005a8118 = 0;
 
         while (g_nTrainSimMission_00469e30 < 4) {
-            g_nTrainSimActive_00469e2c = 1;
+            g_nTrainSimActive_0049d758 = 1;
             FigureArcadeTime();
             init_mission(0, g_nTrainSimMission_00469e30);
             ShowGetReadyScreen();
@@ -59,7 +59,7 @@ void RunTrainSim(void)
                 g_aasShipShield_00495518[0][1] = 0;
                 g_aasShipMaximumShield_004954f0[0][1] = 0;
                 g_nArcadeTimeRemaining_005a7c2c = 100;
-                g_nCurrentWave_0046c01c = 2;
+                g_nCurrentWave_004931c0 = 2;
                 g_acShipDamage_0059c460[0] = (signed char)(
                     g_aObjectTypeData_00496d30[
                         g_acObjectType_00493980[0]].damageCapacity + 1);
@@ -69,7 +69,7 @@ void RunTrainSim(void)
 
             InvalidateVduMode(0);
             InvalidateVduMode(1);
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             savedFrameState = DAT_0046505c;
             DAT_0046505c = 1;
@@ -78,7 +78,7 @@ void RunTrainSim(void)
                 if (g_nTrainSimMission_00469e30 < 3)
                     g_nArcadeWave_00469e34 = 0;
                 else
-                    ShowVictoryScreen();
+                    ShowWc1VictoryScreen();
                 g_nTrainSimMission_00469e30++;
             } else {
                 g_nArcadeState_0049d75c = 4;
@@ -99,7 +99,7 @@ void RunTrainSim(void)
         UpdateTrainSimHighScores(g_nArcadeScore_005a7bc4);
         ShowTrainSimHighScores();
     }
-    g_nTrainSimActive_00469e2c = 0;
+    g_nTrainSimActive_0049d758 = 0;
 }
 
 /* Function start: 0x4656CC */

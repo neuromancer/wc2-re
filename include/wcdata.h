@@ -146,10 +146,17 @@ enum ShipObjective {
     OBJECTIVE_REACH_SHIP      = 3,
     OBJECTIVE_DESTROY_SHIP    = 4,
     OBJECTIVE_WANDER          = 5,
+#if 0
     OBJECTIVE_ENGAGE_ENEMY    = 6,
     OBJECTIVE_EVADE_ENEMY     = 7,
     OBJECTIVE_HOLD_FORMATION  = 8,
     OBJECTIVE_BREAK_FORMATION = 9
+#else
+    OBJECTIVE_ENGAGE_ENEMY    = 8,
+    OBJECTIVE_EVADE_ENEMY     = 9,
+    OBJECTIVE_HOLD_FORMATION  = 10,
+    OBJECTIVE_BREAK_FORMATION = 11
+#endif
 };
 
 enum ShipTactic {
@@ -748,6 +755,49 @@ typedef struct SceneAnimationObject {
     short goalFrame;                  /* +0x34 */
 } SceneAnimationObject;
 
+/* WC2's cinematic interpreter keeps packed resource-table pointers separate
+ * from the runtime objects that consume them.  The byte-index arrays select a
+ * name from packedFilenames and the first packet section of its FLIC stream. */
+typedef struct CutsceneResourceTable {
+    unsigned int count;                    /* +0x00 */
+    const unsigned char *filenameIndices;  /* +0x04 */
+    const unsigned char *sectionIndices;   /* +0x08 */
+    char *packedFilenames;                  /* +0x0C */
+} CutsceneResourceTable;
+
+/* Type 4 objects in the WC2 cinematic renderer stream a long FLIC as batches
+ * of packet sections.  The unaligned pointer fields prove that this remains a
+ * packed DOS-era record. */
+typedef struct SceneFlicObject {
+    signed char active;                    /* +0x00 */
+    signed char visible;                   /* +0x01 */
+    signed char tick;                      /* +0x02 */
+    signed char field_3;                   /* +0x03 */
+    short drawType;                        /* +0x04 */
+    unsigned char *shape;                  /* +0x06 */
+    short baseFrame;                       /* +0x0A */
+    short finalFrame;                      /* +0x0C */
+    short currentFrame;                    /* +0x0E */
+    unsigned char field_10[0x1b];          /* +0x10 */
+    short x;                               /* +0x2B */
+    short y;                               /* +0x2D */
+    short field_2f;                        /* +0x2F */
+    short rotation;                        /* +0x31 */
+    short scale;                           /* +0x33 */
+    unsigned short drawFlags;              /* +0x35 */
+    short segmentStartFrame;               /* +0x37 */
+    short segmentEndFrame;                 /* +0x39 */
+    const char *filename;                  /* +0x3B */
+    short nextSection;                     /* +0x3F */
+    short context;                         /* +0x41 */
+    unsigned int decoderState;             /* +0x43 */
+} SceneFlicObject;
+
+typedef struct SceneFlicCacheEntry {
+    unsigned char *shape;
+    void *auxiliaryAllocation;
+} SceneFlicCacheEntry;
+
 /* SCRAMBLE.VGA uses five compact actors while the pilot approaches and
  * boards the selected fighter.  The two pointers are deliberately unaligned:
  * the retail Win32 table at 0x004657B0 has a packed 0x18-byte stride. */
@@ -898,6 +948,12 @@ typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char SceneAnimationObject_size_must_be_0x36[
     sizeof(SceneAnimationObject) == 0x36 ? 1 : -1];
+typedef char CutsceneResourceTable_size_must_be_0x10[
+    sizeof(CutsceneResourceTable) == 0x10 ? 1 : -1];
+typedef char SceneFlicObject_size_must_be_0x47[
+    sizeof(SceneFlicObject) == 0x47 ? 1 : -1];
+typedef char SceneFlicCacheEntry_size_must_be_0x08[
+    sizeof(SceneFlicCacheEntry) == 0x08 ? 1 : -1];
 typedef char ScrambleAnimationActor_size_must_be_0x18[
     sizeof(ScrambleAnimationActor) == 0x18 ? 1 : -1];
 #endif
@@ -987,20 +1043,14 @@ typedef struct MissionNavPoint {
     signed char type;                /* +0x1E: 1 is an active nav point */
     FixedVector position;            /* +0x1F */
     short proximityRadius;           /* +0x2B */
-#if 0
-    signed char triggers[4][2];      /* +0x2D: type, target nav point */
-    enum ObjectType preloadObjectTypes[2]; /* +0x35 */
-    short missionShips[10];          /* +0x3D */
-#else
     signed char systemIndex;         /* +0x2D */
     signed char field_2e;            /* +0x2E */
     signed char triggers[4][2];      /* +0x2F: type, target nav point */
-    signed char field_37[8];         /* +0x37 */
+    signed char waveCommands[8];     /* +0x37: three-byte command records */
     short preloadObjectTypes[3];     /* +0x3F */
     short preloadObjectClasses[3];   /* +0x45 */
     short preloadLogicalFiles[3];    /* +0x4B */
     short missionShips[10];          /* +0x51 */
-#endif
 } MissionNavPoint;
 #pragma pack(pop)
 
@@ -1194,6 +1244,22 @@ typedef char MissionNavPoint_size_must_be_0x51[
 typedef char MissionNavPoint_size_must_be_0x65[
     sizeof(MissionNavPoint) == 0x65 ? 1 : -1];
 #endif
+
+/* Packet 1 from an ace-specific intel file.  The first eight bytes are not
+ * consumed here; the final words override flight music and enemy comms. */
+#pragma pack(push, 1)
+typedef struct ShipIntelligenceMetadata {
+    unsigned char field_0[8];
+    short musicTrack;
+    short enemyCommCommandBase;
+} ShipIntelligenceMetadata;
+#pragma pack(pop)
+
+#ifndef WC1_SDL
+typedef char ShipIntelligenceMetadata_size_must_be_0x0c[
+    sizeof(ShipIntelligenceMetadata) == 0x0c ? 1 : -1];
+#endif
+
 #ifndef WC1_SDL
 typedef char MissionShipRecord_size_must_be_0x3c[
     sizeof(MissionShipRecord) == 0x3c ? 1 : -1];

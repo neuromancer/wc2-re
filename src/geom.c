@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-#pragma function(strcat)
+#pragma function(strcat, memset)
 
 /* Function start: 0x453B30 */
 short MeasureTextPixelWidthClamped(const char *text)
@@ -75,14 +75,14 @@ unsigned short GetMusicDriverPresent(short mode)
     return 1;
 }
 
-/* Function start: 0x40ED9F */
-short __stdcall CollectActivePaletteIndices(Viewport *viewport,
-                                             unsigned char *indices,
-                                             short capacity)
+/* Function start: 0x4589D0 */
+short CollectActivePaletteIndices(Viewport *viewport,
+                                  unsigned char *indices,
+                                  short capacity)
 {
-    unsigned char *active;
     short count;
     short index;
+    unsigned char *active;
 
     count = 0;
     active = AllocateTaggedMemory((unsigned int)capacity, 0);
@@ -91,13 +91,11 @@ short __stdcall CollectActivePaletteIndices(Viewport *viewport,
 
     memset(active, 0, (unsigned int)capacity);
     MarkActivePaletteEntries(viewport, active);
-    index = 0;
-    if (capacity > 0) {
-        do {
-            if (active[index] != 0)
-                indices[count++] = (unsigned char)index;
-            index++;
-        } while (index < capacity);
+    for (index = 0; index < capacity; index++) {
+        if (active[index] != 0) {
+            indices[count] = (unsigned char)index;
+            count++;
+        }
     }
     ReleasePacketHandle(active);
     return count;
@@ -1107,7 +1105,7 @@ void remove_object(short obj)
     if (obj == -1)
         return;
     g_asObjectScreenX_00493598[obj] = (short)0x8001;
-    g_asObjectDistance_0059b4a0[obj] = 0;
+    g_asObjectDistance_00493ae8[obj] = 0;
     if (obj == DAT_00469208)
         DAT_00469208 = -1;
     if (obj == g_nYourWingman_0049346c)
@@ -1120,7 +1118,7 @@ void remove_object(short obj)
     }
     if (obj < 10) {
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
+            FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
         g_acShipRating_0059cd80[obj] = -1;
         g_acWingmanMessageState_0059d2c0[obj] = -1;
         g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
@@ -1129,7 +1127,7 @@ void remove_object(short obj)
         g_asCapitalShipViewFrame_0059dd90[obj] = -1;
     }
     g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
-    g_apObjectShape_0059d2f0[obj] = 0;
+    g_apObjectShape_00493868[obj] = 0;
 }
 
 /* Function start: 0x40C46C */
@@ -1323,8 +1321,8 @@ void transform_objects_to_your_view(void)
                 OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208) {
             g_asPreviousObjectDistance_0059d080[objectIndex] =
-                g_asObjectDistance_0059b4a0[objectIndex];
-            g_asObjectDistance_0059b4a0[objectIndex] = 0;
+                g_asObjectDistance_00493ae8[objectIndex];
+            g_asObjectDistance_00493ae8[objectIndex] = 0;
             if (g_aeObjectClass_00495328[objectIndex] ==
                 OBJECT_CLASS_FUTURION) {
                 g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
@@ -1372,22 +1370,22 @@ void transform_objects_to_your_view(void)
                 scaleFactor = DivideFixed(
                     (short)(g_nScreenWidth_0046daa4 & ~1) << 15,
                     distance - objectRadius);
-                g_asObjectScreenScale_0059c950[objectIndex] = (short)(
+                g_asObjectScreenScale_00493a58[objectIndex] = (short)(
                     MultiplyFixed((unsigned short)
                                       g_asObjectScale_0059de40[objectIndex],
                                   scaleFactor) >> 8);
-                if ((unsigned short)g_asObjectScreenScale_0059c950[
+                if ((unsigned short)g_asObjectScreenScale_00493a58[
                         objectIndex] >
                     0x1fff)
-                    g_asObjectScreenScale_0059c950[objectIndex] = 0x2000;
-                if ((unsigned short)g_asObjectScreenScale_0059c950[
+                    g_asObjectScreenScale_00493a58[objectIndex] = 0x2000;
+                if ((unsigned short)g_asObjectScreenScale_00493a58[
                         objectIndex] < 5) {
                     g_asObjectScreenX_00493598[objectIndex] =
                         (short)0x8001;
                     continue;
                 }
             }
-            g_asObjectDistance_0059b4a0[objectIndex] =
+            g_asObjectDistance_00493ae8[objectIndex] =
                 (short)(distance >> 8);
             g_asObjectScreenX_00493598[objectIndex] = (short)(DivideFixed(
                 MultiplyFixed(
@@ -1401,7 +1399,7 @@ void transform_objects_to_your_view(void)
                 g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
             switch (g_aeObjectClass_00495328[objectIndex]) {
             case OBJECT_CLASS_PLANET:
-                if (g_asObjectScreenScale_0059c950[objectIndex] == 0xff)
+                if (g_asObjectScreenScale_00493a58[objectIndex] == 0xff)
                     set_background_objects_rotation(obj, &direction);
                 break;
             case OBJECT_CLASS_DUST:
@@ -1411,10 +1409,10 @@ void transform_objects_to_your_view(void)
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
-                g_asObjectViewFrame_0059d230[objectIndex] =
+                g_asObjectViewFrame_00493508[objectIndex] =
                     (short)(((g_asObjectCounter_00494be0[objectIndex] +
                               g_nSpaceFrame_00493134) & 3) +
-                            (g_asObjectScreenAngle_0059cd90[objectIndex] &
+                            (g_asObjectScreenAngle_004936b8[objectIndex] &
                              0x10) +
                             (3 - dustSize) * 4);
                 break;
@@ -1449,8 +1447,8 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     angle = (short)ArcCos(projectedUp.y);
     if (projectedUp.x >= 0)
         angle = 360 - angle;
-    g_asObjectScreenAngle_0059cd90[obj] = angle;
-    g_asObjectScreenScale_0059c950[obj] = 0xff;
+    g_asObjectScreenAngle_004936b8[obj] = angle;
+    g_asObjectScreenScale_00493a58[obj] = 0xff;
 }
 
 /* Function start: 0x40CFF8 */
@@ -1533,12 +1531,12 @@ void get_right_shape(short obj, FixedVector *direction)
     if (frame == 36 &&
         objectClass != OBJECT_CLASS_MISSILE)
         angle -= 90;
-    g_asObjectFlip_0059c870[obj] =
+    g_asObjectFlip_004939c8[obj] =
         (short)(g_acDirectionShapeFlip_0046dbe8[directionIndex] << 4);
     angle %= 360;
     if (angle < 0)
         angle += 360;
-    g_asObjectScreenAngle_0059cd90[obj] = angle;
+    g_asObjectScreenAngle_004936b8[obj] = angle;
 
     if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_asCapitalShipViewFrame_0059dd90[obj] != frame) {
@@ -1548,22 +1546,22 @@ void get_right_shape(short obj, FixedVector *direction)
                     break;
                 }
             }
-            g_asObjectViewFrame_0059d230[obj] = 0;
+            g_asObjectViewFrame_00493508[obj] = 0;
             g_asCapitalShipViewFrame_0059dd90[obj] = frame;
             if (g_stViewBuffer_005d2b00.pixels != 0 &&
                 IdentityWord(
-                    (unsigned short)g_apObjectShape_0059d2f0[obj]) == 0) {
+                    (unsigned short)g_apObjectShape_00493868[obj]) == 0) {
                 free_view_buffer();
             }
             if (g_aapPacketReferences_00465c88[slot][frame] != 0) {
-                g_apObjectShape_0059d2f0[obj] =
+                g_apObjectShape_00493868[obj] =
                     g_aapPacketReferences_00465c88[slot][frame];
             } else {
                 if (g_stViewBuffer_005d2b00.pixels != 0)
                     free_view_buffer();
                 g_cCapitalShipLogicalFile_005a7da0 =
                     (signed char)(type + 22);
-                g_apObjectShape_0059d2f0[obj] =
+                g_apObjectShape_00493868[obj] =
                     FetchDiskPacketRetrying(
                         (short)g_cCapitalShipLogicalFile_005a7da0,
                         g_asCapitalShipViewFrame_0059dd90[obj], 0);
@@ -1571,7 +1569,7 @@ void get_right_shape(short obj, FixedVector *direction)
             initialize_view_buffer();
         }
     } else {
-        g_asObjectViewFrame_0059d230[obj] = frame;
+        g_asObjectViewFrame_00493508[obj] = frame;
     }
 }
 
@@ -1690,7 +1688,7 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
         return 0;
     }
     DrawModalTextPanel(g_pModalTextPanel_00469448, 0, 6, 2, text);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     return 1;
 }
@@ -1702,7 +1700,7 @@ void ReleaseModalTextPanel(void)
         RestoreModalTextPanel(g_pModalTextPanel_00469448);
         ReleasePacketHandle(g_pModalTextPanel_00469448);
         g_pModalTextPanel_00469448 = 0;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
 }

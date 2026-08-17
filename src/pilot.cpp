@@ -45,7 +45,7 @@ void ShowMeanwhileTransition(short scene, short variant)
     FreePacketAndClear((int *)&g_pIntroFont_005a8960, 0);
     WaitForWc1SceneAdvance(100, 0);
     ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     SceneDirector(6, g_pSceneAnimationSceneData_005a7c54,
                   g_pSceneAnimationTextData_005a7c5c);
@@ -54,10 +54,10 @@ void ShowMeanwhileTransition(short scene, short variant)
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50,
                                 g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     RestoreGamePalette();
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     ReleaseTextFont(0);
     ResetScreenClipToFullHeight();
@@ -138,8 +138,8 @@ short PromptForAnswerText(short entry)
                        g_szHudMessageBuffer_0059e1c0);
     g_szComponentHitMessage_005a7e00[20] =
         g_szEmptyAnswerInput_00469d90[0];
-    PromptForTextInput(65, 125, (char *)g_szAnswerLabel_00469d94,
-                       &g_szComponentHitMessage_005a7e00[20], 10, 2);
+    RunWc1TextInputPrompt(65, 125, (char *)g_szAnswerLabel_00469d94,
+                          &g_szComponentHitMessage_005a7e00[20], 10, 2);
     RestoreModalTextPanel(&panel);
     ApplyAnswerTextCipher(&g_szComponentHitMessage_005a7e00[20], -1);
     matches = (short)(strcmp(&g_szComponentHitMessage_005a7e00[20],
@@ -322,7 +322,7 @@ int DisplayTrainSimHighScoreTable(short phase)
     do {
         if ((short)IsFrameTickElapsed() != 0)
             break;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         if (CheckEscaped() != 0) {
             completed = 0;
@@ -347,7 +347,7 @@ int AnimateTrainSimTitle(void)
         g_stTrainSimPanelBounds_00469dc0.right,
         g_stTrainSimPanelBounds_00469dc0.bottom,
         g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     y = (short)(y - ReadWord(
         (unsigned short *)g_stTrainSimTextContext_005a7bd0.font));
@@ -366,7 +366,7 @@ int AnimateTrainSimTitle(void)
             CopyViewportContents(
                 &g_stTrainSimPanelViewport_00469da8,
                 &g_stTrainSimTitleDisplayViewport_005a7b90);
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             WaitForFrameTick();
             if (CheckEscaped() != 0)
@@ -527,7 +527,36 @@ void AddRandomTrainSimHighScores(void)
     } while (remaining != 0);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x459160 */
+void EraseLastTextInputCharacter(void)
+{
+    short textWidth;
+    Viewport clearArea;
+    char *text;
+    short characterWidth;
+    short length;
+
+    text = g_pCurrentTextContext_005c8d1c->text;
+    textWidth = MeasureTextPixelWidthClamped(text);
+    length = DosStrlen(text);
+    if (length != 0) {
+        characterWidth = (short)GetFontCharWidth(text[length - 1]);
+        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
+        clearArea.left = (short)(clearArea.left +
+                                 textWidth - characterWidth);
+        clearArea.right = (short)(clearArea.left + characterWidth - 1);
+        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
+        clearArea.bottom = (short)(clearArea.top +
+            ReadWord((unsigned short *)
+                g_pCurrentTextContext_005c8d1c->font) - 1);
+        ClearViewport(&clearArea,
+                      g_pCurrentTextContext_005c8d1c->backgroundColour);
+        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
+            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
+    }
+}
+
+/* Function start: 0x459294 */
 void DrawTextInputCursor(char character)
 {
     unsigned char savedBackground =
@@ -544,6 +573,17 @@ void DrawTextInputCursor(char character)
     g_pCurrentTextContext_005c8d1c->cursorX = savedX;
 }
 
+/* Function start: 0x45930A */
+void EraseCharacterAfterTextCursor(char character)
+{
+    short savedX;
+
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    g_pCurrentTextContext_005c8d1c->cursorX++;
+    ClearTextInputCharacter(character);
+    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+}
+
 /* Function start: 0x459348 */
 void ClearTextInputCharacter(char character)
 {
@@ -557,21 +597,8 @@ void ClearTextInputCharacter(char character)
     clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
     clearArea.bottom = (short)(clearArea.top +
         ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
-    SuspendWc1MouseCursor();
     ClearViewport(&clearArea,
                   g_pCurrentTextContext_005c8d1c->backgroundColour);
-    ResumeMouseCursor();
-}
-
-/* Function start: WC2_UNMAPPED */
-void ClearNextTextInputCharacter(char character)
-{
-    short savedX;
-
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    g_pCurrentTextContext_005c8d1c->cursorX++;
-    ClearTextInputCharacter(character);
-    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
 }
 
 /* Function start: 0x4597E3 */
@@ -625,7 +652,7 @@ short ReadTextInput(char *destination, short maximumLength,
     do {
         handled = 0;
         do {
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             key = (unsigned char)WaitForStreamInputKey();
             if (key == 13) {
@@ -633,9 +660,9 @@ short ReadTextInput(char *destination, short maximumLength,
                 if (input[0] == 0)
                     return 0;
                 accepted++;
-                ClearNextTextInputCharacter(' ');
+                EraseCharacterAfterTextCursor(' ');
             } else if (key == 27) {
-                ClearNextTextInputCharacter(' ');
+                EraseCharacterAfterTextCursor(' ');
                 inputViewport.left = savedX;
                 inputViewport.top = savedY;
                 inputViewport.bottom = (short)(inputViewport.top +
@@ -652,7 +679,7 @@ short ReadTextInput(char *destination, short maximumLength,
             } else if (key == 8 && inputLength != 0) {
                 inputLength--;
                 handled++;
-                ClearNextTextInputCharacter(' ');
+                EraseCharacterAfterTextCursor(' ');
                 EraseLastTextInputCharacter();
                 DrawTextInputCursor(' ');
                 input[inputLength] = 0;
@@ -684,7 +711,7 @@ short ReadTextInput(char *destination, short maximumLength,
                     }
                     if (character == 0)
                         goto redraw;
-                    ClearNextTextInputCharacter(' ');
+                    EraseCharacterAfterTextCursor(' ');
                     input[inputLength++] = (char)character;
                     input[inputLength] = 0;
                     SetTextCursor((unsigned short)savedX,
@@ -695,7 +722,7 @@ short ReadTextInput(char *destination, short maximumLength,
                 handled++;
             }
 redraw:
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         } while (handled == 0);
     } while (accepted == 0);
@@ -765,7 +792,7 @@ void ShowTrainSimTextMessage(const char *message)
     g_stTrainSimTextContext_005a7bd0.alignment = 2;
     FormatTextBufferFromStart(message);
     FormatTextBufferFromStart(g_szTextFlushToken_00469e6c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
 }
 
@@ -826,7 +853,7 @@ void UpdateTrainSimHighScores(int score)
         sprintf(message, g_szLowScoreMessage_00469f38, score);
     ShowTrainSimTextMessage(message);
     SetEventManagerPump(PollJoystickButtonEvents);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     WaitForInputKey();
     SetEventManagerPump(PollMenuInputDevices);
@@ -933,7 +960,7 @@ void ShowTrainSimHighScores(void)
         row++;
     } while (row < 6);
     FlushInputEvents();
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     do {
         if (DisplayTrainSimHighScoreTable(1) == 0)
@@ -955,8 +982,8 @@ unsigned char *LoadTrainSimOpponentShape(int opponent)
             (unsigned short)g_cObjectResourceLogicalFile_005a86b0)), 1, 0);
 }
 
-/* Function start: 0x4353D4 */
-short SelectTrainSimMission(short *mission)
+/* Function start: WC2_UNMAPPED */
+short SelectWc1TrainSimMission(short *mission)
 {
     InputEventState event;
     Viewport menuViewport;
@@ -997,25 +1024,25 @@ short SelectTrainSimMission(short *mission)
     topRightShape = LoadTrainSimOpponentShape(11);
     bottomRightShape = LoadTrainSimOpponentShape(12);
 
-    AlignSpriteFrameToRectCorner(
+    AlignWc1SpriteFrameToRectCorner(
         &g_stTrainSimPanelBounds_00469dc0, &positions[0], 0,
         topLeftShape, 0);
     GetShapeFrameBounds(
         &g_aTrainSimMissionRegions_00469df8[0].left,
         positions[0].x, positions[0].y, topLeftShape, 0);
-    AlignSpriteFrameToRectCorner(
+    AlignWc1SpriteFrameToRectCorner(
         &g_stTrainSimPanelBounds_00469dc0, &positions[1], 2,
         bottomLeftShape, 0);
     GetShapeFrameBounds(
         &g_aTrainSimMissionRegions_00469df8[1].left,
         positions[1].x, positions[1].y, bottomLeftShape, 0);
-    AlignSpriteFrameToRectCorner(
+    AlignWc1SpriteFrameToRectCorner(
         &g_stTrainSimPanelBounds_00469dc0, &positions[2], 1,
         topRightShape, 0);
     GetShapeFrameBounds(
         &g_aTrainSimMissionRegions_00469df8[2].left,
         positions[2].x, positions[2].y, topRightShape, 0);
-    AlignSpriteFrameToRectCorner(
+    AlignWc1SpriteFrameToRectCorner(
         &g_stTrainSimPanelBounds_00469dc0, &positions[3], 3,
         bottomRightShape, 0);
     GetShapeFrameBounds(
@@ -1041,10 +1068,10 @@ short SelectTrainSimMission(short *mission)
 
     g_stMouseCursorState_0059ab10.viewport = &g_stTrainSimTitleDisplayViewport_005a7b90;
     SetEventManagerPump(PollMenuInputDevices);
-    EventManagerHook(UpdateTrainSimMenuCursor);
+    EventManagerHook(UpdateWc1TrainSimMenuCursor);
     g_nMenuInputRepeatDelay_005a8208 = 6;
     WarpWc1MouseTo(160, 100);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     savedInputMode = (signed char)g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
 
@@ -1075,10 +1102,10 @@ select_region:
                 goto select_region;
             break;
         case 13:
-            UpdateTrainSimMenuCursor();
+            UpdateWc1TrainSimMenuCursor();
             break;
         }
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (selection == 0);
 

@@ -77,7 +77,7 @@ static int Wc1SdlPresentDosIntroFrame(Viewport *viewport)
     destination.top = 24;
     destination.bottom = 151;
     CopyViewportContents(viewport, &destination);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     return CheckEscaped() == 0;
 }

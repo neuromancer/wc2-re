@@ -7,6 +7,7 @@
 #include "wc1.h"
 
 #ifndef WC1_SDL
+#pragma function(memcmp)
 #pragma function(strcpy)
 #endif
 
@@ -107,13 +108,13 @@ void playWAVE(const char *filename, int looping, int volume)
         free(fileData);
     }
 #else
+    char error[100];
     WaveTableEntry *wave;
     ActiveSoundEntry *active;
     IxSound *sound;
     unsigned char *fileData;
     long fileSize;
     int file;
-    char error[100];
 
     if (memcmp(filename, "sfx16.wav", 9) == 0) {
         if (g_nSpaceFrame_00493134 <= g_nNextSfx16PlaybackFrame_004a2668)
@@ -341,7 +342,7 @@ void SaveVolumeSettingsToRegistry(void)
     RegCloseKey(key);
 }
 
-/* Function start: 0x459160 */
+/* Function start: WC2_UNMAPPED */
 void DrawLaunchDoorFrame(short distance)
 {
     short bounds[4];
@@ -415,7 +416,7 @@ void LaunchPlayerShip(void)
         g_bSceneEscapeRequested_0049d4b0 = 0;
         frame = 0;
         do {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             if (RefreshCockpitStatus() != 0) {
                 door = 0;
                 do {
@@ -427,7 +428,7 @@ void LaunchPlayerShip(void)
                 dump_buffer_to_screen();
                 update_cockpit();
             }
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
@@ -445,7 +446,7 @@ void LaunchPlayerShip(void)
         force_view(0, 0);
     }
 
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     clear_view_buffer();
     g_nCannedSceneMode_0049021c = 0;
@@ -494,23 +495,23 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     initialize_scripted_view(&g_asCarrierLaunchViewData_0046a5dc[2]);
     g_nScrambleBackgroundY_005a8712 = 64;
     g_nScrambleBackgroundRightX_005a8714 = 520;
-    g_asObjectFlip_0059c870[0] = 0;
-    g_asObjectViewFrame_0059d230[0] = 36;
-    g_asObjectScreenAngle_0059cd90[0] = 180;
-    g_asObjectDistance_0059b4a0[0] = 300;
-    g_apObjectShape_0059d2f0[0] = fighterShape;
-    g_apObjectShape_0059d2f0[object] = carrierShape;
-    g_asObjectFlip_0059c870[object] = 0;
-    g_asObjectViewFrame_0059d230[object] = 3;
+    g_asObjectFlip_004939c8[0] = 0;
+    g_asObjectViewFrame_00493508[0] = 36;
+    g_asObjectScreenAngle_004936b8[0] = 180;
+    g_asObjectDistance_00493ae8[0] = 300;
+    g_apObjectShape_00493868[0] = fighterShape;
+    g_apObjectShape_00493868[object] = carrierShape;
+    g_asObjectFlip_004939c8[object] = 0;
+    g_asObjectViewFrame_00493508[object] = 3;
     g_bSceneEscapeRequested_0049d4b0 = 0;
-    g_asObjectScreenAngle_0059cd90[object] = 0;
-    g_asObjectScreenScale_0059c950[object] = 0x100;
-    g_asObjectDistance_0059b4a0[object] = 2000;
+    g_asObjectScreenAngle_004936b8[object] = 0;
+    g_asObjectScreenScale_00493a58[object] = 0x100;
+    g_asObjectDistance_00493ae8[object] = 2000;
     g_nFrameSkipCountdown_0049d760 = 1;
     frame = 0;
     approachDistance = 20;
     do {
-        PumpWindowMessages();
+        PumpWindowMessages(0);
         g_aeObjectClass_00495328[0] = OBJECT_CLASS_NULL;
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
         set_eye_direction_and_position();
@@ -527,12 +528,12 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             if (frame < 24) {
                 fighterScreenY = (short)(fighterScreenY +
                     g_asCarrierLaunchApproachDeltaX_0046a550[frame]);
-                g_asObjectViewFrame_0059d230[0] =
+                g_asObjectViewFrame_00493508[0] =
                     g_acCarrierLaunchApproachFrames_0046a580[frame];
             } else if (frame < 48) {
                 fighterScreenY = (short)(fighterScreenY -
                     g_asCarrierLaunchApproachDeltaX_0046a550[47 - frame]);
-                g_asObjectViewFrame_0059d230[0] =
+                g_asObjectViewFrame_00493508[0] =
                     g_acCarrierLaunchApproachFrames_0046a580[47 - frame];
             }
             g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
@@ -541,16 +542,16 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                     << 4) / approachDistance);
             g_aeObjectClass_00495328[object] = OBJECT_CLASS_SHIP;
             g_asObjectScreenX_00493598[0] =
-                (short)(fighterScreenX - g_nViewCenterX_0059a852);
+                (short)(fighterScreenX - g_nViewCenterX_005c80d8);
             g_asObjectScreenY_00493628[0] =
-                (short)(fighterScreenY - g_nViewCenterY_0059a854);
-            g_asObjectScreenScale_0059c950[0] = approachScale;
+                (short)(fighterScreenY - g_nViewCenterY_005c80da);
+            g_asObjectScreenScale_00493a58[0] = approachScale;
             g_asObjectScreenX_00493598[object] =
                 (short)(g_nScrambleBackgroundRightX_005a8714 -
-                        g_nViewCenterX_0059a852);
+                        g_nViewCenterX_005c80d8);
             g_asObjectScreenY_00493628[object] =
                 (short)(g_nScrambleBackgroundY_005a8712 -
-                        g_nViewCenterY_0059a854);
+                        g_nViewCenterY_005c80da);
             BuildObjectDepthOrder();
 #ifdef WC1_SDL
             Wc1SdlBeginSpaceFrame(
@@ -567,15 +568,15 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         g_nScrambleBackgroundRightX_005a8714 =
             (short)(g_nScrambleBackgroundRightX_005a8714 - 2);
         approachDistance = (short)(approachDistance + 2);
-        g_asObjectDistance_0059b4a0[0] =
-            (short)(g_asObjectDistance_0059b4a0[0] + 10);
+        g_asObjectDistance_00493ae8[0] =
+            (short)(g_asObjectDistance_00493ae8[0] + 10);
         AddFixedVectors(&g_aShipPosition_00494550[61],
                         &g_aShipVelocity_0059c010[61],
                         &g_aShipPosition_00494550[61]);
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 100);
 
@@ -605,7 +606,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         actorY = 10;
         g_nFrameSkipCountdown_0049d760 = 1;
         do {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             alter_yaw(-1, 61);
             if (RefreshCockpitStatus() != 0) {
                 DrawSpriteDefault(
@@ -654,7 +655,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             }
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             frame++;
         } while (frame < 35);
@@ -663,7 +664,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             g_nFrameSkipCountdown_0049d760 = 1;
             frame = 0;
             do {
-                PumpWindowMessages();
+                PumpWindowMessages(0);
                 if (RefreshCockpitStatus() != 0) {
                     DrawSpriteDefault(
                         &g_stViewBuffer_005d2b00,
@@ -718,7 +719,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 actorX++;
                 if (frame % 7 == 0)
                     actorY--;
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
             } while (g_bSceneEscapeRequested_0049d4b0 != 1 && frame < 50);
         }
@@ -780,6 +781,21 @@ unsigned short InitializeDiskPromptTextContext(void)
                                   (signed char)g_cViewportClearColour_004699a0);
     g_bGraphicsActive_00469a20 = 1;
     return 0;
+}
+
+/* Function start: 0x432DCC */
+char *GetPackedStringByIndex(CutsceneResourceTable *resources,
+                             short index)
+{
+    char *text;
+    short stringIndex;
+
+    text = resources->packedFilenames;
+    for (stringIndex = 0; stringIndex < index; stringIndex++) {
+        text = DosStrchr(text, 0);
+        text++;
+    }
+    return text;
 }
 
 /* Function start: 0x432E23 */

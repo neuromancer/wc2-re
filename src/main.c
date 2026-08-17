@@ -192,7 +192,7 @@ int RunWc1GameMain(short argc, char **argv)
     for (;;) {
         FrameStartHook(0);
         DAT_004688e0 = 1;
-        selection = Title_Sequence();
+        selection = RunWc1TitleSequence();
         switch (selection) {
         case 0:
             StartNewCampaign(0);
@@ -276,7 +276,7 @@ void RunGameApplication(short argc, char **argv)
                 }
             } else {
                 while (campaignSelected == 0) {
-                    roomSelection = RecRoom();
+                    roomSelection = RunTitleScreen();
                     switch (roomSelection) {
                     case 0:
                         g_nSelectedCampaignSlot_005d3bf2 =
@@ -473,7 +473,7 @@ void RefreshMemoryStatusOverlay(void)
 {
     WaitForVerticalBlankThunk();
     CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     if (g_nShowMemoryStatus_0049d784 != 0)
         ShowMemoryStatusDebug();
@@ -572,7 +572,7 @@ unsigned int house_keep(void)
     short palette;
 
     if (g_nCannedSceneMode_0049021c == 0 &&
-        g_nTrainSimActive_00469e2c == 0) {
+        g_nTrainSimActive_0049d758 == 0) {
         if ((g_nSpaceFrame_00493134 & 0x1f) == 0)
             ReleaseStaleNavTarget();
         if (g_nHazardFieldCount_0059c90c != 0 &&
@@ -603,10 +603,10 @@ void init_player_input(void)
 {
     SetMousePosition(
         (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2 + 1,
-        g_nViewCenterY_0059a854);
+        g_nViewCenterY_005c80da);
     ClearDebugPauseFlags();
     g_bMouseCursorVisible_0046a018 = 0;
-    g_bPointerMovedByKeyboard_005a7d54 = 1;
+    g_bSuppressNextMouseMove_005c843c = 1;
 }
 
 /* Function start: 0x4661C2 */
@@ -951,8 +951,8 @@ unsigned int player_input(void)
     }
 
     if (g_bMouseButtonEventQueued_005a7afc == 0) {
-        buttons = g_bHostSecondaryMouseButton_005a899c * 2 |
-                  g_bHostPrimaryMouseButton_005a8998;
+        buttons = g_bHostSecondaryMouseButton_005d10dc * 2 |
+                  g_bHostPrimaryMouseButton_005d10d8;
         if (buttons == 0) {
             g_bAfterburnerButtonLatched_0046a054 = 0;
         } else {
@@ -1081,7 +1081,7 @@ unsigned int player_input(void)
                     event.y = (short)(event.y - 25);
                 horizontal = (short)(event.x +
                     (g_stViewBuffer_005d2b00.left - g_stViewBuffer_005d2b00.right) / 2 + 1);
-                vertical = (short)(event.y - g_nViewCenterY_0059a854);
+                vertical = (short)(event.y - g_nViewCenterY_005c80da);
             }
             g_stMouseCursorState_0059ab10.x = event.x;
             g_stMouseCursorState_0059ab10.y = event.y;
@@ -1200,8 +1200,8 @@ unsigned int SelectPreviousExternalViewObject(void)
     return 0;
 }
 
-/* Function start: 0x45F200 */
-unsigned int HandleFleetOverviewInput(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int RunWc1FleetOverviewInput(void)
 {
     signed char key;
 
@@ -1257,4 +1257,61 @@ unsigned int HandleFleetOverviewInput(void)
         break;
     }
     return 0;
+}
+
+/* Function start: 0x45F200 */
+void UpdateFleetOverviewCameraRotation(void)
+{
+    char yawRotated;
+
+    yawRotated = 0;
+    if (g_nFleetOverviewYawVelocity_0049d3ec != 0 &&
+        ((g_nFleetOverviewYaw_0049d3f4 < 65 &&
+          g_nFleetOverviewYaw_0049d3f4 > -65) ||
+         (g_nFleetOverviewYaw_0049d3f4 == 65 &&
+          g_nFleetOverviewYawVelocity_0049d3ec < 0) ||
+         (g_nFleetOverviewYaw_0049d3f4 == -65 &&
+          g_nFleetOverviewYawVelocity_0049d3ec > 0))) {
+        if (g_nFleetOverviewYaw_0049d3f4 +
+                g_nFleetOverviewYawVelocity_0049d3ec > 65)
+            g_nFleetOverviewYawVelocity_0049d3ec =
+                (short)(65 - g_nFleetOverviewYaw_0049d3f4);
+        else if (g_nFleetOverviewYaw_0049d3f4 +
+                     g_nFleetOverviewYawVelocity_0049d3ec < -65)
+            g_nFleetOverviewYawVelocity_0049d3ec =
+                (short)(-65 - g_nFleetOverviewYaw_0049d3f4);
+        rotate_about_j(
+            g_nFleetOverviewYawVelocity_0049d3ec,
+            &g_aShipRightVector_0059b6e0[WC2_EYE_OBJECT],
+            &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+        g_nFleetOverviewYaw_0049d3f4 =
+            (short)(g_nFleetOverviewYaw_0049d3f4 +
+                    g_nFleetOverviewYawVelocity_0049d3ec);
+        yawRotated++;
+    }
+    if (g_nFleetOverviewPitchVelocity_0049d3f0 != 0 &&
+        yawRotated == 0 &&
+        ((g_nFleetOverviewPitch_0049d3f8 < 65 &&
+          g_nFleetOverviewPitch_0049d3f8 > -65) ||
+         (g_nFleetOverviewPitch_0049d3f8 >= 65 &&
+          g_nFleetOverviewPitchVelocity_0049d3f0 < 0) ||
+         (g_nFleetOverviewPitch_0049d3f8 <= -65 &&
+          g_nFleetOverviewPitchVelocity_0049d3f0 > 0))) {
+        if (g_nFleetOverviewPitch_0049d3f8 +
+                g_nFleetOverviewPitchVelocity_0049d3f0 > 65)
+            g_nFleetOverviewPitchVelocity_0049d3f0 =
+                (short)(65 - g_nFleetOverviewPitch_0049d3f8);
+        else if (g_nFleetOverviewPitch_0049d3f8 +
+                     g_nFleetOverviewPitchVelocity_0049d3f0 < -65)
+            g_nFleetOverviewPitchVelocity_0049d3f0 =
+                (short)(-65 - g_nFleetOverviewPitch_0049d3f8);
+        rotate_about_i(
+            g_nFleetOverviewPitchVelocity_0049d3f0,
+            &g_aShipUpVector_0059b9e0[WC2_EYE_OBJECT],
+            &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+        g_nFleetOverviewPitch_0049d3f8 =
+            (short)(g_nFleetOverviewPitch_0049d3f8 +
+                    g_nFleetOverviewPitchVelocity_0049d3f0);
+    }
+    fix_objects_ijk(WC2_EYE_OBJECT);
 }

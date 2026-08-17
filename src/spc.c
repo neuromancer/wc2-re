@@ -858,7 +858,7 @@ unsigned int start_dust(short obj, FixedVector origin,
                     &g_aShipPosition_00494550[obj]);
     FillFixedVectorWithRandomComponents(2, &g_aShipVelocity_0059c010[obj]);
     streak = MaxShort((short)(1 - RandomInRange(0, 3)), 0);
-    g_asObjectScreenAngle_0059cd90[obj] =
+    g_asObjectScreenAngle_004936b8[obj] =
         (short)(streak * 0x10 + RandomInRange(0, 3));
     return 0;
 }
@@ -900,7 +900,7 @@ unsigned int generate_stars(void)
             ScaleFixedVector(&g_aShipForwardVector_00494208[63],
                              15000 << 8,
                              &g_aShipPosition_00494550[obj]);
-            g_asObjectViewFrame_0059d230[obj] =
+            g_asObjectViewFrame_00493508[obj] =
                 (short)(RandomInRange(0, 5) + 32);
         }
         obj++;
@@ -981,7 +981,7 @@ unsigned int update_star_field(void)
                 ScaleFixedVector(&g_aShipForwardVector_00494208[63],
                                  15000 << 8,
                                  &g_aShipPosition_00494550[objectIndex]);
-                *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
                            objectOffset) =
                     (short)(RandomInRange(0, 5) + 32);
                 break;
@@ -1143,9 +1143,14 @@ unsigned int house_keep_objects(void)
                 } else if (g_asShipManeuver_00495f48[obj] ==
                                MANEUVER_WARPING_OUT &&
                            g_asShipSide_004955d0[obj] != SIDE_NEUTRAL) {
-                    g_aMissionShips_00492290[
-                        g_nShipMissionIndices_0059c830[obj]].state = 2;
-                    remove_object(obj);
+                    if (obj == 0 || obj == g_nYourWingman_0049346c) {
+                        if (obj == 0)
+                            CompleteStarSystemJump();
+                    } else {
+                        g_aMissionShips_00492290[
+                            g_nShipMissionIndices_0059c830[obj]].state = 2;
+                        remove_object(obj);
+                    }
                 }
             }
             if (g_acObjectType_00493980[obj] ==
@@ -1385,9 +1390,9 @@ unsigned int animate_shape(short obj)
             (command & 0x3f) * (g_asObjectScale_0059de40[obj] >> 6);
     } else {
         command &= 0x3f;
-        g_asObjectViewFrame_0059d230[obj] = command;
+        g_asObjectViewFrame_00493508[obj] = command;
     }
-    g_asObjectFlip_0059c870[obj] = (command & 0xc0) >> 2;
+    g_asObjectFlip_004939c8[obj] = (command & 0xc0) >> 2;
     g_asObjectAnimationIndex_0059da30[obj]++;
     return 0;
 }

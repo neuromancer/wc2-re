@@ -170,7 +170,7 @@ int main(int argumentCount, char **arguments)
                 "(GL sharp bilinear).\n");
 
     DIBinstall((HWND)window);
-    DAT_005a89a0 = (HWND)window;
+    g_hMainWindow_005d10e0 = (HWND)window;
     Wc1SdlStartEventPump();
     if (checkOnly) {
         gameResult = Wc1SdlRunRuntimeChecks();

@@ -15,14 +15,14 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     switch (type) {
     case 2:
         state = (value >> 2) |
-                (g_bHostSecondaryMouseButton_005a899c << 1) |
-                g_bHostPrimaryMouseButton_005a8998;
+                (g_bHostSecondaryMouseButton_005d10dc << 1) |
+                g_bHostPrimaryMouseButton_005d10d8;
         QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005a8990,
-                        (short)g_nHostMouseMessageY_005a8994,
+                        (short)g_nHostMouseMessageX_005d10d0,
+                        (short)g_nHostMouseMessageY_005d10d4,
                         0,
-                        g_bHostPrimaryMouseButton_005a8998,
-                        g_bHostSecondaryMouseButton_005a899c,
+                        g_bHostPrimaryMouseButton_005d10d8,
+                        g_bHostSecondaryMouseButton_005d10dc,
                         state, 0, 0);
         return;
     case 6:
@@ -36,8 +36,8 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     }
     case 13:
         QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005a8990,
-                        (short)g_nHostMouseMessageY_005a8994,
+                        (short)g_nHostMouseMessageX_005d10d0,
+                        (short)g_nHostMouseMessageY_005d10d4,
                         0, 0, 0, 0, 0, 0);
         return;
     }
@@ -667,115 +667,126 @@ void CheckCursor(void)
 /* Function start: 0x4635E3 */
 void CaptureMouseCursorBackground(void)
 {
-    int x;
-    int y;
-
-    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0)
+    if (g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
+        g_pInputViewport_005c8403 == 0 ||
+        g_pInputCursorShape_005c83f9 == 0)
         return;
 
-    CaptureSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                            DAT_004865a8,
-                            g_stMouseCursorState_0059ab10.x,
-                            g_stMouseCursorState_0059ab10.y,
-                            g_stMouseCursorState_0059ab10.shape,
-                            g_stMouseCursorState_0059ab10.frame);
-    x = g_stMouseCursorState_0059ab10.x;
-    y = g_stMouseCursorState_0059ab10.y;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    DAT_0059a8e4 = x;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    DAT_0059a8e0 = y;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059ab40 = 1;
-    DAT_0059a84c = 1;
+    CaptureSpriteBackground(&g_stScreenViewport_005d21a0,
+                            g_abInputCursorBackground_005c3b10,
+                            g_nQueuedInputX_005c83f0,
+                            g_nQueuedInputY_005c83f2,
+                            g_pInputCursorShape_005c83f9,
+                            g_nInputCursorFrame_005c83fd);
+    g_nCapturedInputCursorX_005c817c = (int)g_nQueuedInputX_005c83f0;
+    g_nCapturedInputCursorY_005c8178 = (int)g_nQueuedInputY_005c83f2;
+    if (g_nCapturedInputCursorX_005c817c - 16 <
+        g_nInputCursorDirtyLeft_005c85c0)
+        g_nInputCursorDirtyLeft_005c85c0 =
+            g_nCapturedInputCursorX_005c817c - 16;
+    if (g_nInputCursorDirtyRight_005c845c <
+        g_nCapturedInputCursorX_005c817c + 16)
+        g_nInputCursorDirtyRight_005c845c =
+            g_nCapturedInputCursorX_005c817c + 16;
+    if (g_nCapturedInputCursorY_005c8178 - 16 <
+        g_nInputCursorDirtyTop_005c85c4)
+        g_nInputCursorDirtyTop_005c85c4 =
+            g_nCapturedInputCursorY_005c8178 - 16;
+    if (g_nInputCursorDirtyBottom_005c8460 <
+        g_nCapturedInputCursorY_005c8178 + 16)
+        g_nInputCursorDirtyBottom_005c8460 =
+            g_nCapturedInputCursorY_005c8178 + 16;
+    g_bInputCursorDirty_005c8450 = 1;
+    g_bInputCursorBackgroundCaptured_005c80c4 = 1;
 }
 
 /* Function start: 0x4636F7 */
 void DrawMouseCursor(void)
 {
-    int x;
-    int y;
-
-    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0)
+    if (g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
+        g_pInputViewport_005c8403 == 0 ||
+        g_pInputCursorShape_005c83f9 == 0)
         return;
 
-    DrawSpriteDefault(g_stMouseCursorState_0059ab10.viewport,
-                      g_stMouseCursorState_0059ab10.x,
-                      g_stMouseCursorState_0059ab10.y,
-                      g_stMouseCursorState_0059ab10.shape,
-                      g_stMouseCursorState_0059ab10.frame);
-    x = g_stMouseCursorState_0059ab10.x;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    y = g_stMouseCursorState_0059ab10.y;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059ab40 = 1;
+    DrawSpriteDefault(&g_stScreenViewport_005d21a0,
+                      g_nQueuedInputX_005c83f0,
+                      g_nQueuedInputY_005c83f2,
+                      g_pInputCursorShape_005c83f9,
+                      g_nInputCursorFrame_005c83fd);
+    if ((int)g_nQueuedInputX_005c83f0 - 16 <
+        g_nInputCursorDirtyLeft_005c85c0)
+        g_nInputCursorDirtyLeft_005c85c0 =
+            (int)g_nQueuedInputX_005c83f0 - 16;
+    if (g_nInputCursorDirtyRight_005c845c <
+        (int)g_nQueuedInputX_005c83f0 + 16)
+        g_nInputCursorDirtyRight_005c845c =
+            (int)g_nQueuedInputX_005c83f0 + 16;
+    if ((int)g_nQueuedInputY_005c83f2 - 16 <
+        g_nInputCursorDirtyTop_005c85c4)
+        g_nInputCursorDirtyTop_005c85c4 =
+            (int)g_nQueuedInputY_005c83f2 - 16;
+    if (g_nInputCursorDirtyBottom_005c8460 <
+        (int)g_nQueuedInputY_005c83f2 + 16)
+        g_nInputCursorDirtyBottom_005c8460 =
+            (int)g_nQueuedInputY_005c83f2 + 16;
+    g_bInputCursorDirty_005c8450 = 1;
 }
 
 /* Function start: 0x4637F4 */
 void RestoreMouseCursorBackground(void)
 {
-    int x;
-    int y;
-
-    if (g_nMouseCursorDrawDepth_0049d4d4 == 0 ||
-        g_stMouseCursorState_0059ab10.viewport == 0 ||
-        g_stMouseCursorState_0059ab10.shape == 0 ||
-        DAT_0059a84c == 0)
+    if (g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
+        g_pInputViewport_005c8403 == 0 ||
+        g_pInputCursorShape_005c83f9 == 0 ||
+        g_bInputCursorBackgroundCaptured_005c80c4 == 0)
         return;
 
-    RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                            DAT_004865a8,
-                            (short)DAT_0059a8e4, (short)DAT_0059a8e0,
-                            g_stMouseCursorState_0059ab10.shape,
-                            g_stMouseCursorState_0059ab10.frame);
-    x = DAT_0059a8e4;
-    if (DAT_0059ab5c > x - 16)
-        DAT_0059ab5c = x - 16;
-    if (DAT_0059ab44 < x + 16)
-        DAT_0059ab44 = x + 16;
-    y = DAT_0059a8e0;
-    if (DAT_0059ab60 > y - 16)
-        DAT_0059ab60 = y - 16;
-    if (DAT_0059ab48 < y + 16)
-        DAT_0059ab48 = y + 16;
-    DAT_0059a84c = 0;
+    RestoreSpriteBackground(&g_stScreenViewport_005d21a0,
+                            g_abInputCursorBackground_005c3b10,
+                            (short)g_nCapturedInputCursorX_005c817c,
+                            (short)g_nCapturedInputCursorY_005c8178,
+                            g_pInputCursorShape_005c83f9,
+                            g_nInputCursorFrame_005c83fd);
+    if (g_nCapturedInputCursorX_005c817c - 16 <
+        g_nInputCursorDirtyLeft_005c85c0)
+        g_nInputCursorDirtyLeft_005c85c0 =
+            g_nCapturedInputCursorX_005c817c - 16;
+    if (g_nInputCursorDirtyRight_005c845c <
+        g_nCapturedInputCursorX_005c817c + 16)
+        g_nInputCursorDirtyRight_005c845c =
+            g_nCapturedInputCursorX_005c817c + 16;
+    if (g_nCapturedInputCursorY_005c8178 - 16 <
+        g_nInputCursorDirtyTop_005c85c4)
+        g_nInputCursorDirtyTop_005c85c4 =
+            g_nCapturedInputCursorY_005c8178 - 16;
+    if (g_nInputCursorDirtyBottom_005c8460 <
+        g_nCapturedInputCursorY_005c8178 + 16)
+        g_nInputCursorDirtyBottom_005c8460 =
+            g_nCapturedInputCursorY_005c8178 + 16;
+    g_bInputCursorBackgroundCaptured_005c80c4 = 0;
 }
 
 /* Function start: 0x4638F1 */
 void RefreshMouseCursorDisplay(void)
 {
-    DAT_0059ab5c = 319;
-    DAT_0059ab60 = 199;
-    DAT_0059ab44 = 0;
-    DAT_0059ab48 = 0;
-    DAT_0059ab40 = 0;
-    DAT_0059a84c = 0;
+    g_nInputCursorDirtyLeft_005c85c0 = 319;
+    g_nInputCursorDirtyRight_005c845c = 0;
+    g_nInputCursorDirtyTop_005c85c4 = 199;
+    g_nInputCursorDirtyBottom_005c8460 = 0;
+    g_bInputCursorDirty_005c8450 = 0;
+    g_bInputCursorBackgroundCaptured_005c80c4 = 0;
     CaptureMouseCursorBackground();
     DrawMouseCursor();
-    DIBupdate(DAT_0059ab5c, DAT_0059ab60,
-              DAT_0059ab44, DAT_0059ab48);
+    DIBupdate(g_nInputCursorDirtyLeft_005c85c0,
+              g_nInputCursorDirtyTop_005c85c4,
+              g_nInputCursorDirtyRight_005c845c,
+              g_nInputCursorDirtyBottom_005c8460);
     RestoreMouseCursorBackground();
 }
 
 /* Function start: 0x46396C */
-void ResumeMouseCursor(void)
+void ResumeMouseCursorHook(void)
 {
-    g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 + 1;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -797,36 +808,38 @@ void DisableMouseCursorDrawing(void)
 }
 
 /* Function start: 0x463EEE */
-void __stdcall SetMouseCursorShape(unsigned char *shape, short frame)
+void SetMouseCursorShape(unsigned char *shape, short frame)
 {
-    g_stMouseCursorState_0059ab10.shapeChanged = 1;
-    if (g_stMouseCursorState_0059ab10.viewport != 0 && g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-        g_pDrawnMouseCursorShape_0046da9c != 0) {
-        RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport, DAT_004865a8,
-                                (short)g_nMouseCursorSavedX_0059a844,
-                                (short)g_nMouseCursorSavedY_0059a840,
-                                g_pDrawnMouseCursorShape_0046da9c,
-                                (short)g_stMouseCursorState_0059ab10.frame);
-        g_pDrawnMouseCursorShape_0046da9c = 0;
+    g_bInputCursorShapeChanged_005c840b = 1;
+    if (g_pInputViewport_005c8403 != 0 &&
+        g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
+        g_pDrawnInputCursorShape_0049d4d0 != 0) {
+        RestoreSpriteBackground(g_pInputViewport_005c8403,
+                                g_abInputCursorBackground_005c3b10,
+                                (short)g_nDrawnInputCursorX_005c80ac,
+                                (short)g_nDrawnInputCursorY_005c80a8,
+                                g_pDrawnInputCursorShape_0049d4d0,
+                                g_nInputCursorFrame_005c83fd);
+        g_pDrawnInputCursorShape_0049d4d0 = 0;
     }
-    g_stMouseCursorState_0059ab10.frame = frame;
-    g_stMouseCursorState_0059ab10.shape = shape;
+    g_pInputCursorShape_005c83f9 = shape;
+    g_nInputCursorFrame_005c83fd = frame;
 }
 
 /* Function start: 0x463F74 */
-void __stdcall SetMouseHomePosition(short x, short y)
+void SetMouseHomePosition(short x, short y)
 {
-    g_stMouseCursorState_0059ab10.x = x;
-    g_stMouseCursorState_0059ab10.y = y;
-    SetMousePositionDuplicate(x, y);
+    g_nQueuedInputX_005c83f0 = x;
+    g_nQueuedInputY_005c83f2 = y;
+    SetInputCursorHostPosition(x, y);
 }
 
 /* Function start: 0x463FAA */
-void __stdcall ApplyPackedMousePosition(ShortPoint point)
+void ApplyPackedMousePosition(ShortPoint point)
 {
-    g_stMouseCursorState_0059ab10.x = point.x;
-    g_stMouseCursorState_0059ab10.y = point.y;
-    SetMousePositionDuplicate(point.x, point.y);
+    g_nQueuedInputX_005c83f0 = point.x;
+    g_nQueuedInputY_005c83f2 = point.y;
+    SetInputCursorHostPosition(point.x, point.y);
 }
 
 /* Function start: 0x464009 */
@@ -836,7 +849,7 @@ void SetFrameTimerPeriod(short period)
 }
 
 /* Function start: 0x464021 */
-void __stdcall SetFrameTimerAndWait(short period)
+void SetFrameTimerAndWait(short period)
 {
     SetFrameTimerPeriod(period);
     WaitForFrameTick();
@@ -980,7 +993,7 @@ void BuildObjectDepthOrder(void)
            sizeof(g_anObjectDepthPlaced_0059a8f0));
     obj = 0;
     for (; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
-        distance = (unsigned short)g_asObjectDistance_0059b4a0[obj];
+        distance = (unsigned short)g_asObjectDistance_00493ae8[obj];
         if (previous < (int)distance) {
             previous = (int)distance;
             bestObject = obj;
@@ -1005,7 +1018,7 @@ void BuildObjectDepthOrder(void)
                 *(short *)((unsigned char *)g_asObjectScreenX_00493598 +
                            screenOffset) != (short)0x8001) {
                 distance = *(unsigned short *)(
-                    (unsigned char *)g_asObjectDistance_0059b4a0 +
+                    (unsigned char *)g_asObjectDistance_00493ae8 +
                     screenOffset);
                 if (best < (int)distance && previous >= (int)distance) {
                     bestObject = obj;
@@ -1043,9 +1056,9 @@ void draw_sorted_objects_to_buffer(void)
         objectClass = g_aeObjectClass_00495328[obj];
 #ifdef WC1_SDL
         enhancedScreenX = (float)(short)(
-            g_asObjectScreenX_00493598[obj] + g_nViewCenterX_0059a852);
+            g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
         enhancedScreenY = (float)(short)(
-            g_asObjectScreenY_00493628[obj] + g_nViewCenterY_0059a854);
+            g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
         if (objectClass != OBJECT_CLASS_NULL &&
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
             obj != DAT_00469208 &&
@@ -1063,12 +1076,12 @@ void draw_sorted_objects_to_buffer(void)
             if (projectedScreenX == g_asObjectScreenX_00493598[obj] &&
                 projectedScreenY == g_asObjectScreenY_00493628[obj]) {
                 enhancedScreenX =
-                    (float)g_nViewCenterX_0059a852 +
+                    (float)g_nViewCenterX_005c80d8 +
                     (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
                              g_aObjectViewPosition_0059afa0[obj].x) /
                             g_aObjectViewPosition_0059afa0[obj].z);
                 enhancedScreenY =
-                    (float)g_nViewCenterY_0059a854 +
+                    (float)g_nViewCenterY_005c80da +
                     (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
                              g_aObjectViewPosition_0059afa0[obj].y) /
                             g_aObjectViewPosition_0059afa0[obj].z);
@@ -1084,27 +1097,27 @@ void draw_sorted_objects_to_buffer(void)
             default:
                 screenY = g_asObjectScreenY_00493628[obj];
                 screenX = (short)(g_asObjectScreenX_00493598[obj] +
-                                  g_nViewCenterX_0059a852);
-                shape = g_apObjectShape_0059d2f0[obj];
+                                  g_nViewCenterX_005c80d8);
+                shape = g_apObjectShape_00493868[obj];
                 g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_0059a854);
+                screenY = (short)(screenY + g_nViewCenterY_005c80da);
                 g_asObjectDrawY_0059cf80[obj] = screenY;
                 if (shape != 0) {
 #ifdef WC1_SDL
                     if (!Wc1SdlRecordSpaceSprite(
                             &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY,
                             shape,
-                            g_asObjectViewFrame_0059d230[obj],
-                            g_asObjectScreenAngle_0059cd90[obj],
-                            g_asObjectScreenScale_0059c950[obj],
-                            g_asObjectFlip_0059c870[obj]))
+                            g_asObjectViewFrame_00493508[obj],
+                            g_asObjectScreenAngle_004936b8[obj],
+                            g_asObjectScreenScale_00493a58[obj],
+                            g_asObjectFlip_004939c8[obj]))
 #endif
                     DrawSpriteScaled(
                         &g_stViewBuffer_005d2b00, screenX, screenY, shape,
-                        g_asObjectViewFrame_0059d230[obj],
-                        g_asObjectScreenAngle_0059cd90[obj],
-                        g_asObjectScreenScale_0059c950[obj],
-                        g_asObjectFlip_0059c870[obj]);
+                        g_asObjectViewFrame_00493508[obj],
+                        g_asObjectScreenAngle_004936b8[obj],
+                        g_asObjectScreenScale_00493a58[obj],
+                        g_asObjectFlip_004939c8[obj]);
                 }
                 break;
             case OBJECT_CLASS_STAR:
@@ -1117,21 +1130,21 @@ void draw_sorted_objects_to_buffer(void)
                 specialObject = (int)DAT_00469208;
                 screenY = g_asObjectScreenY_00493628[obj];
                 screenX = (short)(g_asObjectScreenX_00493598[obj] +
-                                  g_nViewCenterX_0059a852);
+                                  g_nViewCenterX_005c80d8);
                 g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_0059a854);
+                screenY = (short)(screenY + g_nViewCenterY_005c80da);
                 g_asObjectDrawY_0059cf80[obj] = screenY;
                 if (specialObject == obj)
-                    shape = g_apObjectShape_0059d2f0[obj];
+                    shape = g_apObjectShape_00493868[obj];
                 else
                     shape = g_pConstellationShape_005a765c;
 #ifdef WC1_SDL
                 if (!Wc1SdlRecordSpaceSprite(
                         &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY, shape,
-                        g_asObjectViewFrame_0059d230[obj], 0, 0x100, 0))
+                        g_asObjectViewFrame_00493508[obj], 0, 0x100, 0))
 #endif
                 DrawSpriteDefault(&g_stViewBuffer_005d2b00, screenX, screenY, shape,
-                                  g_asObjectViewFrame_0059d230[obj]);
+                                  g_asObjectViewFrame_00493508[obj]);
                 break;
             }
         }
@@ -1167,10 +1180,10 @@ void intro_drawbackgroundships(void)
             switch (objectClass) {
             default:
 #ifdef WC1_SDL
-                shape = g_apObjectShape_0059d2f0[obj];
+                shape = g_apObjectShape_00493868[obj];
 #else
                 shape = *(unsigned char **)(
-                    (unsigned char *)g_apObjectShape_0059d2f0 +
+                    (unsigned char *)g_apObjectShape_00493868 +
                     dwordOffset);
 #endif
                 if (shape != 0) {
@@ -1181,13 +1194,13 @@ void intro_drawbackgroundships(void)
                         *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
                                    shortOffset),
                         shape,
-                        *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                        *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenAngle_0059cd90 +
+                        *(short *)((unsigned char *)g_asObjectScreenAngle_004936b8 +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenScale_0059c950 +
+                        *(short *)((unsigned char *)g_asObjectScreenScale_00493a58 +
                                    shortOffset),
-                        *(short *)((unsigned char *)g_asObjectFlip_0059c870 +
+                        *(short *)((unsigned char *)g_asObjectFlip_004939c8 +
                                    shortOffset),
                         g_cPrimaryViewBufferColour_0049cb88);
                 }
@@ -1201,10 +1214,10 @@ void intro_drawbackgroundships(void)
             case OBJECT_CLASS_DUST:
                 if (obj == DAT_00469208)
 #ifdef WC1_SDL
-                    shape = g_apObjectShape_0059d2f0[obj];
+                    shape = g_apObjectShape_00493868[obj];
 #else
                     shape = *(unsigned char **)(
-                        (unsigned char *)g_apObjectShape_0059d2f0 +
+                        (unsigned char *)g_apObjectShape_00493868 +
                         dwordOffset);
 #endif
                 else
@@ -1216,7 +1229,7 @@ void intro_drawbackgroundships(void)
                     *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
                                shortOffset),
                     shape,
-                    *(short *)((unsigned char *)g_asObjectViewFrame_0059d230 +
+                    *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
                                shortOffset),
                     g_cPrimaryViewBufferColour_0049cb88);
                 break;
@@ -1257,24 +1270,24 @@ geometry_ready:
         viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
         viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
         *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-        g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+        g_nViewCenterX_005c80d8 = (short)(viewportWidth / 2);
         viewportHeight = viewportGeometry->height;
-        g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
+        g_nViewCenterY_005c80da = (short)(viewportHeight / 2);
         *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
         g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
         g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
         switch ((int)g_cCockpitView_0059dab0) {
         case 0:
             g_nViewportOriginY_0059ab50 += 10;
-            g_nViewCenterY_0059a854 += 10;
+            g_nViewCenterY_005c80da += 10;
             break;
         case 1:
             g_nViewportOriginY_0059ab50 += 25;
-            g_nViewCenterY_0059a854 += 25;
+            g_nViewCenterY_005c80da += 25;
             break;
         case 2:
             g_nViewportOriginY_0059ab50 += 50;
-            g_nViewCenterY_0059a854 += 50;
+            g_nViewCenterY_005c80da += 50;
             break;
         }
         *(short *)&g_nScreenWidth_0046daa4 = 320;
@@ -1285,9 +1298,9 @@ geometry_ready:
     viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
     viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
     *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-    g_nViewCenterX_0059a852 = (short)(viewportWidth / 2);
+    g_nViewCenterX_005c80d8 = (short)(viewportWidth / 2);
     viewportHeight = viewportGeometry->height;
-    g_nViewCenterY_0059a854 = (short)(viewportHeight / 2);
+    g_nViewCenterY_005c80da = (short)(viewportHeight / 2);
     *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
     g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
     g_nViewportOriginY_0059ab50 = viewportGeometry->originY;

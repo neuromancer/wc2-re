@@ -143,7 +143,254 @@ void ResetGameTextContexts(void)
 #endif
 }
 
+/* Function start: 0x418ECD */
+short RunTitleMenuInputLoop(unsigned char *buttons,
+                            unsigned char *logo,
+                            unsigned char *background,
+                            short showSecondButton)
+{
+    short selection;
+    short maximumSelection;
+    int previousKeyboardMouseEnabled;
+
+    selection = 0;
+    maximumSelection = 0;
+    if (showSecondButton == 0)
+        maximumSelection = 1;
+    g_bKeyboardMouseEnabled_0049be68 = 1;
+    ClearDebugPauseFlags();
+    ReleaseInputEventQueue();
+    while (selection == 0) {
+        selection = PollSceneHotspotInput(buttons, 0, 0, 0,
+                                          maximumSelection);
+        if (selection != 0)
+            break;
+        PumpWindowMessages(0);
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                          background, 0);
+        DrawConstellationField();
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+                          logo, 0x19);
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+                          logo, 0x1f);
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+                          logo, 0x20);
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                          buttons, 0);
+        if (showSecondButton != 0)
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                              buttons, 1);
+        RefreshMemoryStatusOverlay();
+    }
+    g_bKeyboardMouseEnabled_0049be68 = previousKeyboardMouseEnabled;
+    return selection;
+}
+
 /* Function start: 0x418FFC */
+short RunTitleScreen(void)
+{
+    int soundHandle;
+    unsigned char *background;
+    unsigned char *logo;
+    unsigned char *buttons;
+    signed char menuChoice;
+    short savedCampaignPresent;
+    short frame;
+    Viewport screenBuffer;
+
+    menuChoice = 0;
+    buttons = 0;
+    logo = 0;
+    background = 0;
+    soundHandle = 0;
+    g_nUiInputMode_005c8d3c = 0;
+    SetMenuInputPump();
+    DisableMouseCursorDrawing();
+    g_nUiInputMode_005c8d3c = 0;
+    ClearViewport(&g_stModalSourceViewport_005d2c50,
+                  g_cSecondaryViewBufferColour_0049cb4c);
+    g_stSecondaryViewBuffer_005d2c90.left = 0;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
+    g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
+                         g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
+        ReportFatalErrorCode("031");
+    screenBuffer.left = 0;
+    screenBuffer.top = 0;
+    screenBuffer.right = 319;
+    screenBuffer.bottom = 199;
+    if (AllocateViewport(&screenBuffer,
+                         g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
+        ReportFatalErrorCode("032");
+    PreloadMusicTrack(0x36);
+    spacetrack(0x36, 1, 1);
+    init_constellation(0);
+    InitializeConstellationField(
+        &g_stSecondaryViewBuffer_005d2c90, 0, 0x10);
+    buttons = FetchDiskPacketRetrying("buttons.v00", 0, 0);
+    logo = FetchDiskPacketRetrying("wc2logo.vga", 0, 0);
+    background = FetchDiskPacketRetrying("field.v00", 1, 0);
+    FlushInputEvents();
+    ClearDebugPauseFlags();
+    if (WaitForInputKey() != 0)
+        g_bSceneEscapeRequested_0049d4b0 = 1;
+    if (g_bSceneEscapeRequested_0049d4b0 == 0)
+        PlaySfxWaveFileByNumber(0x28, -1, 0);
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
+        for (frame = 0; frame < 0x1a; frame++) {
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 0, background, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, frame);
+            RefreshMemoryStatusOverlay();
+            if (WaitForInputKey() != 0) {
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+                break;
+            }
+            SetFrameTimerAndWait(4);
+        }
+    }
+    if (soundHandle != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            soundHandle, 0);
+    }
+    soundHandle = 0;
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(0, 0);
+        PlaySfxWaveFileByNumber(99, -1, 0);
+    }
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
+        for (frame = 0; frame < 10; frame++) {
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 0, background, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, 0x19);
+            RefreshMemoryStatusOverlay();
+            if (WaitForInputKey() != 0) {
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+                break;
+            }
+            SetFrameTimerAndWait(4);
+        }
+    }
+    if (soundHandle != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            soundHandle, 0);
+    }
+    soundHandle = 0;
+    PlaySfxWaveFileByNumber(6, -1, 0);
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
+        for (frame = 0x1a; frame < 0x20; frame++) {
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 0, background, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, 0x19);
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, frame);
+            RefreshMemoryStatusOverlay();
+            if (WaitForInputKey() != 0) {
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+                break;
+            }
+            SetFrameTimerAndWait(4);
+        }
+    }
+    if (soundHandle != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            soundHandle, 0);
+    }
+    soundHandle = 0;
+    if (g_bSceneEscapeRequested_0049d4b0 == 0)
+        PlaySfxWaveFileByNumber(99, -1, 0);
+    if (g_bSceneEscapeRequested_0049d4b0 == 0) {
+        for (frame = 0; frame < 10; frame++) {
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              0, 0, background, 0);
+            DrawConstellationField();
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, 0x19);
+            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                              160, 100, logo, 0x1f);
+            RefreshMemoryStatusOverlay();
+            if (WaitForInputKey() != 0) {
+                g_bSceneEscapeRequested_0049d4b0 = 1;
+                break;
+            }
+            SetFrameTimerAndWait(4);
+        }
+    }
+    if (soundHandle != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            soundHandle, 0);
+    }
+    soundHandle = 0;
+    if (g_bSceneEscapeRequested_0049d4b0 == 0)
+        PlaySfxWaveFileByNumber(100, -1, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      0, 0, background, 0);
+    DrawConstellationField();
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      160, 100, logo, 0x19);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      160, 100, logo, 0x1f);
+    RefreshMemoryStatusOverlay();
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      160, 100, logo, 0x20);
+    CopyViewportContents(&g_stScreenViewport_005d21a0,
+                         &screenBuffer);
+    MarkDibDirty();
+    DIBslamReal();
+    g_bRoomTransitionAnimationEnabled_00499c00 = 1;
+    CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                         &g_stScreenViewport_005d21a0);
+    MarkDibDirty();
+    DIBslamReal();
+    if (soundHandle != 0) {
+        ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+            soundHandle, 0);
+    }
+    soundHandle = 0;
+    savedCampaignPresent = (short)HasSavedPilotCampaign();
+    SetMenuInputPump();
+    g_nUiInputMode_005c8d3c = 1;
+    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetPersonnelMousePosition(159, 159);
+    EnableMouseCursorDrawing();
+    ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
+        soundHandle, 0);
+    g_bNewPilotCampaignInitialized_004926c0 = 0;
+    free_viewport(&screenBuffer);
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        g_bSceneEscapeRequested_0049d4b0 = 0;
+    PumpWindowMessages(0);
+    while (TakeInputPressCount() != 0) {
+        PumpWindowMessages(0);
+        FlushInputEvents();
+    }
+    FlushInputEvents();
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    menuChoice = 0;
+    while (menuChoice == 0) {
+        menuChoice = (signed char)RunTitleMenuInputLoop(
+            buttons, logo, background, savedCampaignPresent);
+    }
+    DisableMouseCursorDrawing();
+    FreePacketAndClear(&buttons, 0);
+    FreePacketAndClear(&logo, 0);
+    FreePacketAndClear(&background, 0);
+    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+    StopMusicUnlessSuppressed();
+    ReleaseMusicTrack(0x36);
+    g_bSceneEscapeRequested_0049d4b0 = 0;
+    return (short)(menuChoice - 1);
+}
+
+/* Function start: WC2_UNMAPPED */
 short RecRoom(void)
 {
     InputEventState event;
@@ -414,7 +661,7 @@ short RecRoom(void)
                                 CopyViewportContents(
                                     &shotglassWork,
                                     &shotglassDestination);
-                                ResumeMouseCursor();
+                                ResumeMouseCursorHook();
                             } else {
                                 CopyViewportContents(
                                     &shotglassWork,
@@ -436,7 +683,7 @@ short RecRoom(void)
                         &g_stSecondaryViewBuffer_005d2c90,
                         &g_stRoomScreenViewport_005988a0);
                 }
-                ResumeMouseCursor();
+                ResumeMouseCursorHook();
             } else if (g_apRecRoomCharacterShapes_005988c0[1] != 0 ||
                        g_apRecRoomCharacterShapes_005988c0[2] != 0) {
                 if (ShouldSuspendCursorForRect(
@@ -444,7 +691,7 @@ short RecRoom(void)
                     SuspendWc1MouseCursor();
                     CopyViewportContents(&pilotWork,
                                          &pilotDestination);
-                    ResumeMouseCursor();
+                    ResumeMouseCursorHook();
                 } else {
                     CopyViewportContents(&pilotWork,
                                          &pilotDestination);
@@ -454,7 +701,7 @@ short RecRoom(void)
             SuspendWc1MouseCursor();
             CopyViewportContents(&bottomSource, &bottomDestination);
             RefreshRoomMenuLabel();
-            ResumeMouseCursor();
+            ResumeMouseCursorHook();
             SetFrameTimerPeriodDirect(9);
         }
 
@@ -522,7 +769,7 @@ short RecRoom(void)
                 FlushInputEvents();
                 if ((int)(DAT_0059ab54 - lastChalkboardTick) >
                     g_nInputTickScale_0059af90) {
-                    ShowChalkBoard();
+                    ShowWc1ChalkBoard();
                     ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
                     lastChalkboardTick = (int)DAT_0059ab54;
                 }
@@ -530,7 +777,7 @@ short RecRoom(void)
                 result = region;
             } else {
                 clicked = 0;
-                ResumeMouseCursor();
+                ResumeMouseCursorHook();
             }
 
             g_stRoomMouseViewport_00598a80 = g_stScreenViewport_005d21a0;
@@ -541,7 +788,7 @@ short RecRoom(void)
         }
 
         ShowMemoryStatusDebug();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
 
@@ -564,8 +811,8 @@ short RecRoom(void)
     return result;
 }
 
-/* Function start: 0x459C4D */
-void ShowChalkBoard(void)
+/* Function start: WC2_UNMAPPED */
+void ShowWc1ChalkBoard(void)
 {
     InputEventState event;
     TextContext context;
@@ -612,7 +859,7 @@ void ShowChalkBoard(void)
     g_bInputMode_0059a848 = 1;
     done = 0;
     do {
-        PumpWindowMessages();
+        PumpWindowMessages(0);
         if (PeekInputEvent(&event, 10) != 0 ||
             PeekInputEvent(&event, 2) != 0 ||
             PeekInputEvent(&event, 3) != 0)
@@ -657,7 +904,7 @@ void ShowChalkBoard(void)
                                   g_szKilledInAction_00470664);
             }
         }
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (done == 0);
 
@@ -668,6 +915,53 @@ void ShowChalkBoard(void)
     g_bInputMode_0059a848 = savedInputMode;
     FlushInputEvents();
 }
+
+#pragma function(strcmp)
+
+/* Function start: 0x459C4D */
+short PollCampaignChalkboardMenu(unsigned char *scene)
+{
+    short selection;
+
+    selection = 0;
+    SetMenuInputPump();
+    FlushInputEvents();
+    for (;;) {
+        selection = PollSceneHotspotInput(scene, 0, 0, 0, 0);
+        if (selection != 0)
+            break;
+        DisableMouseCursorDrawing();
+        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                          58, 175,
+                          g_pCampaignChalkboardShape_0049ca54, 3);
+        g_stDefaultTextContext_005d2d20.viewport =
+            &g_stSecondaryViewBuffer_005d2c90;
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 0,
+            g_cPersonnelTextColour_0049cb50, -1);
+        if (g_pszPersonnelFooter_00492658 != 0) {
+            SetTextCursor(
+                (unsigned short)((320 -
+                    MeasureTextPixelWidthClamped(
+                        g_pszPersonnelFooter_00492658)) >> 1),
+                180);
+            if (strcmp(g_pszPersonnelFooter_00492658,
+                       "Exit to DOS") != 0) {
+                DrawFormattedText("%S",
+                                  g_pszPersonnelFooter_00492658);
+            } else {
+                DrawFormattedText("%S", "Exit the Game");
+            }
+        }
+        g_stDefaultTextContext_005d2d20.viewport =
+            &g_stScreenViewport_005d21a0;
+        EnableMouseCursorDrawing();
+        RefreshMemoryStatusOverlay();
+    }
+    return selection;
+}
+
+#pragma intrinsic(strcmp)
 
 /* Function start: WC2_UNMAPPED */
 void ResetCampaignData(void)
@@ -736,7 +1030,7 @@ unsigned char *GetPreparedShapeData(unsigned char *shape)
 }
 
 /* Function start: 0x425550 */
-short __stdcall GetShapeFrameCount(unsigned char *shape)
+short GetShapeFrameCount(unsigned char *shape)
 {
     CheckHeapBlockSignature(shape);
     return (short)((*(unsigned short *)(shape + 4) >> 2) - 1);

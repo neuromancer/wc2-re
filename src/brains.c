@@ -1125,7 +1125,7 @@ unsigned int AnimateScrambleWalk(short ticks)
     elapsed = 0;
     if (ticks > 0) {
         do {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             g_nFrameSkipCountdown_0049d760--;
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
@@ -1177,7 +1177,7 @@ unsigned int AnimateScrambleWalk(short ticks)
                     g_acScrambleWalkerOverlayFrames_00465770[
                         g_cScrambleWalkerPair_005a8748 * 2 + 1]);
                 RefreshMemoryStatusOverlay();
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
 
                 g_cScrambleLeftWalkerFrame_00465768++;
@@ -1234,7 +1234,7 @@ unsigned int PlayScrambleHangarScene(void)
         for (g_cScrambleWalkTicks_005a86e8 = 0;
              g_cScrambleWalkTicks_005a86e8 < 24;
              g_cScrambleWalkTicks_005a86e8++) {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             g_nFrameSkipCountdown_0049d760--;
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
@@ -1260,7 +1260,7 @@ unsigned int PlayScrambleHangarScene(void)
                                   g_pScrambleHangarShape_005a872c,
                                   g_cScrambleRightWalkerFrame_0046576c);
                 RefreshMemoryStatusOverlay();
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
 
                 g_cScrambleLeftWalkerFrame_00465768++;
@@ -1504,7 +1504,7 @@ unsigned int DrawScrambleFrame(void)
                           g_nScrambleCanopyOffset_005a8736);
     }
     RefreshMemoryStatusOverlay();
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     return 0;
 }
@@ -1578,7 +1578,7 @@ unsigned int scramble(void)
 
         g_nFrameSkipCountdown_0049d760 = 1;
         for (frame = 0; frame < 10; frame++) {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             DrawScrambleFrame();
             g_nScrambleBackgroundRightX_005a8714--;
             g_nScrambleShipY_005a8726 =
@@ -1596,7 +1596,7 @@ unsigned int scramble(void)
         if (g_bSceneEscapeRequested_0049d4b0 != 1) {
             g_nFrameSkipCountdown_0049d760 = 1;
             for (frame = 0; frame < 27; frame++) {
-                PumpWindowMessages();
+                PumpWindowMessages(0);
                 DrawScrambleFrame();
                 g_nScrambleCanopyOffset_005a8736++;
                 g_nScrambleShipX_005a8724 =
@@ -1617,7 +1617,7 @@ unsigned int scramble(void)
             PlaySfxWaveFileByNumber(15, -1, 0);
             g_nFrameSkipCountdown_0049d760 = 1;
             for (frame = 0; frame < 23; frame++) {
-                PumpWindowMessages();
+                PumpWindowMessages(0);
                 if (frame == 22)
                     g_nFrameSkipCountdown_0049d760 = 1;
                 DrawScrambleFrame();
@@ -1765,7 +1765,7 @@ unsigned int landing(signed char damageLevel)
     PlaySfxWaveFileByNumber(17, -1, 0);
     g_nFrameSkipCountdown_0049d760 = 1;
     for (; frame < 30; frame++) {
-        PumpWindowMessages();
+        PumpWindowMessages(0);
         DrawScrambleFrame();
         g_nScrambleShipY_005a8726 =
             (short)(g_nScrambleShipY_005a8726 - 2);
@@ -1789,7 +1789,7 @@ unsigned int landing(signed char damageLevel)
         PlaySfxWaveFileByNumber(15, -1, 0);
         g_nFrameSkipCountdown_0049d760 = 1;
         for (; frame < 30; frame++) {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             if (g_nRenderedSpaceFrame_00493138 == 29)
                 g_nFrameSkipCountdown_0049d760 = 1;
             DrawScrambleFrame();
@@ -1833,7 +1833,7 @@ unsigned int landing(signed char damageLevel)
                 *(const char **)
                     ((unsigned char *)g_apszLandingDamageComments_00465ab8 +
                      damageOffset));
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             ReleaseTextFont(0);
             WaitForWc1SceneAdvance(300, 0);
@@ -1927,7 +1927,7 @@ unsigned int funeral_player(void)
             print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 56,
                            g_szTheEnd_00465c04);
         RefreshMemoryStatusOverlay();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
     return 0;
@@ -1946,7 +1946,7 @@ unsigned int funeral_wingman(char *text, short duration)
     g_nFrameSkipCountdown_0049d760 = 1;
     SetFrameTimerPeriodDirect(duration);
     while ((short)IsFrameTickElapsed() == 0) {
-        PumpWindowMessages();
+        PumpWindowMessages(0);
         funeral_player();
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
@@ -1956,8 +1956,8 @@ unsigned int funeral_wingman(char *text, short duration)
     return 0;
 }
 
-/* Function start: 0x459D74 (Mac symbol: funeral_sequence) */
-unsigned int funeral_sequence(int playerFuneral)
+/* Function start: WC2_UNMAPPED (Mac symbol: funeral_sequence) */
+unsigned int RunWc1FuneralSequence(int playerFuneral)
 {
     int *packet;
     unsigned char *sceneData;
@@ -2017,7 +2017,7 @@ unsigned int funeral_sequence(int playerFuneral)
     ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cPrimaryViewBufferColour_0049cb88);
     InitializeConstellationField(&g_stSecondaryViewBuffer_005d2c90, -1, 16);
     g_bSceneEscapeRequested_0049d4b0 = 0;
-    PumpWindowMessages();
+    PumpWindowMessages(0);
     SceneDirector(3, sceneData, textData);
 
     if (g_bSceneEscapeRequested_0049d4b0 != 1) {
@@ -2026,7 +2026,7 @@ unsigned int funeral_sequence(int playerFuneral)
                       g_cSecondaryViewBufferColour_0049cb4c);
         g_nFrameSkipCountdown_0049d760 = 1;
         for (; frame < 10; frame++) {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             funeral_player();
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
@@ -2039,7 +2039,7 @@ unsigned int funeral_sequence(int playerFuneral)
                 DAT_004699a4);
             g_nFrameSkipCountdown_0049d760 = 1;
             for (; frame < 15; frame++) {
-                PumpWindowMessages();
+                PumpWindowMessages(0);
                 funeral_player();
                 if (g_bSceneEscapeRequested_0049d4b0 == 1)
                     break;
@@ -2053,7 +2053,7 @@ unsigned int funeral_sequence(int playerFuneral)
                 FormatTextBufferFromStart(
                     g_szFuneralAttentionCommand_00465c2c, 0, 160);
                 for (; frame < 10; frame++) {
-                    PumpWindowMessages();
+                    PumpWindowMessages(0);
                     funeral_player();
                     if (frame == 0)
                         PlaySfxWaveFileByNumber(0x24, -1, 0);
@@ -2066,7 +2066,7 @@ unsigned int funeral_sequence(int playerFuneral)
                     frame = 0;
                     g_nFrameSkipCountdown_0049d760 = 1;
                     for (; frame < 10; frame++) {
-                        PumpWindowMessages();
+                        PumpWindowMessages(0);
                         funeral_player();
                         if (g_bSceneEscapeRequested_0049d4b0 == 1)
                             break;
@@ -2082,7 +2082,7 @@ unsigned int funeral_sequence(int playerFuneral)
                             g_szFuneralPrepareArmsCommand_00465c40,
                             0, 160);
                         for (; frame != 0; frame--) {
-                            PumpWindowMessages();
+                            PumpWindowMessages(0);
                             funeral_player();
                         }
 
@@ -2090,7 +2090,7 @@ unsigned int funeral_sequence(int playerFuneral)
                         g_nFuneralRifleFrame_005a871e = 5;
                         g_nFrameSkipCountdown_0049d760 = 1;
                         for (; frame < 10; frame++) {
-                            PumpWindowMessages();
+                            PumpWindowMessages(0);
                             funeral_player();
                             if (frame == 0)
                                 PlaySfxWaveFileByNumber(0x1f, -1, 0);
@@ -2119,7 +2119,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                     frame = 0;
                                     g_nFrameSkipCountdown_0049d760 = 1;
                                     for (; frame < 10; frame++) {
-                                        PumpWindowMessages();
+                                        PumpWindowMessages(0);
                                         funeral_player();
                                         if (volley > 0) {
                                             g_nFuneralCasketX_005a86c8--;
@@ -2164,7 +2164,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                     PlaySfxWaveFileByNumber(0x1d, -1, 0);
                                     g_nFrameSkipCountdown_0049d760 = 1;
                                     for (; frame < 24; frame++) {
-                                        PumpWindowMessages();
+                                        PumpWindowMessages(0);
                                         funeral_player();
                                         if (volley > 0) {
                                             g_nFuneralCasketX_005a86c8--;
@@ -2193,7 +2193,7 @@ unsigned int funeral_sequence(int playerFuneral)
                                     g_nFrameSkipCountdown_0049d760 = 1;
                                     SetMusBreakpt(0, 0);
                                     while (g_bSceneEscapeRequested_0049d4b0 == 0) {
-                                        PumpWindowMessages();
+                                        PumpWindowMessages(0);
                                         funeral_player();
                                         g_nFuneralCasketX_005a86c8--;
                                         if (g_nFuneralCasketX_005a86c8 % 2 ==
@@ -2285,7 +2285,7 @@ unsigned int RunCampaignGameLoop(short animation)
         WaitForInputKey();
         break;
     case 7:
-        Title_Sequence();
+        RunWc1TitleSequence();
         break;
     case 8:
         RecRoom();
@@ -2295,7 +2295,7 @@ unsigned int RunCampaignGameLoop(short animation)
                    (short)g_stCampaignState_0059ca50.currentMission);
         break;
     case 11:
-        funeral_sequence(1);
+        RunWc1FuneralSequence(1);
         break;
     case 12:
         AwardCampaignMedal(g_nConversationMedalIndex_00598c08);
@@ -2311,7 +2311,7 @@ unsigned int RunCampaignGameLoop(short animation)
         WaitForInputKey();
         break;
     case 15:
-        Office();
+        RunWc1OfficeScene();
         break;
     case 16:
         ShowCampaignVictorySequence();
@@ -2344,7 +2344,7 @@ unsigned int RunCampaignGameLoop(short animation)
         WaitForInputKey();
         break;
     case 22:
-        funeral_sequence(0);
+        RunWc1FuneralSequence(0);
         break;
     case 23:
         ShowMeanwhileTransition(4, 1);
@@ -2378,7 +2378,7 @@ void InitializeNewPilotCampaign(short campaignSlot)
     g_pCampaignGlobals_00499c94->series = 1000;
     g_pCampaignGlobals_00499c94->mission = 2000;
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
-    ShowTheEndScreen(g_nSelectedCampaignSlot_005d3bf2);
+    RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
     ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
     free_all_slots();
     ResetGameTextContexts();
@@ -2650,11 +2650,11 @@ void imperial_formation(short obj)
             g_nAutoEngageTimer_00496130 = 40;
         }
     } else if (obj == g_nYourWingman_0049346c &&
-               g_nEnemySighting_00465c7c != g_nCurrentWave_0046c01c &&
+               g_nEnemySighting_00465c7c != g_nCurrentWave_004931c0 &&
                any_enemy(obj, 16000) != 0 &&
                message_showing() == 0 && g_nCurrentView_00492fa8 == 0) {
         send_message(obj, 2);
-        g_nEnemySighting_00465c7c = g_nCurrentWave_0046c01c;
+        g_nEnemySighting_00465c7c = g_nCurrentWave_004931c0;
     }
 
     if (g_aeSpecialManeuver_00495600[obj] == SPECIAL_MANEUVER_NONE &&
@@ -3500,7 +3500,7 @@ void heat_seeking_missile_intelligence(short obj)
 
     target = &g_acShipTarget_00495f20[obj];
     other = 0;
-    g_cViableTargetCount_0046c088 = 0;
+    g_cViableTargetCount_00496178 = 0;
     *target = -1;
     for (; other <= 9; other++) {
         if (other == obj ||
@@ -3510,25 +3510,25 @@ void heat_seeking_missile_intelligence(short obj)
         get_facing_range_from_object(obj, other);
         range = g_nTargetRange_0059ce10;
         facing = g_nFacingToTarget_00493194;
-        viableIndex = g_cViableTargetCount_0046c088;
+        viableIndex = g_cViableTargetCount_00496178;
         targetFacing = g_nTargetFacing_0059d52a;
         if (range < 9000 && facing > 0 && targetFacing < 0) {
-            g_asViableTargetDistance_0059c470[viableIndex] = range;
-            g_acViableTarget_0059c920[viableIndex] = other;
-            g_cViableTargetCount_0046c088 = ++viableIndex;
+            g_asViableTargetDistance_00496190[viableIndex] = range;
+            g_acViableTarget_00496180[viableIndex] = other;
+            g_cViableTargetCount_00496178 = ++viableIndex;
         }
     }
-    sort_viable_target_list();
-    targetCount = g_cViableTargetCount_0046c088;
+    SortViableTargetsByDistance();
+    targetCount = g_cViableTargetCount_00496178;
     if (targetCount > 0) {
         for (heat = 3; heat > 0; heat--) {
             for (candidate = 0; candidate < targetCount; candidate++) {
                 if (g_aeObjectClass_00495328[
-                        g_acViableTarget_0059c920[candidate]] ==
+                        g_acViableTarget_00496180[candidate]] ==
                         OBJECT_CLASS_CAPITAL_SHIP ||
                     g_abShipExhaustHeat_0059d610[
-                        g_acViableTarget_0059c920[candidate]] == heat) {
-                    *target = g_acViableTarget_0059c920[candidate];
+                        g_acViableTarget_00496180[candidate]] == heat) {
+                    *target = g_acViableTarget_00496180[candidate];
                     heat = 0;
                     break;
                 }
@@ -3547,7 +3547,7 @@ void FF_missile_intelligence(short obj)
 
     if (g_aeShipTactic_0059d5e0[obj] == TACTIC_RAM) {
         if (g_acShipTarget_00495f20[obj] == -1) {
-            g_cViableTargetCount_0046c088 = 0;
+            g_cViableTargetCount_00496178 = 0;
             for (other = 0; other < 10; other++) {
                 if (other == obj ||
                     g_aeObjectClass_00495328[other] < OBJECT_CLASS_SHIP)
@@ -3559,16 +3559,16 @@ void FF_missile_intelligence(short obj)
                     continue;
                 g_nTargetRange_0059ce10 = distance_from_object(obj, other);
                 if (g_nTargetRange_0059ce10 < 9000) {
-                    candidate = g_cViableTargetCount_0046c088++;
-                    g_asViableTargetDistance_0059c470[candidate] =
+                    candidate = g_cViableTargetCount_00496178++;
+                    g_asViableTargetDistance_00496190[candidate] =
                         g_nTargetRange_0059ce10;
-                    g_acViableTarget_0059c920[candidate] = other;
+                    g_acViableTarget_00496180[candidate] = other;
                 }
             }
-            sort_viable_target_list();
-            if (g_cViableTargetCount_0046c088 > 0)
+            SortViableTargetsByDistance();
+            if (g_cViableTargetCount_00496178 > 0)
                 g_acShipTarget_00495f20[obj] =
-                    g_acViableTarget_0059c920[0];
+                    g_acViableTarget_00496180[0];
         } else {
             point_ship(obj, 0, &g_vToTarget_0059d4d0);
             g_anShipSpeed_0059b320[obj] =
@@ -3730,7 +3730,7 @@ void prepare_mission(void)
     load_ship(g_nPlayerShipType_00493464, 0, 0, 0);
     set_objects_data(0, g_nPlayerShipType_00493464, -1);
     playerRecord->navPoint = g_stMissionHeader_005d3e70.entryNavPoint;
-    if (g_nTrainSimActive_00469e2c == 0 && g_nMissionEntryNavOverride_0049d790 != -1)
+    if (g_nTrainSimActive_0049d758 == 0 && g_nMissionEntryNavOverride_0049d790 != -1)
         playerRecord->navPoint = g_nMissionEntryNavOverride_0049d790;
     Set_up_ship_info(0, g_stMissionHeader_005d3e70.playerMissionShip, -1);
 
@@ -3846,7 +3846,7 @@ int release_all_capital_ship_shapes(void)
     do {
         if (g_aeObjectClass_00495328[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP) {
-            FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
+            FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
             g_asCapitalShipViewFrame_0059dd90[obj] = -1;
         }
         obj++;
@@ -3864,7 +3864,7 @@ int release_capital_ship_shapes(enum ObjectType type)
         obj = 1;
         do {
             if (g_acObjectType_00493980[obj] == type) {
-                FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
+                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
                 g_asCapitalShipViewFrame_0059dd90[obj] = -1;
             }
             obj++;
@@ -3921,7 +3921,7 @@ int load_ship(short type, short logicalFile,
                 do {
                     if (g_aeObjectClass_00495328[obj] ==
                         OBJECT_CLASS_ASTEROID) {
-                        g_apObjectShape_0059d2f0[obj] =
+                        g_apObjectShape_00493868[obj] =
                             g_aObjectTypeData_00496d30[
                                 g_acObjectType_00493980[obj]].shapeSet;
                     }
@@ -3959,7 +3959,7 @@ int load_ship(short type, short logicalFile,
                     do {
                         if (g_acObjectType_00493980[obj] == type) {
                             FreePacketAndClear(
-                                &g_apObjectShape_0059d2f0[obj], 0);
+                                &g_apObjectShape_00493868[obj], 0);
                             g_asCapitalShipViewFrame_0059dd90[obj] = -1;
                         }
                         obj++;
@@ -3990,7 +3990,7 @@ int load_ship(short type, short logicalFile,
                     if (g_aeObjectClass_00495328[obj] >=
                             OBJECT_CLASS_MISSILE &&
                         g_acObjectType_00493980[obj] == type) {
-                        g_apObjectShape_0059d2f0[obj] =
+                        g_apObjectShape_00493868[obj] =
                             g_aObjectResourceSlots_00493398[slot]
                                 .shapeSet;
                     }
@@ -4051,7 +4051,7 @@ int free_ship(short slot)
                 remove_object(obj);
             else if (g_aeObjectClass_00495328[obj] ==
                      OBJECT_CLASS_ASTEROID)
-                g_apObjectShape_0059d2f0[obj] = 0;
+                g_apObjectShape_00493868[obj] = 0;
             obj++;
         } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
         return 0;
@@ -4068,7 +4068,7 @@ int free_ship(short slot)
             if (g_aeObjectClass_00495328[obj] >=
                     OBJECT_CLASS_MISSILE &&
                 g_acObjectType_00493980[obj] == type)
-                g_apObjectShape_0059d2f0[obj] = 0;
+                g_apObjectShape_00493868[obj] = 0;
             obj++;
         } while (obj < 10);
     }
@@ -4302,6 +4302,100 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
 #endif
 }
 
+#pragma function(strcpy, strcat)
+
+/* Function start: 0x44D0C7 */
+void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
+{
+    short commandOffset;
+    char packetName[16];
+    char numberText[4];
+    short pilotIndex;
+    short number;
+    short transition;
+    int commandType;
+    int mode;
+
+    commandOffset = 0;
+    while (commandOffset < 8) {
+        commandType =
+            (unsigned char)navPoint->waveCommands[commandOffset];
+        switch (commandType) {
+        case 0:
+            pilotIndex =
+                (unsigned char)navPoint->waveCommands[commandOffset + 1];
+            number =
+                (unsigned char)navPoint->waveCommands[commandOffset + 2];
+            strcpy(packetName, "altint.");
+            if (number < 100)
+                strcat(packetName, "0");
+            if (number < 10)
+                strcat(packetName, "0");
+            strcat(packetName, _itoa((int)number, numberText, 10));
+            LoadPacketIntoBuffer(
+                packetName, 0,
+                g_aShipIntelligenceData_005d3060[
+                    g_asShipIntelSlot_00495d30[pilotIndex]],
+                0);
+            break;
+        case 1:
+            transition =
+                (unsigned char)navPoint->waveCommands[commandOffset + 1];
+            g_bEjectionWaitForEnemyWave_0049b8b0 = 0;
+            g_nPendingEjectionSequenceCount_0049b8b8 = 0;
+            g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
+            g_bEjectionTriggerImmediately_0049b8bc = 0;
+            mode = (unsigned char)navPoint->waveCommands[commandOffset + 2];
+            switch (mode) {
+            case 0:
+                g_nEjectionSequenceState_0049b8c0 = 0;
+                g_cPendingEjectionTransition_0049b8ac =
+                    (signed char)transition;
+                g_nPendingEjectionSequenceCount_0049b8b8 = 1;
+                break;
+            case 1:
+                g_cPendingEjectionTransition_0049b8ac =
+                    (signed char)transition;
+                break;
+            case 2:
+                g_cPendingEjectionTransition_0049b8ac =
+                    (signed char)transition;
+                g_bEjectionWaitForEnemyWave_0049b8b0++;
+                break;
+            case 3:
+                g_cPendingEjectionTransition_0049b8ac =
+                    (signed char)transition;
+                g_bEjectionAwaitingCommCommand_0049b8b4++;
+                break;
+            case 4:
+                ejection_sequence(
+                    (unsigned char)navPoint->waveCommands[commandOffset + 1],
+                    1);
+                if (g_nArcadeState_0049d75c != 0)
+                    return;
+                break;
+            case 5:
+                g_cPendingEjectionTransition_0049b8ac =
+                    (signed char)transition;
+                g_bEjectionWaitForEnemyWave_0049b8b0++;
+                g_bEjectionTriggerImmediately_0049b8bc++;
+                break;
+            }
+            navPoint->waveCommands[commandOffset] = -1;
+            break;
+        case 2:
+            g_cQueuedNpcPortrait_0049b8c4 =
+                navPoint->waveCommands[commandOffset + 1];
+            g_cQueuedNpcMessage_0049b8c8 =
+                navPoint->waveCommands[commandOffset + 2];
+            break;
+        }
+        commandOffset = (short)(commandOffset + 3);
+    }
+}
+
+#pragma intrinsic(strcpy, strcat)
+
 /* Function start: 0x44D35D */
 int set_up_action_sphere(short navPoint)
 {
@@ -4314,7 +4408,9 @@ int set_up_action_sphere(short navPoint)
 
     g_nCurrentNavPoint_004931bc = navPoint;
     nav = &g_aMissionNavPoints_00491e98[navPoint];
-    g_nCurrentWave_0046c01c =
+    g_nCurrentStarSystem_005d169c = nav->systemIndex;
+    ProcessMissionWaveCommands(nav);
+    g_nCurrentWave_004931c0 =
         (short)((((g_aMissionNavPoints_00491e98[navPoint + 1].type == 2) ?
                   -1 : 0) & 3) - 1);
     g_nEnemySighting_00465c7c = 0x7fff;
@@ -4330,7 +4426,7 @@ int set_up_action_sphere(short navPoint)
             }
             if (g_aeObjectClass_00495328[obj] ==
                 OBJECT_CLASS_CAPITAL_SHIP) {
-                FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
+                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
             }
             if (g_asObjectScreenX_00493598[obj] != -0x7fff)
                 explode(-1, obj);
@@ -4536,46 +4632,41 @@ void place_ship_near_player_until_valid(short obj, short minimum, short maximum)
 }
 
 /* Function start: 0x44D888 */
-void set_up_next_wave(void)
+short set_up_next_wave(void)
 {
     MissionNavPoint *waveNav;
     short previousWave;
+    short obj;
     short entry;
 
-    if (g_nTrainSimActive_00469e2c != 0) {
-        spacetrack(21, 2, 0);
-        g_nArcadeBonusCountdown_0046a014 = 60;
-        if (g_nCurrentWave_0046c01c != -1)
-            g_nArcadeBonusCountdown_0046a014 = 30;
-        GetArcadeBonus();
-        FigureArcadeTime();
-    }
+    if (g_nCurrentWave_004931c0 == -1 ||
+        g_nTrainSimActive_0049d758 != 0)
+        return 0;
 
-    if (g_nCurrentWave_0046c01c == -1 ||
-        g_nCannedSceneMode_0049021c != 0)
-        return;
-
-    /* The original indexes through a base biased one MissionNavPoint before
-     * g_aMissionNavPoints.  Preserve that -1 when expressing it as a typed
-     * array index: arcade wave 2 is stored in nav record 1. */
     waveNav = &g_aMissionNavPoints_00491e98[
-        g_nCurrentNavPoint_004931bc + g_nCurrentWave_0046c01c - 1];
-    previousWave = g_nCurrentWave_0046c01c;
-    g_nCurrentWave_0046c01c++;
-    if (waveNav->type == (signed char)previousWave) {
+        g_nCurrentWave_004931c0 - 1 + g_nCurrentNavPoint_004931bc];
+    previousWave = g_nCurrentWave_004931c0;
+    g_nCurrentWave_004931c0++;
+    if (waveNav->type == previousWave) {
+        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+            for (obj = 10; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+                if (g_asObjectType_00495298[obj] == OBJECT_TYPE_TORPEDO)
+                    remove_object(obj);
+            }
+        }
+        ProcessMissionWaveCommands(waveNav);
         new_sphere_shapes(waveNav);
         waveNav->type = -1;
-        entry = 0;
-        do {
+        for (entry = 0; entry < 10; entry++) {
             place_ship_near_player_until_valid(
                 init_ship(waveNav->missionShips[entry],
                           g_nCurrentNavPoint_004931bc),
                 5000, 10000);
-            entry++;
-        } while (entry < 10);
-        return;
+        }
+        return 1;
     }
-    g_nCurrentWave_0046c01c = -1;
+    g_nCurrentWave_004931c0 = -1;
+    return 0;
 }
 
 /* Function start: 0x44D9E2 */
@@ -4646,6 +4737,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_acShipSpawnNavPoint_0059ded0[obj] = navPoint;
     g_nShipMissionIndices_0059c830[obj] = missionShip;
     g_acShipPointingMode_0059d790[obj] = 1;
+    g_acShipPortrait_00495d88[obj] = record->portrait;
 
     set_sphere_point(record, &g_aShipPosition_00494550[obj]);
     alter_yaw((short)-record->pitch, obj);
@@ -4655,7 +4747,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_anShipSpeed_0059b320[obj] = record->speed << 8;
     g_asPilotLevel_00495d60[obj] = record->pilot;
     reset_mission_type(obj, record->missionType);
-    g_anShipMissionShip_00495e00[obj] = record->systemIndex;
+    g_asShipSystemIndex_00495e00[obj] = record->systemIndex;
     g_asShipWingLeader_0059d400[obj] =
         find_ship_index(record->leaderMissionIndex);
     set_formation_position(obj, record);
@@ -4782,63 +4874,155 @@ short init_ship(short missionShip, short navPoint)
     return obj;
 }
 
-/* Function start: 0x44E44F */
-unsigned int init_intelligence_data(short obj)
-{
-    FixedVector *missionSpot;
-    short missionTarget;
+#pragma function(strcpy, strcat)
 
+/* Function start: 0x44E44F */
+void init_intelligence_data(short obj)
+{
+    short usedIntelSlots[5];
+    char intelFilename[16];
+    short foundMatchingIntel;
+    ShipIntelligenceMetadata *metadata;
+    short shipIndex;
+    short shipIntelFile;
+    short missionShipIndex;
+    char intelNumber[8];
+    short intelIndex;
+    short missionSystem;
+
+    metadata = AllocateTaggedMemory(0x0c, 0x40);
     g_abShipTurn_00495fd8[obj] = 0;
     clear_alert(obj);
-    missionTarget = g_anShipMissionShip_00495e00[obj];
-    missionSpot = &g_aShipMissionSpot_00495e18[obj];
     g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
-    *missionSpot = g_aMissionNavPoints_00491e98[
+    g_asShipIntelState_0049b678[obj] = 0;
+    missionSystem = g_asShipSystemIndex_00495e00[obj];
+    g_aShipMissionSpot_00495e18[obj] = g_aMissionNavPoints_00491e98[
         g_nCurrentNavPoint_004931bc].position;
 
     switch (g_asShipMissionType_00495de8[obj]) {
     case MISSION_TYPE_ESCORT:
-    case MISSION_TYPE_STRIKE:
     case MISSION_TYPE_DEFEND:
     case MISSION_TYPE_WINGMAN:
-        g_anShipMissionShip_00495e00[obj] = missionTarget;
+        g_asShipSystemIndex_00495e00[obj] = missionSystem;
+        break;
+    case MISSION_TYPE_STRIKE:
+        g_asShipSystemIndex_00495e00[obj] = missionSystem;
+        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
+            for (missionShipIndex = 0; missionShipIndex < 10;
+                 missionShipIndex++) {
+                if (g_aMissionNavPoints_00491e98[shipIndex]
+                        .missionShips[missionShipIndex] ==
+                    g_asShipSystemIndex_00495e00[obj]) {
+                    missionSystem = shipIndex;
+                }
+            }
+        }
+        g_aShipMissionSpot_00495e18[obj] =
+            g_aMissionNavPoints_00491e98[missionSystem].position;
         break;
     case MISSION_TYPE_GOTO_WARP:
-        *missionSpot =
-            g_aMissionNavPoints_00491e98[missionTarget].position;
+        g_aShipMissionSpot_00495e18[obj] =
+            g_aMissionNavPoints_00491e98[missionSystem].position;
         break;
     case MISSION_TYPE_WARP_ARRIVE:
-        g_aeShipTactic_0059d5e0[obj] = TACTIC_WARP_IN;
+        g_asShipTactic_00495f30[obj] = TACTIC_WARP_IN;
         g_asShipManeuver_00495f48[obj] = MANEUVER_WARPING_IN;
         if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
             break;
         /* fall through */
-    case MISSION_TYPE_COME_HOME:
-        locate_ship(g_stMissionHeader_005d3e70.homeMissionShip, missionSpot);
-        break;
-    case MISSION_TYPE_CANNED_SEQUENCE:
-#if 0
-        g_apCannedSequence_0059dce0[obj] =
-            g_aMissionShips_00492290[
-                g_nShipMissionIndices_0059c830[obj]].behaviour.cannedSequence;
-        g_asPilotLevel_00495d60[obj] = 2;
-        advance_canned_sequence(obj);
-#endif
+    case 9: /* WC2's home-base mission value in this dispatch table. */
+        locate_ship(g_stMissionHeader_005d3e70.homeMissionShip,
+                    &g_aShipMissionSpot_00495e18[obj]);
         break;
     default:
         break;
     }
 
-    if (g_asPilotLevel_00495d60[obj] < 5)
-        g_acShipRating_0059cd80[obj] =
-            (signed char)~RATING_PROVINCIAL;
-    else
-        g_acShipRating_0059cd80[obj] =
-            (signed char)(g_asPilotLevel_00495d60[obj] -
-                          RATING_ACE_SPIRIT);
-    g_acShipStress_0059d620[obj] = 0;
-    return 0;
+    g_acShipStress_00496100[obj] = 0;
+    g_asShipIntelSlot_00495d30[obj] = -1;
+    if (obj != 0 && g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+        (obj == g_nYourWingman_0049346c ||
+         g_asShipSide_004955d0[obj] != SIDE_IMPERIAL)) {
+        shipIntelFile = 0;
+        if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT) {
+            intelIndex = g_acShipPortrait_00495d88[obj];
+        } else if (g_asPilotLevel_00495d60[obj] < RATING_ACE_SPIRIT) {
+            intelIndex = g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].field_16;
+            shipIntelFile = 1;
+        } else {
+            ReportFatalErrorCode("024");
+        }
+
+        for (shipIndex = 0; shipIndex < 5; shipIndex++)
+            usedIntelSlots[shipIndex] = 0;
+
+        foundMatchingIntel = 0;
+        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
+            if (g_asShipIntelSlot_00495d30[shipIndex] != -1) {
+                usedIntelSlots[
+                    g_asShipIntelSlot_00495d30[shipIndex]] = 1;
+            }
+            if (g_asShipIntelResourceKey_00495d48[shipIndex] ==
+                shipIntelFile * 100 + intelIndex) {
+                foundMatchingIntel = 1;
+                g_asShipIntelSlot_00495d30[obj] =
+                    g_asShipIntelSlot_00495d30[shipIndex];
+                g_asShipIntelResourceKey_00495d48[obj] =
+                    (short)(shipIntelFile * 100 + intelIndex);
+                break;
+            }
+        }
+        if (foundMatchingIntel == 0) {
+            for (shipIndex = 0; shipIndex < 5; shipIndex++) {
+                if (usedIntelSlots[shipIndex] == 0)
+                    break;
+            }
+            g_asShipIntelSlot_00495d30[obj] = shipIndex;
+            g_asShipIntelResourceKey_00495d48[obj] =
+                (short)(shipIntelFile * 100 + intelIndex);
+
+            strcpy(intelFilename, "intel.0");
+            if (shipIntelFile != 0)
+                strcpy(intelFilename, "intelshp.0");
+            if (intelIndex < 10)
+                strcat(intelFilename, "0");
+            _itoa((int)intelIndex, intelNumber, 10);
+            strcat(intelFilename, intelNumber);
+
+            LoadPacketIntoBuffer(
+                intelFilename, 0,
+                g_aShipIntelligenceData_005d3060[
+                    g_asShipIntelSlot_00495d30[obj]],
+                0);
+            if (obj == g_nYourWingman_0049346c) {
+                LoadPacketIntoBuffer(
+                    intelFilename, 1,
+                    &g_nWingmanRoutDecisionMode_00496138, 0);
+                LoadCommPortraitResources(g_acShipPortrait_00495d88[obj]);
+                g_nLoadedCommPortraitPilot_004931c4 = -1;
+                if (g_pCommPortraitResource_0049b788 != 0) {
+                    g_nLoadedCommPortraitPilot_004931c4 =
+                        g_acShipPortrait_00495d88[obj];
+                }
+            } else if (shipIntelFile == 0) {
+                LoadPacketIntoBuffer(intelFilename, 1, metadata, 1);
+                if (metadata->musicTrack != 0) {
+                    g_nMissionMusicTrackOverride_00496144 =
+                        metadata->musicTrack;
+                }
+                if (metadata->enemyCommCommandBase != 0) {
+                    g_nEnemyCommCommandBase_005d179c =
+                        metadata->enemyCommCommandBase;
+                    g_nEnemyCommPilotIndex_005d179e =
+                        g_acShipPortrait_00495d88[obj];
+                }
+            }
+        }
+    }
 }
+
+#pragma intrinsic(strcpy, strcat)
 
 /* Function start: 0x44F1F0 */
 short SampleBothJoysticks(InputDeviceSample *samples,

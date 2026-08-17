@@ -45,7 +45,13 @@ unsigned int LoadBriefingRoom(void)
 }
 
 /* Function start: 0x42D568 */
-unsigned int ViewMedals(void)
+void RunLoadedCutscene(void)
+{
+    /* TODO: reconstruct the WC2 cutscene bytecode runtime. */
+}
+
+/* Function start: WC2_UNMAPPED */
+unsigned int ViewWc1Medals(void)
 {
     InputEventState event;
     unsigned char clicked;
@@ -60,7 +66,7 @@ unsigned int ViewMedals(void)
     savedInputMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
     do {
-        PumpWindowMessages();
+        PumpWindowMessages(0);
         if (PeekInputEvent(&event, 10) != 0 ||
             PeekInputEvent(&event, 2) != 0 ||
             PeekInputEvent(&event, 3) != 0)
@@ -74,7 +80,7 @@ unsigned int ViewMedals(void)
             g_szViewMedalsTextFormat_0046e604, 0, 160,
             g_cViewportClearColour_004699a0,
             g_szTextScratchBuffer_005d1c40);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         if (clicked != 0) {
             FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
@@ -177,7 +183,7 @@ unsigned int DrawMedalChest(char *text, short duration)
             break;
         }
         offset = (short)(offset + 2);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (offset < 162);
     WaitForWc1SceneAdvance(duration, 0);
@@ -198,6 +204,41 @@ unsigned int DrawMedalChest(char *text, short duration)
 }
 
 /* Function start: 0x434177 */
+unsigned short HasSavedPilotCampaign(void)
+{
+    int campaignBytes;
+    struct _finddata_t findData;
+    short occupied;
+    short findHandle;
+    short file;
+
+    LoadTemporaryCampaignGlobals();
+    campaignBytes = (unsigned short)g_pCampaignGlobals_00499c94->wordCount * 2;
+    ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+    findHandle = (short)_findfirst("savegame.wc2", &findData);
+    if (findHandle == -1 ||
+        campaignBytes * 9 + 0x4b6 != findData.size)
+        return 0;
+    _findclose((long)findHandle);
+    file = (short)_open("savegame.wc2", 0x8000);
+    if (file < 0)
+        return 0;
+    if (_lseek((int)file, campaignBytes * 8 + 0x430, 0) !=
+        campaignBytes * 8 + 0x430) {
+        _close((int)file);
+        return 0;
+    }
+    if (_read((int)file, &occupied, 2) != 2) {
+        _close((int)file);
+        return 0;
+    }
+    _close((int)file);
+    if (occupied == 0)
+        return 0;
+    return 1;
+}
+
+/* Function start: WC2_UNMAPPED */
 unsigned int DrawMedalLongShot(short *animation, char *text,
                                short duration)
 {
@@ -245,7 +286,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
                 duration = -1;
                 break;
             }
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
             if (*cursor == -1)
                 break;
@@ -256,7 +297,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pMedalSceneShape_0046e2f4, 0);
     RefreshMemoryStatusOverlay();
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     WaitForWc1SceneAdvance(duration, 0);
     return 0;
@@ -296,7 +337,7 @@ unsigned int MedalEstablish(char *text, short duration)
             duration = -1;
             break;
         }
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
     WaitForWc1SceneAdvance(duration, 0);
@@ -335,7 +376,7 @@ unsigned int PinMedal(char *text, short duration)
             duration = -1;
             break;
         }
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         escaped = IsFrameTickElapsed();
     }
@@ -400,7 +441,7 @@ unsigned int DrawMedals(void)
                               (short)(medal + 28));
         }
     }
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     return 0;
 }
@@ -448,7 +489,7 @@ unsigned int EstablishingShot(char *text, short duration)
             duration = -1;
         }
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 22);
     WaitForWc1SceneAdvance(duration, 0);
@@ -536,7 +577,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
             break;
         }
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         if (frame > 39)
             break;
@@ -620,7 +661,7 @@ unsigned int DismissWc1Scene(char *text, short duration)
         frame++;
         leftX = (short)(leftX + leftDelta);
         rightX = (short)(rightX + rightDelta);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 32);
     WaitForWc1SceneAdvance(duration, 0);
@@ -661,7 +702,7 @@ unsigned int DrawDebriefingLongShot(void)
     }
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingRightX_0046e574, 127,
                       g_pConversationBackdropShape_00598c04, 7);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     return 0;
 }
@@ -711,7 +752,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
             g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
             DrawDebriefingLongShot();
             RefreshMemoryStatusOverlay();
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         }
         escaped = CheckEscaped();
@@ -1098,7 +1139,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 2:
             if (previousShot != 2) {
                 previousShot = 2;
-                DrawPodiumShot();
+                DrawWc1PodiumShot();
                 g_nTalkingHeadFace_0046e584 = -1;
             }
             break;
@@ -1214,7 +1255,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
             case 13:
             case 14:
             case 15:
-                DrawFuneralLongShot(previousShot, text, duration);
+                DrawWc1FuneralLongShot(previousShot, text, duration);
                 break;
             case 10:
                 DebriefingEstablishingShot(text, duration);
@@ -1250,8 +1291,8 @@ scene_complete:
     return 0;
 }
 
-/* Function start: 0x446710 */
-unsigned int DrawPodiumShot(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int DrawWc1PodiumShot(void)
 {
     if (g_pTalkingHeadShape_00598c0c != 0)
         FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
@@ -1311,8 +1352,9 @@ unsigned int DrawBriefingCharacter(short character, short pose,
     return 0;
 }
 
-/* Function start: 0x42E868 */
-unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
+/* Function start: WC2_UNMAPPED */
+unsigned int DrawWc1FuneralLongShot(short shot, char *text,
+                                    short duration)
 {
     short escaped;
 
@@ -1327,7 +1369,7 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
         RefreshMemoryStatusOverlay();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         WaitForWc1SceneAdvance(duration, 0);
         return 0;
@@ -1347,11 +1389,165 @@ unsigned int DrawFuneralLongShot(short shot, char *text, short duration)
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 80, 127,
                           g_pConversationBackdropShape_00598c04, 8);
         RefreshMemoryStatusOverlay();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         escaped = CheckEscaped();
         if (escaped != 0)
             return 0;
+    }
+}
+
+/* Function start: 0x42E6EB */
+void InitializeSceneFlicStream(CutsceneResourceTable *resources,
+                               short index,
+                               SceneFlicObject *object)
+{
+    object->filename = GetPackedStringByIndex(
+        resources, resources->filenameIndices[index]);
+    object->nextSection = resources->sectionIndices[index];
+    object->segmentStartFrame = 0;
+    object->segmentEndFrame = 0;
+    object->currentFrame = 0;
+    object->context = g_nSceneFlicContext_00499c50;
+    AdvanceSceneFlicStream(object);
+}
+
+/* Function start: 0x42E762 */
+void ReleaseSceneFlicPackets(void)
+{
+    short cacheIndex;
+    short objectIndex;
+    SceneFlicObject *object;
+
+    for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
+        if (g_aSceneFlicCache_005d2e10[cacheIndex].shape != 0) {
+            for (objectIndex = 0; objectIndex < 128; objectIndex++) {
+                object = g_apSceneObjects_00499c38[objectIndex];
+                if (object != 0 && object->drawType == 4 &&
+                    g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
+                        object->shape) {
+                    object->shape = 0;
+                    object->active = 0;
+                    break;
+                }
+            }
+        }
+    }
+    for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
+        ReleasePacketSlot(
+            (void **)&g_aSceneFlicCache_005d2e10[cacheIndex].shape);
+        ReleasePacketSlot(
+            &g_aSceneFlicCache_005d2e10[cacheIndex].auxiliaryAllocation);
+    }
+}
+
+/* Function start: 0x42E868 */
+void AdvanceSceneFlicStream(SceneFlicObject *object)
+{
+    signed char loading;
+    char filename[68];
+    short cacheIndex;
+    short releaseIndex;
+    void *oldShape;
+
+    loading = 1;
+    object->decoderState = 0;
+    if (object->segmentEndFrame <= object->currentFrame) {
+        if (object->finalFrame <= object->currentFrame) {
+            object->active = 0;
+            ReleaseSceneFlicPackets();
+            object->shape = 0;
+        } else {
+            if (object->currentFrame != 0) {
+                CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                                     &g_stSceneFlicScratchViewport_005d2eb0);
+            }
+            DosStrcpy(filename, object->filename);
+            RewriteDiskFileGraphicsExtensions(filename);
+            oldShape = object->shape;
+            if (oldShape != 0) {
+                for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
+                    if (g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
+                        oldShape) {
+                        ReleasePacketSlot(&oldShape);
+                        g_aSceneFlicCache_005d2e10[cacheIndex].shape = 0;
+                        oldShape =
+                            g_aSceneFlicCache_005d2e10[cacheIndex].shape;
+                        break;
+                    }
+                }
+            }
+            while (loading != 0) {
+                if (g_aSceneFlicCache_005d2e10[0].shape == 0) {
+                    object->shape = 0;
+                    for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
+                        g_aSceneFlicCache_005d2e10[cacheIndex]
+                            .auxiliaryAllocation = 0;
+                        g_aSceneFlicCache_005d2e10[cacheIndex].shape =
+                            LoadNamedPacket(
+                                filename,
+                                (short)(object->nextSection + cacheIndex),
+                                0, 0x0c, 0, 1);
+                        if (g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
+                            0) {
+                            if (cacheIndex == 0) {
+                                SystemDebugPrintf(
+                                    "FLIC Failed %s (%d)\n Hit Key to Continue",
+                                    filename,
+                                    object->nextSection + cacheIndex);
+                                WaitForInputKey();
+                                object->segmentEndFrame = 0;
+                                object->currentFrame = object->finalFrame;
+                            }
+                            break;
+                        }
+                        if (g_pMemoryLogFile_00499da8 != 0) {
+                            fprintf(
+                                g_pMemoryLogFile_00499da8,
+                                "Loaded Flic %s (%d) at %Fp\n", filename,
+                                object->nextSection + cacheIndex,
+                                g_aSceneFlicCache_005d2e10[cacheIndex].shape);
+                        }
+                    }
+                    loading = 0;
+                }
+                if (g_aSceneFlicCache_005d2e10[0].shape != 0) {
+                    cacheIndex = 0;
+                    if (object->shape != 0) {
+                        while (cacheIndex < 15U) {
+                            cacheIndex++;
+                            if (g_aSceneFlicCache_005d2e10[cacheIndex - 1]
+                                    .shape == object->shape)
+                                break;
+                        }
+                    }
+                    if (g_aSceneFlicCache_005d2e10[cacheIndex].shape != 0) {
+                        object->shape =
+                            g_aSceneFlicCache_005d2e10[cacheIndex].shape;
+                        object->decoderState = 0;
+                        g_aSceneFlicCache_005d2e10[cacheIndex]
+                            .auxiliaryAllocation = 0;
+                        object->segmentStartFrame = object->currentFrame;
+                        object->segmentEndFrame =
+                            (short)(GetShapeFrameCount(object->shape) +
+                                    object->currentFrame);
+                        object->nextSection++;
+                        loading = 0;
+                    } else {
+                        for (releaseIndex = 0;
+                             releaseIndex < cacheIndex;
+                             releaseIndex++) {
+                            ReleasePacketSlot(
+                                (void **)&g_aSceneFlicCache_005d2e10[
+                                    releaseIndex].shape);
+                        }
+                        object->shape = 0;
+                    }
+                }
+            }
+            CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
+                                 &g_stSecondaryViewBuffer_005d2c90);
+        }
     }
 }
 
@@ -1379,9 +1575,12 @@ void SetViewportRect(Viewport *viewport, unsigned short left,
     viewport->bottom = (short)bottom;
 }
 
+#pragma function(memset)
+
 /* Function start: 0x433410 */
-void __stdcall PanToScreen(Viewport *source, Viewport *destination)
+void PanToScreen(Viewport *source, Viewport *destination)
 {
+#if 0
     unsigned char *indices;
     unsigned short target[3];
     short *originalPalette;
@@ -1428,7 +1627,7 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
         WaitForVerticalBlankThunk();
         DIBramPalette();
         CopyViewportContents(source, destination);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
 
         while (StepPaletteTransition(
@@ -1449,9 +1648,72 @@ void __stdcall PanToScreen(Viewport *source, Viewport *destination)
     } else {
         CopyViewportContents(source, destination);
     }
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
+#else
+    unsigned char *indices;
+    short activeCount;
+    short index;
+    unsigned short target[3];
+    short *transitionPalette;
+    short *originalPalette;
+
+    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+        indices = AllocateTaggedMemory(256, 0);
+        if (indices == 0)
+            return;
+        memset(indices, 0, 256);
+        activeCount = CollectActivePaletteIndices(source, indices, 256);
+        originalPalette = AllocateTaggedMemory(
+            (unsigned int)(activeCount * 6), 0);
+        transitionPalette = AllocateTaggedMemory(
+            (unsigned int)(activeCount * 6), 0);
+        if (originalPalette == 0 || transitionPalette == 0) {
+            ReleasePacketHandle(indices);
+            if (originalPalette != 0)
+                ReleasePacketHandle(originalPalette);
+            if (transitionPalette != 0)
+                ReleasePacketHandle(transitionPalette);
+            return;
+        }
+        memset(originalPalette, 0,
+               (unsigned int)(activeCount * 6));
+        memset(transitionPalette, 0,
+               (unsigned int)(activeCount * 6));
+        GetPaletteEntry(
+            (short)GetViewportPixel(destination,
+                                    destination->left,
+                                    destination->top),
+            target);
+        WaitForVerticalBlankThunk();
+        for (index = 0; index < activeCount; index++) {
+            GetPaletteEntry(
+                (short)indices[index],
+                (unsigned short *)&originalPalette[index * 3]);
+            SetPaletteEntry((short)indices[index], (short *)target);
+            memcpy(&transitionPalette[index * 3], target, 6);
+        }
+        CopyViewportContents(source, destination);
+        while (StepPaletteTransition(
+                   transitionPalette, originalPalette,
+                   (short)(activeCount * 3)) != 0) {
+            WaitForVerticalBlankThunk();
+            for (index = 0; index < activeCount; index++) {
+                SetPaletteEntry(
+                    (short)indices[index],
+                    &transitionPalette[index * 3]);
+            }
+        }
+        ReleasePacketHandle(transitionPalette);
+        ReleasePacketHandle(originalPalette);
+        ReleasePacketHandle(indices);
+    } else {
+        CopyViewportContents(source, destination);
+    }
+#endif
 }
+
+#pragma intrinsic(memset)
 
 /* Function start: 0x4697A0 (Mac symbol: death_sequence) */
 unsigned int death_sequence(void)
@@ -1488,7 +1750,7 @@ unsigned int death_sequence(void)
         DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, 199,
                           deathShape, (short)frame);
         dump_buffer_to_screen();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
@@ -1510,7 +1772,7 @@ unsigned int death_sequence(void)
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             frame++;
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         } while (frame < 60);
     }
@@ -1541,9 +1803,9 @@ unsigned int ShowGetReadyScreen(void)
     g_bSceneEscapeRequested_0049d4b0 = 0;
     do {
         if (RefreshCockpitStatus() != 0) {
-            DrawCenteredScaledIntroText(
-                "Get Ready", g_nViewCenterX_0059a852,
-                g_nViewCenterY_0059a854,
+            DrawWc1CenteredScaledIntroText(
+                "Get Ready", g_nViewCenterX_005c80d8,
+                g_nViewCenterY_005c80da,
                 (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
@@ -1552,7 +1814,7 @@ unsigned int ShowGetReadyScreen(void)
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 40);
     g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -1563,8 +1825,8 @@ unsigned int ShowGetReadyScreen(void)
     return 0;
 }
 
-/* Function start: 0x408CC8 */
-unsigned int ShowVictoryScreen(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int ShowWc1VictoryScreen(void)
 {
     short distance;
     short emptyCount;
@@ -1598,9 +1860,9 @@ unsigned int ShowVictoryScreen(void)
         }
         if (RefreshCockpitStatus() != 0) {
             emptyCount = TheEndFireWorks(&g_stViewBuffer_005d2b00, 30);
-            DrawCenteredScaledIntroText(
-                "Victory", g_nViewCenterX_0059a852,
-                g_nViewCenterY_0059a854,
+            DrawWc1CenteredScaledIntroText(
+                "Victory", g_nViewCenterX_005c80d8,
+                g_nViewCenterY_005c80da,
                 (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
@@ -1609,7 +1871,7 @@ unsigned int ShowVictoryScreen(void)
         if (distance > 100)
             distance = (short)(distance - 10);
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 80);
     g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -1651,9 +1913,9 @@ unsigned int ShowGameOverScreen(void)
     do {
         if (RefreshCockpitStatus() != 0) {
             if (frame > 20)
-                DrawCenteredScaledIntroText(
-                    "Game Over", g_nViewCenterX_0059a852,
-                    g_nViewCenterY_0059a854,
+                DrawWc1CenteredScaledIntroText(
+                    "Game Over", g_nViewCenterX_005c80d8,
+                    g_nViewCenterY_005c80da,
                     (short)(0xc800 / (int)distance));
             dump_buffer_to_screen();
         }
@@ -1662,7 +1924,7 @@ unsigned int ShowGameOverScreen(void)
         if (distance > 100)
             distance = (short)(distance - 10);
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 80);
     StopMusicUnlessSuppressed();
@@ -4786,18 +5048,18 @@ rle_trig_reduce_high:
         cmp ebx, 384h
         ja rle_trig_second_quadrant
         shl ebx, 2
-        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        mov eax, dword ptr g_anRLEQuarterCosine_00405cbb[ebx]
         neg ebx
-        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        mov edx, dword ptr g_anRLEQuarterCosine_00405cbb[ebx + 0e10h]
         jmp rle_trig_store
 rle_trig_second_quadrant:
         neg ebx
         add ebx, 708h
         shl ebx, 2
-        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        mov eax, dword ptr g_anRLEQuarterCosine_00405cbb[ebx]
         neg eax
         neg ebx
-        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        mov edx, dword ptr g_anRLEQuarterCosine_00405cbb[ebx + 0e10h]
         jmp rle_trig_store
 rle_trig_lower_half:
         neg ebx
@@ -4805,19 +5067,19 @@ rle_trig_lower_half:
         cmp ebx, 384h
         ja rle_trig_fourth_quadrant
         shl ebx, 2
-        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        mov eax, dword ptr g_anRLEQuarterCosine_00405cbb[ebx]
         neg ebx
-        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        mov edx, dword ptr g_anRLEQuarterCosine_00405cbb[ebx + 0e10h]
         neg edx
         jmp rle_trig_store
 rle_trig_fourth_quadrant:
         neg ebx
         add ebx, 708h
         shl ebx, 2
-        mov eax, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx]
+        mov eax, dword ptr g_anRLEQuarterCosine_00405cbb[ebx]
         neg eax
         neg ebx
-        mov edx, dword ptr g_anRLEQuarterCosine_0043d4bf[ebx + 0e10h]
+        mov edx, dword ptr g_anRLEQuarterCosine_00405cbb[ebx + 0e10h]
         neg edx
 rle_trig_store:
         mov ebx, dword ptr [ebp + 0ch]

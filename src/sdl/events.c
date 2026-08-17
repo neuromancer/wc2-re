@@ -299,9 +299,9 @@ static SDL_Window *Wc1SdlGetFullscreenWindow(Uint32 windowId)
     if (window == 0)
         window = SDL_GetKeyboardFocus();
     if (window == 0)
-        window = (SDL_Window *)DAT_00486074;
+        window = (SDL_Window *)g_hDibWindow_005c33a4;
     if (window == 0)
-        window = (SDL_Window *)DAT_005a89a0;
+        window = (SDL_Window *)g_hMainWindow_005d10e0;
     return window;
 }
 
@@ -372,9 +372,9 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
-        DAT_005a8964 = pressed ? (unsigned int)virtualKey : 0;
+        g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
     if (event->keysym.scancode == SDL_SCANCODE_F1)
-        DAT_004650ac = pressed && event->repeat == 0;
+        g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
         g_bSceneEscapeRequested_0049d4b0 = 1;
     if (scanCode != 0) {
@@ -442,8 +442,8 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
 
     if (event->type == SDL_MOUSEMOTION) {
-        if (g_bPointerMovedByKeyboard_005a7d54 != 0) {
-            g_bPointerMovedByKeyboard_005a7d54 = 0;
+        if (g_bSuppressNextMouseMove_005c843c != 0) {
+            g_bSuppressNextMouseMove_005c843c = 0;
             return;
         }
         Wc1SdlQueueMouseMotion((unsigned short)mouseX,
@@ -454,15 +454,15 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
     }
-    g_nHostMouseMessageX_005a8990 = mouseX;
-    g_nHostMouseMessageY_005a8994 = mouseY;
-    g_bHostPrimaryMouseButton_005a8998 = primaryButton;
-    g_bHostSecondaryMouseButton_005a899c = secondaryButton;
+    g_nHostMouseMessageX_005d10d0 = mouseX;
+    g_nHostMouseMessageY_005d10d4 = mouseY;
+    g_bHostPrimaryMouseButton_005d10d8 = primaryButton;
+    g_bHostSecondaryMouseButton_005d10dc = secondaryButton;
 }
 
 void Wc1SdlStartEventPump(void)
 {
-    DAT_005a8a3c = 1;
+    g_bMainWindowRunning_005d12ac = 1;
 }
 
 void Wc1SdlPumpEvents(void)

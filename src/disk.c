@@ -156,9 +156,9 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
         g_pszPersonnelFooter_00492658 = 0;
     }
     if (selection != 0) {
-        SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 1);
+        SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape, 1);
     } else if (g_bPersonnelMenuDrawing_0049a6c0 != 0) {
-        SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 0);
+        SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape, 0);
     }
     g_bSceneBackgroundClicked_005c9018 = 0;
     if (inputEvent->type != 1) {
@@ -259,6 +259,13 @@ signed char DecodeSceneResourceChunk(unsigned char **cursor,
     return decoded;
 }
 
+/* Function start: 0x40E31F */
+unsigned int ParseCutsceneContainer(void *scenePacket)
+{
+    /* TODO: reconstruct the WC2 cutscene container parser. */
+    return 0;
+}
+
 /* Function start: 0x40F0D2 */
 void ReportPacketLoadError(void *packet, char *fileName,
                            short retry, short section,
@@ -321,7 +328,7 @@ void ReportPacketLoadError(void *packet, char *fileName,
                    GetLargestFreeMemoryBlockByType(retry),
                    GetAvailableFarMemoryByType(retry));
             printf("MAIN: %ld   EMS: %ld\n",
-                   PreloadMusicTrackHook(), GetAvailableFarMemory());
+                   GetAvailableMainMemory(), GetAvailableFarMemory());
             exit(1);
         }
     }
@@ -349,10 +356,10 @@ void AppendPacketLoadDebugLog(char *fileName, short section,
               truncatedFileName, 10);
         strcat(logLine, ",Size:");
         strcat(logLine, truncatedFileName);
-        _ltoa((long)ReleaseMusicTrackHook(), truncatedFileName, 10);
+        _ltoa((long)GetLargestMainMemoryBlock(), truncatedFileName, 10);
         strcat(logLine, ",LB:");
         strcat(logLine, truncatedFileName);
-        _ltoa((long)PreloadMusicTrackHook(), truncatedFileName, 10);
+        _ltoa((long)GetAvailableMainMemory(), truncatedFileName, 10);
         strcat(logLine, ",Free:");
         strcat(logLine, truncatedFileName);
     }
@@ -545,11 +552,11 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
         RewritePacketFilenameForInstalledData(fileName);
     do {
         FreePacketAndClear(&packet, flags);
-        largestBlock = ReleaseMusicTrackHook();
-        availableMemory = PreloadMusicTrackHook();
+        largestBlock = GetLargestMainMemoryBlock();
+        availableMemory = GetAvailableMainMemory();
         packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
-        largestBlock = ReleaseMusicTrackHook();
-        availableMemory = PreloadMusicTrackHook();
+        largestBlock = GetLargestMainMemoryBlock();
+        availableMemory = GetAvailableMainMemory();
         retries--;
         if (retries < 1 || g_nPacketError_0049ca90 == 0)
             break;
@@ -559,11 +566,11 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
         free_viewport(&g_stViewBuffer_005d2b00);
         do {
             FreePacketAndClear(&packet, flags);
-            largestBlock = ReleaseMusicTrackHook();
-            availableMemory = PreloadMusicTrackHook();
+            largestBlock = GetLargestMainMemoryBlock();
+            availableMemory = GetAvailableMainMemory();
             packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
-            largestBlock = ReleaseMusicTrackHook();
-            availableMemory = PreloadMusicTrackHook();
+            largestBlock = GetLargestMainMemoryBlock();
+            availableMemory = GetAvailableMainMemory();
             retries--;
             if (retries < 1 || g_nPacketError_0049ca90 == 0)
                 break;
@@ -646,21 +653,15 @@ void InitializeTextContextFromFont(TextContext *context, short fontIndex,
 #endif
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int ReleaseTextFont(short fontIndex)
+/* Function start: 0x40F91C */
+void ReleaseTextFont(short fontIndex)
 {
-    int index;
-
     if (fontIndex == 1)
-        return 0;
-    index = fontIndex;
-    if (g_apTextFonts_005d2200[index] != 0) {
-        ReleasePacketHandle(g_apTextFonts_005d2200[index]);
-        g_apTextFonts_005d2200[index] = 0;
-        FreeFontWorkspace(g_apFontWorkspaces_005a6c10[index]);
-        g_apFontWorkspaces_005a6c10[index] = 0;
+        return;
+    if (g_apTextFonts_005d2200[fontIndex] != 0) {
+        ReleasePacketHandle(g_apTextFonts_005d2200[fontIndex]);
+        g_apTextFonts_005d2200[fontIndex] = 0;
     }
-    return 0;
 }
 
 /* Function start: 0x40F96E */
@@ -679,7 +680,7 @@ void DrawTextAt(TextContext *context, short x, short y,
     context->text = savedText;
     context->alignment = savedAlignment;
     if (context->viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
     return 0;
 #else
     char *savedText;
@@ -886,7 +887,7 @@ short CheckEscaped(void)
     InputEventState event;
     short escaped;
 
-    PumpWindowMessages();
+    PumpWindowMessages(0);
     escaped = 0;
     if (FindQueuedInputEvent(10) != 0) {
         PeekInputEvent(&event, 10);
@@ -908,7 +909,7 @@ short CheckEscaped(void)
 /* Function start: 0x40F9F7 */
 void FlushPendingInputPresses(void)
 {
-    PumpWindowMessages();
+    PumpWindowMessages(0);
     while (TakeInputPressCount() != 0)
         ServiceInputDevices(15);
 }
@@ -916,41 +917,55 @@ void FlushPendingInputPresses(void)
 /* Function start: 0x40FA2C */
 short WaitForInputKey(void)
 {
-    InputEventState event;
-    unsigned char savedMode;
-    signed char key;
+    void (*savedPump)(void);
+    short key;
+    InputEventState *event;
 
     key = 0;
-    if (g_nEventManagerActive_0059a850 == 0)
-        return (signed char)PumpMessagesDuringWait();
+    savedPump = g_pfnInputPump_005c840c;
+    ConfigureInputPump(1, PollJoystickButtonEvents);
+    ServiceInputDevices(15);
+    event = FindQueuedInputEvent(1);
+    if (event != 0) {
+        key = (short)(event->value + 1);
+    } else {
+        event = FindQueuedInputEvent(4);
+        if (event != 0)
+            key = (short)event->status;
+    }
+    if (key != 0)
+        FlushPendingInputPresses();
+    FlushInputEvents();
+    ConfigureInputPump(1, savedPump);
+    return key;
+}
 
-    savedMode = g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
-    do {
-        switch (PollInputEvent(&event)) {
-        case 2:
-        case 10:
-            key = 0x1c;
-            while (PollInputEvent(&event) != 0)
-                ;
-            break;
-        case 3:
-        case 5:
-            key = (signed char)event.value;
-            if (key == 0x1d) {
-                key = 0;
-            } else {
-                if (PollInputEvent(&event) != 0) {
-                    do {
-                    } while (PollInputEvent(&event) != 0);
-                }
-            }
+/* Function start: 0x40FADE */
+unsigned short WaitForAnyInputPress(void)
+{
+    signed char acknowledged;
+    unsigned char key;
+    int savedKeyboardMouseEnabled;
+    InputEventState event;
+    int eventType;
+
+    acknowledged = 0;
+    key = 0x0d;
+    savedKeyboardMouseEnabled = g_bKeyboardMouseEnabled_0049be68;
+    g_bKeyboardMouseEnabled_0049be68 = 0;
+    while (acknowledged == 0) {
+        eventType = PollInputEvent(&event);
+        switch (eventType) {
+        case 4:
+        case 6:
+            key = (unsigned char)event.value;
+        case 1:
+            ReleaseInputEventQueue();
+            acknowledged++;
             break;
         }
-    } while (key == 0);
-    ClearInputKeyStatePreservingModifiers();
-    g_bInputMode_0059a848 = savedMode;
-    FlushInputEvents();
+    }
+    g_bKeyboardMouseEnabled_0049be68 = savedKeyboardMouseEnabled;
     return key;
 }
 
@@ -1059,40 +1074,9 @@ clamp_pointer:
         QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
                         (unsigned short)g_stMouseCursorState_0059ab10.y,
                         0, 0, 0, 0, 0, 0);
-        g_bPointerMovedByKeyboard_005a7d54 = 1;
+        g_bSuppressNextMouseMove_005c843c = 1;
         SetMousePosition(g_stHostMouseState_0059af70.x,
                          g_stHostMouseState_0059af70.y);
-    }
-}
-
-/* Function start: 0x4345A1 */
-void EraseLastTextInputCharacter(void)
-{
-    Viewport clearArea;
-    char *text;
-    short textWidth;
-    short length;
-    short characterWidth;
-
-    text = g_pCurrentTextContext_005c8d1c->text;
-    textWidth = MeasureTextPixelWidthClamped(text);
-    length = DosStrlen(text);
-    if (length != 0) {
-        characterWidth = (short)GetFontCharWidth(text[length - 1]);
-        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
-        clearArea.left = (short)(clearArea.left +
-                                 textWidth - characterWidth);
-        clearArea.right = (short)(clearArea.left + characterWidth - 1);
-        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
-        clearArea.bottom = (short)(clearArea.top +
-            ReadWord((unsigned short *)
-                g_pCurrentTextContext_005c8d1c->font) - 1);
-        SuspendWc1MouseCursor();
-        ClearViewport(&clearArea,
-                      g_pCurrentTextContext_005c8d1c->backgroundColour);
-        ResumeMouseCursor();
-        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
     }
 }
 
@@ -1360,10 +1344,10 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     g_acObjectType_00493980[obj] = type;
     g_aeObjectClass_00495328[obj] = typeData->objectClass;
     if (type == OBJECT_TYPE_ROCK_CHUNK)
-        g_apObjectShape_0059d2f0[obj] =
+        g_apObjectShape_00493868[obj] =
             g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet;
     else
-        g_apObjectShape_0059d2f0[obj] = typeData->shapeSet;
+        g_apObjectShape_00493868[obj] = typeData->shapeSet;
     init_ijk(obj);
     g_asObjectCollisionRadius_0059d710[obj] = typeData->collisionRadius;
     zero = 0;
@@ -1374,12 +1358,12 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     g_acObjectOwner_00495208[obj] = (signed char)owner;
     g_asShipAccumulatedDamage_0059dee0[obj] = zero;
     objectClass = g_aeObjectClass_00495328[obj];
-    g_asObjectFlip_0059c870[obj] = zero;
+    g_asObjectFlip_004939c8[obj] = zero;
     g_acLastCollisionObject_0059d6a0[obj] = -1;
-    g_asObjectScreenAngle_0059cd90[obj] = zero;
+    g_asObjectScreenAngle_004936b8[obj] = zero;
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {
-        g_asObjectViewFrame_0059d230[obj] = zero;
+        g_asObjectViewFrame_00493508[obj] = zero;
         g_acShipTarget_00495f20[obj] = -1;
         if (objectClass >= OBJECT_CLASS_SHIP) {
             value = typeData->shieldFore;
@@ -1426,7 +1410,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner)
     }
 
     if (typeData->animation == 0) {
-        g_asObjectViewFrame_0059d230[obj] = typeData->yawRate;
+        g_asObjectViewFrame_00493508[obj] = typeData->yawRate;
         return;
     }
     g_asObjectAnimationDelay_0059b660[obj] = 1;
@@ -1568,43 +1552,32 @@ unsigned int fix_velocity(short obj)
     return 0;
 }
 
-/* Function start: 0x43CE8F */
-unsigned int sort_viable_target_list(void)
+/* Function start: 0x41195F */
+void SortViableTargetsByDistance(void)
 {
-    short nextOuter;
-    signed char target;
-    short distance;
     short outer;
-    short count;
     short inner;
+    short distance;
+    short target;
 
-    if (g_cViableTargetCount_0046c088 > 1) {
-        count = (short)g_cViableTargetCount_0046c088;
-        outer = 0;
-        if (count - 1 > 0) {
-            do {
-                nextOuter = outer + 1;
-                inner = nextOuter;
-                if (inner < count) {
-                    for (; inner < count; inner++) {
-                        distance =
-                            g_asViableTargetDistance_0059c470[outer];
-                        if (g_asViableTargetDistance_0059c470[inner] <
-                            distance) {
-                            g_asViableTargetDistance_0059c470[outer] =
-                                g_asViableTargetDistance_0059c470[inner];
-                            target = g_acViableTarget_0059c920[outer];
-                            g_asViableTargetDistance_0059c470[inner] =
-                                distance;
-                            g_acViableTarget_0059c920[outer] =
-                                g_acViableTarget_0059c920[inner];
-                            g_acViableTarget_0059c920[inner] = target;
-                        }
-                    }
+    if (g_cViableTargetCount_00496178 > 1) {
+        for (outer = 0;
+             outer < (short)g_cViableTargetCount_00496178 - 1;
+             outer++) {
+            for (inner = (short)(outer + 1);
+                 inner < (short)g_cViableTargetCount_00496178;
+                 inner++) {
+                distance = g_asViableTargetDistance_00496190[outer];
+                if (g_asViableTargetDistance_00496190[inner] < distance) {
+                    target = g_acViableTarget_00496180[outer];
+                    g_asViableTargetDistance_00496190[outer] =
+                        g_asViableTargetDistance_00496190[inner];
+                    g_acViableTarget_00496180[outer] =
+                        g_acViableTarget_00496180[inner];
+                    g_asViableTargetDistance_00496190[inner] = distance;
+                    g_acViableTarget_00496180[inner] = (signed char)target;
                 }
-                outer = nextOuter;
-            } while ((int)outer < count - 1);
+            }
         }
     }
-    return 0;
 }

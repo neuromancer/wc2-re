@@ -109,9 +109,9 @@ int MeasureScaledIntroTextWidth(const char *text, short scale)
     return width;
 }
 
-/* Function start: 0x4087FF */
-int DrawCenteredScaledIntroText(const char *text, short centreX,
-                                short baselineY, short scale)
+/* Function start: WC2_UNMAPPED */
+int DrawWc1CenteredScaledIntroText(const char *text, short centreX,
+                                   short baselineY, short scale)
 {
     short bounds[4];
     short x = centreX;
@@ -233,7 +233,7 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
         }
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
     return 0;
 }
 

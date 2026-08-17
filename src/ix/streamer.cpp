@@ -109,7 +109,7 @@ extern "C" void ix_streamer_destroy(void)
 #endif
 }
 
-/* Function start: 0x469EA6 */
+/* Function start: 0x46BF1E */
 extern "C" void ix_streamer_configure(int option, void *value)
 {
     ix_dsp_configure(option, value);

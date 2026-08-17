@@ -29,7 +29,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
             exit_squadron(g_szBadViewport_00470d24);
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
     topOffset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
     nextOffset = SignExtendClipCoord(
         viewport->rowOffsets[viewport->top + 1]);
@@ -211,13 +211,13 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
             RotateRLEImage(&g_stRasterClip_004b2088,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
-                           g_abShapeTransformScratch_004875c0,
+                           g_abShapeTransformScratch_004a2688,
                            angle * 10, scaleX * 256, scaleY * 256, 1);
         } else {
             RotateRLEImage(&g_stRasterClip_004b2088,
                            GetPreparedShapeData(shape), frame,
                            x - viewport->left, y - viewport->top,
-                           g_abShapeTransformScratch_004875c0,
+                           g_abShapeTransformScratch_004a2688,
                            angle * 10, scaleX * 256, scaleY * 256, 0);
         }
     }
@@ -617,7 +617,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         commands += 2;
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 }
 
 /* Function start: 0x426FD9 */
@@ -663,7 +663,7 @@ void ClearViewport(Viewport *viewport, short colour)
         FillRasterClip(&g_stRasterClip_004b2088, colour);
     }
     if (viewport == &g_stScreenViewport_005d21a0) {
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
 #else
@@ -761,7 +761,7 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
     DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 }
 
 /* Function start: 0x42808F */
@@ -773,7 +773,7 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
     FillRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 }
 
 /* Function start: 0x4280FB */
@@ -785,16 +785,18 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
     DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
                       horizontalRadius, verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4282F0 */
 void DrawSpriteScaled(Viewport *viewport, short x, short y,
                       unsigned char *shape, short frame, short angle,
                       short scale, short flip)
 {
-    DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
-                          scale, scale, flip, 0);
+    if (HasValidShapeAllocationSignature(shape) != 0) {
+        DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
+                              scale, scale, flip, 0);
+    }
 }
 
 /* Function start: 0x428344 */
@@ -917,7 +919,7 @@ void fizzle_fade(Viewport *source, Viewport *destination,
             } while (destinationX != -1);
         }
         if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
-            DIBslam();
+            MarkDibDirty();
     }
 }
 
@@ -927,7 +929,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     (void)effect;
     (void)colour;
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
     RasterLineHook(g_szSnowViewport_00470da4);
 }
 

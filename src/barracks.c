@@ -303,10 +303,10 @@ short SaveGame(short slot, SaveGameRecord *gameRecord)
     return (written != 0) & (file >= 0);
 }
 
-/* Function start: 0x42E3CF */
-short PromptForTextInput(short x, short y, const char *prompt,
-                         char *destination, short maximumLength,
-                         short inputMode)
+/* Function start: WC2_UNMAPPED */
+short RunWc1TextInputPrompt(short x, short y, const char *prompt,
+                            char *destination, short maximumLength,
+                            short inputMode)
 {
     ModalTextPanel panel;
     volatile unsigned int bounds[2];
@@ -336,7 +336,7 @@ short PromptForTextInput(short x, short y, const char *prompt,
                                  g_cViewportClearColour_004699a0,
                                  DAT_004699a4, DAT_004699ac) != 0) {
         DrawModalTextPanel(&panel, 3, 6, 0, prompt);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         if (ReadTextInput(destination, maximumLength, inputMode, 0) != 0)
             result = 1;
@@ -361,7 +361,7 @@ int WarnWc1LoadGameFirst(void)
         }
         ReleaseModalTextPanel();
     }
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     return (int)key;
 }
 
@@ -390,8 +390,8 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     if (separator != 0)
         *separator = 0;
     DosStrcpy(gameRecord.description, oldLabel);
-    if (PromptForTextInput(40, 24, "Game Name: ",
-                           gameRecord.description, 16, 1) != 0) {
+    if (RunWc1TextInputPrompt(40, 24, "Game Name: ",
+                              gameRecord.description, 16, 1) != 0) {
         gameRecord.occupied = 1;
         memcpy(&gameRecord.campaign, campaign,
                sizeof(gameRecord.campaign));
@@ -541,7 +541,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
             memcpy(campaign->currentPilot->callsign, "CHEATER", 8);
         }
     }
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -624,9 +624,9 @@ void DrawBarracksStaticDetails(Viewport *viewport,
     CheckCursor();
 }
 
-/* Function start: 0x40815F */
-void AnimateBarracks(Viewport *viewport, unsigned char *shape,
-                     BarracksAnimationState *state)
+/* Function start: WC2_UNMAPPED */
+void AnimateWc1Barracks(Viewport *viewport, unsigned char *shape,
+                        BarracksAnimationState *state)
 {
     BarracksBunkState *bunkState;
     int frameTick;
@@ -720,7 +720,7 @@ int ConfirmWc1QuitWingCommander(void)
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     return (int)confirmed;
 }
 
@@ -740,7 +740,7 @@ int ConfirmWc1AwakenAfterBadData(short slot)
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     return (int)confirmed;
 }
 
@@ -764,7 +764,7 @@ int ConfirmWc1ReplaceFaultyData(short slot)
             WaitForStreamInputKey()) == 'Y');
         ReleaseModalTextPanel();
     }
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     return (int)confirmed;
 }
 
@@ -798,7 +798,7 @@ void HandleWc1BarracksBunkSelection(Viewport *viewport,
 refresh:
     GetBunkInfo(state);
     DrawBarracksBunks(viewport, shape, state);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
 }
 
 /* Function start: 0x418DAA */
@@ -847,7 +847,7 @@ void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
                           BarracksAnimationState *state)
 {
     DrawBarracksStaticDetails(viewport, shape);
-    AnimateBarracks(viewport, shape, state);
+    AnimateWc1Barracks(viewport, shape, state);
     RefreshRoomMenuLabel();
 }
 
@@ -881,7 +881,7 @@ short RunWc1BarracksScreen(void)
     DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background, &animation);
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomScreenViewport_005988a0;
     WarpWc1MouseTo(160, 100);
-    ResumeMouseCursor();
+    ResumeMouseCursorHook();
     SetFrameTimerPeriodDirect(0);
     FlushInputEvents();
     g_nSavedRoomControllerX_005988b4 =
@@ -951,7 +951,7 @@ short RunWc1BarracksScreen(void)
                         g_stSecondaryViewBuffer_005d2c90.bottom = 127;
                         g_stScreenViewport_005d21a0.top = 24;
                         g_stScreenViewport_005d21a0.bottom = 151;
-                        ViewMedals();
+                        ViewWc1Medals();
                         lastMedalsTick = (int)DAT_0059ab54;
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
                                       g_cSecondaryViewBufferColour_0049cb4c);
@@ -960,7 +960,7 @@ short RunWc1BarracksScreen(void)
                         g_stSecondaryViewBuffer_005d2c90.bottom = 199;
                         DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background,
                                           &animation);
-                        ResumeMouseCursor();
+                        ResumeMouseCursorHook();
                         UpdateBarracksScreen(
                             &g_stRoomScreenViewport_005988a0,
                             background, &animation);
@@ -969,7 +969,7 @@ short RunWc1BarracksScreen(void)
             }
         }
         ShowMemoryStatusDebug();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     }
 
@@ -1037,9 +1037,9 @@ short BarracksScreen(void)
 }
 
 /* Function start: 0x4225A0 */
-unsigned short __stdcall StepPaletteTransition(short *current,
-                                                const short *target,
-                                                short componentCount)
+unsigned short StepPaletteTransition(short *current,
+                                     const short *target,
+                                     short componentCount)
 {
     unsigned int byteCount;
     short difference;

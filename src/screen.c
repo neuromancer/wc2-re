@@ -680,12 +680,12 @@ void CreateCannedSceneObject(short *object, short yaw, short unusedPitch,
         ScaleFixedVector(&g_aShipForwardVector_00494208[63],
                          (int)distance << 8,
                          &g_aShipPosition_00494550[*object]);
-        g_asObjectViewFrame_0059d230[*object] = frame;
-        g_asObjectScreenAngle_0059cd90[*object] = type;
+        g_asObjectViewFrame_00493508[*object] = frame;
+        g_asObjectScreenAngle_004936b8[*object] = type;
         g_acObjectType_00493980[*object] =
-            (enum ObjectType)g_asObjectScreenAngle_0059cd90[*object];
-        g_asObjectScreenScale_0059c950[*object] = scale;
-        g_apObjectShape_0059d2f0[*object] = shape;
+            (enum ObjectType)g_asObjectScreenAngle_004936b8[*object];
+        g_asObjectScreenScale_00493a58[*object] = scale;
+        g_apObjectShape_00493868[*object] = shape;
     }
 }
 
@@ -759,7 +759,7 @@ unsigned int ShowCampaignVictorySequence(void)
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
             if (frame > 90)
-                g_asObjectScreenScale_0059c950[planetObject]++;
+                g_asObjectScreenScale_00493a58[planetObject]++;
             if (g_asObjectCollisionRadius_0059d710[61] < planetDepth) {
                 slot = 0;
                 projectile = projectiles;
@@ -778,9 +778,9 @@ unsigned int ShowCampaignVictorySequence(void)
                             DrawSpriteScaled(
                                 &g_stViewBuffer_005d2b00,
                                 (short)(projectile->screenX +
-                                        g_nViewCenterX_0059a852),
+                                        g_nViewCenterX_005c80d8),
                                 (short)(projectile->screenY +
-                                        g_nViewCenterY_0059a854),
+                                        g_nViewCenterY_005c80da),
                                 projectileShape, 1, 0,
                                 (short)projectile->scale,
                                 projectile->flip);
@@ -839,21 +839,21 @@ unsigned int ShowCampaignVictorySequence(void)
 
                 planetScale = 0x40000L / planetDepth;
                 DrawSpriteScaled(
-                    &g_stViewBuffer_005d2b00, g_nViewCenterX_0059a852,
-                    (short)(g_nViewCenterY_0059a854 +
+                    &g_stViewBuffer_005d2b00, g_nViewCenterX_005c80d8,
+                    (short)(g_nViewCenterY_005c80da +
                             verticalOffset / planetDepth),
                     planetShape, 0, 0, (short)planetScale, 0);
                 verticalOffset += 200;
             }
             dump_buffer_to_screen();
             clear_view_buffer();
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         }
         planetDepth += 15;
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         frame++;
     } while (frame < 250);
@@ -885,7 +885,7 @@ unsigned int ShowCampaignVictorySequence(void)
                 }
             }
             elapsed++;
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         } while (elapsed < 40);
         ReleasePacketHandle(planetShape);
@@ -893,7 +893,7 @@ unsigned int ShowCampaignVictorySequence(void)
                                     g_cSecondaryViewBufferColour_0049cb4c, 1);
         ClearViewport(&g_stModalSourceViewport_005d2c50,
                       g_cSecondaryViewBufferColour_0049cb4c);
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
         RestoreGamePalette();
     }
@@ -908,7 +908,7 @@ unsigned int ShowCampaignVictorySequence(void)
                                 g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stModalSourceViewport_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     RestoreGamePalette();
     return 0;
@@ -960,8 +960,8 @@ unsigned int ShowTigerClawEscapeScene(void)
             if (g_asObjectCollisionRadius_0059d710[61] < depth &&
                 frame < 198) {
                 DrawSpriteScaled(
-                    &g_stViewBuffer_005d2b00, g_nViewCenterX_0059a852,
-                    (short)(g_nViewCenterY_0059a854 +
+                    &g_stViewBuffer_005d2b00, g_nViewCenterX_005c80d8,
+                    (short)(g_nViewCenterY_005c80da +
                             verticalOffset / depth),
                     escapeShape, 0, 0, (short)(0x40000L / depth), 0);
             }
@@ -1016,7 +1016,7 @@ unsigned int ShowTigerClawEscapeScene(void)
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 260);
 
@@ -1038,8 +1038,69 @@ unsigned int ShowTigerClawEscapeScene(void)
     return 0;
 }
 
+#ifndef WC1_SDL
+#pragma function(strcat)
+#endif
+
 /* Function start: 0x429261 */
-unsigned int ShowTheEndScreen(short enableFireworks)
+void RunCampaignScript(short campaignSlot)
+{
+    void *scenePacket;
+    unsigned int availableMainMemory;
+    unsigned int largestMainMemoryBlock;
+    short fontIndex;
+    char campaignNumber[4];
+    short savedInputMode;
+    char campaignFileName[13];
+    unsigned int availableFarMemory;
+    unsigned int largestFarMemoryBlock;
+
+    savedInputMode = g_nUiInputMode_005c8d3c;
+    memcpy(campaignFileName, "campaign.s0", 12);
+    campaignFileName[12] = 0;
+    if (g_bSkipCampaignVideo_0049c270 != 0)
+        return;
+    SetMenuInputPump();
+    strcat(campaignFileName,
+           _itoa((int)campaignSlot, campaignNumber, 10));
+    scenePacket = FetchDiskPacketRetrying(
+        campaignFileName, 0, 0);
+    for (fontIndex = 0; fontIndex < 4; fontIndex++) {
+        if (g_apTextFonts_005d2200[fontIndex] != 0) {
+            ReleasePacketHandle(g_apTextFonts_005d2200[fontIndex]);
+            g_apTextFonts_005d2200[fontIndex] = 0;
+        }
+    }
+    availableMainMemory = GetAvailableMainMemory();
+    largestMainMemoryBlock = GetLargestMainMemoryBlock();
+    availableFarMemory = GetAvailableFarMemory();
+    largestFarMemoryBlock = GetLargestFreeMemoryBlock();
+    if (g_bCutsceneViewportPreallocated_00499c4c == 0)
+        ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
+    if (g_bSkipCampaignScenes_0049cc78 == 0) {
+        g_bSceneEscapeRequested_0049d4b0 = 0;
+        ParseCutsceneContainer(scenePacket);
+        g_bSceneDisplayUpdateActive_00499bb8 = 1;
+        DisableMouseCursorDrawing();
+        g_nUiInputMode_005c8d3c = 0;
+        RunLoadedCutscene();
+        g_nUiInputMode_005c8d3c = savedInputMode;
+        g_bSceneDisplayUpdateActive_00499bb8 = 0;
+        g_bSceneEscapeRequested_0049d4b0 = 0;
+    }
+    availableMainMemory = GetAvailableMainMemory();
+    largestMainMemoryBlock = GetLargestMainMemoryBlock();
+    availableFarMemory = GetAvailableFarMemory();
+    largestFarMemoryBlock = GetLargestFreeMemoryBlock();
+    ReleasePacketHandle(scenePacket);
+}
+
+#ifndef WC1_SDL
+#pragma intrinsic(strcat)
+#endif
+
+/* Function start: WC2_UNMAPPED */
+unsigned int ShowWc1EndScreen(short enableFireworks)
 {
     FireworkState *firework;
     short activeFireworks;
@@ -1050,7 +1111,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
     PreloadMusicTrackHook(0x17);
     spacetrack(0x17, 2, 1);
     InitializeConversationViewport();
-    ViewMedals();
+    ViewWc1Medals();
     ReleaseTextFont(0);
     ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
     ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
@@ -1093,7 +1154,7 @@ unsigned int ShowTheEndScreen(short enableFireworks)
         }
         frame++;
         RefreshMemoryStatusOverlay();
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 320);
 
@@ -1112,50 +1173,50 @@ short UpdateInputDeviceTransitions(short raw)
     short buttons;
     short device;
 
-    device = g_nActiveInputDevice_005a819c;
+    device = g_nActiveInputDevice_005d1726;
     if (raw == 0)
         ReadCalibratedJoystick();
     else
-        SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
+        SampleJoystickDevice(&g_aInputDeviceSamples_005d1780[device],
                              device, 0);
 
-    g_asInputButton2DoubleClick_0059e520[device] = 0;
-    g_asInputButton1DoubleClick_0059e508[device] =
-        g_asInputButton2DoubleClick_0059e520[device];
-    g_asInputButton2Changed_0059e510[device] = 0;
-    g_asInputButton1Changed_0059e50c[device] =
-        g_asInputButton2Changed_0059e510[device];
-    buttons = (short)g_aInputDeviceSamples_005a81f0[device].buttons;
-    if (buttons != g_asPreviousInputButtons_0059e514[device]) {
+    g_asInputButton2DoubleClick_005d3048[device] = 0;
+    g_asInputButton1DoubleClick_005d3030[device] =
+        g_asInputButton2DoubleClick_005d3048[device];
+    g_asInputButton2Changed_005d3038[device] = 0;
+    g_asInputButton1Changed_005d3034[device] =
+        g_asInputButton2Changed_005d3038[device];
+    buttons = (short)g_aInputDeviceSamples_005d1780[device].buttons;
+    if (buttons != g_asPreviousInputButtons_005d303c[device]) {
         changed = (short)((buttons & 1) ^
-            (g_asPreviousInputButtons_0059e514[device] & 1));
+            (g_asPreviousInputButtons_005d303c[device] & 1));
         if (changed != 0) {
-            g_asInputButton1Changed_0059e50c[device]++;
+            g_asInputButton1Changed_005d3034[device]++;
             if ((buttons & 1) != 0) {
-                if ((int)(DAT_0059ab54 -
-                    g_anInputButton1PressTime_0059e518[device]) <=
-                        g_nInputDoubleClickInterval_0046af54 *
-                        g_nInputTickScale_0059af90)
-                    g_asInputButton1DoubleClick_0059e508[device]++;
-                g_anInputButton1PressTime_0059e518[device] =
-                    DAT_0059ab54;
+                if (g_nInputClock_005c84a8 -
+                    g_anInputButton1PressTime_005d3040[device] <=
+                        g_nInputDoubleClickInterval_00493050 *
+                        g_nInputTickScale_005c8d24)
+                    g_asInputButton1DoubleClick_005d3030[device]++;
+                g_anInputButton1PressTime_005d3040[device] =
+                    g_nInputClock_005c84a8;
             }
         }
         changed = (short)((buttons & 2) ^
-            (g_asPreviousInputButtons_0059e514[device] & 2));
+            (g_asPreviousInputButtons_005d303c[device] & 2));
         if (changed != 0) {
-            g_asInputButton2Changed_0059e510[device]++;
+            g_asInputButton2Changed_005d3038[device]++;
             if ((buttons & 2) != 0) {
-                if ((int)(DAT_0059ab54 -
-                    g_anInputButton2PressTime_0059e500[device]) <=
-                        g_nInputDoubleClickInterval_0046af54 *
-                        g_nInputTickScale_0059af90)
-                    g_asInputButton2DoubleClick_0059e520[device]++;
-                g_anInputButton2PressTime_0059e500[device] =
-                    DAT_0059ab54;
+                if (g_nInputClock_005c84a8 -
+                    g_anInputButton2PressTime_005d3028[device] <=
+                        g_nInputDoubleClickInterval_00493050 *
+                        g_nInputTickScale_005c8d24)
+                    g_asInputButton2DoubleClick_005d3048[device]++;
+                g_anInputButton2PressTime_005d3028[device] =
+                    g_nInputClock_005c84a8;
             }
         }
-        g_asPreviousInputButtons_0059e514[device] = buttons;
+        g_asPreviousInputButtons_005d303c[device] = buttons;
     }
     return 1;
 }
@@ -1165,153 +1226,162 @@ void PollJoystickButtonEvents(void)
 {
     short doubleClick;
 
-    if (g_nActiveInputDevice_005a819c == -1)
+    if (g_nActiveInputDevice_005d1726 == -1)
         return;
-    if (g_bInputPollingGuard_0046a01c != 0)
+    if (g_bInputPollingGuard_005d304c != 0)
         return;
-    g_bInputPollingGuard_0046a01c++;
+    g_bInputPollingGuard_005d304c++;
     UpdateInputDeviceTransitions(1);
-    if (g_asInputButton1Changed_0059e50c
-            [g_nActiveInputDevice_005a819c] != 0) {
+    if (g_asInputButton1Changed_005d3034
+            [g_nActiveInputDevice_005d1726] != 0) {
         doubleClick = 0;
-        if (g_asInputButton1DoubleClick_0059e508
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (g_asInputButton1DoubleClick_005d3030
+                [g_nActiveInputDevice_005d1726] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            (g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons & 1) + 1,
+            (g_aInputDeviceSamples_005d1780
+                [g_nActiveInputDevice_005d1726].buttons & 1) + 1,
             0, doubleClick);
     }
-    if (g_asInputButton2Changed_0059e510
-            [g_nActiveInputDevice_005a819c] != 0) {
+    if (g_asInputButton2Changed_005d3038
+            [g_nActiveInputDevice_005d1726] != 0) {
         doubleClick = 0;
-        if (g_asInputButton2DoubleClick_0059e520
-                [g_nActiveInputDevice_005a819c] != 0)
+        if (g_asInputButton2DoubleClick_005d3048
+                [g_nActiveInputDevice_005d1726] != 0)
             doubleClick = 3;
         QueueInputEventAtCursor(
-            ((g_aInputDeviceSamples_005a81f0
-                [g_nActiveInputDevice_005a819c].buttons >> 1) & 1) + 1,
+            ((g_aInputDeviceSamples_005d1780
+                [g_nActiveInputDevice_005d1726].buttons >> 1) & 1) + 1,
             1, doubleClick);
     }
-    g_stHostMouseState_0059af70.secondaryButton =
-        (unsigned char)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].buttons;
-    g_stHostMouseState_0059af70.primaryButton =
-        g_stHostMouseState_0059af70.secondaryButton;
-    g_bInputPollingGuard_0046a01c--;
+    g_bPersonnelSecondaryButton_005c8d05 =
+        (unsigned char)g_aInputDeviceSamples_005d1780
+            [g_nActiveInputDevice_005d1726].buttons;
+    g_bPersonnelPrimaryButton_005c8d04 =
+        g_bPersonnelSecondaryButton_005c8d05;
+    g_bInputPollingGuard_005d304c--;
 }
 
 /* Function start: 0x421530 */
 void PollMenuInputDevices(void)
 {
+    signed char doubleClick;
     unsigned char changes;
-    char doubleClick;
-    short movementX;
-    short movementY;
-    int deviceIndex;
 
     changes = 0;
-    if (g_nActiveInputDevice_005a819c == -1)
+    if (g_nActiveInputDevice_005d1726 == -1)
         return;
-    g_stHostMouseState_0059af70.x =
-        g_stMouseCursorState_0059ab10.x;
-    g_stHostMouseState_0059af70.y =
-        g_stMouseCursorState_0059ab10.y;
-    if (g_bInputPollingGuard_0046a01c != 0)
-        return;
-    g_bInputPollingGuard_0046a01c++;
-    UpdateInputDeviceTransitions(0);
+    g_nPersonnelMouseX_005c8d00 = g_nQueuedInputX_005c83f0;
+    g_nPersonnelMouseY_005c8d02 = g_nQueuedInputY_005c83f2;
+    if (g_bInputPollingGuard_005d304c == 0) {
+        g_bInputPollingGuard_005d304c++;
+        UpdateInputDeviceTransitions(0);
 
-    deviceIndex = (int)g_nActiveInputDevice_005a819c;
-    if (g_asInputButton1Changed_0059e50c[deviceIndex] != 0) {
-        g_stHostMouseState_0059af70.x +=
-            (short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].x *
-            g_nMenuPointerSpeed_0046af58;
-        g_stHostMouseState_0059af70.y +=
-            (short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].y *
-            g_nMenuPointerSpeed_0046af58;
-        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
-            changes = 3;
-        QueueInputEventAtCursor(
-            ((unsigned short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].buttons & 1) + 1,
-            0, (short)(signed char)changes);
-        changes = 1;
-    }
-    deviceIndex = (int)g_nActiveInputDevice_005a819c;
-    if (g_asInputButton2Changed_0059e510[deviceIndex] != 0) {
-        g_stHostMouseState_0059af70.x +=
-            (short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].x *
-            g_nMenuPointerSpeed_0046af58;
-        g_stHostMouseState_0059af70.y +=
-            (short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].y *
-            g_nMenuPointerSpeed_0046af58;
-        doubleClick = 0;
-        if (g_asInputButton1DoubleClick_0059e508[deviceIndex] != 0)
-            doubleClick = 3;
-        QueueInputEventAtCursor(
-            (((unsigned short)g_aInputDeviceSamples_005a81f0
-                [deviceIndex].buttons >> 1) & 1) + 1,
-            1, (short)doubleClick);
-        changes++;
-    }
-    if (changes == 0) {
-        movementX = (short)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].x;
-        movementY = (short)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].y;
-        g_stHostMouseState_0059af70.x +=
-            g_nMenuPointerSpeed_0046af58 * movementX;
-        g_stHostMouseState_0059af70.y +=
-            g_nMenuPointerSpeed_0046af58 * movementY;
-        changes = (unsigned char)movementY | (unsigned char)movementX;
-        if (changes != 0) {
-            FlushInputEvents();
-            if (g_stHostMouseState_0059af70.x <= 0)
-                g_stHostMouseState_0059af70.x = 0;
-            if (g_stHostMouseState_0059af70.x >= 319)
-                g_stHostMouseState_0059af70.x = 319;
-            if (g_stHostMouseState_0059af70.y <= 0)
-                g_stHostMouseState_0059af70.y = 0;
-            if (g_stHostMouseState_0059af70.y >= 199)
-                g_stHostMouseState_0059af70.y = 199;
-            SetMousePosition(g_stHostMouseState_0059af70.x,
-                             g_stHostMouseState_0059af70.y);
+        if (g_asInputButton1Changed_005d3034
+                [g_nActiveInputDevice_005d1726] != 0) {
+            g_nPersonnelMouseX_005c8d00 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].x *
+                g_nMenuPointerSpeed_00493054;
+            g_nPersonnelMouseY_005c8d02 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].y *
+                g_nMenuPointerSpeed_00493054;
+            doubleClick = 0;
+            if (g_asInputButton1DoubleClick_005d3030
+                    [g_nActiveInputDevice_005d1726] != 0)
+                doubleClick = 3;
+            QueueInputEventAtCursor(
+                (g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].buttons & 1) + 1,
+                0, (short)doubleClick);
+            changes++;
         }
-    }
+        if (g_asInputButton2Changed_005d3038
+                [g_nActiveInputDevice_005d1726] != 0) {
+            g_nPersonnelMouseX_005c8d00 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].x *
+                g_nMenuPointerSpeed_00493054;
+            g_nPersonnelMouseY_005c8d02 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].y *
+                g_nMenuPointerSpeed_00493054;
+            doubleClick = 0;
+            if (g_asInputButton1DoubleClick_005d3030
+                    [g_nActiveInputDevice_005d1726] != 0)
+                doubleClick = 3;
+            QueueInputEventAtCursor(
+                ((g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].buttons >> 1) & 1) + 1,
+                1, (short)doubleClick);
+            changes++;
+        }
+        if (changes == 0) {
+            g_nPersonnelMouseX_005c8d00 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].x *
+                g_nMenuPointerSpeed_00493054;
+            g_nPersonnelMouseY_005c8d02 +=
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].y *
+                g_nMenuPointerSpeed_00493054;
+            changes = (unsigned char)(
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].y |
+                g_aInputDeviceSamples_005d1780
+                    [g_nActiveInputDevice_005d1726].x);
+            if (changes != 0) {
+                FlushInputEvents();
+                g_nPersonnelMouseX_005c8d00 =
+                    g_nPersonnelMouseX_005c8d00 > 0
+                        ? g_nPersonnelMouseX_005c8d00 : 0;
+                g_nPersonnelMouseX_005c8d00 =
+                    g_nPersonnelMouseX_005c8d00 < 319
+                        ? g_nPersonnelMouseX_005c8d00 : 319;
+                g_nPersonnelMouseY_005c8d02 =
+                    g_nPersonnelMouseY_005c8d02 > 0
+                        ? g_nPersonnelMouseY_005c8d02 : 0;
+                g_nPersonnelMouseY_005c8d02 =
+                    g_nPersonnelMouseY_005c8d02 < 199
+                        ? g_nPersonnelMouseY_005c8d02 : 199;
+                SetMousePosition(g_nPersonnelMouseX_005c8d00,
+                                 g_nPersonnelMouseY_005c8d02);
+            }
+        }
 
-    g_stHostMouseState_0059af70.primaryButton =
-        (unsigned char)g_aInputDeviceSamples_005a81f0
-            [g_nActiveInputDevice_005a819c].buttons;
-    g_stHostMouseState_0059af70.secondaryButton =
-        g_stHostMouseState_0059af70.primaryButton;
-    if (g_stHostMouseState_0059af70.x <= 0)
-        g_stHostMouseState_0059af70.x = 0;
-    if (g_stHostMouseState_0059af70.x >= 319)
-        g_stHostMouseState_0059af70.x = 319;
-    if (g_stHostMouseState_0059af70.y <= 0)
-        g_stHostMouseState_0059af70.y = 0;
-    if (g_stHostMouseState_0059af70.y >= 199)
-        g_stHostMouseState_0059af70.y = 199;
-    if (changes != 0) {
-        SuspendWc1MouseCursor();
-        g_stMouseCursorState_0059ab10.primaryButton =
-            g_stHostMouseState_0059af70.primaryButton;
-        g_stMouseCursorState_0059ab10.x =
-            g_stHostMouseState_0059af70.x;
-        g_stMouseCursorState_0059ab10.y =
-            g_stHostMouseState_0059af70.y;
-        g_stMouseCursorState_0059ab10.secondaryButton =
-            g_stHostMouseState_0059af70.secondaryButton;
-        g_stMouseCursorState_0059ab10.flags =
-            g_stHostMouseState_0059af70.flags;
-        ResumeMouseCursor();
+        g_bPersonnelSecondaryButton_005c8d05 =
+            (unsigned char)g_aInputDeviceSamples_005d1780
+                [g_nActiveInputDevice_005d1726].buttons;
+        g_bPersonnelPrimaryButton_005c8d04 =
+            g_bPersonnelSecondaryButton_005c8d05;
+        g_nPersonnelMouseX_005c8d00 =
+            g_nPersonnelMouseX_005c8d00 > 0
+                ? g_nPersonnelMouseX_005c8d00 : 0;
+        g_nPersonnelMouseX_005c8d00 =
+            g_nPersonnelMouseX_005c8d00 < 319
+                ? g_nPersonnelMouseX_005c8d00 : 319;
+        g_nPersonnelMouseY_005c8d02 =
+            g_nPersonnelMouseY_005c8d02 > 0
+                ? g_nPersonnelMouseY_005c8d02 : 0;
+        g_nPersonnelMouseY_005c8d02 =
+            g_nPersonnelMouseY_005c8d02 < 199
+                ? g_nPersonnelMouseY_005c8d02 : 199;
+        if (changes != 0) {
+            if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
+                DisableMouseCursorDrawing();
+            g_nQueuedInputX_005c83f0 = g_nPersonnelMouseX_005c8d00;
+            g_nQueuedInputY_005c83f2 = g_nPersonnelMouseY_005c8d02;
+            g_bQueuedPrimaryButton_005c83f4 =
+                g_bPersonnelPrimaryButton_005c8d04;
+            g_bQueuedSecondaryButton_005c83f5 =
+                g_bPersonnelSecondaryButton_005c8d05;
+            g_wQueuedInputFlags_005c83f7 = g_wPersonnelInputFlags_005c8d07;
+            if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
+                EnableMouseCursorDrawing();
+        }
+        g_bInputPollingGuard_005d304c--;
     }
-    g_bInputPollingGuard_0046a01c--;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1402,10 +1472,10 @@ void SendCommMenuChoice(short i)
 #if 0
     AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
 #else
-    if (g_apszPlayerCommunicationText_005d17c0[i] == 0)
-        g_apszPlayerCommunicationText_005d17c0[i] =
+    if (g_apCommunicationTextPackets_005d17c0[i] == 0)
+        g_apCommunicationTextPackets_005d17c0[i] =
             LoadPacketAllocated("communic.you", i);
-    AppendCommMenuChoice(g_apszPlayerCommunicationText_005d17c0[i], i);
+    AppendCommMenuChoice(g_apCommunicationTextPackets_005d17c0[i], i);
 #endif
 }
 
@@ -2066,7 +2136,7 @@ short LoadJoystickCalibrationFile(short horizontalRange,
         horizontalRange++;
     if (verticalRange == 0)
         verticalRange++;
-    g_nJoystickFailureValue_005a81e0 =
+    g_nJoystickFailureValue_005d176c =
         g_nJoystickUnavailableSample_0048e054;
     SampleBothJoysticks(samples, g_nJoystickUnavailableSample_0048e054);
     if (samples[0].x != g_nJoystickUnavailableSample_0048e054 &&
@@ -2092,8 +2162,8 @@ short LoadJoystickCalibrationFile(short horizontalRange,
                 failed = _read(file, &storedCentreX, 2) <= 0;
             if (failed == 0)
                 failed = _read(file, &storedCentreY, 2) <= 0;
-            g_nJoystickCentreX_005a81dc = (unsigned int)storedCentreX;
-            g_nJoystickCentreY_005a81d8 = (unsigned int)storedCentreY;
+            g_nJoystickCentreX_005d1768 = (unsigned int)storedCentreX;
+            g_nJoystickCentreY_005d1764 = (unsigned int)storedCentreY;
             _close(file);
             if (failed != 0)
                 _unlink("j.cal");
@@ -2105,157 +2175,163 @@ short LoadJoystickCalibrationFile(short horizontalRange,
                                (short *)&maximumX,
                                (short *)&minimumY,
                                (short *)&maximumY);
-            g_nJoystickCentreX_005a81dc =
+            g_nJoystickCentreX_005d1768 =
                 ((int)minimumX + (int)maximumX) / 2;
-            g_nJoystickCentreY_005a81d8 =
+            g_nJoystickCentreY_005d1764 =
                 ((int)minimumY + (int)maximumY) / 2;
         }
 
-        if (g_nJoystickCentreX_005a81dc > 10) {
-            g_nJoystickCalibrationMinimumX_0059df68 =
-                g_nJoystickCentreX_005a81dc - 10;
-            g_nJoystickCalibrationMaximumX_0059df6c =
-                g_nJoystickCentreX_005a81dc + 10;
+        if (g_nJoystickCentreX_005d1768 > 10) {
+            g_nJoystickCalibrationMinimumX_005d2ff4 =
+                g_nJoystickCentreX_005d1768 - 10;
+            g_nJoystickCalibrationMaximumX_005d3000 =
+                g_nJoystickCentreX_005d1768 + 10;
         } else {
-            g_nJoystickCalibrationMaximumX_0059df6c =
-                g_nJoystickCentreX_005a81dc;
-            g_nJoystickCalibrationMinimumX_0059df68 =
-                g_nJoystickCalibrationMaximumX_0059df6c;
+            g_nJoystickCalibrationMaximumX_005d3000 =
+                g_nJoystickCentreX_005d1768;
+            g_nJoystickCalibrationMinimumX_005d2ff4 =
+                g_nJoystickCalibrationMaximumX_005d3000;
         }
-        if (g_nJoystickCentreY_005a81d8 > 10) {
-            g_nJoystickCalibrationMinimumY_0059df64 =
-                g_nJoystickCentreY_005a81d8 - 10;
-            g_nJoystickCalibrationMaximumY_0059df70 =
-                g_nJoystickCentreY_005a81d8 + 10;
+        if (g_nJoystickCentreY_005d1764 > 10) {
+            g_nJoystickCalibrationMinimumY_005d2ff0 =
+                g_nJoystickCentreY_005d1764 - 10;
+            g_nJoystickCalibrationMaximumY_005d3004 =
+                g_nJoystickCentreY_005d1764 + 10;
         } else {
-            g_nJoystickCalibrationMaximumY_0059df70 =
-                g_nJoystickCentreY_005a81d8;
-            g_nJoystickCalibrationMinimumY_0059df64 =
-                g_nJoystickCalibrationMaximumY_0059df70;
+            g_nJoystickCalibrationMaximumY_005d3004 =
+                g_nJoystickCentreY_005d1764;
+            g_nJoystickCalibrationMinimumY_005d2ff0 =
+                g_nJoystickCalibrationMaximumY_005d3004;
         }
 
-        g_nJoystickRightScale_005a81d0 =
-            g_nJoystickCalibrationMinimumX_0059df68 /
+        g_nJoystickRightScale_005d175c =
+            g_nJoystickCalibrationMinimumX_005d2ff4 /
             (int)horizontalRange;
-        g_nJoystickLeftScale_005a81ac =
-            g_nJoystickRightScale_005a81d0;
-        g_nJoystickDownScale_005a81d4 =
-            g_nJoystickCalibrationMinimumY_0059df64 /
+        g_nJoystickLeftScale_005d1740 =
+            g_nJoystickRightScale_005d175c;
+        g_nJoystickDownScale_005d1760 =
+            g_nJoystickCalibrationMinimumY_005d2ff0 /
             (int)verticalRange;
-        g_nJoystickUpScale_005a81a8 =
-            g_nJoystickDownScale_005a81d4;
-        if (g_nJoystickLeftScale_005a81ac == 0)
-            g_nJoystickLeftScale_005a81ac++;
-        if (g_nJoystickUpScale_005a81a8 == 0)
-            g_nJoystickUpScale_005a81a8++;
-        if (g_nJoystickRightScale_005a81d0 == 0)
-            g_nJoystickRightScale_005a81d0++;
-        if (g_nJoystickDownScale_005a81d4 == 0)
-            g_nJoystickDownScale_005a81d4++;
+        g_nJoystickUpScale_005d173c =
+            g_nJoystickDownScale_005d1760;
+        if (g_nJoystickLeftScale_005d1740 == 0)
+            g_nJoystickLeftScale_005d1740++;
+        if (g_nJoystickUpScale_005d173c == 0)
+            g_nJoystickUpScale_005d173c++;
+        if (g_nJoystickRightScale_005d175c == 0)
+            g_nJoystickRightScale_005d175c++;
+        if (g_nJoystickDownScale_005d1760 == 0)
+            g_nJoystickDownScale_005d1760++;
 
-        g_nJoystickMinimumX_005a81b8 =
-            g_nJoystickCentreX_005a81dc -
-            horizontalRange * g_nJoystickLeftScale_005a81ac;
-        g_nJoystickMinimumY_005a81bc =
-            g_nJoystickCentreY_005a81d8 -
-            verticalRange * g_nJoystickUpScale_005a81a8;
-        g_nJoystickMaximumX_005a81b0 =
-            horizontalRange * g_nJoystickLeftScale_005a81ac +
-            g_nJoystickCentreX_005a81dc;
-        g_nJoystickMaximumY_005a81b4 =
-            verticalRange * g_nJoystickUpScale_005a81a8 +
-            g_nJoystickCentreY_005a81d8;
-        g_nJoystickHorizontalDeadZone_005a81a4 = horizontalDeadZone;
-        g_nJoystickVerticalDeadZone_005a81a0 = verticalDeadZone;
+        g_nJoystickMinimumX_005d174c =
+            g_nJoystickCentreX_005d1768 -
+            horizontalRange * g_nJoystickLeftScale_005d1740;
+        g_nJoystickMinimumY_005d1750 =
+            g_nJoystickCentreY_005d1764 -
+            verticalRange * g_nJoystickUpScale_005d173c;
+        g_nJoystickMaximumX_005d1744 =
+            horizontalRange * g_nJoystickLeftScale_005d1740 +
+            g_nJoystickCentreX_005d1768;
+        g_nJoystickMaximumY_005d1748 =
+            verticalRange * g_nJoystickUpScale_005d173c +
+            g_nJoystickCentreY_005d1764;
+        g_nJoystickHorizontalDeadZone_005d172c = horizontalDeadZone;
+        g_nJoystickVerticalDeadZone_005d1728 = verticalDeadZone;
     }
-    g_nActiveInputDevice_005a819c = activeDevice;
+    g_nActiveInputDevice_005d1726 = activeDevice;
     return activeDevice;
 }
 
 /* Function start: 0x4238E9 */
 short ReadCalibratedJoystick(void)
 {
-    InputDeviceSample *sample;
-    int sampleResult;
-    int rawX;
-    int rawY;
-    int deviceIndex;
     short normalizedX;
     short normalizedY;
     short device;
 
-    device = g_nActiveInputDevice_005a819c;
-    if (device == -1)
+    device = g_nActiveInputDevice_005d1726;
+    if (g_nActiveInputDevice_005d1726 == -1)
         return 0;
-    deviceIndex = (int)device;
-    sample = &g_aInputDeviceSamples_005a81f0[deviceIndex];
-    sampleResult = SampleJoystickDevice(
-        sample, device,
-        g_nJoystickFailureValue_005a81e0);
-    rawX = sample->x;
-    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
-    if (rawX == g_nJoystickFailureValue_005a81e0 ||
-        rawY == g_nJoystickFailureValue_005a81e0 ||
-        sampleResult != 0) {
-        g_nActiveInputDevice_005a819c = -1;
-        g_aInputDeviceSamples_005a81f0[deviceIndex].buttons = 0;
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y = 0;
-        sample->x = 0;
+    SampleJoystickDevice(
+        &g_aInputDeviceSamples_005d1780[device], device,
+        g_nJoystickFailureValue_005d176c);
+    if (g_aInputDeviceSamples_005d1780[device].x ==
+            g_nJoystickFailureValue_005d176c ||
+        g_aInputDeviceSamples_005d1780[device].y ==
+            g_nJoystickFailureValue_005d176c) {
+        g_aInputDeviceSamples_005d1780[device].x =
+            g_aInputDeviceSamples_005d1780[device].y =
+            g_aInputDeviceSamples_005d1780[device].buttons = 0;
+        g_nActiveInputDevice_005d1726 = -1;
         return 0;
     }
 
-    g_nJoystickRawX_005a81c0 = rawX;
-    g_nJoystickRawY_005a81c4 = rawY;
-    if (rawX < g_nJoystickMinimumX_005a81b8)
-        sample->x = g_nJoystickMinimumX_005a81b8;
-    if (sample->x > g_nJoystickMaximumX_005a81b0)
-        sample->x = g_nJoystickMaximumX_005a81b0;
-    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y <
-        g_nJoystickMinimumY_005a81bc)
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
-            g_nJoystickMinimumY_005a81bc;
-    if (g_aInputDeviceSamples_005a81f0[deviceIndex].y >
-        g_nJoystickMaximumY_005a81b4)
-        g_aInputDeviceSamples_005a81f0[deviceIndex].y =
-            g_nJoystickMaximumY_005a81b4;
+    g_nJoystickRawX_005d2ff8 =
+        g_aInputDeviceSamples_005d1780[device].x;
+    g_nJoystickRawY_005d2ffc =
+        g_aInputDeviceSamples_005d1780[device].y;
+    if (g_aInputDeviceSamples_005d1780[device].x <
+        g_nJoystickMinimumX_005d174c)
+        g_aInputDeviceSamples_005d1780[device].x =
+            g_nJoystickMinimumX_005d174c;
+    if (g_aInputDeviceSamples_005d1780[device].x >
+        g_nJoystickMaximumX_005d1744)
+        g_aInputDeviceSamples_005d1780[device].x =
+            g_nJoystickMaximumX_005d1744;
+    if (g_aInputDeviceSamples_005d1780[device].y <
+        g_nJoystickMinimumY_005d1750)
+        g_aInputDeviceSamples_005d1780[device].y =
+            g_nJoystickMinimumY_005d1750;
+    if (g_aInputDeviceSamples_005d1780[device].y >
+        g_nJoystickMaximumY_005d1748)
+        g_aInputDeviceSamples_005d1780[device].y =
+            g_nJoystickMaximumY_005d1748;
 
     normalizedY = 0;
-    normalizedX = 0;
-    rawX = sample->x;
-    if (g_nJoystickCentreX_005a81dc > rawX) {
-        normalizedX = (short)((g_nJoystickCentreX_005a81dc - rawX) /
-                              g_nJoystickLeftScale_005a81ac);
-        if (g_nJoystickHorizontalDeadZone_005a81a4 < normalizedX) {
+    normalizedX = normalizedY;
+    if (g_aInputDeviceSamples_005d1780[device].x <
+        g_nJoystickCentreX_005d1768) {
+        normalizedX = (short)((g_nJoystickCentreX_005d1768 -
+            g_aInputDeviceSamples_005d1780[device].x) /
+            g_nJoystickLeftScale_005d1740);
+        if (g_nJoystickHorizontalDeadZone_005d172c < normalizedX) {
             if (normalizedX != 0)
                 normalizedX = (short)-normalizedX;
         } else {
             normalizedX = 0;
         }
-    } else if (g_nJoystickCentreX_005a81dc < rawX) {
-        normalizedX = (short)((rawX - g_nJoystickCentreX_005a81dc) /
-                              g_nJoystickRightScale_005a81d0);
-        if (normalizedX <= g_nJoystickHorizontalDeadZone_005a81a4)
+    } else if (g_aInputDeviceSamples_005d1780[device].x >
+               g_nJoystickCentreX_005d1768) {
+        normalizedX = (short)((
+            g_aInputDeviceSamples_005d1780[device].x -
+            g_nJoystickCentreX_005d1768) /
+            g_nJoystickRightScale_005d175c);
+        if (normalizedX <= g_nJoystickHorizontalDeadZone_005d172c)
             normalizedX = 0;
     }
 
-    rawY = g_aInputDeviceSamples_005a81f0[deviceIndex].y;
-    if (g_nJoystickCentreY_005a81d8 > rawY) {
-        normalizedY = (short)((g_nJoystickCentreY_005a81d8 - rawY) /
-                              g_nJoystickUpScale_005a81a8);
-        if (g_nJoystickVerticalDeadZone_005a81a0 < normalizedY) {
+    if (g_aInputDeviceSamples_005d1780[device].y <
+        g_nJoystickCentreY_005d1764) {
+        normalizedY = (short)((g_nJoystickCentreY_005d1764 -
+            g_aInputDeviceSamples_005d1780[device].y) /
+            g_nJoystickUpScale_005d173c);
+        if (g_nJoystickVerticalDeadZone_005d1728 < normalizedY) {
             if (normalizedY != 0)
                 normalizedY = (short)-normalizedY;
         } else {
             normalizedY = 0;
         }
-    } else if (g_nJoystickCentreY_005a81d8 < rawY) {
-        normalizedY = (short)((rawY - g_nJoystickCentreY_005a81d8) /
-                              g_nJoystickDownScale_005a81d4);
-        if (normalizedY <= g_nJoystickVerticalDeadZone_005a81a0)
+    } else if (g_aInputDeviceSamples_005d1780[device].y >
+               g_nJoystickCentreY_005d1764) {
+        normalizedY = (short)((
+            g_aInputDeviceSamples_005d1780[device].y -
+            g_nJoystickCentreY_005d1764) /
+            g_nJoystickDownScale_005d1760);
+        if (normalizedY <= g_nJoystickVerticalDeadZone_005d1728)
             normalizedY = 0;
     }
-    sample->x = (int)normalizedX;
-    g_aInputDeviceSamples_005a81f0[deviceIndex].y = (int)normalizedY;
+    g_aInputDeviceSamples_005d1780[device].x = (int)normalizedX;
+    g_aInputDeviceSamples_005d1780[device].y = (int)normalizedY;
     return 1;
 }
 
@@ -2275,36 +2351,42 @@ void __stdcall UnionRectBounds(ShortRect *destination,
 }
 
 /* Function start: 0x45CD2C */
+#pragma function(strlen)
 void ThrottleFrameAndDrawFps(HDC dc)
 {
-    DWORD now;
+    if (g_bFrameTimingInitialized_0049cebc == 0)
+        SetDefaultFrameTiming();
 
-    if (DAT_00465070 != 0) {
-        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
-        TextOutA(dc, 0, 0, (char *)DAT_00476620,
-                 strlen((char *)DAT_00476620));
+    if (g_bShowFrameRate_0049c260 != 0) {
+        sprintf(g_szFrameRateText_005b3950, "%f",
+                g_fMeasuredFrameRate_005c3850);
+        TextOutA(dc, 0, 0, g_szFrameRateText_005b3950,
+                 strlen(g_szFrameRateText_005b3950));
     }
 
-    if (g_stMouseCursorState_0059ab10.viewport->pixels == DAT_00476648) {
-        while (timeGetTime() < (DWORD)DAT_0046b1bc) {
+    if (g_pInputViewport_005c8403->pixels == g_pDibPixelBuffer_005b3978) {
+        while (timeGetTime() < g_dwNextFrameDeadline_0049cea4) {
             Sleep(0);
             RefreshMouseCursorDisplay();
         }
     } else {
-        while (timeGetTime() < (DWORD)DAT_0046b1bc)
+        while (timeGetTime() < g_dwNextFrameDeadline_0049cea4)
             Sleep(0);
     }
 
-    if (DAT_00465070 != 0) {
-        if (DAT_0046b1c4 != 0) {
-            now = timeGetTime();
-            DAT_00486510 = 1000.0f / ((double)now - DAT_0046b1c4);
+    if (g_bShowFrameRate_0049c260 != 0) {
+        if (g_lPreviousFrameTick_0049ceac != 0) {
+            g_fMeasuredFrameRate_005c3850 =
+                1000.0f / ((float)timeGetTime() -
+                           g_lPreviousFrameTick_0049ceac);
         }
-        DAT_0046b1c4 = timeGetTime();
-        sprintf((char *)DAT_00476620, "%f", DAT_00486510);
-        TextOutA(dc, 0, 0, (char *)DAT_00476620,
-                 strlen((char *)DAT_00476620));
+        g_lPreviousFrameTick_0049ceac = timeGetTime();
+        sprintf(g_szFrameRateText_005b3950, "%f",
+                g_fMeasuredFrameRate_005c3850);
+        TextOutA(dc, 0, 0, g_szFrameRateText_005b3950,
+                 strlen(g_szFrameRateText_005b3950));
     }
 
-    DAT_0046b1bc = timeGetTime() + DAT_0046b1b8;
+    g_dwNextFrameDeadline_0049cea4 =
+        timeGetTime() + g_nFramePeriodMilliseconds_005c343c;
 }

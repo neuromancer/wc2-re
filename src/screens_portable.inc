@@ -481,20 +481,20 @@ void GetRLETransformTrig(int angleTenths, int *cosine, int *sine)
     if (angle < 0)
         angle += 3600;
     if (angle <= 900) {
-        *cosine = g_anRLEQuarterCosine_0043d4bf[angle];
-        *sine = g_anRLEQuarterCosine_0043d4bf[900 - angle];
+        *cosine = g_anRLEQuarterCosine_00405cbb[angle];
+        *sine = g_anRLEQuarterCosine_00405cbb[900 - angle];
     } else if (angle <= 1800) {
         angle = 1800 - angle;
-        *cosine = -g_anRLEQuarterCosine_0043d4bf[angle];
-        *sine = g_anRLEQuarterCosine_0043d4bf[900 - angle];
+        *cosine = -g_anRLEQuarterCosine_00405cbb[angle];
+        *sine = g_anRLEQuarterCosine_00405cbb[900 - angle];
     } else if (angle <= 2700) {
         angle -= 1800;
-        *cosine = -g_anRLEQuarterCosine_0043d4bf[angle];
-        *sine = -g_anRLEQuarterCosine_0043d4bf[900 - angle];
+        *cosine = -g_anRLEQuarterCosine_00405cbb[angle];
+        *sine = -g_anRLEQuarterCosine_00405cbb[900 - angle];
     } else {
         angle = 3600 - angle;
-        *cosine = g_anRLEQuarterCosine_0043d4bf[angle];
-        *sine = -g_anRLEQuarterCosine_0043d4bf[900 - angle];
+        *cosine = g_anRLEQuarterCosine_00405cbb[angle];
+        *sine = -g_anRLEQuarterCosine_00405cbb[900 - angle];
     }
 }
 

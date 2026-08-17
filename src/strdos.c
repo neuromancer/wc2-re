@@ -6,10 +6,10 @@
  */
 #include "wc1.h"
 
-#pragma function(strlen)
+#pragma function(strlen, strcpy, memcpy)
 
-/* Function start: WC2_UNMAPPED */
-unsigned int __stdcall DosFarPtrToNear(void *v)
+/* Function start: 0x46243F */
+unsigned int DosFarPtrToNear(void *v)
 {
     return (unsigned int)v;
 }
@@ -32,8 +32,8 @@ char *DosStrchr(const char *s, short c)
     return strchr(s, (int)c);
 }
 
-/* Function start: WC2_UNMAPPED */
-char *__stdcall DosStrcpy(char *dst, const char *src)
+/* Function start: 0x4624A7 */
+char *DosStrcpy(char *dst, const char *src)
 {
     return strcpy(dst, src);
 }
@@ -50,10 +50,10 @@ short DosStrlen(const char *s)
     return (short)strlen(s);
 }
 
-/* Function start: WC2_UNMAPPED */
-void __stdcall DosMemcpy(void *dst, const void *src, size_t n)
+/* Function start: 0x462527 */
+void DosMemcpy(void *dst, const void *src, size_t n)
 {
-    memmove(dst, src, n);
+    memcpy(dst, src, n & 0xffff);
 }
 
 /* Function start: WC2_UNMAPPED */

@@ -24,7 +24,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #endif
 
     busyWait = waitMode;
-    g_nDebugOverlayConsoleCount_00469644++;
+    g_nDebugOverlayConsoleCount_0049cb24++;
     window = targetWindow;
     columns = columnCount;
     cursorRow = 0;
@@ -43,7 +43,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     deviceContext = GetDC(window);
     SelectObject(deviceContext,
                  CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
-                             0x30, g_szDebugOverlayFontName_00469654));
+                             0x30, g_szDebugOverlayFontName_0049cb34));
 #endif
     backgroundColor = 0;
     textColor = 0xffffff;
@@ -56,8 +56,8 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     characterWidth = metrics.tmMaxCharWidth;
     characterHeight = metrics.tmHeight;
 
-    if (g_hDebugKeyboardHook_00469650 == 0) {
-        g_hDebugKeyboardHook_00469650 =
+    if (g_hDebugKeyboardHook_0049cb30 == 0) {
+        g_hDebugKeyboardHook_0049cb30 =
             SetWindowsHookExA(WH_KEYBOARD, (HOOKPROC)DebugKeyboardHookProc,
                               module, 0);
     }
@@ -71,7 +71,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     spinnerIndex = 0;
     animationState = 1;
     spinnerCharacters = (char *)malloc(5);
-    strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0046965c);
+    strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0049cb3c);
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -79,10 +79,10 @@ DebugOverlayConsole::~DebugOverlayConsole()
 {
     animationState = 2;
 #ifdef WC1_SDL
-    g_nDebugOverlayConsoleCount_00469644--;
+    g_nDebugOverlayConsoleCount_0049cb24--;
 #else
-    if (--g_nDebugOverlayConsoleCount_00469644 == 0)
-        UnhookWindowsHookEx(g_hDebugKeyboardHook_00469650);
+    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0)
+        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
 #endif
     free(textBuffer);
     free(dirtyLines);
@@ -150,13 +150,13 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
     return 0;
 #else
     if (code < 0)
-        return CallNextHookEx(g_hDebugKeyboardHook_00469650,
+        return CallNextHookEx(g_hDebugKeyboardHook_0049cb30,
                               code, key, flags);
     if ((flags & 0x40000000) != 0) {
         g_dwDebugOverlayKey_0049cb28 = key;
         g_dwDebugOverlayKeyLatch_0049cb2c = key;
     }
-    return CallNextHookEx(g_hDebugKeyboardHook_00469650,
+    return CallNextHookEx(g_hDebugKeyboardHook_0049cb30,
                           code, key, flags);
 #endif
 }
@@ -175,7 +175,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
         vsprintf(console->formatBuffer, format, arguments);
         va_end(arguments);
     } else {
-        strcpy(console->formatBuffer, g_szDebugOverlayNewline_00469664);
+        strcpy(console->formatBuffer, g_szDebugOverlayNewline_0049cb44);
     }
     length = strlen(console->formatBuffer);
     index = 0;
@@ -273,7 +273,7 @@ char DebugOverlayConsole::WaitForKey(void)
     char key;
 
     while (g_dwDebugOverlayKey_0049cb28 == 0 &&
-           PumpWindowMessages() != 0) {
+           PumpWindowMessages(0) != 0) {
         if (busyWait == 0)
             SDL_Delay(1);
     }
@@ -283,79 +283,27 @@ char DebugOverlayConsole::WaitForKey(void)
     g_dwDebugOverlayKey_0049cb28 = 0;
     return key;
 #else
-    RECT clip;
     MSG message;
-    HANDLE process;
-    int minimized;
-    int complete;
+    DWORD key;
 
-    minimized = 0;
-    complete = 0;
     if (busyWait == 0) {
         while (g_dwDebugOverlayKey_0049cb28 == 0) {
-            while (complete == 0) {
-                if (minimized != 0) {
-                    if (GetMessageA(&message, 0, 0, 0) != 0) {
-                        complete = 1;
-                        TranslateMessage(&message);
-                        DispatchMessageA(&message);
-                    } else {
-                        ShutdownGameWindow();
-                    }
-                    if (IsIconic(DAT_005a89a0) == 0)
-                        minimized = 0;
-                    if (minimized == 0) {
-                        clip.left = 0;
-                        clip.top = 0;
-                        clip.right = 320;
-                        clip.bottom = 200;
-                        ClipCursor(&clip);
-                        ShowCursor(0);
-                        process = GetCurrentProcess();
-                        SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-                        SetActiveWindow(DAT_005a89a0);
-                        SetForegroundWindow(DAT_005a89a0);
-                        DIBreInstall();
-                        DIBslam();
-                        DIBslamReal();
-                    }
-                } else {
-                    if (PeekMessageA(&message, 0, 0, 0, PM_NOREMOVE) != 0) {
-                        if (GetMessageA(&message, 0, 0, 0) != 0) {
-                            complete = 0;
-                            TranslateMessage(&message);
-                            DispatchMessageA(&message);
-                        } else {
-                            complete = 0;
-                            ShutdownGameWindow();
-                        }
-                    } else {
-                        complete = 1;
-                    }
+            while (PeekMessageA(&message, 0, 0, 0, 0) != 0) {
+                if (message.message == WM_QUIT)
+                    return 0;
+                if (GetMessageA(&message, 0, 0, 0) != 0) {
+                    TranslateMessage(&message);
+                    DispatchMessageA(&message);
                 }
-                if (IsIconic(DAT_005a89a0) != 0) {
-                    if (minimized == 0) {
-                        ClipCursor(0);
-                        ShowCursor(1);
-                        process = GetCurrentProcess();
-                        SetPriorityClass(process, 0x40);
-                    }
-                    minimized = 1;
-                }
-                if (minimized != 0)
-                    complete = 0;
             }
         }
     } else {
-        while (g_dwDebugOverlayKey_0049cb28 == 0)
-            ;
+        while (g_dwDebugOverlayKey_0049cb28 == 0) {
+        }
     }
-    {
-        char key = (char)g_dwDebugOverlayKey_0049cb28;
-
-        g_dwDebugOverlayKey_0049cb28 = 0;
-        return key;
-    }
+    key = g_dwDebugOverlayKey_0049cb28;
+    g_dwDebugOverlayKey_0049cb28 = 0;
+    return (char)key;
 #endif
 }
 

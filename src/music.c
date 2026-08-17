@@ -292,7 +292,7 @@ short TheEndFireWorks(Viewport *viewport, short count)
             DrawSpriteDefault(
                 viewport, g_aFireworks_005c8df0[index].x,
                 g_aFireworks_005c8df0[index].y,
-                g_pFireworkShape_005a6a68,
+                g_pTitleFireworkShape_005c8f58,
                 (short)(g_aFireworks_005c8df0[index].frame +
                         g_aFireworks_005c8df0[index].variant * 8));
             if (g_aFireworks_005c8df0[index].frame++ == 7) {
@@ -327,7 +327,7 @@ short TheEndFireWorks(Viewport *viewport, short count)
             DrawSpriteDefault(
                 viewport, g_aFireworks_005c8df0[index].x,
                 g_aFireworks_005c8df0[index].y,
-                g_pFireworkShape_005a6a68,
+                g_pTitleFireworkShape_005c8f58,
                 (short)(g_aFireworks_005c8df0[index].frame +
                         g_aFireworks_005c8df0[index].variant * 8));
             if (g_aFireworks_005c8df0[index].frame++ == 7) {
@@ -787,9 +787,9 @@ void DrawTargetRangeReadout(void)
 
     if (g_asObjectScreenX_00493598[target] == (short)0x8001) {
         rangeText = g_szTargetOffscreenRange_0046a9bc;
-    } else if ((unsigned short)g_asObjectDistance_0059b4a0[target] <=
+    } else if ((unsigned short)g_asObjectDistance_00493ae8[target] <=
                30000) {
-        strcat(_itoa((unsigned short)g_asObjectDistance_0059b4a0[target],
+        strcat(_itoa((unsigned short)g_asObjectDistance_00493ae8[target],
                      g_szTextScratchBuffer_005d1c40, 10), " m");
         goto draw_readout;
     } else {
@@ -886,8 +886,8 @@ unsigned short AllocateViewport(Viewport *viewport,
     return 1;
 }
 
-/* Function start: 0x46505E */
-void __stdcall AlignSpriteFrameToRectCorner(
+/* Function start: WC2_UNMAPPED */
+void AlignWc1SpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
     unsigned char *shape, short frame)
 {
@@ -937,6 +937,48 @@ void __stdcall AlignSpriteFrameToRectCorner(
     }
 }
 
+/* Function start: 0x46505E */
+short IsSpriteFrameOverlappingRect(const ShortRect *rectangle,
+                                   short x, short y,
+                                   unsigned char *shape,
+                                   short frame)
+{
+    int rectangleTop;
+    int rectangleRight;
+    int rectangleBottom;
+    int frameLeft;
+    int rectangleLeft;
+    ShortRect frameBounds;
+    int frameTop;
+    int frameRight;
+    int frameBottom;
+
+    GetShapeFrameBounds(&frameBounds.left, x, y, shape, frame);
+    rectangleLeft = rectangle->left;
+    rectangleTop = rectangle->top;
+    rectangleRight = rectangle->right;
+    rectangleBottom = rectangle->bottom;
+    frameLeft = frameBounds.left;
+    frameTop = frameBounds.top;
+    frameRight = frameBounds.right;
+    frameBottom = frameBounds.bottom;
+    if (((frameLeft <= rectangleLeft && rectangleLeft <= frameRight) ||
+         (frameLeft <= rectangleRight && rectangleRight <= frameRight))) {
+        if (frameTop <= rectangleTop && rectangleTop <= frameBottom)
+            return 1;
+        if (frameTop <= rectangleBottom && rectangleBottom <= frameBottom)
+            return 1;
+    }
+    if (((rectangleLeft <= frameLeft && frameLeft <= rectangleRight) ||
+         (rectangleLeft <= frameRight && frameRight <= rectangleRight))) {
+        if (rectangleTop <= frameTop && frameTop <= rectangleBottom)
+            return 1;
+        if (rectangleTop <= frameBottom && frameBottom <= rectangleBottom)
+            return 1;
+    }
+    return 0;
+}
+
 /* Function start: 0x452AE5 */
 void FadeMusic(int duration)
 {
@@ -969,6 +1011,13 @@ void StopMusic(int enabled)
 #endif
     g_nCurrentMusicTrack_0049be98 = -1;
     Streamer_stop();
+}
+
+/* Function start: 0x452A40 */
+short StartMusic(void *music)
+{
+    SoundDebugPrintf("startMusic %p", music);
+    return 0;
 }
 
 /* Function start: 0x452A10 */
@@ -1395,7 +1444,7 @@ void new_space_music_changes(short attacker, short victim)
     enum Side side;
 
     if (g_nInFlightMusicActive_0049bf08 != 0 &&
-        g_nTrainSimActive_00469e2c == 0) {
+        g_nTrainSimActive_0049d758 == 0) {
         side = g_asShipSide_004955d0[victim];
         if (side == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
@@ -1472,7 +1521,7 @@ void gametrack(void)
 
     track = -1;
     if (g_nInFlightMusicActive_0049bf08 != 0) {
-        if (g_nTrainSimActive_00469e2c != 0) {
+        if (g_nTrainSimActive_0049d758 != 0) {
             if (g_nMusicStreamSet_0046aa18 != 0 ||
                 g_nCurrentMusicTrack_0049be98 != 20)
                 spacetrack(20, 1, 0);
@@ -1530,7 +1579,7 @@ void servicetrack(void)
             }
             if (g_aeObjectClass_00495328[object] ==
                     OBJECT_CLASS_ASTEROID) {
-                if (g_asObjectDistance_0059b4a0[object] == 0 &&
+                if (g_asObjectDistance_00493ae8[object] == 0 &&
                     (unsigned short)
                         g_asPreviousObjectDistance_0059d080[object] < 50 &&
                     g_aiSoundEffectSourceActive_005a66ec[object + 1] == 0)
@@ -1542,7 +1591,7 @@ void servicetrack(void)
                        g_asObjectScreenX_00493598[object] !=
                            (short)0x8001 &&
                        (unsigned short)
-                           g_asObjectDistance_0059b4a0[object] < 0x55a) {
+                           g_asObjectDistance_00493ae8[object] < 0x55a) {
                 if (g_nPassingShipSoundObject_0046aa48 == -1) {
                     ScaleFixedVector(&g_aShipVelocity_0059c010[object],
                                      0x1400, &travel);

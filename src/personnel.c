@@ -192,6 +192,49 @@ void RestorePersonnelMenuBackground(Viewport *viewport)
                       g_pPersonnelMenuBackdrop_0049a6b8, 1);
 }
 
+/* Function start: 0x4345A1 */
+void DrawPilotSaveMenuChoices(short choice)
+{
+    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
+        DisableMouseCursorDrawing();
+        if (choice == 0x26) {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+        } else {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        }
+        SetTextCursor(0x5a, 0x38);
+        DrawFormattedText("[L]oad a personnel file");
+        if (choice == 0x1f) {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+        } else {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        }
+        SetTextCursor(0x5a, 0x4c);
+        DrawFormattedText("[S]ave a personnel file");
+        if (choice == 0x20) {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+        } else {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 1,
+                (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        }
+        SetTextCursor(0x5a, 0x60);
+        DrawFormattedText("[D]elete a personnel file");
+        g_nPersonnelMenuHighlight_0049a6a0 = choice;
+        EnableMouseCursorDrawing();
+    }
+}
+
 /* Function start: 0x4346E9 */
 void DrawPersonnelSourceChoices(short choice)
 {
@@ -343,7 +386,8 @@ short SelectTransferredPilot(short count)
             g_nPersonnelCursorX_005c8470 > 0xeb) {
             hover = -1;
             HighlightTransferredPilot(-1);
-            SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 0);
+            SetMouseCursorShape(
+                g_pInputManagerState_005c8464->cursorShape, 0);
         } else if (g_nPersonnelCursorY_005c8472 < 0x1e ||
                    g_nPersonnelCursorY_005c8472 > 0x27) {
             if (g_nPersonnelCursorY_005c8472 < 0x28 ||
@@ -351,19 +395,20 @@ short SelectTransferredPilot(short count)
                     (count * 5 - 10) * 2 + 0x31) {
                 hover = -1;
                 HighlightTransferredPilot(-1);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     0);
             } else {
                 hover = (short)((g_nPersonnelCursorY_005c8472 - 0x28) /
                                 10 + 2);
                 HighlightTransferredPilot(hover);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     1);
             }
         } else {
             hover = 0x0b;
             HighlightTransferredPilot(0x0b);
-            SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape, 1);
+            SetMouseCursorShape(
+                g_pInputManagerState_005c8464->cursorShape, 1);
         }
         g_bPersonnelMenuDrawing_0049a6c0 = 0;
         DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -436,7 +481,7 @@ short SelectLegacyGameSource(void)
                 g_nPersonnelCursorX_005c8470 > 0xdf) {
                 hover = -1;
                 DrawPersonnelSourceChoices(-1);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     0);
             } else if (g_nPersonnelCursorY_005c8472 < 0x26 ||
                        g_nPersonnelCursorY_005c8472 > 0x39) {
@@ -445,17 +490,17 @@ short SelectLegacyGameSource(void)
                     hover = -1;
                     DrawPersonnelSourceChoices(-1);
                     SetMouseCursorShape(
-                        g_pPersonnelCursor_005c8464->shape, 0);
+                        g_pInputManagerState_005c8464->cursorShape, 0);
                 } else {
                     hover = 0x20;
                     DrawPersonnelSourceChoices(0x20);
                     SetMouseCursorShape(
-                        g_pPersonnelCursor_005c8464->shape, 1);
+                        g_pInputManagerState_005c8464->cursorShape, 1);
                 }
             } else {
                 hover = 0x11;
                 DrawPersonnelSourceChoices(0x11);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     1);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;
@@ -677,7 +722,7 @@ short RunPilotDatabaseMenu(void)
                 g_nPersonnelCursorX_005c8470 > 0xe9) {
                 hover = -1;
                 DrawPersonnelMenuChoices(-1);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     0);
             } else if (g_nPersonnelCursorY_005c8472 < 0x30 ||
                        g_nPersonnelCursorY_005c8472 > 0x43) {
@@ -686,17 +731,17 @@ short RunPilotDatabaseMenu(void)
                     hover = -1;
                     DrawPersonnelMenuChoices(-1);
                     SetMouseCursorShape(
-                        g_pPersonnelCursor_005c8464->shape, 0);
+                        g_pInputManagerState_005c8464->cursorShape, 0);
                 } else {
                     hover = 0x2e;
                     DrawPersonnelMenuChoices(0x2e);
                     SetMouseCursorShape(
-                        g_pPersonnelCursor_005c8464->shape, 1);
+                        g_pInputManagerState_005c8464->cursorShape, 1);
                 }
             } else {
                 hover = 0x14;
                 DrawPersonnelMenuChoices(0x14);
-                SetMouseCursorShape(g_pPersonnelCursor_005c8464->shape,
+                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     1);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;

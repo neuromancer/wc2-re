@@ -16,8 +16,8 @@ short MeasureMessageWidth(const char *text)
                    ((char)g_cMessageSpeed_0049b778 + 1));
 }
 
-/* Function start: 0x418ECD */
-void WaitForKeyAcknowledge(int mode)
+/* Function start: WC2_UNMAPPED */
+void RunWc1KeyAcknowledge(int mode)
 {
     int acknowledged;
     int key;
@@ -25,7 +25,7 @@ void WaitForKeyAcknowledge(int mode)
     if (mode != 0) {
         acknowledged = 0;
         do {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             if (FindQueuedInputEvent(4) != 0)
                 acknowledged = 1;
         } while (acknowledged == 0);
@@ -33,7 +33,7 @@ void WaitForKeyAcknowledge(int mode)
         FlushInputEvents();
         ClearDebugPauseFlags();
         do {
-            PumpWindowMessages();
+            PumpWindowMessages(0);
             if (FindQueuedInputEvent(3) != 0)
                 acknowledged = 1;
         } while (acknowledged == 0);
@@ -64,12 +64,12 @@ void ShowModalMessage(const char *format, ...)
     vsprintf(text, format, (char *)(&format + 1));
 #endif
     if (ShowModalTextPanel(1, text) != 0) {
-        WaitForKeyAcknowledge(0);
+        RunWc1KeyAcknowledge(0);
         ReleaseModalTextPanel();
         return;
     }
     SystemDebugPrintf(text);
-    WaitForKeyAcknowledge(0);
+    RunWc1KeyAcknowledge(0);
 }
 
 /* Function start: 0x437C96 */
@@ -115,9 +115,9 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     }
     if (messageDuration == 9999) {
         if (flags != 0)
-            WaitForKeyAcknowledge(1);
+            RunWc1KeyAcknowledge(1);
         else
-            WaitForKeyAcknowledge(0);
+            RunWc1KeyAcknowledge(0);
     }
     if (modalShown != 0) {
         ReleaseModalTextPanel();
@@ -170,7 +170,7 @@ void ShowGamePausedBanner(short showBanner)
         ShowOnScreenMessage(9999, "GAME PAUSED");
         return;
     }
-    WaitForKeyAcknowledge(1);
+    RunWc1KeyAcknowledge(1);
 #else
     if (showBanner != 0) {
         ShowOnScreenMessage(9999, "GAME PAUSED");
@@ -218,9 +218,9 @@ int HandleSpaceFlightControls(void)
                   g_cPreviousKey_0046c018;
     control = GetControlKeyState();
     GetKeyboardModifiers();
-    HandleFleetOverviewInput();
+    RunWc1FleetOverviewInput();
 
-    if (g_nTrainSimActive_00469e2c == 0) {
+    if (g_nTrainSimActive_0049d758 == 0) {
         switch ((signed char)g_bCurrentKey_0046c014) {
         case 2:
         case 3:
@@ -276,7 +276,7 @@ int HandleSpaceFlightControls(void)
                 FlushInputEvents();
                 ClearDebugPauseFlags();
                 g_bMouseCursorVisible_0046a018 = 0;
-                g_bPointerMovedByKeyboard_005a7d54 = 1;
+                g_bSuppressNextMouseMove_005c843c = 1;
             }
             break;
         case 0x1f:
@@ -347,7 +347,7 @@ int HandleSpaceFlightControls(void)
                         SetMousePosition(
                             (short)(((int)g_stViewBuffer_005d2b00.right -
                                      (int)g_stViewBuffer_005d2b00.left) / 2 + 1),
-                            g_nViewCenterY_0059a854);
+                            g_nViewCenterY_005c80da);
                     } else {
                         SetViewportRect(
                             &g_stViewBuffer_005d2b00, 0, 0,
@@ -381,7 +381,7 @@ int HandleSpaceFlightControls(void)
                 FlushInputEvents();
                 ClearDebugPauseFlags();
                 g_bMouseCursorVisible_0046a018 = 0;
-                g_bPointerMovedByKeyboard_005a7d54 = 1;
+                g_bSuppressNextMouseMove_005c843c = 1;
             }
             break;
         case 0x3c:
@@ -507,7 +507,7 @@ primary_controls_complete:
     switch ((signed char)g_bCurrentKey_0046c014) {
     case 1:
         g_bSceneEscapeRequested_0049d4b0 = 0;
-        if (g_nTrainSimActive_00469e2c != 0)
+        if (g_nTrainSimActive_0049d758 != 0)
             return -1;
         if (get_mode(1) == 4) {
             CloseCommChoiceMenu();
@@ -776,7 +776,7 @@ void UpdateArcadeScoreDisplay(void)
 {
     char bonus[20];
 
-    if (g_nTrainSimActive_00469e2c != 0) {
+    if (g_nTrainSimActive_0049d758 != 0) {
         SetTextContext(&g_stSpaceTextContext_005d21c0);
         DrawWc1ArcadeScorePanel(10, 10);
         if (g_nArcadeBonusCountdown_0046a014 < 1) {
@@ -791,7 +791,7 @@ void UpdateArcadeScoreDisplay(void)
             SetTextCursor((unsigned short)g_stViewBuffer_005d2b00.left,
                           (unsigned short)((g_stViewBuffer_005d2b00.top +
                                             g_stViewBuffer_005d2b00.bottom) / 2 - 5));
-            if (g_nCurrentWave_0046c01c != -1) {
+            if (g_nCurrentWave_004931c0 != -1) {
                 FormatTextBufferFromStart(
                     "Wave %d complete.\n\nBonus Points: %s0%P",
                     g_nArcadeWave_00469e34 + 1, bonus);
@@ -816,7 +816,7 @@ void RenderSpaceViewFrame(void)
     dump_buffer_to_screen();
     if (g_nCurrentView_00492fa8 == 0)
         RestoreTransientCockpitGraphics();
-    if (g_nCockpitDisplayMode_0049d71c == 0 && g_nTrainSimActive_00469e2c != 0) {
+    if (g_nCockpitDisplayMode_0049d71c == 0 && g_nTrainSimActive_0049d758 != 0) {
         DrawFilledViewportRect(&g_stViewBuffer_005d2b00, 10, 10,
                                g_stViewBuffer_005d2b00.right, 0x11,
                                g_cPrimaryViewBufferColour_0049cb88);
@@ -827,7 +827,7 @@ void RenderSpaceViewFrame(void)
                         &g_aShipPosition_00494550[0]) > 0x271000)
                     zero_vector(&g_aShipPosition_00494550[0]);
                 g_nArcadeScore_005a7bc4 += g_nArcadeWaveBonus_005a7c50;
-                if (g_nCurrentWave_0046c01c == -1)
+                if (g_nCurrentWave_004931c0 == -1)
                     g_nArcadeState_0049d75c = 1;
                 else
                     g_nArcadeWave_00469e34++;
@@ -1080,7 +1080,7 @@ int RunWc1SpaceFlight(short entryNavPoint)
     unsigned int frameReady;
 
     g_nCockpitDisplayMode_0049d71c = 0;
-    if (g_nTrainSimActive_00469e2c == 0 && DAT_0046507c == 0)
+    if (g_nTrainSimActive_0049d758 == 0 && DAT_0046507c == 0)
         g_nCockpitDisplayMode_0049d71c = 1;
     g_nFrameSkipCountdown_0049d760 = 1;
     g_bInputMode_0059a848 = 1;
@@ -1108,7 +1108,7 @@ int RunWc1SpaceFlight(short entryNavPoint)
         initialize_cockpit(savedMode);
         SetMousePosition(
             (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2 + 1,
-            g_nViewCenterY_0059a854);
+            g_nViewCenterY_005c80da);
         g_bMouseAfterburnerControl_0046a02c = 0;
         g_bMouseCursorVisible_0046a018 = 0;
         initialize_view_buffer();
@@ -1122,13 +1122,13 @@ int RunWc1SpaceFlight(short entryNavPoint)
     g_bMouseAfterburnerControl_0046a02c = 0;
     g_bMouseCursorVisible_0046a018 = 0;
     g_nArcadeState_0049d75c = 0;
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     SetWc1SpaceFlightFrameTiming();
     FlushInputEvents();
     ClearDebugPauseFlags();
     g_bMouseCursorVisible_0046a018 = 0;
-    g_bPointerMovedByKeyboard_005a7d54 = 1;
+    g_bSuppressNextMouseMove_005c843c = 1;
     frameReady = 1;
 
     while (g_nArcadeState_0049d75c == 0) {
@@ -1153,7 +1153,7 @@ int RunWc1SpaceFlight(short entryNavPoint)
         ReadPerformanceCounter(&g_liFlightAfterCockpit_00476530);
         if (frameReady != 0) {
             frameReady = 0;
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         }
         ReadPerformanceCounter(&g_liFlightFrameEnd_00476508);
@@ -1347,8 +1347,8 @@ int calculate_damage_level(void)
     return 3;
 }
 
-/* Function start: 0x419A40 */
-void UpdateTrainSimMenuCursor(void)
+/* Function start: WC2_UNMAPPED */
+void UpdateWc1TrainSimMenuCursor(void)
 {
     short mouseX;
     short mouseY;
@@ -1367,6 +1367,40 @@ void UpdateTrainSimMenuCursor(void)
         region++;
     }
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
+}
+
+/* Function start: 0x419A40 */
+void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
+{
+    if (count != 0) {
+        if (DosFarPtrToNear(source) < DosFarPtrToNear(destination)) {
+            destination = DosNearPtrToFar(
+                DosFarPtrToNear(destination) + count);
+            source = DosNearPtrToFar(DosFarPtrToNear(source) + count);
+            while ((count -= 0xffff) > -1) {
+                source = DosNearPtrToFar(
+                    DosFarPtrToNear(source) - 0xffff);
+                destination = DosNearPtrToFar(
+                    DosFarPtrToNear(destination) - 0xffff);
+                DosMemcpy(destination, source, 0xffff);
+            }
+            count += 0xffff;
+            source = DosNearPtrToFar(DosFarPtrToNear(source) - count);
+            destination = DosNearPtrToFar(
+                DosFarPtrToNear(destination) - count);
+            DosMemcpy(destination, source, (unsigned int)count);
+        } else {
+            while ((count -= 0xffff) > -1) {
+                DosMemcpy(destination, source, 0xffff);
+                source = DosNearPtrToFar(
+                    DosFarPtrToNear(source) + 0xffff);
+                destination = DosNearPtrToFar(
+                    DosFarPtrToNear(destination) + 0xffff);
+            }
+            count += 0xffff;
+            DosMemcpy(destination, source, (unsigned int)count);
+        }
+    }
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1407,11 +1441,14 @@ void UpdateRoomMenuCursor(void)
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
+#pragma function(memset)
+
 /* Function start: 0x453820 */
-void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
-                                           unsigned short colour,
-                                           short enabled)
+void FadeViewportPaletteToColour(Viewport *viewport,
+                                 unsigned short colour,
+                                 short enabled)
 {
+#if 0
     unsigned char *indices;
     unsigned short target[3];
     short *currentPalette;
@@ -1468,9 +1505,67 @@ void __stdcall FadeViewportPaletteToColour(Viewport *viewport,
     ReleasePacketHandle(targetPalette);
     ReleasePacketHandle(currentPalette);
     ReleasePacketHandle(indices);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
+#else
+    unsigned char *indices;
+    short activeCount;
+    short index;
+    unsigned short target[3];
+    short *targetPalette;
+    short *currentPalette;
+
+    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+        indices = AllocateTaggedMemory(256, 0);
+        if (indices == 0)
+            return;
+        memset(indices, 0, 256);
+        activeCount = CollectActivePaletteIndices(viewport, indices, 256);
+        currentPalette = AllocateTaggedMemory(
+            (unsigned int)(activeCount * 6), 0);
+        if (currentPalette == 0) {
+            ReleasePacketHandle(indices);
+            return;
+        }
+        memset(currentPalette, 0,
+               (unsigned int)(activeCount * 6));
+        targetPalette = AllocateTaggedMemory(
+            (unsigned int)(activeCount * 6), 0);
+        if (targetPalette == 0) {
+            ReleasePacketHandle(indices);
+            ReleasePacketHandle(currentPalette);
+            return;
+        }
+        memset(targetPalette, 0,
+               (unsigned int)(activeCount * 6));
+        GetPaletteEntry((short)colour, target);
+        for (index = 0; index < activeCount; index++) {
+            GetPaletteEntry(
+                (short)indices[index],
+                (unsigned short *)&currentPalette[index * 3]);
+            memcpy(&targetPalette[index * 3], target, 6);
+        }
+        while (StepPaletteTransition(
+                   currentPalette, targetPalette,
+                   (short)(activeCount * 3)) != 0) {
+            if (enabled != 0) {
+                index = enabled;
+                while (index-- != 0)
+                    WaitForVerticalBlankThunk();
+            }
+            for (index = 0; index < activeCount; index++) {
+                SetPaletteEntry((short)indices[index],
+                                &currentPalette[index * 3]);
+            }
+        }
+        ReleasePacketHandle(targetPalette);
+        ReleasePacketHandle(currentPalette);
+        ReleasePacketHandle(indices);
+    }
+#endif
 }
+
+#pragma intrinsic(memset)
 
 /* Function start: 0x424A60 */
 short find_objective(int type, short index)

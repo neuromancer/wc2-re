@@ -147,7 +147,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 10);
 
@@ -205,7 +205,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             y = (short)(y + descentSpeed);
-            DIBslam();
+            MarkDibDirty();
             frame++;
             DIBslamReal();
         } while (frame < 10);
@@ -245,7 +245,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
                 frame++;
                 if (frame > 200 || g_bSceneEscapeRequested_0049d4b0 != 0)
                     break;
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
             }
         }
@@ -259,7 +259,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
     }
     FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     RestoreGamePalette();
     free_all_slots();
@@ -268,8 +268,8 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
     return 0;
 }
 
-/* Function start: 0x4251F2 */
-void stranded_sequence(void)
+/* Function start: WC2_UNMAPPED */
+void RunWc1StrandedSequence(void)
 {
     short frame;
 
@@ -291,7 +291,7 @@ void stranded_sequence(void)
         if (g_bSceneEscapeRequested_0049d4b0 != 0)
             break;
         frame++;
-        DIBslam();
+        MarkDibDirty();
         DIBslamReal();
     } while (frame < 400);
     free_all_slots();
@@ -565,7 +565,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
         if (*mouthCommands == -1 && *faceCommands == -1) {
             if (waiting == 0) {
                 CloseTalk(talker, -1, -1);
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
                 WaitForWc1SceneAdvance(duration, 0);
                 return 0;
@@ -613,7 +613,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
         if (g_nFrameSkipCountdown_0049d760 < 1) {
             g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
             CloseTalk(talker, mouthFrame, faceFrame);
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         }
         if (CheckEscaped() != 0)
@@ -737,7 +737,7 @@ unsigned int DeBriefing(short series, short mission)
         FetchDiskPacketRetrying(4, 6, 0);
     SceneDirector(1, g_pDebriefingSceneData_00598afc,
                   g_pDebriefingTextData_00598c28);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     g_bSceneEscapeRequested_0049d4b0 = 0;
     ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
@@ -757,8 +757,84 @@ void MarkPilotDead(short pilot)
     g_pPilotStatus_005d2fcc[pilot] = 0;
 }
 
-/* Function start: 0x409B80 */
-unsigned int Office(void)
+/* Function start: 0x4251F2 */
+void CompleteStarSystemJump(void)
+{
+    short destinationNavPoint;
+    short previousDelay;
+
+    previousDelay = g_nStarSystemJumpDelay_004962f4;
+    g_nStarSystemJumpDelay_004962f4++;
+    if (previousDelay < 75) {
+        g_asObjectCounter_00494be0[0] = 1;
+    } else {
+        FadeViewportPaletteToColour(
+            &g_stScreenViewport_005d21a0,
+            g_cSecondaryViewBufferColour_0049cb4c, 1);
+        ClearViewport(&g_stScreenViewport_005d21a0,
+                      g_cSecondaryViewBufferColour_0049cb4c);
+        free_all_slots();
+
+        for (destinationNavPoint = 0; destinationNavPoint < 10;
+             destinationNavPoint++) {
+            if (g_aMissionNavPoints_00491e98[destinationNavPoint].type != 0 &&
+                g_aMissionNavPoints_00491e98[destinationNavPoint]
+                        .systemIndex != g_nCurrentStarSystem_005d169c &&
+                g_aMissionNavPoints_00491e98[destinationNavPoint].field_2e !=
+                    0) {
+                break;
+            }
+        }
+
+        g_anShipFuel_00495638[0] -= g_anShipFuel_00495638[0] / 2;
+        g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
+        new_view(0, 0);
+        g_bAutopilotSequenceActive_00493064 = 1;
+        set_up_action_sphere(destinationNavPoint);
+        g_bAutopilotSequenceActive_00493064 = 0;
+        g_aShipPosition_00494550[0] =
+            g_aMissionNavPoints_00491e98[destinationNavPoint].position;
+        g_aShipPosition_00494550[0].x +=
+            g_aMissionNavPoints_00491e98[destinationNavPoint]
+                .proximityRadius;
+        g_asObjectScale_00494d90[0] =
+            g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[0]].scale;
+        g_bStarSystemJumpTransition_004962ec = 0;
+        g_asShipManeuver_00495f48[0] = MANEUVER_NONE;
+        g_asObjectCounter_00494be0[0] =
+            (short)g_nSavedPlayerObjectCounter_005d2fe0;
+
+        if (g_nYourWingman_0049346c != -1) {
+            g_anShipFuel_00495638[g_nYourWingman_0049346c] -=
+                g_anShipFuel_00495638[g_nYourWingman_0049346c] / 2;
+            g_asObjectCounter_00494be0[g_nYourWingman_0049346c] =
+                (short)g_nSavedWingmanObjectCounter_005d2fdc;
+            g_asShipMissionType_00495de8[g_nYourWingman_0049346c] =
+                MISSION_TYPE_WINGMAN;
+            g_aeShipObjective_00495f08[g_nYourWingman_0049346c] =
+                OBJECTIVE_HOLD_FORMATION;
+            g_aShipPosition_00494550[g_nYourWingman_0049346c] =
+                g_aShipPosition_00494550[0];
+            g_anShipSpeed_00494e20[g_nYourWingman_0049346c] =
+                g_anShipSpeed_00494e20[0];
+            g_asObjectScale_00494d90[g_nYourWingman_0049346c] =
+                g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[
+                        g_nYourWingman_0049346c]].scale;
+        }
+
+        ClearViewport(&g_stViewBuffer_005d2b00,
+                      g_cPersonnelTextColour_0049cb50);
+        g_bViewportDirty_0049d76c = 1;
+        g_bJumpSequenceActive_004962f0 = 0;
+        if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
+            ResetCannedSceneRecording();
+    }
+}
+
+/* Function start: WC2_UNMAPPED */
+unsigned int RunWc1OfficeScene(void)
 {
     BriefingPacketHeader *header;
     unsigned char *packet;
@@ -779,7 +855,7 @@ unsigned int Office(void)
     g_pConversationBackdropShape_00598c04 =
         FetchDiskPacketRetrying(4, 7, 0);
     SceneDirector(4, sceneData, textData);
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     g_bSceneEscapeRequested_0049d4b0 = 0;
     ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
@@ -790,6 +866,28 @@ unsigned int Office(void)
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x24);
     return 0;
+}
+
+/* Function start: 0x409B80 */
+void ReleaseSpaceflightResources(void)
+{
+    short font;
+
+    remove_nav_pointer();
+    g_bCockpitResourcesActive_0049c8e8 = 1;
+    free_cockpit();
+    free_all_slots();
+    free_3Space();
+    for (font = 0; font < 4; font++) {
+        if (g_apTextFonts_005d2200[font] != 0) {
+            ReleasePacketHandle(g_apTextFonts_005d2200[font]);
+            g_apTextFonts_005d2200[font] = 0;
+        }
+    }
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        ShowMemoryStatusDebug();
+        WaitForAnyInputPress();
+    }
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1105,7 +1203,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                                           shape, frame);
                     }
                     RefreshMemoryStatusOverlay();
-                    DIBslam();
+                    MarkDibDirty();
                     DIBslamReal();
                 }
                 escaped = CheckEscaped();
@@ -1117,7 +1215,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                 }
                 if (finished != 0 && IsFrameTickElapsed() != 0)
                     return 0;
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
             } while (*cursor != -1);
         }
@@ -1142,18 +1240,18 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                         0, 0);
                 }
                 RefreshMemoryStatusOverlay();
-                DIBslam();
+                MarkDibDirty();
                 DIBslamReal();
             }
             if (CheckEscaped() != 0)
                 sceneFrame = 20;
             if (sceneFrame == 20)
                 g_nFrameSkipCountdown_0049d760 = 1;
-            DIBslam();
+            MarkDibDirty();
             DIBslamReal();
         }
     }
-    DIBslam();
+    MarkDibDirty();
     DIBslamReal();
     WaitForWc1SceneAdvance(duration, unused);
     return 0;

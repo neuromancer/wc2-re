@@ -637,20 +637,6 @@ void Create_ship_hit_debris(short obj, short count)
 /* Function start: 0x4137C2 */
 void check_next_wave(void)
 {
-#if 0
-    short obj;
-
-    if (g_nCurrentWave_0046c01c == -1)
-        return;
-    obj = 0;
-    do {
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
-            g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
-            return;
-        obj++;
-    } while (obj < 10);
-    set_up_next_wave();
-#else
     {
         short obj;
 
@@ -677,7 +663,48 @@ void check_next_wave(void)
             }
         }
     }
-#endif
+}
+
+/* Function start: 0x4138A8 */
+void ProcessEnemyWaveCompletion(void)
+{
+    short obj;
+
+    for (obj = 0; obj < 10; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+            g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+            return;
+    }
+    check_next_wave();
+    if ((unsigned char)g_cPendingEjectionTransition_0049b8ac != 0xff &&
+        g_bEjectionWaitForEnemyWave_0049b8b0 != 0) {
+        if (g_bEjectionTriggerImmediately_0049b8bc != 0) {
+            ejection_sequence(
+                (unsigned char)g_cPendingEjectionTransition_0049b8ac, 1);
+            g_cPendingEjectionTransition_0049b8ac = -1;
+            g_bEjectionTriggerImmediately_0049b8bc = 0;
+        } else {
+            g_nEjectionSequenceState_0049b8c0 = 0;
+            g_nPendingEjectionSequenceCount_0049b8b8++;
+        }
+    }
+    if (set_up_next_wave() != 0)
+        return;
+    for (obj = 1; obj < 10; obj++) {
+        if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+            g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL)
+            return;
+    }
+    if ((unsigned char)g_cPendingEjectionTransition_0049b8ac != 0xff) {
+        g_nEjectionSequenceState_0049b8c0 = 0;
+        g_nPendingEjectionSequenceCount_0049b8b8++;
+    }
+    if (g_bMissionDeathSequencePending_0049b720 != 0 &&
+        g_bMissionEjectionPodSpawned_0049b724 != 0) {
+        ejection_sequence((short)(g_nPlayerShipType_00493464 + 300), 1);
+        g_bMissionDeathSequencePending_0049b720 = 0;
+        g_bMissionEjectionPodSpawned_0049b724 = 0;
+    }
 }
 
 /* Function start: 0x413A3B */
@@ -723,7 +750,7 @@ unsigned int Create_explosion_debris(short obj)
         AddFixedVectors(&vector,
                         &g_aShipVelocity_0059c010[debris],
                         &g_aShipVelocity_0059c010[debris]);
-        g_asObjectScreenAngle_0059cd90[debris] =
+        g_asObjectScreenAngle_004936b8[debris] =
             (short)(RandomBelowOrEqual(3) + 0x10);
         g_asObjectCounter_00494be0[debris] = 40;
         g_aeObjectClass_00495328[debris] = OBJECT_CLASS_DUST;
@@ -918,7 +945,7 @@ short ShipExplosion(short obj)
     if (explosion == -1) {
         if (g_aeObjectClass_00495328[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP)
-            FreePacketAndClear(&g_apObjectShape_0059d2f0[obj], 0);
+            FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
         g_asCapitalShipViewFrame_0059dd90[obj] = -1;
         explosion = obj;
     } else {
@@ -1076,8 +1103,8 @@ int explosion_shock_wave(short obj, short blastDamage)
     return 0;
 }
 
-/* Function start: 0x414835 */
-int explode(short attacker, short victim)
+/* Function start: WC2_UNMAPPED */
+int ResolveWc1ObjectDestruction(short attacker, short victim)
 {
     short creator;
 
@@ -1136,6 +1163,89 @@ int explode(short attacker, short victim)
     if (creator != -1 &&
         g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP)
         analyze_kill(creator, victim);
+    Explosion(victim);
+    return 1;
+}
+
+/* Function start: 0x414835 */
+short explode(short attacker, short victim)
+{
+    short result;
+    short object;
+
+    if (victim < 10)
+        g_anShipCloakState_00496020[victim] = 2;
+    if (g_bExplosionTraversalIdle_00492e18 != 0) {
+        for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++)
+            g_abExplosionObjectVisited_005d3870[object] = 0;
+    }
+    g_bExplosionTraversalIdle_00492e18 = 0;
+    if (g_abExplosionObjectVisited_005d3870[victim] != 0)
+        return 1;
+    g_abExplosionObjectVisited_005d3870[victim] = 1;
+    result = ResolveObjectDestruction(attacker, victim);
+    g_bExplosionTraversalIdle_00492e18 = 1;
+    return result;
+}
+
+/* Function start: 0x4148F5 */
+short ResolveObjectDestruction(short attacker, short victim)
+{
+    short objective;
+
+    if (victim < 10 && g_asPilotLevel_00495d60[victim] == 5) {
+        if (g_abPilotEjectionAttempted_00496110[victim] == 0) {
+            g_abPilotEjectionAttempted_00496110[victim]++;
+            g_acShipStress_00496100[victim] = 120;
+            if (g_asShipSide_004955d0[victim] == SIDE_IMPERIAL)
+                reset_maneuver(victim, MANEUVER_OUTA_HERE);
+            g_acShipDamage_00495690[victim] =
+                (signed char)(g_acShipDamage_00495690[victim] / 2);
+            if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI)
+                send_message(victim, 0x1d);
+            return 0;
+        }
+        if (RandomBelowOrEqual(1) == 0)
+            return 0;
+    }
+    if (g_aeSpecialManeuver_00495600[victim] ==
+            SPECIAL_MANEUVER_UNKNOWN_9 &&
+        g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP)
+        return 0;
+    if (victim == 0) {
+        if (g_bPlayerDamageEnabled_0049d77c == 0)
+            return 0;
+        g_bPlayerDestroyed_005d2fa4 = 1;
+        if (g_bDeathSequenceActive_0049da50 == 0)
+            g_nArcadeState_0049d75c = 4;
+        return 1;
+    }
+    if (victim == g_nExternalViewShip_00493468)
+        g_nExternalViewShip_00493468 = -1;
+    if (g_acObjectOwner_00495208[attacker] != -1)
+        attacker = g_acObjectOwner_00495208[attacker];
+    if (attacker != -1 &&
+        g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP) {
+        analyze_kill(attacker, victim);
+        for (objective = 0; objective < WC2_MISSION_OBJECTIVE_COUNT;
+             objective++) {
+            if (g_aMissionObjectives_004932a8[objective].type == 4 &&
+                g_aMissionObjectives_004932a8[objective].index ==
+                    g_asShipMissionIndex_00495d00[victim]) {
+                g_aMissionObjectives_004932a8[objective].field_8 =
+                    (unsigned char)g_asShipMissionIndex_00495d00[attacker];
+            }
+        }
+    }
+    if (victim < 10 && g_asShipSide_004955d0[victim] != SIDE_KILRATHI &&
+        g_abShipEjectionSequenceEnabled_00496120[victim] != 0) {
+        if (g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_CAPITAL_SHIP)
+            return 0;
+        if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_SHIP) {
+            BeginShipDestructionSequence(victim);
+            return 1;
+        }
+    }
     Explosion(victim);
     return 1;
 }
@@ -1683,4 +1793,30 @@ short fire_weapon(short obj, short weapon)
         PlaySfxWaveFileByNumber(sound, projectile, 0);
     }
     return projectile;
+}
+
+/* Function start: 0x446710 */
+void BeginShipDestructionSequence(short obj)
+{
+    send_message(obj, 9);
+    g_nPendingEjectionShip_005d1bc4 = obj;
+    set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
+    if (g_bFastShipExplosion_0049922d != 0)
+        g_asObjectCounter_00494be0[obj] = 8;
+    else
+        g_asObjectCounter_00494be0[obj] = 4;
+    if (g_bFastShipExplosion_0049922d != 0)
+        g_asShipExplosionStageTimer_005d3850[obj] = 8;
+    else
+        g_asShipExplosionStageTimer_005d3850[obj] = 4;
+    g_aMissionShips_00492290[g_asShipMissionIndex_00495d00[obj]].state = 3;
+    ShipExplosion(obj);
+    explosion_shock_wave(
+        obj,
+        g_aObjectTypeData_00496d30[
+            (signed char)g_acObjectType_00493980[obj]].explosionDamage);
+    if (g_asObjectScreenX_00493598[obj] != -32767)
+        PlaySfxWaveFileByNumber(4, obj, 0);
+    g_bMissionDeathSequencePending_0049b720 = 1;
+    g_bMissionEjectionPodSpawned_0049b724 = 0;
 }

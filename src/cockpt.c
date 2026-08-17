@@ -425,7 +425,7 @@ void DrawFormattedText(const char *format, ...)
 #endif
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
         g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 #else
     va_list arguments;
 
@@ -473,7 +473,7 @@ void FormatTextBufferFromStart(const char *format, ...)
 #endif
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
         g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 }
 
 /* Function start: 0x4206F2 */
@@ -493,7 +493,7 @@ void AppendFormattedText(const char *format, ...)
 #endif
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
         g_stScreenViewport_005d21a0.pixels)
-        DIBslam();
+        MarkDibDirty();
 #else
     va_list arguments;
 
@@ -1071,7 +1071,7 @@ void update_lights(void)
     vdu_polygon(0, fuelPercent);
     vdu_polygon(1, g_asShipWeaponEnergy_0059d470[0]);
 
-    if (g_nTrainSimActive_00469e2c == 0) {
+    if (g_nTrainSimActive_0049d758 == 0) {
         if (calculate_damage_level() >= 3 &&
             (int)g_aasShipShield_00495518[0][1] +
                 (int)g_aasShipShield_00495518[0][0] < 10) {
@@ -1253,7 +1253,7 @@ void check_message(void)
                         g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[0]].field_16,
                         1);
-                    g_nPlayerFuel_00495638 =
+                    g_anShipFuel_00495638[0] =
                         *(int *)&g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[0]].lifetime;
                     g_bEjectionSequencePending_00493058 = 0;
@@ -1268,7 +1268,7 @@ void check_message(void)
                         g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[0]].field_16,
                         1);
-                    g_nPlayerFuel_00495638 =
+                    g_anShipFuel_00495638[0] =
                         *(int *)&g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[0]].lifetime;
                     g_bEjectionSequencePending_00493058 = 0;
@@ -1366,7 +1366,7 @@ void vdu_malf(short vdu, short sound)
 void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
-    if (g_nTrainSimActive_00469e2c == 0 && get_mode(0) != 0) {
+    if (g_nTrainSimActive_0049d758 == 0 && get_mode(0) != 0) {
         if (g_aHudMessageSlots_005a7dd0[0].text != 0)
             ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[0]);
         DosStrcpy(g_szComponentHitMessage_005a7e00, text);
@@ -2626,16 +2626,16 @@ void draw_target_box(unsigned short colour, signed char object,
         }
         if (valid != 0) {
             centerX = (short)(g_asObjectScreenX_00493598[object] +
-                              g_nViewCenterX_0059a852);
+                              g_nViewCenterX_005c80d8);
             centerY = (short)(g_asObjectScreenY_00493628[object] +
-                              g_nViewCenterY_0059a854);
+                              g_nViewCenterY_005c80da);
             if ((short)GetTransformedShapeBounds(
                     &g_stViewBuffer_005d2b00, centerX, centerY,
-                    g_apObjectShape_0059d2f0[object],
-                    g_asObjectViewFrame_0059d230[object],
-                    g_asObjectScreenAngle_0059cd90[object],
-                    g_asObjectScreenScale_0059c950[object],
-                    g_asObjectFlip_0059c870[object],
+                    g_apObjectShape_00493868[object],
+                    g_asObjectViewFrame_00493508[object],
+                    g_asObjectScreenAngle_004936b8[object],
+                    g_asObjectScreenScale_00493a58[object],
+                    g_asObjectFlip_004939c8[object],
                     (short *)&bounds) != 0) {
                 bounds.left = (short)(bounds.left - padding);
                 bounds.top = (short)(bounds.top - padding);
@@ -2754,16 +2754,16 @@ void draw_nav_pointer(void)
         DAT_00469208 = object;
         if (object == -1)
             return;
-        g_asObjectViewFrame_0059d230[object] = 3;
+        g_asObjectViewFrame_00493508[object] = 3;
         g_acObjectOwner_00495208[object] = -1;
-        g_asObjectScreenAngle_0059cd90[object] = 0;
-        g_asObjectScreenScale_0059c950[object] = 0x100;
+        g_asObjectScreenAngle_004936b8[object] = 0;
+        g_asObjectScreenScale_00493a58[object] = 0x100;
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_PLANET;
-        g_apObjectShape_0059d2f0[object] =
+        g_apObjectShape_00493868[object] =
             g_pTargetLockShape_005a6bf4;
         DAT_00469208 = object;
         g_asObjectScreenX_00493598[object] = (short)0x8001;
-        g_asObjectDistance_0059b4a0[object] = 0;
+        g_asObjectDistance_00493ae8[object] = 0;
     }
     objectivePosition = g_aMissionObjectives_004932a8[
         (signed char)g_cCurrentObjective_004931cc].position;
@@ -2790,7 +2790,7 @@ void draw_nav_pointer(void)
             ((short)g_nScreenWidth_0046daa4 & ~1) << 7,
             viewPosition.y),
         viewPosition.z) >> 8);
-    g_asObjectDistance_0059b4a0[object] = 0x4a38;
+    g_asObjectDistance_00493ae8[object] = 0x4a38;
 }
 
 /* Function start: 0x43D386 */
@@ -2830,14 +2830,14 @@ unsigned int overlay_head_up_display(void)
             goto centered_sight;
         case 1:
             DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                              g_nViewCenterX_0059a852,
-                              (short)(g_nViewCenterY_0059a854 - 1),
+                              g_nViewCenterX_005c80d8,
+                              (short)(g_nViewCenterY_005c80da - 1),
                               g_pTargetLockShape_005a6bf4, 0);
             break;
         case 3:
             DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                              g_nViewCenterX_0059a852,
-                              (short)(g_nViewCenterY_0059a854 + 14),
+                              g_nViewCenterX_005c80d8,
+                              (short)(g_nViewCenterY_005c80da + 14),
                               g_pTargetLockShape_005a6bf4, 0);
             break;
         default:
@@ -2847,8 +2847,8 @@ unsigned int overlay_head_up_display(void)
     }
 centered_sight:
     DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                      g_nViewCenterX_0059a852,
-                      g_nViewCenterY_0059a854,
+                      g_nViewCenterX_005c80d8,
+                      g_nViewCenterY_005c80da,
                       g_pTargetLockShape_005a6bf4, 0);
 
 no_sight:
@@ -2961,32 +2961,86 @@ void malf_noise(short vdu, int effect, unsigned short colour,
 /* Function start: 0x43DA68 */
 void build_your_target_list(short *hasEnemy)
 {
+    short bounds[4];
+    unsigned char specialObject;
+    short screenY;
+    short screenX;
+    unsigned short distance;
     signed char object;
-    signed char targetIndex;
 
     *hasEnemy = 0;
-    g_cViableTargetCount_0046c088 = 0;
-    object = 1;
-    do {
-        if (g_aeObjectClass_00495328[(int)object] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_00495600[(int)object] !=
-                SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_asObjectScreenX_00493598[(int)object] != (short)0x8001 &&
-            (unsigned short)g_asObjectDistance_0059b4a0[(int)object] <
-                12000) {
-            targetIndex = g_cViableTargetCount_0046c088;
-            g_asViableTargetDistance_0059c470[(int)targetIndex] =
-                g_asObjectDistance_0059b4a0[(int)object];
-            g_acViableTarget_0059c920[(int)targetIndex] = object;
-            g_cViableTargetCount_0046c088++;
-            if (g_asShipSide_004955d0[(int)object] !=
-                g_asShipSide_004955d0[0])
-                *hasEnemy = 1;
+    g_cViableTargetCount_00496178 = 0;
+    if (g_nCurrentView_00492fa8 == 4 &&
+        g_nTargetCameraMode_005c8d50 == 1) {
+        if (g_nTargetCameraZoom_0049d3e4 > 32) {
+            for (specialObject = 0; specialObject < 10;
+                 specialObject++) {
+                if (((g_aeObjectClass_00495328[specialObject] !=
+                          OBJECT_CLASS_NULL &&
+                      g_asObjectType_00495298[specialObject] == 0x3d) ||
+                     g_asObjectType_00495298[specialObject] == 0x2c) &&
+                    g_asObjectScreenX_00493598[specialObject] !=
+                        (short)0x8001) {
+                    screenX = (short)(
+                        g_asObjectScreenX_00493598[specialObject] +
+                        g_nViewCenterX_005c80d8);
+                    screenY = (short)(
+                        g_asObjectScreenY_00493628[specialObject] +
+                        g_nViewCenterY_005c80da);
+                    GetTransformedShapeBounds(
+                        &g_stViewBuffer_005d2b00, screenX, screenY,
+                        g_apObjectShape_00493868[specialObject],
+                        g_asObjectViewFrame_00493508[specialObject],
+                        g_asObjectScreenAngle_004936b8[specialObject],
+                        g_asObjectScreenScale_00493a58[specialObject],
+                        g_asObjectFlip_004939c8[specialObject], bounds);
+                    if (IsSpriteFrameOverlappingRect(
+                            (const ShortRect *)bounds,
+                            g_nViewCenterX_005c80d8,
+                            g_nViewCenterY_005c80da,
+                            g_pCockpitHudShape_005d21f4,
+                            0) != 0) {
+                        distance = (unsigned short)
+                            g_asObjectDistance_00493ae8[specialObject];
+                        if (distance < 4000) {
+                            g_acViableTarget_00496180[
+                                (int)g_cViableTargetCount_00496178] =
+                                    (signed char)specialObject;
+                            g_asViableTargetDistance_00496190[
+                                (int)g_cViableTargetCount_00496178] =
+                                    (short)distance;
+                            g_cViableTargetCount_00496178++;
+                        }
+                    }
+                }
+            }
         }
-        object++;
-    } while (object <= 9);
-    if (g_cViableTargetCount_0046c088 > 1)
-        sort_viable_target_list();
+    } else {
+        for (object = 1; object < 10; object++) {
+            if (g_aeObjectClass_00495328[(int)object] >=
+                    OBJECT_CLASS_SHIP &&
+                g_aeSpecialManeuver_00495600[(int)object] !=
+                    SPECIAL_MANEUVER_UNKNOWN_9 &&
+                g_asObjectScreenX_00493598[(int)object] !=
+                    (short)0x8001) {
+                distance = (unsigned short)
+                    g_asObjectDistance_00493ae8[(int)object];
+                if (distance < 12000) {
+                    g_acViableTarget_00496180[
+                        (int)g_cViableTargetCount_00496178] = object;
+                    g_asViableTargetDistance_00496190[
+                        (int)g_cViableTargetCount_00496178] =
+                            (short)distance;
+                    g_cViableTargetCount_00496178++;
+                    if (g_asShipSide_004955d0[(int)object] !=
+                        g_asShipSide_004955d0[0])
+                        *hasEnemy = 1;
+                }
+            }
+        }
+    }
+    if (g_cViableTargetCount_00496178 > 1)
+        SortViableTargetsByDistance();
 }
 
 /* Function start: 0x43DD1B */
@@ -2998,20 +3052,20 @@ void cycle_onscreen_targets(void)
 
     previousTarget = g_acShipTarget_00495f20[0];
     build_your_target_list(&hasEnemy);
-    if (g_cViableTargetCount_0046c088 == 0) {
+    if (g_cViableTargetCount_00496178 == 0) {
         g_acShipTarget_00495f20[0] = -1;
     } else {
         for (index = 0;
-             index < g_cViableTargetCount_0046c088 &&
-             g_acViableTarget_0059c920[(int)index] !=
+             index < g_cViableTargetCount_00496178 &&
+             g_acViableTarget_00496180[(int)index] !=
                  g_acShipTarget_00495f20[0];
              index++)
             ;
         do {
             index = (signed char)((index + 1) %
-                                  g_cViableTargetCount_0046c088);
+                                  g_cViableTargetCount_00496178);
             g_acShipTarget_00495f20[0] =
-                g_acViableTarget_0059c920[(int)index];
+                g_acViableTarget_00496180[(int)index];
             if (hasEnemy == 0)
                 break;
         } while (g_asShipSide_004955d0[
@@ -3055,7 +3109,7 @@ void check_target(void)
         g_nTargetLockMode_0046c078 = 0;
 
     build_your_target_list(&hasEnemy);
-    if (g_cViableTargetCount_0046c088 == 0) {
+    if (g_cViableTargetCount_00496178 == 0) {
         if (g_nTargetLockMode_0046c078 != 0)
             g_acShipTarget_00495f20[0] = oldTarget;
         else
@@ -3071,15 +3125,15 @@ void check_target(void)
         }
         if (selectNewTarget != 0) {
             for (targetIndex = 0;
-                 targetIndex < g_cViableTargetCount_0046c088 &&
+                 targetIndex < g_cViableTargetCount_00496178 &&
                  g_asShipSide_004955d0[
-                     (short)g_acViableTarget_0059c920[targetIndex]] ==
+                     (short)g_acViableTarget_00496180[targetIndex]] ==
                      g_asShipSide_004955d0[0];
                  targetIndex++)
                 ;
             g_acShipTarget_00495f20[0] =
-                g_acViableTarget_0059c920[
-                    targetIndex % (short)g_cViableTargetCount_0046c088];
+                g_acViableTarget_00496180[
+                    targetIndex % (short)g_cViableTargetCount_00496178];
         }
     }
     if (g_acShipTarget_00495f20[0] != oldTarget) {
@@ -3094,7 +3148,7 @@ void update_missile_warning(void)
 {
     if (FindMissileTargetingObject(0) != 0) {
         SetCockpitLightBlink(2, 1);
-        if (g_nTrainSimActive_00469e2c == 0)
+        if (g_nTrainSimActive_0049d758 == 0)
             spacetrack(3, 1, -1);
     } else {
         g_abCockpitLightGoal_005d1eb8[2] = 0;
@@ -3256,7 +3310,7 @@ void ResetPilotHandAnimation(void)
 /* Function start: 0x43E4A8 */
 void send_message(short obj, signed char message)
 {
-    if (g_nTrainSimActive_00469e2c == 0 &&
+    if (g_nTrainSimActive_0049d758 == 0 &&
         g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL &&
         g_nCannedSceneMode_0049021c == 0) {
         if (g_nYourWingman_0049346c != -1 &&
@@ -3292,7 +3346,7 @@ void npc_communication(void)
     short messageActive;
 
     if (g_nCannedSceneMode_0049021c == 0 &&
-        g_nTrainSimActive_00469e2c == 0) {
+        g_nTrainSimActive_0049d758 == 0) {
         messageActive = message_showing();
         obj = 1;
         while (messageActive == 0 && obj < 10) {
@@ -3450,7 +3504,7 @@ void cockpit_explosion(void)
 void place_damage_on_cockpit(short damage)
 {
 #if 0
-    if (g_nCurrentView_00492fa8 == 0 && g_nTrainSimActive_00469e2c == 0 &&
+    if (g_nCurrentView_00492fa8 == 0 && g_nTrainSimActive_0049d758 == 0 &&
         g_asCockpitDamageState_005d1ee8[damage] == 0) {
         g_nPendingCockpitDamage_005a7dcc = damage;
         g_asCockpitDamageState_005d1ee8[damage] = 1;
@@ -3539,7 +3593,7 @@ void vid_transmit(void)
 void vid_equiv(short obj, short message)
 {
     if (get_mode(1) != 4 &&
-        g_nTrainSimActive_00469e2c == 0 &&
+        g_nTrainSimActive_0049d758 == 0 &&
         g_nCannedSceneMode_0049021c == 0 && g_nCurrentView_00492fa8 == 0 &&
         message_showing() == 0)
         real_vid_transmit(obj, message);
@@ -3554,7 +3608,7 @@ void update_dead_disp(short a)
 /* Function start: 0x43F0C3 */
 void check_stranded(void)
 {
-    if (g_nTrainSimActive_00469e2c == 0 &&
+    if (g_nTrainSimActive_0049d758 == 0 &&
         g_aMissionShips_00492290[
             g_nHomeMissionShipIndex_005d1e22].state == 3 &&
         any_enemy(0, 30000) == 0)
@@ -3684,7 +3738,7 @@ void update_VDUs(void)
         g_aHudMessageSlots_005a7dd0[1].text = 0;
     else
         UpdateMessage(&g_aHudMessageSlots_005a7dd0[1]);
-    if (g_nTrainSimActive_00469e2c != 0 &&
+    if (g_nTrainSimActive_0049d758 != 0 &&
         g_pPilotHandShape_005a7684 != 0)
         CopyTrainSimPilotViewToVdus();
 }
