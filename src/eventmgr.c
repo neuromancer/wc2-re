@@ -1364,7 +1364,7 @@ short ServiceInputDevices(short deviceMask)
         return 1;
     }
     PumpWindowMessages(1);
-    if (g_bSceneAdvanceRequested_0049d4b0 != 0)
+    if (g_bSceneEscapeRequested_0049d4b0 != 0)
         return 1;
     return 0;
 }

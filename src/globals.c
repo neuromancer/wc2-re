@@ -2436,7 +2436,6 @@ int DAT_0059ab4c;
 short g_nViewportOriginY_0059ab50;
 short g_nViewportOriginX_0059ab52;
 unsigned int DAT_0059ab54;
-signed char g_bSceneEscapeRequested_0049d4b0;
 int DAT_0059ab5c;
 int DAT_0059ab60;
 short DAT_0059ab64;
@@ -3747,7 +3746,7 @@ const char g_szDamageStatusFormat_0046a8b0[16] = "%s\nDamage: %s";
 const char g_szDamageStatusFormatHighRes_0046a8c0[16] =
     "%s\nDamage: %s";
 
-signed char g_bSceneAdvanceRequested_0049d4b0;
+signed char g_bSceneEscapeRequested_0049d4b0;
 int g_nNextInputQueueFlushTick_0049d4cc;
 int g_nNextInputPollTick_0049d6d4;
 short g_nInputPollPeriod_0049d6d8;

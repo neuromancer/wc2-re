@@ -1310,6 +1310,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     short runtimeIndex;
     short textIndex;
     short waitTicks;
+    int inputHandled;
     signed char returnValue;
     signed char branchGuard;
     void *packet;
@@ -1318,6 +1319,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     returnValue = 1;
     branchGuard = 1;
     stack = stackStorage + 10;
+    inputHandled = 0;
     if (instruction == 0)
         FatalCutsceneError("ERROR: Running script for UNLINKED object");
     if (g_pCurrentCutsceneSprite_00499c78 == 0) {
@@ -1350,10 +1352,67 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_bCutsceneSkipFrame_00499c54 = 1;
         if (g_bCutsceneSkipFrame_00499c54 == 0 &&
             g_bCutsceneViewportPreallocated_00499c4c == 0) {
-            PumpWindowMessages(0);
+            if (ServiceInputDevices(-1) != 0) {
+                g_pCutsceneInputEvent_005d2f08 = FindQueuedInputEvent(4);
+                if (g_pCutsceneInputEvent_005d2f08 != 0) {
+                    switch (g_pCutsceneInputEvent_005d2f08->status) {
+                    case 2:
+                        g_cCutsceneSpeechSpeed_00499eb4 = 0;
+                        break;
+                    case 3:
+                        g_cCutsceneSpeechSpeed_00499eb4 = 2;
+                        break;
+                    case 4:
+                        g_cCutsceneSpeechSpeed_00499eb4 = 4;
+                        break;
+                    case 5:
+                        g_cCutsceneSpeechSpeed_00499eb4 = 6;
+                        break;
+                    case 6:
+                        g_cCutsceneSpeechSpeed_00499eb4 = 8;
+                        break;
+                    case 0x11:
+                    case 0x19:
+                        break;
+                    default:
+                        goto handle_queued_cutscene_input;
+                    }
+                } else {
+handle_queued_cutscene_input:
+                    if (g_wSpeechCacheState_0049bb60 == 0 &&
+                        (FindQueuedInputEvent(4) != 0 ||
+                         FindQueuedInputEvent(1) != 0)) {
+                        ReleaseSceneFlicPackets();
+                        ReleaseCutsceneSoundEffects(-1);
+                        if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+                            ReleaseCutsceneSpeechPackets();
+                            g_bCutsceneSpeechActive_00499eb8 = 0;
+                            g_bCutsceneSkipFrame_00499c54 = 1;
+                            g_bCutsceneSkipAll_00499c58 = 1;
+                            g_bSceneEscapeRequested_0049d4b0 = 0;
+                            return 0;
+                        }
+                        g_bCutsceneTextAdvance_005d2ed0 = 0;
+                        g_pszCutsceneSpeechCursor_00499eb0 = 0;
+                        g_bCutsceneSkipFrame_00499c54 = 1;
+                        g_nNextCutsceneFrameClock_00499c90 =
+                            g_nInputClock_005c84a8;
+                        inputHandled = 1;
+                    }
+                }
+            }
             if (g_wSpeechCacheState_0049bb60 == 0 &&
-                TakeInputPressCount() != 0) {
+                TakeInputPressCount() != 0 && inputHandled == 0) {
                 ReleaseSceneFlicPackets();
+                ReleaseCutsceneSoundEffects(-1);
+                if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+                    ReleaseCutsceneSpeechPackets();
+                    g_bCutsceneSpeechActive_00499eb8 = 0;
+                    g_bCutsceneSkipFrame_00499c54 = 1;
+                    g_bCutsceneSkipAll_00499c58 = 1;
+                    g_bSceneEscapeRequested_0049d4b0 = 0;
+                    return 0;
+                }
                 g_bCutsceneTextAdvance_005d2ed0 = 0;
                 g_pszCutsceneSpeechCursor_00499eb0 = 0;
                 g_bCutsceneSkipFrame_00499c54 = 1;

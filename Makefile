@@ -1028,8 +1028,10 @@ $(RUN_DIR)/GAMEDAT:
 run-check: $(RUN_DIR)/GAMEDAT
 	@mkdir -p "$(RUN_DIR)/hd"
 
-run: $(TARGET) run-check | $(DREAMM_BIN)
+stage-run: $(TARGET) run-check
 	cp -f $(TARGET) "$(RUN_DIR)/WC2.EXE"
+
+run: stage-run | $(DREAMM_BIN)
 	cd "$(RUN_DIR)" && $(DREAMM) $(DREAMM_MOUNTS) $(DREAMM_PROPS) -launch WC2.EXE
 
 run-original: run-check $(ORIGINAL_EXE) | $(DREAMM_BIN)
@@ -1099,6 +1101,7 @@ clean-modern:
 	report \
 	run \
 	run-check \
+	stage-run \
 	run-modern \
 	run-modern-dos \
 	run-modern-mission \

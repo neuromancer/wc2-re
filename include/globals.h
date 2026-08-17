@@ -1137,7 +1137,6 @@ extern short g_nPacketDecompressPending_0059ab36;
 extern unsigned short g_wPacketDecompressInputSize_0059ab38;
 extern short g_nPacketDecompressWorkspaceSegment_0059ab3a;
 extern int DAT_0059ab4c;
-extern signed char g_bSceneEscapeRequested_0049d4b0;
 extern int g_anSortedObject_0059aa00[WC2_SPACE_OBJECT_COUNT];
 extern FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
 extern short g_anObjectPitchRotation_0059b2a0[WC2_SPACE_OBJECT_COUNT];
@@ -1688,7 +1687,7 @@ extern int g_anInputButton1PressTime_005d3040[2];
 extern short g_asInputButton2DoubleClick_005d3048[2];
 extern signed char g_bInputPollingGuard_005d304c;
 
-extern signed char g_bSceneAdvanceRequested_0049d4b0;
+extern signed char g_bSceneEscapeRequested_0049d4b0;
 extern int g_nNextInputQueueFlushTick_0049d4cc;
 extern int g_nNextInputPollTick_0049d6d4;
 extern short g_nInputPollPeriod_0049d6d8;
