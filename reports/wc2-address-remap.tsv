@@ -581,8 +581,8 @@ src/geom.c	1698	0041AD10	0045979B	ReleaseModalTextPanel	ReleaseModalTextPanel	WC
 src/geom.c	1710	0041AD50		AnySavedGames				unmapped
 src/gr.c	11	00440C00	00425A16	ValidateViewportBounds	ValidateViewportBounds	WC1-fuzzy-followup		mapped
 src/gr.c	50	00440CF0	00425B9E	ClipViewportToScreen	ClipViewportToScreen	WC1-manual-verified		mapped
-src/gr.c	57		00448D1A	SetViewportHorizontalBounds	SetViewportHorizontalBounds	WC2-only		wc2-only
-src/gr.c	64		00448D39	SetViewportVerticalBounds	SetViewportVerticalBounds	WC2-only		wc2-only
+src/gr.c	287		00448D1A	SetViewportHorizontalBounds	SetViewportHorizontalBounds	WC2-only		wc2-only
+src/gr.c	294		00448D39	SetViewportVerticalBounds	SetViewportVerticalBounds	WC2-only		wc2-only
 src/gr.c	71	00440D10	00425BBF	SetSolidColourTranslation	SetSolidColourTranslation	WC1-fuzzy-very-low		mapped
 src/gr.c	79	00440D50	00425BF6	PrepareShapeRLEData	PrepareShapeRLEData	WC1-fuzzy-very-low		mapped
 src/gr.c	188	00440FE0	00425FB4	DrawSpriteTransformed	DrawSpriteTransformed	WC1-fuzzy-very-low		mapped
@@ -1688,3 +1688,10 @@ src/screens.c	64		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	W
 src/sound.c	179		00424417	PlayRawSpeechBuffer	PlayRawSpeechBuffer	WC2-only		wc2-only
 src/music.c	28		0044F3A4	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer	WC2-only		wc2-only
 src/music.c	35		0044F52E	LoadAndPlaySpeechPacket	LoadAndPlaySpeechPacket	WC2-only		wc2-only
+src/gr.c	58		00448570	InitializeViewportWipe	InitializeViewportWipe	WC2-only		wc2-only
+src/gr.c	301		00448D58	AdvanceViewportWipe	AdvanceViewportWipe	WC2-only		wc2-only
+src/gr.c	925		00449FAE	OffsetViewportBounds	OffsetViewportBounds	WC2-only		wc2-only
+src/gr.c	935		0044A009	SetViewportRectangleBounds	SetViewportRectangleBounds	WC2-only		wc2-only
+src/gr.c	945		0044A03C	FinishViewportWipe	FinishViewportWipe	WC2-only		wc2-only
+src/gr.c	1240		0044A910	GenerateWipeRadialEdges	GenerateWipeRadialEdges	WC2-only		wc2-only
+src/gr.c	1299		0044AAE5	BlitWipeRadialBands	BlitWipeRadialBands	WC2-only		wc2-only

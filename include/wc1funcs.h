@@ -1954,10 +1954,24 @@ int SignExtendClipCoord(volatile short v);                             /* 0x4259
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip);                         /* 0x425A16 */
 void ClipViewportToScreen(Viewport *viewport);                         /* 0x425B9E */
+signed char InitializeViewportWipe(Viewport *source,
+                                   Viewport *destination,
+                                   int wipeType, short duration,
+                                   short passFlags, void *workspace); /* 0x448570 */
 void SetViewportHorizontalBounds(Viewport *viewport, int left,
                                  int right);                           /* 0x448D1A */
 void SetViewportVerticalBounds(Viewport *viewport, int top,
                                int bottom);                            /* 0x448D39 */
+signed char AdvanceViewportWipe(void *workspace);                     /* 0x448D58 */
+void OffsetViewportBounds(Viewport *viewport, int left,
+                          int top, int right, int bottom);            /* 0x449FAE */
+void SetViewportRectangleBounds(Viewport *viewport, int left, int top,
+                                int right, int bottom);               /* 0x44A009 */
+void FinishViewportWipe(void *workspace);                             /* 0x44A03C */
+void GenerateWipeRadialEdges(short *edges, int radius);               /* 0x44A910 */
+void BlitWipeRadialBands(Viewport *source, Viewport *destination,
+                         short *trailingEdges,
+                         short *leadingEdges);                        /* 0x44AAE5 */
 void SetSolidColourTranslation(unsigned char colour);                 /* 0x425BBF */
 void PrepareShapeRLEData(unsigned char *shape);                        /* 0x425BF6 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,

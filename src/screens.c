@@ -64,13 +64,43 @@ signed char IsCutsceneSpeechLoaded(void)
 void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
                                int wipeType, short duration)
 {
+    void *workspace;
+    signed char complete;
+
+    complete = 0;
+    workspace = 0;
     g_bRoomTransitionAnimationEnabled_00499c00 = 1;
     if (g_bCutsceneSkipFrame_00499c54 == 0 &&
         g_bCutsceneViewportPreallocated_00499c4c == 0) {
-        CopyViewportContents(source, destination);
+        if (g_cCutsceneVideoMode_00499c48 == 0x13) {
+            if (g_bRoomTransitionAnimationEnabled_00499c00 != 0)
+                workspace = malloc(0xce);
+            if (workspace == 0) {
+                if (g_pMemoryLogFile_00499da8 != 0)
+                    fprintf(g_pMemoryLogFile_00499da8,
+                            "Unable to allocate Wipe ...");
+                CopyViewportContents(source, destination);
+            } else {
+                if (InitializeViewportWipe(source, destination, wipeType,
+                                           duration, 1, workspace) != 0) {
+                    while (complete == 0) {
+                        complete = AdvanceViewportWipe(workspace);
+                        if (wipeType == 8 || wipeType == 9) {
+                            MarkDibDirty();
+                            DIBslamReal();
+                        }
+                    }
+                } else if (g_pMemoryLogFile_00499da8 != 0) {
+                    fprintf(g_pMemoryLogFile_00499da8,
+                            "Unable to allocate Wipe 1 ...");
+                }
+                FinishViewportWipe(workspace);
+                free(workspace);
+            }
+        } else {
+            CopyViewportContents(source, destination);
+        }
     }
-    (void)wipeType;
-    (void)duration;
 }
 
 /* Function start: 0x42C607 */
