@@ -2419,6 +2419,28 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
         case 0xaf:
             g_pCurrentTextContext_005c8d1c->alignment = *instruction++;
             break;
+        case 0xb0:
+            while (g_wSpeechCacheState_0049bb60 != 0)
+                PumpWindowMessages(0);
+            value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+            if (g_apCutsceneSpeechPackets_005d2f80[value] != 0 &&
+                g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
+                PlaySpeechPacketBuffer(
+                    g_apCutsceneSpeechPackets_005d2f80[value],
+                    g_asCutsceneSpeechChannels_005d2d70[value], 1);
+            } else if (g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
+                LoadAndPlaySpeechPacket(
+                    g_apszCutsceneSpeechFiles_005d2ee0[value],
+                    g_asCutsceneSpeechSections_005d2dd0[value]);
+                CopyViewportContents(
+                    &g_stSceneFlicScratchViewport_005d2eb0,
+                    &g_stSecondaryViewBuffer_005d2c90);
+                g_apCutsceneSpeechPackets_005d2f80[value] = 0;
+                g_asCutsceneSpeechChannels_005d2d70[value] = 0;
+            }
+            g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
+            g_asCutsceneSpeechSections_005d2dd0[value] = 0;
+            break;
         case 0xb1:
             instruction += 2;
             break;

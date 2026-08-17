@@ -911,9 +911,12 @@ unsigned int LoadWc1OriginFxDrivers(void);                              /* WC2 u
 void LoadOriginFxDrivers(void);                                         /* 0x45B9D3 */
 short QueryCurrentGraphicsMode(void);                                   /* 0x45B7E0 */
 short LoadGraphicsDriver(short rewritePacketExtensions);               /* 0x446560 */
-short InitializeSpeechCache(short unitCount, short sizeCode);           /* 0x44F84F */
 void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
-                                 void *destination);                     /* 0x44F332 */
+                                 void *destination);                   /* 0x44F332 */
+void PlaySpeechPacketBuffer(void *packet, unsigned int packetSize,
+                            int interrupt);                            /* 0x44F3A4 */
+void LoadAndPlaySpeechPacket(char *fileName, short section);           /* 0x44F52E */
+short InitializeSpeechCache(short unitCount, short sizeCode);           /* 0x44F84F */
 void ShutdownSpeechCache(void);                                         /* 0x44FA31 */
 void InitializeHighMemoryGraphicsBuffers(void);                         /* 0x45BF30 */
 void LogMemoryStateToFile(FILE *file);                                  /* 0x42BE09 */
@@ -1269,6 +1272,7 @@ ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* WC2 unma
 void ReleaseFinishedSoundEntries(void);                              /* 0x4240AE */
 void StopSoundsUsingWave(const char *name);                          /* 0x424113 */
 void playWAVE(const char *filename, int looping, int volume);         /* 0x42418C */
+void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt);    /* 0x424417 */
 void stop_all_sounds(void);                                         /* 0x4245A2 */
 void PlaySnowStaticSound(void);                                     /* 0x4245F8 */
 void ServiceSoundSystem(void);                                         /* 0x42476B */

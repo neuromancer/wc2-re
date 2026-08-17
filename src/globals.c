@@ -157,6 +157,7 @@ TitleMenuRegion g_aBarracksMenuRegions_00463008[21] = {
 short g_nHazardReferenceSpeed_00492e58;
 short g_nActiveHazards_00492e5c;
 int g_nAudioEnabled_0049c244 = 1;
+WaveTableEntry *g_pSpeechWave_004a2650;
 IxSound *g_pSpeechSound_004a2658;
 int g_nSpeechCompletionDelay_004a265c;
 int g_bSpeechSoundActive_004a2660;

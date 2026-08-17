@@ -24,6 +24,26 @@ void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
     return packet;
 }
 
+/* Function start: 0x44F3A4 */
+void PlaySpeechPacketBuffer(void *packet, unsigned int packetSize,
+                            int interrupt)
+{
+    PlayRawSpeechBuffer(packet, packetSize & 0xffff, interrupt);
+}
+
+/* Function start: 0x44F52E */
+void LoadAndPlaySpeechPacket(char *fileName, short section)
+{
+    unsigned int packetSize;
+
+    packetSize = GetNamedPacketSize(fileName, section);
+    if (LoadSpeechPacketIntoBuffer(
+            fileName, section, g_pSpeechCacheCode_005d1720) != 0) {
+        PlaySpeechPacketBuffer(
+            g_pSpeechCacheCode_005d1720, packetSize, 0);
+    }
+}
+
 /* Function start: 0x44F84F */
 short InitializeSpeechCache(short unitCount, short sizeCode)
 {

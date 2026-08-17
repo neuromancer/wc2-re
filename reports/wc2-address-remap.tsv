@@ -1685,3 +1685,6 @@ src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportT
 src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
 src/screens.c	236		0042CC42	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot	WC2-only		wc2-only
 src/screens.c	64		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only
+src/sound.c	179		00424417	PlayRawSpeechBuffer	PlayRawSpeechBuffer	WC2-only		wc2-only
+src/music.c	28		0044F3A4	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer	WC2-only		wc2-only
+src/music.c	35		0044F52E	LoadAndPlaySpeechPacket	LoadAndPlaySpeechPacket	WC2-only		wc2-only

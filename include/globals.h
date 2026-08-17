@@ -20,6 +20,7 @@ extern TitleMenuRegion g_aBarracksMenuRegions_00463008[21];
 extern short g_nHazardReferenceSpeed_00492e58;
 extern short g_nActiveHazards_00492e5c;
 extern int g_nAudioEnabled_0049c244;
+extern WaveTableEntry *g_pSpeechWave_004a2650;
 extern IxSound *g_pSpeechSound_004a2658;
 extern int g_nSpeechCompletionDelay_004a265c;
 extern int g_bSpeechSoundActive_004a2660;

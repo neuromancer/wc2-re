@@ -78,6 +78,8 @@ struct IxSample {
             flags &= ~2U;
     }
     int ix_sample_load_wav(void *data, int bytes);
+    int ix_sample_load_raw(void *data, int bytes, int frequency,
+                           int bitsPerSample, int channels);
 #endif
 };
 

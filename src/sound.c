@@ -175,6 +175,44 @@ void playWAVE(const char *filename, int looping, int volume)
 #endif
 }
 
+/* Function start: 0x424417 */
+void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
+{
+    int index;
+
+    if (buffer == 0)
+        return;
+    for (index = 0; index < (int)size; index++) {
+        ((unsigned char *)buffer)[index] =
+            (unsigned char)(((unsigned char *)buffer)[index] + 0x80);
+    }
+    SoundDebugPrintf(
+        "Playing RAW with length of %d stop=%d\n", size, interrupt);
+    if (g_pSpeechSound_004a2658 != 0 &&
+        g_bSpeechSoundActive_004a2660 != 0) {
+        if (interrupt == 0)
+            return;
+        ix_sound_stop(g_pSpeechSound_004a2658);
+        ix_sound_release(g_pSpeechSound_004a2658);
+    }
+    g_pSpeechWave_004a2650 = AllocateWaveTableEntry();
+    g_pSpeechWave_004a2650->sample = ix_system_new_sample();
+    g_pSpeechWave_004a2650->sample->ix_sample_load_raw(
+        buffer, size, 0x29ab, 8, 1);
+    g_pSpeechSound_004a2658 = ix_system_new_sound(
+        g_pSpeechWave_004a2650->sample);
+    g_pSpeechSound_004a2658->ix_sound_set_delete_on_stop(1);
+    g_pSpeechSound_004a2658->ix_system_sound_set_volume(65000);
+    ix_sound_start(g_pSpeechSound_004a2658);
+    g_pSpeechWave_004a2650->name =
+        (char *)malloc(strlen("RAW") + 1);
+    strcpy(g_pSpeechWave_004a2650->name, "RAW");
+    g_bSpeechSoundActive_004a2660 = 1;
+    g_nSpeechCompletionDelay_004a265c = 0;
+    if (g_bSpaceFlightActive_005c586c == 0)
+        SetCinematicFrameTiming(20.0f);
+}
+
 /* Function start: 0x4245A2 */
 void stop_all_sounds(void)
 {
