@@ -1257,15 +1257,15 @@ void WaitForDebugStep(void);                                          /* WC2 unm
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x40A2D0 */
 void SetMultimediaTimerCallback(int period);                       /* 0x40A2E7 */
-void * __stdcall PacketLoad(const char *filename, short section,
-                            void *destination, unsigned short flags,
-                            void *decompressionWorkspace,
-                            short registerHandle);                     /* 0x4465A0 */
+void *PacketLoad(const char *filename, short section,
+                 void *destination, unsigned short flags,
+                 void *decompressionWorkspace,
+                 int registerHandle);                                /* 0x4465A0 */
 unsigned int GetNamedPacketSize(const char *filename, short section); /* 0x464F25 */
 void *LoadNamedPacket(const char *filename, short section,
                       void *destination, unsigned short flags,
                       void *decompressionWorkspace,
-                      short registerHandle);                          /* 0x464F45 */
+                      int registerHandle);                            /* 0x464F45 */
 void InitializeAudioSystem(HWND window);                              /* 0x423CA0 */
 void ServiceAudioStream(void);                                        /* 0x423D02 */
 WaveTableEntry *AllocateWaveTableEntry(void);                         /* 0x423D4F */
@@ -1309,10 +1309,10 @@ unsigned int InitializeConstellationField(Viewport *viewport,
                                           short direction,
                                           short density);             /* 0x45A441 */
 unsigned int DrawConstellationField(void);                             /* 0x45A634 */
-short __stdcall OpenPacketSection(const char *filename, short section,
-                                  PacketSectionHandle *handle);        /* 0x44F010 */
-void __stdcall CloseDataFileByHandle(unsigned short *p);                       /* 0x44F1C7 */
-void * __stdcall DecompressPacketSection(
+short OpenPacketSection(const char *filename, short section,
+                        PacketSectionHandle *handle);                 /* 0x44F010 */
+void CloseDataFileByHandle(unsigned short *handle);                   /* 0x44F1C7 */
+void *DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace);                                    /* WC2 unmapped */
 short GetTargetColourIndex(void);                                                /* WC2 unmapped */

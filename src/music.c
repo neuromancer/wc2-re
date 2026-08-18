@@ -494,8 +494,8 @@ unsigned int DrawConstellationField(void)
 }
 
 /* Function start: 0x44F010 */
-short __stdcall OpenPacketSection(const char *filename, short section,
-                                  PacketSectionHandle *handle)
+short OpenPacketSection(const char *filename, short section,
+                        PacketSectionHandle *handle)
 {
     unsigned int sectionEntry;
     unsigned int fileSize;
@@ -551,13 +551,13 @@ failed:
 }
 
 /* Function start: 0x44F1C7 */
-void __stdcall CloseDataFileByHandle(unsigned short *handle)
+void CloseDataFileByHandle(unsigned short *handle)
 {
     CloseDataFile(*handle);
 }
 
 /* Function start: WC2_UNMAPPED */
-void * __stdcall DecompressPacketSection(
+void *DecompressPacketSection(
     PacketSectionHandle *handle, void *destination, unsigned short flags,
     void *decompressionWorkspace)
 {
@@ -570,7 +570,7 @@ void * __stdcall DecompressPacketSection(
 
     fallbackAllocations = 0;
     packet = 0;
-    g_pLastPacketAllocation_005a68f0 = 0;
+    g_pLastPacketAllocation_005c80e0 = 0;
     if (g_wPacketCompressionFormatFlags_0046a924 == 0) {
         if (handle->compression != 1) {
             g_nPacketError_0049ca90 = 6;
@@ -643,9 +643,9 @@ initializeDecompressor:
     }
     if (destination == 0) {
         if (ReadPacketSectionData(handle, &allocationSize, 4) != 0) {
-            g_pLastPacketAllocation_005a68f0 = AllocateTaggedMemory(
+            g_pLastPacketAllocation_005c80e0 = AllocateTaggedMemory(
                 allocationSize, flags);
-            if (g_pLastPacketAllocation_005a68f0 == 0)
+            if (g_pLastPacketAllocation_005c80e0 == 0)
                 g_nPacketError_0049ca90 = 4;
         }
     } else {
@@ -653,11 +653,11 @@ initializeDecompressor:
             g_nPacketError_0049ca90 = 5;
             return 0;
         }
-        g_pLastPacketAllocation_005a68f0 = destination;
+        g_pLastPacketAllocation_005c80e0 = destination;
     }
 
     if (g_nPacketError_0049ca90 == 0) {
-        packet = g_pLastPacketAllocation_005a68f0;
+        packet = g_pLastPacketAllocation_005c80e0;
         if (ReadPacketSectionData(
                 handle, g_pPacketDecompressInput_0059ab04,
                 g_wPacketDecompressInputSize_0059ab38) == 0)

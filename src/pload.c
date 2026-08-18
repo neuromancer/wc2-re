@@ -16,10 +16,10 @@ short LoadGraphicsDriver(short rewritePacketExtensions)
 }
 
 /* Function start: 0x4465A0 */
-void * __stdcall PacketLoad(const char *filename, short section,
-                            void *destination, unsigned short flags,
-                            void *decompressionWorkspace,
-                            short registerHandle)
+void *PacketLoad(const char *filename, short section,
+                 void *destination, unsigned short flags,
+                 void *decompressionWorkspace,
+                 int registerHandle)
 {
     unsigned char *packet;
     PacketSectionHandle handle;
@@ -38,12 +38,13 @@ void * __stdcall PacketLoad(const char *filename, short section,
                     packet = AllocateTaggedMemory(
                         handle.dataSize,
                         (unsigned short)(flags | 0x40));
-                    g_pLastPacketAllocation_005a68f0 = packet;
+                    g_pLastPacketAllocation_005c80e0 = packet;
                     if (packet == 0)
                         g_nPacketError_0049ca90 = 4;
                 }
                 if (packet != 0) {
-                    if (IsPushedPacketHandle(packet) == 0)
+                    if (registerHandle != 0 &&
+                        IsPushedPacketHandle(packet) == 0)
                         exit_squadron(
                             "qq PacketLoad with non-pushed dest");
                     if (ReadPacketSectionData(
@@ -92,7 +93,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
             packet = destination;
             if (packet == 0)
                 packet = AllocateTaggedMemory(outputSize, flags);
-            g_pLastPacketAllocation_005a68f0 = packet;
+            g_pLastPacketAllocation_005c80e0 = packet;
             if (packet == 0) {
                 g_nPacketError_0049ca90 = 4;
             } else if (!Wc1SdlDecompressOriginLzw(
@@ -101,7 +102,7 @@ void * __stdcall PacketLoad(const char *filename, short section,
                 if (allocatedPacket != 0)
                     ReleasePacketHandle(packet);
                 packet = 0;
-                g_pLastPacketAllocation_005a68f0 = 0;
+                g_pLastPacketAllocation_005c80e0 = 0;
                 g_nPacketError_0049ca90 = 6;
             }
             free(compressedData);

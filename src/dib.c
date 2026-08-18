@@ -822,73 +822,74 @@ void DIBramPalette(void)
         !Wc1SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
         DIBerror("DIBramPalette", -1);
 #else
-    unsigned char entries[0x400];
-    int offset = 0;
+    PALETTEENTRY entries[256];
+    int index;
     HRESULT result;
 
-    do {
-        entries[offset] = g_abPaletteCache_005c3450[offset + 2];
-        entries[offset + 1] = g_abPaletteCache_005c3450[offset + 1];
-        entries[offset + 2] = g_abPaletteCache_005c3450[offset];
-        entries[offset + 3] = 0;
-        offset += 4;
-    } while (offset < 0x400);
-
-    result = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0049ce9c, 0, 0, 256,
-        (LPPALETTEENTRY)entries);
-    if (result != DD_OK)
-        DIBerror("DIBramPalette   SetEntries", result);
+    for (index = 0; index < 256; index++) {
+        entries[index].peRed =
+            g_abPaletteCache_005c3450[index * 4 + 2];
+        entries[index].peGreen =
+            g_abPaletteCache_005c3450[index * 4 + 1];
+        entries[index].peBlue =
+            g_abPaletteCache_005c3450[index * 4];
+        entries[index].peFlags = 0;
+    }
+    if (g_bUseHardwarePalette_0049c268 != 0) {
+        result = IDirectDrawPalette_SetEntries(
+            g_pDirectDrawPalette_0049ce9c, 0, 0, 256, entries);
+        if (result != DD_OK)
+            DIBerror("DIBramPalette   SetEntries", result);
+    }
 #endif
 }
 
 /* Function start: 0x45E46C */
 void DIBsetPalette(short index, short *rgb)
 {
-    short value;
-    int wordOffset;
-    int cacheOffset;
-    int paletteIndex;
 #ifndef WC1_SDL
     PALETTEENTRY entry;
     HRESULT result;
 #endif
 
-    paletteIndex = (int)index;
-    cacheOffset = paletteIndex * 4;
-    value = rgb[0];
-    if ((int)g_abPaletteCache_005c3450[cacheOffset + 2] != (int)value ||
-        (int)g_abPaletteCache_005c3450[cacheOffset + 1] != (int)rgb[1] ||
-        (int)g_abPaletteCache_005c3450[cacheOffset] != (int)rgb[2]) {
-        g_abPaletteCache_005c3450[cacheOffset + 2] = (unsigned char)value;
-        wordOffset = paletteIndex * 3;
-        DAT_005a8a50[wordOffset] = (unsigned char)value;
-        value = *(unsigned char *)&rgb[1];
-        g_abPaletteCache_005c3450[cacheOffset + 1] = (unsigned char)value;
-        DAT_005a8a50[wordOffset + 1] = (unsigned char)value;
-        value = *(unsigned char *)&rgb[2];
-        g_abPaletteCache_005c3450[cacheOffset] = (unsigned char)value;
-        g_abPaletteCache_005c3450[cacheOffset + 3] = 1;
-        DAT_005a8a50[wordOffset + 2] = (unsigned char)value;
+    if ((int)g_abPaletteCache_005c3450[index * 4 + 2] != (int)rgb[0] ||
+        (int)g_abPaletteCache_005c3450[index * 4 + 1] != (int)rgb[1] ||
+        (int)g_abPaletteCache_005c3450[index * 4] != (int)rgb[2]) {
+        g_abPaletteCache_005c3450[index * 4 + 2] =
+            *(unsigned char *)&rgb[0];
+        g_ausPaletteWords_005d3220[index][0] =
+            g_abPaletteCache_005c3450[index * 4 + 2];
+        g_abPaletteCache_005c3450[index * 4 + 1] =
+            *(unsigned char *)&rgb[1];
+        g_ausPaletteWords_005d3220[index][1] =
+            g_abPaletteCache_005c3450[index * 4 + 1];
+        g_abPaletteCache_005c3450[index * 4] =
+            *(unsigned char *)&rgb[2];
+        g_ausPaletteWords_005d3220[index][2] =
+            g_abPaletteCache_005c3450[index * 4];
+        g_abPaletteCache_005c3450[index * 4 + 3] = 1;
 
         /* WC1_SDL consumes this cache on the next normal frame submission.
            A DirectDraw palette entry update did not blit or wait for vertical
            blank, so flight fades must not submit additional SDL frames. */
 #ifndef WC1_SDL
-        entry.peBlue = (unsigned char)value;
-        entry.peRed = (unsigned char)DAT_005a8a50[wordOffset];
-        entry.peGreen = (unsigned char)DAT_005a8a50[wordOffset + 1];
+        entry.peRed = (unsigned char)g_ausPaletteWords_005d3220[index][0];
+        entry.peGreen = (unsigned char)g_ausPaletteWords_005d3220[index][1];
+        entry.peBlue = (unsigned char)g_ausPaletteWords_005d3220[index][2];
         entry.peFlags = 0;
-        result = IDirectDrawPalette_SetEntries(
-            g_pDirectDrawPalette_0049ce9c, 0, paletteIndex, 1, &entry);
-        if (result != DD_OK)
-            DIBerror("DIBsetPalette   SetEntries", result);
+        if (g_bUseHardwarePalette_0049c268 != 0) {
+            result = IDirectDrawPalette_SetEntries(
+                g_pDirectDrawPalette_0049ce9c, 0, (int)index, 1,
+                &entry);
+            if (result != DD_OK)
+                DIBerror("DIBsetPalette   SetEntries", result);
 
-        result = IDirectDrawSurface_SetPalette(
-            g_pPrimarySurface_0049ce94,
-            g_pDirectDrawPalette_0049ce9c);
-        if (result != DD_OK)
-            DIBerror("DIBmakeDIB   CreatePalette", result);
+            result = IDirectDrawSurface_SetPalette(
+                g_pPrimarySurface_0049ce94,
+                g_pDirectDrawPalette_0049ce9c);
+            if (result != DD_OK)
+                DIBerror("DIBmakeDIB   CreatePalette", result);
+        }
 #endif
     }
 }

@@ -1435,7 +1435,7 @@ unsigned int GetNamedPacketSize(const char *filename, short section)
 void *LoadNamedPacket(const char *filename, short section,
                       void *destination, unsigned short flags,
                       void *decompressionWorkspace,
-                      short registerHandle)
+                      int registerHandle)
 {
     return PacketLoad(filename, section, destination, flags,
                       decompressionWorkspace, registerHandle);

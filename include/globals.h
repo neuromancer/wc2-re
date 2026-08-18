@@ -1339,7 +1339,7 @@ extern void *g_pSpeechCacheCode_005d1720;
 extern unsigned char g_ucSpeechCachePage_005d1724;
 extern int g_nPassingShipSoundCooldown_005a68e8;
 extern int g_nAllocateViewportCalls_005a68ec;
-extern void *g_pLastPacketAllocation_005a68f0;
+extern void *g_pLastPacketAllocation_005c80e0;
 extern FireworkState g_aFireworks_005c8df0[30];
 extern unsigned char *g_pTitleFireworkShape_005c8f58;
 extern unsigned char *g_pFireworkShape_005a6a68;
