@@ -8,7 +8,7 @@
 #define WC1_FUNCS_H
 
 void SaveGamePalette(void);                                             /* 0x417550 */
-void RestoreGamePalette(void);                                          /* WC2 unmapped */
+void RestoreGamePalette(void);                                          /* 0x4175AD */
 short easy2see(short obj);                                            /* WC2 unmapped */
 void make_shard(short asteroid, FixedVector direction);               /* 0x4176D2 */
 void remove_hazard(signed char hazard);                               /* 0x417838 */
@@ -46,9 +46,9 @@ unsigned int PumpWindowMessages(int skipMessages);                    /* 0x45445
 unsigned int GetF1KeyLatch(void);                                     /* WC2 unmapped */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam);         /* 0x454625 */
-int GetJoystickPosition(unsigned int *x, unsigned int *y,
-                        unsigned int *buttons, short joystick,
-                        unsigned int fallback);                        /* 0x4551E7 */
+void GetJoystickPosition(unsigned int *x, unsigned int *y,
+                         unsigned int *buttons, short joystick,
+                         unsigned int fallback);                       /* 0x4551E7 */
 short GetJoystickButtons(void);                                                   /* 0x455346 */
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
                         short *yMin, short *yMax);                    /* 0x45536F */
@@ -94,7 +94,7 @@ int DrawWc1CenteredScaledIntroText(const char *text, short centreX,
                                    short baselineY, short scale);       /* WC2 unmapped */
 short GetLineLength(const char *text);                                  /* WC2 unmapped */
 int print_subtitle(Viewport *viewport, short colour,
-                    const char *text);                                  /* 0x42C0F1 */
+                    const char *text);                                  /* WC2 unmapped */
 int advance_canned_sequence(short obj);                                 /* 0x4207B0 */
 unsigned int update_canned_sequence(short obj);                        /* WC2 unmapped */
 void __stdcall SplitGameClockTicks(unsigned char *parts);                  /* 0x437760 */
@@ -204,7 +204,16 @@ unsigned int landing(signed char damageLevel);                         /* WC2 un
 unsigned int funeral_player(void);                                     /* WC2 unmapped */
 unsigned int funeral_wingman(char *text, short duration);              /* WC2 unmapped */
 unsigned int RunWc1FuneralSequence(int playerFuneral);             /* WC2 unmapped */
-unsigned int RunCampaignGameLoop(short campaignSlot);                         /* WC2 unmapped */
+short RunCampaignGameLoop(short campaignSlot);                          /* 0x409C1A */
+void InitializeCampaignChalkboardScreen(short cockpitVariant);          /* 0x433C84 */
+void RefreshCampaignChalkboardScreen(void);                             /* 0x433E8C */
+short RunCampaignChalkboardMenu(short campaignSlot);                    /* 0x459D74 */
+void ShowPlayerEjectionSequence(void);                                  /* 0x438020 */
+void ShowPlayerStrandingSequence(void);                                 /* 0x438080 */
+short GetMissionShipPilotSaveIndex(short missionShip);                  /* 0x428E00 */
+short GetInitialMissionShipPilotSaveIndex(short initialShip);           /* 0x428E98 */
+short GetMissionShipVelocityState(short missionShip);                   /* 0x428E5C */
+void StoreMissionResultsInCampaignGlobals(Wc2CampaignGlobals *globals); /* 0x428EDC */
 void LoadStartingCampaignGlobals(short campaign);                      /* 0x40A27A */
 short RunSelectedCampaign(void);                                      /* 0x40A2A3 */
 void InitializeNewPilotCampaign(short campaignSlot);                  /* 0x409850 */
@@ -298,8 +307,8 @@ short init_ship(short missionShip, short navPoint);                    /* 0x44E1
 void init_intelligence_data(short obj);                               /* 0x44E44F */
 short SampleBothJoysticks(InputDeviceSample *samples,
                           unsigned int fallback);                       /* 0x44F1F0 */
-int SampleJoystickDevice(InputDeviceSample *samples, short joystick,
-                         unsigned int fallback);                       /* 0x44F247 */
+void SampleJoystickDevice(InputDeviceSample *samples, short joystick,
+                          unsigned int fallback);                      /* 0x44F247 */
 void SampleActiveJoystickDevice(void);                                 /* WC2 unmapped */
 void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...);                         /* 0x44FA70 */
@@ -805,6 +814,8 @@ short WaitForInputKey(void);                                         /* 0x40FA2C
 unsigned short WaitForAnyInputPress(void);                           /* 0x40FADE */
 void WaitForWc1SceneAdvance(short duration, short unused);             /* WC2 unmapped */
 short WaitForSceneAdvance(void *scenePacket);                          /* 0x409120 */
+void LoadSceneHotspotBoundsForSelection(void *scenePacket,
+                                        unsigned short selection);     /* 0x40926E */
 short FindSceneHotspotAtPosition(void *scenePacket, short offsetX,
                                  short offsetY, short x, short y);      /* 0x409417 */
 short PollSceneHotspotInput(void *scenePacket, short offsetX,
@@ -925,6 +936,8 @@ void ShutdownSpeechCache(void);                                         /* 0x44F
 void InitializeHighMemoryGraphicsBuffers(void);                         /* 0x45BF30 */
 void LogMemoryStateToFile(FILE *file);                                  /* 0x42BE09 */
 void WriteMemoryStateReportHook(void);                                 /* 0x42BDFE */
+void WriteDetailedMemoryStateReport(void);                             /* 0x42BE4B */
+void LogChangedCutsceneWorkBuffers(void);                              /* 0x42BF0C */
 void LoadSpaceflightResources(void);                                   /* 0x45C35C */
 void StopMusicIfDriverActive(void);                                     /* 0x45C3FA */
 void InitializeMusicResources(void);                                   /* 0x45C419 */
@@ -1090,7 +1103,8 @@ void ApplyAnswerTextCipher(char *text, signed char direction);        /* WC2 unm
 void LoadAnswerPromptAndResponse(short entry, char *prompt,
                                  char *response);                     /* WC2 unmapped */
 short PromptForAnswerText(short entry);                               /* WC2 unmapped */
-void SceneEnterHook(void);                                            /* 0x4333F8 */
+void SceneEnterHook(void);                                          /* WC2 unmapped */
+int MapCutsceneSoundEffectNumber(int soundIndex);                     /* 0x4333F8 */
 void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows);             /* 0x40FCD0 */
 void DestroyGlobalDebugOverlayConsole(void);                           /* 0x40FD73 */
@@ -1141,11 +1155,12 @@ short LogMemoryUsage(void);                                            /* 0x4657
 void ReportFatalErrorCode(const char *errorCode);                       /* 0x437A44 */
 void AllocateApplicationScratchBuffer(void);                           /* 0x4656CC */
 void ReleaseApplicationScratchBuffer(void);                            /* 0x4656EB */
+short WaitForQueuedInputPress(void);                                  /* 0x465730 */
 void RunGameApplication(short argc, char **argv);                      /* 0x46591A */
 short LoadSelectedPilotCampaign(void);                                 /* 0x434043 */
 short RunPilotDatabaseMenu(void);                                      /* 0x436A8F */
 void PollPersonnelMenuInput(void);                                    /* 0x433AD0 */
-void DrawPersonnelMenuBackdrop(unsigned char *shape);                 /* 0x433F94 */
+void DrawPersonnelMenuBackdrop(void *scenePacket);                    /* 0x433F94 */
 void RestorePersonnelMenuBackground(Viewport *viewport);              /* 0x43456E */
 void DrawPersonnelSourceChoices(short choice);                        /* 0x4346E9 */
 void DrawPersonnelMenuChoices(short choice);                          /* 0x4347D6 */
@@ -1153,7 +1168,7 @@ void DrawTransferredPilotRow(short row);                              /* 0x434EB
 void HighlightTransferredPilot(short choice);                         /* 0x434F7D */
 short SelectTransferredPilot(short count);                            /* 0x435064 */
 short SelectLegacyGameSource(void);                                   /* 0x43641C */
-int LocateLegacySaveGame(short source);                               /* 0x436722 */
+short LocateLegacySaveGame(short source);                             /* 0x436722 */
 void ShowNoTransferablePilots(void);                                  /* 0x436A4D */
 char *GetWingCommanderOneGameDataPath(void);                          /* 0x428C35 */
 short ReadPersonnelTextField(unsigned int x, unsigned int y,
@@ -1643,11 +1658,13 @@ short LoadInputCursorShape(const char *filename, short section,
                            short flags);                               /* 0x464E73 */
 void InitializeInputDriverHook(void);                                  /* 0x464EE0 */
 void FinalizeInputDriverHook(void);                                    /* 0x464EF0 */
+void FlushPendingInputEvents(void);                                    /* 0x464F10 */
 void SetPaletteEntryFromTriplet(const unsigned char *triplet,
                                 short index);                          /* 0x464FE7 */
 void SetMusicTickRateHook(short period);                               /* 0x46502E */
 short PeekInputEvent(InputEventState *event, short type);              /* 0x4632A5 */
 InputEventState *FindQueuedInputEvent(int type);                        /* 0x4633E7 */
+short IsInputEventQueued(int type);                                   /* 0x466AD2 */
 void FlushInputEvents(void);                                          /* 0x46354F */
 short InitializeMouseCursorDepth();                              /* 0x463571 */
 void CheckCursor(void);                                                /* 0x4635D3 */
@@ -1750,8 +1767,10 @@ void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
                                int wipeType, short duration);         /* 0x42C43D */
 void WaitForCutsceneInputEvent(void);                                /* 0x42C5A2 */
 void ServiceCutsceneRuntimeHook(void);                               /* 0x464FD7 */
+void AllocateCutsceneViewportOrFatal(Viewport *viewport, short colour,
+                                     short flags);                    /* 0x42EE4F */
 void DrawCutsceneTextAt(short x, short y, short viewportIndex,
-                        const char *text);                           /* WC2 unmapped */
+                        const char *text);                           /* 0x42C0F1 */
 void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* WC2 unmapped */
 void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                              unsigned char *text, signed char draw); /* 0x42E12A */

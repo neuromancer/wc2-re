@@ -116,6 +116,21 @@ void ReleaseApplicationScratchBuffer(void)
     g_pApplicationScratchBuffer_005c8483 = 0;
 }
 
+/* Function start: 0x465730 */
+short WaitForQueuedInputPress(void)
+{
+    int savedWaitState;
+    short key;
+
+    savedWaitState = g_bInputEventQueueEnabled_0049c248;
+    g_bInputEventQueueEnabled_0049c248 = 1;
+    do {
+        key = (short)WaitForAnyInputPress();
+    } while (key == 0);
+    g_bInputEventQueueEnabled_0049c248 = savedWaitState;
+    return key;
+}
+
 /* Function start: WC2_UNMAPPED */
 short LogWc1MemoryUsage(void)
 {

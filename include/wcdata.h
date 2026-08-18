@@ -1028,9 +1028,23 @@ typedef struct Wc2CampaignGlobals {
     short series;                     /* +0x04 */
     short mission;                    /* +0x06 */
     short field_08;                   /* +0x08 */
-    unsigned char field_0a[8];        /* +0x0A */
+    short field_0a;                   /* +0x0A */
+    short field_0c;                   /* +0x0C */
+    short field_0e;                   /* +0x0E */
+    short damageLevel;                /* +0x10 */
     short arcadeState;                /* +0x12 */
-    unsigned char field_14[0x8a];     /* +0x14 */
+    short field_14;                   /* +0x14 */
+    short field_16;                   /* +0x16 */
+    short previousSeries;             /* +0x18 */
+    short previousMission;            /* +0x1A */
+    short objectiveFlags[8];          /* +0x1C */
+    short objectiveSighted[8];        /* +0x2C */
+    unsigned char field_3c[0x10];     /* +0x3C */
+    short shipVelocityState[16];      /* +0x4C */
+    short shipKillCounts[8];          /* +0x6C */
+    short shipMissionFlags[8];        /* +0x7C */
+    short shipPilotIndices[8];        /* +0x8C */
+    short missionScore;               /* +0x9C */
     short pilotCount;                 /* +0x9E */
     short pilotStatus[32];            /* +0xA0 */
 } Wc2CampaignGlobals;

@@ -47,6 +47,57 @@ short WaitForSceneAdvance(void *scenePacket)
         return 1;
 }
 
+/* Function start: 0x40926E */
+void LoadSceneHotspotBoundsForSelection(void *scenePacket,
+                                        unsigned short selection)
+{
+    unsigned char *cursor;
+    unsigned char *nextForm;
+    SceneHotspot *hotspot;
+    short index;
+    unsigned int formType;
+
+    if (g_pActiveScenePacket_00492654 != scenePacket) {
+        ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+        nextForm = (unsigned char *)scenePacket +
+            ((ScenePacketHeader *)scenePacket)->formOffset;
+        do {
+            cursor = nextForm;
+            formType = ReadNextSceneForm(&cursor, &nextForm);
+            if (formType == 0x52544f48) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneHotspotTable_005d3bf8);
+                if (g_stSceneHotspotTable_005d3bf8.type != 0)
+                    ReleasePacketSlot(
+                        &g_stSceneHotspotTable_005d3bf8.data);
+            } else if (formType == 0x54585448) {
+                DecodeSceneResourceChunk(
+                    &cursor, &g_stSceneTextTable_005d3c00);
+                if (g_stSceneTextTable_005d3c00.type == 2)
+                    break;
+                ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+            }
+        } while (formType != 0);
+        g_pActiveScenePacket_00492654 = scenePacket;
+    }
+
+    for (index = 0; index < g_stSceneHotspotTable_005d3bf8.count;
+         index++) {
+        hotspot = ((SceneHotspot **)
+            g_stSceneHotspotTable_005d3bf8.data)[index];
+        if (hotspot->selection == selection) {
+            g_nSceneHotspotLeft_005d2120 = hotspot->left;
+            g_nSceneHotspotTop_005d2122 = hotspot->top;
+            g_nSceneHotspotRight_005d2124 = hotspot->right;
+            g_nSceneHotspotBottom_005d2126 = hotspot->bottom;
+            break;
+        }
+    }
+    g_pActiveScenePacket_00492654 = 0;
+    ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+    ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+}
+
 /* Function start: 0x409417 */
 short FindSceneHotspotAtPosition(void *scenePacket, short offsetX,
                                  short offsetY, short x, short y)

@@ -2246,9 +2246,13 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int RunCampaignGameLoop(short animation)
+/* Function start: 0x409C1A */
+short RunCampaignGameLoop(short campaignSlot)
 {
+#if 0
+    short animation;
+
+    animation = campaignSlot;
     switch (animation) {
     case 0:
         init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
@@ -2363,6 +2367,205 @@ unsigned int RunCampaignGameLoop(short animation)
     }
     exit_squadron("Animation demo over.");
     return 0;
+#else
+    short campaignComplete;
+    short fontIndex;
+    unsigned int availableMemory;
+    short flightComplete;
+    short series;
+    short mission;
+    int flightResult;
+
+    campaignComplete = 0;
+    flightComplete = 0;
+    DAT_005c80c0 = DAT_005d300c + 0x22;
+    ReleaseSpaceflightResources();
+    LoadTemporaryCampaignGlobals();
+    if (g_nOriginDevUnlock_0049d774 != 0 &&
+        g_bDeveloperCampaignReady_004926c4 != 0 &&
+        g_bDirectCampaignSelection_0049cc74 != 0) {
+        g_pCampaignGlobals_00499c94->series =
+            g_nDirectSeries_0049d79c;
+        g_pCampaignGlobals_00499c94->mission =
+            g_nDirectMission_0049d79a;
+    }
+    g_bDeveloperCampaignReady_004926c4 = 0;
+    g_pCampaignGlobals_00499c94->field_08 = 0;
+    g_pCampaignGlobals_00499c94->arcadeState = 0;
+
+    while (campaignComplete == 0) {
+        g_pCutsceneCockpitPalette_00499c0c =
+            AllocateScenePointerTable(1, 0x3420, 2, "HB1");
+        g_pActiveCutscenePixels_005c83dc =
+            g_pCutsceneCockpitPalette_00499c0c;
+        g_bCutsceneViewportPreallocated_00499c4c = 1;
+        RunCampaignScript(campaignSlot);
+        g_bCutsceneViewportPreallocated_00499c4c = 0;
+        InitializeCampaignChalkboardScreen(
+            (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
+        g_pCampaignGlobals_00499c94->damageLevel = 0;
+        clear_cockpit_damage();
+        do {
+            flightResult = RunCampaignChalkboardMenu(campaignSlot);
+        } while ((short)flightResult != 0 &&
+                 g_pCampaignGlobals_00499c94->arcadeState < 4);
+        g_bNewPilotCampaignInitialized_004926c0 = 0;
+        ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
+        g_pActiveCutscenePixels_005c83dc = 0;
+        ClearInputPump();
+        if (g_nShowMemoryStatus_0049d784 != 0) {
+            ShowMemoryStatusDebug();
+            WaitForAnyInputPress();
+        }
+        if (g_pCampaignGlobals_00499c94->arcadeState > 3) {
+            g_pCampaignGlobals_00499c94->series = 1;
+            g_pCampaignGlobals_00499c94->mission = 0;
+            campaignComplete++;
+        }
+        InitializeCampaignConstellationState(
+            g_pCampaignGlobals_00499c94, 1);
+        g_pCampaignGlobals_00499c94->arcadeState = 0;
+        SaveAndFreeTemporaryCampaignGlobals();
+        for (fontIndex = 0; fontIndex < 4; fontIndex++) {
+            if (g_apTextFonts_005d2200[fontIndex] != 0) {
+                ReleasePacketHandle(g_apTextFonts_005d2200[fontIndex]);
+                g_apTextFonts_005d2200[fontIndex] = 0;
+            }
+        }
+        if (campaignComplete != 0)
+            return 0;
+        if (g_bPumpMessagesDuringLoad_0049cc7c != 0)
+            DAT_005c8430 = 1;
+
+        flightComplete = 0;
+        while (flightComplete == 0) {
+            if (g_nShowMemoryStatus_0049d784 != 0) {
+                ShowMemoryStatusDebug();
+                WaitForAnyInputPress();
+            }
+            g_nTrainSimActive_0049d758 = 0;
+            series = g_stCurrentPilotProfile_00493408.series;
+            g_nCurrentSeries_005c5870 = series;
+            mission = g_stCurrentPilotProfile_00493408.mission;
+            g_nCurrentMission_005c5878 = mission;
+            ResetGameTextContexts();
+            OpenDiskDataFile(1);
+            init_mission(series, mission);
+            ReleaseSceneMusicPacket();
+            flightResult = RunSpaceFlight(-1);
+            switch (flightResult) {
+            case 1:
+                flightComplete = 1;
+                break;
+            case 2:
+                ShowPlayerEjectionSequence();
+                check_stranded();
+                if (g_nArcadeState_0049d75c == 3)
+                    ShowPlayerStrandingSequence();
+                if (PromptToContinueCampaign(1) == 0) {
+                    if (g_nArcadeState_0049d75c == 5) {
+                        ejection_sequence(1000, 0);
+                        g_nArcadeState_0049d75c = 5;
+                    }
+                    flightComplete = 1;
+                } else {
+                    g_asShipSide_004955d0[0] = 0;
+                    g_bFriendlyFireWarningIssued_00492d5c = 0;
+                    flightComplete = 0;
+                    LoadSelectedPilotCampaign();
+                }
+                campaignComplete = 0;
+                break;
+            case 3:
+                ShowPlayerStrandingSequence();
+                flightComplete = 1;
+                g_nArcadeState_0049d75c = 3;
+                break;
+            case 4:
+                death_sequence();
+                flightComplete =
+                    (short)(PromptToContinueCampaign(0) == 0);
+                if (flightComplete == 0) {
+                    g_asShipSide_004955d0[0] = 0;
+                    g_bFriendlyFireWarningIssued_00492d5c = 0;
+                    LoadSelectedPilotCampaign();
+                }
+                break;
+            default:
+                flightComplete = 1;
+                break;
+            }
+            if (g_nShowMemoryStatus_0049d784 != 0) {
+                ShowMemoryStatusDebug();
+                WaitForAnyInputPress();
+            }
+            ReleaseSpaceflightResources();
+        }
+
+        g_stCurrentPilotProfile_00493408.field_43 =
+            (short)(g_stCurrentPilotProfile_00493408.field_43 +
+                    g_cPlayerKillCount_005d2fa8);
+        g_stCurrentPilotProfile_00493408.field_41++;
+        DAT_005c8430 = 0;
+        LoadTemporaryCampaignGlobals();
+        StoreMissionResultsInCampaignGlobals(
+            g_pCampaignGlobals_00499c94);
+        FreePacketAndClear(&g_pPilotStatus_005d2fcc, 0);
+        if (g_nShowMemoryStatus_0049d784 != 0) {
+            ShowMemoryStatusDebug();
+            WaitForAnyInputPress();
+        }
+        if (campaignComplete == 0) {
+            g_pCutsceneCockpitPalette_00499c0c =
+                AllocateScenePointerTable(1, 0x3420, 2, "HB2");
+            g_pActiveCutscenePixels_005c83dc =
+                g_pCutsceneCockpitPalette_00499c0c;
+            if (g_nArcadeState_0049d75c == 4) {
+                g_pCampaignGlobals_00499c94->series = 1000;
+                g_pCampaignGlobals_00499c94->mission = 5000;
+                g_pCampaignGlobals_00499c94->previousSeries =
+                    g_stCurrentPilotProfile_00493408.series;
+                g_pCampaignGlobals_00499c94->previousMission =
+                    g_stCurrentPilotProfile_00493408.mission;
+                g_pCampaignGlobals_00499c94->arcadeState = 4;
+                if (g_asShipSide_004955d0[0] == 1 ||
+                    g_bFriendlyFireWarningIssued_00492d5c != 0) {
+                    g_pCampaignGlobals_00499c94->shipMissionFlags[0] = 4;
+                }
+            } else if (g_nArcadeState_0049d75c == 5) {
+                g_pCampaignGlobals_00499c94->series = 1;
+                g_pCampaignGlobals_00499c94->mission = 0;
+                g_pCampaignGlobals_00499c94->arcadeState = 5;
+                g_pCampaignGlobals_00499c94->shipMissionFlags[0] = 4;
+            } else {
+                g_pCampaignGlobals_00499c94->field_08 =
+                    g_pCampaignGlobals_00499c94->field_0c;
+            }
+            g_pCampaignGlobals_00499c94->damageLevel =
+                (short)calculate_damage_level();
+            if (g_nArcadeState_0049d75c != 3 &&
+                g_nArcadeState_0049d75c != 5) {
+                RunCampaignScript(campaignSlot);
+            }
+            g_pCampaignGlobals_00499c94->field_08 = 0;
+            ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
+            g_pActiveCutscenePixels_005c83dc = 0;
+            g_nArcadeState_0049d75c =
+                g_pCampaignGlobals_00499c94->arcadeState;
+            g_pCampaignGlobals_00499c94->arcadeState = 0;
+            g_pCampaignGlobals_00499c94->damageLevel = 0;
+            if (g_nArcadeState_0049d75c > 2) {
+                ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+                LoadStartingCampaignGlobals(campaignSlot);
+                SaveAndFreeTemporaryCampaignGlobals();
+                return 0;
+            }
+            OpenDiskDataFile(0);
+        }
+        availableMemory = GetAvailableMainMemory();
+    }
+    return 1;
+#endif
 }
 
 /* Function start: 0x409850 */
@@ -5038,8 +5241,8 @@ short SampleBothJoysticks(InputDeviceSample *samples,
 }
 
 /* Function start: 0x44F247 */
-int SampleJoystickDevice(InputDeviceSample *samples, short joystick,
-                         unsigned int fallback)
+void SampleJoystickDevice(InputDeviceSample *samples, short joystick,
+                          unsigned int fallback)
 {
     short sampleIndex;
 
@@ -5048,7 +5251,7 @@ int SampleJoystickDevice(InputDeviceSample *samples, short joystick,
         sampleIndex = 1;
     else
         sampleIndex = 0;
-    return GetJoystickPosition(
+    GetJoystickPosition(
         (unsigned int *)&samples[sampleIndex].x,
         (unsigned int *)&samples[sampleIndex].y,
         &samples[sampleIndex].buttons, joystick, fallback);

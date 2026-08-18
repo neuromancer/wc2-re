@@ -2345,8 +2345,8 @@ void __stdcall UnionRectBounds(ShortRect *destination,
         first->bottom : second->bottom;
 }
 
-/* Function start: 0x45CD2C */
 #pragma function(strlen)
+/* Function start: 0x45CD2C */
 void ThrottleFrameAndDrawFps(HDC dc)
 {
     if (g_bFrameTimingInitialized_0049cebc == 0)

@@ -31,11 +31,21 @@ void SaveGamePalette(void)
 #endif
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4175AD */
 void RestoreGamePalette(void)
 {
+#if 0
     WaitForVerticalBlankThunk();
     DIBwholePaletteFromWords(DAT_005a8a50);
+#else
+    short index;
+
+    for (index = 0; (short)index < 256; index++) {
+        if ((index & 15) == 0)
+            WaitForVerticalBlankThunk();
+        SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
+    }
+#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1225,14 +1235,15 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 #endif
 
 /* Function start: 0x4551E7 */
-int GetJoystickPosition(unsigned int *x, unsigned int *y,
-                        unsigned int *buttons, short joystick,
-                        unsigned int fallback)
+void GetJoystickPosition(unsigned int *x, unsigned int *y,
+                         unsigned int *buttons, short joystick,
+                         unsigned int fallback)
 {
-    unsigned int device;
     unsigned int infoIndex;
-    unsigned int buttonState;
+    unsigned int device;
+    JOYINFO sample;
 
+    infoIndex = 0;
     if (joystick != 0) {
         device = 1;
         infoIndex = 1;
@@ -1249,27 +1260,32 @@ int GetJoystickPosition(unsigned int *x, unsigned int *y,
 #endif
         *x = g_aJoystickInfo_005d10b0[infoIndex].wXpos;
         *y = g_aJoystickInfo_005d10b0[infoIndex].wYpos;
-        buttonState = g_aJoystickInfo_005d10b0[infoIndex].wButtons;
-        *buttons = buttonState;
+        *buttons = g_aJoystickInfo_005d10b0[infoIndex].wButtons;
+        sample = g_aJoystickInfo_005d10b0[infoIndex];
+        if ((sample.wButtons & 1) != 0) {
+            if (g_bJoystickPrimaryButtonLatched_0049c2f8 == 0)
+                g_nInputPressCount_0049c258++;
+            g_bJoystickPrimaryButtonLatched_0049c2f8 = 1;
+        } else {
+            g_bJoystickPrimaryButtonLatched_0049c2f8 = 0;
+        }
+        if ((sample.wButtons & 2) != 0) {
+            if (g_bJoystickSecondaryButtonLatched_0049c2fc == 0)
+                g_nInputPressCount_0049c258++;
+            g_bJoystickSecondaryButtonLatched_0049c2fc = 1;
+        } else {
+            g_bJoystickSecondaryButtonLatched_0049c2fc = 0;
+        }
         if (joystick != 0)
-            *buttons = buttonState >> 2;
+            *buttons >>= 2;
         else
-            *buttons = buttonState & 3;
-        return 0;
+            *buttons &= 3;
+        return;
     }
 
-#ifdef WC1_SDL
-    if ((fallback & 0xffff) == 0xffff)
-        fallback = (unsigned int)-1;
-    else
-        fallback &= 0xffff;
-#else
-    fallback &= 0xffff;
-#endif
     *x = fallback;
     *y = fallback;
     *buttons = fallback;
-    return 1;
 }
 
 /* Function start: 0x455346 */

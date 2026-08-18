@@ -892,6 +892,15 @@ unsigned int players_flight_dynamics(void)
     return 0;
 }
 
+/* Function start: 0x466AD2 */
+short IsInputEventQueued(int type)
+{
+    if (FindQueuedInputEvent(type) != 0) {
+        return 1;
+    }
+    return 0;
+}
+
 /* Function start: 0x466B02 */
 unsigned int player_input(void)
 {
@@ -918,13 +927,13 @@ unsigned int player_input(void)
     modifiers = event.modifiers;
     g_wCurrentInputModifiers_0059ab08 = (unsigned short)modifiers;
     TranslatePolledInputEvent((unsigned short)eventType, event.value);
-    g_bJoystickEventQueued_005a7b88 = FindQueuedInputEvent(6) != 0;
-    g_bMouseMoveEventQueued_005a7b00 = FindQueuedInputEvent(13) != 0;
-    queuedKeyEvent = FindQueuedInputEvent(5) != 0;
-    queuedKeyEvent |= FindQueuedInputEvent(3) != 0;
-    queuedKeyEvent |= FindQueuedInputEvent(4) != 0;
+    g_bJoystickEventQueued_005a7b88 = IsInputEventQueued(6);
+    g_bMouseMoveEventQueued_005a7b00 = IsInputEventQueued(13);
+    queuedKeyEvent = IsInputEventQueued(5);
+    queuedKeyEvent |= IsInputEventQueued(3);
+    queuedKeyEvent |= IsInputEventQueued(4);
     g_bKeyboardEventQueued_005a7afe = queuedKeyEvent;
-    g_bMouseButtonEventQueued_005a7afc = FindQueuedInputEvent(2) != 0;
+    g_bMouseButtonEventQueued_005a7afc = IsInputEventQueued(2);
     if (g_bMouseMoveEventQueued_005a7b00 == 0)
         g_bCurrentKey_0046c014 |= 0x80;
     g_bCurrentKey_0046c014 |= 0x80;

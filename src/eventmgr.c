@@ -1425,6 +1425,13 @@ void FinalizeInputDriverHook(void)
 {
 }
 
+/* Function start: 0x464F10 */
+void FlushPendingInputEvents(void)
+{
+    FlushInputEvents();
+    return;
+}
+
 /* Function start: 0x464F25 */
 unsigned int GetNamedPacketSize(const char *filename, short section)
 {

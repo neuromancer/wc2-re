@@ -148,9 +148,15 @@ short PromptForAnswerText(short entry)
     return matches;
 }
 
-/* Function start: 0x4333F8 */
+/* Function start: WC2_UNMAPPED */
 void SceneEnterHook(void)
 {
+}
+
+/* Function start: 0x4333F8 */
+int MapCutsceneSoundEffectNumber(int soundIndex)
+{
+    return soundIndex + 1;
 }
 
 /* Function start: 0x40FCD0 */
@@ -609,28 +615,28 @@ short ReadTextInput(char *destination, short maximumLength,
     Viewport inputViewport;
     Viewport *savedViewport;
     char *savedText;
-    unsigned int savedFrameState;
-    int savedX;
+    short savedX;
     short savedY;
     short inputLength;
     short accepted;
     short handled;
     unsigned char savedBackground;
-    unsigned char key;
-    unsigned char character;
+    short key;
+    int characterClass;
     char input[40];
 
-    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
     accepted = 0;
-    if (savedBackground == 0xff) {
-        g_pCurrentTextContext_005c8d1c->backgroundColour = g_cSecondaryViewBufferColour_0049cb4c;
-    }
-    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
+    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
+    if (g_bRewritePacketExtensions_0049cb48 == 0)
+        g_pCurrentTextContext_005c8d1c->backgroundColour = 0x5e;
+    else
+        g_pCurrentTextContext_005c8d1c->backgroundColour = 2;
     savedText = g_pCurrentTextContext_005c8d1c->text;
+    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
     g_pCurrentTextContext_005c8d1c->text = input;
     savedX = g_pCurrentTextContext_005c8d1c->cursorX;
     savedY = g_pCurrentTextContext_005c8d1c->cursorY;
-    inputViewport = *savedViewport;
+    inputViewport = *g_pCurrentTextContext_005c8d1c->viewport;
     g_pCurrentTextContext_005c8d1c->viewport = &inputViewport;
     DosStrcpy(input, destination);
     inputLength = DosStrlen(input);
@@ -647,87 +653,85 @@ short ReadTextInput(char *destination, short maximumLength,
     DrawFormattedText(input);
     DrawTextInputCursor(' ');
 
-    savedFrameState = DAT_0046505c;
-    DAT_0046505c = 0;
-    do {
+    MarkDibDirty();
+    DIBslamReal();
+    while (accepted == 0) {
         handled = 0;
-        do {
-            MarkDibDirty();
-            DIBslamReal();
-            key = (unsigned char)WaitForStreamInputKey();
-            if (key == 13) {
+        while (handled == 0) {
+            ServiceSoundSystem();
+            key = WaitForQueuedInputPress();
+            switch (key) {
+            case 27:
                 handled++;
-                if (input[0] == 0)
-                    return 0;
-                accepted++;
-                EraseCharacterAfterTextCursor(' ');
-            } else if (key == 27) {
-                EraseCharacterAfterTextCursor(' ');
-                inputViewport.left = savedX;
-                inputViewport.top = savedY;
-                inputViewport.bottom = (short)(inputViewport.top +
-                    ReadWord((unsigned short *)
-                        g_pCurrentTextContext_005c8d1c->font));
-                inputViewport.right = (short)(inputViewport.left +
-                    MeasureTextPixelWidthClamped(input));
-                ClearViewport(&inputViewport,
-                              g_pCurrentTextContext_005c8d1c->backgroundColour);
-                g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+                if (input[0] != 0)
+                    EraseCharacterAfterTextCursor(' ');
                 g_pCurrentTextContext_005c8d1c->text = savedText;
                 g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
                 return 0;
-            } else if (key == 8 && inputLength != 0) {
-                inputLength--;
+            case 13:
                 handled++;
-                EraseCharacterAfterTextCursor(' ');
-                EraseLastTextInputCharacter();
-                DrawTextInputCursor(' ');
-                input[inputLength] = 0;
-            } else {
-                if (inputLength < maximumLength &&
-                    ((allowPathSeparators != 0 &&
-                      (key == ':' || key == '\\')) ||
-                     (key >= 'A' && key <= 'Z') ||
-                     (key >= 'a' && key <= 'z') ||
-                     (key >= '0' && key <= '9') ||
-                     (key == ' ' && inputLength != 0))) {
-                    character = key;
-                    if (mode == 1) {
-                        character = (unsigned char)toupper(key);
-                    } else if (mode == 2) {
-                        if (key < '0' || key > '9')
-                            character = 0;
-                    }
-#ifdef WC1_SDL
-                    else if (isalpha((unsigned char)key)) {
-#else
-                    else if (__mb_cur_max > 1
-                                 ? _isctype(key, _ALPHA)
-                                 : (_pctype[key] & _ALPHA)) {
-#endif
-                        character = (unsigned char)(key | 0x20);
-                        if (GetShiftKeyState() != 0)
-                            character &= 0xdf;
-                    }
-                    if (character == 0)
-                        goto redraw;
+                if (input[0] != 0) {
                     EraseCharacterAfterTextCursor(' ');
-                    input[inputLength++] = (char)character;
-                    input[inputLength] = 0;
-                    SetTextCursor((unsigned short)savedX,
-                                  (unsigned short)savedY);
-                    DrawFormattedText(input);
-                    DrawTextInputCursor(' ');
+                    accepted++;
                 }
+                break;
+            default:
+                if (key == 8 && inputLength != 0) {
+                    EraseCharacterAfterTextCursor(' ');
+                    EraseLastTextInputCharacter();
+                    DrawTextInputCursor(' ');
+                    inputLength--;
+                    input[inputLength] = 0;
+                    handled++;
+                    break;
+                }
+                if (maximumLength <= inputLength) {
+                    handled++;
+                    break;
+                }
+                if (allowPathSeparators == 0 ||
+                    (key != ':' && key != '\\')) {
+#ifdef WC1_SDL
+                    characterClass = isalnum((unsigned char)key);
+#else
+                    if (__mb_cur_max > 1)
+                        characterClass = _isctype(key, 0x107);
+                    else
+                        characterClass = _pctype[key] & 0x107;
+#endif
+                    if (characterClass == 0 &&
+                        (key != ' ' || inputLength == 0)) {
+                        handled++;
+                        break;
+                    }
+                }
+                switch (mode) {
+                case 1:
+                    key = (short)toupper(key);
+                    break;
+                case 2:
+                    if (key < '0' || key > '9')
+                        key = 0;
+                    break;
+                }
+                if (key == 0)
+                    continue;
+                EraseCharacterAfterTextCursor(' ');
+                input[inputLength] = (char)key;
+                inputLength++;
+                input[inputLength] = 0;
+                SetTextCursor((unsigned short)savedX,
+                              (unsigned short)savedY);
+                DrawFormattedText(input);
+                DrawTextInputCursor(' ');
                 handled++;
+                break;
             }
-redraw:
-            MarkDibDirty();
-            DIBslamReal();
-        } while (handled == 0);
-    } while (accepted == 0);
+        }
+        MarkDibDirty();
+        DIBslamReal();
+    }
 
-    DAT_0046505c = savedFrameState;
     DosStrcpy(destination, input);
     g_pCurrentTextContext_005c8d1c->text = savedText;
     g_pCurrentTextContext_005c8d1c->viewport = savedViewport;

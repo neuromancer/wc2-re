@@ -1,4 +1,15 @@
 source_file	source_line	wc1_address	wc2_address	source_name	mapping_name	evidence	review_flags	status
+src/system.c	119		00465730	WaitForQueuedInputPress	WaitForQueuedInputPress	WC2-only		wc2-only
+src/disk.c	50		0040926E	LoadSceneHotspotBoundsForSelection	LoadSceneHotspotBoundsForSelection	WC2-only		wc2-only
+src/logic.c	1201		00428E00	GetMissionShipPilotSaveIndex	GetMissionShipPilotSaveIndex	WC2-only		wc2-only
+src/logic.c	1214		00428E5C	GetMissionShipVelocityState	GetMissionShipVelocityState	WC2-only		wc2-only
+src/logic.c	1225		00428E98	GetInitialMissionShipPilotSaveIndex	GetInitialMissionShipPilotSaveIndex	WC2-only		wc2-only
+src/logic.c	1236		00428EDC	StoreMissionResultsInCampaignGlobals	StoreMissionResultsInCampaignGlobals	WC2-only		wc2-only
+src/personnel.c	108		00433C84	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen	WC2-only		wc2-only
+src/personnel.c	172		00433E8C	RefreshCampaignChalkboardScreen	RefreshCampaignChalkboardScreen	WC2-only		wc2-only
+src/cockpt.c	518		00438020	ShowPlayerEjectionSequence	ShowPlayerEjectionSequence	WC2-only		wc2-only
+src/cockpt.c	532		00438080	ShowPlayerStrandingSequence	ShowPlayerStrandingSequence	WC2-only		wc2-only
+src/killbrd.c	964		00459D74	RunCampaignChalkboardMenu	RunCampaignChalkboardMenu	WC2-only		wc2-only
 src/auto.c	12	00403E50	004228B0	visit_the_cinema	visit_the_cinema	WC1-fuzzy-very-low		mapped
 src/auto.c	39	00403EE0	00422953	player_wingman	player_wingman	WC1-callgraph-propagated		mapped
 src/auto.c	47	00403F10	00422990	set_speed	set_speed	WC1-callgraph-single-low		mapped
@@ -90,7 +101,7 @@ src/brains.c	1671	00408650		landing				unmapped
 src/brains.c	1859	00408B30		funeral_player				unmapped
 src/brains.c	1936	00408D50		funeral_wingman				unmapped
 src/brains.c	1959	00408DE0		RunWc1FuneralSequence				unmapped
-src/brains.c	2249	004094E0		RunCampaignGameLoop				unmapped
+src/brains.c	2249	004094E0	00409C1A	RunCampaignGameLoop	RunCampaignGameLoop	WC1-manual-verified		mapped
 src/brains.c	2368		0040A27A	LoadStartingCampaignGlobals	LoadStartingCampaignGlobals	WC2-only		wc2-only
 src/brains.c	2377		0040A2A3	RunSelectedCampaign	RunSelectedCampaign	WC2-only		wc2-only
 src/brains.c	2383	00409760	00442770	cruise_home	cruise_home	WC1-fuzzy-very-low		mapped
@@ -986,6 +997,7 @@ src/main.c	486	00427E40	004661C2	get_player_input	get_player_input	WC1-manual-ve
 src/main.c	520	00427F20	004663A2	process_player_input	process_player_input	WC1-fuzzy-very-low		mapped
 src/main.c	723	00428480	00466908	fire_players_lasers	fire_players_lasers	WC1-fuzzy-very-low		mapped
 src/main.c	736	004284D0	0046696E	players_flight_dynamics	players_flight_dynamics	WC1-fuzzy-medium		mapped
+src/main.c	895		00466AD2	IsInputEventQueued	IsInputEventQueued	WC2-only		wc2-only
 src/main.c	769	004285D0	00466B02	player_input	player_input	WC1-fuzzy-followup		mapped
 src/main.c	1029	00428C90	00465E25	SelectNextExternalViewObject	SelectNextExternalViewObject	WC1-fuzzy-medium		mapped
 src/main.c	1060	00428CD0		SelectPreviousExternalViewObject				unmapped
@@ -1033,7 +1045,7 @@ src/mono.c	69	004036B0	0045A259	SeekDataFile	SeekDataFile	WC1-fuzzy-medium		mapp
 src/mono.c	83	00403710		MeasureScaledIntroTextWidth				unmapped
 src/mono.c	112	004037A0		DrawWc1CenteredScaledIntroText				unmapped
 src/mono.c	150	00403890		GetLineLength				unmapped
-src/mono.c	184	00403920	0042C0F1	print_subtitle	DrawUiFn3920	WC1-fuzzy-very-low		mapped
+src/mono.c	184	00403920		print_subtitle				unmapped
 src/mono.c	240	00403A80	004207B0	advance_canned_sequence	DispatchTbl0059c310Fn3A80	WC1-fuzzy-very-low		mapped
 src/mono.c	274	00403B70		update_canned_sequence				unmapped
 src/mono.c	305	00403C40	00437760	SplitGameClockTicks	DoLocalFn3C40	WC1-fuzzy-low		mapped
@@ -1160,7 +1172,7 @@ src/pilot.cpp	26	00425770		ShowMeanwhileTransition				unmapped
 src/pilot.cpp	69	004258D0		ApplyAnswerTextCipher				unmapped
 src/pilot.cpp	82	00425910		LoadAnswerPromptAndResponse				unmapped
 src/pilot.cpp	117	004259B0		PromptForAnswerText				unmapped
-src/pilot.cpp	151	00425AF0	004333F8	SceneEnterHook	GameNoBodyStubv3	WC1-callgraph-single-low		mapped
+src/pilot.cpp	156	00425AF0	004333F8	MapCutsceneSoundEffectNumber	GameNoBodyStubv3	WC1-callgraph-single-low		mapped
 src/pilot.cpp	156	00425B00	0040FCD0	CreateDebugOverlayConsole	CreateDebugOverlayConsole	WC1-fuzzy-medium		mapped
 src/pilot.cpp	164	00425B90	0040FD73	DestroyGlobalDebugOverlayConsole	DestroyGlobalDebugOverlayConsole	WC1-order-exact		mapped
 src/pilot.cpp	174	00425BB0	0040FDAD	SystemDebugPrintf	SystemDebugPrintf	WC1-callgraph-transfer		mapped
@@ -1524,7 +1536,7 @@ src/text.c	126		00433A75	MeasureCinematicFontLineHeight	MeasureCinematicFontLine
 src/text.c	136		00433AB0	InitializeCinematicTextRenderer	InitializeCinematicTextRenderer	WC2-only		wc2-only
 src/text.c	144	00433910		show_info_disp				unmapped
 src/winmain.c	9	00401000	00417550	SaveGamePalette	SaveGamePalette	WC1-callgraph-propagated		mapped
-src/winmain.c	34	00401020		RestoreGamePalette				unmapped
+src/winmain.c	34	00401020	004175AD	RestoreGamePalette	RestoreGamePalette	WC2-manual-verified		mapped
 src/winmain.c	41	00401040		easy2see				unmapped
 src/winmain.c	64	004010C0	004176D2	make_shard	make_shard	WC1-fuzzy-followup		mapped
 src/winmain.c	100	004011D0	00417838	remove_hazard	remove_hazard	WC1-order-exact		mapped
@@ -1589,6 +1601,7 @@ src/mathfp.c	243		00461DE0	ApplySpacePaletteModeHook	ApplySpacePaletteModeHook	W
 src/music.c	9		0044F84F	InitializeSpeechCache	InitializeSpeechCache	WC2-only		wc2-only
 src/nav.c	1444		0042BDFE	WriteMemoryStateReportHook	WriteMemoryStateReportHook	WC2-only		wc2-only
 src/nav.c	1449		0042BE09	LogMemoryStateToFile	LogMemoryStateToFile	WC2-only		wc2-only
+src/nav.c	1518		0042BE4B	WriteDetailedMemoryStateReport	WriteDetailedMemoryStateReport	WC2-only		wc2-only
 src/nav.c	1143		00420B12	ShutdownNearHeap	ShutdownNearHeap	WC2-only		wc2-only
 src/personnel.c	12		00428C35	GetWingCommanderOneGameDataPath	GetWingCommanderOneGameDataPath	WC2-only		wc2-only
 src/personnel.c	52		00433AD0	PollPersonnelMenuInput	PollPersonnelMenuInput	WC2-only		wc2-only
@@ -1688,6 +1701,10 @@ src/screens.c	138		0042CB08	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffe
 src/screens.c	24		0042C0A2	IsCutsceneSpeechLoaded	IsCutsceneSpeechLoaded	WC2-only		wc2-only
 src/strdos.c	41		004624C7	CopyStringAndReturnEnd	CopyStringAndReturnEnd	WC2-only		wc2-only
 src/screens.c	11		0042BDDB	HasCutsceneMusicNode	HasCutsceneMusicNode	WC2-only		wc2-only
+src/screens.c	21		0042BF0C	LogChangedCutsceneWorkBuffers	LogChangedCutsceneWorkBuffers	WC2-only		wc2-only
+src/screens.c	401		0042C0F1	DrawCutsceneTextAt	DrawCutsceneTextAt	WC2-only		wc2-only
+src/screens.c	1302		0042EE4F	AllocateCutsceneViewportOrFatal	AllocateCutsceneViewportOrFatal	WC2-only		wc2-only
+src/eventmgr.c	1428		00464F10	FlushPendingInputEvents	FlushPendingInputEvents	WC2-only		wc2-only
 src/screens.c	361		0042D181	FindLoadedCutsceneMusic	FindLoadedCutsceneMusic	WC2-only		wc2-only
 src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only		wc2-only
 src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only

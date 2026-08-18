@@ -1515,6 +1515,37 @@ void LogMemoryStateToFile(FILE *file)
     g_bMemoryLogToFile_00499bf8 = previousFileMode;
 }
 
+/* Function start: 0x42BE4B */
+void WriteDetailedMemoryStateReport(void)
+{
+    unsigned int availableMainMemory;
+    unsigned int largestMainMemoryBlock;
+    unsigned int availableFarMemory;
+    unsigned int largestFarMemoryBlock;
+    unsigned short originalFreeMemory;
+
+    WriteMemoryStateReportHook();
+    if (g_pMemoryLogFile_00499da8 != 0) {
+        availableMainMemory = GetAvailableMainMemory();
+        largestMainMemoryBlock = GetLargestMainMemoryBlock();
+        availableFarMemory = GetAvailableFarMemory();
+        largestFarMemoryBlock = GetLargestFreeMemoryBlock();
+        originalFreeMemory = GetOriginalFreeMemory();
+        fprintf(g_pMemoryLogFile_00499da8,
+                "----- Mem State ------\n");
+        fprintf(g_pMemoryLogFile_00499da8,
+                "NEAR: %ud\n", originalFreeMemory);
+        fprintf(g_pMemoryLogFile_00499da8,
+                "FAR:  %6ld  Largest: %6ld\n",
+                availableMainMemory, largestMainMemoryBlock);
+        fprintf(g_pMemoryLogFile_00499da8,
+                "EMS:  %6ld  Largest: %6ld\n",
+                availableFarMemory, largestFarMemoryBlock);
+        fprintf(g_pMemoryLogFile_00499da8,
+                "----------------------\n");
+    }
+}
+
 /* Function start: WC2_UNMAPPED */
 int FullMissionScore(void)
 {

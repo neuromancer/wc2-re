@@ -1198,6 +1198,91 @@ void prepare_ace(short ace)
     flag_ace(ace, 0x20);
 }
 
+/* Function start: 0x428E00 */
+short GetMissionShipPilotSaveIndex(short missionShip)
+{
+    short pilot;
+
+    pilot = g_aMissionShips_00492290[missionShip].pilot;
+    if (pilot < 6)
+        pilot = 99;
+    else
+        pilot = g_aMissionShips_00492290[missionShip].portrait;
+    return pilot;
+}
+
+/* Function start: 0x428E5C */
+short GetMissionShipVelocityState(short missionShip)
+{
+    short state;
+
+    state = -1;
+    if (g_aMissionShips_00492290[missionShip].state == 3)
+        state = 0;
+    return state;
+}
+
+/* Function start: 0x428E98 */
+short GetInitialMissionShipPilotSaveIndex(short initialShip)
+{
+    short pilot;
+
+    pilot = g_stMissionHeader_005d3e70.initialMissionShips[initialShip];
+    if (pilot != -1)
+        pilot = GetMissionShipPilotSaveIndex(pilot);
+    return pilot;
+}
+
+/* Function start: 0x428EDC */
+void StoreMissionResultsInCampaignGlobals(Wc2CampaignGlobals *globals)
+{
+    short value;
+    short index;
+
+    if (globals == 0) {
+        globals = AllocateScenePointerTable(
+            0x50, 2, 0, "ModuleToScript");
+    }
+    value = globals->pilotCount;
+    for (index = 0; index < value; index++)
+        globals->pilotStatus[index] = g_pPilotStatus_005d2fcc[index];
+
+    for (index = 0; index < 8; index++) {
+        globals->objectiveFlags[index] =
+            achieved(index) | sighted(index) | visited(index);
+        globals->objectiveSighted[index] = sighted(index);
+    }
+    for (index = 0; index < 16; index++)
+        globals->shipVelocityState[index] =
+            (short)(GetMissionShipVelocityState(index) + 1);
+
+    globals->shipKillCounts[0] = g_cPlayerKillCount_005d2fa8;
+    globals->shipMissionFlags[0] = 0;
+    globals->damageLevel = (short)calculate_damage_level();
+    globals->arcadeState = (short)g_nArcadeState_0049d75c;
+    if (g_nArcadeState_0049d75c == 2)
+        globals->shipMissionFlags[0] |= 2;
+    if (g_asShipSide_004955d0[0] == 1)
+        globals->shipMissionFlags[0] |= 4;
+    if (g_nArcadeState_0049d75c >= 3)
+        globals->shipMissionFlags[0] |= 1;
+
+    for (index = 1; index < 8; index++) {
+        globals->shipKillCounts[index] =
+            g_acInitialShipKillCount_005d2fc0[index - 1];
+        globals->shipMissionFlags[index] =
+            g_abMissionShipStatusFlags_005d2fb0[index - 1];
+        if (index == 1 && g_bMissionWingmanFlag_005c8dbe != 0)
+            globals->shipMissionFlags[index] |= 8;
+        value = GetInitialMissionShipPilotSaveIndex(index);
+        if (value != -1)
+            value = (short)(value * 2);
+        globals->shipPilotIndices[index] = value;
+    }
+    globals->missionScore = g_nMissionScore_00493462;
+    FreePacketAndClear(&g_pPilotStatus_005d2fcc, 0x80);
+}
+
 /* Function start: 0x42917D */
 void InitializeCampaignConstellationState(Wc2CampaignGlobals *globals,
                                            short copyPosition)

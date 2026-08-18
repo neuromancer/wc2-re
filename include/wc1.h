@@ -177,7 +177,7 @@ typedef struct InputEventState {
 typedef struct InputEventState {
     int type;                         /* +0x00 */
     unsigned short value;             /* +0x04 */
-    unsigned short status;            /* +0x06 */
+    short status;                     /* +0x06 */
     unsigned int timestamp;           /* +0x08 */
     unsigned short modifiers;         /* +0x0C */
     short x;                          /* +0x0E */

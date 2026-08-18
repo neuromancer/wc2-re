@@ -181,7 +181,7 @@ short GetLineLength(const char *text)
     return width;
 }
 
-/* Function start: 0x42C0F1 */
+/* Function start: WC2_UNMAPPED */
 int print_subtitle(Viewport *viewport, short colour, const char *text)
 {
     const char *scan;

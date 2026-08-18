@@ -961,6 +961,84 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
     return selection;
 }
 
+/* Function start: 0x459D74 */
+short RunCampaignChalkboardMenu(short campaignSlot)
+{
+    short replay;
+    short result;
+    short selection;
+
+    selection = 0;
+    result = 1;
+    replay = 1;
+    PreloadMusicTrack(0x35);
+    spacetrack(0x35, 2, 1);
+    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    while (selection == 0) {
+        g_bDisableChalkboardReplay_0049ca58 =
+            (short)(g_pCampaignGlobals_00499c94->field_0a == 0);
+        selection = PollCampaignChalkboardMenu(
+            g_pCampaignChalkboardShape_0049ca54);
+        switch (selection) {
+        case 1:
+            g_bDisableChalkboardReplay_0049ca58 = 0;
+            DisableMouseCursorDrawing();
+            FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
+            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            StopMusicUnlessSuppressed();
+            ReleaseMusicTrack(0x35);
+            g_pCampaignGlobals_00499c94->field_08 =
+                g_pCampaignGlobals_00499c94->field_0a;
+            RunCampaignScript(campaignSlot);
+            g_pCampaignGlobals_00499c94->field_08 = 0;
+            result = 0;
+            break;
+        case 4:
+            exit_squadron(0);
+            break;
+        case 3:
+            /* The WC2 save/load menu at 0x4353D4 remains unreconstructed. */
+            g_bDisableChalkboardReplay_0049ca58 = 0;
+            DisableMouseCursorDrawing();
+            if (g_nOriginDevUnlock_0049d774 != 0)
+                strcpy(g_stCurrentPilotProfile_00493408.callsign,
+                       "CHEATER");
+            DisableMouseCursorDrawing();
+            RefreshCampaignChalkboardScreen();
+            result = 1;
+            break;
+        case 5:
+            g_bDisableChalkboardReplay_0049ca58 = 0;
+            result = 1;
+            break;
+        case 2:
+            g_bDisableChalkboardReplay_0049ca58 = 0;
+            DisableMouseCursorDrawing();
+            FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
+            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            StopMusicUnlessSuppressed();
+            ReleaseMusicTrack(0x35);
+            ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
+            while (replay != 0) {
+                RunCampaignScript(campaignSlot);
+                replay = 0;
+                if (g_pCampaignGlobals_00499c94->field_16 != 0) {
+                    replay++;
+                    g_pCampaignGlobals_00499c94->field_08++;
+                }
+                g_pCampaignGlobals_00499c94->field_16 = 0;
+            }
+            g_pCampaignGlobals_00499c94->field_08 =
+                g_pCampaignGlobals_00499c94->field_0a;
+            InitializeCampaignChalkboardScreen(
+                (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
+            result = 1;
+            break;
+        }
+    }
+    return result;
+}
+
 #pragma intrinsic(strcmp)
 
 /* Function start: WC2_UNMAPPED */

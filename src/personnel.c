@@ -7,7 +7,7 @@
  */
 #include "wc1.h"
 
-#pragma function(strcat, strcpy)
+#pragma function(strcat, strcpy, strlen)
 
 /* Function start: 0x428C35 */
 char *GetWingCommanderOneGameDataPath(void)
@@ -58,40 +58,44 @@ void PollPersonnelMenuInput(void)
     g_cPersonnelPreviousKey_0049312c =
         (signed char)g_sPersonnelPreviousInput_0049a6bc;
     ServiceInputDevices(15);
-    g_bPersonnelPrimaryInputDown_0049a6d4 =
-        FindQueuedInputEvent(3) != 0;
+    g_bPersonnelPrimaryInputDown_0049a6d4 = IsInputEventQueued(3);
     if (g_bPersonnelPrimaryInputDown_0049a6d4 == 0) {
         g_cPersonnelMenuKey_00493128 |= (signed char)0x80;
         g_sPersonnelPreviousInput_0049a6bc |= 0x80;
     }
-    if (FindQueuedInputEvent(5) != 0) {
+    if (IsInputEventQueued(5) != 0) {
         g_cPersonnelMenuKey_00493128 |= (signed char)0x80;
         g_sPersonnelPreviousInput_0049a6bc |= 0x80;
         g_bPersonnelPrimaryInputDown_0049a6d4 = 0;
     }
     while ((eventType = GetNextInputEvent(&event)) != 0) {
         switch (eventType) {
-        case 1:
-            g_cPersonnelMenuKey_00493128 = 0x1c;
-            g_sPersonnelPreviousInput_0049a6bc = 0x1c;
-            if ((event.modifiers & 1) != 0) {
-                g_cPersonnelMenuKey_00493128 = 0x1c;
-                g_sPersonnelPreviousInput_0049a6bc = 0x1c;
-            }
-            if ((event.modifiers & 2) != 0) {
-                g_cPersonnelMenuKey_00493128 = 0x1c;
-                g_sPersonnelPreviousInput_0049a6bc = 0x1c;
-            }
-            break;
         case 3:
             g_nPersonnelCursorX_005c8470 = event.x;
             g_nPersonnelCursorY_005c8472 = event.y;
             break;
+        case 2:
+            break;
+        case 5:
+            break;
+        case 7:
+            break;
+        case 1:
+            g_sPersonnelPreviousInput_0049a6bc =
+                (g_cPersonnelMenuKey_00493128 = 0x1c);
+            if ((event.modifiers & 1) != 0) {
+                g_sPersonnelPreviousInput_0049a6bc =
+                    (g_cPersonnelMenuKey_00493128 = 0x1c);
+            }
+            if ((event.modifiers & 2) != 0) {
+                g_sPersonnelPreviousInput_0049a6bc =
+                    (g_cPersonnelMenuKey_00493128 = 0x1c);
+            }
+            break;
         case 4:
         case 6:
-            g_cPersonnelMenuKey_00493128 = (signed char)event.status;
             g_sPersonnelPreviousInput_0049a6bc =
-                (short)(signed char)event.status;
+                (g_cPersonnelMenuKey_00493128 = (signed char)event.status);
             break;
         }
     }
@@ -101,15 +105,115 @@ void PollPersonnelMenuInput(void)
     }
 }
 
-/* Function start: 0x433F94 */
-void DrawPersonnelMenuBackdrop(unsigned char *shape)
+/* Function start: 0x433C84 */
+void InitializeCampaignChalkboardScreen(short cockpitVariant)
 {
+    void *wipeWorkspace;
+    short frame;
+
+    if (g_stModalSourceViewport_005d2c50.pixels !=
+        (unsigned char *)0xa000) {
+        InitializeGameTextContexts();
+    }
+    DisableMouseCursorDrawing();
+    g_stSecondaryViewBuffer_005d2c90.left = 0;
+    g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
+    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    if ((short)AllocateViewport(
+            &g_stSecondaryViewBuffer_005d2c90,
+            g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
+        ReportFatalErrorCode("001");
+    }
+    g_nCockpitArchiveVariant_005c901a = cockpitVariant;
+    g_pCampaignChalkboardShape_0049ca54 = FetchDiskPacketRetrying(
+        "options.v00", (short)(cockpitVariant * 3), 0);
+    if (g_pCampaignGlobals_00499c94->field_08 ==
+        g_pCampaignGlobals_00499c94->field_0a) {
+        frame = 1;
+        g_pCampaignGlobals_00499c94->field_08 = 0;
+    } else {
+        frame = 2;
+    }
+    if (g_bNewPilotCampaignInitialized_004926c0 != 0)
+        frame = 1;
+    LoadSceneHotspotBoundsForSelection(
+        g_pCampaignChalkboardShape_0049ca54,
+        (unsigned short)frame);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pCampaignChalkboardShape_0049ca54, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      g_nSceneHotspotLeft_005d2120,
+                      g_nSceneHotspotTop_005d2122,
+                      g_pCampaignChalkboardShape_0049ca54, frame);
+    if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
+        wipeWorkspace = AllocateTaggedMemory(0xce, 0x40);
+        if (wipeWorkspace != 0) {
+            InitializeViewportWipe(
+                &g_stSecondaryViewBuffer_005d2c90,
+                &g_stScreenViewport_005d21a0,
+                g_pCampaignGlobals_00499c94->field_0e >> 8,
+                0x3c, 1, wipeWorkspace);
+            do {
+            } while (AdvanceViewportWipe(wipeWorkspace) == 0);
+            ReleasePacketHandle(wipeWorkspace);
+        }
+    }
+    RefreshMemoryStatusOverlay();
+    SetPersonnelMousePosition(
+        (short)((g_nSceneHotspotRight_005d2124 -
+                 g_nSceneHotspotLeft_005d2120) / 2 +
+                g_nSceneHotspotLeft_005d2120),
+        (short)((g_nSceneHotspotBottom_005d2126 -
+                 g_nSceneHotspotTop_005d2122) / 2 +
+                g_nSceneHotspotTop_005d2122));
+}
+
+/* Function start: 0x433E8C */
+void RefreshCampaignChalkboardScreen(void)
+{
+    short frame;
+
+    DisableMouseCursorDrawing();
+    if (g_pCampaignGlobals_00499c94->field_08 ==
+        g_pCampaignGlobals_00499c94->field_0a) {
+        frame = 1;
+    } else {
+        frame = 2;
+    }
+    if (g_bNewPilotCampaignInitialized_004926c0 != 0)
+        frame = 1;
+    LoadSceneHotspotBoundsForSelection(
+        g_pCampaignChalkboardShape_0049ca54,
+        (unsigned short)frame);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pCampaignChalkboardShape_0049ca54, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                      g_nSceneHotspotLeft_005d2120,
+                      g_nSceneHotspotTop_005d2122,
+                      g_pCampaignChalkboardShape_0049ca54, frame);
+    SetPersonnelMousePosition(
+        (short)((g_nSceneHotspotRight_005d2124 -
+                 g_nSceneHotspotLeft_005d2120) / 2 +
+                g_nSceneHotspotLeft_005d2120),
+        (short)((g_nSceneHotspotBottom_005d2126 -
+                 g_nSceneHotspotTop_005d2122) / 2 +
+                g_nSceneHotspotTop_005d2122));
+    RefreshMemoryStatusOverlay();
+}
+
+/* Function start: 0x433F94 */
+void DrawPersonnelMenuBackdrop(void *scenePacket)
+{
+    short selection;
     short width;
 
+    selection = 0;
     SetMenuInputPump();
     DisableMouseCursorDrawing();
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      shape, 0);
+                      g_pPersonnelMenuBackdrop_0049a6b8, 0);
+    selection = PollSceneHotspotInput(scenePacket, 0, 0, 0, 0);
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
                                   g_bPrimaryViewBufferColour_0049cb50, -1);
     if (g_pszPersonnelFooter_00492658 != 0) {
@@ -351,9 +455,8 @@ void HighlightTransferredPilot(short choice)
 /* Function start: 0x435064 */
 short SelectTransferredPilot(short count)
 {
-    short row;
     short hover;
-    int key;
+    short row;
 
     DisableMouseCursorDrawing();
     RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
@@ -373,7 +476,8 @@ short SelectTransferredPilot(short count)
         DrawTransferredPilotRow(row);
     }
     g_nPersonnelMenuHighlight_0049a6a0 = -1;
-    HighlightTransferredPilot(0x0b);
+    hover = 0x0b;
+    HighlightTransferredPilot(hover);
     DisableMouseCursorDrawing();
     g_cPersonnelMenuKey_00493128 = (signed char)0x80;
     SetPersonnelMousePosition(0xdc, 0x12);
@@ -382,33 +486,33 @@ short SelectTransferredPilot(short count)
             return g_cPersonnelMenuKey_00493128;
         }
         PollPersonnelMenuInput();
-        if (g_nPersonnelCursorX_005c8470 < 0x29 ||
-            g_nPersonnelCursorX_005c8470 > 0xeb) {
-            hover = -1;
-            HighlightTransferredPilot(-1);
-            SetMouseCursorShape(
-                g_pInputManagerState_005c8464->cursorShape, 0);
-        } else if (g_nPersonnelCursorY_005c8472 < 0x1e ||
-                   g_nPersonnelCursorY_005c8472 > 0x27) {
-            if (g_nPersonnelCursorY_005c8472 < 0x28 ||
-                g_nPersonnelCursorY_005c8472 >
-                    (count * 5 - 10) * 2 + 0x31) {
-                hover = -1;
-                HighlightTransferredPilot(-1);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    0);
-            } else {
+        if (g_nPersonnelCursorX_005c8470 > 0x28 &&
+            g_nPersonnelCursorX_005c8470 < 0xec) {
+            if (g_nPersonnelCursorY_005c8472 >= 0x1e &&
+                g_nPersonnelCursorY_005c8472 <= 0x27) {
+                hover = 0x0b;
+                HighlightTransferredPilot(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 1);
+            } else if (g_nPersonnelCursorY_005c8472 >= 0x28 &&
+                       g_nPersonnelCursorY_005c8472 <=
+                           (count * 5 - 10) * 2 + 0x31) {
                 hover = (short)((g_nPersonnelCursorY_005c8472 - 0x28) /
                                 10 + 2);
                 HighlightTransferredPilot(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 1);
+            } else {
+                hover = -1;
+                HighlightTransferredPilot(hover);
                 SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    1);
+                                    0);
             }
         } else {
-            hover = 0x0b;
-            HighlightTransferredPilot(0x0b);
+            hover = -1;
+            HighlightTransferredPilot(hover);
             SetMouseCursorShape(
-                g_pInputManagerState_005c8464->cursorShape, 1);
+                g_pInputManagerState_005c8464->cursorShape, 0);
         }
         g_bPersonnelMenuDrawing_0049a6c0 = 0;
         DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -426,8 +530,7 @@ short SelectTransferredPilot(short count)
              hover == -1)) {
             return -1;
         }
-        key = g_cPersonnelMenuKey_00493128 - 2;
-        switch (key) {
+        switch (g_cPersonnelMenuKey_00493128 - 2) {
         case 0:
             return 1;
         case 1:
@@ -458,7 +561,6 @@ short SelectLegacyGameSource(void)
     short done;
     short handled;
     short hover;
-    int key;
 
     done = 0;
     result = -1;
@@ -477,31 +579,31 @@ short SelectLegacyGameSource(void)
         g_cPersonnelMenuKey_00493128 = (signed char)0x80;
         while (g_cPersonnelMenuKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
-            if (g_nPersonnelCursorX_005c8470 < 0x1f ||
-                g_nPersonnelCursorX_005c8470 > 0xdf) {
-                hover = -1;
-                DrawPersonnelSourceChoices(-1);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    0);
-            } else if (g_nPersonnelCursorY_005c8472 < 0x26 ||
-                       g_nPersonnelCursorY_005c8472 > 0x39) {
-                if (g_nPersonnelCursorY_005c8472 < 0x3a ||
-                    g_nPersonnelCursorY_005c8472 > 0x4d) {
-                    hover = -1;
-                    DrawPersonnelSourceChoices(-1);
-                    SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 0);
-                } else {
-                    hover = 0x20;
-                    DrawPersonnelSourceChoices(0x20);
+            if (g_nPersonnelCursorX_005c8470 > 0x1e &&
+                g_nPersonnelCursorX_005c8470 < 0xe0) {
+                if (g_nPersonnelCursorY_005c8472 >= 0x26 &&
+                    g_nPersonnelCursorY_005c8472 <= 0x39) {
+                    hover = 0x11;
+                    DrawPersonnelSourceChoices(hover);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
+                } else if (g_nPersonnelCursorY_005c8472 >= 0x3a &&
+                           g_nPersonnelCursorY_005c8472 <= 0x4d) {
+                    hover = 0x20;
+                    DrawPersonnelSourceChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 1);
+                } else {
+                    hover = -1;
+                    DrawPersonnelSourceChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 0);
                 }
             } else {
-                hover = 0x11;
-                DrawPersonnelSourceChoices(0x11);
+                hover = -1;
+                DrawPersonnelSourceChoices(hover);
                 SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    1);
+                                    0);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;
             DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -522,17 +624,19 @@ short SelectLegacyGameSource(void)
                 done++;
                 handled++;
             }
-            key = toupper((int)g_cPersonnelMenuKey_00493128);
-            if (key == 0x11) {
+            switch (toupper((int)g_cPersonnelMenuKey_00493128)) {
+            case 0x11:
                 result = 0;
                 done++;
                 handled++;
                 g_nLegacySaveSource_0049a600 = 0;
-            } else if (key == 0x20) {
+                break;
+            case 0x20:
                 result = 0;
                 done++;
                 handled++;
                 g_nLegacySaveSource_0049a600 = 1;
+                break;
             }
             if (handled != 0) {
                 g_cPersonnelMenuKey_00493128 = 0;
@@ -544,12 +648,12 @@ short SelectLegacyGameSource(void)
 }
 
 /* Function start: 0x436722 */
-int LocateLegacySaveGame(short source)
+short LocateLegacySaveGame(short source)
 {
     const char *gameNames[3];
     char *installedPath;
     struct _finddata_t findData;
-    long findHandle;
+    short findHandle;
     unsigned int alpha;
     short pathEntered;
     short drive;
@@ -563,10 +667,10 @@ int LocateLegacySaveGame(short source)
         (unsigned char)g_nMenuShadowColour_005c5876, -1);
     if (g_nLegacySaveSource_0049a600 == 0) {
         installedPath = GetWingCommanderOneGameDataPath();
-        if (installedPath == 0) {
-            strcpy(g_szLegacySavePath_005d2130, "");
-        } else {
+        if (installedPath != 0) {
             strcpy(g_szLegacySavePath_005d2130, installedPath);
+        } else {
+            strcpy(g_szLegacySavePath_005d2130, "");
         }
     } else {
         strcpy(g_szLegacySavePath_005d2130, "");
@@ -587,7 +691,7 @@ int LocateLegacySaveGame(short source)
     if (pathEntered == 0) {
         return 0;
     }
-    if (strlen(g_szLegacySavePath_005d2130) > 1) {
+    if (strlen(g_szLegacySavePath_005d2130) >= 2) {
         index = (short)strlen(g_szLegacySavePath_005d2130);
         do {
             index--;
@@ -595,7 +699,7 @@ int LocateLegacySaveGame(short source)
                 g_szLegacySavePath_005d2130[index] == '\\') {
                 break;
             }
-            alpha = isalpha(g_szLegacySavePath_005d2130[index]);
+            alpha = isalnum(g_szLegacySavePath_005d2130[index]);
             if (alpha != 0) {
                 strcat(g_szLegacySavePath_005d2130, "\\");
                 break;
@@ -616,8 +720,8 @@ int LocateLegacySaveGame(short source)
             PersonnelDriveHook(drive);
         }
     }
-    findHandle = _findfirst(g_szLegacySavePath_005d2130, &findData);
-    if ((short)findHandle == -1) {
+    findHandle = (short)_findfirst(g_szLegacySavePath_005d2130, &findData);
+    if (findHandle == -1) {
         return 0;
     }
     return 1;
@@ -631,7 +735,7 @@ void ShowNoTransferablePilots(void)
     DrawFormattedText("No valid characters found.");
     RefreshMemoryStatusOverlay();
     g_cPersonnelMenuKey_00493128 = (signed char)0x80;
-    WaitForInputKey();
+    WaitForAnyInputPress();
 }
 
 /* Function start: 0x436A8F */
@@ -711,38 +815,38 @@ short RunPilotDatabaseMenu(void)
         DrawFormattedText("PERSONNEL DATABASE");
         hover = 0x26;
         g_nPersonnelMenuHighlight_0049a6a0 = -1;
-        DrawPersonnelMenuChoices(0x26);
+        DrawPersonnelMenuChoices(hover);
         DisableMouseCursorDrawing();
         SetPersonnelMousePosition(200, 0x36);
         RefreshMemoryStatusOverlay();
         g_cPersonnelMenuKey_00493128 = (signed char)0x80;
         while (g_cPersonnelMenuKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
-            if (g_nPersonnelCursorX_005c8470 < 0x29 ||
-                g_nPersonnelCursorX_005c8470 > 0xe9) {
-                hover = -1;
-                DrawPersonnelMenuChoices(-1);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    0);
-            } else if (g_nPersonnelCursorY_005c8472 < 0x30 ||
-                       g_nPersonnelCursorY_005c8472 > 0x43) {
-                if (g_nPersonnelCursorY_005c8472 < 0x44 ||
-                    g_nPersonnelCursorY_005c8472 > 0x57) {
-                    hover = -1;
-                    DrawPersonnelMenuChoices(-1);
-                    SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 0);
-                } else {
-                    hover = 0x2e;
-                    DrawPersonnelMenuChoices(0x2e);
+            if (g_nPersonnelCursorX_005c8470 > 0x28 &&
+                g_nPersonnelCursorX_005c8470 < 0xea) {
+                if (g_nPersonnelCursorY_005c8472 >= 0x30 &&
+                    g_nPersonnelCursorY_005c8472 <= 0x43) {
+                    hover = 0x14;
+                    DrawPersonnelMenuChoices(hover);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
+                } else if (g_nPersonnelCursorY_005c8472 >= 0x44 &&
+                           g_nPersonnelCursorY_005c8472 <= 0x57) {
+                    hover = 0x2e;
+                    DrawPersonnelMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 1);
+                } else {
+                    hover = -1;
+                    DrawPersonnelMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 0);
                 }
             } else {
-                hover = 0x14;
-                DrawPersonnelMenuChoices(0x14);
+                hover = -1;
+                DrawPersonnelMenuChoices(hover);
                 SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
-                                    1);
+                                    0);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;
             DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);

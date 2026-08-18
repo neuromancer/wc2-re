@@ -1,7 +1,7 @@
 # Address-sorted mapped developer functions in WC2.EXE.
 # Generated from reports/wc2-address-remap.tsv; unresolved functions are
 # intentionally omitted until a WC2 destination is established.
-# 1448 mapped source functions; 287 unresolved.
+# 1461 mapped source functions; 288 unresolved.
 
 0x00401000 LoadWingCmdrCfgFile
 0x00401120 show_damage_disp
@@ -82,12 +82,14 @@
 0x00408A88 RevealTitleLogo
 0x00408CC8 ShowVictoryScreen
 0x00409120 WaitForSceneAdvance
+0x0040926E LoadSceneHotspotBoundsForSelection
 0x00409417 FindSceneHotspotAtPosition
 0x0040963B PollSceneHotspotInput
 0x00409850 InitializeNewPilotCampaign
 0x004098F2 RunCampaignContinuePromptLoop
 0x004099A8 PromptToContinueCampaign
 0x00409B80 ReleaseSpaceflightResources
+0x00409C1A RunCampaignGameLoop
 0x0040A27A LoadStartingCampaignGlobals
 0x0040A2A3 RunSelectedCampaign
 0x0040A2D0 FrameTimerCallback
@@ -292,6 +294,7 @@
 0x0041740F accelerate
 0x00417471 your_afterburner
 0x00417550 SaveGamePalette
+0x004175AD RestoreGamePalette
 0x004176D2 make_shard
 0x00417838 remove_hazard
 0x0041787A remove_all_hazards
@@ -477,6 +480,10 @@
 0x00428DA3 SetMusicStreamVolume
 0x00428DBF GetMusicStreamVolume
 0x00428DE0 GetStreamerState
+0x00428E00 GetMissionShipPilotSaveIndex
+0x00428E5C GetMissionShipVelocityState
+0x00428E98 GetInitialMissionShipPilotSaveIndex
+0x00428EDC StoreMissionResultsInCampaignGlobals
 0x0042917D InitializeCampaignConstellationState
 0x00429261 RunCampaignScript
 0x004293F9 LoadTemporaryCampaignGlobals
@@ -554,10 +561,12 @@
 0x0042BDDB HasCutsceneMusicNode
 0x0042BDFE WriteMemoryStateReportHook
 0x0042BE09 LogMemoryStateToFile
+0x0042BE4B WriteDetailedMemoryStateReport
+0x0042BF0C LogChangedCutsceneWorkBuffers
 0x0042BFB8 RouteCutsceneViewportToDisplay
 0x0042C04B ClearActiveCutscenePixelAlias
 0x0042C0A2 IsCutsceneSpeechLoaded
-0x0042C0F1 print_subtitle
+0x0042C0F1 DrawCutsceneTextAt
 0x0042C373 LoadCutsceneCockpitOverlay
 0x0042C3A7 DrawCutsceneCockpitOverlay
 0x0042C43D RunCutsceneWipeTransition
@@ -597,6 +606,7 @@
 0x0042EBD0 ReleaseActiveCutscenePacket
 0x0042EC7F ReleaseCutsceneFontPacket
 0x0042ECCB UpdateMap
+0x0042EE4F AllocateCutsceneViewportOrFatal
 0x0042EE86 ReleaseCutsceneViewport
 0x0042EF12 DrawCinematicMemoryStatus
 0x0042F0B3 FormatCinematicMemoryStatus
@@ -611,7 +621,7 @@
 0x00432F2A LoadCachedCutsceneResource
 0x00433269 ReleaseCutsceneSpriteShape
 0x00433328 ReleaseLoadedCutsceneResource
-0x004333F8 SceneEnterHook
+0x004333F8 MapCutsceneSoundEffectNumber
 0x00433410 PanToScreen
 0x00433690 DrawCinematicFontCharacter
 0x0043374E IsCinematicFontCharacterPrintable
@@ -620,6 +630,8 @@
 0x00433A75 MeasureCinematicFontLineHeight
 0x00433AB0 InitializeCinematicTextRenderer
 0x00433AD0 PollPersonnelMenuInput
+0x00433C84 InitializeCampaignChalkboardScreen
+0x00433E8C RefreshCampaignChalkboardScreen
 0x00433ED7 GetBunkInfo
 0x00433F94 DrawPersonnelMenuBackdrop
 0x00434043 LoadSelectedPilotCampaign
@@ -657,6 +669,8 @@
 0x00437F77 ShowVersionBanner
 0x00437F9A SetMessageDisplaySpeed
 0x00437FD3 ReportFramesSkipped
+0x00438020 ShowPlayerEjectionSequence
+0x00438080 ShowPlayerStrandingSequence
 0x004380B0 FatalErrorAndExit
 0x004380FD IsCockpitExplosionActive
 0x00438129 EraseCockpitReadoutRegion
@@ -1110,6 +1124,7 @@
 0x004597E3 ReadTextInput
 0x00459BC8 ReadPersonnelTextField
 0x00459C4D PollCampaignChalkboardMenu
+0x00459D74 RunCampaignChalkboardMenu
 0x0045A010 OpenDataFileOrDie
 0x0045A04A CloseDataFile
 0x0045A06C WriteDataFileAtOffset
@@ -1290,6 +1305,7 @@
 0x00464E73 LoadInputCursorShape
 0x00464EE0 InitializeInputDriverHook
 0x00464EF0 FinalizeInputDriverHook
+0x00464F10 FlushPendingInputEvents
 0x00464F25 GetNamedPacketSize
 0x00464F45 LoadNamedPacket
 0x00464F75 OffsetSceneHotspotBounds
@@ -1300,6 +1316,7 @@
 0x004651B7 GetViewportIntersection
 0x004656CC AllocateApplicationScratchBuffer
 0x004656EB ReleaseApplicationScratchBuffer
+0x00465730 WaitForQueuedInputPress
 0x0046579D LogMemoryUsage
 0x0046591A RunGameApplication
 0x00465CBC free_view_buffer
@@ -1317,6 +1334,7 @@
 0x004663A2 process_player_input
 0x00466908 fire_players_lasers
 0x0046696E players_flight_dynamics
+0x00466AD2 IsInputEventQueued
 0x00466B02 player_input
 0x004672C5 MeasureMessageWidth
 0x0046733D HandleSpaceFlightControls
