@@ -384,6 +384,7 @@ extern signed char g_abExplosionObjectVisited_005d3870[
     WC2_SPACE_OBJECT_COUNT];
 extern short g_asPlayerDamageCredit_005d38c0[10];
 extern short g_asObjectCreationFrame_005d3900[WC2_SPACE_OBJECT_COUNT];
+extern short g_asCapitalHitDamageStep_005d17a0[10];
 extern short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
 extern short g_bFriendlyFireWarningIssued_00492d5c;
 extern short g_nObjectType62Index_00492d64;

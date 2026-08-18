@@ -788,6 +788,7 @@ signed char g_abExplosionObjectVisited_005d3870[
     WC2_SPACE_OBJECT_COUNT];
 short g_asPlayerDamageCredit_005d38c0[10];
 short g_asObjectCreationFrame_005d3900[WC2_SPACE_OBJECT_COUNT];
+short g_asCapitalHitDamageStep_005d17a0[10];
 short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
 short g_bFriendlyFireWarningIssued_00492d5c;
 short g_nObjectType62Index_00492d64;

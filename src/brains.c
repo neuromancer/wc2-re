@@ -4889,6 +4889,19 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_asShipSide_004955d0[obj] = record->side;
     g_anShipSpeed_0059b320[obj] = record->speed << 8;
     g_asPilotLevel_00495d60[obj] = record->pilot;
+    recalc_max_velocity(obj);
+    g_asCapitalHitDamageStep_005d17a0[obj] = 0;
+    if (g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[obj]].damageCapacity +
+            g_aasShipArmor_00495540[obj][0] < 400) {
+        g_asCapitalHitDamageStep_005d17a0[obj] =
+            g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].damageCapacity;
+    } else {
+        g_asCapitalHitDamageStep_005d17a0[obj] = (short)(
+            g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].damageCapacity / 2 + 1);
+    }
     reset_mission_type(obj, record->missionType);
     g_asShipSystemIndex_00495e00[obj] = record->systemIndex;
     g_asShipWingLeader_00495dd0[obj] =

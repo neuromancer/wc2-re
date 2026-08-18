@@ -1393,6 +1393,7 @@ src/ship.c	179	0041EC60	0041262D	pilot_hit	pilot_hit	WC1-fuzzy-low		mapped
 src/ship.c	199	0041ECE0	0041270A	onboard_explosion	onboard_explosion	WC1-fuzzy-very-low		mapped
 src/ship.c	251	0041EDB0	0041280B	call_enemy	call_enemy	WC1-fuzzy-followup		mapped
 src/ship.c	267	0041EE20	004128A7	internal_damage	internal_damage	WC1-fuzzy-followup		mapped
+src/ship.c			00412FA9	IsOnlyShipGun	IsOnlyShipGun	WC2-only		wc2-only
 src/ship.c	387	0041F1A0	00412F03	revise_shields	revise_shields	WC1-fuzzy-low		mapped
 src/ship.c	403	0041F220	00413099	your_internal_damage	your_internal_damage	WC1-fuzzy-low		mapped
 src/ship.c	549	0041F5D0	00412F90	check_computer_damage	check_computer_damage	WC1-fuzzy-low		mapped

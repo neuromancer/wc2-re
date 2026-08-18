@@ -400,61 +400,101 @@ void call_enemy(short obj)
 short internal_damage(short attacker, short owner, short victim,
                       short damage, short quadrant)
 {
-    enum ObjectType type;
-    short damageCapacity;
-    short events;
     short system;
-    short weaponCount;
+    signed char weapon;
+    short type;
+    short ship;
+    short damageCapacity;
 
     if (victim == 0)
         return your_internal_damage(attacker, owner, damage, quadrant);
-    type = g_acObjectType_00493980[victim];
+    type = (short)g_acObjectType_00493980[victim];
     damageCapacity = g_aObjectTypeData_00496d30[type].damageCapacity;
-    if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_CAPITAL_SHIP) {
+    if (g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI) {
-            events = MaxShort(1, (short)(damage >> 3));
-            g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
-                g_asShipAccumulatedDamage_0059dee0[victim] + events);
-            if (attacker != -1 && attacker < 10 &&
-                any_enemy(attacker, 10000) == 0)
-                call_enemy(attacker);
+            if (owner == 0)
+                IncreaseAdaptiveDifficulty();
+            if (g_asObjectType_00495298[attacker] == 0x0d ||
+                g_asObjectType_00495298[attacker] == 0x0e) {
+                g_asObjectDamage_00495178[victim] = (short)(
+                    g_asObjectDamage_00495178[victim] + damage);
+            } else if (g_asObjectType_00495298[attacker] == 0x13 &&
+                       damage > 100) {
+                g_asObjectDamage_00495178[victim] = (short)(
+                    g_asCapitalHitDamageStep_005d17a0[victim] +
+                    g_asObjectDamage_00495178[victim]);
+            } else {
+                g_asObjectDamage_00495178[victim] = (short)(
+                    g_asObjectDamage_00495178[victim] +
+                    MaxShort(1, (short)(damage >> 3)));
+            }
+            ship = attacker;
+            if (owner != -1)
+                ship = owner;
+            if (ship != -1 && ship < 10 &&
+                any_enemy(ship, 10000) == 0)
+                call_enemy(ship);
         } else {
-            events = MaxShort(1, (short)(damage / 10));
-            g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
-                g_asShipAccumulatedDamage_0059dee0[victim] + events);
-            if (RandomBelowOrEqual(1000) < 35 && attacker != 0)
+            if (g_asObjectType_00495298[attacker] == 0x0d ||
+                g_asObjectType_00495298[attacker] == 0x0e) {
+                g_asObjectDamage_00495178[victim] = (short)(
+                    g_asObjectDamage_00495178[victim] + damage);
+            } else {
+                g_asObjectDamage_00495178[victim] = (short)(
+                    g_asObjectDamage_00495178[victim] +
+                    MaxShort(1, (short)(damage / 10)));
+            }
+            if (RandomBelowOrEqual(1000) < 35 && attacker != 0 &&
+                owner != 0)
                 send_message(victim, 4);
         }
-        if (g_asShipAccumulatedDamage_0059dee0[victim] >=
-            damageCapacity)
+        if (g_asObjectDamage_00495178[victim] >= damageCapacity)
             return explode(attacker, victim);
         onboard_explosion(victim);
         return 0;
     }
 
-    if (g_acShipRating_0059cd80[victim] != -1) {
-        events = MaxShort(1, (short)(damage / 40));
-        events = MinShort(RandomInRange(3, 4), events);
+    if (g_asPilotLevel_00495d60[victim] == 5) {
+        damage = MinShort(RandomInRange(3, 4),
+                          MaxShort(1, (short)(damage / 40)));
     } else {
-        events = MaxShort(1, (short)(damage / 6));
+        damage = MaxShort(1, (short)(damage / 6));
     }
-    g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
-        g_asShipAccumulatedDamage_0059dee0[victim] + events);
+    g_asObjectDamage_00495178[victim] =
+        (short)(g_asObjectDamage_00495178[victim] + damage);
 
-    while (events > 0) {
-        if (events == 1 && g_acShipRating_0059cd80[victim] != -1)
+    while (damage > 0) {
+        if (damage == 1 && g_acShipPortrait_00495d88[victim] != -1)
             system = 4;
         else
             system = RandomBelowOrEqual(9);
         switch (system) {
-        case 0:
-            events--;
-            pilot_hit(victim);
+        case 8:
+            if (quadrant == 0 &&
+                g_acShipCommunicator_0059c850[victim] != -1) {
+                damage--;
+                g_acShipCommunicator_0059c850[victim] = -1;
+            }
             break;
-        case 1:
-            if (quadrant == 1) {
-                events--;
-                damage_ion_drive(victim, 1, 3);
+        case 0:
+            if (pilot_hit(victim) != 0)
+                damage--;
+            break;
+        case 6:
+            if (quadrant == 0 &&
+                g_acShipDestroyedWeaponCount_0059de30[victim] < 5) {
+                damage--;
+                g_acShipDestroyedWeaponCount_0059de30[victim]++;
+            }
+            break;
+        case 5:
+            if (quadrant == 0 &&
+                (signed char)g_aShipWeapons_004956b0[victim][0] > 0) {
+                weapon = (signed char)RandomBelowOrEqual(
+                    (short)((signed char)
+                        g_aShipWeapons_004956b0[victim][0] - 1));
+                remove_weapon(victim, (short)weapon);
+                damage--;
             }
             break;
         case 2:
@@ -462,40 +502,23 @@ short internal_damage(short attacker, short owner, short victim,
                 return explode(attacker, victim);
             break;
         case 3:
-            g_aasShipShield_00495518[victim][0] = 0;
-            g_aasShipShield_00495518[victim][1] = 0;
             g_aasShipMaximumShield_004954f0[victim][0] = 0;
+            g_aasShipShield_00495518[victim][0] = 0;
             g_aasShipMaximumShield_004954f0[victim][1] = 0;
+            g_aasShipShield_00495518[victim][1] = 0;
             break;
         case 4:
-            events--;
-            g_acShipDamage_0059c460[victim]++;
-            if ((short)g_acShipDamage_0059c460[victim] >
-                damageCapacity)
+            damage--;
+            g_acShipDamage_00495690[victim]++;
+            if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI &&
+                owner == 0)
+                IncreaseAdaptiveDifficulty();
+            if ((short)g_acShipDamage_00495690[victim] > damageCapacity)
                 return explode(attacker, victim);
-            break;
-        case 5:
-            if (quadrant == 0) {
-                weaponCount = (short)(signed char)
-                    g_aShipWeapons_004956b0[victim][0];
-                if (weaponCount > 0) {
-                    events--;
-                    remove_weapon(victim,
-                        RandomBelowOrEqual(
-                            (short)(weaponCount - 1)));
-                }
-            }
-            break;
-        case 6:
-            if (quadrant == 0 &&
-                g_acShipDestroyedWeaponCount_0059de30[victim] < 5) {
-                events--;
-                g_acShipDestroyedWeaponCount_0059de30[victim]++;
-            }
             break;
         case 7:
             if (quadrant == 1) {
-                events--;
+                damage--;
                 drain_fuel(victim,
                            (short)(*(int *)&g_aObjectTypeData_00496d30[
                                        type].lifetime / 4));
@@ -504,11 +527,10 @@ short internal_damage(short attacker, short owner, short victim,
                     return explode(attacker, victim);
             }
             break;
-        case 8:
-            if (quadrant == 0 &&
-                g_acShipCommunicator_0059c850[victim] != -1) {
-                g_acShipCommunicator_0059c850[victim] = -1;
-                events--;
+        case 1:
+            if (quadrant == 1) {
+                damage--;
+                damage_ion_drive(victim, 1, 3);
             }
             break;
         }
@@ -532,120 +554,157 @@ void revise_shields(short obj)
                 g_acObjectType_00493980[obj]].shieldAft >> 2)));
 }
 
+/* Function start: 0x412F90 */
+void check_computer_damage(void)
+{
+    damage_your_component(3, 1, 3);
+}
+
+/* Function start: 0x412FA9 */
+short IsOnlyShipGun(short ship, short weapon)
+{
+    short otherGuns;
+    short candidate;
+
+    otherGuns = 0;
+    if (g_aObjectTypeData_00496d30[
+            (signed char)((ShipWeaponSlot *)
+                (g_aShipWeapons_004956b0[ship] + 1))[weapon].weaponType].
+            objectClass == OBJECT_CLASS_PROJECTILE) {
+        candidate = 0;
+        for (; candidate <
+             (signed char)g_aShipWeapons_004956b0[ship][0];
+             candidate++) {
+            if (weapon != candidate &&
+                g_aObjectTypeData_00496d30[
+                    (signed char)((ShipWeaponSlot *)
+                        (g_aShipWeapons_004956b0[ship] + 1))[weapon].
+                            weaponType].objectClass ==
+                    OBJECT_CLASS_PROJECTILE)
+                otherGuns++;
+        }
+        if (otherGuns == 0)
+            return 1;
+        return 0;
+    }
+    return 0;
+}
+
 /* Function start: 0x413099 */
 short your_internal_damage(short attacker, short owner, short damage,
                            short quadrant)
 {
-    enum ObjectClass attackerClass;
-    enum ObjectType playerType;
-    short tableGroup;
-    short events;
-    short system;
+    signed char system;
     signed char severity;
-    signed char component;
-    signed char amount;
-    short weaponCount;
+    short tableGroup;
+    signed char weapon;
+    short playerType;
 
-    attackerClass = g_aeObjectClass_00495328[attacker];
-    if (attackerClass == OBJECT_CLASS_PROJECTILE) {
-        tableGroup = quadrant == 1 ? 2 : 0;
-        events = MaxShort(1, (short)(damage >> 4));
-    } else if (attackerClass == OBJECT_CLASS_ASTEROID ||
-               attackerClass >= OBJECT_CLASS_SHIP) {
+    if (g_aeObjectClass_00495328[attacker] ==
+        OBJECT_CLASS_PROJECTILE) {
+        if (quadrant == 1)
+            tableGroup = 2;
+        else
+            tableGroup = 0;
+        damage = MaxShort(1, (short)(damage >> 4));
+    } else if (g_aeObjectClass_00495328[attacker] ==
+                   OBJECT_CLASS_ASTEROID ||
+               g_aeObjectClass_00495328[attacker] >=
+                   OBJECT_CLASS_SHIP) {
         tableGroup = 4;
-        events = MaxShort(1, (short)(damage >> 7));
+        damage = MaxShort(1, (short)(damage >> 7));
     } else {
-        tableGroup = (short)((quadrant == 1 ? 2 : 0) + 1);
-        events = MaxShort(1, (short)(damage >> 5));
+        if (quadrant == 1)
+            tableGroup = 3;
+        else
+            tableGroup = 1;
+        damage = MaxShort(1, (short)(damage >> 5));
     }
-    playerType = g_acObjectType_00493980[0];
+    playerType = (short)g_acObjectType_00493980[0];
     severity = (signed char)RandomBelowOrEqual(10);
-    g_asShipAccumulatedDamage_0059dee0[0] = (short)(
-        g_asShipAccumulatedDamage_0059dee0[0] + events);
-    if (events > 1)
+    g_asObjectDamage_00495178[0] =
+        (short)(g_asObjectDamage_00495178[0] + damage);
+    if (damage > 1) {
+        DecreaseAdaptiveDifficulty();
         place_damage_on_cockpit(RandomBelowOrEqual(3));
+    }
 
-    while (events > 0) {
-        events--;
+    while (damage > 0) {
+        damage--;
         system = *(const signed char *)(const void *)
             &g_asPlayerDamageSystemTable_00492d70[
                 tableGroup * 10 + RandomBelowOrEqual(9)];
         switch (system) {
-        case 0:
-            if (severity < 4)
-                pilot_hit(0);
-            else {
-                if (severity < 7) {
-                    amount = 2;
-                    component = 7;
-                } else {
-                    amount = 4;
-                    component = 6;
-                }
-                goto damage_component;
-            }
-            break;
-        case 1:
-            if (quadrant == 1) {
-                damage_your_component(0, 1, 3);
-                damage_ion_drive(0, 1, 3);
-            } else
-                events++;
-            break;
-        case 2:
-            if (quadrant == 1) {
-                if (RandomBelowOrEqual(3) == 0) {
-                    return explode(attacker, 0);
-                }
-                if (damage_your_component(1, 1, 4) == 4)
-                    return explode(attacker, 0);
-            } else
-                events++;
-            break;
-        case 3:
-            if (severity > 8) {
-                amount = 2;
-                component = 8;
-                goto damage_component;
+        case 8:
+            if (quadrant != 0) {
+                damage++;
+            } else if (severity < 7) {
+                damage_your_component(4, 2, 3);
+                if (g_acPlayerComponentDamage_00493470[4] >= 4)
+                    g_acShipCommunicator_0059c850[0] = -1;
             } else {
-                damage_your_component(2, 1, 4);
-                revise_shields(0);
+                damage_your_component(5, 4, 4);
             }
             break;
-        case 4:
-            g_acShipDamage_0059c460[0]++;
-            if (g_acShipDamage_0059c460[0] == 1) {
+        case 0:
+            if (severity < 4) {
                 pilot_hit(0);
-                if (events > 0)
-                    events--;
-            } else if ((short)g_acShipDamage_0059c460[0] >
-                       g_aObjectTypeData_00496d30[playerType].
-                           damageCapacity) {
-                return explode(attacker, 0);
+            } else if (severity < 7) {
+                damage_your_component(7, 2, 4);
+            } else {
+                damage_your_component(6, 4, 4);
+            }
+            break;
+        case 6:
+            if (quadrant != 0) {
+                damage++;
+            } else if (g_acShipDestroyedWeaponCount_0059de30[0] < 5) {
+                g_acShipDestroyedWeaponCount_0059de30[0]++;
+                check_computer_damage();
             }
             break;
         case 5:
             if (quadrant != 0) {
-                events++;
-            } else {
-                weaponCount = (short)(signed char)g_aShipWeapons_004956b0[0][0];
-                if (weaponCount > 0) {
-                    remove_weapon(0,
-                        RandomBelowOrEqual(
-                            (short)(weaponCount - 1)));
+                damage++;
+            } else if ((signed char)g_aShipWeapons_004956b0[0][0] > 1) {
+                weapon = (signed char)RandomBelowOrEqual(
+                    (short)((signed char)g_aShipWeapons_004956b0[0][0] - 1));
+                if (IsOnlyShipGun(0, (short)weapon) == 0) {
+                    remove_weapon(0, (short)weapon);
                     ShowComponentHitHudMessage(
                         g_szWeaponDestroyed_00492e20,
                         g_abGamePaletteReservedColours_0049cb54[8], 8);
                 }
             }
             break;
-        case 6:
-            if (quadrant != 0)
-                events++;
-            else if (g_acShipDestroyedWeaponCount_0059de30[0] < 5) {
-                    g_acShipDestroyedWeaponCount_0059de30[0]++;
-                    check_computer_damage();
-                }
+        case 2:
+            if (quadrant != 1) {
+                damage++;
+            } else {
+                if (RandomBelowOrEqual(3) == 0)
+                    return explode(attacker, 0);
+                if (damage_your_component(1, 1, 4) == 4)
+                    return explode(attacker, 0);
+            }
+            break;
+        case 3:
+            if (severity < 9) {
+                damage_your_component(2, 1, 4);
+                revise_shields(0);
+            } else {
+                damage_your_component(8, 2, 4);
+            }
+            break;
+        case 4:
+            g_acShipDamage_00495690[0]++;
+            if (g_acShipDamage_00495690[0] == 1) {
+                if (pilot_hit(0) != 0)
+                    damage--;
+            } else if ((short)g_acShipDamage_00495690[0] >
+                       g_aObjectTypeData_00496d30[playerType].
+                           damageCapacity) {
+                return explode(attacker, 0);
+            }
             break;
         case 7:
             drain_fuel(0,
@@ -654,35 +713,20 @@ short your_internal_damage(short attacker, short owner, short damage,
             if (RandomBelowOrEqual(1) != 0 ||
                 g_anShipFuel_00495638[0] < 0)
                 return explode(attacker, 0);
-            ShowComponentHitHudMessage(g_szFuelTanksHit_00492e34,
-                                       g_abGamePaletteReservedColours_0049cb54[8], 8);
+            ShowComponentHitHudMessage(
+                g_szFuelTanksHit_00492e34,
+                g_abGamePaletteReservedColours_0049cb54[8], 8);
             break;
-        case 8:
-            if (quadrant != 0) {
-                events++;
+        case 1:
+            if (quadrant != 1) {
+                damage++;
             } else {
-                if (severity > 6) {
-                    amount = 4;
-                    component = 5;
-                    goto damage_component;
-                } else {
-                    damage_your_component(4, 2, 3);
-                    if (g_acPlayerComponentDamage_00493470[4] > 3)
-                        g_acShipCommunicator_0059c850[0] = -1;
-                }
+                damage_your_component(0, 1, 3);
+                damage_ion_drive(0, 1, 3);
             }
             break;
         }
-        continue;
-damage_component:
-        damage_your_component(component, amount, 4);
     }
-}
-
-/* Function start: 0x412F90 */
-unsigned int check_computer_damage(void)
-{
-    damage_your_component(3, 1, 3);
     return 0;
 }
 
@@ -706,40 +750,25 @@ short ReportComponentRepaired(short component, short minimumDamage)
 /* Function start: 0x4135F1 */
 void repair_internal_damage(void)
 {
-#if 0
-    short repair;
-    short component;
-
-    if ((short)g_acPlayerComponentDamage_00493470[component] >= 4)
-        return;
-#else
-    int repair;
-#endif
-    if (RandomBelowOrEqual(500) >= 2)
-        return;
-    repair = RandomBelowOrEqual(2);
-    switch (repair) {
-    case 0:
-#if 0
-        /* The Mac body guards the selected component in each repair case.
-           Retail Win32 instead reads an uninitialized component above. */
-#endif
-        if (g_acPlayerComponentDamage_00493470[2] >= 4)
+    if (RandomBelowOrEqual(500) < 2) {
+        switch (RandomBelowOrEqual(2)) {
+        case 0:
+            if (g_acPlayerComponentDamage_00493470[2] < 4)
+                ReportComponentRepaired(2, 1);
             break;
-        ReportComponentRepaired(2, 1);
-        break;
-    case 1:
-        if (g_acPlayerComponentDamage_00493470[0] >= 4)
+        case 1:
+            if (g_acPlayerComponentDamage_00493470[0] < 4) {
+                if (ReportComponentRepaired(0, 2) != 0)
+                    damage_ion_drive(0, -1, 3);
+            }
             break;
-        if (ReportComponentRepaired(0, 2) != 0)
-            damage_ion_drive(0, -1, 3);
-        break;
-    case 2:
-        if (g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[0]].damageCapacity - 3 <
-            (short)g_acShipDamage_0059c460[0])
-            g_acShipDamage_0059c460[0]--;
-        break;
+        case 2:
+            if (g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[0]].damageCapacity - 3 <
+                (short)g_acShipDamage_00495690[0])
+                g_acShipDamage_00495690[0]--;
+            break;
+        }
     }
 }
 

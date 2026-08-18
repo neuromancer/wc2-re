@@ -499,7 +499,8 @@ short malf(char component);                                           /* 0x43978
 void vdu_malf(short vdu, short sound);                                 /* 0x4397D5 */
 void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount);                     /* 0x43984F */
-int damage_your_component(char component, char amount, char maximum); /* 0x4398CB */
+signed char damage_your_component(char component, char amount,
+                                  char maximum);                       /* 0x4398CB */
 void RemovePlayerReleaseWeapon(signed char weapon);                  /* 0x4399C6 */
 void fire_computer_graphic_missile(void);                            /* 0x439A5A */
 void show_weapon_disp(void);                                         /* 0x439BB7 */
@@ -884,6 +885,7 @@ void call_enemy(short obj);                                           /* 0x41280
 short internal_damage(short attacker, short owner, short victim,
                       short damage, short quadrant);                   /* 0x4128A7 */
 void revise_shields(short obj);                                       /* 0x412F03 */
+short IsOnlyShipGun(short ship, short weapon);                         /* 0x412FA9 */
 short your_internal_damage(short attacker, short owner, short damage,
                            short quadrant);                           /* 0x413099 */
 short ReportComponentRepaired(short component, short minimumDamage);  /* 0x413578 */
@@ -927,7 +929,7 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* WC2 unmapped */
 void fire_afterburner(short obj, short time);                          /* 0x41693A */
 short find_weapon(short obj, enum ObjectType weaponType);              /* WC2 unmapped */
-unsigned int check_computer_damage(void);                              /* 0x412F90 */
+void check_computer_damage(void);                                      /* 0x412F90 */
 short RandomSign(short v);                                               /* 0x415625 */
 unsigned int fire_super_brake(short ship);                              /* 0x4169CC */
 short flip_angle(short ship, short angle);                              /* 0x4169F3 */

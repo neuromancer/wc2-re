@@ -1362,7 +1362,8 @@ void ShowComponentHitHudMessage(const char *text, unsigned short colour,
 }
 
 /* Function start: 0x4398CB */
-int damage_your_component(char component, char amount, char maximum)
+signed char damage_your_component(char component, char amount,
+                                  char maximum)
 {
     char text[40];
 
