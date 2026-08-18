@@ -319,8 +319,8 @@ short RunWc1TextInputPrompt(short x, short y, const char *prompt,
     ((short *)&bounds[0])[1] = y;
     ((short *)&bounds[1])[1] = (short)(y + 20);
     InitializeModalTextPanel(&panel, 0,
-                             g_dwModalBoundsTopLeft_00469440,
-                             g_dwModalBoundsBottomRight_00469444,
+                             g_dwModalBoundsTopLeft_0049ca48,
+                             g_dwModalBoundsBottomRight_0049ca4c,
                              g_cSecondaryViewBufferColour_0049cb4c, g_cSecondaryViewBufferColour_0049cb4c,
                              g_cSecondaryViewBufferColour_0049cb4c);
     widestCharacter = MeasureTextPixelWidthClamped("M");
@@ -887,7 +887,7 @@ short RunWc1BarracksScreen(void)
     g_nSavedRoomControllerX_005988b4 =
         g_nMenuInputRepeatDelay_005a8208;
     g_bInputMode_0059a848 = 1;
-    g_nMenuPointerSpeed_0046af58 = 1;
+    g_nMenuPointerSpeed_00493054 = 1;
     g_nMenuInputRepeatDelay_005a8208 = 2;
 
     while (result == 0) {
@@ -974,7 +974,7 @@ short RunWc1BarracksScreen(void)
     }
 
     SuspendWc1MouseCursor();
-    g_nMenuPointerSpeed_0046af58 = 2;
+    g_nMenuPointerSpeed_00493054 = 2;
     g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);

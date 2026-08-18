@@ -816,12 +816,12 @@ void EnterPilotNameAndCallsign(void)
                         (short)(g_stTrainSimTextContext_005a7bd0.cursorY + 2),
                         g_szPilotNameLabel_00469ec8,
                         g_stCampaignState_0059ca50.currentPilot->name,
-                        13, g_szDefaultPilotName_00469ec0);
+                        13, g_szDefaultPilotName_0049ab4c);
     PromptForPilotField(10,
                         (short)(g_stTrainSimTextContext_005a7bd0.cursorY + 10),
                         g_szCallsignLabel_00469ee0,
                         g_stCampaignState_0059ca50.currentPilot->callsign,
-                        13, g_szDefaultCallsign_00469ed4);
+                        13, g_szDefaultCallsign_0049ab54);
     if (g_nOriginDevUnlock_0049d774 != 0) {
         memcpy(g_stCampaignState_0059ca50.currentPilot->callsign,
                g_szCheaterCallsign_00469eec, 8);

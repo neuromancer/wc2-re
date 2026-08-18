@@ -1531,14 +1531,14 @@ void get_right_shape(short obj, FixedVector *direction)
     } else if (type == OBJECT_TYPE_KILRATHI_BASE) {
         directionIndex += WC1_DIRECTION_VIEW_COUNT * 2;
     }
-    frame = g_acDirectionShapeFrame_0046db28[directionIndex];
+    frame = g_acDirectionShapeFrame_0049d558[directionIndex];
     if (frame == 0)
         angle += 90;
     if (frame == 36 &&
         objectClass != OBJECT_CLASS_MISSILE)
         angle -= 90;
     g_asObjectFlip_004939c8[obj] =
-        (short)(g_acDirectionShapeFlip_0046dbe8[directionIndex] << 4);
+        (short)(g_acDirectionShapeFlip_0049d618[directionIndex] << 4);
     angle %= 360;
     if (angle < 0)
         angle += 360;
@@ -1664,8 +1664,8 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
 #else
     vsprintf(text, format, (char *)(&format + 1));
 #endif
-    topLeft = g_dwModalBoundsTopLeft_00469440;
-    bottomRight = g_dwModalBoundsBottomRight_00469444;
+    topLeft = g_dwModalBoundsTopLeft_0049ca48;
+    bottomRight = g_dwModalBoundsBottomRight_0049ca4c;
     if (g_pModalTextPanel_00469448 == 0) {
         g_pModalTextPanel_00469448 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
     }

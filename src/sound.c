@@ -14,7 +14,7 @@
 /* Function start: 0x4240AE */
 void ReleaseFinishedSoundEntries(void)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *entry = g_pActiveSoundHead_004961a8;
 
     while (entry != 0) {
         ActiveSoundEntry *next = entry->next;
@@ -78,7 +78,7 @@ void playWAVE(const char *filename, int looping, int volume)
 
         file = _open(filename, 0x8000);
         if (file == -1) {
-            MessageBoxA(0, g_szPlayWaveOpenError_0046a46c,
+            MessageBoxA(0, g_szPlayWaveOpenError_004961ec,
                         filename, MB_ICONHAND);
             _exit(1);
         }
@@ -390,40 +390,40 @@ void DrawLaunchDoorFrame(short distance)
         scale = (short)(0x1a00L / distance);
         GetTransformedShapeBounds(
             &g_stViewBuffer_005d2b00,
-            (short)((short)g_nScreenWidth_0046daa4 >> 1),
-            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            (short)((short)g_nScreenWidth_0049d4d8 >> 1),
+            (short)((short)g_nScreenHeight_0049d4dc >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0, bounds);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
                 &g_stViewBuffer_005d2b00, (short)(bounds[0] - 1),
-                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                (short)((short)g_nScreenHeight_0049d4dc >> 1),
                 g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0))
 #endif
         DrawSpriteScaled(
             &g_stViewBuffer_005d2b00, (short)(bounds[0] - 1),
-            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            (short)((short)g_nScreenHeight_0049d4dc >> 1),
             g_pLaunchDoorShape_005a77e8, 0, 0, scale, 0);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
                 &g_stViewBuffer_005d2b00,
-                (short)((short)g_nScreenWidth_0046daa4 >> 1),
-                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                (short)((short)g_nScreenWidth_0049d4d8 >> 1),
+                (short)((short)g_nScreenHeight_0049d4dc >> 1),
                 g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0))
 #endif
         DrawSpriteScaled(
             &g_stViewBuffer_005d2b00,
-            (short)((short)g_nScreenWidth_0046daa4 >> 1),
-            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            (short)((short)g_nScreenWidth_0049d4d8 >> 1),
+            (short)((short)g_nScreenHeight_0049d4dc >> 1),
             g_pLaunchDoorShape_005a77e8, 1, 0, scale, 0);
 #ifdef WC1_SDL
         if (!Wc1SdlRecordSpaceSprite(
                 &g_stViewBuffer_005d2b00, bounds[2],
-                (short)((short)g_nScreenHeight_0046daa8 >> 1),
+                (short)((short)g_nScreenHeight_0049d4dc >> 1),
                 g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0))
 #endif
         DrawSpriteScaled(
             &g_stViewBuffer_005d2b00, bounds[2],
-            (short)((short)g_nScreenHeight_0046daa8 >> 1),
+            (short)((short)g_nScreenHeight_0049d4dc >> 1),
             g_pLaunchDoorShape_005a77e8, 2, 0, scale, 0);
     }
 }
@@ -817,7 +817,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
                                   g_cSecondaryViewBufferColour_0049cb4c,
                                   (signed char)g_cViewportClearColour_004699a0);
-    g_bGraphicsActive_00469a20 = 1;
+    g_bOriginFxDriverActive_0049cbb0 = 1;
     return 0;
 }
 

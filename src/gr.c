@@ -26,7 +26,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
             allocation++;
         }
         if (allocation >= g_nViewportAllocationCount_005a7f0c)
-            exit_squadron(g_szBadViewport_00470d24);
+            exit_squadron(g_szBadViewport_004969f8);
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
@@ -1421,7 +1421,7 @@ void PrepareShapeRLEData(unsigned char *shape)
         return;
 
     *(int *)g_abShapeRLEScratch_00497748 =
-        *(const int *)g_szShapeRLEVersion_00470d30;
+        *(const int *)g_szShapeRLEVersion_00496a04;
     frameCount = GetShapeFrameCount(shape);
     *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
     memset(g_abShapeRLEScratch_00497748 + 8, 0,
@@ -1491,7 +1491,7 @@ void PrepareShapeRLEData(unsigned char *shape)
 
     preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
     if (preparedSize > (int)sizeof(g_abShapeRLEScratch_00497748))
-        exit_squadron(g_szShapeRLEOverflow_00470d38);
+        exit_squadron(g_szShapeRLEOverflow_00496a0c);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
 #ifdef WC1_SDL
@@ -1529,7 +1529,7 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                 scaleX = -scaleX;
                 scaleY = -scaleY;
             } else {
-                exit_squadron(g_szBadShapeFlip_00470d4c);
+                exit_squadron(g_szBadShapeFlip_00496a20);
             }
         }
         if (blendMode != 0) {
@@ -1583,8 +1583,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     short characterIndex;
     int column;
 
-    g_abPaletteTranslation_00470678[fontColour] = colour;
-    g_abPaletteTranslation_00470678[fontBackground] = background;
+    g_abPaletteTranslation_00496338[fontColour] = colour;
+    g_abPaletteTranslation_00496338[fontBackground] = background;
     characterIndex = (short)(signed char)character;
     if (characterIndex != 0x81 && characterIndex != 0x84 &&
         characterIndex != 0x8e && characterIndex != 0x94 &&
@@ -1620,7 +1620,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                                         (unsigned int)context->cursorX;
                 destination = viewport->pixels + destinationOffset;
                 for (column = width; column-- != 0;) {
-                    translated = g_abPaletteTranslation_00470678[*source];
+                    translated = g_abPaletteTranslation_00496338[*source];
                     if (translated != 0xff)
                         *destination = translated;
                     source++;
@@ -1629,8 +1629,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
         }
         context->cursorX += font[4 + characterIndex];
-        g_abPaletteTranslation_00470678[fontColour] = fontColour;
-        g_abPaletteTranslation_00470678[fontBackground] = fontBackground;
+        g_abPaletteTranslation_00496338[fontColour] = fontColour;
+        g_abPaletteTranslation_00496338[fontBackground] = fontBackground;
     }
 }
 
@@ -2194,9 +2194,9 @@ int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         leftExtent = frameData[1];
         topExtent = frameData[2];
         absoluteCosine =
-            (int)(g_awAbsoluteCosine_00470778[angle] * scale) >> 8;
+            (int)(g_awAbsoluteCosine_00496438[angle] * scale) >> 8;
         absoluteSine =
-            (int)(g_awAbsoluteSine_00470a48[angle] * scale) >> 8;
+            (int)(g_awAbsoluteSine_00496708[angle] * scale) >> 8;
         if (absoluteCosine == 0)
             absoluteCosine = 1;
         if (absoluteSine == 0)
@@ -2281,7 +2281,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     (void)colour;
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
-    RasterLineHook(g_szSnowViewport_00470da4);
+    RasterLineHook(g_szSnowViewport_00496a88);
 }
 
 /* Function start: 0x428979 */

@@ -56,7 +56,7 @@ short fire_missile(short ship)
                     g_nTargetLockCountdown_004934ec != 0) {
                     if (get_mode(0) == 1)
                         ShowComponentHitHudMessage(
-                            g_szNeedLock_0046998c,
+                            g_szNeedLock_00492e4c,
                             g_abGamePaletteReservedColours_0049cb54[4], 3);
                     return -1;
                 }
@@ -283,13 +283,13 @@ unsigned int reposition_fixed_child_objects(void)
                     /* Match the anchor to the enhanced parent transform. */
                     parentScreenX =
                         (float)g_nViewCenterX_005c80d8 +
-                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                        (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) *
                                  0.5 *
                                  g_aObjectViewPosition_0059afa0[parentIndex].x) /
                                 g_aObjectViewPosition_0059afa0[parentIndex].z);
                     parentScreenY =
                         (float)g_nViewCenterY_005c80da +
-                        (float)(((double)(g_nScreenWidth_0046daa4 & ~1) *
+                        (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) *
                                  0.5 *
                                  g_aObjectViewPosition_0059afa0[parentIndex].y) /
                                 g_aObjectViewPosition_0059afa0[parentIndex].z);
@@ -450,7 +450,7 @@ unsigned int LoadWc1GamePaletteFile(void)
         index = 0;
         do {
             ((unsigned char *)&DAT_004699a4)[index] =
-                g_abLegacyVideoModeColours_004699e0[index];
+                g_abLegacyVideoModeColours_0049cb90[index];
             index++;
         } while ((unsigned int)(int)index < 14);
         index = 0;
@@ -568,7 +568,7 @@ unsigned int LoadWc1OriginFxDrivers(void)
     if (DAT_0059a856 == 0)
         SystemDebugPrintf("No ");
     SystemDebugPrintf("Expanded Memory Detected.\n");
-    g_bGraphicsActive_00469a20 = 0;
+    g_bOriginFxDriverActive_0049cbb0 = 0;
     PromptInsertNumberedDisk(0x38);
     if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
@@ -576,7 +576,7 @@ unsigned int LoadWc1OriginFxDrivers(void)
     RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998);
 #endif
     LoadJoystickCalibrationFile(9, 9, 1, 1);
-    g_nInputDoubleClickInterval_0046af54 = 2;
+    g_nInputDoubleClickInterval_00493050 = 2;
     StartWc1EventManager();
     GetFxDriverInitResult();
     g_dwOriginalFreeMemory_005a7cd8 = GetLargestFreeMemoryBlockByType(0);
@@ -627,10 +627,10 @@ unsigned int LoadWc1OriginFxDrivers(void)
     SetEventManagerPump(PollJoystickButtonEvents);
     PromptInsertNumberedDisk(0);
     ShutdownVideoHook(
-        g_acGraphicsModeByAnimationSpeed_0046b178[
+        g_acExpectedGraphicsModes_00493078[
             g_bSlowSceneAnimation_00469998]);
     requestedGraphicsMode =
-        g_acGraphicsModeByAnimationSpeed_0046b178[
+        g_acExpectedGraphicsModes_00493078[
             g_bSlowSceneAnimation_00469998];
     if (GetTargetColourIndex() != requestedGraphicsMode)
         exit_squadron("Requested graphics display mode not available.");
@@ -3076,8 +3076,8 @@ void initialize_cockpit(signed char mode)
 
     g_bSpaceViewBufferEnabled_0049d7a4 = 1;
     SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                    (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                    (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+                    (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                    (unsigned short)(g_nScreenHeight_0049d4dc - 1));
     initialize_view_buffer();
     g_stScreenViewport_005d21a0 = savedScreen;
 }
@@ -3147,9 +3147,9 @@ unsigned int InitWc1Constellation(short scene)
                         definitionBase + slot],
                     object);
             }
-            g_asConstellationObjectIndices_00469d50[slot] = object;
+            g_asConstellationObjectIndices_0049c8e0[slot] = object;
         } else {
-            g_asConstellationObjectIndices_00469d50[slot] = -1;
+            g_asConstellationObjectIndices_0049c8e0[slot] = -1;
         }
         slot++;
     } while (slot < 4);

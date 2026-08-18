@@ -638,7 +638,7 @@ void *DecompressPacketSection(
     fallbackAllocations = 0;
     packet = 0;
     g_pLastPacketAllocation_005c80e0 = 0;
-    if (g_wPacketCompressionFormatFlags_0046a924 == 0) {
+    if (g_wPacketCompressionFormatFlags_0049b46c == 0) {
         if (handle->compression != 1) {
             g_nPacketError_0049ca90 = 6;
             return 0;
@@ -769,16 +769,16 @@ void show_target_disp(void)
     Viewport targetViewport;
 
     DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-               g_szEmptyTargetDisplayText_0046a948, 2);
+               g_szEmptyTargetDisplayText_0049b490, 2);
     if (g_nTargetLockMode_0046c078 != 0) {
-        DrawFormattedText(g_szTextColourStringColourFormat_0046a960,
+        DrawFormattedText(g_szTextColourStringColourFormat_0049b4a8,
                           (unsigned int)DAT_004699ac,
-                          g_szLockedTarget_0046a94c,
+                          g_szLockedTarget_0049b494,
                           (unsigned int)g_cDefaultTextColour_004699cc);
     } else {
-        DrawFormattedText(g_szTextColourStringFormat_0046a97c,
+        DrawFormattedText(g_szTextColourStringFormat_0049b4c4,
                           (unsigned int)g_cDefaultTextColour_004699cc,
-                          g_szAutoTargetting_0046a968);
+                          g_szAutoTargetting_0049b4b0);
     }
     target = g_acShipTarget_00495f20[0];
     if (target != -1 &&
@@ -789,9 +789,9 @@ void show_target_disp(void)
         g_acShipTarget_00495f20[0] = -1;
     }
     g_cTargetDisplayObject_0046c06c = (signed char)target;
-    DrawFormattedText(g_szTargetLabel_0046a984);
+    DrawFormattedText(g_szTargetLabel_0049b4cc);
     if (target == -1) {
-        DrawFormattedText(g_szNoTarget_0046a990);
+        DrawFormattedText(g_szNoTarget_0049b4d8);
         return;
     }
     targetIndex = (int)target;
@@ -807,10 +807,10 @@ void show_target_disp(void)
             g_szAceTargetNameFormat_0046a99c,
             g_apszKilrathiAceNames_0046af80[(int)rating - 9]);
     } else {
-        DrawFormattedText(g_szShipTargetNameFormat_0046a9a0,
+        DrawFormattedText(g_szShipTargetNameFormat_0049b4ec,
                           typeData->displayName);
     }
-    DrawFormattedText(g_szRangeLabel_0046a9a4);
+    DrawFormattedText(g_szRangeLabel_0049b4f0);
     InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
     if (g_asObjectScreenX_00493598[targetIndex] == (short)0x8001) {
         g_cTargetDisplayObject_0046c06c = -1;
@@ -830,13 +830,13 @@ void show_target_disp(void)
     maximumArmor = &typeData->armorFront;
     for (armor = 0; armor < 4; armor++) {
         targetViewport.left =
-            (short)(g_aTargetArmorClipRects_0046a928[armor].left + x);
+            (short)(g_aTargetArmorClipRects_0049b470[armor].left + x);
         targetViewport.top =
-            (short)(g_aTargetArmorClipRects_0046a928[armor].top + y);
+            (short)(g_aTargetArmorClipRects_0049b470[armor].top + y);
         targetViewport.right =
-            (short)(g_aTargetArmorClipRects_0046a928[armor].right + x);
+            (short)(g_aTargetArmorClipRects_0049b470[armor].right + x);
         targetViewport.bottom =
-            (short)(g_aTargetArmorClipRects_0046a928[armor].bottom + y);
+            (short)(g_aTargetArmorClipRects_0049b470[armor].bottom + y);
         if (g_aasShipArmor_00495540[targetIndex][armor] >
             (short)(maximumArmor[armor] >> 1)) {
             DrawSpriteDefault(&targetViewport, x, y,
@@ -891,14 +891,14 @@ void DrawTargetRangeReadout(void)
         return;
 
     if (g_asObjectScreenX_00493598[target] == (short)0x8001) {
-        rangeText = g_szTargetOffscreenRange_0046a9bc;
+        rangeText = g_szTargetOffscreenRange_0049b508;
     } else if ((unsigned short)g_asObjectDistance_00493ae8[target] <=
                30000) {
         strcat(_itoa((unsigned short)g_asObjectDistance_00493ae8[target],
                      g_szTextScratchBuffer_005d1c40, 10), " m");
         goto draw_readout;
     } else {
-        rangeText = g_szTargetTooFar_0046a9b0;
+        rangeText = g_szTargetTooFar_0049b4fc;
     }
     memcpy(g_szTextScratchBuffer_005d1c40, rangeText, 8);
 
@@ -1860,9 +1860,9 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     }
     if (distance >= 10) {
         g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
-        sprintf(g_szSfxWavePath_00476558, g_szSfxWaveFormat_0046ad2c,
+        sprintf(g_szSfxWavePath_005b3650, g_szSfxWaveFormat_0049c22c,
                 soundNumber - 1);
-        playWAVE(g_szSfxWavePath_00476558, looping, distance);
+        playWAVE(g_szSfxWavePath_005b3650, looping, distance);
     }
 #else
     FixedVector delta;

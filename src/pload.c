@@ -130,12 +130,12 @@ void *PacketLoad(const char *filename, short section,
 /* Function start: 0x423CA0 */
 void InitializeAudioSystem(HWND window)
 {
-    if (g_nAudioEnabled_0049c244 != 0 && DAT_0046a440 == 0) {
+    if (g_nAudioEnabled_0049c244 != 0 && g_bAudioSystemInitialized_004961b0 == 0) {
         ix_system_configure(3, (void *)1);
         ix_system_configure(0, window);
         ix_system_init();
         ix_system_set_voice_count(0x10);
-        DAT_0046a440 = 1;
+        g_bAudioSystemInitialized_004961b0 = 1;
     }
 }
 
@@ -143,12 +143,12 @@ void InitializeAudioSystem(HWND window)
 void ServiceAudioStream(void)
 {
     if (g_nAudioEnabled_0049c244 != 0) {
-        if (DAT_0046a440 != 0) {
+        if (g_bAudioSystemInitialized_004961b0 != 0) {
             ix_system_delete_all_sounds();
             ix_system_delete_all_samples();
             ix_system_shutdown();
             FreeWaveTable();
-            DAT_0046a440 = 0;
+            g_bAudioSystemInitialized_004961b0 = 0;
         }
         return;
     }
@@ -224,23 +224,23 @@ void FreeWaveTable(void)
 /* Function start: 0x423F3F */
 ActiveSoundEntry *AllocateActiveSoundEntry(void)
 {
-    if (g_pActiveSoundHead_0046a438 == 0) {
-        g_pActiveSoundHead_0046a438 =
+    if (g_pActiveSoundHead_004961a8 == 0) {
+        g_pActiveSoundHead_004961a8 =
             malloc(sizeof(ActiveSoundEntry));
-        g_pActiveSoundTail_0046a43c = g_pActiveSoundHead_0046a438;
+        g_pActiveSoundTail_004961ac = g_pActiveSoundHead_004961a8;
     } else {
-        g_pActiveSoundTail_0046a43c->next =
+        g_pActiveSoundTail_004961ac->next =
             malloc(sizeof(ActiveSoundEntry));
-        g_pActiveSoundTail_0046a43c = g_pActiveSoundTail_0046a43c->next;
+        g_pActiveSoundTail_004961ac = g_pActiveSoundTail_004961ac->next;
     }
-    g_pActiveSoundTail_0046a43c->next = 0;
-    return g_pActiveSoundTail_0046a43c;
+    g_pActiveSoundTail_004961ac->next = 0;
+    return g_pActiveSoundTail_004961ac;
 }
 
 /* Function start: 0x423FAB */
 void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *entry = g_pActiveSoundHead_004961a8;
     ActiveSoundEntry *previous = 0;
 
     while (entry != 0 && entry != target) {
@@ -250,10 +250,10 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     if (entry != 0) {
         if (previous != 0)
             previous->next = entry->next;
-        if (g_pActiveSoundTail_0046a43c == entry && previous != 0)
-            g_pActiveSoundTail_0046a43c = previous;
-        if (g_pActiveSoundHead_0046a438 == entry)
-            g_pActiveSoundHead_0046a438 = entry->next;
+        if (g_pActiveSoundTail_004961ac == entry && previous != 0)
+            g_pActiveSoundTail_004961ac = previous;
+        if (g_pActiveSoundHead_004961a8 == entry)
+            g_pActiveSoundHead_004961a8 = entry->next;
         free(entry);
     }
 }
@@ -261,7 +261,7 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
 /* Function start: WC2_UNMAPPED */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_0046a438;
+    ActiveSoundEntry *entry = g_pActiveSoundHead_004961a8;
 
     for (;;) {
         if (entry == 0)

@@ -435,7 +435,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
     while (events > 0) {
         events--;
         system = *(const signed char *)(const void *)
-            &g_asPlayerDamageSystemTable_00469878[
+            &g_asPlayerDamageSystemTable_00492d70[
                 tableGroup * 10 + RandomBelowOrEqual(9)];
         switch (system) {
         case 0:
@@ -501,7 +501,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                         RandomBelowOrEqual(
                             (short)(weaponCount - 1)));
                     ShowComponentHitHudMessage(
-                        g_szWeaponDestroyed_00469960,
+                        g_szWeaponDestroyed_00492e20,
                         DAT_004699ac, 8);
                 }
             }
@@ -521,7 +521,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (RandomBelowOrEqual(1) != 0 ||
                 g_anShipFuel_00495638[0] < 0)
                 return explode(attacker, 0);
-            ShowComponentHitHudMessage(g_szFuelTanksHit_00469974,
+            ShowComponentHitHudMessage(g_szFuelTanksHit_00492e34,
                                        DAT_004699ac, 8);
             break;
         case 8:
@@ -561,8 +561,8 @@ short ReportComponentRepaired(short component, short minimumDamage)
     if (minimumDamage <
         (short)g_acPlayerComponentDamage_00493470[component]) {
         g_acPlayerComponentDamage_00493470[component]--;
-        sprintf(message, g_szComponentFixedFormat_00469984,
-                g_apszComponentNames_0046a778[component]);
+        sprintf(message, g_szComponentFixedFormat_00492e44,
+                g_apszComponentNames_00490090[component]);
         ShowComponentHitHudMessage(message, DAT_004699ac, 8);
         return 1;
     }

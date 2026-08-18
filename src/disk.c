@@ -1475,7 +1475,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
     diskReady = 0;
     if (CheckWc1DiskAvailable(logicalFile) != 0)
         return;
-    if (g_bGraphicsActive_00469a20 == 0) {
+    if (g_bOriginFxDriverActive_0049cbb0 == 0) {
         diskNumber =
             g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
         do {

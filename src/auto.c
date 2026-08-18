@@ -289,8 +289,8 @@ void auto_pilot_sequence(void)
         } else {
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                            (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+                            (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                            (unsigned short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             g_nCockpitDisplayMode_0049d71c = 1;
             force_view(0, 0);

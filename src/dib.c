@@ -46,14 +46,14 @@ char g_szDibSlamRealDebugBuffer_005c39f8[256];
 /* Function start: 0x45CE9A */
 void ReportSpaceFlightMaxFps(float adjustment)
 {
-    g_fSpaceFlightFrameRate_0046b1cc += adjustment;
-    if (g_fSpaceFlightFrameRate_0046b1cc < 8.0)
-        g_fSpaceFlightFrameRate_0046b1cc = 8.0f;
-    else if (g_fSpaceFlightFrameRate_0046b1cc > 32.0)
-        g_fSpaceFlightFrameRate_0046b1cc = 32.0f;
+    g_fSpaceFlightFrameRate_0049ceb4 += adjustment;
+    if (g_fSpaceFlightFrameRate_0049ceb4 < 8.0)
+        g_fSpaceFlightFrameRate_0049ceb4 = 8.0f;
+    else if (g_fSpaceFlightFrameRate_0049ceb4 > 32.0)
+        g_fSpaceFlightFrameRate_0049ceb4 = 32.0f;
     sprintf(g_szSpaceFlightMaxFpsMessage_00486528,
             "Space Flight Max FPS : %.1f",
-            (double)g_fSpaceFlightFrameRate_0046b1cc);
+            (double)g_fSpaceFlightFrameRate_0049ceb4);
     SetHudMessageText(g_szSpaceFlightMaxFpsMessage_00486528, 0x50, 0x14);
     if (DAT_0046b1c8 == 1)
         SetSpaceFlightFrameTiming();
@@ -63,7 +63,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
 void SetWc1SpaceFlightFrameTiming(void)
 {
     DAT_0046b1c8 = 1;
-    DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0046b1cc);
+    DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
     DAT_0046b1bc = 0;
 }
 

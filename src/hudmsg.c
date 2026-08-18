@@ -215,7 +215,7 @@ int HandleSpaceFlightControls(void)
     player_input();
     players_flight_dynamics();
     notRepeated = (signed char)g_bCurrentKey_0046c014 !=
-                  g_cPreviousKey_0046c018;
+                  g_cPreviousKey_0049312c;
     control = GetControlKeyState();
     GetKeyboardModifiers();
     RunWc1FleetOverviewInput();
@@ -263,8 +263,8 @@ int HandleSpaceFlightControls(void)
                     free_view_buffer();
                     SetViewportRect(
                         &g_stViewBuffer_005d2b00, 0, 0,
-                        (short)(g_nScreenWidth_0046daa4 - 1),
-                        (short)(g_nScreenHeight_0046daa8 - 1));
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
                     initialize_view_buffer();
                     g_nCockpitDisplayMode_0049d71c = -2;
                     auto_pilot_sequence();
@@ -351,8 +351,8 @@ int HandleSpaceFlightControls(void)
                     } else {
                         SetViewportRect(
                             &g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
                         initialize_cockpit(
                             g_cScreenViewportMode_005c82a6++);
                         SetMousePosition(
@@ -369,8 +369,8 @@ int HandleSpaceFlightControls(void)
                         free_view_buffer();
                         SetViewportRect(
                             &g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
                         initialize_view_buffer();
                         new_view(0, 0);
                         free_view_buffer();
@@ -392,8 +392,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(2, 0);
             goto restore_normal_viewport;
@@ -405,8 +405,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(1, 0);
             goto restore_normal_viewport;
@@ -418,8 +418,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(3, 0);
             goto restore_normal_viewport;
@@ -431,8 +431,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(4, 0);
             goto restore_normal_viewport;
@@ -444,8 +444,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(14, 0);
             goto restore_normal_viewport;
@@ -459,8 +459,8 @@ int HandleSpaceFlightControls(void)
             }
             free_view_buffer();
             SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                            (short)(g_nScreenWidth_0046daa4 - 1),
-                            (short)(g_nScreenHeight_0046daa8 - 1));
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
             initialize_view_buffer();
             new_view(7, 0);
             goto restore_normal_viewport;
@@ -487,8 +487,8 @@ int HandleSpaceFlightControls(void)
                 free_view_buffer();
                 SetViewportRect(
                     &g_stViewBuffer_005d2b00, 0, 0,
-                    (short)(g_nScreenWidth_0046daa4 - 1),
-                    (short)(g_nScreenHeight_0046daa8 - 1));
+                    (short)(g_nScreenWidth_0049d4d8 - 1),
+                    (short)(g_nScreenHeight_0049d4dc - 1));
                 initialize_view_buffer();
                 force_view(4, (short)g_cViewObject_0049313c);
                 goto restore_normal_viewport;
@@ -1131,7 +1131,7 @@ int RunWc1SpaceFlight(short entryNavPoint)
     unsigned int frameReady;
 
     g_nCockpitDisplayMode_0049d71c = 0;
-    if (g_nTrainSimActive_0049d758 == 0 && DAT_0046507c == 0)
+    if (g_nTrainSimActive_0049d758 == 0 && g_bCockpitEnabled_0049c26c == 0)
         g_nCockpitDisplayMode_0049d71c = 1;
     g_nFrameSkipCountdown_0049d760 = 1;
     g_bInputMode_0059a848 = 1;
@@ -1148,8 +1148,8 @@ int RunWc1SpaceFlight(short entryNavPoint)
     if (g_nCockpitDisplayMode_0049d71c != 0) {
         free_view_buffer();
         SetWc1ViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                           (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                           (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+                           (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                           (unsigned short)(g_nScreenHeight_0049d4dc - 1));
         initialize_view_buffer();
         new_view(0, 0);
         free_view_buffer();
@@ -1238,8 +1238,8 @@ int RunWc1SpaceFlight(short entryNavPoint)
 #endif
     SetCinematicFrameTiming(20.0f);
     SetWc1ViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                       (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                       (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+                       (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                       (unsigned short)(g_nScreenHeight_0049d4dc - 1));
     g_nCockpitDisplayMode_0049d71c = 0;
     if (g_nArcadeState_0049d75c == 1)
         flag_objective(find_objective(1, -1), 2);

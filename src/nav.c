@@ -37,55 +37,55 @@ short g_nNavMapLabelCount_0046870c = 0;
 short g_nNavMapReservedAreaCount_0049bc50 = 0;
 char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
 char *g_apszShipMissionTypeNames_00468728[11] = {
-    g_szMissionPatrol_00468758,
-    g_szMissionEscort_00468760,
-    g_szMissionStrike_00468768,
-    g_szMissionDefend_00468770,
-    g_szMissionWingman_00468778,
-    g_szMissionFlee_00468780,
-    g_szMissionGotoWarp_00468788,
+    g_szMissionPatrol_0049bcb8,
+    g_szMissionEscort_0049bcc0,
+    g_szMissionStrike_0049bcc8,
+    g_szMissionDefend_0049bcd0,
+    g_szMissionWingman_0049bcd8,
+    g_szMissionFlee_0049bce0,
+    g_szMissionGotoWarp_0049bce8,
     g_szMissionWarpArriveError_00468794,
     g_szMissionCannedSequenceError_00468798,
-    g_szMissionRendezvous_0046879c,
+    g_szMissionRendezvous_0049bd00,
     g_szMissionComeHomeError_004687a8
 };
-int g_bInflightComputerActive_00468754 = 0;
-char g_szMissionPatrol_00468758[8] = "Patrol";
-char g_szMissionEscort_00468760[8] = "Escort";
-char g_szMissionStrike_00468768[8] = "Strike";
-char g_szMissionDefend_00468770[8] = "Defend";
-char g_szMissionWingman_00468778[8] = "Wingman";
-char g_szMissionFlee_00468780[8] = "Flee";
-char g_szMissionGotoWarp_00468788[12] = "Goto Warp";
+int g_bInflightComputerActive_0049bcb4 = 0;
+char g_szMissionPatrol_0049bcb8[8] = "Patrol";
+char g_szMissionEscort_0049bcc0[8] = "Escort";
+char g_szMissionStrike_0049bcc8[8] = "Strike";
+char g_szMissionDefend_0049bcd0[8] = "Defend";
+char g_szMissionWingman_0049bcd8[8] = "Wingman";
+char g_szMissionFlee_0049bce0[8] = "Flee";
+char g_szMissionGotoWarp_0049bce8[12] = "Goto Warp";
 char g_szMissionWarpArriveError_00468794[4] = "err";
 char g_szMissionCannedSequenceError_00468798[4] = "err";
-char g_szMissionRendezvous_0046879c[12] = "Rendezvous";
+char g_szMissionRendezvous_0049bd00[12] = "Rendezvous";
 char g_szMissionComeHomeError_004687a8[4] = "err";
-char g_szNavLabelTextFormat_004687ac[12] = "%X%Y%F%s";
-char g_szNavAsteroids_004687b8[12] = "Asteroids";
-char g_szNavMines_004687c4[8] = "Mines";
-char g_szInflightTimeFieldFormat_004687cc[8] = "%02d";
-char g_szStandardTimeFormat_004687d4[24] =
+char g_szNavLabelTextFormat_0049bd30[12] = "%X%Y%F%s";
+char g_szNavAsteroids_0049bd3c[12] = "Asteroids";
+char g_szNavMines_0049bd48[8] = "Mines";
+char g_szInflightTimeFieldFormat_0049bd50[8] = "%02d";
+char g_szStandardTimeFormat_0049bd58[24] =
     "%X%YStandard time %s";
-char g_szStandardTimeBlank_004687ec[4] = " ";
-char g_szInflightTimeSuffixFormat_004687f0[8] = "%02d  ";
-char g_szStandardTimeColon_004687f8[4] = ":";
-char g_szNavLegendNewline_004687fc[4] = "\n";
-char g_szNavMissionFlightPath_00468800[20] = "MISSION FLIGHT PATH";
-char g_szNavHomeBase_00468814[12] = "HOME BASE";
-char g_szNavBlankLine_00468820[4] = "\n";
-char g_szNavTitleFormat_00468824[8] = "%s\n\n";
-char g_szNavSectorFormat_0046882c[12] = "Sector: %s\n";
-char g_szNavSystemFormat_00468838[16] = "System: %s\n\n";
-char g_szNavMissionFormat_00468848[8] = "* %s *\n";
-char g_szNavShipFormat_00468850[8] = "* %s *\n";
-char g_szNavNotesHeading_00468858[8] = "\nNotes\n";
-char g_szNavNoteFormat_00468860[4] = "%s\n";
-char g_szNavLocationFormat_00468864[48] =
+char g_szStandardTimeBlank_0049bd70[4] = " ";
+char g_szInflightTimeSuffixFormat_0049bd74[8] = "%02d  ";
+char g_szStandardTimeColon_0049bd7c[4] = ":";
+char g_szNavLegendNewline_0049bd80[4] = "\n";
+char g_szNavMissionFlightPath_0049bd84[20] = "MISSION FLIGHT PATH";
+char g_szNavHomeBase_0049bd98[12] = "HOME BASE";
+char g_szNavBlankLine_0049bdb0[4] = "\n";
+char g_szNavTitleFormat_0049bdb4[8] = "%s\n\n";
+char g_szNavSectorFormat_0049bdbc[12] = "Sector: %s\n";
+char g_szNavSystemFormat_0049bdc8[16] = "System: %s\n\n";
+char g_szNavMissionFormat_0049bdd8[8] = "* %s *\n";
+char g_szNavShipFormat_0049bde0[8] = "* %s *\n";
+char g_szNavNotesHeading_0049bde8[8] = "\nNotes\n";
+char g_szNavNoteFormat_0049bdf0[4] = "%s\n";
+char g_szNavLocationFormat_0049bdf4[48] =
     "%X%Y                         Location: %d.%d.%d";
-char g_szNavViewportName_00468894[8] = "VSCREEN";
-char g_szBriefingNavMapTitle_0046889c[20] = "Briefing Nav Map";
-char g_szConfedNavScan_004688b0[16] = "ConFed Nav Scan";
+char g_szNavViewportName_0049be30[8] = "VSCREEN";
+char g_szBriefingNavMapTitle_0049be38[20] = "Briefing Nav Map";
+char g_szConfedNavScan_0049be4c[16] = "ConFed Nav Scan";
 volatile short g_nNearHeapActive_00493044 = 0;
 volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
 volatile int g_nNearHeapRelocationBytes_0049304c = 0;
@@ -360,7 +360,7 @@ void DrawNavMapLabels(void)
 
     label = 0;
     while (label < (short)g_nNavMapLabelCount_0046870c) {
-        DrawFormattedText(g_szNavLabelTextFormat_004687ac,
+        DrawFormattedText(g_szNavLabelTextFormat_0049bd30,
                           g_aNavMapLabels_00475e80[label].x,
                           g_aNavMapLabels_00475e80[label].y,
                           g_aNavMapLabels_00475e80[label].colour,
@@ -543,13 +543,13 @@ void BuildMap(short showPlayer)
                                         missionShip->position,
                                         missionShip->speed,
                                         DAT_004699d4, DAT_004699d4,
-                                        g_szNavAsteroids_004687b8);
+                                        g_szNavAsteroids_0049bd3c);
                 } else if (missionShip->type == OBJECT_TYPE_MINE_FIELD) {
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
                                         DAT_004699ac, DAT_004699ac,
-                                        g_szNavMines_004687c4);
+                                        g_szNavMines_0049bd48);
                 }
             }
         }
@@ -620,26 +620,26 @@ void UpdateInflightNavText(short showColon)
     short cursorX;
 
     SetTextContext(&g_stNavMapTextContext_005a8160);
-    sprintf(time, g_szInflightTimeFieldFormat_004687cc,
+    sprintf(time, g_szInflightTimeFieldFormat_0049bd50,
             (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[0]);
     DrawFormattedText(
-        g_szStandardTimeFormat_004687d4,
+        g_szStandardTimeFormat_0049bd58,
         (int)(short)(g_stNavMapTextContext_005a8160.viewport->left + 150),
         (int)(short)(g_stNavMapTextContext_005a8160.viewport->top + 140),
         time);
     cursorX = g_stNavMapTextContext_005a8160.cursorX;
     if (showColon == 0) {
-        DrawFormattedText(g_szStandardTimeBlank_004687ec);
+        DrawFormattedText(g_szStandardTimeBlank_0049bd70);
     } else {
         g_stNavMapTextContext_005a8160.cursorX =
             (short)(g_stNavMapTextContext_005a8160.cursorX + 4);
     }
-    sprintf(time, g_szInflightTimeSuffixFormat_004687f0,
+    sprintf(time, g_szInflightTimeSuffixFormat_0049bd74,
             (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[1]);
     DrawFormattedText(time);
     g_stNavMapTextContext_005a8160.cursorX = cursorX;
     if (showColon != 0)
-        DrawFormattedText(g_szStandardTimeColon_004687f8);
+        DrawFormattedText(g_szStandardTimeColon_0049bd7c);
 }
 
 /* Function start: 0x451637 */
@@ -658,7 +658,7 @@ void DrawSelectedNavLegendEntry(const char *text, short navPoint)
     if ((short)g_cCurrentNavPointIndex_00493298 == navPoint) {
         DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4], text);
         DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4],
-                        g_szNavLegendNewline_004687fc);
+                        g_szNavLegendNewline_0049bd80);
     }
 }
 
@@ -674,10 +674,10 @@ void DrawNavMapLegend(void)
         objective++;
     }
     SetTextCursor((unsigned short)g_stSecondaryViewBuffer_005d2c90.left, 120);
-    DrawSelectedNavLegendEntry(g_szNavMissionFlightPath_00468800,
+    DrawSelectedNavLegendEntry(g_szNavMissionFlightPath_0049bd84,
                                objective);
     DrawSelectedNavLegendEntry(
-        g_szNavHomeBase_00468814,
+        g_szNavHomeBase_0049bd98,
         (short)((short)g_cMissionObjectiveCount_00493294 - 1));
 }
 
@@ -708,28 +708,28 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     g_stNavMapTextContext_005a8160.cursorY = 0;
     SetTextContext(&g_stNavMapTextContext_005a8160);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
-                    g_szNavBlankLine_00468820);
+                    g_szNavBlankLine_0049bdb0);
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
-                    g_szNavTitleFormat_00468824, title);
+                    g_szNavTitleFormat_0049bdb4, title);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
-                    g_szNavSectorFormat_0046882c,
+                    g_szNavSectorFormat_0049bdbc,
                     g_szCampaignSector_00468718);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
-                    g_szNavSystemFormat_00468838,
+                    g_szNavSystemFormat_0049bdc8,
                     g_abSeriesAuxData_005d3c40);
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
-                    g_szNavMissionFormat_00468848,
+                    g_szNavMissionFormat_0049bdd8,
                     g_abMissionAuxData_005d3c10);
     playerMissionType = g_aMissionShips_00492290[
         g_stMissionHeader_005d3e70.playerMissionShip].missionType;
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
-                    g_szNavShipFormat_00468850,
+                    g_szNavShipFormat_0049bde0,
                     g_apszShipMissionTypeNames_00468728[
                         playerMissionType]);
     DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
-                    g_szNavNotesHeading_00468858);
+                    g_szNavNotesHeading_0049bde8);
     DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
-                    g_szNavNoteFormat_00468860,
+                    g_szNavNoteFormat_0049bdf0,
                     nav_note((short)g_cCurrentObjective_004931cc));
     if (showFlightData != 0)
         DrawNavMapLegend();
@@ -738,7 +738,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
         SetScreenClipRect(0, 0, 259, 155);
         SetTextContext(&g_stNavMapTextContext_005a8160);
         DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
-                        g_szNavLocationFormat_00468864,
+                        g_szNavLocationFormat_0049bdf4,
                         8, 142,
                         g_aShipPosition_00494550[0].x,
                         g_aShipPosition_00494550[0].y,
@@ -758,7 +758,7 @@ void BriefingMap_LoadShapes(void)
         FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
-        ReportOutOfMemoryAndExit(g_szNavViewportName_00468894);
+        ReportOutOfMemoryAndExit(g_szNavViewportName_0049be30);
     objective = 0;
     while (objective < (short)g_cMissionObjectiveCount_00493294) {
         LocateMobileObjective(objective);
@@ -775,7 +775,7 @@ void BriefingMap_DisplayMap(void)
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     BriefingMap_LoadShapes();
     g_stScreenViewport_005d21a0.top = 4;
-    DrawNavLocationReadout(g_szBriefingNavMapTitle_0046889c, 0);
+    DrawNavLocationReadout(g_szBriefingNavMapTitle_0049be38, 0);
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     ReleasePacketHandle(g_pNavMapShape_00468708);
     g_pNavMapShape_00468708 = 0;
@@ -849,7 +849,7 @@ void ShowConfedNavScan(void)
 {
     SetRectBounds(&g_stScreenViewport_005d21a0, 30, 22, 289, 177);
     SuspendWc1MouseCursor();
-    DrawNavLocationReadout(g_szConfedNavScan_004688b0, 1);
+    DrawNavLocationReadout(g_szConfedNavScan_0049be4c, 1);
     ResumeMouseCursorHook();
     SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
 }
@@ -879,7 +879,7 @@ void InflightComputer(void)
     done = 0;
     hasObjectives = 0;
     displayedNavPoint = savedNavPoint;
-    g_bInflightComputerActive_00468754 = 1;
+    g_bInflightComputerActive_0049bcb4 = 1;
 #ifdef WC1_SDL
     memcpy(&savedInputState,
            (const void *)&g_stMouseCursorState_0059ab10,
@@ -1005,8 +1005,8 @@ void InflightComputer(void)
     } else {
         free_view_buffer();
         SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                        (unsigned short)(g_nScreenWidth_0046daa4 - 1),
-                        (unsigned short)(g_nScreenHeight_0046daa8 - 1));
+                        (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                        (unsigned short)(g_nScreenHeight_0049d4dc - 1));
         initialize_view_buffer();
         force_view(0, 0);
         g_nCockpitDisplayMode_0049d71c = 1;
@@ -1014,7 +1014,7 @@ void InflightComputer(void)
         SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
         initialize_view_buffer();
     }
-    g_bInflightComputerActive_00468754 = 0;
+    g_bInflightComputerActive_0049bcb4 = 0;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2036,7 +2036,7 @@ void DrawTitleLogo(short distance, short y)
         return;
     scale = (short)(0x1000 / distance);
     GetTransformedShapeBounds(&g_stViewBuffer_005d2b00,
-                              (short)(g_nScreenWidth_0046daa4 >> 1), y,
+                              (short)(g_nScreenWidth_0049d4d8 >> 1), y,
                               g_pTitleShape_005a7f08, 1, 0, scale, 0,
                               bounds);
 #ifdef WC1_SDL
@@ -2049,11 +2049,11 @@ void DrawTitleLogo(short distance, short y)
 #ifdef WC1_SDL
     if (!Wc1SdlRecordSpaceSprite(
             &g_stViewBuffer_005d2b00,
-            (short)(g_nScreenWidth_0046daa4 >> 1), y,
+            (short)(g_nScreenWidth_0049d4d8 >> 1), y,
             g_pTitleShape_005a7f08, 1, 0, scale, 0))
 #endif
         DrawSpriteScaled(&g_stViewBuffer_005d2b00,
-                         (short)(g_nScreenWidth_0046daa4 >> 1), y,
+                         (short)(g_nScreenWidth_0049d4d8 >> 1), y,
                          g_pTitleShape_005a7f08, 1, 0, scale, 0);
 #ifdef WC1_SDL
     if (!Wc1SdlRecordSpaceSprite(
@@ -2104,7 +2104,7 @@ int RunWc1TitleSequence(void)
     signed char selectedIndex;
 
     state = 0;
-    if (DAT_0046506c != 0)
+    if (g_bApplicationControllerActive_0049c25c != 0)
         g_nIntroCreditCount_00468a30 += 9;
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         PreloadMusicTrackHook(0x17);

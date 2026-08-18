@@ -75,7 +75,7 @@ int RunWc1GameMain(short argc, char **argv)
                     DAT_00469ffc = 0;
                     break;
                 case 'q':
-                    DAT_00465074 = 0;
+                    g_bConfigQuickModeEnabled_0049c264 = 0;
                     break;
                 }
             }
@@ -177,7 +177,7 @@ int RunWc1GameMain(short argc, char **argv)
 #endif
 #ifdef WC1_SDL
         /* Use the normal campaign setup unless cockpitless mode was requested. */
-        if (DAT_0046507c != 0)
+        if (g_bCockpitEnabled_0049c26c != 0)
             LaunchPlayerShip();
 #endif
         RunSpaceFlight(g_nMissionEntryNavOverride_0049d790);
@@ -358,7 +358,7 @@ void initialize_view_buffer(void)
     if (g_bSpaceViewBufferEnabled_0049d7a4 != 0 && g_stViewBuffer_005d2b00.pixels == 0) {
         if (AllocateViewport(&g_stViewBuffer_005d2b00, (short)g_cPrimaryViewBufferColour_0049cb88,
                              0x20) == 0)
-            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0046a1d0);
+            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0049d978);
     }
     return 0;
 #else
@@ -370,7 +370,7 @@ void initialize_view_buffer(void)
             &g_stViewBuffer_005d2b00,
             (short)g_cPrimaryViewBufferColour_0049cb88, 0x20);
         if (allocated == 0)
-            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0046a1d0);
+            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0049d978);
     }
 #endif
 }
@@ -431,7 +431,7 @@ void InitializeConversationViewport(void)
     g_stSecondaryViewBuffer_005d2c90.bottom = 127;
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportPacketLoadError(0, 0, 0, 0,
-                              g_szAllocateBufferTag_0046a1e0);
+                              g_szAllocateBufferTag_0049ae20);
 #if 0
     return 0;
 #endif
@@ -617,8 +617,8 @@ void get_player_input(void)
     InputDeviceSample *sample;
 
     if (g_nActiveInputDevice_005a819c != -1 &&
-        g_bInputPollingGuard_0046a01c == 0) {
-        g_bInputPollingGuard_0046a01c++;
+        g_bInputPollingGuard_005d304c == 0) {
+        g_bInputPollingGuard_005d304c++;
         UpdateInputDeviceTransitions(0);
         device = (int)g_nActiveInputDevice_005a819c;
         sample = &g_aInputDeviceSamples_005a81f0[device];
@@ -630,7 +630,7 @@ void get_player_input(void)
                 TranslatePolledInputEvent(6, 0);
                 device = (int)g_nActiveInputDevice_005a819c;
                 sample = &g_aInputDeviceSamples_005a81f0[device];
-                g_bInputPollingGuard_0046a01c--;
+                g_bInputPollingGuard_005d304c--;
                 g_stLastPolledFlightInput_0046a020 = *sample;
                 return;
             }
@@ -640,7 +640,7 @@ void get_player_input(void)
             sample = &g_aInputDeviceSamples_005a81f0[device];
             g_stLastPolledFlightInput_0046a020 = *sample;
         }
-        g_bInputPollingGuard_0046a01c--;
+        g_bInputPollingGuard_005d304c--;
     }
 }
 
@@ -703,7 +703,7 @@ int process_player_input(void)
                     g_nRollInput_0059d3f4 = -9;
                 if (g_nRollInput_0059d3f4 > -9)
                     g_nRollInput_0059d3f4--;
-                else if (g_cPreviousKey_0046c018 < 0)
+                else if (g_cPreviousKey_0049312c < 0)
                     g_nRollInput_0059d3f4--;
                 else
                     g_nRollInput_0059d3f4++;
@@ -719,7 +719,7 @@ int process_player_input(void)
                     g_nRollInput_0059d3f4 = 9;
                 if (g_nRollInput_0059d3f4 < 9)
                     g_nRollInput_0059d3f4++;
-                else if (g_cPreviousKey_0046c018 < 0)
+                else if (g_cPreviousKey_0049312c < 0)
                     g_nRollInput_0059d3f4++;
                 else
                     g_nRollInput_0059d3f4--;
@@ -733,7 +733,7 @@ int process_player_input(void)
                 if (shift != 0)
                     g_nPitchInput_0059d3f0 = 9;
                 if (g_nPitchInput_0059d3f0 < 9 ||
-                    g_cPreviousKey_0046c018 < 0) {
+                    g_cPreviousKey_0049312c < 0) {
                     g_bMouseCursorVisible_0046a018 = 0;
                     g_nPitchInput_0059d3f0++;
                 } else {
@@ -771,7 +771,7 @@ int process_player_input(void)
                     g_nYawInput_0059d3f2 = -9;
                 if (g_nYawInput_0059d3f2 > -9)
                     g_nYawInput_0059d3f2--;
-                else if (g_cPreviousKey_0046c018 < 0)
+                else if (g_cPreviousKey_0049312c < 0)
                     g_nYawInput_0059d3f2--;
                 else
                     g_nYawInput_0059d3f2++;
@@ -807,7 +807,7 @@ int process_player_input(void)
                     g_nYawInput_0059d3f2 = 9;
                 if (g_nYawInput_0059d3f2 < 9)
                     g_nYawInput_0059d3f2++;
-                else if (g_cPreviousKey_0046c018 < 0)
+                else if (g_cPreviousKey_0049312c < 0)
                     g_nYawInput_0059d3f2++;
                 else
                     g_nYawInput_0059d3f2--;
@@ -822,7 +822,7 @@ int process_player_input(void)
                     g_nPitchInput_0059d3f0 = -9;
                 if (g_nPitchInput_0059d3f0 > -9)
                     g_nPitchInput_0059d3f0--;
-                else if (g_cPreviousKey_0046c018 < 0)
+                else if (g_cPreviousKey_0049312c < 0)
                     g_nPitchInput_0059d3f0--;
                 else {
                     g_bMouseCursorVisible_0046a018 = 0;
@@ -919,7 +919,7 @@ unsigned int player_input(void)
     unsigned int buttons;
     unsigned int key;
 
-    g_cPreviousKey_0046c018 = (signed char)g_bCurrentKey_0046c014;
+    g_cPreviousKey_0049312c = (signed char)g_bCurrentKey_0046c014;
     g_nPreviousYawInput_0059ce72 = g_nYawInput_0059d3f2;
     g_nPreviousPitchInput_0059ce70 = g_nPitchInput_0059d3f0;
     g_nPreviousRollInput_0059ce74 = g_nRollInput_0059d3f4;
@@ -973,8 +973,8 @@ unsigned int player_input(void)
                 fire_players_lasers();
             }
             if ((buttons & 2) == 0)
-                g_cPreviousKey_0046c018 = 0;
-            if (g_cPreviousKey_0046c018 == 0x0f && buttons == 2)
+                g_cPreviousKey_0049312c = 0;
+            if (g_cPreviousKey_0049312c == 0x0f && buttons == 2)
                 g_bCurrentKey_0046c014 = 0x0f;
             if (buttons == 1)
                 fire_players_lasers();
@@ -1004,7 +1004,7 @@ unsigned int player_input(void)
                     g_bCurrentKey_0046c014 = 0x0f;
                 g_bAfterburnerButtonLatched_0046a054 = 1;
             }
-            if (g_cPreviousKey_0046c018 == 0x0f &&
+            if (g_cPreviousKey_0049312c == 0x0f &&
                 (short)event.value == 2)
                 g_bCurrentKey_0046c014 = 0x0f;
             if ((short)event.value == 1)
@@ -1064,7 +1064,7 @@ unsigned int player_input(void)
             if (g_asInputButton2DoubleClick_0059e520[
                     g_nActiveInputDevice_005a819c] != 0)
                 g_bCurrentKey_0046c014 = 0x0f;
-            if (g_cPreviousKey_0046c018 == 0x0f &&
+            if (g_cPreviousKey_0049312c == 0x0f &&
                 (g_stLastPolledFlightInput_0046a020.buttons & 2) != 0)
                 g_bCurrentKey_0046c014 = 0x0f;
             break;
@@ -1226,7 +1226,7 @@ unsigned int RunWc1FleetOverviewInput(void)
         g_bCurrentKey_0046c014 = 0x29;
         break;
     case 0x47:
-        g_nCapitalShipViewDistance_00468ff4 -= 0x3200;
+        g_nCapitalShipViewDistance_00492fa4 -= 0x3200;
         break;
     case 0x48:
         rotate_about_i(-7,
@@ -1244,7 +1244,7 @@ unsigned int RunWc1FleetOverviewInput(void)
                        &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         break;
     case 0x4f:
-        g_nCapitalShipViewDistance_00468ff4 += 0x3200;
+        g_nCapitalShipViewDistance_00492fa4 += 0x3200;
         break;
     case 0x50:
         rotate_about_i(7,

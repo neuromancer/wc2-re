@@ -55,14 +55,14 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
     while (argumentIndex < argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "$#SAGA.EXE") == 0)
-            DAT_0046506c = 1;
+            g_bApplicationControllerActive_0049c25c = 1;
         command = argument[0] == '-' ? argument[1] : argument[0];
         switch (command) {
         case 'b':
             *(unsigned char *)&DAT_0046a000 = 0;
             break;
         case 'c':
-            DAT_0046507c = 0;
+            g_bCockpitEnabled_0049c26c = 0;
             break;
         case 'f':
             DAT_00465070 = 1;
@@ -71,7 +71,7 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
             *(unsigned char *)&DAT_00469ffc = 0;
             break;
         case 'q':
-            DAT_00465074 = 0;
+            g_bConfigQuickModeEnabled_0049c264 = 0;
             break;
         default:
             break;

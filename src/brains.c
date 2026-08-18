@@ -975,7 +975,7 @@ void perform_maneuver(short obj)
     else
 #endif
         g_bCurrentManeuverReroll_00475e7c =
-            g_abManeuverRerollChance_00465678[previous];
+            g_abManeuverRerollChance_0049b538[previous];
 #ifdef WC1_SDL
     /* The original reaches the same completion path only after calculating
        geometry for target -1.  Those reads alias the globals immediately

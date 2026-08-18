@@ -566,14 +566,14 @@ void CheckLauncherAndConfig(void)
             char command;
 
             if (memcmp(option, "$#SAGA.EXE", 11) == 0)
-                DAT_0046506c = 1;
+                g_bApplicationControllerActive_0049c25c = 1;
             command = option[0] == '-' ? option[1] : option[0];
             switch (command) {
             case 'b':
                 *(unsigned char *)&DAT_0046a000 = 0;
                 break;
             case 'c':
-                DAT_0046507c = 0;
+                g_bCockpitEnabled_0049c26c = 0;
                 break;
             case 'f':
                 DAT_00465070 = 1;
@@ -582,7 +582,7 @@ void CheckLauncherAndConfig(void)
                 *(unsigned char *)&DAT_00469ffc = 0;
                 break;
             case 'q':
-                DAT_00465074 = 0;
+                g_bConfigQuickModeEnabled_0049c264 = 0;
                 break;
             }
             if (config == 0)

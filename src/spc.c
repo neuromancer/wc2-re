@@ -10,7 +10,7 @@
 
 #pragma function(abs)
 
-int g_nCapitalShipViewDistance_00468ff4 = 0x7d000;
+int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
 unsigned char g_bLandingAuthorized_00468ff8 = 0;
 short g_bAlternateChaseView_00492fac = 0;
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;

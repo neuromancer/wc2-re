@@ -6185,7 +6185,7 @@ __declspec(naked) void SetPaletteTranslationTable(
         push ds
         pop es
         mov esi, dword ptr [ebp + 8]
-        mov edi, offset g_abRasterPaletteTranslation_0046ff2c
+        mov edi, offset g_abRasterPaletteTranslation_00491b08
         mov ecx, 0x40
         rep movsd
         pop es
@@ -6434,7 +6434,7 @@ color_43b084:
         xor eax,eax
         mov al,byte ptr [esi]
         inc esi
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         push ecx
         and ecx,0x3
         rep stosb
@@ -6462,16 +6462,16 @@ color_43b0b5:
         jl color_43b0fe
 color_43b0c0:
         mov al,byte ptr [esi]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi],al
         mov al,byte ptr [esi + 0x1]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x1],al
         mov al,byte ptr [esi + 0x2]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x2],al
         mov al,byte ptr [esi + 0x3]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x3],al
         add esi,0x4
         add edi,0x4
@@ -6481,7 +6481,7 @@ color_43b0c0:
         jge color_43b0c0
 color_43b0fe:
         mov al,byte ptr [esi]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi],al
         inc esi
         inc edi
@@ -6599,7 +6599,7 @@ color_43b1de:
         xor eax,eax
         mov al,byte ptr [esi]
         inc esi
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         push ecx
         and ecx,0x3
         rep stosb
@@ -6638,16 +6638,16 @@ color_43b22d:
         jl color_43b28e
 color_43b250:
         mov al,byte ptr [esi]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi],al
         mov al,byte ptr [esi + 0x1]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x1],al
         mov al,byte ptr [esi + 0x2]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x2],al
         mov al,byte ptr [esi + 0x3]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 0x3],al
         add esi,0x4
         add edi,0x4
@@ -6657,7 +6657,7 @@ color_43b250:
         jge color_43b250
 color_43b28e:
         mov al,byte ptr [esi]
-        mov al,byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al,byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi],al
         inc esi
         inc edi
@@ -6815,7 +6815,7 @@ color_solid:
         xor eax, eax
         mov al, byte ptr [esi]
         inc esi
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         push ecx
         and ecx, 3
         rep stosb
@@ -6842,16 +6842,16 @@ color_literal:
         jl color_literal_tail
 color_literal_four:
         mov al, byte ptr [esi]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi], al
         mov al, byte ptr [esi + 1]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 1], al
         mov al, byte ptr [esi + 2]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 2], al
         mov al, byte ptr [esi + 3]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi + 3], al
         add esi, 4
         add edi, 4
@@ -6861,7 +6861,7 @@ color_literal_four:
         jge color_literal_four
 color_literal_tail:
         mov al, byte ptr [esi]
-        mov al, byte ptr g_abRasterPaletteTranslation_0046ff2c[eax]
+        mov al, byte ptr g_abRasterPaletteTranslation_00491b08[eax]
         mov byte ptr [edi], al
         inc esi
         inc edi
@@ -6975,8 +6975,8 @@ __declspec(naked) void EncodeRLEScanline(
         cld
         push ds
         pop es
-        mov esi, dword ptr g_pRLEScanlineStart_0046e6e5
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov esi, dword ptr g_pRLEScanlineStart_004902c1
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 0
         push 0
@@ -7005,7 +7005,7 @@ encode_classify:
         jz encode_solid_run
         cmp ah, byte ptr [ebp + 0ch]
         jnz encode_literal_scan
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 1
         push 1
@@ -7022,7 +7022,7 @@ encode_literal_scan:
         xor ah, al
         cmp ah, byte ptr [ebp + 0ch]
         jnz encode_literal_pair
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 1
         push 1
@@ -7041,7 +7041,7 @@ encode_literal_pair:
         xor ah, al
         cmp ah, byte ptr [ebp + 0ch]
         jnz encode_literal_triplet
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 1
         push 1
@@ -7051,7 +7051,7 @@ encode_literal_pair:
 encode_literal_triplet:
         or al, al
         jnz encode_literal_scan
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 3
         push 1
@@ -7067,7 +7067,7 @@ encode_solid_run:
         xor al, ah
         jz encode_solid_run
         xor ah, al
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 1
         push 2
@@ -7085,7 +7085,7 @@ encode_transparent_run:
         xor al, ah
         jz encode_transparent_run
         xor ah, al
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 1
         push 3
@@ -7093,7 +7093,7 @@ encode_transparent_run:
         add esp, 0ch
         jmp encode_classify
 encode_finish_line:
-        mov dword ptr g_pRLEScanCursor_0046e6e9, esi
+        mov dword ptr g_pRLEScanCursor_004902c5, esi
         push dword ptr [ebp + 10h]
         push 0
         push dword ptr [ebp - 4]
@@ -7131,7 +7131,7 @@ __declspec(naked) void EmitRLEScanlineRun(
         push eax
         push ecx
         mov esi, dword ptr g_pRLELiteralStart_0046e6f1
-        mov edi, dword ptr g_pRLEOutputCursor_0046e6ed
+        mov edi, dword ptr g_pRLEOutputCursor_004902c9
         mov eax, dword ptr [ebp + 8]
         cmp eax, 2
         jz emit_solid
@@ -7144,12 +7144,12 @@ __declspec(naked) void EmitRLEScanlineRun(
         cmp eax, 0
         jnz emit_done
         xor eax, eax
-        mov dword ptr g_nRLEPendingSkip_0046e6e1, eax
-        mov esi, dword ptr g_pRLEScanCursor_0046e6e9
+        mov dword ptr g_nRLEPendingSkip_004902bd, eax
+        mov esi, dword ptr g_pRLEScanCursor_004902c5
         mov dword ptr g_pRLELiteralStart_0046e6f1, esi
         jmp emit_done
 emit_solid:
-        mov ebx, dword ptr g_nRLEPendingSkip_0046e6e1
+        mov ebx, dword ptr g_nRLEPendingSkip_004902bd
         or ebx, ebx
         jz emit_solid_bounds
 emit_solid_skip_chunks:
@@ -7159,7 +7159,7 @@ emit_solid_skip_chunks:
         mov ecx, 0ffh
 emit_solid_skip_ready:
         sub ebx, ecx
-        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        cmp dword ptr g_pRLEEncodeBuffer_004902b9, 0
         jz emit_solid_skip_advance
         mov al, 1
         mov byte ptr [edi], al
@@ -7174,14 +7174,14 @@ emit_solid_skip_input:
         add esi, ecx
         or ebx, ebx
         jnz emit_solid_skip_chunks
-        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+        mov dword ptr g_nRLEPendingSkip_004902bd, ebx
 emit_solid_bounds:
-        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        mov ebx, dword ptr g_pRLEScanCursor_004902c5
         sub ebx, esi
         sub ebx, dword ptr [ebp + 0ch]
         mov eax, dword ptr [ebp + 10h]
         add eax, esi
-        sub eax, dword ptr g_pRLEScanlineStart_0046e6e5
+        sub eax, dword ptr g_pRLEScanlineStart_004902c1
         cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
         jge emit_solid_maximum
         mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
@@ -7198,7 +7198,7 @@ emit_solid_next_chunk:
         jl emit_solid_chunk_ready
         mov ecx, 7fh
 emit_solid_chunk_ready:
-        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        cmp dword ptr g_pRLEEncodeBuffer_004902b9, 0
         jz emit_solid_chunk_advance
         mov al, cl
         add al, al
@@ -7218,7 +7218,7 @@ emit_solid_chunks:
         jnz emit_solid_next_chunk
         jmp emit_done
 emit_literal:
-        mov ebx, dword ptr g_nRLEPendingSkip_0046e6e1
+        mov ebx, dword ptr g_nRLEPendingSkip_004902bd
         or ebx, ebx
         jz emit_literal_bounds
 emit_literal_skip_chunks:
@@ -7228,7 +7228,7 @@ emit_literal_skip_chunks:
         mov ecx, 0ffh
 emit_literal_skip_ready:
         sub ebx, ecx
-        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        cmp dword ptr g_pRLEEncodeBuffer_004902b9, 0
         jz emit_literal_skip_advance
         mov al, 1
         mov byte ptr [edi], al
@@ -7243,14 +7243,14 @@ emit_literal_skip_input:
         add esi, ecx
         or ebx, ebx
         jnz emit_literal_skip_chunks
-        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+        mov dword ptr g_nRLEPendingSkip_004902bd, ebx
 emit_literal_bounds:
-        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        mov ebx, dword ptr g_pRLEScanCursor_004902c5
         sub ebx, esi
         sub ebx, dword ptr [ebp + 0ch]
         mov eax, dword ptr [ebp + 10h]
         add eax, esi
-        sub eax, dword ptr g_pRLEScanlineStart_0046e6e5
+        sub eax, dword ptr g_pRLEScanlineStart_004902c1
         cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
         jge emit_literal_maximum
         mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
@@ -7271,7 +7271,7 @@ emit_literal_chunk_ready:
         mov al, cl
         add al, al
         inc al
-        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        cmp dword ptr g_pRLEEncodeBuffer_004902b9, 0
         jz emit_literal_chunk_advance
         mov byte ptr [edi], al
         inc edi
@@ -7288,14 +7288,14 @@ emit_literal_chunks:
         jnz emit_literal_next_chunk
         jmp emit_done
 emit_defer_skip:
-        mov ebx, dword ptr g_pRLEScanCursor_0046e6e9
+        mov ebx, dword ptr g_pRLEScanCursor_004902c5
         sub ebx, esi
         sub ebx, dword ptr [ebp + 0ch]
-        mov dword ptr g_nRLEPendingSkip_0046e6e1, ebx
+        mov dword ptr g_nRLEPendingSkip_004902bd, ebx
         jmp emit_done
 emit_end_line:
         xor eax, eax
-        cmp dword ptr g_pRLEEncodeBuffer_0046e6dd, 0
+        cmp dword ptr g_pRLEEncodeBuffer_004902b9, 0
         jz emit_end_advance
         mov byte ptr [edi], al
         inc edi
@@ -7303,7 +7303,7 @@ emit_end_line:
 emit_end_advance:
         inc edi
 emit_done:
-        mov dword ptr g_pRLEOutputCursor_0046e6ed, edi
+        mov dword ptr g_pRLEOutputCursor_004902c9, edi
         mov dword ptr g_pRLELiteralStart_0046e6f1, esi
         pop ecx
         pop eax

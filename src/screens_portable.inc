@@ -16,8 +16,8 @@ char *CopyRasterDriverName(void *const *callbacks)
     const char *(*getName)(void);
 
     getName = (const char *(*)(void))callbacks[0];
-    strcpy(g_szRasterDriverName_0046e6d0, getName());
-    return g_szRasterDriverName_0046e6d0;
+    strcpy(g_szRasterDriverName_004902ac, getName());
+    return g_szRasterDriverName_004902ac;
 }
 
 void InstallRasterDriverCallbacks(void *const *callbacks)
@@ -135,7 +135,7 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1,
             if (mode == 0)
                 *pixel = (unsigned char)colour;
             else if (mode == 1)
-                *pixel = g_abRasterPaletteTranslation_0046ff2c[*pixel];
+                *pixel = g_abRasterPaletteTranslation_00491b08[*pixel];
         }
         if (x1 == x2 && y1 == y2) {
             done = 1;
@@ -336,7 +336,7 @@ int DrawRLEImageUnclipped(RasterClip *clip, RLEFrameHeader *header,
 
 void SetPaletteTranslationTable(const unsigned char *translation)
 {
-    memcpy(g_abRasterPaletteTranslation_0046ff2c, translation, 256);
+    memcpy(g_abRasterPaletteTranslation_00491b08, translation, 256);
 }
 
 int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
@@ -396,7 +396,7 @@ int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
                     while (count-- != 0) {
                         unsigned char value;
 
-                        value = g_abRasterPaletteTranslation_0046ff2c[*commands++];
+                        value = g_abRasterPaletteTranslation_00491b08[*commands++];
                         if (drawX >= clipLeft && drawX <= clipRight &&
                             drawY >= clipTop && drawY <= clipBottom)
                             surface->pixels[drawY * width + drawX] = value;
@@ -405,7 +405,7 @@ int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
                 } else {
                     unsigned char value;
 
-                    value = g_abRasterPaletteTranslation_0046ff2c[*commands++];
+                    value = g_abRasterPaletteTranslation_00491b08[*commands++];
                     while (count-- != 0) {
                         if (drawX >= clipLeft && drawX <= clipRight &&
                             drawY >= clipTop && drawY <= clipBottom)
@@ -458,11 +458,11 @@ int DrawRLEImageColorUnclipped(RasterClip *clip, RLEFrameHeader *header,
                 if ((command & 1) != 0) {
                     while (count-- != 0)
                         *destination++ =
-                            g_abRasterPaletteTranslation_0046ff2c[*commands++];
+                            g_abRasterPaletteTranslation_00491b08[*commands++];
                 } else {
                     unsigned char value;
 
-                    value = g_abRasterPaletteTranslation_0046ff2c[*commands++];
+                    value = g_abRasterPaletteTranslation_00491b08[*commands++];
                     memset(destination, value, count);
                     destination += count;
                 }

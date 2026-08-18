@@ -27,7 +27,7 @@ unsigned int PollKeyboardState(void)
     g_nClearKeyState_00475c08 = GetAsyncKeyState(VK_CLEAR);
     g_nOemPeriodKeyState_00475bf0 = GetAsyncKeyState(0xbe);
     g_nOemCommaKeyState_00475bfc = GetAsyncKeyState(0xbc);
-    g_nInsertKeyState_00475b68 = GetAsyncKeyState(VK_INSERT);
+    g_nInsertKeyState_004a2544 = GetAsyncKeyState(VK_INSERT);
     g_nDeleteKeyState_00475c0c = GetAsyncKeyState(VK_DELETE);
 
     if (g_nHomeKeyState_00475bf4 != 0)
@@ -38,7 +38,7 @@ unsigned int PollKeyboardState(void)
         return 0x4f;
     if (g_nPageDownKeyState_00475bf8 != 0)
         return 0x51;
-    if (g_nInsertKeyState_00475b68 != 0 ||
+    if (g_nInsertKeyState_004a2544 != 0 ||
         g_nOemCommaKeyState_00475bfc != 0)
         return 0x52;
     if (g_nDeleteKeyState_00475c0c != 0 ||

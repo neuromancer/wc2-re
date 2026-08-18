@@ -541,7 +541,7 @@ short RecRoom(void)
     SetViewportRect(&bottomDestination, 0, 187, 319, 199);
     g_pRecRoomBackgroundShape_00598a50 =
         FetchDiskPacketRetrying(5, 0, 0);
-    g_nMenuPointerSpeed_0046af58 = 1;
+    g_nMenuPointerSpeed_00493054 = 1;
     g_bInputMode_0059a848 = 1;
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomDisplayViewport_00598a60;
 
@@ -792,7 +792,7 @@ short RecRoom(void)
         DIBslamReal();
     }
 
-    g_nMenuPointerSpeed_0046af58 = 2;
+    g_nMenuPointerSpeed_00493054 = 2;
     g_nMenuInputRepeatDelay_005a8208 =
         g_nSavedRoomControllerX_005988b4;
     EventManagerHook(0);
@@ -1081,7 +1081,7 @@ void CheckHeapBlockSignature(unsigned char *shape)
 {
 #if 0
     if (*(int *)(shape - 8) != 0x6666656a)
-        exit_squadron(g_szInvalidShapeAllocation_00470d18);
+        exit_squadron(g_szInvalidShapeAllocation_004969ec);
 #else
     if (*(int *)(shape - 8) != 0x6666656a) {
         if (IsFreedHeapBlockTracked(shape) != 0)
