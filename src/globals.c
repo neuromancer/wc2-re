@@ -656,15 +656,15 @@ const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
 };
 short g_bSceneAnimationWaitCommand_00469d70;
 const char g_szSceneAnimationTextFormat_00469d74[12] = "%X%Y%F%s%P";
-const char g_szMeanwhile_00469d80_WC1_UNMAPPED[16] = "Meanwhile...";
-const char g_szEmptyAnswerInput_00469d90_WC1_UNMAPPED[4] = "";
-const char g_szAnswerLabel_00469d94_WC1_UNMAPPED[9] = "Answer: ";
-Viewport g_stTrainSimPanelViewport_00469da8_WC1_UNMAPPED;
-const ShortRect g_stTrainSimPanelBounds_00469dc0_WC1_UNMAPPED = {
+const char g_szMeanwhile_00469d80_WC1_UNMAPPED /* no-address */[16] = "Meanwhile...";
+const char g_szEmptyAnswerInput_00469d90_WC1_UNMAPPED /* no-address */[4] = "";
+const char g_szAnswerLabel_00469d94_WC1_UNMAPPED /* no-address */[9] = "Answer: ";
+Viewport g_stTrainSimPanelViewport_00469da8_WC1_UNMAPPED /* no-address */;
+const ShortRect g_stTrainSimPanelBounds_00469dc0_WC1_UNMAPPED /* no-address */ = {
     0x30, 0x1d, 0x110, 0x6d
 };
-const char g_szTrainSimTitle_00469dc8_WC1_UNMAPPED[24] = "SQUADRON: TRAINSIM";
-unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED[6] = {
+const char g_szTrainSimTitle_00469dc8_WC1_UNMAPPED /* no-address */[24] = "SQUADRON: TRAINSIM";
+unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED /* no-address */[6] = {
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[0],
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[8],
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[16],
@@ -672,7 +672,7 @@ unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED[6] = {
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[32],
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[40]
 };
-TitleMenuRegion g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED[5] = {
+TitleMenuRegion g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED /* no-address */[5] = {
     { 1, 47, 29, 67, 49 },
     { 1, 47, 89, 67, 109 },
     { 1, 251, 29, 271, 49 },
@@ -680,43 +680,43 @@ TitleMenuRegion g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED[5] = {
     { -1, 0, 0, 0, 0 }
 };
 int g_nTrainSimActive_0049d758;
-short g_nTrainSimMission_00469e30_WC1_UNMAPPED;
-short g_nArcadeWave_00469e34_WC1_UNMAPPED;
-unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[48] =
+short g_nTrainSimMission_00469e30_WC1_UNMAPPED /* no-address */;
+short g_nArcadeWave_00469e34_WC1_UNMAPPED /* no-address */;
+unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED /* no-address */[48] =
     "BISHOP\0\0"
     "GOBLIN\0\0"
     "JEFFTEP\0"
     "MANGLER\0"
     "THE MAN\0"
     "MONGO\0\0\0";
-unsigned int g_dwTrainSimStringPadding_00469e68_WC1_UNMAPPED;
-const char g_szTextFlushToken_00469e6c_WC1_UNMAPPED[4] = "%P";
-const char g_szNewPilotPrompt_00469e70_WC1_UNMAPPED[80] =
+unsigned int g_dwTrainSimStringPadding_00469e68_WC1_UNMAPPED /* no-address */;
+const char g_szTextFlushToken_00469e6c_WC1_UNMAPPED /* no-address */[4] = "%P";
+const char g_szNewPilotPrompt_00469e70_WC1_UNMAPPED /* no-address */[80] =
     "CONGRATULATIONS!\n"
     "YOU HAVE A TOP SCORE!\n"
     "PLEASE ENTER YOUR\n"
     "NAME AND CALLSIGN:\n";
 const char g_szDefaultPilotName_0049ab4c[8] = "Blair";
-const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED[12] = "LAST NAME: ";
+const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED /* no-address */[12] = "LAST NAME: ";
 const char g_szDefaultCallsign_0049ab54[12] = "Maverick";
-const char g_szCallsignLabel_00469ee0_WC1_UNMAPPED[12] = "CALLSIGN : ";
-const char g_szCheaterCallsign_00469eec_WC1_UNMAPPED[8] = "CHEATER";
-const char g_szHighScoreCongratulations_00469ef4_WC1_UNMAPPED[68] =
+const char g_szCallsignLabel_00469ee0_WC1_UNMAPPED /* no-address */[12] = "CALLSIGN : ";
+const char g_szCheaterCallsign_00469eec_WC1_UNMAPPED /* no-address */[8] = "CHEATER";
+const char g_szHighScoreCongratulations_00469ef4_WC1_UNMAPPED /* no-address */[68] =
     "*******\n"
     "CONGRATULATIONS!\n"
     "YOU HAVE SCORE NUMBER\n"
     ">>>> %d <<<<\n"
     "*******";
-const char g_szLowScoreMessage_00469f38_WC1_UNMAPPED[56] =
+const char g_szLowScoreMessage_00469f38_WC1_UNMAPPED /* no-address */[56] =
     "> SORRY <\n\n"
     "YOUR SCORE IS ONLY\n"
     "%ld0\n\n"
     "PLEASE PLAY AGAIN!";
-const char g_szHighScoresHeading_00469f70_WC1_UNMAPPED[16] = "%JHIGH SCORES%P";
-const char g_szHighScoreNumberFormat_00469f80_WC1_UNMAPPED[8] = "%0ld";
-const char g_szHighScoreRowFormat_00469f88_WC1_UNMAPPED[16] =
+const char g_szHighScoresHeading_00469f70_WC1_UNMAPPED /* no-address */[16] = "%JHIGH SCORES%P";
+const char g_szHighScoreNumberFormat_00469f80_WC1_UNMAPPED /* no-address */[8] = "%0ld";
+const char g_szHighScoreRowFormat_00469f88_WC1_UNMAPPED /* no-address */[16] =
     "%X%Y%d. %s%X%s0";
-const char g_szSelectEnemy_00469f98_WC1_UNMAPPED[16] = "SELECT\nENEMY%P";
+const char g_szSelectEnemy_00469f98_WC1_UNMAPPED /* no-address */[16] = "SELECT\nENEMY%P";
 short g_nCannedSceneMode_0049021c;
 const char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
 short g_nCannedSceneBufferNearCapacityFlag_00490214;
@@ -1034,8 +1034,8 @@ short g_nCommDeathSequenceFrame_0049ae84;
 short g_nWeaponDisplayOffsetX_0049ae8c;
 short g_nWeaponDisplayOffsetY_0049ae8e = 0x10;
 short g_nMissionEntryNavOverride_0049d790 = -1;
-short g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED;
-int g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED;
+short g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED /* no-address */;
+int g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED /* no-address */;
 const short g_asMouseYawThresholds_0049d7d8[6] = {
     10, 37, 52, 57, 62, 1070
 };
@@ -1085,8 +1085,8 @@ const short g_asConstellationFrame_0049cb00[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0049cb20 = -1;
-unsigned char *g_pPacketDecompressionWorkspace_0046a91c_WC1_UNMAPPED;
-unsigned short g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED;
+unsigned char *g_pPacketDecompressionWorkspace_0046a91c_WC1_UNMAPPED /* no-address */;
+unsigned short g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED /* no-address */;
 unsigned short g_wPacketCompressionFormatFlags_0049b46c;
 const ShortRect g_aTargetArmorClipRects_0049b470[4] = {
     { 12, -20, 29, 20 },
