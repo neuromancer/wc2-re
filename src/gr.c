@@ -1507,10 +1507,19 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            int angle, int scaleX, int scaleY,
                            int flip, int blendMode)
 {
+    LARGE_INTEGER prepareStart;
+    LARGE_INTEGER prepareEnd;
+    LARGE_INTEGER clipEnd;
+    LARGE_INTEGER drawEnd;
+
     if (shape != 0 && frame >= 0 && viewport->pixels != 0 &&
-        viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape)) {
+        viewport->rowOffsets != 0 && frame < GetShapeFrameCount(shape) &&
+        viewport->left >= 0) {
+        ReadPerformanceCounter(&prepareStart);
         PrepareShapeRLEData(shape);
+        ReadPerformanceCounter(&prepareEnd);
         ClipViewportToScreen(viewport);
+        ReadPerformanceCounter(&clipEnd);
         if (flip != 0) {
             if (flip == 0x10) {
                 scaleX = -scaleX;
@@ -1536,6 +1545,15 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            g_abShapeTransformScratch_004a2688,
                            angle * 10, scaleX * 256, scaleY * 256, 0);
         }
+        ReadPerformanceCounter(&drawEnd);
+        g_nShapePrepareTicks_005d2fd0 +=
+            prepareEnd.LowPart - prepareStart.LowPart;
+        g_nShapeClipTicks_005d2fd4 +=
+            clipEnd.LowPart - prepareEnd.LowPart;
+        g_nShapeDrawTicks_005d2fd8 +=
+            drawEnd.LowPart - clipEnd.LowPart;
+        if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+            MarkDibDirty();
     }
 }
 
