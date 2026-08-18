@@ -1047,19 +1047,6 @@ void child_object(short hardpoint, short child, short parent)
 /* Function start: 0x40C211 */
 short get_ship_slot(void)
 {
-#if 0
-    short slot = 1;
-
-    do {
-        if (g_aeObjectClass_00495328[slot] == OBJECT_CLASS_NULL) {
-            DAT_0046c010 = slot;
-            return slot;
-        }
-        slot++;
-    } while (slot <= 9);
-    DAT_0046c010 = -1;
-    return -1;
-#else
     short slot;
 
     for (slot = 1; slot <= 9; slot++) {
@@ -1067,7 +1054,6 @@ short get_ship_slot(void)
             return slot;
     }
     return -1;
-#endif
 }
 
 /* Function start: 0x40C266 */
@@ -1634,7 +1620,7 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
                   (unsigned short)(panel->top + y));
     panel->context.alignment = alignment;
     strcat(text, "%P");
-    AppendFormattedText(text);
+    FormatTextBufferFromStart(text);
     MarkDibDirty();
     DIBslamReal();
 }
@@ -1666,34 +1652,35 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
 #endif
     topLeft = g_dwModalBoundsTopLeft_0049ca48;
     bottomRight = g_dwModalBoundsBottomRight_0049ca4c;
-    if (g_pModalTextPanel_00469448 == 0) {
-        g_pModalTextPanel_00469448 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
+    if (g_pModalTextPanel_0049ca50 == 0) {
+        g_pModalTextPanel_0049ca50 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
     }
-    if (g_pModalTextPanel_00469448 == 0)
+    if (g_pModalTextPanel_0049ca50 == 0)
         return 0;
-    if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
+    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
                                  topLeft, bottomRight,
                                  g_cSecondaryViewBufferColour_0049cb4c, g_cSecondaryViewBufferColour_0049cb4c,
                                  g_cSecondaryViewBufferColour_0049cb4c) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_00469448);
-        g_pModalTextPanel_00469448 = 0;
+        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
+        g_pModalTextPanel_0049ca50 = 0;
         return 0;
     }
     halfWidth = MeasureTextPixelWidthClamped(text);
     halfWidth = (short)(((int)halfWidth * 8 +
         (((int)halfWidth * 8 >> 31) & 15)) >> 4);
-    RestoreModalTextPanel(g_pModalTextPanel_00469448);
+    RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
     *(short *)&topLeft = (short)(159 - halfWidth);
     *(short *)&bottomRight = (short)(161 + halfWidth);
-    if (InitializeModalTextPanel(g_pModalTextPanel_00469448, fontIndex,
+    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
                                  topLeft, bottomRight,
-                                 g_cViewportClearColour_004699a0,
-                                 DAT_004699a4, DAT_004699ac) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_00469448);
-        g_pModalTextPanel_00469448 = 0;
+                                 g_bPrimaryViewBufferColour_0049cb50,
+                                 g_abGamePaletteReservedColours_0049cb54[0],
+                                 g_abGamePaletteReservedColours_0049cb54[8]) == 0) {
+        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
+        g_pModalTextPanel_0049ca50 = 0;
         return 0;
     }
-    DrawModalTextPanel(g_pModalTextPanel_00469448, 0, 6, 2, text);
+    DrawModalTextPanel(g_pModalTextPanel_0049ca50, 0, 6, 2, text);
     MarkDibDirty();
     DIBslamReal();
     return 1;
@@ -1702,10 +1689,10 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
 /* Function start: 0x45979B */
 void ReleaseModalTextPanel(void)
 {
-    if (g_pModalTextPanel_00469448 != 0) {
-        RestoreModalTextPanel(g_pModalTextPanel_00469448);
-        ReleasePacketHandle(g_pModalTextPanel_00469448);
-        g_pModalTextPanel_00469448 = 0;
+    if (g_pModalTextPanel_0049ca50 != 0) {
+        RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
+        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
+        g_pModalTextPanel_0049ca50 = 0;
         MarkDibDirty();
         DIBslamReal();
     }

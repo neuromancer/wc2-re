@@ -279,7 +279,7 @@ void request(short requester, short ship, short command)
         case 12:
             cleanup_objectives();
             if (CanPlayerLand() != 0) {
-                g_bLandingAuthorized_00468ff8 = 1;
+                g_bLandingCommRequestPending_00492fa0 = 1;
                 send_message(ship, 8);
                 return;
             }
@@ -880,7 +880,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             break;
         case 198:
             ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_cViewportClearColour_004699a0);
+                          g_bPrimaryViewBufferColour_0049cb50);
             g_bViewportDirty_0049d76c = 1;
             break;
         case 210:
@@ -1797,7 +1797,7 @@ char *ExpandCommMessageTokens(const char *text)
             break;
         case 'R':
             DosStrcat(g_szTextScratchBuffer_005d1c40,
-                      g_apszPilotRankNames_00470098[
+                      g_apszPilotRankNames_0049a608[
                           g_stCampaignState_0059ca50.currentPilot->rank]);
             length = DosStrlen(g_szTextScratchBuffer_005d1c40);
             if (g_szTextScratchBuffer_005d1c40[length - 1] == '.' &&
@@ -1866,7 +1866,7 @@ void real_vid_transmit(short obj, short message)
                     g_nCommSpeakerRating_0049b798]->callsign,
                 speech);
 #else
-        sprintf(text, g_szConfedCommFormat_0046b150,
+        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
                 g_apWingmanPilots_00598a30[
                     g_nCommSpeakerRating_0049b798]->callsign,
                 speech);
@@ -1879,7 +1879,7 @@ void real_vid_transmit(short obj, short message)
                     g_nCommSpeakerRating_0049b798 - 9],
                 speech);
 #else
-        sprintf(text, g_szKilrathiAceCommFormat_0046b158,
+        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
                 g_apszKilrathiAceNames_0046af80[
                     g_nCommSpeakerRating_0049b798 - 9],
                 speech);
@@ -1893,7 +1893,7 @@ void real_vid_transmit(short obj, short message)
                          objectOffset)].displayName,
                 speech);
 #else
-        sprintf(text, g_szShipCommFormat_0046b160,
+        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
                 g_aObjectTypeData_00496d30[
                     *(enum ObjectType *)(void *)
                         ((unsigned char *)g_acObjectType_00493980 +

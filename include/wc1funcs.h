@@ -437,8 +437,8 @@ void FormatTextTokens(void (*writer)(int),
                       const char *format, va_list arguments);           /* 0x420378 */
 #endif
 void DrawFormattedText(const char *format, ...);                        /* 0x42067F */
-void FormatTextBufferFromStart(const char *format, ...);                /* WC2 unmapped */
-void AppendFormattedText(const char *format, ...);                      /* 0x4206F2 */
+void FormatTextBufferFromStart(const char *format, ...);                /* 0x4206F2 */
+void AppendFormattedText(const char *format, ...);                      /* 0x42075F */
 void DrawCinematicFontCharacter(char character);                       /* 0x433690 */
 short IsCinematicFontCharacterPrintable(short character);              /* 0x43374E */
 void DrawWrappedCinematicText(char *text);                              /* 0x433777 */
@@ -759,7 +759,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
 void SetBunkMenuLabel(short occupied, short side, char **label,
                       int series, int mission, char *description);     /* WC2 unmapped */
 void GetBunkInfo(BarracksAnimationState *state);                       /* WC2 unmapped */
-void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
+void DrawUnreferencedPilotHandFrame(Viewport *viewport, unsigned char *shape,
                        BarracksAnimationState *state);                 /* 0x46138D */
 void DrawBarracksStaticDetails(Viewport *viewport,
                                unsigned char *shape);                  /* WC2 unmapped */
@@ -1158,10 +1158,10 @@ short ReadTextInput(char *destination, short maximumLength,
                     volatile short allowPathSeparators);             /* 0x4597E3 */
 void ReadRequiredPilotField(short x, short y, const char *label,
                             char *destination,
-                            short maximumLength);                    /* 0x42075F */
-void PromptForPilotField(short x, short y, const char *label,
-                         char *destination, short maximumLength,
-                         const char *defaultText);                    /* 0x4348C3 */
+                            short maximumLength);                    /* WC2 unmapped */
+void PromptForWc1PilotField(short x, short y, const char *label,
+                            char *destination, short maximumLength,
+                            const char *defaultText);                 /* WC2 unmapped */
 void InitializeWc1TrainSimTextPanel(void);                             /* WC2 unmapped */
 void ShowTrainSimTextMessage(const char *message);                    /* WC2 unmapped */
 void EnterPilotNameAndCallsign(void);                                 /* WC2 unmapped */
@@ -1185,6 +1185,7 @@ void DrawPersonnelMenuBackdrop(void *scenePacket);                    /* 0x433F9
 void RestorePersonnelMenuBackground(Viewport *viewport);              /* 0x43456E */
 void DrawPersonnelSourceChoices(short choice);                        /* 0x4346E9 */
 void DrawPersonnelMenuChoices(short choice);                          /* 0x4347D6 */
+void DrawPersonnelFileSlot(short slot);                               /* 0x4348C3 */
 void DrawTransferredPilotRow(short row);                              /* 0x434EBC */
 void HighlightTransferredPilot(short choice);                         /* 0x434F7D */
 short SelectTransferredPilot(short count);                            /* 0x435064 */
@@ -1225,10 +1226,10 @@ unsigned int FadeFlightPaletteEntry(short *entry);                      /* 0x465
 unsigned int house_keep(void);                                          /* 0x46604F */
 void init_player_input(void);                                           /* WC2 unmapped */
 void get_player_input(void);                                           /* 0x4661C2 */
-int process_player_input(void);                                        /* 0x4663A2 */
+void process_player_input(void);                                       /* 0x4663A2 */
 unsigned int fire_players_lasers(void);                                /* 0x466908 */
-unsigned int players_flight_dynamics(void);                            /* 0x46696E */
-unsigned int player_input(void);                                       /* 0x466B02 */
+void players_flight_dynamics(void);                                    /* 0x46696E */
+short player_input(void);                                              /* 0x466B02 */
 void SelectNextExternalViewObject(void);                               /* 0x465E25 */
 unsigned int SelectPreviousExternalViewObject(void);                   /* WC2 unmapped */
 unsigned int RunWc1FleetOverviewInput(void);                           /* WC2 unmapped */
@@ -1836,10 +1837,9 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneData,
                            unsigned char *textData);                    /* WC2 unmapped */
 unsigned int DrawWc1PodiumShot(void);                              /* WC2 unmapped */
 void BeginShipDestructionSequence(short obj);                          /* 0x446710 */
-unsigned int DrawBriefingCharacter(short character, short pose,
-                                   short animationFrame,
-                                   const signed char *unusedXOffsets,
-                                   const signed char *unusedYOffsets);  /* 0x4021A7 */
+void RecordCannedSceneBriefingCharacter(signed char character,
+                                        signed char pose,
+                                        short animationFrame);       /* 0x4021A7 */
 unsigned int DrawWc1FuneralLongShot(short shot, char *text,
                                     short duration);                 /* WC2 unmapped */
 char *GetPackedStringByIndex(CutsceneResourceTable *resources,

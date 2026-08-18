@@ -440,7 +440,7 @@ char *AddPCName(const char *text)
             break;
         case 'R':
             DosStrcat(g_szTextScratchBuffer_005d1c40,
-                      g_apszPilotRankNames_00470098[
+                      g_apszPilotRankNames_0049a608[
                           g_stCampaignState_0059ca50.currentPilot->rank]);
             length = DosStrlen(g_szTextScratchBuffer_005d1c40);
             if (g_szTextScratchBuffer_005d1c40[length - 1] == '.' &&
@@ -1316,11 +1316,10 @@ unsigned int CloseLook(unsigned char *shape, short shot,
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                                   g_pBriefingAnimationShape_00598c14, 22);
                 for (character = 0; character < 14; character++) {
-                    DrawBriefingCharacter(
+                    RecordCannedSceneBriefingCharacter(
                         character, 0,
                         g_aBriefingCharacters_0046e218[character]
-                            .animation[sceneFrame],
-                        0, 0);
+                            .animation[sceneFrame]);
                 }
                 RefreshMemoryStatusOverlay();
                 MarkDibDirty();

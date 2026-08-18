@@ -1,12 +1,12 @@
     __asm {
         mov ebx, dword ptr [edi + 8]
-        mov byte ptr g_abRasterDecodeBuffer_0046ec15[ebx], al
+        mov byte ptr g_abRasterDecodeBuffer_004907f1[ebx], al
         inc dword ptr [edi + 8]
         dec dword ptr [edi + 20h]
         cmp dword ptr [edi + 20h], 0
         jne emit_gif_pixel_done
         push dword ptr [edi + 24h]
-        push offset g_abRasterDecodeBuffer_0046ec15
+        push offset g_abRasterDecodeBuffer_004907f1
         push dword ptr [edi + 0ch]
         push dword ptr g_pGifRasterTarget_00491b04
         call BlitRawScanline

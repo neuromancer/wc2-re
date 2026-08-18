@@ -225,7 +225,7 @@ void init_hazard(short obj, FixedVector position, short moving)
             travelTime = g_acHazardTravelTimeByView_00465048[
                 g_cCockpitView_0059dab0];
         travelTime = (short)(travelTime + RandomBelowOrEqual(15));
-        if (g_bIntroSecondaryScene_0046c024 != 0) {
+        if (g_bUseEyePositionForHazards_0049327c != 0) {
             travelTime = (short)(travelTime -
                                  RandomBelowOrEqual(difficulty()));
             travelTime = MaxShort(45, travelTime);
@@ -430,7 +430,7 @@ void update_hazards(void)
     short slot;
     short emptySlot = -1;
 
-    if (g_bIntroSecondaryScene_0046c024 != 0)
+    if (g_bUseEyePositionForHazards_0049327c != 0)
         match_ship_to_eye();
     else
         g_nHazardReferenceSpeed_00492e58 = real_velocity(0);
@@ -477,15 +477,15 @@ void add_hazard_field(enum ObjectType type, FixedVector center,
 {
     HazardField *field;
 
-    if (g_nHazardFieldCount_0059c90c >= 7)
+    if (g_nHazardFieldCount_004931d0 >= 7)
         return;
-    field = &g_aHazardFields_004931d8[g_nHazardFieldCount_0059c90c];
+    field = &g_aHazardFields_004931d8[g_nHazardFieldCount_004931d0];
     field->type = type;
     field->center = center;
     field->outerRadius = radius;
     field->innerRadius = radius;
     field->density = density;
-    g_nHazardFieldCount_0059c90c++;
+    g_nHazardFieldCount_004931d0++;
 }
 
 /* Function start: 0x4186A4 */
@@ -494,12 +494,12 @@ void check_hazards(void)
     HazardField *field;
     short region;
 
-    if (g_bIntroSecondaryScene_0046c024 != 0)
+    if (g_bUseEyePositionForHazards_0049327c != 0)
         return;
     if (g_pActiveHazardField_00493278 == 0) {
         region = 0;
         field = g_aHazardFields_004931d8;
-        while (region < g_nHazardFieldCount_0059c90c) {
+        while (region < g_nHazardFieldCount_004931d0) {
             if (field != g_pActiveHazardField_00493278 &&
                 near_field(field, &g_aShipPosition_00494550[0]) != 0) {
                 start_hazard_field(region);
@@ -552,8 +552,8 @@ void CheckLauncherAndConfig(void)
 
     if (ReadCheaterFlagFromRegistry() != 0) {
         *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
-        *(unsigned char *)&DAT_00469ffc = 0;
-        *(unsigned char *)&DAT_0046a000 = 0;
+        *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+        *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
     }
 
     if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
@@ -570,16 +570,16 @@ void CheckLauncherAndConfig(void)
             command = option[0] == '-' ? option[1] : option[0];
             switch (command) {
             case 'b':
-                *(unsigned char *)&DAT_0046a000 = 0;
+                *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
                 break;
             case 'c':
                 g_bCockpitEnabled_0049c26c = 0;
                 break;
             case 'f':
-                DAT_00465070 = 1;
+                g_bShowFrameRate_0049c260 = 1;
                 break;
             case 'k':
-                *(unsigned char *)&DAT_00469ffc = 0;
+                *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
                 break;
             case 'q':
                 g_bConfigQuickModeEnabled_0049c264 = 0;
@@ -1224,10 +1224,10 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     }
     if (mouseEvent != 0) {
-        g_nHostMouseMessageX_005d10d0 = mouseX;
-        g_nHostMouseMessageY_005d10d4 = mouseY;
-        g_bHostPrimaryMouseButton_005d10d8 = primaryButton;
-        g_bHostSecondaryMouseButton_005d10dc = secondaryButton;
+        g_stHostMouseMessage_005d10d0.x = mouseX;
+        g_stHostMouseMessage_005d10d0.y = mouseY;
+        g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
+        g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
     }
     return DefWindowProcA(window, message, wParam, lParam);
 }
@@ -1324,7 +1324,6 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
 #else
     if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
 #endif
-        SystemDebugPrintf(g_szJoystickDevCapsFailure_004652dc);
         return;
     }
 

@@ -333,8 +333,9 @@ short RunWc1TextInputPrompt(short x, short y, const char *prompt,
     if (InitializeModalTextPanel(&panel, 0,
                                  (unsigned int)bounds[0],
                                  (unsigned int)bounds[1],
-                                 g_cViewportClearColour_004699a0,
-                                 DAT_004699a4, DAT_004699ac) != 0) {
+                                 g_bPrimaryViewBufferColour_0049cb50,
+                                 g_abGamePaletteReservedColours_0049cb54[0],
+                                 g_abGamePaletteReservedColours_0049cb54[8]) != 0) {
         DrawModalTextPanel(&panel, 3, 6, 0, prompt);
         MarkDibDirty();
         DIBslamReal();
@@ -587,31 +588,31 @@ void GetBunkInfo(BarracksAnimationState *state)
 }
 
 /* Function start: 0x46138D */
-void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
+void DrawUnreferencedPilotHandFrame(Viewport *viewport, unsigned char *shape,
                        BarracksAnimationState *state)
 {
-    short bunk;
-    short frame;
+    short x;
+    short y;
 
-    DrawSpriteDefault(viewport, 0, 0, shape, 0);
-    bunk = 0;
-    do {
-        frame = 10;
-        if (state->bunks[bunk].occupied != 0) {
-            DrawSpriteDefault(
-                viewport, g_aBarracksBunkOrigins_004693c8[bunk].x,
-                g_aBarracksBunkOrigins_004693c8[bunk].y,
-                shape, (short)(bunk + 1));
-            frame = 9;
-        }
-        DrawSpriteDefault(viewport,
-                          (short)((bunk % 2) * 31 + 143),
-                          (short)((bunk / 2) * 5 + 167),
-                          shape, frame);
-        bunk++;
-    } while (bunk < 8);
-    CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
-                         &g_stRoomScreenViewport_005988a0);
+    x = (short)(g_stPilotHandOrigin_0049af90.x -
+                g_stCockpitViewport_005d2160.left);
+    y = (short)(g_stPilotHandOrigin_0049af90.y -
+                g_stCockpitViewport_005d2160.top);
+    CopyViewportContents(&g_stPilotHandBackgroundViewport_005d2b40,
+                         &g_stPilotHandViewport_005d2c70);
+    DrawSpriteDefault(&g_stPilotHandViewport_005d2c70, x, y,
+                      g_pPilotHandAnimationShape_005d2c64,
+                      (short)(signed char)g_cPilotHandFrame_005d1c30);
+    DrawSpriteDefault(
+        &g_stPilotHandViewport_005d2c70,
+        (short)(x + g_asPilotHandOffsets_0049aff8[
+            (signed char)g_cPilotHandFrame_005d1c30 * 2]),
+        (short)(y + g_asPilotHandOffsets_0049aff8[
+            (signed char)g_cPilotHandFrame_005d1c30 * 2 + 1]),
+        g_pPilotHandAnimationShape_005d2c64, 0x11);
+    CopyViewportContents(&g_stPilotHandViewport_005d2c70,
+                         &g_stCockpitViewport_005d2160);
+    g_cLastPilotHandFrame_0049aff4 = g_cPilotHandFrame_005d1c30;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -797,7 +798,7 @@ void HandleWc1BarracksBunkSelection(Viewport *viewport,
 
 refresh:
     GetBunkInfo(state);
-    DrawBarracksBunks(viewport, shape, state);
+    DrawUnreferencedPilotHandFrame(viewport, shape, state);
     ResumeMouseCursorHook();
 }
 
@@ -878,7 +879,7 @@ short RunWc1BarracksScreen(void)
     EnsureSaveGameFile();
     InitializeBarracksAnimation(&animation);
     GetBunkInfo(&animation);
-    DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background, &animation);
+    DrawUnreferencedPilotHandFrame(&g_stSecondaryViewBuffer_005d2c90, background, &animation);
     g_stMouseCursorState_0059ab10.viewport = &g_stRoomScreenViewport_005988a0;
     WarpWc1MouseTo(160, 100);
     ResumeMouseCursorHook();
@@ -958,7 +959,7 @@ short RunWc1BarracksScreen(void)
                         g_stScreenViewport_005d21a0.top = 0;
                         g_stScreenViewport_005d21a0.bottom = 199;
                         g_stSecondaryViewBuffer_005d2c90.bottom = 199;
-                        DrawBarracksBunks(&g_stSecondaryViewBuffer_005d2c90, background,
+                        DrawUnreferencedPilotHandFrame(&g_stSecondaryViewBuffer_005d2c90, background,
                                           &animation);
                         ResumeMouseCursorHook();
                         UpdateBarracksScreen(
@@ -1045,69 +1046,69 @@ unsigned short StepPaletteTransition(short *current,
     short index;
     short previousCountdown;
 
-    if (g_nPaletteTransitionInitialise_00469640 != 0) {
-        g_pPaletteTransitionAccumulator_005a7d94 =
+    if (g_nPaletteTransitionInitialise_0049305c != 0) {
+        g_pPaletteTransitionAccumulator_005d301c =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
-        g_pPaletteTransitionDelta_005a7d8c =
+        g_pPaletteTransitionDelta_005d3014 =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
-        g_pPaletteTransitionDirection_005a7d88 =
+        g_pPaletteTransitionDirection_005d3010 =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
-        if (g_pPaletteTransitionAccumulator_005a7d94 == 0 ||
-            g_pPaletteTransitionDelta_005a7d8c == 0 ||
-            g_pPaletteTransitionDirection_005a7d88 == 0) {
-            if (g_pPaletteTransitionAccumulator_005a7d94 != 0)
-                ReleasePacketHandle(g_pPaletteTransitionAccumulator_005a7d94);
-            if (g_pPaletteTransitionDelta_005a7d8c != 0)
-                ReleasePacketHandle(g_pPaletteTransitionDelta_005a7d8c);
-            if (g_pPaletteTransitionDirection_005a7d88 != 0)
-                ReleasePacketHandle(g_pPaletteTransitionDirection_005a7d88);
+        if (g_pPaletteTransitionAccumulator_005d301c == 0 ||
+            g_pPaletteTransitionDelta_005d3014 == 0 ||
+            g_pPaletteTransitionDirection_005d3010 == 0) {
+            if (g_pPaletteTransitionAccumulator_005d301c != 0)
+                ReleasePacketHandle(g_pPaletteTransitionAccumulator_005d301c);
+            if (g_pPaletteTransitionDelta_005d3014 != 0)
+                ReleasePacketHandle(g_pPaletteTransitionDelta_005d3014);
+            if (g_pPaletteTransitionDirection_005d3010 != 0)
+                ReleasePacketHandle(g_pPaletteTransitionDirection_005d3010);
             return 0;
         }
 
-        g_nPaletteTransitionMaxDelta_005a7d90 = 0;
+        g_nPaletteTransitionMaxDelta_005d3018 = 0;
         for (index = 0; index < componentCount; index++) {
             difference = (short)(current[index] - target[index]);
             if (difference < 0) {
                 difference = (short)-difference;
-                g_pPaletteTransitionDirection_005a7d88[index] = 1;
+                g_pPaletteTransitionDirection_005d3010[index] = 1;
             } else {
-                g_pPaletteTransitionDirection_005a7d88[index] = -1;
+                g_pPaletteTransitionDirection_005d3010[index] = -1;
             }
-            g_pPaletteTransitionDelta_005a7d8c[index] = difference;
-            if (g_nPaletteTransitionMaxDelta_005a7d90 < difference)
-                g_nPaletteTransitionMaxDelta_005a7d90 = difference;
+            g_pPaletteTransitionDelta_005d3014[index] = difference;
+            if (g_nPaletteTransitionMaxDelta_005d3018 < difference)
+                g_nPaletteTransitionMaxDelta_005d3018 = difference;
         }
 
-        difference = (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 2);
+        difference = (short)(g_nPaletteTransitionMaxDelta_005d3018 / 2);
         for (index = 0; index < componentCount; index++)
-            g_pPaletteTransitionAccumulator_005a7d94[index] = difference;
-        g_nPaletteTransitionCountdown_005a7d98 =
-            g_nPaletteTransitionMaxDelta_005a7d90;
-        g_nPaletteTransitionInitialise_00469640 = 0;
+            g_pPaletteTransitionAccumulator_005d301c[index] = difference;
+        g_nPaletteTransitionCountdown_005d3020 =
+            g_nPaletteTransitionMaxDelta_005d3018;
+        g_nPaletteTransitionInitialise_0049305c = 0;
     }
 
-    previousCountdown = g_nPaletteTransitionCountdown_005a7d98;
-    g_nPaletteTransitionCountdown_005a7d98--;
+    previousCountdown = g_nPaletteTransitionCountdown_005d3020;
+    g_nPaletteTransitionCountdown_005d3020--;
     if (previousCountdown == 0) {
-        ReleasePacketHandle(g_pPaletteTransitionAccumulator_005a7d94);
-        ReleasePacketHandle(g_pPaletteTransitionDelta_005a7d8c);
-        ReleasePacketHandle(g_pPaletteTransitionDirection_005a7d88);
-        g_nPaletteTransitionInitialise_00469640 = 1;
+        ReleasePacketHandle(g_pPaletteTransitionAccumulator_005d301c);
+        ReleasePacketHandle(g_pPaletteTransitionDelta_005d3014);
+        ReleasePacketHandle(g_pPaletteTransitionDirection_005d3010);
+        g_nPaletteTransitionInitialise_0049305c = 1;
         return 0;
     }
 
     for (index = 0; index < componentCount; index++) {
-        g_pPaletteTransitionAccumulator_005a7d94[index] =
-            (short)(g_pPaletteTransitionAccumulator_005a7d94[index] +
-                    g_pPaletteTransitionDelta_005a7d8c[index]);
-        if (g_pPaletteTransitionAccumulator_005a7d94[index] >
-            g_nPaletteTransitionMaxDelta_005a7d90) {
-            g_pPaletteTransitionAccumulator_005a7d94[index] =
-                (short)(g_pPaletteTransitionAccumulator_005a7d94[index] -
-                        g_nPaletteTransitionMaxDelta_005a7d90);
+        g_pPaletteTransitionAccumulator_005d301c[index] =
+            (short)(g_pPaletteTransitionAccumulator_005d301c[index] +
+                    g_pPaletteTransitionDelta_005d3014[index]);
+        if (g_pPaletteTransitionAccumulator_005d301c[index] >
+            g_nPaletteTransitionMaxDelta_005d3018) {
+            g_pPaletteTransitionAccumulator_005d301c[index] =
+                (short)(g_pPaletteTransitionAccumulator_005d301c[index] -
+                        g_nPaletteTransitionMaxDelta_005d3018);
             current[index] =
                 (short)(current[index] +
-                        g_pPaletteTransitionDirection_005a7d88[index]);
+                        g_pPaletteTransitionDirection_005d3010[index]);
         }
     }
     return 1;

@@ -449,7 +449,7 @@ unsigned int LoadWc1GamePaletteFile(void)
     case 13:
         index = 0;
         do {
-            ((unsigned char *)&DAT_004699a4)[index] =
+            g_abGamePaletteReservedColours_0049cb54[index] =
                 g_abLegacyVideoModeColours_0049cb90[index];
             index++;
         } while ((unsigned int)(int)index < 14);
@@ -1683,7 +1683,7 @@ int try2rout(short obj)
         } while (other < 10);
     }
     if (canContinue != 0) {
-        g_acShipStress_0059d620[obj] = 0;
+        g_acShipStress_00496100[obj] = 0;
         maneuver_complete(obj);
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
@@ -1732,11 +1732,11 @@ int any_enemy_tail(short obj)
             g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other] &&
             g_acShipTarget_00495f20[other] == obj &&
             being_tailed(obj, other) != 0) {
-            g_nTargetShip_0059c3b0 = other;
+            g_nTargetShip_004931a0 = other;
             return 1;
         }
     }
-    g_nTargetShip_0059c3b0 = -1;
+    g_nTargetShip_004931a0 = -1;
     return 0;
 }
 
@@ -1811,7 +1811,7 @@ unsigned int build_squad_list(short leader)
     g_acFormationMemberList_0059d490[0] = (signed char)leader;
     g_acFormationMemberList_0059d490[1] = -1;
     for (obj = 0; obj < 10; obj++) {
-        if (g_asShipWingLeader_0059d400[obj] == leader) {
+        if (g_asShipWingLeader_00495dd0[obj] == leader) {
             g_acFormationMemberList_0059d490[index++] = (signed char)obj;
             g_acFormationMemberList_0059d490[index] = -1;
         }
@@ -2064,11 +2064,11 @@ short scan_for_enemy(short obj, unsigned short range)
             g_aeSpecialManeuver_00495600[other] ==
                 SPECIAL_MANEUVER_UNKNOWN_9)
             continue;
-        g_nTargetShip_0059c3b0 = target;
+        g_nTargetShip_004931a0 = target;
         if (g_asShipSide_004955d0[obj] == g_asShipSide_004955d0[other])
             continue;
         distance = distance_from_point(other, &g_aShipPosition_00494550[obj]);
-        target = g_nTargetShip_0059c3b0;
+        target = g_nTargetShip_004931a0;
         if (distance < range &&
             (target == -1 ||
              distance < g_nTargetRange_0049319c)) {
@@ -2077,13 +2077,13 @@ short scan_for_enemy(short obj, unsigned short range)
         }
     }
     if (target != -1) {
-        g_nTargetShip_0059c3b0 = target;
-        get_facing_range_from_object(obj, g_nTargetShip_0059c3b0);
+        g_nTargetShip_004931a0 = target;
+        get_facing_range_from_object(obj, g_nTargetShip_004931a0);
         g_nTargetRange_0049319c =
-            distance_from_object(obj, g_nTargetShip_0059c3b0);
-        target = g_nTargetShip_0059c3b0;
+            distance_from_object(obj, g_nTargetShip_004931a0);
+        target = g_nTargetShip_004931a0;
     }
-    g_nTargetShip_0059c3b0 = target;
+    g_nTargetShip_004931a0 = target;
     return target;
 }
 
@@ -2092,7 +2092,7 @@ short any_enemy(short obj, short range)
 {
     short other;
 
-    g_nTargetShip_0059c3b0 = -1;
+    g_nTargetShip_004931a0 = -1;
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
             g_aeSpecialManeuver_00495600[other] !=
@@ -2100,7 +2100,7 @@ short any_enemy(short obj, short range)
             g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other]) {
             g_nTargetRange_0049319c = distance_from_object(obj, other);
             if (g_nTargetRange_0049319c < range) {
-                g_nTargetShip_0059c3b0 = other;
+                g_nTargetShip_004931a0 = other;
                 return 1;
             }
         }
@@ -2114,7 +2114,7 @@ short nearest_enemy_range(short obj)
     short other;
     short range;
 
-    g_nTargetShip_0059c3b0 = -1;
+    g_nTargetShip_004931a0 = -1;
     range = 0x7fff;
     other = 0;
     do {
@@ -2165,12 +2165,12 @@ int attacker_in_range(short obj, short range)
             g_nTargetRange_0049319c = distance_from_object(other, obj);
             if ((unsigned short)g_nTargetRange_0049319c <
                 (unsigned short)range) {
-                g_nTargetShip_0059c3b0 = other;
+                g_nTargetShip_004931a0 = other;
                 return 1;
             }
         }
     }
-    g_nTargetShip_0059c3b0 = -1;
+    g_nTargetShip_004931a0 = -1;
     return 0;
 }
 
@@ -2187,18 +2187,18 @@ int in_danger(short obj)
             g_aeSpecialManeuver_00495600[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other]) {
-            g_nTargetShip_0059c3b0 = target;
+            g_nTargetShip_004931a0 = target;
             if (g_acShipTarget_00495f20[other] != obj)
                 continue;
             range = (unsigned short)distance_from_object(other, obj);
-            target = g_nTargetShip_0059c3b0;
+            target = g_nTargetShip_004931a0;
             if (target == -1 || range < g_nTargetRange_0049319c) {
                 target = other;
                 g_nTargetRange_0049319c = (short)range;
             }
         }
     }
-    g_nTargetShip_0059c3b0 = target;
+    g_nTargetShip_004931a0 = target;
     return target != -1;
 }
 
@@ -2259,14 +2259,14 @@ int select_safe_target(short obj)
         target = (short)g_acFormationMemberList_0059d490[
             RandomBelowOrEqual(index)];
     }
-    g_nTargetShip_0059c3b0 = target;
+    g_nTargetShip_004931a0 = target;
     return target != -1;
 }
 
 /* Function start: 0x42AF60 */
 void inherit_leader_mission(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = g_asShipWingLeader_00495dd0[obj];
 
     if (leader != -1 &&
         g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
@@ -2274,7 +2274,7 @@ void inherit_leader_mission(short obj)
             g_asShipMissionType_00495de8[leader];
         g_anShipMissionShip_00495e00[obj] =
             g_anShipMissionShip_00495e00[leader];
-        g_asShipWingLeader_0059d400[obj] = -1;
+        g_asShipWingLeader_00495dd0[obj] = -1;
         g_aShipMissionSpot_00495e18[obj] =
             g_aShipMissionSpot_00495e18[leader];
     }
@@ -2283,16 +2283,16 @@ void inherit_leader_mission(short obj)
 /* Function start: 0x42B00A */
 void inherit_leader(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = g_asShipWingLeader_00495dd0[obj];
     short other;
 
     if (leader == -1 || g_aeObjectClass_00495328[obj] < OBJECT_CLASS_SHIP)
         return;
     inherit_leader_mission(obj);
-    g_asShipWingLeader_0059d400[obj] = g_asShipWingLeader_0059d400[leader];
+    g_asShipWingLeader_00495dd0[obj] = g_asShipWingLeader_00495dd0[leader];
     for (other = 0; other < 10; other++) {
-        if (g_asShipWingLeader_0059d400[other] == leader)
-            g_asShipWingLeader_0059d400[other] = obj;
+        if (g_asShipWingLeader_00495dd0[other] == leader)
+            g_asShipWingLeader_00495dd0[other] = obj;
     }
 }
 
@@ -3554,27 +3554,6 @@ void init_3Space_objects(short scene)
 {
     short slot;
 
-#if 0
-    if (g_b3SpaceObjectsActive_0049c8ec == 1)
-        return 0;
-    g_b3SpaceObjectsActive_0049c8ec = 1;
-    g_cScreenViewportMode_005c82a6 = -1;
-    remove_all_3d_objects();
-    g_nExternalViewShip_00493468 = -1;
-    g_nRenderedSpaceFrame_00493138 = 0;
-    g_bScriptedView_0046a8d4 = 0;
-    g_nSpaceFrame_00493134 = 0;
-    g_bMissileCameraEnabled_00493504 = 0;
-    g_nClosestVisibleObject_0046c048 = -1;
-    g_nPlayerCollisionObject_00493480 = -1;
-    slot = 0;
-    do {
-        g_aObjectResourceSlots_00493398[slot].type = -1;
-        slot++;
-    } while (slot <= 3);
-    init_constellation(scene);
-    return load_common_3Space_objects();
-#else
     if (g_b3SpaceObjectsActive_0049c8ec == 1)
         return;
     g_b3SpaceObjectsActive_0049c8ec = 1;
@@ -3591,7 +3570,6 @@ void init_3Space_objects(short scene)
         g_aObjectResourceSlots_00493398[slot].type = -1;
     init_constellation(scene);
     load_common_3Space_objects();
-#endif
 }
 
 /* Function start: 0x458532 */

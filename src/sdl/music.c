@@ -86,7 +86,7 @@ static unsigned int Wc1SdlCalculateDosAudioGain(int volumeSetting)
         tableIndex = 0;
     else if (tableIndex > 10)
         tableIndex = 10;
-    level = g_anVolumeLevels_00469fc8[tableIndex];
+    level = g_anVolumeLevels_0049d720[tableIndex];
     if (level < 0)
         level = 0;
     else if (level > 64000)
@@ -96,18 +96,18 @@ static unsigned int Wc1SdlCalculateDosAudioGain(int volumeSetting)
 
 static void Wc1SdlUpdateDosAdlibMusicVolume(void)
 {
-    if (g_nWc1SdlMusicVolumeSetting == g_nMusicVolumeSetting_00469fc0 &&
-        g_nWc1SdlSoundVolumeSetting == g_nSfxVolumeSetting_00469fbc)
+    if (g_nWc1SdlMusicVolumeSetting == g_nMusicVolumeSetting_0049d750 &&
+        g_nWc1SdlSoundVolumeSetting == g_nSfxVolumeSetting_0049d74c)
         return;
     if (g_nWc1SdlMusicVolumeSetting !=
-        g_nMusicVolumeSetting_00469fc0) {
-        g_nWc1SdlMusicVolumeSetting = g_nMusicVolumeSetting_00469fc0;
+        g_nMusicVolumeSetting_0049d750) {
+        g_nWc1SdlMusicVolumeSetting = g_nMusicVolumeSetting_0049d750;
         g_nWc1SdlDosMusicGain =
             Wc1SdlCalculateDosAudioGain(g_nWc1SdlMusicVolumeSetting);
     }
     if (g_nWc1SdlSoundVolumeSetting !=
-        g_nSfxVolumeSetting_00469fbc) {
-        g_nWc1SdlSoundVolumeSetting = g_nSfxVolumeSetting_00469fbc;
+        g_nSfxVolumeSetting_0049d74c) {
+        g_nWc1SdlSoundVolumeSetting = g_nSfxVolumeSetting_0049d74c;
         g_nWc1SdlDosSoundGain =
             Wc1SdlCalculateDosAudioGain(g_nWc1SdlSoundVolumeSetting);
     }

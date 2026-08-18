@@ -12,7 +12,7 @@
 0x00401A62 InitializeCannedSceneFrameIndex
 0x00401C1A CheckCannedSceneBufferCapacity
 0x00401FDD RecordCannedSceneObjectEvent
-0x004021A7 DrawBriefingCharacter
+0x004021A7 RecordCannedSceneBriefingCharacter
 0x00402258 RecordMusicCommandHook
 0x0040230E WriteTapeInitialState
 0x0040243C CopyRasterDriverName
@@ -373,8 +373,8 @@
 0x00420340 EmitTextString
 0x00420378 FormatTextTokens
 0x0042067F DrawFormattedText
-0x004206F2 AppendFormattedText
-0x0042075F ReadRequiredPilotField
+0x004206F2 FormatTextBufferFromStart
+0x0042075F AppendFormattedText
 0x004207B0 advance_canned_sequence
 0x00420874 ReleaseNearHeapBlock
 0x004208FC PurgeNearHeapBlocks
@@ -644,7 +644,7 @@
 0x004345A1 DrawPilotSaveMenuChoices
 0x004346E9 DrawPersonnelSourceChoices
 0x004347D6 DrawPersonnelMenuChoices
-0x004348C3 PromptForPilotField
+0x004348C3 DrawPersonnelFileSlot
 0x00434EBC DrawTransferredPilotRow
 0x00434F7D HighlightTransferredPilot
 0x00435064 SelectTransferredPilot
@@ -1210,7 +1210,7 @@
 0x00460D3E SetTargetCameraEyePosition
 0x00460DFE DrawTargetCameraAttitudeIndicators
 0x004610BC RestoreTargetCameraAttitudeIndicators
-0x0046138D DrawBarracksBunks
+0x0046138D DrawUnreferencedPilotHandFrame
 0x00461456 UpdateTargetCameraCockpitHook
 0x00461466 FinalizeTargetCameraViewHook
 0x0046166D select_new_gun

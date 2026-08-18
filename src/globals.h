@@ -30,7 +30,6 @@ extern short g_nFrameSkip_0049d764;          /* WC2 starts at 0; later clamped 1
  * Main-module state confirmed from the reconstruction of main() and the
  * input/banner functions.
  * -------------------------------------------------------------------------- */
-extern unsigned char g_bCurrentKey_0046c014;     /* key code from PollKeyboardState */
 extern signed char g_cMessageSpeed_0049b778;     /* cycled (x+1)%5 */
 extern short g_nOriginDevUnlock_0049d774;        /* argv element == "Origin" */
 extern unsigned long g_dwGameClockBase_005d10e8; /* GetTickCount epoch, randomised at startup */

@@ -59,16 +59,16 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
         command = argument[0] == '-' ? argument[1] : argument[0];
         switch (command) {
         case 'b':
-            *(unsigned char *)&DAT_0046a000 = 0;
+            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
             break;
         case 'c':
             g_bCockpitEnabled_0049c26c = 0;
             break;
         case 'f':
-            DAT_00465070 = 1;
+            g_bShowFrameRate_0049c260 = 1;
             break;
         case 'k':
-            *(unsigned char *)&DAT_00469ffc = 0;
+            *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
             break;
         case 'q':
             g_bConfigQuickModeEnabled_0049c264 = 0;
@@ -88,7 +88,7 @@ static int Wc1SdlRunRuntimeChecks(void)
         return 1;
 
     g_acShipTarget_00495f20[0] = -1;
-    g_cTargetDisplayObject_0046c06c = -1;
+    g_cTargetDisplayObject_004934f4 = -1;
     g_nRenderedSpaceFrame_0059d61a = 1;
     DrawTargetRangeReadout();
 

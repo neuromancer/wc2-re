@@ -378,7 +378,7 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if (pressed && scanCode == 1)
         g_bSceneEscapeRequested_0049d4b0 = 1;
     if (scanCode != 0) {
-        if (DAT_0046505c != 0) {
+        if (g_bInputEventQueueEnabled_0049c248 != 0) {
             QueueInputEvent(pressed ? 3 : 4, 0, 0,
                             (unsigned short)virtualKey, 0, 0, 0, 0, 0);
         }
@@ -454,10 +454,10 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
     }
-    g_nHostMouseMessageX_005d10d0 = mouseX;
-    g_nHostMouseMessageY_005d10d4 = mouseY;
-    g_bHostPrimaryMouseButton_005d10d8 = primaryButton;
-    g_bHostSecondaryMouseButton_005d10dc = secondaryButton;
+    g_stHostMouseMessage_005d10d0.x = mouseX;
+    g_stHostMouseMessage_005d10d0.y = mouseY;
+    g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
+    g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
 }
 
 void Wc1SdlStartEventPump(void)

@@ -693,15 +693,15 @@ void Wc1SdlApplyJoystickFlightControls(void)
         if (Wc1SdlReadJoystickButton(
                 &g_aWc1SdlJoystickDevices[activeSlot], 3)) {
             g_bWc1SdlTwoAxisModifierActive = 1;
-            g_nYawInput_0059d3f2 = 0;
-            g_nPitchInput_0059d3f0 = 0;
-            g_nRollInput_0059d3f4 = (short)sample->x;
+            g_nYawInput_004931aa = 0;
+            g_nPitchInput_004931a8 = 0;
+            g_nRollInput_004931ac = (short)sample->x;
             accelerate((short)-(sample->y / 2));
         } else if (g_bWc1SdlTwoAxisModifierActive) {
             g_bWc1SdlTwoAxisModifierActive = 0;
-            g_nRollInput_0059d3f4 = 0;
-            g_nYawInput_0059d3f2 = (short)sample->x;
-            g_nPitchInput_0059d3f0 = (short)-sample->y;
+            g_nRollInput_004931ac = 0;
+            g_nYawInput_004931aa = (short)sample->x;
+            g_nPitchInput_004931a8 = (short)-sample->y;
         }
         return;
     }
@@ -714,24 +714,24 @@ void Wc1SdlApplyJoystickFlightControls(void)
 
     switch (g_eWc1SdlJoystickAxesMode) {
     case WC1_SDL_JOYSTICK_AXES_TWIN_STICK_ROLL:
-        g_nRollInput_0059d3f4 = first;
+        g_nRollInput_004931ac = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case WC1_SDL_JOYSTICK_AXES_TWIN_STICK_YAW:
-        g_nRollInput_0059d3f4 = (short)sample->x;
-        g_nYawInput_0059d3f2 = first;
+        g_nRollInput_004931ac = (short)sample->x;
+        g_nYawInput_004931aa = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case WC1_SDL_JOYSTICK_AXES_HOTAS_YAW:
-        g_nRollInput_0059d3f4 = (short)sample->x;
-        g_nYawInput_0059d3f2 = first;
+        g_nRollInput_004931ac = (short)sample->x;
+        g_nYawInput_004931aa = first;
         if (axisCount > 1)
             Wc1SdlApplyLinearThrottle(secondRaw);
         break;
     case WC1_SDL_JOYSTICK_AXES_HOTAS_ROLL:
-        g_nRollInput_0059d3f4 = first;
+        g_nRollInput_004931ac = first;
         if (axisCount > 1)
             Wc1SdlApplyLinearThrottle(secondRaw);
         break;
@@ -743,11 +743,11 @@ void Wc1SdlApplyJoystickFlightControls(void)
             Wc1SdlApplyLinearThrottle(firstRaw);
         break;
     case WC1_SDL_JOYSTICK_AXES_RUDDER_YAW:
-        g_nRollInput_0059d3f4 = (short)sample->x;
-        g_nYawInput_0059d3f2 = first;
+        g_nRollInput_004931ac = (short)sample->x;
+        g_nYawInput_004931aa = first;
         break;
     case WC1_SDL_JOYSTICK_AXES_RUDDER_ROLL:
-        g_nRollInput_0059d3f4 = first;
+        g_nRollInput_004931ac = first;
         break;
     }
 }
@@ -939,7 +939,7 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (button == WC1_SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
             g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (DAT_0046505c != 0)
+        if (g_bInputEventQueueEnabled_0049c248 != 0)
             QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0, 0);
         QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0, 0, 0);
         return;
@@ -952,7 +952,7 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (!pressed)
         return;
     if (button == WC1_SDL_JOYSTICK_BUTTON_Y &&
-        !spaceflightActive && DAT_0046505c != 0) {
+        !spaceflightActive && g_bInputEventQueueEnabled_0049c248 != 0) {
         QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0, 0, 0);
         QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0, 0, 0);
         return;

@@ -649,10 +649,10 @@ void *DecompressPacketSection(
     }
 
     if (decompressionWorkspace == 0) {
-        if (g_pPacketDecompressionWorkspace_0046a91c != 0) {
-            g_wPacketDecompressionInputSizeOverride_0046a920 = 0;
+        if (g_pPacketDecompressionWorkspace_0046a91c_WC1_UNMAPPED != 0) {
+            g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED = 0;
             decompressionWorkspace =
-                g_pPacketDecompressionWorkspace_0046a91c;
+                g_pPacketDecompressionWorkspace_0046a91c_WC1_UNMAPPED;
         }
         if (decompressionWorkspace == 0) {
             largeScratch = AllocateTaggedMemory(0x3020, 0);
@@ -691,9 +691,9 @@ void *DecompressPacketSection(
         IdentityHandle(g_pPacketDecompressInput_0059ab04);
     largeScratch = (void *)allocationSize;
     smallScratch = (void *)allocationSize;
-    if (g_wPacketDecompressionInputSizeOverride_0046a920 != 0)
+    if (g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED != 0)
         g_wPacketDecompressInputSize_0059ab38 =
-            g_wPacketDecompressionInputSizeOverride_0046a920;
+            g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED;
 
 initializeDecompressor:
     g_nPacketDecompressSourceFile_0059a858 = handle->file;
@@ -770,14 +770,14 @@ void show_target_disp(void)
 
     DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                g_szEmptyTargetDisplayText_0049b490, 2);
-    if (g_nTargetLockMode_0046c078 != 0) {
+    if (g_bTargetLockMode_00493500 != 0) {
         DrawFormattedText(g_szTextColourStringColourFormat_0049b4a8,
-                          (unsigned int)DAT_004699ac,
+                          (unsigned int)g_abGamePaletteReservedColours_0049cb54[8],
                           g_szLockedTarget_0049b494,
-                          (unsigned int)g_cDefaultTextColour_004699cc);
+                          (unsigned int)g_ucDefaultTextColour_0049cb7c);
     } else {
         DrawFormattedText(g_szTextColourStringFormat_0049b4c4,
-                          (unsigned int)g_cDefaultTextColour_004699cc,
+                          (unsigned int)g_ucDefaultTextColour_0049cb7c,
                           g_szAutoTargetting_0049b4b0);
     }
     target = g_acShipTarget_00495f20[0];
@@ -788,7 +788,7 @@ void show_target_disp(void)
         target = -1;
         g_acShipTarget_00495f20[0] = -1;
     }
-    g_cTargetDisplayObject_0046c06c = (signed char)target;
+    g_cTargetDisplayObject_004934f4 = (signed char)target;
     DrawFormattedText(g_szTargetLabel_0049b4cc);
     if (target == -1) {
         DrawFormattedText(g_szNoTarget_0049b4d8);
@@ -813,7 +813,7 @@ void show_target_disp(void)
     DrawFormattedText(g_szRangeLabel_0049b4f0);
     InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
     if (g_asObjectScreenX_00493598[targetIndex] == (short)0x8001) {
-        g_cTargetDisplayObject_0046c06c = -1;
+        g_cTargetDisplayObject_004934f4 = -1;
         return;
     }
 
@@ -882,7 +882,7 @@ void DrawTargetRangeReadout(void)
         g_acShipTarget_00495f20[0] = -1;
         target = -1;
     }
-    if (g_cTargetDisplayObject_0046c06c != target ||
+    if (g_cTargetDisplayObject_004934f4 != target ||
         (short)(g_nRenderedSpaceFrame_00493138 % 8) == 0) {
         set_new_vdu(1);
         show_target_disp();
@@ -1634,14 +1634,6 @@ void gametrack(void)
 
     track = -1;
     if (g_nInFlightMusicActive_0049bf08 != 0) {
-        if (g_nTrainSimActive_0049d758 != 0) {
-            if (g_nMusicStreamSet_0046aa18 != 0 ||
-                g_nCurrentMusicTrack_0049be98 != 20)
-                spacetrack(20, 1, 0);
-            SoundDebugPrintf("%d %d\n", g_nMusicStreamSet_0046aa18,
-                             g_nCurrentMusicTrack_0049be98);
-            return;
-        }
         if (g_nCombatMusicActive_0049bf04 != 0) {
             if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
                 g_nMusicTrackComplete_0049be88 != 0) {
@@ -1660,12 +1652,17 @@ void gametrack(void)
                     else
                         track = 4;
                 }
+                if (g_nMissionMusicTrackOverride_00496144 != 0)
+                    track = g_nMissionMusicTrackOverride_00496144;
                 if (report_kilrathi_rout(1) == 0)
                     g_nCombatMusicActive_0049bf04 = 0;
             }
         } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
                    g_nMusicTrackComplete_0049be88 != 0) {
-            track = changetrack();
+            if (g_bJumpSequenceActive_004962f0 != 0)
+                track = 0x2f;
+            else
+                track = changetrack();
             if (report_kilrathi_rout(2) != 0)
                 g_nCombatMusicActive_0049bf04 = 1;
         }
@@ -1681,14 +1678,14 @@ void servicetrack(void)
     FixedVector travel;
 
     gametrack();
-    if (g_nFlightSoundEffectsEnabled_0046aa34 != 0) {
+    if (g_bFlightSoundEffectsEnabled_0049beb0 != 0) {
         for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
-            if (object == g_nPassingShipSoundObject_0046aa48) {
+            if (object == g_nPassingShipSoundObject_0049bf10) {
                 if (g_aeObjectClass_00495328[object] !=
                         OBJECT_CLASS_SHIP ||
                     g_aeObjectClass_00495328[object] !=
                         OBJECT_CLASS_CAPITAL_SHIP)
-                    g_nPassingShipSoundObject_0046aa48 = -1;
+                    g_nPassingShipSoundObject_0049bf10 = -1;
             }
             if (g_aeObjectClass_00495328[object] ==
                     OBJECT_CLASS_ASTEROID) {
@@ -1705,7 +1702,7 @@ void servicetrack(void)
                            (short)0x8001 &&
                        (unsigned short)
                            g_asObjectDistance_00493ae8[object] < 0x55a) {
-                if (g_nPassingShipSoundObject_0046aa48 == -1) {
+                if (g_nPassingShipSoundObject_0049bf10 == -1) {
                     ScaleFixedVector(&g_aShipVelocity_00494898[object],
                                      0x1400, &travel);
                     AddFixedVectors(&g_aShipPosition_00494550[object],
@@ -1718,8 +1715,8 @@ void servicetrack(void)
                         &g_aShipPosition_00494550[object],
                         &futurePosition);
                     if (dot_product(&travel, &futurePosition) < 0xdd) {
-                        g_nPassingShipSoundCountdown_0046aa4c = 10;
-                        g_nPassingShipSoundObject_0046aa48 = object;
+                        g_nPassingShipSoundCountdown_0049bf14 = 10;
+                        g_nPassingShipSoundObject_0049bf10 = object;
                         if (g_nPassingShipSoundCooldown_005a68e8 <
                             g_nSpaceFrame_00493134) {
                             g_nPassingShipSoundCooldown_005a68e8 =
@@ -1728,10 +1725,10 @@ void servicetrack(void)
                         }
                     }
                 } else if (object ==
-                               g_nPassingShipSoundObject_0046aa48) {
-                    g_nPassingShipSoundCountdown_0046aa4c--;
-                    if (g_nPassingShipSoundCountdown_0046aa4c == 0)
-                        g_nPassingShipSoundObject_0046aa48 = -1;
+                               g_nPassingShipSoundObject_0049bf10) {
+                    g_nPassingShipSoundCountdown_0049bf14--;
+                    if (g_nPassingShipSoundCountdown_0049bf14 == 0)
+                        g_nPassingShipSoundObject_0049bf10 = -1;
                 }
             }
         }
@@ -1750,14 +1747,12 @@ void ResetSoundState(void)
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();
-    g_nFlightSoundEffectsEnabled_0046aa34 = 0;
+    g_bFlightSoundEffectsEnabled_0049beb0 = 0;
 }
 
 /* Function start: 0x4534D3 */
 void ResetSoundStateForFlight(void)
 {
-    ResetSoundState();
-    g_nFlightSoundEffectsEnabled_0046aa34 = 1;
 }
 
 /* Function start: 0x4534FC */

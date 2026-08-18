@@ -769,7 +769,7 @@ void Mkill_missile(short ship, short target)
         maneuver_complete(ship);
         return;
     }
-    ship_vs_ship(ship, g_nTargetShip_0059c3b0);
+    ship_vs_ship(ship, g_nTargetShip_004931a0);
     if (g_nFacingToTarget_00493194 < 0) {
         reset_maneuver(ship, MANEUVER_FISH_HOOK);
         Mfish_hook(ship, target);
@@ -780,7 +780,7 @@ void Mkill_missile(short ship, short target)
         Mburnout(ship, target);
         return;
     }
-    point_ship_at_object(ship, g_nTargetShip_0059c3b0);
+    point_ship_at_object(ship, g_nTargetShip_004931a0);
     if (g_nTargetRange_0049319c < 8000)
         fire(ship, g_acShipTarget_00495f20[ship]);
 }
@@ -928,7 +928,7 @@ void Mveer_away(short ship, short target)
 /* Function start: 0x4423E2 */
 void ShipAiState44(short ship)
 {
-    g_acShipStress_0059d620[ship] = 0;
+    g_acShipStress_00496100[ship] = 0;
     maneuver_complete(ship);
 }
 
@@ -1829,7 +1829,7 @@ unsigned int landing(signed char damageLevel)
                           g_cSecondaryViewBufferColour_0049cb4c);
             FormatTextBufferFromStart(
                 g_szLandingCommentFormat_00465bf8, 0, 160,
-                DAT_004699a4,
+                g_abGamePaletteReservedColours_0049cb54[0],
                 *(const char **)
                     ((unsigned char *)g_apszLandingDamageComments_00465ab8 +
                      damageOffset));
@@ -2036,7 +2036,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
             frame = 0;
             FormatTextBufferFromStart(
                 g_szFuneralCompanyCommand_00465c18, 0, 160,
-                DAT_004699a4);
+                g_abGamePaletteReservedColours_0049cb54[0]);
             g_nFrameSkipCountdown_0049d760 = 1;
             for (; frame < 15; frame++) {
                 PumpWindowMessages(0);
@@ -2111,7 +2111,8 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                                         g_cSecondaryViewBufferColour_0049cb4c);
                                     FormatTextBufferFromStart(
                                         g_szFuneralFireCommand_00465c54,
-                                        0, 160, DAT_004699a4);
+                                        0, 160,
+                                        g_abGamePaletteReservedColours_0049cb54[0]);
                                     if (volley == 1)
                                         PlaySfxWaveFileByNumber(
                                             0x1e, -1, 0);
@@ -2686,9 +2687,9 @@ void run_away(short obj)
 {
     FixedVector direction;
 
-    if (unactive(g_asShipWingLeader_0059d400[obj]) == 0 &&
+    if (unactive(g_asShipWingLeader_00495dd0[obj]) == 0 &&
         g_asShipMissionType_00495de8[
-            g_asShipWingLeader_0059d400[obj]] == MISSION_TYPE_ROUT) {
+            g_asShipWingLeader_00495dd0[obj]] == MISSION_TYPE_ROUT) {
         maintain_formation(obj);
         return;
     }
@@ -2830,7 +2831,7 @@ void try2allow_engage(short obj)
 /* Function start: 0x443095 */
 void imperial_formation(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = g_asShipWingLeader_00495dd0[obj];
 
     if (leader == -1)
         leader = obj;
@@ -2845,7 +2846,7 @@ void imperial_formation(short obj)
                 try2allow_engage(obj);
         }
         if (g_bEngageAllowed_0049612c != 0) {
-            engage(obj, g_nTargetShip_0059c3b0,
+            engage(obj, g_nTargetShip_004931a0,
                    OBJECTIVE_ENGAGE_ENEMY);
         } else if (obj == g_nYourWingman_0049346c &&
                    g_nAutoEngageTimer_00496130 == -1) {
@@ -2853,11 +2854,11 @@ void imperial_formation(short obj)
             g_nAutoEngageTimer_00496130 = 40;
         }
     } else if (obj == g_nYourWingman_0049346c &&
-               g_nEnemySighting_00465c7c != g_nCurrentWave_004931c0 &&
+               g_nEnemySighting_0049b670 != g_nCurrentWave_004931c0 &&
                any_enemy(obj, 16000) != 0 &&
                message_showing() == 0 && g_nCurrentView_00492fa8 == 0) {
         send_message(obj, 2);
-        g_nEnemySighting_00465c7c = g_nCurrentWave_004931c0;
+        g_nEnemySighting_0049b670 = g_nCurrentWave_004931c0;
     }
 
     if (g_aeSpecialManeuver_00495600[obj] == SPECIAL_MANEUVER_NONE &&
@@ -2922,7 +2923,7 @@ void imperial_wingman(short obj)
 /* Function start: 0x443499 */
 void kilrathi_wingman(short obj)
 {
-    short leader = g_asShipWingLeader_0059d400[obj];
+    short leader = g_asShipWingLeader_00495dd0[obj];
     enum ShipObjective objective;
 
     if (leader == -1) {
@@ -3248,7 +3249,7 @@ void escort_mission(short obj)
     }
     if ((g_abShipTurn_00495fd8[obj] & 3) == 0 && in_danger(buddy) != 0 &&
         g_nTargetRange_0049319c < 3000)
-        engage(obj, g_nTargetShip_0059c3b0,
+        engage(obj, g_nTargetShip_004931a0,
                OBJECTIVE_ENGAGE_ENEMY);
     if (g_aeShipObjective_00495f08[obj] != OBJECTIVE_HOME_BASE &&
         (g_abShipTurn_00495fd8[obj] & 7) == 4 &&
@@ -3392,7 +3393,7 @@ void defend_mission(short obj)
     if (g_abShipTurn_00495fd8[obj] % 10 == 0 &&
         in_danger(master) != 0 && g_nTargetRange_0049319c < 6000 &&
         g_aeShipObjective_00495f08[obj] != OBJECTIVE_ENGAGE_ENEMY)
-        engage(obj, g_nTargetShip_0059c3b0,
+        engage(obj, g_nTargetShip_004931a0,
                OBJECTIVE_ENGAGE_ENEMY);
     if (g_aeShipObjective_00495f08[obj] != OBJECTIVE_HOME_BASE &&
         (g_abShipTurn_00495fd8[obj] & 7) == 4 &&
@@ -3438,7 +3439,7 @@ void rendezvous_mission(short obj)
     switch (g_aeShipObjective_00495f08[obj]) {
     case OBJECTIVE_REACH_SHIP:
         if (attacker_in_range(obj, 3500) != 0)
-            engage(obj, g_nTargetShip_0059c3b0,
+            engage(obj, g_nTargetShip_004931a0,
                    OBJECTIVE_ENGAGE_ENEMY);
         if (distance_from_object(obj, goal) < 2500) {
             reset_mission_type(obj, MISSION_TYPE_DEFEND);
@@ -3535,15 +3536,15 @@ void tanker_intelligence(short obj)
 {
     if (attacker_in_range(obj, 3000) != 0) {
         approach_full_speed(obj);
-        g_acShipTarget_00495f20[obj] = g_nTargetShip_0059c3b0;
-        fire(obj, g_nTargetShip_0059c3b0);
+        g_acShipTarget_00495f20[obj] = g_nTargetShip_004931a0;
+        fire(obj, g_nTargetShip_004931a0);
         if (no_goal(obj) != 0) {
             if (RandomBelowOrEqual(4) == 0) {
                 g_anYawGoal_004954c0[obj] = signed_random(90);
                 g_anRollGoal_004954d8[obj] = signed_random(90);
             } else {
                 point_capital_ship_at_object(obj,
-                                             g_nTargetShip_0059c3b0);
+                                             g_nTargetShip_004931a0);
             }
         }
         return;
@@ -3612,15 +3613,15 @@ void capital_ship_intelligence(short obj)
         return;
     }
 
-    g_nTargetShip_0059c3b0 = g_acShipTarget_00495f20[obj];
-    if (unactive(g_nTargetShip_0059c3b0) != 0)
+    g_nTargetShip_004931a0 = g_acShipTarget_00495f20[obj];
+    if (unactive(g_nTargetShip_004931a0) != 0)
         scan_for_enemy(obj, 15000);
     if (g_aeShipTactic_0059d5e0[obj] != TACTIC_SELF_DEFENSE) {
-        if (g_nTargetShip_0059c3b0 != -1) {
+        if (g_nTargetShip_004931a0 != -1) {
             approach_full_speed(obj);
             g_aeShipTactic_0059d5e0[obj] = TACTIC_SELF_DEFENSE;
             g_acShipTarget_00495f20[obj] =
-                (signed char)g_nTargetShip_0059c3b0;
+                (signed char)g_nTargetShip_004931a0;
             fire_turrets(obj);
         } else {
             approach_cruise_speed(obj);
@@ -3912,74 +3913,6 @@ void init_mission(short series, short mission)
 /* Function start: 0x44BA73 */
 void prepare_mission(void)
 {
-#if 0
-    MissionShipRecord *playerRecord;
-    short initial;
-    short missionShip;
-    int pilot;
-
-    g_nMissionScore_00493462 = 0;
-    g_bWingmanKilledThisMission_005d2fb8 = 0;
-    g_bPlayerDestroyed_005d2fa4 = 0;
-    g_nWingmanKillCount_005a7cb8 = 0;
-    g_nMissionMedalScore_005a8116 = 0;
-    g_cPlayerKillCount_005d2fa8 = 0;
-
-    playerRecord =
-        &g_aMissionShips_00492290[g_stMissionHeader_005d3e70.playerMissionShip];
-    g_nPlayerShipType_00493464 = playerRecord->type;
-    load_ship(g_nPlayerShipType_00493464, 0, 0, 0);
-    set_objects_data(0, g_nPlayerShipType_00493464, -1, 0);
-    playerRecord->navPoint = g_stMissionHeader_005d3e70.entryNavPoint;
-    if (g_nTrainSimActive_0049d758 == 0 && g_nMissionEntryNavOverride_0049d790 != -1)
-        playerRecord->navPoint = g_nMissionEntryNavOverride_0049d790;
-    Set_up_ship_info(0, g_stMissionHeader_005d3e70.playerMissionShip, -1);
-
-    memset(g_acPlayerComponentDamage_00493470, 0,
-           sizeof(g_acPlayerComponentDamage_00493470));
-    DAT_00465c84 = 1;
-    g_nYourWingman_0049346c = -1;
-    initial = 0;
-    do {
-        missionShip = g_stMissionHeader_005d3e70.initialMissionShips[initial];
-        if (missionShip != -1) {
-            pilot = g_aMissionShips_00492290[missionShip].pilot;
-            if (is_alive(pilot) != 0 &&
-                find_ships_sphere(missionShip) == -1) {
-                init_ship(missionShip, g_stMissionHeader_005d3e70.entryNavPoint);
-                if (g_nYourWingman_0049346c == -1 &&
-                    pilot > 4 && pilot < 14)
-                    g_nYourWingman_0049346c = DAT_0046c010;
-            }
-        }
-        initial++;
-    } while (initial < 8);
-    DAT_00465c84 = 0;
-
-    Build_objective_list();
-    missionShip = 0;
-    g_nHomeMissionShipIndex_005d1e22 = missionShip;
-#ifdef WC1_SDL
-    /* The original scans to 64 even though the initialized table ends after
-     * record 47.  Valid missions place the carrier in the loaded first 32;
-     * stop at the proven storage boundary in the sanitizer-enabled port. */
-    while (missionShip < WC1_MISSION_SHIP_STORAGE_COUNT &&
-           g_aMissionShips_00492290[missionShip].type !=
-               OBJECT_TYPE_TIGERS_CLAW) {
-        missionShip++;
-        g_nHomeMissionShipIndex_005d1e22 = missionShip;
-    }
-#else
-    while (g_aMissionShips_00492290[missionShip].type !=
-               OBJECT_TYPE_TIGERS_CLAW &&
-           missionShip < WC1_MISSION_SHIP_SCAN_LIMIT) {
-        missionShip++;
-        g_nHomeMissionShipIndex_005d1e22 = missionShip;
-    }
-#endif
-    g_nTargetLockMode_0046c078 = 0;
-    g_bLandingAuthorized_00468ff8 = 0;
-#else
     short initial;
     short playerMissionShip;
     short objectClass;
@@ -4034,8 +3967,7 @@ void prepare_mission(void)
     g_nHomeMissionShipIndex_005d1e22 =
         g_stMissionHeader_005d3e70.homeMissionShip;
     g_bLandingCommRequestPending_00492fa0 = 0;
-    g_bRestorePlayerTarget_00493500 = 0;
-#endif
+    g_bTargetLockMode_00493500 = 0;
 }
 
 /* Function start: 0x44BCF7 */
@@ -4676,7 +4608,7 @@ int set_up_action_sphere(short navPoint)
     g_nCurrentWave_004931c0 =
         (short)((((g_aMissionNavPoints_00491e98[navPoint + 1].type == 2) ?
                   -1 : 0) & 3) - 1);
-    g_nEnemySighting_00465c7c = 0x7fff;
+    g_nEnemySighting_0049b670 = 0x7fff;
 
     obj = 1;
     do {
@@ -4699,7 +4631,7 @@ int set_up_action_sphere(short navPoint)
         obj++;
     } while (obj < 10);
     remove_all_hazards();
-    g_nHazardFieldCount_0059c90c = 0;
+    g_nHazardFieldCount_004931d0 = 0;
     new_sphere_shapes(nav);
 
     entry = 0;
@@ -4726,7 +4658,7 @@ int set_up_action_sphere(short navPoint)
         objective++;
     }
     clean_up_cockpit();
-    g_bLandingAuthorized_00468ff8 = 0;
+    g_bLandingCommRequestPending_00492fa0 = 0;
     return 0;
 }
 
@@ -4968,13 +4900,14 @@ unsigned int set_formation_position(short obj,
                                                [record->formationSpot],
         &g_aaFormationPositions_00465ed8[leaderRecord->formationIndex]
                                                [leaderRecord->formationSpot],
-        &g_aShipFormationOffset_0059b520[obj]);
-    if (source == 0 && DAT_00465c84 == 0)
+        &g_aShipFormationOffset_00495468[obj]);
+    if (source == 0 &&
+        g_bMissionShipInitializationInProgress_0049b890 == 0)
         return 0;
 
     copy_frame(source, obj);
     set_sphere_point(leaderRecord, &g_aShipPosition_00494550[obj]);
-    offset_location(obj, &g_aShipFormationOffset_0059b520[obj],
+    offset_location(obj, &g_aShipFormationOffset_00495468[obj],
                     &g_aShipPosition_00494550[obj]);
     g_anShipSpeed_0059b320[obj] = leaderRecord->speed << 8;
     return 0;
@@ -5011,7 +4944,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_asPilotLevel_00495d60[obj] = record->pilot;
     reset_mission_type(obj, record->missionType);
     g_asShipSystemIndex_00495e00[obj] = record->systemIndex;
-    g_asShipWingLeader_0059d400[obj] =
+    g_asShipWingLeader_00495dd0[obj] =
         find_ship_index(record->leaderMissionIndex);
     set_formation_position(obj, record);
     zero_vector(&g_aShipVelocity_00494898[obj]);
@@ -5049,36 +4982,10 @@ short is_team_member(short missionShip)
 /* Function start: 0x44E09C */
 void find_next_ship_turn_slot(short obj)
 {
-#if 0
-    signed char interval;
-    int objIndex;
-    short other;
-
-    objIndex = obj;
-    other = 1;
-    g_acTurnRegulator_00495618[objIndex] = 1;
-    interval = g_anPilotTurnInterval_00465fc8[
-        g_asPilotLevel_00495d60[objIndex]];
-    g_acTurnInterval_00495628[objIndex] = interval;
-    do {
-        if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
-            obj != other &&
-            g_acTurnRegulator_00495618[other] ==
-                g_acTurnRegulator_00495618[objIndex] &&
-            g_acTurnInterval_00495628[other] == interval) {
-            other = 1;
-            g_acTurnRegulator_00495618[objIndex]++;
-            if (interval < g_acTurnRegulator_00495618[objIndex])
-                break;
-        }
-        other++;
-    } while (other <= 9);
-    return 0;
-#else
     short other;
 
     g_acTurnInterval_00495628[obj] = (signed char)
-        g_anPilotTurnInterval_00465fc8[g_asPilotLevel_00495d60[obj]];
+        g_anPilotTurnInterval_0049b9c0[g_asPilotLevel_00495d60[obj]];
     g_acTurnRegulator_00495618[obj] = 1;
     for (other = 1; other <= 9; other++) {
         if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
@@ -5094,7 +5001,6 @@ void find_next_ship_turn_slot(short obj)
                 return;
         }
     }
-#endif
 }
 
 /* Function start: 0x44E187 */
@@ -5357,22 +5263,22 @@ void DrawNavTextLine(unsigned char alignment, unsigned short colour,
 /* Function start: 0x44FADA */
 void SetNavMapCoordinateScaling(short enabled)
 {
-    g_nNavMapCoordinateScaling_00468660 = enabled;
+    g_nNavMapCoordinateScaling_0049bb80 = enabled;
 }
 
 /* Function start: 0x44FAEF */
 void ScaleNavMapMarkerSize(short *size)
 {
-    *size = (short)(*size / (g_nNavMapScale_00468664 * 100));
+    *size = (short)(*size / (g_nNavMapScale_0049bb84 * 100));
 }
 
 /* Function start: 0x44FB19 */
 void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 {
     *x = (short)((mapX - g_nNavMapCentreX_005a8152) /
-                 g_nNavMapScale_00468664 + 75);
+                 g_nNavMapScale_0049bb84 + 75);
     *y = (short)((g_nNavMapCentreY_005a817c - mapY) /
-                 g_nNavMapScale_00468664 + 67);
+                 g_nNavMapScale_0049bb84 + 67);
 }
 
 /* Function start: 0x44FB68 */
@@ -5383,7 +5289,7 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
     *x = (short)((worldX / 100) >> 8);
     mapY = (short)((worldZ / 100) >> 8);
     *y = mapY;
-    if (g_nNavMapCoordinateScaling_00468660 != 0)
+    if (g_nNavMapCoordinateScaling_0049bb80 != 0)
         ScaleNavMapCoordinates(x, y, *x, mapY);
 }
 
@@ -5455,11 +5361,11 @@ void SetScale(void)
     halfHeight = (short)(height / 2);
     g_nNavMapCentreY_005a817c =
         (short)(g_nNavMapMinimumY_005a8154 + halfHeight);
-    g_nNavMapScale_00468664 = MaxShort(
+    g_nNavMapScale_0049bb84 = MaxShort(
         (short)((width + halfWidth) / 150),
         (short)((halfHeight + height) / 135));
-    if (g_nNavMapScale_00468664 == 0)
-        g_nNavMapScale_00468664 = 100;
+    if (g_nNavMapScale_0049bb84 == 0)
+        g_nNavMapScale_0049bb84 = 100;
     SetNavMapCoordinateScaling(1);
 }
 

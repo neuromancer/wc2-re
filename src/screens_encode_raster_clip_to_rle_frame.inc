@@ -117,11 +117,11 @@ dormant_loc_43c270:
         sub	eax, dword ptr [ebp - 0x1c]
         mov	dword ptr [ebp - 0xc], eax
         mov	eax, 0x7fffffff
-        mov	dword ptr [g_nRLEEncodedMinimumX_0046e705], eax
-        mov	dword ptr [g_nRLEEncodedMinimumY_0046e709], eax
+        mov	dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
+        mov	dword ptr [g_nRLEEncodedMinimumY_004902e5], eax
         neg	eax
-        mov	dword ptr [g_nRLEEncodedMaximumX_0046e70d], eax
-        mov	dword ptr [g_nRLEEncodedMaximumY_0046e711], eax
+        mov	dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
+        mov	dword ptr [g_nRLEEncodedMaximumY_004902ed], eax
         mov	eax, dword ptr [ebp - 0x20]
         imul	dword ptr [ebp - 0x30]
         add	eax, dword ptr [ebp - 0x2c]
@@ -139,25 +139,25 @@ dormant_loc_43c2c9:
         mov	al, byte ptr [ebp + 0xc]
         rep		scasb
         je dormant_loc_43c354
-        mov	eax, dword ptr [g_nRLEEncodedMinimumY_0046e709]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
         cmp	eax, dword ptr [ebp - 0x10]
         jl dormant_loc_43c2ef
         mov	eax, dword ptr [ebp - 0x10]
 dormant_loc_43c2ef:
-        mov	dword ptr [g_nRLEEncodedMinimumY_0046e709], eax
-        mov	eax, dword ptr [g_nRLEEncodedMaximumY_0046e711]
+        mov	dword ptr [g_nRLEEncodedMinimumY_004902e5], eax
+        mov	eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
         cmp	eax, dword ptr [ebp - 0x10]
         jg dormant_loc_43c301
         mov	eax, dword ptr [ebp - 0x10]
 dormant_loc_43c301:
-        mov	dword ptr [g_nRLEEncodedMaximumY_0046e711], eax
+        mov	dword ptr [g_nRLEEncodedMaximumY_004902ed], eax
         mov	eax, dword ptr [ebp - 0x24]
         sub	eax, ecx
-        cmp	eax, dword ptr [g_nRLEEncodedMinimumX_0046e705]
+        cmp	eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
         jl dormant_loc_43c318
-        mov	eax, dword ptr [g_nRLEEncodedMinimumX_0046e705]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
 dormant_loc_43c318:
-        mov	dword ptr [g_nRLEEncodedMinimumX_0046e705], eax
+        mov	dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
         mov	eax, dword ptr [g_pRLEScanlineStart_004902c1]
         add	eax, dword ptr [ebp - 0x8]
         dec	eax
@@ -172,11 +172,11 @@ dormant_loc_43c318:
         je dormant_loc_43c354
         mov	eax, dword ptr [ebp - 0x1c]
         add	eax, ecx
-        cmp	eax, dword ptr [g_nRLEEncodedMaximumX_0046e70d]
+        cmp	eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
         jg dormant_loc_43c34f
-        mov	eax, dword ptr [g_nRLEEncodedMaximumX_0046e70d]
+        mov	eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
 dormant_loc_43c34f:
-        mov	dword ptr [g_nRLEEncodedMaximumX_0046e70d], eax
+        mov	dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
 dormant_loc_43c354:
         mov	eax, dword ptr [ebp - 0x30]
         add	dword ptr [g_pRLEScanlineStart_004902c1], eax
@@ -188,32 +188,32 @@ dormant_loc_43c360:
         mov	edi, dword ptr [ebp + 0x18]
         or	edi, edi
         je dormant_loc_43c39f
-        mov	eax, dword ptr [g_nRLEEncodedMinimumX_0046e705]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
         sub	eax, dword ptr [ebp + 0x10]
         mov	dword ptr [edi + 0x8], eax
-        mov	eax, dword ptr [g_nRLEEncodedMinimumY_0046e709]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
         sub	eax, dword ptr [ebp + 0x14]
         mov	dword ptr [edi + 0xc], eax
-        mov	eax, dword ptr [g_nRLEEncodedMaximumX_0046e70d]
+        mov	eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
         sub	eax, dword ptr [ebp + 0x10]
         mov	dword ptr [edi + 0x10], eax
-        mov	eax, dword ptr [g_nRLEEncodedMaximumY_0046e711]
+        mov	eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
         sub	eax, dword ptr [ebp + 0x14]
         mov	dword ptr [edi + 0x14], eax
 dormant_loc_43c39f:
         add	edi, 0x18
         mov	dword ptr [g_pRLEOutputCursor_004902c9], edi
-        mov	eax, dword ptr [g_nRLEEncodedMaximumX_0046e70d]
+        mov	eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
         inc	eax
-        sub	eax, dword ptr [g_nRLEEncodedMinimumX_0046e705]
+        sub	eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
         mov	dword ptr [ebp - 0x18], eax
-        mov	eax, dword ptr [g_nRLEEncodedMinimumY_0046e709]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
         imul	dword ptr [ebp - 0x30]
         add	eax, dword ptr [ebp - 0x2c]
-        add	eax, dword ptr [g_nRLEEncodedMinimumX_0046e705]
+        add	eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
         mov	esi, eax
         mov	dword ptr [g_pRLEScanlineStart_004902c1], esi
-        mov	eax, dword ptr [g_nRLEEncodedMinimumY_0046e709]
+        mov	eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
         mov	dword ptr [ebp - 0x10], eax
         jmp dormant_loc_43c3f7
 dormant_loc_43c3da:
@@ -227,7 +227,7 @@ dormant_loc_43c3da:
         inc	dword ptr [ebp - 0x10]
 dormant_loc_43c3f7:
         mov	eax, dword ptr [ebp - 0x10]
-        cmp	eax, dword ptr [g_nRLEEncodedMaximumY_0046e711]
+        cmp	eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
         jle dormant_loc_43c3da
         mov	eax, dword ptr [g_pRLEOutputCursor_004902c9]
         sub	eax, dword ptr [ebp + 0x18]

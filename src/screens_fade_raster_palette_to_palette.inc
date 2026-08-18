@@ -9,7 +9,7 @@
         cld
         push	ds
         pop	es
-        mov edi, offset g_abRasterPaletteUsageScratch_0046f915
+        mov edi, offset g_abRasterPaletteUsageScratch_004914f1
         mov	eax, 0x0
         mov	ecx, 0x40
         rep		stosd
@@ -20,24 +20,24 @@
         inc	ecx
         imul	ecx, eax
         mov	esi, dword ptr [esi]
-        mov edi, offset g_abRasterDecodeBuffer_0046ec15 + 0x300
+        mov edi, offset g_abRasterDecodeBuffer_004907f1 + 0x300
         mov	dword ptr [ebp - 0x4], 0xffffffff
 dormant_loc_43f45f:
         mov	eax, 0x0
         lodsb
-        cmp byte ptr g_abRasterPaletteUsageScratch_0046f915[eax], 0x0
+        cmp byte ptr g_abRasterPaletteUsageScratch_004914f1[eax], 0x0
         jne dormant_loc_43f492
-        or byte ptr g_abRasterPaletteUsageScratch_0046f915[eax], 0x1
+        or byte ptr g_abRasterPaletteUsageScratch_004914f1[eax], 0x1
         stosb
         inc	dword ptr [ebp - 0x4]
         mov	ebx, eax
         shl	ebx, 1
         add	ebx, eax
-        add ebx, offset g_abRasterDecodeBuffer_0046ec15
+        add ebx, offset g_abRasterDecodeBuffer_004907f1
         push	ecx
         push	ebx
         push	eax
-        call	dword ptr [g_apRasterDriverCallbacks_0046e69c + 0x20]
+        call	dword ptr [g_apRasterDriverCallbacks_00490278 + 0x20]
         add	esp, 0x8
         pop	ecx
 dormant_loc_43f492:
@@ -48,21 +48,21 @@ dormant_loc_43f492:
         mov	ebx, 0x0
         mov	esi, dword ptr [ebp + 0xc]
 dormant_loc_43f4a7:
-        movzx eax, byte ptr g_abRasterDecodeBuffer_0046ec15[ecx + 0x300]
+        movzx eax, byte ptr g_abRasterDecodeBuffer_004907f1[ecx + 0x300]
         mov	ebx, eax
         shl	ebx, 1
         add	ebx, eax
         mov	edx, 0x2
 dormant_loc_43f4b9:
         mov	ah, -0x1
-        mov al, byte ptr g_abRasterDecodeBuffer_0046ec15[ebx]
+        mov al, byte ptr g_abRasterDecodeBuffer_004907f1[ebx]
         sub	al, byte ptr [ebx + esi]
         jge dormant_loc_43f4ca
         mov	ah, 0x1
         neg	al
 dormant_loc_43f4ca:
-        mov byte ptr g_abRasterPaletteUsageScratch_0046f915[ebx], ah
-        mov byte ptr g_abRasterDecodeBuffer_0046ec15[ebx + 0x400], al
+        mov byte ptr g_abRasterPaletteUsageScratch_004914f1[ebx], ah
+        mov byte ptr g_abRasterDecodeBuffer_004907f1[ebx + 0x400], al
         cmp	al, byte ptr [ebp - 0x8]
         jle dormant_loc_43f4de
         mov	byte ptr [ebp - 0x8], al
@@ -73,7 +73,7 @@ dormant_loc_43f4de:
         dec	ecx
         jns dormant_loc_43f4a7
         mov	ecx, dword ptr [ebp - 0x4]
-        mov edi, offset g_abRasterFadeAccumulator_0046fc15
+        mov edi, offset g_abRasterFadeAccumulator_004917f1
         mov	al, byte ptr [ebp - 0x8]
         shr	al, 1
         mov	ah, al
@@ -94,30 +94,30 @@ dormant_loc_43f4de:
 dormant_loc_43f526:
         mov	ecx, dword ptr [ebp - 0x4]
 dormant_loc_43f529:
-        movzx eax, byte ptr g_abRasterDecodeBuffer_0046ec15[ecx + 0x300]
+        movzx eax, byte ptr g_abRasterDecodeBuffer_004907f1[ecx + 0x300]
         mov	ebx, eax
         shl	ebx, 1
         add	ebx, eax
         mov	edx, 0x2
 dormant_loc_43f53b:
-        mov al, byte ptr g_abRasterFadeAccumulator_0046fc15[edx + ebx]
-        add al, byte ptr g_abRasterDecodeBuffer_0046ec15[edx + ebx + 0x400]
+        mov al, byte ptr g_abRasterFadeAccumulator_004917f1[edx + ebx]
+        add al, byte ptr g_abRasterDecodeBuffer_004907f1[edx + ebx + 0x400]
         cmp	al, byte ptr [ebp - 0x8]
         jl dormant_loc_43f55f
         sub	al, byte ptr [ebp - 0x8]
-        mov ah, byte ptr g_abRasterPaletteUsageScratch_0046f915[edx + ebx]
-        add byte ptr g_abRasterDecodeBuffer_0046ec15[edx + ebx], ah
+        mov ah, byte ptr g_abRasterPaletteUsageScratch_004914f1[edx + ebx]
+        add byte ptr g_abRasterDecodeBuffer_004907f1[edx + ebx], ah
 dormant_loc_43f55f:
-        mov byte ptr g_abRasterFadeAccumulator_0046fc15[edx + ebx], al
+        mov byte ptr g_abRasterFadeAccumulator_004917f1[edx + ebx], al
         dec	edx
         jns dormant_loc_43f53b
         push	ecx
         mov	eax, ebx
-        add eax, offset g_abRasterDecodeBuffer_0046ec15
+        add eax, offset g_abRasterDecodeBuffer_004907f1
         push	eax
-        movzx eax, byte ptr g_abRasterDecodeBuffer_0046ec15[ecx + 0x300]
+        movzx eax, byte ptr g_abRasterDecodeBuffer_004907f1[ecx + 0x300]
         push	eax
-        call	dword ptr [g_apRasterDriverCallbacks_0046e69c + 0x24]
+        call	dword ptr [g_apRasterDriverCallbacks_00490278 + 0x24]
         add	esp, 0x8
         pop	ecx
         dec	ecx
@@ -127,7 +127,7 @@ dormant_loc_43f55f:
         cmp	word ptr [ebp - 0xe], 0x1
         jl dormant_loc_43f5a0
 dormant_loc_43f594:
-        call	dword ptr [g_apRasterDriverCallbacks_0046e69c + 0x14]
+        call	dword ptr [g_apRasterDriverCallbacks_00490278 + 0x14]
         dec	word ptr [ebp - 0xe]
         jne dormant_loc_43f594
 dormant_loc_43f5a0:

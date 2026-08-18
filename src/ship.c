@@ -8,7 +8,7 @@
  */
 #include "wc1.h"
 
-static const enum ObjectType g_aaeExplosionDebris_004698e0[4][7] = {
+static const enum ObjectType g_aaeExplosionDebris_00492dd8[4][7] = {
     {
         OBJECT_TYPE_DEBRIS_PIPE, OBJECT_TYPE_DEBRIS_O_RING,
         OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
@@ -87,7 +87,7 @@ int inflict_damage(short attacker, short victim, short damage,
     short destroyed;
     int sideDot;
 
-    if (DAT_00469ffc == 0 && victim == 0)
+    if (g_bPlayerDamageEnabled_0049d77c == 0 && victim == 0)
         return 0;
     if (damage == 0 ||
         g_aeSpecialManeuver_00495600[victim] ==
@@ -183,7 +183,7 @@ short pilot_hit(short obj)
         DAT_0059cf00[obj]--;
         if (DAT_0059cf00[obj] == 0) {
             if (obj == 0) {
-                if (DAT_00469ffc != 0)
+                if (g_bPlayerDamageEnabled_0049d77c != 0)
                     g_nArcadeState_0049d75c = 4;
                 return -1;
             }
@@ -502,7 +502,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                             (short)(weaponCount - 1)));
                     ShowComponentHitHudMessage(
                         g_szWeaponDestroyed_00492e20,
-                        DAT_004699ac, 8);
+                        g_abGamePaletteReservedColours_0049cb54[8], 8);
                 }
             }
             break;
@@ -522,7 +522,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                 g_anShipFuel_00495638[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(g_szFuelTanksHit_00492e34,
-                                       DAT_004699ac, 8);
+                                       g_abGamePaletteReservedColours_0049cb54[8], 8);
             break;
         case 8:
             if (quadrant != 0) {
@@ -563,7 +563,8 @@ short ReportComponentRepaired(short component, short minimumDamage)
         g_acPlayerComponentDamage_00493470[component]--;
         sprintf(message, g_szComponentFixedFormat_00492e44,
                 g_apszComponentNames_00490090[component]);
-        ShowComponentHitHudMessage(message, DAT_004699ac, 8);
+        ShowComponentHitHudMessage(
+            message, g_abGamePaletteReservedColours_0049cb54[8], 8);
         return 1;
     }
     return 0;
@@ -622,7 +623,7 @@ void Create_ship_hit_debris(short obj, short count)
         if (debris == -1)
             return;
         set_objects_data(debris,
-            g_aeShipHitDebrisTypes_00469950[
+            g_aeShipHitDebrisTypes_00492e10[
                 RandomBelowOrEqual(2)], -1, 0);
         g_asObjectCounter_00494be0[debris] = 40;
         FillFixedVectorWithRandomComponents(10, &offset);
@@ -724,7 +725,7 @@ unsigned int Create_explosion_debris(short obj)
         if (debris == -1)
             break;
         set_objects_data(debris,
-                         g_aaeExplosionDebris_004698e0[set][index], -1, 0);
+                         g_aaeExplosionDebris_00492dd8[set][index], -1, 0);
         g_asObjectCounter_00494be0[debris] = 40;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &vector,
@@ -1120,7 +1121,7 @@ int ResolveWc1ObjectDestruction(short attacker, short victim)
                         (short)(g_acShipRating_0059cd80[victim] -
                                 RATING_ACE_ANGEL),
                         0x20);
-                    g_acShipStress_0059d620[victim] = -25;
+                    g_acShipStress_00496100[victim] = -25;
                     reset_maneuver(victim, MANEUVER_OUTA_HERE);
                     g_acShipDamage_0059c460[victim] =
                         (signed char)(g_acShipDamage_0059c460[victim] / 2);
@@ -1150,7 +1151,7 @@ int ResolveWc1ObjectDestruction(short attacker, short victim)
         return 0;
 
     if (victim == 0) {
-        if (DAT_00469ffc == 0)
+        if (g_bPlayerDamageEnabled_0049d77c == 0)
             return 0;
         g_bPlayerDestroyed_005d2fa4 = 1;
         g_nArcadeState_0049d75c = 4;
@@ -1762,7 +1763,7 @@ short fire_weapon(short obj, short weapon)
         if (obj == 0) {
             if (weaponClass == OBJECT_CLASS_PROJECTILE) {
                 g_asObjectCounter_00494be0[obj] =
-                    g_acGunRefireDelay_0046995c[
+                    g_acGunRefireDelay_00492e1c[
                         weaponType - OBJECT_TYPE_LASER_CANNON];
             }
         } else {

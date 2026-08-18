@@ -623,10 +623,23 @@ typedef struct CannedSceneObjectEventRecord {
     unsigned int nextOffset;
     short endMarker;
 } CannedSceneObjectEventRecord;
+
+typedef struct CannedSceneBriefingCharacterRecord {
+    unsigned int opcode;
+    short frame;
+    signed char character;
+    signed char pose;
+    short animationFrame;
+    unsigned int nextOffset;
+    short endMarker;
+} CannedSceneBriefingCharacterRecord;
 #pragma pack(pop)
 
 typedef char CannedSceneObjectEventRecord_size_must_be_0x30[
     sizeof(CannedSceneObjectEventRecord) == 0x30 ? 1 : -1];
+
+typedef char CannedSceneBriefingCharacterRecord_size_must_be_0x10[
+    sizeof(CannedSceneBriefingCharacterRecord) == 0x10 ? 1 : -1];
 
 typedef char InputManagerState_size_must_be_0x21[
     sizeof(InputManagerState) == 0x21 ? 1 : -1];
@@ -780,7 +793,7 @@ typedef struct ConversationSceneRecord {
 
 /* One actor in the briefing-room long shot.  The packed 18-byte records at
  * 0x0046E218 carry both the seated-body origin and the independently scaled
- * portrait animation used by DrawBriefingCharacter. */
+ * portrait animation used by the original WC1 briefing renderer. */
 typedef struct BriefingCharacterLayout {
     short bodyX;                      /* +0x00 */
     short bodyY;                      /* +0x02 */
@@ -1069,6 +1082,11 @@ typedef struct Wc2PilotProfile {
     short field_5e;                   /* +0x5E */
 } Wc2PilotProfile;
 
+typedef struct PersonnelFileSlot {
+    short occupied;                  /* +0x00 */
+    char description[36];            /* +0x02 */
+} PersonnelFileSlot;
+
 /* Variable-length WC2 campaign globals.  The on-disk word count determines
  * the saved byte size; all 32 pilot-status words nevertheless have fixed
  * offsets in the retail image. */
@@ -1102,6 +1120,8 @@ typedef struct Wc2CampaignGlobals {
 
 typedef char Wc2PilotProfile_size_must_be_0x60[
     sizeof(Wc2PilotProfile) == 0x60 ? 1 : -1];
+typedef char PersonnelFileSlot_size_must_be_0x26[
+    sizeof(PersonnelFileSlot) == 0x26 ? 1 : -1];
 typedef char Wc2CampaignGlobals_pilot_status_must_start_at_0xa0[
     offsetof(Wc2CampaignGlobals, pilotStatus) == 0xa0 ? 1 : -1];
 

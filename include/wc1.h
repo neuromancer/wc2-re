@@ -134,6 +134,13 @@ typedef struct MouseCursorState {
     unsigned char shapeChanged;          /* +0x1B */
 } MouseCursorState;
 
+typedef struct HostMouseMessage {
+    int x;
+    int y;
+    int primaryButton;
+    int secondaryButton;
+} HostMouseMessage;
+
 #pragma pack(pop)
 
 #ifndef WC1_SDL

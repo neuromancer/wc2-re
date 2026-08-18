@@ -172,7 +172,7 @@ GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 # binary-comp currently accepts one definition source, so generate a parser-only
 # manifest from globals.c and the declaration block at the top of each owner.
 GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c src/ship.c \
-	src/dib.c src/dibtime.cpp
+	src/personnel.c src/dib.c src/dibtime.cpp
 GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
 GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
 

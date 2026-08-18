@@ -9,6 +9,18 @@
 
 #pragma function(strcat, strcpy, strlen)
 
+PersonnelFileSlot *g_apPersonnelFileSlots_0049a660[8] = {0};
+Wc2PilotProfile *g_apPersonnelPilotProfiles_0049a680[8] = {0};
+static const char g_szEmptyPersonnelFileFormat_0049a840[64] =
+    "%d ----------------------------------------------------------";
+static const char g_szCompactPersonnelFileFormat_0049a880[20] =
+    "%d--%s %c. \"%s\" %s";
+static const char g_szPersonnelFileFormat_0049a894[20] =
+    "%d--%s %s \"%s\" %s";
+static const char g_szPersonnelFileValueFormatA_0049a8a8[4] = "%d";
+static const char g_szPersonnelFileValueFormatB_0049a8ac[4] = "%d";
+static const char g_szPersonnelFileDescriptionFormat_0049a8b0[4] = "%s";
+
 /* Function start: 0x428C35 */
 char *GetWingCommanderOneGameDataPath(void)
 {
@@ -408,6 +420,54 @@ void DrawPersonnelMenuChoices(short choice)
         g_nPersonnelMenuHighlight_0049a6a0 = choice;
         EnableMouseCursorDrawing();
     }
+}
+
+/* Function start: 0x4348C3 */
+void DrawPersonnelFileSlot(short slot)
+{
+    unsigned int nameLength;
+
+    if (g_apPersonnelFileSlots_0049a660[slot]->occupied == 0) {
+        SetTextCursor(0x32, (unsigned short)(slot * 12 + 0x12));
+        DrawFormattedText(g_szEmptyPersonnelFileFormat_0049a840, slot);
+        return;
+    }
+
+    SetTextCursor(0x32, (unsigned short)(slot * 12 + 0x12));
+    nameLength = strlen(g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
+    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
+    if (nameLength > 0x16) {
+        DrawFormattedText(
+            g_szCompactPersonnelFileFormat_0049a880,
+            slot,
+            g_apszWc1PilotRankNames_0049a620[
+                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+            g_apPersonnelPilotProfiles_0049a680[slot]->firstName[0],
+            g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+    } else {
+        DrawFormattedText(
+            g_szPersonnelFileFormat_0049a894,
+            slot,
+            g_apszPilotRankNames_0049a608[
+                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+            g_apPersonnelPilotProfiles_0049a680[slot]->firstName,
+            g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+    }
+    SetTextCursor(0xc6, (unsigned short)(slot * 12 + 0x12));
+    DrawFormattedText(
+        g_szPersonnelFileValueFormatA_0049a8a8,
+        g_apPersonnelPilotProfiles_0049a680[slot]->field_41);
+    SetTextCursor(0xde, (unsigned short)(slot * 12 + 0x12));
+    DrawFormattedText(
+        g_szPersonnelFileValueFormatB_0049a8ac,
+        g_apPersonnelPilotProfiles_0049a680[slot]->field_43);
+    SetTextCursor(0x36, (unsigned short)(slot * 12 + 0x18));
+    DrawFormattedText(
+        g_szPersonnelFileDescriptionFormat_0049a8b0,
+        g_apPersonnelFileSlots_0049a660[slot]->description);
 }
 
 /* Function start: 0x434EBC */

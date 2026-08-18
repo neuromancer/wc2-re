@@ -22,8 +22,8 @@ char *CopyRasterDriverName(void *const *callbacks)
 
 void InstallRasterDriverCallbacks(void *const *callbacks)
 {
-    memcpy(g_apRasterDriverCallbacks_0046e69c, callbacks,
-           sizeof(g_apRasterDriverCallbacks_0046e69c));
+    memcpy(g_apRasterDriverCallbacks_00490278, callbacks,
+           sizeof(g_apRasterDriverCallbacks_00490278));
 }
 
 unsigned int SetRasterClipPixel(RasterClip *clip, int x, int y,

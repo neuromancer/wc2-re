@@ -397,9 +397,9 @@ unsigned int maintain_formation(short obj)
     short leader;
     FixedVector destination;
 
-    leader = g_asShipWingLeader_0059d400[obj];
+    leader = g_asShipWingLeader_00495dd0[obj];
     compute_formation_destination(leader,
-                                  &g_aShipFormationOffset_0059b520[obj],
+                                  &g_aShipFormationOffset_00495468[obj],
                                   &destination);
     g_aShipDestination_004953f0[obj] = destination;
     goto_formation(obj, &destination, leader);
@@ -412,7 +412,7 @@ unsigned int reset_stress(short obj)
     short damage;
 
     if (obj >= 12) {
-        if (g_acPilotAggression_0046d9a0[g_asPilotLevel_00495d60[obj]] == 0)
+        if (g_acPilotAggression_00493030[g_asPilotLevel_00495d60[obj]] == 0)
             damage = 100;
         else
             damage = evaluate_damage(obj);
@@ -423,7 +423,7 @@ unsigned int reset_stress(short obj)
         } else {
             damage = find_ratio(75, 100, damage, 14, 0);
         }
-        g_acShipStress_0059d620[obj] = (signed char)damage;
+        g_acShipStress_00496100[obj] = (signed char)damage;
     }
     return 0;
 }
@@ -431,9 +431,9 @@ unsigned int reset_stress(short obj)
 /* Function start: 0x41F3EF */
 short stress_morale(short obj)
 {
-    if (g_acShipStress_0059d620[obj] < 15)
+    if (g_acShipStress_00496100[obj] < 15)
         return 0;
-    if (g_acShipStress_0059d620[obj] < 30)
+    if (g_acShipStress_00496100[obj] < 30)
         return 1;
     return 2;
 }
@@ -485,7 +485,7 @@ short pick_regular_maneuver(short obj, short event)
     if (stress_morale(obj) == 2)
 #endif
         return MANEUVER_OUTA_HERE;
-    if ((g_aiIntelligenceEvent_0046d368[obj] == event ||
+    if ((g_aiIntelligenceEvent_00492fc0[obj] == event ||
          RandomBelowOrEqual(100) < 20) &&
         (event == 0 || event == 3 || event == 4 || event == 7) &&
         reroll == 0)
@@ -605,44 +605,44 @@ void handle_stress(short obj, int event)
     short damage;
 
     aggression =
-        g_acPilotAggression_0046d9a0[g_asPilotLevel_00495d60[obj]];
+        g_acPilotAggression_00493030[g_asPilotLevel_00495d60[obj]];
     switch (event) {
     case 3:
     case 4:
     case 7:
-        g_acShipStress_0059d620[obj] += aggression;
+        g_acShipStress_00496100[obj] += aggression;
         break;
     case 5:
-        g_acShipStress_0059d620[obj] -= aggression;
+        g_acShipStress_00496100[obj] -= aggression;
         break;
     case 6:
-        g_acShipStress_0059d620[obj] += aggression * 2;
+        g_acShipStress_00496100[obj] += aggression * 2;
         break;
     case 8:
-        g_acShipStress_0059d620[obj] /= 2;
+        g_acShipStress_00496100[obj] /= 2;
         break;
     case -1:
     case 2:
-        g_acShipStress_0059d620[obj] -=
-            g_acPilotRecovery_0046d9b8[g_asPilotLevel_00495d60[obj]];
+        g_acShipStress_00496100[obj] -=
+            g_acPilotRecovery_00493038[g_asPilotLevel_00495d60[obj]];
         break;
     }
     damage = evaluate_damage(obj);
     if (damage < 40) {
-        g_acShipStress_0059d620[obj] += aggression * 2;
+        g_acShipStress_00496100[obj] += aggression * 2;
     } else if (damage < 75) {
-        g_acShipStress_0059d620[obj] =
+        g_acShipStress_00496100[obj] =
             (signed char)MinShort(
-                (short)((short)g_acShipStress_0059d620[obj] + aggression),
+                (short)((short)g_acShipStress_00496100[obj] + aggression),
                 28);
     } else {
-        g_acShipStress_0059d620[obj] =
-            (signed char)MinShort(g_acShipStress_0059d620[obj], 7);
+        g_acShipStress_00496100[obj] =
+            (signed char)MinShort(g_acShipStress_00496100[obj], 7);
     }
-    if (event == 6 && g_acShipStress_0059d620[obj] >= 30)
-        g_acShipStress_0059d620[obj] = 29;
-    if (g_acShipStress_0059d620[obj] < 0)
-        g_acShipStress_0059d620[obj] = 0;
+    if (event == 6 && g_acShipStress_00496100[obj] >= 30)
+        g_acShipStress_00496100[obj] = 29;
+    if (g_acShipStress_00496100[obj] < 0)
+        g_acShipStress_00496100[obj] = 0;
 }
 
 /* Function start: 0x41FF37 */
@@ -657,7 +657,7 @@ void intelligence_events(short obj)
     event = -1;
     targetGone = 0;
     target = g_acShipTarget_00495f20[obj];
-    previousStress = (short)g_acShipStress_0059d620[obj];
+    previousStress = (short)g_acShipStress_00496100[obj];
     if (FindMissileTargetingObject(obj) != 0) {
         event = 6;
     } else if (unactive(target) != 0) {
@@ -702,7 +702,7 @@ void intelligence_events(short obj)
     if (g_nYourWingman_0049346c == obj &&
         g_aeObjectClass_00495328[0] == OBJECT_CLASS_SHIP &&
         g_acWingmanMessageState_0059d2c0[g_nYourWingman_0049346c] == -1) {
-        if (previousStress < 15 && g_acShipStress_0059d620[obj] >= 15) {
+        if (previousStress < 15 && g_acShipStress_00496100[obj] >= 15) {
             send_message(obj, 4);
         } else {
             playerDamage = evaluate_damage(0);
@@ -714,7 +714,7 @@ void intelligence_events(short obj)
             }
         }
     }
-    g_aiIntelligenceEvent_0046d368[obj] = event;
+    g_aiIntelligenceEvent_00492fc0[obj] = event;
 }
 
 /* Function start: 0x440571 */

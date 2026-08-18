@@ -51,20 +51,22 @@ void ReportSpaceFlightMaxFps(float adjustment)
         g_fSpaceFlightFrameRate_0049ceb4 = 8.0f;
     else if (g_fSpaceFlightFrameRate_0049ceb4 > 32.0)
         g_fSpaceFlightFrameRate_0049ceb4 = 32.0f;
-    sprintf(g_szSpaceFlightMaxFpsMessage_00486528,
+    sprintf(g_szSpaceFlightMaxFpsMessage_005c3970,
             "Space Flight Max FPS : %.1f",
             (double)g_fSpaceFlightFrameRate_0049ceb4);
-    SetHudMessageText(g_szSpaceFlightMaxFpsMessage_00486528, 0x50, 0x14);
-    if (DAT_0046b1c8 == 1)
+    SetHudMessageText(g_szSpaceFlightMaxFpsMessage_005c3970, 0x50, 0x14);
+    if (g_nFrameTimingMode_0049ceb0 == 1)
         SetSpaceFlightFrameTiming();
 }
 
 /* Function start: WC2_UNMAPPED */
 void SetWc1SpaceFlightFrameTiming(void)
 {
-    DAT_0046b1c8 = 1;
-    DAT_0046b1b8 = (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
-    DAT_0046b1bc = 0;
+    g_nFrameTimingMode_0049ceb0 = 1;
+    g_nFramePeriodMilliseconds_005c343c =
+        (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
+    g_dwNextFrameDeadline_0049cea4 = 0;
+    g_bFrameTimingInitialized_0049cebc = 1;
 }
 
 /* Function start: 0x45CF3B */
@@ -90,16 +92,10 @@ void SetDefaultFrameTiming(void)
 /* Function start: 0x45CFC3 */
 void SetCinematicFrameTiming(float frameRate)
 {
-#if 0
-    DAT_0046b1c8 = 0;
-    DAT_0046b1b8 = (long)(1000.0 / g_fCinematicFrameRate_0046b1d0);
-    DAT_0046b1bc = 0;
-#else
     g_nFrameTimingMode_0049ceb0 = 0;
     g_nFramePeriodMilliseconds_005c343c = (long)(1000.0 / frameRate);
     g_dwNextFrameDeadline_0049cea4 = 0;
     g_bFrameTimingInitialized_0049cebc = 1;
-#endif
 }
 
 /* Function start: 0x45D004 */

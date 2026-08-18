@@ -17,11 +17,11 @@ void visit_the_cinema(int view, int obj, short frames)
     int savedKeyboardFlag;
 
     savedOriginUnlock = g_nOriginDevUnlock_0049d774;
-    savedInputFlag = DAT_00469ffc;
-    savedKeyboardFlag = DAT_0046a000;
+    savedInputFlag = g_bPlayerDamageEnabled_0049d77c;
+    savedKeyboardFlag = g_bPlayerCollisionEnabled_0049d780;
     g_nOriginDevUnlock_0049d774 = 1;
-    DAT_00469ffc = 0;
-    DAT_0046a000 = 0;
+    g_bPlayerDamageEnabled_0049d77c = 0;
+    g_bPlayerCollisionEnabled_0049d780 = 0;
     /* The retail call converts both int parameters implicitly.  Making the
      * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
@@ -32,14 +32,14 @@ void visit_the_cinema(int view, int obj, short frames)
         DIBslamReal();
     }
     g_nOriginDevUnlock_0049d774 = savedOriginUnlock;
-    DAT_00469ffc = savedInputFlag;
-    DAT_0046a000 = savedKeyboardFlag;
+    g_bPlayerDamageEnabled_0049d77c = (short)savedInputFlag;
+    g_bPlayerCollisionEnabled_0049d780 = (short)savedKeyboardFlag;
 }
 
 /* Function start: 0x422953 */
 unsigned int player_wingman(short obj)
 {
-    if (obj != -1 && g_asShipWingLeader_0059d400[obj] == 0)
+    if (obj != -1 && g_asShipWingLeader_00495dd0[obj] == 0)
         return 1;
     return 0;
 }
@@ -52,41 +52,40 @@ void set_speed(short obj, short speed)
 }
 
 /* Function start: 0x4229B9 */
+#pragma function(abs)
 void auto_position(short obj, short *formationSlot)
 {
-    short ship = obj;
     short lateral;
     short vertical;
     short forward;
 
-    if (player_wingman(ship) != 0) {
-        position_relative_ijk(&g_aShipPosition_00494550[ship], 0,
-                              g_aShipFormationOffset_0059b520[ship].x,
-                              g_aShipFormationOffset_0059b520[ship].y,
-                              g_aShipFormationOffset_0059b520[ship].z);
+    if (player_wingman(obj) != 0) {
+        position_relative_ijk(&g_aShipPosition_00494550[obj], 0,
+                              g_aShipFormationOffset_00495468[obj].x,
+                              g_aShipFormationOffset_00495468[obj].y,
+                              g_aShipFormationOffset_00495468[obj].z);
         return;
     }
 
     (*formationSlot)++;
-    lateral = ((*formationSlot & 1) >= 1) ? 650 : -650;
-    if (g_nAutopilotFormationShipCount_00465544 == *formationSlot)
+    if ((*formationSlot & 1) != 0)
+        lateral = 650;
+    else
+        lateral = -650;
+    if (g_nAutopilotFormationShipCount_00493060 == *formationSlot)
         lateral = 0;
     vertical = 0;
     forward = MaxShort(1, (short)(*formationSlot >> 1));
     forward = (short)(forward * -1800);
     if (g_nYourWingman_0049346c != -1) {
-        int radii;
-        int separation;
-
-        radii = g_asObjectCollisionRadius_004950e8[ship] +
-                g_asObjectCollisionRadius_004950e8[g_nYourWingman_0049346c];
-        separation = abs(
-            g_aShipFormationOffset_0059b520[g_nYourWingman_0049346c].z -
-            forward);
-        if (radii > separation)
+        if (abs(
+            g_aShipFormationOffset_00495468[g_nYourWingman_0049346c].z -
+            forward) <
+            g_asObjectCollisionRadius_004950e8[obj] +
+            g_asObjectCollisionRadius_004950e8[g_nYourWingman_0049346c])
             vertical = 500;
     }
-    position_relative_ijk(&g_aShipPosition_00494550[ship], 0,
+    position_relative_ijk(&g_aShipPosition_00494550[obj], 0,
                           lateral, vertical, forward);
 }
 
@@ -146,7 +145,7 @@ void auto_pilot_sequence(void)
         }
         clean_up_cockpit();
         ResetSoundState();
-        g_nAutopilotFormationShipCount_00465544 = 0;
+        g_nAutopilotFormationShipCount_00493060 = 0;
 
         for (ship = 0; ship < 10; ship++) {
             travelMode[ship] = 0;
@@ -170,7 +169,7 @@ void auto_pilot_sequence(void)
                         g_anObjectYawRotation_00494fc8[ship] = 0;
                         if (ship != 0 &&
                             ship != g_nYourWingman_0049346c)
-                            g_nAutopilotFormationShipCount_00465544++;
+                            g_nAutopilotFormationShipCount_00493060++;
                     }
                 } else if (leaveCurrentNavPoint != 0) {
                     remove_object(ship);

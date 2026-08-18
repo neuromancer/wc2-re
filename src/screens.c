@@ -466,7 +466,7 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
          g_pszCutsceneFormattedText_005d2dc8 == text ||
          g_nAudioEnabled_0049c244 == 0) &&
         memcmp(text, "50", 2) != 0) {
-        AppendFormattedText("%s%P", text);
+        FormatTextBufferFromStart("%s%P", text);
     }
     g_bCutsceneTextRestorePending_00499da0 = 1;
     SetTextContext(&g_stCutsceneTextContext_005d2f40);
@@ -1117,8 +1117,8 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             if ((IsCutsceneSpeechLoaded() == 0 ||
                  g_nAudioEnabled_0049c244 == 0) &&
                 memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0) {
-                AppendFormattedText("%s%P",
-                                    g_pszCutsceneWorkBuffer_005d2ecc);
+                FormatTextBufferFromStart(
+                    "%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
             }
             g_pszCurrentCutsceneText_00499da4 =
                 g_pszCutsceneWorkBuffer_005d2ecc;
@@ -1370,7 +1370,7 @@ void DrawCinematicMemoryStatus(const char *message)
             g_pCurrentTextContext_005c8d1c->viewport->left;
         g_pCurrentTextContext_005c8d1c->cursorY =
             g_pCurrentTextContext_005c8d1c->viewport->top;
-        AppendFormattedText("%s%P", text);
+        FormatTextBufferFromStart("%s%P", text);
         WaitForCutsceneInputEvent();
         g_bCutsceneSkipFrame_00499c54 = 0;
         SetTextContext(&g_stCutsceneTextContext_005d2f40);
@@ -3241,7 +3241,7 @@ unsigned int ViewWc1Medals(void)
                       g_cSecondaryViewBufferColour_0049cb4c);
         FormatTextBufferFromStart(
             g_szViewMedalsTextFormat_0046e604, 0, 160,
-            g_cViewportClearColour_004699a0,
+            g_bPrimaryViewBufferColour_0049cb50,
             g_szTextScratchBuffer_005d1c40);
         MarkDibDirty();
         DIBslamReal();
@@ -3639,11 +3639,10 @@ unsigned int EstablishingShot(char *text, short duration)
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
         for (character = 0; character < 8; character++) {
-            DrawBriefingCharacter(
+            RecordCannedSceneBriefingCharacter(
                 character, 0,
                 g_aBriefingCharacters_0046e218[character]
-                    .animation[frame],
-                0, 0);
+                    .animation[frame]);
         }
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
@@ -3678,7 +3677,7 @@ unsigned int DrawBriefingLongShot(void)
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                       g_pBriefingAnimationShape_00598c14, 22);
     for (character = 0; character < 8; character++) {
-        DrawBriefingCharacter(character, 0, 0, 0, 0);
+        RecordCannedSceneBriefingCharacter(character, 0, 0);
     }
     RefreshMemoryStatusOverlay();
     return 0;
@@ -3723,12 +3722,8 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
             if (active[character] == 0 &&
                 RandomBelowOrEqual(5) == 0)
                 active[character] = 1;
-            DrawBriefingCharacter(
-                character, layout->animationPhase, 0,
-                (const signed char *)g_aBriefingPortraitOffsetX_0046e300 +
-                    layout->animationPhase * 12,
-                (const signed char *)g_aBriefingPortraitOffsetY_0046e360 +
-                    layout->animationPhase * 12);
+            RecordCannedSceneBriefingCharacter(
+                character, layout->animationPhase, 0);
             if (active[character] == 1 && layout->animationPhase < 11)
                 layout->animationPhase++;
         }
@@ -4479,40 +4474,32 @@ unsigned int DrawWc1PodiumShot(void)
 }
 
 /* Function start: 0x4021A7 */
-unsigned int DrawBriefingCharacter(short character, short pose,
-                                   short animationFrame,
-                                   const signed char *unusedXOffsets,
-                                   const signed char *unusedYOffsets)
+void RecordCannedSceneBriefingCharacter(signed char character,
+                                        signed char pose,
+                                        short animationFrame)
 {
-    BriefingCharacterLayout *layout;
-    int offsetIndex;
-    short frame;
+    CannedSceneBriefingCharacterRecord *record;
 
-    (void)unusedXOffsets;
-    (void)unusedYOffsets;
-    layout = &g_aBriefingCharacters_0046e218[character];
-    if (layout->visible != 0) {
-        frame = layout->firstPortraitFrame;
-        if (animationFrame < layout->portraitFrameCount)
-            frame = (short)(frame + animationFrame);
-        offsetIndex = (int)character * 12 + (int)pose;
-        DrawSpriteScaled(
-            &g_stSecondaryViewBuffer_005d2c90,
-            (short)(layout->portraitX +
-                    ((const signed char *)
-                         g_aBriefingPortraitOffsetX_0046e300)[offsetIndex]),
-            (short)(layout->portraitY +
-                    ((const signed char *)
-                         g_aBriefingPortraitOffsetY_0046e360)[offsetIndex]),
-            g_pBriefingPortraitShape_00598c24, frame,
-            ((const short *)g_aBriefingPortraitScale_0046e3c0)[offsetIndex],
-            layout->scale, 0);
-        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
-                         layout->bodyX, (short)(layout->bodyY + 10),
-                         g_pBriefingBodyShape_00598c1c, pose,
-                         0, layout->scale, 0);
+    if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
+        if (g_nCannedSceneMode_0049021c == 0) {
+            g_dwHighMemoryParagraph_005d3fb4 =
+                IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+            record = (CannedSceneBriefingCharacterRecord *)(
+                (unsigned int)(unsigned short)
+                    g_nCannedSceneWriteIndex_005d3fa8 +
+                g_dwHighMemoryParagraph_005d3fb4);
+            record->opcode = 1;
+            record->frame = g_nSpaceFrame_00493134;
+            record->character = character;
+            record->pose = pose;
+            record->animationFrame = animationFrame;
+            record->endMarker = -1;
+            record->nextOffset = 0x29d;
+            g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 + 0xa);
+            CheckCannedSceneBufferCapacity();
+        }
     }
-    return 0;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -4904,7 +4891,7 @@ unsigned int death_sequence(void)
     for (; frame < 8; frame++) {
         if (frame == 7) {
             ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_cViewportClearColour_004699a0);
+                          g_bPrimaryViewBufferColour_0049cb50);
         } else {
             RefreshCockpitStatus();
             DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0,
@@ -7182,15 +7169,15 @@ emit_solid_bounds:
         mov eax, dword ptr [ebp + 10h]
         add eax, esi
         sub eax, dword ptr g_pRLEScanlineStart_004902c1
-        cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
+        cmp eax, dword ptr g_nRLEEncodedMinimumX_004902e1
         jge emit_solid_maximum
-        mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
+        mov dword ptr g_nRLEEncodedMinimumX_004902e1, eax
 emit_solid_maximum:
         add eax, ebx
         dec eax
-        cmp eax, dword ptr g_nRLEEncodedMaximumX_0046e70d
+        cmp eax, dword ptr g_nRLEEncodedMaximumX_004902e9
         jle emit_solid_chunks
-        mov dword ptr g_nRLEEncodedMaximumX_0046e70d, eax
+        mov dword ptr g_nRLEEncodedMaximumX_004902e9, eax
         jmp emit_solid_chunks
 emit_solid_next_chunk:
         mov ecx, ebx
@@ -7251,15 +7238,15 @@ emit_literal_bounds:
         mov eax, dword ptr [ebp + 10h]
         add eax, esi
         sub eax, dword ptr g_pRLEScanlineStart_004902c1
-        cmp eax, dword ptr g_nRLEEncodedMinimumX_0046e705
+        cmp eax, dword ptr g_nRLEEncodedMinimumX_004902e1
         jge emit_literal_maximum
-        mov dword ptr g_nRLEEncodedMinimumX_0046e705, eax
+        mov dword ptr g_nRLEEncodedMinimumX_004902e1, eax
 emit_literal_maximum:
         add eax, ebx
         dec eax
-        cmp eax, dword ptr g_nRLEEncodedMaximumX_0046e70d
+        cmp eax, dword ptr g_nRLEEncodedMaximumX_004902e9
         jle emit_literal_chunks
-        mov dword ptr g_nRLEEncodedMaximumX_0046e70d, eax
+        mov dword ptr g_nRLEEncodedMaximumX_004902e9, eax
         jmp emit_literal_chunks
 emit_literal_next_chunk:
         mov ecx, ebx

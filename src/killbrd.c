@@ -88,7 +88,7 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     g_stRoomMenuTextContext_00598abe.alignment = alignment;
     *text = g_szEmptyRoomMenuLabel_004705e8[0];
     InitializeTextContextFromFont(&g_stRoomMenuTextContext_00598abe,
-                                  0, g_cViewportClearColour_004699a0,
+                                  0, g_bPrimaryViewBufferColour_0049cb50,
                                   -1);
     ClearRoomMenuCursorFrame();
 }
@@ -854,7 +854,7 @@ void ShowWc1ChalkBoard(void)
     context.text = g_szDefaultTextBuffer_005d2b80;
     context.textCursor = g_szDefaultTextBuffer_005d2b80;
     InitializeTextContextFromFont(&context, 3,
-                                  g_cViewportClearColour_004699a0, -1);
+                                  g_bPrimaryViewBufferColour_0049cb50, -1);
     savedInputMode = g_bInputMode_0059a848;
     g_bInputMode_0059a848 = 1;
     done = 0;
@@ -888,7 +888,7 @@ void ShowWc1ChalkBoard(void)
                 rank = 4;
             DrawFormattedText(g_szChalkBoardPilotFormat_0047064c,
                               10, rowY,
-                              g_apszPilotRankNames_00470098[rank],
+                              g_apszPilotRankNames_0049a608[rank],
                               pilotName);
             if (pilot == 8 ||
                 g_stCampaignState_0059ca50

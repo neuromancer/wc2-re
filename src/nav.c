@@ -13,30 +13,40 @@ typedef struct TitleActorMotion {
     short velocityY;
 } TitleActorMotion;
 
-short g_nNavMapCoordinateScaling_00468660 = 0;
-short g_nNavMapScale_00468664 = 1;
-NavMapObjectiveStyle g_aNavMapObjectiveStyles_00468668[10] = {
-    { 1, 2, &g_ucPrimaryTextColour_0049cb64, &g_cDefaultTextColour_004699cc,
-      &g_cDefaultTextColour_004699cc },
-    { 3, 2, &g_cSecondaryViewBufferColour_0049cb4c, &g_cViewportClearColour_004699a0,
-      &g_cDefaultTextColour_004699cc },
-    { 4, 2, &DAT_004699c8, &DAT_004699c8,
-      &g_cDefaultTextColour_004699cc },
-    { 2, 3, &DAT_004699c8, &g_cDefaultTextColour_004699cc,
-      &g_cDefaultTextColour_004699cc },
-    { 2, 3, &DAT_004699ac, &DAT_004699ac,
-      &g_cDefaultTextColour_004699cc },
+short g_nNavMapCoordinateScaling_0049bb80 = 0;
+short g_nNavMapScale_0049bb84 = 1;
+NavMapObjectiveStyle g_aNavMapObjectiveStyles_0049bb88[12] = {
+    { 1, 2, &g_ucPrimaryTextColour_0049cb64,
+      &g_ucDefaultTextColour_0049cb7c,
+      &g_ucDefaultTextColour_0049cb7c },
+    { 3, 2, &g_cSecondaryViewBufferColour_0049cb4c,
+      &g_bPrimaryViewBufferColour_0049cb50,
+      &g_ucDefaultTextColour_0049cb7c },
+    { 4, 2, &g_ucNavObjectiveMarkerColour_0049cb78,
+      &g_ucNavObjectiveMarkerColour_0049cb78,
+      &g_ucDefaultTextColour_0049cb7c },
+    { 2, 3, &g_ucNavObjectiveMarkerColour_0049cb78,
+      &g_ucDefaultTextColour_0049cb7c,
+      &g_ucDefaultTextColour_0049cb7c },
+    { 2, 3, &g_abGamePaletteReservedColours_0049cb54[8],
+      &g_abGamePaletteReservedColours_0049cb54[8],
+      &g_ucDefaultTextColour_0049cb7c },
+    { 1, 2, &g_ucPrimaryTextColour_0049cb64,
+      &g_ucDefaultTextColour_0049cb7c,
+      &g_ucDefaultTextColour_0049cb7c },
+    { 4, 2, &g_ucNavObjectiveMarkerColour_0049cb78,
+      &g_ucNavObjectiveMarkerColour_0049cb78,
+      &g_ucDefaultTextColour_0049cb7c },
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
-unsigned char *g_pNavMapShape_00468708 = 0;
-short g_nNavMapLabelCount_0046870c = 0;
+unsigned char *g_pNavMapShape_0049bc48 = 0;
+short g_nNavMapLabelCount_0049bc4c = 0;
 short g_nNavMapReservedAreaCount_0049bc50 = 0;
-char g_szCampaignSector_00468718[16] = "Vega XR-231.3";
-char *g_apszShipMissionTypeNames_00468728[11] = {
+char *g_apszShipMissionTypeNames_0049bc58[14] = {
     g_szMissionPatrol_0049bcb8,
     g_szMissionEscort_0049bcc0,
     g_szMissionStrike_0049bcc8,
@@ -44,11 +54,17 @@ char *g_apszShipMissionTypeNames_00468728[11] = {
     g_szMissionWingman_0049bcd8,
     g_szMissionFlee_0049bce0,
     g_szMissionGotoWarp_0049bce8,
-    g_szMissionWarpArriveError_00468794,
-    g_szMissionCannedSequenceError_00468798,
+    g_szMissionWarpArrive_0049bcf4,
     g_szMissionRendezvous_0049bd00,
-    g_szMissionComeHomeError_004687a8
+    g_szMissionComeHome_0049bd0c,
+    g_szMissionTanker_0049bd18,
+    g_szMissionTow_0049bd20,
+    g_szMissionBreakOff_0049bd24,
+    0
 };
+char g_szNoFurtherObjectives_0049bc90[32] =
+    "Further objectives out-system.";
+short g_bBriefingMapActive_0049bcb0 = 0;
 int g_bInflightComputerActive_0049bcb4 = 0;
 char g_szMissionPatrol_0049bcb8[8] = "Patrol";
 char g_szMissionEscort_0049bcc0[8] = "Escort";
@@ -57,10 +73,12 @@ char g_szMissionDefend_0049bcd0[8] = "Defend";
 char g_szMissionWingman_0049bcd8[8] = "Wingman";
 char g_szMissionFlee_0049bce0[8] = "Flee";
 char g_szMissionGotoWarp_0049bce8[12] = "Goto Warp";
-char g_szMissionWarpArriveError_00468794[4] = "err";
-char g_szMissionCannedSequenceError_00468798[4] = "err";
+char g_szMissionWarpArrive_0049bcf4[12] = "Warp Arrive";
 char g_szMissionRendezvous_0049bd00[12] = "Rendezvous";
-char g_szMissionComeHomeError_004687a8[4] = "err";
+char g_szMissionComeHome_0049bd0c[12] = "Come Home";
+char g_szMissionTanker_0049bd18[8] = "Tanker";
+char g_szMissionTow_0049bd20[4] = "Tow";
+char g_szMissionBreakOff_0049bd24[12] = "Break Off";
 char g_szNavLabelTextFormat_0049bd30[12] = "%X%Y%F%s";
 char g_szNavAsteroids_0049bd3c[12] = "Asteroids";
 char g_szNavMines_0049bd48[8] = "Mines";
@@ -257,7 +275,7 @@ void ReserveNavMapArea(short x, short y, short width, short height)
 /* Function start: 0x4503A7 */
 void ResetNavMapLabels(void)
 {
-    g_nNavMapLabelCount_0046870c = 0;
+    g_nNavMapLabelCount_0049bc4c = 0;
 }
 
 /* Function start: 0x4503BB */
@@ -268,8 +286,8 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
     placed = 0;
     if (NavMapLabelPositionAvailable(x, y, width, 6) != 0 ||
         (force != 0 && NavMapLabelFits(x, y, width, 6) != 0)) {
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].x = x;
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].y = y;
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].x = x;
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].y = y;
         placed = 1;
     }
     return placed;
@@ -285,9 +303,9 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
 
     width = (short)(strlen(text) * 4 + 2);
     g_aNavMapLabels_00475e80[
-        g_nNavMapLabelCount_0046870c].colour = colour;
+        g_nNavMapLabelCount_0049bc4c].colour = colour;
     g_aNavMapLabels_00475e80[
-        g_nNavMapLabelCount_0046870c].text = text;
+        g_nNavMapLabelCount_0049bc4c].text = text;
     offset = -1;
     do {
         offset++;
@@ -311,10 +329,10 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
             break;
     } while (offset != 12);
     ReserveNavMapArea(
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].x,
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0046870c].y,
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].x,
+        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].y,
         width, 6);
-    g_nNavMapLabelCount_0046870c++;
+    g_nNavMapLabelCount_0049bc4c++;
 }
 
 /* Function start: 0x4506F8 */
@@ -359,7 +377,7 @@ void DrawNavMapLabels(void)
     short label;
 
     label = 0;
-    while (label < (short)g_nNavMapLabelCount_0046870c) {
+    while (label < (short)g_nNavMapLabelCount_0049bc4c) {
         DrawFormattedText(g_szNavLabelTextFormat_0049bd30,
                           g_aNavMapLabels_00475e80[label].x,
                           g_aNavMapLabels_00475e80[label].y,
@@ -519,7 +537,7 @@ void BuildMap(short showPlayer)
     short y;
 
     SetScreenClipRect(1, 1, 153, 138);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 1, 1, g_pNavMapShape_00468708, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 1, 1, g_pNavMapShape_0049bc48, 0);
     SetScreenClipRect(2, 2, 152, 137);
     g_stNavLabelTextContext_005a8180.viewport = &g_stSecondaryViewBuffer_005d2c90;
     g_stNavLabelTextContext_005a8180.text = g_szDefaultTextBuffer_005d2b80;
@@ -542,13 +560,14 @@ void BuildMap(short showPlayer)
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
-                                        DAT_004699d4, DAT_004699d4,
+                                        g_ucAsteroidNavMarkerColour_0049cb84, g_ucAsteroidNavMarkerColour_0049cb84,
                                         g_szNavAsteroids_0049bd3c);
                 } else if (missionShip->type == OBJECT_TYPE_MINE_FIELD) {
                     DrawNavHazardMarker(navPoint->position,
                                         missionShip->position,
                                         missionShip->speed,
-                                        DAT_004699ac, DAT_004699ac,
+                                        g_abGamePaletteReservedColours_0049cb54[8],
+                                        g_abGamePaletteReservedColours_0049cb54[8],
                                         g_szNavMines_0049bd48);
                 }
             }
@@ -566,7 +585,7 @@ void BuildMap(short showPlayer)
             ScaleNavMapCoordinates(&x, &y,
                                    objective->mapX, objective->mapY);
             if (hidden_objective(objectiveIndex) == 0) {
-                style = &g_aNavMapObjectiveStyles_00468668[
+                style = &g_aNavMapObjectiveStyles_0049bb88[
                     objective->type];
                 if (visited(objectiveIndex) == 0)
                     DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, x, y,
@@ -594,7 +613,7 @@ void BuildMap(short showPlayer)
                 else
                     labelColour = *style->labelColour;
                 g_awNavObjectiveLabelIndex_005a8130[objectiveIndex] =
-                    g_nNavMapLabelCount_0046870c;
+                    g_nNavMapLabelCount_0049bc4c;
                 AddUniqueObjectiveNavLabel(
                     x, y, labelColour, objective_name(objectiveIndex),
                     objectiveIndex, (short)objective->index);
@@ -602,11 +621,11 @@ void BuildMap(short showPlayer)
         }
     }
     if (showPlayer != 0) {
-        DrawNavPlayerMarker(g_cViewportClearColour_004699a0, 1);
+        DrawNavPlayerMarker(g_bPrimaryViewBufferColour_0049cb50, 1);
         nav_getxy(&x, &y, g_aShipPosition_00494550[0].x,
                   g_aShipPosition_00494550[0].z);
         PlaceNavMapLabel(
-            x, y, DAT_004699c4,
+            x, y, g_ucPlayerNavLabelColour_0049cb74,
             g_stCampaignState_0059ca50.currentPilot->callsign);
     }
     DrawNavMapLabels();
@@ -707,28 +726,28 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     g_stNavMapTextContext_005a8160.cursorX = 0;
     g_stNavMapTextContext_005a8160.cursorY = 0;
     SetTextContext(&g_stNavMapTextContext_005a8160);
-    DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     g_szNavBlankLine_0049bdb0);
-    DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavTitleFormat_0049bdb4, title);
-    DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     g_szNavSectorFormat_0049bdbc,
-                    g_szCampaignSector_00468718);
-    DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
+                    (char *)g_pNavLocationText_0049bc54);
+    DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     g_szNavSystemFormat_0049bdc8,
                     g_abSeriesAuxData_005d3c40);
-    DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavMissionFormat_0049bdd8,
                     g_abMissionAuxData_005d3c10);
     playerMissionType = g_aMissionShips_00492290[
         g_stMissionHeader_005d3e70.playerMissionShip].missionType;
-    DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavShipFormat_0049bde0,
-                    g_apszShipMissionTypeNames_00468728[
+                    g_apszShipMissionTypeNames_0049bc58[
                         playerMissionType]);
-    DrawNavTextLine(2, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavNotesHeading_0049bde8);
-    DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
+    DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     g_szNavNoteFormat_0049bdf0,
                     nav_note((short)g_cCurrentObjective_004931cc));
     if (showFlightData != 0)
@@ -737,7 +756,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     if (showFlightData != 0) {
         SetScreenClipRect(0, 0, 259, 155);
         SetTextContext(&g_stNavMapTextContext_005a8160);
-        DrawNavTextLine(0, g_cDefaultTextColour_004699cc,
+        DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                         g_szNavLocationFormat_0049bdf4,
                         8, 142,
                         g_aShipPosition_00494550[0].x,
@@ -754,7 +773,7 @@ void BriefingMap_LoadShapes(void)
 {
     short objective;
 
-    g_pNavMapShape_00468708 =
+    g_pNavMapShape_0049bc48 =
         FetchDiskPacketRetrying(8, 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
@@ -777,8 +796,8 @@ void BriefingMap_DisplayMap(void)
     g_stScreenViewport_005d21a0.top = 4;
     DrawNavLocationReadout(g_szBriefingNavMapTitle_0049be38, 0);
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    ReleasePacketHandle(g_pNavMapShape_00468708);
-    g_pNavMapShape_00468708 = 0;
+    ReleasePacketHandle(g_pNavMapShape_0049bc48);
+    g_pNavMapShape_0049bc48 = 0;
     ReleaseTextFont(2);
     ReleaseTextFont(1);
     g_stSecondaryViewBuffer_005d2c90 = savedViewport;
@@ -941,9 +960,9 @@ void InflightComputer(void)
                 (unsigned char *)g_pElapsedCampaignDate_005a86ac);
             g_stNavLabelTextContext_005a8180.viewport = &g_stScreenViewport_005d21a0;
             frame = DAT_0059ab54 / 15;
-            markerColour = DAT_004699c0;
+            markerColour = g_ucHomeCarrierScannerColour_0049cb70;
             if (frame % 2 != 0)
-                markerColour = g_cViewportClearColour_004699a0;
+                markerColour = g_bPrimaryViewBufferColour_0049cb50;
             DrawNavPlayerMarker(markerColour, 0);
             g_stNavMapTextContext_005a8160.viewport = &g_stScreenViewport_005d21a0;
             UpdateInflightNavText((short)((frame / 4) % 2));
@@ -987,7 +1006,7 @@ void InflightComputer(void)
         g_bInputMode_0059a848 = (unsigned char)savedInputMode;
     }
 
-    ReleasePacketHandle(g_pNavMapShape_00468708);
+    ReleasePacketHandle(g_pNavMapShape_0049bc48);
     SetTextContext(&g_stDefaultTextContext_005d2d20);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
 #ifdef WC1_SDL
@@ -1821,7 +1840,7 @@ short RunWc1GameFlow(void)
         g_nCampaignDataSet_005a8118 = DAT_005a8114;
     }
 
-    DAT_0046505c = 0;
+    g_bInputEventQueueEnabled_0049c248 = 0;
     do {
         roomSelection = 0;
         DAT_004688d4 = 0;
@@ -1846,7 +1865,7 @@ short RunWc1GameFlow(void)
         PumpWindowMessages(0);
     } while (launchMission == 0);
 
-    DAT_0046505c = 1;
+    g_bInputEventQueueEnabled_0049c248 = 1;
     g_nDebriefingPersonality_00465c80 = *(short *)(
         g_pMissionCampaignData_005988bc +
         (short)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x5a);
@@ -2134,7 +2153,7 @@ int RunWc1TitleSequence(void)
             } while (missionShip < 46);
             titleDistance = 200;
             remove_all_hazards();
-            g_bIntroSecondaryScene_0046c024 = 0;
+            g_bUseEyePositionForHazards_0049327c = 0;
             set_up_action_sphere(16);
             g_pTitleShape_005a7f08 =
                 FetchDiskPacketRetrying(9, 0, 0);
@@ -2204,7 +2223,7 @@ int RunWc1TitleSequence(void)
             ScaleFixedVector(&g_aShipForwardVector_00494208[61], 0x9600,
                              &g_aShipVelocity_00494898[61]);
             set_up_action_sphere(17);
-            g_bIntroSecondaryScene_0046c024 = 1;
+            g_bUseEyePositionForHazards_0049327c = 1;
             g_anObjectPitchRotation_00494f38[0] = 0;
             g_anObjectYawRotation_00494fc8[0] = 0;
             g_anObjectRollRotation_00495058[0] = 0;
@@ -2273,7 +2292,7 @@ int RunWc1TitleSequence(void)
                 OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         free_all_slots();
         free_3Space();
-        g_bIntroSecondaryScene_0046c024 = 0;
+        g_bUseEyePositionForHazards_0049327c = 0;
         g_nCannedSceneMode_0049021c = 0;
         g_bScriptedView_0046a8d4 = 0;
         g_bIntroSceneResourcesActive_00469d48 = 1;
@@ -2356,7 +2375,7 @@ int RunWc1TitleSequence(void)
     WarpWc1MouseTo(160, 100);
     ResumeMouseCursorHook();
     g_bInputMode_0059a848 = 1;
-    DAT_0046505c = 0;
+    g_bInputEventQueueEnabled_0049c248 = 0;
     while (state == 0) {
         selectedIndex = -1;
         activate = 0;
@@ -2402,7 +2421,7 @@ int RunWc1TitleSequence(void)
         DIBslamReal();
     }
 
-    DAT_0046505c = 1;
+    g_bInputEventQueueEnabled_0049c248 = 1;
     ClearDebugPauseFlags();
     ReleasePacketHandle(menuShape);
     ReleasePacketHandle(alternateMenuShape);

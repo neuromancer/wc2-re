@@ -341,22 +341,22 @@ void LoadVolumeSettingsFromRegistry(void)
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
         if (RegistryQueryValue(key, "MusicVolume", REG_DWORD,
-                               (LPBYTE)&g_nMusicVolumeSetting_00469fc0,
-                               sizeof(g_nMusicVolumeSetting_00469fc0)) !=
+                               (LPBYTE)&g_nMusicVolumeSetting_0049d750,
+                               sizeof(g_nMusicVolumeSetting_0049d750)) !=
             ERROR_SUCCESS) {
-            g_nMusicVolumeSetting_00469fc0 = 0x14;
+            g_nMusicVolumeSetting_0049d750 = 0x14;
             RegistryStoreValue(key, "MusicVolume", REG_DWORD,
-                               (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
-                               sizeof(g_nMusicVolumeSetting_00469fc0));
+                               (const BYTE *)&g_nMusicVolumeSetting_0049d750,
+                               sizeof(g_nMusicVolumeSetting_0049d750));
         }
         if (RegistryQueryValue(key, "SFXVolume", REG_DWORD,
-                               (LPBYTE)&g_nSfxVolumeSetting_00469fbc,
-                               sizeof(g_nSfxVolumeSetting_00469fbc)) !=
+                               (LPBYTE)&g_nSfxVolumeSetting_0049d74c,
+                               sizeof(g_nSfxVolumeSetting_0049d74c)) !=
             ERROR_SUCCESS) {
-            g_nSfxVolumeSetting_00469fbc = 0x14;
+            g_nSfxVolumeSetting_0049d74c = 0x14;
             RegistryStoreValue(key, "SFXVolume", REG_DWORD,
-                               (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
-                               sizeof(g_nSfxVolumeSetting_00469fbc));
+                               (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
+                               sizeof(g_nSfxVolumeSetting_0049d74c));
         }
         RegCloseKey(key);
     }
@@ -371,11 +371,11 @@ void SaveVolumeSettingsToRegistry(void)
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
         RegistryStoreValue(key, "MusicVolume", REG_DWORD,
-                           (const BYTE *)&g_nMusicVolumeSetting_00469fc0,
-                           sizeof(g_nMusicVolumeSetting_00469fc0));
+                           (const BYTE *)&g_nMusicVolumeSetting_0049d750,
+                           sizeof(g_nMusicVolumeSetting_0049d750));
         RegistryStoreValue(key, "SFXVolume", REG_DWORD,
-                           (const BYTE *)&g_nSfxVolumeSetting_00469fbc,
-                           sizeof(g_nSfxVolumeSetting_00469fbc));
+                           (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
+                           sizeof(g_nSfxVolumeSetting_0049d74c));
     }
     RegCloseKey(key);
 }
@@ -816,7 +816,7 @@ unsigned short InitializeDiskPromptTextContext(void)
         (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] + textWidth);
     InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
                                   g_cSecondaryViewBufferColour_0049cb4c,
-                                  (signed char)g_cViewportClearColour_004699a0);
+                                  (signed char)g_bPrimaryViewBufferColour_0049cb50);
     g_bOriginFxDriverActive_0049cbb0 = 1;
     return 0;
 }

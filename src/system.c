@@ -16,22 +16,22 @@ void RunTrainSim(void)
     int result;
 
     proceed = 1;
-    g_nArcadeWave_00469e34 = 0;
-    g_nTrainSimMission_00469e30 = 0;
+    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
+    g_nTrainSimMission_00469e30_WC1_UNMAPPED = 0;
     g_bInputMode_0059a848 = 1;
     SetEventManagerPump(PollMenuInputDevices);
-    g_nArcadeWave_00469e34 = 0;
+    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
     g_nArcadeScore_005a7bc4 = 0;
-    g_nArcadeBonusCountdown_0046a014 = 0;
+    g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED = 0;
     g_cCockpitView_0059dab0 = 4;
     g_cCockpitLogicalFile_005a7c74 = 21;
 
     if (DAT_004688e0 == 0) {
         ShowTrainSimHighScores();
-        proceed = SelectWc1TrainSimMission(&g_nTrainSimMission_00469e30);
+        proceed = SelectWc1TrainSimMission(&g_nTrainSimMission_00469e30_WC1_UNMAPPED);
     } else {
         g_nArcadeScore_005a7bc4 = 4000;
-        g_nTrainSimMission_00469e30 = 2;
+        g_nTrainSimMission_00469e30_WC1_UNMAPPED = 2;
     }
 
     if (proceed != 0) {
@@ -46,10 +46,10 @@ void RunTrainSim(void)
         g_stCampaignState_0059ca50.campaignIndex = 0;
         g_nCampaignDataSet_005a8118 = 0;
 
-        while (g_nTrainSimMission_00469e30 < 4) {
+        while (g_nTrainSimMission_00469e30_WC1_UNMAPPED < 4) {
             g_nTrainSimActive_0049d758 = 1;
             FigureArcadeTime();
-            init_mission(0, g_nTrainSimMission_00469e30);
+            init_mission(0, g_nTrainSimMission_00469e30_WC1_UNMAPPED);
             ShowGetReadyScreen();
 
             if (DAT_004688e0 != 0) {
@@ -71,21 +71,21 @@ void RunTrainSim(void)
             InvalidateVduMode(1);
             MarkDibDirty();
             DIBslamReal();
-            savedFrameState = DAT_0046505c;
-            DAT_0046505c = 1;
-            result = RunSpaceFlight(g_nArcadeWave_00469e34);
+            savedFrameState = g_bInputEventQueueEnabled_0049c248;
+            g_bInputEventQueueEnabled_0049c248 = 1;
+            result = RunSpaceFlight(g_nArcadeWave_00469e34_WC1_UNMAPPED);
             if (result == 1) {
-                if (g_nTrainSimMission_00469e30 < 3)
-                    g_nArcadeWave_00469e34 = 0;
+                if (g_nTrainSimMission_00469e30_WC1_UNMAPPED < 3)
+                    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
                 else
                     ShowWc1VictoryScreen();
-                g_nTrainSimMission_00469e30++;
+                g_nTrainSimMission_00469e30_WC1_UNMAPPED++;
             } else {
                 g_nArcadeState_0049d75c = 4;
                 ShowGameOverScreen();
-                g_nTrainSimMission_00469e30 = 4;
+                g_nTrainSimMission_00469e30_WC1_UNMAPPED = 4;
             }
-            DAT_0046505c = savedFrameState;
+            g_bInputEventQueueEnabled_0049c248 = savedFrameState;
         }
 
         g_stCampaignState_0059ca50.campaignIndex = savedCampaign;
@@ -240,7 +240,7 @@ unsigned int ShowMemoryStatusDebug(void)
     if (g_nShowMemoryStatus_0049d784 != 0) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_cViewportClearColour_004699a0,
+            (unsigned char)g_bPrimaryViewBufferColour_0049cb50,
             g_cSecondaryViewBufferColour_0049cb4c);
         SetTextContext(&g_stDefaultTextContext_005d2d20);
         DrawFormattedText("%X%YCurrent NMem %d.",

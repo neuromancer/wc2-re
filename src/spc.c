@@ -11,7 +11,6 @@
 #pragma function(abs)
 
 int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
-unsigned char g_bLandingAuthorized_00468ff8 = 0;
 short g_bAlternateChaseView_00492fac = 0;
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;
 short g_nSavedPlayerTarget_0049d460 = -1;
@@ -38,7 +37,7 @@ void CalibrateJoystickInteractive()
 
     g_stDefaultTextContext_005d2d20.alignment = 2;
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
-        g_cViewportClearColour_004699a0, (signed char)g_cSecondaryViewBufferColour_0049cb4c);
+        g_bPrimaryViewBufferColour_0049cb50, (signed char)g_cSecondaryViewBufferColour_0049cb4c);
     shown = ShowModalTextPanel(1,
         "Turn AUTO FIRE off if present, press a button");
     if (shown != 0) {
@@ -689,7 +688,7 @@ void SaveTorpedoTargetLockForViewChange(int previousView)
         previousView == 0 &&
         g_nTargetLockCountdown_004934ec >= 0 &&
         unactive(g_acShipTarget_00495f20[0]) == 0 &&
-        g_bRestorePlayerTarget_00493500 != 0 &&
+        g_bTargetLockMode_00493500 != 0 &&
         g_nSelectedReleaseWeaponIndex_004934e0 != -1 &&
         ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
             g_nSelectedReleaseWeaponIndex_004934e0].type == 0x13) {
@@ -734,7 +733,7 @@ unsigned int new_view(int view, short obj)
                 (short)(g_nSavedTargetLockCountdown_0049d484 + 1);
             if (g_nTargetLockCountdown_004934ec < 0)
                 g_nTargetLockCountdown_004934ec = 0;
-            g_bRestorePlayerTarget_00493500 = 1;
+            g_bTargetLockMode_00493500 = 1;
             g_acShipTarget_00495f20[0] =
                 (signed char)g_nSavedPlayerTarget_0049d460;
         }
@@ -1216,8 +1215,8 @@ unsigned int house_keep_objects(void)
             }
             if (g_acObjectType_00493980[obj] ==
                     OBJECT_TYPE_TIGERS_CLAW &&
-                g_bPlayerCollisionsEnabled_00469ff8 != 0 &&
-                g_bLandingAuthorized_00468ff8 != 0 &&
+                g_bPlayerCollisionEnabled_0049d780 != 0 &&
+                g_bLandingCommRequestPending_00492fa0 != 0 &&
                 normal_speed(0) != 0) {
                 get_facing_range_from_object(0, obj);
                 if (g_nTargetRange_0049319c < 700 &&
@@ -1564,7 +1563,8 @@ int object_collision(short obj)
         g_acLastCollisionObject_0059d6a0[obj] = -1;
         return 0;
     }
-    if (DAT_0046a000 == 0 && (obj == 0 || partner == 0))
+    if (g_bPlayerCollisionEnabled_0049d780 == 0 &&
+        (obj == 0 || partner == 0))
         return 0;
 
     NormalizeFixedVector(&g_vCollisionDelta_0059d690);

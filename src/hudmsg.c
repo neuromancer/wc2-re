@@ -106,10 +106,10 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
         ClearHudMessageDisplay(1);
         DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
         SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                          DAT_004699ac, messageDuration);
+                          g_abGamePaletteReservedColours_0049cb54[8], messageDuration);
         if (messageDuration == 9999) {
             SetHudTextColour(g_szHudMessageBuffer_0059e1c0,
-                             (unsigned char)DAT_004699ac);
+                             g_abGamePaletteReservedColours_0049cb54[8]);
             dump_buffer_to_screen();
         }
     }
@@ -124,7 +124,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
         return;
     }
     if (messageDuration == 9999)
-        SetHudMessageText("", DAT_004699ac, 2);
+        SetHudMessageText("", g_abGamePaletteReservedColours_0049cb54[8], 2);
 #else
     char text[52];
     short modalShown;
@@ -212,16 +212,18 @@ int HandleSpaceFlightControls(void)
     int notRepeated;
     int control;
 
+    g_bInputCursorEnabled_005c80e6 = 1;
+    g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
     player_input();
     players_flight_dynamics();
-    notRepeated = (signed char)g_bCurrentKey_0046c014 !=
+    notRepeated = (signed char)g_cCurrentKey_00493128 !=
                   g_cPreviousKey_0049312c;
     control = GetControlKeyState();
     GetKeyboardModifiers();
     RunWc1FleetOverviewInput();
 
     if (g_nTrainSimActive_0049d758 == 0) {
-        switch ((signed char)g_bCurrentKey_0046c014) {
+        switch ((signed char)g_cCurrentKey_00493128) {
         case 2:
         case 3:
         case 4:
@@ -232,12 +234,12 @@ int HandleSpaceFlightControls(void)
         case 9:
         case 10:
             if (notRepeated && get_mode(1) == 4 &&
-                g_nCurrentView_00492fa8 == 0 && (signed char)g_bCurrentKey_0046c014 >= 2 &&
-                (signed char)g_bCurrentKey_0046c014 <=
+                g_nCurrentView_00492fa8 == 0 && (signed char)g_cCurrentKey_00493128 >= 2 &&
+                (signed char)g_cCurrentKey_00493128 <=
                     g_nCommMenuChoiceCount_0049b770 + 2 &&
                 get_mode(1) == 4) {
                 Chosen_communicate_option(
-                    (short)((signed char)g_bCurrentKey_0046c014 - 2));
+                    (short)((signed char)g_cCurrentKey_00493128 - 2));
             }
             break;
         case 0x12:
@@ -254,7 +256,7 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x1e:
             if (notRepeated) {
-                g_bMouseCursorVisible_0046a018 = 0;
+                g_bInputCursorEnabled_005c80e6 = 0;
                 if (get_mode(1) != 5)
                     SelectCockpitVduMode(1, 5);
                 if (g_nCockpitDisplayMode_0049d71c == 0) {
@@ -275,13 +277,13 @@ int HandleSpaceFlightControls(void)
                 }
                 FlushInputEvents();
                 ClearDebugPauseFlags();
-                g_bMouseCursorVisible_0046a018 = 0;
+                g_bInputCursorEnabled_005c80e6 = 0;
                 g_bSuppressNextMouseMove_005c843c = 1;
             }
             break;
         case 0x1f:
             if (control != 0 && notRepeated) {
-                if (g_nFlightSoundEffectsEnabled_0046aa34 == 1)
+                if (g_bFlightSoundEffectsEnabled_0049beb0 == 1)
                     ResetSoundStateForScene();
                 else
                     ResetSoundStateForFlight();
@@ -312,7 +314,7 @@ int HandleSpaceFlightControls(void)
                     g_bVideoImagesSuppressed_0049b784 == 0;
                 if (g_bVideoImagesSuppressed_0049b784 != 0)
                     SetHudMessageText("VIDEO IMAGES SUPRESSED",
-                                      DAT_004699ac, 20);
+                                      g_abGamePaletteReservedColours_0049cb54[8], 20);
                 else
                     SetHudMessageText("VIDEO IMAGES ENABLED",
                                       g_ucPrimaryTextColour_0049cb64, 20);
@@ -362,7 +364,7 @@ int HandleSpaceFlightControls(void)
                                      (int)g_stViewBuffer_005d2b00.top) / 2));
                     }
                 } else {
-                    g_bMouseCursorVisible_0046a018 = 0;
+                    g_bInputCursorEnabled_005c80e6 = 0;
                     if (g_nCockpitDisplayMode_0049d71c == 0) {
                         new_view(0, 0);
                     } else {
@@ -380,12 +382,12 @@ int HandleSpaceFlightControls(void)
                 }
                 FlushInputEvents();
                 ClearDebugPauseFlags();
-                g_bMouseCursorVisible_0046a018 = 0;
+                g_bInputCursorEnabled_005c80e6 = 0;
                 g_bSuppressNextMouseMove_005c843c = 1;
             }
             break;
         case 0x3c:
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(2, 0);
                 break;
@@ -398,7 +400,7 @@ int HandleSpaceFlightControls(void)
             new_view(2, 0);
             goto restore_normal_viewport;
         case 0x3d:
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(1, 0);
                 break;
@@ -411,7 +413,7 @@ int HandleSpaceFlightControls(void)
             new_view(1, 0);
             goto restore_normal_viewport;
         case 0x3e:
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(3, 0);
                 break;
@@ -424,7 +426,7 @@ int HandleSpaceFlightControls(void)
             new_view(3, 0);
             goto restore_normal_viewport;
         case 0x3f:
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(4, 0);
                 break;
@@ -437,7 +439,7 @@ int HandleSpaceFlightControls(void)
             new_view(4, 0);
             goto restore_normal_viewport;
         case 0x40:
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(14, 0);
                 break;
@@ -452,7 +454,7 @@ int HandleSpaceFlightControls(void)
         case 0x41:
             if (g_acShipTarget_00495f20[0] == -1)
                 break;
-            g_bMouseCursorVisible_0046a018 = 0;
+            g_bInputCursorEnabled_005c80e6 = 0;
             if (g_nCockpitDisplayMode_0049d71c == 0) {
                 new_view(7, 0);
                 break;
@@ -466,11 +468,11 @@ int HandleSpaceFlightControls(void)
             goto restore_normal_viewport;
         case 0x42:
             if (notRepeated) {
-                g_bMouseCursorVisible_0046a018 = 0;
+                g_bInputCursorEnabled_005c80e6 = 0;
                 g_bMissileCameraEnabled_00493504 ^= 1;
                 if (g_bMissileCameraEnabled_00493504 != 0)
                     SetHudMessageText("MISSILE CAMERA ON",
-                                      DAT_004699ac, 20);
+                                      g_abGamePaletteReservedColours_0049cb54[8], 20);
                 else
                     SetHudMessageText("MISSILE CAMERA OFF",
                                       g_ucPrimaryTextColour_0049cb64, 20);
@@ -478,7 +480,7 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x43:
             if (notRepeated) {
-                g_bMouseCursorVisible_0046a018 = 0;
+                g_bInputCursorEnabled_005c80e6 = 0;
                 SelectNextExternalViewObject();
                 if (g_nCockpitDisplayMode_0049d71c == 0) {
                     force_view(4, (short)g_cViewObject_0049313c);
@@ -504,7 +506,7 @@ restore_normal_viewport:
     initialize_view_buffer();
 
 primary_controls_complete:
-    switch ((signed char)g_bCurrentKey_0046c014) {
+    switch ((signed char)g_cCurrentKey_00493128) {
     case 1:
         g_bSceneEscapeRequested_0049d4b0 = 0;
         if (g_nTrainSimActive_0049d758 != 0)
@@ -578,13 +580,13 @@ primary_controls_complete:
         break;
     case 0x1f:
         if (control != 0 && notRepeated) {
-            g_nSfxVolumeSetting_00469fbc =
-                g_nSfxVolumeSetting_00469fbc == 0 ? 20 : 0;
+            g_nSfxVolumeSetting_0049d74c =
+                g_nSfxVolumeSetting_0049d74c == 0 ? 20 : 0;
             SetSoundEffectsVolume(
-                g_anVolumeLevels_00469fc8[
-                    g_nSfxVolumeSetting_00469fbc / 2]);
+                g_anVolumeLevels_0049d720[
+                    g_nSfxVolumeSetting_0049d74c / 2]);
             ShowOnScreenMessage(0, "SFX VOLUME: %d.",
-                                g_nSfxVolumeSetting_00469fbc / 2);
+                                g_nSfxVolumeSetting_0049d74c / 2);
             return 0;
         }
         break;
@@ -611,8 +613,8 @@ primary_controls_complete:
             init_player_input();
             return 0;
         }
-        g_nTargetLockMode_0046c078 =
-            (short)(g_nTargetLockMode_0046c078 == 0);
+        g_bTargetLockMode_00493500 =
+            (short)(g_bTargetLockMode_00493500 == 0);
         PlaySfxWaveFileByNumber(0x19, -1, 0);
         if (get_mode(1) == 3) {
             InvalidateVduMode(1);
@@ -630,13 +632,13 @@ primary_controls_complete:
         break;
     case 0x32:
         if (notRepeated && control != 0) {
-            g_nMusicVolumeSetting_00469fc0 =
-                g_nMusicVolumeSetting_00469fc0 == 0 ? 20 : 0;
+            g_nMusicVolumeSetting_0049d750 =
+                g_nMusicVolumeSetting_0049d750 == 0 ? 20 : 0;
             SetMusicStreamVolume(
-                (unsigned short)g_anVolumeLevels_00469fc8[
-                    g_nMusicVolumeSetting_00469fc0 / 2]);
+                (unsigned short)g_anVolumeLevels_0049d720[
+                    g_nMusicVolumeSetting_0049d750 / 2]);
             ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
-                                g_nMusicVolumeSetting_00469fc0 / 2);
+                                g_nMusicVolumeSetting_0049d750 / 2);
             return 0;
         }
         break;
@@ -748,16 +750,16 @@ void GetArcadeBonus(void)
 {
     g_nArcadeWaveBonus_005a7c50 =
         (g_nArcadeTimeRemaining_005a7c2c *
-             (g_nTrainSimMission_00469e30 + 1) +
-         (g_nTrainSimMission_00469e30 +
-          (g_nArcadeWave_00469e34 * 5 + 5) * 2) * 50) * 2;
+             (g_nTrainSimMission_00469e30_WC1_UNMAPPED + 1) +
+         (g_nTrainSimMission_00469e30_WC1_UNMAPPED +
+          (g_nArcadeWave_00469e34_WC1_UNMAPPED * 5 + 5) * 2) * 50) * 2;
 }
 
 /* Function start: WC2_UNMAPPED */
 void FigureArcadeTime(void)
 {
     g_nArcadeTimeRemaining_005a7c2c =
-        (short)((g_nArcadeWave_00469e34 + 6) * 400);
+        (short)((g_nArcadeWave_00469e34_WC1_UNMAPPED + 6) * 400);
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -779,7 +781,7 @@ void UpdateArcadeScoreDisplay(void)
     if (g_nTrainSimActive_0049d758 != 0) {
         SetTextContext(&g_stSpaceTextContext_005d21c0);
         DrawWc1ArcadeScorePanel(10, 10);
-        if (g_nArcadeBonusCountdown_0046a014 < 1) {
+        if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED < 1) {
             g_nArcadeScore_005a7bc4++;
             g_nArcadeTimeRemaining_005a7c2c--;
             if (g_nArcadeTimeRemaining_005a7c2c < 1) {
@@ -794,12 +796,12 @@ void UpdateArcadeScoreDisplay(void)
             if (g_nCurrentWave_004931c0 != -1) {
                 FormatTextBufferFromStart(
                     "Wave %d complete.\n\nBonus Points: %s0%P",
-                    g_nArcadeWave_00469e34 + 1, bonus);
+                    g_nArcadeWave_00469e34_WC1_UNMAPPED + 1, bonus);
                 return;
             }
             FormatTextBufferFromStart(
                 "Mission %d complete.\n\nBonus Points: %s0%P",
-                g_nTrainSimMission_00469e30 + 1, bonus);
+                g_nTrainSimMission_00469e30_WC1_UNMAPPED + 1, bonus);
         }
     }
 }
@@ -820,9 +822,9 @@ void RenderSpaceViewFrame(void)
         DrawFilledViewportRect(&g_stViewBuffer_005d2b00, 10, 10,
                                g_stViewBuffer_005d2b00.right, 0x11,
                                g_cPrimaryViewBufferColour_0049cb88);
-        if (g_nArcadeBonusCountdown_0046a014 != 0) {
-            g_nArcadeBonusCountdown_0046a014--;
-            if (g_nArcadeBonusCountdown_0046a014 == 0) {
+        if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED != 0) {
+            g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED--;
+            if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED == 0) {
                 if (Vector_magnitude(
                         &g_aShipPosition_00494550[0]) > 0x271000)
                     zero_vector(&g_aShipPosition_00494550[0]);
@@ -830,7 +832,7 @@ void RenderSpaceViewFrame(void)
                 if (g_nCurrentWave_004931c0 == -1)
                     g_nArcadeState_0049d75c = 1;
                 else
-                    g_nArcadeWave_00469e34++;
+                    g_nArcadeWave_00469e34_WC1_UNMAPPED++;
                 ClearViewport(&g_stViewBuffer_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
             }
         }
@@ -1160,8 +1162,8 @@ int RunWc1SpaceFlight(short entryNavPoint)
         SetMousePosition(
             (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2 + 1,
             g_nViewCenterY_005c80da);
-        g_bMouseAfterburnerControl_0046a02c = 0;
-        g_bMouseCursorVisible_0046a018 = 0;
+        g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED = 0;
+        g_bInputCursorEnabled_005c80e6 = 0;
         initialize_view_buffer();
         FlushInputEvents();
     }
@@ -1170,15 +1172,15 @@ int RunWc1SpaceFlight(short entryNavPoint)
     WarpWc1MouseTo((short)((g_stViewBuffer_005d2b00.left + g_stViewBuffer_005d2b00.right) / 2),
                 (short)((g_stViewBuffer_005d2b00.top + g_stViewBuffer_005d2b00.bottom) / 2));
     FlushInputEvents();
-    g_bMouseAfterburnerControl_0046a02c = 0;
-    g_bMouseCursorVisible_0046a018 = 0;
+    g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED = 0;
+    g_bInputCursorEnabled_005c80e6 = 0;
     g_nArcadeState_0049d75c = 0;
     MarkDibDirty();
     DIBslamReal();
     SetWc1SpaceFlightFrameTiming();
     FlushInputEvents();
     ClearDebugPauseFlags();
-    g_bMouseCursorVisible_0046a018 = 0;
+    g_bInputCursorEnabled_005c80e6 = 0;
     g_bSuppressNextMouseMove_005c843c = 1;
     frameReady = 1;
 
@@ -1248,7 +1250,7 @@ int RunWc1SpaceFlight(short entryNavPoint)
     g_stMouseCursorState_0059ab10.viewport = savedViewport;
     free_inflight_music();
     SetEventManagerPump(0);
-    g_bMouseCursorVisible_0046a018 = 0;
+    g_bInputCursorEnabled_005c80e6 = 0;
     QueueInputEvent(13, 160, 100, 0, 0, 0, 0, 0, 0);
     SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
     return g_nArcadeState_0049d75c;
@@ -1412,7 +1414,7 @@ void UpdateWc1TrainSimMenuCursor(void)
     frame = 0;
     mouseX = g_stMouseCursorState_0059ab10.x;
     mouseY = g_stMouseCursorState_0059ab10.y;
-    region = g_aTrainSimMissionRegions_00469df8;
+    region = g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED;
     while (region->frame != -1) {
         state = IsPointInRect(mouseX, mouseY, &region->left);
         if (state != 0)
@@ -1768,7 +1770,7 @@ void clean_up_cockpit(void)
     short wingman = g_nYourWingman_0049346c;
 
     g_acShipTarget_00495f20[0] = -1;
-    g_nTargetLockMode_0046c078 = 0;
+    g_bTargetLockMode_00493500 = 0;
     if (wingman != -1) {
         g_nAutoEngageTimer_00496130 = -1;
         g_acShipTarget_00495f20[wingman] = -1;

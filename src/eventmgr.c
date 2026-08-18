@@ -10,36 +10,54 @@
 /* Function start: 0x462625 */
 void TranslatePolledInputEvent(unsigned short type, unsigned int value)
 {
-    unsigned int state;
+    HostMouseMessage *mouse;
 
     switch (type) {
-    case 2:
-        state = (value >> 2) |
-                (g_bHostSecondaryMouseButton_005d10dc << 1) |
-                g_bHostPrimaryMouseButton_005d10d8;
+    case 7:
         QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005d10d0,
-                        (short)g_nHostMouseMessageY_005d10d4,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].x,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].y,
+            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+        break;
+    case 10:
+        QueueInputEvent(1,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].x,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].y,
+            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+        break;
+    case 0x45:
+        QueueInputEvent(2,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].x,
+            (unsigned short)g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726].y,
+            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+        break;
+    case 3:
+        mouse = &g_stHostMouseMessage_005d10d0;
+        QueueInputEvent(type,
+                        (short)g_nQueuedInputX_005c83f0,
+                        (short)g_nQueuedInputY_005c83f2,
+                        0, 0, 0, 0, 0, 0);
+        break;
+    case 1:
+        mouse = &g_stHostMouseMessage_005d10d0;
+        QueueInputEvent(type,
+                        (short)g_nQueuedInputX_005c83f0,
+                        (short)g_nQueuedInputY_005c83f2,
                         0,
-                        g_bHostPrimaryMouseButton_005d10d8,
-                        g_bHostSecondaryMouseButton_005d10dc,
-                        state, 0, 0);
-        return;
-    case 6:
-    {
-        InputDeviceSample *sample =
-            &g_aInputDeviceSamples_005a81f0[g_nActiveInputDevice_005a819c];
-
-        QueueInputEvent(type, (short)sample->x, (short)sample->y,
-                        0, 0, 0, 0, 0, 0);
-        return;
-    }
-    case 13:
-        QueueInputEvent(type,
-                        (short)g_nHostMouseMessageX_005d10d0,
-                        (short)g_nHostMouseMessageY_005d10d4,
-                        0, 0, 0, 0, 0, 0);
-        return;
+                        mouse->primaryButton,
+                        mouse->secondaryButton,
+                        mouse->secondaryButton * 2 |
+                            mouse->primaryButton | value >> 2,
+                        0, 0);
+        break;
+    case 4:
+        break;
     }
 }
 

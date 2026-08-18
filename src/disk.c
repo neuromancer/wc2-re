@@ -1536,7 +1536,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 
     do {
         ClearViewport(&g_stDiskPromptViewport_005a7d40,
-                      g_cViewportClearColour_004699a0);
+                      g_bPrimaryViewBufferColour_0049cb50);
         SetTextCursor(
             (unsigned short)(g_stDiskPromptViewport_005a7d40.left + 2),
             (unsigned short)(g_stDiskPromptViewport_005a7d40.top + 2));
@@ -1781,14 +1781,14 @@ clamp_pointer:
 /* Function start: WC2_UNMAPPED */
 short WaitForStreamInputKey(void)
 {
-    unsigned int saved = DAT_0046505c;
+    unsigned int saved = g_bInputEventQueueEnabled_0049c248;
     short key;
 
-    DAT_0046505c = 1;
+    g_bInputEventQueueEnabled_0049c248 = 1;
     do {
         key = WaitForInputKey();
     } while (key == 0);
-    DAT_0046505c = saved;
+    g_bInputEventQueueEnabled_0049c248 = saved;
     return key;
 }
 
