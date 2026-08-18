@@ -151,7 +151,7 @@ void auto_pilot_sequence(void)
         for (ship = 0; ship < 10; ship++) {
             travelMode[ship] = 0;
             g_anShipSpeed_0059b320[ship] = 0;
-            zero_vector(&g_aShipVelocity_0059c010[ship]);
+            zero_vector(&g_aShipVelocity_00494898[ship]);
             if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_SHIP &&
                 g_aeSpecialManeuver_00495600[ship] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
@@ -163,11 +163,11 @@ void auto_pilot_sequence(void)
                         g_aeSpecialManeuver_00495600[ship] =
                             SPECIAL_MANEUVER_NONE;
                         g_anRollGoal_004954d8[ship] = 0;
-                        g_anObjectRollRotation_0059d7e0[ship] = 0;
+                        g_anObjectRollRotation_00495058[ship] = 0;
                         g_anPitchGoal_004954a8[ship] = 0;
-                        g_anObjectPitchRotation_0059b2a0[ship] = 0;
+                        g_anObjectPitchRotation_00494f38[ship] = 0;
                         g_anYawGoal_004954c0[ship] = 0;
-                        g_anObjectYawRotation_0059ce80[ship] = 0;
+                        g_anObjectYawRotation_00494fc8[ship] = 0;
                         if (ship != 0 &&
                             ship != g_nYourWingman_0049346c)
                             g_nAutopilotFormationShipCount_00465544++;
@@ -207,12 +207,12 @@ void auto_pilot_sequence(void)
                     auto_position(ship, &formationSlot);
                     ScaleFixedVector(&g_aShipForwardVector_00494208[0],
                                      0x3c00,
-                                     &g_aShipVelocity_0059c010[ship]);
+                                     &g_aShipVelocity_00494898[ship]);
                     copy_frame(0, ship);
                     g_anShipSpeed_0059b320[ship] =
                         g_anShipSpeed_0059b320[0];
-                    g_aShipVelocity_0059c010[ship] =
-                        g_aShipVelocity_0059c010[0];
+                    g_aShipVelocity_00494898[ship] =
+                        g_aShipVelocity_00494898[0];
                 }
             }
         }

@@ -177,13 +177,13 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
         g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044] =
             g_aShipPosition_00494550[0];
         ScaleFixedVector(
-            &g_aShipUpVector_0059b9e0[g_nEjectedPilotObject_0046c044],
+            &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044],
             -0x500,
-            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044]);
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044]);
         AddFixedVectors(
-            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044],
-            &g_aShipVelocity_0059c010[0],
-            &g_aShipVelocity_0059c010[g_nEjectedPilotObject_0046c044]);
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044],
+            &g_aShipVelocity_00494898[0],
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044]);
         new_view(10, g_nEjectedPilotObject_0046c044);
 
         background = FetchDiskPacketRetrying(
@@ -214,20 +214,20 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
         ReleasePacketHandle(background);
         if (g_bSceneEscapeRequested_0049d4b0 != 1) {
             load_all_slots();
-            g_aShipForwardVector_00494208[WC1_EYE_OBJECT] =
-                g_aShipUpVector_0059b9e0[0];
-            g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT] =
-                g_aShipRightVector_0059b6e0[0];
-            g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
+            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
+                g_aShipUpVector_00493ec0[0];
+            g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
+                g_aShipRightVector_00493b78[0];
+            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
                 g_aShipForwardVector_00494208[0];
-            negate_vector(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT]);
+            negate_vector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT]);
             ScaleFixedVector(
-                &g_aShipUpVector_0059b9e0[g_nEjectedPilotObject_0046c044],
+                &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044],
                 -0x25800, &viewOffset);
             AddFixedVectors(
                 &g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044],
                 &viewOffset,
-                &g_aShipPosition_00494550[WC1_EYE_OBJECT]);
+                &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
             g_nScriptedViewObject_0046a8d0 =
                 g_nEjectedPilotObject_0046c044;
             initialize_scripted_view(g_asEjectionViewScript_00465570);

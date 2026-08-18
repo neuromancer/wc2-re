@@ -165,7 +165,7 @@ static void Wc1SdlUpdateJoystickRumble(void)
 
     low = 0;
     high = 0;
-    if (g_anShipFuel_0059b470[0] > 0 &&
+    if (g_anShipFuel_00495638[0] > 0 &&
         g_aeSpecialManeuver_00495600[0] ==
             SPECIAL_MANEUVER_AFTERBURNER &&
         g_asShipAfterburnerTimer_0059c810[0] > 0) {

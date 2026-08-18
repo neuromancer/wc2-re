@@ -150,7 +150,7 @@ void show_info_disp(void)
     char *marker;
 
     set_new_vdu(0);
-    DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
+    DrawTextAt(&g_stLeftVduTextContext_005d2ae0, g_stLeftVduViewport_005d2180.left, g_stLeftVduViewport_005d2180.top,
                " INFO DISPLAY \n", 0);
     DrawFormattedText("Version: %s\n", g_pszGameVersion_0049b528);
     DrawFormattedText("Series %d Misn %d\n",

@@ -1276,7 +1276,7 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
         if (AllocateViewport(&g_stViewBuffer_005d2b00,
                              g_cPrimaryViewBufferColour_0049cb88,
                              0x20) == 0) {
-            ReportPacketLoadError(0, fileName, flags, flags, "LP2");
+            ReportPacketLoadError(0, fileName, flags, section, "LP2");
         }
     }
     if (packet == 0 &&
@@ -1803,6 +1803,22 @@ short CanShipWeaponDamageTarget(short ship, short target)
     return 1;
 }
 
+/* Function start: 0x410192 */
+short HasShipCockpitGunDisplay(short ship)
+{
+    short weapon;
+    short weaponCount;
+
+    weaponCount = (short)(signed char)g_aShipWeapons_004956b0[ship][0];
+    weapon = 0;
+    for (; weaponCount > weapon; weapon++) {
+        if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[ship][1])[
+                weapon].type == 0x0b)
+            return 1;
+    }
+    return 0;
+}
+
 /* Function start: 0x410215 */
 short ShipHasTorpedo(short ship)
 {
@@ -1824,7 +1840,7 @@ short initialize_object(short obj, enum ObjectType type, short owner)
     if (obj != -1) {
         set_objects_data(obj, type, owner, 0);
         zero_vector(&g_aShipPosition_00494550[obj]);
-        zero_vector(&g_aShipVelocity_0059c010[obj]);
+        zero_vector(&g_aShipVelocity_00494898[obj]);
     }
     return obj;
 }
@@ -1966,7 +1982,7 @@ unsigned int remove_weapon(short obj, short weapon)
     ship = obj;
     currentWeapon = weapon;
     weaponOffset = (int)currentWeapon * sizeof(ShipWeaponSlot);
-    loadout = g_aShipWeapons_0059cab0[ship];
+    loadout = g_aShipWeapons_004956b0[ship];
     preferredType =
         ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
     objectClass = g_aObjectTypeData_00496d30[preferredType].objectClass;
@@ -1998,6 +2014,25 @@ unsigned int remove_weapon(short obj, short weapon)
             InvalidateVduMode(0);
     }
     return 0;
+}
+
+/* Function start: 0x41090F */
+void InitializeShipWeaponTypeIndices(short obj)
+{
+    short weaponCount;
+    short weapon;
+
+    weaponCount = (short)(signed char)
+        g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[obj]].weaponLoadout[0];
+    for (weapon = 0; weapon < weaponCount; weapon++) {
+        g_aShipWeapons_004956b0[obj][
+            weapon * sizeof(ShipWeaponSlot) + 1 +
+            offsetof(ShipWeaponSlot, weaponType)] =
+            g_aShipWeapons_004956b0[obj][
+                weapon * sizeof(ShipWeaponSlot) + 1 +
+                offsetof(ShipWeaponSlot, type)];
+    }
 }
 
 /* Function start: 0x410999 */
@@ -2051,7 +2086,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
     g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
     zero = 0;
     g_asObjectRadarRadius_0059c790[obj] = typeData->radarRadius;
-    g_asObjectScale_0059de40[obj] = typeData->scale;
+    g_asObjectScale_00494d90[obj] = typeData->scale;
     g_asObjectAfterburnerVelocity_0059c9d0[obj] =
         typeData->afterburnerVelocity;
     g_acObjectOwner_00495208[obj] = (signed char)owner;
@@ -2071,39 +2106,47 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
             value = typeData->shieldAft;
             g_aasShipShield_00495518[obj][1] = value;
             g_aasShipMaximumShield_004954f0[obj][1] = value;
-            g_aasShipArmor_0059d420[obj][0] = typeData->armorFront;
-            g_aasShipArmor_0059d420[obj][2] = typeData->armorLeft;
-            g_aasShipArmor_0059d420[obj][3] = typeData->armorRight;
-            g_aasShipArmor_0059d420[obj][1] = typeData->armorRear;
-            g_anShipFuel_0059b470[obj] = *(int *)&typeData->lifetime;
+            g_aasShipArmor_00495540[obj][0] = typeData->armorFront;
+            g_aasShipArmor_00495540[obj][2] = typeData->armorLeft;
+            g_aasShipArmor_00495540[obj][3] = typeData->armorRight;
+            g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
+            g_anShipFuel_00495638[obj] = *(int *)&typeData->lifetime;
             g_acShipIonDriveDamage_0059d4a0[obj] = (signed char)zero;
             g_acShipDamage_0059c460[obj] = (signed char)zero;
             recalc_max_velocity(obj);
             DAT_0059cf00[obj] = 4;
-            loadout = g_aShipWeapons_0059cab0[obj];
+            loadout = g_aShipWeapons_004956b0[obj];
             memcpy(loadout, typeData->weaponLoadout,
                    sizeof(typeData->weaponLoadout));
+            InitializeShipWeaponTypeIndices(obj);
 
             if (obj == 0) {
                 g_nSelectedReleaseWeaponIndex_004934e0 = -1;
-                g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
+                g_nSelectedGunType_004934dc = -1;
                 for (weapon = (short)(signed char)loadout[0];
                      weapon-- > 0;) {
                     ShipWeaponSlot *slot;
 
-                    slot = (ShipWeaponSlot *)(loadout + weapon * 7 + 1);
+                    slot = &((ShipWeaponSlot *)(loadout + 1))[weapon];
                     if (slot->disabled == 0) {
                         if (g_aObjectTypeData_00496d30[
-                                slot->type].objectClass ==
-                                OBJECT_CLASS_PROJECTILE)
-                            g_eSelectedGunType_0046c054 = slot->type;
-                        else
+                                (int)slot->weaponType].objectClass ==
+                                OBJECT_CLASS_PROJECTILE) {
+                            if (g_nSelectedGunType_004934dc != -1) {
+                                if (slot->type !=
+                                    g_nSelectedGunType_004934dc)
+                                    g_nSelectedGunType_004934dc = 0x80;
+                            } else {
+                                g_nSelectedGunType_004934dc = slot->type;
+                            }
+                        } else {
                             g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
+                        }
                     }
                 }
             }
             DAT_0059c910[obj] = -1;
-            g_asShipWeaponEnergy_0059d470[obj] = 100;
+            g_asShipWeaponEnergy_00495590[obj] = 100;
         }
         return;
     }
@@ -2177,19 +2220,19 @@ void rotate_object_to_goal(short obj)
             return;
         }
     }
-    totalError = (short)(abs(g_anObjectYawRotation_0059ce80[obj] -
+    totalError = (short)(abs(g_anObjectYawRotation_00494fc8[obj] -
                             g_anYawGoal_004954c0[obj]) +
-                         abs(g_anObjectPitchRotation_0059b2a0[obj] -
+                         abs(g_anObjectPitchRotation_00494f38[obj] -
                              g_anPitchGoal_004954a8[obj]) +
-                         abs(g_anObjectRollRotation_0059d7e0[obj] -
+                         abs(g_anObjectRollRotation_00495058[obj] -
                              g_anRollGoal_004954d8[obj]));
-    match_rotation_goal(&g_anObjectPitchRotation_0059b2a0[obj],
+    match_rotation_goal(&g_anObjectPitchRotation_00494f38[obj],
                         &g_anPitchGoal_004954a8[obj], totalError,
                         typeData->yawRate);
-    match_rotation_goal(&g_anObjectYawRotation_0059ce80[obj],
+    match_rotation_goal(&g_anObjectYawRotation_00494fc8[obj],
                         &g_anYawGoal_004954c0[obj], totalError,
                         typeData->pitchRate);
-    match_rotation_goal(&g_anObjectRollRotation_0059d7e0[obj],
+    match_rotation_goal(&g_anObjectRollRotation_00495058[obj],
                         &g_anRollGoal_004954d8[obj], totalError,
                         typeData->rollRate);
 }
@@ -2239,7 +2282,7 @@ unsigned int steady_object(short ship)
 short real_velocity(short obj)
 {
     return FixedToShortSaturating(
-        Vector_magnitude(&g_aShipVelocity_0059c010[obj]));
+        Vector_magnitude(&g_aShipVelocity_00494898[obj]));
 }
 
 /* Function start: 0x411922 */
@@ -2247,7 +2290,7 @@ unsigned int fix_velocity(short obj)
 {
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                      g_anShipSpeed_0059b320[obj],
-                     &g_aShipVelocity_0059c010[obj]);
+                     &g_aShipVelocity_00494898[obj]);
     return 0;
 }
 

@@ -131,7 +131,7 @@ short recalc_max_velocity(short ship)
     short maximumVelocity;
 
     oldVelocity = g_asShipMaximumSpeed_0059c440[ship];
-    if (g_anShipFuel_0059b470[ship] <= 0) {
+    if (g_anShipFuel_00495638[ship] <= 0) {
         g_asShipMaximumSpeed_0059c440[ship] = 5;
     } else {
         maximumVelocity = get_ship_max_velocity(ship);
@@ -147,8 +147,8 @@ short recalc_max_velocity(short ship)
 /* Function start: 0x40A51D */
 void drain_fuel(short ship, short amount)
 {
-    g_anShipFuel_0059b470[ship] -= (int)amount;
-    if (g_anShipFuel_0059b470 == 0)
+    g_anShipFuel_00495638[ship] -= (int)amount;
+    if (g_anShipFuel_00495638 == 0)
         recalc_max_velocity(ship);
 }
 
@@ -221,7 +221,7 @@ void point_at(short obj, FixedVector point)
 /* Function start: 0x40A6F7 */
 void look_at(short obj)
 {
-    point_at(WC1_EYE_OBJECT, g_aShipPosition_00494550[obj]);
+    point_at(WC2_EYE_OBJECT, g_aShipPosition_00494550[obj]);
 }
 
 /* Function start: 0x40A725 */
@@ -244,8 +244,8 @@ void position_relative_ijk(FixedVector *position, short obj,
                            short right, short up, short forward)
 {
     *position = g_aShipPosition_00494550[obj];
-    position_relative(position, g_aShipRightVector_0059b6e0[obj], right);
-    position_relative(position, g_aShipUpVector_0059b9e0[obj], up);
+    position_relative(position, g_aShipRightVector_00493b78[obj], right);
+    position_relative(position, g_aShipUpVector_00493ec0[obj], up);
     position_relative(position, g_aShipForwardVector_00494208[obj], forward);
 }
 
@@ -620,26 +620,26 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 void init_ijk(short obj)
 {
     g_aShipForwardVector_00494208[obj].z = 0x100;
-    g_aShipUpVector_0059b9e0[obj].y = 0x100;
-    g_aShipRightVector_0059b6e0[obj].x = 0x100;
+    g_aShipUpVector_00493ec0[obj].y = 0x100;
+    g_aShipRightVector_00493b78[obj].x = 0x100;
     g_aShipForwardVector_00494208[obj].y = 0;
-    g_aShipUpVector_0059b9e0[obj].z = 0;
+    g_aShipUpVector_00493ec0[obj].z = 0;
     g_aShipForwardVector_00494208[obj].x = 0;
-    g_aShipUpVector_0059b9e0[obj].x = 0;
-    g_aShipRightVector_0059b6e0[obj].z = 0;
-    g_aShipRightVector_0059b6e0[obj].y = 0;
-    g_anObjectRollRotation_0059d7e0[obj] = 0;
-    g_anObjectYawRotation_0059ce80[obj] = 0;
-    g_anObjectPitchRotation_0059b2a0[obj] = 0;
+    g_aShipUpVector_00493ec0[obj].x = 0;
+    g_aShipRightVector_00493b78[obj].z = 0;
+    g_aShipRightVector_00493b78[obj].y = 0;
+    g_anObjectRollRotation_00495058[obj] = 0;
+    g_anObjectYawRotation_00494fc8[obj] = 0;
+    g_anObjectPitchRotation_00494f38[obj] = 0;
 }
 
 /* Function start: 0x40B550 */
 void copy_frame(short source, short destination)
 {
-    g_aShipRightVector_0059b6e0[destination] =
-        g_aShipRightVector_0059b6e0[source];
-    g_aShipUpVector_0059b9e0[destination] =
-        g_aShipUpVector_0059b9e0[source];
+    g_aShipRightVector_00493b78[destination] =
+        g_aShipRightVector_00493b78[source];
+    g_aShipUpVector_00493ec0[destination] =
+        g_aShipUpVector_00493ec0[source];
     g_aShipForwardVector_00494208[destination] =
         g_aShipForwardVector_00494208[source];
 }
@@ -647,14 +647,14 @@ void copy_frame(short source, short destination)
 /* Function start: 0x40B5DF */
 void fix_objects_ijk(short obj)
 {
-    vector_cross_product(&g_aShipUpVector_0059b9e0[obj],
+    vector_cross_product(&g_aShipUpVector_00493ec0[obj],
                          &g_aShipForwardVector_00494208[obj],
-                         &g_aShipRightVector_0059b6e0[obj]);
+                         &g_aShipRightVector_00493b78[obj]);
     vector_cross_product(&g_aShipForwardVector_00494208[obj],
-                         &g_aShipRightVector_0059b6e0[obj],
-                         &g_aShipUpVector_0059b9e0[obj]);
-    NormalizeFixedVector(&g_aShipRightVector_0059b6e0[obj]);
-    NormalizeFixedVector(&g_aShipUpVector_0059b9e0[obj]);
+                         &g_aShipRightVector_00493b78[obj],
+                         &g_aShipUpVector_00493ec0[obj]);
+    NormalizeFixedVector(&g_aShipRightVector_00493b78[obj]);
+    NormalizeFixedVector(&g_aShipUpVector_00493ec0[obj]);
     NormalizeFixedVector(&g_aShipForwardVector_00494208[obj]);
 }
 
@@ -662,15 +662,15 @@ void fix_objects_ijk(short obj)
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination, short obj)
 {
-    destination->x = dot_product(source, &g_aShipRightVector_0059b6e0[obj]);
-    destination->y = dot_product(source, &g_aShipUpVector_0059b9e0[obj]);
+    destination->x = dot_product(source, &g_aShipRightVector_00493b78[obj]);
+    destination->y = dot_product(source, &g_aShipUpVector_00493ec0[obj]);
     destination->z = dot_product(source, &g_aShipForwardVector_00494208[obj]);
 }
 
 /* Function start: 0x40B747 */
 void alter_pitch(short angle, short obj)
 {
-    rotate_about_i(angle, &g_aShipUpVector_0059b9e0[obj],
+    rotate_about_i(angle, &g_aShipUpVector_00493ec0[obj],
                    &g_aShipForwardVector_00494208[obj]);
     fix_objects_ijk(obj);
 }
@@ -678,7 +678,7 @@ void alter_pitch(short angle, short obj)
 /* Function start: 0x40B706 */
 void alter_yaw(short angle, short obj)
 {
-    rotate_about_j(angle, &g_aShipRightVector_0059b6e0[obj],
+    rotate_about_j(angle, &g_aShipRightVector_00493b78[obj],
                    &g_aShipForwardVector_00494208[obj]);
     fix_objects_ijk(obj);
 }
@@ -686,8 +686,8 @@ void alter_yaw(short angle, short obj)
 /* Function start: 0x40B788 */
 void alter_roll(short angle, short obj)
 {
-    rotate_about_k(angle, &g_aShipRightVector_0059b6e0[obj],
-                   &g_aShipUpVector_0059b9e0[obj]);
+    rotate_about_k(angle, &g_aShipRightVector_00493b78[obj],
+                   &g_aShipUpVector_00493ec0[obj]);
     fix_objects_ijk(obj);
 }
 
@@ -780,10 +780,10 @@ short match_roll_orientation(short obj, short reference)
     FixedVector roll;
     short angle;
 
-    roll.x = dot_product(&g_aShipUpVector_0059b9e0[obj],
-                         &g_aShipRightVector_0059b6e0[reference]);
-    roll.y = dot_product(&g_aShipUpVector_0059b9e0[obj],
-                         &g_aShipUpVector_0059b9e0[reference]);
+    roll.x = dot_product(&g_aShipUpVector_00493ec0[obj],
+                         &g_aShipRightVector_00493b78[reference]);
+    roll.y = dot_product(&g_aShipUpVector_00493ec0[obj],
+                         &g_aShipUpVector_00493ec0[reference]);
     roll.z = 0;
     NormalizeFixedVector(&roll);
     angle = (short)ArcCos(roll.y);
@@ -888,7 +888,7 @@ void point_ship_below_object(short obj, short other)
 {
     FixedVector point = g_aShipPosition_00494550[other];
 
-    position_relative(&point, g_aShipUpVector_0059b9e0[other],
+    position_relative(&point, g_aShipUpVector_00493ec0[other],
                       (short)(g_asObjectCollisionRadius_004950e8[other] +
                               500));
     point_ship_at_point(obj, &point);
@@ -1024,16 +1024,16 @@ void position_child(short parent, short hardpoint, FixedVector *position)
     const ShortVector *offset = &g_aChildOffsets_004682f0[hardpoint];
 
     position->x = g_aShipForwardVector_00494208[parent].x * offset->z +
-                  g_aShipUpVector_0059b9e0[parent].x * offset->y +
-                  g_aShipRightVector_0059b6e0[parent].x * offset->x +
+                  g_aShipUpVector_00493ec0[parent].x * offset->y +
+                  g_aShipRightVector_00493b78[parent].x * offset->x +
                   g_aShipPosition_00494550[parent].x;
     position->y = g_aShipForwardVector_00494208[parent].y * offset->z +
-                  g_aShipUpVector_0059b9e0[parent].y * offset->y +
-                  g_aShipRightVector_0059b6e0[parent].y * offset->x +
+                  g_aShipUpVector_00493ec0[parent].y * offset->y +
+                  g_aShipRightVector_00493b78[parent].y * offset->x +
                   g_aShipPosition_00494550[parent].y;
     position->z = g_aShipForwardVector_00494208[parent].z * offset->z +
-                  g_aShipUpVector_0059b9e0[parent].z * offset->y +
-                  g_aShipRightVector_0059b6e0[parent].z * offset->x +
+                  g_aShipUpVector_00493ec0[parent].z * offset->y +
+                  g_aShipRightVector_00493b78[parent].z * offset->x +
                   g_aShipPosition_00494550[parent].z;
 }
 
@@ -1106,8 +1106,8 @@ void remove_object(short obj)
         return;
     g_asObjectScreenX_00493598[obj] = (short)0x8001;
     g_asObjectDistance_00493ae8[obj] = 0;
-    if (obj == DAT_00469208)
-        DAT_00469208 = -1;
+    if (obj == g_nNavPointerObject_004931b8)
+        g_nNavPointerObject_004931b8 = -1;
     if (obj == g_nYourWingman_0049346c)
         g_nYourWingman_0049346c = -1;
     for (slot = 0; slot < 20; slot++) {
@@ -1139,8 +1139,8 @@ void apply_force_to_objects_center(FixedVector *force, short obj)
                   (unsigned short)g_asObjectRadarRadius_0059c790[obj]
                       << 8,
                   &acceleration);
-    AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
-                    &g_aShipVelocity_0059c010[obj]);
+    AddFixedVectors(&g_aShipVelocity_00494898[obj], &acceleration,
+                    &g_aShipVelocity_00494898[obj]);
 }
 
 /* Function start: 0x40C4D1 */
@@ -1165,20 +1165,20 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
         MultiplyFixed(localPoint.x, localForce.y) -
             MultiplyFixed(localPoint.y, localForce.x),
         rotationalMass);
-    g_anObjectRollRotation_0059d7e0[obj] += (short)(value >> 8);
+    g_anObjectRollRotation_00495058[obj] += (short)(value >> 8);
     value = DivideFixed(
         MultiplyFixed(localPoint.x, localForce.z) -
             MultiplyFixed(localPoint.z, localForce.x),
         rotationalMass);
-    g_anObjectYawRotation_0059ce80[obj] += (short)(value >> 8);
+    g_anObjectYawRotation_00494fc8[obj] += (short)(value >> 8);
     value = DivideFixed(
         MultiplyFixed(localPoint.z, localForce.y) -
             MultiplyFixed(localPoint.y, localForce.z),
         rotationalMass);
-    g_anObjectPitchRotation_0059b2a0[obj] += (short)(value >> 8);
-    ClampTo30(&g_anObjectPitchRotation_0059b2a0[obj]);
-    ClampTo30(&g_anObjectYawRotation_0059ce80[obj]);
-    ClampTo30(&g_anObjectRollRotation_0059d7e0[obj]);
+    g_anObjectPitchRotation_00494f38[obj] += (short)(value >> 8);
+    ClampTo30(&g_anObjectPitchRotation_00494f38[obj]);
+    ClampTo30(&g_anObjectYawRotation_00494fc8[obj]);
+    ClampTo30(&g_anObjectRollRotation_00495058[obj]);
 
     mass = (unsigned short)g_asObjectRadarRadius_0059c790[obj] << 8;
     acceleration.x = DivideFixed(
@@ -1196,8 +1196,8 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
             PlanarMagnitude(localPoint.x, localPoint.y),
             localForce.z),
         MultiplyFixed(0x16a, mass));
-    AddFixedVectors(&g_aShipVelocity_0059c010[obj], &acceleration,
-                    &g_aShipVelocity_0059c010[obj]);
+    AddFixedVectors(&g_aShipVelocity_00494898[obj], &acceleration,
+                    &g_aShipVelocity_00494898[obj]);
     if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
         check_for_lost_control(obj);
 }
@@ -1224,20 +1224,20 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
         MultiplyFixed(localPoint.x, localForce.y) -
             MultiplyFixed(localPoint.y, localForce.x),
         denominator);
-    g_anObjectRollRotation_0059d7e0[obj] += (short)(value >> 8);
+    g_anObjectRollRotation_00495058[obj] += (short)(value >> 8);
     value = DivideFixed(
         MultiplyFixed(localPoint.x, localForce.z) -
             MultiplyFixed(localPoint.z, localForce.x),
         denominator);
-    g_anObjectYawRotation_0059ce80[obj] += (short)(value >> 8);
+    g_anObjectYawRotation_00494fc8[obj] += (short)(value >> 8);
     value = DivideFixed(
         MultiplyFixed(localPoint.z, localForce.y) -
             MultiplyFixed(localPoint.y, localForce.z),
         denominator);
-    g_anObjectPitchRotation_0059b2a0[obj] += (short)(value >> 8);
-    ClampTo30(&g_anObjectPitchRotation_0059b2a0[obj]);
-    ClampTo30(&g_anObjectYawRotation_0059ce80[obj]);
-    ClampTo30(&g_anObjectRollRotation_0059d7e0[obj]);
+    g_anObjectPitchRotation_00494f38[obj] += (short)(value >> 8);
+    ClampTo30(&g_anObjectPitchRotation_00494f38[obj]);
+    ClampTo30(&g_anObjectYawRotation_00494fc8[obj]);
+    ClampTo30(&g_anObjectRollRotation_00495058[obj]);
     if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
         check_for_lost_control(obj);
 }
@@ -1283,15 +1283,15 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
     long projection;
     unsigned short visible;
 
-    ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
+    ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                        (FixedVector *)point, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
+    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
         distance)
         return 0;
     transform_to_objects_frame(&direction, &viewPosition,
-                               WC1_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
+                               WC2_EYE_OBJECT);
+    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
         viewPosition.z)
         return 0;
     projection = DivideFixed(viewPosition.z, distance);
@@ -1304,122 +1304,128 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
 /* Function start: 0x40C9DD */
 void transform_objects_to_your_view(void)
 {
-    FixedVector direction;
-    int distance;
-    int objectIndex;
-    int objectRadius;
-    int scaleFactor;
+    short screenScale;
     short dustSize;
     short obj;
+    int objectRadius;
+    int distance;
+    FixedVector viewPosition;
+    FixedVector direction;
 
-    g_nClosestVisibleObject_0046c048 = -1;
     draw_nav_pointer();
-    for (obj = 0; obj <= WC1_SPACE_LAST_MOVING_OBJECT; obj++) {
-        objectIndex = (int)obj;
-        if (g_aeObjectClass_00495328[objectIndex] != OBJECT_CLASS_NULL &&
-            g_aeObjectClass_00495328[objectIndex] !=
-                OBJECT_CLASS_FIXED_OBJECT &&
-            obj != DAT_00469208) {
-            g_asPreviousObjectDistance_0059d080[objectIndex] =
-                g_asObjectDistance_00493ae8[objectIndex];
-            g_asObjectDistance_00493ae8[objectIndex] = 0;
-            if (g_aeObjectClass_00495328[objectIndex] ==
-                OBJECT_CLASS_FUTURION) {
-                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
+    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL)
+            continue;
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FIXED_OBJECT)
+            continue;
+        if (obj == g_nNavPointerObject_004931b8)
+            continue;
+        {
+            g_asObjectDistance_00493ae8[obj] = 0;
+            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            if (g_aeObjectClass_00495328[objectIndex] ==
-                    OBJECT_CLASS_PLANET ||
-                g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_STAR) {
-                direction = g_aShipPosition_00494550[objectIndex];
+            if (obj < 10 && g_anShipCloakState_00496020[obj] == 1 &&
+                (g_asShipCloakElapsedFrames_00496060[obj] >= 20 ||
+                 g_anCloakVisibilityPattern_00492710[
+                     g_asShipCloakElapsedFrames_00496060[obj]] == 1)) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
+                continue;
+            }
+            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_PLANET ||
+                g_aeObjectClass_00495328[obj] == OBJECT_CLASS_STAR) {
+                direction = g_aShipPosition_00494550[obj];
             } else {
-                ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
-                                   &g_aShipPosition_00494550[objectIndex],
+                ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                                   &g_aShipPosition_00494550[obj],
                                    &direction);
             }
             distance = Vector_magnitude(&direction);
             if (distance <
-                g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
+                g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            if (g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_DUST &&
-                distance > (1400 << 8)) {
-                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
+            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST &&
+                distance > 0x57800) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            transform_to_objects_frame(&direction,
-                                       &g_aObjectViewPosition_0059afa0[
-                                           objectIndex],
-                                       WC1_EYE_OBJECT);
-            if (g_aObjectViewPosition_0059afa0[objectIndex].z <
-                g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100) {
-                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
+            transform_to_objects_frame(&direction, &viewPosition,
+                                       WC2_EYE_OBJECT);
+            if (viewPosition.z <
+                g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            if (DivideFixed(g_aObjectViewPosition_0059afa0[objectIndex].z,
-                            distance) < 0x94) {
-                g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
+            if (DivideFixed(viewPosition.z, distance) < 0) {
+                g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            objectRadius =
-                g_asObjectCollisionRadius_004950e8[objectIndex] * 0x100;
+            objectRadius = g_asObjectCollisionRadius_004950e8[obj] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
-            if (g_aeObjectClass_00495328[objectIndex] > OBJECT_CLASS_DUST) {
-                scaleFactor = DivideFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 15,
-                    distance - objectRadius);
-                g_asObjectScreenScale_00493a58[objectIndex] = (short)(
-                    MultiplyFixed((unsigned short)
-                                      g_asObjectScale_0059de40[objectIndex],
-                                  scaleFactor) >> 8);
-                if ((unsigned short)g_asObjectScreenScale_00493a58[
-                        objectIndex] >
-                    0x1fff)
-                    g_asObjectScreenScale_00493a58[objectIndex] = 0x2000;
-                if ((unsigned short)g_asObjectScreenScale_00493a58[
-                        objectIndex] < 5) {
-                    g_asObjectScreenX_00493598[objectIndex] =
-                        (short)0x8001;
+            if (g_aeObjectClass_00495328[obj] > OBJECT_CLASS_DUST) {
+                screenScale = (short)MultiplyFixed(
+                    (unsigned short)g_asObjectScale_00494d90[obj],
+                    DivideFixed(
+                        (g_nScreenWidth_0049d4d8 & ~1) << 7,
+                        distance - objectRadius));
+                screenScale = MinShort(0x2000, screenScale);
+                screenScale = MaxShort(0, screenScale);
+                g_asObjectScreenScale_00493a58[obj] = screenScale;
+                if ((unsigned short)g_asObjectScreenScale_00493a58[obj] <= 4) {
+                    g_asObjectScreenX_00493598[obj] = (short)0x8001;
                     continue;
                 }
             }
-            g_asObjectDistance_00493ae8[objectIndex] =
-                (short)(distance >> 8);
-            g_asObjectScreenX_00493598[objectIndex] = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[objectIndex].x),
-                g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
-            g_asObjectScreenY_00493628[objectIndex] = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[objectIndex].y),
-                g_aObjectViewPosition_0059afa0[objectIndex].z) >> 8);
-            switch (g_aeObjectClass_00495328[objectIndex]) {
-            case OBJECT_CLASS_PLANET:
-                if (g_asObjectScreenScale_00493a58[objectIndex] == 0xff)
-                    set_background_objects_rotation(obj, &direction);
+            g_asObjectDistance_00493ae8[obj] = (short)(distance >> 8);
+            if (distance > 0xfffe00)
+                g_asObjectDistance_00493ae8[obj] = (short)0xfffe;
+            g_asObjectScreenX_00493598[obj] = (short)DivideFixed(
+                MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
+                              viewPosition.x),
+                viewPosition.z);
+            g_asObjectScreenY_00493628[obj] = (short)DivideFixed(
+                MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
+                              viewPosition.y),
+                viewPosition.z);
+            switch (g_aeObjectClass_00495328[obj]) {
+            case OBJECT_CLASS_STAR:
                 break;
             case OBJECT_CLASS_DUST:
                 dustSize = (short)(MultiplyFixed(
                     0x900, DivideFixed(
-                        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] << 8,
+                        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] << 8,
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
-                g_asObjectViewFrame_00493508[objectIndex] =
-                    (short)(((g_asObjectCounter_00494be0[objectIndex] +
+                dustSize = (short)(
+                    (g_asObjectScreenAngle_004936b8[obj] & 0x10) +
+                    (3 - dustSize) * 4);
+                g_asObjectViewFrame_00493508[obj] =
+                    (short)(((g_asObjectCounter_00494be0[obj] +
                               g_nSpaceFrame_00493134) & 3) +
-                            (g_asObjectScreenAngle_004936b8[objectIndex] &
-                             0x10) +
-                            (3 - dustSize) * 4);
+                            dustSize);
+                break;
+            case OBJECT_CLASS_PLANET:
+                if ((unsigned short)g_asObjectScreenScale_00493a58[obj] ==
+                    0xff)
+                    set_background_objects_rotation(obj, &direction);
+                break;
+            case OBJECT_CLASS_EXPLOSION:
+            case OBJECT_CLASS_DEBRIS:
+            case OBJECT_CLASS_PROJECTILE:
+            case OBJECT_CLASS_ASTEROID:
+            case OBJECT_CLASS_MINE:
                 break;
             case OBJECT_CLASS_MISSILE:
             case OBJECT_CLASS_SHIP:
             case OBJECT_CLASS_CAPITAL_SHIP:
-                get_right_shape(obj, &direction);
+            case 14:
+                if (g_asObjectType_00495298[obj] != 0x14)
+                    get_right_shape(obj, &direction);
                 break;
             }
         }
@@ -1438,10 +1444,10 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     init_ijk(63);
     alter_yaw((short)-spherical.yaw, 63);
     alter_pitch((short)-spherical.pitch, 63);
-    projectedUp.x = dot_product(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
-                                &g_aShipRightVector_0059b6e0[63]);
-    projectedUp.y = dot_product(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
-                                &g_aShipUpVector_0059b9e0[63]);
+    projectedUp.x = dot_product(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                                &g_aShipRightVector_00493b78[63]);
+    projectedUp.y = dot_product(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                                &g_aShipUpVector_00493ec0[63]);
     projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
     angle = (short)ArcCos(projectedUp.y);
@@ -1478,7 +1484,7 @@ void get_right_shape(short obj, FixedVector *direction)
     NormalizeFixedVector(&up);
     NormalizeFixedVector(&forward);
     transform_to_objects_frame(&forward, &objectForward, obj);
-    transform_to_objects_frame(&g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
+    transform_to_objects_frame(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
                                &eyeUp, obj);
     rectangular_to_spherical(&objectForward, &spherical);
     pitchBand = (short)(spherical.pitch / 30 + 3);

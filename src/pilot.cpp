@@ -129,21 +129,21 @@ short PromptForAnswerText(short entry)
     ((short *)&bounds[1])[1] = 149;
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
     LoadAnswerPromptAndResponse(entry, g_szHudMessageBuffer_0059e1c0,
-                                g_szComponentHitMessage_005a7e00);
+                                g_szComponentHitMessage_005d1da0);
     ApplyAnswerTextCipher(g_szHudMessageBuffer_0059e1c0, 1);
     InitializeModalTextPanel(&panel, 0, bounds[0], bounds[1],
                              g_cViewportClearColour_004699a0,
                              g_cSecondaryViewBufferColour_0049cb4c, DAT_004699ac);
     DrawModalTextPanel(&panel, 6, 10, 2,
                        g_szHudMessageBuffer_0059e1c0);
-    g_szComponentHitMessage_005a7e00[20] =
+    g_szComponentHitMessage_005d1da0[20] =
         g_szEmptyAnswerInput_00469d90[0];
     RunWc1TextInputPrompt(65, 125, (char *)g_szAnswerLabel_00469d94,
-                          &g_szComponentHitMessage_005a7e00[20], 10, 2);
+                          &g_szComponentHitMessage_005d1da0[20], 10, 2);
     RestoreModalTextPanel(&panel);
-    ApplyAnswerTextCipher(&g_szComponentHitMessage_005a7e00[20], -1);
-    matches = (short)(strcmp(&g_szComponentHitMessage_005a7e00[20],
-                             g_szComponentHitMessage_005a7e00) == 0);
+    ApplyAnswerTextCipher(&g_szComponentHitMessage_005d1da0[20], -1);
+    matches = (short)(strcmp(&g_szComponentHitMessage_005d1da0[20],
+                             g_szComponentHitMessage_005d1da0) == 0);
     ReleaseTextFont(0);
     return matches;
 }

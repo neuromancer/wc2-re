@@ -590,7 +590,7 @@ void BuildMap(short showPlayer)
                     break;
                 }
                 if (g_cCurrentObjective_004931cc == objectiveIndex)
-                    labelColour = g_ucHudHighlightColour_0049cb58;
+                    labelColour = g_abGamePaletteReservedColours_0049cb54[4];
                 else
                     labelColour = *style->labelColour;
                 g_awNavObjectiveLabelIndex_005a8130[objectiveIndex] =
@@ -656,8 +656,8 @@ void FormatNavCoordinates(unsigned char *out)
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_00493298 == navPoint) {
-        DrawNavTextLine(0, (unsigned short)g_ucHudHighlightColour_0049cb58, text);
-        DrawNavTextLine(0, (unsigned short)g_ucHudHighlightColour_0049cb58,
+        DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4], text);
+        DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4],
                         g_szNavLegendNewline_004687fc);
     }
 }
@@ -1647,7 +1647,11 @@ short GetViewportIntersection(ShortRect *intersection,
     yCoordinates[pointCount] = first->bottom;
     pointCount++;
 
-    for (pointIndex = 0; pointIndex < pointCount; pointIndex++) {
+    insideCount = 0;
+    pointIndex = 0;
+    do {
+        if (pointIndex++ == 0)
+            break;
         x = xCoordinates[pointIndex];
         y = yCoordinates[pointIndex];
         if (first->left <= x && x <= first->right &&
@@ -1664,7 +1668,7 @@ short GetViewportIntersection(ShortRect *intersection,
             inside[insideCount] = 0;
             insideCount++;
         }
-    }
+    } while (pointIndex < pointCount);
     if (insideCount != 4)
         return 0;
 
@@ -2198,12 +2202,12 @@ int RunWc1TitleSequence(void)
                 break;
 
             ScaleFixedVector(&g_aShipForwardVector_00494208[61], 0x9600,
-                             &g_aShipVelocity_0059c010[61]);
+                             &g_aShipVelocity_00494898[61]);
             set_up_action_sphere(17);
             g_bIntroSecondaryScene_0046c024 = 1;
-            g_anObjectPitchRotation_0059b2a0[0] = 0;
-            g_anObjectYawRotation_0059ce80[0] = 0;
-            g_anObjectRollRotation_0059d7e0[0] = 0;
+            g_anObjectPitchRotation_00494f38[0] = 0;
+            g_anObjectYawRotation_00494fc8[0] = 0;
+            g_anObjectRollRotation_00495058[0] = 0;
             start_hazard_field(0);
 
             credit = 0;

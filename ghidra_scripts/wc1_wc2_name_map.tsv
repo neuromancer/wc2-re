@@ -1,7 +1,7 @@
 # version=1
 # source_sha256=d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4
 # destination_sha256=f5e133e8eca8eb1a02e21a7d1afbb44d082e384a38d39db58a694371fa583bbe
-# rows=1265
+# rows=1266
 source_address	destination_address	function_name	evidence	review_flags	similarity	confidence	association_votes	source_length	destination_length	source_callers	destination_callers	source_callees	destination_callees	correlator	audit_comment
 004094e0	00409c1a	RunCampaignGameLoop	WC2-manual-verified				0	368	349					Manual Match	[WC2 reconstruction] Retail campaign controller replaces the WC1 animation-demo dispatcher; destination verified from RunSelectedCampaign at 0x0040A2A3.
 0042c580	00401000	LoadWingCmdrCfgFile	WC1-fuzzy-followup		0.42	0.782	0	223	274	main@004274e0	GameFlow@0046591a	_fclose@004492e0|_fscanf@00449440|_fopen@00449600|FUN_0044d820@0044d820	_strchr@0046e0f0|FUN_0046e1b0@0046e1b0|_fclose@0046e2a0|_fscanf@0046e400|_fopen@0046e5c0	Manual Match	[WC1 transfer] WC1-fuzzy-followup from LoadWingCmdrCfgFile @0042c580; structural=0.4196, composite=0.7816, graph=3/0, candidates=1
@@ -1268,3 +1268,4 @@ source_address	destination_address	function_name	evidence	review_flags	similarit
 0040cae0	0044f247	SampleJoystickDevice	WC1-manual-verified		1.0	1.0	0	0	0					Manual Match	[WC1 transfer] Verified from adjacency, callers, and instruction-level comparison.
 0041d200	0040f40e	LoadPacketIntoBuffer	WC1-manual-verified		1.0	1.0	0	32	54					Manual Match	[WC1 transfer] Same packet-into-caller-buffer operation, preserved disk-module order, and matching caller contract.
 00435510	00462550	DosMemset	WC2-manual-verified		0.95	1.0	0	0	0					Manual Match	[WC1 transfer] Verified by instruction-level comparison and preserved string-runtime module order.
+00435340	004622ee	MeasureShapeFrameStorage	WC2-manual-verified			1.0	0	176	337					Manual Match	[WC1 transfer] Verified from the shared frame-storage algorithm, call contract, and preserved text-runtime module order.

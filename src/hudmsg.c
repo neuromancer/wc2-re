@@ -142,7 +142,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
         ClearHudMessageDisplay(1);
         DosStrcpy(g_szOnScreenMessageBuffer_005d1890, text);
         SetHudMessageText(g_szOnScreenMessageBuffer_005d1890,
-                          g_ucSpaceClearColour_0049cb5c, duration);
+                          g_abGamePaletteReservedColours_0049cb54[8], duration);
     }
     if (g_bPauseInputActive_0049ac9c != 0) {
         FlushPendingInputPresses();
@@ -155,7 +155,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     }
     if (modalShown == 0) {
         if (duration == 9999)
-            SetHudMessageText("", g_ucSpaceClearColour_0049cb5c, 2);
+            SetHudMessageText("", g_abGamePaletteReservedColours_0049cb54[8], 2);
     } else {
         ReleaseModalTextPanel();
     }
@@ -558,7 +558,7 @@ primary_controls_complete:
     case 0x1c:
         if (notRepeated && g_nSelectedReleaseWeaponIndex_004934e0 != -1) {
             ShipWeaponSlot *slot =
-                &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
+                &((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
                     g_nSelectedReleaseWeaponIndex_004934e0];
 
             if (slot->type == OBJECT_TYPE_SPACE_MINE) {
@@ -724,7 +724,7 @@ unsigned short Draw_3Space_Frame(void)
     BuildObjectDepthOrder();
 #ifdef WC1_SDL
     Wc1SdlBeginSpaceFrame(
-        g_pScreenViewportGeometry_0059a9f4,
+        g_pScreenViewportGeometry_005c82b0,
         (int)g_cScreenViewportMode_005c82a6,
         g_nCockpitDisplayMode_0049d71c > 0,
         (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
@@ -951,17 +951,17 @@ void ProcessCannedSceneInput(void)
     short changed;
     short eventType;
 
-    g_cPreviousCannedSceneKey_0049312c = g_cCannedSceneKey_00493128;
+    g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
     ServiceInputDevices(15);
     eventType = GetNextInputEvent(&event);
     if (eventType == 4) {
-        g_cCannedSceneKey_00493128 = (signed char)event.status;
-        if (g_cPreviousCannedSceneKey_0049312c !=
-            g_cCannedSceneKey_00493128)
+        g_cCurrentKey_00493128 = (signed char)event.status;
+        if (g_cPreviousKey_0049312c !=
+            g_cCurrentKey_00493128)
             changed = 1;
         else
             changed = 0;
-        switch (g_cCannedSceneKey_00493128) {
+        switch (g_cCurrentKey_00493128) {
         case 0x33:
         case 0x34:
             break;
@@ -1012,7 +1012,7 @@ void FinishCannedScenePlayback(void)
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
         SetHudMessageText(g_szEndInflightReplay_0049b738,
-                          (unsigned short)g_ucSpaceClearColour_0049cb5c,
+                          (unsigned short)g_abGamePaletteReservedColours_0049cb54[8],
                           20);
     }
     _unlink(g_szCannedSceneTapeFile_00490208);
@@ -1086,7 +1086,7 @@ void RecordCannedSceneObjectEvent(short obj, int event)
             switch (event) {
             case 0:
                 record->position = g_aShipPosition_00494550[obj];
-                record->velocity = g_aShipVelocity_0059c010[obj];
+                record->velocity = g_aShipVelocity_00494898[obj];
                 record->objectType = g_asObjectType_00495298[obj];
                 record->owner = g_acObjectOwner_00495208[obj];
                 record->counter = g_asObjectCounter_00494be0[obj];
@@ -1365,29 +1365,31 @@ int RunSpaceFlight(short entryNavPoint)
 }
 
 /* Function start: 0x4695FD */
-int calculate_damage_level(void)
+short calculate_damage_level(void)
 {
     ObjectTypeData *typeData;
-    short damage;
+    int damage;
+    int armorDamage;
 
+    armorDamage = 0;
     typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[0]];
-    damage = (short)(((typeData->armorLeft -
-                       g_aasShipArmor_0059d420[0][2]) * 4) /
-                     typeData->armorLeft);
-    damage = (short)(damage +
-        ((typeData->armorRear - g_aasShipArmor_0059d420[0][1]) * 4) /
-            typeData->armorRear);
-    damage = (short)(damage +
-        ((typeData->armorRight - g_aasShipArmor_0059d420[0][3]) * 4) /
-            typeData->armorRight);
-    damage = (short)(damage +
-        ((typeData->armorFront - g_aasShipArmor_0059d420[0][0]) * 4) /
-            typeData->armorFront);
-    damage = (short)(
-        (g_acShipDamage_0059c460[0] * 30) / typeData->damageCapacity +
-        damage * 2);
-    damage = (short)(damage +
-                     g_asShipAccumulatedDamage_0059dee0[0] * 5);
+    damage = g_asObjectDamage_00495178[0] * 5;
+    damage += (g_acShipDamage_00495690[0] * 30) /
+              typeData->damageCapacity;
+    if (typeData->armorFront < g_aasShipArmor_00495540[0][0])
+        armorDamage += (typeData->armorFront * 100) /
+                       g_aasShipArmor_00495540[0][0];
+    if (typeData->armorRear < g_aasShipArmor_00495540[0][1])
+        armorDamage += (typeData->armorRear * 100) /
+                       g_aasShipArmor_00495540[0][1];
+    if (typeData->armorLeft < g_aasShipArmor_00495540[0][2])
+        armorDamage += (typeData->armorLeft * 100) /
+                       g_aasShipArmor_00495540[0][2];
+    if (typeData->armorRight < g_aasShipArmor_00495540[0][3])
+        armorDamage += (typeData->armorRight * 100) /
+                       g_aasShipArmor_00495540[0][3];
+    armorDamage /= 4;
+    damage += armorDamage;
 
     if (damage < 5)
         return 0;
@@ -1673,7 +1675,7 @@ void unwarp(short obj)
         set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
                          obj, 0);
         g_aShipPosition_00494550[effect] = g_aShipPosition_00494550[obj];
-        g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
+        g_aShipVelocity_00494898[effect] = g_aShipVelocity_00494898[obj];
         g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         g_asObjectCounter_00494be0[obj] = 6;
         RecordCannedSceneObjectEvent(effect, 0);
@@ -1703,7 +1705,7 @@ void warp(short obj)
         set_objects_data(effect, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
                          (short)g_acObjectOwner_00495208[obj], 0);
         g_aShipPosition_00494550[effect] = g_aShipPosition_00494550[obj];
-        g_aShipVelocity_0059c010[effect] = g_aShipVelocity_0059c010[obj];
+        g_aShipVelocity_00494898[effect] = g_aShipVelocity_00494898[obj];
         g_asShipManeuver_00495f48[obj] = MANEUVER_WARPING_OUT;
         g_asObjectCounter_00494be0[obj] = 6;
         RecordCannedSceneObjectEvent(effect, 0);
@@ -1726,12 +1728,12 @@ int drop_player_mine(short obj)
     enum ObjectType type;
 
     weapon = 0;
-    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
+    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_004956b0[0]);
     weaponCount = *(signed char *)
-        ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset);
+        ((unsigned char *)g_aShipWeapons_004956b0 + loadoutOffset);
     for (; weaponCount > weapon; weapon++) {
         weaponSlot = (ShipWeaponSlot *)
-            ((unsigned char *)g_aShipWeapons_0059cab0 + loadoutOffset + 1) +
+            ((unsigned char *)g_aShipWeapons_004956b0 + loadoutOffset + 1) +
             weapon;
         type = weaponSlot->type;
 
@@ -1778,7 +1780,7 @@ void clean_up_cockpit(void)
 /* Function start: WC2_UNMAPPED */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
-    unsigned char *loadout = g_aShipWeapons_0059cab0[obj];
+    unsigned char *loadout = g_aShipWeapons_004956b0[obj];
     int foundCurrent = 0;
     short weapon = 0;
     short firstGun = -1;
@@ -1817,9 +1819,9 @@ int select_guns(short obj, short selectedGun)
     ShipWeaponSlot *weaponSlot;
 
     (void)obj;
-    weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    weaponCount = (signed char)g_aShipWeapons_004956b0[0][0];
     found = 0;
-    weaponSlot = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    weaponSlot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1];
     if (weaponCount > 0) {
         do {
             if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
@@ -1843,8 +1845,8 @@ int select_guns(short obj, short selectedGun)
 /* Function start: 0x46166D */
 unsigned int select_new_gun(void)
 {
-    g_eSelectedGunType_0046c054 = (enum ObjectType)select_guns(
-        0, find_next_gun(0, g_eSelectedGunType_0046c054));
+    g_nSelectedGunType_004934dc = select_guns(
+        0, find_next_gun(0, g_nSelectedGunType_004934dc));
     if (get_mode(0) == 1)
         InvalidateVduMode(0);
     return 0;
@@ -1859,10 +1861,10 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
     signed char weapon;
     ShipWeaponSlot *weaponSlots;
 
-    weaponCount = (signed char)g_aShipWeapons_0059cab0[0][0];
+    weaponCount = (signed char)g_aShipWeapons_004956b0[0][0];
     currentWeapon = g_nSelectedReleaseWeaponIndex_004934e0;
     weapon = (signed char)(currentWeapon + 1);
-    weaponSlots = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    weaponSlots = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1];
 
     if (weaponCount <= weapon)
         weapon = 0;
@@ -1871,7 +1873,7 @@ unsigned int select_new_release_weapon(enum ObjectType preferredType)
             weapon = 0;
             if (weaponCount > 0) {
                 for (; weapon <
-                           (signed char)g_aShipWeapons_0059cab0[0][0];
+                           (signed char)g_aShipWeapons_004956b0[0][0];
                      weapon++) {
                     if (weaponSlots[weapon].type == preferredType) {
                         currentWeapon = weapon;

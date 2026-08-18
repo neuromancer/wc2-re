@@ -437,6 +437,12 @@ typedef struct ShipWeaponSlot {
 typedef char ShipWeaponSlot_size_must_be_0x0a[
     sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
 
+enum Wc2ReleaseWeaponObjectType {
+    WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE = 0x10,
+    WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE = 0x12,
+    WC2_OBJECT_TYPE_TORPEDO = 0x13
+};
+
 typedef struct ShortPoint {
     short x;
     short y;
@@ -479,6 +485,50 @@ typedef struct CockpitScannerGeometry {
     short maximumY;
 } CockpitScannerGeometry;
 
+/* Packet 13 in PCSHIP.Vnn supplies the per-ship cockpit geometry and frame
+ * tables.  The word at +0xF7 and the point array at +0xF9 are intentionally
+ * unaligned in the original packet. */
+#pragma pack(push, 1)
+typedef struct CockpitResourceLayout {
+    ShortPoint hudMessageOrigin;                 /* +0x000 */
+    ShortPoint damagePositions[4];               /* +0x004 */
+    short lightX[7];                             /* +0x014 */
+    short lightY[7];                             /* +0x022 */
+    signed char lightOffFrame[7];                /* +0x030 */
+    signed char lightOnFrame[7];                 /* +0x037 */
+    CockpitBarDefinition bars[8];                /* +0x03E */
+    ShortPoint readoutOrigins[4];                /* +0x0BE */
+    ShortRect leftVduBounds;                     /* +0x0CE */
+    ShortRect rightVduBounds;                    /* +0x0D6 */
+    CockpitScannerGeometry scanner;              /* +0x0DE */
+    ShortRect pilotHandBounds;                   /* +0x0EA */
+    ShortPoint pilotHandOrigin;                  /* +0x0F2 */
+    signed char field_f6;                        /* +0x0F6 */
+    short field_f7;                              /* +0x0F7 */
+    ShortPoint weaponDisplayPositions[16];       /* +0x0F9 */
+    signed char targetLockDisplayEnabled;        /* +0x139 */
+} CockpitResourceLayout;
+#pragma pack(pop)
+
+/* Each target-camera overlay entry occupies 0x20 bytes in cockpit packet 14.
+ * The two coordinate/frame triplets are selected when the overlay is enabled
+ * and disabled respectively. */
+#pragma pack(push, 1)
+typedef struct CockpitTargetCameraOverlay {
+    unsigned char field_0[2];             /* +0x00 */
+    short enabledX;                       /* +0x02 */
+    short enabledY;                       /* +0x04 */
+    unsigned char field_6[6];             /* +0x06 */
+    short enabledFrame;                   /* +0x0C */
+    unsigned char field_e[4];             /* +0x0E */
+    short disabledX;                      /* +0x12 */
+    short disabledY;                      /* +0x14 */
+    unsigned char field_16[6];            /* +0x16 */
+    short disabledFrame;                  /* +0x1C */
+    unsigned char field_1e[2];            /* +0x1E */
+} CockpitTargetCameraOverlay;
+#pragma pack(pop)
+
 /* The 140-word cockpit table at 0x0046E008.  Five ship cockpits use the
  * viewport/scanner/hand rectangles; the four readout origins also contain a
  * sixth sentinel entry used by the original table indexing. */
@@ -493,7 +543,7 @@ typedef struct CockpitLayout {
 
 /* Header shared by the static and packet-backed view geometries.  fadeData is
  * a variable-length sequence in loaded packets, but four words are sufficient
- * for each built-in geometry at 0x0046DAB8. */
+ * for each built-in geometry at 0x0049D4E8. */
 typedef struct ScreenViewportGeometry {
     short width;
     short height;
@@ -593,6 +643,10 @@ typedef char MusicResource_size_must_be_6[
 
 typedef char CockpitLayout_size_must_be_0x118[
     sizeof(CockpitLayout) == 0x118 ? 1 : -1];
+typedef char CockpitResourceLayout_size_must_be_0x13a[
+    sizeof(CockpitResourceLayout) == 0x13a ? 1 : -1];
+typedef char CockpitTargetCameraOverlay_size_must_be_0x20[
+    sizeof(CockpitTargetCameraOverlay) == 0x20 ? 1 : -1];
 typedef char ScreenViewportGeometry_size_must_be_0x10[
     sizeof(ScreenViewportGeometry) == 0x10 ? 1 : -1];
 typedef char DiskFileRecord_size_must_be_0x10[
@@ -648,11 +702,7 @@ typedef struct PacketResourceDescriptor {
 #else
     unsigned char **resource;
 #endif
-#if 0
-    short logicalFile;
-#else
     char *fileName;
-#endif
     short section;
 } PacketResourceDescriptor;
 
@@ -1302,20 +1352,13 @@ typedef struct MissionObjectiveSource {
 
 /* Five packed WC2 ship-resource cache entries at 0x00493398. */
 typedef struct ObjectResourceSlot {
-#if 0
-    signed char type;                 /* +0x00: WC1 layout */
-    unsigned char *shapeSet;          /* +0x01 */
-    unsigned char *animation;         /* +0x05 */
-    unsigned char *shape;             /* +0x09 */
-#else
     short type;                       /* +0x00 */
-    short logicalFile;                /* +0x02 */
+    short objectType;                 /* +0x02 */
     short objectClass;                /* +0x04 */
     unsigned char *shapeSet;          /* +0x06: archive section 0 */
     unsigned char *animation;         /* +0x0A: archive section 2 */
     unsigned char *shape;             /* +0x0E: archive section 1 */
     unsigned char *field_12;          /* +0x12 */
-#endif
 } ObjectResourceSlot;
 typedef char ObjectResourceSlot_size_must_be_0x16[
     sizeof(ObjectResourceSlot) == 0x16 ? 1 : -1];
@@ -1461,7 +1504,6 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC2_SPACE_OBJECT_COUNT 70
 #define WC1_SPACE_LAST_MOVING_OBJECT 60
 #define WC2_SPACE_LAST_MOVING_OBJECT 66
-#define WC1_EYE_OBJECT 61
 #define WC2_EYE_OBJECT 67
 #define WC1_DIRECTION_VIEW_COUNT 62
 #define WC1_DIRECTION_SHAPE_TABLE_COUNT 3

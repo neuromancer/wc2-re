@@ -198,7 +198,9 @@ const char g_szJoystickDevCapsFailure_004652dc[26] =
     "Joystick: !joyGetDevCaps\n";
 short g_nPacketError_0049ca90;
 short g_bRewritePacketExtensions_0049cb48;
-unsigned char g_abGamePaletteReservedColours_0049cb54[14];
+unsigned char g_abGamePaletteReservedColours_0049cb54[14] = {
+    0x25, 0, 0, 0, 0x42, 0, 0, 0, 0x47, 0, 0, 0, 0x5d, 0
+};
 unsigned char g_abLegacyVideoModeColours_0049cb90[14] = {
     9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
 };
@@ -494,14 +496,14 @@ const char g_szComponentFixedFormat_00469984[8] = "%s FIXD";
 const char g_szNeedLock_0046998c[12] = "Need Lock";
 short g_bSlowSceneAnimation_00469998;
 unsigned char g_cSecondaryViewBufferColour_0049cb4c;
-unsigned char g_ucSpaceClearColour_0049cb5c;
 int g_bPauseInputActive_0049ac9c;
 unsigned char g_cViewportClearColour_004699a0 = 15;
 unsigned char DAT_004699a4 = 0x25;
-unsigned char g_ucHudHighlightColour_0049cb58 = 0x42;
+unsigned char g_ucHostileCapitalScannerColour_0049cb68 = 0x46;
+unsigned char g_ucHomeCarrierScannerColour_0049cb70 = 0xa9;
+unsigned char g_ucTargetCameraBracketColour_0049cb7c = 0x5c;
 unsigned char DAT_004699ac = 0x50;
-unsigned char g_ucVduStaticColour_0049cb60 = 0x5d;
-unsigned char g_ucPrimaryTextColour_0049cb64 = 0xa6;
+unsigned char g_ucPrimaryTextColour_0049cb64 = 0x5b;
 unsigned char DAT_004699b8 = 0x85;
 unsigned char DAT_004699bc = 0x27;
 unsigned char DAT_004699c0 = 7;
@@ -510,7 +512,7 @@ unsigned char DAT_004699c8 = 0xb6;
 unsigned char g_cDefaultTextColour_004699cc = 0xa8;
 unsigned char DAT_004699d0 = 0xfd;
 unsigned char DAT_004699d4 = 0xf5;
-unsigned char g_cPrimaryViewBufferColour_0049cb88 = 0xbf;
+unsigned char g_cPrimaryViewBufferColour_0049cb88 = 0xf8;
 const unsigned char g_abLegacyVideoModeColours_004699e0[14] = {
     9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
 };
@@ -529,24 +531,7 @@ const int g_anFullMusicMemoryReservationByVideoMode_00469aa0[4] = {
 const int g_anExpandedMemoryReservationByVideoMode_00469ab0[3] = {
     258000, 238000, 258000
 };
-#if 0
-PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[12] = {
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_THRUSTERS].shapeSet, 3, 0 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION0].shapeSet, 3, 1 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_LASER_CANNON].shapeSet, 3, 6 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_MASS_DRIVER_CANNON].shapeSet,
-      3, 7 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_NEUTRON_PARTICLE_GUN].shapeSet,
-      3, 8 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_LASER_SPARK].shapeSet, 3, 9 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet, 3, 4 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_BLUE_SPARK].shapeSet, 3, 10 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_RED_SPARK].shapeSet, 3, 11 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_SPARK_TRAIL].shapeSet, 3, 12 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_SPACE_MINE].shapeSet, 3, 15 },
-    { 0, 0, 0 }
-};
-#else
+short g_nCockpitBackgroundBytes_0049c720;
 PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[11] = {
     { &g_aObjectTypeData_00496d30[43].shapeSet, 0, 0 },
     { &g_aObjectTypeData_00496d30[36].shapeSet, 0, 1 },
@@ -560,18 +545,6 @@ PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[11] = {
     { &g_aObjectTypeData_00496d30[10].shapeSet, 0, 18 },
     { 0, 0, 0 }
 };
-#endif
-#if 0
-PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8] = {
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet,
-      3, 14 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet, 3, 2 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION2].shapeSet, 3, 3 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
-      3, 5 },
-    { 0, 0, 0 }
-};
-#else
 PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8] = {
     { &g_aObjectTypeData_00496d30[21].shapeSet, 0, 21 },
     { &g_aObjectTypeData_00496d30[20].shapeSet, 0, 32 },
@@ -582,7 +555,6 @@ PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8] = {
     { &g_aObjectTypeData_00496d30[31].shapeSet, 0, 5 },
     { 0, 0, 0 }
 };
-#endif
 unsigned char *g_pCockpitHudShape_005d21f4;
 unsigned char *g_pPilotHandAnimationShape_005d2c64;
 unsigned char *g_pTargetDisplayBackdropShape_005d2c48;
@@ -592,10 +564,59 @@ unsigned char *g_apCockpitVduOverlayShapes_0049a5f8[2];
 unsigned char *g_apCockpitViewShapes_005d1040[4];
 unsigned char *g_apCockpitShipShapes_005d1070[4];
 char g_szCockpitResourceFilename_005d1030[16];
+Viewport g_stCockpitBackgroundViewport_005d1050;
+unsigned char *g_pCockpitViewFrameData_005d1088;
 unsigned char *g_pPendingCockpitDamageShape_0049b03c;
 unsigned char *g_pCockpitExplosionBackground_0049b040;
 unsigned char *g_pCockpitHudBackground_0049b044;
 unsigned char *g_pDamageDisplayBackground_00490060;
+const ShortPoint g_aDamageDisplayPositions_00490068[9] = {
+    {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
+    {36, 15}, {36, 24}, {36, 16}, {36, 22}
+};
+const char g_szIonDrive_004900dc[12] = "Ion drive";
+const char g_szPowerPlant_004900e8[12] = "Power plant";
+const char g_szShieldGenerator_004900f4[16] = "Shield gen'r";
+const char g_szComputerSystem_00490104[16] = "Computer sys";
+const char g_szIntercomUnit_00490114[16] = "InterCom unit";
+const char g_szTargetTracking_00490124[16] = "Target track";
+const char g_szAccelerationAbsorbers_00490134[16] = "Acc. absorbers";
+const char g_szEjectorSystem_00490144[16] = "Ejector system";
+const char g_szRepairSystems_00490154[16] = "Repair systems";
+const char *g_apszComponentNames_00490090[9] = {
+    g_szIonDrive_004900dc,
+    g_szPowerPlant_004900e8,
+    g_szShieldGenerator_004900f4,
+    g_szComputerSystem_00490104,
+    g_szIntercomUnit_00490114,
+    g_szTargetTracking_00490124,
+    g_szAccelerationAbsorbers_00490134,
+    g_szEjectorSystem_00490144,
+    g_szRepairSystems_00490154
+};
+const unsigned char g_abDamageDisplayFrames_004900b8[9] = {
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28
+};
+const char g_szDamageOk_00490164[4] = "Ok";
+const char g_szDamageLight_00490168[8] = "Light";
+const char g_szDamageModerate_00490170[12] = "Moderate";
+const char g_szDamageHeavy_0049017c[8] = "Heavy";
+const char g_szDamageDestroyed_00490184[12] = "Destroyed";
+const char *g_apszDamageSeverityNames_004900c8[5] = {
+    g_szDamageOk_00490164,
+    g_szDamageLight_00490168,
+    g_szDamageModerate_00490170,
+    g_szDamageHeavy_0049017c,
+    g_szDamageDestroyed_00490184
+};
+const char g_szDamageReport_00490190[16] = "DAMAGE REPORT";
+const char g_szNoInternalDamage_004901a0[20] =
+    "NO INTERNAL\n\nDAMAGE";
+const char g_szDamagedUnitCountFormat_004901b4[20] =
+    "%d Unit%c Damaged";
+const char g_szDamageStatusFormat_004901c8[16] = "%s\nDamage: %s";
+const char g_szDamageStatusFormatHighRes_004901d8[16] =
+    "%s\nDamage: %s";
 unsigned char *g_pScannerMarkerBackground_005d1c2c;
 PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5] = {
     { &g_pCockpitHudShape_005d21f4, 0, 0 },
@@ -672,6 +693,8 @@ short g_asConstellationObjectIndices_00469d50[4] = {
 };
 short g_bCockpitResourcesActive_0049c8e8;
 short g_b3SpaceObjectsActive_0049c8ec;
+unsigned char *g_pGenericMissileShape_0049c8f0;
+unsigned char *g_pGenericMissileExhaustShape_0049c8f4;
 const short g_asSceneAnimationLogicalFiles_00469d60[8] = {
     63, 64, 65, 66, 67, 68, 69, 70
 };
@@ -743,7 +766,7 @@ const char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
 short g_nCannedSceneBufferNearCapacityFlag_00490214;
 const char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
 const char g_szCannedSceneCreateError_00490270[4] = "029";
-int g_bFullScreenSpaceView_0049d718;
+int g_bFullScreenSpaceView_0049d718 = 1;
 int g_nArcadeState_0049d75c;
 short g_nFrameSkipCountdown_0049d760 = 1;
 short g_nFrameSkip_0049d764 = 0;
@@ -802,6 +825,9 @@ short g_bFriendlyFireWarningIssued_00492d5c;
 short g_nObjectType62Index_00492d64;
 short g_nObjectType63Index_00492d68;
 short g_bTargetLockActive_0049ae80;
+unsigned char g_bTargetBracketVisible_0049b284 = 1;
+ShortRect g_stTargetBracketBounds_0049b2a0 = {-0x7fff, 0, 0, 0};
+ShortRect g_stCommTargetBracketBounds_0049b2a8 = {-0x7fff, 0, 0, 0};
 short g_bMissileLockAcquired_0049b2b0;
 short g_nEnemyCommCommandBase_005d179c;
 short g_nEnemyCommPilotIndex_005d179e;
@@ -819,6 +845,7 @@ short g_nWingmanTargetingMode_0049613c;
 short g_bCockpitDamageFrame0Shown_0049b2b4;
 short g_bCockpitDamageFrame2Shown_0049b2b8;
 short g_bFuelGaugeDamaged_0049b054;
+short g_bForceCriticalDamageWarning_0049b058;
 short g_bMissionDeathSequencePending_0049b720;
 short g_bMissionEjectionPodSpawned_0049b724;
 short g_nPendingEjectionShip_005d1bc4;
@@ -974,7 +1001,7 @@ int DAT_0046a000 = 1;
 short g_bSpaceViewBufferEnabled_0049d7a4;
 unsigned char *g_pNavLocationText_0049bc54;
 int g_nCockpitDisplayMode_0049d71c;
-signed char g_nShowMemoryStatus_0049d784;
+short g_nShowMemoryStatus_0049d784;
 int g_bKeyboardMouseEnabled_0049be68;
 int g_anShipCloakState_00496020[10];
 short g_asShipCloakCooldown_00496048[10];
@@ -1045,7 +1072,7 @@ signed char g_cQueuedNpcPortrait_0049b8c4 = -1;
 signed char g_cQueuedNpcMessage_0049b8c8 = -1;
 short g_nCommDeathSequenceFrame_0049ae84;
 short g_nWeaponDisplayOffsetX_0049ae8c;
-short g_nWeaponDisplayOffsetY_0049ae8e;
+short g_nWeaponDisplayOffsetY_0049ae8e = 0x10;
 short g_nMissionEntryNavOverride_0049d790 = -1;
 short g_nArcadeBonusCountdown_0046a014;
 int g_bMouseCursorVisible_0046a018;
@@ -1421,9 +1448,9 @@ signed char g_abHazardObjects_00493280[0x14] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
-short g_nEyePitchRate_0046c004 = 1;
-short g_nEyeYawRate_0046c008 = 1;
-short g_nEyeRollRate_0046c00c = 1;
+short g_nEyePitchRate_0049314c = 1;
+short g_nEyeYawRate_00493150 = 1;
+short g_nEyeRollRate_00493154 = 1;
 short DAT_0046c010 = -1;
 signed char g_cCurrentObjective_004931cc = -1;
 int g_nCurrentView_00492fa8 = -1;
@@ -1433,14 +1460,15 @@ short g_nEjectedPilotObject_0046c044;
 short g_nClosestVisibleObject_0046c048 = -1;
 short g_nYourWingman_0049346c = -1;
 short g_nPlayerCollisionObject_00493480 = -1;
-enum ObjectType g_eSelectedGunType_0046c054 = (enum ObjectType)-1;
+short g_nSelectedGunType_004934dc = -1;
 short g_nSelectedReleaseWeaponIndex_004934e0 = -1;
+short DAT_004934e4;
 short DAT_0046c05c;
 short g_bTargetLockReadoutDirty_004934e8;
 short g_nTargetLockCountdown_004934ec;
 short g_nTargetLockMarkerAngle_004934f0;
 signed char g_cTargetDisplayObject_0046c06c = -1;
-int g_bTargetLockAcquired_0046c074;
+short g_bTargetLockAcquired_004934fc;
 short g_nTargetLockMode_0046c078;
 short g_bMissileCameraEnabled_00493504;
 int g_bEngageAllowed_0049612c;
@@ -1449,8 +1477,24 @@ short g_nWingmanRoutDecisionMode_00496138;
 short g_nWingmanFormationDisobeyMode_0049613a;
 short g_nWingmanEngagementMode_0049613e;
 signed char g_cViableTargetCount_00496178;
+short g_nGunDisplayEnergyPercent_005c8d4e;
 int g_nTargetCameraMode_005c8d50;
+short g_nTargetCameraYawIndicatorX_005c8d3e;
+short g_nTargetCameraYawIndicatorY_005c8d40;
+short g_asTargetCameraYawIndicatorBackground_005c8d48[3];
+short g_nTargetCameraPitchIndicatorX_005c8d6c;
+short g_nTargetCameraPitchIndicatorY_005c8d6e;
+short g_asTargetCameraPitchIndicatorBackground_005c8db0[3];
+short g_nGunDisplayCount_005c8dbc;
+short g_nGunDisplayIndex_005c8dc0;
+int g_nTargetCameraOverlayMode_005c8db8;
+short g_nTargetCameraObject_0049d338 = -1;
 short g_nTargetCameraZoom_0049d3e4;
+short g_nTargetCameraFrame_0049d3e8;
+int g_nTargetCameraSoundHandle_0049d3fc;
+short g_nTargetCameraEffectObjectA_0049d468 = -1;
+short g_nTargetCameraEffectObjectB_0049d46c = -1;
+unsigned char g_abGunDisplayConfiguration_0049d340[0xa4];
 const short g_asIntroCameraSequence_0046c090[20] = {
     0, -1000, 0, -4263, 2, 15, 1, 0, 30, 0,
     3, 15, 4, 30, 1, 13, 14, 400, -1, 0
@@ -1892,7 +1936,7 @@ unsigned char *g_pDrawnInputCursorShape_0049d4d0;
 int g_nMouseCursorDrawDepth_0049d4d4;
 short g_nScreenWidth_0046daa4 = 320;
 short g_nScreenHeight_0046daa8 = 200;
-const ScreenViewportGeometry g_aScreenViewportGeometry_0046dab8[6] = {
+const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -2458,7 +2502,7 @@ int g_anObjectDepthPlaced_0059a8f0[WC2_SPACE_OBJECT_COUNT];
 short DAT_0059a9f0;
 signed char g_cScreenViewportMode_005c82a6;
 const ScreenViewportGeometry * volatile
-    g_pScreenViewportGeometry_0059a9f4;
+    g_pScreenViewportGeometry_005c82b0;
 int g_anSortedObject_0059aa00[WC2_SPACE_OBJECT_COUNT];
 short g_nPacketDecompressInputPosition_0059ab00;
 void *g_pPacketDecompressInput_0059ab04;
@@ -2476,7 +2520,7 @@ int DAT_0059ab44;
 int DAT_0059ab48;
 int DAT_0059ab4c;
 short g_nViewportOriginY_0059ab50;
-short g_nViewportOriginX_0059ab52;
+short g_nViewportOriginX_005c849e;
 unsigned int DAT_0059ab54;
 int DAT_0059ab5c;
 int DAT_0059ab60;
@@ -2512,7 +2556,7 @@ short g_asGunCooldown_005c8d70[30];
 int g_nInputTickScale_0059af90;
 int g_nInputTickScale_005c8d24;
 FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
-short g_anObjectPitchRotation_0059b2a0[WC2_SPACE_OBJECT_COUNT];
+short g_anObjectPitchRotation_00494f38[WC2_SPACE_OBJECT_COUNT];
 int g_anShipSpeed_0059b320[64];
 short g_nSpaceFrame_00493134;
 int g_nNextSfx16PlaybackFrame_004a2668;
@@ -2526,24 +2570,21 @@ short g_bRestorePlayerTarget_00493500;
 short g_nEscapedEnemyCount_004962e8;
 unsigned int DAT_0059b430[12];
 FixedVector g_vPlayerAcceleration_0059b460;
-int g_anShipFuel_0059b470[12];
 short g_asObjectDistance_00493ae8[WC2_SPACE_OBJECT_COUNT];
+short g_asObjectDrawX_00493748[WC2_SPACE_OBJECT_COUNT];
+short g_asObjectDrawY_004937d8[WC2_SPACE_OBJECT_COUNT];
 short g_bShipResourceReloadInProgress_0049b894;
 unsigned char *g_apObjectExhaustShape_004953b8[10];
 ShortVector g_aShipFormationOffset_0059b520[10];
 signed char g_acObjectType_00493980[WC2_SPACE_OBJECT_COUNT];
 short g_asObjectAnimationDelay_0059b660[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipRightVector_0059b6e0[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipUpVector_0059b9e0[WC2_SPACE_OBJECT_COUNT];
+FixedVector g_aShipRightVector_00493b78[WC2_SPACE_OBJECT_COUNT];
+FixedVector g_aShipUpVector_00493ec0[WC2_SPACE_OBJECT_COUNT];
 FixedVector g_aShipForwardVector_00494208[WC2_SPACE_OBJECT_COUNT];
 HazardField *g_pActiveHazardField_00493278;
 signed char g_acPlayerComponentDamage_00493470[9];
-#if 0
-signed char g_abFlightPath_004932a0[WC1_MISSION_OBJECTIVE_COUNT];
-#else
 signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT];
-#endif
-FixedVector g_aShipVelocity_0059c010[WC2_SPACE_OBJECT_COUNT];
+FixedVector g_aShipVelocity_00494898[WC2_SPACE_OBJECT_COUNT];
 short g_anYawGoal_004954c0[16];
 short g_asObjectCounter_00494be0[WC2_SPACE_OBJECT_COUNT];
 short g_nTargetShip_0059c3b0;
@@ -2567,25 +2608,25 @@ short g_asObjectRadarRadius_0059c790[WC2_SPACE_OBJECT_COUNT];
 short g_asShipAfterburnerTimer_0059c810[16];
 short g_nShipMissionIndices_0059c830[10];
 signed char g_acShipCommunicator_0059c850[16];
-FixedVector g_vStarFieldMotion_0059c860;
 signed char g_cCurrentNavPointIndex_00493298;
 short g_asObjectFlip_004939c8[WC2_SPACE_OBJECT_COUNT];
-short g_nEyeRollGoal_0059c8f0;
-FixedVector g_vPreviousStarFieldMotion_0059c900;
+short g_nEyeRollGoal_00493148;
 short g_nHazardFieldCount_0059c90c;
 signed char DAT_0059c910[16];
 signed char g_acViableTarget_00496180[16];
 short g_asActionCount_0059c930[10];
-short g_nEyeYawGoal_0059c944;
+short g_nEyeYawGoal_00493144;
 short g_asObjectScreenScale_00493a58[WC2_SPACE_OBJECT_COUNT];
 short g_asObjectAfterburnerVelocity_0059c9d0[WC2_SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
-unsigned char g_aShipWeapons_0059cab0[10][0xA1];
-unsigned char g_aShipWeapons_004956b0[10][0xA1];
+unsigned char g_aShipWeapons_004956b0[10][0xA1] = {
+    { 0xff, 0, 0, 0, 0, 0xff, 0xff }
+};
 signed char g_acShipRating_0059cd80[16];
 short g_asObjectScreenAngle_004936b8[WC2_SPACE_OBJECT_COUNT];
 short g_nTargetRange_0049319c;
 unsigned int DAT_0059ce18[2];
+int g_anLastDrawnVduMode_004934d0[2];
 short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
 signed char g_acObjectOwner_00495208[64];
 short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
@@ -2593,7 +2634,7 @@ signed char g_acShipTarget_00495f20[16];
 short g_nPreviousPitchInput_0059ce70;
 short g_nPreviousYawInput_0059ce72;
 short g_nPreviousRollInput_0059ce74;
-short g_anObjectYawRotation_0059ce80[WC2_SPACE_OBJECT_COUNT];
+short g_anObjectYawRotation_00494fc8[WC2_SPACE_OBJECT_COUNT];
 signed char DAT_0059cf00[16];
 signed char g_acTurnRegulator_00495618[16];
 unsigned char DAT_0059cf20[0x10];
@@ -2618,14 +2659,14 @@ short g_nFleetOverviewPitchVelocity_0049d3f0;
 short g_nFleetOverviewYaw_0049d3f4;
 short g_nFleetOverviewPitch_0049d3f8;
 short g_asShipWingLeader_0059d400[16];
-short g_aasShipArmor_0059d420[10][4];
-short g_asShipWeaponEnergy_0059d470[16];
+short g_aasShipArmor_00495540[10][4];
+short g_asShipWeaponEnergy_00495590[16];
 signed char g_acFormationMemberList_0059d490[16];
 signed char g_acShipIonDriveDamage_0059d4a0[16];
 short g_anShipMissionShip_00495e00[16];
 FixedVector g_vToTarget_00493188;
 short g_asCannedCommand_0059d4e0[16];
-unsigned short DAT_0059d500[16];
+int g_aaiVduModeStack_00493498[2][4];
 signed char g_acShipSequence_00495fe8[14];
 short g_nTargetFacing_00493198;
 signed char g_acShipDestinationSystem_004953e0[12];
@@ -2636,7 +2677,7 @@ signed char g_abShipExhaustHeat_0059d610[10];
 short g_nRenderedSpaceFrame_00493138;
 int g_nNextMissileWarningSfxFrame_005d156c;
 int g_nNextAfterburnerSfxFrame_005d3820;
-short g_nEyePitchGoal_0059d61c;
+short g_nEyePitchGoal_00493140;
 signed char g_acShipStress_0059d620[16];
 signed char g_acShipStress_00496100[16];
 signed char g_abPilotEjectionAttempted_00496110[16];
@@ -2652,12 +2693,23 @@ signed char g_acShipPointingMode_0059d790[16];
 short g_anPitchGoal_004954a8[16];
 signed char g_abShipNavPointIndex_00495f60[16];
 signed char g_acTurnInterval_00495628[16];
-short g_anObjectRollRotation_0059d7e0[WC2_SPACE_OBJECT_COUNT];
+short g_anObjectRollRotation_00495058[WC2_SPACE_OBJECT_COUNT];
 signed char g_abShipTurn_00495fd8[16];
 HazardField g_aHazardFields_004931d8[7];
 short g_nFacingToTarget_00493194;
 short g_asObjectScreenY_00493628[WC2_SPACE_OBJECT_COUNT];
 short g_asObjectScreenX_00493598[WC2_SPACE_OBJECT_COUNT];
+int g_anCloakVisibilityPattern_00492710[20] = {
+    1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
+    0, 0, 1, 1, 1, 0, 0, 1, 1, 0
+};
+short g_nNavPointerObject_004931b8 = -1;
+FixedVector g_vStarFieldMotion_00493158;
+FixedVector g_vPreviousStarFieldMotion_00493168;
+int g_anObjectDepthPlaced_005c8180[WC2_SPACE_OBJECT_COUNT];
+int g_anSortedObject_005c82c0[WC2_SPACE_OBJECT_COUNT];
+short g_nStarFieldJRotation_005d320c;
+short g_nStarFieldIRotation_005d3210;
 short g_asObjectAnimationIndex_0059da30[WC2_SPACE_OBJECT_COUNT];
 signed char g_cCockpitView_0059dab0;
 #if 0
@@ -2679,7 +2731,7 @@ signed char g_acObjectCollisionGraceTicks_0059ddb0[
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5];
 signed char g_acShipDestroyedWeaponCount_0059de30[16];
 short g_asObjectScale_0059de40[WC2_SPACE_OBJECT_COUNT];
-signed char g_acVduModeStackDepth_0059dec0[16];
+signed char g_acVduModeStackDepth_004934c8[2] = { -1, 0 };
 signed char g_acShipSpawnNavPoint_0059ded0[16];
 short g_asShipAccumulatedDamage_0059dee0[WC2_SPACE_OBJECT_COUNT];
 int g_nJoystickCalibrationMinimumY_0059df64;
@@ -2742,12 +2794,13 @@ LegacyConstellationParticle g_aConstellationParticles_005a6ac0[16];
 Viewport g_stConstellationViewport_005a6b40;
 short g_nConstellationParticleCount_005a6b54;
 const short *g_pViewScript_005a6b58;
-short g_nExternalViewDistance_005a6b5c;
+short g_nExternalViewDistance_005d320e;
 Viewport DAT_005a6b60;
 Viewport DAT_005a6b80;
 ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 Viewport g_stScreenViewport_005d21a0;
 TextContext g_stSpaceTextContext_005d21c0;
+Viewport g_stCockpitBarViewport_005d21e0;
 Viewport DAT_005a6be0;
 unsigned char *g_pTargetLockShape_005a6bf4;
 unsigned char *g_apTextFonts_005d2200[4];
@@ -2767,6 +2820,9 @@ unsigned char *g_pCockpitWeaponShape_005a7564;
 ShortPoint g_aWeaponDisplayPositions_005d1de0[16];
 Viewport g_stLeftVduViewport_005d2180;
 unsigned char *g_pCockpitWeaponShape_005d2b54;
+TextContext g_stLeftVduTextContext_005d2ae0;
+TextContext g_stRightVduTextContext_005d2ce0;
+TextContext g_stCockpitTextContext_005d2d00;
 unsigned char *g_pReleaseWeaponDisplayBackground_0049b05c;
 signed char g_cReleaseWeaponDisplayFrame_0049b060;
 signed char g_cReleaseWeaponDisplayTicks_0049b064;
@@ -2776,6 +2832,15 @@ short g_nReleaseWeaponDisplayY_005d1c26;
 short g_nReleaseWeaponDisplayType_005d1c28;
 short g_nWeaponDisplayOriginX_005d4254;
 short g_nWeaponDisplayOriginY_005d4256;
+short g_nDamageDisplayTicks_005d4250;
+char g_szDamageStatusText_005d4260[70];
+signed char g_cDamageDisplayComponent_005d42a6;
+signed char g_cDamagedComponentCount_005d42a7;
+int g_nDisplayedComponentDamage_005d42a8;
+signed char g_cDamageDisplayFrame_005d42ac;
+short g_nDamageDisplayState_005d42ae;
+ShortPoint g_stDamageSpritePosition_005d42b0;
+short g_nDamageDisplayPhase_005d42b4;
 Viewport g_stConversationTextViewport_005a7570;
 char g_szDefaultTextBuffer_005d2b80[0xc8];
 unsigned char *g_pCockpitIndicatorShape_005a7658;
@@ -2876,32 +2941,49 @@ int g_bSpeechPlaybackComplete_004a266c;
 short g_nPendingCockpitDamage_005a7dcc;
 HudMessageSlot g_aHudMessageSlots_005a7dd0[2];
 HudMessageSlot g_aHudMessageSlots_005d1d40[2];
-signed char g_cPreviousTargetObject_005a7df2;
+signed char g_cPreviousTargetObject_005d1d8e;
 int g_nSavedMouseCursorY_005a7df4;
 int g_nSavedMouseCursorX_005a7df8;
-char g_szComponentHitMessage_005a7e00[40];
+char g_szComponentHitMessage_005d1da0[40];
 short g_nTargetLockMarkerY_005a7e28;
 short g_nHomeMissionShipIndex_005d1e22;
-CockpitReadout g_aCockpitReadouts_005a7e30[6];
-short g_nScannerCursorX_005a7e6c;
-short g_nScannerCursorY_005a7e6e;
+CockpitReadout g_aCockpitReadouts_005d1e30[6];
+short g_nScannerCursorX_005d1e6c;
+short g_nScannerCursorY_005d1e6e;
 signed char g_abCockpitLightState_005d1e70[7];
-short g_asScannerObjectY_005a7e80[11];
+short g_asScannerObjectY_005d1e80[11];
 volatile ShortPoint g_stCockpitExplosionPosition_005a7e98;
 volatile ShortPoint g_stCockpitExplosionPosition_005d1e98;
 short g_asScannerObjectX_005d1ea0[11];
 signed char g_abCockpitLightGoal_005d1eb8[7];
-int DAT_005a7ec0;
-short g_asScannerBackgroundColour_005a7ed0[10];
+int g_nCriticalDamageWarningSfxHandle_005d1ec0;
+short g_asScannerBackgroundColour_005d1ed0[10];
+short g_asScannerTargetBackground_005d1d80[5];
 short g_asCockpitDamageState_005d1ee8[4];
 ShortPoint g_aCockpitDamagePositions_0049ae98[4];
+short g_asCockpitLightX_0049aea8[7];
+short g_asCockpitLightY_0049aeb8[7];
+signed char g_acCockpitLightOffFrame_0049aec8[7];
+signed char g_acCockpitLightOnFrame_0049aed0[7];
+CockpitBarDefinition g_aCockpitBarDefinitions_0049aed8[8];
+ShortPoint g_aCockpitReadoutOrigins_0049af58[4];
+ShortRect g_stLeftVduBounds_0049af68;
+ShortRect g_stRightVduBounds_0049af70;
+CockpitScannerGeometry g_stCockpitScannerGeometry_0049af78;
+ShortRect g_stPilotHandBounds_0049af88;
+ShortPoint g_stPilotHandOrigin_0049af90;
+signed char DAT_0049af94;
+short DAT_0049af98;
+signed char g_bTargetLockDisplayEnabled_0049afe0;
+short g_nTargetLeadIndicatorX_0049afe8;
+short g_nTargetLeadIndicatorY_005d1c2a;
+char g_szTargetOutOfRange_0049b438[13] = "OUT OF RANGE";
+char g_szIttsEngaged_0049b448[13] = "ITTS ENGAGED";
 unsigned char * volatile g_pCockpitExplosionShape_0049b048;
-volatile short g_nCockpitExplosionFrame_0049b04c;
+volatile short g_nCockpitExplosionFrame_0049b04c = 8;
 short g_nTargetLockMusicCooldown_005d1e78;
 unsigned short DAT_005a7f00;
-short g_nStarFieldJRotation_005a7f02;
-short g_nStarFieldIRotation_005a7f04;
-short g_nExternalViewAngle_005a7f06;
+short g_nExternalViewTimeout_005d3212;
 unsigned char *g_pTitleShape_005a7f08;
 int g_nViewportAllocationCount_005a7f0c;
 unsigned char *g_apViewportAllocations_005a7f10[128];
@@ -3166,6 +3248,10 @@ const ShortPoint g_aWeaponDisplayPositions_00468440[32] = {
 
 const ShortPoint g_aWeaponDisplayOrigins_004684c0[5] = {
     {0, 16}, {0, 16}, {0, 16}, {0, 16}, {0, 16}
+};
+
+static const short g_asDataCapsuleAnimation_00496c10[12] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
 };
 
 ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
@@ -3591,18 +3677,16 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
       OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 768, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimGlass_00466198,
       0, 0, 1, 15 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 2, 1, 1792, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimORing_004661e0,
-      0, 0, 1, 5 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 6, 1, 1536, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimPipe_00466200,
-      0, 0, 1, 5 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 768, 0, 0, 0, -1, 6000,
-      0, 0, (unsigned char *)g_anAnimExplosion0_00466030,
+    { "data capsule",
+      OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0, 0, 0, 0,
+      0, 0, (unsigned char *)g_asDataCapsuleAnimation_00496c10,
       0, 0, 1, 0 },
+    { "",
+      OBJECT_CLASS_FIXED_OBJECT, 0, 62, 0, 0, 192, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0 },
+    { "",
+      OBJECT_CLASS_FIXED_OBJECT, 0, 63, 0, 0, 192, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 0 },
     { "",
       OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, -1, 6000,
       0, 0, (unsigned char *)g_anAnimExplosion1_00466060,
@@ -3810,6 +3894,7 @@ short g_nInputTickInterval_005c8448;
 unsigned char g_nInputDeviceMode_005c83e6;
 volatile int g_nInputClock_005c84a8;
 void *g_pApplicationScratchBuffer_005c8483;
+short g_nUiCursorFrame_005c8481;
 short g_nSelectedStartingCampaign_005d3bf0;
 short g_nSelectedCampaignSlot_005d3bf2;
 unsigned int g_dwHighMemoryParagraph_005d3fb4;
@@ -3823,8 +3908,8 @@ short g_nScreenWidth_0049d4d8 = 320;
 short g_nScreenHeight_0049d4dc = 200;
 short g_nHudMessageColour_005d1ef0;
 short g_nFlightInputCommand_005d1798;
-signed char g_cCannedSceneKey_00493128;
-signed char g_cPreviousCannedSceneKey_0049312c;
+signed char g_cCurrentKey_00493128 = (signed char)0x80;
+signed char g_cPreviousKey_0049312c = (signed char)0x80;
 unsigned int g_dwCannedSceneSnapshotStart_00493130;
 signed char g_cCannedSceneViewObject_0049313c;
 void *g_pSceneMusicPacket_00499c08;
@@ -3859,8 +3944,6 @@ const char *g_apszWc1SaveGameFileNames_0049a6c8[3] = {
 const char *g_apszWc1PilotRankNames_0049a620[5] = {
     "2ND LT.", "1ST LT.", "CAPTAIN", "MAJOR", "LT. COL."
 };
-signed char g_cPersonnelMenuKey_00493128 = (signed char)0x80;
-signed char g_cPersonnelPreviousKey_0049312c = (signed char)0x80;
 void *g_pActiveScenePacket_00492654;
 short g_nPersonnelCursorX_005c8470;
 short g_nPersonnelCursorY_005c8472;

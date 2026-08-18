@@ -55,16 +55,16 @@ void PollPersonnelMenuInput(void)
     InputEventState event;
     short eventType;
 
-    g_cPersonnelPreviousKey_0049312c =
+    g_cPreviousKey_0049312c =
         (signed char)g_sPersonnelPreviousInput_0049a6bc;
     ServiceInputDevices(15);
     g_bPersonnelPrimaryInputDown_0049a6d4 = IsInputEventQueued(3);
     if (g_bPersonnelPrimaryInputDown_0049a6d4 == 0) {
-        g_cPersonnelMenuKey_00493128 |= (signed char)0x80;
+        g_cCurrentKey_00493128 |= (signed char)0x80;
         g_sPersonnelPreviousInput_0049a6bc |= 0x80;
     }
     if (IsInputEventQueued(5) != 0) {
-        g_cPersonnelMenuKey_00493128 |= (signed char)0x80;
+        g_cCurrentKey_00493128 |= (signed char)0x80;
         g_sPersonnelPreviousInput_0049a6bc |= 0x80;
         g_bPersonnelPrimaryInputDown_0049a6d4 = 0;
     }
@@ -82,26 +82,26 @@ void PollPersonnelMenuInput(void)
             break;
         case 1:
             g_sPersonnelPreviousInput_0049a6bc =
-                (g_cPersonnelMenuKey_00493128 = 0x1c);
+                (g_cCurrentKey_00493128 = 0x1c);
             if ((event.modifiers & 1) != 0) {
                 g_sPersonnelPreviousInput_0049a6bc =
-                    (g_cPersonnelMenuKey_00493128 = 0x1c);
+                    (g_cCurrentKey_00493128 = 0x1c);
             }
             if ((event.modifiers & 2) != 0) {
                 g_sPersonnelPreviousInput_0049a6bc =
-                    (g_cPersonnelMenuKey_00493128 = 0x1c);
+                    (g_cCurrentKey_00493128 = 0x1c);
             }
             break;
         case 4:
         case 6:
             g_sPersonnelPreviousInput_0049a6bc =
-                (g_cPersonnelMenuKey_00493128 = (signed char)event.status);
+                (g_cCurrentKey_00493128 = (signed char)event.status);
             break;
         }
     }
-    if ((int)g_cPersonnelPreviousKey_0049312c ==
+    if ((int)g_cPreviousKey_0049312c ==
         (int)g_sPersonnelPreviousInput_0049a6bc) {
-        g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+        g_cCurrentKey_00493128 = (signed char)0x80;
     }
 }
 
@@ -486,11 +486,11 @@ short SelectTransferredPilot(short count)
     hover = 0x0b;
     HighlightTransferredPilot(hover);
     DisableMouseCursorDrawing();
-    g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+    g_cCurrentKey_00493128 = (signed char)0x80;
     SetPersonnelMousePosition(0xdc, 0x12);
     for (;;) {
-        if (g_cPersonnelMenuKey_00493128 != (signed char)0x80) {
-            return g_cPersonnelMenuKey_00493128;
+        if (g_cCurrentKey_00493128 != (signed char)0x80) {
+            return g_cCurrentKey_00493128;
         }
         PollPersonnelMenuInput();
         if (g_nPersonnelCursorX_005c8470 > 0x28 &&
@@ -526,18 +526,18 @@ short SelectTransferredPilot(short count)
         g_bPersonnelMenuDrawing_0049a6c0 = 1;
         EnableMouseCursorDrawing();
         RefreshMemoryStatusOverlay();
-        if ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-             g_cPersonnelMenuKey_00493128 == 0x39) &&
+        if ((g_cCurrentKey_00493128 == 0x1c ||
+             g_cCurrentKey_00493128 == 0x39) &&
             hover != -1) {
-            g_cPersonnelMenuKey_00493128 = (signed char)hover;
+            g_cCurrentKey_00493128 = (signed char)hover;
         }
-        if (g_cPersonnelMenuKey_00493128 == 1 ||
-            ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-              g_cPersonnelMenuKey_00493128 == 0x39) &&
+        if (g_cCurrentKey_00493128 == 1 ||
+            ((g_cCurrentKey_00493128 == 0x1c ||
+              g_cCurrentKey_00493128 == 0x39) &&
              hover == -1)) {
             return -1;
         }
-        switch (g_cPersonnelMenuKey_00493128 - 2) {
+        switch (g_cCurrentKey_00493128 - 2) {
         case 0:
             return 1;
         case 1:
@@ -555,7 +555,7 @@ short SelectTransferredPilot(short count)
         case 9:
             return 0;
         default:
-            g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+            g_cCurrentKey_00493128 = (signed char)0x80;
             break;
         }
     }
@@ -583,8 +583,8 @@ short SelectLegacyGameSource(void)
         g_nPersonnelMenuHighlight_0049a6a0 = -1;
         DrawPersonnelSourceChoices(hover);
         DisableMouseCursorDrawing();
-        g_cPersonnelMenuKey_00493128 = (signed char)0x80;
-        while (g_cPersonnelMenuKey_00493128 == (signed char)0x80) {
+        g_cCurrentKey_00493128 = (signed char)0x80;
+        while (g_cCurrentKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
             if (g_nPersonnelCursorX_005c8470 > 0x1e &&
                 g_nPersonnelCursorX_005c8470 < 0xe0) {
@@ -619,19 +619,19 @@ short SelectLegacyGameSource(void)
             RefreshMemoryStatusOverlay();
             handled = 0;
             result = -1;
-            if ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-                 g_cPersonnelMenuKey_00493128 == 0x39) &&
+            if ((g_cCurrentKey_00493128 == 0x1c ||
+                 g_cCurrentKey_00493128 == 0x39) &&
                 hover != -1) {
-                g_cPersonnelMenuKey_00493128 = (signed char)hover;
+                g_cCurrentKey_00493128 = (signed char)hover;
             }
-            if (g_cPersonnelMenuKey_00493128 == 1 ||
-                ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-                  g_cPersonnelMenuKey_00493128 == 0x39) &&
+            if (g_cCurrentKey_00493128 == 1 ||
+                ((g_cCurrentKey_00493128 == 0x1c ||
+                  g_cCurrentKey_00493128 == 0x39) &&
                  hover == -1)) {
                 done++;
                 handled++;
             }
-            switch (toupper((int)g_cPersonnelMenuKey_00493128)) {
+            switch (toupper((int)g_cCurrentKey_00493128)) {
             case 0x11:
                 result = 0;
                 done++;
@@ -646,7 +646,7 @@ short SelectLegacyGameSource(void)
                 break;
             }
             if (handled != 0) {
-                g_cPersonnelMenuKey_00493128 = 0;
+                g_cCurrentKey_00493128 = 0;
             }
         }
     }
@@ -741,7 +741,7 @@ void ShowNoTransferablePilots(void)
     SetTextCursor(0x50, 0x3c);
     DrawFormattedText("No valid characters found.");
     RefreshMemoryStatusOverlay();
-    g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+    g_cCurrentKey_00493128 = (signed char)0x80;
     WaitForAnyInputPress();
 }
 
@@ -826,8 +826,8 @@ short RunPilotDatabaseMenu(void)
         DisableMouseCursorDrawing();
         SetPersonnelMousePosition(200, 0x36);
         RefreshMemoryStatusOverlay();
-        g_cPersonnelMenuKey_00493128 = (signed char)0x80;
-        while (g_cPersonnelMenuKey_00493128 == (signed char)0x80) {
+        g_cCurrentKey_00493128 = (signed char)0x80;
+        while (g_cCurrentKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
             if (g_nPersonnelCursorX_005c8470 > 0x28 &&
                 g_nPersonnelCursorX_005c8470 < 0xea) {
@@ -861,18 +861,18 @@ short RunPilotDatabaseMenu(void)
             EnableMouseCursorDrawing();
             RefreshMemoryStatusOverlay();
             actionHandled = 0;
-            if ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-                 g_cPersonnelMenuKey_00493128 == 0x39) &&
+            if ((g_cCurrentKey_00493128 == 0x1c ||
+                 g_cCurrentKey_00493128 == 0x39) &&
                 hover != -1) {
-                g_cPersonnelMenuKey_00493128 = (signed char)hover;
+                g_cCurrentKey_00493128 = (signed char)hover;
             }
-            if ((g_cPersonnelMenuKey_00493128 == 0x1c ||
-                 g_cPersonnelMenuKey_00493128 == 0x39) &&
+            if ((g_cCurrentKey_00493128 == 0x1c ||
+                 g_cCurrentKey_00493128 == 0x39) &&
                 hover == -1) {
                 done++;
                 actionHandled++;
             }
-            key = toupper((int)g_cPersonnelMenuKey_00493128);
+            key = toupper((int)g_cCurrentKey_00493128);
             if (key == 0x14) {
                 previousDrive = 99;
                 actionHandled = 1;
@@ -891,7 +891,7 @@ short RunPilotDatabaseMenu(void)
                     if (done == 0) {
                         ShowNoTransferablePilots();
                         result = 0;
-                        g_cPersonnelMenuKey_00493128 = 0x14;
+                        g_cCurrentKey_00493128 = 0x14;
                     } else {
                         file = (short)_open(g_szLegacySavePath_005d2130,
                                             0x8000);
@@ -945,7 +945,7 @@ short RunPilotDatabaseMenu(void)
                         if (transferCount == 0) {
                             ShowNoTransferablePilots();
                             result = 0;
-                            g_cPersonnelMenuKey_00493128 = 0x14;
+                            g_cCurrentKey_00493128 = 0x14;
                             done = 0;
                         } else {
                             selected = SelectTransferredPilot(
@@ -953,7 +953,7 @@ short RunPilotDatabaseMenu(void)
                             if (selected == -1) {
                                 done = 0;
                                 result = 0;
-                                g_cPersonnelMenuKey_00493128 = 0x14;
+                                g_cCurrentKey_00493128 = 0x14;
                             } else {
                                 index = (short)atoi(
                                     g_apszPersonnelTransferLabels_005d2100[
@@ -1061,13 +1061,13 @@ short RunPilotDatabaseMenu(void)
                     result = 0;
                 }
                 done++;
-                g_cPersonnelMenuKey_00493128 = 0x2e;
+                g_cCurrentKey_00493128 = 0x2e;
             }
             if (actionHandled == 0) {
-                g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+                g_cCurrentKey_00493128 = (signed char)0x80;
             }
         }
-        g_cPersonnelMenuKey_00493128 = (signed char)0x80;
+        g_cCurrentKey_00493128 = (signed char)0x80;
     }
     FlushInputEvents();
     ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);

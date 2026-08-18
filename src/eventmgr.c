@@ -977,261 +977,163 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x46436E */
 void BuildObjectDepthOrder(void)
 {
-    unsigned int distance;
-    int previous;
-    int best;
-    int bestObject;
-    int obj;
-    int screenOffset;
-    int *placed;
-    int *sortedEntry;
-    int sorted;
+    int maximumDistance;
+    int farthestObject;
+    int nextObject;
+    int sortedIndex;
+    int nextDistance;
+    int object;
+    int candidate;
 
-    previous = -999999999;
-    bestObject = -1;
-    memset(g_anObjectDepthPlaced_0059a8f0, 0,
-           sizeof(g_anObjectDepthPlaced_0059a8f0));
-    obj = 0;
-    for (; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
-        distance = (unsigned short)g_asObjectDistance_00493ae8[obj];
-        if (previous < (int)distance) {
-            previous = (int)distance;
-            bestObject = obj;
+    maximumDistance = -999999999;
+    farthestObject = -1;
+    nextObject = farthestObject;
+    memset(g_anObjectDepthPlaced_005c8180, 0,
+           sizeof(g_anObjectDepthPlaced_005c8180));
+    for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
+        if (maximumDistance <
+            (int)(unsigned short)g_asObjectDistance_00493ae8[object]) {
+            maximumDistance =
+                (int)(unsigned short)g_asObjectDistance_00493ae8[object];
+            farthestObject = object;
         }
     }
-    sorted = 0;
-    sortedEntry = g_anSortedObject_0059aa00;
-    for (; sorted < WC2_SPACE_OBJECT_COUNT; sorted++, sortedEntry++) {
-        best = -1;
-        *sortedEntry = bestObject;
-        if (bestObject == -1)
+    sortedIndex = 0;
+    nextObject = farthestObject;
+    for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
+        g_anSortedObject_005c82c0[sortedIndex] = nextObject;
+        if (nextObject == -1)
             return;
-        screenOffset = 0;
-        obj = 0;
-        g_anObjectDepthPlaced_0059a8f0[bestObject] = 1;
-        bestObject = -1;
-        placed = g_anObjectDepthPlaced_0059a8f0;
-        for (; placed < g_anObjectDepthPlaced_0059a8f0 +
-                           WC2_SPACE_OBJECT_COUNT;
-             screenOffset += sizeof(short), placed++, obj++) {
-            if (*placed == 0 &&
-                *(short *)((unsigned char *)g_asObjectScreenX_00493598 +
-                           screenOffset) != (short)0x8001) {
-                distance = *(unsigned short *)(
-                    (unsigned char *)g_asObjectDistance_00493ae8 +
-                    screenOffset);
-                if (best < (int)distance && previous >= (int)distance) {
-                    bestObject = obj;
-                    best = (int)distance;
-                }
+        g_anObjectDepthPlaced_005c8180[nextObject] = 1;
+        nextDistance = -1;
+        nextObject = nextDistance;
+        for (candidate = 0; candidate < WC2_SPACE_OBJECT_COUNT;
+             candidate++) {
+            if (g_anObjectDepthPlaced_005c8180[candidate] == 0 &&
+                g_asObjectScreenX_00493598[candidate] != (short)0x8001 &&
+                nextDistance <
+                    (int)(unsigned short)
+                        g_asObjectDistance_00493ae8[candidate] &&
+                (int)(unsigned short)g_asObjectDistance_00493ae8[candidate] <=
+                    maximumDistance) {
+                nextObject = candidate;
+                nextDistance =
+                    (int)(unsigned short)
+                        g_asObjectDistance_00493ae8[candidate];
             }
         }
+        sortedIndex++;
     }
 }
 
 /* Function start: 0x4644DA */
 void draw_sorted_objects_to_buffer(void)
 {
-    int *sortedEntry;
     int obj;
     int objectClass;
-    unsigned char *shape;
-    short screenX;
-    short screenY;
-    int specialObject;
-#ifdef WC1_SDL
-    float enhancedScreenX;
-    float enhancedScreenY;
-    short projectedScreenX;
-    short projectedScreenY;
-#endif
+    int sortedIndex;
 
-    sortedEntry = g_anSortedObject_0059aa00;
-    do {
-        obj = *sortedEntry;
+    for (sortedIndex = 0; sortedIndex < WC2_SPACE_OBJECT_COUNT;
+         sortedIndex++) {
+        obj = g_anSortedObject_005c82c0[sortedIndex];
         if (obj < 0)
             return;
-        if ((int)g_acObjectType_00493980[obj] < 0)
+        if (g_asObjectType_00495298[obj] < 0)
             return;
         objectClass = g_aeObjectClass_00495328[obj];
-#ifdef WC1_SDL
-        enhancedScreenX = (float)(short)(
-            g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
-        enhancedScreenY = (float)(short)(
-            g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
-        if (objectClass != OBJECT_CLASS_NULL &&
-            objectClass != OBJECT_CLASS_FIXED_OBJECT &&
-            obj != DAT_00469208 &&
-            g_aObjectViewPosition_0059afa0[obj].z != 0) {
-            projectedScreenX = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[obj].x),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            projectedScreenY = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth_0046daa4 & ~1) << 7,
-                    g_aObjectViewPosition_0059afa0[obj].y),
-                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
-            if (projectedScreenX == g_asObjectScreenX_00493598[obj] &&
-                projectedScreenY == g_asObjectScreenY_00493628[obj]) {
-                enhancedScreenX =
-                    (float)g_nViewCenterX_005c80d8 +
-                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
-                             g_aObjectViewPosition_0059afa0[obj].x) /
-                            g_aObjectViewPosition_0059afa0[obj].z);
-                enhancedScreenY =
-                    (float)g_nViewCenterY_005c80da +
-                    (float)(((double)(g_nScreenWidth_0046daa4 & ~1) * 0.5 *
-                             g_aObjectViewPosition_0059afa0[obj].y) /
-                            g_aObjectViewPosition_0059afa0[obj].z);
-            }
-        } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
-                   g_acObjectType_00493980[obj] == OBJECT_TYPE_THRUSTERS) {
-            Wc1SdlGetThrusterScreenPosition(
-                (short)obj, &enhancedScreenX, &enhancedScreenY);
-        }
-#endif
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
+            case OBJECT_CLASS_STAR:
+            case OBJECT_CLASS_PLANET:
+            case OBJECT_CLASS_DUST:
+                g_asObjectDrawX_00493748[obj] = (short)(
+                    g_asObjectScreenX_00493598[obj] +
+                    g_nViewCenterX_005c80d8);
+                g_asObjectDrawY_004937d8[obj] = (short)(
+                    g_asObjectScreenY_00493628[obj] +
+                    g_nViewCenterY_005c80da);
+                if (g_nNavPointerObject_004931b8 == obj)
+                    DrawSpriteDefault(
+                        &g_stViewBuffer_005d2b00,
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_apObjectShape_00493868[obj],
+                        g_asObjectViewFrame_00493508[obj]);
+                else
+                    DrawSpriteDefault(
+                        &g_stViewBuffer_005d2b00,
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_pConstellationShape_005d2c4c,
+                        g_asObjectViewFrame_00493508[obj]);
+                break;
             default:
-                screenY = g_asObjectScreenY_00493628[obj];
-                screenX = (short)(g_asObjectScreenX_00493598[obj] +
-                                  g_nViewCenterX_005c80d8);
-                shape = g_apObjectShape_00493868[obj];
-                g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_005c80da);
-                g_asObjectDrawY_0059cf80[obj] = screenY;
-                if (shape != 0) {
-#ifdef WC1_SDL
-                    if (!Wc1SdlRecordSpaceSprite(
-                            &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY,
-                            shape,
-                            g_asObjectViewFrame_00493508[obj],
-                            g_asObjectScreenAngle_004936b8[obj],
-                            g_asObjectScreenScale_00493a58[obj],
-                            g_asObjectFlip_004939c8[obj]))
-#endif
+                g_asObjectDrawX_00493748[obj] = (short)(
+                    g_asObjectScreenX_00493598[obj] +
+                    g_nViewCenterX_005c80d8);
+                g_asObjectDrawY_004937d8[obj] = (short)(
+                    g_asObjectScreenY_00493628[obj] +
+                    g_nViewCenterY_005c80da);
+                if (g_apObjectShape_00493868[obj] != 0)
                     DrawSpriteScaled(
-                        &g_stViewBuffer_005d2b00, screenX, screenY, shape,
+                        &g_stViewBuffer_005d2b00,
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_apObjectShape_00493868[obj],
                         g_asObjectViewFrame_00493508[obj],
                         g_asObjectScreenAngle_004936b8[obj],
                         g_asObjectScreenScale_00493a58[obj],
                         g_asObjectFlip_004939c8[obj]);
-                }
-                break;
-            case OBJECT_CLASS_STAR:
-#ifdef WC1_SDL
-                /* WCDX fix: planets use the per-object scaled path above. */
-#else
-            case OBJECT_CLASS_PLANET:
-#endif
-            case OBJECT_CLASS_DUST:
-                specialObject = (int)DAT_00469208;
-                screenY = g_asObjectScreenY_00493628[obj];
-                screenX = (short)(g_asObjectScreenX_00493598[obj] +
-                                  g_nViewCenterX_005c80d8);
-                g_asObjectDrawX_0059d000[obj] = screenX;
-                screenY = (short)(screenY + g_nViewCenterY_005c80da);
-                g_asObjectDrawY_0059cf80[obj] = screenY;
-                if (specialObject == obj)
-                    shape = g_apObjectShape_00493868[obj];
-                else
-                    shape = g_pConstellationShape_005a765c;
-#ifdef WC1_SDL
-                if (!Wc1SdlRecordSpaceSprite(
-                        &g_stViewBuffer_005d2b00, enhancedScreenX, enhancedScreenY, shape,
-                        g_asObjectViewFrame_00493508[obj], 0, 0x100, 0))
-#endif
-                DrawSpriteDefault(&g_stViewBuffer_005d2b00, screenX, screenY, shape,
-                                  g_asObjectViewFrame_00493508[obj]);
                 break;
             }
         }
-        sortedEntry++;
-    } while (sortedEntry < g_anSortedObject_0059aa00 +
-                           WC2_SPACE_OBJECT_COUNT);
+    }
 }
 
 /* Function start: 0x46470E */
 void intro_drawbackgroundships(void)
 {
-    unsigned char *shape;
     int objectClass;
     int obj;
-    int dwordOffset;
-    int shortOffset;
-    int zero;
 
-    obj = 0;
-    shortOffset = 0;
-    zero = 0;
-    dwordOffset = 0;
-    for (; dwordOffset < WC2_SPACE_OBJECT_COUNT * (int)sizeof(int);
-         shortOffset += sizeof(short),
-         dwordOffset += sizeof(int),
-         obj++) {
-        if (*(enum ObjectType *)((unsigned char *)g_acObjectType_00493980 +
-                                 dwordOffset) < zero)
+    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+        if (g_asObjectType_00495298[obj] < 0)
             return;
-        objectClass = *(enum ObjectClass *)(
-            (unsigned char *)g_aeObjectClass_00495328 + dwordOffset);
+        objectClass = g_aeObjectClass_00495328[obj];
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
+            case OBJECT_CLASS_STAR:
+            case OBJECT_CLASS_PLANET:
+            case OBJECT_CLASS_DUST:
+                if (obj == g_nNavPointerObject_004931b8)
+                    DrawSolidColourSprite(
+                        &g_stViewBuffer_005d2b00,
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_apObjectShape_00493868[obj],
+                        g_asObjectViewFrame_00493508[obj],
+                        g_cPrimaryViewBufferColour_0049cb88);
+                else
+                    DrawSolidColourSprite(
+                        &g_stViewBuffer_005d2b00,
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_pConstellationShape_005d2c4c,
+                        g_asObjectViewFrame_00493508[obj],
+                        g_cPrimaryViewBufferColour_0049cb88);
+                break;
             default:
-#ifdef WC1_SDL
-                shape = g_apObjectShape_00493868[obj];
-#else
-                shape = *(unsigned char **)(
-                    (unsigned char *)g_apObjectShape_00493868 +
-                    dwordOffset);
-#endif
-                if (shape != 0) {
+                if (g_apObjectShape_00493868[obj] != 0)
                     DrawSolidColourSpriteScaled(
                         &g_stViewBuffer_005d2b00,
-                        *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
-                                   shortOffset),
-                        *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
-                                   shortOffset),
-                        shape,
-                        *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
-                                   shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenAngle_004936b8 +
-                                   shortOffset),
-                        *(short *)((unsigned char *)g_asObjectScreenScale_00493a58 +
-                                   shortOffset),
-                        *(short *)((unsigned char *)g_asObjectFlip_004939c8 +
-                                   shortOffset),
+                        g_asObjectDrawX_00493748[obj],
+                        g_asObjectDrawY_004937d8[obj],
+                        g_apObjectShape_00493868[obj],
+                        g_asObjectViewFrame_00493508[obj],
+                        g_asObjectScreenAngle_004936b8[obj],
+                        g_asObjectScreenScale_00493a58[obj],
+                        g_asObjectFlip_004939c8[obj],
                         g_cPrimaryViewBufferColour_0049cb88);
-                }
-                break;
-            case OBJECT_CLASS_STAR:
-#ifdef WC1_SDL
-                /* Erase planets with the same scaled geometry used to draw. */
-#else
-            case OBJECT_CLASS_PLANET:
-#endif
-            case OBJECT_CLASS_DUST:
-                if (obj == DAT_00469208)
-#ifdef WC1_SDL
-                    shape = g_apObjectShape_00493868[obj];
-#else
-                    shape = *(unsigned char **)(
-                        (unsigned char *)g_apObjectShape_00493868 +
-                        dwordOffset);
-#endif
-                else
-                    shape = g_pConstellationShape_005a765c;
-                DrawSolidColourSprite(
-                    &g_stViewBuffer_005d2b00,
-                    *(short *)((unsigned char *)g_asObjectDrawX_0059d000 +
-                               shortOffset),
-                    *(short *)((unsigned char *)g_asObjectDrawY_0059cf80 +
-                               shortOffset),
-                    shape,
-                    *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
-                               shortOffset),
-                    g_cPrimaryViewBufferColour_0049cb88);
                 break;
             }
         }
@@ -1242,68 +1144,57 @@ void intro_drawbackgroundships(void)
 void set_up_screen_viewport(signed char mode)
 {
     int modeIndex;
-    short viewportHeight;
-    short viewportWidth;
-    const ScreenViewportGeometry *viewportGeometry;
 
     g_cScreenViewportMode_005c82a6 = mode;
-    modeIndex = (int)mode;
-    if (modeIndex >= 4) {
-        if (modeIndex <= 5)
-            goto static_geometry;
+    modeIndex = (int)g_cScreenViewportMode_005c82a6;
+    switch (modeIndex) {
+    case 4:
+    case 5:
+        g_pScreenViewportGeometry_005c82b0 =
+            &g_aScreenViewportGeometry_0049d4e8[
+                (int)g_cScreenViewportMode_005c82a6];
+        break;
+    default:
+        g_pScreenViewportGeometry_005c82b0 =
+            (const ScreenViewportGeometry *)(
+                g_pCockpitBackgroundPacket_0049a5f0 +
+                ((ScreenViewportPacket *)
+                     g_pCockpitBackgroundPacket_0049a5f0)
+                    ->geometryOffsets[0]);
+        break;
     }
-
-    g_pScreenViewportGeometry_0059a9f4 =
-        (const ScreenViewportGeometry *)(
-            (const unsigned char *)g_pScreenViewportPacket_005a6b94 +
-            g_pScreenViewportPacket_005a6b94
-                ->geometryOffsets[modeIndex]);
-    goto geometry_ready;
-
-static_geometry:
-    g_pScreenViewportGeometry_0059a9f4 =
-        &g_aScreenViewportGeometry_0046dab8[modeIndex];
-
-geometry_ready:
-
-    if (g_nCockpitDisplayMode_0049d71c != 0 && g_nCockpitDisplayMode_0049d71c != -2) {
-        viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
-        viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
-        *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-        g_nViewCenterX_005c80d8 = (short)(viewportWidth / 2);
-        viewportHeight = viewportGeometry->height;
-        g_nViewCenterY_005c80da = (short)(viewportHeight / 2);
-        *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-        g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
-        g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
-        switch ((int)g_cCockpitView_0059dab0) {
-        case 0:
-            g_nViewportOriginY_0059ab50 += 10;
-            g_nViewCenterY_005c80da += 10;
-            break;
-        case 1:
-            g_nViewportOriginY_0059ab50 += 25;
-            g_nViewCenterY_005c80da += 25;
-            break;
-        case 2:
-            g_nViewportOriginY_0059ab50 += 50;
-            g_nViewCenterY_005c80da += 50;
-            break;
-        }
-        *(short *)&g_nScreenWidth_0046daa4 = 320;
-        *(short *)&g_nScreenHeight_0046daa8 = 200;
-        return;
+    if (g_nCockpitDisplayMode_0049d71c != 0 &&
+        g_nCockpitDisplayMode_0049d71c != -2) {
+        g_nScreenWidth_0049d4d8 =
+            g_pScreenViewportGeometry_005c82b0->width;
+        g_nViewCenterX_005c80d8 =
+            (short)(g_nScreenWidth_0049d4d8 / 2);
+        g_nScreenHeight_0049d4dc =
+            g_pScreenViewportGeometry_005c82b0->height;
+        g_nViewCenterY_005c80da =
+            (short)(g_nScreenHeight_0049d4dc / 2);
+        g_nViewportOriginX_005c849e =
+            g_pScreenViewportGeometry_005c82b0->originX;
+        g_nViewportOriginY_005c849c =
+            g_pScreenViewportGeometry_005c82b0->originY;
+        g_nViewCenterX_005c80d8 += g_nViewportOriginX_005c849e;
+        g_nViewCenterY_005c80da += g_nViewportOriginY_005c849c;
+        g_nScreenWidth_0049d4d8 = 320;
+        g_nScreenHeight_0049d4dc = 200;
+    } else {
+        g_nScreenWidth_0049d4d8 =
+            g_pScreenViewportGeometry_005c82b0->width;
+        g_nViewCenterX_005c80d8 =
+            (short)(g_nScreenWidth_0049d4d8 / 2);
+        g_nScreenHeight_0049d4dc =
+            g_pScreenViewportGeometry_005c82b0->height;
+        g_nViewCenterY_005c80da =
+            (short)(g_nScreenHeight_0049d4dc / 2);
+        g_nViewportOriginX_005c849e =
+            g_pScreenViewportGeometry_005c82b0->originX;
+        g_nViewportOriginY_005c849c =
+            g_pScreenViewportGeometry_005c82b0->originY;
     }
-
-    viewportWidth = g_pScreenViewportGeometry_0059a9f4->width;
-    viewportGeometry = g_pScreenViewportGeometry_0059a9f4;
-    *(short *)&g_nScreenWidth_0046daa4 = viewportWidth;
-    g_nViewCenterX_005c80d8 = (short)(viewportWidth / 2);
-    viewportHeight = viewportGeometry->height;
-    g_nViewCenterY_005c80da = (short)(viewportHeight / 2);
-    *(short *)&g_nScreenHeight_0046daa8 = viewportHeight;
-    g_nViewportOriginX_0059ab52 = viewportGeometry->originX;
-    g_nViewportOriginY_0059ab50 = viewportGeometry->originY;
 }
 
 /* Function start: 0x464A90 */

@@ -260,12 +260,12 @@ typedef struct TextContext {
     unsigned char backgroundColour;  /* +0x0D */
     char *text;                      /* +0x0E */
     char *textCursor;                /* +0x12 */
-    unsigned char alignment;         /* +0x16 */
+    signed char alignment;           /* +0x16 */
     FontWorkspace **fontWorkspace;   /* +0x17 */
 } TextContext;
 
 /* One of six numeric cockpit readouts.  The packed ten-byte stride is used
- * directly by the original renderer at 0x00413F70-0x0041409C. */
+ * directly by the original renderer at 0x00438454-0x004385B3. */
 typedef struct CockpitReadout {
     TextContext *context;           /* +0x00 */
     short x;                        /* +0x04 */
@@ -287,7 +287,7 @@ typedef struct ModalTextPanel {
 } ModalTextPanel;
 
 /* One flashing cockpit/VDU message.  Two adjacent records begin at
- * 0x005A7DD0; the unaligned text pointer at +0x0D is intentional. */
+ * 0x005D1D40; the unaligned text pointer at +0x0D is intentional. */
 typedef struct HudMessageSlot {
     TextContext *context;            /* +0x00 */
     short x;                         /* +0x04 */

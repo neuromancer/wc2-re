@@ -5055,18 +5055,18 @@ unsigned int ShowGameOverScreen(void)
         FetchDiskPacketRetrying(9, 1, 0);
     g_cViewObject_0049313c = (signed char)Explosion(0);
     g_nCurrentView_00492fa8 = 4;
-    g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] = 100;
+    g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] = 100;
     ScaleFixedVector(
         &g_aShipForwardVector_00494208[g_cViewObject_0049313c],
         -0x12c00, &cameraOffset);
     AddFixedVectors(
         &g_aShipPosition_00494550[g_cViewObject_0049313c],
-        &cameraOffset, &g_aShipPosition_00494550[WC1_EYE_OBJECT]);
-    g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT] =
-        g_aShipUpVector_0059b9e0[g_cViewObject_0049313c];
-    g_aShipForwardVector_00494208[WC1_EYE_OBJECT] = cameraOffset;
-    fix_objects_ijk(WC1_EYE_OBJECT);
-    zero_vector(&g_aShipVelocity_0059c010[WC1_EYE_OBJECT]);
+        &cameraOffset, &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+    g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
+    g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = cameraOffset;
+    fix_objects_ijk(WC2_EYE_OBJECT);
+    zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
     set_eye_direction_and_position();
     distance = 700;
     generate_stars();

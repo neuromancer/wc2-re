@@ -376,37 +376,38 @@ void initialize_view_buffer(void)
 }
 
 /* Function start: 0x465D55 */
-unsigned int dump_buffer_to_screen(void)
+void dump_buffer_to_screen(void)
 {
-    short bottom;
+    int mode;
 
 #ifdef WC1_SDL
     Wc1SdlCompleteSpaceFrame();
 #endif
     if (g_nCockpitDisplayMode_0049d71c > 0) {
-        CopyViewportContents(&g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
+        CopyViewportContents(
+            &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
+    } else {
+        mode = (int)g_cScreenViewportMode_005c82a6;
+        switch (mode) {
+        case 4:
+            g_stScreenViewport_005d21a0.top = 24;
+            CopyViewportContents(
+                &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
+            g_stScreenViewport_005d21a0.top = 0;
+            break;
+        case 5:
+            CopyViewportContents(
+                &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
+            break;
+        default:
+            fizzle_fade(
+                &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0,
+                g_pScreenViewportGeometry_005c82b0);
+            break;
+        }
+    }
+    if (g_nShowMemoryStatus_0049d784 != 0)
         ShowMemoryStatusDebug();
-        return 0;
-    }
-    switch ((int)g_cScreenViewportMode_005c82a6) {
-    case 4:
-        bottom = g_stScreenViewport_005d21a0.bottom;
-        g_stScreenViewport_005d21a0.top = 24;
-        g_stScreenViewport_005d21a0.bottom = 152;
-        CopyViewportContents(&g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
-        g_stScreenViewport_005d21a0.bottom = bottom;
-        g_stScreenViewport_005d21a0.top = 0;
-        break;
-    case 5:
-        CopyViewportContents(&g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
-        break;
-    default:
-        fizzle_fade(&g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0,
-                    g_pScreenViewportGeometry_0059a9f4);
-        break;
-    }
-    ShowMemoryStatusDebug();
-    return 0;
 }
 
 /* Function start: 0x465E88 */
@@ -557,7 +558,7 @@ void UpdateSpacePaletteFade(void)
         case 9:
         case 13:
             ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_ucSpaceClearColour_0049cb5c);
+                          g_abGamePaletteReservedColours_0049cb54[8]);
             g_bViewportDirty_0049d76c = 1;
             g_asSpacePaletteFade_005d2d60[0] = 0;
             break;
@@ -589,10 +590,10 @@ unsigned int house_keep(void)
         } while (palette < 6);
         return 0;
     }
-    if (DAT_005a7ec0 != 0) {
+    if (g_nCriticalDamageWarningSfxHandle_005d1ec0 != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            DAT_005a7ec0, 1);
-        DAT_005a7ec0 = 0;
+            g_nCriticalDamageWarningSfxHandle_005d1ec0, 1);
+        g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
         g_abCockpitLightGoal_005d1eb8[3] = 0;
     }
     return 0;
@@ -850,7 +851,7 @@ int process_player_input(void)
 unsigned int fire_players_lasers(void)
 {
     if (g_asObjectCounter_00494be0[0] == -1 &&
-        g_asShipWeaponEnergy_0059d470[0] > 0) {
+        g_asShipWeaponEnergy_00495590[0] > 0) {
         fire_fixed_projectile_weapon(0);
         if (g_acShipTarget_00495f20[0] != -1 &&
             get_mode(1) == 5)
@@ -869,13 +870,13 @@ unsigned int players_flight_dynamics(void)
         if (g_asObjectCounter_00494be0[0] == -1) {
             typeData = &g_aObjectTypeData_00496d30[
                 g_nPlayerShipType_00493464];
-            if (g_anObjectYawRotation_0059ce80[0] < typeData->pitchRate &&
-                g_anObjectPitchRotation_0059b2a0[0] < typeData->yawRate &&
-                g_anObjectRollRotation_0059d7e0[0] < typeData->rollRate) {
+            if (g_anObjectYawRotation_00494fc8[0] < typeData->pitchRate &&
+                g_anObjectPitchRotation_00494f38[0] < typeData->yawRate &&
+                g_anObjectRollRotation_00495058[0] < typeData->rollRate) {
                 g_aeSpecialManeuver_00495600[0] = SPECIAL_MANEUVER_NONE;
             } else {
-                g_anObjectYawRotation_0059ce80[0] -= g_nYawInput_0059d3f2;
-                g_anObjectPitchRotation_0059b2a0[0] -= g_nPitchInput_0059d3f0;
+                g_anObjectYawRotation_00494fc8[0] -= g_nYawInput_0059d3f2;
+                g_anObjectPitchRotation_00494f38[0] -= g_nPitchInput_0059d3f0;
             }
         }
         return 0;
@@ -883,11 +884,11 @@ unsigned int players_flight_dynamics(void)
 
     typeData = &g_aObjectTypeData_00496d30[
         g_nPlayerShipType_00493464];
-    g_anObjectPitchRotation_0059b2a0[0] =
+    g_anObjectPitchRotation_00494f38[0] =
         (short)((typeData->yawRate * g_nPitchInput_0059d3f0) / 8);
-    g_anObjectYawRotation_0059ce80[0] =
+    g_anObjectYawRotation_00494fc8[0] =
         (short)-((typeData->pitchRate * g_nYawInput_0059d3f2) / 8);
-    g_anObjectRollRotation_0059d7e0[0] =
+    g_anObjectRollRotation_00495058[0] =
         (short)-((typeData->rollRate * g_nRollInput_0059d3f4) / 8);
     return 0;
 }
@@ -1229,37 +1230,37 @@ unsigned int RunWc1FleetOverviewInput(void)
         break;
     case 0x48:
         rotate_about_i(-7,
-                       &g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC1_EYE_OBJECT]);
+                       &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         break;
     case 0x4b:
         rotate_about_j(7,
-                       &g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC1_EYE_OBJECT]);
+                       &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         break;
     case 0x4d:
         rotate_about_j(-7,
-                       &g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC1_EYE_OBJECT]);
+                       &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         break;
     case 0x4f:
         g_nCapitalShipViewDistance_00468ff4 += 0x3200;
         break;
     case 0x50:
         rotate_about_i(7,
-                       &g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC1_EYE_OBJECT]);
+                       &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         break;
     case 0x52:
-        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].z = -0x100;
-        g_aShipForwardVector_00494208[WC1_EYE_OBJECT].y = 0x100;
-        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].x = 0x100;
-        g_aShipForwardVector_00494208[WC1_EYE_OBJECT].z = 0;
-        g_aShipForwardVector_00494208[WC1_EYE_OBJECT].x = 0;
-        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].y = 0;
-        g_aShipUpVector_0059b9e0[WC1_EYE_OBJECT].x = 0;
-        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].z = 0;
-        g_aShipRightVector_0059b6e0[WC1_EYE_OBJECT].y = 0;
+        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z = -0x100;
+        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].y = 0x100;
+        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].x = 0x100;
+        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].z = 0;
+        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].x = 0;
+        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y = 0;
+        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x = 0;
+        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].z = 0;
+        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].y = 0;
         break;
     default:
         g_bCurrentKey_0046c014 = (unsigned char)key;
@@ -1291,7 +1292,7 @@ void UpdateFleetOverviewCameraRotation(void)
                 (short)(-65 - g_nFleetOverviewYaw_0049d3f4);
         rotate_about_j(
             g_nFleetOverviewYawVelocity_0049d3ec,
-            &g_aShipRightVector_0059b6e0[WC2_EYE_OBJECT],
+            &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
             &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         g_nFleetOverviewYaw_0049d3f4 =
             (short)(g_nFleetOverviewYaw_0049d3f4 +
@@ -1316,7 +1317,7 @@ void UpdateFleetOverviewCameraRotation(void)
                 (short)(-65 - g_nFleetOverviewPitch_0049d3f8);
         rotate_about_i(
             g_nFleetOverviewPitchVelocity_0049d3f0,
-            &g_aShipUpVector_0059b9e0[WC2_EYE_OBJECT],
+            &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
             &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
         g_nFleetOverviewPitch_0049d3f8 =
             (short)(g_nFleetOverviewPitch_0049d3f8 +

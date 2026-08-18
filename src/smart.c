@@ -16,7 +16,7 @@ unsigned int steer_away_from_object(short obj, short other, short amount)
 
     g_anRollGoal_004954d8[obj] = 0;
     AddFixedVectors(&g_aShipPosition_00494550[other],
-                    &g_aShipVelocity_0059c010[other], &predicted);
+                    &g_aShipVelocity_00494898[other], &predicted);
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &predicted, &difference);
     transform_to_objects_frame(&difference, &relative, obj);
@@ -41,7 +41,7 @@ void steer_away_from_predicted_object(short obj, short other,
     FixedVector relative;
 
     g_anRollGoal_004954d8[obj] = 0;
-    ScaleFixedVector(&g_aShipVelocity_0059c010[other],
+    ScaleFixedVector(&g_aShipVelocity_00494898[other],
                      (int)predictionTicks << 8, &predicted);
     AddFixedVectors(&g_aShipPosition_00494550[other],
                     &predicted, &predicted);
@@ -220,9 +220,9 @@ unsigned int offset_location(short obj, const ShortVector *offset,
     *location = g_aShipPosition_00494550[obj];
     position_relative(location, g_aShipForwardVector_00494208[obj],
                       offset->z);
-    position_relative(location, g_aShipUpVector_0059b9e0[obj],
+    position_relative(location, g_aShipUpVector_00493ec0[obj],
                       offset->y);
-    position_relative(location, g_aShipRightVector_0059b6e0[obj],
+    position_relative(location, g_aShipRightVector_00493b78[obj],
                       offset->x);
     return 0;
 }
@@ -233,11 +233,11 @@ unsigned int compute_formation_destination(short leader,
                                            FixedVector *destination)
 {
     offset_location(leader, offset, destination);
-    AddFixedVectors(destination, &g_aShipVelocity_0059c010[leader],
+    AddFixedVectors(destination, &g_aShipVelocity_00494898[leader],
                     destination);
-    AddFixedVectors(destination, &g_aShipVelocity_0059c010[leader],
+    AddFixedVectors(destination, &g_aShipVelocity_00494898[leader],
                     destination);
-    AddFixedVectors(destination, &g_aShipVelocity_0059c010[leader],
+    AddFixedVectors(destination, &g_aShipVelocity_00494898[leader],
                     destination);
     return 0;
 }

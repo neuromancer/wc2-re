@@ -2256,13 +2256,13 @@ short RunCampaignGameLoop(short campaignSlot)
     switch (animation) {
     case 0:
         init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-        InitializeCockpitResources(0);
+        InitializeCockpitResources();
         death_sequence();
         WaitForInputKey();
         break;
     case 1:
         init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-        InitializeCockpitResources(0);
+        InitializeCockpitResources();
         LaunchPlayerShip();
         WaitForInputKey();
         break;
@@ -2631,7 +2631,7 @@ void cruise_home(short obj)
         if (range < 5000) {
             reset_tactic(obj, TACTIC_HEAD_HOME);
             set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
-            zero_vector(&g_aShipVelocity_0059c010[obj]);
+            zero_vector(&g_aShipVelocity_00494898[obj]);
         }
         return;
     }
@@ -3568,7 +3568,7 @@ void destroyer_intelligence(short obj)
 void stationary_intelligence(short obj)
 {
     if (g_acObjectType_00493980[obj] == OBJECT_TYPE_KILRATHI_BASE) {
-        g_anObjectYawRotation_0059ce80[obj] = 4;
+        g_anObjectYawRotation_00494fc8[obj] = 4;
         fire_turrets(obj);
     }
 }
@@ -3859,9 +3859,7 @@ unsigned int InitWc1Mission(short series, short mission)
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
         g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
     prepare_mission();
-    InitializeCockpitResources(
-        (signed char)(series == 0 ? 4 :
-            g_nPlayerShipType_00493464));
+    InitializeCockpitResources();
     return 0;
 }
 
@@ -3901,7 +3899,7 @@ void init_mission(short series, short mission)
     g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
     g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
     g_bFuelGaugeDamaged_0049b054 = 0;
-    InitializeCockpitResources(g_nPlayerShipType_00493464);
+    InitializeCockpitResources();
     g_bMissionDeathSequencePending_0049b720 = 0;
     for (index = 0; index < 5; index++)
         g_abJumpDriveUsedBySystem_005d2fe8[index] = 0;
@@ -4077,132 +4075,194 @@ int release_capital_ship_shapes(enum ObjectType type)
 }
 
 /* Function start: 0x44BEE5 */
-int load_ship(short type, short logicalFile,
-              short objectClass, short slot)
+void load_ship(short resourceType, short objectType,
+               short objectClass, short slot)
 {
-    short obj;
+    char fileName[20];
     short section;
+    char resourceNumber[4];
+    short object;
+    void **packetReferences;
 
-    if (type != -1) {
+    if (resourceType != -1) {
         if (g_aObjectResourceSlots_00493398[slot].shapeSet == 0) {
-            g_aObjectResourceSlots_00493398[slot].type = type;
-            g_cObjectResourceLogicalFile_005a86b0 =
-                (signed char)(type + 22);
-            if (type == OBJECT_TYPE_ASTEROID_FIELD) {
-                g_aObjectTypeData_00496d30[
-                    OBJECT_TYPE_ROCK_CHUNK].shapeSet =
-                    FetchDiskPacketRetrying(3, 13, 0);
-                g_aObjectTypeData_00496d30[
-                    OBJECT_TYPE_ASTEROID5].shapeSet =
-                    FetchDiskPacketRetrying(3, 16, 0);
-                g_aObjectTypeData_00496d30[
-                    OBJECT_TYPE_ASTEROID3].shapeSet =
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID5].shapeSet;
-                g_aObjectTypeData_00496d30[
-                    OBJECT_TYPE_ASTEROID1].shapeSet =
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID5].shapeSet;
-                g_aObjectResourceSlots_00493398[slot].shapeSet =
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID5].shapeSet;
-                if (g_nMemoryConfiguration_005a7cd4 == 2) {
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID6].shapeSet =
-                        FetchDiskPacketRetrying(
-                            3, 17, 0);
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID4].shapeSet =
-                        g_aObjectTypeData_00496d30[
-                            OBJECT_TYPE_ASTEROID6].shapeSet;
-                    g_aObjectTypeData_00496d30[
-                        OBJECT_TYPE_ASTEROID2].shapeSet =
-                        g_aObjectTypeData_00496d30[
-                            OBJECT_TYPE_ASTEROID6].shapeSet;
-                }
-                obj = 10;
-                do {
-                    if (g_aeObjectClass_00495328[obj] ==
-                        OBJECT_CLASS_ASTEROID) {
-                        g_apObjectShape_00493868[obj] =
-                            g_aObjectTypeData_00496d30[
-                                g_acObjectType_00493980[obj]].shapeSet;
-                    }
-                    obj++;
-                } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
-                return 0;
+            g_aObjectResourceSlots_00493398[slot].type = resourceType;
+            if (objectClass == OBJECT_CLASS_MISSILE)
+                strcpy(fileName, "missile.v");
+            else
+                strcpy(fileName, "ship.v");
+            if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+                objectClass == OBJECT_CLASS_SHIP) {
+                objectClass = OBJECT_CLASS_CAPITAL_SHIP;
+                strcpy(fileName, "xship.v");
             }
-            if (type != OBJECT_TYPE_MINE_FIELD) {
-                if (g_aObjectTypeData_00496d30[type].objectClass !=
-                        OBJECT_CLASS_SHIP &&
-                    g_aObjectTypeData_00496d30[type].objectClass !=
-                        OBJECT_CLASS_MISSILE) {
-                    if (DAT_0059a856 != 0) {
-                        section = 0;
-                        do {
-                            g_aapPacketReferences_00465c88[slot]
-                                [section] =
-                                FetchDiskPacketRetrying(
-                                    (short)
-                                        g_cObjectResourceLogicalFile_005a86b0,
-                                    section, 4);
-                            if (g_aapPacketReferences_00465c88[slot]
-                                    [section] == 0)
-                                break;
-                            section++;
-                        } while (section < 0x25);
-                    }
-                    g_aObjectResourceSlots_00493398[slot].shape =
-                        FetchDiskPacketRetrying(
-                            (short)g_cObjectResourceLogicalFile_005a86b0,
-                            0x25, 0);
-                    g_aObjectTypeData_00496d30[type].shape =
-                        g_aObjectResourceSlots_00493398[slot].shape;
-                    obj = 1;
-                    do {
-                        if (g_acObjectType_00493980[obj] == type) {
-                            FreePacketAndClear(
-                                &g_apObjectShape_00493868[obj], 0);
-                            g_asCapitalShipViewFrame_0059dd90[obj] = -1;
-                        }
-                        obj++;
-                    } while (obj < 10);
-                    return 0;
-                }
+            _itoa((int)resourceType, resourceNumber, 10);
+            if (strlen(resourceNumber) == 1)
+                strcat(fileName, "0");
+            strcat(fileName, resourceNumber);
+            g_aObjectResourceSlots_00493398[slot].objectType = objectType;
+            g_aObjectResourceSlots_00493398[slot].objectClass = objectClass;
 
+            if (objectType == 0x3d) {
+                g_aObjectTypeData_00496d30[46].shapeSet =
+                    FetchDiskPacketRetrying("objects.vga", 0x13, 0);
                 g_aObjectResourceSlots_00493398[slot].shapeSet =
-                    FetchDiskPacketRetrying(
-                        (short)g_cObjectResourceLogicalFile_005a86b0,
-                        0, 0);
-                g_aObjectTypeData_00496d30[type].shapeSet =
+                    g_aObjectTypeData_00496d30[46].shapeSet;
+                for (object = 1; object < 10; object++) {
+                    if (g_asObjectType_00495298[object] == 0x3d) {
+                        g_apObjectShape_00493868[object] =
+                            g_aObjectTypeData_00496d30[
+                                g_acObjectType_00493980[object]].shapeSet;
+                    }
+                }
+            } else if (objectType == 0x2c) {
+                if (g_aObjectTypeData_00496d30[44].shapeSet == 0) {
+                    g_aObjectTypeData_00496d30[44].shapeSet =
+                        FetchDiskPacketRetrying("pilotanm.vga", 2, 0);
+                    g_aObjectResourceSlots_00493398[slot].shapeSet =
+                        g_aObjectTypeData_00496d30[44].shapeSet;
+                }
+                for (object = 1; object < 70; object++) {
+                    if (g_asObjectType_00495298[object] == 0x2c) {
+                        g_apObjectShape_00493868[object] =
+                            g_aObjectTypeData_00496d30[
+                                g_acObjectType_00493980[object]].shapeSet;
+                    }
+                }
+            } else if (objectType == 5) {
+                g_aObjectTypeData_00496d30[22].shapeSet =
+                    FetchDiskPacketRetrying("objects.vga", 0x10, 0);
+                g_aObjectTypeData_00496d30[24].shapeSet =
+                    g_aObjectTypeData_00496d30[22].shapeSet;
+                g_aObjectTypeData_00496d30[26].shapeSet =
+                    g_aObjectTypeData_00496d30[22].shapeSet;
+                g_aObjectResourceSlots_00493398[slot].shapeSet =
+                    g_aObjectTypeData_00496d30[22].shapeSet;
+                if (g_nMemoryConfiguration_005c8dc8 == 2) {
+                    g_aObjectTypeData_00496d30[23].shapeSet =
+                        FetchDiskPacketRetrying("objects.vga", 0x11, 4);
+                    g_aObjectTypeData_00496d30[25].shapeSet =
+                        g_aObjectTypeData_00496d30[23].shapeSet;
+                    g_aObjectTypeData_00496d30[27].shapeSet =
+                        g_aObjectTypeData_00496d30[23].shapeSet;
+                }
+                for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT;
+                     object++) {
+                    if (g_aeObjectClass_00495328[object] ==
+                        OBJECT_CLASS_ASTEROID) {
+                        g_apObjectShape_00493868[object] =
+                            g_aObjectTypeData_00496d30[
+                                g_acObjectType_00493980[object]].shapeSet;
+                    }
+                }
+            } else if (objectType == 6) {
+                if (g_aObjectTypeData_00496d30[21].shapeSet == 0) {
+                    g_aObjectTypeData_00496d30[21].shapeSet =
+                        FetchDiskPacketRetrying("objects.vga", 0x0f, 0);
+                    g_aObjectResourceSlots_00493398[slot].shapeSet =
+                        g_aObjectTypeData_00496d30[21].shapeSet;
+                }
+                for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT;
+                     object++) {
+                    if (g_asObjectType_00495298[object] == 0x15)
+                        g_apObjectShape_00493868[object] =
+                            g_aObjectTypeData_00496d30[21].shapeSet;
+                }
+            } else if ((objectClass == OBJECT_CLASS_SHIP &&
+                        objectType != 0x33) ||
+                       objectClass == OBJECT_CLASS_MISSILE) {
+                if (objectClass != OBJECT_CLASS_MISSILE &&
+                    g_bShipResourceReloadInProgress_0049b894 == 0) {
+                    LoadPacketIntoBuffer(
+                        fileName, 3,
+                        &g_aObjectTypeData_00496d30[slot], 0);
+                }
+                g_aObjectResourceSlots_00493398[slot].shapeSet =
+                    FetchDiskPacketRetrying(fileName, 0, 0);
+                g_aObjectTypeData_00496d30[slot].shapeSet =
                     g_aObjectResourceSlots_00493398[slot].shapeSet;
                 g_aObjectResourceSlots_00493398[slot].animation =
-                    FetchDiskPacketRetrying(
-                        (short)g_cObjectResourceLogicalFile_005a86b0,
-                        2, 0);
-                g_aObjectTypeData_00496d30[type].animation =
+                    FetchDiskPacketRetrying(fileName, 2, 0);
+                g_aObjectTypeData_00496d30[slot].animation =
                     g_aObjectResourceSlots_00493398[slot].animation;
                 g_aObjectResourceSlots_00493398[slot].shape =
-                    FetchDiskPacketRetrying(
-                        (short)g_cObjectResourceLogicalFile_005a86b0,
-                        1, 0);
-                g_aObjectTypeData_00496d30[type].shape =
+                    FetchDiskPacketRetrying(fileName, 1, 0);
+                g_aObjectTypeData_00496d30[slot].shape =
                     g_aObjectResourceSlots_00493398[slot].shape;
-                obj = 0;
-                do {
-                    if (g_aeObjectClass_00495328[obj] >=
-                            OBJECT_CLASS_MISSILE &&
-                        g_acObjectType_00493980[obj] == type) {
-                        g_apObjectShape_00493868[obj] =
-                            g_aObjectResourceSlots_00493398[slot]
-                                .shapeSet;
+                if (objectClass == OBJECT_CLASS_SHIP &&
+                    g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+                    g_nResourcePaletteMode_005c57e6 == 0) {
+                    g_aObjectResourceSlots_00493398[slot].field_12 =
+                        FetchDiskPacketRetrying(fileName, 4, 4);
+                    g_aObjectTypeData_00496d30[32].shapeSet =
+                        g_aObjectResourceSlots_00493398[slot].field_12;
+                }
+                for (object = 0; object < 10; object++) {
+                    if (g_aeObjectClass_00495328[object] >
+                            OBJECT_CLASS_MINE &&
+                        g_aObjectTypeData_00496d30[
+                            g_acObjectType_00493980[object]].field_16 ==
+                            resourceType) {
+                        g_apObjectExhaustShape_004953b8[object] =
+                            g_aObjectResourceSlots_00493398[slot].animation;
+                        g_apObjectShape_00493868[object] =
+                            g_aObjectResourceSlots_00493398[slot].shapeSet;
                     }
-                    obj++;
-                } while (obj < 10);
+                }
+                if (objectClass == OBJECT_CLASS_MISSILE) {
+                    g_aObjectTypeData_00496d30[objectType].shapeSet =
+                        g_aObjectTypeData_00496d30[slot].shapeSet;
+                    g_aObjectTypeData_00496d30[objectType].animation =
+                        g_aObjectTypeData_00496d30[slot].animation;
+                    g_aObjectTypeData_00496d30[objectType].shape =
+                        g_aObjectTypeData_00496d30[slot].shape;
+                }
+            } else {
+                if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+                    g_nResourcePaletteMode_005c57e6 == 0) {
+                    g_apPacketReferenceGroups_0049b898[slot] =
+                        (void **)calloc(0x25, 4);
+                    packetReferences =
+                        g_apPacketReferenceGroups_0049b898[slot];
+                    if (packetReferences == 0)
+                        ReportFatalErrorCode("023");
+                    section = 0;
+                    while (section < 0x25) {
+                        packetReferences[section] =
+                            FetchDiskPacketRetrying(fileName, section, 4);
+                        if (packetReferences[section] == 0)
+                            break;
+                        section++;
+                    }
+                    g_aObjectResourceSlots_00493398[slot].field_12 =
+                        FetchDiskPacketRetrying(fileName, 0x27, 4);
+                }
+                LoadPacketIntoBuffer(
+                    fileName, 0x26,
+                    &g_aObjectTypeData_00496d30[slot], 0);
+                g_aObjectTypeData_00496d30[slot].shapeSet = 0;
+                g_aObjectResourceSlots_00493398[slot].shape =
+                    FetchDiskPacketRetrying(fileName, 0x25, 0);
+                g_aObjectTypeData_00496d30[slot].shape =
+                    g_aObjectResourceSlots_00493398[slot].shape;
+                g_aObjectResourceSlots_00493398[slot].animation =
+                    FetchDiskPacketRetrying(fileName, 0x28, 0);
+                g_aObjectTypeData_00496d30[slot].animation =
+                    g_aObjectResourceSlots_00493398[slot].animation;
+                for (object = 0; object < 10; object++) {
+                    if (g_aObjectTypeData_00496d30[
+                            g_acObjectType_00493980[object]].field_16 ==
+                        resourceType) {
+                        g_apObjectExhaustShape_004953b8[object] =
+                            g_aObjectResourceSlots_00493398[slot].animation;
+                        FreePacketAndClear(
+                            &g_apObjectShape_00493868[object], 0);
+                        g_asCapitalShipViewFrame_0059dd90[object] = -1;
+                    }
+                }
             }
         }
     }
-    return 0;
 }
 
 /* Function start: 0x44C796 */
@@ -4330,7 +4390,7 @@ void load_all_slots(void)
         type = g_aObjectResourceSlots_00493398[slot].type;
         if (type != -1) {
             load_ship(type,
-                      g_aObjectResourceSlots_00493398[slot].logicalFile,
+                      g_aObjectResourceSlots_00493398[slot].objectType,
                       g_aObjectResourceSlots_00493398[slot].objectClass,
                       slot);
         }
@@ -4954,7 +5014,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_asShipWingLeader_0059d400[obj] =
         find_ship_index(record->leaderMissionIndex);
     set_formation_position(obj, record);
-    zero_vector(&g_aShipVelocity_0059c010[obj]);
+    zero_vector(&g_aShipVelocity_00494898[obj]);
     init_intelligence_data(obj);
 }
 

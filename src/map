@@ -1,7 +1,7 @@
 # Address-sorted mapped developer functions in WC2.EXE.
 # Generated from reports/wc2-address-remap.tsv; unresolved functions are
 # intentionally omitted until a WC2 destination is established.
-# 1461 mapped source functions; 288 unresolved.
+# 1494 mapped source functions; 286 unresolved.
 
 0x00401000 LoadWingCmdrCfgFile
 0x00401120 show_damage_disp
@@ -229,6 +229,7 @@
 0x0040FFF0 DebugOverlayConsole::ClearPauseFlags
 0x00410102 CanShipWeaponDamageTarget
 0x00410161 IsCapitalShipObject
+0x00410192 HasShipCockpitGunDisplay
 0x00410215 ShipHasTorpedo
 0x00410289 GetAdaptiveTurnRate
 0x004103A6 initialize_object
@@ -237,6 +238,7 @@
 0x0041062D initialize_ship
 0x00410680 any_selected
 0x00410715 remove_weapon
+0x0041090F InitializeShipWeaponTypeIndices
 0x00410999 set_objects_data
 0x00411172 match_rotation_goal
 0x0041133D rotate_object_to_goal
@@ -330,6 +332,7 @@
 0x00419CDC GetVectorMagnitude
 0x00419D01 set_eye_direction_and_position
 0x0041AD51 force_view
+0x0041AD8B SaveTorpedoTargetLockForViewChange
 0x0041AE40 new_view
 0x0041B62E start_dust
 0x0041B762 generate_stars
@@ -742,6 +745,7 @@
 0x0043B258 ResetScannerContacts
 0x0043B29D clear_head_up_display
 0x0043B4CF set_objective_range
+0x0043B570 AdjustScannerContactColourForRange
 0x0043B61F get_color
 0x0043B7C0 draw_3d_scanner
 0x0043BE1B start_lock
@@ -760,6 +764,9 @@
 0x0043C6D8 draw_target_box
 0x0043CBD3 remove_nav_pointer
 0x0043CBFD draw_nav_pointer
+0x0043CE8F HasInRangeGunForTargetLead
+0x0043CF5A UpdateTargetLeadIndicator
+0x0043D323 RestoreTargetLeadIndicator
 0x0043D386 overlay_head_up_display
 0x0043D7F2 RestoreCockpitExplosionIfVisible
 0x0043D81F RestoreTransientCockpitGraphics
@@ -1194,8 +1201,18 @@
 0x0045E816 DIBwholePaletteFromWords
 0x0045E9C5 DIBwaitForVerticalBlank
 0x0045F200 UpdateFleetOverviewCameraRotation
+0x004601F1 ResetTargetCameraView
+0x00460242 CountShipCockpitGunDisplays
+0x004602BE ToggleTargetCameraOverlay
+0x004603C5 ClearTargetCameraView
 0x00460650 PlayScrambleHangarScene
+0x004608E8 UpdateTargetCameraTracking
+0x00460D3E SetTargetCameraEyePosition
+0x00460DFE DrawTargetCameraAttitudeIndicators
+0x004610BC RestoreTargetCameraAttitudeIndicators
 0x0046138D DrawBarracksBunks
+0x00461456 UpdateTargetCameraCockpitHook
+0x00461466 FinalizeTargetCameraViewHook
 0x0046166D select_new_gun
 0x004616B8 select_new_release_weapon
 0x004618E0 RandomBelow
@@ -1226,6 +1243,7 @@
 0x00461F22 DrawTextString
 0x004621D5 DrawTextCharacter
 0x004622BD AppendTextCharacter
+0x004622EE MeasureShapeFrameStorage
 0x0046243F DosFarPtrToNear
 0x00462452 DosNearPtrToFar
 0x00462465 DosStrrchr
@@ -1317,6 +1335,7 @@
 0x004651B7 GetViewportIntersection
 0x004656CC AllocateApplicationScratchBuffer
 0x004656EB ReleaseApplicationScratchBuffer
+0x0046570E GetInputCursorShape
 0x00465730 WaitForQueuedInputPress
 0x0046579D LogMemoryUsage
 0x0046591A RunGameApplication

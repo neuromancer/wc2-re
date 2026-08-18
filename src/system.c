@@ -116,6 +116,12 @@ void ReleaseApplicationScratchBuffer(void)
     g_pApplicationScratchBuffer_005c8483 = 0;
 }
 
+/* Function start: 0x46570E */
+unsigned char *GetInputCursorShape(void)
+{
+    return g_pInputCursorShape_005c83f9;
+}
+
 /* Function start: 0x465730 */
 short WaitForQueuedInputPress(void)
 {

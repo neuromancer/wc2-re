@@ -9,20 +9,21 @@
  */
 #include "wc1.h"
 
-#pragma function(strlen, strcpy)
+#pragma function(strlen, strcpy, abs)
 
 short g_asVduSelectionSound_00469000[2] = { 0x7f, 0 };
+short g_asVduSelectionSound_0049afe4[2] = { 0x7f, 0 };
 char *g_pszPendingHudMessage_0049afec = 0;
 char *g_pszDisplayedHudMessage_0049aff0 = 0;
 unsigned char *g_pHudMessageFrameShape_0049b288 = 0;
 unsigned char *g_pHudMessageBackground_0049b28c = 0;
 short g_bCaptureHudMessageBackground_0049b290;
 short g_nHudMessageBackgroundDepth_0049b294;
-short g_nHudMessageTop_0049ae92;
-short g_nCockpitMessageOffsetY_005c849c;
+ShortPoint g_stHudMessageOrigin_0049ae90;
+short g_nViewportOriginY_005c849c;
 signed char g_cHudMessageView_005d1c37;
 short g_bDisplayWingmanTargetData_0049347c;
-unsigned char DAT_0046900c = 0xff;
+unsigned char DAT_0049aff4 = 0xff;
 short g_asPilotHandOffsets_00469018[34] = {
     6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
@@ -40,7 +41,7 @@ int g_nDisplayedObjectiveRange_0049b078 = 40000;
 char *g_pszObjectiveStatusMessage_0046908c =
     g_szObjectiveStatusMessage_0046928c;
 short g_nScannerTargetObject_0049b07c = -1;
-int g_aiScannerGridRows_00469098[79] = {
+const int g_aiForwardScannerGridRows_0049b080[78] = {
     5, 13, 16, -1,
     5, 13, 16, -1,
     5, 13, 16, -1,
@@ -59,7 +60,25 @@ int g_aiScannerGridRows_00469098[79] = {
     9, -1,
     7, 8, -1,
     4, 5, 6, -1,
-    0, 1, 2, 3, -1,
+    0, 1, 2, 3,
+    -2
+};
+const int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
+    5, 13, -1,
+    5, 13, -1,
+    5, 13, -1,
+    4, 13, -1,
+    4, 12, -1,
+    2, 3, 4, 12, -1,
+    0, 1, 5, 11, 12, -1,
+    6, 11, -1,
+    7, 11, -1,
+    8, 10, -1,
+    9, -1,
+    8, -1,
+    6, 7, -1,
+    4, 5, -1,
+    0, 1, 2, 3,
     -2
 };
 const char *g_pszMissileLocked_0049b280 = g_szMissileLocked_004692a8;
@@ -71,7 +90,6 @@ short DAT_004691e0[10] = {
 short g_nTargetLockMarkerX_004691f4 = -0x7fff;
 ShortRect g_stTargetBracketBounds_004691f8 = {-0x7fff, 0, 0, 0};
 ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
-short DAT_00469208 = -1;
 Viewport g_stTrainSimVduSource_00469210 = {0};
 ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
     {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
@@ -84,7 +102,7 @@ unsigned char *g_pConfedCommBackground_00469278 = 0;
 unsigned char *g_pCommStaticShape_0046927c = 0;
 unsigned char *g_pKilrathiCommBackground_00469280 = 0;
 int g_nCommPortraitFrame_00469284 = -1;
-int g_bForceDamageDisplayRedraw_00469288 = 0;
+int g_bForceDamageDisplayRedraw_0049b2ec = 0;
 char g_szObjectiveStatusMessage_0046928c[28] =
     "Wait for ??????????????????";
 char g_szMissileLocked_004692a8[16] = "MISSILE LOCKED ";
@@ -92,6 +110,7 @@ char g_szAlreadyNear_004692b8[16] = "Already Near";
 char g_szEnemyNear_004692c8[12] = "Enemy Near";
 char g_szHazardNear_004692d4[12] = "Hazard Near";
 char g_szComponentHitFormat_004692e0[8] = "%s HIT";
+char g_szComponentHitFormat_0049b35c[8] = "%s HIT";
 char g_szCalculating_0046931c[12] = "CALCULATING";
 char g_szRangeKilometresSuffix_00469328[4] = " km";
 char g_szNoObjective_0046932c[8] = "NONE";
@@ -556,7 +575,7 @@ void FatalErrorAndExit(const char *format, ...)
 /* Function start: 0x4380FD */
 short IsCockpitExplosionActive(void)
 {
-    return g_nCockpitExplosionFrame_00469068 < 8;
+    return g_nCockpitExplosionFrame_0049b04c < 8;
 }
 
 /* Function start: 0x438129 */
@@ -579,99 +598,79 @@ void EraseCockpitReadoutRegion(Viewport *viewport, short left,
 /* Function start: 0x438194 */
 void vdu_polygon(signed char bar, short percent)
 {
-#ifdef WC1_SDL
-    const CockpitBarDefinition *definition;
-#else
-    int index;
-#endif
-    short direction;
+    CockpitBarDefinition definition;
+    unsigned char *shape;
+    short length;
     short left;
+    short swapFrame;
+    short direction;
+    signed char filledFrame;
     short top;
+    signed char emptyFrame;
     short right;
     short bottom;
-    short length;
-    short extent;
-    signed char filledFrame;
-    signed char emptyFrame;
-    signed char swapFrame;
 
-#ifdef WC1_SDL
-    definition = &g_aaCockpitBars_0046dd88[
-        (int)g_cCockpitView_0059dab0][(int)bar];
-    length = definition->length;
-#else
-    index = (int)bar + (int)g_cCockpitView_0059dab0 * 8;
-    length = g_aaCockpitBars_0046dd88[0][index].length;
-#endif
-    extent = (short)(((int)percent * (int)length) / 100);
-#ifdef WC1_SDL
-    left = definition->left;
-#else
-    left = g_aaCockpitBars_0046dd88[0][index].left;
-#endif
-    DAT_005a6be0.left = left;
-    if (left != -99) {
-#ifdef WC1_SDL
-        right = definition->right;
-        top = definition->top;
-        bottom = definition->bottom;
-#else
-        right = g_aaCockpitBars_0046dd88[0][index].right;
-        top = g_aaCockpitBars_0046dd88[0][index].top;
-        bottom = g_aaCockpitBars_0046dd88[0][index].bottom;
-#endif
-        DAT_005a6be0.right = right;
-        DAT_005a6be0.top = top;
-        DAT_005a6be0.bottom = bottom;
-#ifdef WC1_SDL
-        emptyFrame = (signed char)definition->emptyFrame;
-        filledFrame = (signed char)definition->filledFrame;
-        direction = definition->direction;
-#else
-        emptyFrame = (signed char)
-            g_aaCockpitBars_0046dd88[0][index].emptyFrame;
-        filledFrame = (signed char)
-            g_aaCockpitBars_0046dd88[0][index].filledFrame;
-        direction = g_aaCockpitBars_0046dd88[0][index].direction;
-#endif
-
-        if (direction < 2) {
-            if (direction == 1) {
-                extent = (short)(length - extent);
-                swapFrame = filledFrame;
-                filledFrame = emptyFrame;
-                emptyFrame = swapFrame;
-            }
-            DAT_005a6be0.bottom -= extent;
-            if (DAT_005a6be0.top <= DAT_005a6be0.bottom)
-                DrawSpriteDefault(&DAT_005a6be0, left, top,
-                                  g_pCockpitDamageShape_005a76f4,
-                                  filledFrame);
-            DAT_005a6be0.top = (short)(DAT_005a6be0.bottom + 1);
-            DAT_005a6be0.bottom = bottom;
-            if (DAT_005a6be0.top <= bottom)
-                DrawSpriteDefault(&DAT_005a6be0, left, top,
-                                  g_pCockpitDamageShape_005a76f4,
-                                  emptyFrame);
-        } else {
-            if (direction == 3) {
-                extent = (short)(length - extent);
-                swapFrame = filledFrame;
-                filledFrame = emptyFrame;
-                emptyFrame = swapFrame;
-            }
-            DAT_005a6be0.right -= extent;
-            if (DAT_005a6be0.left <= DAT_005a6be0.right)
-                DrawSpriteDefault(&DAT_005a6be0, left, top,
-                                  g_pCockpitDamageShape_005a76f4,
-                                  filledFrame);
-            DAT_005a6be0.left = (short)(DAT_005a6be0.right + 1);
-            DAT_005a6be0.right = right;
-            if (DAT_005a6be0.left <= right)
-                DrawSpriteDefault(&DAT_005a6be0, left, top,
-                                  g_pCockpitDamageShape_005a76f4,
-                                  emptyFrame);
+    if (g_nCurrentView_00492fa8 == 0) {
+        definition = g_aCockpitBarDefinitions_0049aed8[(int)bar];
+        shape = g_pCockpitPanelShape_005d2cd4;
+    } else {
+        definition = ((CockpitBarDefinition *)
+            (g_abGunDisplayConfiguration_0049d340 +
+             g_nGunDisplayIndex_005c8dc0 * 0x20))[(int)bar];
+        shape = g_apCockpitVduOverlayShapes_0049a5f8[
+            g_nGunDisplayIndex_005c8dc0];
+    }
+    length = definition.length;
+    percent = (short)(((int)percent * (int)length) / 100);
+    g_stCockpitBarViewport_005d21e0.left = definition.left;
+    left = g_stCockpitBarViewport_005d21e0.left;
+    if (left == -99)
+        return;
+    g_stCockpitBarViewport_005d21e0.right = definition.right;
+    right = g_stCockpitBarViewport_005d21e0.right;
+    g_stCockpitBarViewport_005d21e0.top = definition.top;
+    top = g_stCockpitBarViewport_005d21e0.top;
+    g_stCockpitBarViewport_005d21e0.bottom = definition.bottom;
+    bottom = g_stCockpitBarViewport_005d21e0.bottom;
+    emptyFrame = (signed char)definition.emptyFrame;
+    filledFrame = (signed char)definition.filledFrame;
+    direction = definition.direction;
+    if (direction < 2) {
+        if (direction == 1) {
+            percent = (short)(length - percent);
+            swapFrame = emptyFrame;
+            emptyFrame = filledFrame;
+            filledFrame = (signed char)swapFrame;
         }
+        g_stCockpitBarViewport_005d21e0.bottom -= percent;
+        if (g_stCockpitBarViewport_005d21e0.top <=
+            g_stCockpitBarViewport_005d21e0.bottom)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
+                              shape, filledFrame);
+        g_stCockpitBarViewport_005d21e0.top =
+            (short)(g_stCockpitBarViewport_005d21e0.bottom + 1);
+        g_stCockpitBarViewport_005d21e0.bottom = bottom;
+        if (g_stCockpitBarViewport_005d21e0.top <= bottom)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
+                              shape, emptyFrame);
+    } else {
+        if (direction == 3) {
+            percent = (short)(length - percent);
+            swapFrame = emptyFrame;
+            emptyFrame = filledFrame;
+            filledFrame = (signed char)swapFrame;
+        }
+        g_stCockpitBarViewport_005d21e0.right -= percent;
+        if (g_stCockpitBarViewport_005d21e0.left <=
+            g_stCockpitBarViewport_005d21e0.right)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
+                              shape, filledFrame);
+        g_stCockpitBarViewport_005d21e0.left =
+            (short)(g_stCockpitBarViewport_005d21e0.right + 1);
+        g_stCockpitBarViewport_005d21e0.right = right;
+        if (g_stCockpitBarViewport_005d21e0.left <= right)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
+                              shape, emptyFrame);
     }
 }
 
@@ -679,30 +678,35 @@ void vdu_polygon(signed char bar, short percent)
 unsigned int InitializeCockpitReadout(signed char slot,
                                       TextContext *context)
 {
-    g_aCockpitReadouts_005a7e30[(int)slot].context = context;
-    g_aCockpitReadouts_005a7e30[(int)slot].x = context->cursorX;
-    g_aCockpitReadouts_005a7e30[(int)slot].y = context->cursorY;
-    g_aCockpitReadouts_005a7e30[(int)slot].previousRight = 0;
+    g_aCockpitReadouts_005d1e30[(int)slot].context = context;
+    g_aCockpitReadouts_005d1e30[(int)slot].x = context->cursorX;
+    g_aCockpitReadouts_005d1e30[(int)slot].y = context->cursorY;
+    g_aCockpitReadouts_005d1e30[(int)slot].previousRight = 0;
     return 0;
 }
 
 /* Function start: 0x4384AD */
 void DrawCockpitReadout(signed char slot, const char *text)
 {
-    CockpitReadout *readout;
-
-    readout = &g_aCockpitReadouts_005a7e30[(int)slot];
-    if (readout->x != -99) {
-        SetTextContext(readout->context);
-        SetTextCursor((unsigned short)readout->x,
-                      (unsigned short)readout->y);
+    if (g_aCockpitReadouts_005d1e30[(int)slot].x != -99) {
+        SetTextContext(
+            g_aCockpitReadouts_005d1e30[(int)slot].context);
+        SetTextCursor(
+            (unsigned short)g_aCockpitReadouts_005d1e30[(int)slot].x,
+            (unsigned short)g_aCockpitReadouts_005d1e30[(int)slot].y);
         DrawFormattedText(text);
         EraseCockpitReadoutRegion(
-            &g_stScreenViewport_005d21a0, readout->context->cursorX, readout->y,
-            readout->previousRight,
-            (short)(*(short *)readout->context->font + readout->y - 1),
+            &g_stScreenViewport_005d21a0,
+            g_aCockpitReadouts_005d1e30[(int)slot].context->cursorX,
+            g_aCockpitReadouts_005d1e30[(int)slot].y,
+            g_aCockpitReadouts_005d1e30[(int)slot].previousRight,
+            (short)(*(unsigned short *)
+                        g_aCockpitReadouts_005d1e30[(int)slot]
+                            .context->font +
+                    g_aCockpitReadouts_005d1e30[(int)slot].y - 1),
             g_cSecondaryViewBufferColour_0049cb4c);
-        readout->previousRight = readout->context->cursorX;
+        g_aCockpitReadouts_005d1e30[(int)slot].previousRight =
+            g_aCockpitReadouts_005d1e30[(int)slot].context->cursorX;
     }
 }
 
@@ -712,7 +716,7 @@ void EraseCockpitReadoutAtPosition(signed char slot, short left,
 {
     CockpitReadout *readout;
 
-    readout = &g_aCockpitReadouts_005a7e30[(int)slot];
+    readout = &g_aCockpitReadouts_005d1e30[(int)slot];
     EraseCockpitReadoutRegion(
         &g_stScreenViewport_005d21a0, left, top, readout->previousRight,
         (short)(*(short *)readout->context->font + readout->y),
@@ -730,7 +734,7 @@ short DrawHudMessageSlot(HudMessageSlot *slot)
         return 1;
 
     oldDrawColour = slot->drawColour;
-    if (((int)DAT_0059ab54 / 40) % 3 == 0)
+    if (((int)g_nInputClock_005c84a8 / 40) % 3 == 0)
         slot->drawColour = g_cSecondaryViewBufferColour_0049cb4c;
     else
         slot->drawColour = slot->colour;
@@ -756,24 +760,17 @@ short DrawHudMessageSlot(HudMessageSlot *slot)
 /* Function start: 0x438711 */
 void ClearHudMessageSlot(HudMessageSlot *slot)
 {
-#if 0
     slot->flashCount = 0;
     if (slot->text != 0)
         DrawHudMessageSlot(slot);
-    slot->text = 0;
-#else
-    slot->flashCount = 0;
-    if (slot->text != 0)
-        DrawHudMessageSlot(slot);
-    if (slot->text == 0) {
-        slot->text = 0;
-    } else {
+    if (slot->text != 0) {
         slot->text = 0;
         if (slot->text == 0 && g_nCurrentView_00492fa8 == 0 &&
             get_mode(0) == 1 && IsCockpitWeaponShapeLoaded() != 0)
             show_weapon_disp();
+    } else {
+        slot->text = 0;
     }
-#endif
 }
 
 /* Function start: 0x4387A7 */
@@ -786,10 +783,10 @@ void ClearHudMessageIfMatching(HudMessageSlot *slot, const char *text)
 /* Function start: 0x4387CD */
 void ClearHudGunReadouts(void)
 {
-    g_aHudMessageSlots_005a7dd0[0].text = 0;
-    g_aHudMessageSlots_005a7dd0[0].flashCount = 0;
-    g_aHudMessageSlots_005a7dd0[1].text = 0;
-    g_aHudMessageSlots_005a7dd0[1].flashCount = 0;
+    g_aHudMessageSlots_005d1d40[0].text = 0;
+    g_aHudMessageSlots_005d1d40[0].flashCount = 0;
+    g_aHudMessageSlots_005d1d40[1].text = 0;
+    g_aHudMessageSlots_005d1d40[1].flashCount = 0;
 }
 
 /* Function start: 0x4387FA */
@@ -824,9 +821,9 @@ void UpdateMessage(HudMessageSlot *slot)
 void set_global_message(const char *text, unsigned short colour,
                         int flashCount)
 {
-    SetHudMessageSlot(&g_aHudMessageSlots_005a7dd0[1], &DAT_005a7700,
-                      DAT_005a7530.left,
-                      (short)(DAT_005a7530.bottom - 6),
+    SetHudMessageSlot(&g_aHudMessageSlots_005d1d40[1], &g_stRightVduTextContext_005d2ce0,
+                      g_stRightVduViewport_005d2b20.left,
+                      (short)(g_stRightVduViewport_005d2b20.bottom - 6),
                       text, colour, (signed char)flashCount);
 }
 
@@ -834,14 +831,14 @@ void set_global_message(const char *text, unsigned short colour,
 void CockpitMessage(const char *text, unsigned short colour,
                     int flashCount)
 {
-    if (text != g_aHudMessageSlots_005a7dd0[1].text)
+    if (text != g_aHudMessageSlots_005d1d40[1].text)
         set_global_message(text, colour, flashCount);
 }
 
 /* Function start: 0x43893F */
 void remove_message(const char *text)
 {
-    ClearHudMessageIfMatching(&g_aHudMessageSlots_005a7dd0[1], text);
+    ClearHudMessageIfMatching(&g_aHudMessageSlots_005d1d40[1], text);
 }
 
 /* Function start: 0x43895F */
@@ -924,7 +921,7 @@ short auto_pilot_valid(short showReason)
         reason = "Hazard Near";
     }
     if (showReason != 0 && reason != 0)
-        set_global_message(reason, g_ucHudHighlightColour_0049cb58, 3);
+        set_global_message(reason, g_abGamePaletteReservedColours_0049cb54[4], 3);
     return reason == 0;
 #else
     const char *reason;
@@ -970,7 +967,7 @@ short auto_pilot_valid(short showReason)
         reason = "Hazard Near";
     }
     if (showReason != 0 && reason != 0)
-        CockpitMessage(reason, g_ucHudHighlightColour_0049cb58, 3);
+        CockpitMessage(reason, g_abGamePaletteReservedColours_0049cb54[4], 3);
     return reason == 0;
 #endif
 }
@@ -1029,8 +1026,8 @@ void draw_cockpit_lights(void)
 {
     signed char light;
     short x;
-    short y;
     short frame;
+    short y;
 
     if (g_nRenderedSpaceFrame_00493138 % 4 == 0) {
         if (auto_pilot_valid(0) != 0)
@@ -1038,73 +1035,63 @@ void draw_cockpit_lights(void)
         else
             g_abCockpitLightGoal_005d1eb8[4] = 0;
     }
-    light = 0;
-    do {
-        if (g_nCockpitDisplayMode_0049d71c == 0) {
-            if (g_abCockpitLightState_005d1e70[(int)light] !=
-                g_abCockpitLightGoal_005d1eb8[(int)light]) {
-                x = g_aasCockpitLightX_0046dca8[
-                    (int)g_cCockpitView_0059dab0][(int)light];
-                y = g_aasCockpitLightY_0046dcf0[
-                    (int)g_cCockpitView_0059dab0][(int)light];
-                if (g_abCockpitLightGoal_005d1eb8[(int)light] == 1)
-                    frame = g_aacCockpitLightOnFrame_0046dd60[
-                        (int)g_cCockpitView_0059dab0][(int)light];
-                else
-                    frame = g_aacCockpitLightOffFrame_0046dd38[
-                        (int)g_cCockpitView_0059dab0][(int)light];
-                DrawSpriteDefault(&g_stScreenViewport_005d21a0, x, y,
-                                  g_pCockpitDamageShape_005a76f4, frame);
-                g_abCockpitLightState_005d1e70[(int)light] =
-                    g_abCockpitLightGoal_005d1eb8[(int)light];
-            }
-        } else {
-            x = g_aasCockpitLightX_0046dca8[
-                (int)g_cCockpitView_0059dab0][(int)light];
-            y = g_aasCockpitLightY_0046dcf0[
-                (int)g_cCockpitView_0059dab0][(int)light];
+    for (light = 0; light < 7; light++) {
+        if (g_nCockpitDisplayMode_0049d71c != 0) {
+            x = g_asCockpitLightX_0049aea8[(int)light];
+            y = g_asCockpitLightY_0049aeb8[(int)light];
             if (g_abCockpitLightGoal_005d1eb8[(int)light] == 1)
-                frame = g_aacCockpitLightOnFrame_0046dd60[
-                    (int)g_cCockpitView_0059dab0][(int)light];
+                frame = g_acCockpitLightOnFrame_0049aed0[(int)light];
             else
-                frame = g_aacCockpitLightOffFrame_0046dd38[
-                    (int)g_cCockpitView_0059dab0][(int)light];
+                frame = g_acCockpitLightOffFrame_0049aec8[(int)light];
             DrawSpriteDefault(&g_stScreenViewport_005d21a0, x, y,
-                              g_pCockpitDamageShape_005a76f4, frame);
+                              g_pCockpitPanelShape_005d2cd4, frame);
+            g_abCockpitLightState_005d1e70[(int)light] =
+                g_abCockpitLightGoal_005d1eb8[(int)light];
+        } else if (g_abCockpitLightState_005d1e70[(int)light] !=
+                   g_abCockpitLightGoal_005d1eb8[(int)light]) {
+            x = g_asCockpitLightX_0049aea8[(int)light];
+            y = g_asCockpitLightY_0049aeb8[(int)light];
+            if (g_abCockpitLightGoal_005d1eb8[(int)light] == 1)
+                frame = g_acCockpitLightOnFrame_0049aed0[(int)light];
+            else
+                frame = g_acCockpitLightOffFrame_0049aec8[(int)light];
+            DrawSpriteDefault(&g_stScreenViewport_005d21a0, x, y,
+                              g_pCockpitPanelShape_005d2cd4, frame);
             g_abCockpitLightState_005d1e70[(int)light] =
                 g_abCockpitLightGoal_005d1eb8[(int)light];
         }
-        light++;
-    } while (light < 7);
+    }
 }
 
 /* Function start: 0x438F62 */
 void update_lights(void)
 {
+    short weaponEnergy;
     short fuelPercent;
 
-    fuelPercent = (short)(
-        (g_anShipFuel_0059b470[0] * 100) /
-        *(int *)&g_aObjectTypeData_00496d30[
-            g_acObjectType_00493980[0]].lifetime);
-    SetCockpitLightBlink(6, fuelPercent);
-    vdu_polygon(0, fuelPercent);
-    vdu_polygon(1, g_asShipWeaponEnergy_0059d470[0]);
-
-    if (g_nTrainSimActive_0049d758 == 0) {
-        if (calculate_damage_level() >= 3 &&
-            (int)g_aasShipShield_00495518[0][1] +
-                (int)g_aasShipShield_00495518[0][0] < 10) {
-            SetCockpitLightBlink(3, 2);
-            if (DAT_005a7ec0 == 0 ||
-                g_nSpaceFrame_00493134 % 10 == 0)
-                PlaySfxWaveFileByNumber(0x20, -1, 0);
-        } else if (DAT_005a7ec0 != 0) {
-            ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-                DAT_005a7ec0, 1);
-            DAT_005a7ec0 = 0;
-            g_abCockpitLightGoal_005d1eb8[3] = 0;
-        }
+    if (g_bFuelGaugeDamaged_0049b054 == 0) {
+        fuelPercent = (short)(
+            (g_anShipFuel_00495638[0] * 100) /
+            *(int *)&g_aObjectTypeData_00496d30[0].lifetime);
+        SetCockpitLightBlink(6, fuelPercent);
+        vdu_polygon(0, fuelPercent);
+    }
+    weaponEnergy = g_asShipWeaponEnergy_00495590[0];
+    vdu_polygon(1, weaponEnergy);
+    if ((calculate_damage_level() >= 3 &&
+         (int)g_aasShipShield_00495518[0][1] +
+                 (int)g_aasShipShield_00495518[0][0] <
+             10) ||
+        g_bForceCriticalDamageWarning_0049b058 != 0) {
+        SetCockpitLightBlink(3, 2);
+        if (g_nCriticalDamageWarningSfxHandle_005d1ec0 == 0 ||
+            g_nSpaceFrame_00493134 % 10 == 0)
+            PlaySfxWaveFileByNumber(0x20, -1, 0);
+    } else if (g_nCriticalDamageWarningSfxHandle_005d1ec0 != 0) {
+        FlushSoundEffectsAndLog(
+            g_nCriticalDamageWarningSfxHandle_005d1ec0, 1);
+        g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
+        g_abCockpitLightGoal_005d1eb8[3] = 0;
     }
 }
 
@@ -1112,52 +1099,60 @@ void update_lights(void)
 void update_bars(void)
 {
     ObjectTypeData *typeData;
-    short forePercent;
-    short aftPercent;
+    short percentage;
+    short shieldPercent;
+    short displayedShield;
 
     typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[0]];
-    vdu_polygon(2,
-        (short)((g_aasShipArmor_0059d420[0][0] * 100) /
-                typeData->armorFront));
-    vdu_polygon(3,
-        (short)((g_aasShipArmor_0059d420[0][1] * 100) /
-                typeData->armorRear));
-    vdu_polygon(4,
-        (short)((g_aasShipArmor_0059d420[0][2] * 100) /
-                typeData->armorRight));
-    vdu_polygon(5,
-        (short)((g_aasShipArmor_0059d420[0][3] * 100) /
-                typeData->armorLeft));
-    forePercent = (short)((g_aasShipShield_00495518[0][0] * 100) /
-                          typeData->shieldFore);
-    SetCockpitLightBlink(0, forePercent);
-    vdu_polygon(6, forePercent);
+    percentage = (short)((g_aasShipArmor_00495540[0][0] * 100) /
+                         typeData->armorFront);
+    vdu_polygon(2, percentage);
+    percentage = (short)((g_aasShipArmor_00495540[0][1] * 100) /
+                         typeData->armorRear);
+    vdu_polygon(3, percentage);
+    percentage = (short)((g_aasShipArmor_00495540[0][2] * 100) /
+                         typeData->armorRight);
+    vdu_polygon(4, percentage);
+    percentage = (short)((g_aasShipArmor_00495540[0][3] * 100) /
+                         typeData->armorLeft);
+    vdu_polygon(5, percentage);
+    shieldPercent = (short)((g_aasShipShield_00495518[0][0] * 100) /
+                            typeData->shieldFore);
+    SetCockpitLightBlink(0, shieldPercent);
+    vdu_polygon(6, shieldPercent);
+    displayedShield = g_aasShipShield_00495518[0][0];
+    if (g_asObjectType_00495298[0] == 0x33)
+        displayedShield = (short)(displayedShield / 10);
     DrawCockpitReadout(
-        4, _itoa((int)g_aasShipShield_00495518[0][0],
+        4, _itoa((int)displayedShield,
                  g_szTextScratchBuffer_005d1c40, 10));
-    aftPercent = (short)((g_aasShipShield_00495518[0][1] * 100) /
-                         typeData->shieldAft);
-    SetCockpitLightBlink(1, aftPercent);
-    vdu_polygon(7, aftPercent);
+    shieldPercent = (short)((g_aasShipShield_00495518[0][1] * 100) /
+                            typeData->shieldAft);
+    SetCockpitLightBlink(1, shieldPercent);
+    vdu_polygon(7, shieldPercent);
+    displayedShield = g_aasShipShield_00495518[0][1];
+    if (g_asObjectType_00495298[0] == 0x33)
+        displayedShield = (short)(displayedShield / 10);
     DrawCockpitReadout(
-        5, _itoa((int)g_aasShipShield_00495518[0][1],
+        5, _itoa((int)displayedShield,
                  g_szTextScratchBuffer_005d1c40, 10));
 }
 
 /* Function start: 0x439264 */
 short get_mode(short i)
 {
-    return DAT_0059d500[
-        ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2];
+    return (short)g_aaiVduModeStack_00493498[(int)i][
+        (int)g_acVduModeStackDepth_004934c8[(int)i]];
 }
 
 /* Function start: 0x43928E */
 void set_mode(short i, int state)
 {
     if (get_mode(i) != state)
-        ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
-    g_acVduModeStackDepth_0059dec0[i] = 0;
-    *(int *)&DAT_0059d500[i * 8] = state;
+        ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[i]);
+    g_acVduModeStackDepth_004934c8[(int)i] = 0;
+    g_aaiVduModeStack_00493498[(int)i][
+        (int)g_acVduModeStackDepth_004934c8[(int)i]] = state;
 }
 
 /* Function start: 0x4392F1 */
@@ -1174,37 +1169,45 @@ unsigned short SetVduModeIfChanged(short i, int state)
 /* Function start: 0x43934D */
 int GetVduModeStackDepth(short i)
 {
-    return g_acVduModeStackDepth_0059dec0[i];
+    return g_acVduModeStackDepth_004934c8[(int)i];
 }
 
 /* Function start: 0x439369 */
 void push_mode(short i, int state)
 {
-    ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
-    g_acVduModeStackDepth_0059dec0[i]++;
-    *(int *)&DAT_0059d500[
-        ((int)g_acVduModeStackDepth_0059dec0[i] + i * 4) * 2] = state;
+    ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[i]);
+    g_acVduModeStackDepth_004934c8[(int)i]++;
+    g_aaiVduModeStack_00493498[(int)i][
+        (int)g_acVduModeStackDepth_004934c8[(int)i]] = state;
 }
 
 /* Function start: 0x4393B3 */
 void pop_mode(short i)
 {
-    ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[i]);
-    g_acVduModeStackDepth_0059dec0[i]--;
+    ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[i]);
+    g_acVduModeStackDepth_004934c8[(int)i]--;
 }
 
 /* Function start: 0x4393E1 */
 void set_new_vdu(short vdu)
 {
     if (get_mode(vdu) == 0) {
-        malf_noise(vdu, 1, g_ucVduStaticColour_0049cb60, 0x17, 0);
+        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], 0x17, 0);
     } else {
-        if (vdu == 1)
-            ClearViewport(&DAT_005a7530, g_cSecondaryViewBufferColour_0049cb4c);
-        else
-            ClearViewport(&DAT_005a6b80, g_cSecondaryViewBufferColour_0049cb4c);
+        switch (vdu) {
+        case 1:
+            ClearViewport(
+                &g_stRightVduViewport_005d2b20,
+                g_cSecondaryViewBufferColour_0049cb4c);
+            break;
+        case 0:
+            ClearViewport(
+                &g_stLeftVduViewport_005d2180,
+                g_cSecondaryViewBufferColour_0049cb4c);
+            break;
+        }
     }
-    DAT_0059ce18[vdu] = (unsigned int)get_mode(vdu);
+    g_anLastDrawnVduMode_004934d0[(int)vdu] = get_mode(vdu);
 }
 
 /* Function start: 0x4394A0 */
@@ -1212,7 +1215,8 @@ short update_vid_disp(short vdu)
 {
     short changed;
 
-    changed = get_mode(vdu) != (int)DAT_0059ce18[vdu];
+    changed =
+        get_mode(vdu) != g_anLastDrawnVduMode_004934d0[(int)vdu];
     if (changed != 0)
         set_new_vdu(vdu);
     return changed;
@@ -1221,7 +1225,7 @@ short update_vid_disp(short vdu)
 /* Function start: 0x439500 */
 void InvalidateVduMode(short i)
 {
-    DAT_0059ce18[i] = 0;
+    g_anLastDrawnVduMode_004934d0[(int)i] = 0;
 }
 
 /* Function start: 0x43951A */
@@ -1305,12 +1309,12 @@ void update_digital_readouts(void)
 #if 0
     long velocity;
 
-    SetTextContext(&DAT_005a7720);
+    SetTextContext(&g_stCockpitTextContext_005d2d00);
     DrawCockpitReadout(
         2, _itoa((int)(short)((g_anShipSpeed_0059b320[0] >> 8) * 10),
                  g_szTextScratchBuffer_005d1c40, 10));
     velocity = MultiplyFixed(
-        Vector_magnitude(&g_aShipVelocity_0059c010[0]), 0xa00);
+        Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00);
     DrawCockpitReadout(
         3, _itoa((int)(short)(velocity >> 8),
                  g_szTextScratchBuffer_005d1c40, 10));
@@ -1319,13 +1323,13 @@ void update_digital_readouts(void)
     short speed;
     short velocity;
 
-    SetTextContext(&DAT_005a7720);
-    speed = (short)(g_anShipSpeed_0059b320[0] >> 8);
+    SetTextContext(&g_stCockpitTextContext_005d2d00);
+    speed = (short)(g_anShipSpeed_00494e20[0] >> 8);
     speed = (short)(speed * 10);
     DrawCockpitReadout(
         2, _itoa(speed, g_szTextScratchBuffer_005d1c40, 10));
     velocity = (short)(MultiplyFixed(
-        Vector_magnitude(&g_aShipVelocity_0059c010[0]), 0xa00) >> 8);
+        Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00) >> 8);
     DrawCockpitReadout(
         3, _itoa(velocity, g_szTextScratchBuffer_005d1c40, 10));
 #endif
@@ -1369,14 +1373,14 @@ void vdu_malf(short vdu, short sound)
 {
 #if 0
     if (g_nCurrentView_00492fa8 == 0)
-        malf_noise(vdu, 1, g_ucVduStaticColour_0049cb60, sound, 0);
+        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], sound, 0);
     set_mode(vdu, 0);
     return 0;
 #else
     if (g_nCurrentView_00492fa8 == 0 &&
         ((vdu == 0 && g_stLeftVduViewport_005d2180.top > 0) ||
          (vdu == 1 && g_stRightVduViewport_005d2b20.top > 0))) {
-        malf_noise(vdu, 1, g_ucVduStaticColour_0049cb60, sound, 0);
+        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], sound, 0);
         set_mode(vdu, 0);
     }
 #endif
@@ -1386,14 +1390,14 @@ void vdu_malf(short vdu, short sound)
 void ShowComponentHitHudMessage(const char *text, unsigned short colour,
                                 short flashCount)
 {
-    if (g_nTrainSimActive_0049d758 == 0 && get_mode(0) != 0) {
-        if (g_aHudMessageSlots_005a7dd0[0].text != 0)
-            ClearHudMessageSlot(&g_aHudMessageSlots_005a7dd0[0]);
-        DosStrcpy(g_szComponentHitMessage_005a7e00, text);
-        SetHudMessageSlot(&g_aHudMessageSlots_005a7dd0[0], &DAT_005a74f0,
-                          DAT_005a6b80.left,
-                          (short)(DAT_005a6b80.bottom - 6),
-                          g_szComponentHitMessage_005a7e00,
+    if (get_mode(0) != 0) {
+        if (g_aHudMessageSlots_005d1d40[0].text != 0)
+            ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[0]);
+        DosStrcpy(g_szComponentHitMessage_005d1da0, text);
+        SetHudMessageSlot(&g_aHudMessageSlots_005d1d40[0], &g_stLeftVduTextContext_005d2ae0,
+                          g_stLeftVduViewport_005d2180.left,
+                          (short)(g_stLeftVduViewport_005d2180.bottom - 6),
+                          g_szComponentHitMessage_005d1da0,
                           colour, (signed char)flashCount);
     }
 }
@@ -1401,22 +1405,22 @@ void ShowComponentHitHudMessage(const char *text, unsigned short colour,
 /* Function start: 0x4398CB */
 int damage_your_component(char component, char amount, char maximum)
 {
-    int index = (int)component;
     char text[40];
 
-    g_acPlayerComponentDamage_00493470[index] = (signed char)MinShort(
-        (short)(g_acPlayerComponentDamage_00493470[index] + amount),
+    g_acPlayerComponentDamage_00493470[(int)component] =
+        (signed char)MinShort(
+        (short)(g_acPlayerComponentDamage_00493470[(int)component] + amount),
         (short)maximum);
-    if (malf(component) != 0 && index == 3) {
+    if (malf(component) != 0 && component == 3) {
         vdu_malf(0, 0x18);
         vdu_malf(1, 0x18);
     }
     if (get_mode(0) == 2 || get_mode(0) == 1) {
-        sprintf(text, g_szComponentHitFormat_004692e0,
-                g_apszComponentNames_0046a778[index]);
-        ShowComponentHitHudMessage(text, (unsigned char)DAT_004699ac, 5);
+        sprintf(text, g_szComponentHitFormat_0049b35c,
+                g_apszComponentNames_00490090[(int)component]);
+        ShowComponentHitHudMessage(text, g_abGamePaletteReservedColours_0049cb54[8], 5);
     }
-    return g_acPlayerComponentDamage_00493470[index];
+    return g_acPlayerComponentDamage_00493470[(int)component];
 }
 
 /* Function start: 0x4399C6 */
@@ -1427,7 +1431,7 @@ void RemovePlayerReleaseWeapon(signed char weapon)
     enum ObjectType preferredType;
     int hardpoint;
 
-    loadout = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    loadout = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1];
     preferredType = loadout[weapon].type;
     g_eReleaseWeaponDisplayType_005a7dc0 = preferredType;
     g_cReleaseWeaponDisplayFrame_00469070 =
@@ -1449,7 +1453,7 @@ void RemovePlayerReleaseWeapon(signed char weapon)
 #else
     lock_off();
     g_nReleaseWeaponDisplayType_005d1c28 =
-        ((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[weapon].type;
+        ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[weapon].type;
     g_cReleaseWeaponDisplayFrame_0049b060 = 1;
     g_nReleaseWeaponDisplayX_005d1c24 =
         (short)(g_aWeaponDisplayPositions_005d1de0[weapon].x +
@@ -1475,14 +1479,14 @@ void fire_computer_graphic_missile(void)
     visible = g_nCurrentView_00492fa8 == 0 && get_mode(0) == 1;
     if (g_cReleaseWeaponDisplayState_00469078 != 0) {
         RestoreSpriteBackground(
-            &DAT_005a6b80, g_pReleaseWeaponDisplayBackground_0046906c,
+            &g_stLeftVduViewport_005d2180, g_pReleaseWeaponDisplayBackground_0046906c,
             g_nReleaseWeaponDisplayX_005a7dbc,
             g_nReleaseWeaponDisplayY_005a7dbe,
             g_pCockpitWeaponShape_005a7564,
             g_cReleaseWeaponDisplayFrame_00469070);
     }
-    if (g_nReleaseWeaponDisplayY_005a7dbe > DAT_005a6b80.top - 10 &&
-        g_nReleaseWeaponDisplayY_005a7dbe < DAT_005a6b80.bottom) {
+    if (g_nReleaseWeaponDisplayY_005a7dbe > g_stLeftVduViewport_005d2180.top - 10 &&
+        g_nReleaseWeaponDisplayY_005a7dbe < g_stLeftVduViewport_005d2180.bottom) {
         if (g_eReleaseWeaponDisplayType_005a7dc0 ==
             OBJECT_TYPE_SPACE_MINE)
             g_nReleaseWeaponDisplayY_005a7dbe +=
@@ -1493,14 +1497,14 @@ void fire_computer_graphic_missile(void)
         g_cReleaseWeaponDisplayTicks_00469074++;
         if (visible != 0) {
             CaptureSpriteBackground(
-                &DAT_005a6b80,
+                &g_stLeftVduViewport_005d2180,
                 g_pReleaseWeaponDisplayBackground_0046906c,
                 g_nReleaseWeaponDisplayX_005a7dbc,
                 g_nReleaseWeaponDisplayY_005a7dbe,
                 g_pCockpitWeaponShape_005a7564,
                 g_cReleaseWeaponDisplayFrame_00469070);
             DrawSpriteDefault(
-                &DAT_005a6b80, g_nReleaseWeaponDisplayX_005a7dbc,
+                &g_stLeftVduViewport_005d2180, g_nReleaseWeaponDisplayX_005a7dbc,
                 g_nReleaseWeaponDisplayY_005a7dbe,
                 g_pCockpitWeaponShape_005a7564,
                 g_cReleaseWeaponDisplayFrame_00469070);
@@ -1514,31 +1518,43 @@ void fire_computer_graphic_missile(void)
 /* Function start: 0x439BB7 */
 void show_weapon_disp(void)
 {
-    ShipWeaponSlot *weapons;
-    ShipWeaponSlot *selectedWeapon;
+    unsigned char *weaponData;
+    ShipWeaponSlot *weapon;
     const char *releaseName;
     const char *gunName;
-    enum ObjectType selectedGunType;
+    int selectedGunType;
+    short frame;
+    short x;
+    short y;
     signed char count;
 
-    selectedWeapon =
-        &((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
-            g_nSelectedReleaseWeaponIndex_004934e0];
+    weaponData = g_aShipWeapons_004956b0[0];
+    weapon = (ShipWeaponSlot *)(
+        weaponData + g_nSelectedReleaseWeaponIndex_004934e0 *
+                         sizeof(ShipWeaponSlot) +
+        1);
     set_new_vdu(0);
-    DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
-               "WEAPON DISPLAY", 2);
-    DrawViewportLine(&DAT_005a6b80, (short)(DAT_005a6b80.left + 2),
-                     (short)(DAT_005a6b80.top + 5),
-                     (short)(DAT_005a6b80.right - 2),
-                     (short)(DAT_005a6b80.top + 5), g_ucPrimaryTextColour_0049cb64);
+    DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+               g_stLeftVduViewport_005d2180.left,
+               g_stLeftVduViewport_005d2180.top, "WEAPON DISPLAY", 2);
+    DrawViewportLine(&g_stLeftVduViewport_005d2180,
+                     (short)(g_stLeftVduViewport_005d2180.left + 2),
+                     (short)(g_stLeftVduViewport_005d2180.top + 5),
+                     (short)(g_stLeftVduViewport_005d2180.right - 2),
+                     (short)(g_stLeftVduViewport_005d2180.top + 5),
+                     g_ucPrimaryTextColour_0049cb64);
 
-    releaseName = "";
-    if (g_nSelectedReleaseWeaponIndex_004934e0 != -1)
+    switch (g_nSelectedReleaseWeaponIndex_004934e0) {
+    case -1:
+        releaseName = "";
+        break;
+    default:
         releaseName = g_aObjectTypeData_00496d30[
-            selectedWeapon->type].displayName;
-    selectedGunType = g_eSelectedGunType_0046c054;
-    gunName = "";
-    switch ((int)selectedGunType) {
+            (int)weapon->weaponType].displayName;
+        break;
+    }
+    selectedGunType = g_nSelectedGunType_004934dc;
+    switch (selectedGunType) {
     case -1:
         gunName = "";
         break;
@@ -1553,35 +1569,71 @@ void show_weapon_disp(void)
     DrawFormattedText("\nWeapon: %s", releaseName);
     DrawFormattedText("\nGun: %s", gunName);
 
-    g_nWeaponDisplayOriginX_005a7788 =
-        (short)(DAT_005a6b80.left +
-                g_aWeaponDisplayOrigins_004684c0[
-                    (int)g_cCockpitView_0059dab0].x);
-    g_nWeaponDisplayOriginY_005a778a =
-        (short)(DAT_005a6b80.top +
-                g_aWeaponDisplayOrigins_004684c0[
-                    (int)g_cCockpitView_0059dab0].y);
-    DrawSpriteDefault(&DAT_005a6b80, g_nWeaponDisplayOriginX_005a7788,
-                      g_nWeaponDisplayOriginY_005a778a,
-                      g_pCockpitWeaponShape_005a7564, 0);
-    weapons = (ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1];
+    g_nWeaponDisplayOriginX_005d4254 =
+        (short)(g_stLeftVduViewport_005d2180.left +
+                g_nWeaponDisplayOffsetX_0049ae8c);
+    g_nWeaponDisplayOriginY_005d4256 =
+        (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+                g_stLeftVduViewport_005d2180.top);
+    DrawSpriteDefault(
+        &g_stLeftVduViewport_005d2180,
+        g_nWeaponDisplayOriginX_005d4254,
+        g_nWeaponDisplayOriginY_005d4256,
+        g_pCockpitWeaponShape_005d2b54, 0);
+
+    weapon = (ShipWeaponSlot *)(weaponData + 1);
     count = 0;
-    if ((signed char)g_aShipWeapons_0059cab0[0][0] > 0)
-        do {
-            count++;
+    while (count < (signed char)weaponData[0]) {
+        if (g_aObjectTypeData_00496d30[
+                (int)weapon->weaponType].field_18 == 0x0b) {
+            frame = 0x1a;
+            if (g_aWeaponDisplayPositions_005d1de0[
+                    (int)count].x > 0x29)
+                frame = (short)(frame + 2);
+            if (g_aWeaponDisplayPositions_005d1de0[
+                    (int)count].x < 0x1f)
+                frame++;
+        } else if (g_aObjectTypeData_00496d30[
+                       (int)weapon->weaponType].objectClass == 8) {
+            frame = (short)(
+                weapon->disabled + weapon->type * 2 - 0x0b);
+        } else {
+            frame = (short)(
+                2 -
+                (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                     g_nSelectedReleaseWeaponIndex_004934e0].type ==
+                 weapon->type));
+        }
+
+        x = g_aWeaponDisplayPositions_005d1de0[(int)count].x;
+        y = g_aWeaponDisplayPositions_005d1de0[(int)count].y;
+        if (g_aObjectTypeData_00496d30[
+                (int)weapon->weaponType].field_18 != 0x14) {
             DrawSpriteDefault(
-                &DAT_005a6b80,
-                (short)(g_nWeaponDisplayOriginX_005a7788 +
-                        g_aWeaponDisplayPositions_00468440[
-                            weapons->hardpoint].x),
-                (short)(g_nWeaponDisplayOriginY_005a778a +
-                        g_aWeaponDisplayPositions_00468440[
-                            weapons->hardpoint].y),
-                g_pCockpitWeaponShape_005a7564,
-                (short)((int)weapons->type * 2 +
-                        weapons->disabled - 0x2f));
-            weapons++;
-        } while (count < (signed char)g_aShipWeapons_0059cab0[0][0]);
+                &g_stLeftVduViewport_005d2180,
+                (short)(g_nWeaponDisplayOriginX_005d4254 + x),
+                (short)(g_nWeaponDisplayOriginY_005d4256 + y),
+                g_pCockpitWeaponShape_005d2b54, frame);
+        }
+        if ((int)count == g_nSelectedReleaseWeaponIndex_004934e0 &&
+            g_aObjectTypeData_00496d30[
+                (int)weapon->weaponType].field_18 == 0x14) {
+            DrawSpriteDefault(
+                &g_stLeftVduViewport_005d2180,
+                (short)(g_nWeaponDisplayOriginX_005d4254 + 10),
+                (short)(g_nWeaponDisplayOriginY_005d4256 + 13),
+                g_pCockpitWeaponShape_005d2b54,
+                (short)(weapon->type + 4));
+            DrawSpriteDefault(
+                &g_stLeftVduViewport_005d2180,
+                (short)(g_nWeaponDisplayOriginX_005d4254 + 60),
+                (short)(g_nWeaponDisplayOriginY_005d4256 + 13),
+                g_pCockpitWeaponShape_005d2b54,
+                (short)(weapon->type + 4));
+        }
+        count++;
+        weapon++;
+    }
 }
 
 /* Function start: 0x439F5F */
@@ -1745,12 +1797,12 @@ const char *objective_name(short objective)
 /* Function start: 0x43A3F8 */
 void show_navigation_disp(void)
 {
-    DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
+    DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                g_szCompNavigation_0046933c, 2);
     DrawFormattedText(g_szDestinationFormat_0046934c,
                       objective_name((short)g_cCurrentObjective_004931cc));
     DrawFormattedText(g_szNavigationRangeLabel_00469360);
-    InitializeCockpitReadout(0, &DAT_005a7700);
+    InitializeCockpitReadout(0, &g_stRightVduTextContext_005d2ce0);
     DrawFormattedText(g_szNewObjectivePrompt_0046936c);
     DrawCalculatingLabel();
 }
@@ -1937,7 +1989,7 @@ void flag_reached(short objective, short reached)
                             g_acObjectType_00493980[carrierObject]].
                                 displayName);
                 CockpitMessage(g_pszObjectiveStatusMessage_0046908c,
-                               g_ucHudHighlightColour_0049cb58, 4);
+                               g_abGamePaletteReservedColours_0049cb54[4], 4);
             }
         } else {
             advanceDestination = 1;
@@ -1945,7 +1997,7 @@ void flag_reached(short objective, short reached)
                 visited(objective) != 0
                     ? (char *)g_szAlreadyVisited_00469380
                     : (char *)g_szObjectiveReached_00469390,
-                g_ucHudHighlightColour_0049cb58, 4);
+                g_abGamePaletteReservedColours_0049cb54[4], 4);
             markVisited = advanceDestination;
         }
     }
@@ -2045,43 +2097,30 @@ void check_objectives(void)
 
 /* Function start: 0x43B0EB */
 void rotational_pos_to_scanner_pos(signed char object,
-                                   const SphericalVector *position)
+                                   const SphericalVector *position,
+                                   CockpitScannerGeometry geometry)
 {
-    short horizontal;
-
-    horizontal = position->yaw;
-    if (abs((int)horizontal) < 45)
-        g_nScannerCursorX_005a7e6c = (short)(
-            g_stCockpitLayout_0046e008.scanner[
-                (int)g_cCockpitView_0059dab0].centerX + horizontal / 4);
+    if (abs((int)position->yaw) < 45)
+        g_nScannerCursorX_005d1e6c =
+            (short)(geometry.centerX + position->yaw / 4);
     else
-        g_nScannerCursorX_005a7e6c = (short)(
-            g_stCockpitLayout_0046e008.scanner[
-                (int)g_cCockpitView_0059dab0].centerX + horizontal / 6);
+        g_nScannerCursorX_005d1e6c =
+            (short)(geometry.centerX + position->yaw / 6);
 
-    g_nScannerCursorY_005a7e6e = (short)(
-        g_stCockpitLayout_0046e008.scanner[
-            (int)g_cCockpitView_0059dab0].centerY + position->pitch / -3);
-    g_nScannerCursorX_005a7e6c =
-        MinShort(g_stCockpitLayout_0046e008.scanner[
-                     (int)g_cCockpitView_0059dab0].maximumX,
-                 g_nScannerCursorX_005a7e6c);
-    g_nScannerCursorX_005a7e6c =
-        MaxShort(g_stCockpitLayout_0046e008.scanner[
-                     (int)g_cCockpitView_0059dab0].minimumX,
-                 g_nScannerCursorX_005a7e6c);
-    g_nScannerCursorY_005a7e6e =
-        MinShort(g_stCockpitLayout_0046e008.scanner[
-                     (int)g_cCockpitView_0059dab0].maximumY,
-                 g_nScannerCursorY_005a7e6e);
-    g_nScannerCursorY_005a7e6e =
-        MaxShort(g_stCockpitLayout_0046e008.scanner[
-                     (int)g_cCockpitView_0059dab0].minimumY,
-                 g_nScannerCursorY_005a7e6e);
+    g_nScannerCursorY_005d1e6e =
+        (short)(geometry.centerY - position->pitch / 3);
+    g_nScannerCursorX_005d1e6c =
+        MinShort(geometry.maximumX, g_nScannerCursorX_005d1e6c);
+    g_nScannerCursorX_005d1e6c =
+        MaxShort(geometry.minimumX, g_nScannerCursorX_005d1e6c);
+    g_nScannerCursorY_005d1e6e =
+        MinShort(geometry.maximumY, g_nScannerCursorY_005d1e6e);
+    g_nScannerCursorY_005d1e6e =
+        MaxShort(geometry.minimumY, g_nScannerCursorY_005d1e6e);
     g_asScannerObjectX_005d1ea0[(int)object] =
-        g_nScannerCursorX_005a7e6c;
-    g_asScannerObjectY_005a7e80[(int)object] =
-        g_nScannerCursorY_005a7e6e;
+        g_nScannerCursorX_005d1e6c;
+    g_asScannerObjectY_005d1e80[(int)object] =
+        g_nScannerCursorY_005d1e6e;
 }
 
 /* Function start: 0x43B1F0 */
@@ -2099,15 +2138,10 @@ void ResetScannerContacts(void)
 {
     short i = 10;
 
-#if 0
     do {
         g_asScannerObjectX_005d1ea0[i] = 0;
         i = i - 1;
-    } while (i != 0);
-#else
-    for (; i > 0; i--)
-        g_asScannerObjectX_005d1ea0[i] = 0;
-#endif
+    } while (i > 0);
     g_nScannerTargetObject_0049b07c = -1;
 }
 
@@ -2116,21 +2150,42 @@ void clear_head_up_display(void)
 {
     short object;
 
+    if (g_nCurrentView_00492fa8 == 4)
+        RestoreTargetCameraAttitudeIndicators();
     if (g_nScannerTargetObject_0049b07c != -1) {
         object = g_nScannerTargetObject_0049b07c;
         DrawViewportPixel(&g_stScreenViewport_005d21a0,
                           g_asScannerObjectX_005d1ea0[object],
-                          g_asScannerObjectY_005a7e80[object],
-                          g_asScannerBackgroundColour_005a7ed0[object]);
+                          g_asScannerObjectY_005d1e80[object],
+                          g_asScannerTargetBackground_005d1d80[0]);
+        DrawViewportPixel(&g_stScreenViewport_005d21a0,
+                          (short)(g_asScannerObjectX_005d1ea0[object] + 1),
+                          g_asScannerObjectY_005d1e80[object],
+                          g_asScannerTargetBackground_005d1d80[1]);
+        DrawViewportPixel(&g_stScreenViewport_005d21a0,
+                          (short)(g_asScannerObjectX_005d1ea0[object] - 1),
+                          g_asScannerObjectY_005d1e80[object],
+                          g_asScannerTargetBackground_005d1d80[2]);
+        DrawViewportPixel(&g_stScreenViewport_005d21a0,
+                          g_asScannerObjectX_005d1ea0[object],
+                          (short)(g_asScannerObjectY_005d1e80[object] + 1),
+                          g_asScannerTargetBackground_005d1d80[3]);
+        DrawViewportPixel(&g_stScreenViewport_005d21a0,
+                          g_asScannerObjectX_005d1ea0[object],
+                          (short)(g_asScannerObjectY_005d1e80[object] - 1),
+                          g_asScannerTargetBackground_005d1d80[4]);
         g_asScannerObjectX_005d1ea0[
             g_nScannerTargetObject_0049b07c] = 0;
     }
-    if (g_asScannerObjectX_005d1ea0[10] != 0) {
+    if (g_asScannerObjectX_005d1ea0[10] != 0 &&
+        g_nCurrentView_00492fa8 != 4 &&
+        IsMissionObjectiveOutOfSystem(
+            (short)g_cCurrentObjective_004931cc) == 0) {
         RestoreSpriteBackground(&g_stScreenViewport_005d21a0,
-                                g_pScannerMarkerBackground_005a7dc4,
+                                g_pScannerMarkerBackground_005d1c2c,
                                 g_asScannerObjectX_005d1ea0[10],
-                                g_asScannerObjectY_005a7e80[10],
-                                g_pTargetLockShape_005a6bf4, 2);
+                                g_asScannerObjectY_005d1e80[10],
+                                g_pCockpitHudShape_005d21f4, 2);
         g_asScannerObjectX_005d1ea0[10] = 0;
     }
     object = 9;
@@ -2138,8 +2193,8 @@ void clear_head_up_display(void)
         if (g_asScannerObjectX_005d1ea0[object] != 0) {
             DrawViewportPixel(&g_stScreenViewport_005d21a0,
                               g_asScannerObjectX_005d1ea0[object],
-                              g_asScannerObjectY_005a7e80[object],
-                              g_asScannerBackgroundColour_005a7ed0[object]);
+                              g_asScannerObjectY_005d1e80[object],
+                              g_asScannerBackgroundColour_005d1ed0[object]);
             g_asScannerObjectX_005d1ea0[object] = 0;
         }
         object--;
@@ -2148,7 +2203,7 @@ void clear_head_up_display(void)
 }
 
 /* Function start: 0x43B4CF */
-unsigned int set_objective_range(short showOnScanner)
+void set_objective_range(short showOnScanner)
 {
     FixedVector relative;
     FixedVector rotated;
@@ -2162,136 +2217,261 @@ unsigned int set_objective_range(short showOnScanner)
     transform_to_objects_frame(&relative, &rotated, 0);
     rectangular_to_spherical(&rotated, &spherical);
     if (showOnScanner != 0)
-        rotational_pos_to_scanner_pos(10, &spherical);
+        rotational_pos_to_scanner_pos(
+            10, &spherical, g_stCockpitScannerGeometry_0049af78);
     g_nCurrentObjectiveRange_004931c8 = spherical.radius >> 8;
-    return 0;
+}
+
+/* Function start: 0x43B570 */
+void AdjustScannerContactColourForRange(
+    int range, short *colour)
+{
+    short increment;
+
+    increment = 2;
+    if (g_bRewritePacketExtensions_0049cb48 == 1)
+        return;
+    if (*colour == g_bPrimaryViewBufferColour_0049cb50)
+        *colour = 0xa0;
+    if (*colour == g_abGamePaletteReservedColours_0049cb54[4])
+        increment = 1;
+    if (range < 0x138800)
+        return;
+    if (range < 0x61a800)
+        *colour = (short)(*colour + increment);
+    else
+        *colour = (short)(*colour + increment * 2);
 }
 
 /* Function start: 0x43B61F */
 short get_color(short object, unsigned short *colour)
 {
-    enum ObjectClass objectClass;
+    short objectClass;
 
     objectClass = g_aeObjectClass_00495328[object];
+    if (objectClass != OBJECT_CLASS_NULL &&
+        (g_asObjectType_00495298[object] == 0x3d ||
+         g_asObjectType_00495298[object] == 0x2c)) {
+        *colour = g_abGamePaletteReservedColours_0049cb54[4];
+        return 1;
+    }
     if (objectClass < OBJECT_CLASS_MISSILE)
         return 0;
     if (objectClass == OBJECT_CLASS_SHIP) {
         if (g_asShipSide_004955d0[object] == SIDE_KILRATHI)
-            *colour = DAT_004699ac;
+            *colour = g_abGamePaletteReservedColours_0049cb54[8];
         else if (g_asShipSide_004955d0[object] == SIDE_IMPERIAL)
-            *colour = DAT_004699a4;
+            *colour = g_abGamePaletteReservedColours_0049cb54[0];
         else
             *colour = g_ucPrimaryTextColour_0049cb64;
         return 1;
     }
-    if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
+    if (objectClass >= OBJECT_CLASS_CAPITAL_SHIP) {
         if (g_asShipSide_004955d0[object] == SIDE_KILRATHI)
-            *colour = DAT_004699b8;
-        else if (g_acObjectType_00493980[object] ==
-                 OBJECT_TYPE_TIGERS_CLAW)
-            *colour = g_cViewportClearColour_004699a0;
+            *colour = g_ucHostileCapitalScannerColour_0049cb68;
+        else if (g_asShipMissionIndex_00495d00[object] ==
+                 g_nHomeMissionShipIndex_005d1e22)
+            *colour = g_bPrimaryViewBufferColour_0049cb50;
         else
-            *colour = DAT_004699c0;
-        return 1;
+            *colour = g_ucHomeCarrierScannerColour_0049cb70;
+    } else {
+        if (g_acShipTarget_00495f20[object] != 0)
+            return 0;
+        *colour = g_abGamePaletteReservedColours_0049cb54[4];
     }
-    if (g_acShipTarget_00495f20[object] == 0) {
-        *colour = g_ucHudHighlightColour_0049cb58;
-        return 1;
-    }
-    return 0;
+    return 1;
 }
 
 /* Function start: 0x43B7C0 */
-unsigned int draw_3d_scanner(void)
+void draw_3d_scanner(void)
 {
-    const int *grid;
-    const CockpitScannerGeometry *scanner;
-    SphericalVector spherical;
-    unsigned short colour;
+    int gridValue;
+    int gridRow;
+    int gridIndex;
+    CockpitScannerGeometry scanner;
     short object;
-    short row;
+    int gridColour;
+    FixedVector relative;
+    FixedVector rotated;
+    const int *grid;
+    unsigned int colour;
+    SphericalVector spherical;
 
-    if (g_nCockpitDisplayMode_0049d71c != 0 && g_aiScannerGridRows_00469098[0] != -2) {
-        scanner = &g_stCockpitLayout_0046e008.scanner[
-            (int)g_cCockpitView_0059dab0];
-        row = 0;
-        grid = g_aiScannerGridRows_00469098;
-        do {
-            if (*grid == -1) {
-                row++;
+    if (g_nCurrentView_00492fa8 == 0) {
+        scanner = g_stCockpitScannerGeometry_0049af78;
+        grid = g_aiForwardScannerGridRows_0049b080;
+        gridColour = g_ucPrimaryTextColour_0049cb64;
+    } else if (g_nCurrentView_00492fa8 == 4) {
+        scanner = ((CockpitScannerGeometry *)(
+            g_abGunDisplayConfiguration_0049d340 + 0x40))[
+                g_nGunDisplayIndex_005c8dc0];
+        grid = g_aiTargetCameraScannerGridRows_0049b1b8;
+        gridColour = g_abGamePaletteReservedColours_0049cb54[0];
+    }
+
+    if (g_nCockpitDisplayMode_0049d71c != 0) {
+        gridRow = 0;
+        gridIndex = 0;
+        while (grid[gridIndex] != -2) {
+            if (grid[gridIndex] == -1) {
+                gridRow++;
             } else {
-                DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                                  (short)(scanner->centerX + row),
-                                  (short)(scanner->centerY + *grid), 0xaa);
-                if (*grid != 0)
-                    DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                                      (short)(scanner->centerX + row),
-                                      (short)(scanner->centerY - *grid), 0xaa);
-                if (row != 0) {
-                    DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                                      (short)(scanner->centerX - row),
-                                      (short)(scanner->centerY + *grid), 0xaa);
-                    if (*grid != 0)
-                        DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                                          (short)(scanner->centerX - row),
-                                          (short)(scanner->centerY - *grid),
-                                          0xaa);
+                gridValue = grid[gridIndex];
+                DrawViewportPixel(
+                    &g_stScreenViewport_005d21a0,
+                    (short)(scanner.centerX + gridRow),
+                    (short)(scanner.centerY + gridValue),
+                    (short)gridColour);
+                if (gridValue != 0)
+                    DrawViewportPixel(
+                        &g_stScreenViewport_005d21a0,
+                        (short)(scanner.centerX + gridRow),
+                        (short)(scanner.centerY - gridValue),
+                        (short)gridColour);
+                if (gridRow != 0) {
+                    DrawViewportPixel(
+                        &g_stScreenViewport_005d21a0,
+                        (short)(scanner.centerX - gridRow),
+                        (short)(scanner.centerY + gridValue),
+                        (short)gridColour);
+                    if (gridValue != 0)
+                        DrawViewportPixel(
+                            &g_stScreenViewport_005d21a0,
+                            (short)(scanner.centerX - gridRow),
+                            (short)(scanner.centerY - gridValue),
+                            (short)gridColour);
                 }
             }
-            grid++;
-        } while (*grid != -2);
+            gridIndex++;
+        }
     }
 
     clear_head_up_display();
     g_nScannerTargetObject_0049b07c = g_acShipTarget_00495f20[0];
-    if (g_nScannerTargetObject_0049b07c != -1 &&
-        g_aeObjectClass_00495328[g_nScannerTargetObject_0049b07c] <
-            OBJECT_CLASS_SHIP)
+    if ((g_nScannerTargetObject_0049b07c != -1 &&
+         g_aeObjectClass_00495328[g_nScannerTargetObject_0049b07c] <
+             OBJECT_CLASS_SHIP) ||
+        g_anShipCloakState_00496020[
+            g_nScannerTargetObject_0049b07c] == 1)
         g_nScannerTargetObject_0049b07c = -1;
 
-    for (object = 1; object < 10; object++) {
-        if (get_color(object, &colour) != 0) {
-            rectangular_to_spherical(&g_aObjectViewPosition_0059afa0[object],
-                                     &spherical);
+    object = 1;
+    while (object <= 9) {
+        if (g_anShipCloakState_00496020[object] != 1 &&
+            get_color(object, (unsigned short *)&colour) != 0) {
+            ComputeVectorDelta(
+                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[object], &relative);
+            transform_to_objects_frame(
+                &relative, &rotated, WC2_EYE_OBJECT);
+            rectangular_to_spherical(&rotated, &spherical);
             if (spherical.radius < 0xea6000) {
-                rotational_pos_to_scanner_pos((signed char)object,
-                                               &spherical);
-                g_asScannerBackgroundColour_005a7ed0[object] =
-                    (short)GetViewportPixel(
-                        &g_stScreenViewport_005d21a0, g_nScannerCursorX_005a7e6c,
-                        g_nScannerCursorY_005a7e6e);
-                if (g_nScannerTargetObject_0049b07c != object)
-                    DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                                      g_nScannerCursorX_005a7e6c,
-                                      g_nScannerCursorY_005a7e6e,
-                                      colour);
+                AdjustScannerContactColourForRange(
+                    spherical.radius, (short *)&colour);
+                rotational_pos_to_scanner_pos(
+                    (signed char)object, &spherical, scanner);
+                if (g_nScannerTargetObject_0049b07c != object) {
+                    g_asScannerBackgroundColour_005d1ed0[object] =
+                        (short)GetViewportPixel(
+                            &g_stScreenViewport_005d21a0,
+                            g_nScannerCursorX_005d1e6c,
+                            g_nScannerCursorY_005d1e6e);
+                    DrawViewportPixel(
+                        &g_stScreenViewport_005d21a0,
+                        g_nScannerCursorX_005d1e6c,
+                        g_nScannerCursorY_005d1e6e,
+                        (short)colour);
+                }
             }
         }
+        object++;
     }
 
-    if (get_mode(1) == 5) {
+    if (get_mode(1) == 5 &&
+        g_nCurrentView_00492fa8 != 4 &&
+        IsMissionObjectiveOutOfSystem(
+            (short)g_cCurrentObjective_004931cc) == 0) {
         set_objective_range(1);
-        CaptureSpriteBackground(&g_stScreenViewport_005d21a0,
-                                g_pScannerMarkerBackground_005a7dc4,
-                                g_nScannerCursorX_005a7e6c,
-                                g_nScannerCursorY_005a7e6e,
-                                g_pTargetLockShape_005a6bf4, 2);
-        DrawSpriteDefault(&g_stScreenViewport_005d21a0,
-                          g_nScannerCursorX_005a7e6c,
-                          g_nScannerCursorY_005a7e6e,
-                          g_pTargetLockShape_005a6bf4, 2);
+        CaptureSpriteBackground(
+            &g_stScreenViewport_005d21a0,
+            g_pScannerMarkerBackground_005d1c2c,
+            g_nScannerCursorX_005d1e6c,
+            g_nScannerCursorY_005d1e6e,
+            g_pCockpitHudShape_005d21f4, 2);
+        DrawSpriteDefault(
+            &g_stScreenViewport_005d21a0,
+            g_nScannerCursorX_005d1e6c,
+            g_nScannerCursorY_005d1e6e,
+            g_pCockpitHudShape_005d21f4, 2);
     }
 
     if (g_nScannerTargetObject_0049b07c != -1 &&
-        get_color(g_nScannerTargetObject_0049b07c, &colour) != 0) {
-        if ((abs((int)g_nSpaceFrame_00493134) & 1) == 0)
-            colour = g_cSecondaryViewBufferColour_0049cb4c;
+        g_anShipCloakState_00496020[
+            g_nScannerTargetObject_0049b07c] != 1 &&
+        get_color(g_nScannerTargetObject_0049b07c,
+                  (unsigned short *)&colour) != 0) {
+        ComputeVectorDelta(
+            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[object], &relative);
+        transform_to_objects_frame(
+            &relative, &rotated, WC2_EYE_OBJECT);
+        rectangular_to_spherical(&rotated, &spherical);
+        if (spherical.radius < 0xea6000)
+            AdjustScannerContactColourForRange(
+                spherical.radius, (short *)&colour);
+
         object = g_nScannerTargetObject_0049b07c;
-        DrawViewportPixel(&g_stScreenViewport_005d21a0,
-                          g_asScannerObjectX_005d1ea0[object],
-                          g_asScannerObjectY_005a7e80[object], colour);
+        g_asScannerTargetBackground_005d1d80[0] =
+            (short)GetViewportPixel(
+                &g_stScreenViewport_005d21a0,
+                g_asScannerObjectX_005d1ea0[object],
+                g_asScannerObjectY_005d1e80[object]);
+        g_asScannerTargetBackground_005d1d80[1] =
+            (short)GetViewportPixel(
+                &g_stScreenViewport_005d21a0,
+                (short)(g_asScannerObjectX_005d1ea0[object] + 1),
+                g_asScannerObjectY_005d1e80[object]);
+        g_asScannerTargetBackground_005d1d80[2] =
+            (short)GetViewportPixel(
+                &g_stScreenViewport_005d21a0,
+                (short)(g_asScannerObjectX_005d1ea0[object] - 1),
+                g_asScannerObjectY_005d1e80[object]);
+        g_asScannerTargetBackground_005d1d80[3] =
+            (short)GetViewportPixel(
+                &g_stScreenViewport_005d21a0,
+                g_asScannerObjectX_005d1ea0[object],
+                (short)(g_asScannerObjectY_005d1e80[object] + 1));
+        g_asScannerTargetBackground_005d1d80[4] =
+            (short)GetViewportPixel(
+                &g_stScreenViewport_005d21a0,
+                g_asScannerObjectX_005d1ea0[object],
+                (short)(g_asScannerObjectY_005d1e80[object] - 1));
+        DrawViewportPixel(
+            &g_stScreenViewport_005d21a0,
+            g_asScannerObjectX_005d1ea0[object],
+            g_asScannerObjectY_005d1e80[object], (short)colour);
+        DrawViewportPixel(
+            &g_stScreenViewport_005d21a0,
+            (short)(g_asScannerObjectX_005d1ea0[object] + 1),
+            g_asScannerObjectY_005d1e80[object], (short)colour);
+        DrawViewportPixel(
+            &g_stScreenViewport_005d21a0,
+            (short)(g_asScannerObjectX_005d1ea0[object] - 1),
+            g_asScannerObjectY_005d1e80[object], (short)colour);
+        DrawViewportPixel(
+            &g_stScreenViewport_005d21a0,
+            g_asScannerObjectX_005d1ea0[object],
+            (short)(g_asScannerObjectY_005d1e80[object] + 1),
+            (short)colour);
+        DrawViewportPixel(
+            &g_stScreenViewport_005d21a0,
+            g_asScannerObjectX_005d1ea0[object],
+            (short)(g_asScannerObjectY_005d1e80[object] - 1),
+            (short)colour);
     }
-    return 0;
+    if (g_nCurrentView_00492fa8 == 4)
+        DrawTargetCameraAttitudeIndicators(
+            g_bPrimaryViewBufferColour_0049cb50);
 }
 
 /* Function start: 0x43BE1B */
@@ -2325,7 +2505,7 @@ void lock_off(void)
 #else
     if (g_nTargetLockCountdown_004934ec > -1) {
         g_bTargetLockReadoutDirty_004934e8 = 1;
-        if (((ShipWeaponSlot *)&g_aShipWeapons_0059cab0[0][1])[
+        if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
                 g_nSelectedReleaseWeaponIndex_004934e0].type == 0x13) {
             StopMusic(0);
             g_bRestorePlayerTarget_00493500 = 0;
@@ -2340,13 +2520,11 @@ void lock_off(void)
 /* Function start: 0x43BEFF */
 short CheckTargetLockMalfunction(void)
 {
-    short countdown;
-
     if (malf(5) != 0) {
-        countdown = -10;
+        g_bTargetLockActive_0049ae80 = 0;
         lock_off();
-        countdown = (short)(countdown - RandomBelowOrEqual(30));
-        g_nTargetLockCountdown_004934ec = countdown;
+        g_nTargetLockCountdown_004934ec =
+            (short)-(RandomBelowOrEqual(30) + 10);
         PlaySfxWaveFileByNumber(7, -1, 0);
         return 1;
     }
@@ -2360,16 +2538,19 @@ short decrement_lock_time(short screenX)
     if (g_nTargetLockCountdown_004934ec > 0) {
         if (malf(5) == 0) {
             g_nTargetLockCountdown_004934ec--;
-            g_bTargetLockAcquired_0046c074 =
+            g_bTargetLockAcquired_004934fc =
                 g_nTargetLockCountdown_004934ec == 0;
-            if (g_bTargetLockAcquired_0046c074 != 0) {
+            if (g_bTargetLockAcquired_004934fc != 0) {
                 if (CheckTargetLockMalfunction() == 0)
                     PlaySfxWaveFileByNumber(0x16, -1, 0);
                 CockpitMessage(g_pszMissileLocked_0049b280,
-                               DAT_004699ac, 2);
-                return 1;
+                               g_abGamePaletteReservedColours_0049cb54[8], 2);
+            } else if (((ShipWeaponSlot *)(
+                           g_aShipWeapons_004956b0[0] + 1))[
+                           g_nSelectedReleaseWeaponIndex_004934e0]
+                               .type != WC2_OBJECT_TYPE_TORPEDO) {
+                PlaySfxWaveFileByNumber(0x15, -1, 0);
             }
-            PlaySfxWaveFileByNumber(0x15, -1, 0);
         }
         return 1;
     }
@@ -2379,61 +2560,81 @@ short decrement_lock_time(short screenX)
 /* Function start: 0x43C048 */
 void target_locking(signed char target)
 {
-    enum ObjectType weaponType;
+    enum Wc2ReleaseWeaponObjectType weaponType;
     short x;
     short y;
 
-    if (target != -1 &&
-        g_asShipSide_004955d0[(short)target] != g_asShipSide_004955d0[0] &&
-        g_acPlayerComponentDamage_00493470[5] < 4) {
-        x = g_asObjectScreenX_00493598[(short)target];
-        if (x == -0x7fff)
-            return;
-        y = g_asObjectScreenY_00493628[(short)target];
-        if (g_nTargetLockCountdown_004934ec < -1) {
-            g_nTargetLockCountdown_004934ec++;
-            return;
-        }
-        if (x * x + y * y > 0xe10) {
-            lock_off();
-            return;
-        }
-#ifdef WC1_SDL
-        /* With the -1 sentinel, the original reads the zero-filled word at
-           0x0059CAAA just before the weapon table and then turns locking off.
-           Native globals have sanitizer redzones, so make that result explicit. */
-        if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
-            lock_off();
-            return;
-        }
-#endif
-        weaponType = *(enum ObjectType *)(
-            &g_aShipWeapons_0059cab0[0][1] +
-            g_nSelectedReleaseWeaponIndex_004934e0 * 7);
-        if (weaponType != OBJECT_TYPE_HEAT_SEEKING_MISSILE) {
-            if (weaponType != OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE) {
-                lock_off();
-                return;
-            }
-            goto image_recognition_lock;
-        }
-
-        get_facing_range_from_object(0, (short)target);
-        if (g_nTargetFacing_00493198 > -0x41) {
-            lock_off();
-            return;
-        }
-        if (starting_lock(0x12) == 0)
-            decrement_lock_time(x);
+    if (g_nCurrentView_00492fa8 == 4)
         return;
-
-image_recognition_lock:
-        if (starting_lock(0x20) != 0)
-            return;
-        decrement_lock_time(x);
+    if (target == -1 ||
+        g_asShipSide_004955d0[(short)target] == g_asShipSide_004955d0[0] ||
+        g_acPlayerComponentDamage_00493470[5] >= 4) {
+        g_bTargetLockActive_0049ae80 = 0;
+        lock_off();
         return;
     }
-    lock_off();
+    if (g_asObjectScreenX_00493598[(short)target] == -0x7fff)
+        return;
+    x = g_asObjectScreenX_00493598[(short)target];
+    y = g_asObjectScreenY_00493628[(short)target];
+    if (g_nTargetLockCountdown_004934ec < -1) {
+        g_nTargetLockCountdown_004934ec++;
+        return;
+    }
+    if (y * y + x * x > 0xe10) {
+        lock_off();
+        return;
+    }
+    weaponType = (enum Wc2ReleaseWeaponObjectType)((ShipWeaponSlot *)(
+        g_aShipWeapons_004956b0[0] + 1))[
+            g_nSelectedReleaseWeaponIndex_004934e0].type;
+    switch (weaponType) {
+    case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
+        get_facing_range_from_object(0, (short)target);
+        if (g_nTargetFacing_00493198 > -0x41 ||
+            CanShipWeaponDamageTarget(0, (short)target) == 0) {
+            lock_off();
+            break;
+        }
+        if (starting_lock(0x0c) == 0)
+            decrement_lock_time(x);
+        break;
+    case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+        if (CanShipWeaponDamageTarget(0, (short)target) == 0) {
+            lock_off();
+            break;
+        }
+        if (starting_lock(0x16) == 0)
+            decrement_lock_time(x);
+        break;
+    case WC2_OBJECT_TYPE_TORPEDO:
+        if (IsCapitalShipObject((short)target) == 0) {
+            lock_off();
+            break;
+        }
+        if (g_nCurrentView_00492fa8 != 4) {
+            get_facing_range_from_object(0, (short)target);
+            if (g_bRestorePlayerTarget_00493500 == 0 ||
+                g_nTargetLockMusicCooldown_005d1e78 -
+                        g_nFacingToTarget_00493194 >
+                    4) {
+                lock_off();
+            } else {
+                g_nTargetLockMusicCooldown_005d1e78 =
+                    g_nFacingToTarget_00493194;
+                if (g_nTargetLockMusicCooldown_005d1e78 > 100)
+                    g_nTargetLockMusicCooldown_005d1e78 = 100;
+                if (starting_lock(300) != 0)
+                    ProcessMusicScriptCommand(0x2a, 1, 0);
+                else
+                    decrement_lock_time(x);
+            }
+        }
+        break;
+    default:
+        lock_off();
+        break;
+    }
 }
 
 /* Function start: 0x43C30D */
@@ -2557,8 +2758,8 @@ void RestoreHudMessageBackground(void)
             &g_stScreenViewport_005d21a0,
             g_pHudMessageBackground_0049b28c,
             0,
-            (short)(g_nHudMessageTop_0049ae92 +
-                    g_nCockpitMessageOffsetY_005c849c),
+            (short)(g_stHudMessageOrigin_0049ae90.y +
+                    g_nViewportOriginY_005c849c),
             g_pHudMessageFrameShape_0049b288,
             0);
     }
@@ -2577,8 +2778,8 @@ void ShowHudTextLine(void)
         &g_stScreenViewport_005d21a0,
         g_pHudMessageBackground_0049b28c,
         0,
-        (short)(g_nHudMessageTop_0049ae92 +
-                g_nCockpitMessageOffsetY_005c849c),
+        (short)(g_stHudMessageOrigin_0049ae90.y +
+                g_nViewportOriginY_005c849c),
         g_pHudMessageFrameShape_0049b288,
         0);
     g_nHudMessageBackgroundDepth_0049b294++;
@@ -2709,8 +2910,8 @@ void draw_target_box(unsigned short colour, signed char object,
                 if (g_nTargetLockCountdown_004934ec > -1) {
                     g_nTargetLockMarkerAngle_004934f0 = (short)(
                         g_nTargetLockMarkerAngle_004934f0 +
-                        g_anObjectRollRotation_0059d7e0[0] +
-                        g_anObjectPitchRotation_0059b2a0[0]);
+                        g_anObjectRollRotation_00495058[0] +
+                        g_anObjectPitchRotation_00494f38[0]);
                     centerX = (short)(centerX +
                         ((CosFixed(g_nTargetLockMarkerAngle_004934f0) *
                           g_nTargetLockCountdown_004934ec * 2) >> 8));
@@ -2744,8 +2945,8 @@ void draw_target_box(unsigned short colour, signed char object,
 /* Function start: 0x43CBD3 */
 void remove_nav_pointer(void)
 {
-    if (DAT_00469208 != -1)
-        remove_object(DAT_00469208);
+    if (g_nNavPointerObject_004931b8 != -1)
+        remove_object(g_nNavPointerObject_004931b8);
 }
 
 /* Function start: 0x43CBFD */
@@ -2768,10 +2969,10 @@ void draw_nav_pointer(void)
         remove_nav_pointer();
         return;
     }
-    object = DAT_00469208;
+    object = g_nNavPointerObject_004931b8;
     if (object == -1) {
         object = find_vacant_3d_object();
-        DAT_00469208 = object;
+        g_nNavPointerObject_004931b8 = object;
         if (object == -1)
             return;
         g_asObjectViewFrame_00493508[object] = 3;
@@ -2781,21 +2982,21 @@ void draw_nav_pointer(void)
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_PLANET;
         g_apObjectShape_00493868[object] =
             g_pTargetLockShape_005a6bf4;
-        DAT_00469208 = object;
+        g_nNavPointerObject_004931b8 = object;
         g_asObjectScreenX_00493598[object] = (short)0x8001;
         g_asObjectDistance_00493ae8[object] = 0;
     }
     objectivePosition = g_aMissionObjectives_004932a8[
         (signed char)g_cCurrentObjective_004931cc].position;
-    ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
+    ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                        &objectivePosition, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >=
+    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >=
         distance)
         return;
     transform_to_objects_frame(&direction, &viewPosition,
-                               WC1_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
+                               WC2_EYE_OBJECT);
+    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
         viewPosition.z)
         return;
     if (DivideFixed(viewPosition.z, distance) < 0x94)
@@ -2813,139 +3014,349 @@ void draw_nav_pointer(void)
     g_asObjectDistance_00493ae8[object] = 0x4a38;
 }
 
-/* Function start: 0x43D386 */
-unsigned int overlay_head_up_display(void)
+/* Function start: 0x43CE8F */
+short HasInRangeGunForTargetLead(short targetRange)
 {
-    target_locking(g_acShipTarget_00495f20[0]);
-    if (message_showing() && g_nCommSpeakerObject_0049b794 != -1) {
-        g_cPreviousTargetObject_005a7df2 =
-            (signed char)g_nCommSpeakerObject_0049b794;
-        draw_target_box(g_ucHudHighlightColour_0049cb58,
-                        g_cPreviousTargetObject_005a7df2,
-                        0, 0, 2,
-                        &g_stPreviousTargetBracketBounds_00469200);
-    }
-    if (g_nTargetLockCountdown_004934ec == 0) {
-        if ((short)(g_nRenderedSpaceFrame_00493138 % 2) == 0)
-            g_bTargetBracketVisible_004691d8 ^= 1;
-        if (g_bTargetBracketVisible_004691d8 == 1) {
-            draw_target_box(DAT_004699ac,
-                            g_acShipTarget_00495f20[0],
-                            g_nTargetLockMode_0046c078,
-                            1, 1,
-                            &g_stTargetBracketBounds_004691f8);
-        }
-    } else {
-        draw_target_box(DAT_004699ac,
-                        g_acShipTarget_00495f20[0],
-                        g_nTargetLockMode_0046c078,
-                        1, 1,
-                        &g_stTargetBracketBounds_004691f8);
-    }
+    short previousRemaining;
+    short remaining;
 
-    if (g_nCockpitDisplayMode_0049d71c != 0) {
-        switch (g_cCockpitView_0059dab0) {
-        case 0:
-        case 2:
-            goto centered_sight;
-        case 1:
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                              g_nViewCenterX_005c80d8,
-                              (short)(g_nViewCenterY_005c80da - 1),
-                              g_pTargetLockShape_005a6bf4, 0);
-            break;
-        case 3:
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                              g_nViewCenterX_005c80d8,
-                              (short)(g_nViewCenterY_005c80da + 14),
-                              g_pTargetLockShape_005a6bf4, 0);
-            break;
-        default:
-            goto no_sight;
-        }
-        goto no_sight;
-    }
-centered_sight:
-    DrawSpriteDefault(&g_stViewBuffer_005d2b00,
-                      g_nViewCenterX_005c80d8,
-                      g_nViewCenterY_005c80da,
-                      g_pTargetLockShape_005a6bf4, 0);
-
-no_sight:
-    DAT_0046c05c = 0;
-    if (g_pszPendingHudMessage_0049afec != 0)
-        SetHudTextColour(g_pszPendingHudMessage_0049afec,
-                         (unsigned char)DAT_005a7f00);
-    if (g_bMouseCursorVisible_0046a018 == 1) {
-        g_nSavedMouseCursorX_005a7df8 = g_stMouseCursorState_0059ab10.x;
-        g_nSavedMouseCursorY_005a7df4 = g_stMouseCursorState_0059ab10.y;
-        CaptureSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                                g_abMouseCursorBackground_00475ff0,
-                                g_stMouseCursorState_0059ab10.x,
-                                g_stMouseCursorState_0059ab10.y,
-                                g_stMouseCursorState_0059ab10.shape,
-                                g_stMouseCursorState_0059ab10.frame);
-        DrawSpriteDefault(g_stMouseCursorState_0059ab10.viewport,
-                          g_stMouseCursorState_0059ab10.x,
-                          g_stMouseCursorState_0059ab10.y,
-                          g_stMouseCursorState_0059ab10.shape,
-                          g_stMouseCursorState_0059ab10.frame);
+    remaining = (signed char)g_aShipWeapons_004956b0[0][0];
+    while ((previousRemaining = remaining--) > 0) {
+        if (((ShipWeaponSlot *)(
+                g_aShipWeapons_004956b0[0] + 1))[remaining].disabled == 0 &&
+            g_aObjectTypeData_00496d30[(signed char)((ShipWeaponSlot *)(
+                g_aShipWeapons_004956b0[0] + 1))[remaining].weaponType]
+                    .objectClass == OBJECT_CLASS_PROJECTILE &&
+            g_aObjectTypeData_00496d30[(signed char)((ShipWeaponSlot *)(
+                g_aShipWeapons_004956b0[0] + 1))[remaining].weaponType]
+                    .maximumVelocity *
+                    g_aObjectTypeData_00496d30[(signed char)(
+                        (ShipWeaponSlot *)(
+                            g_aShipWeapons_004956b0[0] + 1))[remaining]
+                                                         .weaponType]
+                        .lifetime >
+                targetRange)
+            return 1;
     }
     return 0;
+}
+
+/* Function start: 0x43CF5A */
+void UpdateTargetLeadIndicator(void)
+{
+    FixedVector combinedProjectileVelocity;
+    short targetObject;
+    short weapon;
+    short projectileSpeed;
+    FixedVector projectileVelocity;
+    int targetDistance;
+    short interceptFrames;
+    FixedVector targetVelocityOffset;
+    FixedVector interceptPoint;
+    FixedVector relative;
+    FixedVector eyeRelative;
+
+    if (g_bTargetLockDisplayEnabled_0049afe0 == 0)
+        return;
+    if (g_bRestorePlayerTarget_00493500 == 0) {
+        g_bTargetLockActive_0049ae80 = 0;
+        return;
+    }
+
+    targetObject = g_acShipTarget_00495f20[0];
+    targetDistance = (unsigned short)distance_from_object(
+        0, targetObject);
+    projectileSpeed = 100;
+    if (g_nCurrentView_00492fa8 == 4) {
+        projectileSpeed =
+            g_aObjectTypeData_00496d30[
+                OBJECT_TYPE_TIGERS_CLAW].maximumVelocity;
+    } else {
+        weapon = (signed char)g_aShipWeapons_004956b0[0][0];
+        while (weapon > 0) {
+            signed char weaponType;
+
+            weapon--;
+            weaponType = ((ShipWeaponSlot *)(
+                g_aShipWeapons_004956b0[0] + 1))[weapon].weaponType;
+            if (((ShipWeaponSlot *)(
+                    g_aShipWeapons_004956b0[0] + 1))[weapon].disabled == 0 &&
+                g_aObjectTypeData_00496d30[weaponType].objectClass ==
+                    OBJECT_CLASS_PROJECTILE &&
+                projectileSpeed <
+                    g_aObjectTypeData_00496d30[
+                        weaponType].maximumVelocity)
+                projectileSpeed =
+                    g_aObjectTypeData_00496d30[
+                        weaponType].maximumVelocity;
+        }
+    }
+
+    vector_component_in_dir(
+        &g_aShipVelocity_00494898[0],
+        &g_aShipForwardVector_00494208[0],
+        &combinedProjectileVelocity);
+    ScaleFixedVector(
+        &g_aShipForwardVector_00494208[0],
+        (int)projectileSpeed << 8, &projectileVelocity);
+    AddFixedVectors(
+        &projectileVelocity, &combinedProjectileVelocity,
+        &combinedProjectileVelocity);
+    projectileSpeed =
+        (short)((Vector_magnitude(&combinedProjectileVelocity) >> 8) + 1);
+    interceptFrames = (short)(targetDistance / projectileSpeed);
+    zero_vector(&targetVelocityOffset);
+    if (interceptFrames > 0)
+        ScaleFixedVector(
+            &g_aShipVelocity_00494898[targetObject],
+            (int)interceptFrames << 8, &targetVelocityOffset);
+    AddFixedVectors(
+        &g_aShipPosition_00494550[targetObject],
+        &targetVelocityOffset, &interceptPoint);
+    if (HasInRangeGunForTargetLead(
+            distance_from_point(0, &interceptPoint)) == 0) {
+        SetHudMessageText(
+            g_szTargetOutOfRange_0049b438,
+            g_abGamePaletteReservedColours_0049cb54[8], 20);
+        g_bTargetLockActive_0049ae80 = 0;
+        return;
+    }
+
+    ComputeVectorDelta(
+        &g_aShipPosition_00494550[0], &interceptPoint, &relative);
+    targetDistance = Vector_magnitude(&relative);
+    if ((int)g_asObjectCollisionRadius_004950e8[
+            WC2_EYE_OBJECT] * 0x100 < targetDistance) {
+        transform_to_objects_frame(
+            &relative, &eyeRelative, WC2_EYE_OBJECT);
+        if ((int)g_asObjectCollisionRadius_004950e8[
+                WC2_EYE_OBJECT] * 0x100 <= eyeRelative.z &&
+            DivideFixed(eyeRelative.z, targetDistance) >= 0) {
+            g_nTargetLeadIndicatorX_0049afe8 =
+                (short)(g_nViewCenterX_005c80d8 +
+                        DivideFixed(
+                            MultiplyFixed(
+                                g_nScreenWidth_0049d4d8 >> 1,
+                                eyeRelative.x),
+                            eyeRelative.z));
+            g_nTargetLeadIndicatorY_005d1c2a =
+                (short)(g_nViewCenterY_005c80da +
+                        DivideFixed(
+                            MultiplyFixed(
+                                g_nScreenWidth_0049d4d8 >> 1,
+                                eyeRelative.y),
+                            eyeRelative.z));
+        }
+    }
+    if (g_nTargetLeadIndicatorX_0049afe8 < 10 ||
+        g_nTargetLeadIndicatorX_0049afe8 > 310 ||
+        g_nTargetLeadIndicatorY_005d1c2a < 5 ||
+        g_nTargetLeadIndicatorY_005d1c2a > 190) {
+        g_nTargetLeadIndicatorX_0049afe8 = 0x7fff;
+    } else {
+        CaptureSpriteBackground(
+            &g_stViewBuffer_005d2b00,
+            g_pCockpitHudBackground_0049b044,
+            g_nTargetLeadIndicatorX_0049afe8,
+            g_nTargetLeadIndicatorY_005d1c2a,
+            g_pCockpitHudShape_005d21f4, 5);
+        DrawSpriteDefault(
+            &g_stViewBuffer_005d2b00,
+            g_nTargetLeadIndicatorX_0049afe8,
+            g_nTargetLeadIndicatorY_005d1c2a,
+            g_pCockpitHudShape_005d21f4, 5);
+    }
+}
+
+/* Function start: 0x43D323 */
+void RestoreTargetLeadIndicator(void)
+{
+    if (g_bTargetLockDisplayEnabled_0049afe0 != 0 &&
+        g_nTargetLeadIndicatorX_0049afe8 != 0x7fff) {
+        RestoreSpriteBackground(
+            &g_stViewBuffer_005d2b00,
+            g_pCockpitHudBackground_0049b044,
+            g_nTargetLeadIndicatorX_0049afe8,
+            g_nTargetLeadIndicatorY_005d1c2a,
+            g_pCockpitHudShape_005d21f4, 5);
+        g_nTargetLeadIndicatorX_0049afe8 = 0x7fff;
+    }
+}
+
+/* Function start: 0x43D386 */
+void overlay_head_up_display(void)
+{
+    ShortRect reticleBounds;
+
+    reticleBounds.left = (short)(g_nViewCenterX_005c80d8 - 2);
+    reticleBounds.right = (short)(g_nViewCenterX_005c80d8 + 2);
+    reticleBounds.top = (short)(g_nViewCenterY_005c80da - 2);
+    reticleBounds.bottom = (short)(g_nViewCenterY_005c80da + 2);
+    target_locking(g_acShipTarget_00495f20[0]);
+    if (g_nTargetCameraFrame_0049d3e8 == 0 &&
+        g_acShipTarget_00495f20[0] != -1 &&
+        g_aeObjectClass_00495328[
+            g_acShipTarget_00495f20[0]] <
+                OBJECT_CLASS_CAPITAL_SHIP &&
+        g_bTargetLockActive_0049ae80 == 0 &&
+        g_acPlayerComponentDamage_00493470[5] < 4 &&
+        g_bRestorePlayerTarget_00493500 != 0 &&
+        HasInRangeGunForTargetLead(
+            distance_from_object(
+                0, g_acShipTarget_00495f20[0])) != 0 &&
+        g_bTargetLockDisplayEnabled_0049afe0 != 0) {
+        g_bTargetLockActive_0049ae80 = 1;
+        SetHudMessageText(
+            g_szIttsEngaged_0049b448,
+            g_abGamePaletteReservedColours_0049cb54[8], 20);
+    }
+    if (g_acShipTarget_00495f20[0] == -1 ||
+        (g_anShipCloakState_00496020[
+             g_acShipTarget_00495f20[0]] == 1 &&
+         g_asShipCloakElapsedFrames_00496060[
+             g_acShipTarget_00495f20[0]] >= 40)) {
+        g_bTargetLockActive_0049ae80 = 0;
+        g_bRestorePlayerTarget_00493500 = 0;
+    }
+    if (g_bTargetLockActive_0049ae80 != 0 &&
+        g_nTargetCameraFrame_0049d3e8 == 0)
+        UpdateTargetLeadIndicator();
+    if (message_showing() && g_nCommSpeakerObject_0049b794 != -1) {
+        g_cPreviousTargetObject_005d1d8e =
+            (signed char)g_nCommSpeakerObject_0049b794;
+        draw_target_box(g_bPrimaryViewBufferColour_0049cb50,
+                        g_cPreviousTargetObject_005d1d8e,
+                        0, 0, 2,
+                        &g_stCommTargetBracketBounds_0049b2a8);
+    }
+    if (g_nCurrentView_00492fa8 == 4 &&
+        g_nTargetCameraMode_005c8d50 == 1 &&
+        g_acShipTarget_00495f20[0] != -1) {
+        if (g_nTargetCameraFrame_0049d3e8 == 0) {
+            draw_target_box(g_abGamePaletteReservedColours_0049cb54[4],
+                            g_acShipTarget_00495f20[0],
+                            g_bRestorePlayerTarget_00493500,
+                            1, 1,
+                            &g_stTargetBracketBounds_0049b2a0);
+            g_nTargetCameraZoom_0049d3e4 = 0x42;
+        } else if (g_aObjectTypeData_00496d30[
+                       g_nObjectType62Index_00492d64].shapeSet == 0) {
+            draw_target_box(g_ucTargetCameraBracketColour_0049cb7c,
+                            g_acShipTarget_00495f20[0],
+                            g_bRestorePlayerTarget_00493500,
+                            1, 1,
+                            &g_stTargetBracketBounds_0049b2a0);
+        }
+    }
+    if (g_nCurrentView_00492fa8 != 4 ||
+        g_nTargetCameraMode_005c8d50 != 1) {
+        if (g_nTargetLockCountdown_004934ec == 0) {
+            if ((short)(g_nRenderedSpaceFrame_00493138 % 2) == 0)
+                g_bTargetBracketVisible_0049b284 ^= 1;
+            if (g_bTargetBracketVisible_0049b284 == 1)
+                draw_target_box(
+                    g_abGamePaletteReservedColours_0049cb54[8],
+                    g_acShipTarget_00495f20[0],
+                    g_bRestorePlayerTarget_00493500,
+                    1, 1, &g_stTargetBracketBounds_0049b2a0);
+        } else {
+            draw_target_box(
+                g_abGamePaletteReservedColours_0049cb54[8],
+                g_acShipTarget_00495f20[0],
+                g_bRestorePlayerTarget_00493500,
+                1, 1, &g_stTargetBracketBounds_0049b2a0);
+        }
+    }
+    if (g_nCurrentView_00492fa8 == 4 &&
+        g_nTargetCameraMode_005c8d50 == 1) {
+        DrawSpriteDefault(
+            &g_stViewBuffer_005d2b00,
+            g_nViewCenterX_005c80d8,
+            g_nViewCenterY_005c80da,
+            g_pCockpitHudShape_005d21f4, 0);
+    } else if (IsSpriteFrameOverlappingRect(
+                   &reticleBounds,
+                   g_nTargetLeadIndicatorX_0049afe8,
+                   g_nTargetLeadIndicatorY_005d1c2a,
+                   g_pCockpitHudShape_005d21f4, 5) == 0) {
+        g_bMissileLockAcquired_0049b2b0 = 0;
+        DrawSpriteDefault(
+            &g_stViewBuffer_005d2b00,
+            g_nViewCenterX_005c80d8,
+            g_nViewCenterY_005c80da,
+            g_pCockpitHudShape_005d21f4, 0);
+    } else {
+        g_bMissileLockAcquired_0049b2b0++;
+        DrawSpriteDefault(
+            &g_stViewBuffer_005d2b00,
+            (short)(g_nViewCenterX_005c80d8 + 1),
+            g_nViewCenterY_005c80da,
+            g_pCockpitHudShape_005d21f4, 4);
+    }
+    DAT_004934e4 = 0;
+    if (g_nCockpitControlState_0049d7ac == 1) {
+        CaptureSpriteBackground(
+            &g_stViewBuffer_005d2b00,
+            (unsigned char *)g_pApplicationScratchBuffer_005c8483,
+            g_nPersonnelCursorX_005c8470,
+            g_nPersonnelCursorY_005c8472,
+            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+        DrawSpriteDefault(
+            &g_stViewBuffer_005d2b00,
+            g_nPersonnelCursorX_005c8470,
+            g_nPersonnelCursorY_005c8472,
+            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+    }
 }
 
 /* Function start: 0x43D7F2 */
 void RestoreCockpitExplosionIfVisible(void)
 {
     if (IsCockpitExplosionActive() &&
-        g_pCockpitExplosionBackground_00469060 != 0) {
+        g_pCockpitExplosionBackground_0049b040 != 0) {
         RestoreCockpitExplosionBackground();
     }
 }
 
 /* Function start: 0x43D81F */
-unsigned int RestoreTransientCockpitGraphics(void)
+void RestoreTransientCockpitGraphics(void)
 {
-    if (g_bMouseCursorVisible_0046a018 == 1) {
-        RestoreSpriteBackground(g_stMouseCursorState_0059ab10.viewport,
-                                g_abMouseCursorBackground_00475ff0,
-                                (short)g_nSavedMouseCursorX_005a7df8,
-                                (short)g_nSavedMouseCursorY_005a7df4,
-                                g_stMouseCursorState_0059ab10.shape,
-                                (short)g_stMouseCursorState_0059ab10.frame);
-    }
-    if (g_cPreviousTargetObject_005a7df2 != -1) {
+    if (g_nCockpitControlState_0049d7ac == 1)
+        RestoreSpriteBackground(
+            &g_stViewBuffer_005d2b00,
+            (unsigned char *)g_pApplicationScratchBuffer_005c8483,
+            g_nPersonnelCursorX_005c8470,
+            g_nPersonnelCursorY_005c8472,
+            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+    if (g_bTargetLockActive_0049ae80 != 0)
+        RestoreTargetLeadIndicator();
+    if (g_cPreviousTargetObject_005d1d8e != -1) {
         draw_target_box(g_cPrimaryViewBufferColour_0049cb88,
-                        g_cPreviousTargetObject_005a7df2,
+                        g_cPreviousTargetObject_005d1d8e,
                         0, 0, 2,
-                        &g_stPreviousTargetBracketBounds_00469200);
-        g_cPreviousTargetObject_005a7df2 = -1;
+                        &g_stCommTargetBracketBounds_0049b2a8);
+        g_cPreviousTargetObject_005d1d8e = -1;
     }
-    draw_target_box(g_cPrimaryViewBufferColour_0049cb88, g_acShipTarget_00495f20[0],
-                    g_nTargetLockMode_0046c078, 1, 1,
-                    &g_stTargetBracketBounds_004691f8);
-    if (g_pszDisplayedHudMessage_0049aff0 != g_pszPendingHudMessage_0049afec && g_pszDisplayedHudMessage_0049aff0 != 0)
-        ClearHudMessageDisplay(0);
+    draw_target_box(g_cPrimaryViewBufferColour_0049cb88,
+                    g_acShipTarget_00495f20[0],
+                    g_bRestorePlayerTarget_00493500, 1, 1,
+                    &g_stTargetBracketBounds_0049b2a0);
     if (IsCockpitExplosionActive() &&
-        g_pCockpitExplosionBackground_00469060 != 0) {
-        if (g_nCockpitDisplayMode_0049d71c == 0) {
-            CaptureSpriteBackground(
-                &g_stScreenViewport_005d21a0, g_pCockpitExplosionBackground_00469060,
-                g_stCockpitExplosionPosition_005a7e98.x,
-                g_stCockpitExplosionPosition_005a7e98.y,
-                g_pCockpitExplosionShape_00469064,
-                g_nCockpitExplosionFrame_00469068);
-        }
-        if (g_nCockpitDisplayMode_0049d71c == 0) {
-            DrawSpriteDefault(&g_stScreenViewport_005d21a0,
-                              g_stCockpitExplosionPosition_005a7e98.x,
-                              g_stCockpitExplosionPosition_005a7e98.y,
-                              g_pCockpitExplosionShape_00469064,
-                              g_nCockpitExplosionFrame_00469068);
-        }
-        DAT_0046900c = 0xff;
+        g_pCockpitExplosionBackground_0049b040 != 0) {
+        CaptureSpriteBackground(
+            &g_stScreenViewport_005d21a0,
+            g_pCockpitExplosionBackground_0049b040,
+            g_stCockpitExplosionPosition_005d1e98.x,
+            g_stCockpitExplosionPosition_005d1e98.y,
+            g_pCockpitExplosionShape_0049b048,
+            g_nCockpitExplosionFrame_0049b04c);
+        DrawSpriteDefault(&g_stScreenViewport_005d21a0,
+                          g_stCockpitExplosionPosition_005d1e98.x,
+                          g_stCockpitExplosionPosition_005d1e98.y,
+                          g_pCockpitExplosionShape_0049b048,
+                          g_nCockpitExplosionFrame_0049b04c);
+        DAT_0049aff4 = 0xff;
     }
-    return 0;
 }
 
 /* Function start: 0x43D956 */
@@ -2965,7 +3376,7 @@ void SetHudMessageText(char *text, unsigned short colour,
 void malf_noise(short vdu, int effect, unsigned short colour,
                 short sound, short refresh)
 {
-    Viewport *viewport = vdu == 0 ? &DAT_005a6b80 : &DAT_005a7530;
+    Viewport *viewport = vdu == 0 ? &g_stLeftVduViewport_005d2180 : &g_stRightVduViewport_005d2b20;
 
     if (sound != -1) {
         if (sound == 0x17)
@@ -3226,7 +3637,7 @@ void DrawPilotHandFrame(void)
             (signed char)g_bStickIndicatorFrame_005a7dc8 * 2 + 1]),
         g_pPilotHandShape_005a7684, 0x11);
     CopyViewportContents(&DAT_005a7690, &DAT_005a6b60);
-    DAT_0046900c = g_bStickIndicatorFrame_005a7dc8;
+    DAT_0049aff4 = g_bStickIndicatorFrame_005a7dc8;
 }
 
 /* Function start: 0x43F110 */
@@ -3238,10 +3649,10 @@ void CopyTrainSimPilotViewToVdus(void)
     destination = DAT_005a7550;
     if (g_stTrainSimVduSource_00469210.left == 0) {
         g_stTrainSimVduSource_00469210 = DAT_005a6b60;
-        g_stTrainSimVduSource_00469210.left = DAT_005a7530.left;
+        g_stTrainSimVduSource_00469210.left = g_stRightVduViewport_005d2b20.left;
         g_stTrainSimVduSource_00469210.top = DAT_005a6b60.top;
         g_stTrainSimVduSource_00469210.right = DAT_005a6b60.right;
-        g_stTrainSimVduSource_00469210.bottom = DAT_005a7530.bottom;
+        g_stTrainSimVduSource_00469210.bottom = g_stRightVduViewport_005d2b20.bottom;
     }
     destination.left = (short)(g_stTrainSimVduSource_00469210.left -
                                DAT_005a6b60.left);
@@ -3312,7 +3723,7 @@ void animate_pilot(void)
 {
     if (g_pPilotHandShape_005a7684 != 0) {
         determine_pilot_hand();
-        if (DAT_0046900c != g_bStickIndicatorFrame_005a7dc8)
+        if (DAT_0049aff4 != g_bStickIndicatorFrame_005a7dc8)
             DrawPilotHandFrame();
     }
 }
@@ -3321,7 +3732,7 @@ void animate_pilot(void)
 void ResetPilotHandAnimation(void)
 {
     if (g_pPilotHandShape_005a7684 != 0) {
-        DAT_0046900c = 0xff;
+        DAT_0049aff4 = 0xff;
         CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
         animate_pilot();
     }
@@ -3422,102 +3833,124 @@ void clear_cockpit_damage(void)
 }
 
 /* Function start: 0x43E8B2 */
-void explosion_draw(void)
+void explosion_draw(int useBackgroundViewport)
 {
     short damage;
+    short x;
+    short y;
 
-    if (g_pCockpitPilotShape_0046905c == 0)
-        g_pCockpitPilotShape_0046905c =
-            FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
-    damage = 0;
-    do {
+    if (g_pPendingCockpitDamageShape_0049b03c == 0)
+        return;
+    for (damage = 0; damage < 4; damage++) {
         if (g_asCockpitDamageState_005d1ee8[damage] == 1) {
-            DrawSpriteDefault(
-                &g_stScreenViewport_005d21a0,
-                g_aaCockpitDamagePositions_00469228[
-                    (int)g_cCockpitView_0059dab0][damage].x,
-                g_aaCockpitDamagePositions_00469228[
-                    (int)g_cCockpitView_0059dab0][damage].y,
-                g_pCockpitPilotShape_0046905c, damage);
+            switch (damage) {
+            case 0:
+                g_bCockpitDamageFrame0Shown_0049b2b4 = 1;
+                break;
+            case 2:
+                g_bCockpitDamageFrame2Shown_0049b2b8 = 1;
+                break;
+            case 3:
+                g_bFuelGaugeDamaged_0049b054 = 1;
+                break;
+            }
+            x = g_aCockpitDamagePositions_0049ae98[damage].x;
+            y = g_aCockpitDamagePositions_0049ae98[damage].y;
+            if (useBackgroundViewport == 0) {
+                DrawSpriteDefault(
+                    &g_stScreenViewport_005d21a0, x, y,
+                    g_pPendingCockpitDamageShape_0049b03c, damage);
+            } else {
+                DrawSpriteDefault(
+                    &g_stCockpitBackgroundViewport_005d1050, x, y,
+                    g_pPendingCockpitDamageShape_0049b03c, damage);
+            }
         }
-        damage++;
-    } while (damage < 4);
-    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
+    }
+    FreePacketAndClear(&g_pPendingCockpitDamageShape_0049b03c, 0);
 }
 
 /* Function start: 0x43E9E2 */
-unsigned int DrawPendingCockpitDamage(void)
+void DrawPendingCockpitDamage(void)
 {
-    if (g_pCockpitPilotShape_0046905c == 0)
-        g_pCockpitPilotShape_0046905c =
-            FetchDiskPacketRetrying(
-                (short)g_cCockpitLogicalFile_005a7c74, 4, 0);
-    DrawSpriteDefault(&g_stScreenViewport_005d21a0,
-                      g_stCockpitExplosionPosition_005a7e98.x,
-                      g_stCockpitExplosionPosition_005a7e98.y,
-                      g_pCockpitPilotShape_0046905c,
-                      g_nPendingCockpitDamage_005a7dcc);
-    if (g_pPilotHandShape_005a7684 != 0) {
-        DrawSpriteDefault(&DAT_005a7550,
-                          (short)(g_stCockpitExplosionPosition_005a7e98.x -
-                                  DAT_005a6b60.left),
-                          (short)(g_stCockpitExplosionPosition_005a7e98.y -
-                                  DAT_005a6b60.top),
-                          g_pCockpitPilotShape_0046905c,
-                          g_nPendingCockpitDamage_005a7dcc);
+    if (g_pPendingCockpitDamageShape_0049b03c == 0)
+        return;
+    switch (g_nPendingCockpitDamage_005d1c34) {
+    case 0:
+        g_bCockpitDamageFrame0Shown_0049b2b4 = 1;
+        break;
+    case 2:
+        g_bCockpitDamageFrame2Shown_0049b2b8 = 1;
+        break;
+    case 3:
+        g_bFuelGaugeDamaged_0049b054 = 1;
+        break;
     }
-    FreePacketAndClear(&g_pCockpitPilotShape_0046905c, 0);
-    return 0;
+    DrawSpriteDefault(&g_stScreenViewport_005d21a0,
+                      g_stCockpitExplosionPosition_005d1e98.x,
+                      g_stCockpitExplosionPosition_005d1e98.y,
+                      g_pPendingCockpitDamageShape_0049b03c,
+                      g_nPendingCockpitDamage_005d1c34);
+    if (g_pPilotHandAnimationShape_005d2c64 != 0) {
+        DrawSpriteDefault(
+            &g_stPilotHandBackgroundViewport_005d2b40,
+            (short)(g_stCockpitExplosionPosition_005d1e98.x -
+                    g_stCockpitViewport_005d2160.left),
+            (short)(g_stCockpitExplosionPosition_005d1e98.y -
+                    g_stCockpitViewport_005d2160.top),
+            g_pPendingCockpitDamageShape_0049b03c,
+            g_nPendingCockpitDamage_005d1c34);
+    }
+    FreePacketAndClear(&g_pPendingCockpitDamageShape_0049b03c, 0);
 }
 
 /* Function start: 0x43EAE3 */
 void RestoreCockpitExplosionBackground(void)
 {
     if (IsCockpitExplosionActive() &&
-        g_pCockpitExplosionShape_00469064 != 0 &&
-        g_pCockpitExplosionBackground_00469060 != 0) {
+        g_pCockpitExplosionShape_0049b048 != 0 &&
+        g_pCockpitExplosionBackground_0049b040 != 0) {
         RestoreSpriteBackground(
-            &g_stScreenViewport_005d21a0, g_pCockpitExplosionBackground_00469060,
-            g_stCockpitExplosionPosition_005a7e98.x,
-            g_stCockpitExplosionPosition_005a7e98.y,
-            g_pCockpitExplosionShape_00469064,
-            g_nCockpitExplosionFrame_00469068);
+            &g_stScreenViewport_005d21a0,
+            g_pCockpitExplosionBackground_0049b040,
+            g_stCockpitExplosionPosition_005d1e98.x,
+            g_stCockpitExplosionPosition_005d1e98.y,
+            g_pCockpitExplosionShape_0049b048,
+            g_nCockpitExplosionFrame_0049b04c);
     }
 }
 
 /* Function start: 0x43EB46 */
 void cockpit_explosion(void)
 {
-    short frame;
-
-    if (g_nCockpitExplosionFrame_00469068 == 0x7fff)
-        g_nCockpitExplosionFrame_00469068 = 0;
+    if (g_nCockpitExplosionFrame_0049b04c == 0x7fff)
+        g_nCockpitExplosionFrame_0049b04c = 0;
     if (IsCockpitExplosionActive()) {
-        frame = g_nCockpitExplosionFrame_00469068;
-        if (frame == 0)
-            PlaySfxWaveFileByNumber(0x1b, -1, 0);
-        if (++g_nCockpitExplosionFrame_00469068 == 3)
+        if (g_nCockpitExplosionFrame_0049b04c == 0)
+            PlaySfxWaveFileByNumber(4, -1, 0);
+        if (++g_nCockpitExplosionFrame_0049b04c == 3)
             DrawPendingCockpitDamage();
         if (IsCockpitExplosionActive() &&
-            g_pCockpitExplosionShape_00469064 != 0 &&
-            g_pCockpitExplosionBackground_00469060 != 0) {
+            g_pCockpitExplosionShape_0049b048 != 0 &&
+            g_pCockpitExplosionBackground_0049b040 != 0) {
             CaptureSpriteBackground(
-                &g_stScreenViewport_005d21a0, g_pCockpitExplosionBackground_00469060,
-                g_stCockpitExplosionPosition_005a7e98.x,
-                g_stCockpitExplosionPosition_005a7e98.y,
-                g_pCockpitExplosionShape_00469064,
-                g_nCockpitExplosionFrame_00469068);
+                &g_stScreenViewport_005d21a0,
+                g_pCockpitExplosionBackground_0049b040,
+                g_stCockpitExplosionPosition_005d1e98.x,
+                g_stCockpitExplosionPosition_005d1e98.y,
+                g_pCockpitExplosionShape_0049b048,
+                g_nCockpitExplosionFrame_0049b04c);
             DrawSpriteDefault(&g_stScreenViewport_005d21a0,
-                              g_stCockpitExplosionPosition_005a7e98.x,
-                              g_stCockpitExplosionPosition_005a7e98.y,
-                              g_pCockpitExplosionShape_00469064,
-                              g_nCockpitExplosionFrame_00469068);
-            DAT_0046900c = 0xff;
+                              g_stCockpitExplosionPosition_005d1e98.x,
+                              g_stCockpitExplosionPosition_005d1e98.y,
+                              g_pCockpitExplosionShape_0049b048,
+                              g_nCockpitExplosionFrame_0049b04c);
+            DAT_0049aff4 = 0xff;
         }
         return;
     }
-    FreePacketAndClear(&g_pCockpitExplosionShape_00469064, 0);
+    FreePacketAndClear(
+        (unsigned char **)&g_pCockpitExplosionShape_0049b048, 0);
 }
 
 /* Function start: 0x43EC50 */
@@ -3529,7 +3962,7 @@ void place_damage_on_cockpit(short damage)
         g_nPendingCockpitDamage_005a7dcc = damage;
         g_asCockpitDamageState_005d1ee8[damage] = 1;
         if (g_pCockpitExplosionShape_00469064 == 0) {
-            explosion_draw();
+            explosion_draw(0);
             return;
         }
         if (IsCockpitExplosionActive() == 0) {
@@ -3545,7 +3978,7 @@ void place_damage_on_cockpit(short damage)
         g_asCockpitDamageState_005d1ee8[damage] = 1;
         g_nPendingCockpitDamage_005d1c34 = damage;
         if (g_pCockpitExplosionShape_0049b048 == 0) {
-            explosion_draw();
+            explosion_draw(0);
         } else if (IsCockpitExplosionActive() == 0) {
             g_stCockpitExplosionPosition_005d1e98 =
                 g_aCockpitDamagePositions_0049ae98[damage];
@@ -3576,13 +4009,13 @@ void vid_transmit(void)
             SPECIAL_MANEUVER_UNKNOWN_9) {
             if (g_asShipSide_004955d0[speaker] == SIDE_IMPERIAL) {
                 DrawSpriteDefault(
-                    &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+                    &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                     g_pCommStaticShape_0046927c,
                     (short)(g_asObjectCounter_00494be0[speaker] / 5));
                 return;
             }
-            DrawSpriteDefault(&DAT_005a7530, DAT_005a7530.left,
-                              DAT_005a7530.top,
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
                               g_pCommStaticShape_0046927c, 2);
             return;
         }
@@ -3600,10 +4033,10 @@ void vid_transmit(void)
         } else {
             background = g_pKilrathiCommBackground_00469280;
         }
-        DrawSpriteDefault(&DAT_005a7530, DAT_005a7530.left,
-                          DAT_005a7530.top, background, 0);
+        DrawSpriteDefault(&g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left,
+                          g_stRightVduViewport_005d2b20.top, background, 0);
         DrawSpriteDefault(
-            &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+            &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
             g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0049b79c],
             (short)g_nCommPortraitFrame_00469284);
     }
@@ -3622,7 +4055,7 @@ void vid_equiv(short obj, short message)
 /* Function start: 0x43F09D */
 void update_dead_disp(short a)
 {
-    malf_noise(a, 1, g_ucVduStaticColour_0049cb60, 0x17, 0);
+    malf_noise(a, 1, g_abGamePaletteReservedColours_0049cb54[12], 0x17, 0);
 }
 
 /* Function start: 0x43F0C3 */
@@ -3638,80 +4071,66 @@ void check_stranded(void)
 /* Function start: 0x43F2F5 */
 void update_VDUs(void)
 {
-    short changed;
-
-    SetTextContext(&DAT_005a74f0);
+    if (g_nCurrentView_00492fa8 == 4)
+        return;
     if (g_nCockpitDisplayMode_0049d71c != 0) {
-        DrawFilledViewportRect(
-            &g_stScreenViewport_005d21a0,
-            g_stCockpitLayout_0046e008.leftVduBounds[
-                (int)g_cCockpitView_0059dab0].left,
-            g_stCockpitLayout_0046e008.leftVduBounds[
-                (int)g_cCockpitView_0059dab0].top,
-            g_stCockpitLayout_0046e008.leftVduBounds[
-                (int)g_cCockpitView_0059dab0].right,
-            g_stCockpitLayout_0046e008.leftVduBounds[
-                (int)g_cCockpitView_0059dab0].bottom,
-            0);
-        DrawFilledViewportRect(
-            &g_stScreenViewport_005d21a0,
-            g_stCockpitLayout_0046e008.rightVduBounds[
-                (int)g_cCockpitView_0059dab0].left,
-            g_stCockpitLayout_0046e008.rightVduBounds[
-                (int)g_cCockpitView_0059dab0].top,
-            g_stCockpitLayout_0046e008.rightVduBounds[
-                (int)g_cCockpitView_0059dab0].right,
-            g_stCockpitLayout_0046e008.rightVduBounds[
-                (int)g_cCockpitView_0059dab0].bottom,
-            0);
-    }
-    changed = update_vid_disp(0);
-    if (changed != 0) {
-        switch (get_mode(0)) {
-        case 0:
-            update_dead_disp(0);
-            break;
-        case 1:
-            show_weapon_disp();
-            break;
-        case 2:
-            show_damage_disp();
-            break;
-        case 8:
-            show_info_disp();
-            break;
+        if (IsCockpitWeaponShapeLoaded() != 0) {
+            DrawFilledViewportRect(
+                &g_stScreenViewport_005d21a0,
+                g_stLeftVduViewport_005d2180.left,
+                g_stLeftVduViewport_005d2180.top,
+                g_stLeftVduViewport_005d2180.right,
+                g_stLeftVduViewport_005d2180.bottom, 0);
+            DrawFilledViewportRect(
+                &g_stScreenViewport_005d21a0,
+                g_stRightVduViewport_005d2b20.left,
+                g_stRightVduViewport_005d2b20.top,
+                g_stRightVduViewport_005d2b20.right,
+                g_stRightVduViewport_005d2b20.bottom, 0);
         }
-    } else {
-        switch (get_mode(0)) {
-        case 0:
-            update_dead_disp(0);
-            break;
-        case 1:
-            if (g_nCockpitDisplayMode_0049d71c != 0)
+    }
+    if (IsCockpitWeaponShapeLoaded() != 0) {
+        SetTextContext(&g_stLeftVduTextContext_005d2ae0);
+        if (update_vid_disp(0) != 0) {
+            switch (get_mode(0)) {
+            case 0:
+                update_dead_disp(0);
+                break;
+            case 1:
                 show_weapon_disp();
-            update_status_text();
-            break;
-        case 2:
-            if (g_nCockpitDisplayMode_0049d71c != 0) {
-                g_bForceDamageDisplayRedraw_00469288 = 1;
+                break;
+            case 2:
                 show_damage_disp();
-                g_bForceDamageDisplayRedraw_00469288 = 0;
+                break;
             }
-            UpdateDamageDisplay();
-            break;
-        case 8:
-            show_info_disp();
-            break;
+        } else {
+            switch (get_mode(0)) {
+            case 0:
+                update_dead_disp(0);
+                break;
+            case 1:
+                if (g_nCockpitDisplayMode_0049d71c != 0)
+                    show_weapon_disp();
+                update_status_text();
+                break;
+            case 2:
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bForceDamageDisplayRedraw_0049b2ec = 1;
+                    show_damage_disp();
+                    g_bForceDamageDisplayRedraw_0049b2ec = 0;
+                }
+                UpdateDamageDisplay();
+                break;
+            }
         }
+        if (get_mode(0) == 0)
+            g_aHudMessageSlots_005d1d40[0].text = 0;
+        else
+            UpdateMessage(&g_aHudMessageSlots_005d1d40[0]);
     }
-    if (get_mode(0) == 0)
-        g_aHudMessageSlots_005a7dd0[0].text = 0;
-    else
-        UpdateMessage(&g_aHudMessageSlots_005a7dd0[0]);
 
-    SetTextContext(&DAT_005a7700);
-    changed = update_vid_disp(1);
-    if (changed != 0) {
+    SetTextContext(&g_stRightVduTextContext_005d2ce0);
+    if (update_vid_disp(1) != 0) {
         switch (get_mode(1)) {
         case 0:
             update_dead_disp(1);
@@ -3754,12 +4173,16 @@ void update_VDUs(void)
             break;
         }
     }
-    if (get_mode(1) == 6 || get_mode(1) == 0)
-        g_aHudMessageSlots_005a7dd0[1].text = 0;
-    else
-        UpdateMessage(&g_aHudMessageSlots_005a7dd0[1]);
-    if (g_nTrainSimActive_0049d758 != 0 &&
-        g_pPilotHandShape_005a7684 != 0)
+    if (get_mode(1) == 6)
+        g_aHudMessageSlots_005d1d40[1].text = 0;
+    else {
+        if (get_mode(1) == 0)
+            g_aHudMessageSlots_005d1d40[1].text = 0;
+        else
+            UpdateMessage(&g_aHudMessageSlots_005d1d40[1]);
+    }
+    if (g_nCockpitDisplayMode_0049d71c == 0 &&
+        g_pPilotHandAnimationShape_005d2c64 != 0)
         CopyTrainSimPilotViewToVdus();
 }
 
@@ -3777,16 +4200,31 @@ void update_cockpit(void)
             RestoreCockpitExplosionBackground();
         update_lights();
         update_missile_warning();
-        draw_3d_scanner();
+        if (g_bCockpitDamageFrame0Shown_0049b2b4 == 0)
+            draw_3d_scanner();
+        else
+            set_objective_range(0);
         update_digital_readouts();
-        update_VDUs();
         if (g_nCockpitDisplayMode_0049d71c == 0)
             animate_pilot();
-        update_bars();
+        if (g_bCockpitDamageFrame2Shown_0049b2b8 == 0)
+            update_bars();
         draw_cockpit_lights();
         if (g_nCockpitDisplayMode_0049d71c == 0)
             cockpit_explosion();
         npc_communication();
+        update_VDUs();
+    } else if (g_nCurrentView_00492fa8 == 4) {
+        if (g_nTargetCameraMode_005c8d50 == 1) {
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                UpdateTargetCameraTracking();
+            vdu_polygon(1, g_nTargetCameraZoom_0049d3e4);
+        } else {
+            vdu_polygon(0, g_nGunDisplayEnergyPercent_005c8d4e);
+        }
+        draw_3d_scanner();
+        if (g_nCockpitDisplayMode_0049d71c == 0)
+            UpdateTargetCameraCockpitHook();
     }
     fire_computer_graphic_missile();
     check_stranded();
@@ -3824,45 +4262,51 @@ void SelectCockpitVduMode(short vdu, int mode)
 {
     short changed;
 
-    if (g_nCurrentView_00492fa8 != 0)
+    if (vdu == 1 && mode == 9 && get_mode(vdu) == mode)
         return;
-    if (malf(3) != 0 ||
-        (mode == 4 && malf(4) != 0)) {
-        vdu_malf(vdu, 0x17);
-        return;
-    }
-    PlayCockpitSelectionSfx(g_asVduSelectionSound_00469000[vdu]);
-    changed = get_mode(vdu) != mode;
-    if (changed != 0) {
-        vdu_pop_all(vdu);
-        InvalidateVduMode(vdu);
-        if (mode != 4) {
-            set_mode(vdu, mode);
+    if (g_nCurrentView_00492fa8 == 0) {
+        if (malf(3) != 0 ||
+            (mode == 4 && malf(4) != 0)) {
+            vdu_malf(vdu, 0x17);
+            return;
+        }
+        PlayCockpitSelectionSfx(g_asVduSelectionSound_0049afe4[vdu]);
+        changed = get_mode(vdu) != mode;
+        if (changed != 0) {
+            vdu_pop_all(vdu);
+            InvalidateVduMode(vdu);
+            if (mode != 4)
+                set_mode(vdu, mode);
+            else
+                show_communications_disp();
             update_VDUs();
             return;
         }
-        show_communications_disp();
-        update_VDUs();
-        return;
-    }
-    switch (mode) {
-    case 1:
-        if (g_bCurrentKey_0046c014 == 0x22)
-            select_new_gun();
-        else
-            select_new_release_weapon((enum ObjectType)-1);
-        break;
-    case 2:
-        g_nDamageDisplayTicks_005a7786 = 0;
-        break;
-    case 3:
-        cycle_onscreen_targets();
-        break;
-    case 4:
-        RefreshCommunicationMenu();
-        break;
-    case 5:
-        InflightComputer();
-        break;
+        switch (mode) {
+        case 0:
+            break;
+        case 2:
+            g_nDamageDisplayTicks_005d4250 = 0;
+            break;
+        case 4:
+            RefreshCommunicationMenu();
+            break;
+        case 5:
+            InflightComputer();
+            break;
+        case 3:
+            cycle_onscreen_targets();
+            break;
+        case 9:
+            break;
+        case 1:
+            if (g_cCurrentKey_00493128 == 0x22) {
+                select_new_gun();
+            } else if (g_cCurrentKey_00493128 == 0x11) {
+                lock_off();
+                select_new_release_weapon((enum ObjectType)-1);
+            }
+            break;
+        }
     }
 }

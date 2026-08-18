@@ -130,15 +130,15 @@ int inflict_damage(short attacker, short victim, short damage,
                 PlaySfxWaveFileByNumber(9, victim, 0);
 
             sideDot = dot_product(impactDirection,
-                                  &g_aShipRightVector_0059b6e0[victim]);
+                                  &g_aShipRightVector_00493b78[victim]);
             if (sideDot > 0xb5)
                 quadrant = 3;
             else if (sideDot < -0xb5)
                 quadrant = 2;
             damage = (short)(damage -
-                             g_aasShipArmor_0059d420[victim][quadrant]);
+                             g_aasShipArmor_00495540[victim][quadrant]);
             if (damage > 0) {
-                g_aasShipArmor_0059d420[victim][quadrant] = 0;
+                g_aasShipArmor_00495540[victim][quadrant] = 0;
 
                 if (g_asObjectScreenX_00493598[victim] !=
                         (short)0x8001 &&
@@ -164,7 +164,7 @@ int inflict_damage(short attacker, short victim, short damage,
                     send_appropriate_message(attacker, victim);
                 return destroyed;
             }
-            g_aasShipArmor_0059d420[victim][quadrant] = (short)-damage;
+            g_aasShipArmor_00495540[victim][quadrant] = (short)-damage;
         } else {
             g_aasShipShield_00495518[victim][quadrant] = (short)-damage;
             if (attacker != -1 &&
@@ -208,11 +208,11 @@ short onboard_explosion(short obj)
     if (debris != -1) {
         set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj, 0);
         objectOffset = (int)obj * sizeof(FixedVector);
-        g_asObjectScale_0059de40[debris] <<= 2;
+        g_asObjectScale_00494d90[debris] <<= 2;
         g_asObjectCounter_00494be0[debris] = 6;
-        g_aShipVelocity_0059c010[debris] =
+        g_aShipVelocity_00494898[debris] =
             *(FixedVector *)(void *)
-                ((unsigned char *)g_aShipVelocity_0059c010 +
+                ((unsigned char *)g_aShipVelocity_00494898 +
                  objectOffset);
         MakeRandomVectorFixed(
             (short)(g_asObjectCollisionRadius_004950e8[obj] >> 2),
@@ -233,9 +233,9 @@ short onboard_explosion(short obj)
     if (debris != -1) {
         ((void (__cdecl *)(short, enum ObjectType, short, short))
             set_objects_data)(debris, (enum ObjectType)0x26, obj, 0);
-        g_asObjectScale_0059de40[debris] <<= 1;
-        g_aShipVelocity_0059c010[debris] =
-            g_aShipVelocity_0059c010[obj];
+        g_asObjectScale_00494d90[debris] <<= 1;
+        g_aShipVelocity_00494898[debris] =
+            g_aShipVelocity_00494898[obj];
         g_asObjectCounter_00494be0[debris] = 6;
         MakeRandomVectorFixed(
             (short)(g_asObjectCollisionRadius_004950e8[obj] >> 2),
@@ -345,7 +345,7 @@ int internal_damage(short attacker, short victim, short damage,
         case 5:
             if (quadrant == 0) {
                 weaponCount = (short)(signed char)
-                    g_aShipWeapons_0059cab0[victim][0];
+                    g_aShipWeapons_004956b0[victim][0];
                 if (weaponCount > 0) {
                     events--;
                     remove_weapon(victim,
@@ -368,7 +368,7 @@ int internal_damage(short attacker, short victim, short damage,
                            (short)(*(int *)&g_aObjectTypeData_00496d30[
                                        type].lifetime / 4));
                 if (RandomBelowOrEqual(1) != 0 ||
-                    g_anShipFuel_0059b470[victim] < 0)
+                    g_anShipFuel_00495638[victim] < 0)
                     return explode(attacker, victim);
             }
             break;
@@ -495,7 +495,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
             if (quadrant != 0) {
                 events++;
             } else {
-                weaponCount = (short)(signed char)g_aShipWeapons_0059cab0[0][0];
+                weaponCount = (short)(signed char)g_aShipWeapons_004956b0[0][0];
                 if (weaponCount > 0) {
                     remove_weapon(0,
                         RandomBelowOrEqual(
@@ -519,7 +519,7 @@ int your_internal_damage(short attacker, short damage, short quadrant)
                        (short)(*(int *)&g_aObjectTypeData_00496d30[
                                    playerType].lifetime / 4));
             if (RandomBelowOrEqual(1) != 0 ||
-                g_anShipFuel_0059b470[0] < 0)
+                g_anShipFuel_00495638[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(g_szFuelTanksHit_00469974,
                                        DAT_004699ac, 8);
@@ -629,7 +629,7 @@ void Create_ship_hit_debris(short obj, short count)
         AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
                         &g_aShipPosition_00494550[debris]);
         FillFixedVectorWithRandomComponents(
-            6, &g_aShipVelocity_0059c010[debris]);
+            6, &g_aShipVelocity_00494898[debris]);
         created++;
     }
 }
@@ -730,11 +730,11 @@ unsigned int Create_explosion_debris(short obj)
         AddFixedVectors(&g_aShipPosition_00494550[obj], &vector,
                         &g_aShipPosition_00494550[debris]);
         FillFixedVectorWithRandomComponents(
-            25, &g_aShipVelocity_0059c010[debris]);
-        divide_vector(&g_aShipVelocity_0059c010[obj], 0x200, &vector);
+            25, &g_aShipVelocity_00494898[debris]);
+        divide_vector(&g_aShipVelocity_00494898[obj], 0x200, &vector);
         AddFixedVectors(&vector,
-                        &g_aShipVelocity_0059c010[debris],
-                        &g_aShipVelocity_0059c010[debris]);
+                        &g_aShipVelocity_00494898[debris],
+                        &g_aShipVelocity_00494898[debris]);
     }
     index = 0;
     for (; index < 8; index++) {
@@ -745,11 +745,11 @@ unsigned int Create_explosion_debris(short obj)
         AddFixedVectors(&g_aShipPosition_00494550[obj], &vector,
                         &g_aShipPosition_00494550[debris]);
         FillFixedVectorWithRandomComponents(
-            25, &g_aShipVelocity_0059c010[debris]);
-        divide_vector(&g_aShipVelocity_0059c010[obj], 0x200, &vector);
+            25, &g_aShipVelocity_00494898[debris]);
+        divide_vector(&g_aShipVelocity_00494898[obj], 0x200, &vector);
         AddFixedVectors(&vector,
-                        &g_aShipVelocity_0059c010[debris],
-                        &g_aShipVelocity_0059c010[debris]);
+                        &g_aShipVelocity_00494898[debris],
+                        &g_aShipVelocity_00494898[debris]);
         g_asObjectScreenAngle_004936b8[debris] =
             (short)(RandomBelowOrEqual(3) + 0x10);
         g_asObjectCounter_00494be0[debris] = 40;
@@ -940,7 +940,7 @@ short ShipExplosion(short obj)
     unsigned short originalScale;
     short explosion;
 
-    originalScale = (unsigned short)g_asObjectScale_0059de40[obj];
+    originalScale = (unsigned short)g_asObjectScale_00494d90[obj];
     explosion = find_vacant_3d_object();
     if (explosion == -1) {
         if (g_aeObjectClass_00495328[obj] ==
@@ -952,14 +952,14 @@ short ShipExplosion(short obj)
         copy_frame(obj, explosion);
         g_aShipPosition_00494550[explosion] =
             g_aShipPosition_00494550[obj];
-        g_aShipVelocity_0059c010[explosion] =
-            g_aShipVelocity_0059c010[obj];
+        g_aShipVelocity_00494898[explosion] =
+            g_aShipVelocity_00494898[obj];
         g_acObjectOwner_00495208[explosion] = (signed char)obj;
     }
     set_objects_data(explosion, OBJECT_TYPE_EXPLOSION1,
                      (short)g_acObjectOwner_00495208[explosion], 0);
-    g_asObjectScale_0059de40[explosion] = (short)(
-        (unsigned short)g_asObjectScale_0059de40[explosion] *
+    g_asObjectScale_00494d90[explosion] = (short)(
+        (unsigned short)g_asObjectScale_00494d90[explosion] *
         originalScale >> 8);
     return explosion;
 }
@@ -1026,7 +1026,7 @@ short Explosion(short obj)
         set_objects_data(obj, explosionType,
                          g_acObjectOwner_00495208[obj], 0);
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_ASTEROID)
-            g_asObjectScale_0059de40[obj] = 0x380;
+            g_asObjectScale_00494d90[obj] = 0x380;
     }
     if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
         explosion_shock_wave(
@@ -1254,8 +1254,8 @@ short ResolveObjectDestruction(short attacker, short victim)
 int send_at_point(short obj, FixedVector *point, short speed)
 {
     ComputeVectorDelta(&g_aShipPosition_00494550[obj], point,
-                       &g_aShipVelocity_0059c010[obj]);
-    SetVectorFixedPoint((unsigned int *)&g_aShipVelocity_0059c010[obj],
+                       &g_aShipVelocity_00494898[obj]);
+    SetVectorFixedPoint((unsigned int *)&g_aShipVelocity_00494898[obj],
                         speed);
     return 0;
 }
@@ -1317,12 +1317,12 @@ int launch_object(short parent, short child, FixedVector direction,
                   short speed)
 {
     NormalizeFixedVector(&direction);
-    vector_component_in_dir(&g_aShipVelocity_0059c010[parent],
+    vector_component_in_dir(&g_aShipVelocity_00494898[parent],
                             &direction,
-                            &g_aShipVelocity_0059c010[child]);
+                            &g_aShipVelocity_00494898[child]);
     ScaleFixedVector(&direction, (int)speed << 8, &direction);
-    AddFixedVectors(&direction, &g_aShipVelocity_0059c010[child],
-                    &g_aShipVelocity_0059c010[child]);
+    AddFixedVectors(&direction, &g_aShipVelocity_00494898[child],
+                    &g_aShipVelocity_00494898[child]);
     return 0;
 }
 
@@ -1365,13 +1365,13 @@ void fire(short obj, short target)
     if (find_child_object(obj, OBJECT_CLASS_MINE) != -1)
         minePresent = 1;
 
-    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
+    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_004956b0[0]);
     for (weapon = 0;
          weapon < *(signed char *)((unsigned char *)
-             g_aShipWeapons_0059cab0 + loadoutOffset);
+             g_aShipWeapons_004956b0 + loadoutOffset);
          weapon++) {
         slot = (ShipWeaponSlot *)((unsigned char *)
-            g_aShipWeapons_0059cab0 + loadoutOffset +
+            g_aShipWeapons_004956b0 + loadoutOffset +
             weapon * sizeof(ShipWeaponSlot) + 1);
         weaponType = slot->type;
         weaponData = &g_aObjectTypeData_00496d30[weaponType];
@@ -1420,8 +1420,8 @@ void fire(short obj, short target)
                 g_nFacingToTarget_00493194 >= -50 &&
                 g_nTargetFacing_00493198 <= 90) {
                 velocityAngle = vector_angle(
-                    g_aShipVelocity_0059c010[target],
-                    g_aShipVelocity_0059c010[obj]);
+                    g_aShipVelocity_00494898[target],
+                    g_aShipVelocity_00494898[obj]);
                 predictionTime = (short)(900 /
                     (short)((g_anShipSpeed_0059b320[obj] >> 8) + 20));
                 predictedSeparation = (short)(predictionTime *
@@ -1442,7 +1442,7 @@ void fire(short obj, short target)
                     obj, (signed char)weapon, weaponType,
                     (short)(mineTime + 15));
                 if (firedObject != -1) {
-                    ScaleFixedVector(&g_aShipVelocity_0059c010[target],
+                    ScaleFixedVector(&g_aShipVelocity_00494898[target],
                                      (int)mineTime, &direction);
                     interceptPoint = &g_aShipPosition_00494550[
                         WC2_SPACE_OBJECT_COUNT - 1];
@@ -1586,12 +1586,12 @@ int fire_turrets(short obj)
     if (lastTarget == -1)
         return 0;
 
-    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]);
+    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_004956b0[0]);
     slot = (ShipWeaponSlot *)((unsigned char *)
-        g_aShipWeapons_0059cab0 + loadoutOffset + 1);
+        g_aShipWeapons_004956b0 + loadoutOffset + 1);
     for (weapon = 0;
          weapon < *(signed char *)((unsigned char *)
-             g_aShipWeapons_0059cab0 + loadoutOffset);
+             g_aShipWeapons_004956b0 + loadoutOffset);
          weapon++, slot++) {
         if (RandomBelowOrEqual(2) == 0) {
             position_child(obj, slot->hardpoint, &hardpoint);
@@ -1646,15 +1646,15 @@ short fire_weapon(short obj, short weapon)
     short projectile;
 
     projectileSpeed = 10;
-    weaponOffset = (int)obj * sizeof(g_aShipWeapons_0059cab0[0]) +
+    weaponOffset = (int)obj * sizeof(g_aShipWeapons_004956b0[0]) +
                    (int)weapon * sizeof(ShipWeaponSlot);
 #ifdef WC1_SDL
-    weaponSlot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_0059cab0 +
+    weaponSlot = (ShipWeaponSlot *)((unsigned char *)g_aShipWeapons_004956b0 +
                                    weaponOffset + 1);
     weaponType = weaponSlot->type;
 #else
     weaponType = *(enum ObjectType *)(void *)
-        ((unsigned char *)g_aShipWeapons_0059cab0 + weaponOffset + 1);
+        ((unsigned char *)g_aShipWeapons_004956b0 + weaponOffset + 1);
 #endif
     weaponClass = g_aObjectTypeData_00496d30[weaponType].objectClass;
     if (weaponType == OBJECT_TYPE_TURRET) {
@@ -1675,23 +1675,23 @@ short fire_weapon(short obj, short weapon)
                 weaponData->damageCapacity;
             projectileSpeed = g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[projectile]].maximumVelocity;
-            g_asShipWeaponEnergy_0059d470[obj] =
-                (short)(g_asShipWeaponEnergy_0059d470[obj] -
+            g_asShipWeaponEnergy_00495590[obj] =
+                (short)(g_asShipWeaponEnergy_00495590[obj] -
                         weaponData->animationDelay);
         }
 #ifdef WC1_SDL
         child_object(weaponSlot->hardpoint, projectile, obj);
 #else
         child_object(*(short *)(void *)
-                         ((unsigned char *)g_aShipWeapons_0059cab0 +
+                         ((unsigned char *)g_aShipWeapons_004956b0 +
                           weaponOffset + 5),
                      projectile, obj);
 #endif
         g_asObjectCounter_00494be0[projectile] =
             g_aObjectTypeData_00496d30[weaponType].lifetime;
-        vector_component_in_dir(&g_aShipVelocity_0059c010[obj],
+        vector_component_in_dir(&g_aShipVelocity_00494898[obj],
                                 &g_aShipForwardVector_00494208[projectile],
-                                &g_aShipVelocity_0059c010[projectile]);
+                                &g_aShipVelocity_00494898[projectile]);
         if (weaponClass == OBJECT_CLASS_PROJECTILE) {
             ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                 (int)(short)((weaponData->lifetime + 5) *
@@ -1701,7 +1701,7 @@ short fire_weapon(short obj, short weapon)
                             &vector);
             point_at(projectile, vector);
             if (g_nCockpitDisplayMode_0049d71c != 0 && g_cCockpitView_0059dab0 == 3) {
-                ScaleFixedVector(&g_aShipUpVector_0059b9e0[obj], 0x12200,
+                ScaleFixedVector(&g_aShipUpVector_00493ec0[obj], 0x12200,
                                  &cockpitOffset);
                 AddFixedVectors(&cockpitOffset, &vector, &vector);
                 point_at(projectile, vector);
@@ -1709,13 +1709,13 @@ short fire_weapon(short obj, short weapon)
         }
         ScaleFixedVector(&g_aShipForwardVector_00494208[projectile],
                          (int)projectileSpeed << 8, &vector);
-        AddFixedVectors(&vector, &g_aShipVelocity_0059c010[projectile],
-                        &g_aShipVelocity_0059c010[projectile]);
+        AddFixedVectors(&vector, &g_aShipVelocity_00494898[projectile],
+                        &g_aShipVelocity_00494898[projectile]);
         if (weaponClass == OBJECT_CLASS_MISSILE) {
-            ScaleFixedVector(&g_aShipUpVector_0059b9e0[obj], 0xa00,
+            ScaleFixedVector(&g_aShipUpVector_00493ec0[obj], 0xa00,
                              &vector);
-            AddFixedVectors(&vector, &g_aShipVelocity_0059c010[projectile],
-                            &g_aShipVelocity_0059c010[projectile]);
+            AddFixedVectors(&vector, &g_aShipVelocity_00494898[projectile],
+                            &g_aShipVelocity_00494898[projectile]);
             if (obj == 0)
                 RemovePlayerReleaseWeapon((signed char)weapon);
             else
@@ -1739,7 +1739,7 @@ short fire_weapon(short obj, short weapon)
                         &g_aShipPosition_00494550[
                             g_acShipTarget_00495f20[projectile]], &vector);
                     range = Vector_magnitude(&vector);
-                    ScaleFixedVector(&g_aShipVelocity_0059c010[
+                    ScaleFixedVector(&g_aShipVelocity_00494898[
                         g_acShipTarget_00495f20[projectile]],
                         range / get_ship_max_velocity(projectile), &vector);
                     AddFixedVectors(&g_aShipPosition_00494550[

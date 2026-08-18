@@ -139,7 +139,7 @@ void ResetGameTextContexts(void)
     g_stSpaceTextContext_005d21c0.text = g_szDefaultTextBuffer_005d2b80;
     g_stSpaceTextContext_005d21c0.alignment = 2;
     InitializeTextContextFromFont(&g_stSpaceTextContext_005d21c0, 1,
-                                  g_ucSpaceClearColour_0049cb5c, -1);
+                                  g_abGamePaletteReservedColours_0049cb54[8], -1);
 #endif
 }
 

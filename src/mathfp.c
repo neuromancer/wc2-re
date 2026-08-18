@@ -294,25 +294,29 @@ void __stdcall SplitPackedPoint(ShortPoint point, short *p)
 /* Function start: 0x461F22 */
 void DrawTextString(const char *text)
 {
+    int wrapped;
+    int finished;
+    int lineWidth;
+    const char *iterator;
+    char value;
     const char *cursor;
     const char *lineStart;
-    char value;
-    int lineWidth;
-    int right;
-    int wrapped;
     int savedX;
-    int finished;
 
-    wrapped = 0;
     finished = 0;
     cursor = text;
-    for (;;) {
+    wrapped = 0;
+    if (g_pCurrentTextContext_005c8d1c == 0)
+        return;
+    g_pCurrentTextContext_005c8d1c->cursorX =
+        g_pCurrentTextContext_005c8d1c->viewport->left;
+    while (finished == 0) {
         lineWidth = g_pCurrentTextContext_005c8d1c->cursorX;
         while (*cursor == ' ')
             cursor++;
         lineStart = cursor;
-        right = g_pCurrentTextContext_005c8d1c->viewport->right;
-        if (lineWidth < right) {
+        if (lineWidth <
+            g_pCurrentTextContext_005c8d1c->viewport->right) {
             for (;;) {
                 value = *cursor;
                 cursor++;
@@ -324,26 +328,19 @@ void DrawTextString(const char *text)
                 }
                 lineWidth +=
                     g_pCurrentTextContext_005c8d1c->font[4 + value];
-                if (lineWidth >= right) {
-                    cursor--;
-                    wrapped = 1;
+                if (lineWidth >=
+                    g_pCurrentTextContext_005c8d1c->viewport->right) {
                     lineWidth -=
                         g_pCurrentTextContext_005c8d1c->font[4 + value];
+                    cursor--;
+                    wrapped = 1;
                     if (*cursor != ' ') {
-                        if (cursor <= text) {
-                            SystemDebugPrintf(
-                                "FATAL : INVALID STRING '%s'n", text);
-                            ClearDebugPauseFlags();
-                            PumpMessagesDuringWait();
-                            exit(0);
-                        }
-                        do {
-                            value = *cursor;
-                            cursor--;
+                        while (*cursor != ' ' && cursor > text) {
                             lineWidth -=
                                 g_pCurrentTextContext_005c8d1c
-                                    ->font[4 + value];
-                        } while (*cursor != ' ');
+                                    ->font[4 + *cursor];
+                            cursor--;
+                        }
                         if (cursor <= text) {
                             SystemDebugPrintf(
                                 "FATAL : INVALID STRING '%s'n", text);
@@ -362,24 +359,23 @@ void DrawTextString(const char *text)
             g_pCurrentTextContext_005c8d1c->cursorX = (short)(
                 g_pCurrentTextContext_005c8d1c->viewport->left +
                 ((g_pCurrentTextContext_005c8d1c->viewport->right -
-                  g_pCurrentTextContext_005c8d1c->viewport->left) -
-                 lineWidth + savedX + 1) / 2);
+                  g_pCurrentTextContext_005c8d1c->viewport->left + 1) -
+                 (lineWidth - savedX + 1) + 1) / 2);
         }
-        while (lineStart < cursor) {
-            DrawTextCharacter(*lineStart);
-            lineStart++;
+        for (iterator = lineStart; iterator < cursor; iterator++) {
+            DrawTextCharacter(*iterator);
         }
         if (g_pCurrentTextContext_005c8d1c->alignment == 2)
             g_pCurrentTextContext_005c8d1c->cursorX = (short)savedX;
         if (wrapped != 0) {
             g_pCurrentTextContext_005c8d1c->cursorX =
                 g_pCurrentTextContext_005c8d1c->viewport->left;
-            wrapped = 0;
             g_pCurrentTextContext_005c8d1c->cursorY +=
                 *(short *)g_pCurrentTextContext_005c8d1c->font;
+            wrapped = 0;
+        } else {
+            break;
         }
-        if (finished != 0)
-            return;
     }
 }
 
@@ -422,51 +418,57 @@ void AppendTextCharacter(char character)
     return;
 }
 
-/* Function start: WC2_UNMAPPED */
-int __stdcall MeasureShapeFrameStorage(unsigned char *shape, short frame)
+/* Function start: 0x4622EE */
+int MeasureShapeFrameStorage(unsigned char *shape, short frame)
 {
-    unsigned char *run;
+    int size;
     unsigned short rowLength;
     unsigned char command;
     int frameTableOffset;
-    int size;
+    unsigned char *run;
 
     size = 0;
-    if (shape != 0 && frame >= 0) {
-        frameTableOffset = frame * 4 + 4;
-        if (frameTableOffset < *(unsigned short *)(shape + 4)) {
-            run = shape + *(int *)(shape + frameTableOffset) + 8;
+    if (shape == 0)
+        return 0;
+    if (frame < 0)
+        return 0;
+    frameTableOffset = frame;
+    frameTableOffset++;
+    frameTableOffset <<= 2;
+    if (frameTableOffset < *(unsigned short *)(shape + 4)) {
+        run = shape + *(int *)(shape + frameTableOffset);
+        run += 8;
+        rowLength = *(unsigned short *)run;
+        run += 2;
+        while (rowLength != 0) {
+            run += 2;
+            run += 2;
+            if ((rowLength & 1) != 0) {
+                rowLength >>= 1;
+                while (rowLength > 0) {
+                    command = *run;
+                    run++;
+                    if ((command & 1) != 0) {
+                        command >>= 1;
+                        rowLength =
+                            (unsigned short)(rowLength - command);
+                        run++;
+                        size += command;
+                    } else {
+                        command >>= 1;
+                        rowLength =
+                            (unsigned short)(rowLength - command);
+                        size += command;
+                        run += command;
+                    }
+                }
+            } else {
+                rowLength >>= 1;
+                size += rowLength;
+                run += rowLength;
+            }
             rowLength = *(unsigned short *)run;
             run += 2;
-            while (rowLength != 0) {
-                run += 4;
-                if ((rowLength & 1) != 0) {
-                    rowLength >>= 1;
-                    while (rowLength != 0) {
-                        command = *run;
-                        run++;
-                        if ((command & 1) != 0) {
-                            command >>= 1;
-                            run++;
-                            rowLength =
-                                (unsigned short)(rowLength - command);
-                            size += command;
-                        } else {
-                            command >>= 1;
-                            rowLength =
-                                (unsigned short)(rowLength - command);
-                            size += command;
-                            run += command;
-                        }
-                    }
-                } else {
-                    rowLength >>= 1;
-                    size += rowLength;
-                    run += rowLength;
-                }
-                rowLength = *(unsigned short *)run;
-                run += 2;
-            }
         }
     }
     return size;

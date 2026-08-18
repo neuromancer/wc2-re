@@ -168,11 +168,11 @@ unsigned int parse_view_script(void)
 #ifdef WC1_SDL
             ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                              (int)*g_pViewScript_005a6b58++ * 0x100,
-                             &g_aShipVelocity_0059c010[61]);
+                             &g_aShipVelocity_00494898[61]);
 #else
             ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                              (int)*g_pViewScript_005a6b58++ << 8,
-                             &g_aShipVelocity_0059c010[61]);
+                             &g_aShipVelocity_00494898[61]);
 #endif
             break;
         case 3:
@@ -180,26 +180,26 @@ unsigned int parse_view_script(void)
                        g_nScriptedViewObject_0046a8d0);
             break;
         case 4:
-            g_nEyePitchGoal_0059d61c =
+            g_nEyePitchGoal_00493140 =
                 (short)-*g_pViewScript_005a6b58++;
-            g_nEyePitchRate_0046c004 = *g_pViewScript_005a6b58++;
+            g_nEyePitchRate_0049314c = *g_pViewScript_005a6b58++;
             break;
         case 5:
-            g_nEyePitchGoal_0059d61c = *g_pViewScript_005a6b58++;
-            g_nEyePitchRate_0046c004 = *g_pViewScript_005a6b58++;
+            g_nEyePitchGoal_00493140 = *g_pViewScript_005a6b58++;
+            g_nEyePitchRate_0049314c = *g_pViewScript_005a6b58++;
             break;
         case 6:
-            g_nEyeYawGoal_0059c944 = *g_pViewScript_005a6b58++;
-            g_nEyeYawRate_0046c008 = *g_pViewScript_005a6b58++;
+            g_nEyeYawGoal_00493144 = *g_pViewScript_005a6b58++;
+            g_nEyeYawRate_00493150 = *g_pViewScript_005a6b58++;
             break;
         case 7:
-            g_nEyeYawGoal_0059c944 =
+            g_nEyeYawGoal_00493144 =
                 (short)-*g_pViewScript_005a6b58++;
-            g_nEyeYawRate_0046c008 = *g_pViewScript_005a6b58++;
+            g_nEyeYawRate_00493150 = *g_pViewScript_005a6b58++;
             break;
         case 8:
-            g_nEyeRollGoal_0059c8f0 = *g_pViewScript_005a6b58++;
-            g_nEyeRollRate_0046c00c = *g_pViewScript_005a6b58++;
+            g_nEyeRollGoal_00493148 = *g_pViewScript_005a6b58++;
+            g_nEyeRollRate_00493154 = *g_pViewScript_005a6b58++;
             break;
         case 9:
             copy_frame(61, 63);
@@ -215,12 +215,12 @@ unsigned int parse_view_script(void)
                              (int)*g_pViewScript_005a6b58++ << 8,
                              &vector);
 #endif
-            AddFixedVectors(&g_aShipVelocity_0059c010[61], &vector,
-                            &g_aShipVelocity_0059c010[61]);
+            AddFixedVectors(&g_aShipVelocity_00494898[61], &vector,
+                            &g_aShipVelocity_00494898[61]);
             break;
         case 10:
-            g_aShipVelocity_0059c010[61] =
-                g_aShipVelocity_0059c010[g_nScriptedViewObject_0046a8d0];
+            g_aShipVelocity_00494898[61] =
+                g_aShipVelocity_00494898[g_nScriptedViewObject_0046a8d0];
             break;
         case 11:
             copy_frame(g_nScriptedViewObject_0046a8d0, 61);
@@ -265,8 +265,8 @@ unsigned int update_scripted_view(void)
     command = *g_pViewScript_005a6b58;
     switch (command) {
     case 13:
-        if ((g_nEyeYawGoal_0059c944 == g_nEyePitchGoal_0059d61c) !=
-            g_nEyeRollGoal_0059c8f0) {
+        if ((g_nEyeYawGoal_00493144 == g_nEyePitchGoal_00493140) !=
+            g_nEyeRollGoal_00493148) {
             g_pViewScript_005a6b58++;
             parse_view_script();
         }
@@ -287,7 +287,7 @@ unsigned int update_scripted_view(void)
 void initialize_scripted_view(const short *script)
 {
     g_bScriptedView_0046a8d4 = 1;
-    zero_vector(&g_aShipVelocity_0059c010[61]);
+    zero_vector(&g_aShipVelocity_00494898[61]);
     init_ijk(61);
     g_pViewScript_005a6b58 = script;
     parse_view_script();
@@ -768,7 +768,7 @@ void show_target_disp(void)
     short armor;
     Viewport targetViewport;
 
-    DrawTextAt(&DAT_005a7700, DAT_005a7530.left, DAT_005a7530.top,
+    DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                g_szEmptyTargetDisplayText_0046a948, 2);
     if (g_nTargetLockMode_0046c078 != 0) {
         DrawFormattedText(g_szTextColourStringColourFormat_0046a960,
@@ -811,22 +811,22 @@ void show_target_disp(void)
                           typeData->displayName);
     }
     DrawFormattedText(g_szRangeLabel_0046a9a4);
-    InitializeCockpitReadout(1, &DAT_005a7700);
+    InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
     if (g_asObjectScreenX_00493598[targetIndex] == (short)0x8001) {
         g_cTargetDisplayObject_0046c06c = -1;
         return;
     }
 
-    x = (short)(DAT_005a7530.left + 0x25);
-    y = (short)(DAT_005a7530.top + 0x26);
+    x = (short)(g_stRightVduViewport_005d2b20.left + 0x25);
+    y = (short)(g_stRightVduViewport_005d2b20.top + 0x26);
     frame = (short)((3 - MinShort(
         (short)((g_aasShipShield_00495518[targetIndex][1] * 6) /
                 typeData->shieldAft), 3)) * 2);
     if (frame < 6)
-        DrawSpriteDefault(&DAT_005a7530, x, y,
+        DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
                           g_pCockpitIndicatorShape_005a7658, frame);
 
-    targetViewport = DAT_005a7530;
+    targetViewport = g_stRightVduViewport_005d2b20;
     maximumArmor = &typeData->armorFront;
     for (armor = 0; armor < 4; armor++) {
         targetViewport.left =
@@ -837,7 +837,7 @@ void show_target_disp(void)
             (short)(g_aTargetArmorClipRects_0046a928[armor].right + x);
         targetViewport.bottom =
             (short)(g_aTargetArmorClipRects_0046a928[armor].bottom + y);
-        if (g_aasShipArmor_0059d420[targetIndex][armor] >
+        if (g_aasShipArmor_00495540[targetIndex][armor] >
             (short)(maximumArmor[armor] >> 1)) {
             DrawSpriteDefault(&targetViewport, x, y,
                               typeData->shape, 0);
@@ -847,12 +847,12 @@ void show_target_disp(void)
         }
     }
 
-    DrawSpriteDefault(&DAT_005a7530, x, y, typeData->shape, 2);
+    DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y, typeData->shape, 2);
     frame = (short)((3 - MinShort(
         (short)((g_aasShipShield_00495518[targetIndex][0] * 6) /
                 typeData->shieldFore), 3)) * 2);
     if (frame < 6)
-        DrawSpriteDefault(&DAT_005a7530, x, y,
+        DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
                           g_pCockpitIndicatorShape_005a7658,
                           (short)(frame + 1));
 }
@@ -905,16 +905,16 @@ void DrawTargetRangeReadout(void)
 draw_readout:
     DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
     if (g_nTargetLockCountdown_004934ec == 0) {
-        if (g_bTargetLockAcquired_0046c074 == 1) {
-            g_bTargetLockAcquired_0046c074 = 0;
+        if (g_bTargetLockAcquired_004934fc == 1) {
+            g_bTargetLockAcquired_004934fc = 0;
             return;
         }
     } else if (g_bTargetLockReadoutDirty_004934e8 != 0) {
-        EraseCockpitReadoutRegion(&DAT_005a7530,
-                                  DAT_005a7530.left,
-                                  (short)(DAT_005a7530.bottom - 6),
-                                  DAT_005a7530.right,
-                                  DAT_005a7530.bottom,
+        EraseCockpitReadoutRegion(&g_stRightVduViewport_005d2b20,
+                                  g_stRightVduViewport_005d2b20.left,
+                                  (short)(g_stRightVduViewport_005d2b20.bottom - 6),
+                                  g_stRightVduViewport_005d2b20.right,
+                                  g_stRightVduViewport_005d2b20.bottom,
                                   (short)g_cSecondaryViewBufferColour_0049cb4c);
         g_bTargetLockReadoutDirty_004934e8 = 0;
     }
@@ -1706,15 +1706,15 @@ void servicetrack(void)
                        (unsigned short)
                            g_asObjectDistance_00493ae8[object] < 0x55a) {
                 if (g_nPassingShipSoundObject_0046aa48 == -1) {
-                    ScaleFixedVector(&g_aShipVelocity_0059c010[object],
+                    ScaleFixedVector(&g_aShipVelocity_00494898[object],
                                      0x1400, &travel);
                     AddFixedVectors(&g_aShipPosition_00494550[object],
                                     &travel, &futurePosition);
                     ComputeVectorDelta(
-                        &g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                        &g_aShipPosition_00494550[WC2_EYE_OBJECT],
                         &futurePosition, &travel);
                     ComputeVectorDelta(
-                        &g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                        &g_aShipPosition_00494550[WC2_EYE_OBJECT],
                         &g_aShipPosition_00494550[object],
                         &futurePosition);
                     if (dot_product(&travel, &futurePosition) < 0xdd) {
@@ -1743,7 +1743,7 @@ void ResetSoundState(void)
 {
     FlushSoundEffects();
     DAT_005a7cec = 0;
-    DAT_005a7ec0 = 0;
+    g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
 }
 
 /* Function start: 0x4534BA */
@@ -1784,7 +1784,7 @@ int LogUnknownSoundEffect(const unsigned char *definition,
 }
 
 /* Function start: 0x45357E */
-void FlushSoundEffectsAndLog(void)
+void FlushSoundEffectsAndLog()
 {
 #if 0
     FlushSoundEffects();
@@ -1831,7 +1831,7 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
                 sourceObject >= WC2_SPACE_OBJECT_COUNT)
                 return;
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC1_EYE_OBJECT],
+                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
                 &g_aShipPosition_00494550[sourceObject], &delta);
             distance = (int)((Vector_magnitude(&delta) / 500L) >> 8);
             volume -= distance;
@@ -1849,7 +1849,7 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
 #endif
 
     if (sourceObject != -1) {
-        ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
+        ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                            &g_aShipPosition_00494550[sourceObject],
                            &delta);
         distance = Vector_magnitude(&delta);

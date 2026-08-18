@@ -870,9 +870,9 @@ unsigned int ShowTigerClawEscapeScene(void)
                                  -1, 0);
                 ScaleFixedVector(&g_aShipForwardVector_00494208[61],
                                  0x271000, &jumpOffset);
-                g_asObjectScale_0059de40[effect] =
-                    (short)(g_asObjectScale_0059de40[effect] << 2);
-                zero_vector(&g_aShipVelocity_0059c010[effect]);
+                g_asObjectScale_00494d90[effect] =
+                    (short)(g_asObjectScale_00494d90[effect] << 2);
+                zero_vector(&g_aShipVelocity_00494898[effect]);
                 AddFixedVectors(&g_aShipPosition_00494550[61],
                                 &jumpOffset,
                                 &g_aShipPosition_00494550[effect]);
@@ -1339,7 +1339,7 @@ void SendCommMenuChoice(short i)
 /* Function start: 0x4474CA */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
-    CockpitMessage(message, g_ucHudHighlightColour_0049cb58, -1);
+    CockpitMessage(message, g_abGamePaletteReservedColours_0049cb54[4], -1);
     g_pszCommMenuHeading_005d1950 = heading;
 }
 
@@ -1640,30 +1640,30 @@ void show_communications_disp(void)
     if (IsCommChoiceMenuOpen() != 0) {
         set_new_vdu(1);
         choice = 0;
-        DrawTextAt(&DAT_005a7700, DAT_005a7530.left,
-                   DAT_005a7530.top, g_pszCommMenuHeading_005d1950, 2);
+        DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left,
+                   g_stRightVduViewport_005d2b20.top, g_pszCommMenuHeading_005d1950, 2);
 #ifdef WC1_SDL
         selectedChoice = Wc1SdlGetCommunicationMenuSelection();
-        normalColour = DAT_005a7700.colour;
+        normalColour = g_stRightVduTextContext_005d2ce0.colour;
 #endif
         if (g_nCommMenuChoiceCount_0049b770 > 0) {
             do {
 #ifdef WC1_SDL
                 if ((int)choice == selectedChoice)
-                    DAT_005a7700.colour = g_ucHudHighlightColour_0049cb58;
+                    g_stRightVduTextContext_005d2ce0.colour = g_abGamePaletteReservedColours_0049cb54[4];
 #endif
                 DrawFormattedText("\n%d %s", (int)choice + 1,
                                   g_apszCommMenuChoiceText_005d19a0[
                                       (int)choice]);
 #ifdef WC1_SDL
-                DAT_005a7700.colour = normalColour;
+                g_stRightVduTextContext_005d2ce0.colour = normalColour;
 #endif
                 choice++;
             } while (choice < g_nCommMenuChoiceCount_0049b770);
         }
-        DrawSpriteDefault(&DAT_005a7530,
-                          (short)(DAT_005a7530.left + 36),
-                          (short)(DAT_005a7530.top + 10),
+        DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                          (short)(g_stRightVduViewport_005d2b20.left + 36),
+                          (short)(g_stRightVduViewport_005d2b20.top + 10),
                           g_pCommMenuCursorShape_005a7660, 0x19);
         g_nCommMenuReuseMode_0049b774 = 1;
     }
@@ -1748,7 +1748,7 @@ void ShowCentredPrompt(char *text, unsigned short arg)
 {
     DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
     SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                      g_ucHudHighlightColour_0049cb58, arg);
+                      g_abGamePaletteReservedColours_0049cb54[4], arg);
 }
 
 /* Function start: 0x447300 */
@@ -1842,14 +1842,14 @@ void real_vid_transmit(short obj, short message)
             push_mode(1, 6);
             malf_noise(1, 3, 12, 23, 1);
             DrawSpriteDefault(
-                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+                &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                 g_asShipSide_004955d0[
                     g_nCommSpeakerObject_0049b794] == SIDE_IMPERIAL ?
                     g_pConfedCommBackground_00469278 :
                     g_pKilrathiCommBackground_00469280,
                 0);
             DrawSpriteDefault(
-                &DAT_005a7530, DAT_005a7530.left, DAT_005a7530.top,
+                &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                 g_apCommPortraitShapes_0059e180[
                     g_nCommPortraitIndex_0049b79c],
                 0);

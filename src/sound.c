@@ -576,7 +576,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             }
             g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
             approachScale = (short)(
-                ((unsigned int)(unsigned short)g_asObjectScale_0059de40[0]
+                ((unsigned int)(unsigned short)g_asObjectScale_00494d90[0]
                     << 4) / approachDistance);
             g_aeObjectClass_00495328[object] = OBJECT_CLASS_SHIP;
             g_asObjectScreenX_00493598[0] =
@@ -593,7 +593,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             BuildObjectDepthOrder();
 #ifdef WC1_SDL
             Wc1SdlBeginSpaceFrame(
-                g_pScreenViewportGeometry_0059a9f4,
+                g_pScreenViewportGeometry_005c82b0,
                 (int)g_cScreenViewportMode_005c82a6,
                 g_nCockpitDisplayMode_0049d71c > 0,
                 (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
@@ -609,7 +609,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         g_asObjectDistance_00493ae8[0] =
             (short)(g_asObjectDistance_00493ae8[0] + 10);
         AddFixedVectors(&g_aShipPosition_00494550[61],
-                        &g_aShipVelocity_0059c010[61],
+                        &g_aShipVelocity_00494898[61],
                         &g_aShipPosition_00494550[61]);
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
             break;
@@ -1064,212 +1064,233 @@ unsigned short LoadInstallDat(void)
 void show_damage_disp(void)
 {
     signed char component;
+    signed char plural;
     char message[40];
 
-    g_nDamageDisplayState_005a77e0 = 0;
-    g_cDamagedComponentCount_005a77de = 0;
+    g_nDamageDisplayState_005d42ae = 0;
+    g_cDamagedComponentCount_005d42a7 = 0;
     for (component = 0; component < 9; component++) {
         if (g_acPlayerComponentDamage_00493470[component] >= 1)
-            g_cDamagedComponentCount_005a77de++;
+            g_cDamagedComponentCount_005d42a7++;
     }
 
     set_new_vdu(0);
-    DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left, DAT_005a6b80.top,
-               g_szDamageReport_0046a878, 2);
-    DrawViewportLine(&DAT_005a6b80,
-                     (short)(DAT_005a6b80.left + 2),
-                     (short)(DAT_005a6b80.top + 6),
-                     (short)(DAT_005a6b80.right - 2),
-                     (short)(DAT_005a6b80.top + 6), g_ucPrimaryTextColour_0049cb64);
-    if (g_cDamagedComponentCount_005a77de == 0) {
-        DrawTextAt(&DAT_005a74f0, DAT_005a6b80.left,
-                   (short)(DAT_005a6b80.top + 20),
-                   g_szNoInternalDamage_0046a888, 2);
-        return;
+    DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+               g_stLeftVduViewport_005d2180.left,
+               g_stLeftVduViewport_005d2180.top,
+               g_szDamageReport_00490190, 2);
+    DrawViewportLine(&g_stLeftVduViewport_005d2180,
+                     (short)(g_stLeftVduViewport_005d2180.left + 2),
+                     (short)(g_stLeftVduViewport_005d2180.top + 6),
+                     (short)(g_stLeftVduViewport_005d2180.right - 2),
+                     (short)(g_stLeftVduViewport_005d2180.top + 6),
+                     g_ucPrimaryTextColour_0049cb64);
+    if (g_cDamagedComponentCount_005d42a7 == 0) {
+        DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+                   g_stLeftVduViewport_005d2180.left,
+                   (short)(g_stLeftVduViewport_005d2180.top + 20),
+                   g_szNoInternalDamage_004901a0, 2);
+    } else {
+        g_nWeaponDisplayOriginX_005d4254 =
+            (short)(g_stLeftVduViewport_005d2180.left +
+                    g_nWeaponDisplayOffsetX_0049ae8c);
+        g_nWeaponDisplayOriginY_005d4256 =
+            (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+                    g_stLeftVduViewport_005d2180.top);
+        DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
+                          g_nWeaponDisplayOriginX_005d4254,
+                          g_nWeaponDisplayOriginY_005d4256,
+                          g_pCockpitWeaponShape_005d2b54, 0);
+        if (g_bForceDamageDisplayRedraw_0049b2ec == 0) {
+            g_nDamageDisplayTicks_005d4250 = 1;
+            g_nDamageDisplayPhase_005d42b4 = 1;
+        }
+        if (g_cDamagedComponentCount_005d42a7 != 1)
+            plural = 's';
+        else
+            plural = ' ';
+        sprintf(message, g_szDamagedUnitCountFormat_004901b4,
+                (int)g_cDamagedComponentCount_005d42a7, (int)plural);
+        ShowComponentHitHudMessage(message,
+                                   g_ucPrimaryTextColour_0049cb64, -1);
     }
-
-    component = g_cCockpitView_0059dab0;
-    g_nWeaponDisplayOriginX_005a7788 =
-        (short)(g_aWeaponDisplayOrigins_004684c0[component].x +
-                DAT_005a6b80.left);
-    g_nWeaponDisplayOriginY_005a778a =
-        (short)(g_aWeaponDisplayOrigins_004684c0[component].y +
-                DAT_005a6b80.top);
-    DrawSpriteDefault(&DAT_005a6b80, g_nWeaponDisplayOriginX_005a7788,
-                      g_nWeaponDisplayOriginY_005a778a,
-                      g_pCockpitWeaponShape_005a7564, 0);
-    sprintf(message, g_szDamagedUnitCountFormat_0046a89c,
-            (int)g_cDamagedComponentCount_005a77de,
-            (int)(g_cDamagedComponentCount_005a77de == 1 ? ' ' : 's'));
-    ShowComponentHitHudMessage(message, g_ucPrimaryTextColour_0049cb64, -1);
 }
 
 /* Function start: 0x4012E1 */
 void UpdateDamageDisplay(void)
 {
-    signed char componentCount;
+    short componentCount;
     signed char component;
     signed char attempts;
     signed char damage;
 
-    componentCount = 0;
-    for (component = 0; component < 9; component++) {
-        if (g_acPlayerComponentDamage_00493470[component] >= 1)
-            componentCount++;
+    componentCount = (short)g_cDamagedComponentCount_005d42a7;
+    g_cDamagedComponentCount_005d42a7 = 0;
+    for (attempts = 0; attempts < 9; attempts++) {
+        if (g_acPlayerComponentDamage_00493470[attempts] >= 1)
+            g_cDamagedComponentCount_005d42a7++;
     }
 
-    if ((short)componentCount !=
-        (short)g_cDamagedComponentCount_005a77de) {
-        g_cDamagedComponentCount_005a77de = componentCount;
+    if ((short)g_cDamagedComponentCount_005d42a7 != componentCount) {
         InvalidateVduMode(0);
         return;
     }
-    g_cDamagedComponentCount_005a77de = componentCount;
-    if (componentCount == 0)
+    if (g_cDamagedComponentCount_005d42a7 == 0)
         return;
 
     if (g_nCockpitDisplayMode_0049d71c == 0) {
-        g_nDamageDisplayTicks_005a7786--;
-        if (g_nDamageDisplayTicks_005a7786 > 0)
+        g_nDamageDisplayTicks_005d4250--;
+        if (g_nDamageDisplayTicks_005d4250 > 0)
             return;
-        if (g_nDamageDisplayPhase_005a77e4 == 1) {
-            component = g_cDamageDisplayComponent_005a77dc;
+        if (g_nDamageDisplayPhase_005d42b4 == 1) {
+            g_nDamageDisplayTicks_005d4250 = 25;
+            component = g_cDamageDisplayComponent_005d42a6;
             attempts = 0;
-            g_nDamageDisplayTicks_005a7786 = 50;
             do {
                 component++;
                 if (component >= 9)
                     component = 0;
                 damage = g_acPlayerComponentDamage_00493470[component];
-                g_nDisplayedComponentDamage_00476554 = (int)damage;
-                if (g_nDisplayedComponentDamage_00476554 >= 1) {
-                    g_cDamageDisplayComponent_005a77dc = component;
+                if (damage >= 1) {
+                    g_cDamageDisplayComponent_005d42a6 = component;
                     break;
                 }
                 attempts++;
             } while (attempts < 9);
 
             sprintf(
-                g_szDamageStatusText_005a7790,
-                g_szDamageStatusFormat_0046a8b0,
-                g_apszComponentNames_0046a778[
-                    g_cDamageDisplayComponent_005a77dc],
-                g_apszDamageSeverityNames_0046a7b0[(int)damage]);
-            DrawTextAt(&DAT_005a74f0, (short)(DAT_005a6b80.left + 1),
-                       (short)(DAT_005a6b80.top + 7),
-                       g_szDamageStatusText_005a7790, 2);
-            g_cDamageDisplayFrame_005a77dd =
-                (signed char)g_abDamageDisplayFrames_0046a7a0[
-                    g_cDamageDisplayComponent_005a77dc];
-            g_stDamageSpritePosition_005a77d8 =
-                g_aDamageDisplayPositions_0046a750[
-                    g_cDamageDisplayComponent_005a77dc];
-            g_stDamageSpritePosition_005a77d8.x =
-                (short)(g_stDamageSpritePosition_005a77d8.x +
-                        g_nWeaponDisplayOriginX_005a7788);
-            g_stDamageSpritePosition_005a77d8.y =
-                (short)(g_stDamageSpritePosition_005a77d8.y +
-                        g_nWeaponDisplayOriginY_005a778a);
+                g_szDamageStatusText_005d4260,
+                g_szDamageStatusFormat_004901c8,
+                g_apszComponentNames_00490090[
+                    g_cDamageDisplayComponent_005d42a6],
+                g_apszDamageSeverityNames_004900c8[(int)damage]);
+            DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+                       (short)(g_stLeftVduViewport_005d2180.left + 1),
+                       (short)(g_stLeftVduViewport_005d2180.top + 7),
+                       g_szDamageStatusText_005d4260, 2);
+            g_cDamageDisplayFrame_005d42ac =
+                (signed char)g_abDamageDisplayFrames_004900b8[
+                    g_cDamageDisplayComponent_005d42a6];
+            g_stDamageSpritePosition_005d42b0 =
+                g_aDamageDisplayPositions_00490068[
+                    g_cDamageDisplayComponent_005d42a6];
+            g_stDamageSpritePosition_005d42b0.x =
+                (short)(g_stDamageSpritePosition_005d42b0.x +
+                        g_nWeaponDisplayOriginX_005d4254);
+            g_stDamageSpritePosition_005d42b0.y =
+                (short)(g_stDamageSpritePosition_005d42b0.y +
+                        g_nWeaponDisplayOriginY_005d4256);
             CaptureSpriteBackground(
-                &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-                g_stDamageSpritePosition_005a77d8.x,
-                g_stDamageSpritePosition_005a77d8.y,
-                g_pCockpitWeaponShape_005a7564,
-                (short)g_cDamageDisplayFrame_005a77dd);
+                &g_stLeftVduViewport_005d2180,
+                g_pDamageDisplayBackground_00490060,
+                g_stDamageSpritePosition_005d42b0.x,
+                g_stDamageSpritePosition_005d42b0.y,
+                g_pCockpitWeaponShape_005d2b54,
+                (short)g_cDamageDisplayFrame_005d42ac);
             DrawViewportLine(
-                &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
-                (short)(DAT_005a6b80.top + 22),
-                g_stDamageSpritePosition_005a77d8.x,
-                g_stDamageSpritePosition_005a77d8.y,
-                0xa9);
+                &g_stLeftVduViewport_005d2180,
+                (short)(g_stLeftVduViewport_005d2180.left + 36),
+                (short)(g_stLeftVduViewport_005d2180.top + 22),
+                g_stDamageSpritePosition_005d42b0.x,
+                g_stDamageSpritePosition_005d42b0.y, 0xa9);
             DrawSpriteDefault(
-                &DAT_005a6b80, g_stDamageSpritePosition_005a77d8.x,
-                g_stDamageSpritePosition_005a77d8.y,
-                g_pCockpitWeaponShape_005a7564,
-                (short)g_cDamageDisplayFrame_005a77dd);
+                &g_stLeftVduViewport_005d2180,
+                g_stDamageSpritePosition_005d42b0.x,
+                g_stDamageSpritePosition_005d42b0.y,
+                g_pCockpitWeaponShape_005d2b54,
+                (short)g_cDamageDisplayFrame_005d42ac);
         } else {
             RestoreSpriteBackground(
-                &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-                g_stDamageSpritePosition_005a77d8.x,
-                g_stDamageSpritePosition_005a77d8.y,
-                g_pCockpitWeaponShape_005a7564,
-                (short)g_cDamageDisplayFrame_005a77dd);
-            DAT_005a74f0.colour = g_cSecondaryViewBufferColour_0049cb4c;
-            DrawTextAt(&DAT_005a74f0, (short)(DAT_005a6b80.left + 1),
-                       (short)(DAT_005a6b80.top + 7),
-                       g_szDamageStatusText_005a7790, 2);
-            DAT_005a74f0.colour = g_ucPrimaryTextColour_0049cb64;
+                &g_stLeftVduViewport_005d2180,
+                g_pDamageDisplayBackground_00490060,
+                g_stDamageSpritePosition_005d42b0.x,
+                g_stDamageSpritePosition_005d42b0.y,
+                g_pCockpitWeaponShape_005d2b54,
+                (short)g_cDamageDisplayFrame_005d42ac);
+            g_stLeftVduTextContext_005d2ae0.colour =
+                g_cSecondaryViewBufferColour_0049cb4c;
+            DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+                       (short)(g_stLeftVduViewport_005d2180.left + 1),
+                       (short)(g_stLeftVduViewport_005d2180.top + 7),
+                       g_szDamageStatusText_005d4260, 2);
+            g_stLeftVduTextContext_005d2ae0.colour =
+                g_ucPrimaryTextColour_0049cb64;
             DrawViewportLine(
-                &DAT_005a6b80, (short)(DAT_005a6b80.left + 36),
-                (short)(DAT_005a6b80.top + 22),
-                g_stDamageSpritePosition_005a77d8.x,
-                g_stDamageSpritePosition_005a77d8.y,
+                &g_stLeftVduViewport_005d2180,
+                (short)(g_stLeftVduViewport_005d2180.left + 36),
+                (short)(g_stLeftVduViewport_005d2180.top + 22),
+                g_stDamageSpritePosition_005d42b0.x,
+                g_stDamageSpritePosition_005d42b0.y,
                 g_cSecondaryViewBufferColour_0049cb4c);
-            g_nDamageDisplayTicks_005a7786 = 2;
+            g_nDamageDisplayTicks_005d4250 = 4;
         }
-        g_nDamageDisplayPhase_005a77e4 =
-            g_nDamageDisplayPhase_005a77e4 == 0;
+        g_nDamageDisplayPhase_005d42b4 =
+            g_nDamageDisplayPhase_005d42b4 == 0;
         return;
     }
 
-    g_nDamageDisplayTicks_005a7786--;
-    if (g_nDamageDisplayTicks_005a7786 <= 0) {
-        component = g_cDamageDisplayComponent_005a77dc;
-        attempts = 0;
-        g_nDamageDisplayTicks_005a7786 = 50;
-        for (;;) {
-            component++;
-            if (component >= 9)
-                component = 0;
-            g_nDisplayedComponentDamage_00476554 =
-                (int)g_acPlayerComponentDamage_00493470[component];
-            if (g_nDisplayedComponentDamage_00476554 >= 1) {
-                g_cDamageDisplayComponent_005a77dc = component;
-                return;
-            }
-            attempts++;
-            if (attempts >= 9)
-                return;
+    g_nDamageDisplayTicks_005d4250--;
+    if (g_nDamageDisplayTicks_005d4250 <= 0) {
+        if (g_nDamageDisplayPhase_005d42b4 == 1) {
+            g_nDamageDisplayTicks_005d4250 = 25;
+            component = g_cDamageDisplayComponent_005d42a6;
+            attempts = 0;
+            do {
+                component++;
+                if (component >= 9)
+                    component = 0;
+                damage = g_acPlayerComponentDamage_00493470[component];
+                if (damage >= 1) {
+                    g_cDamageDisplayComponent_005d42a6 = component;
+                    g_nDisplayedComponentDamage_005d42a8 = (int)damage;
+                    break;
+                }
+                attempts++;
+            } while (attempts < 9);
         }
+        g_nDamageDisplayPhase_005d42b4 =
+            g_nDamageDisplayPhase_005d42b4 == 0;
     }
 
     sprintf(
-        g_szDamageStatusText_005a7790,
-        g_szDamageStatusFormatHighRes_0046a8c0,
-        g_apszComponentNames_0046a778[g_cDamageDisplayComponent_005a77dc],
-        g_apszDamageSeverityNames_0046a7b0[
-            g_nDisplayedComponentDamage_00476554]);
-    DrawTextAt(&DAT_005a74f0, (short)(DAT_005a6b80.left + 1),
-               (short)(DAT_005a6b80.top + 7),
-               g_szDamageStatusText_005a7790, 2);
-    g_cDamageDisplayFrame_005a77dd =
-        (signed char)g_abDamageDisplayFrames_0046a7a0[
-            g_cDamageDisplayComponent_005a77dc];
-    g_stDamageSpritePosition_005a77d8 =
-        g_aDamageDisplayPositions_0046a750[
-            g_cDamageDisplayComponent_005a77dc];
-    g_stDamageSpritePosition_005a77d8.x =
-        (short)(g_stDamageSpritePosition_005a77d8.x +
-                g_nWeaponDisplayOriginX_005a7788);
-    g_stDamageSpritePosition_005a77d8.y =
-        (short)(g_stDamageSpritePosition_005a77d8.y +
-                g_nWeaponDisplayOriginY_005a778a);
+        g_szDamageStatusText_005d4260,
+        g_szDamageStatusFormatHighRes_004901d8,
+        g_apszComponentNames_00490090[g_cDamageDisplayComponent_005d42a6],
+        g_apszDamageSeverityNames_004900c8[
+            g_nDisplayedComponentDamage_005d42a8]);
+    DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
+               (short)(g_stLeftVduViewport_005d2180.left + 1),
+               (short)(g_stLeftVduViewport_005d2180.top + 7),
+               g_szDamageStatusText_005d4260, 2);
+    g_cDamageDisplayFrame_005d42ac =
+        (signed char)g_abDamageDisplayFrames_004900b8[
+            g_cDamageDisplayComponent_005d42a6];
+    g_stDamageSpritePosition_005d42b0 =
+        g_aDamageDisplayPositions_00490068[
+            g_cDamageDisplayComponent_005d42a6];
+    g_stDamageSpritePosition_005d42b0.x =
+        (short)(g_stDamageSpritePosition_005d42b0.x +
+                g_nWeaponDisplayOriginX_005d4254);
+    g_stDamageSpritePosition_005d42b0.y =
+        (short)(g_stDamageSpritePosition_005d42b0.y +
+                g_nWeaponDisplayOriginY_005d4256);
     CaptureSpriteBackground(
-        &DAT_005a6b80, g_pDamageDisplayBackground_0046a748,
-        g_stDamageSpritePosition_005a77d8.x,
-        g_stDamageSpritePosition_005a77d8.y,
-        g_pCockpitWeaponShape_005a7564,
-        (short)g_cDamageDisplayFrame_005a77dd);
-    DrawViewportLine(&DAT_005a6b80,
-                     (short)(DAT_005a6b80.left + 36),
-                     (short)(DAT_005a6b80.top + 22),
-                     g_stDamageSpritePosition_005a77d8.x,
-                     g_stDamageSpritePosition_005a77d8.y, 0xa9);
-    DrawSpriteDefault(&DAT_005a6b80,
-                      g_stDamageSpritePosition_005a77d8.x,
-                      g_stDamageSpritePosition_005a77d8.y,
-                      g_pCockpitWeaponShape_005a7564,
-                      (short)g_cDamageDisplayFrame_005a77dd);
+        &g_stLeftVduViewport_005d2180,
+        g_pDamageDisplayBackground_00490060,
+        g_stDamageSpritePosition_005d42b0.x,
+        g_stDamageSpritePosition_005d42b0.y,
+        g_pCockpitWeaponShape_005d2b54,
+        (short)g_cDamageDisplayFrame_005d42ac);
+    DrawViewportLine(&g_stLeftVduViewport_005d2180,
+                     (short)(g_stLeftVduViewport_005d2180.left + 36),
+                     (short)(g_stLeftVduViewport_005d2180.top + 22),
+                     g_stDamageSpritePosition_005d42b0.x,
+                     g_stDamageSpritePosition_005d42b0.y, 0xa9);
+    DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
+                      g_stDamageSpritePosition_005d42b0.x,
+                      g_stDamageSpritePosition_005d42b0.y,
+                      g_pCockpitWeaponShape_005d2b54,
+                      (short)g_cDamageDisplayFrame_005d42ac);
 }
 
 /* Function start: WC2_UNMAPPED */

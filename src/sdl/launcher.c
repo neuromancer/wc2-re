@@ -82,9 +82,9 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
 
 static int Wc1SdlRunRuntimeChecks(void)
 {
-    g_aShipWeapons_0059cab0[1][0] = 2;
+    g_aShipWeapons_004956b0[1][0] = 2;
     remove_weapon(1, 0);
-    if (g_aShipWeapons_0059cab0[1][0] != 1)
+    if (g_aShipWeapons_004956b0[1][0] != 1)
         return 1;
 
     g_acShipTarget_00495f20[0] = -1;

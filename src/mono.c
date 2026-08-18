@@ -289,7 +289,7 @@ unsigned int update_canned_sequence(short obj)
             g_anRollGoal_004954d8[obj] == 0) {
             requested = g_anShipSpeed_0059b320[obj];
             velocity = Vector_magnitude(
-                &g_aShipVelocity_0059c010[0]);
+                &g_aShipVelocity_00494898[0]);
             if ((velocity > requested - 0x400) < requested + 0x400)
                 advance_canned_sequence(obj);
         }

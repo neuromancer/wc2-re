@@ -275,8 +275,8 @@ void init_mission(short series, short mission);                        /* 0x44B2
 void prepare_mission(void);                                            /* 0x44BA73 */
 int release_all_capital_ship_shapes(void);                             /* 0x44BCF7 */
 int release_capital_ship_shapes(enum ObjectType type);                 /* 0x44BD83 */
-int load_ship(short resourceType, short logicalFile,
-              short objectClass, short slot);                          /* 0x44BEE5 */
+void load_ship(short resourceType, short objectType,
+               short objectClass, short slot);                         /* 0x44BEE5 */
 int free_ship(short slot);                                             /* 0x44C796 */
 void free_all_slots(void);                                             /* 0x44CC84 */
 void load_all_slots(void);                                             /* 0x44CCE1 */
@@ -411,6 +411,7 @@ unsigned int rotate_eye_to_goal(void);                                 /* 0x419C
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x419CDC */
 unsigned int set_eye_direction_and_position(void);                     /* 0x419D01 */
 void force_view(int view, short obj);                                  /* 0x41AD51 */
+void SaveTorpedoTargetLockForViewChange(int previousView);             /* 0x41AD8B */
 unsigned int new_view(int view, short obj);                            /* 0x41AE40 */
 unsigned int start_dust(short obj, FixedVector origin,
                         short forwardDistance, int rightOffset,
@@ -524,13 +525,16 @@ void update_objective_location(short objective);                     /* 0x43AE2F
 short objective_lost(short objective);                                /* 0x43AFD3 */
 void check_objectives(void);                                          /* 0x43B089 */
 void rotational_pos_to_scanner_pos(signed char object,
-                                   const SphericalVector *position);  /* 0x43B0EB */
+                                   const SphericalVector *position,
+                                   CockpitScannerGeometry geometry);  /* 0x43B0EB */
 short mobile_objective(short objective);                              /* 0x43B1F0 */
 void ResetScannerContacts(void);                                     /* 0x43B258 */
 void clear_head_up_display(void);                                    /* 0x43B29D */
-unsigned int set_objective_range(short showOnScanner);                /* 0x43B4CF */
+void set_objective_range(short showOnScanner);                        /* 0x43B4CF */
+void AdjustScannerContactColourForRange(
+    int range, short *colour);                                        /* 0x43B570 */
 short get_color(short object, unsigned short *colour);                /* 0x43B61F */
-unsigned int draw_3d_scanner(void);                                   /* 0x43B7C0 */
+void draw_3d_scanner(void);                                           /* 0x43B7C0 */
 void start_lock(unsigned short v);                                    /* 0x43BE1B */
 unsigned short starting_lock(unsigned short v);                       /* 0x43BE55 */
 void lock_off(void);                                                   /* 0x43BE8D */
@@ -551,9 +555,12 @@ void draw_target_box(unsigned short colour, signed char object,
                      ShortRect *savedBounds);                         /* 0x43C6D8 */
 void remove_nav_pointer(void);                                        /* 0x43CBD3 */
 void draw_nav_pointer(void);                                          /* 0x43CBFD */
-unsigned int overlay_head_up_display(void);                           /* 0x43D386 */
+short HasInRangeGunForTargetLead(short targetRange);                   /* 0x43CE8F */
+void UpdateTargetLeadIndicator(void);                                 /* 0x43CF5A */
+void RestoreTargetLeadIndicator(void);                                /* 0x43D323 */
+void overlay_head_up_display(void);                                   /* 0x43D386 */
 void RestoreCockpitExplosionIfVisible(void);                           /* 0x43D7F2 */
-unsigned int RestoreTransientCockpitGraphics(void);                    /* 0x43D81F */
+void RestoreTransientCockpitGraphics(void);                            /* 0x43D81F */
 void SetHudMessageText(char *text, unsigned short colour,
                        unsigned short duration);                       /* 0x43D956 */
 void malf_noise(short vdu, int effect, unsigned short colour,
@@ -570,8 +577,8 @@ void ResetPilotHandAnimation(void);                                   /* 0x43E47
 void send_message(short obj, signed char message);                      /* 0x43E4A8 */
 void npc_communication(void);                                        /* 0x43E5DA */
 void clear_cockpit_damage(void);                                      /* 0x43E870 */
-void explosion_draw(void);                                           /* 0x43E8B2 */
-unsigned int DrawPendingCockpitDamage(void);                          /* 0x43E9E2 */
+void explosion_draw(int useBackgroundViewport);                      /* 0x43E8B2 */
+void DrawPendingCockpitDamage(void);                                  /* 0x43E9E2 */
 void RestoreCockpitExplosionBackground(void);                         /* 0x43EAE3 */
 void cockpit_explosion(void);                                        /* 0x43EB46 */
 void place_damage_on_cockpit(short damage);                           /* 0x43EC50 */
@@ -839,9 +846,21 @@ short borrow_dust(void);                                             /* 0x41040D
 short new_object(enum ObjectType type, short owner);                 /* 0x4105BF */
 short initialize_ship(enum ObjectType type, short owner);            /* 0x41062D */
 short CanShipWeaponDamageTarget(short ship, short target);            /* 0x410102 */
+short HasShipCockpitGunDisplay(short ship);                            /* 0x410192 */
+void ResetTargetCameraView(void);                                      /* 0x4601F1 */
+short CountShipCockpitGunDisplays(short ship);                         /* 0x460242 */
+void ToggleTargetCameraOverlay(void);                                  /* 0x4602BE */
+void ClearTargetCameraView(void);                                      /* 0x4603C5 */
+void UpdateTargetCameraTracking(void);                                 /* 0x4608E8 */
+void SetTargetCameraEyePosition(short cameraMode);                     /* 0x460D3E */
+void DrawTargetCameraAttitudeIndicators(unsigned int colour);          /* 0x460DFE */
+void RestoreTargetCameraAttitudeIndicators(void);                      /* 0x4610BC */
+void UpdateTargetCameraCockpitHook(void);                              /* 0x461456 */
+void FinalizeTargetCameraViewHook(void);                               /* 0x461466 */
 short ShipHasTorpedo(short ship);                                     /* 0x410215 */
 short any_selected(unsigned char *loadout, short objectClass);       /* 0x410680 */
 unsigned int remove_weapon(short obj, short weapon);                 /* 0x410715 */
+void InitializeShipWeaponTypeIndices(short obj);                      /* 0x41090F */
 void set_objects_data(short obj, enum ObjectType type,
                       short owner, short matchObjectClass);          /* 0x410999 */
 unsigned int match_rotation_goal(short *rotation, short *goal,
@@ -1062,7 +1081,7 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            char *defaultFileName);                     /* 0x4569C8 */
 void ResetCockpitPaletteEntries(void);                               /* 0x456A68 */
 void initialize_cockpit(signed char mode);                             /* 0x456B1A */
-unsigned int InitializeConstellationObject(
+void InitializeConstellationObject(
     const ConstellationObjectDefinition *definition,
     short object);                                                /* 0x457434 */
 void FreeConstellationObject(short object);                       /* 0x457587 */
@@ -1070,14 +1089,14 @@ unsigned int InitWc1Constellation(short scene);                       /* WC2 unm
 unsigned int init_constellation(short scene);                         /* 0x4575B4 */
 void free_constellation(void);                                    /* 0x4576AB */
 void init_vdus(void);                                                  /* 0x457720 */
-unsigned int InitializeCockpitResources(signed char mode);             /* 0x4577D7 */
+void InitializeCockpitResources(void);                                /* 0x4577D7 */
 void free_cockpit(void);                                               /* 0x458196 */
 #ifdef WC1_SDL
 void init_3Space_objects(short scene);
 #else
 void init_3Space_objects();                                            /* 0x458467 */
 #endif
-unsigned int load_common_3Space_objects(void);                         /* 0x458532 */
+void load_common_3Space_objects(void);                                 /* 0x458532 */
 void remove_all_3d_objects(void);                                      /* 0x45865D */
 void free_3Space(void);                                                /* 0x458698 */
 unsigned int free_3Space_objects(void);                                /* 0x458716 */
@@ -1156,6 +1175,7 @@ short LogMemoryUsage(void);                                            /* 0x4657
 void ReportFatalErrorCode(const char *errorCode);                       /* 0x437A44 */
 void AllocateApplicationScratchBuffer(void);                           /* 0x4656CC */
 void ReleaseApplicationScratchBuffer(void);                            /* 0x4656EB */
+unsigned char *GetInputCursorShape(void);                              /* 0x46570E */
 short WaitForQueuedInputPress(void);                                  /* 0x465730 */
 void RunGameApplication(short argc, char **argv);                      /* 0x46591A */
 short LoadSelectedPilotCampaign(void);                                 /* 0x434043 */
@@ -1192,7 +1212,7 @@ void main(short argc, char **argv);                                     /* 0x45C
 #endif
 void free_view_buffer(void);                                         /* 0x465CBC */
 void initialize_view_buffer(void);                                        /* 0x465CF6 */
-unsigned int dump_buffer_to_screen(void);                                 /* 0x465D55 */
+void dump_buffer_to_screen(void);                                         /* 0x465D55 */
 unsigned int clear_view_buffer(void);                                     /* 0x465E88 */
 void InitializeConversationViewport(void);                             /* 0x437CBF */
 void ResetScreenClipToFullHeight(void);                                /* 0x437D68 */
@@ -1250,7 +1270,7 @@ void InitializeCannedSceneFrameIndex(void);                           /* 0x401A6
 void CheckCannedSceneBufferCapacity(void);                            /* 0x401C1A */
 void RecordCannedSceneObjectEvent(short obj, int event);              /* 0x401FDD */
 void WriteTapeInitialState(void);                                     /* 0x40230E */
-int calculate_damage_level(void);                                     /* 0x4695FD */
+short calculate_damage_level(void);                                   /* 0x4695FD */
 void UpdateWc1TrainSimMenuCursor(void);                            /* WC2 unmapped */
 void CopyHugeMemoryOverlapSafe(void *destination, void *source,
                                int count);                             /* 0x419A40 */
@@ -1381,7 +1401,7 @@ unsigned int SoundFxTick(void);                                       /* WC2 unm
 int LogUnknownSoundEffect(const unsigned char *definition,
                           int sourceObject, int pan, int volume,
                           int looping, int priority);                  /* 0x45351A */
-void FlushSoundEffectsAndLog(void);                                               /* 0x45357E */
+void FlushSoundEffectsAndLog();                                                   /* 0x45357E */
 void sound_effect(signed char soundNumber, short sourceObject,
                   short looping);                                      /* 0x4535BB */
 #ifdef __cplusplus
@@ -1607,8 +1627,8 @@ void __stdcall SplitPackedPoint(ShortPoint point, short *p);             /* 0x46
 void DrawTextString(const char *text);                                 /* 0x461F22 */
 void DrawTextCharacter(char character);                               /* 0x4621D5 */
 void AppendTextCharacter(char character);                             /* 0x4622BD */
-int __stdcall MeasureShapeFrameStorage(unsigned char *shape,
-                                       short frame);                   /* WC2 unmapped */
+int MeasureShapeFrameStorage(unsigned char *shape,
+                             short frame);                             /* 0x4622EE */
 void ResetTextCursor(void);                                           /* WC2 unmapped */
 unsigned int DosFarPtrToNear(void *v);                                /* 0x46243F */
 void *DosNearPtrToFar(unsigned int v);                                 /* 0x462452 */

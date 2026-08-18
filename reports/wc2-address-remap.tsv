@@ -416,6 +416,7 @@ src/disk.c	903	0041DF70	004105BF	new_object	new_object	WC1-callgraph-propagated	
 src/disk.c	914	0041DFA0	0041062D	initialize_ship	initialize_ship	WC1-callgraph-propagated		mapped
 src/disk.c	926	0041DFE0	00410680	any_selected	any_selected	WC1-manual-verified		mapped
 src/disk.c	967	0041E040	00410715	remove_weapon	remove_weapon	WC1-manual-verified		mapped
+src/disk.c	2019		0041090F	InitializeShipWeaponTypeIndices	InitializeShipWeaponTypeIndices	WC2-only		wc2-only
 src/disk.c	1014	0041E120	00410999	set_objects_data	set_objects_data	WC1-callgraph-propagated		mapped
 src/disk.c	1130	0041E400	00411172	match_rotation_goal	DoLocalFnE400	WC1-fuzzy-very-low		mapped
 src/disk.c	1171	0041E520	0041133D	rotate_object_to_goal	GetTbl0059c3c0FnE520	WC1-callgraph-propagated		mapped
@@ -1731,3 +1732,20 @@ src/cmpgn.c	471		004098F2	RunCampaignContinuePromptLoop	RunCampaignContinuePromp
 src/cmpgn.c	499		004099A8	PromptToContinueCampaign	PromptToContinueCampaign	WC2-only		wc2-only
 src/hudmsg.c	1063		00401C1A	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity	WC2-only		wc2-only
 src/hudmsg.c	1076		00401FDD	RecordCannedSceneObjectEvent	RecordCannedSceneObjectEvent	WC2-only		wc2-only
+src/disk.c	1806		00410192	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay	WC2-only		wc2-only
+src/logic.c	3808		00460242	CountShipCockpitGunDisplays	CountShipCockpitGunDisplays	WC2-only		wc2-only
+src/logic.c	3980		004601F1	ResetTargetCameraView	ResetTargetCameraView	WC2-only		wc2-only
+src/logic.c	4000		004602BE	ToggleTargetCameraOverlay	ToggleTargetCameraOverlay	WC2-only		wc2-only
+src/logic.c			004603C5	ClearTargetCameraView	ClearTargetCameraView	WC2-only		wc2-only
+src/logic.c			00460D3E	SetTargetCameraEyePosition	SetTargetCameraEyePosition	WC2-only		wc2-only
+src/logic.c	4015		00461466	FinalizeTargetCameraViewHook	FinalizeTargetCameraViewHook	WC2-only		wc2-only
+src/spc.c			0041AD8B	SaveTorpedoTargetLockForViewChange	SaveTorpedoTargetLockForViewChange	WC2-only		wc2-only
+src/cockpt.c	2244		0043B570	AdjustScannerContactColourForRange	AdjustScannerContactColourForRange	WC2-only		wc2-only
+src/cockpt.c	3036		0043CE8F	HasInRangeGunForTargetLead	HasInRangeGunForTargetLead	WC2-only		wc2-only
+src/cockpt.c	3063		0043CF5A	UpdateTargetLeadIndicator	UpdateTargetLeadIndicator	WC2-only		wc2-only
+src/cockpt.c	3190		0043D323	RestoreTargetLeadIndicator	RestoreTargetLeadIndicator	WC2-only		wc2-only
+src/logic.c	4042		004608E8	UpdateTargetCameraTracking	UpdateTargetCameraTracking	WC2-only		wc2-only
+src/logic.c	4145		00460DFE	DrawTargetCameraAttitudeIndicators	DrawTargetCameraAttitudeIndicators	WC2-only		wc2-only
+src/logic.c	4237		004610BC	RestoreTargetCameraAttitudeIndicators	RestoreTargetCameraAttitudeIndicators	WC2-only		wc2-only
+src/logic.c	4310		00461456	UpdateTargetCameraCockpitHook	UpdateTargetCameraCockpitHook	WC2-only		wc2-only
+src/system.c	120		0046570E	GetInputCursorShape	GetInputCursorShape	WC2-only		wc2-only

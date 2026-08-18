@@ -91,11 +91,11 @@ void make_shard(short asteroid, FixedVector direction)
     fix_objects_ijk(fragment);
     alter_yaw(signed_random(20), fragment);
     alter_pitch(signed_random(20), fragment);
-    g_aShipVelocity_0059c010[fragment] =
+    g_aShipVelocity_00494898[fragment] =
         g_aShipForwardVector_00494208[fragment];
     speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
     SetVectorFixedPoint(
-        (unsigned int *)&g_aShipVelocity_0059c010[fragment], speed);
+        (unsigned int *)&g_aShipVelocity_00494898[fragment], speed);
 }
 
 /* Base flight times and pitch windows for the four forward view bands. */
@@ -165,19 +165,19 @@ void skew_randomly(short obj, short allowReverse)
     FixedVector saved;
 
     if (RandomBelow(100) < 50) {
-        saved = g_aShipRightVector_0059b6e0[obj];
-        g_aShipRightVector_0059b6e0[obj] =
+        saved = g_aShipRightVector_00493b78[obj];
+        g_aShipRightVector_00493b78[obj] =
             g_aShipForwardVector_00494208[obj];
         g_aShipForwardVector_00494208[obj] =
-            g_aShipUpVector_0059b9e0[obj];
-        g_aShipUpVector_0059b9e0[obj] = saved;
+            g_aShipUpVector_00493ec0[obj];
+        g_aShipUpVector_00493ec0[obj] = saved;
     } else {
-        saved = g_aShipUpVector_0059b9e0[obj];
-        g_aShipUpVector_0059b9e0[obj] =
+        saved = g_aShipUpVector_00493ec0[obj];
+        g_aShipUpVector_00493ec0[obj] =
             g_aShipForwardVector_00494208[obj];
         g_aShipForwardVector_00494208[obj] =
-            g_aShipRightVector_0059b6e0[obj];
-        g_aShipRightVector_0059b6e0[obj] = saved;
+            g_aShipRightVector_00493b78[obj];
+        g_aShipRightVector_00493b78[obj] = saved;
     }
     if (allowReverse != 0 && RandomBelow(100) < 50)
         negate_vector(&g_aShipForwardVector_00494208[obj]);
@@ -234,7 +234,7 @@ void init_hazard(short obj, FixedVector position, short moving)
                                  RandomBelowOrEqual(difficulty()));
             travelTime = MaxShort(7, travelTime);
         }
-        ScaleFixedVector(&g_aShipVelocity_0059c010[0],
+        ScaleFixedVector(&g_aShipVelocity_00494898[0],
                          (int)travelTime << 8, &vector);
         AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
         point_at(obj, vector);
@@ -253,7 +253,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     if (kilrathi_near(0, 16000) != 0)
         speed = 0;
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     (int)speed << 8, &g_aShipVelocity_0059c010[obj]);
+                     (int)speed << 8, &g_aShipVelocity_00494898[obj]);
 
     if (hazardMoves == 0) {
         int separation;
@@ -325,12 +325,12 @@ short try_far_spot(FixedVector *spot, short *moving)
             *moving = 0;
     }
     pitch = (short)(pitch + find_ratio(
-        -15, 15, g_anObjectPitchRotation_0059b2a0[0], -150, 150));
+        -15, 15, g_anObjectPitchRotation_00494f38[0], -150, 150));
     yaw = (short)(yaw + find_ratio(
-        -15, 15, g_anObjectYawRotation_0059ce80[0], -150, 150));
-    rotate_about_j(yaw, &g_aShipRightVector_0059b6e0[63],
+        -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
+    rotate_about_j(yaw, &g_aShipRightVector_00493b78[63],
                    &g_aShipForwardVector_00494208[63]);
-    rotate_about_i(pitch, &g_aShipUpVector_0059b9e0[63],
+    rotate_about_i(pitch, &g_aShipUpVector_00493ec0[63],
                    &g_aShipForwardVector_00494208[63]);
     position_relative_ijk(spot, 63, 0, 0, 3050);
     outsideRange = !(unsigned short)IsPointWithinRange(
@@ -385,13 +385,13 @@ void approach(short obj)
     FixedVector target;
     FixedVector thrust;
 
-    ScaleFixedVector(&g_aShipVelocity_0059c010[0], 20 << 8, &target);
+    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &target);
     AddFixedVectors(&g_aShipPosition_00494550[0], &target, &target);
     point_at(obj, target);
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
                      &thrust);
-    AddFixedVectors(&g_aShipVelocity_0059c010[obj], &thrust,
-                    &g_aShipVelocity_0059c010[obj]);
+    AddFixedVectors(&g_aShipVelocity_00494898[obj], &thrust,
+                    &g_aShipVelocity_00494898[obj]);
 }
 
 /* Function start: 0x41836E */
@@ -415,12 +415,12 @@ void match_ship_to_eye(void)
 {
     g_aShipPosition_00494550[0] = g_aShipPosition_00494550[61];
     g_nHazardReferenceSpeed_00492e58 = 100;
-    g_aShipRightVector_0059b6e0[0] = g_aShipRightVector_0059b6e0[61];
-    g_aShipUpVector_0059b9e0[0] = g_aShipUpVector_0059b9e0[61];
+    g_aShipRightVector_00493b78[0] = g_aShipRightVector_00493b78[61];
+    g_aShipUpVector_00493ec0[0] = g_aShipUpVector_00493ec0[61];
     g_aShipForwardVector_00494208[0] =
         g_aShipForwardVector_00494208[61];
     ScaleFixedVector(&g_aShipForwardVector_00494208[0], 100 << 8,
-                     &g_aShipVelocity_0059c010[0]);
+                     &g_aShipVelocity_00494898[0]);
     g_pActiveHazardField_00493278->center = g_aShipPosition_00494550[61];
 }
 
