@@ -1066,11 +1066,11 @@ void ExpandCutsceneText(const unsigned char *source, char *destination)
 void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                              unsigned char *text, signed char draw)
 {
-    CutsceneSequence *savedSequence;
     short savedOwner;
     short planeIndex;
-    signed char textShown;
+    CutsceneSequence *savedSequence;
     signed char continueSequence;
+    signed char textShown;
 
     textShown = 0;
     savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
@@ -1097,42 +1097,45 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             g_bCutsceneTextRestorePending_00499da0 = 1;
         }
         while (g_bCutsceneSkipFrame_00499c54 == 0 &&
-               g_nInputClock_005c84a8 < g_nNextCutsceneFrameClock_00499c90) {
+               (int)g_nInputClock_005c84a8 <
+                   (int)g_nNextCutsceneFrameClock_00499c90) {
             PumpWindowMessages(0);
         }
         g_nFrameSkipCountdown_0049d760 = 0;
         continueSequence = RunCutsceneScript(&sequence->scriptCursor, 2);
         g_pCurrentCutsceneSequence_00499c80 = sequence;
-        if (draw == 0) {
-            continueSequence = 0;
-        } else if (continueSequence == 0 || sequence->planeCount == 0 ||
-                   g_bCutsceneFramePresented_005d2de0 != 0) {
-            continueSequence = 0;
-        } else {
-            for (planeIndex = 0; planeIndex < sequence->planeCount;
-                 planeIndex++) {
-                UpdateCutscenePlaneObject(
-                    g_apCutscenePlanes_00499c3c[
-                        sequence->planeIndices[planeIndex]], 1);
-            }
-            for (planeIndex = 0; planeIndex < sequence->planeCount;
-                 planeIndex++) {
-                DrawCutscenePlane(g_apCutscenePlanes_00499c3c[
-                    sequence->planeIndices[planeIndex]]);
-            }
-            if (g_bCutsceneSkipFrame_00499c54 == 0 &&
-                g_bCutsceneViewportPreallocated_00499c4c == 0) {
-                ConsumeCutscenePalettePacket(0, 0x100, 1);
-                PresentCutsceneFrame(&g_stSecondaryViewBuffer_005d2c90,
-                                     &g_stSceneFlicScratchViewport_005d2eb0);
-                RestoreCutsceneTextBacking();
-                if (g_nCutsceneFrameDelay_00499c8c != 0) {
-                    g_nNextCutsceneFrameClock_00499c90 =
-                        g_nInputClock_005c84a8 +
-                        g_nCutsceneFrameDelay_00499c8c;
+        if (draw != 0) {
+            if (continueSequence == 0 || sequence->planeCount == 0 ||
+                g_bCutsceneFramePresented_005d2de0 != 0) {
+                g_bCutsceneFramePresented_005d2de0 = 0;
+            } else {
+                for (planeIndex = 0; planeIndex < sequence->planeCount;
+                     planeIndex++) {
+                    UpdateCutscenePlaneObject(
+                        g_apCutscenePlanes_00499c3c[
+                            sequence->planeIndices[planeIndex]], 1);
+                }
+                for (planeIndex = 0; planeIndex < sequence->planeCount;
+                     planeIndex++) {
+                    DrawCutscenePlane(g_apCutscenePlanes_00499c3c[
+                        sequence->planeIndices[planeIndex]]);
+                }
+                if (g_bCutsceneSkipFrame_00499c54 == 0 &&
+                    g_bCutsceneViewportPreallocated_00499c4c == 0) {
+                    ConsumeCutscenePalettePacket(0, 0x100, 1);
+                    PresentCutsceneFrame(
+                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSceneFlicScratchViewport_005d2eb0);
+                    RestoreCutsceneTextBacking();
+                    if (g_nCutsceneFrameDelay_00499c8c != 0) {
+                        g_nNextCutsceneFrameClock_00499c90 =
+                            g_nInputClock_005c84a8 +
+                            g_nCutsceneFrameDelay_00499c8c;
+                    }
                 }
             }
-            g_bCutsceneFramePresented_005d2de0 = 0;
+        } else {
+            continueSequence = 0;
         }
     } while (continueSequence != 0);
     g_pCurrentCutsceneSequence_00499c80 = savedSequence;

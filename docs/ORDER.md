@@ -110,6 +110,14 @@ declaration order is not yet proven. It is not an original compilation unit.
 
 - `src/pload.c` identifies itself through the string
   `Library\Source\Pload.c PacketLoad`.
+- WC2 adds `ShutdownNearHeap` at `0x00420B12` directly between
+  `InitializeNearHeap` and `AllocateNearHeapBlockFromEnd`; its seven globals
+  are the same private band used by the surrounding near-heap routines in
+  `src/nav.c`.
+- `LoadSpaceflightResources` is at `0x0045C35C`, between the direction-view
+  setup and music initialization in `src/logic.c`. Its three `LoadShapeSet`
+  calls, chained debris-shape assignments, and `LoadOriginFxDrivers` caller
+  disprove the earlier low-confidence `0x00420B12` transfer.
 - `src/dib.c` and `src/music.c` identify their routines in diagnostics.
 - The debug overlay's constructor, destructor, ECX methods, and allocation
   sites prove `src/debug.cpp` as a C++ unit.

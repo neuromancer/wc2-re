@@ -435,8 +435,8 @@ int GetFreeNearHeapBytes(void)
 
     freeBytes = 0;
     descriptorAddress =
-        g_nNearHeapBase_005a8120 + g_nNearHeapSize_005a811c - 8;
-    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005a8124;
+        g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8;
+    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
         if ((block->sizeAndFlags & 0x80000000) == 0)

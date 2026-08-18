@@ -925,7 +925,7 @@ void ShutdownSpeechCache(void);                                         /* 0x44F
 void InitializeHighMemoryGraphicsBuffers(void);                         /* 0x45BF30 */
 void LogMemoryStateToFile(FILE *file);                                  /* 0x42BE09 */
 void WriteMemoryStateReportHook(void);                                 /* 0x42BDFE */
-void LoadHighMemoryShapeResources(void);                                /* 0x45C35C */
+void LoadSpaceflightResources(void);                                   /* 0x45C35C */
 void StopMusicIfDriverActive(void);                                     /* 0x45C3FA */
 void InitializeMusicResources(void);                                   /* 0x45C419 */
 void ConfigureDefaultSpacePalette(short mode);                          /* 0x401840 */
@@ -937,7 +937,8 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
                                              signed char frame);       /* 0x45C1A1 */
 unsigned int InitializeWc1DirectionViewFrames(void);                    /* WC2 unmapped */
 void initialize_direction_view_frames(void);                            /* 0x45C279 */
-unsigned int LoadSpaceflightResources(void);                           /* 0x420B12 */
+unsigned int LoadLegacySpaceflightResourceSets(void);                 /* WC2 unmapped */
+void ShutdownNearHeap(void);                                           /* 0x420B12 */
 unsigned int GetFxDriverInitResult(void);                                      /* WC2 unmapped */
 unsigned int GetMessagePumpResult(void);                                      /* WC2 unmapped */
 unsigned int GetFxDriverStatus(void);                                      /* WC2 unmapped */

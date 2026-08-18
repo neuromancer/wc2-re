@@ -373,7 +373,7 @@
 0x00420874 ReleaseNearHeapBlock
 0x004208FC PurgeNearHeapBlocks
 0x004209C2 InitializeNearHeap
-0x00420B12 LoadSpaceflightResources
+0x00420B12 ShutdownNearHeap
 0x00420B88 AllocateNearHeapBlockFromEnd
 0x00420E16 AllocateNearHeapBlockByFlags
 0x00421144 GetFreeNearHeapBytes
@@ -1142,7 +1142,7 @@
 0x0045C128 ResetGameTextContexts
 0x0045C1A1 initialize_direction_view_frame
 0x0045C279 initialize_direction_view_frames
-0x0045C35C LoadHighMemoryShapeResources
+0x0045C35C LoadSpaceflightResources
 0x0045C3FA StopMusicIfDriverActive
 0x0045C419 InitializeMusicResources
 0x0045C558 main

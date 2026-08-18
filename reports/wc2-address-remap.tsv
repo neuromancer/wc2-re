@@ -848,7 +848,7 @@ src/logic.c	491	00421B10	0045B9D3	LoadOriginFxDrivers	LoadOriginFxDrivers	WC1-ca
 src/logic.c	587	00421D80	0045C088	InitializeGameTextContexts	InitializeGameTextContexts	WC1-fuzzy-low		mapped
 src/logic.c	609	00421E20	0045C1A1	initialize_direction_view_frame	SetUiFn1E20	WC1-fuzzy-low		mapped
 src/logic.c	627	00421EF0	0045C279	initialize_direction_view_frames	LoopLocalFn1EF0	WC1-fuzzy-followup		mapped
-src/logic.c	655	00421F50	00420B12	LoadSpaceflightResources	LoadSpaceflightResources	WC1-fuzzy-very-low		mapped
+src/logic.c	655			LoadLegacySpaceflightResourceSets				unmapped
 src/logic.c	686	00421FE0		GetFxDriverInitResult				unmapped
 src/logic.c	692	00421FF0		GetMessagePumpResult				unmapped
 src/logic.c	698	00422000		GetFxDriverStatus				unmapped
@@ -1581,13 +1581,14 @@ src/eventmgr.c	1413		00464FE7	SetPaletteEntryFromTriplet	SetPaletteEntryFromTrip
 src/eventmgr.c	1424		0046502E	SetMusicTickRateHook	SetMusicTickRateHook	WC2-only		wc2-only
 src/logic.c	428		0045B7E0	QueryCurrentGraphicsMode	QueryCurrentGraphicsMode	WC2-only		wc2-only
 src/logic.c	801		0045BF30	InitializeHighMemoryGraphicsBuffers	InitializeHighMemoryGraphicsBuffers	WC2-only		wc2-only
-src/logic.c	917		0045C35C	LoadHighMemoryShapeResources	LoadHighMemoryShapeResources	WC2-only		wc2-only
+src/logic.c	917	00421F50	0045C35C	LoadSpaceflightResources	LoadSpaceflightResources	manual-verified		mapped
 src/logic.c	939		0045C419	InitializeMusicResources	InitializeMusicResources	WC2-only		wc2-only
 src/logic.c	1194		0042917D	InitializeCampaignConstellationState	InitializeCampaignConstellationState	WC2-only		wc2-only
 src/mathfp.c	243		00461DE0	ApplySpacePaletteModeHook	ApplySpacePaletteModeHook	WC2-only		wc2-only
 src/music.c	9		0044F84F	InitializeSpeechCache	InitializeSpeechCache	WC2-only		wc2-only
 src/nav.c	1444		0042BDFE	WriteMemoryStateReportHook	WriteMemoryStateReportHook	WC2-only		wc2-only
 src/nav.c	1449		0042BE09	LogMemoryStateToFile	LogMemoryStateToFile	WC2-only		wc2-only
+src/nav.c	1143		00420B12	ShutdownNearHeap	ShutdownNearHeap	WC2-only		wc2-only
 src/personnel.c	12		00428C35	GetWingCommanderOneGameDataPath	GetWingCommanderOneGameDataPath	WC2-only		wc2-only
 src/personnel.c	52		00433AD0	PollPersonnelMenuInput	PollPersonnelMenuInput	WC2-only		wc2-only
 src/personnel.c	185		0043456E	RestorePersonnelMenuBackground	RestorePersonnelMenuBackground	WC2-only		wc2-only

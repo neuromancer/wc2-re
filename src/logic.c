@@ -558,7 +558,7 @@ unsigned int LoadWc1OriginFxDrivers(void)
 
     memoryThreshold = 100000;
     _chdir("gamedat");
-    g_nNearHeapMaxDescriptors_004688c4 = 0x80;
+    g_nNearHeapMaxDescriptors_00493048 = 0x80;
     IsSoundHardwarePresent(8);
     if (DAT_0059a856 == 0)
         SystemDebugPrintf("No ");
@@ -751,7 +751,7 @@ void LoadOriginFxDrivers(void)
             printf(" music/FX will play.");
         }
     }
-    LoadHighMemoryShapeResources();
+    LoadSpaceflightResources();
     LoadJoystickCalibrationFile(9, 9, 1, 1);
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ConfigureDefaultSpacePalette(
@@ -915,25 +915,25 @@ void initialize_direction_view_frames(void)
 }
 
 /* Function start: 0x45C35C */
-void LoadHighMemoryShapeResources(void)
+void LoadSpaceflightResources(void)
 {
-    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
-        if (LoadShapeSet(g_aCommon3SpaceResources_0049c728,
-                         4, "objects.vga") != 0) {
-            LoadShapeSet(g_aMissionResourceDescriptors_0049c798,
-                         4, "objects.vga");
-            g_aObjectTypeData_00496d30[34].shapeSet =
-                g_aObjectTypeData_00496d30[35].shapeSet;
-            g_aObjectTypeData_00496d30[33].shapeSet =
-                g_aObjectTypeData_00496d30[34].shapeSet;
-            g_aObjectTypeData_00496d30[30].shapeSet =
-                g_aObjectTypeData_00496d30[33].shapeSet;
-            g_aObjectTypeData_00496d30[29].shapeSet =
-                g_aObjectTypeData_00496d30[30].shapeSet;
-            LoadShapeSet(g_aHighMemoryCockpitResources_0049c7e8,
-                         4, "cockpit.vga");
-        }
-    }
+    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+        return;
+    if (LoadShapeSet(g_aCommon3SpaceResources_0049c728,
+                     4, "objects.vga") == 0)
+        return;
+    LoadShapeSet(g_aMissionResourceDescriptors_0049c798,
+                 4, "objects.vga");
+    g_aObjectTypeData_00496d30[34].shapeSet =
+        g_aObjectTypeData_00496d30[35].shapeSet;
+    g_aObjectTypeData_00496d30[33].shapeSet =
+        g_aObjectTypeData_00496d30[34].shapeSet;
+    g_aObjectTypeData_00496d30[30].shapeSet =
+        g_aObjectTypeData_00496d30[33].shapeSet;
+    g_aObjectTypeData_00496d30[29].shapeSet =
+        g_aObjectTypeData_00496d30[30].shapeSet;
+    LoadShapeSet(g_aHighMemoryCockpitResources_0049c7e8,
+                 4, "cockpit.vga");
 }
 
 /* Function start: 0x45C3FA */
@@ -1099,8 +1099,8 @@ void main(short argc, char **argv)
 
 #endif
 
-/* Function start: 0x420B12 */
-unsigned int LoadSpaceflightResources(void)
+/* Function start: WC2_UNMAPPED */
+unsigned int LoadLegacySpaceflightResourceSets(void)
 {
     unsigned char *debrisShapeSet;
 
