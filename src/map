@@ -1119,6 +1119,7 @@
 0x0045A2C0 InitializeFireworks
 0x0045A300 TheEndFireWorks
 0x0045A441 InitializeConstellationField
+0x0045A5C7 IsConstellationParticleOutsideViewport
 0x0045A634 DrawConstellationField
 0x0045AC50 DebugOverlayConsole::DebugOverlayConsole
 0x0045AEE4 DebugOverlayWorkerProc

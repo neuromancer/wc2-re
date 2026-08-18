@@ -1049,6 +1049,7 @@ src/music.c	177	0042D230		initialize_scripted_view				unmapped
 src/music.c	188	0042D270	0045A2C0	InitializeFireworks	InitializeFireworks	WC1-callgraph-single-low		mapped
 src/music.c	208	0042D2A0	0045A300	TheEndFireWorks	TheEndFireWorks	WC1-fuzzy-very-low		mapped
 src/music.c	275	0042D390	0045A441	InitializeConstellationField	InitializeConstellationField	WC1-fuzzy-followup		mapped
+src/music.c	424		0045A5C7	IsConstellationParticleOutsideViewport	IsConstellationParticleOutsideViewport	WC2-only		wc2-only
 src/music.c	324	0042D500	0045A634	DrawConstellationField	DrawConstellationField	WC1-callgraph-propagated		mapped
 src/music.c	387	0042D730	0044F010	OpenPacketSection	OpenPacketSection	WC1-fuzzy-followup		mapped
 src/music.c	444	0042D870	0044F1C7	CloseDataFileByHandle	CloseDataFileByHandle	WC1-fuzzy-followup		mapped

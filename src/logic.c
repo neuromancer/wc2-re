@@ -2958,8 +2958,8 @@ unsigned int init_constellation(short scene)
     short sceneIndex;
     short object;
 
-    if (g_pRoomPlanetShapes_005d2c4c == 0) {
-        g_pRoomPlanetShapes_005d2c4c =
+    if (g_pConstellationShape_005d2c4c == 0) {
+        g_pConstellationShape_005d2c4c =
             FetchDiskPacketRetrying("planets.v00", 0, 0);
     }
     sceneIndex = (short)(scene - 1);

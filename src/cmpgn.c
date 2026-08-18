@@ -533,7 +533,7 @@ short PromptToContinueCampaign(short promptFrame)
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&fieldShape, 0);
             free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-            FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+            FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 1;
@@ -541,7 +541,7 @@ short PromptToContinueCampaign(short promptFrame)
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&fieldShape, 0);
             free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-            FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+            FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 0;

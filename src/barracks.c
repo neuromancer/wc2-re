@@ -1025,7 +1025,7 @@ short BarracksScreen(void)
             selection = (signed char)RunCampaignSelectionFrame(
                 campaignScene, field);
         }
-        FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+        FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
         FreePacketAndClear(&campaignScene, 0);
         FreePacketAndClear(&field, 0);
         free_viewport(&g_stSecondaryViewBuffer_005d2c90);

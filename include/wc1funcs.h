@@ -1308,10 +1308,11 @@ unsigned int update_scripted_view(void);                               /* WC2 un
 void initialize_scripted_view(const short *script);                    /* WC2 unmapped */
 void InitializeFireworks(void);                                        /* 0x45A2C0 */
 short TheEndFireWorks(Viewport *viewport, short count);                /* 0x45A300 */
-unsigned int InitializeConstellationField(Viewport *viewport,
-                                          short direction,
-                                          short density);             /* 0x45A441 */
-unsigned int DrawConstellationField(void);                             /* 0x45A634 */
+void InitializeConstellationField(Viewport *viewport, short direction,
+                                  short density);                    /* 0x45A441 */
+signed char IsConstellationParticleOutsideViewport(
+    ConstellationParticle particle);                                /* 0x45A5C7 */
+void DrawConstellationField(void);                                   /* 0x45A634 */
 short OpenPacketSection(const char *filename, short section,
                         PacketSectionHandle *handle);                 /* 0x44F010 */
 void CloseDataFileByHandle(unsigned short *handle);                   /* 0x44F1C7 */

@@ -1135,18 +1135,27 @@ typedef struct TalkingHeadOrigin {
     short mouthY;
 } TalkingHeadOrigin;
 
-/* The constellation renderer keeps ten static stars and sixteen horizontally
- * moving particles. */
+/* The transferred WC1 renderer kept a separate static-star population. */
 typedef struct ConstellationStar {
     short x;
     short y;
     short frame;
 } ConstellationStar;
 
-typedef struct ConstellationParticle {
+typedef struct LegacyConstellationParticle {
     short x;
     short y;
     short velocity;
+    short frame;
+} LegacyConstellationParticle;
+
+/* WC2 uses one particle population.  Each record carries an independent
+ * velocity on both axes so direction zero can radiate from the viewport. */
+typedef struct ConstellationParticle {
+    short x;
+    short y;
+    short deltaX;
+    short deltaY;
     short frame;
 } ConstellationParticle;
 
@@ -1164,8 +1173,10 @@ typedef char TalkingHeadOrigin_size_must_be_0x08[
     sizeof(TalkingHeadOrigin) == 0x08 ? 1 : -1];
 typedef char ConstellationStar_size_must_be_0x06[
     sizeof(ConstellationStar) == 0x06 ? 1 : -1];
-typedef char ConstellationParticle_size_must_be_0x08[
-    sizeof(ConstellationParticle) == 0x08 ? 1 : -1];
+typedef char LegacyConstellationParticle_size_must_be_0x08[
+    sizeof(LegacyConstellationParticle) == 0x08 ? 1 : -1];
+typedef char ConstellationParticle_size_must_be_0x0a[
+    sizeof(ConstellationParticle) == 0x0a ? 1 : -1];
 typedef char ConstellationObjectDefinition_size_must_be_0x08[
     sizeof(ConstellationObjectDefinition) == 0x08 ? 1 : -1];
 

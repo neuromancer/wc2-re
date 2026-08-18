@@ -383,7 +383,7 @@ short RunTitleScreen(void)
     FreePacketAndClear(&logo, 0);
     FreePacketAndClear(&background, 0);
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    FreePacketAndClear(&g_pRoomPlanetShapes_005d2c4c, 0);
+    FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrack(0x36);
     g_bSceneEscapeRequested_0049d4b0 = 0;

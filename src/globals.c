@@ -1118,6 +1118,13 @@ const short g_asConstellationFrame_0046a8f8[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0046a918 = -1;
+const short g_asConstellationVelocity_0049cae0[16] = {
+    8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1
+};
+const short g_asConstellationFrame_0049cb00[16] = {
+    0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
+};
+short g_nConstellationDirection_0049cb20 = -1;
 unsigned char *g_pPacketDecompressionWorkspace_0046a91c;
 unsigned short g_wPacketDecompressionInputSizeOverride_0046a920;
 unsigned short g_wPacketCompressionFormatFlags_0046a924;
@@ -2695,11 +2702,14 @@ int g_nAllocateViewportCalls_005a68ec;
 void *g_pLastPacketAllocation_005c80e0;
 FireworkState g_aFireworks_005c8df0[30];
 unsigned char *g_pTitleFireworkShape_005c8f58;
+Viewport *g_pConstellationViewport_005c8f5c;
+ConstellationParticle g_aConstellationParticles_005c8f60[18];
+short g_nConstellationParticleCount_005c9014;
 unsigned char *g_pFireworkShape_005a6a68;
 ConstellationStar g_aConstellationStars_005a6a70[10];
 Viewport *g_pConstellationViewport_005a6aac;
 short g_nConstellationStarCount_005a6ab0;
-ConstellationParticle g_aConstellationParticles_005a6ac0[16];
+LegacyConstellationParticle g_aConstellationParticles_005a6ac0[16];
 Viewport g_stConstellationViewport_005a6b40;
 short g_nConstellationParticleCount_005a6b54;
 const short *g_pViewScript_005a6b58;
@@ -3835,7 +3845,7 @@ unsigned char *g_pCampaignChalkboardShape_0049ca54;
 unsigned char g_bPrimaryViewBufferColour_0049cb50;
 short g_bDisableChalkboardReplay_0049ca58;
 short g_bSceneBackgroundClicked_005c9018;
-unsigned char *g_pRoomPlanetShapes_005d2c4c;
+unsigned char *g_pConstellationShape_005d2c4c;
 short g_asConstellationObjectIndices_0049c8e0[4];
 char g_szWingCommanderOneGameDataPath_005b2898[0x400];
 unsigned char g_abMissionAuxData_005d3c10[0x28];
