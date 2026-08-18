@@ -1110,7 +1110,7 @@ void remove_object(short obj)
         g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
         g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         clear_alert(obj);
-        g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+        g_asLoadedShipViewFrame_00495d18[obj] = -1;
     }
     g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
     g_apObjectShape_00493868[obj] = 0;
@@ -1531,15 +1531,15 @@ void get_right_shape(short obj, FixedVector *direction)
     g_asObjectScreenAngle_004936b8[obj] = angle;
 
     if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
-        if (g_asCapitalShipViewFrame_0059dd90[obj] != frame) {
+        if (g_asLoadedShipViewFrame_00495d18[obj] != frame) {
             for (slot = 1; slot < 3; slot++) {
-                if (g_aObjectResourceSlots_00493398[slot].type ==
+                if (g_aObjectResourceSlots_00493398[slot].resourceType ==
                     (signed char)type) {
                     break;
                 }
             }
             g_asObjectViewFrame_00493508[obj] = 0;
-            g_asCapitalShipViewFrame_0059dd90[obj] = frame;
+            g_asLoadedShipViewFrame_00495d18[obj] = frame;
             if (g_stViewBuffer_005d2b00.pixels != 0 &&
                 IdentityWord(
                     (unsigned short)g_apObjectShape_00493868[obj]) == 0) {
@@ -1556,7 +1556,7 @@ void get_right_shape(short obj, FixedVector *direction)
                 g_apObjectShape_00493868[obj] =
                     FetchDiskPacketRetrying(
                         (short)g_cCapitalShipLogicalFile_005a7da0,
-                        g_asCapitalShipViewFrame_0059dd90[obj], 0);
+                        g_asLoadedShipViewFrame_00495d18[obj], 0);
             }
             initialize_view_buffer();
         }

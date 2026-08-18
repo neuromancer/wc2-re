@@ -2824,7 +2824,7 @@ void initialize_cockpit(signed char mode)
     g_cScreenViewportMode_005c82a6 = mode;
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
     _itoa((int)g_aObjectTypeData_00496d30[
-              g_acObjectType_00493980[0]].field_16,
+              g_acObjectType_00493980[0]].resourceType,
           resourceNumber, 10);
     if (strlen(resourceNumber) == 1)
         strcat(g_szCockpitResourceFilename_005d1030, "0");
@@ -3250,7 +3250,7 @@ void InitializeCockpitResources(void)
     g_bCockpitResourcesActive_0049c8e8 = 1;
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
     _itoa((int)g_aObjectTypeData_00496d30[
-              g_acObjectType_00493980[0]].field_16,
+              g_acObjectType_00493980[0]].resourceType,
           resourceNumber, 10);
     if (strlen(resourceNumber) == 1)
         strcat(g_szCockpitResourceFilename_005d1030, "0");
@@ -3515,7 +3515,7 @@ void free_cockpit(void)
     }
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
     _itoa((int)g_aObjectTypeData_00496d30[
-              g_acObjectType_00493980[0]].field_16,
+              g_acObjectType_00493980[0]].resourceType,
           shipTypeText, 10);
     if (strlen(shipTypeText) == 1)
         strcat(g_szCockpitResourceFilename_005d1030, "0");
@@ -3567,7 +3567,7 @@ void init_3Space_objects(short scene)
     g_nExternalViewShip_00493468 = -1;
     g_nPlayerCollisionObject_00493480 = -1;
     for (slot = 0; slot <= 4; slot++)
-        g_aObjectResourceSlots_00493398[slot].type = -1;
+        g_aObjectResourceSlots_00493398[slot].resourceType = -1;
     init_constellation(scene);
     load_common_3Space_objects();
 }

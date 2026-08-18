@@ -947,7 +947,7 @@ short ShipExplosion(short obj)
         if (g_aeObjectClass_00495328[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP)
             FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-        g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+        g_asLoadedShipViewFrame_00495d18[obj] = -1;
         explosion = obj;
     } else {
         copy_frame(obj, explosion);

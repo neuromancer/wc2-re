@@ -46,7 +46,8 @@ enum ObjectClass {
     OBJECT_CLASS_MINE         = 10,
     OBJECT_CLASS_MISSILE      = 11,
     OBJECT_CLASS_SHIP         = 12,
-    OBJECT_CLASS_CAPITAL_SHIP = 13
+    OBJECT_CLASS_CAPITAL_SHIP = 13,
+    OBJECT_CLASS_BASE         = 14
 };
 
 enum ObjectType {
@@ -383,7 +384,7 @@ typedef char CampaignVictoryProjectile_size_must_be_0x16[
 typedef struct ObjectTypeData {
     char displayName[20];              /* +0x00 */
     short objectClass;                 /* +0x14 */
-    short field_16;                    /* +0x16 */
+    short resourceType;                /* +0x16 */
     short field_18;                    /* +0x18 */
     short collisionRadius;             /* +0x1A */
     short radarRadius;                 /* +0x1C */
@@ -1372,7 +1373,7 @@ typedef struct MissionObjectiveSource {
 
 /* Five packed WC2 ship-resource cache entries at 0x00493398. */
 typedef struct ObjectResourceSlot {
-    short type;                       /* +0x00 */
+    short resourceType;               /* +0x00 */
     short objectType;                 /* +0x02 */
     short objectClass;                /* +0x04 */
     unsigned char *shapeSet;          /* +0x06: archive section 0 */

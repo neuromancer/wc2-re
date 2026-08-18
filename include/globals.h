@@ -1263,7 +1263,7 @@ extern char g_szAutopilotWaitReason_0049b2f0[28];
 extern char *g_pszAutopilotWaitReason_0049b050;
 extern short g_asShipManeuver_00495f48[12];
 extern const short *g_apCannedSequence_0059dce0[12];
-extern short g_asCapitalShipViewFrame_0059dd90[16];
+extern short g_asLoadedShipViewFrame_00495d18[12];
 extern signed char g_acObjectCollisionGraceTicks_0059ddb0[
     WC2_SPACE_OBJECT_COUNT];
 extern ObjectResourceSlot g_aObjectResourceSlots_00493398[5];

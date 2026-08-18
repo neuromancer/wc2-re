@@ -703,12 +703,13 @@ void DrawNavMapLegend(void)
 /* Function start: 0x451756 */
 char *nav_note(short objective)
 {
-    char *note;
-
-    note = g_aMissionObjectives_004932a8[objective].name;
-    if (*note == '?')
-        note++;
-    return note;
+    if (mobile_objective(objective) == 0)
+        return g_szNoFurtherObjectives_0049bc90;
+    if (*g_aMissionObjectives_004932a8[objective].name == '?')
+        return g_aMissionObjectives_004932a8[objective].name + 1;
+    if (*g_aMissionObjectives_004932a8[objective].name == '.')
+        return strchr(g_aMissionObjectives_004932a8[objective].name, 0);
+    return g_aMissionObjectives_004932a8[objective].name;
 }
 
 /* Function start: 0x45180F */
@@ -1896,7 +1897,7 @@ short RunWc1GameFlow(void)
     case 2:
         ejection_sequence(
             g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[0]].field_16,
+                g_acObjectType_00493980[0]].resourceType,
             1);
         check_stranded();
         if (g_nArcadeState_0049d75c == 3)

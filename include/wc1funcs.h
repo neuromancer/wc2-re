@@ -273,11 +273,11 @@ unsigned int InitWc1Mission(short series, short mission);              /* WC2 un
 void ResetWeaponDisplayPositions(void);                                /* 0x44B29D */
 void init_mission(short series, short mission);                        /* 0x44B2E2 */
 void prepare_mission(void);                                            /* 0x44BA73 */
-int release_all_capital_ship_shapes(void);                             /* 0x44BCF7 */
-int release_capital_ship_shapes(enum ObjectType type);                 /* 0x44BD83 */
+void release_all_capital_ship_shapes(void);                            /* 0x44BCF7 */
+void release_capital_ship_shapes(short resourceType);                  /* 0x44BD83 */
 void load_ship(short resourceType, short objectType,
                short objectClass, short slot);                         /* 0x44BEE5 */
-int free_ship(short slot);                                             /* 0x44C796 */
+void free_ship(short slot);                                            /* 0x44C796 */
 void free_all_slots(void);                                             /* 0x44CC84 */
 void load_all_slots(void);                                             /* 0x44CCE1 */
 void remove_nav_point_objects(void);                                   /* 0x44CDCF */

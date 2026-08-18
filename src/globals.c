@@ -2326,7 +2326,7 @@ char *g_pszAutopilotWaitReason_0049b050 =
     g_szAutopilotWaitReason_0049b2f0;
 short g_asShipManeuver_00495f48[12];
 const short *g_apCannedSequence_0059dce0[12];
-short g_asCapitalShipViewFrame_0059dd90[16];
+short g_asLoadedShipViewFrame_00495d18[12];
 signed char g_acObjectCollisionGraceTicks_0059ddb0[
     WC2_SPACE_OBJECT_COUNT];
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5];

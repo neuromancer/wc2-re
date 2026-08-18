@@ -3568,9 +3568,20 @@ void destroyer_intelligence(short obj)
 /* Function start: 0x444EA7 */
 void stationary_intelligence(short obj)
 {
-    if (g_acObjectType_00493980[obj] == OBJECT_TYPE_KILRATHI_BASE) {
-        g_anObjectYawRotation_00494fc8[obj] = 4;
+    short other;
+
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_BASE) {
+        g_anObjectYawRotation_00494fc8[obj] = 2;
         fire_turrets(obj);
+        for (other = 0; other < 10; other++) {
+            if (g_aeObjectClass_00495328[other] >=
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                g_asShipSide_004955d0[other] !=
+                    g_asShipSide_004955d0[obj]) {
+                g_asShipMissionType_00495de8[obj] = MISSION_TYPE_STRIKE;
+                g_acShipTarget_00495f20[obj] = -1;
+            }
+        }
     }
 }
 
@@ -3971,42 +3982,49 @@ void prepare_mission(void)
 }
 
 /* Function start: 0x44BCF7 */
-int release_all_capital_ship_shapes(void)
+void release_all_capital_ship_shapes(void)
 {
     short obj;
 
-    obj = 0;
-    do {
-        if (g_aeObjectClass_00495328[obj] ==
-            OBJECT_CLASS_CAPITAL_SHIP) {
+    for (obj = 0; obj < 10; obj++) {
+        if (g_aeObjectClass_00495328[obj] >=
+                OBJECT_CLASS_CAPITAL_SHIP ||
+            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+             g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)) {
             FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-            g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+            g_asLoadedShipViewFrame_00495d18[obj] = -1;
         }
-        obj++;
-    } while (obj < 10);
-    return 0;
+    }
 }
 
 /* Function start: 0x44BD83 */
-int release_capital_ship_shapes(enum ObjectType type)
+void release_capital_ship_shapes(short resourceType)
 {
+    short slot;
     short obj;
 
-    if (g_aObjectTypeData_00496d30[type].objectClass ==
-        OBJECT_CLASS_CAPITAL_SHIP) {
-        obj = 1;
-        do {
-            if (g_acObjectType_00493980[obj] == type) {
-                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-                g_asCapitalShipViewFrame_0059dd90[obj] = -1;
-            }
-            obj++;
-        } while (obj < 10);
+    for (slot = 0; slot < 5; slot++) {
+        if (g_aObjectTypeData_00496d30[slot].resourceType == resourceType)
+            break;
     }
-    return 0;
+    if (g_aObjectTypeData_00496d30[slot].objectClass >=
+            OBJECT_CLASS_CAPITAL_SHIP ||
+        (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+         g_aObjectTypeData_00496d30[slot].objectClass ==
+             OBJECT_CLASS_SHIP)) {
+        for (obj = 1; obj < 10; obj++) {
+            if (g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[obj]].resourceType ==
+                resourceType) {
+                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
+                g_asLoadedShipViewFrame_00495d18[obj] = -1;
+            }
+        }
+    }
 }
 
 /* Function start: 0x44BEE5 */
+#pragma function(strcpy, strcat, strlen)
 void load_ship(short resourceType, short objectType,
                short objectClass, short slot)
 {
@@ -4018,7 +4036,7 @@ void load_ship(short resourceType, short objectType,
 
     if (resourceType != -1) {
         if (g_aObjectResourceSlots_00493398[slot].shapeSet == 0) {
-            g_aObjectResourceSlots_00493398[slot].type = resourceType;
+            g_aObjectResourceSlots_00493398[slot].resourceType = resourceType;
             if (objectClass == OBJECT_CLASS_MISSILE)
                 strcpy(fileName, "missile.v");
             else
@@ -4133,7 +4151,7 @@ void load_ship(short resourceType, short objectType,
                     if (g_aeObjectClass_00495328[object] >
                             OBJECT_CLASS_MINE &&
                         g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[object]].field_16 ==
+                            g_acObjectType_00493980[object]].resourceType ==
                             resourceType) {
                         g_apObjectExhaustShape_004953b8[object] =
                             g_aObjectResourceSlots_00493398[slot].animation;
@@ -4183,13 +4201,13 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectResourceSlots_00493398[slot].animation;
                 for (object = 0; object < 10; object++) {
                     if (g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[object]].field_16 ==
+                            g_acObjectType_00493980[object]].resourceType ==
                         resourceType) {
                         g_apObjectExhaustShape_004953b8[object] =
                             g_aObjectResourceSlots_00493398[slot].animation;
                         FreePacketAndClear(
                             &g_apObjectShape_00493868[object], 0);
-                        g_asCapitalShipViewFrame_0059dd90[object] = -1;
+                        g_asLoadedShipViewFrame_00495d18[object] = -1;
                     }
                 }
             }
@@ -4198,76 +4216,102 @@ void load_ship(short resourceType, short objectType,
 }
 
 /* Function start: 0x44C796 */
-int free_ship(short slot)
+void free_ship(short slot)
 {
-    ObjectResourceSlot *resource;
-    ObjectTypeData *typeData;
-    enum ObjectType type;
-    short obj;
     short section;
+    short resourceType;
+    short obj;
+    void **packetReferences;
 
-    resource = &g_aObjectResourceSlots_00493398[slot];
-    type = (enum ObjectType)resource->type;
-    typeData = &g_aObjectTypeData_00496d30[type];
-
-    if (typeData->objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
-        release_capital_ship_shapes(type);
-        if (DAT_0059a856 != 0) {
-            section = 0;
-            do {
-                FreePacketAndClear(
-                    &g_aapPacketReferences_00465c88[slot][section],
-                    4);
-                section++;
-            } while (section < 0x25);
+    resourceType = g_aObjectResourceSlots_00493398[slot].resourceType;
+    if (g_aObjectResourceSlots_00493398[slot].objectClass >=
+            OBJECT_CLASS_CAPITAL_SHIP ||
+        g_aObjectResourceSlots_00493398[slot].objectType == 0x33 ||
+        (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+         g_aObjectResourceSlots_00493398[slot].objectClass ==
+             OBJECT_CLASS_SHIP)) {
+        if (g_nResourcePaletteMode_005c57e6 == 0)
+            release_capital_ship_shapes(resourceType);
+        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+            g_nResourcePaletteMode_005c57e6 == 0 &&
+            g_apPacketReferenceGroups_0049b898[slot] != 0) {
+            packetReferences = g_apPacketReferenceGroups_0049b898[slot];
+            for (section = 0; section < 0x25; section++) {
+                FreePacketAndClear(&packetReferences[section], 8);
+            }
+            ReleasePacketHandle(packetReferences);
+            g_apPacketReferenceGroups_0049b898[slot] = 0;
         }
-        FreePacketAndClear(&resource->shape, 0);
-        typeData->shape = 0;
+        FreePacketAndClear(
+            &g_aObjectResourceSlots_00493398[slot].shape, 8);
+        g_aObjectTypeData_00496d30[slot].shape = 0;
+        FreePacketAndClear(
+            &g_aObjectResourceSlots_00493398[slot].animation, 8);
+        if (g_nResourcePaletteMode_005c57e6 == 0) {
+            FreePacketAndClear(
+                &g_aObjectResourceSlots_00493398[slot].field_12, 8);
+        }
     }
-    if (resource->shapeSet == 0)
-        return 0;
-
-    FreePacketAndClear(&resource->shapeSet, 0);
-    if (type == OBJECT_TYPE_ASTEROID_FIELD) {
+    if (g_aObjectResourceSlots_00493398[slot].shapeSet == 0)
+        return;
+    FreePacketAndClear(
+        &g_aObjectResourceSlots_00493398[slot].shapeSet, 8);
+    if (g_aObjectResourceSlots_00493398[slot].objectType == 0x3d) {
+        for (obj = 1; obj < 10; obj++) {
+            if (g_asObjectType_00495298[obj] == 0x3d)
+                g_apObjectShape_00493868[obj] = 0;
+        }
+        return;
+    }
+    if (g_aObjectResourceSlots_00493398[slot].objectType == 0x2c) {
+        for (obj = 1; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+            if (g_asObjectType_00495298[obj] == 0x2c)
+                g_apObjectShape_00493868[obj] = 0;
+        }
+        return;
+    }
+    if (g_aObjectResourceSlots_00493398[slot].objectType == 5) {
         FreePacketAndClear(
-            &g_aObjectTypeData_00496d30[OBJECT_TYPE_ROCK_CHUNK].shapeSet,
-            0);
+            &g_aObjectTypeData_00496d30[28].shapeSet, 8);
         FreePacketAndClear(
-            &g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID2].shapeSet,
-            0);
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID6].shapeSet = 0;
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID5].shapeSet = 0;
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID4].shapeSet = 0;
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID3].shapeSet = 0;
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet = 0;
-        obj = 10;
-        do {
-            if (g_acObjectType_00493980[obj] == OBJECT_TYPE_ROCK_CHUNK)
+            &g_aObjectTypeData_00496d30[23].shapeSet, 8);
+        g_aObjectTypeData_00496d30[27].shapeSet = 0;
+        g_aObjectTypeData_00496d30[26].shapeSet =
+            g_aObjectTypeData_00496d30[27].shapeSet;
+        g_aObjectTypeData_00496d30[25].shapeSet =
+            g_aObjectTypeData_00496d30[26].shapeSet;
+        g_aObjectTypeData_00496d30[24].shapeSet =
+            g_aObjectTypeData_00496d30[25].shapeSet;
+        for (obj = 10; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+            if (g_asObjectType_00495298[obj] == 0x1c)
                 remove_object(obj);
             else if (g_aeObjectClass_00495328[obj] ==
                      OBJECT_CLASS_ASTEROID)
                 g_apObjectShape_00493868[obj] = 0;
-            obj++;
-        } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
-        return 0;
+        }
+        return;
     }
-
-    if (type != OBJECT_TYPE_MINE_FIELD) {
-        typeData->shapeSet = 0;
-        FreePacketAndClear(&resource->animation, 0);
-        typeData->animation = 0;
-        FreePacketAndClear(&resource->shape, 0);
-        typeData->shape = 0;
-        obj = 0;
-        do {
-            if (g_aeObjectClass_00495328[obj] >=
-                    OBJECT_CLASS_MISSILE &&
-                g_acObjectType_00493980[obj] == type)
-                g_apObjectShape_00493868[obj] = 0;
-            obj++;
-        } while (obj < 10);
+    if (g_aObjectResourceSlots_00493398[slot].objectType == 6) {
+        FreePacketAndClear(
+            &g_aObjectTypeData_00496d30[21].shapeSet, 8);
+        return;
     }
-    return 0;
+    g_aObjectTypeData_00496d30[slot].shapeSet = 0;
+    FreePacketAndClear(
+        &g_aObjectResourceSlots_00493398[slot].animation, 8);
+    g_aObjectTypeData_00496d30[slot].animation = 0;
+    FreePacketAndClear(
+        &g_aObjectResourceSlots_00493398[slot].shape, 8);
+    g_aObjectTypeData_00496d30[slot].shape = 0;
+    if (g_nResourcePaletteMode_005c57e6 == 0) {
+        FreePacketAndClear(
+            &g_aObjectResourceSlots_00493398[slot].field_12, 8);
+    }
+    for (obj = 0; obj < 10; obj++) {
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_MISSILE &&
+            g_acObjectType_00493980[obj] == slot)
+            g_apObjectShape_00493868[obj] = 0;
+    }
 }
 
 /* Function start: 0x44CC84 */
@@ -4275,24 +4319,11 @@ void free_all_slots(void)
 {
     short slot;
 
-#if 0
-    slot = 0;
-    free_view_buffer();
-    release_all_capital_ship_shapes();
-    do {
-        if (g_aObjectResourceSlots_00493398[slot].type != -1)
-            free_ship(slot);
-        slot++;
-    } while (slot < 3);
-    initialize_view_buffer();
-    return 0;
-#else
     release_all_capital_ship_shapes();
     for (slot = 0; slot < 4; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].type != -1)
+        if (g_aObjectResourceSlots_00493398[slot].resourceType != -1)
             free_ship(slot);
     }
-#endif
 }
 
 /* Function start: 0x44CCE1 */
@@ -4302,24 +4333,11 @@ void load_all_slots(void)
     short type;
     short object;
 
-#if 0
-    free_view_buffer();
-    slot = 0;
-    release_all_capital_ship_shapes();
-    do {
-        type = (enum ObjectType)
-            g_aObjectResourceSlots_00493398[slot].type;
-        if (type != -1)
-            load_ship(type, 0, 0, slot);
-        slot++;
-    } while (slot < 3);
-    return 0;
-#else
     g_bShipResourceReloadInProgress_0049b894 = 1;
     free_view_buffer();
     release_all_capital_ship_shapes();
     for (slot = 0; slot < 4; slot++) {
-        type = g_aObjectResourceSlots_00493398[slot].type;
+        type = g_aObjectResourceSlots_00493398[slot].resourceType;
         if (type != -1) {
             load_ship(type,
                       g_aObjectResourceSlots_00493398[slot].objectType,
@@ -4333,7 +4351,6 @@ void load_all_slots(void)
                 g_acObjectType_00493980[object]].animation;
     }
     g_bShipResourceReloadInProgress_0049b894 = 0;
-#endif
 }
 
 /* Function start: 0x44CDCF */
@@ -4341,16 +4358,8 @@ void remove_nav_point_objects(void)
 {
     short i;
 
-#if 0
-    i = 0;
-    do {
-        remove_object(i);
-        i = i + 1;
-    } while (i < 10);
-#else
     for (i = 0; i < 10; i++)
         remove_object(i);
-#endif
 }
 
 /* Function start: 0x44CE0A */
@@ -4358,21 +4367,11 @@ short get_shape_slot(void)
 {
     short slot;
 
-#if 0
-    slot = 0;
-    do {
-        if (g_aObjectResourceSlots_00493398[slot].type == -1)
-            return slot;
-        slot++;
-    } while (slot < 4);
-    return -1;
-#else
     for (slot = 0; slot < 5; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].type == -1)
+        if (g_aObjectResourceSlots_00493398[slot].resourceType == -1)
             return slot;
     }
     return -1;
-#endif
 }
 
 /* Function start: 0x44CE68 */
@@ -4380,22 +4379,11 @@ short shape_loaded(short resourceType)
 {
     short slot;
 
-#if 0
-    slot = 0;
-    do {
-        if ((enum ObjectType)
-                g_aObjectResourceSlots_00493398[slot].type == resourceType)
-            return 1;
-        slot++;
-    } while (slot < 4);
-    return 0;
-#else
     for (slot = 0; slot < 5; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].type == resourceType)
+        if (g_aObjectResourceSlots_00493398[slot].resourceType == resourceType)
             return 1;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x44CEC8 */
@@ -4403,17 +4391,6 @@ short shape_needed(const MissionNavPoint *navPoint, short resourceType)
 {
     short preload;
 
-#if 0
-    if (resourceType != -1) {
-        preload = 0;
-        do {
-            if (navPoint->preloadObjectTypes[preload] == resourceType)
-                return 1;
-            preload++;
-        } while (preload < 2);
-    }
-    return 0;
-#else
     if (resourceType != -1) {
         for (preload = 0; preload < 3; preload++) {
             if (navPoint->preloadObjectTypes[preload] == resourceType)
@@ -4421,7 +4398,6 @@ short shape_needed(const MissionNavPoint *navPoint, short resourceType)
         }
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x44CF2D */
@@ -4432,43 +4408,14 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
     short resourceType;
     short preload;
 
-#if 0
-    free_view_buffer();
-    slot = 1;
-    release_all_capital_ship_shapes();
-    do {
-        if (g_aObjectResourceSlots_00493398[slot].type != -1 &&
-            !shape_needed(navPoint,
-                          g_aObjectResourceSlots_00493398[slot].type)) {
-            free_ship(slot);
-            g_aObjectResourceSlots_00493398[slot].type = -1;
-        }
-        slot++;
-    } while (slot < 3);
-
-    preload = 0;
-    do {
-        resourceType = navPoint->preloadObjectTypes[preload];
-        if (resourceType != -1) {
-            if (!shape_loaded(resourceType)) {
-                slot = get_shape_slot();
-                if (slot != -1)
-                    load_ship(resourceType, 0, 0, slot);
-            }
-        }
-        preload++;
-    } while (preload < 2);
-    initialize_view_buffer();
-    return 0;
-#else
     free_view_buffer();
     release_all_capital_ship_shapes();
     for (slot = 1; slot < 4; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].type != -1 &&
+        if (g_aObjectResourceSlots_00493398[slot].resourceType != -1 &&
             !shape_needed(navPoint,
-                          g_aObjectResourceSlots_00493398[slot].type)) {
+                          g_aObjectResourceSlots_00493398[slot].resourceType)) {
             free_ship(slot);
-            g_aObjectResourceSlots_00493398[slot].type = -1;
+            g_aObjectResourceSlots_00493398[slot].resourceType = -1;
         }
     }
 
@@ -4494,10 +4441,7 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
         }
     }
     initialize_view_buffer();
-#endif
 }
-
-#pragma function(strcpy, strcat)
 
 /* Function start: 0x44D0C7 */
 void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
@@ -4918,7 +4862,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
 {
     MissionShipRecord *record = &g_aMissionShips_00492290[missionShip];
 
-    g_asCapitalShipViewFrame_0059dd90[obj] = -1;
+    g_asLoadedShipViewFrame_00495d18[obj] = -1;
     g_acWingmanMessageState_0059d2c0[obj] = -1;
     DAT_0059c910[obj] = -1;
     g_asActionCount_0059c930[obj] = 0;
@@ -5117,7 +5061,7 @@ void init_intelligence_data(short obj)
             intelIndex = g_acShipPortrait_00495d88[obj];
         } else if (g_asPilotLevel_00495d60[obj] < RATING_ACE_SPIRIT) {
             intelIndex = g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[obj]].field_16;
+                g_acObjectType_00493980[obj]].resourceType;
             shipIntelFile = 1;
         } else {
             ReportFatalErrorCode("024");

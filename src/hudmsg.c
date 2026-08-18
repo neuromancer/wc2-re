@@ -1684,7 +1684,7 @@ void unwarp(short obj)
     } else {
         g_abShipNavPointIndex_00495f60[obj] = (signed char)
             g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[obj]].field_16;
+                g_acObjectType_00493980[obj]].resourceType;
         set_objects_data(obj, OBJECT_TYPE_HYPERSPACE_JUMP_FLASH,
                          obj, 0);
         RecordCannedSceneObjectEvent(obj, 0);

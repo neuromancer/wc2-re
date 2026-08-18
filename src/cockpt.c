@@ -1234,7 +1234,7 @@ void check_message(void)
                 if (g_bEjectionSequencePending_00493058 != 0) {
                     ejection_sequence(
                         g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[0]].field_16,
+                            g_acObjectType_00493980[0]].resourceType,
                         1);
                     g_anShipFuel_00495638[0] =
                         *(int *)&g_aObjectTypeData_00496d30[
@@ -1249,7 +1249,7 @@ void check_message(void)
                 if (g_bEjectionSequencePending_00493058 != 0) {
                     ejection_sequence(
                         g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[0]].field_16,
+                            g_acObjectType_00493980[0]].resourceType,
                         1);
                     g_anShipFuel_00495638[0] =
                         *(int *)&g_aObjectTypeData_00496d30[
