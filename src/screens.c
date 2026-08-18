@@ -1107,7 +1107,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             continueSequence = 0;
         } else if (continueSequence == 0 || sequence->planeCount == 0 ||
                    g_bCutsceneFramePresented_005d2de0 != 0) {
-            g_bCutsceneFramePresented_005d2de0 = 0;
+            continueSequence = 0;
         } else {
             for (planeIndex = 0; planeIndex < sequence->planeCount;
                  planeIndex++) {
@@ -1132,6 +1132,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                         g_nCutsceneFrameDelay_00499c8c;
                 }
             }
+            g_bCutsceneFramePresented_005d2de0 = 0;
         }
     } while (continueSequence != 0);
     g_pCurrentCutsceneSequence_00499c80 = savedSequence;
