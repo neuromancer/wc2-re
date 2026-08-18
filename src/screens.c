@@ -204,8 +204,29 @@ void ResetCutsceneSpriteDrawTicks(void)
 /* Function start: 0x42C7BC */
 void PresentCutsceneFrame(Viewport *source, Viewport *destination)
 {
+    Viewport debugViewport;
+    unsigned short debugFrameNumber;
+
     if (g_cCutsceneVideoMode_00499c48 == 0x13 ||
         g_cCutsceneVideoMode_00499c48 == 0x0d) {
+        if (g_bCutsceneDebugOverlayEnabled_00499ee8 != 0) {
+            debugViewport = g_stModalSourceViewport_005d2c50;
+            debugViewport.bottom = 0x17;
+            g_stCutsceneDebugTextContext_005d2df0 =
+                g_stCutsceneTextContext_005d2f40;
+            g_stCutsceneDebugTextContext_005d2df0.viewport = &debugViewport;
+            g_stCutsceneDebugTextContext_005d2df0.alignment = 0;
+            g_stCutsceneDebugTextContext_005d2df0.cursorY = 0;
+            g_stCutsceneDebugTextContext_005d2df0.cursorX = 0;
+            SetTextContext(&g_stCutsceneDebugTextContext_005d2df0);
+            debugFrameNumber = g_wCutsceneDebugFrameNumber_00499eec++;
+            DrawFormattedText(
+                "%X%Y%d Delay: %d DrawsCalled: %d * %d Time: %U   ",
+                0, 0, debugFrameNumber, g_nCutsceneFrameDelay_00499c8c,
+                g_nCutsceneSpritesDrawn_00499c10,
+                g_bCutsceneFramePresented_005d2de0,
+                g_nInputClock_005c84a8);
+        }
         if (g_nFrameSkipCountdown_0049d760 == 0) {
             ConsumeCutscenePalettePacket(0, 0x100, 1);
             CopyViewportContents(source, destination);
