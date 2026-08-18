@@ -2046,6 +2046,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
     short zero;
     short weapon;
 
+    g_asObjectCreationFrame_005d3900[obj] = g_nSpaceFrame_00493134;
     if (type == OBJECT_TYPE_SPACE_DUST) {
         g_acObjectType_00493980[obj] = type;
         g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;

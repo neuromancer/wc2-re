@@ -1417,6 +1417,8 @@ src/ship.c	1143	00420190	00414BE9	send_at_point	send_at_point	WC1-order-callgrap
 src/ship.c	1153	004201D0	00414C39	find_child_object	find_child_object	WC1-order-semantics-verified		mapped
 src/ship.c	1166		00410161	IsCapitalShipObject	IsCapitalShipObject	WC2-only		wc2-only
 src/ship.c	1174		00410289	GetAdaptiveTurnRate	GetAdaptiveTurnRate	WC2-only		wc2-only
+src/ship.c	1433		004102FD	IncreaseAdaptiveDifficulty	IncreaseAdaptiveDifficulty	WC2-only		wc2-only
+src/ship.c	1446		00410352	DecreaseAdaptiveDifficulty	DecreaseAdaptiveDifficulty	WC2-only		wc2-only
 src/ship.c	1189	00420210	00414CA9	find_child_ship	find_child_ship	WC1-fuzzy-low		mapped
 src/ship.c	1205	00420260	00414D3D	launch_object	launch_object	WC1-fuzzy-low		mapped
 src/ship.c	1219	004202D0	00414DC0	fire	fire	WC1-fuzzy-followup		mapped

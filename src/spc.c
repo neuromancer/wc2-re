@@ -1154,6 +1154,8 @@ unsigned int house_keep_objects(void)
             break;
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
+            if (g_asShipFriendlyFireCooldown_00496090[obj] > 0)
+                g_asShipFriendlyFireCooldown_00496090[obj]--;
             g_abShipExhaustHeat_0059d610[obj] = 0;
             if (count_down(obj) > 0) {
                 if (g_asShipManeuver_00495f48[obj] ==
@@ -1608,7 +1610,9 @@ int object_collision(short obj)
             negate_vector(&g_vCollisionDelta_0059d690);
             apply_force_to_object(&g_vCollisionDelta_0059d690,
                                   &force, partner);
+            g_bApplyingCollisionDamage_00492fb8 = 1;
             inflict_damage(obj, partner, damage, &relativeVelocity);
+            g_bApplyingCollisionDamage_00492fb8 = 0;
         }
         savedScale = g_asObjectScale_00494d90[obj];
         set_objects_data(obj, OBJECT_TYPE_LASER_SPARK, owner, 0);

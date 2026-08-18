@@ -53,41 +53,93 @@ unsigned int check_for_lost_control(short obj)
 /* Function start: 0x411A50 */
 void send_appropriate_message(short attacker, short victim)
 {
-    if (g_aeObjectClass_00495328[attacker] >= OBJECT_CLASS_SHIP) {
-        if (g_nYourWingman_0049346c != -1 &&
-            (short)g_acObjectOwner_00495208[attacker] ==
-                g_nYourWingman_0049346c &&
-            g_nYourWingman_0049346c != attacker &&
-            g_asShipSide_004955d0[victim] == SIDE_KILRATHI) {
-            if (RandomBelowOrEqual(100) < 50 &&
-                g_aeSpecialManeuver_00495600[attacker] !=
+    if (g_acObjectOwner_00495208[attacker] != -1 &&
+        g_aeObjectClass_00495328[
+            (short)g_acObjectOwner_00495208[attacker]] >=
+            OBJECT_CLASS_SHIP) {
+        if (g_asShipSide_004955d0[
+                (short)g_acObjectOwner_00495208[attacker]] ==
+                SIDE_IMPERIAL &&
+            g_asShipSide_004955d0[
+                (short)g_acObjectOwner_00495208[attacker]] !=
+                g_asShipSide_004955d0[victim]) {
+            if (g_aeObjectClass_00495328[victim] >=
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                g_aeSpecialManeuver_00495600[
+                    (short)g_acObjectOwner_00495208[attacker]] !=
                     SPECIAL_MANEUVER_UNKNOWN_9)
-                send_message(g_nYourWingman_0049346c, 5);
-#ifdef WC1_SDL
-        /* An unowned ship has owner -1.  The original indexes side[-1], which
-           aliases the final roll-goal words and normally compares false. */
-        } else if (g_acObjectOwner_00495208[attacker] != -1 &&
-#else
-        } else if (
-#endif
+                send_message(
+                    (short)g_acObjectOwner_00495208[attacker], 6);
+            if (((short)g_acObjectOwner_00495208[attacker] ==
+                     g_nYourWingman_0049346c ||
+                 RandomBelowOrEqual(100) < 70) &&
+                g_aeSpecialManeuver_00495600[
+                    (short)g_acObjectOwner_00495208[attacker]] !=
+                    SPECIAL_MANEUVER_UNKNOWN_9 &&
+                g_aeObjectClass_00495328[victim] == OBJECT_CLASS_SHIP) {
+                if ((short)g_acObjectOwner_00495208[attacker] ==
+                    g_nYourWingman_0049346c) {
+                    if (g_asPlayerDamageCredit_005d38c0[victim] <=
+                            g_asWingmanDamageCredit_005d3830[victim] ||
+                        g_aeObjectClass_00495328[attacker] ==
+                            OBJECT_CLASS_MISSILE)
+                        send_message(
+                            (short)g_acObjectOwner_00495208[attacker], 5);
+                } else {
+                    send_message(
+                        (short)g_acObjectOwner_00495208[attacker], 5);
+                }
+            }
+        } else if (g_asShipSide_004955d0[
+                       (short)g_acObjectOwner_00495208[attacker]] !=
+                       SIDE_IMPERIAL &&
                    g_asShipSide_004955d0[
-                       (short)g_acObjectOwner_00495208[attacker]] ==
-                       SIDE_KILRATHI &&
-                   g_nYourWingman_0049346c == victim) {
-            send_message((short)g_acObjectOwner_00495208[attacker], 5);
+                       (short)g_acObjectOwner_00495208[attacker]] !=
+                       g_asShipSide_004955d0[victim] &&
+                   g_aeSpecialManeuver_00495600[
+                       (short)g_acObjectOwner_00495208[attacker]] !=
+                       SPECIAL_MANEUVER_UNKNOWN_9) {
+            send_message((short)g_acObjectOwner_00495208[attacker], 0x1c);
         }
     }
 }
 
 /* Function start: 0x411C72 */
-int inflict_damage(short attacker, short victim, short damage,
-                   const FixedVector *impactDirection)
+short inflict_damage(short attacker, short victim, short damage,
+                     const FixedVector *impactDirection)
 {
-    unsigned short quadrant;
-    short destroyed;
+    short *protection;
     int sideDot;
+    short ship;
+    short destroyed;
+    short quadrant;
 
+    if (g_acObjectOwner_00495208[attacker] == 0)
+        destroyed = 0;
+    if (g_bApplyingCollisionDamage_00492fb8 != 0 &&
+        g_asShipSide_004955d0[victim] == SIDE_KILRATHI &&
+        g_acObjectOwner_00495208[attacker] == 0 &&
+        RandomBelowOrEqual(9) == 0)
+        IncreaseAdaptiveDifficulty();
+    if (g_bApplyingCollisionDamage_00492fb8 != 0 && victim == 0 &&
+        g_acObjectOwner_00495208[attacker] != -1 &&
+        g_asShipSide_004955d0[
+            (short)g_acObjectOwner_00495208[attacker]] ==
+            SIDE_KILRATHI &&
+        RandomBelowOrEqual(5) == 0)
+        DecreaseAdaptiveDifficulty();
     if (g_bPlayerDamageEnabled_0049d77c == 0 && victim == 0)
+        return 0;
+    if ((g_aasShipShield_00495518[victim][0] >= 1000 ||
+         g_aasShipShield_00495518[victim][1] >= 1000) &&
+        attacker != -1 && g_asObjectType_00495298[attacker] != 0x0d &&
+        g_asObjectType_00495298[attacker] != 0x0e &&
+        g_asObjectType_00495298[attacker] != 0x13)
+        return 0;
+    if (attacker != -1 &&
+        g_aeObjectClass_00495328[attacker] == OBJECT_CLASS_PROJECTILE &&
+        CanShipWeaponDamageTarget(
+            (short)g_acObjectOwner_00495208[attacker], victim) == 0)
         return 0;
     if (damage == 0 ||
         g_aeSpecialManeuver_00495600[victim] ==
@@ -96,82 +148,162 @@ int inflict_damage(short attacker, short victim, short damage,
         return 0;
 
     if (g_aeObjectClass_00495328[victim] < OBJECT_CLASS_SHIP) {
-        g_asShipAccumulatedDamage_0059dee0[victim] = (short)(
-            g_asShipAccumulatedDamage_0059dee0[victim] + damage);
+        g_asObjectDamage_00495178[victim] =
+            (short)(g_asObjectDamage_00495178[victim] + damage);
         if (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[victim]].damageCapacity == -1)
             return 0;
         if (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[victim]].damageCapacity <=
-            g_asShipAccumulatedDamage_0059dee0[victim])
+            g_asObjectDamage_00495178[victim])
             return explode(attacker, victim);
     } else {
-        if (victim == 0) {
-            TriggerPlayerHitPaletteFlash();
-#ifdef WC1_SDL
-            Wc1SdlQueueJoystickDamageRumble(damage);
-#endif
-        }
-
         if (attacker != -1 &&
-            g_nYourWingman_0049346c == victim &&
-            g_acObjectOwner_00495208[attacker] == 0)
-            send_message(victim, 10);
-
-        quadrant = (short)(dot_product(impactDirection,
-            &g_aShipForwardVector_00494208[victim]) > 0);
-        damage = (short)(damage -
-                         g_aasShipShield_00495518[victim][quadrant]);
-        if (damage > 0) {
-            g_aasShipShield_00495518[victim][quadrant] = 0;
-            if (attacker != -1 &&
-                g_aeObjectClass_00495328[attacker] ==
-                    OBJECT_CLASS_PROJECTILE)
-                PlaySfxWaveFileByNumber(9, victim, 0);
-
-            sideDot = dot_product(impactDirection,
-                                  &g_aShipRightVector_00493b78[victim]);
-            if (sideDot > 0xb5)
-                quadrant = 3;
-            else if (sideDot < -0xb5)
-                quadrant = 2;
-            damage = (short)(damage -
-                             g_aasShipArmor_00495540[victim][quadrant]);
-            if (damage > 0) {
-                g_aasShipArmor_00495540[victim][quadrant] = 0;
-
-                if (g_asObjectScreenX_00493598[victim] !=
-                        (short)0x8001 &&
-                    g_aeObjectClass_00495328[victim] !=
-                        OBJECT_CLASS_CAPITAL_SHIP &&
-                    RandomBelowOrEqual(1) == 0)
-                    Create_ship_hit_debris(attacker, 1);
-                if (RandomBelowOrEqual(99) == 0) {
-                    if (attacker != 0 &&
-                        attacker != g_nYourWingman_0049346c &&
-                        g_aeObjectClass_00495328[attacker] ==
-                            OBJECT_CLASS_SHIP) {
-                        if (g_asShipSide_004955d0[attacker] ==
-                            SIDE_KILRATHI)
-                            send_message(attacker, 6);
-                        destroyed = explode(attacker, victim);
-                    }
+            g_acObjectOwner_00495208[attacker] != -1 &&
+            g_asShipSide_004955d0[victim] == SIDE_KILRATHI &&
+            g_asShipSide_004955d0[
+                (short)g_acObjectOwner_00495208[attacker]] ==
+                SIDE_KILRATHI &&
+            g_aeObjectClass_00495328[
+                (short)g_acObjectOwner_00495208[attacker]] >=
+                OBJECT_CLASS_CAPITAL_SHIP)
+            return 0;
+        if (victim == 0)
+            TriggerPlayerHitPaletteFlash();
+        if (g_acObjectOwner_00495208[attacker] != -1 &&
+            g_aeObjectClass_00495328[
+                (short)g_acObjectOwner_00495208[attacker]] ==
+                OBJECT_CLASS_SHIP &&
+            g_asShipSide_004955d0[
+                (short)g_acObjectOwner_00495208[attacker]] ==
+                g_asShipSide_004955d0[victim])
+            g_asShipFriendlyFireCooldown_00496090[
+                (short)g_acObjectOwner_00495208[attacker]] = 40;
+        if ((short)g_acObjectOwner_00495208[attacker] ==
+            g_nYourWingman_0049346c)
+            g_asWingmanDamageCredit_005d3830[victim]++;
+        if (g_acObjectOwner_00495208[attacker] == 0)
+            g_asPlayerDamageCredit_005d38c0[victim] =
+                (short)(g_asPlayerDamageCredit_005d38c0[victim] + 2);
+        if (attacker == g_nYourWingman_0049346c && victim == 0)
+            send_message(g_nYourWingman_0049346c, 0x0c);
+        if (attacker == 0 && victim == g_nYourWingman_0049346c)
+            send_message(g_nYourWingman_0049346c, 0x0c);
+        if (g_asObjectCreationFrame_005d3900[attacker] !=
+                g_nLastFriendlyFireObjectFrame_00492d6c &&
+            attacker != -1 &&
+            g_asShipSide_004955d0[victim] == SIDE_IMPERIAL &&
+            g_acObjectOwner_00495208[attacker] == 0 &&
+            (g_aeObjectClass_00495328[attacker] != OBJECT_CLASS_MISSILE ||
+             g_acShipTarget_00495f20[attacker] == victim)) {
+            if (kilrathi_near(0, 30000) != 0) {
+                send_message(victim, 0x0c);
+                g_nLastFriendlyFireObjectFrame_00492d6c =
+                    g_asObjectCreationFrame_005d3900[attacker];
+            } else if (g_asShipSide_004955d0[0] != SIDE_KILRATHI) {
+                if (g_bFriendlyFireWarningIssued_00492d5c == 0) {
+                    g_bFriendlyFireWarningIssued_00492d5c++;
+                    send_message(victim, 0x0d);
+                    g_nLastFriendlyFireObjectFrame_00492d6c =
+                        g_asObjectCreationFrame_005d3900[attacker];
                 } else {
-                    destroyed = internal_damage(attacker, victim, damage,
-                                                quadrant);
+                    send_message(victim, 0x0e);
+                    g_nLastFriendlyFireObjectFrame_00492d6c =
+                        g_asObjectCreationFrame_005d3900[attacker];
+                    g_asShipSide_004955d0[0] = SIDE_KILRATHI;
+                    g_nYourWingman_0049346c = -1;
+                    for (ship = 1; ship < 10; ship++) {
+                        if (g_asShipSide_004955d0[ship] == SIDE_IMPERIAL) {
+                            if (g_aeObjectClass_00495328[ship] ==
+                                OBJECT_CLASS_SHIP) {
+                                g_asShipMissionType_00495de8[ship] =
+                                    MISSION_TYPE_STRIKE;
+                                g_asShipSystemIndex_00495e00[ship] =
+                                    g_asShipMissionIndex_00495d00[0];
+                                g_aeShipObjective_00495f08[ship] =
+                                    OBJECTIVE_DESTROY_SHIP;
+                                g_acShipTarget_00495f20[ship] = 0;
+                            } else if (g_aeObjectClass_00495328[ship] >=
+                                       OBJECT_CLASS_CAPITAL_SHIP) {
+                                g_asShipMissionType_00495de8[ship] =
+                                    MISSION_TYPE_NONE;
+                                g_asShipTactic_00495f30[ship] =
+                                    TACTIC_SELF_DEFENSE;
+                            }
+                        }
+                    }
                 }
-                if (destroyed == 1)
-                    send_appropriate_message(attacker, victim);
-                return destroyed;
             }
-            g_aasShipArmor_00495540[victim][quadrant] = (short)-damage;
-        } else {
-            g_aasShipShield_00495518[victim][quadrant] = (short)-damage;
-            if (attacker != -1 &&
-                g_aeObjectClass_00495328[attacker] ==
-                    OBJECT_CLASS_PROJECTILE)
-                PlaySfxWaveFileByNumber(10, victim, 0);
         }
+        quadrant = (short)(dot_product(
+            impactDirection, &g_aShipForwardVector_00494208[victim]) > 0);
+        if (g_anShipCloakState_00496020[victim] != 1 &&
+            g_asObjectType_00495298[attacker] != 0x13 &&
+            g_aasShipShield_00495518[victim][0] < 1000 &&
+            g_aasShipShield_00495518[victim][1] < 1000) {
+            protection = &g_aasShipShield_00495518[victim][quadrant];
+            damage = (short)(damage - *protection);
+            if (damage <= 0) {
+                *protection = (short)-damage;
+                if (attacker != -1 &&
+                    g_aeObjectClass_00495328[attacker] ==
+                        OBJECT_CLASS_PROJECTILE) {
+                    if (victim == 0)
+                        PlaySfxWaveFileByNumber(10, 0, 0);
+                    else
+                        PlaySfxWaveFileByNumber(10, victim, 0);
+                }
+                return 0;
+            }
+            *protection = 0;
+        }
+        if (attacker != -1 &&
+            g_aeObjectClass_00495328[attacker] ==
+                OBJECT_CLASS_PROJECTILE) {
+            if (victim == 0)
+                PlaySfxWaveFileByNumber(9, 0, 0);
+            else
+                PlaySfxWaveFileByNumber(9, victim, 0);
+        }
+        sideDot = dot_product(
+            impactDirection, &g_aShipRightVector_00493b78[victim]);
+        if (sideDot > 0xb5)
+            quadrant = 3;
+        else if (sideDot < -0xb5)
+            quadrant = 2;
+        protection = &g_aasShipArmor_00495540[victim][quadrant];
+        damage = (short)(damage - *protection);
+        if (damage > 0) {
+            *protection = 0;
+            if (g_asObjectScreenX_00493598[victim] != (short)0x8001 &&
+                g_aeObjectClass_00495328[victim] <
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                RandomBelowOrEqual(1) == 0)
+                Create_ship_hit_debris(attacker, 1);
+            if (RandomBelowOrEqual(99) == 0) {
+                if (g_acObjectOwner_00495208[attacker] == 0) {
+                    if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI)
+                        send_message(victim, 0x1d);
+                    destroyed = explode(attacker, victim);
+                }
+            } else {
+                destroyed = internal_damage(
+                    attacker,
+                    (short)g_acObjectOwner_00495208[attacker],
+                    victim, damage, quadrant);
+            }
+            if (destroyed == 1) {
+                send_appropriate_message(attacker, victim);
+                if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI &&
+                    g_acObjectOwner_00495208[attacker] == 0)
+                    IncreaseAdaptiveDifficulty();
+                if (g_nYourWingman_0049346c == victim)
+                    DecreaseAdaptiveDifficulty();
+            }
+            return destroyed;
+        }
+        *protection = (short)-damage;
+        return 0;
     }
     return 0;
 }
@@ -265,8 +397,8 @@ void call_enemy(short obj)
 }
 
 /* Function start: 0x4128A7 */
-int internal_damage(short attacker, short victim, short damage,
-                    short quadrant)
+short internal_damage(short attacker, short owner, short victim,
+                      short damage, short quadrant)
 {
     enum ObjectType type;
     short damageCapacity;
@@ -275,7 +407,7 @@ int internal_damage(short attacker, short victim, short damage,
     short weaponCount;
 
     if (victim == 0)
-        return your_internal_damage(attacker, damage, quadrant);
+        return your_internal_damage(attacker, owner, damage, quadrant);
     type = g_acObjectType_00493980[victim];
     damageCapacity = g_aObjectTypeData_00496d30[type].damageCapacity;
     if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_CAPITAL_SHIP) {
@@ -401,7 +533,8 @@ void revise_shields(short obj)
 }
 
 /* Function start: 0x413099 */
-int your_internal_damage(short attacker, short damage, short quadrant)
+short your_internal_damage(short attacker, short owner, short damage,
+                           short quadrant)
 {
     enum ObjectClass attackerClass;
     enum ObjectType playerType;
@@ -1297,6 +1430,32 @@ short GetAdaptiveTurnRate(void)
     return turnRate;
 }
 
+/* Function start: 0x4102FD */
+void IncreaseAdaptiveDifficulty(void)
+{
+    if (g_nSpaceFrame_00493134 -
+            g_nLastAdaptiveDifficultyChangeFrame_00492d60 < 20)
+        return;
+    g_nAdaptiveDifficulty_005d3844++;
+    if (g_nAdaptiveDifficulty_005d3844 > 10)
+        g_nAdaptiveDifficulty_005d3844 = 10;
+    g_nLastAdaptiveDifficultyChangeFrame_00492d60 =
+        g_nSpaceFrame_00493134;
+}
+
+/* Function start: 0x410352 */
+void DecreaseAdaptiveDifficulty(void)
+{
+    if (g_nSpaceFrame_00493134 -
+            g_nLastAdaptiveDifficultyChangeFrame_00492d60 < 20)
+        return;
+    g_nAdaptiveDifficulty_005d3844--;
+    if (g_nAdaptiveDifficulty_005d3844 < 0)
+        g_nAdaptiveDifficulty_005d3844 = 0;
+    g_nLastAdaptiveDifficultyChangeFrame_00492d60 =
+        g_nSpaceFrame_00493134;
+}
+
 /* Function start: 0x414CA9 */
 short find_child_ship(short parent, short objectClass,
                       short target)
@@ -1353,6 +1512,8 @@ void fire(short obj, short target)
     int loadoutOffset;
 
     canFire = g_asObjectCounter_00494be0[obj] <= 0;
+    if (g_asShipFriendlyFireCooldown_00496090[obj] > 0)
+        return;
     get_facing_range_from_object(obj, target);
     range = g_nTargetRange_0049319c;
     closingSpeed = (short)(((g_anShipSpeed_0059b320[target] *

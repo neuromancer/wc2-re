@@ -847,6 +847,8 @@ short new_object(enum ObjectType type, short owner);                 /* 0x4105BF
 short initialize_ship(enum ObjectType type, short owner);            /* 0x41062D */
 short CanShipWeaponDamageTarget(short ship, short target);            /* 0x410102 */
 short HasShipCockpitGunDisplay(short ship);                            /* 0x410192 */
+void IncreaseAdaptiveDifficulty(void);                                 /* 0x4102FD */
+void DecreaseAdaptiveDifficulty(void);                                 /* 0x410352 */
 void ResetTargetCameraView(void);                                      /* 0x4601F1 */
 short CountShipCockpitGunDisplays(short ship);                         /* 0x460242 */
 void ToggleTargetCameraOverlay(void);                                  /* 0x4602BE */
@@ -874,16 +876,16 @@ short real_velocity(short obj);                                       /* 0x4118F
 unsigned int fix_velocity(short obj);                                 /* 0x411922 */
 void SortViableTargetsByDistance(void);                              /* 0x41195F */
 void send_appropriate_message(short attacker, short victim);         /* 0x411A50 */
-int inflict_damage(short attacker, short victim, short damage,
-                   const FixedVector *impactDirection);                /* 0x411C72 */
+short inflict_damage(short attacker, short victim, short damage,
+                     const FixedVector *impactDirection);              /* 0x411C72 */
 short pilot_hit(short obj);                                           /* 0x41262D */
 short onboard_explosion(short obj);                                   /* 0x41270A */
 void call_enemy(short obj);                                           /* 0x41280B */
-int internal_damage(short attacker, short victim, short damage,
-                    short quadrant);                                  /* 0x4128A7 */
+short internal_damage(short attacker, short owner, short victim,
+                      short damage, short quadrant);                   /* 0x4128A7 */
 void revise_shields(short obj);                                       /* 0x412F03 */
-int your_internal_damage(short attacker, short damage,
-                         short quadrant);                             /* 0x413099 */
+short your_internal_damage(short attacker, short owner, short damage,
+                           short quadrant);                           /* 0x413099 */
 short ReportComponentRepaired(short component, short minimumDamage);  /* 0x413578 */
 void repair_internal_damage(void);                                   /* 0x4135F1 */
 void Create_ship_hit_debris(short obj, short count);                  /* 0x4136E2 */

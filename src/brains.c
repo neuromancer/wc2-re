@@ -4868,6 +4868,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_asActionCount_0059c930[obj] = 0;
     g_abShipExhaustHeat_0059d610[obj] = 0;
     g_asShipAccumulatedDamage_0059dee0[obj] = 0;
+    g_asShipFriendlyFireCooldown_00496090[obj] = 0;
     g_acShipDamage_0059c460[obj] = 0;
     g_asCannedCommand_0059d4e0[obj] = 0;
     g_acShipIonDriveDamage_0059d4a0[obj] = 0;
@@ -4876,6 +4877,8 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_apCannedSequence_0059dce0[obj] = 0;
     g_acShipSpawnNavPoint_0059ded0[obj] = navPoint;
     g_nShipMissionIndices_0059c830[obj] = missionShip;
+    g_asWingmanDamageCredit_005d3830[obj] = 0;
+    g_asPlayerDamageCredit_005d38c0[obj] = 0;
     g_acShipPointingMode_0059d790[obj] = 1;
     g_acShipPortrait_00495d88[obj] = record->portrait;
 
