@@ -1380,9 +1380,9 @@ short ShouldWingmanAcceptRoutCommand(short ship, short pilot);          /* 0x421
 void request(short requester, short ship, short command);             /* 0x421F86 */
 unsigned short __stdcall ShouldSuspendCursorForRect(
     const ShortRect *bounds);                                           /* WC2 unmapped */
-unsigned short __stdcall InitializeDIBScreenViewport(
+unsigned short InitializeDIBScreenViewport(
     Viewport *viewport, unsigned short colour);                       /* 0x40FB80 */
-void InitFullScreenViewport(int *vp, short arg);                                    /* 0x40FC7E */
+void InitFullScreenViewport(Viewport *viewport, short arg);                         /* 0x40FC7E */
 unsigned int __stdcall GetPacketSize(const char *filename,
                                      short section);                  /* 0x453A70 */
 int GetFreeNearHeapBytes(void);                                       /* 0x421144 */

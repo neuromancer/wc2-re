@@ -358,49 +358,44 @@ unsigned short __stdcall ShouldSuspendCursorForRect(const ShortRect *bounds)
 }
 
 /* Function start: 0x40FB80 */
-unsigned short __stdcall InitializeDIBScreenViewport(
+unsigned short InitializeDIBScreenViewport(
     Viewport *viewport, unsigned short colour)
 {
     short row;
-    int offset;
 
-    (void)colour;
-    g_nScreenAllocationState_005a66e0 = 0;
-    g_pAllocatedScreenViewport_005a6534 = viewport;
-    g_pAllocatedScreenViewportMirror_005a66e4 = viewport;
-    g_aiSoundEffectSourceActive_005a66ec[0] =
-        (int)&g_nScreenAllocationState_005a66e0;
-    viewport->right = 319;
-    viewport->bottom = 199;
+    g_pDibScreenViewport_005d398c = viewport;
+    g_pDibScreenAllocationState_005d3b4c =
+        &g_nDibScreenAllocationState_005d3b40;
+    g_nDibScreenAllocationState_005d3b40 = 0;
+    g_pDibScreenViewportMirror_005d3b44 = viewport;
     viewport->left = 0;
     viewport->top = 0;
+    viewport->right = 319;
+    viewport->bottom = 199;
     if (g_nSpacePaletteFadeMode_004901e8 != 0x13) {
         SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
                           (int)(short)g_nSpacePaletteFadeMode_004901e8);
         _exit(1);
+        colour = (unsigned short)-1;
     }
     viewport->pixels = GetDIBPixelBuffer();
-    viewport->rowOffsets = g_awScreenRowOffsets_005a6540;
-    row = 0;
-    offset = 0;
-    do {
-        g_awScreenRowOffsets_005a6540[row] = (unsigned short)offset;
-        offset = (short)offset + 320;
-        row++;
-    } while (row < 202);
+    viewport->rowOffsets = g_awDibScreenRowOffsets_005d39a0;
+    for (row = 0; row < 202; row++)
+        g_awDibScreenRowOffsets_005d39a0[row] =
+            (unsigned short)(row * 320);
+    if ((short)colour != -1)
+        ClearViewport(viewport, colour);
     return 1;
 }
 
 /* Function start: 0x40FC7E */
 /* Initialises a 320x200 viewport record (0x13F == 319, 199) then validates it. */
-void InitFullScreenViewport(int *record, short arg)
+void InitFullScreenViewport(Viewport *viewport, short arg)
 {
-    Viewport *viewport = (Viewport *)record;
-
-    DAT_005a6538 = record;
+    g_pFullScreenViewport_005d3990 = viewport;
     viewport->left = 0;
-    viewport->top = 0;
     viewport->right = 319;
+    viewport->top = 0;
     viewport->bottom = 199;
     AllocateViewport(viewport, arg, 0);
 }

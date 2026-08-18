@@ -1041,19 +1041,17 @@ unsigned short StepPaletteTransition(short *current,
                                      const short *target,
                                      short componentCount)
 {
-    unsigned int byteCount;
     short difference;
     short index;
     short previousCountdown;
 
     if (g_nPaletteTransitionInitialise_00469640 != 0) {
-        byteCount = (unsigned int)(componentCount * 2);
         g_pPaletteTransitionAccumulator_005a7d94 =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
         g_pPaletteTransitionDelta_005a7d8c =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
         g_pPaletteTransitionDirection_005a7d88 =
-            AllocateTaggedMemory(byteCount, 0);
+            AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
         if (g_pPaletteTransitionAccumulator_005a7d94 == 0 ||
             g_pPaletteTransitionDelta_005a7d8c == 0 ||
             g_pPaletteTransitionDirection_005a7d88 == 0) {
@@ -1071,22 +1069,21 @@ unsigned short StepPaletteTransition(short *current,
             difference = (short)(current[index] - target[index]);
             if (difference < 0) {
                 difference = (short)-difference;
-                g_pPaletteTransitionDirection_005a7d88[index] = 4;
+                g_pPaletteTransitionDirection_005a7d88[index] = 1;
             } else {
-                g_pPaletteTransitionDirection_005a7d88[index] = -4;
+                g_pPaletteTransitionDirection_005a7d88[index] = -1;
             }
             g_pPaletteTransitionDelta_005a7d8c[index] = difference;
             if (g_nPaletteTransitionMaxDelta_005a7d90 < difference)
                 g_nPaletteTransitionMaxDelta_005a7d90 = difference;
         }
 
-        for (index = 0; index < componentCount; index++) {
-            g_pPaletteTransitionAccumulator_005a7d94[index] =
-                (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 4);
-        }
-        g_nPaletteTransitionInitialise_00469640 = 0;
+        difference = (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 2);
+        for (index = 0; index < componentCount; index++)
+            g_pPaletteTransitionAccumulator_005a7d94[index] = difference;
         g_nPaletteTransitionCountdown_005a7d98 =
-            (short)(g_nPaletteTransitionMaxDelta_005a7d90 / 4);
+            g_nPaletteTransitionMaxDelta_005a7d90;
+        g_nPaletteTransitionInitialise_00469640 = 0;
     }
 
     previousCountdown = g_nPaletteTransitionCountdown_005a7d98;
