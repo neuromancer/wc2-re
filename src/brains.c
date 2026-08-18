@@ -120,7 +120,7 @@ void ShipAiState35(short ship, short target)
 
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
-        if (g_nTargetRange_0059ce10 < 750 ||
+        if (g_nTargetRange_0049319c < 750 ||
             ++g_asShipCount_0059c420[ship] > 10) {
             advance(ship);
             g_asShipCount_0059c420[ship] = 0;
@@ -135,16 +135,16 @@ void ShipAiState35(short ship, short target)
             g_acShipSequence_00495fe8[ship] = 0;
             g_asShipCount_0059c420[ship] = 0;
         }
-        if (g_nTargetFacing_0059d52a < 75)
+        if (g_nTargetFacing_00493198 < 75)
             advance(ship);
         break;
     case 3:
-        point_ship(ship, 0, &g_vToTarget_0059d4d0);
+        point_ship(ship, 0, &g_vToTarget_00493188);
         approach_speed(ship, 0x500);
         if (g_nFacingToTarget_00493194 > 10)
             reset_maneuver(ship, MANEUVER_TAIL_FIRE);
-        if (g_nTargetRange_0059ce10 > 1500 ||
-            g_nTargetFacing_0059d52a > 80)
+        if (g_nTargetRange_0049319c > 1500 ||
+            g_nTargetFacing_00493198 > 80)
             maneuver_complete(ship);
         break;
     }
@@ -191,7 +191,7 @@ void Mdrop_a_mine(short ship, short target)
     short weapon;
 
     weapon = -1;
-    if (g_nTargetRange_0059ce10 > 1500)
+    if (g_nTargetRange_0049319c > 1500)
         weapon = mine_available(ship);
     if (weapon != -1)
         fire_weapon(ship, weapon);
@@ -282,7 +282,7 @@ void Msit_n_spin(short ship, short target)
         if (++g_asShipCount_0059c420[ship] < 4) {
             approach_speed(ship, g_anShipSpeed_0059b320[target]);
             ScaleFixedVector(&g_aShipForwardVector_00494208[target],
-                             g_nTargetRange_0059ce10 * 2, &destination);
+                             g_nTargetRange_0049319c * 2, &destination);
             AddFixedVectors(&g_aShipPosition_00494550[target],
                             &destination, &destination);
             advanceSequence = 0;
@@ -356,7 +356,7 @@ void Mturn_n_spin(short ship, short target)
             advanceSequence = 0;
         break;
     case 2:
-        advanceSequence = g_nTargetFacing_0059d52a <= 80;
+        advanceSequence = g_nTargetFacing_00493198 <= 80;
         if (advanceSequence != 0) {
             set_special(ship, SPECIAL_MANEUVER_KILL_ENGINES);
             point_ship_at_object(ship, target);
@@ -583,8 +583,8 @@ void Mtail_fire(short ship, short target)
     if (no_goal(ship) != 0)
         point_ship_at_object(ship, target);
     chase_speed(ship,
-        (short)((g_asObjectCollisionRadius_0059d710[target] +
-                 g_asObjectCollisionRadius_0059d710[ship] * 6) >> 1));
+        (short)((g_asObjectCollisionRadius_004950e8[target] +
+                 g_asObjectCollisionRadius_004950e8[ship] * 6) >> 1));
     fire_when_ready(ship, 1);
 }
 
@@ -593,13 +593,13 @@ void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
         if (close_behind(
-                g_asObjectCollisionRadius_0059d710[target] + 2000) != 0) {
+                g_asObjectCollisionRadius_004950e8[target] + 2000) != 0) {
             Mtail_fire(ship, target);
             return;
         }
         approach_full_speed(ship);
         if (no_goal(ship) != 0) {
-            if (g_nTargetFacing_0059d52a > 80)
+            if (g_nTargetFacing_00493198 > 80)
                 point_ship_below_object(ship, target);
             else
                 point_ship_behind_object(ship, target);
@@ -655,9 +655,9 @@ void Mtarget_missile(short ship, short target)
     }
 
     if (g_nFacingToTarget_00493194 > 85 &&
-        g_nTargetRange_0059ce10 < 6000 &&
-        (g_nTargetFacing_0059d52a > 80 ||
-         g_nTargetFacing_0059d52a < -80) &&
+        g_nTargetRange_0049319c < 6000 &&
+        (g_nTargetFacing_00493198 > 80 ||
+         g_nTargetFacing_00493198 < -80) &&
         RandomBelowOrEqual(5) == 0) {
         fire_missile(ship);
         maneuver_complete(ship);
@@ -672,7 +672,7 @@ void Mram_missile(short ship, short target)
     if (no_goal(ship) != 0)
         point_ship_at_object(ship, target);
     if (g_nFacingToTarget_00493194 > 75 &&
-        g_nTargetRange_0059ce10 < 6000) {
+        g_nTargetRange_0049319c < 6000) {
         fire_missile(ship);
         maneuver_complete(ship);
     }
@@ -726,7 +726,7 @@ void Mstrafe_enemy(short ship, short target)
 /* Function start: 0x441BC1 */
 void Mbest_strafe(short ship, short target)
 {
-    if (g_nTargetFacing_0059d52a < 0x50) {
+    if (g_nTargetFacing_00493198 < 0x50) {
         Mstrafe_enemy(ship, target);
         return;
     }
@@ -745,7 +745,7 @@ void Msit_n_fire(short ship, short target)
 #endif
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
-    if (g_nTargetRange_0059ce10 > 3000)
+    if (g_nTargetRange_0049319c > 3000)
         approach_cruise_speed(ship);
     else
         approach_zero_speed(ship);
@@ -781,7 +781,7 @@ void Mkill_missile(short ship, short target)
         return;
     }
     point_ship_at_object(ship, g_nTargetShip_0059c3b0);
-    if (g_nTargetRange_0059ce10 < 8000)
+    if (g_nTargetRange_0049319c < 8000)
         fire(ship, g_acShipTarget_00495f20[ship]);
 }
 
@@ -803,11 +803,11 @@ void Mget_distance(short ship, short target)
 {
     short amount;
 
-    if (g_nTargetRange_0059ce10 > 2000) {
+    if (g_nTargetRange_0049319c > 2000) {
         maneuver_complete(ship);
         return;
     }
-    if (g_nTargetRange_0059ce10 < 700 && normal_speed(ship) != 0)
+    if (g_nTargetRange_0049319c < 700 && normal_speed(ship) != 0)
         fire_afterburner(ship, 10);
     else
         approach_full_speed(ship);
@@ -902,8 +902,8 @@ void Mveer_away(short ship, short target)
     default:
         break;
     }
-    if (g_asObjectCollisionRadius_0059d710[target] * 3 <
-        g_nTargetRange_0059ce10) {
+    if (g_asObjectCollisionRadius_004950e8[target] * 3 <
+        g_nTargetRange_0049319c) {
         veer_random(ship, 8);
         maneuver_complete(ship);
         return;
@@ -916,7 +916,7 @@ void Mveer_away(short ship, short target)
             veer_random(ship, 16);
         }
     }
-    if ((DAT_00475e78 >= g_nTargetRange_0059ce10 ||
+    if ((DAT_00475e78 >= g_nTargetRange_0049319c ||
          RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
@@ -986,13 +986,13 @@ void perform_maneuver(short obj)
     }
 #endif
     ship_vs_ship(obj, target);
-    range = g_nTargetRange_0059ce10;
-    if (g_nTargetFacing_0059d52a < 0)
-        maneuverWeight = g_asObjectCollisionRadius_0059d710[target] +
-                         g_asObjectCollisionRadius_0059d710[obj] * 4;
+    range = g_nTargetRange_0049319c;
+    if (g_nTargetFacing_00493198 < 0)
+        maneuverWeight = g_asObjectCollisionRadius_004950e8[target] +
+                         g_asObjectCollisionRadius_004950e8[obj] * 4;
     else
-        maneuverWeight = g_asObjectCollisionRadius_0059d710[target] +
-                         g_asObjectCollisionRadius_0059d710[obj] * 6;
+        maneuverWeight = g_asObjectCollisionRadius_004950e8[target] +
+                         g_asObjectCollisionRadius_004950e8[obj] * 6;
     SetShipAiScratchWord((unsigned short)(maneuverWeight >> 1));
 
     if (unactive(target) != 0) {
@@ -2994,7 +2994,7 @@ void patrol_area(short obj)
         approach_cruise_speed(obj);
         if (scan_and_lock(obj, 14000, TACTIC_APPROACH_TARGET) == 0) {
             ship_vs_point(obj, &g_aShipMissionSpot_00495e18[obj]);
-            if (g_nTargetRange_0059ce10 < 3000) {
+            if (g_nTargetRange_0049319c < 3000) {
                 reset_tactic(obj, TACTIC_LOOK_OUT);
                 return;
             }
@@ -3016,7 +3016,7 @@ void patrol_area(short obj)
                 alter_tactic(obj, TACTIC_LOOK_OUT);
         } else {
             ship_vs_ship(obj, target);
-            if (g_nTargetRange_0059ce10 < 10000) {
+            if (g_nTargetRange_0049319c < 10000) {
                 init_formation_burst(obj);
                 return;
             }
@@ -3171,7 +3171,7 @@ void prepare_for_jump(short obj)
     }
     delay = g_asShipSide_004955d0[obj] == SIDE_KILRATHI ? 270 : 45;
     if (g_asShipCount_0059c420[obj] > delay ||
-        (g_nTargetFacing_0059d52a > 80 && g_nTargetRange_0059ce10 < 6000)) {
+        (g_nTargetFacing_00493198 > 80 && g_nTargetRange_0049319c < 6000)) {
         reset_tactic(obj, TACTIC_WARP_OUT);
         fire_afterburner(obj, 10);
     }
@@ -3247,7 +3247,7 @@ void escort_mission(short obj)
         return;
     }
     if ((g_abShipTurn_00495fd8[obj] & 3) == 0 && in_danger(buddy) != 0 &&
-        g_nTargetRange_0059ce10 < 3000)
+        g_nTargetRange_0049319c < 3000)
         engage(obj, g_nTargetShip_0059c3b0,
                OBJECTIVE_ENGAGE_ENEMY);
     if (g_aeShipObjective_00495f08[obj] != OBJECTIVE_HOME_BASE &&
@@ -3316,7 +3316,7 @@ void approach_and_engage(short obj, short goal)
         }
     }
     possibleTarget = scan_for_enemy(obj, 10000);
-    possibleRange = (unsigned short)g_nTargetRange_0059ce10;
+    possibleRange = (unsigned short)g_nTargetRange_0049319c;
     if (possibleTarget != -1 &&
         (possibleRange * 3 < range ||
          g_aeObjectClass_00495328[goal] == OBJECT_CLASS_FUTURION)) {
@@ -3390,7 +3390,7 @@ void defend_mission(short obj)
         return;
     }
     if (g_abShipTurn_00495fd8[obj] % 10 == 0 &&
-        in_danger(master) != 0 && g_nTargetRange_0059ce10 < 6000 &&
+        in_danger(master) != 0 && g_nTargetRange_0049319c < 6000 &&
         g_aeShipObjective_00495f08[obj] != OBJECTIVE_ENGAGE_ENEMY)
         engage(obj, g_nTargetShip_0059c3b0,
                OBJECTIVE_ENGAGE_ENEMY);
@@ -3645,7 +3645,7 @@ void futurion_intelligence(short obj)
     short count;
 
     ship_vs_ship(0, obj);
-    range = g_nTargetRange_0059ce10;
+    range = g_nTargetRange_0049319c;
     count = ++g_asActionCount_0059c930[obj];
     if (range > 1000 && count > 1000) {
         g_aeObjectClass_00495328[obj] =
@@ -3695,7 +3695,7 @@ void heat_seeking_missile_intelligence(short obj)
 
     if (g_nFacingToTarget_00493194 >= 0 &&
         g_acShipTarget_00495f20[obj] != -1) {
-        point_ship(obj, 0, &g_vToTarget_0059d4d0);
+        point_ship(obj, 0, &g_vToTarget_00493188);
         g_anShipSpeed_0059b320[obj] =
             (get_ship_max_velocity(obj) + 10) << 8;
         return;
@@ -3711,10 +3711,10 @@ void heat_seeking_missile_intelligence(short obj)
             continue;
         }
         get_facing_range_from_object(obj, other);
-        range = g_nTargetRange_0059ce10;
+        range = g_nTargetRange_0049319c;
         facing = g_nFacingToTarget_00493194;
         viableIndex = g_cViableTargetCount_00496178;
-        targetFacing = g_nTargetFacing_0059d52a;
+        targetFacing = g_nTargetFacing_00493198;
         if (range < 9000 && facing > 0 && targetFacing < 0) {
             g_asViableTargetDistance_00496190[viableIndex] = range;
             g_acViableTarget_00496180[viableIndex] = other;
@@ -3760,11 +3760,11 @@ void FF_missile_intelligence(short obj)
                         g_asShipSide_004955d0[other] &&
                     g_acShipCommunicator_0059c850[other] != -1)
                     continue;
-                g_nTargetRange_0059ce10 = distance_from_object(obj, other);
-                if (g_nTargetRange_0059ce10 < 9000) {
+                g_nTargetRange_0049319c = distance_from_object(obj, other);
+                if (g_nTargetRange_0049319c < 9000) {
                     candidate = g_cViableTargetCount_00496178++;
                     g_asViableTargetDistance_00496190[candidate] =
-                        g_nTargetRange_0059ce10;
+                        g_nTargetRange_0049319c;
                     g_acViableTarget_00496180[candidate] = other;
                 }
             }
@@ -3773,7 +3773,7 @@ void FF_missile_intelligence(short obj)
                 g_acShipTarget_00495f20[obj] =
                     g_acViableTarget_00496180[0];
         } else {
-            point_ship(obj, 0, &g_vToTarget_0059d4d0);
+            point_ship(obj, 0, &g_vToTarget_00493188);
             g_anShipSpeed_0059b320[obj] =
                 (get_ship_max_velocity(obj) + 10) << 8;
         }
@@ -3873,7 +3873,7 @@ void init_mission(short series, short mission)
     g_bTargetLockActive_0049ae80 = 0;
     g_bMissileLockAcquired_0049b2b0 = 0;
     g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
-    g_cPendingEjectionTransition_0049b8ac = -1;
+    g_ucPendingEjectionTransition_0049b8ac = 0xff;
     g_nEnemyCommCommandBase_005d179c = 20;
     g_nEnemyCommPilotIndex_005d179e = -1;
     g_nCommDeathSequenceFrame_0049ae84 = 0;
@@ -4035,7 +4035,7 @@ void prepare_mission(void)
     Build_objective_list();
     g_nHomeMissionShipIndex_005d1e22 =
         g_stMissionHeader_005d3e70.homeMissionShip;
-    DAT_00492fa0 = 0;
+    g_bLandingCommRequestPending_00492fa0 = 0;
     g_bRestorePlayerTarget_00493500 = 0;
 #endif
 }
@@ -4552,21 +4552,21 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
             switch (mode) {
             case 0:
                 g_nEjectionSequenceState_0049b8c0 = 0;
-                g_cPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition_0049b8ac =
                     (signed char)transition;
                 g_nPendingEjectionSequenceCount_0049b8b8 = 1;
                 break;
             case 1:
-                g_cPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition_0049b8ac =
                     (signed char)transition;
                 break;
             case 2:
-                g_cPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition_0049b8ac =
                     (signed char)transition;
                 g_bEjectionWaitForEnemyWave_0049b8b0++;
                 break;
             case 3:
-                g_cPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition_0049b8ac =
                     (signed char)transition;
                 g_bEjectionAwaitingCommCommand_0049b8b4++;
                 break;
@@ -4578,7 +4578,7 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
                     return;
                 break;
             case 5:
-                g_cPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition_0049b8ac =
                     (signed char)transition;
                 g_bEjectionWaitForEnemyWave_0049b8b0++;
                 g_bEjectionTriggerImmediately_0049b8bc++;
@@ -4803,8 +4803,8 @@ short room_for_me(short obj, short minimum)
             ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                                &g_aShipPosition_00494550[other],
                                &g_vCollisionDelta_0059d690);
-            range = (short)((g_asObjectCollisionRadius_0059d710[other] +
-                             g_asObjectCollisionRadius_0059d710[obj]) * 2);
+            range = (short)((g_asObjectCollisionRadius_004950e8[other] +
+                             g_asObjectCollisionRadius_004950e8[obj]) * 2);
             if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
                                     range) != 0)
                 return 0;

@@ -215,8 +215,8 @@ short onboard_explosion(short obj)
                 ((unsigned char *)g_aShipVelocity_0059c010 +
                  objectOffset);
         MakeRandomVectorFixed(
-            (short)(g_asObjectCollisionRadius_0059d710[obj] >> 2),
-            (short)(g_asObjectCollisionRadius_0059d710[obj] >> 1),
+            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 2),
+            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 1),
             &offset);
         AddFixedVectors((FixedVector *)(void *)
                             ((unsigned char *)g_aShipPosition_00494550 +
@@ -238,8 +238,8 @@ short onboard_explosion(short obj)
             g_aShipVelocity_0059c010[obj];
         g_asObjectCounter_00494be0[debris] = 6;
         MakeRandomVectorFixed(
-            (short)(g_asObjectCollisionRadius_0059d710[obj] >> 2),
-            (short)(g_asObjectCollisionRadius_0059d710[obj] >> 1),
+            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 2),
+            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 1),
             &offset);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
                         &g_aShipPosition_00494550[debris]);
@@ -676,12 +676,12 @@ void ProcessEnemyWaveCompletion(void)
             return;
     }
     check_next_wave();
-    if ((unsigned char)g_cPendingEjectionTransition_0049b8ac != 0xff &&
+    if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
         g_bEjectionWaitForEnemyWave_0049b8b0 != 0) {
         if (g_bEjectionTriggerImmediately_0049b8bc != 0) {
             ejection_sequence(
-                (unsigned char)g_cPendingEjectionTransition_0049b8ac, 1);
-            g_cPendingEjectionTransition_0049b8ac = -1;
+                g_ucPendingEjectionTransition_0049b8ac, 1);
+            g_ucPendingEjectionTransition_0049b8ac = 0xff;
             g_bEjectionTriggerImmediately_0049b8bc = 0;
         } else {
             g_nEjectionSequenceState_0049b8c0 = 0;
@@ -695,7 +695,7 @@ void ProcessEnemyWaveCompletion(void)
             g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL)
             return;
     }
-    if ((unsigned char)g_cPendingEjectionTransition_0049b8ac != 0xff) {
+    if (g_ucPendingEjectionTransition_0049b8ac != 0xff) {
         g_nEjectionSequenceState_0049b8c0 = 0;
         g_nPendingEjectionSequenceCount_0049b8b8++;
     }
@@ -1074,7 +1074,7 @@ int explosion_shock_wave(short obj, short blastDamage)
                 Vector_magnitude(&delta));
             distance = MaxShort(0,
                 (short)(distance -
-                        g_asObjectCollisionRadius_0059d710[other]));
+                        g_asObjectCollisionRadius_004950e8[other]));
             if (distance > 1000) {
                 damage = 0;
             } else {
@@ -1353,9 +1353,9 @@ void fire(short obj, short target)
 
     canFire = g_asObjectCounter_00494be0[obj] <= 0;
     get_facing_range_from_object(obj, target);
-    range = g_nTargetRange_0059ce10;
+    range = g_nTargetRange_0049319c;
     closingSpeed = (short)(((g_anShipSpeed_0059b320[target] *
-                             (int)g_nTargetFacing_0059d52a) / 100) >> 8);
+                             (int)g_nTargetFacing_00493198) / 100) >> 8);
     fireMissile = RandomBelowOrEqual(19) == 0 &&
                   RandomBelowOrEqual(7000) > range;
     if (fireMissile &&
@@ -1418,7 +1418,7 @@ void fire(short obj, short target)
                 g_anShipSpeed_0059b320[obj] >= 0x500 &&
                 velocityAngle >= 75 && range <= 2000 &&
                 g_nFacingToTarget_00493194 >= -50 &&
-                g_nTargetFacing_0059d52a <= 90) {
+                g_nTargetFacing_00493198 <= 90) {
                 velocityAngle = vector_angle(
                     g_aShipVelocity_0059c010[target],
                     g_aShipVelocity_0059c010[obj]);
@@ -1431,7 +1431,7 @@ void fire(short obj, short target)
                 else
                     mineTime = (short)(range / (closingSpeed + 20));
                 if (range < 2000 && g_nFacingToTarget_00493194 < -50 &&
-                    g_nTargetFacing_0059d52a > 90) {
+                    g_nTargetFacing_00493198 > 90) {
                     shouldFire = 1;
                     if (predictedSeparation <= 50)
                         shouldFire = 0;
@@ -1463,7 +1463,7 @@ void fire(short obj, short target)
                     break;
                 case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
                     shouldFire = g_nFacingToTarget_00493194 > 40 &&
-                                 g_nTargetFacing_0059d52a < -60;
+                                 g_nTargetFacing_00493198 < -60;
                     break;
                 case OBJECT_TYPE_FF_MISSILE:
                     shouldFire = 1;

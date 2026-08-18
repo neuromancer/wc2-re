@@ -659,10 +659,10 @@ unsigned int new_view(int view, short obj)
         view = 8;
     g_nCurrentView_00492fa8 = view;
     if (obj != -1)
-        g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] =
-            MaxShort(10, g_asObjectCollisionRadius_0059d710[obj]);
+        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] =
+            MaxShort(10, g_asObjectCollisionRadius_004950e8[obj]);
     else
-        g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] = 10;
+        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] = 10;
     switch (view) {
     case 0:
         initialize_cockpit(0);
@@ -996,12 +996,12 @@ unsigned int update_star_field(void)
                     distance =
                         (unsigned short)RandomInRange(
                             0, (short)(viewMotion.z >> 8)) +
-                        g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT];
+                        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT];
                     distance = distance * 2 +
                         (unsigned short)RandomInRange(0, 350);
                 } else {
                     distance = (unsigned short)RandomInRange(0, 40) +
-                        g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT];
+                        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT];
                 }
                 rightRandom = signed_random((short)(distance >> 1));
                 upRandom = signed_random((short)(distance >> 1));
@@ -1159,9 +1159,9 @@ unsigned int house_keep_objects(void)
                 g_bLandingAuthorized_00468ff8 != 0 &&
                 normal_speed(0) != 0) {
                 get_facing_range_from_object(0, obj);
-                if (g_nTargetRange_0059ce10 < 700 &&
+                if (g_nTargetRange_0049319c < 700 &&
                     g_nFacingToTarget_00493194 > 75 &&
-                    g_nTargetFacing_0059d52a > 70) {
+                    g_nTargetFacing_00493198 > 70) {
                     g_nArcadeState_0049d75c = 1;
                     g_nPlayerCollisionObject_00493480 = obj;
                 }
@@ -1431,7 +1431,7 @@ unsigned int animate_object(short obj)
         if (effect == -1)
             break;
         ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                         -((int)g_asObjectCollisionRadius_0059d710[obj]
+                         -((int)g_asObjectCollisionRadius_004950e8[obj]
                              << 8),
                          &offset);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
@@ -1619,8 +1619,8 @@ int object_collision(short obj)
                 (signed char)obj;
 
             separationScale = DivideFixed(
-                (g_asObjectCollisionRadius_0059d710[obj] +
-                 g_asObjectCollisionRadius_0059d710[partner]) << 8,
+                (g_asObjectCollisionRadius_004950e8[obj] +
+                 g_asObjectCollisionRadius_004950e8[partner]) << 8,
                 Vector_magnitude(&g_vCollisionDelta_0059d690));
             separationScale = MinInt(separationScale, 0x7d000);
             ScaleFixedVector(&g_vCollisionDelta_0059d690,
@@ -1746,7 +1746,7 @@ unsigned int object_intelligence(short obj)
             FF_missile_intelligence(obj);
             break;
         case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
-            point_ship(obj, 0, &g_vToTarget_0059d4d0);
+            point_ship(obj, 0, &g_vToTarget_00493188);
             g_anShipSpeed_0059b320[obj] =
                 (get_ship_max_velocity(obj) + 10) * 0x100;
             break;

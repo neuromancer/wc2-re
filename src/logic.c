@@ -810,7 +810,8 @@ void InitializeHighMemoryGraphicsBuffers(void)
     highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
         g_dwHighMemoryParagraph_005d3fb4;
     g_pHighMemoryBlockB_00490200 =
-        AllocateDefaultMemory(0x4961a4 - 0x493130);
+        AllocateDefaultMemory((unsigned int)(
+            (unsigned char *)0x4961a4 - (unsigned char *)0x493130));
     if (g_pHighMemoryBlockB_00490200 == 0 ||
         g_pHighMemoryBlockA_004901f8 == 0) {
         FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
@@ -1446,8 +1447,8 @@ short real_crash_time(short obj, short other)
     FixedVector travel;
     FixedVector separation;
 
-    collisionRadius = g_asObjectCollisionRadius_0059d710[obj];
-    collisionRadius += g_asObjectCollisionRadius_0059d710[other];
+    collisionRadius = g_asObjectCollisionRadius_004950e8[obj];
+    collisionRadius += g_asObjectCollisionRadius_004950e8[other];
     collisionRadius += 30;
     collisionFound = 0;
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
@@ -1710,8 +1711,8 @@ int being_tailed(short obj, short other)
 {
     ship_vs_ship(obj, other);
     return g_nFacingToTarget_00493194 < -60 &&
-           g_nTargetFacing_0059d52a > 85 &&
-           g_nTargetRange_0059ce10 < 7000;
+           g_nTargetFacing_00493198 > 85 &&
+           g_nTargetRange_0049319c < 7000;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2038,8 +2039,8 @@ void ComputePointBehindObject(short obj, unsigned short distance,
 /* Function start: 0x42A876 */
 unsigned int close_behind(short range)
 {
-    if (g_nTargetRange_0059ce10 < range &&
-        g_nTargetFacing_0059d52a < -0x32)
+    if (g_nTargetRange_0049319c < range &&
+        g_nTargetFacing_00493198 < -0x32)
         return 1;
     return 0;
 }
@@ -2052,7 +2053,7 @@ short scan_for_enemy(short obj, unsigned short range)
     short distance;
 
     target = -1;
-    g_nTargetRange_0059ce10 = 0;
+    g_nTargetRange_0049319c = 0;
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_00495328[other] < OBJECT_CLASS_SHIP ||
             g_aeSpecialManeuver_00495600[other] ==
@@ -2065,15 +2066,15 @@ short scan_for_enemy(short obj, unsigned short range)
         target = g_nTargetShip_0059c3b0;
         if (distance < range &&
             (target == -1 ||
-             distance < g_nTargetRange_0059ce10)) {
+             distance < g_nTargetRange_0049319c)) {
             target = other;
-            g_nTargetRange_0059ce10 = distance;
+            g_nTargetRange_0049319c = distance;
         }
     }
     if (target != -1) {
         g_nTargetShip_0059c3b0 = target;
         get_facing_range_from_object(obj, g_nTargetShip_0059c3b0);
-        g_nTargetRange_0059ce10 =
+        g_nTargetRange_0049319c =
             distance_from_object(obj, g_nTargetShip_0059c3b0);
         target = g_nTargetShip_0059c3b0;
     }
@@ -2092,8 +2093,8 @@ short any_enemy(short obj, short range)
             g_aeSpecialManeuver_00495600[other] !=
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other]) {
-            g_nTargetRange_0059ce10 = distance_from_object(obj, other);
-            if (g_nTargetRange_0059ce10 < range) {
+            g_nTargetRange_0049319c = distance_from_object(obj, other);
+            if (g_nTargetRange_0049319c < range) {
                 g_nTargetShip_0059c3b0 = other;
                 return 1;
             }
@@ -2156,8 +2157,8 @@ int attacker_in_range(short obj, short range)
                 SPECIAL_MANEUVER_UNKNOWN_9 &&
             g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other] &&
             g_acShipTarget_00495f20[other] == obj) {
-            g_nTargetRange_0059ce10 = distance_from_object(other, obj);
-            if ((unsigned short)g_nTargetRange_0059ce10 <
+            g_nTargetRange_0049319c = distance_from_object(other, obj);
+            if ((unsigned short)g_nTargetRange_0049319c <
                 (unsigned short)range) {
                 g_nTargetShip_0059c3b0 = other;
                 return 1;
@@ -2186,9 +2187,9 @@ int in_danger(short obj)
                 continue;
             range = (unsigned short)distance_from_object(other, obj);
             target = g_nTargetShip_0059c3b0;
-            if (target == -1 || range < g_nTargetRange_0059ce10) {
+            if (target == -1 || range < g_nTargetRange_0049319c) {
                 target = other;
-                g_nTargetRange_0059ce10 = (short)range;
+                g_nTargetRange_0049319c = (short)range;
             }
         }
     }
@@ -3255,13 +3256,13 @@ unsigned int InitializeCockpitResources(signed char mode)
     ResetScannerContacts();
     result = init_personalities();
     g_nCockpitExplosionFrame_00469068 = 8;
-    g_bRadioSilence_0046af70 = 0;
+    g_bRadioSilence_0049b780 = 0;
     if (g_nMemoryConfiguration_005a7cd4 == 2)
-        DAT_0046af78 = 1;
+        g_bCommSpeechPlaying_0049b7a0 = 1;
     else if (g_nSceneResourceBudget_005a7ce4 > 0x59d8)
-        DAT_0046af78 = 1;
+        g_bCommSpeechPlaying_0049b7a0 = 1;
     else
-        DAT_0046af78 = 0;
+        g_bCommSpeechPlaying_0049b7a0 = 0;
     return result;
 }
 

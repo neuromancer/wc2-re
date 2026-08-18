@@ -291,7 +291,7 @@ void initialize_scripted_view(const short *script)
     init_ijk(61);
     g_pViewScript_005a6b58 = script;
     parse_view_script();
-    g_asObjectCollisionRadius_0059d710[61] = 100;
+    g_asObjectCollisionRadius_004950e8[61] = 100;
 }
 
 /* Function start: 0x45A2C0 */

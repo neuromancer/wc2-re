@@ -709,30 +709,30 @@ short distance_from_point(short obj, const FixedVector *point)
     long magnitude;
 
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
-                       (FixedVector *)point, &g_vToTarget_0059d4d0);
-    magnitude = Vector_magnitude(&g_vToTarget_0059d4d0);
+                       (FixedVector *)point, &g_vToTarget_00493188);
+    magnitude = Vector_magnitude(&g_vToTarget_00493188);
     return FixedToShortSaturating((int)magnitude) -
-           g_asObjectCollisionRadius_0059d710[obj];
+           g_asObjectCollisionRadius_004950e8[obj];
 }
 
 /* Function start: 0x40B85C */
 short distance_from_object(short obj, short other)
 {
     return distance_from_point(obj, &g_aShipPosition_00494550[other]) -
-           g_asObjectCollisionRadius_0059d710[other];
+           g_asObjectCollisionRadius_004950e8[other];
 }
 
 /* Function start: 0x40B898 */
 void get_facing_range_from_point(short obj, const FixedVector *point)
 {
-    g_nTargetRange_0059ce10 =
+    g_nTargetRange_0049319c =
         distance_from_point(obj, point) -
-        g_asObjectCollisionRadius_0059d710[obj];
-    g_vNormalizedToTarget_005a7db0 = g_vToTarget_0059d4d0;
-    NormalizeFixedVector(&g_vNormalizedToTarget_005a7db0);
+        g_asObjectCollisionRadius_004950e8[obj];
+    g_vNormalizedToTarget_005d3bd0 = g_vToTarget_00493188;
+    NormalizeFixedVector(&g_vNormalizedToTarget_005d3bd0);
     g_nFacingToTarget_00493194 =
         (short)(((short)dot_product(
-            &g_vNormalizedToTarget_005a7db0,
+            &g_vNormalizedToTarget_005d3bd0,
             &g_aShipForwardVector_00494208[obj]) * 100) >> 8);
 }
 
@@ -740,11 +740,11 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
 void get_facing_range_from_object(short obj, short other)
 {
     get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
-    g_nTargetRange_0059ce10 -= g_asObjectCollisionRadius_0059d710[other];
-    negate_vector(&g_vNormalizedToTarget_005a7db0);
-    g_nTargetFacing_0059d52a =
+    g_nTargetRange_0049319c -= g_asObjectCollisionRadius_004950e8[other];
+    negate_vector(&g_vNormalizedToTarget_005d3bd0);
+    g_nTargetFacing_00493198 =
         (short)(((short)dot_product(
-            &g_vNormalizedToTarget_005a7db0,
+            &g_vNormalizedToTarget_005d3bd0,
             &g_aShipForwardVector_00494208[other]) * 100) >> 8);
 }
 
@@ -879,7 +879,7 @@ void point_ship_behind_object(short obj, short other)
 
     position_relative(&point, g_aShipForwardVector_00494208[other],
                       (short)(-500 -
-                          g_asObjectCollisionRadius_0059d710[other]));
+                          g_asObjectCollisionRadius_004950e8[other]));
     point_ship_at_point(obj, &point);
 }
 
@@ -889,7 +889,7 @@ void point_ship_below_object(short obj, short other)
     FixedVector point = g_aShipPosition_00494550[other];
 
     position_relative(&point, g_aShipUpVector_0059b9e0[other],
-                      (short)(g_asObjectCollisionRadius_0059d710[other] +
+                      (short)(g_asObjectCollisionRadius_004950e8[other] +
                               500));
     point_ship_at_point(obj, &point);
 }
@@ -976,8 +976,8 @@ short check_for_collision(short obj)
             ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_0059d690);
             range = (short)(
-                g_asObjectCollisionRadius_0059d710[(int)other] +
-                g_asObjectCollisionRadius_0059d710[objectIndex]);
+                g_asObjectCollisionRadius_004950e8[(int)other] +
+                g_asObjectCollisionRadius_004950e8[objectIndex]);
             if (g_aeObjectClass_00495328[(int)other] ==
                     OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_SHIP)
@@ -1004,8 +1004,8 @@ short check_for_collision(short obj)
             g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_0059d690);
-            range = (short)(g_asObjectCollisionRadius_0059d710[other] +
-                            g_asObjectCollisionRadius_0059d710[obj]);
+            range = (short)(g_asObjectCollisionRadius_004950e8[other] +
+                            g_asObjectCollisionRadius_004950e8[obj]);
             if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
                 range >>= 1;
@@ -1159,7 +1159,7 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     rotationalMass = DivideFixed(
         (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
             << 8,
-        (int)g_asObjectCollisionRadius_0059d710[obj] << 8);
+        (int)g_asObjectCollisionRadius_004950e8[obj] << 8);
 
     value = DivideFixed(
         MultiplyFixed(localPoint.x, localForce.y) -
@@ -1217,7 +1217,7 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
         (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
             << 8,
         MultiplyFixed(
-            (int)g_asObjectCollisionRadius_0059d710[obj] << 8,
+            (int)g_asObjectCollisionRadius_004950e8[obj] << 8,
             0x123c));
 
     value = DivideFixed(
@@ -1286,12 +1286,12 @@ unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
     ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
                        (FixedVector *)point, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
         distance)
         return 0;
     transform_to_objects_frame(&direction, &viewPosition,
                                WC1_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
         viewPosition.z)
         return 0;
     projection = DivideFixed(viewPosition.z, distance);
@@ -1339,7 +1339,7 @@ void transform_objects_to_your_view(void)
             }
             distance = Vector_magnitude(&direction);
             if (distance <
-                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
+                g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
@@ -1353,7 +1353,7 @@ void transform_objects_to_your_view(void)
                                            objectIndex],
                                        WC1_EYE_OBJECT);
             if (g_aObjectViewPosition_0059afa0[objectIndex].z <
-                g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100) {
+                g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[objectIndex] = (short)0x8001;
                 continue;
             }
@@ -1363,7 +1363,7 @@ void transform_objects_to_your_view(void)
                 continue;
             }
             objectRadius =
-                g_asObjectCollisionRadius_0059d710[objectIndex] * 0x100;
+                g_asObjectCollisionRadius_004950e8[objectIndex] * 0x100;
             if (distance <= objectRadius)
                 distance = objectRadius + 1;
             if (g_aeObjectClass_00495328[objectIndex] > OBJECT_CLASS_DUST) {
@@ -1405,7 +1405,7 @@ void transform_objects_to_your_view(void)
             case OBJECT_CLASS_DUST:
                 dustSize = (short)(MultiplyFixed(
                     0x900, DivideFixed(
-                        g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] << 8,
+                        g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] << 8,
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;

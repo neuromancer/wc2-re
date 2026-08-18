@@ -78,8 +78,8 @@ void auto_position(short obj, short *formationSlot)
         int radii;
         int separation;
 
-        radii = g_asObjectCollisionRadius_0059d710[ship] +
-                g_asObjectCollisionRadius_0059d710[g_nYourWingman_0049346c];
+        radii = g_asObjectCollisionRadius_004950e8[ship] +
+                g_asObjectCollisionRadius_004950e8[g_nYourWingman_0049346c];
         separation = abs(
             g_aShipFormationOffset_0059b520[g_nYourWingman_0049346c].z -
             forward);
@@ -119,15 +119,15 @@ void auto_pilot_sequence(void)
     if (auto_pilot_valid(1) != 0) {
         if (g_bAutopilotDebugEnabled_00499bfc != 0)
             debugFile = fopen("auto.$$$", "w+");
-        if (g_cPendingEjectionTransition_0049b8ac != -1 &&
+        if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
             g_nPendingEjectionSequenceCount_0049b8b8 != 0) {
             g_nEjectionSequenceState_0049b8c0 = 0;
             g_nPendingEjectionSequenceCount_0049b8b8 = 0;
             ejection_sequence(
-                (unsigned char)g_cPendingEjectionTransition_0049b8ac, 1);
-            g_cPendingEjectionTransition_0049b8ac = -1;
+                g_ucPendingEjectionTransition_0049b8ac, 1);
+            g_ucPendingEjectionTransition_0049b8ac = 0xff;
             if (g_nArcadeState_0049d75c == 1) {
-                g_cPendingEjectionTransition_0049b8ac = -1;
+                g_ucPendingEjectionTransition_0049b8ac = 0xff;
                 return;
             }
         }

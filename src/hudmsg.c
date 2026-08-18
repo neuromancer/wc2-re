@@ -308,9 +308,9 @@ int HandleSpaceFlightControls(void)
             break;
         case 0x2f:
             if (notRepeated && control == 0) {
-                g_bVideoImagesSuppressed_0046af74 =
-                    g_bVideoImagesSuppressed_0046af74 == 0;
-                if (g_bVideoImagesSuppressed_0046af74 != 0)
+                g_bVideoImagesSuppressed_0049b784 =
+                    g_bVideoImagesSuppressed_0049b784 == 0;
+                if (g_bVideoImagesSuppressed_0049b784 != 0)
                     SetHudMessageText("VIDEO IMAGES SUPRESSED",
                                       DAT_004699ac, 20);
                 else
@@ -1001,25 +1001,21 @@ void ProcessCannedSceneInput(void)
 /* Function start: 0x44698F */
 void FinishCannedScenePlayback(void)
 {
-    unsigned int stateBytes;
-
-    if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
-        g_pCannedSceneStateBlock_005d3fb0 =
-            (void *)IdentityDword((unsigned int)g_pHighMemoryBlockB_00490200);
-        stateBytes = (unsigned int)(
-            g_abCannedSceneInitialState_00493130 +
-            sizeof(g_abCannedSceneInitialState_00493130) -
-            g_abCannedSceneInitialState_00493130);
-        memcpy(g_abCannedSceneInitialState_00493130,
-               g_pCannedSceneStateBlock_005d3fb0, stateBytes);
-        if (g_nArcadeState_0049d75c != 4) {
-            force_view(0, 0);
-            SetHudMessageText(g_szEndInflightReplay_0049b738,
-                              (unsigned short)g_ucSpaceClearColour_0049cb5c,
-                              20);
-        }
-        _unlink(g_szCannedSceneTapeFile_00490208);
+    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+        return;
+    g_pCannedSceneStateBlock_005d3fb0 =
+        (void *)IdentityDword((unsigned int)g_pHighMemoryBlockB_00490200);
+    memcpy(&g_dwCannedSceneSnapshotStart_00493130,
+           g_pCannedSceneStateBlock_005d3fb0,
+           (unsigned int)(
+               (unsigned char *)0x4961a4 - (unsigned char *)0x493130));
+    if (g_nArcadeState_0049d75c != 4) {
+        force_view(0, 0);
+        SetHudMessageText(g_szEndInflightReplay_0049b738,
+                          (unsigned short)g_ucSpaceClearColour_0049cb5c,
+                          20);
     }
+    _unlink(g_szCannedSceneTapeFile_00490208);
 }
 #pragma intrinsic(memcpy)
 
@@ -1027,20 +1023,18 @@ void FinishCannedScenePlayback(void)
 void WriteTapeInitialState(void)
 {
     short file;
-    unsigned int stateBytes;
 
     file = CreateDataFile(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
         ReportFatalErrorCode(g_szCannedSceneCreateError_00490270);
-    stateBytes = (unsigned int)(
-        g_abCannedSceneInitialState_00493130 +
-        sizeof(g_abCannedSceneInitialState_00493130) -
-        g_abCannedSceneInitialState_00493130);
     WriteDataFileAtOffset((unsigned short)file,
                           g_nCannedSceneFileOffset_005d3fac,
-                          stateBytes,
-                          g_abCannedSceneInitialState_00493130);
-    g_nCannedSceneFileOffset_005d3fac += stateBytes;
+                          (unsigned int)(
+                              (unsigned char *)0x4961a4 -
+                              (unsigned char *)0x493130),
+                          &g_dwCannedSceneSnapshotStart_00493130);
+    g_nCannedSceneFileOffset_005d3fac += (unsigned int)(
+        (unsigned char *)0x4961a4 - (unsigned char *)0x493130);
     CloseDataFile((unsigned short)file);
 }
 

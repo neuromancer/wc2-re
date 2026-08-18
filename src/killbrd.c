@@ -1004,7 +1004,8 @@ short RunCampaignChalkboardMenu(short campaignSlot)
                 strcpy(g_stCurrentPilotProfile_00493408.callsign,
                        "CHEATER");
             DisableMouseCursorDrawing();
-            RefreshCampaignChalkboardScreen();
+            RefreshCampaignChalkboardScreen(
+                (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
             result = 1;
             break;
         case 5:

@@ -105,15 +105,6 @@ void SendWingmanCommandAcknowledgement(short ship, short accepted)
 /* Function start: 0x421C35 */
 short disobey_formation(short ship)
 {
-#if 0
-    switch (g_asPilotLevel_00495d60[ship]) {
-    case 10:
-        return any_enemy_tail(0);
-    case 11:
-        return report_kilrathi_rout(0);
-    }
-    return 0;
-#else
     if (ship != g_nYourWingman_0049346c)
         return 0;
     switch (g_nWingmanFormationDisobeyMode_0049613a) {
@@ -127,7 +118,6 @@ short disobey_formation(short ship)
         return any_enemy(ship, 5000);
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x421CF6 */
@@ -143,35 +133,6 @@ short IsEngagementTargetDisallowed(short ship, short target)
 /* Function start: 0x421D59 */
 short CanPlayerLand(void)
 {
-#if 0
-    int *objectiveType;
-    short result;
-    short index;
-
-    result = 0;
-    if (any_enemy(0, 20000) == 0) {
-        if (evaluate_damage(0) < 50 || g_cPlayerKillCount_005d2fa8 > 0 ||
-            g_anShipFuel_0059b470[0] < 1000)
-            result = 1;
-        index = 0;
-        if (g_cMissionObjectiveCount_00493294 > 0) {
-            do {
-                objectiveType =
-                    &g_aMissionObjectives_004932a8[index].type;
-                if (*objectiveType != 1) {
-                    if (achieved(index) == 0) {
-                        if (visited(index) == 0 || *objectiveType == 2)
-                            goto next_objective;
-                    }
-                    result = 1;
-                }
-next_objective:
-                index++;
-            } while (index < g_cMissionObjectiveCount_00493294);
-        }
-    }
-    return result;
-#else
     short index;
     short result;
 
@@ -191,31 +152,11 @@ next_objective:
             result = 1;
     }
     return result;
-#endif
 }
 
 /* Function start: 0x421E6D */
 short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
 {
-#if 0
-    if (pilot <= 4)
-        return 1;
-    switch (pilot) {
-    case 6:
-        return any_enemy(ship, 5000) == 0;
-    case 7:
-    case 11:
-        return 0;
-    case 8:
-        return g_asShipMissionType_00495de8[ship] ==
-               MISSION_TYPE_CANNED_SEQUENCE;
-    case 9:
-        return (short)triumph(0);
-    case 10:
-        return any_enemy(0, 10000) == 0;
-    }
-    return 1;
-#else
     if (pilot <= 4 || ship != g_nYourWingman_0049346c)
         return 1;
     switch (g_nWingmanRoutDecisionMode_00496138) {
@@ -232,7 +173,6 @@ short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
                MISSION_TYPE_CANNED_SEQUENCE;
     }
     return 1;
-#endif
 }
 
 /* Function start: 0x421F86 */
@@ -332,9 +272,9 @@ void request(short requester, short ship, short command)
             return;
         case 10:
         case 11:
-            g_bRadioSilence_0046af70 = 0;
+            g_bRadioSilence_0049b780 = 0;
             SendWingmanCommandAcknowledgement(ship, 1);
-            g_bRadioSilence_0046af70 = command == 10;
+            g_bRadioSilence_0049b780 = command == 10;
             return;
         case 12:
             cleanup_objectives();
@@ -492,22 +432,6 @@ void *PushMemoryStackFrame(void *memory, int offset)
 /* Function start: 0x458EED */
 int IsPushedPacketHandle(void *handle)
 {
-#if 0
-    int index;
-
-    index = 0;
-    if (g_nPacketHandleCount_005d1020 > 0) {
-        do {
-            if (g_apPacketHandles_005c9020[index] == handle) {
-                if (g_aiPacketHandleOffsets_005cd020[index] < 0)
-                    return 1;
-                return 0;
-            }
-            index++;
-        } while (index < g_nPacketHandleCount_005d1020);
-    }
-    return 0;
-#else
     int index;
 
     for (index = 0; index < g_nPacketHandleCount_005d1020; index++) {
@@ -518,50 +442,11 @@ int IsPushedPacketHandle(void *handle)
         }
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x458F5A */
 void *MapPacketHandleToBlock(void *handle)
 {
-#if 0
-    int count = g_nPacketHandleCount_005d1020;
-    int bytes = count * 4;
-    int i;
-    void **entry;
-    int offset;
-
-    for (;;) {
-        i = 0;
-        g_nPacketHandleCount_005d1020 = count;
-        if (bytes <= 0)
-            return handle;
-        entry = g_apPacketHandles_005c9020;
-        while (*entry != handle) {
-            entry = entry + 1;
-            i = i + 1;
-            g_nPacketHandleCount_005d1020 = count;
-            if (i >= count)
-                return handle;
-        }
-        offset = g_aiPacketHandleOffsets_005cd020[i];
-        if (offset < 0)
-            handle = (unsigned char *)handle + offset;
-        else
-            handle = (unsigned char *)handle - offset;
-#ifdef WC1_SDL
-        g_apPacketHandles_005c9020[i] =
-            g_apPacketHandles_005c9020[count - 1];
-#else
-        g_apPacketHandles_005c9020[i] =
-            *(void **)((unsigned char *)g_apPacketHandles_005c9020 + bytes - 4);
-#endif
-        bytes = bytes - 4;
-        count = count - 1;
-        g_aiPacketHandleOffsets_005cd020[i] =
-            *(int *)((unsigned char *)g_aiPacketHandleOffsets_005cd020 + bytes);
-    }
-#else
     int i;
 
     for (i = 0; i < g_nPacketHandleCount_005d1020; i++) {
@@ -582,7 +467,6 @@ void *MapPacketHandleToBlock(void *handle)
         }
     }
     return handle;
-#endif
 }
 
 #ifndef WC1_SDL
@@ -755,12 +639,12 @@ unsigned int ShowCampaignVictorySequence(void)
         if (Draw_3Space_Frame() != 0) {
             if (frame > 90)
                 g_asObjectScreenScale_00493a58[planetObject]++;
-            if (g_asObjectCollisionRadius_0059d710[61] < planetDepth) {
+            if (g_asObjectCollisionRadius_004950e8[61] < planetDepth) {
                 slot = 0;
                 projectile = projectiles;
                 do {
                     if (projectile->scale != -1 &&
-                        g_asObjectCollisionRadius_0059d710[61] <
+                        g_asObjectCollisionRadius_004950e8[61] <
                             projectile->depth) {
                         projectile->screenX =
                             (short)(projectile->x / projectile->depth);
@@ -952,7 +836,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     do {
         Update_3Space();
         if (Draw_3Space_Frame() != 0) {
-            if (g_asObjectCollisionRadius_0059d710[61] < depth &&
+            if (g_asObjectCollisionRadius_004950e8[61] < depth &&
                 frame < 198) {
                 DrawSpriteScaled(
                     &g_stViewBuffer_005d2b00, g_nViewCenterX_005c80d8,
@@ -963,7 +847,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             dump_buffer_to_screen();
             clear_view_buffer();
         }
-        if (g_asObjectCollisionRadius_0059d710[61] < depth)
+        if (g_asObjectCollisionRadius_004950e8[61] < depth)
             verticalOffset += 400;
         depth += approachStep;
         if (frame > 170)
@@ -1406,26 +1290,23 @@ void LoadCommPortraitShape(short face, signed char alternate)
                                                      (short)alternate);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x447369 */
 void ResetCommMenuChoices(short reuse)
 {
     short choice;
 
     if (reuse == 0) {
-        memset(g_abCommMenuChoiceCommand_005d1948, -1,
-               sizeof(g_abCommMenuChoiceCommand_005d1948));
-        choice = 0;
-        do {
+        for (choice = 0; choice < 7; choice++) {
             g_apszCommMenuChoiceText_005d19a0[choice] = 0;
-            choice++;
-        } while (choice < 7);
+            g_abCommMenuChoiceCommand_005d1948[choice] = -1;
+        }
     }
     g_nCommMenuChoiceCount_0049b770 = 0;
     g_nCommMenuReuseMode_0049b774 = reuse;
 }
 
 /* Function start: 0x4473D1 */
-int IsCommMenuIdle(void)
+short IsCommMenuIdle(void)
 {
     return g_nCommMenuChoiceCount_0049b770 == 0;
 }
@@ -1433,20 +1314,6 @@ int IsCommMenuIdle(void)
 /* Function start: 0x4473FC */
 void AppendCommMenuChoice(const char *text, short command)
 {
-#if 0
-    short index;
-
-    if (g_nCommMenuReuseMode_0049b774 == 1) {
-        index = g_nCommMenuChoiceCount_0049b770;
-        if (g_apszCommMenuChoiceText_005d19a0[index] != text ||
-            g_abCommMenuChoiceCommand_005d1948[index] != command)
-            g_nCommMenuReuseMode_0049b774 = 0;
-    }
-    index = g_nCommMenuChoiceCount_0049b770;
-    g_apszCommMenuChoiceText_005d19a0[index] = text;
-    g_nCommMenuChoiceCount_0049b770 = index + 1;
-    g_abCommMenuChoiceCommand_005d1948[index] = (signed char)command;
-#else
     if (g_nCommMenuReuseMode_0049b774 == 1 &&
         (g_apszCommMenuChoiceText_005d19a0[
              g_nCommMenuChoiceCount_0049b770] != text ||
@@ -1458,31 +1325,26 @@ void AppendCommMenuChoice(const char *text, short command)
     g_abCommMenuChoiceCommand_005d1948[
         g_nCommMenuChoiceCount_0049b770] = (signed char)command;
     g_nCommMenuChoiceCount_0049b770++;
-#endif
 }
 
 /* Function start: 0x447479 */
 void SendCommMenuChoice(short i)
 {
-#if 0
-    AppendCommMenuChoice(g_apszCommMenuText_0046af90[i], i);
-#else
     if (g_apCommunicationTextPackets_005d17c0[i] == 0)
         g_apCommunicationTextPackets_005d17c0[i] =
             LoadPacketAllocated("communic.you", i);
     AppendCommMenuChoice(g_apCommunicationTextPackets_005d17c0[i], i);
-#endif
 }
 
 /* Function start: 0x4474CA */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
     CockpitMessage(message, g_ucHudHighlightColour_0049cb58, -1);
-    g_pszCommMenuHeading_0059e490 = heading;
+    g_pszCommMenuHeading_005d1950 = heading;
 }
 
 /* Function start: 0x4474F4 */
-int IsCommChoiceMenuOpen(void)
+short IsCommChoiceMenuOpen(void)
 {
     return get_mode(1) == 4;
 }
@@ -1490,40 +1352,31 @@ int IsCommChoiceMenuOpen(void)
 /* Function start: WC2_UNMAPPED */
 short GetPendingMenuAction(void)
 {
-    return (short)g_cPendingCommMenuAction_0046af6c;
+    return (short)g_cPendingCommMenuAction_0049b77c;
 }
 
 /* Function start: WC2_UNMAPPED */
 void SetPendingMenuAction(unsigned char v)
 {
-    g_cPendingCommMenuAction_0046af6c = (signed char)v;
+    g_cPendingCommMenuAction_0049b77c = (signed char)v;
 }
 
 /* Function start: 0x447526 */
 void OpenCommRecipientMenu(void)
 {
     push_mode(1, 4);
-    SetPendingMenuAction(1);
+    g_cPendingCommMenuAction_0049b77c = 1;
 }
 
 /* Function start: 0x447544 */
 void CloseCommChoiceMenu(void)
 {
-#if 0
-    if (get_mode(1) == 4) {
-        pop_mode(1);
-        return;
-    }
-    ShutdownEventManager();
-    exit_squadron("!stop");
-#else
     if (get_mode(1) == 4)
         pop_mode(1);
-#endif
 }
 
 /* Function start: 0x44756F */
-int wingman_dead(void)
+short wingman_dead(void)
 {
     return g_nYourWingman_0049346c == -1;
 }
@@ -1537,149 +1390,223 @@ short have_target(void)
 /* Function start: 0x4475D3 */
 unsigned short CanOpenCommMenu(void)
 {
-    if (have_target() == 0) {
-        if (wingman_dead())
-            return 0;
-    }
-    return 1;
+    return have_target() || !wingman_dead();
 }
 
 /* Function start: 0x44760F */
 void SelectCommRecipient(short recipient)
 {
-    g_cCommMenuRecipient_0046afc4 = recipient;
-    SetPendingMenuAction(2);
+    g_cCommMenuRecipient_0049b790 = recipient;
+    g_cPendingCommMenuAction_0049b77c = 2;
 }
 
 /* Function start: 0x447629 */
 void BuildCommunicationRecipientMenu(void)
 {
     short target;
-    short command;
-    const char *text;
 
     ResetCommMenuChoices(g_nCommMenuReuseMode_0049b774);
-    OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
-                          "SELECT");
+    OpenCommMenuForTarget(g_szCommRecipientHeading_0049b7cc,
+                          g_szSelectCommPrompt_0049b7c4);
     if (wingman_dead() != 0) {
         SelectCommRecipient(g_acShipTarget_00495f20[0]);
         return;
     }
-    if (have_target() == 0 ||
-        g_acShipTarget_00495f20[0] == g_nYourWingman_0049346c) {
+    if (have_target() == 0) {
+        SelectCommRecipient(g_nYourWingman_0049346c);
+        return;
+    }
+    if (g_acShipTarget_00495f20[0] == g_nYourWingman_0049346c) {
         SelectCommRecipient(g_nYourWingman_0049346c);
         return;
     }
     AppendCommMenuChoice(
-        g_apWingmanPilots_00598a30[
-            (signed char)g_acShipRating_0059cd80[
-                g_nYourWingman_0049346c]]->callsign,
-        1);
+        g_apszShipName_00495da8[g_nYourWingman_0049346c], 1);
     target = g_acShipTarget_00495f20[0];
     if (target != -1) {
         if (g_asShipSide_004955d0[target] == SIDE_KILRATHI &&
-            g_aeObjectClass_00495328[target] == OBJECT_CLASS_SHIP) {
-            command = 2;
-            text = "ENEMY TARGET";
-        } else {
-            if (g_asShipSide_004955d0[target] != SIDE_IMPERIAL ||
-                ((g_aeObjectClass_00495328[target] != OBJECT_CLASS_SHIP ||
-                  any_enemy(0, 14000) == 0) &&
-                 g_acObjectType_00493980[target] !=
-                     OBJECT_TYPE_TIGERS_CLAW)) {
-                goto finish_recipient_menu;
+            g_aeObjectClass_00495328[target] >= OBJECT_CLASS_SHIP) {
+            if (g_asShipIdentified_00496078[target] != 0)
+                AppendCommMenuChoice(g_szEnemyTarget_0049b7f0, 2);
+            else
+                AppendCommMenuChoice(
+                    g_szUnidentifiedEnemyTarget_0049b800, 2);
+        } else if (g_asShipSide_004955d0[target] == SIDE_IMPERIAL) {
+            if (g_aeObjectClass_00495328[target] >= OBJECT_CLASS_SHIP &&
+                g_asShipMissionType_00495de8[target] ==
+                    MISSION_TYPE_CANNED_SEQUENCE)
+                AppendCommMenuChoice(g_apszShipName_00495da8[
+                                         g_acShipTarget_00495f20[0]],
+                                     3);
+            if ((g_aeObjectClass_00495328[target] == OBJECT_CLASS_SHIP &&
+                 any_enemy(0, 14000) != 0) ||
+                g_asShipMissionIndex_00495d00[target] ==
+                    g_nHomeMissionShipIndex_005d1e22) {
+                if (g_asShipIdentified_00496078[target] != 0)
+                    AppendCommMenuChoice(g_apszShipName_00495da8[
+                                             g_acShipTarget_00495f20[0]],
+                                         3);
+                else
+                    AppendCommMenuChoice(
+                        g_szUnidentifiedFriendlyTarget_0049b810, 3);
+            } else if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
+                       g_bEjectionAwaitingCommCommand_0049b8b4 != 0 &&
+                       g_asObjectType_00495298[target] >
+                           OBJECT_TYPE_EJECTED_PILOT) {
+                AppendCommMenuChoice(
+                    g_apszShipName_00495da8[g_acShipTarget_00495f20[0]],
+                    3);
             }
-            command = 3;
-            text = g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[target]].displayName;
         }
-        AppendCommMenuChoice(text, command);
     }
-
-finish_recipient_menu:
     SendCommMenuChoice(0);
 }
+
+#ifndef WC1_SDL
+#pragma function(strcpy, strcat)
+#endif
 
 /* Function start: 0x447890 */
 void BuildCommunicationCommandMenu(void)
 {
-    signed char rating;
-    const char *name;
+    short object;
 
+    if (g_nEnemyCommPilotIndex_005d179e != -1 &&
+        g_acShipPortrait_00495d88[g_cCommMenuRecipient_0049b790] ==
+            g_nEnemyCommPilotIndex_005d179e &&
+        g_asShipSide_004955d0[g_cCommMenuRecipient_0049b790] ==
+            SIDE_KILRATHI) {
+        g_nEnemyTauntCommandBase_0049b76c =
+            (g_nEnemyTauntCommandBase_0049b76c & 1) |
+            g_nEnemyCommCommandBase_005d179c;
+    } else {
+        g_nEnemyTauntCommandBase_0049b76c =
+            (g_nEnemyTauntCommandBase_0049b76c & 1) | 20;
+    }
     ResetCommMenuChoices(g_nCommMenuReuseMode_0049b774);
-    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0049346c) {
-        if (g_aeShipObjective_00495f08[g_nYourWingman_0049346c] ==
-                OBJECTIVE_HOLD_FORMATION &&
-            any_enemy(0, 14000) != 0) {
-            SendCommMenuChoice(7);
+    if (g_asShipIdentified_00496078[g_cCommMenuRecipient_0049b790] == 0) {
+        SendCommMenuChoice(10);
+    } else {
+        if (g_cCommMenuRecipient_0049b790 == g_nYourWingman_0049346c ||
+            (g_aeObjectClass_00495328[g_cCommMenuRecipient_0049b790] ==
+                 OBJECT_CLASS_SHIP &&
+             g_asShipSide_004955d0[g_cCommMenuRecipient_0049b790] ==
+                 SIDE_IMPERIAL)) {
+            if (g_aeShipObjective_00495f08[
+                    g_cCommMenuRecipient_0049b790] ==
+                    OBJECTIVE_HOLD_FORMATION &&
+                any_enemy(0, 14000) != 0)
+                SendCommMenuChoice(4);
+            if (have_target() != 0 &&
+                g_asShipSide_004955d0[g_acShipTarget_00495f20[0]] ==
+                    SIDE_KILRATHI)
+                SendCommMenuChoice(1);
+            for (object = 1; object < 10; object++) {
+                if (g_aeObjectClass_00495328[object] ==
+                        OBJECT_CLASS_SHIP &&
+                    g_acShipTarget_00495f20[object] == 0) {
+                    get_facing_range_from_object(0, object);
+                    if (g_nFacingToTarget_00493194 < -70 &&
+                        g_nTargetFacing_00493198 > 90 &&
+                        g_nTargetRange_0049319c < 4000) {
+                        SendCommMenuChoice(2);
+                        break;
+                    }
+                }
+            }
+            if (g_cCommMenuRecipient_0049b790 ==
+                g_nYourWingman_0049346c) {
+                if (g_nAutoEngageTimer_00496130 != -1)
+                    SendCommMenuChoice(5);
+                else if (g_aeShipObjective_00495f08[
+                             g_nYourWingman_0049346c] !=
+                         OBJECTIVE_HOLD_FORMATION)
+                    SendCommMenuChoice(6);
+            }
+            if (g_bRadioSilence_0049b780 == 0)
+                SendCommMenuChoice(7);
+            else
+                SendCommMenuChoice(8);
+            SendCommMenuChoice(3);
         }
-        if (g_nAutoEngageTimer_00496130 == -1) {
-            if (g_aeShipObjective_00495f08[g_nYourWingman_0049346c] !=
-                    OBJECTIVE_HOLD_FORMATION)
+        if (g_bEjectionAwaitingCommCommand_0049b8b4 != 0 &&
+            g_ucPendingEjectionTransition_0049b8ac != 0xff) {
+            if (g_asShipSide_004955d0[g_cCommMenuRecipient_0049b790] ==
+                    SIDE_IMPERIAL &&
+                g_asObjectType_00495298[
+                    g_cCommMenuRecipient_0049b790] >
+                    OBJECT_TYPE_EJECTED_PILOT)
                 SendCommMenuChoice(9);
         } else {
-            SendCommMenuChoice(8);
+            if (g_asShipSide_004955d0[g_cCommMenuRecipient_0049b790] ==
+                SIDE_IMPERIAL) {
+                if ((g_asShipMissionIndex_00495d00[
+                         g_cCommMenuRecipient_0049b790] ==
+                         g_nHomeMissionShipIndex_005d1e22 ||
+                     g_asShipMissionIndex_00495d00[
+                         g_cCommMenuRecipient_0049b790] ==
+                         g_stMissionHeader_005d3e70.wingmanMissionShip) &&
+                    g_bLandingCommRequestPending_00492fa0 == 0) {
+                    if (g_aObjectTypeData_00496d30[
+                            g_acObjectType_00493980[
+                                g_cCommMenuRecipient_0049b790]]
+                            .collisionRadius < 500)
+                        SendCommMenuChoice(11);
+                    else
+                        SendCommMenuChoice(9);
+                }
+                if (g_asShipMissionType_00495de8[
+                        g_cCommMenuRecipient_0049b790] ==
+                        MISSION_TYPE_CANNED_SEQUENCE &&
+                    g_bLandingCommRequestPending_00492fa0 == 0)
+                    SendCommMenuChoice(12);
+            }
         }
-        if (g_bRadioSilence_0046af70 != 0)
-            SendCommMenuChoice(11);
-        else
-            SendCommMenuChoice(10);
-    }
-    if (g_asShipSide_004955d0[g_cCommMenuRecipient_0046afc4] ==
-            g_asShipSide_004955d0[0]) {
-        if (g_acObjectType_00493980[g_cCommMenuRecipient_0046afc4] ==
-                OBJECT_TYPE_TIGERS_CLAW &&
-            g_bLandingAuthorized_00468ff8 == 0) {
-            SendCommMenuChoice(12);
-        }
-        if (have_target() != 0 &&
-            g_asShipSide_004955d0[g_acShipTarget_00495f20[0]] ==
-                SIDE_KILRATHI) {
-            SendCommMenuChoice(1);
-        }
-        if (evaluate_damage(0) < 50 && any_enemy(0, 14000) != 0)
-            SendCommMenuChoice(2);
-    }
-    if (g_cCommMenuRecipient_0046afc4 == g_nYourWingman_0049346c)
-        SendCommMenuChoice(3);
-    if (g_asShipSide_004955d0[g_cCommMenuRecipient_0046afc4] ==
+        if (g_asShipSide_004955d0[g_cCommMenuRecipient_0049b790] ==
             SIDE_KILRATHI) {
-        SendCommMenuChoice(4);
-        SendCommMenuChoice(5);
-        SendCommMenuChoice(6);
-    }
-    if (IsCommMenuIdle() == 0)
-        SendCommMenuChoice(0);
-    else
-        CloseCommChoiceMenu();
-
-    if (IsCommChoiceMenuOpen() != 0) {
-        strcpy(g_szCommMenuHeadingBuffer_0059e4a0,
-               "VID-COM SYSTEM\n\nTo: ");
-        rating = g_acShipRating_0059cd80[g_cCommMenuRecipient_0046afc4];
-        if (rating == -1) {
-            name = g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[
-                    g_cCommMenuRecipient_0046afc4]].displayName;
-        } else if (rating < 8) {
-            name = g_apWingmanPilots_00598a30[rating]->callsign;
-        } else {
-            name = g_apszKilrathiAceNames_0046af80[rating - 9];
+            SendCommMenuChoice(g_nEnemyTauntCommandBase_0049b76c);
+            SendCommMenuChoice(g_nEnemyTauntCommandBase_0049b76c + 1);
+            SendCommMenuChoice(g_nEnemyTauntCommandBase_0049b76c + 2);
         }
-        strcat(g_szCommMenuHeadingBuffer_0059e4a0, name);
-        strcat(g_szCommMenuHeadingBuffer_0059e4a0, "\n");
-        OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_0059e4a0,
-                              "CHOOSE");
+    }
+    if (IsCommMenuIdle() != 0) {
+        CloseCommChoiceMenu();
+    } else if (g_nCommMenuChoiceCount_0049b770 < 5) {
+        SendCommMenuChoice(0);
+    }
+    if (IsCommChoiceMenuOpen() != 0) {
+        if (g_nCommMenuChoiceCount_0049b770 >= 5)
+            strcpy(g_szCommMenuHeadingBuffer_005d1960,
+                   g_szCommCompactHeadingPrefix_0049b820);
+        else
+            strcpy(g_szCommMenuHeadingBuffer_005d1960,
+                   g_szCommHeadingPrefix_0049b834);
+        if (g_asShipIdentified_00496078[
+                g_cCommMenuRecipient_0049b790] == 0)
+            strcat(g_szCommMenuHeadingBuffer_005d1960,
+                   g_szUnidentifiedCommRecipient_0049b84c);
+        else
+            strcat(g_szCommMenuHeadingBuffer_005d1960,
+                   g_apszShipName_00495da8[
+                       g_cCommMenuRecipient_0049b790]);
+        strcat(g_szCommMenuHeadingBuffer_005d1960,
+               g_szCommHeadingNewline_0049b85c);
+        OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_005d1960,
+                              g_szChooseCommPrompt_0049b860);
     }
 }
+
+#ifndef WC1_SDL
+#pragma intrinsic(strcpy, strcat)
+#endif
 
 /* Function start: 0x447D85 */
 void RefreshCommunicationMenu(void)
 {
     if (IsCommChoiceMenuOpen() != 0) {
-        if (GetPendingMenuAction() == 1)
+        if (g_cPendingCommMenuAction_0049b77c == 1)
             BuildCommunicationRecipientMenu();
-        if (GetPendingMenuAction() == 2)
+        if (g_cPendingCommMenuAction_0049b77c == 2)
             BuildCommunicationCommandMenu();
         if (g_nCommMenuReuseMode_0049b774 == 0)
             InvalidateVduMode(1);
@@ -1714,7 +1641,7 @@ void show_communications_disp(void)
         set_new_vdu(1);
         choice = 0;
         DrawTextAt(&DAT_005a7700, DAT_005a7530.left,
-                   DAT_005a7530.top, g_pszCommMenuHeading_0059e490, 2);
+                   DAT_005a7530.top, g_pszCommMenuHeading_005d1950, 2);
 #ifdef WC1_SDL
         selectedChoice = Wc1SdlGetCommunicationMenuSelection();
         normalColour = DAT_005a7700.colour;
@@ -1768,7 +1695,7 @@ unsigned int Chosen_communicate_option(short choice)
         return 0;
     case 2:
         CloseCommChoiceMenu();
-        request(0, (short)g_cCommMenuRecipient_0046afc4,
+        request(0, (short)g_cCommMenuRecipient_0049b790,
                 (short)g_abCommMenuChoiceCommand_005d1948[choice]);
         return 0;
     }
@@ -1778,14 +1705,10 @@ unsigned int Chosen_communicate_option(short choice)
 /* Function start: 0x448008 */
 void IssueQuickCommCommand(int recipient, int command)
 {
-#if 0
-    RefreshCommunicationMenu();
-#else
     request(0, recipient, command);
     if (g_nEnemyTauntCommandBase_0049b76c <= command)
         g_nEnemyTauntCommandBase_0049b76c =
             (short)(g_nEnemyTauntCommandBase_0049b76c & 0xfe);
-#endif
 }
 
 /* Function start: 0x44804A */
@@ -1794,22 +1717,6 @@ void FreeCommDisplayResources(void)
     g_nCommSpeakerRating_0049b798 = -1;
     g_nCommSpeakerObject_0049b794 = -1;
     g_nCommPortraitIndex_0049b79c = -1;
-
-#if 0
-#ifdef WC1_SDL
-    /* The original indexes the portrait table with its -1 inactive sentinel,
-       aliasing the final two palette-allocation words at 0x0059E17C. */
-    if (g_nCommPortraitIndex_0049b79c != -1)
-#endif
-    FreePacketAndClear(&g_apCommPortraitShapes_0059e180[
-        g_nCommPortraitIndex_0049b79c], 0);
-    FreePacketAndClear(&g_pConfedCommBackground_00469278, 0);
-    FreePacketAndClear(&g_pKilrathiCommBackground_00469280, 0);
-    FreePacketAndClear(&g_pCommStaticShape_0046927c, 0);
-    g_nCommSpeakerRating_0049b798 = -1;
-    g_nCommSpeakerObject_0049b794 = -1;
-    g_nCommPortraitIndex_0049b79c = -1;
-#endif
 }
 
 /* Function start: 0x448070 */
@@ -1843,36 +1750,6 @@ void ShowCentredPrompt(char *text, unsigned short arg)
     SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
                       g_ucHudHighlightColour_0049cb58, arg);
 }
-
-#if 0
-/* WC1 function start: 0x431520 */
-short LoadCommDisplayResources(short rating, enum Side side)
-{
-    short loaded;
-
-    loaded = 1;
-    switch (side) {
-    case SIDE_IMPERIAL:
-        if (g_pConfedCommBackground_00469278 == 0)
-            g_pConfedCommBackground_00469278 =
-                FetchDiskPacketRetrying(11, 0, 0);
-        loaded = g_pConfedCommBackground_00469278 != 0;
-        break;
-    case SIDE_KILRATHI:
-        if (g_pKilrathiCommBackground_00469280 == 0)
-            g_pKilrathiCommBackground_00469280 =
-                FetchDiskPacketRetrying(11, 9, 0);
-        loaded = g_pKilrathiCommBackground_00469280 != 0;
-        break;
-    }
-    if (g_pCommStaticShape_0046927c == 0)
-        g_pCommStaticShape_0046927c =
-            FetchDiskPacketRetrying(11, 11, 0);
-    if (loaded != 0 && g_pCommStaticShape_0046927c != 0)
-        return 1;
-    return 0;
-}
-#endif
 
 /* Function start: 0x447300 */
 void LoadCommPortraitResources(short portrait)
@@ -1950,7 +1827,8 @@ void real_vid_transmit(short obj, short message)
     if (g_nCommPortraitIndex_0049b79c == -1)
         return;
     objectOffset = (int)obj * sizeof(enum ObjectType);
-    if (DAT_0046af78 != 0 && g_bVideoImagesSuppressed_0046af74 == 0) {
+    if (g_bCommSpeechPlaying_0049b7a0 != 0 &&
+        g_bVideoImagesSuppressed_0049b784 == 0) {
         if (g_apCommPortraitShapes_0059e180[
                 g_nCommPortraitIndex_0049b79c] == 0)
             LoadCommPortraitShape(g_nCommPortraitIndex_0049b79c, 0);

@@ -632,7 +632,7 @@
 0x00433AD0 PollPersonnelMenuInput
 0x00433C84 InitializeCampaignChalkboardScreen
 0x00433E8C RefreshCampaignChalkboardScreen
-0x00433ED7 GetBunkInfo
+0x00433ED7 DrawCampaignChalkboardFrame
 0x00433F94 DrawPersonnelMenuBackdrop
 0x00434043 LoadSelectedPilotCampaign
 0x00434177 HasSavedPilotCampaign
@@ -898,6 +898,7 @@
 0x00447170 GetShapeFrameExtent
 0x004471B0 free_viewport
 0x00447300 LoadCommPortraitResources
+0x00447369 ResetCommMenuChoices
 0x004473D1 IsCommMenuIdle
 0x004473FC AppendCommMenuChoice
 0x00447479 SendCommMenuChoice

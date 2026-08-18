@@ -206,7 +206,8 @@ unsigned int funeral_wingman(char *text, short duration);              /* WC2 un
 unsigned int RunWc1FuneralSequence(int playerFuneral);             /* WC2 unmapped */
 short RunCampaignGameLoop(short campaignSlot);                          /* 0x409C1A */
 void InitializeCampaignChalkboardScreen(short cockpitVariant);          /* 0x433C84 */
-void RefreshCampaignChalkboardScreen(void);                             /* 0x433E8C */
+void RefreshCampaignChalkboardScreen(short cockpitVariant);             /* 0x433E8C */
+void DrawCampaignChalkboardFrame(unsigned short frame);                 /* 0x433ED7 */
 short RunCampaignChalkboardMenu(short campaignSlot);                    /* 0x459D74 */
 void ShowPlayerEjectionSequence(void);                                  /* 0x438020 */
 void ShowPlayerStrandingSequence(void);                                 /* 0x438080 */
@@ -750,7 +751,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
                       MissionObjective *objectives);                   /* WC2 unmapped */
 void SetBunkMenuLabel(short occupied, short side, char **label,
                       int series, int mission, char *description);     /* WC2 unmapped */
-void GetBunkInfo(BarracksAnimationState *state);                       /* 0x433ED7 */
+void GetBunkInfo(BarracksAnimationState *state);                       /* WC2 unmapped */
 void DrawBarracksBunks(Viewport *viewport, unsigned char *shape,
                        BarracksAnimationState *state);                 /* 0x46138D */
 void DrawBarracksStaticDetails(Viewport *viewport,
@@ -1470,18 +1471,18 @@ void PollJoystickButtonEvents(void);                                   /* 0x4214
 void PollMenuInputDevices(void);                                       /* 0x421530 */
 short get_face(short rating, unsigned int side);                      /* WC2 unmapped */
 void LoadCommPortraitShape(short face, signed char alternate);        /* WC2 unmapped */
-void ResetCommMenuChoices(short reuse);                               /* WC2 unmapped */
-int IsCommMenuIdle(void);                                              /* 0x4473D1 */
+void ResetCommMenuChoices(short reuse);                               /* 0x447369 */
+short IsCommMenuIdle(void);                                            /* 0x4473D1 */
 void AppendCommMenuChoice(const char *text, short command);            /* 0x4473FC */
 void SendCommMenuChoice(short i);                                          /* 0x447479 */
 void OpenCommMenuForTarget(const char *heading,
                            const char *message);                       /* 0x4474CA */
-int IsCommChoiceMenuOpen(void);                                       /* 0x4474F4 */
+short IsCommChoiceMenuOpen(void);                                     /* 0x4474F4 */
 short GetPendingMenuAction(void);                                            /* WC2 unmapped */
 void SetPendingMenuAction(unsigned char v);                                 /* WC2 unmapped */
 void OpenCommRecipientMenu(void);                                     /* 0x447526 */
 void CloseCommChoiceMenu(void);                                       /* 0x447544 */
-int wingman_dead(void);                                               /* 0x44756F */
+short wingman_dead(void);                                             /* 0x44756F */
 short have_target(void);                                              /* 0x44759B */
 unsigned short CanOpenCommMenu(void);                                 /* 0x4475D3 */
 void SelectCommRecipient(short recipient);                            /* 0x44760F */

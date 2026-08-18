@@ -2419,7 +2419,7 @@ void target_locking(signed char target)
         }
 
         get_facing_range_from_object(0, (short)target);
-        if (g_nTargetFacing_0059d52a > -0x41) {
+        if (g_nTargetFacing_00493198 > -0x41) {
             lock_off();
             return;
         }
@@ -2790,12 +2790,12 @@ void draw_nav_pointer(void)
     ComputeVectorDelta(&g_aShipPosition_00494550[WC1_EYE_OBJECT],
                        &objectivePosition, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >=
+    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >=
         distance)
         return;
     transform_to_objects_frame(&direction, &viewPosition,
                                WC1_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] * 0x100 >
+    if (g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] * 0x100 >
         viewPosition.z)
         return;
     if (DivideFixed(viewPosition.z, distance) < 0x94)
@@ -3335,7 +3335,7 @@ void send_message(short obj, signed char message)
         g_nCannedSceneMode_0049021c == 0) {
         if (g_nYourWingman_0049346c != -1 &&
             g_nYourWingman_0049346c == obj &&
-            g_bRadioSilence_0046af70 != 0) {
+            g_bRadioSilence_0049b780 != 0) {
             g_acWingmanMessageState_0059d2c0[obj] = -1;
             return;
         }
@@ -3571,7 +3571,7 @@ void vid_transmit(void)
          g_nRenderedSpaceFrame_00493138 % 2 != 0) &&
         g_nCommPortraitIndex_0049b79c != -1 &&
         g_aapszPilotSpeech_0059e220[g_nCommPortraitIndex_0049b79c] != 0 &&
-        g_bVideoImagesSuppressed_0046af74 == 0) {
+        g_bVideoImagesSuppressed_0049b784 == 0) {
         if (g_aeSpecialManeuver_00495600[speaker] ==
             SPECIAL_MANEUVER_UNKNOWN_9) {
             if (g_asShipSide_004955d0[speaker] == SIDE_IMPERIAL) {

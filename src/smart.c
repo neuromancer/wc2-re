@@ -81,7 +81,7 @@ void prevent_collision(short obj)
     ship_vs_point(obj, &g_aShipPosition_00494550[other]);
     facing = g_nFacingToTarget_00493194;
     if (facing > 75) {
-        if (g_nTargetFacing_0059d52a < -70)
+        if (g_nTargetFacing_00493198 < -70)
             approach_zero_speed(obj);
         else
             approach_full_speed(obj);
@@ -93,7 +93,7 @@ void prevent_collision(short obj)
     if (no_goal(obj) != 0) {
         facing = g_nFacingToTarget_00493194;
         if (facing < -60 &&
-            g_nTargetFacing_0059d52a > 60) {
+            g_nTargetFacing_00493198 > 60) {
             veer_random(obj, 14);
             return;
         }
@@ -292,20 +292,20 @@ unsigned int chase_location(short obj, const FixedVector *destination,
         approach_speed(obj, 0);
         speed = FixedToShortSaturating(g_anShipSpeed_0059b320[reference]);
         speed = MaxShort(speed, 1);
-        if (g_nTargetRange_0059ce10 / speed > 49)
+        if (g_nTargetRange_0049319c / speed > 49)
             pointAtDestination = 1;
-    } else if (g_nTargetRange_0059ce10 > 175 && no_goal(obj) != 0) {
+    } else if (g_nTargetRange_0049319c > 175 && no_goal(obj) != 0) {
         pointAtDestination = 1;
     }
-    control_speed(obj, (unsigned short)g_nTargetRange_0059ce10,
+    control_speed(obj, (unsigned short)g_nTargetRange_0049319c,
                   desiredSpeed);
     if (g_nFacingToTarget_00493194 > 85 &&
-        g_nTargetRange_0059ce10 > 175)
+        g_nTargetRange_0049319c > 175)
         g_anRollGoal_004954d8[obj] =
             match_roll_orientation(obj, reference);
     if (pointAtDestination != 0)
-        point_ship(obj, 0, &g_vToTarget_0059d4d0);
-    if (g_nTargetRange_0059ce10 < 175) {
+        point_ship(obj, 0, &g_vToTarget_00493188);
+    if (g_nTargetRange_0049319c < 175) {
         if (forwardFacing > 90) {
             copy_frame(reference, obj);
             steady_object(obj);
@@ -314,7 +314,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
         }
         point_ship(obj, 0, &forwardTravel);
     }
-    if (g_nTargetRange_0059ce10 < 600)
+    if (g_nTargetRange_0049319c < 600)
         trim_goals(obj, 10);
     return 0;
 }
@@ -333,7 +333,7 @@ unsigned int goto_location(short obj, const FixedVector *destination)
             return 0;
         }
     } else {
-        range = g_nTargetRange_0059ce10;
+        range = g_nTargetRange_0049319c;
         if (range <= 3000) {
             speed = FixedToShortSaturating(g_anShipSpeed_0059b320[obj]);
             speed = MaxShort(speed, 1);
@@ -361,18 +361,18 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
     get_facing_range_from_point(obj, destination);
     if (g_nFacingToTarget_00493194 < 40) {
         approach_min_speed(obj);
-    } else if (g_nTargetRange_0059ce10 > 2000) {
+    } else if (g_nTargetRange_0049319c > 2000) {
         approach_full_speed(obj);
-        if (g_nTargetRange_0059ce10 > 3000 &&
+        if (g_nTargetRange_0049319c > 3000 &&
             g_nFacingToTarget_00493194 > 70 && normal_speed(obj) != 0)
             fire_afterburner(obj, 5);
-    } else if (g_nTargetRange_0059ce10 > 200) {
-        control_speed(obj, (unsigned short)g_nTargetRange_0059ce10,
+    } else if (g_nTargetRange_0049319c > 200) {
+        control_speed(obj, (unsigned short)g_nTargetRange_0049319c,
                       g_anShipSpeed_0059b320[leader]);
     } else {
         approach_ship_speed(obj, leader);
     }
-    if (g_nTargetRange_0059ce10 < 200) {
+    if (g_nTargetRange_0049319c < 200) {
         steady_object(obj);
         if (forwardFacing > 90) {
             copy_frame(leader, obj);
@@ -380,9 +380,9 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
         }
         point_parallel(obj, leader);
     } else if (no_goal(obj) != 0) {
-        point_ship(obj, 0, &g_vToTarget_0059d4d0);
+        point_ship(obj, 0, &g_vToTarget_00493188);
     }
-    if (g_nTargetRange_0059ce10 < 700) {
+    if (g_nTargetRange_0049319c < 700) {
         trim_goals(obj, 10);
         if (forwardFacing > 90)
             g_anRollGoal_004954d8[obj] =
@@ -669,19 +669,19 @@ void intelligence_events(short obj)
     } else {
         event = 0;
         ship_vs_ship(obj, target);
-        if (g_nTargetRange_0059ce10 > 8000) {
+        if (g_nTargetRange_0049319c > 8000) {
             event = 2;
         } else if (g_acShipAiCooldown_0059d680[obj] > 0) {
             event = 7;
         } else if (g_nFacingToTarget_00493194 > 55 &&
-                   g_nTargetFacing_0059d52a < -55) {
+                   g_nTargetFacing_00493198 < -55) {
             event = 5;
         } else if (g_nFacingToTarget_00493194 > 75 &&
-                   g_nTargetFacing_0059d52a > 75) {
+                   g_nTargetFacing_00493198 > 75) {
             event = 4;
         } else if (g_nFacingToTarget_00493194 < -60 &&
-                   g_nTargetFacing_0059d52a > 85 &&
-                   g_nTargetRange_0059ce10 < 7000) {
+                   g_nTargetFacing_00493198 > 85 &&
+                   g_nTargetRange_0049319c < 7000) {
             event = 3;
         } else if (g_anShipSpeed_0059b320[target] < 20) {
             event = 1;
@@ -721,7 +721,7 @@ void intelligence_events(short obj)
 void chase_speed(short obj, short range)
 {
 #if 0
-    short targetRange = g_nTargetRange_0059ce10;
+    short targetRange = g_nTargetRange_0049319c;
 
     if (range < targetRange) {
         approach_full_speed(obj);
@@ -736,11 +736,11 @@ void chase_speed(short obj, short range)
                           g_acShipTarget_00495f20[obj]]);
     return 0;
 #else
-    if (range < g_nTargetRange_0059ce10) {
+    if (range < g_nTargetRange_0049319c) {
         approach_full_speed(obj);
-        if ((short)(range * 2) < g_nTargetRange_0059ce10)
+        if ((short)(range * 2) < g_nTargetRange_0049319c)
             fire_afterburner(obj, 2);
-    } else if (range > g_nTargetRange_0059ce10) {
+    } else if (range > g_nTargetRange_0049319c) {
         approach_zero_speed(obj);
     } else {
         approach_speed(obj,

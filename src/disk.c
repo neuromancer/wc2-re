@@ -2048,7 +2048,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
     else
         g_apObjectShape_00493868[obj] = typeData->shapeSet;
     init_ijk(obj);
-    g_asObjectCollisionRadius_0059d710[obj] = typeData->collisionRadius;
+    g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
     zero = 0;
     g_asObjectRadarRadius_0059c790[obj] = typeData->radarRadius;
     g_asObjectScale_0059de40[obj] = typeData->scale;

@@ -7,6 +7,7 @@ src/logic.c	1225		00428E98	GetInitialMissionShipPilotSaveIndex	GetInitialMission
 src/logic.c	1236		00428EDC	StoreMissionResultsInCampaignGlobals	StoreMissionResultsInCampaignGlobals	WC2-only		wc2-only
 src/personnel.c	108		00433C84	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen	WC2-only		wc2-only
 src/personnel.c	172		00433E8C	RefreshCampaignChalkboardScreen	RefreshCampaignChalkboardScreen	WC2-only		wc2-only
+src/personnel.c	188		00433ED7	DrawCampaignChalkboardFrame	DrawCampaignChalkboardFrame	WC2-only		wc2-only
 src/cockpt.c	518		00438020	ShowPlayerEjectionSequence	ShowPlayerEjectionSequence	WC2-only		wc2-only
 src/cockpt.c	532		00438080	ShowPlayerStrandingSequence	ShowPlayerStrandingSequence	WC2-only		wc2-only
 src/killbrd.c	964		00459D74	RunCampaignChalkboardMenu	RunCampaignChalkboardMenu	WC2-only		wc2-only
@@ -28,7 +29,7 @@ src/barracks.c	368	0041B5C0		SaveGameWithNamePrompt				unmapped
 src/barracks.c	407	0041B710		LoadGame				unmapped
 src/barracks.c	508	0041B980		LoadGameFromSlot				unmapped
 src/barracks.c	547	0041BAD0		SetBunkMenuLabel				unmapped
-src/barracks.c	562	0041BB20	00433ED7	GetBunkInfo	LoopSaveLoadFnBB20	WC1-fuzzy-very-low		mapped
+src/barracks.c	562	0041BB20		GetBunkInfo				unmapped
 src/barracks.c	589	0041BBD0	0046138D	DrawBarracksBunks	SceneRoutine02	WC1-callgraph-propagated		mapped
 src/barracks.c	617	0041BC90		DrawBarracksStaticDetails				unmapped
 src/barracks.c	627	0041BCE0		AnimateWc1Barracks				unmapped
@@ -1256,7 +1257,7 @@ src/screen.c	1152	00430840	00421409	PollJoystickButtonEvents	PollJoystickButtonE
 src/screen.c	1192	00430920	00421530	PollMenuInputDevices	PollMenuInputDevices	WC1-fuzzy-low		mapped
 src/screen.c	1305	00430BC0		get_face				unmapped
 src/screen.c	1315	00430BF0		LoadCommPortraitShape				unmapped
-src/screen.c	1332	00430C50		ResetCommMenuChoices				unmapped
+src/screen.c	1410	00430C50	00447369	ResetCommMenuChoices	ResetCommMenuChoices	WC2-manual-verified		mapped
 src/screen.c	1350	00430CA0	004473D1	IsCommMenuIdle	IsCommMenuIdle	WC1-callgraph-single-low		mapped
 src/screen.c	1356	00430CB0	004473FC	AppendCommMenuChoice	AppendCommMenuChoice	WC1-order-exact		mapped
 src/screen.c	1387	00430D30	00447479	SendCommMenuChoice	SendCommMenuChoice	WC1-order-exact		mapped

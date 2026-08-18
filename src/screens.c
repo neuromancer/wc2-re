@@ -5055,7 +5055,7 @@ unsigned int ShowGameOverScreen(void)
         FetchDiskPacketRetrying(9, 1, 0);
     g_cViewObject_0049313c = (signed char)Explosion(0);
     g_nCurrentView_00492fa8 = 4;
-    g_asObjectCollisionRadius_0059d710[WC1_EYE_OBJECT] = 100;
+    g_asObjectCollisionRadius_004950e8[WC1_EYE_OBJECT] = 100;
     ScaleFixedVector(
         &g_aShipForwardVector_00494208[g_cViewObject_0049313c],
         -0x12c00, &cameraOffset);

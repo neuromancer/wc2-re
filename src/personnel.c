@@ -170,10 +170,11 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
 }
 
 /* Function start: 0x433E8C */
-void RefreshCampaignChalkboardScreen(void)
+void RefreshCampaignChalkboardScreen(short cockpitVariant)
 {
     short frame;
 
+    (void)cockpitVariant;
     DisableMouseCursorDrawing();
     if (g_pCampaignGlobals_00499c94->field_08 ==
         g_pCampaignGlobals_00499c94->field_0a) {
@@ -181,6 +182,12 @@ void RefreshCampaignChalkboardScreen(void)
     } else {
         frame = 2;
     }
+    DrawCampaignChalkboardFrame((unsigned short)frame);
+}
+
+/* Function start: 0x433ED7 */
+void DrawCampaignChalkboardFrame(unsigned short frame)
+{
     if (g_bNewPilotCampaignInitialized_004926c0 != 0)
         frame = 1;
     LoadSceneHotspotBoundsForSelection(

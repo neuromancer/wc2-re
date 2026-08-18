@@ -559,7 +559,7 @@ void SetBunkMenuLabel(short occupied, short side, char **label,
     *label = (char *)g_apszSaveCampaignMenuLabels_004693e8[1];
 }
 
-/* Function start: 0x433ED7 */
+/* Function start: WC2_UNMAPPED */
 void GetBunkInfo(BarracksAnimationState *state)
 {
     SaveGameRecord gameRecord;

@@ -627,8 +627,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         fighterScreenX = 200;
         fighterScreenY = 32;
         g_nScrambleBackgroundY_005a8712 = 0;
-        g_asObjectCollisionRadius_0059d710[61] =
-            g_asObjectCollisionRadius_0059d710[object];
+        g_asObjectCollisionRadius_004950e8[61] =
+            g_asObjectCollisionRadius_004950e8[object];
         approachDistance = 100;
         ConfigureScrambleActor(100, 80, 1, 0, actorShape,
                                0x100, 0, 0, 0);

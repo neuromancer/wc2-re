@@ -84,7 +84,7 @@ void make_shard(short asteroid, FixedVector direction)
     g_asObjectCounter_00494be0[fragment] = 40;
     g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
     SetVectorFixedPoint((unsigned int *)&direction,
-                        (short)(g_asObjectCollisionRadius_0059d710[asteroid] >> 1));
+                        (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
     AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
                     &g_aShipPosition_00494550[fragment]);
     g_aShipForwardVector_00494208[fragment] = direction;
