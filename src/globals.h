@@ -23,7 +23,7 @@
  * Addresses are filled in as each is located.  _FrameSkip is confirmed:
  * ReportFramesSkipped clamps it with MinShort(MaxShort(v + d, 1), 5).
  * -------------------------------------------------------------------------- */
-extern short g_nFrameSkip_0049d764;          /* int _FrameSkip = 1  (clamped 1..5) */
+extern short g_nFrameSkip_0049d764;          /* WC2 starts at 0; later clamped 1..5 */
 /* TODO: locate _FrameCount, Game_Mode, Game_Status, window_colored, version */
 
 /* --------------------------------------------------------------------------

@@ -1823,7 +1823,7 @@ extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98;
 extern LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0049ce9c;
 extern int   g_nDisplayModeCascade_0049cea0;
-extern char g_szDibErrorMessage_005c33b0[0x98];
+extern char g_szDibErrorMessage_005c33b0[0x8c];
 extern char g_szFrameRateText_005b3950[32];
 extern float g_fMeasuredFrameRate_005c3850;
 

@@ -11,6 +11,16 @@ incremental linker **3.10.6038**, matching the shipped image's linker stamp.
 Both the game core and ix library have the unoptimized debug-build shape, so
 this branch uses `/MTd /Od /Oi` throughout.
 
+### WC2 DirectDraw timing initializer unit
+
+The four routines at `0x0045CCB0`-`0x0045CD2B` are two MSVC scalar dynamic
+initializer pairs, and their entry points occur in the target's `CRT$XCU`
+table. The first initializes the millisecond frame period from the 70 Hz
+display-rate global; the second converts that global to the prior frame-rate
+float. MSVC 4.1 emits both instruction sequences exactly from ordinary C++
+file-scope initializers. They therefore live in `src/dibtime.cpp`, with `/GX`
+still disabled and the shared timing globals retaining C linkage.
+
 The controlled remap report separates optimizer and compiler effects:
 
 | Rebuild configuration | Average | Exact | >=90% |

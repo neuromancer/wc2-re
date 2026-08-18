@@ -14,6 +14,16 @@ the files from low-confidence transfer rows: `make sort` is expected to report
 out-of-order WC2 labels during this migration. The sections below record the
 historical WC1 boundaries as provenance, not current WC2 placement claims.
 
+## Proven WC2 boundaries
+
+| Reconstructed source | Range | Evidence |
+| --- | --- | --- |
+| `src/dibtime.cpp` | `0x0045CCB0`-`0x0045CD2B` | Two scalar dynamic initializer pairs referenced by consecutive `CRT$XCU` entries; immediately precedes `ThrottleFrameAndDrawFps` |
+
+The timing unit is linked between `src/music.c` and `src/screen.c`, matching
+the target sequence from `AllocateViewport` through the initializers to the
+frame throttle.
+
 ## Historical WC1 image layout
 
 ```text

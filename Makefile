@@ -171,7 +171,8 @@ GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 # Global definitions are migrating back to their original compilation units.
 # binary-comp currently accepts one definition source, so generate a parser-only
 # manifest from globals.c and the declaration block at the top of each owner.
-GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c src/ship.c src/dib.c
+GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c src/ship.c \
+	src/dib.c src/dibtime.cpp
 GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
 GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
 
@@ -276,6 +277,7 @@ SRCS_ORDERED_CORE = \
 	src/pload.c \
 	src/sound.c \
 	src/music.c \
+	src/dibtime.cpp \
 	src/screen.c \
 	src/dib.c \
 	src/text.c \
@@ -348,6 +350,7 @@ MODERN_GAMEPLAY_SRCS = \
 
 MODERN_GAMEPLAY_CXX_SRCS = \
 	src/debug.cpp \
+	src/dibtime.cpp \
 	src/pilot.cpp
 
 MODERN_GAMEPLAY_CXX_C_SRCS = \

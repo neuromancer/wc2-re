@@ -170,7 +170,11 @@ def definition_block(path: Path) -> str:
 
     include_at = text.find(WC1_INCLUDE)
     function_at = text.find(FUNCTION_MARKER)
-    if include_at < 0 or function_at < 0 or function_at <= include_at:
+    if include_at < 0:
+        raise ValueError(f"cannot locate global-definition block in {path}")
+    if function_at < 0:
+        function_at = len(text)
+    elif function_at <= include_at:
         raise ValueError(f"cannot locate global-definition block in {path}")
     declarations_at = text.find("\n", include_at) + 1
     return text[declarations_at:function_at].strip() + "\n"
