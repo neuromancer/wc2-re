@@ -561,6 +561,7 @@
 0x0042C373 LoadCutsceneCockpitOverlay
 0x0042C3A7 DrawCutsceneCockpitOverlay
 0x0042C43D RunCutsceneWipeTransition
+0x0042C5A2 WaitForCutsceneInputEvent
 0x0042C607 FindActiveCutsceneFileResources
 0x0042C659 FindActiveCutsceneObjectResources
 0x0042C6AC RemoveCutsceneMemberIndex
@@ -597,11 +598,16 @@
 0x0042EC7F ReleaseCutsceneFontPacket
 0x0042ECCB UpdateMap
 0x0042EE86 ReleaseCutsceneViewport
+0x0042EF12 DrawCinematicMemoryStatus
+0x0042F0B3 FormatCinematicMemoryStatus
+0x0042F100 ReportCutscenePacketAllocationFailure
 0x0042F135 PopCutsceneScriptValue
 0x0042F19A PushCutsceneScriptValue
 0x0042F1FD RunCutsceneScript
 0x00432DCC GetPackedStringByIndex
 0x00432E23 RewriteDiskFileGraphicsExtensions
+0x00432E83 RewriteCutsceneMusicExtensionForDriver
+0x00432EE4 RewriteCutsceneMusicExtensionForRetry
 0x00432F2A LoadCachedCutsceneResource
 0x00433269 ReleaseCutsceneSpriteShape
 0x00433328 ReleaseLoadedCutsceneResource
@@ -1286,6 +1292,7 @@
 0x00464F25 GetNamedPacketSize
 0x00464F45 LoadNamedPacket
 0x00464F75 OffsetSceneHotspotBounds
+0x00464FD7 ServiceCutsceneRuntimeHook
 0x00464FE7 SetPaletteEntryFromTriplet
 0x0046502E SetMusicTickRateHook
 0x0046505E IsSpriteFrameOverlappingRect

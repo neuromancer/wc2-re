@@ -1455,6 +1455,8 @@ src/sound.c	739	0042C410		FxDriverShutdownHook				unmapped
 src/sound.c	744	0042C420		InitializeDiskPromptTextContext				unmapped
 src/sound.c	785		00432DCC	GetPackedStringByIndex	GetPackedStringByIndex	WC2-only		wc2-only
 src/sound.c	800	0042C510	00432E23	RewriteDiskFileGraphicsExtensions	RewriteDiskFileGraphicsExtensions	WC1-auto-vt		mapped
+src/sound.c	897		00432E83	RewriteCutsceneMusicExtensionForDriver	RewriteCutsceneMusicExtensionForDriver	WC2-only		wc2-only
+src/sound.c	911		00432EE4	RewriteCutsceneMusicExtensionForRetry	RewriteCutsceneMusicExtensionForRetry	WC2-only		wc2-only
 src/sound.c	842	0042C580	00401000	LoadWingCmdrCfgFile	LoadWingCmdrCfgFile	WC1-fuzzy-followup		mapped
 src/sound.c	898	0042C660		LoadInstallDat				unmapped
 src/sound.c	985	0042C800	00401120	show_damage_disp	show_damage_disp	WC1-fuzzy-followup		mapped
@@ -1613,6 +1615,7 @@ src/disk.c	231		0040E130	DecodeSceneResourceChunk	DecodeSceneResourceChunk	WC2-o
 src/disk.c	262		0040E31F	ParseCutsceneContainer	ParseCutsceneContainer	WC2-only		wc2-only
 src/eventmgr.c	864		0046409B	AllocateZeroedRecords	AllocateZeroedRecords	WC2-only		wc2-only
 src/eventmgr.c	1430		00464F75	OffsetSceneHotspotBounds	OffsetSceneHotspotBounds	WC2-only		wc2-only
+src/eventmgr.c	1457		00464FD7	ServiceCutsceneRuntimeHook	ServiceCutsceneRuntimeHook	WC2-only		wc2-only
 src/logic.c	3416		00458A90	DecodeSceneStructChunk	DecodeSceneStructChunk	WC2-only		wc2-only
 src/logic.c	3453		00458B8C	DecodeSceneOffsetChunk	DecodeSceneOffsetChunk	WC2-only		wc2-only
 src/logic.c	3493		00458C81	DecodeSceneSymbolChunk	DecodeSceneSymbolChunk	WC2-only		wc2-only
@@ -1668,6 +1671,10 @@ src/screens.c	830		0042E3CF	UpdateCutscenePlaneObject	UpdateCutscenePlaneObject	
 src/screens.c	872		0042E553	UpdateCutsceneSpriteObject	UpdateCutsceneSpriteObject	WC2-only		wc2-only
 src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSpriteHandler	WC2-only		wc2-only
 src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
+src/screens.c	141		0042C5A2	WaitForCutsceneInputEvent	WaitForCutsceneInputEvent	WC2-only		wc2-only
+src/screens.c	1294		0042EF12	DrawCinematicMemoryStatus	DrawCinematicMemoryStatus	WC2-only		wc2-only
+src/screens.c	1347		0042F0B3	FormatCinematicMemoryStatus	FormatCinematicMemoryStatus	WC2-only		wc2-only
+src/screens.c	1359		0042F100	ReportCutscenePacketAllocationFailure	ReportCutscenePacketAllocationFailure	WC2-only		wc2-only
 src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
 src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
 src/screens.c	1292		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only

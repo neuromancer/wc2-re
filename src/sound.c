@@ -893,6 +893,30 @@ void RewriteDiskFileGraphicsExtensions(char *fileName)
 #endif
 }
 
+/* Function start: 0x432E83 */
+void RewriteCutsceneMusicExtensionForDriver(char *filename)
+{
+    char *extension;
+
+    extension = DosStrchr(filename, '.');
+    if (extension++ != 0 && *extension != 0) {
+        if (g_nMusicDriverMode_0049be8c == 2)
+            *extension = 'A';
+        else
+            *extension = 'R';
+    }
+}
+
+/* Function start: 0x432EE4 */
+void RewriteCutsceneMusicExtensionForRetry(char *filename)
+{
+    char *extension;
+
+    extension = DosStrchr(filename, '.');
+    if (extension++ != 0 && *extension != 0)
+        *extension = 'R';
+}
+
 /* Function start: 0x401000 */
 short LoadWingCmdrCfgFile(short argc, char **argv)
 {

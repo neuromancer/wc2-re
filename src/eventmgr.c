@@ -1453,6 +1453,11 @@ short OffsetSceneHotspotBounds(ShortRect *bounds,
     return 1;
 }
 
+/* Function start: 0x464FD7 */
+void ServiceCutsceneRuntimeHook(void)
+{
+}
+
 /* Function start: 0x464FE7 */
 void SetPaletteEntryFromTriplet(const unsigned char *triplet, short index)
 {

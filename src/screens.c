@@ -7,6 +7,7 @@
 #include "wc1.h"
 
 #pragma function(memcmp)
+#pragma function(strcpy)
 
 /* Function start: 0x42BDDB */
 signed char HasCutsceneMusicNode(CutsceneMusicNode *node)
@@ -134,6 +135,19 @@ void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
         } else {
             CopyViewportContents(source, destination);
         }
+    }
+}
+
+/* Function start: 0x42C5A2 */
+void WaitForCutsceneInputEvent(void)
+{
+    while (FindQueuedInputEvent(2) == 0) {
+        while (ServiceInputDevices(-1) == 0)
+            ;
+        ServiceCutsceneRuntimeHook();
+        if (FindQueuedInputEvent(2) != 0 ||
+            FindQueuedInputEvent(5) != 0)
+            break;
     }
 }
 
@@ -1274,6 +1288,83 @@ void ReleaseCutsceneViewport(Viewport *viewport)
     }
 }
 
+/* Function start: 0x42EF12 */
+void DrawCinematicMemoryStatus(const char *message)
+{
+    unsigned int availableFarMemory;
+    char text[256];
+    Viewport viewport;
+    unsigned int largestBlock;
+    unsigned int availableMemory;
+
+    viewport = g_stModalSourceViewport_005d2c50;
+    if ((g_cCutsceneVideoMode_00499c48 == 0x13 ||
+         g_cCutsceneVideoMode_00499c48 == 0x0d) &&
+        g_nShowMemoryStatus_0049d784 != 0) {
+        if (*message != '~') {
+            PresentCutsceneFrame(
+                &g_stCutsceneTextBackingViewport_005d2db0,
+                &g_stCutsceneTextViewport_005d2d90);
+            g_bCutsceneTextRestorePending_00499da0 = 1;
+        }
+        largestBlock = GetLargestMainMemoryBlock();
+        availableMemory = GetAvailableMainMemory();
+        availableFarMemory = GetAvailableFarMemory();
+        if (*message != '~') {
+            sprintf(text,
+                    "%s Far: %lu (Lg) = %lu  EMS: %lu\n"
+                    "OVR: %lu INITIAL: %lu",
+                    message, availableMemory, largestBlock,
+                    availableFarMemory,
+                    g_nCutsceneMemoryDelta_005d2ec8,
+                    g_nCutsceneInitialAvailableMemory_005d2e88);
+        } else {
+            strcpy(text, "Game Paused");
+        }
+        g_stCutsceneDrawingTextContext_005d2f60 =
+            g_stCutsceneTextContext_005d2f40;
+        g_stCutsceneDrawingTextContext_005d2f60.viewport =
+            &g_stModalSourceViewport_005d2c50;
+        SetTextContext(&g_stCutsceneDrawingTextContext_005d2f60);
+        g_pCurrentTextContext_005c8d1c->cursorX =
+            g_pCurrentTextContext_005c8d1c->viewport->left;
+        g_pCurrentTextContext_005c8d1c->cursorY =
+            g_pCurrentTextContext_005c8d1c->viewport->top;
+        AppendFormattedText("%s%P", text);
+        WaitForCutsceneInputEvent();
+        g_bCutsceneSkipFrame_00499c54 = 0;
+        SetTextContext(&g_stCutsceneTextContext_005d2f40);
+        viewport.top = 0;
+        viewport.bottom =
+            (short)(g_stSceneFlicScratchViewport_005d2eb0.top - 1);
+        ClearViewport(&viewport, 0);
+    }
+}
+
+/* Function start: 0x42F0B3 */
+void FormatCinematicMemoryStatus(const char *format, ...)
+{
+    va_list arguments;
+    char message[256];
+
+    va_start(arguments, format);
+    vsprintf(message, format, arguments);
+    va_end(arguments);
+    DrawCinematicMemoryStatus(message);
+}
+
+/* Function start: 0x42F100 */
+void ReportCutscenePacketAllocationFailure(const char *filename,
+                                           short section,
+                                           unsigned int packetSize)
+{
+    if (g_cCutsceneVideoMode_00499c48 == 0x13) {
+        FormatCinematicMemoryStatus(
+            "Alloc Failed %s (%d) size=%ld\n",
+            filename, section, packetSize);
+    }
+}
+
 /* Function start: 0x42F135 */
 short PopCutsceneScriptValue(short **stack, short *stackBottom)
 {
@@ -2235,11 +2326,7 @@ handle_queued_cutscene_input:
             }
             break;
         case 0x7d:
-            while (FindQueuedInputEvent(2) == 0 &&
-                   FindQueuedInputEvent(5) == 0) {
-                ServiceInputDevices(-1);
-                PumpWindowMessages(0);
-            }
+            WaitForCutsceneInputEvent();
             break;
         case 0x7e:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2796,49 +2883,79 @@ handle_queued_cutscene_input:
 
 /* Function start: 0x432F2A */
 void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
-                                 short index, short resourceType)
+                                 short index, int resourceType)
 {
+    short retryMusicExtension;
+    long packetSize;
     char filename[132];
-    char *extension;
+    char *packedFilename;
+    unsigned short section;
     void *packet;
-    short section;
 
     packet = resources->loadedPackets[index];
+    retryMusicExtension = 0;
+    if (g_pMemoryLogFile_00499da8 != 0 && packet != 0) {
+        fprintf(g_pMemoryLogFile_00499da8,
+                "Found: loc: %Fp  level = %d, free = %8lu\n",
+                packet, (int)g_nActiveCutsceneResourceLevel_00499d9c,
+                GetAvailableMainMemory());
+    }
     if (packet == 0) {
         if (g_nSceneFlicContext_00499c50 == 4 &&
             g_bHighMemoryResourcesEnabled_005c80e4 == 0) {
             g_nSceneFlicContext_00499c50 = 0x40;
         } else {
-            DosStrcpy(filename, GetPackedStringByIndex(
-                resources, resources->filenameIndices[index]));
-            if (resourceType == 1) {
+            packedFilename = GetPackedStringByIndex(
+                resources, resources->filenameIndices[index]);
+            DosStrcpy(filename, packedFilename);
+            switch (resourceType) {
+            case 1:
                 RewriteDiskFileGraphicsExtensions(filename);
-            } else if (resourceType == 2) {
-                extension = DosStrchr(filename, '.');
-                if (extension != 0 && extension[1] != 0) {
-                    if (g_nMusicDriverMode_0049be8c == 2)
-                        extension[1] = 'A';
-                    else
-                        extension[1] = 'R';
-                }
+                break;
+            case 2:
+                RewriteCutsceneMusicExtensionForDriver(filename);
+                retryMusicExtension = 1;
+                break;
             }
             section = resources->sectionIndices[index];
             packet = LoadNamedPacket(filename, section, 0,
                 (unsigned short)(g_nSceneFlicContext_00499c50 & 0x7f),
                 0, 1);
-            if (packet == 0 && resourceType == 2 &&
-                g_nPacketError_0049ca90 == 8) {
-                extension = DosStrchr(filename, '.');
-                if (extension != 0 && extension[1] != 0)
-                    extension[1] = 'R';
-                packet = LoadNamedPacket(filename, section, 0,
-                    (unsigned short)(g_nSceneFlicContext_00499c50 & 0x7f),
-                    0, 1);
+            if (packet == 0 && g_nPacketError_0049ca90 == 8) {
+                if (retryMusicExtension != 0) {
+                    retryMusicExtension = 0;
+                    RewriteCutsceneMusicExtensionForRetry(filename);
+                    packet = LoadNamedPacket(filename, section, 0,
+                        (unsigned short)(
+                            g_nSceneFlicContext_00499c50 & 0x7f),
+                        0, 1);
+                    if (packet == 0) {
+                        ReportCutscenePacketAllocationFailure(
+                            filename, section, 0);
+                    }
+                } else {
+                    ReportCutscenePacketAllocationFailure(
+                        filename, section, 0);
+                }
+            } else if (packet == 0 &&
+                       (g_nSceneFlicContext_00499c50 & 0x40) != 0) {
+                FatalCutsceneError(
+                    "Unsuccessful load of %s packet %d error = %d",
+                    filename, section, g_nPacketError_0049ca90);
             }
             if (packet == 0) {
-                FatalCutsceneError(
-                    "Unsuccessful load of %s packet %d",
-                    filename, section);
+                ReportCutscenePacketAllocationFailure(
+                    filename, section,
+                    GetNamedPacketSize(filename, section));
+            }
+            if (g_pMemoryLogFile_00499da8 != 0) {
+                packetSize = GetNamedPacketSize(filename, section);
+                fprintf(g_pMemoryLogFile_00499da8,
+                        "Loaded: %12s (%03d) size %ld loc: %Fp  "
+                        "level = %d, free = %8lu\n",
+                        filename, section, packetSize, packet,
+                        (int)g_nActiveCutsceneResourceLevel_00499d9c,
+                        GetAvailableMainMemory());
             }
             g_nSceneFlicContext_00499c50 = 0x40;
             resources->loadedPackets[index] = packet;

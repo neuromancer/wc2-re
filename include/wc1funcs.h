@@ -1295,6 +1295,8 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject);       /* WC2 un
 void FxDriverShutdownHook(void);                                            /* WC2 unmapped */
 unsigned short InitializeDiskPromptTextContext(void);                 /* WC2 unmapped */
 void RewriteDiskFileGraphicsExtensions(char *fileName);               /* 0x432E23 */
+void RewriteCutsceneMusicExtensionForDriver(char *filename);          /* 0x432E83 */
+void RewriteCutsceneMusicExtensionForRetry(char *filename);           /* 0x432EE4 */
 short LoadWingCmdrCfgFile(short argc, char **argv);                    /* 0x401000 */
 unsigned short LoadInstallDat(void);                                   /* WC2 unmapped */
 void show_damage_disp(void);                                           /* 0x401120 */
@@ -1726,6 +1728,11 @@ void DrawCutsceneSprite(SceneFlicObject *sprite);                     /* 0x42DA2
 void DrawCutscenePlane(CutscenePlane *plane);                         /* 0x42DD9F */
 void ClearCutsceneViewport(Viewport *viewport, unsigned char colour); /* 0x42DE62 */
 void RestoreCutsceneTextBacking(void);                                /* 0x42DE9D */
+void DrawCinematicMemoryStatus(const char *message);                  /* 0x42EF12 */
+void FormatCinematicMemoryStatus(const char *format, ...);            /* 0x42F0B3 */
+void ReportCutscenePacketAllocationFailure(const char *filename,
+                                           short section,
+                                           unsigned int packetSize); /* 0x42F100 */
 void ClearCutsceneTextViewport(void);                                 /* 0x42DF32 */
 void ExpandCutsceneText(const unsigned char *source,
                         char *destination);                           /* 0x42DF80 */
@@ -1739,6 +1746,8 @@ void ReleaseCutsceneMusicNodes(CutsceneMusicNode **head,
                                short resourceIndex);                  /* 0x42CFDB */
 void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
                                int wipeType, short duration);         /* 0x42C43D */
+void WaitForCutsceneInputEvent(void);                                /* 0x42C5A2 */
+void ServiceCutsceneRuntimeHook(void);                               /* 0x464FD7 */
 void DrawCutsceneTextAt(short x, short y, short viewportIndex,
                         const char *text);                           /* WC2 unmapped */
 void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* WC2 unmapped */
@@ -1799,7 +1808,7 @@ void InitializeSceneFlicStream(CutsceneResourceTable *resources,
 void ReleaseSceneFlicPackets(void);                                  /* 0x42E762 */
 void AdvanceSceneFlicStream(SceneFlicObject *object);                /* 0x42E868 */
 void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
-                                 short index, short resourceType);    /* 0x432F2A */
+                                 short index, int resourceType);      /* 0x432F2A */
 void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite);             /* 0x433269 */
 void ReleaseLoadedCutsceneResource(CutsceneResourceTable *resources,
                                    short index);                      /* 0x433328 */
