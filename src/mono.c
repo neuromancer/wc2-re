@@ -53,7 +53,7 @@ int ReadDataFileAtOffset(unsigned short fd, int offset,
                          unsigned int length, void *data)
 {
     g_nPacketError_0049ca90 = 0;
-    if (_lseek(fd, offset, SEEK_SET) == -1) {
+    if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;

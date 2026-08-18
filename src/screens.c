@@ -1423,6 +1423,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     short textIndex;
     short waitTicks;
     int inputHandled;
+    int waitUntil;
     signed char returnValue;
     signed char branchGuard;
     void *packet;
@@ -1465,6 +1466,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
         if (g_bCutsceneSkipFrame_00499c54 == 0 &&
             g_bCutsceneViewportPreallocated_00499c4c == 0) {
             if (ServiceInputDevices(-1) != 0) {
+                ServiceCutsceneRuntimeHook();
                 g_pCutsceneInputEvent_005d2f08 = FindQueuedInputEvent(4);
                 if (g_pCutsceneInputEvent_005d2f08 != 0) {
                     switch (g_pCutsceneInputEvent_005d2f08->status) {
@@ -1483,8 +1485,25 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                     case 6:
                         g_cCutsceneSpeechSpeed_00499eb4 = 8;
                         break;
-                    case 0x11:
                     case 0x19:
+                        WaitForCutsceneInputEvent();
+                        if ((g_pCutsceneInputEvent_005d2f08->modifiers &
+                             0x1800) == 0) {
+                            DrawCinematicMemoryStatus("~");
+                        } else {
+                            WaitForCutsceneInputEvent();
+                        }
+                        break;
+                    case 0x11:
+                        WaitForCutsceneInputEvent();
+                        if ((g_pCutsceneInputEvent_005d2f08->modifiers &
+                             0x1800) != 0) {
+                            FormatCinematicMemoryStatus(
+                                "Series: %d Mission: %c Talk: %d",
+                                g_pCampaignGlobals_00499c94->series,
+                                g_pCampaignGlobals_00499c94->mission + 'A',
+                                g_pCampaignGlobals_00499c94->field_08 + 1);
+                        }
                         break;
                     default:
                         goto handle_queued_cutscene_input;
@@ -2165,34 +2184,40 @@ handle_queued_cutscene_input:
             }
             break;
         case 0x78:
-            sprite = g_pCurrentCutsceneSprite_00499c78;
-            if (sprite == 0)
-                sprite = g_apSceneObjects_00499c38[0];
-            if (sprite == 0)
+            if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
+                g_nSavedCutsceneResourceOwner_005d2d68 =
+                    g_nActiveCutsceneResourceLevel_00499d9c;
+            }
+            if (g_pCurrentCutsceneSprite_00499c78 == 0) {
+                g_pCurrentCutsceneSprite_00499c78 =
+                    g_apSceneObjects_00499c38[0];
+            }
+            if (g_pCurrentCutsceneSprite_00499c78 == 0)
                 FatalCutsceneError("Cannot load a shape into a null sprite");
-            sprite->drawType = *instruction++;
-            sprite->baseFrame = *instruction++;
-            sprite->finalFrame = *instruction++;
-            sprite->currentFrame = 0;
+            g_pCurrentCutsceneSprite_00499c78->drawType = *instruction++;
+            g_pCurrentCutsceneSprite_00499c78->baseFrame = *instruction++;
+            g_pCurrentCutsceneSprite_00499c78->finalFrame = *instruction++;
+            g_pCurrentCutsceneSprite_00499c78->currentFrame = 0;
             index = 0;
             while (*instruction == 0xff) {
                 index = (short)(index + *instruction++);
             }
             index = (short)(index + *instruction++);
-            if (sprite->linkedScript != 0) {
-                g_nSavedCutsceneResourceOwner_005d2d68 =
-                    g_nActiveCutsceneResourceLevel_00499d9c;
-                g_nActiveCutsceneResourceLevel_00499d9c = sprite->owner;
+            if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
+                g_nActiveCutsceneResourceLevel_00499d9c =
+                    g_pCurrentCutsceneSprite_00499c78->owner;
             }
             fileResources = FindActiveCutsceneFileResources(
                 g_pCutsceneShapeResources_004928a8);
-            if (sprite->drawType == 4) {
-                InitializeSceneFlicStream(fileResources, index, sprite);
+            if (g_pCurrentCutsceneSprite_00499c78->drawType == 4) {
+                InitializeSceneFlicStream(
+                    fileResources, index,
+                    g_pCurrentCutsceneSprite_00499c78);
             } else {
-                sprite->shape = LoadCachedCutsceneResource(
-                    fileResources, index, 1);
+                g_pCurrentCutsceneSprite_00499c78->shape =
+                    LoadCachedCutsceneResource(fileResources, index, 1);
             }
-            if (sprite->linkedScript != 0) {
+            if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
                 g_nActiveCutsceneResourceLevel_00499d9c =
                     g_nSavedCutsceneResourceOwner_005d2d68;
             }
@@ -2330,11 +2355,17 @@ handle_queued_cutscene_input:
             break;
         case 0x7e:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            index = (short)(g_nInputClock_005c84a8 + value);
-            while (g_bCutsceneSkipFrame_00499c54 == 0 &&
-                   g_bCutsceneViewportPreallocated_00499c4c == 0 &&
-                   (short)g_nInputClock_005c84a8 < index) {
-                PumpWindowMessages(0);
+            waitUntil = g_nInputClock_005c84a8 + value;
+            while (g_nInputClock_005c84a8 < waitUntil &&
+                   g_bCutsceneSkipFrame_00499c54 == 0 &&
+                   g_bCutsceneViewportPreallocated_00499c4c == 0) {
+                if (ServiceInputDevices(-1) != 0) {
+                    ServiceCutsceneRuntimeHook();
+                    if (FindQueuedInputEvent(2) != 0 ||
+                        FindQueuedInputEvent(5) != 0) {
+                        break;
+                    }
+                }
             }
             break;
         case 0x7f:
@@ -4454,7 +4485,7 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
                                     "FLIC Failed %s (%d)\n Hit Key to Continue",
                                     filename,
                                     object->nextSection + cacheIndex);
-                                WaitForInputKey();
+                                WaitForCutsceneInputEvent();
                                 object->segmentEndFrame = 0;
                                 object->currentFrame = object->finalFrame;
                             }
