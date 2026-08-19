@@ -28,9 +28,16 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 
 ## Absolute Rules (Do Not Violate)
 
-- DO NOT remove or modify existing functions, especially those with a comment header
-  containing a function address.
-- DO NOT remove existing code.
+- DO NOT remove or modify a function whose comment header carries a WC2 address
+  (`/* Function start: 0x... */`). Those are verified against the retail image.
+- DO remove `WC2_UNMAPPED` functions and WC1-address globals once nothing that
+  survives can reach them: this branch is a WC2 reconstruction, and inherited WC1
+  code that WC2 never runs is noise. Removal must be closure-aware -- compute what
+  is reachable from the mapped functions and the file-scope tables, iterate to a
+  fixpoint, and confirm `make verify` still passes. Never remove a `WC2_UNMAPPED`
+  function that a mapped function still calls: that call is either a defect to fix
+  or evidence the function is really WC2 code awaiting an address.
+- DO NOT remove code that is still reachable.
 - DO NOT change calling conventions. The game core is `__cdecl`; a handful of `ix` functions
   are `__thiscall` — leave those implicit, never spell `__thiscall` out.
 - DO NOT add:

@@ -2382,13 +2382,6 @@ void Streamer_stop(void)
     return;
 }
 
-/* Function start: WC2_UNMAPPED */
-void ClearStreamerTrigger(void)
-{
-    if (g_nAudioEnabled_0049c244 != 0)
-        ix_streamer_set_trigger(-1);
-}
-
 /* Function start: 0x428AEB */
 void SetStreamerTrigger(int trigger)
 {

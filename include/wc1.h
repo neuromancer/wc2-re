@@ -359,7 +359,6 @@ typedef struct DebugOverlayConsole {
 #ifdef __cplusplus
     DebugOverlayConsole(HINSTANCE module, HWND targetWindow,
                         int columnCount, int rowCount, int waitMode);
-    ~DebugOverlayConsole();
     void Clear(void);
     void Scroll(void);
     void DrawPendingLines(void);
@@ -369,7 +368,6 @@ typedef struct DebugOverlayConsole {
     void SetOverlayTextColor(int red, int green, int blue);
     void SetOverlayBackgroundColor(int red, int green, int blue);
     void SetTransparentBackground(void);
-    void SetOpaqueBackground(void);
     void SetTextPosition(int row, int column);
     void SetCursorPosition(int column, int row);
     void Reset(void);

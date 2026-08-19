@@ -61,16 +61,6 @@ void ReportSpaceFlightMaxFps(float adjustment)
         SetSpaceFlightFrameTiming();
 }
 
-/* Function start: WC2_UNMAPPED */
-void SetWc1SpaceFlightFrameTiming(void)
-{
-    g_nFrameTimingMode_0049ceb0 = 1;
-    g_nFramePeriodMilliseconds_005c343c =
-        (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
-    g_dwNextFrameDeadline_0049cea4 = 0;
-    g_bFrameTimingInitialized_0049cebc = 1;
-}
-
 /* Function start: 0x45CF3B */
 void SetSpaceFlightFrameTiming(void)
 {

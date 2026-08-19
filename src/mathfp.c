@@ -440,10 +440,3 @@ int MeasureShapeFrameStorage(unsigned char *shape, short frame)
     }
     return size;
 }
-
-/* Function start: WC2_UNMAPPED */
-void ResetTextCursor(void)
-{
-    g_pCurrentTextContext_005c8d1c->cursorX = 0;
-    g_pCurrentTextContext_005c8d1c->cursorY = 0;
-}

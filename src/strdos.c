@@ -45,12 +45,6 @@ char *CopyStringAndReturnEnd(char *destination, const char *source)
     return destination + strlen(destination);
 }
 
-/* Function start: WC2_UNMAPPED */
-char *__stdcall CopyFarString(char *destination, const char *source)
-{
-    return strcpy(destination, source);
-}
-
 /* Function start: 0x46250B */
 short DosStrlen(const char *s)
 {
@@ -117,12 +111,6 @@ unsigned short __stdcall ConfigureEventManagerPointer(
     unsigned char *shape, short frame)
 {
     return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall EventManagerHook(void (*callback)(void))
-{
-    (void)callback;
 }
 
 /* Function start: WC2_UNMAPPED */

@@ -91,32 +91,6 @@ void fire_fixed_projectile_weapon(short obj)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-int drop_mine(short obj, signed char weapon, enum ObjectType type,
-              short lifetime)
-{
-    ShipWeaponSlot *weaponSlot;
-    short mine;
-
-    mine = new_object(type, obj);
-    if (mine == -1)
-        return -1;
-    copy_frame(obj, mine);
-    weaponSlot =
-        &((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[weapon];
-    child_object(weaponSlot->mount.x, mine, obj);
-    if (lifetime == -1)
-        lifetime = 20;
-    g_acObjectCollisionGraceTicks_00494d48[mine] =
-        (signed char)lifetime;
-    g_asObjectCounter_00494be0[mine] = (short)(signed char)lifetime;
-    if (obj == 0)
-        RemovePlayerReleaseWeapon(weapon);
-    else
-        remove_weapon(obj, weapon);
-    return mine;
-}
-
 /* Function start: 0x41693A */
 void fire_afterburner(short obj, short time)
 {
@@ -1137,44 +1111,7 @@ void main(short argc, char **argv)
 #endif
 
 /* Function start: WC2_UNMAPPED */
-unsigned int LoadLegacySpaceflightResourceSets(void)
-{
-    unsigned char *debrisShapeSet;
-
-    if (DAT_0059a856 == 0)
-        return 0;
-    if (LoadShapeSet(g_aCommon3SpaceResources_0049c728, 4, -1) == 0)
-        return 0;
-    LoadShapeSet(g_aMissionResourceDescriptors_0049c798, 4, -1);
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
-    debrisShapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
-        debrisShapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        debrisShapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
-        debrisShapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_GIRDER_CHUNK].shapeSet =
-        debrisShapeSet;
-    LoadShapeSet(g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED, 4, -1);
-    g_apCommPortraitShapes_0059e180[8] = 0;
-    g_apCommPortraitShapes_0059e180[9] = 0;
-    g_apCommPortraitShapes_0059e180[10] = 0;
-    g_apCommPortraitShapes_0059e180[11] = 0;
-    g_apCommPortraitShapes_0059e180[13] = 0;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
 unsigned int GetFxDriverInitResult(void)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int GetMessagePumpResult(void)
 {
     return 0;
 }
@@ -1191,27 +1128,6 @@ short ace_status(short ace, unsigned char bits)
     return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
 }
 
-/* Function start: WC2_UNMAPPED */
-void unflag_ace(short ace, unsigned char bits)
-{
-    g_stCampaignState_0059ca50.aceFlags[ace] &= ~bits;
-}
-
-/* Function start: WC2_UNMAPPED */
-void flag_ace(short ace, unsigned char bits)
-{
-    g_stCampaignState_0059ca50.aceFlags[ace] |= bits;
-}
-
-/* Function start: WC2_UNMAPPED */
-void kill_ace(short ace)
-{
-    if (ace_status(ace, 1) != 0) {
-        unflag_ace(ace, 1);
-        flag_ace(ace, 2);
-    }
-}
-
 /* Function start: 0x429550 */
 void SendKilrathiAceGreetingOnce(short obj)
 {
@@ -1219,13 +1135,6 @@ void SendKilrathiAceGreetingOnce(short obj)
         send_message(obj, 0x17);
         g_bKilrathiAceGreetingSent_00499bf4 = 1;
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-void prepare_ace(short ace)
-{
-    unflag_ace(ace, 0x1a);
-    flag_ace(ace, 0x20);
 }
 
 /* Function start: 0x428E00 */
@@ -1402,16 +1311,6 @@ int alert_flag(short ship, unsigned int bits)
     return (g_anShipAlertFlags_00495f88[ship] & bits) != 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-/* NOT a constant return: `mov eax,0x495f88 / cmp eax,1 / sbb eax,eax / inc eax`
- * is the classic `>= 1` boolean idiom applied to the *address* 0x00495F88,
- * which is always non-zero -- hence Ghidra folding it to `return 1`.  Written
- * the way the original was, so the idiom survives. */
-unsigned int HasSpeechBuffer(void)
-{
-    return (unsigned int)&g_anShipAlertFlags_00495f88 >= 1;
-}
-
 /* Function start: 0x4295D9 */
 void set_alert(short i, unsigned int bits)
 {
@@ -1522,17 +1421,6 @@ short real_crash_time(short obj, short other)
             collisionFound = 1;
     } while (collisionFound == 0);
     return elapsed;
-}
-
-/* Function start: WC2_UNMAPPED */
-void clear_crash_cache(void)
-{
-    short i = 0;
-
-    do {
-        g_asCollisionPartner_005a7cc0[i] = -1;
-        i = i + 1;
-    } while (i < 10);
 }
 
 /* Function start: 0x429958 */
@@ -1735,26 +1623,6 @@ int being_tailed(short obj, short other)
            g_nTargetRange_0049319c < 7000;
 }
 
-/* Function start: WC2_UNMAPPED */
-int any_enemy_tail(short obj)
-{
-    short other;
-
-    for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_00495600[other] !=
-                SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other] &&
-            g_acShipTarget_00495f20[other] == obj &&
-            being_tailed(obj, other) != 0) {
-            g_nTargetShip_004931a0 = other;
-            return 1;
-        }
-    }
-    g_nTargetShip_004931a0 = -1;
-    return 0;
-}
-
 /* Function start: 0x42A108 */
 short detect_enemy_tail(short obj)
 {
@@ -1793,24 +1661,6 @@ short FindMissileTargetingObject(short obj)
             return other;
     }
     return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-short select_weighted_value(short *choices)
-{
-    short roll;
-
-    roll = RandomBelowOrEqual(100) + 1;
-    roll -= choices[0];
-    while (roll > 0) {
-        if (choices[0] == -1)
-            break;
-        choices += 2;
-        roll -= choices[0];
-    }
-    if (choices[0] == -1)
-        return -1;
-    return choices[1];
 }
 
 /* Function start: 0x42A28E */
@@ -2092,39 +1942,6 @@ short any_enemy(short obj, short range)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-short nearest_enemy_range(short obj)
-{
-    short other;
-    short range;
-
-    g_nTargetShip_004931a0 = -1;
-    range = 0x7fff;
-    other = 0;
-    do {
-        if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_00495600[other] !=
-                SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other])
-            range = MinShort(range, distance_from_object(obj, other));
-        other++;
-    } while (other < 10);
-    return range;
-}
-
-/* Function start: WC2_UNMAPPED */
-void fire_when_ready(short obj, short aimed)
-{
-    (void)aimed;
-    if (g_nYourWingman_0049346c == obj &&
-        g_asPilotLevel_00495d60[obj] != 11) {
-        ship_vs_ship(obj, 0);
-        if (g_nFacingToTarget_00493194 > 80)
-            return;
-    }
-    fire(obj, g_acShipTarget_00495f20[obj]);
-}
-
 /* Function start: 0x42AB81 */
 unsigned int ships_within_range(short obj, short other, short range)
 {
@@ -2224,29 +2041,6 @@ short build_target_list(short obj, short range)
     return count;
 }
 
-/* Function start: WC2_UNMAPPED */
-int select_safe_target(short obj)
-{
-    short target;
-    short index;
-
-    build_target_list(obj, 7000);
-    index = -1;
-    do {
-        index++;
-        target = (short)g_acShipList_00496148[index];
-        if (target == -1)
-            break;
-    } while (in_danger(target) != 0);
-    if (target == -1 && index > 0) {
-        index--;
-        target = (short)g_acShipList_00496148[
-            RandomBelowOrEqual(index)];
-    }
-    g_nTargetShip_004931a0 = target;
-    return target != -1;
-}
-
 /* Function start: 0x42AF60 */
 void inherit_leader_mission(short obj)
 {
@@ -2294,20 +2088,6 @@ int gone_ship(short missionShip)
         g_aMissionShips_00492290[missionShip].state == 2)
         return 1;
     return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-short skill_rating(short obj)
-{
-    int rating = g_asPilotLevel_00495d60[obj];
-
-    if (rating <= 4)
-        return MaxShort(2, (short)rating);
-    if (rating == 13)
-        return 5;
-    if (rating < 14)
-        return (short)((rating - 5 >> 1) + 4);
-    return (short)rating - 10;
 }
 
 /* Function start: 0x42B15A */
@@ -2551,12 +2331,6 @@ short evaluate_damage(short obj)
                        typeData->armorLeft +
                    (g_aasShipArmor_00495540[obj][3] * 12) /
                        typeData->armorRight + 26);
-}
-
-/* Function start: WC2_UNMAPPED */
-short mine_available(short obj)
-{
-    return find_weapon(obj, OBJECT_TYPE_SPACE_MINE);
 }
 
 /* Function start: 0x4564F0 */
@@ -3062,43 +2836,6 @@ void FreeConstellationObject(short object)
 {
     FreePacketAndClear(&g_apObjectShape_00493868[object], 0);
     remove_object(object);
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int InitWc1Constellation(short scene)
-{
-    short slot;
-    short object;
-    int definitionBase;
-
-    if (g_pConstellationShape_005d2c4c != 0)
-        return 0;
-
-    scene--;
-    g_pConstellationShape_005d2c4c =
-        FetchDiskPacketRetrying(12, 0, 0);
-    if (g_nTrainSimActive_0049d758 != 0 || scene < 0)
-        return;
-
-    definitionBase = (int)scene * 4;
-    slot = 0;
-    do {
-        if (g_pConstellationDefinitions_00598a28[
-                definitionBase + slot].shapePacket != -1) {
-            object = find_vacant_3d_object();
-            if (object != -1) {
-                InitializeConstellationObject(
-                    &g_pConstellationDefinitions_00598a28[
-                        definitionBase + slot],
-                    object);
-            }
-            g_asConstellationObjectIndices_0049c8e0[slot] = object;
-        } else {
-            g_asConstellationObjectIndices_0049c8e0[slot] = -1;
-        }
-        slot++;
-    } while (slot < 4);
-    /* The successful path returns the last expression left in EAX. */
 }
 
 /* Function start: 0x4575B4 */
@@ -4522,42 +4259,6 @@ unsigned int ReleaseMusicTrackHook(short track)
 {
     (void)track;
     return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short LoadSceneAnimationResources(short scene, short variant)
-{
-    unsigned char *packet;
-    short logicalFile;
-
-    logicalFile = g_asSceneAnimationLogicalFiles_00469d60_WC1_UNMAPPED[scene];
-    g_pSceneAnimationPrimaryShape_005a7c58 =
-        FetchDiskPacketRetrying(logicalFile, 0, 0);
-    g_pSceneAnimationDefinitions_005a7c6c =
-        FetchDiskPacketRetrying(
-            logicalFile, (short)(variant + 1), 0);
-    g_pSceneAnimationSecondaryShape_005a7c70 =
-        FetchDiskPacketRetrying(
-            logicalFile, (short)(variant + 3), 0);
-    packet = FetchDiskPacketRetrying(
-        logicalFile, (short)(variant + 5), 0);
-    g_pSceneAnimationPacket_005a7c60 = packet;
-    g_pSceneAnimationSceneData_005a7c54 =
-        packet + *(unsigned int *)(packet + 0);
-    g_pSceneAnimationTextData_005a7c5c =
-        packet + *(unsigned int *)(packet + 4);
-    g_pSceneAnimationObjects_005a7c64 =
-        (SceneAnimationObject *)(g_pSceneAnimationDefinitions_005a7c6c + 2);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void ReleaseSceneAnimationResources(void)
-{
-    ReleasePacketHandle(g_pSceneAnimationPrimaryShape_005a7c58);
-    ReleasePacketHandle(g_pSceneAnimationPacket_005a7c60);
-    ReleasePacketHandle(g_pSceneAnimationSecondaryShape_005a7c70);
-    ReleasePacketHandle(g_pSceneAnimationDefinitions_005a7c6c);
 }
 
 /* Function start: WC2_UNMAPPED */

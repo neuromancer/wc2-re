@@ -346,14 +346,3 @@ void ix_dsp_free(void *memory)
 {
     g_pIxFree_004a0c1c(memory);
 }
-
-/* Function start: WC2_UNMAPPED */
-void ix_dsp_static_initializer(void)
-{
-    ix_dsp_static_initialization_hook();
-}
-
-/* Function start: WC2_UNMAPPED */
-void ix_dsp_static_initialization_hook(void)
-{
-}

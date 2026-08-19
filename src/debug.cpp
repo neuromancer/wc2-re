@@ -74,21 +74,6 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0049cb3c);
 }
 
-/* Function start: WC2_UNMAPPED */
-DebugOverlayConsole::~DebugOverlayConsole()
-{
-    animationState = 2;
-#ifdef WC1_SDL
-    g_nDebugOverlayConsoleCount_0049cb24--;
-#else
-    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0)
-        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
-#endif
-    free(textBuffer);
-    free(dirtyLines);
-    free(spinnerCharacters);
-}
-
 /* Function start: 0x45AEE4 */
 extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 {
@@ -386,21 +371,6 @@ void DebugOverlayConsole::SetTransparentBackground(void)
 #endif
 
     backgroundMode = TRANSPARENT;
-#ifndef WC1_SDL
-    deviceContext = GetDC(window);
-    SetBkMode(deviceContext, backgroundMode);
-    ReleaseDC(window, deviceContext);
-#endif
-}
-
-/* Function start: WC2_UNMAPPED */
-void DebugOverlayConsole::SetOpaqueBackground(void)
-{
-#ifndef WC1_SDL
-    HDC deviceContext;
-#endif
-
-    backgroundMode = OPAQUE;
 #ifndef WC1_SDL
     deviceContext = GetDC(window);
     SetBkMode(deviceContext, backgroundMode);

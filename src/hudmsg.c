@@ -953,67 +953,6 @@ short Draw_3Space_Frame(void)
     return (unsigned short)DrawSpaceSceneFrame();
 }
 
-/* Function start: WC2_UNMAPPED */
-void GetArcadeBonus(void)
-{
-    g_nArcadeWaveBonus_005a7c50 =
-        (g_nArcadeTimeRemaining_005a7c2c *
-             (g_nTrainSimMission_00469e30_WC1_UNMAPPED + 1) +
-         (g_nTrainSimMission_00469e30_WC1_UNMAPPED +
-          (g_nArcadeWave_00469e34_WC1_UNMAPPED * 5 + 5) * 2) * 50) * 2;
-}
-
-/* Function start: WC2_UNMAPPED */
-void FigureArcadeTime(void)
-{
-    g_nArcadeTimeRemaining_005a7c2c =
-        (short)((g_nArcadeWave_00469e34_WC1_UNMAPPED + 6) * 400);
-}
-
-/* Function start: WC2_UNMAPPED */
-void DrawWc1ArcadeScorePanel(short x, short y)
-{
-    char score[20];
-
-    sprintf(score, "%0ld", g_nArcadeScore_005a7bc4);
-    DrawFormattedText("%X%YScore: %s0 %XTime: %u %X1 UP",
-                      x, y, score, x + 0x82,
-                      g_nArcadeTimeRemaining_005a7c2c, x + 0xbe);
-}
-
-/* Function start: WC2_UNMAPPED */
-void UpdateArcadeScoreDisplay(void)
-{
-    char bonus[20];
-
-    if (g_nTrainSimActive_0049d758 != 0) {
-        SetTextContext(&g_stSpaceTextContext_005d21c0);
-        DrawWc1ArcadeScorePanel(10, 10);
-        if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED < 1) {
-            g_nArcadeScore_005a7bc4++;
-            g_nArcadeTimeRemaining_005a7c2c--;
-            if (g_nArcadeTimeRemaining_005a7c2c < 1) {
-                g_nArcadeState_0049d75c = 4;
-                return;
-            }
-        } else {
-            sprintf(bonus, "%0ld", g_nArcadeWaveBonus_005a7c50);
-            SetTextCursor((unsigned short)g_stViewBuffer_005d2b00.left,
-                          (unsigned short)((g_stViewBuffer_005d2b00.top +
-                                            g_stViewBuffer_005d2b00.bottom) / 2 - 5));
-            if (g_nCurrentWave_004931c0 != -1) {
-                FormatTextBufferFromStart(
-                    "Wave %d complete.\n\nBonus Points: %s0%P",
-                    g_nArcadeWave_00469e34_WC1_UNMAPPED + 1, bonus);
-                return;
-            }
-            FormatTextBufferFromStart(
-                "Mission %d complete.\n\nBonus Points: %s0%P",
-                g_nTrainSimMission_00469e30_WC1_UNMAPPED + 1, bonus);
-        }
-    }
-}
-
 /* Function start: 0x46903F */
 void RenderSpaceViewFrame(void)
 {
@@ -1039,15 +978,6 @@ void RenderSpaceViewFrame(void)
         RestoreTransientCockpitGraphics();
     ClearViewport(&g_stViewBuffer_005d2b00,
                   g_cPrimaryViewBufferColour_0049cb88);
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int RefreshCockpitStatus(void)
-{
-    Update_3Space();
-    if (g_nFrameSkipCountdown_0049d760 <= 1)
-        clear_view_buffer();
-    return Draw_3Space_Frame();
 }
 
 /* Function start: 0x469143 */
@@ -1616,137 +1546,6 @@ void ResetCannedSceneRecording(void)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-int RunWc1SpaceFlight(short entryNavPoint)
-{
-    Viewport *savedViewport;
-    signed char savedMode;
-    unsigned int frameReady;
-
-    g_nCockpitDisplayMode_0049d71c = 0;
-    if (g_nTrainSimActive_0049d758 == 0 && g_bCockpitEnabled_0049c26c == 0)
-        g_nCockpitDisplayMode_0049d71c = 1;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    g_bInputMode_0059a848 = 1;
-    SetEventManagerPump(get_player_input);
-    savedViewport = (Viewport *)g_stMouseCursorState_0059ab10.viewport;
-    g_stMouseCursorState_0059ab10.viewport = &g_stViewBuffer_005d2b00;
-    init_inflight_music();
-
-    if (entryNavPoint == -1)
-        entryNavPoint = g_aMissionShips_00492290[
-            g_stMissionHeader_005d3e70.playerMissionShip].navPoint;
-    set_up_action_sphere(entryNavPoint);
-
-    if (g_nCockpitDisplayMode_0049d71c != 0) {
-        free_view_buffer();
-        SetWc1ViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                           (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
-                           (unsigned short)(g_nScreenHeight_0049d4dc - 1));
-        initialize_view_buffer();
-        new_view(0, 0);
-        free_view_buffer();
-        SetWc1ViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
-        savedMode = g_cScreenViewportMode_005c82a6;
-        g_cScreenViewportMode_005c82a6++;
-        initialize_cockpit(savedMode);
-        SetMousePosition(
-            (g_stViewBuffer_005d2b00.right - g_stViewBuffer_005d2b00.left) / 2 + 1,
-            g_nViewCenterY_005c80da);
-        g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED = 0;
-        g_bInputCursorEnabled_005c80e6 = 0;
-        initialize_view_buffer();
-        FlushInputEvents();
-    }
-
-    copy_frame(0, 62);
-    WarpWc1MouseTo((short)((g_stViewBuffer_005d2b00.left + g_stViewBuffer_005d2b00.right) / 2),
-                (short)((g_stViewBuffer_005d2b00.top + g_stViewBuffer_005d2b00.bottom) / 2));
-    FlushInputEvents();
-    g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED = 0;
-    g_bInputCursorEnabled_005c80e6 = 0;
-    g_nArcadeState_0049d75c = 0;
-    MarkDibDirty();
-    DIBslamReal();
-    SetWc1SpaceFlightFrameTiming();
-    FlushInputEvents();
-    ClearDebugPauseFlags();
-    g_bInputCursorEnabled_005c80e6 = 0;
-    g_bSuppressNextMouseMove_005c843c = 1;
-    frameReady = 1;
-
-    while (g_nArcadeState_0049d75c == 0) {
-        ReadPerformanceCounter(&g_liFlightFrameStart_00476518_WC1_UNMAPPED);
-        if (HandleSpaceFlightControls() == -1) {
-            g_nArcadeState_0049d75c = 5;
-            break;
-        }
-        ReadPerformanceCounter(&g_liFlightAfterInput_00476500_WC1_UNMAPPED);
-        if (g_nArcadeState_0049d75c == 0) {
-            Update_3Space();
-            ReadPerformanceCounter(&g_liFlightAfterSimulation_00476520_WC1_UNMAPPED);
-            RenderSpaceViewFrame();
-            frameReady = 1;
-            ReadPerformanceCounter(&g_liFlightAfterRender_00476540_WC1_UNMAPPED);
-            update_cockpit();
-        } else {
-            g_liFlightAfterRender_00476540_WC1_UNMAPPED =
-                g_liFlightAfterSimulation_00476520_WC1_UNMAPPED =
-                    g_liFlightAfterInput_00476500_WC1_UNMAPPED;
-        }
-        ReadPerformanceCounter(&g_liFlightAfterCockpit_00476530_WC1_UNMAPPED);
-        if (frameReady != 0) {
-            frameReady = 0;
-            MarkDibDirty();
-            DIBslamReal();
-        }
-        ReadPerformanceCounter(&g_liFlightFrameEnd_00476508_WC1_UNMAPPED);
-        g_nFlightPresentTicks_00476510_WC1_UNMAPPED =
-            (int)(g_liFlightFrameEnd_00476508_WC1_UNMAPPED.LowPart -
-                  g_liFlightAfterCockpit_00476530_WC1_UNMAPPED.LowPart);
-        g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED =
-            (int)(g_liFlightAfterCockpit_00476530_WC1_UNMAPPED.LowPart -
-                  g_liFlightAfterRender_00476540_WC1_UNMAPPED.LowPart);
-        g_nFlightRenderTicks_00476548_WC1_UNMAPPED =
-            (int)(g_liFlightAfterRender_00476540_WC1_UNMAPPED.LowPart -
-                  g_liFlightAfterSimulation_00476520_WC1_UNMAPPED.LowPart);
-        g_nFlightSimulationTicks_00476528_WC1_UNMAPPED =
-            (int)(g_liFlightAfterSimulation_00476520_WC1_UNMAPPED.LowPart -
-                  g_liFlightAfterInput_00476500_WC1_UNMAPPED.LowPart);
-        g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED =
-            (int)(g_liFlightFrameEnd_00476508_WC1_UNMAPPED.LowPart -
-                  g_liFlightFrameStart_00476518_WC1_UNMAPPED.LowPart);
-        g_nFlightInputTicks_00476538_WC1_UNMAPPED =
-            (int)(g_liFlightAfterInput_00476500_WC1_UNMAPPED.LowPart -
-                  g_liFlightFrameStart_00476518_WC1_UNMAPPED.LowPart);
-        DAT_00598888 = 0;
-        DAT_0059888c = 0;
-        DAT_00598890 = 0;
-    }
-
-#ifdef WC1_SDL
-    Wc1SdlCancelSpaceFrame();
-    if (Wc1SdlUsingDosData())
-        Wc1SdlStopDosSoundEffects();
-#endif
-    SetCinematicFrameTiming(20.0f);
-    SetWc1ViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                       (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
-                       (unsigned short)(g_nScreenHeight_0049d4dc - 1));
-    g_nCockpitDisplayMode_0049d71c = 0;
-    if (g_nArcadeState_0049d75c == 1)
-        flag_objective(find_objective(1, -1), 2);
-    g_nCockpitDisplayMode_0049d71c = 0;
-    ResetCockpitPaletteEntries();
-    g_stMouseCursorState_0059ab10.viewport = savedViewport;
-    free_inflight_music();
-    SetEventManagerPump(0);
-    g_bInputCursorEnabled_005c80e6 = 0;
-    QueueInputEvent(13, 160, 100, 0, 0, 0, 0, 0, 0);
-    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
-    return g_nArcadeState_0049d75c;
-}
-
 /* Function start: 0x46925E */
 int RunSpaceFlight(short entryNavPoint)
 {
@@ -1893,28 +1692,6 @@ short calculate_damage_level(void)
     return 3;
 }
 
-/* Function start: WC2_UNMAPPED */
-void UpdateWc1TrainSimMenuCursor(void)
-{
-    short mouseX;
-    short mouseY;
-    short state;
-    short frame;
-    TitleMenuRegion *region;
-
-    frame = 0;
-    mouseX = g_stMouseCursorState_0059ab10.x;
-    mouseY = g_stMouseCursorState_0059ab10.y;
-    region = g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED;
-    while (region->frame != -1) {
-        state = IsPointInRect(mouseX, mouseY, &region->left);
-        if (state != 0)
-            frame = region->frame;
-        region++;
-    }
-    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
-}
-
 /* Function start: 0x419A40 */
 void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
 {
@@ -1947,44 +1724,6 @@ void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
             DosMemcpy(destination, source, (unsigned int)count);
         }
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-void ResetMouseCursorFrame(void)
-{
-    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
-}
-
-/* Function start: WC2_UNMAPPED */
-void UpdateRoomMenuCursor(void)
-{
-    short mouseX;
-    short mouseY;
-    short state;
-    short frame;
-    TitleMenuRegion *region;
-    short index;
-
-    mouseX = g_stMouseCursorState_0059ab10.x;
-    frame = g_nRoomMenuCursorFrame_00598ab0;
-    index = 0;
-    region = g_pRoomMenuRegions_00598ab2;
-    mouseY = g_stMouseCursorState_0059ab10.y;
-    ClearRoomMenuLabel();
-    while (region->frame != -1) {
-        state = IsPointInRect(mouseX, mouseY, &region->left);
-        if (state != 0) {
-            frame = region->frame;
-            if (index >= 20)
-                return;
-            if (index < 0)
-                return;
-            SelectRoomMenuLabel(index);
-        }
-        index++;
-        region++;
-    }
-    SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, frame);
 }
 
 #pragma function(memset)
@@ -2151,50 +1890,6 @@ void warp(short obj)
 }
 
 /* Function start: WC2_UNMAPPED */
-int drop_player_mine(short obj)
-{
-    short weapon;
-    signed char weaponCount;
-    int loadoutOffset;
-    ShipWeaponSlot *weaponSlot;
-    enum ObjectType type;
-
-    weapon = 0;
-    loadoutOffset = (int)obj * sizeof(g_aShipWeapons_004956b0[0]);
-    weaponCount = *(signed char *)
-        ((unsigned char *)g_aShipWeapons_004956b0 + loadoutOffset);
-    for (; weaponCount > weapon; weapon++) {
-        weaponSlot = (ShipWeaponSlot *)
-            ((unsigned char *)g_aShipWeapons_004956b0 + loadoutOffset + 1) +
-            weapon;
-        type = weaponSlot->type;
-
-        if (g_aObjectTypeData_00496d30[type].objectClass ==
-                OBJECT_CLASS_MINE &&
-            weaponSlot->disabled == 0)
-            return drop_mine(obj, (signed char)weapon, type, 20);
-    }
-    return -1;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int personality_killed(short personality)
-{
-    if (personality < 8) {
-        g_stCampaignState_0059ca50.personalityDeathMission[personality] =
-            (int)g_stCampaignState_0059ca50.currentMission +
-            (int)g_stCampaignState_0059ca50.currentSeries * 4;
-        g_stCampaignState_0059ca50.promotionScore = MaxShort(
-            0, (short)(g_stCampaignState_0059ca50.promotionScore - 1));
-        return 0;
-    }
-    kill_ace((short)(personality - 9));
-    g_stCampaignState_0059ca50.promotionScore++;
-    g_nMissionScore_00493462 += 25;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
     unsigned char *loadout = g_aShipWeapons_004956b0[obj];
@@ -2336,12 +2031,6 @@ void select_new_release_weapon(short preferredType)
     }
     if (get_mode(0) == 1)
         InvalidateVduMode(0);
-}
-
-/* Function start: WC2_UNMAPPED */
-void WaitForDebugStep(void)
-{
-    while (TakeDebugStepFlag() == 0) ;
 }
 
 /* Function start: 0x40A2D0 */

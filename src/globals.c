@@ -132,35 +132,6 @@ const unsigned char g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED /* no-address */[4]
 const unsigned char g_abIffCmapChunkId_00406f78_WC1_UNMAPPED /* no-address */[4] = { 'C', 'M', 'A', 'P' };
 const unsigned char g_abIffBodyChunkId_00406f7c_WC1_UNMAPPED /* no-address */[4] = { 'B', 'O', 'D', 'Y' };
 
-TitleMenuRegion g_aBarracksMenuRegions_00463008_WC1_UNMAPPED /* no-address */[21] = {
-    { 1, 137, 88, 149, 94 },
-    { 1, 110, 88, 136, 94 },
-    { 1, 172, 88, 184, 94 },
-    { 1, 185, 88, 210, 94 },
-    { 1, 133, 98, 146, 107 },
-    { 1, 100, 98, 132, 107 },
-    { 1, 174, 98, 189, 107 },
-    { 1, 190, 98, 220, 107 },
-    { 1, 124, 114, 142, 128 },
-    { 1, 81, 114, 123, 128 },
-    { 1, 178, 114, 197, 128 },
-    { 1, 198, 114, 238, 128 },
-    { 1, 109, 141, 135, 164 },
-    { 1, 50, 141, 108, 164 },
-    { 1, 185, 141, 213, 164 },
-    { 1, 214, 141, 268, 164 },
-    { 1, 288, 39, 311, 85 },
-    { 1, 9, 33, 39, 95 },
-    { 1, 218, 37, 248, 78 },
-    { 1, 86, 44, 181, 78 },
-    { -1, 0, 0, 0, 0 }
-};
-const char *g_pStrandedMessage_00465588_WC1_UNMAPPED /* no-address */ =
-    g_szStrandedMessage_0046558c_WC1_UNMAPPED;
-const char g_szStrandedMessage_0046558c_WC1_UNMAPPED /* no-address */[72] =
-    "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
-    "the void...";
-const char g_szStrandedTheEnd_004655e4_WC1_UNMAPPED /* no-address */[12] = "THE END";
 const short g_asMouthFramesByPhoneme_004655f0_WC1_UNMAPPED /* no-address */[26] = {
     0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
     4, 2, 5, 6, 4, 4, 4, 3, 4, 6, 4, 4, 4
@@ -171,189 +142,15 @@ const char g_szCampaignDateFormat_00465630_WC1_UNMAPPED /* no-address */[12] = "
 const char g_szSavedCampaignDateFormat_0046563c_WC1_UNMAPPED /* no-address */[12] = "%03d.%03d";
 const char g_szCampaignTimeFormat_00465648_WC1_UNMAPPED /* no-address */[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-signed char g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED /* no-address */ = 7;
-signed char g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED /* no-address */ = 10;
-signed char g_acScrambleWalkerOverlayFrames_00465770_WC1_UNMAPPED /* no-address */[8] = {
-    3, 4, 5, 3, 4, 6, 6, 3
-};
-short g_nScrambleLeftWalkerX_00465778_WC1_UNMAPPED /* no-address */ = 70;
-short g_nScrambleRightWalkerX_0046577c_WC1_UNMAPPED /* no-address */ = 170;
-short g_nScrambleBackgroundX_00465780_WC1_UNMAPPED /* no-address */ = 0;
-const unsigned short g_ausScrambleActorAnimationA_00465788_WC1_UNMAPPED /* no-address */[8] = {
-    0, 1, 2, 3, 4, 5, 0x80, 0
-};
-const unsigned short g_ausScrambleActorAnimationB_00465798_WC1_UNMAPPED /* no-address */[11] = {
-    0, 0, 1, 2, 2, 2, 2, 2, 1, 1, 0x80
-};
-ScrambleAnimationActor g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED /* no-address */[5] = {
-    { 0, 0, 0, 0,  2,  0, 0,
-      g_ausScrambleActorAnimationA_00465788_WC1_UNMAPPED, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 10,  0, 0,
-      g_ausScrambleActorAnimationB_00465798_WC1_UNMAPPED, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 13,  0, 0,
-      g_ausScrambleActorAnimationB_00465798_WC1_UNMAPPED, 0, 0, 0, 0 },
-    { 0, 0, 0, 0,  0, -1, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0,  1, -1, 0, 0, 0, 0, 0, 0 }
-};
-const ScrambleShipDetail g_aaScrambleShipDetails_00465828_WC1_UNMAPPED /* no-address */[4][32] = {
-    {
-        {  2,   23,   5 }, {  3, -112,  16 },
-        {  6,  -94, -23 }, {  6,  -26,   5 },
-        {  7,  -58, -11 }, {  7,  -98,   5 },
-        {  7,  -14,  13 }, {  7,   60,   6 },
-        {  7,  149,  24 }, {  9, -112, -24 },
-        {  9,  -99,  -9 }, {  9, -116,  18 },
-        {  9,  -81,  15 }, {  9,  -41,   9 },
-        {  9,  -54,   1 }, {  9,  -12, -14 },
-        {  9,   45,  18 }, {  9,   75,  11 },
-        {  9,  130,  14 }, {  9,  166,  24 },
-        {  0,  -68, -35 }, {  0,  -19,  -9 },
-        {  0,   68,  13 }, {  8,  -76, -18 },
-        {  8,  -33,  -1 }, {  8,   97,  31 },
-        { 10,  -86,  10 }, { 10, -117,  47 },
-        { 10,    9,   0 }, {  1, -111,  52 },
-        {  1,  -50,  15 }, {  1,   75,   5 }
-    },
-    {
-        {  3,  -88,  20 }, {  6,  -57,  29 },
-        {  7, -139,  63 }, {  7,  -72,   5 },
-        {  7,  -14,  28 }, {  9,  -91, -34 },
-        {  9, -113, -14 }, {  9, -132,  33 },
-        {  9,  -95,  34 }, {  9,  -60,  12 },
-        {  9, -155,  52 }, {  9,  -66,  51 },
-        {  9,  -56,  44 }, {  9,   44,  35 },
-        {  9,   57,  25 }, {  9,   59,  -1 },
-        {  9,  123,  41 }, {  9,  148,  30 },
-        {  0, -135,  -2 }, {  0, -100,  59 },
-        {  8,  -40,  11 }, { 10, -157, -19 },
-        { 10,  -77,  35 }, {  6,  248,  17 },
-        {  7,  300,  41 }, {  9,  172,  27 },
-        {  9,  194,  12 }, {  9,  291,  17 },
-        {  9,  290,  35 }, {  0,  233,  20 },
-        {  8,  206,  17 }, { 10,  187,  42 }
-    },
-    {
-        {  3,  -97,  -6 }, {  3,   89,   9 },
-        {  6,  151,  -4 }, {  7,  -91, -39 },
-        {  7,  -78, -16 }, {  7,  -56,  41 },
-        {  7,  124,   1 }, {  7, -118,   0 },
-        {  9, -107, -37 }, {  9, -127,  38 },
-        {  9, -102,  21 }, {  9,  -67,  35 },
-        {  9,  -54, -14 }, {  9,   12,  34 },
-        {  9,   35,  39 }, {  9,   31,  21 },
-        {  9,  130,  35 }, {  9,  185,  10 },
-        {  0,  -42,  -3 }, {  0,   75,  35 },
-        {  0,  177,  42 }, {  8, -126, -39 },
-        { 10,  -16,  37 }, { 10,  148,   5 },
-        {  1,   -3,  45 }, {  6,  160,  38 },
-        {  7,  154,  16 }, {  9,  188,   3 },
-        {  9,  150,  37 }, {  9,  214,  31 },
-        {  9,  302,  16 }, {  8,  200,  15 }
-    },
-    {
-        {  6,  103,  18 }, {  7, -114,   4 },
-        {  7, -142,  39 }, {  7,   48,  23 },
-        {  7,   88,  44 }, {  9,  -67, -30 },
-        {  9, -134, -24 }, {  9,  -82,  -1 },
-        {  9,  -45,  19 }, {  9, -153,  46 },
-        {  9,   -8,  48 }, {  9,   11,  24 },
-        {  9,   64,  27 }, {  9,  141,  38 },
-        {  9,  154,  12 }, {  0, -105, -20 },
-        {  0,   18,  14 }, {  0,  134,  20 },
-        {  8, -153, -11 }, { 10,  -76,  64 },
-        { 10,   33,  18 }, {  1,  -85, -28 },
-        {  1, -154,  14 }, {  1,  148,  21 },
-        {  3,  198,  23 }, {  6,  260,  14 },
-        {  7,  238,  19 }, {  9,  165,  14 },
-        {  9,  221,  22 }, {  0,  246,  16 },
-        {  8,  221,  33 }, {  1,  282,  22 }
-    }
-};
-const int g_anLandingDamageDetailCounts_00465aa8_WC1_UNMAPPED /* no-address */[4] = {
-    0, 8, 16, 24
-};
-const char *g_apszLandingDamageComments_00465ab8_WC1_UNMAPPED /* no-address */[4] = {
-    g_szLandingCleanComment_00465b58_WC1_UNMAPPED,
-    g_szLandingLightDamageComment_00465b78_WC1_UNMAPPED,
-    g_szLandingHeavyDamageComment_00465ba8_WC1_UNMAPPED,
-    g_szLandingSurvivalComment_00465bcc_WC1_UNMAPPED
-};
-const signed char g_acLandingCanopyFramesHeavy_00465ac8_WC1_UNMAPPED /* no-address */[24] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10,
-    10, 10, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0x40
-};
-const signed char g_acLandingCanopyFramesLight_00465ae0_WC1_UNMAPPED /* no-address */[24] = {
-    0, 1, 2, 3, 11, 12, 13, 14, 14, 14, 14, 14,
-    14, 14, 13, 12, 11, 3, 2, 1, 0, 0x40, 0, 0
-};
-const signed char g_acLandingCanopyFramesModerate_00465af8_WC1_UNMAPPED /* no-address */[16] = {
-    0, 15, 16, 17, 18, 19, 19, 18,
-    17, 16, 15, 0, 0x40, 0, 0, 0
-};
-const signed char *g_apLandingCanopyFrames_00465b08_WC1_UNMAPPED /* no-address */[4] = {
-    g_acLandingCanopyFramesLight_00465ae0_WC1_UNMAPPED,
-    g_acLandingCanopyFramesModerate_00465af8_WC1_UNMAPPED,
-    g_acLandingCanopyFramesHeavy_00465ac8_WC1_UNMAPPED,
-    g_acLandingCanopyFramesHeavy_00465ac8_WC1_UNMAPPED
-};
-const ShortPoint g_aFuneralParticleOrigins_00465b18_WC1_UNMAPPED /* no-address */[7] = {
-    { 234, 83 }, { 248, 85 }, { 260, 80 }, { 273, 78 },
-    { 286, 75 }, { 299, 76 }, { 310, 74 }
-};
-const short g_asFuneralSceneBySeries_00465b36_WC1_UNMAPPED /* no-address */[15] = {
-    0, 0, 1, 1, 1, 1, 1, 2, 3, 2, 3, 3, 2, 3, 0
-};
 int g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED /* no-address */;
-const char g_szLandingCleanComment_00465b58_WC1_UNMAPPED /* no-address */[32] =
-    "You got away pretty clean, sir!";
-const char g_szLandingLightDamageComment_00465b78_WC1_UNMAPPED /* no-address */[48] =
-    "Looks like it got a little hot out there, sir!";
-const char g_szLandingHeavyDamageComment_00465ba8_WC1_UNMAPPED /* no-address */[36] =
-    "You sure got yourself shot up, sir!";
-const char g_szLandingSurvivalComment_00465bcc_WC1_UNMAPPED /* no-address */[44] =
-    "Glad to see you made it back alive, sir.";
-const char g_szLandingCommentFormat_00465bf8_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szTheEnd_00465c04_WC1_UNMAPPED /* no-address */[8] = "THE END";
 const char g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szFuneralCompanyCommand_00465c18_WC1_UNMAPPED /* no-address */[20] =
-    "%X%Y%FCompany...%P";
-const char g_szFuneralAttentionCommand_00465c2c_WC1_UNMAPPED /* no-address */[20] =
-    "%X%YAtten-SHUN!%P";
-const char g_szFuneralPrepareArmsCommand_00465c40_WC1_UNMAPPED /* no-address */[20] =
-    "%X%YPrepare arms!%P";
-const char g_szFuneralFireCommand_00465c54_WC1_UNMAPPED /* no-address */[16] =
-    "%X%Y%FFire!%P";
 short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED /* no-address */;
-const char g_szErrorLoadingPilotSpeech_00466010_WC1_UNMAPPED /* no-address */[32] =
-    "Error loading pilot speech";
 
 
-/* Child/hardpoint offsets at 0x004682F0. */
-const char *g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED /* no-address */[2] = {
-    g_szSaveCampaignMenuLabel_00469468_WC1_UNMAPPED,
-    g_szSaveCampaignMenuLabelAlt_00469480_WC1_UNMAPPED
-};
-char *g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED /* no-address */[20] = {
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    (char *)g_szMissionHangarMenuLabel_00469498_WC1_UNMAPPED,
-    (char *)g_szReturnToBarMenuLabel_004694a8_WC1_UNMAPPED,
-    (char *)g_szQuitGameMenuLabel_004694bc_WC1_UNMAPPED,
-    (char *)g_szViewMedalsMenuLabel_004694d0_WC1_UNMAPPED
-};
-const short g_asCampaignPilotFiles_00469450_WC1_UNMAPPED /* no-address */[3] = {58, 61, 74};
 const short g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED /* no-address */[3] = {10, 62, 73};
-const char g_szSaveCampaignMenuLabel_00469468_WC1_UNMAPPED /* no-address */[24] =
-    "Save this campaign  ";
-const char g_szSaveCampaignMenuLabelAlt_00469480_WC1_UNMAPPED /* no-address */[24] =
-    "Save this campaign  ";
-const char g_szMissionHangarMenuLabel_00469498_WC1_UNMAPPED /* no-address */[16] = "Mission Hangar";
-const char g_szReturnToBarMenuLabel_004694a8_WC1_UNMAPPED /* no-address */[20] = "Return to the Bar";
-const char g_szQuitGameMenuLabel_004694bc_WC1_UNMAPPED /* no-address */[20] = "Quit Wing Commander";
-const char g_szViewMedalsMenuLabel_004694d0_WC1_UNMAPPED /* no-address */[20] = "View your medals";
 char g_szDiskMarkerFile_00469688_WC1_UNMAPPED /* no-address */[9] = "DISK.000";
 short g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED /* no-address */ = 0x50;
-short g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED /* no-address */ = 4;
 short g_bSlowSceneAnimation_00469998_WC1_UNMAPPED /* no-address */;
 short g_asConversationTextColours_004699f0_WC1_UNMAPPED /* no-address */[24] = {
     0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
@@ -369,36 +166,8 @@ const int g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED /* no-
 const int g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED /* no-address */[3] = {
     258000, 238000, 258000
 };
-PacketResourceDescriptor g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED /* no-address */[19] = {
-    { &g_pCockpitHudShape_005d21f4, 8, 0 },
-    { &g_pPilotHandAnimationShape_005d2c64, 2, 3 },
-    { &g_pConfedCommBackground_00469278_WC1_UNMAPPED, 11, 0 },
-    { &g_pCommStaticShape_0046927c_WC1_UNMAPPED, 11, 11 },
-    { &g_pKilrathiCommBackground_00469280, 11, 9 },
-    { (unsigned char **)&g_pCockpitExplosionShape_00469064_WC1_UNMAPPED, 8, 5 },
-    { &g_pCockpitIndicatorShape_005d2c48, 8, 4 },
-    { &g_pCinematicViewBackdrop_005a7c90, 8, 6 },
-    { &g_pRearViewBackdrop_005a7c94, 8, 7 },
-    { &g_apCommPortraitShapes_0059e180[0], 11, 1 },
-    { &g_apCommPortraitShapes_0059e180[1], 11, 2 },
-    { &g_apCommPortraitShapes_0059e180[2], 11, 3 },
-    { &g_apCommPortraitShapes_0059e180[3], 11, 4 },
-    { &g_apCommPortraitShapes_0059e180[4], 11, 5 },
-    { &g_apCommPortraitShapes_0059e180[5], 11, 6 },
-    { &g_apCommPortraitShapes_0059e180[6], 11, 7 },
-    { &g_apCommPortraitShapes_0059e180[7], 11, 8 },
-    { &g_apCommPortraitShapes_0059e180[8], 11, 10 },
-    { 0, 0, 0 }
-};
-unsigned int g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED /* no-address */ = 1;
-const short g_asSceneAnimationLogicalFiles_00469d60_WC1_UNMAPPED /* no-address */[8] = {
-    63, 64, 65, 66, 67, 68, 69, 70
-};
 short g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED /* no-address */;
 const char g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szMeanwhile_00469d80_WC1_UNMAPPED /* no-address */[16] = "Meanwhile...";
-const char g_szEmptyAnswerInput_00469d90_WC1_UNMAPPED /* no-address */[4] = "";
-const char g_szAnswerLabel_00469d94_WC1_UNMAPPED /* no-address */[9] = "Answer: ";
 Viewport g_stTrainSimPanelViewport_00469da8_WC1_UNMAPPED /* no-address */;
 const ShortRect g_stTrainSimPanelBounds_00469dc0_WC1_UNMAPPED /* no-address */ = {
     0x30, 0x1d, 0x110, 0x6d
@@ -412,97 +181,10 @@ unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED /* no-address *
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[32],
     &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[40]
 };
-TitleMenuRegion g_aTrainSimMissionRegions_00469df8_WC1_UNMAPPED /* no-address */[5] = {
-    { 1, 47, 29, 67, 49 },
-    { 1, 47, 89, 67, 109 },
-    { 1, 251, 29, 271, 49 },
-    { 1, 251, 89, 271, 109 },
-    { -1, 0, 0, 0, 0 }
-};
-const short g_asCarrierLaunchApproachDeltaX_0046a550_WC1_UNMAPPED /* no-address */[24] = {
-    -1, -1, -1, -2, -2, -2, -2, -3,
-    -3, -3, -3, -3, -2, -2, -2, -2,
-    -1, -1, -1, -1, -1, 0, 0, 0
-};
-const signed char g_acCarrierLaunchApproachFrames_0046a580_WC1_UNMAPPED /* no-address */[24] = {
-    36, 32, 32, 32, 32, 32, 32, 32,
-    25, 25, 25, 25, 25, 25, 25, 25,
-    18, 18, 18, 18, 18, 18, 18, 18
-};
-const ShortPoint g_aCarrierLaunchFighterPath_0046a598_WC1_UNMAPPED /* no-address */[9] = {
-    { -2, 1 }, { -1, 1 }, { -1, 1 },
-    { -1, 0 }, { -1, 1 }, { -1, 0 },
-    { -1, 1 }, { -1, 0 }, { 0, 0 }
-};
-const short g_asCarrierLaunchFighterDeltaY_0046a5bc_WC1_UNMAPPED /* no-address */[16] = {
-    0, 0, 3, 3, 3, 2, 2, 2,
-    2, 2, 1, 1, 1, 1, 1, 1
-};
-const short g_asCarrierLaunchViewData_0046a5dc_WC1_UNMAPPED /* no-address */[16] = {
-    0, 0, 12, 11,
-    1, 90, 90, 0, 9, -90, 0, 0, 20, 3, 15, -1
-};
 const char g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED /* no-address */[28] =
     "Press any key when ready";
-short g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED /* no-address */ = -1;
-int g_bScriptedView_0046a8d4_WC1_UNMAPPED /* no-address */;
-short g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED /* no-address */;
-int g_nMusicStreamSet_0046aa18_WC1_UNMAPPED /* no-address */ = -1;
-const char *g_apszCampaignVictoryText_0046ad90_WC1_UNMAPPED /* no-address */[4] = {
-    g_szCampaignVictoryOpening_0046add0_WC1_UNMAPPED,
-    g_szCampaignVictoryAttack_0046ae14_WC1_UNMAPPED,
-    g_szCampaignVictoryConclusion_0046ae40_WC1_UNMAPPED,
-    0
-};
-const char *g_pszTigerClawEscapeOpening_0046ada0_WC1_UNMAPPED /* no-address */ =
-    g_szTigerClawEscapeOpening_0046ae74_WC1_UNMAPPED;
-const char *g_pszTigerClawEscapeJump_0046ada4_WC1_UNMAPPED /* no-address */ =
-    g_szTigerClawEscapeJump_0046aeb4_WC1_UNMAPPED;
-const char *g_pszTigerClawEscapeClosing_0046ada8_WC1_UNMAPPED /* no-address */ =
-    g_szTigerClawEscapeClosing_0046aee4_WC1_UNMAPPED;
-const ShortVector g_aCampaignVictoryProjectileOrigins_0046adb0_WC1_UNMAPPED /* no-address */[4] = {
-    { -55, 42, 0 }, { -68, 46, 0 },
-    { 60, 42, 16 }, { 73, 46, 16 }
-};
-const char *g_pszTheEnd_0046adc8_WC1_UNMAPPED /* no-address */ = g_szTheEnd_0046af10_WC1_UNMAPPED;
-const char *g_pszForNow_0046adcc_WC1_UNMAPPED /* no-address */ = g_szForNow_0046af18_WC1_UNMAPPED;
-const char g_szCampaignVictoryOpening_0046add0_WC1_UNMAPPED /* no-address */[68] =
-    "Destroying the remains of the Kilrathi naval power in the sector...";
-const char g_szCampaignVictoryAttack_0046ae14_WC1_UNMAPPED /* no-address */[44] =
-    "The Tiger's Claw closes in for the kill...";
-const char g_szCampaignVictoryConclusion_0046ae40_WC1_UNMAPPED /* no-address */[52] =
-    "And the last Kilrathi planet in the sector falls!";
-const char g_szTigerClawEscapeOpening_0046ae74_WC1_UNMAPPED /* no-address */[64] =
-    "Fleeing from the overwelming Kilrathi forces in the sector...";
-const char g_szTigerClawEscapeJump_0046aeb4_WC1_UNMAPPED /* no-address */[48] =
-    "The Tiger's Claw manages to jump out. Barely.";
-const char g_szTigerClawEscapeClosing_0046aee4_WC1_UNMAPPED /* no-address */[44] =
-    "There'll be other sectors, other battles...";
-const char g_szTheEnd_0046af10_WC1_UNMAPPED /* no-address */[8] = "The End";
-const char g_szForNow_0046af18_WC1_UNMAPPED /* no-address */[12] = "For Now...";
-const char g_szCampaignVictoryTextFormat_0046af24_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
-const char g_szTigerClawEscapeOpeningFormat_0046af30_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
-const char g_szTigerClawEscapeJumpFormat_0046af3c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
-const char g_szTigerClawEscapeClosingFormat_0046af48_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
 
 
-const char g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED /* no-address */[32] =
-    "Bhurak\0\0"
-    "Dakhath\0"
-    "Khajja\0\0"
-    "Bakhtosh";
-const short g_asIntroCameraSequence_0046c090_WC1_UNMAPPED /* no-address */[20] = {
-    0, -1000, 0, -4263, 2, 15, 1, 0, 30, 0,
-    3, 15, 4, 30, 1, 13, 14, 400, -1, 0
-};
-const short g_asCampaignVictoryViewScript_0046c160_WC1_UNMAPPED /* no-address */[24] = {
-    16, 38, 0, 1200, 0, 1600, 1, 180,
-    0, 0, 15, 3, 4, 14, 100, 2,
-    15, 3, 15, 14, 120, -1, 0, 0
-};
-const short g_asTigerClawEscapeViewScript_0046c238_WC1_UNMAPPED /* no-address */[12] = {
-    0, 0, 0, 0, 2, 15, 3, 15, 14, 400, -1, 0
-};
 CampaignDate g_stSavedCampaignDate_0046e188_WC1_UNMAPPED /* no-address */ = {20, 340};
 const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190_WC1_UNMAPPED /* no-address */[11] = {
     {161, 60, 161, 90},
@@ -552,8 +234,6 @@ const char *g_apszMedalNames_0046e2e0_WC1_UNMAPPED /* no-address */[5] = {
     g_szTerranMedalOfValor_0046e5c4_WC1_UNMAPPED
 };
 unsigned char *g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED /* no-address */;
-const char *g_pszMedalsPilotSummary_0046e2f8_WC1_UNMAPPED /* no-address */ =
-    g_szMedalsPilotSummary_0046e5dc_WC1_UNMAPPED;
 const int g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED /* no-address */[12] = {
     1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4
 };
@@ -593,9 +273,6 @@ const char g_szGoldStar_0046e5ac_WC1_UNMAPPED /* no-address */[12] = "Gold Star"
 const char g_szGoldenSun_0046e5b8_WC1_UNMAPPED /* no-address */[12] = "Golden Sun";
 const char g_szTerranMedalOfValor_0046e5c4_WC1_UNMAPPED /* no-address */[24] =
     "Terran Medal of Valor";
-const char g_szMedalsPilotSummary_0046e5dc_WC1_UNMAPPED /* no-address */[40] =
-    "$R $N, aka $C.\n$S system, dateline $D.";
-const char g_szViewMedalsTextFormat_0046e604_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
@@ -605,160 +282,6 @@ const char g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED /* no-address */[1
 const char g_szDismissedTextFormat_0046e658_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 const char g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char *g_pszBlankRoomMenuLabel_00470090_WC1_UNMAPPED /* no-address */ =
-    g_szBlankRoomMenuLabel_0047052c_WC1_UNMAPPED;
-CampaignState g_stInitialCampaignState_004700b0_WC1_UNMAPPED /* no-address */ = {
-    0,
-    OBJECT_TYPE_HORNET,
-    {0, 0, 0, 0, 0},
-    {1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    0,
-    1,
-    0,
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {1, 1, 1, 1},
-    {110, 2654},
-    {6, 0},
-    0,
-    0,
-    0,
-    0
-};
-PilotRecord g_aInitialPilotRecords_00470108_WC1_UNMAPPED /* no-address */[9] = {
-    {"TANAKA",   "SPIRIT",  3, 1, 11, 14, 1},
-    {"ST.JOHN",  "HUNTER",  4, 2, 25, 32, 4},
-    {"CHEN",     "BOSSMAN", 1, 3, 35, 37, 2},
-    {"CASEY",    "ICEMAN",  0, 3, 28, 43, 1},
-    {"DEVEREAUX", "ANGEL",   0, 2, 22, 20, 1},
-    {"TAGGART",  "PALADIN", 2, 3, 42, 34, 2},
-    {"MARSHALL", "MANIAC",  4, 0, 5, 6, 1},
-    {"KHUMALO",  "KNIGHT",  3, 2, 18, 23, 3},
-    {"PELLEY",   "GOBLIN",  0, 0, 0, 0, 0}
-};
-signed char g_abSpiritRecRoomAnimation_00470260_WC1_UNMAPPED /* no-address */[48] = {
-    0, 0, 0, 0, 1, 1, 2, 2, 1, 1, 2, 3, 4, 3, 3, 4,
-    3, 4, 3, 4, 5, 3, 4, 5, 3, 4, 3, 4, 3, 4, 5, 3,
-    2, 2, 2, 3, 2, 2, 2, 1, 1, 1, -1, 0, 0, 0, 0, 0
-};
-signed char g_abHunterRecRoomAnimation_00470290_WC1_UNMAPPED /* no-address */[40] = {
-    0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 2, 2,
-    3, 3, 4, 4, 5, 3, 3, 4, 4, 5, 5, 5, 2, 2, 1, 1,
-    0, 0, -1, 0, 0, 0, 0, 0
-};
-signed char g_abAngelRecRoomAnimation_004702b8_WC1_UNMAPPED /* no-address */[48] = {
-    3, 4, 3, 3, 4, 3, 4, 4, 3, 4, 3, 4, 0, 0, 0, 2,
-    0, 2, 0, 1, 0, 2, 0, 0, 2, 0, 1, 0, 2, 3, 3, 4,
-    3, 4, 4, 5, 5, 5, 5, 5, -1, 0, 0, 0, 0, 0, 0, 0
-};
-signed char g_abKnightRecRoomAnimation_004702e8_WC1_UNMAPPED /* no-address */[40] = {
-    0, 0, 0, 0, 0, 1, 0, 1, 0, 5, 0, 0, 1, 2, 3, 4,
-    4, 3, 2, 2, 2, 3, 4, 4, 5, 5, 0, 0, 1, 0, 1, 2,
-    1, 0, 1, -1, 0, 0, 0, 0
-};
-signed char g_abIcemanRecRoomAnimation_00470310_WC1_UNMAPPED /* no-address */[40] = {
-    0, 0, 0, 0, 0, 0, 0, 1, 2, 2, 2, 2, 3, 3, 3, 3,
-    4, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 4, 3,
-    3, 2, 2, 1, 0, 0, -1, 0
-};
-signed char g_abManiacRecRoomAnimation_00470338_WC1_UNMAPPED /* no-address */[24] = {
-    0, 1, 2, 0, 1, 2, 0, 3, 2, 0, 1, 1,
-    0, 4, 2, 0, 1, 2, 0, 5, 5, 5, 5, -1
-};
-signed char g_abPaladinRecRoomAnimation_00470350_WC1_UNMAPPED /* no-address */[56] = {
-    0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 2, 2, 2, 3, 2,
-    2, 3, 2, 3, 2, 3, 2, 4, 4, 2, 3, 2, 3, 2, 3, 2,
-    3, 2, 3, 4, 4, 5, 5, 4, 4, 4, 4, 5, 5, 4, 2, 2,
-    2, -1, 0, 0, 0, 0, 0, 0
-};
-signed char g_abBossmanRecRoomAnimation_00470388_WC1_UNMAPPED /* no-address */[48] = {
-    3, 3, 3, 2, 3, 2, 3, 2, 3, 3, 2, 3, 1, 3, 1, 3,
-    0, 3, 0, 3, 0, 2, 1, 2, 1, 3, 3, 4, 5, 5, 4, 5,
-    4, 5, 1, 3, 1, 3, 1, 3, -1, 0, 0, 0, 0, 0, 0, 0
-};
-signed char g_abShotglassIdleAnimation_004703b8_WC1_UNMAPPED /* no-address */[24] = {
-    0, 0, 0, 0, 0, 1, 1, 0, 0, 2, 2, 0,
-    0, 3, 3, 3, -1, 0, 0, 0, 0, 0, 0, 0
-};
-signed char g_abShotglassGlassAnimation_004703d0_WC1_UNMAPPED /* no-address */[32] = {
-    3, 6, 7, 8, 8, 9, 9, 10, 10, 10, 12, 11, 10, 12, 11, 10,
-    12, 11, 10, 12, 11, 10, 13, 13, 13, 10, 9, 8, 8, 3, 3, -1
-};
-signed char g_abShotglassPourAnimation_004703f0_WC1_UNMAPPED /* no-address */[80] = {
-    3, 3, 6, 6, 7, 8, 8, 14, 15, 15, 16, 17, 18, 18, 18, 18,
-    17, 19, 19, 20, 20, 21, 20, 21, 20, 21, 20, 21, 20, 21, 20, 21,
-    22, 22, 23, 24, 24, 25, 25, 26, 26, 27, 28, 28, 28, 29, 30, 31,
-    31, 31, 31, 31, 32, 32, 31, 31, 31, 33, 33, 32, 34, 34, 35, 35,
-    36, 36, 37, 37, 37, 38, 38, 39, 40, 3, 3, 3, -1, 0, 0, 0
-};
-signed char g_abShotglassWipeAnimation_00470440_WC1_UNMAPPED /* no-address */[24] = {
-    3, 4, 3, 4, 5, 3, 4, 3, 5, 6, 3, 3,
-    3, 3, 4, 3, 4, 3, -1, 0, 0, 0, 0, 0
-};
-signed char *g_apRecRoomAnimations_00470458_WC1_UNMAPPED /* no-address */[14] = {
-    g_abSpiritRecRoomAnimation_00470260_WC1_UNMAPPED,
-    g_abHunterRecRoomAnimation_00470290_WC1_UNMAPPED,
-    g_abBossmanRecRoomAnimation_00470388_WC1_UNMAPPED,
-    g_abIcemanRecRoomAnimation_00470310_WC1_UNMAPPED,
-    g_abAngelRecRoomAnimation_004702b8_WC1_UNMAPPED,
-    g_abPaladinRecRoomAnimation_00470350_WC1_UNMAPPED,
-    g_abManiacRecRoomAnimation_00470338_WC1_UNMAPPED,
-    g_abKnightRecRoomAnimation_004702e8_WC1_UNMAPPED,
-    0,
-    g_abShotglassIdleAnimation_004703b8_WC1_UNMAPPED,
-    g_abShotglassGlassAnimation_004703d0_WC1_UNMAPPED,
-    g_abShotglassPourAnimation_004703f0_WC1_UNMAPPED,
-    g_abShotglassWipeAnimation_00470440_WC1_UNMAPPED,
-    0
-};
-const ShortPoint g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED /* no-address */[3] = {
-    {94, 59}, {161, 79}, {202, 79}
-};
-TitleMenuRegion g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED /* no-address */[7] = {
-    { 1, 94, 59, 130, 95 },
-    { 1, 161, 79, 180, 95 },
-    { 1, 210, 79, 240, 95 },
-    { 1, 180, 50, 250, 75 },
-    { 1, 275, 50, 319, 135 },
-    { 1, 0, 100, 120, 190 },
-    { -1, 0, 0, 0, 0 }
-};
-char *g_apszRecRoomBaseLabels_004704e8_WC1_UNMAPPED /* no-address */[3] = {
-    g_szTalkToShotglass_0047055c_WC1_UNMAPPED,
-    g_szTalkToFirstPilot_00470570_WC1_UNMAPPED,
-    g_szTalkToSecondPilot_00470588_WC1_UNMAPPED
-};
-char *g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED /* no-address */[6] = {
-    0, 0, 0,
-    g_szCheckPilotScores_004705a0_WC1_UNMAPPED,
-    g_szEnterBarracks_004705b4_WC1_UNMAPPED,
-    g_szFlyTrainingMission_004705c4_WC1_UNMAPPED
-};
-int DAT_00470510_WC1_UNMAPPED /* no-address */;
-CampaignDate g_stChalkBoardDate_00470514_WC1_UNMAPPED /* no-address */ = {-1, -1};
-short g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED /* no-address */[9] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8
-};
-const char g_szBlankRoomMenuLabel_0047052c_WC1_UNMAPPED /* no-address */[4] = " ";
-char g_szTalkToShotglass_0047055c_WC1_UNMAPPED /* no-address */[20] = "Talk to SHOTGLASS.";
-char g_szTalkToFirstPilot_00470570_WC1_UNMAPPED /* no-address */[24] = "Talk to ??????????????";
-char g_szTalkToSecondPilot_00470588_WC1_UNMAPPED /* no-address */[24] = "Talk to ??????????????";
-char g_szCheckPilotScores_004705a0_WC1_UNMAPPED /* no-address */[20] = "Check pilot scores";
-char g_szEnterBarracks_004705b4_WC1_UNMAPPED /* no-address */[16] = "Enter barracks";
-char g_szFlyTrainingMission_004705c4_WC1_UNMAPPED /* no-address */[24] = "Fly training mission";
-const char g_szRoomMenuLabelFormat_004705dc_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
-const char g_szEmptyRoomMenuLabel_004705e8_WC1_UNMAPPED /* no-address */[4] = "";
-const char g_szTalkToPilotFormat1_004705ec_WC1_UNMAPPED /* no-address */[16] = "Talk to %s.";
-const char g_szTalkToPilotFormat2_004705fc_WC1_UNMAPPED /* no-address */[16] = "Talk to %s.";
-const char g_szChalkBoardHeading_0047060c_WC1_UNMAPPED /* no-address */[32] =
-    "%X%YCARRIER - TIGER'S CLAW%P";
-const char g_szChalkBoardPilotHeading_0047062c_WC1_UNMAPPED /* no-address */[12] = "%X%YPILOT";
-const char g_szChalkBoardScoreHeading_00470638_WC1_UNMAPPED /* no-address */[20] =
-    "%X%YSORTIES KILLS";
-const char g_szChalkBoardPilotFormat_0047064c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s %s";
-const char g_szChalkBoardScoreFormat_00470658_WC1_UNMAPPED /* no-address */[12] = "%X%Y%d%X%d";
-const char g_szKilledInAction_00470664_WC1_UNMAPPED /* no-address */[4] = "KIA";
-const char g_szChalkBoardKiaFormat_00470668_WC1_UNMAPPED /* no-address */[16] = "%X%Y     %s";
 const int g_nJoystickUnavailableSample_0048e054 = -1;
 const unsigned short g_wSpeechCacheCodeBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wSpeechCacheDataWords_0048e0e4 = 0x0fa0;
@@ -1681,22 +1204,10 @@ const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED /* no-address */[12] = "LAST
 const char g_szDefaultCallsign_0049ab54[12] = "Maverick";
 const char g_szCallsignLabel_00469ee0_WC1_UNMAPPED /* no-address */[12] = "CALLSIGN : ";
 const char g_szCheaterCallsign_00469eec_WC1_UNMAPPED /* no-address */[8] = "CHEATER";
-const char g_szHighScoreCongratulations_00469ef4_WC1_UNMAPPED /* no-address */[68] =
-    "*******\n"
-    "CONGRATULATIONS!\n"
-    "YOU HAVE SCORE NUMBER\n"
-    ">>>> %d <<<<\n"
-    "*******";
-const char g_szLowScoreMessage_00469f38_WC1_UNMAPPED /* no-address */[56] =
-    "> SORRY <\n\n"
-    "YOUR SCORE IS ONLY\n"
-    "%ld0\n\n"
-    "PLEASE PLAY AGAIN!";
 const char g_szHighScoresHeading_00469f70_WC1_UNMAPPED /* no-address */[16] = "%JHIGH SCORES%P";
 const char g_szHighScoreNumberFormat_00469f80_WC1_UNMAPPED /* no-address */[8] = "%0ld";
 const char g_szHighScoreRowFormat_00469f88_WC1_UNMAPPED /* no-address */[16] =
     "%X%Y%d. %s%X%s0";
-const char g_szSelectEnemy_00469f98_WC1_UNMAPPED /* no-address */[16] = "SELECT\nENEMY%P";
 int g_bPauseInputActive_0049ac9c;
 const char g_szAllocateBufferTag_0049ae20[4] = "AB";
 short g_bTargetLockActive_0049ae80;
@@ -2094,8 +1605,6 @@ const short g_asConstellationFrame_0049cb00[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0049cb20 = -1;
-unsigned char *g_pPacketDecompressionWorkspace_0046a91c_WC1_UNMAPPED /* no-address */;
-unsigned short g_wPacketDecompressionInputSizeOverride_0046a920_WC1_UNMAPPED /* no-address */;
 int g_nDebugOverlayConsoleCount_0049cb24;
 DWORD g_dwDebugOverlayKey_0049cb28;
 DWORD g_dwDebugOverlayKeyLatch_0049cb2c;
@@ -2220,8 +1729,6 @@ int g_anVolumeLevels_0049d720[11] = {
 int g_nSfxVolumeSetting_0049d74c = 0x14;
 int g_nMusicVolumeSetting_0049d750 = 0x14;
 int g_nTrainSimActive_0049d758;
-short g_nTrainSimMission_00469e30_WC1_UNMAPPED /* no-address */;
-short g_nArcadeWave_00469e34_WC1_UNMAPPED /* no-address */;
 unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED /* no-address */[48] =
     "BISHOP\0\0"
     "GOBLIN\0\0"
@@ -2229,7 +1736,6 @@ unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED /* no-address */[48] 
     "MANGLER\0"
     "THE MAN\0"
     "MONGO\0\0\0";
-unsigned int g_dwTrainSimStringPadding_00469e68_WC1_UNMAPPED /* no-address */;
 const char g_szTextFlushToken_00469e6c_WC1_UNMAPPED /* no-address */[4] = "%P";
 const char g_szNewPilotPrompt_00469e70_WC1_UNMAPPED /* no-address */[80] =
     "CONGRATULATIONS!\n"
@@ -2249,8 +1755,6 @@ short g_nShowMemoryStatus_0049d784;
 void *g_pMemoryAdjustment_0049d788;
 signed char g_bParentDirectorySelected_0049d78c;
 short g_nMissionEntryNavOverride_0049d790 = -1;
-short g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED /* no-address */;
-int g_bMouseAfterburnerControl_0046a02c_WC1_UNMAPPED /* no-address */;
 short g_bDirectMissionLaunch_0049d798;
 short g_nDirectMission_0049d79a;
 short g_nDirectSeries_0049d79c = 1;
@@ -2307,31 +1811,15 @@ unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
 RasterClip g_stRasterClip_004b2088;
 unsigned char g_abSolidColourTranslation_004b2710[256];
 unsigned char g_abShapeRLEScratch_004b2810[0x100000];
-int DAT_00598888;
-int DAT_0059888c;
-int DAT_00598890;
-Viewport g_stRoomScreenViewport_005988a0;
-short g_nSavedRoomControllerX_005988b4;
-unsigned char *g_pRecRoomRoster_005988b8;
 unsigned char *g_pMissionCampaignData_005988bc;
-unsigned char *g_apRecRoomCharacterShapes_005988c0[3];
 PilotRecord g_aPilotRecords_005988d0[9];
 ConstellationObjectDefinition *g_pConstellationDefinitions_00598a28;
 PilotRecord *g_apWingmanPilots_00598a30[8];
-unsigned char *g_pRecRoomBackgroundShape_00598a50;
-Viewport g_stRoomDisplayViewport_00598a60;
-Viewport g_stRoomMouseViewport_00598a80;
 unsigned char *g_apRecRoomTextData_00598aa0[3];
-short g_nRoomMenuCursorFrame_00598ab0;
-TitleMenuRegion *g_pRoomMenuRegions_00598ab2;
-char **g_ppszRoomMenuLabels_00598ab6;
-const char *g_pszCurrentRoomMenuLabel_00598aba;
-TextContext g_stRoomMenuTextContext_00598abe;
 unsigned char *g_apRecRoomSceneData_00598ae0[3];
 unsigned char *g_pBriefingPacket_00598aec;
 unsigned char *g_pBriefingTextData_00598af0;
 short *g_pMouthAnimationCommands_00598af4;
-unsigned char *g_pMedalTextData_00598af8;
 unsigned char *g_pDebriefingSceneData_00598afc;
 unsigned char *g_pBriefingSceneData_00598c00;
 unsigned char *g_pConversationBackdropShape_00598c04;
@@ -2342,73 +1830,38 @@ short g_nConversationTextColour_00598c10;
 unsigned char *g_pBriefingAnimationShape_00598c14;
 short *g_pFaceAnimationCommands_00598c18;
 unsigned char *g_pBriefingBodyShape_00598c1c;
-unsigned char *g_pMedalSceneData_00598c20;
 unsigned char *g_pBriefingPortraitShape_00598c24;
 unsigned char *g_pDebriefingTextData_00598c28;
 unsigned char *g_pBriefingCloseupShape_00598c2c;
 unsigned char *g_pConversationOverlayShape_00598c30;
-unsigned char g_bFilteredKeyWaitStarted_00598c34;
 unsigned char g_bInputMode_0059a848;
-unsigned char g_bFilteredKeyWaitActive_0059a849;
-int DAT_0059a84c;
 short DAT_0059a856;
-short g_nPacketDecompressSourceFile_0059a858;
-int DAT_0059a8e0;
-int DAT_0059a8e4;
 short DAT_0059a9f0;
-short g_nPacketDecompressInputPosition_0059ab00;
-void *g_pPacketDecompressInput_0059ab04;
 MouseCursorState g_stMouseCursorState_0059ab10;
 void (*DAT_0059ab2c)(void);
-int g_nPacketDecompressResult_0059ab30;
 short DAT_0059ab34;
-short g_nPacketDecompressPending_0059ab36;
-unsigned short g_wPacketDecompressInputSize_0059ab38;
-short g_nPacketDecompressWorkspaceSegment_0059ab3a;
-int DAT_0059ab4c;
-unsigned int DAT_0059ab54;
 short DAT_0059ab64;
-MouseCursorState g_stHostMouseState_0059af70;
 FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
 signed char g_acShipRating_0059cd80[16];
-short g_asCannedCommand_0059d4e0[16];
 signed char g_cCockpitView_0059dab0;
-const short *g_apCannedSequence_0059dce0[12];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
-char g_szHudMessageBuffer_0059e1c0[0x60];
-char *g_aapszPilotSpeech_0059e220[14][11];
-unsigned char *g_pFireworkShape_005a6a68;
 Viewport g_stConstellationViewport_005a6b40;
-const short *g_pViewScript_005a6b58;
-Viewport DAT_005a6be0;
-unsigned char *g_pLaunchDoorShape_005a77e8;
-short g_nArcadeStartupParameter_005a7b8a;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
-int g_nArcadeScore_005a7bc4;
 TextContext g_stTrainSimTextContext_005a7bd0;
 Viewport g_stTrainSimHighScoreDisplayViewport_005a7bf0;
 TextContext g_stTrainSimHighScoreTextContext_005a7c10;
-short g_nArcadeTimeRemaining_005a7c2c;
 HighScoreEntry g_aHighScoreEntries_005a7c30[6];
-int g_nArcadeWaveBonus_005a7c50;
-unsigned char *g_pSceneAnimationSceneData_005a7c54;
 unsigned char *g_pSceneAnimationPrimaryShape_005a7c58;
-unsigned char *g_pSceneAnimationTextData_005a7c5c;
-unsigned char *g_pSceneAnimationPacket_005a7c60;
 SceneAnimationObject *g_pSceneAnimationObjects_005a7c64;
 short g_nSceneAnimationWaitFrames_005a7c68;
 unsigned char *g_pSceneAnimationDefinitions_005a7c6c;
 unsigned char *g_pSceneAnimationSecondaryShape_005a7c70;
 signed char g_cCockpitLogicalFile_005a7c74;
-unsigned char *g_pCinematicViewBackdrop_005a7c90;
-unsigned char *g_pRearViewBackdrop_005a7c94;
 short g_nWingmanKillCount_005a7cb8;
-short g_asCollisionPartner_005a7cc0[10];
 unsigned int g_dwOriginalFreeMemory_005a7cd8;
 unsigned char *g_pMouseCursorResource_005a7cdc;
-int g_nSceneResourceBudget_005a7ce4;
 DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 Viewport g_stDiskPromptBackgroundViewport_005a7d00;
 unsigned char g_abDiskPromptDriveState_005a7d20[2];
@@ -2416,60 +1869,31 @@ Viewport g_stDiskPromptViewport_005a7d40;
 TextContext g_stDiskPromptTextContext_005a7d60;
 unsigned int g_dwDiskPromptTopLeft_005a7d80;
 unsigned int g_dwDiskPromptBottomRight_005a7d84;
-int DAT_005a7d9c;
-unsigned char *g_pTitleShape_005a7f08;
-short DAT_005a8114;
 short g_nMissionMedalScore_005a8116;
 short g_nCampaignDataSet_005a8118;
 short g_nMenuInputRepeatDelay_005a8208;
 short DAT_005a86a6;
 CampaignDate *g_pCurrentCampaignDate_005a86a8;
-signed char g_cObjectResourceLogicalFile_005a86b0;
-Viewport *g_pScrambleViewport_005a86b4;
-short g_nScrambleCanopyFrame_005a86b8;
-unsigned char *g_pScrambleDetailShape_005a86bc;
-short g_nScrambleCockpitScale_005a86c0;
-short g_nScrambleCockpitDetailX_005a86c4;
-short g_nScrambleCockpitDetailY_005a86c6;
 short g_nFuneralCasketX_005a86c8;
 short g_nFuneralCasketY_005a86ca;
-short g_nScrambleShipDetailCount_005a86cc;
-signed char g_acScrambleShipDetailIndices_005a86d0[24];
 unsigned char *g_pConversationSpecialShape_005a86ec;
 ShortPoint g_aFuneralParticles_005a86f0[7];
-unsigned char *g_pScrambleBackgroundShape_005a870c;
 short g_nFuneralParticleDistance_005a8710;
-short g_nScrambleBackgroundY_005a8712;
-short g_nScrambleBackgroundRightX_005a8714;
 short g_nFuneralForegroundX_005a8718;
 short g_nFuneralForegroundY_005a871a;
 short g_nFuneralMainScale_005a871c;
 short g_nFuneralRifleFrame_005a871e;
 short g_nFuneralBaseX_005a8720;
 short g_nFuneralBaseY_005a8722;
-short g_nScrambleShipX_005a8724;
-short g_nScrambleShipY_005a8726;
 short g_nFuneralParticleScale_005a8728;
-unsigned char *g_pScrambleHangarShape_005a872c;
-unsigned char *g_pScrambleCockpitShape_005a8730;
-short g_nScrambleWalkerY_005a8734;
-short g_nScrambleCanopyOffset_005a8736;
 short g_nFuneralMainDistance_005a8738;
-signed char g_bScrambleCanopyClosed_005a873a;
 short g_nFuneralGuardFrame_005a873c;
-short g_nScrambleOverlayX_005a8740;
-short g_nScrambleOverlayY_005a8742;
-unsigned char *g_pScrambleOverlayShape_005a8744;
-signed char g_cScrambleWalkerPair_005a8748;
-unsigned char *g_pScrambleCanopyShape_005a874c;
-unsigned char *g_pScrambleShipShape_005a8750;
 short g_nTalkingHeadFaceX_005a8754;
 short g_nTalkingHeadFaceY_005a8756;
 short g_nTalkingHeadMouthY_005a8758;
 short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
 HCURSOR DAT_005a8a34;
-unsigned int DAT_005a8a44;
 int g_nStreamerAudioPlaying_005b2810;
 char g_szStreamerPath_005b2818[128];
 char g_szWingCommanderOneGameDataPath_005b2898[0x400];
@@ -2478,20 +1902,6 @@ HANDLE g_hMonoDebugDevice_005b30ec;
 short DAT_005b30f0;
 unsigned char g_bCurrentManeuverReroll_005b30f4;
 NavMapLabel g_aNavMapLabels_00475e80_WC1_UNMAPPED /* no-address */[20];
-int g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED /* no-address */;
-int g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterInput_00476500_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightFrameEnd_00476508_WC1_UNMAPPED /* no-address */;
-int g_nFlightPresentTicks_00476510_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightFrameStart_00476518_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterSimulation_00476520_WC1_UNMAPPED /* no-address */;
-int g_nFlightSimulationTicks_00476528_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterCockpit_00476530_WC1_UNMAPPED /* no-address */;
-int g_nFlightInputTicks_00476538_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterRender_00476540_WC1_UNMAPPED /* no-address */;
-int g_nFlightRenderTicks_00476548_WC1_UNMAPPED /* no-address */;
-float DAT_00486510_WC1_UNMAPPED /* no-address */;
-unsigned char DAT_004865a8_WC1_UNMAPPED /* no-address */[0x1000];
 int g_nWipeRadialStep_005b30f8;
 int g_nWipeRadialThreshold_005b30fc;
 int g_nWipeRadialAccumulator_005b3100;

@@ -373,11 +373,3 @@ void IxStreamFile::ix_stream_file_wait(void)
         ResetEvent(completionEvent);
     }
 }
-
-/* Function start: WC2_UNMAPPED */
-int IxStreamFile::ix_stream_file_is_reading(void)
-{
-    if ((flags & IX_STREAM_FILE_READING) != 0)
-        return 1;
-    return 0;
-}

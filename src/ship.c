@@ -1107,22 +1107,6 @@ short Explosion(short obj)
     return debris;
 }
 
-/* Function start: WC2_UNMAPPED */
-short the_creator(short obj)
-{
-    signed char owner;
-
-    for (;;) {
-        if (obj == -1)
-            return -1;
-        owner = g_acObjectOwner_00495208[obj];
-        if (obj == owner || owner == -1)
-            return obj;
-        obj = owner;
-    }
-    return -1;
-}
-
 /* Function start: 0x414025 */
 void explosion_shock_wave(short obj, short blastDamage)
 {
@@ -1178,70 +1162,6 @@ void explosion_shock_wave(short obj, short blastDamage)
             }
         }
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-int ResolveWc1ObjectDestruction(short attacker, short victim)
-{
-    short creator;
-
-    if (victim < 10) {
-        if (g_acShipRating_0059cd80[victim] != -1 &&
-            g_acShipRating_0059cd80[victim] != RATING_ACE_ICEMAN) {
-            if (g_acShipRating_0059cd80[victim] > RATING_ACE_ICEMAN) {
-                if (ace_status(
-                        (short)(g_acShipRating_0059cd80[victim] -
-                                RATING_ACE_ANGEL),
-                                      0x20) != 0) {
-                    unflag_ace(
-                        (short)(g_acShipRating_0059cd80[victim] -
-                                RATING_ACE_ANGEL),
-                        0x20);
-                    g_acShipStress_00496100[victim] = -25;
-                    reset_maneuver(victim, MANEUVER_OUTA_HERE);
-                    g_acShipDamage_00495690[victim] =
-                        (signed char)(g_acShipDamage_00495690[victim] / 2);
-                    send_message(victim, 6);
-                    return 0;
-                }
-                if (RandomBelowOrEqual(1) == 0)
-                    return 0;
-            } else if (RandomBelowOrEqual(1) == 0)
-                return 0;
-        }
-    }
-#ifdef WC1_SDL
-    /* Special-maneuver state exists only for the twelve ship slots.  The
-       original evaluates this lookup before rejecting non-ship objects, so
-       exploding a projectile in a later object slot reads the following
-       ship-mission table. */
-    if (victim >= 0 && victim < 12 &&
-        g_aeSpecialManeuver_00495600[victim] ==
-            SPECIAL_MANEUVER_UNKNOWN_9 &&
-        g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP)
-#else
-    if (g_aeSpecialManeuver_00495600[victim] ==
-            SPECIAL_MANEUVER_UNKNOWN_9 &&
-        g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP)
-#endif
-        return 0;
-
-    if (victim == 0) {
-        if (g_bPlayerDamageEnabled_0049d77c == 0)
-            return 0;
-        g_bPlayerDestroyed_005d2fa4 = 1;
-        g_nArcadeState_0049d75c = 4;
-        return 1;
-    }
-
-    if (g_nExternalViewShip_00493468 == victim)
-        g_nExternalViewShip_00493468 = -1;
-    creator = the_creator(attacker);
-    if (creator != -1 &&
-        g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP)
-        analyze_kill(creator, victim);
-    Explosion(victim);
-    return 1;
 }
 
 /* Function start: 0x414835 */

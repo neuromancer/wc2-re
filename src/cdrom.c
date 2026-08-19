@@ -6,49 +6,6 @@
  */
 #include "wc1.h"
 
-/* Function start: WC2_UNMAPPED */
-FontWorkspace **AllocateFontWorkspace(short fontIndex)
-{
-    FontWorkspace **workspace;
-    int offset;
-    int dimension;
-
-    (void)fontIndex;
-    workspace = (FontWorkspace **)malloc(sizeof(*workspace));
-    offset = 0;
-    dimension = 5;
-    *workspace = malloc(sizeof(**workspace));
-    do {
-        offset += sizeof(FontWorkspace);
-        ((FontWorkspace *)((unsigned char *)*workspace + offset -
-                           sizeof(FontWorkspace)))->width = dimension;
-        ((FontWorkspace *)((unsigned char *)*workspace + offset -
-                           sizeof(FontWorkspace)))->height = dimension;
-        ((FontWorkspace *)((unsigned char *)*workspace + offset -
-                           sizeof(FontWorkspace)))->pixels =
-            malloc((*workspace)->width *
-                                    (*workspace)->height);
-        memset(((FontWorkspace *)((unsigned char *)*workspace + offset -
-                                  sizeof(FontWorkspace)))->pixels,
-               dimension, (*workspace)->width * (*workspace)->height);
-    } while (offset < (int)sizeof(FontWorkspace));
-    return workspace;
-}
-
-/* Function start: WC2_UNMAPPED */
-void FreeFontWorkspace(FontWorkspace **workspace)
-{
-    int offset;
-
-    offset = 0;
-    do {
-        free(((FontWorkspace *)((unsigned char *)*workspace + offset))->pixels);
-        offset += sizeof(FontWorkspace);
-    } while (offset < (int)sizeof(FontWorkspace));
-    free(*workspace);
-    free(workspace);
-}
-
 /* Function start: 0x456123 */
 char *LocateStreamsDirOnDisc(void)
 {

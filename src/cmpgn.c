@@ -289,42 +289,6 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
 }
 
 /* Function start: WC2_UNMAPPED */
-void RunWc1StrandedSequence(void)
-{
-    short frame;
-
-    g_nCannedSceneMode_0049021c = 1;
-    free_cockpit();
-    force_view(13, 0);
-    g_pIntroFont_005a8960 = FetchDiskPacketRetrying(9, 1, 0);
-    frame = 0;
-    do {
-        if (RefreshCockpitStatus() != 0) {
-            if (frame >= 300)
-                print_subtitle(&g_stViewBuffer_005d2b00, 56,
-                               g_szStrandedTheEnd_004655e4_WC1_UNMAPPED);
-            else if (frame >= 160)
-                print_subtitle(&g_stViewBuffer_005d2b00, 50,
-                               g_pStrandedMessage_00465588_WC1_UNMAPPED);
-            dump_buffer_to_screen();
-        }
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            break;
-        frame++;
-        MarkDibDirty();
-        DIBslamReal();
-    } while (frame < 400);
-    free_all_slots();
-    FreePacketAndClear(&g_pIntroFont_005a8960, 0);
-    g_stScreenViewport_005d21a0.top = 0;
-    g_stScreenViewport_005d21a0.bottom = 199;
-    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    RestoreGamePalette();
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-}
-
-/* Function start: WC2_UNMAPPED */
 unsigned int ParseFaceAnimation(char *text, short *commands)
 {
     char duration[8];
@@ -810,50 +774,6 @@ unsigned int Briefing(short series, short mission)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int DeBriefing(short series, short mission)
-{
-    short fullScore;
-    short playerScore;
-
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    fullScore = (short)FullMissionScore();
-    playerScore = (short)PlayersMissionScore();
-    if (fullScore == 0) {
-        PreloadMusicTrackHook(0x21);
-        spacetrack(0x21, 2, 1);
-    } else if ((playerScore * 100) / fullScore > 70) {
-        PreloadMusicTrackHook(0x21);
-        spacetrack(0x21, 2, 1);
-    } else {
-        PreloadMusicTrackHook(0x22);
-        spacetrack(0x22, 2, 1);
-    }
-    LoadMissionData(series, mission);
-    InitializeConversationViewport();
-    InitializeConversationText();
-    ClearViewport(g_stConversationTextContext_005d2d40.viewport,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005d2d40);
-    LoadBriefingData(series, mission);
-    g_pConversationBackdropShape_00598c04 =
-        FetchDiskPacketRetrying(4, 6, 0);
-    SceneDirector(1, g_pDebriefingSceneData_00598afc,
-                  g_pDebriefingTextData_00598c28);
-    MarkDibDirty();
-    DIBslamReal();
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
-    g_pConversationBackdropShape_00598c04 = 0;
-    ReleasePacketHandle(g_pBriefingPacket_00598aec);
-    ReleaseTextFont(0);
-    ResetScreenClipToFullHeight();
-    StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x21);
-    ReleaseMusicTrackHook(0x22);
-    return 0;
-}
-
 /* Function start: 0x424E8C */
 void MarkPilotDead(short pilot)
 {
@@ -948,41 +868,6 @@ void CompleteStarSystemJump(void)
         if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
             ResetCannedSceneRecording();
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int RunWc1OfficeScene(void)
-{
-    BriefingPacketHeader *header;
-    unsigned char *packet;
-    unsigned char *sceneData;
-    unsigned char *textData;
-
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    PreloadMusicTrackHook(0x24);
-    spacetrack(0x24, 2, 1);
-    InitializeConversationViewport();
-    InitializeConversationText();
-    packet = FetchDiskPacketRetrying(
-        g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED[g_nCampaignDataSet_005a8118],
-        1, 0);
-    header = (BriefingPacketHeader *)packet;
-    sceneData = packet + header->briefingScene;
-    textData = packet + header->briefingText;
-    g_pConversationBackdropShape_00598c04 =
-        FetchDiskPacketRetrying(4, 7, 0);
-    SceneDirector(4, sceneData, textData);
-    MarkDibDirty();
-    DIBslamReal();
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    ReleasePacketHandle(g_pConversationBackdropShape_00598c04);
-    g_pConversationBackdropShape_00598c04 = 0;
-    ReleasePacketHandle(packet);
-    ReleaseTextFont(0);
-    ResetScreenClipToFullHeight();
-    StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x24);
-    return 0;
 }
 
 /* Function start: 0x409B80 */

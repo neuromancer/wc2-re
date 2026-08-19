@@ -8,17 +8,6 @@
  *  interleaved in their original address order.
  */
 #include "wc1.h"
-Viewport g_stTrainSimVduSource_00469210_WC1_UNMAPPED /* no-address */ = {0};
-ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][4] = {
-    {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
-    {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
-    {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
-    {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
-    {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
-};
-unsigned char *g_pConfedCommBackground_00469278_WC1_UNMAPPED /* no-address */ = 0;
-unsigned char *g_pCommStaticShape_0046927c_WC1_UNMAPPED /* no-address */ = 0;
-unsigned char *g_pKilrathiCommBackground_00469280 = 0;
 short g_bDisplayWingmanTargetData_0049347c;
 ShortPoint g_stHudMessageOrigin_0049ae90;
 
@@ -33,8 +22,6 @@ short g_asPilotHandOffsets_0049aff8[34] = {
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
     6, -9, 5, -11, 5, -14
 };
-unsigned char *g_pCockpitPilotShape_0046905c_WC1_UNMAPPED /* no-address */ = 0;
-unsigned char * volatile g_pCockpitExplosionShape_00469064_WC1_UNMAPPED /* no-address */ = 0;
 int g_nDisplayedObjectiveRange_0049b078 = 40000;
 short g_nScannerTargetObject_0049b07c = -1;
 const int g_aiForwardScannerGridRows_0049b080[78] = {
@@ -83,7 +70,6 @@ unsigned char *g_pHudMessageBackground_0049b28c = 0;
 short g_bCaptureHudMessageBackground_0049b290 = 1;
 short g_nHudMessageBackgroundDepth_0049b294;
 short g_nTargetLockMarkerX_0049b298 = -0x7fff;
-ShortRect g_stPreviousTargetBracketBounds_00469200_WC1_UNMAPPED /* no-address */ = {-0x7fff, 0, 0, 0};
 int g_nCommPortraitFrame_0049b2bc = -1;
 int g_bForceDamageDisplayRedraw_0049b2ec = 0;
 char g_szMissileLocked_0049b30c[16] = "MISSILE LOCKED ";
@@ -509,19 +495,6 @@ void DrawCockpitReadout(signed char slot, const char *text)
         g_aCockpitReadouts_005d1e30[(int)slot].previousRight =
             g_aCockpitReadouts_005d1e30[(int)slot].context->cursorX;
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-void EraseCockpitReadoutAtPosition(signed char slot, short left,
-                                   short top)
-{
-    CockpitReadout *readout;
-
-    readout = &g_aCockpitReadouts_005d1e30[(int)slot];
-    EraseCockpitReadoutRegion(
-        &g_stScreenViewport_005d21a0, left, top, readout->previousRight,
-        (short)(*(short *)readout->context->font + readout->y),
-        g_cSecondaryViewBufferColour_0049cb4c);
 }
 
 /* Function start: 0x4385B3 */
@@ -1048,12 +1021,6 @@ void update_digital_readouts(void)
         Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00) >> 8);
     DrawCockpitReadout(
         3, _itoa(velocity, g_szTextScratchBuffer_005d1c40, 10));
-}
-
-/* Function start: WC2_UNMAPPED */
-void PlayTargetLockSfx(void)
-{
-    PlaySfxWaveFileByNumber(0x18, -1, 0);
 }
 
 /* Function start: 0x439753 */

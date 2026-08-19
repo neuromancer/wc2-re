@@ -225,8 +225,6 @@ void ix_dsps_unlock(int stream);                 /* 0x48B69C */
  * -------------------------------------------------------------------------- */
 DWORD WINAPI ix_mixer_thread_proc(void *parameter); /* 0x48B7C0 */
 int  ix_mixer_service(void);                     /* 0x48BC5C */
-void ix_mixer_static_initializer(void);           /* WC2 unmapped */
-void ix_mixer_static_initialization_hook(void);   /* WC2 unmapped */
 const char *ix_dsp_result_to_text(int hr);       /* 0x48A017 */
 
 int  ix_dsp_init(void);                          /* 0x489990 */
@@ -247,8 +245,6 @@ void *ix_dsp_alloc(unsigned int bytes);           /* 0x48A1A3 */
 void *ix_dsp_copy(void *destination, const void *source,
                   unsigned int bytes);           /* 0x48A1C0 */
 void ix_dsp_free(void *memory);                  /* 0x48A1E4 */
-void ix_dsp_static_initializer(void);            /* WC2 unmapped */
-void ix_dsp_static_initialization_hook(void);    /* WC2 unmapped */
 
 extern "C" int  ix_system_init(void);            /* 0x469C80 */
 extern "C" void ix_system_service_sounds(void); /* 0x469D27 */
@@ -390,7 +386,6 @@ struct IxStreamFile {
     unsigned int ix_stream_file_tell(void);
     unsigned int ix_stream_file_size(void);
     void ix_stream_file_wait(void);
-    int ix_stream_file_is_reading(void);
 };
 
 extern "C" int ix_streamer_init(void);           /* 0x46BD50 */

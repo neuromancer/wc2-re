@@ -264,14 +264,3 @@ int ix_mixer_service(void)
     return 0;
 #endif
 }
-
-/* Function start: WC2_UNMAPPED */
-void ix_mixer_static_initializer(void)
-{
-    ix_mixer_static_initialization_hook();
-}
-
-/* Function start: WC2_UNMAPPED */
-void ix_mixer_static_initialization_hook(void)
-{
-}

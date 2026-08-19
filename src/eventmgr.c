@@ -611,12 +611,6 @@ void ResumeMouseCursorHook(void)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
-void SuspendWc1MouseCursor(void)
-{
-    g_nMouseCursorDrawDepth_0049d4d4 = g_nMouseCursorDrawDepth_0049d4d4 - 1;
-}
-
 /* Function start: 0x463BA1 */
 void EnableMouseCursorDrawing(void)
 {
@@ -723,12 +717,6 @@ unsigned short GetSoundHardwareFlag(void)
 /* Function start: 0x46416A */
 void TimerResetHook(void)
 {
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int GetWc1VideoReleaseResult(void)
-{
-    return 0;
 }
 
 /* Function start: 0x46417A */
@@ -1200,13 +1188,6 @@ unsigned int GetStartupErrorCode(int vector)
 {
     (void)vector;
     return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void Wc1ShutdownHook(int vector, void *handler)
-{
-    (void)vector;
-    (void)handler;
 }
 
 /* Function start: 0x464B82 */

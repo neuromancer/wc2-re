@@ -477,22 +477,6 @@ void check_hazards(void)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-void __stdcall WarpWc1MouseTo(short x, short y)
-{
-#ifndef WC1_SDL
-    __asm cli
-#endif
-    g_stHostMouseState_0059af70.x = x;
-    g_stHostMouseState_0059af70.y = y;
-    g_stMouseCursorState_0059ab10.x = x;
-    g_stMouseCursorState_0059ab10.y = y;
-    SetMouseHomePosition(x, y);
-#ifndef WC1_SDL
-    __asm sti
-#endif
-}
-
 /* Function start: 0x4199F0 */
 void SetPersonnelMousePosition(short x, short y)
 {

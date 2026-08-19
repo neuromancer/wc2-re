@@ -23,11 +23,11 @@ The current report compares 1,558 functions:
 
 | Result | Functions |
 | --- | ---: |
-| Exact matches | 931 |
-| Similarity at or above 90% | 1424 |
-| Similarity below 90% | 134 |
+| Exact matches | 929 |
+| Similarity at or above 90% | 1423 |
+| Similarity below 90% | 135 |
 
-The current average similarity is 96.89%, with no report errors or missing
+The current average similarity is 96.87%, with no report errors or missing
 disassembly exports. Similarity measures reconstruction fidelity, not gameplay
 completeness.
 

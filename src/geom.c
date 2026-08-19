@@ -25,36 +25,6 @@ short MeasureTextPixelWidthClamped(const char *text)
 }
 
 /* Function start: WC2_UNMAPPED */
-int __stdcall SeekPacketSection(PacketSectionHandle *handle, int offset,
-                                short origin)
-{
-    int position;
-    int sectionEnd;
-    int result;
-
-    sectionEnd = (int)(handle->dataOffset + handle->dataSize);
-    switch (origin) {
-    case 0:
-        position = (int)handle->dataOffset;
-        break;
-    case 1:
-        position = (int)(handle->dataOffset + handle->position);
-        break;
-    case 2:
-        position = sectionEnd;
-        break;
-    }
-    position += offset;
-    if (position < (int)handle->dataOffset)
-        position = (int)handle->dataOffset;
-    if (position > sectionEnd && handle->finalSection == 0)
-        position = sectionEnd;
-    result = SeekDataFile((unsigned short)handle->file, position, 0);
-    if (result != -1)
-        handle->position = (unsigned int)(result - handle->dataOffset);
-}
-
-/* Function start: WC2_UNMAPPED */
 unsigned short GetMusicDriverPresent(short mode)
 {
     return 1;
@@ -233,27 +203,6 @@ int AbsInt(int v)
     return v;
 }
 
-/* Function start: WC2_UNMAPPED */
-/* Exact Mac symbol: intfract_sign. No inbound reference is known in the
- * shipped executable; this routine is believed unreachable. */
-int intfract_sign(int sign, int magnitude)
-{
-    int result;
-
-    result = magnitude;
-    if (sign >= 0)
-        return result;
-    return -result;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short SignShort(short v)
-{
-    if (v < 0)
-        return 0xffff;
-    return (unsigned short)(0 < v);
-}
-
 /* Function start: 0x40A8EB */
 unsigned int SignFixed(int v)
 {
@@ -386,15 +335,6 @@ void random_radial(const FixedVector *center, short radius,
     AddFixedVectors(center, &offset, position);
 }
 
-/* Function start: WC2_UNMAPPED */
-void MakeRandomNormalizedVector(FixedVector *vector)
-{
-    vector->x = (unsigned short)RandomInRange(0x40, 0xff);
-    vector->y = (unsigned short)RandomInRange(0x40, 0xff);
-    vector->z = (unsigned short)RandomInRange(0x40, 0xff);
-    NormalizeFixedVector(vector);
-}
-
 /* Function start: 0x40ACE0 */
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
@@ -413,21 +353,6 @@ void rectangular_to_spherical(const FixedVector *rectangular,
         spherical->yaw = -spherical->yaw;
     spherical->pitch = (short)(ArcCos(
         DivideFixed(rectangular->y, spherical->radius)) - 90);
-}
-
-/* Function start: WC2_UNMAPPED */
-void ConvertShortVectorToFixedVector(const ShortVector *source,
-                                     FixedVector *destination)
-{
-#ifdef WC1_SDL
-    destination->x = (int)source->x * 0x100;
-    destination->y = (int)source->y * 0x100;
-    destination->z = (int)source->z * 0x100;
-#else
-    destination->x = (int)source->x << 8;
-    destination->y = (int)source->y << 8;
-    destination->z = (int)source->z << 8;
-#endif
 }
 
 /* Function start: 0x40AD89 */
@@ -698,18 +623,6 @@ void get_facing_range_from_object(short obj, short other)
             &g_aShipForwardVector_00494208[other]) * 100) >> 8);
 }
 
-/* Function start: WC2_UNMAPPED */
-void ship_vs_point(short obj, const FixedVector *point)
-{
-    get_facing_range_from_point(obj, point);
-}
-
-/* Function start: WC2_UNMAPPED */
-void ship_vs_ship(short obj, short other)
-{
-    get_facing_range_from_object(obj, other);
-}
-
 /* Function start: 0x40B9B5 */
 short facing_to_object(short obj, FixedVector *point)
 {
@@ -865,18 +778,6 @@ void point_parallel(short obj, short other)
 {
     if (other != -1)
         point_ship(obj, 0, &g_aShipForwardVector_00494208[other]);
-}
-
-/* Function start: WC2_UNMAPPED */
-void MoveObjectAlongDirection(short obj, const FixedVector *direction,
-                              short distance)
-{
-    FixedVector offset;
-
-    offset = *direction;
-    SetVectorFixedPoint((unsigned int *)&offset, distance);
-    AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
-                    &g_aShipPosition_00494550[obj]);
 }
 
 /* Function start: 0x40BF0B */
@@ -1153,33 +1054,6 @@ void ClampTo30(short *p)
     }
     if (*p < -0x1e)
         *p = -0x1e;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short IsPointWithinEyeViewCone(const FixedVector *point)
-{
-    FixedVector direction;
-    FixedVector viewPosition;
-    int distance;
-    long projection;
-    unsigned short visible;
-
-    ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                       (FixedVector *)point, &direction);
-    distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
-        distance)
-        return 0;
-    transform_to_objects_frame(&direction, &viewPosition,
-                               WC2_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
-        viewPosition.z)
-        return 0;
-    projection = DivideFixed(viewPosition.z, distance);
-    visible = 0;
-    if (projection >= 0x94)
-        visible = 1;
-    return visible;
 }
 
 /* Function start: 0x40C9DD */
@@ -1621,24 +1495,4 @@ void ReleaseModalTextPanel(void)
         MarkDibDirty();
         DIBslamReal();
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-short AnySavedGames(void)
-{
-    SaveGameRecord gameRecord;
-    short slot;
-    short found;
-
-    found = 0;
-    slot = 0;
-    do {
-        if (LoadGame(slot, &gameRecord) != 0) {
-            found = 1;
-            if (gameRecord.campaign.campaignIndex > 0)
-                DAT_005a7d9c = 1;
-        }
-        slot++;
-    } while (slot < 8);
-    return found;
 }

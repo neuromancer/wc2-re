@@ -6,102 +6,6 @@
  */
 #include "wc1.h"
 
-/* Function start: WC2_UNMAPPED */
-void RunTrainSim(void)
-{
-    unsigned int savedFrameState;
-    short savedCampaign;
-    short savedDataSet;
-    short proceed;
-    int result;
-
-    proceed = 1;
-    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
-    g_nTrainSimMission_00469e30_WC1_UNMAPPED = 0;
-    g_bInputMode_0059a848 = 1;
-    SetEventManagerPump(PollMenuInputDevices);
-    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
-    g_nArcadeScore_005a7bc4 = 0;
-    g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED = 0;
-    g_cCockpitView_0059dab0 = 4;
-    g_cCockpitLogicalFile_005a7c74 = 21;
-
-    if (DAT_004688e0_WC1_UNMAPPED == 0) {
-        ShowTrainSimHighScores();
-        proceed = SelectWc1TrainSimMission(&g_nTrainSimMission_00469e30_WC1_UNMAPPED);
-    } else {
-        g_nArcadeScore_005a7bc4 = 4000;
-        g_nTrainSimMission_00469e30_WC1_UNMAPPED = 2;
-    }
-
-    if (proceed != 0) {
-        g_nCannedSceneMode_0049021c = 0;
-        g_nTrainSimActive_0049d758 = 1;
-        PreloadMusicTrackHook(20);
-        PreloadMusicTrackHook(21);
-        PreloadMusicTrackHook(22);
-        ResetStringBuilder(&g_stSpaceTextContext_005d21c0);
-        savedDataSet = g_nCampaignDataSet_005a8118;
-        savedCampaign = g_stCampaignState_0059ca50.campaignIndex;
-        g_stCampaignState_0059ca50.campaignIndex = 0;
-        g_nCampaignDataSet_005a8118 = 0;
-
-        while (g_nTrainSimMission_00469e30_WC1_UNMAPPED < 4) {
-            g_nTrainSimActive_0049d758 = 1;
-            FigureArcadeTime();
-            init_mission(0, g_nTrainSimMission_00469e30_WC1_UNMAPPED);
-            ShowGetReadyScreen();
-
-            if (DAT_004688e0_WC1_UNMAPPED != 0) {
-                g_aasShipShield_00495518[0][0] = 0;
-                g_aasShipMaximumShield_004954f0[0][0] = 0;
-                g_acPlayerComponentDamage_00493470[2] = 4;
-                g_aasShipShield_00495518[0][1] = 0;
-                g_aasShipMaximumShield_004954f0[0][1] = 0;
-                g_nArcadeTimeRemaining_005a7c2c = 100;
-                g_nCurrentWave_004931c0 = 2;
-                g_acShipDamage_00495690[0] = (signed char)(
-                    g_aObjectTypeData_00496d30[
-                        g_acObjectType_00493980[0]].damageCapacity + 1);
-                set_up_next_wave();
-                g_nArcadeTimeRemaining_005a7c2c = 25;
-            }
-
-            InvalidateVduMode(0);
-            InvalidateVduMode(1);
-            MarkDibDirty();
-            DIBslamReal();
-            savedFrameState = g_bInputEventQueueEnabled_0049c248;
-            g_bInputEventQueueEnabled_0049c248 = 1;
-            result = RunSpaceFlight(g_nArcadeWave_00469e34_WC1_UNMAPPED);
-            if (result == 1) {
-                if (g_nTrainSimMission_00469e30_WC1_UNMAPPED < 3)
-                    g_nArcadeWave_00469e34_WC1_UNMAPPED = 0;
-                else
-                    ShowWc1VictoryScreen();
-                g_nTrainSimMission_00469e30_WC1_UNMAPPED++;
-            } else {
-                g_nArcadeState_0049d75c = 4;
-                ShowGameOverScreen();
-                g_nTrainSimMission_00469e30_WC1_UNMAPPED = 4;
-            }
-            g_bInputEventQueueEnabled_0049c248 = savedFrameState;
-        }
-
-        g_stCampaignState_0059ca50.campaignIndex = savedCampaign;
-        g_nCampaignDataSet_005a8118 = savedDataSet;
-        free_all_slots();
-        free_cockpit();
-        free_3Space();
-        ReleaseMusicTrackHook(20);
-        ReleaseMusicTrackHook(21);
-        ReleaseMusicTrackHook(22);
-        UpdateTrainSimHighScores(g_nArcadeScore_005a7bc4);
-        ShowTrainSimHighScores();
-    }
-    g_nTrainSimActive_0049d758 = 0;
-}
-
 /* Function start: 0x4656CC */
 void AllocateApplicationScratchBuffer(void)
 {
@@ -135,26 +39,6 @@ short WaitForQueuedInputPress(void)
     } while (key == 0);
     g_bInputEventQueueEnabled_0049c248 = savedWaitState;
     return key;
-}
-
-/* Function start: WC2_UNMAPPED */
-short LogWc1MemoryUsage(void)
-{
-    Wc1ShutdownHook(0x21, (void *)DAT_0059ab4c);
-    EMShutDown();
-    GetMessagePumpResult();
-    _chdir("..");
-    ShutdownVideoHook(3);
-    if (g_nOriginDevUnlock_0049d774 != 0) {
-        SystemDebugPrintf(
-            "Original FMem %lu.  Current FMem %lu.  Current NMem %u.\n",
-            g_dwOriginalFreeMemory_005a7cd8,
-            GetLargestFreeMemoryBlockByType(0),
-            (unsigned int)(int)(short)GetOriginalFreeMemory());
-    }
-    MouseIdleHook();
-    MessagePumpHook(8);
-    return 0;
 }
 
 /* Function start: 0x46579D */
@@ -251,14 +135,5 @@ unsigned int ShowMemoryStatusDebug(void)
         g_stDefaultTextContext_005d2d20 = savedContext;
     }
     g_pCurrentTextContext_005c8d1c = previousContext;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int GetJoystickButtonEdge(unsigned int a, short b)
-{
-    (void)a;
-    if (b < 0)
-        return JoystickEdgeHook(-1);
     return 0;
 }

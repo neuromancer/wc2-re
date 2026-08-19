@@ -1058,20 +1058,6 @@ void RewritePacketFilenameForInstalledData(char *fileName)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-void *LoadWc1PacketIntoBuffer(short logicalFile, short section,
-                              void *destination)
-{
-    void *packet;
-
-    PromptInsertNumberedDisk(logicalFile);
-    packet = PacketLoad(
-        g_pDiskFileRecords_005a7cf0[logicalFile].name,
-        section, destination, 0, 0, 1);
-    ReportPacketLoadError(destination, logicalFile, 0, section, "RP");
-    return packet;
-}
-
 /* Function start: 0x40F40E */
 void *LoadPacketIntoBuffer(char *fileName, short section,
                            void *destination, short registerHandle)
@@ -1241,36 +1227,6 @@ void DrawTextAt(TextContext *context, short x, short y,
 }
 
 /* Function start: WC2_UNMAPPED */
-unsigned int SortSignedByteValuesAscending(signed char *values,
-                                           short count)
-{
-    signed char value;
-    short next;
-    signed char outer;
-    signed char inner;
-
-    outer = 0;
-    if (0 < count - 1) {
-        do {
-            inner = (signed char)(outer + 1);
-            next = (short)inner;
-            if (next < count) {
-                do {
-                    value = values[outer];
-                    if (values[inner] < value) {
-                        values[outer] = values[inner];
-                        values[inner] = value;
-                    }
-                    inner++;
-                } while ((short)inner < count);
-            }
-            outer++;
-        } while ((int)next < count - 1);
-    }
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
 short CheckWc1DiskAvailable(short logicalFile)
 {
     short file;
@@ -1412,12 +1368,6 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
 }
 
 /* Function start: WC2_UNMAPPED */
-unsigned int GetZeroUnused(void)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
 short CheckEscaped(void)
 {
     InputEventState event;
@@ -1546,88 +1496,6 @@ void WaitForWc1SceneAdvance(short duration, short unused)
             break;
         }
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-void MoveMenuPointerFromKeyboard(InputEventState *event)
-{
-    int delta;
-    int moved;
-
-    delta = g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED * 2;
-    moved = 0;
-    if ((short)event->value == 0x4c) {
-        if (g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED == 1)
-            g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED = 4;
-        else
-            g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED = 1;
-    } else {
-        switch ((short)event->value) {
-        case 0x47:
-            g_stMouseCursorState_0059ab10.y -= delta;
-            /* fall through */
-        case 0x4b:
-            g_stMouseCursorState_0059ab10.x -= delta;
-            break;
-        case 0x49:
-            g_stMouseCursorState_0059ab10.x += delta;
-            /* fall through */
-        case 0x48:
-            g_stMouseCursorState_0059ab10.y -= delta;
-            break;
-        case 0x4f:
-            g_stMouseCursorState_0059ab10.x -= delta;
-            /* fall through */
-        case 0x50:
-            g_stMouseCursorState_0059ab10.y += delta;
-            break;
-        case 0x51:
-            g_stMouseCursorState_0059ab10.y += delta;
-            /* fall through */
-        case 0x4d:
-            g_stMouseCursorState_0059ab10.x += delta;
-            break;
-        default:
-            goto clamp_pointer;
-        }
-        moved = 1;
-    }
-
-clamp_pointer:
-    if (g_stMouseCursorState_0059ab10.x < 0)
-        g_stMouseCursorState_0059ab10.x = 0;
-    else if (g_stMouseCursorState_0059ab10.x > 320)
-        g_stMouseCursorState_0059ab10.x = 320;
-    if (g_stMouseCursorState_0059ab10.y < 0)
-        g_stMouseCursorState_0059ab10.y = 0;
-    else if (g_stMouseCursorState_0059ab10.y > 320)
-        g_stMouseCursorState_0059ab10.y = 320;
-
-    g_stHostMouseState_0059af70.x = g_stMouseCursorState_0059ab10.x;
-    g_stHostMouseState_0059af70.y = g_stMouseCursorState_0059ab10.y;
-    if (moved != 0) {
-        RetainInputEventsOfType(3);
-        QueueInputEvent(13, (unsigned short)g_stMouseCursorState_0059ab10.x,
-                        (unsigned short)g_stMouseCursorState_0059ab10.y,
-                        0, 0, 0, 0, 0, 0);
-        g_bSuppressNextMouseMove_005c843c = 1;
-        SetMousePosition(g_stHostMouseState_0059af70.x,
-                         g_stHostMouseState_0059af70.y);
-    }
-}
-
-/* Function start: WC2_UNMAPPED */
-short WaitForStreamInputKey(void)
-{
-    unsigned int saved = g_bInputEventQueueEnabled_0049c248;
-    short key;
-
-    g_bInputEventQueueEnabled_0049c248 = 1;
-    do {
-        key = WaitForInputKey();
-    } while (key == 0);
-    g_bInputEventQueueEnabled_0049c248 = saved;
-    return key;
 }
 
 /* Function start: 0x410020 */
