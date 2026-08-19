@@ -24,17 +24,19 @@ unsigned int g_dwMixerWriteOffset_005c4ecc;
 LPDIRECTSOUND g_pDirectSound_005c4ed0;
 unsigned int g_dwMixerBufferSize_005c4ed4;
 unsigned int g_dwDspFlags_005c4ed8;
-DWORD g_dwMixerThreadId_00597d1c;
+DWORD g_dwMixerThreadId_005c4edc;
 LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
 unsigned int g_dwDspTick_005c52e8;
 LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_005c52ec;
 int g_nVoicesAllocated_005c574c;
+/* The host CRT's malloc takes size_t, which is not unsigned int on every
+ * modern target; keep one definition so the globals audit sees one range. */
 #ifdef WC1_SDL
-void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) =
-    (void *(__cdecl *)(unsigned int))malloc;
+#define IX_MALLOC_HOOK ((void *(__cdecl *)(unsigned int))malloc)
 #else
-void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) = malloc;
+#define IX_MALLOC_HOOK malloc
 #endif
+void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) = IX_MALLOC_HOOK;
 void (__cdecl *g_pIxFree_004a0c1c)(void *) = free;
 
 /* Function start: 0x489990 */   /* source line 62 */
@@ -52,7 +54,7 @@ int ix_dsp_init(void)
 #endif
         g_hMixerThread_005c4ec0 = CreateThread(
             0, 0x1000, ix_mixer_thread_proc, 0, 0,
-            &g_dwMixerThreadId_00597d1c);
+            &g_dwMixerThreadId_005c4edc);
         if (g_hMixerThread_005c4ec0 == 0) {
             ix_log_printf("Fatal [%s - %d]:\n", IX_DSP_FILE, 62);
             ix_log_printf("Failed to start mixer");

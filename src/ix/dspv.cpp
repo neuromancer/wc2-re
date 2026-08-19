@@ -15,11 +15,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-IxVoice        g_voices_005c52f0[34];
-int            g_nVoiceCount_005c5748;
-unsigned short g_nMasterVolume_004a0c14;
+unsigned short g_nMasterVolume_004a0c14 = 0xffff;
 short          g_anPanTable_005c4ee8[512];
+IxVoice        g_voices_005c52f0[34];
 CRITICAL_SECTION g_csMixer_005c5730;
+int            g_nVoiceCount_005c5748;
 
 /* Function start: 0x48A235 */   /* source line 23 */
 void ix_dspv_set_active(int voice)

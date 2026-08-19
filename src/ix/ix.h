@@ -462,7 +462,7 @@ extern IxStreamerFileChunk *g_pStreamerFileChunks_005c4bf8;
 extern CRITICAL_SECTION g_csStreamerFileQueue_005c4c00;
 extern CRITICAL_SECTION g_csStreamerThread_005c4c18;
 extern unsigned int g_dwStreamerAudioChunk_005c4c30;
-extern DWORD g_dwStreamerThreadId_00597ccc;
+extern DWORD g_dwStreamerThreadId_005c4c34;
 extern "C" unsigned int g_dwStreamerState_005c4c38;
 extern HANDLE g_hStreamerWakeEvent_005c4c3c;
 extern unsigned int g_nStreamerFileChunk_005c4c40;

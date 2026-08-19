@@ -11,9 +11,9 @@
 #include "ix.h"
 #include <stdlib.h>
 
-IxStream g_streams_005c5758[8];
 int      g_nStreamCount_005c5750;
 int      g_nStreamsAllocated_005c5754;
+IxStream g_streams_005c5758[8];
 
 /* Function start: 0x48AA15 */   /* source lines 26, 27, 28, 32 */
 void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channels)

@@ -10,7 +10,10 @@ from pathlib import Path
 
 
 FUNCTION_MARKER = "/* Function start:"
+# Definitions start after the unit's own top-level include: the game core
+# includes wc1.h, the ix library includes ix.h.
 WC1_INCLUDE = '#include "wc1.h"'
+IX_INCLUDE = '#include "ix.h"'
 BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"//[^\r\n]*")
 DEFINE_RE = re.compile(
@@ -212,6 +215,8 @@ def definition_block(path: Path) -> str:
         return text
 
     include_at = text.find(WC1_INCLUDE)
+    if include_at < 0:
+        include_at = text.find(IX_INCLUDE)
     function_at = text.find(FUNCTION_MARKER)
     if include_at < 0:
         raise ValueError(f"cannot locate global-definition block in {path}")
