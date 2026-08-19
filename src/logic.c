@@ -1399,32 +1399,31 @@ short signed_random(short range)
 /* Function start: 0x4295A9 */
 int alert_flag(short ship, unsigned int bits)
 {
-    return (g_asShipMaximumVelocity_00495f70[ship] & bits) != 0;
+    return (g_anShipAlertFlags_00495f88[ship] & bits) != 0;
 }
 
 /* Function start: WC2_UNMAPPED */
-/* NOT a constant return: `mov eax,0x59b430 / cmp eax,1 / sbb eax,eax / inc eax`
- * is the classic `>= 1` boolean idiom applied to the *address* 0x0059B430,
+/* NOT a constant return: `mov eax,0x495f88 / cmp eax,1 / sbb eax,eax / inc eax`
+ * is the classic `>= 1` boolean idiom applied to the *address* 0x00495F88,
  * which is always non-zero -- hence Ghidra folding it to `return 1`.  Written
  * the way the original was, so the idiom survives. */
 unsigned int HasSpeechBuffer(void)
 {
-    return (unsigned int)&g_asShipMaximumVelocity_00495f70 >= 1;
+    return (unsigned int)&g_anShipAlertFlags_00495f88 >= 1;
 }
 
 /* Function start: 0x4295D9 */
-unsigned short set_alert(short i, unsigned int bits)
+void set_alert(short i, unsigned int bits)
 {
-    g_asShipMaximumVelocity_00495f70[i] |= bits;
-    return 0;
+    g_anShipAlertFlags_00495f88[i] |= bits;
 }
 
 /* Function start: 0x4295F2 */
 void clear_alert(short i)
 {
-    g_asCollisionCountdown_0059d2d0[i] = 0;
-    g_asShipMaximumVelocity_00495f70[i] = 0;
-    DAT_0059cf20[i] = 0xff;
+    g_anShipAlertFlags_00495f88[i] = 0;
+    g_acShipAlertSource_00495fb0[i] = -1;
+    g_asShipAlertCountdown_00495fc0[i] = 0;
 }
 
 /* Function start: 0x429625 */

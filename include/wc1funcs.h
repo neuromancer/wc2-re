@@ -1005,7 +1005,7 @@ void InitializeCampaignConstellationState(Wc2CampaignGlobals *globals,
 void *LoadWholeDataFile(const char *path);                              /* 0x42949F */
 int alert_flag(short ship, unsigned int bits);                        /* 0x4295A9 */
 unsigned int HasSpeechBuffer(void);                                      /* WC2 unmapped */
-unsigned short set_alert(short obj, unsigned int bits);                /* 0x4295D9 */
+void set_alert(short obj, unsigned int bits);                          /* 0x4295D9 */
 void clear_alert(short obj);                                          /* 0x4295F2 */
 void start_collision_alert(short obj, short other);                   /* 0x429625 */
 void try2end_collision_alert(short obj);                              /* 0x429698 */

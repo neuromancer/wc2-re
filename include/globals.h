@@ -1157,7 +1157,10 @@ extern FixedVector g_aShipUpVector_00493ec0[WC2_SPACE_OBJECT_COUNT];
 extern FixedVector g_aShipForwardVector_00494208[WC2_SPACE_OBJECT_COUNT];
 extern HazardField *g_pActiveHazardField_00493278;
 extern signed char g_acPlayerComponentDamage_00493470[9];
-extern unsigned int g_asShipMaximumVelocity_00495f70[12];
+extern short g_asShipMaximumVelocity_00495f70[12];
+extern unsigned int g_anShipAlertFlags_00495f88[10];
+extern signed char g_acShipAlertSource_00495fb0[12];
+extern short g_asShipAlertCountdown_00495fc0[12];
 extern signed char g_acObjectType_00493980[WC2_SPACE_OBJECT_COUNT];
 extern short g_asObjectAnimationIndex_00494c70[WC2_SPACE_OBJECT_COUNT];
 extern signed char g_acObjectAnimationDelay_00494d00[
