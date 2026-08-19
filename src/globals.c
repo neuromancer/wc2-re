@@ -2526,6 +2526,9 @@ const short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
 };
 int g_bRenderingSpaceFrame_0049d858;
 const char g_szSpaceBuffer_0049d978[16] = "SPACE BUFFER";
+/* Set while a mission is ending; ejection_sequence and death_sequence both
+ * return immediately when it is clear. */
+short g_bMissionEndPending_0049da4c = 1;
 short g_bDeathSequenceActive_0049da50;
 DebugOverlayConsole *g_pDebugOverlay_004a2548;
 char g_szSystemDebugBuffer_004a2550[256];

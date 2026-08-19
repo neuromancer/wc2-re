@@ -370,6 +370,7 @@ extern int g_nSavedWingmanObjectCounter_005d2fdc;
 extern short g_nOriginDevUnlock_0049d774;
 extern short g_bCarrierLandingEnabled_0049d778;
 extern short g_bPlayerDamageEnabled_0049d77c;
+extern short g_bMissionEndPending_0049da4c;
 extern short g_bDeathSequenceActive_0049da50;
 extern short g_bPlayerCollisionEnabled_0049d780;
 extern void *g_pMemoryAdjustment_0049d788;

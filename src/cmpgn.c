@@ -152,171 +152,139 @@ void FlagCurrentNavObjectivesReached(void)
 }
 
 /* Function start: 0x44EBCA */
-unsigned int ejection_sequence(short transition, signed char restoreRoom)
+/* End of mission: fold the results into the campaign globals, run the
+ * campaign script and, unless the arcade took over, bring the cockpit and the
+ * 3-Space objects back for the next leg. */
+void ejection_sequence(short outcome, signed char restoreCockpit)
 {
-    FixedVector viewOffset;
-    unsigned char *background;
-    unsigned char *ejectionShape;
-    short frame;
-    short y;
-    short descentSpeed;
-    short spriteFrame;
+    FILE *log;
+    long mainBefore;
+    long farBefore;
+    long mainLargestBefore;
+    long farLargestBefore;
+    long mainMid;
+    long farMid;
+    long mainLargestMid;
+    long farLargestMid;
+    long mainAfter;
+    long farAfter;
+    long mainLargestAfter;
+    long farLargestAfter;
+    long mainEnd;
+    long farEnd;
+    long mainLargestEnd;
+    long farLargestEnd;
+    short savedSeries;
+    short ship;
 
-    free_all_slots();
-    free_cockpit();
-    PreloadMusicTrackHook(0x1f);
-    spacetrack(0x1f, 2, 1);
-    frame = 0;
-    new_view(9, 0);
-    background = FetchDiskPacketRetrying(
-        (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
-    ejectionShape = FetchDiskPacketRetrying(2, 1, 0);
-    PlaySfxWaveFileByNumber(0x21, -1, 0);
-    y = 199;
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    descentSpeed = 4;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    do {
-        if (RefreshCockpitStatus() != 0) {
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0, background, 0);
-            spriteFrame = MinShort(frame, 4);
-            DrawSpriteDefault(
-                &g_stViewBuffer_005d2b00, 160, y, ejectionShape,
-                g_asEjectionPrimaryFrames_00465550_WC1_UNMAPPED[spriteFrame]);
-            if (g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED[spriteFrame] != -1)
-                DrawSpriteDefault(
-                    &g_stViewBuffer_005d2b00, 160, y, ejectionShape,
-                    g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED[spriteFrame]);
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, (short)(y + 1),
-                              ejectionShape, 5);
-            dump_buffer_to_screen();
-        }
-        if (frame > 1) {
-            y = (short)(y - descentSpeed);
-            descentSpeed = MinShort((short)(descentSpeed + 4), 20);
-        }
-        if (g_bSceneEscapeRequested_0049d4b0 == 1)
-            break;
-        frame++;
-        MarkDibDirty();
-        DIBslamReal();
-    } while (frame < 10);
+    if (g_bMissionEndPending_0049da4c == 0)
+        return;
 
-    ReleasePacketHandle(ejectionShape);
-    ReleasePacketHandle(background);
-    free_view_buffer();
-    if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-        PromptInsertNumberedDisk(8);
-        g_pScreenViewportPacket_005a6b94 =
-            AllocateTaggedMemory(
-                GetPacketSize(g_pDiskFileRecords_005a7cf0[8].name, 8),
-                0x40);
-        if (g_pScreenViewportPacket_005a6b94 == 0)
-            ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4_WC1_UNMAPPED);
-        else
-            LoadWc1PacketIntoBuffer(8, 8,
-                                    g_pScreenViewportPacket_005a6b94);
-
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet =
-            FetchDiskPacketRetrying(2, 2, 0);
-        g_nEjectedPilotObject_0046c044_WC1_UNMAPPED = find_vacant_3d_object();
-        set_objects_data(g_nEjectedPilotObject_0046c044_WC1_UNMAPPED,
-                         OBJECT_TYPE_EJECTED_PILOT, -1, 0);
-        g_asObjectCounter_00494be0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED] =
-            32000;
-        copy_frame(0, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
-        g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED] =
-            g_aShipPosition_00494550[0];
-        ScaleFixedVector(
-            &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
-            -0x500,
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED]);
-        AddFixedVectors(
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
-            &g_aShipVelocity_00494898[0],
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED]);
-        new_view(10, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
-
-        background = FetchDiskPacketRetrying(
-            (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
-        ejectionShape = FetchDiskPacketRetrying(
-            (short)g_cCockpitLogicalFile_005a7c74, 5, 0);
-        y = 40;
-        frame = 0;
-        PlaySfxWaveFileByNumber(0x22, -1, 0);
-        g_nFrameSkipCountdown_0049d760 = 1;
-        do {
-            if (RefreshCockpitStatus() != 0) {
-                DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, y,
-                                  background, 0);
-                DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, (short)(y - 1),
-                                  ejectionShape, 0);
-                dump_buffer_to_screen();
-            }
-            if (g_bSceneEscapeRequested_0049d4b0 == 1)
-                break;
-            y = (short)(y + descentSpeed);
-            MarkDibDirty();
-            frame++;
-            DIBslamReal();
-        } while (frame < 10);
-
-        ReleasePacketHandle(ejectionShape);
-        ReleasePacketHandle(background);
-        if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-            load_all_slots();
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
-                g_aShipUpVector_00493ec0[0];
-            g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
-                g_aShipRightVector_00493b78[0];
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
-                g_aShipForwardVector_00494208[0];
-            negate_vector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT]);
-            ScaleFixedVector(
-                &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
-                -0x25800, &viewOffset);
-            AddFixedVectors(
-                &g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
-                &viewOffset,
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-            g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED =
-                g_nEjectedPilotObject_0046c044_WC1_UNMAPPED;
-            initialize_scripted_view(g_asEjectionViewScript_00465570_WC1_UNMAPPED);
-            frame = 0;
-            g_nFrameSkipCountdown_0049d760 = 1;
-            SetMusBreakpt(0, 0);
-            while (1) {
-                alter_pitch(4, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
-                if (RefreshCockpitStatus() != 0)
-                    dump_buffer_to_screen();
-                if (frame == 10) {
-                    Explosion(0);
-                    PlaySfxWaveFileByNumber(4, -1, 0);
-                }
-                frame++;
-                if (frame > 200 || g_bSceneEscapeRequested_0049d4b0 != 0)
-                    break;
-                MarkDibDirty();
-                DIBslamReal();
-            }
-        }
+    mainBefore = GetAvailableMainMemory();
+    farBefore = GetAvailableFarMemory();
+    mainLargestBefore = GetLargestMainMemoryBlock();
+    farLargestBefore = GetLargestFreeMemoryBlock();
+    if ((unsigned short)outcome == 0x75) {
+        g_nArcadeState_0049d75c = 1;
+        return;
     }
 
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
-    if (g_pScreenViewportPacket_005a6b94 != 0) {
-        ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
-        g_pScreenViewportPacket_005a6b94 = 0;
-    }
-    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    MarkDibDirty();
-    DIBslamReal();
+    g_nResourcePaletteMode_005c57e6 = 1;
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        log = fopen("mid.$$$", "w+");
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        LogMemoryStateToFile(log);
+    ReleaseSpaceflightResources();
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        LogMemoryStateToFile(log);
+    if (g_pCampaignGlobals_00499c94 == 0)
+        LoadTemporaryCampaignGlobals();
+    if (g_pCampaignGlobals_00499c94 == 0)
+        ReportFatalErrorCode("021");
+
+    savedSeries = g_pCampaignGlobals_00499c94->series;
+    g_pCampaignGlobals_00499c94->series = 1000;
+    g_pCampaignGlobals_00499c94->mission = outcome;
+    g_pCampaignGlobals_00499c94->previousSeries =
+        g_stCurrentPilotProfile_00493408.series;
+    g_pCampaignGlobals_00499c94->previousMission =
+        g_stCurrentPilotProfile_00493408.mission;
+    g_pCampaignGlobals_00499c94->damageLevel =
+        (short)calculate_damage_level();
+
+    mainMid = GetAvailableMainMemory();
+    farMid = GetAvailableFarMemory();
+    mainLargestMid = GetLargestMainMemoryBlock();
+    farLargestMid = GetLargestFreeMemoryBlock();
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        LogMemoryStateToFile(log);
+    StoreMissionResultsInCampaignGlobals(g_pCampaignGlobals_00499c94);
+    RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
+    g_cHudMessageView_005d1c37 = -1;
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        LogMemoryStateToFile(log);
+    g_nArcadeState_0049d75c = g_pCampaignGlobals_00499c94->arcadeState;
+    InitializeCampaignConstellationState(g_pCampaignGlobals_00499c94, 0);
+
+    mainAfter = GetAvailableMainMemory();
+    farAfter = GetAvailableFarMemory();
+    mainLargestAfter = GetLargestMainMemoryBlock();
+    farLargestAfter = GetLargestFreeMemoryBlock();
+    ReleasePacketSlot(&g_pCampaignGlobals_00499c94);
+    FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
+    ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
     RestoreGamePalette();
-    free_all_slots();
-    StopMusicUnlessSuppressed();
-    ReleaseMusicTrackHook(0x1f);
-    return 0;
+    ResetGameTextContexts();
+    for (ship = 0; ship < 10; ship++)
+        g_asShipIntelState_0049b678[ship] = 0;
+
+    if (restoreCockpit != 0 && g_nArcadeState_0049d75c == 0) {
+        if (g_bAutopilotDebugEnabled_00499bfc != 0)
+            LogMemoryStateToFile(log);
+        /* The original passes the ship type; the callee ignores it. */
+        ((void (__cdecl *)(short))InitializeCockpitResources)(
+            g_nPlayerShipType_00493464);
+        load_common_3Space_objects();
+        init_constellation(savedSeries);
+        g_b3SpaceObjectsActive_0049c8ec = 1;
+        load_all_slots();
+        g_bSpaceViewBufferEnabled_0049d7a4 = 1;
+        initialize_view_buffer();
+        ClearTransientObjectsForEjection();
+        if (g_pPilotStatus_005d2fcc[
+                g_acShipPortrait_00495d88[g_nYourWingman_0049346c]] == 0)
+            remove_object(g_nYourWingman_0049346c);
+        g_cScreenViewportMode_005c82a6 = -1;
+        force_view(0, 0);
+        if (g_bAutopilotDebugEnabled_00499bfc != 0)
+            LogMemoryStateToFile(log);
+    }
+
+    g_nResourcePaletteMode_005c57e6 = 0;
+    InitializeSpaceFlightInput();
+    ReleaseSceneMusicPacket();
+
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        mainEnd = GetAvailableMainMemory();
+        farEnd = GetAvailableFarMemory();
+        mainLargestEnd = GetLargestMainMemoryBlock();
+        farLargestEnd = GetLargestFreeMemoryBlock();
+        printf("      before  large    after   large\n");
+        printf("Main: %6ld  %6ld   %6ld  %6ld\n", mainBefore,
+               mainLargestBefore, mainEnd, mainLargestEnd);
+        printf("EMS:  %7ld %6ld   %7ld %6ld\n", farBefore,
+               farLargestBefore, farEnd, farLargestEnd);
+        printf("CMem: %6ld  %6ld   %6ld  %6ld\n", mainMid,
+               mainLargestMid, mainAfter, mainLargestAfter);
+        printf("EEMS: %7ld %6ld   %7ld %6ld\n", farAfter,
+               farLargestAfter, farAfter, farLargestAfter);
+        WaitForAnyInputPress();
+    }
+    FlagCurrentNavObjectivesReached();
+    if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
+        ResetCannedSceneRecording();
+    if (log != 0 && g_bAutopilotDebugEnabled_00499bfc != 0)
+        fclose(log);
 }
 
 /* Function start: WC2_UNMAPPED */

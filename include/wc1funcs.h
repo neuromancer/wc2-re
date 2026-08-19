@@ -126,7 +126,7 @@ void set_speed(short obj, short speed);                                  /* 0x42
 void auto_position(short obj, short *formationSlot);                     /* 0x4229B9 */
 void auto_pilot_sequence(void);                                          /* 0x422B1C */
 unsigned short __stdcall LoadWc1PaletteTripletsFile(const char *path); /* WC2 unmapped */
-unsigned int ejection_sequence(short transition, signed char restoreRoom); /* 0x44EBCA */
+void ejection_sequence(short outcome, signed char restoreCockpit); /* 0x44EBCA */
 void RunWc1StrandedSequence(void);                                    /* WC2 unmapped */
 void CompleteStarSystemJump(void);                                    /* 0x4251F2 */
 unsigned int ParseFaceAnimation(char *text, short *commands);           /* WC2 unmapped */
