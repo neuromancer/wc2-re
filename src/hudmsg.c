@@ -1336,7 +1336,7 @@ void InitializeCannedSceneFrameIndex(void)
         g_asCannedSceneFrameOffsets_005d3fc0[index] = -1;
     g_nCannedSceneWriteIndex_005d3fa8 = 0;
     header = (CannedSceneBufferHeader *)IdentityDword(
-        (unsigned int)g_pHighMemoryBlockA_004901f8);
+        (Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
     header->nextFrame = -1;
     header->byteCount = 0x29a;
 }

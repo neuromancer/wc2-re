@@ -2547,7 +2547,7 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[0] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (unsigned int)g_apCockpitViewShapes_005d1040[0]);
+                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[0]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
                       (unsigned short)g_nCockpitBackgroundBytes_0049c720);
@@ -2639,7 +2639,7 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[1] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (unsigned int)g_apCockpitViewShapes_005d1040[1]);
+                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[1]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
                       (unsigned short)g_nCockpitBackgroundBytes_0049c720);
@@ -2666,7 +2666,7 @@ void initialize_cockpit(signed char mode)
             if (g_apCockpitViewShapes_005d1040[1] != 0) {
                 g_pCockpitViewFrameData_005d1088 =
                     (unsigned char *)IdentityDword(
-                        (unsigned int)g_apCockpitViewShapes_005d1040[1]);
+                        (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[1]);
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
@@ -2696,7 +2696,7 @@ void initialize_cockpit(signed char mode)
             if (g_apCockpitViewShapes_005d1040[2] != 0) {
                 g_pCockpitViewFrameData_005d1088 =
                     (unsigned char *)IdentityDword(
-                        (unsigned int)g_apCockpitViewShapes_005d1040[2]);
+                        (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[2]);
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
@@ -2729,7 +2729,7 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[3] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (unsigned int)g_apCockpitViewShapes_005d1040[3]);
+                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[3]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
                       (unsigned short)g_nCockpitBackgroundBytes_0049c720);
