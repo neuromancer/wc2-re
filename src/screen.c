@@ -1680,41 +1680,21 @@ void HandleCommunicationMenuRequest(void)
 void show_communications_disp(void)
 {
     signed char choice;
-#ifdef WC1_SDL
-    int selectedChoice;
-    unsigned char normalColour;
-#endif
 
     if (IsCommChoiceMenuOpen() == 0)
         HandleCommunicationMenuRequest();
     if (IsCommChoiceMenuOpen() != 0) {
         set_new_vdu(1);
-        choice = 0;
-        DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left,
-                   g_stRightVduViewport_005d2b20.top, g_pszCommMenuHeading_005d1950, 2);
-#ifdef WC1_SDL
-        selectedChoice = Wc1SdlGetCommunicationMenuSelection();
-        normalColour = g_stRightVduTextContext_005d2ce0.colour;
-#endif
-        if (g_nCommMenuChoiceCount_0049b770 > 0) {
-            do {
-#ifdef WC1_SDL
-                if ((int)choice == selectedChoice)
-                    g_stRightVduTextContext_005d2ce0.colour = g_abGamePaletteReservedColours_0049cb54[4];
-#endif
-                DrawFormattedText("\n%d %s", (int)choice + 1,
-                                  g_apszCommMenuChoiceText_005d19a0[
-                                      (int)choice]);
-#ifdef WC1_SDL
-                g_stRightVduTextContext_005d2ce0.colour = normalColour;
-#endif
-                choice++;
-            } while (choice < g_nCommMenuChoiceCount_0049b770);
+        DrawTextAt(&g_stRightVduTextContext_005d2ce0,
+                   g_stRightVduViewport_005d2b20.left,
+                   g_stRightVduViewport_005d2b20.top,
+                   g_pszCommMenuHeading_005d1950, 2);
+        for (choice = 0; choice < g_nCommMenuChoiceCount_0049b770;
+             choice++) {
+            DrawFormattedText(g_szCommMenuChoiceFormat_0049b868,
+                              (int)choice + 1,
+                              g_apszCommMenuChoiceText_005d19a0[choice]);
         }
-        DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
-                          (short)(g_stRightVduViewport_005d2b20.left + 36),
-                          (short)(g_stRightVduViewport_005d2b20.top + 10),
-                          g_pCommMenuCursorShape_005a7660, 0x19);
         g_nCommMenuReuseMode_0049b774 = 1;
     }
 }
@@ -1822,41 +1802,38 @@ char *ExpandCommMessageTokens(const char *text)
     short length;
 
     g_szTextScratchBuffer_005d1c40[0] = '\0';
-    for (;;) {
-        marker = DosStrchr(text, '$');
-        if (marker == 0) {
-            DosStrcat(g_szTextScratchBuffer_005d1c40, text);
-            return g_szTextScratchBuffer_005d1c40;
-        }
+    while ((marker = DosStrchr(text, '$')) != 0) {
         destination = DosStrchr(g_szTextScratchBuffer_005d1c40, '\0');
         while (marker != text)
             *destination++ = *text++;
         *destination = '\0';
-        text = marker + 2;
-        switch (marker[1]) {
+        marker++;
+        switch (*marker++) {
         case 'C':
-            DosStrcat(
-                g_szTextScratchBuffer_005d1c40,
-                g_stCampaignState_0059ca50.currentPilot->callsign);
-            break;
-        case 'N':
-        case 'P':
             DosStrcat(g_szTextScratchBuffer_005d1c40,
-                      g_stCampaignState_0059ca50.currentPilot->name);
+                      g_stCurrentPilotProfile_00493408.callsign);
             break;
         case 'R':
             DosStrcat(g_szTextScratchBuffer_005d1c40,
                       g_apszPilotRankNames_0049a608[
-                          g_stCampaignState_0059ca50.currentPilot->rank]);
-            length = DosStrlen(g_szTextScratchBuffer_005d1c40);
-            if (g_szTextScratchBuffer_005d1c40[length - 1] == '.' &&
-                *text == '.') {
+                          g_stCurrentPilotProfile_00493408.rank]);
+            if (g_szTextScratchBuffer_005d1c40[
+                    DosStrlen(g_szTextScratchBuffer_005d1c40) - 1] == '.' &&
+                *marker == '.') {
                 length = DosStrlen(g_szTextScratchBuffer_005d1c40);
                 g_szTextScratchBuffer_005d1c40[length - 1] = '\0';
             }
             break;
+        case 'N':
+        case 'P':
+            DosStrcat(g_szTextScratchBuffer_005d1c40,
+                      g_stCurrentPilotProfile_00493408.lastName);
+            break;
         }
+        text = marker;
     }
+    DosStrcat(g_szTextScratchBuffer_005d1c40, text);
+    return g_szTextScratchBuffer_005d1c40;
 }
 
 #pragma function(strcpy, strcat)

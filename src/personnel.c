@@ -442,7 +442,7 @@ void DrawPersonnelFileSlot(short slot)
             g_szCompactPersonnelFileFormat_0049a880,
             slot,
             g_apszShortPilotRankNames_0049a620[
-                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+                g_apPersonnelPilotProfiles_0049a680[slot]->rank],
             g_apPersonnelPilotProfiles_0049a680[slot]->firstName[0],
             g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
             g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
@@ -451,7 +451,7 @@ void DrawPersonnelFileSlot(short slot)
             g_szPersonnelFileFormat_0049a894,
             slot,
             g_apszPilotRankNames_0049a608[
-                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+                g_apPersonnelPilotProfiles_0049a680[slot]->rank],
             g_apPersonnelPilotProfiles_0049a680[slot]->firstName,
             g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
             g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
@@ -1061,7 +1061,7 @@ short RunPilotDatabaseMenu(void)
                                 strcpy(
                                     g_stCurrentPilotProfile_00493408.callsign,
                                     pilot->callsign);
-                                g_stCurrentPilotProfile_00493408.field_3f = 2;
+                                g_stCurrentPilotProfile_00493408.rank = 2;
                                 g_stCurrentPilotProfile_00493408.field_41 =
                                     pilot->missions;
                                 g_stCurrentPilotProfile_00493408.field_43 =
@@ -1108,7 +1108,7 @@ short RunPilotDatabaseMenu(void)
                             strcpy(
                                 g_stCurrentPilotProfile_00493408.callsign,
                                 callsign);
-                            g_stCurrentPilotProfile_00493408.field_3f = 2;
+                            g_stCurrentPilotProfile_00493408.rank = 2;
                             g_stCurrentPilotProfile_00493408.field_41 = 0;
                             g_stCurrentPilotProfile_00493408.field_43 = 0;
                             LoadStartingCampaignGlobals(0);

@@ -1110,7 +1110,7 @@ typedef struct Wc2PilotProfile {
     char firstName[25];               /* +0x00 */
     char lastName[25];                /* +0x19 */
     char callsign[13];                /* +0x32 */
-    short field_3f;                   /* +0x3F */
+    short rank;                       /* +0x3F */
     short field_41;                   /* +0x41 */
     short field_43;                   /* +0x43 */
     unsigned char field_45[0x11];     /* +0x45 */

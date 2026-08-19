@@ -1866,6 +1866,7 @@ char g_szCommHeadingPrefix_0049b834[24] =
 char g_szUnidentifiedCommRecipient_0049b84c[16] = "UNIDENTIFIED";
 char g_szCommHeadingNewline_0049b85c[4] = "\n";
 char g_szChooseCommPrompt_0049b860[8] = "CHOOSE";
+const char g_szCommMenuChoiceFormat_0049b868[8] = "\n%d.%s";
 const char g_szCommSpeakerTextFormat_0049b888[8] = "%s: %Fs";
 short g_bMissionShipInitializationInProgress_0049b890;
 short g_bShipResourceReloadInProgress_0049b894;
@@ -2386,7 +2387,6 @@ unsigned char *g_pFireworkShape_005a6a68;
 Viewport g_stConstellationViewport_005a6b40;
 const short *g_pViewScript_005a6b58;
 Viewport DAT_005a6be0;
-unsigned char *g_pCommMenuCursorShape_005a7660;
 unsigned char *g_pLaunchDoorShape_005a77e8;
 short g_nArcadeStartupParameter_005a7b8a;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
