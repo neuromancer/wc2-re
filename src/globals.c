@@ -1342,7 +1342,11 @@ short g_bAutopilotSequenceActive_00493064;
 signed char g_acExpectedGraphicsModes_00493078[5] = {
     0x13, 0x0d, 4, 9, 7
 };
-short g_aasSeriesMissionTurnRate_004930a0[16][4];
+/* Only the first row is this table's own storage: difflevl.000 is loaded
+ * straight into g_asDifficultyLevels_004930a8, which is the next eight bytes
+ * on, so GetAdaptiveTurnRate indexes on into the loaded packet exactly as the
+ * original does. */
+short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 short g_asDifficultyLevels_004930a8[52] = {
     50, 200, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
     127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
@@ -1397,7 +1401,9 @@ signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT] = { -1 };
 #if 0
 MissionObjective g_aMissionObjectives_004932a8[WC1_MISSION_OBJECTIVE_COUNT];
 #else
-MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT];
+MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT] = {
+    { 0, 0, 0xff, 7, -1, 0xff, -1 }
+};
 #endif
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };
 Wc2PilotProfile g_stCurrentPilotProfile_00493408;

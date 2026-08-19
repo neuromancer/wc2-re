@@ -379,7 +379,7 @@ extern signed char g_bParentDirectorySelected_0049d78c;
 extern short g_bDirectMissionLaunch_0049d798;
 extern short g_nDirectMission_0049d79a;
 extern short g_nDirectSeries_0049d79c;
-extern short g_aasSeriesMissionTurnRate_004930a0[16][4];
+extern short g_aasSeriesMissionTurnRate_004930a0[1][4];
 extern short g_nCurrentSeries_005c5870;
 extern short g_nCurrentMission_005c5878;
 extern short g_asWingmanDamageCredit_005d3830[10];
