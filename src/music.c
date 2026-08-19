@@ -707,37 +707,47 @@ short GetTargetColourIndex(void)
 /* Function start: 0x43FAC0 */
 void show_target_disp(void)
 {
-    short target;
-    int targetIndex;
-    ObjectTypeData *typeData;
-    enum ObjectType objectType;
-    signed char rating;
-    short x;
-    short y;
-    short frame;
     short *maximumArmor;
+    short frame;
+    short target;
     short armor;
     Viewport targetViewport;
+    short x;
+    short y;
+    ObjectTypeData *typeData;
 
-    DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
+    DrawTextAt(&g_stRightVduTextContext_005d2ce0,
+               g_stRightVduViewport_005d2b20.left,
+               g_stRightVduViewport_005d2b20.top,
                g_szEmptyTargetDisplayText_0049b490, 2);
-    if (g_bTargetLockMode_00493500 != 0) {
-        DrawFormattedText(g_szTextColourStringColourFormat_0049b4a8,
-                          (unsigned int)g_abGamePaletteReservedColours_0049cb54[8],
-                          g_szLockedTarget_0049b494,
-                          (unsigned int)g_ucDefaultTextColour_0049cb7c);
+    if (g_bTargetLockMode_00493500 != 0 &&
+        g_bDisplayWingmanTargetData_0049347c == 0) {
+        DrawFormattedText(
+            g_szTextColourStringColourFormat_0049b4a8,
+            (unsigned int)g_abGamePaletteReservedColours_0049cb54[8],
+            g_szLockedTarget_0049b494,
+            (unsigned int)g_ucDefaultTextColour_0049cb7c);
     } else {
         DrawFormattedText(g_szTextColourStringFormat_0049b4c4,
                           (unsigned int)g_ucDefaultTextColour_0049cb7c,
                           g_szAutoTargetting_0049b4b0);
     }
     target = g_acShipTarget_00495f20[0];
+    if (target != -1 && g_anShipCloakState_00496020[target] == 1 &&
+        (g_asShipCloakElapsedFrames_00496060[target] >= 40 ||
+         (g_asShipCloakElapsedFrames_00496060[target] >= 20 &&
+          g_anCloakVisibilityPattern_00492710[
+              g_asShipCloakElapsedFrames_00496060[target] - 20] == 1)))
+        target = -1;
+    if (g_bDisplayWingmanTargetData_0049347c != 0)
+        target = g_nYourWingman_0049346c;
     if (target != -1 &&
         (g_aeObjectClass_00495328[target] < OBJECT_CLASS_SHIP ||
          g_aeSpecialManeuver_00495600[target] ==
              SPECIAL_MANEUVER_UNKNOWN_9)) {
-        target = -1;
         g_acShipTarget_00495f20[0] = -1;
+        target = g_acShipTarget_00495f20[0];
+        g_bDisplayWingmanTargetData_0049347c = 0;
     }
     g_cTargetDisplayObject_004934f4 = (signed char)target;
     DrawFormattedText(g_szTargetLabel_0049b4cc);
@@ -745,38 +755,32 @@ void show_target_disp(void)
         DrawFormattedText(g_szNoTarget_0049b4d8);
         return;
     }
-    targetIndex = (int)target;
-    objectType = g_acObjectType_00493980[targetIndex];
-    typeData = &g_aObjectTypeData_00496d30[objectType];
-    rating = g_acShipRating_0059cd80[targetIndex];
-    if (rating >= 0 && rating <= 7) {
-        DrawFormattedText(
-            g_szWingmanTargetNameFormat_0046a998_WC1_UNMAPPED,
-            g_apWingmanPilots_00598a30[(int)rating]->callsign);
-    } else if (rating >= 9 && rating <= 12) {
-        DrawFormattedText(
-            g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED,
-            g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[(int)rating - 9]);
+    typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[target]];
+    if (g_asShipIdentified_00496078[target] != 0) {
+        DrawFormattedText(g_szIdentifiedTargetNameFormat_0049b4e0,
+                          g_apShipMissionRecord_00495da8[target]->name);
     } else {
         DrawFormattedText(g_szShipTargetNameFormat_0049b4ec,
-                          typeData->displayName);
+                          g_szUnknownTarget_0049b4e4);
     }
     DrawFormattedText(g_szRangeLabel_0049b4f0);
     InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
-    if (g_asObjectScreenX_00493598[targetIndex] == (short)0x8001) {
+    if (g_asObjectScreenX_00493598[target] == -32767 &&
+        g_bDisplayWingmanTargetData_0049347c == 0) {
         g_cTargetDisplayObject_004934f4 = -1;
         return;
     }
-
+    if (g_asShipIdentified_00496078[target] == 0)
+        return;
     x = (short)(g_stRightVduViewport_005d2b20.left + 0x25);
     y = (short)(g_stRightVduViewport_005d2b20.top + 0x26);
-    frame = (short)((3 - MinShort(
-        (short)((g_aasShipShield_00495518[targetIndex][1] * 6) /
-                typeData->shieldAft), 3)) * 2);
-    if (frame < 6)
+    frame = (short)(g_aasShipShield_00495518[target][1] * 6 /
+                    typeData->shieldAft);
+    frame = (short)((3 - MinShort(frame, 3)) * 2);
+    if (frame < 6) {
         DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
                           g_pCockpitIndicatorShape_005d2c48, frame);
-
+    }
     targetViewport = g_stRightVduViewport_005d2b20;
     maximumArmor = &typeData->armorFront;
     for (armor = 0; armor < 4; armor++) {
@@ -788,24 +792,23 @@ void show_target_disp(void)
             (short)(g_aTargetArmorClipRects_0049b470[armor].right + x);
         targetViewport.bottom =
             (short)(g_aTargetArmorClipRects_0049b470[armor].bottom + y);
-        if (g_aasShipArmor_00495540[targetIndex][armor] >
+        if (g_aasShipArmor_00495540[target][armor] >
             (short)(maximumArmor[armor] >> 1)) {
-            DrawSpriteDefault(&targetViewport, x, y,
-                              typeData->shape, 0);
+            DrawSpriteDefault(&targetViewport, x, y, typeData->shape, 0);
         } else {
-            DrawSpriteDefault(&targetViewport, x, y,
-                              typeData->shape, 1);
+            DrawSpriteDefault(&targetViewport, x, y, typeData->shape, 1);
         }
     }
-
-    DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y, typeData->shape, 2);
-    frame = (short)((3 - MinShort(
-        (short)((g_aasShipShield_00495518[targetIndex][0] * 6) /
-                typeData->shieldFore), 3)) * 2);
-    if (frame < 6)
+    DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
+                      typeData->shape, 2);
+    frame = (short)(g_aasShipShield_00495518[target][0] * 6 /
+                    typeData->shieldFore);
+    frame = (short)((3 - MinShort(frame, 3)) * 2);
+    if (frame < 6) {
         DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
                           g_pCockpitIndicatorShape_005d2c48,
                           (short)(frame + 1));
+    }
 }
 
 /* Function start: 0x43FF40 */

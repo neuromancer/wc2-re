@@ -446,8 +446,6 @@ const char g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED /* no-address */[28] =
     "Press any key when ready";
 short g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED /* no-address */ = -1;
 int g_bScriptedView_0046a8d4_WC1_UNMAPPED /* no-address */;
-const char g_szWingmanTargetNameFormat_0046a998_WC1_UNMAPPED /* no-address */[4] = " %s";
-const char g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED /* no-address */[4] = " %s";
 short g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED /* no-address */;
 int g_nMusicStreamSet_0046aa18_WC1_UNMAPPED /* no-address */ = -1;
 const char *g_apszCampaignVictoryText_0046ad90_WC1_UNMAPPED /* no-address */[4] = {
@@ -487,12 +485,6 @@ const char g_szTigerClawEscapeOpeningFormat_0046af30_WC1_UNMAPPED /* no-address 
 const char g_szTigerClawEscapeJumpFormat_0046af3c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
 const char g_szTigerClawEscapeClosingFormat_0046af48_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
 
-const char *g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED /* no-address */[4] = {
-    &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x00],
-    &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x08],
-    &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x10],
-    &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x18]
-};
 
 const char g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED /* no-address */[32] =
     "Bhurak\0\0"
@@ -1767,6 +1759,8 @@ const char g_szAutoTargetting_0049b4b0[20] = "  AUTO TARGETTING";
 const char g_szTextColourStringFormat_0049b4c4[8] = "%F%s";
 const char g_szTargetLabel_0049b4cc[12] = "\nTarget:";
 const char g_szNoTarget_0049b4d8[8] = " None";
+const char g_szIdentifiedTargetNameFormat_0049b4e0[4] = " %s";
+const char g_szUnknownTarget_0049b4e4[8] = "UNKNOWN";
 const char g_szShipTargetNameFormat_0049b4ec[4] = " %s";
 const char g_szRangeLabel_0049b4f0[12] = "\nRange : ";
 const char g_szTargetTooFar_0049b4fc[8] = "TOO FAR";
