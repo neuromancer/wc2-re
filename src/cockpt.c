@@ -2420,7 +2420,7 @@ void start_lock(unsigned short v)
 }
 
 /* Function start: 0x43BE55 */
-unsigned short starting_lock(unsigned short v)
+short starting_lock(unsigned short v)
 {
     if (g_nTargetLockCountdown_004934ec == -1) {
         start_lock(v);

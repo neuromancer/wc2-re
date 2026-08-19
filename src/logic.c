@@ -3289,7 +3289,7 @@ unsigned int InitWc1Constellation(short scene)
 }
 
 /* Function start: 0x4575B4 */
-unsigned int init_constellation(short scene)
+void init_constellation(short scene)
 {
     short slot;
     short sceneIndex;

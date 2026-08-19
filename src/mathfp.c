@@ -27,7 +27,7 @@ unsigned short GetRandomWord(void)
 }
 
 /* Function start: 0x461942 */
-short RandomInRange(unsigned short lo, unsigned short hi)
+unsigned short RandomInRange(unsigned short lo, unsigned short hi)
 {
     short span;
 

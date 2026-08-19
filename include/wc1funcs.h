@@ -542,7 +542,7 @@ void AdjustScannerContactColourForRange(
 short get_color(short object, unsigned short *colour);                /* 0x43B61F */
 void draw_3d_scanner(void);                                           /* 0x43B7C0 */
 void start_lock(unsigned short v);                                    /* 0x43BE1B */
-unsigned short starting_lock(unsigned short v);                       /* 0x43BE55 */
+short starting_lock(unsigned short v);                                /* 0x43BE55 */
 void lock_off(void);                                                   /* 0x43BE8D */
 short CheckTargetLockMalfunction(void);                               /* 0x43BEFF */
 short decrement_lock_time(short screenX);                             /* 0x43BF67 */
@@ -783,9 +783,9 @@ void UpdateBarracksScreen(Viewport *viewport, unsigned char *shape,
                           BarracksAnimationState *state);              /* WC2 unmapped */
 short RunWc1BarracksScreen(void);                                      /* WC2 unmapped */
 short BarracksScreen(void);                                            /* 0x419831 */
-unsigned short StepPaletteTransition(short *current,
-                                     const short *target,
-                                     short componentCount);           /* 0x4225A0 */
+short StepPaletteTransition(short *current,
+                            const short *target,
+                            short componentCount);                    /* 0x4225A0 */
 char *__stdcall DosStrcat(char *destination, const char *source);      /* 0x446910 */
 DWORD WINAPI DebugOverlayWorkerProc(void *parameter);                  /* 0x45AEE4 */
 LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
@@ -1104,7 +1104,7 @@ void InitializeConstellationObject(
     short object);                                                /* 0x457434 */
 void FreeConstellationObject(short object);                       /* 0x457587 */
 unsigned int InitWc1Constellation(short scene);                       /* WC2 unmapped */
-unsigned int init_constellation(short scene);                         /* 0x4575B4 */
+void init_constellation(short scene);                                 /* 0x4575B4 */
 void free_constellation(void);                                    /* 0x4576AB */
 void init_vdus(void);                                                  /* 0x457720 */
 void InitializeCockpitResources(void);                                /* 0x4577D7 */
@@ -1271,7 +1271,7 @@ void SetMessageDisplaySpeed(void);                                     /* 0x437F
 void ReportFramesSkipped(short adjustment);                            /* 0x437FD3 */
 short HandleSpaceFlightControls(void);                                 /* 0x46733D */
 unsigned int DrawSpaceSceneFrame(void);                                /* 0x468E7A */
-unsigned short Draw_3Space_Frame(void);                                /* 0x4690FF */
+short Draw_3Space_Frame(void);                                         /* 0x4690FF */
 void GetArcadeBonus(void);                                         /* WC2 unmapped */
 void FigureArcadeTime(void);                                       /* WC2 unmapped */
 void DrawWc1ArcadeScorePanel(short x, short y);                         /* WC2 unmapped */
@@ -1398,9 +1398,9 @@ void show_target_disp(void);                                         /* 0x43FAC0
 void DrawTargetRangeReadout(void);                                   /* 0x43FF40 */
 void LogDisplayMode(const char *mode);                                 /* 0x45CA50 */
 short CalcRectangleArea(const Viewport *viewport);                     /* 0x45CA80 */
-unsigned short AllocateViewport(Viewport *viewport,
-                                short clearColour,
-                                short flags);                          /* 0x45CAD2 */
+short AllocateViewport(Viewport *viewport,
+                       short clearColour,
+                       short flags);                                   /* 0x45CAD2 */
 void AlignWc1SpriteFrameToRectCorner(
     const ShortRect *rectangle, ShortPoint *position, short corner,
     unsigned char *shape, short frame);                              /* WC2 unmapped */
@@ -1542,7 +1542,7 @@ void OpenCommRecipientMenu(void);                                     /* 0x44752
 void CloseCommChoiceMenu(void);                                       /* 0x447544 */
 short wingman_dead(void);                                             /* 0x44756F */
 short have_target(void);                                              /* 0x44759B */
-unsigned short CanOpenCommMenu(void);                                 /* 0x4475D3 */
+short CanOpenCommMenu(void);                                          /* 0x4475D3 */
 void SelectCommRecipient(short recipient);                            /* 0x44760F */
 void BuildCommunicationRecipientMenu(void);                           /* 0x447629 */
 void BuildCommunicationCommandMenu(void);                             /* 0x447890 */
@@ -1639,7 +1639,7 @@ void chase_speed(short obj, short range);                              /* 0x4405
 short RandomBelow(short n);                                           /* 0x4618E0 */
 void __stdcall SeedRandomFromClock(void);                                               /* 0x4618FF */
 unsigned short GetRandomWord(void);                                  /* 0x461922 */
-short RandomInRange(unsigned short lo, unsigned short hi);              /* 0x461942 */
+unsigned short RandomInRange(unsigned short lo, unsigned short hi);     /* 0x461942 */
 short RandomBelowOrEqual(short n);                                      /* 0x4619A1 */
 long MultiplyFixed(int left, int right);                              /* 0x4619E2 */
 long DivideFixed(int numerator, int denominator);                     /* 0x461A2D */
@@ -1759,8 +1759,8 @@ void draw_sorted_objects_to_buffer(void);                              /* 0x4644
 void intro_drawbackgroundships(void);                                  /* 0x46470E */
 void set_up_screen_viewport(signed char mode);                         /* 0x4648C5 */
 void MouseIdleHook(void);                                           /* 0x464AA0 */
-unsigned short GetNavRangeSentinel(void);                                   /* 0x464AB0 */
-unsigned short GetOriginalFreeMemory(void);                                   /* 0x464AC4 */
+short GetNavRangeSentinel(void);                                            /* 0x464AB0 */
+short GetOriginalFreeMemory(void);                                            /* 0x464AC4 */
 void StartupHook(unsigned int (*callback)(unsigned int, short));  /* 0x464AE8 */
 unsigned int JoystickEdgeHook(int button);                         /* 0x464B0B */
 void FreeIfNotNull(void *p);                                            /* 0x464B3A */

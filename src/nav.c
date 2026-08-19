@@ -775,7 +775,7 @@ void BriefingMap_LoadShapes(void)
     short objective;
 
     g_pNavMapShape_0049bc48 =
-        FetchDiskPacketRetrying(8, 2, 0);
+        FetchDiskPacketRetrying("cockpit.vga", 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportOutOfMemoryAndExit(g_szNavViewportName_0049be30);
@@ -913,7 +913,7 @@ void InflightComputer(void)
         EndCommMenu();
     free_view_buffer();
     g_cScreenViewportMode_005c82a6 = -1;
-    background = FetchDiskPacketRetrying(8, 1, 0);
+    background = FetchDiskPacketRetrying("cockpit.vga", 1, 0);
     ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
     DrawSpriteDefault(&g_stScreenViewport_005d21a0, 0, 0, background, 0);
     ReleasePacketHandle(background);

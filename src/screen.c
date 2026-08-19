@@ -1388,7 +1388,7 @@ short have_target(void)
 }
 
 /* Function start: 0x4475D3 */
-unsigned short CanOpenCommMenu(void)
+short CanOpenCommMenu(void)
 {
     return have_target() || !wingman_dead();
 }

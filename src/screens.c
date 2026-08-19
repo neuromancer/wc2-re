@@ -4881,9 +4881,9 @@ unsigned int death_sequence(void)
 
     frame = 0;
     spacetrack(0x20, 2, 1);
-    deathShape = FetchDiskPacketRetrying(2, 0, 0);
+    deathShape = FetchDiskPacketRetrying("pilotanm.vga", 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
-        (short)g_cCockpitLogicalFile_005a7c74, 3, 0);
+        g_szCockpitResourceFilename_005d1030, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
     new_view(9, 0);
     g_bSceneEscapeRequested_0049d4b0 = 0;

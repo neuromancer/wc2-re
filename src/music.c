@@ -943,8 +943,8 @@ short CalcRectangleArea(const Viewport *viewport)
 }
 
 /* Function start: 0x45CAD2 */
-unsigned short AllocateViewport(Viewport *viewport,
-                                short clearColour, short flags)
+short AllocateViewport(Viewport *viewport,
+                       short clearColour, short flags)
 {
     unsigned short *rowOffsets;
     unsigned short top;

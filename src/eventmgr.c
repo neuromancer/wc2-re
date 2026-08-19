@@ -1226,13 +1226,13 @@ void MouseIdleHook(void)
 }
 
 /* Function start: 0x464AB0 */
-unsigned short GetNavRangeSentinel(void)
+short GetNavRangeSentinel(void)
 {
     return 0x8000;
 }
 
 /* Function start: 0x464AC4 */
-unsigned short GetOriginalFreeMemory(void)
+short GetOriginalFreeMemory(void)
 {
     return 0x8000;
 }

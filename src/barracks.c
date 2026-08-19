@@ -1038,9 +1038,9 @@ short BarracksScreen(void)
 }
 
 /* Function start: 0x4225A0 */
-unsigned short StepPaletteTransition(short *current,
-                                     const short *target,
-                                     short componentCount)
+short StepPaletteTransition(short *current,
+                            const short *target,
+                            short componentCount)
 {
     short difference;
     short index;

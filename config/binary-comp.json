@@ -38,7 +38,7 @@
       "NavMapObjectiveStyle": 16,
       "ObjectResourceSlot": 13,
       "ObjectTypeData": 135,
-      "PacketResourceDescriptor": 8,
+      "PacketResourceDescriptor": 10,
       "PacketSectionHandle": 20,
       "PilotRecord": 38,
       "RLETransformVertex": 20,

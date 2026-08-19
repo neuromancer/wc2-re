@@ -996,7 +996,7 @@ unsigned int DrawSpaceSceneFrame(void)
 }
 
 /* Function start: 0x4690FF */
-unsigned short Draw_3Space_Frame(void)
+short Draw_3Space_Frame(void)
 {
 #if 0
     UpdateSpacePaletteFade();
