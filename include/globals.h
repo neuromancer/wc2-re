@@ -428,7 +428,6 @@ extern short g_bForceCriticalDamageWarning_0049b058;
 extern short g_bMissionDeathSequencePending_0049b720;
 extern short g_bMissionEjectionPodSpawned_0049b724;
 extern short g_nPendingEjectionShip_005d1bc4;
-extern int g_bFastShipExplosion_0049922d;
 extern char g_szEndInflightReplay_0049b738[20];
 extern signed char g_acMissionShipStatusFlags_005d2fb0[8];
 extern short g_bMissionWingmanFlag_005c8dbe;
@@ -1602,14 +1601,7 @@ extern short g_nTalkingHeadMouthY_005a8758;
 extern short g_nTalkingHeadMouthX_005a875a;
 extern char DAT_005a8760[512];
 #if 0
-extern short g_nHomeMissionShipIndex_005a8692;
-extern short g_nMissionEntryNavPoint_005a8690;
-extern short g_nPlayerMissionShipIndex_005a8694;
-extern short g_nInitialMissionShipIndices_005a8696[8];
 extern short DAT_005a86a6;
-extern unsigned char g_abMissionAuxData_005a8210[0x28];
-extern unsigned char g_abSeriesAuxData_005a8240[0x28];
-extern MissionObjectiveSource g_aMissionObjectiveSources_005a8270[16];
 #else
 extern unsigned char g_abMissionAuxData_005d3c10[0x28];
 extern unsigned char g_abSeriesAuxData_005d3c40[0x28];

@@ -2122,11 +2122,11 @@ void BeginShipDestructionSequence(short obj)
     send_message(obj, 9);
     g_nPendingEjectionShip_005d1bc4 = obj;
     set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
-    if (g_bFastShipExplosion_0049922d != 0)
+    if (g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
         g_asObjectCounter_00494be0[obj] = 8;
     else
         g_asObjectCounter_00494be0[obj] = 4;
-    if (g_bFastShipExplosion_0049922d != 0)
+    if (g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
         g_asShipExplosionStageTimer_005d3850[obj] = 8;
     else
         g_asShipExplosionStageTimer_005d3850[obj] = 4;

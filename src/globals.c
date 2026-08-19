@@ -1398,13 +1398,9 @@ signed char g_abHazardObjects_00493280[0x14] = {
 signed char g_cMissionObjectiveCount_00493294 = -1;
 signed char g_cCurrentNavPointIndex_00493298 = -1;
 signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT] = { -1 };
-#if 0
-MissionObjective g_aMissionObjectives_004932a8[WC1_MISSION_OBJECTIVE_COUNT];
-#else
 MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT] = {
     { 0, 0, 0xff, 7, -1, 0xff, -1 }
 };
-#endif
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };
 Wc2PilotProfile g_stCurrentPilotProfile_00493408;
 short g_nMissionScore_00493462;
@@ -1657,482 +1653,181 @@ static const short g_asDataCapsuleAnimation_00496c10[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
 };
 
+/* WC2 keeps its own 49-record table: slots 0-6 are the ship types the game
+ * loads at runtime and stay zero in the image, and 7-48 are the static
+ * projectile, missile, asteroid, debris and explosion records read straight
+ * out of the retail .data. */
 ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT] = {
-    /* 0: Hornet */
+    { 0 },
+    { 0 },
+    { 0 },
+    { 0 },
+    { 0 },
+    { 0 },
+    { 0 },
     {
-        "Hornet",
-        OBJECT_CLASS_SHIP, 0, 0, 100, 125, 1024, 5, 3392, 3, 5, 4000,
-        42, 30, 0, 819, 8, 9, 8, 900,
-        {
-            5,
-            24, 0, 0, 0, 0, 0, 0,
-            24, 0, 0, 0, 1, 0, 0,
-            28, 0, 0, 0, 2, 0, 0,
-            28, 0, 0, 0, 3, 0, 1,
-            29, 0, 0, 0, 4, 0, 1
-        },
-        40, 40, 45, 40, 30, 30, 0, 0
+        "Laser cannon", OBJECT_CLASS_PROJECTILE, 0, 7, 10, 0, 512, 7,
+        30, 0, 25, 0, 160
     },
-    /* 1: Rapier */
     {
-        "Rapier",
-        OBJECT_CLASS_SHIP, 0, 0, 120, 135, 1024, 3, -12144, 3, 6, 6000,
-        45, 25, 0, 1075, 10, 10, 10, 1000,
-        {
-            9,
-            24, 0, 0, 0, 14, 0, 1,
-            24, 0, 0, 0, 18, 0, 1,
-            25, 0, 0, 0, 12, 0, 0,
-            25, 0, 0, 0, 20, 0, 0,
-            31, 0, 0, 0, 16, 0, 1,
-            30, 0, 0, 0, 15, 0, 0,
-            30, 0, 0, 0, 17, 0, 1,
-            28, 0, 0, 0, 13, 0, 1,
-            28, 0, 0, 0, 19, 0, 1
-        },
-        80, 75, 60, 55, 50, 50, 0, 0
+        "Neutron gun", OBJECT_CLASS_PROJECTILE, 0, 8, 10, 1, 832, 14,
+        20, 0, 40, 0, 140
     },
-    /* 2: Scimitar */
     {
-        "Scimitar",
-        OBJECT_CLASS_SHIP, 0, 0, 165, 160, 1152, 6, 17856, 4, 7, 6000,
-        36, 15, 0, 614, 6, 6, 7, 1300,
-        {
-            7,
-            26, 0, 0, 0, 6, 0, 0,
-            26, 0, 0, 0, 11, 0, 0,
-            28, 0, 0, 0, 5, 0, 0,
-            28, 0, 0, 0, 10, 0, 1,
-            29, 0, 0, 0, 7, 0, 1,
-            29, 0, 0, 0, 8, 0, 1,
-            29, 0, 0, 0, 9, 0, 1
-        },
-        60, 50, 85, 80, 65, 65, 0, 0
+        "Mass driver", OBJECT_CLASS_PROJECTILE, 0, 9, 10, 0, 512, 9, 25,
+        0, 30, 0, 120
     },
-    /* 3: Raptor */
     {
-        "Raptor",
-        OBJECT_CLASS_SHIP, 0, 0, 180, 200, 1152, 3, -27680, 4, 8, 8000,
-        40, 25, 0, 588, 6, 5, 6, 2000,
-        {
-            10,
-            25, 0, 0, 0, 23, 0, 0,
-            25, 0, 0, 0, 28, 0, 0,
-            26, 0, 0, 0, 21, 0, 1,
-            26, 0, 0, 0, 30, 0, 1,
-            29, 0, 0, 0, 22, 0, 0,
-            29, 0, 0, 0, 29, 0, 1,
-            31, 0, 0, 0, 24, 0, 1,
-            31, 0, 0, 0, 27, 0, 1,
-            30, 0, 0, 0, 26, 0, 1,
-            33, 0, 0, 0, 25, 0, 1
-        },
-        70, 70, 100, 90, 80, 80, 0, 0
+        "Particle cannon", OBJECT_CLASS_PROJECTILE, 0, 10, 10, 0, 512,
+        9, 30, 0, 53, 0, 220
     },
-    /* 4: Venture */
+    { "", OBJECT_CLASS_PROJECTILE, 0, 11, 10, 0, 512, 7, 30, 0, 25, 0, 160 },
     {
-        "Venture",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 5, 3392, 3, 70,
-        20000, 25, 10, 0, 256, 3, 3, 3, 4000,
-        {
-            2,
-            27, 0, 0, 0, 51, 0, 0,
-            27, 0, 0, 0, 50, 0, 0
-        },
-        150, 150, 110, 100, 100, 110, 0, 0
+        "", OBJECT_CLASS_PROJECTILE, 0, 12, 15, 0, 832, 15, 40, 0, 50,
+        4000, 180
     },
-    /* 5: Dilligent */
     {
-        "Dilligent",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 4, 3392, 3, 60,
-        20000, 15, 10, 0, 128, 2, 2, 2, 10000,
-        {
-            1,
-            27, 0, 0, 0, 54, 0, 0
-        },
-        120, 120, 80, 80, 60, 60, 0, 0
+        "", OBJECT_CLASS_PROJECTILE, 0, 13, 1, 0, 832, 15, 100, 0, 300,
+        0, 250
     },
-    /* 6: Drayman */
     {
-        "Drayman",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 240, 400, 1024, 4, 3392, 3, 60,
-        10000, 15, 10, 0, 128, 2, 2, 2, 20000,
-        {
-            1,
-            27, 0, 0, 0, 54, 0, 0
-        },
-        120, 120, 80, 80, 60, 60, 0, 0
+        "", OBJECT_CLASS_PROJECTILE, 0, 14, 1, 0, 832, 15, 80, 0, 1200,
+        0, 150
     },
-    /* 7: Exeter */
     {
-        "Exeter",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 500, 5000, 2048, 2, 3392, 3, 200,
-        30000, 20, 15, 0, 256, 2, 2, 2, 20000,
-        {
-            5,
-            31, 0, 0, 0, 47, 0, 0,
-            27, 0, 0, 0, 48, 0, 0,
-            27, 0, 0, 0, 49, 0, 0,
-            27, 0, 0, 0, 50, 0, 0,
-            27, 0, 0, 0, 51, 0, 0
-        },
-        240, 240, 220, 200, 200, 200, 0, 0
+        "Dart DF", OBJECT_CLASS_MISSILE, 0, 15, 20, 5, 768, 500, 120, 0,
+        4, 14500, 150, 0, 0, 1433, 15, 15, 15, 100
     },
-    /* 8: Tiger's Claw */
     {
-        "Tiger's Claw",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 700, 10000, 4096, 1, 3392, 3,
-        560, 30000, 0, 0, 0, 256, 1, 1, 1, 20000,
-        {
-            8,
-            27, 0, 0, 0, 33, 0, 0,
-            27, 0, 0, 0, 34, 0, 0,
-            27, 0, 0, 0, 35, 0, 0,
-            27, 0, 0, 0, 36, 0, 0,
-            27, 0, 0, 0, 37, 0, 0,
-            27, 0, 0, 0, 38, 0, 0,
-            27, 0, 0, 0, 39, 0, 0,
-            27, 0, 0, 0, 40, 0, 0
-        },
-        300, 300, 240, 200, 250, 250, 0, 0
+        "Javelin HS", OBJECT_CLASS_MISSILE, 0, 16, 20, 5, 768, 400, 140,
+        0, 4, 13500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
-    /* 9: Salthi */
     {
-        "Salthi",
-        OBJECT_CLASS_SHIP, 0, 0, 120, 120, 1024, 10, 3392, 3, 5, 4000,
-        48, 30, 0, 972, 14, 12, 22, 1000,
-        {
-            3,
-            24, 0, 0, 0, 0, 0, 0,
-            24, 0, 0, 0, 1, 0, 0,
-            28, 0, 0, 0, 31, 0, 1
-        },
-        35, 35, 30, 20, 15, 15, 0, 0
+        "Pilum FF", OBJECT_CLASS_MISSILE, 0, 17, 20, 5, 768, 400, 160,
+        0, 4, 10500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
-    /* 10: Dralthi */
     {
-        "Dralthi",
-        OBJECT_CLASS_SHIP, 0, 0, 160, 140, 1024, 6, 3392, 3, 7, 6000,
-        40, 23, 0, 768, 10, 14, 10, 1200,
-        {
-            7,
-            24, 0, 0, 0, 0, 0, 0,
-            24, 0, 0, 0, 1, 0, 0,
-            33, 0, 0, 0, 32, 0, 0,
-            33, 0, 0, 0, 32, 0, 1,
-            33, 0, 0, 0, 32, 0, 1,
-            29, 0, 0, 0, 31, 0, 0,
-            29, 0, 0, 0, 31, 0, 1
-        },
-        50, 50, 45, 35, 30, 30, 0, 0
+        "Spiculum IR", OBJECT_CLASS_MISSILE, 0, 18, 20, 5, 768, 400,
+        110, 0, 4, 11500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
-    /* 11: Krant */
     {
-        "Krant",
-        OBJECT_CLASS_SHIP, 0, 0, 140, 126, 1024, 5, 3392, 3, 6, 6000,
-        36, 20, 0, 716, 7, 10, 7, 1200,
-        {
-            6,
-            24, 0, 0, 0, 0, 0, 0,
-            24, 0, 0, 0, 1, 0, 0,
-            30, 0, 0, 0, 31, 0, 1,
-            29, 0, 0, 0, 31, 0, 0,
-            29, 0, 0, 0, 31, 0, 1,
-            29, 0, 0, 0, 31, 0, 1
-        },
-        80, 80, 90, 100, 80, 80, 0, 0
+        "Torpedo", OBJECT_CLASS_MISSILE, 0, 19, 55, 10, 1280, 400, 8200,
+        0, 20, 30000, 50, 0, 0, 512, 4, 4, 4, 500
     },
-    /* 12: Gratha */
     {
-        "Gratha",
-        OBJECT_CLASS_SHIP, 0, 0, 140, 126, 1024, 4, 3392, 3, 7, 7000,
-        32, 20, 0, 614, 6, 6, 14, 1400,
-        {
-            10,
-            24, 0, 0, 0, 0, 0, 0,
-            24, 0, 0, 0, 1, 0, 0,
-            26, 0, 0, 0, 21, 0, 0,
-            26, 0, 0, 0, 30, 0, 0,
-            31, 0, 0, 0, 31, 0, 1,
-            29, 0, 0, 0, 31, 0, 0,
-            29, 0, 0, 0, 31, 0, 1,
-            33, 0, 0, 0, 32, 0, 1,
-            33, 0, 0, 0, 32, 0, 1,
-            33, 0, 0, 0, 32, 0, 1
-        },
-        100, 95, 140, 120, 100, 100, 0, 0
+        "Chaff Pod", OBJECT_CLASS_MISSILE, 0, 20, 50, 1, 768, 400, 160,
+        0, 4, 1000, 90, 0, 4811840, 1689, 11, 11, 11, 100
     },
-    /* 13: Jalthi */
     {
-        "Jalthi",
-        OBJECT_CLASS_SHIP, 0, 0, 160, 180, 1024, 7, 3392, 3, 7, 8000,
-        28, 20, 0, 512, 5, 5, 5, 1600,
-        {
-            8,
-            25, 0, 0, 0, 41, 0, 0,
-            25, 0, 0, 0, 44, 0, 0,
-            24, 0, 0, 0, 42, 0, 0,
-            24, 0, 0, 0, 43, 0, 0,
-            24, 0, 0, 0, 45, 0, 0,
-            24, 0, 0, 0, 46, 0, 0,
-            30, 0, 0, 0, 31, 0, 1,
-            29, 0, 0, 0, 31, 0, 0
-        },
-        160, 160, 200, 100, 170, 170, 0, 0
+        "Porcupine", OBJECT_CLASS_MINE, 0, 21, 20, 5, 768, 110, 120, 0,
+        4, 20000, 20, 20, 4811816, 0, 0, 2, 2
     },
-    /* 14: Spikeri */
     {
-        "Spikeri",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 200, 200, 1536, 4, 3392, 3, 45,
-        12000, 15, 10, 0, 460, 4, 4, 4, 4000,
-        { 0 },
-        70, 70, 80, 80, 60, 60, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 22, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811880, 0, 0, 1, 13
     },
-    /* 15: Dorkir */
     {
-        "Dorkir",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 260, 400, 2048, 5, 3392, 3, 35,
-        24000, 15, 10, 0, 204, 2, 2, 2, 5000,
-        {
-            4,
-            27, 0, 0, 0, 54, 0, 0,
-            33, 0, 0, 0, 55, 0, 1,
-            33, 0, 0, 0, 55, 0, 1,
-            33, 0, 0, 0, 55, 0, 1
-        },
-        170, 100, 90, 60, 90, 90, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 23, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811912, 0, 0, 1, 12
     },
-    /* 16: Lumbari */
     {
-        "Lumbari",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 260, 400, 2048, 5, 3392, 3, 35,
-        16000, 15, 10, 0, 204, 2, 2, 2, 5000,
-        {
-            4,
-            27, 0, 0, 0, 54, 0, 0,
-            33, 0, 0, 0, 55, 0, 1,
-            33, 0, 0, 0, 55, 0, 1,
-            33, 0, 0, 0, 55, 0, 1
-        },
-        70, 70, 80, 80, 60, 60, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 24, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811944, 0, 0, 1, 13
     },
-    /* 17: Ralari */
     {
-        "Ralari",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 325, 3000, 4096, 3, 3392, 3, 90,
-        20000, 15, 10, 0, 256, 2, 2, 2, 18000,
-        {
-            7,
-            31, 0, 0, 0, 47, 0, 0,
-            27, 0, 0, 0, 48, 0, 0,
-            27, 0, 0, 0, 49, 0, 0,
-            27, 0, 0, 0, 50, 0, 0,
-            27, 0, 0, 0, 51, 0, 0,
-            27, 0, 0, 0, 52, 0, 0,
-            27, 0, 0, 0, 53, 0, 0
-        },
-        200, 120, 200, 90, 180, 180, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 25, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811976, 0, 0, 1, 12
     },
-    /* 18: Fralthi */
     {
-        "Fralthi",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 450, 10000, 4096, 2, 3392, 3, 110,
-        30000, 15, 10, 0, 256, 2, 2, 2, 10000,
-        {
-            8,
-            31, 0, 0, 0, 47, 0, 0,
-            31, 0, 0, 0, 47, 0, 0,
-            27, 0, 0, 0, 48, 0, 0,
-            27, 0, 0, 0, 49, 0, 0,
-            27, 0, 0, 0, 50, 0, 0,
-            27, 0, 0, 0, 51, 0, 0,
-            27, 0, 0, 0, 52, 0, 0,
-            27, 0, 0, 0, 53, 0, 0
-        },
-        270, 170, 280, 140, 260, 260, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 26, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811880, 0, 0, 2, 13
     },
-    /* 19: Snakeir */
     {
-        "Snakeir",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 600, 10000, 2048, 1, 3392, 3, 320,
-        30000, 15, 10, 0, 204, 1, 1, 1, 10000,
-        { 0 },
-        70, 70, 80, 80, 60, 60, 0, 0
+        "", OBJECT_CLASS_ASTEROID, 0, 27, 100, 300, 1024, 0, 0, 0, -1,
+        0, 0, 0, 4811912, 0, 0, 2, 12
     },
-    /* 20: Sivar */
     {
-        "Sivar",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 400, 12000, 4096, 1, 3392, 3, 200,
-        32000, 20, 15, 0, 179, 1, 1, 1, 15000,
-        {
-            8,
-            31, 0, 0, 0, 47, 0, 0,
-            31, 0, 0, 0, 47, 0, 0,
-            27, 0, 0, 0, 48, 0, 0,
-            27, 0, 0, 0, 49, 0, 0,
-            27, 0, 0, 0, 50, 0, 0,
-            27, 0, 0, 0, 51, 0, 0,
-            27, 0, 0, 0, 52, 0, 0,
-            27, 0, 0, 0, 53, 0, 0
-        },
-        270, 170, 280, 140, 260, 260, 0, 0
+        "", OBJECT_CLASS_DEBRIS, 0, 28, 10, 4, 192, 0, 0, 0, -1, 0, 0,
+        0, 4811880, 0, 0, 2, 13
     },
-    /* 21: Kilrathi base */
     {
-        "Star post",
-        OBJECT_CLASS_CAPITAL_SHIP, 0, 0, 400, 20000, 2048, 4, 3392, 3, 120,
-        32000, 0, 0, 0, 0, 0, 0, 0, 10000,
-        {
-            8,
-            27, 0, 0, 0, 33, 0, 0,
-            27, 0, 0, 0, 36, 0, 0,
-            27, 0, 0, 0, 37, 0, 0,
-            27, 0, 0, 0, 40, 0, 0,
-            30, 0, 0, 0, 33, 0, 0,
-            30, 0, 0, 0, 36, 0, 0,
-            30, 0, 0, 0, 37, 0, 0,
-            30, 0, 0, 0, 40, 0, 0
-        },
-        200, 200, 180, 180, 180, 180, 0, 0
+        "", OBJECT_CLASS_DEBRIS, 0, 29, 10, 1, 2048, 0, 0, 0, 0, 0, 0,
+        0, 4811656, 0, 0, 2, 5
     },
-    { 0 }, /* 22: asteroid field */
-    { 0 }, /* 23: mine field */
-    /* 24: laser cannon bolt */
     {
-        "Laser cannon",
-        OBJECT_CLASS_PROJECTILE, 0, 0, 10, 0, 512, 7, 30, 0, 25, 0,
-        160, 0, 0, 0, 0, 0, 0, 0, { 0 },
-        0, 0, 0, 0, 0, 0, 0, 0
+        "", OBJECT_CLASS_DEBRIS, 0, 30, 10, 1, 2048, 0, 0, 0, 0, 0, 0,
+        0, 4811672, 0, 0, 2, 5
     },
-    { "Neutron gun",
-      OBJECT_CLASS_PROJECTILE, 0, 0, 10, 1, 832, 14, 20, 0, 40, 0,
-      140, 0 }, /* 25: neutron particle gun */
-    { "Mass driver",
-      OBJECT_CLASS_PROJECTILE, 0, 0, 10, 0, 512, 9, 25, 0, 30, 0,
-      120, 0 }, /* 26: mass driver cannon */
-    { "",
-      OBJECT_CLASS_PROJECTILE, 0, 0, 15, 0, 832, 15, 40, 0, 50, 1000,
-      150, 0 }, /* 27: turret bolt; resources alias laser */
-    { "Dart DF",
-      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 500, 120, 0, 4, 14500,
-      130, 0, 0, 1433, 15, 15, 15, 100 }, /* 28 */
-    { "Javelin HS",
-      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 140, 0, 4, 13500,
-      110, 0, 0, 1689, 11, 11, 11, 100 }, /* 29 */
-    { "Pilum FF",
-      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 160, 0, 4, 10500,
-      90, 0, 0, 1689, 11, 11, 11, 100 }, /* 30 */
-    { "Spiculum IR",
-      OBJECT_CLASS_MISSILE, 0, 0, 20, 5, 768, 400, 110, 0, 4, 11500,
-      110, 0, 0, 1689, 11, 11, 11, 100 }, /* 31 */
-    { "",
-      OBJECT_CLASS_MISSILE, 0, 0, 25, 10, 768, 400, 200, 0, 4, 30000,
-      50, 0, 0, 1280, 10, 10, 10, 100 }, /* 32 */
-    { "Porcupine",
-      OBJECT_CLASS_MINE, 0, 0, 20, 5, 768, 110, 120, 0, 4, 10000,
-      20, 20, (unsigned char *)g_anAnimMine_004662a0_WC1_UNMAPPED,
-      0, 0, 2, 2 },
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8_WC1_UNMAPPED,
-      0, 0, 1, 13 },
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318_WC1_UNMAPPED,
-      0, 0, 1, 12 },
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidReverse_00466350_WC1_UNMAPPED,
-      0, 0, 1, 13 },
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidShortReverse_00466390_WC1_UNMAPPED,
-      0, 0, 1, 12 }
-#if 0
-    /* WC2 stops at 38 records: g_bFastShipExplosion_0049922d sits
-     * 9469 bytes past the base and the stride is 243, so entry 38 is
-     * the last one that fits.  The remaining WC1 rows are kept for
-     * reference until the WC2 object-type numbering is recovered. */
-    ,
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8_WC1_UNMAPPED,
-      0, 0, 2, 13 },
-    { "",
-      OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidShortForward_00466318_WC1_UNMAPPED,
-      0, 0, 2, 12 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 10, 4, 192, 0, 0, 0, -1, 0,
-      0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8_WC1_UNMAPPED,
-      0, 0, 2, 13 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 10, 1, 2048, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimGirder_00466158_WC1_UNMAPPED,
-      0, 0, 2, 5 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 10, 1, 2048, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimTubing_00466178_WC1_UNMAPPED,
-      0, 0, 2, 5 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 1280, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimMetalSheet_00466220_WC1_UNMAPPED,
-      0, 0, 1, 11 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 1280, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimWing_00466258_WC1_UNMAPPED,
-      0, 0, 1, 15 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 20, 2, 768, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimGlass_00466198_WC1_UNMAPPED,
-      0, 0, 1, 15 },
-    { "data capsule",
-      OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_asDataCapsuleAnimation_00496c10,
-      0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_FIXED_OBJECT, 0, 62, 0, 0, 192, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_FIXED_OBJECT, 0, 63, 0, 0, 192, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, -1, 6000,
-      0, 0, (unsigned char *)g_anAnimExplosion1_00466060_WC1_UNMAPPED,
-      0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, -1, 6000,
-      0, 0, (unsigned char *)g_anAnimExplosion2_004660b8_WC1_UNMAPPED,
-      0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimLaserSpark_004660f0_WC1_UNMAPPED,
-      0, 0, 1, 0 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimRedSpark_00466128_WC1_UNMAPPED,
-      0, 0, 2, 3 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 256, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimBlueSpark_00466110_WC1_UNMAPPED,
-      0, 0, 2, 3 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 1, 1, 256, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimSparkTrail_00466140_WC1_UNMAPPED,
-      0, 0, 2, 3 },
-    { "",
-      OBJECT_CLASS_FIXED_OBJECT, 0, 0, 0, 0, 256, 0, 0, 0, 0 },
-    { "",
-      OBJECT_CLASS_DEBRIS, 0, 0, 6, 1, 512, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimEjectedPilot_004663c8_WC1_UNMAPPED,
-      0, 0, 1, 12 },
-    { "",
-      OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 1024, 0, 0, 0, 0, 0,
-      0, 0, (unsigned char *)g_anAnimHyperspaceJumpFlash_00466400_WC1_UNMAPPED,
-      0, 0, 1, 0 }
-#endif
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 31, 20, 2, 1280, 0, 0, 0, 0, 0, 0,
+        0, 4811760, 0, 0, 1, 11
+    },
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 32, 20, 2, 1280, 0, 0, 0, 0, 0, 0,
+        0, 4811792, 0, 0, 1, 2
+    },
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 33, 20, 2, 768, 0, 0, 0, 0, 0, 0, 0,
+        4811688, 0, 0, 1, 15
+    },
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 34, 2, 1, 1792, 0, 0, 0, 0, 0, 0, 0,
+        4811728, 0, 0, 1, 5
+    },
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 35, 6, 1, 1536, 0, 0, 0, 0, 0, 0, 0,
+        4811744, 0, 0, 1, 5
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 36, 0, 0, 768, 0, 0, 0, -1, 6000,
+        0, 0, 4811504, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 37, 0, 0, 1024, 0, 0, 0, -1,
+        6000, 0, 0, 4811520, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 38, 0, 0, 336, 0, 0, 0, -1, 6000,
+        0, 0, 4811552, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 39, 0, 0, 256, 0, 0, 0, 0, 0, 0,
+        0, 4811592, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 40, 0, 0, 256, 0, 0, 0, 0, 0, 0,
+        0, 4811624, 0, 0, 2, 3
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 41, 0, 0, 256, 0, 0, 0, 0, 0, 0,
+        0, 4811608, 0, 0, 2, 3
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 42, 1, 1, 256, 0, 0, 0, 0, 0, 0,
+        0, 4811640, 0, 0, 2, 3
+    },
+    { "", OBJECT_CLASS_FIXED_OBJECT, 0, 43, 0, 0, 256 },
+    {
+        "", OBJECT_CLASS_DEBRIS, 0, 44, 6, 10, 512, 0, 0, 0, 0, 0, 0, 0,
+        4812008, 0, 0, 1, 12
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, 45, 0, 0, 1024, 0, 0, 0, 0, 0, 0,
+        0, 4812032, 0, 0, 1
+    },
+    {
+        "data capsule", OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0,
+        0, 0, 0, 0, 0, 4811792, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_FIXED_OBJECT, 0, 62, 0, 0, 192, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 1
+    },
+    {
+        "", OBJECT_CLASS_FIXED_OBJECT, 0, 63, 0, 0, 192, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 1
+    }
 };
-int g_bFastShipExplosion_0049922d;
 int g_bSceneDisplayUpdateActive_00499bb8;
 short g_bKilrathiAceGreetingSent_00499bf4;
 unsigned char g_bMemoryLogToFile_00499bf8;
@@ -3048,16 +2743,7 @@ int g_nJoystickCentreX_005a81dc;
 int g_nJoystickFailureValue_005a81e0;
 InputDeviceSample g_aInputDeviceSamples_005a81f0[2];
 short g_nMenuInputRepeatDelay_005a8208;
-#if 0
-unsigned char g_abMissionAuxData_005a8210[0x28];
-unsigned char g_abSeriesAuxData_005a8240[0x28];
-MissionObjectiveSource g_aMissionObjectiveSources_005a8270[16];
-short g_nMissionEntryNavPoint_005a8690;
-short g_nHomeMissionShipIndex_005a8692;
-short g_nPlayerMissionShipIndex_005a8694;
-short g_nInitialMissionShipIndices_005a8696[8];
 short DAT_005a86a6;
-#endif
 CampaignDate *g_pCurrentCampaignDate_005a86a8;
 signed char g_cObjectResourceLogicalFile_005a86b0;
 Viewport *g_pScrambleViewport_005a86b4;
