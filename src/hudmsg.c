@@ -1086,10 +1086,11 @@ void FinishCannedScenePlayback(void)
         return;
     g_pCannedSceneStateBlock_005d3fb0 =
         (void *)IdentityDword((unsigned int)g_pHighMemoryBlockB_00490200);
+#ifndef WC1_SDL
     memcpy(&g_dwCannedSceneSnapshotStart_00493130,
            g_pCannedSceneStateBlock_005d3fb0,
-           (unsigned int)(
-               (unsigned char *)0x4961a4 - (unsigned char *)0x493130));
+           WC2_CANNED_SCENE_SNAPSHOT_BYTES);
+#endif
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
         SetHudMessageText(g_szEndInflightReplay_0049b738,
@@ -1290,14 +1291,13 @@ void WriteTapeInitialState(void)
     file = CreateDataFile(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
         ReportFatalErrorCode(g_szCannedSceneCreateError_00490270);
+#ifndef WC1_SDL
     WriteDataFileAtOffset((unsigned short)file,
                           g_nCannedSceneFileOffset_005d3fac,
-                          (unsigned int)(
-                              (unsigned char *)0x4961a4 -
-                              (unsigned char *)0x493130),
+                          WC2_CANNED_SCENE_SNAPSHOT_BYTES,
                           &g_dwCannedSceneSnapshotStart_00493130);
-    g_nCannedSceneFileOffset_005d3fac += (unsigned int)(
-        (unsigned char *)0x4961a4 - (unsigned char *)0x493130);
+#endif
+    g_nCannedSceneFileOffset_005d3fac += WC2_CANNED_SCENE_SNAPSHOT_BYTES;
     CloseDataFile((unsigned short)file);
 }
 

@@ -45,6 +45,17 @@
 #include <time.h>
 #endif
 
+/* The in-flight replay snapshots 0x493130-0x4961A4 -- a contiguous 12404-byte
+ * span of the original's .data -- in single copies, and restores it the same
+ * way.  The reconstruction declares that span as several hundred separate C
+ * objects, and no linker is going to lay them out in the original's order, so
+ * the copies would move unrelated memory in either direction.  The port leaves
+ * the replay recording alone rather than write the wrong bytes to disk and
+ * read them back over its own globals; restoring it needs the whole span laid
+ * out contiguously first. */
+#define WC2_CANNED_SCENE_SNAPSHOT_BYTES \
+    ((unsigned int)((unsigned char *)0x4961a4 - (unsigned char *)0x493130))
+
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
  * where they are meant to, and the reconstruction reproduces that layout
