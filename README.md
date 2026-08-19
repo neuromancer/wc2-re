@@ -19,15 +19,15 @@ The SDL2 port inherited with the source does not currently work. This is
 expected until the WC2 reconstruction is complete.
 
 `make report` measures machine-code similarity against the retail executable.
-The current report compares 1,485 functions:
+The current report compares 1,558 functions:
 
 | Result | Functions |
 | --- | ---: |
-| Exact matches | 768 |
-| Similarity at or above 90% | 1216 |
-| Similarity below 90% | 269 |
+| Exact matches | 931 |
+| Similarity at or above 90% | 1424 |
+| Similarity below 90% | 134 |
 
-The current average similarity is 94.09%, with no report errors or missing
+The current average similarity is 96.89%, with no report errors or missing
 disassembly exports. Similarity measures reconstruction fidelity, not gameplay
 completeness.
 
