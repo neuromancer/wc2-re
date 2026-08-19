@@ -439,7 +439,7 @@ short pick_regular_maneuver(short obj, short event)
              g_asShipManeuver_00495f48[obj] == MANEUVER_NONE;
     if (stress_morale(obj) == 2)
         return MANEUVER_OUTA_HERE;
-    if ((g_aiIntelligenceEvent_00492fc0[obj] == event ||
+    if ((g_asIntelligenceEvent_00492fc0[obj] == event ||
          RandomBelowOrEqual(100) < 20) &&
         (event == 0 || event == 3 || event == 4 || event == 7) &&
         reroll == 0)
@@ -668,7 +668,7 @@ void intelligence_events(short obj)
             }
         }
     }
-    g_aiIntelligenceEvent_00492fc0[obj] = event;
+    g_asIntelligenceEvent_00492fc0[obj] = event;
 }
 
 /* Function start: 0x440571 */

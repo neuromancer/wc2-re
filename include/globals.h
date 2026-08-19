@@ -820,7 +820,7 @@ extern int g_nInputDoubleClickDeadline_0049d4c0;
 extern int g_nPreviousPrimaryButton_0049d4c4;
 extern int g_nPreviousSecondaryButton_0049d4c8;
 extern const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6];
-extern int g_aiIntelligenceEvent_00492fc0[6];
+extern short g_asIntelligenceEvent_00492fc0[12];
 extern signed char g_aDefenseManeuversNovice_00492fd8[8];
 extern signed char g_aDefenseManeuversVeteran_00492fe0[8];
 extern signed char g_aDefenseManeuversElite_00492fe8[16];
@@ -1786,8 +1786,8 @@ extern char g_szFrameRateText_005b3950[32];
 extern float g_fMeasuredFrameRate_005c3850;
 
 extern signed char g_cMessageSpeed_0049b778;
-extern unsigned char g_abManeuverRerollChance_0049b538[47];
-extern void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short);
+extern unsigned char g_abManeuverRerollChance_0049b538[50];
+extern void (*g_apManeuverHandlers_0049b570[50])(short, short);
 
 extern ShortVector g_aShipFormationOffset_00495468[10];
 

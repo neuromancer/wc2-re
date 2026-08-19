@@ -181,55 +181,6 @@ const char g_szCampaignDateFormat_00465630_WC1_UNMAPPED /* no-address */[12] = "
 const char g_szSavedCampaignDateFormat_0046563c_WC1_UNMAPPED /* no-address */[12] = "%03d.%03d";
 const char g_szCampaignTimeFormat_00465648_WC1_UNMAPPED /* no-address */[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short) = {
-    /* 00 */ (void (*)(short, short))Mnone,
-    /* 01 */ (void (*)(short, short))Mnone,
-    /* 02 */ (void (*)(short, short))Mveer_away,
-    /* 03 */ (void (*)(short, short))Mreset,
-    /* 04 */ (void (*)(short, short))Mfull_ahead,
-    /* 05 */ (void (*)(short, short))Mthink,
-    /* 06 */ (void (*)(short, short))Mram_missile,
-    /* 07 */ (void (*)(short, short))Mturn_n_kick,
-    /* 08 */ (void (*)(short, short))Mtight_loop,
-    /* 09 */ (void (*)(short, short))Mhard_break,
-    /* 10 */ (void (*)(short, short))Msit_n_spin,
-    /* 11 */ (void (*)(short, short))Mturn_n_spin,
-    /* 12 */ (void (*)(short, short))Mburnout,
-    /* 13 */ (void (*)(short, short))Mwabble,
-    /* 14 */ (void (*)(short, short))Mroll_over,
-    /* 15 */ (void (*)(short, short))Mhard_turn,
-    /* 16 */ (void (*)(short, short))Mfish_hook,
-    /* 17 */ (void (*)(short, short))Msplit_left,
-    /* 18 */ (void (*)(short, short))Msit_n_fire,
-    /* 19 */ (void (*)(short, short))Mkickit,
-    /* 20 */ (void (*)(short, short))Mturn_n_kick,
-    /* 21 */ (void (*)(short, short))Mrout_me,
-    /* 22 */ (void (*)(short, short))Mdrop_a_mine,
-    /* 23 */ (void (*)(short, short))Msplit_right,
-    /* 24 */ (void (*)(short, short))Mzig_zag,
-    /* 25 */ (void (*)(short, short))Mgloat,
-    /* 26 */ (void (*)(short, short))Mtail_fire,
-    /* 27 */ (void (*)(short, short))Mtarget_laser,
-    /* 28 */ (void (*)(short, short))Mtarget_missile,
-    /* 29 */ (void (*)(short, short))Mstrafe_enemy,
-    /* 30 */ (void (*)(short, short))Mbest_strafe,
-    /* 31 */ (void (*)(short, short))Mstrafe_n_roll,
-    /* 32 */ (void (*)(short, short))Mkill_missile,
-    /* 33 */ (void (*)(short, short))Msuicide_run,
-    /* 34 */ (void (*)(short, short))Mzig_zag_pitch,
-    /* 35 */ (void (*)(short, short))ShipAiState35,
-    /* 36 */ (void (*)(short, short))Mbest_strafe,
-    /* 37 */ (void (*)(short, short))Mget_distance,
-    /* 38 */ (void (*)(short, short))Mcorkscrew,
-    /* 39 */ (void (*)(short, short))Mtry2tail,
-    /* 40 */ (void (*)(short, short))Mzip_past,
-    /* 41 */ (void (*)(short, short))Mbuzz_debris,
-    /* 42 */ (void (*)(short, short))Mline_up_drop,
-    /* 43 */ (void (*)(short, short))Mchill,
-    /* 44 */ (void (*)(short, short))ShipAiState44,
-    /* 45 */ (void (*)(short, short))Mbest_strafe,
-    /* 46 */ (void (*)(short, short))Mreset
-};
 signed char g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED /* no-address */ = 7;
 signed char g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED /* no-address */ = 10;
 signed char g_acScrambleWalkerOverlayFrames_00465770_WC1_UNMAPPED /* no-address */[8] = {
@@ -1241,7 +1192,7 @@ signed char g_bLandingCommRequestPending_00492fa0;
 int g_nCurrentView_00492fa8 = -1;
 short g_nSpaceExplosionFlashActive_00492fb4;
 short g_bApplyingCollisionDamage_00492fb8;
-int g_aiIntelligenceEvent_00492fc0[6];
+short g_asIntelligenceEvent_00492fc0[12];
 signed char g_aDefenseManeuversNovice_00492fd8[8] = {
     24, 24, 13, 14, -1, 0, 0, 0
 };
@@ -2084,10 +2035,65 @@ const char g_szRangeLabel_0049b4f0[12] = "\nRange : ";
 const char g_szTargetTooFar_0049b4fc[8] = "TOO FAR";
 const char g_szRangeMetresSuffix_0049b504[4] = " m";
 const char g_szTargetOffscreenRange_0049b508[8] = "----- m";
-unsigned char g_abManeuverRerollChance_0049b538[47] = {
+unsigned char g_abManeuverRerollChance_0049b538[50] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0
+    0, 0, 0, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
+    0, 0, 0
+};
+/* perform_maneuver (0x4426AF) dispatches through this table; its guard admits
+ * maneuvers 0 through 0x31, and "Maneuver error %d" follows at 0x49B638. */
+void (*g_apManeuverHandlers_0049b570[50])(short, short) = {
+    /* 00 */ (void (*)(short, short))Mnone,
+    /* 01 */ (void (*)(short, short))Mnone,
+    /* 02 */ (void (*)(short, short))Mveer_away,
+    /* 03 */ (void (*)(short, short))ShipAiState3,
+    /* 04 */ (void (*)(short, short))Mfull_ahead,
+    /* 05 */ (void (*)(short, short))Mthink,
+    /* 06 */ (void (*)(short, short))Mram_missile,
+    /* 07 */ (void (*)(short, short))Mturn_n_kick,
+    /* 08 */ (void (*)(short, short))Mtight_loop,
+    /* 09 */ (void (*)(short, short))Mhard_break,
+    /* 10 */ (void (*)(short, short))Msit_n_spin,
+    /* 11 */ (void (*)(short, short))Mturn_n_spin,
+    /* 12 */ (void (*)(short, short))Mburnout,
+    /* 13 */ (void (*)(short, short))Mwabble,
+    /* 14 */ (void (*)(short, short))Mroll_over,
+    /* 15 */ (void (*)(short, short))Mhard_turn,
+    /* 16 */ (void (*)(short, short))Mfish_hook,
+    /* 17 */ (void (*)(short, short))Msplit_left,
+    /* 18 */ (void (*)(short, short))Msit_n_fire,
+    /* 19 */ (void (*)(short, short))Mkickit,
+    /* 20 */ (void (*)(short, short))Mturn_n_kick,
+    /* 21 */ (void (*)(short, short))Mrout_me,
+    /* 22 */ (void (*)(short, short))Mdrop_a_mine,
+    /* 23 */ (void (*)(short, short))Msplit_right,
+    /* 24 */ (void (*)(short, short))Mzig_zag,
+    /* 25 */ (void (*)(short, short))Mgloat,
+    /* 26 */ (void (*)(short, short))Mtail_fire,
+    /* 27 */ (void (*)(short, short))Mtarget_laser,
+    /* 28 */ (void (*)(short, short))ShipAiState28,
+    /* 29 */ (void (*)(short, short))Mstrafe_enemy,
+    /* 30 */ (void (*)(short, short))Mbest_strafe,
+    /* 31 */ (void (*)(short, short))Mstrafe_n_roll,
+    /* 32 */ (void (*)(short, short))Mkill_missile,
+    /* 33 */ (void (*)(short, short))Msuicide_run,
+    /* 34 */ (void (*)(short, short))Mzig_zag_pitch,
+    /* 35 */ (void (*)(short, short))ShipAiState35,
+    /* 36 */ (void (*)(short, short))Mtarget_missile,
+    /* 37 */ (void (*)(short, short))Mget_distance,
+    /* 38 */ (void (*)(short, short))Mcorkscrew,
+    /* 39 */ (void (*)(short, short))Mtry2tail,
+    /* 40 */ (void (*)(short, short))Mzip_past,
+    /* 41 */ (void (*)(short, short))Mbuzz_debris,
+    /* 42 */ (void (*)(short, short))Mline_up_drop,
+    /* 43 */ (void (*)(short, short))Mchill,
+    /* 44 */ (void (*)(short, short))ShipAiState44,
+    /* 45 */ (void (*)(short, short))ShipAiState45,
+    /* 46 */ (void (*)(short, short))ShipAiState46,
+    /* 47 */ (void (*)(short, short))ShipAiState47,
+    /* 48 */ (void (*)(short, short))Mbest_strafe,
+    /* 49 */ (void (*)(short, short))Mreset
 };
 short g_nEnemySighting_0049b670 = 0x7fff;
 short g_asShipIntelState_0049b678[10];

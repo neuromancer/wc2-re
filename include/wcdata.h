@@ -1513,6 +1513,9 @@ typedef char BarracksAnimationState_size_must_be_0x68[
  * explosion-debris rows at 0x492DD8 shift by the same twelve, set_objects_data
  * (0x410999) tests 0x1C for WC1's rock chunk 40, and manage_hazard (0x41836E)
  * tests 0x15 for WC1's space mine 33. */
+/* perform_maneuver (0x4426A0) admits maneuvers 0 through 0x31. */
+#define WC2_MANEUVER_HANDLER_COUNT 50
+
 #define WC2_OBJECT_TYPE_COUNT 49
 #define WC2_OBJECT_TYPE(wc1Type) ((wc1Type) - 12)
 /* The records the reconstructed table names or its classes and frame lists

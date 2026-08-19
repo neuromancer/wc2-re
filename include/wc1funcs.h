@@ -166,6 +166,9 @@ void Msplit_right(short ship);                                          /* 0x441
 void Mgloat(short ship);                                                /* 0x4415DC */
 void Mtail_fire(short ship, short target);                              /* 0x4416D5 */
 void Mzip_past(short ship, short target);                               /* 0x441742 */
+void ShipAiState47(short ship, short target);                            /* 0x441837 */
+void ShipAiState28(short ship, short target);                            /* 0x441895 */
+void ShipAiState46(short ship);                                         /* 0x4418B2 */
 void Mtarget_missile(short ship, short target);                         /* 0x441C01 */
 void Mram_missile(short ship, short target);                            /* 0x44199B */
 void Mbuzz_debris(short ship);                                          /* 0x441A13 */
@@ -184,6 +187,8 @@ void Mveer_away(short ship, short target);                              /* 0x442
 void ShipAiState44(short ship);                                         /* 0x4423E2 */
 void Mtarget_laser(short ship, short target);                           /* 0x442404 */
 void Mrout_me(short ship);                                              /* 0x442421 */
+void ShipAiState3(short ship, short target);                             /* 0x442438 */
+void ShipAiState45(short ship, short target);                            /* 0x442455 */
 void Mnone(void);                                                       /* 0x4424C2 */
 void Mreset(short ship);                                                /* 0x4424CD */
 void perform_maneuver(short obj);                                       /* 0x4424E4 */
@@ -940,7 +945,7 @@ void fire_fixed_projectile_weapon(short obj);                          /* 0x4168
 int drop_mine(short obj, signed char weapon, enum ObjectType type,
               short lifetime);                                       /* WC2 unmapped */
 void fire_afterburner(short obj, short time);                          /* 0x41693A */
-short find_weapon(short obj, enum ObjectType weaponType);              /* WC2 unmapped */
+short find_weapon(short obj, enum ObjectType weaponType);              /* 0x416690 */
 void check_computer_damage(void);                                      /* 0x412F90 */
 short RandomSign(short v);                                               /* 0x415625 */
 void fire_super_brake(short ship);                                      /* 0x4169CC */

@@ -1779,3 +1779,8 @@ src/logic.c	4145		00460DFE	DrawTargetCameraAttitudeIndicators	DrawTargetCameraAt
 src/logic.c	4237		004610BC	RestoreTargetCameraAttitudeIndicators	RestoreTargetCameraAttitudeIndicators	WC2-only		wc2-only
 src/logic.c	4310		00461456	UpdateTargetCameraCockpitHook	UpdateTargetCameraCockpitHook	WC2-only		wc2-only
 src/system.c	120		0046570E	GetInputCursorShape	GetInputCursorShape	WC2-only		wc2-only
+src/brains.c	0		00441837	ShipAiState47	ShipAiState47	WC2-only		wc2-only
+src/brains.c	0		00441895	ShipAiState28	ShipAiState28	WC2-only		wc2-only
+src/brains.c	0		004418B2	ShipAiState46	ShipAiState46	WC2-only		wc2-only
+src/brains.c	0		00442438	ShipAiState3	ShipAiState3	WC2-only		wc2-only
+src/brains.c	0		00442455	ShipAiState45	ShipAiState45	WC2-only		wc2-only

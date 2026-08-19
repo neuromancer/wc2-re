@@ -532,6 +532,53 @@ void Mzip_past(short ship, short target)
     }
 }
 
+/* Function start: 0x441837 */
+/* Dispatch slot 47: cloak and break off, or zip past when the cloak is
+ * unavailable. */
+void ShipAiState47(short ship, short target)
+{
+    if (g_asShipCloakCooldown_00496048[ship] == 0 &&
+        g_anShipCloakState_00496020[ship] == 0) {
+        maneuver_complete(ship);
+        BeginShipCloak(ship);
+    } else {
+        Mzip_past(ship, target);
+    }
+}
+
+/* Function start: 0x441895 */
+/* Dispatch slot 28: unimplemented in WC2. */
+void ShipAiState28(short ship, short target)
+{
+    HandleUnsupportedManeuver(6, ship, target);
+
+}
+
+/* Function start: 0x4418B2 */
+/* Dispatch slot 46: pick a random roll and yaw, burn out of the fight, then
+ * wait for the turn to finish. */
+void ShipAiState46(short ship)
+{
+    switch (g_acShipSequence_00495fe8[ship]) {
+    case 0:
+        g_anRollGoal_004954d8[ship] =
+            (short)((2 * RandomBelowOrEqual(2) - 1) * 180);
+        g_anYawGoal_004954c0[ship] =
+            (short)((2 * RandomBelowOrEqual(2) - 1) * 60);
+        approach_full_speed(ship);
+        fire_afterburner(ship, 10);
+        advance(ship);
+        break;
+    default:
+        approach_full_speed(ship);
+        if (no_goal(ship) != 0) {
+            DAT_004960f0[ship] = 0;
+            maneuver_complete(ship);
+        }
+        break;
+    }
+}
+
 /* Function start: 0x441C01 */
 void Mtarget_missile(short ship, short target)
 {
@@ -826,6 +873,29 @@ void Mrout_me(short ship)
     try2rout(ship);
 }
 
+/* Function start: 0x442438 */
+/* Dispatch slot 3: unimplemented in WC2. */
+void ShipAiState3(short ship, short target)
+{
+    HandleUnsupportedManeuver(9, ship, target);
+
+}
+
+/* Function start: 0x442455 */
+/* Dispatch slot 45: close on the target at full speed and afterburn once it
+ * is roughly ahead. */
+void ShipAiState45(short ship, short target)
+{
+    if (unactive(target) == 0) {
+        approach_full_speed(ship);
+        point_ship_at_object(ship, target);
+        if (g_nFacingToTarget_00493194 > 80)
+            fire_afterburner(ship, 10);
+    } else {
+        maneuver_complete(ship);
+    }
+}
+
 /* Function start: 0x4424C2 */
 /* Empty in the original: dispatch-table slots 0 and 1 (no-op / invalid state). */
 void Mnone(void)
@@ -841,150 +911,67 @@ void Mreset(short ship)
 /* Function start: 0x4424E4 */
 void perform_maneuver(short obj)
 {
-    short target = g_acShipTarget_00495f20[obj];
-    enum ShipManeuver previous = g_asShipManeuver_00495f48[obj];
+    short previous;
     short range;
-    int maneuverWeight;
+    short weapon;
+    short target;
 
-#ifdef WC1_SDL
-    /* The original performs this lookup before validating the maneuver.
-       MANEUVER_NONE reads the zero alignment byte at 0x00465677, immediately
-       before the table.  Other invalid values are reset before the result is
-       used.  Preserve those results without an invalid C array access. */
-    if (previous < MANEUVER_WARPING_IN ||
-        previous > MANEUVER_UNKNOWN_49)
-        g_bCurrentManeuverReroll_005b30f4 = 0;
-    else
-#endif
-        g_bCurrentManeuverReroll_005b30f4 =
-            g_abManeuverRerollChance_0049b538[previous];
-#ifdef WC1_SDL
-    /* The original reaches the same completion path only after calculating
-       geometry for target -1.  Those reads alias the globals immediately
-       before three object tables in the Win32 image. */
-    if (target == -1) {
-        maneuver_complete(obj);
-        return;
+    target = g_acShipTarget_00495f20[obj];
+    if (g_asIntelligenceEvent_00492fc0[obj] == 6) {
+        weapon = find_weapon(obj, WC2_OBJECT_TYPE_CHAFF_POD);
+        if (weapon != -1) {
+            fire_weapon(obj, weapon);
+            g_bAiMissileFiringEnabled_00492d58 = 1;
+        }
     }
-#endif
-    ship_vs_ship(obj, target);
+
+    previous = g_asShipManeuver_00495f48[obj];
+    g_bCurrentManeuverReroll_005b30f4 =
+        g_abManeuverRerollChance_0049b538[g_asShipManeuver_00495f48[obj]];
     range = g_nTargetRange_0049319c;
     if (g_nTargetFacing_00493198 < 0)
-        maneuverWeight = g_asObjectCollisionRadius_004950e8[target] +
-                         g_asObjectCollisionRadius_004950e8[obj] * 4;
+        SetShipAiScratchWord(
+            (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 4 +
+                             g_asObjectCollisionRadius_004950e8[target]));
     else
-        maneuverWeight = g_asObjectCollisionRadius_004950e8[target] +
-                         g_asObjectCollisionRadius_004950e8[obj] * 6;
-    SetShipAiScratchWord((unsigned short)(maneuverWeight >> 1));
+        SetShipAiScratchWord(
+            (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 6 +
+                             g_asObjectCollisionRadius_004950e8[target]));
 
     if (unactive(target) != 0) {
-        if (g_asShipManeuver_00495f48[obj] == MANEUVER_VEER_AWAY) {
-            Mveer_away(obj, target);
-        } else if (g_asShipManeuver_00495f48[obj] == MANEUVER_GLOAT) {
-#ifdef WC1_SDL
-            Mgloat(obj);
-#else
-            ((void (__cdecl *)(short, short))Mgloat)(obj, target);
-#endif
-        } else if (g_asShipManeuver_00495f48[obj] ==
-                   MANEUVER_LINE_UP_DROP) {
-            Mline_up_drop(obj, target);
-        } else {
-            maneuver_complete(obj);
-        }
-    } else if (g_asShipManeuver_00495f48[obj] >= 0 &&
-               g_asShipManeuver_00495f48[obj] < 47) {
-#ifdef WC1_SDL
-        /* The original x86 dispatcher pushes both values for every handler.
-           Several handlers consume only the ship, and two consume an unsigned
-           target.  Call those through their real C types in the native port. */
         switch (g_asShipManeuver_00495f48[obj]) {
-        case MANEUVER_WARPING_IN:
-        case MANEUVER_WARPING_OUT:
-            Mnone();
-            break;
-        case MANEUVER_DRIFT:
-        case MANEUVER_UNKNOWN_49:
-            Mreset(obj);
-            break;
-        case MANEUVER_FULL_AHEAD:
-            Mfull_ahead(obj, target);
-            break;
-        case MANEUVER_THINKING:
-            Mthink(obj, target);
-            break;
-        case MANEUVER_KICK_STOP:
-        case MANEUVER_TURN_N_KICK:
-            Mturn_n_kick(obj);
-            break;
-        case MANEUVER_TIGHT_LOOP:
-            Mtight_loop(obj);
-            break;
-        case MANEUVER_HARD_BRAKE:
-            Mhard_break(obj);
-            break;
-        case MANEUVER_WABBLE:
-            Mwabble(obj);
-            break;
-        case MANEUVER_ROLL_OVER:
-            Mroll_over(obj);
-            break;
-        case MANEUVER_HARD_TURN:
-            Mhard_turn(obj);
-            break;
-        case MANEUVER_SPLIT_LEFT:
-            Msplit_left(obj);
-            break;
-        case MANEUVER_KICKIT:
-            Mkickit(obj);
-            break;
-        case MANEUVER_OUTA_HERE:
-            Mrout_me(obj);
-            break;
-        case MANEUVER_DROP_A_MINE:
-            Mdrop_a_mine(obj, target);
-            break;
-        case MANEUVER_SPLIT_RIGHT:
-            Msplit_right(obj);
-            break;
-        case MANEUVER_ZIG_ZAG:
-            Mzig_zag(obj, (unsigned int)target);
-            break;
         case MANEUVER_GLOAT:
-            Mgloat(obj);
+            ((void (__cdecl *)(short, short))Mgloat)(obj, target);
             break;
-        case MANEUVER_SAFE_BRAKE:
-            Mzig_zag_pitch(obj, (unsigned int)target);
+        case MANEUVER_LINE_UP_DROP:
+            Mline_up_drop(obj, target);
             break;
-        case MANEUVER_INTERCEPT:
-            Mcorkscrew(obj);
-            break;
-        case MANEUVER_BUZZ_DEBRIS:
-            Mbuzz_debris(obj);
-            break;
-        case MANEUVER_UNKNOWN_44:
-            ShipAiState44(obj);
+        case MANEUVER_VEER_AWAY:
+            Mveer_away(obj, target);
             break;
         default:
-            g_apShipAiManeuverHandlers_004656a8[
-                g_asShipManeuver_00495f48[obj]](obj, target);
+            maneuver_complete(obj);
             break;
         }
-#else
-        g_apShipAiManeuverHandlers_004656a8[
+    } else if (g_asShipManeuver_00495f48[obj] >= 0 &&
+               g_asShipManeuver_00495f48[obj] <
+                   WC2_MANEUVER_HANDLER_COUNT) {
+        g_apManeuverHandlers_0049b570[
             g_asShipManeuver_00495f48[obj]](obj, target);
-#endif
     } else {
+        if (g_nOriginDevUnlock_0049d774 != 0) {
+            printf("bigtime_maneuver_error %d %d %d %d", obj,
+                   g_asShipManeuver_00495f48[obj],
+                   g_asShipIntelSlot_00495d30[3],
+                   g_asShipIntelSlot_00495d30[obj]);
+            flushall();
+        }
         maneuver_complete(obj);
     }
 
-    if (range < DAT_005b30f0) {
-        try2reset_maneuver(obj, 2);
-    } else if (g_asShipManeuver_00495f48[obj] == previous &&
-               RandomBelowOrEqual(100) <
-                   (short)g_bCurrentManeuverReroll_005b30f4) {
+    if (g_asShipManeuver_00495f48[obj] == previous &&
+        RandomBelowOrEqual(100) < g_bCurrentManeuverReroll_005b30f4)
         maneuver_complete(obj);
-    }
 }
 
 /* Function start: 0x447170 */

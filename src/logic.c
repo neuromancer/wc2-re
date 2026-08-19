@@ -22,7 +22,7 @@ static const ShortVector g_aaTurretProjectileOffsets_0049d448[2][2] = {
     {{-50, 0, 25}, {-50, 0, -25}}
 };
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x416690 */
 short find_weapon(short obj, enum ObjectType weaponType)
 {
     short weapon;
