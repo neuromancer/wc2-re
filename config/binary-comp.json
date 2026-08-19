@@ -63,6 +63,19 @@
       "enum Side": 4,
       "enum SpecialManeuver": 4
     },
+    "reviewed_layout_issues": {
+      "full": {
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x0048e0e0": "Read as a dword once and as a word three times; the speech-cache code and data counts are adjacent words that one site loads together.",
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00493134": "Read as a word 32 times and as a dword twice; g_nSpaceFrame is a short and the wide reads take it with the next word.",
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00499bfc": "Read as a byte ten times and as a word three times; the flag is a byte and the wide reads take the next one with it.",
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00499c4c": "Read as a byte thirty times and as a word once; the flag is a byte.",
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x0049afe0": "Read as a byte three times and as a word twice; the flag is a byte.",
+        "ORIGINAL_DIRECT_GLOBAL_SPAN:0x005c8dda": "Read as a word twice and as a dword once; the adjustment is a short.",
+        "ORIGINAL_INDEXED_GLOBAL_ESCAPE:0x004926c0": "show_target_disp (0x43FAC0) reaches this only when the index is 20 or more, so 0x4926C0 is the base of an offset form and the array it indexes starts at 0x492710, past this global.",
+        "ORIGINAL_INDEXED_GLOBAL_ESCAPE:0x005d2df0": "AdvanceSceneFlicStream (0x42E868) walks fifteen eight-byte records from 0x5D2E08; that array overlaps the tail of the text context declared here, so the context's placement still needs work.",
+        "REBUILT_LAYOUT_ADJACENT_SPLIT:0x00493188": "src/globals.c declares g_vToTarget and g_nFacingToTarget adjacent and in address order; MSVC puts the twelve-byte vector and the short in different uninitialised-data buckets, which the source cannot control."
+      }
+    },
     "struct_formats": {
       "CampaignDate": {
         "format": "<hh"
