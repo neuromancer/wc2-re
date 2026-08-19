@@ -553,8 +553,15 @@ void DIBslamReal(void)
 #endif
 
 #ifdef WC1_SDL
-        if (g_stMouseCursorState_0059ab10.viewport != 0 &&
-            g_stMouseCursorState_0059ab10.viewport->pixels == g_pDibPixelBuffer_005b3978) {
+        /* Only stamp the software cursor into the buffer actually being
+         * presented.  The WC1 cursor-state struct this used to test is filled
+         * in by InitializeEventManagerResources, which the WC2 path never
+         * reaches; EMStartUp is what loads the shape and points the input
+         * viewport at the screen, and DrawMouseCursor draws into the screen
+         * viewport, so those are what decide it here. */
+        if (g_pInputCursorShape_005c83f9 != 0 &&
+            g_pInputViewport_005c8403 != 0 &&
+            g_stScreenViewport_005d21a0.pixels == g_pDibPixelBuffer_005b3978) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }

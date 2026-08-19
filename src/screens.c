@@ -626,19 +626,23 @@ void InitializeCutsceneRuntimeResources(void)
         g_bCutsceneCockpitLoaded_005d2d66 = 0;
         if (g_apSceneObjects_00499c38 == 0) {
             g_apSceneObjects_00499c38 = AllocateScenePointerTable(
-                0x80, 4, 0, "Cannot Allocate Sprite Table");
+                0x80, WC2_SCENE_POINTER_SIZE, 0,
+                "Cannot Allocate Sprite Table");
         }
         if (g_apCutscenePlanes_00499c3c == 0) {
             g_apCutscenePlanes_00499c3c = AllocateScenePointerTable(
-                0x40, 4, 0, "Cannot Allocate Plane Table");
+                0x40, WC2_SCENE_POINTER_SIZE, 0,
+                "Cannot Allocate Plane Table");
         }
         if (g_apCutsceneSequences_00499c40 == 0) {
             g_apCutsceneSequences_00499c40 = AllocateScenePointerTable(
-                0x100, 4, 0, "Cannot Allocate Sequence Table");
+                0x100, WC2_SCENE_POINTER_SIZE, 0,
+                "Cannot Allocate Sequence Table");
         }
         if (g_apCutsceneScenes_00499c44 == 0) {
             g_apCutsceneScenes_00499c44 = AllocateScenePointerTable(
-                0x20, 4, 0, "Cannot Allocate Scene Table");
+                0x20, WC2_SCENE_POINTER_SIZE, 0,
+                "Cannot Allocate Scene Table");
         }
         if (g_pszCutsceneWorkBuffer_005d2ecc == 0) {
             WriteMemoryStateReportHook();
