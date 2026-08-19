@@ -126,7 +126,9 @@ const int g_anRLEQuarterCosine_00405cbb[901] = {
 };
 
 /* IFF chunk identifiers embedded between the original raster routines. */
-const unsigned char g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED /* no-address */[4] = { 'B', 'M', 'H', 'D' };
+const unsigned char g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED /* no-address */[4] = {
+    'B', 'M', 'H', 'D'
+};
 const unsigned char g_abIffCmapChunkId_00406f78_WC1_UNMAPPED /* no-address */[4] = { 'C', 'M', 'A', 'P' };
 const unsigned char g_abIffBodyChunkId_00406f7c_WC1_UNMAPPED /* no-address */[4] = { 'B', 'O', 'D', 'Y' };
 
@@ -1341,7 +1343,12 @@ signed char g_acExpectedGraphicsModes_00493078[5] = {
     0x13, 0x0d, 4, 9, 7
 };
 short g_aasSeriesMissionTurnRate_004930a0[16][4];
-short g_asDifficultyLevels_004930a8[52];
+short g_asDifficultyLevels_004930a8[52] = {
+    50, 200, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,
+    127, 127, 127, 127, 127, 127, 127, 127, 127, 127
+};
 signed char g_cCurrentKey_00493128 = (signed char)0x80;
 signed char g_cPreviousKey_0049312c = (signed char)0x80;
 unsigned int g_dwCannedSceneSnapshotStart_00493130;
@@ -1398,7 +1405,7 @@ short g_nMissionScore_00493462;
 short g_nPlayerShipType_00493464;
 short g_nExternalViewShip_00493468 = -1;
 short g_nYourWingman_0049346c = -1;
-signed char g_acPlayerComponentDamage_00493470[9];
+signed char g_acPlayerComponentDamage_00493470[9] = { -1 };
 short g_nPlayerCollisionObject_00493480 = -1;
 FixedVector g_vPlayerAcceleration_00493488;
 int g_aaiVduModeStack_00493498[2][4];
@@ -1447,7 +1454,7 @@ signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT];
 short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
 short g_aeObjectClass_00495328[WC2_SPACE_OBJECT_COUNT];
 unsigned char *g_apObjectExhaustShape_004953b8[10];
-signed char g_acShipNavPoint_004953e0[12];
+signed char g_acShipNavPoint_004953e0[12] = { -1 };
 FixedVector g_aShipDestination_004953f0[10];
 ShortVector g_aShipFormationOffset_00495468[10];
 short g_anPitchGoal_004954a8[16];
@@ -1458,18 +1465,18 @@ short g_aasShipShield_00495518[10][2];
 short g_aasShipArmor_00495540[10][4];
 short g_asShipWeaponEnergy_00495590[10];
 short g_asShipAfterburnerTimer_004955a8[10];
-signed char g_acShipLastAttacker_004955c0[16];
-short g_asShipSide_004955d0[12];
+signed char g_acShipLastAttacker_004955c0[16] = { -1 };
+short g_asShipSide_004955d0[12] = { 2 };
 short g_asActionCount_004955e8[12];
 short g_aeSpecialManeuver_00495600[12];
-signed char g_acTurnRegulator_00495618[16];
-signed char g_acTurnInterval_00495628[16];
+signed char g_acTurnRegulator_00495618[16] = { -1 };
+signed char g_acTurnInterval_00495628[16] = { -1 };
 int g_anShipFuel_00495638[10];
-signed char g_acShipExhaustHeat_00495660[16];
-signed char g_acShipCommunicator_00495670[16];
-signed char g_acShipDestroyedWeaponCount_00495680[16];
-signed char g_acShipDamage_00495690[16];
-signed char g_acShipIonDriveDamage_004956a0[16];
+signed char g_acShipExhaustHeat_00495660[16] = { -1 };
+signed char g_acShipCommunicator_00495670[16] = { -1 };
+signed char g_acShipDestroyedWeaponCount_00495680[16] = { -1 };
+signed char g_acShipDamage_00495690[16] = { -1 };
+signed char g_acShipIonDriveDamage_004956a0[16] = { -1 };
 unsigned char g_aShipWeapons_004956b0[10][0xA1] = {
     { 0xff, 0, 0, 0, 0, 0xff, 0xff }
 };
@@ -1478,26 +1485,26 @@ short g_asLoadedShipViewFrame_00495d18[12];
 short g_asShipIntelSlot_00495d30[10];
 short g_asShipIntelResourceKey_00495d48[10];
 short g_asPilotLevel_00495d60[12];
-signed char g_acShipPortrait_00495d88[12];
-signed char g_acShipPendingMessage_00495d98[16];
+signed char g_acShipPortrait_00495d88[12] = { -1 };
+signed char g_acShipPendingMessage_00495d98[16] = { -1 };
 MissionShipRecord *g_apShipMissionRecord_00495da8[10];
 short g_asShipWingLeader_00495dd0[12];
 short g_asShipMissionType_00495de8[12];
 short g_asShipMissionParameter_00495e00[12];
 FixedVector g_aShipMissionSpot_00495e18[10];
 short g_aeShipObjective_00495f08[12];
-signed char g_acShipTarget_00495f20[16];
+signed char g_acShipTarget_00495f20[16] = { -1 };
 short g_asShipTactic_00495f30[12];
-short g_asShipManeuver_00495f48[12];
-signed char g_abShipNavPointIndex_00495f60[16];
+short g_asShipManeuver_00495f48[12] = { 29 };
+signed char g_abShipNavPointIndex_00495f60[16] = { -1 };
 short g_asShipMaximumVelocity_00495f70[16];
-signed char g_abShipTurn_00495fd8[16];
-signed char g_acShipSequence_00495fe8[14];
+signed char g_abShipTurn_00495fd8[16] = { -1 };
+signed char g_acShipSequence_00495fe8[14] = { -1 };
 signed char g_acShipCollisionCooldown_00496010[16];
-int g_anShipCloakState_00496020[10];
+int g_anShipCloakState_00496020[10] = { -1 };
 short g_asShipCloakCooldown_00496048[10];
 short g_asShipCloakElapsedFrames_00496060[10];
-short g_asShipIdentified_00496078[12];
+short g_asShipIdentified_00496078[12] = { 1 };
 short g_asShipFriendlyFireCooldown_00496090[10];
 signed char g_abProjectileCollisionBonus_004960a8[
     WC2_SPACE_OBJECT_COUNT];
@@ -1512,10 +1519,10 @@ short g_nWingmanFormationDisobeyMode_0049613a;
 short g_nWingmanTargetingMode_0049613c;
 short g_nWingmanEngagementMode_0049613e;
 int g_nMissionMusicTrackOverride_00496144;
-signed char g_acShipList_00496148[16];
+signed char g_acShipList_00496148[16] = { -1 };
 short g_asShipListRange_00496158[16];
 signed char g_cViableTargetCount_00496178;
-signed char g_acViableTarget_00496180[16];
+signed char g_acViableTarget_00496180[16] = { -1 };
 short g_asViableTargetDistance_00496190[10];
 ActiveSoundEntry *g_pActiveSoundHead_004961a8;
 ActiveSoundEntry *g_pActiveSoundTail_004961ac;
@@ -2208,8 +2215,8 @@ signed char g_bCutsceneDebugOverlayEnabled_00499ee8;
 unsigned short g_wCutsceneDebugFrameNumber_00499eec;
 CutscenePlane *g_pCutsceneSpriteParentPlane_00499ef0;
 char g_szPilotCallsign_00499ef8[24] = "CALLSIGN";
-char g_szPilotLastName_00499f10[24];
-char g_szPilotFirstName_00499f28[24];
+char g_szPilotLastName_00499f10[24] = "PCNAME";
+char g_szPilotFirstName_00499f28[24] = "FIRSTNAME";
 signed char g_cCutsceneTextStyle_00499f40;
 const char g_szCutsceneSpriteType_00499f44[8] = "sprite";
 const char g_szCutscenePlaneType_00499f4c[8] = "plane";
@@ -2408,7 +2415,63 @@ short g_nCombatMusicActive_0049bf04;
 short g_nInFlightMusicActive_0049bf08;
 short g_nPassingShipSoundObject_0049bf10 = -1;
 short g_nPassingShipSoundCountdown_0049bf14;
-unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8];
+unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
+    0, 104, 48, 64, 120, 0, 0, 0,
+    2, 55, 48, 96, 2, 0, 0, 0,
+    0, 39, 48, 64, 60, 0, 0, 0,
+    0, 100, 48, 80, 30, 0, 0, 0,
+    0, 7, 48, 127, 6, 0, 0, 0,
+    0, 16, 48, 64, 30, 0, 0, 0,
+    0, 9, 48, 64, 10, 0, 0, 0,
+    0, 10, 48, 127, 15, 0, 0, 0,
+    0, 11, 48, 64, 6, 0, 0, 0,
+    0, 12, 48, 64, 10, 0, 0, 0,
+    4, 13, 48, 64, 60, 0, 0, 0,
+    4, 14, 64, 64, 60, 0, 0, 0,
+    0, 15, 48, 64, 6, 0, 0, 0,
+    8, 19, 48, 64, 60, 0, 0, 0,
+    4, 20, 64, 64, 60, 0, 0, 0,
+    0, 21, 48, 64, 60, 0, 0, 0,
+    4, 22, 48, 64, 60, 0, 0, 0,
+    2, 23, 119, 64, 5, 0, 52, 0,
+    0, 24, 48, 96, 60, 0, 0, 0,
+    2, 41, 24, 24, 2, 0, 100, 0,
+    0, 42, 64, 64, 40, 0, 0, 0,
+    0, 43, 64, 64, 40, 0, 0, 0,
+    0, 61, 48, 64, 7, 0, 0, 0,
+    0, 46, 48, 64, 7, 0, 0, 0,
+    0, 47, 48, 64, 7, 0, 0, 0,
+    0, 60, 48, 64, 20, 0, 0, 0,
+    0, 64, 48, 127, 40, 0, 0, 0,
+    0, 125, 48, 108, 40, 0, 0, 0,
+    0, 54, 48, 96, 30, 0, 0, 0,
+    0, 96, 64, 127, 40, 0, 0, 0,
+    0, 106, 64, 86, 60, 0, 0, 0,
+    8, 107, 48, 64, 40, 0, 0, 0,
+    0, 110, 48, 96, 30, 0, 0, 0,
+    0, 109, 48, 64, 80, 0, 0, 0,
+    0, 111, 48, 64, 30, 0, 0, 0,
+    0, 112, 48, 64, 60, 0, 0, 0,
+    0, 128, 48, 64, 60, 0, 0, 0,
+    4, 32, 64, 64, 60, 0, 0, 0,
+    0, 126, 40, 96, 5, 0, 0, 0,
+    0, 40, 48, 96, 180, 0, 0, 0,
+    0, 44, 64, 96, 90, 0, 0, 0,
+    0, 116, 48, 127, 20, 0, 0, 0,
+    0, 117, 48, 127, 20, 0, 0, 0,
+    0, 31, 64, 96, 200, 0, 0, 0,
+    4, 84, 12, 127, 90, 0, 0, 0,
+    0, 81, 64, 96, 20, 0, 0, 0,
+    0, 18, 64, 84, 30, 0, 0, 0,
+    4, 88, 12, 127, 90, 0, 0, 0,
+    0, 68, 36, 96, 90, 0, 0, 0,
+    0, 35, 36, 96, 60, 0, 0, 0,
+    0, 35, 36, 96, 60, 0, 0, 0,
+    0, 82, 60, 96, 60, 0, 0, 0,
+    4, 77, 48, 96, 200, 0, 0, 0,
+    4, 83, 48, 127, 90, 0, 0, 0,
+    0, 92, 48, 96, 120
+};
 const char g_szSfxWaveFormat_0049c22c[12] = "sfx%02i.wav";
 int g_bDebugBreakEnabled_0049c238;
 int g_bApplicationShutdownStarted_0049c23c;
