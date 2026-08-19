@@ -686,7 +686,7 @@ short IsMissionObjectiveOutOfSystem(short objectiveIndex)
         break;
     }
     if (g_aMissionNavPoints_00491e98[navPoint].systemIndex ==
-        g_nCurrentNavPoint_004931bc)
+        g_nCurrentStarSystem_005d169c)
         return 0;
     return 1;
 }

@@ -1748,9 +1748,9 @@ void EndCommMenu(void)
 /* Function start: 0x448100 */
 void ShowCentredPrompt(char *text, unsigned short arg)
 {
-    DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
-    SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                      g_abGamePaletteReservedColours_0049cb54[4], arg);
+    DosStrcpy(g_szOnScreenMessageBuffer_005d1890, text);
+    SetHudMessageText(g_szOnScreenMessageBuffer_005d1890,
+                      g_bPrimaryViewBufferColour_0049cb50, arg);
 }
 
 /* Function start: 0x447300 */

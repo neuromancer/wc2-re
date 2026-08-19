@@ -629,8 +629,8 @@ short your_internal_damage(short attacker, short owner, short damage,
         case 6:
             if (quadrant != 0) {
                 damage++;
-            } else if (g_acShipDestroyedWeaponCount_00495680[0] < 5) {
-                g_acShipDestroyedWeaponCount_00495680[0]++;
+            } else if (g_acShipCommunicator_00495670[0] < 5) {
+                g_acShipCommunicator_00495670[0]++;
                 check_computer_damage();
             }
             break;

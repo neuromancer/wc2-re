@@ -1429,11 +1429,11 @@ void clear_alert(short i)
 /* Function start: 0x429625 */
 void start_collision_alert(short obj, short other)
 {
-    if ((short)(signed char)DAT_0059cf20[obj] != other) {
-        DAT_0059cf20[obj] = (unsigned char)other;
+    if ((short)g_acShipAlertSource_00495fb0[obj] != other) {
+        g_acShipAlertSource_00495fb0[obj] = (signed char)other;
         steady_object(obj);
     }
-    g_asCollisionCountdown_0059d2d0[obj] = 3;
+    g_asShipAlertCountdown_00495fc0[obj] = 3;
     set_alert(obj, 1);
     g_asShipAfterburnerTimer_004955a8[obj] = 0;
     set_special(obj, SPECIAL_MANEUVER_NONE);
@@ -1442,8 +1442,8 @@ void start_collision_alert(short obj, short other)
 /* Function start: 0x429698 */
 void try2end_collision_alert(short obj)
 {
-    g_asCollisionCountdown_0059d2d0[obj]--;
-    if (g_asCollisionCountdown_0059d2d0[obj] <= 0)
+    g_asShipAlertCountdown_00495fc0[obj]--;
+    if (g_asShipAlertCountdown_00495fc0[obj] <= 0)
         clear_alert(obj);
     else
         set_alert(obj, 2);
