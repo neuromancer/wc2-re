@@ -909,12 +909,12 @@ short AllocateViewport(Viewport *viewport,
     height = (unsigned short)(viewport->bottom - top + 1);
     left = viewport->left;
     width = (unsigned short)(viewport->right - left + 1);
-    g_nAllocateViewportCalls_005a68ec++;
+    g_nAllocateViewportCalls_005c8dc4++;
     if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
         LogDisplayMode("not MCGA");
     viewport->allocation = AllocateTaggedMemory(
         (unsigned int)width * height, (unsigned short)(flags + 2));
-    g_apViewportAllocations_005a7f10[
+    g_apViewportAllocations_005d19c0[
         g_nViewportAllocationCount_005d19bc++] = viewport->allocation;
     if (viewport->allocation == 0)
         return 0;

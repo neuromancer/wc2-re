@@ -1991,16 +1991,16 @@ void free_viewport(Viewport *viewport)
     unsigned char *allocation;
     int i;
 
-    g_nFreeViewportCalls_005a8110++;
+    g_nFreeViewportCalls_005d1bc0++;
     allocation = viewport->allocation;
     if (allocation == 0)
         return;
 
     for (i = 0; i < g_nViewportAllocationCount_005d19bc; i++) {
-        if (g_apViewportAllocations_005a7f10[i] == viewport->allocation) {
+        if (g_apViewportAllocations_005d19c0[i] == viewport->allocation) {
             g_nViewportAllocationCount_005d19bc--;
-            g_apViewportAllocations_005a7f10[i] =
-                g_apViewportAllocations_005a7f10[
+            g_apViewportAllocations_005d19c0[i] =
+                g_apViewportAllocations_005d19c0[
                     g_nViewportAllocationCount_005d19bc];
             break;
         }

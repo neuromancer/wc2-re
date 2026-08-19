@@ -23,7 +23,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 
         for (allocation = 0;
              allocation < g_nViewportAllocationCount_005d19bc &&
-                 g_apViewportAllocations_005a7f10[allocation] !=
+                 g_apViewportAllocations_005d19c0[allocation] !=
                      viewport->pixels;
              allocation++) {
         }
