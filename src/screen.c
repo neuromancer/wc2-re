@@ -9,23 +9,22 @@
 /* Function start: 0x421910 */
 void cleanup_objectives(void)
 {
-    int objectiveType;
-    short objective;
-    short home;
+    short objectiveType;
     short proximity;
     short index;
     short object;
+    short objective;
+    short home;
 
     objective = 0;
-    home = find_ship_index(g_stMissionHeader_005d3e70.homeMissionShip);
+    home = find_ship_index(g_stMissionHeader_005d3e70.wingmanMissionShip);
     proximity = g_aMissionNavPoints_00491e98[
         g_stMissionHeader_005d3e70.entryNavPoint].proximityRadius;
-    objectiveType = g_aMissionObjectives_004932a8[objective].type;
-    for (; objectiveType != -1;
-         objective++,
-         objectiveType = g_aMissionObjectives_004932a8[objective].type) {
+    while ((objectiveType =
+                g_aMissionObjectives_004932a8[objective].type) != -1 &&
+           objective < 8) {
         if (achieved(objective) == 0) {
-            index = (short)g_aMissionObjectives_004932a8[objective].index;
+            index = g_aMissionObjectives_004932a8[objective].index;
             switch (objectiveType) {
             case 0:
             case 1:
@@ -34,22 +33,9 @@ void cleanup_objectives(void)
                     flag_objective(objective, 2);
                 break;
             case 2:
-                if (g_aMissionShips_00492290[index].missionType ==
-                        MISSION_TYPE_GOTO_WARP) {
-                    if (g_aMissionShips_00492290[index].state == 2) {
-                        flag_objective(objective, 2);
-                        if (g_aMissionShips_00492290[index].type ==
-                                OBJECT_TYPE_HORNET ||
-                            g_aMissionShips_00492290[index].type ==
-                                OBJECT_TYPE_DRAYMAN)
-                            affect_mission_score(0, 5, -1);
-                        else
-                            affect_mission_score(0, 9, -1);
-                    }
-                } else if (g_aMissionShips_00492290[index].missionType ==
-                               MISSION_TYPE_WARP_ARRIVE ||
-                           g_aMissionShips_00492290[index].missionType ==
-                               MISSION_TYPE_COME_HOME) {
+                switch (g_aMissionShips_00492290[index].missionType) {
+                case MISSION_TYPE_WARP_ARRIVE:
+                case MISSION_TYPE_COME_HOME:
                     object = find_ship_index(index);
                     if (object != -1 && home != -1 &&
                         distance_from_object(object, home) < proximity)
@@ -57,24 +43,22 @@ void cleanup_objectives(void)
                     if (g_aMissionShips_00492290[index].state == 1 &&
                         sighted(objective) != 0) {
                         flag_objective(objective, 2);
-                        if (g_aMissionShips_00492290[index].type ==
-                                OBJECT_TYPE_HORNET ||
-                            g_aMissionShips_00492290[index].type ==
-                                OBJECT_TYPE_DRAYMAN)
-                            affect_mission_score(0, 5, -1);
-                        else
-                            affect_mission_score(0, 9, -1);
+                        affect_mission_score(0, 8, -1);
                     }
-                } else if (g_aMissionShips_00492290[index].state == 0 &&
-                           sighted(objective) != 0) {
-                    flag_objective(objective, 2);
-                    if (g_aMissionShips_00492290[index].type ==
-                            OBJECT_TYPE_HORNET ||
-                        g_aMissionShips_00492290[index].type ==
-                            OBJECT_TYPE_DRAYMAN)
-                        affect_mission_score(0, 5, -1);
-                    else
-                        affect_mission_score(0, 9, -1);
+                    break;
+                case MISSION_TYPE_GOTO_WARP:
+                    if (g_aMissionShips_00492290[index].state == 2) {
+                        flag_objective(objective, 2);
+                        affect_mission_score(0, 8, -1);
+                    }
+                    break;
+                default:
+                    if (g_aMissionShips_00492290[index].state == 0 &&
+                        sighted(objective) != 0) {
+                        flag_objective(objective, 2);
+                        affect_mission_score(0, 8, -1);
+                    }
+                    break;
                 }
                 break;
             case 4:
@@ -83,6 +67,7 @@ void cleanup_objectives(void)
                 break;
             }
         }
+        objective++;
     }
 }
 

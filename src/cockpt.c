@@ -1641,49 +1641,54 @@ unsigned int escorting_a_ship(void)
 /* Function start: 0x43AAFF */
 void flag_reached(short objective, short reached)
 {
-    short carrierMissionShip;
-    short carrierObject;
-    short objectiveType;
-    short advanceDestination;
     short markVisited;
+    short carrierMissionShip;
+    short advanceDestination;
+    short objectiveType;
+    short carrierObject;
 
+    objectiveType = g_aMissionObjectives_004932a8[objective].type;
     carrierMissionShip = g_asShipMissionParameter_00495e00[0];
-    objectiveType = (short)g_aMissionObjectives_004932a8[objective].type;
-    carrierObject = find_ship_index(carrierMissionShip);
-    markVisited = objective != g_cCurrentObjective_004931cc;
+    carrierObject = find_ship_index(g_asShipMissionParameter_00495e00[0]);
+    if (g_cCurrentObjective_004931cc != objective)
+        markVisited = 1;
+    else
+        markVisited = 0;
     advanceDestination = 0;
-    if (objective == g_cCurrentObjective_004931cc) {
-        if (reached == 0 && escorting_a_ship() != 0 &&
-            carrierObject != -1 &&
-            g_aMissionObjectives_004932a8[objective].index !=
+    if (g_cCurrentObjective_004931cc == objective) {
+        if (reached != 0 || escorting_a_ship() == 0 ||
+            carrierObject == -1 ||
+            g_aMissionObjectives_004932a8[objective].index ==
                 g_asShipMissionParameter_00495e00[0]) {
-            if (objectiveType != 1 ||
-                g_aMissionShips_00492290[carrierMissionShip].state != 1) {
-                sprintf(g_pszAutopilotWaitReason_0049b050,
-                        g_szWaitForFormat_0049b428,
-                        g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[carrierObject]].
-                                displayName);
-                CockpitMessage(g_pszAutopilotWaitReason_0049b050,
+            if (visited(objective) != 0) {
+                CockpitMessage(g_szAlreadyVisited_0049b404,
+                               g_abGamePaletteReservedColours_0049cb54[4], 4);
+            } else {
+                CockpitMessage(g_szObjectiveReached_0049b414,
                                g_abGamePaletteReservedColours_0049cb54[4], 4);
             }
-        } else {
-            advanceDestination = 1;
-            CockpitMessage(
-                visited(objective) != 0
-                    ? (char *)g_szAlreadyVisited_0049b404
-                    : (char *)g_szObjectiveReached_0049b414,
-                g_abGamePaletteReservedColours_0049cb54[4], 4);
-            markVisited = advanceDestination;
+            advanceDestination = markVisited = 1;
+        } else if (objectiveType != 1 ||
+                   g_aMissionShips_00492290[carrierMissionShip].state != 1) {
+            sprintf(g_pszAutopilotWaitReason_0049b050,
+                    g_szWaitForFormat_0049b428,
+                    g_apShipMissionRecord_00495da8[carrierObject]->name);
+            CockpitMessage(g_pszAutopilotWaitReason_0049b050,
+                           g_abGamePaletteReservedColours_0049cb54[4], 4);
         }
     }
     if (objectiveType != 1 && markVisited != 0) {
         if (visited(objective) == 0 && carrierObject != -1 &&
             g_aMissionObjectives_004932a8[objective].index ==
                 g_asShipMissionParameter_00495e00[0] &&
-            g_acObjectType_00493980[carrierObject] !=
-                OBJECT_TYPE_TIGERS_CLAW)
-            send_message(carrierObject, 6);
+            g_asShipSide_004955d0[carrierObject] ==
+                g_asShipSide_004955d0[0] &&
+            g_asShipMissionIndex_00495d00[carrierObject] !=
+                g_nHomeMissionShipIndex_005d1e22 &&
+            g_abShipArrivalMessageSent_005d1dd0[carrierObject] == 0) {
+            send_message(carrierObject, 0x16);
+            g_abShipArrivalMessageSent_005d1dd0[carrierObject]++;
+        }
         flag_objective(objective, 1);
     }
     if (advanceDestination != 0)

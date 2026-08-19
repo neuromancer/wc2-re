@@ -1149,7 +1149,7 @@ void init_3Space_objects();                                            /* 0x4584
 void load_common_3Space_objects(void);                                 /* 0x458532 */
 void remove_all_3d_objects(void);                                      /* 0x45865D */
 void free_3Space(void);                                                /* 0x458698 */
-unsigned int free_3Space_objects(void);                                /* 0x458716 */
+void free_3Space_objects(void);                                /* 0x458716 */
 void init_inflight_music(void);                                        /* 0x4587E0 */
 void free_inflight_music(void);                                        /* 0x458806 */
 void PreloadMusicTrack(int track);                                     /* 0x45887B */

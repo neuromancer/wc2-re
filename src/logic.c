@@ -3581,28 +3581,29 @@ void free_3Space(void)
 }
 
 /* Function start: 0x458716 */
-unsigned int free_3Space_objects(void)
+void free_3Space_objects(void)
 {
     FreeShapeSet(g_aCommon3SpaceResources_0049c728, 0);
-    FreeShapeSet(g_aMissionResourceDescriptors_0049c798, 0);
-    free_ship(3);
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].shapeSet = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].shapeSet = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].shapeSet = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].animation = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].animation = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].animation = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    free_ship(4);
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].shapeSet =
+            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].shapeSet = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].animation =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].animation =
+            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].animation = 0;
     g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_GIRDER_CHUNK].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
-    return 0;
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
+            g_aObjectTypeData_00496d30[
+                WC2_OBJECT_TYPE_BURNING_DEBRIS].shapeSet =
+                g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
+                    g_aObjectTypeData_00496d30[
+                        WC2_OBJECT_TYPE_PIPE].shapeSet;
+    FreePacketAndClear(
+        &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet,
+        0);
+    if (g_nResourcePaletteMode_005c57e6 == 0)
+        FreePacketAndClear(&g_pGenericMissileShape_0049c8f0, 4);
+    FreePacketAndClear(&g_pGenericMissileExhaustShape_0049c8f4, 0);
 }
 
 /* Function start: 0x4587E0 */
