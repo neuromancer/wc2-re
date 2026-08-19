@@ -922,6 +922,7 @@ int g_anCloakVisibilityPattern_00492710[20] = {
     1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
     0, 0, 1, 1, 1, 0, 0, 1, 1, 0
 };
+int g_abObjectShapeOwned_00492760[12];
 CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c;
 CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890;
 CutsceneObjectResourceList *g_pCutsceneSequenceResources_00492894;

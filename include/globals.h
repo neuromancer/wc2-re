@@ -1251,6 +1251,7 @@ extern short g_nFacingToTarget_00493194;
 extern short g_asObjectScreenY_00493628[WC2_SPACE_OBJECT_COUNT];
 extern short g_asObjectScreenX_00493598[WC2_SPACE_OBJECT_COUNT];
 extern int g_anCloakVisibilityPattern_00492710[20];
+extern int g_abObjectShapeOwned_00492760[12];
 extern short g_nNavPointerObject_004931b8;
 extern FixedVector g_vStarFieldMotion_00493158;
 extern FixedVector g_vPreviousStarFieldMotion_00493168;

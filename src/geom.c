@@ -1341,23 +1341,33 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
 /* Function start: 0x40CFF8 */
 void get_right_shape(short obj, FixedVector *direction)
 {
-    FixedVector right = { 0x100, 0, 0 };
-    FixedVector up = { 0, 0x100, 0 };
-    FixedVector forward = { 0, 0, 0x100 };
-    FixedVector objectForward;
-    FixedVector eyeUp;
-    FixedVector projectedUp;
-    SphericalVector spherical;
-    enum ObjectClass objectClass;
-    enum ObjectType type;
-    short pitchBand;
+    short type;
+    char fileName[12];
     short yawSector;
-    short directionIndex;
-    short frame;
-    short remainder;
-    short angle;
+    SphericalVector spherical;
     short slot;
+    short angle;
+    FixedVector projectedUp;
+    FixedVector objectForward;
+    short pitchBand;
+    short directionIndex;
+    char numberText[12];
+    FixedVector right;
+    void **resourceGroup;
+    short objectClass;
+    FixedVector eyeUp;
+    FixedVector up;
+    FixedVector forward;
 
+    right.x = 0x100;
+    right.y = 0;
+    right.z = 0;
+    up.x = 0;
+    up.y = 0x100;
+    up.z = 0;
+    forward.x = 0;
+    forward.y = 0;
+    forward.z = 0x100;
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
     rotate_about_j((short)-spherical.yaw, &right, &forward);
@@ -1369,94 +1379,112 @@ void get_right_shape(short obj, FixedVector *direction)
                                &eyeUp, obj);
     rectangular_to_spherical(&objectForward, &spherical);
     pitchBand = (short)(spherical.pitch / 30 + 3);
-    remainder = (short)(spherical.pitch % 30);
-    if (remainder >= 16) {
-        pitchBand++;
-        if (pitchBand > 5)
-            pitchBand = 6;
-    } else if (remainder < -15) {
-        pitchBand--;
-        if (pitchBand < 1)
-            pitchBand = 0;
-    }
+    if (spherical.pitch % 30 > 15)
+        pitchBand = MinShort(6, (short)(pitchBand + 1));
+    else if (spherical.pitch % 30 < -15)
+        pitchBand = MaxShort(0, (short)(pitchBand - 1));
     yawSector = (short)((12 - spherical.yaw / 30) % 12);
-    remainder = (short)(spherical.yaw % 30);
-    if (remainder >= 16)
+    if (spherical.yaw % 30 > 15)
         yawSector = (short)((yawSector + 11) % 12);
-    else if (remainder < -15)
+    else if (spherical.yaw % 30 < -15)
         yawSector = (short)((yawSector + 1) % 12);
-    if (yawSector < 0)
-        yawSector += 12;
-    if (pitchBand == 0)
+    switch (pitchBand) {
+    case 0:
         directionIndex = 0;
-    else if (pitchBand == 6)
-        directionIndex = 61;
-    else
+        break;
+    case 1:
+    case 2:
+    case 3:
+    case 4:
+    case 5:
         directionIndex = (short)(pitchBand * 12 + yawSector - 11);
-
+        break;
+    case 6:
+        directionIndex = 61;
+        break;
+    }
+    projectedUp.z = 0;
     projectedUp.x = dot_product(
         &eyeUp, &g_aDirectionViewRightVector_005d2210[directionIndex]);
     projectedUp.y = dot_product(
         &eyeUp, &g_aDirectionViewUpVector_005d2500[directionIndex]);
-    projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
-    angle = (short)ArcCos(projectedUp.y);
+    angle = ArcCos(projectedUp.y);
     if (projectedUp.x >= 0)
         angle = (short)(360 - angle);
-
     objectClass = g_aeObjectClass_00495328[obj];
-    type = g_acObjectType_00493980[obj];
-    if (objectClass == OBJECT_CLASS_MISSILE ||
-        type == OBJECT_TYPE_TURRET) {
-        directionIndex += WC1_DIRECTION_VIEW_COUNT;
-    } else if (type == OBJECT_TYPE_KILRATHI_BASE) {
-        directionIndex += WC1_DIRECTION_VIEW_COUNT * 2;
+    if (objectClass >= OBJECT_CLASS_SHIP) {
+        type = g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[obj]].resourceType;
+    } else {
+        type = g_asObjectType_00495298[obj];
     }
-    frame = g_acDirectionShapeFrame_0049d558[directionIndex];
-    if (frame == 0)
-        angle += 90;
-    if (frame == 36 &&
+    if (objectClass == OBJECT_CLASS_MISSILE ||
+        (objectClass < OBJECT_CLASS_SHIP && type == 12)) {
+        directionIndex = (short)(directionIndex + WC1_DIRECTION_VIEW_COUNT);
+    } else if (objectClass == OBJECT_CLASS_BASE) {
+        directionIndex =
+            (short)(directionIndex + WC1_DIRECTION_VIEW_COUNT * 2);
+    }
+    if (g_acDirectionShapeFrame_0049d558[directionIndex] == 0)
+        angle = (short)(angle + 90);
+    if (g_acDirectionShapeFrame_0049d558[directionIndex] == 0x24 &&
         objectClass != OBJECT_CLASS_MISSILE)
-        angle -= 90;
+        angle = (short)(angle - 90);
     g_asObjectFlip_004939c8[obj] =
         (short)(g_acDirectionShapeFlip_0049d618[directionIndex] << 4);
-    angle %= 360;
+    angle = (short)(angle % 360);
     if (angle < 0)
-        angle += 360;
+        angle = (short)(angle + 360);
     g_asObjectScreenAngle_004936b8[obj] = angle;
-
-    if (objectClass == OBJECT_CLASS_CAPITAL_SHIP) {
-        if (g_asLoadedShipViewFrame_00495d18[obj] != frame) {
-            for (slot = 1; slot < 3; slot++) {
+    if (g_asObjectType_00495298[obj] == 0x33 ||
+        objectClass >= OBJECT_CLASS_CAPITAL_SHIP ||
+        (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+         objectClass == OBJECT_CLASS_SHIP)) {
+        if (g_acDirectionShapeFrame_0049d558[directionIndex] !=
+            g_asLoadedShipViewFrame_00495d18[obj]) {
+            for (slot = 0; slot < 4; slot++) {
                 if (g_aObjectResourceSlots_00493398[slot].resourceType ==
-                    (signed char)type) {
+                    type)
                     break;
-                }
             }
             g_asObjectViewFrame_00493508[obj] = 0;
-            g_asLoadedShipViewFrame_00495d18[obj] = frame;
+            g_asLoadedShipViewFrame_00495d18[obj] =
+                g_acDirectionShapeFrame_0049d558[directionIndex];
             if (g_stViewBuffer_005d2b00.pixels != 0 &&
                 IdentityWord(
-                    (unsigned short)g_apObjectShape_00493868[obj]) == 0) {
+                    (unsigned short)g_apObjectShape_00493868[obj]) == 0)
                 free_view_buffer();
-            }
-            if (g_aapPacketReferences_00465c88_WC1_UNMAPPED[slot][frame] != 0) {
+            if (g_abObjectShapeOwned_00492760[obj] != 0)
+                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
+            resourceGroup = g_apPacketReferenceGroups_0049b898[slot];
+            if (resourceGroup != 0 &&
+                resourceGroup[g_asLoadedShipViewFrame_00495d18[obj]] != 0) {
                 g_apObjectShape_00493868[obj] =
-                    g_aapPacketReferences_00465c88_WC1_UNMAPPED[slot][frame];
+                    resourceGroup[g_asLoadedShipViewFrame_00495d18[obj]];
+                CheckHeapBlockSignature(g_apObjectShape_00493868[obj]);
+                g_abObjectShapeOwned_00492760[obj] = 0;
             } else {
                 if (g_stViewBuffer_005d2b00.pixels != 0)
                     free_view_buffer();
-                g_cCapitalShipLogicalFile_005a7da0 =
-                    (signed char)(type + 22);
-                g_apObjectShape_00493868[obj] =
-                    FetchDiskPacketRetrying(
-                        (short)g_cCapitalShipLogicalFile_005a7da0,
-                        g_asLoadedShipViewFrame_00495d18[obj], 0);
+                strcpy(fileName, "ship.v");
+                if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+                    objectClass == OBJECT_CLASS_SHIP)
+                    strcpy(fileName, "xship.v");
+                _itoa((int)type, numberText, 10);
+                if (strlen(numberText) == 1)
+                    strcat(fileName, "0");
+                strcat(fileName, numberText);
+                g_apObjectShape_00493868[obj] = FetchDiskPacketRetrying(
+                    fileName, g_asLoadedShipViewFrame_00495d18[obj], 0);
+                CheckHeapBlockSignature(g_apObjectShape_00493868[obj]);
+                g_abObjectShapeOwned_00492760[obj] = 1;
             }
             initialize_view_buffer();
         }
     } else {
-        g_asObjectViewFrame_00493508[obj] = frame;
+        g_asObjectViewFrame_00493508[obj] =
+            g_acDirectionShapeFrame_0049d558[directionIndex];
     }
 }
 

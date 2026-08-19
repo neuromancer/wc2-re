@@ -1359,7 +1359,7 @@ void clean_up_cockpit(void);                                          /* WC2 unm
 short find_next_gun(short obj, enum ObjectType currentGun);           /* WC2 unmapped */
 int select_guns(short obj, short selectedGun);                         /* WC2 unmapped */
 unsigned int select_new_gun(void);                                    /* 0x46166D */
-unsigned int select_new_release_weapon(enum ObjectType preferredType); /* 0x4616B8 */
+void select_new_release_weapon(short preferredType);                  /* 0x4616B8 */
 void WaitForDebugStep(void);                                          /* WC2 unmapped */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x40A2D0 */
