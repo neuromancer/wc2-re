@@ -1496,6 +1496,7 @@ extern short g_nNavMapMinimumY_005d16c4;
 extern TextContext g_stNavMapTextContext_005d16d0;
 extern short g_nNavMapCentreY_005d16ec;
 extern TextContext g_stNavLabelTextContext_005d16f0;
+extern CampaignDate g_stElapsedCampaignDate_005d170c;
 extern int DAT_005a7d9c;
 extern DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 extern Viewport g_stDiskPromptBackgroundViewport_005a7d00;

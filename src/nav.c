@@ -625,6 +625,9 @@ void UpdateInflightNavText(short showColon)
     short cursorX;
 
     SetTextContext(&g_stNavMapTextContext_005d16d0);
+    if (g_pElapsedCampaignDate_005d3e8c == 0)
+        g_pElapsedCampaignDate_005d3e8c =
+            &g_stElapsedCampaignDate_005d170c;
     sprintf(time, g_szInflightTimeFieldFormat_0049bd50,
             (int)((signed char *)g_pElapsedCampaignDate_005d3e8c)[0]);
     DrawFormattedText(
@@ -652,6 +655,8 @@ void FormatNavCoordinates(unsigned char *out)
 {
     unsigned char tmp[4];
 
+    if (out == 0)
+        out = (unsigned char *)&g_stElapsedCampaignDate_005d170c;
     SplitGameClockTicks(tmp);
     out[1] = tmp[2];
     out[0] = tmp[3];
@@ -956,6 +961,9 @@ void InflightComputer(void)
             }
             SetRectBounds(&g_stScreenViewport_005d21a0, 32, 24, 289, 177);
             SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
+            if (g_pElapsedCampaignDate_005d3e8c == 0)
+                g_pElapsedCampaignDate_005d3e8c =
+                    &g_stElapsedCampaignDate_005d170c;
             FormatNavCoordinates(
                 (unsigned char *)g_pElapsedCampaignDate_005d3e8c);
             g_stNavLabelTextContext_005d16f0.viewport = &g_stScreenViewport_005d21a0;

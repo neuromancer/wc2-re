@@ -2992,6 +2992,10 @@ short g_nNavMapMinimumY_005d16c4;
 TextContext g_stNavMapTextContext_005d16d0;
 short g_nNavMapCentreY_005d16ec;
 TextContext g_stNavLabelTextContext_005d16f0;
+/* Where UpdateInflightNavText (0x451561), InflightComputer (0x4521e2)
+ * and FormatNavCoordinates (0x45164A) point g_pElapsedCampaignDate when
+ * it is still null. */
+CampaignDate g_stElapsedCampaignDate_005d170c;
 void *g_pSpeechCacheDataAllocation_005d1718;
 void *g_pSpeechCacheCode_005d1720;
 unsigned char g_ucSpeechCachePage_005d1724;
