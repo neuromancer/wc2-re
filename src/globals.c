@@ -384,7 +384,7 @@ const char g_szFuneralFireCommand_00465c54_WC1_UNMAPPED /* no-address */[16] =
     "%X%Y%FFire!%P";
 short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED /* no-address */;
 void *g_aapPacketReferences_00465c88_WC1_UNMAPPED /* no-address */[4][0x25];
-const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
+const ShortVector g_aaFormationPositions_00465ed8_WC1_UNMAPPED /* no-address */[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
         { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
@@ -417,7 +417,7 @@ const char g_szErrorLoadingPilotSpeech_00466010_WC1_UNMAPPED /* no-address */[32
 
 
 /* Child/hardpoint offsets at 0x004682F0. */
-const ShortVector g_aChildOffsets_004682f0[56] = {
+const ShortVector g_aChildOffsets_004682f0_WC1_UNMAPPED /* no-address */[56] = {
     { 120, 10, 20 }, { -120, 10, 20 }, { 75, 45, -30 },
     { -75, 45, -30 }, { 0, 50, 10 }, { -100, 10, -40 },
     { -90, 0, 30 }, { -30, -40, -30 }, { 0, 0, 0 },
@@ -601,7 +601,7 @@ const char g_szTigerClawEscapeOpeningFormat_0046af30_WC1_UNMAPPED /* no-address 
 const char g_szTigerClawEscapeJumpFormat_0046af3c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
 const char g_szTigerClawEscapeClosingFormat_0046af48_WC1_UNMAPPED /* no-address */[12] = "%X%Y%s%P";
 
-const char *g_apszKilrathiAceNames_0046af80[4] = {
+const char *g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED /* no-address */[4] = {
     &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x00],
     &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x08],
     &g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED[0x10],
@@ -771,7 +771,7 @@ ManeuverChoice g_aRatedManeuverChoices_0046d3e8_WC1_UNMAPPED /* no-address */[13
         { { 100, 25, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
     }
 };
-ManeuverChoice g_aKilrathiManeuverChoices_0046d808[5][9][3] = {
+ManeuverChoice g_aKilrathiManeuverChoices_0046d808_WC1_UNMAPPED /* no-address */[5][9][3] = {
     {
         { { 70, 40, 45 }, { 80, 40, 45 }, { 100, 21, -1 } },
         { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
@@ -1224,9 +1224,9 @@ const short g_asPlayerDamageSystemTable_00492d70[50] = {
     4, 4, 4, 4, 0, 8, 6, 5, 4, 0
 };
 const short g_aeShipHitDebrisTypes_00492e10[4] = {
-    OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
-    OBJECT_TYPE_DEBRIS_SHIP_TUBING,
-    OBJECT_TYPE_DEBRIS_O_RING
+    WC2_OBJECT_TYPE_GIRDER_CHUNK,
+    WC2_OBJECT_TYPE_SHIP_TUBING,
+    WC2_OBJECT_TYPE_O_RING
 };
 short g_bExplosionTraversalIdle_00492e18 = 1;
 const signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
@@ -1968,8 +1968,12 @@ const char *g_apszPilotRankNames_0049a608[5] = {
     g_szMajorRank_0049a6f0,
     g_szLieutenantColonelRank_0049a6f8
 };
-const char *g_apszWc1PilotRankNames_0049a620[5] = {
-    "2ND LT.", "1ST LT.", "CAPTAIN", "MAJOR", "LT. COL."
+const char *g_apszShortPilotRankNames_0049a620[5] = {
+    g_szShortSecondLieutenantRank_0049a704,
+    g_szShortFirstLieutenantRank_0049a70c,
+    g_szShortCaptainRank_0049a714,
+    g_szShortMajorRank_0049a71c,
+    g_szShortLieutenantColonelRank_0049a724
 };
 short g_nPersonnelMenuHighlight_0049a6a0 = -1;
 unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
@@ -1984,6 +1988,11 @@ const char g_szFirstLieutenantRank_0049a6e0[8] = "1ST LT.";
 const char g_szCaptainRank_0049a6e8[8] = "CAPTAIN";
 const char g_szMajorRank_0049a6f0[8] = "MAJOR";
 const char g_szLieutenantColonelRank_0049a6f8[12] = "LT. COL.";
+const char g_szShortSecondLieutenantRank_0049a704[8] = "2ND LT";
+const char g_szShortFirstLieutenantRank_0049a70c[8] = "1ST LT";
+const char g_szShortCaptainRank_0049a714[8] = "CAPT.";
+const char g_szShortMajorRank_0049a71c[8] = "MAJOR";
+const char g_szShortLieutenantColonelRank_0049a724[8] = "LT COL";
 const char g_szDefaultPilotName_0049ab4c[8] = "Blair";
 const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED /* no-address */[12] = "LAST NAME: ";
 const char g_szDefaultCallsign_0049ab54[12] = "Maverick";
@@ -2252,9 +2261,9 @@ PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[11] = {
     { 0, 0, 0 }
 };
 PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8] = {
-    { &g_aObjectTypeData_00496d30[21].shapeSet, 0, 21 },
-    { &g_aObjectTypeData_00496d30[20].shapeSet, 0, 32 },
-    { &g_aObjectTypeData_00496d30[45].shapeSet, 0, 20 },
+    { &g_aObjectTypeData_00496d30[21].shapeSet, 0, 15 },
+    { &g_aObjectTypeData_00496d30[20].shapeSet, 0, 20 },
+    { &g_aObjectTypeData_00496d30[45].shapeSet, 0, 14 },
     { &g_aObjectTypeData_00496d30[37].shapeSet, 0, 2 },
     { &g_aObjectTypeData_00496d30[38].shapeSet, 0, 3 },
     { &g_aObjectTypeData_00496d30[35].shapeSet, 0, 4 },

@@ -441,7 +441,7 @@ void DrawPersonnelFileSlot(short slot)
         DrawFormattedText(
             g_szCompactPersonnelFileFormat_0049a880,
             slot,
-            g_apszWc1PilotRankNames_0049a620[
+            g_apszShortPilotRankNames_0049a620[
                 g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
             g_apPersonnelPilotProfiles_0049a680[slot]->firstName[0],
             g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
@@ -965,7 +965,7 @@ short RunPilotDatabaseMenu(void)
                                 strcpy(
                                     g_apszPersonnelTransferLabels_005d2100[
                                         transferCount],
-                                    g_apszWc1PilotRankNames_0049a620[
+                                    g_apszShortPilotRankNames_0049a620[
                                         pilot->rank]);
                                 strcat(
                                     g_apszPersonnelTransferLabels_005d2100[
@@ -1035,7 +1035,7 @@ short RunPilotDatabaseMenu(void)
                                     &g_stSecondaryViewBuffer_005d2c90);
                                 RefreshMemoryStatusOverlay();
                                 strcpy(text,
-                                       g_apszWc1PilotRankNames_0049a620[
+                                       g_apszShortPilotRankNames_0049a620[
                                            pilot->rank]);
                                 strcat(text, " ");
                                 strcat(text, pilot->name);

@@ -8,7 +8,7 @@
  *  interleaved in their original address order.
  */
 #include "wc1.h"
-Viewport g_stTrainSimVduSource_00469210 = {0};
+Viewport g_stTrainSimVduSource_00469210_WC1_UNMAPPED /* no-address */ = {0};
 ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][4] = {
     {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
     {{177, 6}, {153, 142}, {103, 140}, {55, 183}},

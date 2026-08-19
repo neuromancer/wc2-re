@@ -1515,6 +1515,15 @@ typedef char BarracksAnimationState_size_must_be_0x68[
  * tests 0x15 for WC1's space mine 33. */
 #define WC2_OBJECT_TYPE_COUNT 49
 #define WC2_OBJECT_TYPE(wc1Type) ((wc1Type) - 12)
+/* The debris records, read off the table's classes and frame lists. */
+#define WC2_OBJECT_TYPE_ROCK_CHUNK     28
+#define WC2_OBJECT_TYPE_GIRDER_CHUNK   29
+#define WC2_OBJECT_TYPE_SHIP_TUBING    30
+#define WC2_OBJECT_TYPE_METAL_SHEET    31
+#define WC2_OBJECT_TYPE_SHIP_WING      32
+#define WC2_OBJECT_TYPE_BURNING_DEBRIS 33
+#define WC2_OBJECT_TYPE_O_RING         34
+#define WC2_OBJECT_TYPE_PIPE           35
 #define WC2_MISSION_SHIP_COUNT 16
 #define WC1_MISSION_SHIP_STORAGE_COUNT 48
 #define WC1_MISSION_SHIP_SCAN_LIMIT 64

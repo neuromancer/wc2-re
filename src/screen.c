@@ -1877,12 +1877,12 @@ void real_vid_transmit(short obj, short message)
                g_nCommSpeakerRating_0049b798 <= 12) {
 #ifdef WC1_SDL
         sprintf(text, "%s: %s",
-                g_apszKilrathiAceNames_0046af80[
+                g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[
                     g_nCommSpeakerRating_0049b798 - 9],
                 speech);
 #else
         sprintf(text, g_szCommSpeakerTextFormat_0049b888,
-                g_apszKilrathiAceNames_0046af80[
+                g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[
                     g_nCommSpeakerRating_0049b798 - 9],
                 speech);
 #endif

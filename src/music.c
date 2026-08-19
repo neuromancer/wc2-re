@@ -756,7 +756,7 @@ void show_target_disp(void)
     } else if (rating >= 9 && rating <= 12) {
         DrawFormattedText(
             g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED,
-            g_apszKilrathiAceNames_0046af80[(int)rating - 9]);
+            g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[(int)rating - 9]);
     } else {
         DrawFormattedText(g_szShipTargetNameFormat_0049b4ec,
                           typeData->displayName);

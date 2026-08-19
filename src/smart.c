@@ -514,7 +514,7 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
     enum ShipManeuver maneuver;
 
     choice =
-        &g_aKilrathiManeuverChoices_0046d808[
+        &g_aKilrathiManeuverChoices_0046d808_WC1_UNMAPPED[
             g_asPilotLevel_00495d60[obj]][event][stress_morale(obj)];
     maneuver = pick_from_list(choice, obj);
     switch (maneuver) {

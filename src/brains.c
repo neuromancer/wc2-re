@@ -4855,9 +4855,9 @@ unsigned int set_formation_position(short obj,
     }
 
     sub_int_vector(
-        &g_aaFormationPositions_00465ed8[record->formationIndex]
+        &g_aaFormationPositions_00465ed8_WC1_UNMAPPED[record->formationIndex]
                                                [record->formationSpot],
-        &g_aaFormationPositions_00465ed8[leaderRecord->formationIndex]
+        &g_aaFormationPositions_00465ed8_WC1_UNMAPPED[leaderRecord->formationIndex]
                                                [leaderRecord->formationSpot],
         &g_aShipFormationOffset_00495468[obj]);
     if (source == 0 &&

@@ -937,7 +937,7 @@ short check_for_collision(short obj)
 /* Function start: 0x40C08C */
 void position_child(short parent, short hardpoint, FixedVector *position)
 {
-    const ShortVector *offset = &g_aChildOffsets_004682f0[hardpoint];
+    const ShortVector *offset = &g_aChildOffsets_004682f0_WC1_UNMAPPED[hardpoint];
 
     position->x = g_aShipForwardVector_00494208[parent].x * offset->z +
                   g_aShipUpVector_00493ec0[parent].x * offset->y +
