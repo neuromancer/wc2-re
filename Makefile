@@ -48,11 +48,16 @@ MSVC_LIB = compilers\msvc41\Lib
 #   /GX is off for the core by default.  The one proven exception is pilot.cpp:
 #          its debug-console new expression at 0x425B00 has a C++ unwind map and
 #          jumps to __CxxFrameHandler.  A target-specific flag below reproduces it.
+# Extra compiler flags for temporary diagnostic builds; empty for the reference
+# build so binary-comp still sees the shipped code.  See the vport-debug target.
+EXTRA_CFLAGS ?=
+
 CFLAGS_COMMON = \
 	/nologo \
 	/c \
 	/MTd \
-	/I include
+	/I include \
+	$(EXTRA_CFLAGS)
 
 # WC1 used different optimizer settings for its game core and ix library. WC2
 # does not: both areas have the unoptimized debug-build shape:
@@ -836,6 +841,13 @@ report: $(TARGET) wc2-remap-audit | code-full $(ORIGINAL_EXE)
 # loop while implementing:  make compare-func FUNC=MinShort
 # Exports are named FUN_<ADDRESS>.disassembled.txt (see ExportToCompile.java),
 # so resolve the file from the `Function:` header rather than the symbol name.
+# Temporary diagnostic build: replace the "bad vport" text with the failing
+# viewport's address, its fields and the allocation registry, so the caller can
+# be identified.  Rebuilds only gr.c; `make` restores the reference build.
+vport-debug:
+	@rm -f $(OUT_DIR)/gr.obj
+	@$(MAKE) EXTRA_CFLAGS=/DWC2_VPORT_DEBUG
+
 compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@test -n "$(FUNC)" || (echo "usage: make compare-func FUNC=<FunctionName>" >&2 && exit 1)
 	@f=$$(grep -lE "^Function: $(FUNC)$$" $(CODE_DIR)/*.disassembled.txt 2>/dev/null | head -1); \

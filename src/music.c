@@ -897,7 +897,7 @@ short CalcRectangleArea(const Viewport *viewport)
 short AllocateViewport(Viewport *viewport,
                        short clearColour, short flags)
 {
-    unsigned short *rowOffsets;
+    unsigned char *pixels;
     unsigned short top;
     short left;
     unsigned short width;
@@ -905,10 +905,10 @@ short AllocateViewport(Viewport *viewport,
     unsigned short row;
     short offset;
 
-    top = (unsigned short)viewport->top;
-    height = (unsigned short)(viewport->bottom - top + 1);
+    height = (unsigned short)(viewport->bottom - viewport->top + 1);
+    width = (unsigned short)(viewport->right - viewport->left + 1);
     left = viewport->left;
-    width = (unsigned short)(viewport->right - left + 1);
+    top = (unsigned short)viewport->top;
     g_nAllocateViewportCalls_005c8dc4++;
     if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
         LogDisplayMode("not MCGA");
@@ -916,29 +916,29 @@ short AllocateViewport(Viewport *viewport,
         (unsigned int)width * height, (unsigned short)(flags + 2));
     g_apViewportAllocations_005d19c0[
         g_nViewportAllocationCount_005d19bc++] = viewport->allocation;
-    if (viewport->allocation == 0)
+    pixels = viewport->allocation;
+    if (pixels == 0)
         return 0;
-    viewport->pixels = viewport->allocation;
+    viewport->pixels = pixels;
+    offset = 0;
 
-    rowOffsets = AllocateTaggedMemory(
-        (top + (unsigned int)height) * sizeof(unsigned short) + 4,
-        0);
-    viewport->rowOffsets = rowOffsets;
-    if (rowOffsets == 0) {
+    viewport->rowOffsets = AllocateTaggedMemory(
+        (top + (unsigned int)height) * 2 + 4, 0);
+    if (viewport->rowOffsets == 0) {
         if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
             ReleasePacketHandle(viewport->allocation);
         return 0;
     }
 
     row = 0;
-    offset = 0;
-    do {
-        rowOffsets[top + row] = (unsigned short)(offset - left);
-        row++;
+    while ((unsigned int)height + 2 > row) {
+        (&viewport->rowOffsets[top])[row] =
+            (unsigned short)(offset - left);
         offset = (short)(offset + width);
-    } while ((unsigned int)row < (unsigned int)height + 2);
+        row++;
+    }
     if (clearColour != -1)
-        ClearViewport(viewport, (unsigned char)clearColour);
+        ClearViewport(viewport, clearColour);
     return 1;
 }
 

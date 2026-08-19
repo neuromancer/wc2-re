@@ -8,6 +8,40 @@
 
 #pragma function(abs, memcpy, memset, sqrt)
 
+#ifdef WC2_VPORT_DEBUG
+/* Function start: WC2_UNMAPPED */
+/* Diagnostic helper; not part of the original. */
+static const char *DescribeUnregisteredViewport(const Viewport *viewport)
+{
+    static char text[256];
+    int entry;
+    int shown;
+    char *cursor;
+
+    sprintf(text,
+            "bad vport vp=%p px=%p rows=%p l=%d t=%d r=%d b=%d alloc=%p"
+            " screen=%p dib=%p n=%d:",
+            (const void *)viewport, (void *)viewport->pixels,
+            (void *)viewport->rowOffsets,
+            (int)viewport->left, (int)viewport->top,
+            (int)viewport->right, (int)viewport->bottom,
+            (void *)viewport->allocation,
+            (void *)g_stScreenViewport_005d21a0.pixels,
+            (void *)GetDIBPixelBuffer(),
+            g_nViewportAllocationCount_005d19bc);
+    cursor = text + strlen(text);
+    shown = g_nViewportAllocationCount_005d19bc;
+    if (shown > 6)
+        shown = 6;
+    for (entry = 0; entry < shown; entry++) {
+        sprintf(cursor, " %p",
+                (void *)g_apViewportAllocations_005d19c0[entry]);
+        cursor += strlen(cursor);
+    }
+    return text;
+}
+#endif
+
 /* Function start: 0x425A16 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
@@ -28,7 +62,14 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
              allocation++) {
         }
         if (allocation >= g_nViewportAllocationCount_005d19bc)
+#ifdef WC2_VPORT_DEBUG
+            /* Diagnostic build (make vport-debug): name the viewport that is
+             * not in the allocation registry so the caller can be identified
+             * from WC2.map.  The reference build keeps the original text. */
+            exit_squadron(DescribeUnregisteredViewport(viewport));
+#else
             exit_squadron(g_szBadViewport_004969f8);
+#endif
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
