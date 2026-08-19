@@ -2506,7 +2506,7 @@ short triumph(short obj)
     return result;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x42B916 */
 short find_ratio(short inputMinimum, short inputMaximum,
                          short input, short outputMinimum,
                          short outputMaximum)

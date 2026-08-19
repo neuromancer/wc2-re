@@ -2195,21 +2195,6 @@ unsigned int personality_killed(short personality)
 }
 
 /* Function start: WC2_UNMAPPED */
-void clean_up_cockpit(void)
-{
-    short wingman = g_nYourWingman_0049346c;
-
-    g_acShipTarget_00495f20[0] = -1;
-    g_bTargetLockMode_00493500 = 0;
-    if (wingman != -1) {
-        g_nAutoEngageTimer_00496130 = -1;
-        g_acShipTarget_00495f20[wingman] = -1;
-        reset_objective(wingman, OBJECTIVE_HOLD_FORMATION);
-    }
-    ClearHudGunReadouts();
-}
-
-/* Function start: WC2_UNMAPPED */
 short find_next_gun(short obj, enum ObjectType currentGun)
 {
     unsigned char *loadout = g_aShipWeapons_004956b0[obj];

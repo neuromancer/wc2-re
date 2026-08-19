@@ -840,6 +840,20 @@ void MarkPilotDead(short pilot)
     g_pPilotStatus_005d2fcc[pilot] = 0;
 }
 
+/* Function start: 0x424EA7 */
+void clean_up_cockpit(void)
+{
+    g_bTargetLockMode_00493500 = 0;
+    g_acShipTarget_00495f20[0] = -1;
+    if (g_nYourWingman_0049346c != -1) {
+        g_acShipTarget_00495f20[g_nYourWingman_0049346c] = -1;
+        g_nAutoEngageTimer_00496130 = -1;
+        reset_objective(g_nYourWingman_0049346c,
+                        OBJECTIVE_HOLD_FORMATION);
+    }
+    ClearHudGunReadouts();
+}
+
 /* Function start: 0x4251F2 */
 void CompleteStarSystemJump(void)
 {

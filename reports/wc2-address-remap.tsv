@@ -682,7 +682,6 @@ src/hudmsg.c	1254	0042AA10	00424C05	unwarp	unwarp	WC1-callgraph-propagated		mapp
 src/hudmsg.c	1276	0042AAF0		warp				unmapped
 src/hudmsg.c	1298	0042ABD0		drop_player_mine				unmapped
 src/hudmsg.c	1325	0042AC50		personality_killed				unmapped
-src/hudmsg.c	1342	0042ACC0		clean_up_cockpit				unmapped
 src/hudmsg.c	1357	0042AD00		find_next_gun				unmapped
 src/hudmsg.c	1391	0042ADA0		select_guns				unmapped
 src/hudmsg.c	1422	0042AE10	0046166D	select_new_gun	select_new_gun	WC1-fuzzy-low		mapped
@@ -954,7 +953,6 @@ src/logic.c	1924	004239D0	0042B5F7	abandoned	abandoned	WC1-fuzzy-low		mapped
 src/logic.c	1961	00423A50	0042B6C5	engage	engage	WC1-fuzzy-followup		mapped
 src/logic.c	1980	00423AC0	0042B73B	target_valid	target_valid	WC1-callgraph-propagated		mapped
 src/logic.c	2003	00423B00	0042B80C	triumph	triumph	manual-verified		mapped
-src/logic.c	2055	00423BA0		find_ratio				unmapped
 src/logic.c	2069	00423C00	0042B985	evaluate_damage	evaluate_damage	WC1-fuzzy-medium		mapped
 src/logic.c	2089	00423CD0		mine_available				unmapped
 src/logic.c	2095	00423CE0	004568E0	LoadShapeSet	LoadShapeSet	WC1-callgraph-propagated		mapped
@@ -1787,3 +1785,7 @@ src/brains.c	0		00442455	ShipAiState45	ShipAiState45	WC2-only		wc2-only
 src/brains.c	0		0044B48F	ApplyAlternateShipType	ApplyAlternateShipType	WC2-only		wc2-only
 src/brains.c	0		0044B83C	LoadAlternateShipType	LoadAlternateShipType	WC2-only		wc2-only
 src/brains.c	0		0044BE84	FindObjectResourceSlot	FindObjectResourceSlot	WC2-only		wc2-only
+src/cockpt.c	0		0043D9AB	DismissHudMessageIfShowing	DismissHudMessageIfShowing	WC2-only		wc2-only
+src/cmpgn.c	0		00424EA7	clean_up_cockpit	clean_up_cockpit	WC2-only		wc2-only
+src/logic.c	0		0042B916	find_ratio	find_ratio	WC2-only		wc2-only
+src/cockpt.c	0		0043E101	FindNearestMissileTargetingObject	FindNearestMissileTargetingObject	WC2-only		wc2-only

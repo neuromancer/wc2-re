@@ -474,6 +474,8 @@ void ClearHudMessageSlot(HudMessageSlot *slot);                        /* 0x4387
 void ClearHudMessageIfMatching(HudMessageSlot *slot,
                                const char *text);                     /* 0x4387A7 */
 void ClearHudGunReadouts(void);                                             /* 0x4387CD */
+void DismissHudMessageIfShowing(void);                                  /* 0x43D9AB */
+short FindNearestMissileTargetingObject(short obj);                     /* 0x43E101 */
 void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
                        short x, short y, const char *text,
                        unsigned short colour,

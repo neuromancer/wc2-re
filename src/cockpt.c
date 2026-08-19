@@ -2969,6 +2969,16 @@ void SetHudMessageText(char *text, unsigned short colour,
     }
 }
 
+/* Function start: 0x43D9AB */
+/* Take a HUD message down early so the next transmission can replace it. */
+void DismissHudMessageIfShowing(void)
+{
+    if (message_showing() != 0) {
+        ClearHudMessageDisplay(1);
+        set_message_time(-1);
+    }
+}
+
 /* Function start: 0x43D9DA */
 void malf_noise(short vdu, int effect, unsigned short colour,
                 short sound, short refresh)
@@ -3171,13 +3181,50 @@ void check_target(void)
     }
 }
 
+/* Function start: 0x43E101 */
+/* The closest missile locked onto this object, or zero if none is. */
+short FindNearestMissileTargetingObject(short obj)
+{
+    short nearest;
+    short other;
+    short distance;
+
+    nearest = 0;
+    for (other = 1; other < 10; other++) {
+        if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_MISSILE &&
+            g_acShipTarget_00495f20[other] == obj) {
+            distance = distance_from_object(other, obj);
+            if (nearest == 0 ||
+                distance_from_object(nearest, obj) > distance)
+                nearest = other;
+        }
+    }
+    return nearest;
+}
+
 /* Function start: 0x43E1B2 */
 void update_missile_warning(void)
 {
+    short distance;
+    short interval;
+    short missile;
+
     if (FindMissileTargetingObject(0) != 0) {
-        SetCockpitLightBlink(2, 1);
-        if (g_nTrainSimActive_0049d758 == 0)
-            spacetrack(3, 1, -1);
+        missile = FindNearestMissileTargetingObject(0);
+        distance = distance_from_object(0, missile);
+        if (distance < 500)
+            interval = 6;
+        else if (distance < 1000)
+            interval = 5;
+        else if (distance < 2000)
+            interval = 4;
+        else if (distance < 4000)
+            interval = 3;
+        else if (distance < 8000)
+            interval = 2;
+        else
+            interval = 1;
+        SetCockpitLightBlink(2, interval);
     } else {
         g_abCockpitLightGoal_005d1eb8[2] = 0;
     }
