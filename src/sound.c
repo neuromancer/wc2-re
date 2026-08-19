@@ -134,7 +134,15 @@ void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
         if (interrupt == 0)
             return;
         ix_sound_stop(g_pSpeechSound_004a2658);
+#ifdef WC1_SDL
+        /* This sound carries delete-on-stop, so the stop above has already
+           freed it; the original released the dead block anyway. */
+        if (ix_sound_is_live(g_pSpeechSound_004a2658))
+            ix_sound_release(g_pSpeechSound_004a2658);
+        g_pSpeechSound_004a2658 = 0;
+#else
         ix_sound_release(g_pSpeechSound_004a2658);
+#endif
     }
     g_pSpeechWave_004a2650 = AllocateWaveTableEntry();
     g_pSpeechWave_004a2650->sample = ix_system_new_sample();
