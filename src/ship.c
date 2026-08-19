@@ -310,9 +310,9 @@ short inflict_damage(short attacker, short victim, short damage,
 /* Function start: 0x41262D */
 short pilot_hit(short obj)
 {
-    if (DAT_0059cf00[obj] > 0) {
-        DAT_0059cf00[obj]--;
-        if (DAT_0059cf00[obj] == 0) {
+    if (DAT_00495d78[obj] > 0) {
+        DAT_00495d78[obj]--;
+        if (DAT_00495d78[obj] == 0) {
             if (obj == 0) {
                 if (g_bPlayerDamageEnabled_0049d77c != 0)
                     g_nArcadeState_0049d75c = 4;
@@ -324,7 +324,7 @@ short pilot_hit(short obj)
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
         }
     }
-    return DAT_0059cf00[obj];
+    return DAT_00495d78[obj];
 }
 
 /* Function start: 0x41270A */

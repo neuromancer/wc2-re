@@ -1394,9 +1394,9 @@ void get_right_shape(short obj, FixedVector *direction)
         directionIndex = (short)(pitchBand * 12 + yawSector - 11);
 
     projectedUp.x = dot_product(
-        &eyeUp, &g_aDirectionViewRightVector_005a6c20[directionIndex]);
+        &eyeUp, &g_aDirectionViewRightVector_005d2210[directionIndex]);
     projectedUp.y = dot_product(
-        &eyeUp, &g_aDirectionViewUpVector_005a6f10[directionIndex]);
+        &eyeUp, &g_aDirectionViewUpVector_005d2500[directionIndex]);
     projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
     angle = (short)ArcCos(projectedUp.y);

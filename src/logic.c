@@ -893,9 +893,9 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
     rotate_about_j(yaw, &right, &forward);
     rotate_about_i(pitch, &up, &forward);
     index = (short)frame;
-    g_aDirectionViewRightVector_005a6c20[index] = right;
-    g_aDirectionViewUpVector_005a6f10[index] = up;
-    g_aDirectionViewForwardVector_005a7200[index] = forward;
+    g_aDirectionViewRightVector_005d2210[index] = right;
+    g_aDirectionViewUpVector_005d2500[index] = up;
+    g_aDirectionViewForwardVector_005d27f0[index] = forward;
     return 0;
 }
 
@@ -1919,7 +1919,7 @@ unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 void reset_maneuver(short ship, short maneuver)
 {
     g_asShipManeuver_00495f48[ship] = (enum ShipManeuver)maneuver;
-    g_asShipCount_0059c420[ship] = 0;
+    g_asShipCount_00495ff8[ship] = 0;
     g_acShipSequence_00495fe8[ship] = 0;
 }
 

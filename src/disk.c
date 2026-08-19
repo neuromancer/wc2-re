@@ -1939,7 +1939,7 @@ void set_objects_data(short obj, short type, short owner,
             g_acShipIonDriveDamage_004956a0[obj] = (signed char)zero;
             g_acShipDamage_00495690[obj] = (signed char)zero;
             recalc_max_velocity(obj);
-            DAT_0059cf00[obj] = 4;
+            DAT_00495d78[obj] = 4;
             loadout = g_aShipWeapons_004956b0[obj];
             memcpy(loadout, typeData->weaponLoadout,
                    sizeof(typeData->weaponLoadout));

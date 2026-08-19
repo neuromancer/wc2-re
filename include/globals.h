@@ -1178,7 +1178,7 @@ extern signed char g_acShipPendingMessage_00495d98[16];
 extern short g_asShipMissionIndex_00495d00[12];
 extern short g_asShipMissionParameter_00495e00[12];
 extern FixedVector g_aShipMissionSpot_00495e18[10];
-extern short g_asShipCount_0059c420[16];
+extern short g_asShipCount_00495ff8[12];
 extern signed char g_acShipDamage_00495690[16];
 extern short g_asViableTargetDistance_00496190[10];
 extern signed char g_cMissionObjectiveCount_00493294;
@@ -1213,7 +1213,7 @@ extern signed char g_acTurnRegulator_00495618[16];
 extern unsigned char DAT_0059cf20[0x10];
 extern short g_asPilotLevel_00495d60[12];
 extern short g_asShipListRange_00496158[16];
-extern signed char DAT_0059cf00[16];
+extern signed char DAT_00495d78[16];
 /* Original class[] array.  The recovered ObjectClass order explains all of the
  * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
  * 13 capital_ship. */
@@ -1347,11 +1347,11 @@ extern TextContext g_stSpaceTextContext_005d21c0;
 extern unsigned char *g_pTargetLockShape_005a6bf4;
 extern unsigned char *g_apTextFonts_005d2200[4];
 extern FontWorkspace **g_apFontWorkspaces_005a6c10[4];
-extern FixedVector g_aDirectionViewRightVector_005a6c20[
+extern FixedVector g_aDirectionViewRightVector_005d2210[
     WC1_DIRECTION_VIEW_COUNT];
-extern FixedVector g_aDirectionViewUpVector_005a6f10[
+extern FixedVector g_aDirectionViewUpVector_005d2500[
     WC1_DIRECTION_VIEW_COUNT];
-extern FixedVector g_aDirectionViewForwardVector_005a7200[
+extern FixedVector g_aDirectionViewForwardVector_005d27f0[
     WC1_DIRECTION_VIEW_COUNT];
 extern TextContext DAT_005a74f0;
 extern Viewport g_stCockpitViewport_005d2160;
