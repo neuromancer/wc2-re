@@ -82,6 +82,14 @@ void fire_fixed_projectile_weapon(short obj)
     for (weapon = 0;
          weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
          weapon++, slot++) {
+#ifdef WC1_SDL
+        Wc1SdlTracef("[slot] obj=%d w=%d type=%d wtype=%d class=%d dis=%d\n",
+                     (int)obj, (int)weapon, (int)slot->type,
+                     (int)slot->weaponType,
+                     (int)g_aObjectTypeData_00496d30[
+                         slot->weaponType].objectClass,
+                     (int)slot->disabled);
+#endif
         if (g_aObjectTypeData_00496d30[slot->weaponType].objectClass ==
                 OBJECT_CLASS_PROJECTILE &&
             slot->type != 0x0b && slot->disabled == 0) {

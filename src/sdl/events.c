@@ -380,19 +380,10 @@ static int Wc1SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
 /* Set WC2_INPUT_TRACE=1 to have every queued input event printed to stderr:
  * type, scan code, virtual key and modifiers, in the form player_input reads
  * them.  Off unless asked for, and port-only. */
-static int Wc1SdlInputTraceEnabled(void)
-{
-    static int state = -1;
-
-    if (state < 0)
-        state = SDL_getenv("WC2_INPUT_TRACE") != 0;
-    return state;
-}
-
 void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
                            int virtualKey, int x, int y)
 {
-    if (!Wc1SdlInputTraceEnabled())
+    if (!Wc1SdlTraceEnabled())
         return;
     fprintf(stderr,
             "[input] %-6s type=%d scan=0x%02x vk=0x%02x pos=%d,%d "

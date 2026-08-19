@@ -306,6 +306,11 @@ int Wc1SdlFlushAll(void);
  * model, but clang reads the F as a long-double conversion and consumes an
  * argument for it, which shifts every value after it.  These wrappers rewrite
  * the format and hand the rest to the C library unchanged. */
+/* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
+ * input and firing through the port without disturbing the reference build. */
+int Wc1SdlTraceEnabled(void);
+void Wc1SdlTracef(const char *format, ...);
+
 int Wc1SdlPrintf(const char *format, ...);
 int Wc1SdlFprintf(FILE *stream, const char *format, ...);
 int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...);

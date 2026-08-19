@@ -423,6 +423,27 @@ int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...)
     return written;
 }
 
+int Wc1SdlTraceEnabled(void)
+{
+    static int state = -1;
+
+    if (state < 0)
+        state = getenv("WC2_INPUT_TRACE") != 0;
+    return state;
+}
+
+void Wc1SdlTracef(const char *format, ...)
+{
+    va_list arguments;
+
+    if (!Wc1SdlTraceEnabled())
+        return;
+    va_start(arguments, format);
+    vfprintf(stderr, format, arguments);
+    va_end(arguments);
+    fflush(stderr);
+}
+
 int Wc1SdlPrintf(const char *format, ...)
 {
     char scratch[1024];

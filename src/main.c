@@ -590,6 +590,13 @@ void process_player_input(void)
 /* Function start: 0x466908 */
 unsigned int fire_players_lasers(void)
 {
+#ifdef WC1_SDL
+    Wc1SdlTracef("[fire] counter=%d energy=%d gun=0x%x releaseIdx=%d\n",
+                 (int)g_asObjectCounter_00494be0[0],
+                 (int)g_asShipWeaponEnergy_00495590[0],
+                 (unsigned)g_nSelectedGunType_004934dc,
+                 (int)g_nSelectedReleaseWeaponIndex_004934e0);
+#endif
     if (g_asObjectCounter_00494be0[0] == -1 &&
         g_asShipWeaponEnergy_00495590[0] > 0) {
         fire_fixed_projectile_weapon(0);
