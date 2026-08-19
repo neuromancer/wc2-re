@@ -1784,3 +1784,6 @@ src/brains.c	0		00441895	ShipAiState28	ShipAiState28	WC2-only		wc2-only
 src/brains.c	0		004418B2	ShipAiState46	ShipAiState46	WC2-only		wc2-only
 src/brains.c	0		00442438	ShipAiState3	ShipAiState3	WC2-only		wc2-only
 src/brains.c	0		00442455	ShipAiState45	ShipAiState45	WC2-only		wc2-only
+src/brains.c	0		0044B48F	ApplyAlternateShipType	ApplyAlternateShipType	WC2-only		wc2-only
+src/brains.c	0		0044B83C	LoadAlternateShipType	LoadAlternateShipType	WC2-only		wc2-only
+src/brains.c	0		0044BE84	FindObjectResourceSlot	FindObjectResourceSlot	WC2-only		wc2-only

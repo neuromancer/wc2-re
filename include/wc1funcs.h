@@ -278,6 +278,9 @@ void chaff_intelligence(short obj);                                     /* 0x446
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position);                           /* 0x44B200 */
 short is_alive(signed char pilot);                                      /* 0x44B239 */
+void ApplyAlternateShipType(short obj);                                 /* 0x44B48F */
+void LoadAlternateShipType(short resourceType, short logicalFile);      /* 0x44B83C */
+short FindObjectResourceSlot(short resourceType);                       /* 0x44BE84 */
 void check_futurion(short i);                                           /* 0x44B257 */
 unsigned int InitWc1Mission(short series, short mission);              /* WC2 unmapped */
 void ResetWeaponDisplayPositions(void);                                /* 0x44B29D */

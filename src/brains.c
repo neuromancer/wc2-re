@@ -3939,6 +3939,128 @@ void init_mission(short series, short mission)
             g_stMissionHeader_005d3e70.entryNavPoint].systemIndex;
 }
 
+/* Function start: 0x44B48F */
+/* Re-describe an object from the alternate ship record that
+ * LoadAlternateShipType leaves in object-type slot 4. */
+void ApplyAlternateShipType(short obj)
+{
+    ObjectTypeData *typeData;
+    short weapon;
+    short remaining;
+
+    typeData = &g_aObjectTypeData_00496d30[4];
+    g_acObjectType_00493980[obj] = 4;
+    g_apObjectShape_00493868[obj] = typeData->shapeSet;
+    g_apObjectExhaustShape_004953b8[obj] = typeData->animation;
+    g_asObjectType_00495298[obj] = typeData->field_18;
+    g_aeObjectClass_00495328[obj] = typeData->objectClass;
+    init_ijk(obj);
+    g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
+    g_asObjectScale_00494d90[obj] = typeData->scale;
+    g_asObjectDamage_00495178[obj] = 0;
+    g_asObjectFlip_004939c8[obj] = g_asObjectDamage_00495178[obj];
+    g_asObjectScreenAngle_004936b8[obj] = g_asObjectFlip_004939c8[obj];
+    g_acObjectOwner_00495208[obj] = -1;
+    g_acLastCollisionObject_00495250[obj] = -1;
+    g_asObjectViewFrame_00493508[obj] = 0;
+    g_acShipTarget_00495f20[obj] = -1;
+    g_aasShipShield_00495518[obj][0] = typeData->shieldFore;
+    g_aasShipMaximumShield_004954f0[obj][0] =
+        g_aasShipShield_00495518[obj][0];
+    g_aasShipShield_00495518[obj][1] = typeData->shieldAft;
+    g_aasShipMaximumShield_004954f0[obj][1] =
+        g_aasShipShield_00495518[obj][1];
+    g_aasShipArmor_00495540[obj][0] = typeData->armorFront;
+    g_aasShipArmor_00495540[obj][2] = typeData->armorLeft;
+    g_aasShipArmor_00495540[obj][3] = typeData->armorRight;
+    g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
+    g_anShipFuel_00495638[obj] = *(const int *)&typeData->lifetime;
+    g_acShipIonDriveDamage_004956a0[obj] = 0;
+    g_acShipDamage_00495690[obj] = 0;
+    recalc_max_velocity(obj);
+    DAT_00495d78[obj] = 4;
+    memcpy(g_aShipWeapons_004956b0[obj], typeData->weaponLoadout,
+           sizeof(typeData->weaponLoadout));
+    InitializeShipWeaponTypeIndices(obj);
+
+    if (obj == 0) {
+        g_nSelectedReleaseWeaponIndex_004934e0 = -1;
+        g_nSelectedGunType_004934dc = -1;
+        weapon = (short)(signed char)g_aShipWeapons_004956b0[obj][0];
+        remaining = weapon;
+        while (remaining > 0) {
+            weapon--;
+            if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
+                    weapon].disabled == 0) {
+                if (g_aObjectTypeData_00496d30[
+                        ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
+                            weapon].weaponType].objectClass == 8) {
+                    if (g_nSelectedGunType_004934dc != -1 &&
+                        ((ShipWeaponSlot *)
+                             &g_aShipWeapons_004956b0[obj][1])[weapon].type !=
+                            g_nSelectedGunType_004934dc)
+                        g_nSelectedGunType_004934dc = 0x80;
+                    else
+                        g_nSelectedGunType_004934dc =
+                            ((ShipWeaponSlot *)
+                                 &g_aShipWeapons_004956b0[obj][1])[
+                                weapon].type;
+                } else {
+                    g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
+                }
+            }
+            remaining = weapon;
+        }
+    }
+
+    if (HasShipCockpitGunDisplay(obj) != 0)
+        g_asShipTurretFireEnabled_0049d470[obj] = 1;
+    else
+        g_asShipTurretFireEnabled_0049d470[obj] = 0;
+    g_asShipWeaponEnergy_00495590[obj] = 100;
+    g_acShipLastAttacker_004955c0[obj] = -1;
+}
+
+#pragma function(strcpy, strcat)
+
+/* Function start: 0x44B83C */
+/* Overlay object-type slot 4 with this campaign's altships.NNN record for
+ * the given resource type, keeping the name, animation and shapes that the
+ * type's own resource slot already carries. */
+void LoadAlternateShipType(short resourceType, short logicalFile)
+{
+    unsigned char *savedAnimation;
+    unsigned char *savedShape;
+    char savedName[20];
+    unsigned char *savedShapeSet;
+    short slot;
+    char fileName[16];
+    char digits[4];
+
+    slot = FindObjectResourceSlot(resourceType);
+    strcpy(savedName, g_aObjectTypeData_00496d30[slot].displayName);
+    savedAnimation = g_aObjectTypeData_00496d30[slot].animation;
+    savedShapeSet = g_aObjectTypeData_00496d30[slot].shapeSet;
+    savedShape = g_aObjectTypeData_00496d30[slot].shape;
+    strcpy(fileName, "altships.");
+    if (g_nSelectedCampaignSlot_005d3bf2 < 100)
+        strcat(fileName, "0");
+    if (g_nSelectedCampaignSlot_005d3bf2 < 10)
+        strcat(fileName, "0");
+    strcat(fileName,
+           _itoa(g_nSelectedCampaignSlot_005d3bf2, digits, 10));
+    LoadPacketIntoBuffer(fileName, logicalFile,
+                         (unsigned char *)&g_aObjectTypeData_00496d30[4],
+                         0);
+    strcpy(g_aObjectTypeData_00496d30[4].displayName, savedName);
+    g_aObjectTypeData_00496d30[4].resourceType = resourceType;
+    g_aObjectTypeData_00496d30[4].animation = savedAnimation;
+    g_aObjectTypeData_00496d30[4].shapeSet = savedShapeSet;
+    g_aObjectTypeData_00496d30[4].shape = savedShape;
+}
+
+#pragma intrinsic(strcpy, strcat)
+
 /* Function start: 0x44BA73 */
 void prepare_mission(void)
 {
@@ -4039,6 +4161,21 @@ void release_capital_ship_shapes(short resourceType)
             }
         }
     }
+}
+
+/* Function start: 0x44BE84 */
+/* The original scans one slot past the five records; index five lands in the
+ * padding before the next global and never matches a live resource type. */
+short FindObjectResourceSlot(short resourceType)
+{
+    short slot;
+
+    for (slot = 0; slot <= 5; slot++) {
+        if (g_aObjectResourceSlots_00493398[slot].resourceType ==
+            resourceType)
+            return slot;
+    }
+    return -1;
 }
 
 /* Function start: 0x44BEE5 */
@@ -5021,6 +5158,8 @@ short init_ship(short missionShip, short navPoint)
     record->navPoint = (signed char)navPoint;
     if (is_team_member(missionShip) != 0)
         navPoint = -1;
+    if (record->field_13 != 0)
+        LoadAlternateShipType(record->type, record->field_13);
     obj = initialize_ship(type, -1, 1);
     if (obj == -1)
         return obj;
@@ -5028,6 +5167,8 @@ short init_ship(short missionShip, short navPoint)
         record->side == 0)
         g_nYourWingman_0049346c = obj;
     Set_up_ship_info(obj, missionShip, (signed char)navPoint);
+    if (record->field_13 != 0)
+        ApplyAlternateShipType(obj);
     find_next_ship_turn_slot(obj);
     check_futurion(obj);
     return obj;
