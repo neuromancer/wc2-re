@@ -100,6 +100,57 @@ unsigned short __stdcall LoadWc1PaletteTripletsFile(const char *path)
     return 0;
 }
 
+/* Function start: 0x44EA50 */
+/* Clear what an ejection leaves in space: pods take the pilot animation, the
+ * 0x3D marker survives, every other transient object is removed. */
+void ClearTransientObjectsForEjection(void)
+{
+    short obj;
+
+    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+        switch (g_aeObjectClass_00495328[obj]) {
+        case OBJECT_CLASS_FUTURION:
+        case OBJECT_CLASS_EXPLOSION:
+        case OBJECT_CLASS_DEBRIS:
+        case OBJECT_CLASS_PROJECTILE:
+        case OBJECT_CLASS_MISSILE:
+            if (g_asObjectType_00495298[obj] ==
+                WC2_OBJECT_TYPE_EJECTION_POD) {
+                if (g_aObjectTypeData_00496d30[
+                        WC2_OBJECT_TYPE_EJECTION_POD].shapeSet == 0) {
+                    g_aObjectTypeData_00496d30[
+                        WC2_OBJECT_TYPE_EJECTION_POD].shapeSet =
+                        FetchDiskPacketRetrying("pilotanm.vga", 2, 0);
+                }
+                g_apObjectShape_00493868[obj] =
+                    g_aObjectTypeData_00496d30[
+                        WC2_OBJECT_TYPE_EJECTION_POD].shapeSet;
+            } else if (g_asObjectType_00495298[obj] != 0x3d) {
+                remove_object(obj);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+/* Function start: 0x44EB4E */
+/* Flag every nav-point objective at the current nav point as reached. */
+void FlagCurrentNavObjectivesReached(void)
+{
+    short objective;
+
+    for (objective = 0;
+         objective < g_cMissionObjectiveCount_00493294;
+         objective++) {
+        if (g_aMissionObjectives_004932a8[objective].type == 0 &&
+            g_aMissionObjectives_004932a8[objective].index ==
+                g_nCurrentNavPoint_004931bc)
+            flag_reached(objective, 0);
+    }
+}
+
 /* Function start: 0x44EBCA */
 unsigned int ejection_sequence(short transition, signed char restoreRoom)
 {

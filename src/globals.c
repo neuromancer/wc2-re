@@ -2994,7 +2994,8 @@ short g_nNavMapCentreY_005d16ec;
 TextContext g_stNavLabelTextContext_005d16f0;
 /* Where UpdateInflightNavText (0x451561), InflightComputer (0x4521e2)
  * and FormatNavCoordinates (0x45164A) point g_pElapsedCampaignDate when
- * it is still null. */
+ * it is still null; the readouts take its first short two bytes at a time,
+ * and the inflight nav map keeps the system it is showing in the second. */
 CampaignDate g_stElapsedCampaignDate_005d170c;
 void *g_pSpeechCacheDataAllocation_005d1718;
 void *g_pSpeechCacheCode_005d1720;

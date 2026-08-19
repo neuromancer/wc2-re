@@ -321,6 +321,58 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     g_nNavMapLabelCount_0049bc4c++;
 }
 
+/* Function start: 0x450CF8 */
+/* Whether this objective sits in the star system the nav map is showing. */
+short IsObjectiveInDisplayedSystem(short objective)
+{
+    short navPoint;
+
+    switch (g_aMissionObjectives_004932a8[objective].type) {
+    case 0:
+    case 5:
+        if (g_aMissionNavPoints_00491e98[
+                g_aMissionObjectives_004932a8[objective].index]
+                    .systemIndex == g_stElapsedCampaignDate_005d170c.year)
+            return 1;
+        return 0;
+    default:
+        navPoint = find_ships_sphere(
+            g_aMissionObjectives_004932a8[objective].index);
+        if (navPoint == -1)
+            return 1;
+        if (g_aMissionNavPoints_00491e98[navPoint].systemIndex ==
+            g_stElapsedCampaignDate_005d170c.year)
+            return 1;
+        return 0;
+    }
+}
+
+/* Function start: 0x450623 */
+/* Two objectives share a nav label when both are jump-point kinds (type 0 or
+ * 5) or neither is. */
+short ObjectivesShareNavLabel(short objective, short other)
+{
+    switch (g_aMissionObjectives_004932a8[objective].type) {
+    case 0:
+    case 5:
+        switch (g_aMissionObjectives_004932a8[other].type) {
+        case 0:
+        case 5:
+            return 1;
+        default:
+            return 0;
+        }
+    default:
+        switch (g_aMissionObjectives_004932a8[other].type) {
+        case 0:
+        case 5:
+            return 0;
+        default:
+            return 1;
+        }
+    }
+}
+
 /* Function start: 0x4506F8 */
 void AddUniqueObjectiveNavLabel(short x, short y,
                                 unsigned short colour, const char *text,
@@ -332,11 +384,12 @@ void AddUniqueObjectiveNavLabel(short x, short y,
         PlaceNavMapLabel(x, y, colour, text);
         return;
     }
-    previous = 0;
-    while (previous < objective) {
-        if (g_aMissionObjectives_004932a8[previous].index == missionShip)
+    for (previous = 0; previous < objective; previous++) {
+        if (hidden_objective(previous) == 0 &&
+            g_aMissionObjectives_004932a8[previous].index ==
+                missionShip &&
+            ObjectivesShareNavLabel(objective, previous) != 0)
             break;
-        previous++;
     }
     if (previous < objective)
         return;
@@ -876,6 +929,36 @@ void ShowConfedNavScan(void)
     DrawNavLocationReadout(g_szConfedNavScan_0049be4c, 1);
     ResumeMouseCursorHook();
     SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
+}
+
+/* Function start: 0x451EC9 */
+/* Follow the selected objective's system, unless the map is still showing a
+ * different system from the one the player is in. */
+void FollowSelectedObjectiveSystem(void)
+{
+    short navPoint;
+
+    if (g_stElapsedCampaignDate_005d170c.year != g_nCurrentStarSystem_005d169c) {
+        g_stElapsedCampaignDate_005d170c.year = g_nCurrentStarSystem_005d169c;
+        return;
+    }
+    switch (g_aMissionObjectives_004932a8[
+                g_cCurrentObjective_004931cc].type) {
+    case 0:
+    case 5:
+        g_stElapsedCampaignDate_005d170c.year =
+            g_aMissionNavPoints_00491e98[
+                g_aMissionObjectives_004932a8[
+                    g_cCurrentObjective_004931cc].index].systemIndex;
+        return;
+    default:
+        navPoint = find_ships_sphere(
+            g_aMissionObjectives_004932a8[
+                g_cCurrentObjective_004931cc].index);
+        g_stElapsedCampaignDate_005d170c.year =
+            g_aMissionNavPoints_00491e98[navPoint].systemIndex;
+        return;
+    }
 }
 
 /* Function start: 0x451FAA */

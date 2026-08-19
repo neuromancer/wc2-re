@@ -1789,3 +1789,8 @@ src/cockpt.c	0		0043D9AB	DismissHudMessageIfShowing	DismissHudMessageIfShowing	W
 src/cmpgn.c	0		00424EA7	clean_up_cockpit	clean_up_cockpit	WC2-only		wc2-only
 src/logic.c	0		0042B916	find_ratio	find_ratio	WC2-only		wc2-only
 src/cockpt.c	0		0043E101	FindNearestMissileTargetingObject	FindNearestMissileTargetingObject	WC2-only		wc2-only
+src/nav.c	0		00450623	ObjectivesShareNavLabel	ObjectivesShareNavLabel	WC2-only		wc2-only
+src/cmpgn.c	0		0044EA50	ClearTransientObjectsForEjection	ClearTransientObjectsForEjection	WC2-only		wc2-only
+src/cmpgn.c	0		0044EB4E	FlagCurrentNavObjectivesReached	FlagCurrentNavObjectivesReached	WC2-only		wc2-only
+src/nav.c	0		00450CF8	IsObjectiveInDisplayedSystem	IsObjectiveInDisplayedSystem	WC2-only		wc2-only
+src/nav.c	0		00451EC9	FollowSelectedObjectiveSystem	FollowSelectedObjectiveSystem	WC2-only		wc2-only

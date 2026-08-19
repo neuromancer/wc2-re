@@ -476,6 +476,11 @@ void ClearHudMessageIfMatching(HudMessageSlot *slot,
 void ClearHudGunReadouts(void);                                             /* 0x4387CD */
 void DismissHudMessageIfShowing(void);                                  /* 0x43D9AB */
 short FindNearestMissileTargetingObject(short obj);                     /* 0x43E101 */
+short ObjectivesShareNavLabel(short objective, short other);            /* 0x450623 */
+void ClearTransientObjectsForEjection(void);                            /* 0x44EA50 */
+void FlagCurrentNavObjectivesReached(void);                             /* 0x44EB4E */
+short IsObjectiveInDisplayedSystem(short objective);                    /* 0x450CF8 */
+void FollowSelectedObjectiveSystem(void);                               /* 0x451EC9 */
 void SetHudMessageSlot(HudMessageSlot *slot, TextContext *context,
                        short x, short y, const char *text,
                        unsigned short colour,
