@@ -1859,7 +1859,7 @@ extern int g_nJoystickCalibrationMaximumY_005d3004;
 extern unsigned char *DAT_005d300c;
 extern HostMouseMessage g_stHostMouseMessage_005d10d0;
 
-extern ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT];
+extern ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT];
 extern const ShortVector g_aChildOffsets_004682f0[56];
 extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98;

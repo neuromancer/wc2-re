@@ -1568,6 +1568,10 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC2_SCRATCH_VIEW_OBJECT 69
 #define WC1_DIRECTION_VIEW_COUNT 62
 #define WC1_DIRECTION_SHAPE_TABLE_COUNT 3
+/* The object-type table at 0x496D30 has a 243-byte stride and the next
+ * global, g_bFastShipExplosion_0049922d, is 9469 bytes past its base, so
+ * WC2 fits 38 records where WC1 had 58. */
+#define WC2_OBJECT_TYPE_COUNT 38
 #define WC2_MISSION_SHIP_COUNT 16
 #define WC1_MISSION_SHIP_STORAGE_COUNT 48
 #define WC1_MISSION_SHIP_SCAN_LIMIT 64

@@ -1384,7 +1384,7 @@ short g_nLoadedCommPortraitPilot_004931c4 = -1;
 int g_nCurrentObjectiveRange_004931c8;
 signed char g_cCurrentObjective_004931cc = -1;
 short g_nHazardFieldCount_004931d0;
-HazardField g_aHazardFields_004931d8[7];
+HazardField g_aHazardFields_004931d8[7] = { { -1 } };
 HazardField *g_pActiveHazardField_00493278;
 short g_bUseEyePositionForHazards_0049327c;
 signed char g_abHazardObjects_00493280[0x14] = {
@@ -1393,13 +1393,13 @@ signed char g_abHazardObjects_00493280[0x14] = {
 };
 signed char g_cMissionObjectiveCount_00493294 = -1;
 signed char g_cCurrentNavPointIndex_00493298 = -1;
-signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT];
+signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT] = { -1 };
 #if 0
 MissionObjective g_aMissionObjectives_004932a8[WC1_MISSION_OBJECTIVE_COUNT];
 #else
 MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT];
 #endif
-ObjectResourceSlot g_aObjectResourceSlots_00493398[5];
+ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };
 Wc2PilotProfile g_stCurrentPilotProfile_00493408;
 short g_nMissionScore_00493462;
 short g_nPlayerShipType_00493464;
@@ -1449,8 +1449,8 @@ short g_anObjectYawRotation_00494fc8[WC2_SPACE_OBJECT_COUNT];
 short g_anObjectRollRotation_00495058[WC2_SPACE_OBJECT_COUNT];
 short g_asObjectCollisionRadius_004950e8[64];
 short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
-signed char g_acObjectOwner_00495208[WC2_SPACE_OBJECT_COUNT];
-signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT];
+signed char g_acObjectOwner_00495208[WC2_SPACE_OBJECT_COUNT] = { -1 };
+signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT] = { -1 };
 short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
 short g_aeObjectClass_00495328[WC2_SPACE_OBJECT_COUNT];
 unsigned char *g_apObjectExhaustShape_004953b8[10];
@@ -1651,7 +1651,7 @@ static const short g_asDataCapsuleAnimation_00496c10[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
 };
 
-ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
+ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT] = {
     /* 0: Hornet */
     {
         "Hornet",
@@ -2041,7 +2041,13 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
     { "",
       OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidShortReverse_00466390_WC1_UNMAPPED,
-      0, 0, 1, 12 },
+      0, 0, 1, 12 }
+#if 0
+    /* WC2 stops at 38 records: g_bFastShipExplosion_0049922d sits
+     * 9469 bytes past the base and the stride is 243, so entry 38 is
+     * the last one that fits.  The remaining WC1 rows are kept for
+     * reference until the WC2 object-type numbering is recovered. */
+    ,
     { "",
       OBJECT_CLASS_ASTEROID, 0, 0, 100, 300, 640, 0, 0, 0, -1, 0,
       0, 0, (unsigned char *)g_anAnimAsteroidForward_004662d8_WC1_UNMAPPED,
@@ -2118,6 +2124,7 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
       OBJECT_CLASS_EXPLOSION, 0, 0, 0, 0, 1024, 0, 0, 0, 0, 0,
       0, 0, (unsigned char *)g_anAnimHyperspaceJumpFlash_00466400_WC1_UNMAPPED,
       0, 0, 1, 0 }
+#endif
 };
 int g_bFastShipExplosion_0049922d;
 int g_bSceneDisplayUpdateActive_00499bb8;
