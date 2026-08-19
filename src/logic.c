@@ -2104,12 +2104,13 @@ short find_ships_sphere(short missionShip)
     short navIndex;
     short shipIndex;
 
-    navIndex = 0;
-    navPoint = g_aMissionNavPoints_00491e98;
     fallback = -1;
-    for (; navIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT;
+    navPoint = g_aMissionNavPoints_00491e98;
+    navIndex = 0;
+    for (; navIndex < WC2_MISSION_NAV_POINT_COUNT;
          navIndex++, navPoint++) {
-        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
+        for (shipIndex = 0; shipIndex < WC2_MISSION_NAV_POINT_COUNT;
+             shipIndex++) {
             if (navPoint->missionShips[shipIndex] == missionShip) {
                 if (navPoint->type == 1)
                     return navIndex;
@@ -2118,15 +2119,11 @@ short find_ships_sphere(short missionShip)
             }
         }
     }
-    if (fallback != -1) {
-        navIndex = fallback;
-        if (g_aMissionNavPoints_00491e98[navIndex].type > 1)
-            do {
-                navIndex--;
-            } while (g_aMissionNavPoints_00491e98[navIndex].type > 1);
-    } else {
-        navIndex = -1;
-    }
+    if (fallback == -1)
+        return -1;
+    navIndex = fallback;
+    while (g_aMissionNavPoints_00491e98[navIndex].type > 1)
+        navIndex--;
     return navIndex;
 }
 
