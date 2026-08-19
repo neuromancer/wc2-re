@@ -249,6 +249,9 @@ int Wc1SdlTranslateScanCode(SDL_Scancode scanCode)
     }
 }
 
+void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
+                           int virtualKey, int x, int y);
+
 static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
                                    int primaryButton,
                                    int secondaryButton)
@@ -265,15 +268,21 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
         queued->y = (short)y;
         queued->primaryButton = (short)primaryButton;
         queued->secondaryButton = (short)secondaryButton;
-        queued->modifiers &= ~6U;
+        /* Same bits QueueInputEvent sets: primary is bit 0, secondary is
+         * bit 1.  WC1 put them one place higher, and player_input reads
+         * modifiers & 2 as "secondary held" to mean afterburner and roll --
+         * so with WC1's numbering, dragging with the left button engaged the
+         * afterburner instead of pitching and yawing. */
+        queued->modifiers &= ~3U;
         if (primaryButton != 0)
-            queued->modifiers |= 2;
+            queued->modifiers |= 1;
         if (secondaryButton != 0)
-            queued->modifiers |= 4;
+            queued->modifiers |= 2;
         return;
     }
     QueueInputEvent(3, x, y, 0, primaryButton, secondaryButton,
                     0, 0, 0);
+    Wc1SdlTraceInputEvent("move", 3, 0, 0, x, y);
 }
 
 static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
@@ -368,6 +377,31 @@ static int Wc1SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
     return virtualKey;
 }
 
+/* Set WC2_INPUT_TRACE=1 to have every queued input event printed to stderr:
+ * type, scan code, virtual key and modifiers, in the form player_input reads
+ * them.  Off unless asked for, and port-only. */
+static int Wc1SdlInputTraceEnabled(void)
+{
+    static int state = -1;
+
+    if (state < 0)
+        state = SDL_getenv("WC2_INPUT_TRACE") != 0;
+    return state;
+}
+
+void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
+                           int virtualKey, int x, int y)
+{
+    if (!Wc1SdlInputTraceEnabled())
+        return;
+    fprintf(stderr,
+            "[input] %-6s type=%d scan=0x%02x vk=0x%02x pos=%d,%d "
+            "curkey=0x%02x\n",
+            what, type, scanCode, virtualKey, x, y,
+            (unsigned char)g_cCurrentKey_00493128);
+    fflush(stderr);
+}
+
 static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -417,6 +451,10 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
                         (unsigned int)scanCode,
                         (unsigned int)Wc1SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
+        Wc1SdlTraceInputEvent(pressed ? "keydn" : "keyup",
+                              pressed ? 4 : 5, scanCode, virtualKey,
+                              g_stHostMouseMessage_005d10d0.x,
+                              g_stHostMouseMessage_005d10d0.y);
     }
     if (!pressed) {
         g_dwDebugOverlayKey_0049cb28 = (DWORD)virtualKey;
@@ -495,6 +533,10 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
+        Wc1SdlTraceInputEvent(
+            event->type == SDL_MOUSEBUTTONDOWN ? "btndn" : "btnup",
+            event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
+            0, primaryButton | secondaryButton * 2, mouseX, mouseY);
     }
     g_stHostMouseMessage_005d10d0.x = mouseX;
     g_stHostMouseMessage_005d10d0.y = mouseY;
