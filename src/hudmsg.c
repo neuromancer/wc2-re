@@ -1169,7 +1169,7 @@ void ProcessCannedSceneInput(void)
         case 0x43:
             if (changed != 0) {
                 SelectNextExternalViewObject();
-                force_view(5, (short)g_cCannedSceneViewObject_0049313c);
+                force_view(5, (short)g_cViewObject_0049313c);
             }
             break;
         }

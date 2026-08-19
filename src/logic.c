@@ -3620,15 +3620,15 @@ void free_inflight_music(void)
 {
     StopMusicUnlessSuppressed();
     g_nInFlightMusicActive_0049bf08 = 0;
-    if (g_nInFlightMusicSlotA_0049bea4 != -1) {
+    if (g_nLimitedMusicBufferAState_0049bea4 != -1) {
         g_aMusicResources_005d13e0[
-            g_nInFlightMusicSlotA_0049bea4].packet = 0;
-        g_nInFlightMusicSlotA_0049bea4 = -1;
+            g_nLimitedMusicBufferAState_0049bea4].packet = 0;
+        g_nLimitedMusicBufferAState_0049bea4 = -1;
     }
-    if (g_nInFlightMusicSlotB_0049beaa != -1) {
+    if (g_nLimitedMusicBufferBState_0049beaa != -1) {
         g_aMusicResources_005d13e0[
-            g_nInFlightMusicSlotB_0049beaa].packet = 0;
-        g_nInFlightMusicSlotB_0049beaa = -1;
+            g_nLimitedMusicBufferBState_0049beaa].packet = 0;
+        g_nLimitedMusicBufferBState_0049beaa = -1;
     }
 }
 
