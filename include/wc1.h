@@ -45,6 +45,17 @@
 #include <time.h>
 #endif
 
+/* Marks a routine that deliberately indexes out of one global and into the one
+ * that follows it.  The original's data layout is what makes those reads land
+ * where they are meant to, and the reconstruction reproduces that layout
+ * exactly, so the sanitizers have to be told the crossing is the point. */
+#ifdef WC1_SDL
+#define WC2_CROSSES_GLOBALS \
+    __attribute__((no_sanitize("address", "array-bounds")))
+#else
+#define WC2_CROSSES_GLOBALS
+#endif
+
 /* The scene and cutscene tables hold host pointers.  The original sized their
  * elements at four bytes because that is what a pointer was; on LP64 the same
  * table has to be twice as wide or every store past the first one runs off the

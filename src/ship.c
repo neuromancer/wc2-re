@@ -1279,7 +1279,9 @@ short IsCapitalShipObject(short obj)
 }
 
 /* Function start: 0x410289 */
-short GetAdaptiveTurnRate(void)
+/* Indexes on into g_asDifficultyLevels_004930a8, which holds the loaded
+ * difflevl.000 -- see the note on the table in globals.c. */
+WC2_CROSSES_GLOBALS short GetAdaptiveTurnRate(void)
 {
     short turnRate;
 
