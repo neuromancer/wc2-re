@@ -897,8 +897,22 @@ verify:
 	@$(MAKE) verify-values-stack-locals
 	@$(MAKE) verify-vtables
 
+# Declaration order is a per-compilation-unit property: MSVC emits each unit's
+# data in source order and the linker concatenates the units.  The combined
+# audit source is every definition file end to end, so while src/globals.c
+# still holds globals belonging to the owner units, every unit boundary reads
+# as an address decrease that no ordering can remove.  Score the order per
+# definition file instead, and keep the combined run for everything else.
 verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings
+	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings \
+		--no-source-order
+	@set -e; for global_source in src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES); do \
+		$(BINARY_COMP) globals $(BC) \
+			--globals-source $$global_source \
+			--globals-h $$global_source \
+			--no-address-warnings \
+			--fail-on-issues; \
+	done
 
 # The source-level globals audit cannot serialize every nested or symbolic
 # initializer.  Compare the linked bytes too, but keep the normal verify output

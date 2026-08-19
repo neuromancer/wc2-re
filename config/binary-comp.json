@@ -69,6 +69,15 @@
       }
     }
   },
+  "auto_complete_global_effects": {
+    "reviewed": {
+      "full": {
+        "0x00473590": "LIBCMTD per-thread data init: allocates 0xB8 bytes and keeps the block in 0x5D53E4/0x5D53E0; both are CRT-owned, no game state.",
+        "0x00477C00": "LIBCMTD debug-heap setup: writes only its own 0x5D53D0 heap-mode word and the 0x5D43CC handle.",
+        "0x00482800": "CRT startup registration: stores the return of an imported call in 0x5C4DFC, a CRT slot no game code reads."
+      }
+    }
+  },
   "targets": {
     "full": {
       "original_exe": "../data/full/WC2.ORI.EXE",
