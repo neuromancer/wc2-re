@@ -2803,7 +2803,9 @@ int g_nWipeVerticalThreshold_005b34bc;
 int g_nWipeVerticalAccumulator_005b34c0;
 short g_nWipeMaximumStep_005b34c4;
 Viewport g_stWipeWorkingSourceViewport_005b34c8;
-ShortRect g_aNavMapExclusionRects_005b35a8[21];
+ShortRect g_aNavMapExclusionRects_005b35a8[20];
+/* The button mask KeyboardMousePump last posted. */
+int g_nKeyboardMouseButtons_005b3648;
 char g_szSfxWavePath_005b3650[0x40];
 int g_nInsertKeyState_005b3690;
 int g_nClearedKeyboardState_005b3694;

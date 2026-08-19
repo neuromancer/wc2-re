@@ -561,6 +561,32 @@ void DrawNavPlayerMarker(short colour, short reserve)
     DrawNavSquareMarker(x, y, 0, 0, colour, reserve);
 }
 
+/* Function start: 0x450F1E */
+/* Plot the briefing beacons on the nav map: a pixel, a square marker and a
+ * label for each active record. */
+void DrawNavMapBriefingBeacons(void)
+{
+    const NavMapBeacon *beacon;
+    short mapX;
+    short mapY;
+    short worldX;
+    short worldZ;
+
+    for (beacon = (const NavMapBeacon *)g_abMissionBriefingData_005d3e90;
+         beacon->active != 0; beacon++) {
+        nav_getxy(&worldX, &worldZ, beacon->position.x,
+                  beacon->position.z);
+        ScaleNavMapCoordinates(&mapX, &mapY, worldX, worldZ);
+        DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, mapX, mapY,
+                          g_ucNavObjectiveMarkerColour_0049cb78);
+        DrawNavSquareMarker(mapX, mapY, 2, 0,
+                            g_ucPrimaryTextColour_0049cb64, 1);
+        AddUniqueObjectiveNavLabel(mapX, mapY,
+                                   g_ucDefaultTextColour_0049cb7c,
+                                   beacon->name, 0, -1);
+    }
+}
+
 /* Function start: 0x450FE2 */
 void BuildMap(short showPlayer)
 {
@@ -587,6 +613,7 @@ void BuildMap(short showPlayer)
     ResetNavMapLabels();
     ResetNavMapReservedAreas();
     SetScale();
+    DrawNavMapBriefingBeacons();
 
     for (navPoint = g_aMissionNavPoints_00491e98;
          navPoint->type != 0;

@@ -61,6 +61,84 @@ unsigned int PollKeyboardState(void)
     return g_nRightArrowKeyState_005b3728 != 0 ? 0x4d : 0;
 }
 
+/* Function start: 0x455D2D */
+int GetHomeKeyState(void)
+{
+    return GetAsyncKeyState(VK_HOME);
+}
+
+/* Function start: 0x455D48 */
+int GetUpArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_UP);
+}
+
+/* Function start: 0x455D63 */
+int GetPageUpKeyState(void)
+{
+    return GetAsyncKeyState(VK_PRIOR);
+}
+
+/* Function start: 0x455D7E */
+int GetLeftArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_LEFT);
+}
+
+/* Function start: 0x455D99 */
+int GetRightArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_RIGHT);
+}
+
+/* Function start: 0x455DB4 */
+int GetEndKeyState(void)
+{
+    return GetAsyncKeyState(VK_END);
+}
+
+/* Function start: 0x455DCF */
+int GetDownArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_DOWN);
+}
+
+/* Function start: 0x455DEA */
+int GetPageDownKeyState(void)
+{
+    return GetAsyncKeyState(VK_NEXT);
+}
+
+/* Function start: 0x455E05 */
+int GetNumLockKeyState(void)
+{
+    return GetAsyncKeyState(VK_NUMLOCK);
+}
+
+/* Function start: 0x455E23 */
+int GetNumpadPlusKeyState(void)
+{
+    return GetAsyncKeyState(VK_ADD);
+}
+
+/* Function start: 0x455E3E */
+int GetNumpadMinusKeyState(void)
+{
+    return GetAsyncKeyState(VK_SUBTRACT);
+}
+
+/* Function start: 0x455E59 */
+int GetReturnKeyState(void)
+{
+    return GetAsyncKeyState(VK_RETURN);
+}
+
+/* Function start: 0x455E74 */
+int GetSpaceKeyState(void)
+{
+    return GetAsyncKeyState(VK_SPACE);
+}
+
 /* Function start: 0x455E8F */
 int GetShiftKeyState(void)
 {

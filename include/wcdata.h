@@ -1308,6 +1308,21 @@ typedef char ConstellationObjectDefinition_size_must_be_0x08[
  * coordinate to a 32-bit fixed-point value.  The three resource columns and
  * the ten mission-ship indices produce the 0x65-byte stride at 0x00491E98. */
 #pragma pack(push, 1)
+/* The briefing beacons the nav map draws, 37 bytes each, terminated by a
+ * record whose active byte is zero. */
+#pragma pack(push, 1)
+typedef struct NavMapBeacon {
+    signed char field_00;             /* +0x00 */
+    FixedVector position;             /* +0x01 */
+    signed char field_0d[3];          /* +0x0D */
+    char name[20];                    /* +0x10 */
+    signed char active;               /* +0x24 */
+} NavMapBeacon;
+#pragma pack(pop)
+
+typedef char NavMapBeacon_size_must_be_0x25[
+    sizeof(NavMapBeacon) == 0x25 ? 1 : -1];
+
 typedef struct MissionNavPoint {
     char name[0x1e];                 /* +0x00 */
     signed char type;                /* +0x1E: 1 is an active nav point */

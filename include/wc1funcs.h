@@ -65,6 +65,22 @@ void FreeGuardedAllocation(void *memory);                             /* 0x45588
 void SetMousePosition(int x, int y);                                    /* 0x455A85 */
 int TakeInputPressCount(void);                                          /* 0x45641B */
 unsigned int PollKeyboardState(void);                                 /* 0x455AC8 */
+void KeyboardMousePump(void);                                           /* 0x452450 */
+void SetPersonnelCursorPosition(short x, short y, short unused1,
+                                short unused2);                        /* 0x465780 */
+int GetHomeKeyState(void);                                       /* 0x455D2D */
+int GetUpArrowKeyState(void);                                    /* 0x455D48 */
+int GetPageUpKeyState(void);                                     /* 0x455D63 */
+int GetLeftArrowKeyState(void);                                  /* 0x455D7E */
+int GetRightArrowKeyState(void);                                 /* 0x455D99 */
+int GetEndKeyState(void);                                        /* 0x455DB4 */
+int GetDownArrowKeyState(void);                                  /* 0x455DCF */
+int GetPageDownKeyState(void);                                   /* 0x455DEA */
+int GetNumLockKeyState(void);                                    /* 0x455E05 */
+int GetNumpadPlusKeyState(void);                                 /* 0x455E23 */
+int GetNumpadMinusKeyState(void);                                /* 0x455E3E */
+int GetReturnKeyState(void);                                     /* 0x455E59 */
+int GetSpaceKeyState(void);                                      /* 0x455E74 */
 int GetShiftKeyState(void);                                             /* 0x455E8F */
 int GetControlKeyState(void);                                           /* 0x455EBF */
 unsigned int GetKeyboardModifiers(void);                                     /* 0x455EAA */
@@ -477,6 +493,7 @@ void ClearHudGunReadouts(void);                                             /* 0
 void DismissHudMessageIfShowing(void);                                  /* 0x43D9AB */
 short FindNearestMissileTargetingObject(short obj);                     /* 0x43E101 */
 short ObjectivesShareNavLabel(short objective, short other);            /* 0x450623 */
+void DrawNavMapBriefingBeacons(void);                                   /* 0x450F1E */
 void ClearTransientObjectsForEjection(void);                            /* 0x44EA50 */
 void FlagCurrentNavObjectivesReached(void);                             /* 0x44EB4E */
 short IsObjectiveInDisplayedSystem(short objective);                    /* 0x450CF8 */

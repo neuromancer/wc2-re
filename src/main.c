@@ -228,6 +228,14 @@ int RunWc1GameMain(short argc, char **argv)
 
 #pragma function(strcpy)
 
+/* Function start: 0x465780 */
+void SetPersonnelCursorPosition(short x, short y, short unused1,
+                                short unused2)
+{
+    g_nPersonnelCursorX_005c8470 = x;
+    g_nPersonnelCursorY_005c8472 = y;
+}
+
 /* Function start: 0x46591A */
 void RunGameApplication(short argc, char **argv)
 {

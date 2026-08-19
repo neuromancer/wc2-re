@@ -849,6 +849,7 @@ unsigned int PumpWindowMessages(int skipMessages)
         g_bWindowMessagePumpActive_0049c2e4 = 1;
         if (g_pfnInputPump_005c840c != 0)
             g_pfnInputPump_005c840c();
+        KeyboardMousePump();
 #ifdef WC1_SDL
         Wc1SdlPumpEvents();
 #else
