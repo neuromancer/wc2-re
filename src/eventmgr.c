@@ -1215,7 +1215,7 @@ void PersonnelDriveHook()
 }
 
 /* Function start: 0x464B92 */
-unsigned short __stdcall SelectDiskDriveHook(short drive)
+unsigned short SelectDiskDriveHook(short drive)
 {
     return 0;
 }
@@ -1227,7 +1227,7 @@ short GetCurrentDiskDriveHook(void)
 }
 
 /* Function start: 0x464BB8 */
-unsigned short __stdcall GetShutdownErrorCode(unsigned char *driveState)
+unsigned short GetShutdownErrorCode(unsigned char *driveState)
 {
     (void)driveState;
     return 0;
@@ -1294,7 +1294,7 @@ unsigned int shrink(int *component)
 }
 
 /* Function start: 0x42BAC0 */
-void __stdcall FillGraphicSuffix(char *path, short number, short digits)
+void FillGraphicSuffix(char *path, short number, short digits)
 {
     char *dot;
     char *suffix;
@@ -1309,7 +1309,7 @@ void __stdcall FillGraphicSuffix(char *path, short number, short digits)
 }
 
 /* Function start: 0x42BB17 */
-void __stdcall ConvertChar_Int(char *text, short number, short digits)
+void ConvertChar_Int(char *text, short number, short digits)
 {
     while (digits--) {
         text[digits] = (char)(number % 10) + '0';

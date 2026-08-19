@@ -315,6 +315,12 @@ ALL_SRCS = $(wildcard src/*.c) $(wildcard src/*.cpp) $(wildcard src/ix/*.cpp)
 SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
        $(filter-out $(SRCS_ORDERED), $(ALL_SRCS))
 
+# Every unit sees the shared declarations, and MSVC 4.1's codegen is
+# sensitive to them: adding a prototype can move an operand or a stack
+# slot in an unrelated file.  Rebuild on any header change so a stale
+# object never gets compared against the original.
+GAME_HEADERS = $(wildcard include/*.h) $(wildcard src/ix/*.h)
+
 OBJS = $(patsubst src/%,$(OUT_DIR)/%, \
          $(patsubst %.c,%.obj, $(patsubst %.cpp,%.obj, $(SRCS))))
 
@@ -738,14 +744,14 @@ $(TARGET): $(OBJS) | $(MSVCRT_DLL)
 # The game-side wave module calls directly into IxSample and IxSound member
 # functions.  Those ECX-based calls at 0x42B4A0 and 0x42B680 prove this one
 # source unit was compiled as C++ while retaining its original .c filename.
-$(OUT_DIR)/sound.obj $(OUT_DIR)/sound.asm: src/sound.c | $(WIBO) $(MSVCRT_DLL)
+$(OUT_DIR)/sound.obj $(OUT_DIR)/sound.asm: src/sound.c $(GAME_HEADERS) | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/sound)
 	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) /TP $< \
 		/Fo$(OUT_DIR)/sound.obj \
 		/Fa$(OUT_DIR)/sound.asm \
 		> $(OUT_DIR)/sound.stdout
 
-$(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.c | $(WIBO) $(MSVCRT_DLL)
+$(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.c $(GAME_HEADERS) | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
 	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $< \
 		/Fo$(OUT_DIR)/$*.obj \
@@ -753,7 +759,7 @@ $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.c | $(WIBO) $(MSVCRT_DLL)
 		> $(OUT_DIR)/$*.stdout
 
 # ix/ is built unoptimised; see the CFLAGS_IX note above.
-$(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp | $(WIBO) $(MSVCRT_DLL)
+$(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp $(GAME_HEADERS) | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(OUT_DIR)/ix
 	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_IX) /I src\\ix $< \
 		/Fo$(OUT_DIR)/ix/$*.obj \
@@ -765,7 +771,7 @@ $(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp | $(WIBO) $(MSVCRT_DLL)
 # no such unwind records and stays on the core defaults.
 $(OUT_DIR)/pilot.obj $(OUT_DIR)/pilot.asm: CFLAGS_CORE_CPP_EXTRA = /GX
 
-$(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.cpp | $(WIBO) $(MSVCRT_DLL)
+$(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.cpp $(GAME_HEADERS) | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
 	@env INCLUDE='$(MSVC_INC)' $(CC) $(CFLAGS_CORE) $(CFLAGS_CORE_CPP_EXTRA) $< \
 		/Fo$(OUT_DIR)/$*.obj \

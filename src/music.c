@@ -1525,7 +1525,7 @@ void wait_for_end_of_music(void)
         SetMusBreakpt(0, 0);
         while (g_nMusicTrackComplete_0049be88 == 0) {
             if (g_bSceneEscapeRequested_0049d4b0 != 0 ||
-                CheckEscaped() != 0) {
+                WaitForInputKey() != 0) {
                 StopMusic(0);
                 return;
             }
@@ -1611,45 +1611,47 @@ int changetrack(void)
 /* Function start: 0x453085 */
 void gametrack(void)
 {
+    short level;
     int track;
-    short damage;
 
     track = -1;
-    if (g_nInFlightMusicActive_0049bf08 != 0) {
-        if (g_nCombatMusicActive_0049bf04 != 0) {
-            if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-                g_nMusicTrackComplete_0049be88 != 0) {
-                if (g_nInitialFlightMusicPending_0049bf00 != 0)
-                    g_nInitialFlightMusicPending_0049bf00 = 0;
-                if (FindMissileTargetingObject(0) != 0) {
-                    track = 3;
-                } else if (any_enemy_tail(0) != 0) {
-                    track = 1;
-                } else if (is_ship_tailing_player_target(0) != 0) {
-                    track = 2;
-                } else {
-                    damage = (short)calculate_damage_level();
-                    if (damage < 2)
-                        track = damage == 1 ? 5 : 0;
-                    else
-                        track = 4;
-                }
-                if (g_nMissionMusicTrackOverride_00496144 != 0)
-                    track = g_nMissionMusicTrackOverride_00496144;
-                if (report_kilrathi_rout(1) == 0)
-                    g_nCombatMusicActive_0049bf04 = 0;
+    if (g_nInFlightMusicActive_0049bf08 == 0)
+        return;
+    if (g_nCombatMusicActive_0049bf04 != 0) {
+        if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
+            g_nMusicTrackComplete_0049be88 != 0) {
+            if (g_nInitialFlightMusicPending_0049bf00 != 0)
+                g_nInitialFlightMusicPending_0049bf00 = 0;
+            if (FindMissileTargetingObject(0) != 0) {
+                track = 3;
+            } else if (detect_enemy_tail(0) != -1) {
+                track = 1;
+            } else if (is_ship_tailing_player_target(0) != 0) {
+                track = 2;
+            } else {
+                level = (short)calculate_damage_level();
+                if (level >= 2)
+                    track = 4;
+                else if (level == 1)
+                    track = 5;
+                else
+                    track = 0;
             }
-        } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-                   g_nMusicTrackComplete_0049be88 != 0) {
-            if (g_bJumpSequenceActive_004962f0 != 0)
-                track = 0x2f;
-            else
-                track = changetrack();
-            if (report_kilrathi_rout(2) != 0)
-                g_nCombatMusicActive_0049bf04 = 1;
+            if (g_nMissionMusicTrackOverride_00496144 != 0)
+                track = g_nMissionMusicTrackOverride_00496144;
+            if (report_kilrathi_rout(1) == 0)
+                g_nCombatMusicActive_0049bf04 = 0;
         }
-        spacetrack(track, 1, 0);
+    } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
+               g_nMusicTrackComplete_0049be88 != 0) {
+        if (g_bJumpSequenceActive_004962f0 != 0)
+            track = 0x2f;
+        else
+            track = changetrack();
+        if (report_kilrathi_rout(2) != 0)
+            g_nCombatMusicActive_0049bf04 = 1;
     }
+    spacetrack(track, 1, 0);
 }
 
 /* Function start: 0x453240 */

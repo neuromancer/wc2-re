@@ -15,7 +15,7 @@ short RandomBelow(short n)
 }
 
 /* Function start: 0x4618FF */
-void __stdcall SeedRandomFromClock(void)
+void SeedRandomFromClock(void)
 {
     srand((unsigned int)time(0));
 }
@@ -183,21 +183,21 @@ void *IdentityHandle(void *v)
 }
 
 /* Function start: 0x461D90 */
-/* __stdcall forwarder that passes its argument through; `ret 4` is callee
- * cleanup.  The Ghidra label claimed a no-argument call, which was wrong. */
-void __stdcall SetWholePaletteFromTriplets(unsigned char *palette)
+/* A forwarder that passes its argument through.  The Ghidra label claimed a
+ * no-argument call, which was wrong. */
+void SetWholePaletteFromTriplets(unsigned char *palette)
 {
     DIBwholePaletteFromTriplets(palette);
 }
 
 /* Function start: 0x461DA7 */
-unsigned short __stdcall ReadWord(unsigned short *p)
+unsigned short ReadWord(unsigned short *p)
 {
     return *p;
 }
 
 /* Function start: 0x461DBD */
-unsigned short __stdcall GetFontCharWidth(char i)
+unsigned short GetFontCharWidth(char i)
 {
     return g_pCurrentTextContext_005c8d1c->font[4 + (int)i];
 }
@@ -253,7 +253,7 @@ short IsPointInRect(short x, short y, const short *rect)
 }
 
 /* Function start: 0x461EFE */
-void __stdcall SplitPackedPoint(ShortPoint point, short *p)
+void SplitPackedPoint(ShortPoint point, short *p)
 {
     IsPointInRect(point.x, point.y, p);
 }

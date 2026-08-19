@@ -109,7 +109,7 @@ short disobey_formation(short ship)
         return 0;
     switch (g_nWingmanFormationDisobeyMode_0049613a) {
     case 1:
-        return (short)report_kilrathi_rout(0);
+        return report_kilrathi_rout(0);
     case 2:
         return detect_enemy_tail(0) != -1;
     case 3:
@@ -341,7 +341,7 @@ void InitFullScreenViewport(Viewport *viewport, short arg)
 }
 
 /* Function start: 0x453A70 */
-unsigned int __stdcall GetPacketSize(const char *filename, short section)
+unsigned int GetPacketSize(const char *filename, short section)
 {
     PacketSectionHandle handle;
     unsigned int size;

@@ -303,7 +303,7 @@ unsigned int update_canned_sequence(short obj)
 }
 
 /* Function start: 0x437760 */
-void __stdcall SplitGameClockTicks(unsigned char *parts)
+void SplitGameClockTicks(unsigned char *parts)
 {
     int ticks = (int)GetGameClockTicks();
 

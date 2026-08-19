@@ -1606,7 +1606,7 @@ void trim_goals(short obj, short amount)
 }
 
 /* Function start: 0x429CAD */
-int report_kilrathi_rout(int mode)
+short report_kilrathi_rout(int mode)
 {
     short obj;
 
@@ -1760,7 +1760,7 @@ short detect_enemy_tail(short obj)
 }
 
 /* Function start: 0x42A1C5 */
-int is_ship_tailing_player_target(short obj)
+short is_ship_tailing_player_target(short obj)
 {
     short target = g_acShipTarget_00495f20[0];
 

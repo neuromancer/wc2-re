@@ -975,7 +975,7 @@ void perform_maneuver(short obj)
 }
 
 /* Function start: 0x447170 */
-short __stdcall GetShapeFrameExtent(short x, short y,
+short GetShapeFrameExtent(short x, short y,
                                     unsigned char *shape, short frame,
                                     short extent)
 {

@@ -1112,7 +1112,7 @@ short StepPaletteTransition(short *current,
 }
 
 /* Function start: 0x446910 */
-char *__stdcall DosStrcat(char *destination, const char *source)
+char *DosStrcat(char *destination, const char *source)
 {
     char *end;
 

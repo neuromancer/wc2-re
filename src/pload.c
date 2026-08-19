@@ -17,42 +17,16 @@ short LoadGraphicsDriver(short rewritePacketExtensions)
 
 /* Function start: 0x4465A0 */
 void *PacketLoad(const char *filename, short section,
-                 void *destination, unsigned short flags,
+                 void *destination, short flags,
                  void *decompressionWorkspace,
                  int registerHandle)
 {
-    unsigned char *packet;
+    unsigned char *data;
     PacketSectionHandle handle;
-    int compression;
 
-    packet = 0;
+    data = 0;
     if (OpenPacketSection(filename, section, &handle) != 0) {
-        compression = handle.compression;
-        switch (compression) {
-        default:
-            if (handle.dataSize == 0) {
-                g_nPacketError_0049ca90 = 8;
-            } else {
-                packet = destination;
-                if (packet == 0) {
-                    packet = AllocateTaggedMemory(
-                        handle.dataSize,
-                        (unsigned short)(flags | 0x40));
-                    g_pLastPacketAllocation_005c80e0 = packet;
-                    if (packet == 0)
-                        g_nPacketError_0049ca90 = 4;
-                }
-                if (packet != 0) {
-                    if (registerHandle != 0 &&
-                        IsPushedPacketHandle(packet) == 0)
-                        exit_squadron(
-                            "qq PacketLoad with non-pushed dest");
-                    if (ReadPacketSectionData(
-                            &handle, packet, handle.dataSize) == 0)
-                        packet = 0;
-                }
-            }
-            break;
+        switch (handle.compression) {
         case 1:
 #ifdef WC1_SDL
         {
@@ -85,23 +59,23 @@ void *PacketLoad(const char *filename, short section,
             if (ReadPacketSectionData(&handle, compressedData,
                                       compressedSize) == 0) {
                 free(compressedData);
-                packet = 0;
+                data = 0;
                 break;
             }
 
             allocatedPacket = destination == 0;
-            packet = destination;
-            if (packet == 0)
-                packet = AllocateTaggedMemory(outputSize, flags);
-            g_pLastPacketAllocation_005c80e0 = packet;
-            if (packet == 0) {
+            data = destination;
+            if (data == 0)
+                data = AllocateTaggedMemory(outputSize, flags);
+            g_pLastPacketAllocation_005c80e0 = data;
+            if (data == 0) {
                 g_nPacketError_0049ca90 = 4;
             } else if (!Wc1SdlDecompressOriginLzw(
-                           compressedData, compressedSize, packet,
+                           compressedData, compressedSize, data,
                            outputSize, &writtenSize)) {
                 if (allocatedPacket != 0)
-                    ReleasePacketHandle(packet);
-                packet = 0;
+                    ReleasePacketHandle(data);
+                data = 0;
                 g_pLastPacketAllocation_005c80e0 = 0;
                 g_nPacketError_0049ca90 = 6;
             }
@@ -117,14 +91,36 @@ void *PacketLoad(const char *filename, short section,
             ClearDebugPauseFlags();
             PumpMessagesDuringWait();
             _exit(0);
-            packet = DecompressPacketSection(
-                &handle, destination, flags, decompressionWorkspace);
             break;
 #endif
+        default:
+            if (handle.dataSize == 0) {
+                data = 0;
+                g_nPacketError_0049ca90 = 8;
+            } else {
+                data = destination;
+                if (data == 0) {
+                    g_pLastPacketAllocation_005c80e0 = AllocateTaggedMemory(
+                        handle.dataSize, (short)(flags | 0x40));
+                    data = g_pLastPacketAllocation_005c80e0;
+                    if (data == 0)
+                        g_nPacketError_0049ca90 = 4;
+                }
+                if (data != 0) {
+                    if (registerHandle != 0 &&
+                        IsPushedPacketHandle(data) == 0)
+                        exit_squadron(
+                            "qq PacketLoad with non-pushed dest");
+                    if (ReadPacketSectionData(
+                            &handle, data, handle.dataSize) == 0)
+                        data = 0;
+                }
+            }
+            break;
         }
         CloseDataFileByHandle((unsigned short *)&handle);
     }
-    return packet;
+    return data;
 }
 
 /* Function start: 0x423CA0 */

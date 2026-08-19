@@ -933,19 +933,18 @@ void CentreMouseOnCurrentNavObjective(void)
 {
     short x;
     short y;
-    signed char objective;
 
-    objective = g_abFlightPath_004932a0[
-        g_cCurrentNavPointIndex_00493298];
     ScaleNavMapCoordinates(
         &x, &y,
-        g_aMissionObjectives_004932a8[objective].mapX,
-        g_aMissionObjectives_004932a8[objective].mapY);
+        g_aMissionObjectives_004932a8[
+            g_abFlightPath_004932a0[
+                g_cCurrentNavPointIndex_00493298]].mapX,
+        g_aMissionObjectives_004932a8[
+            g_abFlightPath_004932a0[
+                g_cCurrentNavPointIndex_00493298]].mapY);
     x = (short)(x + 30);
     y = (short)(y + 22);
-    SuspendWc1MouseCursor();
-    WarpWc1MouseTo(x, y);
-    ResumeMouseCursorHook();
+    SetPersonnelMousePosition(x, y);
 }
 
 /* Function start: 0x451E57 */
