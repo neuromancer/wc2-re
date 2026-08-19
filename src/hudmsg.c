@@ -19,60 +19,32 @@ short MeasureMessageWidth(const char *text)
                    ((char)g_cMessageSpeed_0049b778 + 1));
 }
 
-/* Function start: WC2_UNMAPPED */
-void RunWc1KeyAcknowledge(int mode)
+/* Function start: 0x467300 */
+void AcknowledgeModalMessage(void)
 {
-    int acknowledged;
-    int key;
-
-    if (mode != 0) {
-        acknowledged = 0;
-        do {
-            PumpWindowMessages(0);
-            if (FindQueuedInputEvent(4) != 0)
-                acknowledged = 1;
-        } while (acknowledged == 0);
-        acknowledged = 0;
-        FlushInputEvents();
-        ClearDebugPauseFlags();
-        do {
-            PumpWindowMessages(0);
-            if (FindQueuedInputEvent(3) != 0)
-                acknowledged = 1;
-        } while (acknowledged == 0);
-        FlushInputEvents();
-        ClearDebugPauseFlags();
-        return;
-    }
-    FlushInputEvents();
-    ClearDebugPauseFlags();
-    do {
-        key = PumpMessagesDuringWait();
-    } while (key == 0x19 || key == 0x50 || key == 0x0c);
-    FlushInputEvents();
+    ConfigureInputPump(1, PollJoystickButtonEvents);
+    SetFrameTimerAndWait(20);
+    FlushPendingInputEvents();
+    _getch();
+    ConfigureInputPump(1, get_player_input);
 }
 
 /* Function start: 0x437C2E */
 void ShowModalMessage(const char *format, ...)
 {
-    char text[52];
-
-#ifdef WC1_SDL
     va_list arguments;
+    char text[52];
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
     if (ShowModalTextPanel(1, text) != 0) {
-        RunWc1KeyAcknowledge(0);
+        AcknowledgeModalMessage();
         ReleaseModalTextPanel();
         return;
     }
     SystemDebugPrintf(text);
-    RunWc1KeyAcknowledge(0);
+    AcknowledgeModalMessage();
 }
 
 /* Function start: 0x437C96 */

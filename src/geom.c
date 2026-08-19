@@ -1489,17 +1489,12 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
                         unsigned char alignment,
                         const char *format, ...)
 {
-    char text[84];
-
-#ifdef WC1_SDL
     va_list arguments;
+    char text[84];
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
     SetTextCursor((unsigned short)(panel->left + x),
                   (unsigned short)(panel->top + y));
     panel->context.alignment = alignment;
@@ -1523,17 +1518,12 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     unsigned int topLeft;
     unsigned int bottomRight;
     short halfWidth;
-    char text[52];
-
-#ifdef WC1_SDL
     va_list arguments;
+    char text[52];
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
     topLeft = g_dwModalBoundsTopLeft_0049ca48;
     bottomRight = g_dwModalBoundsBottomRight_0049ca4c;
     if (g_pModalTextPanel_0049ca50 == 0) {

@@ -661,7 +661,7 @@ src/hudmsg.c			00446D0D	ApplyCannedSceneMusicRecord	ApplyCannedSceneMusicRecord	
 src/hudmsg.c			00446D55	ApplyCannedSceneFrameEvents	ApplyCannedSceneFrameEvents	WC2-only		wc2-only
 src/hudmsg.c			00446F14	LoadCannedScenePlaybackBuffer	LoadCannedScenePlaybackBuffer	WC2-only		wc2-only
 src/hudmsg.c	11	00428E70	004672C5	MeasureMessageWidth	MeasureMessageWidth	manual-verified		mapped
-src/hudmsg.c	20	00428EA0		RunWc1KeyAcknowledge				unmapped
+src/hudmsg.c	20	00428EA0	00467300	AcknowledgeModalMessage	AcknowledgeModalMessage	WC2-manual-verified		mapped
 src/hudmsg.c	52	00428F20	00437C2E	ShowModalMessage	ShowModalMessage	WC1-callgraph-transfer		mapped
 src/hudmsg.c	75	00428F80	00437C96	ReportOutOfMemoryAndExit	ReportOutOfMemoryAndExit	WC1-auto-vt		mapped
 src/hudmsg.c	82	00428FA0	00437DFA	ShowOnScreenMessage	ShowOnScreenMessage	WC1-callgraph-transfer		mapped

@@ -9,8 +9,8 @@
 #pragma function(abs, memcpy, memset, sqrt)
 
 #ifdef WC2_VPORT_DEBUG
-/* Function start: WC2_UNMAPPED */
-/* Diagnostic helper; not part of the original. */
+/* Diagnostic helper for `make vport-debug`; not part of the original, so it
+ * carries no Function start marker -- there is no WC2 address to hold it to. */
 static const char *DescribeUnregisteredViewport(const Viewport *viewport)
 {
     static char text[256];

@@ -1142,7 +1142,7 @@ void UpdateFleetOverviewCameraRotation(void);                          /* 0x45F2
 void FireTargetCameraGuns(void);                                       /* 0x45F439 */
 void UpdateShipTurretGuns(short ship);                                 /* 0x45F7EC */
 short MeasureMessageWidth(const char *text);                                /* 0x4672C5 */
-void RunWc1KeyAcknowledge(int mode);                                   /* WC2 unmapped */
+void AcknowledgeModalMessage(void);                                    /* 0x467300 */
 short RunTitleMenuInputLoop(unsigned char *buttons,
                             unsigned char *logo,
                             unsigned char *background,

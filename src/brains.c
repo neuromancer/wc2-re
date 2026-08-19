@@ -4392,23 +4392,16 @@ void SampleJoystickDevice(InputDeviceSample *samples, short joystick,
 void DrawNavTextLine(unsigned char alignment, unsigned short colour,
                      const char *format, ...)
 {
+    va_list arguments;
+
     g_pCurrentTextContext_005c8d1c->colour = colour;
     g_pCurrentTextContext_005c8d1c->alignment = alignment;
+    va_start(arguments, format);
     g_pCurrentTextContext_005c8d1c->textCursor =
         g_pCurrentTextContext_005c8d1c->text;
-#ifdef WC1_SDL
-    {
-        va_list arguments;
-
-        va_start(arguments, format);
-        FormatTextTokens((void (*)(int))AppendTextCharacter,
-                         format, &arguments);
-        va_end(arguments);
-    }
-#else
-    FormatTextTokens((void (*)(int))AppendTextCharacter,
-                     format, (unsigned long *)(&format + 1));
-#endif
+    FormatTextTokens((void (*)(int))AppendTextCharacter, format,
+                     (unsigned long *)arguments);
+    va_end(arguments);
     DrawTextString(g_pCurrentTextContext_005c8d1c->text);
 }
 
