@@ -1645,9 +1645,10 @@ short stress_morale(short obj);                                        /* 0x41F3
 enum ShipManeuver any_defense(short obj);                              /* 0x41F446 */
 short pick_regular_maneuver(short obj, short event);                   /* 0x41F4C6 */
 enum ShipManeuver pick_from_list(const ManeuverChoice *choice,
-                                 short obj);                           /* 0x41F714 */
+                                 short obj, short event);              /* 0x41F714 */
 enum ShipManeuver pick_kilrathi_maneuver(short obj, int event);        /* 0x41F83F */
-unsigned int process_maneuver_node(short obj, int event);              /* WC2 unmapped */
+short CountAlliesOnSameTarget(short obj);                               /* 0x41F902 */
+void process_maneuver_node(short obj, int event);                       /* 0x41F9AF */
 void handle_stress(short obj, int event);                              /* 0x41FD2B */
 void intelligence_events(short obj);                                    /* 0x41FF37 */
 void chase_speed(short obj, short range);                              /* 0x440571 */

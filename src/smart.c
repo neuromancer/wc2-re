@@ -482,15 +482,21 @@ short pick_regular_maneuver(short obj, short event)
 }
 
 /* Function start: 0x41F714 */
-enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
+enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj,
+                                 short event)
 {
     enum ShipManeuver maneuver;
     short chooseAgain;
 
     maneuver = g_asShipManeuver_00495f48[obj];
-    chooseAgain = maneuver == MANEUVER_NONE;
-    if (choice->primary != maneuver && choice->secondary != maneuver &&
-        RandomBelow(100) < 10 &&
+    if (maneuver == MANEUVER_NONE)
+        chooseAgain = 1;
+    else
+        chooseAgain = 0;
+    if (((choice->primary != maneuver &&
+          choice->secondary != maneuver &&
+          RandomBelow(100) < 10) ||
+         g_asIntelligenceEvent_00492fc0[obj] != event) &&
         choice->primary < MANEUVER_UNKNOWN_48 &&
         choice->secondary < MANEUVER_UNKNOWN_48)
         chooseAgain = 1;
@@ -499,7 +505,7 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
             chooseAgain = 1;
     }
     if (chooseAgain != 0) {
-        if (RandomBelowOrEqual(100) >= choice->threshold)
+        if (RandomBelowOrEqual(99) >= choice->threshold)
             maneuver = (enum ShipManeuver)choice->secondary;
         else
             maneuver = (enum ShipManeuver)choice->primary;
@@ -513,43 +519,119 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
     const ManeuverChoice *choice;
     enum ShipManeuver maneuver;
 
-    choice =
-        &g_aKilrathiManeuverChoices_0046d808_WC1_UNMAPPED[
-            g_asPilotLevel_00495d60[obj]][event][stress_morale(obj)];
-    maneuver = pick_from_list(choice, obj);
+    choice = &((const ManeuverChoice (*)[9][3])
+                   g_aShipIntelligenceData_005d3060)[
+        g_asShipIntelSlot_00495d30[obj]][event][stress_morale(obj)];
+    maneuver = pick_from_list(choice, obj, (short)event);
     switch (maneuver) {
     case MANEUVER_UNKNOWN_48:
-        return MANEUVER_STRAFE_ENEMY;
+        maneuver = MANEUVER_STRAFE_ENEMY;
+        if (event == 5)
+            maneuver = MANEUVER_ZIP_PAST;
+        break;
     case MANEUVER_UNKNOWN_49:
-        return any_defense(obj);
+        maneuver = any_defense(obj);
+        break;
     default:
-        return maneuver;
+        break;
     }
+    return maneuver;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int process_maneuver_node(short obj, int event)
+/* Function start: 0x41F902 */
+/* How many earlier ships on this ship's side are already pressing the same
+ * target while its intelligence event is 5. */
+short CountAlliesOnSameTarget(short obj)
+{
+    short count;
+    short other;
+
+    count = 0;
+    for (other = 1; other < obj; other++) {
+        if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
+            g_asShipSide_004955d0[other] == g_asShipSide_004955d0[obj] &&
+            g_acShipTarget_00495f20[other] == g_acShipTarget_00495f20[obj] &&
+            g_asIntelligenceEvent_00492fc0[obj] == 5)
+            count++;
+    }
+    return count;
+}
+
+/* Function start: 0x41F9AF */
+void process_maneuver_node(short obj, int event)
 {
     const ManeuverChoice *choice;
-    short rating;
-    short morale;
-    enum ShipManeuver maneuver;
+    short maneuver;
+    short index;
 
-    rating = (short)g_acShipRating_0059cd80[obj];
-    if (rating == -1) {
-        if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
-            maneuver = pick_kilrathi_maneuver(obj, event);
-        else
-            maneuver = pick_regular_maneuver(obj, event);
+    maneuver = (short)g_asShipManeuver_00495f48[obj];
+    g_bWingmanTurnRateUnlocked_00493040 = 0;
+    if ((g_asPilotLevel_00495d60[obj] >= 5 &&
+         g_asShipSide_004955d0[obj] != 0) ||
+        g_nYourWingman_0049346c == obj) {
+        choice = &((const ManeuverChoice (*)[9][3])
+                       g_aShipIntelligenceData_005d3060)[
+            g_asShipIntelSlot_00495d30[obj]][event][stress_morale(obj)];
+        maneuver = (short)pick_from_list(choice, obj, (short)event);
+    } else if (g_asShipSide_004955d0[obj] == 1) {
+        maneuver = (short)pick_kilrathi_maneuver(obj, event);
     } else {
-        morale = stress_morale(obj);
-        choice =
-            &g_aRatedManeuverChoices_0046d3e8_WC1_UNMAPPED[rating][event][morale];
-        maneuver = pick_from_list(choice, obj);
+        maneuver = pick_regular_maneuver(obj, event);
+    }
+
+    if (g_asShipSide_004955d0[obj] == 1 &&
+        g_nFacingToTarget_00493194 > 0x61 &&
+        g_nTargetRange_0049319c < 4000)
+        fire(obj, g_acShipTarget_00495f20[obj]);
+
+    if (g_nYourWingman_0049346c == obj) {
+        for (index = 0; index < 8; index++) {
+            if (g_stMissionHeader_005d3e70.initialMissionShips[index] ==
+                g_asShipMissionIndex_00495d00[obj])
+                break;
+        }
+        if (g_acInitialShipKillCount_005d2fc0[index] <
+            g_cPlayerKillCount_005d2fa8)
+            g_bWingmanTurnRateUnlocked_00493040 = 1;
+        else
+            g_bWingmanTurnRateUnlocked_00493040 = 0;
+    }
+
+    if ((event == 3 || event == 7) &&
+        g_nTargetRange_0049319c < 2000 &&
+        g_nTargetFacing_00493198 > 0x5e)
+        fire_afterburner(obj, 10);
+
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+        GetAdaptiveTurnRate() > 0x78)
+        goto pressAttack;
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] ||
+        g_bWingmanTurnRateUnlocked_00493040 == 0)
+        goto chooseEvasion;
+
+pressAttack:
+    if (g_acShipTarget_00495f20[obj] != -1 && event != 4 &&
+        g_aeSpecialManeuver_00495600[
+            g_acShipTarget_00495f20[obj]] == 1)
+        fire_afterburner(obj, 10);
+
+    if (event != 5 &&
+        g_asShipCloakCooldown_00496048[obj] == 0 &&
+        g_anShipCloakState_00496020[obj] == 0)
+        maneuver = 0x2f;
+
+chooseEvasion:
+    if (DAT_004960f0[obj] > 0)
+        maneuver = 0x2e;
+
+    if (maneuver == 0x28 && CountAlliesOnSameTarget(obj) > 1) {
+        if (event == 5)
+            maneuver = 0x2e;
+        else
+            maneuver = 0x12;
     }
     if (g_asShipManeuver_00495f48[obj] != maneuver)
-        reset_maneuver(obj, (short)maneuver);
-    return 0;
+        reset_maneuver(obj, maneuver);
 }
 
 /* Function start: 0x41FD2B */

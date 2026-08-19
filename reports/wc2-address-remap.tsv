@@ -1458,7 +1458,6 @@ src/smart.c	441	004345F0	0041F446	any_defense	any_defense	WC1-manual-verified		m
 src/smart.c	471	00434630	0041F4C6	pick_regular_maneuver	pick_regular_maneuver	WC1-fuzzy-followup		mapped
 src/smart.c	530	00434800	0041F714	pick_from_list	pick_from_list	WC1-fuzzy-followup		mapped
 src/smart.c	556	004348A0	0041F83F	pick_kilrathi_maneuver	pick_kilrathi_maneuver	WC1-callgraph-propagated		mapped
-src/smart.c	576	00434900		process_maneuver_node				unmapped
 src/smart.c	601	00434980	0041FD2B	handle_stress	handle_stress	WC1-fuzzy-very-low		mapped
 src/smart.c	648	00434A80	0041FF37	intelligence_events	intelligence_events	WC1-callgraph-propagated		mapped
 src/smart.c	720	00434C70	00440571	chase_speed	chase_speed	WC1-callgraph-propagated		mapped
@@ -1794,3 +1793,5 @@ src/cmpgn.c	0		0044EA50	ClearTransientObjectsForEjection	ClearTransientObjectsFo
 src/cmpgn.c	0		0044EB4E	FlagCurrentNavObjectivesReached	FlagCurrentNavObjectivesReached	WC2-only		wc2-only
 src/nav.c	0		00450CF8	IsObjectiveInDisplayedSystem	IsObjectiveInDisplayedSystem	WC2-only		wc2-only
 src/nav.c	0		00451EC9	FollowSelectedObjectiveSystem	FollowSelectedObjectiveSystem	WC2-only		wc2-only
+src/smart.c	0		0041F902	CountAlliesOnSameTarget	CountAlliesOnSameTarget	WC2-only		wc2-only
+src/smart.c	0		0041F9AF	process_maneuver_node	process_maneuver_node	WC2-only		wc2-only
