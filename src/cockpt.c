@@ -1999,8 +1999,17 @@ void draw_3d_scanner(void)
     if ((g_nScannerTargetObject_0049b07c != -1 &&
          g_aeObjectClass_00495328[g_nScannerTargetObject_0049b07c] <
              OBJECT_CLASS_SHIP) ||
+#ifdef WC1_SDL
+        /* With no target the first test is false and the original reads the
+         * cloak state at index -1, four bytes in front of the array.  The
+         * outcome is the same either way: the target is already -1. */
+        (g_nScannerTargetObject_0049b07c >= 0 &&
+         g_anShipCloakState_00496020[
+             g_nScannerTargetObject_0049b07c] == 1))
+#else
         g_anShipCloakState_00496020[
             g_nScannerTargetObject_0049b07c] == 1)
+#endif
         g_nScannerTargetObject_0049b07c = -1;
 
     object = 1;
