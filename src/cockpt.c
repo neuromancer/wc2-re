@@ -2147,7 +2147,16 @@ void lock_off(void)
 {
     if (g_nTargetLockCountdown_004934ec > -1) {
         g_bTargetLockReadoutDirty_004934e8 = 1;
-        if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+#ifdef WC1_SDL
+        /* -1 is the no-weapon-selected sentinel, and the original indexes the
+         * slot array with it anyway -- nine bytes before the array, into the
+         * ion-drive damage table, where nothing is going to read as a
+         * torpedo. */
+        if (g_nSelectedReleaseWeaponIndex_004934e0 >= 0 &&
+#else
+        if (
+#endif
+            ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
                 g_nSelectedReleaseWeaponIndex_004934e0].type == 0x13) {
             StopMusic(0);
             g_bTargetLockMode_00493500 = 0;

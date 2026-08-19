@@ -961,7 +961,16 @@ extern FixedVector g_aShipVelocity_00494898[WC2_SPACE_OBJECT_COUNT];
 extern short g_anYawGoal_004954c0[12];
 extern short g_asObjectCounter_00494be0[WC2_SPACE_OBJECT_COUNT];
 extern short g_nTargetShip_004931a0;
+#ifdef WC1_SDL
+/* Read and written by object index throughout the game -- objects run to 66 --
+ * while the original's array has room for twelve ships and simply runs into
+ * the per-ship arrays that follow it in .data.  The port gives it the extent
+ * its indices actually need, so those accesses stay inside it; the reference
+ * build keeps the original's twelve and its original neighbours. */
+extern short g_aeSpecialManeuver_00495600[WC2_SPACE_OBJECT_COUNT];
+#else
 extern short g_aeSpecialManeuver_00495600[12];
+#endif
 extern int g_anShipFuel_00495638[10];
 extern short g_asShipMissionType_00495de8[12];
 extern MissionShipRecord *g_apShipMissionRecord_00495da8[10];

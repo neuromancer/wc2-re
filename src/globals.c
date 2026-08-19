@@ -607,7 +607,11 @@ short g_asShipAfterburnerTimer_004955a8[10];
 signed char g_acShipLastAttacker_004955c0[16] = { -1 };
 short g_asShipSide_004955d0[12] = { 2 };
 short g_asActionCount_004955e8[12];
+#ifdef WC1_SDL
+short g_aeSpecialManeuver_00495600[WC2_SPACE_OBJECT_COUNT];
+#else
 short g_aeSpecialManeuver_00495600[12];
+#endif
 signed char g_acTurnRegulator_00495618[16] = { -1 };
 signed char g_acTurnInterval_00495628[16] = { -1 };
 int g_anShipFuel_00495638[10];
