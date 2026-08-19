@@ -1672,36 +1672,35 @@ void show_communications_disp(void)
 }
 
 /* Function start: 0x447EF5 */
-unsigned int Chosen_communicate_option(short choice)
+void Chosen_communicate_option(short choice)
 {
-    int action;
-
     PlaySfxWaveFileByNumber(0x19, -1, 0);
-    action = GetPendingMenuAction();
-    switch (action) {
+    switch (g_cPendingCommMenuAction_0049b77c) {
     case 0:
         CloseCommChoiceMenu();
-        return 0;
+        break;
     case 1:
         if (g_abCommMenuChoiceCommand_005d1948[choice] == 0) {
             CloseCommChoiceMenu();
-            return 0;
-        }
-        if (g_abCommMenuChoiceCommand_005d1948[choice] == 1) {
-            SelectCommRecipient(g_nYourWingman_0049346c);
+        } else {
+            if (g_abCommMenuChoiceCommand_005d1948[choice] == 1)
+                SelectCommRecipient(g_nYourWingman_0049346c);
+            else
+                SelectCommRecipient(g_acShipTarget_00495f20[0]);
             RefreshCommunicationMenu();
-            return 0;
         }
-        SelectCommRecipient(g_acShipTarget_00495f20[0]);
-        RefreshCommunicationMenu();
-        return 0;
+        break;
     case 2:
         CloseCommChoiceMenu();
         request(0, (short)g_cCommMenuRecipient_0049b790,
                 (short)g_abCommMenuChoiceCommand_005d1948[choice]);
-        return 0;
+        if (g_abCommMenuChoiceCommand_005d1948[choice] >=
+            g_nEnemyTauntCommandBase_0049b76c) {
+            g_nEnemyTauntCommandBase_0049b76c =
+                (short)(g_nEnemyTauntCommandBase_0049b76c & 0xfe);
+        }
+        break;
     }
-    return 0;
 }
 
 /* Function start: 0x448008 */
@@ -1812,100 +1811,80 @@ char *ExpandCommMessageTokens(const char *text)
     }
 }
 
+#pragma function(strcpy, strcat)
+
 /* Function start: 0x4482CA */
 void real_vid_transmit(short obj, short message)
 {
+    int packetSize;
+    char packetName[16];
+    char callsign[20];
     char text[84];
     char *expandedText;
-    char *speech;
-    int objectOffset;
+    char numberText[8];
 
     g_nCommSpeakerObject_0049b794 = obj;
     g_nCommSpeakerRating_0049b798 =
-        (short)g_acShipRating_0059cd80[obj];
-    g_nCommPortraitIndex_0049b79c =
-        get_face(g_nCommSpeakerRating_0049b798,
-                 g_asShipSide_004955d0[obj]);
+        g_acShipPortrait_00495d88[g_nCommSpeakerObject_0049b794];
+    g_nCommPortraitIndex_0049b79c = g_nCommSpeakerRating_0049b798;
     if (g_nCommPortraitIndex_0049b79c == -1)
         return;
-    objectOffset = (int)obj * sizeof(enum ObjectType);
-    if (g_bCommSpeechPlaying_0049b7a0 != 0 &&
-        g_bVideoImagesSuppressed_0049b784 == 0) {
-        if (g_apCommPortraitShapes_0059e180[
-                g_nCommPortraitIndex_0049b79c] == 0)
-            LoadCommPortraitShape(g_nCommPortraitIndex_0049b79c, 0);
-        if (g_apCommPortraitShapes_0059e180[
-                g_nCommPortraitIndex_0049b79c] != 0) {
+    g_bCommSpeechPlaying_0049b7a0 = 0;
+    g_nCommDeathSequenceFrame_0049ae84 = 0;
+    if (g_bVideoImagesSuppressed_0049b784 == 0) {
+        if (g_nCommPortraitIndex_0049b79c !=
+            g_nLoadedCommPortraitPilot_004931c4) {
             LoadCommPortraitResources(g_nCommPortraitIndex_0049b79c);
+            g_nLoadedCommPortraitPilot_004931c4 =
+                g_nCommPortraitIndex_0049b79c;
         }
-        if (g_apCommPortraitShapes_0059e180[
-                g_nCommPortraitIndex_0049b79c] != 0 &&
-            g_pCommPortraitResource_0049b788 != 0) {
+        if (g_pCommPortraitResource_0049b788 != 0) {
             push_mode(1, 6);
-            malf_noise(1, 3, 12, 23, 1);
-            DrawSpriteDefault(
-                &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-                g_asShipSide_004955d0[
-                    g_nCommSpeakerObject_0049b794] == SIDE_IMPERIAL ?
-                    g_pConfedCommBackground_00469278_WC1_UNMAPPED :
-                    g_pKilrathiCommBackground_00469280,
-                0);
-            DrawSpriteDefault(
-                &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-                g_apCommPortraitShapes_0059e180[
-                    g_nCommPortraitIndex_0049b79c],
-                0);
+            malf_noise(1, 3, g_abGamePaletteReservedColours_0049cb54[12],
+                       0x17, 1);
+            g_nCommPortraitAnimationFrame_005d1d94 = 0;
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 0);
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 1);
         }
     }
-    speech = g_aapszPilotSpeech_0059e220[
-        g_nCommPortraitIndex_0049b79c][message];
-    if (g_nCommSpeakerRating_0049b798 >= 0 &&
-        g_nCommSpeakerRating_0049b798 <= 7) {
-#ifdef WC1_SDL
-        /* MSVC 4.20 accepts %Fs as its legacy far-string conversion. */
-        sprintf(text, "%s: %s",
-                g_apWingmanPilots_00598a30[
-                    g_nCommSpeakerRating_0049b798]->callsign,
-                speech);
-#else
-        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
-                g_apWingmanPilots_00598a30[
-                    g_nCommSpeakerRating_0049b798]->callsign,
-                speech);
-#endif
-    } else if (g_nCommSpeakerRating_0049b798 >= 9 &&
-               g_nCommSpeakerRating_0049b798 <= 12) {
-#ifdef WC1_SDL
-        sprintf(text, "%s: %s",
-                g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[
-                    g_nCommSpeakerRating_0049b798 - 9],
-                speech);
-#else
-        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
-                g_apszKilrathiAceNames_0046af80_WC1_UNMAPPED[
-                    g_nCommSpeakerRating_0049b798 - 9],
-                speech);
-#endif
-    } else {
-#ifdef WC1_SDL
-        sprintf(text, "%s: %s",
-                g_aObjectTypeData_00496d30[
-                    *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_acObjectType_00493980 +
-                         objectOffset)].displayName,
-                speech);
-#else
-        sprintf(text, g_szCommSpeakerTextFormat_0049b888,
-                g_aObjectTypeData_00496d30[
-                    *(enum ObjectType *)(void *)
-                        ((unsigned char *)g_acObjectType_00493980 +
-                         objectOffset)].displayName,
-                speech);
-#endif
+    strcpy(packetName, "communic.s");
+    if (g_nCommPortraitIndex_0049b79c < 10)
+        strcat(packetName, "0");
+    strcat(packetName,
+           _itoa((int)g_nCommPortraitIndex_0049b79c, numberText, 10));
+    packetSize = GetNamedPacketSize(packetName, message);
+    g_nCommMessageIndex_0049ae88 = message;
+    if (g_bSpeechCacheEnabled_005c8de8 != 0 && packetSize > 0 &&
+        packetSize < g_wSpeechCacheCodeBytes_0048e0e0) {
+        DismissHudMessageIfShowing();
+        LoadAndPlaySpeechPacket(packetName, message);
+        g_bCommSpeechPlaying_0049b7a0 = 1;
+        return;
     }
-    expandedText = ExpandCommMessageTokens(text);
-    ShowCentredPrompt(expandedText, (unsigned short)MeasureMessageWidth(text));
+    /* The sampled line and its subtitle share a packet number: "communic.s"
+     * carries the speech, "communic.t" the text. */
+    packetName[9] = 't';
+    if (GetNamedPacketSize(packetName, message) > 0) {
+        LoadPacketIntoBuffer(packetName, message,
+                             g_szCommMessageText_005d18f0, 0);
+        if (g_asShipIdentified_00496078[obj] != 0)
+            sprintf(callsign, g_apShipMissionRecord_00495da8[obj]->name);
+        else
+            sprintf(callsign, "UNKNOWN");
+        sprintf(text, g_szCommSpeakerTextFormat_0049b888, callsign,
+                g_szCommMessageText_005d18f0);
+        expandedText = ExpandCommMessageTokens(text);
+        ShowCentredPrompt(expandedText, MeasureMessageWidth(text));
+    }
 }
+
+#pragma intrinsic(strcpy, strcat)
 
 /* Function start: WC2_UNMAPPED */
 void __stdcall ShutdownVideoHook(short mode)

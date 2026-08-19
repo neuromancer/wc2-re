@@ -4796,75 +4796,94 @@ void PanToScreen(Viewport *source, Viewport *destination)
 #pragma intrinsic(memset)
 
 /* Function start: 0x4697A0 (Mac symbol: death_sequence) */
-unsigned int death_sequence(void)
+void death_sequence(void)
 {
-    unsigned char *deathShape;
-    unsigned char *cockpitBackground;
     signed char frame;
+    short object;
+    void *cockpitBackground;
+    void *deathShape;
 
-    g_nCannedSceneMode_0049021c = 1;
-    free_all_slots();
+    deathShape = 0;
+    cockpitBackground = 0;
+    g_nTrainSimActive_0049d758 = 1;
+    g_bMissionEndPending_0049da4c = 0;
+    g_bDeathSequenceActive_0049da50 = 1;
+    remove_nav_pointer();
     free_cockpit();
+    FreePacketAndClear(
+        &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet,
+        0);
+    for (object = 0; object < 0x46; object++) {
+        if (g_asObjectType_00495298[object] == WC2_OBJECT_TYPE_EJECTED_PILOT)
+            remove_object(object);
+    }
+    g_nResourcePaletteMode_005c57e6 = 1;
     StopMusicUnlessSuppressed();
     if (g_nMemoryConfiguration_005c8dc8 == 1)
         SceneLeaveHook(0x20);
-
-    frame = 0;
     spacetrack(0x20, 2, 1);
     deathShape = FetchDiskPacketRetrying("pilotanm.vga", 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
         g_szCockpitResourceFilename_005d1030, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
-    new_view(9, 0);
+    new_view(10, 0);
     g_bSceneEscapeRequested_0049d4b0 = 0;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    for (; frame < 8; frame++) {
-        if (frame == 7) {
-            ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_bPrimaryViewBufferColour_0049cb50);
-        } else {
-            RefreshCockpitStatus();
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0,
-                              cockpitBackground, 0);
-        }
-        DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, 199,
-                          deathShape, (short)frame);
-        dump_buffer_to_screen();
-        MarkDibDirty();
-        DIBslamReal();
-        if (g_bSceneEscapeRequested_0049d4b0 == 1)
-            break;
-    }
-
-    free_view_buffer();
-    FreePacketAndClear(&cockpitBackground, 0);
-    FreePacketAndClear(&deathShape, 0);
-    if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-        frame = 0;
-        load_all_slots();
-        new_view(4, 0);
+    for (;;) {
         g_nFrameSkipCountdown_0049d760 = 1;
-        do {
-            if (RefreshCockpitStatus() != 0)
-                dump_buffer_to_screen();
-            if (frame == 2)
-                Explosion(0);
+        for (frame = 0; frame < 8; frame++) {
+            if (frame == 7) {
+                ClearViewport(&g_stViewBuffer_005d2b00,
+                              g_bPrimaryViewBufferColour_0049cb50);
+            } else {
+                Draw_3Space_Frame();
+                DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0,
+                                  cockpitBackground, 0);
+            }
+            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, 199,
+                              deathShape, frame);
+            dump_buffer_to_screen();
+            clear_view_buffer();
+            ServiceInputDevices(-1);
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
-            frame++;
-            MarkDibDirty();
-            DIBslamReal();
-        } while (frame < 60);
+        }
+        free_view_buffer();
+        FreePacketAndClear(&cockpitBackground, 0);
+        FreePacketAndClear(&deathShape, 0);
+        ServiceInputDevices(-1);
+        if (g_bSceneEscapeRequested_0049d4b0 == 1)
+            break;
+        g_nArcadeState_0049d75c = 0;
+        load_all_slots();
+        g_nResourcePaletteMode_005c57e6 = 0;
+        new_view(5, 0);
+        g_nFrameSkipCountdown_0049d760 = 1;
+        for (frame = 0; frame < 0x3c; frame++) {
+            ServiceInputDevices(-1);
+            if (g_bSceneEscapeRequested_0049d4b0 == 1)
+                break;
+            if (Draw_3Space_Frame() != 0)
+                dump_buffer_to_screen();
+            switch (frame) {
+            case 2:
+                Explosion(0);
+                break;
+            }
+        }
+        break;
     }
-
+    g_nArcadeState_0049d75c = 4;
     g_bSceneEscapeRequested_0049d4b0 = 0;
     free_all_slots();
     g_stScreenViewport_005d21a0.top = 0;
     g_stScreenViewport_005d21a0.bottom = 199;
-    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
+    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0,
+                                g_cSecondaryViewBufferColour_0049cb4c, 1);
+    ClearViewport(&g_stScreenViewport_005d21a0,
+                  g_cSecondaryViewBufferColour_0049cb4c);
     RestoreGamePalette();
-    return 0;
+    g_bMissionEndPending_0049da4c = 1;
+    g_bDeathSequenceActive_0049da50 = 0;
 }
 
 /* Function start: WC2_UNMAPPED */

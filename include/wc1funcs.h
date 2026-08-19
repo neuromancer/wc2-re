@@ -1581,7 +1581,7 @@ void BuildCommunicationCommandMenu(void);                             /* 0x44789
 void RefreshCommunicationMenu(void);                                 /* 0x447D85 */
 void HandleCommunicationMenuRequest(void);                            /* 0x447DE3 */
 void show_communications_disp(void);                                  /* 0x447E47 */
-unsigned int Chosen_communicate_option(short choice);                 /* 0x447EF5 */
+void Chosen_communicate_option(short choice);                         /* 0x447EF5 */
 void IssueQuickCommCommand(short recipient, short command);           /* 0x448008 */
 void FreeCommDisplayResources(void);                                  /* 0x44804A */
 void EndCommSessionWithWingman(void);                                  /* 0x448070 */
@@ -1934,7 +1934,7 @@ void SetViewportRect(Viewport *viewport, unsigned short left,
                      unsigned short top, unsigned short right,
                      unsigned short bottom);                          /* 0x423C60 */
 void PanToScreen(Viewport *source, Viewport *destination);              /* 0x433410 */
-unsigned int death_sequence(void);                                    /* 0x4697A0 */
+void death_sequence(void);                                            /* 0x4697A0 */
 unsigned int ShowGetReadyScreen(void);                                 /* WC2 unmapped */
 unsigned int ShowWc1VictoryScreen(void);                              /* WC2 unmapped */
 unsigned int ShowGameOverScreen(void);                                 /* WC2 unmapped */
