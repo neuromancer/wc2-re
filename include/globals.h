@@ -123,6 +123,7 @@ extern const char g_szFuneralAttentionCommand_00465c2c_WC1_UNMAPPED[20];
 extern const char g_szFuneralPrepareArmsCommand_00465c40_WC1_UNMAPPED[20];
 extern const char g_szFuneralFireCommand_00465c54_WC1_UNMAPPED[16];
 extern short g_nEnemySighting_0049b670;
+extern short g_bHomeObjectiveFlagged_0049b674;
 extern short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED;
 extern void *g_aapPacketReferences_00465c88_WC1_UNMAPPED[4][0x25];
 extern void **g_apPacketReferenceGroups_0049b898[4];

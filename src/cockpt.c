@@ -1463,18 +1463,52 @@ void show_navigation_disp(void)
 /* Function start: 0x43A474 */
 short hidden_objective(short objective)
 {
-    short nameHidden;
     short hidden;
+    short navPoint;
+    short entry;
     short ship;
 
-    nameHidden =
-        *g_aMissionObjectives_004932a8[objective].displayName == '.' ||
-        *g_aMissionObjectives_004932a8[objective].name == '.';
-    if (nameHidden != 0 ||
+    hidden = 0;
+    if (g_aMissionObjectives_004932a8[objective].type == 0 ||
+        g_aMissionObjectives_004932a8[objective].type == 5) {
+        if (g_aMissionNavPoints_00491e98[
+                g_aMissionObjectives_004932a8[objective].index].type != 0)
+            hidden = 0;
+        else
+            return 1;
+    }
+    if (mobile_objective(objective) != 0 &&
+        is_team_member(g_aMissionObjectives_004932a8[objective].index) == 0) {
+        hidden = 1;
+        for (navPoint = 0; navPoint < 10; navPoint++) {
+            if (g_aMissionNavPoints_00491e98[navPoint].type == 0)
+                continue;
+            for (entry = 0; entry < 10; entry++) {
+                if (g_aMissionNavPoints_00491e98[navPoint].missionShips[
+                        entry] ==
+                    g_aMissionObjectives_004932a8[objective].index)
+                    break;
+            }
+            if (entry < 10) {
+                hidden = 0;
+                break;
+            }
+        }
+    }
+    if (hidden != 0 ||
+        *g_aMissionObjectives_004932a8[objective].displayName == '.')
+        hidden = 1;
+    else
+        hidden = 0;
+    if (hidden != 0 ||
+        *g_aMissionObjectives_004932a8[objective].name == '.')
+        hidden = 1;
+    else
+        hidden = 0;
+    if (hidden != 0 ||
         (mobile_objective(objective) != 0 &&
          g_aMissionShips_00492290[
-             (signed char)g_aMissionObjectives_004932a8[
-                 objective].index].state != 0))
+             g_aMissionObjectives_004932a8[objective].index].state != 0))
         hidden = 1;
     else
         hidden = 0;
@@ -1482,10 +1516,9 @@ short hidden_objective(short objective)
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].type == 0) {
         ship = find_ship_index(
-            (short)g_aMissionObjectives_004932a8[objective].index);
+            g_aMissionObjectives_004932a8[objective].index);
         if (g_aMissionShips_00492290[
-                (signed char)g_aMissionObjectives_004932a8[
-                    objective].index].missionType ==
+                g_aMissionObjectives_004932a8[objective].index].missionType ==
                 MISSION_TYPE_WARP_ARRIVE &&
             ship != -1)
             hidden = 1;
@@ -3394,45 +3427,58 @@ void send_message(short obj, signed char message)
 /* Function start: 0x43E5DA */
 void npc_communication(void)
 {
-    signed char message;
+    signed char savedPortrait;
     signed char obj;
-    short messageActive;
+    signed char savedIndex;
+    MissionShipRecord *savedRecord;
+    signed char slot;
 
-    if (g_nCannedSceneMode_0049021c == 0 &&
-        g_nTrainSimActive_0049d758 == 0) {
-        messageActive = message_showing();
-        obj = 1;
-        while (messageActive == 0 && obj < 10) {
-            if (g_aeObjectClass_00495328[(short)obj] >=
-                    OBJECT_CLASS_SHIP &&
-                g_acShipPendingMessage_00495d98[(short)obj] != -1) {
-                message = g_acShipPendingMessage_00495d98[(short)obj];
-                vid_equiv((short)obj, (short)message);
-                g_acShipPendingMessage_00495d98[(short)obj] = -1;
+    if (g_nTrainSimActive_0049d758 == 0) {
+        if (g_cQueuedNpcPortrait_0049b8c4 != -1) {
+            savedPortrait = g_acShipPortrait_00495d88[0];
+            savedIndex = (signed char)g_asShipMissionIndex_00495d00[0];
+            savedRecord = g_apShipMissionRecord_00495da8[0];
+            g_acShipPortrait_00495d88[0] = g_cQueuedNpcPortrait_0049b8c4;
+            for (slot = 0; slot < 16; slot++) {
+                if (g_aMissionShips_00492290[slot].portrait ==
+                    g_cQueuedNpcPortrait_0049b8c4)
+                    break;
             }
-            messageActive = message_showing();
-            obj++;
+            if (slot == 16)
+                ShowOnScreenMessage(0x270f, "SHOW_MESSAGE failed");
+            g_asShipMissionIndex_00495d00[0] = slot;
+            g_apShipMissionRecord_00495da8[0] = &g_aMissionShips_00492290[slot];
+            real_vid_transmit(0, g_cQueuedNpcMessage_0049b8c8);
+            g_apShipMissionRecord_00495da8[0] =
+                &g_aMissionShips_00492290[g_asShipMissionIndex_00495d00[0]];
+            g_acShipPortrait_00495d88[0] = savedPortrait;
+            g_asShipMissionIndex_00495d00[0] = savedIndex;
+            g_cQueuedNpcPortrait_0049b8c4 = g_cQueuedNpcMessage_0049b8c8 = -1;
         }
-        if (RandomBelowOrEqual(5000) > 4998 &&
-            g_nCommSpeakerObject_0049b794 == -1) {
-            obj = 1;
-            while (obj < 10) {
-                if (g_aeObjectClass_00495328[(short)obj] >=
-                        OBJECT_CLASS_SHIP &&
-                    g_asShipSide_004955d0[(short)obj] == SIDE_KILRATHI &&
-                    (g_aeShipObjective_00495f08[(short)obj] ==
-                         OBJECTIVE_ENGAGE_ENEMY ||
-                     g_aeShipObjective_00495f08[(short)obj] ==
-                         OBJECTIVE_DESTROY_SHIP) &&
-                    (g_acShipRating_0059cd80[(short)obj] != -1 ||
+        for (obj = 1;
+             message_showing() == 0 && g_nCommDeathSequenceFrame_0049ae84 == 0 &&
+                 obj <= 9;
+             obj++) {
+            if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
+                g_acShipPendingMessage_00495d98[obj] != -1) {
+                vid_equiv(obj, g_acShipPendingMessage_00495d98[obj]);
+                g_acShipPendingMessage_00495d98[obj] = -1;
+            }
+        }
+        if (RandomBelowOrEqual(5000) > 4998) {
+            for (obj = 1;
+                 g_nCommSpeakerObject_0049b794 == -1 && obj <= 9;
+                 obj++) {
+                if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
+                    g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+                    (g_aeShipObjective_00495f08[obj] == OBJECTIVE_ENGAGE_ENEMY ||
+                     g_aeShipObjective_00495f08[obj] == OBJECTIVE_DESTROY_SHIP) &&
+                    (g_asPilotLevel_00495d60[obj] == 5 ||
                      RandomBelowOrEqual(100) < 20)) {
-                    g_acShipPendingMessage_00495d98[(short)obj] =
-                        (signed char)(RandomBelowOrEqual(2) + 2);
-                    return;
+                    g_acShipPendingMessage_00495d98[obj] =
+                        (signed char)(RandomBelowOrEqual(2) + 0x19);
+                    break;
                 }
-                obj++;
-                if (g_nCommSpeakerObject_0049b794 != -1)
-                    return;
             }
         }
     }
@@ -3590,54 +3636,93 @@ void place_damage_on_cockpit(short damage)
 /* Function start: 0x43ECD9 */
 void vid_transmit(void)
 {
-    short randomFrame;
-    short speaker;
-    unsigned char *background;
+    short frame;
 
-    speaker = g_nCommSpeakerObject_0049b794;
-    if (g_asShipSide_004955d0[speaker] == SIDE_NEUTRAL) {
-        EndCommSessionWithWingman();
-        return;
-    }
-    if ((g_nCockpitDisplayMode_0049d71c != 0 ||
-         g_nRenderedSpaceFrame_00493138 % 2 != 0) &&
-        g_nCommPortraitIndex_0049b79c != -1 &&
-        g_aapszPilotSpeech_0059e220[g_nCommPortraitIndex_0049b79c] != 0 &&
-        g_bVideoImagesSuppressed_0049b784 == 0) {
-        if (g_aeSpecialManeuver_00495600[speaker] ==
-            SPECIAL_MANEUVER_UNKNOWN_9) {
-            if (g_asShipSide_004955d0[speaker] == SIDE_IMPERIAL) {
-                DrawSpriteDefault(
-                    &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-                    g_pCommStaticShape_0046927c_WC1_UNMAPPED,
-                    (short)(g_asObjectCounter_00494be0[speaker] / 5));
-                return;
-            }
-            DrawSpriteDefault(&g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left,
+    if (g_nCommDeathSequenceFrame_0049ae84 != 0) {
+        if (g_nCommDeathSequenceFrame_0049ae84 == 1) {
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
                               g_stRightVduViewport_005d2b20.top,
-                              g_pCommStaticShape_0046927c_WC1_UNMAPPED, 2);
-            return;
-        }
-        if (g_nCommPortraitFrame_0049b2bc == -1) {
-            g_nCommPortraitFrame_0049b2bc =
-                (unsigned short)RandomInRange(0, 2);
-        }
-        randomFrame = RandomInRange(0, 3);
-        if (randomFrame < 3)
-            g_nCommPortraitFrame_0049b2bc = randomFrame;
-        set_new_vdu(1);
-        if (g_asShipSide_004955d0[g_nCommSpeakerObject_0049b794] ==
-            SIDE_IMPERIAL) {
-            background = g_pConfedCommBackground_00469278_WC1_UNMAPPED;
+                              g_pCommPortraitResource_0049b788, 0);
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 5);
+            g_nCommDeathSequenceFrame_0049ae84++;
+        } else if (g_nCommDeathSequenceFrame_0049ae84 == 2) {
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 0);
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 6);
+            g_nCommDeathSequenceFrame_0049ae84++;
+        } else if (g_nCommDeathSequenceFrame_0049ae84 == 3) {
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommVduFrameResource_0049b78c, 0);
+            g_nCommDeathSequenceFrame_0049ae84++;
         } else {
-            background = g_pKilrathiCommBackground_00469280;
+            EndCommSessionWithWingman();
+            g_nCommDeathSequenceFrame_0049ae84 = 0;
         }
-        DrawSpriteDefault(&g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left,
-                          g_stRightVduViewport_005d2b20.top, background, 0);
-        DrawSpriteDefault(
-            &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-            g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0049b79c],
-            (short)g_nCommPortraitFrame_0049b2bc);
+    } else if (g_bCommSpeechPlaying_0049b7a0 == 0 &&
+               g_asShipSide_004955d0[g_nCommSpeakerObject_0049b794] ==
+                   SIDE_NEUTRAL) {
+        EndCommMenu();
+    } else if (((g_nRenderedSpaceFrame_00493138 % 2 != 0 &&
+                 g_nCockpitDisplayMode_0049d71c == 0) ||
+                g_nCockpitDisplayMode_0049d71c != 0) &&
+               g_nCommPortraitIndex_0049b79c != -1 &&
+               g_bVideoImagesSuppressed_0049b784 == 0 &&
+               g_szCommMessageText_005d18f0 != 0) {
+        if (g_aeSpecialManeuver_00495600[g_nCommSpeakerObject_0049b794] ==
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_bCommSpeechPlaying_0049b7a0 == 0 &&
+            g_asShipExplosionStageTimer_005d3850[
+                g_nCommSpeakerObject_0049b794] < 7) {
+            if (g_asShipExplosionStageTimer_005d3850[
+                    g_nCommSpeakerObject_0049b794] < 3) {
+                DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                                  g_stRightVduViewport_005d2b20.left,
+                                  g_stRightVduViewport_005d2b20.top,
+                                  g_pCommVduFrameResource_0049b78c, 0);
+            } else {
+                if (g_asShipExplosionStageTimer_005d3850[
+                        g_nCommSpeakerObject_0049b794] >= 5)
+                    frame = 5;
+                else if (g_asShipExplosionStageTimer_005d3850[
+                             g_nCommSpeakerObject_0049b794] >= 3)
+                    frame = 6;
+                DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                                  g_stRightVduViewport_005d2b20.left,
+                                  g_stRightVduViewport_005d2b20.top,
+                                  g_pCommPortraitResource_0049b788, 0);
+                DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                                  g_stRightVduViewport_005d2b20.left,
+                                  g_stRightVduViewport_005d2b20.top,
+                                  g_pCommPortraitResource_0049b788, frame);
+            }
+        } else {
+            if (g_nCommPortraitFrame_0049b2bc == -1)
+                g_nCommPortraitFrame_0049b2bc = RandomInRange(1, 4);
+            g_nCommPortraitAnimationFrame_005d1d94 = RandomInRange(1, 8);
+            if (g_nCommPortraitAnimationFrame_005d1d94 < 5)
+                g_nCommPortraitFrame_0049b2bc =
+                    g_nCommPortraitAnimationFrame_005d1d94;
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788, 0);
+            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
+                              g_stRightVduViewport_005d2b20.left,
+                              g_stRightVduViewport_005d2b20.top,
+                              g_pCommPortraitResource_0049b788,
+                              (short)g_nCommPortraitFrame_0049b2bc);
+        }
     }
 }
 

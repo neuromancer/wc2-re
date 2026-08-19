@@ -2100,6 +2100,7 @@ void (*g_apManeuverHandlers_0049b570[50])(short, short) = {
     /* 49 */ (void (*)(short, short))Mreset
 };
 short g_nEnemySighting_0049b670 = 0x7fff;
+short g_bHomeObjectiveFlagged_0049b674;
 short g_asShipIntelState_0049b678[10];
 short g_bMissionDeathSequencePending_0049b720;
 short g_bMissionEjectionPodSpawned_0049b724;

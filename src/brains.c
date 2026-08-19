@@ -3049,31 +3049,56 @@ void approach_and_engage(short obj, short goal)
 /* Function start: 0x444420 */
 void strike_mission(short obj)
 {
-    short goal = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
+    short goal;
 
-#ifdef WC1_SDL
-    /* The original source indexes class[-1] here.  In the Win32 layout that
-       aliases the last two previous-distance words; the intended no-goal
-       branch is check_goal. */
-    if (goal == -1)
-#else
-    if (goal == -1 &&
-        g_aeObjectClass_00495328[goal] != OBJECT_CLASS_FUTURION)
-#endif
-        check_goal(obj);
+    goal = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
+    if (goal == -1 ||
+        (goal != -1 &&
+         g_aeObjectClass_00495328[goal] == OBJECT_CLASS_FUTURION)) {
+        if (is_team_member(g_asShipMissionIndex_00495d00[obj]) == 0) {
+            check_goal(obj);
+        } else if (g_aMissionShips_00492290[
+                       g_asShipMissionParameter_00495e00[obj]].state == 3) {
+            change_mission_type(obj, 9);
+            g_asShipTactic_00495f30[obj] = TACTIC_CRUISE;
+            if (g_bHomeObjectiveFlagged_0049b674 == 0) {
+                flag_objective(g_cCurrentObjective_004931cc, 1);
+                set_next_destination();
+                g_bHomeObjectiveFlagged_0049b674++;
+            }
+            locate_ship(g_stMissionHeader_005d3e70.homeMissionShip,
+                        &g_aShipMissionSpot_00495e18[obj]);
+            g_aShipDestination_004953f0[obj] =
+                g_aShipMissionSpot_00495e18[obj];
+            return;
+        } else {
+            g_bHomeObjectiveFlagged_0049b674 = 0;
+            switch (g_asShipTactic_00495f30[obj]) {
+            case TACTIC_NONE:
+                reset_tactic(obj, TACTIC_CRUISE);
+                get_first_follow_point(obj,
+                                       &g_aShipDestination_004953f0[obj]);
+                break;
+            case TACTIC_CRUISE:
+                cruise_to_destination(obj);
+                break;
+            }
+            return;
+        }
+    }
     switch (g_aeShipObjective_00495f08[obj]) {
+    case OBJECTIVE_BREAK_FORMATION:
+        formation_burst(obj);
+        break;
     case OBJECTIVE_HOME_BASE:
     case OBJECTIVE_HOLD_FORMATION:
         approach_and_engage(obj, goal);
         break;
-    case OBJECTIVE_DESTROY_SHIP:
-        maneuvering(obj, check_destroy_target(obj));
-        break;
     case OBJECTIVE_ENGAGE_ENEMY:
         maneuvering(obj, check_destroy_target(obj));
         break;
-    case OBJECTIVE_BREAK_FORMATION:
-        formation_burst(obj);
+    case OBJECTIVE_DESTROY_SHIP:
+        maneuvering(obj, check_destroy_target(obj));
         break;
     case OBJECTIVE_NONE:
         reset_objective(obj, OBJECTIVE_HOME_BASE);
