@@ -8,20 +8,25 @@
  *  interleaved in their original address order.
  */
 #include "wc1.h"
+Viewport g_stTrainSimVduSource_00469210 = {0};
+ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][4] = {
+    {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
+    {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
+    {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
+    {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
+    {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
+};
+unsigned char *g_pConfedCommBackground_00469278_WC1_UNMAPPED /* no-address */ = 0;
+unsigned char *g_pCommStaticShape_0046927c_WC1_UNMAPPED /* no-address */ = 0;
+unsigned char *g_pKilrathiCommBackground_00469280 = 0;
+short g_bDisplayWingmanTargetData_0049347c;
+ShortPoint g_stHudMessageOrigin_0049ae90;
 
 #pragma function(strlen, strcpy, abs)
 
 short g_asVduSelectionSound_0049afe4[2] = { 0x7f, 0 };
 char *g_pszPendingHudMessage_0049afec = 0;
 char *g_pszDisplayedHudMessage_0049aff0 = 0;
-unsigned char *g_pHudMessageFrameShape_0049b288 = 0;
-unsigned char *g_pHudMessageBackground_0049b28c = 0;
-short g_bCaptureHudMessageBackground_0049b290 = 1;
-short g_nHudMessageBackgroundDepth_0049b294;
-ShortPoint g_stHudMessageOrigin_0049ae90;
-short g_nViewportOriginY_005c849c;
-signed char g_cHudMessageView_005d1c37;
-short g_bDisplayWingmanTargetData_0049347c;
 unsigned char g_cLastPilotHandFrame_0049aff4 = 0xff;
 short g_asPilotHandOffsets_0049aff8[34] = {
     6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
@@ -73,19 +78,12 @@ const int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
     -2
 };
 const char *g_pszMissileLocked_0049b280 = g_szMissileLocked_0049b30c;
+unsigned char *g_pHudMessageFrameShape_0049b288 = 0;
+unsigned char *g_pHudMessageBackground_0049b28c = 0;
+short g_bCaptureHudMessageBackground_0049b290 = 1;
+short g_nHudMessageBackgroundDepth_0049b294;
 short g_nTargetLockMarkerX_0049b298 = -0x7fff;
 ShortRect g_stPreviousTargetBracketBounds_00469200_WC1_UNMAPPED /* no-address */ = {-0x7fff, 0, 0, 0};
-Viewport g_stTrainSimVduSource_00469210 = {0};
-ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][4] = {
-    {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
-    {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
-    {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
-    {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
-    {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
-};
-unsigned char *g_pConfedCommBackground_00469278_WC1_UNMAPPED /* no-address */ = 0;
-unsigned char *g_pCommStaticShape_0046927c_WC1_UNMAPPED /* no-address */ = 0;
-unsigned char *g_pKilrathiCommBackground_00469280 = 0;
 int g_nCommPortraitFrame_0049b2bc = -1;
 int g_bForceDamageDisplayRedraw_0049b2ec = 0;
 char g_szMissileLocked_0049b30c[16] = "MISSILE LOCKED ";
@@ -108,6 +106,8 @@ char g_szObjectiveReached_0049b414[20] = "Objective Reached";
 char g_szWaitForFormat_0049b428[12] = "Wait for %s";
 char *g_pszGameVersion_0049b528 = g_szGameVersion_0049b52c;
 char g_szGameVersion_0049b52c[9] = "1.03F-95";
+short g_nViewportOriginY_005c849c;
+signed char g_cHudMessageView_005d1c37;
 
 /* Function start: 0x420340 */
 void EmitTextString(void (*writer)(int), const char *text)

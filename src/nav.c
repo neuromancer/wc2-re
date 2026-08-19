@@ -13,6 +13,91 @@ typedef struct TitleActorMotion {
     short velocityY;
 } TitleActorMotion;
 
+char g_szTitleConductorFrames_00491c68[] =
+    "opoqopoqopoqopoqqrstrq";
+char *g_apszTitleActorFrames_00491c80[10] = {
+    "abcdefghijkaakkkkaaaalllllllmmll",
+    "aaaaaaaabcddeeddccffgghhgghhiiih",
+    "aaaaaaaaaabbccbbaaccccccccccaccc",
+    "aaaabbbcccddeeddccffggaaggffcaaa",
+    "aabbbaacccddddddccddeeeeeeddccca",
+    "aaaaaabbbaaabbaaaabbbbaabbbbaccc",
+    "aabbcdbbbeaaaaaaeeaaaaaaaaaabaaa",
+    "abbbaacccdeeaaeeddaaaaaaaaaadacc",
+    "aaaaaaaaabbbccbbbbccddddddccaaaa",
+    "abccdefgghiijjiihhkkllmmllkkhnnn"
+};
+TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
+    { 58, 94, -1, 1 },
+    { 186, 94, 0, 1 },
+    { 278, 94, 1, 1 },
+    { 58, 102, -3, 2 },
+    { 186, 102, 0, 2 },
+    { 278, 102, 3, 2 },
+    { 58, 110, -5, 3 },
+    { 186, 110, 0, 3 },
+    { 278, 110, 5, 3 },
+    { 158, 74, 0, 4 }
+};
+unsigned char *g_pTitleFieldShape_00491cf8;
+volatile short g_nNearHeapActive_00493044 = 0;
+volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
+volatile int g_nNearHeapRelocationBytes_0049304c = 0;
+int DAT_004688cc_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d0_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d4_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d8_WC1_UNMAPPED /* no-address */ = 0;
+short DAT_004688dc_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688e0_WC1_UNMAPPED /* no-address */ = 0;
+short DAT_004688e4_WC1_UNMAPPED /* no-address */ = -1;
+short DAT_004688e8_WC1_UNMAPPED /* no-address */ = -1;
+unsigned short DAT_004688ec_WC1_UNMAPPED /* no-address */ = 1;
+int DAT_004688f0_WC1_UNMAPPED /* no-address */ = 0;
+char *g_pszIntroOpeningText_00468910_WC1_UNMAPPED /* no-address */ =
+    "In the distant future,\n"
+    "mankind is locked in a deadly war...";
+int g_nIntroCreditCount_00468a30_WC1_UNMAPPED /* no-address */ = 11;
+char *g_apszIntroCredits_00468a38_WC1_UNMAPPED /* no-address */[20] = {
+    "Design\nby\nChris Roberts",
+    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n",
+    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
+    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
+    "OriginFX Sound System\nby\nHerman Miller",
+    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
+    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
+    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
+    "Sound Effects by Marc Schaefgen",
+    "Produced by\nChris Roberts and Warren Spector",
+    "Directed by\nChris Roberts",
+    "Windows 95 Team",
+    "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley",
+    "Sound System\n\nRichard Cupcake Lyle",
+    "Soundtrack Rescored by\n\nI Need Names",
+    "Head Whiner\n\nAnthony Sommers",
+    "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin",
+    "Richard Zinser\nKanon Lillemon\n",
+    "Special Thanks To\n\nSocks\nand\nCaffeine",
+    0
+};
+
+TitleMenuRegion g_aTitleMenuRegions_00468a88_WC1_UNMAPPED /* no-address */[5] = {
+    { 1, 49, 48, 283, 99 },
+    { 1, 49, 91, 283, 149 },
+    { 1, 49, 134, 283, 149 },
+    { 1, 49, 177, 283, 209 },
+    { -1, 0, 0, 0, 0 }
+};
+
+PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0_WC1_UNMAPPED /* no-address */[3] = {
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet,
+      3, 2 },
+    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
+      3, 5 },
+    { 0, 0, 0 }
+};
+
+int g_bTitleMenuSceneInitialized_00468ad8_WC1_UNMAPPED /* no-address */ = 0;
+
 short g_nNavMapCoordinateScaling_0049bb80 = 0;
 short g_nNavMapScale_0049bb84 = 1;
 NavMapObjectiveStyle g_aNavMapObjectiveStyles_0049bb88[12] = {
@@ -104,91 +189,6 @@ char g_szNavLocationFormat_0049bdf4[48] =
 char g_szNavViewportName_0049be30[8] = "VSCREEN";
 char g_szBriefingNavMapTitle_0049be38[20] = "Briefing Nav Map";
 char g_szConfedNavScan_0049be4c[16] = "ConFed Nav Scan";
-volatile short g_nNearHeapActive_00493044 = 0;
-volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
-volatile int g_nNearHeapRelocationBytes_0049304c = 0;
-int DAT_004688cc_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d0_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d4_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d8_WC1_UNMAPPED /* no-address */ = 0;
-short DAT_004688dc_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688e0_WC1_UNMAPPED /* no-address */ = 0;
-short DAT_004688e4_WC1_UNMAPPED /* no-address */ = -1;
-short DAT_004688e8_WC1_UNMAPPED /* no-address */ = -1;
-unsigned short DAT_004688ec_WC1_UNMAPPED /* no-address */ = 1;
-int DAT_004688f0_WC1_UNMAPPED /* no-address */ = 0;
-char *g_pszIntroOpeningText_00468910_WC1_UNMAPPED /* no-address */ =
-    "In the distant future,\n"
-    "mankind is locked in a deadly war...";
-int g_nIntroCreditCount_00468a30_WC1_UNMAPPED /* no-address */ = 11;
-char *g_apszIntroCredits_00468a38_WC1_UNMAPPED /* no-address */[20] = {
-    "Design\nby\nChris Roberts",
-    "Software Engineers\nChris Roberts\nKen Demarest III\nPaul C. Isaac\nSteve Muchow\nHerman Miller\nSteve Beeman\n",
-    "Dogfight Intelligence\nKen Demarest III\n\nDogfight Choreography\nSteve Beeman\nErin Roberts",
-    "3Space System\nby\nChris Roberts\n\nOriginFX Graphic System\nChris Roberts\nJohn Miles",
-    "OriginFX Sound System\nby\nHerman Miller",
-    "Artwork\nDenis Loubet\nGlen Johnson\nDaniel Bourbonnais\nKeith Berdak\nJohn Watson",
-    "Screenplay by Jeff George\n\nAdditional Writing\nSteve Cantrell\nPhilip Brogden",
-    "Soundtrack by\nGeorge A. Sanger and Dave Govett",
-    "Sound Effects by Marc Schaefgen",
-    "Produced by\nChris Roberts and Warren Spector",
-    "Directed by\nChris Roberts",
-    "Windows 95 Team",
-    "Combat Programmers\n\nJeff Mangler Everett\nJeff jefftep Grills\nChuck Bishop Karpiak\nKris Goblin Pelley",
-    "Sound System\n\nRichard Cupcake Lyle",
-    "Soundtrack Rescored by\n\nI Need Names",
-    "Head Whiner\n\nAnthony Sommers",
-    "Whiners\n\nMonte Mathis\nHal Milton\nDieter Martin",
-    "Richard Zinser\nKanon Lillemon\n",
-    "Special Thanks To\n\nSocks\nand\nCaffeine",
-    0
-};
-
-TitleMenuRegion g_aTitleMenuRegions_00468a88_WC1_UNMAPPED /* no-address */[5] = {
-    { 1, 49, 48, 283, 99 },
-    { 1, 49, 91, 283, 149 },
-    { 1, 49, 134, 283, 149 },
-    { 1, 49, 177, 283, 209 },
-    { -1, 0, 0, 0, 0 }
-};
-
-PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0_WC1_UNMAPPED /* no-address */[3] = {
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet,
-      3, 2 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
-      3, 5 },
-    { 0, 0, 0 }
-};
-
-int g_bTitleMenuSceneInitialized_00468ad8_WC1_UNMAPPED /* no-address */ = 0;
-
-char g_szTitleConductorFrames_00491c68[] =
-    "opoqopoqopoqopoqqrstrq";
-char *g_apszTitleActorFrames_00491c80[10] = {
-    "abcdefghijkaakkkkaaaalllllllmmll",
-    "aaaaaaaabcddeeddccffgghhgghhiiih",
-    "aaaaaaaaaabbccbbaaccccccccccaccc",
-    "aaaabbbcccddeeddccffggaaggffcaaa",
-    "aabbbaacccddddddccddeeeeeeddccca",
-    "aaaaaabbbaaabbaaaabbbbaabbbbaccc",
-    "aabbcdbbbeaaaaaaeeaaaaaaaaaabaaa",
-    "abbbaacccdeeaaeeddaaaaaaaaaadacc",
-    "aaaaaaaaabbbccbbbbccddddddccaaaa",
-    "abccdefgghiijjiihhkkllmmllkkhnnn"
-};
-TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
-    { 58, 94, -1, 1 },
-    { 186, 94, 0, 1 },
-    { 278, 94, 1, 1 },
-    { 58, 102, -3, 2 },
-    { 186, 102, 0, 2 },
-    { 278, 102, 3, 2 },
-    { 58, 110, -5, 3 },
-    { 186, 110, 0, 3 },
-    { 278, 110, 5, 3 },
-    { 158, 74, 0, 4 }
-};
-unsigned char *g_pTitleFieldShape_00491cf8;
 unsigned char *g_apTitleSections_005d3f70[13];
 void *g_pTitleMusic_005d3fa4;
 

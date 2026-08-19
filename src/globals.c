@@ -2352,7 +2352,7 @@ signed char g_cCommMenuRecipient_0049b790 = -1;
 short g_nCommSpeakerObject_0049b794;
 short g_nCommSpeakerRating_0049b798;
 short g_nCommPortraitIndex_0049b79c = -1;
-short g_bCommSpeechPlaying_0049b7a0 = 1;
+short g_bCommSpeechPlaying_0049b7a0;
 char g_szSelectCommPrompt_0049b7c4[8] = "SELECT";
 char g_szCommRecipientHeading_0049b7cc[36] =
     "VID-COM SYSTEM\n\nSend message to?\n\n";
@@ -2548,7 +2548,7 @@ short g_bOriginFxDriverActive_0049cbb0;
 int g_nMinimumMemoryNoMusic_0049cc20 = 0x43238;
 int g_nMinimumMemoryFullMusic_0049cc24 = 0x49bb0;
 int g_nMinimumMemoryAlternate_0049cc28 = 0x43238;
-short g_bSpeechResourcesEnabled_0049cc2c = 1;
+short g_bSpeechResourcesEnabled_0049cc2c;
 unsigned char g_abMusicResourcePresent_0049cc30[66] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -3210,10 +3210,10 @@ short g_nGunDisplayIndex_005c8dc0;
 int g_nMemoryConfiguration_005c8dc8;
 int g_nMusicMemoryRequirement_005c8dcc;
 unsigned int g_dwInitialFreeMemory_005c8dd0;
-short g_nSpeechCacheSizeCode_005c8dd8 = 5;
+short g_nSpeechCacheSizeCode_005c8dd8;
 short g_nMemoryAdjustmentKb_005c8dda;
 short g_bPumpMessagesWhileLoading_005c8ddc;
-short g_nSpeechCacheUnitCount_005c8dde = 2;
+short g_nSpeechCacheUnitCount_005c8dde;
 int g_nAvailableGameMemory_005c8de0;
 int g_nMissionResourceBudget_005c8de4;
 short g_bSpeechCacheEnabled_005c8de8;

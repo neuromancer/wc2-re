@@ -10,7 +10,7 @@
 #pragma function(strcat, strcpy, strlen)
 
 PersonnelFileSlot *g_apPersonnelFileSlots_0049a660[8] = {0};
-Wc2PilotProfile *g_apPersonnelPilotProfiles_0049addc[8] = {0};
+Wc2PilotProfile *g_apPersonnelPilotProfiles_0049a680[8] = {0};
 static const char g_szEmptyPersonnelFileFormat_0049a840[64] =
     "%d ----------------------------------------------------------";
 static const char g_szCompactPersonnelFileFormat_0049a880[20] =
@@ -434,36 +434,36 @@ void DrawPersonnelFileSlot(short slot)
     }
 
     SetTextCursor(0x32, (unsigned short)(slot * 12 + 0x12));
-    nameLength = strlen(g_apPersonnelPilotProfiles_0049addc[slot]->lastName);
-    nameLength += strlen(g_apPersonnelPilotProfiles_0049addc[slot]->callsign);
-    nameLength += strlen(g_apPersonnelPilotProfiles_0049addc[slot]->firstName);
+    nameLength = strlen(g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
+    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
     if (nameLength > 0x16) {
         DrawFormattedText(
             g_szCompactPersonnelFileFormat_0049a880,
             slot,
             g_apszWc1PilotRankNames_0049a620[
-                g_apPersonnelPilotProfiles_0049addc[slot]->field_3f],
-            g_apPersonnelPilotProfiles_0049addc[slot]->firstName[0],
-            g_apPersonnelPilotProfiles_0049addc[slot]->callsign,
-            g_apPersonnelPilotProfiles_0049addc[slot]->lastName);
+                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+            g_apPersonnelPilotProfiles_0049a680[slot]->firstName[0],
+            g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
     } else {
         DrawFormattedText(
             g_szPersonnelFileFormat_0049a894,
             slot,
             g_apszPilotRankNames_0049a608[
-                g_apPersonnelPilotProfiles_0049addc[slot]->field_3f],
-            g_apPersonnelPilotProfiles_0049addc[slot]->firstName,
-            g_apPersonnelPilotProfiles_0049addc[slot]->callsign,
-            g_apPersonnelPilotProfiles_0049addc[slot]->lastName);
+                g_apPersonnelPilotProfiles_0049a680[slot]->field_3f],
+            g_apPersonnelPilotProfiles_0049a680[slot]->firstName,
+            g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
     }
     SetTextCursor(0xc6, (unsigned short)(slot * 12 + 0x12));
     DrawFormattedText(
         g_szPersonnelFileValueFormatA_0049a8a8,
-        g_apPersonnelPilotProfiles_0049addc[slot]->field_41);
+        g_apPersonnelPilotProfiles_0049a680[slot]->field_41);
     SetTextCursor(0xde, (unsigned short)(slot * 12 + 0x12));
     DrawFormattedText(
         g_szPersonnelFileValueFormatB_0049a8ac,
-        g_apPersonnelPilotProfiles_0049addc[slot]->field_43);
+        g_apPersonnelPilotProfiles_0049a680[slot]->field_43);
     SetTextCursor(0x36, (unsigned short)(slot * 12 + 0x18));
     DrawFormattedText(
         g_szPersonnelFileDescriptionFormat_0049a8b0,
