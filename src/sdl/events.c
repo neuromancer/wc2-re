@@ -320,7 +320,7 @@ static int Wc1SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 #else
     modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
         (SDL_GetModState() & KMOD_ALT) != 0 ||
-        g_abInputKeyState_0059a860[0x38] != 0;
+        g_abInputKeyState_005c80f0[0x38] != 0;
 #endif
     return enterPressed && modifierPressed;
 }

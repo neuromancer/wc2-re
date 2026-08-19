@@ -165,8 +165,8 @@ void InitializeBarracksAnimation(BarracksAnimationState *state)
 void FreeBarracksMenuLabel(char **label)
 {
     if (*label != 0 &&
-        *label != g_apszSaveCampaignMenuLabels_004693e8[0] &&
-        *label != g_apszSaveCampaignMenuLabels_004693e8[1]) {
+        *label != g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[0] &&
+        *label != g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[1]) {
         ReleasePacketHandle(*label);
         *label = 0;
     }
@@ -195,17 +195,17 @@ void FreeBarracksMenuLabels(void)
     const char *saveCampaignLabel;
     short bunk;
 
-    saveCampaignLabel = g_apszSaveCampaignMenuLabels_004693e8[0];
+    saveCampaignLabel = g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[0];
     bunk = 0;
     do {
-        if (g_apszBarracksMenuLabels_004693f0[bunk * 2] !=
+        if (g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[bunk * 2] !=
             saveCampaignLabel) {
             FreeBarracksMenuLabel(
-                &g_apszBarracksMenuLabels_004693f0[bunk * 2]);
+                &g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[bunk * 2]);
             FreeBarracksMenuLabel(
-                &g_apszBarracksMenuLabels_004693f0[bunk * 2 + 1]);
+                &g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[bunk * 2 + 1]);
             saveCampaignLabel =
-                g_apszSaveCampaignMenuLabels_004693e8[0];
+                g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[0];
         }
         bunk++;
     } while (bunk < 8);
@@ -380,9 +380,9 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
         return;
     }
     DosStrcpy(oldLabel,
-              g_apszBarracksMenuLabels_004693f0[slot * 2]);
+              g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[slot * 2]);
     if (strcmp(oldLabel,
-               g_apszSaveCampaignMenuLabels_004693e8[0]) == 0)
+               g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[0]) == 0)
         oldLabel[0] = 0;
     separator = DosStrchr(oldLabel, ' ');
     if (separator != 0)
@@ -525,10 +525,10 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
             DAT_005a8114 = campaign->campaignIndex;
             g_nCampaignDataSet_005a8118 = DAT_005a8114;
             LoadWc1PacketIntoBuffer(
-                g_asCampaignPilotFiles_00469450[DAT_005a8114], 0,
+                g_asCampaignPilotFiles_00469450_WC1_UNMAPPED[DAT_005a8114], 0,
                 g_pConstellationDefinitions_00598a28);
             LoadWc1PacketIntoBuffer(
-                g_asCampaignPilotFiles_00469450[
+                g_asCampaignPilotFiles_00469450_WC1_UNMAPPED[
                     g_nCampaignDataSet_005a8118],
                 1, g_pMissionCampaignData_005988bc);
             DosMemcpy(objectives, gameRecord.objectives, 0x1f0);
@@ -550,14 +550,14 @@ void SetBunkMenuLabel(short occupied, short side, char **label,
                       int series, int mission, char *description)
 {
     if (occupied == 0) {
-        *label = (char *)g_apszSaveCampaignMenuLabels_004693e8[0];
+        *label = (char *)g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[0];
         return;
     }
     if (side == 0) {
         SetAwakenBarracksMenuLabel(label, series, mission, description);
         return;
     }
-    *label = (char *)g_apszSaveCampaignMenuLabels_004693e8[1];
+    *label = (char *)g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED[1];
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -573,13 +573,13 @@ void GetBunkInfo(BarracksAnimationState *state)
             (short)LoadGame(bunk, &gameRecord);
         SetBunkMenuLabel(
             state->bunks[bunk].occupied, 0,
-            &g_apszBarracksMenuLabels_004693f0[bunk * 2],
+            &g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[bunk * 2],
             (int)gameRecord.campaign.currentSeries,
             (int)gameRecord.campaign.currentMission,
             gameRecord.description);
         SetBunkMenuLabel(
             state->bunks[bunk].occupied, 1,
-            &g_apszBarracksMenuLabels_004693f0[bunk * 2 + 1],
+            &g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED[bunk * 2 + 1],
             (int)gameRecord.campaign.currentSeries,
             (int)gameRecord.campaign.currentMission,
             gameRecord.pilots[0].name + 6);
@@ -872,8 +872,8 @@ short RunWc1BarracksScreen(void)
     InitializeRoomViewports();
 #endif
     background = FetchDiskPacketRetrying(5, 12, 0);
-    InitializeRoomMenu(g_aBarracksMenuRegions_00463008,
-                       g_apszBarracksMenuLabels_004693f0,
+    InitializeRoomMenu(g_aBarracksMenuRegions_00463008_WC1_UNMAPPED,
+                       g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED,
                        &g_stRoomScreenViewport_005988a0,
                        g_szDefaultTextBuffer_005d2b80, 2);
     EnsureSaveGameFile();
@@ -916,7 +916,7 @@ short RunWc1BarracksScreen(void)
 
         if (clicked != 0) {
             region = FindMenuRegionAtPoint(
-                event.x, event.y, g_aBarracksMenuRegions_00463008);
+                event.x, event.y, g_aBarracksMenuRegions_00463008_WC1_UNMAPPED);
             if (region >= 0 && region < 16) {
                 HandleWc1BarracksBunkSelection(
                     &g_stSecondaryViewBuffer_005d2c90, background, &animation, region);

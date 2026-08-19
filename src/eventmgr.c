@@ -959,13 +959,13 @@ unsigned int GetLargestFreeMemoryBlock(void)
 /* Function start: 0x46428B */
 void ClearInputKeyStatePreservingModifiers(void)
 {
-    unsigned int control = g_abInputKeyState_0059a860[0x1d];
-    unsigned int alt = g_abInputKeyState_0059a860[0x38];
+    unsigned int control = g_abInputKeyState_005c80f0[0x1d];
+    unsigned int alt = g_abInputKeyState_005c80f0[0x38];
 
-    memset(g_abInputKeyState_0059a860, 0,
-           sizeof(g_abInputKeyState_0059a860));
-    g_abInputKeyState_0059a860[0x1d] = control;
-    g_abInputKeyState_0059a860[0x38] = alt;
+    memset(g_abInputKeyState_005c80f0, 0,
+           sizeof(g_abInputKeyState_005c80f0));
+    g_abInputKeyState_005c80f0[0x1d] = control;
+    g_abInputKeyState_005c80f0[0x38] = alt;
     ClearDebugPauseFlags();
 }
 
@@ -973,8 +973,8 @@ void ClearInputKeyStatePreservingModifiers(void)
 /* Function start: 0x4642D6 */
 void ClearInputKeyState(void)
 {
-    memset(g_abInputKeyState_0059a860, 0,
-           sizeof(g_abInputKeyState_0059a860));
+    memset(g_abInputKeyState_005c80f0, 0,
+           sizeof(g_abInputKeyState_005c80f0));
     ClearDebugPauseFlags();
 }
 #pragma intrinsic(memset)
@@ -983,7 +983,7 @@ void ClearInputKeyState(void)
 void SetInputKeyState(int scanCode, unsigned char pressed)
 {
     if (scanCode >= 0 && scanCode < 0x80) {
-        g_abInputKeyState_0059a860[scanCode] = pressed;
+        g_abInputKeyState_005c80f0[scanCode] = pressed;
         return;
     }
     SystemDebugPrintf("keyboard almost messed up\n");

@@ -222,15 +222,15 @@ void stop_all_sounds(void)
     ix_system_delete_all_sounds();
     ix_system_delete_all_samples();
     FreeWaveTable();
-    if (g_pSnowStaticSound_00476550 != 0) {
+    if (g_pSnowStaticSound_004a2664 != 0) {
         /* The bulk delete already stops, unlinks, and frees every IxSound.
            The original's following calls therefore use a stale pointer. */
 #ifndef WC1_SDL
-        ix_sound_stop(g_pSnowStaticSound_00476550);
-        ix_sound_release(g_pSnowStaticSound_00476550);
+        ix_sound_stop(g_pSnowStaticSound_004a2664);
+        ix_sound_release(g_pSnowStaticSound_004a2664);
 #endif
-        g_pSnowStaticSound_00476550 = 0;
-        g_pSnowStaticWave_0047654c = 0;
+        g_pSnowStaticSound_004a2664 = 0;
+        g_pSnowStaticWave_004a2654 = 0;
     }
 }
 
@@ -243,7 +243,7 @@ void PlaySnowStaticSound(void)
 
     if (g_nAudioEnabled_0049c244 != 0) {
         ReleaseFinishedSoundEntries();
-        if (g_pSnowStaticSound_00476550 == 0) {
+        if (g_pSnowStaticSound_004a2664 == 0) {
             file = _open("sfx22.wav", 0x8000);
             if (file == -1) {
                 MessageBoxA(0,
@@ -256,22 +256,22 @@ void PlaySnowStaticSound(void)
             _read(file, fileData, (unsigned int)fileSize);
             _close(file);
 
-            g_pSnowStaticWave_0047654c = AllocateWaveTableEntry();
-            g_pSnowStaticWave_0047654c->sample = ix_system_new_sample();
-            g_pSnowStaticWave_0047654c->sample->ix_sample_load_wav(
+            g_pSnowStaticWave_004a2654 = AllocateWaveTableEntry();
+            g_pSnowStaticWave_004a2654->sample = ix_system_new_sample();
+            g_pSnowStaticWave_004a2654->sample->ix_sample_load_wav(
                 fileData, fileSize);
-            g_pSnowStaticSound_00476550 = ix_system_new_sound(
-                g_pSnowStaticWave_0047654c->sample);
-            g_pSnowStaticSound_00476550->ix_system_sound_set_volume(50000);
-            ix_sound_start(g_pSnowStaticSound_00476550);
+            g_pSnowStaticSound_004a2664 = ix_system_new_sound(
+                g_pSnowStaticWave_004a2654->sample);
+            g_pSnowStaticSound_004a2664->ix_system_sound_set_volume(50000);
+            ix_sound_start(g_pSnowStaticSound_004a2664);
 
-            g_pSnowStaticWave_0047654c->name =
+            g_pSnowStaticWave_004a2654->name =
                 (char *)malloc(strlen("SNOW") + 1);
-            strcpy(g_pSnowStaticWave_0047654c->name, "SNOW");
+            strcpy(g_pSnowStaticWave_004a2654->name, "SNOW");
             free(fileData);
         } else if (ix_sound_is_playing(
-                       g_pSnowStaticSound_00476550) == 0) {
-            ix_sound_start(g_pSnowStaticSound_00476550);
+                       g_pSnowStaticSound_004a2664) == 0) {
+            ix_sound_start(g_pSnowStaticSound_004a2664);
         }
     }
 }
@@ -508,7 +508,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     short frame;
     short object;
 
-    g_bIntroSceneResourcesActive_00469d48 = 0;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 0;
     carrierScreenX = 180;
     free_ship(1);
     free_ship(2);
@@ -530,7 +530,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     fighterScreenY = 64;
     fighterScreenX = 20;
     g_nScriptedViewObject_0046a8d0 = object;
-    initialize_scripted_view(&g_asCarrierLaunchViewData_0046a5dc[2]);
+    initialize_scripted_view(&g_asCarrierLaunchViewData_0046a5dc_WC1_UNMAPPED[2]);
     g_nScrambleBackgroundY_005a8712 = 64;
     g_nScrambleBackgroundRightX_005a8714 = 520;
     g_asObjectFlip_004939c8[0] = 0;
@@ -565,14 +565,14 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
             update_star_field();
             if (frame < 24) {
                 fighterScreenY = (short)(fighterScreenY +
-                    g_asCarrierLaunchApproachDeltaX_0046a550[frame]);
+                    g_asCarrierLaunchApproachDeltaX_0046a550_WC1_UNMAPPED[frame]);
                 g_asObjectViewFrame_00493508[0] =
-                    g_acCarrierLaunchApproachFrames_0046a580[frame];
+                    g_acCarrierLaunchApproachFrames_0046a580_WC1_UNMAPPED[frame];
             } else if (frame < 48) {
                 fighterScreenY = (short)(fighterScreenY -
-                    g_asCarrierLaunchApproachDeltaX_0046a550[47 - frame]);
+                    g_asCarrierLaunchApproachDeltaX_0046a550_WC1_UNMAPPED[47 - frame]);
                 g_asObjectViewFrame_00493508[0] =
-                    g_acCarrierLaunchApproachFrames_0046a580[47 - frame];
+                    g_acCarrierLaunchApproachFrames_0046a580_WC1_UNMAPPED[47 - frame];
             }
             g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
             approachScale = (short)(
@@ -740,14 +740,14 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
                 frame++;
                 if (frame < 9) {
                     fighterScreenX = (short)(fighterScreenX +
-                        g_aCarrierLaunchFighterPath_0046a598[frame].x);
+                        g_aCarrierLaunchFighterPath_0046a598_WC1_UNMAPPED[frame].x);
                     fighterScreenY = (short)(fighterScreenY +
-                        g_aCarrierLaunchFighterPath_0046a598[frame].y);
+                        g_aCarrierLaunchFighterPath_0046a598_WC1_UNMAPPED[frame].y);
                 } else if (frame < 23) {
                     if (frame == 9)
                         PlaySfxWaveFileByNumber(11, -1, 0);
                     fighterScreenY = (short)(fighterScreenY +
-                        g_asCarrierLaunchFighterDeltaY_0046a5bc[frame - 7]);
+                        g_asCarrierLaunchFighterDeltaY_0046a5bc_WC1_UNMAPPED[frame - 7]);
                 }
                 if (frame == 23) {
                     ((void (__cdecl *)(int, int))
@@ -771,7 +771,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     ReleasePacketHandle(carrierShape);
     ReleasePacketHandle(actorShape);
     g_bScriptedView_0046a8d4 = 0;
-    g_bIntroSceneResourcesActive_00469d48 = 1;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     return 0;
 }
 
@@ -786,7 +786,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     short textWidth;
     short textHeight;
 
-    g_nDiskPromptBorderColour_00469694 = 0x50;
+    g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED = 0x50;
     if (g_stScreenViewport_005d21a0.pixels == 0)
         InitializeGameTextContexts();
     g_stDiskPromptTextContext_005a7d60 = g_stDefaultTextContext_005d2d20;
@@ -798,7 +798,7 @@ unsigned short InitializeDiskPromptTextContext(void)
     g_stDiskPromptViewport_005a7d40 = g_stScreenViewport_005d21a0;
     textWidth =
         (short)(MeasureTextPixelWidthClamped(
-                    g_szPressAnyKeyWhenReady_0046a5fc) +
+                    g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED) +
                 10);
     textHeight =
         (short)((ReadWord((unsigned short *)
@@ -1095,7 +1095,7 @@ void show_damage_disp(void)
             (short)(g_stLeftVduViewport_005d2180.left +
                     g_nWeaponDisplayOffsetX_0049ae8c);
         g_nWeaponDisplayOriginY_005d4256 =
-            (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+            (short)(g_nWeaponDisplayOffsetY_005d218a +
                     g_stLeftVduViewport_005d2180.top);
         DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
                           g_nWeaponDisplayOriginX_005d4254,

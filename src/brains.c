@@ -43,7 +43,7 @@ void ResetShipCloakState(short ship)
 /* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
 {
-    DAT_00475e78 = v;
+    DAT_005b30f0 = v;
 }
 
 /* Function start: 0x44061B */
@@ -914,7 +914,7 @@ void Mveer_away(short ship, short target)
             veer_random(ship, 16);
         }
     }
-    if ((DAT_00475e78 >= g_nTargetRange_0049319c ||
+    if ((DAT_005b30f0 >= g_nTargetRange_0049319c ||
          RandomBelowOrEqual(100) < 10) &&
         normal_speed(ship) != 0) {
         fire_afterburner(ship, 10);
@@ -1094,7 +1094,7 @@ void perform_maneuver(short obj)
         maneuver_complete(obj);
     }
 
-    if (range < DAT_00475e78) {
+    if (range < DAT_005b30f0) {
         try2reset_maneuver(obj, 2);
     } else if (g_asShipManeuver_00495f48[obj] == previous &&
                RandomBelowOrEqual(100) <
@@ -1128,69 +1128,69 @@ unsigned int AnimateScrambleWalk(short ticks)
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleBackgroundX_00465780, 0,
+                                  g_nScrambleBackgroundX_00465780_WC1_UNMAPPED, 0,
                                   g_pScrambleHangarShape_005a872c, 0);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                  (short)(g_nScrambleBackgroundX_00465780_WC1_UNMAPPED +
                                           320),
                                   0, g_pScrambleHangarShape_005a872c, 1);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                  (short)(g_nScrambleBackgroundX_00465780_WC1_UNMAPPED +
                                           640),
                                   0, g_pScrambleHangarShape_005a872c, 0);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  (short)(g_nScrambleBackgroundX_00465780 +
+                                  (short)(g_nScrambleBackgroundX_00465780_WC1_UNMAPPED +
                                           960),
                                   0, g_pScrambleHangarShape_005a872c, 1);
 
                 g_nScrambleWalkerY_005a8734 =
                     127 - GetShapeFrameExtent(
                         0, 0, g_pScrambleHangarShape_005a872c,
-                        g_cScrambleLeftWalkerFrame_00465768, 3);
+                        g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED, 3);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleLeftWalkerX_00465778,
+                                  g_nScrambleLeftWalkerX_00465778_WC1_UNMAPPED,
                                   g_nScrambleWalkerY_005a8734,
                                   g_pScrambleHangarShape_005a872c,
-                                  g_cScrambleLeftWalkerFrame_00465768);
+                                  g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED);
                 DrawSpriteDefault(
-                    &g_stSecondaryViewBuffer_005d2c90, g_nScrambleLeftWalkerX_00465778,
+                    &g_stSecondaryViewBuffer_005d2c90, g_nScrambleLeftWalkerX_00465778_WC1_UNMAPPED,
                     g_nScrambleWalkerY_005a8734,
                     g_pScrambleHangarShape_005a872c,
-                    g_acScrambleWalkerOverlayFrames_00465770[
+                    g_acScrambleWalkerOverlayFrames_00465770_WC1_UNMAPPED[
                         g_cScrambleWalkerPair_005a8748 * 2]);
 
                 g_nScrambleWalkerY_005a8734 =
                     137 - GetShapeFrameExtent(
                         0, 0, g_pScrambleHangarShape_005a872c,
-                        g_cScrambleRightWalkerFrame_0046576c, 3);
+                        g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED, 3);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleRightWalkerX_0046577c,
+                                  g_nScrambleRightWalkerX_0046577c_WC1_UNMAPPED,
                                   g_nScrambleWalkerY_005a8734,
                                   g_pScrambleHangarShape_005a872c,
-                                  g_cScrambleRightWalkerFrame_0046576c);
+                                  g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED);
                 DrawSpriteDefault(
-                    &g_stSecondaryViewBuffer_005d2c90, g_nScrambleRightWalkerX_0046577c,
+                    &g_stSecondaryViewBuffer_005d2c90, g_nScrambleRightWalkerX_0046577c_WC1_UNMAPPED,
                     g_nScrambleWalkerY_005a8734,
                     g_pScrambleHangarShape_005a872c,
-                    g_acScrambleWalkerOverlayFrames_00465770[
+                    g_acScrambleWalkerOverlayFrames_00465770_WC1_UNMAPPED[
                         g_cScrambleWalkerPair_005a8748 * 2 + 1]);
                 RefreshMemoryStatusOverlay();
                 MarkDibDirty();
                 DIBslamReal();
 
-                g_cScrambleLeftWalkerFrame_00465768++;
-                if (g_cScrambleLeftWalkerFrame_00465768 > 19)
-                    g_cScrambleLeftWalkerFrame_00465768 = 7;
-                g_cScrambleRightWalkerFrame_0046576c++;
-                if (g_cScrambleRightWalkerFrame_0046576c > 19)
-                    g_cScrambleRightWalkerFrame_0046576c = 7;
+                g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED++;
+                if (g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED > 19)
+                    g_cScrambleLeftWalkerFrame_00465768_WC1_UNMAPPED = 7;
+                g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED++;
+                if (g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED > 19)
+                    g_cScrambleRightWalkerFrame_0046576c_WC1_UNMAPPED = 7;
             }
-            g_nScrambleBackgroundX_00465780 =
-                g_nScrambleBackgroundX_00465780 - 12;
-            g_nScrambleRightWalkerX_0046577c =
-                g_nScrambleRightWalkerX_0046577c + 3;
-            g_nScrambleLeftWalkerX_00465778 =
-                g_nScrambleLeftWalkerX_00465778 + 2;
+            g_nScrambleBackgroundX_00465780_WC1_UNMAPPED =
+                g_nScrambleBackgroundX_00465780_WC1_UNMAPPED - 12;
+            g_nScrambleRightWalkerX_0046577c_WC1_UNMAPPED =
+                g_nScrambleRightWalkerX_0046577c_WC1_UNMAPPED + 3;
+            g_nScrambleLeftWalkerX_00465778_WC1_UNMAPPED =
+                g_nScrambleLeftWalkerX_00465778_WC1_UNMAPPED + 2;
             if (g_bSceneEscapeRequested_0049d4b0 == 1)
                 break;
             elapsed++;
@@ -1266,28 +1266,28 @@ unsigned int DrawScrambleActor(short actorIndex)
     short y;
 
     frame = 0;
-    if ((animationFrame = g_aScrambleAnimationActors_004657b0[
+    if ((animationFrame = g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
              actorIndex].animationFrame) != -1) {
-        if (g_aScrambleAnimationActors_004657b0[
+        if (g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
                 actorIndex].animationState != 0xa000) {
             animationFrame++;
             do {
-                frame = g_aScrambleAnimationActors_004657b0[
+                frame = g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
                     actorIndex].animation[animationFrame];
                 control = (unsigned char)frame & 0xc0;
                 switch (control) {
                     case 0:
-                        g_aScrambleAnimationActors_004657b0[
+                        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
                             actorIndex].animationFrame++;
                         break;
                     case 0x40:
-                        g_aScrambleAnimationActors_004657b0[
+                        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
                             actorIndex].animationState = 0;
                         animationFrame--;
                         break;
                     case 0x80:
                         animationFrame = frame & 0x3f;
-                        g_aScrambleAnimationActors_004657b0[
+                        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[
                             actorIndex].animationFrame = animationFrame;
                         break;
                 }
@@ -1296,22 +1296,22 @@ unsigned int DrawScrambleActor(short actorIndex)
             frame = animationFrame;
     }
 
-    x = g_aScrambleAnimationActors_004657b0[actorIndex].deltaX +
-        g_aScrambleAnimationActors_004657b0[actorIndex].x;
-    g_aScrambleAnimationActors_004657b0[actorIndex].x = x;
-    y = g_aScrambleAnimationActors_004657b0[actorIndex].deltaY +
-        g_aScrambleAnimationActors_004657b0[actorIndex].y;
-    g_aScrambleAnimationActors_004657b0[actorIndex].y = y;
+    x = g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].deltaX +
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].x;
+    g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].x = x;
+    y = g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].deltaY +
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].y;
+    g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].y = y;
     DrawSpriteScaled(
         g_pScrambleViewport_005a86b4,
         (short)(g_nScrambleBackgroundRightX_005a8714 + x),
         (short)(g_nScrambleBackgroundY_005a8712 + y),
-        g_aScrambleAnimationActors_004657b0[actorIndex].shape,
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].shape,
         (short)(frame +
-                g_aScrambleAnimationActors_004657b0[actorIndex].baseFrame),
-        g_aScrambleAnimationActors_004657b0[actorIndex].angle,
-        g_aScrambleAnimationActors_004657b0[actorIndex].scale,
-        g_aScrambleAnimationActors_004657b0[actorIndex].flip);
+                g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].baseFrame),
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].angle,
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].scale,
+        g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex].flip);
     return 0;
 }
 
@@ -1323,7 +1323,7 @@ unsigned int ConfigureScrambleActor(short x, short y, short deltaX,
 {
     ScrambleAnimationActor *actor;
 
-    actor = &g_aScrambleAnimationActors_004657b0[actorIndex];
+    actor = &g_aScrambleAnimationActors_004657b0_WC1_UNMAPPED[actorIndex];
     actor->x = x;
     actor->y = y;
     actor->deltaX = deltaX;
@@ -1446,7 +1446,7 @@ unsigned int DrawScrambleFrame(void)
          detailIndex < g_nScrambleShipDetailCount_005a86cc;
          detailIndex++) {
         detailSlot = g_acScrambleShipDetailIndices_005a86d0[detailIndex];
-        detail = &g_aaScrambleShipDetails_00465828[
+        detail = &g_aaScrambleShipDetails_00465828_WC1_UNMAPPED[
             g_nPlayerShipType_00493464][detailSlot];
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                           (short)(g_nScrambleShipX_005a8724 + detail->x),
@@ -1647,7 +1647,7 @@ unsigned int landing(signed char damageLevel)
     InitializeConversationViewport();
     damageOffset = damageLevel * 4;
     g_nScrambleShipDetailCount_005a86cc =
-        g_anLandingDamageDetailCounts_00465aa8[damageLevel];
+        g_anLandingDamageDetailCounts_00465aa8_WC1_UNMAPPED[damageLevel];
     for (frame = 0;
          frame < g_nScrambleShipDetailCount_005a86cc;
          frame++) {
@@ -1744,7 +1744,7 @@ unsigned int landing(signed char damageLevel)
         g_nScrambleOverlayX_005a8740 =
             (short)(g_nScrambleShipX_005a8724 + 180);
         canopyFrames = *(const signed char **)
-            ((unsigned char *)g_apLandingCanopyFrames_00465b08 +
+            ((unsigned char *)g_apLandingCanopyFrames_00465b08_WC1_UNMAPPED +
              damageOffset);
         g_nScrambleOverlayY_005a8742 =
             (short)(g_nScrambleShipY_005a8726 + 50);
@@ -1791,10 +1791,10 @@ unsigned int landing(signed char damageLevel)
             ClearViewport(&g_stConversationTextViewport_005a7570,
                           g_cSecondaryViewBufferColour_0049cb4c);
             FormatTextBufferFromStart(
-                g_szLandingCommentFormat_00465bf8, 0, 160,
+                g_szLandingCommentFormat_00465bf8_WC1_UNMAPPED, 0, 160,
                 g_abGamePaletteReservedColours_0049cb54[0],
                 *(const char **)
-                    ((unsigned char *)g_apszLandingDamageComments_00465ab8 +
+                    ((unsigned char *)g_apszLandingDamageComments_00465ab8_WC1_UNMAPPED +
                      damageOffset));
             MarkDibDirty();
             DIBslamReal();
@@ -1886,9 +1886,9 @@ unsigned int funeral_player(void)
                           (short)(g_nFuneralForegroundX_005a8718 + 180),
                           g_nFuneralForegroundY_005a871a,
                           g_pConversationSpecialShape_005a86ec, 6);
-        if (g_bFuneralShowTheEnd_00465b54 != 0)
+        if (g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED != 0)
             print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 56,
-                           g_szTheEnd_00465c04);
+                           g_szTheEnd_00465c04_WC1_UNMAPPED);
         RefreshMemoryStatusOverlay();
         MarkDibDirty();
         DIBslamReal();
@@ -1902,7 +1902,7 @@ unsigned int funeral_wingman(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c,
+    FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -1933,16 +1933,16 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
     short scenePair;
 
     PreloadMusicTrackHook(0x20);
-    g_nFuneralSequenceActive_0046aa10 = 1;
+    g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED = 1;
     spacetrack(0x20, 1, 0);
     packet = FetchDiskPacketRetrying(
-        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED[g_nCampaignDataSet_005a8118],
         0, 0);
-    g_bFuneralShowTheEnd_00465b54 = 0;
+    g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED = 0;
 
     if (playerFuneral != 0) {
         scenePair = (short)(
-            g_asFuneralSceneBySeries_00465b36[
+            g_asFuneralSceneBySeries_00465b36_WC1_UNMAPPED[
                 g_stCampaignState_0059ca50.currentSeries] * 2);
         followupSceneData = (unsigned char *)packet + packet[0];
         sceneData = (unsigned char *)packet + packet[scenePair + 2];
@@ -1998,7 +1998,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
         if (g_bSceneEscapeRequested_0049d4b0 != 1) {
             frame = 0;
             FormatTextBufferFromStart(
-                g_szFuneralCompanyCommand_00465c18, 0, 160,
+                g_szFuneralCompanyCommand_00465c18_WC1_UNMAPPED, 0, 160,
                 g_abGamePaletteReservedColours_0049cb54[0]);
             g_nFrameSkipCountdown_0049d760 = 1;
             for (; frame < 15; frame++) {
@@ -2014,7 +2014,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                 frame = 0;
                 g_nFrameSkipCountdown_0049d760 = 1;
                 FormatTextBufferFromStart(
-                    g_szFuneralAttentionCommand_00465c2c, 0, 160);
+                    g_szFuneralAttentionCommand_00465c2c_WC1_UNMAPPED, 0, 160);
                 for (; frame < 10; frame++) {
                     PumpWindowMessages(0);
                     funeral_player();
@@ -2042,7 +2042,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                         frame = 10;
                         g_nFrameSkipCountdown_0049d760 = 1;
                         FormatTextBufferFromStart(
-                            g_szFuneralPrepareArmsCommand_00465c40,
+                            g_szFuneralPrepareArmsCommand_00465c40_WC1_UNMAPPED,
                             0, 160);
                         for (; frame != 0; frame--) {
                             PumpWindowMessages(0);
@@ -2073,7 +2073,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                                         &g_stConversationTextViewport_005a7570,
                                         g_cSecondaryViewBufferColour_0049cb4c);
                                     FormatTextBufferFromStart(
-                                        g_szFuneralFireCommand_00465c54,
+                                        g_szFuneralFireCommand_00465c54_WC1_UNMAPPED,
                                         0, 160,
                                         g_abGamePaletteReservedColours_0049cb54[0]);
                                     if (volley == 1)
@@ -2114,12 +2114,12 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                                          particle++) {
                                         g_aFuneralParticles_005a86f0[particle].x =
                                             (short)(
-                                                g_aFuneralParticleOrigins_00465b18[
+                                                g_aFuneralParticleOrigins_00465b18_WC1_UNMAPPED[
                                                     particle].x +
                                                 g_nFuneralBaseX_005a8720);
                                         g_aFuneralParticles_005a86f0[particle].y =
                                             (short)(
-                                                g_aFuneralParticleOrigins_00465b18[
+                                                g_aFuneralParticleOrigins_00465b18_WC1_UNMAPPED[
                                                     particle].y +
                                                 g_nFuneralBaseY_005a8722);
                                     }
@@ -2170,7 +2170,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                                         g_nFuneralParticleDistance_005a8710++;
                                         if (frame == 110 &&
                                             playerFuneral != 0)
-                                            g_bFuneralShowTheEnd_00465b54 = 1;
+                                            g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED = 1;
 
                                         if (g_nMusicDriverMode_0049be8c == 0 ||
                                             g_nWaitForMusicEnabled_0049beac == 0 ||
@@ -2203,7 +2203,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
     g_bSceneEscapeRequested_0049d4b0 = 0;
     ClearInputKeyStatePreservingModifiers();
     FlushInputEvents();
-    g_nFuneralSequenceActive_0046aa10 = 0;
+    g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED = 0;
     StopMusicUnlessSuppressed();
     free_inflight_music();
     ReleaseMusicTrackHook(0x20);
@@ -5044,7 +5044,7 @@ void LoadWc1PilotTalk(short personality)
 
     CloseDataFile((unsigned short)file);
     if (loaded == 0)
-        ShowModalMessage(g_szErrorLoadingPilotSpeech_00466010);
+        ShowModalMessage(g_szErrorLoadingPilotSpeech_00466010_WC1_UNMAPPED);
     LoadCommPortraitShape(personality, 4);
 }
 
@@ -5642,14 +5642,14 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
 /* Function start: 0x44FBC8 */
 void CheckPoint(short x, short y)
 {
-    g_nNavMapMinimumX_005a812e =
-        MinShort(g_nNavMapMinimumX_005a812e, x);
-    g_nNavMapMaximumX_005a812c =
-        MaxShort(g_nNavMapMaximumX_005a812c, x);
-    g_nNavMapMinimumY_005a8154 =
-        MinShort(g_nNavMapMinimumY_005a8154, y);
-    g_nNavMapMaximumY_005a8150 =
-        MaxShort(g_nNavMapMaximumY_005a8150, y);
+    g_nNavMapMinimumX_005d16a0 =
+        MinShort(g_nNavMapMinimumX_005d16a0, x);
+    g_nNavMapMaximumX_005d169e =
+        MaxShort(g_nNavMapMaximumX_005d169e, x);
+    g_nNavMapMinimumY_005d16c4 =
+        MinShort(g_nNavMapMinimumY_005d16c4, y);
+    g_nNavMapMaximumY_005d16c0 =
+        MaxShort(g_nNavMapMaximumY_005d16c0, y);
 }
 
 /* Function start: 0x44FC37 */
@@ -5673,10 +5673,10 @@ void SetScale(void)
     short width;
 
     SetNavMapCoordinateScaling(0);
-    g_nNavMapMinimumX_005a812e = g_aMissionObjectives_004932a8[0].mapX;
-    g_nNavMapMaximumX_005a812c = g_aMissionObjectives_004932a8[0].mapX;
-    g_nNavMapMinimumY_005a8154 = g_aMissionObjectives_004932a8[0].mapY;
-    g_nNavMapMaximumY_005a8150 = g_aMissionObjectives_004932a8[0].mapY;
+    g_nNavMapMinimumX_005d16a0 = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavMapMaximumX_005d169e = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavMapMinimumY_005d16c4 = g_aMissionObjectives_004932a8[0].mapY;
+    g_nNavMapMaximumY_005d16c0 = g_aMissionObjectives_004932a8[0].mapY;
     objectiveIndex = 0;
     while (objectiveIndex < (short)g_cMissionObjectiveCount_00493294) {
         if (mobile_objective(objectiveIndex) != 0) {
@@ -5697,16 +5697,16 @@ void SetScale(void)
     }
     IncludeNavMapWorldPoint(g_aShipPosition_00494550[0].x,
                             g_aShipPosition_00494550[0].z);
-    width = (short)(g_nNavMapMaximumX_005a812c -
-                    g_nNavMapMinimumX_005a812e);
-    height = (short)(g_nNavMapMaximumY_005a8150 -
-                     g_nNavMapMinimumY_005a8154);
+    width = (short)(g_nNavMapMaximumX_005d169e -
+                    g_nNavMapMinimumX_005d16a0);
+    height = (short)(g_nNavMapMaximumY_005d16c0 -
+                     g_nNavMapMinimumY_005d16c4);
     halfWidth = (short)(width / 2);
     g_nNavMapCentreX_005a8152 =
-        (short)(g_nNavMapMinimumX_005a812e + halfWidth);
+        (short)(g_nNavMapMinimumX_005d16a0 + halfWidth);
     halfHeight = (short)(height / 2);
     g_nNavMapCentreY_005a817c =
-        (short)(g_nNavMapMinimumY_005a8154 + halfHeight);
+        (short)(g_nNavMapMinimumY_005d16c4 + halfHeight);
     g_nNavMapScale_0049bb84 = MaxShort(
         (short)((width + halfWidth) / 150),
         (short)((halfHeight + height) / 135));

@@ -101,11 +101,11 @@ static int Wc1SdlRunRuntimeChecks(void)
     g_asShipManeuver_00495f48[0] = MANEUVER_NONE;
     perform_maneuver(0);
 
-    g_pSnowStaticSound_00476550 = ix_system_new_sound(0);
-    if (g_pSnowStaticSound_00476550 == 0)
+    g_pSnowStaticSound_004a2664 = ix_system_new_sound(0);
+    if (g_pSnowStaticSound_004a2664 == 0)
         return 1;
     stop_all_sounds();
-    if (g_pSnowStaticSound_00476550 != 0)
+    if (g_pSnowStaticSound_004a2664 != 0)
         return 1;
 
     g_cCockpitView_0059dab0 = 4;

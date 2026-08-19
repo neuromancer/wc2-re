@@ -96,8 +96,8 @@ void CalibrateJoystickInteractive()
 
     if (g_nJoystickHorizontalRange_005a81cc == 0)
         g_nJoystickHorizontalRange_005a81cc = 9;
-    if (g_nJoystickVerticalRange_005a81c8 == 0)
-        g_nJoystickVerticalRange_005a81c8 = 9;
+    if (g_nJoystickVerticalRange_005d1754 == 0)
+        g_nJoystickVerticalRange_005d1754 = 9;
     g_nJoystickLeftScale_005a81ac =
         (g_nJoystickCentreX_005a81dc - g_nJoystickMinimumX_005a81b8) /
         g_nJoystickHorizontalRange_005a81cc;
@@ -106,10 +106,10 @@ void CalibrateJoystickInteractive()
         g_nJoystickHorizontalRange_005a81cc;
     g_nJoystickUpScale_005a81a8 =
         (g_nJoystickCentreY_005a81d8 - g_nJoystickMinimumY_005a81bc) /
-        g_nJoystickVerticalRange_005a81c8;
+        g_nJoystickVerticalRange_005d1754;
     g_nJoystickDownScale_005a81d4 =
         (g_nJoystickMaximumY_005a81b4 - g_nJoystickCentreY_005a81d8) /
-        g_nJoystickVerticalRange_005a81c8;
+        g_nJoystickVerticalRange_005d1754;
     if (g_nJoystickLeftScale_005a81ac == 0)
         g_nJoystickLeftScale_005a81ac = 1;
     if (g_nJoystickRightScale_005a81d0 == 0)
@@ -123,12 +123,12 @@ void CalibrateJoystickInteractive()
         g_nJoystickLeftScale_005a81ac *
             g_nJoystickHorizontalRange_005a81cc;
     g_nJoystickMinimumY_005a81bc = g_nJoystickCentreY_005a81d8 -
-        g_nJoystickUpScale_005a81a8 * g_nJoystickVerticalRange_005a81c8;
+        g_nJoystickUpScale_005a81a8 * g_nJoystickVerticalRange_005d1754;
     g_nJoystickMaximumX_005a81b0 = g_nJoystickCentreX_005a81dc +
         g_nJoystickRightScale_005a81d0 *
             g_nJoystickHorizontalRange_005a81cc;
     g_nJoystickMaximumY_005a81b4 = g_nJoystickCentreY_005a81d8 +
-        g_nJoystickDownScale_005a81d4 * g_nJoystickVerticalRange_005a81c8;
+        g_nJoystickDownScale_005a81d4 * g_nJoystickVerticalRange_005d1754;
     g_nJoystickFailureValue_005a81e0 = g_nJoystickMaximumX_005a81b0 * 2;
 
     if (g_nJoystickMaximumX_005a81b0 <= g_nJoystickMinimumX_005a81b8 ||

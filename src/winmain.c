@@ -803,7 +803,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 {
     WNDCLASSA windowClass;
 
-    DAT_005a8a40 = instance;
+    DAT_005d12b0 = instance;
     if (previous != 0)
         return 0;
 
@@ -821,16 +821,16 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 
     g_hMainWindow_005d10e0 = CreateWindowExA(0, "Wing Commander", "Wing Commander",
                                    WS_POPUP, 0, 0, 320, 200, 0, 0,
-                                   DAT_005a8a40, 0);
+                                   DAT_005d12b0, 0);
     if (g_hMainWindow_005d10e0 == 0) {
         GetLastError();
         return 0;
     }
 
-    DAT_005a8a30 = GetDC(g_hMainWindow_005d10e0);
-    SetTextColor(DAT_005a8a30, RGB(255, 0, 0));
-    SetBkColor(DAT_005a8a30, RGB(0, 0, 0));
-    if (GetDeviceCaps(DAT_005a8a30, BITSPIXEL) < 8) {
+    DAT_005d1278 = GetDC(g_hMainWindow_005d10e0);
+    SetTextColor(DAT_005d1278, RGB(255, 0, 0));
+    SetBkColor(DAT_005d1278, RGB(0, 0, 0));
+    if (GetDeviceCaps(DAT_005d1278, BITSPIXEL) < 8) {
         MessageBoxA(0,
                     "You must be running with 256, or more, colors to play Wing Commander",
                     "NOTICE", MB_ICONEXCLAMATION);
@@ -1324,7 +1324,7 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
 /* Function start: 0x455427 */
 HINSTANCE GetApplicationInstance(void)
 {
-    return DAT_005a8a40;
+    return DAT_005d12b0;
 }
 
 /* Function start: 0x45543C */
@@ -1340,7 +1340,7 @@ HWND GetMainWindowHandle(void)
  * believed unreachable. */
 HDC GetMainWindowDeviceContext(void)
 {
-    return DAT_005a8a30;
+    return DAT_005d1278;
 }
 
 /* Function start: 0x455466 */

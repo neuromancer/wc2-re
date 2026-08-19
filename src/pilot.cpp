@@ -34,9 +34,9 @@ void ShowMeanwhileTransition(short scene, short variant)
     InitializeConversationViewport();
     InitializeConversationText();
     LoadSceneAnimationResources(scene, variant);
-    ClearViewport(g_stConversationTextContext_005a7760.viewport,
+    ClearViewport(g_stConversationTextContext_005d2d40.viewport,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    SetTextContext(&g_stConversationTextContext_005d2d40);
     g_pIntroFont_005a8960 =
         (unsigned char *)FetchDiskPacketRetrying(
             reinterpret_cast<char *>(static_cast<unsigned int>(9)), 1, 0);

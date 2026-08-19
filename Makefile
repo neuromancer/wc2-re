@@ -793,6 +793,7 @@ ORDER_FLAGS ?=
 
 sort:
 	@python3 bin/sortByAddress.py
+	@python3 bin/sortGlobalsByAddress.py
 	@python3 bin/expandOneLiners.py --check
 
 # Rewrite `T f(void) { body; }` onto separate lines.  A body folded onto the

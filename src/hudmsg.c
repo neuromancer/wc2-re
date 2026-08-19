@@ -1798,49 +1798,49 @@ int RunWc1SpaceFlight(short entryNavPoint)
     frameReady = 1;
 
     while (g_nArcadeState_0049d75c == 0) {
-        ReadPerformanceCounter(&g_liFlightFrameStart_00476518);
+        ReadPerformanceCounter(&g_liFlightFrameStart_00476518_WC1_UNMAPPED);
         if (HandleSpaceFlightControls() == -1) {
             g_nArcadeState_0049d75c = 5;
             break;
         }
-        ReadPerformanceCounter(&g_liFlightAfterInput_00476500);
+        ReadPerformanceCounter(&g_liFlightAfterInput_00476500_WC1_UNMAPPED);
         if (g_nArcadeState_0049d75c == 0) {
             Update_3Space();
-            ReadPerformanceCounter(&g_liFlightAfterSimulation_00476520);
+            ReadPerformanceCounter(&g_liFlightAfterSimulation_00476520_WC1_UNMAPPED);
             RenderSpaceViewFrame();
             frameReady = 1;
-            ReadPerformanceCounter(&g_liFlightAfterRender_00476540);
+            ReadPerformanceCounter(&g_liFlightAfterRender_00476540_WC1_UNMAPPED);
             update_cockpit();
         } else {
-            g_liFlightAfterRender_00476540 =
-                g_liFlightAfterSimulation_00476520 =
-                    g_liFlightAfterInput_00476500;
+            g_liFlightAfterRender_00476540_WC1_UNMAPPED =
+                g_liFlightAfterSimulation_00476520_WC1_UNMAPPED =
+                    g_liFlightAfterInput_00476500_WC1_UNMAPPED;
         }
-        ReadPerformanceCounter(&g_liFlightAfterCockpit_00476530);
+        ReadPerformanceCounter(&g_liFlightAfterCockpit_00476530_WC1_UNMAPPED);
         if (frameReady != 0) {
             frameReady = 0;
             MarkDibDirty();
             DIBslamReal();
         }
-        ReadPerformanceCounter(&g_liFlightFrameEnd_00476508);
-        g_nFlightPresentTicks_00476510 =
-            (int)(g_liFlightFrameEnd_00476508.LowPart -
-                  g_liFlightAfterCockpit_00476530.LowPart);
-        g_nFlightCockpitTicks_004764fc =
-            (int)(g_liFlightAfterCockpit_00476530.LowPart -
-                  g_liFlightAfterRender_00476540.LowPart);
-        g_nFlightRenderTicks_00476548 =
-            (int)(g_liFlightAfterRender_00476540.LowPart -
-                  g_liFlightAfterSimulation_00476520.LowPart);
-        g_nFlightSimulationTicks_00476528 =
-            (int)(g_liFlightAfterSimulation_00476520.LowPart -
-                  g_liFlightAfterInput_00476500.LowPart);
-        g_nFlightFrameTotalTicks_004764f8 =
-            (int)(g_liFlightFrameEnd_00476508.LowPart -
-                  g_liFlightFrameStart_00476518.LowPart);
-        g_nFlightInputTicks_00476538 =
-            (int)(g_liFlightAfterInput_00476500.LowPart -
-                  g_liFlightFrameStart_00476518.LowPart);
+        ReadPerformanceCounter(&g_liFlightFrameEnd_00476508_WC1_UNMAPPED);
+        g_nFlightPresentTicks_00476510_WC1_UNMAPPED =
+            (int)(g_liFlightFrameEnd_00476508_WC1_UNMAPPED.LowPart -
+                  g_liFlightAfterCockpit_00476530_WC1_UNMAPPED.LowPart);
+        g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED =
+            (int)(g_liFlightAfterCockpit_00476530_WC1_UNMAPPED.LowPart -
+                  g_liFlightAfterRender_00476540_WC1_UNMAPPED.LowPart);
+        g_nFlightRenderTicks_00476548_WC1_UNMAPPED =
+            (int)(g_liFlightAfterRender_00476540_WC1_UNMAPPED.LowPart -
+                  g_liFlightAfterSimulation_00476520_WC1_UNMAPPED.LowPart);
+        g_nFlightSimulationTicks_00476528_WC1_UNMAPPED =
+            (int)(g_liFlightAfterSimulation_00476520_WC1_UNMAPPED.LowPart -
+                  g_liFlightAfterInput_00476500_WC1_UNMAPPED.LowPart);
+        g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED =
+            (int)(g_liFlightFrameEnd_00476508_WC1_UNMAPPED.LowPart -
+                  g_liFlightFrameStart_00476518_WC1_UNMAPPED.LowPart);
+        g_nFlightInputTicks_00476538_WC1_UNMAPPED =
+            (int)(g_liFlightAfterInput_00476500_WC1_UNMAPPED.LowPart -
+                  g_liFlightFrameStart_00476518_WC1_UNMAPPED.LowPart);
         DAT_00598888 = 0;
         DAT_0059888c = 0;
         DAT_00598890 = 0;

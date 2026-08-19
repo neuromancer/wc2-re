@@ -28,8 +28,8 @@ short g_asPilotHandOffsets_0049aff8[34] = {
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
     6, -9, 5, -11, 5, -14
 };
-unsigned char *g_pCockpitPilotShape_0046905c = 0;
-unsigned char * volatile g_pCockpitExplosionShape_00469064 = 0;
+unsigned char *g_pCockpitPilotShape_0046905c_WC1_UNMAPPED /* no-address */ = 0;
+unsigned char * volatile g_pCockpitExplosionShape_00469064_WC1_UNMAPPED /* no-address */ = 0;
 int g_nDisplayedObjectiveRange_0049b078 = 40000;
 short g_nScannerTargetObject_0049b07c = -1;
 const int g_aiForwardScannerGridRows_0049b080[78] = {
@@ -74,9 +74,9 @@ const int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
 };
 const char *g_pszMissileLocked_0049b280 = g_szMissileLocked_0049b30c;
 short g_nTargetLockMarkerX_0049b298 = -0x7fff;
-ShortRect g_stPreviousTargetBracketBounds_00469200 = {-0x7fff, 0, 0, 0};
+ShortRect g_stPreviousTargetBracketBounds_00469200_WC1_UNMAPPED /* no-address */ = {-0x7fff, 0, 0, 0};
 Viewport g_stTrainSimVduSource_00469210 = {0};
-ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
+ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][4] = {
     {{224, 5}, {132, 96}, {233, 107}, {149, 161}},
     {{177, 6}, {153, 142}, {103, 140}, {55, 183}},
     {{107, 25}, {211, 32}, {21, 178}, {300, 178}},
@@ -86,7 +86,7 @@ ShortPoint g_aaCockpitDamagePositions_00469228[5][4] = {
 unsigned char *g_pConfedCommBackground_00469278 = 0;
 unsigned char *g_pCommStaticShape_0046927c = 0;
 unsigned char *g_pKilrathiCommBackground_00469280 = 0;
-int g_nCommPortraitFrame_00469284 = -1;
+int g_nCommPortraitFrame_0049b2bc = -1;
 int g_bForceDamageDisplayRedraw_0049b2ec = 0;
 char g_szMissileLocked_0049b30c[16] = "MISSILE LOCKED ";
 char g_szAlreadyNear_0049b334[16] = "Already Near";
@@ -1508,7 +1508,7 @@ void show_weapon_disp(void)
         (short)(g_stLeftVduViewport_005d2180.left +
                 g_nWeaponDisplayOffsetX_0049ae8c);
     g_nWeaponDisplayOriginY_005d4256 =
-        (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+        (short)(g_nWeaponDisplayOffsetY_005d218a +
                 g_stLeftVduViewport_005d2180.top);
     DrawSpriteDefault(
         &g_stLeftVduViewport_005d2180,
@@ -1590,7 +1590,7 @@ void update_status_text(void)
                 (short)(g_stLeftVduViewport_005d2180.left +
                         g_nWeaponDisplayOffsetX_0049ae8c);
             g_nWeaponDisplayOriginY_005d4256 =
-                (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+                (short)(g_nWeaponDisplayOffsetY_005d218a +
                         g_stLeftVduViewport_005d2180.top);
             x = g_aWeaponDisplayPositions_005d1de0[index].x;
             y = g_aWeaponDisplayPositions_005d1de0[index].y;
@@ -3907,13 +3907,13 @@ void vid_transmit(void)
                               g_pCommStaticShape_0046927c, 2);
             return;
         }
-        if (g_nCommPortraitFrame_00469284 == -1) {
-            g_nCommPortraitFrame_00469284 =
+        if (g_nCommPortraitFrame_0049b2bc == -1) {
+            g_nCommPortraitFrame_0049b2bc =
                 (unsigned short)RandomInRange(0, 2);
         }
         randomFrame = RandomInRange(0, 3);
         if (randomFrame < 3)
-            g_nCommPortraitFrame_00469284 = randomFrame;
+            g_nCommPortraitFrame_0049b2bc = randomFrame;
         set_new_vdu(1);
         if (g_asShipSide_004955d0[g_nCommSpeakerObject_0049b794] ==
             SIDE_IMPERIAL) {
@@ -3926,7 +3926,7 @@ void vid_transmit(void)
         DrawSpriteDefault(
             &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
             g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0049b79c],
-            (short)g_nCommPortraitFrame_00469284);
+            (short)g_nCommPortraitFrame_0049b2bc);
     }
 }
 

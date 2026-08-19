@@ -21,7 +21,7 @@ void CorrectPointers(void)
         &g_aPilotRecords_005988d0[8];
     g_pCurrentCampaignDate_005a86a8 =
         &g_stCampaignState_0059ca50.currentDate;
-    g_pElapsedCampaignDate_005a86ac =
+    g_pElapsedCampaignDate_005d3e8c =
         &g_stCampaignState_0059ca50.elapsedDate;
 }
 
@@ -42,7 +42,7 @@ void DrawRoomMenuLabel(TextContext *context, const char *label)
 {
     DosStrcpy(g_szTextScratchBuffer_005d1c40, label);
     SetTextContext(context);
-    FormatTextBufferFromStart(g_szRoomMenuLabelFormat_004705dc,
+    FormatTextBufferFromStart(g_szRoomMenuLabelFormat_004705dc_WC1_UNMAPPED,
                               0, 188,
                               g_szTextScratchBuffer_005d1c40);
 }
@@ -52,7 +52,7 @@ void RefreshRoomMenuLabel(void)
 {
     if (IsRoomMenuLabelEmpty())
         g_pszCurrentRoomMenuLabel_00598aba =
-            g_pszBlankRoomMenuLabel_00470090;
+            g_pszBlankRoomMenuLabel_00470090_WC1_UNMAPPED;
     DrawRoomMenuLabel(&g_stRoomMenuTextContext_00598abe,
                       g_pszCurrentRoomMenuLabel_00598aba);
 }
@@ -81,12 +81,12 @@ void InitializeRoomMenu(TitleMenuRegion *regions, char **labels,
     g_pRoomMenuRegions_00598ab2 = regions;
     g_ppszRoomMenuLabels_00598ab6 = labels;
     g_pszCurrentRoomMenuLabel_00598aba =
-        g_pszBlankRoomMenuLabel_00470090;
+        g_pszBlankRoomMenuLabel_00470090_WC1_UNMAPPED;
     g_stRoomMenuTextContext_00598abe.viewport = viewport;
     g_stRoomMenuTextContext_00598abe.text = text;
     g_stRoomMenuTextContext_00598abe.textCursor = text;
     g_stRoomMenuTextContext_00598abe.alignment = alignment;
-    *text = g_szEmptyRoomMenuLabel_004705e8[0];
+    *text = g_szEmptyRoomMenuLabel_004705e8_WC1_UNMAPPED[0];
     InitializeTextContextFromFont(&g_stRoomMenuTextContext_00598abe,
                                   0, g_bPrimaryViewBufferColour_0049cb50,
                                   -1);
@@ -421,12 +421,12 @@ short RecRoom(void)
     lastChalkboardTick = 0;
     firstFrame = 0;
     characterMask = 0;
-    g_apszRecRoomMenuLabels_004704f8[0] =
-        g_apszRecRoomBaseLabels_004704e8[0];
-    g_apszRecRoomMenuLabels_004704f8[1] =
-        g_apszRecRoomBaseLabels_004704e8[1];
-    g_apszRecRoomMenuLabels_004704f8[2] =
-        g_apszRecRoomBaseLabels_004704e8[2];
+    g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED[0] =
+        g_apszRecRoomBaseLabels_004704e8_WC1_UNMAPPED[0];
+    g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED[1] =
+        g_apszRecRoomBaseLabels_004704e8_WC1_UNMAPPED[1];
+    g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED[2] =
+        g_apszRecRoomBaseLabels_004704e8_WC1_UNMAPPED[2];
 
     PreloadMusicTrackHook(30);
     spacetrack(30, 2, 1);
@@ -434,26 +434,26 @@ short RecRoom(void)
     LoadBriefingData((short)g_stCampaignState_0059ca50.currentSeries,
                      (short)g_stCampaignState_0059ca50.currentMission);
     g_pRecRoomRoster_005988b8 = LoadPacketAllocated(
-        g_asCampaignPilotFiles_00469450[g_nCampaignDataSet_005a8118], 2);
+        g_asCampaignPilotFiles_00469450_WC1_UNMAPPED[g_nCampaignDataSet_005a8118], 2);
 
     animationIds[0] = (signed char)(RandomInRange(0, 3) + 9);
     g_apRecRoomCharacterShapes_005988c0[0] = 0;
     g_apRecRoomCharacterShapes_005988c0[1] = 0;
     g_apRecRoomCharacterShapes_005988c0[2] = 0;
-    g_aRecRoomMenuRegions_004704a0[0].left = 400;
-    g_aRecRoomMenuRegions_004704a0[0].top = 400;
-    g_aRecRoomMenuRegions_004704a0[0].right = 401;
-    g_aRecRoomMenuRegions_004704a0[0].bottom = 401;
-    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[1].left =
-        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[0].left;
-    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[2].left =
-        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0[0].left;
+    g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].left = 400;
+    g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].top = 400;
+    g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].right = 401;
+    g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].bottom = 401;
+    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[1].left =
+        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].left;
+    *(ShortRect *)&g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[2].left =
+        *(ShortRect *)&g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].left;
 
     g_apRecRoomCharacterShapes_005988c0[0] =
         FetchDiskPacketRetrying(5, 11, 0);
-    GetShapeFrameBounds(&g_aRecRoomMenuRegions_004704a0[0].left,
-                        g_aRecRoomCharacterOrigins_00470490[0].x,
-                        g_aRecRoomCharacterOrigins_00470490[0].y,
+    GetShapeFrameBounds(&g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[0].left,
+                        g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[0].x,
+                        g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[0].y,
                         g_apRecRoomCharacterShapes_005988c0[0], 0);
 
     rosterOffset = ((int)g_stCampaignState_0059ca50.currentMission +
@@ -469,16 +469,16 @@ short RecRoom(void)
                 FetchDiskPacketRetrying(
                     5, (short)(personality + 3), 0);
             GetShapeFrameBounds(
-                &g_aRecRoomMenuRegions_004704a0[1].left,
-                g_aRecRoomCharacterOrigins_00470490[1].x,
-                g_aRecRoomCharacterOrigins_00470490[1].y,
+                &g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[1].left,
+                g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[1].x,
+                g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[1].y,
                 g_apRecRoomCharacterShapes_005988c0[1], 0);
-            sprintf(g_szTalkToFirstPilot_00470570,
-                    g_szTalkToPilotFormat1_004705ec,
+            sprintf(g_szTalkToFirstPilot_00470570_WC1_UNMAPPED,
+                    g_szTalkToPilotFormat1_004705ec_WC1_UNMAPPED,
                     g_apWingmanPilots_00598a30[personality]->callsign);
         } else {
-            sprintf(g_szTalkToFirstPilot_00470570,
-                    g_szTalkToPilotFormat1_004705ec + 12);
+            sprintf(g_szTalkToFirstPilot_00470570_WC1_UNMAPPED,
+                    g_szTalkToPilotFormat1_004705ec_WC1_UNMAPPED + 12);
         }
     }
 
@@ -492,16 +492,16 @@ short RecRoom(void)
                 FetchDiskPacketRetrying(
                     5, (short)(personality + 3), 0);
             GetShapeFrameBounds(
-                &g_aRecRoomMenuRegions_004704a0[2].left,
-                g_aRecRoomCharacterOrigins_00470490[2].x,
-                g_aRecRoomCharacterOrigins_00470490[2].y,
+                &g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED[2].left,
+                g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[2].x,
+                g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[2].y,
                 g_apRecRoomCharacterShapes_005988c0[2], 0);
-            sprintf(g_szTalkToSecondPilot_00470588,
-                    g_szTalkToPilotFormat2_004705fc,
+            sprintf(g_szTalkToSecondPilot_00470588_WC1_UNMAPPED,
+                    g_szTalkToPilotFormat2_004705fc_WC1_UNMAPPED,
                     g_apWingmanPilots_00598a30[personality]->callsign);
         } else {
-            sprintf(g_szTalkToSecondPilot_00470588,
-                    g_szTalkToPilotFormat2_004705fc + 12);
+            sprintf(g_szTalkToSecondPilot_00470588_WC1_UNMAPPED,
+                    g_szTalkToPilotFormat2_004705fc_WC1_UNMAPPED + 12);
         }
     }
 
@@ -525,13 +525,13 @@ short RecRoom(void)
     InitializeConstellationField(&g_stConstellationViewport_005a6b40,
                                  -1, 6);
 
-    animations[0] = g_abShotglassIdleAnimation_004703b8;
+    animations[0] = g_abShotglassIdleAnimation_004703b8_WC1_UNMAPPED;
     animations[1] =
-        g_apRecRoomAnimations_00470458[(int)animationIds[1]];
+        g_apRecRoomAnimations_00470458_WC1_UNMAPPED[(int)animationIds[1]];
     animations[2] =
-        g_apRecRoomAnimations_00470458[(int)animationIds[2]];
-    InitializeRoomMenu(g_aRecRoomMenuRegions_004704a0,
-                       g_apszRecRoomMenuLabels_004704f8,
+        g_apRecRoomAnimations_00470458_WC1_UNMAPPED[(int)animationIds[2]];
+    InitializeRoomMenu(g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED,
+                       g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED,
                        &g_stRoomScreenViewport_005988a0,
                        g_szDefaultTextBuffer_005d2b80, 2);
 
@@ -553,16 +553,16 @@ short RecRoom(void)
     if (g_apRecRoomCharacterShapes_005988c0[2] != 0) {
         GetShapeFrameBounds(
             &secondPilotBounds.left,
-            g_aRecRoomCharacterOrigins_00470490[2].x,
-            g_aRecRoomCharacterOrigins_00470490[2].y,
+            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[2].x,
+            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[2].y,
             g_apRecRoomCharacterShapes_005988c0[2],
             (short)*animations[2]);
     }
     if (g_apRecRoomCharacterShapes_005988c0[1] != 0) {
         GetShapeFrameBounds(
             &firstPilotBounds.left,
-            g_aRecRoomCharacterOrigins_00470490[1].x,
-            g_aRecRoomCharacterOrigins_00470490[1].y,
+            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[1].x,
+            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[1].y,
             g_apRecRoomCharacterShapes_005988c0[1],
             (short)*animations[1]);
         *(ShortRect *)&pilotWork.left = firstPilotBounds;
@@ -582,8 +582,8 @@ short RecRoom(void)
     WarpWc1MouseTo(160, 100);
     GetShapeFrameBounds(
         &shotglassWork.left,
-        g_aRecRoomCharacterOrigins_00470490[0].x,
-        g_aRecRoomCharacterOrigins_00470490[0].y,
+        g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[0].x,
+        g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[0].y,
         g_apRecRoomCharacterShapes_005988c0[0],
         (short)*animations[0]);
 
@@ -613,21 +613,21 @@ short RecRoom(void)
                                 animationIds[0]--;
                         }
                         animations[index] =
-                            g_apRecRoomAnimations_00470458[
+                            g_apRecRoomAnimations_00470458_WC1_UNMAPPED[
                                 (int)animationIds[index]];
                     }
 
                     if (index > 0) {
                         DrawSpriteDefault(
                             &pilotWork,
-                            g_aRecRoomCharacterOrigins_00470490[index].x,
-                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].x,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].y,
                             g_apRecRoomCharacterShapes_005988c0[index], 0);
                         frame = (short)*animations[index]++;
                         DrawSpriteDefault(
                             &pilotWork,
-                            g_aRecRoomCharacterOrigins_00470490[index].x,
-                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].x,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].y,
                             g_apRecRoomCharacterShapes_005988c0[index],
                             frame);
                     } else {
@@ -642,14 +642,14 @@ short RecRoom(void)
                         frame = (short)*animations[index]++;
                         DrawSpriteDefault(
                             &shotglassWork,
-                            g_aRecRoomCharacterOrigins_00470490[index].x,
-                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].x,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].y,
                             g_apRecRoomCharacterShapes_005988c0[index],
                             frame);
                         GetShapeFrameBounds(
                             &nextFrameBounds.left,
-                            g_aRecRoomCharacterOrigins_00470490[index].x,
-                            g_aRecRoomCharacterOrigins_00470490[index].y,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].x,
+                            g_aRecRoomCharacterOrigins_00470490_WC1_UNMAPPED[index].y,
                             g_apRecRoomCharacterShapes_005988c0[index],
                             (short)*animations[index]);
                         if (firstFrame != 0) {
@@ -723,7 +723,7 @@ short RecRoom(void)
 
         if (clicked != 0) {
             region = FindMenuRegionAtPoint(
-                event.x, event.y, g_aRecRoomMenuRegions_004704a0);
+                event.x, event.y, g_aRecRoomMenuRegions_004704a0_WC1_UNMAPPED);
             SuspendWc1MouseCursor();
             if (region >= 0 && region <= 2) {
                 if (g_apRecRoomCharacterShapes_005988c0[region] != 0) {
@@ -832,21 +832,21 @@ void ShowWc1ChalkBoard(void)
 
     for (index = 0; index < 9; index++) {
         for (other = index; other < 9; other++) {
-            pilot = g_asChalkBoardPilotOrder_00470518[index];
-            swap = g_asChalkBoardPilotOrder_00470518[other];
+            pilot = g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED[index];
+            swap = g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED[other];
             score = g_aPilotRecords_005988d0[pilot].kills * 1000 -
                     g_aPilotRecords_005988d0[pilot].missions + 1;
             otherScore = g_aPilotRecords_005988d0[swap].kills * 1000 -
                          g_aPilotRecords_005988d0[swap].missions + 1;
             if (score < otherScore) {
-                g_asChalkBoardPilotOrder_00470518[index] = swap;
-                g_asChalkBoardPilotOrder_00470518[other] = pilot;
+                g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED[index] = swap;
+                g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED[other] = pilot;
             }
         }
     }
 
     memset(&context, 0, sizeof(context));
-    g_stChalkBoardDate_00470514 = *g_pCurrentCampaignDate_005a86a8;
+    g_stChalkBoardDate_00470514_WC1_UNMAPPED = *g_pCurrentCampaignDate_005a86a8;
     background = FetchDiskPacketRetrying(5, 2, 0);
     previousContext = g_pCurrentTextContext_005c8d1c;
     g_stModalSourceViewport_005d2c50 = g_stScreenViewport_005d21a0;
@@ -869,16 +869,16 @@ void ShowWc1ChalkBoard(void)
                           0, 0, background, 0);
         context.alignment = 2;
         SetTextContext(&context);
-        FormatTextBufferFromStart(g_szChalkBoardHeading_0047060c,
+        FormatTextBufferFromStart(g_szChalkBoardHeading_0047060c_WC1_UNMAPPED,
                                   0, 10);
-        DrawFormattedText(g_szChalkBoardPilotHeading_0047062c,
+        DrawFormattedText(g_szChalkBoardPilotHeading_0047062c_WC1_UNMAPPED,
                           60, 24);
-        DrawFormattedText(g_szChalkBoardScoreHeading_00470638,
+        DrawFormattedText(g_szChalkBoardScoreHeading_00470638_WC1_UNMAPPED,
                           185, 24);
         rowY = 46;
         index = 0;
         for (; index < 9; index++, rowY = (short)(rowY + 16)) {
-            pilot = g_asChalkBoardPilotOrder_00470518[index];
+            pilot = g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED[index];
             DosStrcpy(pilotName, g_aPilotRecords_005988d0[pilot].name);
             _strupr(pilotName);
             rank = g_aPilotRecords_005988d0[pilot].rank;
@@ -886,22 +886,22 @@ void ShowWc1ChalkBoard(void)
                 rank = 0;
             if (rank > 4)
                 rank = 4;
-            DrawFormattedText(g_szChalkBoardPilotFormat_0047064c,
+            DrawFormattedText(g_szChalkBoardPilotFormat_0047064c_WC1_UNMAPPED,
                               10, rowY,
                               g_apszPilotRankNames_0049a608[rank],
                               pilotName);
             if (pilot == 8 ||
                 g_stCampaignState_0059ca50
                     .personalityDeathMission[pilot] == 0) {
-                DrawFormattedText(g_szChalkBoardScoreFormat_00470658,
+                DrawFormattedText(g_szChalkBoardScoreFormat_00470658_WC1_UNMAPPED,
                                   230, rowY,
                                   g_aPilotRecords_005988d0[pilot].missions,
                                   280,
                                   g_aPilotRecords_005988d0[pilot].kills);
             } else {
-                DrawFormattedText(g_szChalkBoardKiaFormat_00470668,
+                DrawFormattedText(g_szChalkBoardKiaFormat_00470668_WC1_UNMAPPED,
                                   230, rowY,
-                                  g_szKilledInAction_00470664);
+                                  g_szKilledInAction_00470664_WC1_UNMAPPED);
             }
         }
         MarkDibDirty();
@@ -1046,10 +1046,10 @@ short RunCampaignChalkboardMenu(short campaignSlot)
 void ResetCampaignData(void)
 {
     memcpy(&g_stCampaignState_0059ca50,
-           &g_stInitialCampaignState_004700b0,
+           &g_stInitialCampaignState_004700b0_WC1_UNMAPPED,
            sizeof(g_stCampaignState_0059ca50));
     memcpy(g_aPilotRecords_005988d0,
-           g_aInitialPilotRecords_00470108,
+           g_aInitialPilotRecords_00470108_WC1_UNMAPPED,
            sizeof(g_aPilotRecords_005988d0));
     InitializeTrainSimHighScores();
     CorrectPointers();

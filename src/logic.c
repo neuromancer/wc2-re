@@ -489,8 +489,8 @@ unsigned int LoadWc1GamePaletteFile(void)
         } while ((unsigned int)(int)index < 14);
         index = 0;
         do {
-            g_asConversationTextColours_004699f0[index] =
-                g_asConversationTextColours_004699f0[index + 12];
+            g_asConversationTextColours_004699f0_WC1_UNMAPPED[index] =
+                g_asConversationTextColours_004699f0_WC1_UNMAPPED[index + 12];
             index++;
         } while ((unsigned int)(int)index < 12);
         return 0;
@@ -604,10 +604,10 @@ unsigned int LoadWc1OriginFxDrivers(void)
     SystemDebugPrintf("Expanded Memory Detected.\n");
     g_bOriginFxDriverActive_0049cbb0 = 0;
     PromptInsertNumberedDisk(0x38);
-    if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998) == 0)
+    if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998_WC1_UNMAPPED) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
 #if 0
-    RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998);
+    RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998_WC1_UNMAPPED);
 #endif
     LoadJoystickCalibrationFile(9, 9, 1, 1);
     g_nInputDoubleClickInterval_00493050 = 2;
@@ -621,8 +621,8 @@ unsigned int LoadWc1OriginFxDrivers(void)
     if ((int)GetAvailableFarMemoryByType(4) > memoryThreshold) {
         g_nAvailableGameMemory_005a7ce0 =
             (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anExpandedMemoryReservationByVideoMode_00469ab0[
-                g_bSlowSceneAnimation_00469998];
+            g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED[
+                g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
         if (g_nAvailableGameMemory_005a7ce0 < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
@@ -632,8 +632,8 @@ unsigned int LoadWc1OriginFxDrivers(void)
     } else {
         g_nAvailableGameMemory_005a7ce0 =
             (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anBaseMemoryReservationByVideoMode_00469a90[
-                g_bSlowSceneAnimation_00469998];
+            g_anBaseMemoryReservationByVideoMode_00469a90_WC1_UNMAPPED[
+                g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
         if (g_nAvailableGameMemory_005a7ce0 < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
@@ -642,8 +642,8 @@ unsigned int LoadWc1OriginFxDrivers(void)
         if (g_nMusicDriverMode_0049be8c == 1 ||
             g_nMusicDriverMode_0049be8c == 2) {
             videoModeMemory =
-                g_anFullMusicMemoryReservationByVideoMode_00469aa0[
-                    g_bSlowSceneAnimation_00469998];
+                g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED[
+                    g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
             if ((int)g_dwOriginalFreeMemory_005a7cd8 > videoModeMemory) {
                 g_nMemoryConfiguration_005a7cd4 = 1;
                 g_nAvailableGameMemory_005a7ce0 =
@@ -662,10 +662,10 @@ unsigned int LoadWc1OriginFxDrivers(void)
     PromptInsertNumberedDisk(0);
     ShutdownVideoHook(
         g_acExpectedGraphicsModes_00493078[
-            g_bSlowSceneAnimation_00469998]);
+            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED]);
     requestedGraphicsMode =
         g_acExpectedGraphicsModes_00493078[
-            g_bSlowSceneAnimation_00469998];
+            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
     if (GetTargetColourIndex() != requestedGraphicsMode)
         exit_squadron("Requested graphics display mode not available.");
     LoadWc1GamePaletteFile();
@@ -1161,7 +1161,7 @@ unsigned int LoadLegacySpaceflightResourceSets(void)
         debrisShapeSet;
     g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
         debrisShapeSet;
-    LoadShapeSet(g_aCockpitResourceDescriptors_00469c48, 4, -1);
+    LoadShapeSet(g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED, 4, -1);
     g_apCommPortraitShapes_0059e180[8] = 0;
     g_apCommPortraitShapes_0059e180[9] = 0;
     g_apCommPortraitShapes_0059e180[10] = 0;
@@ -1678,7 +1678,7 @@ short find_ship_index(short missionShip)
 {
     short obj;
 
-    g_nLastFoundShip_005a7cba = -1;
+    g_nLastFoundShip_005d2fc8 = -1;
     if (missionShip != -1) {
         for (obj = 0; obj < 10; obj++) {
             if (((g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
@@ -1686,7 +1686,7 @@ short find_ship_index(short missionShip)
                       SPECIAL_MANEUVER_UNKNOWN_9) ||
                  g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) &&
                 g_nShipMissionIndices_0059c830[obj] == missionShip) {
-                g_nLastFoundShip_005a7cba = obj;
+                g_nLastFoundShip_005d2fc8 = obj;
                 return obj;
             }
         }
@@ -4760,7 +4760,7 @@ unsigned short LoadSceneAnimationResources(short scene, short variant)
     unsigned char *packet;
     short logicalFile;
 
-    logicalFile = g_asSceneAnimationLogicalFiles_00469d60[scene];
+    logicalFile = g_asSceneAnimationLogicalFiles_00469d60_WC1_UNMAPPED[scene];
     g_pSceneAnimationPrimaryShape_005a7c58 =
         FetchDiskPacketRetrying(logicalFile, 0, 0);
     g_pSceneAnimationDefinitions_005a7c6c =
@@ -5063,7 +5063,7 @@ unsigned int __stdcall UpdateSceneAnimationObject(
         case 'W':
             g_nSceneAnimationWaitFrames_005a7c68 = *(short *)cursor;
             cursor += 2;
-            g_bSceneAnimationWaitCommand_00469d70 = 1;
+            g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED = 1;
             break;
 
         case 'X':
@@ -5121,11 +5121,11 @@ void PlaySceneAnimation(char *text, short animation, short duration)
 
     g_nSceneAnimationWaitFrames_005a7c68 = -1;
     complete = 0;
-    g_bSceneAnimationWaitCommand_00469d70 = 0;
+    g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED = 0;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74,
+    FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -5177,14 +5177,14 @@ void PlaySceneAnimation(char *text, short animation, short duration)
             }
             if (g_nFrameSkipCountdown_0049d760 == 0) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-                if (g_bSlowSceneAnimation_00469998 != 0)
+                if (g_bSlowSceneAnimation_00469998_WC1_UNMAPPED != 0)
                     g_nFrameSkipCountdown_0049d760++;
             }
             if ((complete == 0 && CheckEscaped() != 0) ||
                 g_bSceneEscapeRequested_0049d4b0 != 0) {
                 if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
                     while (complete == 0 &&
-                           g_bSceneAnimationWaitCommand_00469d70 == 0) {
+                           g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED == 0) {
                         object = objects;
                         remaining = objectCount;
                         while (remaining > 0) {

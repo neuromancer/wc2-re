@@ -19,13 +19,13 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 
     if (viewport->pixels != g_stScreenViewport_005d21a0.pixels) {
         allocation = 0;
-        while (allocation < g_nViewportAllocationCount_005a7f0c) {
+        while (allocation < g_nViewportAllocationCount_005d19bc) {
             if (g_apViewportAllocations_005a7f10[allocation] ==
                 viewport->pixels)
                 break;
             allocation++;
         }
-        if (allocation >= g_nViewportAllocationCount_005a7f0c)
+        if (allocation >= g_nViewportAllocationCount_005d19bc)
             exit_squadron(g_szBadViewport_004969f8);
     }
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)

@@ -1433,11 +1433,11 @@ short CheckWc1DiskAvailable(short logicalFile)
 {
     short file;
 
-    FillGraphicSuffix(g_szDiskMarkerFile_00469688,
+    FillGraphicSuffix(g_szDiskMarkerFile_00469688_WC1_UNMAPPED,
                       (unsigned char)
                           g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber,
                       3);
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688_WC1_UNMAPPED);
     if (file != -1) {
         CloseDataFile((unsigned short)file);
         return 1;
@@ -1454,7 +1454,7 @@ short CheckWc1DiskAvailable(short logicalFile)
     } else {
         SelectDiskDriveHook('A');
     }
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688);
+    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688_WC1_UNMAPPED);
     if (file != -1) {
         CloseDataFile((unsigned short)file);
         return 1;
@@ -1546,7 +1546,7 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
             g_stDiskPromptViewport_005a7d40.top,
             g_stDiskPromptViewport_005a7d40.right,
             g_stDiskPromptViewport_005a7d40.bottom,
-            g_nDiskPromptBorderColour_00469694);
+            g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED);
         FormatTextBufferFromStart(
             "Please insert disk %d\ninto any drive\nPress any key when ready.",
             (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
@@ -1716,13 +1716,13 @@ void MoveMenuPointerFromKeyboard(InputEventState *event)
     int delta;
     int moved;
 
-    delta = g_nKeyboardPointerStep_004696a4 * 2;
+    delta = g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED * 2;
     moved = 0;
     if ((short)event->value == 0x4c) {
-        if (g_nKeyboardPointerStep_004696a4 == 1)
-            g_nKeyboardPointerStep_004696a4 = 4;
+        if (g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED == 1)
+            g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED = 4;
         else
-            g_nKeyboardPointerStep_004696a4 = 1;
+            g_nKeyboardPointerStep_004696a4_WC1_UNMAPPED = 1;
     } else {
         switch ((short)event->value) {
         case 0x47:

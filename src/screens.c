@@ -709,7 +709,7 @@ unsigned int LoadBriefingRoom(void)
     g_pBriefingPortraitShape_00598c24 = 0;
     InitializeConversationViewport();
     InitializeConversationText();
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    SetTextContext(&g_stConversationTextContext_005d2d40);
     spacetrack(0x19, 2, 1);
     g_pConversationBackdropShape_00598c04 =
         FetchDiskPacketRetrying(4, 0, 0);
@@ -3221,7 +3221,7 @@ unsigned int ViewWc1Medals(void)
     unsigned char savedInputMode;
 
     clicked = 0;
-    g_pMedalSceneShape_0046e2f4 =
+    g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED =
         FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 = 0;
     InitializeConversationText();
@@ -3235,18 +3235,18 @@ unsigned int ViewWc1Medals(void)
             PeekInputEvent(&event, 3) != 0)
             clicked = 1;
         DrawMedals();
-        AddPCName(g_pszMedalsPilotSummary_0046e2f8);
+        AddPCName(g_pszMedalsPilotSummary_0046e2f8_WC1_UNMAPPED);
         RefreshMemoryStatusOverlay();
         ClearViewport(&g_stConversationTextViewport_005a7570,
                       g_cSecondaryViewBufferColour_0049cb4c);
         FormatTextBufferFromStart(
-            g_szViewMedalsTextFormat_0046e604, 0, 160,
+            g_szViewMedalsTextFormat_0046e604_WC1_UNMAPPED, 0, 160,
             g_bPrimaryViewBufferColour_0049cb50,
             g_szTextScratchBuffer_005d1c40);
         MarkDibDirty();
         DIBslamReal();
         if (clicked != 0) {
-            FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
+            FreePacketAndClear(&g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 8);
             WaitForInputKey();
             ClearInputKeyStatePreservingModifiers();
             g_bInputMode_0059a848 = savedInputMode;
@@ -3285,13 +3285,13 @@ unsigned int AwardCampaignMedal(short medal)
     }
 
     packet = FetchDiskPacketRetrying(
-        g_asCampaignBriefingFiles_00469458[g_nCampaignDataSet_005a8118],
+        g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED[g_nCampaignDataSet_005a8118],
         2, 0);
     g_pMedalSceneData_00598c20 = (unsigned char *)packet + packet[0];
     g_pMedalTextData_00598af8 = (unsigned char *)packet + packet[1];
     InitializeConversationViewport();
     InitializeConversationText();
-    g_pMedalSceneShape_0046e2f4 =
+    g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED =
         FetchDiskPacketRetrying(4, 8, 0);
     g_pConversationBackdropShape_00598c04 =
         FetchDiskPacketRetrying(4, 10, 0);
@@ -3301,7 +3301,7 @@ unsigned int AwardCampaignMedal(short medal)
                   g_pMedalTextData_00598af8);
     g_bSceneEscapeRequested_0049d4b0 = 0;
     FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
-    FreePacketAndClear(&g_pMedalSceneShape_0046e2f4, 8);
+    FreePacketAndClear(&g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 8);
     ReleasePacketHandle(packet);
     StopMusicUnlessSuppressed();
     ReleaseTextFont(0);
@@ -3323,21 +3323,21 @@ unsigned int DrawMedalChest(char *text, short duration)
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
     offset = 0;
-    FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610,
+    FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
     do {
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4, 41);
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 41);
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(92 - offset), 64,
-                          g_pMedalSceneShape_0046e2f4, 43);
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 43);
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(228 + offset), 64,
-                          g_pMedalSceneShape_0046e2f4, 44);
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 44);
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 64,
-                          g_pMedalSceneShape_0046e2f4, 42);
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 42);
         DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 319, 64,
-                         g_pMedalSceneShape_0046e2f4, 42,
+                         g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 42,
                          0, 256, 16);
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
@@ -3415,7 +3415,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c,
+    FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -3438,10 +3438,10 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                               g_pConversationBackdropShape_00598c04, 0);
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                              g_pMedalSceneShape_0046e2f4, 0);
+                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
             if (frame > -1)
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 121, 8,
-                                  g_pMedalSceneShape_0046e2f4,
+                                  g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                                   (short)(frame + 1));
             RefreshMemoryStatusOverlay();
             escaped = CheckEscaped();
@@ -3458,7 +3458,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pConversationBackdropShape_00598c04, 0);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pMedalSceneShape_0046e2f4, 0);
+                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
     RefreshMemoryStatusOverlay();
     MarkDibDirty();
     DIBslamReal();
@@ -3480,16 +3480,16 @@ unsigned int MedalEstablish(char *text, short duration)
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
     frame = 0;
-    FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628,
+    FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
-    x = g_asMedalDisplayX_0046e2d0[g_nConversationMedalIndex_00598c08];
+    x = g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED[g_nConversationMedalIndex_00598c08];
     y = 87;
     for (; frame < 32; frame++) {
         DrawMedals();
         DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, x, y,
-                         g_pMedalSceneShape_0046e2f4, 12,
+                         g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 12,
                          0, (short)(0xc800L / distance), 0);
         distance--;
         x--;
@@ -3517,7 +3517,7 @@ unsigned int PinMedal(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634,
+    FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -3529,9 +3529,9 @@ unsigned int PinMedal(char *text, short duration)
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 0);
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4, 0);
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4,
+                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                           (short)(frame % 3 + 38));
         RefreshMemoryStatusOverlay();
         escaped = CheckEscaped();
@@ -3561,13 +3561,13 @@ unsigned int DrawMedals(void)
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pConversationBackdropShape_00598c04, 1);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pMedalSceneShape_0046e2f4, 11);
+                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 11);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 253, 38,
-                      g_pMedalSceneShape_0046e2f4,
+                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                       (short)(g_stCampaignState_0059ca50.currentPilot->rank +
                               33));
     DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 67, 38,
-                     g_pMedalSceneShape_0046e2f4,
+                     g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                      (short)(g_stCampaignState_0059ca50.currentPilot->rank +
                              33),
                      0, 255, 16);
@@ -3578,7 +3578,7 @@ unsigned int DrawMedals(void)
                 x = 188;
             }
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, rowY,
-                              g_pMedalSceneShape_0046e2f4,
+                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                               (short)(badge + 13));
             x = (short)(x + 11);
         }
@@ -3586,7 +3586,7 @@ unsigned int DrawMedals(void)
     rowY = (short)(rowY + 5);
     for (medal = 0; medal < 5; medal++) {
         if (g_stCampaignState_0059ca50.medals[medal] != 0) {
-            x = g_asMedalDisplayX_0046e2d0[medal];
+            x = g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED[medal];
             stack = rowY;
             if (medal < 3) {
                 badge = 0;
@@ -3594,13 +3594,13 @@ unsigned int DrawMedals(void)
                                    g_stCampaignState_0059ca50.medals[medal]) {
                     badge++;
                     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
-                                      g_pMedalSceneShape_0046e2f4,
+                                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                                       (short)(medal + 25));
                     stack = (short)(stack + 2);
                 }
             }
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
-                              g_pMedalSceneShape_0046e2f4,
+                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
                               (short)(medal + 28));
         }
     }
@@ -3625,7 +3625,7 @@ unsigned int EstablishingShot(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640,
+    FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -3641,7 +3641,7 @@ unsigned int EstablishingShot(char *text, short duration)
         for (character = 0; character < 8; character++) {
             RecordCannedSceneBriefingCharacter(
                 character, 0,
-                g_aBriefingCharacters_0046e218[character]
+                g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character]
                     .animation[frame]);
         }
         RefreshMemoryStatusOverlay();
@@ -3702,12 +3702,12 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c,
+    FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
     for (character = 0; character < 8; character++) {
-        g_aBriefingCharacters_0046e218[character].animationPhase = 0;
+        g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character].animationPhase = 0;
     }
     frame = 0;
     for (;;) {
@@ -3718,7 +3718,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
                           g_pBriefingAnimationShape_00598c14, 22);
         for (character = 0; character < 8; character++) {
-            layout = &g_aBriefingCharacters_0046e218[character];
+            layout = &g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character];
             if (active[character] == 0 &&
                 RandomBelowOrEqual(5) == 0)
                 active[character] = 1;
@@ -3771,7 +3771,7 @@ unsigned int DismissWc1Scene(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658,
+    FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -3796,7 +3796,7 @@ unsigned int DismissWc1Scene(char *text, short duration)
                               g_pConversationBackdropShape_00598c04, 2);
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, podiumX, 127,
                               g_pTalkingHeadShape_00598c0c,
-                              g_abBriefingPodiumFrames_0046e510[
+                              g_abBriefingPodiumFrames_0046e510_WC1_UNMAPPED[
                                   podiumFrame]);
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, rightX, 127,
                               g_pConversationBackdropShape_00598c04, 3);
@@ -3806,14 +3806,14 @@ unsigned int DismissWc1Scene(char *text, short duration)
             podiumFrame++;
         if (frame < 12) {
             leftDelta =
-                (short)g_aiBriefingLeftPanelVelocity_0046e480[frame];
+                (short)g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED[frame];
             podiumDelta =
-                (short)g_aiBriefingPodiumVelocity_0046e4b0[frame];
+                (short)g_aiBriefingPodiumVelocity_0046e4b0_WC1_UNMAPPED[frame];
             rightDelta =
-                (short)g_aiBriefingRightPanelVelocity_0046e4e0[frame];
+                (short)g_aiBriefingRightPanelVelocity_0046e4e0_WC1_UNMAPPED[frame];
         }
         if (frame > 24)
-            leftDelta = (short)g_aiBriefingLeftPanelVelocity_0046e480[
+            leftDelta = (short)g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED[
                 11 - (frame - 25)];
         podiumX = (short)(podiumX + podiumDelta);
         frame++;
@@ -3824,41 +3824,41 @@ unsigned int DismissWc1Scene(char *text, short duration)
     } while (frame < 32);
     WaitForWc1SceneAdvance(duration, 0);
     FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    SetTextContext(&g_stConversationTextContext_005d2d40);
     return 0;
 }
 
 /* Function start: WC2_UNMAPPED */
 unsigned int DrawDebriefingLongShot(void)
 {
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingLeftX_0046e56c, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED, 0,
                       g_pConversationBackdropShape_00598c04, 2);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      (short)(g_nDebriefingLeftX_0046e56c + 320), 0,
+                      (short)(g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED + 320), 0,
                       g_pConversationBackdropShape_00598c04, 3);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      (short)(g_nDebriefingPilotX_0046e570 - 1), 127,
+                      (short)(g_nDebriefingPilotX_0046e570_WC1_UNMAPPED - 1), 127,
                       g_pConversationBackdropShape_00598c04, 4);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPilotX_0046e570, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPilotX_0046e570_WC1_UNMAPPED, 127,
                       g_pConversationBackdropShape_00598c04, 5);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPodiumX_0046e57c, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED, 127,
                       g_pConversationBackdropShape_00598c04, 8);
     if (g_stCampaignState_0059ca50.personalityDeathMission[
-            g_nDebriefingPersonality_00465c80] == 0) {
-        if (g_nDebriefingPersonality_00465c80 != 0)
+            g_nDebriefingPersonality_00465c80_WC1_UNMAPPED] == 0) {
+        if (g_nDebriefingPersonality_00465c80_WC1_UNMAPPED != 0)
             DrawSpriteDefault(
-                &g_stSecondaryViewBuffer_005d2c90, g_nDebriefingOfficerX_0046e578, 32,
+                &g_stSecondaryViewBuffer_005d2c90, g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
                 g_pConversationBackdropShape_00598c04,
-                (short)(g_nDebriefingPersonality_00465c80 + 9));
+                (short)(g_nDebriefingPersonality_00465c80_WC1_UNMAPPED + 9));
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nDebriefingOfficerX_0046e578, 32,
+                          g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
                           g_pConversationBackdropShape_00598c04, 6);
-        if (g_nDebriefingPersonality_00465c80 == 0)
+        if (g_nDebriefingPersonality_00465c80_WC1_UNMAPPED == 0)
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                              g_nDebriefingOfficerX_0046e578, 32,
+                              g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
                               g_pConversationBackdropShape_00598c04, 9);
     }
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingRightX_0046e574, 127,
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingRightX_0046e574_WC1_UNMAPPED, 127,
                       g_pConversationBackdropShape_00598c04, 7);
     MarkDibDirty();
     DIBslamReal();
@@ -3872,36 +3872,36 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     short escaped;
     short frame;
 
-    g_nDebriefingPilotX_0046e570 = 80;
-    g_nDebriefingRightX_0046e574 = 278;
+    g_nDebriefingPilotX_0046e570_WC1_UNMAPPED = 80;
+    g_nDebriefingRightX_0046e574_WC1_UNMAPPED = 278;
     frame = 0;
-    g_nDebriefingLeftX_0046e56c = 0;
-    g_nDebriefingOfficerX_0046e578 = 200;
-    g_nDebriefingPodiumX_0046e57c = 344;
+    g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED = 0;
+    g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED = 200;
+    g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED = 344;
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664,
+    FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
     g_nFrameSkipCountdown_0049d760 = 1;
     for (;;) {
-        delta = &g_abDebriefingEstablishDeltas_0046e538[frame];
-        g_nDebriefingLeftX_0046e56c =
-            (short)(g_nDebriefingLeftX_0046e56c -
+        delta = &g_abDebriefingEstablishDeltas_0046e538_WC1_UNMAPPED[frame];
+        g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED =
+            (short)(g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED -
                     MaxShort((short)delta[0], 0));
-        g_nDebriefingPilotX_0046e570 =
-            (short)(g_nDebriefingPilotX_0046e570 -
+        g_nDebriefingPilotX_0046e570_WC1_UNMAPPED =
+            (short)(g_nDebriefingPilotX_0046e570_WC1_UNMAPPED -
                     MaxShort((short)(delta[0] + 1), 0));
-        g_nDebriefingPodiumX_0046e57c =
-            (short)(g_nDebriefingPodiumX_0046e57c -
+        g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED =
+            (short)(g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED -
                     MaxShort((short)(delta[0] + 2), 0));
-        g_nDebriefingOfficerX_0046e578 =
-            (short)(g_nDebriefingOfficerX_0046e578 -
+        g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED =
+            (short)(g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED -
                     MaxShort((short)(delta[0] + 3), 0));
-        g_nDebriefingRightX_0046e574 =
-            (short)(g_nDebriefingRightX_0046e574 -
+        g_nDebriefingRightX_0046e574_WC1_UNMAPPED =
+            (short)(g_nDebriefingRightX_0046e574_WC1_UNMAPPED -
                     MaxShort((short)(delta[0] + 3), 0));
         if (frame == 47)
             g_nFrameSkipCountdown_0049d760 = 1;
@@ -4257,10 +4257,10 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 goto scene_complete;
             if (shot != -1) {
                 if ((shot & 0x40) != 0) {
-                    g_bConversationOverlay_0046e590 = 1;
+                    g_bConversationOverlay_0046e590_WC1_UNMAPPED = 1;
                     shot &= 0x3f;
                 } else {
-                    g_bConversationOverlay_0046e590 = 0;
+                    g_bConversationOverlay_0046e590_WC1_UNMAPPED = 0;
                 }
             }
             selected = record;
@@ -4270,7 +4270,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                                     textData);
         } while (selected != record);
         if (record->talker != -2)
-            g_nConversationCharacter_0046e580 = record->talker;
+            g_nConversationCharacter_0046e580_WC1_UNMAPPED = record->talker;
         duration = record->duration;
         switch (shot & 0x3f) {
         case 0:
@@ -4284,32 +4284,32 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 11:
         case 16:
         case 17:
-            g_nTalkingHeadFace_0046e584 = -1;
+            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
             previousShot = shot;
             break;
         case 1:
             if (previousShot != 1) {
                 previousShot = 1;
                 DrawBriefingLongShot();
-                g_nTalkingHeadFace_0046e584 = -1;
+                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
             }
             break;
         case 2:
             if (previousShot != 2) {
                 previousShot = 2;
                 DrawWc1PodiumShot();
-                g_nTalkingHeadFace_0046e584 = -1;
+                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
             }
             break;
         case 4:
             previousShot = 4;
-            if (g_nConversationCharacter_0046e580 < 0)
+            if (g_nConversationCharacter_0046e580_WC1_UNMAPPED < 0)
                 g_cCurrentObjective_004931cc =
-                    (signed char)-g_nConversationCharacter_0046e580;
+                    (signed char)-g_nConversationCharacter_0046e580_WC1_UNMAPPED;
             else
                 g_cCurrentObjective_004931cc =
-                    (signed char)g_nConversationCharacter_0046e580;
-            g_nTalkingHeadFace_0046e584 = -1;
+                    (signed char)g_nConversationCharacter_0046e580_WC1_UNMAPPED;
+            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
             break;
         case 12:
         case 13:
@@ -4320,8 +4320,8 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
                 g_stConstellationViewport_005a6b40 = g_stSecondaryViewBuffer_005d2c90;
                 InitializeConstellationField(
                     &g_stConstellationViewport_005a6b40, -1, 16);
-                g_bConversationConstellation_0046e58c = 1;
-                g_nTalkingHeadFace_0046e584 = -1;
+                g_bConversationConstellation_0046e58c_WC1_UNMAPPED = 1;
+                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
                 previousShot = shot;
             }
             break;
@@ -4352,13 +4352,13 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         case 58:
         case 59:
             previousShot = 50;
-            g_nTalkingHeadFace_0046e584 = -1;
+            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
             break;
         }
         if (previousColour != (short)record->textColour &&
             record->textColour != -1) {
             g_nConversationTextColour_00598c10 =
-                g_asConversationTextColours_004699f0[
+                g_asConversationTextColours_004699f0_WC1_UNMAPPED[
                     (short)record->textColour];
             previousColour = record->textColour;
         }
@@ -4442,9 +4442,9 @@ scene_complete:
                   g_cSecondaryViewBufferColour_0049cb4c);
     FreeTalker();
     SetEventManagerPump(0);
-    if (g_bConversationConstellation_0046e58c == 1) {
+    if (g_bConversationConstellation_0046e58c_WC1_UNMAPPED == 1) {
         free_constellation();
-        g_bConversationConstellation_0046e58c = 0;
+        g_bConversationConstellation_0046e58c_WC1_UNMAPPED = 0;
     }
     return 0;
 }
@@ -4511,7 +4511,7 @@ unsigned int DrawWc1FuneralLongShot(short shot, char *text,
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670,
+    FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);
@@ -4529,7 +4529,7 @@ unsigned int DrawWc1FuneralLongShot(short shot, char *text,
         escaped = IsFrameTickElapsed();
         if (escaped != 0)
             return 0;
-        if (g_bConversationConstellation_0046e58c == 1)
+        if (g_bConversationConstellation_0046e58c_WC1_UNMAPPED == 1)
             DrawConstellationField();
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pConversationBackdropShape_00598c04, 3);
@@ -7117,7 +7117,7 @@ __declspec(naked) void EmitRLEScanlineRun(
         pop es
         push eax
         push ecx
-        mov esi, dword ptr g_pRLELiteralStart_0046e6f1
+        mov esi, dword ptr g_pRLELiteralStart_004902cd
         mov edi, dword ptr g_pRLEOutputCursor_004902c9
         mov eax, dword ptr [ebp + 8]
         cmp eax, 2
@@ -7133,7 +7133,7 @@ __declspec(naked) void EmitRLEScanlineRun(
         xor eax, eax
         mov dword ptr g_nRLEPendingSkip_004902bd, eax
         mov esi, dword ptr g_pRLEScanCursor_004902c5
-        mov dword ptr g_pRLELiteralStart_0046e6f1, esi
+        mov dword ptr g_pRLELiteralStart_004902cd, esi
         jmp emit_done
 emit_solid:
         mov ebx, dword ptr g_nRLEPendingSkip_004902bd
@@ -7291,7 +7291,7 @@ emit_end_advance:
         inc edi
 emit_done:
         mov dword ptr g_pRLEOutputCursor_004902c9, edi
-        mov dword ptr g_pRLELiteralStart_0046e6f1, esi
+        mov dword ptr g_pRLELiteralStart_004902cd, esi
         pop ecx
         pop eax
         pop es

@@ -107,7 +107,7 @@ int RunWc1GameMain(short argc, char **argv)
             break;
         case 'E':
         case 'e':
-            g_bSlowSceneAnimation_00469998 = 1;
+            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED = 1;
             break;
         case 'P':
         case 'p':
@@ -119,11 +119,11 @@ int RunWc1GameMain(short argc, char **argv)
             break;
         case 'T':
         case 't':
-            g_bSlowSceneAnimation_00469998 = 3;
+            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED = 3;
             break;
         case 'V':
         case 'v':
-            g_bSlowSceneAnimation_00469998 = 0;
+            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED = 0;
             break;
         case 'Z':
         case 'z':
@@ -155,10 +155,10 @@ int RunWc1GameMain(short argc, char **argv)
     SetCinematicFrameTiming(20.0f);
     g_stCampaignState_0059ca50.currentSeries = (signed char)series;
     g_nSpacePaletteFadeMode_004901e8 = 0x13;
-    g_stInitialCampaignState_004700b0.currentSeries =
+    g_stInitialCampaignState_004700b0_WC1_UNMAPPED.currentSeries =
         (signed char)series;
     g_stCampaignState_0059ca50.currentMission = (signed char)mission;
-    g_stInitialCampaignState_004700b0.currentMission =
+    g_stInitialCampaignState_004700b0_WC1_UNMAPPED.currentMission =
         (signed char)mission;
     LoadOriginFxDrivers();
     g_nSpacePaletteFadeMode_004901e8 = 0x13;
@@ -469,16 +469,16 @@ void InitializeConversationText(void)
     g_stConversationTextViewport_005a7570 =
         g_stModalSourceViewport_005d2c50;
     g_stConversationTextViewport_005a7570.top = 152;
-    g_stConversationTextContext_005a7760.viewport =
+    g_stConversationTextContext_005d2d40.viewport =
         &g_stConversationTextViewport_005a7570;
-    g_stConversationTextContext_005a7760.text =
+    g_stConversationTextContext_005d2d40.text =
         g_szDefaultTextBuffer_005d2b80;
-    g_stConversationTextContext_005a7760.alignment = 2;
-    InitializeTextContextFromFont(&g_stConversationTextContext_005a7760,
+    g_stConversationTextContext_005d2d40.alignment = 2;
+    InitializeTextContextFromFont(&g_stConversationTextContext_005d2d40,
                                   0,
                                   g_bPrimaryViewBufferColour_0049cb50,
                                   g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    SetTextContext(&g_stConversationTextContext_005d2d40);
 #if 0
     return 0;
 #endif

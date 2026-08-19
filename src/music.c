@@ -964,7 +964,7 @@ short AllocateViewport(Viewport *viewport,
     viewport->allocation = AllocateTaggedMemory(
         (unsigned int)width * height, (unsigned short)(flags + 2));
     g_apViewportAllocations_005a7f10[
-        g_nViewportAllocationCount_005a7f0c++] = viewport->allocation;
+        g_nViewportAllocationCount_005d19bc++] = viewport->allocation;
     if (viewport->allocation == 0)
         return 0;
     viewport->pixels = viewport->allocation;

@@ -581,7 +581,7 @@ unsigned int process_maneuver_node(short obj, int event)
     } else {
         morale = stress_morale(obj);
         choice =
-            &g_aRatedManeuverChoices_0046d3e8[rating][event][morale];
+            &g_aRatedManeuverChoices_0046d3e8_WC1_UNMAPPED[rating][event][morale];
         maneuver = pick_from_list(choice, obj);
     }
     if (g_asShipManeuver_00495f48[obj] != maneuver)

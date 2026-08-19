@@ -594,7 +594,7 @@ unsigned int ShowCampaignVictorySequence(void)
     InitializeConversationText();
     init_3Space_objects(0);
     g_nCannedSceneMode_0049021c = 2;
-    g_bIntroSceneResourcesActive_00469d48 = 0;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 0;
     set_up_action_sphere(0x12);
     planetShape =
         FetchDiskPacketRetrying(9, 3, 0);
@@ -603,7 +603,7 @@ unsigned int ShowCampaignVictorySequence(void)
     CreateCannedSceneObject(&planetObject, -4, 0, 30000,
                             planetShape, 0, 0, 0x50);
     g_nScriptedViewObject_0046a8d0 = 1;
-    initialize_scripted_view(g_asCampaignVictoryViewScript_0046c160);
+    initialize_scripted_view(g_asCampaignVictoryViewScript_0046c160_WC1_UNMAPPED);
     slot = 16;
     projectile = projectiles;
     do {
@@ -629,10 +629,10 @@ unsigned int ShowCampaignVictorySequence(void)
         if (textIndex != -1) {
             ClearViewport(&g_stConversationTextViewport_005a7570,
                           g_cSecondaryViewBufferColour_0049cb4c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
-                g_szCampaignVictoryTextFormat_0046af24, 0, 160,
-                g_apszCampaignVictoryText_0046ad90[textIndex]);
+                g_szCampaignVictoryTextFormat_0046af24_WC1_UNMAPPED, 0, 160,
+                g_apszCampaignVictoryText_0046ad90_WC1_UNMAPPED[textIndex]);
         }
 
         Update_3Space();
@@ -688,7 +688,7 @@ unsigned int ShowCampaignVictorySequence(void)
 
                     if (vacantCount > 1) {
                         origin =
-                            &g_aCampaignVictoryProjectileOrigins_0046adb0[
+                            &g_aCampaignVictoryProjectileOrigins_0046adb0_WC1_UNMAPPED[
                                 RandomBelowOrEqual(3)];
                         projectile = &projectiles[vacant[0]];
                         projectile->depth = planetDepth;
@@ -781,7 +781,7 @@ unsigned int ShowCampaignVictorySequence(void)
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x21);
     g_bScriptedView_0046a8d4 = 0;
-    g_bIntroSceneResourcesActive_00469d48 = 1;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     g_nCannedSceneMode_0049021c = 0;
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50,
                                 g_cSecondaryViewBufferColour_0049cb4c, 1);
@@ -809,7 +809,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     spacetrack(0x22, 2, 1);
     init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
     g_nCannedSceneMode_0049021c = 2;
-    g_bIntroSceneResourcesActive_00469d48 = 0;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 0;
     InitializeConversationText();
     set_up_action_sphere(0x13);
     escapeShape =
@@ -821,13 +821,13 @@ unsigned int ShowTigerClawEscapeScene(void)
                 FetchDiskPacketRetrying(3, 14, 0);
     }
     g_nScriptedViewObject_0046a8d0 = 1;
-    initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238);
+    initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238_WC1_UNMAPPED);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005a7760);
+    SetTextContext(&g_stConversationTextContext_005d2d40);
     FormatTextBufferFromStart(
-        g_szTigerClawEscapeOpeningFormat_0046af30, 0, 160,
-        g_pszTigerClawEscapeOpening_0046ada0);
+        g_szTigerClawEscapeOpeningFormat_0046af30_WC1_UNMAPPED, 0, 160,
+        g_pszTigerClawEscapeOpening_0046ada0_WC1_UNMAPPED);
     g_nFrameSkipCountdown_0049d760 = 1;
     g_bSceneEscapeRequested_0049d4b0 = 0;
     depth = -1000;
@@ -857,10 +857,10 @@ unsigned int ShowTigerClawEscapeScene(void)
         case 150:
             ClearViewport(&g_stConversationTextViewport_005a7570,
                           g_cSecondaryViewBufferColour_0049cb4c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
-                g_szTigerClawEscapeJumpFormat_0046af3c, 0, 160,
-                g_pszTigerClawEscapeJump_0046ada4);
+                g_szTigerClawEscapeJumpFormat_0046af3c_WC1_UNMAPPED, 0, 160,
+                g_pszTigerClawEscapeJump_0046ada4_WC1_UNMAPPED);
             break;
         case 190:
             effect = find_vacant_3d_object();
@@ -886,10 +886,10 @@ unsigned int ShowTigerClawEscapeScene(void)
         case 210:
             ClearViewport(&g_stConversationTextViewport_005a7570,
                           g_cSecondaryViewBufferColour_0049cb4c);
-            SetTextContext(&g_stConversationTextContext_005a7760);
+            SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
-                g_szTigerClawEscapeClosingFormat_0046af48, 0, 160,
-                g_pszTigerClawEscapeClosing_0046ada8);
+                g_szTigerClawEscapeClosingFormat_0046af48_WC1_UNMAPPED, 0, 160,
+                g_pszTigerClawEscapeClosing_0046ada8_WC1_UNMAPPED);
             break;
         }
         if (g_bSceneEscapeRequested_0049d4b0 == 1)
@@ -913,7 +913,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     ReleaseMusicTrackHook(0x22);
     g_bScriptedView_0046a8d4 = 0;
     g_nCannedSceneMode_0049021c = 0;
-    g_bIntroSceneResourcesActive_00469d48 = 1;
+    g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     return 0;
 }
 
@@ -999,7 +999,7 @@ unsigned int ShowWc1EndScreen(short enableFireworks)
         FetchDiskPacketRetrying(9, 0x11, 0);
     g_pIntroFont_005a8960 =
         FetchDiskPacketRetrying(9, 1, 0);
-    print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 0x3a, g_pszTheEnd_0046adc8);
+    print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 0x3a, g_pszTheEnd_0046adc8_WC1_UNMAPPED);
     PanToScreen(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
     g_bSceneEscapeRequested_0049d4b0 = 0;
     g_nFrameSkipCountdown_0049d760 = 1;
@@ -1025,11 +1025,11 @@ unsigned int ShowWc1EndScreen(short enableFireworks)
         activeFireworks = TheEndFireWorks(&g_stSecondaryViewBuffer_005d2c90, 30);
         if (frame < 160) {
             print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 0x3a,
-                           g_pszTheEnd_0046adc8);
+                           g_pszTheEnd_0046adc8_WC1_UNMAPPED);
         } else if (frame > 190) {
             StopMusic(0);
             print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 0x3a,
-                           g_pszForNow_0046adcc);
+                           g_pszForNow_0046adcc_WC1_UNMAPPED);
         }
         frame++;
         RefreshMemoryStatusOverlay();
