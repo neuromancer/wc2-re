@@ -3498,7 +3498,7 @@ void init_3Space_objects(short scene)
     g_nSpaceFrame_00493134 =
         g_nRenderedSpaceFrame_00493138 =
             (short)(g_nNextAfterburnerSfxFrame_005d3820 =
-                g_nNextMissileWarningSfxFrame_005d156c = 0);
+                g_nPassingShipSoundCooldown_005d156c = 0);
     g_bMissileCameraEnabled_00493504 = 0;
     g_nExternalViewShip_00493468 = -1;
     g_nPlayerCollisionObject_00493480 = -1;

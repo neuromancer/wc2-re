@@ -775,7 +775,7 @@ void show_target_disp(void)
                 typeData->shieldAft), 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
-                          g_pCockpitIndicatorShape_005a7658, frame);
+                          g_pCockpitIndicatorShape_005d2c48, frame);
 
     targetViewport = g_stRightVduViewport_005d2b20;
     maximumArmor = &typeData->armorFront;
@@ -804,7 +804,7 @@ void show_target_disp(void)
                 typeData->shieldFore), 3)) * 2);
     if (frame < 6)
         DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
-                          g_pCockpitIndicatorShape_005a7658,
+                          g_pCockpitIndicatorShape_005d2c48,
                           (short)(frame + 1));
 }
 
@@ -1572,10 +1572,10 @@ void servicetrack(void)
                     if (dot_product(&travel, &futurePosition) < 0xdd) {
                         g_nPassingShipSoundCountdown_0049bf14 = 10;
                         g_nPassingShipSoundObject_0049bf10 = object;
-                        if (g_nPassingShipSoundCooldown_005a68e8 <
+                        if (g_nPassingShipSoundCooldown_005d156c <
                             g_nSpaceFrame_00493134) {
-                            g_nPassingShipSoundCooldown_005a68e8 =
-                                g_nSpaceFrame_00493134 + 6;
+                            g_nPassingShipSoundCooldown_005d156c =
+                                g_nSpaceFrame_00493134 + 24;
                             PlaySfxWaveFileByNumber(2, object, 0);
                         }
                     }

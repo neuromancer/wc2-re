@@ -437,7 +437,7 @@ PacketResourceDescriptor g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED /* 
     { &g_pCommStaticShape_0046927c_WC1_UNMAPPED, 11, 11 },
     { &g_pKilrathiCommBackground_00469280, 11, 9 },
     { (unsigned char **)&g_pCockpitExplosionShape_00469064_WC1_UNMAPPED, 8, 5 },
-    { &g_pCockpitIndicatorShape_005a7658, 8, 4 },
+    { &g_pCockpitIndicatorShape_005d2c48, 8, 4 },
     { &g_pCinematicViewBackdrop_005a7c90, 8, 6 },
     { &g_pRearViewBackdrop_005a7c94, 8, 7 },
     { &g_apCommPortraitShapes_0059e180[0], 11, 1 },
@@ -2282,14 +2282,14 @@ PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5] = {
     { &g_pCockpitHudShape_005d21f4, 0, 0 },
     { &g_pPilotHandAnimationShape_005d2c64, "pilotanm.vga", 3 },
     { (unsigned char **)&g_pCockpitExplosionShape_0049b048, 0, 5 },
-    { &g_pTargetDisplayBackdropShape_005d2c48, 0, 4 },
+    { &g_pCockpitIndicatorShape_005d2c48, 0, 4 },
     { 0, 0, 0 }
 };
 PacketResourceDescriptor g_aCockpitCommonShapeResources_0049c820[5] = {
     { &g_pCockpitPanelShape_005d2cd4, 0, 10 },
     { &g_pCockpitHudShape_005d21f4, "cockpit.vga", 0 },
     { &g_pCockpitWeaponShape_005d2b54, 0, 12 },
-    { &g_pTargetDisplayBackdropShape_005d2c48, "cockpit.vga", 4 },
+    { &g_pCockpitIndicatorShape_005d2c48, "cockpit.vga", 4 },
     { 0, 0, 0 }
 };
 PacketResourceDescriptor g_aCockpitShipShapeResources_0049c858[8] = {
@@ -2630,7 +2630,6 @@ unsigned short g_awPaletteEntryAllocation_0059df80[256];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];
 char *g_aapszPilotSpeech_0059e220[14][11];
-int g_nPassingShipSoundCooldown_005a68e8;
 unsigned char *g_pFireworkShape_005a6a68;
 ConstellationStar g_aConstellationStars_005a6a70[10];
 short g_nConstellationStarCount_005a6ab0;
@@ -2645,7 +2644,6 @@ FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 TextContext DAT_005a74f0;
 Viewport DAT_005a7530;
 Viewport DAT_005a7550;
-unsigned char *g_pCockpitIndicatorShape_005a7658;
 unsigned char *g_pCommMenuCursorShape_005a7660;
 Viewport DAT_005a7690;
 unsigned char *g_pCockpitDamageShape_005a76f4;
@@ -2986,7 +2984,7 @@ unsigned long g_dwGameClockStart_005d12b8;
 int g_aiSoundEffectSourceActive_005d12c0[WC2_SPACE_OBJECT_COUNT];
 MusicResource g_aMusicResources_005d13e0[66];
 unsigned int g_dwRestoredSceneMusicState_005d14e8;
-int g_nNextMissileWarningSfxFrame_005d156c;
+int g_nPassingShipSoundCooldown_005d156c;
 short g_nCurrentStarSystem_005d169c;
 short g_nNavMapMaximumX_005d169e;
 short g_nNavMapMinimumX_005d16a0;
@@ -3091,7 +3089,7 @@ Viewport g_stPilotHandBackgroundViewport_005d2b40;
 unsigned char *g_pCockpitWeaponShape_005d2b54;
 Viewport g_stConversationTextViewport_005d2b60;
 char g_szDefaultTextBuffer_005d2b80[0xc8];
-unsigned char *g_pTargetDisplayBackdropShape_005d2c48;
+unsigned char *g_pCockpitIndicatorShape_005d2c48;
 unsigned char *g_pConstellationShape_005d2c4c;
 Viewport g_stModalSourceViewport_005d2c50;
 unsigned char *g_pPilotHandAnimationShape_005d2c64;
