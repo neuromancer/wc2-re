@@ -1135,8 +1135,8 @@ void InflightComputer(void)
     g_bInflightComputerActive_0049bcb4 = 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
+/* Function start: 0x4207B0 */
+short MergeAdjacentNearHeapBlocks(int descriptorAddress)
 {
     NearHeapBlock *block;
 
@@ -1163,15 +1163,15 @@ unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress)
 int ReleaseNearHeapBlock(int descriptorAddress)
 {
     NearHeapBlock *block;
-    int nextDescriptorAddress;
 
     block = DosNearPtrToFar(descriptorAddress);
-    block->sizeAndFlags &= 0x7fffffff;
-    nextDescriptorAddress = descriptorAddress + 8;
-    if (nextDescriptorAddress <
-            g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 &&
+    /* The signed read is what keeps the mask out of the descriptor
+     * word: the compiler folds the unsigned form into `and [mem]`. */
+    block->sizeAndFlags = (int)block->sizeAndFlags & 0x7fffffff;
+    if (g_nNearHeapSize_005d3050 + g_nNearHeapBase_005d3054 >
+            descriptorAddress + 8 &&
         MergeAdjacentNearHeapBlocks(descriptorAddress) != 0)
-        descriptorAddress = nextDescriptorAddress;
+        descriptorAddress += 8;
     if (descriptorAddress > g_nNearHeapFirstDescriptor_005d3058)
         MergeAdjacentNearHeapBlocks(descriptorAddress - 8);
     return descriptorAddress;
@@ -1542,7 +1542,7 @@ void add_statistics(short pilot, short missions, short kills)
     g_apWingmanPilots_00598a30[pilot]->kills += kills;
 }
 
-/* Function start: 0x42BB70 */
+/* Function start: WC2_UNMAPPED */
 void PostMission(void)
 {
     short oldKills;

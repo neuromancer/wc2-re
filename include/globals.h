@@ -471,6 +471,8 @@ extern void *g_pCutsceneFxPacket_00499c30;
 extern CutsceneMusicNode *g_pCutsceneMusicPackets_00499c34;
 extern signed char g_bCutsceneSkipFrame_00499c54;
 extern signed char g_bCutsceneSkipAll_00499c58;
+extern void (*g_apCutsceneSpriteHandlers_00499c5c[1])(
+    SceneFlicObject *sprite);
 extern signed char g_bCutsceneDrawingEnabled_00499c60;
 extern SceneFlicObject *g_pLinkedCutsceneSprite_00499c64;
 extern CutscenePlane *g_pLinkedCutscenePlane_00499c68;

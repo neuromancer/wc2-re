@@ -1035,74 +1035,90 @@ short ShipExplosion(short obj)
 /* Function start: 0x41444C */
 short Explosion(short obj)
 {
-    enum ObjectClass objectClass;
-    enum ObjectType explosionType;
-    signed char rating;
-    short missionShip;
-    short explosion;
+    short debris;
+    short slot;
+    short shipIndex;
 
-    objectClass = g_aeObjectClass_00495328[obj];
-    explosion = obj;
-    if (objectClass >= OBJECT_CLASS_SHIP) {
-        missionShip = -1;
-        if (objectClass == OBJECT_CLASS_CAPITAL_SHIP)
-            missionShip = find_ship_index(obj);
+    debris = obj;
+    if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
+        shipIndex = -1;
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP)
+            shipIndex = find_ship_index(obj);
         if (obj < 10 &&
-            (g_acShipRating_0059cd80[obj] != -1 ||
-             (missionShip != -1 &&
-              g_asShipMissionParameter_00495e00[obj] == missionShip) ||
-             RandomBelow(100) <= 2)) {
-            send_message(obj, 7);
+            (g_asPilotLevel_00495d60[obj] == 5 ||
+             (shipIndex != -1 &&
+              g_asShipMissionParameter_00495e00[obj] == shipIndex) ||
+             g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP ||
+             RandomBelow(100) < 40)) {
+            if (g_asShipSide_004955d0[obj] == 1)
+                send_message(obj, 30);
+            else
+                send_message(obj, 8);
         }
-        rating = g_acShipRating_0059cd80[obj];
-        if (rating != -1 && rating != RATING_ACE_ICEMAN)
-            personality_killed((short)rating);
-        if (g_nYourWingman_0049346c == obj) {
-            missionShip = 0;
-            g_bWingmanKilledThisMission_005d2fb8 = 1;
-            for (; missionShip < 10; missionShip++) {
-                if (g_acShipRating_0059cd80[missionShip] >
-                    RATING_ACE_ICEMAN)
-                    break;
+        for (slot = 0; slot < 8; slot++) {
+            if (g_stMissionHeader_005d3e70.initialMissionShips[slot] ==
+                g_asShipMissionIndex_00495d00[obj]) {
+                g_acMissionShipStatusFlags_005d2fb0[slot] |= 1;
+                if (g_nYourWingman_0049346c == obj)
+                    g_nYourWingman_0049346c = -1;
             }
-            if (missionShip < 10)
-                send_message(missionShip, 5);
-            g_nYourWingman_0049346c = -1;
         }
         set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
-        g_asObjectCounter_00494be0[obj] = 8;
+        if (g_aObjectTypeData_00496d30[
+                WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0)
+            g_asObjectCounter_00494be0[obj] = 8;
+        else
+            g_asObjectCounter_00494be0[obj] = 4;
+        if (g_aObjectTypeData_00496d30[
+                WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0)
+            g_asShipExplosionStageTimer_005d3850[obj] = 8;
+        else
+            g_asShipExplosionStageTimer_005d3850[obj] = 4;
         g_aMissionShips_00492290[
             g_asShipMissionIndex_00495d00[obj]].state = 3;
-        if (g_aeObjectClass_00495328[obj] ==
-            OBJECT_CLASS_CAPITAL_SHIP) {
-            short count = 4;
-
-            for (; count != 0; count--) {
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP) {
+            for (slot = 0; slot < 4; slot++)
                 onboard_explosion(obj);
+            g_asObjectCounter_00494be0[obj] = (short)(
+                (g_aObjectTypeData_00496d30[
+                     g_acObjectType_00493980[obj]].damageCapacity >> 2) +
+                (g_aObjectTypeData_00496d30[
+                     WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0 ? 8 : 4));
+            g_asShipExplosionStageTimer_005d3850[obj] = (short)(
+                (g_aObjectTypeData_00496d30[
+                     WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0 ?
+                     8 : 4) * 2);
+            if (g_asShipExplosionStageTimer_005d3850[obj] <
+                g_nHudMessageTime_005d1c32) {
+                g_asShipExplosionStageTimer_005d3850[obj] =
+                    g_nHudMessageTime_005d1c32;
             }
-            g_asObjectCounter_00494be0[obj] =
-                (short)(g_aObjectTypeData_00496d30[
-                    g_acObjectType_00493980[obj]].damageCapacity >> 2) + 8;
         } else {
-            explosion = ShipExplosion(obj);
+            debris = ShipExplosion(obj);
+            explosion_shock_wave(obj,
+                g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[obj]].explosionDamage);
         }
     } else {
-        explosionType = OBJECT_TYPE_EXPLOSION2;
-        if (g_acObjectType_00493980[obj] == OBJECT_TYPE_TURRET ||
-            objectClass == OBJECT_CLASS_ASTEROID)
-            explosionType = OBJECT_TYPE_EXPLOSION0;
-        set_objects_data(obj, explosionType,
-                         g_acObjectOwner_00495208[obj], 0);
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_ASTEROID)
-            g_asObjectScale_00494d90[obj] = 0x380;
-    }
-    if (objectClass != OBJECT_CLASS_CAPITAL_SHIP)
-        explosion_shock_wave(
-            obj, g_aObjectTypeData_00496d30[
+        if (g_aeObjectClass_00495328[debris] == OBJECT_CLASS_ASTEROID)
+            g_asObjectScale_00494d90[debris] = 0x380;
+        explosion_shock_wave(obj,
+            g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].explosionDamage);
-    if (g_asObjectScreenX_00493598[obj] != (short)0x8001)
+        if (g_asObjectType_00495298[obj] == WC2_OBJECT_TYPE_TORPEDO) {
+            debris = obj;
+            set_objects_data(debris, WC2_OBJECT_TYPE_EXPLOSION_LARGE,
+                             g_acObjectOwner_00495208[obj], 0);
+        } else {
+            debris = obj;
+            set_objects_data(debris, WC2_OBJECT_TYPE_EXPLOSION_SMALL,
+                             g_acObjectOwner_00495208[obj], 0);
+        }
+        RecordCannedSceneObjectEvent(debris, 0);
+    }
+    if (g_asObjectScreenX_00493598[obj] != -32767)
         PlaySfxWaveFileByNumber(4, obj, 0);
-    return explosion;
+    return debris;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1122,53 +1138,60 @@ short the_creator(short obj)
 }
 
 /* Function start: 0x414025 */
-int explosion_shock_wave(short obj, short blastDamage)
+void explosion_shock_wave(short obj, short blastDamage)
 {
-    FixedVector delta;
     FixedVector force;
-    short other;
     short distance;
-    short divisor;
     short damage;
-    short attacker;
+    FixedVector delta;
+    short target;
 
-    other = 0;
-    for (; other < 10; other++) {
-        if (other != obj &&
-            g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP) {
+    for (target = 0; target < 10; target++) {
+        if (obj != target &&
+            g_aeObjectClass_00495328[target] >= OBJECT_CLASS_MISSILE) {
             ComputeVectorDelta(&g_aShipPosition_00494550[obj],
-                               &g_aShipPosition_00494550[other], &delta);
-            distance = FixedToShortSaturating(
-                Vector_magnitude(&delta));
+                               &g_aShipPosition_00494550[target], &delta);
             distance = MaxShort(0,
-                (short)(distance -
-                        g_asObjectCollisionRadius_004950e8[other]));
-            if (distance > 1000) {
+                (short)(FixedToShortSaturating(Vector_magnitude(&delta)) -
+                        g_asObjectCollisionRadius_004950e8[target]));
+            if (distance > 1000 ||
+                (g_aeObjectClass_00495328[target] == OBJECT_CLASS_MISSILE &&
+                 ((g_asMissileProximityFuse_005d38e0[target] * 4 + 4) * 5 * 5 <
+                      distance ||
+                  g_asShipTactic_00495f30[target] != 4))) {
                 damage = 0;
             } else {
-                if (distance > 750) {
-                    divisor = 40;
-                } else {
-                    divisor = 30;
-                    if (distance <= 500)
-                        divisor = find_ratio(0, 500, distance, 8, 25);
-                }
-                damage = (short)((blastDamage / divisor) / divisor);
-                if (other == 0)
-                    damage = MaxShort(1,
-                        (short)(damage * 3 >> 2));
+                if (distance > 750)
+                    distance = 40;
+                else if (distance > 500)
+                    distance = 30;
+                else
+                    distance = find_ratio(0, 500, distance, 8, 25);
+                damage = (short)((blastDamage / distance) / distance);
+                if (obj != -1 &&
+                    g_aeObjectClass_00495328[target] >=
+                        OBJECT_CLASS_CAPITAL_SHIP &&
+                    g_aeObjectClass_00495328[obj] == OBJECT_CLASS_MISSILE &&
+                    g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_TORPEDO)
+                    damage = 0;
+                if (target == 0)
+                    damage = MaxShort(1, (short)(damage * 3 >> 2));
             }
             if (damage > 1) {
                 NormalizeFixedVector(&delta);
                 ScaleFixedVector(&delta, (int)damage << 8, &force);
-                apply_force_to_objects_center(&force, other);
-                attacker = the_creator(obj);
-                inflict_damage(attacker, other,
-                               MinShort(100, damage), &delta);
+                apply_force_to_objects_center(&force, target);
+                if (g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_TORPEDO) {
+                    inflict_damage(obj, target,
+                                   MinShort(200, damage), &delta);
+                } else {
+                    inflict_damage(obj, target,
+                                   MinShort(2500, (short)(damage * 4)),
+                                   &delta);
+                }
             }
         }
     }
-    return 0;
 }
 
 /* Function start: WC2_UNMAPPED */

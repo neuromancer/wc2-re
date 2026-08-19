@@ -111,7 +111,7 @@ int DrawWc1CenteredScaledIntroText(const char *text, short centreX,
 short GetLineLength(const char *text);                                  /* WC2 unmapped */
 int print_subtitle(Viewport *viewport, short colour,
                     const char *text);                                  /* WC2 unmapped */
-int advance_canned_sequence(short obj);                                 /* 0x4207B0 */
+int advance_canned_sequence(short obj);                                 /* WC2 unmapped */
 unsigned int update_canned_sequence(short obj);                        /* WC2 unmapped */
 void __stdcall SplitGameClockTicks(unsigned char *parts);                  /* 0x437760 */
 void MonoDebug_install(void);                                           /* 0x4377F0 */
@@ -149,7 +149,7 @@ unsigned int RunWc1OfficeScene(void);                                  /* WC2 un
 void ReleaseSpaceflightResources(void);                               /* 0x409B80 */
 unsigned int LoadBriefingData(short series, short mission);             /* WC2 unmapped */
 void LoadMissionData(short series, short mission);                      /* 0x4401C0 */
-unsigned int UpdateMap(char *text, short duration);                     /* 0x42ECCB */
+void UpdateMap(char *text, short objective);                            /* 0x42ECCB */
 unsigned int CloseLook(unsigned char *shape, short shot,
                        short *animation, char *text, short duration,
                        short unused);                                  /* WC2 unmapped */
@@ -401,14 +401,14 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY);          /* 0x451C5
 void CentreMouseOnCurrentNavObjective(void);                         /* 0x451DDB */
 void ShowConfedNavScan(short refresh);                                /* 0x451E57 */
 void InflightComputer(void);                                         /* 0x451FAA */
-unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress);   /* WC2 unmapped */
+short MergeAdjacentNearHeapBlocks(int descriptorAddress);            /* 0x4207B0 */
 int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x420874 */
 void PurgeNearHeapBlocks(unsigned short flags);                       /* 0x4208FC */
 unsigned short InitializeNearHeap(void);                              /* 0x4209C2 */
 void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags);   /* 0x420B88 */
 void *AllocateNearHeapBlockByFlags(int size, unsigned short flags);   /* 0x420E16 */
 void add_statistics(short pilot, short missions, short kills);         /* WC2 unmapped */
-void PostMission(void);                                                 /* 0x42BB70 */
+void PostMission(void);                                                 /* WC2 unmapped */
 int FullMissionScore(void);                                             /* WC2 unmapped */
 int PlayersMissionScore(void);                                          /* WC2 unmapped */
 short GetViewportIntersection(ShortRect *intersection,
@@ -942,7 +942,7 @@ void analyze_kill(short attacker, short victim);                      /* 0x413F5
 short ShipExplosion(short obj);                                      /* 0x4142C8 */
 short Explosion(short obj);                                          /* 0x41444C */
 short the_creator(short obj);                                        /* WC2 unmapped */
-int explosion_shock_wave(short obj, short blastDamage);              /* 0x414025 */
+void explosion_shock_wave(short obj, short blastDamage);             /* 0x414025 */
 int ResolveWc1ObjectDestruction(short attacker,
                                 short victim);                    /* WC2 unmapped */
 short explode(short attacker, short victim);                          /* 0x414835 */
@@ -1863,7 +1863,7 @@ void AllocateCutsceneViewportOrFatal(Viewport *viewport, short colour,
                                      short flags);                    /* 0x42EE4F */
 void DrawCutsceneTextAt(short x, short y, short viewportIndex,
                         const char *text);                           /* 0x42C0F1 */
-void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* WC2 unmapped */
+void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite);           /* 0x42BB70 */
 void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                              unsigned char *text, signed char draw); /* 0x42E12A */
 void UpdateCutscenePlaneObject(CutscenePlane *plane,

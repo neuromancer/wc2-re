@@ -447,23 +447,21 @@ short pick_regular_maneuver(short obj, short event)
 
     switch (event) {
     case 0:
+    case 1:
         if (g_aeObjectClass_00495328[
                 g_acShipTarget_00495f20[obj]] >=
             OBJECT_CLASS_CAPITAL_SHIP)
             return MANEUVER_STRAFE_ENEMY;
-        if (RandomBelow(100) <
-            g_asPilotLevel_00495d60[obj] * 5 + 60)
+        if (g_asPilotLevel_00495d60[obj] * 5 + 60 > RandomBelow(100))
             return MANEUVER_ZIP_PAST;
+        return any_defense(obj);
+    case 3:
         return any_defense(obj);
     case 2:
         return MANEUVER_TRY2TAIL;
-    case 3:
-        if (mine_available(obj) != -1 && RandomBelow(100) < 10)
-            return MANEUVER_DROP_A_MINE;
-        return any_defense(obj);
     case 4:
-        if (RandomBelowOrEqual(100) >=
-            g_asPilotLevel_00495d60[obj] * 20 + 30)
+        if (g_asPilotLevel_00495d60[obj] * 20 + 30 <=
+            RandomBelowOrEqual(100))
             return any_defense(obj);
         return MANEUVER_STRAFE_ENEMY;
     case 5:
@@ -471,14 +469,14 @@ short pick_regular_maneuver(short obj, short event)
     case 6:
         if (g_asPilotLevel_00495d60[obj] >= 2)
             return MANEUVER_HARD_TURN;
-        return MANEUVER_WABBLE;
+        else
+            return MANEUVER_WABBLE;
     case 7:
         return any_defense(obj);
     case 8:
         return MANEUVER_LINE_UP_DROP;
-    default:
-        return MANEUVER_ROLL_OVER;
     }
+    return MANEUVER_ROLL_OVER;
 }
 
 /* Function start: 0x41F714 */

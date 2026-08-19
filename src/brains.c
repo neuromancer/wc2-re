@@ -506,9 +506,9 @@ void Mtail_fire(short ship, short target)
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
     chase_speed(ship,
-        (short)((g_asObjectCollisionRadius_004950e8[target] +
-                 g_asObjectCollisionRadius_004950e8[ship] * 6) >> 1));
-    fire_when_ready(ship, 1);
+        (short)(g_asObjectCollisionRadius_004950e8[ship] * 6 +
+                g_asObjectCollisionRadius_004950e8[target]));
+    fire(ship, target);
 }
 
 /* Function start: 0x441742 */
@@ -650,19 +650,19 @@ void Mbuzz_debris(short ship)
 /* Function start: 0x441AFC */
 void Mstrafe_enemy(short ship, short target)
 {
-    short aimed;
-
-    approach_cruise_speed(ship);
-    if (abs(g_anPitchGoal_004954a8[ship]) != 0 ||
-        abs(g_anYawGoal_004954c0[ship]) != 0)
-        aimed = 0;
-    else
-        aimed = 1;
-    if (aimed != 0) {
-        ship_vs_ship(ship, target);
-        point_ship_at_object(ship, target);
+    point_ship_at_object(ship, target);
+    if (g_asObjectType_00495298[ship] == 0x33 &&
+        (g_asShipMissionType_00495de8[ship] == 2 ||
+         g_aeObjectClass_00495328[target] >= 0xd)) {
+        if (g_nTargetRange_0049319c < 3000)
+            approach_zero_speed(ship);
+        else
+            approach_cruise_speed(ship);
     }
-    fire_when_ready(ship, (short)(aimed == 0));
+    if (g_nTargetRange_0049319c > 5000)
+        fire_afterburner(ship, 10);
+    fire(ship, target);
+    maneuver_complete(ship);
 }
 
 /* Function start: 0x441BC1 */

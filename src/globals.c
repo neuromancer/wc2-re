@@ -1839,6 +1839,9 @@ signed char g_bCutsceneViewportPreallocated_00499c4c;
 short g_nSceneFlicContext_00499c50;
 signed char g_bCutsceneSkipFrame_00499c54;
 signed char g_bCutsceneSkipAll_00499c58;
+void (*g_apCutsceneSpriteHandlers_00499c5c[1])(SceneFlicObject *sprite) = {
+    AnimateCutsceneSpeakerMouth
+};
 signed char g_bCutsceneDrawingEnabled_00499c60;
 SceneFlicObject *g_pLinkedCutsceneSprite_00499c64;
 CutscenePlane *g_pLinkedCutscenePlane_00499c68;

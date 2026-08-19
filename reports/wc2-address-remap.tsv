@@ -1,24 +1,4 @@
 source_file	source_line	wc1_address	wc2_address	source_name	mapping_name	evidence	review_flags	status
-src/brains.c	4132		00446395	chaff_intelligence	chaff_intelligence	WC2-only		wc2-only
-src/disk.c	1795		00410020	CountShipProjectiles	CountShipProjectiles	WC2-only		wc2-only
-src/ship.c	1764		0041596F	HasShipActiveMissile	HasShipActiveMissile	WC2-only		wc2-only
-src/brains.c	3649		00445087	capital_ship_strike_mission	capital_ship_strike_mission	WC2-only		wc2-only
-src/brains.c	3612		00444F53	SpawnCapitalFlakProjectile	SpawnCapitalFlakProjectile	WC2-only		wc2-only
-src/brains.c	3222		00443E8C	split_patrol_mission	split_patrol_mission	WC2-only		wc2-only
-src/logic.c	2658		004564F0	has_opposing_ship	has_opposing_ship	WC2-only		wc2-only
-src/logic.c	2671		0045655D	launch_carrier_fighter	launch_carrier_fighter	WC2-only		wc2-only
-src/system.c	119		00465730	WaitForQueuedInputPress	WaitForQueuedInputPress	WC2-only		wc2-only
-src/disk.c	50		0040926E	LoadSceneHotspotBoundsForSelection	LoadSceneHotspotBoundsForSelection	WC2-only		wc2-only
-src/logic.c	1201		00428E00	GetMissionShipPilotSaveIndex	GetMissionShipPilotSaveIndex	WC2-only		wc2-only
-src/logic.c	1214		00428E5C	GetMissionShipVelocityState	GetMissionShipVelocityState	WC2-only		wc2-only
-src/logic.c	1225		00428E98	GetInitialMissionShipPilotSaveIndex	GetInitialMissionShipPilotSaveIndex	WC2-only		wc2-only
-src/logic.c	1236		00428EDC	StoreMissionResultsInCampaignGlobals	StoreMissionResultsInCampaignGlobals	WC2-only		wc2-only
-src/personnel.c	108		00433C84	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen	WC2-only		wc2-only
-src/personnel.c	172		00433E8C	RefreshCampaignChalkboardScreen	RefreshCampaignChalkboardScreen	WC2-only		wc2-only
-src/personnel.c	188		00433ED7	DrawCampaignChalkboardFrame	DrawCampaignChalkboardFrame	WC2-only		wc2-only
-src/cockpt.c	518		00438020	ShowPlayerEjectionSequence	ShowPlayerEjectionSequence	WC2-only		wc2-only
-src/cockpt.c	532		00438080	ShowPlayerStrandingSequence	ShowPlayerStrandingSequence	WC2-only		wc2-only
-src/killbrd.c	964		00459D74	RunCampaignChalkboardMenu	RunCampaignChalkboardMenu	WC2-only		wc2-only
 src/auto.c	12	00403E50	004228B0	visit_the_cinema	visit_the_cinema	WC1-fuzzy-very-low		mapped
 src/auto.c	39	00403EE0	00422953	player_wingman	player_wingman	WC1-callgraph-propagated		mapped
 src/auto.c	47	00403F10	00422990	set_speed	set_speed	WC1-callgraph-single-low		mapped
@@ -47,8 +27,19 @@ src/barracks.c	747	0041BFE0	0043641C	ConfirmReplaceFaultyData	ConfirmReplaceFaul
 src/barracks.c	771	0041C090	00418DAA	HandleBarracksBunkSelection	GetNavFnC090	WC1-callgraph-propagated		mapped
 src/barracks.c	804	0041C140		UpdateBarracksScreen				unmapped
 src/barracks.c	813	0041C170	00419831	BarracksScreen	BarracksScreen	WC1-callgraph-propagated		mapped
+src/barracks.c	837	0041C090	00418DAA	RunCampaignSelectionFrame	RunCampaignSelectionFrame	WC2-manual-verified		mapped
 src/barracks.c	949	0041C510	004225A0	StepPaletteTransition	StepPaletteTransition	WC1-fuzzy-very-low		mapped
+src/barracks.c	991	0041C170	00419831	BarracksScreen	BarracksScreen	WC2-manual-verified		mapped
 src/barracks.c	1029	0041C740	00446910	DosStrcat	DosStrcat	WC1-callgraph-propagated		mapped
+src/brains.c			00460650	UpdateTargetCameraObject	UpdateTargetCameraObject	WC2-only		wc2-only
+src/brains.c	0		00441837	ShipAiState47	ShipAiState47	WC2-only		wc2-only
+src/brains.c	0		00441895	ShipAiState28	ShipAiState28	WC2-only		wc2-only
+src/brains.c	0		004418B2	ShipAiState46	ShipAiState46	WC2-only		wc2-only
+src/brains.c	0		00442438	ShipAiState3	ShipAiState3	WC2-only		wc2-only
+src/brains.c	0		00442455	ShipAiState45	ShipAiState45	WC2-only		wc2-only
+src/brains.c	0		0044B48F	ApplyAlternateShipType	ApplyAlternateShipType	WC2-only		wc2-only
+src/brains.c	0		0044B83C	LoadAlternateShipType	LoadAlternateShipType	WC2-only		wc2-only
+src/brains.c	0		0044BE84	FindObjectResourceSlot	FindObjectResourceSlot	WC2-only		wc2-only
 src/brains.c	15		00440490	HandleUnsupportedManeuver	HandleUnsupportedManeuver	WC2-only		wc2-only
 src/brains.c	23		004404CC	BeginShipCloak	BeginShipCloak	WC2-only		wc2-only
 src/brains.c	36		00440549	ResetShipCloakState	ResetShipCloakState	WC2-only		wc2-only
@@ -101,7 +92,6 @@ src/brains.c	953	004075C0	004424CD	Mreset	ShipAiState03	WC1-fuzzy-followup		mapp
 src/brains.c	959	004075D0	004424E4	perform_maneuver	perform_maneuver	WC1-fuzzy-followup		mapped
 src/brains.c	1108	00407710	00447170	GetShapeFrameExtent	GetShapeFrameExtent	WC1-fuzzy-followup		mapped
 src/brains.c	1119	00407750		AnimateScrambleWalk				unmapped
-src/brains.c			00460650	UpdateTargetCameraObject	UpdateTargetCameraObject	WC2-only		wc2-only
 src/brains.c	1296	00407C90		DrawScrambleActor				unmapped
 src/brains.c	1355	00407D90		ConfigureScrambleActor				unmapped
 src/brains.c	1377	00407E10		DrawScrambleFrame				unmapped
@@ -112,6 +102,7 @@ src/brains.c	1936	00408D50		funeral_wingman				unmapped
 src/brains.c	1959	00408DE0		RunWc1FuneralSequence				unmapped
 src/brains.c	2249	004094E0	00409C1A	RunCampaignGameLoop	RunCampaignGameLoop	WC1-manual-verified		mapped
 src/brains.c	2368		0040A27A	LoadStartingCampaignGlobals	LoadStartingCampaignGlobals	WC2-only		wc2-only
+src/brains.c	2368		00409850	InitializeNewPilotCampaign	InitializeNewPilotCampaign	WC2-only		wc2-only
 src/brains.c	2377		0040A2A3	RunSelectedCampaign	RunSelectedCampaign	WC2-only		wc2-only
 src/brains.c	2383	00409760	00442770	cruise_home	cruise_home	WC1-fuzzy-very-low		mapped
 src/brains.c	2425	004098C0		fail				unmapped
@@ -149,6 +140,7 @@ src/brains.c	3109	0040AAC0	00444420	strike_mission	strike_mission	WC1-order-exac
 src/brains.c	3147	0040ABB0	004446C9	return_to_master	return_to_master	WC1-fuzzy-followup		mapped
 src/brains.c	3159	0040AC00	0044472C	defend_mission	defend_mission	WC1-fuzzy-followup		mapped
 src/brains.c	3206	0040AD80	00444966	rendezvous_mission	rendezvous_mission	WC1-fuzzy-followup		mapped
+src/brains.c	3222		00443E8C	split_patrol_mission	split_patrol_mission	WC2-only		wc2-only
 src/brains.c	3240	0040AE80	00444ADC	ship_intelligence	ship_intelligence	WC1-fuzzy-followup		mapped
 src/brains.c	3292	0040AF70	00444C80	orbit_sphere	orbit_sphere	WC1-fuzzy-followup		mapped
 src/brains.c	3310	0040B010	00444D5C	tanker_intelligence	tanker_intelligence	WC1-fuzzy-very-low		mapped
@@ -163,7 +155,10 @@ src/brains.c	3560	0040B670	0044B200	set_sphere_point	set_sphere_point	WC1-callgr
 src/brains.c	3569	0040B6A0	0044B239	is_alive	is_alive	WC1-order-exact		mapped
 src/brains.c	3589	0040B700	0044B257	check_futurion	check_futurion	WC1-fuzzy-medium		mapped
 src/brains.c	3609	0040B730	0044B2E2	init_mission	init_mission	WC1-callgraph-propagated		mapped
+src/brains.c	3612		00444F53	SpawnCapitalFlakProjectile	SpawnCapitalFlakProjectile	WC2-only		wc2-only
+src/brains.c	3629		0044B29D	ResetWeaponDisplayPositions	ResetWeaponDisplayPositions	WC2-only		wc2-only
 src/brains.c	3635	0040B7A0	0044BA73	prepare_mission	prepare_mission	WC1-order-semantics-verified		mapped
+src/brains.c	3649		00445087	capital_ship_strike_mission	capital_ship_strike_mission	WC2-only		wc2-only
 src/brains.c	3764	0040B940	0044BCF7	release_all_capital_ship_shapes	release_all_capital_ship_shapes	WC1-manual-verified		mapped
 src/brains.c	3781	0040B990	0044BD83	release_capital_ship_shapes	release_capital_ship_shapes	WC1-manual-verified		mapped
 src/brains.c	3800	0040B9F0	0044BEE5	load_ship	load_ship	WC1-manual-verified		mapped
@@ -174,21 +169,22 @@ src/brains.c	4068	0040BEA0	0044CDCF	remove_nav_point_objects	remove_nav_point_ob
 src/brains.c	4085	0040BEC0	0044CE0A	get_shape_slot	get_shape_slot	WC1-manual-verified		mapped
 src/brains.c	4107	0040BEF0	0044CE68	shape_loaded	shape_loaded	WC1-manual-verified		mapped
 src/brains.c	4130	0040BF20	0044CEC8	shape_needed	shape_needed	WC1-manual-verified		mapped
+src/brains.c	4132		00446395	chaff_intelligence	chaff_intelligence	WC2-only		wc2-only
 src/brains.c	4156	0040BF50	0044CF2D	new_sphere_shapes	new_sphere_shapes	WC1-manual-verified		mapped
-src/brains.c	4399	0040BFF0	0044D35D	set_up_action_sphere	set_up_action_sphere	WC1-manual-verified		mapped
-src/brains.c	4307		0044D0C7	ProcessMissionWaveCommands	ProcessMissionWaveCommands	WC2-only		wc2-only
 src/brains.c	4298	0040C150		free_pilot_talk				unmapped
+src/brains.c	4307		0044D0C7	ProcessMissionWaveCommands	ProcessMissionWaveCommands	WC2-only		wc2-only
 src/brains.c	4317	0040C1C0	00434043	get_pilot_talk	get_pilot_talk	WC1-callgraph-propagated		mapped
 src/brains.c	4349	0040C2B0		init_personalities				unmapped
 src/brains.c	4379	0040C350	0044D72E	room_for_me	room_for_me	WC1-order-semantics-verified		mapped
+src/brains.c	4399	0040BFF0	0044D35D	set_up_action_sphere	set_up_action_sphere	WC1-manual-verified		mapped
 src/brains.c	4406	0040C360	0044D81F	place_ship_near_player_until_valid	place_ship_near_player_until_valid	WC1-fuzzy-low		mapped
-src/brains.c	4634	0040C3C0	0044D888	set_up_next_wave	set_up_next_wave	WC1-callgraph-propagated		mapped
 src/brains.c	4469	0040C4A0	0044D9E2	sub_int_vector	sub_int_vector	WC1-manual-verified		mapped
 src/brains.c	4482	0040C4E0	0044DA2F	set_formation_position	ScanTbl0046c97bFnC4E0	WC1-fuzzy-followup		mapped
 src/brains.c	4517	0040C5E0	0044DB7E	Set_up_ship_info	SetTbl0059dd90FnC5E0	WC1-callgraph-propagated		mapped
 src/brains.c	4554	0040C740	0044E028	is_team_member	is_team_member	WC1-order-semantics-verified		mapped
 src/brains.c	4582	0040C780	0044E09C	find_next_ship_turn_slot	find_next_ship_turn_slot	WC1-order-semantics-verified		mapped
 src/brains.c	4633	0040C800	0044E187	init_ship	GetTbl0046c96aFnC800	WC1-callgraph-propagated		mapped
+src/brains.c	4634	0040C3C0	0044D888	set_up_next_wave	set_up_next_wave	WC1-callgraph-propagated		mapped
 src/brains.c	4673	0040C950	0044E44F	init_intelligence_data	DispatchTbl0059d4b0FnC950	WC1-callgraph-propagated		mapped
 src/brains.c	4731	0040CAA0	0044F1F0	SampleBothJoysticks	HelperOf431A10A	WC1-callgraph-single		mapped
 src/brains.c	4744	0040CAE0	0044F247	SampleJoystickDevice	SampleJoystickDevice	WC1-manual-verified		mapped
@@ -209,31 +205,40 @@ src/cdrom.c	84	00403290	00456236	FindCdRomDriveByVolumeLabel	FindCdRomDriveByVol
 src/cdrom.c	133	004033E0	004563A3	SetCurrentDirOnDrive	SetCurrentDirOnDrive	WC1-fuzzy-medium		mapped
 src/cdrom.c	149	00403450	00456443	PromptInsertCorrectCd	PromptInsertCorrectCd	WC1-auto-vt		mapped
 src/cdrom.c	168	004034D0	0045A010	OpenDataFileOrDie	OpenDataFileOrDie	WC1-auto-vt		mapped
+src/cmpgn.c	0		00424EA7	clean_up_cockpit	clean_up_cockpit	WC2-only		wc2-only
+src/cmpgn.c	0		0044EA50	ClearTransientObjectsForEjection	ClearTransientObjectsForEjection	WC2-only		wc2-only
+src/cmpgn.c	0		0044EB4E	FlagCurrentNavObjectivesReached	FlagCurrentNavObjectivesReached	WC2-only		wc2-only
 src/cmpgn.c	71	00404610	00459BC8	LoadPaletteTripletsFile	LoadPaletteTripletsFile	WC1-fuzzy-very-low		mapped
 src/cmpgn.c	103	004046A0	0044EBCA	ejection_sequence	ejection_sequence	WC1-callgraph-propagated		mapped
 src/cmpgn.c	271	00404BE0		RunWc1StrandedSequence				unmapped
-src/cmpgn.c	761		004251F2	CompleteStarSystemJump	CompleteStarSystemJump	WC2-only		wc2-only
 src/cmpgn.c	307	00404CD0		ParseFaceAnimation				unmapped
 src/cmpgn.c	345	00404D70		ParseMouthAnimation				unmapped
 src/cmpgn.c	382	00404E10		AddPCName				unmapped
 src/cmpgn.c	470	004050B0	004099A8	LoadFace	LoadFace	WC1-callgraph-propagated		mapped
+src/cmpgn.c	471		004098F2	RunCampaignContinuePromptLoop	RunCampaignContinuePromptLoop	WC2-only		wc2-only
+src/cmpgn.c	499		004099A8	PromptToContinueCampaign	PromptToContinueCampaign	WC2-only		wc2-only
 src/cmpgn.c	536	00405290		LongTalk				unmapped
 src/cmpgn.c	629	004054B0	004098F2	CloseTalk	CloseTalk	WC1-callgraph-propagated		mapped
 src/cmpgn.c	689	00405660		Briefing				unmapped
 src/cmpgn.c	710	004056F0	00424D4D	DeBriefing	DeBriefing	WC1-fuzzy-very-low		mapped
 src/cmpgn.c	754		00424E8C	MarkPilotDead	MarkPilotDead	WC2-only		wc2-only
-src/cmpgn.c	837	00405840		RunWc1OfficeScene				unmapped
-src/cmpgn.c	872		00409B80	ReleaseSpaceflightResources	ReleaseSpaceflightResources	WC2-only		wc2-only
+src/cmpgn.c	761		004251F2	CompleteStarSystemJump	CompleteStarSystemJump	WC2-only		wc2-only
 src/cmpgn.c	795	00405910		LoadBriefingData				unmapped
 src/cmpgn.c	827	004059B0	004401C0	LoadMissionData	LoadMissionData	WC2-manual-verified		mapped
+src/cmpgn.c	837	00405840		RunWc1OfficeScene				unmapped
+src/cmpgn.c	872		00409B80	ReleaseSpaceflightResources	ReleaseSpaceflightResources	WC2-only		wc2-only
 src/cmpgn.c	1018	00405CC0	0042ECCB	UpdateMap	UpdateMap	function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow		mapped
 src/cmpgn.c	1046	00405DE0		CloseLook				unmapped
+src/cockpt.c	0		0043D9AB	DismissHudMessageIfShowing	DismissHudMessageIfShowing	WC2-only		wc2-only
+src/cockpt.c	0		0043E101	FindNearestMissileTargetingObject	FindNearestMissileTargetingObject	WC2-only		wc2-only
 src/cockpt.c	112	00413A10	00420340	EmitTextString	EmitTextString	WC1-manual-verified		mapped
 src/cockpt.c	124	00413A40	00420378	FormatTextTokens	FormatTextTokens	WC1-auto-vt		mapped
 src/cockpt.c	411	00413C40	0042067F	DrawFormattedText	DrawFormattedText	manual-verified		mapped
 src/cockpt.c	456	00413C70		FormatTextBufferFromStart				unmapped
 src/cockpt.c	479	00413CB0	004206F2	AppendFormattedText	AppendFormattedText	manual-verified		mapped
+src/cockpt.c	518		00438020	ShowPlayerEjectionSequence	ShowPlayerEjectionSequence	WC2-only		wc2-only
 src/cockpt.c	518	00413CE0	004380B0	FatalErrorAndExit	HelperOf428F80A	WC1-auto-vt		mapped
+src/cockpt.c	532		00438080	ShowPlayerStrandingSequence	ShowPlayerStrandingSequence	WC2-only		wc2-only
 src/cockpt.c	536	00413D20	004380FD	IsCockpitExplosionActive	IsCockpitExplosionActive	WC1-manual-verified		mapped
 src/cockpt.c	542	00413D40	00438129	EraseCockpitReadoutRegion	EraseCockpitReadoutRegion	WC1-fuzzy-medium		mapped
 src/cockpt.c	559	00413DA0	00438194	vdu_polygon	vdu_polygon	WC1-fuzzy-very-low		mapped
@@ -308,6 +313,7 @@ src/cockpt.c	2094	00415A90	0043B29D	clear_head_up_display	clear_head_up_display	
 src/cockpt.c	2130	00415B70	0043B4CF	set_objective_range	set_objective_range	WC1-fuzzy-followup		mapped
 src/cockpt.c	2150	00415C00	0043B61F	get_color	get_color	WC1-manual-verified		mapped
 src/cockpt.c	2184	00415CE0	0043B7C0	draw_3d_scanner	draw_3d_scanner	function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow		mapped
+src/cockpt.c	2244		0043B570	AdjustScannerContactColourForRange	AdjustScannerContactColourForRange	WC2-only		wc2-only
 src/cockpt.c	2277	00415FC0	0043BE1B	start_lock	start_lock	WC1-fuzzy-followup		mapped
 src/cockpt.c	2287	00415FF0	0043BE55	starting_lock	starting_lock	WC1-fuzzy-very-low		mapped
 src/cockpt.c	2297	00416010	0043BE8D	lock_off	lock_off	WC1-fuzzy-very-low		mapped
@@ -332,10 +338,13 @@ src/cockpt.c	2944	00416E20	0043D9DA	malf_noise	malf_noise	WC1-fuzzy-low		mapped
 src/cockpt.c	2961	00416E90	0043DA68	build_your_target_list	build_your_target_list	WC1-callgraph-propagated		mapped
 src/cockpt.c	2992	00416F30	0043DD1B	cycle_onscreen_targets	cycle_onscreen_targets	WC1-fuzzy-very-low		mapped
 src/cockpt.c	3025	00416FD0	0043DDFC	check_target	check_target	WC1-callgraph-propagated		mapped
+src/cockpt.c	3036		0043CE8F	HasInRangeGunForTargetLead	HasInRangeGunForTargetLead	WC2-only		wc2-only
+src/cockpt.c	3063		0043CF5A	UpdateTargetLeadIndicator	UpdateTargetLeadIndicator	WC2-only		wc2-only
 src/cockpt.c	3092	00417190	0043E1B2	update_missile_warning	update_missile_warning	WC1-callgraph-propagated		mapped
 src/cockpt.c	3104	004171D0	0043E297	determine_pilot_hand	determine_pilot_hand	WC1-fuzzy-very-low		mapped
 src/cockpt.c	3135	00417260	0043E371	DrawPilotHandFrame	DrawPilotHandFrame	WC1-fuzzy-low		mapped
 src/cockpt.c	3158	00417320	0043F110	CopyTrainSimPilotViewToVdus	CopyTrainSimPilotViewToVdus	WC1-manual-verified		mapped
+src/cockpt.c	3190		0043D323	RestoreTargetLeadIndicator	RestoreTargetLeadIndicator	WC2-only		wc2-only
 src/cockpt.c	3236	004173C0	0043E43A	animate_pilot	animate_pilot	WC1-fuzzy-followup		mapped
 src/cockpt.c	3246	004173F0	0043E472	ResetPilotHandAnimation	ResetPilotHandAnimation	WC1-manual-verified		mapped
 src/cockpt.c	3256	00417420	0043E4A8	send_message	send_message	WC1-fuzzy-medium		mapped
@@ -374,6 +383,7 @@ src/debug.cpp	448	0041D080		DebugOverlayConsole::SetOpaqueBackground				unmapped
 src/dib.c	10	00432050	0045CE9A	ReportSpaceFlightMaxFps	ReportSpaceFlightMaxFps	WC1-fuzzy-medium		mapped
 src/dib.c	26	004320E0	0045CF3B	SetSpaceFlightFrameTiming	SetSpaceFlightFrameTiming	WC2-manual-verified		mapped
 src/dib.c	34	00432110	0045CFC3	SetCinematicFrameTiming	SetCinematicFrameTiming	WC1-manual-verified		mapped
+src/dib.c	45		0045CF7F	SetDefaultFrameTiming	SetDefaultFrameTiming	WC2-only		wc2-only
 src/dib.c	49	00432140	0045D004	DIBerror	DIBerror	WC1-fuzzy-high		mapped
 src/dib.c	82	00432230	0045D11F	DIBpositionWindow	DIBpositionWindow	WC1-fuzzy-medium		mapped
 src/dib.c	99	004322B0	0045D1BB	DIBreInstall	DIBreInstall	WC1-fuzzy-followup		mapped
@@ -398,33 +408,57 @@ src/dib.c	899	00433120	0045E816	DIBwholePaletteFromWords	DIBwholePaletteFromWord
 src/dib.c	953	004331E0	0045E9C5	DIBwaitForVerticalBlank	DIBwaitForVerticalBlank	WC1-manual-verified		mapped
 src/dib.c	966	004331F0		DirectDrawResultToText				unmapped
 src/disk.c	9	0041D120	0040F0D2	ReportPacketLoadError	TextUiFnD120	WC1-fuzzy-followup		mapped
+src/disk.c	9	0041DBA0	00409120	WaitForSceneAdvance	WaitForSceneAdvance	WC2-manual-verified		mapped
+src/disk.c	50		0040926E	LoadSceneHotspotBoundsForSelection	LoadSceneHotspotBoundsForSelection	WC2-only		wc2-only
+src/disk.c	50		00409417	FindSceneHotspotAtPosition	FindSceneHotspotAtPosition	WC2-only		wc2-only
 src/disk.c	78		0040F3AE	RewritePacketFilenameForInstalledData	RewritePacketFilenameForInstalledData	WC2-only		wc2-only
+src/disk.c	78		0040F266	AppendPacketLoadDebugLog	AppendPacketLoadDebugLog	WC2-only		wc2-only
 src/disk.c	93	0041D200	0040F40E	LoadPacketIntoBuffer	LoadPacketIntoBuffer	WC1-manual-verified		mapped
 src/disk.c	107	0041D250	0040F49D	LoadPacketAllocated	LoadUiFnD250	WC1-callgraph-propagated		mapped
+src/disk.c	120		0040963B	PollSceneHotspotInput	PollSceneHotspotInput	WC2-only		wc2-only
 src/disk.c	159	0041D2E0	0040F5B6	FetchDiskPacketRetrying	FetchDiskPacketRetrying	WC1-fuzzy-very-low		mapped
+src/disk.c	179		0040D6E1	SwapSceneChunkSizeEndian	SwapSceneChunkSizeEndian	WC2-only		wc2-only
+src/disk.c	193		0040D812	ReadNextSceneForm	ReadNextSceneForm	WC2-only		wc2-only
+src/disk.c	194		0040D762	AreCutsceneResourceNamesEqual	AreCutsceneResourceNamesEqual	WC2-only		wc2-only
+src/disk.c	216		0040D9AD	AllocateScenePointerTable	AllocateScenePointerTable	WC2-only		wc2-only
+src/disk.c	231		0040E130	DecodeSceneResourceChunk	DecodeSceneResourceChunk	WC2-only		wc2-only
+src/disk.c	237		0040D88E	SkipCutsceneChunk	SkipCutsceneChunk	WC2-only		wc2-only
+src/disk.c	248		0040D8D7	FindCutsceneResourceSymbolIndex	FindCutsceneResourceSymbolIndex	WC2-only		wc2-only
+src/disk.c	262		0040E31F	ParseCutsceneContainer	ParseCutsceneContainer	WC2-only		wc2-only
+src/disk.c	292		0040DA0C	CreateCutsceneResourceInstance	CreateCutsceneResourceInstance	WC2-only		wc2-only
 src/disk.c	297	0041D510	0040F882	InitializeTextContextFromFont	InitializeTextContextFromFont	manual-verified		mapped
 src/disk.c	342	0041D590	0040F91C	ReleaseTextFont	ReleaseTextFont	WC1-manual-verified		mapped
 src/disk.c	359	0041D5F0	0040F96E	DrawTextAt	DrawTextAt	WC1-callgraph-propagated		mapped
 src/disk.c	395	0041D650		SortSignedByteValuesAscending				unmapped
+src/disk.c	398		0040DE5A	LinkCutsceneObjectResources	LinkCutsceneObjectResources	WC2-only		wc2-only
 src/disk.c	425	0041D6C0	004342E8	OpenDiskDataFile	OpenDiskDataFile	WC1-callgraph-propagated		mapped
 src/disk.c	459	0041D760		PromptInsertNumberedDisk				unmapped
+src/disk.c	514		0040E230	PushCutsceneFileResource	PushCutsceneFileResource	WC2-only		wc2-only
+src/disk.c	531		0040E285	DecodeCutsceneFileResource	DecodeCutsceneFileResource	WC2-only		wc2-only
 src/disk.c	570	0041DA00		GetZeroUnused				unmapped
 src/disk.c	576	0041DA10		CheckEscaped				unmapped
 src/disk.c	601		0040F9F7	FlushPendingInputPresses	FlushPendingInputPresses	WC2-only		wc2-only
 src/disk.c	609	0041DAA0	0040FA2C	WaitForInputKey	WaitForInputKey	WC1-callgraph-propagated		mapped
-src/disk.c	958		0040FADE	WaitForAnyInputPress	WaitForAnyInputPress	WC2-only		wc2-only
 src/disk.c	650	0041DBA0	00409120	WaitForSceneAdvance	WaitForSceneAdvance	WC1-fuzzy-very-low		mapped
+src/disk.c	661		0040E726	DecodeCutsceneObjectResource	DecodeCutsceneObjectResource	WC2-only		wc2-only
 src/disk.c	693	0041DC70		MoveMenuPointerFromKeyboard				unmapped
+src/disk.c	730		0040E985	ReleaseCutsceneObjectResourceData	ReleaseCutsceneObjectResourceData	WC2-only		wc2-only
+src/disk.c	745		0040EA0F	PushCutsceneObjectResource	PushCutsceneObjectResource	WC2-only		wc2-only
+src/disk.c	768		0040EAA4	ReleaseCutsceneObjectResource	ReleaseCutsceneObjectResource	WC2-only		wc2-only
 src/disk.c	792	0041DEB0		WaitForStreamInputKey				unmapped
 src/disk.c	806		00410102	CanShipWeaponDamageTarget	CanShipWeaponDamageTarget	WC2-only		wc2-only
 src/disk.c	817		00410215	ShipHasTorpedo	ShipHasTorpedo	WC2-only		wc2-only
+src/disk.c	828		0040ED9F	ReleaseCutsceneFileResourceExceptPacket	ReleaseCutsceneFileResourceExceptPacket	WC2-only		wc2-only
 src/disk.c	832	0041DEE0	004103A6	initialize_object	initialize_object	WC1-callgraph-propagated		mapped
 src/disk.c	843	0041DF40	0041040D	borrow_dust	borrow_dust	WC1-callgraph-single		mapped
+src/disk.c	850		0040EE41	ReleaseCutsceneFileResource	ReleaseCutsceneFileResource	WC2-only		wc2-only
+src/disk.c	870		0040EEC7	ReleaseCutsceneTextResource	ReleaseCutsceneTextResource	WC2-only		wc2-only
+src/disk.c	884		0040EF15	ReleaseCutsceneResourceLevel	ReleaseCutsceneResourceLevel	WC2-only		wc2-only
 src/disk.c	903	0041DF70	004105BF	new_object	new_object	WC1-callgraph-propagated		mapped
 src/disk.c	914	0041DFA0	0041062D	initialize_ship	initialize_ship	WC1-callgraph-propagated		mapped
 src/disk.c	926	0041DFE0	00410680	any_selected	any_selected	WC1-manual-verified		mapped
+src/disk.c	958		0040FADE	WaitForAnyInputPress	WaitForAnyInputPress	WC2-only		wc2-only
 src/disk.c	967	0041E040	00410715	remove_weapon	remove_weapon	WC1-manual-verified		mapped
-src/disk.c	2019		0041090F	InitializeShipWeaponTypeIndices	InitializeShipWeaponTypeIndices	WC2-only		wc2-only
 src/disk.c	1014	0041E120	00410999	set_objects_data	set_objects_data	WC1-callgraph-propagated		mapped
 src/disk.c	1130	0041E400	00411172	match_rotation_goal	DoLocalFnE400	WC1-fuzzy-very-low		mapped
 src/disk.c	1171	0041E520	0041133D	rotate_object_to_goal	GetTbl0059c3c0FnE520	WC1-callgraph-propagated		mapped
@@ -434,6 +468,9 @@ src/disk.c	1239	0041E7C0	004118A9	steady_object	steady_object	WC1-manual-verifie
 src/disk.c	1248	0041E7F0	004118F2	real_velocity	real_velocity	WC1-callgraph-propagated		mapped
 src/disk.c	1255	0041E820	00411922	fix_velocity	fix_velocity	WC1-callgraph-propagated		mapped
 src/disk.c	1600	0041E860	0041195F	SortViableTargetsByDistance	SortViableTargetsByDistance	WC1-manual-verified		mapped
+src/disk.c	1795		00410020	CountShipProjectiles	CountShipProjectiles	WC2-only		wc2-only
+src/disk.c	1806		00410192	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay	WC2-only		wc2-only
+src/disk.c	2019		0041090F	InitializeShipWeaponTypeIndices	InitializeShipWeaponTypeIndices	WC2-only		wc2-only
 src/eventmgr.c	10	004355F0	00462625	TranslatePolledInputEvent	TranslatePolledInputEvent	WC1-callgraph-single-low		mapped
 src/eventmgr.c	46	004356A0	00462849	QueueInputEventAtCursor	QueueInputEventAtCursor	WC1-callgraph-propagated		mapped
 src/eventmgr.c	61	004356E0	00462890	AllocateInputEvent	AllocateInputEvent	WC1-manual-verified		mapped
@@ -456,6 +493,7 @@ src/eventmgr.c	759	00436060	004638F1	RefreshMouseCursorDisplay	BlitUiFn6060	WC1-
 src/eventmgr.c	775	004360D0	0046396C	ResumeMouseCursor	ResumeMouseCursor	WC1-order-semantics-verified		mapped
 src/eventmgr.c	781	004360E0	00463E19	SuspendMouseCursor	SuspendMouseCursor	WC1-order-semantics-verified		mapped
 src/eventmgr.c	787	004360F0	00463EEE	SetMouseCursorShape	SetMouseCursorShape	WC1-manual-verified		mapped
+src/eventmgr.c	787		00463BA1	EnableMouseCursorDrawing	EnableMouseCursorDrawing	WC2-only		wc2-only
 src/eventmgr.c	804	00436160	00463F74	SetMouseHomePosition	SetInputFn6160	WC1-callgraph-single		mapped
 src/eventmgr.c	812	00436190	00463FAA	ApplyPackedMousePosition	ApplyPackedMousePosition	WC1-manual-verified		mapped
 src/eventmgr.c	820	004361E0	00464009	SetFrameTimerPeriod	SetFrameTimerPeriod	WC1-manual-verified		mapped
@@ -466,7 +504,9 @@ src/eventmgr.c	845	00436240	00464072	IsFrameTickElapsed	IsFrameTickElapsed	WC1-m
 src/eventmgr.c	851	00436260	00464141	GetSoundHardwareFlag	GetSoundHardwareFlag	WC1-manual-verified		mapped
 src/eventmgr.c	857	004362A0	0046416A	TimerResetHook	TimerResetHook	WC1-manual-verified		mapped
 src/eventmgr.c	862	004362B0	0046417A	GetVideoReleaseResult	GetVideoReleaseResult	WC1-manual-verified		mapped
+src/eventmgr.c	864		0046409B	AllocateZeroedRecords	AllocateZeroedRecords	WC2-only		wc2-only
 src/eventmgr.c	868	004362C0	0046418D	IdentityWord	DoLocalFn62C0	WC1-callgraph-single-low		mapped
+src/eventmgr.c	869		00464123	AllocateDefaultMemory	AllocateDefaultMemory	WC2-only		wc2-only
 src/eventmgr.c	874	004362D0	004641A0	TimerStopHook	TimerStopHook	WC1-order-semantics-verified		mapped
 src/eventmgr.c	879	004362E0	004641B0	GetAvailableFarMemory	GetAvailableFarMemory	WC1-order-exact		mapped
 src/eventmgr.c	885	004362F0	004641C5	GetLargestFreeMemoryBlock	GetLargestFreeMemoryBlock	WC1-order-exact		mapped
@@ -482,6 +522,7 @@ src/eventmgr.c	1264	004368E0	00464AB0	GetNavRangeSentinel	GetNavRangeSentinel	WC
 src/eventmgr.c	1270	004368F0	00464AC4	GetOriginalFreeMemory	GetOriginalFreeMemory	WC1-order-semantics-verified		mapped
 src/eventmgr.c	1276	00436900	00464AE8	StartupHook	StartupHook	WC1-order-semantics-verified		mapped
 src/eventmgr.c	1282	00436910	00464B0B	JoystickEdgeHook	JoystickEdgeHook	WC1-order-semantics-verified		mapped
+src/eventmgr.c	1283		00464A90	FinalizeInputManagerHook	FinalizeInputManagerHook	WC2-only		wc2-only
 src/eventmgr.c	1288	00436950	00464B3A	FreeIfNotNull	DoLocalFn6950	WC1-callgraph-propagated		mapped
 src/eventmgr.c	1295		00464D5F	ServiceInputDevices	ServiceInputDevices	WC2-only		wc2-only
 src/eventmgr.c	1317		00464E06	SetInputViewport	SetInputViewport	WC2-only		wc2-only
@@ -492,14 +533,22 @@ src/eventmgr.c	1345		00464F25	GetNamedPacketSize	GetNamedPacketSize	WC2-only		wc
 src/eventmgr.c	1351		00464F45	LoadNamedPacket	LoadNamedPacket	WC2-only		wc2-only
 src/eventmgr.c	1361	00436970	00464B60	GetStartupErrorCode	GetStartupErrorCode	manual-verified		mapped
 src/eventmgr.c	1368	00436980	00464B82	ShutdownHook	ShutdownHook	manual-verified		mapped
+src/eventmgr.c	1369		00464E73	LoadInputCursorShape	LoadInputCursorShape	WC2-only		wc2-only
 src/eventmgr.c	1375	004369A0	00464B92	SelectDiskDriveHook	SelectDiskDriveHook	manual-verified		mapped
 src/eventmgr.c	1381	004369B0	00464BA5	GetCurrentDiskDriveHook	GetCurrentDiskDriveHook	manual-verified		mapped
 src/eventmgr.c	1387	004369C0	00464BB8	GetShutdownErrorCode	GetShutdownErrorCode	manual-verified		mapped
+src/eventmgr.c	1387		00464EE0	InitializeInputDriverHook	InitializeInputDriverHook	WC2-only		wc2-only
+src/eventmgr.c	1392		00464EF0	FinalizeInputDriverHook	FinalizeInputDriverHook	WC2-only		wc2-only
 src/eventmgr.c	1394	004369D0	00464BCB	VideoReleaseHook	VideoReleaseHook	manual-verified		mapped
 src/eventmgr.c	1399	004369E0	00464BDB	ExitCleanupHook	ExitCleanupHook	manual-verified		mapped
 src/eventmgr.c	1406	00436A00	00464BFE	IsVectorWithinRange	IsVectorWithinRange	WC1-order-semantics-verified		mapped
+src/eventmgr.c	1413		00464FE7	SetPaletteEntryFromTriplet	SetPaletteEntryFromTriplet	WC2-only		wc2-only
+src/eventmgr.c	1424		0046502E	SetMusicTickRateHook	SetMusicTickRateHook	WC2-only		wc2-only
 src/eventmgr.c	1428	00436A30		shrink_vector				unmapped
+src/eventmgr.c	1428		00464F10	FlushPendingInputEvents	FlushPendingInputEvents	WC2-only		wc2-only
+src/eventmgr.c	1430		00464F75	OffsetSceneHotspotBounds	OffsetSceneHotspotBounds	WC2-only		wc2-only
 src/eventmgr.c	1441	00436A70		shrink				unmapped
+src/eventmgr.c	1457		00464FD7	ServiceCutsceneRuntimeHook	ServiceCutsceneRuntimeHook	WC2-only		wc2-only
 src/eventmgr.c	1463	00436C70	0042BAC0	FillGraphicSuffix	FillGraphicSuffix	WC1-fuzzy-followup		mapped
 src/eventmgr.c	1478	00436CB0	0042BB17	ConvertChar_Int	ConvertChar_Int	WC1-fuzzy-medium		mapped
 src/geom.c	12	00418080	00453B30	MeasureTextPixelWidthClamped	MeasureTextPixelWidthClamped	WC1-callgraph-propagated		mapped
@@ -602,13 +651,15 @@ src/geom.c	1698	0041AD10	0045979B	ReleaseModalTextPanel	ReleaseModalTextPanel	WC
 src/geom.c	1710	0041AD50		AnySavedGames				unmapped
 src/gr.c	11	00440C00	00425A16	ValidateViewportBounds	ValidateViewportBounds	WC1-fuzzy-followup		mapped
 src/gr.c	50	00440CF0	00425B9E	ClipViewportToScreen	ClipViewportToScreen	WC1-manual-verified		mapped
-src/gr.c	287		00448D1A	SetViewportHorizontalBounds	SetViewportHorizontalBounds	WC2-only		wc2-only
-src/gr.c	294		00448D39	SetViewportVerticalBounds	SetViewportVerticalBounds	WC2-only		wc2-only
+src/gr.c	58		00448570	InitializeViewportWipe	InitializeViewportWipe	WC2-only		wc2-only
 src/gr.c	71	00440D10	00425BBF	SetSolidColourTranslation	SetSolidColourTranslation	WC1-fuzzy-very-low		mapped
 src/gr.c	79	00440D50	00425BF6	PrepareShapeRLEData	PrepareShapeRLEData	WC1-fuzzy-very-low		mapped
 src/gr.c	188	00440FE0	00425FB4	DrawSpriteTransformed	DrawSpriteTransformed	WC1-fuzzy-very-low		mapped
 src/gr.c	226	00441140	004261D5	RasterLineHook	DoLocalFn1140	WC1-callgraph-single		mapped
 src/gr.c	232	00441150	004261E5	DrawFontGlyph	DrawFontGlyph	WC1-fuzzy-low		mapped
+src/gr.c	287		00448D1A	SetViewportHorizontalBounds	SetViewportHorizontalBounds	WC2-only		wc2-only
+src/gr.c	294		00448D39	SetViewportVerticalBounds	SetViewportVerticalBounds	WC2-only		wc2-only
+src/gr.c	301		00448D58	AdvanceViewportWipe	AdvanceViewportWipe	WC2-only		wc2-only
 src/gr.c	303	00441370	00426694	MarkActivePaletteEntries	MarkActivePaletteEntries	WC1-manual-verified		mapped
 src/gr.c	323	004413C0	004266B1	GetPaletteEntry	GetPaletteEntry	WC1-manual-verified		mapped
 src/gr.c	329	004413E0	004266CC	SetPaletteEntry	PaletteLocalFn13E0	WC1-callgraph-propagated		mapped
@@ -632,7 +683,10 @@ src/gr.c	800	00442000	00428344	DrawSolidColourSpriteScaled	DoLocalFn2000	WC1-cal
 src/gr.c	811	00442050	004283A4	GetTransformedShapeBounds	GetTransformedShapeBounds	WC1-fuzzy-very-low		mapped
 src/gr.c	888	00442200	00428690	fizzle_fade	fizzle_fade	WC1-callgraph-propagated		mapped
 src/gr.c	924	00442300	00427DE8	snow_viewport	snow_viewport	WC1-fuzzy-very-low		mapped
+src/gr.c	925		00449FAE	OffsetViewportBounds	OffsetViewportBounds	WC2-only		wc2-only
 src/gr.c	934	00442330	00428979	UpdateStreamerStoppedFlag	UpdateStreamerStoppedFlag	WC1-manual-verified		mapped
+src/gr.c	935		0044A009	SetViewportRectangleBounds	SetViewportRectangleBounds	WC2-only		wc2-only
+src/gr.c	945		0044A03C	FinishViewportWipe	FinishViewportWipe	WC2-only		wc2-only
 src/gr.c	946	00442350	0042894B	SignalAudioMixerWakeEvent	SignalAudioMixerWakeEvent	WC1-fuzzy-very-low		mapped
 src/gr.c	960	00442370	00428900	InitializeAudioStreamer	InitializeAudioStreamer	WC1-auto-vt		mapped
 src/gr.c	981	004423B0	004289BF	Streamer_open	Streamer_open	WC1-fuzzy-followup		mapped
@@ -648,6 +702,20 @@ src/gr.c	1119		00428DE0	GetStreamerState	GetStreamerState	WC2-only		wc2-only
 src/gr.c	1125	004425D0	00428B86	Streamer_close	Streamer_close	WC1-auto-vt		mapped
 src/gr.c	1141		00428BAD	DestroyAudioStreamer	DestroyAudioStreamer	WC2-only		wc2-only
 src/gr.c	1150	00442600	00428D09	ReadCheaterFlagFromRegistry	ReadCheaterFlagFromRegistry	WC1-auto-vt		mapped
+src/gr.c	1240		0044A910	GenerateWipeRadialEdges	GenerateWipeRadialEdges	WC2-only		wc2-only
+src/gr.c	1299		0044AAE5	BlitWipeRadialBands	BlitWipeRadialBands	WC2-only		wc2-only
+src/hudmsg.c			00401ACB	HandleCannedSceneBufferBoundary	HandleCannedSceneBufferBoundary	WC2-only		wc2-only
+src/hudmsg.c			00401C72	GetCannedSceneObjectMode	GetCannedSceneObjectMode	WC2-only		wc2-only
+src/hudmsg.c			00401D79	RecordCannedSceneObjectState	RecordCannedSceneObjectState	WC2-only		wc2-only
+src/hudmsg.c			00402385	FlushCannedSceneRecordingBuffer	FlushCannedSceneRecordingBuffer	WC2-only		wc2-only
+src/hudmsg.c			00446960	ResetCannedScenePlaybackBuffer	ResetCannedScenePlaybackBuffer	WC2-only		wc2-only
+src/hudmsg.c			00446950	BeginInflightReplayHook	BeginInflightReplayHook	WC2-only		wc2-only
+src/hudmsg.c			00446A1D	RestoreCannedSceneObjectState	RestoreCannedSceneObjectState	WC2-only		wc2-only
+src/hudmsg.c			00446B6A	ApplyCannedSceneObjectEventRecord	ApplyCannedSceneObjectEventRecord	WC2-only		wc2-only
+src/hudmsg.c			00446CC2	ApplyCannedSceneSoundRecord	ApplyCannedSceneSoundRecord	WC2-only		wc2-only
+src/hudmsg.c			00446D0D	ApplyCannedSceneMusicRecord	ApplyCannedSceneMusicRecord	WC2-only		wc2-only
+src/hudmsg.c			00446D55	ApplyCannedSceneFrameEvents	ApplyCannedSceneFrameEvents	WC2-only		wc2-only
+src/hudmsg.c			00446F14	LoadCannedScenePlaybackBuffer	LoadCannedScenePlaybackBuffer	WC2-only		wc2-only
 src/hudmsg.c	11	00428E70	004672C5	MeasureMessageWidth	MeasureMessageWidth	manual-verified		mapped
 src/hudmsg.c	20	00428EA0		RunWc1KeyAcknowledge				unmapped
 src/hudmsg.c	52	00428F20	00437C2E	ShowModalMessage	ShowModalMessage	WC1-callgraph-transfer		mapped
@@ -670,9 +738,16 @@ src/hudmsg.c	875	0042A0E0	00469143	GetShipDistanceToNavPoint	GetShipDistanceToNa
 src/hudmsg.c	885	0042A120	0046918D	FindNearestNavPoint	FindNearestNavPoint	WC1-callgraph-propagated		mapped
 src/hudmsg.c	913	0042A170	00469223	ReleaseStaleNavTarget	ReleaseStaleNavTarget	WC1-callgraph-propagated		mapped
 src/hudmsg.c	923	0042A190	0046925E	RunSpaceFlight	RunSpaceFlight	WC1-callgraph-propagated	WC1-review-module-mismatch	mapped
+src/hudmsg.c	924		004379F0	InitializeSpaceFlightInput	InitializeSpaceFlightInput	WC2-only		wc2-only
+src/hudmsg.c	937		0042D4C1	ReleaseSceneMusicPacket	ReleaseSceneMusicPacket	WC2-only		wc2-only
+src/hudmsg.c	948		00446FC8	ProcessCannedSceneInput	ProcessCannedSceneInput	WC2-only		wc2-only
+src/hudmsg.c	1002		0044698F	FinishCannedScenePlayback	FinishCannedScenePlayback	WC2-only		wc2-only
+src/hudmsg.c	1027		0040230E	WriteTapeInitialState	WriteTapeInitialState	WC2-only		wc2-only
+src/hudmsg.c	1048		00401A62	InitializeCannedSceneFrameIndex	InitializeCannedSceneFrameIndex	WC2-only		wc2-only
 src/hudmsg.c	1054	0042A520	004695FD	calculate_damage_level	calculate_damage_level	WC1-fuzzy-medium	WC1-review-module-mismatch	mapped
-src/hudmsg.c	1350	0042A610		UpdateWc1TrainSimMenuCursor				unmapped
-src/hudmsg.c	1372		00419A40	CopyHugeMemoryOverlapSafe	CopyHugeMemoryOverlapSafe	WC2-only		wc2-only
+src/hudmsg.c	1063		00401A10	ResetCannedSceneRecording	ResetCannedSceneRecording	WC2-only		wc2-only
+src/hudmsg.c	1063		00401C1A	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity	WC2-only		wc2-only
+src/hudmsg.c	1076		00401FDD	RecordCannedSceneObjectEvent	RecordCannedSceneObjectEvent	WC2-only		wc2-only
 src/hudmsg.c	1110	0042A670		ResetMouseCursorFrame				unmapped
 src/hudmsg.c	1116	0042A680		UpdateRoomMenuCursor				unmapped
 src/hudmsg.c	1148	0042A700	00453820	FadeViewportPaletteToColour	FadeViewportPaletteToColour	WC1-fuzzy-very-low		mapped
@@ -682,7 +757,9 @@ src/hudmsg.c	1254	0042AA10	00424C05	unwarp	unwarp	WC1-callgraph-propagated		mapp
 src/hudmsg.c	1276	0042AAF0		warp				unmapped
 src/hudmsg.c	1298	0042ABD0		drop_player_mine				unmapped
 src/hudmsg.c	1325	0042AC50		personality_killed				unmapped
+src/hudmsg.c	1350	0042A610		UpdateWc1TrainSimMenuCursor				unmapped
 src/hudmsg.c	1357	0042AD00		find_next_gun				unmapped
+src/hudmsg.c	1372		00419A40	CopyHugeMemoryOverlapSafe	CopyHugeMemoryOverlapSafe	WC2-only		wc2-only
 src/hudmsg.c	1391	0042ADA0		select_guns				unmapped
 src/hudmsg.c	1422	0042AE10	0046166D	select_new_gun	select_new_gun	WC1-fuzzy-low		mapped
 src/hudmsg.c	1432	0042AE50	004616B8	select_new_release_weapon	select_new_release_weapon	WC1-fuzzy-very-low		mapped
@@ -846,6 +923,13 @@ src/killbrd.c	738	004408D0	00425550	GetShapeFrameCount	GetShapeFrameCount	WC1-ca
 src/killbrd.c	745	004408F0	0042557C	GetShapeFrameExtents	GetShapeFrameExtents	WC1-order-exact		mapped
 src/killbrd.c	785	00440960	00425618	DecodeShapeFrame	DecodeShapeFrame	WC1-order-exact		mapped
 src/killbrd.c	920	00440BE0	004259E2	SignExtendClipCoord	SignExtendClipCoord	WC1-fuzzy-medium		mapped
+src/killbrd.c	964		00459D74	RunCampaignChalkboardMenu	RunCampaignChalkboardMenu	WC2-only		wc2-only
+src/logic.c			0045F7EC	UpdateShipTurretGuns	UpdateShipTurretGuns	WC2-only		wc2-only
+src/logic.c			004603C5	ClearTargetCameraView	ClearTargetCameraView	WC2-only		wc2-only
+src/logic.c			00460BAF	ClearSavedTorpedoTargetLock	ClearSavedTorpedoTargetLock	WC2-only		wc2-only
+src/logic.c			00460BCC	UpdateSavedTorpedoTargetLock	UpdateSavedTorpedoTargetLock	WC2-only		wc2-only
+src/logic.c			00460D3E	SetTargetCameraEyePosition	SetTargetCameraEyePosition	WC2-only		wc2-only
+src/logic.c	0		0042B916	find_ratio	find_ratio	WC2-only		wc2-only
 src/logic.c	14	00421100		find_weapon				unmapped
 src/logic.c	31	00421150	0041670E	fire_missile	fire_missile	WC1-manual-verified		mapped
 src/logic.c	65	00421220	0041687F	fire_fixed_projectile_weapon	fire_fixed_projectile_weapon	WC1-manual-verified		mapped
@@ -861,6 +945,7 @@ src/logic.c	350	00421830	0041724A	replenish_weapon_energy_bank	replenish_weapon_
 src/logic.c	381	004218D0	0041740F	accelerate	accelerate	WC1-fuzzy-low		mapped
 src/logic.c	392	00421920	00417471	your_afterburner	your_afterburner	WC1-fuzzy-low		mapped
 src/logic.c	426	004219C0	0045B810	LoadGamePaletteFile	LoadGamePaletteFile	WC1-callgraph-propagated		mapped
+src/logic.c	428		0045B7E0	QueryCurrentGraphicsMode	QueryCurrentGraphicsMode	WC2-only		wc2-only
 src/logic.c	457	00421A40	0045B905	EMShutDown	EMShutDown	WC1-fuzzy-low		mapped
 src/logic.c	465	00421A60		InitializeEventManagerResources				unmapped
 src/logic.c	478	00421AB0	0045B924	EMStartUp	EMStartUp	WC1-callgraph-propagated		mapped
@@ -881,6 +966,7 @@ src/logic.c	747	004220D0		prepare_ace				unmapped
 src/logic.c	754		004293F9	LoadTemporaryCampaignGlobals	LoadTemporaryCampaignGlobals	WC2-only		wc2-only
 src/logic.c	762		00429423	SaveAndFreeTemporaryCampaignGlobals	SaveAndFreeTemporaryCampaignGlobals	WC2-only		wc2-only
 src/logic.c	781		0042949F	LoadWholeDataFile	LoadWholeDataFile	WC2-only		wc2-only
+src/logic.c	801		0045BF30	InitializeHighMemoryGraphicsBuffers	InitializeHighMemoryGraphicsBuffers	WC2-only		wc2-only
 src/logic.c	804	004220F0	00429581	signed_random	signed_random	WC1-fuzzy-followup		mapped
 src/logic.c	810	00422110	004295A9	alert_flag	alert_flag	WC1-callgraph-propagated		mapped
 src/logic.c	816	00422130		HasSpeechBuffer				unmapped
@@ -890,7 +976,10 @@ src/logic.c	841	00422180	00429625	start_collision_alert	start_collision_alert	WC
 src/logic.c	854	004221E0	00429698	try2end_collision_alert	try2end_collision_alert	WC1-fuzzy-followup		mapped
 src/logic.c	864	00422220	004296E2	normal_speed	normal_speed	WC1-manual-verified		mapped
 src/logic.c	874	00422260	00429736	real_crash_time	real_crash_time	WC1-fuzzy-followup		mapped
+src/logic.c	917	00421F50	0045C35C	LoadSpaceflightResources	LoadSpaceflightResources	manual-verified		mapped
 src/logic.c	939	00422440		clear_crash_cache				unmapped
+src/logic.c	939		0045C419	InitializeMusicResources	InitializeMusicResources	WC2-only		wc2-only
+src/logic.c	939		0045C3FA	StopMusicIfDriverActive	StopMusicIfDriverActive	WC2-only		wc2-only
 src/logic.c	950	00422460	00429958	crash_time	crash_time	WC1-fuzzy-very-low		mapped
 src/logic.c	966	004224F0	004299C9	detect_collisions	detect_collisions	WC1-callgraph-single		mapped
 src/logic.c	994	00422560	00429B55	unactive	unactive	WC1-callgraph-propagated		mapped
@@ -904,9 +993,14 @@ src/logic.c	1141	00422830	0042A062	no_goal	no_goal	WC1-manual-verified		mapped
 src/logic.c	1149	00422860	0042A0A9	being_tailed	being_tailed	WC1-manual-verified		mapped
 src/logic.c	1158	004228A0		any_enemy_tail				unmapped
 src/logic.c	1178	00422930	0042A108	detect_enemy_tail	detect_enemy_tail	WC1-fuzzy-very-low		mapped
+src/logic.c	1194		0042917D	InitializeCampaignConstellationState	InitializeCampaignConstellationState	WC2-only		wc2-only
 src/logic.c	1195	004229B0	0042A1C5	is_ship_tailing_player_target	is_ship_tailing_player_target	WC1-callgraph-propagated		mapped
+src/logic.c	1201		00428E00	GetMissionShipPilotSaveIndex	GetMissionShipPilotSaveIndex	WC2-only		wc2-only
 src/logic.c	1205	004229F0	0042A222	FindMissileTargetingObject	FindMissileTargetingObject	manual-verified		mapped
+src/logic.c	1214		00428E5C	GetMissionShipVelocityState	GetMissionShipVelocityState	WC2-only		wc2-only
 src/logic.c	1222	00422A30		select_weighted_value				unmapped
+src/logic.c	1225		00428E98	GetInitialMissionShipPilotSaveIndex	GetInitialMissionShipPilotSaveIndex	WC2-only		wc2-only
+src/logic.c	1236		00428EDC	StoreMissionResultsInCampaignGlobals	StoreMissionResultsInCampaignGlobals	WC2-only		wc2-only
 src/logic.c	1240	00422A70	0042A28E	build_squad_list	build_squad_list	WC1-order-callgraph-verified		mapped
 src/logic.c	1257	00422AC0	0042A313	find_squad_center	find_squad_center	WC1-order-callgraph-verified		mapped
 src/logic.c	1274	00422B30	0042A39A	init_formation_burst	init_formation_burst	WC1-fuzzy-very-low		mapped
@@ -966,6 +1060,8 @@ src/logic.c	2443	004243E0	004575B4	init_constellation	init_constellation	WC1-man
 src/logic.c	2480	00424490	004576AB	free_constellation	free_constellation	WC1-manual-verified		mapped
 src/logic.c	2510	004244E0	00457720	init_vdus	init_vdus	WC1-fuzzy-low		mapped
 src/logic.c	2531	004245B0	004577D7	InitializeCockpitResources	LoopCombatFn45B0	WC1-callgraph-propagated		mapped
+src/logic.c	2658		004564F0	has_opposing_ship	has_opposing_ship	WC2-only		wc2-only
+src/logic.c	2671		0045655D	launch_carrier_fighter	launch_carrier_fighter	WC2-only		wc2-only
 src/logic.c	2674	004249A0	00458196	free_cockpit	free_cockpit	WC1-callgraph-propagated		mapped
 src/logic.c	2702	00424A80	00458467	init_3Space_objects	init_3Space_objects	WC1-manual-verified		mapped
 src/logic.c	2747	00424B00	00458532	load_common_3Space_objects	load_common_3Space_objects	WC1-manual-verified		mapped
@@ -974,18 +1070,33 @@ src/logic.c	2798	00424BA0	00458698	free_3Space	free_3Space	WC1-manual-verified		
 src/logic.c	2829	00424BE0	00458716	free_3Space_objects	free_3Space_objects	WC1-manual-verified		mapped
 src/logic.c	2854	00424C60	004587E0	init_inflight_music	init_inflight_music	WC1-order-exact		mapped
 src/logic.c	2869	00424C80	00458806	free_inflight_music	free_inflight_music	WC1-fuzzy-followup		mapped
-src/logic.c	3414		0045887B	PreloadMusicTrack	PreloadMusicTrack	WC2-only		wc2-only
-src/logic.c	3429		0045890E	ReleaseMusicTrack	ReleaseMusicTrack	WC2-only		wc2-only
 src/logic.c	2904	00424CE0		PreloadMusicTrackHook				unmapped
 src/logic.c	2911	00424CF0		ReleaseMusicTrackHook				unmapped
-src/logic.c	3594		00469AD0	GetAvailableMainMemory	GetAvailableMainMemory	WC2-only		wc2-only
-src/logic.c	3600		00469B49	GetLargestMainMemoryBlock	GetLargestMainMemoryBlock	WC2-only		wc2-only
 src/logic.c	2918	00424D00		LoadSceneAnimationResources				unmapped
 src/logic.c	2945	00424DA0		ReleaseSceneAnimationResources				unmapped
 src/logic.c	2954	00424DE0		FindSceneAnimationCommand				unmapped
+src/logic.c	2960	004243E0	004575B4	init_constellation	init_constellation	WC2-manual-verified		mapped
 src/logic.c	2995	00424EA0		SceneAnimationGoalReached				unmapped
 src/logic.c	3011	00424EF0		UpdateSceneAnimationObject				unmapped
 src/logic.c	3274	00425500		PlaySceneAnimation				unmapped
+src/logic.c	3414		0045887B	PreloadMusicTrack	PreloadMusicTrack	WC2-only		wc2-only
+src/logic.c	3416		00458A90	DecodeSceneStructChunk	DecodeSceneStructChunk	WC2-only		wc2-only
+src/logic.c	3429		0045890E	ReleaseMusicTrack	ReleaseMusicTrack	WC2-only		wc2-only
+src/logic.c	3453		00458B8C	DecodeSceneOffsetChunk	DecodeSceneOffsetChunk	WC2-only		wc2-only
+src/logic.c	3493		00458C81	DecodeSceneSymbolChunk	DecodeSceneSymbolChunk	WC2-only		wc2-only
+src/logic.c	3538		00458D94	DecodeSceneFileChunk	DecodeSceneFileChunk	WC2-only		wc2-only
+src/logic.c	3594		00469AD0	GetAvailableMainMemory	GetAvailableMainMemory	WC2-only		wc2-only
+src/logic.c	3600		00469B49	GetLargestMainMemoryBlock	GetLargestMainMemoryBlock	WC2-only		wc2-only
+src/logic.c	3808		00460242	CountShipCockpitGunDisplays	CountShipCockpitGunDisplays	WC2-only		wc2-only
+src/logic.c	3980		004601F1	ResetTargetCameraView	ResetTargetCameraView	WC2-only		wc2-only
+src/logic.c	4000		004602BE	ToggleTargetCameraOverlay	ToggleTargetCameraOverlay	WC2-only		wc2-only
+src/logic.c	4015		00461466	FinalizeTargetCameraViewHook	FinalizeTargetCameraViewHook	WC2-only		wc2-only
+src/logic.c	4042		004608E8	UpdateTargetCameraTracking	UpdateTargetCameraTracking	WC2-only		wc2-only
+src/logic.c	4145		00460DFE	DrawTargetCameraAttitudeIndicators	DrawTargetCameraAttitudeIndicators	WC2-only		wc2-only
+src/logic.c	4237		004610BC	RestoreTargetCameraAttitudeIndicators	RestoreTargetCameraAttitudeIndicators	WC2-only		wc2-only
+src/logic.c	4310		00461456	UpdateTargetCameraCockpitHook	UpdateTargetCameraCockpitHook	WC2-only		wc2-only
+src/logic.c	4354		00460498	ToggleTargetCameraTracking	ToggleTargetCameraTracking	WC2-only		wc2-only
+src/main.c	0		00465780	SetPersonnelCursorPosition	SetPersonnelCursorPosition	WC2-only		wc2-only
 src/main.c	9	004274E0	0045C558	Wc1GameMain	main	WC1-fuzzy-very-low		mapped
 src/main.c	216	004279D0	00465CBC	free_view_buffer	free_view_buffer	WC1-manual-verified		mapped
 src/main.c	228	00427A00	00465CF6	initialize_view_buffer	initialize_view_buffer	WC1-fuzzy-medium		mapped
@@ -1005,12 +1116,13 @@ src/main.c	486	00427E40	004661C2	get_player_input	get_player_input	WC1-manual-ve
 src/main.c	520	00427F20	004663A2	process_player_input	process_player_input	WC1-fuzzy-very-low		mapped
 src/main.c	723	00428480	00466908	fire_players_lasers	fire_players_lasers	WC1-fuzzy-very-low		mapped
 src/main.c	736	004284D0	0046696E	players_flight_dynamics	players_flight_dynamics	WC1-fuzzy-medium		mapped
-src/main.c	895		00466AD2	IsInputEventQueued	IsInputEventQueued	WC2-only		wc2-only
 src/main.c	769	004285D0	00466B02	player_input	player_input	WC1-fuzzy-followup		mapped
+src/main.c	895		00466AD2	IsInputEventQueued	IsInputEventQueued	WC2-only		wc2-only
 src/main.c	1029	00428C90	00465E25	SelectNextExternalViewObject	SelectNextExternalViewObject	WC1-fuzzy-medium		mapped
 src/main.c	1060	00428CD0		SelectPreviousExternalViewObject				unmapped
 src/main.c	1178		0045E9F0	HandleFleetOverviewInput	HandleFleetOverviewInput	WC2-only		wc2-only
 src/main.c	1263		0045F200	UpdateFleetOverviewCameraRotation	UpdateFleetOverviewCameraRotation	WC2-only		wc2-only
+src/main.c	1281		0045F439	FireTargetCameraGuns	FireTargetCameraGuns	WC2-only		wc2-only
 src/mathfp.c	11	00434CD0	004618E0	RandomBelow	DoLocalFn4CD0	WC1-fuzzy-medium		mapped
 src/mathfp.c	17	00434CF0	004618FF	SeedRandomFromClock	DoLocalFn4CF0	WC1-auto-vt		mapped
 src/mathfp.c	23		00461922	GetRandomWord	GetRandomWord	WC2-only		wc2-only
@@ -1034,6 +1146,7 @@ src/mathfp.c	226	00434FE0	00461DA7	ReadWord	DoLocalFn4FE0	WC1-callgraph-propagat
 src/mathfp.c	232	00434FF0	00461DBD	GetFontCharWidth	UiRoutine09	WC1-callgraph-propagated		mapped
 src/mathfp.c	238	00435010		ReleaseVideoResourcesHook				unmapped
 src/mathfp.c	243	00435020	00461DF0	GetShapeFrameBounds	GetShapeFrameBounds	WC1-fuzzy-medium		mapped
+src/mathfp.c	243		00461DE0	ApplySpacePaletteModeHook	ApplySpacePaletteModeHook	WC2-only		wc2-only
 src/mathfp.c	274	00435090	00461E97	IsPointInRect	DoLocalFn5090	WC1-order-exact		mapped
 src/mathfp.c	283	004350D0	00461EFE	SplitPackedPoint	DoLocalFn50D0	WC1-order-exact		mapped
 src/mathfp.c	289	004350F0	00461F22	DrawTextString	DrawTextString	WC1-fuzzy-high		mapped
@@ -1054,7 +1167,7 @@ src/mono.c	83	00403710		MeasureScaledIntroTextWidth				unmapped
 src/mono.c	112	004037A0		DrawWc1CenteredScaledIntroText				unmapped
 src/mono.c	150	00403890		GetLineLength				unmapped
 src/mono.c	184	00403920		print_subtitle				unmapped
-src/mono.c	240	00403A80	004207B0	advance_canned_sequence	DispatchTbl0059c310Fn3A80	WC1-fuzzy-very-low		mapped
+src/mono.c	240	00403A80		advance_canned_sequence				unmapped
 src/mono.c	274	00403B70		update_canned_sequence				unmapped
 src/mono.c	305	00403C40	00437760	SplitGameClockTicks	DoLocalFn3C40	WC1-fuzzy-low		mapped
 src/mono.c	319	00403C90	004377F0	MonoDebug_install	MonoDebug_install	WC1-fuzzy-low		mapped
@@ -1063,15 +1176,21 @@ src/mono.c	358	00403DB0	00437946	SoundDebugPrintf	SoundDebugPrintf	WC1-manual-ve
 src/mono.c	382	00403DE0	00437983	MonoDebug_print	MonoDebug_print	WC1-fuzzy-low		mapped
 src/mono.c	394	00403E30	004379D4	ReadPerformanceCounter	QueryPerfCounterValue	WC1-callgraph-single-low		mapped
 src/mono.c	400	00403E40		ResetStringBuilder				unmapped
+src/music.c	0		00452450	KeyboardMousePump	KeyboardMousePump	WC2-only		wc2-only
+src/music.c	9		0044F84F	InitializeSpeechCache	InitializeSpeechCache	WC2-only		wc2-only
+src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
 src/music.c	19	0042CDB0		parse_view_script				unmapped
+src/music.c	28		0044F3A4	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer	WC2-only		wc2-only
+src/music.c	35		0044F52E	LoadAndPlaySpeechPacket	LoadAndPlaySpeechPacket	WC2-only		wc2-only
+src/music.c	72		0044FA31	ShutdownSpeechCache	ShutdownSpeechCache	WC2-only		wc2-only
 src/music.c	150	0042D1C0		update_scripted_view				unmapped
 src/music.c	177	0042D230		initialize_scripted_view				unmapped
 src/music.c	188	0042D270	0045A2C0	InitializeFireworks	InitializeFireworks	WC1-callgraph-single-low		mapped
 src/music.c	208	0042D2A0	0045A300	TheEndFireWorks	TheEndFireWorks	WC1-fuzzy-very-low		mapped
 src/music.c	275	0042D390	0045A441	InitializeConstellationField	InitializeConstellationField	WC1-fuzzy-followup		mapped
-src/music.c	424		0045A5C7	IsConstellationParticleOutsideViewport	IsConstellationParticleOutsideViewport	WC2-only		wc2-only
 src/music.c	324	0042D500	0045A634	DrawConstellationField	DrawConstellationField	WC1-callgraph-propagated		mapped
 src/music.c	387	0042D730	0044F010	OpenPacketSection	OpenPacketSection	WC1-fuzzy-followup		mapped
+src/music.c	424		0045A5C7	IsConstellationParticleOutsideViewport	IsConstellationParticleOutsideViewport	WC2-only		wc2-only
 src/music.c	444	0042D870	0044F1C7	CloseDataFileByHandle	CloseDataFileByHandle	WC1-fuzzy-followup		mapped
 src/music.c	450	0042D880		DecompressPacketSection				unmapped
 src/music.c	570	0042DB70		GetTargetColourIndex				unmapped
@@ -1080,19 +1199,20 @@ src/music.c	684	0042DEA0	0043FF40	DrawTargetRangeReadout	DrawTargetRangeReadout	
 src/music.c	747	0042E020	0045CA50	LogDisplayMode	LogDisplayMode	WC1-auto-vt		mapped
 src/music.c	756	0042E050	0045CA80	CalcRectangleArea	CalcRectangleArea	WC1-fuzzy-followup		mapped
 src/music.c	769	0042E090	0045CAD2	AllocateViewport	AllocateViewport	WC1-fuzzy-followup		mapped
-src/music.c	889	0042E1D0		AlignWc1SpriteFrameToRectCorner				unmapped
-src/music.c	940		0046505E	IsSpriteFrameOverlappingRect	IsSpriteFrameOverlappingRect	WC2-only		wc2-only
 src/music.c	869	0042E320	00452AE5	FadeMusic	FadeMusic	WC1-manual-verified		mapped
 src/music.c	877	0042E330		SetMusicOn				unmapped
 src/music.c	883		00452A00	StopMusicStream	StopMusicStream	WC2-only		wc2-only
+src/music.c	889	0042E1D0		AlignWc1SpriteFrameToRectCorner				unmapped
 src/music.c	889	0042E350	00452A26	StopMusic	StopMusic	WC1-callgraph-propagated		mapped
-src/music.c	974		00452A40	StartMusic	StartMusic	WC2-only		wc2-only
 src/music.c	903	0042E380	00452A10	SetMusBreakpt	SetMusBreakpt	WC1-manual-verified		mapped
 src/music.c	913	0042E390	00452A99	PaletteFadeHook	PaletteFadeHook	WC1-manual-verified		mapped
 src/music.c	919	0042E3A0	00452AAB	FlushSoundEffect	DoLocalFnE3A0	WC1-fuzzy-very-low		mapped
 src/music.c	931	0042E3C0	00452AC8	FlushSoundEffects	FlushSoundEffects	WC1-manual-verified		mapped
+src/music.c	940		0046505E	IsSpriteFrameOverlappingRect	IsSpriteFrameOverlappingRect	WC2-only		wc2-only
 src/music.c	943	0042E3E0	00452AF0	SceneLeaveHook	GameNoBodyStubv9	WC1-callgraph-single-low		mapped
 src/music.c	948	0042E3F0		SelectFlightMusicTrack				unmapped
+src/music.c	974		00452A40	StartMusic	StartMusic	WC2-only		wc2-only
+src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only		wc2-only
 src/music.c	1045	0042E520		MapMusicTrackToStreamerCommand				unmapped
 src/music.c	1136		00402258	RecordMusicCommandHook	RecordMusicCommandHook	WC2-only		wc2-only
 src/music.c	1141	0042E6F0	00452B03	ProcessMusicScriptCommand	ProcessMusicScriptCommand	WC1-manual-verified		mapped
@@ -1113,6 +1233,11 @@ src/music.c	1544		0045351A	LogUnknownSoundEffect	LogUnknownSoundEffect	WC2-only	
 src/music.c	1553	0042EF10	0045357E	FlushSoundEffectsAndLog	FlushSoundEffectsAndLog	WC1-callgraph-propagated		mapped
 src/music.c	1565	0042EF20	004535BB	sound_effect	sound_effect	WC1-order-exact		mapped
 src/music.c	1584	0042EF30	0045373B	PlaySfxWaveFileByNumber	PlaySfxWaveFileByNumber	WC1-fuzzy-followup		mapped
+src/nav.c	0		00450623	ObjectivesShareNavLabel	ObjectivesShareNavLabel	WC2-only		wc2-only
+src/nav.c	0		00450CF8	IsObjectiveInDisplayedSystem	IsObjectiveInDisplayedSystem	WC2-only		wc2-only
+src/nav.c	0		00451EC9	FollowSelectedObjectiveSystem	FollowSelectedObjectiveSystem	WC2-only		wc2-only
+src/nav.c	0		00450F1E	DrawNavMapBriefingBeacons	DrawNavMapBriefingBeacons	WC2-only		wc2-only
+src/nav.c	0		004207B0	MergeAdjacentNearHeapBlocks	MergeAdjacentNearHeapBlocks	WC2-only		wc2-only
 src/nav.c	140	0040D090		NavMapPointInsideReservedArea				unmapped
 src/nav.c	150	0040D0E0	004501B2	NavMapLabelFits	NavMapLabelFits	WC1-fuzzy-medium		mapped
 src/nav.c	156	0040D120	00450210	NavMapLabelPositionAvailable	NavMapLabelPositionAvailable	WC1-fuzzy-followup		mapped
@@ -1146,17 +1271,20 @@ src/nav.c	751	0040E2B0	00451C5C	SelectNavObjectiveAtPoint	ScanTbl0059c000FnE2B0	
 src/nav.c	790	0040E3C0	00451DDB	CentreMouseOnCurrentNavObjective	GetTbl0059c000FnE3C0	WC1-fuzzy-followup		mapped
 src/nav.c	810	0040E430	00451E57	ShowConfedNavScan	ShowConfedNavScan	WC1-fuzzy-very-low		mapped
 src/nav.c	820	0040E480	00451FAA	InflightComputer	BlitUiFnE480	WC1-callgraph-propagated		mapped
-src/nav.c	983	0040E890		MergeAdjacentNearHeapBlocks				unmapped
 src/nav.c	1007	0040E900	00420874	ReleaseNearHeapBlock	ReleaseNearHeapBlock	WC1-callgraph-propagated		mapped
 src/nav.c	1025	0040E950	004208FC	PurgeNearHeapBlocks	PurgeNearHeapBlocks	WC1-fuzzy-low		mapped
 src/nav.c	1056	0040E9E0	004209C2	InitializeNearHeap	InitializeNearHeap	WC1-fuzzy-low		mapped
 src/nav.c	1105	0040EB70	00420B88	AllocateNearHeapBlockFromEnd	AllocateNearHeapBlockFromEnd	WC1-fuzzy-low		mapped
+src/nav.c	1143		00420B12	ShutdownNearHeap	ShutdownNearHeap	WC2-only		wc2-only
 src/nav.c	1273	0040ED30	00420E16	AllocateNearHeapBlockByFlags	AllocateNearHeapBlockByFlags	WC1-fuzzy-low		mapped
 src/nav.c	1366	0040EFE0		add_statistics				unmapped
-src/nav.c	1373	0040F010	0042BB70	PostMission	PostMission	WC1-fuzzy-followup		mapped
+src/nav.c	1373	0040F010		PostMission				unmapped
 src/nav.c	1444	0040F190		FullMissionScore				unmapped
+src/nav.c	1444		0042BDFE	WriteMemoryStateReportHook	WriteMemoryStateReportHook	WC2-only		wc2-only
+src/nav.c	1449		0042BE09	LogMemoryStateToFile	LogMemoryStateToFile	WC2-only		wc2-only
 src/nav.c	1463	0040F1E0		PlayersMissionScore				unmapped
 src/nav.c	1481		004651B7	GetViewportIntersection	GetViewportIntersection	WC2-only		wc2-only
+src/nav.c	1518		0042BE4B	WriteDetailedMemoryStateReport	WriteDetailedMemoryStateReport	WC2-only		wc2-only
 src/nav.c	1585	0040F240		UpdateSeries				unmapped
 src/nav.c	1660	0040F3F0		MoveNewCampaign				unmapped
 src/nav.c	1679	0040F440		StartNewCampaign				unmapped
@@ -1175,6 +1303,16 @@ src/nav.c	2655		004087FF	DrawScaledTitleLogo	DrawScaledTitleLogo	WC2-only		wc2-o
 src/nav.c	2672		004088A9	PushTitleOrchestraAway	PushTitleOrchestraAway	WC2-only		wc2-only
 src/nav.c	2725		00408A88	RevealTitleLogo	RevealTitleLogo	WC2-only		wc2-only
 src/nav.c	2802		00408CC8	ShowVictoryScreen	ShowVictoryScreen	WC2-only		wc2-only
+src/personnel.c	12		00428C35	GetWingCommanderOneGameDataPath	GetWingCommanderOneGameDataPath	WC2-only		wc2-only
+src/personnel.c	52		00433AD0	PollPersonnelMenuInput	PollPersonnelMenuInput	WC2-only		wc2-only
+src/personnel.c	108		00433C84	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen	WC2-only		wc2-only
+src/personnel.c	172		00433E8C	RefreshCampaignChalkboardScreen	RefreshCampaignChalkboardScreen	WC2-only		wc2-only
+src/personnel.c	185		0043456E	RestorePersonnelMenuBackground	RestorePersonnelMenuBackground	WC2-only		wc2-only
+src/personnel.c	188		00433ED7	DrawCampaignChalkboardFrame	DrawCampaignChalkboardFrame	WC2-only		wc2-only
+src/personnel.c	195		004345A1	DrawPilotSaveMenuChoices	DrawPilotSaveMenuChoices	WC2-only		wc2-only
+src/personnel.c	308		00435064	SelectTransferredPilot	SelectTransferredPilot	WC2-only		wc2-only
+src/personnel.c	581		00436A4D	ShowNoTransferablePilots	ShowNoTransferablePilots	WC2-only		wc2-only
+src/personnel.c	592		00436A8F	RunPilotDatabaseMenu	RunPilotDatabaseMenu	WC2-only		wc2-only
 src/pilot.cpp	10	00425730		WaitForKeyExceptXOrF12				unmapped
 src/pilot.cpp	26	00425770		ShowMeanwhileTransition				unmapped
 src/pilot.cpp	69	004258D0		ApplyAnswerTextCipher				unmapped
@@ -1211,8 +1349,8 @@ src/pilot.cpp	491	00426000		AddRandomTrainSimHighScores				unmapped
 src/pilot.cpp	530	0041DDF0	00459160	EraseLastTextInputCharacter	EraseLastTextInputCharacter	WC1-manual-verified		mapped
 src/pilot.cpp	559	004260E0	00459294	DrawTextInputCursor	DrawTextInputCursor	WC1-manual-verified		mapped
 src/pilot.cpp	576	004261D0	0045930A	EraseCharacterAfterTextCursor	EraseCharacterAfterTextCursor	WC1-manual-verified		mapped
-src/pilot.cpp	587	00426140	00459348	ClearTextInputCharacter	ClearTextInputCharacter	WC1-fuzzy-very-low		mapped
 src/pilot.cpp	577	00426200	004597E3	ReadTextInput	ReadTextInput	WC1-fuzzy-followup		mapped
+src/pilot.cpp	587	00426140	00459348	ClearTextInputCharacter	ClearTextInputCharacter	WC1-fuzzy-very-low		mapped
 src/pilot.cpp	708	004265A0	0042075F	ReadRequiredPilotField	ReadRequiredPilotField	WC1-fuzzy-low		mapped
 src/pilot.cpp	724	00426600	004348C3	PromptForPilotField	PromptForPilotField	WC1-callgraph-single-low		mapped
 src/pilot.cpp	738	00426660	004347D6	InitializeTrainSimTextPanel	InitializeTrainSimTextPanel	WC1-callgraph-propagated		mapped
@@ -1223,6 +1361,7 @@ src/pilot.cpp	832	004268E0		ShowTrainSimHighScores				unmapped
 src/pilot.cpp	945	00426C50		LoadTrainSimOpponentShape				unmapped
 src/pilot.cpp	958	00426C70		SelectWc1TrainSimMission				unmapped
 src/pload.c	11	0042B050	004465A0	PacketLoad	PacketLoad	WC1-fuzzy-followup		mapped
+src/pload.c	11		00446560	LoadGraphicsDriver	LoadGraphicsDriver	WC2-only		wc2-only
 src/pload.c	122	0042B160	00423CA0	InitializeAudioSystem	InitializeAudioSystem	WC1-fuzzy-followup		mapped
 src/pload.c	134	0042B1B0	00423D02	ServiceAudioStream	GetAudioStreamFnB1B0	WC1-auto-vt		mapped
 src/pload.c	146	0042B1F0	00423D4F	AllocateWaveTableEntry	AllocateWaveTableEntry	WC1-fuzzy-medium		mapped
@@ -1264,12 +1403,12 @@ src/screen.c	1152	00430840	00421409	PollJoystickButtonEvents	PollJoystickButtonE
 src/screen.c	1192	00430920	00421530	PollMenuInputDevices	PollMenuInputDevices	WC1-fuzzy-low		mapped
 src/screen.c	1305	00430BC0		get_face				unmapped
 src/screen.c	1315	00430BF0		LoadCommPortraitShape				unmapped
-src/screen.c	1410	00430C50	00447369	ResetCommMenuChoices	ResetCommMenuChoices	WC2-manual-verified		mapped
 src/screen.c	1350	00430CA0	004473D1	IsCommMenuIdle	IsCommMenuIdle	WC1-callgraph-single-low		mapped
 src/screen.c	1356	00430CB0	004473FC	AppendCommMenuChoice	AppendCommMenuChoice	WC1-order-exact		mapped
 src/screen.c	1387	00430D30	00447479	SendCommMenuChoice	SendCommMenuChoice	WC1-order-exact		mapped
 src/screen.c	1400	00430D50	004474CA	OpenCommMenuForTarget	OpenCommMenuForTarget	WC1-fuzzy-low		mapped
 src/screen.c	1407	00430D80	004474F4	IsCommChoiceMenuOpen	IsCommChoiceMenuOpen	WC1-manual-verified		mapped
+src/screen.c	1410	00430C50	00447369	ResetCommMenuChoices	ResetCommMenuChoices	WC2-manual-verified		mapped
 src/screen.c	1413	00430DA0		GetPendingMenuAction				unmapped
 src/screen.c	1419	00430DB0		SetPendingMenuAction				unmapped
 src/screen.c	1425	00430DC0	00447526	OpenCommRecipientMenu	OpenCommRecipientMenu	WC1-fuzzy-very-low		mapped
@@ -1296,40 +1435,89 @@ src/screen.c	1953	004318F0		ShutdownVideoHook				unmapped
 src/screen.c	1959	00431900		ReserveContiguousPaletteEntries				unmapped
 src/screen.c	1992	00431970		ReleaseContiguousPaletteEntries				unmapped
 src/screen.c	2006	004319B0	00401978	PrintPaletteAllocationMap	PrintPaletteAllocationMap	WC1-fuzzy-medium		mapped
+src/screen.c	2006		00401840	ConfigureDefaultSpacePalette	ConfigureDefaultSpacePalette	WC2-only		wc2-only
 src/screen.c	2027	00431A10	00423480	LoadJoystickCalibrationFile	LoadJoystickCalibrationFile	WC1-fuzzy-high		mapped
 src/screen.c	2145	00431D20	004238E9	ReadCalibratedJoystick	ReadCalibratedJoystick	WC1-fuzzy-very-low		mapped
 src/screen.c	2232	00431EA0		UnionRectBounds				unmapped
 src/screen.c	2247	00431F00	0045CD2C	ThrottleFrameAndDrawFps	ThrottleFrameAndDrawFps	WC1-fuzzy-very-low		mapped
 src/screens.c	9	00436D00		LoadBriefingRoom				unmapped
+src/screens.c	9		0042C04B	ClearActiveCutscenePixelAlias	ClearActiveCutscenePixelAlias	WC2-only		wc2-only
+src/screens.c	10		0042C607	FindActiveCutsceneFileResources	FindActiveCutsceneFileResources	WC2-only		wc2-only
+src/screens.c	11		0042BDDB	HasCutsceneMusicNode	HasCutsceneMusicNode	WC2-only		wc2-only
+src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only
+src/screens.c	21		0042BF0C	LogChangedCutsceneWorkBuffers	LogChangedCutsceneWorkBuffers	WC2-only		wc2-only
+src/screens.c	23		0042C659	FindActiveCutsceneObjectResources	FindActiveCutsceneObjectResources	WC2-only		wc2-only
+src/screens.c	24		0042C0A2	IsCutsceneSpeechLoaded	IsCutsceneSpeechLoaded	WC2-only		wc2-only
+src/screens.c	36		0042C6AC	RemoveCutsceneMemberIndex	RemoveCutsceneMemberIndex	WC2-only		wc2-only
 src/screens.c	47	00436E30	0042D568	RunLoadedCutscene	RunLoadedCutscene	WC2-manual-verified		mapped
+src/screens.c	51		0042C725	FatalCutsceneError	FatalCutsceneError	WC2-only		wc2-only
+src/screens.c	62		0042C75D	ResetCutsceneSpriteDrawTicks	ResetCutsceneSpriteDrawTicks	WC2-only		wc2-only
+src/screens.c	64		0042C373	LoadCutsceneCockpitOverlay	LoadCutsceneCockpitOverlay	WC2-only		wc2-only
+src/screens.c	73		0042C3A7	DrawCutsceneCockpitOverlay	DrawCutsceneCockpitOverlay	WC2-only		wc2-only
+src/screens.c	74		0042C7BC	PresentCutsceneFrame	PresentCutsceneFrame	WC2-only		wc2-only
+src/screens.c	88		0042C8E1	ConsumeCutscenePalettePacket	ConsumeCutscenePalettePacket	WC2-only		wc2-only
 src/screens.c	90	00436F50		AwardCampaignMedal				unmapped
+src/screens.c	97		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only
+src/screens.c	138		0042CB08	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffects	WC2-only		wc2-only
+src/screens.c	141		0042C5A2	WaitForCutsceneInputEvent	WaitForCutsceneInputEvent	WC2-only		wc2-only
 src/screens.c	147	004370D0		DrawMedalChest				unmapped
 src/screens.c	201		00434177	HasSavedPilotCampaign	HasSavedPilotCampaign	WC2-only		wc2-only
 src/screens.c	236	00437250		DrawMedalLongShot				unmapped
+src/screens.c	236		0042CC42	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot	WC2-only		wc2-only
 src/screens.c	265	004373E0		MedalEstablish				unmapped
+src/screens.c	293		0042D227	InitializeCutsceneRuntimeResources	InitializeCutsceneRuntimeResources	WC2-only		wc2-only
 src/screens.c	306	004374B0		PinMedal				unmapped
+src/screens.c	340		0042D444	InitializeCutsceneViewports	InitializeCutsceneViewports	WC2-only		wc2-only
 src/screens.c	346	004375C0		DrawMedals				unmapped
+src/screens.c	361		0042D4FA	ReleaseCutsceneSpeechPackets	ReleaseCutsceneSpeechPackets	WC2-only		wc2-only
+src/screens.c	361		0042D181	FindLoadedCutsceneMusic	FindLoadedCutsceneMusic	WC2-only		wc2-only
+src/screens.c	401		0042C0F1	DrawCutsceneTextAt	DrawCutsceneTextAt	WC2-only		wc2-only
 src/screens.c	408	00437770		EstablishingShot				unmapped
 src/screens.c	459	004378D0		DrawBriefingLongShot				unmapped
+src/screens.c	480		0042D81C	ExecuteCutsceneScene	ExecuteCutsceneScene	WC2-only		wc2-only
+src/screens.c	480		0042BB70	AnimateCutsceneSpeakerMouth	AnimateCutsceneSpeakerMouth	WC2-only		wc2-only
 src/screens.c	483	00437980		ReturnToBriefingLongShot				unmapped
+src/screens.c	497		0042CFDB	ReleaseCutsceneMusicNodes	ReleaseCutsceneMusicNodes	WC2-only		wc2-only
+src/screens.c	507		0042D8E2	CopyCutsceneSpriteDisplay	CopyCutsceneSpriteDisplay	WC2-only		wc2-only
+src/screens.c	528		0042D98C	LinkCutsceneSpriteScript	LinkCutsceneSpriteScript	WC2-only		wc2-only
+src/screens.c	548		0042DA25	DrawCutsceneSprite	DrawCutsceneSprite	WC2-only		wc2-only
 src/screens.c	550	00437B80	00433F94	Dismissed	Dismissed	WC1-callgraph-propagated		mapped
 src/screens.c	632	00437DC0		DrawDebriefingLongShot				unmapped
+src/screens.c	635		0042DD9F	DrawCutscenePlane	DrawCutscenePlane	WC2-only		wc2-only
+src/screens.c	654		0042DE62	ClearCutsceneViewport	ClearCutsceneViewport	WC2-only		wc2-only
+src/screens.c	662		0042DE9D	RestoreCutsceneTextBacking	RestoreCutsceneTextBacking	WC2-only		wc2-only
 src/screens.c	669	00437F20		DebriefingEstablishingShot				unmapped
+src/screens.c	683		0042DF32	ClearCutsceneTextViewport	ClearCutsceneTextViewport	WC2-only		wc2-only
+src/screens.c	694		0042DF80	ExpandCutsceneText	ExpandCutsceneText	WC2-only		wc2-only
 src/screens.c	730	00438090		no_objectives_achieved				unmapped
 src/screens.c	744	004380D0		wing_status				unmapped
+src/screens.c	746		0042E12A	ExecuteCutsceneSequence	ExecuteCutsceneSequence	WC2-only		wc2-only
 src/screens.c	763	00438110		int_value				unmapped
 src/screens.c	783	00438160		ParseTests				unmapped
+src/screens.c	830		0042E3CF	UpdateCutscenePlaneObject	UpdateCutscenePlaneObject	WC2-only		wc2-only
+src/screens.c	872		0042E553	UpdateCutsceneSpriteObject	UpdateCutsceneSpriteObject	WC2-only		wc2-only
+src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSpriteHandler	WC2-only		wc2-only
+src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
+src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
+src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
 src/screens.c	1012	00438B90		TalkerInit				unmapped
 src/screens.c	1022	00438BC0		FreeTalker				unmapped
 src/screens.c	1032	00438C00		SceneDirector				unmapped
+src/screens.c	1193		0042EBD0	ReleaseActiveCutscenePacket	ReleaseActiveCutscenePacket	WC2-only		wc2-only
+src/screens.c	1221		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only
 src/screens.c	1253	00439070		DrawWc1PodiumShot				unmapped
 src/screens.c	1277	00439150	004021A7	DrawBriefingCharacter	DrawBriefingCharacter	WC1-fuzzy-very-low		mapped
+src/screens.c	1292		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
+src/screens.c	1294		0042EF12	DrawCinematicMemoryStatus	DrawCinematicMemoryStatus	WC2-only		wc2-only
+src/screens.c	1302		0042EE4F	AllocateCutsceneViewportOrFatal	AllocateCutsceneViewportOrFatal	WC2-only		wc2-only
 src/screens.c	1314	00439220		DrawWc1FuneralLongShot				unmapped
+src/screens.c	1347		0042F0B3	FormatCinematicMemoryStatus	FormatCinematicMemoryStatus	WC2-only		wc2-only
+src/screens.c	1358	00439400	00423C60	SetViewportRect	SetViewportRect	WC2-manual-verified		mapped
 src/screens.c	1359		0042E6EB	InitializeSceneFlicStream	InitializeSceneFlicStream	WC2-only		wc2-only
+src/screens.c	1359		0042F100	ReportCutscenePacketAllocationFailure	ReportCutscenePacketAllocationFailure	WC2-only		wc2-only
+src/screens.c	1369	00439430	00433410	PanToScreen	PanToScreen	WC1-fuzzy-very-low		mapped
 src/screens.c	1374		0042E762	ReleaseSceneFlicPackets	ReleaseSceneFlicPackets	WC2-only		wc2-only
 src/screens.c	1403		0042E868	AdvanceSceneFlicStream	AdvanceSceneFlicStream	WC2-only		wc2-only
-src/screens.c	1358	00439400	00423C60	SetViewportRect	SetViewportRect	WC2-manual-verified		mapped
-src/screens.c	1369	00439430	00433410	PanToScreen	PanToScreen	WC1-fuzzy-very-low		mapped
 src/screens.c	1443	00439660	004697A0	death_sequence	death_sequence	WC1-callgraph-propagated	WC1-review-module-mismatch	mapped
 src/screens.c	1515	00439840		ShowGetReadyScreen				unmapped
 src/screens.c	1566	00439910		ShowWc1VictoryScreen				unmapped
@@ -1342,9 +1530,12 @@ src/screens.c	1826	00439D63	0040255F	ReadRasterClipPixel	ReadRasterClipPixel	WC1
 src/screens.c	1942	00439E39	00402635	optimize	DrawClippedLine	WC1-auto-vt		mapped
 src/screens.c	1959	0043A83B	00403037	optimize	FillRasterClipCheckerboard	WC1-auto-vt		mapped
 src/screens.c	2126	0043A974	00403170	optimize	DrawRLEImage	WC1-auto-vt		mapped
+src/screens.c	2290		00432F2A	LoadCachedCutsceneResource	LoadCachedCutsceneResource	WC2-only		wc2-only
+src/screens.c	2376		00433328	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource	WC2-only		wc2-only
 src/screens.c	2616	0043AD78	00403574	optimize	DrawRLEImageUnclipped	WC1-auto-vt		mapped
 src/screens.c	2733	0043AE3F	0040363B	SetPaletteTranslationTable	SetPaletteTranslationTable	WC1-fuzzy-medium		mapped
 src/screens.c	2762	0043AE5E	0040365A	optimize	DrawRLEImageColor	WC1-auto-vt		mapped
+src/screens.c	2771		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
 src/screens.c	3311	0043B336	00403B32	optimize	DrawRLEImageColorUnclipped	WC1-auto-vt		mapped
 src/screens.c	3456	0043B469	00403C65	optimize	RotateRLEImage	WC1-auto-vt		mapped
 src/screens.c	3474	0043C015	00404811	optimize	GetRLEFrameBounds	WC1-auto-vt		mapped
@@ -1392,6 +1583,7 @@ src/screens.c	5558	0043F06E	0040786A	CollectUniqueRLEImageFrames	CollectUniqueRL
 src/screens.c	5572	0043F0D0	004078CC	CollectUniqueRLEPaletteFrames	CollectUniqueRLEPaletteFrames	WC1-auto-vt		mapped
 src/screens.c	5586	0043F425	00407C21	FadeRasterPaletteToPalette	FadeRasterPaletteToPalette	WC1-auto-vt		mapped
 src/screens.c	5602	0043F5A9	00407DA5	CollectRasterClipColours	CollectRasterClipColours	WC1-auto-vt		mapped
+src/ship.c			00412FA9	IsOnlyShipGun	IsOnlyShipGun	WC2-only		wc2-only
 src/ship.c	39	0041E650		check_for_lost_control				unmapped
 src/ship.c	53	0041E900	00411A50	send_appropriate_message	send_appropriate_message	WC1-fuzzy-followup		mapped
 src/ship.c	82	0041E9B0	00411C72	inflict_damage	inflict_damage	WC1-callgraph-propagated		mapped
@@ -1399,7 +1591,6 @@ src/ship.c	179	0041EC60	0041262D	pilot_hit	pilot_hit	WC1-fuzzy-low		mapped
 src/ship.c	199	0041ECE0	0041270A	onboard_explosion	onboard_explosion	WC1-fuzzy-very-low		mapped
 src/ship.c	251	0041EDB0	0041280B	call_enemy	call_enemy	WC1-fuzzy-followup		mapped
 src/ship.c	267	0041EE20	004128A7	internal_damage	internal_damage	WC1-fuzzy-followup		mapped
-src/ship.c			00412FA9	IsOnlyShipGun	IsOnlyShipGun	WC2-only		wc2-only
 src/ship.c	387	0041F1A0	00412F03	revise_shields	revise_shields	WC1-fuzzy-low		mapped
 src/ship.c	403	0041F220	00413099	your_internal_damage	your_internal_damage	WC1-fuzzy-low		mapped
 src/ship.c	549	0041F5D0	00412F90	check_computer_damage	check_computer_damage	WC1-fuzzy-low		mapped
@@ -1418,15 +1609,11 @@ src/ship.c	1013	0041FEB0		the_creator				unmapped
 src/ship.c	1029	0041FEE0	00414025	explosion_shock_wave	explosion_shock_wave	WC1-callgraph-propagated		mapped
 src/ship.c	1079	00420040		ResolveWc1ObjectDestruction				unmapped
 src/ship.c	1143		00414835	explode	explode	WC2-only		wc2-only
-src/ship.c	1164		004148F5	ResolveObjectDestruction	ResolveObjectDestruction	WC2-only		wc2-only
-src/ship.c	1771		00446710	BeginShipDestructionSequence	BeginShipDestructionSequence	WC2-only		wc2-only
-src/ship.c	1798		00446823	SpawnMissionEjectionPod	SpawnMissionEjectionPod	WC2-only		wc2-only
 src/ship.c	1143	00420190	00414BE9	send_at_point	send_at_point	WC1-order-callgraph-verified		mapped
 src/ship.c	1153	004201D0	00414C39	find_child_object	find_child_object	WC1-order-semantics-verified		mapped
+src/ship.c	1164		004148F5	ResolveObjectDestruction	ResolveObjectDestruction	WC2-only		wc2-only
 src/ship.c	1166		00410161	IsCapitalShipObject	IsCapitalShipObject	WC2-only		wc2-only
 src/ship.c	1174		00410289	GetAdaptiveTurnRate	GetAdaptiveTurnRate	WC2-only		wc2-only
-src/ship.c	1433		004102FD	IncreaseAdaptiveDifficulty	IncreaseAdaptiveDifficulty	WC2-only		wc2-only
-src/ship.c	1446		00410352	DecreaseAdaptiveDifficulty	DecreaseAdaptiveDifficulty	WC2-only		wc2-only
 src/ship.c	1189	00420210	00414CA9	find_child_ship	find_child_ship	WC1-fuzzy-low		mapped
 src/ship.c	1205	00420260	00414D3D	launch_object	launch_object	WC1-fuzzy-low		mapped
 src/ship.c	1219	004202D0	00414DC0	fire	fire	WC1-fuzzy-followup		mapped
@@ -1435,8 +1622,15 @@ src/ship.c	1386	00420840	00415563	fire_flack	fire_flack	WC1-callgraph-propagated
 src/ship.c	1405	004208C0	00415625	RandomSign	RandomSign	manual-verified		mapped
 src/ship.c	1413	004208E0	0041565E	RandomFixedAimComponent	RandomFixedAimComponent	manual-verified		mapped
 src/ship.c	1423	00420920	004156A7	SpawnFlakBurst	SpawnFlakBurst	manual-verified		mapped
+src/ship.c	1433		004102FD	IncreaseAdaptiveDifficulty	IncreaseAdaptiveDifficulty	WC2-only		wc2-only
+src/ship.c	1446		00410352	DecreaseAdaptiveDifficulty	DecreaseAdaptiveDifficulty	WC2-only		wc2-only
 src/ship.c	1461	00420AA0	004159DB	fire_turrets	fire_turrets	WC1-callgraph-propagated		mapped
 src/ship.c	1521	00420C20	00415E2C	fire_weapon	fire_weapon	WC1-callgraph-propagated		mapped
+src/ship.c	1764		0041596F	HasShipActiveMissile	HasShipActiveMissile	WC2-only		wc2-only
+src/ship.c	1771		00446710	BeginShipDestructionSequence	BeginShipDestructionSequence	WC2-only		wc2-only
+src/ship.c	1798		00446823	SpawnMissionEjectionPod	SpawnMissionEjectionPod	WC2-only		wc2-only
+src/smart.c	0		0041F902	CountAlliesOnSameTarget	CountAlliesOnSameTarget	WC2-only		wc2-only
+src/smart.c	0		0041F9AF	process_maneuver_node	process_maneuver_node	WC2-only		wc2-only
 src/smart.c	10	00433AC0	0041E4E0	steer_away_from_object	steer_away_from_object	WC1-fuzzy-very-low		mapped
 src/smart.c	35	00433B90	0041E5C8	steer_away_from_predicted_object	steer_away_from_predicted_object	WC1-fuzzy-very-low		mapped
 src/smart.c	62	00433C80	0041E6C8	prevent_collision	prevent_collision	WC1-fuzzy-followup		mapped
@@ -1465,6 +1659,7 @@ src/sound.c	13	0042B410	004240AE	ReleaseFinishedSoundEntries	ReleaseFinishedSoun
 src/sound.c	29	0042B450	00424113	StopSoundsUsingWave	StopSoundsUsingWave	WC1-order-callgraph-verified		mapped
 src/sound.c	49	0042B4A0	0042418C	playWAVE	playWAVE	WC1-fuzzy-followup		mapped
 src/sound.c	177	0042B640	004245A2	stop_all_sounds	stop_all_sounds	WC1-auto-vt		mapped
+src/sound.c	179		00424417	PlayRawSpeechBuffer	PlayRawSpeechBuffer	WC2-only		wc2-only
 src/sound.c	198	0042B680	004245F8	PlaySnowStaticSound	PlaySnowStaticSound	WC1-fuzzy-high		mapped
 src/sound.c	240	0042B7D0	0042476B	ServiceSoundSystem	ServiceSoundSystem	WC1-order-exact		mapped
 src/sound.c	268	0042B7E0	0042482E	SetSoundEffectsVolume	HelperOf427F20A	WC1-fuzzy-very-low		mapped
@@ -1479,13 +1674,14 @@ src/sound.c	739	0042C410		FxDriverShutdownHook				unmapped
 src/sound.c	744	0042C420		InitializeDiskPromptTextContext				unmapped
 src/sound.c	785		00432DCC	GetPackedStringByIndex	GetPackedStringByIndex	WC2-only		wc2-only
 src/sound.c	800	0042C510	00432E23	RewriteDiskFileGraphicsExtensions	RewriteDiskFileGraphicsExtensions	WC1-auto-vt		mapped
-src/sound.c	897		00432E83	RewriteCutsceneMusicExtensionForDriver	RewriteCutsceneMusicExtensionForDriver	WC2-only		wc2-only
-src/sound.c	911		00432EE4	RewriteCutsceneMusicExtensionForRetry	RewriteCutsceneMusicExtensionForRetry	WC2-only		wc2-only
 src/sound.c	842	0042C580	00401000	LoadWingCmdrCfgFile	LoadWingCmdrCfgFile	WC1-fuzzy-followup		mapped
+src/sound.c	897		00432E83	RewriteCutsceneMusicExtensionForDriver	RewriteCutsceneMusicExtensionForDriver	WC2-only		wc2-only
 src/sound.c	898	0042C660		LoadInstallDat				unmapped
+src/sound.c	911		00432EE4	RewriteCutsceneMusicExtensionForRetry	RewriteCutsceneMusicExtensionForRetry	WC2-only		wc2-only
 src/sound.c	985	0042C800	00401120	show_damage_disp	show_damage_disp	WC1-fuzzy-followup		mapped
 src/sound.c	1029	0042C970	004012E1	UpdateDamageDisplay	DrawTbl0059bff0FnC970	WC1-fuzzy-very-low		mapped
 src/sound.c	1197	0042CDA0		GetJoystickPresentUnused				unmapped
+src/spc.c			0041AD8B	SaveTorpedoTargetLockForViewChange	SaveTorpedoTargetLockForViewChange	WC2-only		wc2-only
 src/spc.c	17	004102B0	00418770	CalibrateJoystickInteractive	CalibrateJoystickInteractive	WC1-fuzzy-high		mapped
 src/spc.c	163	004106C0	00418D14	WaitForJoystickButtonRelease	WaitForJoystickButtonRelease	WC1-manual-verified		mapped
 src/spc.c	175	00410700	00418D5F	WaitForJoystickButtonPress	WaitForJoystickButtonPress	WC1-manual-verified		mapped
@@ -1514,16 +1710,32 @@ src/strdos.c	23	00435430	00462465	DosStrrchr	DosStrrchr	WC1-auto-vt		mapped
 src/strdos.c	29	00435450	00462486	DosStrchr	DosStrchr	WC1-callgraph-propagated		mapped
 src/strdos.c	35	00435470	004624A7	DosStrcpy	DosStrcpy	WC2-manual-verified		mapped
 src/strdos.c	41	004354A0		CopyFarString				unmapped
+src/strdos.c	41		004624C7	CopyStringAndReturnEnd	CopyStringAndReturnEnd	WC2-only		wc2-only
 src/strdos.c	47	004354D0	0046250B	DosStrlen	DosStrlen	WC1-callgraph-propagated		mapped
 src/strdos.c	53	004354F0	00462527	DosMemcpy	DosMemcpy	WC1-manual-verified		mapped
 src/strdos.c	59	00435510	00462550	DosMemset	DosMemset	WC2-manual-verified		mapped
 src/strdos.c	65	00435550		GetEventManagerStatus				unmapped
+src/strdos.c	65		0046257A	InitializePostPaletteState	InitializePostPaletteState	WC2-only		wc2-only
 src/strdos.c	71	00435560		RegisterEventManagerShutdown				unmapped
+src/strdos.c	71		0046259D	InitializeInputManagerMemory	InitializeInputManagerMemory	WC2-only		wc2-only
 src/strdos.c	76	00435570		InitializeEventManager				unmapped
 src/strdos.c	87	00435590		ShutdownEventManager				unmapped
 src/strdos.c	93	004355A0		ConfigureEventManagerPointer				unmapped
 src/strdos.c	100	004355C0		EventManagerHook				unmapped
 src/strdos.c	106	004355D0		SetEventManagerPump				unmapped
+src/sysinput.c	0		00455D2D	GetHomeKeyState	GetHomeKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455D48	GetUpArrowKeyState	GetUpArrowKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455D63	GetPageUpKeyState	GetPageUpKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455D7E	GetLeftArrowKeyState	GetLeftArrowKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455D99	GetRightArrowKeyState	GetRightArrowKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455DB4	GetEndKeyState	GetEndKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455DCF	GetDownArrowKeyState	GetDownArrowKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455DEA	GetPageDownKeyState	GetPageDownKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455E05	GetNumLockKeyState	GetNumLockKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455E23	GetNumpadPlusKeyState	GetNumpadPlusKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455E3E	GetNumpadMinusKeyState	GetNumpadMinusKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455E59	GetReturnKeyState	GetReturnKeyState	WC2-only		wc2-only
+src/sysinput.c	0		00455E74	GetSpaceKeyState	GetSpaceKeyState	WC2-only		wc2-only
 src/sysinput.c	9	00402E80	00455A85	SetMousePosition	SetMousePosition	WC1-manual-verified		mapped
 src/sysinput.c	15	00402EA0	00455AC8	PollKeyboardState	PollKeyboardState	WC1-fuzzy-very-low		mapped
 src/sysinput.c	64	00403060	00455E8F	GetShiftKeyState	GetShiftKeyState	WC1-fuzzy-medium		mapped
@@ -1536,10 +1748,15 @@ src/sysinput.c	104	004030D0	00455F59	WriteDebugString	WriteDebugString	WC1-manua
 src/sysinput.c	124	004030E0	00455FD3	SetInputCursorHostPosition	SetInputCursorHostPosition	WC1-manual-verified		mapped
 src/system.c	9	00427080		RunTrainSim				unmapped
 src/system.c	105	004272F0	0046579D	LogMemoryUsage	LogMemoryUsage	WC1-callgraph-propagated	WC1-review-module-mismatch	mapped
-src/system.c	191		0046589D	AdjustSpaceFramePeriod	AdjustSpaceFramePeriod	WC2-only		wc2-only
+src/system.c	105		004656CC	AllocateApplicationScratchBuffer	AllocateApplicationScratchBuffer	WC2-only		wc2-only
+src/system.c	112		004656EB	ReleaseApplicationScratchBuffer	ReleaseApplicationScratchBuffer	WC2-only		wc2-only
+src/system.c	119		00465730	WaitForQueuedInputPress	WaitForQueuedInputPress	WC2-only		wc2-only
+src/system.c	120		0046570E	GetInputCursorShape	GetInputCursorShape	WC2-only		wc2-only
 src/system.c	125	00427370	00437AB4	exit_squadron	exit_squadron	WC1-callgraph-propagated		mapped
+src/system.c	139		00437A44	ReportFatalErrorCode	ReportFatalErrorCode	WC2-only		wc2-only
 src/system.c	146	004273C0	00437AEC	ShowMemoryStatusDebug	ShowMemoryStatusDebug	WC1-fuzzy-very-low		mapped
 src/system.c	173	004274C0		GetJoystickButtonEdge				unmapped
+src/system.c	191		0046589D	AdjustSpaceFramePeriod	AdjustSpaceFramePeriod	WC2-only		wc2-only
 src/text.c	12		00433690	DrawCinematicFontCharacter	DrawCinematicFontCharacter	WC2-only		wc2-only
 src/text.c	35		0043374E	IsCinematicFontCharacterPrintable	IsCinematicFontCharacterPrintable	WC2-only		wc2-only
 src/text.c	43		00433777	DrawWrappedCinematicText	DrawWrappedCinematicText	WC2-only		wc2-only
@@ -1595,219 +1812,3 @@ src/winmain.c	1336		0045562F	IsFreedHeapBlockTracked	IsFreedHeapBlockTracked	WC2
 src/winmain.c	1352		00455697	DetectDoubleFree	DetectDoubleFree	WC2-only		wc2-only
 src/winmain.c	1372		00455715	TrackFreedHeapBlock	TrackFreedHeapBlock	WC2-only		wc2-only
 src/winmain.c	1386	00402DB0	00455882	FreeGuardedAllocation	FreeGuardedAllocation	WC1-manual-verified		mapped
-src/brains.c	2368		00409850	InitializeNewPilotCampaign	InitializeNewPilotCampaign	WC2-only		wc2-only
-src/eventmgr.c	787		00463BA1	EnableMouseCursorDrawing	EnableMouseCursorDrawing	WC2-only		wc2-only
-src/eventmgr.c	869		00464123	AllocateDefaultMemory	AllocateDefaultMemory	WC2-only		wc2-only
-src/disk.c	78		0040F266	AppendPacketLoadDebugLog	AppendPacketLoadDebugLog	WC2-only		wc2-only
-src/eventmgr.c	1369		00464E73	LoadInputCursorShape	LoadInputCursorShape	WC2-only		wc2-only
-src/eventmgr.c	1387		00464EE0	InitializeInputDriverHook	InitializeInputDriverHook	WC2-only		wc2-only
-src/eventmgr.c	1392		00464EF0	FinalizeInputDriverHook	FinalizeInputDriverHook	WC2-only		wc2-only
-src/eventmgr.c	1413		00464FE7	SetPaletteEntryFromTriplet	SetPaletteEntryFromTriplet	WC2-only		wc2-only
-src/eventmgr.c	1424		0046502E	SetMusicTickRateHook	SetMusicTickRateHook	WC2-only		wc2-only
-src/logic.c	428		0045B7E0	QueryCurrentGraphicsMode	QueryCurrentGraphicsMode	WC2-only		wc2-only
-src/logic.c	801		0045BF30	InitializeHighMemoryGraphicsBuffers	InitializeHighMemoryGraphicsBuffers	WC2-only		wc2-only
-src/logic.c	917	00421F50	0045C35C	LoadSpaceflightResources	LoadSpaceflightResources	manual-verified		mapped
-src/logic.c	939		0045C419	InitializeMusicResources	InitializeMusicResources	WC2-only		wc2-only
-src/logic.c	1194		0042917D	InitializeCampaignConstellationState	InitializeCampaignConstellationState	WC2-only		wc2-only
-src/mathfp.c	243		00461DE0	ApplySpacePaletteModeHook	ApplySpacePaletteModeHook	WC2-only		wc2-only
-src/music.c	9		0044F84F	InitializeSpeechCache	InitializeSpeechCache	WC2-only		wc2-only
-src/nav.c	1444		0042BDFE	WriteMemoryStateReportHook	WriteMemoryStateReportHook	WC2-only		wc2-only
-src/nav.c	1449		0042BE09	LogMemoryStateToFile	LogMemoryStateToFile	WC2-only		wc2-only
-src/nav.c	1518		0042BE4B	WriteDetailedMemoryStateReport	WriteDetailedMemoryStateReport	WC2-only		wc2-only
-src/nav.c	1143		00420B12	ShutdownNearHeap	ShutdownNearHeap	WC2-only		wc2-only
-src/personnel.c	12		00428C35	GetWingCommanderOneGameDataPath	GetWingCommanderOneGameDataPath	WC2-only		wc2-only
-src/personnel.c	52		00433AD0	PollPersonnelMenuInput	PollPersonnelMenuInput	WC2-only		wc2-only
-src/personnel.c	185		0043456E	RestorePersonnelMenuBackground	RestorePersonnelMenuBackground	WC2-only		wc2-only
-src/personnel.c	195		004345A1	DrawPilotSaveMenuChoices	DrawPilotSaveMenuChoices	WC2-only		wc2-only
-src/personnel.c	308		00435064	SelectTransferredPilot	SelectTransferredPilot	WC2-only		wc2-only
-src/personnel.c	581		00436A4D	ShowNoTransferablePilots	ShowNoTransferablePilots	WC2-only		wc2-only
-src/personnel.c	592		00436A8F	RunPilotDatabaseMenu	RunPilotDatabaseMenu	WC2-only		wc2-only
-src/pload.c	11		00446560	LoadGraphicsDriver	LoadGraphicsDriver	WC2-only		wc2-only
-src/screen.c	2006		00401840	ConfigureDefaultSpacePalette	ConfigureDefaultSpacePalette	WC2-only		wc2-only
-src/strdos.c	65		0046257A	InitializePostPaletteState	InitializePostPaletteState	WC2-only		wc2-only
-src/strdos.c	71		0046259D	InitializeInputManagerMemory	InitializeInputManagerMemory	WC2-only		wc2-only
-src/system.c	105		004656CC	AllocateApplicationScratchBuffer	AllocateApplicationScratchBuffer	WC2-only		wc2-only
-src/system.c	112		004656EB	ReleaseApplicationScratchBuffer	ReleaseApplicationScratchBuffer	WC2-only		wc2-only
-src/system.c	139		00437A44	ReportFatalErrorCode	ReportFatalErrorCode	WC2-only		wc2-only
-src/music.c	72		0044FA31	ShutdownSpeechCache	ShutdownSpeechCache	WC2-only		wc2-only
-src/logic.c	939		0045C3FA	StopMusicIfDriverActive	StopMusicIfDriverActive	WC2-only		wc2-only
-src/eventmgr.c	1283		00464A90	FinalizeInputManagerHook	FinalizeInputManagerHook	WC2-only		wc2-only
-src/brains.c	3629		0044B29D	ResetWeaponDisplayPositions	ResetWeaponDisplayPositions	WC2-only		wc2-only
-src/disk.c	50		00409417	FindSceneHotspotAtPosition	FindSceneHotspotAtPosition	WC2-only		wc2-only
-src/disk.c	120		0040963B	PollSceneHotspotInput	PollSceneHotspotInput	WC2-only		wc2-only
-src/disk.c	179		0040D6E1	SwapSceneChunkSizeEndian	SwapSceneChunkSizeEndian	WC2-only		wc2-only
-src/disk.c	193		0040D812	ReadNextSceneForm	ReadNextSceneForm	WC2-only		wc2-only
-src/disk.c	216		0040D9AD	AllocateScenePointerTable	AllocateScenePointerTable	WC2-only		wc2-only
-src/disk.c	231		0040E130	DecodeSceneResourceChunk	DecodeSceneResourceChunk	WC2-only		wc2-only
-src/disk.c	262		0040E31F	ParseCutsceneContainer	ParseCutsceneContainer	WC2-only		wc2-only
-src/eventmgr.c	864		0046409B	AllocateZeroedRecords	AllocateZeroedRecords	WC2-only		wc2-only
-src/eventmgr.c	1430		00464F75	OffsetSceneHotspotBounds	OffsetSceneHotspotBounds	WC2-only		wc2-only
-src/eventmgr.c	1457		00464FD7	ServiceCutsceneRuntimeHook	ServiceCutsceneRuntimeHook	WC2-only		wc2-only
-src/logic.c	3416		00458A90	DecodeSceneStructChunk	DecodeSceneStructChunk	WC2-only		wc2-only
-src/logic.c	3453		00458B8C	DecodeSceneOffsetChunk	DecodeSceneOffsetChunk	WC2-only		wc2-only
-src/logic.c	3493		00458C81	DecodeSceneSymbolChunk	DecodeSceneSymbolChunk	WC2-only		wc2-only
-src/logic.c	3538		00458D94	DecodeSceneFileChunk	DecodeSceneFileChunk	WC2-only		wc2-only
-src/barracks.c	837	0041C090	00418DAA	RunCampaignSelectionFrame	RunCampaignSelectionFrame	WC2-manual-verified		mapped
-src/barracks.c	991	0041C170	00419831	BarracksScreen	BarracksScreen	WC2-manual-verified		mapped
-src/disk.c	9	0041DBA0	00409120	WaitForSceneAdvance	WaitForSceneAdvance	WC2-manual-verified		mapped
-src/logic.c	2960	004243E0	004575B4	init_constellation	init_constellation	WC2-manual-verified		mapped
-src/dib.c	45		0045CF7F	SetDefaultFrameTiming	SetDefaultFrameTiming	WC2-only		wc2-only
-src/hudmsg.c	924		004379F0	InitializeSpaceFlightInput	InitializeSpaceFlightInput	WC2-only		wc2-only
-src/hudmsg.c	937		0042D4C1	ReleaseSceneMusicPacket	ReleaseSceneMusicPacket	WC2-only		wc2-only
-src/hudmsg.c	948		00446FC8	ProcessCannedSceneInput	ProcessCannedSceneInput	WC2-only		wc2-only
-src/hudmsg.c	1002		0044698F	FinishCannedScenePlayback	FinishCannedScenePlayback	WC2-only		wc2-only
-src/hudmsg.c	1027		0040230E	WriteTapeInitialState	WriteTapeInitialState	WC2-only		wc2-only
-src/hudmsg.c	1048		00401A62	InitializeCannedSceneFrameIndex	InitializeCannedSceneFrameIndex	WC2-only		wc2-only
-src/hudmsg.c	1063		00401A10	ResetCannedSceneRecording	ResetCannedSceneRecording	WC2-only		wc2-only
-src/disk.c	194		0040D762	AreCutsceneResourceNamesEqual	AreCutsceneResourceNamesEqual	WC2-only		wc2-only
-src/disk.c	237		0040D88E	SkipCutsceneChunk	SkipCutsceneChunk	WC2-only		wc2-only
-src/disk.c	248		0040D8D7	FindCutsceneResourceSymbolIndex	FindCutsceneResourceSymbolIndex	WC2-only		wc2-only
-src/disk.c	292		0040DA0C	CreateCutsceneResourceInstance	CreateCutsceneResourceInstance	WC2-only		wc2-only
-src/disk.c	398		0040DE5A	LinkCutsceneObjectResources	LinkCutsceneObjectResources	WC2-only		wc2-only
-src/disk.c	514		0040E230	PushCutsceneFileResource	PushCutsceneFileResource	WC2-only		wc2-only
-src/disk.c	531		0040E285	DecodeCutsceneFileResource	DecodeCutsceneFileResource	WC2-only		wc2-only
-src/disk.c	661		0040E726	DecodeCutsceneObjectResource	DecodeCutsceneObjectResource	WC2-only		wc2-only
-src/disk.c	730		0040E985	ReleaseCutsceneObjectResourceData	ReleaseCutsceneObjectResourceData	WC2-only		wc2-only
-src/disk.c	745		0040EA0F	PushCutsceneObjectResource	PushCutsceneObjectResource	WC2-only		wc2-only
-src/disk.c	768		0040EAA4	ReleaseCutsceneObjectResource	ReleaseCutsceneObjectResource	WC2-only		wc2-only
-src/disk.c	828		0040ED9F	ReleaseCutsceneFileResourceExceptPacket	ReleaseCutsceneFileResourceExceptPacket	WC2-only		wc2-only
-src/disk.c	850		0040EE41	ReleaseCutsceneFileResource	ReleaseCutsceneFileResource	WC2-only		wc2-only
-src/disk.c	870		0040EEC7	ReleaseCutsceneTextResource	ReleaseCutsceneTextResource	WC2-only		wc2-only
-src/disk.c	884		0040EF15	ReleaseCutsceneResourceLevel	ReleaseCutsceneResourceLevel	WC2-only		wc2-only
-src/screens.c	10		0042C607	FindActiveCutsceneFileResources	FindActiveCutsceneFileResources	WC2-only		wc2-only
-src/screens.c	23		0042C659	FindActiveCutsceneObjectResources	FindActiveCutsceneObjectResources	WC2-only		wc2-only
-src/screens.c	36		0042C6AC	RemoveCutsceneMemberIndex	RemoveCutsceneMemberIndex	WC2-only		wc2-only
-src/screens.c	51		0042C725	FatalCutsceneError	FatalCutsceneError	WC2-only		wc2-only
-src/screens.c	62		0042C75D	ResetCutsceneSpriteDrawTicks	ResetCutsceneSpriteDrawTicks	WC2-only		wc2-only
-src/screens.c	74		0042C7BC	PresentCutsceneFrame	PresentCutsceneFrame	WC2-only		wc2-only
-src/screens.c	88		0042C8E1	ConsumeCutscenePalettePacket	ConsumeCutscenePalettePacket	WC2-only		wc2-only
-src/screens.c	293		0042D227	InitializeCutsceneRuntimeResources	InitializeCutsceneRuntimeResources	WC2-only		wc2-only
-src/screens.c	340		0042D444	InitializeCutsceneViewports	InitializeCutsceneViewports	WC2-only		wc2-only
-src/screens.c	361		0042D4FA	ReleaseCutsceneSpeechPackets	ReleaseCutsceneSpeechPackets	WC2-only		wc2-only
-src/screens.c	480		0042D81C	ExecuteCutsceneScene	ExecuteCutsceneScene	WC2-only		wc2-only
-src/screens.c	507		0042D8E2	CopyCutsceneSpriteDisplay	CopyCutsceneSpriteDisplay	WC2-only		wc2-only
-src/screens.c	528		0042D98C	LinkCutsceneSpriteScript	LinkCutsceneSpriteScript	WC2-only		wc2-only
-src/screens.c	548		0042DA25	DrawCutsceneSprite	DrawCutsceneSprite	WC2-only		wc2-only
-src/screens.c	635		0042DD9F	DrawCutscenePlane	DrawCutscenePlane	WC2-only		wc2-only
-src/screens.c	654		0042DE62	ClearCutsceneViewport	ClearCutsceneViewport	WC2-only		wc2-only
-src/screens.c	662		0042DE9D	RestoreCutsceneTextBacking	RestoreCutsceneTextBacking	WC2-only		wc2-only
-src/screens.c	683		0042DF32	ClearCutsceneTextViewport	ClearCutsceneTextViewport	WC2-only		wc2-only
-src/screens.c	694		0042DF80	ExpandCutsceneText	ExpandCutsceneText	WC2-only		wc2-only
-src/screens.c	746		0042E12A	ExecuteCutsceneSequence	ExecuteCutsceneSequence	WC2-only		wc2-only
-src/screens.c	830		0042E3CF	UpdateCutscenePlaneObject	UpdateCutscenePlaneObject	WC2-only		wc2-only
-src/screens.c	872		0042E553	UpdateCutsceneSpriteObject	UpdateCutsceneSpriteObject	WC2-only		wc2-only
-src/screens.c	906		0042E692	DispatchCutsceneSpriteHandler	DispatchCutsceneSpriteHandler	WC2-only		wc2-only
-src/screens.c	914		0042EE86	ReleaseCutsceneViewport	ReleaseCutsceneViewport	WC2-only		wc2-only
-src/screens.c	141		0042C5A2	WaitForCutsceneInputEvent	WaitForCutsceneInputEvent	WC2-only		wc2-only
-src/screens.c	1294		0042EF12	DrawCinematicMemoryStatus	DrawCinematicMemoryStatus	WC2-only		wc2-only
-src/screens.c	1347		0042F0B3	FormatCinematicMemoryStatus	FormatCinematicMemoryStatus	WC2-only		wc2-only
-src/screens.c	1359		0042F100	ReportCutscenePacketAllocationFailure	ReportCutscenePacketAllocationFailure	WC2-only		wc2-only
-src/screens.c	935		0042F135	PopCutsceneScriptValue	PopCutsceneScriptValue	WC2-only		wc2-only
-src/screens.c	947		0042F19A	PushCutsceneScriptValue	PushCutsceneScriptValue	WC2-only		wc2-only
-src/screens.c	1292		0042F1FD	RunCutsceneScript	RunCutsceneScript	WC2-only		wc2-only
-src/screens.c	2290		00432F2A	LoadCachedCutsceneResource	LoadCachedCutsceneResource	WC2-only		wc2-only
-src/screens.c	2771		00433269	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape	WC2-only		wc2-only
-src/screens.c	2376		00433328	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource	WC2-only		wc2-only
-src/screens.c	9		0042C04B	ClearActiveCutscenePixelAlias	ClearActiveCutscenePixelAlias	WC2-only		wc2-only
-src/screens.c	138		0042CB08	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffects	WC2-only		wc2-only
-src/screens.c	24		0042C0A2	IsCutsceneSpeechLoaded	IsCutsceneSpeechLoaded	WC2-only		wc2-only
-src/strdos.c	41		004624C7	CopyStringAndReturnEnd	CopyStringAndReturnEnd	WC2-only		wc2-only
-src/screens.c	11		0042BDDB	HasCutsceneMusicNode	HasCutsceneMusicNode	WC2-only		wc2-only
-src/screens.c	21		0042BF0C	LogChangedCutsceneWorkBuffers	LogChangedCutsceneWorkBuffers	WC2-only		wc2-only
-src/screens.c	401		0042C0F1	DrawCutsceneTextAt	DrawCutsceneTextAt	WC2-only		wc2-only
-src/screens.c	1302		0042EE4F	AllocateCutsceneViewportOrFatal	AllocateCutsceneViewportOrFatal	WC2-only		wc2-only
-src/eventmgr.c	1428		00464F10	FlushPendingInputEvents	FlushPendingInputEvents	WC2-only		wc2-only
-src/screens.c	361		0042D181	FindLoadedCutsceneMusic	FindLoadedCutsceneMusic	WC2-only		wc2-only
-src/music.c	1023		00452A64	StartInteractiveMusic	StartInteractiveMusic	WC2-only		wc2-only
-src/screens.c	17		0042BFB8	RouteCutsceneViewportToDisplay	RouteCutsceneViewportToDisplay	WC2-only		wc2-only
-src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
-src/screens.c	236		0042CC42	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot	WC2-only		wc2-only
-src/screens.c	97		0042C43D	RunCutsceneWipeTransition	RunCutsceneWipeTransition	WC2-only		wc2-only
-src/sound.c	179		00424417	PlayRawSpeechBuffer	PlayRawSpeechBuffer	WC2-only		wc2-only
-src/music.c	28		0044F3A4	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer	WC2-only		wc2-only
-src/music.c	35		0044F52E	LoadAndPlaySpeechPacket	LoadAndPlaySpeechPacket	WC2-only		wc2-only
-src/gr.c	58		00448570	InitializeViewportWipe	InitializeViewportWipe	WC2-only		wc2-only
-src/gr.c	301		00448D58	AdvanceViewportWipe	AdvanceViewportWipe	WC2-only		wc2-only
-src/gr.c	925		00449FAE	OffsetViewportBounds	OffsetViewportBounds	WC2-only		wc2-only
-src/gr.c	935		0044A009	SetViewportRectangleBounds	SetViewportRectangleBounds	WC2-only		wc2-only
-src/gr.c	945		0044A03C	FinishViewportWipe	FinishViewportWipe	WC2-only		wc2-only
-src/gr.c	1240		0044A910	GenerateWipeRadialEdges	GenerateWipeRadialEdges	WC2-only		wc2-only
-src/gr.c	1299		0044AAE5	BlitWipeRadialBands	BlitWipeRadialBands	WC2-only		wc2-only
-src/screens.c	64		0042C373	LoadCutsceneCockpitOverlay	LoadCutsceneCockpitOverlay	WC2-only		wc2-only
-src/screens.c	73		0042C3A7	DrawCutsceneCockpitOverlay	DrawCutsceneCockpitOverlay	WC2-only		wc2-only
-src/screens.c	497		0042CFDB	ReleaseCutsceneMusicNodes	ReleaseCutsceneMusicNodes	WC2-only		wc2-only
-src/screens.c	1221		0042EC7F	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket	WC2-only		wc2-only
-src/screens.c	1193		0042EBD0	ReleaseActiveCutscenePacket	ReleaseActiveCutscenePacket	WC2-only		wc2-only
-src/cmpgn.c	471		004098F2	RunCampaignContinuePromptLoop	RunCampaignContinuePromptLoop	WC2-only		wc2-only
-src/cmpgn.c	499		004099A8	PromptToContinueCampaign	PromptToContinueCampaign	WC2-only		wc2-only
-src/hudmsg.c	1063		00401C1A	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity	WC2-only		wc2-only
-src/hudmsg.c	1076		00401FDD	RecordCannedSceneObjectEvent	RecordCannedSceneObjectEvent	WC2-only		wc2-only
-src/hudmsg.c			00401ACB	HandleCannedSceneBufferBoundary	HandleCannedSceneBufferBoundary	WC2-only		wc2-only
-src/hudmsg.c			00401C72	GetCannedSceneObjectMode	GetCannedSceneObjectMode	WC2-only		wc2-only
-src/hudmsg.c			00401D79	RecordCannedSceneObjectState	RecordCannedSceneObjectState	WC2-only		wc2-only
-src/hudmsg.c			00402385	FlushCannedSceneRecordingBuffer	FlushCannedSceneRecordingBuffer	WC2-only		wc2-only
-src/hudmsg.c			00446960	ResetCannedScenePlaybackBuffer	ResetCannedScenePlaybackBuffer	WC2-only		wc2-only
-src/hudmsg.c			00446950	BeginInflightReplayHook	BeginInflightReplayHook	WC2-only		wc2-only
-src/hudmsg.c			00446A1D	RestoreCannedSceneObjectState	RestoreCannedSceneObjectState	WC2-only		wc2-only
-src/hudmsg.c			00446B6A	ApplyCannedSceneObjectEventRecord	ApplyCannedSceneObjectEventRecord	WC2-only		wc2-only
-src/hudmsg.c			00446CC2	ApplyCannedSceneSoundRecord	ApplyCannedSceneSoundRecord	WC2-only		wc2-only
-src/hudmsg.c			00446D0D	ApplyCannedSceneMusicRecord	ApplyCannedSceneMusicRecord	WC2-only		wc2-only
-src/hudmsg.c			00446D55	ApplyCannedSceneFrameEvents	ApplyCannedSceneFrameEvents	WC2-only		wc2-only
-src/hudmsg.c			00446F14	LoadCannedScenePlaybackBuffer	LoadCannedScenePlaybackBuffer	WC2-only		wc2-only
-src/disk.c	1806		00410192	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay	WC2-only		wc2-only
-src/logic.c	3808		00460242	CountShipCockpitGunDisplays	CountShipCockpitGunDisplays	WC2-only		wc2-only
-src/main.c	1281		0045F439	FireTargetCameraGuns	FireTargetCameraGuns	WC2-only		wc2-only
-src/logic.c			0045F7EC	UpdateShipTurretGuns	UpdateShipTurretGuns	WC2-only		wc2-only
-src/logic.c	3980		004601F1	ResetTargetCameraView	ResetTargetCameraView	WC2-only		wc2-only
-src/logic.c	4000		004602BE	ToggleTargetCameraOverlay	ToggleTargetCameraOverlay	WC2-only		wc2-only
-src/logic.c			004603C5	ClearTargetCameraView	ClearTargetCameraView	WC2-only		wc2-only
-src/logic.c	4354		00460498	ToggleTargetCameraTracking	ToggleTargetCameraTracking	WC2-only		wc2-only
-src/logic.c			00460BAF	ClearSavedTorpedoTargetLock	ClearSavedTorpedoTargetLock	WC2-only		wc2-only
-src/logic.c			00460BCC	UpdateSavedTorpedoTargetLock	UpdateSavedTorpedoTargetLock	WC2-only		wc2-only
-src/logic.c			00460D3E	SetTargetCameraEyePosition	SetTargetCameraEyePosition	WC2-only		wc2-only
-src/logic.c	4015		00461466	FinalizeTargetCameraViewHook	FinalizeTargetCameraViewHook	WC2-only		wc2-only
-src/spc.c			0041AD8B	SaveTorpedoTargetLockForViewChange	SaveTorpedoTargetLockForViewChange	WC2-only		wc2-only
-src/cockpt.c	2244		0043B570	AdjustScannerContactColourForRange	AdjustScannerContactColourForRange	WC2-only		wc2-only
-src/cockpt.c	3036		0043CE8F	HasInRangeGunForTargetLead	HasInRangeGunForTargetLead	WC2-only		wc2-only
-src/cockpt.c	3063		0043CF5A	UpdateTargetLeadIndicator	UpdateTargetLeadIndicator	WC2-only		wc2-only
-src/cockpt.c	3190		0043D323	RestoreTargetLeadIndicator	RestoreTargetLeadIndicator	WC2-only		wc2-only
-src/logic.c	4042		004608E8	UpdateTargetCameraTracking	UpdateTargetCameraTracking	WC2-only		wc2-only
-src/logic.c	4145		00460DFE	DrawTargetCameraAttitudeIndicators	DrawTargetCameraAttitudeIndicators	WC2-only		wc2-only
-src/logic.c	4237		004610BC	RestoreTargetCameraAttitudeIndicators	RestoreTargetCameraAttitudeIndicators	WC2-only		wc2-only
-src/logic.c	4310		00461456	UpdateTargetCameraCockpitHook	UpdateTargetCameraCockpitHook	WC2-only		wc2-only
-src/system.c	120		0046570E	GetInputCursorShape	GetInputCursorShape	WC2-only		wc2-only
-src/brains.c	0		00441837	ShipAiState47	ShipAiState47	WC2-only		wc2-only
-src/brains.c	0		00441895	ShipAiState28	ShipAiState28	WC2-only		wc2-only
-src/brains.c	0		004418B2	ShipAiState46	ShipAiState46	WC2-only		wc2-only
-src/brains.c	0		00442438	ShipAiState3	ShipAiState3	WC2-only		wc2-only
-src/brains.c	0		00442455	ShipAiState45	ShipAiState45	WC2-only		wc2-only
-src/brains.c	0		0044B48F	ApplyAlternateShipType	ApplyAlternateShipType	WC2-only		wc2-only
-src/brains.c	0		0044B83C	LoadAlternateShipType	LoadAlternateShipType	WC2-only		wc2-only
-src/brains.c	0		0044BE84	FindObjectResourceSlot	FindObjectResourceSlot	WC2-only		wc2-only
-src/cockpt.c	0		0043D9AB	DismissHudMessageIfShowing	DismissHudMessageIfShowing	WC2-only		wc2-only
-src/cmpgn.c	0		00424EA7	clean_up_cockpit	clean_up_cockpit	WC2-only		wc2-only
-src/logic.c	0		0042B916	find_ratio	find_ratio	WC2-only		wc2-only
-src/cockpt.c	0		0043E101	FindNearestMissileTargetingObject	FindNearestMissileTargetingObject	WC2-only		wc2-only
-src/nav.c	0		00450623	ObjectivesShareNavLabel	ObjectivesShareNavLabel	WC2-only		wc2-only
-src/cmpgn.c	0		0044EA50	ClearTransientObjectsForEjection	ClearTransientObjectsForEjection	WC2-only		wc2-only
-src/cmpgn.c	0		0044EB4E	FlagCurrentNavObjectivesReached	FlagCurrentNavObjectivesReached	WC2-only		wc2-only
-src/nav.c	0		00450CF8	IsObjectiveInDisplayedSystem	IsObjectiveInDisplayedSystem	WC2-only		wc2-only
-src/nav.c	0		00451EC9	FollowSelectedObjectiveSystem	FollowSelectedObjectiveSystem	WC2-only		wc2-only
-src/smart.c	0		0041F902	CountAlliesOnSameTarget	CountAlliesOnSameTarget	WC2-only		wc2-only
-src/smart.c	0		0041F9AF	process_maneuver_node	process_maneuver_node	WC2-only		wc2-only
-src/sysinput.c	0		00455D2D	GetHomeKeyState	GetHomeKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455D48	GetUpArrowKeyState	GetUpArrowKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455D63	GetPageUpKeyState	GetPageUpKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455D7E	GetLeftArrowKeyState	GetLeftArrowKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455D99	GetRightArrowKeyState	GetRightArrowKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455DB4	GetEndKeyState	GetEndKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455DCF	GetDownArrowKeyState	GetDownArrowKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455DEA	GetPageDownKeyState	GetPageDownKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455E05	GetNumLockKeyState	GetNumLockKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455E23	GetNumpadPlusKeyState	GetNumpadPlusKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455E3E	GetNumpadMinusKeyState	GetNumpadMinusKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455E59	GetReturnKeyState	GetReturnKeyState	WC2-only		wc2-only
-src/sysinput.c	0		00455E74	GetSpaceKeyState	GetSpaceKeyState	WC2-only		wc2-only
-src/music.c	0		00452450	KeyboardMousePump	KeyboardMousePump	WC2-only		wc2-only
-src/main.c	0		00465780	SetPersonnelCursorPosition	SetPersonnelCursorPosition	WC2-only		wc2-only
-src/nav.c	0		00450F1E	DrawNavMapBriefingBeacons	DrawNavMapBriefingBeacons	WC2-only		wc2-only

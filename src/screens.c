@@ -476,85 +476,75 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
 }
 #pragma function(memcpy)
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x42BB70 */
 void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
 {
-    signed char character;
-    signed char frame;
     signed char duration;
+    signed char frame;
+    signed char character;
     signed char speechSpeed;
-    short randomDelay;
 
     speechSpeed = g_cCutsceneSpeechSpeed_00499eb4;
     if (g_bCutsceneTextAdvance_005d2ed0 == 0) {
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
-    if (g_bCutsceneSkipFrame_00499c54 == 0 &&
-        g_bCutsceneViewportPreallocated_00499c4c == 0) {
-        if (g_wSpeechCacheState_0049bb60 != 0 ||
-            g_bCutsceneSpeechActive_00499eb8 != 0) {
-            if (g_wSpeechCacheState_0049bb60 == 0) {
-                g_bCutsceneTextAdvance_005d2ed0 = 0;
-                g_bCutsceneSpeechActive_00499eb8 = 0;
-                sprite->currentFrame = 11;
-                g_pszCutsceneSpeechCursor_00499eb0 = 0;
-                return;
-            }
-            g_bCutsceneSpeechActive_00499eb8 = 1;
-        }
-        if (g_wSpeechCacheState_0049bb60 != 0)
-            speechSpeed = 0;
-        sprite->waitStart = g_nInputClock_005c84a8;
-        if (g_pszCutsceneSpeechCursor_00499eb0 == 0) {
-            g_pszCutsceneSpeechCursor_00499eb0 =
-                g_pszCurrentCutsceneText_00499da4;
-        }
-        character = (signed char)toupper(
-            (unsigned char)*g_pszCutsceneSpeechCursor_00499eb0);
-        duration = 1;
-        if (character < 0) {
-            frame = g_acCutsceneMouthFrames_00499db0[
-                (unsigned char)(character + 0x80)];
-            duration = g_acCutsceneMouthDurations_00499e30[
-                (unsigned char)(character + 0x80)];
-        } else if (character < ' ') {
-            if (character == 0) {
-                g_bCutsceneTextAdvance_005d2ed0 = 0;
-                g_bCutsceneSpeechActive_00499eb8 = 0;
-                g_pszCutsceneSpeechCursor_00499eb0 = 0;
-            }
-            frame = -1;
-        } else if (character == 'T' &&
-                   toupper((unsigned char)
-                       *g_pszCutsceneSpeechCursor_00499eb0) == 'H') {
-            frame = 8;
-            duration = 3;
-            g_pszCutsceneSpeechCursor_00499eb0++;
-        } else {
-            frame = g_acCutsceneMouthFrames_00499db0[
-                (unsigned char)character];
-            duration = g_acCutsceneMouthDurations_00499e30[
-                (unsigned char)character];
-        }
-        if (frame == -1) {
-            sprite->currentFrame = 11;
-            randomDelay = RandomInRange(2, 4);
-            sprite->waitTicks = (short)(randomDelay * speechSpeed);
-        } else {
-            sprite->currentFrame = frame;
-            sprite->waitTicks = (short)(duration * speechSpeed);
-        }
-        if (g_pszCutsceneSpeechCursor_00499eb0 != 0 &&
-            *g_pszCutsceneSpeechCursor_00499eb0 != 0) {
-            g_pszCutsceneSpeechCursor_00499eb0++;
-        }
+    if (g_bCutsceneSkipFrame_00499c54 != 0 ||
+        g_bCutsceneViewportPreallocated_00499c4c != 0) {
+        g_bCutsceneSpeechActive_00499eb8 =
+            (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+        g_pszCutsceneSpeechCursor_00499eb0 = 0;
+        sprite->currentFrame = 11;
         return;
     }
-    g_bCutsceneTextAdvance_005d2ed0 = 0;
-    g_bCutsceneSpeechActive_00499eb8 = 0;
-    g_pszCutsceneSpeechCursor_00499eb0 = 0;
-    sprite->currentFrame = 11;
+    if (g_wSpeechCacheState_0049bb60 != 0 ||
+        g_bCutsceneSpeechActive_00499eb8 != 0) {
+        if (g_wSpeechCacheState_0049bb60 == 0) {
+            g_bCutsceneSpeechActive_00499eb8 =
+                (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+            sprite->currentFrame = 11;
+            g_pszCutsceneSpeechCursor_00499eb0 = 0;
+            return;
+        }
+        g_bCutsceneSpeechActive_00499eb8 = 1;
+    }
+    if (g_wSpeechCacheState_0049bb60 != 0)
+        speechSpeed = 0;
+    sprite->waitStart = g_nInputClock_005c84a8;
+    if (g_pszCutsceneSpeechCursor_00499eb0 == 0)
+        g_pszCutsceneSpeechCursor_00499eb0 = g_pszCurrentCutsceneText_00499da4;
+    character = (signed char)toupper(*g_pszCutsceneSpeechCursor_00499eb0);
+    if (character < 0) {
+        character = (signed char)(character + 0x80);
+        frame = g_acCutsceneMouthFrames_00499db0[character];
+        duration = g_acCutsceneMouthDurations_00499e30[character];
+    } else if (character < ' ') {
+        if (character == 0) {
+            g_bCutsceneSpeechActive_00499eb8 =
+                (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+            g_pszCutsceneSpeechCursor_00499eb0 = 0;
+        }
+        frame = -1;
+    } else if (character == 'T' &&
+               toupper(*g_pszCutsceneSpeechCursor_00499eb0) == 'H') {
+        frame = 8;
+        duration = 3;
+        g_pszCutsceneSpeechCursor_00499eb0++;
+    } else {
+        frame = g_acCutsceneMouthFrames_00499db0[character];
+        duration = g_acCutsceneMouthDurations_00499e30[character];
+    }
+    if (frame != -1) {
+        sprite->currentFrame = frame;
+        sprite->waitTicks = (short)(speechSpeed * duration);
+    } else {
+        sprite->currentFrame = 11;
+        sprite->waitTicks = (short)(speechSpeed * RandomInRange(2, 4));
+    }
+    if (g_pszCutsceneSpeechCursor_00499eb0 != 0 &&
+        *g_pszCutsceneSpeechCursor_00499eb0 != 0) {
+        g_pszCutsceneSpeechCursor_00499eb0++;
+    }
 }
 
 /* Function start: 0x42CFDB */
@@ -1252,8 +1242,20 @@ void UpdateCutsceneSpriteObject(SceneFlicObject *sprite)
 void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
                                    short handlerType)
 {
-    if (handlerType == 0 && sprite->field_3 == 0)
-        AnimateCutsceneSpeakerMouth(sprite);
+    SceneFlicObject *object;
+    void (*handler)(SceneFlicObject *sprite);
+
+    switch (handlerType) {
+    case 0:
+        object = sprite;
+        handler = g_apCutsceneSpriteHandlers_00499c5c[object->field_3];
+        handler(object);
+        break;
+    case 1:
+        break;
+    case 2:
+        break;
+    }
 }
 
 /* Function start: 0x42EBD0 */

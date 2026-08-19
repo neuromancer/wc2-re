@@ -237,7 +237,7 @@ int print_subtitle(Viewport *viewport, short colour, const char *text)
     return 0;
 }
 
-/* Function start: 0x4207B0 */
+/* Function start: WC2_UNMAPPED */
 int advance_canned_sequence(short obj)
 {
     const short *command;

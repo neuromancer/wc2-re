@@ -365,17 +365,11 @@ void ShowPlayerStrandingSequence(void)
 void FatalErrorAndExit(const char *format, ...)
 {
     char text[0xfc];
-
-#ifdef WC1_SDL
     va_list arguments;
 
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
-    ShutdownEventManager();
     exit_squadron(text);
 }
 

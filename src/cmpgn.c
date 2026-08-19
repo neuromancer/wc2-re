@@ -7,6 +7,7 @@
  */
 #include "wc1.h"
 
+#pragma function(memcmp)
 #pragma function(memcpy)
 #pragma function(strcat)
 
@@ -1101,31 +1102,42 @@ void LoadMissionData(short series, short mission)
 }
 
 /* Function start: 0x42ECCB */
-unsigned int UpdateMap(char *text, short duration)
+void UpdateMap(char *text, short objective)
 {
-    Viewport savedScreen;
-    Viewport savedVirtualScreen;
+    int deadline;
 
-    savedScreen = g_stScreenViewport_005d21a0;
-    savedVirtualScreen = g_stSecondaryViewBuffer_005d2c90;
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    if (g_stSecondaryViewBuffer_005d2c90.pixels != 0)
-        ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szBriefingMapTextFormat_0049bd30,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    g_stScreenViewport_005d21a0 = savedScreen;
-    g_stSecondaryViewBuffer_005d2c90 = savedVirtualScreen;
+    ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50, 0);
+    g_bBriefingMapActive_0049bcb0 = 1;
+    LoadMissionData(g_pCampaignGlobals_00499c94->series,
+                    g_pCampaignGlobals_00499c94->mission);
+    Build_objective_list();
+    g_cCurrentObjective_004931cc = (signed char)objective;
+    g_pActiveCutscenePixels_005c83dc = 0;
     BriefingMap_DisplayMap();
-    WaitForWc1SceneAdvance(duration, 0);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005d2d40);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
-    return 0;
+    g_bBriefingMapActive_0049bcb0 = 0;
+    RouteCutsceneViewportToDisplay();
+    SetTextContext(&g_stCutsceneTextContext_005d2f40);
+    ClearCutsceneTextViewport();
+    ExpandCutsceneText((const unsigned char *)text,
+                       g_pszCutsceneWorkBuffer_005d2ecc);
+    if (IsCutsceneSpeechLoaded() == 0 || g_nAudioEnabled_0049c244 == 0) {
+        if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0)
+            FormatTextBufferFromStart("%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
+    }
+    g_bCutsceneTextRestorePending_00499da0 = 1;
+    RestoreCutsceneTextBacking();
+    ServiceInputDevices(-1);
+    deadline = g_nInputClock_005c84a8 + 600;
+    while ((int)g_nInputClock_005c84a8 < deadline &&
+           g_bCutsceneSkipFrame_00499c54 == 0 &&
+           g_bCutsceneViewportPreallocated_00499c4c == 0) {
+        if (ServiceInputDevices(-1) != 0) {
+            ServiceCutsceneRuntimeHook();
+            if (FindQueuedInputEvent(2) != 0 || FindQueuedInputEvent(5) != 0)
+                break;
+        }
+    }
+    ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50, 0);
 }
 
 /* Function start: WC2_UNMAPPED */
