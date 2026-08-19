@@ -3441,7 +3441,7 @@ signed char DecodeSceneStructChunk(unsigned char **cursor,
     count = (unsigned short)((chunkSize - 2) / recordSize);
     (*resource)->type = 0;
     (*resource)->count = count;
-    pointerSize = 4;
+    pointerSize = WC2_SCENE_POINTER_SIZE;
     entries = AllocateScenePointerTable(
         count, pointerSize, 0, "Cannot Allocate STRC stuff");
     (*resource)->data = entries;
@@ -3478,7 +3478,7 @@ signed char DecodeSceneOffsetChunk(unsigned char **cursor,
     (*resource)->type = 1;
     (*resource)->count = count;
     entries = AllocateScenePointerTable(
-        count, 4, 0, "Cannot Alloc OFST stuff");
+        count, WC2_SCENE_POINTER_SIZE, 0, "Cannot Alloc OFST stuff");
     (*resource)->data = entries;
     index = 1;
     while (index <= (short)count) {
@@ -3517,7 +3517,7 @@ signed char DecodeSceneSymbolChunk(unsigned char **cursor,
     SwapSceneChunkSizeEndian((int *)&chunkSize);
     start = data;
     count = 0;
-    pointerSize = 4;
+    pointerSize = WC2_SCENE_POINTER_SIZE;
     do {
         nextString = (unsigned char *)DosStrchr((char *)data, 0) + 1;
         count++;

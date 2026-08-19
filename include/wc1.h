@@ -45,6 +45,16 @@
 #include <time.h>
 #endif
 
+/* The scene and cutscene tables hold host pointers.  The original sized their
+ * elements at four bytes because that is what a pointer was; on LP64 the same
+ * table has to be twice as wide or every store past the first one runs off the
+ * end of the allocation. */
+#ifdef WC1_SDL
+#define WC2_SCENE_POINTER_SIZE ((short)sizeof(void *))
+#else
+#define WC2_SCENE_POINTER_SIZE 4
+#endif
+
 #ifdef WC1_SDL
 /* Two things the reconstruction inherits from MSVC have to be corrected on the
  * way to a modern C library, and both of them corrupt a diagnostic exactly

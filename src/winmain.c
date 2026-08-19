@@ -1319,6 +1319,22 @@ void *AllocateGuardedMemory(unsigned int size)
     g_pGuardedAllocationTail_005d10ec = allocation;
     g_pGuardedAllocationTail_005d10ec->next = 0;
     g_pGuardedAllocationTail_005d10ec->size = size;
+#ifdef WC1_SDL
+    /* The 0x400-byte 0xAB fences the original hand-rolls are what ASan's
+     * redzones already provide, and ASan reports the write that runs past the
+     * block instead of the free that finds the damage long afterwards.  Drop
+     * them so the sanitizer, not this bookkeeping, catches an overrun.
+     *
+     * One word of the tail has to stay, though: the IFF form walk probes for a
+     * "FORM" tag one word past the last form and stops when it does not find
+     * one, so the original's fence was load-bearing there.  Four bytes is the
+     * least that probe needs and still leaves any store wider than a tag --
+     * every pointer-width mistake included -- landing in ASan's redzone. */
+    g_pGuardedAllocationTail_005d10ec->block = malloc(size + 4);
+    memset(g_pGuardedAllocationTail_005d10ec->block, 0, size);
+    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block + size,
+           0xab, 4);
+#else
     g_pGuardedAllocationTail_005d10ec->block = malloc(size + 0x800);
 
     memset(g_pGuardedAllocationTail_005d10ec->block, 0xab, 0x400);
@@ -1328,6 +1344,7 @@ void *AllocateGuardedMemory(unsigned int size)
     memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
                0x400 + size,
            0xab, 0x400);
+#endif
     g_dwGuardedAllocationTotalBytes_0049c24c += size;
     g_dwGuardedAllocationBytes_0049c250 += size;
     if (g_dwGuardedAllocationPeakBytes_0049c254 <
@@ -1335,8 +1352,12 @@ void *AllocateGuardedMemory(unsigned int size)
         g_dwGuardedAllocationPeakBytes_0049c254 =
             g_dwGuardedAllocationBytes_0049c250;
     }
+#ifdef WC1_SDL
+    return g_pGuardedAllocationTail_005d10ec->block;
+#else
     return (unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
            0x400;
+#endif
 }
 
 /* Function start: 0x455565 */
@@ -1426,7 +1447,9 @@ void FreeGuardedAllocation(void *memory)
 
     found = 0;
 #ifdef WC1_SDL
-    guard = (unsigned char *)memory - 0x400;
+    /* No fences to walk: the block starts where the caller's pointer does and
+     * ASan owns the redzones on either side of it. */
+    guard = (unsigned char *)memory;
 #else
     guard = (unsigned int *)((unsigned char *)memory - 0x400);
 #endif
@@ -1434,45 +1457,29 @@ void FreeGuardedAllocation(void *memory)
     allocation = g_pGuardedAllocationHead_0049c300;
     while (allocation != 0) {
         if (allocation->block == guard) {
+#ifndef WC1_SDL
             corrupt = 0;
             for (i = 0; i < 0x100; i++) {
-#ifdef WC1_SDL
-                memcpy(&guardValue, guard, sizeof(guardValue));
-                if (guardValue != 0xabababab)
-                    corrupt++;
-                guard += sizeof(guardValue);
-#else
                 if (*guard != 0xabababab)
                     corrupt++;
                 guard++;
-#endif
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 0);
 
             corrupt = 0;
-#ifdef WC1_SDL
-            guard = (unsigned char *)memory + allocation->size;
-#else
             guard =
                 (unsigned int *)((unsigned char *)memory + allocation->size);
-#endif
             for (i = 0; i < 0x100; i++) {
-#ifdef WC1_SDL
-                memcpy(&guardValue, guard, sizeof(guardValue));
-                if (guardValue != 0xabababab)
-                    corrupt++;
-                guard += sizeof(guardValue);
-#else
                 if (*guard != 0xabababab)
                     corrupt++;
                 guard++;
-#endif
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 1);
 
             guard = (unsigned int *)((unsigned char *)memory - 0x400);
+#endif
             TrackFreedHeapBlock(guard);
             free(guard);
             if (previous != 0)

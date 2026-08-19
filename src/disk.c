@@ -593,7 +593,8 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
     resource->packedFilenames = (char *)(
         resource->sectionIndices + resource->count);
     resource->loadedPackets = AllocateScenePointerTable(
-        resource->count, 4, 0, "Cannot Allocate InMemory List");
+        resource->count, WC2_SCENE_POINTER_SIZE, 0,
+        "Cannot Allocate InMemory List");
     if (resource->loadedPackets == 0)
         ReleasePacketSlot((void **)&resource);
 }
