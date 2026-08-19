@@ -1095,7 +1095,9 @@ void CheckHeapBlockSignature(unsigned char *shape)
 /* Function start: 0x42550E */
 int HasValidShapeAllocationSignature(unsigned char *shape)
 {
-    return *(int *)(shape - 8) == 0x6666656a;
+    if (*(int *)(shape - 8) != 0x6666656a)
+        return 0;
+    return 1;
 }
 
 /* Function start: 0x42553A */

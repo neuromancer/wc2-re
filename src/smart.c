@@ -320,31 +320,22 @@ unsigned int chase_location(short obj, const FixedVector *destination,
 }
 
 /* Function start: 0x41EFFE */
-unsigned int goto_location(short obj, const FixedVector *destination)
+void goto_location(short obj, const FixedVector *destination)
 {
-    short range;
-    short speed;
-
-    ship_vs_point(obj, destination);
+    get_facing_range_from_point(obj, destination);
     if (g_nFacingToTarget_00493194 < 51) {
         approach_half_speed(obj);
-        if (no_goal(obj) != 0) {
+        if (CanSetNewShipTurnGoal(obj) != 0)
             point_ship_at_point(obj, destination);
-            return 0;
-        }
-    } else {
-        range = g_nTargetRange_0049319c;
-        if (range <= 3000) {
-            speed = FixedToShortSaturating(g_anShipSpeed_0059b320[obj]);
-            speed = MaxShort(speed, 1);
-            if (range / speed <= 50) {
-                approach_cruise_speed(obj);
-                return 0;
-            }
-        }
+    } else if (g_nTargetRange_0049319c > 3000 ||
+               g_nTargetRange_0049319c /
+                   MaxShort(FixedToShortSaturating(
+                                g_anShipSpeed_0059b320[obj]),
+                            1) > 50) {
         approach_full_speed(obj);
+    } else {
+        approach_cruise_speed(obj);
     }
-    return 0;
 }
 
 /* Function start: 0x41F0C5 */
@@ -494,7 +485,7 @@ short pick_regular_maneuver(short obj, short event)
     switch (event) {
     case 0:
         if (g_aeObjectClass_00495328[
-                g_acShipTarget_00495f20[obj]] ==
+                g_acShipTarget_00495f20[obj]] >=
             OBJECT_CLASS_CAPITAL_SHIP)
             return MANEUVER_STRAFE_ENEMY;
         if (RandomBelow(100) <

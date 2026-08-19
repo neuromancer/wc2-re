@@ -536,11 +536,11 @@ signed char DecodeSceneResourceChunk(unsigned char **cursor,
 {
     unsigned char *chunk;
     signed char decoded;
-    unsigned int chunkType;
+    int chunkType;
 
     chunk = *cursor;
     decoded = 0;
-    chunkType = *(unsigned int *)chunk;
+    chunkType = *(int *)chunk;
     switch (chunkType) {
     case 0x43525453:
         decoded = DecodeSceneStructChunk(&chunk, &resource);

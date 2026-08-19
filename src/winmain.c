@@ -225,9 +225,10 @@ void init_hazard(short obj, FixedVector position, short moving)
         speed = (short)(speed / travelTime);
     } else {
         point_at(obj, g_pActiveHazardField_00493278->center);
-        speed = 0;
         skew_randomly(obj, 1);
-        if (RandomBelow(100) >= 20)
+        if (RandomBelow(100) < 20)
+            speed = 0;
+        else
             speed = asteroid_velocity();
     }
     if (kilrathi_near(0, 16000) != 0)

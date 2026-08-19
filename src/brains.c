@@ -351,9 +351,7 @@ void Mturn_n_spin(short ship, short target)
         break;
     case 1:
         ++g_asShipCount_0059c420[ship];
-        advanceSequence = 1;
-        if (g_asShipCount_0059c420[ship] <= 2)
-            advanceSequence = 0;
+        advanceSequence = g_asShipCount_0059c420[ship] > 2;
         break;
     case 2:
         advanceSequence = g_nTargetFacing_00493198 <= 80;
@@ -3091,10 +3089,10 @@ void cruise_to_destination(short obj)
     } else {
         fire_turrets(obj);
         get_facing_range_from_object(obj, g_acShipTarget_00495f20[obj]);
-        if (g_nFacingToTarget_00493194 <= 65)
-            approach_full_speed(obj);
-        else
+        if (g_nFacingToTarget_00493194 > 65)
             approach_half_speed(obj);
+        else
+            approach_full_speed(obj);
     }
 
     if ((g_abShipTurn_00495fd8[obj] & 7) != 2)

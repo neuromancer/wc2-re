@@ -467,9 +467,9 @@ void your_afterburner(void)
 /* Function start: 0x45B7E0 */
 short QueryCurrentGraphicsMode(void)
 {
-    if ((short)g_nSpacePaletteFadeMode_004901e8 == -1)
-        return 0x13;
-    return (short)g_nSpacePaletteFadeMode_004901e8;
+    if ((short)g_nSpacePaletteFadeMode_004901e8 != -1)
+        return (short)g_nSpacePaletteFadeMode_004901e8;
+    return 0x13;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2345,11 +2345,11 @@ short dead_ship(short i)
 /* Function start: 0x42B0FB */
 int gone_ship(short missionShip)
 {
-    if (missionShip != -1 &&
-        g_aMissionShips_00492290[missionShip].state != 3 &&
-        g_aMissionShips_00492290[missionShip].state != 2)
-        return 0;
-    return 1;
+    if (missionShip == -1 ||
+        g_aMissionShips_00492290[missionShip].state == 3 ||
+        g_aMissionShips_00492290[missionShip].state == 2)
+        return 1;
+    return 0;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -3573,16 +3573,20 @@ void InitializeCockpitResources(void)
     ResetScannerContacts();
     g_bRadioSilence_0049b780 = 0;
     g_nCockpitExplosionFrame_0049b04c = 8;
-    g_nObjectType62Index_00492d64 = 0;
-    while (g_nObjectType62Index_00492d64 < 0x40 &&
-           g_aObjectTypeData_00496d30[
-               g_nObjectType62Index_00492d64].field_18 != 0x3e)
-        g_nObjectType62Index_00492d64++;
-    g_nObjectType63Index_00492d68 = 0;
-    while (g_nObjectType63Index_00492d68 < 0x40 &&
-           g_aObjectTypeData_00496d30[
-               g_nObjectType63Index_00492d68].field_18 != 0x3f)
-        g_nObjectType63Index_00492d68++;
+    for (g_nObjectType62Index_00492d64 = 0;
+         g_nObjectType62Index_00492d64 < 0x40;
+         g_nObjectType62Index_00492d64++) {
+        if (g_aObjectTypeData_00496d30[
+                g_nObjectType62Index_00492d64].field_18 == 0x3e)
+            break;
+    }
+    for (g_nObjectType63Index_00492d68 = 0;
+         g_nObjectType63Index_00492d68 < 0x40;
+         g_nObjectType63Index_00492d68++) {
+        if (g_aObjectTypeData_00496d30[
+                g_nObjectType63Index_00492d68].field_18 == 0x3f)
+            break;
+    }
     if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
         HasShipCockpitGunDisplay(0) != 0) {
         g_aObjectTypeData_00496d30[

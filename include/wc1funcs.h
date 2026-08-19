@@ -1620,8 +1620,8 @@ unsigned int control_speed(short obj, unsigned short range,
                            int desiredSpeed);                         /* 0x41ECEF */
 unsigned int chase_location(short obj, const FixedVector *destination,
                             short reference);                         /* 0x41EDCC */
-unsigned int goto_location(short obj,
-                           const FixedVector *destination);           /* 0x41EFFE */
+void goto_location(short obj,
+                   const FixedVector *destination);                   /* 0x41EFFE */
 unsigned int goto_formation(short obj, const FixedVector *destination,
                             short leader);                            /* 0x41F0C5 */
 unsigned int maintain_formation(short obj);                             /* 0x41F2C5 */

@@ -602,10 +602,10 @@ short your_internal_damage(short attacker, short owner, short damage,
 
     if (g_aeObjectClass_00495328[attacker] ==
         OBJECT_CLASS_PROJECTILE) {
-        if (quadrant == 1)
-            tableGroup = 2;
-        else
+        if (quadrant != 1)
             tableGroup = 0;
+        else
+            tableGroup = 2;
         damage = MaxShort(1, (short)(damage >> 4));
     } else if (g_aeObjectClass_00495328[attacker] ==
                    OBJECT_CLASS_ASTEROID ||
@@ -614,10 +614,10 @@ short your_internal_damage(short attacker, short owner, short damage,
         tableGroup = 4;
         damage = MaxShort(1, (short)(damage >> 7));
     } else {
-        if (quadrant == 1)
-            tableGroup = 3;
-        else
+        if (quadrant != 1)
             tableGroup = 1;
+        else
+            tableGroup = 3;
         damage = MaxShort(1, (short)(damage >> 5));
     }
     playerType = (short)g_acObjectType_00493980[0];
