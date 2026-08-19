@@ -354,6 +354,20 @@ static void Wc1SdlToggleFullscreen(Uint32 windowId)
         SDL_SetWindowMouseGrab(window, SDL_TRUE);
 }
 
+/* WM_CHAR's contribution: the typed character, shift applied.  The game only
+ * reads it for text entry, and the virtual key covers everything else. */
+static int Wc1SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
+{
+    int shifted;
+
+    if (virtualKey < ' ' || virtualKey > '~')
+        return 0;
+    shifted = (event->keysym.mod & (KMOD_SHIFT | KMOD_CAPS)) != 0;
+    if (virtualKey >= 'A' && virtualKey <= 'Z')
+        return shifted ? virtualKey : virtualKey - 'A' + 'a';
+    return virtualKey;
+}
+
 static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -382,12 +396,26 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if (pressed && scanCode == 1)
         g_bSceneEscapeRequested_0049d4b0 = 1;
     if (scanCode != 0) {
-        if (g_bInputEventQueueEnabled_0049c248 != 0) {
-            QueueInputEvent(pressed ? 3 : 4, 0, 0,
-                            (unsigned short)virtualKey, 0, 0, 0, 0, 0);
+        /* WC2 queues one event per key, the way MainWindowProc does: type 4
+         * for a press and 5 for a release, the virtual key in value -- which
+         * is what WaitForAnyInputPress hands back and ReadTextInput reads as
+         * a character -- with the scan code and the character alongside it.
+         * WC1's numbering put presses on type 3, which is WC2's mouse move,
+         * so a keypress read as a pointer twitch and Enter never arrived. */
+        if (pressed) {
+            if (event->repeat == 0)
+                g_nInputPressCount_0049c258++;
+        } else {
+            g_nInputPressCount_0049c258--;
+            if (g_nInputPressCount_0049c258 < 0)
+                g_nInputPressCount_0049c258 = 0;
         }
-        QueueInputEvent(pressed ? 3 : 4, 0, 0,
-                        (unsigned short)scanCode, 0, 0, 0, 0, 0);
+        QueueInputEvent(pressed ? 4 : 5,
+                        (unsigned short)g_stHostMouseMessage_005d10d0.x,
+                        (unsigned short)g_stHostMouseMessage_005d10d0.y,
+                        (unsigned short)virtualKey, 0, 0, 0,
+                        (unsigned int)scanCode,
+                        (unsigned int)Wc1SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
     }
     if (!pressed) {
@@ -409,9 +437,12 @@ static void Wc1SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
         return;
     scanCode = wheelY > 0 ? 0x0d : 0x0c;
     /* player_input samples one transition before consuming the remaining
-       queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, (unsigned short)scanCode, 0, 0, 0, 0, 0);
+       queue, so lead with the release for this impulse.  WC2's key events are
+       4 for a press and 5 for a release. */
+    QueueInputEvent(5, 0, 0, (unsigned short)scanCode, 0, 0, 0,
+                    (unsigned int)scanCode, 0);
+    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0,
+                    (unsigned int)scanCode, 0);
 }
 
 static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
@@ -454,7 +485,9 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
                                (unsigned short)mouseY,
                                primaryButton, secondaryButton);
     } else {
-        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 2 : 1,
+        /* WC2 queues 1 for a button press and 2 for a release -- the
+         * opposite way round from WC1. */
+        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
     }

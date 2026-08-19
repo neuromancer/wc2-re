@@ -268,14 +268,27 @@ static int Wc1SdlFillFound(Wc1SdlFindHandle *handle,
     return 0;
 }
 
+/* The game truncates the handle to a short before handing it back -- see
+ * OpenDiskDataFile -- so it cannot be a pointer.  Hand out small slot indices
+ * instead; the game never has more than one walk open at a time. */
+#define WC1_SDL_FIND_SLOTS 8
+static Wc1SdlFindHandle *g_apFindSlots[WC1_SDL_FIND_SLOTS];
+
 long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
 {
     Wc1SdlFindHandle *handle;
     char resolved[PATH_MAX];
     const char *leaf;
     size_t baseLength;
+    int slot;
 
     if (pattern == 0 || found == 0)
+        return -1;
+    for (slot = 0; slot < WC1_SDL_FIND_SLOTS; slot++) {
+        if (g_apFindSlots[slot] == 0)
+            break;
+    }
+    if (slot == WC1_SDL_FIND_SLOTS)
         return -1;
     if (!Wc1SdlResolvePath(pattern, resolved, (unsigned long)sizeof(resolved)))
         return -1;
@@ -309,14 +322,25 @@ long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
         free(handle);
         return -1;
     }
-    return (long)(intptr_t)handle;
+    g_apFindSlots[slot] = handle;
+    return slot + 1;
+}
+
+/* MSVC returns -1 from _findfirst when nothing matched, and callers hand that
+ * straight back to _findnext and _findclose without checking; both are
+ * expected to shrug it off. */
+static Wc1SdlFindHandle *Wc1SdlFindWalk(long handle)
+{
+    if (handle < 1 || handle > WC1_SDL_FIND_SLOTS)
+        return 0;
+    return g_apFindSlots[handle - 1];
 }
 
 int Wc1SdlFindNext(long handle, struct _finddata_t *found)
 {
     Wc1SdlFindHandle *walk;
 
-    walk = (Wc1SdlFindHandle *)(intptr_t)handle;
+    walk = Wc1SdlFindWalk(handle);
     if (walk == 0 || found == 0)
         return -1;
     return Wc1SdlFillFound(walk, found) ? 0 : -1;
@@ -326,9 +350,10 @@ int Wc1SdlFindClose(long handle)
 {
     Wc1SdlFindHandle *walk;
 
-    walk = (Wc1SdlFindHandle *)(intptr_t)handle;
+    walk = Wc1SdlFindWalk(handle);
     if (walk == 0)
         return -1;
+    g_apFindSlots[handle - 1] = 0;
     closedir(walk->directory);
     free(walk);
     return 0;
