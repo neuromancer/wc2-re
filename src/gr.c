@@ -2299,7 +2299,7 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     (void)colour;
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
-    RasterLineHook(g_szSnowViewport_00496a88);
+    RasterLineHook(g_szShadedTriangle_00496a60);
 }
 
 /* Function start: 0x428979 */

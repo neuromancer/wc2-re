@@ -279,8 +279,9 @@ short try_far_spot(FixedVector *spot, short *moving)
     short pitch;
     unsigned short outsideRange;
 
-    copy_frame(0, 63);
-    g_aShipPosition_00494550[63] = g_aShipPosition_00494550[0];
+    copy_frame(0, WC2_SCRATCH_VIEW_OBJECT);
+    g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT] =
+        g_aShipPosition_00494550[0];
     pitch = signed_random(20);
     yaw = signed_random(35);
     if (g_nCurrentView_00492fa8 == 0 && g_cCockpitView_0059dab0 <= 3) {
@@ -308,11 +309,13 @@ short try_far_spot(FixedVector *spot, short *moving)
         -15, 15, g_anObjectPitchRotation_00494f38[0], -150, 150));
     yaw = (short)(yaw + find_ratio(
         -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
-    rotate_about_j(yaw, &g_aShipRightVector_00493b78[63],
-                   &g_aShipForwardVector_00494208[63]);
-    rotate_about_i(pitch, &g_aShipUpVector_00493ec0[63],
-                   &g_aShipForwardVector_00494208[63]);
-    position_relative_ijk(spot, 63, 0, 0, 3050);
+    rotate_about_j(yaw,
+                   &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT]);
+    rotate_about_i(pitch,
+                   &g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT]);
+    position_relative_ijk(spot, WC2_SCRATCH_VIEW_OBJECT, 0, 0, 3050);
     outsideRange = !(unsigned short)IsPointWithinRange(
         &g_aShipPosition_00494550[0], spot, 3000);
     return outsideRange != 0 &&
@@ -399,15 +402,19 @@ void manage_hazard(short obj, short slot)
 /* Function start: 0x418426 */
 void match_ship_to_eye(void)
 {
-    g_aShipPosition_00494550[0] = g_aShipPosition_00494550[61];
+    g_aShipPosition_00494550[0] =
+        g_aShipPosition_00494550[WC2_EYE_OBJECT];
     g_nHazardReferenceSpeed_00492e58 = 100;
-    g_aShipRightVector_00493b78[0] = g_aShipRightVector_00493b78[61];
-    g_aShipUpVector_00493ec0[0] = g_aShipUpVector_00493ec0[61];
+    g_aShipRightVector_00493b78[0] =
+        g_aShipRightVector_00493b78[WC2_EYE_OBJECT];
+    g_aShipUpVector_00493ec0[0] =
+        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT];
     g_aShipForwardVector_00494208[0] =
-        g_aShipForwardVector_00494208[61];
+        g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
     ScaleFixedVector(&g_aShipForwardVector_00494208[0], 100 << 8,
                      &g_aShipVelocity_00494898[0]);
-    g_pActiveHazardField_00493278->center = g_aShipPosition_00494550[61];
+    g_pActiveHazardField_00493278->center =
+        g_aShipPosition_00494550[WC2_EYE_OBJECT];
 }
 
 /* Function start: 0x4184F6 */

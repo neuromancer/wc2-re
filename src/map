@@ -1175,8 +1175,8 @@
 0x0045B348 DebugOverlayConsole::Scroll
 0x0045B3DC DebugOverlayConsole::DrawPendingLines
 0x0045B49C DebugOverlayConsole::WaitForKey
-0x0045B55C DebugOverlayConsole::DisableReverseVideo
-0x0045B5D8 DebugOverlayConsole::EnableReverseVideo
+0x0045B55C DebugOverlayConsole::EnableReverseVideo
+0x0045B5D8 DebugOverlayConsole::DisableReverseVideo
 0x0045B654 DebugOverlayConsole::SetOverlayTextColor
 0x0045B6BB DebugOverlayConsole::SetOverlayBackgroundColor
 0x0045B722 DebugOverlayConsole::SetTransparentBackground

@@ -1604,7 +1604,7 @@ short unactive(short ship)
 int are_alive(short obj)
 {
     if (unactive(obj) == 0 &&
-        g_aeShipObjective_00495f08[obj] != OBJECTIVE_WANDER)
+        g_aeShipObjective_00495f08[obj] != WC2_SHIP_OBJECTIVE_NOT_ALIVE)
         return 1;
     return 0;
 }
@@ -2454,7 +2454,7 @@ unsigned int get_follow_point(short obj, FixedVector *point)
         return 0;
     }
     pathIndex = (short)g_abShipNavPointIndex_00495f60[obj];
-    while (++pathIndex < 16) {
+    while (++pathIndex < WC2_MISSION_OBJECTIVE_COUNT) {
         objective = (short)g_abFlightPath_004932a0[pathIndex];
         type = g_aMissionObjectives_004932a8[objective].type;
         switch (type) {

@@ -365,8 +365,8 @@ src/debug.cpp	230	0041CC00	0045B2E0	DebugOverlayConsole::Clear	DebugOverlayConso
 src/debug.cpp	239	0041CC50	0045B348	DebugOverlayConsole::Scroll	DebugOverlayConsole::Scroll	WC1-callgraph-propagated		mapped
 src/debug.cpp	248	0041CCC0	0045B3DC	DebugOverlayConsole::DrawPendingLines	DebugOverlayConsole::DrawPendingLines	WC1-callgraph-propagated		mapped
 src/debug.cpp	269	0041CD40	0045B49C	DebugOverlayConsole::WaitForKey	DebugOverlayConsole::WaitForKey	WC1-callgraph-propagated		mapped
-src/debug.cpp	362	0041CF00	0045B5D8	DebugOverlayConsole::EnableReverseVideo	DebugOverlayConsole::EnableReverseVideo	WC1-callgraph-propagated		mapped
-src/debug.cpp	382	0041CF50	0045B55C	DebugOverlayConsole::DisableReverseVideo	DebugOverlayConsole::DisableReverseVideo	WC1-callgraph-propagated		mapped
+src/debug.cpp	362	0041CF50	0045B55C	DebugOverlayConsole::EnableReverseVideo	DebugOverlayConsole::EnableReverseVideo	WC1-callgraph-propagated		mapped
+src/debug.cpp	382	0041CF00	0045B5D8	DebugOverlayConsole::DisableReverseVideo	DebugOverlayConsole::DisableReverseVideo	WC1-callgraph-propagated		mapped
 src/debug.cpp	402	0041CFA0	0045B654	DebugOverlayConsole::SetOverlayTextColor	DebugOverlayConsole::SetOverlayTextColor	WC1-manual-verified		mapped
 src/debug.cpp	417	0041CFF0	0045B6BB	DebugOverlayConsole::SetOverlayBackgroundColor	DebugOverlayConsole::SetOverlayBackgroundColor	WC1-callgraph-propagated		mapped
 src/debug.cpp	433	0041D040	0045B722	DebugOverlayConsole::SetTransparentBackground	DebugOverlayConsole::SetTransparentBackground	WC1-callgraph-propagated		mapped

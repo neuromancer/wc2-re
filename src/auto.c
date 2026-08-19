@@ -217,7 +217,7 @@ void auto_pilot_sequence(void)
         }
 
         g_nCannedSceneMode_0049021c = 4;
-        visit_the_cinema(12, 0, 120);
+        visit_the_cinema(13, 0, 90);
         while (g_nCannedSceneMode_0049021c == 4) {
             ComputeVectorDelta(&g_aShipPosition_00494550[0],
                                &destination, &travelStep);

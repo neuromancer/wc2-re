@@ -626,7 +626,7 @@ void BuildMap(short showPlayer)
                   g_aShipPosition_00494550[0].z);
         PlaceNavMapLabel(
             x, y, g_ucPlayerNavLabelColour_0049cb74,
-            g_stCampaignState_0059ca50.currentPilot->callsign);
+            g_stCurrentPilotProfile_00493408.callsign);
     }
     DrawNavMapLabels();
     SetScreenClipRect(0, 0, 259, 155);
@@ -643,7 +643,7 @@ void UpdateInflightNavText(short showColon)
             (int)((signed char *)g_pElapsedCampaignDate_005a86ac)[0]);
     DrawFormattedText(
         g_szStandardTimeFormat_0049bd58,
-        (int)(short)(g_stNavMapTextContext_005a8160.viewport->left + 150),
+        (int)(short)(g_stNavMapTextContext_005a8160.viewport->left + 152),
         (int)(short)(g_stNavMapTextContext_005a8160.viewport->top + 140),
         time);
     cursorX = g_stNavMapTextContext_005a8160.cursorX;

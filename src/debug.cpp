@@ -307,7 +307,7 @@ char DebugOverlayConsole::WaitForKey(void)
 #endif
 }
 
-/* Function start: 0x45B5D8 */
+/* Function start: 0x45B55C */
 void DebugOverlayConsole::EnableReverseVideo(void)
 {
 #ifndef WC1_SDL
@@ -327,7 +327,7 @@ void DebugOverlayConsole::EnableReverseVideo(void)
     }
 }
 
-/* Function start: 0x45B55C */
+/* Function start: 0x45B5D8 */
 void DebugOverlayConsole::DisableReverseVideo(void)
 {
 #ifndef WC1_SDL

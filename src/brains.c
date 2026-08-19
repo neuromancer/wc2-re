@@ -970,7 +970,7 @@ void perform_maneuver(short obj)
        before the table.  Other invalid values are reset before the result is
        used.  Preserve those results without an invalid C array access. */
     if (previous < MANEUVER_WARPING_IN ||
-        previous > MANEUVER_UNKNOWN_46)
+        previous > MANEUVER_UNKNOWN_49)
         g_bCurrentManeuverReroll_00475e7c = 0;
     else
 #endif
@@ -1022,7 +1022,7 @@ void perform_maneuver(short obj)
             Mnone();
             break;
         case MANEUVER_DRIFT:
-        case MANEUVER_UNKNOWN_46:
+        case MANEUVER_UNKNOWN_49:
             Mreset(obj);
             break;
         case MANEUVER_FULL_AHEAD:

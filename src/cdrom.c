@@ -58,10 +58,10 @@ char *LocateStreamsDirOnDisc(void)
 
     result = g_szStreamsPath_00475c18;
     GetCurrentDirectoryA(0xff, current);
-    drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc1\\streams\\");
+    drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc2\\streams\\");
     if (drive != 0) {
         sprintf(result, "%c:%s", drive,
-                "\\wc1\\streams\\");
+                "\\wc2\\streams\\");
         return result;
     }
 

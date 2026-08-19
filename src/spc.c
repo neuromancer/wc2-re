@@ -261,25 +261,31 @@ void SetFleetOverviewView(int initializeCockpit)
     }
 
     cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
-    g_aShipPosition_00494550[63] = centre;
-    g_aShipRightVector_00493b78[63] = orientation;
-    g_aShipUpVector_00493ec0[63] = orientation;
-    point_at(63, g_aShipPosition_00494550[0]);
+    g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT] = centre;
+    g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT] = orientation;
+    g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT] = orientation;
+    point_at(WC2_SCRATCH_VIEW_OBJECT, g_aShipPosition_00494550[0]);
 
-    ScaleFixedVector(&g_aShipRightVector_00493b78[63],
-                     cameraDistance >> 2, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[63], &offset,
-                    &g_aShipPosition_00494550[63]);
-    ScaleFixedVector(&g_aShipUpVector_00493ec0[63], 0x9600, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[63], &offset,
-                    &g_aShipPosition_00494550[63]);
-    ScaleFixedVector(&g_aShipForwardVector_00494208[63],
-                     cameraDistance, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[63], &offset,
-                    &g_aShipPosition_00494550[63]);
+    ScaleFixedVector(
+        &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT],
+        cameraDistance >> 2, &offset);
+    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+                    &offset,
+                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
+    ScaleFixedVector(&g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT],
+                     0x9600, &offset);
+    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+                    &offset,
+                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
+    ScaleFixedVector(
+        &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT],
+        cameraDistance, &offset);
+    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+                    &offset,
+                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
 
     g_aShipPosition_00494550[WC2_EYE_OBJECT] =
-        g_aShipPosition_00494550[63];
+        g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT];
     g_aShipRightVector_00493b78[WC2_EYE_OBJECT] = orientation;
     g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] = orientation;
     if (maximumRange < 0x271000)

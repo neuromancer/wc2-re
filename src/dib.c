@@ -113,9 +113,9 @@ void DIBerror(const char *tag, int hr)
     exit(1);
 #else
     FILE *errorFile;
-    char *text = DirectDrawResultToText(hr);
 
-    sprintf(g_szDibErrorMessage_005c33b0, "ERROR: %s - (%s)", tag, text);
+    sprintf(g_szDibErrorMessage_005c33b0, "ERROR: %i in %s",
+            (unsigned short)hr, tag);
     COM_RELEASE(g_pSecondarySurface_0049ce98);
     COM_RELEASE(g_pPrimarySurface_0049ce94);
     IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);

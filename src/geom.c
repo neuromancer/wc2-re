@@ -1422,13 +1422,15 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
 
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
-    init_ijk(63);
-    alter_yaw((short)-spherical.yaw, 63);
-    alter_pitch((short)-spherical.pitch, 63);
-    projectedUp.x = dot_product(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-                                &g_aShipRightVector_00493b78[63]);
-    projectedUp.y = dot_product(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-                                &g_aShipUpVector_00493ec0[63]);
+    init_ijk(WC2_SCRATCH_VIEW_OBJECT);
+    alter_yaw((short)-spherical.yaw, WC2_SCRATCH_VIEW_OBJECT);
+    alter_pitch((short)-spherical.pitch, WC2_SCRATCH_VIEW_OBJECT);
+    projectedUp.x = dot_product(
+        &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+        &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT]);
+    projectedUp.y = dot_product(
+        &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+        &g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT]);
     projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
     angle = (short)ArcCos(projectedUp.y);

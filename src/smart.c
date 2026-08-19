@@ -537,8 +537,8 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice, short obj)
     chooseAgain = maneuver == MANEUVER_NONE;
     if (choice->primary != maneuver && choice->secondary != maneuver &&
         RandomBelow(100) < 10 &&
-        choice->primary < MANEUVER_UNKNOWN_45 &&
-        choice->secondary < MANEUVER_UNKNOWN_45)
+        choice->primary < MANEUVER_UNKNOWN_48 &&
+        choice->secondary < MANEUVER_UNKNOWN_48)
         chooseAgain = 1;
     if (chooseAgain == 0) {
         if (RandomBelowOrEqual(100) < 5)
@@ -564,9 +564,9 @@ enum ShipManeuver pick_kilrathi_maneuver(short obj, int event)
             g_asPilotLevel_00495d60[obj]][event][stress_morale(obj)];
     maneuver = pick_from_list(choice, obj);
     switch (maneuver) {
-    case MANEUVER_UNKNOWN_45:
+    case MANEUVER_UNKNOWN_48:
         return MANEUVER_STRAFE_ENEMY;
-    case MANEUVER_UNKNOWN_46:
+    case MANEUVER_UNKNOWN_49:
         return any_defense(obj);
     default:
         return maneuver;

@@ -140,7 +140,7 @@ enum ShipObjective {
     OBJECTIVE_GUARD           = 2,
     OBJECTIVE_REACH_SHIP      = 3,
     OBJECTIVE_DESTROY_SHIP    = 4,
-    OBJECTIVE_WANDER          = 5,
+    OBJECTIVE_WANDER          = 7,
     OBJECTIVE_ENGAGE_ENEMY    = 8,
     OBJECTIVE_EVADE_ENEMY     = 9,
     OBJECTIVE_HOLD_FORMATION  = 10,
@@ -250,8 +250,8 @@ enum ShipManeuver {
     MANEUVER_LINE_UP_DROP     = 42,
     MANEUVER_CHILL            = 43,
     MANEUVER_UNKNOWN_44       = 44,
-    MANEUVER_UNKNOWN_45       = 45,
-    MANEUVER_UNKNOWN_46       = 46
+    MANEUVER_UNKNOWN_48       = 48,
+    MANEUVER_UNKNOWN_49       = 49
 };
 
 enum SpecialManeuver {
@@ -1565,6 +1565,7 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC1_SPACE_LAST_MOVING_OBJECT 60
 #define WC2_SPACE_LAST_MOVING_OBJECT 66
 #define WC2_EYE_OBJECT 67
+#define WC2_SCRATCH_VIEW_OBJECT 69
 #define WC1_DIRECTION_VIEW_COUNT 62
 #define WC1_DIRECTION_SHAPE_TABLE_COUNT 3
 #define WC2_MISSION_SHIP_COUNT 16
@@ -1574,6 +1575,10 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC1_MISSION_NAV_POINT_COUNT 20
 #define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16
 #define WC2_MISSION_OBJECTIVE_COUNT 8
+/* Ship objective code 5 has no WC1 counterpart; are_alive (0x429BA8) is the
+ * only site that names it, so it stays a plain constant rather than a new
+ * enum ShipObjective member. */
+#define WC2_SHIP_OBJECTIVE_NOT_ALIVE 5
 #define WC1_MISSION_OBJECTIVE_COUNT 16
 
 /* --------------------------------------------------------------------------

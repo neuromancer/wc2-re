@@ -1701,7 +1701,7 @@ void DrawCalculatingLabel(void)
 #else
     if (IsMissionObjectiveOutOfSystem(
             (short)g_cCurrentObjective_004931cc) != 0) {
-        DrawCockpitReadout(0, "Out system");
+        DrawCockpitReadout(0, "Out-system");
     } else {
         if (g_nCurrentObjectiveRange_004931c8 < 1) {
             DrawCockpitReadout(0, "CALCULATING");
@@ -1969,7 +1969,7 @@ void check_visit(short objective, short range)
     else
         reachedRange = 1500;
     if (range < reachedRange)
-        flag_reached(objective, 0);
+        flag_reached(objective, 1);
 }
 
 /* Function start: 0x43AE2F */
