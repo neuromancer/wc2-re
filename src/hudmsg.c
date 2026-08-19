@@ -1889,65 +1889,65 @@ void warp(short obj)
         g_nEscapedEnemyCount_004962e8++;
 }
 
-/* Function start: WC2_UNMAPPED */
-short find_next_gun(short obj, enum ObjectType currentGun)
+/* Function start: 0x461480 */
+short find_next_gun(short obj, short currentGun)
 {
-    unsigned char *loadout = g_aShipWeapons_004956b0[obj];
-    int foundCurrent = 0;
-    short weapon = 0;
-    short firstGun = -1;
-    short weaponCount = (signed char)loadout[0];
-    ShipWeaponSlot *weaponSlot = (ShipWeaponSlot *)&loadout[1];
+    unsigned char *loadout;
+    short foundCurrent;
+    short firstGun;
+    short weaponCount;
+    ShipWeaponSlot *weaponSlot;
+    short weapon;
 
-    if (weaponCount > 0) {
-        do {
-            enum ObjectType type = weaponSlot->type;
-
-            if (g_aObjectTypeData_00496d30[type].objectClass ==
-                    OBJECT_CLASS_PROJECTILE) {
+    loadout = g_aShipWeapons_004956b0[obj];
+    foundCurrent = 0;
+    firstGun = -1;
+    weaponCount = (signed char)loadout[0];
+    weaponSlot = (ShipWeaponSlot *)&loadout[1];
+    for (weapon = 0; weapon < weaponCount; weapon++, weaponSlot++) {
+        if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
+                OBJECT_CLASS_PROJECTILE) {
+            if (weaponSlot->type != WC2_OBJECT_TYPE_TURRET_GUN) {
                 if (firstGun == -1)
-                    firstGun = (short)type;
+                    firstGun = weaponSlot->type;
                 if (foundCurrent == 0) {
-                    if (currentGun == type)
+                    if (weaponSlot->type == currentGun)
                         foundCurrent = 1;
-                } else if (currentGun != type) {
-                    return (short)type;
+                } else if (weaponSlot->type != currentGun) {
+                    return weaponSlot->type;
                 }
             }
-            weapon++;
-            weaponSlot++;
-        } while (weapon < weaponCount);
+        }
     }
     if (foundCurrent != 0 && firstGun != currentGun)
-        firstGun = 0x80;
+        return 0x80;
     return firstGun;
 }
 
-/* Function start: WC2_UNMAPPED */
-int select_guns(short obj, short selectedGun)
+/* Function start: 0x4615A2 */
+int select_guns(short selectedGun)
 {
+    unsigned char *loadout;
+    short found;
     short weaponCount;
-    int found;
+    short weapon;
     ShipWeaponSlot *weaponSlot;
 
-    (void)obj;
-    weaponCount = (signed char)g_aShipWeapons_004956b0[0][0];
+    loadout = g_aShipWeapons_004956b0[0];
     found = 0;
-    weaponSlot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1];
-    if (weaponCount > 0) {
-        do {
-            if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
-                    OBJECT_CLASS_PROJECTILE) {
-                if (selectedGun == weaponSlot->type || selectedGun == 0x80) {
-                    weaponSlot->disabled = 0;
-                    found = 1;
-                } else {
-                    weaponSlot->disabled = 1;
-                }
+    weaponCount = (signed char)loadout[0];
+    weapon = 0;
+    weaponSlot = (ShipWeaponSlot *)&loadout[1];
+    for (; weapon < weaponCount; weapon++, weaponSlot++) {
+        if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
+                OBJECT_CLASS_PROJECTILE) {
+            if (weaponSlot->type == selectedGun || selectedGun == 0x80) {
+                weaponSlot->disabled = 0;
+                found = 1;
+            } else {
+                weaponSlot->disabled = 1;
             }
-            weaponSlot++;
-            weaponCount--;
-        } while (weaponCount != 0);
+        }
     }
     if (found != 0)
         return selectedGun;
@@ -1955,13 +1955,12 @@ int select_guns(short obj, short selectedGun)
 }
 
 /* Function start: 0x46166D */
-unsigned int select_new_gun(void)
+void select_new_gun(void)
 {
-    g_nSelectedGunType_004934dc = select_guns(
-        0, find_next_gun(0, g_nSelectedGunType_004934dc));
+    g_nSelectedGunType_004934dc =
+        select_guns(find_next_gun(0, g_nSelectedGunType_004934dc));
     if (get_mode(0) == 1)
         InvalidateVduMode(0);
-    return 0;
 }
 
 /* Function start: 0x4616B8 */

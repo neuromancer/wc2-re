@@ -686,9 +686,9 @@ src/hudmsg.c	1213	0042A8F0	00424A60	find_objective	find_objective	WC2-manual-ver
 src/hudmsg.c	1231	0042A950	00424AEE	arrive_from_warp	arrive_from_warp	WC1-fuzzy-followup		mapped
 src/hudmsg.c	1254	0042AA10	00424C05	unwarp	unwarp	WC1-callgraph-propagated		mapped
 src/hudmsg.c	1276	0042AAF0		warp				unmapped
-src/hudmsg.c	1357	0042AD00		find_next_gun				unmapped
+src/hudmsg.c	1357	0042AD00	00461480	find_next_gun	find_next_gun	WC2-manual-verified		mapped
 src/hudmsg.c	1372		00419A40	CopyHugeMemoryOverlapSafe	CopyHugeMemoryOverlapSafe	WC2-only		wc2-only
-src/hudmsg.c	1391	0042ADA0		select_guns				unmapped
+src/hudmsg.c	1391	0042ADA0	004615A2	select_guns	select_guns	WC2-manual-verified		mapped
 src/hudmsg.c	1422	0042AE10	0046166D	select_new_gun	select_new_gun	WC1-fuzzy-low		mapped
 src/hudmsg.c	1432	0042AE50	004616B8	select_new_release_weapon	select_new_release_weapon	WC1-fuzzy-very-low		mapped
 src/hudmsg.c	1512	0042AFB0	0040A2D0	FrameTimerCallback	FrameTimerCallback	WC1-order-exact		mapped
@@ -1574,7 +1574,7 @@ src/text.c	136		00433AB0	InitializeCinematicTextRenderer	InitializeCinematicText
 src/text.c	144	00433910		show_info_disp				unmapped
 src/winmain.c	9	00401000	00417550	SaveGamePalette	SaveGamePalette	WC1-callgraph-propagated		mapped
 src/winmain.c	34	00401020	004175AD	RestoreGamePalette	RestoreGamePalette	WC2-manual-verified		mapped
-src/winmain.c	41	00401040		easy2see				unmapped
+src/winmain.c	41	00401040	00417610	easy2see	easy2see	WC2-manual-verified		mapped
 src/winmain.c	64	004010C0	004176D2	make_shard	make_shard	WC1-fuzzy-followup		mapped
 src/winmain.c	100	004011D0	00417838	remove_hazard	remove_hazard	WC1-order-exact		mapped
 src/winmain.c	115	00401210	0041787A	remove_all_hazards	remove_all_hazards	WC1-order-exact		mapped

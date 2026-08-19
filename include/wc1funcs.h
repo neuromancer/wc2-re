@@ -9,7 +9,7 @@
 
 void SaveGamePalette(void);                                             /* 0x417550 */
 void RestoreGamePalette(void);                                          /* 0x4175AD */
-short easy2see(short obj);                                            /* WC2 unmapped */
+short easy2see(short obj);                                            /* 0x417610 */
 void make_shard(short asteroid, FixedVector direction);               /* 0x4176D2 */
 void remove_hazard(signed char hazard);                               /* 0x417838 */
 void remove_all_hazards(void);                                        /* 0x41787A */
@@ -1199,9 +1199,9 @@ void arrive_from_warp(short obj);                                      /* 0x424A
 void unwarp(short obj);                                                /* 0x424C05 */
 void warp(short obj);                                                  /* 0x424D4D */
 void clean_up_cockpit(void);                                          /* WC2 unmapped */
-short find_next_gun(short obj, enum ObjectType currentGun);           /* WC2 unmapped */
-int select_guns(short obj, short selectedGun);                         /* WC2 unmapped */
-unsigned int select_new_gun(void);                                    /* 0x46166D */
+short find_next_gun(short obj, short currentGun);                     /* 0x461480 */
+int select_guns(short selectedGun);                                   /* 0x4615A2 */
+void select_new_gun(void);                                            /* 0x46166D */
 void select_new_release_weapon(short preferredType);                  /* 0x4616B8 */
 void CALLBACK FrameTimerCallback(UINT timerId, UINT message, DWORD user,
                                  DWORD first, DWORD second);       /* 0x40A2D0 */
@@ -1938,7 +1938,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char colour);                /* 0x428344 */
 int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
-                              short angle, short scale, int flip,
+                              short angle, short scale, short flip,
                               short *bounds);                         /* 0x4283A4 */
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const ScreenViewportGeometry *geometry);            /* 0x428690 */

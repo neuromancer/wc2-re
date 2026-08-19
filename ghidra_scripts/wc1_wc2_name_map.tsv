@@ -1273,3 +1273,6 @@ source_address	destination_address	function_name	evidence	review_flags	similarit
 00421100	00416690	find_weapon	WC1-manual-verified				0							Manual Match	[WC1 transfer] Manually verified: FUN_00416690 walks the same signed count byte at 0x4956B0 and ten-byte ShipWeaponSlot entries, returning the slot index or -1, and perform_maneuver (0x4424E4) calls it with weapon type 0x14.
 00436a30	00464c4b	shrink_vector	WC2-manual-verified											Manual Match	
 00436a70	00464ca4	shrink	WC2-manual-verified											Manual Match	
+00401040	00417610	easy2see	WC2-manual-verified											Manual Match	
+0042ad00	00461480	find_next_gun	WC2-manual-verified											Manual Match	
+0042ada0	004615a2	select_guns	WC2-manual-verified											Manual Match	

@@ -1540,6 +1540,9 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC2_OBJECT_TYPE_NEUTRON_GUN     8
 #define WC2_OBJECT_TYPE_MASS_DRIVER     9
 #define WC2_OBJECT_TYPE_PARTICLE_CANNON 10
+/* Nameless projectile carrying the laser cannon's stats: the bolt a
+ * turret fires.  It never appears in the pilot's gun cycle. */
+#define WC2_OBJECT_TYPE_TURRET_GUN      11
 #define WC2_OBJECT_TYPE_DART_DF        15
 #define WC2_OBJECT_TYPE_JAVELIN_HS     16
 #define WC2_OBJECT_TYPE_PILUM_FF       17
