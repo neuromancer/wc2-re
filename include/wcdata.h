@@ -410,13 +410,19 @@ typedef char ObjectTypeData_weaponLoadout_must_be_at_0x3e[
     offsetof(ObjectTypeData, weaponLoadout) == 0x3e ? 1 : -1];
 #endif
 
+/* Compact three-axis offset used by the formation tables.  Unlike a
+ * FixedVector, each component is a 16-bit distance. */
+typedef struct ShortVector {
+    short x;
+    short y;
+    short z;
+} ShortVector;
+
 /* WC2 stores sixteen ten-byte weapon entries after a signed count byte. */
 #pragma pack(push, 1)
 typedef struct ShipWeaponSlot {
     short type;                        /* +0x00: spawned object type */
-    short hardpoint;                   /* +0x02 */
-    short field_4;                     /* +0x04 */
-    short field_6;                     /* +0x06 */
+    ShortVector mount;                 /* +0x02: hardpoint offset */
     signed char disabled;              /* +0x08 */
     signed char weaponType;            /* +0x09: object-data index */
 } ShipWeaponSlot;
@@ -462,14 +468,6 @@ typedef struct CockpitBarDefinition {
     short filledFrame;
     short emptyFrame;
 } CockpitBarDefinition;
-
-/* Compact three-axis offset used by the formation tables.  Unlike a
- * FixedVector, each component is a 16-bit distance. */
-typedef struct ShortVector {
-    short x;
-    short y;
-    short z;
-} ShortVector;
 
 /* Inclusive screen-space bounds used by the cockpit target-box renderer. */
 typedef struct ShortRect {

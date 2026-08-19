@@ -534,36 +534,43 @@ void UpdateSpacePaletteFade(void)
 }
 
 /* Function start: 0x46604F */
-unsigned int house_keep(void)
+void house_keep(void)
 {
-    short palette;
+    unsigned char palette;
+    short sequenceState;
 
-    if (g_nCannedSceneMode_0049021c == 0 &&
-        g_nTrainSimActive_0049d758 == 0) {
+    if (g_nTrainSimActive_0049d758 == 0 &&
+        g_nCannedSceneMode_0049021c == 0) {
+        if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
+            g_nPendingEjectionSequenceCount_0049b8b8 != 0) {
+            sequenceState = g_nEjectionSequenceState_0049b8c0;
+            g_nEjectionSequenceState_0049b8c0++;
+            if (sequenceState == 0x28) {
+                g_nEjectionSequenceState_0049b8c0 = 0;
+                g_nPendingEjectionSequenceCount_0049b8b8 = 0;
+                ejection_sequence(g_ucPendingEjectionTransition_0049b8ac, 1);
+                g_ucPendingEjectionTransition_0049b8ac = 0xff;
+            }
+        }
         if ((g_nSpaceFrame_00493134 & 0x1f) == 0)
             ReleaseStaleNavTarget();
         if (g_nHazardFieldCount_004931d0 != 0 &&
             (g_nSpaceFrame_00493134 & 0xf) == 0)
             check_hazards();
     }
-    if (g_nCurrentView_00492fa8 == 0) {
-        palette = 0;
-        do {
+    if (g_nCurrentView_00492fa8 == 0 || g_nCurrentView_00492fa8 == 4) {
+        for (palette = 0; palette < 6; palette++) {
             FadeFlightPaletteEntry(
                 g_aasCockpitHitPaletteFades_005d2cb0[palette]);
-            SetPaletteEntry((short)(palette + 0xb9),
+            SetPaletteEntry((short)(palette + 0xf9),
                             g_aasCockpitHitPaletteFades_005d2cb0[palette]);
-            palette++;
-        } while (palette < 6);
-        return 0;
-    }
-    if (g_nCriticalDamageWarningSfxHandle_005d1ec0 != 0) {
+        }
+    } else if (g_nCriticalDamageWarningSfxHandle_005d1ec0 != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
             g_nCriticalDamageWarningSfxHandle_005d1ec0, 1);
         g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
         g_abCockpitLightGoal_005d1eb8[3] = 0;
     }
-    return 0;
 }
 
 /* Function start: WC2_UNMAPPED */

@@ -4751,74 +4751,94 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
 #pragma intrinsic(strcpy, strcat)
 
 /* Function start: 0x44D35D */
-int set_up_action_sphere(short navPoint)
+void set_up_action_sphere(short navPoint)
 {
-    MissionNavPoint *nav;
     short obj;
     short entry;
+    short missionShip;
+    short target;
     short trigger;
-    short objective;
-    signed char triggerType;
+    MissionNavPoint *nav;
 
+    load_all_slots();
     g_nCurrentNavPoint_004931bc = navPoint;
     nav = &g_aMissionNavPoints_00491e98[navPoint];
     g_nCurrentStarSystem_005d169c = nav->systemIndex;
     ProcessMissionWaveCommands(nav);
-    g_nCurrentWave_004931c0 =
-        (short)((((g_aMissionNavPoints_00491e98[navPoint + 1].type == 2) ?
-                  -1 : 0) & 3) - 1);
+    if (g_aMissionNavPoints_00491e98[navPoint + 1].type == 2)
+        g_nCurrentWave_004931c0 = 2;
+    else
+        g_nCurrentWave_004931c0 = -1;
     g_nEnemySighting_0049b670 = 0x7fff;
 
-    obj = 1;
-    do {
-        if (g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL &&
-            g_acShipSpawnNavPoint_0059ded0[obj] != -1) {
-            if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
-                g_asShipMissionType_00495de8[obj] == MISSION_TYPE_ROUT) {
-                g_aMissionShips_00492290[
-                    g_asShipMissionIndex_00495d00[obj]].state = 3;
+    for (target = 0; target < 10; target++) {
+        if (g_asObjectType_00495298[target] == WC2_OBJECT_TYPE_SHIP_WING) {
+            remove_object(target);
+        } else if (g_asObjectType_00495298[target] ==
+                   WC2_OBJECT_TYPE_EJECTED_PILOT) {
+            remove_object(target);
+            if (g_aObjectTypeData_00496d30[
+                    WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet != 0) {
+                FreePacketAndClear(
+                    &g_aObjectTypeData_00496d30[
+                        WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet, 0);
             }
-            if (g_aeObjectClass_00495328[obj] ==
-                OBJECT_CLASS_CAPITAL_SHIP) {
-                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-            }
-            if (g_asObjectScreenX_00493598[obj] != -0x7fff)
-                explode(-1, obj);
-            else
-                remove_object(obj);
         }
-        obj++;
-    } while (obj < 10);
+    }
+
+    for (obj = 1; obj < 10; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL)
+            continue;
+        if (g_acShipNavPoint_004953e0[obj] == -1)
+            continue;
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
+            g_asShipMissionType_00495de8[obj] == MISSION_TYPE_ROUT) {
+            g_aMissionShips_00492290[
+                g_asShipMissionIndex_00495d00[obj]].state = 3;
+        }
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP ||
+            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+             g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP))
+            FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
+        if (g_asObjectScreenX_00493598[obj] != -32767 &&
+            g_bJumpSequenceActive_004962f0 == 0)
+            explode(-1, obj);
+        else
+            remove_object(obj);
+    }
     remove_all_hazards();
     g_nHazardFieldCount_004931d0 = 0;
     new_sphere_shapes(nav);
 
-    entry = 0;
-    do {
-        if (nav->missionShips[entry] != -1)
-            init_ship(nav->missionShips[entry], navPoint);
-        entry++;
-    } while (entry < 10);
-
-    trigger = 0;
-    do {
-        triggerType = ((signed char *)nav->triggers)[trigger];
-        if (triggerType != -1) {
-            g_aMissionNavPoints_00491e98[
-                ((signed char *)nav->triggers)[trigger + 1]].type =
-                triggerType;
-        }
-        trigger += 2;
-    } while (trigger < 8);
-
-    objective = 0;
-    while (objective < g_cMissionObjectiveCount_00493294) {
-        LocateMobileObjective(objective);
-        objective++;
+    for (entry = 0; entry < 10; entry++) {
+        missionShip = nav->missionShips[entry];
+        if (missionShip != -1)
+            init_ship(missionShip, navPoint);
     }
+
+    for (entry = 0; entry < 8; entry += 2) {
+        if (((signed char *)nav->triggers)[entry] == -1)
+            continue;
+        trigger = ((signed char *)nav->triggers)[entry + 1];
+        g_aMissionNavPoints_00491e98[trigger].type =
+            ((signed char *)nav->triggers)[entry];
+    }
+
+    if (g_aMissionObjectives_004932a8[
+            g_cCurrentObjective_004931cc].type == 0 &&
+        g_aMissionNavPoints_00491e98[
+            g_aMissionObjectives_004932a8[
+                g_cCurrentObjective_004931cc].index].type == 0)
+        flag_objective(g_cCurrentObjective_004931cc, 1);
+
+    for (entry = 0; entry < g_cMissionObjectiveCount_00493294; entry++)
+        LocateMobileObjective(entry);
     clean_up_cockpit();
     g_bLandingCommRequestPending_00492fa0 = 0;
-    return 0;
+    g_nEscapedEnemyCount_004962e8 = 0;
+    if (g_bAutopilotSequenceActive_00493064 == 0 &&
+        g_bHighMemoryBuffersReady_005d2ad8 != 0)
+        ResetCannedSceneRecording();
 }
 
 /* Function start: WC2_UNMAPPED */

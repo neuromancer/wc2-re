@@ -104,7 +104,7 @@ int drop_mine(short obj, signed char weapon, enum ObjectType type,
     copy_frame(obj, mine);
     weaponSlot =
         &((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[weapon];
-    child_object(weaponSlot->hardpoint, mine, obj);
+    child_object(weaponSlot->mount.x, mine, obj);
     if (lifetime == -1)
         lifetime = 20;
     g_acObjectCollisionGraceTicks_00494d48[mine] =

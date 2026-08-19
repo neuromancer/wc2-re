@@ -569,18 +569,18 @@ void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 /* Function start: 0x40B41F */
 void init_ijk(short obj)
 {
-    g_aShipForwardVector_00494208[obj].z = 0x100;
-    g_aShipUpVector_00493ec0[obj].y = 0x100;
-    g_aShipRightVector_00493b78[obj].x = 0x100;
-    g_aShipForwardVector_00494208[obj].y = 0;
-    g_aShipUpVector_00493ec0[obj].z = 0;
-    g_aShipForwardVector_00494208[obj].x = 0;
-    g_aShipUpVector_00493ec0[obj].x = 0;
-    g_aShipRightVector_00493b78[obj].z = 0;
-    g_aShipRightVector_00493b78[obj].y = 0;
-    g_anObjectRollRotation_00495058[obj] = 0;
-    g_anObjectYawRotation_00494fc8[obj] = 0;
-    g_anObjectPitchRotation_00494f38[obj] = 0;
+    g_aShipRightVector_00493b78[obj].x =
+        g_aShipUpVector_00493ec0[obj].y =
+            g_aShipForwardVector_00494208[obj].z = 0x100;
+    g_aShipRightVector_00493b78[obj].y =
+        g_aShipRightVector_00493b78[obj].z =
+            g_aShipUpVector_00493ec0[obj].x =
+                g_aShipUpVector_00493ec0[obj].z =
+                    g_aShipForwardVector_00494208[obj].x =
+                        g_aShipForwardVector_00494208[obj].y = 0;
+    g_anObjectPitchRotation_00494f38[obj] =
+        g_anObjectYawRotation_00494fc8[obj] =
+            g_anObjectRollRotation_00495058[obj] = 0;
 }
 
 /* Function start: 0x40B550 */

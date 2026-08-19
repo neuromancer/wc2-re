@@ -315,7 +315,7 @@ short shape_loaded(short resourceType);                                /* 0x44CE
 short shape_needed(const MissionNavPoint *navPoint,
                    short resourceType);                                /* 0x44CEC8 */
 void new_sphere_shapes(MissionNavPoint *navPoint);                     /* 0x44CF2D */
-int set_up_action_sphere(short navPoint);                              /* 0x44D35D */
+void set_up_action_sphere(short navPoint);                              /* 0x44D35D */
 void ProcessMissionWaveCommands(MissionNavPoint *navPoint);           /* 0x44D0C7 */
 void free_pilot_talk(short personality);                               /* WC2 unmapped */
 void LoadWc1PilotTalk(short personality);                              /* WC2 unmapped */
@@ -904,7 +904,7 @@ void UpdateTargetCameraCockpitHook(void);                              /* 0x4614
 void FinalizeTargetCameraViewHook(void);                               /* 0x461466 */
 short ShipHasTorpedo(short ship);                                     /* 0x410215 */
 short any_selected(unsigned char *loadout, short objectClass);       /* 0x410680 */
-unsigned int remove_weapon(short obj, short weapon);                 /* 0x410715 */
+void remove_weapon(short obj, short weapon);                          /* 0x410715 */
 void InitializeShipWeaponTypeIndices(short obj);                      /* 0x41090F */
 void set_objects_data(short obj, short type,
                       short owner, short matchObjectClass);          /* 0x410999 */
@@ -1274,7 +1274,7 @@ void Update_3Space(void);                                               /* 0x465
 void UpdateSpacePaletteFade(void);                                      /* 0x465FA3 */
 void TriggerPlayerHitPaletteFlash(void);                              /* 0x465F3A */
 void FadeFlightPaletteEntry(short *entry);                              /* 0x465F5B */
-unsigned int house_keep(void);                                          /* 0x46604F */
+void house_keep(void);                                                  /* 0x46604F */
 void init_player_input(void);                                           /* WC2 unmapped */
 void get_player_input(void);                                           /* 0x4661C2 */
 void process_player_input(void);                                       /* 0x4663A2 */

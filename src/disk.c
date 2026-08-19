@@ -1793,50 +1793,51 @@ short any_selected(unsigned char *loadout, short objectClass)
 }
 
 /* Function start: 0x410715 */
-unsigned int remove_weapon(short obj, short weapon)
+void remove_weapon(short obj, short weapon)
 {
-    short ship;
-    short currentWeapon;
-    int weaponOffset;
-    enum ObjectType preferredType;
-    enum ObjectClass objectClass;
+    short type;
+    short objectClass;
+    short weaponType;
     unsigned char *loadout;
+    short slot;
 
-    ship = obj;
-    currentWeapon = weapon;
-    weaponOffset = (int)currentWeapon * sizeof(ShipWeaponSlot);
-    loadout = g_aShipWeapons_004956b0[ship];
-    preferredType =
-        ((ShipWeaponSlot *)(loadout + weaponOffset + 1))->type;
-    objectClass = g_aObjectTypeData_00496d30[preferredType].objectClass;
-    for (; currentWeapon < (signed char)loadout[0] - 1;
-         currentWeapon++) {
-        unsigned char *entry = loadout + currentWeapon * 7;
-
-#ifdef WC1_SDL
-        /* The seven-byte records are intentionally unaligned. */
-        memcpy(entry + 1, entry + 8, sizeof(ShipWeaponSlot));
-#else
-        *(int *)(entry + 1) = *(int *)(entry + 8);
-        *(short *)(entry + 5) = *(short *)(entry + 12);
-        entry[7] = entry[14];
-#endif
+    loadout = g_aShipWeapons_004956b0[obj];
+    weaponType = ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[obj] + 1))[
+        weapon].weaponType;
+    type = ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[obj] + 1))[
+        weapon].type;
+    objectClass = g_aObjectTypeData_00496d30[weaponType].objectClass;
+    if ((signed char)loadout[0] - 1 > weapon) {
+        for (slot = weapon; (signed char)loadout[0] - 1 > slot; slot++) {
+            ((ShipWeaponSlot *)(loadout + 1))[slot].type =
+                ((ShipWeaponSlot *)(loadout + 1))[slot + 1].type;
+            ((ShipWeaponSlot *)(loadout + 1))[slot].mount =
+                ((ShipWeaponSlot *)(loadout + 1))[slot + 1].mount;
+            ((ShipWeaponSlot *)(loadout + 1))[slot].disabled =
+                ((ShipWeaponSlot *)(loadout + 1))[slot + 1].disabled;
+            ((ShipWeaponSlot *)(loadout + 1))[slot].weaponType =
+                ((ShipWeaponSlot *)(loadout + 1))[slot + 1].weaponType;
+            if (obj == 0) {
+                g_aWeaponDisplayPositions_005d1de0[slot] =
+                    g_aWeaponDisplayPositions_005d1de0[slot + 1];
+            }
+        }
+        if (loadout[0] < 0x10)
+            ((ShipWeaponSlot *)(loadout + 1))[loadout[0]].disabled = 1;
     }
-    loadout[(signed char)loadout[0] * 7 + 7] = 1;
     loadout[0]--;
-    if (ship == 0) {
+    if (obj == 0) {
         if (any_selected(loadout, objectClass) == 0) {
             if (objectClass == OBJECT_CLASS_PROJECTILE) {
                 select_new_gun();
             } else {
                 g_nSelectedReleaseWeaponIndex_004934e0 = -1;
-                select_new_release_weapon(preferredType);
+                select_new_release_weapon(type);
             }
         }
         if (get_mode(0) == 1)
             InvalidateVduMode(0);
     }
-    return 0;
 }
 
 /* Function start: 0x41090F */
