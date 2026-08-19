@@ -1257,7 +1257,7 @@ void house_keep_objects(void)
                     g_aeObjectClass_00495328[obj] >=
                         OBJECT_CLASS_CAPITAL_SHIP) {
                     if ((g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet !=
-                          0 ? 7 : 3) ==
+                          0 ? 8 : 4) - 1 ==
                             g_asObjectCounter_00494be0[obj]) {
                         ShipExplosion(obj);
                         explosion_shock_wave(

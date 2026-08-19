@@ -612,7 +612,7 @@ short your_internal_damage(short attacker, short owner, short damage,
             } else if (severity < 7) {
                 damage_your_component(4, 2, 3);
                 if (g_acPlayerComponentDamage_00493470[4] >= 4)
-                    g_acShipCommunicator_00495670[0] = -1;
+                    g_acShipDestroyedWeaponCount_00495680[0] = -1;
             } else {
                 damage_your_component(5, 4, 4);
             }
