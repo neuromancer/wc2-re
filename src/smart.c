@@ -62,45 +62,42 @@ void steer_away_from_predicted_object(short obj, short other,
 /* Function start: 0x41E6C8 */
 void prevent_collision(short obj)
 {
-    short other;
     short collisionTime;
-    short amount;
-    short facing;
+    short other;
 
-    other = (short)(signed char)DAT_0059cf20[obj];
+    other = g_acShipAlertSource_00495fb0[obj];
+    collisionTime = 0;
     if (other == -1) {
         clear_alert(obj);
         return;
     }
-    collisionTime = crash_time(obj, other);
+    collisionTime = g_nCollisionCountdown_005d2faa;
     if (collisionTime >= 30) {
         approach_full_speed(obj);
         try2end_collision_alert(obj);
         return;
     }
     get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
-    facing = g_nFacingToTarget_00493194;
-    if (facing > 75) {
+    if (g_nFacingToTarget_00493194 > 75) {
         if (g_nTargetFacing_00493198 < -70)
             approach_zero_speed(obj);
         else
             approach_full_speed(obj);
-    } else if (facing < -70 && normal_speed(obj) != 0) {
+    } else if (g_nFacingToTarget_00493194 < -70 &&
+               normal_speed(obj) != 0) {
         fire_afterburner(obj, 8);
     } else {
         approach_full_speed(obj);
     }
     if (CanSetNewShipTurnGoal(obj) != 0) {
-        facing = g_nFacingToTarget_00493194;
-        if (facing < -60 &&
+        if (g_nFacingToTarget_00493194 < -60 &&
             g_nTargetFacing_00493198 > 60) {
             veer_random(obj, 14);
-            return;
+        } else {
+            steer_away_from_predicted_object(
+                obj, other, (short)(collisionTime >> 1),
+                MaxShort(0, MinShort(g_nFacingToTarget_00493194, 25)));
         }
-        amount = MinShort(facing, 25);
-        amount = MaxShort(0, amount);
-        steer_away_from_predicted_object(obj, other,
-                                         (short)(collisionTime >> 1), amount);
     }
 }
 

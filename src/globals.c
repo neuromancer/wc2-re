@@ -2895,6 +2895,7 @@ void *g_apCutsceneSpeechPackets_005d2f80[8];
 short g_nCutsceneFontOwner_005d2fa0;
 short g_bPlayerDestroyed_005d2fa4;
 signed char g_cPlayerKillCount_005d2fa8;
+short g_nCollisionCountdown_005d2faa;
 signed char g_acMissionShipStatusFlags_005d2fb0[8];
 short g_bWingmanKilledThisMission_005d2fb8;
 signed char g_acInitialShipKillCount_005d2fc0[8];

@@ -1548,28 +1548,43 @@ short crash_time(short obj, short other)
 /* Function start: 0x4299C9 */
 short detect_collisions(short obj)
 {
-    short candidate;
-    short closestTime;
-    short other;
     short time;
+    short closestTime;
+    short candidate;
+    short other;
 
     candidate = -1;
     closestTime = 30;
-    for (other = 0; other <= 60; other++) {
-        if (other != obj &&
-            g_aeObjectClass_00495328[other] >= OBJECT_CLASS_ASTEROID &&
-            g_aeObjectClass_00495328[other] != OBJECT_CLASS_MISSILE) {
-            time = crash_time(obj, other);
-            if (closestTime > time) {
-                closestTime = time;
-                candidate = other;
+    g_nCollisionCountdown_005d2faa = 1000;
+    candidate = -1;
+    if (g_pActiveHazardField_00493278 != 0) {
+        for (other = 0; other <= 0x42; other++) {
+            if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
+                other != obj &&
+                g_aeObjectClass_00495328[other] >= OBJECT_CLASS_ASTEROID &&
+                g_aeObjectClass_00495328[other] != OBJECT_CLASS_MISSILE) {
+                time = crash_time(obj, other);
+                if (time < closestTime) {
+                    closestTime = time;
+                    candidate = other;
+                }
+            }
+        }
+    } else {
+        for (other = 0; other <= 9; other++) {
+            if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
+                other != obj &&
+                g_aeObjectClass_00495328[other] != OBJECT_CLASS_MISSILE) {
+                time = crash_time(obj, other);
+                if (time < closestTime) {
+                    closestTime = time;
+                    candidate = other;
+                }
             }
         }
     }
-    if (candidate != -1) {
-        g_asCollisionPartner_005a7cc0[obj] = candidate;
-        g_asCollisionTime_005a7ca0[obj] = closestTime;
-    }
+    if (candidate != -1)
+        g_nCollisionCountdown_005d2faa = closestTime;
     return candidate;
 }
 

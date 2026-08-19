@@ -1407,6 +1407,7 @@ extern unsigned char *g_pCinematicViewBackdrop_005a7c90;
 extern unsigned char *g_pRearViewBackdrop_005a7c94;
 extern short g_bPlayerDestroyed_005d2fa4;
 extern signed char g_cPlayerKillCount_005d2fa8;
+extern short g_nCollisionCountdown_005d2faa;
 extern signed char g_acInitialShipKillCount_005d2fc0[8];
 extern short g_asCollisionPartner_005a7cc0[10];
 extern short g_asCollisionTime_005a7ca0[10];
