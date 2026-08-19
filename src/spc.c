@@ -1764,6 +1764,8 @@ void object_collision(short obj)
                 set_objects_data(
                     obj, WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT,
                     g_acObjectOwner_00495208[obj], 0);
+                g_asObjectScale_00494d90[obj] =
+                    (unsigned short)(savedScale + savedScale);
                 g_aShipVelocity_00494898[obj] =
                     g_aShipVelocity_00494898[partner];
                 RecordCannedSceneObjectEvent(obj, 0);
