@@ -1301,7 +1301,6 @@ extern int g_nJoystickCalibrationMinimumY_005d2ff0;
 extern int g_nJoystickCalibrationMinimumX_005d2ff4;
 extern int g_nJoystickCalibrationMaximumX_005d3000;
 extern int g_nJoystickCalibrationMaximumY_005d3004;
-extern unsigned short g_awPaletteEntryAllocation_0059df80[256];
 extern unsigned char *g_apCommPortraitShapes_0059e180[16];
 extern char g_szHudMessageBuffer_0059e1c0[0x60];
 extern char g_szOnScreenMessageBuffer_005d1890[52];
@@ -1707,6 +1706,7 @@ extern int g_nCannedSceneFileOffset_005d3fac;
 extern void *g_pCannedSceneStateBlock_005d3fb0;
 extern short g_nCannedSceneRecordedFrameCount_005d3faa;
 extern short g_nCannedSceneFrameCount_005d404c;
+extern short g_awPaletteEntryAllocation_005d4050[256];
 extern short g_asCannedSceneFrameOffsets_005d3fc0[70];
 
 extern Wc2PilotProfile g_stDefaultPilotProfile_00492660;

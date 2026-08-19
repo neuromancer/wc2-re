@@ -338,9 +338,22 @@ void Mkickit(short ship)
 /* Function start: 0x440F76 */
 void Mturn_n_kick(short ship)
 {
+    short pointed;
+    short obj;
+
+    pointed = 0;
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
-        veer_random(ship, 90);
+        for (obj = 0; obj < 10; obj++) {
+            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_MISSILE &&
+                g_acShipTarget_00495f20[obj] == ship) {
+                point_perpendicular(ship, obj);
+                pointed = 1;
+                break;
+            }
+        }
+        if (pointed == 0)
+            veer_random(ship, 90);
         advance(ship);
         break;
     case 1:
@@ -434,12 +447,18 @@ void Mfish_hook(short ship, short target)
 /* Function start: 0x441379 */
 void Mtry2tail(short ship, short target)
 {
+    FixedVector position;
+
     if (unactive(target) == 0) {
-        approach_full_speed(ship);
-        if (no_goal(ship) != 0)
-            point_ship_at_object(ship, target);
-        if (RandomBelowOrEqual(100) < 4)
-            veer_random(ship, 5);
+        position = g_aShipPosition_00494550[target];
+        position_relative(&position, g_aShipRightVector_00493b78[target],
+                          (short)-(g_asObjectCollisionRadius_004950e8[target] +
+                                   1000));
+        point_ship_at_point(ship, &position);
+        fire_afterburner(ship, 10);
+        if (g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE ||
+            g_nTargetRange_0049319c < 0x1f40)
+            maneuver_complete(ship);
     } else {
         maneuver_complete(ship);
     }
@@ -448,13 +467,19 @@ void Mtry2tail(short ship, short target)
 /* Function start: 0x44145A */
 void Msplit_left(short ship)
 {
+    approach_full_speed(ship);
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
         g_anYawGoal_004954c0[ship] = 90;
         advance(ship);
         break;
+    case 1:
+        fire_afterburner(ship, 10);
+        advance(ship);
+        /* The retail switch falls through into the completion test. */
     default:
-        if (no_goal(ship) != 0)
+        if (no_goal(ship) != 0 &&
+            g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
         break;
     }
@@ -463,13 +488,19 @@ void Msplit_left(short ship)
 /* Function start: 0x44151B */
 void Msplit_right(short ship)
 {
+    approach_full_speed(ship);
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
         g_anYawGoal_004954c0[ship] = -90;
         advance(ship);
         break;
+    case 1:
+        fire_afterburner(ship, 10);
+        advance(ship);
+        /* The retail switch falls through into the completion test. */
     default:
-        if (no_goal(ship) != 0)
+        if (no_goal(ship) != 0 &&
+            g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
         break;
     }
@@ -749,14 +780,20 @@ void Mget_distance(short ship, short target)
 /* Function start: 0x441F86 */
 void general_zig(short ship, unsigned int target, short pitch)
 {
-    short complete = 1;
+    short complete;
 
     (void)target;
-    approach_full_speed(ship);
+    complete = 1;
     switch (g_acShipSequence_00495fe8[ship] % 6) {
     case 0:
-        g_anYawGoal_004954c0[ship] = -35;
+        fire_afterburner(ship, 10);
+        g_anYawGoal_004954c0[ship] = -60;
         g_anPitchGoal_004954a8[ship] = pitch;
+        break;
+    case 3:
+        fire_afterburner(ship, 10);
+        g_anYawGoal_004954c0[ship] = 60;
+        g_anPitchGoal_004954a8[ship] = (short)-pitch;
         break;
     case 1:
     case 4:
@@ -765,15 +802,13 @@ void general_zig(short ship, unsigned int target, short pitch)
         break;
     case 2:
     case 5:
-        complete = ++g_asShipCount_00495ff8[ship] >= 4;
-        break;
-    case 3:
-        pitch = -pitch;
-        g_anYawGoal_004954c0[ship] = 35;
-        g_anPitchGoal_004954a8[ship] = pitch;
+        g_asShipCount_00495ff8[ship]++;
+        complete = (short)(g_asShipCount_00495ff8[ship] >= 2);
         break;
     }
-    if (g_acShipSequence_00495fe8[ship] >= 12)
+    if (g_acShipSequence_00495fe8[ship] >= 12 &&
+        g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE &&
+        no_goal(ship) != 0)
         maneuver_complete(ship);
     if (complete != 0)
         advance(ship);

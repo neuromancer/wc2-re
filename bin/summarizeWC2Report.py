@@ -374,9 +374,12 @@ def main() -> int:
     print("| --- | --- | ---: | ---: | --- | ---: |")
     for row in sorted(rows, key=lambda item: (item.similarity, item.address))[:40]:
         marker = by_destination[row.address]
+        source = (
+            f"`0x{marker.source:X}`" if marker.source is not None else "--"
+        )
         print(
             f"| `{marker.path.relative_to(ROOT)}` | `{row.name}` | "
-            f"`0x{marker.source:X}` | `0x{row.address:X}` | "
+            f"{source} | `0x{row.address:X}` | "
             f"`{marker.evidence}` | {row.similarity:.2f}% |"
         )
 

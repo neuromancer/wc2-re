@@ -1591,8 +1591,8 @@ void LoadCommPortraitResources(short portrait);                       /* 0x44730
 char *ExpandCommMessageTokens(const char *text);                      /* 0x448136 */
 void real_vid_transmit(short obj, short message);                     /* 0x4482CA */
 void __stdcall ShutdownVideoHook(short mode);                           /* WC2 unmapped */
-short __stdcall ReserveWc1ContiguousPaletteEntries(short entryCount); /* WC2 unmapped */
-void __stdcall ReleaseContiguousPaletteEntries(short firstEntry);     /* WC2 unmapped */
+short ReserveContiguousPaletteEntries(short entryCount);              /* 0x401859 */
+void ReleaseContiguousPaletteEntries(short firstEntry);               /* 0x401922 */
 void PrintPaletteAllocationMap(void);                                 /* 0x401978 */
 short LoadJoystickCalibrationFile(short horizontalRange,
                                   short verticalRange,

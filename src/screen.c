@@ -1892,51 +1892,42 @@ void __stdcall ShutdownVideoHook(short mode)
     ReleaseVideoResourcesHook();
 }
 
-/* Function start: WC2_UNMAPPED */
-short __stdcall ReserveWc1ContiguousPaletteEntries(short entryCount)
+/* Function start: 0x401859 */
+short ReserveContiguousPaletteEntries(short entryCount)
 {
-    short entry;
-    short freeEntries;
     short firstEntry;
-    short fillEntry;
+    short freeEntries;
+    short entry;
 
-    freeEntries = 0;
-    entry = 0;
     firstEntry = 0;
-    for (;;) {
-        if (g_awPaletteEntryAllocation_0059df80[entry] != 0) {
+    freeEntries = firstEntry;
+    for (entry = freeEntries; entry < 256; entry++) {
+        if (g_awPaletteEntryAllocation_005d4050[entry] != 0) {
             freeEntries = 0;
             firstEntry = (short)(entry + 1);
-        } else
+        } else {
             freeEntries++;
-        if (freeEntries == entryCount)
-            break;
-        entry++;
-        if (entry >= 256)
-            return -1;
+        }
+        if (entryCount == freeEntries) {
+            for (entry = 0; entry < entryCount; entry++) {
+                g_awPaletteEntryAllocation_005d4050[entry + firstEntry] =
+                    entryCount;
+            }
+            return firstEntry;
+        }
     }
-
-    fillEntry = 0;
-    while (fillEntry < entryCount) {
-        g_awPaletteEntryAllocation_0059df80[firstEntry + fillEntry] =
-            entryCount;
-        fillEntry++;
-    }
-    return firstEntry;
+    return -1;
 }
 
-/* Function start: WC2_UNMAPPED */
-void __stdcall ReleaseContiguousPaletteEntries(short firstEntry)
+/* Function start: 0x401922 */
+void ReleaseContiguousPaletteEntries(short firstEntry)
 {
+    short count;
     short entry;
-    short entryCount;
 
-    entry = 0;
-    entryCount = g_awPaletteEntryAllocation_0059df80[firstEntry];
-    while (entry < entryCount) {
-        g_awPaletteEntryAllocation_0059df80[firstEntry + entry] = 0;
-        entry++;
-    }
+    count = g_awPaletteEntryAllocation_005d4050[firstEntry];
+    for (entry = 0; count > entry; entry++)
+        g_awPaletteEntryAllocation_005d4050[entry + firstEntry] = 0;
 }
 
 /* Function start: 0x401840 */
@@ -1950,22 +1941,19 @@ void ConfigureDefaultSpacePalette(short mode)
 /* Function start: 0x401978 */
 void PrintPaletteAllocationMap(void)
 {
+    short column;
     short index;
     short row;
-    short column;
 
     index = 0;
-    row = 4;
-    do {
-        column = 0x40;
-        do {
-            printf("%c", g_awPaletteEntryAllocation_0059df80[index++] < 1 ?
-                   '_' : '.');
-            column--;
-        } while (column != 0);
+    for (row = index; row < 4; row++) {
+        for (column = 0; column < 0x40; column++) {
+            printf("%c",
+                   g_awPaletteEntryAllocation_005d4050[index++] < 1 ?
+                       '_' : '.');
+        }
         printf("\n");
-        row--;
-    } while (row != 0);
+    }
 }
 
 /* Function start: 0x423480 */

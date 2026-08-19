@@ -1371,6 +1371,8 @@ src/pload.c	197	0042B300	00423ED1	FreeWaveTable	LoopAudioStreamFnB300	WC1-callgr
 src/pload.c	213	0042B340	00423F3F	AllocateActiveSoundEntry	AllocateActiveSoundEntry	WC1-fuzzy-medium	WC1-review-module-mismatch	mapped
 src/pload.c	229	0042B390	00423FAB	RemoveActiveSoundEntry	RemoveActiveSoundEntry	WC1-callgraph-single-low		mapped
 src/pload.c	250	0042B3F0		FindActiveSoundEntryBySample				unmapped
+src/screen.c	0		00401859	ReserveContiguousPaletteEntries	ReserveContiguousPaletteEntries	WC2-only		wc2-only
+src/screen.c	0		00401922	ReleaseContiguousPaletteEntries	ReleaseContiguousPaletteEntries	WC2-only		wc2-only
 src/screen.c	9	0042EFC0	00421910	cleanup_objectives	ScanTbl0046c97aFnEFC0	WC1-fuzzy-followup		mapped
 src/screen.c	89	0042F1F0	00421BC6	IsShipRouting	IsShipRouting	manual-verified		mapped
 src/screen.c	95	0042F210	00421BFC	SendWingmanCommandAcknowledgement	SendWingmanCommandAcknowledgement	manual-verified		mapped
@@ -1432,8 +1434,6 @@ src/screen.c	1800	00431520	00447300	LoadCommPortraitResources	LoadCommPortraitRe
 src/screen.c	1814	004315C0	00448136	ExpandCommMessageTokens	DispatchUiFn15C0	WC1-fuzzy-very-low		mapped
 src/screen.c	1859	004316E0	004482CA	real_vid_transmit	DrawTbl0059d650Fn16E0	WC1-fuzzy-followup		mapped
 src/screen.c	1953	004318F0		ShutdownVideoHook				unmapped
-src/screen.c	1959	00431900		ReserveContiguousPaletteEntries				unmapped
-src/screen.c	1992	00431970		ReleaseContiguousPaletteEntries				unmapped
 src/screen.c	2006	004319B0	00401978	PrintPaletteAllocationMap	PrintPaletteAllocationMap	WC1-fuzzy-medium		mapped
 src/screen.c	2006		00401840	ConfigureDefaultSpacePalette	ConfigureDefaultSpacePalette	WC2-only		wc2-only
 src/screen.c	2027	00431A10	00423480	LoadJoystickCalibrationFile	LoadJoystickCalibrationFile	WC1-fuzzy-high		mapped
