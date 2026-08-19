@@ -45,6 +45,30 @@
 #include <time.h>
 #endif
 
+#ifdef WC1_SDL
+/* Two things the reconstruction inherits from MSVC have to be corrected on the
+ * way to a modern C library, and both of them corrupt a diagnostic exactly
+ * when something has already gone wrong.
+ *
+ * The game formats into the original's fixed-size buffers, and the messages
+ * that carry a whole file path run past them; on the original that scribbled
+ * over dead stack, here it smashes the frame.  __builtin_object_size bounds
+ * each one by the size the compiler can prove, and yields (size_t)-1 when it
+ * cannot, which leaves the call behaving exactly as it did before.
+ *
+ * The formats themselves also still carry MSVC's far-pointer modifiers
+ * ("%Fs", "%Fp").  Those are a no-op in a flat model, but clang reads the F as
+ * a conversion and consumes an argument for it, shifting every value after it.
+ * The shims strip the modifier and hand the rest to the C library. */
+#define printf   Wc1SdlPrintf
+#define fprintf  Wc1SdlFprintf
+#define sprintf(buffer, ...) \
+    Wc1SdlSnprintf((buffer), __builtin_object_size((buffer), 1), __VA_ARGS__)
+#define vsprintf(buffer, format, arguments) \
+    Wc1SdlVsnprintf((buffer), __builtin_object_size((buffer), 1), (format), \
+                    (arguments))
+#endif
+
 /* Degrees are the angular unit throughout the game core (the constant lives at
  * DAT_004631b0 in the original); the trig shims convert on the way in. */
 #define WC1_DEG2RAD 0.017453292519943295

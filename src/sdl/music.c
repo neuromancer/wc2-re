@@ -278,7 +278,7 @@ void Wc1SdlServiceOriginFxMusic(void)
         Wc1SdlOriginFxPlayerFinished(g_pWc1SdlOriginFxPlayer)) {
         finishedTrack = g_nWc1SdlActiveMusicTrack;
         Wc1SdlDeleteDosAdlibTrack();
-        g_nMusicTrackComplete_0046aa04 = 1;
+        g_nMusicTrackComplete_0049be88 = 1;
         if (g_nCurrentMusicTrack_0049be98 == finishedTrack)
             g_nCurrentMusicTrack_0049be98 = -1;
     }
@@ -289,7 +289,7 @@ void Wc1SdlServiceOriginFxMusic(void)
     }
     if (desiredTrack < 0) {
         Wc1SdlDeleteDosAdlibTrack();
-        g_nMusicTrackComplete_0046aa04 = 1;
+        g_nMusicTrackComplete_0049be88 = 1;
         SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
         return;
     }
@@ -304,7 +304,7 @@ void Wc1SdlServiceOriginFxMusic(void)
         fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
                 desiredTrack);
         g_nCurrentMusicTrack_0049be98 = -1;
-        g_nMusicTrackComplete_0046aa04 = 1;
+        g_nMusicTrackComplete_0049be88 = 1;
         return;
     }
     player = Wc1SdlCreateOriginFxPlayer(
@@ -315,7 +315,7 @@ void Wc1SdlServiceOriginFxMusic(void)
         fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
                 desiredTrack);
         g_nCurrentMusicTrack_0049be98 = -1;
-        g_nMusicTrackComplete_0046aa04 = 1;
+        g_nMusicTrackComplete_0049be88 = 1;
         return;
     }
 
@@ -328,7 +328,7 @@ void Wc1SdlServiceOriginFxMusic(void)
     Wc1SdlDeleteDosAdlibTrack();
     g_pWc1SdlOriginFxPlayer = player;
     g_nWc1SdlActiveMusicTrack = desiredTrack;
-    g_nMusicTrackComplete_0046aa04 = 0;
+    g_nMusicTrackComplete_0049be88 = 0;
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
 }
 

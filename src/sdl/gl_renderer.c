@@ -376,15 +376,20 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     Viewport viewport;
 
     memcpy(destination, pixels, sizeof(g_renderer.spaceFrameBase));
-    if (DAT_0059a84c == 0 || g_stMouseCursorState_0059ab10.viewport == 0 ||
+    /* Undraw the cursor exactly the way RestoreMouseCursorBackground does:
+     * same save area, same captured position, same guards. */
+    if (g_bInputCursorBackgroundCaptured_005c80c4 == 0 ||
+        g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
+        g_stMouseCursorState_0059ab10.viewport == 0 ||
         g_stMouseCursorState_0059ab10.shape == 0 ||
         g_stMouseCursorState_0059ab10.viewport->pixels != pixels)
         return;
     viewport = *g_stMouseCursorState_0059ab10.viewport;
     viewport.pixels = destination;
     viewport.allocation = destination;
-    RestoreSpriteBackground(&viewport, DAT_004865a8_WC1_UNMAPPED, (short)DAT_0059a8e4,
-                            (short)DAT_0059a8e0,
+    RestoreSpriteBackground(&viewport, g_abInputCursorBackground_005c3b10,
+                            (short)g_nCapturedInputCursorX_005c817c,
+                            (short)g_nCapturedInputCursorY_005c8178,
                             g_stMouseCursorState_0059ab10.shape,
                             (short)g_stMouseCursorState_0059ab10.frame);
 }

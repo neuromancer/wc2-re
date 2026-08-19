@@ -657,9 +657,6 @@ unsigned int LoadWc1OriginFxDrivers(void)
 /* Function start: 0x45B9D3 */
 void LoadOriginFxDrivers(void)
 {
-#ifdef WC1_SDL
-    LoadWc1OriginFxDrivers();
-#else
     int memoryThreshold;
     char campaignNumber[4];
     FILE *memoryLogFile;
@@ -804,7 +801,6 @@ void LoadOriginFxDrivers(void)
     }
     (void)expandedShipMemoryBytes;
     (void)postPaletteStatus;
-#endif
 }
 
 /* Function start: 0x45BF30 */
@@ -988,12 +984,16 @@ void InitializeMusicResources(void)
     }
 }
 
-#ifndef WC1_SDL
-
 #pragma function(strcmp)
 
 /* Function start: 0x45C558 */
+#ifdef WC1_SDL
+/* The port's entry point is the SDL launcher, so the game's own main() is
+ * compiled under a name that does not collide with it. */
+void Wc2GameMain(short argc, char **argv)
+#else
 void main(short argc, char **argv)
+#endif
 {
     short argumentIndex;
     int campaignIsNumeric;
@@ -1106,8 +1106,6 @@ void main(short argc, char **argv)
 }
 
 #pragma intrinsic(strcmp)
-
-#endif
 
 /* Function start: WC2_UNMAPPED */
 unsigned int GetFxDriverInitResult(void)

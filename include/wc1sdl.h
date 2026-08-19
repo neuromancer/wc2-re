@@ -8,6 +8,8 @@
 
 #include <SDL.h>
 #include <limits.h>
+#include <stdarg.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -263,6 +265,13 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
 #define VK_DOWN 0x28
 #define VK_INSERT 0x2d
 #define VK_DELETE 0x2e
+/* WC2 reads five more virtual keys than WC1 did: the numeric-keypad
+ * speed controls and the two acknowledgement keys. */
+#define VK_RETURN 0x0d
+#define VK_SPACE 0x20
+#define VK_NUMLOCK 0x90
+#define VK_ADD 0x6b
+#define VK_SUBTRACT 0x6d
 
 #ifndef _WIN32
 int Wc1SdlOpen(const char *path, int flags, ...);
@@ -271,6 +280,37 @@ char *Wc1SdlItoa(int value, char *text, int radix);
 char *Wc1SdlLtoa(long value, char *text, int radix);
 char *Wc1SdlUltoa(unsigned long value, char *text, int radix);
 char *Wc1SdlStrupr(char *text);
+
+/* MSVC's directory walk.  WC2 uses it to enumerate saved games and pilot
+ * files; the shim wraps opendir/readdir and fills in the fields the game
+ * actually reads. */
+struct _finddata_t {
+    unsigned int attrib;
+    long time_create;
+    long time_access;
+    long time_write;
+    long size;
+    char name[260];
+};
+
+long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found);
+int Wc1SdlFindNext(long handle, struct _finddata_t *found);
+int Wc1SdlFindClose(long handle);
+
+/* Console input.  There is no console under SDL, so the acknowledgement
+ * key wait falls through to the event pump instead. */
+int Wc1SdlGetChar(void);
+int Wc1SdlFlushAll(void);
+
+/* MSVC's far/near pointer size modifiers ("%Fs", "%Fp") are a no-op in a flat
+ * model, but clang reads the F as a long-double conversion and consumes an
+ * argument for it, which shifts every value after it.  These wrappers rewrite
+ * the format and hand the rest to the C library unchanged. */
+int Wc1SdlPrintf(const char *format, ...);
+int Wc1SdlFprintf(FILE *stream, const char *format, ...);
+int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...);
+int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
+                    va_list arguments);
 
 #endif
 
@@ -289,9 +329,15 @@ char *Wc1SdlStrupr(char *text);
 #define _chdir Wc1SdlChangeDirectory
 #define _cprintf printf
 #define _itoa Wc1SdlItoa
+#define itoa Wc1SdlItoa
 #define _ltoa Wc1SdlLtoa
 #define _ultoa Wc1SdlUltoa
 #define _strupr Wc1SdlStrupr
+#define _findfirst Wc1SdlFindFirst
+#define _findnext Wc1SdlFindNext
+#define _findclose Wc1SdlFindClose
+#define _getch Wc1SdlGetChar
+#define flushall Wc1SdlFlushAll
 #endif
 
 #define CREATE_ALWAYS 2

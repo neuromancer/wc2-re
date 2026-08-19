@@ -89,12 +89,12 @@ static int Wc1SdlRunRuntimeChecks(void)
 
     g_acShipTarget_00495f20[0] = -1;
     g_cTargetDisplayObject_004934f4 = -1;
-    g_nRenderedSpaceFrame_0059d61a = 1;
+    g_nRenderedSpaceFrame_00493138 = 1;
     DrawTargetRangeReadout();
 
     g_aeObjectClass_00495328[1] = OBJECT_CLASS_SHIP;
     g_acObjectOwner_00495208[1] = -1;
-    g_nYourWingman_0046c04c = -1;
+    g_nYourWingman_0049346c = -1;
     send_appropriate_message(1, 0);
 
     g_acShipTarget_00495f20[0] = -1;
@@ -108,15 +108,15 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (g_pSnowStaticSound_004a2664 != 0)
         return 1;
 
+    /* WC2's vdu_polygon draws straight into the panel shape instead of
+     * leaving a rectangle behind, so the call is the check. */
     g_cCockpitView_0059dab0 = 4;
     vdu_polygon(2, 50);
-    if (DAT_005a6be0.left != -99)
-        return 1;
 
     g_asShipMissionParameter_00495e00[1] = -1;
     g_aeShipObjective_00495f08[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
-    if (g_aeShipMissionType_0059c3f0[1] != MISSION_TYPE_ROUT)
+    if (g_asShipMissionType_00495de8[1] != MISSION_TYPE_ROUT)
         return 1;
 
     g_nCommPortraitIndex_0049b79c = -1;
@@ -179,7 +179,7 @@ int main(int argumentCount, char **arguments)
         usingDosData = Wc1SdlUsingDosData();
         if (usingDosData) {
             /* DOS audio drivers cannot be used by the native SDL2 host. */
-            DAT_00465058 = 0;
+            g_nAudioEnabled_0049c244 = 0;
         }
         if (usingDosData || useEnhancedRenderer) {
             if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
@@ -199,15 +199,22 @@ int main(int argumentCount, char **arguments)
         srand((unsigned int)time(0));
         InitGameClockRandomEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-        DAT_005a8a44 = (unsigned int)time(0);
-        DAT_0059ab2c = 0;
+        g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
+        g_pfnInputPump_005c840c = 0;
         SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
-        gameResult = RunWc1GameMain((short)(argumentCount - 1), arguments);
+        /* The same sequence WinMain runs once the window exists. */
+        g_nInputClock_005c84a8 = 0;
+        AllocateApplicationScratchBuffer();
+        g_bApplicationControllerActive_0049c25c = 1;
+        RunGameApplication(0, &g_pEmptyStartupArgumentVector_0049c470);
+        g_bApplicationShutdownStarted_0049c23c = 1;
+        ReleaseApplicationScratchBuffer();
+        gameResult = 0;
         SDL_SetWindowMouseGrab(window, SDL_FALSE);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
-        if ((g_dwStreamerState_00597cd0 & 1) != 0)
+        if ((g_dwStreamerState_005c4c38 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         Wc1SdlShutdownOriginFxAudio();

@@ -602,7 +602,7 @@ typedef struct InputManagerState {
 
 typedef struct InputPumpContext {
     void (*pump)(void);
-    Viewport *viewport;
+    struct Viewport *viewport;
 } InputPumpContext;
 
 #pragma pack(push, 1)
@@ -679,8 +679,10 @@ typedef char CannedSceneBriefingCharacterRecord_size_must_be_0x10[
 typedef char CannedSceneMusicCommandRecord_size_must_be_0x16[
     sizeof(CannedSceneMusicCommandRecord) == 0x16 ? 1 : -1];
 
+#ifndef WC1_SDL
 typedef char InputManagerState_size_must_be_0x21[
     sizeof(InputManagerState) == 0x21 ? 1 : -1];
+#endif
 
 #pragma pack(push, 1)
 typedef struct MusicResource {
@@ -689,8 +691,10 @@ typedef struct MusicResource {
 } MusicResource;
 #pragma pack(pop)
 
+#ifndef WC1_SDL
 typedef char MusicResource_size_must_be_6[
     sizeof(MusicResource) == 6 ? 1 : -1];
+#endif
 
 typedef char CockpitLayout_size_must_be_0x118[
     sizeof(CockpitLayout) == 0x118 ? 1 : -1];
@@ -1394,8 +1398,10 @@ typedef struct ObjectResourceSlot {
     unsigned char *shape;             /* +0x0E: archive section 1 */
     unsigned char *field_12;          /* +0x12 */
 } ObjectResourceSlot;
+#ifndef WC1_SDL
 typedef char ObjectResourceSlot_size_must_be_0x16[
     sizeof(ObjectResourceSlot) == 0x16 ? 1 : -1];
+#endif
 #pragma pack(pop)
 
 /* WC2 runtime mission-objective records use the 0x1E-byte stride visible in

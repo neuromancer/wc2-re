@@ -1115,6 +1115,7 @@ short OffsetSceneHotspotBounds(ShortRect *bounds, const SceneHotspot *hotspot,
 unsigned int ShowMemoryStatusDebug(void);                                 /* 0x437AEC */
 void exit_squadron(const char *msg, ...);                               /* 0x437AB4 */
 #ifdef WC1_SDL
+void Wc2GameMain(short argc, char **argv);                              /* 0x45C558 */
 #else
 void main(short argc, char **argv);                                     /* 0x45C558 */
 #endif
@@ -1986,5 +1987,6 @@ void ix_streamer_set_intensity(unsigned char intensity);              /* 0x46C96
 void ix_streamer_set_trigger(char trigger);                           /* 0x46C9C1 */
 void ix_streamer_force_trigger(char trigger);                         /* 0x46CA2E */
 void ix_streamer_set_volume(unsigned short volume);                   /* 0x46CBBE */
+unsigned short ix_streamer_get_volume(void);                          /* 0x46CC3B */
 
 #endif /* WC1_FUNCS_H */

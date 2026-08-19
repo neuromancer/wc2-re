@@ -815,7 +815,9 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 /* Function start: 0x45445A */
 unsigned int PumpWindowMessages(int skipMessages)
 {
+#ifndef WC1_SDL
     MSG message;
+#endif
     int done;
 
     done = 0;

@@ -255,7 +255,7 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
 {
     InputEvent *queued;
 
-    queued = g_pInputEventTail_0046da94;
+    queued = g_pInputEventTail_0049d4b8;
     if (queued != 0 && queued->type == 13) {
         queued->x = (short)x;
         queued->y = (short)y;

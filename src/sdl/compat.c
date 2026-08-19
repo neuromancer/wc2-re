@@ -1,5 +1,8 @@
 #include "wc1sdl.h"
 
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifndef _WIN32
@@ -205,6 +208,237 @@ char *Wc1SdlUltoa(unsigned long value, char *text, int radix)
         return Wc1SdlLowercaseDigits(SDL_ultoa(value, text, radix));
     text[0] = '\0';
     return text;
+}
+
+/*
+ *  MSVC's _findfirst/_findnext directory walk.  WC2 uses it to enumerate the
+ *  pilot and saved-game files, so the shim only has to honour the shell-style
+ *  patterns the game actually passes ("*.PLT", "SAVE*.*", ...) and fill in the
+ *  name and size fields; the timestamps stay zero because nothing reads them.
+ */
+typedef struct Wc1SdlFindHandle {
+    DIR *directory;
+    char base[PATH_MAX];
+    char pattern[NAME_MAX + 1];
+} Wc1SdlFindHandle;
+
+static int Wc1SdlMatchPattern(const char *pattern, const char *name)
+{
+    while (*pattern != '\0') {
+        if (*pattern == '*') {
+            pattern++;
+            if (*pattern == '\0')
+                return 1;
+            while (*name != '\0') {
+                if (Wc1SdlMatchPattern(pattern, name))
+                    return 1;
+                name++;
+            }
+            return Wc1SdlMatchPattern(pattern, name);
+        }
+        if (*name == '\0')
+            return 0;
+        if (*pattern != '?' &&
+            toupper((unsigned char)*pattern) != toupper((unsigned char)*name))
+            return 0;
+        pattern++;
+        name++;
+    }
+    return *name == '\0';
+}
+
+static int Wc1SdlFillFound(Wc1SdlFindHandle *handle,
+                           struct _finddata_t *found)
+{
+    struct dirent *entry;
+    char full[PATH_MAX];
+    struct stat status;
+
+    while ((entry = readdir(handle->directory)) != 0) {
+        if (!Wc1SdlMatchPattern(handle->pattern, entry->d_name))
+            continue;
+        memset(found, 0, sizeof(*found));
+        strncpy(found->name, entry->d_name, sizeof(found->name) - 1);
+        if ((size_t)snprintf(full, sizeof(full), "%s/%s",
+                             handle->base, entry->d_name) < sizeof(full) &&
+            stat(full, &status) == 0)
+            found->size = (long)status.st_size;
+        return 1;
+    }
+    return 0;
+}
+
+long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
+{
+    Wc1SdlFindHandle *handle;
+    char resolved[PATH_MAX];
+    const char *leaf;
+    size_t baseLength;
+
+    if (pattern == 0 || found == 0)
+        return -1;
+    if (!Wc1SdlResolvePath(pattern, resolved, (unsigned long)sizeof(resolved)))
+        return -1;
+    handle = (Wc1SdlFindHandle *)calloc(1, sizeof(*handle));
+    if (handle == 0)
+        return -1;
+    leaf = strrchr(resolved, '/');
+    if (leaf == 0) {
+        strcpy(handle->base, ".");
+        leaf = resolved;
+    } else {
+        baseLength = (size_t)(leaf - resolved);
+        if (baseLength == 0)
+            baseLength = 1;
+        if (baseLength >= sizeof(handle->base)) {
+            free(handle);
+            return -1;
+        }
+        memcpy(handle->base, resolved, baseLength);
+        handle->base[baseLength] = '\0';
+        leaf++;
+    }
+    strncpy(handle->pattern, leaf, sizeof(handle->pattern) - 1);
+    handle->directory = opendir(handle->base);
+    if (handle->directory == 0) {
+        free(handle);
+        return -1;
+    }
+    if (!Wc1SdlFillFound(handle, found)) {
+        closedir(handle->directory);
+        free(handle);
+        return -1;
+    }
+    return (long)(intptr_t)handle;
+}
+
+int Wc1SdlFindNext(long handle, struct _finddata_t *found)
+{
+    Wc1SdlFindHandle *walk;
+
+    walk = (Wc1SdlFindHandle *)(intptr_t)handle;
+    if (walk == 0 || found == 0)
+        return -1;
+    return Wc1SdlFillFound(walk, found) ? 0 : -1;
+}
+
+int Wc1SdlFindClose(long handle)
+{
+    Wc1SdlFindHandle *walk;
+
+    walk = (Wc1SdlFindHandle *)(intptr_t)handle;
+    if (walk == 0)
+        return -1;
+    closedir(walk->directory);
+    free(walk);
+    return 0;
+}
+
+/*
+ *  Rewrite a printf format the way MSVC would have read it: drop the far/near
+ *  pointer size modifiers, which are meaningless in a flat model but which
+ *  clang treats as conversions in their own right.  Anything the state machine
+ *  does not recognise is copied through untouched.
+ */
+static const char *Wc1SdlPortableFormat(const char *format, char *scratch,
+                                        size_t scratchSize)
+{
+    const char *read;
+    char *write;
+    char *limit;
+    int inConversion;
+
+    if (strchr(format, 'F') == 0 && strchr(format, 'N') == 0)
+        return format;
+    read = format;
+    write = scratch;
+    limit = scratch + scratchSize - 1;
+    inConversion = 0;
+    while (*read != '\0' && write < limit) {
+        if (!inConversion) {
+            inConversion = *read == '%';
+            *write++ = *read++;
+            continue;
+        }
+        if (*read == '%') {
+            inConversion = 0;
+            *write++ = *read++;
+            continue;
+        }
+        if (*read == 'F' || *read == 'N') {
+            read++;
+            continue;
+        }
+        if (strchr("diouxXeEfgGaAcspn", *read) != 0)
+            inConversion = 0;
+        *write++ = *read++;
+    }
+    *write = '\0';
+    return scratch;
+}
+
+int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
+                    va_list arguments)
+{
+    char scratch[1024];
+
+    return vsnprintf(buffer, size,
+                     Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+                     arguments);
+}
+
+int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...)
+{
+    va_list arguments;
+    int written;
+
+    va_start(arguments, format);
+    written = Wc1SdlVsnprintf(buffer, size, format, arguments);
+    va_end(arguments);
+    return written;
+}
+
+int Wc1SdlPrintf(const char *format, ...)
+{
+    char scratch[1024];
+    va_list arguments;
+    int written;
+
+    va_start(arguments, format);
+    written = vprintf(Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+                      arguments);
+    va_end(arguments);
+    return written;
+}
+
+int Wc1SdlFprintf(FILE *stream, const char *format, ...)
+{
+    char scratch[1024];
+    va_list arguments;
+    int written;
+
+    va_start(arguments, format);
+    written = vfprintf(stream,
+                       Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+                       arguments);
+    va_end(arguments);
+    return written;
+}
+
+/*
+ *  There is no console to read, so the acknowledgement wait becomes a pump of
+ *  the SDL event queue until a key arrives or the window closes.
+ */
+int Wc1SdlGetChar(void)
+{
+    Wc1SdlPumpEvents();
+    return 0;
+}
+
+int Wc1SdlFlushAll(void)
+{
+    fflush(0);
+    return 0;
 }
 
 char *Wc1SdlStrupr(char *text)

@@ -21,8 +21,6 @@ static short g_nFleetMousePitchVelocity_0049d42c;
 static short g_bFleetPrimaryInputQueued_005c57dc;
 static short g_bFleetMouseMoveQueued_005c57ea;
 
-#ifndef WC1_SDL
-
 #pragma function(strcpy)
 
 /* Function start: 0x465780 */
@@ -51,7 +49,11 @@ void RunGameApplication(short argc, char **argv)
     memcpy(&g_stCurrentPilotProfile_00493408,
            &g_stDefaultPilotProfile_00492660,
            sizeof(g_stCurrentPilotProfile_00493408));
+#ifdef WC1_SDL
+    Wc2GameMain(argumentCount, g_pStartupArguments_005c57f0);
+#else
     main(argumentCount, g_pStartupArguments_005c57f0);
+#endif
 
     if (g_bMemoryAdjustmentEnabled_0049cc84 != 0) {
         memoryBytes = (unsigned short)g_nMemoryAdjustmentKb_005c8dda << 10;
@@ -152,8 +154,6 @@ void RunGameApplication(short argc, char **argv)
 }
 
 #pragma intrinsic(strcpy)
-
-#endif
 
 /* Function start: 0x465CBC */
 void free_view_buffer(void)

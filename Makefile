@@ -111,7 +111,11 @@ endif
 # MSVC 4.20 reference executable.
 MODERN_OUT_DIR = out-modern
 MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern$(MODERN_EXE_SUFFIX)
-MODERN_RUN_DIR ?= data/full
+# The port runs from the game's own directory: it chdir()s into gamedat/ and
+# resolves every packet relative to that.  data/full holds only the reference
+# executable, so pointing here at the installed tree is what makes run-modern
+# find brief.pal and the rest of the resources.
+MODERN_RUN_DIR ?= data/wc2-full
 MODERN_ARGS ?=
 SERIES ?= 1
 MISSION ?= 0
@@ -132,17 +136,26 @@ MODERN_LZO_INCLUDEDIR = $(shell pkg-config --variable=includedir lzo2 2>/dev/nul
 MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
 MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS) \
 	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
+# The reconstruction reproduces MSVC 4.1's tolerance for mismatched pointer
+# and integer arguments; clang treats those as errors by default.  Demote them
+# so the port compiles the same sources the reference build does.
 MODERN_CFLAGS ?= -O2 -std=c11 -Wno-return-type -Wno-return-mismatch \
-	-Wno-error=incompatible-pointer-types
+	-Wno-error=incompatible-pointer-types -Wno-int-conversion
 MODERN_CXXFLAGS ?= -O2 -std=c++11
 MODERN_DEPFLAGS = -MMD -MP
 MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
+# The game's packet structures are byte-packed, so a pointer member lands on an
+# odd offset by design and every access to one trips UBSan's alignment check.
+# aarch64 and x86-64 both perform those loads correctly; the rest of UBSan and
+# all of ASan stay on.
+MODERN_UBSAN_EXCLUDE = -fno-sanitize=alignment
 # Developer and test builds retain runtime diagnostics.  Tagged release jobs
 # explicitly select the optimized, uninstrumented host build.
 ifeq ($(MODERN_RELEASE),1)
 override MODERN_SANITIZER_FLAGS =
 else
-override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
+override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined \
+	$(MODERN_UBSAN_EXCLUDE) -fno-omit-frame-pointer
 endif
 MODERN_DEAD_STRIP_DARWIN = -Wl,-dead_strip -Wl,-no_fixup_chains
 MODERN_DEAD_STRIP_OTHER = -Wl,--gc-sections
