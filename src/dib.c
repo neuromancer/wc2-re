@@ -7,6 +7,8 @@
  */
 #include "wc1.h"
 
+#pragma function(memcpy, memset)
+
 const GUID g_guidDirectDraw2_0048e120 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
     { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }
@@ -172,8 +174,6 @@ void DIBreInstall(void)
 #endif
 }
 
-#pragma function(memset)
-
 /* Function start: 0x45D23B */
 void DIBinstall(HWND window)
 {
@@ -221,9 +221,8 @@ void DIBinstall(HWND window)
     DIBmakeDIB();
     g_bDibDirty_005c395c = 1;
     g_nDibPresentCount_005c3390 = 0;
+    return;
 }
-
-#pragma intrinsic(memset)
 
 /* Function start: 0x45D3A1 */
 int DIBcascade(int mode, int *reportedResult)
@@ -384,7 +383,7 @@ void DIBmakeDIB(void)
     DDSURFACEDESC surface;
     PALETTEENTRY entries[256];
     HRESULT result;
-    int offset;
+    int entry;
 
     memset(&surface, 0, sizeof(surface));
     surface.dwSize = sizeof(surface);
@@ -399,26 +398,28 @@ void DIBmakeDIB(void)
 
     g_nDibBitsPerPixel_005c3388 = 8;
 #ifndef WC1_SDL
-    offset = 0;
-    do {
-        entries[offset / 4].peRed = g_abPaletteCache_005c3450[offset + 2];
-        entries[offset / 4].peGreen = g_abPaletteCache_005c3450[offset + 1];
-        entries[offset / 4].peBlue = g_abPaletteCache_005c3450[offset];
-        entries[offset / 4].peFlags = 0;
-        offset += 4;
-    } while (offset < 0x400);
+    for (entry = 0; entry < 256; entry++) {
+        entries[entry].peRed = g_abPaletteCache_005c3450[entry * 4 + 2];
+        entries[entry].peGreen = g_abPaletteCache_005c3450[entry * 4 + 1];
+        entries[entry].peBlue = g_abPaletteCache_005c3450[entry * 4];
+        entries[entry].peFlags = 0;
+    }
 
-    result = IDirectDraw2_CreatePalette(
-        g_pDirectDraw2_0049ce90, DDPCAPS_8BIT, entries,
-        &g_pDirectDrawPalette_0049ce9c, 0);
-    if (result != DD_OK)
-        DIBerror("DIBmakeDIB   CreatePalette", result);
+    if (g_nDibBitsPerPixel_005c3388 == 8) {
+        result = IDirectDraw2_CreatePalette(
+            g_pDirectDraw2_0049ce90, DDPCAPS_8BIT, entries,
+            &g_pDirectDrawPalette_0049ce9c, 0);
+        if (result != DD_OK)
+            DIBerror("DIBmakeDIB   CreatePalette", result);
 
-    result = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0049ce94,
-        g_pDirectDrawPalette_0049ce9c);
-    if (result != DD_OK)
-        DIBerror("DIBmakeDIB   CreatePalette", result);
+        if (g_bUseHardwarePalette_0049c268 != 0) {
+            result = IDirectDrawSurface_SetPalette(
+                g_pPrimarySurface_0049ce94,
+                g_pDirectDrawPalette_0049ce9c);
+            if (result != DD_OK)
+                DIBerror("DIBmakeDIB   CreatePalette", result);
+        }
+    }
 
     if (g_nDisplayModeCascade_0049cea0 > 0) {
         memset(&surface, 0, sizeof(surface));
@@ -435,19 +436,20 @@ void DIBmakeDIB(void)
     }
 #endif
 
-    DAT_005b3974 = 0;
-    DAT_005b3970 = 0;
     g_nDibRowBytes_005b397c = 320;
     g_nDibHeight_005b3980 = 200;
+    DAT_005b3974 = 0;
+    DAT_005b3970 = 0;
     g_pDibPixelBuffer_005b3978 = malloc(64000);
 #ifdef WC1_SDL
     if (g_pDibPixelBuffer_005b3978 == 0)
         DIBerror("DIBmakeDIB", -1);
 #endif
-    g_stScreenViewport_005d21a0.pixels = GetDIBPixelBuffer();
-    g_stScreenViewport_005d21a0.allocation = g_stScreenViewport_005d21a0.pixels;
+    g_stScreenViewport_005d21a0.allocation = GetDIBPixelBuffer();
+    g_stScreenViewport_005d21a0.pixels = g_stScreenViewport_005d21a0.allocation;
     memcpy(g_pDibPixelBuffer_005b3978, g_abDibBackingStore_005b3988,
            g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
+    return;
 }
 
 /* Function start: 0x45DA8C */
@@ -480,8 +482,10 @@ void DIBdestroyDIB(void)
         g_pPrimarySurface_0049ce94 = 0;
     }
 #endif
-    if (g_pDibPixelBuffer_005b3978 != 0)
+    if (g_pDibPixelBuffer_005b3978 != 0) {
         free(g_pDibPixelBuffer_005b3978);
+        g_pDibPixelBuffer_005b3978 = 0;
+    }
     DAT_005b3970 = 0;
     DAT_005b3974 = 0;
     g_pDibPixelBuffer_005b3978 = 0;
@@ -489,6 +493,7 @@ void DIBdestroyDIB(void)
     g_stScreenViewport_005d21a0.pixels = 0;
     g_stScreenViewport_005d21a0.allocation = 0;
 #endif
+    return;
 }
 
 /* Function start: 0x45DB8C */
