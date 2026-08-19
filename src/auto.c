@@ -246,7 +246,7 @@ void auto_pilot_sequence(void)
 
         SubtractFixedVectors(&g_aShipPosition_00494550[0], &travelStep,
                              &g_aShipPosition_00494550[0]);
-        cruiseSpeed = g_asShipMaximumSpeed_0059c440[0];
+        cruiseSpeed = g_asShipMaximumVelocity_00495f70[0];
         for (ship = 0; ship < 10; ship++) {
             if (travelMode[ship] != 0 &&
                 g_aObjectTypeData_00496d30[

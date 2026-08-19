@@ -911,52 +911,54 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
 {
 #ifndef WC1_SDL
     unsigned char entries[0x400];
-#endif
-    int offset = 0;
-#ifndef WC1_SDL
     int error;
+#endif
+    int index = 0x100;
 
+#ifndef WC1_SDL
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
 #else
     Wc1SdlWaitForVerticalBlank();
 #endif
-    do {
-        unsigned char value = palette[0];
-
-        palette = palette + 3;
-        g_abPaletteCache_005c3450[offset + 2] = value;
+    for (index = 0; index < 0x100; index++) {
+        g_abPaletteCache_005c3450[index * 4 + 2] =
+            palette[index * 3];
 #ifndef WC1_SDL
-        entries[offset] = value;
+        entries[index * 4] =
+            g_abPaletteCache_005c3450[index * 4 + 2];
 #endif
-        value = palette[-2];
-        g_abPaletteCache_005c3450[offset + 1] = value;
+        g_abPaletteCache_005c3450[index * 4 + 1] =
+            palette[index * 3 + 1];
 #ifndef WC1_SDL
-        entries[offset + 1] = value;
+        entries[index * 4 + 1] =
+            g_abPaletteCache_005c3450[index * 4 + 1];
 #endif
-        value = palette[-1];
-        g_abPaletteCache_005c3450[offset] = value;
+        g_abPaletteCache_005c3450[index * 4] =
+            palette[index * 3 + 2];
 #ifndef WC1_SDL
-        entries[offset + 2] = value;
-        entries[offset + 3] = 0;
+        entries[index * 4 + 2] =
+            g_abPaletteCache_005c3450[index * 4];
+        entries[index * 4 + 3] = 0;
 #endif
-        g_abPaletteCache_005c3450[offset + 3] = 4;
-        offset = offset + 4;
-    } while (offset < 0x400);
+        g_abPaletteCache_005c3450[index * 4 + 3] = 4;
+    }
 
 #ifdef WC1_SDL
     DIBramPalette();
 #else
-    error = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0049ce9c, 0, 0, 0x100,
-        (LPPALETTEENTRY)entries);
-    if (error != 0)
-        DIBerror("DIBsetWholePalette   SetEntries", error);
+    if (g_bUseHardwarePalette_0049c268 != 0) {
+        error = IDirectDrawPalette_SetEntries(
+            g_pDirectDrawPalette_0049ce9c, 0, 0, 0x100,
+            (LPPALETTEENTRY)entries);
+        if (error != 0)
+            DIBerror("DIBsetWholePalette   SetEntries", error);
 
-    error = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0049ce94, g_pDirectDrawPalette_0049ce9c);
-    if (error != 0)
-        DIBerror("DIBmakeDIB   CreatePalette", error);
+        error = IDirectDrawSurface_SetPalette(
+            g_pPrimarySurface_0049ce94, g_pDirectDrawPalette_0049ce9c);
+        if (error != 0)
+            DIBerror("DIBmakeDIB   CreatePalette", error);
+    }
 #endif
 }
 
@@ -965,52 +967,54 @@ void DIBwholePaletteFromWords(unsigned short *palette)
 {
 #ifndef WC1_SDL
     unsigned char entries[0x400];
-#endif
-    int offset = 0;
-#ifndef WC1_SDL
     int error;
+#endif
+    int index = 0x100;
 
+#ifndef WC1_SDL
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
 #else
     Wc1SdlWaitForVerticalBlank();
 #endif
-    do {
-        unsigned char value = *(unsigned char *)palette;
-
-        palette = palette + 3;
-        g_abPaletteCache_005c3450[offset + 2] = value;
+    for (index = 0; index < 0x100; index++) {
+        g_abPaletteCache_005c3450[index * 4 + 2] =
+            *(unsigned char *)&palette[index * 3];
 #ifndef WC1_SDL
-        entries[offset] = value;
+        entries[index * 4] =
+            g_abPaletteCache_005c3450[index * 4 + 2];
 #endif
-        value = *(unsigned char *)(palette - 2);
-        g_abPaletteCache_005c3450[offset + 1] = value;
+        g_abPaletteCache_005c3450[index * 4 + 1] =
+            *(unsigned char *)&palette[index * 3 + 1];
 #ifndef WC1_SDL
-        entries[offset + 1] = value;
+        entries[index * 4 + 1] =
+            g_abPaletteCache_005c3450[index * 4 + 1];
 #endif
-        value = *(unsigned char *)(palette - 1);
-        g_abPaletteCache_005c3450[offset] = value;
+        g_abPaletteCache_005c3450[index * 4] =
+            *(unsigned char *)&palette[index * 3 + 2];
 #ifndef WC1_SDL
-        entries[offset + 2] = value;
-        entries[offset + 3] = 0;
+        entries[index * 4 + 2] =
+            g_abPaletteCache_005c3450[index * 4];
+        entries[index * 4 + 3] = 0;
 #endif
-        g_abPaletteCache_005c3450[offset + 3] = 4;
-        offset = offset + 4;
-    } while (offset < 0x400);
+        g_abPaletteCache_005c3450[index * 4 + 3] = 4;
+    }
 
 #ifdef WC1_SDL
     DIBramPalette();
 #else
-    error = IDirectDrawPalette_SetEntries(
-        g_pDirectDrawPalette_0049ce9c, 0, 0, 0x100,
-        (LPPALETTEENTRY)entries);
-    if (error != 0)
-        DIBerror("DIBsetWholePalette   SetEntries", error);
+    if (g_bUseHardwarePalette_0049c268 != 0) {
+        error = IDirectDrawPalette_SetEntries(
+            g_pDirectDrawPalette_0049ce9c, 0, 0, 0x100,
+            (LPPALETTEENTRY)entries);
+        if (error != 0)
+            DIBerror("DIBsetWholePalette   SetEntries", error);
 
-    error = IDirectDrawSurface_SetPalette(
-        g_pPrimarySurface_0049ce94, g_pDirectDrawPalette_0049ce9c);
-    if (error != 0)
-        DIBerror("DIBmakeDIB   CreatePalette", error);
+        error = IDirectDrawSurface_SetPalette(
+            g_pPrimarySurface_0049ce94, g_pDirectDrawPalette_0049ce9c);
+        if (error != 0)
+            DIBerror("DIBmakeDIB   CreatePalette", error);
+    }
 #endif
 }
 

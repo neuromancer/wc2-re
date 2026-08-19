@@ -1584,7 +1584,7 @@ void new_space_music_changes(short attacker, short victim)
                      g_asShipMissionType_00495de8[0] ==
                          MISSION_TYPE_ESCORT) &&
                     g_nShipMissionIndices_0059c830[victim] ==
-                        g_anShipMissionShip_00495e00[0]) {
+                        g_asShipMissionParameter_00495e00[0]) {
                     spacetrack(11, 3, 0);
                     return;
                 }

@@ -6,6 +6,21 @@
  */
 #include "wc1.h"
 
+static short g_nTargetCameraGunCooldown_0049d33c;
+static ShortVector g_aaTargetCameraGunOffsets_0049d3c8[2][2];
+static const short g_asFleetMouseYawThresholds_0049d400[6] = {
+    10, 37, 52, 57, 62, 1070
+};
+static const short g_asFleetMousePitchThresholds_0049d410[6] = {
+    5, 18, 27, 35, 38, 1040
+};
+static signed char g_bFleetPolledInputActive_0049d420;
+static signed char g_bFleetButtonInputActive_0049d424;
+static short g_nFleetMouseYawVelocity_0049d428;
+static short g_nFleetMousePitchVelocity_0049d42c;
+static short g_bFleetPrimaryInputQueued_005c57dc;
+static short g_bFleetMouseMoveQueued_005c57ea;
+
 /* Function start: WC2_UNMAPPED */
 #ifdef WC1_SDL
 int RunWc1GameMain(short argc, char **argv)
@@ -506,24 +521,21 @@ void Update_3Space(void)
 }
 
 /* Function start: 0x465F3A */
-unsigned int TriggerPlayerHitPaletteFlash(void)
+void TriggerPlayerHitPaletteFlash(void)
 {
-    if (g_nCurrentView_00492fa8 <= 3)
+    if (g_nCurrentView_00492fa8 <= 4)
         g_asSpacePaletteFade_005d2d60[0] = 0x30;
-    return 0;
 }
 
 /* Function start: 0x465F5B */
-unsigned int FadeFlightPaletteEntry(short *entry)
+void FadeFlightPaletteEntry(short *entry)
 {
     if (entry[0] != 0) {
         entry[0] = (short)(entry[0] - 4);
         entry[1] = 0;
         entry[2] = 0;
-        return 0;
-    }
-    entry[1] = 0;
-    return 0;
+    } else
+        entry[1] = 0;
 }
 
 /* Function start: 0x465FA3 */
@@ -584,9 +596,10 @@ unsigned int house_keep(void)
     if (g_nCurrentView_00492fa8 == 0) {
         palette = 0;
         do {
-            FadeFlightPaletteEntry(g_aPaletteFadeEntries_005a76d0[palette]);
+            FadeFlightPaletteEntry(
+                g_aasCockpitHitPaletteFades_005d2cb0[palette]);
             SetPaletteEntry((short)(palette + 0xb9),
-                            g_aPaletteFadeEntries_005a76d0[palette]);
+                            g_aasCockpitHitPaletteFades_005d2cb0[palette]);
             palette++;
         } while (palette < 6);
         return 0;
@@ -664,11 +677,15 @@ void get_player_input(void)
 /* Function start: 0x4663A2 */
 void process_player_input(void)
 {
-    short *key;
-    short keys[4];
-    short handled;
     short finished;
     short shift;
+
+    {
+    short keys[4];
+
+    {
+    short *key;
+    short handled;
 
     handled = 0;
     finished = 0;
@@ -730,19 +747,19 @@ void process_player_input(void)
             break;
         case 0x50:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nPitchInput_004931a8 < 1) {
+            if (g_nPitchInput_004931a8 > 0) {
+                g_nPitchInput_004931a8 = 0;
+            } else {
                 if (shift != 0)
                     g_nPitchInput_004931a8 = -9;
-                if (g_nPitchInput_004931a8 < -8) {
+                if (g_nPitchInput_004931a8 > -9) {
+                    g_nPitchInput_004931a8--;
+                } else {
                     if (g_cPreviousKey_0049312c < 0)
                         g_nPitchInput_004931a8--;
                     else
                         g_nPitchInput_004931a8++;
-                } else {
-                    g_nPitchInput_004931a8--;
                 }
-            } else {
-                g_nPitchInput_004931a8 = 0;
             }
             handled = 1;
             break;
@@ -766,19 +783,19 @@ void process_player_input(void)
         case 0x33:
         case 0x52:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nRollInput_004931ac < 1) {
+            if (g_nRollInput_004931ac > 0) {
+                g_nRollInput_004931ac = 0;
+            } else {
                 if (shift != 0)
                     g_nRollInput_004931ac = -9;
-                if (g_nRollInput_004931ac < -8) {
+                if (g_nRollInput_004931ac > -9) {
+                    g_nRollInput_004931ac--;
+                } else {
                     if (g_cPreviousKey_0049312c < 0)
                         g_nRollInput_004931ac--;
                     else
                         g_nRollInput_004931ac++;
-                } else {
-                    g_nRollInput_004931ac--;
                 }
-            } else {
-                g_nRollInput_004931ac = 0;
             }
             handled = 1;
             break;
@@ -800,25 +817,27 @@ void process_player_input(void)
             break;
         case 0x4b:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nYawInput_004931aa < 1) {
+            if (g_nYawInput_004931aa > 0) {
+                g_nYawInput_004931aa = 0;
+            } else {
                 if (shift != 0)
                     g_nYawInput_004931aa = -9;
-                if (g_nYawInput_004931aa < -8) {
+                if (g_nYawInput_004931aa > -9) {
+                    g_nYawInput_004931aa--;
+                } else {
                     if (g_cPreviousKey_0049312c < 0)
                         g_nYawInput_004931aa--;
                     else
                         g_nYawInput_004931aa++;
-                } else {
-                    g_nYawInput_004931aa--;
                 }
-            } else {
-                g_nYawInput_004931aa = 0;
             }
             handled = 1;
             break;
         default:
             break;
         }
+    }
+    }
     }
 }
 
@@ -1152,63 +1171,241 @@ unsigned int SelectPreviousExternalViewObject(void)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int RunWc1FleetOverviewInput(void)
+/* Function start: 0x45E9F0 */
+short HandleFleetOverviewInput(void)
 {
-    signed char key;
+    InputEventState event;
+    short result;
+    int fired;
+    signed char discreteInput;
+    short eventType;
+    short horizontal;
+    short vertical;
+    short horizontalMagnitude;
+    short verticalMagnitude;
+    short threshold;
+    short notRepeated;
+    short pauseModifiers;
+    short unusedModifiers;
 
-    key = (signed char)g_cCurrentKey_00493128;
-    if (g_nCurrentView_00492fa8 != 8)
-        return 0;
-
-    g_cCurrentKey_00493128 = 0;
-    switch (key) {
-    case 0x1c:
-        g_cViewObject_0049313c--;
-        g_cCurrentKey_00493128 = 0x29;
-        break;
-    case 0x47:
-        g_nCapitalShipViewDistance_00492fa4 -= 0x3200;
-        break;
-    case 0x48:
-        rotate_about_i(-7,
-                       &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        break;
-    case 0x4b:
-        rotate_about_j(7,
-                       &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        break;
-    case 0x4d:
-        rotate_about_j(-7,
-                       &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        break;
-    case 0x4f:
-        g_nCapitalShipViewDistance_00492fa4 += 0x3200;
-        break;
-    case 0x50:
-        rotate_about_i(7,
-                       &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        break;
-    case 0x52:
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z = -0x100;
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].y = 0x100;
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].x = 0x100;
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].z = 0;
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT].x = 0;
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y = 0;
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x = 0;
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].z = 0;
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT].y = 0;
-        break;
-    default:
-        g_cCurrentKey_00493128 = (unsigned char)key;
-        break;
+    result = 0;
+    fired = 0;
+    g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
+    ServiceInputDevices(15);
+    g_bPolledFlightInputQueued_005c587a = IsInputEventQueued(7);
+    g_bFleetMouseMoveQueued_005c57ea = IsInputEventQueued(3);
+    g_bDiscreteFlightInputQueued_005c57e4 =
+        (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
+    g_bFleetPrimaryInputQueued_005c57dc = IsInputEventQueued(1);
+    discreteInput = 0;
+    if (g_bFleetMouseMoveQueued_005c57ea == 0)
+        g_cCurrentKey_00493128 |= (signed char)0x80;
+    if (g_bDiscreteFlightInputQueued_005c57e4 == 0) {
+        g_cCurrentKey_00493128 |= (signed char)0x80;
+        if (g_bPolledFlightInputQueued_005c587a == 0 &&
+            g_nCockpitControlState_0049d7ac == 0)
+            g_bFleetPolledInputActive_0049d420 = 0;
+    } else {
+        discreteInput = 1;
     }
-    return 0;
+    if (g_bFleetPrimaryInputQueued_005c57dc == 0 &&
+        g_stHostMouseMessage_005d10d0.primaryButton != 0) {
+        g_cCurrentKey_00493128 = 0x39;
+        fired = 1;
+    }
+    if (g_bFleetPrimaryInputQueued_005c57dc == 0)
+        g_bFleetButtonInputActive_0049d424 = 0;
+
+    while ((eventType = GetNextInputEvent(&event)) != 0) {
+        switch (eventType) {
+        case 3:
+            if (g_nCockpitControlState_0049d7ac == 0) {
+                SetPersonnelMousePosition(
+                    (short)((g_stViewBuffer_005d2b00.left +
+                             g_stViewBuffer_005d2b00.right) / 2),
+                    (short)((g_stViewBuffer_005d2b00.top +
+                             g_stViewBuffer_005d2b00.bottom) / 2));
+                g_nCockpitControlState_0049d7ac = 1;
+                g_nUiCursorFrame_005c8481 = 2;
+            }
+            horizontal = (short)(
+                event.x -
+                (g_stViewBuffer_005d2b00.right -
+                 g_stViewBuffer_005d2b00.left) / 2 + 1);
+            vertical = (short)(
+                event.y -
+                (g_stViewBuffer_005d2b00.bottom -
+                 g_stViewBuffer_005d2b00.top) / 2);
+            g_nPersonnelCursorX_005c8470 = event.x;
+            g_nPersonnelCursorY_005c8472 = event.y;
+            horizontalMagnitude = (short)labs((long)horizontal);
+            verticalMagnitude = (short)labs((long)vertical);
+            threshold = 0;
+            while (g_asFleetMouseYawThresholds_0049d400[threshold] <=
+                   horizontalMagnitude)
+                threshold++;
+            if (horizontal < 0)
+                horizontal = (short)-threshold;
+            else
+                horizontal = threshold;
+            threshold = 0;
+            while (g_asFleetMousePitchThresholds_0049d410[threshold] <=
+                   verticalMagnitude)
+                threshold++;
+            if (vertical < 0)
+                vertical = (short)-threshold;
+            else
+                vertical = threshold;
+            if ((int)event.x - 4 <=
+                (int)g_stViewBuffer_005d2b00.left)
+                horizontal = -8;
+            if ((int)event.x + 4 >=
+                (int)g_stViewBuffer_005d2b00.right)
+                horizontal = 8;
+            if ((int)event.y - 4 <=
+                (int)g_stViewBuffer_005d2b00.top)
+                vertical = -8;
+            if ((int)event.y + 4 >=
+                (int)g_stViewBuffer_005d2b00.bottom)
+                vertical = 8;
+            if (horizontal >= 9)
+                horizontal = 8;
+            if (horizontal <= -9)
+                horizontal = -8;
+            if (vertical >= 9)
+                vertical = 8;
+            if (vertical <= -9)
+                vertical = -8;
+            g_nFleetMouseYawVelocity_0049d428 =
+                (short)-horizontal;
+            g_nFleetOverviewYawVelocity_0049d3ec =
+                g_nFleetMouseYawVelocity_0049d428;
+            g_nFleetMousePitchVelocity_0049d42c = vertical;
+            g_nFleetOverviewPitchVelocity_0049d3f0 =
+                g_nFleetMousePitchVelocity_0049d42c;
+            break;
+        case 7:
+            g_nCockpitControlState_0049d7ac = 0;
+            if (g_nTargetCameraFrame_0049d3e8 == 0) {
+                g_nFleetOverviewYawVelocity_0049d3ec =
+                    (short)-g_stCurrentFlightInput_0049d7b0.x;
+                g_nFleetOverviewPitchVelocity_0049d3f0 =
+                    (short)-g_stCurrentFlightInput_0049d7b0.y;
+            }
+            break;
+        case 1:
+            g_nCockpitControlState_0049d7ac = 0;
+            g_cCurrentKey_00493128 = 0x39;
+            fired = 1;
+            break;
+        case 5:
+            g_nCockpitControlState_0049d7ac = 0;
+            g_nFleetOverviewYawVelocity_0049d3ec = 0;
+            g_nFleetOverviewPitchVelocity_0049d3f0 =
+                g_nFleetOverviewYawVelocity_0049d3ec;
+            break;
+        case 6:
+            result = 1;
+        case 4:
+            g_nCockpitControlState_0049d7ac = 0;
+            g_nCockpitControlGoal_0049d7d0 = 0;
+            g_cCurrentKey_00493128 = (signed char)event.status;
+            notRepeated =
+                g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
+                result == 0;
+            pauseModifiers =
+                (short)(g_wInputDeviceButtonState_005c8432 & 0x1800);
+            unusedModifiers =
+                (short)(g_wInputDeviceButtonState_005c8432 & 0x600);
+            switch ((signed char)g_cCurrentKey_00493128) {
+            case 0x1c:
+            case 0x39:
+                g_cCurrentKey_00493128 = 0x39;
+                fired = 1;
+                break;
+            case 0x50:
+                if (g_nFleetOverviewPitchVelocity_0049d3f0 > -8)
+                    g_nFleetOverviewPitchVelocity_0049d3f0--;
+                break;
+            case 0x48:
+                if (g_nFleetOverviewPitchVelocity_0049d3f0 < 8)
+                    g_nFleetOverviewPitchVelocity_0049d3f0++;
+                break;
+            case 0x4b:
+                if (g_nFleetOverviewYawVelocity_0049d3ec < 8)
+                    g_nFleetOverviewYawVelocity_0049d3ec++;
+                break;
+            case 0x4d:
+                if (g_nFleetOverviewYawVelocity_0049d3ec > -8)
+                    g_nFleetOverviewYawVelocity_0049d3ec--;
+                break;
+            case 0x26:
+                if (g_cPreviousKey_0049312c !=
+                    g_cCurrentKey_00493128) {
+                    g_bTargetLockMode_00493500 =
+                        (short)(g_bTargetLockMode_00493500 == 0);
+                    PlaySfxWaveFileByNumber(0x19, -1, 0);
+                }
+                break;
+            case 0x14:
+                if (g_cPreviousKey_0049312c !=
+                    g_cCurrentKey_00493128)
+                    cycle_onscreen_targets();
+                break;
+            case 0x22:
+                ClearTargetCameraView();
+            case 0x3b:
+            case 0x3c:
+            case 0x3d:
+            case 0x3e:
+            case 0x3f:
+            case 0x40:
+            case 0x41:
+                break;
+            case 0x19:
+                ShowGamePausedBanner(pauseModifiers < 1);
+            default:
+                g_cCurrentKey_00493128 = (signed char)0x80;
+                break;
+            }
+            break;
+        }
+    }
+
+    if (g_nTargetCameraMode_005c8d50 == 0) {
+        if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
+            (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0)
+            g_cCurrentKey_00493128 = 0x39;
+    } else if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
+               (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0 &&
+               (g_stPreviousFlightInput_005c57d0.buttons & 1) == 0) {
+        g_cCurrentKey_00493128 = 0x39;
+    }
+    if (g_nTargetCameraMode_005c8d50 == 0 &&
+        (g_cCurrentKey_00493128 & 0x80) != 0 &&
+        (g_wPendingInputButtons_005c80d4 & 1) != 0)
+        g_cCurrentKey_00493128 = 0x39;
+    if (g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
+        g_cCurrentKey_00493128 == 0x39) {
+        if (g_nTargetCameraMode_005c8d50 == 0) {
+            FireTargetCameraGuns();
+        } else if (g_nTargetCameraZoom_0049d3e4 >= 0x21 &&
+                   g_nTargetCameraFrame_0049d3e8 == 0) {
+            ToggleTargetCameraTracking();
+        }
+        g_cCurrentKey_00493128 = (signed char)0x80;
+    }
+    if (g_nTargetCameraFrame_0049d3e8 == 1 &&
+        (g_nCurrentView_00492fa8 != 4 ||
+         g_nTargetCameraMode_005c8d50 != 1 || fired == 0))
+        ClearTargetCameraView();
+    g_stPreviousFlightInput_005c57d0 =
+        g_stCurrentFlightInput_0049d7b0;
+    if (g_nTargetCameraGunCooldown_0049d33c > 0)
+        g_nTargetCameraGunCooldown_0049d33c--;
+    else
+        g_nTargetCameraGunCooldown_0049d33c = 0;
+    return result;
 }
 
 /* Function start: 0x45F200 */
@@ -1266,4 +1463,105 @@ void UpdateFleetOverviewCameraRotation(void)
                     g_nFleetOverviewPitchVelocity_0049d3f0);
     }
     fix_objects_ijk(WC2_EYE_OBJECT);
+}
+
+/* Function start: 0x45F439 */
+void FireTargetCameraGuns(void)
+{
+    short projectileSpeed;
+    short projectileType;
+    short shot;
+    short projectile;
+    ObjectTypeData *projectileData;
+    FixedVector direction;
+    short leadDistance;
+
+    projectileSpeed = 10;
+    projectileType = 8;
+    if (g_nGunDisplayEnergyPercent_005c8d4e > 0 &&
+        g_nTargetCameraGunCooldown_0049d33c < 1) {
+        shot = 0;
+        while (shot < 2) {
+            projectile = new_object(projectileType, 0);
+            if (projectile != -1) {
+                g_abProjectileCollisionBonus_004960a8[projectile] = 1;
+                projectileData =
+                    &g_aObjectTypeData_00496d30[projectileType];
+                copy_frame(WC2_EYE_OBJECT, projectile);
+                g_asObjectDamage_00495178[projectile] =
+                    projectileData->damageCapacity;
+                projectileSpeed = (short)(
+                    g_aObjectTypeData_00496d30[
+                        g_acObjectType_00493980[projectile]]
+                        .maximumVelocity * 2);
+                g_nGunDisplayEnergyPercent_005c8d4e =
+                    (short)(g_nGunDisplayEnergyPercent_005c8d4e -
+                            projectileData->animationDelay / 2);
+                g_aShipPosition_00494550[projectile].x =
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].y *
+                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].z *
+                        g_aShipForwardVector_00494208[
+                            WC2_EYE_OBJECT].x +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].x *
+                        g_aShipRightVector_00493b78[
+                            WC2_EYE_OBJECT].x +
+                    g_aShipPosition_00494550[WC2_EYE_OBJECT].x;
+                g_aShipPosition_00494550[projectile].y =
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].y *
+                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].z *
+                        g_aShipForwardVector_00494208[
+                            WC2_EYE_OBJECT].y +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].x *
+                        g_aShipRightVector_00493b78[
+                            WC2_EYE_OBJECT].y +
+                    g_aShipPosition_00494550[WC2_EYE_OBJECT].y;
+                g_aShipPosition_00494550[projectile].z =
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].y *
+                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].z *
+                        g_aShipForwardVector_00494208[
+                            WC2_EYE_OBJECT].z +
+                    g_aaTargetCameraGunOffsets_0049d3c8[
+                        g_nGunDisplayIndex_005c8dc0][shot].x *
+                        g_aShipRightVector_00493b78[
+                            WC2_EYE_OBJECT].z +
+                    g_aShipPosition_00494550[WC2_EYE_OBJECT].z;
+                g_asObjectCounter_00494be0[projectile] =
+                    projectileData->lifetime;
+                zero_vector(&g_aShipVelocity_00494898[projectile]);
+                direction =
+                    g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+                NormalizeFixedVector(&direction);
+                leadDistance = (short)(
+                    (projectileData->lifetime + 5) *
+                    projectileData->maximumVelocity);
+                ScaleFixedVector(
+                    &direction, (int)leadDistance << 8, &direction);
+                AddFixedVectors(
+                    &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                    &direction, &direction);
+                point_at(projectile, direction);
+                ScaleFixedVector(
+                    &g_aShipForwardVector_00494208[projectile],
+                    (int)projectileSpeed << 8, &direction);
+                g_aShipVelocity_00494898[projectile] = direction;
+                RecordCannedSceneObjectEvent(projectile, 0);
+                g_nTargetCameraGunCooldown_0049d33c =
+                    (short)(g_acGunRefireDelay_00492e1c[
+                                projectileType - 7] >> 1);
+                PlaySfxWaveFileByNumber(8, projectile, 0);
+            }
+            shot++;
+        }
+    }
 }

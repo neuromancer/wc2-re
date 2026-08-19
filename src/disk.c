@@ -1792,6 +1792,21 @@ short WaitForStreamInputKey(void)
     return key;
 }
 
+/* Function start: 0x410020 */
+short CountShipProjectiles(short ship)
+{
+    short count;
+    short obj;
+
+    count = 0;
+    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_PROJECTILE &&
+            g_acObjectOwner_00495208[obj] == ship)
+            count++;
+    }
+    return count;
+}
+
 /* Function start: 0x410102 */
 short CanShipWeaponDamageTarget(short ship, short target)
 {
@@ -1835,10 +1850,11 @@ short ShipHasTorpedo(short ship)
 }
 
 /* Function start: 0x4103A6 */
-short initialize_object(short obj, enum ObjectType type, short owner)
+short initialize_object(short obj, short type, short owner,
+                        short matchLoadedType)
 {
     if (obj != -1) {
-        set_objects_data(obj, type, owner, 0);
+        set_objects_data(obj, type, owner, matchLoadedType);
         zero_vector(&g_aShipPosition_00494550[obj]);
         zero_vector(&g_aShipVelocity_00494898[obj]);
     }
@@ -1906,23 +1922,24 @@ short borrow_dust(void)
 }
 
 /* Function start: 0x4105BF */
-short new_object(enum ObjectType type, short owner)
+short new_object(short type, short owner)
 {
     short obj;
 
     obj = find_vacant_3d_object();
     if (obj == -1 && owner == 0)
         obj = borrow_dust();
-    return initialize_object(obj, type, owner);
+    return initialize_object(obj, type, owner, 0);
 }
 
 /* Function start: 0x41062D */
-short initialize_ship(enum ObjectType type, short owner)
+short initialize_ship(short type, short owner,
+                      short matchLoadedType)
 {
     short obj = get_ship_slot();
 
     if (obj != -1) {
-        initialize_object(obj, type, owner);
+        initialize_object(obj, type, owner, matchLoadedType);
         g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
     }
     return obj;
@@ -2036,7 +2053,7 @@ void InitializeShipWeaponTypeIndices(short obj)
 }
 
 /* Function start: 0x410999 */
-void set_objects_data(short obj, enum ObjectType type, short owner,
+void set_objects_data(short obj, short type, short owner,
                       short matchObjectClass)
 {
     ObjectTypeData *typeData;
@@ -2047,6 +2064,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
     short weapon;
 
     g_asObjectCreationFrame_005d3900[obj] = g_nSpaceFrame_00493134;
+    g_abProjectileCollisionBonus_004960a8[obj] = 0;
     if (type == OBJECT_TYPE_SPACE_DUST) {
         g_acObjectType_00493980[obj] = type;
         g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;
@@ -2094,7 +2112,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
     g_asShipAccumulatedDamage_0059dee0[obj] = zero;
     objectClass = g_aeObjectClass_00495328[obj];
     g_asObjectFlip_004939c8[obj] = zero;
-    g_acLastCollisionObject_0059d6a0[obj] = -1;
+    g_acLastCollisionObject_00495250[obj] = -1;
     g_asObjectScreenAngle_004936b8[obj] = zero;
 
     if (objectClass >= OBJECT_CLASS_MISSILE) {
@@ -2112,7 +2130,7 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
             g_aasShipArmor_00495540[obj][3] = typeData->armorRight;
             g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
             g_anShipFuel_00495638[obj] = *(int *)&typeData->lifetime;
-            g_acShipIonDriveDamage_0059d4a0[obj] = (signed char)zero;
+            g_acShipIonDriveDamage_004956a0[obj] = (signed char)zero;
             g_acShipDamage_0059c460[obj] = (signed char)zero;
             recalc_max_velocity(obj);
             DAT_0059cf00[obj] = 4;
@@ -2156,8 +2174,8 @@ void set_objects_data(short obj, enum ObjectType type, short owner,
         g_asObjectViewFrame_00493508[obj] = typeData->yawRate;
         return;
     }
-    g_asObjectAnimationDelay_0059b660[obj] = 1;
-    g_asObjectAnimationIndex_0059da30[obj] = 0;
+    g_acObjectAnimationDelay_00494d00[obj] = 1;
+    g_asObjectAnimationIndex_00494c70[obj] = 0;
     animate_shape(obj);
 }
 
@@ -2241,7 +2259,7 @@ void rotate_object_to_goal(short obj)
 /* Function start: 0x4117AC */
 unsigned int celerate(short ship, int delta)
 {
-    int maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[ship] << 8;
+    int maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[ship] << 8;
     int speed;
 
     speed = g_anShipSpeed_0059b320[ship] + delta;

@@ -1872,7 +1872,7 @@ short RunWc1GameFlow(void)
         (short)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x5a);
     Briefing((short)g_stCampaignState_0059ca50.currentSeries,
              (short)g_stCampaignState_0059ca50.currentMission);
-    PlayScrambleHangarScene();
+    UpdateTargetCameraObject(0);
     g_nPlayerShipType_00493464 =
         g_aMissionShips_00492290[
             g_stMissionHeader_005d3e70.playerMissionShip].type;

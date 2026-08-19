@@ -6,6 +6,10 @@
  */
 #include "wc1.h"
 
+#ifndef WC1_SDL
+#pragma function(abs)
+#endif
+
 /* Function start: 0x417550 */
 void SaveGamePalette(void)
 {
@@ -110,31 +114,15 @@ static const signed char g_acHazardPitchRange_00465050[8] = {
 /* Function start: 0x417838 */
 void remove_hazard(signed char hazard)
 {
-#if 0
-    g_aiSoundEffectSourceActive_005a66ec[(short)hazard + 1] = 0;
     remove_object((short)hazard);
     g_nActiveHazards_00492e5c =
         MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
-#else
-    remove_object((short)hazard);
-    g_nActiveHazards_00492e5c =
-        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
-#endif
+    RecordCannedSceneObjectEvent((short)hazard, 1);
 }
 
 /* Function start: 0x41787A */
 void remove_all_hazards(void)
 {
-#if 0
-    short slot = 0;
-
-    do {
-        remove_hazard(g_abHazardObjects_00493280[slot]);
-        g_abHazardObjects_00493280[slot] = -1;
-        slot++;
-    } while (slot < 20);
-    g_pActiveHazardField_00493278 = 0;
-#else
     short slot;
 
     for (slot = 0; slot < 20; slot++) {
@@ -144,7 +132,6 @@ void remove_all_hazards(void)
         }
     }
     g_pActiveHazardField_00493278 = 0;
-#endif
 }
 
 /* Function start: 0x4178E5 */
@@ -186,45 +173,38 @@ void skew_randomly(short obj, short allowReverse)
 /* Function start: 0x417AD7 */
 void align(int *value, short quantum)
 {
-#if 0
-    short current;
-
-    current = *(short *)value;
-    current = (short)(current - current % quantum);
-    *(short *)value = current;
-#else
     *value -= *value % quantum;
-#endif
 }
 
 /* Function start: 0x417AF9 */
 void init_hazard(short obj, FixedVector position, short moving)
 {
-    enum ObjectType type;
+    short type;
     FixedVector vector;
     short hazardMoves;
     short travelTime;
     short speed;
 
     hazardMoves = moving;
-    type = OBJECT_TYPE_SPACE_MINE;
-    if (g_pActiveHazardField_00493278->type == OBJECT_TYPE_ASTEROID_FIELD)
-        type = (enum ObjectType)(OBJECT_TYPE_ASTEROID1 +
-                                RandomBelowOrEqual(5));
+    if (g_pActiveHazardField_00493278->type ==
+        WC2_OBJECT_TYPE_ASTEROID_FIELD) {
+        type = (short)(WC2_OBJECT_TYPE_ASTEROID1 +
+                       RandomBelowOrEqual(5));
+    } else {
+        type = WC2_OBJECT_TYPE_SPACE_MINE;
+    }
     set_objects_data(obj, type, -1, 0);
     g_aShipPosition_00494550[obj] = position;
 
-    if (type == OBJECT_TYPE_SPACE_MINE) {
-        point_at(obj, g_aShipPosition_00494550[0]);
-        speed = 2;
-        skew_randomly(obj, 1);
+    if (type == WC2_OBJECT_TYPE_SPACE_MINE) {
         hazardMoves = 0;
+        point_at(obj, g_aShipPosition_00494550[0]);
+        skew_randomly(obj, 1);
+        speed = 2;
+        hazardMoves = (short)(speed != 0);
     } else if (hazardMoves != 0) {
-        travelTime = 65;
-        if (g_cCockpitView_0059dab0 < 4)
-            travelTime = g_acHazardTravelTimeByView_00465048[
-                g_cCockpitView_0059dab0];
-        travelTime = (short)(travelTime + RandomBelowOrEqual(15));
+        travelTime = (short)(RandomBelowOrEqual(15) +
+                             g_cHazardBaseTravelTime_0049af94);
         if (g_bUseEyePositionForHazards_0049327c != 0) {
             travelTime = (short)(travelTime -
                                  RandomBelowOrEqual(difficulty()));
@@ -258,7 +238,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     if (hazardMoves == 0) {
         int separation;
 
-        if (type == OBJECT_TYPE_ASTEROID_FIELD)
+        if (type == WC2_OBJECT_TYPE_ASTEROID_FIELD)
             separation = 1500;
         else
             separation = RandomBelowOrEqual(1000) << 8;
@@ -267,18 +247,18 @@ void init_hazard(short obj, FixedVector position, short moving)
         SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
                              &g_aShipPosition_00494550[obj]);
     }
-    if (type == OBJECT_TYPE_SPACE_MINE) {
+    if (type == WC2_OBJECT_TYPE_SPACE_MINE) {
         align(&g_aShipPosition_00494550[obj].x, 200);
         align(&g_aShipPosition_00494550[obj].y, 200);
         align(&g_aShipPosition_00494550[obj].z, 200);
     }
-    g_nActiveHazards_00492e5c++;
+    g_acObjectCollisionGraceTicks_00494d48[obj] = 0;
     g_asObjectCounter_00494be0[obj] = 0;
-    g_acObjectCollisionGraceTicks_0059ddb0[obj] = 0;
+    g_nActiveHazards_00492e5c++;
 }
 
 /* Function start: 0x417EA4 */
-int near_field(const HazardField *field, const FixedVector *point)
+short near_field(const HazardField *field, const FixedVector *point)
 {
     return IsPointWithinRange((FixedVector *)&field->center,
                               (FixedVector *)point,
@@ -347,15 +327,19 @@ short rear_sphere(void)
 }
 
 /* Function start: 0x4181A2 */
-int ok_hazard_spot(short obj)
+short ok_hazard_spot(short obj)
 {
-    int range = 4300;
+    int range;
+    short result;
 
     if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
         range = rear_sphere();
-    return IsPointWithinRange(&g_aShipPosition_00494550[0],
-                              &g_aShipPosition_00494550[obj],
-                              (short)range);
+    else
+        range = 4300;
+    result = IsPointWithinRange(&g_aShipPosition_00494550[0],
+                                &g_aShipPosition_00494550[obj],
+                                (short)range);
+    return result;
 }
 
 /* Function start: 0x41820B */
@@ -367,6 +351,7 @@ short make_hazard(void)
 
     if (obj != -1 && try_far_spot(&spot, &moving) != 0) {
         init_hazard(obj, spot, moving);
+        RecordCannedSceneObjectEvent(obj, 0);
     } else
         obj = -1;
     return obj;
@@ -382,16 +367,17 @@ void extra_hazard(short obj)
 /* Function start: 0x4182B6 */
 void approach(short obj)
 {
-    FixedVector target;
-    FixedVector thrust;
+    FixedVector vector;
 
-    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &target);
-    AddFixedVectors(&g_aShipPosition_00494550[0], &target, &target);
-    point_at(obj, target);
+    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &vector);
+    AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
+    point_at(obj, vector);
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
-                     &thrust);
-    AddFixedVectors(&g_aShipVelocity_00494898[obj], &thrust,
+                     &vector);
+    AddFixedVectors(&g_aShipVelocity_00494898[obj], &vector,
                     &g_aShipVelocity_00494898[obj]);
+    if (g_nCannedSceneMode_0049021c == 0)
+        RecordCannedSceneObjectEvent(obj, 3);
 }
 
 /* Function start: 0x41836E */
@@ -427,21 +413,21 @@ void match_ship_to_eye(void)
 /* Function start: 0x4184F6 */
 void update_hazards(void)
 {
+    short emptySlot;
     short slot;
-    short emptySlot = -1;
+
+    emptySlot = -1;
 
     if (g_bUseEyePositionForHazards_0049327c != 0)
         match_ship_to_eye();
     else
         g_nHazardReferenceSpeed_00492e58 = real_velocity(0);
-    slot = 0;
-    do {
+    for (slot = 0; slot < 20; slot++) {
         if (g_abHazardObjects_00493280[slot] != -1)
             manage_hazard((short)g_abHazardObjects_00493280[slot], slot);
         else
             emptySlot = slot;
-        slot++;
-    } while (slot < 20);
+    }
     if (emptySlot != -1 &&
         RandomBelowOrEqual(215) <
             (short)g_nHazardReferenceSpeed_00492e58 + 30)
@@ -451,16 +437,6 @@ void update_hazards(void)
 /* Function start: 0x4185CC */
 void start_hazard_field(short region)
 {
-#if 0
-    short slot;
-
-    remove_all_hazards();
-    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
-    slot = 1;
-    do {
-        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
-    } while (slot++ < 3);
-#else
     short slot;
 
     slot = 0;
@@ -468,7 +444,6 @@ void start_hazard_field(short region)
     g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
     while (slot++ < 3)
         g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
-#endif
 }
 
 /* Function start: 0x418626 */
@@ -497,16 +472,14 @@ void check_hazards(void)
     if (g_bUseEyePositionForHazards_0049327c != 0)
         return;
     if (g_pActiveHazardField_00493278 == 0) {
-        region = 0;
         field = g_aHazardFields_004931d8;
-        while (region < g_nHazardFieldCount_004931d0) {
+        for (region = 0; g_nHazardFieldCount_004931d0 > region;
+             region++, field++) {
             if (field != g_pActiveHazardField_00493278 &&
                 near_field(field, &g_aShipPosition_00494550[0]) != 0) {
                 start_hazard_field(region);
                 return;
             }
-            region++;
-            field++;
         }
     } else if (near_field(g_pActiveHazardField_00493278,
                           &g_aShipPosition_00494550[0]) == 0) {
@@ -927,7 +900,7 @@ unsigned int PumpWindowMessages(int skipMessages)
     return g_bMainWindowRunning_005d12ac;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x453C80 */
 unsigned int GetF1KeyLatch(void)
 {
     return g_bF1KeyDown_0049c240;

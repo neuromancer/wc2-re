@@ -125,23 +125,20 @@ short get_ship_max_velocity(short obj)
 }
 
 /* Function start: 0x40A481 */
-short recalc_max_velocity(short ship)
+void recalc_max_velocity(short ship)
 {
     short oldVelocity;
-    short maximumVelocity;
 
-    oldVelocity = g_asShipMaximumSpeed_0059c440[ship];
-    if (g_anShipFuel_00495638[ship] <= 0) {
-        g_asShipMaximumSpeed_0059c440[ship] = 5;
+    oldVelocity = g_asShipMaximumVelocity_00495f70[ship];
+    if (g_anShipFuel_00495638[ship] < 1) {
+        g_asShipMaximumVelocity_00495f70[ship] = 5;
     } else {
-        maximumVelocity = get_ship_max_velocity(ship);
-        g_asShipMaximumSpeed_0059c440[ship] =
-            (short)(((int)maximumVelocity *
-                     (4 - (int)g_acShipIonDriveDamage_0059d4a0[ship])) >> 2);
+        g_asShipMaximumVelocity_00495f70[ship] =
+            (short)(((4 - (int)g_acShipIonDriveDamage_004956a0[ship]) *
+                     (int)get_ship_max_velocity(ship)) >> 2);
     }
-    if (g_asShipMaximumSpeed_0059c440[ship] != oldVelocity)
+    if (g_asShipMaximumVelocity_00495f70[ship] != oldVelocity)
         celerate(ship, 0);
-    return 0;
 }
 
 /* Function start: 0x40A51D */
@@ -159,7 +156,7 @@ void damage_ion_drive(short ship, short amount, short maximum)
     volatile signed char *ionDriveDamage;
     int damage;
 
-    ionDriveDamage = &g_acShipIonDriveDamage_0059d4a0[ship];
+    ionDriveDamage = &g_acShipIonDriveDamage_004956a0[ship];
     damage = (int)*ionDriveDamage;
     damage += amount;
     if (damage >= maximum)
@@ -169,8 +166,8 @@ void damage_ion_drive(short ship, short amount, short maximum)
     *ionDriveDamage = (signed char)damage;
     recalc_max_velocity(ship);
 #else
-    g_acShipIonDriveDamage_0059d4a0[ship] = (signed char)MaxShort(
-        0, MinShort((short)(g_acShipIonDriveDamage_0059d4a0[ship] + amount),
+    g_acShipIonDriveDamage_004956a0[ship] = (signed char)MaxShort(
+        0, MinShort((short)(g_acShipIonDriveDamage_004956a0[ship] + amount),
                     maximum));
     recalc_max_velocity(ship);
 #endif
@@ -339,9 +336,7 @@ int IsPairEqualityDifferentFromFlag(const unsigned int *values)
 /* Function start: 0x40AA0B */
 void zero_vector(FixedVector *vector)
 {
-    vector->z = 0;
-    vector->y = 0;
-    vector->x = 0;
+    vector->x = vector->y = vector->z = 0;
 }
 
 /* Function start: 0x40AA37 */
@@ -974,7 +969,7 @@ short check_for_collision(short obj)
             g_aeObjectClass_00495328[(int)other] >=
                 OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
-                               &g_vCollisionDelta_0059d690);
+                               &g_vCollisionDelta_00493178);
             range = (short)(
                 g_asObjectCollisionRadius_004950e8[(int)other] +
                 g_asObjectCollisionRadius_004950e8[objectIndex]);
@@ -982,7 +977,7 @@ short check_for_collision(short obj)
                     OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_SHIP)
                 range >>= 1;
-            if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
+            if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
                                     range) != 0)
                 return other;
         }
@@ -1003,13 +998,13 @@ short check_for_collision(short obj)
         if (other != obj &&
             g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
-                               &g_vCollisionDelta_0059d690);
+                               &g_vCollisionDelta_00493178);
             range = (short)(g_asObjectCollisionRadius_004950e8[other] +
                             g_asObjectCollisionRadius_004950e8[obj]);
             if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
                 range >>= 1;
-            if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
+            if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
                                     range) != 0)
                 return other;
         }
@@ -1106,7 +1101,7 @@ void remove_object(short obj)
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP)
             FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
         g_acShipRating_0059cd80[obj] = -1;
-        g_acWingmanMessageState_0059d2c0[obj] = -1;
+        g_acShipPendingMessage_00495d98[obj] = -1;
         g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
         g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         clear_alert(obj);

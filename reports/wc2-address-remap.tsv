@@ -1,4 +1,12 @@
 source_file	source_line	wc1_address	wc2_address	source_name	mapping_name	evidence	review_flags	status
+src/brains.c	4132		00446395	chaff_intelligence	chaff_intelligence	WC2-only		wc2-only
+src/disk.c	1795		00410020	CountShipProjectiles	CountShipProjectiles	WC2-only		wc2-only
+src/ship.c	1764		0041596F	HasShipActiveMissile	HasShipActiveMissile	WC2-only		wc2-only
+src/brains.c	3649		00445087	capital_ship_strike_mission	capital_ship_strike_mission	WC2-only		wc2-only
+src/brains.c	3612		00444F53	SpawnCapitalFlakProjectile	SpawnCapitalFlakProjectile	WC2-only		wc2-only
+src/brains.c	3222		00443E8C	split_patrol_mission	split_patrol_mission	WC2-only		wc2-only
+src/logic.c	2658		004564F0	has_opposing_ship	has_opposing_ship	WC2-only		wc2-only
+src/logic.c	2671		0045655D	launch_carrier_fighter	launch_carrier_fighter	WC2-only		wc2-only
 src/system.c	119		00465730	WaitForQueuedInputPress	WaitForQueuedInputPress	WC2-only		wc2-only
 src/disk.c	50		0040926E	LoadSceneHotspotBoundsForSelection	LoadSceneHotspotBoundsForSelection	WC2-only		wc2-only
 src/logic.c	1201		00428E00	GetMissionShipPilotSaveIndex	GetMissionShipPilotSaveIndex	WC2-only		wc2-only
@@ -93,7 +101,7 @@ src/brains.c	953	004075C0	004424CD	Mreset	ShipAiState03	WC1-fuzzy-followup		mapp
 src/brains.c	959	004075D0	004424E4	perform_maneuver	perform_maneuver	WC1-fuzzy-followup		mapped
 src/brains.c	1108	00407710	00447170	GetShapeFrameExtent	GetShapeFrameExtent	WC1-fuzzy-followup		mapped
 src/brains.c	1119	00407750		AnimateScrambleWalk				unmapped
-src/brains.c	1204	004079C0	00460650	PlayScrambleHangarScene	BlitUiFn79C0	WC1-fuzzy-very-low		mapped
+src/brains.c			00460650	UpdateTargetCameraObject	UpdateTargetCameraObject	WC2-only		wc2-only
 src/brains.c	1296	00407C90		DrawScrambleActor				unmapped
 src/brains.c	1355	00407D90		ConfigureScrambleActor				unmapped
 src/brains.c	1377	00407E10		DrawScrambleFrame				unmapped
@@ -1003,7 +1011,7 @@ src/main.c	895		00466AD2	IsInputEventQueued	IsInputEventQueued	WC2-only		wc2-onl
 src/main.c	769	004285D0	00466B02	player_input	player_input	WC1-fuzzy-followup		mapped
 src/main.c	1029	00428C90	00465E25	SelectNextExternalViewObject	SelectNextExternalViewObject	WC1-fuzzy-medium		mapped
 src/main.c	1060	00428CD0		SelectPreviousExternalViewObject				unmapped
-src/main.c	1204	00428D10		RunWc1FleetOverviewInput				unmapped
+src/main.c	1178		0045E9F0	HandleFleetOverviewInput	HandleFleetOverviewInput	WC2-only		wc2-only
 src/main.c	1263		0045F200	UpdateFleetOverviewCameraRotation	UpdateFleetOverviewCameraRotation	WC2-only		wc2-only
 src/mathfp.c	11	00434CD0	004618E0	RandomBelow	DoLocalFn4CD0	WC1-fuzzy-medium		mapped
 src/mathfp.c	17	00434CF0	004618FF	SeedRandomFromClock	DoLocalFn4CF0	WC1-auto-vt		mapped
@@ -1414,6 +1422,7 @@ src/ship.c	1079	00420040		ResolveWc1ObjectDestruction				unmapped
 src/ship.c	1143		00414835	explode	explode	WC2-only		wc2-only
 src/ship.c	1164		004148F5	ResolveObjectDestruction	ResolveObjectDestruction	WC2-only		wc2-only
 src/ship.c	1771		00446710	BeginShipDestructionSequence	BeginShipDestructionSequence	WC2-only		wc2-only
+src/ship.c	1798		00446823	SpawnMissionEjectionPod	SpawnMissionEjectionPod	WC2-only		wc2-only
 src/ship.c	1143	00420190	00414BE9	send_at_point	send_at_point	WC1-order-callgraph-verified		mapped
 src/ship.c	1153	004201D0	00414C39	find_child_object	find_child_object	WC1-order-semantics-verified		mapped
 src/ship.c	1166		00410161	IsCapitalShipObject	IsCapitalShipObject	WC2-only		wc2-only
@@ -1530,6 +1539,7 @@ src/sysinput.c	104	004030D0	00455F59	WriteDebugString	WriteDebugString	WC1-manua
 src/sysinput.c	124	004030E0	00455FD3	SetInputCursorHostPosition	SetInputCursorHostPosition	WC1-manual-verified		mapped
 src/system.c	9	00427080		RunTrainSim				unmapped
 src/system.c	105	004272F0	0046579D	LogMemoryUsage	LogMemoryUsage	WC1-callgraph-propagated	WC1-review-module-mismatch	mapped
+src/system.c	191		0046589D	AdjustSpaceFramePeriod	AdjustSpaceFramePeriod	WC2-only		wc2-only
 src/system.c	125	00427370	00437AB4	exit_squadron	exit_squadron	WC1-callgraph-propagated		mapped
 src/system.c	146	004273C0	00437AEC	ShowMemoryStatusDebug	ShowMemoryStatusDebug	WC1-fuzzy-very-low		mapped
 src/system.c	173	004274C0		GetJoystickButtonEdge				unmapped
@@ -1573,7 +1583,7 @@ src/winmain.c	700	004020E0	0045418B	ShowNoticeMessageBox	ShowNoticeMessageBox	WC
 src/winmain.c	708	00402110	0045422D	AbortToDesktop	AbortToDesktop	WC1-fuzzy-medium		mapped
 src/winmain.c	734	00402180	004542B7	CreateMainWindow	CreateMainWindow	WC1-fuzzy-very-low		mapped
 src/winmain.c	788	00402320	0045445A	PumpWindowMessages	PumpWindowMessages	WC1-fuzzy-very-low		mapped
-src/winmain.c	872	00402520		GetF1KeyLatch				unmapped
+src/winmain.c	872	00402520	00453C80	GetF1KeyLatch	GetF1KeyLatch	WC1-manual-verified		mapped
 src/winmain.c	880	00402530	00454625	MainWindowProc	MainWindowProc	WC1-callgraph-propagated		mapped
 src/winmain.c	1019	00402A20	004551E7	GetJoystickPosition	GetJoystickPosition	WC1-manual-verified		mapped
 src/winmain.c	1067	00402AC0	00455346	GetJoystickButtons	GetJoystickButtons	WC1-manual-verified		mapped
@@ -1735,11 +1745,28 @@ src/cmpgn.c	471		004098F2	RunCampaignContinuePromptLoop	RunCampaignContinuePromp
 src/cmpgn.c	499		004099A8	PromptToContinueCampaign	PromptToContinueCampaign	WC2-only		wc2-only
 src/hudmsg.c	1063		00401C1A	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity	WC2-only		wc2-only
 src/hudmsg.c	1076		00401FDD	RecordCannedSceneObjectEvent	RecordCannedSceneObjectEvent	WC2-only		wc2-only
+src/hudmsg.c			00401ACB	HandleCannedSceneBufferBoundary	HandleCannedSceneBufferBoundary	WC2-only		wc2-only
+src/hudmsg.c			00401C72	GetCannedSceneObjectMode	GetCannedSceneObjectMode	WC2-only		wc2-only
+src/hudmsg.c			00401D79	RecordCannedSceneObjectState	RecordCannedSceneObjectState	WC2-only		wc2-only
+src/hudmsg.c			00402385	FlushCannedSceneRecordingBuffer	FlushCannedSceneRecordingBuffer	WC2-only		wc2-only
+src/hudmsg.c			00446960	ResetCannedScenePlaybackBuffer	ResetCannedScenePlaybackBuffer	WC2-only		wc2-only
+src/hudmsg.c			00446950	BeginInflightReplayHook	BeginInflightReplayHook	WC2-only		wc2-only
+src/hudmsg.c			00446A1D	RestoreCannedSceneObjectState	RestoreCannedSceneObjectState	WC2-only		wc2-only
+src/hudmsg.c			00446B6A	ApplyCannedSceneObjectEventRecord	ApplyCannedSceneObjectEventRecord	WC2-only		wc2-only
+src/hudmsg.c			00446CC2	ApplyCannedSceneSoundRecord	ApplyCannedSceneSoundRecord	WC2-only		wc2-only
+src/hudmsg.c			00446D0D	ApplyCannedSceneMusicRecord	ApplyCannedSceneMusicRecord	WC2-only		wc2-only
+src/hudmsg.c			00446D55	ApplyCannedSceneFrameEvents	ApplyCannedSceneFrameEvents	WC2-only		wc2-only
+src/hudmsg.c			00446F14	LoadCannedScenePlaybackBuffer	LoadCannedScenePlaybackBuffer	WC2-only		wc2-only
 src/disk.c	1806		00410192	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay	WC2-only		wc2-only
 src/logic.c	3808		00460242	CountShipCockpitGunDisplays	CountShipCockpitGunDisplays	WC2-only		wc2-only
+src/main.c	1281		0045F439	FireTargetCameraGuns	FireTargetCameraGuns	WC2-only		wc2-only
+src/logic.c			0045F7EC	UpdateShipTurretGuns	UpdateShipTurretGuns	WC2-only		wc2-only
 src/logic.c	3980		004601F1	ResetTargetCameraView	ResetTargetCameraView	WC2-only		wc2-only
 src/logic.c	4000		004602BE	ToggleTargetCameraOverlay	ToggleTargetCameraOverlay	WC2-only		wc2-only
 src/logic.c			004603C5	ClearTargetCameraView	ClearTargetCameraView	WC2-only		wc2-only
+src/logic.c	4354		00460498	ToggleTargetCameraTracking	ToggleTargetCameraTracking	WC2-only		wc2-only
+src/logic.c			00460BAF	ClearSavedTorpedoTargetLock	ClearSavedTorpedoTargetLock	WC2-only		wc2-only
+src/logic.c			00460BCC	UpdateSavedTorpedoTargetLock	UpdateSavedTorpedoTargetLock	WC2-only		wc2-only
 src/logic.c			00460D3E	SetTargetCameraEyePosition	SetTargetCameraEyePosition	WC2-only		wc2-only
 src/logic.c	4015		00461466	FinalizeTargetCameraViewHook	FinalizeTargetCameraViewHook	WC2-only		wc2-only
 src/spc.c			0041AD8B	SaveTorpedoTargetLockForViewChange	SaveTorpedoTargetLockForViewChange	WC2-only		wc2-only

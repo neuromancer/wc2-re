@@ -1675,10 +1675,16 @@ void DrawSpriteDefault(Viewport *viewport, short x, short y,
         DrawSpriteTransformed(viewport, x, y, shape, frame,
                               0, 0x100, 0x100, 0, 0);
 #else
-    if (shape != 0 && frame >= 0 && viewport->left >= 0 &&
-        HasValidShapeAllocationSignature(shape) != 0)
-        DrawSpriteTransformed(viewport, x, y, shape, frame,
-                              0, 0x100, 0x100, 0, 0);
+    if (shape == 0)
+        return;
+    if (frame < 0)
+        return;
+    if (viewport->left < 0)
+        return;
+    if (HasValidShapeAllocationSignature(shape) == 0)
+        return;
+    DrawSpriteTransformed(viewport, x, y, shape, frame,
+                          0, 0x100, 0x100, 0, 0);
 #endif
 }
 
@@ -2030,10 +2036,12 @@ void ClearViewport(Viewport *viewport, short colour)
 void DrawViewportPixel(Viewport *viewport, short x, short y,
                        short colour)
 {
-    ClipViewportToScreen(viewport);
-    SetRasterClipPixel(&g_stRasterClip_004b2088,
-                       (int)x - viewport->left,
-                       (int)y - viewport->top, colour);
+    if (viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        SetRasterClipPixel(&g_stRasterClip_004b2088,
+                           (int)x - viewport->left,
+                           (int)y - viewport->top, colour);
+    }
 }
 
 /* Function start: 0x4271D2 */
@@ -2049,11 +2057,13 @@ int GetViewportPixel(Viewport *viewport, short x, short y)
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour)
 {
-    ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_004b2088,
-                    x1 - viewport->left, y1 - viewport->top,
-                    x2 - viewport->left, y2 - viewport->top,
-                    0, colour);
+    if (viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        DrawClippedLine(&g_stRasterClip_004b2088,
+                        x1 - viewport->left, y1 - viewport->top,
+                        x2 - viewport->left, y2 - viewport->top,
+                        0, colour);
+    }
 }
 
 /* Function start: 0x4272A5 */
@@ -2108,11 +2118,13 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,
                          short colour)
 {
-    ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
-                      horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
+    if (viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
+                          horizontalRadius, verticalRadius, colour);
+        if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+            MarkDibDirty();
+    }
 }
 
 /* Function start: 0x42808F */
@@ -2120,11 +2132,13 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
                          short verticalRadius, short horizontalRadius,
                          short colour)
 {
-    ClipViewportToScreen(viewport);
-    FillRasterEllipse(&g_stRasterClip_004b2088, x, y,
-                      horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
+    if (viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        FillRasterEllipse(&g_stRasterClip_004b2088, x, y,
+                          horizontalRadius, verticalRadius, colour);
+        if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+            MarkDibDirty();
+    }
 }
 
 /* Function start: 0x4280FB */
@@ -2132,11 +2146,13 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
                                short verticalRadius,
                                short horizontalRadius, short colour)
 {
-    ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
-                      horizontalRadius, verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
+    if (viewport->left >= 0) {
+        ClipViewportToScreen(viewport);
+        DrawRasterEllipse(&g_stRasterClip_004b2088, x, y,
+                          horizontalRadius, verticalRadius, colour);
+        if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+            MarkDibDirty();
+    }
 }
 
 /* Function start: 0x4282F0 */
@@ -2157,8 +2173,10 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char colour)
 {
     SetSolidColourTranslation(colour);
-    DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
-                          scale, scale, flip, 1);
+    if (HasValidShapeAllocationSignature(shape) != 0) {
+        DrawSpriteTransformed(viewport, x, y, shape, frame, angle,
+                              scale, scale, flip, 1);
+    }
 }
 
 /* Function start: 0x4283A4 */

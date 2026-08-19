@@ -126,17 +126,11 @@ enum ShipMissionType {
     MISSION_TYPE_ROUT              = 5,
     MISSION_TYPE_GOTO_WARP         = 6,
     MISSION_TYPE_WARP_ARRIVE       = 7,
-#if 0
-    MISSION_TYPE_CANNED_SEQUENCE   = 8,
-    MISSION_TYPE_RENDEZVOUS        = 9,
-    MISSION_TYPE_COME_HOME         = 10,
-    MISSION_TYPE_BOGUS_AVOID_CRASH = 11
-#else
     MISSION_TYPE_RENDEZVOUS        = 8,
+    MISSION_TYPE_COME_HOME         = 9,
     MISSION_TYPE_CANNED_SEQUENCE   = 10,
     MISSION_TYPE_BOGUS_AVOID_CRASH = 11,
-    MISSION_TYPE_COME_HOME         = 12
-#endif
+    MISSION_TYPE_SPLIT_PATROL      = 12
 };
 
 enum ShipObjective {
@@ -147,17 +141,10 @@ enum ShipObjective {
     OBJECTIVE_REACH_SHIP      = 3,
     OBJECTIVE_DESTROY_SHIP    = 4,
     OBJECTIVE_WANDER          = 5,
-#if 0
-    OBJECTIVE_ENGAGE_ENEMY    = 6,
-    OBJECTIVE_EVADE_ENEMY     = 7,
-    OBJECTIVE_HOLD_FORMATION  = 8,
-    OBJECTIVE_BREAK_FORMATION = 9
-#else
     OBJECTIVE_ENGAGE_ENEMY    = 8,
     OBJECTIVE_EVADE_ENEMY     = 9,
     OBJECTIVE_HOLD_FORMATION  = 10,
     OBJECTIVE_BREAK_FORMATION = 11
-#endif
 };
 
 enum ShipTactic {
@@ -439,9 +426,25 @@ typedef char ShipWeaponSlot_size_must_be_0x0a[
     sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
 
 enum Wc2ReleaseWeaponObjectType {
+    WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE = 0x0f,
     WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE = 0x10,
+    WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE = 0x11,
     WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE = 0x12,
-    WC2_OBJECT_TYPE_TORPEDO = 0x13
+    WC2_OBJECT_TYPE_TORPEDO = 0x13,
+    WC2_OBJECT_TYPE_CHAFF_POD = 0x14
+};
+
+enum Wc2HazardObjectType {
+    WC2_OBJECT_TYPE_ASTEROID_FIELD = 0x05,
+    WC2_OBJECT_TYPE_SPACE_MINE = 0x15,
+    WC2_OBJECT_TYPE_ASTEROID1 = 0x16
+};
+
+enum Wc2EffectObjectType {
+    WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT = 0x27,
+    WC2_OBJECT_TYPE_SHIP_DAMAGE_EFFECT_FIRST = 0x28,
+    WC2_OBJECT_TYPE_EJECTION_POD = 0x2c,
+    WC2_OBJECT_TYPE_STAR = 0x2d
 };
 
 typedef struct ShortPoint {
@@ -610,6 +613,11 @@ typedef struct CannedSceneBufferHeader {
     short nextFrame;
 } CannedSceneBufferHeader;
 
+typedef struct CannedSceneRecordHeader {
+    unsigned int opcode;
+    short frame;
+} CannedSceneRecordHeader;
+
 typedef struct CannedSceneObjectEventRecord {
     unsigned int opcode;
     short frame;
@@ -625,6 +633,18 @@ typedef struct CannedSceneObjectEventRecord {
     short endMarker;
 } CannedSceneObjectEventRecord;
 
+typedef struct CannedSceneObjectStateRecord {
+    unsigned int opcode;
+    short frame;
+    signed char object;
+    FixedVector velocity;
+    FixedVector up;
+    FixedVector forward;
+    int mode;
+    unsigned int nextOffset;
+    short endMarker;
+} CannedSceneObjectStateRecord;
+
 typedef struct CannedSceneBriefingCharacterRecord {
     unsigned int opcode;
     short frame;
@@ -634,13 +654,32 @@ typedef struct CannedSceneBriefingCharacterRecord {
     unsigned int nextOffset;
     short endMarker;
 } CannedSceneBriefingCharacterRecord;
+
+typedef struct CannedSceneMusicCommandRecord {
+    unsigned int opcode;
+    short frame;
+    int track;
+    int command;
+    short enabled;
+    unsigned int nextOffset;
+    short endMarker;
+} CannedSceneMusicCommandRecord;
 #pragma pack(pop)
 
 typedef char CannedSceneObjectEventRecord_size_must_be_0x30[
     sizeof(CannedSceneObjectEventRecord) == 0x30 ? 1 : -1];
 
+typedef char CannedSceneObjectStateRecord_size_must_be_0x35[
+    sizeof(CannedSceneObjectStateRecord) == 0x35 ? 1 : -1];
+
+typedef char CannedSceneRecordHeader_size_must_be_6[
+    sizeof(CannedSceneRecordHeader) == 6 ? 1 : -1];
+
 typedef char CannedSceneBriefingCharacterRecord_size_must_be_0x10[
     sizeof(CannedSceneBriefingCharacterRecord) == 0x10 ? 1 : -1];
+
+typedef char CannedSceneMusicCommandRecord_size_must_be_0x16[
+    sizeof(CannedSceneMusicCommandRecord) == 0x16 ? 1 : -1];
 
 typedef char InputManagerState_size_must_be_0x21[
     sizeof(InputManagerState) == 0x21 ? 1 : -1];
@@ -1352,7 +1391,7 @@ typedef struct MissionShipRecord {
     signed char state;                /* +0x37 */
     signed char leaderMissionIndex;   /* +0x38 */
     signed char formationIndex;       /* +0x39 */
-    signed char systemIndex;          /* +0x3A */
+    signed char missionParameter;     /* +0x3A: mission target/nav index */
     signed char portrait;             /* +0x3B */
 } MissionShipRecord;
 #endif

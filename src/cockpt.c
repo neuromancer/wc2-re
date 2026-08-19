@@ -905,14 +905,14 @@ short auto_pilot_valid(short showReason)
         if (g_aeObjectClass_00495328[object] > OBJECT_CLASS_SHIP &&
             g_asShipMissionType_00495de8[object] ==
                 MISSION_TYPE_GOTO_WARP &&
-            g_asShipSystemIndex_00495e00[object] ==
+            g_asShipMissionParameter_00495e00[object] ==
                 g_nCurrentNavPoint_004931bc &&
             equ_vector(
                 &g_aMissionObjectives_004932a8[
                     (signed char)g_cCurrentObjective_004931cc].position,
                 &g_aShipDestination_004953f0[object]) == 0) {
             sprintf(g_pszAutopilotWaitReason_0049b050, "Wait for %s",
-                    g_apszShipName_00495da8[object]);
+                    g_apShipMissionRecord_00495da8[object]->name);
             reason = g_pszAutopilotWaitReason_0049b050;
             break;
         }
@@ -1906,7 +1906,7 @@ void flag_reached(short objective, short reached)
     short advanceDestination;
     short markVisited;
 
-    carrierMissionShip = g_anShipMissionShip_00495e00[0];
+    carrierMissionShip = g_asShipMissionParameter_00495e00[0];
     objectiveType = (short)g_aMissionObjectives_004932a8[objective].type;
     carrierObject = find_ship_index(carrierMissionShip);
     markVisited = objective != g_cCurrentObjective_004931cc;
@@ -1915,7 +1915,7 @@ void flag_reached(short objective, short reached)
         if (reached == 0 && escorting_a_ship() != 0 &&
             carrierObject != -1 &&
             g_aMissionObjectives_004932a8[objective].index !=
-                g_anShipMissionShip_00495e00[0]) {
+                g_asShipMissionParameter_00495e00[0]) {
             if (objectiveType != 1 ||
                 g_aMissionShips_00492290[carrierMissionShip].state != 1) {
                 sprintf(g_pszAutopilotWaitReason_0049b050,
@@ -1939,7 +1939,7 @@ void flag_reached(short objective, short reached)
     if (objectiveType != 1 && markVisited != 0) {
         if (visited(objective) == 0 && carrierObject != -1 &&
             g_aMissionObjectives_004932a8[objective].index ==
-                g_anShipMissionShip_00495e00[0] &&
+                g_asShipMissionParameter_00495e00[0] &&
             g_acObjectType_00493980[carrierObject] !=
                 OBJECT_TYPE_TIGERS_CLAW)
             send_message(carrierObject, 6);
@@ -3655,29 +3655,26 @@ void ResetPilotHandAnimation(void)
 /* Function start: 0x43E4A8 */
 void send_message(short obj, signed char message)
 {
-    if (g_nTrainSimActive_0049d758 == 0 &&
-        g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL &&
-        g_nCannedSceneMode_0049021c == 0) {
-        if (g_nYourWingman_0049346c != -1 &&
-            g_nYourWingman_0049346c == obj &&
-            g_bRadioSilence_0049b780 != 0) {
-            g_acWingmanMessageState_0059d2c0[obj] = -1;
-            return;
-        }
-        if (obj >= 0 && obj < 10 &&
-            g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
-            if (g_acShipRating_0059cd80[obj] != -1) {
-                g_acWingmanMessageState_0059d2c0[obj] = message;
-                return;
-            }
-            if (g_acObjectType_00493980[obj] ==
-                    OBJECT_TYPE_TIGERS_CLAW ||
-                g_nShipMissionIndices_0059c830[obj] ==
-                    g_anShipMissionShip_00495e00[0]) {
-                g_acWingmanMessageState_0059d2c0[obj] = message;
-            } else if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI) {
-                g_acWingmanMessageState_0059d2c0[obj] = message;
-                return;
+    if (g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL) {
+        if (g_nTrainSimActive_0049d758 == 0) {
+            if (g_nYourWingman_0049346c != -1 &&
+                g_nYourWingman_0049346c == obj &&
+                g_bRadioSilence_0049b780 != 0) {
+                g_acShipPendingMessage_00495d98[obj] = -1;
+            } else if (obj > -1 && obj < 10 &&
+                       g_aeObjectClass_00495328[obj] >=
+                           OBJECT_CLASS_SHIP) {
+                if (g_acShipPortrait_00495d88[obj] != -1) {
+                    g_acShipPendingMessage_00495d98[obj] = message;
+                } else if (g_asShipMissionIndex_00495d00[obj] ==
+                               g_nHomeMissionShipIndex_005d1e22 ||
+                           g_asShipMissionIndex_00495d00[obj] ==
+                               g_asShipMissionParameter_00495e00[0]) {
+                    g_acShipPendingMessage_00495d98[obj] = message;
+                } else if (g_asShipSide_004955d0[obj] ==
+                           SIDE_KILRATHI) {
+                    g_acShipPendingMessage_00495d98[obj] = message;
+                }
             }
         }
     }
@@ -3697,10 +3694,10 @@ void npc_communication(void)
         while (messageActive == 0 && obj < 10) {
             if (g_aeObjectClass_00495328[(short)obj] >=
                     OBJECT_CLASS_SHIP &&
-                g_acWingmanMessageState_0059d2c0[(short)obj] != -1) {
-                message = g_acWingmanMessageState_0059d2c0[(short)obj];
+                g_acShipPendingMessage_00495d98[(short)obj] != -1) {
+                message = g_acShipPendingMessage_00495d98[(short)obj];
                 vid_equiv((short)obj, (short)message);
-                g_acWingmanMessageState_0059d2c0[(short)obj] = -1;
+                g_acShipPendingMessage_00495d98[(short)obj] = -1;
             }
             messageActive = message_showing();
             obj++;
@@ -3718,7 +3715,7 @@ void npc_communication(void)
                          OBJECTIVE_DESTROY_SHIP) &&
                     (g_acShipRating_0059cd80[(short)obj] != -1 ||
                      RandomBelowOrEqual(100) < 20)) {
-                    g_acWingmanMessageState_0059d2c0[(short)obj] =
+                    g_acShipPendingMessage_00495d98[(short)obj] =
                         (signed char)(RandomBelowOrEqual(2) + 2);
                     return;
                 }

@@ -168,7 +168,7 @@ static void Wc1SdlUpdateJoystickRumble(void)
     if (g_anShipFuel_00495638[0] > 0 &&
         g_aeSpecialManeuver_00495600[0] ==
             SPECIAL_MANEUVER_AFTERBURNER &&
-        g_asShipAfterburnerTimer_0059c810[0] > 0) {
+        g_asShipAfterburnerTimer_004955a8[0] > 0) {
         low = 0x6000;
         high = 0x3000;
     }
@@ -654,7 +654,7 @@ static void Wc1SdlApplyLinearThrottle(Sint16 raw)
     int targetSpeed;
     unsigned int position;
 
-    maximumSpeed = (int)g_asShipMaximumSpeed_0059c440[0] << 8;
+    maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[0] << 8;
     position = (unsigned int)((int)raw + 32768);
     targetSpeed = (int)(((int64_t)(65535U - position) * maximumSpeed) /
                         65535);

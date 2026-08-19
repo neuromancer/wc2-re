@@ -189,6 +189,16 @@ short LogMemoryUsage(void)
     return 0;
 }
 
+/* Function start: 0x46589D */
+void AdjustSpaceFramePeriod(short adjustment)
+{
+    g_nSpaceFramePeriod_0049d768 = MinShort(
+        MaxShort((short)(g_nSpaceFramePeriod_0049d768 + adjustment), 1),
+        0x13);
+    ShowOnScreenMessage(0, "%d 60th SEC FRAME DURATION.",
+                        g_nSpaceFramePeriod_0049d768 + 1);
+}
+
 /* Function start: 0x437A44 */
 void ReportFatalErrorCode(const char *errorCode)
 {

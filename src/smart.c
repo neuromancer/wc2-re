@@ -671,7 +671,7 @@ void intelligence_events(short obj)
         ship_vs_ship(obj, target);
         if (g_nTargetRange_0049319c > 8000) {
             event = 2;
-        } else if (g_acShipAiCooldown_0059d680[obj] > 0) {
+        } else if (g_acShipCollisionCooldown_00496010[obj] > 0) {
             event = 7;
         } else if (g_nFacingToTarget_00493194 > 55 &&
                    g_nTargetFacing_00493198 < -55) {
@@ -701,7 +701,7 @@ void intelligence_events(short obj)
 
     if (g_nYourWingman_0049346c == obj &&
         g_aeObjectClass_00495328[0] == OBJECT_CLASS_SHIP &&
-        g_acWingmanMessageState_0059d2c0[g_nYourWingman_0049346c] == -1) {
+        g_acShipPendingMessage_00495d98[g_nYourWingman_0049346c] == -1) {
         if (previousStress < 15 && g_acShipStress_00496100[obj] >= 15) {
             send_message(obj, 4);
         } else {

@@ -15,7 +15,9 @@ short g_bAlternateChaseView_00492fac = 0;
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;
 short g_nSavedPlayerTarget_0049d460 = -1;
 short g_bSavedPlayerTarget_0049d464;
+short g_asShipTurretFireEnabled_0049d470[12];
 short g_nSavedTargetLockCountdown_0049d484 = 1000;
+short g_bSavedTargetLockAcquired_0049d488;
 short g_nCockpitCameraObject_0049d770;
 FixedVector g_vExternalViewOffset_005d3200;
 
@@ -1095,77 +1097,161 @@ short count_down(short obj)
 }
 
 /* Function start: 0x41BD81 */
-unsigned int house_keep_objects(void)
+void house_keep_objects(void)
 {
+    short other;
     short obj;
+    short gun;
+    short projectileDetonated;
 
-    for (obj = 0; obj <= WC1_SPACE_LAST_MOVING_OBJECT; obj++) {
+    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
         switch (g_aeObjectClass_00495328[obj]) {
-        case OBJECT_CLASS_DUST:
-            if (g_acObjectType_00493980[obj] == OBJECT_TYPE_DEBRIS_DUST &&
-                count_down(obj) == -1 &&
-                g_asObjectScreenX_00493598[obj] == (short)0x8001)
-                remove_object(obj);
-            break;
-        case OBJECT_CLASS_DEBRIS:
-            if (count_down(obj) == -1)
-                remove_object(obj);
-            break;
         case OBJECT_CLASS_FIXED_OBJECT:
-            if (g_acObjectType_00493980[obj] == OBJECT_TYPE_TURRET ||
-                g_acObjectType_00493980[obj] == OBJECT_TYPE_THRUSTERS)
+            switch (g_asObjectType_00495298[obj]) {
+            case 0x0c:
+            case 0x2b:
                 remove_object(obj);
+                break;
+            }
             break;
         case OBJECT_CLASS_PROJECTILE:
-            if (count_down(obj) == 0) {
-                if (g_acObjectType_00493980[obj] == OBJECT_TYPE_TURRET)
+            projectileDetonated = 0;
+            if (g_asObjectType_00495298[obj] == 0x0c) {
+                for (other = 0; other < 10; other++) {
+                    if (g_aeObjectClass_00495328[other] ==
+                            OBJECT_CLASS_MISSILE &&
+                        g_asObjectType_00495298[other] ==
+                            WC2_OBJECT_TYPE_TORPEDO &&
+                        g_asMissileProximityFuse_005d38e0[other] != 0 &&
+                        distance_from_object(obj, other) < 200) {
+                        explode((short)g_acObjectOwner_00495208[obj], obj);
+                        projectileDetonated = 1;
+                    }
+                }
+            }
+            if (projectileDetonated == 0 && count_down(obj) == 0) {
+                if (g_asObjectType_00495298[obj] == 0x0c)
                     explode((short)g_acObjectOwner_00495208[obj], obj);
                 else
                     remove_object(obj);
             }
             break;
+        case OBJECT_CLASS_DUST:
+            if (g_asObjectType_00495298[obj] == 0x2f &&
+                count_down(obj) == -1 &&
+                g_asObjectScreenX_00493598[obj] == (short)0x8001)
+                remove_object(obj);
+            break;
+        case OBJECT_CLASS_EXPLOSION:
+            if (g_asObjectType_00495298[obj] == 0x25 &&
+                g_asObjectAnimationIndex_00494c70[obj] == 0x0c &&
+                g_asObjectScreenX_00493598[obj] != (short)0x8001) {
+                if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+                    g_nSpaceExplosionFlashStep_005c5872 = 0;
+                    g_asSpacePaletteFade_005d2d60[0] =
+                        (short)(g_aSpaceExplosionFlashPalette_0049d808[0][0]
+                                << 2);
+                    g_asSpacePaletteFade_005d2d60[1] =
+                        (short)(g_aSpaceExplosionFlashPalette_0049d808[0][0]
+                                << 2);
+                    g_asSpacePaletteFade_005d2d60[2] = 0;
+                    SetPaletteEntry(
+                        (short)g_cPrimaryViewBufferColour_0049cb88,
+                        g_asSpacePaletteFade_005d2d60);
+                    g_nSpaceExplosionFlashActive_00492fb4++;
+                } else {
+                    ClearViewport(
+                        &g_stViewBuffer_005d2b00,
+                        (short)g_bPrimaryViewBufferColour_0049cb50);
+                    g_bViewportDirty_0049d76c++;
+                }
+            }
+            break;
+        case OBJECT_CLASS_DEBRIS:
+            if (g_asObjectType_00495298[obj] == 0x3d ||
+                g_asObjectType_00495298[obj] ==
+                    WC2_OBJECT_TYPE_EJECTION_POD)
+                break;
+            if (count_down(obj) == -1 &&
+                g_asObjectScreenX_00493598[obj] == (short)0x8001)
+                remove_object(obj);
+            break;
         case OBJECT_CLASS_MINE:
-            if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
-                g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
+            if (g_acObjectCollisionGraceTicks_00494d48[obj] > 0)
+                g_acObjectCollisionGraceTicks_00494d48[obj]--;
             if (count_down(obj) == 0)
                 explode(obj, obj);
             break;
         case OBJECT_CLASS_MISSILE:
-            g_abShipExhaustHeat_0059d610[obj] = 0;
-            if (g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
-                g_acObjectCollisionGraceTicks_0059ddb0[obj]--;
-            if (g_aeShipTactic_0059d5e0[obj] == TACTIC_SIT_STILL) {
-                if (count_down(obj) <= 0) {
-                    g_aeShipTactic_0059d5e0[obj] = TACTIC_RAM;
-                    g_asObjectCounter_00494be0[obj] =
-                        g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[obj]].lifetime;
-                    if (g_acObjectType_00493980[obj] ==
-                            OBJECT_TYPE_DUMB_FIRE_MISSILE) {
-                        vector_component_in_dir(
-                            &g_aShipVelocity_00494898[obj],
-                            &g_aShipForwardVector_00494208[obj],
-                            &g_aShipVelocity_00494898[obj]);
+            g_acShipExhaustHeat_00495660[obj] = 0;
+            if (g_asObjectType_00495298[obj] ==
+                    WC2_OBJECT_TYPE_CHAFF_POD) {
+                if (count_down(obj) <= 0)
+                    explode(obj, obj);
+            } else {
+                if (g_acObjectCollisionGraceTicks_00494d48[obj] > 0)
+                    g_acObjectCollisionGraceTicks_00494d48[obj]--;
+                if (g_asObjectType_00495298[obj] !=
+                        WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE &&
+                    g_asShipTactic_00495f30[obj] == TACTIC_RAM &&
+                    g_anShipCloakState_00496020[
+                        g_acShipTarget_00495f20[obj]] == 1) {
+                    explode(obj, obj);
+                } else if (g_asShipTactic_00495f30[obj] ==
+                               TACTIC_SIT_STILL &&
+                           g_nCannedSceneMode_0049021c == 0) {
+                    if (count_down(obj) <= 0) {
+                        g_asShipTactic_00495f30[obj] = TACTIC_RAM;
+                        g_asObjectCounter_00494be0[obj] = (short)(
+                            *(int *)&g_aObjectTypeData_00496d30[
+                                g_acObjectType_00493980[obj]].lifetime);
+                        if (g_asObjectType_00495298[obj] ==
+                                WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE) {
+                            vector_component_in_dir(
+                                &g_aShipVelocity_00494898[obj],
+                                &g_aShipForwardVector_00494208[obj],
+                                &g_aShipVelocity_00494898[obj]);
+                        }
                     }
+                } else if (count_down(obj) <= 0) {
+                    explode(obj, obj);
                 }
-            } else if (count_down(obj) <= 0) {
-                explode(obj, obj);
             }
             break;
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
+        case OBJECT_CLASS_BASE:
+            if (DAT_005d1bd0[obj] > 0)
+                DAT_005d1bd0[obj]--;
+            if (DAT_004960f0[obj] > 0)
+                DAT_004960f0[obj]--;
+            if (DAT_005d1bd0[obj] > 0 &&
+                g_asObjectType_00495298[obj] < 0x3a)
+                DAT_005d1bd0[obj]--;
+            if (DAT_005d1bf0[obj] > 0)
+                DAT_005d1bf0[obj]--;
+            if (g_asShipExplosionStageTimer_005d3850[obj] > 0)
+                g_asShipExplosionStageTimer_005d3850[obj]--;
+            for (gun = 0; gun < 3; gun++) {
+                if (g_asGunCooldown_005c8d70[obj * 3 + gun] > 0)
+                    g_asGunCooldown_005c8d70[obj * 3 + gun]--;
+            }
+            if (g_asShipCloakCooldown_00496048[obj] > 0)
+                g_asShipCloakCooldown_00496048[obj]--;
+            g_asShipCloakElapsedFrames_00496060[obj]++;
             if (g_asShipFriendlyFireCooldown_00496090[obj] > 0)
                 g_asShipFriendlyFireCooldown_00496090[obj]--;
-            g_abShipExhaustHeat_0059d610[obj] = 0;
+            g_acShipExhaustHeat_00495660[obj] = 0;
             if (count_down(obj) > 0) {
                 if (g_asShipManeuver_00495f48[obj] ==
                         MANEUVER_WARPING_OUT)
                     g_asObjectScale_00494d90[obj] >>= 1;
                 if (g_aeSpecialManeuver_00495600[obj] ==
                         SPECIAL_MANEUVER_UNKNOWN_9 &&
-                    g_aeObjectClass_00495328[obj] ==
+                    g_aeObjectClass_00495328[obj] >=
                         OBJECT_CLASS_CAPITAL_SHIP) {
-                    if (g_asObjectCounter_00494be0[obj] == 7) {
+                    if ((g_bFastShipExplosion_0049922d != 0 ? 7 : 3) ==
+                            g_asObjectCounter_00494be0[obj]) {
                         ShipExplosion(obj);
                         explosion_shock_wave(
                             obj, g_aObjectTypeData_00496d30[
@@ -1176,112 +1262,147 @@ unsigned int house_keep_objects(void)
                             onboard_explosion(obj);
                     }
                 }
-            } else if (g_asObjectCounter_00494be0[obj] == 0 &&
-                       g_aeSpecialManeuver_00495600[obj] ==
-                           SPECIAL_MANEUVER_UNKNOWN_9) {
-                if (g_nYourWingman_0049346c != -1 &&
-                    DAT_0059c910[obj] == 0 &&
-                    g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
-                    RandomBelowOrEqual(100) < 10) {
-                    send_message(g_nYourWingman_0049346c, 6);
-                }
-                Create_explosion_debris(obj);
-                break;
             } else if (g_asObjectCounter_00494be0[obj] == 0) {
-                if (g_asShipManeuver_00495f48[obj] ==
-                        MANEUVER_WARPING_IN) {
-                    if (g_aeShipTactic_0059d5e0[obj] != TACTIC_WARP_IN) {
-                        if ((short)g_acObjectOwner_00495208[obj] == obj) {
-                            set_objects_data(
-                                obj,
-                                (enum ObjectType)
-                                    g_abShipNavPointIndex_00495f60[obj],
-                                -1, 0);
-                            reset_maneuver(obj, -1);
-                        } else {
+                if (g_aeSpecialManeuver_00495600[obj] ==
+                        SPECIAL_MANEUVER_UNKNOWN_9) {
+                    if (g_nYourWingman_0049346c != -1 &&
+                        g_acShipLastAttacker_004955c0[obj] == 0 &&
+                        g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+                        RandomBelowOrEqual(100) < 20) {
+                        send_message(g_nYourWingman_0049346c, 7);
+                    }
+                    Create_explosion_debris(obj);
+                    if (g_nArcadeState_0049d75c != 0)
+                        return;
+                    if (g_bMissionDeathSequencePending_0049b720 != 0 &&
+                        g_nPendingEjectionShip_005d1bc4 == obj)
+                        SpawnMissionEjectionPod(obj);
+                    break;
+                }
+                switch (g_asShipManeuver_00495f48[obj]) {
+                case MANEUVER_WARPING_OUT:
+                    if (g_asShipSide_004955d0[obj] != SIDE_NEUTRAL) {
+                        if (obj != 0 && obj != g_nYourWingman_0049346c) {
+                            g_aMissionShips_00492290[
+                                g_asShipMissionIndex_00495d00[obj]].state = 2;
                             remove_object(obj);
+                            if (g_nCannedSceneMode_0049021c == 0)
+                                RecordCannedSceneObjectEvent(obj, 1);
+                        } else if (obj == 0) {
+                            CompleteStarSystemJump();
                         }
                     }
-                } else if (g_asShipManeuver_00495f48[obj] ==
-                               MANEUVER_WARPING_OUT &&
-                           g_asShipSide_004955d0[obj] != SIDE_NEUTRAL) {
-                    if (obj == 0 || obj == g_nYourWingman_0049346c) {
-                        if (obj == 0)
-                            CompleteStarSystemJump();
-                    } else {
-                        g_aMissionShips_00492290[
-                            g_nShipMissionIndices_0059c830[obj]].state = 2;
-                        remove_object(obj);
+                    break;
+                case MANEUVER_WARPING_IN:
+                    if (g_asShipTactic_00495f30[obj] != TACTIC_WARP_IN) {
+                        if ((short)g_acObjectOwner_00495208[obj] != obj) {
+                            remove_object(obj);
+                        } else {
+                            set_objects_data(
+                                obj,
+                                (short)g_abShipNavPointIndex_00495f60[obj],
+                                -1, 1);
+                            reset_maneuver(obj, -1);
+                        }
                     }
+                    break;
                 }
             }
-            if (g_acObjectType_00493980[obj] ==
-                    OBJECT_TYPE_TIGERS_CLAW &&
-                g_bPlayerCollisionEnabled_0049d780 != 0 &&
+            if (g_asShipMissionIndex_00495d00[obj] ==
+                    g_nHomeMissionShipIndex_005d1e22 &&
+                g_bCarrierLandingEnabled_0049d778 != 0 &&
                 g_bLandingCommRequestPending_00492fa0 != 0 &&
-                normal_speed(0) != 0) {
-                get_facing_range_from_object(0, obj);
-                if (g_nTargetRange_0049319c < 700 &&
-                    g_nFacingToTarget_00493194 > 75 &&
-                    g_nTargetFacing_00493198 > 70) {
-                    g_nArcadeState_0049d75c = 1;
-                    g_nPlayerCollisionObject_00493480 = obj;
-                }
+                normal_speed(0) != 0 &&
+                distance_from_object(0, obj) < 700) {
+                g_nPlayerCollisionObject_00493480 = obj;
+                g_nArcadeState_0049d75c = 1;
             }
             break;
         }
     }
-    return 0;
 }
 
 /* Function start: 0x41C7ED */
-unsigned int update_objects_in_space(void)
+void update_objects_in_space(void)
 {
     short obj;
 
-    clear_crash_cache();
-    obj = 0;
-    do {
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) {
+    if (g_nCannedSceneMode_0049021c != 0) {
+        if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+            g_nCannedSceneRecordedFrameCount_005d3faa =
+                g_nCannedSceneFrameCount_005d404c;
+        } else {
+            g_nCannedSceneRecordedFrameCount_005d3faa++;
+            if (g_nCannedSceneSegmentEndFrame_00490218 ==
+                g_nSpaceFrame_00493134)
+                HandleCannedSceneBufferBoundary();
+            ApplyCannedSceneFrameEvents();
+        }
+    } else {
+        g_nCannedSceneFrameCount_005d404c++;
+        if (g_nCannedSceneBufferNearCapacityFlag_00490214 != 0)
+            HandleCannedSceneBufferBoundary();
+    }
+
+    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL) {
+            if (g_nCannedSceneMode_0049021c == 0 &&
+                g_aeSpecialManeuver_00495600[obj] ==
+                    SPECIAL_MANEUVER_UNKNOWN_9)
+                RecordCannedSceneObjectState(obj);
+        } else if (g_aeObjectClass_00495328[obj] ==
+                   OBJECT_CLASS_FUTURION) {
             futurion_intelligence(obj);
         } else if (g_aeObjectClass_00495328[obj] > OBJECT_CLASS_PLANET) {
             animate_object(obj);
-            if (g_aeObjectClass_00495328[obj] != OBJECT_CLASS_NULL &&
-                g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_PROJECTILE) {
-                object_collision(obj);
-                rotate_object(obj);
-                if (obj >= 10 ||
-                    g_aeSpecialManeuver_00495600[obj] !=
-                        SPECIAL_MANEUVER_UNKNOWN_9) {
-                    if (obj != 0)
-                        object_intelligence(obj);
-                    if (obj < 10 &&
-                        g_aeObjectClass_00495328[obj] >=
-                            OBJECT_CLASS_MISSILE) {
-                        if (obj != 0)
-                            rotate_object_to_goal(obj);
+            if (g_nCannedSceneMode_0049021c != 0) {
+                AddFixedVectors(&g_aShipPosition_00494550[obj],
+                                &g_aShipVelocity_00494898[obj],
+                                &g_aShipPosition_00494550[obj]);
+                if (obj < 10)
+                    fix_objects_ijk(obj);
+            } else {
+                if (g_aeObjectClass_00495328[obj] >=
+                    OBJECT_CLASS_PROJECTILE) {
+                    object_collision(obj);
+                    rotate_object(obj);
+                    if (obj >= 10 ||
+                        g_aeSpecialManeuver_00495600[obj] !=
+                            SPECIAL_MANEUVER_UNKNOWN_9) {
+                        if (obj != 0 ||
+                            g_bJumpSequenceActive_004962f0 != 0) {
+                            object_intelligence(obj);
+                        } else if (g_nCurrentView_00492fa8 == 4) {
+                            UpdateSavedTorpedoTargetLock();
+                        }
                         if (g_aeObjectClass_00495328[obj] ==
-                                OBJECT_CLASS_SHIP)
-                            replenish_weapon_energy_bank(obj);
+                                OBJECT_CLASS_SHIP &&
+                            g_asShipTurretFireEnabled_0049d470[obj] != 0)
+                            UpdateShipTurretGuns(obj);
+                        if (obj < 10 &&
+                            g_aeObjectClass_00495328[obj] >=
+                                OBJECT_CLASS_MISSILE) {
+                            if (g_nCannedSceneMode_0049021c == 0)
+                                RecordCannedSceneObjectState(obj);
+                            if (obj != 0 || g_nCurrentView_00492fa8 == 4)
+                                rotate_object_to_goal(obj);
+                        }
                     }
+                }
+                if (g_nCurrentView_00492fa8 == 4 &&
+                    g_nTargetCameraMode_005c8d50 == 1 &&
+                    g_nTargetCameraObject_0049d338 == obj &&
+                    g_nTargetCameraFrame_0049d3e8 == 1)
+                    UpdateTargetCameraObject(obj);
+                accelerate_and_move_object(obj);
+                if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
+                    replenish_shields(obj);
+                    housekeep_power_plant_and_fuel(obj);
+                    replenish_weapon_energy_bank(obj);
                 }
             }
         }
-        obj++;
-    } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
-
-    obj = 0;
-    do {
-        if (g_aeObjectClass_00495328[obj] > OBJECT_CLASS_PLANET) {
-            accelerate_and_move_object(obj);
-            if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
-                replenish_shields(obj);
-                housekeep_power_plant_and_fuel(obj);
-            }
-        }
-        obj++;
-    } while (obj <= WC1_SPACE_LAST_MOVING_OBJECT);
-    return 0;
+    }
 }
 
 /* Function start: 0x41CB3C */
@@ -1303,7 +1424,7 @@ unsigned int rotate_object(short obj)
 }
 
 /* Function start: 0x41CC0A */
-unsigned int accelerate_and_move_object(short obj)
+void accelerate_and_move_object(short obj)
 {
     FixedVector delta;
     FixedVector accelerationVector;
@@ -1311,53 +1432,51 @@ unsigned int accelerate_and_move_object(short obj)
     int magnitude;
 
     if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_MISSILE) {
-        if (g_aeSpecialManeuver_00495600[obj] ==
-                SPECIAL_MANEUVER_KILL_ENGINES) {
-            g_abShipExhaustHeat_0059d610[obj] = 0;
+        switch (g_aeSpecialManeuver_00495600[obj]) {
+        case SPECIAL_MANEUVER_KILL_ENGINES:
+            g_acShipExhaustHeat_00495660[obj] = 0;
             if (RandomBelowOrEqual(100) < 10)
                 set_special(obj, SPECIAL_MANEUVER_NONE);
-        } else if (g_aeSpecialManeuver_00495600[obj] ==
-                       SPECIAL_MANEUVER_STOP_DRIFT) {
+            break;
+        case SPECIAL_MANEUVER_STOP_DRIFT:
             approach_zero_speed(obj);
             NormalizeAndScaleVector(&g_aShipVelocity_00494898[obj],
-                                    g_anShipSpeed_0059b320[obj]);
-            if (g_anShipSpeed_0059b320[obj] == 0)
+                                    g_anShipSpeed_00494e20[obj]);
+            if (g_anShipSpeed_00494e20[obj] == 0)
                 set_special(obj, SPECIAL_MANEUVER_NONE);
+            break;
         }
         if (g_aeSpecialManeuver_00495600[obj] <
                 SPECIAL_MANEUVER_KILL_ENGINES &&
-            g_aeShipTactic_0059d5e0[obj] != TACTIC_SIT_STILL) {
+            g_asShipTactic_00495f30[obj] != TACTIC_SIT_STILL) {
             zero_vector(&accelerationVector);
             switch (g_aeSpecialManeuver_00495600[obj]) {
             case SPECIAL_MANEUVER_AFTERBURNER:
-                g_asShipAfterburnerTimer_0059c810[obj]--;
-                if (g_asShipAfterburnerTimer_0059c810[obj] == 0) {
+                g_asShipAfterburnerTimer_004955a8[obj]--;
+                if (g_asShipAfterburnerTimer_004955a8[obj] == 0) {
                     g_aeSpecialManeuver_00495600[obj] =
                         SPECIAL_MANEUVER_NONE;
-                    if (DAT_005a7cec != 0) {
-                        FlushSoundEffectsAndLog();
-                        DAT_005a7cec = 0;
-                    }
                     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                                     g_anShipSpeed_0059b320[obj], &delta);
+                                     g_anShipSpeed_00494e20[obj], &delta);
                 } else {
                     ScaleFixedVector(
                         &g_aShipForwardVector_00494208[obj],
                         (g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[obj]].maximumVelocity +
-                         20) * 0x200,
+                             g_acObjectType_00493980[obj]].maximumVelocity *
+                             2 +
+                         40) << 8,
                         &delta);
                     drain_fuel(obj, 200);
-                    g_abShipExhaustHeat_0059d610[obj] = 3;
+                    g_acShipExhaustHeat_00495660[obj] = 3;
                 }
                 break;
             case SPECIAL_MANEUVER_SUPER_BRAKE:
-                g_asShipAfterburnerTimer_0059c810[obj]--;
-                if (g_asShipAfterburnerTimer_0059c810[obj] == 0) {
+                g_asShipAfterburnerTimer_004955a8[obj]--;
+                if (g_asShipAfterburnerTimer_004955a8[obj] == 0) {
                     g_aeSpecialManeuver_00495600[obj] =
                         SPECIAL_MANEUVER_NONE;
                     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                                     g_anShipSpeed_0059b320[obj], &delta);
+                                     g_anShipSpeed_00494e20[obj], &delta);
                 } else {
                     zero_vector(&delta);
                     drain_fuel(obj, 140);
@@ -1365,7 +1484,7 @@ unsigned int accelerate_and_move_object(short obj)
                 break;
             default:
                 ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                                 g_anShipSpeed_0059b320[obj], &delta);
+                                 g_anShipSpeed_00494e20[obj], &delta);
                 break;
             }
             ComputeVectorDelta(&g_aShipVelocity_00494898[obj], &delta,
@@ -1395,89 +1514,86 @@ unsigned int accelerate_and_move_object(short obj)
                     &accelerationVector);
                 if (g_aeSpecialManeuver_00495600[obj] !=
                         SPECIAL_MANEUVER_AFTERBURNER) {
-                    g_abShipExhaustHeat_0059d610[obj] = 2;
+                    g_acShipExhaustHeat_00495660[obj] = 2;
                 }
             }
             AddFixedVectors(&accelerationVector,
                             &g_aShipVelocity_00494898[obj],
                             &g_aShipVelocity_00494898[obj]);
             if (obj == 0)
-                g_vPlayerAcceleration_0059b460 = accelerationVector;
+                g_vPlayerAcceleration_00493488 = accelerationVector;
         }
     }
     AddFixedVectors(&g_aShipPosition_00494550[obj],
                     &g_aShipVelocity_00494898[obj],
                     &g_aShipPosition_00494550[obj]);
-    return 0;
 }
 
 /* Function start: 0x41D07B */
-unsigned int animate_shape(short obj)
+void animate_shape(short obj)
 {
+    short type;
     unsigned char *animation;
-    enum ObjectType type;
     short command;
 
     type = g_acObjectType_00493980[obj];
     animation = g_aObjectTypeData_00496d30[type].animation;
     if (animation == 0)
-        return 0;
-    if (--g_asObjectAnimationDelay_0059b660[obj] > 0)
-        return 0;
-    g_asObjectAnimationDelay_0059b660[obj] =
+        return;
+    if (--g_acObjectAnimationDelay_00494d00[obj] > 0)
+        return;
+    g_acObjectAnimationDelay_00494d00[obj] =
         g_aObjectTypeData_00496d30[type].yawRate;
     command = *(unsigned short *)(animation +
-              g_asObjectAnimationIndex_0059da30[obj] * 4);
+              g_asObjectAnimationIndex_00494c70[obj] * 2);
     switch (command & 0xf000) {
     case 0x9000:
-        command &= 0x0fff;
-        g_asObjectAnimationIndex_0059da30[obj] = command;
-        command = *(unsigned short *)(animation + command * 4);
+        g_asObjectAnimationIndex_00494c70[obj] = command & 0x0fff;
+        command = *(unsigned short *)(animation +
+                  g_asObjectAnimationIndex_00494c70[obj] * 2);
         if (g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
-            (type == OBJECT_TYPE_DEBRIS_WING ||
-             type == OBJECT_TYPE_DEBRIS_METAL_SHEET)) {
+            (g_asObjectType_00495298[obj] == 0x20 ||
+             g_asObjectType_00495298[obj] == 0x1f ||
+             g_asObjectType_00495298[obj] == 0x3d)) {
             PlaySfxWaveFileByNumber(13, obj, 0);
         }
         break;
     case 0xa000:
         remove_object(obj);
-        return 0;
+        return;
     }
 
-    if ((command & 0x0c00) == 0x0400) {
+    switch (command & 0x0c00) {
+    case 0x0400:
         g_asObjectScale_00494d90[obj] +=
-            (command & 0x3f) * (g_asObjectScale_00494d90[obj] >> 6);
-    } else if ((command & 0x0c00) == 0x0800) {
+            (command & 0x3f) *
+            ((unsigned short)g_asObjectScale_00494d90[obj] >> 6);
+        break;
+    case 0x0800:
         g_asObjectScale_00494d90[obj] -=
-            (command & 0x3f) * (g_asObjectScale_00494d90[obj] >> 6);
-    } else {
+            (command & 0x3f) *
+            ((unsigned short)g_asObjectScale_00494d90[obj] >> 6);
+        break;
+    default:
         command &= 0x3f;
         g_asObjectViewFrame_00493508[obj] = command;
+        break;
     }
     g_asObjectFlip_004939c8[obj] = (command & 0xc0) >> 2;
-    g_asObjectAnimationIndex_0059da30[obj]++;
-    return 0;
+    g_asObjectAnimationIndex_00494c70[obj]++;
 }
 
 /* Function start: 0x41D2DA */
-unsigned int animate_object(short obj)
+void animate_object(short obj)
 {
     FixedVector offset;
     short effect;
 
     switch (g_aeObjectClass_00495328[obj]) {
     case OBJECT_CLASS_EXPLOSION:
-        animate_shape(obj);
-        break;
     case OBJECT_CLASS_DEBRIS:
-        animate_shape(obj);
-        break;
     case OBJECT_CLASS_FIXED_OBJECT:
-        animate_shape(obj);
-        break;
     case OBJECT_CLASS_ASTEROID:
-        animate_shape(obj);
-        break;
     case OBJECT_CLASS_MINE:
         animate_shape(obj);
         break;
@@ -1486,7 +1602,7 @@ unsigned int animate_object(short obj)
             (g_nRenderedSpaceFrame_00493138 & 3) != 0 ||
             (g_aObjectTypeData_00496d30[
                  g_acObjectType_00493980[obj]].damageCapacity >> 1) - 1 >
-                g_asShipAccumulatedDamage_0059dee0[obj]) {
+                g_asObjectDamage_00495178[obj]) {
             break;
         }
         effect = find_vacant_3d_object();
@@ -1505,285 +1621,340 @@ unsigned int animate_object(short obj)
         set_objects_data(
             effect,
             (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
-                              OBJECT_TYPE_RED_SPARK),
+                              WC2_OBJECT_TYPE_SHIP_DAMAGE_EFFECT_FIRST),
             obj, 0);
         g_asObjectScale_00494d90[effect] =
             g_asObjectScale_00494d90[obj];
         if (RandomInRange(0, 3) == 0)
-            PlaySfxWaveFileByNumber(7, obj, 0, 0);
+            PlaySfxWaveFileByNumber(7, obj, 0);
         break;
     }
-    return 0;
 }
 
 /* Function start: 0x41D4C7 */
-unsigned int hit_asteroid(short asteroid, short destructionChance)
+void hit_asteroid(short asteroid, short destructionChance)
 {
     short fragments;
 
     if (RandomBelowOrEqual((short)(destructionChance - 1)) == 0) {
-        fragments = (short)(RandomBelowOrEqual(1) + 2);
-        while (fragments > 0) {
+        destructionChance = (short)(RandomBelowOrEqual(1) + 2);
+        for (fragments = 0; fragments < destructionChance; fragments++) {
             make_shard(asteroid, g_aShipVelocity_00494898[asteroid]);
-            fragments--;
         }
         explode(-1, asteroid);
     } else if (RandomBelowOrEqual(7) == 0) {
-        make_shard(asteroid, g_vCollisionDelta_0059d690);
+        make_shard(asteroid, g_vCollisionDelta_00493178);
     }
-    return 0;
 }
 
 /* Function start: 0x41D591 */
-int object_collision(short obj)
+void object_collision(short obj)
 {
     SphericalVector impact;
     FixedVector relativeVelocity;
-    FixedVector separation;
-    FixedVector objectComponent;
-    FixedVector partnerComponent;
+    FixedVector viewDelta;
+    FixedVector viewRelative;
     FixedVector componentDelta;
+    FixedVector partnerComponent;
     FixedVector tangent;
-    FixedVector partnerTangent;
-    FixedVector impulse;
     FixedVector force;
-    enum ObjectClass partnerClass;
-    int separationScale;
+    short objectMass;
+    short partnerMass;
+    int totalMass;
     int responseScale;
     int forceMagnitude;
-    int totalMass;
-    int objectMass;
-    int partnerMass;
-    int collisionSpeed;
-    short partner;
+    short speed;
     short damage;
     short savedScale;
-    signed char owner;
+    short adaptiveDamageScale;
+    short lifetime;
+    short partner;
 
+    objectMass = g_aObjectTypeData_00496d30[
+        g_acObjectType_00493980[obj]].radarRadius;
     partner = check_for_collision(obj);
     if (partner == -1) {
-        g_acLastCollisionObject_0059d6a0[obj] = -1;
-        return 0;
-    }
-    if (g_bPlayerCollisionEnabled_0049d780 == 0 &&
-        (obj == 0 || partner == 0))
-        return 0;
+        g_acLastCollisionObject_00495250[obj] = -1;
+    } else if (g_bPlayerCollisionEnabled_0049d780 != 0 ||
+               (partner != 0 && obj != 0)) {
+        partnerMass = g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[partner]].radarRadius;
+        NormalizeFixedVector(&g_vCollisionDelta_00493178);
+        ComputeVectorDelta(&g_aShipVelocity_00494898[partner],
+                           &g_aShipVelocity_00494898[obj],
+                           &relativeVelocity);
+        NormalizeFixedVector(&relativeVelocity);
 
-    NormalizeFixedVector(&g_vCollisionDelta_0059d690);
-    ComputeVectorDelta(&g_aShipVelocity_00494898[partner],
-                       &g_aShipVelocity_00494898[obj],
-                       &relativeVelocity);
-    NormalizeFixedVector(&relativeVelocity);
-    owner = g_acObjectOwner_00495208[obj];
-    switch (g_aeObjectClass_00495328[obj]) {
-    case OBJECT_CLASS_PROJECTILE:
-        if (owner == partner)
-            break;
-        partnerClass = g_aeObjectClass_00495328[partner];
-        if (partnerClass > OBJECT_CLASS_MINE) {
-            if (partner == 0) {
-                rectangular_to_spherical(
-                    &g_aObjectViewPosition_0059afa0[obj], &impact);
-                if (abs(impact.pitch) < 45) {
-                    if (abs(impact.yaw) < 45)
-                        g_aPaletteFadeEntries_005a76d0[1][0] = 0x38;
-                    else if (abs(impact.yaw) < 136) {
-                        if (impact.yaw < 0)
-                            g_aPaletteFadeEntries_005a76d0[3][0] = 0x38;
-                        else
-                            g_aPaletteFadeEntries_005a76d0[5][0] = 0x38;
+        switch (g_aeObjectClass_00495328[obj]) {
+        case OBJECT_CLASS_PROJECTILE:
+            if (g_acObjectOwner_00495208[obj] != partner &&
+                g_aeObjectClass_00495328[partner] !=
+                    OBJECT_CLASS_PROJECTILE) {
+                if (g_aeObjectClass_00495328[partner] >=
+                        OBJECT_CLASS_MISSILE) {
+                    if (partner == 0) {
+                        ComputeVectorDelta(
+                            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                            &g_aShipPosition_00494550[obj], &viewDelta);
+                        transform_to_objects_frame(
+                            &viewDelta, &viewRelative, WC2_EYE_OBJECT);
+                        rectangular_to_spherical(&viewRelative, &impact);
+                        if (abs(impact.pitch) < 45) {
+                            if (abs(impact.yaw) < 45) {
+                                g_aasCockpitHitPaletteFades_005d2cb0[1][0] =
+                                    0x38;
+                            } else if (abs(impact.yaw) < 136) {
+                                if (impact.yaw < 0) {
+                                    g_aasCockpitHitPaletteFades_005d2cb0[3][0] =
+                                        0x38;
+                                } else {
+                                    g_aasCockpitHitPaletteFades_005d2cb0[5][0] =
+                                        0x38;
+                                }
+                            } else {
+                                g_aasCockpitHitPaletteFades_005d2cb0[0][0] =
+                                    0x38;
+                            }
+                        } else if (impact.pitch < 0) {
+                            g_aasCockpitHitPaletteFades_005d2cb0[2][0] =
+                                0x38;
+                        } else {
+                            g_aasCockpitHitPaletteFades_005d2cb0[4][0] =
+                                0x38;
+                        }
                     }
-                    else
-                        g_aPaletteFadeEntries_005a76d0[0][0] = 0x38;
-                } else if (impact.pitch < 0)
-                    g_aPaletteFadeEntries_005a76d0[2][0] = 0x38;
-                else
-                    g_aPaletteFadeEntries_005a76d0[4][0] = 0x38;
-            }
-            DAT_0059c910[partner] = owner;
-            g_acShipAiCooldown_0059d680[partner] += 4;
-            damage = (short)(g_asShipAccumulatedDamage_0059dee0[obj] -
-                             g_asObjectCounter_00494be0[obj] / 2);
-            force = g_aShipVelocity_00494898[obj];
-            NormalizeFixedVector(&force);
-            ScaleFixedVector(&force, (int)damage << 8, &force);
-            negate_vector(&g_vCollisionDelta_0059d690);
-            apply_force_to_object(&g_vCollisionDelta_0059d690,
-                                  &force, partner);
-            g_bApplyingCollisionDamage_00492fb8 = 1;
-            inflict_damage(obj, partner, damage, &relativeVelocity);
-            g_bApplyingCollisionDamage_00492fb8 = 0;
-        }
-        savedScale = g_asObjectScale_00494d90[obj];
-        set_objects_data(obj, OBJECT_TYPE_LASER_SPARK, owner, 0);
-        g_asObjectScale_00494d90[obj] = (short)(savedScale * 2);
-        g_aShipVelocity_00494898[obj] =
-            g_aShipVelocity_00494898[partner];
-        if (partnerClass == OBJECT_CLASS_ASTEROID)
-            hit_asteroid(partner, 3);
-        return 0;
-
-    case OBJECT_CLASS_ASTEROID:
-        if (g_aeObjectClass_00495328[partner] ==
-                OBJECT_CLASS_ASTEROID) {
-            if (g_asObjectScreenX_00493598[obj] == (short)0x8001) {
-                remove_object(obj);
-                return 0;
-            }
-            hit_asteroid(obj, 0);
-            return 0;
-        }
-        break;
-
-    case OBJECT_CLASS_MINE:
-        if (owner == partner ||
-            g_acObjectCollisionGraceTicks_0059ddb0[obj] > 0)
-            return 0;
-        if (easy2see(obj) == 0 &&
-            (g_nCurrentView_00492fa8 == 0 || partner != 0)) {
-            remove_object(obj);
-            return 0;
-        }
-        explode(obj, obj);
-        return 0;
-
-    case OBJECT_CLASS_MISSILE:
-        if (owner != partner ||
-            g_acObjectCollisionGraceTicks_0059ddb0[obj] < 1) {
-            ScaleFixedVector(&g_aShipVelocity_00494898[obj],
-                (unsigned short)g_asObjectRadarRadius_0059c790[obj]
-                    << 8, &force);
-            negate_vector(&g_vCollisionDelta_0059d690);
-            apply_force_to_object(&g_vCollisionDelta_0059d690,
-                                  &force, partner);
-            explode(obj, obj);
-            zero_vector(&g_aShipVelocity_00494898[obj]);
-            return 0;
-        }
-        break;
-
-    case OBJECT_CLASS_SHIP:
-    case OBJECT_CLASS_CAPITAL_SHIP:
-        partnerClass = g_aeObjectClass_00495328[partner];
-        if ((partnerClass == OBJECT_CLASS_ASTEROID ||
-             (partnerClass == OBJECT_CLASS_MINE &&
-              g_acObjectOwner_00495208[partner] == -1)) &&
-            easy2see(partner) == 0 &&
-            (g_nCurrentView_00492fa8 == 0 || obj != 0)) {
-            remove_object(partner);
-        }
-        partnerClass = g_aeObjectClass_00495328[partner];
-        if ((partnerClass == OBJECT_CLASS_ASTEROID ||
-             partnerClass == OBJECT_CLASS_SHIP ||
-             partnerClass == OBJECT_CLASS_CAPITAL_SHIP) &&
-            g_acLastCollisionObject_0059d6a0[obj] != partner) {
-            PlaySfxWaveFileByNumber(0x1c, obj, 0);
-            g_acLastCollisionObject_0059d6a0[obj] =
-                (signed char)partner;
-            g_acLastCollisionObject_0059d6a0[partner] =
-                (signed char)obj;
-
-            separationScale = DivideFixed(
-                (g_asObjectCollisionRadius_004950e8[obj] +
-                 g_asObjectCollisionRadius_004950e8[partner]) << 8,
-                Vector_magnitude(&g_vCollisionDelta_0059d690));
-            separationScale = MinInt(separationScale, 0x7d000);
-            ScaleFixedVector(&g_vCollisionDelta_0059d690,
-                             separationScale, &separation);
-            AddFixedVectors(&g_aShipPosition_00494550[obj], &separation,
-                            &g_aShipPosition_00494550[partner]);
-
-            vector_component_in_dir(
-                &g_aShipVelocity_00494898[obj],
-                &g_vCollisionDelta_0059d690, &objectComponent);
-            SubtractFixedVectors(&g_aShipVelocity_00494898[obj],
-                                 &objectComponent, &tangent);
-            vector_component_in_dir(
-                &g_aShipVelocity_00494898[partner],
-                &g_vCollisionDelta_0059d690, &partnerComponent);
-            ComputeVectorDelta(&partnerComponent, &objectComponent,
-                               &componentDelta);
-            collisionSpeed =
-                (short)((unsigned int)Vector_magnitude(&componentDelta) >> 8);
-            damage = (short)((collisionSpeed * collisionSpeed) >> 1);
-#ifdef WC1_SDL
-            if (obj == 0 || partner == 0)
-                Wc1SdlQueueJoystickCollisionRumble(collisionSpeed);
-#endif
-
-            objectMass = (unsigned short)
-                g_asObjectRadarRadius_0059c790[obj];
-            partnerMass = (unsigned short)
-                g_asObjectRadarRadius_0059c790[partner];
-            totalMass = objectMass + partnerMass;
-            responseScale = ((objectMass - partnerMass) * 256) /
-                            totalMass;
-            responseScale = MaxInt(0x40, responseScale);
-            responseScale = MinInt(responseScale, 0x400);
-            ScaleFixedVector(&componentDelta, responseScale, &impulse);
-            AddFixedVectors(&impulse, &partnerComponent, &impulse);
-            forceMagnitude = MultiplyFixed(
-                objectMass * 0x600,
-                Vector_magnitude(&impulse)) + 0xa00;
-            AddFixedVectors(&impulse, &g_aShipVelocity_00494898[obj],
-                            &g_aShipVelocity_00494898[obj]);
-
-            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP) {
-                NormalizeFixedVector(&tangent);
-                negate_vector(&tangent);
-                ScaleFixedVector(&tangent, forceMagnitude, &tangent);
-                rotational_acceleration(&g_vCollisionDelta_0059d690,
-                                        &tangent, obj);
-                negate_vector(&relativeVelocity);
-                inflict_damage(partner, obj, damage, &relativeVelocity);
-                negate_vector(&relativeVelocity);
-            }
-
-            SubtractFixedVectors(&g_aShipVelocity_00494898[partner],
-                                 &partnerComponent, &partnerTangent);
-            responseScale = (objectMass << 9) / totalMass;
-            responseScale = MaxInt(0x40, responseScale);
-            responseScale = MinInt(responseScale, 0x400);
-            ScaleFixedVector(&componentDelta, responseScale, &impulse);
-            AddFixedVectors(&impulse, &partnerComponent, &impulse);
-            AddFixedVectors(&impulse,
-                            &g_aShipVelocity_00494898[partner],
-                            &g_aShipVelocity_00494898[partner]);
-            if (partnerClass == OBJECT_CLASS_SHIP) {
-                NormalizeFixedVector(&partnerTangent);
-                negate_vector(&partnerTangent);
-                ScaleFixedVector(&partnerTangent, forceMagnitude,
-                                 &partnerTangent);
-                negate_vector(&g_vCollisionDelta_0059d690);
-                rotational_acceleration(&g_vCollisionDelta_0059d690,
-                                        &partnerTangent, partner);
-                inflict_damage(obj, partner, damage, &relativeVelocity);
-            }
-            if (partnerClass == OBJECT_CLASS_CAPITAL_SHIP) {
-                SubtractFixedVectors(&g_aShipPosition_00494550[obj],
-                                     &g_aShipVelocity_00494898[obj],
-                                     &g_aShipPosition_00494550[obj]);
-                g_anShipSpeed_0059b320[obj] = 0;
+                    g_acShipLastAttacker_004955c0[partner] =
+                        g_acObjectOwner_00495208[obj];
+                    g_acShipCollisionCooldown_00496010[partner] += 4;
+                    if (g_abProjectileCollisionBonus_004960a8[obj] != 0)
+                        DAT_004960f0[partner] += 4;
+                    if (g_asObjectType_00495298[obj] == 9 ||
+                        g_asObjectType_00495298[obj] == 0x0e) {
+                        damage = g_asObjectDamage_00495178[obj];
+                    } else {
+                        lifetime = *(int *)&g_aObjectTypeData_00496d30[
+                            g_acObjectType_00493980[obj]].lifetime;
+                        damage = (short)(
+                            (g_asObjectCounter_00494be0[obj] / lifetime + 1) *
+                            (g_asObjectDamage_00495178[obj] >> 1));
+                    }
+                    adaptiveDamageScale = MinShort(
+                        150, MaxShort(70, GetAdaptiveTurnRate()));
+                    if (g_asShipSide_004955d0[partner] == 0) {
+                        damage = (short)(adaptiveDamageScale * damage / 100);
+                    }
+                    force = g_aShipVelocity_00494898[obj];
+                    NormalizeFixedVector(&force);
+                    ScaleFixedVector(&force, (int)damage << 8, &force);
+                    negate_vector(&g_vCollisionDelta_00493178);
+                    apply_force_to_object(&g_vCollisionDelta_00493178,
+                                          &force, partner);
+                    g_bApplyingCollisionDamage_00492fb8 = 1;
+                    inflict_damage(obj, partner, damage, &relativeVelocity);
+                    g_bApplyingCollisionDamage_00492fb8 = 0;
+                }
+                savedScale = g_asObjectScale_00494d90[obj];
+                set_objects_data(
+                    obj, WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT,
+                    g_acObjectOwner_00495208[obj], 0);
+                g_asObjectScale_00494d90[obj] = (short)(savedScale * 2);
                 g_aShipVelocity_00494898[obj] =
                     g_aShipVelocity_00494898[partner];
+                RecordCannedSceneObjectEvent(obj, 0);
+                if (g_aeObjectClass_00495328[partner] ==
+                        OBJECT_CLASS_ASTEROID) {
+                    hit_asteroid(partner, 3);
+                }
             }
+            break;
+
+        case OBJECT_CLASS_MINE:
+            if (g_acObjectOwner_00495208[obj] != partner &&
+                g_acObjectCollisionGraceTicks_00494d48[obj] < 1) {
+                if (easy2see(obj) == 0 &&
+                    (g_nCurrentView_00492fa8 == 0 || partner != 0)) {
+                    remove_object(obj);
+                } else {
+                    explode(obj, obj);
+                }
+            }
+            break;
+
+        case OBJECT_CLASS_MISSILE:
+            if (g_acObjectOwner_00495208[obj] != partner ||
+                g_acObjectCollisionGraceTicks_00494d48[obj] < 1) {
+                ScaleFixedVector(&g_aShipVelocity_00494898[obj],
+                                 (int)objectMass << 8, &force);
+                negate_vector(&g_vCollisionDelta_00493178);
+                apply_force_to_object(&g_vCollisionDelta_00493178,
+                                      &force, partner);
+                explode(obj, obj);
+                zero_vector(&g_aShipVelocity_00494898[obj]);
+            }
+            break;
+
+        case OBJECT_CLASS_ASTEROID:
+            if (g_aeObjectClass_00495328[partner] ==
+                    OBJECT_CLASS_ASTEROID) {
+                if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
+                    remove_object(obj);
+                else
+                    hit_asteroid(obj, 0);
+            }
+            break;
+
+        case OBJECT_CLASS_SHIP:
+        case OBJECT_CLASS_CAPITAL_SHIP:
+        case OBJECT_CLASS_BASE:
+            if ((g_aeObjectClass_00495328[partner] ==
+                     OBJECT_CLASS_ASTEROID ||
+                 (g_aeObjectClass_00495328[partner] ==
+                      OBJECT_CLASS_MINE &&
+                  g_acObjectOwner_00495208[partner] == -1)) &&
+                easy2see(partner) == 0 &&
+                (g_nCurrentView_00492fa8 == 0 || obj != 0)) {
+                remove_object(partner);
+            }
+            if ((g_aeObjectClass_00495328[partner] ==
+                     OBJECT_CLASS_ASTEROID ||
+                 g_aeObjectClass_00495328[partner] ==
+                     OBJECT_CLASS_SHIP ||
+                 g_aeObjectClass_00495328[partner] >=
+                     OBJECT_CLASS_CAPITAL_SHIP) &&
+                g_acLastCollisionObject_00495250[obj] != partner) {
+                PlaySfxWaveFileByNumber(0x1c, obj, 0);
+                g_acLastCollisionObject_00495250[partner] =
+                    (signed char)obj;
+                g_acLastCollisionObject_00495250[obj] =
+                    (signed char)partner;
+
+                forceMagnitude =
+                    Vector_magnitude(&g_vCollisionDelta_00493178);
+                forceMagnitude = DivideFixed(
+                    (g_asObjectCollisionRadius_004950e8[obj] +
+                     g_asObjectCollisionRadius_004950e8[partner]) << 8,
+                    forceMagnitude);
+                forceMagnitude = MinInt(forceMagnitude, 0x7d000);
+                ScaleFixedVector(&g_vCollisionDelta_00493178,
+                                 forceMagnitude, &force);
+                AddFixedVectors(&g_aShipPosition_00494550[obj], &force,
+                                &g_aShipPosition_00494550[partner]);
+
+                vector_component_in_dir(
+                    &g_aShipVelocity_00494898[obj],
+                    &g_vCollisionDelta_00493178, &force);
+                SubtractFixedVectors(&g_aShipVelocity_00494898[obj],
+                                     &force, &tangent);
+                vector_component_in_dir(
+                    &g_aShipVelocity_00494898[partner],
+                    &g_vCollisionDelta_00493178, &partnerComponent);
+                ComputeVectorDelta(&partnerComponent, &force,
+                                   &componentDelta);
+                damage = (short)(Vector_magnitude(&componentDelta) >> 8);
+#ifdef WC1_SDL
+                if (obj == 0 || partner == 0)
+                    Wc1SdlQueueJoystickCollisionRumble(damage);
+#endif
+                damage = (short)((damage * damage) >> 1);
+                totalMass = partnerMass + objectMass;
+                responseScale = ((objectMass - partnerMass) << 8) /
+                                totalMass;
+                responseScale = MinInt(
+                    MaxInt(0x40, responseScale), 0x400);
+                ScaleFixedVector(&componentDelta, responseScale, &force);
+                AddFixedVectors(&force, &partnerComponent, &force);
+                forceMagnitude = MultiplyFixed(
+                    (int)objectMass * 0x600,
+                    Vector_magnitude(&force)) + 0xa00;
+                speed = (short)(Vector_magnitude(
+                    &g_aShipVelocity_00494898[obj]) >> 8);
+                if (speed < g_asShipMaximumVelocity_00495f70[obj]) {
+                    AddFixedVectors(&force,
+                                    &g_aShipVelocity_00494898[obj],
+                                    &g_aShipVelocity_00494898[obj]);
+                }
+
+                if (g_aeObjectClass_00495328[obj] ==
+                        OBJECT_CLASS_SHIP) {
+                    NormalizeFixedVector(&tangent);
+                    negate_vector(&tangent);
+                    ScaleFixedVector(&tangent, forceMagnitude, &tangent);
+                    rotational_acceleration(&g_vCollisionDelta_00493178,
+                                            &tangent, obj);
+                    negate_vector(&relativeVelocity);
+                    if (g_asObjectType_00495298[obj] == 0x33 &&
+                        g_aeObjectClass_00495328[partner] ==
+                            OBJECT_CLASS_ASTEROID) {
+                        damage /= 2;
+                    }
+                    inflict_damage(partner, obj, damage, &relativeVelocity);
+                    negate_vector(&relativeVelocity);
+                }
+
+                SubtractFixedVectors(&g_aShipVelocity_00494898[partner],
+                                     &partnerComponent, &tangent);
+                responseScale = ((objectMass + objectMass) << 8) /
+                                totalMass;
+                responseScale = MinInt(
+                    MaxInt(0x40, responseScale), 0x400);
+                ScaleFixedVector(&componentDelta, responseScale, &force);
+                AddFixedVectors(&force, &partnerComponent, &force);
+                speed = (short)(Vector_magnitude(
+                    &g_aShipVelocity_00494898[obj]) >> 8);
+                if (speed < g_asShipMaximumVelocity_00495f70[partner]) {
+                    AddFixedVectors(&force,
+                                    &g_aShipVelocity_00494898[partner],
+                                    &g_aShipVelocity_00494898[partner]);
+                }
+                if (g_aeObjectClass_00495328[partner] ==
+                        OBJECT_CLASS_SHIP) {
+                    NormalizeFixedVector(&tangent);
+                    negate_vector(&tangent);
+                    ScaleFixedVector(&tangent, forceMagnitude, &tangent);
+                    negate_vector(&g_vCollisionDelta_00493178);
+                    rotational_acceleration(&g_vCollisionDelta_00493178,
+                                            &tangent, partner);
+                    inflict_damage(obj, partner, damage, &relativeVelocity);
+                }
+                if (g_aeObjectClass_00495328[partner] >=
+                        OBJECT_CLASS_CAPITAL_SHIP) {
+                    SubtractFixedVectors(&g_aShipPosition_00494550[obj],
+                                         &g_aShipVelocity_00494898[obj],
+                                         &g_aShipPosition_00494550[obj]);
+                    g_anShipSpeed_00494e20[obj] = 0;
+                    g_aShipVelocity_00494898[obj] =
+                        g_aShipVelocity_00494898[partner];
+                }
+            }
+            break;
         }
-        break;
     }
-    return 0;
 }
 
 /* Function start: 0x41E276 */
-unsigned int object_intelligence(short obj)
+void object_intelligence(short obj)
 {
-    if (g_nCannedSceneMode_0049021c == 4)
-        return 0;
-    if (g_nCannedSceneMode_0049021c == 2 &&
-        g_aeObjectClass_00495328[obj] > OBJECT_CLASS_MISSILE) {
-        update_canned_sequence(obj);
-        return 0;
-    }
+    short target;
+
+    if (g_nTrainSimActive_0049d758 == 4)
+        return;
     switch (g_aeObjectClass_00495328[obj]) {
+    case OBJECT_CLASS_SHIP:
+        if (g_asObjectType_00495298[obj] == 0x33 &&
+            (obj == 0 ||
+             (g_bJumpSequenceActive_004962f0 != 0 &&
+              g_nYourWingman_0049346c == obj))) {
+            capital_ship_intelligence(obj);
+        } else {
+            ship_intelligence(obj);
+        }
+        break;
+    case OBJECT_CLASS_CAPITAL_SHIP:
+        capital_ship_intelligence(obj);
+        break;
+    case OBJECT_CLASS_BASE:
+        stationary_intelligence(obj);
+        break;
     case OBJECT_CLASS_FUTURION:
         futurion_intelligence(obj);
         break;
@@ -1795,34 +1966,30 @@ unsigned int object_intelligence(short obj)
             g_nExternalViewShip_00493468 != obj) {
             break;
         }
-        if (g_acShipTarget_00495f20[obj] != -1) {
-            get_facing_range_from_object(
-                obj, g_acShipTarget_00495f20[obj]);
-        }
-        switch (g_acObjectType_00493980[obj]) {
-        case OBJECT_TYPE_DUMB_FIRE_MISSILE:
-            g_anShipSpeed_0059b320[obj] =
+        target = g_acShipTarget_00495f20[obj];
+        if (target != -1)
+            get_facing_range_from_object(obj, target);
+        switch (g_asObjectType_00495298[obj]) {
+        case WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE:
+            g_anShipSpeed_00494e20[obj] =
                 (get_ship_max_velocity(obj) + 10) * 0x100;
             break;
-        case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
+        case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
             heat_seeking_missile_intelligence(obj);
             break;
-        case OBJECT_TYPE_FF_MISSILE:
+        case WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE:
             FF_missile_intelligence(obj);
             break;
-        case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
+        case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+        case WC2_OBJECT_TYPE_TORPEDO:
             point_ship(obj, 0, &g_vToTarget_00493188);
-            g_anShipSpeed_0059b320[obj] =
+            g_anShipSpeed_00494e20[obj] =
                 (get_ship_max_velocity(obj) + 10) * 0x100;
+            break;
+        case WC2_OBJECT_TYPE_CHAFF_POD:
+            chaff_intelligence(obj);
             break;
         }
         break;
-    case OBJECT_CLASS_SHIP:
-        ship_intelligence(obj);
-        break;
-    case OBJECT_CLASS_CAPITAL_SHIP:
-        capital_ship_intelligence(obj);
-        break;
     }
-    return 0;
 }

@@ -113,7 +113,7 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (DAT_005a6be0.left != -99)
         return 1;
 
-    g_anShipMissionShip_00495e00[1] = -1;
+    g_asShipMissionParameter_00495e00[1] = -1;
     g_aeShipObjective_00495f08[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
     if (g_aeShipMissionType_0059c3f0[1] != MISSION_TYPE_ROUT)

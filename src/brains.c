@@ -1202,95 +1202,60 @@ unsigned int AnimateScrambleWalk(short ticks)
 }
 
 /* Function start: 0x460650 */
-unsigned int PlayScrambleHangarScene(void)
+void UpdateTargetCameraObject(short obj)
 {
-    if (g_nMemoryConfiguration_005a7cd4 == 1)
-        SceneLeaveHook();
-    else
-        PreloadMusicTrackHook(0x1b);
-    spacetrack(0x1b, 1, -1);
+    long speed;
+    short objective;
 
-    InitializeConversationViewport();
-    g_cScrambleLeftWalkerFrame_00465768 = 7;
-    g_nScrambleBackgroundX_00465780 = 0;
-    g_cScrambleRightWalkerFrame_0046576c = 10;
-    g_nScrambleLeftWalkerX_00465778 = 70;
-    g_nScrambleRightWalkerX_0046577c = 170;
-    g_pScrambleHangarShape_005a872c =
-        FetchDiskPacketRetrying(1, 0, 0);
-    g_cScrambleWalkerPair_005a8748 =
-        (signed char)(((unsigned short)rand() + 3) & 3);
-    PlaySfxWaveFileByNumber(14, -1, 0);
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-
-    AnimateScrambleWalk(24);
-    if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-        g_cScrambleLeftWalkerFrame_00465768 = 21;
-        g_cScrambleRightWalkerFrame_0046576c = 24;
-        g_nScrambleLeftWalkerX_00465778 = 90;
-        g_nScrambleRightWalkerX_0046577c = 200;
-        g_nScrambleWalkerY_005a8734 = -14;
-        g_nFrameSkipCountdown_0049d760 = 1;
-        for (g_cScrambleWalkTicks_005a86e8 = 0;
-             g_cScrambleWalkTicks_005a86e8 < 24;
-             g_cScrambleWalkTicks_005a86e8++) {
-            PumpWindowMessages(0);
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleBackgroundX_00465780, 0,
-                                  g_pScrambleHangarShape_005a872c, 2);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  (short)(g_nScrambleBackgroundX_00465780 +
-                                          320),
-                                  0, g_pScrambleHangarShape_005a872c, 2);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  (short)(g_nScrambleBackgroundX_00465780 +
-                                          640),
-                                  0, g_pScrambleHangarShape_005a872c, 2);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleLeftWalkerX_00465778,
-                                  g_nScrambleWalkerY_005a8734,
-                                  g_pScrambleHangarShape_005a872c,
-                                  g_cScrambleLeftWalkerFrame_00465768);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  g_nScrambleRightWalkerX_0046577c,
-                                  g_nScrambleWalkerY_005a8734,
-                                  g_pScrambleHangarShape_005a872c,
-                                  g_cScrambleRightWalkerFrame_0046576c);
-                RefreshMemoryStatusOverlay();
-                MarkDibDirty();
-                DIBslamReal();
-
-                g_cScrambleLeftWalkerFrame_00465768++;
-                if (g_cScrambleLeftWalkerFrame_00465768 > 26)
-                    g_cScrambleLeftWalkerFrame_00465768 = 21;
-                g_cScrambleRightWalkerFrame_0046576c++;
-                if (g_cScrambleRightWalkerFrame_0046576c > 26)
-                    g_cScrambleRightWalkerFrame_0046576c = 21;
-            }
-            g_nScrambleBackgroundX_00465780 =
-                (short)(g_nScrambleBackgroundX_00465780 - 12);
-            g_nScrambleLeftWalkerX_00465778 =
-                (short)(g_nScrambleLeftWalkerX_00465778 + 2);
-            g_nScrambleRightWalkerX_0046577c =
-                (short)(g_nScrambleRightWalkerX_0046577c + 3);
-            if (g_bSceneEscapeRequested_0049d4b0 == 1)
-                break;
-        }
-
-        if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-            g_cScrambleLeftWalkerFrame_00465768 = 7;
-            g_cScrambleRightWalkerFrame_0046576c = 10;
-            AnimateScrambleWalk(24);
-        }
+    if ((g_nSpaceFrame_00493134 & 7) == 0) {
+        FlushSoundEffectsAndLog(g_nTargetCameraSoundHandle_0049d3fc, 0);
+        g_nTargetCameraSoundHandle_0049d3fc = 0;
+        PlaySfxWaveFileByNumber(0x26, -1, 0);
     }
-
-    FlushSoundEffectsAndLog();
-    ReleasePacketHandle(g_pScrambleHangarShape_005a872c);
-    ResetScreenClipToFullHeight();
-    return 0;
+    zero_vector(&g_aShipVelocity_00494898[obj]);
+    point_ship_at_object(obj, 0);
+    trim_goals(obj, 10);
+    g_vTargetCameraForce_005c8d60 =
+        g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+    negate_vector(&g_vTargetCameraForce_005c8d60);
+    ScaleFixedVector(&g_vTargetCameraForce_005c8d60, 0x6400,
+                     &g_vTargetCameraForce_005c8d60);
+    apply_force_to_objects_center(&g_vTargetCameraForce_005c8d60, obj);
+    g_vTargetCameraForce_005c8d60 =
+        g_aShipVelocity_00494898[WC2_EYE_OBJECT];
+    apply_force_to_objects_center(&g_vTargetCameraForce_005c8d60, obj);
+    speed = Vector_magnitude(&g_aShipVelocity_00494898[obj]);
+    if (speed > 0x6400)
+        NormalizeAndScaleVector(&g_aShipVelocity_00494898[obj], 0x6400);
+    if (distance_between_points(&g_aShipPosition_00494550[0],
+                                &g_aShipPosition_00494550[obj]) < 500) {
+        FlushSoundEffectsAndLog(g_nTargetCameraSoundHandle_0049d3fc, 0);
+        g_nTargetCameraSoundHandle_0049d3fc = 0;
+        if (g_pCampaignGlobals_00499c94 == 0)
+            LoadTemporaryCampaignGlobals();
+        if (g_asObjectType_00495298[obj] == 0x3d) {
+            g_pCampaignGlobals_00499c94->field_0e = 0;
+        } else {
+            g_pCampaignGlobals_00499c94->field_0e = 1;
+            if (g_bMissionDeathSequencePending_0049b720 != 0) {
+                g_bMissionDeathSequencePending_0049b720 = 0;
+                g_bMissionWingmanFlag_005c8dbe = 1;
+            }
+        }
+        for (objective = 0;
+             objective < (short)g_cMissionObjectiveCount_00493294;
+             objective++) {
+            if (g_aMissionObjectives_004932a8[objective].type == 6 &&
+                g_aMissionObjectives_004932a8[objective].index ==
+                    g_asShipMissionIndex_00495d00[obj])
+                flag_reached(objective, 0);
+        }
+        remove_object(obj);
+        g_aMissionShips_00492290[
+            g_asShipMissionIndex_00495d00[obj]].state = 2;
+        ClearTargetCameraView();
+        ejection_sequence((short)(g_nPlayerShipType_00493464 + 0x32), 1);
+    }
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2272,7 +2237,7 @@ short RunCampaignGameLoop(short campaignSlot)
                  (short)g_stCampaignState_0059ca50.currentMission);
         break;
     case 3:
-        PlayScrambleHangarScene();
+        UpdateTargetCameraObject(0);
         break;
     case 4:
         scramble();
@@ -2646,35 +2611,44 @@ void cruise_home(short obj)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4429A7 */
 void fail(short obj)
 {
     reset_objective(obj, OBJECTIVE_NONE);
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4429C0 */
 void coming_home(short obj)
 {
-    short objective;
+    short home;
+    short range;
 
-    switch (g_aeShipTactic_0059d5e0[obj]) {
-    case TACTIC_NONE:
-        reset_tactic(obj, TACTIC_CRUISE);
-        if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL &&
-            g_asShipMissionType_00495de8[obj] == MISSION_TYPE_ROUT) {
-            objective = find_objective(1, -1);
-            g_aShipDestination_004953f0[obj] =
-                g_aMissionObjectives_004932a8[objective].position;
-        } else {
-            get_first_follow_point(obj, &g_aShipDestination_004953f0[obj]);
-        }
-        break;
+    switch (g_asShipTactic_0059d5e0[obj]) {
     case TACTIC_CRUISE:
         cruise_home(obj);
         break;
     case TACTIC_HEAD_HOME:
-        if (no_goal(obj) != 0)
-            point_parallel(obj, find_ship_index(g_stMissionHeader_005d3e70.homeMissionShip));
+        home = find_ship_index(g_stMissionHeader_005d3e70.homeMissionShip);
+        range = distance_from_object(obj, home);
+        if (g_asObjectCollisionRadius_004950e8[obj] + 800 < range)
+            approach_cruise_speed(obj);
+        else
+            approach_ship_speed(obj, home);
+        point_ship_behind_object(obj, home);
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+            g_asObjectCollisionRadius_004950e8[obj] + 800 > range)
+            remove_object(obj);
+        break;
+    case TACTIC_NONE:
+        reset_tactic(obj, TACTIC_CRUISE);
+        if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL &&
+            g_asShipMissionType_00495de8[obj] == MISSION_TYPE_ROUT) {
+            g_aShipDestination_004953f0[obj] =
+                g_aMissionObjectives_004932a8[
+                    find_objective(1, -1)].position;
+        } else {
+            get_first_follow_point(obj, &g_aShipDestination_004953f0[obj]);
+        }
         break;
     default:
         fail(obj);
@@ -2727,14 +2701,14 @@ short check_engage_target(short obj)
 /* Function start: 0x442D58 */
 short check_destroy_target(short obj)
 {
-    short destroyTarget = find_ship_index(g_anShipMissionShip_00495e00[obj]);
+    short destroyTarget = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
     int determination;
 
     if (destroyTarget == -1) {
         g_acShipTarget_00495f20[obj] = check_engage_target(obj);
     } else if (g_aeObjectClass_00495328[destroyTarget] ==
                    OBJECT_CLASS_FUTURION ||
-               gone_ship(g_anShipMissionShip_00495e00[obj]) != 0) {
+               gone_ship(g_asShipMissionParameter_00495e00[obj]) != 0) {
         check_engage_target(obj);
     } else {
         determination = 70;
@@ -2981,7 +2955,7 @@ short scan_and_lock(short obj, int scanRange, enum ShipTactic newTactic)
 {
     g_acShipTarget_00495f20[obj] = scan_for_enemy(obj, 14000);
     if (g_acShipTarget_00495f20[obj] != -1)
-        g_aeShipTactic_0059d5e0[obj] = newTactic;
+        g_asShipTactic_0059d5e0[obj] = newTactic;
     return g_acShipTarget_00495f20[obj] != -1;
 }
 
@@ -2990,7 +2964,7 @@ void patrol_area(short obj)
 {
     short target = g_acShipTarget_00495f20[obj];
 
-    switch (g_aeShipTactic_0059d5e0[obj]) {
+    switch (g_asShipTactic_0059d5e0[obj]) {
     case TACTIC_HEAD_HOME:
         approach_cruise_speed(obj);
         if (scan_and_lock(obj, 14000, TACTIC_APPROACH_TARGET) == 0) {
@@ -3050,7 +3024,7 @@ void kilrathi_patrol(short obj)
         break;
     case OBJECTIVE_NONE:
         g_aeShipObjective_00495f08[obj] = OBJECTIVE_WANDER;
-        g_aeShipTactic_0059d5e0[obj] = TACTIC_APPROACH_TARGET;
+        g_asShipTactic_0059d5e0[obj] = TACTIC_APPROACH_TARGET;
         break;
     default:
         fail(obj);
@@ -3125,9 +3099,9 @@ void cruise_to_destination(short obj)
 
     if ((g_abShipTurn_00495fd8[obj] & 7) != 2)
         return;
-    if (g_asShipSystemIndex_00495e00[obj] ==
+    if (g_asShipMissionParameter_00495e00[obj] ==
         g_nCurrentNavPoint_004931bc) {
-        g_acShipDestinationSystem_004953e0[obj] =
+        g_acShipNavPoint_004953e0[obj] =
             (signed char)g_nCurrentNavPoint_004931bc;
         g_aShipDestination_004953f0[obj] =
             g_aShipMissionSpot_00495e18[obj];
@@ -3189,7 +3163,7 @@ void accelerate_and_jump(short obj)
 /* Function start: 0x443DBD */
 void reach_warp(short obj)
 {
-    switch (g_aeShipTactic_0059d5e0[obj]) {
+    switch (g_asShipTactic_0059d5e0[obj]) {
     case TACTIC_CRUISE:
         cruise_to_destination(obj);
         break;
@@ -3209,10 +3183,23 @@ void reach_warp(short obj)
     }
 }
 
+/* Function start: 0x443E8C */
+void split_patrol_mission(short obj)
+{
+    if (g_asShipMissionParameter_00495e00[obj] ==
+        g_nCurrentNavPoint_004931bc) {
+        g_asShipWingLeader_00495dd0[obj] = -1;
+        g_acShipNavPoint_004953e0[obj] =
+            (signed char)g_nCurrentNavPoint_004931bc;
+    }
+    g_aeShipObjective_00495f08[obj] = OBJECTIVE_HOLD_FORMATION;
+    imperial_wingman(obj);
+}
+
 /* Function start: 0x443EE9 */
 void warp_arrival(short obj)
 {
-    if (g_aeShipTactic_0059d5e0[obj] == TACTIC_WARP_IN)
+    if (g_asShipTactic_0059d5e0[obj] == TACTIC_WARP_IN)
         arrive_from_warp(obj);
     else
         reset_tactic(obj, TACTIC_WARP_IN);
@@ -3241,7 +3228,7 @@ void escort_buddy(short obj, short buddy)
 /* Function start: 0x443FE4 */
 void escort_mission(short obj)
 {
-    short buddy = find_ship_index(g_anShipMissionShip_00495e00[obj]);
+    short buddy = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
 
     if (unactive(buddy) != 0) {
         change_mission_type(obj, MISSION_TYPE_PATROL);
@@ -3278,7 +3265,7 @@ void escort_mission(short obj)
 /* Function start: 0x444199 */
 void check_goal(short obj)
 {
-    if (gone_ship(g_anShipMissionShip_00495e00[obj]) != 0)
+    if (gone_ship(g_asShipMissionParameter_00495e00[obj]) != 0)
         reset_mission_type(obj, MISSION_TYPE_ROUT);
     else
         reset_mission_type(obj, MISSION_TYPE_PATROL);
@@ -3333,7 +3320,7 @@ void approach_and_engage(short obj, short goal)
 /* Function start: 0x444420 */
 void strike_mission(short obj)
 {
-    short goal = find_ship_index(g_anShipMissionShip_00495e00[obj]);
+    short goal = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
 
 #ifdef WC1_SDL
     /* The original source indexes class[-1] here.  In the Win32 layout that
@@ -3383,7 +3370,7 @@ void return_to_master(short obj, short master)
 /* Function start: 0x44472C */
 void defend_mission(short obj)
 {
-    short master = find_ship_index(g_anShipMissionShip_00495e00[obj]);
+    short master = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
     short target;
 
     if (master == -1) {
@@ -3430,7 +3417,7 @@ void defend_mission(short obj)
 /* Function start: 0x444966 */
 void rendezvous_mission(short obj)
 {
-    short goal = find_ship_index(g_anShipMissionShip_00495e00[obj]);
+    short goal = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
 
     if (unactive(goal) != 0) {
         change_mission_type(obj, MISSION_TYPE_PATROL);
@@ -3464,16 +3451,13 @@ void rendezvous_mission(short obj)
 /* Function start: 0x444ADC */
 void ship_intelligence(short obj)
 {
+    if (g_acShipCollisionCooldown_00496010[obj] > 0)
+        g_acShipCollisionCooldown_00496010[obj]--;
     if (regulate_turn(obj) != 0)
         return;
     switch (g_asShipMissionType_00495de8[obj]) {
     case MISSION_TYPE_PATROL:
-        /* The retail source tests the array address rather than this ship's
-         * side, leaving the Imperial arm present but unreachable. */
-        if (g_asShipSide_004955d0 == 0)
-            imperial_wingleader(obj);
-        else
-            kilrathi_patrol(obj);
+        kilrathi_patrol(obj);
         break;
     case MISSION_TYPE_ESCORT:
         escort_mission(obj);
@@ -3487,8 +3471,8 @@ void ship_intelligence(short obj)
     case MISSION_TYPE_WINGMAN:
         wingman_mission(obj);
         break;
-    case MISSION_TYPE_ROUT:
-        run_away(obj);
+    case MISSION_TYPE_RENDEZVOUS:
+        rendezvous_mission(obj);
         break;
     case MISSION_TYPE_GOTO_WARP:
         reach_warp(obj);
@@ -3496,21 +3480,25 @@ void ship_intelligence(short obj)
     case MISSION_TYPE_WARP_ARRIVE:
         warp_arrival(obj);
         break;
-    case MISSION_TYPE_RENDEZVOUS:
-        rendezvous_mission(obj);
-        break;
     case MISSION_TYPE_COME_HOME:
         coming_home(obj);
         break;
+    case MISSION_TYPE_ROUT:
+        run_away(obj);
+        break;
+    case MISSION_TYPE_SPLIT_PATROL:
+        split_patrol_mission(obj);
+        break;
     case MISSION_TYPE_NONE:
-        inherit_leader_mission(obj);
+        if (obj == 0)
+            approach_cruise_speed(obj);
+        else
+            inherit_leader_mission(obj);
         break;
     default:
         fail(obj);
         break;
     }
-    if (g_acShipAiCooldown_0059d680[obj] > 0)
-        g_acShipAiCooldown_0059d680[obj]--;
 }
 
 /* Function start: 0x444C80 */
@@ -3585,86 +3573,400 @@ void stationary_intelligence(short obj)
     }
 }
 
+/* Function start: 0x444F53 */
+void SpawnCapitalFlakProjectile(short weapon, short obj,
+                                int x, int y, int z)
+{
+    FixedVector direction;
+    short projectile;
+    short velocity;
+
+    projectile = new_object(0x0d, obj);
+    if (projectile != -1) {
+        g_acObjectOwner_00495208[projectile] = (signed char)obj;
+        ComputeVectorDelta(&g_aShipPosition_00494550[obj],
+                           &g_aShipPosition_00494550[
+                               g_acShipTarget_00495f20[obj]],
+                           &direction);
+        NormalizeFixedVector(&direction);
+        ScaleFixedVector(
+            &direction,
+            (int)g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].collisionRadius << 8,
+            &direction);
+        zero_vector(&g_aShipPosition_00494550[projectile]);
+        AddFixedVectors(&g_aShipPosition_00494550[obj], &direction,
+                        &g_aShipPosition_00494550[projectile]);
+        velocity = g_aObjectTypeData_00496d30[0x0d].maximumVelocity;
+        g_asObjectDamage_00495178[projectile] =
+            g_aObjectTypeData_00496d30[0x0d].damageCapacity;
+        g_asObjectCounter_00494be0[projectile] =
+            g_aObjectTypeData_00496d30[0x0d].lifetime;
+        send_at_point(projectile, (FixedVector *)&x, velocity);
+        RecordCannedSceneObjectEvent(projectile, 0);
+    }
+}
+
+/* Function start: 0x445087 */
+void capital_ship_strike_mission(short obj)
+{
+    short projectileVelocity;
+    short enemyFighterCount;
+    short effect;
+    int aimOffset;
+    short travelTicks;
+    short target;
+    short range;
+    short found;
+    short flakBurstIndex;
+    FixedVector direction;
+    FixedVector lead;
+    short clearance;
+    short firedFlak;
+    short evasive;
+    short friendlyFighterCount;
+    FixedVector adjustedAim;
+    FixedVector aimPoint;
+    short weapon;
+    short other;
+    ShipWeaponSlot *slot;
+    short lockedTarget;
+
+    flakBurstIndex = 0;
+    firedFlak = 0;
+    target = g_acShipTarget_00495f20[obj];
+    if (target != -1 &&
+        g_aeObjectClass_00495328[target] < OBJECT_CLASS_CAPITAL_SHIP)
+        destroyer_intelligence(obj);
+    if (target == -1) {
+        g_acShipTarget_00495f20[obj] =
+            (signed char)find_ship_index(
+                g_asShipMissionParameter_00495e00[obj]);
+        g_acShipSequence_00495fe8[obj] = 0;
+    }
+    target = g_acShipTarget_00495f20[obj];
+    if (target == -1 || unactive(target) != 0) {
+        found = 0;
+        for (other = 0; other < 10; other++) {
+            if (g_aeObjectClass_00495328[other] >=
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                g_asShipSide_004955d0[other] !=
+                    g_asShipSide_004955d0[obj]) {
+                g_acShipTarget_00495f20[obj] = (signed char)other;
+                target = other;
+                found = 1;
+            }
+        }
+        if (found == 0) {
+            g_acShipTarget_00495f20[obj] = -1;
+            approach_zero_speed(obj);
+            fire_turrets(obj);
+            return;
+        }
+    }
+    if (g_aeObjectClass_00495328[target] < OBJECT_CLASS_CAPITAL_SHIP)
+        destroyer_intelligence(obj);
+    fire_turrets(obj);
+    g_acShipTarget_00495f20[obj] = (signed char)target;
+    get_facing_range_from_object(obj, target);
+
+    if (DAT_005d1c10[obj] != 0) {
+        DAT_005d1c10[obj]--;
+        if (DAT_005d1c10[obj] == 0) {
+            effect = new_object(0x0e, obj);
+            if (effect != -1) {
+                DAT_005d1bf0[obj] =
+                    (short)((unsigned short)RandomInRange(0, 200) +
+                            400);
+                g_acObjectOwner_00495208[effect] = (signed char)obj;
+                ComputeVectorDelta(
+                    &g_aShipPosition_00494550[obj],
+                    &g_aShipPosition_00494550[
+                        g_acShipTarget_00495f20[obj]],
+                    &direction);
+                NormalizeFixedVector(&direction);
+                ScaleFixedVector(
+                    &direction,
+                    (int)g_aObjectTypeData_00496d30[
+                        g_acObjectType_00493980[obj]].collisionRadius << 8,
+                    &direction);
+                zero_vector(&g_aShipPosition_00494550[effect]);
+                AddFixedVectors(&g_aShipPosition_00494550[obj],
+                                &direction,
+                                &g_aShipPosition_00494550[effect]);
+                projectileVelocity =
+                    g_aObjectTypeData_00496d30[0x0e].maximumVelocity;
+                g_asObjectDamage_00495178[effect] =
+                    g_aObjectTypeData_00496d30[0x0e].damageCapacity;
+                g_asObjectCounter_00494be0[effect] =
+                    g_aObjectTypeData_00496d30[0x0e].lifetime;
+                send_at_point(
+                    effect,
+                    &g_aShipPosition_00494550[
+                        g_acShipTarget_00495f20[obj]],
+                    projectileVelocity);
+                RecordCannedSceneObjectEvent(effect, 0);
+                PlaySfxWaveFileByNumber(0x29, obj, 0);
+            }
+        }
+    } else {
+        range = distance_from_object(obj, target);
+        lockedTarget = target;
+        if (range < 5000) {
+            g_acShipSequence_00495fe8[obj] = 1;
+            point_capital_ship_at_object(obj, lockedTarget);
+            approach_speed(
+                obj,
+                (unsigned short)RandomInRange(
+                    50, (unsigned short)(
+                        g_asShipMaximumVelocity_00495f70[obj] << 8)));
+        } else if (range > 10000 ||
+                   g_acShipSequence_00495fe8[obj] != 1) {
+            g_acShipSequence_00495fe8[obj] = 2;
+            point_ship_at_object(obj, lockedTarget);
+            approach_speed(
+                obj,
+                (unsigned short)RandomInRange(
+                    50, (unsigned short)(
+                        g_asShipMaximumVelocity_00495f70[obj] << 8)));
+        }
+        if (range < 10000) {
+            slot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1];
+            for (weapon = 0;
+                 weapon <
+                     (signed char)g_aShipWeapons_004956b0[obj][0];
+                 weapon++, slot++) {
+                if (slot->type == 0x0e &&
+                    DAT_005d1bf0[obj] == 0 &&
+                    DAT_005d1c10[obj] == 0 &&
+                    g_nFacingToTarget_00493194 > 20) {
+                    PlaySfxWaveFileByNumber(0x28, obj, 0);
+                    DAT_005d1c10[obj] = 20;
+                }
+                if (slot->type == 0x0d &&
+                    DAT_005d1bd0[obj] == 0) {
+                    enemyFighterCount = 0;
+                    friendlyFighterCount = 0;
+                    evasive = 0;
+                    for (other = 0; other < 10; other++) {
+                        if (g_aeObjectClass_00495328[other] ==
+                            OBJECT_CLASS_SHIP) {
+                            if (g_asShipSide_004955d0[other] !=
+                                g_asShipSide_004955d0[obj])
+                                enemyFighterCount =
+                                    (short)(enemyFighterCount + 1);
+                            else
+                                friendlyFighterCount =
+                                    (short)(friendlyFighterCount + 1);
+                        }
+                    }
+                    if (enemyFighterCount > friendlyFighterCount &&
+                        RandomBelowOrEqual(2) == 0)
+                        evasive = 1;
+                    if (g_asObjectDamage_00495178[obj] > 0 &&
+                        RandomBelowOrEqual(1) == 0)
+                        evasive = 1;
+                    aimOffset =
+                        ((int)g_asObjectCollisionRadius_004950e8[
+                            lockedTarget] << 8) * 3;
+                    firedFlak = 1;
+                    switch (flakBurstIndex % 8) {
+                    case 0:
+                        ComputeVectorDelta(
+                            &g_aShipPosition_00494550[obj],
+                            &g_aShipPosition_00494550[lockedTarget],
+                            &g_vToTarget_00493188);
+                        clearance = (short)(
+                            FixedToShortSaturating(
+                                Vector_magnitude(
+                                    &g_vToTarget_00493188)) -
+                            g_asObjectCollisionRadius_004950e8[obj] -
+                            g_asObjectCollisionRadius_004950e8[
+                                lockedTarget]);
+                        travelTicks = (short)(clearance / 250);
+                        ScaleFixedVector(
+                            &g_aShipVelocity_00494898[lockedTarget],
+                            (int)travelTicks << 8, &lead);
+                        AddFixedVectors(
+                            &g_aShipPosition_00494550[lockedTarget],
+                            &lead, &aimPoint);
+                        if (evasive == 1) {
+                            if (RandomBelowOrEqual(1) == 0)
+                                aimPoint.x +=
+                                    (int)(clearance / 3) << 8;
+                            if (RandomBelowOrEqual(1) == 0)
+                                aimPoint.y +=
+                                    (int)(clearance / 3) << 8;
+                            if (RandomBelowOrEqual(1) == 0)
+                                aimPoint.z +=
+                                    (int)(clearance / 3) << 8;
+                        }
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, aimPoint.x,
+                            aimPoint.y, aimPoint.z);
+                        break;
+                    case 1:
+                        adjustedAim = aimPoint;
+                        adjustedAim.x += aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 2:
+                        adjustedAim = aimPoint;
+                        adjustedAim.x -= aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 3:
+                        adjustedAim = aimPoint;
+                        adjustedAim.y += aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 4:
+                        adjustedAim = aimPoint;
+                        adjustedAim.y -= aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 5:
+                        adjustedAim = aimPoint;
+                        adjustedAim.y -= aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 6:
+                        adjustedAim = aimPoint;
+                        adjustedAim.y += aimOffset;
+                        adjustedAim.x -= aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    case 7:
+                        adjustedAim = aimPoint;
+                        adjustedAim.x -= aimOffset;
+                        adjustedAim.y -= aimOffset;
+                        SpawnCapitalFlakProjectile(
+                            weapon, obj, adjustedAim.x,
+                            adjustedAim.y, adjustedAim.z);
+                        break;
+                    }
+                    flakBurstIndex = (short)(flakBurstIndex + 1);
+                }
+            }
+        }
+        if (firedFlak != 0) {
+            found = 0;
+            for (other = 0; other < 10; other++) {
+                if (DAT_005d1c10[other] != 0)
+                    found = 1;
+            }
+            if (found == 0)
+                PlaySfxWaveFileByNumber(0x27, obj, 0);
+            DAT_005d1bd0[obj] =
+                (short)((unsigned short)RandomInRange(0, 200) + 300);
+        }
+    }
+}
+
 /* Function start: 0x445AAC */
 void capital_ship_intelligence(short obj)
 {
-    enum ObjectType type;
-
     if (regulate_turn(obj) != 0)
         return;
+    if (g_asObjectType_00495298[obj] >= 0x39)
+        launch_carrier_fighter(obj);
+
     switch (g_asShipMissionType_00495de8[obj]) {
-    case MISSION_TYPE_ROUT:
-        run_away(obj);
-        return;
-    case MISSION_TYPE_GOTO_WARP:
-        reach_warp(obj);
-        return;
-    case MISSION_TYPE_WARP_ARRIVE:
-        warp_arrival(obj);
-        return;
-    case MISSION_TYPE_COME_HOME:
-        coming_home(obj);
-        return;
     case MISSION_TYPE_NONE:
         stationary_intelligence(obj);
-        return;
-    default:
         break;
-    }
-
-    type = g_acObjectType_00493980[obj];
-    if (type == OBJECT_TYPE_DORKIR || type == OBJECT_TYPE_LUMBARI) {
-        tanker_intelligence(obj);
-        return;
-    }
-    if (type == OBJECT_TYPE_SPIKERI || type == OBJECT_TYPE_RALARI ||
-        type == OBJECT_TYPE_FRALTHI || type == OBJECT_TYPE_SNAKEIR ||
-        type == OBJECT_TYPE_SIVAR || type == OBJECT_TYPE_KILRATHI_BASE) {
-        destroyer_intelligence(obj);
-        return;
-    }
-
-    g_nTargetShip_004931a0 = g_acShipTarget_00495f20[obj];
-    if (unactive(g_nTargetShip_004931a0) != 0)
-        scan_for_enemy(obj, 15000);
-    if (g_aeShipTactic_0059d5e0[obj] != TACTIC_SELF_DEFENSE) {
-        if (g_nTargetShip_004931a0 != -1) {
-            approach_full_speed(obj);
-            g_aeShipTactic_0059d5e0[obj] = TACTIC_SELF_DEFENSE;
-            g_acShipTarget_00495f20[obj] =
-                (signed char)g_nTargetShip_004931a0;
-            fire_turrets(obj);
+    case MISSION_TYPE_GOTO_WARP:
+        reach_warp(obj);
+        break;
+    case MISSION_TYPE_WARP_ARRIVE:
+        warp_arrival(obj);
+        break;
+    case MISSION_TYPE_COME_HOME:
+        coming_home(obj);
+        break;
+    case MISSION_TYPE_ROUT:
+        run_away(obj);
+        break;
+    case MISSION_TYPE_STRIKE:
+        capital_ship_strike_mission(obj);
+        break;
+    default:
+        if (obj == 0) {
+            approach_cruise_speed(0);
+        } else if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI) {
+            switch (g_asObjectType_00495298[obj]) {
+            case 0x36:
+            case 0x37:
+                tanker_intelligence(obj);
+                break;
+            case 0x34:
+            case 0x35:
+            case 0x38:
+            case 0x39:
+            case 0x3A:
+                destroyer_intelligence(obj);
+                break;
+            }
         } else {
-            approach_cruise_speed(obj);
-        }
-        return;
-    }
+            g_nTargetShip_004931a0 = g_acShipTarget_00495f20[obj];
+            if (unactive(g_nTargetShip_004931a0) != 0)
+                scan_for_enemy(obj, 15000);
 
-    approach_full_speed(obj);
-    if (unactive(g_acShipTarget_00495f20[obj]) != 0) {
-        select_target(obj);
-        if (unactive(g_acShipTarget_00495f20[obj]) != 0)
-            reset_tactic(obj, TACTIC_NONE);
-    } else {
-        fire_turrets(obj);
+            switch (g_asShipTactic_0059d5e0[obj]) {
+            case TACTIC_SELF_DEFENSE:
+                approach_full_speed(obj);
+                if (unactive(g_acShipTarget_00495f20[obj]) != 0) {
+                    select_target(obj);
+                    if (unactive(g_acShipTarget_00495f20[obj]) != 0)
+                        reset_tactic(obj, TACTIC_NONE);
+                } else {
+                    fire_turrets(obj);
+                }
+                break;
+            default:
+                if (g_nTargetShip_004931a0 != -1) {
+                    approach_full_speed(obj);
+                    g_asShipTactic_0059d5e0[obj] =
+                        TACTIC_SELF_DEFENSE;
+                    g_acShipTarget_00495f20[obj] =
+                        (signed char)g_nTargetShip_004931a0;
+                    fire_turrets(obj);
+                } else {
+                    approach_cruise_speed(obj);
+                }
+                break;
+            }
+        }
+        break;
     }
 }
 
 /* Function start: 0x445D9A */
 void futurion_intelligence(short obj)
 {
-    short range;
-    short count;
-
     ship_vs_ship(0, obj);
-    range = g_nTargetRange_0049319c;
-    count = ++g_asActionCount_0059c930[obj];
-    if (range > 1000 && count > 1000) {
+    g_asActionCount_004955e8[obj]++;
+    if (g_nTargetRange_0049319c > 1000 &&
+        g_asActionCount_004955e8[obj] > 1000) {
         g_aeObjectClass_00495328[obj] =
             (enum ObjectClass)g_asObjectCounter_00494be0[obj];
         return;
     }
-    if (count > 200 && range < 4000 && range > 1000 &&
+    if (g_asActionCount_004955e8[obj] > 200 &&
+        g_nTargetRange_0049319c < 4000 &&
+        g_nTargetRange_0049319c > 1000 &&
         g_nFacingToTarget_00493194 > 80)
         g_aeObjectClass_00495328[obj] =
             (enum ObjectClass)g_asObjectCounter_00494be0[obj];
@@ -3695,89 +3997,119 @@ void mine_intelligence(short obj)
 /* Function start: 0x445E68 */
 void heat_seeking_missile_intelligence(short obj)
 {
-    short other;
+    short chaffFound;
     short heat;
     short candidate;
-    short range;
-    short facing;
-    short targetFacing;
-    signed char viableIndex;
-    signed char targetCount;
-    signed char *target;
+    short other;
 
-    if (g_nFacingToTarget_00493194 >= 0 &&
-        g_acShipTarget_00495f20[obj] != -1) {
-        point_ship(obj, 0, &g_vToTarget_00493188);
-        g_anShipSpeed_0059b320[obj] =
+    chaffFound = 0;
+    for (other = 0; other < 10; other++) {
+        if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
+            g_asObjectType_00495298[other] == WC2_OBJECT_TYPE_CHAFF_POD &&
+            distance_from_object(obj, other) < 3000) {
+            g_acShipTarget_00495f20[obj] = (signed char)other;
+            chaffFound = 1;
+            break;
+        }
+    }
+    if (chaffFound != 0) {
+        point_ship_at_object(obj, other);
+        g_anShipSpeed_00494e20[obj] =
             (get_ship_max_velocity(obj) + 10) << 8;
-        return;
-    }
-
-    target = &g_acShipTarget_00495f20[obj];
-    other = 0;
-    g_cViableTargetCount_00496178 = 0;
-    *target = -1;
-    for (; other <= 9; other++) {
-        if (other == obj ||
-            g_aeObjectClass_00495328[other] < OBJECT_CLASS_SHIP) {
-            continue;
-        }
-        get_facing_range_from_object(obj, other);
-        range = g_nTargetRange_0049319c;
-        facing = g_nFacingToTarget_00493194;
-        viableIndex = g_cViableTargetCount_00496178;
-        targetFacing = g_nTargetFacing_00493198;
-        if (range < 9000 && facing > 0 && targetFacing < 0) {
-            g_asViableTargetDistance_00496190[viableIndex] = range;
-            g_acViableTarget_00496180[viableIndex] = other;
-            g_cViableTargetCount_00496178 = ++viableIndex;
-        }
-    }
-    SortViableTargetsByDistance();
-    targetCount = g_cViableTargetCount_00496178;
-    if (targetCount > 0) {
-        for (heat = 3; heat > 0; heat--) {
-            for (candidate = 0; candidate < targetCount; candidate++) {
-                if (g_aeObjectClass_00495328[
-                        g_acViableTarget_00496180[candidate]] ==
-                        OBJECT_CLASS_CAPITAL_SHIP ||
-                    g_abShipExhaustHeat_0059d610[
-                        g_acViableTarget_00496180[candidate]] == heat) {
-                    *target = g_acViableTarget_00496180[candidate];
-                    heat = 0;
-                    break;
+    } else if (g_nFacingToTarget_00493194 < 0 ||
+               g_acShipTarget_00495f20[obj] == -1) {
+        g_acShipTarget_00495f20[obj] = -1;
+        g_cViableTargetCount_00496178 = 0;
+        for (other = 0; other <= 9; other++) {
+            if (other != obj &&
+                g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP) {
+                get_facing_range_from_object(obj, other);
+                if (g_nTargetRange_0049319c < 9000 &&
+                    g_nFacingToTarget_00493194 > 0 &&
+                    g_nTargetFacing_00493198 < 0) {
+                    g_acViableTarget_00496180[
+                        g_cViableTargetCount_00496178] = (signed char)other;
+                    g_asViableTargetDistance_00496190[
+                        g_cViableTargetCount_00496178] =
+                            g_nTargetRange_0049319c;
+                    g_cViableTargetCount_00496178++;
                 }
             }
         }
+        SortViableTargetsByDistance();
+        if (g_cViableTargetCount_00496178 > 0) {
+            for (heat = 3; heat > 0; heat--) {
+                for (candidate = 0;
+                     candidate < g_cViableTargetCount_00496178;
+                     candidate++) {
+                    if (g_aeObjectClass_00495328[
+                            g_acViableTarget_00496180[candidate]] ==
+                            OBJECT_CLASS_CAPITAL_SHIP ||
+                        g_acShipExhaustHeat_00495660[
+                            g_acViableTarget_00496180[candidate]] == heat) {
+                        g_acShipTarget_00495f20[obj] =
+                            g_acViableTarget_00496180[candidate];
+                        heat = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        if (g_acShipTarget_00495f20[obj] == -1)
+            explode(obj, obj);
+    } else {
+        point_ship(obj, 0, &g_vToTarget_00493188);
+        g_anShipSpeed_00494e20[obj] =
+            (get_ship_max_velocity(obj) + 10) << 8;
     }
-    if (*target == -1)
-        explode(obj, obj);
 }
 
 /* Function start: 0x446133 */
 void FF_missile_intelligence(short obj)
 {
     short other;
-    short candidate;
+    short chaffFound;
 
-    if (g_aeShipTactic_0059d5e0[obj] == TACTIC_RAM) {
-        if (g_acShipTarget_00495f20[obj] == -1) {
+    chaffFound = 0;
+    if (g_asShipTactic_00495f30[obj] == TACTIC_RAM) {
+        for (other = 0; other < 10; other++) {
+            if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
+                g_asObjectType_00495298[other] ==
+                    WC2_OBJECT_TYPE_CHAFF_POD &&
+                g_asShipSide_004955d0[
+                    g_acObjectOwner_00495208[other]] !=
+                    g_asShipSide_004955d0[
+                        g_acObjectOwner_00495208[obj]] &&
+                distance_from_object(obj, other) < 3000) {
+                g_acShipTarget_00495f20[obj] = (signed char)other;
+                chaffFound = 1;
+                break;
+            }
+        }
+        if (chaffFound != 0) {
+            point_ship_at_object(obj, other);
+            g_anShipSpeed_00494e20[obj] =
+                (get_ship_max_velocity(obj) + 10) << 8;
+        } else if (g_acShipTarget_00495f20[obj] == -1) {
             g_cViableTargetCount_00496178 = 0;
             for (other = 0; other < 10; other++) {
-                if (other == obj ||
-                    g_aeObjectClass_00495328[other] < OBJECT_CLASS_SHIP)
-                    continue;
-                if (g_asShipSide_004955d0[
-                        g_acObjectOwner_00495208[obj]] ==
-                        g_asShipSide_004955d0[other] &&
-                    g_acShipCommunicator_0059c850[other] != -1)
-                    continue;
-                g_nTargetRange_0049319c = distance_from_object(obj, other);
-                if (g_nTargetRange_0049319c < 9000) {
-                    candidate = g_cViableTargetCount_00496178++;
-                    g_asViableTargetDistance_00496190[candidate] =
-                        g_nTargetRange_0049319c;
-                    g_acViableTarget_00496180[candidate] = other;
+                if (obj != other &&
+                    g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
+                    (g_asShipSide_004955d0[
+                         g_acObjectOwner_00495208[obj]] !=
+                         g_asShipSide_004955d0[other] ||
+                     g_acShipDestroyedWeaponCount_00495680[other] == -1)) {
+                    g_nTargetRange_0049319c =
+                        distance_from_object(obj, other);
+                    if (g_nTargetRange_0049319c < 9000) {
+                        g_acViableTarget_00496180[
+                            g_cViableTargetCount_00496178] =
+                                (signed char)other;
+                        g_asViableTargetDistance_00496190[
+                            g_cViableTargetCount_00496178] =
+                                g_nTargetRange_0049319c;
+                        g_cViableTargetCount_00496178++;
+                    }
                 }
             }
             SortViableTargetsByDistance();
@@ -3786,8 +4118,33 @@ void FF_missile_intelligence(short obj)
                     g_acViableTarget_00496180[0];
         } else {
             point_ship(obj, 0, &g_vToTarget_00493188);
-            g_anShipSpeed_0059b320[obj] =
+            g_anShipSpeed_00494e20[obj] =
                 (get_ship_max_velocity(obj) + 10) << 8;
+        }
+    }
+}
+
+/* Function start: 0x446395 */
+void chaff_intelligence(short obj)
+{
+    short other;
+    short distance;
+
+    for (other = 1; other < 10; other++) {
+        if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_MISSILE &&
+            g_asObjectType_00495298[other] != WC2_OBJECT_TYPE_CHAFF_POD) {
+            distance = distance_from_object(obj, other);
+            if (distance < 3000) {
+                switch (g_asObjectType_00495298[other]) {
+                case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+                    explode(obj, other);
+                    break;
+                case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
+                case WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE:
+                    g_acShipTarget_00495f20[other] = (signed char)obj;
+                    break;
+                }
+            }
         }
     }
 }
@@ -4738,10 +5095,10 @@ short room_for_me(short obj, short minimum)
         if (other != obj && g_aeObjectClass_00495328[other] >= 8) {
             ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                                &g_aShipPosition_00494550[other],
-                               &g_vCollisionDelta_0059d690);
+                               &g_vCollisionDelta_00493178);
             range = (short)((g_asObjectCollisionRadius_004950e8[other] +
                              g_asObjectCollisionRadius_004950e8[obj]) * 2);
-            if (IsVectorWithinRange(&g_vCollisionDelta_0059d690,
+            if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
                                     range) != 0)
                 return 0;
         }
@@ -4853,33 +5210,31 @@ unsigned int set_formation_position(short obj,
     set_sphere_point(leaderRecord, &g_aShipPosition_00494550[obj]);
     offset_location(obj, &g_aShipFormationOffset_00495468[obj],
                     &g_aShipPosition_00494550[obj]);
-    g_anShipSpeed_0059b320[obj] = leaderRecord->speed << 8;
+    g_anShipSpeed_00494e20[obj] = leaderRecord->speed << 8;
     return 0;
 }
 
 /* Function start: 0x44DB7E */
 void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
 {
-    MissionShipRecord *record = &g_aMissionShips_00492290[missionShip];
+    MissionShipRecord *record;
+    short gun;
 
-    g_asLoadedShipViewFrame_00495d18[obj] = -1;
-    g_acWingmanMessageState_0059d2c0[obj] = -1;
-    DAT_0059c910[obj] = -1;
-    g_asActionCount_0059c930[obj] = 0;
-    g_abShipExhaustHeat_0059d610[obj] = 0;
-    g_asShipAccumulatedDamage_0059dee0[obj] = 0;
-    g_asShipFriendlyFireCooldown_00496090[obj] = 0;
-    g_acShipDamage_0059c460[obj] = 0;
-    g_asCannedCommand_0059d4e0[obj] = 0;
-    g_acShipIonDriveDamage_0059d4a0[obj] = 0;
-    g_acShipDestroyedWeaponCount_0059de30[obj] = 0;
-    g_acShipCommunicator_0059c850[obj] = 0;
-    g_apCannedSequence_0059dce0[obj] = 0;
-    g_acShipSpawnNavPoint_0059ded0[obj] = navPoint;
-    g_nShipMissionIndices_0059c830[obj] = missionShip;
-    g_asWingmanDamageCredit_005d3830[obj] = 0;
-    g_asPlayerDamageCredit_005d38c0[obj] = 0;
-    g_acShipPointingMode_0059d790[obj] = 1;
+    g_bKilrathiAceGreetingSent_00499bf4 = 0;
+    g_asLoadedShipViewFrame_00495d18[obj] =
+        g_acShipLastAttacker_004955c0[obj] =
+            g_acShipPendingMessage_00495d98[obj] = -1;
+    g_acShipDestroyedWeaponCount_00495680[obj] =
+        g_acShipCommunicator_00495670[obj] =
+            g_asShipFriendlyFireCooldown_00496090[obj] =
+                g_asObjectDamage_00495178[obj] =
+                    g_acShipIonDriveDamage_004956a0[obj] =
+                        g_acShipDamage_00495690[obj] =
+                            g_asActionCount_004955e8[obj] =
+                                g_acShipExhaustHeat_00495660[obj] = 0;
+    g_asShipMissionIndex_00495d00[obj] = missionShip;
+    g_acShipNavPoint_004953e0[obj] = navPoint;
+    record = &g_aMissionShips_00492290[missionShip];
     g_acShipPortrait_00495d88[obj] = record->portrait;
 
     set_sphere_point(record, &g_aShipPosition_00494550[obj]);
@@ -4887,8 +5242,21 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     alter_pitch((short)-record->yaw, obj);
     alter_roll(record->roll, obj);
     g_asShipSide_004955d0[obj] = record->side;
-    g_anShipSpeed_0059b320[obj] = record->speed << 8;
+    g_anShipSpeed_00494e20[obj] = record->speed << 8;
     g_asPilotLevel_00495d60[obj] = record->pilot;
+    for (gun = 0; gun < 3; gun++)
+        g_asGunCooldown_005c8d70[obj * 3 + gun] = 0;
+    g_acShipCollisionCooldown_00496010[obj] = 0;
+    DAT_004960f0[obj] = 0;
+    g_asWingmanDamageCredit_005d3830[obj] = 0;
+    g_asPlayerDamageCredit_005d38c0[obj] = 0;
+    DAT_005d1bd0[obj] = (short)(
+        (unsigned short)RandomInRange(0, 200) + 600);
+    if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+        DAT_005d1bd0[obj] >>= 1;
+    DAT_005d1bf0[obj] = (short)(
+        (unsigned short)RandomInRange(0, 400) + 600);
+    DAT_005d1c10[obj] = 0;
     recalc_max_velocity(obj);
     g_asCapitalHitDamageStep_005d17a0[obj] = 0;
     if (g_aObjectTypeData_00496d30[
@@ -4902,13 +5270,30 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
             g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].damageCapacity / 2 + 1);
     }
+    if (HasShipCockpitGunDisplay(obj) == 0) {
+        g_anShipCloakState_00496020[obj] = 2;
+    } else {
+        g_anShipCloakState_00496020[obj] = 0;
+        g_aShipWeapons_004956b0[obj][0]--;
+    }
+    g_asShipCloakCooldown_00496048[obj] = 0;
     reset_mission_type(obj, record->missionType);
-    g_asShipSystemIndex_00495e00[obj] = record->systemIndex;
+    g_asShipMissionParameter_00495e00[obj] = record->missionParameter;
     g_asShipWingLeader_00495dd0[obj] =
         find_ship_index(record->leaderMissionIndex);
     set_formation_position(obj, record);
     zero_vector(&g_aShipVelocity_00494898[obj]);
     init_intelligence_data(obj);
+    if (record->name[0] == '?')
+        g_asShipIdentified_00496078[obj] = 0;
+    else
+        g_asShipIdentified_00496078[obj] = 1;
+    g_apShipMissionRecord_00495da8[obj] = record;
+    g_abPilotEjectionAttempted_00496110[obj] = 0;
+    g_abShipEjectionSequenceEnabled_00496120[obj] = record->field_19;
+    g_abShipArrivalMessageSent_005d1dd0[obj] = 0;
+    if (g_asObjectType_00495298[obj] >= 0x39)
+        g_asCarrierLaunchTimer_005d1090[obj] = 0;
 }
 
 /* Function start: 0x44E028 */
@@ -4994,7 +5379,10 @@ short init_ship(short missionShip, short navPoint)
     record->navPoint = navPoint;
     if (is_team_member(missionShip) != 0)
         navPoint = -1;
-    obj = initialize_ship(record->type, -1);
+    if (record->type == 0x3D || record->type == 0x2C)
+        obj = initialize_ship(record->type, -1, 0);
+    else
+        obj = initialize_ship(record->type, -1, 1);
     if (obj != -1) {
         Set_up_ship_info(obj, missionShip, (signed char)navPoint);
         find_next_ship_turn_slot(obj);
@@ -5024,7 +5412,7 @@ void init_intelligence_data(short obj)
     clear_alert(obj);
     g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
     g_asShipIntelState_0049b678[obj] = 0;
-    missionSystem = g_asShipSystemIndex_00495e00[obj];
+    missionSystem = g_asShipMissionParameter_00495e00[obj];
     g_aShipMissionSpot_00495e18[obj] = g_aMissionNavPoints_00491e98[
         g_nCurrentNavPoint_004931bc].position;
 
@@ -5032,16 +5420,16 @@ void init_intelligence_data(short obj)
     case MISSION_TYPE_ESCORT:
     case MISSION_TYPE_DEFEND:
     case MISSION_TYPE_WINGMAN:
-        g_asShipSystemIndex_00495e00[obj] = missionSystem;
+        g_asShipMissionParameter_00495e00[obj] = missionSystem;
         break;
     case MISSION_TYPE_STRIKE:
-        g_asShipSystemIndex_00495e00[obj] = missionSystem;
+        g_asShipMissionParameter_00495e00[obj] = missionSystem;
         for (shipIndex = 0; shipIndex < 10; shipIndex++) {
             for (missionShipIndex = 0; missionShipIndex < 10;
                  missionShipIndex++) {
                 if (g_aMissionNavPoints_00491e98[shipIndex]
                         .missionShips[missionShipIndex] ==
-                    g_asShipSystemIndex_00495e00[obj]) {
+                    g_asShipMissionParameter_00495e00[obj]) {
                     missionSystem = shipIndex;
                 }
             }

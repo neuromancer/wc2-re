@@ -1421,7 +1421,8 @@ void BuildCommunicationRecipientMenu(void)
         return;
     }
     AppendCommMenuChoice(
-        g_apszShipName_00495da8[g_nYourWingman_0049346c], 1);
+        g_apShipMissionRecord_00495da8[g_nYourWingman_0049346c]->name,
+        1);
     target = g_acShipTarget_00495f20[0];
     if (target != -1) {
         if (g_asShipSide_004955d0[target] == SIDE_KILRATHI &&
@@ -1435,16 +1436,16 @@ void BuildCommunicationRecipientMenu(void)
             if (g_aeObjectClass_00495328[target] >= OBJECT_CLASS_SHIP &&
                 g_asShipMissionType_00495de8[target] ==
                     MISSION_TYPE_CANNED_SEQUENCE)
-                AppendCommMenuChoice(g_apszShipName_00495da8[
-                                         g_acShipTarget_00495f20[0]],
+                AppendCommMenuChoice(g_apShipMissionRecord_00495da8[
+                                         g_acShipTarget_00495f20[0]]->name,
                                      3);
             if ((g_aeObjectClass_00495328[target] == OBJECT_CLASS_SHIP &&
                  any_enemy(0, 14000) != 0) ||
                 g_asShipMissionIndex_00495d00[target] ==
                     g_nHomeMissionShipIndex_005d1e22) {
                 if (g_asShipIdentified_00496078[target] != 0)
-                    AppendCommMenuChoice(g_apszShipName_00495da8[
-                                             g_acShipTarget_00495f20[0]],
+                    AppendCommMenuChoice(g_apShipMissionRecord_00495da8[
+                                             g_acShipTarget_00495f20[0]]->name,
                                          3);
                 else
                     AppendCommMenuChoice(
@@ -1454,7 +1455,8 @@ void BuildCommunicationRecipientMenu(void)
                        g_asObjectType_00495298[target] >
                            OBJECT_TYPE_EJECTED_PILOT) {
                 AppendCommMenuChoice(
-                    g_apszShipName_00495da8[g_acShipTarget_00495f20[0]],
+                    g_apShipMissionRecord_00495da8[
+                        g_acShipTarget_00495f20[0]]->name,
                     3);
             }
         }
@@ -1587,8 +1589,8 @@ void BuildCommunicationCommandMenu(void)
                    g_szUnidentifiedCommRecipient_0049b84c);
         else
             strcat(g_szCommMenuHeadingBuffer_005d1960,
-                   g_apszShipName_00495da8[
-                       g_cCommMenuRecipient_0049b790]);
+                   g_apShipMissionRecord_00495da8[
+                       g_cCommMenuRecipient_0049b790]->name);
         strcat(g_szCommMenuHeadingBuffer_005d1960,
                g_szCommHeadingNewline_0049b85c);
         OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_005d1960,
@@ -1703,7 +1705,7 @@ unsigned int Chosen_communicate_option(short choice)
 }
 
 /* Function start: 0x448008 */
-void IssueQuickCommCommand(int recipient, int command)
+void IssueQuickCommCommand(short recipient, short command)
 {
     request(0, recipient, command);
     if (g_nEnemyTauntCommandBase_0049b76c <= command)
