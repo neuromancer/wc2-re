@@ -529,7 +529,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
         g_nPlayerShipType_00493464].shapeSet;
     fighterScreenY = 64;
     fighterScreenX = 20;
-    g_nScriptedViewObject_0046a8d0 = object;
+    g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = object;
     initialize_scripted_view(&g_asCarrierLaunchViewData_0046a5dc_WC1_UNMAPPED[2]);
     g_nScrambleBackgroundY_005a8712 = 64;
     g_nScrambleBackgroundRightX_005a8714 = 520;
@@ -770,7 +770,7 @@ unsigned int ShowCarrierLaunchSequence(signed char sceneObject)
     free_ship(0);
     ReleasePacketHandle(carrierShape);
     ReleasePacketHandle(actorShape);
-    g_bScriptedView_0046a8d4 = 0;
+    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
     g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     return 0;
 }

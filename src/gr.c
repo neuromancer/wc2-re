@@ -50,7 +50,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 /* Function start: 0x425B9E */
 void ClipViewportToScreen(Viewport *viewport)
 {
-    ValidateViewportBounds(viewport, &g_stRasterSurface_004875a8,
+    ValidateViewportBounds(viewport, &g_stRasterSurface_004a2670,
                            &g_stRasterClip_004b2088);
 }
 

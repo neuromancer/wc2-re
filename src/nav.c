@@ -107,16 +107,16 @@ char g_szConfedNavScan_0049be4c[16] = "ConFed Nav Scan";
 volatile short g_nNearHeapActive_00493044 = 0;
 volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
 volatile int g_nNearHeapRelocationBytes_0049304c = 0;
-int DAT_004688cc = 0;
-int DAT_004688d0 = 0;
-int DAT_004688d4 = 0;
-int DAT_004688d8 = 0;
-short DAT_004688dc = 0;
-int DAT_004688e0 = 0;
-short DAT_004688e4 = -1;
-short DAT_004688e8 = -1;
-unsigned short DAT_004688ec = 1;
-int DAT_004688f0 = 0;
+int DAT_004688cc_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d0_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d4_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688d8_WC1_UNMAPPED /* no-address */ = 0;
+short DAT_004688dc_WC1_UNMAPPED /* no-address */ = 0;
+int DAT_004688e0_WC1_UNMAPPED /* no-address */ = 0;
+short DAT_004688e4_WC1_UNMAPPED /* no-address */ = -1;
+short DAT_004688e8_WC1_UNMAPPED /* no-address */ = -1;
+unsigned short DAT_004688ec_WC1_UNMAPPED /* no-address */ = 1;
+int DAT_004688f0_WC1_UNMAPPED /* no-address */ = 0;
 char *g_pszIntroOpeningText_00468910_WC1_UNMAPPED /* no-address */ =
     "In the distant future,\n"
     "mankind is locked in a deadly war...";
@@ -286,8 +286,8 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
     placed = 0;
     if (NavMapLabelPositionAvailable(x, y, width, 6) != 0 ||
         (force != 0 && NavMapLabelFits(x, y, width, 6) != 0)) {
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].x = x;
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].y = y;
+        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].x = x;
+        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].y = y;
         placed = 1;
     }
     return placed;
@@ -302,9 +302,9 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     short force;
 
     width = (short)(strlen(text) * 4 + 2);
-    g_aNavMapLabels_00475e80[
+    g_aNavMapLabels_00475e80_WC1_UNMAPPED[
         g_nNavMapLabelCount_0049bc4c].colour = colour;
-    g_aNavMapLabels_00475e80[
+    g_aNavMapLabels_00475e80_WC1_UNMAPPED[
         g_nNavMapLabelCount_0049bc4c].text = text;
     offset = -1;
     do {
@@ -329,8 +329,8 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
             break;
     } while (offset != 12);
     ReserveNavMapArea(
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].x,
-        g_aNavMapLabels_00475e80[g_nNavMapLabelCount_0049bc4c].y,
+        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].x,
+        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].y,
         width, 6);
     g_nNavMapLabelCount_0049bc4c++;
 }
@@ -360,13 +360,13 @@ void AddUniqueObjectiveNavLabel(short x, short y,
 /* Function start: 0x4507DA */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
-    if (g_aNavMapLabels_00475e80[labelIndex].x <= x &&
+    if (g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].x <= x &&
         (unsigned int)x <=
-            (unsigned int)(g_aNavMapLabels_00475e80[labelIndex].x +
-                           strlen(g_aNavMapLabels_00475e80[
+            (unsigned int)(g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].x +
+                           strlen(g_aNavMapLabels_00475e80_WC1_UNMAPPED[
                                labelIndex].text) * 4) &&
-        g_aNavMapLabels_00475e80[labelIndex].y <= y &&
-        y <= g_aNavMapLabels_00475e80[labelIndex].y + 6)
+        g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].y <= y &&
+        y <= g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].y + 6)
         return 1;
     return 0;
 }
@@ -379,10 +379,10 @@ void DrawNavMapLabels(void)
     label = 0;
     while (label < (short)g_nNavMapLabelCount_0049bc4c) {
         DrawFormattedText(g_szNavLabelTextFormat_0049bd30,
-                          g_aNavMapLabels_00475e80[label].x,
-                          g_aNavMapLabels_00475e80[label].y,
-                          g_aNavMapLabels_00475e80[label].colour,
-                          g_aNavMapLabels_00475e80[label].text);
+                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].x,
+                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].y,
+                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].colour,
+                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].text);
         label++;
     }
 }
@@ -1737,9 +1737,9 @@ unsigned int UpdateSeries(void)
 
     if (g_stCampaignState_0059ca50.currentMission >=
         (signed char)seriesData[2]) {
-        DAT_004688dc =
+        DAT_004688dc_WC1_UNMAPPED =
             (short)g_nPlayerShipType_00493464;
-        DAT_004688e8 = (short)(signed char)seriesData[5];
+        DAT_004688e8_WC1_UNMAPPED = (short)(signed char)seriesData[5];
         g_stCampaignState_0059ca50.seriesHistory[
             g_stCampaignState_0059ca50.seriesHistoryCount] =
             g_stCampaignState_0059ca50.currentSeries;
@@ -1757,20 +1757,20 @@ unsigned int UpdateSeries(void)
             g_nPlayerShipType_00493464 =
                 (enum ObjectType)(signed char)seriesData[7];
         }
-        DAT_004688ec = (unsigned short)failed;
-        if (DAT_004688dc !=
+        DAT_004688ec_WC1_UNMAPPED = (unsigned short)failed;
+        if (DAT_004688dc_WC1_UNMAPPED !=
             (short)g_nPlayerShipType_00493464) {
-            DAT_004688d8 = 1;
-            DAT_004688cc = 1;
+            DAT_004688d8_WC1_UNMAPPED = 1;
+            DAT_004688cc_WC1_UNMAPPED = 1;
         }
         g_stCampaignState_0059ca50.seriesScore = 0;
         g_stCampaignState_0059ca50.currentMission = 0;
         if ((signed char)g_pMissionCampaignData_005988bc[
                 (int)g_stCampaignState_0059ca50.currentSeries *
                 0x5a + 5] ==
-                DAT_004688e8 &&
-            DAT_004688e8 < 0x40)
-            DAT_004688e8 = -1;
+                DAT_004688e8_WC1_UNMAPPED &&
+            DAT_004688e8_WC1_UNMAPPED < 0x40)
+            DAT_004688e8_WC1_UNMAPPED = -1;
     }
 
     if (g_bWingmanKilledThisMission_005d2fb8 != 0)
@@ -1778,10 +1778,10 @@ unsigned int UpdateSeries(void)
             MaxShort(0, (short)(
                 g_nMissionScore_00493462 - 15));
     if (medalData[1] <= g_nMissionMedalScore_005a8116 &&
-        DAT_004688e4 == -1) {
+        DAT_004688e4_WC1_UNMAPPED == -1) {
         g_stSavedCampaignDate_0046e188_WC1_UNMAPPED =
             *g_pCurrentCampaignDate_005a86a8;
-        DAT_004688e4 = medalData[0];
+        DAT_004688e4_WC1_UNMAPPED = medalData[0];
     }
     return 0;
 }
@@ -1808,16 +1808,16 @@ unsigned int MoveNewCampaign(void)
 /* Function start: WC2_UNMAPPED */
 unsigned int StartNewCampaign(short campaign)
 {
-    DAT_004688f0 = 1;
+    DAT_004688f0_WC1_UNMAPPED = 1;
     ResetCampaignData();
-    DAT_004688e0 = 1;
+    DAT_004688e0_WC1_UNMAPPED = 1;
     RunTrainSim();
     g_stCampaignState_0059ca50.campaignIndex = campaign;
     g_nCampaignDataSet_005a8118 = campaign;
-    DAT_004688e0 = 0;
+    DAT_004688e0_WC1_UNMAPPED = 0;
     LoadWc1PacketIntoBuffer(g_asCampaignPilotFiles_00469450_WC1_UNMAPPED[campaign],
                             1, g_pMissionCampaignData_005988bc);
-    DAT_00470510 = 0;
+    DAT_00470510_WC1_UNMAPPED = 0;
     DAT_005a8114 = -1;
     return 0;
 }
@@ -1844,20 +1844,20 @@ short RunWc1GameFlow(void)
     g_bInputEventQueueEnabled_0049c248 = 0;
     do {
         roomSelection = 0;
-        DAT_004688d4 = 0;
-        DAT_004688e8 = -1;
-        DAT_004688d0 = 0;
-        DAT_004688e4 = -1;
-        DAT_004688cc = 0;
-        DAT_004688d8 = 0;
-        if (DAT_004688e0 == 0)
+        DAT_004688d4_WC1_UNMAPPED = 0;
+        DAT_004688e8_WC1_UNMAPPED = -1;
+        DAT_004688d0_WC1_UNMAPPED = 0;
+        DAT_004688e4_WC1_UNMAPPED = -1;
+        DAT_004688cc_WC1_UNMAPPED = 0;
+        DAT_004688d8_WC1_UNMAPPED = 0;
+        if (DAT_004688e0_WC1_UNMAPPED == 0)
             roomSelection = RecRoom();
-        DAT_00470510 = 0;
+        DAT_00470510_WC1_UNMAPPED = 0;
         if (roomSelection == 5) {
             RunTrainSim();
         } else {
             barracksSelection = BarracksScreen();
-            DAT_004688e0 = 0;
+            DAT_004688e0_WC1_UNMAPPED = 0;
             if (barracksSelection == 6)
                 return 0;
             if (barracksSelection == 7)
@@ -1906,13 +1906,13 @@ short RunWc1GameFlow(void)
         if (g_nArcadeState_0049d75c == 3)
             return 0;
         g_nArcadeState_0049d75c = 0;
-        DAT_004688d4 = 1;
+        DAT_004688d4_WC1_UNMAPPED = 1;
         g_stCampaignState_0059ca50.promotionScore = MaxShort(
             0, (short)(g_stCampaignState_0059ca50.promotionScore - 1));
         g_stCampaignState_0059ca50.elapsedDate.year++;
         if (g_stCampaignState_0059ca50.elapsedDate.year == 1)
-            DAT_004688e4 = 3;
-        DAT_004688cc = 1;
+            DAT_004688e4_WC1_UNMAPPED = 3;
+        DAT_004688cc_WC1_UNMAPPED = 1;
         break;
     case 3:
         RunWc1StrandedSequence();
@@ -1922,7 +1922,7 @@ short RunWc1GameFlow(void)
         death_sequence();
         free_3Space();
         RunWc1FuneralSequence(1);
-        DAT_004688f0 = 0;
+        DAT_004688f0_WC1_UNMAPPED = 0;
         return 0;
     default:
         free_cockpit();
@@ -1938,64 +1938,64 @@ short RunWc1GameFlow(void)
     g_stCampaignState_0059ca50.currentSeries = (signed char)flownSeries;
     g_stCampaignState_0059ca50.currentMission = (signed char)flownMission;
 
-    if (DAT_004688d4 == 0) {
+    if (DAT_004688d4_WC1_UNMAPPED == 0) {
         if ((unsigned short)RandomInRange(0, 5) +
                 g_stCampaignState_0059ca50.promotionScore > 7) {
             g_stCampaignState_0059ca50.promotionScore = 0;
             if (g_nCampaignDataSet_005a8118 == 0) {
-                DAT_004688d0 =
+                DAT_004688d0_WC1_UNMAPPED =
                     g_stCampaignState_0059ca50.currentPilot->rank < 3;
             } else if (g_nCampaignDataSet_005a8118 > 0) {
-                DAT_004688d0 =
+                DAT_004688d0_WC1_UNMAPPED =
                     g_stCampaignState_0059ca50.currentPilot->rank < 4;
             } else {
-                DAT_004688d0 = 0;
+                DAT_004688d0_WC1_UNMAPPED = 0;
             }
-            DAT_004688cc =
-                DAT_004688cc != 0 || DAT_004688d0 != 0;
+            DAT_004688cc_WC1_UNMAPPED =
+                DAT_004688cc_WC1_UNMAPPED != 0 || DAT_004688d0_WC1_UNMAPPED != 0;
         }
     }
 
     DeBriefing(flownSeries, flownMission);
-    if (DAT_004688d0 != 0)
+    if (DAT_004688d0_WC1_UNMAPPED != 0)
         g_stCampaignState_0059ca50.currentPilot->rank++;
 
     if (nextSeries == -1) {
-        if (DAT_004688e4 != -1)
-            AwardCampaignMedal(DAT_004688e4);
+        if (DAT_004688e4_WC1_UNMAPPED != -1)
+            AwardCampaignMedal(DAT_004688e4_WC1_UNMAPPED);
 
-        if (DAT_004688e8 == -1) {
+        if (DAT_004688e8_WC1_UNMAPPED == -1) {
             flightResult = 0;
-        } else if (DAT_004688e8 == 0x40) {
+        } else if (DAT_004688e8_WC1_UNMAPPED == 0x40) {
             ShowCampaignVictorySequence();
             flightResult = 1;
-        } else if (DAT_004688e8 == 0x41) {
+        } else if (DAT_004688e8_WC1_UNMAPPED == 0x41) {
             ShowTigerClawEscapeScene();
             flightResult = 0;
         } else {
-            ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
-            flightResult = DAT_004688ec >= 1;
+            ShowMeanwhileTransition(DAT_004688e8_WC1_UNMAPPED, (short)DAT_004688ec_WC1_UNMAPPED);
+            flightResult = DAT_004688ec_WC1_UNMAPPED >= 1;
         }
         ShowWc1EndScreen((short)flightResult);
-        DAT_004688f0 = 0;
+        DAT_004688f0_WC1_UNMAPPED = 0;
         return 0;
     }
 
     if (g_bWingmanKilledThisMission_005d2fb8 != 0)
         RunWc1FuneralSequence(0);
-    if (DAT_004688cc == 1)
+    if (DAT_004688cc_WC1_UNMAPPED == 1)
         RunWc1OfficeScene();
-    if (DAT_004688e4 != -1) {
-        AwardCampaignMedal(DAT_004688e4);
-        DAT_004688e4 = -1;
+    if (DAT_004688e4_WC1_UNMAPPED != -1) {
+        AwardCampaignMedal(DAT_004688e4_WC1_UNMAPPED);
+        DAT_004688e4_WC1_UNMAPPED = -1;
     }
-    if (DAT_004688e8 != -1)
-        ShowMeanwhileTransition(DAT_004688e8, (short)DAT_004688ec);
+    if (DAT_004688e8_WC1_UNMAPPED != -1)
+        ShowMeanwhileTransition(DAT_004688e8_WC1_UNMAPPED, (short)DAT_004688ec_WC1_UNMAPPED);
     g_stCampaignState_0059ca50.currentSeries = (signed char)nextSeries;
     g_stCampaignState_0059ca50.currentMission = (signed char)nextMission;
     MoveNewCampaign();
     AddRandomTrainSimHighScores();
-    DAT_00470510 = 1;
+    DAT_00470510_WC1_UNMAPPED = 1;
     return 1;
 }
 
@@ -2295,7 +2295,7 @@ int RunWc1TitleSequence(void)
         free_3Space();
         g_bUseEyePositionForHazards_0049327c = 0;
         g_nCannedSceneMode_0049021c = 0;
-        g_bScriptedView_0046a8d4 = 0;
+        g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
         g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
         ReleaseMusicTrackHook(0x17);
     }

@@ -674,10 +674,10 @@ short RecRoom(void)
 
             if (firstFrame == 0) {
                 firstFrame = 1;
-                if (DAT_00470510 != 0) {
+                if (DAT_00470510_WC1_UNMAPPED != 0) {
                     PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
                                 &g_stRoomScreenViewport_005988a0);
-                    DAT_00470510 = 0;
+                    DAT_00470510_WC1_UNMAPPED = 0;
                 } else {
                     CopyViewportContents(
                         &g_stSecondaryViewBuffer_005d2c90,

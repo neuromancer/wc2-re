@@ -137,8 +137,8 @@ unsigned int parse_view_script(void)
     while (*g_pViewScript_005a6b58 != 14) {
         command = *g_pViewScript_005a6b58++;
         if (command == -1) {
-            g_bScriptedView_0046a8d4 = 0;
-            g_nScriptedViewObject_0046a8d0 = -1;
+            g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
+            g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = -1;
             return 0;
         }
         switch (command) {
@@ -177,7 +177,7 @@ unsigned int parse_view_script(void)
             break;
         case 3:
             force_view(*g_pViewScript_005a6b58++,
-                       g_nScriptedViewObject_0046a8d0);
+                       g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED);
             break;
         case 4:
             g_nEyePitchGoal_00493140 =
@@ -220,18 +220,18 @@ unsigned int parse_view_script(void)
             break;
         case 10:
             g_aShipVelocity_00494898[61] =
-                g_aShipVelocity_00494898[g_nScriptedViewObject_0046a8d0];
+                g_aShipVelocity_00494898[g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED];
             break;
         case 11:
-            copy_frame(g_nScriptedViewObject_0046a8d0, 61);
+            copy_frame(g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED, 61);
             break;
         case 12:
             g_aShipPosition_00494550[61] =
-                g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0];
+                g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED];
             break;
         case 15:
             ComputeVectorDelta(&g_aShipPosition_00494550[61],
-                &g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0],
+                &g_aShipPosition_00494550[g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED],
                 &vector);
             g_aShipForwardVector_00494208[61] = vector;
             fix_objects_ijk(61);
@@ -245,7 +245,7 @@ unsigned int parse_view_script(void)
                 obj++;
             }
             if (obj < 10)
-                g_nScriptedViewObject_0046a8d0 = obj;
+                g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = obj;
             g_pViewScript_005a6b58++;
             break;
         }
@@ -286,7 +286,7 @@ unsigned int update_scripted_view(void)
 /* Function start: WC2_UNMAPPED */
 void initialize_scripted_view(const short *script)
 {
-    g_bScriptedView_0046a8d4 = 1;
+    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 1;
     zero_vector(&g_aShipVelocity_00494898[61]);
     init_ijk(61);
     g_pViewScript_005a6b58 = script;
@@ -342,7 +342,7 @@ short TheEndFireWorks(Viewport *viewport, short count)
                     ((unsigned int (__cdecl *)(
                         const unsigned char *, int, int, short, short,
                         int))SoundFxTick)(
-                            g_abFireworkSoundDescriptor_0046ab70,
+                            g_abFireworkSoundDescriptor_0046ab70_WC1_UNMAPPED,
                             0, 127,
                             (signed char)(
                                 127 -
@@ -800,11 +800,11 @@ void show_target_disp(void)
     rating = g_acShipRating_0059cd80[targetIndex];
     if (rating >= 0 && rating <= 7) {
         DrawFormattedText(
-            g_szWingmanTargetNameFormat_0046a998,
+            g_szWingmanTargetNameFormat_0046a998_WC1_UNMAPPED,
             g_apWingmanPilots_00598a30[(int)rating]->callsign);
     } else if (rating >= 9 && rating <= 12) {
         DrawFormattedText(
-            g_szAceTargetNameFormat_0046a99c,
+            g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED,
             g_apszKilrathiAceNames_0046af80[(int)rating - 9]);
     } else {
         DrawFormattedText(g_szShipTargetNameFormat_0049b4ec,
@@ -1242,10 +1242,10 @@ void SelectFlightMusicTrack(int track)
         break;
     }
 
-    if (streamSet == g_nMusicStreamSet_0046aa18)
+    if (streamSet == g_nMusicStreamSet_0046aa18_WC1_UNMAPPED)
         return;
     if (streamSet == -1) {
-        if (g_nMusicStreamSet_0046aa18 >= 0)
+        if (g_nMusicStreamSet_0046aa18_WC1_UNMAPPED >= 0)
             Streamer_close();
         return;
     }
@@ -1268,10 +1268,10 @@ void SelectFlightMusicTrack(int track)
 
     if (streamName != 0) {
         Streamer_open(streamName);
-        g_nMusicStreamSet_0046aa18 = streamSet;
+        g_nMusicStreamSet_0046aa18_WC1_UNMAPPED = streamSet;
     } else {
         Streamer_close();
-        g_nMusicStreamSet_0046aa18 = -1;
+        g_nMusicStreamSet_0046aa18_WC1_UNMAPPED = -1;
     }
 }
 
@@ -1377,7 +1377,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
 #if 0
     int streamerCommand;
 
-    if (track == -1 || g_bMusicCommandSuppressed_0046a9fc != 0)
+    if (track == -1 || g_bMusicCommandSuppressed_0046a9fc_WC1_UNMAPPED != 0)
         return;
     if (command == 4) {
         SoundDebugPrintf("queue_stop\n");
@@ -1397,7 +1397,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
 
     g_nCurrentMusicTrack_0049be98 = track;
     SelectFlightMusicTrack(track);
-    if (g_nMusicStreamSet_0046aa18 == 2) {
+    if (g_nMusicStreamSet_0046aa18_WC1_UNMAPPED == 2) {
         if ((track >= 0 && track <= 5) ||
             (track >= 12 && track <= 18)) {
             SoundDebugPrintf("flight_intensity %d ", track);

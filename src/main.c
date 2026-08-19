@@ -139,7 +139,7 @@ int RunWc1GameMain(short argc, char **argv)
             break;
         case 's':
             if (g_nOriginDevUnlock_0049d774 != 0) {
-                DAT_004688f0 = 1;
+                DAT_004688f0_WC1_UNMAPPED = 1;
                 series = (short)atoi(argument + 1);
             }
             break;
@@ -206,7 +206,7 @@ int RunWc1GameMain(short argc, char **argv)
     g_bSceneEscapeRequested_0049d4b0 = 0;
     for (;;) {
         FrameStartHook(0);
-        DAT_004688e0 = 1;
+        DAT_004688e0_WC1_UNMAPPED = 1;
         selection = RunWc1TitleSequence();
         switch (selection) {
         case 0:

@@ -602,7 +602,7 @@ unsigned int ShowCampaignVictorySequence(void)
         FetchDiskPacketRetrying(9, 2, 0);
     CreateCannedSceneObject(&planetObject, -4, 0, 30000,
                             planetShape, 0, 0, 0x50);
-    g_nScriptedViewObject_0046a8d0 = 1;
+    g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = 1;
     initialize_scripted_view(g_asCampaignVictoryViewScript_0046c160_WC1_UNMAPPED);
     slot = 16;
     projectile = projectiles;
@@ -780,7 +780,7 @@ unsigned int ShowCampaignVictorySequence(void)
     g_bSceneEscapeRequested_0049d4b0 = 0;
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x21);
-    g_bScriptedView_0046a8d4 = 0;
+    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
     g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     g_nCannedSceneMode_0049021c = 0;
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50,
@@ -820,7 +820,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             OBJECT_TYPE_HYPERSPACE_JUMP_FLASH].shapeSet =
                 FetchDiskPacketRetrying(3, 14, 0);
     }
-    g_nScriptedViewObject_0046a8d0 = 1;
+    g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = 1;
     initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238_WC1_UNMAPPED);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
@@ -911,7 +911,7 @@ unsigned int ShowTigerClawEscapeScene(void)
                   g_cSecondaryViewBufferColour_0049cb4c);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x22);
-    g_bScriptedView_0046a8d4 = 0;
+    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
     g_nCannedSceneMode_0049021c = 0;
     g_bIntroSceneResourcesActive_00469d48_WC1_UNMAPPED = 1;
     return 0;
@@ -1847,7 +1847,7 @@ void real_vid_transmit(short obj, short message)
                 &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                 g_asShipSide_004955d0[
                     g_nCommSpeakerObject_0049b794] == SIDE_IMPERIAL ?
-                    g_pConfedCommBackground_00469278 :
+                    g_pConfedCommBackground_00469278_WC1_UNMAPPED :
                     g_pKilrathiCommBackground_00469280,
                 0);
             DrawSpriteDefault(

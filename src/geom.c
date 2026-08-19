@@ -1542,9 +1542,9 @@ void get_right_shape(short obj, FixedVector *direction)
                     (unsigned short)g_apObjectShape_00493868[obj]) == 0) {
                 free_view_buffer();
             }
-            if (g_aapPacketReferences_00465c88[slot][frame] != 0) {
+            if (g_aapPacketReferences_00465c88_WC1_UNMAPPED[slot][frame] != 0) {
                 g_apObjectShape_00493868[obj] =
-                    g_aapPacketReferences_00465c88[slot][frame];
+                    g_aapPacketReferences_00465c88_WC1_UNMAPPED[slot][frame];
             } else {
                 if (g_stViewBuffer_005d2b00.pixels != 0)
                     free_view_buffer();

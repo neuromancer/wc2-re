@@ -131,11 +131,11 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
             spriteFrame = MinShort(frame, 4);
             DrawSpriteDefault(
                 &g_stViewBuffer_005d2b00, 160, y, ejectionShape,
-                g_asEjectionPrimaryFrames_00465550[spriteFrame]);
-            if (g_asEjectionSecondaryFrames_00465560[spriteFrame] != -1)
+                g_asEjectionPrimaryFrames_00465550_WC1_UNMAPPED[spriteFrame]);
+            if (g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED[spriteFrame] != -1)
                 DrawSpriteDefault(
                     &g_stViewBuffer_005d2b00, 160, y, ejectionShape,
-                    g_asEjectionSecondaryFrames_00465560[spriteFrame]);
+                    g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED[spriteFrame]);
             DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, (short)(y + 1),
                               ejectionShape, 5);
             dump_buffer_to_screen();
@@ -161,30 +161,30 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
                 GetPacketSize(g_pDiskFileRecords_005a7cf0[8].name, 8),
                 0x40);
         if (g_pScreenViewportPacket_005a6b94 == 0)
-            ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4);
+            ReportOutOfMemoryAndExit(g_szViewTemplates_004655d4_WC1_UNMAPPED);
         else
             LoadWc1PacketIntoBuffer(8, 8,
                                     g_pScreenViewportPacket_005a6b94);
 
         g_aObjectTypeData_00496d30[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
             FetchDiskPacketRetrying(2, 2, 0);
-        g_nEjectedPilotObject_0046c044 = find_vacant_3d_object();
-        set_objects_data(g_nEjectedPilotObject_0046c044,
+        g_nEjectedPilotObject_0046c044_WC1_UNMAPPED = find_vacant_3d_object();
+        set_objects_data(g_nEjectedPilotObject_0046c044_WC1_UNMAPPED,
                          OBJECT_TYPE_EJECTED_PILOT, -1, 0);
-        g_asObjectCounter_00494be0[g_nEjectedPilotObject_0046c044] =
+        g_asObjectCounter_00494be0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED] =
             32000;
-        copy_frame(0, g_nEjectedPilotObject_0046c044);
-        g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044] =
+        copy_frame(0, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
+        g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED] =
             g_aShipPosition_00494550[0];
         ScaleFixedVector(
-            &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044],
+            &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
             -0x500,
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044]);
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED]);
         AddFixedVectors(
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044],
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
             &g_aShipVelocity_00494898[0],
-            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044]);
-        new_view(10, g_nEjectedPilotObject_0046c044);
+            &g_aShipVelocity_00494898[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED]);
+        new_view(10, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
 
         background = FetchDiskPacketRetrying(
             (short)g_cCockpitLogicalFile_005a7c74, 0, 0);
@@ -222,20 +222,20 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
                 g_aShipForwardVector_00494208[0];
             negate_vector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT]);
             ScaleFixedVector(
-                &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044],
+                &g_aShipUpVector_00493ec0[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
                 -0x25800, &viewOffset);
             AddFixedVectors(
-                &g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044],
+                &g_aShipPosition_00494550[g_nEjectedPilotObject_0046c044_WC1_UNMAPPED],
                 &viewOffset,
                 &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-            g_nScriptedViewObject_0046a8d0 =
-                g_nEjectedPilotObject_0046c044;
-            initialize_scripted_view(g_asEjectionViewScript_00465570);
+            g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED =
+                g_nEjectedPilotObject_0046c044_WC1_UNMAPPED;
+            initialize_scripted_view(g_asEjectionViewScript_00465570_WC1_UNMAPPED);
             frame = 0;
             g_nFrameSkipCountdown_0049d760 = 1;
             SetMusBreakpt(0, 0);
             while (1) {
-                alter_pitch(4, g_nEjectedPilotObject_0046c044);
+                alter_pitch(4, g_nEjectedPilotObject_0046c044_WC1_UNMAPPED);
                 if (RefreshCockpitStatus() != 0)
                     dump_buffer_to_screen();
                 if (frame == 10) {
@@ -252,7 +252,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
     }
 
     g_bSceneEscapeRequested_0049d4b0 = 0;
-    g_bScriptedView_0046a8d4 = 0;
+    g_bScriptedView_0046a8d4_WC1_UNMAPPED = 0;
     if (g_pScreenViewportPacket_005a6b94 != 0) {
         ReleasePacketHandle(g_pScreenViewportPacket_005a6b94);
         g_pScreenViewportPacket_005a6b94 = 0;
@@ -1022,7 +1022,7 @@ void LoadMissionData(short series, short mission)
     int index;
     int item;
 
-    logicalFile = g_asMissionDataFiles_00469460[g_nCampaignDataSet_005a8118];
+    logicalFile = g_asMissionDataFiles_00469460_WC1_UNMAPPED[g_nCampaignDataSet_005a8118];
     packet = FetchDiskPacketRetrying(logicalFile, 0, 0);
     missionIndex = (int)mission + (int)series * 4;
 #ifdef WC1_SDL
@@ -1210,7 +1210,7 @@ unsigned int UpdateMap(char *text, short duration)
     AddPCName(text);
     ClearViewport(&g_stConversationTextViewport_005a7570,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szBriefingMapTextFormat_00465660,
+    FormatTextBufferFromStart(g_szBriefingMapTextFormat_0049bd30,
                               0, 160,
                               g_nConversationTextColour_00598c10,
                               g_szTextScratchBuffer_005d1c40);

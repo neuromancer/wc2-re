@@ -969,10 +969,10 @@ void perform_maneuver(short obj)
        used.  Preserve those results without an invalid C array access. */
     if (previous < MANEUVER_WARPING_IN ||
         previous > MANEUVER_UNKNOWN_49)
-        g_bCurrentManeuverReroll_00475e7c = 0;
+        g_bCurrentManeuverReroll_005b30f4 = 0;
     else
 #endif
-        g_bCurrentManeuverReroll_00475e7c =
+        g_bCurrentManeuverReroll_005b30f4 =
             g_abManeuverRerollChance_0049b538[previous];
 #ifdef WC1_SDL
     /* The original reaches the same completion path only after calculating
@@ -1098,7 +1098,7 @@ void perform_maneuver(short obj)
         try2reset_maneuver(obj, 2);
     } else if (g_asShipManeuver_00495f48[obj] == previous &&
                RandomBelowOrEqual(100) <
-                   (short)g_bCurrentManeuverReroll_00475e7c) {
+                   (short)g_bCurrentManeuverReroll_005b30f4) {
         maneuver_complete(obj);
     }
 }

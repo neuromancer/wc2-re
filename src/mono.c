@@ -22,12 +22,12 @@ short WriteDataFileAtOffset(unsigned short fd, int offset,
 {
     g_nPacketError_0049ca90 = 0;
     if (_lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szWriteDataFileError_00475da0, "!lseek %d\n", offset);
+        sprintf(g_szWriteDataFileError_005b38c8, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
-        sprintf(g_szWriteDataFileError_00475da0, "!write %d\n", offset);
+        sprintf(g_szWriteDataFileError_005b38c8, "!write %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
@@ -41,7 +41,7 @@ short CreateDataFile(const char *path)
 
     fd = (unsigned short)_open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
-        sprintf(g_szCreateDataFileError_00475d60, "!_open '%s'\n", path);
+        sprintf(g_szCreateDataFileError_005b3888, "!_open '%s'\n", path);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
@@ -54,12 +54,12 @@ int ReadDataFileAtOffset(unsigned short fd, int offset,
 {
     g_nPacketError_0049ca90 = 0;
     if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
+        sprintf(g_szReadDataFileError_005b3848, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
-        sprintf(g_szReadDataFileError_00475d20, "!lseek %d\n", offset);
+        sprintf(g_szReadDataFileError_005b3848, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
@@ -74,7 +74,7 @@ int SeekDataFile(unsigned short fd, int offset,
 
     position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
-        sprintf(g_szSeekDataFileError_00475de0, "!lseek %d\n", offset);
+        sprintf(g_szSeekDataFileError_005b3908, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
     }
     return position;

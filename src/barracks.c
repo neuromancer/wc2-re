@@ -375,7 +375,7 @@ void SaveGameWithNamePrompt(short slot, CampaignState *campaign,
     char oldLabel[40];
     char *separator;
 
-    if (DAT_004688f0 == 0) {
+    if (DAT_004688f0_WC1_UNMAPPED == 0) {
         WarnWc1LoadGameFirst();
         return;
     }
@@ -533,7 +533,7 @@ void LoadGameFromSlot(short slot, CampaignState *campaign,
                 1, g_pMissionCampaignData_005988bc);
             DosMemcpy(objectives, gameRecord.objectives, 0x1f0);
             CorrectPointers();
-            DAT_004688f0 = 1;
+            DAT_004688f0_WC1_UNMAPPED = 1;
         }
         ReleaseModalTextPanel();
         if (loaded == 0) {
@@ -752,7 +752,7 @@ int ConfirmWc1ReplaceFaultyData(short slot)
     short confirmed;
 
     confirmed = 0;
-    if (DAT_004688f0 == 0) {
+    if (DAT_004688f0_WC1_UNMAPPED == 0) {
         WarnWc1LoadGameFirst();
         return 0;
     }
@@ -921,12 +921,12 @@ short RunWc1BarracksScreen(void)
                 HandleWc1BarracksBunkSelection(
                     &g_stSecondaryViewBuffer_005d2c90, background, &animation, region);
             } else if (region == 16) {
-                if (DAT_004688f0 == 0)
+                if (DAT_004688f0_WC1_UNMAPPED == 0)
                     WarnWc1LoadGameFirst();
                 else
                     result = 7;
             } else if (region == 17) {
-                if (DAT_004688f0 == 0)
+                if (DAT_004688f0_WC1_UNMAPPED == 0)
                     WarnWc1LoadGameFirst();
                 else
                     result = 8;
@@ -937,7 +937,7 @@ short RunWc1BarracksScreen(void)
                         "You step out of the airlock and into...");
                 }
             } else if (region == 19) {
-                if (DAT_004688f0 == 0) {
+                if (DAT_004688f0_WC1_UNMAPPED == 0) {
                     WarnWc1LoadGameFirst();
                 } else {
                     LoadMissionData(

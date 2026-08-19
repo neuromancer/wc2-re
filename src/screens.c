@@ -4044,7 +4044,7 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 10:
             first = int_value(&test);
-            if (DAT_004688cc == 0)
+            if (DAT_004688cc_WC1_UNMAPPED == 0)
                 return sceneData + first;
             break;
         case 11:
@@ -4121,23 +4121,23 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
             break;
         case 16:
             first = int_value(&test);
-            if (DAT_004688d0 != 1)
+            if (DAT_004688d0_WC1_UNMAPPED != 1)
                 return sceneData + first;
             break;
         case 17:
             first = int_value(&test);
-            if (DAT_004688d4 == 0)
+            if (DAT_004688d4_WC1_UNMAPPED == 0)
                 return sceneData + first;
             break;
         case 18:
             first = int_value(&test);
-            if (DAT_004688d4 == 1 &&
+            if (DAT_004688d4_WC1_UNMAPPED == 1 &&
                 g_stCampaignState_0059ca50.elapsedDate.year == 1)
                 return sceneData + first;
             break;
         case 19:
             first = int_value(&test);
-            if (DAT_004688d8 != 1)
+            if (DAT_004688d8_WC1_UNMAPPED != 1)
                 return sceneData + first;
             break;
         case 20:
@@ -4163,18 +4163,18 @@ ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
         case 24:
             first = int_value(&test);
             if (g_nPlayerShipType_00493464 != 1 &&
-                g_nPlayerShipType_00493464 < DAT_004688dc)
+                g_nPlayerShipType_00493464 < DAT_004688dc_WC1_UNMAPPED)
                 return sceneData + first;
             break;
         case 25:
             first = int_value(&test);
             if (g_nPlayerShipType_00493464 == 1 ||
-                g_nPlayerShipType_00493464 >= DAT_004688dc)
+                g_nPlayerShipType_00493464 >= DAT_004688dc_WC1_UNMAPPED)
                 return sceneData + first;
             break;
         case 26:
             first = int_value(&test);
-            if (DAT_004688d4 == 1 &&
+            if (DAT_004688d4_WC1_UNMAPPED == 1 &&
                 g_stCampaignState_0059ca50.elapsedDate.year > 1)
                 return sceneData + first;
             break;

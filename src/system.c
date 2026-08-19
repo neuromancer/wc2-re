@@ -26,7 +26,7 @@ void RunTrainSim(void)
     g_cCockpitView_0059dab0 = 4;
     g_cCockpitLogicalFile_005a7c74 = 21;
 
-    if (DAT_004688e0 == 0) {
+    if (DAT_004688e0_WC1_UNMAPPED == 0) {
         ShowTrainSimHighScores();
         proceed = SelectWc1TrainSimMission(&g_nTrainSimMission_00469e30_WC1_UNMAPPED);
     } else {
@@ -52,7 +52,7 @@ void RunTrainSim(void)
             init_mission(0, g_nTrainSimMission_00469e30_WC1_UNMAPPED);
             ShowGetReadyScreen();
 
-            if (DAT_004688e0 != 0) {
+            if (DAT_004688e0_WC1_UNMAPPED != 0) {
                 g_aasShipShield_00495518[0][0] = 0;
                 g_aasShipMaximumShield_004954f0[0][0] = 0;
                 g_acPlayerComponentDamage_00493470[2] = 4;

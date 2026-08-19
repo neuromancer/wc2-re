@@ -83,8 +83,8 @@ ShortPoint g_aaCockpitDamagePositions_00469228_WC1_UNMAPPED /* no-address */[5][
     {{74, 10}, {294, 19}, {197, 105}, {105, 134}},
     {{0, 0}, {0, 0}, {0, 0}, {0, 0}}
 };
-unsigned char *g_pConfedCommBackground_00469278 = 0;
-unsigned char *g_pCommStaticShape_0046927c = 0;
+unsigned char *g_pConfedCommBackground_00469278_WC1_UNMAPPED /* no-address */ = 0;
+unsigned char *g_pCommStaticShape_0046927c_WC1_UNMAPPED /* no-address */ = 0;
 unsigned char *g_pKilrathiCommBackground_00469280 = 0;
 int g_nCommPortraitFrame_0049b2bc = -1;
 int g_bForceDamageDisplayRedraw_0049b2ec = 0;
@@ -98,9 +98,9 @@ char g_szRangeKilometresSuffix_0049b3ac[4] = " km";
 char g_szNoObjective_0049b3b0[8] = "NONE";
 char g_szUnknownObjective_0049b3b8[8] = "UNKNOWN";
 char g_szCompNavigation_0049b3c0[16] = "COMP NAVIGATION";
-char g_szDestinationFormat_0046934c[20] =
-    "\n\nDESTINATION\n  %s";
-char g_szNavigationRangeLabel_00469360[12] = "\n\nRANGE\n  ";
+char g_szDestinationFormat_0049b3d0[20] =
+    "\n\nDESTINATION\n %s";
+char g_szNavigationRangeLabel_0049b3e4[12] = "\n\nRANGE\n ";
 char g_szNewObjectivePrompt_0049b3f0[20] =
     "\n\n(N)ew Objective";
 char g_szAlreadyVisited_0049b404[16] = "Already Visited";
@@ -1734,9 +1734,9 @@ void show_navigation_disp(void)
 {
     DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
                g_szCompNavigation_0049b3c0, 2);
-    DrawFormattedText(g_szDestinationFormat_0046934c,
+    DrawFormattedText(g_szDestinationFormat_0049b3d0,
                       objective_name((short)g_cCurrentObjective_004931cc));
-    DrawFormattedText(g_szNavigationRangeLabel_00469360);
+    DrawFormattedText(g_szNavigationRangeLabel_0049b3e4);
     InitializeCockpitReadout(0, &g_stRightVduTextContext_005d2ce0);
     DrawFormattedText(g_szNewObjectivePrompt_0049b3f0);
     DrawCalculatingLabel();
@@ -3898,13 +3898,13 @@ void vid_transmit(void)
             if (g_asShipSide_004955d0[speaker] == SIDE_IMPERIAL) {
                 DrawSpriteDefault(
                     &g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-                    g_pCommStaticShape_0046927c,
+                    g_pCommStaticShape_0046927c_WC1_UNMAPPED,
                     (short)(g_asObjectCounter_00494be0[speaker] / 5));
                 return;
             }
             DrawSpriteDefault(&g_stRightVduViewport_005d2b20, g_stRightVduViewport_005d2b20.left,
                               g_stRightVduViewport_005d2b20.top,
-                              g_pCommStaticShape_0046927c, 2);
+                              g_pCommStaticShape_0046927c_WC1_UNMAPPED, 2);
             return;
         }
         if (g_nCommPortraitFrame_0049b2bc == -1) {
@@ -3917,7 +3917,7 @@ void vid_transmit(void)
         set_new_vdu(1);
         if (g_asShipSide_004955d0[g_nCommSpeakerObject_0049b794] ==
             SIDE_IMPERIAL) {
-            background = g_pConfedCommBackground_00469278;
+            background = g_pConfedCommBackground_00469278_WC1_UNMAPPED;
         } else {
             background = g_pKilrathiCommBackground_00469280;
         }

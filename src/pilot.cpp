@@ -848,7 +848,7 @@ void UpdateTrainSimHighScores(int score)
     if (score > (int)previousScore)
         slot = InsertTrainSimHighScore(8, (unsigned int)score);
 
-    if (DAT_004688e0 != 0) {
+    if (DAT_004688e0_WC1_UNMAPPED != 0) {
         EnterPilotNameAndCallsign();
         return;
     }

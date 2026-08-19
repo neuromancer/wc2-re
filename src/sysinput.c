@@ -15,7 +15,7 @@ void SetMousePosition(int x, int y)
 /* Function start: 0x455AC8 */
 unsigned int PollKeyboardState(void)
 {
-    g_nClearedKeyboardState_00475b6c = 0;
+    g_nClearedKeyboardState_005b3694 = 0;
     g_nHomeKeyState_005b371c = GetAsyncKeyState(VK_HOME);
     g_nUpArrowKeyState_005b3738 = GetAsyncKeyState(VK_UP);
     g_nPageUpKeyState_005b3840 = GetAsyncKeyState(VK_PRIOR);

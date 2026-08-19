@@ -153,13 +153,13 @@ TitleMenuRegion g_aBarracksMenuRegions_00463008_WC1_UNMAPPED /* no-address */[21
     { 1, 86, 44, 181, 78 },
     { -1, 0, 0, 0, 0 }
 };
-const short g_asEjectionPrimaryFrames_00465550[8] = {
+const short g_asEjectionPrimaryFrames_00465550_WC1_UNMAPPED /* no-address */[8] = {
     0, 1, 1, 3, 3, 0, 0, 0
 };
-const short g_asEjectionSecondaryFrames_00465560[8] = {
+const short g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED /* no-address */[8] = {
     -1, -1, 2, -1, 4, 0, 0, 0
 };
-const short g_asEjectionViewScript_00465570[12] = {
+const short g_asEjectionViewScript_00465570_WC1_UNMAPPED /* no-address */[12] = {
     3, 11, 14, 70, 3, 10, 14, 80, 3, 4, -1, 0
 };
 const char *g_pStrandedMessage_00465588_WC1_UNMAPPED /* no-address */ =
@@ -167,7 +167,7 @@ const char *g_pStrandedMessage_00465588_WC1_UNMAPPED /* no-address */ =
 const char g_szStrandedMessage_0046558c_WC1_UNMAPPED /* no-address */[72] =
     "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
     "the void...";
-const char g_szViewTemplates_004655d4[16] = "View Templates";
+const char g_szViewTemplates_004655d4_WC1_UNMAPPED /* no-address */[16] = "View Templates";
 const char g_szStrandedTheEnd_004655e4_WC1_UNMAPPED /* no-address */[12] = "THE END";
 const short g_asMouthFramesByPhoneme_004655f0_WC1_UNMAPPED /* no-address */[26] = {
     0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
@@ -179,8 +179,6 @@ const char g_szCampaignDateFormat_00465630_WC1_UNMAPPED /* no-address */[12] = "
 const char g_szSavedCampaignDateFormat_0046563c_WC1_UNMAPPED /* no-address */[12] = "%03d.%03d";
 const char g_szCampaignTimeFormat_00465648_WC1_UNMAPPED /* no-address */[12] = "%02d:%02d";
 const char g_szConversationTextFormat_00465654_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szBriefingMapTextFormat_00465660[12] = "%X%Y%F%s%P";
-const char g_szCloseLookTextFormat_0046566c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 void (*g_apShipAiManeuverHandlers_004656a8[47])(short, short) = {
     /* 00 */ (void (*)(short, short))Mnone,
     /* 01 */ (void (*)(short, short))Mnone,
@@ -383,7 +381,7 @@ const char g_szFuneralPrepareArmsCommand_00465c40_WC1_UNMAPPED /* no-address */[
 const char g_szFuneralFireCommand_00465c54_WC1_UNMAPPED /* no-address */[16] =
     "%X%Y%FFire!%P";
 short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED /* no-address */;
-void *g_aapPacketReferences_00465c88[4][0x25];
+void *g_aapPacketReferences_00465c88_WC1_UNMAPPED /* no-address */[4][0x25];
 const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
@@ -513,7 +511,7 @@ char *g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED /* no-address */[20] = {
 };
 const short g_asCampaignPilotFiles_00469450_WC1_UNMAPPED /* no-address */[3] = {58, 61, 74};
 const short g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED /* no-address */[3] = {10, 62, 73};
-const short g_asMissionDataFiles_00469460[3] = {15, 52, 72};
+const short g_asMissionDataFiles_00469460_WC1_UNMAPPED /* no-address */[3] = {15, 52, 72};
 const char g_szSaveCampaignMenuLabel_00469468_WC1_UNMAPPED /* no-address */[24] =
     "Save this campaign  ";
 const char g_szSaveCampaignMenuLabelAlt_00469480_WC1_UNMAPPED /* no-address */[24] =
@@ -543,8 +541,8 @@ const int g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED /* no-a
 PacketResourceDescriptor g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED /* no-address */[19] = {
     { &g_pTargetLockShape_005a6bf4, 8, 0 },
     { &g_pPilotHandShape_005a7684, 2, 3 },
-    { &g_pConfedCommBackground_00469278, 11, 0 },
-    { &g_pCommStaticShape_0046927c, 11, 11 },
+    { &g_pConfedCommBackground_00469278_WC1_UNMAPPED, 11, 0 },
+    { &g_pCommStaticShape_0046927c_WC1_UNMAPPED, 11, 11 },
     { &g_pKilrathiCommBackground_00469280, 11, 9 },
     { (unsigned char **)&g_pCockpitExplosionShape_00469064_WC1_UNMAPPED, 8, 5 },
     { &g_pCockpitIndicatorShape_005a7658, 8, 4 },
@@ -615,14 +613,14 @@ const short g_asCarrierLaunchViewData_0046a5dc_WC1_UNMAPPED /* no-address */[16]
 };
 const char g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED /* no-address */[28] =
     "Press any key when ready";
-short g_nScriptedViewObject_0046a8d0 = -1;
-int g_bScriptedView_0046a8d4;
-const char g_szWingmanTargetNameFormat_0046a998[4] = " %s";
-const char g_szAceTargetNameFormat_0046a99c[4] = " %s";
-int g_bMusicCommandSuppressed_0046a9fc;
+short g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED /* no-address */ = -1;
+int g_bScriptedView_0046a8d4_WC1_UNMAPPED /* no-address */;
+const char g_szWingmanTargetNameFormat_0046a998_WC1_UNMAPPED /* no-address */[4] = " %s";
+const char g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED /* no-address */[4] = " %s";
+int g_bMusicCommandSuppressed_0046a9fc_WC1_UNMAPPED /* no-address */;
 short g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED /* no-address */;
-int g_nMusicStreamSet_0046aa18 = -1;
-const unsigned char g_abFireworkSoundDescriptor_0046ab70[7] = {
+int g_nMusicStreamSet_0046aa18_WC1_UNMAPPED /* no-address */ = -1;
+const unsigned char g_abFireworkSoundDescriptor_0046ab70_WC1_UNMAPPED /* no-address */[7] = {
     0x00, 0x80, 0x40, 0x40, 0x3c, 0x00, 0x00
 };
 const char *g_apszCampaignVictoryText_0046ad90_WC1_UNMAPPED /* no-address */[4] = {
@@ -674,7 +672,7 @@ const char g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED /* no-address */[32] =
     "Dakhath\0"
     "Khajja\0\0"
     "Bakhtosh";
-short g_nEjectedPilotObject_0046c044;
+short g_nEjectedPilotObject_0046c044_WC1_UNMAPPED /* no-address */;
 const short g_asIntroCameraSequence_0046c090_WC1_UNMAPPED /* no-address */[20] = {
     0, -1000, 0, -4263, 2, 15, 1, 0, 30, 0,
     3, 15, 4, 30, 1, 13, 14, 400, -1, 0
@@ -1120,7 +1118,7 @@ char *g_apszRecRoomMenuLabels_004704f8_WC1_UNMAPPED /* no-address */[6] = {
     g_szEnterBarracks_004705b4_WC1_UNMAPPED,
     g_szFlyTrainingMission_004705c4_WC1_UNMAPPED
 };
-int DAT_00470510;
+int DAT_00470510_WC1_UNMAPPED /* no-address */;
 CampaignDate g_stChalkBoardDate_00470514_WC1_UNMAPPED /* no-address */ = {-1, -1};
 short g_asChalkBoardPilotOrder_00470518_WC1_UNMAPPED /* no-address */[9] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8
@@ -1145,31 +1143,6 @@ const char g_szChalkBoardPilotFormat_0047064c_WC1_UNMAPPED /* no-address */[12] 
 const char g_szChalkBoardScoreFormat_00470658_WC1_UNMAPPED /* no-address */[12] = "%X%Y%d%X%d";
 const char g_szKilledInAction_00470664_WC1_UNMAPPED /* no-address */[4] = "KIA";
 const char g_szChalkBoardKiaFormat_00470668_WC1_UNMAPPED /* no-address */[16] = "%X%Y     %s";
-int g_nClearedKeyboardState_00475b6c;
-char g_szStreamsPath_00475c18[0x100];
-char g_szReadDataFileError_00475d20[0x40];
-char g_szCreateDataFileError_00475d60[0x40];
-char g_szWriteDataFileError_00475da0[0x40];
-char g_szSeekDataFileError_00475de0[0x80];
-unsigned char g_bCurrentManeuverReroll_00475e7c;
-NavMapLabel g_aNavMapLabels_00475e80[20];
-unsigned char g_abMouseCursorBackground_00475ff0_WC1_UNMAPPED /* no-address */[0x400];
-int g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED /* no-address */;
-int g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterInput_00476500_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightFrameEnd_00476508_WC1_UNMAPPED /* no-address */;
-int g_nFlightPresentTicks_00476510_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightFrameStart_00476518_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterSimulation_00476520_WC1_UNMAPPED /* no-address */;
-int g_nFlightSimulationTicks_00476528_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterCockpit_00476530_WC1_UNMAPPED /* no-address */;
-int g_nFlightInputTicks_00476538_WC1_UNMAPPED /* no-address */;
-LARGE_INTEGER g_liFlightAfterRender_00476540_WC1_UNMAPPED /* no-address */;
-int g_nFlightRenderTicks_00476548_WC1_UNMAPPED /* no-address */;
-unsigned char DAT_00476620[32];
-float DAT_00486510;
-unsigned char DAT_004865a8[0x1000];
-RasterSurface g_stRasterSurface_004875a8;
 const int g_nJoystickUnavailableSample_0048e054 = -1;
 const unsigned short g_wSpeechCacheCodeBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wSpeechCacheDataWords_0048e0e4 = 0x0fa0;
@@ -2415,6 +2388,8 @@ unsigned short g_wSpeechCacheState_0049bb60;
 unsigned short g_wSpeechCacheSegment_0049bb64;
 unsigned short g_wSpeechCacheEndSegment_0049bb68;
 unsigned char *g_pNavLocationText_0049bc54;
+const char g_szBriefingMapTextFormat_0049bd30[12] = "%X%Y%F%s";
+const char g_szCloseLookTextFormat_0046566c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 int g_bKeyboardMouseEnabled_0049be68;
 short g_nMusicTrackComplete_0049be88 = 1;
 short g_nMusicDriverMode_0049be8c = 1;
@@ -2747,6 +2722,7 @@ int g_bSpeechSoundActive_004a2660;
 IxSound *g_pSnowStaticSound_004a2664;
 int g_nNextSfx16PlaybackFrame_004a2668;
 int g_bSpeechPlaybackComplete_004a266c;
+RasterSurface g_stRasterSurface_004a2670;
 unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
 RasterClip g_stRasterClip_004b2088;
 unsigned char g_abSolidColourTranslation_004b2710[256];
@@ -3063,6 +3039,24 @@ char g_szWingCommanderOneGameDataPath_005b2898[0x400];
 int g_bMonoDebugInstalled_005b30e8;
 HANDLE g_hMonoDebugDevice_005b30ec;
 short DAT_005b30f0;
+unsigned char g_bCurrentManeuverReroll_005b30f4;
+NavMapLabel g_aNavMapLabels_00475e80_WC1_UNMAPPED /* no-address */[20];
+unsigned char g_abMouseCursorBackground_00475ff0_WC1_UNMAPPED /* no-address */[0x400];
+int g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED /* no-address */;
+int g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightAfterInput_00476500_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightFrameEnd_00476508_WC1_UNMAPPED /* no-address */;
+int g_nFlightPresentTicks_00476510_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightFrameStart_00476518_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightAfterSimulation_00476520_WC1_UNMAPPED /* no-address */;
+int g_nFlightSimulationTicks_00476528_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightAfterCockpit_00476530_WC1_UNMAPPED /* no-address */;
+int g_nFlightInputTicks_00476538_WC1_UNMAPPED /* no-address */;
+LARGE_INTEGER g_liFlightAfterRender_00476540_WC1_UNMAPPED /* no-address */;
+int g_nFlightRenderTicks_00476548_WC1_UNMAPPED /* no-address */;
+unsigned char DAT_00476620_WC1_UNMAPPED /* no-address */[32];
+float DAT_00486510_WC1_UNMAPPED /* no-address */;
+unsigned char DAT_004865a8_WC1_UNMAPPED /* no-address */[0x1000];
 int g_nWipeRadialStep_005b30f8;
 int g_nWipeRadialThreshold_005b30fc;
 int g_nWipeRadialAccumulator_005b3100;
@@ -3097,6 +3091,8 @@ Viewport g_stWipeWorkingSourceViewport_005b34c8;
 ShortRect g_aNavMapExclusionRects_005b35a8[21];
 char g_szSfxWavePath_005b3650[0xc8];
 int g_nInsertKeyState_005b3690;
+int g_nClearedKeyboardState_005b3694;
+char g_szStreamsPath_00475c18_WC1_UNMAPPED /* no-address */[0x100];
 int g_nOemPeriodKeyState_005b3718;
 int g_nHomeKeyState_005b371c;
 int g_nPageDownKeyState_005b3720;
@@ -3109,6 +3105,10 @@ int g_nUpArrowKeyState_005b3738;
 int g_nDownArrowKeyState_005b373c;
 int g_nPageUpKeyState_005b3840;
 int g_nLeftArrowKeyState_005b3844;
+char g_szReadDataFileError_005b3848[0x40];
+char g_szCreateDataFileError_005b3888[0x40];
+char g_szWriteDataFileError_005b38c8[0x40];
+char g_szSeekDataFileError_005b3908[0x80];
 char g_szSpaceFlightMaxFpsMessage_005c3970[0x80];
 InputEventState g_stFoundInputEvent_005c3af8;
 unsigned char g_abInputCursorBackground_005c3b10[0x400];

@@ -56,7 +56,7 @@ char *LocateStreamsDirOnDisc(void)
     char *result;
     char drive;
 
-    result = g_szStreamsPath_00475c18;
+    result = g_szStreamsPath_00475c18_WC1_UNMAPPED;
     GetCurrentDirectoryA(0xff, current);
     drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc2\\streams\\");
     if (drive != 0) {
