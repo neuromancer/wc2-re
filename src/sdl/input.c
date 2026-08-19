@@ -178,6 +178,28 @@ int Wc1SdlGetAsyncKeyState(int virtualKey)
     case 0xbe:
         scanCode = SDL_SCANCODE_PERIOD;
         break;
+    /* WC2 polls five keys WC1 never did.  Space and Return are the fire and
+     * lock buttons the flight loop reads through KeyboardMousePump, and the
+     * keypad three set the cursor step; without them the shim answered "up"
+     * for every one of them. */
+    case VK_SPACE:
+        scanCode = SDL_SCANCODE_SPACE;
+        break;
+    case VK_RETURN:
+        return (keys[SDL_SCANCODE_RETURN] ||
+                keys[SDL_SCANCODE_KP_ENTER]) ? 0x8000 : 0;
+    case VK_NUMLOCK:
+        scanCode = SDL_SCANCODE_NUMLOCKCLEAR;
+        break;
+    case VK_ADD:
+        scanCode = SDL_SCANCODE_KP_PLUS;
+        break;
+    case VK_SUBTRACT:
+        scanCode = SDL_SCANCODE_KP_MINUS;
+        break;
+    case VK_F1:
+        scanCode = SDL_SCANCODE_F1;
+        break;
     default:
         return 0;
     }

@@ -457,7 +457,20 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
     window = SDL_GetWindowFromID(event->type == SDL_MOUSEMOTION
                                      ? event->motion.windowID
                                      : event->button.windowID);
-    buttons = SDL_GetMouseState(&mouseX, &mouseY);
+    /* Take the position the event carries, the way WM_MOUSEMOVE carries it in
+     * lParam, rather than asking where the pointer is now.  Flight control
+     * warps the pointer back to the middle of the view buffer on every frame
+     * and derives pitch and yaw from how far the reported position sits from
+     * that middle, so sampling the live state races the warp: an event queued
+     * before a warp gets read with the position from after it. */
+    buttons = SDL_GetMouseState(0, 0);
+    if (event->type == SDL_MOUSEMOTION) {
+        mouseX = event->motion.x;
+        mouseY = event->motion.y;
+    } else {
+        mouseX = event->button.x;
+        mouseY = event->button.y;
+    }
     if (event->type != SDL_MOUSEMOTION) {
         if (event->type == SDL_MOUSEBUTTONDOWN)
             buttons |= SDL_BUTTON(event->button.button);
