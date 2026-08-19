@@ -1663,36 +1663,34 @@ short find_ship_index(short missionShip)
 }
 
 /* Function start: 0x429EE0 */
-int try2rout(short obj)
+short try2rout(short obj)
 {
-    short canContinue;
     short other;
+    short friendlyBase;
 
-    canContinue = 0;
-    if (g_nTrainSimActive_0049d758 != 0) {
-        canContinue = 1;
-    } else {
-        other = 0;
-        do {
-            if (g_aeObjectClass_00495328[other] ==
+    friendlyBase = 0;
+    if (any_enemy(obj, 10000) != 0) {
+        for (other = 0; other < 10; other++) {
+            if (g_aeObjectClass_00495328[other] >=
                     OBJECT_CLASS_CAPITAL_SHIP &&
                 g_aeSpecialManeuver_00495600[other] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
-                g_asShipSide_004955d0[obj] ==
-                    g_asShipSide_004955d0[other])
-                canContinue = 1;
-            other++;
-        } while (other < 10);
+                g_asShipSide_004955d0[other] ==
+                    g_asShipSide_004955d0[obj])
+                friendlyBase = 1;
+        }
     }
-    if (canContinue != 0) {
+    if (friendlyBase != 0) {
         g_acShipStress_00496100[obj] = 0;
         maneuver_complete(obj);
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
-        if (obj == g_nYourWingman_0049346c)
-            send_message(obj, 9);
+        if (obj == g_nYourWingman_0049346c) {
+            g_acMissionShipStatusFlags_005d2fb0[0] |= 4;
+            send_message(obj, 0xb);
+        }
     }
-    return canContinue == 0;
+    return (short)(friendlyBase == 0);
 }
 
 /* Function start: 0x42A003 */

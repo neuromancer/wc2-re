@@ -1408,7 +1408,7 @@ short DAT_004960f0[8];
 signed char g_acShipStress_00496100[16];
 signed char g_abPilotEjectionAttempted_00496110[16];
 signed char g_abShipEjectionSequenceEnabled_00496120[12];
-int g_bEngageAllowed_0049612c;
+short g_bEngageAllowed_0049612c;
 short g_nAutoEngageTimer_00496130 = -1;
 short g_nWingmanRoutDecisionMode_00496138;
 short g_nWingmanFormationDisobeyMode_0049613a;

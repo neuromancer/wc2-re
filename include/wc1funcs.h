@@ -1051,7 +1051,7 @@ int are_alive(short obj);                                             /* 0x429BA
 void trim_goals(short obj, short amount);                             /* 0x429BF0 */
 short report_kilrathi_rout(int mode);                                 /* 0x429CAD */
 short find_ship_index(short missionShip);                              /* 0x429E24 */
-int try2rout(short obj);                                              /* 0x429EE0 */
+short try2rout(short obj);                                            /* 0x429EE0 */
 signed char no_goal(short ship);                                       /* 0x42A062 */
 signed char CanSetNewShipTurnGoal(short ship);                         /* 0x42A003 */
 int being_tailed(short obj, short other);                             /* 0x42A0A9 */
@@ -1495,7 +1495,7 @@ unsigned short InitializeDIBScreenViewport(
 void InitFullScreenViewport(Viewport *viewport, short arg);                         /* 0x40FC7E */
 unsigned int GetPacketSize(const char *filename,
                                      short section);                  /* 0x453A70 */
-int GetFreeNearHeapBytes(void);                                       /* 0x421144 */
+int GetNearHeapBlockSize(void *pointer);                              /* 0x421144 */
 void FrameStartHook(int mode);                                         /* WC2 unmapped */
 unsigned short IsSoundHardwarePresent(short device);                           /* 0x458E20 */
 void MessagePumpHook(int mode);                                        /* 0x458E39 */

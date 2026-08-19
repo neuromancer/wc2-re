@@ -787,7 +787,7 @@ extern short g_nTargetLockMarkerAngle_004934f0;
 extern signed char g_cTargetDisplayObject_004934f4;
 extern short g_bTargetLockAcquired_004934fc;
 extern short g_bMissileCameraEnabled_00493504;
-extern int g_bEngageAllowed_0049612c;
+extern short g_bEngageAllowed_0049612c;
 extern short g_nAutoEngageTimer_00496130;
 extern short g_nWingmanRoutDecisionMode_00496138;
 extern short g_nWingmanFormationDisobeyMode_0049613a;

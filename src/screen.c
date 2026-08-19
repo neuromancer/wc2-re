@@ -178,115 +178,168 @@ short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
 /* Function start: 0x421F86 */
 void request(short requester, short ship, short command)
 {
-    signed char *requesterTarget;
-    short target;
     short object;
+    short target;
 
-    requesterTarget = &g_acShipTarget_00495f20[requester];
-
-    for (;;) {
-        target = (short)*requesterTarget;
-        switch (command) {
-        case 1:
-            allow_engage();
-            if (IsEngagementTargetDisallowed(ship, target) == 0) {
-                engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
-                SendWingmanCommandAcknowledgement(ship, 1);
-                return;
-            }
+    target = g_acShipTarget_00495f20[requester];
+    switch (command) {
+    case 0:
+        break;
+    case 3:
+        if (ShouldWingmanAcceptRoutCommand(ship,
+                                           g_asPilotLevel_00495d60[ship]) != 0 &&
+            try2rout(ship) != 0) {
+            g_bEngageAllowed_0049612c = 0;
+            SendWingmanCommandAcknowledgement(ship, 1);
+        } else {
             SendWingmanCommandAcknowledgement(ship, 0);
-            return;
-        case 2:
-            allow_engage();
-            target = -1;
-            for (object = 0; object < 10; object++) {
-                if (g_aeObjectClass_00495328[object] >=
-                        OBJECT_CLASS_SHIP &&
-                    g_aeSpecialManeuver_00495600[object] !=
-                        SPECIAL_MANEUVER_UNKNOWN_9 &&
-                    g_asShipSide_004955d0[ship] !=
-                        g_asShipSide_004955d0[object] &&
-                    g_acShipTarget_00495f20[object] == requester) {
-                    target = object;
-                    break;
-                }
-            }
-            if (target == -1) {
-                command = 9;
-                continue;
-            }
+        }
+        break;
+    case 1:
+        allow_engage();
+        if (IsEngagementTargetDisallowed(ship, target) != 0 ||
+            (ShipHasTorpedo(ship) == 0 &&
+             CanShipWeaponDamageTarget(ship, target) == 0)) {
+            SendWingmanCommandAcknowledgement(ship, 0);
+        } else {
             engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
             SendWingmanCommandAcknowledgement(ship, 1);
-            return;
-        case 3:
-            if (ShouldWingmanAcceptRoutCommand(ship, g_asPilotLevel_00495d60[ship]) != 0 &&
-                try2rout(ship) != 0) {
-                g_bEngageAllowed_0049612c = 0;
-                SendWingmanCommandAcknowledgement(ship, 1);
-                return;
+        }
+        break;
+    case 2:
+        allow_engage();
+        target = -1;
+        for (object = 0; object < 10; object++) {
+            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP &&
+                g_aeSpecialManeuver_00495600[object] !=
+                    SPECIAL_MANEUVER_UNKNOWN_9 &&
+                g_asShipSide_004955d0[ship] !=
+                    g_asShipSide_004955d0[object] &&
+                g_acShipTarget_00495f20[object] == requester) {
+                target = object;
+                break;
             }
-            SendWingmanCommandAcknowledgement(ship, 0);
-            return;
-        case 4:
-        case 5:
-        case 6:
-            if (RandomBelow(100) < 70 ||
-                ((signed char)g_acShipRating_0059cd80[ship] > 8 &&
-                 (signed char)g_acShipRating_0059cd80[ship] < 13))
-                send_message(ship, (signed char)(command - 2));
-            if (g_acShipTarget_00495f20[ship] != requester &&
-                IsShipRouting(ship) == 0) {
-                engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
-                return;
-            }
-            break;
-        case 7:
-            allow_engage();
-            if (g_aeShipObjective_00495f08[ship] ==
-                    OBJECTIVE_HOLD_FORMATION) {
-                reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
-                SendWingmanCommandAcknowledgement(ship, 1);
-                return;
-            }
-            SendWingmanCommandAcknowledgement(ship, 0);
-            return;
-        case 8:
-            disallow_engage();
-            if (disobey_formation(ship) != 0) {
-                alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
-                SendWingmanCommandAcknowledgement(ship, 0);
-                return;
-            }
-            g_nAutoEngageTimer_00496130 = -150;
+        }
+        if (target == -1) {
+            request(requester, ship, 6);
+        } else {
+            engage(ship, target, OBJECTIVE_ENGAGE_ENEMY);
             SendWingmanCommandAcknowledgement(ship, 1);
-            return;
-        case 9:
-            disallow_engage();
-            if (disobey_formation(ship) != 0) {
-                SendWingmanCommandAcknowledgement(ship, 0);
-                return;
-            }
+        }
+        break;
+    case 4:
+        allow_engage();
+        if (g_aeShipObjective_00495f08[ship] == OBJECTIVE_HOLD_FORMATION) {
+            reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
+            SendWingmanCommandAcknowledgement(ship, 1);
+        } else {
+            SendWingmanCommandAcknowledgement(ship, 0);
+        }
+        break;
+    case 6:
+        disallow_engage();
+        if (disobey_formation(ship) == 0) {
+            SendWingmanCommandAcknowledgement(ship, 0);
+        } else {
             reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
             g_nAutoEngageTimer_00496130 = -150;
             SendWingmanCommandAcknowledgement(ship, 1);
-            return;
-        case 10:
-        case 11:
-            g_bRadioSilence_0049b780 = 0;
+        }
+        break;
+    case 5:
+        disallow_engage();
+        if (disobey_formation(ship) == 0) {
+            alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
+            SendWingmanCommandAcknowledgement(ship, 0);
+        } else {
+            g_nAutoEngageTimer_00496130 = -150;
             SendWingmanCommandAcknowledgement(ship, 1);
-            g_bRadioSilence_0049b780 = command == 10;
-            return;
-        case 12:
+        }
+        break;
+    case 7:
+    case 8:
+        g_bRadioSilence_0049b780 = 0;
+        SendWingmanCommandAcknowledgement(ship, 1);
+        if (command == 7)
+            g_bRadioSilence_0049b780 = 1;
+        else
+            g_bRadioSilence_0049b780 = 0;
+        break;
+    case 11:
+        cleanup_objectives();
+        if (CanPlayerLand() != 0) {
+            g_bLandingCommRequestPending_00492fa0 = 1;
+            send_message(ship, 0x12);
+        } else {
+            send_message(ship, 0x13);
+        }
+        break;
+    case 12:
+        cleanup_objectives();
+        if (CanPlayerLand() != 0) {
+            g_bLandingCommRequestPending_00492fa0 = 1;
+            send_message(ship, 0x14);
+            g_bEjectionSequencePending_00493058 = 1;
+        } else {
+            send_message(ship, 0x15);
+        }
+        break;
+    case 9:
+        if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
+            g_bEjectionAwaitingCommCommand_0049b8b4 != 0) {
+            ejection_sequence(g_ucPendingEjectionTransition_0049b8ac, 1);
+            g_ucPendingEjectionTransition_0049b8ac = 0xff;
+            g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
+        } else if (g_asShipMissionIndex_00495d00[ship] !=
+                   g_nHomeMissionShipIndex_005d1e22) {
+            send_message(ship, 0x11);
+        } else {
             cleanup_objectives();
             if (CanPlayerLand() != 0) {
                 g_bLandingCommRequestPending_00492fa0 = 1;
-                send_message(ship, 8);
-                return;
+                send_message(ship, 0x10);
+            } else {
+                send_message(ship, 0x11);
             }
-            send_message(ship, 9);
-            return;
         }
-        return;
+        break;
+    case 20:
+    case 21:
+    case 22:
+    case 23:
+    case 24:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 29:
+    case 30:
+    case 31:
+        if (RandomBelow(100) < 70 ||
+            (g_asPilotLevel_00495d60[ship] == 5 &&
+             g_asShipSide_004955d0[ship] == SIDE_KILRATHI)) {
+            send_message(ship,
+                         (signed char)(command + 0x19 -
+                                       g_nEnemyTauntCommandBase_0049b76c));
+            g_nEnemyTauntCommandBase_0049b76c =
+                (short)(g_nEnemyTauntCommandBase_0049b76c | 1);
+        }
+        if (g_acShipTarget_00495f20[ship] != requester &&
+            IsShipRouting(ship) == 0)
+            engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
+        break;
+    case 10:
+        if (g_asShipSide_004955d0[target] != SIDE_KILRATHI) {
+            send_message(ship, 0xf);
+            g_asShipIdentified_00496078[ship] = 1;
+        }
+        break;
+    case 13:
+        if (g_nYourWingman_0049346c != -1) {
+            send_message(ship, 0xf);
+            g_bDisplayWingmanTargetData_0049347c = 1;
+        }
+        break;
     }
 }
 
@@ -367,22 +420,32 @@ unsigned int GetPacketSize(const char *filename, short section)
 }
 
 /* Function start: 0x421144 */
-int GetFreeNearHeapBytes(void)
+int GetNearHeapBlockSize(void *pointer)
 {
+    int size;
+    int address;
     NearHeapBlock *block;
     int descriptorAddress;
-    int freeBytes;
 
-    freeBytes = 0;
+    size = 0;
+    address = DosFarPtrToNear(pointer);
     descriptorAddress =
-        g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8;
-    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
-         descriptorAddress -= 8) {
+        g_nNearHeapSize_005d3050 + g_nNearHeapBase_005d3054 - 8;
+    while (g_nNearHeapFirstDescriptor_005d3058 <= descriptorAddress) {
         block = DosNearPtrToFar(descriptorAddress);
-        if ((block->sizeAndFlags & 0x80000000) == 0)
-            freeBytes += block->sizeAndFlags & 0xfffff;
+        if (block->address <= address &&
+            block->address + (block->sizeAndFlags & 0xfffff) > address) {
+            size = block->sizeAndFlags & 0xfffff;
+            /* Each tag flag reserves bytes the caller cannot use. */
+            if ((block->sizeAndFlags & 0x10000000) != 0)
+                size--;
+            else if ((block->sizeAndFlags & 0x20000000) != 0)
+                size -= 15;
+            break;
+        }
+        descriptorAddress -= 8;
     }
-    return freeBytes;
+    return size;
 }
 
 /* Function start: WC2_UNMAPPED */
