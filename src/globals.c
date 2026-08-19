@@ -431,7 +431,7 @@ const int g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED /* no-a
     258000, 238000, 258000
 };
 PacketResourceDescriptor g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED /* no-address */[19] = {
-    { &g_pTargetLockShape_005a6bf4, 8, 0 },
+    { &g_pCockpitHudShape_005d21f4, 8, 0 },
     { &g_pPilotHandAnimationShape_005d2c64, 2, 3 },
     { &g_pConfedCommBackground_00469278_WC1_UNMAPPED, 11, 0 },
     { &g_pCommStaticShape_0046927c_WC1_UNMAPPED, 11, 11 },
@@ -2638,7 +2638,6 @@ const short *g_pViewScript_005a6b58;
 Viewport DAT_005a6b80;
 ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 Viewport DAT_005a6be0;
-unsigned char *g_pTargetLockShape_005a6bf4;
 FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 TextContext DAT_005a74f0;
 Viewport DAT_005a7530;

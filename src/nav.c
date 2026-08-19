@@ -701,7 +701,9 @@ char *nav_note(short objective)
 /* Function start: 0x45180F */
 void DrawNavLocationReadout(const char *title, short showFlightData)
 {
-    enum ShipMissionType playerMissionType;
+    char sectorFile[11] = "sector.000";
+    short file;
+    short length;
 
     ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
     SetScreenClipRect(155, 2, 259, 155);
@@ -717,6 +719,17 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                     g_szNavBlankLine_0049bdb0);
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavTitleFormat_0049bdb4, title);
+    if (g_pNavLocationText_0049bc54 == 0) {
+        sectorFile[9] =
+            (char)(g_nSelectedCampaignSlot_005d3bf2 + '0');
+        file = OpenDataFileOrDie(sectorFile);
+        length = (short)_filelength(file);
+        g_pNavLocationText_0049bc54 =
+            AllocateTaggedMemory(length + 1, 0x40);
+        ReadDataFileAtOffset((unsigned short)file, 0, length,
+                             g_pNavLocationText_0049bc54);
+        g_pNavLocationText_0049bc54[length] = 0;
+    }
     DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     g_szNavSectorFormat_0049bdbc,
                     (char *)g_pNavLocationText_0049bc54);
@@ -726,12 +739,12 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavMissionFormat_0049bdd8,
                     g_abMissionAuxData_005d3c10);
-    playerMissionType = g_aMissionShips_00492290[
-        g_stMissionHeader_005d3e70.playerMissionShip].missionType;
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavShipFormat_0049bde0,
                     g_apszShipMissionTypeNames_0049bc58[
-                        playerMissionType]);
+                        g_aMissionShips_00492290[
+                            g_stMissionHeader_005d3e70
+                                .playerMissionShip].missionType]);
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavNotesHeading_0049bde8);
     DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,

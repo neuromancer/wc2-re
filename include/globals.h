@@ -300,7 +300,6 @@ extern const short g_asSceneAnimationLogicalFiles_00469d60_WC1_UNMAPPED[8];
 extern short g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED;
 extern const char g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED[12];
 extern PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8];
-extern unsigned char *g_pCockpitHudShape_005d21f4;
 extern unsigned char *g_pPilotHandAnimationShape_005d2c64;
 extern PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5];
 extern PacketResourceDescriptor g_aCockpitCommonShapeResources_0049c820[5];
@@ -1339,7 +1338,7 @@ extern ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 extern Viewport g_stScreenViewport_005d21a0;
 extern Viewport DAT_005a6be0;
 extern TextContext g_stSpaceTextContext_005d21c0;
-extern unsigned char *g_pTargetLockShape_005a6bf4;
+extern unsigned char *g_pCockpitHudShape_005d21f4;
 extern unsigned char *g_apTextFonts_005d2200[4];
 extern FontWorkspace **g_apFontWorkspaces_005a6c10[4];
 extern FixedVector g_aDirectionViewRightVector_005d2210[

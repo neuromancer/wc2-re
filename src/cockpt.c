@@ -2515,7 +2515,7 @@ void draw_target_box(unsigned short colour, signed char object,
                         ((SinFixed(g_nTargetLockMarkerAngle_004934f0) *
                           g_nTargetLockCountdown_004934ec * 2) >> 8));
                     DrawSpriteDefault(&g_stViewBuffer_005d2b00, centerX, centerY,
-                                      g_pTargetLockShape_005a6bf4, 1);
+                                      g_pCockpitHudShape_005d21f4, 1);
                     g_nTargetLockMarkerX_0049b298 = centerX;
                     g_nTargetLockMarkerY_005d1e20 = centerY;
                 }
@@ -2523,7 +2523,7 @@ void draw_target_box(unsigned short colour, signed char object,
                 DrawSolidColourSprite(&g_stViewBuffer_005d2b00,
                                       g_nTargetLockMarkerX_0049b298,
                                       g_nTargetLockMarkerY_005d1e20,
-                                      g_pTargetLockShape_005a6bf4, 1,
+                                      g_pCockpitHudShape_005d21f4, 1,
                                       g_cPrimaryViewBufferColour_0049cb88);
                 g_nTargetLockMarkerX_0049b298 = -0x7fff;
             }
@@ -2577,7 +2577,7 @@ void draw_nav_pointer(void)
         g_asObjectScreenScale_00493a58[object] = 0x100;
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_PLANET;
         g_apObjectShape_00493868[object] =
-            g_pTargetLockShape_005a6bf4;
+            g_pCockpitHudShape_005d21f4;
         g_nNavPointerObject_004931b8 = object;
         g_asObjectScreenX_00493598[object] = (short)0x8001;
         g_asObjectDistance_00493ae8[object] = 0;
