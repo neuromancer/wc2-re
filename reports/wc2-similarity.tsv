@@ -1,16 +1,8 @@
 source_file	source_name	mapping_name	wc1_address	wc2_address	evidence	review_flags	binary_similarity	similarity_band
-src/cockpt.c	vid_transmit	vid_transmit	00417910	0043ECD9	WC1-fuzzy-followup		43.81	lt50
-src/cockpt.c	hidden_objective	hidden_objective	004151F0	0043A474	WC1-callgraph-propagated		47.83	lt50
-src/brains.c	strike_mission	strike_mission	0040AAC0	00444420	WC1-order-exact		47.93	lt50
-src/cockpt.c	npc_communication	npc_communication	004174F0	0043E5DA	WC1-callgraph-propagated		49.02	lt50
 src/main.c	house_keep	house_keep	00427D40	0046604F	WC1-manual-verified		52.27	50to90
 src/killbrd.c	DecodeShapeFrame	DecodeShapeFrame	00440960	00425618	WC1-order-exact		52.69	50to90
 src/brains.c	set_up_action_sphere	set_up_action_sphere	0040BFF0	0044D35D	WC1-manual-verified		54.15	50to90
-src/disk.c	set_objects_data	set_objects_data	0041E120	00410999	WC1-callgraph-propagated		54.55	50to90
-src/screen.c	GetFreeNearHeapBytes	GetFreeNearHeapBytes	0042F890	00421144	WC1-callgraph-single-low		55.17	50to90
-src/screen.c	request	ScanTbl0059ce60FnF3F0	0042F3F0	00421F86	WC1-callgraph-propagated		55.64	50to90
-src/disk.c	rotate_object_to_goal	GetTbl0059c3c0FnE520	0041E520	0041133D	WC1-callgraph-propagated		57.84	50to90
-src/logic.c	detect_collisions	detect_collisions	004224F0	004299C9	WC1-callgraph-single		58.76	50to90
+src/logic.c	detect_collisions	detect_collisions	004224F0	004299C9	WC1-callgraph-single		59.79	50to90
 src/disk.c	remove_weapon	remove_weapon	0041E040	00410715	WC1-manual-verified		61.38	50to90
 src/logic.c	free_3Space_objects	free_3Space_objects	00424BE0	00458716	WC1-manual-verified		61.54	50to90
 src/debug.cpp	DebugOverlayPrintf	DebugOverlayPrintf	0041CAB0	0045B0BB	WC1-callgraph-propagated		62.25	50to90
@@ -44,13 +36,12 @@ src/debug.cpp	DebugOverlayConsole::Scroll	DebugOverlayConsole::Scroll	0041CC50	0
 src/gr.c	GetTransformedShapeBounds	GetTransformedShapeBounds	00442050	004283A4	WC1-fuzzy-very-low		72.20	50to90
 src/screens.c	ReleaseCutsceneViewport	ReleaseCutsceneViewport		0042EE86	WC2-only		72.50	50to90
 src/disk.c	ReleaseCutsceneObjectResource	ReleaseCutsceneObjectResource		0040EAA4	WC2-only		73.71	50to90
-src/logic.c	evaluate_damage	evaluate_damage	00423C00	0042B985	WC1-fuzzy-medium		73.86	50to90
-src/logic.c	scan_for_enemy	scan_for_enemy	00422F80	0042A8B5	WC1-fuzzy-very-low		74.16	50to90
 src/screens.c	ReleaseLoadedCutsceneResource	ReleaseLoadedCutsceneResource		00433328	WC2-only		74.58	50to90
 src/nav.c	SelectNavObjectiveAtPoint	ScanTbl0059c000FnE2B0	0040E2B0	00451C5C	WC1-fuzzy-very-low		74.77	50to90
-src/logic.c	try2rout	try2rout	00422780	00429EE0	WC1-fuzzy-followup		75.00	50to90
+src/logic.c	evaluate_damage	evaluate_damage	00423C00	0042B985	WC1-fuzzy-medium		75.00	50to90
 src/cockpt.c	update_objective_location	update_objective_location	00415770	0043AE2F	WC1-callgraph-propagated		75.00	50to90
 src/cdrom.c	FindCdRomDriveByVolumeLabel	FindCdRomDriveByVolumeLabel	00403290	00456236	WC1-fuzzy-medium		75.00	50to90
+src/logic.c	scan_for_enemy	scan_for_enemy	00422F80	0042A8B5	WC1-fuzzy-very-low		75.28	50to90
 src/music.c	show_target_disp	show_target_disp	0042DB90	0043FAC0	WC1-fuzzy-very-low		75.34	50to90
 src/nav.c	BriefingMap_DisplayMap	BriefingMap_DisplayMap	0040E210	00451B70	WC1-fuzzy-very-low		75.41	50to90
 src/nav.c	PlaceNavMapLabel	PlaceNavMapLabel	0040D2C0	00450458	WC1-fuzzy-low		75.66	50to90
@@ -66,15 +57,17 @@ src/mathfp.c	RandomBelowOrEqual	RandomBelowOrEqual	00434D50	004619A1	WC1-fuzzy-m
 src/brains.c	prepare_for_jump	prepare_for_jump	0040A540	00443C45	WC1-fuzzy-low		80.23	50to90
 src/debug.cpp	DebugOverlayConsole::DrawPendingLines	DebugOverlayConsole::DrawPendingLines	0041CCC0	0045B3DC	WC1-callgraph-propagated		80.30	50to90
 src/screen.c	PushMemoryStackFrame	PushMemoryStackFrame	0042F960	00458E49	WC1-fuzzy-medium		80.36	50to90
+src/nav.c	AllocateNearHeapBlockFromEnd	AllocateNearHeapBlockFromEnd	0040EB70	00420B88	WC1-fuzzy-low		80.66	50to90
 src/mathfp.c	GetShapeFrameBounds	GetShapeFrameBounds	00435020	00461DF0	WC1-fuzzy-medium		80.70	50to90
 src/debug.cpp	DebugOverlayConsole::DebugOverlayConsole	DebugOverlayConsole::DebugOverlayConsole	0041C760	0045AC50	WC1-callgraph-propagated		80.95	50to90
 src/ship.c	score_for_kill	score_for_kill	0041FA90	00413E4C	WC1-fuzzy-followup		81.13	50to90
 src/ship.c	ShipExplosion	ShipExplosion	0041FBC0	004142C8	WC1-order-callgraph-verified		81.13	50to90
-src/nav.c	AllocateNearHeapBlockFromEnd	AllocateNearHeapBlockFromEnd	0040EB70	00420B88	WC1-fuzzy-low		81.22	50to90
 src/nav.c	AllocateNearHeapBlockByFlags	AllocateNearHeapBlockByFlags	0040ED30	00420E16	WC1-fuzzy-low		81.28	50to90
 src/eventmgr.c	ClearInputKeyStatePreservingModifiers	ClearInputKeyStatePreservingModifiers	004363A0	0046428B	WC1-order-semantics-verified		81.48	50to90
 src/hudmsg.c	ShowModalMessage	ShowModalMessage	00428F20	00437C2E	WC1-callgraph-transfer		82.05	50to90
+src/nav.c	PurgeNearHeapBlocks	PurgeNearHeapBlocks	0040E950	004208FC	WC1-fuzzy-low		82.26	50to90
 src/screens.c	DrawCutsceneSprite	DrawCutsceneSprite		0042DA25	WC2-only		82.26	50to90
+src/smart.c	process_maneuver_node	process_maneuver_node		0041F9AF	WC2-only		82.30	50to90
 src/gr.c	GetViewportPixel	GetViewportPixel	00441B60	004271D2	WC1-auto-vt		82.35	50to90
 src/eventmgr.c	QueueInputEventAtCursor	QueueInputEventAtCursor	004356A0	00462849	WC1-callgraph-propagated		82.35	50to90
 src/hudmsg.c	find_objective	find_objective	0042A8F0	00424A60	WC2-manual-verified		82.50	50to90
@@ -88,19 +81,15 @@ src/cockpt.c	vdu_pop_all	vdu_pop_all	00417F10	0043F862	WC1-fuzzy-followup		83.33
 src/music.c	SceneLeaveHook	GameNoBodyStubv9	0042E3E0	00452AF0	WC1-callgraph-single-low		83.33	50to90
 src/eventmgr.c	ResumeMouseCursorHook	ResumeMouseCursor	004360D0	0046396C	WC1-order-semantics-verified		83.33	50to90
 src/dib.c	DIBupdate	DIBupdate	00432C60	0045E060	WC1-fuzzy-followup		83.69	50to90
-src/smart.c	process_maneuver_node	process_maneuver_node		0041F9AF	WC2-only		83.73	50to90
 src/disk.c	new_object	new_object	0041DF70	004105BF	WC1-callgraph-propagated		83.78	50to90
 src/system.c	ReportFatalErrorCode	ReportFatalErrorCode		00437A44	WC2-only		83.78	50to90
-src/nav.c	PurgeNearHeapBlocks	PurgeNearHeapBlocks	0040E950	004208FC	WC1-fuzzy-low		83.87	50to90
 src/brains.c	Mzip_past	Mzip_past	00406D80	00441742	WC1-manual-verified		84.21	50to90
 src/disk.c	SkipCutsceneChunk	SkipCutsceneChunk		0040D88E	WC2-only		84.38	50to90
 src/cockpt.c	mobile_objective	mobile_objective	00415A30	0043B1F0	WC1-manual-verified		84.38	50to90
-src/logic.c	in_danger	in_danger	00423350	0042ACAF	WC1-callgraph-propagated		84.51	50to90
 src/killbrd.c	RunTitleScreen	RunTitleScreen		00418FFC	WC2-only		84.62	50to90
 src/eventmgr.c	EnableMouseCursorDrawing	EnableMouseCursorDrawing		00463BA1	WC2-only		84.62	50to90
 src/disk.c	FlushPendingInputPresses	FlushPendingInputPresses		0040F9F7	WC2-only		85.00	50to90
 src/cockpt.c	EmitTextString	EmitTextString	00413A10	00420340	WC1-manual-verified		85.19	50to90
-src/nav.c	NavMapLabelPositionAvailable	NavMapLabelPositionAvailable	0040D120	00450210	WC1-fuzzy-followup		85.19	50to90
 src/mathfp.c	MultiplyFixed	MultiplyFixed	00434D80	004619E2	WC1-callgraph-propagated		85.19	50to90
 src/spc.c	SetFleetOverviewView	LoopUiFn0740	00410740	0044ADE0	WC1-fuzzy-very-low		85.27	50to90
 src/cockpt.c	check_visit	check_visit	00415720	0043ADC4	WC1-fuzzy-very-low		85.29	50to90
@@ -110,15 +99,16 @@ src/brains.c	prepare_mission	prepare_mission	0040B7A0	0044BA73	WC1-order-semanti
 src/music.c	CalcRectangleArea	CalcRectangleArea	0042E050	0045CA80	WC1-fuzzy-followup		85.71	50to90
 src/logic.c	build_squad_list	build_squad_list	00422A70	0042A28E	WC1-order-callgraph-verified		86.11	50to90
 src/brains.c	DrawNavTextLine	DrawNavTextLine	0040CB60	0044FA70	WC1-fuzzy-followup		86.11	50to90
-src/music.c	IsSpriteFrameOverlappingRect	IsSpriteFrameOverlappingRect		0046505E	WC2-only		86.14	50to90
+src/music.c	OpenPacketSection	OpenPacketSection	0042D730	0044F010	WC1-fuzzy-followup		86.13	50to90
 src/geom.c	remove_object	remove_object	00419BD0	0040C2C9	WC1-fuzzy-followup		86.21	50to90
+src/nav.c	NavMapLabelPositionAvailable	NavMapLabelPositionAvailable	0040D120	00450210	WC1-fuzzy-followup		86.42	50to90
 src/cockpt.c	objective_name	objective_name	00415130	0043A374	WC1-fuzzy-very-low		86.49	50to90
 src/screens.c	LinkCutsceneSpriteScript	LinkCutsceneSpriteScript		0042D98C	WC2-only		86.54	50to90
 src/auto.c	auto_pilot_sequence	auto_pilot_sequence	00404050	00422B1C	WC1-callgraph-propagated		86.57	50to90
 src/smart.c	control_speed	control_speed	00434040	0041ECEF	WC1-fuzzy-followup		86.67	50to90
 src/sound.c	playWAVE	playWAVE	0042B4A0	0042418C	WC1-fuzzy-followup		86.70	50to90
 src/disk.c	match_rotation_goal	DoLocalFnE400	0041E400	00411172	WC1-fuzzy-very-low		86.79	50to90
-src/music.c	OpenPacketSection	OpenPacketSection	0042D730	0044F010	WC1-fuzzy-followup		86.86	50to90
+src/logic.c	real_crash_time	real_crash_time	00422260	00429736	WC1-fuzzy-followup		86.86	50to90
 src/eventmgr.c	GetNextInputEvent	GetNextInputEvent	004359C0	00462DFC	WC1-manual-verified		86.89	50to90
 src/mathutil.c	FreePacketAndClear	FreePacketAndClear	0041D100	0040F0A4	WC1-callgraph-propagated		86.96	50to90
 src/disk.c	approach_speed	approach_speed	0041E750	0041181D	WC1-fuzzy-low		87.04	50to90
@@ -133,9 +123,7 @@ src/smart.c	handle_stress	handle_stress	00434980	0041FD2B	WC1-fuzzy-very-low		87
 src/killbrd.c	GetShapeFrameExtents	GetShapeFrameExtents	004408F0	0042557C	WC1-order-exact		87.72	50to90
 src/screens.c	CopyCutsceneSpriteDisplay	CopyCutsceneSpriteDisplay		0042D8E2	WC2-only		87.72	50to90
 src/brains.c	Mburnout	ShipAiState12	00406860	00440E46	WC1-callgraph-propagated		87.72	50to90
-src/cockpt.c	cycle_onscreen_targets	cycle_onscreen_targets	00416F30	0043DD1B	WC1-fuzzy-very-low		87.93	50to90
 src/brains.c	Msit_n_spin	Msit_n_spin	004065A0	00440A93	WC1-fuzzy-followup		87.93	50to90
-src/logic.c	real_crash_time	real_crash_time	00422260	00429736	WC1-fuzzy-followup		88.00	50to90
 src/winmain.c	CreateMainWindow	CreateMainWindow	00402180	004542B7	WC1-fuzzy-very-low		88.14	50to90
 src/geom.c	MinInt	DoLocalFn84E0	004184E0	0040A867	WC1-order-exact		88.24	50to90
 src/geom.c	MaxInt	DoLocalFn84F0	004184F0	0040A893	WC1-order-exact		88.24	50to90
@@ -145,6 +133,7 @@ src/main.c	clear_view_buffer	clear_view_buffer	00427B00	00465E88	WC1-fuzzy-follo
 src/debug.cpp	DebugOverlayWorkerProc	DebugOverlayWorkerProc	0041C960	0045AEE4	WC1-callgraph-propagated		88.42	50to90
 src/brains.c	check_destroy_target	check_destroy_target	00409B10	00442D58	WC1-fuzzy-followup		88.50	50to90
 src/smart.c	veer_random	veer_random	00433EC0	0041EB1D	WC1-fuzzy-low		88.64	50to90
+src/logic.c	in_danger	in_danger	00423350	0042ACAF	WC1-callgraph-propagated		88.73	50to90
 src/nav.c	InitializeNearHeap	InitializeNearHeap	0040E9E0	004209C2	WC1-fuzzy-low		88.76	50to90
 src/geom.c	point_ship	point_ship	00419620	0040BC6B	WC1-callgraph-propagated		88.89	50to90
 src/smart.c	steer_away_from_object	steer_away_from_object	00433AC0	0041E4E0	WC1-fuzzy-very-low		89.04	50to90
@@ -154,7 +143,9 @@ src/disk.c	CreateCutsceneResourceInstance	CreateCutsceneResourceInstance		0040DA
 src/smart.c	prevent_collision	prevent_collision	00433C80	0041E6C8	WC1-fuzzy-followup		89.31	50to90
 src/hudmsg.c	WriteTapeInitialState	WriteTapeInitialState		0040230E	WC2-only		89.47	50to90
 src/logic.c	approach_ship_speed	approach_ship_speed	00422EA0	0042A7AF	WC1-callgraph-propagated		89.47	50to90
+src/nav.c	DrawNavMapLabels	DrawNavMapLabels	0040D540	0045087F	WC1-fuzzy-very-low		89.47	50to90
 src/geom.c	ShowModalTextPanel	ShowModalTextPanel	0041AB90	004595EF	WC1-fuzzy-medium		89.52	50to90
+src/cockpt.c	cycle_onscreen_targets	cycle_onscreen_targets	00416F30	0043DD1B	WC1-fuzzy-very-low		89.66	50to90
 src/ship.c	Create_ship_hit_debris	Create_ship_hit_debris	0041F700	004136E2	WC1-fuzzy-very-low		89.71	50to90
 src/eventmgr.c	intro_drawbackgroundships	intro_drawbackgroundships	00436650	0046470E	WC1-callgraph-propagated		89.81	50to90
 src/geom.c	apply_force_to_object	apply_force_to_object	00419D10	0040C4D1	WC1-fuzzy-low		89.83	50to90
@@ -179,6 +170,7 @@ src/pload.c	ServiceAudioStream	GetAudioStreamFnB1B0	0042B1B0	00423D02	WC1-auto-v
 src/gr.c	SetStreamerIntensity	SetStreamerIntensity	00442520	00428AAB	WC1-manual-verified		90.48	ge90
 src/music.c	PlaySpeechPacketBuffer	PlaySpeechPacketBuffer		0044F3A4	WC2-only		90.48	ge90
 src/disk.c	FindSceneHotspotAtPosition	FindSceneHotspotAtPosition		00409417	WC2-only		90.54	ge90
+src/spc.c	CalibrateJoystickInteractive	CalibrateJoystickInteractive	004102B0	00418770	WC1-fuzzy-high		90.57	ge90
 src/logic.c	inherit_leader_mission	inherit_leader_mission	00423530	0042AF60	WC1-fuzzy-medium		90.70	ge90
 src/brains.c	tanker_intelligence	tanker_intelligence	0040B010	00444D5C	WC1-fuzzy-very-low		90.79	ge90
 src/hudmsg.c	ResetCannedSceneRecording	ResetCannedSceneRecording		00401A10	WC2-only		90.91	ge90
@@ -213,8 +205,7 @@ src/music.c	AllocateViewport	AllocateViewport	0042E090	0045CAD2	WC1-fuzzy-follow
 src/cockpt.c	UpdateTargetLeadIndicator	UpdateTargetLeadIndicator		0043CF5A	WC2-only		91.09	ge90
 src/brains.c	kilrathi_wingman	kilrathi_wingman	0040A030	00443499	WC1-fuzzy-very-low		91.09	ge90
 src/disk.c	WaitForAnyInputPress	WaitForAnyInputPress		0040FADE	WC2-only		91.11	ge90
-src/spc.c	CalibrateJoystickInteractive	CalibrateJoystickInteractive	004102B0	00418770	WC1-fuzzy-high		91.14	ge90
-src/screens.c	RunCutsceneScript	RunCutsceneScript		0042F1FD	WC2-only		91.17	ge90
+src/screens.c	RunCutsceneScript	RunCutsceneScript		0042F1FD	WC2-only		91.15	ge90
 src/music.c	IsConstellationParticleOutsideViewport	IsConstellationParticleOutsideViewport		0045A5C7	WC2-only		91.18	ge90
 src/geom.c	set_background_objects_rotation	SetTbl0059cd90FnA530	0041A530	0040CEF6	WC1-fuzzy-very-low		91.25	ge90
 src/smart.c	steer_away_from_predicted_object	steer_away_from_predicted_object	00433B90	0041E5C8	WC1-fuzzy-very-low		91.25	ge90
@@ -238,23 +229,23 @@ src/eventmgr.c	DisableMouseCursorDrawing	SuspendMouseCursor	004360E0	00463E19	WC
 src/eventmgr.c	GetSoundHardwareFlag	GetSoundHardwareFlag	00436260	00464141	WC1-manual-verified		91.67	ge90
 src/system.c	WaitForQueuedInputPress	WaitForQueuedInputPress		00465730	WC2-only		91.67	ge90
 src/screen.c	disobey_formation	disobey_formation	0042F240	00421C35	WC1-callgraph-propagated		91.84	ge90
+src/mathfp.c	Vector_magnitude	Vector_magnitude	00434F20	00461C71	WC1-callgraph-propagated		91.84	ge90
 src/cockpt.c	damage_your_component	damage_your_component	00414BF0	004398CB	WC1-fuzzy-medium		91.89	ge90
 src/logic.c	CountShipCockpitGunDisplays	CountShipCockpitGunDisplays		00460242	WC2-only		91.89	ge90
 src/logic.c	LoadGamePaletteFile	LoadGamePaletteFile	004219C0	0045B810	WC1-callgraph-propagated		91.94	ge90
 src/spc.c	update_star_field	update_star_field	00412100	0041B8D6	WC1-fuzzy-followup		91.97	ge90
 src/disk.c	fix_velocity	fix_velocity	0041E820	00411922	WC1-callgraph-propagated		92.00	ge90
 src/hudmsg.c	ReleaseStaleNavTarget	ReleaseStaleNavTarget	0042A170	00469223	WC1-callgraph-propagated		92.00	ge90
+src/music.c	KeyboardMousePump	KeyboardMousePump		00452450	WC2-only		92.10	ge90
 src/geom.c	rotational_acceleration	rotational_acceleration	00419F70	0040C796	WC1-fuzzy-low		92.11	ge90
 src/winmain.c	make_shard	make_shard	004010C0	004176D2	WC1-fuzzy-followup		92.11	ge90
 src/gr.c	DrawViewportEllipse	DrawViewportEllipse	00441DD0	00428023	WC1-fuzzy-followup		92.11	ge90
 src/gr.c	FillViewportEllipse	FillViewportEllipse	00441E20	0042808F	WC1-fuzzy-followup		92.11	ge90
 src/gr.c	DrawViewportEllipseShadow	DrawViewportEllipseShadow	00441E70	004280FB	WC1-callgraph-propagated		92.11	ge90
-src/nav.c	DrawNavMapLabels	DrawNavMapLabels	0040D540	0045087F	WC1-fuzzy-very-low		92.11	ge90
 src/gr.c	SetStreamerTrigger	SetStreamerTrigger	004424D0	00428AEB	WC1-manual-verified		92.31	ge90
 src/gr.c	GetMusicStreamVolume	GetMusicStreamVolume		00428DBF	WC2-only		92.31	ge90
 src/logic.c	change_mission_type	change_mission_type	00422C30	0042A4E5	WC1-fuzzy-followup		92.31	ge90
 src/logic.c	get_first_follow_point	get_first_follow_point	00423930	0042B524	WC1-fuzzy-very-low		92.31	ge90
-src/screens.c	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot		0042CC42	WC2-only		92.31	ge90
 src/screens.c	FormatCinematicMemoryStatus	FormatCinematicMemoryStatus		0042F0B3	WC2-only		92.31	ge90
 src/cockpt.c	overlay_head_up_display	overlay_head_up_display	00416AC0	0043D386	WC1-callgraph-propagated		92.31	ge90
 src/cockpt.c	check_stranded	check_stranded	00417B30	0043F0C3	WC1-fuzzy-very-low		92.31	ge90
@@ -262,7 +253,6 @@ src/hudmsg.c	MeasureMessageWidth	MeasureMessageWidth	00428E70	004672C5	manual-ve
 src/logic.c	GetAvailableMainMemory	GetAvailableMainMemory		00469AD0	WC2-only		92.31	ge90
 src/logic.c	GetLargestMainMemoryBlock	GetLargestMainMemoryBlock		00469B49	WC2-only		92.31	ge90
 src/geom.c	rectangular_to_spherical	DoLocalFn8890	00418890	0040ACE0	WC1-fuzzy-low		92.42	ge90
-src/brains.c	set_formation_position	ScanTbl0046c97bFnC4E0	0040C4E0	0044DA2F	WC1-fuzzy-followup		92.45	ge90
 src/logic.c	find_weapon	find_weapon	00421100	00416690	WC1-manual-verified		92.50	ge90
 src/cockpt.c	get_color	get_color	00415C00	0043B61F	WC1-manual-verified		92.55	ge90
 src/eventmgr.c	SetPaletteEntryFromTriplet	SetPaletteEntryFromTriplet		00464FE7	WC2-only		92.59	ge90
@@ -275,15 +265,12 @@ src/screens.c	FindActiveCutsceneObjectResources	FindActiveCutsceneObjectResource
 src/cockpt.c	SetHudMessageText	SetHudMessageText	00416DE0	0043D956	WC1-fuzzy-low		92.86	ge90
 src/winmain.c	ReportHeapGuardCorruption	ReportHeapGuardCorruption	00402CA0	00455565	WC1-auto-vt		92.86	ge90
 src/geom.c	RestoreModalTextPanel	RestoreModalTextPanel	0041AB60	004595AA	WC1-manual-verified		92.86	ge90
-src/logic.c	SetTargetCameraEyePosition	SetTargetCameraEyePosition		00460D3E	WC2-only		92.86	ge90
 src/winmain.c	try_far_spot	try_far_spot	004016C0	00417EFF	WC1-fuzzy-followup		92.90	ge90
-src/logic.c	attacker_in_range	attacker_in_range	004232B0	0042ABCE	WC1-manual-verified		92.98	ge90
 src/ship.c	revise_shields	revise_shields	0041F1A0	00412F03	WC1-fuzzy-low		93.02	ge90
 src/geom.c	distance_between_points	distance_between_points	004191D0	0040B7C9	WC1-manual-verified		93.10	ge90
 src/cockpt.c	InitializeCockpitReadout	InitializeCockpitReadout	00413F70	00438454	WC1-callgraph-propagated		93.10	ge90
 src/brains.c	ScaleNavMapCoordinates	ScaleNavMapCoordinates	0040CBE0	0044FB19	WC1-fuzzy-medium		93.10	ge90
 src/ix/dsps.cpp	ix_dsps_get_buffer_free	ix_dsps_get_buffer_free	00445A6F	0048B2CF	WC1-auto-vt		93.14	ge90
-src/brains.c	Mveer_away	Mveer_away	00407450	00442252	WC1-fuzzy-followup		93.16	ge90
 src/sound.c	UpdateDamageDisplay	DrawTbl0059bff0FnC970	0042C970	004012E1	WC1-fuzzy-very-low		93.18	ge90
 src/ship.c	pilot_hit	pilot_hit	0041EC60	0041262D	WC1-fuzzy-low		93.22	ge90
 src/brains.c	streak_toward	streak_toward	0040A940	004441E5	WC1-fuzzy-low		93.22	ge90
@@ -292,7 +279,6 @@ src/cockpt.c	cockpit_explosion	cockpit_explosion	004177B0	0043EB46	WC1-fuzzy-low
 src/disk.c	FetchDiskPacketRetrying	FetchDiskPacketRetrying	0041D2E0	0040F5B6	WC1-fuzzy-very-low		93.27	ge90
 src/sound.c	PlaySnowStaticSound	PlaySnowStaticSound	0042B680	004245F8	WC1-fuzzy-high		93.27	ge90
 src/main.c	player_input	player_input	004285D0	00466B02	WC1-fuzzy-followup		93.30	ge90
-src/music.c	KeyboardMousePump	KeyboardMousePump		00452450	WC2-only		93.31	ge90
 src/screen.c	PrintPaletteAllocationMap	PrintPaletteAllocationMap	004319B0	00401978	WC1-fuzzy-medium		93.33	ge90
 src/geom.c	point_ship_behind_object	point_ship_behind_object	00419710	0040BDC2	WC1-manual-verified		93.33	ge90
 src/gr.c	ClearViewport	ClearViewport	00441AE0	00427123	WC1-auto-vt		93.33	ge90
@@ -301,6 +287,7 @@ src/screen.c	EndCommSessionWithWingman	EndCommSessionWithWingman	00431470	004480
 src/eventmgr.c	FlushInputEvents	FlushInputEvents	00435DB0	0046354F	WC1-callgraph-propagated		93.33	ge90
 src/ship.c	onboard_explosion	onboard_explosion	0041ECE0	0041270A	WC1-fuzzy-very-low		93.42	ge90
 src/winmain.c	MainWindowProc	MainWindowProc	00402530	00454625	WC1-callgraph-propagated		93.50	ge90
+src/smart.c	chase_speed	chase_speed	00434C70	00440571	WC1-callgraph-propagated		93.62	ge90
 src/nav.c	BriefingMap_LoadShapes	BriefingMap_LoadShapes	0040E190	00451AD3	WC1-fuzzy-followup		93.62	ge90
 src/text.c	DrawCinematicFontCharacter	DrawCinematicFontCharacter		00433690	WC2-only		93.65	ge90
 src/logic.c	DecodeSceneOffsetChunk	DecodeSceneOffsetChunk		00458B8C	WC2-only		93.67	ge90
@@ -316,11 +303,12 @@ src/geom.c	ChooseRandomSignedMagnitude	ChooseRandomSignedMagnitude	00418750	0040
 src/smart.c	chase_location	chase_location	004340F0	0041EDCC	WC1-fuzzy-low		93.94	ge90
 src/gr.c	Streamer_open	Streamer_open	004423B0	004289BF	WC1-fuzzy-followup		93.94	ge90
 src/screen.c	LoadCommPortraitResources	LoadCommPortraitResources	00431520	00447300	WC1-manual-verified		93.94	ge90
-src/mathfp.c	RandomInRange	RandomInRange	00434D20	00461942	WC1-fuzzy-medium		93.94	ge90
 src/eventmgr.c	draw_sorted_objects_to_buffer	draw_sorted_objects_to_buffer	00436520	004644DA	WC1-order-semantics-verified		93.94	ge90
 src/ix/streamer.cpp	ix_streamer_service_audio	ix_streamer_service_audio	00443CC0	0046D2C0	WC1-auto-vt		93.94	ge90
 src/spc.c	accelerate_and_move_object	GetTbl0059c3c0Fn29A0	004129A0	0041CC0A	WC1-fuzzy-followup		93.96	ge90
+src/brains.c	Mveer_away	Mveer_away	00407450	00442252	WC1-fuzzy-followup		94.02	ge90
 src/screen.c	ShouldWingmanAcceptRoutCommand	ShouldWingmanAcceptRoutCommand	0042F350	00421E6D	manual-verified		94.03	ge90
+src/music.c	IsSpriteFrameOverlappingRect	IsSpriteFrameOverlappingRect		0046505E	WC2-only		94.06	ge90
 src/geom.c	AbsInt	DoLocalFn8500	00418500	0040A8BF	WC1-callgraph-single		94.12	ge90
 src/cockpt.c	FormatTextBufferFromStart	FormatTextBufferFromStart	00413C70	004206F2	WC1-manual-verified		94.12	ge90
 src/gr.c	DrawViewportPixel	DrawViewportPixel	00441B20	00427179	WC1-auto-vt		94.12	ge90
@@ -338,6 +326,7 @@ src/screens.c	WaitForCutsceneInputEvent	WaitForCutsceneInputEvent		0042C5A2	WC2-
 src/cockpt.c	CheckTargetLockMalfunction	CheckTargetLockMalfunction	00416040	0043BEFF	WC1-fuzzy-very-low		94.29	ge90
 src/cmpgn.c	ejection_sequence	ejection_sequence	004046A0	0044EBCA	WC1-callgraph-propagated		94.29	ge90
 src/logic.c	initialize_direction_view_frame	SetUiFn1E20	00421E20	0045C1A1	WC1-fuzzy-low		94.29	ge90
+src/brains.c	set_formation_position	ScanTbl0046c97bFnC4E0	0040C4E0	0044DA2F	WC1-fuzzy-followup		94.34	ge90
 src/disk.c	WaitForInputKey	WaitForInputKey	0041DAA0	0040FA2C	WC1-callgraph-propagated		94.44	ge90
 src/spc.c	object_intelligence	DispatchTbl0059d100Fn3880	00413880	0041E276	WC1-callgraph-propagated		94.44	ge90
 src/screens.c	ReleaseCutsceneSoundEffects	ReleaseCutsceneSoundEffects		0042CB08	WC2-only		94.44	ge90
@@ -351,11 +340,12 @@ src/eventmgr.c	RetainInputEventsOfType	RetainInputEventsOfType	004358E0	00462C9C
 src/screen.c	PollJoystickButtonEvents	PollJoystickButtonEvents	00430840	00421409	WC1-fuzzy-very-low		94.52	ge90
 src/ship.c	analyze_kill	analyze_kill	0041FB40	00413F58	WC1-callgraph-propagated		94.55	ge90
 src/brains.c	Mfish_hook	Mfish_hook	00406A50	004411E1	WC1-fuzzy-followup		94.55	ge90
+src/logic.c	SetTargetCameraEyePosition	SetTargetCameraEyePosition		00460D3E	WC2-only		94.55	ge90
 src/eventmgr.c	FindQueuedInputEvent	FindQueuedInputEvent	00435D80	004633E7	WC1-manual-verified		94.62	ge90
-src/personnel.c	SelectTransferredPilot	SelectTransferredPilot		00435064	WC2-only		94.71	ge90
 src/gr.c	snow_viewport	snow_viewport	00442300	00427DE8	WC1-fuzzy-very-low		94.74	ge90
 src/cockpt.c	show_navigation_disp	show_navigation_disp	00415180	0043A3F8	WC1-fuzzy-very-low		94.74	ge90
 src/winmain.c	PumpWindowMessages	PumpWindowMessages	00402320	0045445A	WC1-fuzzy-very-low		94.74	ge90
+src/winmain.c	DetectDoubleFree	DetectDoubleFree		00455697	WC2-only		94.74	ge90
 src/sysinput.c	InitGameClockRandomEpoch	InitGameClockRandomEpoch	004030B0	00455F23	WC1-auto-vt		94.74	ge90
 src/debug.cpp	DebugOverlayConsole::SetOverlayTextColor	DebugOverlayConsole::SetOverlayTextColor	0041CFA0	0045B654	WC1-manual-verified		94.74	ge90
 src/debug.cpp	DebugOverlayConsole::SetOverlayBackgroundColor	DebugOverlayConsole::SetOverlayBackgroundColor	0041CFF0	0045B6BB	WC1-callgraph-propagated		94.74	ge90
@@ -372,6 +362,7 @@ src/logic.c	InitializeCockpitResources	LoopCombatFn45B0	004245B0	004577D7	WC1-ca
 src/geom.c	vector_length_in_dir	vector_length_in_dir	00418B60	0040AF99	WC1-manual-verified		95.00	ge90
 src/smart.c	pick_from_list	pick_from_list	00434800	0041F714	WC1-fuzzy-followup		95.00	ge90
 src/logic.c	SaveAndFreeTemporaryCampaignGlobals	SaveAndFreeTemporaryCampaignGlobals		00429423	WC2-only		95.00	ge90
+src/screens.c	InitializeSceneFlicStream	InitializeSceneFlicStream		0042E6EB	WC2-only		95.00	ge90
 src/cockpt.c	set_new_objective	set_new_objective	004152C0	0043A75E	WC1-callgraph-propagated		95.00	ge90
 src/screen.c	EndCommMenu	EndCommMenu	004314C0	004480C6	WC1-fuzzy-low		95.00	ge90
 src/strdos.c	DosMemcpy	DosMemcpy	004354F0	00462527	WC1-manual-verified		95.00	ge90
@@ -379,16 +370,14 @@ src/strdos.c	DosMemset	DosMemset	00435510	00462550	WC2-manual-verified		95.00	ge
 src/eventmgr.c	TranslatePolledInputEvent	TranslatePolledInputEvent	004355F0	00462625	WC1-callgraph-single-low		95.00	ge90
 src/eventmgr.c	RestoreMouseCursorBackground	GetUiFn5FA0	00435FA0	004637F4	WC1-fuzzy-low		95.00	ge90
 src/sound.c	LoadWingCmdrCfgFile	LoadWingCmdrCfgFile	0042C580	00401000	WC1-fuzzy-followup		95.06	ge90
-src/hudmsg.c	CopyHugeMemoryOverlapSafe	CopyHugeMemoryOverlapSafe		00419A40	WC2-only		95.10	ge90
 src/geom.c	get_facing_range_from_object	get_facing_range_from_object	00419310	0040B92F	WC1-manual-verified		95.12	ge90
-src/logic.c	hostile_sphere	hostile_sphere	00423970	0042B565	WC1-callgraph-single		95.12	ge90
 src/pilot.cpp	ReadTextInput	ReadTextInput	00426200	004597E3	WC1-fuzzy-followup		95.15	ge90
 src/logic.c	DecodeSceneStructChunk	DecodeSceneStructChunk		00458A90	WC2-only		95.18	ge90
+src/personnel.c	SelectTransferredPilot	SelectTransferredPilot		00435064	WC2-only		95.19	ge90
 src/cmpgn.c	RunCampaignContinuePromptLoop	RunCampaignContinuePromptLoop		004098F2	WC2-only		95.24	ge90
 src/winmain.c	add_hazard_field	add_hazard_field	00401C00	00418626	WC1-manual-verified		95.24	ge90
 src/gr.c	DrawSolidColourSprite	DrawSolidColourSprite	00441A40	00426FD9	WC1-callgraph-propagated		95.24	ge90
 src/logic.c	GetMissionShipVelocityState	GetMissionShipVelocityState		00428E5C	WC2-only		95.24	ge90
-src/logic.c	close_behind	close_behind	00422F60	0042A876	WC1-manual-verified		95.24	ge90
 src/screens.c	RemoveCutsceneMemberIndex	RemoveCutsceneMemberIndex		0042C6AC	WC2-only		95.24	ge90
 src/brains.c	Mroll_over	Mroll_over	00406990	004410C0	WC1-manual-verified		95.24	ge90
 src/brains.c	Mget_distance	Mget_distance	004071E0	00441EC8	WC1-fuzzy-low		95.24	ge90
@@ -404,6 +393,7 @@ src/cockpt.c	cycle_next_objective	cycle_next_objective	00415370	0043A851	WC1-fuz
 src/brains.c	init_mission	init_mission	0040B730	0044B2E2	WC1-callgraph-propagated		95.35	ge90
 src/personnel.c	ReadPersonnelTextField	LoadPaletteTripletsFile	00404610	00459BC8	WC1-fuzzy-very-low		95.35	ge90
 src/brains.c	ProcessMissionWaveCommands	ProcessMissionWaveCommands		0044D0C7	WC2-only		95.42	ge90
+src/geom.c	rotate_about_k	DoLocalFn8E40	00418E40	0040B2CF	WC1-callgraph-propagated		95.45	ge90
 src/logic.c	fire_afterburner	fire_afterburner	00421350	0041693A	WC1-manual-verified		95.45	ge90
 src/smart.c	maintain_formation	maintain_formation	004344E0	0041F2C5	WC1-manual-verified		95.45	ge90
 src/logic.c	free_cockpit	free_cockpit	004249A0	00458196	WC1-callgraph-propagated		95.51	ge90
@@ -418,10 +408,10 @@ src/logic.c	EMStartUp	EMStartUp	00421AB0	0045B924	WC1-callgraph-propagated		95.6
 src/dib.c	GetPaletteEntryAsWords	GetPaletteEntryAsWords	00433020	0045E61C	WC1-order-exact		95.65	ge90
 src/hudmsg.c	ApplyCannedSceneObjectEventRecord	ApplyCannedSceneObjectEventRecord		00446B6A	WC2-only		95.74	ge90
 src/nav.c	InflightComputer	BlitUiFnE480	0040E480	00451FAA	WC1-callgraph-propagated		95.75	ge90
+src/hudmsg.c	CopyHugeMemoryOverlapSafe	CopyHugeMemoryOverlapSafe		00419A40	WC2-only		95.80	ge90
 src/spc.c	WaitForJoystickButtonRelease	WaitForJoystickButtonRelease	004106C0	00418D14	WC1-manual-verified		95.83	ge90
 src/spc.c	WaitForJoystickButtonPress	WaitForJoystickButtonPress	00410700	00418D5F	WC1-manual-verified		95.83	ge90
 src/screens.c	RestoreCutsceneTextBacking	RestoreCutsceneTextBacking		0042DE9D	WC2-only		95.83	ge90
-src/screen.c	IssueQuickCommCommand	IssueQuickCommCommand	00431400	00448008	manual-verified		95.83	ge90
 src/screen.c	ReleasePacketHandle	ReleasePacketHandle	0042FAE0	00459082	WC1-order-exact		95.83	ge90
 src/pilot.cpp	EraseCharacterAfterTextCursor	EraseCharacterAfterTextCursor	004261D0	0045930A	WC1-manual-verified		95.83	ge90
 src/winmain.c	WinMain	WinMain	00401E30	00453E60	WC1-callgraph-transfer		95.86	ge90
@@ -430,7 +420,6 @@ src/ship.c	launch_object	launch_object	00420260	00414D3D	WC1-fuzzy-low		95.92	ge
 src/brains.c	Mhard_turn	Mhard_turn	004069F0	00441146	WC1-callgraph-propagated		95.92	ge90
 src/nav.c	DrawNavMapLegend	DrawNavMapLegend	0040DEE0	004516C0	WC1-fuzzy-low		95.92	ge90
 src/main.c	FireTargetCameraGuns	FireTargetCameraGuns		0045F439	WC2-only		95.92	ge90
-src/mathfp.c	Vector_magnitude	Vector_magnitude	00434F20	00461C71	WC1-callgraph-propagated		95.92	ge90
 src/gr.c	DrawViewportBorder	DrawViewportBorder	00441CF0	00427EC8	WC1-fuzzy-followup		95.93	ge90
 src/nav.c	DrawNavMapBriefingBeacons	DrawNavMapBriefingBeacons		00450F1E	WC2-only		95.95	ge90
 src/screens.c	RecordCannedSceneBriefingCharacter	DrawBriefingCharacter	00439150	004021A7	WC1-fuzzy-very-low		96.00	ge90
@@ -438,7 +427,7 @@ src/smart.c	compute_formation_destination	compute_formation_destination	00433FF0
 src/pilot.cpp	ClearTextInputCharacter	ClearTextInputCharacter	00426140	00459348	WC1-fuzzy-very-low		96.00	ge90
 src/eventmgr.c	ReleaseInputEvent	ReleaseInputEvent	00435760	0046294F	WC1-manual-verified		96.00	ge90
 src/killbrd.c	RunCampaignChalkboardMenu	RunCampaignChalkboardMenu		00459D74	WC2-only		96.03	ge90
-src/music.c	InitializeConstellationField	InitializeConstellationField	0042D390	0045A441	WC1-fuzzy-followup		96.08	ge90
+src/screens.c	PanToScreen	PanToScreen	00439430	00433410	WC1-fuzzy-very-low		96.04	ge90
 src/main.c	dump_buffer_to_screen	dump_buffer_to_screen	00427A40	00465D55	WC1-fuzzy-very-low		96.08	ge90
 src/screen.c	ReleaseContiguousPaletteEntries	ReleaseContiguousPaletteEntries		00401922	WC2-only		96.15	ge90
 src/screens.c	CopyRasterDriverName	CopyRasterDriverName	00439C3E	0040243C	WC1-fuzzy-high		96.15	ge90
@@ -446,8 +435,6 @@ src/screens.c	FatalCutsceneError	FatalCutsceneError		0042C725	WC2-only		96.15	ge
 src/brains.c	kilrathi_patrol	kilrathi_patrol	0040A360	00443930	WC1-manual-verified		96.15	ge90
 src/geom.c	MeasureTextPixelWidthClamped	MeasureTextPixelWidthClamped	00418080	00453B30	WC1-callgraph-propagated		96.15	ge90
 src/screen.c	PollMenuInputDevices	PollMenuInputDevices	00430920	00421530	WC1-fuzzy-low		96.17	ge90
-src/gr.c	GenerateWipeRadialEdges	GenerateWipeRadialEdges		0044A910	WC2-only		96.21	ge90
-src/hudmsg.c	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity		00401C1A	WC2-only		96.30	ge90
 src/geom.c	IsPointWithinRange	IsPointWithinRange	00419990	0040BF55	WC1-callgraph-propagated		96.30	ge90
 src/winmain.c	manage_hazard	manage_hazard	004019E0	0041836E	WC1-fuzzy-very-low		96.30	ge90
 src/hudmsg.c	RestoreCannedSceneObjectState	RestoreCannedSceneObjectState		00446A1D	WC2-only		96.30	ge90
@@ -464,13 +451,14 @@ src/gr.c	DrawSpriteTransformed	DrawSpriteTransformed	00440FE0	00425FB4	WC1-fuzzy
 src/brains.c	UpdateTargetCameraObject	UpdateTargetCameraObject		00460650	WC2-only		96.45	ge90
 src/sound.c	show_damage_disp	show_damage_disp	0042C800	00401120	WC1-fuzzy-followup		96.46	ge90
 src/barracks.c	RunCampaignSelectionFrame	RunCampaignSelectionFrame	0041C090	00418DAA	WC1-callgraph-propagated		96.47	ge90
+src/logic.c	attacker_in_range	attacker_in_range	004232B0	0042ABCE	WC1-manual-verified		96.49	ge90
 src/smart.c	reset_stress	reset_stress	00434550	0041F337	WC1-manual-verified		96.55	ge90
 src/sound.c	RewriteCutsceneMusicExtensionForRetry	RewriteCutsceneMusicExtensionForRetry		00432EE4	WC2-only		96.55	ge90
 src/brains.c	check_goal	check_goal	0040A900	00444199	WC1-fuzzy-followup		96.55	ge90
 src/mono.c	WriteDataFileAtOffset	WriteDataFileAtOffset	00403520	0045A06C	WC1-fuzzy-high		96.55	ge90
 src/eventmgr.c	ReleaseInputEventQueue	ReleaseInputEventQueue	004358B0	00462C43	WC1-manual-verified		96.55	ge90
-src/screens.c	LoadCachedCutsceneResource	LoadCachedCutsceneResource		00432F2A	WC2-only		96.57	ge90
 src/disk.c	ReportPacketLoadError	TextUiFnD120	0041D120	0040F0D2	WC1-fuzzy-followup		96.58	ge90
+src/eventmgr.c	QueueInputEvent	QueueInputEvent	00435790	004629A7	WC1-manual-verified		96.58	ge90
 src/cockpt.c	fire_computer_graphic_missile	fire_computer_graphic_missile	00414D50	00439A5A	WC1-fuzzy-low		96.59	ge90
 src/cockpt.c	update_VDUs	update_VDUs	00417B70	0043F2F5	WC1-fuzzy-followup		96.63	ge90
 src/geom.c	transform_objects_to_your_view	ScanTbl0059d9b0FnA1D0	0041A1D0	0040C9DD	WC1-fuzzy-very-low		96.64	ge90
@@ -482,9 +470,11 @@ src/brains.c	set_up_next_wave	set_up_next_wave	0040C3C0	0044D888	WC1-callgraph-p
 src/eventmgr.c	RefreshMouseCursorDisplay	BlitUiFn6060	00436060	004638F1	WC1-fuzzy-followup		96.67	ge90
 src/ship.c	internal_damage	internal_damage	0041EE20	004128A7	WC1-fuzzy-followup		96.69	ge90
 src/disk.c	WaitForSceneAdvance	WaitForSceneAdvance	0041DBA0	00409120	WC1-fuzzy-very-low		96.70	ge90
+src/screens.c	LoadCutsceneSpeechSlot	LoadCutsceneSpeechSlot		0042CC42	WC2-only		96.70	ge90
 src/personnel.c	RunPilotDatabaseMenu	RunPilotDatabaseMenu		00436A8F	WC2-only		96.70	ge90
 src/eventmgr.c	set_up_screen_viewport	set_up_screen_viewport	00436740	004648C5	WC1-fuzzy-medium		96.74	ge90
 src/logic.c	ships_within_range	ships_within_range	00423260	0042AB81	WC1-callgraph-single-low		96.77	ge90
+src/sound.c	GetPackedStringByIndex	GetPackedStringByIndex		00432DCC	WC2-only		96.77	ge90
 src/main.c	HandleFleetOverviewInput	HandleFleetOverviewInput		0045E9F0	WC2-only		96.82	ge90
 src/brains.c	imperial_wingman	imperial_wingman	00409F80	004433B1	WC1-fuzzy-followup		96.83	ge90
 src/brains.c	mine_intelligence	mine_intelligence	0040B3A0	00446474	WC1-fuzzy-low		96.83	ge90
@@ -502,10 +492,12 @@ src/ship.c	GetAdaptiveTurnRate	GetAdaptiveTurnRate		00410289	WC2-only		96.97	ge9
 src/spc.c	animate_object	SoundTbl0059de40Fn2E30	00412E30	0041D2DA	WC1-fuzzy-followup		96.97	ge90
 src/logic.c	is_ship_tailing_player_target	is_ship_tailing_player_target	004229B0	0042A1C5	WC1-callgraph-propagated		96.97	ge90
 src/brains.c	run_away	run_away	004099C0	00442B78	WC1-fuzzy-low		96.97	ge90
+src/gr.c	GenerateWipeRadialEdges	GenerateWipeRadialEdges		0044A910	WC2-only		96.97	ge90
 src/winmain.c	TrackFreedHeapBlock	TrackFreedHeapBlock		00455715	WC2-only		96.97	ge90
 src/logic.c	ToggleTargetCameraTracking	ToggleTargetCameraTracking		00460498	WC2-only		97.00	ge90
-src/screens.c	PanToScreen	PanToScreen	00439430	00433410	WC1-fuzzy-very-low		97.03	ge90
+src/music.c	InitializeSpeechCache	InitializeSpeechCache		0044F84F	WC2-only		97.01	ge90
 src/personnel.c	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen		00433C84	WC2-only		97.06	ge90
+src/music.c	InitializeConstellationField	InitializeConstellationField	0042D390	0045A441	WC1-fuzzy-followup		97.06	ge90
 src/disk.c	ParseCutsceneContainer	ParseCutsceneContainer		0040E31F	WC2-only		97.07	ge90
 src/screens.c	ExecuteCutsceneSequence	ExecuteCutsceneSequence		0042E12A	WC2-only		97.09	ge90
 src/personnel.c	DrawPersonnelSourceChoices	WarnLoadGameFirst	0041B550	004346E9	WC1-callgraph-propagated		97.10	ge90
@@ -526,11 +518,12 @@ src/nav.c	UpdateInflightNavText	DrawStandardTimeReadout	0040DDA0	0045153A	WC1-fu
 src/eventmgr.c	SetMouseCursorShape	SetMouseCursorShape	004360F0	00463EEE	WC1-manual-verified		97.22	ge90
 src/personnel.c	LocateLegacySaveGame	ConfirmAwakenAfterBadData	0041BF60	00436722	WC1-callgraph-propagated		97.25	ge90
 src/cockpt.c	DrawCockpitReadout	DrawCockpitReadout	00413FB0	004384AD	WC1-fuzzy-followup		97.26	ge90
-src/eventmgr.c	QueueInputEvent	QueueInputEvent	00435790	004629A7	WC1-manual-verified		97.26	ge90
+src/gr.c	AdvanceViewportWipe	AdvanceViewportWipe		00448D58	WC2-only		97.28	ge90
 src/disk.c	DecodeSceneResourceChunk	DecodeSceneResourceChunk		0040E130	WC2-only		97.30	ge90
+src/logic.c	replenish_shields	replenish_shields	00421780	00417124	WC1-manual-verified		97.30	ge90
+src/screens.c	PushCutsceneScriptValue	PushCutsceneScriptValue		0042F19A	WC2-only		97.30	ge90
 src/ix/dsp.cpp	ix_dsp_set_master_volume	ix_dsp_set_master_volume	00444DC5	00489E45	WC1-auto-vt		97.30	ge90
 src/ix/dspv.cpp	ix_dspv_set_volume	ix_dspv_set_volume	00446B18	0048A588	WC1-auto-vt		97.30	ge90
-src/mathfp.c	DrawTextString	DrawTextString	004350F0	00461F22	WC1-fuzzy-high		97.31	ge90
 src/dib.c	DIBsetPalette	DIBsetPalette	00432F10	0045E46C	WC1-fuzzy-followup		97.32	ge90
 src/nav.c	DrawNavLocationReadout	DrawNavLocationReadout	0040DF70	0045180F	WC1-fuzzy-followup		97.34	ge90
 src/nav.c	ShowVictoryScreen	ShowVictoryScreen		00408CC8	WC2-only		97.35	ge90
@@ -538,16 +531,14 @@ src/dib.c	DIBunInstall	DIBunInstall	00432680	0045D78C	WC1-manual-verified		97.37
 src/cockpt.c	print_message_text	print_message_text	00416260	0043C364	WC1-manual-verified		97.39	ge90
 src/logic.c	InitializeMusicResources	InitializeMusicResources		0045C419	WC2-only		97.40	ge90
 src/screens.c	DrawCutsceneTextAt	DrawCutsceneTextAt		0042C0F1	WC2-only		97.42	ge90
-src/disk.c	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay		00410192	WC2-only		97.44	ge90
 src/logic.c	find_ratio	find_ratio		0042B916	WC2-only		97.44	ge90
 src/screens.c	PresentCutsceneFrame	PresentCutsceneFrame		0042C7BC	WC2-only		97.44	ge90
 src/dib.c	DIBreInstall	DIBreInstall	004322B0	0045D1BB	WC1-fuzzy-followup		97.44	ge90
 src/ix/sample.cpp	IxSample::ix_sample_load_aiff	ix_sample_load_aiff	0044879C	0046B21C	WC1-auto-vt		97.44	ge90
-src/brains.c	imperial_formation	imperial_formation	00409D60	00443095	WC1-fuzzy-low		97.45	ge90
-src/gr.c	AdvanceViewportWipe	AdvanceViewportWipe		00448D58	WC2-only		97.46	ge90
 src/ix/sample.cpp	IxSample::ix_sample_convert_from_ieee_extended	ix_sample_convert_from_ieee_extended	0044914C	0046BBCC	WC1-auto-vt		97.46	ge90
 src/dib.c	CachePaletteEntryFromWords	CachePaletteEntryFromWords	00432E30	0045E2DA	WC1-order-exact		97.50	ge90
 src/dib.c	DIBerror	DIBerror	00432140	0045D004	WC1-fuzzy-high		97.53	ge90
+src/screens.c	LoadCachedCutsceneResource	LoadCachedCutsceneResource		00432F2A	WC2-only		97.55	ge90
 src/main.c	RunGameApplication	GameFlow	0040F4B0	0046591A	WC1-callgraph-propagated		97.55	ge90
 src/spc.c	object_collision	object_collision	004130D0	0041D591	same per-object update-loop caller; collision/vector callee family; 70.78% binary-comp; target 00445087 is capital-ship strike mission case		97.56	ge90
 src/dib.c	ReportSpaceFlightMaxFps	ReportSpaceFlightMaxFps	00432050	0045CE9A	WC1-fuzzy-medium		97.56	ge90
@@ -557,7 +548,6 @@ src/geom.c	recalc_max_velocity	recalc_max_velocity	00418210	0040A481	WC1-fuzzy-l
 src/smart.c	handle_collisions	handle_collisions	00433D90	0041E860	WC1-manual-verified		97.67	ge90
 src/logic.c	report_kilrathi_rout	report_kilrathi_rout	00422640	00429CAD	WC1-fuzzy-low		97.67	ge90
 src/ship.c	ProcessEnemyWaveCompletion	ProcessEnemyWaveCompletion		004138A8	WC2-only		97.75	ge90
-src/music.c	InitializeSpeechCache	InitializeSpeechCache		0044F84F	WC2-only		97.76	ge90
 src/nav.c	ReleaseNearHeapBlock	ReleaseNearHeapBlock	0040E900	00420874	WC1-callgraph-propagated		97.78	ge90
 src/cockpt.c	kilrathi_near	kilrathi_near	00414300	0043895F	WC1-fuzzy-very-low		97.78	ge90
 src/screen.c	real_vid_transmit	DrawTbl0059d650Fn16E0	004316E0	004482CA	WC1-fuzzy-followup		97.78	ge90
@@ -566,9 +556,9 @@ src/dib.c	DIBpositionWindow	DIBpositionWindow	00432230	0045D11F	WC1-fuzzy-medium
 src/ix/streamer.cpp	ix_streamer_find_entry	ix_streamer_find_entry	00443755	0046CD55	WC1-auto-vt		97.83	ge90
 src/disk.c	LoadPacketAllocated	LoadUiFnD250	0041D250	0040F49D	WC1-callgraph-propagated		97.85	ge90
 src/screens.c	UpdateCutsceneSpriteObject	UpdateCutsceneSpriteObject		0042E553	WC2-only		97.85	ge90
+src/mathfp.c	DrawTextString	DrawTextString	004350F0	00461F22	WC1-fuzzy-high		97.85	ge90
 src/hudmsg.c	SetMultimediaTimerCallback	SetMultimediaTimerCallback	0042AFC0	0040A2E7	WC1-fuzzy-medium		97.87	ge90
 src/personnel.c	DrawPilotSaveMenuChoices	DrawPilotSaveMenuChoices		004345A1	WC2-only		97.87	ge90
-src/smart.c	chase_speed	chase_speed	00434C70	00440571	WC1-callgraph-propagated		97.87	ge90
 src/eventmgr.c	PeekInputEvent	PeekInputEvent	00435CE0	004632A5	WC1-manual-verified		97.87	ge90
 src/ix/dspv.cpp	ix_dspv_set_buffer	ix_dspv_set_buffer	0044698F	0048A3FF	WC1-auto-vt		97.92	ge90
 src/cockpt.c	DrawCalculatingLabel	DrawCalculatingLabel	004150D0	0043A2CD	WC1-fuzzy-followup		97.96	ge90
@@ -594,20 +584,22 @@ src/pload.c	RemoveWaveTableEntry	RemoveWaveTableEntry	0042B290	00423E12	WC1-manu
 src/ship.c	inflict_damage	inflict_damage	0041E9B0	00411C72	WC1-callgraph-propagated		98.22	ge90
 src/gr.c	ValidateViewportBounds	ValidateViewportBounds	00440C00	00425A16	WC1-fuzzy-followup		98.25	ge90
 src/hudmsg.c	FlushCannedSceneRecordingBuffer	FlushCannedSceneRecordingBuffer		00402385	WC2-only		98.28	ge90
+src/screen.c	GetNearHeapBlockSize	GetFreeNearHeapBytes	0042F890	00421144	WC1-callgraph-single-low		98.28	ge90
 src/brains.c	rendezvous_mission	rendezvous_mission	0040AD80	00444966	WC1-fuzzy-followup		98.28	ge90
 src/hudmsg.c	LoadCannedScenePlaybackBuffer	LoadCannedScenePlaybackBuffer		00446F14	WC2-only		98.28	ge90
-src/geom.c	CollectActivePaletteIndices	CollectActivePaletteIndices	00418140	004589D0	WC1-manual-verified		98.33	ge90
+src/nav.c	MergeAdjacentNearHeapBlocks	MergeAdjacentNearHeapBlocks		004207B0	WC2-only		98.39	ge90
 src/cmpgn.c	PromptToContinueCampaign	PromptToContinueCampaign		004099A8	WC2-only		98.43	ge90
 src/ix/dsps.cpp	ix_dsps_alloc	ix_dsps_alloc	004451B5	0048AA15	WC1-auto-vt		98.46	ge90
 src/gr.c	FinishViewportWipe	FinishViewportWipe		0044A03C	WC2-only		98.51	ge90
 src/system.c	LogMemoryUsage	LogMemoryUsage	004272F0	0046579D	WC1-callgraph-propagated	WC1-review-module-mismatch	98.55	ge90
 src/brains.c	init_intelligence_data	DispatchTbl0059d4b0FnC950	0040C950	0044E44F	WC1-callgraph-propagated		98.59	ge90
-src/brains.c	orbit_sphere	orbit_sphere	0040AF70	00444C80	WC1-fuzzy-followup		98.63	ge90
-src/nav.c	AnimateTitleOrchestra	AnimateTitleOrchestra		0040815F	WC2-only		98.67	ge90
+src/nav.c	free_viewport	free_viewport	0040F940	004471B0	WC1-fuzzy-medium		98.68	ge90
 src/ix/dsps.cpp	ix_dsps_set_volume	ix_dsps_set_volume	00445906	0048B166	WC1-auto-vt		98.72	ge90
+src/brains.c	imperial_formation	imperial_formation	00409D60	00443095	WC1-fuzzy-low		98.73	ge90
 src/brains.c	cruise_to_destination	cruise_to_destination	0040A410	00443A08	WC1-fuzzy-followup		98.75	ge90
 src/cockpt.c	target_locking	target_locking	00416120	0043C048	WC1-callgraph-propagated		98.82	ge90
 src/music.c	TheEndFireWorks	TheEndFireWorks	0042D2A0	0045A300	WC1-fuzzy-very-low		98.82	ge90
+src/logic.c	main	main	004274E0	0045C558	WC1-fuzzy-very-low		98.82	ge90
 src/ship.c	ResolveObjectDestruction	ResolveObjectDestruction		004148F5	WC2-only		98.84	ge90
 src/screen.c	ThrottleFrameAndDrawFps	ThrottleFrameAndDrawFps	00431F00	0045CD2C	WC1-fuzzy-very-low		98.86	ge90
 src/hudmsg.c	FadeViewportPaletteToColour	FadeViewportPaletteToColour	0042A700	00453820	WC1-fuzzy-very-low		98.88	ge90
@@ -617,33 +609,40 @@ src/dib.c	DIBslamReal	DIBslamReal	00432970	0045DC33	WC1-fuzzy-followup		98.92	ge
 src/cockpt.c	vdu_polygon	vdu_polygon	00413DA0	00438194	WC1-fuzzy-very-low		98.94	ge90
 src/dib.c	DIBwholePaletteFromTriplets	DIBwholePaletteFromTriplets	00433060	0045E667	WC1-fuzzy-followup		98.95	ge90
 src/dib.c	DIBwholePaletteFromWords	DIBwholePaletteFromWords	00433120	0045E816	WC1-callgraph-single		98.95	ge90
-src/cmpgn.c	UpdateMap	UpdateMap	00405CC0	0042ECCB	function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow		99.00	ge90
 src/logic.c	LoadOriginFxDrivers	LoadOriginFxDrivers	00421B10	0045B9D3	WC1-callgraph-propagated		99.00	ge90
-src/screens.c	AdvanceSceneFlicStream	AdvanceSceneFlicStream		0042E868	WC2-only		99.08	ge90
+src/logic.c	replenish_weapon_energy_bank	replenish_weapon_energy_bank	00421830	0041724A	WC1-callgraph-propagated		99.13	ge90
+src/ship.c	send_appropriate_message	send_appropriate_message	0041E900	00411A50	WC1-fuzzy-followup		99.15	ge90
+src/disk.c	check_for_lost_control	check_for_lost_control		004115F8	WC2-only		99.17	ge90
 src/brains.c	escort_mission	escort_mission	0040A7D0	00443FE4	WC1-fuzzy-followup		99.17	ge90
-src/logic.c	main	main	004274E0	0045C558	WC1-fuzzy-very-low		99.22	ge90
-src/music.c	DrawConstellationField	DrawConstellationField	0042D500	0045A634	WC1-callgraph-propagated		99.24	ge90
 src/screen.c	BuildCommunicationCommandMenu	BuildCommunicationCommandMenu	00430FC0	00447890	WC1-fuzzy-followup		99.27	ge90
 src/brains.c	function	load_ship	0040B9F0	0044BEE5	WC1-manual-verified		99.28	ge90
 src/brains.c	FF_missile_intelligence	FF_missile_intelligence	0040B570	00446133	WC1-callgraph-propagated		99.30	ge90
 src/nav.c	Title_Sequence	Title_Sequence		00407E40	WC2-only		99.31	ge90
 src/screens.c	FillRasterEllipse	FillRasterEllipse	0043D1C1	004059BD	WC1-auto-vt		99.32	ge90
+src/nav.c	AnimateTitleOrchestra	AnimateTitleOrchestra		0040815F	WC2-only		99.33	ge90
 src/personnel.c	DrawPersonnelFileSlot	DrawPersonnelFileSlot	00426600	004348C3	WC2-manual-verified		99.33	ge90
 src/nav.c	RevealTitleLogo	RevealTitleLogo		00408A88	WC2-only		99.36	ge90
 src/screens.c	RunLoadedCutscene	RunLoadedCutscene	00436E30	0042D568	WC2-manual-verified		99.37	ge90
 src/logic.c	StoreMissionResultsInCampaignGlobals	StoreMissionResultsInCampaignGlobals		00428EDC	WC2-only		99.42	ge90
+src/text.c	DrawWrappedCinematicText	DrawWrappedCinematicText		00433777	WC2-only		99.44	ge90
 src/ship.c	explosion_shock_wave	explosion_shock_wave	0041FEE0	00414025	WC1-callgraph-propagated		99.46	ge90
+src/logic.c	launch_carrier_fighter	launch_carrier_fighter		0045655D	WC2-only		99.47	ge90
 src/spc.c	house_keep_objects	ScanTbl0059b560Fn2430	00412430	0041BD81	WC1-callgraph-propagated		99.49	ge90
+src/music.c	DrawConstellationField	DrawConstellationField	0042D500	0045A634	WC1-callgraph-propagated		99.49	ge90
 src/spc.c	update_objects_in_space	ScanTbl0059d100Fn2820	00412820	0041C7ED	WC1-callgraph-propagated		99.50	ge90
+src/disk.c	set_objects_data	set_objects_data	0041E120	00410999	WC1-callgraph-propagated		99.52	ge90
+src/screens.c	AdvanceSceneFlicStream	AdvanceSceneFlicStream		0042E868	WC2-only		99.54	ge90
 src/ix/sound.cpp	ix_sound_start	ix_sound_start	00447CD8	0046A758	WC1-auto-vt		99.56	ge90
 src/nav.c	PlayTitleConductorCue	PlayTitleConductorCue		004083E6	WC2-only		99.62	ge90
 src/screen.c	LoadJoystickCalibrationFile	LoadJoystickCalibrationFile	00431A10	00423480	WC1-fuzzy-high		99.64	ge90
 src/ship.c	your_internal_damage	your_internal_damage	0041F220	00413099	WC1-fuzzy-low		99.69	ge90
 src/ship.c	fire	fire	004202D0	00414DC0	WC1-fuzzy-followup		99.77	ge90
+src/gr.c	InitializeViewportWipe	InitializeViewportWipe		00448570	WC2-only		99.77	ge90
 src/spc.c	new_view	DispatchTbl0059b9e0Fn17D0	004117D0	0041AE40	WC1-fuzzy-very-low		99.80	ge90
 src/screen.c	ConfigureDefaultSpacePalette	ConfigureDefaultSpacePalette		00401840	WC2-only		100.00	exact
 src/screen.c	ReserveContiguousPaletteEntries	ReserveContiguousPaletteEntries		00401859	WC2-only		100.00	exact
 src/hudmsg.c	InitializeCannedSceneFrameIndex	InitializeCannedSceneFrameIndex		00401A62	WC2-only		100.00	exact
+src/hudmsg.c	CheckCannedSceneBufferCapacity	CheckCannedSceneBufferCapacity		00401C1A	WC2-only		100.00	exact
 src/hudmsg.c	GetCannedSceneObjectMode	GetCannedSceneObjectMode		00401C72	WC2-only		100.00	exact
 src/screens.c	InstallRasterDriverCallbacks	InstallRasterDriverCallbacks	00439C69	00402465	WC1-fuzzy-high		100.00	exact
 src/screens.c	optimize	DrawClippedLine	00439E39	00402635	WC1-auto-vt		100.00	exact
@@ -732,7 +731,6 @@ src/geom.c	NormalizeFixedVector	NormalizeFixedVector	00418B10	0040AF18	WC1-fuzzy
 src/geom.c	vector_component_in_dir	vector_component_in_dir	00418BB0	0040AFFA	WC1-manual-verified		100.00	exact
 src/geom.c	rotate_about_i	rotate_about_i	00418BE0	0040B02F	WC1-manual-verified		100.00	exact
 src/geom.c	rotate_about_j	rotate_about_j	00418D00	0040B17F	WC1-manual-verified		100.00	exact
-src/geom.c	rotate_about_k	DoLocalFn8E40	00418E40	0040B2CF	WC1-callgraph-propagated		100.00	exact
 src/geom.c	copy_frame	copy_frame	00418FD0	0040B550	WC1-manual-verified		100.00	exact
 src/geom.c	fix_objects_ijk	SetUiFn9050	00419050	0040B5DF	WC1-fuzzy-followup		100.00	exact
 src/geom.c	transform_to_objects_frame	transform_to_objects_frame	004190B0	0040B699	WC1-manual-verified		100.00	exact
@@ -793,6 +791,7 @@ src/pilot.cpp	DebugOverlayConsole::ClearPauseFlags	DebugOverlayConsole::ClearPau
 src/disk.c	CountShipProjectiles	CountShipProjectiles		00410020	WC2-only		100.00	exact
 src/disk.c	CanShipWeaponDamageTarget	CanShipWeaponDamageTarget		00410102	WC2-only		100.00	exact
 src/ship.c	IsCapitalShipObject	IsCapitalShipObject		00410161	WC2-only		100.00	exact
+src/disk.c	HasShipCockpitGunDisplay	HasShipCockpitGunDisplay		00410192	WC2-only		100.00	exact
 src/disk.c	ShipHasTorpedo	ShipHasTorpedo		00410215	WC2-only		100.00	exact
 src/ship.c	IncreaseAdaptiveDifficulty	IncreaseAdaptiveDifficulty		004102FD	WC2-only		100.00	exact
 src/ship.c	DecreaseAdaptiveDifficulty	DecreaseAdaptiveDifficulty		00410352	WC2-only		100.00	exact
@@ -801,9 +800,9 @@ src/disk.c	borrow_dust	borrow_dust	0041DF40	0041040D	WC1-callgraph-single		100.0
 src/disk.c	initialize_ship	initialize_ship	0041DFA0	0041062D	WC1-callgraph-propagated		100.00	exact
 src/disk.c	any_selected	any_selected	0041DFE0	00410680	WC1-manual-verified		100.00	exact
 src/disk.c	InitializeShipWeaponTypeIndices	InitializeShipWeaponTypeIndices		0041090F	WC2-only		100.00	exact
+src/disk.c	rotate_object_to_goal	GetTbl0059c3c0FnE520	0041E520	0041133D	WC1-callgraph-propagated		100.00	exact
 src/disk.c	real_velocity	real_velocity	0041E7F0	004118F2	WC1-callgraph-propagated		100.00	exact
 src/disk.c	SortViableTargetsByDistance	SortViableTargetsByDistance	0041E860	0041195F	WC1-manual-verified		100.00	exact
-src/ship.c	send_appropriate_message	send_appropriate_message	0041E900	00411A50	WC1-fuzzy-followup		100.00	exact
 src/ship.c	call_enemy	call_enemy	0041EDB0	0041280B	WC1-fuzzy-followup		100.00	exact
 src/ship.c	check_computer_damage	check_computer_damage	0041F5D0	00412F90	WC1-fuzzy-low		100.00	exact
 src/ship.c	IsOnlyShipGun	IsOnlyShipGun		00412FA9	WC2-only		100.00	exact
@@ -829,8 +828,6 @@ src/logic.c	fire_super_brake	fire_super_brake	004213B0	004169CC	WC1-fuzzy-low		1
 src/logic.c	flip_angle	flip_angle	004213D0	004169F3	WC1-fuzzy-medium		100.00	exact
 src/logic.c	reposition_fixed_child_objects	reposition_fixed_child_objects	004215E0	00416DC3	WC1-order-exact		100.00	exact
 src/logic.c	housekeep_power_plant_and_fuel	housekeep_power_plant_and_fuel	00421760	004170F9	WC1-fuzzy-low		100.00	exact
-src/logic.c	replenish_shields	replenish_shields	00421780	00417124	WC1-manual-verified		100.00	exact
-src/logic.c	replenish_weapon_energy_bank	replenish_weapon_energy_bank	00421830	0041724A	WC1-callgraph-propagated		100.00	exact
 src/logic.c	accelerate	accelerate	004218D0	0041740F	WC1-fuzzy-low		100.00	exact
 src/logic.c	your_afterburner	your_afterburner	00421920	00417471	WC1-fuzzy-low		100.00	exact
 src/winmain.c	RestoreGamePalette	RestoreGamePalette	00401020	004175AD	WC2-manual-verified		100.00	exact
@@ -869,11 +866,11 @@ src/smart.c	pick_regular_maneuver	pick_regular_maneuver	00434630	0041F4C6	WC1-fu
 src/smart.c	CountAlliesOnSameTarget	CountAlliesOnSameTarget		0041F902	WC2-only		100.00	exact
 src/cockpt.c	DrawFormattedText	DrawFormattedText	00413C40	0042067F	manual-verified		100.00	exact
 src/cockpt.c	AppendFormattedText	AppendFormattedText	00413CB0	0042075F	WC1-manual-verified		100.00	exact
-src/nav.c	MergeAdjacentNearHeapBlocks	MergeAdjacentNearHeapBlocks		004207B0	WC2-only		100.00	exact
 src/nav.c	ShutdownNearHeap	ShutdownNearHeap		00420B12	WC2-only		100.00	exact
 src/screen.c	IsShipRouting	IsShipRouting	0042F1F0	00421BC6	manual-verified		100.00	exact
 src/screen.c	SendWingmanCommandAcknowledgement	SendWingmanCommandAcknowledgement	0042F210	00421BFC	manual-verified		100.00	exact
 src/screen.c	CanPlayerLand	CanPlayerLand	0042F2B0	00421D59	manual-verified		100.00	exact
+src/screen.c	request	ScanTbl0059ce60FnF3F0	0042F3F0	00421F86	WC1-callgraph-propagated		100.00	exact
 src/barracks.c	StepPaletteTransition	StepPaletteTransition	0041C510	004225A0	WC1-fuzzy-very-low		100.00	exact
 src/auto.c	visit_the_cinema	visit_the_cinema	00403E50	004228B0	WC1-fuzzy-very-low		100.00	exact
 src/auto.c	player_wingman	player_wingman	00403EE0	00422953	WC1-callgraph-propagated		100.00	exact
@@ -937,6 +934,7 @@ src/logic.c	unactive	unactive	00422560	00429B55	WC1-callgraph-propagated		100.00
 src/logic.c	are_alive	are_alive	00422590	00429BA8	WC1-manual-verified		100.00	exact
 src/logic.c	trim_goals	trim_goals	004225C0	00429BF0	WC1-fuzzy-medium		100.00	exact
 src/logic.c	find_ship_index	find_ship_index	00422710	00429E24	WC1-fuzzy-medium		100.00	exact
+src/logic.c	try2rout	try2rout	00422780	00429EE0	WC1-fuzzy-followup		100.00	exact
 src/logic.c	CanSetNewShipTurnGoal	CanSetNewShipTurnGoal		0042A003	WC2-only		100.00	exact
 src/logic.c	no_goal	no_goal	00422830	0042A062	WC1-manual-verified		100.00	exact
 src/logic.c	being_tailed	being_tailed	00422860	0042A0A9	WC1-manual-verified		100.00	exact
@@ -946,12 +944,14 @@ src/logic.c	try2reset_maneuver	try2reset_maneuver	00422D60	0042A625	WC1-fuzzy-lo
 src/logic.c	set_special	set_special	00422D90	0042A664	WC1-fuzzy-followup		100.00	exact
 src/logic.c	ComputePointAheadOfObject	ComputePointAheadOfObject	00422EC0	0042A7D2	manual-verified		100.00	exact
 src/logic.c	ComputePointBehindObject	ComputePointBehindObject	00422F10	0042A823	manual-verified		100.00	exact
+src/logic.c	close_behind	close_behind	00422F60	0042A876	WC1-manual-verified		100.00	exact
 src/logic.c	any_enemy	any_enemy	00423070	0042AA0D	WC1-fuzzy-followup		100.00	exact
 src/logic.c	target_within_range	target_within_range	00423400	0042ADB8	WC1-manual-verified		100.00	exact
 src/logic.c	dead_ship	dead_ship	00423610	0042B0B7	WC1-manual-verified		100.00	exact
 src/logic.c	gone_ship	gone_ship	00423640	0042B0FB	WC1-callgraph-propagated		100.00	exact
 src/logic.c	skill_check	skill_check	004236B0	0042B15A	WC1-manual-verified		100.00	exact
 src/logic.c	locate_ship	locate_ship	00423780	0042B2A7	WC1-fuzzy-followup		100.00	exact
+src/logic.c	hostile_sphere	hostile_sphere	00423970	0042B565	WC1-callgraph-single		100.00	exact
 src/logic.c	abandoned	abandoned	004239D0	0042B5F7	WC1-fuzzy-low		100.00	exact
 src/logic.c	target_valid	target_valid	00423AC0	0042B73B	WC1-callgraph-propagated		100.00	exact
 src/logic.c	triumph	triumph	00423B00	0042B80C	manual-verified		100.00	exact
@@ -976,20 +976,17 @@ src/screens.c	ExecuteCutsceneScene	ExecuteCutsceneScene		0042D81C	WC2-only		100.
 src/screens.c	ClearCutsceneViewport	ClearCutsceneViewport		0042DE62	WC2-only		100.00	exact
 src/screens.c	ClearCutsceneTextViewport	ClearCutsceneTextViewport		0042DF32	WC2-only		100.00	exact
 src/screens.c	DispatchCutsceneSpriteHandler	DispatchCutsceneSpriteHandler		0042E692	WC2-only		100.00	exact
-src/screens.c	InitializeSceneFlicStream	InitializeSceneFlicStream		0042E6EB	WC2-only		100.00	exact
 src/screens.c	ReleaseSceneFlicPackets	ReleaseSceneFlicPackets		0042E762	WC2-only		100.00	exact
 src/screens.c	ReleaseActiveCutscenePacket	ReleaseActiveCutscenePacket		0042EBD0	WC2-only		100.00	exact
 src/screens.c	ReleaseCutsceneFontPacket	ReleaseCutsceneFontPacket		0042EC7F	WC2-only		100.00	exact
+src/cmpgn.c	UpdateMap	UpdateMap	00405CC0	0042ECCB	function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow		100.00	exact
 src/screens.c	AllocateCutsceneViewportOrFatal	AllocateCutsceneViewportOrFatal		0042EE4F	WC2-only		100.00	exact
 src/screens.c	DrawCinematicMemoryStatus	DrawCinematicMemoryStatus		0042EF12	WC2-only		100.00	exact
 src/screens.c	ReportCutscenePacketAllocationFailure	ReportCutscenePacketAllocationFailure		0042F100	WC2-only		100.00	exact
 src/screens.c	PopCutsceneScriptValue	PopCutsceneScriptValue		0042F135	WC2-only		100.00	exact
-src/screens.c	PushCutsceneScriptValue	PushCutsceneScriptValue		0042F19A	WC2-only		100.00	exact
-src/sound.c	GetPackedStringByIndex	GetPackedStringByIndex		00432DCC	WC2-only		100.00	exact
 src/screens.c	ReleaseCutsceneSpriteShape	ReleaseCutsceneSpriteShape		00433269	WC2-only		100.00	exact
 src/pilot.cpp	MapCutsceneSoundEffectNumber	GameNoBodyStubv3	00425AF0	004333F8	WC1-callgraph-single-low		100.00	exact
 src/text.c	IsCinematicFontCharacterPrintable	IsCinematicFontCharacterPrintable		0043374E	WC2-only		100.00	exact
-src/text.c	DrawWrappedCinematicText	DrawWrappedCinematicText		00433777	WC2-only		100.00	exact
 src/text.c	MeasureCinematicFontCharacterWidth	MeasureCinematicFontCharacterWidth		00433A14	WC2-only		100.00	exact
 src/text.c	MeasureCinematicFontLineHeight	MeasureCinematicFontLineHeight		00433A75	WC2-only		100.00	exact
 src/text.c	InitializeCinematicTextRenderer	InitializeCinematicTextRenderer		00433AB0	WC2-only		100.00	exact
@@ -1057,6 +1054,7 @@ src/cockpt.c	sighted	sighted	00415050	0043A1EB	WC1-manual-verified		100.00	exact
 src/cockpt.c	visited	visited	00415070	0043A21E	WC1-manual-verified		100.00	exact
 src/cockpt.c	achieved	achieved	00415090	0043A251	WC1-order-exact		100.00	exact
 src/cockpt.c	flag_objective	flag_objective	004150B0	0043A29E	WC1-order-exact		100.00	exact
+src/cockpt.c	hidden_objective	hidden_objective	004151F0	0043A474	WC1-callgraph-propagated		100.00	exact
 src/cockpt.c	LocateMobileObjective	LocateMobileObjective	00415470	0043A9D7	WC1-callgraph-propagated		100.00	exact
 src/cockpt.c	is_any_ship_returning_to_current_nav_point	is_any_ship_returning_to_current_nav_point	004154C0	0043AA3F	WC1-order-exact		100.00	exact
 src/cockpt.c	check_sighting	check_sighting	004156D0	0043AD61	WC1-fuzzy-very-low		100.00	exact
@@ -1084,11 +1082,13 @@ src/cockpt.c	update_missile_warning	update_missile_warning	00417190	0043E1B2	WC1
 src/cockpt.c	determine_pilot_hand	determine_pilot_hand	004171D0	0043E297	WC1-fuzzy-very-low		100.00	exact
 src/cockpt.c	DrawPilotHandFrame	DrawPilotHandFrame	00417260	0043E371	WC1-fuzzy-low		100.00	exact
 src/cockpt.c	ResetPilotHandAnimation	ResetPilotHandAnimation	004173F0	0043E472	WC1-manual-verified		100.00	exact
+src/cockpt.c	npc_communication	npc_communication	004174F0	0043E5DA	WC1-callgraph-propagated		100.00	exact
 src/cockpt.c	clear_cockpit_damage	clear_cockpit_damage	00417610	0043E870	WC1-order-exact		100.00	exact
 src/cockpt.c	explosion_draw	explosion_draw	00417630	0043E8B2	WC1-callgraph-propagated		100.00	exact
 src/cockpt.c	DrawPendingCockpitDamage	DrawPendingCockpitDamage	004176C0	0043E9E2	WC1-callgraph-propagated		100.00	exact
 src/cockpt.c	RestoreCockpitExplosionBackground	RestoreCockpitExplosionBackground	00417760	0043EAE3	WC1-fuzzy-low		100.00	exact
 src/cockpt.c	place_damage_on_cockpit	place_damage_on_cockpit	004178A0	0043EC50	WC1-fuzzy-very-low		100.00	exact
+src/cockpt.c	vid_transmit	vid_transmit	00417910	0043ECD9	WC1-fuzzy-followup		100.00	exact
 src/cockpt.c	update_dead_disp	update_dead_disp	00417B10	0043F09D	WC1-fuzzy-low		100.00	exact
 src/cockpt.c	CopyTrainSimPilotViewToVdus	CopyTrainSimPilotViewToVdus	00417320	0043F110	WC1-manual-verified		100.00	exact
 src/cockpt.c	update_cockpit	update_cockpit	00417E70	0043F6C9	WC1-callgraph-propagated		100.00	exact
@@ -1157,8 +1157,10 @@ src/brains.c	split_patrol_mission	split_patrol_mission		00443E8C	WC2-only		100.0
 src/brains.c	warp_arrival	warp_arrival	0040A710	00443EE9	WC1-fuzzy-very-low		100.00	exact
 src/brains.c	return_to_buddy	return_to_buddy	0040A740	00443F28	WC1-fuzzy-followup		100.00	exact
 src/brains.c	escort_buddy	escort_buddy	0040A7A0	00443FA2	WC1-fuzzy-low		100.00	exact
+src/brains.c	strike_mission	strike_mission	0040AAC0	00444420	WC1-order-exact		100.00	exact
 src/brains.c	return_to_master	return_to_master	0040ABB0	004446C9	WC1-fuzzy-followup		100.00	exact
 src/brains.c	ship_intelligence	ship_intelligence	0040AE80	00444ADC	WC1-fuzzy-followup		100.00	exact
+src/brains.c	orbit_sphere	orbit_sphere	0040AF70	00444C80	WC1-fuzzy-followup		100.00	exact
 src/brains.c	destroyer_intelligence	destroyer_intelligence	0040B0C0	00444E51	WC1-callgraph-propagated		100.00	exact
 src/brains.c	stationary_intelligence	stationary_intelligence	0040B110	00444EA7	WC1-manual-verified		100.00	exact
 src/brains.c	SpawnCapitalFlakProjectile	SpawnCapitalFlakProjectile		00444F53	WC2-only		100.00	exact
@@ -1175,7 +1177,6 @@ src/barracks.c	DosStrcat	DosStrcat	0041C740	00446910	WC1-callgraph-propagated		1
 src/hudmsg.c	ResetCannedScenePlaybackBuffer	ResetCannedScenePlaybackBuffer		00446960	WC2-only		100.00	exact
 src/hudmsg.c	ApplyCannedSceneSoundRecord	ApplyCannedSceneSoundRecord		00446CC2	WC2-only		100.00	exact
 src/brains.c	GetShapeFrameExtent	GetShapeFrameExtent	00407710	00447170	WC1-fuzzy-followup		100.00	exact
-src/nav.c	free_viewport	free_viewport	0040F940	004471B0	WC1-fuzzy-medium		100.00	exact
 src/screen.c	ResetCommMenuChoices	ResetCommMenuChoices	00430C50	00447369	WC2-manual-verified		100.00	exact
 src/screen.c	IsCommMenuIdle	IsCommMenuIdle	00430CA0	004473D1	WC1-callgraph-single-low		100.00	exact
 src/screen.c	AppendCommMenuChoice	AppendCommMenuChoice	00430CB0	004473FC	WC1-order-exact		100.00	exact
@@ -1191,9 +1192,9 @@ src/screen.c	SelectCommRecipient	SelectCommRecipient	00430E70	0044760F	WC1-manua
 src/screen.c	RefreshCommunicationMenu	RefreshCommunicationMenu	00431200	00447D85	WC1-fuzzy-low		100.00	exact
 src/screen.c	HandleCommunicationMenuRequest	HandleCommunicationMenuRequest	00431240	00447DE3	WC1-fuzzy-low		100.00	exact
 src/screen.c	Chosen_communicate_option	Chosen_communicate_option	00431350	00447EF5	WC1-callgraph-propagated		100.00	exact
+src/screen.c	IssueQuickCommCommand	IssueQuickCommCommand	00431400	00448008	manual-verified		100.00	exact
 src/screen.c	FreeCommDisplayResources	FreeCommDisplayResources	00431410	0044804A	WC1-order-exact		100.00	exact
 src/screen.c	ShowCentredPrompt	ShowCentredPrompt	004314F0	00448100	WC1-fuzzy-followup		100.00	exact
-src/gr.c	InitializeViewportWipe	InitializeViewportWipe		00448570	WC2-only		100.00	exact
 src/gr.c	SetViewportHorizontalBounds	SetViewportHorizontalBounds		00448D1A	WC2-only		100.00	exact
 src/gr.c	SetViewportVerticalBounds	SetViewportVerticalBounds		00448D39	WC2-only		100.00	exact
 src/gr.c	OffsetViewportBounds	OffsetViewportBounds		00449FAE	WC2-only		100.00	exact
@@ -1284,7 +1285,6 @@ src/winmain.c	GetMainWindowHandle	GetMainWindowHandle	00402B90	0045543C	WC1-orde
 src/winmain.c	GetMainWindowDeviceContext	GetMainWindowDeviceContext	00402BA0	00455451	WC1-order-exact		100.00	exact
 src/winmain.c	CheckAllGuardedAllocations	CheckAllGuardedAllocations	00402D40	00455624	WC1-manual-verified		100.00	exact
 src/winmain.c	IsFreedHeapBlockTracked	IsFreedHeapBlockTracked		0045562F	WC2-only		100.00	exact
-src/winmain.c	DetectDoubleFree	DetectDoubleFree		00455697	WC2-only		100.00	exact
 src/sysinput.c	SetMousePosition	SetMousePosition	00402E80	00455A85	WC1-manual-verified		100.00	exact
 src/sysinput.c	PollKeyboardState	PollKeyboardState	00402EA0	00455AC8	WC1-fuzzy-very-low		100.00	exact
 src/sysinput.c	GetHomeKeyState	GetHomeKeyState		00455D2D	WC2-only		100.00	exact
@@ -1310,7 +1310,6 @@ src/cdrom.c	SetCurrentDirOnDrive	SetCurrentDirOnDrive	004033E0	004563A3	WC1-fuzz
 src/sysinput.c	TakeInputPressCount	TakeInputPressCount		0045641B	WC2-only		100.00	exact
 src/cdrom.c	PromptInsertCorrectCd	PromptInsertCorrectCd	00403450	00456443	WC1-auto-vt		100.00	exact
 src/logic.c	has_opposing_ship	has_opposing_ship		004564F0	WC2-only		100.00	exact
-src/logic.c	launch_carrier_fighter	launch_carrier_fighter		0045655D	WC2-only		100.00	exact
 src/logic.c	LoadShapeSet	LoadShapeSet	00423CE0	004568E0	WC1-callgraph-propagated		100.00	exact
 src/logic.c	FreeShapeSet	FreeShapeSet	00423D50	00456988	WC1-manual-verified		100.00	exact
 src/logic.c	LoadPacketResourceList	LoadPacketResourceList	00423D80	004569C8	WC1-manual-verified		100.00	exact
@@ -1328,6 +1327,7 @@ src/logic.c	init_inflight_music	init_inflight_music	00424C60	004587E0	WC1-order-
 src/logic.c	free_inflight_music	free_inflight_music	00424C80	00458806	WC1-fuzzy-followup		100.00	exact
 src/logic.c	PreloadMusicTrack	PreloadMusicTrack		0045887B	WC2-only		100.00	exact
 src/logic.c	ReleaseMusicTrack	ReleaseMusicTrack		0045890E	WC2-only		100.00	exact
+src/geom.c	CollectActivePaletteIndices	CollectActivePaletteIndices	00418140	004589D0	WC1-manual-verified		100.00	exact
 src/logic.c	DecodeSceneSymbolChunk	DecodeSceneSymbolChunk		00458C81	WC2-only		100.00	exact
 src/logic.c	DecodeSceneFileChunk	DecodeSceneFileChunk		00458D94	WC2-only		100.00	exact
 src/screen.c	IsSoundHardwarePresent	DoLocalFnF940	0042F940	00458E20	WC1-callgraph-single-low		100.00	exact
@@ -1370,6 +1370,7 @@ src/logic.c	RestoreTargetCameraAttitudeIndicators	RestoreTargetCameraAttitudeInd
 src/barracks.c	DrawUnreferencedPilotHandFrame	SceneRoutine02	0041BBD0	0046138D	WC1-callgraph-propagated		100.00	exact
 src/mathfp.c	RandomBelow	DoLocalFn4CD0	00434CD0	004618E0	WC1-fuzzy-medium		100.00	exact
 src/mathfp.c	GetRandomWord	GetRandomWord		00461922	WC2-only		100.00	exact
+src/mathfp.c	RandomInRange	RandomInRange	00434D20	00461942	WC1-fuzzy-medium		100.00	exact
 src/mathfp.c	SinFixed	CalcVideoFn4E00	00434E00	00461A91	WC1-callgraph-propagated		100.00	exact
 src/mathfp.c	CosFixed	CalcVideoFn4E30	00434E30	00461AD6	WC1-callgraph-propagated		100.00	exact
 src/mathfp.c	SetTextCursor	SetTextCursor	00434F70	00461D02	WC1-manual-verified		100.00	exact

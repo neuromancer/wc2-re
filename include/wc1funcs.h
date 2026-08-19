@@ -911,7 +911,7 @@ void set_objects_data(short obj, short type,
 unsigned int match_rotation_goal(short *rotation, short *goal,
                                  short totalError, short rate);         /* 0x411172 */
 void rotate_object_to_goal(short obj);                                  /* 0x41133D */
-unsigned int check_for_lost_control(short obj);                        /* WC2 unmapped */
+void check_for_lost_control(short obj);                                /* 0x4115F8 */
 unsigned int celerate(short ship, int delta);                     /* 0x4117AC */
 unsigned int approach_speed(short ship, int targetSpeed);         /* 0x41181D */
 unsigned int steady_object(short ship);                               /* 0x4118A9 */

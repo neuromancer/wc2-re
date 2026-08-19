@@ -35,20 +35,6 @@ static const short g_aaeExplosionDebris_00492dd8[4][7] = {
     }
 };
 
-/* Function start: WC2_UNMAPPED */
-unsigned int check_for_lost_control(short obj)
-{
-    if (obj != 0 && g_aeSpecialManeuver_00495600[obj] !=
-                        SPECIAL_MANEUVER_UNKNOWN_9) {
-        if (skill_check(obj) == 0) {
-            set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
-            g_asObjectCounter_00494be0[obj] =
-                (short)(RandomBelowOrEqual(6) + 5);
-        }
-    }
-    return 0;
-}
-
 /* Function start: 0x411A50 */
 void send_appropriate_message(short attacker, short victim)
 {

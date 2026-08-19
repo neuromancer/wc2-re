@@ -9,14 +9,14 @@ The converted source contains WC2 labels only. Historical WC1 addresses live in 
 | Metric | Result |
 | --- | ---: |
 | WC1 source function markers | 1844 |
-| Markers with a WC2 destination | 1566 (84.92%) |
-| Explicitly unresolved markers | 278 |
-| Functions compared by binary-comp | 1557 |
+| Markers with a WC2 destination | 1567 (84.98%) |
+| Explicitly unresolved markers | 277 |
+| Functions compared by binary-comp | 1558 |
 | Compared / mapped markers | 99.43% |
-| Exact machine-code matches | 915 |
-| Similarity >= 90% | 1397 |
-| Similarity < 50% | 4 |
-| Average WC2 similarity | 96.26% |
+| Exact machine-code matches | 918 |
+| Similarity >= 90% | 1407 |
+| Similarity < 50% | 0 |
+| Average WC2 similarity | 96.54% |
 | Median WC2 similarity | 100.00% |
 | Report errors / missing exports | 0 |
 
@@ -27,30 +27,30 @@ Low-confidence address assignments and genuinely changed code both depress the a
 | Evidence tag | Compared | Average | Median | Exact | >=90% | <50% |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `WC1-auto-vt` | 180 | 99.32% | 100.00% | 152 | 179 | 0 |
-| `manual-verified` | 28 | 98.04% | 100.00% | 21 | 28 | 0 |
+| `function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow` | 2 | 98.33% | 98.33% | 1 | 2 | 0 |
+| `manual-verified` | 28 | 98.19% | 100.00% | 22 | 28 | 0 |
 | `WC1-fuzzy-high` | 14 | 97.97% | 99.82% | 7 | 14 | 0 |
-| `function order; parameter shape; unique BriefingMap_DisplayMap caller; scanner helper anchors; assembly control flow` | 2 | 97.83% | 97.83% | 0 | 2 | 0 |
+| `WC1-order-exact` | 69 | 97.60% | 100.00% | 56 | 64 | 0 |
 | `same per-object update-loop caller; collision/vector callee family; 70.78% binary-comp; target 00445087 is capital-ship strike mission case` | 1 | 97.56% | 97.56% | 0 | 1 | 0 |
 | `WC2-manual-verified` | 17 | 97.51% | 100.00% | 10 | 16 | 0 |
-| `WC1-manual-verified` | 225 | 97.02% | 100.00% | 148 | 212 | 0 |
-| `WC2-only` | 338 | 96.97% | 100.00% | 198 | 315 | 0 |
-| `WC1-order-exact` | 69 | 96.84% | 100.00% | 55 | 63 | 1 |
-| `WC1-fuzzy-medium` | 57 | 96.42% | 100.00% | 36 | 49 | 0 |
-| `WC1-fuzzy-low` | 105 | 96.27% | 100.00% | 56 | 92 | 0 |
-| `WC1-callgraph-single` | 16 | 95.60% | 100.00% | 9 | 15 | 0 |
-| `WC1-callgraph-single-low` | 22 | 95.54% | 100.00% | 14 | 19 | 0 |
-| `WC1-callgraph-propagated` | 198 | 94.58% | 99.75% | 99 | 168 | 2 |
-| `WC1-fuzzy-followup` | 146 | 94.51% | 97.39% | 60 | 117 | 1 |
+| `WC1-callgraph-single-low` | 22 | 97.50% | 100.00% | 14 | 20 | 0 |
+| `WC1-manual-verified` | 225 | 97.05% | 100.00% | 149 | 212 | 0 |
+| `WC2-only` | 339 | 96.98% | 100.00% | 192 | 317 | 0 |
+| `WC1-fuzzy-medium` | 57 | 96.52% | 100.00% | 36 | 49 | 0 |
+| `WC1-fuzzy-low` | 105 | 96.26% | 100.00% | 56 | 92 | 0 |
+| `WC1-callgraph-single` | 16 | 95.97% | 100.00% | 10 | 15 | 0 |
+| `WC1-callgraph-propagated` | 198 | 95.72% | 100.00% | 101 | 173 | 0 |
+| `WC1-fuzzy-followup` | 146 | 95.09% | 97.87% | 62 | 119 | 0 |
 | `WC1-callgraph-transfer` | 8 | 94.24% | 95.03% | 3 | 7 | 0 |
 | `WC1-order-semantics-verified` | 24 | 94.16% | 96.22% | 11 | 20 | 0 |
-| `WC1-fuzzy-very-low` | 98 | 92.24% | 96.04% | 33 | 74 | 0 |
+| `WC1-fuzzy-very-low` | 98 | 92.23% | 96.02% | 33 | 73 | 0 |
 | `WC1-order-callgraph-verified` | 9 | 92.13% | 90.91% | 3 | 6 | 0 |
 
 ## Similarity by source area
 
 | Area | Compared | Average | Median | Exact | >=90% | <50% |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| game/core | 1429 | 95.96% | 100.00% | 805 | 1269 | 4 |
+| game/core | 1430 | 96.27% | 100.00% | 808 | 1279 | 0 |
 | ix audio | 128 | 99.56% | 100.00% | 110 | 128 | 0 |
 
 ## Explicit review flags
@@ -65,17 +65,17 @@ Low-confidence address assignments and genuinely changed code both depress the a
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | `src/auto.c` | 5 | 96.91% | 100.00% | 3 | 4 | 0 |
 | `src/barracks.c` | 5 | 99.29% | 100.00% | 4 | 5 | 0 |
-| `src/brains.c` | 154 | 96.86% | 100.00% | 100 | 139 | 1 |
+| `src/brains.c` | 154 | 97.24% | 100.00% | 102 | 140 | 0 |
 | `src/cdrom.c` | 5 | 93.08% | 100.00% | 3 | 4 | 0 |
-| `src/cmpgn.c` | 11 | 98.81% | 100.00% | 7 | 11 | 0 |
-| `src/cockpt.c` | 133 | 95.49% | 100.00% | 82 | 117 | 3 |
+| `src/cmpgn.c` | 11 | 98.91% | 100.00% | 8 | 11 | 0 |
+| `src/cockpt.c` | 133 | 96.70% | 100.00% | 85 | 120 | 0 |
 | `src/debug.cpp` | 12 | 86.41% | 91.58% | 4 | 6 | 0 |
 | `src/dib.c` | 26 | 96.07% | 97.47% | 5 | 24 | 0 |
-| `src/disk.c` | 56 | 92.03% | 97.64% | 26 | 40 | 0 |
-| `src/eventmgr.c` | 78 | 95.72% | 96.98% | 34 | 72 | 0 |
-| `src/geom.c` | 87 | 96.83% | 100.00% | 55 | 79 | 0 |
-| `src/gr.c` | 54 | 93.55% | 96.33% | 23 | 46 | 0 |
-| `src/hudmsg.c` | 48 | 95.57% | 98.23% | 20 | 42 | 0 |
+| `src/disk.c` | 57 | 93.73% | 99.52% | 28 | 43 | 0 |
+| `src/eventmgr.c` | 78 | 95.71% | 96.70% | 34 | 72 | 0 |
+| `src/geom.c` | 87 | 96.79% | 100.00% | 55 | 79 | 0 |
+| `src/gr.c` | 54 | 93.56% | 96.71% | 22 | 46 | 0 |
+| `src/hudmsg.c` | 48 | 95.66% | 98.28% | 21 | 42 | 0 |
 | `src/ix/dsp.cpp` | 19 | 99.86% | 100.00% | 18 | 19 | 0 |
 | `src/ix/dsps.cpp` | 10 | 98.72% | 100.00% | 6 | 10 | 0 |
 | `src/ix/dspv.cpp` | 15 | 98.94% | 100.00% | 9 | 15 | 0 |
@@ -88,27 +88,27 @@ Low-confidence address assignments and genuinely changed code both depress the a
 | `src/ix/system.cpp` | 27 | 100.00% | 100.00% | 27 | 27 | 0 |
 | `src/ix/thread.cpp` | 10 | 99.09% | 100.00% | 9 | 10 | 0 |
 | `src/killbrd.c` | 13 | 93.25% | 100.00% | 7 | 10 | 0 |
-| `src/logic.c` | 144 | 95.61% | 100.00% | 78 | 127 | 0 |
+| `src/logic.c` | 144 | 95.90% | 100.00% | 78 | 128 | 0 |
 | `src/main.c` | 25 | 96.57% | 100.00% | 17 | 23 | 0 |
-| `src/mathfp.c` | 29 | 95.19% | 96.43% | 13 | 24 | 0 |
+| `src/mathfp.c` | 29 | 95.28% | 97.85% | 14 | 24 | 0 |
 | `src/mathutil.c` | 4 | 94.24% | 95.00% | 2 | 3 | 0 |
 | `src/mono.c` | 11 | 99.69% | 100.00% | 10 | 11 | 0 |
-| `src/music.c` | 47 | 94.85% | 100.00% | 27 | 39 | 0 |
-| `src/nav.c` | 57 | 96.00% | 100.00% | 32 | 48 | 0 |
-| `src/personnel.c` | 20 | 97.78% | 97.56% | 7 | 20 | 0 |
+| `src/music.c` | 47 | 94.99% | 100.00% | 27 | 40 | 0 |
+| `src/nav.c` | 57 | 95.90% | 100.00% | 30 | 47 | 0 |
+| `src/personnel.c` | 20 | 97.80% | 97.56% | 7 | 20 | 0 |
 | `src/pilot.cpp` | 21 | 98.67% | 100.00% | 16 | 21 | 0 |
 | `src/pload.c` | 10 | 96.82% | 99.10% | 5 | 10 | 0 |
-| `src/screen.c` | 58 | 94.73% | 100.00% | 32 | 52 | 0 |
-| `src/screens.c` | 111 | 97.60% | 100.00% | 75 | 104 | 0 |
-| `src/ship.c` | 43 | 97.21% | 100.00% | 25 | 39 | 0 |
-| `src/smart.c` | 26 | 93.91% | 95.72% | 7 | 19 | 0 |
-| `src/sound.c` | 19 | 96.39% | 97.14% | 8 | 18 | 0 |
-| `src/spc.c` | 23 | 97.19% | 99.49% | 9 | 22 | 0 |
+| `src/screen.c` | 58 | 96.31% | 100.00% | 34 | 54 | 0 |
+| `src/screens.c` | 111 | 97.58% | 100.00% | 73 | 104 | 0 |
+| `src/ship.c` | 43 | 97.19% | 100.00% | 24 | 39 | 0 |
+| `src/smart.c` | 26 | 93.69% | 95.22% | 7 | 19 | 0 |
+| `src/sound.c` | 19 | 96.22% | 96.77% | 7 | 18 | 0 |
+| `src/spc.c` | 23 | 97.16% | 99.49% | 9 | 22 | 0 |
 | `src/strdos.c` | 11 | 99.09% | 100.00% | 9 | 11 | 0 |
 | `src/sysinput.c` | 23 | 99.77% | 100.00% | 22 | 23 | 0 |
 | `src/system.c` | 9 | 93.55% | 100.00% | 5 | 7 | 0 |
-| `src/text.c` | 6 | 98.94% | 100.00% | 5 | 6 | 0 |
-| `src/winmain.c` | 45 | 97.21% | 100.00% | 28 | 43 | 0 |
+| `src/text.c` | 6 | 98.85% | 100.00% | 4 | 6 | 0 |
+| `src/winmain.c` | 45 | 97.09% | 100.00% | 27 | 43 | 0 |
 
 ## Unresolved mapping inventory
 
@@ -140,7 +140,7 @@ Low-confidence address assignments and genuinely changed code both depress the a
 | `src/pload.c` | 1 | `FindActiveSoundEntryBySample` |
 | `src/screen.c` | 12 | `ShouldSuspendCursorForRect`, `FrameStartHook`, `CreateCannedSceneObject`, `ShowCampaignVictorySequence`, `ShowTigerClawEscapeScene`, `ShowWc1EndScreen`, `get_face`, `LoadCommPortraitShape`, … (+4) |
 | `src/screens.c` | 28 | `LoadBriefingRoom`, `ViewWc1Medals`, `AwardCampaignMedal`, `DrawMedalChest`, `DrawMedalLongShot`, `MedalEstablish`, `PinMedal`, `DrawMedals`, … (+20) |
-| `src/ship.c` | 3 | `check_for_lost_control`, `the_creator`, `ResolveWc1ObjectDestruction` |
+| `src/ship.c` | 2 | `the_creator`, `ResolveWc1ObjectDestruction` |
 | `src/sound.c` | 7 | `DrawLaunchDoorFrame`, `LaunchPlayerShip`, `ShowCarrierLaunchSequence`, `FxDriverShutdownHook`, `InitializeDiskPromptTextContext`, `LoadInstallDat`, `GetJoystickPresentUnused` |
 | `src/strdos.c` | 8 | `CopyFarString`, `GetEventManagerStatus`, `RegisterEventManagerShutdown`, `InitializeEventManager`, `ShutdownEventManager`, `ConfigureEventManagerPointer`, `EventManagerHook`, `SetEventManagerPump` |
 | `src/system.c` | 3 | `RunTrainSim`, `LogWc1MemoryUsage`, `GetJoystickButtonEdge` |
@@ -154,18 +154,10 @@ All binary-comp rows, sorted from lowest to highest similarity, are in `reports/
 
 | Source | Function | WC1 | WC2 | Evidence | Similarity |
 | --- | --- | ---: | ---: | --- | ---: |
-| `src/cockpt.c` | `vid_transmit` | `0x417910` | `0x43ECD9` | `WC1-fuzzy-followup` | 43.81% |
-| `src/cockpt.c` | `hidden_objective` | `0x4151F0` | `0x43A474` | `WC1-callgraph-propagated` | 47.83% |
-| `src/brains.c` | `strike_mission` | `0x40AAC0` | `0x444420` | `WC1-order-exact` | 47.93% |
-| `src/cockpt.c` | `npc_communication` | `0x4174F0` | `0x43E5DA` | `WC1-callgraph-propagated` | 49.02% |
 | `src/main.c` | `house_keep` | `0x427D40` | `0x46604F` | `WC1-manual-verified` | 52.27% |
 | `src/killbrd.c` | `DecodeShapeFrame` | `0x440960` | `0x425618` | `WC1-order-exact` | 52.69% |
 | `src/brains.c` | `set_up_action_sphere` | `0x40BFF0` | `0x44D35D` | `WC1-manual-verified` | 54.15% |
-| `src/disk.c` | `set_objects_data` | `0x41E120` | `0x410999` | `WC1-callgraph-propagated` | 54.55% |
-| `src/screen.c` | `GetFreeNearHeapBytes` | `0x42F890` | `0x421144` | `WC1-callgraph-single-low` | 55.17% |
-| `src/screen.c` | `request` | `0x42F3F0` | `0x421F86` | `WC1-callgraph-propagated` | 55.64% |
-| `src/disk.c` | `rotate_object_to_goal` | `0x41E520` | `0x41133D` | `WC1-callgraph-propagated` | 57.84% |
-| `src/logic.c` | `detect_collisions` | `0x4224F0` | `0x4299C9` | `WC1-callgraph-single` | 58.76% |
+| `src/logic.c` | `detect_collisions` | `0x4224F0` | `0x4299C9` | `WC1-callgraph-single` | 59.79% |
 | `src/disk.c` | `remove_weapon` | `0x41E040` | `0x410715` | `WC1-manual-verified` | 61.38% |
 | `src/logic.c` | `free_3Space_objects` | `0x424BE0` | `0x458716` | `WC1-manual-verified` | 61.54% |
 | `src/debug.cpp` | `DebugOverlayPrintf` | `0x41CAB0` | `0x45B0BB` | `WC1-callgraph-propagated` | 62.25% |
@@ -194,6 +186,14 @@ All binary-comp rows, sorted from lowest to highest similarity, are in `reports/
 | `src/smart.c` | `intelligence_events` | `0x434A80` | `0x41FF37` | `WC1-callgraph-propagated` | 71.37% |
 | `src/cockpt.c` | `ResetScannerContacts` | `0x415A70` | `0x43B258` | `WC1-manual-verified` | 71.43% |
 | `src/gr.c` | `fizzle_fade` | `0x442200` | `0x428690` | `WC1-callgraph-propagated` | 71.59% |
+| `src/cockpt.c` | `draw_nav_pointer` | `0x4168C0` | `0x43CBFD` | `WC1-fuzzy-very-low` | 71.88% |
+| `src/debug.cpp` | `DebugOverlayConsole::Scroll` | `0x41CC50` | `0x45B348` | `WC1-callgraph-propagated` | 72.13% |
+| `src/gr.c` | `GetTransformedShapeBounds` | `0x442050` | `0x4283A4` | `WC1-fuzzy-very-low` | 72.20% |
+| `src/screens.c` | `ReleaseCutsceneViewport` | -- | `0x42EE86` | `WC2-only` | 72.50% |
+| `src/disk.c` | `ReleaseCutsceneObjectResource` | -- | `0x40EAA4` | `WC2-only` | 73.71% |
+| `src/screens.c` | `ReleaseLoadedCutsceneResource` | -- | `0x433328` | `WC2-only` | 74.58% |
+| `src/nav.c` | `SelectNavObjectiveAtPoint` | `0x40E2B0` | `0x451C5C` | `WC1-fuzzy-very-low` | 74.77% |
+| `src/logic.c` | `evaluate_damage` | `0x423C00` | `0x42B985` | `WC1-fuzzy-medium` | 75.00% |
 
 ## Reproduction
 

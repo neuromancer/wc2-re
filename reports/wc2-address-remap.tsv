@@ -407,6 +407,7 @@ src/dib.c	845	00433060	0045E667	DIBwholePaletteFromTriplets	DIBwholePaletteFromT
 src/dib.c	899	00433120	0045E816	DIBwholePaletteFromWords	DIBwholePaletteFromWords	WC1-callgraph-single		mapped
 src/dib.c	953	004331E0	0045E9C5	DIBwaitForVerticalBlank	DIBwaitForVerticalBlank	WC1-manual-verified		mapped
 src/dib.c	966	004331F0		DirectDrawResultToText				unmapped
+src/disk.c	0		004115F8	check_for_lost_control	check_for_lost_control	WC2-only		wc2-only
 src/disk.c	9	0041D120	0040F0D2	ReportPacketLoadError	TextUiFnD120	WC1-fuzzy-followup		mapped
 src/disk.c	9	0041DBA0	00409120	WaitForSceneAdvance	WaitForSceneAdvance	WC2-manual-verified		mapped
 src/disk.c	50		0040926E	LoadSceneHotspotBoundsForSelection	LoadSceneHotspotBoundsForSelection	WC2-only		wc2-only
@@ -1584,7 +1585,6 @@ src/screens.c	5572	0043F0D0	004078CC	CollectUniqueRLEPaletteFrames	CollectUnique
 src/screens.c	5586	0043F425	00407C21	FadeRasterPaletteToPalette	FadeRasterPaletteToPalette	WC1-auto-vt		mapped
 src/screens.c	5602	0043F5A9	00407DA5	CollectRasterClipColours	CollectRasterClipColours	WC1-auto-vt		mapped
 src/ship.c			00412FA9	IsOnlyShipGun	IsOnlyShipGun	WC2-only		wc2-only
-src/ship.c	39	0041E650		check_for_lost_control				unmapped
 src/ship.c	53	0041E900	00411A50	send_appropriate_message	send_appropriate_message	WC1-fuzzy-followup		mapped
 src/ship.c	82	0041E9B0	00411C72	inflict_damage	inflict_damage	WC1-callgraph-propagated		mapped
 src/ship.c	179	0041EC60	0041262D	pilot_hit	pilot_hit	WC1-fuzzy-low		mapped

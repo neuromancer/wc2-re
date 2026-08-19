@@ -2142,6 +2142,44 @@ void rotate_object_to_goal(short obj)
                         typeData->rollRate);
 }
 
+/* Function start: 0x4115F8 */
+/* A ship whose commanded rotation runs further ahead of its own turn rates
+ * than its pilot can absorb tumbles out of control for a few frames. */
+void check_for_lost_control(short obj)
+{
+    short turnScale;
+    short type;
+    short overshoot;
+    short turnRate;
+
+    if (obj != 0 &&
+        g_aeSpecialManeuver_00495600[obj] != SPECIAL_MANEUVER_UNKNOWN_9) {
+        if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+            g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
+            turnScale = MinShort(180, MaxShort(100, GetAdaptiveTurnRate()));
+        else
+            turnScale = 100;
+        type = g_acObjectType_00493980[obj];
+        turnRate = (short)(g_aObjectTypeData_00496d30[type].pitchRate *
+                           turnScale / 100);
+        turnRate = (short)(g_aObjectTypeData_00496d30[type].yawRate *
+                           turnScale / 100 + turnRate);
+        turnRate = (short)(g_aObjectTypeData_00496d30[type].rollRate *
+                           turnScale / 100 + turnRate);
+        overshoot = (short)(abs(g_anObjectRollRotation_00495058[obj]) +
+                            abs(g_anObjectYawRotation_00494fc8[obj]) +
+                            abs(g_anObjectPitchRotation_00494f38[obj]));
+        overshoot = (short)(overshoot / turnRate);
+        /* The original passes the overshoot the callee ignores. */
+        if (((short (__cdecl *)(short, int))skill_check)(obj, overshoot) ==
+            0) {
+            set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
+            g_asObjectCounter_00494be0[obj] =
+                (short)(RandomBelowOrEqual(6) + 5);
+        }
+    }
+}
+
 #pragma intrinsic(abs)
 
 /* Function start: 0x4117AC */
