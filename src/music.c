@@ -60,7 +60,7 @@ short InitializeSpeechCache(short unitCount, short sizeCode)
                              0x44);
     if (g_pSpeechCacheCode_005d1720 == 0)
         return 1;
-    codeBase = IdentityDword((unsigned int)g_pSpeechCacheCode_005d1720);
+    codeBase = IdentityDword((Wc2DwordPtr)g_pSpeechCacheCode_005d1720);
     codeEnd = (unsigned int)g_pSpeechCacheCode_005d1720 +
         (unsigned int)g_wSpeechCacheCodeBytes_0048e0e0;
     if (codeEnd < codeBase)

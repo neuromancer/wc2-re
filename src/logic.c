@@ -811,12 +811,11 @@ void InitializeHighMemoryGraphicsBuffers(void)
     g_pHighMemoryBlockA_004901f8 =
         AllocateDefaultMemory((unsigned int)g_wHighMemoryBlockBytes_004901fc);
     g_dwHighMemoryParagraph_005d3fb4 =
-        IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+        IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
     highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
         g_dwHighMemoryParagraph_005d3fb4;
     g_pHighMemoryBlockB_00490200 =
-        AllocateDefaultMemory((unsigned int)(
-            (unsigned char *)0x4961a4 - (unsigned char *)0x493130));
+        AllocateDefaultMemory(WC2_CANNED_SCENE_SNAPSHOT_BYTES);
     if (g_pHighMemoryBlockB_00490200 == 0 ||
         g_pHighMemoryBlockA_004901f8 == 0) {
         FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);

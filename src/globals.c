@@ -2346,7 +2346,7 @@ short g_nCannedSceneWriteIndex_005d3fa8;
 short g_nCannedSceneRecordedFrameCount_005d3faa;
 int g_nCannedSceneFileOffset_005d3fac;
 void *g_pCannedSceneStateBlock_005d3fb0;
-unsigned int g_dwHighMemoryParagraph_005d3fb4;
+Wc2DwordPtr g_dwHighMemoryParagraph_005d3fb4;
 short g_asCannedSceneFrameOffsets_005d3fc0[70];
 short g_nCannedSceneFrameCount_005d404c;
 short g_awPaletteEntryAllocation_005d4050[256];

@@ -1583,7 +1583,7 @@ void *AllocateZeroedRecords(int count, short elementSize, short flags); /* 0x464
 unsigned short GetSoundHardwareFlag(void);                                    /* 0x464141 */
 void *AllocateDefaultMemory(unsigned int size);                         /* 0x464123 */
 void TimerResetHook(void);                                           /* 0x46416A */
-unsigned int IdentityDword(unsigned int value);                         /* 0x46417A */
+Wc2DwordPtr IdentityDword(Wc2DwordPtr value);                           /* 0x46417A */
 unsigned short IdentityWord(unsigned short v);                         /* 0x46418D */
 void TimerStopHook(void);                                           /* 0x4641A0 */
 unsigned int GetAvailableFarMemory(void);                                 /* 0x4641B0 */

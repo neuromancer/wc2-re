@@ -1387,7 +1387,7 @@ extern short g_nUiCursorFrame_005c8481;
 extern short g_wInputDeviceButtonState_005c8432;
 extern short g_nSelectedStartingCampaign_005d3bf0;
 extern short g_nSelectedCampaignSlot_005d3bf2;
-extern unsigned int g_dwHighMemoryParagraph_005d3fb4;
+extern Wc2DwordPtr g_dwHighMemoryParagraph_005d3fb4;
 extern short g_bHighMemoryBuffersReady_005d2ad8;
 extern short g_nSceneHotspotLeft_005d2120;
 extern short g_nSceneHotspotTop_005d2122;

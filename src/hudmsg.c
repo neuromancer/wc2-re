@@ -1085,7 +1085,7 @@ void FinishCannedScenePlayback(void)
     if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
         return;
     g_pCannedSceneStateBlock_005d3fb0 =
-        (void *)IdentityDword((unsigned int)g_pHighMemoryBlockB_00490200);
+        (void *)IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockB_00490200);
 #ifndef WC1_SDL
     memcpy(&g_dwCannedSceneSnapshotStart_00493130,
            g_pCannedSceneStateBlock_005d3fb0,
@@ -1217,7 +1217,7 @@ void ApplyCannedSceneFrameEvents(void)
     done = 0;
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         g_dwHighMemoryParagraph_005d3fb4 =
-            IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+            IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
         while (done == 0) {
             record = (CannedSceneRecordHeader *)(
                 (unsigned int)(unsigned short)
@@ -1420,7 +1420,7 @@ void RecordCannedSceneObjectState(short obj)
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0 &&
         g_nCannedSceneMode_0049021c == 0) {
         g_dwHighMemoryParagraph_005d3fb4 =
-            IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+            IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
         mode = GetCannedSceneObjectMode(obj);
         if ((unsigned short)g_asCannedSceneFrameOffsets_005d3fc0[obj] !=
             0xffff) {
@@ -1469,7 +1469,7 @@ void RecordCannedSceneObjectEvent(short obj, int event)
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         if (g_nCannedSceneMode_0049021c == 0) {
             g_dwHighMemoryParagraph_005d3fb4 =
-                IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+                IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
             record = (CannedSceneObjectEventRecord *)(
                 (unsigned int)(unsigned short)
                     g_nCannedSceneWriteIndex_005d3fa8 +

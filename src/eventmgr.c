@@ -720,7 +720,7 @@ void TimerResetHook(void)
 }
 
 /* Function start: 0x46417A */
-unsigned int IdentityDword(unsigned int value)
+Wc2DwordPtr IdentityDword(Wc2DwordPtr value)
 {
     return value;
 }

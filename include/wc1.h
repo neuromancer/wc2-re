@@ -45,6 +45,17 @@
 #include <time.h>
 #endif
 
+/* The original stores addresses in dwords -- IdentityDword is its identity
+ * helper for them, and the high-memory paragraph is one such address.  A dword
+ * is exactly a pointer on Win32; on LP64 it is half of one, so anything that
+ * has to hold an address takes this alias instead and keeps the reference
+ * build's `unsigned int` untouched. */
+#ifdef WC1_SDL
+typedef uintptr_t Wc2DwordPtr;
+#else
+typedef unsigned int Wc2DwordPtr;
+#endif
+
 /* The in-flight replay snapshots 0x493130-0x4961A4 -- a contiguous 12404-byte
  * span of the original's .data -- in single copies, and restores it the same
  * way.  The reconstruction declares that span as several hundred separate C
@@ -53,8 +64,11 @@
  * the replay recording alone rather than write the wrong bytes to disk and
  * read them back over its own globals; restoring it needs the whole span laid
  * out contiguously first. */
-#define WC2_CANNED_SCENE_SNAPSHOT_BYTES \
-    ((unsigned int)((unsigned char *)0x4961a4 - (unsigned char *)0x493130))
+/* The span runs from g_dwCannedSceneSnapshotStart_00493130 to the end of
+ * g_asViableTargetDistance_00496190, the last global before the sound lists
+ * at 0x4961A8.  Spelled as its width rather than as the difference of the two
+ * addresses because the reconstruction does not place them that far apart. */
+#define WC2_CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
 
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land

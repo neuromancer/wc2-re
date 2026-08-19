@@ -4389,7 +4389,7 @@ void RecordCannedSceneBriefingCharacter(signed char character,
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         if (g_nCannedSceneMode_0049021c == 0) {
             g_dwHighMemoryParagraph_005d3fb4 =
-                IdentityDword((unsigned int)g_pHighMemoryBlockA_004901f8);
+                IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
             record = (CannedSceneBriefingCharacterRecord *)(
                 (unsigned int)(unsigned short)
                     g_nCannedSceneWriteIndex_005d3fa8 +
