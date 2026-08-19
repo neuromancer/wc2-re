@@ -399,7 +399,7 @@ void BriefingMap_LoadShapes(void);                                    /* 0x451AD
 void BriefingMap_DisplayMap(void);                                      /* 0x451B70 */
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY);          /* 0x451C5C */
 void CentreMouseOnCurrentNavObjective(void);                         /* 0x451DDB */
-void ShowConfedNavScan(void);                                        /* 0x451E57 */
+void ShowConfedNavScan(short refresh);                                /* 0x451E57 */
 void InflightComputer(void);                                         /* 0x451FAA */
 unsigned short MergeAdjacentNearHeapBlocks(int descriptorAddress);   /* WC2 unmapped */
 int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x420874 */

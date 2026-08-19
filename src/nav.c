@@ -949,12 +949,14 @@ void CentreMouseOnCurrentNavObjective(void)
 }
 
 /* Function start: 0x451E57 */
-void ShowConfedNavScan(void)
+void ShowConfedNavScan(short refresh)
 {
     SetRectBounds(&g_stScreenViewport_005d21a0, 30, 22, 289, 177);
-    SuspendWc1MouseCursor();
+    if (refresh != 0)
+        DisableMouseCursorDrawing();
     DrawNavLocationReadout(g_szConfedNavScan_0049be4c, 1);
-    ResumeMouseCursorHook();
+    if (refresh != 0)
+        EnableMouseCursorDrawing();
     SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
 }
 
@@ -991,122 +993,123 @@ void FollowSelectedObjectiveSystem(void)
 /* Function start: 0x451FAA */
 void InflightComputer(void)
 {
-    short savedNavPoint;
-    short done;
-    short hasObjectives;
-    short savedInputMode;
-    short objective;
-    short displayedNavPoint;
-    short eventType;
-    int frame;
-    unsigned char markerColour;
-    unsigned char *background;
-    InputEventState event;
+    MouseCursorState savedCursor;
     Viewport pointerViewport;
-#ifdef WC1_SDL
-    MouseCursorState savedInputState;
-#else
-    unsigned int savedInputState[7];
-#endif
+    InputEventState event;
+    unsigned char *background;
+    int eventType;
+    int frame;
+    int markerColour;
+    short done;
+    short displayedNavPoint;
+    short hasObjectives;
+    short savedNavPoint;
+    short objective;
 
-    savedNavPoint = (short)g_cCurrentNavPointIndex_00493298;
     done = 0;
+    displayedNavPoint = (short)g_cCurrentNavPointIndex_00493298;
     hasObjectives = 0;
-    displayedNavPoint = savedNavPoint;
+    savedNavPoint = (short)g_cCurrentNavPointIndex_00493298;
     g_bInflightComputerActive_0049bcb4 = 1;
-#ifdef WC1_SDL
-    memcpy(&savedInputState,
-           (const void *)&g_stMouseCursorState_0059ab10,
-           sizeof(savedInputState));
-#else
-    memcpy(savedInputState, (const void *)&g_stMouseCursorState_0059ab10,
-           sizeof(savedInputState));
-#endif
+    savedCursor = g_stMouseCursorState_0059ab10;
 
     if (message_showing() != 0)
         EndCommMenu();
+    DisableMouseCursorDrawing();
+    g_nUiInputMode_005c8d3c = 0;
     free_view_buffer();
     g_cScreenViewportMode_005c82a6 = -1;
     background = FetchDiskPacketRetrying("cockpit.vga", 1, 0);
-    ClearViewport(&g_stScreenViewport_005d21a0, g_cSecondaryViewBufferColour_0049cb4c);
+    ClearViewport(&g_stScreenViewport_005d21a0,
+                  g_cSecondaryViewBufferColour_0049cb4c);
     DrawSpriteDefault(&g_stScreenViewport_005d21a0, 0, 0, background, 0);
     ReleasePacketHandle(background);
-
-    objective = 0;
+    SetInputViewport(&g_stScreenViewport_005d21a0);
+    g_stElapsedCampaignDate_005d170c.year = g_nCurrentStarSystem_005d169c;
     BriefingMap_LoadShapes();
-    ShowConfedNavScan();
-    if (g_cMissionObjectiveCount_00493294 > 0) {
-        do {
-            if (hidden_objective(objective) == 0)
-                hasObjectives = 1;
-            objective++;
-        } while (objective <
-                 (short)g_cMissionObjectiveCount_00493294);
+    ShowConfedNavScan(0);
+
+    for (objective = 0;
+         objective < (short)g_cMissionObjectiveCount_00493294;
+         objective++) {
+        if (hidden_objective(objective) == 0 &&
+            IsObjectiveInDisplayedSystem(objective) != 0) {
+            hasObjectives = 1;
+            break;
+        }
     }
+    MarkDibDirty();
+    DIBslamReal();
 
     if (hasObjectives == 0) {
-        SetEventManagerPump(PollJoystickButtonEvents);
-        WaitForInputKey();
+        ConfigureInputPump(1, PollJoystickButtonEvents);
+        WaitForAnyInputPress();
         SetFrameTimerAndWait(20);
-        SetEventManagerPump(get_player_input);
+        ConfigureInputPump(1, get_player_input);
     } else {
         pointerViewport = g_stScreenViewport_005d21a0;
-        SetRectBounds(&pointerViewport, 32, 24, 182, 159);
-        savedInputMode = (short)(signed char)g_bInputMode_0059a848;
-        g_stMouseCursorState_0059ab10.viewport = &pointerViewport;
-        g_bInputMode_0059a848 = 1;
-        SetEventManagerPump(PollMenuInputDevices);
-        EventManagerHook(ResetMouseCursorFrame);
-        g_nMenuInputRepeatDelay_005a8208 = 6;
-        ResumeMouseCursorHook();
+        SetRectBounds(&pointerViewport, 0x20, 0x18, 0xb6, 0x9f);
+        SetInputViewport(&pointerViewport);
+        SetMenuInputPump();
+        g_nInputRepeatDelay_005c80d6 = 10;
+        g_bInputCursorEnabled_005c80e6 = 6;
         CentreMouseOnCurrentNavObjective();
 
         do {
-            if (displayedNavPoint !=
-                (short)g_cCurrentNavPointIndex_00493298) {
+            if ((short)g_cCurrentNavPointIndex_00493298 !=
+                displayedNavPoint) {
                 displayedNavPoint =
                     (short)g_cCurrentNavPointIndex_00493298;
                 PlaySfxWaveFileByNumber(0x19, -1, 0);
-                ShowConfedNavScan();
+                ShowConfedNavScan(1);
             }
-            SetRectBounds(&g_stScreenViewport_005d21a0, 32, 24, 289, 177);
-            SetMouseCursorShape(g_stMouseCursorState_0059ab10.shape, 0);
+            SetRectBounds(&g_stScreenViewport_005d21a0, 0x20, 0x18,
+                          0x121, 0xb1);
             if (g_pElapsedCampaignDate_005d3e8c == 0)
                 g_pElapsedCampaignDate_005d3e8c =
                     &g_stElapsedCampaignDate_005d170c;
             FormatNavCoordinates(
                 (unsigned char *)g_pElapsedCampaignDate_005d3e8c);
-            g_stNavLabelTextContext_005d16f0.viewport = &g_stScreenViewport_005d21a0;
-            frame = DAT_0059ab54 / 15;
-            markerColour = g_ucHomeCarrierScannerColour_0049cb70;
+            frame = g_nInputClock_005c84a8 / 15;
+            g_stNavLabelTextContext_005d16f0.viewport =
+                &g_stScreenViewport_005d21a0;
             if (frame % 2 != 0)
                 markerColour = g_bPrimaryViewBufferColour_0049cb50;
-            DrawNavPlayerMarker(markerColour, 0);
-            g_stNavMapTextContext_005d16d0.viewport = &g_stScreenViewport_005d21a0;
+            else
+                markerColour = g_ucHomeCarrierScannerColour_0049cb70;
+            DrawNavPlayerMarker((short)markerColour, 0);
+            g_stNavMapTextContext_005d16d0.viewport =
+                &g_stScreenViewport_005d21a0;
             UpdateInflightNavText((short)((frame / 4) % 2));
-            SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
-
-            eventType = PollInputEvent(&event);
+            SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 0x13f, 0xc7);
+            SetMouseCursorShape(
+                g_pInputManagerState_005c8464->cursorShape, 0);
+            g_nUiInputMode_005c8d3c = 1;
+            EnableMouseCursorDrawing();
+            /* The original passes a second argument the callee ignores. */
+            eventType = ((short (__cdecl *)(InputEventState *, int))
+                             PollInputEvent)(&event, 0xf);
             switch (eventType) {
-            case 2:
-            case 10:
+            case 1:
                 done = 1;
                 break;
-            case 3:
-            case 5:
+            case 4:
+            case 6:
                 if ((short)event.value == 0x1c ||
                     (short)event.value == 0x39) {
                     done = 1;
                 } else if ((short)event.value == 0x31) {
                     cycle_next_objective();
+                    if (IsObjectiveInDisplayedSystem(
+                            (short)g_cCurrentObjective_004931cc) == 0)
+                        FollowSelectedObjectiveSystem();
                     CentreMouseOnCurrentNavObjective();
-                } else {
-                    MoveMenuPointerFromKeyboard(&event);
                 }
                 break;
             }
-            SelectNavObjectiveAtPoint(g_stMouseCursorState_0059ab10.x,
-                                      g_stMouseCursorState_0059ab10.y);
+            SelectNavObjectiveAtPoint(
+                (short)g_stHostMouseMessage_005d10d0.x,
+                (short)g_stHostMouseMessage_005d10d0.y);
             MarkDibDirty();
             DIBslamReal();
         } while (done == 0 && g_bSceneEscapeRequested_0049d4b0 == 0);
@@ -1115,42 +1118,20 @@ void InflightComputer(void)
             g_bSceneEscapeRequested_0049d4b0 = 0;
             g_cCurrentNavPointIndex_00493298 =
                 (signed char)savedNavPoint;
-            set_new_objective(savedNavPoint);
+            set_new_objective((short)g_cCurrentNavPointIndex_00493298);
         }
         free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-        SuspendWc1MouseCursor();
-        EventManagerHook(0);
-        SetEventManagerPump(get_player_input);
-        g_bInputMode_0059a848 = (unsigned char)savedInputMode;
+        DisableMouseCursorDrawing();
+        ReleasePacketHandle(g_pNavMapShape_0049bc48);
+        SetTextContext(&g_stDefaultTextContext_005d2d20);
+        PlaySfxWaveFileByNumber(0x19, -1, 0);
     }
 
-    ReleasePacketHandle(g_pNavMapShape_0049bc48);
-    SetTextContext(&g_stDefaultTextContext_005d2d20);
-    PlaySfxWaveFileByNumber(0x19, -1, 0);
-#ifdef WC1_SDL
-    memcpy((void *)&g_stMouseCursorState_0059ab10,
-           &savedInputState, sizeof(savedInputState));
-    WarpWc1MouseTo(savedInputState.x, savedInputState.y);
-#else
-    memcpy((void *)&g_stMouseCursorState_0059ab10, savedInputState,
-           sizeof(savedInputState));
-    WarpWc1MouseTo(((short *)savedInputState)[0],
-                ((short *)savedInputState)[1]);
-#endif
-    if (g_nCockpitDisplayMode_0049d71c == 0) {
-        force_view(0, 0);
-    } else {
-        free_view_buffer();
-        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
-                        (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
-                        (unsigned short)(g_nScreenHeight_0049d4dc - 1));
-        initialize_view_buffer();
-        force_view(0, 0);
-        g_nCockpitDisplayMode_0049d71c = 1;
-        free_view_buffer();
-        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
-        initialize_view_buffer();
-    }
+    g_stMouseCursorState_0059ab10 = savedCursor;
+    SetPersonnelMousePosition(g_nPersonnelCursorX_005c8470,
+                              g_nPersonnelCursorY_005c8472);
+    force_view(0, 0);
+    InitializeSpaceFlightInput();
     g_bInflightComputerActive_0049bcb4 = 0;
 }
 
