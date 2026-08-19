@@ -202,6 +202,7 @@ void FormatTextTokens(void (*writer)(int),
                 writer(va_arg(arguments, short));
 #endif
                 break;
+            case 'S':
             case 's':
 #ifdef WC1_SDL
                 EmitTextString(writer, va_arg(*arguments, char *));

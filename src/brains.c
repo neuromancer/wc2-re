@@ -4984,41 +4984,52 @@ short init_ship(short missionShip, short navPoint)
 {
     MissionShipRecord *record;
     FixedVector center;
+    short type;
+    short objectType;
     short obj;
 
     if (missionShip == -1)
         return -1;
     record = &g_aMissionShips_00492290[missionShip];
-    if (record->type == OBJECT_TYPE_ASTEROID_FIELD ||
-        record->type == OBJECT_TYPE_MINE_FIELD) {
+    type = record->type;
+    objectType = record->objectType;
+
+    if (objectType == 0x3d || objectType == 0x2c) {
+        obj = initialize_ship(objectType, -1, 0);
+        g_asShipMissionIndex_00495d00[obj] = missionShip;
+        AddFixedVectors(&g_aMissionNavPoints_00491e98[navPoint].position,
+                        &record->position,
+                        &g_aShipPosition_00494550[obj]);
+        g_asShipSide_004955d0[obj] = 0;
+        return obj;
+    }
+    if (objectType == 5 || objectType == 6) {
         AddFixedVectors(&g_aMissionNavPoints_00491e98[navPoint].position,
                         &record->position, &center);
-        add_hazard_field(record->type, center,
+        add_hazard_field(objectType, center,
                          (short)(record->speed + 3000),
                          record->pilot);
-        return -1;
+        return obj;
     }
-    obj = find_ship_index(missionShip);
-    if (obj != -1 || record->state != 0)
+    if (find_ship_index(missionShip) != -1 || record->state != 0)
         return -1;
-    if (record->missionType != MISSION_TYPE_CANNED_SEQUENCE &&
-        is_alive((signed char)record->pilot) == 0) {
-        if (record->pilot < 9)
+    if (is_alive((signed char)record->pilot) == 0) {
+        if (record->pilot == 5 && record->side == 0)
             return -1;
         record->pilot = 3;
     }
-    record->navPoint = navPoint;
+    record->navPoint = (signed char)navPoint;
     if (is_team_member(missionShip) != 0)
         navPoint = -1;
-    if (record->type == 0x3D || record->type == 0x2C)
-        obj = initialize_ship(record->type, -1, 0);
-    else
-        obj = initialize_ship(record->type, -1, 1);
-    if (obj != -1) {
-        Set_up_ship_info(obj, missionShip, (signed char)navPoint);
-        find_next_ship_turn_slot(obj);
-        check_futurion(obj);
-    }
+    obj = initialize_ship(type, -1, 1);
+    if (obj == -1)
+        return obj;
+    if (g_nYourWingman_0049346c == -1 && record->pilot > 4 &&
+        record->side == 0)
+        g_nYourWingman_0049346c = obj;
+    Set_up_ship_info(obj, missionShip, (signed char)navPoint);
+    find_next_ship_turn_slot(obj);
+    check_futurion(obj);
     return obj;
 }
 
