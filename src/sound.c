@@ -1095,7 +1095,7 @@ void show_damage_disp(void)
             (short)(g_stLeftVduViewport_005d2180.left +
                     g_nWeaponDisplayOffsetX_0049ae8c);
         g_nWeaponDisplayOriginY_005d4256 =
-            (short)(g_nWeaponDisplayOffsetY_005d218a +
+            (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
                     g_stLeftVduViewport_005d2180.top);
         DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
                           g_nWeaponDisplayOriginX_005d4254,

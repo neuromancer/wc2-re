@@ -1200,7 +1200,7 @@ unsigned short g_wHighMemoryBlockBytes_004901fc = 0xd4e4;
 void *g_pHighMemoryBlockB_00490200;
 const char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
 short g_nCannedSceneBufferNearCapacityFlag_00490214;
-short g_nCannedSceneSegmentEndFrame_00490218;
+short g_nCannedSceneSegmentEndFrame_00490218 = -1;
 short g_nCannedSceneMode_0049021c;
 short g_nCannedSceneStateRecordMarker_00490220;
 const char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
@@ -1236,7 +1236,7 @@ RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
 
 MissionNavPoint g_aMissionNavPoints_00491e98[
-    WC1_MISSION_NAV_POINT_COUNT] = { { 0 } };
+    WC2_MISSION_NAV_POINT_COUNT] = { { 0 } };
 
 MissionShipRecord g_aMissionShips_00492290[WC2_MISSION_SHIP_COUNT];
 void *g_pActiveScenePacket_00492654;
@@ -1269,11 +1269,11 @@ const char *g_pszPacketLoadErrorFormat_00492b14 =
     "%Fs #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
     "Check your configuration.  If this problem persists, please\n"
     "call Origin Systems' service line.  We are sorry for the inconvenience.";
-short g_bAiMissileFiringEnabled_00492d58;
+short g_bAiMissileFiringEnabled_00492d58 = 1;
 short g_bFriendlyFireWarningIssued_00492d5c;
 short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
-short g_nObjectType62Index_00492d64;
-short g_nObjectType63Index_00492d68;
+short g_nObjectType62Index_00492d64 = -1;
+short g_nObjectType63Index_00492d68 = -1;
 short g_nLastFriendlyFireObjectFrame_00492d6c = 0x0ee4;
 const short g_asPlayerDamageSystemTable_00492d70[50] = {
     0, 8, 6, 5, 0, 3, 5, 5, 7, 6,
@@ -1282,7 +1282,7 @@ const short g_asPlayerDamageSystemTable_00492d70[50] = {
     1, 4, 1, 5, 2, 3, 4, 7, 2, 1,
     4, 4, 4, 4, 0, 8, 6, 5, 4, 0
 };
-const enum ObjectType g_aeShipHitDebrisTypes_00492e10[3] = {
+const short g_aeShipHitDebrisTypes_00492e10[4] = {
     OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,
     OBJECT_TYPE_DEBRIS_SHIP_TUBING,
     OBJECT_TYPE_DEBRIS_O_RING
@@ -1348,7 +1348,7 @@ unsigned int g_dwCannedSceneSnapshotStart_00493130;
 short g_nSpaceFrame_00493134;
 short g_nRenderedSpaceFrame_00493138;
 signed char g_cViewObject_0049313c = -1;
-signed char g_cCannedSceneViewObject_0049313c;
+signed char g_cCannedSceneViewObject_0049313c = -1;
 short g_nEyePitchGoal_00493140;
 short g_nEyeYawGoal_00493144;
 short g_nEyeRollGoal_00493148;
@@ -1373,7 +1373,7 @@ short g_nPreviousRollInput_004931b4;
 short g_nNavPointerObject_004931b8 = -1;
 short g_nCurrentNavPoint_004931bc;
 short g_nCurrentWave_004931c0 = -1;
-short g_nLoadedCommPortraitPilot_004931c4;
+short g_nLoadedCommPortraitPilot_004931c4 = -1;
 int g_nCurrentObjectiveRange_004931c8;
 signed char g_cCurrentObjective_004931cc = -1;
 short g_nHazardFieldCount_004931d0;
@@ -1384,8 +1384,8 @@ signed char g_abHazardObjects_00493280[0x14] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1
 };
-signed char g_cMissionObjectiveCount_00493294;
-signed char g_cCurrentNavPointIndex_00493298;
+signed char g_cMissionObjectiveCount_00493294 = -1;
+signed char g_cCurrentNavPointIndex_00493298 = -1;
 signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT];
 #if 0
 MissionObjective g_aMissionObjectives_004932a8[WC1_MISSION_OBJECTIVE_COUNT];
@@ -1464,7 +1464,7 @@ short g_asActionCount_004955e8[12];
 short g_aeSpecialManeuver_00495600[12];
 signed char g_acTurnRegulator_00495618[16];
 signed char g_acTurnInterval_00495628[16];
-int g_anShipFuel_00495638[12];
+int g_anShipFuel_00495638[10];
 signed char g_acShipExhaustHeat_00495660[16];
 signed char g_acShipCommunicator_00495670[16];
 signed char g_acShipDestroyedWeaponCount_00495680[16];
@@ -2112,7 +2112,6 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_TYPE_COUNT] = {
       0, 0, (unsigned char *)g_anAnimHyperspaceJumpFlash_00466400_WC1_UNMAPPED,
       0, 0, 1, 0 }
 };
-unsigned char g_abShapeRLEScratch_00497748[0x100000];
 int g_bFastShipExplosion_0049922d;
 int g_bSceneDisplayUpdateActive_00499bb8;
 short g_bKilrathiAceGreetingSent_00499bf4;
@@ -2284,7 +2283,7 @@ signed char g_cHazardBaseTravelTime_0049af94;
 short DAT_0049af98;
 ShortPoint g_aDefaultWeaponDisplayPositions_0049afa0[16];
 signed char g_bTargetLockDisplayEnabled_0049afe0;
-short g_nTargetLeadIndicatorX_0049afe8;
+short g_nTargetLeadIndicatorX_0049afe8 = (short)0x8001;
 unsigned char *g_pPendingCockpitDamageShape_0049b03c;
 unsigned char *g_pCockpitExplosionBackground_0049b040;
 unsigned char *g_pCockpitHudBackground_0049b044;
@@ -2583,7 +2582,7 @@ int g_nPreviousPrimaryButton_0049d4c4;
 int g_nPreviousSecondaryButton_0049d4c8;
 int g_nNextInputQueueFlushTick_0049d4cc;
 unsigned char *g_pDrawnInputCursorShape_0049d4d0;
-int g_nMouseCursorDrawDepth_0049d4d4;
+int g_nMouseCursorDrawDepth_0049d4d4 = 1;
 short g_nScreenWidth_0049d4d8 = 320;
 short g_nScreenHeight_0049d4dc = 200;
 const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
@@ -2726,6 +2725,7 @@ RasterSurface g_stRasterSurface_004a2670;
 unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
 RasterClip g_stRasterClip_004b2088;
 unsigned char g_abSolidColourTranslation_004b2710[256];
+unsigned char g_abShapeRLEScratch_004b2810[0x100000];
 int DAT_00598888;
 int DAT_0059888c;
 int DAT_00598890;
@@ -3346,7 +3346,7 @@ void *g_pStartupStarPacket_005d212c;
 char g_szLegacySavePath_005d2130[0x50];
 Viewport g_stCockpitViewport_005d2160;
 Viewport g_stLeftVduViewport_005d2180;
-short g_nWeaponDisplayOffsetY_005d218a = 0x10;
+short g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED /* no-address */ = 0x10;
 Viewport g_stScreenViewport_005d21a0;
 TextContext g_stSpaceTextContext_005d21c0;
 Viewport g_stCockpitBarViewport_005d21e0;

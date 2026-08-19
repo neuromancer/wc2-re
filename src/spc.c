@@ -15,7 +15,7 @@ short g_bAlternateChaseView_00492fac = 0;
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;
 short g_nSavedPlayerTarget_0049d460 = -1;
 short g_bSavedPlayerTarget_0049d464;
-short g_asShipTurretFireEnabled_0049d470[12];
+short g_asShipTurretFireEnabled_0049d470[10];
 short g_nSavedTargetLockCountdown_0049d484 = 1000;
 short g_bSavedTargetLockAcquired_0049d488;
 short g_nCockpitCameraObject_0049d770;

@@ -1420,17 +1420,17 @@ void PrepareShapeRLEData(unsigned char *shape)
     if (GetPreparedShapeData(shape) != 0)
         return;
 
-    *(int *)g_abShapeRLEScratch_00497748 =
+    *(int *)g_abShapeRLEScratch_004b2810 =
         *(const int *)g_szShapeRLEVersion_00496a04;
     frameCount = GetShapeFrameCount(shape);
-    *(int *)(g_abShapeRLEScratch_00497748 + 4) = frameCount;
-    memset(g_abShapeRLEScratch_00497748 + 8, 0,
+    *(int *)(g_abShapeRLEScratch_004b2810 + 4) = frameCount;
+    memset(g_abShapeRLEScratch_004b2810 + 8, 0,
            (unsigned int)(frameCount << 3));
-    frameOffset = (int *)(g_abShapeRLEScratch_00497748 + 8);
-    output = g_abShapeRLEScratch_00497748 + 8 + (frameCount << 3);
+    frameOffset = (int *)(g_abShapeRLEScratch_004b2810 + 8);
+    output = g_abShapeRLEScratch_004b2810 + 8 + (frameCount << 3);
 
     for (frame = 0; frame < frameCount; frame++) {
-        *frameOffset = (int)(output - g_abShapeRLEScratch_00497748);
+        *frameOffset = (int)(output - g_abShapeRLEScratch_004b2810);
         frameOffset += 2;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
                              &leftExtent, &topExtent);
@@ -1489,11 +1489,11 @@ void PrepareShapeRLEData(unsigned char *shape)
         ReleasePacketHandle(bitmap);
     }
 
-    preparedSize = (int)(output - g_abShapeRLEScratch_00497748);
-    if (preparedSize > (int)sizeof(g_abShapeRLEScratch_00497748))
+    preparedSize = (int)(output - g_abShapeRLEScratch_004b2810);
+    if (preparedSize > (int)sizeof(g_abShapeRLEScratch_004b2810))
         exit_squadron(g_szShapeRLEOverflow_00496a0c);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
-    memcpy(preparedShape, g_abShapeRLEScratch_00497748, preparedSize);
+    memcpy(preparedShape, g_abShapeRLEScratch_004b2810, preparedSize);
 #ifdef WC1_SDL
     *(unsigned char **)(shape - 8 - sizeof(unsigned char *)) = preparedShape;
 #else

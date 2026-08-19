@@ -1573,6 +1573,8 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC1_MISSION_SHIP_SCAN_LIMIT 64
 #define WC1_ACTIVE_MISSION_SHIP_COUNT 32
 #define WC1_MISSION_NAV_POINT_COUNT 20
+/* update_nav_points (0x42B1AE) walks ten records with the 0x65 stride. */
+#define WC2_MISSION_NAV_POINT_COUNT 10
 #define WC1_ACTIVE_MISSION_NAV_POINT_COUNT 16
 #define WC2_MISSION_OBJECTIVE_COUNT 8
 /* Ship objective code 5 has no WC1 counterpart; are_alive (0x429BA8) is the

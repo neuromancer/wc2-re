@@ -16,7 +16,7 @@ char *g_pszPendingHudMessage_0049afec = 0;
 char *g_pszDisplayedHudMessage_0049aff0 = 0;
 unsigned char *g_pHudMessageFrameShape_0049b288 = 0;
 unsigned char *g_pHudMessageBackground_0049b28c = 0;
-short g_bCaptureHudMessageBackground_0049b290;
+short g_bCaptureHudMessageBackground_0049b290 = 1;
 short g_nHudMessageBackgroundDepth_0049b294;
 ShortPoint g_stHudMessageOrigin_0049ae90;
 short g_nViewportOriginY_005c849c;
@@ -1508,7 +1508,7 @@ void show_weapon_disp(void)
         (short)(g_stLeftVduViewport_005d2180.left +
                 g_nWeaponDisplayOffsetX_0049ae8c);
     g_nWeaponDisplayOriginY_005d4256 =
-        (short)(g_nWeaponDisplayOffsetY_005d218a +
+        (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
                 g_stLeftVduViewport_005d2180.top);
     DrawSpriteDefault(
         &g_stLeftVduViewport_005d2180,
@@ -1590,7 +1590,7 @@ void update_status_text(void)
                 (short)(g_stLeftVduViewport_005d2180.left +
                         g_nWeaponDisplayOffsetX_0049ae8c);
             g_nWeaponDisplayOriginY_005d4256 =
-                (short)(g_nWeaponDisplayOffsetY_005d218a +
+                (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
                         g_stLeftVduViewport_005d2180.top);
             x = g_aWeaponDisplayPositions_005d1de0[index].x;
             y = g_aWeaponDisplayPositions_005d1de0[index].y;

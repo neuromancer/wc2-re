@@ -8,7 +8,7 @@
  */
 #include "wc1.h"
 
-static const enum ObjectType g_aaeExplosionDebris_00492dd8[4][7] = {
+static const short g_aaeExplosionDebris_00492dd8[4][7] = {
     {
         OBJECT_TYPE_DEBRIS_PIPE, OBJECT_TYPE_DEBRIS_O_RING,
         OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK,

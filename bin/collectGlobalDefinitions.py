@@ -163,6 +163,49 @@ def expand_array_dimensions(text: str, constants: dict[str, int]) -> str:
     return "".join(expanded)
 
 
+FALSE_CONDITIONS = ("#if 0", "#ifdef WC1_SDL", "#if defined(WC1_SDL)")
+TRUE_CONDITIONS = ("#ifndef WC1_SDL", "#if !defined(WC1_SDL)")
+
+
+def resolve_conditionals(text: str) -> str:
+    """Drop the branches the retail build never compiles.
+
+    The definition files keep the WC1 shape of a global beside the WC2 one
+    under `#if 0` or `#ifdef WC1_SDL`.  The parser has no preprocessor, so a
+    conditional pair would otherwise declare the same global twice and the
+    audit would score the dead branch as a second, overlapping definition.
+    """
+    out: list[str] = []
+    # (emitting, seen_taken_branch) for each open conditional
+    stack: list[tuple[bool, bool]] = []
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped.startswith("#if"):
+            if stripped.startswith(FALSE_CONDITIONS):
+                stack.append((False, False))
+                continue
+            if stripped.startswith(TRUE_CONDITIONS):
+                stack.append((True, True))
+                continue
+            stack.append((True, True))
+            out.append(line)
+            continue
+        if stripped.startswith("#else") and stack:
+            emitting, taken = stack[-1]
+            if taken and emitting:
+                out.append(line)
+            stack[-1] = (not taken, True)
+            continue
+        if stripped.startswith("#endif") and stack:
+            emitting, taken = stack.pop()
+            if emitting and taken:
+                out.append(line)
+            continue
+        if all(emitting for emitting, _ in stack):
+            out.append(line)
+    return "\n".join(out)
+
+
 def definition_block(path: Path) -> str:
     text = path.read_text(encoding="utf-8")
     if path.name == "globals.c":
@@ -194,7 +237,11 @@ def main() -> int:
     ]
     for source in args.sources:
         parts.append(f'\n#line 1 "{source.as_posix()}"\n')
-        parts.append(expand_array_dimensions(definition_block(source), constants))
+        parts.append(
+            expand_array_dimensions(
+                resolve_conditionals(definition_block(source)), constants
+            )
+        )
     output = "".join(parts)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
