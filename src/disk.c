@@ -1860,126 +1860,192 @@ void InitializeShipWeaponTypeIndices(short obj)
 
 /* Function start: 0x410999 */
 void set_objects_data(short obj, short type, short owner,
-                      short matchObjectClass)
+                      short matchResourceType)
 {
+    short frame;
+    ObjectTypeData *shapeSource;
+    unsigned char *animation;
+    short slot;
     ObjectTypeData *typeData;
-    unsigned char *loadout;
-    enum ObjectClass objectClass;
-    short value;
-    short zero;
-    short weapon;
 
     g_asObjectCreationFrame_005d3900[obj] = g_nSpaceFrame_00493134;
     g_abProjectileCollisionBonus_004960a8[obj] = 0;
-    if (type == OBJECT_TYPE_SPACE_DUST) {
-        g_acObjectType_00493980[obj] = type;
-        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;
-        return;
-    }
-    if (g_aObjectTypeData_00496d30[type].shapeSet == 0) {
-        switch (type) {
-        case OBJECT_TYPE_ASTEROID2:
-            type = OBJECT_TYPE_ASTEROID1;
-            break;
-        case OBJECT_TYPE_ASTEROID4:
-            type = OBJECT_TYPE_ASTEROID3;
-            break;
-        case OBJECT_TYPE_ASTEROID6:
-            type = OBJECT_TYPE_ASTEROID5;
-            break;
-        case OBJECT_TYPE_DEBRIS_METAL_SHEET:
-            type = OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK;
-            break;
-        case OBJECT_TYPE_DEBRIS_WING:
-            type = OBJECT_TYPE_DEBRIS_PIPE;
-            break;
-        case OBJECT_TYPE_EXPLOSION1:
-        case OBJECT_TYPE_EXPLOSION2:
-            type = OBJECT_TYPE_EXPLOSION0;
-            break;
+    if (matchResourceType != 0) {
+        for (slot = 0; slot < 5; slot++) {
+            if (g_aObjectTypeData_00496d30[slot].resourceType == type)
+                break;
+        }
+        typeData = &g_aObjectTypeData_00496d30[slot];
+        g_acObjectType_00493980[obj] = (signed char)slot;
+        g_apObjectExhaustShape_004953b8[obj] = typeData->animation;
+        g_apObjectShape_00493868[obj] = typeData->shapeSet;
+    } else {
+        if (type == WC2_OBJECT_TYPE_SPACE_DUST) {
+            g_asObjectType_00495298[obj] = WC2_OBJECT_TYPE_SPACE_DUST;
+            g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;
+            return;
+        }
+        if (g_aObjectTypeData_00496d30[type].shapeSet == 0) {
+            switch (type) {
+            case WC2_OBJECT_TYPE_EXPLOSION_MEDIUM:
+                type = WC2_OBJECT_TYPE_EXPLOSION_SMALL;
+                break;
+            case WC2_OBJECT_TYPE_EXPLOSION_LARGE:
+                type = WC2_OBJECT_TYPE_EXPLOSION_SMALL;
+                break;
+            case WC2_OBJECT_TYPE_SHIP_WING:
+                type = WC2_OBJECT_TYPE_PIPE;
+                break;
+            case WC2_OBJECT_TYPE_METAL_SHEET:
+                type = WC2_OBJECT_TYPE_GIRDER_CHUNK;
+                break;
+            case WC2_OBJECT_TYPE_ASTEROID2:
+                type = WC2_OBJECT_TYPE_ASTEROID1;
+                break;
+            case WC2_OBJECT_TYPE_ASTEROID4:
+                type = WC2_OBJECT_TYPE_ASTEROID3;
+                break;
+            case WC2_OBJECT_TYPE_ASTEROID6:
+                type = WC2_OBJECT_TYPE_ASTEROID5;
+                break;
+            }
+        }
+        if (type == 0x3d)
+            g_acObjectType_00493980[obj] = WC2_OBJECT_TYPE_SPACE_DUST;
+        else
+            g_acObjectType_00493980[obj] = (signed char)type;
+        if (type == 0x3e) {
+            g_acObjectType_00493980[obj] =
+                (signed char)g_nObjectType62Index_00492d64;
+        }
+        if (type == 0x3f) {
+            g_acObjectType_00493980[obj] =
+                (signed char)g_nObjectType63Index_00492d68;
+        }
+        typeData =
+            &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
+        shapeSource = typeData;
+        if (type == 0xe)
+            shapeSource = &g_aObjectTypeData_00496d30[10];
+        if (type == 0xd)
+            shapeSource = &g_aObjectTypeData_00496d30[8];
+        g_asObjectType_00495298[obj] = type;
+        if (type == WC2_OBJECT_TYPE_CHAFF_POD &&
+            g_aObjectTypeData_00496d30[20].shapeSet == 0) {
+            g_apObjectShape_00493868[obj] =
+                g_aObjectTypeData_00496d30[9].shapeSet;
+        }
+        if (type == WC2_OBJECT_TYPE_ROCK_CHUNK) {
+            g_apObjectShape_00493868[obj] =
+                g_aObjectTypeData_00496d30[
+                    WC2_OBJECT_TYPE_ASTEROID1].shapeSet;
+        } else {
+            g_apObjectShape_00493868[obj] = shapeSource->shapeSet;
         }
     }
-    typeData = &g_aObjectTypeData_00496d30[type];
-    g_acObjectType_00493980[obj] = type;
+    g_asObjectType_00495298[obj] = typeData->field_18;
     g_aeObjectClass_00495328[obj] = typeData->objectClass;
-    if (type == WC2_OBJECT_TYPE_ROCK_CHUNK)
-        g_apObjectShape_00493868[obj] =
-            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_ASTEROID1].shapeSet;
-    else
-        g_apObjectShape_00493868[obj] = typeData->shapeSet;
+    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_MISSILE) {
+        if (g_asShipSide_004955d0[owner] == SIDE_KILRATHI && owner != 0 &&
+            g_pGenericMissileShape_0049c8f0 != 0 &&
+            g_pGenericMissileExhaustShape_0049c8f4 != 0 &&
+            g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_CHAFF_POD) {
+            g_apObjectShape_00493868[obj] = g_pGenericMissileShape_0049c8f0;
+            g_apObjectExhaustShape_004953b8[obj] =
+                g_pGenericMissileExhaustShape_0049c8f4;
+        } else {
+            g_apObjectExhaustShape_004953b8[obj] = typeData->animation;
+        }
+    }
     init_ijk(obj);
     g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
-    zero = 0;
     g_asObjectScale_00494d90[obj] = typeData->scale;
+    if (type == 0xe) {
+        g_asObjectScale_00494d90[obj] =
+            (unsigned short)(g_asObjectScale_00494d90[obj] * 8);
+    }
+    if (type == 0xd) {
+        g_asObjectScale_00494d90[obj] =
+            (unsigned short)(g_asObjectScale_00494d90[obj] * 8);
+    }
+    g_asObjectDamage_00495178[obj] = 0;
+    g_asObjectFlip_004939c8[obj] = g_asObjectDamage_00495178[obj];
+    g_asObjectScreenAngle_004936b8[obj] = g_asObjectFlip_004939c8[obj];
     g_acObjectOwner_00495208[obj] = (signed char)owner;
-    g_asShipAccumulatedDamage_0059dee0[obj] = zero;
-    objectClass = g_aeObjectClass_00495328[obj];
-    g_asObjectFlip_004939c8[obj] = zero;
     g_acLastCollisionObject_00495250[obj] = -1;
-    g_asObjectScreenAngle_004936b8[obj] = zero;
-
-    if (objectClass >= OBJECT_CLASS_MISSILE) {
-        g_asObjectViewFrame_00493508[obj] = zero;
+    if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_MISSILE) {
+        g_asObjectViewFrame_00493508[obj] = 0;
         g_acShipTarget_00495f20[obj] = -1;
-        if (objectClass >= OBJECT_CLASS_SHIP) {
-            value = typeData->shieldFore;
-            g_aasShipShield_00495518[obj][0] = value;
-            g_aasShipMaximumShield_004954f0[obj][0] = value;
-            value = typeData->shieldAft;
-            g_aasShipShield_00495518[obj][1] = value;
-            g_aasShipMaximumShield_004954f0[obj][1] = value;
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
+            g_aasShipShield_00495518[obj][0] = typeData->shieldFore;
+            g_aasShipMaximumShield_004954f0[obj][0] =
+                g_aasShipShield_00495518[obj][0];
+            g_aasShipShield_00495518[obj][1] = typeData->shieldAft;
+            g_aasShipMaximumShield_004954f0[obj][1] =
+                g_aasShipShield_00495518[obj][1];
             g_aasShipArmor_00495540[obj][0] = typeData->armorFront;
             g_aasShipArmor_00495540[obj][2] = typeData->armorLeft;
             g_aasShipArmor_00495540[obj][3] = typeData->armorRight;
             g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
             g_anShipFuel_00495638[obj] = *(int *)&typeData->lifetime;
-            g_acShipIonDriveDamage_004956a0[obj] = (signed char)zero;
-            g_acShipDamage_00495690[obj] = (signed char)zero;
+            g_acShipIonDriveDamage_004956a0[obj] = 0;
+            g_acShipDamage_00495690[obj] = 0;
             recalc_max_velocity(obj);
             DAT_00495d78[obj] = 4;
-            loadout = g_aShipWeapons_004956b0[obj];
-            memcpy(loadout, typeData->weaponLoadout,
+            memcpy(g_aShipWeapons_004956b0[obj], typeData->weaponLoadout,
                    sizeof(typeData->weaponLoadout));
             InitializeShipWeaponTypeIndices(obj);
-
             if (obj == 0) {
                 g_nSelectedReleaseWeaponIndex_004934e0 = -1;
                 g_nSelectedGunType_004934dc = -1;
-                for (weapon = (short)(signed char)loadout[0];
-                     weapon-- > 0;) {
-                    ShipWeaponSlot *slot;
-
-                    slot = &((ShipWeaponSlot *)(loadout + 1))[weapon];
-                    if (slot->disabled == 0) {
-                        if (g_aObjectTypeData_00496d30[
-                                (int)slot->weaponType].objectClass ==
-                                OBJECT_CLASS_PROJECTILE) {
-                            if (g_nSelectedGunType_004934dc != -1) {
-                                if (slot->type !=
-                                    g_nSelectedGunType_004934dc)
-                                    g_nSelectedGunType_004934dc = 0x80;
-                            } else {
-                                g_nSelectedGunType_004934dc = slot->type;
-                            }
+                slot = (short)(signed char)g_aShipWeapons_004956b0[obj][0];
+                while (slot-- > 0) {
+                    if (((ShipWeaponSlot *)(
+                             g_aShipWeapons_004956b0[obj] + 1))[
+                            slot].disabled != 0)
+                        continue;
+                    if (g_aObjectTypeData_00496d30[
+                            ((ShipWeaponSlot *)(
+                                 g_aShipWeapons_004956b0[obj] + 1))[
+                                slot].weaponType].objectClass ==
+                        OBJECT_CLASS_PROJECTILE) {
+                        if (g_nSelectedGunType_004934dc != -1) {
+                            if (((ShipWeaponSlot *)(
+                                     g_aShipWeapons_004956b0[obj] + 1))[
+                                    slot].type !=
+                                g_nSelectedGunType_004934dc)
+                                g_nSelectedGunType_004934dc = 0x80;
                         } else {
-                            g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
+                            g_nSelectedGunType_004934dc =
+                                ((ShipWeaponSlot *)(
+                                     g_aShipWeapons_004956b0[obj] + 1))[
+                                    slot].type;
                         }
+                    } else {
+                        g_nSelectedReleaseWeaponIndex_004934e0 = slot;
                     }
                 }
             }
-            DAT_0059c910[obj] = -1;
+            if (HasShipCockpitGunDisplay(obj) != 0)
+                g_asShipTurretFireEnabled_0049d470[obj] = 1;
+            else
+                g_asShipTurretFireEnabled_0049d470[obj] = 0;
             g_asShipWeaponEnergy_00495590[obj] = 100;
+            g_acShipLastAttacker_004955c0[obj] = -1;
         }
-        return;
+    } else {
+        animation = typeData->animation;
+        if (animation == 0) {
+            frame = 0;
+            g_asObjectViewFrame_00493508[obj] =
+                (short)(typeData->yawRate + frame);
+        } else {
+            g_acObjectAnimationDelay_00494d00[obj] = 1;
+            g_asObjectAnimationIndex_00494c70[obj] = 0;
+            frame = g_asObjectAnimationIndex_00494c70[obj];
+            animate_shape(obj);
+        }
     }
-
-    if (typeData->animation == 0) {
-        g_asObjectViewFrame_00493508[obj] = typeData->yawRate;
-        return;
-    }
-    g_acObjectAnimationDelay_00494d00[obj] = 1;
-    g_asObjectAnimationIndex_00494c70[obj] = 0;
-    animate_shape(obj);
 }
 
 /* Function start: 0x411172 */
@@ -2023,11 +2089,15 @@ unsigned int match_rotation_goal(short *rotation, short *goal,
     return 0;
 }
 
+#pragma function(abs)
+
 /* Function start: 0x41133D */
 void rotate_object_to_goal(short obj)
 {
-    ObjectTypeData *typeData;
+    short turnScale;
+    short rate;
     short totalError;
+    ObjectTypeData *typeData;
 
     typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
     if (g_aeSpecialManeuver_00495600[obj] ==
@@ -2035,29 +2105,44 @@ void rotate_object_to_goal(short obj)
         if ((short)alert_flag(obj, 1) != 0) {
             set_special(obj, SPECIAL_MANEUVER_NONE);
         } else {
+            /* The original passes a difficulty the callee ignores. */
             if (g_asObjectCounter_00494be0[obj] == -1 &&
-                skill_check(obj) != 0)
-                g_aeSpecialManeuver_00495600[obj] =
-                    SPECIAL_MANEUVER_NONE;
+                ((short (__cdecl *)(short, int))skill_check)(obj, 7) != 0)
+                g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
             return;
         }
     }
-    totalError = (short)(abs(g_anObjectYawRotation_00494fc8[obj] -
-                            g_anYawGoal_004954c0[obj]) +
+    totalError = (short)(abs(g_anObjectRollRotation_00495058[obj] -
+                             g_anRollGoal_004954d8[obj]) +
+                         abs(g_anObjectYawRotation_00494fc8[obj] -
+                             g_anYawGoal_004954c0[obj]) +
                          abs(g_anObjectPitchRotation_00494f38[obj] -
-                             g_anPitchGoal_004954a8[obj]) +
-                         abs(g_anObjectRollRotation_00495058[obj] -
-                             g_anRollGoal_004954d8[obj]));
+                             g_anPitchGoal_004954a8[obj]));
+    rate = typeData->yawRate;
+    turnScale = MinShort(180, MaxShort(100, GetAdaptiveTurnRate()));
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+        g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
+        rate = (short)(turnScale * rate / 100);
     match_rotation_goal(&g_anObjectPitchRotation_00494f38[obj],
                         &g_anPitchGoal_004954a8[obj], totalError,
                         typeData->yawRate);
+    rate = typeData->pitchRate;
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+        g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
+        rate = (short)(turnScale * rate / 100);
     match_rotation_goal(&g_anObjectYawRotation_00494fc8[obj],
                         &g_anYawGoal_004954c0[obj], totalError,
                         typeData->pitchRate);
+    rate = typeData->rollRate;
+    if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
+        g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
+        rate = (short)(turnScale * rate / 100);
     match_rotation_goal(&g_anObjectRollRotation_00495058[obj],
                         &g_anRollGoal_004954d8[obj], totalError,
                         typeData->rollRate);
 }
+
+#pragma intrinsic(abs)
 
 /* Function start: 0x4117AC */
 unsigned int celerate(short ship, int delta)

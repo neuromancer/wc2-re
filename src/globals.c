@@ -155,21 +155,11 @@ TitleMenuRegion g_aBarracksMenuRegions_00463008_WC1_UNMAPPED /* no-address */[21
     { 1, 86, 44, 181, 78 },
     { -1, 0, 0, 0, 0 }
 };
-const short g_asEjectionPrimaryFrames_00465550_WC1_UNMAPPED /* no-address */[8] = {
-    0, 1, 1, 3, 3, 0, 0, 0
-};
-const short g_asEjectionSecondaryFrames_00465560_WC1_UNMAPPED /* no-address */[8] = {
-    -1, -1, 2, -1, 4, 0, 0, 0
-};
-const short g_asEjectionViewScript_00465570_WC1_UNMAPPED /* no-address */[12] = {
-    3, 11, 14, 70, 3, 10, 14, 80, 3, 4, -1, 0
-};
 const char *g_pStrandedMessage_00465588_WC1_UNMAPPED /* no-address */ =
     g_szStrandedMessage_0046558c_WC1_UNMAPPED;
 const char g_szStrandedMessage_0046558c_WC1_UNMAPPED /* no-address */[72] =
     "\nWith your carrier\ndestroyed, you drift\nendlessly through\n"
     "the void...";
-const char g_szViewTemplates_004655d4_WC1_UNMAPPED /* no-address */[16] = "View Templates";
 const char g_szStrandedTheEnd_004655e4_WC1_UNMAPPED /* no-address */[12] = "THE END";
 const short g_asMouthFramesByPhoneme_004655f0_WC1_UNMAPPED /* no-address */[26] = {
     0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
@@ -403,7 +393,6 @@ char *g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED /* no-address */[20] = {
 };
 const short g_asCampaignPilotFiles_00469450_WC1_UNMAPPED /* no-address */[3] = {58, 61, 74};
 const short g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED /* no-address */[3] = {10, 62, 73};
-const short g_asMissionDataFiles_00469460_WC1_UNMAPPED /* no-address */[3] = {15, 52, 72};
 const char g_szSaveCampaignMenuLabel_00469468_WC1_UNMAPPED /* no-address */[24] =
     "Save this campaign  ";
 const char g_szSaveCampaignMenuLabelAlt_00469480_WC1_UNMAPPED /* no-address */[24] =
@@ -509,12 +498,8 @@ short g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED /* no-address */ = -1;
 int g_bScriptedView_0046a8d4_WC1_UNMAPPED /* no-address */;
 const char g_szWingmanTargetNameFormat_0046a998_WC1_UNMAPPED /* no-address */[4] = " %s";
 const char g_szAceTargetNameFormat_0046a99c_WC1_UNMAPPED /* no-address */[4] = " %s";
-int g_bMusicCommandSuppressed_0046a9fc_WC1_UNMAPPED /* no-address */;
 short g_nFuneralSequenceActive_0046aa10_WC1_UNMAPPED /* no-address */;
 int g_nMusicStreamSet_0046aa18_WC1_UNMAPPED /* no-address */ = -1;
-const unsigned char g_abFireworkSoundDescriptor_0046ab70_WC1_UNMAPPED /* no-address */[7] = {
-    0x00, 0x80, 0x40, 0x40, 0x3c, 0x00, 0x00
-};
 const char *g_apszCampaignVictoryText_0046ad90_WC1_UNMAPPED /* no-address */[4] = {
     g_szCampaignVictoryOpening_0046add0_WC1_UNMAPPED,
     g_szCampaignVictoryAttack_0046ae14_WC1_UNMAPPED,
@@ -564,7 +549,6 @@ const char g_aszKilrathiAceNames_0046afd4_WC1_UNMAPPED /* no-address */[32] =
     "Dakhath\0"
     "Khajja\0\0"
     "Bakhtosh";
-short g_nEjectedPilotObject_0046c044_WC1_UNMAPPED /* no-address */;
 const short g_asIntroCameraSequence_0046c090_WC1_UNMAPPED /* no-address */[20] = {
     0, -1000, 0, -4263, 2, 15, 1, 0, 30, 0,
     3, 15, 4, 30, 1, 13, 14, 400, -1, 0
@@ -576,208 +560,6 @@ const short g_asCampaignVictoryViewScript_0046c160_WC1_UNMAPPED /* no-address */
 };
 const short g_asTigerClawEscapeViewScript_0046c238_WC1_UNMAPPED /* no-address */[12] = {
     0, 0, 0, 0, 2, 15, 3, 15, 14, 400, -1, 0
-};
-ManeuverChoice g_aRatedManeuverChoices_0046d3e8_WC1_UNMAPPED /* no-address */[13][9][3] = {
-    {
-        { { 70, 40, 30 }, { 80, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 80, 29, 37 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 50, 7, 8 }, { 75, 14, 17 }, { 100, 21, -1 } },
-        { { 80, 41, 29 }, { 80, 41, 24 }, { 100, 21, -1 } },
-        { { 60, 26, 29 }, { 70, 26, 29 }, { 90, 26, 29 } },
-        { { 50, 16, 12 }, { 50, 13, 20 }, { 100, 21, -1 } },
-        { { 100, 19, -1 }, { 50, 9, 20 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 40, 40, 30 }, { 80, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 31, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 55, 12, 19 }, { 70, 11, 12 }, { 100, 21, -1 } },
-        { { 60, 29, 41 }, { 80, 29, 41 }, { 100, 33, -1 } },
-        { { 80, 26, 29 }, { 50, 26, 29 }, { 100, 29, -1 } },
-        { { 50, 15, 16 }, { 50, 16, 32 }, { 100, 21, -1 } },
-        { { 50, 7, 10 }, { 50, 14, 9 }, { 100, 21, -1 } },
-        { { 50, 25, 2 }, { 50, 25, 2 }, { 100, 2, -1 } }
-    },
-    {
-        { { 40, 40, 30 }, { 60, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 60, 15, 17 }, { 50, 12, 17 }, { 100, 21, -1 } },
-        { { 20, 41, 30 }, { 30, 41, 17 }, { 40, 41, 21 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 40, 32, 17 }, { 20, 32, 16 }, { 100, 21, -1 } },
-        { { 50, 17, 20 }, { 50, 23, 36 }, { 100, 20, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 21, -1 } }
-    },
-    {
-        { { 50, 40, 30 }, { 90, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 80, 30, 37 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 44, -1 }, { 100, 44, -1 } },
-        { { 70, 7, 16 }, { 100, 44, -1 }, { 100, 44, -1 } },
-        { { 20, 31, 41 }, { 100, 44, -1 }, { 100, 44, -1 } },
-        { { 80, 26, 31 }, { 100, 44, -1 }, { 100, 44, -1 } },
-        { { 75, 16, 15 }, { 75, 16, 15 }, { 100, 44, -1 } },
-        { { 50, 12, 16 }, { 100, 44, -1 }, { 100, 44, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 60, 40, 30 }, { 100, 40, -1 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 39, -1 } },
-        { { 50, 15, 16 }, { 60, 15, 7 }, { 70, 20, 16 } },
-        { { 70, 41, 17 }, { 80, 41, 20 }, { 100, 20, -1 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 50, 16, 13 }, { 50, 16, 20 }, { 100, 21, -1 } },
-        { { 50, 20, 36 }, { 50, 11, 10 }, { 100, 20, -1 } },
-        { { 25, 25, 2 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 40, 40, 30 }, { 80, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 20, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 39, -1 } },
-        { { 50, 7, 8 }, { 50, 9, 24 }, { 100, 12, -1 } },
-        { { 80, 41, 29 }, { 80, 41, 20 }, { 100, 41, -1 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 20, 32, 16 }, { 50, 16, 20 }, { 100, 21, -1 } },
-        { { 50, 19, 14 }, { 50, 14, 12 }, { 100, 8, -1 } },
-        { { 50, 17, 23 }, { 50, 17, 23 }, { 30, 25, 2 } }
-    },
-    {
-        { { 50, 30, 31 }, { 60, 40, 31 }, { 100, 39, -1 } },
-        { { 80, 29, 37 }, { 80, 29, 37 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 39, -1 } },
-        { { 50, 9, 10 }, { 60, 7, 11 }, { 100, 20, -1 } },
-        { { 50, 31, 41 }, { 80, 31, 23 }, { 100, 33, -1 } },
-        { { 80, 26, 29 }, { 70, 26, 29 }, { 100, 26, -1 } },
-        { { 50, 32, 16 }, { 50, 20, 16 }, { 100, 21, -1 } },
-        { { 50, 36, 12 }, { 50, 20, 8 }, { 50, 19, 20 } },
-        { { 80, 25, 2 }, { 50, 25, 17 }, { 100, 2, -1 } }
-    },
-    {
-        { { 50, 40, 30 }, { 80, 40, 30 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 60, 15, 8 }, { 70, 19, 14 }, { 100, 21, -1 } },
-        { { 70, 29, 20 }, { 50, 29, 20 }, { 100, 41, -1 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 50, 16, 19 }, { 50, 16, 8 }, { 100, 21, -1 } },
-        { { 50, 36, 12 }, { 50, 19, 20 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 100, -1, -1 }, { 100, -1, -1 }, { 100, -1, -1 } },
-        { { 0, -1, -1 }, { 0, -1, -1 }, { 0, -1, -1 } },
-        { { 0, -1, -1 }, { 0, -1, -1 }, { 0, -1, -1 } }
-    },
-    {
-        { { 60, 40, 29 }, { 60, 40, 29 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 50, 16, 38 }, { 75, 7, 20 }, { 100, 21, -1 } },
-        { { 60, 41, 31 }, { 60, 41, 31 }, { 100, 21, -1 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 50, 32, 20 }, { 50, 32, 20 }, { 100, 21, -1 } },
-        { { 50, 19, 20 }, { 50, 9, 20 }, { 100, 21, -1 } },
-        { { 100, 25, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 50, 40, 31 }, { 70, 40, 31 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 97, 12, 22 }, { 95, 20, 22 }, { 100, 21, -1 } },
-        { { 40, 41, 31 }, { 20, 41, 31 }, { 100, 21, -1 } },
-        { { 50, 26, 31 }, { 100, 31, -1 }, { 100, 26, -1 } },
-        { { 50, 16, 20 }, { 50, 19, 20 }, { 100, 21, -1 } },
-        { { 100, 20, 36 }, { 50, 12, 20 }, { 100, 21, -1 } },
-        { { 100, 25, -1 }, { 100, 25, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 70, 40, 30 }, { 70, 16, 30 }, { 100, 21, -1 } },
-        { { 100, 18, -1 }, { 100, 18, -1 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 50, 23, 20 }, { 75, 12, 17 }, { 100, 21, -1 } },
-        { { 30, 41, 29 }, { 50, 41, 20 }, { 100, 21, -1 } },
-        { { 100, 26, -1 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 20, 32, 20 }, { 50, 16, 20 }, { 100, 21, -1 } },
-        { { 50, 16, 19 }, { 50, 12, 20 }, { 100, 21, -1 } },
-        { { 100, 25, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 80, 40, 31 }, { 90, 40, 31 }, { 100, 21, -1 } },
-        { { 100, 18, -1 }, { 100, 18, -1 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 50, 15, 20 }, { 75, 16, 19 }, { 100, 21, -1 } },
-        { { 50, 41, 31 }, { 50, 41, 31 }, { 100, 21, -1 } },
-        { { 80, 26, 31 }, { 100, 26, -1 }, { 100, 26, -1 } },
-        { { 50, 16, 20 }, { 50, 32, 20 }, { 100, 21, -1 } },
-        { { 70, 19, 17 }, { 50, 11, 20 }, { 100, 21, -1 } },
-        { { 100, 25, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    }
-};
-ManeuverChoice g_aKilrathiManeuverChoices_0046d808_WC1_UNMAPPED /* no-address */[5][9][3] = {
-    {
-        { { 70, 40, 45 }, { 80, 40, 45 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 90, 17, 46 }, { 90, 17, 46 }, { 100, 21, -1 } },
-        { { 50, 46, 45 }, { 80, 46, 45 }, { 100, 21, -1 } },
-        { { 100, 45, -1 }, { 100, 45, -1 }, { 100, 45, -1 } },
-        { { 100, 46, -1 }, { 20, 17, 46 }, { 100, 21, -1 } },
-        { { 100, 46, -1 }, { 25, 17, 46 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 40, 40, 45 }, { 70, 40, 45 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 30 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 50, 8, 46 }, { 50, 14, 46 }, { 100, 21, -1 } },
-        { { 70, 45, 46 }, { 60, 45, 46 }, { 100, 21, -1 } },
-        { { 100, 45, -1 }, { 100, 45, -1 }, { 100, 45, -1 } },
-        { { 100, 46, -1 }, { 100, 46, -1 }, { 100, 21, -1 } },
-        { { 50, 38, 46 }, { 100, 46, -1 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 80, 40, 29 }, { 80, 40, 29 }, { 100, 21, -1 } },
-        { { 80, 29, 37 }, { 50, 29, 40 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 21, -1 } },
-        { { 60, 46, 45 }, { 60, 46, 45 }, { 100, 21, -1 } },
-        { { 30, 41, 45 }, { 30, 41, 45 }, { 100, 21, -1 } },
-        { { 100, 29, -1 }, { 100, 45, -1 }, { 100, 45, -1 } },
-        { { 100, 46, -1 }, { 100, 46, -1 }, { 100, 46, -1 } },
-        { { 50, 29, 46 }, { 100, 46, -1 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 50, 40, 29 }, { 50, 40, 29 }, { 100, 21, -1 } },
-        { { 100, 18, -1 }, { 100, 18, -1 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 39, -1 } },
-        { { 30, 12, 29 }, { 98, 46, 22 }, { 100, 21, -1 } },
-        { { 90, 29, 31 }, { 100, 29, -1 }, { 100, 21, -1 } },
-        { { 100, 45, -1 }, { 100, 45, -1 }, { 100, 45, -1 } },
-        { { 100, 46, -1 }, { 100, 46, -1 }, { 100, 46, -1 } },
-        { { 50, 36, 46 }, { 100, 46, -1 }, { 100, 21, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    },
-    {
-        { { 40, 40, 29 }, { 40, 40, 29 }, { 100, 21, -1 } },
-        { { 100, 18, -1 }, { 100, 18, -1 }, { 100, 21, -1 } },
-        { { 100, 39, -1 }, { 100, 39, -1 }, { 100, 39, -1 } },
-        { { 90, 46, 36 }, { 90, 46, 12 }, { 100, 21, -1 } },
-        { { 100, 29, -1 }, { 100, 29, -1 }, { 100, 21, -1 } },
-        { { 100, 45, -1 }, { 100, 45, -1 }, { 100, 45, -1 } },
-        { { 100, 46, -1 }, { 100, 46, -1 }, { 100, 21, -1 } },
-        { { 10, 11, 46 }, { 100, 46, -1 }, { 100, 46, -1 } },
-        { { 100, 2, -1 }, { 100, 2, -1 }, { 100, 2, -1 } }
-    }
 };
 CampaignDate g_stSavedCampaignDate_0046e188_WC1_UNMAPPED /* no-address */ = {20, 340};
 const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190_WC1_UNMAPPED /* no-address */[11] = {
@@ -2591,8 +2373,6 @@ unsigned char *g_pDebriefingTextData_00598c28;
 unsigned char *g_pBriefingCloseupShape_00598c2c;
 unsigned char *g_pConversationOverlayShape_00598c30;
 unsigned char g_bFilteredKeyWaitStarted_00598c34;
-int g_nMouseCursorSavedY_0059a840;
-int g_nMouseCursorSavedX_0059a844;
 unsigned char g_bInputMode_0059a848;
 unsigned char g_bFilteredKeyWaitActive_0059a849;
 int DAT_0059a84c;
@@ -2603,7 +2383,6 @@ int DAT_0059a8e4;
 short DAT_0059a9f0;
 short g_nPacketDecompressInputPosition_0059ab00;
 void *g_pPacketDecompressInput_0059ab04;
-unsigned short g_wCurrentInputModifiers_0059ab08;
 MouseCursorState g_stMouseCursorState_0059ab10;
 void (*DAT_0059ab2c)(void);
 int g_nPacketDecompressResult_0059ab30;
@@ -2611,53 +2390,29 @@ short DAT_0059ab34;
 short g_nPacketDecompressPending_0059ab36;
 unsigned short g_wPacketDecompressInputSize_0059ab38;
 short g_nPacketDecompressWorkspaceSegment_0059ab3a;
-int DAT_0059ab40;
-int DAT_0059ab44;
-int DAT_0059ab48;
 int DAT_0059ab4c;
 unsigned int DAT_0059ab54;
-int DAT_0059ab5c;
-int DAT_0059ab60;
 short DAT_0059ab64;
 MouseCursorState g_stHostMouseState_0059af70;
 FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
-signed char DAT_0059c910[16];
 CampaignState g_stCampaignState_0059ca50;
 signed char g_acShipRating_0059cd80[16];
-unsigned int DAT_0059ce18[2];
 unsigned char DAT_0059cf20[0x10];
 short g_asPreviousObjectDistance_0059d080[WC2_SPACE_OBJECT_COUNT];
-short g_asCollisionCountdown_0059d2d0[16];
 short g_asCannedCommand_0059d4e0[16];
 signed char g_acShipPointingMode_0059d790[16];
 signed char g_cCockpitView_0059dab0;
 const short *g_apCannedSequence_0059dce0[12];
 signed char g_acShipSpawnNavPoint_0059ded0[16];
-short g_asShipAccumulatedDamage_0059dee0[WC2_SPACE_OBJECT_COUNT];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];
 char *g_aapszPilotSpeech_0059e220[14][11];
 unsigned char *g_pFireworkShape_005a6a68;
-ConstellationStar g_aConstellationStars_005a6a70[10];
-short g_nConstellationStarCount_005a6ab0;
 Viewport g_stConstellationViewport_005a6b40;
 const short *g_pViewScript_005a6b58;
-Viewport DAT_005a6b80;
-ScreenViewportPacket *g_pScreenViewportPacket_005a6b94;
 Viewport DAT_005a6be0;
-FontWorkspace **g_apFontWorkspaces_005a6c10[4];
-TextContext DAT_005a74f0;
-Viewport DAT_005a7530;
 unsigned char *g_pCommMenuCursorShape_005a7660;
-Viewport DAT_005a7690;
-unsigned char *g_pCockpitDamageShape_005a76f4;
-TextContext DAT_005a7700;
-TextContext DAT_005a7720;
 unsigned char *g_pLaunchDoorShape_005a77e8;
-unsigned char g_abPaletteTriplets_005a77f0[256][3];
-short g_bMouseButtonEventQueued_005a7afc;
-short g_bKeyboardEventQueued_005a7afe;
-short g_bJoystickEventQueued_005a7b88;
 short g_nArcadeStartupParameter_005a7b8a;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
@@ -2677,7 +2432,6 @@ short g_nSceneAnimationWaitFrames_005a7c68;
 unsigned char *g_pSceneAnimationDefinitions_005a7c6c;
 unsigned char *g_pSceneAnimationSecondaryShape_005a7c70;
 signed char g_cCockpitLogicalFile_005a7c74;
-unsigned char *g_apCockpitShapes_005a7c80[4];
 unsigned char *g_pCinematicViewBackdrop_005a7c90;
 unsigned char *g_pRearViewBackdrop_005a7c94;
 short g_asCollisionTime_005a7ca0[10];
@@ -2686,7 +2440,6 @@ short g_asCollisionPartner_005a7cc0[10];
 unsigned int g_dwOriginalFreeMemory_005a7cd8;
 unsigned char *g_pMouseCursorResource_005a7cdc;
 int g_nSceneResourceBudget_005a7ce4;
-int g_nAfterburnerSoundDeadline_005a7ce8;
 DiskFileRecord *g_pDiskFileRecords_005a7cf0;
 Viewport g_stDiskPromptBackgroundViewport_005a7d00;
 unsigned char g_abDiskPromptDriveState_005a7d20[2];
@@ -2696,9 +2449,6 @@ unsigned int g_dwDiskPromptTopLeft_005a7d80;
 unsigned int g_dwDiskPromptBottomRight_005a7d84;
 int DAT_005a7d9c;
 signed char g_cCapitalShipLogicalFile_005a7da0;
-enum ObjectType g_eReleaseWeaponDisplayType_005a7dc0;
-int g_nSavedMouseCursorY_005a7df4;
-int g_nSavedMouseCursorX_005a7df8;
 unsigned char *g_pTitleShape_005a7f08;
 short DAT_005a8114;
 short g_nMissionMedalScore_005a8116;
@@ -2717,7 +2467,6 @@ short g_nFuneralCasketX_005a86c8;
 short g_nFuneralCasketY_005a86ca;
 short g_nScrambleShipDetailCount_005a86cc;
 signed char g_acScrambleShipDetailIndices_005a86d0[24];
-signed char g_cScrambleWalkTicks_005a86e8;
 unsigned char *g_pConversationSpecialShape_005a86ec;
 ShortPoint g_aFuneralParticles_005a86f0[7];
 unsigned char *g_pScrambleBackgroundShape_005a870c;
@@ -2750,11 +2499,9 @@ short g_nTalkingHeadFaceX_005a8754;
 short g_nTalkingHeadFaceY_005a8756;
 short g_nTalkingHeadMouthY_005a8758;
 short g_nTalkingHeadMouthX_005a875a;
-char DAT_005a8760[512];
 unsigned char *g_pIntroFont_005a8960;
 HCURSOR DAT_005a8a34;
 unsigned int DAT_005a8a44;
-unsigned short DAT_005a8a50[0x300];
 int g_nStreamerAudioPlaying_005b2810;
 char g_szStreamerPath_005b2818[128];
 char g_szWingCommanderOneGameDataPath_005b2898[0x400];
@@ -2763,7 +2510,6 @@ HANDLE g_hMonoDebugDevice_005b30ec;
 short DAT_005b30f0;
 unsigned char g_bCurrentManeuverReroll_005b30f4;
 NavMapLabel g_aNavMapLabels_00475e80_WC1_UNMAPPED /* no-address */[20];
-unsigned char g_abMouseCursorBackground_00475ff0_WC1_UNMAPPED /* no-address */[0x400];
 int g_nFlightFrameTotalTicks_004764f8_WC1_UNMAPPED /* no-address */;
 int g_nFlightCockpitTicks_004764fc_WC1_UNMAPPED /* no-address */;
 LARGE_INTEGER g_liFlightAfterInput_00476500_WC1_UNMAPPED /* no-address */;
@@ -2776,7 +2522,6 @@ LARGE_INTEGER g_liFlightAfterCockpit_00476530_WC1_UNMAPPED /* no-address */;
 int g_nFlightInputTicks_00476538_WC1_UNMAPPED /* no-address */;
 LARGE_INTEGER g_liFlightAfterRender_00476540_WC1_UNMAPPED /* no-address */;
 int g_nFlightRenderTicks_00476548_WC1_UNMAPPED /* no-address */;
-unsigned char DAT_00476620_WC1_UNMAPPED /* no-address */[32];
 float DAT_00486510_WC1_UNMAPPED /* no-address */;
 unsigned char DAT_004865a8_WC1_UNMAPPED /* no-address */[0x1000];
 int g_nWipeRadialStep_005b30f8;
