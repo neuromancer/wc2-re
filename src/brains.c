@@ -3426,7 +3426,7 @@ void load_ship(short resourceType, short objectType,
                 if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
                     g_nResourcePaletteMode_005c57e6 == 0) {
                     g_apPacketReferenceGroups_0049b898[slot] =
-                        (void **)calloc(0x25, 4);
+                        (void **)calloc(0x25, WC2_HOST_POINTER_SIZE);
                     packetReferences =
                         g_apPacketReferenceGroups_0049b898[slot];
                     if (packetReferences == 0)
