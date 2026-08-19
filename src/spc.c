@@ -32,7 +32,7 @@ void CalibrateJoystickInteractive()
     int fontLoaded;
 
     fontLoaded = 0;
-    if (g_nActiveInputDevice_005a819c == -1)
+    if (g_nActiveInputDevice_005d1726 == -1)
         return;
     if (g_apTextFonts_005d2200[1] != 0)
         fontLoaded = 1;
@@ -54,11 +54,11 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
-        g_nJoystickMinimumX_005a81b8 = samples[g_nActiveInputDevice_005a819c].x;
-        g_nJoystickMinimumY_005a81bc = samples[g_nActiveInputDevice_005a819c].y;
-        calibration[0] = (short)samples[g_nActiveInputDevice_005a819c].x;
-        calibration[1] = (short)samples[g_nActiveInputDevice_005a819c].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickMinimumX_005d174c = samples[g_nActiveInputDevice_005d1726].x;
+        g_nJoystickMinimumY_005d1750 = samples[g_nActiveInputDevice_005d1726].y;
+        calibration[0] = (short)samples[g_nActiveInputDevice_005d1726].x;
+        calibration[1] = (short)samples[g_nActiveInputDevice_005d1726].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -68,11 +68,11 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
-        g_nJoystickMaximumX_005a81b0 = samples[g_nActiveInputDevice_005a819c].x;
-        g_nJoystickMaximumY_005a81b4 = samples[g_nActiveInputDevice_005a819c].y;
-        calibration[2] = (short)samples[g_nActiveInputDevice_005a819c].x;
-        calibration[3] = (short)samples[g_nActiveInputDevice_005a819c].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickMaximumX_005d1744 = samples[g_nActiveInputDevice_005d1726].x;
+        g_nJoystickMaximumY_005d1748 = samples[g_nActiveInputDevice_005d1726].y;
+        calibration[2] = (short)samples[g_nActiveInputDevice_005d1726].x;
+        calibration[3] = (short)samples[g_nActiveInputDevice_005d1726].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -82,11 +82,11 @@ void CalibrateJoystickInteractive()
     if (shown != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005a819c, 0x7fff);
-        g_nJoystickCentreX_005a81dc = samples[g_nActiveInputDevice_005a819c].x;
-        g_nJoystickCentreY_005a81d8 = samples[g_nActiveInputDevice_005a819c].y;
-        calibration[4] = (short)samples[g_nActiveInputDevice_005a819c].x;
-        calibration[5] = (short)samples[g_nActiveInputDevice_005a819c].y;
+        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickCentreX_005d1768 = samples[g_nActiveInputDevice_005d1726].x;
+        g_nJoystickCentreY_005d1764 = samples[g_nActiveInputDevice_005d1726].y;
+        calibration[4] = (short)samples[g_nActiveInputDevice_005d1726].x;
+        calibration[5] = (short)samples[g_nActiveInputDevice_005d1726].y;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -98,41 +98,41 @@ void CalibrateJoystickInteractive()
         g_nJoystickHorizontalRange_005a81cc = 9;
     if (g_nJoystickVerticalRange_005d1754 == 0)
         g_nJoystickVerticalRange_005d1754 = 9;
-    g_nJoystickLeftScale_005a81ac =
-        (g_nJoystickCentreX_005a81dc - g_nJoystickMinimumX_005a81b8) /
+    g_nJoystickLeftScale_005d1740 =
+        (g_nJoystickCentreX_005d1768 - g_nJoystickMinimumX_005d174c) /
         g_nJoystickHorizontalRange_005a81cc;
-    g_nJoystickRightScale_005a81d0 =
-        (g_nJoystickMaximumX_005a81b0 - g_nJoystickCentreX_005a81dc) /
+    g_nJoystickRightScale_005d175c =
+        (g_nJoystickMaximumX_005d1744 - g_nJoystickCentreX_005d1768) /
         g_nJoystickHorizontalRange_005a81cc;
-    g_nJoystickUpScale_005a81a8 =
-        (g_nJoystickCentreY_005a81d8 - g_nJoystickMinimumY_005a81bc) /
+    g_nJoystickUpScale_005d173c =
+        (g_nJoystickCentreY_005d1764 - g_nJoystickMinimumY_005d1750) /
         g_nJoystickVerticalRange_005d1754;
-    g_nJoystickDownScale_005a81d4 =
-        (g_nJoystickMaximumY_005a81b4 - g_nJoystickCentreY_005a81d8) /
+    g_nJoystickDownScale_005d1760 =
+        (g_nJoystickMaximumY_005d1748 - g_nJoystickCentreY_005d1764) /
         g_nJoystickVerticalRange_005d1754;
-    if (g_nJoystickLeftScale_005a81ac == 0)
-        g_nJoystickLeftScale_005a81ac = 1;
-    if (g_nJoystickRightScale_005a81d0 == 0)
-        g_nJoystickRightScale_005a81d0 = 1;
-    if (g_nJoystickUpScale_005a81a8 == 0)
-        g_nJoystickUpScale_005a81a8 = 1;
-    if (g_nJoystickDownScale_005a81d4 == 0)
-        g_nJoystickDownScale_005a81d4 = 1;
+    if (g_nJoystickLeftScale_005d1740 == 0)
+        g_nJoystickLeftScale_005d1740 = 1;
+    if (g_nJoystickRightScale_005d175c == 0)
+        g_nJoystickRightScale_005d175c = 1;
+    if (g_nJoystickUpScale_005d173c == 0)
+        g_nJoystickUpScale_005d173c = 1;
+    if (g_nJoystickDownScale_005d1760 == 0)
+        g_nJoystickDownScale_005d1760 = 1;
 
-    g_nJoystickMinimumX_005a81b8 = g_nJoystickCentreX_005a81dc -
-        g_nJoystickLeftScale_005a81ac *
+    g_nJoystickMinimumX_005d174c = g_nJoystickCentreX_005d1768 -
+        g_nJoystickLeftScale_005d1740 *
             g_nJoystickHorizontalRange_005a81cc;
-    g_nJoystickMinimumY_005a81bc = g_nJoystickCentreY_005a81d8 -
-        g_nJoystickUpScale_005a81a8 * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickMaximumX_005a81b0 = g_nJoystickCentreX_005a81dc +
-        g_nJoystickRightScale_005a81d0 *
+    g_nJoystickMinimumY_005d1750 = g_nJoystickCentreY_005d1764 -
+        g_nJoystickUpScale_005d173c * g_nJoystickVerticalRange_005d1754;
+    g_nJoystickMaximumX_005d1744 = g_nJoystickCentreX_005d1768 +
+        g_nJoystickRightScale_005d175c *
             g_nJoystickHorizontalRange_005a81cc;
-    g_nJoystickMaximumY_005a81b4 = g_nJoystickCentreY_005a81d8 +
-        g_nJoystickDownScale_005a81d4 * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickFailureValue_005a81e0 = g_nJoystickMaximumX_005a81b0 * 2;
+    g_nJoystickMaximumY_005d1748 = g_nJoystickCentreY_005d1764 +
+        g_nJoystickDownScale_005d1760 * g_nJoystickVerticalRange_005d1754;
+    g_nJoystickFailureValue_005d176c = g_nJoystickMaximumX_005d1744 * 2;
 
-    if (g_nJoystickMaximumX_005a81b0 <= g_nJoystickMinimumX_005a81b8 ||
-        g_nJoystickMaximumY_005a81b4 <= g_nJoystickMinimumY_005a81bc) {
+    if (g_nJoystickMaximumX_005d1744 <= g_nJoystickMinimumX_005d174c ||
+        g_nJoystickMaximumY_005d1748 <= g_nJoystickMinimumY_005d1750) {
         shown = ShowModalTextPanel(1,
             "FAILED! Center Joystick, press a button");
         if (shown != 0) {
@@ -149,7 +149,7 @@ void CalibrateJoystickInteractive()
     file = _open("j.cal", 0x8301, 0x180);
     if (file == -1)
         return;
-    failed = _write(file, &g_nActiveInputDevice_005a819c, 2) == -1;
+    failed = _write(file, &g_nActiveInputDevice_005d1726, 2) == -1;
     if (failed == 0)
         failed = _write(file, &calibration[0], 2) == -1;
     if (failed == 0)
@@ -172,11 +172,11 @@ void WaitForJoystickButtonRelease(void)
 {
     do {
         SampleJoystickDevice(
-            &g_aInputDeviceSamples_005a81f0[
-                g_nActiveInputDevice_005a819c],
-            g_nActiveInputDevice_005a819c, 0);
-    } while (g_aInputDeviceSamples_005a81f0[
-                 g_nActiveInputDevice_005a819c].buttons != 0);
+            &g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726],
+            g_nActiveInputDevice_005d1726, 0);
+    } while (g_aInputDeviceSamples_005d1780[
+                 g_nActiveInputDevice_005d1726].buttons != 0);
 }
 
 /* Function start: 0x418D5F */
@@ -184,11 +184,11 @@ void WaitForJoystickButtonPress(void)
 {
     do {
         SampleJoystickDevice(
-            &g_aInputDeviceSamples_005a81f0[
-                g_nActiveInputDevice_005a819c],
-            g_nActiveInputDevice_005a819c, 0);
-    } while (g_aInputDeviceSamples_005a81f0[
-                 g_nActiveInputDevice_005a819c].buttons == 0);
+            &g_aInputDeviceSamples_005d1780[
+                g_nActiveInputDevice_005d1726],
+            g_nActiveInputDevice_005d1726, 0);
+    } while (g_aInputDeviceSamples_005d1780[
+                 g_nActiveInputDevice_005d1726].buttons == 0);
 }
 
 /* Function start: 0x44ADE0 */
@@ -1764,7 +1764,6 @@ void object_collision(short obj)
                 set_objects_data(
                     obj, WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT,
                     g_acObjectOwner_00495208[obj], 0);
-                g_asObjectScale_00494d90[obj] = (short)(savedScale * 2);
                 g_aShipVelocity_00494898[obj] =
                     g_aShipVelocity_00494898[partner];
                 RecordCannedSceneObjectEvent(obj, 0);

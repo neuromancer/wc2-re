@@ -1072,7 +1072,7 @@ short Explosion(short obj)
         set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
         g_asObjectCounter_00494be0[obj] = 8;
         g_aMissionShips_00492290[
-            g_nShipMissionIndices_0059c830[obj]].state = 3;
+            g_asShipMissionIndex_00495d00[obj]].state = 3;
         if (g_aeObjectClass_00495328[obj] ==
             OBJECT_CLASS_CAPITAL_SHIP) {
             short count = 4;
@@ -1190,8 +1190,8 @@ int ResolveWc1ObjectDestruction(short attacker, short victim)
                         0x20);
                     g_acShipStress_00496100[victim] = -25;
                     reset_maneuver(victim, MANEUVER_OUTA_HERE);
-                    g_acShipDamage_0059c460[victim] =
-                        (signed char)(g_acShipDamage_0059c460[victim] / 2);
+                    g_acShipDamage_00495690[victim] =
+                        (signed char)(g_acShipDamage_00495690[victim] / 2);
                     send_message(victim, 6);
                     return 0;
                 }

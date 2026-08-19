@@ -233,10 +233,10 @@ unsigned int control_speed(short obj, unsigned short range,
     int brakingMargin;
 
     travelTime = range /
-        MaxShort(FixedToShortSaturating(g_anShipSpeed_0059b320[obj]), 1);
+        MaxShort(FixedToShortSaturating(g_anShipSpeed_00494e20[obj]), 1);
     brakingMargin = GetShipAccelerationRate(obj) * travelTime;
     brakingMargin -=
-        AbsInt(desiredSpeed - g_anShipSpeed_0059b320[obj]);
+        AbsInt(desiredSpeed - g_anShipSpeed_00494e20[obj]);
     if (brakingMargin <= 0) {
         approach_speed(obj, desiredSpeed);
         return 0;
@@ -261,11 +261,11 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     FixedVector projectedDestination;
 
     pointAtDestination = 0;
-    desiredSpeed = g_anShipSpeed_0059b320[reference] - 0x200;
+    desiredSpeed = g_anShipSpeed_00494e20[reference] - 0x200;
     if (desiredSpeed < 0)
         desiredSpeed = 0;
     ScaleFixedVector(&g_aShipForwardVector_00494208[reference],
-                     g_anShipSpeed_0059b320[reference] * 15,
+                     g_anShipSpeed_00494e20[reference] * 15,
                      &forwardTravel);
     AddFixedVectors(destination, &forwardTravel, &projectedDestination);
     get_facing_range_from_point(obj, &projectedDestination);
@@ -273,7 +273,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
     get_facing_range_from_point(obj, destination);
     if (g_nFacingToTarget_00493194 < 0) {
         approach_speed(obj, 0);
-        speed = FixedToShortSaturating(g_anShipSpeed_0059b320[reference]);
+        speed = FixedToShortSaturating(g_anShipSpeed_00494e20[reference]);
         speed = MaxShort(speed, 1);
         if (g_nTargetRange_0049319c / speed > 49)
             pointAtDestination = 1;
@@ -292,7 +292,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
         if (forwardFacing > 90) {
             copy_frame(reference, obj);
             steady_object(obj);
-            approach_speed(obj, g_anShipSpeed_0059b320[reference]);
+            approach_speed(obj, g_anShipSpeed_00494e20[reference]);
             return 0;
         }
         point_ship(obj, 0, &forwardTravel);
@@ -313,7 +313,7 @@ void goto_location(short obj, const FixedVector *destination)
     } else if (g_nTargetRange_0049319c > 3000 ||
                g_nTargetRange_0049319c /
                    MaxShort(FixedToShortSaturating(
-                                g_anShipSpeed_0059b320[obj]),
+                                g_anShipSpeed_00494e20[obj]),
                             1) > 50) {
         approach_full_speed(obj);
     } else {
@@ -342,7 +342,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
             fire_afterburner(obj, 5);
     } else if (g_nTargetRange_0049319c > 200) {
         control_speed(obj, (unsigned short)g_nTargetRange_0049319c,
-                      g_anShipSpeed_0059b320[leader]);
+                      g_anShipSpeed_00494e20[leader]);
     } else {
         approach_ship_speed(obj, leader);
     }
@@ -637,7 +637,7 @@ void intelligence_events(short obj)
                    g_nTargetFacing_00493198 > 85 &&
                    g_nTargetRange_0049319c < 7000) {
             event = 3;
-        } else if (g_anShipSpeed_0059b320[target] < 20) {
+        } else if (g_anShipSpeed_00494e20[target] < 20) {
             event = 1;
         }
     }
@@ -682,7 +682,7 @@ void chase_speed(short obj, short range)
         approach_zero_speed(obj);
     } else {
         approach_speed(obj,
-                       g_anShipSpeed_0059b320[
+                       g_anShipSpeed_00494e20[
                            g_acShipTarget_00495f20[obj]]);
     }
 }

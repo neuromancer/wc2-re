@@ -239,7 +239,7 @@ unsigned int parse_view_script(void)
         case 16:
             obj = 0;
             while (obj < 10) {
-                if (g_nShipMissionIndices_0059c830[obj] ==
+                if (g_asShipMissionIndex_00495d00[obj] ==
                     *g_pViewScript_005a6b58)
                     break;
                 obj++;
@@ -1438,7 +1438,7 @@ void new_space_music_changes(short attacker, short victim)
                          MISSION_TYPE_DEFEND ||
                      g_asShipMissionType_00495de8[0] ==
                          MISSION_TYPE_ESCORT) &&
-                    g_nShipMissionIndices_0059c830[victim] ==
+                    g_asShipMissionIndex_00495d00[victim] ==
                         g_asShipMissionParameter_00495e00[0]) {
                     spacetrack(11, 3, 0);
                     return;
@@ -1547,7 +1547,7 @@ void servicetrack(void)
                 if (g_asObjectDistance_00493ae8[object] == 0 &&
                     (unsigned short)
                         g_asPreviousObjectDistance_0059d080[object] < 50 &&
-                    g_aiSoundEffectSourceActive_005a66ec[object + 1] == 0)
+                    g_aiSoundEffectSourceActive_005d12c0[object + 1] == 0)
                     PlaySfxWaveFileByNumber(6, object, 0);
             } else if (g_aeObjectClass_00495328[object] >=
                            OBJECT_CLASS_SHIP &&

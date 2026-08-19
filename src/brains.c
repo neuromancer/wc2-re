@@ -205,7 +205,7 @@ void Msit_n_spin(short ship, short target)
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
         if (++g_asShipCount_0059c420[ship] < 4) {
-            approach_speed(ship, g_anShipSpeed_0059b320[target]);
+            approach_speed(ship, g_anShipSpeed_00494e20[target]);
             ScaleFixedVector(&g_aShipForwardVector_00494208[target],
                              g_nTargetRange_0049319c * 2, &destination);
             AddFixedVectors(&g_aShipPosition_00494550[target],
@@ -227,10 +227,10 @@ void Msit_n_spin(short ship, short target)
     case 2:
         break;
     case 3:
-        if (abs(g_anShipSpeed_0059b320[ship] -
-                g_anShipSpeed_0059b320[target]) < 0x200) {
+        if (abs(g_anShipSpeed_00494e20[ship] -
+                g_anShipSpeed_00494e20[target]) < 0x200) {
             advanceSequence = 0;
-            approach_speed(ship, g_anShipSpeed_0059b320[target]);
+            approach_speed(ship, g_anShipSpeed_00494e20[target]);
         }
         break;
     case 4:
@@ -1508,7 +1508,7 @@ unsigned int scramble(void)
         ResetScreenClipToFullHeight();
     }
 
-    if (g_nMemoryConfiguration_005a7cd4 == 0) {
+    if (g_nMemoryConfiguration_005c8dc8 == 0) {
         StopMusicUnlessSuppressed();
         ReleaseMusicTrackHook(0x1b);
     }
@@ -2385,7 +2385,7 @@ void coming_home(short obj)
     short home;
     short range;
 
-    switch (g_asShipTactic_0059d5e0[obj]) {
+    switch (g_asShipTactic_00495f30[obj]) {
     case TACTIC_CRUISE:
         cruise_home(obj);
         break;
@@ -2701,7 +2701,7 @@ short scan_and_lock(short obj, int scanRange, enum ShipTactic newTactic)
 {
     g_acShipTarget_00495f20[obj] = scan_for_enemy(obj, 14000);
     if (g_acShipTarget_00495f20[obj] != -1)
-        g_asShipTactic_0059d5e0[obj] = newTactic;
+        g_asShipTactic_00495f30[obj] = newTactic;
     return g_acShipTarget_00495f20[obj] != -1;
 }
 
@@ -2710,7 +2710,7 @@ void patrol_area(short obj)
 {
     short target = g_acShipTarget_00495f20[obj];
 
-    switch (g_asShipTactic_0059d5e0[obj]) {
+    switch (g_asShipTactic_00495f30[obj]) {
     case TACTIC_HEAD_HOME:
         approach_cruise_speed(obj);
         if (scan_and_lock(obj, 14000, TACTIC_APPROACH_TARGET) == 0) {
@@ -2770,7 +2770,7 @@ void kilrathi_patrol(short obj)
         break;
     case OBJECTIVE_NONE:
         g_aeShipObjective_00495f08[obj] = OBJECTIVE_WANDER;
-        g_asShipTactic_0059d5e0[obj] = TACTIC_APPROACH_TARGET;
+        g_asShipTactic_00495f30[obj] = TACTIC_APPROACH_TARGET;
         break;
     default:
         fail(obj);
@@ -2837,7 +2837,7 @@ void prepare_for_jump(short obj)
     short count;
     short delay;
 
-    if (g_anShipSpeed_0059b320[obj] != 0) {
+    if (g_anShipSpeed_00494e20[obj] != 0) {
         set_special(obj, SPECIAL_MANEUVER_STOP_DRIFT);
         return;
     }
@@ -2870,7 +2870,7 @@ void accelerate_and_jump(short obj)
 /* Function start: 0x443DBD */
 void reach_warp(short obj)
 {
-    switch (g_asShipTactic_0059d5e0[obj]) {
+    switch (g_asShipTactic_00495f30[obj]) {
     case TACTIC_CRUISE:
         cruise_to_destination(obj);
         break;
@@ -2906,7 +2906,7 @@ void split_patrol_mission(short obj)
 /* Function start: 0x443EE9 */
 void warp_arrival(short obj)
 {
-    if (g_asShipTactic_0059d5e0[obj] == TACTIC_WARP_IN)
+    if (g_asShipTactic_00495f30[obj] == TACTIC_WARP_IN)
         arrive_from_warp(obj);
     else
         reset_tactic(obj, TACTIC_WARP_IN);
@@ -3631,7 +3631,7 @@ void capital_ship_intelligence(short obj)
             if (unactive(g_nTargetShip_004931a0) != 0)
                 scan_for_enemy(obj, 15000);
 
-            switch (g_asShipTactic_0059d5e0[obj]) {
+            switch (g_asShipTactic_00495f30[obj]) {
             case TACTIC_SELF_DEFENSE:
                 approach_full_speed(obj);
                 if (unactive(g_acShipTarget_00495f20[obj]) != 0) {
@@ -3645,7 +3645,7 @@ void capital_ship_intelligence(short obj)
             default:
                 if (g_nTargetShip_004931a0 != -1) {
                     approach_full_speed(obj);
-                    g_asShipTactic_0059d5e0[obj] =
+                    g_asShipTactic_00495f30[obj] =
                         TACTIC_SELF_DEFENSE;
                     g_acShipTarget_00495f20[obj] =
                         (signed char)g_nTargetShip_004931a0;
@@ -3898,7 +3898,7 @@ unsigned int InitWc1Mission(short series, short mission)
     init_3Space_objects(series);
     g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
         g_aMissionResourceDescriptors_0049c798, 0,
-        g_nAvailableGameMemory_005a7ce0, "objects.vga");
+        g_nAvailableGameMemory_005c8de0, "objects.vga");
     g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
         g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
     prepare_mission();
@@ -4592,7 +4592,7 @@ int set_up_action_sphere(short navPoint)
             if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
                 g_asShipMissionType_00495de8[obj] == MISSION_TYPE_ROUT) {
                 g_aMissionShips_00492290[
-                    g_nShipMissionIndices_0059c830[obj]].state = 3;
+                    g_asShipMissionIndex_00495d00[obj]].state = 3;
             }
             if (g_aeObjectClass_00495328[obj] ==
                 OBJECT_CLASS_CAPITAL_SHIP) {
@@ -5222,9 +5222,9 @@ void SampleActiveJoystickDevice(void)
 {
     short device;
 
-    device = g_nActiveInputDevice_005a819c;
+    device = g_nActiveInputDevice_005d1726;
     if (device != -1)
-        SampleJoystickDevice(&g_aInputDeviceSamples_005a81f0[device],
+        SampleJoystickDevice(&g_aInputDeviceSamples_005d1780[device],
                              device, 0);
 }
 

@@ -4804,7 +4804,7 @@ unsigned int death_sequence(void)
     free_all_slots();
     free_cockpit();
     StopMusicUnlessSuppressed();
-    if (g_nMemoryConfiguration_005a7cd4 == 1)
+    if (g_nMemoryConfiguration_005c8dc8 == 1)
         SceneLeaveHook(0x20);
 
     frame = 0;

@@ -942,7 +942,7 @@ short RunWc1BarracksScreen(void)
                         (short)g_stCampaignState_0059ca50.currentMission);
                     FlushInputEvents();
                     if ((int)(DAT_0059ab54 - lastMedalsTick) >
-                        g_nInputTickScale_0059af90) {
+                        g_nInputTickScale_005c8d24) {
                         SuspendWc1MouseCursor();
                         ClearViewport(&g_stRoomScreenViewport_005988a0,
                                       g_cSecondaryViewBufferColour_0049cb4c);

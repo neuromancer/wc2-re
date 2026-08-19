@@ -1937,7 +1937,7 @@ void set_objects_data(short obj, short type, short owner,
             g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
             g_anShipFuel_00495638[obj] = *(int *)&typeData->lifetime;
             g_acShipIonDriveDamage_004956a0[obj] = (signed char)zero;
-            g_acShipDamage_0059c460[obj] = (signed char)zero;
+            g_acShipDamage_00495690[obj] = (signed char)zero;
             recalc_max_velocity(obj);
             DAT_0059cf00[obj] = 4;
             loadout = g_aShipWeapons_004956b0[obj];
@@ -2068,12 +2068,12 @@ unsigned int celerate(short ship, int delta)
     int maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[ship] << 8;
     int speed;
 
-    speed = g_anShipSpeed_0059b320[ship] + delta;
-    g_anShipSpeed_0059b320[ship] = speed;
+    speed = g_anShipSpeed_00494e20[ship] + delta;
+    g_anShipSpeed_00494e20[ship] = speed;
     if (speed > maximumSpeed)
-        g_anShipSpeed_0059b320[ship] = maximumSpeed;
-    if (g_anShipSpeed_0059b320[ship] < 0)
-        g_anShipSpeed_0059b320[ship] = 0;
+        g_anShipSpeed_00494e20[ship] = maximumSpeed;
+    if (g_anShipSpeed_00494e20[ship] < 0)
+        g_anShipSpeed_00494e20[ship] = 0;
     return 0;
 }
 
@@ -2084,7 +2084,7 @@ unsigned int approach_speed(short ship, int targetSpeed)
     int acceleration;
 
     acceleration = GetShipAccelerationRate(ship);
-    delta = targetSpeed - g_anShipSpeed_0059b320[ship];
+    delta = targetSpeed - g_anShipSpeed_00494e20[ship];
 
     if ((short)alert_flag(ship, 1))
         acceleration += acceleration;
@@ -2114,7 +2114,7 @@ short real_velocity(short obj)
 unsigned int fix_velocity(short obj)
 {
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     g_anShipSpeed_0059b320[obj],
+                     g_anShipSpeed_00494e20[obj],
                      &g_aShipVelocity_00494898[obj]);
     return 0;
 }

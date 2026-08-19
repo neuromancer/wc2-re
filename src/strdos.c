@@ -100,7 +100,7 @@ short __stdcall InitializeEventManager(short period,
                                        unsigned short (*initialize)(void),
                                        void *configuration)
 {
-    g_nEventManagerActive_0059a850 = 1;
+    g_bInputManagerInitialized_005c80ca = 1;
     if (initialize != 0)
         initialize();
     return 1;
@@ -109,7 +109,7 @@ short __stdcall InitializeEventManager(short period,
 /* Function start: WC2_UNMAPPED */
 void ShutdownEventManager(void)
 {
-    g_nEventManagerActive_0059a850 = 0;
+    g_bInputManagerInitialized_005c80ca = 0;
 }
 
 /* Function start: WC2_UNMAPPED */

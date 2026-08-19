@@ -685,7 +685,7 @@ short HandleSpaceFlightControls(void)
         }
         break;
     case 0x0e:
-        g_anShipSpeed_0059b320[0] = 0;
+        g_anShipSpeed_00494e20[0] = 0;
         break;
     case 0x1c:
         if (notRepeated && g_nSelectedReleaseWeaponIndex_004934e0 != -1 &&
@@ -2084,7 +2084,7 @@ void arrive_from_warp(short obj)
     }
     place_ship_near_player_until_valid(obj, 2000, 5000);
     unwarp(obj);
-    g_anShipSpeed_0059b320[obj] =
+    g_anShipSpeed_00494e20[obj] =
         (int)g_asShipMaximumVelocity_00495f70[obj] << 8;
     fix_velocity(obj);
     if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL)

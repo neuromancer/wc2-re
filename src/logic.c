@@ -533,7 +533,7 @@ void LoadGamePaletteFile(void)
 /* Function start: 0x45B905 */
 unsigned int EMShutDown(void)
 {
-    if (g_nEventManagerActive_0059a850 != 0)
+    if (g_bInputManagerInitialized_005c80ca != 0)
         ShutdownEventManager();
     return 0;
 }
@@ -542,7 +542,7 @@ unsigned int EMShutDown(void)
 unsigned short InitializeEventManagerResources(void)
 {
     DAT_0059a9f0 = 20;
-    g_nInputTickScale_0059af90 = 20;
+    g_nInputTickScale_005c8d24 = 20;
     DAT_0059ab64 = 1;
     g_stMouseCursorState_0059ab10.shape = g_pMouseCursorResource_005a7cdc =
         FetchDiskPacketRetrying(14, 0, 0x10);
@@ -616,34 +616,34 @@ unsigned int LoadWc1OriginFxDrivers(void)
         memoryThreshold = 210000;
     SetFrameTimerPeriodDirect(0x78);
     if ((int)GetAvailableFarMemoryByType(4) > memoryThreshold) {
-        g_nAvailableGameMemory_005a7ce0 =
+        g_nAvailableGameMemory_005c8de0 =
             (int)g_dwOriginalFreeMemory_005a7cd8 -
             g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED[
                 g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-        if (g_nAvailableGameMemory_005a7ce0 < 0)
+        if (g_nAvailableGameMemory_005c8de0 < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
                 "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005a7cd4 = 2;
+        g_nMemoryConfiguration_005c8dc8 = 2;
         SystemDebugPrintf("Expanded Memory fully used.\n");
     } else {
-        g_nAvailableGameMemory_005a7ce0 =
+        g_nAvailableGameMemory_005c8de0 =
             (int)g_dwOriginalFreeMemory_005a7cd8 -
             g_anBaseMemoryReservationByVideoMode_00469a90_WC1_UNMAPPED[
                 g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-        if (g_nAvailableGameMemory_005a7ce0 < 0)
+        if (g_nAvailableGameMemory_005c8de0 < 0)
             exit_squadron(
                 "You do not have enough memory to play Wing Commander.\n"
                 "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005a7cd4 = 0;
+        g_nMemoryConfiguration_005c8dc8 = 0;
         if (g_nMusicDriverMode_0049be8c == 1 ||
             g_nMusicDriverMode_0049be8c == 2) {
             videoModeMemory =
                 g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED[
                     g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
             if ((int)g_dwOriginalFreeMemory_005a7cd8 > videoModeMemory) {
-                g_nMemoryConfiguration_005a7cd4 = 1;
-                g_nAvailableGameMemory_005a7ce0 =
+                g_nMemoryConfiguration_005c8dc8 = 1;
+                g_nAvailableGameMemory_005c8de0 =
                     (int)g_dwOriginalFreeMemory_005a7cd8 - videoModeMemory;
                 SystemDebugPrintf("Full");
             } else {
@@ -1399,7 +1399,7 @@ short signed_random(short range)
 /* Function start: 0x4295A9 */
 int alert_flag(short ship, unsigned int bits)
 {
-    return (DAT_0059b430[ship] & bits) != 0;
+    return (g_asShipMaximumVelocity_00495f70[ship] & bits) != 0;
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1409,13 +1409,13 @@ int alert_flag(short ship, unsigned int bits)
  * the way the original was, so the idiom survives. */
 unsigned int HasSpeechBuffer(void)
 {
-    return (unsigned int)&DAT_0059b430 >= 1;
+    return (unsigned int)&g_asShipMaximumVelocity_00495f70 >= 1;
 }
 
 /* Function start: 0x4295D9 */
 unsigned short set_alert(short i, unsigned int bits)
 {
-    DAT_0059b430[i] |= bits;
+    g_asShipMaximumVelocity_00495f70[i] |= bits;
     return 0;
 }
 
@@ -1423,7 +1423,7 @@ unsigned short set_alert(short i, unsigned int bits)
 void clear_alert(short i)
 {
     g_asCollisionCountdown_0059d2d0[i] = 0;
-    DAT_0059b430[i] = 0;
+    g_asShipMaximumVelocity_00495f70[i] = 0;
     DAT_0059cf20[i] = 0xff;
 }
 
@@ -1654,7 +1654,7 @@ short find_ship_index(short missionShip)
                   g_aeSpecialManeuver_00495600[obj] !=
                       SPECIAL_MANEUVER_UNKNOWN_9) ||
                  g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) &&
-                g_nShipMissionIndices_0059c830[obj] == missionShip) {
+                g_asShipMissionIndex_00495d00[obj] == missionShip) {
                 g_nLastFoundShip_005d2fc8 = obj;
                 return obj;
             }
@@ -1903,7 +1903,7 @@ unsigned int alter_objective(short ship, enum ShipObjective objective)
 unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
-    g_asShipTactic_0059d5e0[ship] = tactic;
+    g_asShipTactic_00495f30[ship] = tactic;
     g_acShipTarget_00495f20[ship] = -1;
     return 0;
 }
@@ -1912,7 +1912,7 @@ unsigned int reset_tactic(short ship, enum ShipTactic tactic)
 unsigned int alter_tactic(short ship, enum ShipTactic tactic)
 {
     reset_maneuver(ship, MANEUVER_NONE);
-    g_asShipTactic_0059d5e0[ship] = tactic;
+    g_asShipTactic_00495f30[ship] = tactic;
     return 0;
 }
 
@@ -1991,7 +1991,7 @@ unsigned int approach_full_speed(short ship)
 /* Function start: 0x42A7AF */
 unsigned int approach_ship_speed(short obj, short other)
 {
-    approach_speed(obj, g_anShipSpeed_0059b320[other]);
+    approach_speed(obj, g_anShipSpeed_00494e20[other]);
     return 0;
 }
 
@@ -2529,7 +2529,7 @@ short evaluate_damage(short obj)
 
     if (g_aeObjectClass_00495328[obj] < OBJECT_CLASS_SHIP)
         return 100;
-    return (short)((g_acShipDamage_0059c460[obj] * -26) /
+    return (short)((g_acShipDamage_00495690[obj] * -26) /
                        typeData->damageCapacity +
                    (g_aasShipArmor_00495540[obj][1] * 27) /
                        typeData->armorRear +
@@ -3059,11 +3059,11 @@ unsigned int InitWc1Constellation(short scene)
     short object;
     int definitionBase;
 
-    if (g_pConstellationShape_005a765c != 0)
+    if (g_pConstellationShape_005d2c4c != 0)
         return 0;
 
     scene--;
-    g_pConstellationShape_005a765c =
+    g_pConstellationShape_005d2c4c =
         FetchDiskPacketRetrying(12, 0, 0);
     if (g_nTrainSimActive_0049d758 != 0 || scene < 0)
         return;

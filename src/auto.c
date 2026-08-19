@@ -47,7 +47,7 @@ unsigned int player_wingman(short obj)
 /* Function start: 0x422990 */
 void set_speed(short obj, short speed)
 {
-    g_anShipSpeed_0059b320[obj] = (int)speed << 8;
+    g_anShipSpeed_00494e20[obj] = (int)speed << 8;
     fix_velocity(obj);
 }
 
@@ -149,14 +149,14 @@ void auto_pilot_sequence(void)
 
         for (ship = 0; ship < 10; ship++) {
             travelMode[ship] = 0;
-            g_anShipSpeed_0059b320[ship] = 0;
+            g_anShipSpeed_00494e20[ship] = 0;
             zero_vector(&g_aShipVelocity_00494898[ship]);
             if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_SHIP &&
                 g_aeSpecialManeuver_00495600[ship] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
                 g_asShipSide_004955d0[ship] == SIDE_IMPERIAL) {
                 if (is_team_member(
-                        g_nShipMissionIndices_0059c830[ship]) != 0) {
+                        g_asShipMissionIndex_00495d00[ship]) != 0) {
                     if (kilrathi_near(ship, 10000) == 0) {
                         travelMode[ship] = -1;
                         g_aeSpecialManeuver_00495600[ship] =
@@ -208,8 +208,8 @@ void auto_pilot_sequence(void)
                                      0x3c00,
                                      &g_aShipVelocity_00494898[ship]);
                     copy_frame(0, ship);
-                    g_anShipSpeed_0059b320[ship] =
-                        g_anShipSpeed_0059b320[0];
+                    g_anShipSpeed_00494e20[ship] =
+                        g_anShipSpeed_00494e20[0];
                     g_aShipVelocity_00494898[ship] =
                         g_aShipVelocity_00494898[0];
                 }

@@ -248,13 +248,13 @@ int advance_canned_sequence(short obj)
     g_asCannedCommand_0059d4e0[obj] = *command++;
     switch (g_asCannedCommand_0059d4e0[obj]) {
     case 0:
-        g_asActionCount_0059c930[obj] = *command++;
+        g_asActionCount_004955e8[obj] = *command++;
         break;
     case 1:
         g_anYawGoal_004954c0[obj] = *command++;
         g_anPitchGoal_004954a8[obj] = *command++;
         g_anRollGoal_004954d8[obj] = *command++;
-        g_anShipSpeed_0059b320[obj] = (int)*command++ << 8;
+        g_anShipSpeed_00494e20[obj] = (int)*command++ << 8;
         break;
     case 2:
         explode(-1, obj);
@@ -279,15 +279,15 @@ unsigned int update_canned_sequence(short obj)
 
     switch (g_asCannedCommand_0059d4e0[obj]) {
     case 0:
-        g_asActionCount_0059c930[obj]--;
-        if (g_asActionCount_0059c930[obj] == 0)
+        g_asActionCount_004955e8[obj]--;
+        if (g_asActionCount_004955e8[obj] == 0)
             advance_canned_sequence(obj);
         break;
     case 1:
         if (g_anYawGoal_004954c0[obj] == 0 &&
             g_anPitchGoal_004954a8[obj] == 0 &&
             g_anRollGoal_004954d8[obj] == 0) {
-            requested = g_anShipSpeed_0059b320[obj];
+            requested = g_anShipSpeed_00494e20[obj];
             velocity = Vector_magnitude(
                 &g_aShipVelocity_00494898[0]);
             if ((velocity > requested - 0x400) < requested + 0x400)

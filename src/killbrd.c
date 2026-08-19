@@ -749,7 +749,7 @@ short RecRoom(void)
             } else if (region == 3) {
                 FlushInputEvents();
                 if ((int)(DAT_0059ab54 - lastChalkboardTick) >
-                    g_nInputTickScale_0059af90) {
+                    g_nInputTickScale_005c8d24) {
                     ShowWc1ChalkBoard();
                     ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
                     lastChalkboardTick = (int)DAT_0059ab54;

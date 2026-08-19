@@ -60,7 +60,7 @@ void RunTrainSim(void)
                 g_aasShipMaximumShield_004954f0[0][1] = 0;
                 g_nArcadeTimeRemaining_005a7c2c = 100;
                 g_nCurrentWave_004931c0 = 2;
-                g_acShipDamage_0059c460[0] = (signed char)(
+                g_acShipDamage_00495690[0] = (signed char)(
                     g_aObjectTypeData_00496d30[
                         g_acObjectType_00493980[0]].damageCapacity + 1);
                 set_up_next_wave();

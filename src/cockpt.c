@@ -2962,7 +2962,7 @@ void SetHudMessageText(char *text, unsigned short colour,
     if (g_bInflightComputerActive_0049bcb4 == 0) {
         if (message_showing())
             ClearHudMessageDisplay(1);
-        DAT_005a7f00 = colour;
+        g_nHudMessageColour_005d1ef0 = colour;
         g_pszPendingHudMessage_0049afec = text;
         set_message_time(duration);
     }
@@ -3303,7 +3303,7 @@ void CopyTrainSimPilotViewToVdus(void)
 /* Function start: 0x43E43A */
 void animate_pilot(void)
 {
-    if (g_pPilotHandShape_005a7684 != 0) {
+    if (g_pPilotHandAnimationShape_005d2c64 != 0) {
         determine_pilot_hand();
         if (g_cLastPilotHandFrame_0049aff4 != g_cPilotHandFrame_005d1c30)
             DrawPilotHandFrame();
@@ -3313,7 +3313,7 @@ void animate_pilot(void)
 /* Function start: 0x43E472 */
 void ResetPilotHandAnimation(void)
 {
-    if (g_pPilotHandShape_005a7684 != 0) {
+    if (g_pPilotHandAnimationShape_005d2c64 != 0) {
         g_cLastPilotHandFrame_0049aff4 = 0xff;
         CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
         animate_pilot();
