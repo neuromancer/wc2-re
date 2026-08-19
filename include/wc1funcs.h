@@ -1607,8 +1607,8 @@ unsigned short GetShutdownErrorCode(
 void VideoReleaseHook(void);                                           /* 0x464BCB */
 void ExitCleanupHook(void);                                           /* 0x464BDB */
 short IsVectorWithinRange(FixedVector *vector, short range);           /* 0x464BFE */
-unsigned int shrink_vector(FixedVector *vector);                       /* WC2 unmapped */
-unsigned int shrink(int *component);                                   /* WC2 unmapped */
+unsigned int shrink_vector(FixedVector *vector);                       /* 0x464C4B */
+unsigned int shrink(int *component);                                   /* 0x464CA4 */
 void FillGraphicSuffix(char *path, short number,
                                  short digits);                        /* 0x42BAC0 */
 void ConvertChar_Int(char *text, short number,

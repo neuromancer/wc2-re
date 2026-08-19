@@ -1,7 +1,7 @@
 # version=1
 # source_sha256=d517169e57f1d6254682c03dec5c254b5101ccd787d191f639b0cac1e8a616c4
 # destination_sha256=f5e133e8eca8eb1a02e21a7d1afbb44d082e384a38d39db58a694371fa583bbe
-# rows=1268
+# rows=1270
 source_address	destination_address	function_name	evidence	review_flags	similarity	confidence	association_votes	source_length	destination_length	source_callers	destination_callers	source_callees	destination_callees	correlator	audit_comment
 004098c0	004429a7	fail	WC1-manual-verified		1.0	1.0	0	15	15	ship_intelligence@0040ae80	ship_intelligence@00444adc	reset_objective@00422c70	reset_objective@0042a52a	Manual Match	[WC1 transfer] Exact reset-objective wrapper and matching ship-AI callers prove WC1 0x4098C0 -> WC2 0x4429A7 (fail).
 004098d0	004429c0	coming_home	WC1-manual-verified				0	124	383	run_away@004099c0|ship_intelligence@0040ae80	run_away@00442b78|ship_intelligence@00444adc	cruise_home@00409760|distance_from_object@00419260|remove_object@00419bd0|reset_tactic@00422cd0|approach_cruise_speed@00422e50|approach_ship_speed@00422ea0|find_ship_index@00422710|find_objective@00424a60|get_first_follow_point@00423930|point_ship_behind_object@004196e0|fail@004098c0	cruise_home@00442770|distance_from_object@0040b85c|remove_object@0040c2c9|reset_tactic@0042a594|approach_cruise_speed@0042a754|approach_ship_speed@0042a7af|find_ship_index@00429e24|find_objective@00424a60|get_first_follow_point@0042b524|point_ship_behind_object@0040bdc2|fail@004429a7	Manual Match	[WC1 transfer] Mission/tactic dispatcher, expanded WC2 carrier-approach path, and exact caller position prove WC1 0x4098D0 -> WC2 0x4429C0 (coming_home).
@@ -1271,3 +1271,5 @@ source_address	destination_address	function_name	evidence	review_flags	similarit
 00461718	0048c4e8	ix_file_read	WC1-manual-verified				0							Manual Match	[WC1 transfer] Preserved compilation-unit order between trusted anchors and direct binary-comp validation; all selected candidates score at least 80%, including 26 exact matches. WC1 0x461718 -> WC2 0x48C4E8 (ix_file_read).
 00461764	0048c534	ix_file_size	WC1-auto-vt		1.0	412.638	1	86	86	ix_streamer_open_file@004437e3	ix_streamer_open_file@0046cde3	_fseek@0044d090|_ftell@00455100	_fseek@0048d040|_ftell@0048d200	Combined Function and Data Reference Match	[WC1 transfer] WC1-auto-vt from ix_file_size @00461764; similarity=1.0, confidence=412.638, correlator=Combined Function and Data Reference Match
 00421100	00416690	find_weapon	WC1-manual-verified				0							Manual Match	[WC1 transfer] Manually verified: FUN_00416690 walks the same signed count byte at 0x4956B0 and ten-byte ShipWeaponSlot entries, returning the slot index or -1, and perform_maneuver (0x4424E4) calls it with weapon type 0x14.
+00436a30	00464c4b	shrink_vector	WC2-manual-verified											Manual Match	
+00436a70	00464ca4	shrink	WC2-manual-verified											Manual Match	

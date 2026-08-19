@@ -493,10 +493,10 @@ src/eventmgr.c	1399	004369E0	00464BDB	ExitCleanupHook	ExitCleanupHook	manual-ver
 src/eventmgr.c	1406	00436A00	00464BFE	IsVectorWithinRange	IsVectorWithinRange	WC1-order-semantics-verified		mapped
 src/eventmgr.c	1413		00464FE7	SetPaletteEntryFromTriplet	SetPaletteEntryFromTriplet	WC2-only		wc2-only
 src/eventmgr.c	1424		0046502E	SetMusicTickRateHook	SetMusicTickRateHook	WC2-only		wc2-only
-src/eventmgr.c	1428	00436A30		shrink_vector				unmapped
+src/eventmgr.c	1428	00436A30	00464C4B	shrink_vector	shrink_vector	WC2-manual-verified		mapped
 src/eventmgr.c	1428		00464F10	FlushPendingInputEvents	FlushPendingInputEvents	WC2-only		wc2-only
 src/eventmgr.c	1430		00464F75	OffsetSceneHotspotBounds	OffsetSceneHotspotBounds	WC2-only		wc2-only
-src/eventmgr.c	1441	00436A70		shrink				unmapped
+src/eventmgr.c	1441	00436A70	00464CA4	shrink	shrink	WC2-manual-verified		mapped
 src/eventmgr.c	1457		00464FD7	ServiceCutsceneRuntimeHook	ServiceCutsceneRuntimeHook	WC2-only		wc2-only
 src/eventmgr.c	1463	00436C70	0042BAC0	FillGraphicSuffix	FillGraphicSuffix	WC1-fuzzy-followup		mapped
 src/eventmgr.c	1478	00436CB0	0042BB17	ConvertChar_Int	ConvertChar_Int	WC1-fuzzy-medium		mapped

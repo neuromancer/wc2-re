@@ -1239,39 +1239,41 @@ short IsVectorWithinRange(FixedVector *vector, short range)
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464C4B */
 unsigned int shrink_vector(FixedVector *vector)
 {
     unsigned int shrinking;
 
     do {
-        shrinking = shrink(&vector->x);
+        shrinking = 0;
+        shrinking |= shrink(&vector->x);
         shrinking |= shrink(&vector->y);
         shrinking |= shrink(&vector->z);
     } while (shrinking != 0);
     return 0;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x464CA4 */
 unsigned int shrink(int *component)
 {
-    int value;
     unsigned short fraction;
-    unsigned int integerPart;
-    short signedIntegerPart;
+    unsigned short whole;
 
-    value = *component / 2;
-    *component = value;
-    fraction = (unsigned short)value;
-    integerPart = (unsigned int)value >> 16;
-    signedIntegerPart = (short)integerPart;
-    if (signedIntegerPart == 0)
-        return fraction > 0x0f00;
-    if (signedIntegerPart == -1)
-        return fraction < 0xf100;
-    if (signedIntegerPart != 0)
-        integerPart = 1;
-    return integerPart;
+    *component = *component / 2;
+    whole = (unsigned short)((unsigned int)*component >> 16);
+    fraction = (unsigned short)(*component & 0xffff);
+    if (whole == 0) {
+        if (fraction <= 0x0f00)
+            return 0;
+        return 1;
+    }
+    if ((short)whole == -1) {
+        if (fraction >= 0xf100)
+            return 0;
+        return 1;
+    }
+    if (whole != 0)
+        return 1;
 }
 
 /* Function start: 0x42BAC0 */
