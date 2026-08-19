@@ -45,9 +45,9 @@ cp packaging/THIRD-PARTY-NOTICES.txt \
 cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
 
 if test "$platform" = windows; then
-    executable="$stage_dir/wc1-modern.exe"
+    executable="$stage_dir/wc2-modern.exe"
 else
-    executable="$stage_dir/wc1-modern"
+    executable="$stage_dir/wc2-modern"
 fi
 cp "$binary" "$executable"
 chmod +x "$executable"

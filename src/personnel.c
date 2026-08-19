@@ -243,6 +243,13 @@ void DrawPersonnelMenuBackdrop(void *scenePacket)
     }
 }
 
+/* The save-slot signature is a 0x24-byte record, not a 34-byte string: the
+ * original writes 36 bytes from the literal and picks up the two NULs that
+ * follow it in .rdata.  Spelling the object at its record width reproduces
+ * those bytes exactly and keeps the write inside it. */
+static const char g_szSaveSlotSignature[0x24] =
+    "Wing Commander II (c) 1991 Origin";
+
 /* Function start: 0x4342E8 */
 void OpenDiskDataFile(short logicalFile)
 {
@@ -273,8 +280,8 @@ void OpenDiskDataFile(short logicalFile)
             WriteDataFileAtOffset(file, -1, 0x60,
                                   &g_stDefaultPilotProfile_00492660);
             WriteDataFileAtOffset(
-                file, -1, 0x24,
-                "Wing Commander II (c) 1991 Origin");
+                file, -1, sizeof(g_szSaveSlotSignature),
+                g_szSaveSlotSignature);
             WriteDataFileAtOffset(file, -1, campaignBytes,
                                   g_pCampaignGlobals_00499c94);
         }
@@ -295,8 +302,8 @@ void OpenDiskDataFile(short logicalFile)
     WriteDataFileAtOffset(file, -1, 2, &occupiedSlot);
     WriteDataFileAtOffset(file, -1, 0x60,
                           &g_stCurrentPilotProfile_00493408);
-    WriteDataFileAtOffset(file, -1, 0x24,
-                          "Wing Commander II (c) 1991 Origin");
+    WriteDataFileAtOffset(file, -1, sizeof(g_szSaveSlotSignature),
+                          g_szSaveSlotSignature);
     WriteDataFileAtOffset(file, -1, campaignBytes,
                           g_pCampaignGlobals_00499c94);
     CloseDataFile(file);

@@ -80,7 +80,7 @@ Primary Y always controls pitch. Directional extra axes use a 25-percent
 deadzone. For example:
 
 ```sh
-./wc1-modern --joystick-mode=4button-4axis \
+./wc2-modern --joystick-mode=4button-4axis \
   --joystick-axes=hotas-yaw
 ```
 

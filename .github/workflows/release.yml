@@ -113,17 +113,17 @@ jobs:
         run: make -j2 modern MODERN_RELEASE=1
       - name: Validate native release binary
         run: |
-          test -s out-modern/wc1-modern
-          file out-modern/wc1-modern
+          test -s out-modern/wc2-modern
+          file out-modern/wc2-modern
           test "$(uname -m)" = "${{ matrix.architecture }}"
-          if nm -u out-modern/wc1-modern | grep -Eiq '__asan_|__ubsan_'; then
+          if nm -u out-modern/wc2-modern | grep -Eiq '__asan_|__ubsan_'; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
           if [[ "${{ matrix.platform }}" == linux ]]; then
-            dependencies=$(ldd out-modern/wc1-modern)
+            dependencies=$(ldd out-modern/wc2-modern)
           else
-            dependencies=$(otool -L out-modern/wc1-modern)
+            dependencies=$(otool -L out-modern/wc2-modern)
           fi
           if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
@@ -135,7 +135,7 @@ jobs:
           "${{ needs.metadata.outputs.version }}"
           "${{ matrix.platform }}"
           "${{ matrix.architecture }}"
-          out-modern/wc1-modern
+          out-modern/wc2-modern
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -176,12 +176,12 @@ jobs:
       - name: Validate Windows executable
         shell: msys2 {0}
         run: |
-          test -s out-modern/wc1-modern.exe
-          if llvm-nm -u out-modern/wc1-modern.exe | grep -Eiq '__asan_|__ubsan_'; then
+          test -s out-modern/wc2-modern.exe
+          if llvm-nm -u out-modern/wc2-modern.exe | grep -Eiq '__asan_|__ubsan_'; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
-          if ntldd -R out-modern/wc1-modern.exe | grep -Eiq 'asan|ubsan'; then
+          if ntldd -R out-modern/wc2-modern.exe | grep -Eiq 'asan|ubsan'; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
@@ -192,7 +192,7 @@ jobs:
           "${{ needs.metadata.outputs.version }}"
           windows
           x86_64
-          out-modern/wc1-modern.exe
+          out-modern/wc2-modern.exe
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

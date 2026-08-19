@@ -110,7 +110,7 @@ endif
 # The native build uses the host compiler and never contributes objects to the
 # MSVC 4.20 reference executable.
 MODERN_OUT_DIR = out-modern
-MODERN_TARGET = $(MODERN_OUT_DIR)/wc1-modern$(MODERN_EXE_SUFFIX)
+MODERN_TARGET = $(MODERN_OUT_DIR)/wc2-modern$(MODERN_EXE_SUFFIX)
 # The port runs from the game's own directory: it chdir()s into gamedat/ and
 # resolves every packet relative to that.  data/full holds only the reference
 # executable, so pointing here at the installed tree is what makes run-modern

@@ -6,8 +6,8 @@ are optimized and do not include the AddressSanitizer or
 UndefinedBehaviorSanitizer instrumentation used by development builds.
 
 No copyrighted game data is included. Extract every file in this archive into
-an installed Kilrathi Saga or DOS WC1 directory, then start wc1-modern
-(wc1-modern.exe on Windows) from that directory. Keep the bundled runtime
+an installed Kilrathi Saga or DOS WC1 directory, then start wc2-modern
+(wc2-modern.exe on Windows) from that directory. Keep the bundled runtime
 libraries beside the executable.
 
 The DOS data path supports the original compressed packet resources and plays

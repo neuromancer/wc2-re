@@ -31,14 +31,14 @@ DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
         SDL_free(key);
         return ERROR_FILE_NOT_FOUND;
     }
-    pathSize = strlen(directory) + sizeof("wc1-modern.cfg");
+    pathSize = strlen(directory) + sizeof("wc2-modern.cfg");
     key->path = (char *)SDL_malloc(pathSize);
     if (key->path == 0) {
         SDL_free(directory);
         SDL_free(key);
         return ERROR_FILE_NOT_FOUND;
     }
-    SDL_snprintf(key->path, pathSize, "%swc1-modern.cfg", directory);
+    SDL_snprintf(key->path, pathSize, "%swc2-modern.cfg", directory);
     SDL_free(directory);
     contents = (unsigned char *)SDL_LoadFile(key->path, &contentsSize);
     if (contents != 0) {

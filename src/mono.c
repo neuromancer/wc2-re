@@ -21,7 +21,7 @@ short WriteDataFileAtOffset(unsigned short fd, int offset,
                             unsigned int length, const void *data)
 {
     g_nPacketError_0049ca90 = 0;
-    if (_lseek(fd, offset, SEEK_SET) == -1) {
+    if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
         sprintf(g_szWriteDataFileError_005b38c8, "!lseek %d\n", offset);
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
