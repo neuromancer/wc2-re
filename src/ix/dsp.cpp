@@ -17,48 +17,48 @@
 
 #define IX_DSP_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsp.cpp"
 
-HANDLE g_hMixerThread_00597d00;
-HWND g_hDspWindow_00597d04;
-HANDLE g_hMixerWakeEvent_00597d08;
-unsigned int g_dwMixerWriteOffset_00597d0c;
-LPDIRECTSOUND g_pDirectSound_00597d10;
-unsigned int g_dwMixerBufferSize_00597d14;
-unsigned int g_dwDspFlags_00597d18;
+HANDLE g_hMixerThread_005c4ec0;
+HWND g_hDspWindow_005c4ec4;
+HANDLE g_hMixerWakeEvent_005c4ec8;
+unsigned int g_dwMixerWriteOffset_005c4ecc;
+LPDIRECTSOUND g_pDirectSound_005c4ed0;
+unsigned int g_dwMixerBufferSize_005c4ed4;
+unsigned int g_dwDspFlags_005c4ed8;
 DWORD g_dwMixerThreadId_00597d1c;
-LPDIRECTSOUNDBUFFER g_pMixerBuffer_00597d20;
-unsigned int g_dwDspTick_00598128;
-LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_0059812c;
-int g_nVoicesAllocated_00598604;
+LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
+unsigned int g_dwDspTick_005c52e8;
+LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_005c52ec;
+int g_nVoicesAllocated_005c574c;
 #ifdef WC1_SDL
-void *(__cdecl *g_pIxMalloc_00471990)(unsigned int) =
+void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) =
     (void *(__cdecl *)(unsigned int))malloc;
 #else
-void *(__cdecl *g_pIxMalloc_00471990)(unsigned int) = malloc;
+void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) = malloc;
 #endif
-void (__cdecl *g_pIxFree_00471994)(void *) = free;
+void (__cdecl *g_pIxFree_004a0c1c)(void *) = free;
 
 /* Function start: 0x489990 */   /* source line 62 */
 int ix_dsp_init(void)
 {
-    if ((g_dwDspFlags_00597d18 & 1) == 0) {
-        g_nVoiceCount_00598600 = 32;
-        g_nStreamCount_00598130 = 2;
-        g_dwMixerWriteOffset_00597d0c = 0;
-        InitializeCriticalSection(&g_csMixer_005985e8);
-        g_hMixerWakeEvent_00597d08 = CreateEventA(0, TRUE, FALSE, 0);
+    if ((g_dwDspFlags_005c4ed8 & 1) == 0) {
+        g_nVoiceCount_005c5748 = 32;
+        g_nStreamCount_005c5750 = 2;
+        g_dwMixerWriteOffset_005c4ecc = 0;
+        InitializeCriticalSection(&g_csMixer_005c5730);
+        g_hMixerWakeEvent_005c4ec8 = CreateEventA(0, TRUE, FALSE, 0);
         ix_dsp_build_pan_tables();
 #ifdef WC1_SDL
-        g_dwDspFlags_00597d18 |= 4;
+        g_dwDspFlags_005c4ed8 |= 4;
 #endif
-        g_hMixerThread_00597d00 = CreateThread(
+        g_hMixerThread_005c4ec0 = CreateThread(
             0, 0x1000, ix_mixer_thread_proc, 0, 0,
             &g_dwMixerThreadId_00597d1c);
-        if (g_hMixerThread_00597d00 == 0) {
+        if (g_hMixerThread_005c4ec0 == 0) {
             ix_log_printf("Fatal [%s - %d]:\n", IX_DSP_FILE, 62);
             ix_log_printf("Failed to start mixer");
             exit(-1);
         }
-        g_dwDspFlags_00597d18 |= 1;
+        g_dwDspFlags_005c4ed8 |= 1;
     }
     return 0;
 }
@@ -66,29 +66,29 @@ int ix_dsp_init(void)
 /* Function start: 0x489A4F */
 void ix_dsp_shutdown(void)
 {
-    if ((g_dwDspFlags_00597d18 & 1) != 0) {
+    if ((g_dwDspFlags_005c4ed8 & 1) != 0) {
 #ifdef WC1_SDL
-        if (g_hMixerThread_00597d00 != 0) {
-            g_dwDspFlags_00597d18 &= ~4U;
-            SetEvent(g_hMixerWakeEvent_00597d08);
-            WaitForSingleObject(g_hMixerThread_00597d00, INFINITE);
-            CloseHandle(g_hMixerThread_00597d00);
-            g_hMixerThread_00597d00 = 0;
+        if (g_hMixerThread_005c4ec0 != 0) {
+            g_dwDspFlags_005c4ed8 &= ~4U;
+            SetEvent(g_hMixerWakeEvent_005c4ec8);
+            WaitForSingleObject(g_hMixerThread_005c4ec0, INFINITE);
+            CloseHandle(g_hMixerThread_005c4ec0);
+            g_hMixerThread_005c4ec0 = 0;
         }
 #else
-        if ((g_dwDspFlags_00597d18 & 4) != 0) {
-            g_dwDspFlags_00597d18 &= ~4U;
-            SetEvent(g_hMixerWakeEvent_00597d08);
-            WaitForSingleObject(g_hMixerThread_00597d00, INFINITE);
+        if ((g_dwDspFlags_005c4ed8 & 4) != 0) {
+            g_dwDspFlags_005c4ed8 &= ~4U;
+            SetEvent(g_hMixerWakeEvent_005c4ec8);
+            WaitForSingleObject(g_hMixerThread_005c4ec0, INFINITE);
         }
-        if (g_pDirectSound_00597d10 != 0) {
-            g_pDirectSound_00597d10->Release();
-            g_pDirectSound_00597d10 = 0;
+        if (g_pDirectSound_005c4ed0 != 0) {
+            g_pDirectSound_005c4ed0->Release();
+            g_pDirectSound_005c4ed0 = 0;
         }
 #endif
-        DeleteCriticalSection(&g_csMixer_005985e8);
-        CloseHandle(g_hMixerWakeEvent_00597d08);
-        g_dwDspFlags_00597d18 &= 0x7ffffffe;
+        DeleteCriticalSection(&g_csMixer_005c5730);
+        CloseHandle(g_hMixerWakeEvent_005c4ec8);
+        g_dwDspFlags_005c4ed8 &= 0x7ffffffe;
     }
 }
 
@@ -97,26 +97,26 @@ void ix_dsp_configure(int option, void *value)
 {
     switch (option) {
     case 0:
-        g_hDspWindow_00597d04 = (HWND)value;
+        g_hDspWindow_005c4ec4 = (HWND)value;
         break;
     case 1:
-        g_pDirectSound_00597d10 = (LPDIRECTSOUND)value;
+        g_pDirectSound_005c4ed0 = (LPDIRECTSOUND)value;
         break;
     case 2:
-        if ((g_dwDspFlags_00597d18 & 1) != 0)
-            SetEvent(g_hMixerWakeEvent_00597d08);
+        if ((g_dwDspFlags_005c4ed8 & 1) != 0)
+            SetEvent(g_hMixerWakeEvent_005c4ec8);
         break;
     case 3:
         if (value != 0)
-            g_dwDspFlags_00597d18 |= 0x10;
+            g_dwDspFlags_005c4ed8 |= 0x10;
         else
-            g_dwDspFlags_00597d18 &= ~0x10U;
+            g_dwDspFlags_005c4ed8 &= ~0x10U;
         break;
     case 4:
-        g_pIxMalloc_00471990 = (void *(__cdecl *)(unsigned int))value;
+        g_pIxMalloc_004a0c18 = (void *(__cdecl *)(unsigned int))value;
         break;
     case 5:
-        g_pIxFree_00471994 = (void (__cdecl *)(void *))value;
+        g_pIxFree_004a0c1c = (void (__cdecl *)(void *))value;
         break;
     }
 }
@@ -134,23 +134,23 @@ BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
 #else
     HRESULT result;
 
-    if (g_pDirectSound_00597d10 != 0) {
-        g_pDirectSound_00597d10->Release();
-        g_pDirectSound_00597d10 = 0;
+    if (g_pDirectSound_005c4ed0 != 0) {
+        g_pDirectSound_005c4ed0->Release();
+        g_pDirectSound_005c4ed0 = 0;
     }
-    result = DirectSoundCreate(guid, &g_pDirectSound_00597d10, 0);
+    result = DirectSoundCreate(guid, &g_pDirectSound_005c4ed0, 0);
     if (result == DS_OK) {
-        result = g_pDirectSound_00597d10->SetCooperativeLevel(
-            g_hDspWindow_00597d04,
-            (g_dwDspFlags_00597d18 & 0x10) == 0
+        result = g_pDirectSound_005c4ed0->SetCooperativeLevel(
+            g_hDspWindow_005c4ec4,
+            (g_dwDspFlags_005c4ed8 & 0x10) == 0
                 ? DSSCL_WRITEPRIMARY : DSSCL_EXCLUSIVE);
         if (result == DS_OK) {
             ix_log_printf("sound driver: %s [%s]\n", description, module);
             return FALSE;
         }
-        if (g_pDirectSound_00597d10 != 0) {
-            g_pDirectSound_00597d10->Release();
-            g_pDirectSound_00597d10 = 0;
+        if (g_pDirectSound_005c4ed0 != 0) {
+            g_pDirectSound_005c4ed0->Release();
+            g_pDirectSound_005c4ed0 = 0;
         }
     }
     return TRUE;
@@ -160,79 +160,79 @@ BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
 /* Function start: 0x489C7D */
 unsigned int ix_dsp_get_tick(void)
 {
-    return g_dwDspTick_00598128;
+    return g_dwDspTick_005c52e8;
 }
 
 /* Function start: 0x489C92 */
 unsigned int ix_dsp_get_flags(void)
 {
-    return g_dwDspFlags_00597d18;
+    return g_dwDspFlags_005c4ed8;
 }
 
 /* Function start: 0x489CA7 */
 void ix_dsp_set_config_bit1(int enabled)
 {
     if (enabled != 0)
-        g_dwDspFlags_00597d18 |= 2;
+        g_dwDspFlags_005c4ed8 |= 2;
     else
-        g_dwDspFlags_00597d18 &= ~2U;
+        g_dwDspFlags_005c4ed8 &= ~2U;
 }
 
 /* Function start: 0x489CD4 */
 void ix_dsp_set_config_bit3(int enabled)
 {
     if (enabled != 0)
-        g_dwDspFlags_00597d18 |= 8;
+        g_dwDspFlags_005c4ed8 |= 8;
     else
-        g_dwDspFlags_00597d18 &= ~8U;
+        g_dwDspFlags_005c4ed8 &= ~8U;
 }
 
 /* Function start: 0x489D01 */
 int ix_dsp_get_voice_count(void)
 {
-    return g_nVoiceCount_00598600;
+    return g_nVoiceCount_005c5748;
 }
 
 /* Function start: 0x489D16 */   /* source line(s) 176: can't change voice count while voices are in use */
 void ix_dsp_set_voice_count(int voiceCount)
 {
-    if (g_nVoicesAllocated_00598604 != 0 ||
-        g_nStreamsAllocated_00598134 != 0) {
+    if (g_nVoicesAllocated_005c574c != 0 ||
+        g_nStreamsAllocated_005c5754 != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_DSP_FILE, 176);
         ix_log_printf("can't change voice count while voices are in use");
     } else {
         if (voiceCount >= 0)
-            g_nVoiceCount_00598600 = voiceCount < 32 ? voiceCount : 32;
+            g_nVoiceCount_005c5748 = voiceCount < 32 ? voiceCount : 32;
         else
-            g_nVoiceCount_00598600 = 0;
+            g_nVoiceCount_005c5748 = 0;
     }
 }
 
 /* Function start: 0x489D98 */
 int ix_dsp_get_stream_count(void)
 {
-    return g_nStreamCount_00598130;
+    return g_nStreamCount_005c5750;
 }
 
 /* Function start: 0x489DAD */   /* source line(s) 187: can't change stream count while voices are in use */
 void ix_dsp_set_stream_count(int streamCount)
 {
-    if (g_nVoicesAllocated_00598604 != 0 ||
-        g_nStreamsAllocated_00598134 != 0) {
+    if (g_nVoicesAllocated_005c574c != 0 ||
+        g_nStreamsAllocated_005c5754 != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_DSP_FILE, 187);
         ix_log_printf("can't change stream count while voices are in use");
     } else {
         if (streamCount >= 0)
-            g_nStreamCount_00598130 = streamCount < 2 ? streamCount : 2;
+            g_nStreamCount_005c5750 = streamCount < 2 ? streamCount : 2;
         else
-            g_nStreamCount_00598130 = 0;
+            g_nStreamCount_005c5750 = 0;
     }
 }
 
 /* Function start: 0x489E2F */
 unsigned short ix_dsp_get_master_volume(void)
 {
-    return g_nMasterVolume_0047198c;
+    return g_nMasterVolume_004a0c14;
 }
 
 /* Function start: 0x489E45 */
@@ -241,13 +241,13 @@ void ix_dsp_set_master_volume(unsigned short volume)
     int voice;
 
     if ((volume & 0xffff) >= 0) {
-        g_nMasterVolume_0047198c = (unsigned short)(
+        g_nMasterVolume_004a0c14 = (unsigned short)(
             (volume & 0xffff) < 0xffff ? (volume & 0xffff) : 0xffff);
     } else {
-        g_nMasterVolume_0047198c = 0;
+        g_nMasterVolume_004a0c14 = 0;
     }
-    for (voice = 0; voice < g_nVoiceCount_00598600; voice++) {
-        if ((g_voices_005981a8[voice].flags & IX_VOICE_ACTIVE) != 0)
+    for (voice = 0; voice < g_nVoiceCount_005c5748; voice++) {
+        if ((g_voices_005c52f0[voice].flags & IX_VOICE_ACTIVE) != 0)
             ix_dspv_recalc_mix(voice);
     }
 }
@@ -329,7 +329,7 @@ const char *ix_dsp_result_to_text(int result)
 /* Function start: 0x48A1A3 */
 void *ix_dsp_alloc(unsigned int bytes)
 {
-    return g_pIxMalloc_00471990(bytes);
+    return g_pIxMalloc_004a0c18(bytes);
 }
 
 /* Function start: 0x48A1C0 */
@@ -342,7 +342,7 @@ void *ix_dsp_copy(void *destination, const void *source, unsigned int bytes)
 /* Function start: 0x48A1E4 */
 void ix_dsp_free(void *memory)
 {
-    g_pIxFree_00471994(memory);
+    g_pIxFree_004a0c1c(memory);
 }
 
 /* Function start: WC2_UNMAPPED */

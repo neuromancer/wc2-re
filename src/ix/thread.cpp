@@ -34,46 +34,46 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
     unsigned int lastPacket;
 
     entry = streamFile->entry;
-    streamFile->serviceTick = g_dwStreamerThreadTick_00597bd4;
+    streamFile->serviceTick = g_dwStreamerThreadTick_005c4b3c;
     if ((g_dwStreamerState_005c4c38 & 0x100) != 0) {
         ix_file_seek(streamFile->file, streamFile->position);
         ix_file_read(streamFile->file, streamFile->destination,
                      streamFile->remaining);
-        EnterCriticalSection(&g_csStreamerFileQueue_00597c98);
+        EnterCriticalSection(&g_csStreamerFileQueue_005c4c00);
         streamFile->flags &= ~IX_STREAM_FILE_READING;
         if (streamFile->previous != 0)
             streamFile->previous->next = streamFile->next;
         if (streamFile->next == 0)
-            g_pStreamerReadQueue_00597c6c = streamFile->previous;
+            g_pStreamerReadQueue_005c4bd4 = streamFile->previous;
         else
             streamFile->next->previous = streamFile->previous;
-        streamFile->previous = g_pStreamerIdleFiles_00597be0;
+        streamFile->previous = g_pStreamerIdleFiles_005c4b48;
         streamFile->next = 0;
-        if (g_pStreamerIdleFiles_00597be0 != 0)
-            g_pStreamerIdleFiles_00597be0->next = streamFile;
-        g_pStreamerIdleFiles_00597be0 = streamFile;
-        LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
+        if (g_pStreamerIdleFiles_005c4b48 != 0)
+            g_pStreamerIdleFiles_005c4b48->next = streamFile;
+        g_pStreamerIdleFiles_005c4b48 = streamFile;
+        LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
         SetEvent(streamFile->completionEvent);
         return;
     }
 
     chunkIndex = entry->firstChunk;
     chunkCount = entry->chunkCount;
-    fileChunk = &g_pStreamerFileChunks_00597c90[chunkIndex];
+    fileChunk = &g_pStreamerFileChunks_005c4bf8[chunkIndex];
     packagePosition = (unsigned int)ix_file_tell(
-        g_pStreamerPackageFile_00597bdc);
+        g_pStreamerPackageFile_005c4b44);
     while (chunkCount--) {
         if (fileChunk->fileOffset <= streamFile->position &&
             fileChunk->fileEnd > streamFile->position) {
             chunkBytes = fileChunk->fileEnd - fileChunk->fileOffset;
-            if (chunkIndex != g_nStreamerFileChunk_00597cd8) {
+            if (chunkIndex != g_nStreamerFileChunk_005c4c40) {
                 firstPacket = fileChunk->firstPacket;
                 lastPacket = fileChunk->packetCount + firstPacket;
                 packet = 0;
-                g_nStreamerFileChunk_00597cd8 = chunkIndex;
+                g_nStreamerFileChunk_005c4c40 = chunkIndex;
                 while (lastPacket > firstPacket) {
                     middle = (lastPacket + firstPacket) >> 1;
-                    packet = &g_pStreamerPacketOffsets_00597bd0[middle];
+                    packet = &g_pStreamerPacketOffsets_005c4b38[middle];
                     if (*packet < packagePosition)
                         firstPacket = middle + 1;
                     else if (*packet > packagePosition)
@@ -87,28 +87,28 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
                     exit(-1);
                 }
                 if (fileChunk->packedSize < 0) {
-                    ix_file_seek(g_pStreamerPackageFile_00597bdc, *packet);
-                    ix_file_read(g_pStreamerPackageFile_00597bdc,
-                                 g_pStreamerCompressedBuffer_00597c68,
+                    ix_file_seek(g_pStreamerPackageFile_005c4b44, *packet);
+                    ix_file_read(g_pStreamerPackageFile_005c4b44,
+                                 g_pStreamerCompressedBuffer_005c4bd0,
                                  -fileChunk->packedSize);
 #ifdef WC1_SDL
                     ix_lzo1x_decompress(
-                        g_pStreamerCompressedBuffer_00597c68,
-                        g_pStreamerFileBuffer_00597c74, chunkBytes,
+                        g_pStreamerCompressedBuffer_005c4bd0,
+                        g_pStreamerFileBuffer_005c4bdc, chunkBytes,
                         (unsigned int)-fileChunk->packedSize);
 #else
-                    ix_lzo1x_decompress(g_pStreamerCompressedBuffer_00597c68,
-                                        g_pStreamerFileBuffer_00597c74,
+                    ix_lzo1x_decompress(g_pStreamerCompressedBuffer_005c4bd0,
+                                        g_pStreamerFileBuffer_005c4bdc,
                                         chunkBytes);
 #endif
                 } else {
-                    ix_file_seek(g_pStreamerPackageFile_00597bdc, *packet);
-                    ix_file_read(g_pStreamerPackageFile_00597bdc,
-                                 g_pStreamerFileBuffer_00597c74,
+                    ix_file_seek(g_pStreamerPackageFile_005c4b44, *packet);
+                    ix_file_read(g_pStreamerPackageFile_005c4b44,
+                                 g_pStreamerFileBuffer_005c4bdc,
                                  fileChunk->packedSize);
                 }
             }
-            source = g_pStreamerFileBuffer_00597c74;
+            source = g_pStreamerFileBuffer_005c4bdc;
             copyBytes = streamFile->remaining;
             chunkOffset = streamFile->position - fileChunk->fileOffset;
             chunkBytes = chunkBytes - chunkOffset;
@@ -120,20 +120,20 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
             streamFile->position += copyBytes;
             streamFile->remaining = streamFile->remaining - copyBytes;
             if (streamFile->remaining == 0) {
-                EnterCriticalSection(&g_csStreamerFileQueue_00597c98);
+                EnterCriticalSection(&g_csStreamerFileQueue_005c4c00);
                 if (streamFile->previous != 0)
                     streamFile->previous->next = streamFile->next;
                 if (streamFile->next == 0)
-                    g_pStreamerReadQueue_00597c6c = streamFile->previous;
+                    g_pStreamerReadQueue_005c4bd4 = streamFile->previous;
                 else
                     streamFile->next->previous = streamFile->previous;
-                streamFile->previous = g_pStreamerIdleFiles_00597be0;
+                streamFile->previous = g_pStreamerIdleFiles_005c4b48;
                 streamFile->next = 0;
-                if (g_pStreamerIdleFiles_00597be0 != 0)
-                    g_pStreamerIdleFiles_00597be0->next = streamFile;
-                g_pStreamerIdleFiles_00597be0 = streamFile;
+                if (g_pStreamerIdleFiles_005c4b48 != 0)
+                    g_pStreamerIdleFiles_005c4b48->next = streamFile;
+                g_pStreamerIdleFiles_005c4b48 = streamFile;
                 streamFile->flags &= ~IX_STREAM_FILE_READING;
-                LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
+                LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
                 SetEvent(streamFile->completionEvent);
             }
             return;
@@ -150,9 +150,9 @@ unsigned int ix_thread_service_streams(void)
     IxStreamFile *streamFile;
     IxStreamFile *selected;
 
-    EnterCriticalSection(&g_csStreamerFileQueue_00597c98);
-    if (g_pStreamerReadQueue_00597c6c != 0) {
-        streamFile = g_pStreamerReadQueue_00597c6c;
+    EnterCriticalSection(&g_csStreamerFileQueue_005c4c00);
+    if (g_pStreamerReadQueue_005c4bd4 != 0) {
+        streamFile = g_pStreamerReadQueue_005c4bd4;
         selected = 0;
         while (streamFile != 0) {
             if (selected == 0)
@@ -163,14 +163,14 @@ unsigned int ix_thread_service_streams(void)
                 selected = streamFile;
             streamFile = streamFile->previous;
         }
-        LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
+        LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
         if (selected != 0)
             ix_thread_handle_file_chunk(selected);
     } else {
-        LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
+        LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
     }
 
-    if (g_pStreamerReadQueue_00597c6c != 0)
+    if (g_pStreamerReadQueue_005c4bd4 != 0)
         return 0;
     if ((g_dwStreamerState_005c4c38 & 4) == 0 ||
         (g_dwStreamerState_005c4c38 & 8) != 0)
@@ -180,7 +180,7 @@ unsigned int ix_thread_service_streams(void)
     if (bytesUntilRefill > 0) {
         bytesUntilRefill += 0x16f8;
         return (bytesUntilRefill * 1000U) /
-               g_nStreamerBytesPerSecond_00597cdc;
+               g_nStreamerBytesPerSecond_005c4c44;
     }
     return 0;
 }
@@ -188,43 +188,43 @@ unsigned int ix_thread_service_streams(void)
 /* Function start: 0x46D916 */
 void ix_thread_advance_audio_chunk(void)
 {
-    if (g_pStreamerAudioChunks_00597c88[
+    if (g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].triggerCount > 0) {
         unsigned int triggerIndex;
         unsigned int triggerCount;
 
-        triggerCount = g_pStreamerAudioChunks_00597c88[
+        triggerCount = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].triggerCount;
-        triggerIndex = g_pStreamerAudioChunks_00597c88[
+        triggerIndex = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].firstTrigger;
         while (triggerCount--) {
-            if (g_pStreamerTriggers_00597cf8[triggerIndex].tag == 'A') {
-                g_nStreamerBranchStackIndex_00470e8c =
-                    (g_nStreamerBranchStackIndex_00470e8c - 1) & 0x1f;
+            if (g_pStreamerTriggers_005c4c60[triggerIndex].tag == 'A') {
+                g_nStreamerBranchStackIndex_0049e158 =
+                    (g_nStreamerBranchStackIndex_0049e158 - 1) & 0x1f;
                 g_dwStreamerAudioChunk_005c4c30 =
-                    g_adwStreamerBranchStack_00597be8[
-                        g_nStreamerBranchStackIndex_00470e8c];
+                    g_adwStreamerBranchStack_005c4b50[
+                        g_nStreamerBranchStackIndex_0049e158];
                 return;
             }
-            if (g_pStreamerTriggers_00597cf8[triggerIndex].tag == '@') {
+            if (g_pStreamerTriggers_005c4c60[triggerIndex].tag == '@') {
                 g_dwStreamerState_005c4c38 |= 0x800;
-            } else if (g_pStreamerTriggers_00597cf8[triggerIndex].tag ==
-                       g_cStreamerBranchTag_00470e88) {
-                g_adwStreamerBranchStack_00597be8[
-                    g_nStreamerBranchStackIndex_00470e8c] =
+            } else if (g_pStreamerTriggers_005c4c60[triggerIndex].tag ==
+                       g_cStreamerBranchTag_0049e154) {
+                g_adwStreamerBranchStack_005c4b50[
+                    g_nStreamerBranchStackIndex_0049e158] =
                         g_dwStreamerAudioChunk_005c4c30;
-                g_nStreamerBranchStackIndex_00470e8c =
-                    (g_nStreamerBranchStackIndex_00470e8c + 1) & 0x1f;
+                g_nStreamerBranchStackIndex_0049e158 =
+                    (g_nStreamerBranchStackIndex_0049e158 + 1) & 0x1f;
                 g_dwStreamerAudioChunk_005c4c30 =
-                    g_pStreamerTriggers_00597cf8[triggerIndex].audioChunk;
-                g_cStreamerBranchTag_00470e88 = -1;
+                    g_pStreamerTriggers_005c4c60[triggerIndex].audioChunk;
+                g_cStreamerBranchTag_0049e154 = -1;
                 return;
             }
             triggerIndex++;
         }
     }
 
-    if (g_pStreamerAudioChunks_00597c88[
+    if (g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].branchCount > 0) {
         unsigned int branchCount;
         unsigned int branchIndex;
@@ -232,27 +232,27 @@ void ix_thread_advance_audio_chunk(void)
         unsigned int selectedBranch;
         unsigned int distance;
 
-        branchCount = g_pStreamerAudioChunks_00597c88[
+        branchCount = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].branchCount - 1;
-        branchIndex = g_pStreamerAudioChunks_00597c88[
+        branchIndex = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].firstBranch;
         bestDistance =
-            ((g_pStreamerBranches_00597c8c[branchIndex].intensity -
-              g_bStreamerIntensity_00597c78) >> 31 ^
-             (g_pStreamerBranches_00597c8c[branchIndex].intensity -
-              g_bStreamerIntensity_00597c78)) -
-            ((g_pStreamerBranches_00597c8c[branchIndex].intensity -
-              g_bStreamerIntensity_00597c78) >> 31);
+            ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+              g_bStreamerIntensity_005c4be0) >> 31 ^
+             (g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+              g_bStreamerIntensity_005c4be0)) -
+            ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+              g_bStreamerIntensity_005c4be0) >> 31);
         selectedBranch = branchIndex;
         branchIndex++;
         while (branchCount--) {
             distance =
-                ((g_pStreamerBranches_00597c8c[branchIndex].intensity -
-                  g_bStreamerIntensity_00597c78) >> 31 ^
-                 (g_pStreamerBranches_00597c8c[branchIndex].intensity -
-                  g_bStreamerIntensity_00597c78)) -
-                ((g_pStreamerBranches_00597c8c[branchIndex].intensity -
-                  g_bStreamerIntensity_00597c78) >> 31);
+                ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+                  g_bStreamerIntensity_005c4be0) >> 31 ^
+                 (g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+                  g_bStreamerIntensity_005c4be0)) -
+                ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+                  g_bStreamerIntensity_005c4be0) >> 31);
             if (distance < bestDistance) {
                 bestDistance = distance;
                 selectedBranch = branchIndex;
@@ -260,10 +260,10 @@ void ix_thread_advance_audio_chunk(void)
             branchIndex++;
         }
         g_dwStreamerAudioChunk_005c4c30 =
-            g_pStreamerBranches_00597c8c[selectedBranch].audioChunk;
+            g_pStreamerBranches_005c4bf4[selectedBranch].audioChunk;
     } else {
         g_dwStreamerAudioChunk_005c4c30++;
-        if (g_pStreamerHeader_00597c84->audioChunkCount - 1 <=
+        if (g_pStreamerHeader_005c4bec->audioChunkCount - 1 <=
             g_dwStreamerAudioChunk_005c4c30)
             g_dwStreamerAudioChunk_005c4c30 = 0;
     }
@@ -279,7 +279,7 @@ void ix_thread_lock_stream_buffer(void)
 
     remaining = ix_thread_get_audio_chunk_size();
     if (remaining > 0) {
-        fileOffset = g_pStreamerAudioChunks_00597c88[
+        fileOffset = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].fileOffset;
         while (remaining > 0) {
             ix_dsps_lock(0, remaining, &buffer, &lockedBytes);
@@ -288,8 +288,8 @@ void ix_thread_lock_stream_buffer(void)
                 ix_log_printf("failed to lock stream buffer");
                 exit(-1);
             }
-            ix_file_seek(g_pStreamerPackageFile_00597bdc, fileOffset);
-            ix_file_read(g_pStreamerPackageFile_00597bdc, buffer,
+            ix_file_seek(g_pStreamerPackageFile_005c4b44, fileOffset);
+            ix_file_read(g_pStreamerPackageFile_005c4b44, buffer,
                          lockedBytes);
             remaining = remaining - lockedBytes;
             fileOffset += lockedBytes;
@@ -305,9 +305,9 @@ unsigned int ix_thread_get_audio_chunk_size(void)
     unsigned int fileOffset;
 
     if (g_dwStreamerAudioChunk_005c4c30 != (unsigned int)-1) {
-        fileOffset = g_pStreamerAudioChunks_00597c88[
+        fileOffset = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].fileOffset;
-        return g_pStreamerAudioChunks_00597c88[
+        return g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].fileEnd - fileOffset;
     }
     return 0;
@@ -318,7 +318,7 @@ unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
                                                 unsigned int bytes)
 {
     ix_stream_file_wait();
-    EnterCriticalSection(&g_csStreamerFileQueue_00597c98);
+    EnterCriticalSection(&g_csStreamerFileQueue_005c4c00);
     if (position + bytes > size)
         bytes = size - position;
     if (bytes > 0) {
@@ -328,17 +328,17 @@ unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
         if (previous != 0)
             previous->next = next;
         if (next == 0)
-            g_pStreamerIdleFiles_00597be0 = previous;
+            g_pStreamerIdleFiles_005c4b48 = previous;
         else
             next->previous = previous;
-        previous = g_pStreamerReadQueue_00597c6c;
+        previous = g_pStreamerReadQueue_005c4bd4;
         next = 0;
-        if (g_pStreamerReadQueue_00597c6c != 0)
-            g_pStreamerReadQueue_00597c6c->next = this;
-        g_pStreamerReadQueue_00597c6c = this;
+        if (g_pStreamerReadQueue_005c4bd4 != 0)
+            g_pStreamerReadQueue_005c4bd4->next = this;
+        g_pStreamerReadQueue_005c4bd4 = this;
     }
-    LeaveCriticalSection(&g_csStreamerFileQueue_00597c98);
-    SetEvent(g_hStreamerWakeEvent_00597cd4);
+    LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
+    SetEvent(g_hStreamerWakeEvent_005c4c3c);
     return bytes;
 }
 
