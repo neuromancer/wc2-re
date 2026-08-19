@@ -327,7 +327,7 @@ short set_up_next_wave(void);                                         /* 0x44D88
 void sub_int_vector(const ShortVector *left,
                     const ShortVector *right,
                     ShortVector *difference);                         /* 0x44D9E2 */
-unsigned int set_formation_position(short obj,
+void set_formation_position(short obj,
                                     const MissionShipRecord *record);  /* 0x44DA2F */
 void Set_up_ship_info(short obj, short missionShip,
                       signed char navPoint);                           /* 0x44DB7E */
@@ -744,7 +744,7 @@ void SetVectorFixedPoint(unsigned int *p, short v);                           /*
 unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to,
                                 short range);                          /* 0x40BF55 */
 short check_for_collision(short obj);                                 /* 0x40BF8C */
-void position_child(short parent, short hardpoint,
+void position_child(short parent, short weapon,
                     FixedVector *position);                           /* 0x40C08C */
 void child_object(short hardpoint, short child, short parent);    /* 0x40C1DA */
 short get_ship_slot(void);                                        /* 0x40C211 */

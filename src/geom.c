@@ -790,10 +790,10 @@ int set_ship_rotation_goals(short obj, short turnRate,
 /* Function start: 0x40BC6B */
 void point_ship(short obj, short turnRate, const FixedVector *direction)
 {
-    set_ship_rotation_goals(obj, turnRate, direction,
-                            g_acShipPointingMode_0059d790[obj],
+    set_ship_rotation_goals(obj, turnRate, direction, 1,
                             &g_anYawGoal_004954c0[obj],
                             &g_anPitchGoal_004954a8[obj]);
+    return;
 }
 
 /* Function start: 0x40BCA9 */
@@ -935,21 +935,23 @@ short check_for_collision(short obj)
 }
 
 /* Function start: 0x40C08C */
-void position_child(short parent, short hardpoint, FixedVector *position)
+void position_child(short parent, short weapon, FixedVector *position)
 {
-    const ShortVector *offset = &g_aChildOffsets_004682f0_WC1_UNMAPPED[hardpoint];
+    ShortVector *mount;
 
-    position->x = g_aShipForwardVector_00494208[parent].x * offset->z +
-                  g_aShipUpVector_00493ec0[parent].x * offset->y +
-                  g_aShipRightVector_00493b78[parent].x * offset->x +
+    mount = &((ShipWeaponSlot *)(g_aShipWeapons_004956b0[parent] + 1))[
+        weapon].mount;
+    position->x = g_aShipUpVector_00493ec0[parent].x * mount->y +
+                  g_aShipForwardVector_00494208[parent].x * mount->z +
+                  g_aShipRightVector_00493b78[parent].x * mount->x +
                   g_aShipPosition_00494550[parent].x;
-    position->y = g_aShipForwardVector_00494208[parent].y * offset->z +
-                  g_aShipUpVector_00493ec0[parent].y * offset->y +
-                  g_aShipRightVector_00493b78[parent].y * offset->x +
+    position->y = g_aShipUpVector_00493ec0[parent].y * mount->y +
+                  g_aShipRightVector_00493b78[parent].y * mount->x +
+                  g_aShipForwardVector_00494208[parent].y * mount->z +
                   g_aShipPosition_00494550[parent].y;
-    position->z = g_aShipForwardVector_00494208[parent].z * offset->z +
-                  g_aShipUpVector_00493ec0[parent].z * offset->y +
-                  g_aShipRightVector_00493b78[parent].z * offset->x +
+    position->z = g_aShipUpVector_00493ec0[parent].z * mount->y +
+                  g_aShipForwardVector_00494208[parent].z * mount->z +
+                  g_aShipRightVector_00493b78[parent].z * mount->x +
                   g_aShipPosition_00494550[parent].z;
 }
 

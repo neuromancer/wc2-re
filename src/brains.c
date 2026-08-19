@@ -5041,39 +5041,34 @@ void sub_int_vector(const ShortVector *left,
 }
 
 /* Function start: 0x44DA2F */
-unsigned int set_formation_position(short obj,
-                                    const MissionShipRecord *record)
+void set_formation_position(short obj, const MissionShipRecord *record)
 {
     const MissionShipRecord *leaderRecord;
     short source;
 
     if (record->formationIndex == -1)
-        return 0;
-
-    source = obj;
+        return;
     leaderRecord = record;
+    source = obj;
     while (leaderRecord->leaderMissionIndex != -1) {
         source = find_ship_index(leaderRecord->leaderMissionIndex);
         leaderRecord = &g_aMissionShips_00492290[
             leaderRecord->leaderMissionIndex];
     }
-
     sub_int_vector(
-        &g_aaFormationPositions_00465ed8_WC1_UNMAPPED[record->formationIndex]
-                                               [record->formationSpot],
-        &g_aaFormationPositions_00465ed8_WC1_UNMAPPED[leaderRecord->formationIndex]
-                                               [leaderRecord->formationSpot],
+        &g_aaFormationPositions_0049b8d0[leaderRecord->formationIndex]
+                                        [record->formationSpot],
+        &g_aaFormationPositions_0049b8d0[leaderRecord->formationIndex]
+                                        [leaderRecord->formationSpot],
         &g_aShipFormationOffset_00495468[obj]);
-    if (source == 0 &&
-        g_bMissionShipInitializationInProgress_0049b890 == 0)
-        return 0;
-
-    copy_frame(source, obj);
-    set_sphere_point(leaderRecord, &g_aShipPosition_00494550[obj]);
-    offset_location(obj, &g_aShipFormationOffset_00495468[obj],
-                    &g_aShipPosition_00494550[obj]);
-    g_anShipSpeed_00494e20[obj] = leaderRecord->speed << 8;
-    return 0;
+    if (source != 0 ||
+        g_bMissionShipInitializationInProgress_0049b890 != 0) {
+        copy_frame(source, obj);
+        set_sphere_point(leaderRecord, &g_aShipPosition_00494550[obj]);
+        offset_location(obj, &g_aShipFormationOffset_00495468[obj],
+                        &g_aShipPosition_00494550[obj]);
+        g_anShipSpeed_00494e20[obj] = leaderRecord->speed << 8;
+    }
 }
 
 /* Function start: 0x44DB7E */

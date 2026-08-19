@@ -324,61 +324,11 @@ const char g_szFuneralPrepareArmsCommand_00465c40_WC1_UNMAPPED /* no-address */[
 const char g_szFuneralFireCommand_00465c54_WC1_UNMAPPED /* no-address */[16] =
     "%X%Y%FFire!%P";
 short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED /* no-address */;
-void *g_aapPacketReferences_00465c88_WC1_UNMAPPED /* no-address */[4][0x25];
-const ShortVector g_aaFormationPositions_00465ed8_WC1_UNMAPPED /* no-address */[5][8] = {
-    {
-        { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
-        { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
-        { 0, 0, -1500 }
-    },
-    {
-        { 0, 0, 0 }, { 750, 0, 0 }, { -750, -100, -250 },
-        { 1500, -100, -250 }, { -1500, -200, -500 },
-        { -2250, -300, -750 }, { 2250, -200, -500 },
-        { 3000, -300, -750 }
-    },
-    {
-        { 0, 0, 0 }, { 750, 0, -500 }, { -750, 0, -500 },
-        { 0, 0, -1000 }, { -1500, 0, -1000 }, { -750, 0, -1500 },
-        { 1500, 0, -1000 }, { 750, 0, -1500 }
-    },
-    {
-        { 0, 0, 0 }, { 750, 0, -250 }, { 0, 325, -500 },
-        { 750, -325, -750 }, { 0, 325, -500 }, { 750, -325, -750 },
-        { 0, 0, -1000 }, { 750, 0, -1250 }
-    },
-    {
-        { 0, 0, 0 }, { 0, 0, -750 }, { -750, 0, -500 },
-        { -750, 0, -1250 }, { 750, 0, -500 }, { 750, 0, -1250 },
-        { 0, 500, -500 }, { 0, 500, -1250 }
-    }
-};
 const char g_szErrorLoadingPilotSpeech_00466010_WC1_UNMAPPED /* no-address */[32] =
     "Error loading pilot speech";
 
 
 /* Child/hardpoint offsets at 0x004682F0. */
-const ShortVector g_aChildOffsets_004682f0_WC1_UNMAPPED /* no-address */[56] = {
-    { 120, 10, 20 }, { -120, 10, 20 }, { 75, 45, -30 },
-    { -75, 45, -30 }, { 0, 50, 10 }, { -100, 10, -40 },
-    { -90, 0, 30 }, { -30, -40, -30 }, { 0, 0, 0 },
-    { 30, -40, -30 }, { 100, 10, -40 }, { 90, 0, 30 },
-    { -140, 10, 30 }, { -100, 10, 0 }, { -75, 0, -40 },
-    { -30, 10, -20 }, { 0, 10, 10 }, { 30, 10, -20 },
-    { 75, 0, -40 }, { 100, 10, 0 }, { 140, 10, 30 },
-    { -120, -10, 0 }, { -100, 10, -20 }, { -90, 0, 40 },
-    { -30, 20, -20 }, { 0, 10, -80 }, { 0, 10, 10 },
-    { 30, 20, -20 }, { 90, 0, 40 }, { 100, 10, -20 },
-    { 120, -10, 0 }, { 0, 10, 10 }, { 0, 0, -60 },
-    { 0, 0, 500 }, { -200, 0, 250 }, { 200, 0, 250 },
-    { -300, 0, 0 }, { 300, 0, 0 }, { -200, 0, -250 },
-    { 200, 0, -250 }, { 0, 0, -500 }, { -130, 40, 20 },
-    { -110, 20, 20 }, { -90, 0, 20 }, { 130, 40, 20 },
-    { 110, 20, 20 }, { 90, 0, 20 }, { 0, 0, 400 },
-    { -50, -20, 350 }, { 50, 20, 350 }, { -150, 20, 0 },
-    { 150, -20, 0 }, { -75, -20, -350 }, { 75, 20, -350 },
-    { 0, 100, 350 }, { 0, 0, -300 }
-};
 const char *g_apszSaveCampaignMenuLabels_004693e8_WC1_UNMAPPED /* no-address */[2] = {
     g_szSaveCampaignMenuLabel_00469468_WC1_UNMAPPED,
     g_szSaveCampaignMenuLabelAlt_00469480_WC1_UNMAPPED
@@ -1928,6 +1878,34 @@ short g_bEjectionTriggerImmediately_0049b8bc;
 short g_nEjectionSequenceState_0049b8c0;
 signed char g_cQueuedNpcPortrait_0049b8c4 = -1;
 signed char g_cQueuedNpcMessage_0049b8c8 = -1;
+const ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
+    {
+        { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
+        { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
+        { 0, 0, -1500 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, 0 }, { -750, -100, -250 },
+        { 1500, -100, -250 }, { -1500, -200, -500 },
+        { -2250, -300, -750 }, { 2250, -200, -500 },
+        { 3000, -300, -750 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, -500 }, { -750, 0, -500 },
+        { 0, 0, -1000 }, { -1500, 0, -1000 }, { -750, 0, -1500 },
+        { 1500, 0, -1000 }, { 750, 0, -1500 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, -250 }, { 0, 325, -500 },
+        { 750, -325, -750 }, { 0, 325, -500 }, { 750, -325, -750 },
+        { 0, 0, -1000 }, { 750, 0, -1250 }
+    },
+    {
+        { 0, 0, 0 }, { 0, 0, -750 }, { -750, 0, -500 },
+        { -750, 0, -1250 }, { 750, 0, -500 }, { 750, 0, -1250 },
+        { 0, 500, -500 }, { 0, 500, -1250 }
+    }
+};
 const short g_anPilotTurnInterval_0049b9c0[8] = {
     5, 5, 4, 4, 3, 1, 1, 0
 };
@@ -2398,13 +2376,9 @@ MouseCursorState g_stHostMouseState_0059af70;
 FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
 signed char g_acShipRating_0059cd80[16];
-unsigned char DAT_0059cf20[0x10];
-short g_asPreviousObjectDistance_0059d080[WC2_SPACE_OBJECT_COUNT];
 short g_asCannedCommand_0059d4e0[16];
-signed char g_acShipPointingMode_0059d790[16];
 signed char g_cCockpitView_0059dab0;
 const short *g_apCannedSequence_0059dce0[12];
-signed char g_acShipSpawnNavPoint_0059ded0[16];
 unsigned char *g_apCommPortraitShapes_0059e180[16];
 char g_szHudMessageBuffer_0059e1c0[0x60];
 char *g_aapszPilotSpeech_0059e220[14][11];
@@ -2435,7 +2409,6 @@ unsigned char *g_pSceneAnimationSecondaryShape_005a7c70;
 signed char g_cCockpitLogicalFile_005a7c74;
 unsigned char *g_pCinematicViewBackdrop_005a7c90;
 unsigned char *g_pRearViewBackdrop_005a7c94;
-short g_asCollisionTime_005a7ca0[10];
 short g_nWingmanKillCount_005a7cb8;
 short g_asCollisionPartner_005a7cc0[10];
 unsigned int g_dwOriginalFreeMemory_005a7cd8;
@@ -2449,7 +2422,6 @@ TextContext g_stDiskPromptTextContext_005a7d60;
 unsigned int g_dwDiskPromptTopLeft_005a7d80;
 unsigned int g_dwDiskPromptBottomRight_005a7d84;
 int DAT_005a7d9c;
-signed char g_cCapitalShipLogicalFile_005a7da0;
 unsigned char *g_pTitleShape_005a7f08;
 short DAT_005a8114;
 short g_nMissionMedalScore_005a8116;
