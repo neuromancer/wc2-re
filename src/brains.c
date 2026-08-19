@@ -4111,21 +4111,21 @@ void load_ship(short resourceType, short objectType,
                     }
                 }
             } else if (objectType == 5) {
-                g_aObjectTypeData_00496d30[22].shapeSet =
+                g_aObjectTypeData_00496d30[26].shapeSet =
                     FetchDiskPacketRetrying("objects.vga", 0x10, 0);
                 g_aObjectTypeData_00496d30[24].shapeSet =
-                    g_aObjectTypeData_00496d30[22].shapeSet;
-                g_aObjectTypeData_00496d30[26].shapeSet =
-                    g_aObjectTypeData_00496d30[22].shapeSet;
+                    g_aObjectTypeData_00496d30[26].shapeSet;
+                g_aObjectTypeData_00496d30[22].shapeSet =
+                    g_aObjectTypeData_00496d30[24].shapeSet;
                 g_aObjectResourceSlots_00493398[slot].shapeSet =
                     g_aObjectTypeData_00496d30[22].shapeSet;
                 if (g_nMemoryConfiguration_005c8dc8 == 2) {
-                    g_aObjectTypeData_00496d30[23].shapeSet =
+                    g_aObjectTypeData_00496d30[27].shapeSet =
                         FetchDiskPacketRetrying("objects.vga", 0x11, 4);
                     g_aObjectTypeData_00496d30[25].shapeSet =
-                        g_aObjectTypeData_00496d30[23].shapeSet;
-                    g_aObjectTypeData_00496d30[27].shapeSet =
-                        g_aObjectTypeData_00496d30[23].shapeSet;
+                        g_aObjectTypeData_00496d30[27].shapeSet;
+                    g_aObjectTypeData_00496d30[23].shapeSet =
+                        g_aObjectTypeData_00496d30[25].shapeSet;
                 }
                 for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT;
                      object++) {

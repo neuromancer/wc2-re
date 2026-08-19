@@ -3516,31 +3516,33 @@ void load_common_3Space_objects(void)
     g_aObjectTypeData_00496d30[34].shapeSet =
         g_aObjectTypeData_00496d30[35].shapeSet;
     g_aObjectTypeData_00496d30[33].shapeSet =
-        g_aObjectTypeData_00496d30[35].shapeSet;
+        g_aObjectTypeData_00496d30[34].shapeSet;
     g_aObjectTypeData_00496d30[30].shapeSet =
-        g_aObjectTypeData_00496d30[35].shapeSet;
+        g_aObjectTypeData_00496d30[33].shapeSet;
     g_aObjectTypeData_00496d30[29].shapeSet =
-        g_aObjectTypeData_00496d30[35].shapeSet;
+        g_aObjectTypeData_00496d30[30].shapeSet;
     g_aObjectTypeData_00496d30[12].shapeSet =
         g_aObjectTypeData_00496d30[7].shapeSet;
     g_aObjectTypeData_00496d30[12].animation =
         g_aObjectTypeData_00496d30[7].animation;
     free_ship(4);
     load_ship(1, 0x10, OBJECT_CLASS_MISSILE, 4);
+    g_aObjectTypeData_00496d30[19].shapeSet =
+        g_aObjectTypeData_00496d30[16].shapeSet;
     g_aObjectTypeData_00496d30[15].shapeSet =
-        g_aObjectTypeData_00496d30[16].shapeSet;
+        g_aObjectTypeData_00496d30[19].shapeSet;
     g_aObjectTypeData_00496d30[18].shapeSet =
-        g_aObjectTypeData_00496d30[16].shapeSet;
+        g_aObjectTypeData_00496d30[15].shapeSet;
     g_aObjectTypeData_00496d30[17].shapeSet =
-        g_aObjectTypeData_00496d30[16].shapeSet;
+        g_aObjectTypeData_00496d30[18].shapeSet;
     g_aObjectTypeData_00496d30[19].animation =
         g_aObjectTypeData_00496d30[16].animation;
     g_aObjectTypeData_00496d30[15].animation =
-        g_aObjectTypeData_00496d30[16].animation;
+        g_aObjectTypeData_00496d30[19].animation;
     g_aObjectTypeData_00496d30[18].animation =
-        g_aObjectTypeData_00496d30[16].animation;
+        g_aObjectTypeData_00496d30[15].animation;
     g_aObjectTypeData_00496d30[17].animation =
-        g_aObjectTypeData_00496d30[16].animation;
+        g_aObjectTypeData_00496d30[18].animation;
     if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
         if (g_nResourcePaletteMode_005c57e6 == 0) {
             g_pGenericMissileShape_0049c8f0 =

@@ -705,7 +705,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 /* Function start: 0x454103 */
 void ShutdownGameWindow(void)
 {
-    DAT_005a8a38 = (unsigned int)time(0);
+    g_bApplicationShutdownStarted_0049c23c = 1;
+    g_dwGameExitTime_005d129c = (unsigned int)time(0);
 #ifdef WC1_SDL
     {
         SDL_Window *window;
@@ -756,6 +757,7 @@ unsigned int AbortToDesktop(void)
 #ifndef WC1_SDL
     HANDLE process;
 
+    g_bApplicationShutdownStarted_0049c23c = 1;
     ClipCursor(0);
     ShowCursor(TRUE);
     process = GetCurrentProcess();

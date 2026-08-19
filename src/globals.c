@@ -2754,7 +2754,6 @@ short g_nTalkingHeadMouthX_005a875a;
 char DAT_005a8760[512];
 unsigned char *g_pIntroFont_005a8960;
 HCURSOR DAT_005a8a34;
-unsigned int DAT_005a8a38;
 unsigned int DAT_005a8a44;
 unsigned short DAT_005a8a50[0x300];
 int g_nStreamerAudioPlaying_005b2810;

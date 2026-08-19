@@ -1593,7 +1593,6 @@ extern int g_bAltNumpadSubtractHotkey_005d12a8;
 extern int g_bMainWindowRunning_005d12ac;
 extern HDC DAT_005d1278;
 extern HCURSOR DAT_005a8a34;
-extern unsigned int DAT_005a8a38;
 extern HINSTANCE DAT_005d12b0;
 extern unsigned int DAT_005a8a44;
 extern unsigned short DAT_005a8a50[0x300];
