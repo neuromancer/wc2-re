@@ -3315,7 +3315,8 @@ void ResetPilotHandAnimation(void)
 {
     if (g_pPilotHandAnimationShape_005d2c64 != 0) {
         g_cLastPilotHandFrame_0049aff4 = 0xff;
-        CopyViewportContents(&DAT_005a6b60, &DAT_005a7550);
+        CopyViewportContents(&g_stCockpitViewport_005d2160,
+                             &g_stPilotHandBackgroundViewport_005d2b40);
         animate_pilot();
     }
 }
