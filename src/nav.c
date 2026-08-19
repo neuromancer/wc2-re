@@ -247,19 +247,6 @@ void ResetNavMapReservedAreas(void)
 /* Function start: 0x45033D */
 void ReserveNavMapArea(short x, short y, short width, short height)
 {
-#if 0
-    ShortRect *rectangle;
-    short area;
-
-    area = g_nNavMapReservedAreaCount_0049bc50;
-    rectangle = &g_aNavMapExclusionRects_005b35a8[area];
-    rectangle->left = x;
-    rectangle->top = y;
-    rectangle->right = (short)(x + width);
-    rectangle->bottom = (short)(y + height);
-    area++;
-    g_nNavMapReservedAreaCount_0049bc50 = area;
-#else
     g_aNavMapExclusionRects_005b35a8[
         g_nNavMapReservedAreaCount_0049bc50].left = x;
     g_aNavMapExclusionRects_005b35a8[
@@ -269,7 +256,6 @@ void ReserveNavMapArea(short x, short y, short width, short height)
     g_aNavMapExclusionRects_005b35a8[
         g_nNavMapReservedAreaCount_0049bc50].bottom = (short)(y + height);
     g_nNavMapReservedAreaCount_0049bc50++;
-#endif
 }
 
 /* Function start: 0x4503A7 */

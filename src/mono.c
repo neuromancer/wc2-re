@@ -358,25 +358,12 @@ void MonoDebug_remove(void)
 /* Function start: 0x437946 */
 void SoundDebugPrintf(const char *fmt, ...)
 {
-#if 0
-#ifdef WC1_SDL
-    va_list arguments;
-
-    va_start(arguments, fmt);
-    vsprintf(DAT_005a8760, fmt, arguments);
-    va_end(arguments);
-#else
-    vsprintf(DAT_005a8760, fmt, (char *)(&fmt + 1));
-#endif
-    MonoDebug_print(DAT_005a8760);
-#else
     va_list arguments;
 
     va_start(arguments, fmt);
     vsprintf(g_szSoundDebugBuffer_005d1f00, fmt, arguments);
     va_end(arguments);
     MonoDebug_print(g_szSoundDebugBuffer_005d1f00);
-#endif
 }
 
 /* Function start: 0x437983 */

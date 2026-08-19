@@ -48,10 +48,6 @@ int RunWc1GameMain(short argc, char **argv)
 
     argumentCount = LoadWingCmdrCfgFile(argc, argv);
     _chdir("gamedat");
-#if 0
-    LoadInstallDat();
-    _chdir("..");
-#endif
 #ifdef WC1_SDL
     if (Wc1SdlUsingDosData())
         DAT_0059ab34 = 1;
@@ -361,22 +357,11 @@ void free_view_buffer(void)
         EndCommMenu();
     if (g_stViewBuffer_005d2b00.pixels != 0)
         free_viewport(&g_stViewBuffer_005d2b00);
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x465CF6 */
 void initialize_view_buffer(void)
 {
-#if 0
-    if (g_bSpaceViewBufferEnabled_0049d7a4 != 0 && g_stViewBuffer_005d2b00.pixels == 0) {
-        if (AllocateViewport(&g_stViewBuffer_005d2b00, (short)g_cPrimaryViewBufferColour_0049cb88,
-                             0x20) == 0)
-            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0049d978);
-    }
-    return 0;
-#else
     short allocated;
 
     if (g_bSpaceViewBufferEnabled_0049d7a4 != 0 &&
@@ -387,7 +372,6 @@ void initialize_view_buffer(void)
         if (allocated == 0)
             ReportOutOfMemoryAndExit(g_szSpaceBuffer_0049d978);
     }
-#endif
 }
 
 /* Function start: 0x465D55 */
@@ -447,9 +431,6 @@ void InitializeConversationViewport(void)
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportPacketLoadError(0, 0, 0, 0,
                               g_szAllocateBufferTag_0049ae20);
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x437D68 */
@@ -458,9 +439,6 @@ void ResetScreenClipToFullHeight(void)
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     g_stScreenViewport_005d21a0.top = 0;
     g_stScreenViewport_005d21a0.bottom = 199;
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x437D92 */
@@ -479,9 +457,6 @@ void InitializeConversationText(void)
                                   g_bPrimaryViewBufferColour_0049cb50,
                                   g_cSecondaryViewBufferColour_0049cb4c);
     SetTextContext(&g_stConversationTextContext_005d2d40);
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x465EA9 */
@@ -498,15 +473,6 @@ void RefreshMemoryStatusOverlay(void)
 /* Function start: 0x465EE9 */
 void Update_3Space(void)
 {
-#if 0
-    house_keep();
-    house_keep_objects();
-    update_objects_in_space();
-    set_eye_direction_and_position();
-    servicetrack();
-    g_nSpaceFrame_00493134++;
-    return 0;
-#else
     house_keep();
     CheckAllGuardedAllocations();
     house_keep_objects();
@@ -517,7 +483,6 @@ void Update_3Space(void)
     if (g_nCannedSceneMode_0049021c == 0)
         servicetrack();
     g_nSpaceFrame_00493134++;
-#endif
 }
 
 /* Function start: 0x465F3A */
@@ -541,25 +506,6 @@ void FadeFlightPaletteEntry(short *entry)
 /* Function start: 0x465FA3 */
 void UpdateSpacePaletteFade(void)
 {
-#if 0
-    if (g_asSpacePaletteFade_005d2d60[0] != 0) {
-        switch ((int)(short)g_nSpacePaletteFadeMode_004901e8) {
-        case 9:
-        case 13:
-            ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_abGamePaletteReservedColours_0049cb54[8]);
-            g_bViewportDirty_0049d76c = 1;
-            g_asSpacePaletteFade_005d2d60[0] = 0;
-            break;
-        case 0x13:
-            g_asSpacePaletteFade_005d2d60[0] = (short)(g_asSpacePaletteFade_005d2d60[0] - 4);
-            SetPaletteEntry((short)g_cPrimaryViewBufferColour_0049cb88,
-                            g_asSpacePaletteFade_005d2d60);
-            break;
-        }
-    }
-    return 0;
-#else
     if (g_asSpacePaletteFade_005d2d60[0] != 0) {
         switch ((int)(short)g_nSpacePaletteFadeMode_004901e8) {
         case 0x13:
@@ -577,7 +523,6 @@ void UpdateSpacePaletteFade(void)
             break;
         }
     }
-#endif
 }
 
 /* Function start: 0x46604F */
@@ -1126,20 +1071,6 @@ short player_input(void)
 /* Function start: 0x465E25 */
 void SelectNextExternalViewObject(void)
 {
-#if 0
-    short object;
-
-    object = (short)g_cViewObject_0049313c;
-    g_cViewObject_0049313c = -1;
-    do {
-        object++;
-        if (object > 9)
-            object = 0;
-        if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
-            g_cViewObject_0049313c = (signed char)object;
-    } while (g_cViewObject_0049313c == -1);
-    return 0;
-#else
     signed char object;
 
     object = g_cViewObject_0049313c;
@@ -1151,7 +1082,6 @@ void SelectNextExternalViewObject(void)
         if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
             g_cViewObject_0049313c = object;
     }
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */

@@ -129,141 +129,6 @@ void FormatTextTokens(void (*writer)(int),
                       const char *format, va_list arguments)
 #endif
 {
-#if 0
-    short character;
-    char number[64];
-    char *text;
-
-    if (g_pCurrentTextContext_005c8d1c == 0)
-        return;
-    character = (signed char)*format++;
-    while (character != 0) {
-        if (character != '%') {
-            writer((short)character);
-        } else {
-            character = (signed char)*format++;
-            switch (character) {
-            case 'B':
-#ifdef WC1_SDL
-                g_pCurrentTextContext_005c8d1c->backgroundColour =
-                    (unsigned char)va_arg(*arguments, int);
-#else
-                g_pCurrentTextContext_005c8d1c->backgroundColour =
-                    (unsigned char)*arguments++;
-#endif
-                break;
-            case 'D':
-#ifdef WC1_SDL
-                text = _ltoa(va_arg(*arguments, long), number, 10);
-#else
-                text = _ltoa((long)*arguments++, number, 10);
-#endif
-                EmitTextString(writer, text);
-                break;
-            case 'F':
-#ifdef WC1_SDL
-                g_pCurrentTextContext_005c8d1c->colour =
-                    (unsigned char)va_arg(*arguments, int);
-#else
-                g_pCurrentTextContext_005c8d1c->colour =
-                    (unsigned char)*arguments++;
-#endif
-                break;
-            case 'J':
-#ifdef WC1_SDL
-                g_pCurrentTextContext_005c8d1c->alignment =
-                    (unsigned char)va_arg(*arguments, int);
-#else
-                g_pCurrentTextContext_005c8d1c->alignment =
-                    (unsigned char)*arguments++;
-#endif
-                break;
-            case 'P':
-#if 0
-                DrawTextString(g_pCurrentTextContext_005c8d1c->text);
-#else
-                if (g_bCinematicSpriteFontEnabled_005c82a7 == 0)
-                    DrawTextString(g_pCurrentTextContext_005c8d1c->text);
-                else
-                    DrawWrappedCinematicText(
-                        g_pCurrentTextContext_005c8d1c->text);
-#endif
-                break;
-            case 'U':
-#ifdef WC1_SDL
-                text = _ultoa(va_arg(*arguments, unsigned long), number, 10);
-#else
-                text = _ultoa(*arguments++, number, 10);
-#endif
-                EmitTextString(writer, text);
-                break;
-            case 'X':
-#ifdef WC1_SDL
-                g_pCurrentTextContext_005c8d1c->cursorX =
-                    (short)va_arg(*arguments, int);
-#else
-                g_pCurrentTextContext_005c8d1c->cursorX =
-                    (short)*arguments++;
-#endif
-                break;
-            case 'Y':
-#ifdef WC1_SDL
-                g_pCurrentTextContext_005c8d1c->cursorY =
-                    (short)va_arg(*arguments, int);
-#else
-                g_pCurrentTextContext_005c8d1c->cursorY =
-                    (short)*arguments++;
-#endif
-                break;
-            case 'c':
-#ifdef WC1_SDL
-                writer((short)va_arg(*arguments, int));
-#else
-                writer((short)*arguments++);
-#endif
-                break;
-            case 'd':
-#ifdef WC1_SDL
-                text = _itoa((short)va_arg(*arguments, int), number, 10);
-#else
-                text = _itoa((int)(short)*arguments++, number, 10);
-#endif
-                EmitTextString(writer, text);
-                break;
-            case 's':
-#ifdef WC1_SDL
-                text = va_arg(*arguments, char *);
-#else
-                text = (char *)*arguments++;
-#endif
-                EmitTextString(writer, text);
-                break;
-            case 'u':
-#ifdef WC1_SDL
-                text = _ultoa((unsigned short)va_arg(*arguments, unsigned int),
-                              number, 10);
-#else
-                text = _ultoa((unsigned short)*arguments++, number, 10);
-#endif
-                EmitTextString(writer, text);
-                break;
-            case 'x':
-#ifdef WC1_SDL
-                text = _ultoa((unsigned short)va_arg(*arguments, unsigned int),
-                              number, 16);
-#else
-                text = _ultoa((unsigned short)*arguments++, number, 16);
-#endif
-                EmitTextString(writer, _strupr(text));
-                break;
-            default:
-                writer((short)character);
-                break;
-            }
-        }
-        character = (signed char)*format++;
-    }
-#else
     short character;
     char number[64];
 
@@ -405,28 +270,11 @@ void FormatTextTokens(void (*writer)(int),
         }
         character = (signed char)*format++;
     }
-#endif
 }
 
 /* Function start: 0x42067F */
 void DrawFormattedText(const char *format, ...)
 {
-#if 0
-#ifdef WC1_SDL
-    va_list arguments;
-
-    va_start(arguments, format);
-    FormatTextTokens((void (*)(int))DrawTextCharacter,
-                     format, &arguments);
-    va_end(arguments);
-#else
-    FormatTextTokens((void (*)(int))DrawTextCharacter,
-                     format, (unsigned long *)(&format + 1));
-#endif
-    if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
-#else
     va_list arguments;
 
     va_start(arguments, format);
@@ -450,7 +298,6 @@ void DrawFormattedText(const char *format, ...)
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
         g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
-#endif
 }
 
 /* Function start: 0x4206F2 */
@@ -803,21 +650,6 @@ void remove_message(const char *text)
 /* Function start: 0x43895F */
 short kilrathi_near(short obj, short range)
 {
-#if 0
-    short ship;
-
-    ship = 0;
-    do {
-        if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_SHIP &&
-            g_asShipSide_004955d0[ship] == SIDE_KILRATHI &&
-            IsPointWithinRange(&g_aShipPosition_00494550[obj],
-                               &g_aShipPosition_00494550[ship],
-                               range) != 0)
-            return 1;
-        ship++;
-    } while (ship < 10);
-    return 0;
-#else
     short ship;
 
     for (ship = 1; ship < 10; ship++) {
@@ -829,7 +661,6 @@ short kilrathi_near(short obj, short range)
             return 1;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x4389FE */
@@ -863,26 +694,6 @@ short IsMissionObjectiveOutOfSystem(short objectiveIndex)
 /* Function start: 0x438ADD */
 short auto_pilot_valid(short showReason)
 {
-#if 0
-    const char *reason;
-
-    reason = 0;
-    if (g_cMissionObjectiveCount_00493294 == 0)
-        return 0;
-    if (distance_from_point(
-            0,
-            &g_aMissionObjectives_004932a8[
-                g_cCurrentObjective_004931cc].position) < 8000) {
-        reason = "Already Near";
-    } else if (kilrathi_near(0, 16000) != 0) {
-        reason = "Enemy Near";
-    } else if (g_pActiveHazardField_00493278 != 0) {
-        reason = "Hazard Near";
-    }
-    if (showReason != 0 && reason != 0)
-        set_global_message(reason, g_abGamePaletteReservedColours_0049cb54[4], 3);
-    return reason == 0;
-#else
     const char *reason;
     short distance;
     short object;
@@ -928,46 +739,22 @@ short auto_pilot_valid(short showReason)
     if (showReason != 0 && reason != 0)
         CockpitMessage(reason, g_abGamePaletteReservedColours_0049cb54[4], 3);
     return reason == 0;
-#endif
 }
 
 /* Function start: 0x438CEB */
 void reset_cockpit(void)
 {
-#if 0
-    memset(g_abCockpitLightGoal_005d1eb8, 0,
-           sizeof(g_abCockpitLightGoal_005d1eb8));
-    memset(g_abCockpitLightState_005d1e70, 0,
-           sizeof(g_abCockpitLightState_005d1e70));
-    return g_abCockpitLightState_005d1e70;
-#else
     short light;
 
     for (light = 0; light < 7; light++) {
         g_abCockpitLightState_005d1e70[light] = 0;
         g_abCockpitLightGoal_005d1eb8[light] = 0;
     }
-#endif
 }
 
 /* Function start: 0x438D30 */
 void SetCockpitLightBlink(signed char light, short interval)
 {
-#if 0
-    if (interval < 20) {
-        if (interval == 0) {
-            g_abCockpitLightGoal_005d1eb8[(int)light] ^= 1;
-            return 0;
-        }
-        if (g_nSpaceFrame_00493134 % interval == 0) {
-            g_abCockpitLightGoal_005d1eb8[(int)light] ^= 1;
-            return 0;
-        }
-    } else {
-        g_abCockpitLightGoal_005d1eb8[(int)light] = 0;
-    }
-    return 0;
-#else
     if (interval < 20) {
         if (interval == 0) {
             g_abCockpitLightGoal_005d1eb8[(int)light] ^= 1;
@@ -977,7 +764,6 @@ void SetCockpitLightBlink(signed char light, short interval)
     } else {
         g_abCockpitLightGoal_005d1eb8[(int)light] = 0;
     }
-#endif
 }
 
 /* Function start: 0x438DAD */
@@ -1205,20 +991,11 @@ void set_message_time(short duration)
     g_nHudMessageTime_005d1c32 = duration;
     if (g_nHudMessageTime_005d1c32 == -1)
         g_bSpeechPlaybackComplete_004a266c = 0;
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x439588 */
 void check_message(void)
 {
-#if 0
-    if (message_showing() &&
-        (g_nHudMessageTime_005d1c32 = g_nHudMessageTime_005d1c32 - 1,
-         g_nHudMessageTime_005d1c32 <= 0))
-        EndCommMenu();
-#else
     if (message_showing() != 0) {
         if (g_nHudMessageTime_005d1c32 == -1) {
             if (g_bSpeechPlaybackComplete_004a266c != 0) {
@@ -1259,26 +1036,11 @@ void check_message(void)
             }
         }
     }
-#endif
 }
 
 /* Function start: 0x4396BF */
 void update_digital_readouts(void)
 {
-#if 0
-    long velocity;
-
-    SetTextContext(&g_stCockpitTextContext_005d2d00);
-    DrawCockpitReadout(
-        2, _itoa((int)(short)((g_anShipSpeed_0059b320[0] >> 8) * 10),
-                 g_szTextScratchBuffer_005d1c40, 10));
-    velocity = MultiplyFixed(
-        Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00);
-    DrawCockpitReadout(
-        3, _itoa((int)(short)(velocity >> 8),
-                 g_szTextScratchBuffer_005d1c40, 10));
-    return 0;
-#else
     short speed;
     short velocity;
 
@@ -1291,7 +1053,6 @@ void update_digital_readouts(void)
         Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00) >> 8);
     DrawCockpitReadout(
         3, _itoa(velocity, g_szTextScratchBuffer_005d1c40, 10));
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1303,46 +1064,29 @@ void PlayTargetLockSfx(void)
 /* Function start: 0x439753 */
 void malf_sound(void)
 {
-#if 0
-    PlaySfxWaveFileByNumber(0x1f, -1, 0);
-#else
     LogUnknownSoundEffect(
         g_abSoundEffectDefinitions_0049bf18 + 0xf0,
         0, 0x7f, 0x64, 1, 1);
     PlaySfxWaveFileByNumber(0x1f, -1, 0);
-#endif
 }
 
 /* Function start: 0x439789 */
 short malf(char component)
 {
-#if 0
-    int damage = g_acPlayerComponentDamage_00493470[(int)component];
-
-    return (unsigned short)RandomInRange(0, 15) < damage * damage;
-#else
     return g_acPlayerComponentDamage_00493470[(int)component] *
                g_acPlayerComponentDamage_00493470[(int)component] >
            (unsigned short)RandomInRange(0, 15);
-#endif
 }
 
 /* Function start: 0x4397D5 */
 void vdu_malf(short vdu, short sound)
 {
-#if 0
-    if (g_nCurrentView_00492fa8 == 0)
-        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], sound, 0);
-    set_mode(vdu, 0);
-    return 0;
-#else
     if (g_nCurrentView_00492fa8 == 0 &&
         ((vdu == 0 && g_stLeftVduViewport_005d2180.top > 0) ||
          (vdu == 1 && g_stRightVduViewport_005d2b20.top > 0))) {
         malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], sound, 0);
         set_mode(vdu, 0);
     }
-#endif
 }
 
 /* Function start: 0x43984F */
@@ -1574,8 +1318,6 @@ void show_weapon_disp(void)
 /* Function start: 0x439F5F */
 void update_status_text(void)
 {
-#if 0
-#else
     short x;
     short index;
     short y;
@@ -1651,7 +1393,6 @@ void update_status_text(void)
             }
         }
     }
-#endif
 }
 
 /* Function start: 0x43A1EB */
@@ -1669,12 +1410,8 @@ short visited(short objective)
 /* Function start: 0x43A251 */
 short achieved(short objective)
 {
-#if 0
-    return (g_aMissionObjectives_004932a8[objective].flags & 2) == 2;
-#else
     return (g_aMissionObjectives_004932a8[objective].flags & 2) == 2 ||
            g_aMissionObjectives_004932a8[objective].type == -1;
-#endif
 }
 
 /* Function start: 0x43A29E */
@@ -1686,19 +1423,6 @@ void flag_objective(short objective, unsigned char flags)
 /* Function start: 0x43A2CD */
 void DrawCalculatingLabel(void)
 {
-#if 0
-    if (g_nCurrentObjectiveRange_004931c8 <= 0) {
-        DrawCockpitReadout(0, g_szCalculating_0049b3a0);
-    } else {
-        strcpy(g_szTextScratchBuffer_005d1c40 +
-                   strlen(_ltoa((long)g_nCurrentObjectiveRange_004931c8,
-                                g_szTextScratchBuffer_005d1c40, 10)),
-               " km");
-        DrawCockpitReadout(0, g_szTextScratchBuffer_005d1c40);
-    }
-    g_nDisplayedObjectiveRange_0049b078 =
-        g_nCurrentObjectiveRange_004931c8;
-#else
     if (IsMissionObjectiveOutOfSystem(
             (short)g_cCurrentObjective_004931cc) != 0) {
         DrawCockpitReadout(0, "Out-system");
@@ -1715,7 +1439,6 @@ void DrawCalculatingLabel(void)
         g_nDisplayedObjectiveRange_0049b078 =
             g_nCurrentObjectiveRange_004931c8;
     }
-#endif
 }
 
 /* Function start: 0x43A374 */
@@ -1809,15 +1532,6 @@ short cycle_next_objective(void)
     short wraps;
 
     wraps = 0;
-#if 0
-    do {
-        if (set_new_objective(
-                (short)((short)g_cCurrentNavPointIndex_00493298 + 1)) != 0)
-            break;
-        if (g_cCurrentNavPointIndex_00493298 == 0)
-            wraps++;
-    } while (wraps < 3);
-#else
     while (wraps < 3) {
         if (set_new_objective(
                 (short)((short)g_cCurrentNavPointIndex_00493298 + 1)) != 0)
@@ -1825,7 +1539,6 @@ short cycle_next_objective(void)
         if (g_cCurrentNavPointIndex_00493298 == 0)
             wraps++;
     }
-#endif
     if (wraps >= 3) {
         g_cCurrentNavPointIndex_00493298 = 0;
         g_cCurrentObjective_004931cc = g_abFlightPath_004932a0[
@@ -2432,12 +2145,6 @@ short starting_lock(unsigned short v)
 /* Function start: 0x43BE8D */
 void lock_off(void)
 {
-#if 0
-    if (g_nTargetLockCountdown_004934ec > -1)
-        g_bTargetLockReadoutDirty_004934e8 = 1;
-    remove_message(g_pszMissileLocked_0049b280);
-    g_nTargetLockCountdown_004934ec = -1;
-#else
     if (g_nTargetLockCountdown_004934ec > -1) {
         g_bTargetLockReadoutDirty_004934e8 = 1;
         if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
@@ -2449,7 +2156,6 @@ void lock_off(void)
     remove_message(g_pszMissileLocked_0049b280);
     g_nTargetLockCountdown_004934ec = -1;
     g_nTargetLockMusicCooldown_005d1e78 = -98;
-#endif
 }
 
 /* Function start: 0x43BEFF */
@@ -2660,9 +2366,6 @@ void print_message_text(char *text, unsigned short colour)
 /* Function start: 0x43C5B0 */
 void RestoreHudMessageBackground(void)
 {
-#if 0
-    /* WC1 had no separate restore helper. */
-#else
     if (g_nHudMessageBackgroundDepth_0049b294 != 0) {
         RestoreSpriteBackground(
             &g_stScreenViewport_005d21a0,
@@ -2674,16 +2377,11 @@ void RestoreHudMessageBackground(void)
             0);
     }
     g_nHudMessageBackgroundDepth_0049b294 = 0;
-#endif
 }
 
 /* Function start: 0x43C570 */
 void ShowHudTextLine(void)
 {
-#if 0
-    g_pszPendingHudMessage_0049afec = s;
-    print_message_text(s, b);
-#else
     CaptureSpriteBackground(
         &g_stScreenViewport_005d21a0,
         g_pHudMessageBackground_0049b28c,
@@ -2693,17 +2391,11 @@ void ShowHudTextLine(void)
         g_pHudMessageFrameShape_0049b288,
         0);
     g_nHudMessageBackgroundDepth_0049b294++;
-#endif
 }
 
 /* Function start: 0x43C601 */
 void SetHudTextColour(char *text, int colour)
 {
-#if 0
-    if (v != 0)
-        EndCommMenu();
-    print_message_text(g_pszDisplayedHudMessage_0049aff0, (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
-#else
     if (g_bCaptureHudMessageBackground_0049b290 != 0) {
         ShowHudTextLine();
         g_bCaptureHudMessageBackground_0049b290 = 0;
@@ -2711,7 +2403,6 @@ void SetHudTextColour(char *text, int colour)
     g_pszPendingHudMessage_0049afec = text;
     g_cHudMessageView_005d1c37 = (signed char)g_nCurrentView_00492fa8;
     print_message_text(g_pszPendingHudMessage_0049afec, colour);
-#endif
 }
 
 /* Function start: 0x43C64D */
@@ -3552,23 +3243,6 @@ void DrawPilotHandFrame(void)
 /* Function start: 0x43F110 */
 void CopyTrainSimPilotViewToVdus(void)
 {
-#if 0
-    Viewport destination;
-
-    destination = DAT_005a7550;
-    if (g_stTrainSimVduSource_00469210.left == 0) {
-        g_stTrainSimVduSource_00469210 = DAT_005a6b60;
-        g_stTrainSimVduSource_00469210.left = g_stRightVduViewport_005d2b20.left;
-        g_stTrainSimVduSource_00469210.top = DAT_005a6b60.top;
-        g_stTrainSimVduSource_00469210.right = DAT_005a6b60.right;
-        g_stTrainSimVduSource_00469210.bottom = g_stRightVduViewport_005d2b20.bottom;
-    }
-    destination.left = (short)(g_stTrainSimVduSource_00469210.left -
-                               DAT_005a6b60.left);
-    destination.bottom = (short)(g_stTrainSimVduSource_00469210.bottom -
-                                 DAT_005a6b60.top);
-    CopyViewportContents(&g_stTrainSimVduSource_00469210, &destination);
-#else
     Viewport destination;
     ShortRect intersection;
     ShortRect rightBounds;
@@ -3624,7 +3298,6 @@ void CopyTrainSimPilotViewToVdus(void)
         CopyViewportContents(&g_stTrainSimLeftVduSource_0049b2d8,
                              &destination);
     }
-#endif
 }
 
 /* Function start: 0x43E43A */
@@ -3725,17 +3398,12 @@ void npc_communication(void)
 /* Function start: 0x43E870 */
 void clear_cockpit_damage(void)
 {
-#if 0
-    memset(g_asCockpitDamageState_005d1ee8, 0,
-           sizeof(g_asCockpitDamageState_005d1ee8));
-#else
     short *damageState;
     short damage;
 
     damageState = g_asCockpitDamageState_005d1ee8;
     for (damage = 0; damage < 4; damage++, damageState++)
         *damageState = 0;
-#endif
 }
 
 /* Function start: 0x43E8B2 */

@@ -331,33 +331,6 @@ short pilot_hit(short obj)
 /* Function start: 0x41270A */
 short onboard_explosion(short obj)
 {
-#if 0
-    int objectOffset;
-    short debris;
-    FixedVector offset;
-
-    debris = find_vacant_3d_object();
-    if (debris != -1) {
-        set_objects_data(debris, OBJECT_TYPE_EXPLOSION2, obj, 0);
-        objectOffset = (int)obj * sizeof(FixedVector);
-        g_asObjectScale_00494d90[debris] <<= 2;
-        g_asObjectCounter_00494be0[debris] = 6;
-        g_aShipVelocity_00494898[debris] =
-            *(FixedVector *)(void *)
-                ((unsigned char *)g_aShipVelocity_00494898 +
-                 objectOffset);
-        MakeRandomVectorFixed(
-            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 2),
-            (short)(g_asObjectCollisionRadius_004950e8[obj] >> 1),
-            &offset);
-        AddFixedVectors((FixedVector *)(void *)
-                            ((unsigned char *)g_aShipPosition_00494550 +
-                             objectOffset),
-                        &offset,
-                        &g_aShipPosition_00494550[debris]);
-    }
-    return debris != -1;
-#else
     short debris;
     FixedVector offset;
 
@@ -377,7 +350,6 @@ short onboard_explosion(short obj)
                         &g_aShipPosition_00494550[debris]);
     }
     return debris != -1;
-#endif
 }
 
 /* Function start: 0x41280B */
@@ -925,54 +897,6 @@ unsigned int Create_explosion_debris(short obj)
 /* Function start: 0x413D61 */
 void affect_mission_score(short pilot, int event, short amount)
 {
-#if 0
-    short score;
-
-    switch (event) {
-    case 0:
-        score = amount;
-        break;
-    case 1:
-        score = 7;
-        break;
-    case 2:
-        score = 10;
-        break;
-    case 3:
-    case 4:
-        score = 15;
-        break;
-    case 5:
-    case 6:
-        score = 25;
-        break;
-    case 7:
-        score = 50;
-        break;
-    case 8:
-        score = 75;
-        break;
-    case 9:
-    case 10:
-    case 11:
-        score = 25;
-        break;
-    case 12:
-        score = (short)(amount * 2);
-        break;
-    default:
-        score = amount;
-        break;
-    }
-    g_nMissionScore_00493462 =
-        (short)(g_nMissionScore_00493462 + score);
-    if (pilot == 0) {
-        g_nMissionMedalScore_005a8116 =
-            (short)(g_nMissionMedalScore_005a8116 + score);
-        g_nArcadeScore_005a7bc4 += score * 10;
-    }
-    return 0;
-#else
     short score;
 
     switch (event) {
@@ -1011,7 +935,6 @@ void affect_mission_score(short pilot, int event, short amount)
         break;
     }
     g_nMissionScore_00493462 += score;
-#endif
 }
 
 /* Function start: 0x413E4C */
@@ -1057,22 +980,6 @@ unsigned int score_for_kill(short pilot, short victim)
 /* Function start: 0x413F58 */
 void analyze_kill(short attacker, short victim)
 {
-#if 0
-    int enemy;
-
-    enemy = g_asShipSide_004955d0[victim] !=
-            g_asShipSide_004955d0[attacker];
-    new_space_music_changes(attacker, victim);
-    if (enemy) {
-        send_message(attacker, 5);
-        score_for_kill(attacker, victim);
-        if (attacker == 0)
-            g_cPlayerKillCount_005d2fa8++;
-        else if (g_nYourWingman_0049346c == attacker)
-            g_nWingmanKillCount_005a7cb8++;
-    }
-    return 0;
-#else
     short enemy;
     short initialShip;
 
@@ -1094,7 +1001,6 @@ void analyze_kill(short attacker, short victim)
             }
         }
     }
-#endif
 }
 
 /* Function start: 0x4142C8 */

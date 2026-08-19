@@ -1286,11 +1286,7 @@ extern short g_nStarFieldJRotation_005d320c;
 extern short g_nStarFieldIRotation_005d3210;
 extern signed char g_cCockpitView_0059dab0;
 extern HazardField g_aHazardFields_004931d8[7];
-#if 0
-extern MissionObjective g_aMissionObjectives_004932a8[WC1_MISSION_OBJECTIVE_COUNT];
-#else
 extern MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT];
-#endif
 extern char g_szAutopilotWaitReason_0049b2f0[28];
 extern char *g_pszAutopilotWaitReason_0049b050;
 extern short g_asShipManeuver_00495f48[12];
@@ -1600,15 +1596,11 @@ extern short g_nTalkingHeadFaceY_005a8756;
 extern short g_nTalkingHeadMouthY_005a8758;
 extern short g_nTalkingHeadMouthX_005a875a;
 extern char DAT_005a8760[512];
-#if 0
-extern short DAT_005a86a6;
-#else
 extern unsigned char g_abMissionAuxData_005d3c10[0x28];
 extern unsigned char g_abSeriesAuxData_005d3c40[0x28];
 extern MissionObjectiveSource g_aMissionObjectiveSources_005d3c70[8];
 extern MissionHeader g_stMissionHeader_005d3e70;
 extern unsigned char g_abMissionBriefingData_005d3e90[0xde];
-#endif
 extern unsigned char *g_pTitleShape_005a7f08;
 extern unsigned char *g_pConstellationShape_005a765c;
 extern const short *g_pViewScript_005a6b58;

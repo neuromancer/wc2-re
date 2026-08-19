@@ -71,40 +71,28 @@ long DivideFixed(int numerator, int denominator)
 /* Function start: 0x461A91 */
 long SinFixed(short degrees)
 {
-#if 0
-    return (long)(sin((double)degrees * WC1_DEG2RAD) * 256.0);
-#else
     float angle;
     long result;
 
     angle = (float)degrees;
     result = (long)(sin((double)angle * WC1_DEG2RAD) * 256.0);
     return result;
-#endif
 }
 
 /* Function start: 0x461AD6 */
 long CosFixed(short degrees)
 {
-#if 0
-    return (long)(cos((double)degrees * WC1_DEG2RAD) * 256.0);
-#else
     float angle;
     long result;
 
     angle = (float)degrees;
     result = (long)(cos((double)angle * WC1_DEG2RAD) * 256.0);
     return result;
-#endif
 }
 
 /* Function start: 0x461B1B */
 short ArcSin(int value)
 {
-#if 0
-    return (long)(asin((double)value * 0.00390625f) *
-                  57.295779513082323);
-#else
     float scale;
     float normalized;
     short result;
@@ -113,16 +101,11 @@ short ArcSin(int value)
     normalized = (float)value / scale;
     result = (short)(asin((double)normalized) * 57.295779513082323);
     return result;
-#endif
 }
 
 /* Function start: 0x461B6B */
 short ArcCos(int value)
 {
-#if 0
-    return (long)(acos((double)value * 0.00390625f) *
-                  57.295779513082323);
-#else
     float scale;
     float normalized;
     short result;
@@ -131,15 +114,11 @@ short ArcCos(int value)
     normalized = (float)value / scale;
     result = (short)(acos((double)normalized) * 57.295779513082323);
     return result;
-#endif
 }
 
 /* Function start: 0x461BBB */
 long Magnitude(int value)
 {
-#if 0
-    return (long)(sqrt((double)value * 0.00390625f) * 256.0);
-#else
     float scale;
     float normalized;
     long result;
@@ -148,7 +127,6 @@ long Magnitude(int value)
     normalized = (float)value / scale;
     result = (long)(sqrt((double)normalized) * scale);
     return result;
-#endif
 }
 
 /* Function start: 0x461C06 */
@@ -165,16 +143,6 @@ long PlanarMagnitude(int x, int y)
 /* Function start: 0x461C71 */
 long Vector_magnitude(const FixedVector *vector)
 {
-#if 0
-    double x = (double)vector->x * (1.0 / 256.0);
-    double y = (double)vector->y * (1.0 / 256.0);
-    double z = (double)vector->z * (1.0 / 256.0);
-
-    x *= x;
-    y *= y;
-    z *= z;
-    return (long)(sqrt(x + y + z) * 256.0);
-#else
     float x = (float)vector->x / 256.0;
     float y = (float)vector->y / 256.0;
     float z = (float)vector->z / 256.0;
@@ -183,7 +151,6 @@ long Vector_magnitude(const FixedVector *vector)
     y *= y;
     z *= z;
     return (long)(sqrt(x + y + z) * 256.0);
-#endif
 }
 
 /* Function start: 0x461D02 */

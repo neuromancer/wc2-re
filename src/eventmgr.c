@@ -79,31 +79,6 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
 /* Function start: 0x462890 */
 InputEvent *AllocateInputEvent(void)
 {
-#if 0
-    int *used;
-    int index;
-
-    if (g_nInputEventPoolInitialized_0049d4bc != 0) {
-        index = 0;
-        used = g_anInputEventSlotUsed_005c87e0;
-        do {
-            if (*used == 0) {
-                g_anInputEventSlotUsed_005c87e0[index] = 1;
-                return &g_aInputEventPool_005c5890[index];
-            }
-            used++;
-            index++;
-        } while (used < &g_anInputEventSlotUsed_005c87e0[0x100]);
-        return 0;
-    }
-    memset(g_aInputEventPool_005c5890, 0,
-           sizeof(g_aInputEventPool_005c5890));
-    memset(g_anInputEventSlotUsed_005c87e0, 0,
-           sizeof(g_anInputEventSlotUsed_005c87e0));
-    g_nInputEventPoolInitialized_0049d4bc = 1;
-    g_anInputEventSlotUsed_005c87e0[0] = 1;
-    return &g_aInputEventPool_005c5890[0];
-#else
     int index;
 
     if (g_nInputEventPoolInitialized_0049d4bc != 0) {
@@ -123,7 +98,6 @@ InputEvent *AllocateInputEvent(void)
         return &g_aInputEventPool_005c5890[0];
     }
     return 0;
-#endif
 }
 #pragma intrinsic(memset)
 
@@ -262,32 +236,6 @@ void RetainInputEventsOfType(int type)
 /* Function start: 0x462D48 */
 void RemoveInputEvent(InputEvent *event)
 {
-#if 0
-    InputEvent *previous = event->previous;
-    InputEvent *next = event->next;
-
-    if (previous != 0) {
-        if (next != 0) {
-            previous->next = next;
-            event->next->previous = event->previous;
-            ReleaseInputEvent(event);
-            return;
-        }
-        previous->next = 0;
-        g_pInputEventTail_0049d4b8 = event->previous;
-        ReleaseInputEvent(event);
-        return;
-    }
-    if (next != 0) {
-        g_pInputEventHead_0049d4b4 = next;
-        event->next->previous = 0;
-        ReleaseInputEvent(event);
-        return;
-    }
-    g_pInputEventTail_0049d4b8 = 0;
-    g_pInputEventHead_0049d4b4 = 0;
-    ReleaseInputEvent(event);
-#else
     if (event->previous != 0) {
         if (event->next != 0) {
             event->previous->next = event->next;
@@ -306,110 +254,11 @@ void RemoveInputEvent(InputEvent *event)
         }
     }
     ReleaseInputEvent(event);
-#endif
 }
 
 /* Function start: 0x462DFC */
 short GetNextInputEvent(InputEventState *state)
 {
-#if 0
-    short *eventX;
-    int eventY;
-    int type;
-
-    type = 0;
-    if (g_pInputEventHead_0049d4b4 != 0) {
-        eventX = &g_pInputEventHead_0049d4b4->x;
-        eventY = (int)g_pInputEventHead_0049d4b4->y;
-        if ((int)g_stMouseCursorState_0059ab10.viewport->left > (int)*eventX)
-            *eventX = g_stMouseCursorState_0059ab10.viewport->left;
-        else if ((int)g_stMouseCursorState_0059ab10.viewport->right < (int)*eventX)
-            *eventX = g_stMouseCursorState_0059ab10.viewport->right;
-        if ((int)g_stMouseCursorState_0059ab10.viewport->top > eventY)
-            g_pInputEventHead_0049d4b4->y = g_stMouseCursorState_0059ab10.viewport->top;
-        else if ((int)g_stMouseCursorState_0059ab10.viewport->bottom <
-                 eventY)
-            g_pInputEventHead_0049d4b4->y =
-                g_stMouseCursorState_0059ab10.viewport->bottom;
-
-        state->modifiers =
-            (short)g_pInputEventHead_0049d4b4->modifiers;
-        switch (g_pInputEventHead_0049d4b4->type) {
-        case 1:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
-            g_stMouseCursorState_0059ab10.primaryButton = 0;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            type = 1;
-            break;
-        case 2:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
-            g_stMouseCursorState_0059ab10.primaryButton =
-                (unsigned char)g_pInputEventHead_0049d4b4->primaryButton;
-            g_stMouseCursorState_0059ab10.secondaryButton =
-                (unsigned char)g_pInputEventHead_0049d4b4->secondaryButton;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            type = 2;
-            state->value =
-                (int)g_pInputEventHead_0049d4b4->secondaryButton * 2 |
-                (int)g_pInputEventHead_0049d4b4->primaryButton;
-            break;
-        case 3:
-            type = 3;
-            state->value = g_pInputEventHead_0049d4b4->value;
-            state->x = g_stMouseCursorState_0059ab10.x;
-            state->y = g_stMouseCursorState_0059ab10.y;
-            break;
-        case 4:
-            type = 4;
-            state->x = g_pInputEventHead_0049d4b4->value;
-            state->x = g_stMouseCursorState_0059ab10.x;
-            state->y = g_stMouseCursorState_0059ab10.y;
-            break;
-        case 5:
-            type = 5;
-            state->x = g_pInputEventHead_0049d4b4->value;
-            break;
-        case 6:
-            type = 6;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            break;
-        case 7:
-            type = 7;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            break;
-        case 8:
-            type = 8;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            break;
-        case 9:
-            type = 9;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            break;
-        case 10:
-            type = 10;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            break;
-        case 13:
-            g_stMouseCursorState_0059ab10.x = g_pInputEventHead_0049d4b4->x;
-            g_stMouseCursorState_0059ab10.y = g_pInputEventHead_0049d4b4->y;
-            state->x = g_pInputEventHead_0049d4b4->x;
-            state->y = g_pInputEventHead_0049d4b4->y;
-            type = 13;
-            break;
-        }
-        RemoveInputEvent(g_pInputEventHead_0049d4b4);
-    }
-    return type;
-#else
     int clearQueue;
     int type;
     int eventX;
@@ -530,7 +379,6 @@ short GetNextInputEvent(InputEventState *state)
         state->y = g_nQueuedInputY_005c83f2;
     }
     return type;
-#endif
 }
 
 /* Function start: 0x46327F */
@@ -543,31 +391,6 @@ short PollInputEvent(InputEventState *event)
 /* Function start: 0x4632A5 */
 short PeekInputEvent(InputEventState *state, short type)
 {
-#if 0
-    InputEvent *event;
-    int eventType;
-    int modifiers;
-
-    event = g_pInputEventHead_0049d4b4;
-    modifiers = 0;
-    while (event != 0 && event->type != type)
-        event = event->next;
-    if (event != 0) {
-        state->type = event->type;
-        state->value = event->modifiers;
-        state->timestamp = event->timestamp;
-        eventType = (int)event->type;
-        if (eventType == 2 || eventType == 1)
-            modifiers = 1;
-        modifiers |= ((unsigned short)event->primaryButton < 1 ? 0 : -1) & 2;
-        modifiers |= ((unsigned short)event->secondaryButton < 1 ? 0 : -1) & 4;
-        state->modifiers = (short)modifiers;
-        state->x = event->x;
-        state->y = event->y;
-        return 1;
-    }
-    return 0;
-#else
     unsigned int modifiers;
     int eventType;
     InputEvent *event;
@@ -599,19 +422,11 @@ short PeekInputEvent(InputEventState *state, short type)
         return 1;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x4633E7 */
 InputEventState *FindQueuedInputEvent(int type)
 {
-#if 0
-    InputEvent *event = g_pInputEventHead_0049d4b4;
-
-    while (event != 0 && event->type != type)
-        event = event->next;
-    return event != 0;
-#else
     unsigned int modifiers;
     int eventType;
     InputEvent *event;
@@ -650,7 +465,6 @@ InputEventState *FindQueuedInputEvent(int type)
         return &g_stFoundInputEvent_005c3af8;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x46354F */
@@ -661,21 +475,11 @@ void FlushInputEvents(void)
 }
 
 /* Function start: 0x463571 */
-#if 0
-short __stdcall InitializeMouseCursorDepth(int x, int y)
-{
-    (void)x;
-    (void)y;
-    g_nMouseCursorDrawDepth_0049d4d4 = 0;
-    return 1;
-}
-#else
 short InitializeMouseCursorDepth(void)
 {
     g_nMouseCursorDrawDepth_0049d4d4 = 1;
     return 1;
 }
-#endif
 
 /* Function start: 0x4635D3 */
 void CheckCursor(void)
@@ -1444,14 +1248,6 @@ void ExitCleanupHook(void)
 /* Function start: 0x464BFE */
 short IsVectorWithinRange(FixedVector *vector, short range)
 {
-#if 0
-    int magnitude = Vector_magnitude(vector);
-    int fixedRange = abs((int)range << 8);
-
-    if (fixedRange >= magnitude)
-        return 1;
-    return 0;
-#else
     int magnitude;
     int fixedRange;
 
@@ -1460,7 +1256,6 @@ short IsVectorWithinRange(FixedVector *vector, short range)
     if (abs(fixedRange) >= magnitude)
         return 1;
     return 0;
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */

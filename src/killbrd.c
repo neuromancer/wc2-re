@@ -112,21 +112,6 @@ int FindMenuRegionAtPoint(short x, short y,
 /* Function start: 0x45C128 */
 void ResetGameTextContexts(void)
 {
-#if 0
-    g_stRoomScreenViewport_005988a0 = g_stScreenViewport_005d21a0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c, 0);
-    g_stRoomMouseViewport_00598a80 = g_stSecondaryViewBuffer_005d2c90;
-    g_stRoomDisplayViewport_00598a60 = g_stRoomScreenViewport_005988a0;
-    SetEventManagerPump(PollMenuInputDevices);
-    EventManagerHook(UpdateRoomMenuCursor);
-    g_nSavedRoomControllerX_005988b4 =
-        g_nMenuInputRepeatDelay_005a8208;
-    g_nMenuInputRepeatDelay_005a8208 = 6;
-#else
     g_stDefaultTextContext_005d2d20.viewport =
         &g_stModalSourceViewport_005d2c50;
     g_stDefaultTextContext_005d2d20.text =
@@ -140,7 +125,6 @@ void ResetGameTextContexts(void)
     g_stSpaceTextContext_005d21c0.alignment = 2;
     InitializeTextContextFromFont(&g_stSpaceTextContext_005d21c0, 1,
                                   g_abGamePaletteReservedColours_0049cb54[8], -1);
-#endif
 }
 
 /* Function start: 0x418ECD */
@@ -515,9 +499,6 @@ short RecRoom(void)
     }
 
     SetViewportRect(&g_stSecondaryViewBuffer_005d2c90, 0, 0, 319, 199);
-#if 0
-    InitializeRoomViewports();
-#endif
     init_constellation(0);
     g_stConstellationViewport_005a6b40 = g_stSecondaryViewBuffer_005d2c90;
     SetViewportRect(&g_stConstellationViewport_005a6b40,
@@ -1079,17 +1060,12 @@ short __stdcall ReadPacketSectionData(PacketSectionHandle *handle,
 /* Function start: 0x4254C0 */
 void CheckHeapBlockSignature(unsigned char *shape)
 {
-#if 0
-    if (*(int *)(shape - 8) != 0x6666656a)
-        exit_squadron(g_szInvalidShapeAllocation_004969ec);
-#else
     if (*(int *)(shape - 8) != 0x6666656a) {
         if (IsFreedHeapBlockTracked(shape) != 0)
             exit_squadron("not jefftep (freed)");
         else
             exit_squadron("not jefftep");
     }
-#endif
 }
 
 /* Function start: 0x42550E */

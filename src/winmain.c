@@ -13,18 +13,6 @@
 /* Function start: 0x417550 */
 void SaveGamePalette(void)
 {
-#if 0
-    int index;
-    unsigned short *entry;
-
-    index = 0;
-    entry = DAT_005a8a50;
-    do {
-        GetPaletteEntry((short)index, entry);
-        entry += 3;
-        index++;
-    } while (entry < DAT_005a8a50 + 0x300);
-#else
     unsigned short index;
 
     for (index = 0; (short)index < 256; index++) {
@@ -32,16 +20,11 @@ void SaveGamePalette(void)
             WaitForVerticalBlankThunk();
         GetPaletteEntry(index, g_ausPaletteWords_005d3220[index]);
     }
-#endif
 }
 
 /* Function start: 0x4175AD */
 void RestoreGamePalette(void)
 {
-#if 0
-    WaitForVerticalBlankThunk();
-    DIBwholePaletteFromWords(DAT_005a8a50);
-#else
     short index;
 
     for (index = 0; (short)index < 256; index++) {
@@ -49,7 +32,6 @@ void RestoreGamePalette(void)
             WaitForVerticalBlankThunk();
         SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
     }
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -714,9 +696,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     ServiceAudioStream();
     DestroyWindow(g_hMainWindow_005d10e0);
     DIBunInstall();
-#if 0
-    Streamer_close();
-#endif
     CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
     return 1;
 }
@@ -1272,16 +1251,11 @@ void GetJoystickPosition(unsigned int *x, unsigned int *y,
 /* Function start: 0x455346 */
 short GetJoystickButtons(void)
 {
-#if 0
-    return ((short)g_aJoystickInfo_005d10b0[1].wButtons << 2) |
-           (unsigned short)g_aJoystickInfo_005d10b0[0].wButtons;
-#else
     short buttons;
 
     buttons = (g_aJoystickInfo_005d10b0[1].wButtons << 2) |
               g_aJoystickInfo_005d10b0[0].wButtons;
     return buttons;
-#endif
 }
 
 /* Function start: 0x45536F */
@@ -1398,68 +1372,6 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 /* Function start: 0x455624 */
 void CheckAllGuardedAllocations(void)
 {
-#if 0
-    GuardedAllocation *allocation = g_pGuardedAllocationHead_0049c300;
-#ifdef WC1_SDL
-    unsigned char *guard;
-    unsigned int guardValue;
-#else
-    unsigned int *guard;
-#endif
-    int prefixCorrupt;
-    int i;
-    int suffixCorrupt;
-
-    while (allocation != 0) {
-#ifdef WC1_SDL
-        guard = (unsigned char *)allocation->block;
-#else
-        guard = (unsigned int *)allocation->block;
-#endif
-        prefixCorrupt = 0;
-        i = 0x100;
-        do {
-#ifdef WC1_SDL
-            memcpy(&guardValue, guard, sizeof(guardValue));
-            if (guardValue != 0xabababab)
-                prefixCorrupt = prefixCorrupt + 1;
-            guard += sizeof(guardValue);
-#else
-            if (*guard != 0xabababab)
-                prefixCorrupt = prefixCorrupt + 1;
-            guard = guard + 1;
-#endif
-            i = i - 1;
-        } while (i != 0);
-        if (prefixCorrupt != 0)
-            ReportHeapGuardCorruption(allocation->block, prefixCorrupt, 0);
-
-#ifdef WC1_SDL
-        guard += allocation->size;
-#else
-        guard = (unsigned int *)((unsigned char *)guard + allocation->size);
-#endif
-        suffixCorrupt = 0;
-        i = 0x100;
-        do {
-#ifdef WC1_SDL
-            memcpy(&guardValue, guard, sizeof(guardValue));
-            if (guardValue != 0xabababab)
-                suffixCorrupt = suffixCorrupt + 1;
-            guard += sizeof(guardValue);
-#else
-            if (*guard != 0xabababab)
-                suffixCorrupt = suffixCorrupt + 1;
-            guard = guard + 1;
-#endif
-            i = i - 1;
-        } while (i != 0);
-        if (suffixCorrupt != 0)
-            ReportHeapGuardCorruption(allocation->block, suffixCorrupt, 1);
-
-        allocation = allocation->next;
-    }
-#endif
 }
 
 /* Function start: 0x45562F */

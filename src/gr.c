@@ -1637,19 +1637,6 @@ void DrawFontGlyph(char character, TextContext *context, int height,
 /* Function start: 0x426694 */
 void MarkActivePaletteEntries(Viewport *viewport, unsigned char *active)
 {
-#if 0
-    unsigned short rgb[3];
-    int index;
-
-    (void)viewport;
-    index = 0;
-    do {
-        GetPaletteEntry((short)index, rgb);
-        if (rgb[0] != 0 || rgb[1] != 0 || rgb[2] != 0)
-            active[index] = 1;
-        index++;
-    } while (index < 256);
-#endif
     RasterLineHook("EstablishColors");
     return;
 }
@@ -1670,11 +1657,6 @@ void SetPaletteEntry(short index, short *rgb)
 void DrawSpriteDefault(Viewport *viewport, short x, short y,
                        unsigned char *shape, short frame)
 {
-#if 0
-    if (shape != 0 && frame >= 0)
-        DrawSpriteTransformed(viewport, x, y, shape, frame,
-                              0, 0x100, 0x100, 0, 0);
-#else
     if (shape == 0)
         return;
     if (frame < 0)
@@ -1685,7 +1667,6 @@ void DrawSpriteDefault(Viewport *viewport, short x, short y,
         return;
     DrawSpriteTransformed(viewport, x, y, shape, frame,
                           0, 0x100, 0x100, 0, 0);
-#endif
 }
 
 /* Function start: 0x426769 */
@@ -1965,18 +1946,12 @@ void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char *shape, short frame,
                            unsigned char colour)
 {
-#if 0
-    SetSolidColourTranslation(colour);
-    DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
-                          0x100, 0x100, 0, 1);
-#else
     if (viewport->left >= 0) {
         SetSolidColourTranslation(colour);
         if (HasValidShapeAllocationSignature(shape) != 0)
             DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
                                   0x100, 0x100, 0, 1);
     }
-#endif
 }
 
 /* Function start: 0x427047 */
@@ -2014,22 +1989,11 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
 /* Function start: 0x427123 */
 void ClearViewport(Viewport *viewport, short colour)
 {
-#if 0
-    if (viewport->pixels != 0 && viewport->rowOffsets != 0) {
-        ClipViewportToScreen(viewport);
-        FillRasterClip(&g_stRasterClip_004b2088, colour);
-    }
-    if (viewport == &g_stScreenViewport_005d21a0) {
-        MarkDibDirty();
-        DIBslamReal();
-    }
-#else
     if (viewport->pixels != 0 && viewport->rowOffsets != 0 &&
         viewport->left >= 0) {
         ClipViewportToScreen(viewport);
         FillRasterClip(&g_stRasterClip_004b2088, colour);
     }
-#endif
 }
 
 /* Function start: 0x427179 */
@@ -2317,28 +2281,15 @@ void UpdateStreamerStoppedFlag(void)
 /* Function start: 0x42894B */
 void SignalAudioMixerWakeEvent(void)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0)
-        ix_streamer_configure(2, 0);
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     ix_streamer_configure(2, 0);
     return;
-#endif
 }
 
 /* Function start: 0x428900 */
 void InitializeAudioStreamer(HWND window)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0) {
-        ix_streamer_configure(3, (void *)1);
-        ix_streamer_configure(0, window);
-        ix_streamer_init();
-        ix_streamer_set_intensity(0x19);
-    }
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     ix_streamer_configure(3, (void *)1);
@@ -2346,7 +2297,6 @@ void InitializeAudioStreamer(HWND window)
     ix_streamer_init();
     ix_streamer_set_intensity(0x19);
     return;
-#endif
 }
 
 /* Function start: 0x4289BF */
@@ -2356,12 +2306,6 @@ void Streamer_open(const char *streamName)
 
     if (g_nAudioEnabled_0049c244 != 0) {
         streamsDirectory = LocateStreamsDirOnDisc();
-#if 0
-        if (streamsDirectory == 0) {
-            ShowNoticeMessageBox("Unable to locate streamed music.\n");
-            exit_squadron("");
-        }
-#endif
         sprintf(g_szStreamerPath_005b2818, "%s%s",
                 streamsDirectory, streamName);
         SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_005b2818);
@@ -2374,13 +2318,6 @@ void Streamer_open(const char *streamName)
 /* Function start: 0x428A2F */
 void Streamer_play(void)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0 && g_nStreamerAudioPlaying_005b2810 == 0) {
-        g_nStreamerAudioPlaying_005b2810 = 1;
-        SoundDebugPrintf("Streamer_play");
-        ix_streamer_audio_play();
-    }
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     if (g_nStreamerAudioPlaying_005b2810 == 0) {
@@ -2388,19 +2325,11 @@ void Streamer_play(void)
         ix_streamer_audio_play();
     }
     return;
-#endif
 }
 
 /* Function start: 0x428A6D */
 void Streamer_stop(void)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0 && g_nStreamerAudioPlaying_005b2810 != 0) {
-        SoundDebugPrintf("Streamer_stop");
-        ix_streamer_audio_stop();
-        g_nStreamerAudioPlaying_005b2810 = 0;
-    }
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     if (g_nStreamerAudioPlaying_005b2810 != 0) {
@@ -2408,7 +2337,6 @@ void Streamer_stop(void)
         g_nStreamerAudioPlaying_005b2810 = 0;
     }
     return;
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2421,26 +2349,12 @@ void ClearStreamerTrigger(void)
 /* Function start: 0x428AEB */
 void SetStreamerTrigger(int trigger)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0) {
-        if (g_nStreamerAudioPlaying_005b2810 == 0) {
-            ForceStreamerTrigger(trigger);
-            return;
-        }
-        SoundDebugPrintf("Streamer_trigger %d", trigger);
-        if (trigger >= 0)
-            ix_streamer_set_trigger((char)trigger);
-        if (g_nStreamerAudioPlaying_005b2810 == 0)
-            Streamer_play();
-    }
-#else
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_streamer_set_trigger((char)trigger);
         if (trigger >= 0 && g_nStreamerAudioPlaying_005b2810 == 0)
             ForceStreamerTrigger(trigger);
     }
     return;
-#endif
 }
 
 /* Function start: 0x428AAB */
@@ -2458,9 +2372,6 @@ void SetStreamerIntensity(int intensity)
 void ForceStreamerTrigger(int trigger)
 {
     if (g_nAudioEnabled_0049c244 != 0) {
-#if 0
-        SoundDebugPrintf("FORCE");
-#endif
         if (trigger > 0)
             ix_streamer_force_trigger((char)trigger);
         if (g_nStreamerAudioPlaying_005b2810 == 0)
@@ -2472,13 +2383,8 @@ void ForceStreamerTrigger(int trigger)
 /* Function start: 0x428DA3 */
 void SetMusicStreamVolume(unsigned short volume)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0)
-        ix_streamer_set_volume(volume);
-#else
     ix_streamer_set_volume(volume);
     return;
-#endif
 }
 
 /* Function start: 0x428DBF */
@@ -2496,17 +2402,10 @@ unsigned int GetStreamerState(void)
 /* Function start: 0x428B86 */
 void Streamer_close(void)
 {
-#if 0
-    if (g_nAudioEnabled_0049c244 != 0) {
-        SoundDebugPrintf("Streamer_close");
-        ix_streamer_close_stream_file();
-    }
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     ix_streamer_close_stream_file();
     return;
-#endif
 }
 
 /* Function start: 0x428BAD */

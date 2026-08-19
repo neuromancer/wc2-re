@@ -415,67 +415,6 @@ const ShortVector g_aaFormationPositions_00465ed8[5][8] = {
 const char g_szErrorLoadingPilotSpeech_00466010_WC1_UNMAPPED /* no-address */[32] =
     "Error loading pilot speech";
 
-static unsigned int g_anAnimExplosion1_00466060_WC1_UNMAPPED /* no-address */[22] = {
-    0, 0x406, 1, 0x406, 2, 0x406, 0x406, 3, 0x406, 0x406,
-    4, 0x406, 0x406, 0x406, 5, 0x406, 0x406, 0x406, 0x406,
-    0x406, 0xa000, 0
-};
-static unsigned int g_anAnimExplosion2_004660b8_WC1_UNMAPPED /* no-address */[14] = {
-    0, 0x406, 1, 0x406, 2, 0x406, 3, 0x406, 4, 0x406, 5,
-    6, 7, 0xa000
-};
-static unsigned int g_anAnimLaserSpark_004660f0_WC1_UNMAPPED /* no-address */[8] = {
-    0, 1, 2, 3, 4, 5, 0xa000, 0
-};
-static unsigned int g_anAnimBlueSpark_00466110_WC1_UNMAPPED /* no-address */[6] = {
-    0, 1, 2, 3, 0xa000, 0
-};
-static unsigned int g_anAnimRedSpark_00466128_WC1_UNMAPPED /* no-address */[6] = {
-    0, 1, 2, 3, 0xa000, 0
-};
-static unsigned int g_anAnimSparkTrail_00466140_WC1_UNMAPPED /* no-address */[6] = {
-    0, 1, 2, 3, 0xa000, 0
-};
-static unsigned int g_anAnimGirder_00466158_WC1_UNMAPPED /* no-address */[8] = {
-    0, 1, 2, 3, 4, 5, 0x9000, 0
-};
-static unsigned int g_anAnimTubing_00466178_WC1_UNMAPPED /* no-address */[8] = {
-    6, 7, 8, 9, 10, 11, 0x9000, 0
-};
-static unsigned int g_anAnimGlass_00466198_WC1_UNMAPPED /* no-address */[18] = {
-    12, 13, 14, 15, 16, 17, 18, 19, 0x92, 0x91, 0x90,
-    0x8f, 0x8e, 0x8d, 0x8c, 20, 0x9000, 0
-};
-static unsigned int g_anAnimMetalSheet_00466220_WC1_UNMAPPED /* no-address */[14] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0x9000
-};
-static unsigned int g_anAnimWing_00466258_WC1_UNMAPPED /* no-address */[18] = {
-    13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
-    27, 28, 0x9000, 0
-};
-static unsigned int g_anAnimMine_004662a0_WC1_UNMAPPED /* no-address */[14] = {
-    0, 1, 2, 0x41, 0x9000, 0, 0, 1, 2, 3, 4, 5, 0x9000, 0
-};
-static unsigned int g_anAnimAsteroidForward_004662d8_WC1_UNMAPPED /* no-address */[16] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 0x9000, 0
-};
-static unsigned int g_anAnimAsteroidShortForward_00466318_WC1_UNMAPPED /* no-address */[14] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0x9000
-};
-static unsigned int g_anAnimAsteroidReverse_00466350_WC1_UNMAPPED /* no-address */[16] = {
-    13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0x9000, 0
-};
-static unsigned int g_anAnimAsteroidShortReverse_00466390_WC1_UNMAPPED /* no-address */[14] = {
-    12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, 0x9000
-};
-static unsigned int g_anAnimEjectedPilot_004663c8_WC1_UNMAPPED /* no-address */[14] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0x9000
-};
-static unsigned int g_anAnimHyperspaceJumpFlash_00466400_WC1_UNMAPPED /* no-address */[22] = {
-    0, 0x402, 0x404, 0x404, 0x408, 0x408, 0x408, 0x410,
-    0x410, 0x410, 0x410, 0x820, 0x820, 0x810, 0x808, 0x804,
-    1, 0x804, 0x804, 0x804, 0x804, 0xa000
-};
 
 /* Child/hardpoint offsets at 0x004682F0. */
 const ShortVector g_aChildOffsets_004682f0[56] = {
@@ -1649,8 +1588,79 @@ const char g_szFizzleFade_00496a7c[12] = "fizzle_fade";
 const char g_szSnowViewport_00496a88[16] = "snow_viewport";
 
 
+
+/* Frame lists the object-type records point at; 0xA000 and 0x9000 end a
+ * sequence.  They sit immediately below the table in the retail image. */
+static const short g_asExplosionSmallAnimation_00496af0[8] = {
+    0, 1, 2, 3, 4, 5, 6, (short)0xa000
+};
+static const short g_asExplosionMediumAnimation_00496b00[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0xa000, 0, 0
+};
+static const short g_asExplosionLargeAnimation_00496b20[20] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    (short)0xa000, 0, 0
+};
+static const short g_asLaserSparkAnimation_00496b48[8] = {
+    0, 1, 2, 3, 4, 5, (short)0xa000, 0
+};
+static const short g_asBlueSparkAnimation_00496b58[8] = {
+    0, 1, 2, 3, (short)0xa000, 0, 0, 0
+};
+static const short g_asRedSparkAnimation_00496b68[8] = {
+    0, 1, 2, 3, (short)0xa000, 0, 0, 0
+};
+static const short g_asSparkTrailAnimation_00496b78[8] = {
+    0, 1, 2, 3, (short)0xa000, 0, 0, 0
+};
+static const short g_asGirderChunkAnimation_00496b88[8] = {
+    0, 1, 2, 3, 4, 5, (short)0x9000, 0
+};
+static const short g_asShipTubingAnimation_00496b98[8] = {
+    6, 7, 8, 9, 10, 11, (short)0x9000, 0
+};
+static const short g_asBurningDebrisAnimation_00496ba8[20] = {
+    12, 13, 14, 15, 16, 17, 18, 19, 146, 145, 144, 143, 142, 141, 140,
+    20, (short)0x9000, 0, 0, 0
+};
+static const short g_asORingDebrisAnimation_00496bd0[8] = {
+    21, 22, 23, 24, 25, 26, (short)0x9000, 0
+};
+static const short g_asPipeDebrisAnimation_00496be0[8] = {
+    27, 28, 29, 30, 31, 32, (short)0x9000, 0
+};
+static const short g_asMetalSheetAnimation_00496bf0[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
+};
 static const short g_asDataCapsuleAnimation_00496c10[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
+};
+static const short g_asMineAnimation_00496c28[12] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
+};
+static const short g_asChaffPodAnimation_00496c40[20] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000, 0, 1, 2, 3, 4, 5,
+    (short)0x9000, 0
+};
+static const short g_asAsteroidSpinAnimation_00496c68[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
+};
+static const short g_asAsteroidRollAnimation_00496c88[16] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
+};
+static const short g_asAsteroidSpinReverseAnimation_00496ca8[16] = {
+    12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, (short)0x9000, 0, 0
+};
+static const short g_asAsteroidRollReverseAnimation_00496cc8[16] = {
+    12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, (short)0x9000, 0, 0
+};
+static const short g_asEjectedPilotAnimation_00496ce8[12] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, (short)0x9000, 0
+};
+static const short g_asShipDebrisFlashAnimation_00496d00[24] = {
+    0, 1026, 1028, 1028, 1032, 1032, 1032, 1040, 1040, 1040, 1040, 2080,
+    2080, 2064, 2056, 2052, 1, 2052, 2052, 2052, 2052, (short)0xa000, 0,
+    0
 };
 
 /* WC2 keeps its own 49-record table: slots 0-6 are the ship types the game
@@ -1716,108 +1726,126 @@ ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT] = {
     },
     {
         "Chaff Pod", OBJECT_CLASS_MISSILE, 0, 20, 50, 1, 768, 400, 160,
-        0, 4, 1000, 90, 0, 4811840, 1689, 11, 11, 11, 100
+        0, 4, 1000, 90, 0, (unsigned char
+        *)g_asChaffPodAnimation_00496c40, 1689, 11, 11, 11, 100
     },
     {
         "Porcupine", OBJECT_CLASS_MINE, 0, 21, 20, 5, 768, 110, 120, 0,
-        4, 20000, 20, 20, 4811816, 0, 0, 2, 2
+        4, 20000, 20, 20, (unsigned char *)g_asMineAnimation_00496c28,
+        0, 0, 2, 2
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 22, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811880, 0, 0, 1, 13
+        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0,
+        0, 1, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 23, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811912, 0, 0, 1, 12
+        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation_00496c88, 0,
+        0, 1, 12
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 24, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811944, 0, 0, 1, 13
+        0, 0, 0, (unsigned char
+        *)g_asAsteroidSpinReverseAnimation_00496ca8, 0, 0, 1, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 25, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811976, 0, 0, 1, 12
+        0, 0, 0, (unsigned char
+        *)g_asAsteroidRollReverseAnimation_00496cc8, 0, 0, 1, 12
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 26, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811880, 0, 0, 2, 13
+        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0,
+        0, 2, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 27, 100, 300, 1024, 0, 0, 0, -1,
-        0, 0, 0, 4811912, 0, 0, 2, 12
+        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation_00496c88, 0,
+        0, 2, 12
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 28, 10, 4, 192, 0, 0, 0, -1, 0, 0,
-        0, 4811880, 0, 0, 2, 13
+        0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0, 0, 2,
+        13
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 29, 10, 1, 2048, 0, 0, 0, 0, 0, 0,
-        0, 4811656, 0, 0, 2, 5
+        0, (unsigned char *)g_asGirderChunkAnimation_00496b88, 0, 0, 2,
+        5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 30, 10, 1, 2048, 0, 0, 0, 0, 0, 0,
-        0, 4811672, 0, 0, 2, 5
+        0, (unsigned char *)g_asShipTubingAnimation_00496b98, 0, 0, 2, 5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 31, 20, 2, 1280, 0, 0, 0, 0, 0, 0,
-        0, 4811760, 0, 0, 1, 11
+        0, (unsigned char *)g_asMetalSheetAnimation_00496bf0, 0, 0, 1,
+        11
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 32, 20, 2, 1280, 0, 0, 0, 0, 0, 0,
-        0, 4811792, 0, 0, 1, 2
+        0, (unsigned char *)g_asDataCapsuleAnimation_00496c10, 0, 0, 1,
+        2
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 33, 20, 2, 768, 0, 0, 0, 0, 0, 0, 0,
-        4811688, 0, 0, 1, 15
+        (unsigned char *)g_asBurningDebrisAnimation_00496ba8, 0, 0, 1,
+        15
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 34, 2, 1, 1792, 0, 0, 0, 0, 0, 0, 0,
-        4811728, 0, 0, 1, 5
+        (unsigned char *)g_asORingDebrisAnimation_00496bd0, 0, 0, 1, 5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 35, 6, 1, 1536, 0, 0, 0, 0, 0, 0, 0,
-        4811744, 0, 0, 1, 5
+        (unsigned char *)g_asPipeDebrisAnimation_00496be0, 0, 0, 1, 5
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 36, 0, 0, 768, 0, 0, 0, -1, 6000,
-        0, 0, 4811504, 0, 0, 1
+        0, 0, (unsigned char *)g_asExplosionSmallAnimation_00496af0, 0,
+        0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 37, 0, 0, 1024, 0, 0, 0, -1,
-        6000, 0, 0, 4811520, 0, 0, 1
+        6000, 0, 0, (unsigned char
+        *)g_asExplosionMediumAnimation_00496b00, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 38, 0, 0, 336, 0, 0, 0, -1, 6000,
-        0, 0, 4811552, 0, 0, 1
+        0, 0, (unsigned char *)g_asExplosionLargeAnimation_00496b20, 0,
+        0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 39, 0, 0, 256, 0, 0, 0, 0, 0, 0,
-        0, 4811592, 0, 0, 1
+        0, (unsigned char *)g_asLaserSparkAnimation_00496b48, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 40, 0, 0, 256, 0, 0, 0, 0, 0, 0,
-        0, 4811624, 0, 0, 2, 3
+        0, (unsigned char *)g_asRedSparkAnimation_00496b68, 0, 0, 2, 3
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 41, 0, 0, 256, 0, 0, 0, 0, 0, 0,
-        0, 4811608, 0, 0, 2, 3
+        0, (unsigned char *)g_asBlueSparkAnimation_00496b58, 0, 0, 2, 3
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 42, 1, 1, 256, 0, 0, 0, 0, 0, 0,
-        0, 4811640, 0, 0, 2, 3
+        0, (unsigned char *)g_asSparkTrailAnimation_00496b78, 0, 0, 2, 3
     },
     { "", OBJECT_CLASS_FIXED_OBJECT, 0, 43, 0, 0, 256 },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 44, 6, 10, 512, 0, 0, 0, 0, 0, 0, 0,
-        4812008, 0, 0, 1, 12
+        (unsigned char *)g_asEjectedPilotAnimation_00496ce8, 0, 0, 1, 12
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 45, 0, 0, 1024, 0, 0, 0, 0, 0, 0,
-        0, 4812032, 0, 0, 1
+        0, (unsigned char *)g_asShipDebrisFlashAnimation_00496d00, 0, 0,
+        1
     },
     {
         "data capsule", OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0,
-        0, 0, 0, 0, 0, 4811792, 0, 0, 1
+        0, 0, 0, 0, 0, (unsigned char
+        *)g_asDataCapsuleAnimation_00496c10, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_FIXED_OBJECT, 0, 62, 0, 0, 192, 0, 0, 0, 0, 0,

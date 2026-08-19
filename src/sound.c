@@ -50,64 +50,6 @@ void StopSoundsUsingWave(const char *name)
 /* Function start: 0x42418C */
 void playWAVE(const char *filename, int looping, int volume)
 {
-#if 0
-    WaveTableEntry *wave;
-    ActiveSoundEntry *active;
-    IxSound *sound;
-    unsigned char *fileData;
-    long fileSize;
-    int file;
-
-    if (g_nAudioEnabled_0049c244 != 0) {
-        ReleaseFinishedSoundEntries();
-        wave = FindWaveTableEntryByName(filename);
-        if (wave != 0) {
-            if (looping != 0) {
-                active = AllocateActiveSoundEntry();
-                active->sound = ix_system_new_sound(wave->sample);
-                active->sound->ix_system_sound_set_volume(volume);
-                ix_sound_start(active->sound);
-                return;
-            }
-            sound = ix_system_new_sound(wave->sample);
-            sound->ix_sound_set_delete_on_stop(1);
-            sound->ix_system_sound_set_volume(volume);
-            ix_sound_start(sound);
-            return;
-        }
-
-        file = _open(filename, 0x8000);
-        if (file == -1) {
-            MessageBoxA(0, g_szPlayWaveOpenError_004961ec,
-                        filename, MB_ICONHAND);
-            _exit(1);
-        }
-        fileSize = _filelength(file);
-        fileData = (unsigned char *)malloc((unsigned int)fileSize);
-        _read(file, fileData, (unsigned int)fileSize);
-        _close(file);
-
-        wave = AllocateWaveTableEntry();
-        wave->sample = ix_system_new_sample();
-        wave->sample->ix_sample_load_wav(fileData, fileSize);
-        if (looping != 0) {
-            wave->sample->flags |= 2;
-            active = AllocateActiveSoundEntry();
-            active->sound = ix_system_new_sound(wave->sample);
-            active->sound->ix_system_sound_set_volume(volume);
-            sound = active->sound;
-        } else {
-            sound = ix_system_new_sound(wave->sample);
-            sound->ix_sound_set_delete_on_stop(1);
-            sound->ix_system_sound_set_volume(volume);
-        }
-        ix_sound_start(sound);
-
-        wave->name = (char *)malloc(strlen(filename) + 1);
-        strcpy(wave->name, filename);
-        free(fileData);
-    }
-#else
     char error[100];
     WaveTableEntry *wave;
     ActiveSoundEntry *active;
@@ -172,7 +114,6 @@ void playWAVE(const char *filename, int looping, int volume)
     wave->name = (char *)malloc(strlen(filename) + 1);
     strcpy(wave->name, filename);
     free(fileData);
-#endif
 }
 
 /* Function start: 0x424417 */
@@ -279,9 +220,6 @@ void PlaySnowStaticSound(void)
 /* Function start: 0x42476B */
 void ServiceSoundSystem(void)
 {
-#if 0
-    ix_system_service_sounds();
-#else
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
         if (g_pSpeechSound_004a2658 != 0 &&
@@ -301,21 +239,14 @@ void ServiceSoundSystem(void)
             }
         }
     }
-#endif
 }
 
 /* Function start: 0x42482E */
 void SetSoundEffectsVolume(int volume)
 {
-#if 0
-    if (volume >= 0 && volume < 65000)
-        ix_system_set_master_volume((unsigned short)volume);
-    SoundDebugPrintf("Setting SFX Volume to %d", volume);
-#else
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     ix_system_set_master_volume((unsigned short)volume);
-#endif
 }
 
 /* Function start: 0x42485C */
@@ -839,41 +770,6 @@ char *GetPackedStringByIndex(CutsceneResourceTable *resources,
 /* Function start: 0x432E23 */
 void RewriteDiskFileGraphicsExtensions(char *fileName)
 {
-#if 0
-    DiskFileRecord *record;
-    char *extensionPosition;
-    char extension;
-
-    record = g_pDiskFileRecords_005a7cf0;
-    switch (videoMode) {
-    case 0:
-        extension = 'v';
-        break;
-    case 1:
-        extension = 'e';
-        break;
-    case 3:
-        extension = 't';
-        break;
-    }
-
-    while (record->name[0] != '\0') {
-        extensionPosition = strrchr(record->name, '.');
-#ifdef WC1_SDL
-        if (extensionPosition != 0) {
-            extensionPosition++;
-            if (toupper((int)*extensionPosition) == 'V')
-                *extensionPosition = extension;
-        }
-#else
-        if (extensionPosition++ != 0 &&
-            toupper((int)*extensionPosition) == 'V')
-            *extensionPosition = extension;
-#endif
-        record++;
-    }
-    return 0;
-#else
     char *extensionPosition;
 
     if (g_cCutsceneVideoMode_00499c48 == 13) {
@@ -890,7 +786,6 @@ void RewriteDiskFileGraphicsExtensions(char *fileName)
             *extensionPosition = 'E';
 #endif
     }
-#endif
 }
 
 /* Function start: 0x432E83 */
@@ -942,32 +837,19 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     file = fopen("wc2.cfg", "rb");
 #endif
     while (file != 0) {
-#if 0
-        if ((short)fscanf(file, "%s", destination) == -1) {
-            fclose(file);
-            break;
-        }
-#else
         scanResult = (short)fscanf(file, "%s", destination);
         if (scanResult == -1) {
             fclose(file);
             break;
         }
-#endif
         g_pStartupArguments_005c57f0[argumentCount++] =
             destination;
         destination = strchr(destination, 0) + 1;
     }
 
     while (argc-- != 0) {
-#if 0
-        strcpy(destination, argv[argumentIndex]);
-        g_pStartupArguments_005c57f0[argumentCount++] = destination;
-        argumentIndex++;
-#else
         strcpy(destination, argv[argumentIndex++]);
         g_pStartupArguments_005c57f0[argumentCount++] = destination;
-#endif
         destination = strchr(destination, 0) + 1;
     }
     return (short)(argumentCount - 1);

@@ -1335,38 +1335,6 @@ typedef struct MissionHeader {
 } MissionHeader;
 #pragma pack(pop)
 
-#if 0
-/* WC1 expanded the on-disk mission record and reused the +0x28 slot for the
- * built-in opening-sequence command streams. */
-typedef union MissionShipBehaviour {
-    const short *cannedSequence;
-    int pilot;
-} MissionShipBehaviour;
-
-#pragma pack(push, 1)
-typedef struct MissionShipRecord {
-    enum ObjectType type;             /* +0x00 */
-    enum Side side;                   /* +0x04 */
-    signed char leader;               /* +0x08 */
-    signed char field_9;              /* +0x09 */
-    enum ShipMissionType missionType; /* +0x0A */
-    signed char navPoint;             /* +0x0E */
-    FixedVector position;             /* +0x0F */
-    short pitch;                      /* +0x1B */
-    short yaw;                        /* +0x1D */
-    short roll;                       /* +0x1F */
-    signed char formationSpot;        /* +0x21 */
-    short speed;                      /* +0x22 */
-    int rating;                       /* +0x24 */
-    MissionShipBehaviour behaviour;  /* +0x28 */
-    short field_2c;                   /* +0x2C */
-    int field_2e;                     /* +0x2E */
-    signed char state;                /* +0x32 */
-    signed char leaderMissionIndex;   /* +0x33 */
-    signed char formationIndex;       /* +0x34 */
-    signed char targetMissionIndex;   /* +0x35 */
-} MissionShipRecord;
-#else
 /* WC2 copies sixteen packed 0x3c-byte mission records directly from packet 3
  * into the table at 0x00492290. */
 #pragma pack(push, 1)
@@ -1394,20 +1362,13 @@ typedef struct MissionShipRecord {
     signed char missionParameter;     /* +0x3A: mission target/nav index */
     signed char portrait;             /* +0x3B */
 } MissionShipRecord;
-#endif
 
 /* WC1 expanded the first short to an int after loading; WC2 retains the
  * packet's packed 64-byte representation in memory. */
 typedef struct MissionObjectiveSource {
-#if 0
-    int type;                         /* +0x00: sign-extended disk short */
-    short index;                      /* +0x04 */
-    char description[60];             /* +0x06 */
-#else
     short type;                       /* +0x00 */
     short index;                      /* +0x02 */
     char description[60];             /* +0x04 */
-#endif
 } MissionObjectiveSource;
 
 /* Five packed WC2 ship-resource cache entries at 0x00493398. */
@@ -1431,14 +1392,6 @@ typedef struct MissionObjective {
     short mapX;                       /* +0x00 */
     short mapY;                       /* +0x02 */
     unsigned char field_4;            /* +0x04 */
-#if 0
-    int type;                         /* +0x05 */
-    signed char index;                /* +0x09 */
-    unsigned char flags;              /* +0x0A */
-    const char *displayName;          /* +0x0B */
-    char *name;                       /* +0x0F: mission description */
-    FixedVector position;             /* +0x13 */
-#else
     short type;                       /* +0x05 */
     signed char index;                /* +0x07 */
     unsigned char field_8;            /* +0x08 */
@@ -1446,7 +1399,6 @@ typedef struct MissionObjective {
     const char *displayName;          /* +0x0A */
     char *name;                       /* +0x0E: mission description */
     FixedVector position;             /* +0x12 */
-#endif
 } MissionObjective;
 
 /* One objective in SAVEGAME.WLD.  The runtime integer and two pointer-sized
@@ -1500,13 +1452,8 @@ typedef struct BarracksAnimationState {
 } BarracksAnimationState;
 #pragma pack(pop)
 
-#if 0
-typedef char MissionNavPoint_size_must_be_0x51[
-    sizeof(MissionNavPoint) == 0x51 ? 1 : -1];
-#else
 typedef char MissionNavPoint_size_must_be_0x65[
     sizeof(MissionNavPoint) == 0x65 ? 1 : -1];
-#endif
 
 /* Packet 1 from an ace-specific intel file.  The first eight bytes are not
  * consumed here; the final words override flight music and enemy comms. */
@@ -1532,24 +1479,14 @@ typedef char MissionHeader_size_must_be_0x18[
 typedef char MissionObjectiveSource_size_must_be_0x40[
     sizeof(MissionObjectiveSource) == 0x40 ? 1 : -1];
 #ifndef WC1_SDL
-#if 0
-typedef char MissionObjective_size_must_be_0x1f[
-    sizeof(MissionObjective) == 0x1f ? 1 : -1];
-#else
 typedef char MissionObjective_size_must_be_0x1e[
     sizeof(MissionObjective) == 0x1e ? 1 : -1];
-#endif
 #endif
 typedef char SaveGameDiskObjective_size_must_be_0x19[
     sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
 #ifndef WC1_SDL
-#if 0
-typedef char SaveGameRecord_size_must_be_0x3b0[
-    sizeof(SaveGameRecord) == 0x3b0 ? 1 : -1];
-#else
 typedef char SaveGameRecord_size_must_be_0x3a0[
     sizeof(SaveGameRecord) == 0x3a0 ? 1 : -1];
-#endif
 #endif
 typedef char SaveGameDiskRecord_size_must_be_0x33c[
     sizeof(SaveGameDiskRecord) == 0x33c ? 1 : -1];

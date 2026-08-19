@@ -181,17 +181,6 @@ void DestroyGlobalDebugOverlayConsole(void)
 /* Function start: 0x40FDAD */
 void SystemDebugPrintf(const char *format, ...)
 {
-#if 0
-#ifdef WC1_SDL
-    va_list arguments;
-
-    va_start(arguments, format);
-    vfprintf(stderr, format, arguments);
-    va_end(arguments);
-#else
-    (void)format;
-#endif
-#else
     va_list arguments;
 
     va_start(arguments, format);
@@ -203,7 +192,6 @@ void SystemDebugPrintf(const char *format, ...)
     DebugOverlayPrintf(g_pDebugOverlay_004a2548,
                        g_szSystemDebugBuffer_004a2550);
     WriteDebugString(g_szSystemDebugBuffer_004a2550);
-#endif
 }
 
 /* Function start: 0x40FE23 */
@@ -215,12 +203,6 @@ char PumpMessagesDuringWait(void)
 /* Function start: 0x40FE3E */
 unsigned char TakeDebugStepFlag(void)
 {
-#if 0
-    unsigned char value = (unsigned char)g_dwDebugOverlayKeyLatch_0049cb2c;
-
-    g_dwDebugOverlayKeyLatch_0049cb2c = 0;
-    return value;
-#endif
     return g_pDebugOverlay_004a2548->TakeStepFlag();
 }
 
@@ -251,10 +233,6 @@ void ClearDebugOverlay(void)
 /* Function start: 0x40FED9 */
 void ClearDebugPauseFlags(void)
 {
-#if 0
-    g_dwDebugOverlayKeyLatch_0049cb2c = 0;
-    g_dwDebugOverlayKey_0049cb28 = 0;
-#endif
     g_pDebugOverlay_004a2548->ClearPauseFlags();
 }
 

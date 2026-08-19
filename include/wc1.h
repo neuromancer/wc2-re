@@ -165,20 +165,6 @@ typedef struct InputEvent {
     struct InputEvent *previous;       /* +0x24 */
 } InputEvent;
 
-#if 0
-/* WC1 public event records retain the packed layout of the 16-bit
- * event-manager API. */
-#pragma pack(push, 1)
-typedef struct InputEventState {
-    short type;                       /* +0x00 */
-    unsigned int value;               /* +0x02 */
-    unsigned int timestamp;           /* +0x06 */
-    short modifiers;                  /* +0x0A */
-    short x;                          /* +0x0C */
-    short y;                          /* +0x0E */
-} InputEventState;
-#pragma pack(pop)
-#else
 /* WC2 widens the event type and aligns the public event record.  value and
  * status are also written together as a 32-bit value at several call sites. */
 typedef struct InputEventState {
@@ -190,7 +176,6 @@ typedef struct InputEventState {
     short x;                          /* +0x0E */
     short y;                          /* +0x10 */
 } InputEventState;
-#endif
 
 /* One sampled joystick position and its button mask. */
 typedef struct InputDeviceSample {

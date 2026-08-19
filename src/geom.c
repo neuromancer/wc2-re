@@ -12,20 +12,6 @@
 /* Function start: 0x453B30 */
 short MeasureTextPixelWidthClamped(const char *text)
 {
-#if 0
-    short width = 0;
-    const char *scan = text;
-
-    while (*scan != 0) {
-        width = (short)(width + GetFontCharWidth(*scan++));
-        if (width >= 320)
-            break;
-    }
-    if (*scan-- != 0) {
-        width = (short)(width - GetFontCharWidth(*scan));
-    }
-    return width;
-#else
     const char *scan;
     short width;
 
@@ -36,7 +22,6 @@ short MeasureTextPixelWidthClamped(const char *text)
     if (*scan-- != 0)
         width = (short)(width - GetFontCharWidth(*scan));
     return width;
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -107,10 +92,6 @@ short get_ship_max_velocity(short obj)
     short velocity = g_aObjectTypeData_00496d30[
         g_acObjectType_00493980[obj]].maximumVelocity;
 
-#if 0
-    if (obj < 10 && g_acShipRating_0059cd80[obj] > 8)
-        return velocity + velocity / 3;
-#else
     if (g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[0] &&
         g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP) {
         velocity = (short)(
@@ -120,7 +101,6 @@ short get_ship_max_velocity(short obj)
     if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT &&
         g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
         return velocity + velocity / 3;
-#endif
     return velocity;
 }
 
@@ -152,39 +132,15 @@ void drain_fuel(short ship, short amount)
 /* Function start: 0x40A556 */
 void damage_ion_drive(short ship, short amount, short maximum)
 {
-#if 0
-    volatile signed char *ionDriveDamage;
-    int damage;
-
-    ionDriveDamage = &g_acShipIonDriveDamage_004956a0[ship];
-    damage = (int)*ionDriveDamage;
-    damage += amount;
-    if (damage >= maximum)
-        damage = maximum;
-    if (damage <= 0)
-        damage = 0;
-    *ionDriveDamage = (signed char)damage;
-    recalc_max_velocity(ship);
-#else
     g_acShipIonDriveDamage_004956a0[ship] = (signed char)MaxShort(
         0, MinShort((short)(g_acShipIonDriveDamage_004956a0[ship] + amount),
                     maximum));
     recalc_max_velocity(ship);
-#endif
 }
 
 /* Function start: 0x40A5A0 */
 int GetShipAccelerationRate(short ship)
 {
-#if 0
-    int shipIndex = (int)ship;
-    enum ObjectType objectType = g_acObjectType_00493980[shipIndex];
-    int acceleration = g_aObjectTypeData_00496d30[objectType].acceleration;
-
-    if (ship < 10 && g_acShipRating_0059cd80[shipIndex] > RATING_ACE_ICEMAN)
-        return acceleration + acceleration / 3;
-    return acceleration;
-#else
     int adaptiveScale;
     int acceleration;
 
@@ -201,7 +157,6 @@ int GetShipAccelerationRate(short ship)
         g_asShipSide_004955d0[ship] == SIDE_KILRATHI)
         return acceleration + acceleration / 3;
     return acceleration;
-#endif
 }
 
 /* Function start: 0x40A691 */
@@ -953,39 +908,6 @@ unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 /* Function start: 0x40BF8C */
 short check_for_collision(short obj)
 {
-#if 0
-    FixedVector *objectPosition;
-    FixedVector *position;
-    int objectIndex;
-    short other;
-    short range;
-
-    objectIndex = (int)obj;
-    objectPosition = &g_aShipPosition_00494550[objectIndex];
-    other = 0;
-    position = g_aShipPosition_00494550;
-    do {
-        if (other != obj &&
-            g_aeObjectClass_00495328[(int)other] >=
-                OBJECT_CLASS_PROJECTILE) {
-            ComputeVectorDelta(objectPosition, position,
-                               &g_vCollisionDelta_00493178);
-            range = (short)(
-                g_asObjectCollisionRadius_004950e8[(int)other] +
-                g_asObjectCollisionRadius_004950e8[objectIndex]);
-            if (g_aeObjectClass_00495328[(int)other] ==
-                    OBJECT_CLASS_SHIP &&
-                g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_SHIP)
-                range >>= 1;
-            if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
-                                    range) != 0)
-                return other;
-        }
-        other++;
-        position++;
-    } while (other <= WC1_SPACE_LAST_MOVING_OBJECT);
-    return -1;
-#else
     FixedVector *objectPosition;
     FixedVector *position;
     short other;
@@ -1010,7 +932,6 @@ short check_for_collision(short obj)
         }
     }
     return -1;
-#endif
 }
 
 /* Function start: 0x40C08C */
@@ -1054,18 +975,6 @@ short get_ship_slot(void)
 /* Function start: 0x40C266 */
 short find_vacant_3d_object(void)
 {
-#if 0
-    short i = 10;
-
-    do {
-        if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_NULL) {
-            g_asObjectScreenX_00493598[i] = (short)0x8001;
-            return i;
-        }
-        i = i + 1;
-    } while (i <= 0x3c);
-    return -1;
-#else
     short object;
 
     for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
@@ -1075,7 +984,6 @@ short find_vacant_3d_object(void)
         }
     }
     return -1;
-#endif
 }
 
 /* Function start: 0x40C2C9 */
@@ -1226,22 +1134,11 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
 /* Function start: 0x40C959 */
 void ClampVectorTo30(short *p)
 {
-#if 0
-    short v = *p;
-
-    if (v < 0) {
-        *p = v + 1;
-        return;
-    }
-    if (0 < v)
-        *p = v - 1;
-#else
     if (*p < 0) {
         *p = *p + 1;
     } else if (*p > 0) {
         *p = *p - 1;
     }
-#endif
 }
 
 /* Function start: 0x40C99F */

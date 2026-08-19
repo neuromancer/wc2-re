@@ -297,63 +297,15 @@ void initialize_scripted_view(const short *script)
 /* Function start: 0x45A2C0 */
 void InitializeFireworks(void)
 {
-#if 0
-    int empty = -1;
-    short i = 0;
-
-    do {
-        g_aFireworks_005c8df0[i].frame = (short)empty;
-        i = i + 1;
-    } while (i < 0x1e);
-    return 0;
-#else
     short i;
 
     for (i = 0; i < 0x1e; i++)
         g_aFireworks_005c8df0[i].frame = -1;
-#endif
 }
 
 /* Function start: 0x45A300 */
 short TheEndFireWorks(Viewport *viewport, short count)
 {
-#if 0
-    short index;
-    short emptyCount;
-
-    emptyCount = 0;
-    index = count;
-    while (--index >= 0) {
-        if (g_aFireworks_005c8df0[index].frame == -1) {
-            emptyCount++;
-        } else {
-            DrawSpriteDefault(
-                viewport, g_aFireworks_005c8df0[index].x,
-                g_aFireworks_005c8df0[index].y,
-                g_pTitleFireworkShape_005c8f58,
-                (short)(g_aFireworks_005c8df0[index].frame +
-                        g_aFireworks_005c8df0[index].variant * 8));
-            if (g_aFireworks_005c8df0[index].frame++ == 7) {
-                g_aFireworks_005c8df0[index].frame = -1;
-                ((void (__cdecl *)(int, short))FlushSoundEffectsAndLog)(
-                    g_aFireworks_005c8df0[index].soundHandle, index);
-            } else if (g_aFireworks_005c8df0[index].frame == 1) {
-                g_aFireworks_005c8df0[index].soundHandle =
-                    ((unsigned int (__cdecl *)(
-                        const unsigned char *, int, int, short, short,
-                        int))SoundFxTick)(
-                            g_abFireworkSoundDescriptor_0046ab70_WC1_UNMAPPED,
-                            0, 127,
-                            (signed char)(
-                                127 -
-                                (int)g_aFireworks_005c8df0[index].x *
-                                    127 / 319),
-                            index, 1);
-            }
-        }
-    }
-    return emptyCount;
-#else
     short emptyCount;
     short index;
 
@@ -378,7 +330,6 @@ short TheEndFireWorks(Viewport *viewport, short count)
         }
     }
     return emptyCount;
-#endif
 }
 
 /* Function start: 0x45A441 */
@@ -1087,9 +1038,6 @@ short IsSpriteFrameOverlappingRect(const ShortRect *rectangle,
 /* Function start: 0x452AE5 */
 void FadeMusic(int duration)
 {
-#if 0
-    SoundDebugPrintf("FadeMusic");
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1107,13 +1055,6 @@ void StopMusicStream(void)
 /* Function start: 0x452A26 */
 void StopMusic(int enabled)
 {
-#if 0
-    (void)unused;
-    SoundDebugPrintf("StopMusic");
-    g_nCurrentMusicTrack_0049be98 = -1;
-    Streamer_stop();
-    SoundDebugPrintf("");
-#endif
     g_nCurrentMusicTrack_0049be98 = -1;
     Streamer_stop();
 }
@@ -1136,11 +1077,6 @@ short StartInteractiveMusic(short track)
 /* Function start: 0x452A10 */
 void SetMusBreakpt(int first, int second)
 {
-#if 0
-    (void)first;
-    (void)second;
-    SoundDebugPrintf("SetMusBreakpt");
-#endif
 }
 
 /* Function start: 0x452A99 */
@@ -1152,25 +1088,15 @@ unsigned int PaletteFadeHook(void)
 /* Function start: 0x452AAB */
 void FlushSoundEffect(void)
 {
-#if 0
-    stop_all_sounds();
-    SoundDebugPrintf("FlushSoundEffect");
-#else
     SoundDebugPrintf("FLUSH_EFFECT");
     stop_all_sounds();
-#endif
 }
 
 /* Function start: 0x452AC8 */
 void FlushSoundEffects(void)
 {
-#if 0
-    stop_all_sounds();
-    SoundDebugPrintf("FlushSoundEffects");
-#else
     SoundDebugPrintf("FLUSH_EFFECTS");
     stop_all_sounds();
-#endif
 }
 
 /* Function start: 0x452AF0 */
@@ -1374,64 +1300,6 @@ void RecordMusicCommandHook(int track, int command, int enabled)
 /* Function start: 0x452B03 */
 unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
 {
-#if 0
-    int streamerCommand;
-
-    if (track == -1 || g_bMusicCommandSuppressed_0046a9fc_WC1_UNMAPPED != 0)
-        return;
-    if (command == 4) {
-        SoundDebugPrintf("queue_stop\n");
-        StopMusic();
-        g_nCurrentMusicTrack_0049be98 = -1;
-        return;
-    }
-
-    SoundDebugPrintf("track_%02d ", track);
-    if ((g_nCurrentMusicTrack_0049be98 == 25 && track == 25) ||
-        (g_nCurrentMusicTrack_0049be98 == 38 && track == 38) ||
-        (g_nCurrentMusicTrack_0049be98 == 39 && track == 39) ||
-        (g_nCurrentMusicTrack_0049be98 == 40 && track == 40)) {
-        SoundDebugPrintf("skipping for QA\n");
-        return;
-    }
-
-    g_nCurrentMusicTrack_0049be98 = track;
-    SelectFlightMusicTrack(track);
-    if (g_nMusicStreamSet_0046aa18_WC1_UNMAPPED == 2) {
-        if ((track >= 0 && track <= 5) ||
-            (track >= 12 && track <= 18)) {
-            SoundDebugPrintf("flight_intensity %d ", track);
-            SetStreamerIntensity((unsigned char)track);
-        } else {
-            SoundDebugPrintf("flight_trigger %d ", track);
-            SetStreamerTrigger(track);
-        }
-    } else {
-        switch (command) {
-        case 0:
-            SoundDebugPrintf(" queue_start ");
-            streamerCommand = MapMusicTrackToStreamerCommand(track);
-            SetStreamerTrigger(streamerCommand);
-            break;
-        case 1:
-            SoundDebugPrintf(" queue_break ");
-            streamerCommand = MapMusicTrackToStreamerCommand(track);
-            ForceStreamerTrigger(streamerCommand);
-            break;
-        case 2:
-            SoundDebugPrintf(" queue_switch ");
-            streamerCommand = MapMusicTrackToStreamerCommand(track);
-            SetStreamerTrigger(streamerCommand);
-            break;
-        case 3:
-            SoundDebugPrintf(" queue_interrupt ");
-            streamerCommand = MapMusicTrackToStreamerCommand(track);
-            ForceStreamerTrigger(streamerCommand);
-            break;
-        }
-    }
-    SoundDebugPrintf("\n");
-#else
     int streamFlags;
     int streamerCommand;
 
@@ -1490,7 +1358,6 @@ unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
     if (g_nCannedSceneMode_0049021c == 0)
         RecordMusicCommandHook(track, command, enabled);
     return 1;
-#endif
 }
 
 /* Function start: 0x452CF4 */
@@ -1499,9 +1366,6 @@ void spacetrack(int track, int mode, int enabled)
     if (g_nMusicDriverMode_0049be8c != 0 &&
         g_nMusicDriverMode_0049be8c != 3)
         ProcessMusicScriptCommand(track, mode, enabled);
-#if 0
-    return 1;
-#endif
 }
 
 /* Function start: 0x452D32 */
@@ -1532,14 +1396,6 @@ void wait_for_end_of_music(void)
             return;
         }
         SetMusBreakpt(0, 0);
-#if 0
-        do {
-            if (g_nMusicTrackComplete_0049be88 != 0)
-                return;
-        } while (g_bSceneEscapeRequested_0049d4b0 == 0 &&
-                 CheckEscaped() == 0);
-        StopMusic(0);
-#else
         while (g_nMusicTrackComplete_0049be88 == 0) {
             if (g_bSceneEscapeRequested_0049d4b0 != 0 ||
                 CheckEscaped() != 0) {
@@ -1547,7 +1403,6 @@ void wait_for_end_of_music(void)
                 return;
             }
         }
-#endif
     }
 }
 
@@ -1781,21 +1636,14 @@ int LogUnknownSoundEffect(const unsigned char *definition,
 /* Function start: 0x45357E */
 void FlushSoundEffectsAndLog()
 {
-#if 0
-    FlushSoundEffects();
-#else
     FlushSoundEffect();
     SoundDebugPrintf("flushFX\n");
     return;
-#endif
 }
 
 /* Function start: 0x4535BB */
 void sound_effect(signed char soundNumber, short sourceObject, short looping)
 {
-#if 0
-    WriteDebugString("sound_effect");
-#else
     short volume;
     short effectHandle = 0;
     int distance;
@@ -1806,60 +1654,11 @@ void sound_effect(signed char soundNumber, short sourceObject, short looping)
 
     SoundDebugPrintf("Playing SFX #%d\n", soundNumber);
     return;
-#endif
 }
 
 /* Function start: 0x45373B */
 void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
 {
-#if 0
-    FixedVector delta;
-    int distance;
-
-#ifdef WC1_SDL
-    if (Wc1SdlUsingDosData()) {
-        int volume;
-
-        volume = 127;
-        if (sourceObject != -1) {
-            if (sourceObject < 0 ||
-                sourceObject >= WC2_SPACE_OBJECT_COUNT)
-                return;
-            ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                &g_aShipPosition_00494550[sourceObject], &delta);
-            distance = (int)((Vector_magnitude(&delta) / 500L) >> 8);
-            volume -= distance;
-            if (volume < 0)
-                volume = 0;
-        }
-        if (volume >= 10 && Wc1SdlPlayDosSoundEffect(
-                soundNumber, volume, 64, sourceObject, looping)) {
-            g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
-            if (sourceObject == -1)
-                DAT_005a7cec = soundNumber == 12;
-        }
-        return;
-    }
-#endif
-
-    if (sourceObject != -1) {
-        ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                           &g_aShipPosition_00494550[sourceObject],
-                           &delta);
-        distance = Vector_magnitude(&delta);
-        if (distance > 32000)
-            distance = 32000;
-    } else {
-        distance = 32000;
-    }
-    if (distance >= 10) {
-        g_aiSoundEffectSourceActive_005a66ec[sourceObject + 1] = 1;
-        sprintf(g_szSfxWavePath_005b3650, g_szSfxWaveFormat_0049c22c,
-                soundNumber - 1);
-        playWAVE(g_szSfxWavePath_005b3650, looping, distance);
-    }
-#else
     FixedVector delta;
     int magnitude;
     int distance;
@@ -1884,5 +1683,4 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
         soundNumber, sourceObject, distance);
     sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
     playWAVE(g_szSfxWavePath_005b3650, looping, distance);
-#endif
 }

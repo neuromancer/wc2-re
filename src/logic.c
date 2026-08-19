@@ -606,9 +606,6 @@ unsigned int LoadWc1OriginFxDrivers(void)
     PromptInsertNumberedDisk(0x38);
     if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998_WC1_UNMAPPED) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
-#if 0
-    RewriteDiskFileGraphicsExtensions(g_bSlowSceneAnimation_00469998_WC1_UNMAPPED);
-#endif
     LoadJoystickCalibrationFile(9, 9, 1, 1);
     g_nInputDoubleClickInterval_00493050 = 2;
     StartWc1EventManager();
@@ -1218,17 +1215,10 @@ void kill_ace(short ace)
 /* Function start: 0x429550 */
 void SendKilrathiAceGreetingOnce(short obj)
 {
-#if 0
-    short ace = (short)g_asPilotLevel_00495d60[obj] - 14;
-
-    send_message(obj, (signed char)(ace_status(ace, 4) != 0));
-    flag_ace(ace, 8);
-#else
     if (g_bKilrathiAceGreetingSent_00499bf4 == 0) {
         send_message(obj, 0x17);
         g_bKilrathiAceGreetingSent_00499bf4 = 1;
     }
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1549,12 +1539,6 @@ void clear_crash_cache(void)
 /* Function start: 0x429958 */
 short crash_time(short obj, short other)
 {
-#if 0
-    if (g_asCollisionPartner_005a7cc0[obj] == other)
-        return g_asCollisionTime_005a7ca0[obj];
-    if (other < 10 && g_asCollisionPartner_005a7cc0[other] == obj)
-        return g_asCollisionTime_005a7ca0[other];
-#endif
     if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_ASTEROID &&
         (g_asObjectScreenX_00493598[other] == -0x7fff ||
          g_asObjectScreenX_00493598[obj] == -0x7fff))
@@ -1612,20 +1596,6 @@ int are_alive(short obj)
 /* Function start: 0x429BF0 */
 void trim_goals(short obj, short amount)
 {
-#if 0
-    short goal = g_anYawGoal_004954c0[obj];
-
-    if (amount < goal)
-        g_anYawGoal_004954c0[obj] = amount;
-    else if (goal < -amount)
-        g_anYawGoal_004954c0[obj] = -amount;
-    goal = g_anPitchGoal_004954a8[obj];
-    if (amount < goal)
-        g_anPitchGoal_004954a8[obj] = amount;
-    else if (goal < -amount)
-        g_anPitchGoal_004954a8[obj] = -amount;
-    return 0;
-#else
     if (g_anYawGoal_004954c0[obj] > amount)
         g_anYawGoal_004954c0[obj] = amount;
     else if (g_anYawGoal_004954c0[obj] < -amount)
@@ -1634,7 +1604,6 @@ void trim_goals(short obj, short amount)
         g_anPitchGoal_004954a8[obj] = amount;
     else if (g_anPitchGoal_004954a8[obj] < -amount)
         g_anPitchGoal_004954a8[obj] = -amount;
-#endif
 }
 
 /* Function start: 0x429CAD */
@@ -1809,11 +1778,7 @@ short FindMissileTargetingObject(short obj)
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_MISSILE &&
             g_acShipTarget_00495f20[other] == obj)
-#if 0
-            return 1;
-#else
             return other;
-#endif
     }
     return 0;
 }
@@ -1971,23 +1936,7 @@ void try2reset_maneuver(short obj, short maneuver)
 /* Function start: 0x42A664 */
 void set_special(short ship, short special)
 {
-#if 0
-    short *currentState;
-    short current;
-#endif
 
-#if 0
-    /* Retained WC1 implementation. */
-    currentState = &g_aeSpecialManeuver_00495600[ship];
-    current = *currentState;
-    if (current < SPECIAL_MANEUVER_LOST_CONTROL || special > current)
-        *currentState = special;
-
-    if (*currentState == SPECIAL_MANEUVER_BLOWING_UP &&
-        (short)alert_flag(ship, 1))
-        *currentState = SPECIAL_MANEUVER_NONE;
-    return 0;
-#else
     if (g_aeSpecialManeuver_00495600[ship] <
             SPECIAL_MANEUVER_LOST_CONTROL ||
         special > g_aeSpecialManeuver_00495600[ship])
@@ -1997,7 +1946,6 @@ void set_special(short ship, short special)
             SPECIAL_MANEUVER_BLOWING_UP &&
         (short)alert_flag(ship, 1) != 0)
         g_aeSpecialManeuver_00495600[ship] = SPECIAL_MANEUVER_NONE;
-#endif
 }
 
 /* Function start: 0x42A6E8 */
@@ -2017,18 +1965,10 @@ unsigned int approach_min_speed(short obj)
 /* Function start: 0x42A71D */
 void approach_half_speed(short obj)
 {
-#if 0
-    short speed = g_aObjectTypeData_00496d30[
-        g_acObjectType_00493980[obj]].cruiseVelocity;
-
-    approach_speed(obj, (int)(short)(speed & 0xfffe) << 7);
-    return 0;
-#else
     approach_speed(
         obj,
         (int)(short)(g_aObjectTypeData_00496d30[
             g_acObjectType_00493980[obj]].cruiseVelocity & 0xfffe) << 7);
-#endif
 }
 
 /* Function start: 0x42A754 */
@@ -2331,15 +2271,7 @@ void inherit_leader(short obj)
 /* Function start: 0x42B0B7 */
 short dead_ship(short i)
 {
-#if 0
-    if (i != -1 && g_aMissionShips_00492290[i].state != 3)
-        return 0;
-#else
     return i == -1 || g_aMissionShips_00492290[i].state == 3;
-#endif
-#if 0
-    return 1;
-#endif
 }
 
 /* Function start: 0x42B0FB */
@@ -2369,17 +2301,10 @@ short skill_rating(short obj)
 /* Function start: 0x42B15A */
 short skill_check(short obj)
 {
-#if 0
-    short roll;
-
-    roll = RandomBelowOrEqual(MinShort(8, difficulty));
-    return skill_rating(obj) > roll;
-#else
     if (g_asPilotLevel_00495d60[obj] < 5 &&
         RandomBelowOrEqual((short)(g_asPilotLevel_00495d60[obj] + 4)) == 0)
         return 0;
     return 1;
-#endif
 }
 
 /* Function start: 0x42B1AE */
@@ -2489,20 +2414,6 @@ unsigned int get_first_follow_point(short obj, FixedVector *point)
 /* Function start: 0x42B565 */
 short hostile_sphere(short obj, short navPoint)
 {
-#if 0
-    short index;
-    short missionShip;
-    short *ships = g_aMissionNavPoints_00491e98[navPoint].missionShips;
-
-    for (index = 0; index < 10; index++) {
-        missionShip = ships[index];
-        if (missionShip != -1 &&
-            g_asShipSide_004955d0[obj] !=
-                g_aMissionShips_00492290[missionShip].side)
-            return 1;
-    }
-    return 0;
-#else
     short index;
     short missionShip;
 
@@ -2515,28 +2426,11 @@ short hostile_sphere(short obj, short navPoint)
             return 1;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x42B5F7 */
 short abandoned(short obj, short other)
 {
-#if 0
-    short navPoint;
-
-    if ((g_abShipTurn_00495fd8[obj] & 7) == 0 &&
-        g_asShipSide_004955d0[obj] != SIDE_KILRATHI &&
-        RandomBelowOrEqual(8) == 0) {
-        navPoint = FindNearestNavPoint(obj);
-        if (g_nCurrentNavPoint_004931bc != navPoint &&
-            hostile_sphere(obj, navPoint) != 0 &&
-            distance_from_object(obj, other) > 10000) {
-            explode(-1, obj);
-            return 1;
-        }
-    }
-    return 0;
-#else
     short navPoint;
 
     if ((g_abShipTurn_00495fd8[obj] & 7) == 0 &&
@@ -2552,7 +2446,6 @@ short abandoned(short obj, short other)
         }
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x42B6C5 */
@@ -2560,16 +2453,9 @@ void engage(short obj, short target, enum ShipObjective objective)
 {
     if (g_aeShipObjective_00495f08[obj] != objective) {
         reset_objective(obj, objective);
-#if 0
-        if (g_acShipRating_0059cd80[obj] > 8 &&
-            ace_status(
-                (short)((short)g_asPilotLevel_00495d60[obj] - 14), 8) == 0)
-            ace_greeting(obj);
-#else
         if (g_asPilotLevel_00495d60[obj] == 5 &&
             g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
             SendKilrathiAceGreetingOnce(obj);
-#endif
     }
     g_acShipTarget_00495f20[obj] = target;
 }
@@ -2577,11 +2463,6 @@ void engage(short obj, short target, enum ShipObjective objective)
 /* Function start: 0x42B73B */
 short target_valid(short obj, short target)
 {
-#if 0
-    return unactive(g_acShipTarget_00495f20[obj]) == 0 &&
-           g_asShipSide_004955d0[g_acShipTarget_00495f20[obj]] !=
-               g_asShipSide_004955d0[obj];
-#else
     if (target == -1)
         return 0;
     if (g_anShipCloakState_00496020[target] == 1 &&
@@ -2594,33 +2475,11 @@ short target_valid(short obj, short target)
         g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[target])
         return 1;
     return 0;
-#endif
 }
 
 /* Function start: 0x42B80C */
 short triumph(short obj)
 {
-#if 0
-    unsigned int result = 0;
-    short objective;
-
-    switch (g_asShipMissionType_00495de8[obj]) {
-    case MISSION_TYPE_PATROL:
-        objective = 0;
-        while (g_abFlightPath_004932a0[objective] != -1 &&
-               visited(
-                   (short)g_abFlightPath_004932a0[objective]) != 0)
-            objective++;
-        return 1;
-    case MISSION_TYPE_ESCORT:
-    case MISSION_TYPE_DEFEND:
-    case MISSION_TYPE_WINGMAN:
-        return dead_ship(g_asShipMissionParameter_00495e00[obj]) == 0;
-    case MISSION_TYPE_STRIKE:
-        result = dead_ship(g_asShipMissionParameter_00495e00[obj]);
-    }
-    return result;
-#else
     short result;
     short objective;
 
@@ -2646,7 +2505,6 @@ short triumph(short obj)
         break;
     }
     return result;
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -2816,20 +2674,11 @@ short LoadShapeSet(PacketResourceDescriptor *resources,
 void FreeShapeSet(PacketResourceDescriptor *resources,
                   unsigned short releaseFlags)
 {
-#if 0
     while (resources->resource != 0) {
         if (*resources->resource != 0)
             FreePacketAndClear(resources->resource, releaseFlags);
         resources++;
     }
-    return 0;
-#else
-    while (resources->resource != 0) {
-        if (*resources->resource != 0)
-            FreePacketAndClear(resources->resource, releaseFlags);
-        resources++;
-    }
-#endif
 }
 
 /* Function start: 0x4569C8 */
@@ -2839,28 +2688,6 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
 {
     int packetSize;
 
-#if 0
-    while (resources->resource != 0) {
-        if (*resources->resource == 0) {
-            PromptInsertNumberedDisk(resources->logicalFile);
-            packetSize = (int)GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[
-                    resources->logicalFile].name,
-                resources->section);
-            if (packetSize < availableBytes) {
-                *resources->resource =
-                    FetchDiskPacketRetrying(
-                        resources->logicalFile, resources->section,
-                        (unsigned short)flags);
-                if (*resources->resource == 0)
-                    return availableBytes;
-                availableBytes -= packetSize;
-            }
-        }
-        resources++;
-    }
-    return availableBytes;
-#else
     while (resources->resource != 0) {
         if (*resources->resource == 0) {
             packetSize = (int)GetNamedPacketSize(
@@ -2876,32 +2703,11 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
         resources++;
     }
     return availableBytes;
-#endif
 }
 
 /* Function start: 0x456A68 */
 void ResetCockpitPaletteEntries(void)
 {
-#if 0
-    short black[3];
-    short index;
-
-    black[0] = 0;
-    black[1] = 0;
-    black[2] = 0;
-    index = 0;
-    do {
-        memcpy(g_aasCockpitHitPaletteFades_005d2cb0[index], black,
-               sizeof(black));
-        SetPaletteEntry((short)(index + 185),
-                        g_aasCockpitHitPaletteFades_005d2cb0[index]);
-        index++;
-    } while (index < 6);
-    memcpy(g_asSpacePaletteFade_005d2d60, black, sizeof(black));
-    g_asSpacePaletteFade_005d2d60[2] = 32;
-    SetPaletteEntry((short)g_cPrimaryViewBufferColour_0049cb88, g_asSpacePaletteFade_005d2d60);
-    return 0;
-#else
     short black[3];
     short index;
 
@@ -2918,7 +2724,6 @@ void ResetCockpitPaletteEntries(void)
     g_asSpacePaletteFade_005d2d60[2] = 32;
     SetPaletteEntry((short)g_cPrimaryViewBufferColour_0049cb88,
                     g_asSpacePaletteFade_005d2d60);
-#endif
 }
 
 /* Function start: 0x456B1A */
@@ -2938,11 +2743,7 @@ void initialize_cockpit(signed char mode)
             ClearViewport(&g_stViewBuffer_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
         else
             initialize_view_buffer();
-#if 0
-        return 0;
-#else
         return;
-#endif
     }
 
     free_view_buffer();
@@ -3758,34 +3559,13 @@ void remove_all_3d_objects(void)
 {
     short i;
 
-#if 0
-    i = 0;
-    do {
-        remove_object(i);
-        i = i + 1;
-    } while (i < 0x40);
-    return 0;
-#else
     for (i = 0; i < 70; i++)
         remove_object(i);
-#endif
 }
 
 /* Function start: 0x458698 */
 void free_3Space(void)
 {
-#if 0
-    if (g_b3SpaceObjectsActive_0049c8ec == 0)
-        return 0;
-    g_b3SpaceObjectsActive_0049c8ec = 0;
-    free_view_buffer();
-    g_bSpaceViewBufferEnabled_0049d7a4 = 0;
-    free_constellation();
-    remove_all_hazards();
-    remove_all_3d_objects();
-    free_3Space_objects();
-    return 0;
-#else
     if (g_b3SpaceObjectsActive_0049c8ec == 0)
         return;
     g_b3SpaceObjectsActive_0049c8ec = 0;
@@ -3799,7 +3579,6 @@ void free_3Space(void)
         ReleasePacketHandle(g_pNavLocationText_0049bc54);
         g_pNavLocationText_0049bc54 = 0;
     }
-#endif
 }
 
 /* Function start: 0x458716 */
@@ -3834,34 +3613,11 @@ void init_inflight_music(void)
     g_nInitialFlightMusicPending_0049bf00 = 1;
     g_nCombatMusicActive_0049bf04 = 0;
 
-#if 0
-    g_nCombatMusicActive_0049bf04 = 0;
-    g_nInFlightMusicActive_0049bf08 = 1;
-    g_nInitialFlightMusicPending_0049bf00 = 1;
-    return 0;
-#endif
 }
 
 /* Function start: 0x458806 */
 void free_inflight_music(void)
 {
-#if 0
-    int slot;
-
-    StopMusicUnlessSuppressed();
-    g_nInFlightMusicActive_0049bf08 = 0;
-    if (g_nInFlightMusicSlotA_0049bea4 != -1) {
-        slot = g_nInFlightMusicSlotA_0049bea4;
-        g_nInFlightMusicSlotA_0049bea4 = -1;
-        *(int *)(g_abSoundPlaybackSlots_005d13e0 + slot * 6) = 0;
-    }
-    if (g_nInFlightMusicSlotB_0049beaa != -1) {
-        slot = g_nInFlightMusicSlotB_0049beaa;
-        g_nInFlightMusicSlotB_0049beaa = -1;
-        *(int *)(g_abSoundPlaybackSlots_005d13e0 + slot * 6) = 0;
-    }
-    return 0;
-#else
     StopMusicUnlessSuppressed();
     g_nInFlightMusicActive_0049bf08 = 0;
     if (g_nInFlightMusicSlotA_0049bea4 != -1) {
@@ -3874,7 +3630,6 @@ void free_inflight_music(void)
             g_nInFlightMusicSlotB_0049beaa].packet = 0;
         g_nInFlightMusicSlotB_0049beaa = -1;
     }
-#endif
 }
 
 /* Function start: 0x45887B */

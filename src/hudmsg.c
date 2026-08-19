@@ -85,50 +85,6 @@ void ReportOutOfMemoryAndExit(const char *resource)
 /* Function start: 0x437DFA */
 void ShowOnScreenMessage(short duration, const char *format, ...)
 {
-#if 0
-    short messageDuration;
-    short modalShown = 0;
-    char text[52];
-
-#ifdef WC1_SDL
-    va_list arguments;
-
-    va_start(arguments, format);
-    vsprintf(text, format, arguments);
-    va_end(arguments);
-#else
-    vsprintf(text, format, (char *)(&format + 1));
-#endif
-    FlushInputEvents();
-    messageDuration = duration;
-    if (messageDuration == 9999)
-        modalShown = ShowModalTextPanel(1, text);
-    if (modalShown == 0) {
-        if (messageDuration == 0)
-            messageDuration = MeasureMessageWidth(text);
-        ClearHudMessageDisplay(1);
-        DosStrcpy(g_szHudMessageBuffer_0059e1c0, text);
-        SetHudMessageText(g_szHudMessageBuffer_0059e1c0,
-                          g_abGamePaletteReservedColours_0049cb54[8], messageDuration);
-        if (messageDuration == 9999) {
-            SetHudTextColour(g_szHudMessageBuffer_0059e1c0,
-                             g_abGamePaletteReservedColours_0049cb54[8]);
-            dump_buffer_to_screen();
-        }
-    }
-    if (messageDuration == 9999) {
-        if (flags != 0)
-            RunWc1KeyAcknowledge(1);
-        else
-            RunWc1KeyAcknowledge(0);
-    }
-    if (modalShown != 0) {
-        ReleaseModalTextPanel();
-        return;
-    }
-    if (messageDuration == 9999)
-        SetHudMessageText("", g_abGamePaletteReservedColours_0049cb54[8], 2);
-#else
     char text[52];
     short modalShown;
     va_list arguments;
@@ -162,26 +118,17 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     } else {
         ReleaseModalTextPanel();
     }
-#endif
 }
 
 /* Function start: 0x437F2F */
 void ShowGamePausedBanner(short showBanner)
 {
-#if 0
-    if (showBanner != 0) {
-        ShowOnScreenMessage(9999, "GAME PAUSED");
-        return;
-    }
-    RunWc1KeyAcknowledge(1);
-#else
     if (showBanner != 0) {
         ShowOnScreenMessage(9999, "GAME PAUSED");
     } else {
         while (WaitForInputKey() == 0)
             ServiceSoundSystem();
     }
-#endif
 }
 
 /* Function start: 0x437F77 */
@@ -998,37 +945,12 @@ unsigned int DrawSpaceSceneFrame(void)
 /* Function start: 0x4690FF */
 short Draw_3Space_Frame(void)
 {
-#if 0
-    UpdateSpacePaletteFade();
-    g_nFrameSkipCountdown_0049d760--;
-    if (g_nFrameSkipCountdown_0049d760 > 0)
-        return 0;
-    g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-    g_nRenderedSpaceFrame_00493138++;
-    transform_objects_to_your_view();
-    update_star_field();
-    place_exhaust_on_ships();
-    reposition_fixed_child_objects();
-    BuildObjectDepthOrder();
-#ifdef WC1_SDL
-    Wc1SdlBeginSpaceFrame(
-        g_pScreenViewportGeometry_005c82b0,
-        (int)g_cScreenViewportMode_005c82a6,
-        g_nCockpitDisplayMode_0049d71c > 0,
-        (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
-#endif
-    draw_sorted_objects_to_buffer();
-    if (g_nCurrentView_00492fa8 == 0)
-        overlay_head_up_display();
-    return 1;
-#else
     Update_3Space();
     if (g_nArcadeState_0049d75c != 0)
         return 0;
     if (g_nFrameSkipCountdown_0049d760 <= 1)
         clear_view_buffer();
     return (unsigned short)DrawSpaceSceneFrame();
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1095,37 +1017,6 @@ void UpdateArcadeScoreDisplay(void)
 /* Function start: 0x46903F */
 void RenderSpaceViewFrame(void)
 {
-#if 0
-    if (Draw_3Space_Frame() == 0)
-        return 0;
-    check_message();
-    UpdateArcadeScoreDisplay();
-    RestoreCockpitExplosionIfVisible();
-    dump_buffer_to_screen();
-    if (g_nCurrentView_00492fa8 == 0)
-        RestoreTransientCockpitGraphics();
-    if (g_nCockpitDisplayMode_0049d71c == 0 && g_nTrainSimActive_0049d758 != 0) {
-        DrawFilledViewportRect(&g_stViewBuffer_005d2b00, 10, 10,
-                               g_stViewBuffer_005d2b00.right, 0x11,
-                               g_cPrimaryViewBufferColour_0049cb88);
-        if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED != 0) {
-            g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED--;
-            if (g_nArcadeBonusCountdown_0046a014_WC1_UNMAPPED == 0) {
-                if (Vector_magnitude(
-                        &g_aShipPosition_00494550[0]) > 0x271000)
-                    zero_vector(&g_aShipPosition_00494550[0]);
-                g_nArcadeScore_005a7bc4 += g_nArcadeWaveBonus_005a7c50;
-                if (g_nCurrentWave_004931c0 == -1)
-                    g_nArcadeState_0049d75c = 1;
-                else
-                    g_nArcadeWave_00469e34_WC1_UNMAPPED++;
-                ClearViewport(&g_stViewBuffer_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
-            }
-        }
-    }
-    ClearViewport(&g_stViewBuffer_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
-    return 1;
-#else
     int displayMode;
 
     if (DrawSpaceSceneFrame() == 0)
@@ -1148,7 +1039,6 @@ void RenderSpaceViewFrame(void)
         RestoreTransientCockpitGraphics();
     ClearViewport(&g_stViewBuffer_005d2b00,
                   g_cPrimaryViewBufferColour_0049cb88);
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1176,17 +1066,6 @@ short FindNearestNavPoint(short ship)
     short navPointIndex = 0;
     MissionNavPoint *navPoint = g_aMissionNavPoints_00491e98;
 
-#if 0
-    do {
-        if (navPoint->type == 1 &&
-            GetShipDistanceToNavPoint(ship, navPoint) < navPoint->proximityRadius)
-            return navPointIndex;
-        navPointIndex++;
-        navPoint++;
-    } while (navPointIndex < WC1_ACTIVE_MISSION_NAV_POINT_COUNT);
-
-    return g_nCurrentNavPoint_004931bc;
-#else
     for (; navPointIndex < 10; navPointIndex++, navPoint++) {
         if (navPoint->type == 1 &&
             navPoint->systemIndex == g_nCurrentStarSystem_005d169c &&
@@ -1195,7 +1074,6 @@ short FindNearestNavPoint(short ship)
             return navPointIndex;
     }
     return g_nCurrentNavPoint_004931bc;
-#endif
 }
 
 /* Function start: 0x469223 */
@@ -2116,66 +1994,6 @@ void FadeViewportPaletteToColour(Viewport *viewport,
                                  unsigned short colour,
                                  short enabled)
 {
-#if 0
-    unsigned char *indices;
-    unsigned short target[3];
-    short *currentPalette;
-    short *targetPalette;
-    unsigned int paletteBytes;
-    short activeCount;
-    short index;
-
-    (void)enabled;
-    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
-        return;
-
-    indices = AllocateTaggedMemory(256, 0);
-    if (indices == 0)
-        return;
-    memset(indices, 0, 256);
-    activeCount = CollectActivePaletteIndices(viewport, indices, 256);
-    paletteBytes = (unsigned int)(activeCount * 6);
-    currentPalette = AllocateTaggedMemory(paletteBytes, 0);
-    if (currentPalette == 0) {
-        ReleasePacketHandle(indices);
-        return;
-    }
-    memset(currentPalette, 0, paletteBytes);
-    targetPalette = AllocateTaggedMemory(paletteBytes, 0);
-    if (targetPalette == 0) {
-        ReleasePacketHandle(indices);
-        ReleasePacketHandle(currentPalette);
-        return;
-    }
-    memset(targetPalette, 0, paletteBytes);
-
-    GetPaletteEntry((short)colour, target);
-    for (index = 0; index < activeCount; index++) {
-        GetPaletteEntry((short)indices[index],
-                        (unsigned short *)&currentPalette[index * 3]);
-        memcpy(&targetPalette[index * 3], target, 6);
-    }
-
-    while (StepPaletteTransition(
-               currentPalette, targetPalette,
-               (short)(activeCount * 3)) != 0) {
-        for (index = 0; index < activeCount; index++) {
-            g_abPaletteTriplets_005a77f0[indices[index]][0] =
-                (unsigned char)currentPalette[index * 3];
-            g_abPaletteTriplets_005a77f0[indices[index]][1] =
-                (unsigned char)currentPalette[index * 3 + 1];
-            g_abPaletteTriplets_005a77f0[indices[index]][2] =
-                (unsigned char)currentPalette[index * 3 + 2];
-        }
-        SetWholePaletteFromTriplets(&g_abPaletteTriplets_005a77f0[0][0]);
-    }
-
-    ReleasePacketHandle(targetPalette);
-    ReleasePacketHandle(currentPalette);
-    ReleasePacketHandle(indices);
-    MarkDibDirty();
-    DIBslamReal();
-#else
     unsigned char *indices;
     short activeCount;
     short index;
@@ -2230,7 +2048,6 @@ void FadeViewportPaletteToColour(Viewport *viewport,
         ReleasePacketHandle(currentPalette);
         ReleasePacketHandle(indices);
     }
-#endif
 }
 
 #pragma intrinsic(memset)

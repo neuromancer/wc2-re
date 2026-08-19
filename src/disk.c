@@ -973,31 +973,6 @@ void ReportPacketLoadError(void *packet, char *fileName,
     const char *operation;
     unsigned int packetSize;
 
-#if 0
-    error = g_nPacketError_0049ca90;
-    if ((packet == 0 || (error != 0 && error != 8)) &&
-        (packet != 0 || error != 8)) {
-        if (section != -1)
-            packetSize = GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
-        LogMemoryUsage();
-        operation = "allocating memory";
-        if (packet != 0 && section != -1)
-            operation = "reading from disk";
-        g_nPacketError_0049ca90 = error;
-        sprintf(g_szDefaultTextBuffer_005d2b80,
-                "Sorry, an error has occured while %s.\n"
-                "Please note the following information:\n"
-                "%s #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
-                "Check your configuration.  If this problem persists, please\n"
-                "call Origin Systems' service line.  We are sorry for the inconvenience.",
-                operation,
-                g_pDiskFileRecords_005a7cf0[logicalFile].name,
-                (int)section, (int)error, packetSize,
-                GetLargestFreeMemoryBlockByType(retry), (int)retry, sourceTag);
-        FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
-    }
-#else
     if ((packet == 0 ||
          (g_nPacketError_0049ca90 != 0 &&
           g_nPacketError_0049ca90 != 8)) &&
@@ -1030,7 +1005,6 @@ void ReportPacketLoadError(void *packet, char *fileName,
             exit(1);
         }
     }
-#endif
 }
 
 #ifndef WC1_SDL
@@ -1117,28 +1091,6 @@ void *LoadPacketIntoBuffer(char *fileName, short section,
 /* Function start: 0x40F49D */
 void *LoadPacketAllocated(char *fileName, short section)
 {
-#if 0
-    unsigned int packetSize;
-    void *packet;
-    short retries;
-
-    retries = 5;
-    PromptInsertNumberedDisk(logicalFile);
-    packetSize = GetPacketSize(
-        g_pDiskFileRecords_005a7cf0[logicalFile].name, section);
-    packet = AllocateTaggedMemory((unsigned int)(short)packetSize, 0x40);
-    if (packet != 0) {
-        do {
-            retries--;
-            PacketLoad(g_pDiskFileRecords_005a7cf0[logicalFile].name,
-                       section, packet, 0, 0, 1);
-            if (retries <= 0 || g_nPacketError_0049ca90 == 0)
-                break;
-        } while (g_nPacketError_0049ca90 != 8);
-    }
-    ReportPacketLoadError(packet, logicalFile, 0, section, "LPN");
-    return packet;
-#else
     short retries;
     char errorText[40];
     void *packet;
@@ -1165,77 +1117,9 @@ void *LoadPacketAllocated(char *fileName, short section)
     if (g_nOriginDevUnlock_0049d774 != 0)
         AppendPacketLoadDebugLog(fileName, section, packet);
     return packet;
-#endif
 }
 
 /* Function start: 0x40F5B6 */
-#if 0
-void *FetchDiskPacketRetrying(short logicalFile, short section,
-                              unsigned short flags)
-{
-    void *packet = 0;
-    short retries = 5;
-    const char *fileName;
-
-    PromptInsertNumberedDisk(logicalFile);
-    if (flags == 0) {
-        if (GetPacketSize(
-                g_pDiskFileRecords_005a7cf0[logicalFile].name, section) >
-            (int)GetLargestFreeMemoryBlockByType(0)) {
-            ReportPacketLoadError(0, logicalFile, 0, section, "LP1");
-        }
-    }
-    fileName = g_pDiskFileRecords_005a7cf0[logicalFile].name;
-
-    do {
-        retries--;
-        FreePacketAndClear(&packet, flags);
-        packet = PacketLoad(fileName, section, 0, flags, 0, 1);
-        if (retries < 1 || g_nPacketError_0049ca90 == 0)
-            break;
-    } while (g_nPacketError_0049ca90 != 8);
-
-    if (packet == 0) {
-        if (g_stViewBuffer_005d2b00.pixels != 0) {
-            free_viewport(&g_stViewBuffer_005d2b00);
-            do {
-                retries--;
-                FreePacketAndClear(&packet, flags);
-                packet = PacketLoad(fileName, section, 0, flags, 0, 1);
-                if (retries < 1 || g_nPacketError_0049ca90 == 0)
-                    break;
-            } while (g_nPacketError_0049ca90 != 8);
-            if (AllocateViewport(&g_stViewBuffer_005d2b00,
-                                 (short)g_cPrimaryViewBufferColour_0049cb88, 0x20) == 0) {
-                ReportPacketLoadError(0, logicalFile, flags, flags,
-                                      "LP2");
-            }
-        }
-        if (packet == 0 && g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
-            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-            do {
-                retries--;
-                FreePacketAndClear(&packet, flags);
-                packet = PacketLoad(fileName, section, 0, flags, 0, 1);
-                if (retries < 1 || g_nPacketError_0049ca90 == 0)
-                    break;
-            } while (g_nPacketError_0049ca90 != 8);
-            if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
-                                 (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
-                ReportPacketLoadError(0, logicalFile, flags, section,
-                                      "LP3");
-            }
-        }
-    }
-    if (packet == 0 && (flags & 4) == 0 &&
-        g_nPacketError_0049ca90 != 0 && g_nPacketError_0049ca90 != 8) {
-        ReportPacketLoadError(packet, logicalFile, flags, section, "LP4");
-    }
-
-    ClearInputKeyStatePreservingModifiers();
-    return packet;
-}
-#else
 void *FetchDiskPacketRetrying(char *fileName, short section,
                               unsigned short flags)
 {
@@ -1304,37 +1188,12 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
     }
     return packet;
 }
-#endif
 
 /* Function start: 0x40F882 */
 void InitializeTextContextFromFont(TextContext *context, short fontIndex,
                                    unsigned char colour,
                                    signed char background)
 {
-#if 0
-    int index;
-
-    index = fontIndex;
-    if (g_apTextFonts_005d2200[index] == 0) {
-        if (fontIndex == 1) {
-            g_apTextFonts_005d2200[index] =
-                FetchDiskPacketRetrying(0, fontIndex,
-                                                         0x10);
-        } else {
-            g_apTextFonts_005d2200[index] =
-                FetchDiskPacketRetrying(0, fontIndex,
-                                                         0);
-        }
-        g_apFontWorkspaces_005a6c10[index] =
-            AllocateFontWorkspace((short)index);
-    }
-    context->font = g_apTextFonts_005d2200[index];
-    context->colour = colour;
-    context->backgroundColour = (unsigned char)background;
-    context->fontWorkspace = g_apFontWorkspaces_005a6c10[index];
-    SetTextContext(context);
-    return 0;
-#else
     if (g_apTextFonts_005d2200[fontIndex] == 0) {
         if (fontIndex == 1) {
             g_apTextFonts_005d2200[fontIndex] =
@@ -1348,7 +1207,6 @@ void InitializeTextContextFromFont(TextContext *context, short fontIndex,
     context->colour = colour;
     context->backgroundColour = (unsigned char)background;
     SetTextContext(context);
-#endif
 }
 
 /* Function start: 0x40F91C */
@@ -1366,21 +1224,6 @@ void ReleaseTextFont(short fontIndex)
 void DrawTextAt(TextContext *context, short x, short y,
                 const char *text, unsigned char alignment)
 {
-#if 0
-    char *savedText = context->text;
-    unsigned char savedAlignment = context->alignment;
-
-    SetTextContext(context);
-    SetTextCursor((unsigned short)x, (unsigned short)y);
-    context->text = (char *)text;
-    context->alignment = alignment;
-    DrawTextString(text);
-    context->text = savedText;
-    context->alignment = savedAlignment;
-    if (context->viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
-    return 0;
-#else
     char *savedText;
     unsigned char savedAlignment;
 
@@ -1395,7 +1238,6 @@ void DrawTextAt(TextContext *context, short x, short y,
     DrawTextString(text);
     context->text = savedText;
     context->alignment = savedAlignment;
-#endif
 }
 
 /* Function start: WC2_UNMAPPED */
@@ -1479,10 +1321,6 @@ void __stdcall PromptInsertNumberedDisk(short logicalFile)
         diskNumber =
             g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
         do {
-#if 0
-            DiskPromptDrawHook();
-            ResetDiskPromptTimer();
-#endif
             _cprintf("Please Insert Disk %d. Press any key to continue",
                      (int)diskNumber);
             WaitForInputKey();
@@ -1909,16 +1747,6 @@ short borrow_dust(void)
     }
     return i;
 
-#if 0
-    short i = 0x22;
-
-    do {
-        if (g_aeObjectClass_00495328[i] == OBJECT_CLASS_DUST)
-            return i;
-        i = i + 1;
-    } while (i < 0x2a);
-    return -1;
-#endif
 }
 
 /* Function start: 0x4105BF */
@@ -1948,27 +1776,6 @@ short initialize_ship(short type, short owner,
 /* Function start: 0x410680 */
 short any_selected(unsigned char *loadout, short objectClass)
 {
-#if 0
-    enum ObjectClass selectedClass;
-    short selected;
-    short weapon;
-
-    selectedClass = objectClass;
-    selected = 0;
-    weapon = 0;
-    if ((signed char)loadout[0] > (signed char)selected)
-        for (; (short)(signed char)loadout[0] > weapon; weapon++) {
-            if (selected != 0)
-                break;
-            if (g_aObjectTypeData_00496d30[
-                    ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->type]
-                    .objectClass ==
-                    selectedClass &&
-                ((ShipWeaponSlot *)(loadout + weapon * 7 + 1))->disabled == 0)
-                selected = 1;
-        }
-    return selected;
-#else
     short selected;
     short weapon;
 
@@ -1983,7 +1790,6 @@ short any_selected(unsigned char *loadout, short objectClass)
             selected = 1;
     }
     return selected;
-#endif
 }
 
 /* Function start: 0x410715 */

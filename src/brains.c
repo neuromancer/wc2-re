@@ -101,11 +101,7 @@ void Mwabble(short ship)
 void advance(short ship)
 {
     if (g_asShipManeuver_00495f48[ship] != MANEUVER_NONE)
-#if 0
-        g_acShipSequence_00495fe8[ship] = g_acShipSequence_00495fe8[ship] + 1;
-#else
         g_acShipSequence_00495fe8[ship]++;
-#endif
 }
 
 /* Function start: 0x4407DA */
@@ -113,42 +109,6 @@ void ShipAiState35(short ship, short target)
 {
     HandleUnsupportedManeuver(1, ship, target);
 
-#if 0
-    /* Retained WC1 implementation.  WC2 replaced maneuver 35 with the
-       unsupported-maneuver diagnostic above. */
-    (void)target;
-
-    switch (g_acShipSequence_00495fe8[ship]) {
-    case 0:
-        if (g_nTargetRange_0049319c < 750 ||
-            ++g_asShipCount_0059c420[ship] > 10) {
-            advance(ship);
-            g_asShipCount_0059c420[ship] = 0;
-        }
-        break;
-    case 1:
-        veer_random(ship, 45);
-        advance(ship);
-        break;
-    case 2:
-        if (++g_asShipCount_0059c420[ship] > 5) {
-            g_acShipSequence_00495fe8[ship] = 0;
-            g_asShipCount_0059c420[ship] = 0;
-        }
-        if (g_nTargetFacing_00493198 < 75)
-            advance(ship);
-        break;
-    case 3:
-        point_ship(ship, 0, &g_vToTarget_00493188);
-        approach_speed(ship, 0x500);
-        if (g_nFacingToTarget_00493194 > 10)
-            reset_maneuver(ship, MANEUVER_TAIL_FIRE);
-        if (g_nTargetRange_0049319c > 1500 ||
-            g_nTargetFacing_00493198 > 80)
-            maneuver_complete(ship);
-        break;
-    }
-#endif
 }
 
 /* Function start: 0x4407F7 */
@@ -156,15 +116,6 @@ void Mfull_ahead(short ship, short target)
 {
     HandleUnsupportedManeuver(2, ship, target);
 
-#if 0
-    short count;
-
-    approach_full_speed(ship);
-    count = g_asShipCount_0059c420[ship];
-    g_asShipCount_0059c420[ship] = count - 1;
-    if (count < 1)
-        maneuver_complete(ship);
-#endif
 }
 
 /* Function start: 0x440814 */
@@ -172,14 +123,6 @@ void Mchill(short ship, short target)
 {
     HandleUnsupportedManeuver(3, ship, target);
 
-#if 0
-    FixedVector destination;
-
-    ComputePointAheadOfObject(target, 900, &destination);
-    chase_location(ship, &destination, target);
-    if (close_behind(1000) != 0)
-        reset_maneuver(ship, g_acShipSequence_00495fe8[ship]);
-#endif
 }
 
 /* Function start: 0x440831 */
@@ -187,17 +130,6 @@ void Mdrop_a_mine(short ship, short target)
 {
     HandleUnsupportedManeuver(4, ship, target);
 
-#if 0
-    short weapon;
-
-    weapon = -1;
-    if (g_nTargetRange_0049319c > 1500)
-        weapon = mine_available(ship);
-    if (weapon != -1)
-        fire_weapon(ship, weapon);
-    approach_full_speed(ship);
-    maneuver_complete(ship);
-#endif
 }
 
 /* Function start: 0x44084E */
@@ -205,13 +137,6 @@ void Mthink(short ship, short target)
 {
     HandleUnsupportedManeuver(5, ship, target);
 
-#if 0
-    approach_cruise_speed(ship);
-    if (g_asShipCount_0059c420[ship] == 0)
-        g_asShipCount_0059c420[ship] = 2;
-    if (--g_asShipCount_0059c420[ship] <= 1)
-        maneuver_complete(ship);
-#endif
 }
 
 /* Function start: 0x44086B */
@@ -610,9 +535,6 @@ void Mzip_past(short ship, short target)
 /* Function start: 0x441C01 */
 void Mtarget_missile(short ship, short target)
 {
-#if 0
-    short object;
-#endif
 
     switch (g_acShipSequence_00495fe8[ship]) {
     case 0:
@@ -636,31 +558,6 @@ void Mtarget_missile(short ship, short target)
         break;
     }
 
-#if 0
-    /* Retained WC1 implementation. */
-    if (no_goal(ship) != 0)
-        point_ship_at_object(ship, target);
-    approach_cruise_speed(ship);
-
-    object = 0;
-    while (object < 10) {
-        if (g_acObjectOwner_00495208[object] == ship &&
-            g_aeObjectClass_00495328[object] == OBJECT_CLASS_MISSILE) {
-            reset_maneuver(ship, MANEUVER_STRAFE_ENEMY);
-            return;
-        }
-        object++;
-    }
-
-    if (g_nFacingToTarget_00493194 > 85 &&
-        g_nTargetRange_0049319c < 6000 &&
-        (g_nTargetFacing_00493198 > 80 ||
-         g_nTargetFacing_00493198 < -80) &&
-        RandomBelowOrEqual(5) == 0) {
-        fire_missile(ship);
-        maneuver_complete(ship);
-    }
-#endif
 }
 
 /* Function start: 0x44199B */
@@ -734,13 +631,6 @@ void Mbest_strafe(short ship, short target)
 /* Function start: 0x441D00 */
 void Msit_n_fire(short ship, short target)
 {
-#if 0
-    /* Retained WC1 capital-ship specialization. */
-    if (g_aeObjectClass_00495328[target] == OBJECT_CLASS_CAPITAL_SHIP) {
-        Mbest_strafe(ship, target);
-        return;
-    }
-#endif
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
     if (g_nTargetRange_0049319c > 3000)
@@ -786,14 +676,8 @@ void Mkill_missile(short ship, short target)
 /* Function start: 0x441E9C */
 void Msuicide_run(short ship, short target)
 {
-#if 0
-    approach_full_speed(ship);
-    if (no_goal(ship) != 0)
-        point_ship_at_object(ship, target);
-#else
     point_ship_at_object(ship, target);
     fire_afterburner(ship, 160);
-#endif
 }
 
 /* Function start: 0x441EC8 */
@@ -2213,125 +2097,6 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
 /* Function start: 0x409C1A */
 short RunCampaignGameLoop(short campaignSlot)
 {
-#if 0
-    short animation;
-
-    animation = campaignSlot;
-    switch (animation) {
-    case 0:
-        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-        InitializeCockpitResources();
-        death_sequence();
-        WaitForInputKey();
-        break;
-    case 1:
-        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-        InitializeCockpitResources();
-        LaunchPlayerShip();
-        WaitForInputKey();
-        break;
-    case 2:
-        Briefing((short)g_stCampaignState_0059ca50.currentSeries,
-                 (short)g_stCampaignState_0059ca50.currentMission);
-        break;
-    case 3:
-        UpdateTargetCameraObject(0);
-        break;
-    case 4:
-        scramble();
-        WaitForInputKey();
-        break;
-    case 5:
-        init_3Space_objects((short)g_stCampaignState_0059ca50.currentSeries);
-        ShowCarrierLaunchSequence(1);
-        free_constellation();
-        free_3Space();
-        WaitForInputKey();
-        break;
-    case 6:
-        landing(3);
-        WaitForInputKey();
-        break;
-    case 7:
-        RunWc1TitleSequence();
-        break;
-    case 8:
-        RecRoom();
-        break;
-    case 10:
-        DeBriefing((short)g_stCampaignState_0059ca50.currentSeries,
-                   (short)g_stCampaignState_0059ca50.currentMission);
-        break;
-    case 11:
-        RunWc1FuneralSequence(1);
-        break;
-    case 12:
-        AwardCampaignMedal(g_nConversationMedalIndex_00598c08);
-        break;
-    case 13:
-        BarracksScreen();
-        break;
-    }
-
-    switch (animation) {
-    case 14:
-        landing((signed char)(animation - 14));
-        WaitForInputKey();
-        break;
-    case 15:
-        RunWc1OfficeScene();
-        break;
-    case 16:
-        ShowCampaignVictorySequence();
-        break;
-    case 17:
-        ShowTigerClawEscapeScene();
-        break;
-    case 18:
-        ShowMeanwhileTransition(0, 0);
-        WaitForInputKey();
-        ShowMeanwhileTransition(0, 1);
-        WaitForInputKey();
-        break;
-    case 19:
-        ShowMeanwhileTransition(1, 0);
-        WaitForInputKey();
-        ShowMeanwhileTransition(1, 1);
-        WaitForInputKey();
-        break;
-    case 20:
-        ShowMeanwhileTransition(2, 0);
-        WaitForInputKey();
-        ShowMeanwhileTransition(2, 1);
-        WaitForInputKey();
-        break;
-    case 21:
-        ShowMeanwhileTransition(3, 0);
-        WaitForInputKey();
-        ShowMeanwhileTransition(3, 1);
-        WaitForInputKey();
-        break;
-    case 22:
-        RunWc1FuneralSequence(0);
-        break;
-    case 23:
-        ShowMeanwhileTransition(4, 1);
-        WaitForInputKey();
-        break;
-    case 24:
-        ShowMeanwhileTransition(5, 0);
-        WaitForInputKey();
-        ShowMeanwhileTransition(5, 1);
-        WaitForInputKey();
-        break;
-    case 25:
-        ShowMeanwhileTransition(6, 0);
-        WaitForInputKey();
-        break;
-    }
-    exit_squadron("Animation demo over.");
-    return 0;
-#else
     short campaignComplete;
     short fontIndex;
     unsigned int availableMemory;
@@ -2529,7 +2294,6 @@ short RunCampaignGameLoop(short campaignSlot)
         availableMemory = GetAvailableMainMemory();
     }
     return 1;
-#endif
 }
 
 /* Function start: 0x409850 */
@@ -2768,21 +2532,6 @@ void allow_engage(void)
 /* Function start: 0x44301A */
 void try2allow_engage(short obj)
 {
-#if 0
-    if (obj <= 4) {
-        allow_engage();
-        return;
-    }
-    if (obj == 8 || obj == 11 || obj == 6) {
-        allow_engage();
-        return;
-    }
-    if (obj == 5 && RandomBelowOrEqual(100) < 50) {
-        allow_engage();
-        return;
-    }
-    g_nAutoEngageTimer_00496130 = -40;
-#else
     if (obj != g_nYourWingman_0049346c) {
         allow_engage();
         return;
@@ -2797,7 +2546,6 @@ void try2allow_engage(short obj)
         return;
     }
     g_nAutoEngageTimer_00496130 = -40;
-#endif
 }
 
 /* Function start: 0x443095 */
@@ -3039,44 +2787,6 @@ void imperial_wingleader(short obj)
 /* Function start: 0x443A08 */
 void cruise_to_destination(short obj)
 {
-#if 0
-    FixedVector *destination;
-    short range;
-
-    if (abandoned(obj, 0) != 0)
-        return;
-    if ((g_abShipTurn_00495fd8[obj] & 7) == 6)
-        g_acShipTarget_00495f20[obj] = scan_for_enemy(obj, 15000);
-
-    if (g_acShipTarget_00495f20[obj] == -1) {
-        approach_cruise_speed(obj);
-    } else {
-        get_facing_range_from_object(obj,
-            g_acShipTarget_00495f20[obj]);
-        if (g_nFacingToTarget_00493194 <= 65)
-            approach_full_speed(obj);
-        else
-            approach_half_speed(obj);
-    }
-
-    if ((g_abShipTurn_00495fd8[obj] & 7) != 2)
-        return;
-    destination = &g_aShipDestination_004953f0[obj];
-    if (no_goal(obj) != 0)
-        point_ship_at_point(obj, destination);
-    range = distance_from_point(obj, destination);
-    if (range < 1500) {
-        if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL)
-            flag_reached((short)g_abFlightPath_004932a0[
-                g_abShipNavPointIndex_00495f60[obj]], 1);
-        if (equ_vector(destination, &g_aShipMissionSpot_00495e18[obj])) {
-            reset_tactic(obj, TACTIC_SIT_STILL);
-            set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
-        } else {
-            get_follow_point(obj, destination);
-        }
-    }
-#else
     short range;
 
     if (abandoned(obj, 0) != 0)
@@ -3119,7 +2829,6 @@ void cruise_to_destination(short obj)
             get_follow_point(obj, &g_aShipDestination_004953f0[obj]);
         }
     }
-#endif
 }
 
 /* Function start: 0x443C45 */
@@ -4161,39 +3870,15 @@ short is_alive(signed char pilot)
 {
     return g_pPilotStatus_005d2fcc[pilot];
 
-#if 0
-    /* Retained WC1 campaign-personality implementation. */
-    if (pilot <= 4)
-        return 1;
-    if (pilot == 13)
-        return g_nArcadeState_0049d75c != 4;
-    if (pilot >= 5 && pilot <= 12)
-        return g_stCampaignState_0059ca50.personalityDeathMission[
-            pilot - 5] == 0;
-    if (pilot >= 14 && pilot <= 17)
-        return (unsigned int)ace_status((short)(pilot - 14), 1);
-    return 0;
-#endif
 }
 
 /* Function start: 0x44B257 */
 void check_futurion(short i)
 {
-#if 0
-    unsigned int prev;
-
-    if (g_asShipMissionType_00495de8[i] == MISSION_TYPE_WARP_ARRIVE) {
-        prev = g_aeObjectClass_00495328[i];
-        g_aeObjectClass_00495328[i] = OBJECT_CLASS_FUTURION;
-        g_asObjectCounter_00494be0[i] = prev;
-    }
-    return 0;
-#else
     if (g_asShipMissionType_00495de8[i] == MISSION_TYPE_WARP_ARRIVE) {
         g_asObjectCounter_00494be0[i] = g_aeObjectClass_00495328[i];
         g_aeObjectClass_00495328[i] = OBJECT_CLASS_FUTURION;
     }
-#endif
 }
 
 /* Function start: 0x44B29D */
@@ -4209,16 +3894,7 @@ void ResetWeaponDisplayPositions(void)
 /* Function start: WC2_UNMAPPED */
 unsigned int InitWc1Mission(short series, short mission)
 {
-#if 0
-#ifdef WC1_SDL
-    if (LoadMissionData(series, mission) != 0)
-        return 1;
-#else
     LoadMissionData(series, mission);
-#endif
-#else
-    LoadMissionData(series, mission);
-#endif
     init_3Space_objects(series);
     g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
         g_aMissionResourceDescriptors_0049c798, 0,
@@ -5081,9 +4757,6 @@ unsigned int init_personalities(void)
 /* Function start: 0x44D72E */
 short room_for_me(short obj, short minimum)
 {
-#if 0
-    return 1;
-#else
     short other;
     short range;
 
@@ -5102,27 +4775,17 @@ short room_for_me(short obj, short minimum)
         }
     }
     return 1;
-#endif
 }
 
 /* Function start: 0x44D81F */
 void place_ship_near_player_until_valid(short obj, short minimum, short maximum)
 {
-#if 0
-    if (obj == -1 || room_for_me(obj, minimum) != 0)
-        return;
-    do {
-        random_radial(&g_aShipPosition_00494550[0], maximum,
-                      &g_aShipPosition_00494550[obj]);
-    } while (room_for_me(obj, minimum) == 0);
-#else
     if (obj != -1 && obj != 0) {
         while (room_for_me(obj, minimum) == 0) {
             random_radial(&g_aShipPosition_00494550[0], maximum,
                           &g_aShipPosition_00494550[obj]);
         }
     }
-#endif
 }
 
 /* Function start: 0x44D888 */
@@ -5171,9 +4834,6 @@ void sub_int_vector(const ShortVector *left,
     difference->x = left->x - right->x;
     difference->y = left->y - right->y;
     difference->z = left->z - right->z;
-#if 0
-    return 0;
-#endif
 }
 
 /* Function start: 0x44DA2F */
@@ -5297,19 +4957,6 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
 /* Function start: 0x44E028 */
 short is_team_member(short missionShip)
 {
-#if 0
-    short index;
-
-    if (g_stMissionHeader_005d3e70.playerMissionShip == missionShip)
-        return 1;
-    index = 0;
-    do {
-        if (g_stMissionHeader_005d3e70.initialMissionShips[index] == missionShip)
-            return 1;
-        index++;
-    } while (index < 8);
-    return 0;
-#else
     short index;
 
     if (g_stMissionHeader_005d3e70.playerMissionShip == missionShip)
@@ -5319,7 +4966,6 @@ short is_team_member(short missionShip)
             return 1;
     }
     return 0;
-#endif
 }
 
 /* Function start: 0x44E09C */

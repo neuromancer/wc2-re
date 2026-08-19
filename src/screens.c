@@ -4730,77 +4730,6 @@ void SetViewportRect(Viewport *viewport, unsigned short left,
 /* Function start: 0x433410 */
 void PanToScreen(Viewport *source, Viewport *destination)
 {
-#if 0
-    unsigned char *indices;
-    unsigned short target[3];
-    short *originalPalette;
-    short *transitionPalette;
-    unsigned int paletteBytes;
-    short activeCount;
-    short index;
-
-    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
-        indices = AllocateTaggedMemory(256, 0);
-        if (indices == 0)
-            return;
-        memset(indices, 0, 256);
-        activeCount = CollectActivePaletteIndices(source, indices, 256);
-        paletteBytes = (unsigned int)(activeCount * 6);
-        originalPalette =
-            AllocateTaggedMemory(paletteBytes, 0);
-        transitionPalette =
-            AllocateTaggedMemory(paletteBytes, 0);
-        if (originalPalette == 0 || transitionPalette == 0) {
-            ReleasePacketHandle(indices);
-            if (originalPalette != 0)
-                ReleasePacketHandle(originalPalette);
-            if (transitionPalette != 0)
-                ReleasePacketHandle(transitionPalette);
-            return;
-        }
-
-        memset(originalPalette, 0, paletteBytes);
-        memset(transitionPalette, 0, paletteBytes);
-        GetPaletteEntry(
-            (short)GetViewportPixel(destination,
-                                    destination->left,
-                                    destination->top),
-            target);
-        for (index = 0; index < activeCount; index++) {
-            GetPaletteEntry(
-                (short)indices[index],
-                (unsigned short *)&originalPalette[index * 3]);
-            CachePaletteEntryFromWords((short)indices[index], target);
-            memcpy(&transitionPalette[index * 3], target, 6);
-        }
-
-        WaitForVerticalBlankThunk();
-        DIBramPalette();
-        CopyViewportContents(source, destination);
-        MarkDibDirty();
-        DIBslamReal();
-
-        while (StepPaletteTransition(
-                   transitionPalette, originalPalette,
-                   (short)(activeCount * 3)) != 0) {
-            for (index = 0; index < activeCount; index++) {
-                CachePaletteEntryFromWords(
-                    (short)indices[index],
-                    (unsigned short *)&transitionPalette[index * 3]);
-            }
-            WaitForVerticalBlankThunk();
-            DIBramPalette();
-        }
-
-        ReleasePacketHandle(transitionPalette);
-        ReleasePacketHandle(originalPalette);
-        ReleasePacketHandle(indices);
-    } else {
-        CopyViewportContents(source, destination);
-    }
-    MarkDibDirty();
-    DIBslamReal();
-#else
     unsigned char *indices;
     short activeCount;
     short index;
@@ -4860,7 +4789,6 @@ void PanToScreen(Viewport *source, Viewport *destination)
     } else {
         CopyViewportContents(source, destination);
     }
-#endif
 }
 
 #pragma intrinsic(memset)

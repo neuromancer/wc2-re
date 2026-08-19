@@ -135,22 +135,6 @@ short CountEnemyFighters(void)
 /* Function start: 0x41E945 */
 short regulate_turn(short obj)
 {
-#if 0
-    signed char count;
-
-    if (g_aeSpecialManeuver_00495600[obj] ==
-        SPECIAL_MANEUVER_UNKNOWN_9)
-        return 1;
-    if (g_aeObjectClass_00495328[obj] != OBJECT_CLASS_CAPITAL_SHIP &&
-        handle_collisions(obj) != 0)
-        return 1;
-    count = --g_acTurnRegulator_00495618[obj];
-    if (count > 0)
-        return 1;
-    g_abShipTurn_00495fd8[obj]++;
-    g_acTurnRegulator_00495618[obj] = g_acTurnInterval_00495628[obj];
-    return 0;
-#else
     if (g_aeSpecialManeuver_00495600[obj] ==
         SPECIAL_MANEUVER_UNKNOWN_9)
         return 1;
@@ -172,7 +156,6 @@ short regulate_turn(short obj)
     g_abShipTurn_00495fd8[obj]++;
     g_acTurnRegulator_00495618[obj] = g_acTurnInterval_00495628[obj];
     return 0;
-#endif
 }
 
 /* Function start: 0x41EA86 */
@@ -432,17 +415,6 @@ short stress_morale(short obj)
 /* Function start: 0x41F446 */
 enum ShipManeuver any_defense(short obj)
 {
-#if 0
-    signed char *maneuvers;
-    short count;
-
-    count = 0;
-    maneuvers = g_apDefenseManeuvers_00493018[
-        g_asPilotLevel_00495d60[obj]];
-    while (maneuvers[count] != -1)
-        count++;
-    return (enum ShipManeuver)maneuvers[RandomBelowOrEqual(count)];
-#else
     short count;
     short pilotLevel;
     signed char *maneuvers;
@@ -456,25 +428,16 @@ enum ShipManeuver any_defense(short obj)
         count++;
     return (enum ShipManeuver)
         maneuvers[RandomBelowOrEqual((short)(count - 1))];
-#endif
 }
 
 /* Function start: 0x41F4C6 */
 short pick_regular_maneuver(short obj, short event)
 {
     short reroll;
-#if 0
-    short morale;
-#endif
 
     reroll = RandomBelowOrEqual(100) < 3 ||
              g_asShipManeuver_00495f48[obj] == MANEUVER_NONE;
-#if 0
-    morale = stress_morale(obj);
-    if (morale == 2)
-#else
     if (stress_morale(obj) == 2)
-#endif
         return MANEUVER_OUTA_HERE;
     if ((g_aiIntelligenceEvent_00492fc0[obj] == event ||
          RandomBelowOrEqual(100) < 20) &&
@@ -711,22 +674,6 @@ void intelligence_events(short obj)
 /* Function start: 0x440571 */
 void chase_speed(short obj, short range)
 {
-#if 0
-    short targetRange = g_nTargetRange_0049319c;
-
-    if (range < targetRange) {
-        approach_full_speed(obj);
-        return 0;
-    }
-    if (range > targetRange) {
-        approach_zero_speed(obj);
-        return 0;
-    }
-    approach_speed(obj,
-                      g_anShipSpeed_0059b320[
-                          g_acShipTarget_00495f20[obj]]);
-    return 0;
-#else
     if (range < g_nTargetRange_0049319c) {
         approach_full_speed(obj);
         if ((short)(range * 2) < g_nTargetRange_0049319c)
@@ -738,5 +685,4 @@ void chase_speed(short obj, short range)
                        g_anShipSpeed_0059b320[
                            g_acShipTarget_00495f20[obj]]);
     }
-#endif
 }

@@ -105,9 +105,6 @@ int TakeInputPressCount(void)
 /* Function start: 0x455F59 */
 void WriteDebugString(const char *s)
 {
-#if 0
-    OutputDebugString(s);
-#else
     if (s != 0) {
         OutputDebugString(s);
         if (g_nDebugFileLoggingEnabled_0049c2d8 != 0) {
@@ -118,7 +115,6 @@ void WriteDebugString(const char *s)
         }
     }
     return;
-#endif
 }
 
 /* Function start: 0x455FD3 */

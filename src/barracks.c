@@ -868,9 +868,6 @@ short RunWc1BarracksScreen(void)
     lastMedalsTick = 0;
     PreloadMusicTrackHook(35);
     spacetrack(35, 2, 1);
-#if 0
-    InitializeRoomViewports();
-#endif
     background = FetchDiskPacketRetrying(5, 12, 0);
     InitializeRoomMenu(g_aBarracksMenuRegions_00463008_WC1_UNMAPPED,
                        g_apszBarracksMenuLabels_004693f0_WC1_UNMAPPED,

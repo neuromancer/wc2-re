@@ -778,22 +778,6 @@ HWND GetDIBWindowHandle(void)
 /* Function start: 0x45E2DA */
 void CachePaletteEntryFromWords(short index, unsigned short *rgb)
 {
-#if 0
-    int cacheOffset = index * 4;
-    int wordOffset = index * 3;
-    unsigned char value;
-
-    value = *(unsigned char *)&rgb[0];
-    g_abPaletteCache_005c3450[cacheOffset + 2] = value;
-    DAT_005a8a50[wordOffset] = value;
-    value = *(unsigned char *)&rgb[1];
-    g_abPaletteCache_005c3450[cacheOffset + 1] = value;
-    DAT_005a8a50[wordOffset + 1] = value;
-    value = *(unsigned char *)&rgb[2];
-    g_abPaletteCache_005c3450[cacheOffset] = value;
-    g_abPaletteCache_005c3450[cacheOffset + 3] = 1;
-    DAT_005a8a50[wordOffset + 2] = value;
-#else
     g_abPaletteCache_005c3450[index * 4 + 2] =
         *(unsigned char *)&rgb[0];
     g_ausPaletteWords_005d3220[index][0] =
@@ -807,7 +791,6 @@ void CachePaletteEntryFromWords(short index, unsigned short *rgb)
     g_ausPaletteWords_005d3220[index][2] =
         g_abPaletteCache_005c3450[index * 4];
     g_abPaletteCache_005c3450[index * 4 + 3] = 1;
-#endif
 }
 
 /* Function start: 0x45E37C */
@@ -893,17 +876,9 @@ void DIBsetPalette(short index, short *rgb)
 /* Function start: 0x45E61C */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
-#if 0
-    int k = i * 4;
-
-    rgb[0] = g_abPaletteCache_005c3450[k + 2];
-    rgb[1] = g_abPaletteCache_005c3450[k + 1];
-    rgb[2] = g_abPaletteCache_005c3450[k];
-#else
     rgb[0] = g_abPaletteCache_005c3450[i * 4 + 2];
     rgb[1] = g_abPaletteCache_005c3450[i * 4 + 1];
     rgb[2] = g_abPaletteCache_005c3450[i * 4];
-#endif
 }
 
 /* Function start: 0x45E667 */

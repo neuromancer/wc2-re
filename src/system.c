@@ -220,22 +220,11 @@ void ReportFatalErrorCode(const char *errorCode)
 /* Function start: 0x437AB4 */
 void exit_squadron(const char *msg, ...)
 {
-#if 0
-    LogMemoryUsage();
-    SystemDebugPrintf(msg);
-    SystemDebugPrintf("[SYSTEM]: Exit_squadron\n");
-    WriteDebugString("[SYSTEM] exit_squadron");
-    WriteDebugString(msg);
-    ClearDebugPauseFlags();
-    AbortToDesktop();
-    exit(0);
-#else
     if (msg != 0)
         ShowNoticeMessageBox(msg);
     _unlink("tape.tmp");
     LogMemoryUsage();
     ShutdownGameWindow();
-#endif
 }
 
 /* Function start: 0x437AEC */
