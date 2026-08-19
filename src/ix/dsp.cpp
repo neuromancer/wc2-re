@@ -266,22 +266,22 @@ void ix_dsp_build_pan_tables(void)
     for (position = 0; position < 0x40; position++) {
         distance = (short)(0x20 - position);
         right = (short)(distance * scale);
-        g_anPanTable_00597d28[position * 2] = left;
-        g_anPanTable_00597d28[position * 2 + 1] = right;
-        g_anPanTable_00597d28[0x100 + position * 2] =
+        g_anPanTable_005c4ee8[position * 2] = left;
+        g_anPanTable_005c4ee8[position * 2 + 1] = right;
+        g_anPanTable_005c4ee8[0x100 + position * 2] =
             (short)(left * -1);
-        g_anPanTable_00597d28[0x100 + position * 2 + 1] =
+        g_anPanTable_005c4ee8[0x100 + position * 2 + 1] =
             (short)(right * -1);
     }
     right = (short)0x8001;
     for (position = 0x40; position < 0x80; position++) {
         distance = (short)(0x60 - position);
         left = (short)(distance * scale);
-        g_anPanTable_00597d28[position * 2] = left;
-        g_anPanTable_00597d28[position * 2 + 1] = right;
-        g_anPanTable_00597d28[0x100 + position * 2] =
+        g_anPanTable_005c4ee8[position * 2] = left;
+        g_anPanTable_005c4ee8[position * 2 + 1] = right;
+        g_anPanTable_005c4ee8[0x100 + position * 2] =
             (short)(left * -1);
-        g_anPanTable_00597d28[0x100 + position * 2 + 1] =
+        g_anPanTable_005c4ee8[0x100 + position * 2 + 1] =
             (short)(right * -1);
     }
 }

@@ -18,7 +18,7 @@
 IxVoice        g_voices_005c52f0[34];
 int            g_nVoiceCount_005c5748;
 unsigned short g_nMasterVolume_004a0c14;
-short          g_anPanTable_00597d28[512];
+short          g_anPanTable_005c4ee8[512];
 CRITICAL_SECTION g_csMixer_005c5730;
 
 /* Function start: 0x48A235 */   /* source line 23 */
@@ -223,9 +223,9 @@ void ix_dspv_recalc_mix(int voice)
             * (unsigned int)g_nMasterVolume_004a0c14) / 0xffff;
     EnterCriticalSection(&g_csMixer_005c5730);
     state->leftGain =
-        (short)((int)g_anPanTable_00597d28[pos * 2] * gain >> 0x10);
+        (short)((int)g_anPanTable_005c4ee8[pos * 2] * gain >> 0x10);
     state->rightGain =
-        (short)((int)g_anPanTable_00597d28[pos * 2 + 1] * gain >> 0x10);
+        (short)((int)g_anPanTable_005c4ee8[pos * 2 + 1] * gain >> 0x10);
     state->leftGainHi = (unsigned char)(state->leftGain >> 8);
     state->rightGainHi = (unsigned char)(state->rightGain >> 8);
     LeaveCriticalSection(&g_csMixer_005c5730);

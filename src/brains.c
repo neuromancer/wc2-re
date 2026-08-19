@@ -5254,9 +5254,9 @@ void ScaleNavMapMarkerSize(short *size)
 /* Function start: 0x44FB19 */
 void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 {
-    *x = (short)((mapX - g_nNavMapCentreX_005a8152) /
+    *x = (short)((mapX - g_nNavMapCentreX_005d16c2) /
                  g_nNavMapScale_0049bb84 + 75);
-    *y = (short)((g_nNavMapCentreY_005a817c - mapY) /
+    *y = (short)((g_nNavMapCentreY_005d16ec - mapY) /
                  g_nNavMapScale_0049bb84 + 67);
 }
 
@@ -5335,10 +5335,10 @@ void SetScale(void)
     height = (short)(g_nNavMapMaximumY_005d16c0 -
                      g_nNavMapMinimumY_005d16c4);
     halfWidth = (short)(width / 2);
-    g_nNavMapCentreX_005a8152 =
+    g_nNavMapCentreX_005d16c2 =
         (short)(g_nNavMapMinimumX_005d16a0 + halfWidth);
     halfHeight = (short)(height / 2);
-    g_nNavMapCentreY_005a817c =
+    g_nNavMapCentreY_005d16ec =
         (short)(g_nNavMapMinimumY_005d16c4 + halfHeight);
     g_nNavMapScale_0049bb84 = MaxShort(
         (short)((width + halfWidth) / 150),

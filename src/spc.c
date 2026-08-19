@@ -94,16 +94,16 @@ void CalibrateJoystickInteractive()
     if (fontLoaded == 0)
         ReleaseTextFont(1);
 
-    if (g_nJoystickHorizontalRange_005a81cc == 0)
-        g_nJoystickHorizontalRange_005a81cc = 9;
+    if (g_nJoystickHorizontalRange_005d1758 == 0)
+        g_nJoystickHorizontalRange_005d1758 = 9;
     if (g_nJoystickVerticalRange_005d1754 == 0)
         g_nJoystickVerticalRange_005d1754 = 9;
     g_nJoystickLeftScale_005d1740 =
         (g_nJoystickCentreX_005d1768 - g_nJoystickMinimumX_005d174c) /
-        g_nJoystickHorizontalRange_005a81cc;
+        g_nJoystickHorizontalRange_005d1758;
     g_nJoystickRightScale_005d175c =
         (g_nJoystickMaximumX_005d1744 - g_nJoystickCentreX_005d1768) /
-        g_nJoystickHorizontalRange_005a81cc;
+        g_nJoystickHorizontalRange_005d1758;
     g_nJoystickUpScale_005d173c =
         (g_nJoystickCentreY_005d1764 - g_nJoystickMinimumY_005d1750) /
         g_nJoystickVerticalRange_005d1754;
@@ -121,12 +121,12 @@ void CalibrateJoystickInteractive()
 
     g_nJoystickMinimumX_005d174c = g_nJoystickCentreX_005d1768 -
         g_nJoystickLeftScale_005d1740 *
-            g_nJoystickHorizontalRange_005a81cc;
+            g_nJoystickHorizontalRange_005d1758;
     g_nJoystickMinimumY_005d1750 = g_nJoystickCentreY_005d1764 -
         g_nJoystickUpScale_005d173c * g_nJoystickVerticalRange_005d1754;
     g_nJoystickMaximumX_005d1744 = g_nJoystickCentreX_005d1768 +
         g_nJoystickRightScale_005d175c *
-            g_nJoystickHorizontalRange_005a81cc;
+            g_nJoystickHorizontalRange_005d1758;
     g_nJoystickMaximumY_005d1748 = g_nJoystickCentreY_005d1764 +
         g_nJoystickDownScale_005d1760 * g_nJoystickVerticalRange_005d1754;
     g_nJoystickFailureValue_005d176c = g_nJoystickMaximumX_005d1744 * 2;

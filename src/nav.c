@@ -598,7 +598,7 @@ void BuildMap(short showPlayer)
                     labelColour = g_abGamePaletteReservedColours_0049cb54[4];
                 else
                     labelColour = *style->labelColour;
-                g_awNavObjectiveLabelIndex_005a8130[objectiveIndex] =
+                g_awNavObjectiveLabelIndex_005d16b0[objectiveIndex] =
                     g_nNavMapLabelCount_0049bc4c;
                 AddUniqueObjectiveNavLabel(
                     x, y, labelColour, objective_name(objectiveIndex),
@@ -816,7 +816,7 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
             if ((short)(abs((int)mouseX - mapX) +
                         abs((int)mouseY - mapY)) < 6 ||
                 IsPointInNavMapLabel(
-                    (short)g_awNavObjectiveLabelIndex_005a8130[pathIndex],
+                    (short)g_awNavObjectiveLabelIndex_005d16b0[pathIndex],
                     mouseX, mouseY) != 0) {
                 selected = 1;
                 set_new_objective(pathIndex);
@@ -1057,7 +1057,7 @@ int ReleaseNearHeapBlock(int descriptorAddress)
     block->sizeAndFlags &= 0x7fffffff;
     nextDescriptorAddress = descriptorAddress + 8;
     if (nextDescriptorAddress <
-            g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 &&
+            g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054 &&
         MergeAdjacentNearHeapBlocks(descriptorAddress) != 0)
         descriptorAddress = nextDescriptorAddress;
     if (descriptorAddress > g_nNearHeapFirstDescriptor_005d3058)
@@ -1074,19 +1074,19 @@ void PurgeNearHeapBlocks(unsigned short flags)
 
     if (g_nNearHeapActive_00493044 != 0) {
         if ((flags & 0x10) != 0) {
-            descriptorAddress = g_nNearHeapBase_005d3054;
-            descriptorAddress += g_nNearHeapSize_005d3050;
+            descriptorAddress = g_nNearHeapBase_005d3050;
+            descriptorAddress += g_nNearHeapSize_005d3054;
             descriptorAddress -= 8;
             g_nNearHeapFirstDescriptor_005d3058 = descriptorAddress;
             block = DosNearPtrToFar(descriptorAddress);
-            block->address = g_nNearHeapBase_005d3054;
+            block->address = g_nNearHeapBase_005d3050;
             descriptorBytes = g_nNearHeapMaxDescriptors_00493048 * 8;
             block->sizeAndFlags =
-                g_nNearHeapSize_005d3050 - descriptorBytes;
+                g_nNearHeapSize_005d3054 - descriptorBytes;
             return;
         }
-        descriptorAddress = g_nNearHeapBase_005d3054 +
-                            g_nNearHeapSize_005d3050 - 8;
+        descriptorAddress = g_nNearHeapBase_005d3050 +
+                            g_nNearHeapSize_005d3054 - 8;
         for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
              descriptorAddress -= 8) {
             block = DosNearPtrToFar(descriptorAddress);
@@ -1105,29 +1105,29 @@ unsigned short InitializeNearHeap(void)
     if (g_nNearHeapActive_00493044 == 0) {
         initialSize = (short)GetNavRangeSentinel();
         g_pNearHeapAllocation_005d305c = 0;
-        g_nNearHeapSize_005d3050 = initialSize;
+        g_nNearHeapSize_005d3054 = initialSize;
         if (g_nNearHeapMaxDescriptors_00493048 * 8 <
-            g_nNearHeapSize_005d3050) {
+            g_nNearHeapSize_005d3054) {
             g_pNearHeapAllocation_005d305c =
-                AllocateTaggedMemory(g_nNearHeapSize_005d3050, 0);
+                AllocateTaggedMemory(g_nNearHeapSize_005d3054, 0);
             if (g_pNearHeapAllocation_005d305c != 0) {
                 g_nNearHeapActive_00493044++;
-                g_nNearHeapBase_005d3054 =
+                g_nNearHeapBase_005d3050 =
                     DosFarPtrToNear(g_pNearHeapAllocation_005d305c);
                 if (*(unsigned short *)0x00400013 == 0x270) {
                     g_nNearHeapRelocationBytes_0049304c =
-                        0x9c000 - g_nNearHeapSize_005d3050 -
-                        g_nNearHeapBase_005d3054;
+                        0x9c000 - g_nNearHeapSize_005d3054 -
+                        g_nNearHeapBase_005d3050;
                     adjustedSize =
                         0x98000 - g_nNearHeapRelocationBytes_0049304c;
-                    adjustedSize -= g_nNearHeapBase_005d3054;
-                    g_nNearHeapSize_005d3050 = adjustedSize;
+                    adjustedSize -= g_nNearHeapBase_005d3050;
+                    g_nNearHeapSize_005d3054 = adjustedSize;
                     if (g_nNearHeapMaxDescriptors_00493048 * 8 <
-                        g_nNearHeapSize_005d3050) {
+                        g_nNearHeapSize_005d3054) {
                         DosMemcpy(
                             DosNearPtrToFar(
-                                g_nNearHeapBase_005d3054 +
-                                g_nNearHeapSize_005d3050),
+                                g_nNearHeapBase_005d3050 +
+                                g_nNearHeapSize_005d3054),
                             DosNearPtrToFar(
                                 0x9c000 -
                                 g_nNearHeapRelocationBytes_0049304c),
@@ -1153,8 +1153,8 @@ void ShutdownNearHeap(void)
             DosNearPtrToFar(
                 0x9c000 - g_nNearHeapRelocationBytes_0049304c),
             DosNearPtrToFar(
-                g_nNearHeapSize_005d3050 +
-                g_nNearHeapBase_005d3054),
+                g_nNearHeapSize_005d3054 +
+                g_nNearHeapBase_005d3050),
             g_nNearHeapRelocationBytes_0049304c);
     }
     if (g_nNearHeapActive_00493044 != 0)
@@ -1189,7 +1189,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
 
     allocationAddress = 0;
     descriptorAddress =
-        g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8;
+        g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054 - 8;
     for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
          descriptorAddress -= 8) {
         block = DosNearPtrToFar(descriptorAddress);
@@ -1199,13 +1199,13 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
         if ((int)blockSize < size)
             continue;
         if ((int)blockSize > size) {
-            if (g_nNearHeapBase_005d3054 -
+            if (g_nNearHeapBase_005d3050 -
                     g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
+                    g_nNearHeapSize_005d3054 >=
                 g_nNearHeapFirstDescriptor_005d3058) {
                 lastBlock = DosNearPtrToFar(
-                    g_nNearHeapBase_005d3054 +
-                    g_nNearHeapSize_005d3050 - 8);
+                    g_nNearHeapBase_005d3050 +
+                    g_nNearHeapSize_005d3054 - 8);
                 if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
                     blockSize = lastBlock->sizeAndFlags & 0xfffff;
                     if (lastBlock->address + blockSize ==
@@ -1217,9 +1217,9 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
                 }
             }
 
-            if (g_nNearHeapBase_005d3054 -
+            if (g_nNearHeapBase_005d3050 -
                     g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
+                    g_nNearHeapSize_005d3054 >=
                 g_nNearHeapFirstDescriptor_005d3058)
                 continue;
 
@@ -1274,8 +1274,8 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
         allocationFlags |= 0x40000000;
 
     allocationAddress = 0;
-    descriptorAddress = g_nNearHeapBase_005d3054 +
-                        g_nNearHeapSize_005d3050;
+    descriptorAddress = g_nNearHeapBase_005d3050 +
+                        g_nNearHeapSize_005d3054;
     do {
         descriptorAddress -= 8;
         if (descriptorAddress < g_nNearHeapFirstDescriptor_005d3058)
@@ -1290,10 +1290,10 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
             goto allocation_complete;
         }
         if (g_nNearHeapFirstDescriptor_005d3058 <=
-                g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 -
+                g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054 -
                     g_nNearHeapMaxDescriptors_00493048 * 8) {
             lastBlock = DosNearPtrToFar(
-                g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8);
+                g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054 - 8);
             if ((lastBlock->sizeAndFlags & 0x80000000) == 0 &&
                 (lastBlock->sizeAndFlags & 0xfffff) + lastBlock->address ==
                     g_nNearHeapFirstDescriptor_005d3058 &&
@@ -1303,7 +1303,7 @@ void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
             }
         }
     } while (g_nNearHeapFirstDescriptor_005d3058 <=
-             g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 -
+             g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054 -
                  g_nNearHeapMaxDescriptors_00493048 * 8);
 
     g_nNearHeapFirstDescriptor_005d3058 -= 8;
@@ -1361,7 +1361,7 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
     allocationAddress = 0;
     descriptorAddress = g_nNearHeapFirstDescriptor_005d3058;
     for (; descriptorAddress <
-               g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050;
+               g_nNearHeapBase_005d3050 + g_nNearHeapSize_005d3054;
          descriptorAddress += 8) {
         block = DosNearPtrToFar(descriptorAddress);
         blockSize = block->sizeAndFlags & 0xfffff;
@@ -1370,13 +1370,13 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
         if ((int)blockSize < size)
             continue;
         if ((int)blockSize > size) {
-            if (g_nNearHeapBase_005d3054 -
+            if (g_nNearHeapBase_005d3050 -
                     g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
+                    g_nNearHeapSize_005d3054 >=
                 g_nNearHeapFirstDescriptor_005d3058) {
                 lastBlock = DosNearPtrToFar(
-                    g_nNearHeapBase_005d3054 +
-                    g_nNearHeapSize_005d3050 - 8);
+                    g_nNearHeapBase_005d3050 +
+                    g_nNearHeapSize_005d3054 - 8);
                 if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
                     blockSize = lastBlock->sizeAndFlags & 0xfffff;
                     if (lastBlock->address + blockSize ==
@@ -1388,9 +1388,9 @@ void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
                 }
             }
 
-            if (g_nNearHeapBase_005d3054 -
+            if (g_nNearHeapBase_005d3050 -
                     g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
+                    g_nNearHeapSize_005d3054 >=
                 g_nNearHeapFirstDescriptor_005d3058)
                 continue;
 

@@ -149,7 +149,7 @@ extern void (__cdecl *g_pIxFree_004a0c1c)(void *);
 
 /* Master volume and the stereo pan table (two shorts per position). */
 extern unsigned short g_nMasterVolume_004a0c14;
-extern short          g_anPanTable_00597d28[];
+extern short          g_anPanTable_005c4ee8[];
 extern CRITICAL_SECTION g_csMixer_005c5730;
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
