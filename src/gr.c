@@ -12,18 +12,20 @@
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
                             RasterClip *clip)
 {
-    int allocation;
     int topOffset;
-    int nextOffset;
     int rowStrideOffset;
+    int nextOffset;
 
+    if (viewport->left < 0)
+        return;
     if (viewport->pixels != g_stScreenViewport_005d21a0.pixels) {
-        allocation = 0;
-        while (allocation < g_nViewportAllocationCount_005d19bc) {
-            if (g_apViewportAllocations_005a7f10[allocation] ==
-                viewport->pixels)
-                break;
-            allocation++;
+        int allocation;
+
+        for (allocation = 0;
+             allocation < g_nViewportAllocationCount_005d19bc &&
+                 g_apViewportAllocations_005a7f10[allocation] !=
+                     viewport->pixels;
+             allocation++) {
         }
         if (allocation >= g_nViewportAllocationCount_005d19bc)
             exit_squadron(g_szBadViewport_004969f8);

@@ -1990,40 +1990,39 @@ void free_viewport(Viewport *viewport)
 {
     unsigned char *allocation;
     int i;
-    int oldCount;
 
     g_nFreeViewportCalls_005a8110++;
     allocation = viewport->allocation;
-    if (allocation != 0) {
-        i = 0;
-        while (i < g_nViewportAllocationCount_005d19bc) {
-            if (g_apViewportAllocations_005a7f10[i] == allocation) {
-                oldCount = g_nViewportAllocationCount_005d19bc;
-                g_nViewportAllocationCount_005d19bc--;
-                g_apViewportAllocations_005a7f10[i] =
-                    g_apViewportAllocations_005a7f10[oldCount];
-                break;
-            }
-            i++;
+    if (allocation == 0)
+        return;
+
+    for (i = 0; i < g_nViewportAllocationCount_005d19bc; i++) {
+        if (g_apViewportAllocations_005a7f10[i] == viewport->allocation) {
+            g_nViewportAllocationCount_005d19bc--;
+            g_apViewportAllocations_005a7f10[i] =
+                g_apViewportAllocations_005a7f10[
+                    g_nViewportAllocationCount_005d19bc];
+            break;
         }
-        if (viewport->rowOffsets != 0) {
-            ReleasePacketHandle(viewport->rowOffsets);
-            viewport->rowOffsets = 0;
-        }
-        if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
-            printf("free_viewport not mcga\n");
-        ReleasePacketHandle(allocation);
-        viewport->pixels = 0;
-        viewport->allocation = 0;
-        if (g_stScreenViewport_005d21a0.pixels == allocation)
-            g_stScreenViewport_005d21a0.pixels = 0;
-        if (g_stScreenViewport_005d21a0.allocation == allocation)
-            g_stScreenViewport_005d21a0.allocation = 0;
-        if (g_stSecondaryViewBuffer_005d2c90.pixels == allocation)
-            g_stSecondaryViewBuffer_005d2c90.pixels = 0;
-        if (g_stSecondaryViewBuffer_005d2c90.allocation == allocation)
-            g_stSecondaryViewBuffer_005d2c90.allocation = 0;
     }
+
+    if (viewport->rowOffsets != 0) {
+        ReleasePacketHandle(viewport->rowOffsets);
+        viewport->rowOffsets = 0;
+    }
+    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
+        printf("free_viewport not mcga\n");
+    ReleasePacketHandle(allocation);
+    viewport->pixels = 0;
+    viewport->allocation = 0;
+    if (g_stScreenViewport_005d21a0.pixels == allocation)
+        g_stScreenViewport_005d21a0.pixels = 0;
+    if (g_stScreenViewport_005d21a0.allocation == allocation)
+        g_stScreenViewport_005d21a0.allocation = 0;
+    if (g_stSecondaryViewBuffer_005d2c90.pixels == allocation)
+        g_stSecondaryViewBuffer_005d2c90.pixels = 0;
+    if (g_stSecondaryViewBuffer_005d2c90.allocation == allocation)
+        g_stSecondaryViewBuffer_005d2c90.allocation = 0;
 }
 
 /* Function start: WC2_UNMAPPED */
