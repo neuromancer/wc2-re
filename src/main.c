@@ -444,11 +444,11 @@ void ResetScreenClipToFullHeight(void)
 /* Function start: 0x437D92 */
 void InitializeConversationText(void)
 {
-    g_stConversationTextViewport_005a7570 =
+    g_stConversationTextViewport_005d2b60 =
         g_stModalSourceViewport_005d2c50;
-    g_stConversationTextViewport_005a7570.top = 152;
+    g_stConversationTextViewport_005d2b60.top = 152;
     g_stConversationTextContext_005d2d40.viewport =
-        &g_stConversationTextViewport_005a7570;
+        &g_stConversationTextViewport_005d2b60;
     g_stConversationTextContext_005d2d40.text =
         g_szDefaultTextBuffer_005d2b80;
     g_stConversationTextContext_005d2d40.alignment = 2;

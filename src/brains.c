@@ -1672,7 +1672,7 @@ unsigned int landing(signed char damageLevel)
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
             damageOffset, 0);
         if (g_bSceneEscapeRequested_0049d4b0 != 1) {
-            ClearViewport(&g_stConversationTextViewport_005a7570,
+            ClearViewport(&g_stConversationTextViewport_005d2b60,
                           g_cSecondaryViewBufferColour_0049cb4c);
             FormatTextBufferFromStart(
                 g_szLandingCommentFormat_00465bf8_WC1_UNMAPPED, 0, 160,
@@ -1696,7 +1696,7 @@ unsigned int landing(signed char damageLevel)
     ReleasePacketHandle(g_pScrambleOverlayShape_005a8744);
     ReleasePacketHandle(g_pScrambleCanopyShape_005a874c);
     ResetScreenClipToFullHeight();
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x1d);
@@ -1784,7 +1784,7 @@ unsigned int funeral_player(void)
 unsigned int funeral_wingman(char *text, short duration)
 {
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED,
                               0, 160,
@@ -1869,7 +1869,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
 
     if (g_bSceneEscapeRequested_0049d4b0 != 1) {
         ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cPrimaryViewBufferColour_0049cb88);
-        ClearViewport(&g_stConversationTextViewport_005a7570,
+        ClearViewport(&g_stConversationTextViewport_005d2b60,
                       g_cSecondaryViewBufferColour_0049cb4c);
         g_nFrameSkipCountdown_0049d760 = 1;
         for (; frame < 10; frame++) {
@@ -1891,7 +1891,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                 if (g_bSceneEscapeRequested_0049d4b0 == 1)
                     break;
             }
-            ClearViewport(&g_stConversationTextViewport_005a7570,
+            ClearViewport(&g_stConversationTextViewport_005d2b60,
                           g_cSecondaryViewBufferColour_0049cb4c);
 
             if (g_bSceneEscapeRequested_0049d4b0 != 1) {
@@ -1921,7 +1921,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
 
                     if (g_bSceneEscapeRequested_0049d4b0 != 1) {
                         ClearViewport(
-                            &g_stConversationTextViewport_005a7570,
+                            &g_stConversationTextViewport_005d2b60,
                             g_cSecondaryViewBufferColour_0049cb4c);
                         frame = 10;
                         g_nFrameSkipCountdown_0049d760 = 1;
@@ -1954,7 +1954,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                             if (g_bSceneEscapeRequested_0049d4b0 != 1) {
                                 for (volley = 0; volley < 3; volley++) {
                                     ClearViewport(
-                                        &g_stConversationTextViewport_005a7570,
+                                        &g_stConversationTextViewport_005d2b60,
                                         g_cSecondaryViewBufferColour_0049cb4c);
                                     FormatTextBufferFromStart(
                                         g_szFuneralFireCommand_00465c54_WC1_UNMAPPED,
@@ -1987,7 +1987,7 @@ unsigned int RunWc1FuneralSequence(int playerFuneral)
                                     }
 
                                     ClearViewport(
-                                        &g_stConversationTextViewport_005a7570,
+                                        &g_stConversationTextViewport_005d2b60,
                                         g_cSecondaryViewBufferColour_0049cb4c);
                                     if (g_bSceneEscapeRequested_0049d4b0 == 1)
                                         break;

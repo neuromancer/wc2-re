@@ -3237,7 +3237,7 @@ unsigned int ViewWc1Medals(void)
         DrawMedals();
         AddPCName(g_pszMedalsPilotSummary_0046e2f8_WC1_UNMAPPED);
         RefreshMemoryStatusOverlay();
-        ClearViewport(&g_stConversationTextViewport_005a7570,
+        ClearViewport(&g_stConversationTextViewport_005d2b60,
                       g_cSecondaryViewBufferColour_0049cb4c);
         FormatTextBufferFromStart(
             g_szViewMedalsTextFormat_0046e604_WC1_UNMAPPED, 0, 160,
@@ -3320,7 +3320,7 @@ unsigned int DrawMedalChest(char *text, short duration)
     short offset;
 
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     offset = 0;
     FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED,
@@ -3413,7 +3413,7 @@ unsigned int DrawMedalLongShot(short *animation, char *text,
 
     countdown = 0;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED,
                               0, 160,
@@ -3477,7 +3477,7 @@ unsigned int MedalEstablish(char *text, short duration)
 
     distance = 200;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     frame = 0;
     FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED,
@@ -3515,7 +3515,7 @@ unsigned int PinMedal(char *text, short duration)
 
     frame = 0;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634_WC1_UNMAPPED,
                               0, 160,
@@ -3623,7 +3623,7 @@ unsigned int EstablishingShot(char *text, short duration)
         g_pBriefingPortraitShape_00598c24 =
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640_WC1_UNMAPPED,
                               0, 160,
@@ -3700,7 +3700,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
         g_pBriefingPortraitShape_00598c24 =
             FetchDiskPacketRetrying(4, 5, 0);
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED,
                               0, 160,
@@ -3741,7 +3741,7 @@ unsigned int ReturnToBriefingLongShot(char *text, short duration)
             break;
     }
     WaitForWc1SceneAdvance(duration, 0);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     return 0;
 }
@@ -3769,7 +3769,7 @@ unsigned int DismissWc1Scene(char *text, short duration)
     if (g_pBriefingPortraitShape_00598c24 != 0)
         FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658_WC1_UNMAPPED,
                               0, 160,
@@ -3879,7 +3879,7 @@ unsigned int DebriefingEstablishingShot(char *text, short duration)
     g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED = 200;
     g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED = 344;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED,
                               0, 160,
@@ -4438,7 +4438,7 @@ unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
         record++;
     } while (g_bSceneEscapeRequested_0049d4b0 != 1);
 scene_complete:
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FreeTalker();
     SetEventManagerPump(0);
@@ -4509,7 +4509,7 @@ unsigned int DrawWc1FuneralLongShot(short shot, char *text,
     short escaped;
 
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED,
                               0, 160,

@@ -213,7 +213,7 @@ int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
 
 void Wc1SdlStopDosSoundEffects(void)
 {
-    DAT_005a7cec = 0;
+    DAT_005d3864 = 0;
     if (g_pWc1SdlDosMusicMutex == 0 ||
         g_pWc1SdlOriginFxSoundPlayer == 0)
         return;

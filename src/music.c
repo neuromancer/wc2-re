@@ -1594,7 +1594,7 @@ void servicetrack(void)
 void ResetSoundState(void)
 {
     FlushSoundEffects();
-    DAT_005a7cec = 0;
+    DAT_005d3864 = 0;
     g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
 }
 

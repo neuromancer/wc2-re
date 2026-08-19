@@ -627,7 +627,7 @@ unsigned int ShowCampaignVictorySequence(void)
         else
             textIndex = -1;
         if (textIndex != -1) {
-            ClearViewport(&g_stConversationTextViewport_005a7570,
+            ClearViewport(&g_stConversationTextViewport_005d2b60,
                           g_cSecondaryViewBufferColour_0049cb4c);
             SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
@@ -822,7 +822,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     }
     g_nScriptedViewObject_0046a8d0_WC1_UNMAPPED = 1;
     initialize_scripted_view(g_asTigerClawEscapeViewScript_0046c238_WC1_UNMAPPED);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     SetTextContext(&g_stConversationTextContext_005d2d40);
     FormatTextBufferFromStart(
@@ -855,7 +855,7 @@ unsigned int ShowTigerClawEscapeScene(void)
 
         switch (frame) {
         case 150:
-            ClearViewport(&g_stConversationTextViewport_005a7570,
+            ClearViewport(&g_stConversationTextViewport_005d2b60,
                           g_cSecondaryViewBufferColour_0049cb4c);
             SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
@@ -884,7 +884,7 @@ unsigned int ShowTigerClawEscapeScene(void)
             g_bViewportDirty_0049d76c = 1;
             break;
         case 210:
-            ClearViewport(&g_stConversationTextViewport_005a7570,
+            ClearViewport(&g_stConversationTextViewport_005d2b60,
                           g_cSecondaryViewBufferColour_0049cb4c);
             SetTextContext(&g_stConversationTextContext_005d2d40);
             FormatTextBufferFromStart(
@@ -907,7 +907,7 @@ unsigned int ShowTigerClawEscapeScene(void)
     free_all_slots();
     ReleaseTextFont(0);
     free_3Space();
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrackHook(0x22);

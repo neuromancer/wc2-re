@@ -4879,7 +4879,7 @@ void PlaySceneAnimation(char *text, short animation, short duration)
     complete = 0;
     g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED = 0;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED,
                               0, 160,

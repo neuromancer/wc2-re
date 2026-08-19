@@ -634,7 +634,7 @@ unsigned int LongTalk(unsigned char *talker, char *text,
     faceStart = faceCommands;
     mouthStart = mouthCommands;
     faceFrame = 0;
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     mouthFrame = 0;
     faceCountdown = 0;
@@ -1079,7 +1079,7 @@ unsigned int UpdateMap(char *text, short duration)
     if (g_stSecondaryViewBuffer_005d2c90.pixels != 0)
         ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szBriefingMapTextFormat_0049bd30,
                               0, 160,
@@ -1112,7 +1112,7 @@ unsigned int CloseLook(unsigned char *shape, short shot,
     finished = 0;
     sceneFrame = 0;
     AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005a7570,
+    ClearViewport(&g_stConversationTextViewport_005d2b60,
                   g_cSecondaryViewBufferColour_0049cb4c);
     FormatTextBufferFromStart(g_szCloseLookTextFormat_0046566c_WC1_UNMAPPED,
                               0, 160,
