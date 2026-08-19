@@ -1192,8 +1192,6 @@ extern signed char DAT_0059c910[16];
 extern signed char g_acViableTarget_00496180[16];
 extern short g_asActionCount_004955e8[12];
 extern short g_nHazardFieldCount_004931d0;
-extern short g_asObjectRadarRadius_0059c790[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectAfterburnerVelocity_0059c9d0[WC2_SPACE_OBJECT_COUNT];
 extern short g_asObjectScreenScale_00493a58[WC2_SPACE_OBJECT_COUNT];
 extern CampaignState g_stCampaignState_0059ca50;
 extern unsigned char g_aShipWeapons_004956b0[10][0xA1];

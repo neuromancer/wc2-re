@@ -1025,8 +1025,8 @@ void apply_force_to_objects_center(FixedVector *force, short obj)
     FixedVector acceleration;
 
     divide_vector(force,
-                  (unsigned short)g_asObjectRadarRadius_0059c790[obj]
-                      << 8,
+                  g_aObjectTypeData_00496d30[
+                      g_acObjectType_00493980[obj]].radarRadius << 8,
                   &acceleration);
     AddFixedVectors(&g_aShipVelocity_00494898[obj], &acceleration,
                     &g_aShipVelocity_00494898[obj]);
@@ -1046,8 +1046,8 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     transform_to_objects_frame(force, &localForce, obj);
     transform_to_objects_frame(point, &localPoint, obj);
     rotationalMass = DivideFixed(
-        (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
-            << 8,
+        g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[obj]].afterburnerVelocity << 8,
         (int)g_asObjectCollisionRadius_004950e8[obj] << 8);
 
     value = DivideFixed(
@@ -1069,7 +1069,8 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
     ClampTo30(&g_anObjectYawRotation_00494fc8[obj]);
     ClampTo30(&g_anObjectRollRotation_00495058[obj]);
 
-    mass = (unsigned short)g_asObjectRadarRadius_0059c790[obj] << 8;
+    mass = g_aObjectTypeData_00496d30[
+        g_acObjectType_00493980[obj]].radarRadius << 8;
     acceleration.x = DivideFixed(
         MultiplyFixed(0x16a -
             PlanarMagnitude(localPoint.y, localPoint.z),
@@ -1103,8 +1104,8 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
     transform_to_objects_frame(force, &localForce, obj);
     transform_to_objects_frame(point, &localPoint, obj);
     denominator = DivideFixed(
-        (unsigned short)g_asObjectAfterburnerVelocity_0059c9d0[obj]
-            << 8,
+        g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[obj]].afterburnerVelocity << 8,
         MultiplyFixed(
             (int)g_asObjectCollisionRadius_004950e8[obj] << 8,
             0x123c));

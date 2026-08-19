@@ -1910,10 +1910,7 @@ void set_objects_data(short obj, short type, short owner,
     init_ijk(obj);
     g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
     zero = 0;
-    g_asObjectRadarRadius_0059c790[obj] = typeData->radarRadius;
     g_asObjectScale_00494d90[obj] = typeData->scale;
-    g_asObjectAfterburnerVelocity_0059c9d0[obj] =
-        typeData->afterburnerVelocity;
     g_acObjectOwner_00495208[obj] = (signed char)owner;
     g_asShipAccumulatedDamage_0059dee0[obj] = zero;
     objectClass = g_aeObjectClass_00495328[obj];
