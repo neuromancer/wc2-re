@@ -750,6 +750,7 @@ extern const char g_szRangeLabel_0049b4f0[12];
 extern const char g_szTargetTooFar_0049b4fc[8];
 extern const char g_szRangeMetresSuffix_0049b504[4];
 extern const char g_szTargetOffscreenRange_0049b508[8];
+extern const char g_szTargetDataXmit_0049b510[12];
 extern short g_nSpacePaletteFadeMode_004901e8;
 extern const GUID g_guidDirectDraw2_0048e120;
 extern LPDIRECTDRAW2 g_pDirectDraw2_0049ce90;

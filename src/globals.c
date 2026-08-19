@@ -1766,6 +1766,7 @@ const char g_szRangeLabel_0049b4f0[12] = "\nRange : ";
 const char g_szTargetTooFar_0049b4fc[8] = "TOO FAR";
 const char g_szRangeMetresSuffix_0049b504[4] = " m";
 const char g_szTargetOffscreenRange_0049b508[8] = "----- m";
+const char g_szTargetDataXmit_0049b510[12] = "DATA XMIT";
 unsigned char g_abManeuverRerollChance_0049b538[50] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

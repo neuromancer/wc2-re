@@ -811,68 +811,76 @@ void show_target_disp(void)
     }
 }
 
+#pragma function(strcpy)
+
 /* Function start: 0x43FF40 */
 void DrawTargetRangeReadout(void)
 {
     short target;
-    const char *rangeText;
 
     target = g_acShipTarget_00495f20[0];
-#ifdef WC1_SDL
-    /* The original tests the table before the -1 sentinel.  At target -1 it
-       reads the zero-filled gap at 0x0059c3bc, so the comparison is false. */
-    if (target != -1 &&
-#else
-    if (
-#endif
-        g_aeSpecialManeuver_00495600[target] ==
+    if (g_bDisplayWingmanTargetData_0049347c != 0)
+        target = g_nYourWingman_0049346c;
+    if (g_aeSpecialManeuver_00495600[target] ==
         SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_00495f20[0] = -1;
+        g_bDisplayWingmanTargetData_0049347c = 0;
         InvalidateVduMode(1);
         return;
     }
     if (target != -1 &&
         g_aeObjectClass_00495328[target] < OBJECT_CLASS_SHIP) {
         g_acShipTarget_00495f20[0] = -1;
-        target = -1;
+        target = g_acShipTarget_00495f20[0];
     }
     if (g_cTargetDisplayObject_004934f4 != target ||
-        (short)(g_nRenderedSpaceFrame_00493138 % 8) == 0) {
+        g_nRenderedSpaceFrame_00493138 % 8 == 0 ||
+        (target != -1 && g_anShipCloakState_00496020[target] == 1 &&
+         g_asShipCloakElapsedFrames_00496060[target] < 40)) {
         set_new_vdu(1);
         show_target_disp();
     }
-    if (target == -1)
-        return;
-
-    if (g_asObjectScreenX_00493598[target] == (short)0x8001) {
-        rangeText = g_szTargetOffscreenRange_0049b508;
-    } else if ((unsigned short)g_asObjectDistance_00493ae8[target] <=
-               30000) {
-        strcat(_itoa((unsigned short)g_asObjectDistance_00493ae8[target],
-                     g_szTextScratchBuffer_005d1c40, 10), " m");
-        goto draw_readout;
-    } else {
-        rangeText = g_szTargetTooFar_0049b4fc;
-    }
-    memcpy(g_szTextScratchBuffer_005d1c40, rangeText, 8);
-
-draw_readout:
-    DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
-    if (g_nTargetLockCountdown_004934ec == 0) {
-        if (g_bTargetLockAcquired_004934fc == 1) {
-            g_bTargetLockAcquired_004934fc = 0;
-            return;
+    if (target != -1) {
+        if (g_asObjectScreenX_00493598[target] != -32767) {
+            if ((unsigned short)g_asObjectDistance_00493ae8[target] >
+                    30000 ||
+                (unsigned short)g_asObjectDistance_00493ae8[target] < 0) {
+                strcpy(g_szTextScratchBuffer_005d1c40,
+                       g_szTargetTooFar_0049b4fc);
+            } else {
+                strcpy(g_szTextScratchBuffer_005d1c40 +
+                           strlen(_itoa((unsigned short)
+                                            g_asObjectDistance_00493ae8[
+                                                target],
+                                        g_szTextScratchBuffer_005d1c40, 10)),
+                       g_szRangeMetresSuffix_0049b504);
+            }
+        } else {
+            strcpy(g_szTextScratchBuffer_005d1c40,
+                   g_szTargetOffscreenRange_0049b508);
         }
-    } else if (g_bTargetLockReadoutDirty_004934e8 != 0) {
-        EraseCockpitReadoutRegion(&g_stRightVduViewport_005d2b20,
-                                  g_stRightVduViewport_005d2b20.left,
-                                  (short)(g_stRightVduViewport_005d2b20.bottom - 6),
-                                  g_stRightVduViewport_005d2b20.right,
-                                  g_stRightVduViewport_005d2b20.bottom,
-                                  (short)g_cSecondaryViewBufferColour_0049cb4c);
-        g_bTargetLockReadoutDirty_004934e8 = 0;
+        if (g_bDisplayWingmanTargetData_0049347c != 0) {
+            strcpy(g_szTextScratchBuffer_005d1c40,
+                   g_szTargetDataXmit_0049b510);
+        }
+        DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
+        if (g_nTargetLockCountdown_004934ec == 0) {
+            if (g_bTargetLockAcquired_004934fc == 1)
+                g_bTargetLockAcquired_004934fc = 0;
+        } else if (g_bTargetLockReadoutDirty_004934e8 != 0) {
+            EraseCockpitReadoutRegion(
+                &g_stRightVduViewport_005d2b20,
+                g_stRightVduViewport_005d2b20.left,
+                (short)(g_stRightVduViewport_005d2b20.bottom - 6),
+                g_stRightVduViewport_005d2b20.right,
+                g_stRightVduViewport_005d2b20.bottom,
+                g_cSecondaryViewBufferColour_0049cb4c);
+            g_bTargetLockReadoutDirty_004934e8 = 0;
+        }
     }
 }
+
+#pragma intrinsic(strcpy)
 
 /* Function start: 0x45CA50 */
 void LogDisplayMode(const char *mode)
