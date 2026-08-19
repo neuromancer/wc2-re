@@ -1515,7 +1515,23 @@ typedef char BarracksAnimationState_size_must_be_0x68[
  * tests 0x15 for WC1's space mine 33. */
 #define WC2_OBJECT_TYPE_COUNT 49
 #define WC2_OBJECT_TYPE(wc1Type) ((wc1Type) - 12)
-/* The debris records, read off the table's classes and frame lists. */
+/* The records the reconstructed table names or its classes and frame lists
+ * identify.  The gun and missile block is where WC2 diverges most: it carries
+ * four named guns and four more projectile slots where WC1 had three guns and
+ * a turret bolt, so only the mine and everything above it line up with
+ * WC2_OBJECT_TYPE(). */
+#define WC2_OBJECT_TYPE_LASER_CANNON    7
+#define WC2_OBJECT_TYPE_NEUTRON_GUN     8
+#define WC2_OBJECT_TYPE_MASS_DRIVER     9
+#define WC2_OBJECT_TYPE_PARTICLE_CANNON 10
+#define WC2_OBJECT_TYPE_DART_DF        15
+#define WC2_OBJECT_TYPE_JAVELIN_HS     16
+#define WC2_OBJECT_TYPE_PILUM_FF       17
+#define WC2_OBJECT_TYPE_SPICULUM_IR    18
+#define WC2_OBJECT_TYPE_TORPEDO        19
+#define WC2_OBJECT_TYPE_CHAFF_POD      20
+#define WC2_OBJECT_TYPE_PORCUPINE_MINE 21
+#define WC2_OBJECT_TYPE_ASTEROID1      22
 #define WC2_OBJECT_TYPE_ROCK_CHUNK     28
 #define WC2_OBJECT_TYPE_GIRDER_CHUNK   29
 #define WC2_OBJECT_TYPE_SHIP_TUBING    30
@@ -1524,6 +1540,13 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define WC2_OBJECT_TYPE_BURNING_DEBRIS 33
 #define WC2_OBJECT_TYPE_O_RING         34
 #define WC2_OBJECT_TYPE_PIPE           35
+#define WC2_OBJECT_TYPE_EXPLOSION_SMALL  36
+#define WC2_OBJECT_TYPE_EXPLOSION_MEDIUM 37
+#define WC2_OBJECT_TYPE_EXPLOSION_LARGE  38
+#define WC2_OBJECT_TYPE_THRUSTERS        43
+#define WC2_OBJECT_TYPE_EJECTED_PILOT    44
+#define WC2_OBJECT_TYPE_DEBRIS_GLASS     45
+#define WC2_OBJECT_TYPE_DATA_CAPSULE     46
 #define WC2_MISSION_SHIP_COUNT 16
 #define WC1_MISSION_SHIP_STORAGE_COUNT 48
 #define WC1_MISSION_SHIP_SCAN_LIMIT 64

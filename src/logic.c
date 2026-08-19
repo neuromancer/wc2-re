@@ -1146,17 +1146,17 @@ unsigned int LoadLegacySpaceflightResourceSets(void)
     if (LoadShapeSet(g_aCommon3SpaceResources_0049c728, 4, -1) == 0)
         return 0;
     LoadShapeSet(g_aMissionResourceDescriptors_0049c798, 4, -1);
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
     debrisShapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00496d30[WC1_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
         debrisShapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_GIRDER_CHUNK].shapeSet =
         debrisShapeSet;
     LoadShapeSet(g_aCockpitResourceDescriptors_00469c48_WC1_UNMAPPED, 4, -1);
     g_apCommPortraitShapes_0059e180[8] = 0;
@@ -3587,22 +3587,22 @@ unsigned int free_3Space_objects(void)
     FreeShapeSet(g_aCommon3SpaceResources_0049c728, 0);
     FreeShapeSet(g_aMissionResourceDescriptors_0049c798, 0);
     free_ship(3);
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DUMB_FIRE_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_FF_MISSILE].shapeSet = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DUMB_FIRE_MISSILE].animation = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE].animation = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_FF_MISSILE].animation = 0;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_O_RING].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[WC1_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_TUBING].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_SHIP_GIRDER_CHUNK].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_PIPE].shapeSet;
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].shapeSet = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].shapeSet = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].shapeSet = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].animation = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].animation = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].animation = 0;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DEBRIS_GLASS].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_GIRDER_CHUNK].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PIPE].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
     return 0;
 }
 

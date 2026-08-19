@@ -1388,7 +1388,7 @@ int g_anShipSpeed_00494e20[WC2_SPACE_OBJECT_COUNT];
 short g_anObjectPitchRotation_00494f38[WC2_SPACE_OBJECT_COUNT];
 short g_anObjectYawRotation_00494fc8[WC2_SPACE_OBJECT_COUNT];
 short g_anObjectRollRotation_00495058[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectCollisionRadius_004950e8[64];
+short g_asObjectCollisionRadius_004950e8[70];
 short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
 signed char g_acObjectOwner_00495208[WC2_SPACE_OBJECT_COUNT] = { -1 };
 signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT] = { -1 };

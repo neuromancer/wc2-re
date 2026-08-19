@@ -66,7 +66,7 @@ void make_shard(short asteroid, FixedVector direction)
     fragment = find_vacant_3d_object();
     if (fragment == -1)
         return;
-    set_objects_data(fragment, OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
+    set_objects_data(fragment, WC2_OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
     g_asObjectCounter_00494be0[fragment] = 40;
     g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
     SetVectorFixedPoint((unsigned int *)&direction,
@@ -375,7 +375,7 @@ void manage_hazard(short obj, short slot)
         remove_hazard((signed char)obj);
         return;
     }
-    if (g_acObjectType_00493980[obj] == OBJECT_TYPE_SPACE_MINE &&
+    if (g_asObjectType_00495298[obj] == WC2_OBJECT_TYPE_PORCUPINE_MINE &&
         g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
         (unsigned short)g_asObjectDistance_00493ae8[obj] > 1500 &&
         real_velocity(obj) < 20)

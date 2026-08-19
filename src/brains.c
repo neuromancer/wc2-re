@@ -3899,8 +3899,8 @@ unsigned int InitWc1Mission(short series, short mission)
     g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
         g_aMissionResourceDescriptors_0049c798, 0,
         g_nAvailableGameMemory_005a7ce0, "objects.vga");
-    g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
+    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet;
     prepare_mission();
     InitializeCockpitResources();
     return 0;

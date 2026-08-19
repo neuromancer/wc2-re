@@ -1902,9 +1902,9 @@ void set_objects_data(short obj, short type, short owner,
     typeData = &g_aObjectTypeData_00496d30[type];
     g_acObjectType_00493980[obj] = type;
     g_aeObjectClass_00495328[obj] = typeData->objectClass;
-    if (type == OBJECT_TYPE_ROCK_CHUNK)
+    if (type == WC2_OBJECT_TYPE_ROCK_CHUNK)
         g_apObjectShape_00493868[obj] =
-            g_aObjectTypeData_00496d30[OBJECT_TYPE_ASTEROID1].shapeSet;
+            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_ASTEROID1].shapeSet;
     else
         g_apObjectShape_00493868[obj] = typeData->shapeSet;
     init_ijk(obj);

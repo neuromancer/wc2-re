@@ -1271,7 +1271,7 @@ extern signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT];
 extern signed char g_abProjectileCollisionBonus_004960a8[
     WC2_SPACE_OBJECT_COUNT];
 extern short g_aasShipMaximumShield_004954f0[10][2];
-extern short g_asObjectCollisionRadius_004950e8[64];
+extern short g_asObjectCollisionRadius_004950e8[WC2_SPACE_OBJECT_COUNT];
 extern signed char g_acShipPointingMode_0059d790[16];
 extern short g_anPitchGoal_004954a8[16];
 extern signed char g_abShipNavPointIndex_00495f60[16];

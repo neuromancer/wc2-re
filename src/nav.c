@@ -89,9 +89,9 @@ TitleMenuRegion g_aTitleMenuRegions_00468a88_WC1_UNMAPPED /* no-address */[5] = 
 };
 
 PacketResourceDescriptor g_aIntroResourceDescriptors_00468ac0_WC1_UNMAPPED /* no-address */[3] = {
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_EXPLOSION1].shapeSet,
+    { &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EXPLOSION_MEDIUM].shapeSet,
       3, 2 },
-    { &g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet,
+    { &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_METAL_SHEET].shapeSet,
       3, 5 },
     { 0, 0, 0 }
 };
@@ -2124,7 +2124,7 @@ int RunWc1TitleSequence(void)
         g_nSceneResourceBudget_005a7ce4 = LoadPacketResourceList(
             g_aIntroResourceDescriptors_00468ac0_WC1_UNMAPPED, 0, 0x3e8000,
             "objects.vga");
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
             g_aObjectTypeData_00496d30[
                 OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         ClearInputKeyStatePreservingModifiers();
@@ -2274,7 +2274,7 @@ int RunWc1TitleSequence(void)
         ReleasePacketHandle(g_pIntroFont_005a8960);
         ReleasePacketHandle(g_pTitleShape_005a7f08);
         FreeShapeSet(g_aIntroResourceDescriptors_00468ac0_WC1_UNMAPPED, 0);
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_DEBRIS_WING].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_WING].shapeSet =
             g_aObjectTypeData_00496d30[
                 OBJECT_TYPE_DEBRIS_METAL_SHEET].shapeSet;
         free_all_slots();

@@ -166,7 +166,7 @@ unsigned int ejection_sequence(short transition, signed char restoreRoom)
             LoadWc1PacketIntoBuffer(8, 8,
                                     g_pScreenViewportPacket_005a6b94);
 
-        g_aObjectTypeData_00496d30[OBJECT_TYPE_EJECTED_PILOT].shapeSet =
+        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet =
             FetchDiskPacketRetrying(2, 2, 0);
         g_nEjectedPilotObject_0046c044_WC1_UNMAPPED = find_vacant_3d_object();
         set_objects_data(g_nEjectedPilotObject_0046c044_WC1_UNMAPPED,
