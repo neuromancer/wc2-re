@@ -111,7 +111,7 @@ void MonoDebug_remove(void);                                            /* 0x437
 void SoundDebugPrintf(const char *fmt, ...);                          /* 0x437946 */
 void MonoDebug_print(const char *text);                                  /* 0x437983 */
 void ReadPerformanceCounter(LARGE_INTEGER *p);                           /* 0x4379D4 */
-void __stdcall ResetStringBuilder(TextContext *context);               /* WC2 unmapped */
+void ResetStringBuilder(TextContext *context);                         /* 0x446580 */
 void visit_the_cinema(int view, int obj, short frames);                  /* 0x4228B0 */
 unsigned int player_wingman(short obj);                                  /* 0x422953 */
 void set_speed(short obj, short speed);                                  /* 0x422990 */
@@ -323,7 +323,7 @@ void CheckPoint(short x, short y);                                    /* 0x44FBC
 void IncludeNavMapWorldPoint(int worldX, int worldZ);                  /* 0x44FC37 */
 void SetScale(void);                                                   /* 0x44FC6D */
 void Build_objective_list(void);                                       /* 0x44FE9F */
-short NavMapPointInsideReservedArea(short area, short x, short y);    /* WC2 unmapped */
+short NavMapPointInsideReservedArea(short area, short x, short y);    /* 0x450136 */
 short NavMapLabelFits(short x, short y, short width, short height);   /* 0x4501B2 */
 short NavMapLabelPositionAvailable(short x, short y,
                                    short width, short height);        /* 0x450210 */
@@ -884,7 +884,7 @@ void accelerate(short amount);                                         /* 0x4174
 void your_afterburner(void);                                            /* 0x417471 */
 unsigned int LoadWc1GamePaletteFile(void);                             /* WC2 unmapped */
 void LoadGamePaletteFile(void);                                        /* 0x45B810 */
-unsigned int EMShutDown(void);                                         /* 0x45B905 */
+void EMShutDown(void);                                                 /* 0x45B905 */
 unsigned short InitializeEventManagerResources(void);                  /* WC2 unmapped */
 unsigned int StartWc1EventManager(void);                               /* WC2 unmapped */
 void EMStartUp(void);                                                   /* 0x45B924 */
@@ -1059,7 +1059,7 @@ void SetDebugCursorPosition(short column, short row);                  /* 0x40FE
 void ResetDebugOverlay(void);                                         /* 0x40FEA3 */
 void ClearDebugOverlay(void);                                         /* 0x40FEBE */
 void ClearDebugPauseFlags(void);                                              /* 0x40FED9 */
-unsigned short EraseTextContextBackground(TextContext *context);      /* WC2 unmapped */
+void EraseTextContextBackground(TextContext *context);                /* 0x45924D */
 int DisplayTrainSimHighScoreTable(short phase);                       /* WC2 unmapped */
 int AnimateTrainSimTitle(void);                                       /* WC2 unmapped */
 unsigned char *GetHighScoreEntry(short i);                           /* WC2 unmapped */
@@ -1223,7 +1223,8 @@ void RemoveWaveTableEntry(WaveTableEntry *entry);                     /* 0x423E1
 void FreeWaveTable(void);                                           /* 0x423ED1 */
 ActiveSoundEntry *AllocateActiveSoundEntry(void);                     /* 0x423F3F */
 void RemoveActiveSoundEntry(ActiveSoundEntry *entry);                 /* 0x423FAB */
-ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* WC2 unmapped */
+ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* 0x42405E */
+IxSample * __fastcall ix_sound_get_sample(IxSound *sound);            /* 0x424A40 */
 void ReleaseFinishedSoundEntries(void);                              /* 0x4240AE */
 void StopSoundsUsingWave(const char *name);                          /* 0x424113 */
 void playWAVE(const char *filename, int looping, int volume);         /* 0x42418C */
@@ -1270,7 +1271,7 @@ short IsSpriteFrameOverlappingRect(const ShortRect *rectangle,
                                    unsigned char *shape,
                                    short frame);                      /* 0x46505E */
 void FadeMusic(int duration);                                          /* 0x452AE5 */
-void SetMusicOn(short enabled);                                         /* WC2 unmapped */
+void SetMusicOn(short enabled);                                         /* 0x452A1B */
 void StopMusicStream(void);                                            /* 0x452A00 */
 void StopMusic(int enabled);                                           /* 0x452A26 */
 short StartMusic(void *music);                                        /* 0x452A40 */
@@ -1524,7 +1525,7 @@ void __stdcall RegisterEventManagerShutdown(void (*fn)(void));         /* WC2 un
 short __stdcall InitializeEventManager(short period,
                                        unsigned short (*initialize)(void),
                                        void *configuration);           /* WC2 unmapped */
-void ShutdownEventManager(void);                                      /* WC2 unmapped */
+void ShutdownEventManager(void);                                      /* 0x4625CB */
 unsigned short __stdcall ConfigureEventManagerPointer(
     unsigned char *shape, short frame);                               /* WC2 unmapped */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* WC2 unmapped */

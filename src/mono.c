@@ -251,10 +251,3 @@ void ReadPerformanceCounter(LARGE_INTEGER *p)
 {
     QueryPerformanceCounter(p);
 }
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall ResetStringBuilder(TextContext *context)
-{
-    context->textCursor = context->text;
-    *context->text = 0;
-}

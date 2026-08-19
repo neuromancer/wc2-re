@@ -2,7 +2,8 @@
  *  Music state machine and the streaming music script.
  *
  *  Address range 0x42d000-0x42efff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: PROVEN by the names the routines print: StopMusic, FadeMusic, SetMusicOn, ....
+ *  Boundary evidence: the names the routines print -- startMusic,
+ *  startIntMusic, queue_next_music, queue_stop, flushFX.
  */
 #include "wc1.h"
 
@@ -838,10 +839,9 @@ void FadeMusic(int duration)
 {
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x452A1B */
 void SetMusicOn(short enabled)
 {
-    SoundDebugPrintf("SetMusicOn %d", (int)enabled);
 }
 
 /* Function start: 0x452A00 */

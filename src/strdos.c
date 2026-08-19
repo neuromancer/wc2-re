@@ -100,10 +100,12 @@ short __stdcall InitializeEventManager(short period,
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x4625CB */
 void ShutdownEventManager(void)
 {
     g_bInputManagerInitialized_005c80ca = 0;
+    ReleasePacketHandle(g_pInputManagerState_005c8464);
+    return;
 }
 
 /* Function start: WC2_UNMAPPED */

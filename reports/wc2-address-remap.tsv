@@ -516,6 +516,7 @@ src/geom.c	254	004184C0	0040A81B	FixedToShortSaturating	FixedToShortSaturating	W
 src/geom.c	264	004184E0	0040A867	MinInt	DoLocalFn84E0	WC1-order-exact		mapped
 src/geom.c	271	004184F0	0040A893	MaxInt	DoLocalFn84F0	WC1-order-exact		mapped
 src/geom.c	278	00418500	0040A8BF	AbsInt	DoLocalFn8500	WC1-callgraph-single		mapped
+src/geom.c	290	00425C30	0045924D	EraseTextContextBackground	EraseTextContextBackground	WC2-manual-verified		mapped
 src/geom.c	307	00418540	0040A8EB	SignFixed	DoLocalFn8540	WC1-fuzzy-medium		mapped
 src/geom.c	315	00418560	0040A925	WrapDegrees	DoLocalFn8560	WC1-fuzzy-medium		mapped
 src/geom.c	328	00418590	0040A981	equ_vector	equ_vector	WC1-manual-verified		mapped
@@ -537,10 +538,15 @@ src/geom.c	496	004189E0	0040ADC2	dot_product	dot_product	WC1-manual-verified		ma
 src/geom.c	504	00418A30	0040AE18	vector_angle	vector_angle	WC1-manual-verified		mapped
 src/geom.c	512	00418A80	0040AE70	vector_cross_product	DoLocalFn8A80	WC1-fuzzy-low		mapped
 src/geom.c	524	00418B10	0040AF18	NormalizeFixedVector	NormalizeFixedVector	WC1-fuzzy-followup		mapped
+src/geom.c	530	0041DDF0	00459160	EraseLastTextInputCharacter	EraseLastTextInputCharacter	WC1-manual-verified		mapped
 src/geom.c	538	00418B60	0040AF99	vector_length_in_dir	vector_length_in_dir	WC1-manual-verified		mapped
 src/geom.c	550	00418BB0	0040AFFA	vector_component_in_dir	vector_component_in_dir	WC1-manual-verified		mapped
+src/geom.c	559	004260E0	00459294	DrawTextInputCursor	DrawTextInputCursor	WC1-manual-verified		mapped
 src/geom.c	561	00418BE0	0040B02F	rotate_about_i	rotate_about_i	WC1-manual-verified		mapped
+src/geom.c	576	004261D0	0045930A	EraseCharacterAfterTextCursor	EraseCharacterAfterTextCursor	WC1-manual-verified		mapped
+src/geom.c	577	00426200	004597E3	ReadTextInput	ReadTextInput	WC1-fuzzy-followup		mapped
 src/geom.c	581	00418D00	0040B17F	rotate_about_j	rotate_about_j	WC1-manual-verified		mapped
+src/geom.c	587	00426140	00459348	ClearTextInputCharacter	ClearTextInputCharacter	WC1-fuzzy-very-low		mapped
 src/geom.c	601	00418E40	0040B2CF	rotate_about_k	DoLocalFn8E40	WC1-callgraph-propagated		mapped
 src/geom.c	621	00418F60	0040B41F	init_ijk	SetTbl0059bce8Fn8F60	WC1-callgraph-propagated		mapped
 src/geom.c	638	00418FD0	0040B550	copy_frame	copy_frame	WC1-manual-verified		mapped
@@ -1058,7 +1064,6 @@ src/mono.c	349	00403D60	004378D9	MonoDebug_remove	MonoDebug_remove	WC1-callgraph
 src/mono.c	358	00403DB0	00437946	SoundDebugPrintf	SoundDebugPrintf	WC1-manual-verified		mapped
 src/mono.c	382	00403DE0	00437983	MonoDebug_print	MonoDebug_print	WC1-fuzzy-low		mapped
 src/mono.c	394	00403E30	004379D4	ReadPerformanceCounter	QueryPerfCounterValue	WC1-callgraph-single-low		mapped
-src/mono.c	400	00403E40		ResetStringBuilder				unmapped
 src/music.c	0		00452450	KeyboardMousePump	KeyboardMousePump	WC2-only		wc2-only
 src/music.c	9		0044F84F	InitializeSpeechCache	InitializeSpeechCache	WC2-only		wc2-only
 src/music.c	10		0044F332	LoadSpeechPacketIntoBuffer	LoadSpeechPacketIntoBuffer	WC2-only		wc2-only
@@ -1079,7 +1084,7 @@ src/music.c	747	0042E020	0045CA50	LogDisplayMode	LogDisplayMode	WC1-auto-vt		map
 src/music.c	756	0042E050	0045CA80	CalcRectangleArea	CalcRectangleArea	WC1-fuzzy-followup		mapped
 src/music.c	769	0042E090	0045CAD2	AllocateViewport	AllocateViewport	WC1-fuzzy-followup		mapped
 src/music.c	869	0042E320	00452AE5	FadeMusic	FadeMusic	WC1-manual-verified		mapped
-src/music.c	877	0042E330		SetMusicOn				unmapped
+src/music.c	877	0042E330	00452A1B	SetMusicOn	SetMusicOn	WC2-manual-verified		mapped
 src/music.c	883		00452A00	StopMusicStream	StopMusicStream	WC2-only		wc2-only
 src/music.c	889	0042E350	00452A26	StopMusic	StopMusic	WC1-callgraph-propagated		mapped
 src/music.c	903	0042E380	00452A10	SetMusBreakpt	SetMusBreakpt	WC1-manual-verified		mapped
@@ -1113,7 +1118,7 @@ src/nav.c	0		00450CF8	IsObjectiveInDisplayedSystem	IsObjectiveInDisplayedSystem	
 src/nav.c	0		00451EC9	FollowSelectedObjectiveSystem	FollowSelectedObjectiveSystem	WC2-only		wc2-only
 src/nav.c	0		00450F1E	DrawNavMapBriefingBeacons	DrawNavMapBriefingBeacons	WC2-only		wc2-only
 src/nav.c	0		004207B0	MergeAdjacentNearHeapBlocks	MergeAdjacentNearHeapBlocks	WC2-only		wc2-only
-src/nav.c	140	0040D090		NavMapPointInsideReservedArea				unmapped
+src/nav.c	140	0040D090	00450136	NavMapPointInsideReservedArea	NavMapPointInsideReservedArea	WC2-manual-verified		mapped
 src/nav.c	150	0040D0E0	004501B2	NavMapLabelFits	NavMapLabelFits	WC1-fuzzy-medium		mapped
 src/nav.c	156	0040D120	00450210	NavMapLabelPositionAvailable	NavMapLabelPositionAvailable	WC1-fuzzy-followup		mapped
 src/nav.c	186	0040D1D0	00450329	ResetNavMapReservedAreas	ResetNavMapReservedAreas	WC1-manual-verified		mapped
@@ -1194,22 +1199,17 @@ src/pilot.cpp	261		0040FF70	DebugOverlayConsole::SetCursorPosition	DebugOverlayC
 src/pilot.cpp	267		0040FFA0	DebugOverlayConsole::Reset	DebugOverlayConsole::Reset	WC2-only		wc2-only
 src/pilot.cpp	273		0040FFC0	DebugOverlayConsole::TakeStepFlag	DebugOverlayConsole::TakeStepFlag	WC2-only		wc2-only
 src/pilot.cpp	283		0040FFF0	DebugOverlayConsole::ClearPauseFlags	DebugOverlayConsole::ClearPauseFlags	WC2-only		wc2-only
-src/pilot.cpp	290	00425C30		EraseTextContextBackground				unmapped
 src/pilot.cpp	302			DisplayTrainSimHighScoreTable				unmapped
 src/pilot.cpp	335	00425D00		AnimateTrainSimTitle				unmapped
 src/pilot.cpp	380	00425DF0		GetHighScoreEntry				unmapped
 src/pilot.cpp	390	00425E20		GetHighScoreValue				unmapped
 src/pilot.cpp	485	00425FE0		IsHighScoreSlotUsed				unmapped
-src/pilot.cpp	530	0041DDF0	00459160	EraseLastTextInputCharacter	EraseLastTextInputCharacter	WC1-manual-verified		mapped
-src/pilot.cpp	559	004260E0	00459294	DrawTextInputCursor	DrawTextInputCursor	WC1-manual-verified		mapped
-src/pilot.cpp	576	004261D0	0045930A	EraseCharacterAfterTextCursor	EraseCharacterAfterTextCursor	WC1-manual-verified		mapped
-src/pilot.cpp	577	00426200	004597E3	ReadTextInput	ReadTextInput	WC1-fuzzy-followup		mapped
-src/pilot.cpp	587	00426140	00459348	ClearTextInputCharacter	ClearTextInputCharacter	WC1-fuzzy-very-low		mapped
 src/pilot.cpp	756	00426700		ShowTrainSimTextMessage				unmapped
 src/pilot.cpp	769	00426750		EnterPilotNameAndCallsign				unmapped
 src/pilot.cpp	832	004268E0		ShowTrainSimHighScores				unmapped
 src/pload.c	11	0042B050	004465A0	PacketLoad	PacketLoad	WC1-fuzzy-followup		mapped
 src/pload.c	11		00446560	LoadGraphicsDriver	LoadGraphicsDriver	WC2-only		wc2-only
+src/pload.c	18	00403E40	00446580	ResetStringBuilder	ResetStringBuilder	WC2-manual-verified		mapped
 src/pload.c	122	0042B160	00423CA0	InitializeAudioSystem	InitializeAudioSystem	WC1-fuzzy-followup		mapped
 src/pload.c	134	0042B1B0	00423D02	ServiceAudioStream	GetAudioStreamFnB1B0	WC1-auto-vt		mapped
 src/pload.c	146	0042B1F0	00423D4F	AllocateWaveTableEntry	AllocateWaveTableEntry	WC1-fuzzy-medium		mapped
@@ -1218,7 +1218,7 @@ src/pload.c	175	0042B290	00423E12	RemoveWaveTableEntry	RemoveWaveTableEntry	WC1-
 src/pload.c	197	0042B300	00423ED1	FreeWaveTable	LoopAudioStreamFnB300	WC1-callgraph-transfer		mapped
 src/pload.c	213	0042B340	00423F3F	AllocateActiveSoundEntry	AllocateActiveSoundEntry	WC1-fuzzy-medium	WC1-review-module-mismatch	mapped
 src/pload.c	229	0042B390	00423FAB	RemoveActiveSoundEntry	RemoveActiveSoundEntry	WC1-callgraph-single-low		mapped
-src/pload.c	250	0042B3F0		FindActiveSoundEntryBySample				unmapped
+src/pload.c	250	0042B3F0	0042405E	FindActiveSoundEntryBySample	FindActiveSoundEntryBySample	WC2-manual-verified		mapped
 src/screen.c	0		00401859	ReserveContiguousPaletteEntries	ReserveContiguousPaletteEntries	WC2-only		wc2-only
 src/screen.c	0		00401922	ReleaseContiguousPaletteEntries	ReleaseContiguousPaletteEntries	WC2-only		wc2-only
 src/screen.c	9	0042EFC0	00421910	cleanup_objectives	ScanTbl0046c97aFnEFC0	WC1-fuzzy-followup		mapped
@@ -1472,6 +1472,7 @@ src/smart.c	556	004348A0	0041F83F	pick_kilrathi_maneuver	pick_kilrathi_maneuver	
 src/smart.c	601	00434980	0041FD2B	handle_stress	handle_stress	WC1-fuzzy-very-low		mapped
 src/smart.c	648	00434A80	0041FF37	intelligence_events	intelligence_events	WC1-callgraph-propagated		mapped
 src/smart.c	720	00434C70	00440571	chase_speed	chase_speed	WC1-callgraph-propagated		mapped
+src/sound.c	0		00424A40	ix_sound_get_sample	ix_sound_get_sample	WC2-only		wc2-only
 src/sound.c	13	0042B410	004240AE	ReleaseFinishedSoundEntries	ReleaseFinishedSoundEntries	WC1-manual-verified		mapped
 src/sound.c	29	0042B450	00424113	StopSoundsUsingWave	StopSoundsUsingWave	WC1-order-callgraph-verified		mapped
 src/sound.c	49	0042B4A0	0042418C	playWAVE	playWAVE	WC1-fuzzy-followup		mapped
@@ -1531,7 +1532,7 @@ src/strdos.c	65		0046257A	InitializePostPaletteState	InitializePostPaletteState	
 src/strdos.c	71	00435560		RegisterEventManagerShutdown				unmapped
 src/strdos.c	71		0046259D	InitializeInputManagerMemory	InitializeInputManagerMemory	WC2-only		wc2-only
 src/strdos.c	76	00435570		InitializeEventManager				unmapped
-src/strdos.c	87	00435590		ShutdownEventManager				unmapped
+src/strdos.c	87	00435590	004625CB	ShutdownEventManager	ShutdownEventManager	WC2-manual-verified		mapped
 src/strdos.c	93	004355A0		ConfigureEventManagerPointer				unmapped
 src/strdos.c	106	004355D0		SetEventManagerPump				unmapped
 src/sysinput.c	0		00455D2D	GetHomeKeyState	GetHomeKeyState	WC2-only		wc2-only

@@ -15,6 +15,13 @@ short LoadGraphicsDriver(short rewritePacketExtensions)
     return 1;
 }
 
+/* Function start: 0x446580 */
+void ResetStringBuilder(TextContext *context)
+{
+    context->textCursor = context->text;
+    *context->textCursor = 0;
+}
+
 /* Function start: 0x4465A0 */
 void *PacketLoad(const char *filename, short section,
                  void *destination, short flags,
@@ -254,16 +261,16 @@ void RemoveActiveSoundEntry(ActiveSoundEntry *target)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x42405E */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_004961a8;
+    ActiveSoundEntry *entry;
 
-    for (;;) {
-        if (entry == 0)
-            return 0;
-        if (entry->sound->sample == sample)
+    entry = g_pActiveSoundHead_004961a8;
+    while (entry != 0) {
+        if (ix_sound_get_sample(entry->sound) == sample)
             return entry;
         entry = entry->next;
     }
+    return 0;
 }

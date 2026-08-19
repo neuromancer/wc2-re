@@ -505,11 +505,10 @@ void LoadGamePaletteFile(void)
 }
 
 /* Function start: 0x45B905 */
-unsigned int EMShutDown(void)
+void EMShutDown(void)
 {
     if (g_bInputManagerInitialized_005c80ca != 0)
         ShutdownEventManager();
-    return 0;
 }
 
 /* Function start: WC2_UNMAPPED */

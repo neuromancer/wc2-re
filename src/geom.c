@@ -1364,6 +1364,91 @@ void get_right_shape(short obj, FixedVector *direction)
     }
 }
 
+/* Function start: 0x459160 */
+void EraseLastTextInputCharacter(void)
+{
+    short textWidth;
+    Viewport clearArea;
+    char *text;
+    short characterWidth;
+    short length;
+
+    text = g_pCurrentTextContext_005c8d1c->text;
+    textWidth = MeasureTextPixelWidthClamped(text);
+    length = DosStrlen(text);
+    if (length != 0) {
+        characterWidth = (short)GetFontCharWidth(text[length - 1]);
+        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
+        clearArea.left = (short)(clearArea.left +
+                                 textWidth - characterWidth);
+        clearArea.right = (short)(clearArea.left + characterWidth - 1);
+        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
+        clearArea.bottom = (short)(clearArea.top +
+            ReadWord((unsigned short *)
+                g_pCurrentTextContext_005c8d1c->font) - 1);
+        ClearViewport(&clearArea,
+                      g_pCurrentTextContext_005c8d1c->backgroundColour);
+        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
+            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
+    }
+}
+
+/* Function start: 0x45924D */
+void EraseTextContextBackground(TextContext *context)
+{
+    short colour;
+
+    colour = context->backgroundColour;
+    if (colour == 0xff)
+        colour = g_cSecondaryViewBufferColour_0049cb4c;
+    ClearViewport(context->viewport, colour);
+}
+
+/* Function start: 0x459294 */
+void DrawTextInputCursor(char character)
+{
+    unsigned char savedBackground =
+        g_pCurrentTextContext_005c8d1c->backgroundColour;
+    unsigned char colour = g_pCurrentTextContext_005c8d1c->colour;
+    short savedX;
+    char cursor[2] = { character, 0 };
+
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    g_pCurrentTextContext_005c8d1c->cursorX = (short)(savedX + 1);
+    g_pCurrentTextContext_005c8d1c->backgroundColour = colour;
+    DrawFormattedText(cursor);
+    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
+    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+}
+
+/* Function start: 0x45930A */
+void EraseCharacterAfterTextCursor(char character)
+{
+    short savedX;
+
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    g_pCurrentTextContext_005c8d1c->cursorX++;
+    ClearTextInputCharacter(character);
+    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+}
+
+/* Function start: 0x459348 */
+void ClearTextInputCharacter(char character)
+{
+    Viewport clearArea;
+    short characterWidth;
+
+    characterWidth = (short)GetFontCharWidth(character);
+    clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
+    clearArea.left = g_pCurrentTextContext_005c8d1c->cursorX;
+    clearArea.right = (short)(clearArea.left + characterWidth - 1);
+    clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
+    clearArea.bottom = (short)(clearArea.top +
+        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
+    ClearViewport(&clearArea,
+                  g_pCurrentTextContext_005c8d1c->backgroundColour);
+}
+
 /* Function start: 0x4593D6 */
 short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                unsigned int topLeft,
@@ -1495,4 +1580,136 @@ void ReleaseModalTextPanel(void)
         MarkDibDirty();
         DIBslamReal();
     }
+}
+
+/* Function start: 0x4597E3 */
+short ReadTextInput(char *destination, short maximumLength,
+                    volatile short mode,
+                    volatile short allowPathSeparators)
+{
+    Viewport inputViewport;
+    Viewport *savedViewport;
+    char *savedText;
+    short savedX;
+    short savedY;
+    short inputLength;
+    short accepted;
+    short handled;
+    unsigned char savedBackground;
+    short key;
+    int characterClass;
+    char input[40];
+
+    accepted = 0;
+    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
+    if (g_bRewritePacketExtensions_0049cb48 == 0)
+        g_pCurrentTextContext_005c8d1c->backgroundColour = 0x5e;
+    else
+        g_pCurrentTextContext_005c8d1c->backgroundColour = 2;
+    savedText = g_pCurrentTextContext_005c8d1c->text;
+    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
+    g_pCurrentTextContext_005c8d1c->text = input;
+    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
+    savedY = g_pCurrentTextContext_005c8d1c->cursorY;
+    inputViewport = *g_pCurrentTextContext_005c8d1c->viewport;
+    g_pCurrentTextContext_005c8d1c->viewport = &inputViewport;
+    DosStrcpy(input, destination);
+    inputLength = DosStrlen(input);
+
+    inputViewport.left = savedX;
+    inputViewport.top = savedY;
+    inputViewport.bottom = (short)(inputViewport.top +
+        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font));
+    inputViewport.right = (short)(inputViewport.left +
+        MeasureTextPixelWidthClamped(input));
+    ClearViewport(&inputViewport,
+                  g_pCurrentTextContext_005c8d1c->backgroundColour);
+    inputViewport.right = savedViewport->right;
+    DrawFormattedText(input);
+    DrawTextInputCursor(' ');
+
+    MarkDibDirty();
+    DIBslamReal();
+    while (accepted == 0) {
+        handled = 0;
+        while (handled == 0) {
+            ServiceSoundSystem();
+            key = WaitForQueuedInputPress();
+            switch (key) {
+            case 27:
+                handled++;
+                if (input[0] != 0)
+                    EraseCharacterAfterTextCursor(' ');
+                g_pCurrentTextContext_005c8d1c->text = savedText;
+                g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
+                return 0;
+            case 13:
+                handled++;
+                if (input[0] != 0) {
+                    EraseCharacterAfterTextCursor(' ');
+                    accepted++;
+                }
+                break;
+            default:
+                if (key == 8 && inputLength != 0) {
+                    EraseCharacterAfterTextCursor(' ');
+                    EraseLastTextInputCharacter();
+                    DrawTextInputCursor(' ');
+                    inputLength--;
+                    input[inputLength] = 0;
+                    handled++;
+                    break;
+                }
+                if (maximumLength <= inputLength) {
+                    handled++;
+                    break;
+                }
+                if (allowPathSeparators == 0 ||
+                    (key != ':' && key != '\\')) {
+#ifdef WC1_SDL
+                    characterClass = isalnum((unsigned char)key);
+#else
+                    if (__mb_cur_max > 1)
+                        characterClass = _isctype(key, 0x107);
+                    else
+                        characterClass = _pctype[key] & 0x107;
+#endif
+                    if (characterClass == 0 &&
+                        (key != ' ' || inputLength == 0)) {
+                        handled++;
+                        break;
+                    }
+                }
+                switch (mode) {
+                case 1:
+                    key = (short)toupper(key);
+                    break;
+                case 2:
+                    if (key < '0' || key > '9')
+                        key = 0;
+                    break;
+                }
+                if (key == 0)
+                    continue;
+                EraseCharacterAfterTextCursor(' ');
+                input[inputLength] = (char)key;
+                inputLength++;
+                input[inputLength] = 0;
+                SetTextCursor((unsigned short)savedX,
+                              (unsigned short)savedY);
+                DrawFormattedText(input);
+                DrawTextInputCursor(' ');
+                handled++;
+                break;
+            }
+        }
+        MarkDibDirty();
+        DIBslamReal();
+    }
+
+    DosStrcpy(destination, input);
+    g_pCurrentTextContext_005c8d1c->text = savedText;
+    g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
+    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
+    return 1;
 }

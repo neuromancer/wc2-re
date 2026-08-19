@@ -146,14 +146,13 @@ char g_szConfedNavScan_0049be4c[16] = "ConFed Nav Scan";
 unsigned char *g_apTitleSections_005d3f70[13];
 void *g_pTitleMusic_005d3fa4;
 
-/* Function start: WC2_UNMAPPED */
+/* Function start: 0x450136 */
 short NavMapPointInsideReservedArea(short area, short x, short y)
 {
-    ShortRect *rectangle;
-
-    rectangle = &g_aNavMapExclusionRects_005b35a8[area];
-    return rectangle->left <= x && x <= rectangle->right &&
-           rectangle->top <= y && y <= rectangle->bottom;
+    return g_aNavMapExclusionRects_005b35a8[area].left <= x &&
+           g_aNavMapExclusionRects_005b35a8[area].right >= x &&
+           g_aNavMapExclusionRects_005b35a8[area].top <= y &&
+           g_aNavMapExclusionRects_005b35a8[area].bottom >= y;
 }
 
 /* Function start: 0x4501B2 */
