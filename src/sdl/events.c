@@ -255,8 +255,12 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
 {
     InputEvent *queued;
 
+    /* WC2's motion event is type 3 -- that is what MainWindowProc queues for
+     * WM_MOUSEMOVE, and what QueueInputEvent watches for when it updates the
+     * cursor position the game draws and reads.  Queueing WC1's type 13 left
+     * the pointer pinned wherever the last click had put it. */
     queued = g_pInputEventTail_0049d4b8;
-    if (queued != 0 && queued->type == 13) {
+    if (queued != 0 && queued->type == 3) {
         queued->x = (short)x;
         queued->y = (short)y;
         queued->primaryButton = (short)primaryButton;
@@ -268,7 +272,7 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
             queued->modifiers |= 4;
         return;
     }
-    QueueInputEvent(13, x, y, 0, primaryButton, secondaryButton,
+    QueueInputEvent(3, x, y, 0, primaryButton, secondaryButton,
                     0, 0, 0);
 }
 

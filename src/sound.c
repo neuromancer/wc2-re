@@ -222,6 +222,12 @@ void ServiceSoundSystem(void)
 {
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
+#ifdef WC1_SDL
+        /* The speech sound is created delete-on-stop, so the call above can
+         * have freed it; the original read the dead block anyway. */
+        if (!ix_sound_is_live(g_pSpeechSound_004a2658))
+            g_pSpeechSound_004a2658 = 0;
+#endif
         if (g_pSpeechSound_004a2658 != 0 &&
             ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
             g_bSpeechSoundActive_004a2660 != 0) {

@@ -1976,6 +1976,10 @@ void __fastcall ix_sound_start(IxSound *sound);                       /* 0x46A75
 void __fastcall ix_sound_release(IxSound *sound);                    /* 0x46AA9E */
 void __fastcall ix_sound_stop(IxSound *sound);                       /* 0x46AB4F */
 int __fastcall ix_sound_is_playing(IxSound *sound);                  /* 0x46B0F8 */
+#ifdef WC1_SDL
+/* Port-only; see src/ix/ix.h. */
+int ix_sound_is_live(const IxSound *sound);
+#endif
 int ix_streamer_init(void);                                           /* 0x46BD50 */
 void ix_streamer_destroy(void);                                      /* 0x46BE6F */
 void ix_streamer_configure(int option, void *value);                  /* 0x46BF1E */

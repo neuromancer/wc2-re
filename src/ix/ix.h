@@ -273,6 +273,13 @@ extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x46AA9E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x46A5FA */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x46AB4F */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x46B0F8 */
+#ifdef WC1_SDL
+/* Port-only.  A sound created with delete-on-stop frees itself inside
+ * ix_system_service_sounds, and the game keeps reading the handle it was
+ * given for another frame.  On the original heap that read was harmless;
+ * here it is a use-after-free, so the caller asks first. */
+extern "C" int ix_sound_is_live(const IxSound *sound);
+#endif
 
 /* --------------------------------------------------------------------------
  * Streamer.  Global state word at 0x00597CD0; wake event at 0x00597CD4.

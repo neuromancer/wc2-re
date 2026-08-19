@@ -87,8 +87,11 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (g_aShipWeapons_004956b0[1][0] != 1)
         return 1;
 
-    g_acShipTarget_00495f20[0] = -1;
-    g_cTargetDisplayObject_004934f4 = -1;
+    /* WC2's readout indexes the special-maneuver table with the target, so
+     * the check has to name a real object; the game never reaches it with the
+     * -1 "no target" sentinel. */
+    g_acShipTarget_00495f20[0] = 1;
+    g_cTargetDisplayObject_004934f4 = 1;
     g_nRenderedSpaceFrame_00493138 = 1;
     DrawTargetRangeReadout();
 
@@ -97,8 +100,10 @@ static int Wc1SdlRunRuntimeChecks(void)
     g_nYourWingman_0049346c = -1;
     send_appropriate_message(1, 0);
 
-    g_acShipTarget_00495f20[0] = -1;
-    g_asShipManeuver_00495f48[0] = MANEUVER_NONE;
+    /* Likewise the reroll-chance table is indexed by the maneuver, so drive
+     * it with one the ship can actually be flying. */
+    g_acShipTarget_00495f20[0] = 1;
+    g_asShipManeuver_00495f48[0] = MANEUVER_THINKING;
     perform_maneuver(0);
 
     g_pSnowStaticSound_004a2664 = ix_system_new_sound(0);
