@@ -2019,6 +2019,15 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
         return;
     if (source->left < 0)
         return;
+#ifdef WC1_SDL
+    /* ValidateViewportBounds screens left but not top, and the wipe hands it
+     * a viewport a row above the buffer as it steps: rowOffsets[-1].  The
+     * original read the word in front of the table; skip the copy instead.
+     * Screening here rather than in the validator keeps the surface and clip
+     * it fills in from being left undefined for the blit below. */
+    if (destination->top < 0 || source->top < 0)
+        return;
+#endif
     ValidateViewportBounds(source, &sourceSurface, &sourceClip);
     ValidateViewportBounds(destination, &destinationSurface,
                            &destinationClip);
