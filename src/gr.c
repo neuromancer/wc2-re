@@ -1405,6 +1405,14 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                        (sourceLowerRows[row] + sourceLeftCenter - 1 -
                         *trailing) - copyWidth,
                    copyWidth);
+#ifdef WC1_SDL
+            /* upperMiddleOffset is upperRowCount - 1, so on the last band the
+             * backwards index reaches rowOffsets[-1].  The original read
+             * whatever happened to precede the table; skip the upper half. */
+            if (sourceUpperRows - row - 1 >= source->rowOffsets &&
+                destinationUpperRows - row - 1 >= destination->rowOffsets)
+#endif
+            {
             memcpy(destination->pixels + *(destinationUpperRows - row - 1) +
                        *trailing + destinationRightCenter,
                    source->pixels + *(sourceUpperRows - row - 1) +
@@ -1417,6 +1425,7 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                        (*(sourceUpperRows - row - 1) + sourceLeftCenter -
                         *trailing) - copyWidth,
                    copyWidth);
+            }
         }
         row++;
         leading++;
