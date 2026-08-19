@@ -123,7 +123,7 @@ Moving from MSVC 4.20 `/Od` to MSVC 4.1 `/Od` leaves the rounded average at 74.0
 | `src/brains.c` | 23 | `ShipAiState35`, `Mchill`, `Mkickit`, `Mroll_over`, `Msplit_left`, `Msplit_right`, `Mtail_fire`, `Mtarget_laser`, … (+15) |
 | `src/cmpgn.c` | 4 | `ParseFaceAnimation`, `LongTalk`, `UpdateMap`, `CloseLook` |
 | `src/cockpt.c` | 16 | `IsCockpitExplosionActive`, `EraseCockpitReadoutAtPosition`, `ClearHudGunReadouts`, `set_global_message`, `CockpitMessage`, `update_status_text`, `sighted`, `visited`, … (+8) |
-| `src/dib.c` | 4 | `GetDIBWindowHandle`, `CachePaletteEntryFromWords`, `DIBwaitForVerticalBlank`, `DirectDrawResultToText` |
+| `src/dib.c` | 4 | `GetDIBHeight`, `CachePaletteEntryFromWords`, `DIBwaitForVerticalBlank`, `DirectDrawResultToText` |
 | `src/disk.c` | 3 | `LoadPacketIntoBuffer`, `GetZeroUnused`, `remove_weapon` |
 | `src/eventmgr.c` | 30 | `AllocateInputEvent`, `ReleaseInputEventQueue`, `RemoveInputEvent`, `GetNextInputEvent`, `IsInputEventQueued`, `ResetAllocationDepth`, `CheckCursor`, `ApplyPackedMousePosition`, … (+22) |
 | `src/geom.c` | 13 | `GetMusicDriverPresent`, `drain_fuel`, `damage_ion_drive`, `position_relative_ijk`, `intfract_sign`, `SignShort`, `IsPairEqualityDifferentFromFlag`, `ChooseRandomSignedMagnitude`, … (+5) |

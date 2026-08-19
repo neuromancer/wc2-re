@@ -388,7 +388,7 @@ src/dib.c	482		0045DC19	DisableDibSlam	DisableDibSlam	WC2-only		wc2-only
 src/dib.c	488	00432970	0045DC33	DIBslamReal	DIBslamReal	WC1-fuzzy-followup		mapped
 src/dib.c	637	00432C60	0045E060	DIBupdate	DIBupdate	WC1-fuzzy-followup		mapped
 src/dib.c	703	00432DE0	0045E276	GetDIBPixelBuffer	HelperOf4326E0A	WC1-callgraph-propagated		mapped
-src/dib.c	709	00432E00	0045E2C5	GetDIBWindowHandle	GetDIBWindowHandle	WC1-manual-verified		mapped
+src/dib.c	709	00432E00	0045E2C5	GetDIBHeight	GetDIBHeight	WC1-manual-verified		mapped
 src/dib.c	715	00432E30	0045E2DA	CachePaletteEntryFromWords	CachePaletteEntryFromWords	WC1-order-exact		mapped
 src/dib.c	750	00432EA0	0045E37C	DIBramPalette	DIBramPalette	WC1-fuzzy-followup		mapped
 src/dib.c	778	00432F10	0045E46C	DIBsetPalette	DIBsetPalette	WC1-fuzzy-followup		mapped

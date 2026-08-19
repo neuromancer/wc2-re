@@ -770,9 +770,9 @@ unsigned char *GetDIBPixelBuffer(void)
 }
 
 /* Function start: 0x45E2C5 */
-HWND GetDIBWindowHandle(void)
+unsigned int GetDIBHeight(void)
 {
-    return g_hDibWindow_005c33a4;
+    return g_nDibHeight_005b3980;
 }
 
 /* Function start: 0x45E2DA */

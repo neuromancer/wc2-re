@@ -1590,7 +1590,7 @@ void DisableDibSlam(void);                                            /* 0x45DC1
 void DIBslamReal(void);                                           /* 0x45DC33 */
 void DIBupdate(int left, int top, int right, int bottom);               /* 0x45E060 */
 unsigned char *GetDIBPixelBuffer(void);                                  /* 0x45E276 */
-HWND GetDIBWindowHandle(void);                                           /* 0x45E2C5 */
+unsigned int GetDIBHeight(void);                                       /* 0x45E2C5 */
 void CachePaletteEntryFromWords(short index, unsigned short *rgb);        /* 0x45E2DA */
 void DIBramPalette(void);                                                 /* 0x45E37C */
 void DIBsetPalette(short index, short *rgb);                              /* 0x45E46C */

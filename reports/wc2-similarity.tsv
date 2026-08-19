@@ -1264,7 +1264,7 @@ src/logic.c	LoadSpaceflightResources	LoadSpaceflightResources	00421F50	0045C35C	
 src/logic.c	StopMusicIfDriverActive	StopMusicIfDriverActive		0045C3FA	WC2-only		100.00	exact
 src/music.c	LogDisplayMode	LogDisplayMode	0042E020	0045CA50	WC1-auto-vt		100.00	exact
 src/dib.c	GetDIBPixelBuffer	HelperOf4326E0A	00432DE0	0045E276	WC1-callgraph-propagated		100.00	exact
-src/dib.c	GetDIBWindowHandle	GetDIBWindowHandle	00432E00	0045E2C5	WC1-manual-verified		100.00	exact
+src/dib.c	GetDIBHeight	GetDIBHeight	00432E00	0045E2C5	WC1-manual-verified		100.00	exact
 src/main.c	UpdateFleetOverviewCameraRotation	UpdateFleetOverviewCameraRotation		0045F200	WC2-only		100.00	exact
 src/mathfp.c	RandomBelow	DoLocalFn4CD0	00434CD0	004618E0	WC1-fuzzy-medium		100.00	exact
 src/mathfp.c	GetRandomWord	GetRandomWord		00461922	WC2-only		100.00	exact

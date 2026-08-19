@@ -1655,11 +1655,11 @@ short find_ship_index(short missionShip)
                  g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) &&
                 g_asShipMissionIndex_00495d00[obj] == missionShip) {
                 g_nLastFoundShip_005d2fc8 = obj;
-                return obj;
+                return g_nLastFoundShip_005d2fc8;
             }
         }
     }
-    return -1;
+    return g_nLastFoundShip_005d2fc8;
 }
 
 /* Function start: 0x429EE0 */
@@ -2636,7 +2636,7 @@ void launch_carrier_fighter(short carrier)
 
     position_relative(
         &g_aShipPosition_00494550[fighter],
-        g_aShipPosition_00494550[carrier],
+        g_aShipForwardVector_00494208[carrier],
         (short)(g_asObjectCollisionRadius_004950e8[carrier] + 500));
     g_anShipSpeed_00494e20[fighter] =
         (int)g_aObjectTypeData_00496d30[

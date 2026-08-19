@@ -1216,7 +1216,7 @@
 0x0045DC33 DIBslamReal
 0x0045E060 DIBupdate
 0x0045E276 GetDIBPixelBuffer
-0x0045E2C5 GetDIBWindowHandle
+0x0045E2C5 GetDIBHeight
 0x0045E2DA CachePaletteEntryFromWords
 0x0045E37C DIBramPalette
 0x0045E46C DIBsetPalette
