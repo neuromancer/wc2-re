@@ -78,7 +78,7 @@ void prevent_collision(short obj)
         try2end_collision_alert(obj);
         return;
     }
-    ship_vs_point(obj, &g_aShipPosition_00494550[other]);
+    get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
     facing = g_nFacingToTarget_00493194;
     if (facing > 75) {
         if (g_nTargetFacing_00493198 < -70)
@@ -90,7 +90,7 @@ void prevent_collision(short obj)
     } else {
         approach_full_speed(obj);
     }
-    if (no_goal(obj) != 0) {
+    if (CanSetNewShipTurnGoal(obj) != 0) {
         facing = g_nFacingToTarget_00493194;
         if (facing < -60 &&
             g_nTargetFacing_00493198 > 60) {
@@ -277,7 +277,7 @@ unsigned int chase_location(short obj, const FixedVector *destination,
         speed = MaxShort(speed, 1);
         if (g_nTargetRange_0049319c / speed > 49)
             pointAtDestination = 1;
-    } else if (g_nTargetRange_0049319c > 175 && no_goal(obj) != 0) {
+    } else if (g_nTargetRange_0049319c > 175 && CanSetNewShipTurnGoal(obj) != 0) {
         pointAtDestination = 1;
     }
     control_speed(obj, (unsigned short)g_nTargetRange_0049319c,
@@ -353,7 +353,7 @@ unsigned int goto_formation(short obj, const FixedVector *destination,
             return 0;
         }
         point_parallel(obj, leader);
-    } else if (no_goal(obj) != 0) {
+    } else if (CanSetNewShipTurnGoal(obj) != 0) {
         point_ship(obj, 0, &g_vToTarget_00493188);
     }
     if (g_nTargetRange_0049319c < 700) {
@@ -622,7 +622,7 @@ void intelligence_events(short obj)
         event = 8;
     } else {
         event = 0;
-        ship_vs_ship(obj, target);
+        get_facing_range_from_object(obj, target);
         if (g_nTargetRange_0049319c > 8000) {
             event = 2;
         } else if (g_acShipCollisionCooldown_00496010[obj] > 0) {

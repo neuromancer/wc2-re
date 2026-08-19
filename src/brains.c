@@ -63,7 +63,7 @@ void Mline_up_drop(short ship, short target)
         maneuver_complete(ship);
         return;
     }
-    if (no_goal(ship) != 0) {
+    if (CanSetNewShipTurnGoal(ship) != 0) {
         point_ship_at_point(ship, &g_aShipPosition_00494550[target]);
         g_anRollGoal_004954d8[ship] = 360;
     }
@@ -81,7 +81,7 @@ void Mwabble(short ship)
     }
 
     approach_full_speed(ship);
-    if (no_goal(ship) != 0) {
+    if (CanSetNewShipTurnGoal(ship) != 0) {
         choice = RandomBelowOrEqual(2);
         switch (choice) {
         case 0:
@@ -503,7 +503,7 @@ void Mgloat(short ship)
 /* Function start: 0x4416D5 */
 void Mtail_fire(short ship, short target)
 {
-    if (no_goal(ship) != 0)
+    if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
     chase_speed(ship,
         (short)((g_asObjectCollisionRadius_004950e8[target] +
@@ -521,7 +521,7 @@ void Mzip_past(short ship, short target)
             return;
         }
         approach_full_speed(ship);
-        if (no_goal(ship) != 0) {
+        if (CanSetNewShipTurnGoal(ship) != 0) {
             if (g_nTargetFacing_00493198 > 80)
                 point_ship_below_object(ship, target);
             else
@@ -564,7 +564,7 @@ void Mtarget_missile(short ship, short target)
 void Mram_missile(short ship, short target)
 {
     approach_full_speed(ship);
-    if (no_goal(ship) != 0)
+    if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
     if (g_nFacingToTarget_00493194 > 75 &&
         g_nTargetRange_0049319c < 6000) {
@@ -582,7 +582,7 @@ void Mbuzz_debris(short ship)
         advance(ship);
         break;
     case 1:
-        if (no_goal(ship) != 0) {
+        if (CanSetNewShipTurnGoal(ship) != 0) {
             fire_afterburner(ship, 10);
             advance(ship);
         } else {
@@ -657,7 +657,7 @@ void Mkill_missile(short ship, short target)
         maneuver_complete(ship);
         return;
     }
-    ship_vs_ship(ship, g_nTargetShip_004931a0);
+    get_facing_range_from_object(ship, g_nTargetShip_004931a0);
     if (g_nFacingToTarget_00493194 < 0) {
         reset_maneuver(ship, MANEUVER_FISH_HOOK);
         Mfish_hook(ship, target);
@@ -693,7 +693,7 @@ void Mget_distance(short ship, short target)
         fire_afterburner(ship, 10);
     else
         approach_full_speed(ship);
-    if (g_nFacingToTarget_00493194 > 0 && no_goal(ship) != 0) {
+    if (g_nFacingToTarget_00493194 > 0 && CanSetNewShipTurnGoal(ship) != 0) {
         amount = MinShort(20, g_nFacingToTarget_00493194);
         steer_away_from_object(ship, target, amount);
     }
@@ -2351,7 +2351,7 @@ void cruise_home(short obj)
         fire_afterburner(obj, 10);
 
     destination = &g_aShipDestination_004953f0[obj];
-    if (no_goal(obj) != 0)
+    if (CanSetNewShipTurnGoal(obj) != 0)
         point_ship_at_point(obj, destination);
     range = distance_from_point(obj, destination);
 
@@ -2503,7 +2503,7 @@ void maneuvering(short obj, short newTarget)
 void formation_burst(short obj)
 {
     approach_full_speed(obj);
-    if (no_goal(obj) != 0)
+    if (CanSetNewShipTurnGoal(obj) != 0)
         point_ship(obj, 0, &g_aShipDestination_004953f0[obj]);
     g_asShipCount_0059c420[obj]++;
     if (g_asShipCount_0059c420[obj] > 9) {
@@ -2605,7 +2605,7 @@ void formation_break(short obj)
         g_acShipSequence_00495fe8[obj]++;
         break;
     case 1:
-        if (no_goal(obj) != 0)
+        if (CanSetNewShipTurnGoal(obj) != 0)
             engage(obj, g_acShipTarget_00495f20[obj],
                    OBJECTIVE_ENGAGE_ENEMY);
         break;
@@ -2714,7 +2714,7 @@ void patrol_area(short obj)
     case TACTIC_HEAD_HOME:
         approach_cruise_speed(obj);
         if (scan_and_lock(obj, 14000, TACTIC_APPROACH_TARGET) == 0) {
-            ship_vs_point(obj, &g_aShipMissionSpot_00495e18[obj]);
+            get_facing_range_from_point(obj, &g_aShipMissionSpot_00495e18[obj]);
             if (g_nTargetRange_0049319c < 3000) {
                 reset_tactic(obj, TACTIC_LOOK_OUT);
                 return;
@@ -2736,12 +2736,12 @@ void patrol_area(short obj)
                               TACTIC_APPROACH_TARGET) == 0)
                 alter_tactic(obj, TACTIC_LOOK_OUT);
         } else {
-            ship_vs_ship(obj, target);
+            get_facing_range_from_object(obj, target);
             if (g_nTargetRange_0049319c < 10000) {
                 init_formation_burst(obj);
                 return;
             }
-            if (no_goal(obj) != 0)
+            if (CanSetNewShipTurnGoal(obj) != 0)
                 point_ship_at_object(obj, target);
         }
         break;
@@ -2847,7 +2847,7 @@ void prepare_for_jump(short obj)
         return;
 
     get_facing_range_from_object(obj, 0);
-    if (g_nFacingToTarget_00493194 > 90 && no_goal(obj) != 0) {
+    if (g_nFacingToTarget_00493194 > 90 && CanSetNewShipTurnGoal(obj) != 0) {
         g_anYawGoal_004954c0[obj] = signed_random(30);
         return;
     }
@@ -2916,7 +2916,7 @@ void warp_arrival(short obj)
 void return_to_buddy(short obj, short buddy)
 {
     approach_cruise_speed(obj);
-    if (no_goal(obj) != 0)
+    if (CanSetNewShipTurnGoal(obj) != 0)
         point_ship_at_object(obj, buddy);
     if (distance_from_object(obj, buddy) < 1000) {
         reset_objective(obj, OBJECTIVE_WANDER);
@@ -2928,7 +2928,7 @@ void return_to_buddy(short obj, short buddy)
 void escort_buddy(short obj, short buddy)
 {
     approach_ship_speed(obj, buddy);
-    if (no_goal(obj) != 0)
+    if (CanSetNewShipTurnGoal(obj) != 0)
         point_parallel(obj, buddy);
 }
 
@@ -2981,7 +2981,7 @@ void check_goal(short obj)
 /* Function start: 0x4441E5 */
 void streak_toward(short obj, short goal, short range)
 {
-    if (no_goal(obj) != 0) {
+    if (CanSetNewShipTurnGoal(obj) != 0) {
         if (RandomBelow(100) < 95)
             point_ship_at_object(obj, goal);
         else
@@ -3105,7 +3105,7 @@ void defend_mission(short obj)
             engage(obj, target, OBJECTIVE_ENGAGE_ENEMY);
         } else {
             approach_half_speed(obj);
-            if (no_goal(obj) != 0)
+            if (CanSetNewShipTurnGoal(obj) != 0)
                 point_perpendicular(obj, master);
         }
         break;
@@ -3143,7 +3143,7 @@ void rendezvous_mission(short obj)
             approach_full_speed(obj);
         else
             approach_cruise_speed(obj);
-        if (no_goal(obj) != 0)
+        if (CanSetNewShipTurnGoal(obj) != 0)
             point_ship_at_object(obj, goal);
         break;
     case OBJECTIVE_ENGAGE_ENEMY:
@@ -3217,7 +3217,7 @@ void orbit_sphere(short obj)
         g_aMissionNavPoints_00491e98[g_nCurrentNavPoint_004931bc].position;
     short range = distance_from_point(obj, &center);
 
-    if (no_goal(obj) != 0 && range > radius - 750) {
+    if (CanSetNewShipTurnGoal(obj) != 0 && range > radius - 750) {
         if (range > radius)
             point_ship_at_point(obj, &center);
         else
@@ -3233,7 +3233,7 @@ void tanker_intelligence(short obj)
         approach_full_speed(obj);
         g_acShipTarget_00495f20[obj] = g_nTargetShip_004931a0;
         fire(obj, g_nTargetShip_004931a0);
-        if (no_goal(obj) != 0) {
+        if (CanSetNewShipTurnGoal(obj) != 0) {
             if (RandomBelowOrEqual(4) == 0) {
                 g_anYawGoal_004954c0[obj] = signed_random(90);
                 g_anRollGoal_004954d8[obj] = signed_random(90);
@@ -3663,7 +3663,7 @@ void capital_ship_intelligence(short obj)
 /* Function start: 0x445D9A */
 void futurion_intelligence(short obj)
 {
-    ship_vs_ship(0, obj);
+    get_facing_range_from_object(0, obj);
     g_asActionCount_004955e8[obj]++;
     if (g_nTargetRange_0049319c > 1000 &&
         g_asActionCount_004955e8[obj] > 1000) {

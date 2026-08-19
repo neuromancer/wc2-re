@@ -1717,7 +1717,7 @@ signed char no_goal(short ship)
 /* Function start: 0x42A0A9 */
 int being_tailed(short obj, short other)
 {
-    ship_vs_ship(obj, other);
+    get_facing_range_from_object(obj, other);
     return g_nFacingToTarget_00493194 < -60 &&
            g_nTargetFacing_00493198 > 85 &&
            g_nTargetRange_0049319c < 7000;
