@@ -42,3 +42,6 @@ __pycache__/
 *$py.class
 
 .DS_Store
+
+# The Ghidra MCP bridge is a local tool, not part of the reconstruction.
+bridge_mcp_ghidra.py

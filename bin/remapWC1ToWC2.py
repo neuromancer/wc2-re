@@ -26,8 +26,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MAP = ROOT / "ghidra_scripts" / "wc1_wc2_name_map.tsv"
-DEFAULT_MANIFEST = ROOT / "reports" / "wc2-address-remap.tsv"
+DEFAULT_MAP = ROOT / "config" / "wc1_wc2_name_map.tsv"
+DEFAULT_MANIFEST = ROOT / "config" / "wc2-address-remap.tsv"
 SOURCE_ROOT = ROOT / "src"
 METADATA_HEADERS = (
     ROOT / "include" / "wc1.h",

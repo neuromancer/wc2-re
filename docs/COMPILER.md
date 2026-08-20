@@ -31,9 +31,7 @@ The controlled remap report separates optimizer and compiler effects:
 
 Thus optimization accounts for the material code-generation gap. MSVC 4.1
 also supplies the exact linker generation and improves two threshold counts,
-although the rounded aggregate is unchanged. See
-[`reports/WC2_REMAP_REPORT.md`](../reports/WC2_REMAP_REPORT.md) for the full
-evidence-tier breakdown.
+although the rounded aggregate is unchanged.
 
 ## Historical WC1 predecessor
 
