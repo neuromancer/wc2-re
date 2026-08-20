@@ -14,7 +14,7 @@ reference build or its binary comparisons.
 - The game still renders a 320x200 indexed framebuffer and 256-colour palette.
 - Port-only state remains in SDL files. Original-address globals keep their
   reconstructed types and ownership.
-- Native objects live under `out-modern/` and never enter `WC1.EXE` or
+- Native objects live under `out-modern/` and never enter `WC2.EXE` or
   `binary-comp` comparisons.
 
 Normal native development builds are compiled with AddressSanitizer and
@@ -59,6 +59,34 @@ The default renderer always uses the original software drawing path. If the
 enhanced renderer cannot record an object, that object also falls back to the
 software path. Renderer-specific OpenGL state stays in `src/sdl/`; recovered
 game files expose only narrow `WC1_SDL` hooks.
+
+## Host controls and behavior
+
+| Shortcut | Action |
+| --- | --- |
+| `Cmd+Enter` on macOS | Toggle fullscreen |
+| `Alt+Enter` on Windows and Linux | Toggle fullscreen |
+| `Cmd+Q` on macOS | Quit the game |
+| Mouse wheel during spaceflight | Increase or decrease speed |
+| `Esc` during spaceflight | Close communications, or pause |
+
+Mouse flight steers by the pointer's distance from the viewport centre. The
+host therefore confines it while unpaused spaceflight has focus, releases it
+for pauses and modal prompts, and leaves it free everywhere outside flight.
+Losing window focus also releases it until the game regains focus.
+
+The native port restores the visual static on damaged cockpit displays. The
+Kilrathi Saga raster hook retained the sound and redraw request but no longer
+drew the DOS effect, so the host supplies its own display-only noise generator
+without consuming the game's random sequence.
+
+Background planets use their per-object sprite and scale in the native port.
+The retail renderer grouped them with stars and dust and substituted the
+constellation sheet, which made the intended planet art disappear and erased
+the wrong footprint on the following frame.
+
+On Windows the launcher disables the Input Method Editor for the process so
+IME composition cannot intercept flight keys.
 
 ## Joystick input
 
@@ -140,5 +168,5 @@ make run-modern-mission SERIES=1 MISSION=0
 ```
 
 `make modern-test` runs the integrated sanitizer smoke check.
-`make modern-test-full` adds the standalone SDL subsystem checks and the OpenGL
-renderer check; the latter skips when no display is available.
+`make modern-test-full` adds the standalone SDL subsystem checks, including a
+virtual-joystick test for expanded controls and gamepad key translation.

@@ -901,7 +901,12 @@ void draw_sorted_objects_to_buffer(void)
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             case OBJECT_CLASS_STAR:
+#ifndef WC1_SDL
             case OBJECT_CLASS_PLANET:
+#else
+                /* WCDX fix: planets use their own scaled sprite instead of
+                 * a frame from the shared constellation shape. */
+#endif
             case OBJECT_CLASS_DUST:
                 g_asObjectDrawX_00493748[obj] = (short)(
                     g_asObjectScreenX_00493598[obj] +
@@ -986,7 +991,12 @@ void intro_drawbackgroundships(void)
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             case OBJECT_CLASS_STAR:
+#ifndef WC1_SDL
             case OBJECT_CLASS_PLANET:
+#else
+                /* Erase planets with the same scaled geometry used to draw
+                 * them, leaving no stale pixels around the replacement. */
+#endif
             case OBJECT_CLASS_DUST:
                 if (obj == g_nNavPointerObject_004931b8)
                     DrawSolidColourSprite(

@@ -2420,8 +2420,12 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 /* Function start: 0x427DE8 */
 void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
+#ifdef WC1_SDL
+    Wc1SdlDrawViewportStatic(viewport, effect, colour);
+#else
     (void)effect;
     (void)colour;
+#endif
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
     RasterLineHook(g_szShadedTriangle_00496a60);

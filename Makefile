@@ -103,8 +103,10 @@ UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
 
 MODERN_EXE_SUFFIX :=
+MODERN_PLATFORM_LIBS :=
 ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
 MODERN_EXE_SUFFIX := .exe
+MODERN_PLATFORM_LIBS := -limm32
 endif
 
 # The native build uses the host compiler and never contributes objects to the
@@ -451,7 +453,7 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat \
-	sdl_dos_resources sdl_input_compat
+	sdl_dos_resources sdl_input_compat sdl_event_compat
 MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
 MODERN_RUNTIME_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_runtime_safety$(MODERN_EXE_SUFFIX)
@@ -555,6 +557,7 @@ $(MODERN_TARGET): \
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 # The host compatibility layer reaches into the game core for packet loads and

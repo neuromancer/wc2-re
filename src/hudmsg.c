@@ -22,11 +22,17 @@ short MeasureMessageWidth(const char *text)
 /* Function start: 0x467300 */
 void AcknowledgeModalMessage(void)
 {
+#ifdef WC1_SDL
+    Wc1SdlSuspendMouseGrab();
+#endif
     ConfigureInputPump(1, PollJoystickButtonEvents);
     SetFrameTimerAndWait(20);
     FlushPendingInputEvents();
     _getch();
     ConfigureInputPump(1, get_player_input);
+#ifdef WC1_SDL
+    Wc1SdlResumeMouseGrab();
+#endif
 }
 
 /* Function start: 0x437C2E */
@@ -64,6 +70,10 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
+#ifdef WC1_SDL
+    if (duration == 9999)
+        Wc1SdlSuspendMouseGrab();
+#endif
     modalShown = 0;
     if (duration == 9999)
         modalShown = (short)ShowModalTextPanel(1, text);
@@ -90,6 +100,10 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     } else {
         ReleaseModalTextPanel();
     }
+#ifdef WC1_SDL
+    if (duration == 9999)
+        Wc1SdlResumeMouseGrab();
+#endif
 }
 
 /* Function start: 0x437F2F */
@@ -98,8 +112,14 @@ void ShowGamePausedBanner(short showBanner)
     if (showBanner != 0) {
         ShowOnScreenMessage(9999, "GAME PAUSED");
     } else {
+#ifdef WC1_SDL
+        Wc1SdlSuspendMouseGrab();
+#endif
         while (WaitForInputKey() == 0)
             ServiceSoundSystem();
+#ifdef WC1_SDL
+        Wc1SdlResumeMouseGrab();
+#endif
     }
 }
 
@@ -686,8 +706,15 @@ short HandleSpaceFlightControls(void)
         break;
     case 1:
         g_bSceneEscapeRequested_0049d4b0 = 0;
-        if (get_mode(1) == 4)
+        if (get_mode(1) == 4) {
             CloseCommChoiceMenu();
+#ifdef WC1_SDL
+        } else {
+            /* Retail leaves Escape inert here.  The port makes it another
+             * pause key while preserving its communication-menu action. */
+            goto pause_spaceflight;
+#endif
+        }
         break;
     case 0x14:
         if (notRepeated && control == 0) {
@@ -713,6 +740,9 @@ short HandleSpaceFlightControls(void)
             CalibrateJoystickInteractive();
         break;
     case 0x19:
+#ifdef WC1_SDL
+pause_spaceflight:
+#endif
         g_bPauseInputActive_0049ac9c = 1;
         ShowGamePausedBanner((short)(control < 1));
         g_bPauseInputActive_0049ac9c = 0;
@@ -1583,6 +1613,9 @@ int RunSpaceFlight(short entryNavPoint)
                  g_stViewBuffer_005d2b00.bottom) / 2));
     g_nCockpitControlState_0049d7ac = 0;
     g_nArcadeState_0049d75c = 0;
+#ifdef WC1_SDL
+    Wc1SdlSetMouseGrab(1);
+#endif
 
     while (g_nArcadeState_0049d75c == 0) {
         SetFrameTimerPeriodDirect(g_nSpaceFramePeriod_0049d768);
@@ -1618,6 +1651,7 @@ int RunSpaceFlight(short entryNavPoint)
     }
 
 #ifdef WC1_SDL
+    Wc1SdlSetMouseGrab(0);
     Wc1SdlCancelSpaceFrame();
 #endif
     SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,

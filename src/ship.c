@@ -153,8 +153,12 @@ short inflict_damage(short attacker, short victim, short damage,
                 (short)g_acObjectOwner_00495208[attacker]] >=
                 OBJECT_CLASS_CAPITAL_SHIP)
             return 0;
-        if (victim == 0)
+        if (victim == 0) {
             TriggerPlayerHitPaletteFlash();
+#ifdef WC1_SDL
+            Wc1SdlQueueJoystickDamageRumble(damage);
+#endif
+        }
         if (g_acObjectOwner_00495208[attacker] != -1 &&
             g_aeObjectClass_00495328[
                 (short)g_acObjectOwner_00495208[attacker]] ==
@@ -1966,6 +1970,10 @@ short fire_weapon(short obj, short weapon)
             g_asObjectCounter_00494be0[obj] =
                 (short)(14 - g_nAdaptiveDifficulty_005d3844);
         }
+#ifdef WC1_SDL
+        if (obj == 0)
+            Wc1SdlQueueJoystickWeaponRumble(weaponType);
+#endif
         switch (weaponType) {
         case 7:
         case 8:

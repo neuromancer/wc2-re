@@ -873,6 +873,9 @@ short player_input(void)
     if ((g_cCurrentKey_00493128 & (signed char)0x80) != 0 &&
         (g_wPendingInputButtons_005c80d4 & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
+#ifdef WC1_SDL
+    Wc1SdlApplyJoystickFlightControls();
+#endif
     g_stPreviousFlightInput_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
     g_bPlayerInputActive_005c8090 = savedPlayerInputActive;

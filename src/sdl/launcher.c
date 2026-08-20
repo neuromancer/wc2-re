@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef _WIN32
+extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
+#endif
+
 static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
                                     int *useEnhancedRenderer)
 {
@@ -141,6 +145,9 @@ int main(int argumentCount, char **arguments)
     int useEnhancedRenderer;
     int usingDosData;
 
+#ifdef _WIN32
+    ImmDisableIME((DWORD)-1);
+#endif
     if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
                                    &useEnhancedRenderer))
         return 1;
@@ -213,7 +220,6 @@ int main(int argumentCount, char **arguments)
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
         g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
         g_pfnInputPump_005c840c = 0;
-        SDL_SetWindowMouseGrab(window, SDL_TRUE);
         SDL_ShowCursor(SDL_DISABLE);
         /* The same sequence WinMain runs once the window exists. */
         g_nInputClock_005c84a8 = 0;
@@ -223,7 +229,7 @@ int main(int argumentCount, char **arguments)
         g_bApplicationShutdownStarted_0049c23c = 1;
         ReleaseApplicationScratchBuffer();
         gameResult = 0;
-        SDL_SetWindowMouseGrab(window, SDL_FALSE);
+        Wc1SdlSetMouseGrab(0);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
         if ((g_dwStreamerState_005c4c38 & 1) != 0)

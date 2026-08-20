@@ -229,41 +229,46 @@ void Wc1SdlQueueJoystickWeaponRumble(int weaponType)
     Uint32 duration;
 
     /* Lasers fire continuously, so feedback here quickly becomes noise. */
-    switch ((enum ObjectType)weaponType) {
-    case OBJECT_TYPE_LASER_CANNON:
+    switch (weaponType) {
+    case WC2_OBJECT_TYPE_LASER_CANNON:
         return;
-    case OBJECT_TYPE_NEUTRON_PARTICLE_GUN:
+    case WC2_OBJECT_TYPE_NEUTRON_GUN:
         low = 0x6000;
         high = 0x7800;
         duration = 75;
         break;
-    case OBJECT_TYPE_MASS_DRIVER_CANNON:
-    case OBJECT_TYPE_TURRET:
+    case WC2_OBJECT_TYPE_MASS_DRIVER:
+    case WC2_OBJECT_TYPE_TURRET_GUN:
         low = 0x7800;
         high = 0x6000;
         duration = 90;
         break;
-    case OBJECT_TYPE_DUMB_FIRE_MISSILE:
+    case WC2_OBJECT_TYPE_PARTICLE_CANNON:
+        low = 0x6800;
+        high = 0x8800;
+        duration = 90;
+        break;
+    case WC2_OBJECT_TYPE_DART_DF:
         low = 0x9000;
         high = 0x6000;
         duration = 150;
         break;
-    case OBJECT_TYPE_HEAT_SEEKING_MISSILE:
+    case WC2_OBJECT_TYPE_JAVELIN_HS:
         low = 0x8800;
         high = 0x5800;
         duration = 170;
         break;
-    case OBJECT_TYPE_FF_MISSILE:
+    case WC2_OBJECT_TYPE_PILUM_FF:
         low = 0x8000;
         high = 0x6800;
         duration = 180;
         break;
-    case OBJECT_TYPE_IMAGE_RECOGNITION_MISSILE:
+    case WC2_OBJECT_TYPE_SPICULUM_IR:
         low = 0x9000;
         high = 0x5800;
         duration = 170;
         break;
-    case OBJECT_TYPE_TORPEDO:
+    case WC2_OBJECT_TYPE_TORPEDO:
         low = 0xa000;
         high = 0x6800;
         duration = 200;
@@ -564,7 +569,7 @@ BOOL Wc1SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
         (unsigned int)((int)Wc1SdlReadJoystickAxis(device, 1) + 32768);
     information->wZpos = 0;
     buttonState = 0;
-    if (DAT_0059ab2c == get_player_input &&
+    if (g_pfnInputPump_005c840c == get_player_input &&
         g_eWc1SdlJoystickMode != WC1_SDL_JOYSTICK_ORIGINAL) {
         if (Wc1SdlReadJoystickButton(device, 0))
             buttonState = 1;
@@ -672,7 +677,7 @@ void Wc1SdlApplyJoystickFlightControls(void)
     int axisCount;
 
     g_bWc1SdlJoystickSpaceflightActive = 1;
-    if (DAT_0059ab2c != get_player_input ||
+    if (g_pfnInputPump_005c840c != get_player_input ||
         g_eWc1SdlJoystickMode == WC1_SDL_JOYSTICK_ORIGINAL) {
         Wc1SdlUpdateJoystickRumble();
         return;
@@ -800,9 +805,10 @@ static int Wc1SdlControllerButtonIndex(int button)
 static void Wc1SdlQueueScanCodePress(unsigned short scanCode)
 {
     /* player_input samples one transition before consuming the remaining
-       queue, so lead with the release for this impulse. */
-    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0, 0, 0);
-    QueueInputEvent(3, 0, 0, scanCode, 0, 0, 0, 0, 0);
+       queue, so lead with the release for this impulse.  WC2 key events are
+       type 4 for a press and type 5 for a release. */
+    QueueInputEvent(5, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
 }
 
 int Wc1SdlGetCommunicationMenuSelection(void)
@@ -933,15 +939,13 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     }
 
     spaceflightActive = g_bWc1SdlJoystickSpaceflightActive &&
-        DAT_0059ab2c == get_player_input &&
+        g_pfnInputPump_005c840c == get_player_input &&
         g_nArcadeState_0049d75c == 0;
-    eventType = pressed ? 3 : 4;
+    eventType = pressed ? 4 : 5;
     if (button == WC1_SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
             g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bInputEventQueueEnabled_0049c248 != 0)
-            QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0, 0);
-        QueueInputEvent(eventType, 0, 0, 0x01, 0, 0, 0, 0, 0);
+        QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0x01, 0);
         return;
     }
     if (button == WC1_SDL_JOYSTICK_BUTTON_START) {
@@ -953,8 +957,8 @@ void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     if (button == WC1_SDL_JOYSTICK_BUTTON_Y &&
         !spaceflightActive && g_bInputEventQueueEnabled_0049c248 != 0) {
-        QueueInputEvent(3, 0, 0, 'Y', 0, 0, 0, 0, 0);
-        QueueInputEvent(3, 0, 0, 0x15, 0, 0, 0, 0, 0);
+        QueueInputEvent(5, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
+        QueueInputEvent(4, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
         return;
     }
     if (!spaceflightActive ||

@@ -285,6 +285,46 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
     Wc1SdlTraceInputEvent("move", 3, 0, 0, x, y);
 }
 
+/* Mouse flight is positional: hard turns park the pointer at a window edge,
+ * so flight needs confinement while menus and unfocused windows do not. */
+static int g_bWc1SdlMouseGrabRequested;
+static int g_bWc1SdlWindowFocused = 1;
+static int g_nWc1SdlMouseGrabSuspendDepth;
+
+static void Wc1SdlApplyMouseGrab(void)
+{
+    SDL_Window *window;
+
+    window = (SDL_Window *)g_hMainWindow_005d10e0;
+    if (window == 0)
+        return;
+    SDL_SetWindowMouseGrab(
+        window,
+        g_bWc1SdlMouseGrabRequested && g_bWc1SdlWindowFocused &&
+                g_nWc1SdlMouseGrabSuspendDepth == 0
+            ? SDL_TRUE
+            : SDL_FALSE);
+}
+
+void Wc1SdlSetMouseGrab(int enabled)
+{
+    g_bWc1SdlMouseGrabRequested = enabled;
+    Wc1SdlApplyMouseGrab();
+}
+
+void Wc1SdlSuspendMouseGrab(void)
+{
+    g_nWc1SdlMouseGrabSuspendDepth++;
+    Wc1SdlApplyMouseGrab();
+}
+
+void Wc1SdlResumeMouseGrab(void)
+{
+    if (g_nWc1SdlMouseGrabSuspendDepth > 0)
+        g_nWc1SdlMouseGrabSuspendDepth--;
+    Wc1SdlApplyMouseGrab();
+}
+
 static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
 {
     SDL_Window *window;
@@ -292,6 +332,13 @@ static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
     if (event->event == SDL_WINDOWEVENT_CLOSE) {
         ShutdownGameWindow();
         return 1;
+    }
+    if (event->event == SDL_WINDOWEVENT_FOCUS_LOST ||
+        event->event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+        g_bWc1SdlWindowFocused =
+            event->event == SDL_WINDOWEVENT_FOCUS_GAINED;
+        Wc1SdlApplyMouseGrab();
+        return 0;
     }
     if (event->event != SDL_WINDOWEVENT_SIZE_CHANGED &&
         event->event != SDL_WINDOWEVENT_DISPLAY_CHANGED)

@@ -38,6 +38,52 @@ cd /path/to/WC2
 ./wc2-modern
 ```
 
+The native port includes these fixes and optional features:
+
+| Fix or feature | Enable with |
+| --- | --- |
+| Kilrathi Saga or DOS game data, detected automatically | always on |
+| Resizable window, fullscreen toggle, and mouse capture | always on |
+| Mouse-wheel throttle control during spaceflight | always on |
+| `Esc` pauses during spaceflight when communications are closed | always on |
+| Pointer confined only during unpaused, focused spaceflight | always on |
+| Automatic SDL gamepad mappings and hot-plug support | always on |
+| Background planets drawn with their own sprite and scale | always on |
+| Static on knocked-out cockpit displays | always on |
+| OpenGL space objects rendered at output resolution | `--enhanced` |
+| Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
+| WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
+| Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
+| Joystick diagnostics on stderr | `--joystick-debug` |
+| Frame-rate counter | `-f` |
+| Cockpitless view | `-c` |
+
+Options can be combined:
+
+```sh
+./wc2-modern --enhanced --joystick-rumble \
+  --joystick-mode=4button-4axis
+```
+
+### SDL2 port controls
+
+| Shortcut | Action |
+| --- | --- |
+| `Cmd+Enter` (macOS) | Toggle fullscreen |
+| `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
+| `Cmd+Q` (macOS) | Quit the game |
+| Mouse wheel (spaceflight) | Increase or decrease speed |
+| `Esc` (spaceflight) | Close communications, or pause |
+| Gamepad Start (spaceflight) | Pause or resume |
+| Gamepad Back | Escape/back |
+| Gamepad Y (`Y/N` prompts) | Confirm Yes |
+
+The default joystick mode retains the original two-axis, two-button controls.
+The optional four-button modes add dedicated afterburner, target, weapon,
+navigation, autopilot, communications, and speed controls. See the
+[SDL2 port documentation](docs/SDL2.md#joystick-input) for the full gamepad,
+twin-stick, and HOTAS layouts.
+
 ## Build from source
 
 Clone the submodules first:

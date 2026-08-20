@@ -1184,6 +1184,10 @@ void HandleCommunicationMenuRequest(void)
 void show_communications_disp(void)
 {
     signed char choice;
+#ifdef WC1_SDL
+    int selectedChoice;
+    unsigned char normalColour;
+#endif
 
     if (IsCommChoiceMenuOpen() == 0)
         HandleCommunicationMenuRequest();
@@ -1193,11 +1197,23 @@ void show_communications_disp(void)
                    g_stRightVduViewport_005d2b20.left,
                    g_stRightVduViewport_005d2b20.top,
                    g_pszCommMenuHeading_005d1950, 2);
+#ifdef WC1_SDL
+        selectedChoice = Wc1SdlGetCommunicationMenuSelection();
+        normalColour = g_stRightVduTextContext_005d2ce0.colour;
+#endif
         for (choice = 0; choice < g_nCommMenuChoiceCount_0049b770;
              choice++) {
+#ifdef WC1_SDL
+            if ((int)choice == selectedChoice)
+                g_stRightVduTextContext_005d2ce0.colour =
+                    g_abGamePaletteReservedColours_0049cb54[8];
+#endif
             DrawFormattedText(g_szCommMenuChoiceFormat_0049b868,
                               (int)choice + 1,
                               g_apszCommMenuChoiceText_005d19a0[choice]);
+#ifdef WC1_SDL
+            g_stRightVduTextContext_005d2ce0.colour = normalColour;
+#endif
         }
         g_nCommMenuReuseMode_0049b774 = 1;
     }
