@@ -15,8 +15,8 @@ No copyrighted game data is included.
 
 The reconstruction is incomplete: the source compiles and links as `WC2.EXE`,
 but significant implementation, mapping, and runtime work remains. `make
-report` compares 1,576 functions against the retail executable and averages
-97.62% machine-code similarity, which measures reconstruction fidelity, not
+report` compares 1,575 functions against the retail executable and averages
+98.06% machine-code similarity, which measures reconstruction fidelity, not
 gameplay completeness.
 
 The SDL2 port reaches the title screen, the campaign intro, the pilot database,
@@ -37,8 +37,6 @@ directory as the working directory:
 cd /path/to/WC2
 ./wc2-modern
 ```
-
-Everything below `1.0` is a prerelease.
 
 ## Build from source
 

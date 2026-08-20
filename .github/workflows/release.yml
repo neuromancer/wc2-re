@@ -37,12 +37,7 @@ jobs:
             fi
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "version=$REF_NAME" >> "$GITHUB_OUTPUT"
-            # Nothing below 1.0 is a finished release.
-            if [[ "$REF_NAME" =~ ^v0\. ]]; then
-              echo "prerelease=true" >> "$GITHUB_OUTPUT"
-            else
-              echo "prerelease=false" >> "$GITHUB_OUTPUT"
-            fi
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "version=ci-${RUN_NUMBER}-${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
