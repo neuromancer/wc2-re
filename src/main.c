@@ -209,7 +209,7 @@ void dump_buffer_to_screen(void)
         default:
             fizzle_fade(
                 &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0,
-                g_pScreenViewportGeometry_005c82b0);
+                (const short *)g_pScreenViewportGeometry_005c82b0);
             break;
         }
     }

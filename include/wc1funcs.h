@@ -954,7 +954,7 @@ short is_ship_tailing_player_target(short obj);                       /* 0x42A1C
 short FindMissileTargetingObject(short obj);                          /* 0x42A222 */
 void build_squad_list(short leader);                                  /* 0x42A28E */
 unsigned int find_squad_center(FixedVector *center);                  /* 0x42A313 */
-unsigned int init_formation_burst(short obj);                          /* 0x42A39A */
+void init_formation_burst(short obj);                          /* 0x42A39A */
 void reset_mission_type(short obj,
                         enum ShipMissionType missionType);             /* 0x42A490 */
 unsigned int change_mission_type(short obj,
@@ -1945,7 +1945,7 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               short angle, short scale, short flip,
                               short *bounds);                         /* 0x4283A4 */
 void fizzle_fade(Viewport *source, Viewport *destination,
-                 const ScreenViewportGeometry *geometry);            /* 0x428690 */
+                 const short *runs);            /* 0x428690 */
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned short colour);                            /* 0x427DE8 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x428979 */

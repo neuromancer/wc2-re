@@ -2306,39 +2306,44 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
 }
 
 /* Function start: 0x428690 */
+/* WC2 walks the geometry record as a raw run list: two shorts of header, the
+ * source origin, then a destinationX/sourceY/width triple per run ending at
+ * -1. */
 void fizzle_fade(Viewport *source, Viewport *destination,
-                 const ScreenViewportGeometry *geometry)
+                 const short *runs)
 {
-    const short *run;
-    unsigned char *sourcePixels;
-    unsigned char *destinationPixels;
     unsigned short width;
     short sourceLeft;
     short sourceTop;
     short destinationX;
     short sourceY;
 
-    if (source->pixels != 0 && destination->pixels != 0) {
-        run = &geometry->originX;
-        sourceLeft = *run++;
-        sourceTop = *run++;
-        destinationX = *run++;
-        if (destinationX != -1) {
-            do {
-                sourceY = *run++;
-                width = (unsigned short)*run++;
-                sourcePixels = source->pixels +
-                    source->rowOffsets[sourceY - sourceTop] - sourceLeft +
-                    destinationX;
-                destinationPixels = destination->pixels +
-                    destination->rowOffsets[sourceY] + destinationX;
-                memcpy(destinationPixels, sourcePixels, width);
-                destinationX = *run++;
-            } while (destinationX != -1);
-        }
-        if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
-            MarkDibDirty();
+    if (source->pixels == 0 || destination->pixels == 0)
+        return;
+    if (destination->left < 0)
+        return;
+    runs += 2;
+    sourceLeft = *runs;
+    runs++;
+    sourceTop = *runs;
+    runs++;
+    destinationX = *runs;
+    runs++;
+    while (destinationX != -1) {
+        sourceY = *runs;
+        runs++;
+        width = (unsigned short)*runs;
+        runs++;
+        memcpy(destination->rowOffsets[sourceY] + destinationX +
+                   destination->pixels,
+               source->rowOffsets[sourceY - sourceTop] + destinationX +
+                   source->pixels - sourceLeft,
+               width);
+        destinationX = *runs;
+        runs++;
     }
+    if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
+        MarkDibDirty();
 }
 
 /* Function start: 0x427DE8 */

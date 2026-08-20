@@ -1703,28 +1703,26 @@ unsigned int find_squad_center(FixedVector *center)
 }
 
 /* Function start: 0x42A39A */
-unsigned int init_formation_burst(short obj)
+void init_formation_burst(short obj)
 {
     FixedVector center;
-    FixedVector *destination;
     short member;
-    short index = 0;
+    short index;
 
+    index = -1;
     build_squad_list(obj);
     find_squad_center(&center);
-    member = g_acShipList_00496148[0];
-    while (member != -1) {
-        destination = &g_aShipDestination_004953f0[member];
+    while ((member = g_acShipList_00496148[++index]) != -1) {
         ComputeVectorDelta(&center, &g_aShipPosition_00494550[member],
-                           destination);
-        ScaleFixedVector(destination, 0xa00, destination);
-        AddFixedVectors(destination, &g_aShipPosition_00494550[member],
-                        destination);
+                           &g_aShipDestination_004953f0[member]);
+        ScaleFixedVector(&g_aShipDestination_004953f0[member], 0xa00,
+                         &g_aShipDestination_004953f0[member]);
+        AddFixedVectors(&g_aShipDestination_004953f0[member],
+                        &g_aShipPosition_00494550[member],
+                        &g_aShipDestination_004953f0[member]);
         steady_object(member);
         reset_objective(member, OBJECTIVE_BREAK_FORMATION);
-        member = g_acShipList_00496148[++index];
     }
-    return 0;
 }
 
 /* Function start: 0x42A490 */

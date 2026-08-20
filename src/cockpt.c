@@ -1803,12 +1803,10 @@ short mobile_objective(short objective)
 /* Function start: 0x43B258 */
 void ResetScannerContacts(void)
 {
-    short i = 10;
+    short i;
 
-    do {
+    for (i = 10; i > 0; i--)
         g_asScannerObjectX_005d1ea0[i] = 0;
-        i = i - 1;
-    } while (i > 0);
     g_nScannerTargetObject_0049b07c = -1;
 }
 
