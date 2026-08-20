@@ -1186,6 +1186,7 @@ const char *g_apszShortPilotRankNames_0049a620[5] = {
     g_szShortLieutenantColonelRank_0049a724
 };
 short g_nPersonnelMenuHighlight_0049a6a0 = -1;
+void *g_pPersonnelCampaignSnapshot_0049a6a4;
 unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
 short g_sPersonnelPreviousInput_0049a6bc = -128;
 short g_bPersonnelMenuDrawing_0049a6c0 = 1;

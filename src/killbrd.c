@@ -352,9 +352,9 @@ short RunCampaignChalkboardMenu(short campaignSlot)
             exit_squadron(0);
             break;
         case 3:
-            /* The WC2 save/load menu at 0x4353D4 remains unreconstructed. */
             g_bDisableChalkboardReplay_0049ca58 = 0;
             DisableMouseCursorDrawing();
+            RunPilotSaveLoadMenu();
             if (g_nOriginDevUnlock_0049d774 != 0)
                 strcpy(g_stCurrentPilotProfile_00493408.callsign,
                        "CHEATER");

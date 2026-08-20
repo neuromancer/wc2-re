@@ -1180,7 +1180,10 @@ src/personnel.c	172		00433E8C	RefreshCampaignChalkboardScreen	RefreshCampaignCha
 src/personnel.c	185		0043456E	RestorePersonnelMenuBackground	RestorePersonnelMenuBackground	WC2-only		wc2-only
 src/personnel.c	188		00433ED7	DrawCampaignChalkboardFrame	DrawCampaignChalkboardFrame	WC2-only		wc2-only
 src/personnel.c	195		004345A1	DrawPilotSaveMenuChoices	DrawPilotSaveMenuChoices	WC2-only		wc2-only
+src/personnel.c	480		00434ACE	HighlightPersonnelFileSlot	HighlightPersonnelFileSlot	WC2-only		wc2-only
+src/personnel.c	514		00434BB5	SelectPersonnelFileSlot	SelectPersonnelFileSlot	WC2-only		wc2-only
 src/personnel.c	308		00435064	SelectTransferredPilot	SelectTransferredPilot	WC2-only		wc2-only
+src/personnel.c	631		004353D4	RunPilotSaveLoadMenu	RunPilotSaveLoadMenu	WC2-only		wc2-only
 src/personnel.c	581		00436A4D	ShowNoTransferablePilots	ShowNoTransferablePilots	WC2-only		wc2-only
 src/personnel.c	592		00436A8F	RunPilotDatabaseMenu	RunPilotDatabaseMenu	WC2-only		wc2-only
 src/pilot.cpp	156	00425AF0	004333F8	MapCutsceneSoundEffectNumber	GameNoBodyStubv3	WC1-callgraph-single-low		mapped

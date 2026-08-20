@@ -477,6 +477,132 @@ void DrawPersonnelFileSlot(short slot)
         g_apPersonnelFileSlots_0049a660[slot]->description);
 }
 
+/* Function start: 0x434ACE */
+void HighlightPersonnelFileSlot(short choice)
+{
+    short slot;
+
+    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
+        if (choice == 0x0b) {
+            slot = 0;
+        } else {
+            slot = (short)(choice - 1);
+        }
+        DisableMouseCursorDrawing();
+        if (choice != -1) {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 2,
+                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            DrawPersonnelFileSlot(slot);
+        }
+        if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
+            InitializeTextContextFromFont(
+                &g_stDefaultTextContext_005d2d20, 2,
+                (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            if (g_nPersonnelMenuHighlight_0049a6a0 == 0x0b) {
+                slot = 0;
+            } else {
+                slot = (short)(g_nPersonnelMenuHighlight_0049a6a0 - 1);
+            }
+            DrawPersonnelFileSlot(slot);
+        }
+        g_nPersonnelMenuHighlight_0049a6a0 = choice;
+        EnableMouseCursorDrawing();
+    }
+}
+
+/* Function start: 0x434BB5 */
+short SelectPersonnelFileSlot(void)
+{
+    short hover;
+    short slot;
+
+    DisableMouseCursorDrawing();
+    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
+                                  (unsigned char)
+                                      g_nMenuShadowColour_005c5876,
+                                  -1);
+    for (slot = 0; slot < 8; slot++) {
+        DrawPersonnelFileSlot(slot);
+    }
+    g_nPersonnelMenuHighlight_0049a6a0 = -1;
+    hover = 0x0b;
+    HighlightPersonnelFileSlot(hover);
+    DisableMouseCursorDrawing();
+    g_cCurrentKey_00493128 = (signed char)0x80;
+    SetPersonnelMousePosition(0xdc, 0x12);
+    for (;;) {
+        if (g_cCurrentKey_00493128 != (signed char)0x80) {
+            return g_cCurrentKey_00493128;
+        }
+        PollPersonnelMenuInput();
+        if (g_nPersonnelCursorX_005c8470 > 0x28 &&
+            g_nPersonnelCursorX_005c8470 < 0xec) {
+            if (g_nPersonnelCursorY_005c8472 >= 0x12 &&
+                g_nPersonnelCursorY_005c8472 <= 0x1c) {
+                hover = 0x0b;
+                HighlightPersonnelFileSlot(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 1);
+            } else if (g_nPersonnelCursorY_005c8472 >= 0x1d &&
+                       g_nPersonnelCursorY_005c8472 <= 0x6e) {
+                hover = (short)((g_nPersonnelCursorY_005c8472 - 0x1d) /
+                                12 + 2);
+                HighlightPersonnelFileSlot(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 1);
+            } else {
+                hover = -1;
+                HighlightPersonnelFileSlot(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 0);
+            }
+        } else {
+            hover = -1;
+            HighlightPersonnelFileSlot(hover);
+            SetMouseCursorShape(
+                g_pInputManagerState_005c8464->cursorShape, 0);
+        }
+        g_bPersonnelMenuDrawing_0049a6c0 = 0;
+        DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
+        g_bPersonnelMenuDrawing_0049a6c0 = 1;
+        EnableMouseCursorDrawing();
+        RefreshMemoryStatusOverlay();
+        if ((g_cCurrentKey_00493128 == 0x1c ||
+             g_cCurrentKey_00493128 == 0x39) &&
+            hover != -1) {
+            g_cCurrentKey_00493128 = (signed char)hover;
+        }
+        if (g_cCurrentKey_00493128 == 1 ||
+            ((g_cCurrentKey_00493128 == 0x1c ||
+              g_cCurrentKey_00493128 == 0x39) &&
+             hover == -1)) {
+            return -1;
+        }
+        switch (g_cCurrentKey_00493128 - 2) {
+        case 0:
+            return 1;
+        case 1:
+            return 2;
+        case 2:
+            return 3;
+        case 3:
+            return 4;
+        case 4:
+            return 5;
+        case 5:
+            return 6;
+        case 6:
+            return 7;
+        case 9:
+            return 0;
+        default:
+            g_cCurrentKey_00493128 = (signed char)0x80;
+            break;
+        }
+    }
+}
+
 /* Function start: 0x434EBC */
 void DrawTransferredPilotRow(short row)
 {
@@ -625,6 +751,395 @@ short SelectTransferredPilot(short count)
             g_cCurrentKey_00493128 = (signed char)0x80;
             break;
         }
+    }
+}
+
+/* Function start: 0x4353D4 */
+void RunPilotSaveLoadMenu(void)
+{
+    struct _finddata_t findData;
+    int campaignBytes;
+    int action;
+    char answer;
+    short confirm;
+    short file;
+    short index;
+    short hover;
+    short refresh;
+    short done;
+    short slot;
+
+    done = 0;
+    refresh = 0;
+    g_pPersonnelMenuBackdrop_0049a6b8 = FetchDiskPacketRetrying(
+        "options.v00",
+        (short)(g_nCockpitArchiveVariant_005c901a * 3 + 1), 0);
+    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pPersonnelMenuBackdrop_0049a6b8, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+                      g_pPersonnelMenuBackdrop_0049a6b8, 1);
+    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    campaignBytes = g_pCampaignGlobals_00499c94->wordCount * 2;
+    g_pPersonnelCampaignSnapshot_0049a6a4 =
+        AllocateTaggedMemory(campaignBytes, 0x40);
+    if (g_pPersonnelCampaignSnapshot_0049a6a4 == 0) {
+        ReportFatalErrorCode("007");
+    }
+
+    /* The find handle shares storage with the menu's exit flag; the
+     * original reuses the same short once the file has been sized. */
+    done = (short)_findfirst("savegame.wc2", &findData);
+    if (done == -1 || campaignBytes * 9 + 0x4b6 != findData.size) {
+        file = (short)_open("savegame.wc2", 0x8301, 0x180);
+        if (file < 0) {
+            ReportFatalErrorCode("008");
+        }
+        CopyHugeMemoryOverlapSafe(g_pPersonnelCampaignSnapshot_0049a6a4,
+                                  g_pCampaignGlobals_00499c94,
+                                  campaignBytes);
+        for (index = 0; index < 9; index++) {
+            _write(file, &refresh, 2);
+            _write(file, &g_stDefaultPilotProfile_00492660, 0x60);
+            _write(file, g_szSaveSlotSignature,
+                   sizeof(g_szSaveSlotSignature));
+            _write(file, g_pPersonnelCampaignSnapshot_0049a6a4,
+                   campaignBytes);
+        }
+        _close(file);
+    }
+    _findclose((long)done);
+
+    file = (short)_open("savegame.wc2", 0x8000);
+    for (index = 0; index < 8; index++) {
+        g_apPersonnelFileSlots_0049a660[index] =
+            AllocateTaggedMemory(0x26, 0x40);
+        if (g_apPersonnelFileSlots_0049a660[index] == 0) {
+            ReportFatalErrorCode("009");
+        }
+        g_apPersonnelPilotProfiles_0049a680[index] =
+            AllocateTaggedMemory(0x60, 0x40);
+        if (g_apPersonnelPilotProfiles_0049a680[index] == 0) {
+            ReportFatalErrorCode("010");
+        }
+        _read(file, g_apPersonnelFileSlots_0049a660[index], 2);
+        _read(file, g_apPersonnelPilotProfiles_0049a680[index], 0x60);
+        _read(file, g_apPersonnelFileSlots_0049a660[index]->description,
+              0x24);
+        _read(file, g_pPersonnelCampaignSnapshot_0049a6a4,
+              campaignBytes);
+    }
+    _close(file);
+
+    done = 0;
+    SetPersonnelMousePosition(0xc8, 0x36);
+    while (done == 0) {
+        DisableMouseCursorDrawing();
+        g_stDefaultTextContext_005d2d20.viewport =
+            &g_stSecondaryViewBuffer_005d2c90;
+        g_stDefaultTextContext_005d2d20.text =
+            g_szDefaultTextBuffer_005d2b80;
+        RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
+        SetTextContext(&g_stDefaultTextContext_005d2d20);
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        SetTextCursor(0x50, 0x12);
+        DrawFormattedText("TERRAN CONFEDERATION NAVY");
+        SetTextCursor(0x60, 0x1c);
+        DrawFormattedText("PERSONNEL DATABASE");
+        hover = 0x26;
+        g_nPersonnelMenuHighlight_0049a6a0 = -1;
+        DrawPilotSaveMenuChoices(hover);
+        DisableMouseCursorDrawing();
+        RefreshMemoryStatusOverlay();
+        g_cCurrentKey_00493128 = (signed char)0x80;
+        while (g_cCurrentKey_00493128 == (signed char)0x80) {
+            PollPersonnelMenuInput();
+            if (g_nPersonnelCursorX_005c8470 > 0x28 &&
+                g_nPersonnelCursorX_005c8470 < 0xea) {
+                if (g_nPersonnelCursorY_005c8472 >= 0x30 &&
+                    g_nPersonnelCursorY_005c8472 <= 0x43) {
+                    hover = 0x26;
+                    DrawPilotSaveMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 1);
+                } else if (g_nPersonnelCursorY_005c8472 >= 0x44 &&
+                           g_nPersonnelCursorY_005c8472 <= 0x57) {
+                    hover = 0x1f;
+                    DrawPilotSaveMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 1);
+                } else if (g_nPersonnelCursorY_005c8472 >= 0x58 &&
+                           g_nPersonnelCursorY_005c8472 <= 0x6b) {
+                    hover = 0x20;
+                    DrawPilotSaveMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 1);
+                } else {
+                    hover = -1;
+                    DrawPilotSaveMenuChoices(hover);
+                    SetMouseCursorShape(
+                        g_pInputManagerState_005c8464->cursorShape, 0);
+                }
+            } else {
+                hover = -1;
+                DrawPilotSaveMenuChoices(hover);
+                SetMouseCursorShape(
+                    g_pInputManagerState_005c8464->cursorShape, 0);
+            }
+            g_bPersonnelMenuDrawing_0049a6c0 = 0;
+            DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
+            g_bPersonnelMenuDrawing_0049a6c0 = 1;
+            EnableMouseCursorDrawing();
+            RefreshMemoryStatusOverlay();
+            refresh = 0;
+            if ((g_cCurrentKey_00493128 == 0x1c ||
+                 g_cCurrentKey_00493128 == 0x39) &&
+                hover != -1) {
+                g_cCurrentKey_00493128 = (signed char)hover;
+            }
+            if (g_cCurrentKey_00493128 == 1 ||
+                ((g_cCurrentKey_00493128 == 0x1c ||
+                  g_cCurrentKey_00493128 == 0x39) &&
+                 hover == -1)) {
+                done++;
+                refresh++;
+            }
+            action = toupper(g_cCurrentKey_00493128);
+            switch (action) {
+            case 0x26:
+                refresh = 1;
+                DisableMouseCursorDrawing();
+                RestorePersonnelMenuBackground(
+                    &g_stSecondaryViewBuffer_005d2c90);
+                RefreshMemoryStatusOverlay();
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 2,
+                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                SetTextCursor(0x50, 0x0c);
+                DrawFormattedText("Select a game to load");
+                SetTextCursor(0xb8, 0x0c);
+                DrawFormattedText("Missions Kills");
+                slot = SelectPersonnelFileSlot();
+                if (slot != -1 &&
+                    g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
+                    file = (short)_open("savegame.wc2", 0x8000);
+                    if (file < 0) {
+                        ReportFatalErrorCode("011");
+                        break;
+                    }
+                    _lseek(file,
+                           (campaignBytes + sizeof(PersonnelFileSlot) +
+                            sizeof(Wc2PilotProfile)) * slot, 0);
+                    _read(file, g_apPersonnelFileSlots_0049a660[slot], 2);
+                    _read(file, g_apPersonnelPilotProfiles_0049a680[slot],
+                          0x60);
+                    _read(file,
+                          g_apPersonnelFileSlots_0049a660[slot]->description,
+                          0x24);
+                    strcpy(g_szPilotFirstName_00499f28,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
+                    strcpy(g_stCurrentPilotProfile_00493408.firstName,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
+                    strcpy(g_szPilotLastName_00499f10,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+                    strcpy(g_stCurrentPilotProfile_00493408.lastName,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
+                    if (g_nOriginDevUnlock_0049d774 != 0) {
+                        strcpy(
+                            g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+                            "CHEATER");
+                    }
+                    strcpy(g_szPilotCallsign_00499ef8,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
+                    strcpy(g_stCurrentPilotProfile_00493408.callsign,
+                           g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
+                    g_stCurrentPilotProfile_00493408.field_43 =
+                        g_apPersonnelPilotProfiles_0049a680[slot]->field_43;
+                    g_stCurrentPilotProfile_00493408.field_41 =
+                        g_apPersonnelPilotProfiles_0049a680[slot]->field_41;
+                    g_stCurrentPilotProfile_00493408.rank =
+                        g_apPersonnelPilotProfiles_0049a680[slot]->rank;
+                    _read(file, g_pPersonnelCampaignSnapshot_0049a6a4,
+                          campaignBytes);
+                    CopyHugeMemoryOverlapSafe(
+                        g_pCampaignGlobals_00499c94,
+                        g_pPersonnelCampaignSnapshot_0049a6a4,
+                        campaignBytes);
+                    _close(file);
+                }
+                break;
+            case 0x20:
+                refresh = 1;
+                DisableMouseCursorDrawing();
+                RestorePersonnelMenuBackground(
+                    &g_stSecondaryViewBuffer_005d2c90);
+                RefreshMemoryStatusOverlay();
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 2,
+                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                SetTextCursor(0xb8, 0x0c);
+                DrawFormattedText("Missions Kills");
+                SetTextCursor(0x50, 0x0c);
+                DrawFormattedText("Select a slot to delete");
+                slot = SelectPersonnelFileSlot();
+                if (slot != -1 &&
+                    g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
+                    DisableMouseCursorDrawing();
+                    RestorePersonnelMenuBackground(
+                        &g_stSecondaryViewBuffer_005d2c90);
+                    InitializeTextContextFromFont(
+                        &g_stDefaultTextContext_005d2d20, 2,
+                        (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    confirm = 1;
+                    SetTextCursor(0x32, 0x32);
+                    DrawFormattedText("Are you sure?");
+                    InitializeTextContextFromFont(
+                        &g_stDefaultTextContext_005d2d20, 2,
+                        (unsigned char)g_nMenuHighlightColour_005c5874,
+                        (unsigned char)g_nMenuTextColour_005c57e8);
+                    SetTextCursor(0x6a, 0x32);
+                    DrawFormattedText("Yes");
+                    RefreshMemoryStatusOverlay();
+                    answer = (char)WaitForQueuedInputPress();
+                    while (answer != 0x0d) {
+                        SetTextCursor(0x6a, 0x32);
+                        if (toupper(answer) == 'Y') {
+                            DrawFormattedText("Yes");
+                            confirm = 1;
+                        } else {
+                            DrawFormattedText("No ");
+                            confirm = 0;
+                        }
+                        RefreshMemoryStatusOverlay();
+                        answer = (char)WaitForQueuedInputPress();
+                    }
+                    if (confirm != 0) {
+                        g_apPersonnelFileSlots_0049a660[slot]->occupied = 0;
+                        file = (short)_open("savegame.wc2", 0x8001);
+                        _lseek(file,
+                               (campaignBytes + sizeof(PersonnelFileSlot) +
+                            sizeof(Wc2PilotProfile)) * slot, 0);
+                        _write(file,
+                               g_apPersonnelFileSlots_0049a660[slot], 2);
+                        _close(file);
+                    }
+                }
+                break;
+            case 0x1f:
+                refresh = 1;
+                DisableMouseCursorDrawing();
+                RestorePersonnelMenuBackground(
+                    &g_stSecondaryViewBuffer_005d2c90);
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 2,
+                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                SetTextCursor(0xb8, 0x0c);
+                DrawFormattedText("Missions Kills");
+                SetTextCursor(0x50, 0x0c);
+                DrawFormattedText("Select a slot to save in");
+                RefreshMemoryStatusOverlay();
+                slot = SelectPersonnelFileSlot();
+                if (slot == -1) {
+                    break;
+                }
+                DisableMouseCursorDrawing();
+                RestorePersonnelMenuBackground(
+                    &g_stSecondaryViewBuffer_005d2c90);
+                RefreshMemoryStatusOverlay();
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 2,
+                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                confirm = 1;
+                if (g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
+                    SetTextCursor(0x32, 0x32);
+                    DrawFormattedText("Are you sure?");
+                    InitializeTextContextFromFont(
+                        &g_stDefaultTextContext_005d2d20, 2,
+                        (unsigned char)g_nMenuHighlightColour_005c5874,
+                        (unsigned char)g_nMenuTextColour_005c57e8);
+                    SetTextCursor(0x6a, 0x32);
+                    DrawFormattedText("Yes");
+                    RefreshMemoryStatusOverlay();
+                    answer = (char)WaitForQueuedInputPress();
+                    while (answer != 0x0d) {
+                        SetTextCursor(0x6a, 0x32);
+                        if (toupper(answer) == 'Y') {
+                            DrawFormattedText("Yes");
+                            confirm = 1;
+                        } else {
+                            DrawFormattedText("No ");
+                            confirm = 0;
+                        }
+                        RefreshMemoryStatusOverlay();
+                        answer = (char)WaitForQueuedInputPress();
+                        ServiceSoundSystem();
+                    }
+                }
+                InitializeTextContextFromFont(
+                    &g_stDefaultTextContext_005d2d20, 2,
+                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                if (confirm != 0) {
+                    g_apPersonnelFileSlots_0049a660[slot]->occupied = 1;
+                    g_apPersonnelFileSlots_0049a660[slot]->description[0] = 0;
+                    SetTextCursor(0x32, 0x46);
+                    DrawFormattedText("%s", "Saved game comments:");
+                    RefreshMemoryStatusOverlay();
+                    InitializeTextContextFromFont(
+                        &g_stDefaultTextContext_005d2d20, 2,
+                        (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+                    ReadPersonnelTextField(
+                        0x32, 0x4c, 2, "",
+                        g_apPersonnelFileSlots_0049a660[slot]->description,
+                        0x20, 0, 0);
+                    strcpy(g_apPersonnelPilotProfiles_0049a680[slot]->firstName,
+                           g_stCurrentPilotProfile_00493408.firstName);
+                    strcpy(g_apPersonnelPilotProfiles_0049a680[slot]->lastName,
+                           g_stCurrentPilotProfile_00493408.lastName);
+                    strcpy(g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
+                           g_stCurrentPilotProfile_00493408.callsign);
+                    g_apPersonnelPilotProfiles_0049a680[slot]->rank =
+                        g_stCurrentPilotProfile_00493408.rank;
+                    g_apPersonnelPilotProfiles_0049a680[slot]->field_41 =
+                        g_stCurrentPilotProfile_00493408.field_41;
+                    g_apPersonnelPilotProfiles_0049a680[slot]->field_43 =
+                        g_stCurrentPilotProfile_00493408.field_43;
+                    file = (short)_open("savegame.wc2", 0x8001);
+                    _lseek(file,
+                           (campaignBytes + sizeof(PersonnelFileSlot) +
+                            sizeof(Wc2PilotProfile)) * slot, 0);
+                    _write(file, g_apPersonnelFileSlots_0049a660[slot], 2);
+                    _write(file, g_apPersonnelPilotProfiles_0049a680[slot],
+                           0x60);
+                    _write(file,
+                           g_apPersonnelFileSlots_0049a660[slot]->description,
+                           0x24);
+                    CopyHugeMemoryOverlapSafe(
+                        g_pPersonnelCampaignSnapshot_0049a6a4,
+                        g_pCampaignGlobals_00499c94, campaignBytes);
+                    _write(file, g_pPersonnelCampaignSnapshot_0049a6a4,
+                           campaignBytes);
+                    _close(file);
+                }
+                break;
+            }
+            if (refresh != 0) {
+                g_cCurrentKey_00493128 = 0;
+            }
+        }
+        g_cCurrentKey_00493128 = (signed char)0x80;
+    }
+
+    g_pActiveScenePacket_00492654 = 0;
+    ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
+    ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+    FreePacketAndClear(&g_pPersonnelMenuBackdrop_0049a6b8, 0);
+    g_stDefaultTextContext_005d2d20.viewport = &g_stScreenViewport_005d21a0;
+    ReleasePacketHandle(g_pPersonnelCampaignSnapshot_0049a6a4);
+    for (index = 0; index < 8; index++) {
+        ReleasePacketHandle(g_apPersonnelFileSlots_0049a660[index]);
+        ReleasePacketHandle(g_apPersonnelPilotProfiles_0049a680[index]);
     }
 }
 

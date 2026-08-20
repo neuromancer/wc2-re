@@ -1432,6 +1432,7 @@ extern short g_nMenuHighlightColour_005c5874;
 extern short g_nMenuShadowColour_005c5876;
 extern int g_nLegacySaveSource_0049a600;
 extern short g_nPersonnelMenuHighlight_0049a6a0;
+extern void *g_pPersonnelCampaignSnapshot_0049a6a4;
 extern unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
 extern short g_sPersonnelPreviousInput_0049a6bc;
 extern short g_bPersonnelMenuDrawing_0049a6c0;

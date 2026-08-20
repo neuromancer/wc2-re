@@ -781,6 +781,9 @@ void *AllocateScenePointerTable(int count, short elementSize,
 signed char DecodeSceneResourceChunk(unsigned char **cursor,
                                      SceneResourceTable *resource);    /* 0x40E130 */
 void DrawPilotSaveMenuChoices(short choice);                         /* 0x4345A1 */
+void HighlightPersonnelFileSlot(short choice);                       /* 0x434ACE */
+short SelectPersonnelFileSlot(void);                                 /* 0x434BB5 */
+void RunPilotSaveLoadMenu(void);                                     /* 0x4353D4 */
 short initialize_object(short obj, short type,
                         short owner, short matchLoadedType);           /* 0x4103A6 */
 short borrow_dust(void);                                             /* 0x41040D */
