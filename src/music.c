@@ -116,7 +116,7 @@ void ShutdownSpeechCache(void)
     FreePacketAndClear(&g_pSpeechCacheCode_005d1720, 0x44);
 }
 
-static int g_nActiveMusicStreamMask_0049be9c = -1;
+static int g_nActiveMusicStreamMask_0049be9c;
 static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
     6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
     6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0,
