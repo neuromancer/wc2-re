@@ -335,7 +335,7 @@ void *AllocateScenePointerTable(int count, short elementSize,
     if (count * elementSize <= 4)
         flags = 0;
     if (allocation == 0)
-        FatalErrorAndExit("%s", errorMessage);
+        FatalCutsceneError("%s", errorMessage);
     return allocation;
 }
 

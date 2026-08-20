@@ -1260,13 +1260,9 @@ void FreeCommDisplayResources(void)
 /* Function start: 0x448070 */
 void EndCommSessionWithWingman(void)
 {
-#ifdef WC1_SDL
-    if (g_nCommPortraitIndex_0049b79c != -1 &&
-#else
-    if (
-#endif
-        g_apCommPortraitShapes_0059e180[g_nCommPortraitIndex_0049b79c] != 0)
-        malf_noise(1, 1, 12, 23, 1);
+    if (g_pCommPortraitResource_0049b788 != 0)
+        malf_noise(1, 1, g_abGamePaletteReservedColours_0049cb54[12],
+                   23, 1);
     FreeCommDisplayResources();
     if (get_mode(1) == 6)
         pop_mode(1);
@@ -1275,6 +1271,7 @@ void EndCommSessionWithWingman(void)
 /* Function start: 0x4480C6 */
 void EndCommMenu(void)
 {
+    RestoreHudMessageBackground();
     clear_message_time();
     if (get_mode(1) == 6)
         EndCommSessionWithWingman();

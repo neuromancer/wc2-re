@@ -874,18 +874,20 @@ void ExecuteCutsceneScene(CutsceneScene *scene)
 }
 
 /* Function start: 0x42D8E2 */
-void CopyCutsceneSpriteDisplay(short destination, short source)
+void CopyCutsceneSpriteDisplay(unsigned char destination,
+                               unsigned char source)
 {
-    CutsceneObjectResourceList *resources;
     SceneFlicObject *destinationSprite;
     SceneFlicObject *sourceSprite;
 
-    resources = FindActiveCutsceneObjectResources(
-        g_pCutsceneSpriteResources_0049288c);
     destinationSprite = g_apSceneObjects_00499c38[
-        resources->scriptSymbolIndices[destination]];
+        FindActiveCutsceneObjectResources(
+            g_pCutsceneSpriteResources_0049288c)
+            ->scriptSymbolIndices[destination]];
     sourceSprite = g_apSceneObjects_00499c38[
-        resources->scriptSymbolIndices[source]];
+        FindActiveCutsceneObjectResources(
+            g_pCutsceneSpriteResources_0049288c)
+            ->scriptSymbolIndices[source]];
     ReleaseCutsceneSpriteShape(sourceSprite);
     sourceSprite->drawType = destinationSprite->drawType;
     sourceSprite->shape = destinationSprite->shape;
@@ -895,18 +897,20 @@ void CopyCutsceneSpriteDisplay(short destination, short source)
 }
 
 /* Function start: 0x42D98C */
-void LinkCutsceneSpriteScript(short destination, short source)
+void LinkCutsceneSpriteScript(unsigned char destination,
+                              unsigned char source)
 {
-    CutsceneObjectResourceList *resources;
     SceneFlicObject *destinationSprite;
     SceneFlicObject *sourceSprite;
 
-    resources = FindActiveCutsceneObjectResources(
-        g_pCutsceneSpriteResources_0049288c);
     destinationSprite = g_apSceneObjects_00499c38[
-        resources->scriptSymbolIndices[destination]];
+        FindActiveCutsceneObjectResources(
+            g_pCutsceneSpriteResources_0049288c)
+            ->scriptSymbolIndices[destination]];
     sourceSprite = g_apSceneObjects_00499c38[
-        resources->scriptSymbolIndices[source]];
+        FindActiveCutsceneObjectResources(
+            g_pCutsceneSpriteResources_0049288c)
+            ->scriptSymbolIndices[source]];
     sourceSprite->linkedOwner = sourceSprite->owner;
     sourceSprite->linkedScript = sourceSprite->scriptStart;
     sourceSprite->scriptCursor = destinationSprite->scriptStart;

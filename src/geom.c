@@ -1512,6 +1512,8 @@ void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
 void RestoreModalTextPanel(ModalTextPanel *panel)
 {
     CopyViewportContents(&panel->savedBackground, &panel->viewport);
+    MarkDibDirty();
+    DIBslamReal();
     free_viewport(&panel->savedBackground);
     g_pCurrentTextContext_005c8d1c = panel->previousContext;
 }

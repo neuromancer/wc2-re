@@ -1640,8 +1640,10 @@ void *FindLoadedCutsceneMusic(short resourceIndex);                  /* 0x42D181
 unsigned int LoadBriefingRoom(void);                                  /* WC2 unmapped */
 void RunLoadedCutscene(void);                                         /* 0x42D568 */
 void ExecuteCutsceneScene(CutsceneScene *scene);                      /* 0x42D81C */
-void CopyCutsceneSpriteDisplay(short destination, short source);      /* 0x42D8E2 */
-void LinkCutsceneSpriteScript(short destination, short source);       /* 0x42D98C */
+void CopyCutsceneSpriteDisplay(unsigned char destination,
+                               unsigned char source);                /* 0x42D8E2 */
+void LinkCutsceneSpriteScript(unsigned char destination,
+                              unsigned char source);                 /* 0x42D98C */
 void DrawCutsceneSprite(SceneFlicObject *sprite);                     /* 0x42DA25 */
 void DrawCutscenePlane(CutscenePlane *plane);                         /* 0x42DD9F */
 void ClearCutsceneViewport(Viewport *viewport, unsigned char colour); /* 0x42DE62 */
