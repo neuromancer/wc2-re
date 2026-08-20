@@ -360,22 +360,6 @@ int Wc1SdlFindClose(long handle)
 }
 
 
-/*
- *  There is no console to read, so the acknowledgement wait becomes a pump of
- *  the SDL event queue until a key arrives or the window closes.
- */
-int Wc1SdlGetChar(void)
-{
-    Wc1SdlPumpEvents();
-    return 0;
-}
-
-int Wc1SdlFlushAll(void)
-{
-    fflush(0);
-    return 0;
-}
-
 char *Wc1SdlStrupr(char *text)
 {
     char *cursor;
@@ -525,4 +509,20 @@ int Wc1SdlFprintf(FILE *stream, const char *format, ...)
                        arguments);
     va_end(arguments);
     return written;
+}
+
+/*
+ *  There is no console to read on any host, so the acknowledgement wait
+ *  becomes a pump of the SDL event queue.
+ */
+int Wc1SdlGetChar(void)
+{
+    Wc1SdlPumpEvents();
+    return 0;
+}
+
+int Wc1SdlFlushAll(void)
+{
+    fflush(0);
+    return 0;
 }

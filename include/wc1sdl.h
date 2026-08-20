@@ -297,11 +297,6 @@ long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found);
 int Wc1SdlFindNext(long handle, struct _finddata_t *found);
 int Wc1SdlFindClose(long handle);
 
-/* Console input.  There is no console under SDL, so the acknowledgement
- * key wait falls through to the event pump instead. */
-int Wc1SdlGetChar(void);
-int Wc1SdlFlushAll(void);
-
 #endif
 
 /* None of what follows is POSIX-specific: a Windows host needs it too.  The
@@ -315,6 +310,13 @@ int Wc1SdlFlushAll(void);
 struct ObjectTypeData;
 void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
                                 struct ObjectTypeData *record);
+
+/* Console input.  There is no console under SDL on any host: MinGW does have
+ * _getch, but it would block a windowed game on console input that never
+ * arrives, and it has no flushall at all.  The acknowledgement key wait goes
+ * to the event pump instead. */
+int Wc1SdlGetChar(void);
+int Wc1SdlFlushAll(void);
 
 /* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
  * input and firing through the port without disturbing the reference build. */
@@ -353,9 +355,10 @@ int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define _findfirst Wc1SdlFindFirst
 #define _findnext Wc1SdlFindNext
 #define _findclose Wc1SdlFindClose
+#endif
+
 #define _getch Wc1SdlGetChar
 #define flushall Wc1SdlFlushAll
-#endif
 
 #define CREATE_ALWAYS 2
 #define DRIVE_CDROM 5
