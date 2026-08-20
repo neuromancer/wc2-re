@@ -450,80 +450,71 @@ signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                                         unsigned int formType)
 {
     CutsceneObjectResourceList *parent;
-    char **symbols;
-    short *runtimeIndices;
+    CutsceneObjectResourceHalf *half;
     short count;
-    short index;
     short runtimeIndex;
     SceneFlicObject *sprite;
     CutscenePlane *plane;
     CutsceneSequence *sequence;
     CutsceneScene *scene;
 
-    if (scriptHalf == 0) {
-        symbols = list->dataSymbols;
-        runtimeIndices = list->dataSymbolIndices;
-        count = list->dataSymbolCount;
-    } else {
-        symbols = list->scriptSymbols;
-        runtimeIndices = list->scriptSymbolIndices;
-        count = list->scriptSymbolCount;
-    }
+    if (scriptHalf == 0)
+        half = (CutsceneObjectResourceHalf *)list;
+    else if (scriptHalf == 1)
+        half = (CutsceneObjectResourceHalf *)
+            ((char *)list + sizeof(CutsceneObjectResourceHalf));
+    count = half->symbolCount;
     parent = list->next;
     if (parent == 0) {
         while (count-- != 0)
-            runtimeIndices[count] = CreateCutsceneResourceInstance(
+            half->symbolIndices[count] = CreateCutsceneResourceInstance(
                 formType, list, count);
-        if (scriptHalf == 0)
-            list->dataCount = (unsigned char)list->dataSymbolCount;
-        else
-            list->scriptCount = (unsigned char)list->scriptSymbolCount;
+        half->count = (unsigned char)half->symbolCount;
         return 1;
     }
-    if (scriptHalf == 0)
-        list->dataCount = (unsigned char)(
-            list->inheritedDataCount + list->dataSymbolCount);
-    else
-        list->scriptCount = (unsigned char)(
-            list->inheritedScriptCount + list->scriptSymbolCount);
+    half->count = (unsigned char)(half->inheritedCount + count);
     while (count-- != 0) {
-        index = count;
         runtimeIndex = FindCutsceneResourceSymbolIndex(
-            parent, scriptHalf, symbols[index]);
-        if (runtimeIndex == -1) {
-            runtimeIndices[index] = CreateCutsceneResourceInstance(
-                formType, list, index);
-        } else {
-            runtimeIndices[index] = runtimeIndex;
-            if (formType == 0x54525053) {
+            parent, scriptHalf, half->symbols[count]);
+        if (runtimeIndex != -1) {
+            half->symbolIndices[count] = runtimeIndex;
+            switch (formType) {
+            case 0x54525053:
                 sprite = g_apSceneObjects_00499c38[runtimeIndex];
                 if (sprite->scriptCursor == 0) {
-                    sprite->scriptStart = list->scripts[index];
+                    sprite->scriptStart = list->scripts[count];
                     sprite->scriptCursor = sprite->scriptStart;
                     UpdateCutsceneSpriteObject(sprite);
                 }
-            } else if (formType == 0x454e4c50) {
+                break;
+            case 0x454e4c50:
                 plane = g_apCutscenePlanes_00499c3c[runtimeIndex];
                 if (plane->scriptCursor == 0) {
-                    plane->scriptStart = list->scripts[index];
+                    plane->scriptStart = list->scripts[count];
                     plane->scriptCursor = plane->scriptStart;
                     UpdateCutscenePlaneObject(plane, 0);
                 }
-            } else if (formType == 0x55514553) {
+                break;
+            case 0x55514553:
                 sequence = g_apCutsceneSequences_00499c40[runtimeIndex];
                 if (sequence->scriptCursor == 0) {
-                    sequence->scriptStart = list->scripts[index];
+                    sequence->scriptStart = list->scripts[count];
                     sequence->scriptCursor = sequence->scriptStart;
                     ExecuteCutsceneSequence(sequence, 0, 0);
                 }
-            } else if (formType == 0x454e4353) {
+                break;
+            case 0x454e4353:
                 scene = g_apCutsceneScenes_00499c44[runtimeIndex];
                 if (scene->scriptCursor == 0) {
-                    scene->scriptStart = list->scripts[index];
+                    scene->scriptStart = list->scripts[count];
                     scene->scriptCursor = scene->scriptStart;
                     ExecuteCutsceneScene(scene);
                 }
+                break;
             }
+        } else {
+            half->symbolIndices[count] = CreateCutsceneResourceInstance(
+                formType, list, count);
         }
     }
     return 1;

@@ -1447,13 +1447,14 @@ void SetSolidColourTranslation(unsigned char colour)
 /* Function start: 0x425BF6 */
 void PrepareShapeRLEData(unsigned char *shape)
 {
-    RLEFrameHeader *frameHeader;
     unsigned char *bitmap;
     unsigned char *pixel;
-    unsigned char *output;
+    unsigned char *cursor;
+    unsigned char *frameOffsetSlot;
+    unsigned char *runCode;
     unsigned char *preparedShape;
-    int *frameOffset;
     int preparedSize;
+    int frameOffset;
     int frameCount;
     short width;
     short height;
@@ -1463,6 +1464,7 @@ void PrepareShapeRLEData(unsigned char *shape)
     int row;
     int remaining;
     int runLength;
+    int skipLength;
     int frameLeft;
     int frameTop;
     int frameRight;
@@ -1472,84 +1474,90 @@ void PrepareShapeRLEData(unsigned char *shape)
     if (GetPreparedShapeData(shape) != 0)
         return;
 
-    *(int *)g_abShapeRLEScratch_004b2810 =
-        *(const int *)g_szShapeRLEVersion_00496a04;
+    cursor = g_abShapeRLEScratch_004b2810;
+    memcpy(cursor, g_szShapeRLEVersion_00496a04, 4);
+    cursor += 4;
     frameCount = GetShapeFrameCount(shape);
-    *(int *)(g_abShapeRLEScratch_004b2810 + 4) = frameCount;
-    memset(g_abShapeRLEScratch_004b2810 + 8, 0,
-           (unsigned int)(frameCount << 3));
-    frameOffset = (int *)(g_abShapeRLEScratch_004b2810 + 8);
-    output = g_abShapeRLEScratch_004b2810 + 8 + (frameCount << 3);
+    memcpy(cursor, &frameCount, 4);
+    cursor += 4;
+    frameOffsetSlot = cursor;
+    memset(cursor, 0, (unsigned int)(frameCount << 3));
+    cursor += frameCount << 3;
 
     for (frame = 0; frame < frameCount; frame++) {
-        *frameOffset = (int)(output - g_abShapeRLEScratch_004b2810);
-        frameOffset += 2;
+        frameOffset = (int)(cursor - g_abShapeRLEScratch_004b2810);
+        memcpy(frameOffsetSlot, &frameOffset, 4);
+        frameOffsetSlot += 8;
         GetShapeFrameExtents(shape, (short)frame, &width, &height,
                              &leftExtent, &topExtent);
-        frameHeader = (RLEFrameHeader *)output;
-        frameHeader->height = height;
-        frameHeader->width = width;
-        frameHeader->topExtent = topExtent;
-        frameHeader->leftExtent = leftExtent;
+        memcpy(cursor, &height, 2);
+        cursor += 2;
+        memcpy(cursor, &width, 2);
+        cursor += 2;
+        memcpy(cursor, &topExtent, 2);
+        cursor += 2;
+        memcpy(cursor, &leftExtent, 2);
+        cursor += 2;
         frameLeft = -leftExtent;
         frameTop = -topExtent;
         frameRight = width - leftExtent - 1;
         frameBottom = height - topExtent - 1;
-        frameHeader->left = frameLeft;
-        frameHeader->top = frameTop;
-        frameHeader->right = frameRight;
-        frameHeader->bottom = frameBottom;
-        output += sizeof(RLEFrameHeader);
+        memcpy(cursor, &frameLeft, 4);
+        cursor += 4;
+        memcpy(cursor, &frameTop, 4);
+        cursor += 4;
+        memcpy(cursor, &frameRight, 4);
+        cursor += 4;
+        memcpy(cursor, &frameBottom, 4);
+        cursor += 4;
 
         bitmap = AllocateTaggedMemory(
-            (unsigned int)((int)width * height), 0);
+            (unsigned int)((int)height * width), 0);
         pixel = bitmap;
-        memset(bitmap, 0xff, (unsigned int)((int)width * height));
+        memset(bitmap, 0xff, (unsigned int)((int)height * width));
         DecodeShapeFrame(shape, (short)frame, bitmap, width, height,
                          leftExtent, topExtent);
-        for (row = 0; row < height; row++) {
+        for (row = 0; height > row; row++) {
             remaining = width;
             while (remaining > 0) {
                 if (*pixel != 0xff) {
-                    unsigned char *runCode;
-
-                    runLength = 0;
-                    runCode = output++;
-                    while (remaining > 0 && runLength < 0x7f &&
-                           *pixel != 0xff) {
-                        *output = *pixel;
-                        runLength++;
-                        remaining--;
-                        output++;
-                        pixel++;
+                    runCode = cursor;
+                    cursor++;
+                    for (runLength = 0;
+                         remaining != 0 && runLength < 0x7f &&
+                             *pixel != 0xff;
+                         runLength++, remaining--, cursor++, pixel++) {
+                        *cursor = *pixel;
                     }
                     *runCode = (unsigned char)(runLength * 2 + 1);
                 } else {
-                    runLength = 0;
-                    while (remaining > 0 && runLength < 0xff &&
-                           *pixel == 0xff) {
-                        runLength++;
-                        remaining--;
-                        pixel++;
+                    for (skipLength = 0;
+                         remaining != 0 && skipLength < 0xff &&
+                             *pixel == 0xff;
+                         skipLength++, remaining--, pixel++) {
                     }
-                    *output++ = 1;
-                    *output++ = (unsigned char)runLength;
+                    *cursor = 1;
+                    cursor++;
+                    *cursor = (unsigned char)skipLength;
+                    cursor++;
                 }
             }
-            *output++ = 0;
+            *cursor = 0;
+            cursor++;
         }
         ReleasePacketHandle(bitmap);
     }
 
-    preparedSize = (int)(output - g_abShapeRLEScratch_004b2810);
+    preparedSize = (int)(cursor - g_abShapeRLEScratch_004b2810);
     if (preparedSize > (int)sizeof(g_abShapeRLEScratch_004b2810))
         exit_squadron(g_szShapeRLEOverflow_00496a0c);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_004b2810, preparedSize);
 #ifdef WC1_SDL
-    *(unsigned char **)(shape - 8 - sizeof(unsigned char *)) = preparedShape;
+    memcpy(shape - 8 - sizeof(unsigned char *), &preparedShape,
+           sizeof(preparedShape));
 #else
-    *(unsigned char **)(shape - 4) = preparedShape;
+    memcpy(shape - 4, &preparedShape, 4);
 #endif
 }
 
