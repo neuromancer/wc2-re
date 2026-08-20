@@ -1088,7 +1088,6 @@ extern int g_nJoystickCalibrationMinimumY_005d2ff0;
 extern int g_nJoystickCalibrationMinimumX_005d2ff4;
 extern int g_nJoystickCalibrationMaximumX_005d3000;
 extern int g_nJoystickCalibrationMaximumY_005d3004;
-extern unsigned char *g_apCommPortraitShapes_0059e180[16];
 extern char g_szOnScreenMessageBuffer_005d1890[52];
 extern char g_szCommMessageText_005d18f0[0x58];
 extern char *g_apCommunicationTextPackets_005d17c0[50];

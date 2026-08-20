@@ -1849,7 +1849,6 @@ short DAT_0059ab64;
 FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
 signed char g_cCockpitView_0059dab0;
-unsigned char *g_apCommPortraitShapes_0059e180[16];
 Viewport g_stConstellationViewport_005a6b40;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
