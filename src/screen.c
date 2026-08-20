@@ -442,24 +442,22 @@ void MessagePumpHook(int mode)
 /* Function start: 0x458E49 */
 void *PushMemoryStackFrame(void *memory, int offset)
 {
-    int index;
-
     if (offset != 0) {
         printf("push %p by %d\n", memory, offset);
         if (g_nPacketHandleCount_005d1020 == 0x1000)
             exit_squadron("qq mem push overflow");
-        index = g_nPacketHandleCount_005d1020;
-        g_aiPacketHandleOffsets_005cd020[index] = offset;
+        g_aiPacketHandleOffsets_005cd020[
+            g_nPacketHandleCount_005d1020] = offset;
         if (offset < 0) {
             memory = (unsigned char *)memory - offset;
-            g_apPacketHandles_005c9020[index] = memory;
-            g_nPacketHandleCount_005d1020 = index + 1;
-            return memory;
+            g_apPacketHandles_005c9020[
+                g_nPacketHandleCount_005d1020] = memory;
+        } else {
+            memory = (unsigned char *)memory + offset;
+            g_apPacketHandles_005c9020[
+                g_nPacketHandleCount_005d1020] = memory;
         }
-        memory = (unsigned char *)memory + offset;
-        g_apPacketHandles_005c9020[index] = memory;
-        g_nPacketHandleCount_005d1020 = index + 1;
-        return memory;
+        g_nPacketHandleCount_005d1020++;
     }
     return memory;
 }

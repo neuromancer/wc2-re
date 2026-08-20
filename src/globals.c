@@ -2169,7 +2169,7 @@ short g_nReleaseWeaponDisplayY_005d1c26;
 short g_nReleaseWeaponDisplayType_005d1c28;
 short g_nTargetLeadIndicatorY_005d1c2a;
 unsigned char *g_pScannerMarkerBackground_005d1c2c;
-unsigned char g_cPilotHandFrame_005d1c30;
+signed char g_cPilotHandFrame_005d1c30;
 short g_nHudMessageTime_005d1c32;
 short g_nPendingCockpitDamage_005d1c34;
 char g_szTextScratchBuffer_005d1c40[256];

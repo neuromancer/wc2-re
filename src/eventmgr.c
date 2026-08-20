@@ -743,6 +743,8 @@ unsigned int GetLargestFreeMemoryBlock(void)
     return 0x3e8000;
 }
 
+#pragma function(memset)
+
 /* Function start: 0x46428B */
 void ClearInputKeyStatePreservingModifiers(void)
 {
@@ -756,7 +758,6 @@ void ClearInputKeyStatePreservingModifiers(void)
     ClearDebugPauseFlags();
 }
 
-#pragma function(memset)
 /* Function start: 0x4642D6 */
 void ClearInputKeyState(void)
 {
