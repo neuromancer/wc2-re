@@ -139,7 +139,8 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
     }
     g_nCockpitArchiveVariant_005c901a = cockpitVariant;
     g_pCampaignChalkboardShape_0049ca54 = FetchDiskPacketRetrying(
-        "options.v00", (short)(cockpitVariant * 3), 0);
+        "options.v00",
+        (short)(g_nCockpitArchiveVariant_005c901a * 3), 0);
     if (g_pCampaignGlobals_00499c94->field_08 ==
         g_pCampaignGlobals_00499c94->field_0a) {
         frame = 1;

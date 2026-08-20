@@ -1047,14 +1047,14 @@ void RestoreCutsceneTextBacking(void)
 {
     Viewport destination;
     short height;
-    short top;
 
     if (g_bCutsceneTextRestorePending_00499da0 != 0) {
         destination = g_stCutsceneTextViewport_005d2d90;
-        height = (short)(destination.bottom - destination.top + 1);
-        top = (short)((height - g_pCurrentTextContext_005c8d1c->cursorY) /
-                      4 + destination.top);
-        destination.top = top;
+        height = (short)(g_stCutsceneTextViewport_005d2d90.bottom -
+                         g_stCutsceneTextViewport_005d2d90.top + 1);
+        destination.top =
+            (short)((height - g_pCurrentTextContext_005c8d1c->cursorY) / 4 +
+                    g_stCutsceneTextViewport_005d2d90.top);
         ClearCutsceneViewport(&g_stCutsceneTextViewport_005d2d90,
             g_pCurrentTextContext_005c8d1c->backgroundColour);
         CopyViewportContents(

@@ -377,8 +377,7 @@ typedef struct ObjectTypeData {
     short radarRadius;                 /* +0x1C */
     short scale;                       /* +0x1E */
     short animationDelay;              /* +0x20 */
-    short lifetime;                    /* +0x22 */
-    short weaponDamage;                /* +0x24 */
+    int lifetime;                      /* +0x22 */
     short damageCapacity;              /* +0x26 */
     short explosionDamage;             /* +0x28 */
     short maximumVelocity;             /* +0x2A */

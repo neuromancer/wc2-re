@@ -44,7 +44,15 @@ short WaitForQueuedInputPress(void)
 /* Function start: 0x46579D */
 short LogMemoryUsage(void)
 {
-    _unlink("tape.tmp");
+    /* WC2's system.c declares the canned-scene tape file as a pointer where
+     * it is really the string itself, so the unlink is handed the first four
+     * bytes of "tape.tmp" and always fails.  The port cannot dereference a
+     * 32-bit value as a pointer, so it removes the file as intended. */
+#ifdef WC1_SDL
+    _unlink(g_szCannedSceneTapeFile_00490208);
+#else
+    _unlink(*(char *const *)g_szCannedSceneTapeFile_00490208);
+#endif
     StopMusicIfDriverActive();
     EMShutDown();
     if (g_bSpeechCacheEnabled_005c8de8 != 0)
