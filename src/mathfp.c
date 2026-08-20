@@ -41,9 +41,9 @@ unsigned short RandomInRange(unsigned short lo, unsigned short hi)
 /* Function start: 0x4619A1 */
 short RandomBelowOrEqual(short n)
 {
-    if (n != -1 && n != 0)
-        return (short)(rand() % (n + 1));
-    return 0;
+    if (n == -1 || n == 0)
+        return 0;
+    return (short)(rand() % (n + 1));
 }
 
 /* Function start: 0x4619E2 */

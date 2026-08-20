@@ -24,10 +24,14 @@ void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
 /* Function start: 0x40FD73 */
 void DestroyGlobalDebugOverlayConsole(void)
 {
-    delete g_pDebugOverlay_004a2548;
+    DebugOverlayConsole *console;
+
+    console = g_pDebugOverlay_004a2548;
+    delete console;
 #ifdef WC1_SDL
     g_pDebugOverlay_004a2548 = 0;
 #endif
+    return;
 }
 
 #pragma function(strcpy)

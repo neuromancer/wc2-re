@@ -1170,6 +1170,7 @@
 0x0045A5C7 IsConstellationParticleOutsideViewport
 0x0045A634 DrawConstellationField
 0x0045AC50 DebugOverlayConsole::DebugOverlayConsole
+0x0045AE6C DebugOverlayConsole::~DebugOverlayConsole
 0x0045AEE4 DebugOverlayWorkerProc
 0x0045B0BB DebugOverlayPrintf
 0x0045B2E0 DebugOverlayConsole::Clear

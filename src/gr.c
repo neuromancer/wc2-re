@@ -2143,12 +2143,14 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
 }
 
 /* Function start: 0x4271D2 */
-int GetViewportPixel(Viewport *viewport, short x, short y)
+short GetViewportPixel(Viewport *viewport, short x, short y)
 {
+    if (viewport->left < 0)
+        return 0;
     ClipViewportToScreen(viewport);
-    return ReadRasterClipPixel(&g_stRasterClip_004b2088,
-                               (int)x - viewport->left,
-                               (int)y - viewport->top);
+    return (short)ReadRasterClipPixel(&g_stRasterClip_004b2088,
+                                      (int)x - viewport->left,
+                                      (int)y - viewport->top);
 }
 
 /* Function start: 0x42722E */

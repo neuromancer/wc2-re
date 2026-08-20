@@ -898,6 +898,13 @@ void push_mode(short i, int state)
 {
     ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[i]);
     g_acVduModeStackDepth_004934c8[(int)i]++;
+#ifdef WC1_SDL
+    /* WC2 pushes without bounding the stack, so a fifth mode writes past the
+     * four-deep row and into whatever the linker put next.  Drop the
+     * overflowing push on the port instead. */
+    if (g_acVduModeStackDepth_004934c8[(int)i] >= 4)
+        return;
+#endif
     g_aaiVduModeStack_00493498[(int)i][
         (int)g_acVduModeStackDepth_004934c8[(int)i]] = state;
 }

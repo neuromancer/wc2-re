@@ -212,6 +212,25 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
     console->DrawPendingLines();
 }
 
+/* Function start: 0x45AE6C */
+DebugOverlayConsole::~DebugOverlayConsole(void)
+{
+    int shutdownKey;
+
+    animationState = 2;
+    shutdownKey = 0x103;
+    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0) {
+#ifndef WC1_SDL
+        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
+#endif
+        free(textBuffer);
+        free(dirtyLines);
+        free(spinnerCharacters);
+    }
+    (void)shutdownKey;
+    return;
+}
+
 #pragma intrinsic(strcpy, strlen)
 
 /* Function start: 0x45B2E0 */

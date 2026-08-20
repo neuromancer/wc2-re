@@ -325,6 +325,7 @@ src/cockpt.c	3727	00417F00	0043F849	PlayCockpitSelectionSfx	PlayCockpitSelection
 src/cockpt.c	3734	00417F10	0043F862	vdu_pop_all	vdu_pop_all	WC1-fuzzy-followup		mapped
 src/cockpt.c	3748	00417F60	0043F8CD	SelectCockpitVduMode	SelectCockpitVduMode	WC1-fuzzy-followup		mapped
 src/debug.cpp	14	0041C760	0045AC50	DebugOverlayConsole::DebugOverlayConsole	DebugOverlayConsole::DebugOverlayConsole	WC1-callgraph-propagated		mapped
+src/debug.cpp	78		0045AE6C	DebugOverlayConsole::~DebugOverlayConsole	DebugOverlayConsole::~DebugOverlayConsole	WC2-only		wc2-only
 src/debug.cpp	92	0041C960	0045AEE4	DebugOverlayWorkerProc	DebugOverlayWorkerProc	WC1-callgraph-propagated		mapped
 src/debug.cpp	140	0041CA60		DebugKeyboardHookProc				unmapped
 src/debug.cpp	164	0041CAB0	0045B0BB	DebugOverlayPrintf	DebugOverlayPrintf	WC1-callgraph-propagated		mapped

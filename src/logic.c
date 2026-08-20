@@ -413,7 +413,13 @@ void accelerate(short amount)
         if (g_nSpaceFrame_00493134 % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
     }
+#ifdef WC1_SDL
+    /* amount goes negative when the throttle is cut, and shifting a negative
+     * value left is undefined in C even though it is what the 386 does. */
+    celerate(0, (int)amount * 256);
+#else
     celerate(0, (int)amount << 8);
+#endif
 }
 
 /* Function start: 0x417471 */

@@ -44,6 +44,7 @@ src/debug.cpp	DebugOverlayConsole::DrawPendingLines	DebugOverlayConsole::DrawPen
 src/screen.c	PushMemoryStackFrame	PushMemoryStackFrame	0042F960	00458E49	WC1-fuzzy-medium		80.36	50to90
 src/mathfp.c	GetShapeFrameBounds	GetShapeFrameBounds	00435020	00461DF0	WC1-fuzzy-medium		80.70	50to90
 src/debug.cpp	DebugOverlayConsole::DebugOverlayConsole	DebugOverlayConsole::DebugOverlayConsole	0041C760	0045AC50	WC1-callgraph-propagated		80.95	50to90
+src/debug.cpp	DebugOverlayConsole::~DebugOverlayConsole	DebugOverlayConsole::~DebugOverlayConsole		0045AE6C	WC2-only		100.00	exact
 src/ship.c	score_for_kill	score_for_kill	0041FA90	00413E4C	WC1-fuzzy-followup		81.13	50to90
 src/ship.c	ShipExplosion	ShipExplosion	0041FBC0	004142C8	WC1-order-callgraph-verified		81.13	50to90
 src/nav.c	AllocateNearHeapBlockFromEnd	AllocateNearHeapBlockFromEnd	0040EB70	00420B88	WC1-fuzzy-low		81.22	50to90

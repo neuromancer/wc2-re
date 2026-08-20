@@ -454,6 +454,7 @@ typedef struct DebugOverlayConsole {
 #ifdef __cplusplus
     DebugOverlayConsole(HINSTANCE module, HWND targetWindow,
                         int columnCount, int rowCount, int waitMode);
+    ~DebugOverlayConsole(void);
     void Clear(void);
     void Scroll(void);
     void DrawPendingLines(void);

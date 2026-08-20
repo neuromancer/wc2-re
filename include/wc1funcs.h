@@ -819,7 +819,7 @@ unsigned int match_rotation_goal(short *rotation, short *goal,
                                  short totalError, short rate);         /* 0x411172 */
 void rotate_object_to_goal(short obj);                                  /* 0x41133D */
 void check_for_lost_control(short obj);                                /* 0x4115F8 */
-unsigned int celerate(short ship, int delta);                     /* 0x4117AC */
+void celerate(short ship, int delta);                     /* 0x4117AC */
 unsigned int approach_speed(short ship, int targetSpeed);         /* 0x41181D */
 void steady_object(short ship);                                       /* 0x4118A9 */
 short real_velocity(short obj);                                       /* 0x4118F2 */
@@ -1913,7 +1913,7 @@ void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x4270
 void ClearViewport(Viewport *viewport, short colour);                  /* 0x427123 */
 void DrawViewportPixel(Viewport *viewport, short x, short y,
                        short colour);                                 /* 0x427179 */
-int GetViewportPixel(Viewport *viewport, short x, short y);            /* 0x4271D2 */
+short GetViewportPixel(Viewport *viewport, short x, short y);          /* 0x4271D2 */
 void DrawViewportLine(Viewport *viewport, short x1, short y1,
                       short x2, short y2, short colour);             /* 0x42722E */
 void TriangleRasterizerHook(void);                                    /* 0x4272A5 */

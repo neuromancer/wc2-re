@@ -2051,18 +2051,16 @@ void check_for_lost_control(short obj)
 #pragma intrinsic(abs)
 
 /* Function start: 0x4117AC */
-unsigned int celerate(short ship, int delta)
+void celerate(short ship, int delta)
 {
-    int maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[ship] << 8;
-    int speed;
+    int maximumSpeed;
 
-    speed = g_anShipSpeed_00494e20[ship] + delta;
-    g_anShipSpeed_00494e20[ship] = speed;
-    if (speed > maximumSpeed)
+    maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[ship] << 8;
+    g_anShipSpeed_00494e20[ship] += delta;
+    if (g_anShipSpeed_00494e20[ship] > maximumSpeed)
         g_anShipSpeed_00494e20[ship] = maximumSpeed;
     if (g_anShipSpeed_00494e20[ship] < 0)
         g_anShipSpeed_00494e20[ship] = 0;
-    return 0;
 }
 
 /* Function start: 0x41181D */
