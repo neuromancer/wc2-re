@@ -3914,6 +3914,8 @@ void ToggleTargetCameraTracking(void)
     }
 }
 
+#pragma function(abs)
+
 /* Function start: 0x4608E8 */
 void UpdateTargetCameraTracking(void)
 {
@@ -3943,56 +3945,52 @@ void UpdateTargetCameraTracking(void)
         g_nFleetOverviewPitchVelocity_0049d3f0 = -1;
     distance = (unsigned short)distance_from_object(
         0, g_nTargetCameraObject_0049d338);
-    if (g_nFleetOverviewYawVelocity_0049d3ec <= 65 &&
-        g_nFleetOverviewYawVelocity_0049d3ec >= -65) {
-        if (g_nFleetOverviewPitchVelocity_0049d3f0 <= 65 &&
-            g_nFleetOverviewPitchVelocity_0049d3f0 >= -65) {
-            if (distance <= 4000) {
-                yawMagnitude = (short)(abs(
-                    (int)g_nFleetOverviewYaw_0049d3f4) - 17);
-                pitchMagnitude = (short)(abs(
-                    (int)g_nFleetOverviewPitch_0049d3f8) - 17);
-                if (yawMagnitude > 0)
-                    yawExcess = yawMagnitude;
-                if (pitchMagnitude > 0)
-                    pitchExcess = pitchMagnitude;
-                rangeScale = (short)(distance >> 6);
-                g_nTargetCameraZoom_0049d3e4 = 100;
-                if (pitchExcess < yawExcess &&
-                    rangeScale < yawExcess)
-                    g_nTargetCameraZoom_0049d3e4 =
-                        (short)(g_nTargetCameraZoom_0049d3e4 -
-                                yawExcess);
-                if (pitchExcess > yawExcess &&
-                    rangeScale < pitchExcess)
-                    g_nTargetCameraZoom_0049d3e4 =
-                        (short)(g_nTargetCameraZoom_0049d3e4 -
-                                pitchExcess);
-                if (rangeScale > yawExcess &&
-                    rangeScale > pitchExcess)
-                    g_nTargetCameraZoom_0049d3e4 =
-                        (short)(g_nTargetCameraZoom_0049d3e4 -
-                                rangeScale);
-                if (g_nTargetCameraZoom_0049d3e4 > 100)
-                    g_nTargetCameraZoom_0049d3e4 = 100;
-                if (g_nTargetCameraZoom_0049d3e4 < 67)
-                    g_nTargetCameraZoom_0049d3e4 = 67;
-                return;
-            }
-            ClearTargetCameraView();
-            zero_vector(&g_aShipVelocity_00494898[
-                g_nTargetCameraObject_0049d338]);
-            return;
-        }
+
+    if (g_nFleetOverviewYawVelocity_0049d3ec > 65 ||
+        g_nFleetOverviewYawVelocity_0049d3ec < -65) {
         ClearTargetCameraView();
         zero_vector(&g_aShipVelocity_00494898[
             g_nTargetCameraObject_0049d338]);
         return;
     }
-    ClearTargetCameraView();
-    zero_vector(&g_aShipVelocity_00494898[
-        g_nTargetCameraObject_0049d338]);
+    if (g_nFleetOverviewPitchVelocity_0049d3f0 > 65 ||
+        g_nFleetOverviewPitchVelocity_0049d3f0 < -65) {
+        ClearTargetCameraView();
+        zero_vector(&g_aShipVelocity_00494898[
+            g_nTargetCameraObject_0049d338]);
+        return;
+    }
+    if (distance > 4000) {
+        ClearTargetCameraView();
+        zero_vector(&g_aShipVelocity_00494898[
+            g_nTargetCameraObject_0049d338]);
+        return;
+    }
+
+    yawMagnitude = (short)(abs((int)g_nFleetOverviewYaw_0049d3f4) - 17);
+    pitchMagnitude = (short)(abs((int)g_nFleetOverviewPitch_0049d3f8) - 17);
+    if (yawMagnitude > 0)
+        yawExcess = yawMagnitude;
+    if (pitchMagnitude > 0)
+        pitchExcess = pitchMagnitude;
+    rangeScale = (short)(distance >> 6);
+    g_nTargetCameraZoom_0049d3e4 = 100;
+    if (pitchExcess < yawExcess && rangeScale < yawExcess)
+        g_nTargetCameraZoom_0049d3e4 =
+            (short)(g_nTargetCameraZoom_0049d3e4 - yawExcess);
+    if (pitchExcess > yawExcess && rangeScale < pitchExcess)
+        g_nTargetCameraZoom_0049d3e4 =
+            (short)(g_nTargetCameraZoom_0049d3e4 - pitchExcess);
+    if (rangeScale > yawExcess && rangeScale > pitchExcess)
+        g_nTargetCameraZoom_0049d3e4 =
+            (short)(g_nTargetCameraZoom_0049d3e4 - rangeScale);
+    if (g_nTargetCameraZoom_0049d3e4 > 100)
+        g_nTargetCameraZoom_0049d3e4 = 100;
+    if (g_nTargetCameraZoom_0049d3e4 < 67)
+        g_nTargetCameraZoom_0049d3e4 = 67;
 }
+
+#pragma intrinsic(abs)
 
 /* Function start: 0x460BAF */
 void ClearSavedTorpedoTargetLock(void)

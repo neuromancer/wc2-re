@@ -1861,7 +1861,7 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *width, short *height,
                           short *leftExtent, short *topExtent);       /* 0x42557C */
 void DecodeShapeFrame(unsigned char *shape, short frame,
-                      unsigned char *bitmap, int width, short height,
+                      unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent);                 /* 0x425618 */
 int SignExtendClipCoord(volatile short v);                             /* 0x4259E2 */
 void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,

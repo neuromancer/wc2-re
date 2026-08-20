@@ -524,140 +524,150 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
     }
 }
 
+#pragma function(memcpy, memset)
+
 /* Function start: 0x425618 */
 void DecodeShapeFrame(unsigned char *shape, short frame,
-                      unsigned char *bitmap, int width, short height,
+                      unsigned char *bitmap, int width, int height,
                       int leftExtent, int topExtent)
 {
     unsigned char *commands;
-    unsigned char *runData;
     unsigned char *destination;
+    unsigned char *pixels;
     unsigned char code;
     unsigned char colour;
-    volatile unsigned short rowCode;
-    unsigned short runLength;
-    unsigned short copyLength;
+    unsigned short rowCode;
+    short copyLength;
+    short xOffset;
+    short yOffset;
+    short minimumX;
     short maximumX;
+    short minimumY;
     short maximumY;
-    int frameOffset;
+    int originX;
+    int originY;
     int x;
     int y;
     int runRight;
     int skip;
-#ifdef WC1_SDL
-    short coordinate;
-#endif
 
-    if (shape == 0 || frame < 0)
+    originX = leftExtent;
+    originY = topExtent;
+    if (shape == 0)
         return;
-    frameOffset = (int)(short)(frame * 4 + 4);
-    if (frameOffset >= (int)*(unsigned short *)(shape + 4))
+    if (frame < 0)
         return;
+    frame++;
+    frame <<= 2;
+    if (*(unsigned short *)(shape + 4) > frame) {
 
-    maximumX = (short)(width - 1);
-    commands = shape + *(int *)(shape + frameOffset) + 8;
-    maximumY = (short)(height - 1);
-#ifdef WC1_SDL
-    memcpy((void *)&rowCode, commands, sizeof(rowCode));
-#else
-    rowCode = *(unsigned short *)commands;
-#endif
-    commands += 2;
-    while (rowCode != 0) {
-#ifdef WC1_SDL
-        memcpy(&coordinate, commands, sizeof(coordinate));
-        x = leftExtent + coordinate;
-        memcpy(&coordinate, commands + 2, sizeof(coordinate));
-        y = topExtent + coordinate;
-#else
-        x = leftExtent + *(short *)commands;
-        y = topExtent + *(short *)(commands + 2);
-#endif
-        destination = bitmap + y * width + x;
-        commands += 4;
-        if ((rowCode & 1) != 0) {
-            rowCode >>= 1;
-            while (rowCode != 0) {
-                code = *commands;
-                commands++;
-                if ((code & 1) != 0) {
-                    code >>= 1;
-                    colour = *commands;
-                    commands++;
-                    runLength = code;
-                    rowCode = (unsigned short)(rowCode - runLength);
-                    if (y >= 0 && y <= maximumY) {
-                        runRight = x + runLength - 1;
-                        if (x <= maximumX && runRight >= 0) {
-                            skip = 0;
-                            copyLength = runLength;
-                            if (x < 0) {
-                                skip = -x;
-                                copyLength =
-                                    (unsigned short)(copyLength + x);
-                            }
-                            if (maximumX < runRight)
-                                copyLength = (unsigned short)(copyLength -
-                                                       runRight + maximumX);
-                            memset(destination + skip, colour,
-                                   (short)copyLength);
-                        }
-                    }
-                } else {
-                    code >>= 1;
-                    runLength = code;
-                    rowCode = (unsigned short)(rowCode - runLength);
-                    runData = commands;
-                    if (y >= 0 && y <= maximumY) {
-                        runRight = x + runLength - 1;
-                        if (x <= maximumX && runRight >= 0) {
-                            skip = 0;
-                            copyLength = runLength;
-                            if (x < 0) {
-                                skip = -x;
-                                copyLength =
-                                    (unsigned short)(copyLength + x);
-                            }
-                            if (maximumX < runRight)
-                                copyLength = (unsigned short)(copyLength -
-                                                       runRight + maximumX);
-                            memcpy(destination + skip, runData + skip,
-                                   (short)copyLength);
-                        }
-                    }
-                    commands = runData + runLength;
-                }
-                x += runLength;
-                destination += runLength;
-            }
-        } else {
-            rowCode >>= 1;
-            if (y >= 0 && y <= maximumY) {
-                runRight = x + rowCode - 1;
-                if (x <= maximumX && runRight >= 0) {
-                    skip = 0;
-                    copyLength = rowCode;
-                    if (x < 0) {
-                        skip = -x;
-                        copyLength = (unsigned short)(copyLength + x);
-                    }
-                    if (maximumX < runRight)
-                        copyLength = (unsigned short)(copyLength -
-                                                     runRight + maximumX);
-                    memcpy(destination + skip, commands + skip,
-                           (short)copyLength);
-                }
-            }
-            commands += rowCode;
-        }
-#ifdef WC1_SDL
-        memcpy((void *)&rowCode, commands, sizeof(rowCode));
-#else
+        minimumX = 0;
+        maximumX = (short)(width - 1);
+        minimumY = 0;
+        maximumY = (short)(height - 1);
+        commands = shape + *(int *)(frame + shape);
+        commands += 8;
+        pixels = bitmap;
+    #ifdef WC1_SDL
+        memcpy(&rowCode, commands, sizeof(rowCode));
+    #else
         rowCode = *(unsigned short *)commands;
-#endif
+    #endif
         commands += 2;
+        while (rowCode != 0) {
+    #ifdef WC1_SDL
+            memcpy(&xOffset, commands, sizeof(xOffset));
+    #else
+            xOffset = *(short *)commands;
+    #endif
+            commands += 2;
+    #ifdef WC1_SDL
+            memcpy(&yOffset, commands, sizeof(yOffset));
+    #else
+            yOffset = *(short *)commands;
+    #endif
+            commands += 2;
+            x = xOffset + originX;
+            y = yOffset + originY;
+            destination = y * width + x + pixels;
+            if ((rowCode & 1) != 0) {
+                rowCode >>= 1;
+                while (rowCode > 0) {
+                    code = *commands;
+                    commands++;
+                    if ((code & 1) != 0) {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        colour = *commands;
+                        commands++;
+                        if (minimumY <= y && maximumY >= y) {
+                            runRight = code + x - 1;
+                            if (maximumX >= x && minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > x) {
+                                    copyLength -= minimumX - x;
+                                    skip += minimumX - x;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memset(skip + destination, colour, copyLength);
+                            }
+                        }
+                        destination += code;
+                        x += code;
+                    } else {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        if (minimumY <= y && maximumY >= y) {
+                            runRight = code + x - 1;
+                            if (maximumX >= x && minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > x) {
+                                    copyLength -= minimumX - x;
+                                    skip += minimumX - x;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(skip + destination, skip + commands,
+                                       copyLength);
+                            }
+                        }
+                        commands += code;
+                        destination += code;
+                        x += code;
+                    }
+                }
+            } else {
+                rowCode >>= 1;
+                if (minimumY <= y && maximumY >= y) {
+                    runRight = rowCode + x - 1;
+                    if (maximumX >= x && minimumX <= runRight) {
+                        copyLength = rowCode;
+                        skip = 0;
+                        if (minimumX > x) {
+                            copyLength -= minimumX - x;
+                            skip += minimumX - x;
+                        }
+                        if (maximumX < runRight)
+                            copyLength -= runRight - maximumX;
+                        memcpy(skip + destination, skip + commands, copyLength);
+                    }
+                }
+                commands += rowCode;
+            }
+    #ifdef WC1_SDL
+            memcpy(&rowCode, commands, sizeof(rowCode));
+    #else
+            rowCode = *(unsigned short *)commands;
+    #endif
+            commands += 2;
+        }
     }
 }
+
+#pragma intrinsic(memcpy, memset)
 
 /* Function start: 0x4259E2 */
 int SignExtendClipCoord(volatile short v)

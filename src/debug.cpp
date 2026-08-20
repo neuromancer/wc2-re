@@ -9,7 +9,7 @@
 #include "wc1.h"
 #include <stdarg.h>
 
-#pragma function(memcpy)
+#pragma function(memcpy, memset)
 
 /* Function start: 0x45AC50 */
 DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
@@ -21,17 +21,18 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #ifndef WC1_SDL
     TEXTMETRICA metrics;
     HDC deviceContext;
+    HGDIOBJ font;
 #endif
 
     busyWait = waitMode;
     g_nDebugOverlayConsoleCount_0049cb24++;
     window = targetWindow;
     columns = columnCount;
-    cursorRow = 0;
     rows = rowCount;
-    cursorColumn = 0;
+    cursorRow = 0;
+    cursorColumn = cursorRow;
     textBuffer = (char *)malloc(rows * columns);
-    dirtyLines = (unsigned char *)malloc(rows);
+    dirtyLines = (char *)malloc(rows);
     memset(textBuffer, ' ', rows * columns);
     memset(dirtyLines, 1, rows);
 
@@ -41,12 +42,12 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     characterHeight = 10;
 #else
     deviceContext = GetDC(window);
-    SelectObject(deviceContext,
-                 CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
-                             0x30, g_szDebugOverlayFontName_0049cb34));
+    font = CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
+                       0x30, g_szDebugOverlayFontName_0049cb34);
+    SelectObject(deviceContext, font);
 #endif
-    backgroundColor = 0;
     textColor = 0xffffff;
+    backgroundColor = 0;
     backgroundMode = OPAQUE;
 #ifndef WC1_SDL
     GetTextMetricsA(deviceContext, &metrics);
@@ -146,6 +147,8 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 #endif
 }
 
+#pragma function(strcpy, strlen)
+
 /* Function start: 0x45B0BB */
 extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                                      const char *format, ...)
@@ -153,32 +156,37 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
     va_list arguments;
     int length;
     int index;
-    signed char character;
 
-    if (format != 0) {
-        va_start(arguments, format);
+    va_start(arguments, format);
+    if (format != 0)
         vsprintf(console->formatBuffer, format, arguments);
-        va_end(arguments);
-    } else {
+    else
         strcpy(console->formatBuffer, g_szDebugOverlayNewline_0049cb44);
-    }
+    va_end(arguments);
     length = strlen(console->formatBuffer);
-    index = 0;
-    while (index < length) {
+    for (index = 0; length > index; index++) {
         console->dirtyLines[console->cursorRow] = 1;
-        character = console->formatBuffer[index];
-        if (character >= ' ' && character <= '~') {
+        if (console->formatBuffer[index] >= ' ' &&
+            console->formatBuffer[index] <= '~') {
             console->textBuffer[console->cursorRow * console->columns +
-                                console->cursorColumn] = character;
+                                console->cursorColumn] =
+                console->formatBuffer[index];
             console->cursorColumn++;
             if (console->cursorColumn == console->columns) {
                 console->cursorColumn = 0;
                 console->cursorRow++;
-                if (console->cursorRow == console->rows)
+                if (console->rows == console->cursorRow)
                     console->Scroll();
             }
         } else {
-            switch (character) {
+            switch (console->formatBuffer[index]) {
+            case '\n':
+            case '\r':
+                console->cursorColumn = 0;
+                console->cursorRow++;
+                if (console->rows == console->cursorRow)
+                    console->Scroll();
+                break;
             case '\a':
 #ifdef WC1_SDL
                 fputc('\a', stderr);
@@ -198,36 +206,32 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                     console->cursorRow * console->columns +
                     console->cursorColumn] = ' ';
                 break;
-            case '\n':
-            case '\r':
-                console->cursorColumn = 0;
-                console->cursorRow++;
-                if (console->cursorRow == console->rows)
-                    console->Scroll();
-                break;
             }
         }
-        index++;
     }
     console->DrawPendingLines();
 }
+
+#pragma intrinsic(strcpy, strlen)
 
 /* Function start: 0x45B2E0 */
 void DebugOverlayConsole::Clear(void)
 {
     cursorRow = 0;
-    cursorColumn = 0;
+    cursorColumn = cursorRow;
     memset(textBuffer, ' ', rows * columns);
     memset(dirtyLines, 1, rows);
+    return;
 }
 
 /* Function start: 0x45B348 */
 void DebugOverlayConsole::Scroll(void)
 {
-    memcpy(textBuffer, textBuffer + columns, (rows - 1) * columns);
+    memmove(textBuffer, columns + textBuffer, (rows - 1) * columns);
     cursorRow = rows - 1;
-    memset(textBuffer + cursorRow * columns, ' ', columns);
+    memset((rows - 1) * columns + textBuffer, ' ', columns);
     memset(dirtyLines, 1, rows);
+    return;
 }
 
 /* Function start: 0x45B3DC */
@@ -238,17 +242,16 @@ void DebugOverlayConsole::DrawPendingLines(void)
     int row;
 
     deviceContext = GetDC(window);
-    row = 0;
-    while (row < rows) {
+    for (row = 0; rows > row; row++) {
         if (dirtyLines[row] != 0) {
             TextOutA(deviceContext, 0, characterHeight * row,
-                     textBuffer + row * columns, columns);
+                     columns * row + textBuffer, columns);
         }
-        row++;
     }
     ReleaseDC(window, deviceContext);
 #endif
     memset(dirtyLines, 0, rows);
+    return;
 }
 
 /* Function start: 0x45B49C */

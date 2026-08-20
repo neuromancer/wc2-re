@@ -434,7 +434,7 @@ typedef struct DebugOverlayConsole {
     HWND window;                         /* +0x010 */
     char formatBuffer[0x400];            /* +0x014 */
     char *textBuffer;                    /* +0x414 */
-    unsigned char *dirtyLines;           /* +0x418 */
+    char *dirtyLines;                    /* +0x418 */
     int characterWidth;                  /* +0x41C */
     int characterHeight;                 /* +0x420 */
     int busyWait;                        /* +0x424 */
