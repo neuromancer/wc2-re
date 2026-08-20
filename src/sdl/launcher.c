@@ -115,7 +115,6 @@ static int Wc1SdlRunRuntimeChecks(void)
 
     /* WC2's vdu_polygon draws straight into the panel shape instead of
      * leaving a rectangle behind, so the call is the check. */
-    g_cCockpitView_0059dab0 = 4;
     vdu_polygon(2, 50);
 
     g_asShipMissionParameter_00495e00[1] = -1;

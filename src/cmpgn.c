@@ -242,9 +242,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
     if (restoreCockpit != 0 && g_nArcadeState_0049d75c == 0) {
         if (g_bAutopilotDebugEnabled_00499bfc != 0)
             LogMemoryStateToFile(log);
-        /* The original passes the ship type; the callee ignores it. */
-        ((void (__cdecl *)(short))InitializeCockpitResources)(
-            g_nPlayerShipType_00493464);
+        InitializeCockpitResources(g_nPlayerShipType_00493464);
         load_common_3Space_objects();
         init_constellation(savedSeries);
         g_b3SpaceObjectsActive_0049c8ec = 1;

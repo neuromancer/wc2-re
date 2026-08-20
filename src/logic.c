@@ -2095,7 +2095,8 @@ short gone_ship(short missionShip)
 }
 
 /* Function start: 0x42B15A */
-short skill_check(short obj)
+/* WC2 passes a margin every caller ignores; the body never reads it. */
+short skill_check(short obj, int margin)
 {
     if (g_asPilotLevel_00495d60[obj] < 5 &&
         RandomBelowOrEqual((short)(g_asPilotLevel_00495d60[obj] + 4)) == 0)
@@ -2920,7 +2921,9 @@ void init_vdus(void)
 }
 
 /* Function start: 0x4577D7 */
-void InitializeCockpitResources(void)
+/* WC2 passes the player's ship type; the body reads it from the global
+ * instead and ignores the argument. */
+void InitializeCockpitResources(short shipType)
 {
     CockpitResourceLayout layout;
     short frame;
@@ -2976,7 +2979,7 @@ void InitializeCockpitResources(void)
     g_stPilotHandBounds_0049af88 = layout.pilotHandBounds;
     g_stPilotHandOrigin_0049af90 = layout.pilotHandOrigin;
     g_cHazardBaseTravelTime_0049af94 = layout.field_f6;
-    DAT_0049af98 = layout.field_f7;
+    g_nHazardPitchRange_0049af98 = layout.field_f7;
     for (index = 0; index < 16; index++)
         g_aDefaultWeaponDisplayPositions_0049afa0[index] =
             layout.weaponDisplayPositions[index];

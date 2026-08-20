@@ -3033,7 +3033,7 @@ void init_mission(short series, short mission)
     g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
     g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
     g_bFuelGaugeDamaged_0049b054 = 0;
-    InitializeCockpitResources();
+    InitializeCockpitResources(g_nPlayerShipType_00493464);
     g_bMissionDeathSequencePending_0049b720 = 0;
     for (index = 0; index < 5; index++)
         g_abJumpDriveUsedBySystem_005d2fe8[index] = 0;

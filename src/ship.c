@@ -300,11 +300,12 @@ short pilot_hit(short obj)
         DAT_00495d78[obj]--;
         if (DAT_00495d78[obj] == 0) {
             if (obj == 0) {
-                if (g_bPlayerDamageEnabled_0049d77c != 0)
+                if (g_bPlayerDamageEnabled_0049d77c != 0 &&
+                    g_bDeathSequenceActive_0049da50 == 0)
                     g_nArcadeState_0049d75c = 4;
                 return -1;
             }
-        } else if (skill_check(obj) == 0 && obj != 0) {
+        } else if (skill_check(obj, 9) == 0 && obj != 0) {
             g_asObjectCounter_00494be0[obj] =
                 (short)(RandomBelowOrEqual(20) + 30);
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);

@@ -86,9 +86,10 @@ static const signed char g_acHazardTravelTimeByView_00465048[8] = {
     56, 52, 75, 73, 0, 0, 0, 0
 };
 
-static const signed char g_acHazardPitchRange_00465050[8] = {
-    -10, 4, -8, 8, -12, 8, -8, 8
-};
+/* The cockpit layout packs the hazard pitch range into the two bytes of
+ * field_f7: the low byte is the minimum, the high byte the maximum. */
+#define g_acHazardPitchRange \
+    ((const signed char *)&g_nHazardPitchRange_0049af98)
 
 /* Function start: 0x417838 */
 void remove_hazard(signed char hazard)
@@ -264,15 +265,9 @@ short try_far_spot(FixedVector *spot, short *moving)
         g_aShipPosition_00494550[0];
     pitch = signed_random(20);
     yaw = signed_random(35);
-    if (g_nCurrentView_00492fa8 == 0 && g_cCockpitView_0059dab0 <= 3) {
-        signed char minimum;
-        signed char maximum;
-
-        minimum = g_acHazardPitchRange_00465050[
-            g_cCockpitView_0059dab0 * 2];
-        if (pitch > minimum &&
-            pitch < (maximum = g_acHazardPitchRange_00465050[
-                         g_cCockpitView_0059dab0 * 2 + 1]) &&
+    if (g_nCurrentView_00492fa8 == 0) {
+        if (g_acHazardPitchRange[0] < pitch &&
+            g_acHazardPitchRange[1] > pitch &&
             abs(yaw) < 19 &&
             RandomBelow(100) < 60)
             *moving = 1;
@@ -382,16 +377,17 @@ void manage_hazard(short obj, short slot)
 /* Function start: 0x418426 */
 void match_ship_to_eye(void)
 {
+    g_nHazardReferenceSpeed_00492e58 = 100;
     g_aShipPosition_00494550[0] =
         g_aShipPosition_00494550[WC2_EYE_OBJECT];
-    g_nHazardReferenceSpeed_00492e58 = 100;
     g_aShipRightVector_00493b78[0] =
         g_aShipRightVector_00493b78[WC2_EYE_OBJECT];
     g_aShipUpVector_00493ec0[0] =
         g_aShipUpVector_00493ec0[WC2_EYE_OBJECT];
     g_aShipForwardVector_00494208[0] =
         g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
-    ScaleFixedVector(&g_aShipForwardVector_00494208[0], 100 << 8,
+    ScaleFixedVector(&g_aShipForwardVector_00494208[0],
+                     g_nHazardReferenceSpeed_00492e58 << 8,
                      &g_aShipVelocity_00494898[0]);
     g_pActiveHazardField_00493278->center =
         g_aShipPosition_00494550[WC2_EYE_OBJECT];
@@ -803,7 +799,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
         return 0;
     }
 
-    DAT_005a8a34 = SetCursor(0);
+    DAT_005d1288 = SetCursor(0);
     ShowWindow(g_hMainWindow_005d10e0, showCommand);
     UpdateWindow(g_hMainWindow_005d10e0);
     DIBinstall(g_hMainWindow_005d10e0);

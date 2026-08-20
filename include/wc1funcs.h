@@ -991,7 +991,7 @@ void inherit_leader_mission(short obj);                               /* 0x42AF6
 void inherit_leader(short obj);                                         /* 0x42B00A */
 short dead_ship(short missionShip);                                   /* 0x42B0B7 */
 short gone_ship(short missionShip);                                     /* 0x42B0FB */
-short skill_check(short obj);                                         /* 0x42B15A */
+short skill_check(short obj, int margin);                             /* 0x42B15A */
 short find_ships_sphere(short missionShip);                           /* 0x42B1AE */
 void RefreshObjectiveShipNavPoints(void);                            /* 0x44B981 */
 short locate_ship(short missionShip, FixedVector *point);             /* 0x42B2A7 */
@@ -1025,13 +1025,9 @@ void FreeConstellationObject(short object);                       /* 0x457587 */
 void init_constellation(short scene);                                 /* 0x4575B4 */
 void free_constellation(void);                                    /* 0x4576AB */
 void init_vdus(void);                                                  /* 0x457720 */
-void InitializeCockpitResources(void);                                /* 0x4577D7 */
+void InitializeCockpitResources(short shipType);                      /* 0x4577D7 */
 void free_cockpit(void);                                               /* 0x458196 */
-#ifdef WC1_SDL
-void init_3Space_objects(short scene);
-#else
-void init_3Space_objects();                                            /* 0x458467 */
-#endif
+void init_3Space_objects(short scene);                                 /* 0x458467 */
 void load_common_3Space_objects(void);                                 /* 0x458532 */
 void remove_all_3d_objects(void);                                      /* 0x45865D */
 void free_3Space(void);                                                /* 0x458698 */

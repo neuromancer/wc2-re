@@ -1976,7 +1976,7 @@ void rotate_object_to_goal(short obj)
         } else {
             /* The original passes a difficulty the callee ignores. */
             if (g_asObjectCounter_00494be0[obj] == -1 &&
-                ((short (__cdecl *)(short, int))skill_check)(obj, 7) != 0)
+                skill_check(obj, 7) != 0)
                 g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
             return;
         }
@@ -2040,7 +2040,7 @@ void check_for_lost_control(short obj)
                             abs(g_anObjectPitchRotation_00494f38[obj]));
         overshoot = (short)(overshoot / turnRate);
         /* The original passes the overshoot the callee ignores. */
-        if (((short (__cdecl *)(short, int))skill_check)(obj, overshoot) ==
+        if (skill_check(obj, overshoot) ==
             0) {
             set_special(obj, SPECIAL_MANEUVER_BLOWING_UP);
             g_asObjectCounter_00494be0[obj] =
