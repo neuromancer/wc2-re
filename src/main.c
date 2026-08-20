@@ -7,7 +7,10 @@
 #include "wc1.h"
 
 static short g_nTargetCameraGunCooldown_0049d33c;
-static ShortVector g_aaTargetCameraGunOffsets_0049d3c8[2][2];
+/* The two target-camera gun offsets per display sit inside the gun display
+ * configuration record at +0x88, not in a table of their own. */
+#define g_aaTargetCameraGunOffsets_0049d3c8 \
+    ((ShortVector (*)[2])(g_abGunDisplayConfiguration_0049d340 + 0x88))
 static const short g_asFleetMouseYawThresholds_0049d400[6] = {
     10, 37, 52, 57, 62, 1070
 };
@@ -1199,10 +1202,10 @@ void FireTargetCameraGuns(void)
 
     projectileSpeed = 10;
     projectileType = 8;
-    if (g_nGunDisplayEnergyPercent_005c8d4e > 0 &&
-        g_nTargetCameraGunCooldown_0049d33c < 1) {
-        shot = 0;
-        while (shot < 2) {
+    if (g_nGunDisplayEnergyPercent_005c8d4e <= 0 ||
+        g_nTargetCameraGunCooldown_0049d33c > 0)
+        return;
+    for (shot = 0; shot < 2; shot++) {
             projectile = new_object(projectileType, 0);
             if (projectile != -1) {
                 g_abProjectileCollisionBonus_004960a8[projectile] = 1;
@@ -1258,7 +1261,8 @@ void FireTargetCameraGuns(void)
                             WC2_EYE_OBJECT].z +
                     g_aShipPosition_00494550[WC2_EYE_OBJECT].z;
                 g_asObjectCounter_00494be0[projectile] =
-                    projectileData->lifetime;
+                    (short)g_aObjectTypeData_00496d30[
+                        projectileType].lifetime;
                 zero_vector(&g_aShipVelocity_00494898[projectile]);
                 direction =
                     g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
@@ -1282,7 +1286,5 @@ void FireTargetCameraGuns(void)
                                 projectileType - 7] >> 1);
                 PlaySfxWaveFileByNumber(8, projectile, 0);
             }
-            shot++;
-        }
     }
 }
