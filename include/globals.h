@@ -467,7 +467,7 @@ extern signed char g_cReleaseWeaponDisplayFrame_0049b060;
 extern short g_bWingmanTurnRateUnlocked_00493040;
 extern short g_bEjectionSequencePending_00493058;
 extern short g_bAutopilotSequenceActive_00493064;
-extern unsigned char g_bAutopilotDebugEnabled_00499bfc;
+extern signed char g_bAutopilotDebugEnabled_00499bfc;
 extern unsigned char g_bRoomTransitionAnimationEnabled_00499c00;
 extern unsigned char g_bMemoryLogToFile_00499bf8;
 extern FILE *g_pMemoryLogFile_00499da8;

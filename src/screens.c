@@ -627,49 +627,63 @@ void *FindLoadedCutsceneMusic(short resourceIndex)
 void InitializeCutsceneRuntimeResources(void)
 {
     if (g_nCutsceneResourceLevel_00499d98 == 0) {
+        if (g_bAutopilotDebugEnabled_00499bfc != 0 &&
+            g_bSpeechCacheEnabled_005c8de8 == 0)
+            g_pMemoryLogFile_00499da8 = fopen("logger.$$$", "w");
         g_bCutsceneDrawingEnabled_00499c60 = 0;
         g_bMemoryLogToFile_00499bf8 = 1;
-        WriteMemoryStateReportHook();
+        WriteDetailedMemoryStateReport();
         g_bMemoryLogToFile_00499bf8 = 0;
         InitializeCinematicTextRenderer();
-        g_nCutsceneFrameTick_00499c88 = 0;
-        g_nCutsceneFrameDelay_00499c8c = 0;
+        g_nCutsceneFrameDelay_00499c8c = g_nCutsceneFrameTick_00499c88 = 0;
         g_nCutsceneInitialAvailableMemory_005d2e88 =
             GetAvailableMainMemory();
         g_nCutsceneInitialLargestBlock_005d2ea8 =
             GetLargestMainMemoryBlock();
+        /* The retail image sets and immediately clears this flag. */
+        g_bCutsceneCockpitLoaded_005d2d66 = 1;
         g_bCutsceneCockpitLoaded_005d2d66 = 0;
         if (g_apSceneObjects_00499c38 == 0) {
             g_apSceneObjects_00499c38 = AllocateScenePointerTable(
                 0x80, WC2_HOST_POINTER_SIZE, 0,
-                "Cannot Allocate Sprite Table");
+                "Cannot alloc SpritesArray");
         }
         if (g_apCutscenePlanes_00499c3c == 0) {
             g_apCutscenePlanes_00499c3c = AllocateScenePointerTable(
                 0x40, WC2_HOST_POINTER_SIZE, 0,
-                "Cannot Allocate Plane Table");
+                "Cannot alloc PlanesArray");
         }
         if (g_apCutsceneSequences_00499c40 == 0) {
             g_apCutsceneSequences_00499c40 = AllocateScenePointerTable(
                 0x100, WC2_HOST_POINTER_SIZE, 0,
-                "Cannot Allocate Sequence Table");
+                "Cannot alloc SequenceArray");
         }
         if (g_apCutsceneScenes_00499c44 == 0) {
             g_apCutsceneScenes_00499c44 = AllocateScenePointerTable(
                 0x20, WC2_HOST_POINTER_SIZE, 0,
-                "Cannot Allocate Scene Table");
+                "Cannot alloc ScriptArray");
         }
         if (g_pszCutsceneWorkBuffer_005d2ecc == 0) {
-            WriteMemoryStateReportHook();
+            WriteDetailedMemoryStateReport();
             g_pszCutsceneWorkBuffer_005d2ecc = calloc(0x100, 1);
             if (g_pszCutsceneWorkBuffer_005d2ecc == 0)
-                FatalCutsceneError("Cannot allocate cutscene work string");
+                FatalCutsceneError("A8");
+            if (g_pMemoryLogFile_00499da8 != 0)
+                fprintf(g_pMemoryLogFile_00499da8,
+                        "Alloc ___workstring: %p free: %d\n",
+                        g_pszCutsceneWorkBuffer_005d2ecc,
+                        (int)GetOriginalFreeMemory());
         }
         if (g_pszCutscenePrintBuffer_005d2f10 == 0) {
-            WriteMemoryStateReportHook();
+            WriteDetailedMemoryStateReport();
             g_pszCutscenePrintBuffer_005d2f10 = calloc(0x100, 1);
             if (g_pszCutscenePrintBuffer_005d2f10 == 0)
-                FatalCutsceneError("Cannot allocate cutscene print string");
+                FatalCutsceneError("A9");
+            if (g_pMemoryLogFile_00499da8 != 0)
+                fprintf(g_pMemoryLogFile_00499da8,
+                        "Alloc ___printstring: %p free: %d\n",
+                        g_pszCutscenePrintBuffer_005d2f10,
+                        (int)GetOriginalFreeMemory());
         }
     }
 }
@@ -3225,6 +3239,11 @@ void ReleaseLoadedCutsceneResource(CutsceneResourceTable *resources,
 
     packet = resources->loadedPackets[index];
     ReleasePacketSlot(&resources->loadedPackets[index]);
+    if (g_pMemoryLogFile_00499da8 != 0 && packet != 0)
+        fprintf(g_pMemoryLogFile_00499da8,
+                "--- Dumped: %Fp  level = %d free = %8lu\n", packet,
+                (int)g_nActiveCutsceneResourceLevel_00499d9c,
+                GetAvailableMainMemory());
     if (packet != 0) {
         for (spriteIndex = 0; spriteIndex < 0x80; spriteIndex++) {
             sprite = g_apSceneObjects_00499c38[spriteIndex];

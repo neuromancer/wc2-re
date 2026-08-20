@@ -78,6 +78,9 @@ short RunTitleScreen(void)
     short savedCampaignPresent;
     short frame;
     Viewport screenBuffer;
+    int wipeType;
+    void *wipe;
+    signed char wipeDone;
 
     menuChoice = 0;
     buttons = 0;
@@ -225,11 +228,38 @@ short RunTitleScreen(void)
                          &screenBuffer);
     MarkDibDirty();
     DIBslamReal();
+    wipeType = 8;
     g_bRoomTransitionAnimationEnabled_00499c00 = 1;
-    CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
-                         &g_stScreenViewport_005d21a0);
-    MarkDibDirty();
-    DIBslamReal();
+    if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
+        wipe = AllocateTaggedMemory(0xce, 0);
+        if (wipe != 0) {
+            InitializeViewportWipe(&g_stSecondaryViewBuffer_005d2c90,
+                                   &screenBuffer, wipeType, 0x3c, 0,
+                                   wipe);
+            wipeDone = 0;
+            while (wipeDone == 0) {
+                wipeDone = AdvanceViewportWipe(wipe);
+                if (WaitForInputKey() != 0 ||
+                    g_bSceneEscapeRequested_0049d4b0 != 0) {
+                    g_bSceneEscapeRequested_0049d4b0 = 1;
+                    break;
+                }
+                CopyViewportContents(&screenBuffer,
+                                     &g_stScreenViewport_005d21a0);
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  0, 0, background, 0);
+                DrawConstellationField();
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  160, 100, logo, 0x19);
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  160, 100, logo, 0x1f);
+                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                  160, 100, logo, 0x20);
+            }
+            FinishViewportWipe(wipe);
+            ReleasePacketHandle(wipe);
+        }
+    }
     if (soundHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
             soundHandle, 0);

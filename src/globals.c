@@ -1066,7 +1066,7 @@ ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT] = {
 int g_bSceneDisplayUpdateActive_00499bb8;
 short g_bKilrathiAceGreetingSent_00499bf4;
 unsigned char g_bMemoryLogToFile_00499bf8;
-unsigned char g_bAutopilotDebugEnabled_00499bfc;
+signed char g_bAutopilotDebugEnabled_00499bfc;
 unsigned char g_bRoomTransitionAnimationEnabled_00499c00 = 1;
 void *g_pCutsceneCockpitPacket_00499c04;
 void *g_pSceneMusicPacket_00499c08;
