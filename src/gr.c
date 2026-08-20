@@ -1627,71 +1627,86 @@ void RasterLineHook(const void *marker)
 void DrawFontGlyph(char character, TextContext *context, int height,
                    int width, int y)
 {
-    unsigned char *font = context->font;
-    Viewport *viewport = context->viewport;
-    unsigned char colour = context->colour;
-    unsigned char background = context->backgroundColour;
-    unsigned char fontColour = font[2];
-    unsigned char fontBackground = font[3];
-    int row = y;
-    unsigned char *characterData;
+    Viewport *viewport;
+    unsigned char colour;
+    unsigned char background;
+    unsigned char fontColour;
+    unsigned char fontBackground;
     unsigned char *source;
     unsigned char *destination;
     unsigned char translated;
-    unsigned int bitmapOffset;
-    unsigned int destinationOffset;
-    short characterIndex;
+    int row;
     int column;
 
+    row = y;
+    viewport = context->viewport;
+    colour = context->colour;
+    background = context->backgroundColour;
+    fontColour = context->font[2];
+    fontBackground = context->font[3];
     g_abPaletteTranslation_00496338[fontColour] = colour;
     g_abPaletteTranslation_00496338[fontBackground] = background;
-    characterIndex = (short)(signed char)character;
-    if (characterIndex != 0x81 && characterIndex != 0x84 &&
-        characterIndex != 0x8e && characterIndex != 0x94 &&
-        characterIndex != 0x99 && characterIndex != 0x9a &&
-        characterIndex != 0xe1) {
-        characterData = font + characterIndex;
-        bitmapOffset = ((unsigned int)characterData[0x204] << 8) +
-                       characterData[0x104];
-        source = font + bitmapOffset;
-        if (fontColour == colour && fontBackground == background) {
-            for (; height-- != 0; row++) {
-                if (viewport->top == row &&
-                    (viewport->rowOffsets[row] & 0x8000) != 0)
-                    destinationOffset = (unsigned int)context->cursorX;
+    if (character == 0x81 || character == 0x84 || character == 0x8e ||
+        character == 0x94 || character == 0x99 || character == 0x9a ||
+        /* WC2 sign-extends the glyph before comparing it against 0xe1, so on
+         * a signed-char host that last test can never fire and the retail
+         * build draws the character it meant to skip.  Keep the comparison as
+         * WC2 emits it in the reference build; the port asks the question the
+         * way it was meant, which is also what an unsigned-char host does. */
+#ifdef WC1_SDL
+        (unsigned char)character == 0xe1)
+#else
+        character == 0xe1)
+#endif
+        return;
+    source = (context->font[character + 0x204] << 8) +
+             context->font[character + 0x104] + context->font;
+    if (fontColour != colour || fontBackground != background) {
+        while (height-- != 0) {
+            if (viewport->top == row) {
+                if ((viewport->rowOffsets[row] & 0x8000) != 0)
+                    destination = context->cursorX + viewport->pixels;
                 else
-                    destinationOffset = viewport->rowOffsets[row] +
-                                        (unsigned int)context->cursorX;
-                destination = viewport->pixels + destinationOffset;
-                for (column = width; column-- != 0;) {
-                    if (*source != 0xff)
-                        *destination = *source;
-                    source++;
-                    destination++;
-                }
+                    destination = viewport->rowOffsets[row] +
+                                  context->cursorX + viewport->pixels;
+            } else {
+                destination = viewport->rowOffsets[row] +
+                              context->cursorX + viewport->pixels;
             }
-        } else {
-            for (; height-- != 0; row++) {
-                if (viewport->top == row &&
-                    (viewport->rowOffsets[row] & 0x8000) != 0)
-                    destinationOffset = (unsigned int)context->cursorX;
-                else
-                    destinationOffset = viewport->rowOffsets[row] +
-                                        (unsigned int)context->cursorX;
-                destination = viewport->pixels + destinationOffset;
-                for (column = width; column-- != 0;) {
-                    translated = g_abPaletteTranslation_00496338[*source];
-                    if (translated != 0xff)
-                        *destination = translated;
-                    source++;
-                    destination++;
-                }
+            for (column = width; column-- != 0;) {
+                translated = g_abPaletteTranslation_00496338[*source];
+                if (translated != 0xff)
+                    *destination = translated;
+                source++;
+                destination++;
             }
+            row++;
         }
-        context->cursorX += font[4 + characterIndex];
-        g_abPaletteTranslation_00496338[fontColour] = fontColour;
-        g_abPaletteTranslation_00496338[fontBackground] = fontBackground;
+        context->cursorX += context->font[character + 4];
+    } else {
+        while (height-- != 0) {
+            if (viewport->top == row) {
+                if ((viewport->rowOffsets[row] & 0x8000) != 0)
+                    destination = context->cursorX + viewport->pixels;
+                else
+                    destination = viewport->rowOffsets[row] +
+                                  context->cursorX + viewport->pixels;
+            } else {
+                destination = viewport->rowOffsets[row] +
+                              context->cursorX + viewport->pixels;
+            }
+            for (column = width; column-- != 0;) {
+                if (*source != 0xff)
+                    *destination = *source;
+                source++;
+                destination++;
+            }
+            row++;
+        }
+        context->cursorX += context->font[character + 4];
     }
+    g_abPaletteTranslation_00496338[fontColour] = fontColour;
+    g_abPaletteTranslation_00496338[fontBackground] = fontBackground;
 }
 
 /* Function start: 0x426694 */
@@ -1795,7 +1810,19 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
             drawX = x + xOffset;
             drawY = y + yOffset;
+#ifdef WC1_SDL
+            /* WC2 forms the row pointer before it knows the row is on screen,
+             * so a sprite straddling the top or bottom edge reads one entry
+             * off the end of the row-offset table.  Nothing is copied unless
+             * the row passes the same test below, so on the port take the
+             * offset only when it is in range. */
+            if (minimumY <= drawY && maximumY >= drawY)
+                screen = viewport->rowOffsets[drawY] + drawX + pixels;
+            else
+                screen = drawX + pixels;
+#else
             screen = viewport->rowOffsets[drawY] + drawX + pixels;
+#endif
             if ((rowCode & 1) != 0) {
                 rowCode >>= 1;
                 while (rowCode > 0) {
@@ -1944,7 +1971,19 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
             drawX = x + xOffset;
             drawY = y + yOffset;
+#ifdef WC1_SDL
+            /* WC2 forms the row pointer before it knows the row is on screen,
+             * so a sprite straddling the top or bottom edge reads one entry
+             * off the end of the row-offset table.  Nothing is copied unless
+             * the row passes the same test below, so on the port take the
+             * offset only when it is in range. */
+            if (minimumY <= drawY && maximumY >= drawY)
+                screen = viewport->rowOffsets[drawY] + drawX + pixels;
+            else
+                screen = drawX + pixels;
+#else
             screen = viewport->rowOffsets[drawY] + drawX + pixels;
+#endif
             if ((rowCode & 1) != 0) {
                 rowCode >>= 1;
                 while (rowCode > 0) {

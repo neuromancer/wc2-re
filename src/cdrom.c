@@ -38,54 +38,54 @@ char *LocateStreamsDirOnDisc(void)
     return result;
 }
 
+#pragma function(strcmp)
+
 /* Function start: 0x456236 */
 char FindCdRomDriveByVolumeLabel(const char *label,
                                  const char *directory)
 {
+    char volume[256];
+    char root[12];
+    char filesystem[64];
+    DWORD flags;
+    DWORD maximumComponentLength;
+    int driveCount;
     char drives[26];
     char scanRoot[12];
-    char root[12];
-    char volume[256];
-    char filesystem[64];
-    DWORD maximumComponentLength;
-    DWORD flags;
-    int driveCount = 0;
-    int i;
-    int scanDrive;
-    char drive;
+    int drive;
     char result;
 
-    for (scanDrive = 'a'; scanDrive <= 'z'; scanDrive++) {
-        sprintf(scanRoot, "%c:\\", (char)scanDrive);
+    driveCount = 0;
+    for (drive = 'a'; drive <= 'z'; drive++) {
+        sprintf(scanRoot, "%c:\\", (char)drive);
         if (GetDriveTypeA(scanRoot) == DRIVE_CDROM) {
-            drives[driveCount] = (char)scanDrive;
+            drives[driveCount] = (char)drive;
             driveCount++;
         }
     }
 
     result = 0;
-    i = 0;
-    while (i < driveCount) {
-        drive = drives[i];
-        sprintf(root, "%c:\\", drive);
+    for (drive = 0; drive < driveCount; drive++) {
+        sprintf(root, "%c:\\", drives[drive]);
         GetVolumeInformationA(root, volume, 0xff, 0,
                               &maximumComponentLength, &flags,
                               filesystem, sizeof(filesystem));
-        if (memcmp(label, "<anydisc>", 10) == 0) {
-            if (SetCurrentDirOnDrive(drive, directory) != 0) {
-                result = drive;
+        if (strcmp(label, "<anydisc>") == 0) {
+            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
+                result = drives[drive];
                 break;
             }
         } else if (strcmp(volume, label) == 0) {
-            if (SetCurrentDirOnDrive(drive, directory) != 0) {
-                result = drives[i];
+            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
+                result = drives[drive];
                 break;
             }
         }
-        i++;
     }
     return result;
 }
+
+#pragma intrinsic(strcmp)
 
 /* Function start: 0x4563A3 */
 int SetCurrentDirOnDrive(char drive, const char *directory)
