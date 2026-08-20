@@ -346,7 +346,7 @@ unsigned short InitializeDIBScreenViewport(
     if (g_nSpacePaletteFadeMode_004901e8 != 0x13) {
         SystemDebugPrintf("== BAD alloc_screen == : type: '%d'\n",
                           (int)(short)g_nSpacePaletteFadeMode_004901e8);
-        _exit(1);
+        exit(1);
         colour = (unsigned short)-1;
     }
     viewport->pixels = GetDIBPixelBuffer();

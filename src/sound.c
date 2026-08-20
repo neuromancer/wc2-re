@@ -89,7 +89,7 @@ void playWAVE(const char *filename, int looping, int volume)
     if (file == -1) {
         sprintf(error, "playWAVE Unable to open file '%s'", filename);
         MessageBoxA(0, error, "Error", MB_ICONHAND);
-        _exit(1);
+        exit(1);
     }
     fileSize = _filelength(file);
     fileData = (unsigned char *)malloc((unsigned int)fileSize);
@@ -198,7 +198,7 @@ void PlaySnowStaticSound(void)
                 MessageBoxA(0,
                             "playWAVE Unable to open file 'sfx23",
                             "Notice", MB_ICONHAND);
-                _exit(1);
+                exit(1);
             }
             fileSize = _filelength(file);
             fileData = (unsigned char *)malloc((unsigned int)fileSize);
