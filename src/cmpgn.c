@@ -941,48 +941,48 @@ void LoadMissionData(short series, short mission)
     offset = series * 0x60;
     offset += mission * 0x18;
     source = packet + offset;
-    memcpy(&g_stMissionHeader_005d3e70, source, 0x18);
+    DosMemcpy(&g_stMissionHeader_005d3e70, source, 0x18);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 1, 0);
     offset = series * 0xfc8;
     offset += mission * 0x3f2;
     source = packet + offset;
-    memcpy(g_aMissionNavPoints_00491e98, source, 0x3f2);
+    DosMemcpy(g_aMissionNavPoints_00491e98, source, 0x3f2);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 2, 0);
     offset = series * 0x800;
     offset += mission * 0x200;
     source = packet + offset;
-    memcpy(g_aMissionObjectiveSources_005d3c70, source, 0x200);
+    DosMemcpy(g_aMissionObjectiveSources_005d3c70, source, 0x200);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 3, 0);
     offset = series * 0xf00;
     offset += mission * 0x3c0;
     source = packet + offset;
-    memcpy(g_aMissionShips_00492290, source, 0x3c0);
+    DosMemcpy(g_aMissionShips_00492290, source, 0x3c0);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 4, 0);
     offset = series * 0xa0;
     offset += mission * 0x28;
     source = packet + offset;
-    memcpy(g_abMissionAuxData_005d3c10, source, 0x28);
+    DosMemcpy(g_abMissionAuxData_005d3c10, source, 0x28);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 5, 0);
     offset = series * 0x28;
     source = packet + offset;
-    memcpy(g_abSeriesAuxData_005d3c40, source, 0x28);
+    DosMemcpy(g_abSeriesAuxData_005d3c40, source, 0x28);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(moduleName, 6, 0);
     offset = series * 0x378;
     offset += mission * 0xde;
     source = packet + offset;
-    memcpy(g_abMissionBriefingData_005d3e90, source, 0xde);
+    DosMemcpy(g_abMissionBriefingData_005d3e90, source, 0xde);
     ReleasePacketHandle(packet);
 }
 

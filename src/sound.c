@@ -402,7 +402,7 @@ void RewriteDiskFileGraphicsExtensions(char *fileName)
     char *extensionPosition;
 
     if (g_cCutsceneVideoMode_00499c48 == 13) {
-        extensionPosition = strchr(fileName, '.');
+        extensionPosition = DosStrchr(fileName, '.');
 #ifdef WC1_SDL
         if (extensionPosition != 0) {
             extensionPosition++;

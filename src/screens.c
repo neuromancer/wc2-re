@@ -43,6 +43,12 @@ void LogChangedCutsceneWorkBuffers(void)
            g_pszCutscenePrintBuffer_005d2f10, 10);
 }
 
+/* WC2's screens.c declares the memory-status flag one byte wide where the
+ * rest of the game declares it as a short.  Only the load and store width
+ * differ; the flag itself is 0 or 1. */
+#define g_cShowMemoryStatus \
+    (*(signed char *)&g_nShowMemoryStatus_0049d784)
+
 /* Function start: 0x42BFB8 */
 void RouteCutsceneViewportToDisplay(void)
 {
@@ -54,11 +60,11 @@ void RouteCutsceneViewportToDisplay(void)
         g_bCutsceneViewportPreallocated_00499c4c == 0) {
         firstRow = g_stSecondaryViewBuffer_005d2c90.pixels +
             g_stSecondaryViewBuffer_005d2c90.rowOffsets[0];
-        WriteMemoryStateReportHook();
+        WriteDetailedMemoryStateReport();
         ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
         if (g_pMemoryLogFile_00499da8 != 0)
             fprintf(g_pMemoryLogFile_00499da8, "Rerouted LZ.\n");
-        WriteMemoryStateReportHook();
+        WriteDetailedMemoryStateReport();
     }
     g_pActiveCutscenePixels_005c83dc = firstRow;
 }
@@ -768,9 +774,9 @@ void RunLoadedCutscene(void)
     short savedMemoryStatus;
 
     savedTextContext = g_pCurrentTextContext_005c8d1c;
-    savedMemoryStatus = g_nShowMemoryStatus_0049d784;
     savedInputPollPeriod = g_nInputPollPeriod_0049d6d8;
-    g_nShowMemoryStatus_0049d784 = 1;
+    savedMemoryStatus = g_cShowMemoryStatus;
+    g_cShowMemoryStatus = 1;
     FlushSoundEffects();
     g_nInputPollPeriod_0049d6d8 = 1;
     g_cCutsceneVideoMode_00499c48 =
@@ -782,7 +788,7 @@ void RunLoadedCutscene(void)
               GetAvailableMainMemory());
     g_bCutsceneSkipAll_00499c58 = 0;
     g_bMemoryLogToFile_00499bf8 = 1;
-    WriteMemoryStateReportHook();
+    WriteDetailedMemoryStateReport();
     g_bMemoryLogToFile_00499bf8 = 0;
     if (g_pMemoryLogFile_00499da8 != 0) {
         fprintf(g_pMemoryLogFile_00499da8,
@@ -839,11 +845,11 @@ void RunLoadedCutscene(void)
     g_pSceneMusicPacket_00499c08 = 0;
     ReleaseCutsceneSoundEffects(-1);
     g_bMemoryLogToFile_00499bf8 = 1;
-    WriteMemoryStateReportHook();
+    WriteDetailedMemoryStateReport();
     g_bMemoryLogToFile_00499bf8 = 0;
     if (g_pMemoryLogFile_00499da8 != 0)
         fclose(g_pMemoryLogFile_00499da8);
-    g_nShowMemoryStatus_0049d784 = savedMemoryStatus;
+    g_cShowMemoryStatus = (signed char)savedMemoryStatus;
 }
 
 /* Function start: 0x42D81C */
@@ -1379,7 +1385,7 @@ void DrawCinematicMemoryStatus(const char *message)
     viewport = g_stModalSourceViewport_005d2c50;
     if ((g_cCutsceneVideoMode_00499c48 == 0x13 ||
          g_cCutsceneVideoMode_00499c48 == 0x0d) &&
-        g_nShowMemoryStatus_0049d784 != 0) {
+        g_cShowMemoryStatus != 0) {
         if (*message != '~') {
             PresentCutsceneFrame(
                 &g_stCutsceneTextBackingViewport_005d2db0,
