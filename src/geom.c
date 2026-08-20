@@ -1113,6 +1113,11 @@ void transform_objects_to_your_view(void)
             }
             transform_to_objects_frame(&direction, &viewPosition,
                                        WC2_EYE_OBJECT);
+#ifdef WC1_SDL
+            /* The enhanced object layer needs the unrounded projection to
+             * keep fixed thruster children attached to their ships. */
+            g_aObjectViewPosition_0059afa0[obj] = viewPosition;
+#endif
             if (viewPosition.z <
                 g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;

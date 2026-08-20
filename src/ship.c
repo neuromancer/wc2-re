@@ -1240,8 +1240,19 @@ short ResolveObjectDestruction(short attacker, short victim)
     }
     if (victim == g_nExternalViewShip_00493468)
         g_nExternalViewShip_00493468 = -1;
-    if (g_acObjectOwner_00495208[attacker] != -1)
-        attacker = g_acObjectOwner_00495208[attacker];
+#ifdef WC1_SDL
+    /* With no attacker, WC2 reads the zero-filled byte at 0x495207 just
+     * before the owner table and consequently attributes the destruction to
+     * object 0.  Preserve that result without crossing the native redzone. */
+    if (attacker == -1) {
+        attacker = 0;
+    } else {
+#endif
+        if (g_acObjectOwner_00495208[attacker] != -1)
+            attacker = g_acObjectOwner_00495208[attacker];
+#ifdef WC1_SDL
+    }
+#endif
     if (attacker != -1 &&
         g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP) {
         analyze_kill(attacker, victim);

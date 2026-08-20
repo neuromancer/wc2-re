@@ -950,6 +950,17 @@ void Mreset(short ship)
 #define WC1_MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance_0049b538[m]
 #endif
 
+/* WC2 adds the target's collision radius before it has checked the target, so
+ * with nothing targeted it reads the word at 0x4950e6, in the zero-filled
+ * alignment gap before the radius table.  Make that result explicit on the
+ * native port rather than cross a global's sanitizer redzone. */
+#ifdef WC1_SDL
+#define WC1_COLLISION_RADIUS_OF(obj) \
+    ((obj) != -1 ? g_asObjectCollisionRadius_004950e8[obj] : 0)
+#else
+#define WC1_COLLISION_RADIUS_OF(obj) g_asObjectCollisionRadius_004950e8[obj]
+#endif
+
 /* Function start: 0x4424E4 */
 void perform_maneuver(short obj)
 {
@@ -974,11 +985,11 @@ void perform_maneuver(short obj)
     if (g_nTargetFacing_00493198 < 0)
         SetShipAiScratchWord(
             (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 4 +
-                             g_asObjectCollisionRadius_004950e8[target]));
+                             WC1_COLLISION_RADIUS_OF(target)));
     else
         SetShipAiScratchWord(
             (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 6 +
-                             g_asObjectCollisionRadius_004950e8[target]));
+                             WC1_COLLISION_RADIUS_OF(target)));
 
     if (unactive(target) != 0) {
         switch (g_asShipManeuver_00495f48[obj]) {
