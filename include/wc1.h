@@ -86,6 +86,15 @@ typedef unsigned int Wc2DwordPtr;
     LoadPacketIntoBuffer((fileName), (section), (record), 0)
 #endif
 
+/* One mouth position per cinematic frame is what the original animates, and
+ * the cinematic rate is 20fps while a line is being spoken.  Nearly every
+ * entry in the mouth-duration table is a single 60Hz tick, so the frame rate
+ * is what actually paces the mouth: the clock gate only bites at 60 positions
+ * a second.  The port has to name that cadence instead of inheriting it from
+ * however fast the host happens to draw, or the mouth runs the line out well
+ * before the speech does.  Three ticks is one frame at 20fps. */
+#define WC2_CUTSCENE_MOUTH_MIN_TICKS 3
+
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
  * where they are meant to, and the reconstruction reproduces that layout

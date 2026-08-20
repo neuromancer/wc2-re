@@ -537,6 +537,21 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     if (frame != -1) {
         sprite->currentFrame = frame;
         sprite->waitTicks = (short)(speechSpeed * duration);
+#ifdef WC1_SDL
+        /* Hold each position for a whole frame at the speaking rate.  The
+         * pause markers in the table are already longer than this, so only
+         * the per-letter entries are affected. */
+        if (sprite->waitTicks < WC2_CUTSCENE_MOUTH_MIN_TICKS)
+            sprite->waitTicks = WC2_CUTSCENE_MOUTH_MIN_TICKS;
+        Wc1SdlTracef("[mouth] ch=%c speed=%d dur=%d wait=%d clock=%d "
+                     "period=%ldms cache=%d speech=%d\n",
+                     (char)(character >= ' ' ? character : '.'),
+                     (int)speechSpeed, (int)duration,
+                     (int)sprite->waitTicks, (int)g_nInputClock_005c84a8,
+                     g_nFramePeriodMilliseconds_005c343c,
+                     (int)g_wSpeechCacheState_0049bb60,
+                     (int)g_bSpeechSoundActive_004a2660);
+#endif
     } else {
         sprite->currentFrame = 11;
         sprite->waitTicks = (short)(speechSpeed * RandomInRange(2, 4));
