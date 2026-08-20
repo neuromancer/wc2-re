@@ -139,8 +139,12 @@ MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS) \
 # The reconstruction reproduces MSVC 4.1's tolerance for mismatched pointer
 # and integer arguments; clang treats those as errors by default.  Demote them
 # so the port compiles the same sources the reference build does.
-MODERN_CFLAGS ?= -O2 -std=c11 -Wno-return-type -Wno-return-mismatch \
-	-Wno-error=incompatible-pointer-types -Wno-int-conversion
+# -fno-common so a global defined in two translation units is an error here
+# too.  Apple's linker merges those tentative definitions and GNU ld does not,
+# which is how a duplicate reached CI having built cleanly on macOS.
+MODERN_CFLAGS ?= -O2 -std=c11 -fno-common -Wno-return-type \
+	-Wno-return-mismatch -Wno-error=incompatible-pointer-types \
+	-Wno-int-conversion
 MODERN_CXXFLAGS ?= -O2 -std=c++11
 MODERN_DEPFLAGS = -MMD -MP
 MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections

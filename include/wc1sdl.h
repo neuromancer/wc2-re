@@ -302,30 +302,34 @@ int Wc1SdlFindClose(long handle);
 int Wc1SdlGetChar(void);
 int Wc1SdlFlushAll(void);
 
-/* MSVC's far/near pointer size modifiers ("%Fs", "%Fp") are a no-op in a flat
- * model, but clang reads the F as a long-double conversion and consumes an
- * argument for it, which shifts every value after it.  These wrappers rewrite
- * the format and hand the rest to the C library unchanged. */
-/* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
- * input and firing through the port without disturbing the reference build. */
+#endif
+
+/* None of what follows is POSIX-specific: a Windows host needs it too.  The
+ * pointer widening is LLP64 there rather than LP64, and MinGW's C library
+ * makes no more sense of MSVC's format modifiers than any other. */
+
 /* The object-type records on disk are laid out the way the original's
- * ObjectTypeData is: 0xF3 bytes with four-byte pointer slots.  On LP64 the
- * struct is wider, so a packet cannot be read straight into one -- see
- * Wc2SdlLoadObjectTypeRecord. */
+ * ObjectTypeData is: 0xF3 bytes with four-byte pointer slots.  Anywhere a
+ * pointer is wider than that, a packet cannot be read straight into one --
+ * see Wc2SdlLoadObjectTypeRecord. */
 struct ObjectTypeData;
 void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
                                 struct ObjectTypeData *record);
 
+/* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
+ * input and firing through the port without disturbing the reference build. */
 int Wc1SdlTraceEnabled(void);
 void Wc1SdlTracef(const char *format, ...);
 
+/* MSVC's far/near pointer size modifiers ("%Fs", "%Fp") are a no-op in a flat
+ * model, but a modern compiler reads the F as a conversion of its own and
+ * consumes an argument for it, which shifts every value after it.  These
+ * wrappers rewrite the format and hand the rest to the C library unchanged. */
 int Wc1SdlPrintf(const char *format, ...);
 int Wc1SdlFprintf(FILE *stream, const char *format, ...);
 int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...);
 int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
                     va_list arguments);
-
-#endif
 
 #ifdef __cplusplus
 }

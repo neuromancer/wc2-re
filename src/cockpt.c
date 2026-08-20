@@ -92,7 +92,6 @@ char g_szObjectiveReached_0049b414[20] = "Objective Reached";
 char g_szWaitForFormat_0049b428[12] = "Wait for %s";
 char *g_pszGameVersion_0049b528 = g_szGameVersion_0049b52c;
 char g_szGameVersion_0049b52c[9] = "1.03F-95";
-short g_nViewportOriginY_005c849c;
 signed char g_cHudMessageView_005d1c37;
 
 /* Function start: 0x420340 */

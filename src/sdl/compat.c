@@ -1,5 +1,6 @@
 #include "wc1sdl.h"
 
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,7 +12,6 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <stdarg.h>
 #include <strings.h>
 #include <sys/stat.h>
 
@@ -359,6 +359,62 @@ int Wc1SdlFindClose(long handle)
     return 0;
 }
 
+
+/*
+ *  There is no console to read, so the acknowledgement wait becomes a pump of
+ *  the SDL event queue until a key arrives or the window closes.
+ */
+int Wc1SdlGetChar(void)
+{
+    Wc1SdlPumpEvents();
+    return 0;
+}
+
+int Wc1SdlFlushAll(void)
+{
+    fflush(0);
+    return 0;
+}
+
+char *Wc1SdlStrupr(char *text)
+{
+    char *cursor;
+
+    cursor = text;
+    while (*cursor != '\0') {
+        *cursor = (char)toupper((unsigned char)*cursor);
+        cursor++;
+    }
+    return text;
+}
+
+#else
+
+int Wc1SdlChangeDirectory(const char *path)
+{
+    return _chdir(path);
+}
+
+int Wc1SdlResolvePath(const char *path, char *resolved,
+                      unsigned long resolvedSize)
+{
+    size_t pathLength;
+
+    if (path == 0 || resolved == 0 || resolvedSize == 0)
+        return 0;
+    pathLength = strlen(path);
+    if (pathLength + 1 > resolvedSize)
+        return 0;
+    memcpy(resolved, path, pathLength + 1);
+    return 1;
+}
+
+#endif
+
+/*
+ *  Shared by every host.  Rewriting the formats and gating the trace are not
+ *  POSIX-specific concerns -- see the note in wc1sdl.h.
+ */
 /*
  *  Rewrite a printf format the way MSVC would have read it: drop the far/near
  *  pointer size modifiers, which are meaningless in a flat model but which
@@ -470,54 +526,3 @@ int Wc1SdlFprintf(FILE *stream, const char *format, ...)
     va_end(arguments);
     return written;
 }
-
-/*
- *  There is no console to read, so the acknowledgement wait becomes a pump of
- *  the SDL event queue until a key arrives or the window closes.
- */
-int Wc1SdlGetChar(void)
-{
-    Wc1SdlPumpEvents();
-    return 0;
-}
-
-int Wc1SdlFlushAll(void)
-{
-    fflush(0);
-    return 0;
-}
-
-char *Wc1SdlStrupr(char *text)
-{
-    char *cursor;
-
-    cursor = text;
-    while (*cursor != '\0') {
-        *cursor = (char)toupper((unsigned char)*cursor);
-        cursor++;
-    }
-    return text;
-}
-
-#else
-
-int Wc1SdlChangeDirectory(const char *path)
-{
-    return _chdir(path);
-}
-
-int Wc1SdlResolvePath(const char *path, char *resolved,
-                      unsigned long resolvedSize)
-{
-    size_t pathLength;
-
-    if (path == 0 || resolved == 0 || resolvedSize == 0)
-        return 0;
-    pathLength = strlen(path);
-    if (pathLength + 1 > resolvedSize)
-        return 0;
-    memcpy(resolved, path, pathLength + 1);
-    return 1;
-}
-
-#endif
