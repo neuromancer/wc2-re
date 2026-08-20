@@ -1661,6 +1661,31 @@ void hit_asteroid(short asteroid, short destructionChance)
     }
 }
 
+/* WC2's collision response uses SHL for the signed mass difference.  Native C
+ * cannot left-shift a negative value, so use the equivalent bounded multiply
+ * in the port while retaining the original expression for comparison. */
+#ifdef WC1_SDL
+#define WC1_COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+    (((objectMass) - (partnerMass)) * 0x100)
+#else
+#define WC1_COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+    (((objectMass) - (partnerMass)) << 8)
+#endif
+
+/* Only slots 0-11 have ship maximum-velocity state, but WC2 indexes that
+ * table with any colliding object.  Slot 15 reaches the zero high word of the
+ * adjacent alert flags in the retail layout; make that zero result explicit
+ * for every non-ship slot instead of crossing a native global's redzone. */
+#ifdef WC1_SDL
+#define WC1_COLLISION_MAXIMUM_VELOCITY(obj) \
+    ((unsigned short)(obj) < 12 \
+         ? g_asShipMaximumVelocity_00495f70[obj] \
+         : 0)
+#else
+#define WC1_COLLISION_MAXIMUM_VELOCITY(obj) \
+    g_asShipMaximumVelocity_00495f70[obj]
+#endif
+
 /* Function start: 0x41D591 */
 void object_collision(short obj)
 {
@@ -1872,7 +1897,8 @@ void object_collision(short obj)
 #endif
                 damage = (short)((damage * damage) >> 1);
                 totalMass = partnerMass + objectMass;
-                responseScale = ((objectMass - partnerMass) << 8) /
+                responseScale = WC1_COLLISION_MASS_DIFFERENCE_SCALE(
+                                    objectMass, partnerMass) /
                                 totalMass;
                 responseScale = MinInt(
                     MaxInt(0x40, responseScale), 0x400);
@@ -1883,7 +1909,7 @@ void object_collision(short obj)
                     Vector_magnitude(&force)) + 0xa00;
                 speed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < g_asShipMaximumVelocity_00495f70[obj]) {
+                if (speed < WC1_COLLISION_MAXIMUM_VELOCITY(obj)) {
                     AddFixedVectors(&force,
                                     &g_aShipVelocity_00494898[obj],
                                     &g_aShipVelocity_00494898[obj]);
@@ -1916,7 +1942,7 @@ void object_collision(short obj)
                 AddFixedVectors(&force, &partnerComponent, &force);
                 speed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < g_asShipMaximumVelocity_00495f70[partner]) {
+                if (speed < WC1_COLLISION_MAXIMUM_VELOCITY(partner)) {
                     AddFixedVectors(&force,
                                     &g_aShipVelocity_00494898[partner],
                                     &g_aShipVelocity_00494898[partner]);

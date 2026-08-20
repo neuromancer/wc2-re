@@ -4,6 +4,7 @@ int main(int argumentCount, char **arguments)
 {
     float thrusterScreenX;
     float thrusterScreenY;
+    short collisionPartner = 15;
     short object;
     short ship = 1;
     short target = 2;
@@ -72,6 +73,36 @@ int main(int argumentCount, char **arguments)
         g_cPlayerKillCount_005d2fa8 != 1)
         return 1;
     g_asShipSide_004955d0[0] = SIDE_IMPERIAL;
+
+    /* A base colliding with an asteroid in slot 15 produces a negative mass
+     * response and reaches beyond WC2's twelve ship-velocity entries. */
+    for (object = 0; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+        g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
+        g_asObjectScreenX_00493598[object] = (short)0x8001;
+    }
+    g_aeObjectClass_00495328[0] = OBJECT_CLASS_BASE;
+    g_aeObjectClass_00495328[collisionPartner] = OBJECT_CLASS_ASTEROID;
+    g_acObjectType_00493980[0] = 0;
+    g_acObjectType_00493980[collisionPartner] = 1;
+    g_aObjectTypeData_00496d30[0].radarRadius = 25;
+    g_aObjectTypeData_00496d30[1].radarRadius = 200;
+    g_asObjectCollisionRadius_004950e8[0] = 10;
+    g_asObjectCollisionRadius_004950e8[collisionPartner] = 10;
+    zero_vector(&g_aShipPosition_00494550[0]);
+    zero_vector(&g_aShipPosition_00494550[collisionPartner]);
+    zero_vector(&g_aShipVelocity_00494898[0]);
+    zero_vector(&g_aShipVelocity_00494898[collisionPartner]);
+    g_aShipPosition_00494550[collisionPartner].x = 0x100;
+    g_acObjectOwner_00495208[collisionPartner] = -1;
+    g_acLastCollisionObject_00495250[0] = -1;
+    g_acLastCollisionObject_00495250[collisionPartner] = -1;
+    g_asShipMaximumVelocity_00495f70[0] = 1;
+    g_bPlayerCollisionEnabled_0049d780 = 1;
+    g_nCurrentView_00492fa8 = 1;
+    object_collision(0);
+    if (g_acLastCollisionObject_00495250[0] != collisionPartner ||
+        g_acLastCollisionObject_00495250[collisionPartner] != 0)
+        return 1;
 
     /* Autopilot's view-13 camera draws the running engines as fixed children.
      * Their enhanced positions need the parent's view-space coordinates. */
