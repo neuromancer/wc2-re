@@ -15,21 +15,29 @@ No copyrighted game data is included.
 The reconstruction is incomplete. The current source compiles and links as
 `WC2.EXE`, but significant implementation, mapping, and runtime work remains.
 
-The SDL2 port inherited with the source does not currently work. This is
-expected until the WC2 reconstruction is complete.
+The SDL2 port reaches the title screen, the campaign intro, the pilot database,
+the pilot save/load menu and space flight, with firing, targeting, the cockpit
+displays and music working. Enhanced rendering is wired but largely untested.
 
 `make report` measures machine-code similarity against the retail executable.
-The current report compares 1,558 functions:
+The current report compares 1,575 functions:
 
 | Result | Functions |
 | --- | ---: |
-| Exact matches | 929 |
-| Similarity at or above 90% | 1423 |
-| Similarity below 90% | 135 |
+| Exact matches | 997 |
+| Similarity at or above 90% | 1477 |
+| Similarity below 90% | 98 |
 
-The current average similarity is 96.87%, with no report errors or missing
+The current average similarity is 97.42%, with no report errors or missing
 disassembly exports. Similarity measures reconstruction fidelity, not gameplay
 completeness.
+
+## Releases
+
+Prebuilt archives are published on the
+[releases page](https://github.com/neuromancer/wc2-re/releases): the SDL2 port
+for Linux, macOS on both architectures and Windows, plus the Win32
+reconstruction rebuilt with MSVC 4.1. Everything below `1.0` is a prerelease.
 
 ## Build
 
