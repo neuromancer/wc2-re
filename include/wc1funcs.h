@@ -951,7 +951,7 @@ short being_tailed(short obj, short other);                           /* 0x42A0A
 short detect_enemy_tail(short obj);                                    /* 0x42A108 */
 short is_ship_tailing_player_target(short obj);                       /* 0x42A1C5 */
 short FindMissileTargetingObject(short obj);                          /* 0x42A222 */
-unsigned int build_squad_list(short leader);                          /* 0x42A28E */
+void build_squad_list(short leader);                                  /* 0x42A28E */
 unsigned int find_squad_center(FixedVector *center);                  /* 0x42A313 */
 unsigned int init_formation_burst(short obj);                          /* 0x42A39A */
 void reset_mission_type(short obj,

@@ -2710,6 +2710,7 @@ void UpdateTargetLeadIndicator(void)
     short weapon;
     short projectileSpeed;
     FixedVector projectileVelocity;
+    short targetRange;
     int targetDistance;
     short interceptFrames;
     FixedVector targetVelocityOffset;
@@ -2725,8 +2726,7 @@ void UpdateTargetLeadIndicator(void)
     }
 
     targetObject = g_acShipTarget_00495f20[0];
-    targetDistance = (unsigned short)distance_from_object(
-        0, targetObject);
+    targetRange = distance_from_object(0, targetObject);
     projectileSpeed = 100;
     if (g_nCurrentView_00492fa8 == 4) {
         projectileSpeed =
@@ -2734,22 +2734,23 @@ void UpdateTargetLeadIndicator(void)
                 OBJECT_TYPE_TIGERS_CLAW].maximumVelocity;
     } else {
         weapon = (signed char)g_aShipWeapons_004956b0[0][0];
-        while (weapon > 0) {
-            signed char weaponType;
-
-            weapon--;
-            weaponType = ((ShipWeaponSlot *)(
-                g_aShipWeapons_004956b0[0] + 1))[weapon].weaponType;
+        while (weapon-- > 0) {
             if (((ShipWeaponSlot *)(
                     g_aShipWeapons_004956b0[0] + 1))[weapon].disabled == 0 &&
-                g_aObjectTypeData_00496d30[weaponType].objectClass ==
+                g_aObjectTypeData_00496d30[
+                    ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[0] + 1))[
+                        weapon].weaponType].objectClass ==
                     OBJECT_CLASS_PROJECTILE &&
                 projectileSpeed <
                     g_aObjectTypeData_00496d30[
-                        weaponType].maximumVelocity)
+                        ((ShipWeaponSlot *)(
+                            g_aShipWeapons_004956b0[0] + 1))[
+                            weapon].weaponType].maximumVelocity)
                 projectileSpeed =
                     g_aObjectTypeData_00496d30[
-                        weaponType].maximumVelocity;
+                        ((ShipWeaponSlot *)(
+                            g_aShipWeapons_004956b0[0] + 1))[
+                            weapon].weaponType].maximumVelocity;
         }
     }
 
@@ -2765,7 +2766,7 @@ void UpdateTargetLeadIndicator(void)
         &combinedProjectileVelocity);
     projectileSpeed =
         (short)((Vector_magnitude(&combinedProjectileVelocity) >> 8) + 1);
-    interceptFrames = (short)(targetDistance / projectileSpeed);
+    interceptFrames = (short)(targetRange / projectileSpeed);
     zero_vector(&targetVelocityOffset);
     if (interceptFrames > 0)
         ScaleFixedVector(
@@ -2790,31 +2791,31 @@ void UpdateTargetLeadIndicator(void)
             WC2_EYE_OBJECT] * 0x100 < targetDistance) {
         transform_to_objects_frame(
             &relative, &eyeRelative, WC2_EYE_OBJECT);
-        if ((int)g_asObjectCollisionRadius_004950e8[
-                WC2_EYE_OBJECT] * 0x100 <= eyeRelative.z &&
+        if ((int)g_asObjectCollisionRadius_004950e8[0] * 0x100 <=
+                eyeRelative.z &&
             DivideFixed(eyeRelative.z, targetDistance) >= 0) {
             g_nTargetLeadIndicatorX_0049afe8 =
+                (short)DivideFixed(
+                    MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
+                                  eyeRelative.x),
+                    eyeRelative.z);
+            g_nTargetLeadIndicatorX_0049afe8 =
                 (short)(g_nViewCenterX_005c80d8 +
-                        DivideFixed(
-                            MultiplyFixed(
-                                g_nScreenWidth_0049d4d8 >> 1,
-                                eyeRelative.x),
-                            eyeRelative.z));
+                        g_nTargetLeadIndicatorX_0049afe8);
+            g_nTargetLeadIndicatorY_005d1c2a =
+                (short)DivideFixed(
+                    MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
+                                  eyeRelative.y),
+                    eyeRelative.z);
             g_nTargetLeadIndicatorY_005d1c2a =
                 (short)(g_nViewCenterY_005c80da +
-                        DivideFixed(
-                            MultiplyFixed(
-                                g_nScreenWidth_0049d4d8 >> 1,
-                                eyeRelative.y),
-                            eyeRelative.z));
+                        g_nTargetLeadIndicatorY_005d1c2a);
         }
     }
-    if (g_nTargetLeadIndicatorX_0049afe8 < 10 ||
-        g_nTargetLeadIndicatorX_0049afe8 > 310 ||
-        g_nTargetLeadIndicatorY_005d1c2a < 5 ||
-        g_nTargetLeadIndicatorY_005d1c2a > 190) {
-        g_nTargetLeadIndicatorX_0049afe8 = 0x7fff;
-    } else {
+    if (g_nTargetLeadIndicatorX_0049afe8 >= 10 &&
+        g_nTargetLeadIndicatorX_0049afe8 <= 310 &&
+        g_nTargetLeadIndicatorY_005d1c2a >= 5 &&
+        g_nTargetLeadIndicatorY_005d1c2a <= 190) {
         CaptureSpriteBackground(
             &g_stViewBuffer_005d2b00,
             g_pCockpitHudBackground_0049b044,
@@ -2826,6 +2827,8 @@ void UpdateTargetLeadIndicator(void)
             g_nTargetLeadIndicatorX_0049afe8,
             g_nTargetLeadIndicatorY_005d1c2a,
             g_pCockpitHudShape_005d21f4, 5);
+    } else {
+        g_nTargetLeadIndicatorX_0049afe8 = 0x7fff;
     }
 }
 

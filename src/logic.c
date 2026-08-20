@@ -1669,20 +1669,20 @@ short FindMissileTargetingObject(short obj)
 }
 
 /* Function start: 0x42A28E */
-unsigned int build_squad_list(short leader)
+void build_squad_list(short leader)
 {
     short obj;
-    short index = 1;
+    short index;
 
-    g_acShipList_00496148[0] = (signed char)leader;
-    g_acShipList_00496148[1] = -1;
+    index = 0;
+    g_acShipList_00496148[index++] = (signed char)leader;
+    g_acShipList_00496148[index] = -1;
     for (obj = 0; obj < 10; obj++) {
         if (g_asShipWingLeader_00495dd0[obj] == leader) {
             g_acShipList_00496148[index++] = (signed char)obj;
             g_acShipList_00496148[index] = -1;
         }
     }
-    return 0;
 }
 
 /* Function start: 0x42A313 */
