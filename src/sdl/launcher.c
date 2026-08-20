@@ -197,6 +197,14 @@ int main(int argumentCount, char **arguments)
                 }
             }
         }
+        /* The flight loop waits one timer period per frame, so this is the
+         * frame duration in 60ths of a second less one -- the readout in
+         * AdjustSpaceFramePeriod prints it as period + 1.  Retail ships 4,
+         * which is 5/60s or about 12fps; the port takes a tick off for 4/60s,
+         * about 15fps, which visibly smooths flight.  Set here rather than in
+         * globals.c so that file stays a faithful mirror of the image's data,
+         * and because the in-flight keys can still adjust it from here. */
+        g_nSpaceFramePeriod_0049d768 = 3;
         Wc1SdlApplyLegacyArguments(argumentCount, arguments);
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
