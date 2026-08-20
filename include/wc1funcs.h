@@ -843,7 +843,7 @@ void check_next_wave(void);                                          /* 0x4137C2
 void ProcessEnemyWaveCompletion(void);                               /* 0x4138A8 */
 void Create_explosion_debris(short obj);                              /* 0x413A3B */
 void affect_mission_score(short pilot, int event, short amount);       /* 0x413D61 */
-unsigned int score_for_kill(short pilot, short victim);               /* 0x413E4C */
+void score_for_kill(short pilot, short victim);                       /* 0x413E4C */
 void analyze_kill(short attacker, short victim);                      /* 0x413F58 */
 short ShipExplosion(short obj);                                      /* 0x4142C8 */
 short Explosion(short obj);                                          /* 0x41444C */

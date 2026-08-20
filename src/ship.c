@@ -934,43 +934,43 @@ void affect_mission_score(short pilot, int event, short amount)
 }
 
 /* Function start: 0x413E4C */
-unsigned int score_for_kill(short pilot, short victim)
+void score_for_kill(short pilot, short victim)
 {
     int event;
 
     if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI) {
-        switch (g_acObjectType_00493980[victim]) {
-        case OBJECT_TYPE_SALTHI:
-            event = 1;
-            break;
-        case OBJECT_TYPE_DRALTHI:
-        case OBJECT_TYPE_KRANT:
-            event = 2;
-            break;
-        case OBJECT_TYPE_GRATHA:
-        case OBJECT_TYPE_JALTHI:
-            event = 3;
-            break;
-        case OBJECT_TYPE_SPIKERI:
-        case OBJECT_TYPE_RALARI:
-            event = 6;
-            break;
-        case OBJECT_TYPE_DORKIR:
-        case OBJECT_TYPE_LUMBARI:
-            event = 4;
-            break;
-        case OBJECT_TYPE_FRALTHI:
-        case OBJECT_TYPE_SNAKEIR:
+        /* WC2 renumbered the craft table; the Kilrathi hulls that carry a
+         * kill score sit at 48-58 and the retail image names none of them. */
+        if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_BASE ||
+            g_asObjectType_00495298[victim] == 58) {
             event = 7;
-            break;
-        case OBJECT_TYPE_SIVAR:
-        case OBJECT_TYPE_KILRATHI_BASE:
-            event = 8;
-            break;
+        } else {
+            switch (g_asObjectType_00495298[victim]) {
+            case 48:
+                event = 1;
+                break;
+            case 49:
+                event = 2;
+                break;
+            case 50:
+                event = 3;
+                break;
+            case 52:
+            case 53:
+                event = 5;
+                break;
+            case 54:
+            case 55:
+                event = 4;
+                break;
+            case 56:
+            case 57:
+                event = 6;
+                break;
+            }
         }
         affect_mission_score(pilot, event, -1);
     }
-    return 0;
 }
 
 /* Function start: 0x413F58 */

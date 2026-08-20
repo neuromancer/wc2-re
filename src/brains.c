@@ -1413,42 +1413,43 @@ short RunSelectedCampaign(void)
 /* Function start: 0x442770 */
 void cruise_home(short obj)
 {
-    FixedVector *destination;
     short range;
-    short objective;
 
-    if (abandoned(obj, 0) != 0 || (g_abShipTurn_00495fd8[obj] & 7) != 5)
+    if (abandoned(obj, 0) != 0)
         return;
-
-    if (obj == g_nYourWingman_0049346c &&
-        distance_from_object(obj, 0) > 16000)
-        remove_object(obj);
-
-    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP)
-        approach_cruise_speed(obj);
-    else if (normal_speed(obj) != 0)
-        fire_afterburner(obj, 10);
-
-    destination = &g_aShipDestination_004953f0[obj];
-    if (CanSetNewShipTurnGoal(obj) != 0)
-        point_ship_at_point(obj, destination);
-    range = distance_from_point(obj, destination);
-
-    if (equ_vector(destination, &g_aShipMissionSpot_00495e18[obj])) {
-        if (range < 5000) {
-            reset_tactic(obj, TACTIC_HEAD_HOME);
-            set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
-            zero_vector(&g_aShipVelocity_00494898[obj]);
+    if ((g_abShipTurn_00495fd8[obj] & 7) == 5) {
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+            g_asShipSide_004955d0[obj] == g_asShipSide_004955d0[0] &&
+            distance_from_object(obj, 0) > 16000) {
+            remove_object(obj);
+            return;
         }
-        return;
-    }
-
-    if (range < 1500) {
-        objective = g_abFlightPath_004932a0[
-            g_abShipNavPointIndex_00495f60[obj]];
-        if (g_aMissionObjectives_004932a8[objective].type != 1)
-            flag_objective(objective, 1);
-        get_follow_point(obj, destination);
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP ||
+            g_asObjectType_00495298[obj] == 0x33)
+            approach_cruise_speed(obj);
+        else if (normal_speed(obj) != 0)
+            fire_afterburner(obj, 10);
+        if (CanSetNewShipTurnGoal(obj) != 0)
+            point_ship_at_point(obj, &g_aShipDestination_004953f0[obj]);
+        range = distance_from_point(obj, &g_aShipDestination_004953f0[obj]);
+        if (equ_vector(&g_aShipDestination_004953f0[obj],
+                       &g_aShipMissionSpot_00495e18[obj]) != 0) {
+            if (range < 5000) {
+                reset_tactic(obj, TACTIC_HEAD_HOME);
+                set_special(obj, SPECIAL_MANEUVER_KILL_ENGINES);
+                zero_vector(&g_aShipVelocity_00494898[obj]);
+            }
+            return;
+        }
+        if (range < 1500) {
+            if (g_aMissionObjectives_004932a8[
+                    g_abFlightPath_004932a0[
+                        g_abShipNavPointIndex_00495f60[obj]]].type != 1)
+                flag_objective(
+                    g_abFlightPath_004932a0[
+                        g_abShipNavPointIndex_00495f60[obj]], 1);
+            get_follow_point(obj, &g_aShipDestination_004953f0[obj]);
+        }
     }
 }
 

@@ -909,14 +909,18 @@ void remove_object(short obj)
         }
     }
     if (obj < 10) {
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_CAPITAL_SHIP)
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP ||
+            (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
+             g_asObjectType_00495298[obj] == 0x33))
             FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
+        g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
         g_acShipPortrait_00495d88[obj] = -1;
         g_acShipPendingMessage_00495d98[obj] = -1;
-        g_asShipSide_004955d0[obj] = SIDE_NEUTRAL;
         g_asShipManeuver_00495f48[obj] = MANEUVER_NONE;
         clear_alert(obj);
         g_asLoadedShipViewFrame_00495d18[obj] = -1;
+        g_asShipIntelSlot_00495d30[obj] = -1;
+        g_asShipIntelResourceKey_00495d48[obj] = -1;
     }
     g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
     g_apObjectShape_00493868[obj] = 0;

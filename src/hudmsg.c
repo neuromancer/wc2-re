@@ -1797,22 +1797,27 @@ void arrive_from_warp(short obj)
 {
     short objective = find_objective(0, g_nCurrentNavPoint_004931bc);
 
-    if (objective != -1) {
-        if (g_aMissionObjectives_004932a8[
-                g_abFlightPath_004932a0[objective]].type != 1)
-            flag_objective(objective, 1);
-        if (g_cCurrentObjective_004931cc == objective)
-            set_next_destination();
+    if (obj != 0) {
+        if (objective != -1) {
+            if (g_aMissionObjectives_004932a8[
+                    g_abFlightPath_004932a0[objective]].type != 1)
+                flag_objective(objective, 1);
+            if (g_cCurrentObjective_004931cc == objective)
+                set_next_destination();
+        }
+        place_ship_near_player_until_valid(obj, 2000, 5000);
+        if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL)
+            reset_mission_type(obj, MISSION_TYPE_COME_HOME);
+        else
+            reset_mission_type(obj, MISSION_TYPE_PATROL);
+    } else {
+        g_asShipMissionType_00495de8[0] = MISSION_TYPE_NONE;
+        g_asShipTactic_00495f30[0] = TACTIC_NONE;
     }
-    place_ship_near_player_until_valid(obj, 2000, 5000);
     unwarp(obj);
     g_anShipSpeed_00494e20[obj] =
         (int)g_asShipMaximumVelocity_00495f70[obj] << 8;
     fix_velocity(obj);
-    if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL)
-        reset_mission_type(obj, MISSION_TYPE_COME_HOME);
-    else
-        reset_mission_type(obj, MISSION_TYPE_PATROL);
 }
 
 /* Function start: 0x424C05 */

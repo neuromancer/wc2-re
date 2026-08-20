@@ -1518,33 +1518,34 @@ short report_kilrathi_rout(int mode)
     short obj;
 
     for (obj = 0; obj < 10; obj++) {
-        if (g_aeObjectClass_00495328[obj] < OBJECT_CLASS_SHIP ||
-            g_aeSpecialManeuver_00495600[obj] ==
-                SPECIAL_MANEUVER_UNKNOWN_9)
-            continue;
-        switch (mode) {
-        case 0:
-            if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
-                return 1;
-            break;
-        case 1:
-            if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
-                g_asShipMissionType_00495de8[obj] != MISSION_TYPE_ROUT &&
-                distance_from_object(0, obj) < 16000)
-                return 1;
-            break;
-        case 2:
-            if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
-                (g_aeShipObjective_00495f08[obj] ==
-                     OBJECTIVE_ENGAGE_ENEMY ||
-                 g_aeShipObjective_00495f08[obj] ==
-                     OBJECTIVE_DESTROY_SHIP))
-                return 1;
-            break;
+        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_00495600[obj] !=
+                SPECIAL_MANEUVER_UNKNOWN_9) {
+            switch (mode) {
+            case 0:
+                if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+                    return 1;
+                break;
+            case 1:
+                if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+                    g_asShipMissionType_00495de8[obj] !=
+                        MISSION_TYPE_ROUT &&
+                    distance_from_object(0, obj) < 16000)
+                    return 1;
+                break;
+            case 2:
+                if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+                    (g_aeShipObjective_00495f08[obj] ==
+                         OBJECTIVE_ENGAGE_ENEMY ||
+                     g_aeShipObjective_00495f08[obj] ==
+                         OBJECTIVE_DESTROY_SHIP))
+                    return 1;
+                break;
+            }
         }
     }
     if (mode == 1 && g_nCurrentWave_004931c0 != -1)
-        check_next_wave();
+        ProcessEnemyWaveCompletion();
     return 0;
 }
 
