@@ -485,6 +485,7 @@ src/logic.c	is_ship_tailing_player_target	is_ship_tailing_player_target	004229B0
 src/brains.c	run_away	run_away	004099C0	00442B78	WC1-fuzzy-low		96.97	ge90
 src/gr.c	GenerateWipeRadialEdges	GenerateWipeRadialEdges		0044A910	WC2-only		96.97	ge90
 src/winmain.c	TrackFreedHeapBlock	TrackFreedHeapBlock		00455715	WC2-only		96.97	ge90
+src/winmain.c	UntrackFreedHeapBlock	UntrackFreedHeapBlock		00455787	WC2-only		100.00	exact
 src/logic.c	ToggleTargetCameraTracking	ToggleTargetCameraTracking		00460498	WC2-only		97.00	ge90
 src/personnel.c	InitializeCampaignChalkboardScreen	InitializeCampaignChalkboardScreen		00433C84	WC2-only		97.06	ge90
 src/disk.c	ParseCutsceneContainer	ParseCutsceneContainer		0040E31F	WC2-only		97.07	ge90

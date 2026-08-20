@@ -1299,21 +1299,22 @@ HDC GetMainWindowDeviceContext(void)
     return DAT_005d1278;
 }
 
+#pragma function(memset)
+
 /* Function start: 0x455466 */
 void *AllocateGuardedMemory(unsigned int size)
 {
-    GuardedAllocation *allocation;
-
     if (g_pGuardedAllocationHead_0049c300 == 0) {
-        allocation =
+        g_pGuardedAllocationHead_0049c300 =
             malloc(sizeof(GuardedAllocation));
-        g_pGuardedAllocationHead_0049c300 = allocation;
+        g_pGuardedAllocationTail_005d10ec =
+            g_pGuardedAllocationHead_0049c300;
     } else {
         g_pGuardedAllocationTail_005d10ec->next =
             malloc(sizeof(GuardedAllocation));
-        allocation = g_pGuardedAllocationTail_005d10ec->next;
+        g_pGuardedAllocationTail_005d10ec =
+            g_pGuardedAllocationTail_005d10ec->next;
     }
-    g_pGuardedAllocationTail_005d10ec = allocation;
     g_pGuardedAllocationTail_005d10ec->next = 0;
     g_pGuardedAllocationTail_005d10ec->size = size;
 #ifdef WC1_SDL
@@ -1342,13 +1343,7 @@ void *AllocateGuardedMemory(unsigned int size)
                0x400 + size,
            0xab, 0x400);
 #endif
-    g_dwGuardedAllocationTotalBytes_0049c24c += size;
-    g_dwGuardedAllocationBytes_0049c250 += size;
-    if (g_dwGuardedAllocationPeakBytes_0049c254 <
-        g_dwGuardedAllocationBytes_0049c250) {
-        g_dwGuardedAllocationPeakBytes_0049c254 =
-            g_dwGuardedAllocationBytes_0049c250;
-    }
+    UntrackFreedHeapBlock(g_pGuardedAllocationTail_005d10ec->block);
 #ifdef WC1_SDL
     return g_pGuardedAllocationTail_005d10ec->block;
 #else
@@ -1356,6 +1351,8 @@ void *AllocateGuardedMemory(unsigned int size)
            0x400;
 #endif
 }
+
+#pragma intrinsic(memset)
 
 /* Function start: 0x455565 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun)
@@ -1423,6 +1420,36 @@ void TrackFreedHeapBlock(void *memory)
     }
     g_pFreedHeapBlockTail_0049c308->next = 0;
     g_pFreedHeapBlockTail_0049c308->block = memory;
+}
+
+/* Function start: 0x455787 */
+/* Forget a block that has been handed back out, so a later free of it is not
+ * mistaken for a double free. */
+void UntrackFreedHeapBlock(void *memory)
+{
+    FreedHeapBlock *previous;
+    FreedHeapBlock *block;
+
+    previous = 0;
+    block = g_pFreedHeapBlockHead_0049c304;
+    while (block != 0) {
+        if (block->block == memory) {
+            if (previous != 0) {
+                previous->next = block->next;
+                if (block->next == 0)
+                    g_pFreedHeapBlockTail_0049c308 = previous;
+            } else {
+                g_pFreedHeapBlockHead_0049c304 = block->next;
+                if (block->next == 0)
+                    g_pFreedHeapBlockTail_0049c308 = previous;
+            }
+            free(block);
+            break;
+        }
+        previous = block;
+        block = block->next;
+    }
+    return;
 }
 
 /* Function start: 0x455882 */

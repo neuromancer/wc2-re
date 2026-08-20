@@ -1092,6 +1092,7 @@
 0x0045562F IsFreedHeapBlockTracked
 0x00455697 DetectDoubleFree
 0x00455715 TrackFreedHeapBlock
+0x00455787 UntrackFreedHeapBlock
 0x00455882 FreeGuardedAllocation
 0x00455A85 SetMousePosition
 0x00455AC8 PollKeyboardState

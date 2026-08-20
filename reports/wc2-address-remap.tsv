@@ -1623,4 +1623,5 @@ src/winmain.c	1194	00402D40	00455624	CheckAllGuardedAllocations	CheckAllGuardedA
 src/winmain.c	1336		0045562F	IsFreedHeapBlockTracked	IsFreedHeapBlockTracked	WC2-only		wc2-only
 src/winmain.c	1352		00455697	DetectDoubleFree	DetectDoubleFree	WC2-only		wc2-only
 src/winmain.c	1372		00455715	TrackFreedHeapBlock	TrackFreedHeapBlock	WC2-only		wc2-only
+src/winmain.c	1387		00455787	UntrackFreedHeapBlock	UntrackFreedHeapBlock	WC2-only		wc2-only
 src/winmain.c	1386	00402DB0	00455882	FreeGuardedAllocation	FreeGuardedAllocation	WC1-manual-verified		mapped

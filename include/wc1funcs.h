@@ -60,6 +60,7 @@ void CheckAllGuardedAllocations(void);                                /* 0x45562
 int IsFreedHeapBlockTracked(void *memory);                            /* 0x45562F */
 int DetectDoubleFree(void *memory);                                   /* 0x455697 */
 void TrackFreedHeapBlock(void *memory);                               /* 0x455715 */
+void UntrackFreedHeapBlock(void *memory);                             /* 0x455787 */
 void FreeGuardedAllocation(void *memory);                             /* 0x455882 */
 void SetMousePosition(int x, int y);                                    /* 0x455A85 */
 int TakeInputPressCount(void);                                          /* 0x45641B */
