@@ -853,6 +853,15 @@ void update_bars(void)
 /* Function start: 0x439264 */
 short get_mode(short i)
 {
+#ifdef WC1_SDL
+    /* The depth starts at -1 for VDU 0, so until something calls set_mode on
+     * it the original indexes one slot in front of the row and reads the last
+     * component of g_vPlayerAcceleration_00493488 -- zero at mission init,
+     * which is the only time this happens.  Say zero rather than read across.
+     */
+    if (g_acVduModeStackDepth_004934c8[(int)i] < 0)
+        return 0;
+#endif
     return (short)g_aaiVduModeStack_00493498[(int)i][
         (int)g_acVduModeStackDepth_004934c8[(int)i]];
 }
