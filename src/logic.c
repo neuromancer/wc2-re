@@ -2029,10 +2029,14 @@ short build_target_list(short obj, short range)
 
     count = 0;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
-            g_aeSpecialManeuver_00495600[other] !=
-                SPECIAL_MANEUVER_UNKNOWN_9 &&
-            g_asShipSide_004955d0[obj] != g_asShipSide_004955d0[other]) {
+        if ((g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
+             g_aeSpecialManeuver_00495600[other] !=
+                 SPECIAL_MANEUVER_UNKNOWN_9 &&
+             g_asShipSide_004955d0[other] != g_asShipSide_004955d0[obj] &&
+             g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP) ||
+            (g_aeObjectClass_00495328[other] == OBJECT_CLASS_MISSILE &&
+             g_asObjectType_00495298[other] == 0x13 &&
+             g_acShipTarget_00495f20[other] == obj)) {
             distance = distance_from_object(obj, other);
             if (distance < range) {
                 g_acShipList_00496148[count] =

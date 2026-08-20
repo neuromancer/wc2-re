@@ -2070,19 +2070,23 @@ void streak_toward(short obj, short goal, short range)
 /* Function start: 0x444291 */
 void approach_and_engage(short obj, short goal)
 {
-    unsigned short range = (unsigned short)distance_from_object(obj, goal);
+    unsigned short range;
     unsigned short possibleRange;
     short possibleTarget;
-    int determination;
+    short closeRange;
 
-    if (g_aeObjectClass_00495328[goal] != OBJECT_CLASS_FUTURION) {
-        determination = 70;
-        determination -= MaxShort(
-            0, MinShort(4, (short)g_asPilotLevel_00495d60[obj])) * 15;
-        if (evaluate_damage(obj) > determination && range > 5000) {
-            streak_toward(obj, goal, (short)range);
-            return;
-        }
+    if (g_asObjectType_00495298[obj] == 0x33)
+        closeRange = 8000;
+    else
+        closeRange = 5000;
+    range = (unsigned short)distance_from_object(obj, goal);
+    if (g_aeObjectClass_00495328[goal] != OBJECT_CLASS_FUTURION &&
+        70 - MaxShort(0, MinShort(4,
+                (short)g_asPilotLevel_00495d60[obj])) * 15 <
+            evaluate_damage(obj) &&
+        closeRange < range) {
+        streak_toward(obj, goal, (short)range);
+        return;
     }
     possibleTarget = scan_for_enemy(obj, 10000);
     possibleRange = (unsigned short)g_nTargetRange_0049319c;
@@ -2090,8 +2094,8 @@ void approach_and_engage(short obj, short goal)
         (possibleRange * 3 < range ||
          g_aeObjectClass_00495328[goal] == OBJECT_CLASS_FUTURION)) {
         init_formation_burst(obj);
-        g_acShipTarget_00495f20[obj] = possibleTarget;
-    } else if (range < 5000) {
+        g_acShipTarget_00495f20[obj] = (signed char)possibleTarget;
+    } else if (closeRange > range) {
         engage(obj, goal, OBJECTIVE_DESTROY_SHIP);
     } else {
         streak_toward(obj, goal, (short)range);
@@ -2177,7 +2181,6 @@ void return_to_master(short obj, short master)
 void defend_mission(short obj)
 {
     short master = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
-    short target;
 
     if (master == -1) {
         change_mission_type(obj, MISSION_TYPE_PATROL);
@@ -2194,19 +2197,20 @@ void defend_mission(short obj)
         reset_objective(obj, OBJECTIVE_HOME_BASE);
 
     switch (g_aeShipObjective_00495f08[obj]) {
-    case OBJECTIVE_HOME_BASE:
-        return_to_master(obj, master);
-        break;
     case OBJECTIVE_WANDER:
-        target = scan_for_enemy(obj, 7000);
-        g_acShipTarget_00495f20[obj] = target;
-        if (target != -1) {
-            engage(obj, target, OBJECTIVE_ENGAGE_ENEMY);
+        g_acShipTarget_00495f20[obj] =
+            (signed char)scan_for_enemy(obj, 7000);
+        if (g_acShipTarget_00495f20[obj] != -1) {
+            engage(obj, (short)g_acShipTarget_00495f20[obj],
+                   OBJECTIVE_ENGAGE_ENEMY);
         } else {
             approach_half_speed(obj);
             if (CanSetNewShipTurnGoal(obj) != 0)
                 point_perpendicular(obj, master);
         }
+        break;
+    case OBJECTIVE_HOME_BASE:
+        return_to_master(obj, master);
         break;
     case OBJECTIVE_ENGAGE_ENEMY:
         maneuvering(obj, check_engage_target(obj));
