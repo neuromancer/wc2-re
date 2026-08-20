@@ -1367,6 +1367,14 @@ typedef struct MissionHeader {
 /* WC2 copies sixteen packed 0x3c-byte mission records directly from packet 3
  * into the table at 0x00492290. */
 #pragma pack(push, 1)
+/* A single palette entry as three 16-bit components.  WC2 copies one around
+ * by structure assignment, not by memcpy. */
+typedef struct PaletteRgb {
+    unsigned short red;
+    unsigned short green;
+    unsigned short blue;
+} PaletteRgb;
+
 typedef struct MissionShipRecord {
     char name[19];                    /* +0x00 */
     signed char field_13;             /* +0x13 */

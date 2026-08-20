@@ -764,28 +764,31 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
                      int showCommand)
 {
     WNDCLASSA windowClass;
+    DWORD createError;
 
     DAT_005d12b0 = instance;
     if (previous != 0)
         return 0;
 
-    memset(&windowClass, 0, sizeof(windowClass));
-    windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    windowClass.lpszClassName = "Wing Commander II: Vengeance of the Kilrathi";
+    windowClass.hInstance = DAT_005d12b0;
     windowClass.lpfnWndProc = MainWindowProc;
-    windowClass.hInstance = instance;
-    windowClass.hIcon = LoadIconA(0, IDI_APPLICATION);
     windowClass.hCursor = 0;
+    windowClass.hIcon = LoadIconA(0, IDI_APPLICATION);
+    windowClass.lpszMenuName = "Wing Commander II: Vengeance of the Kilrathi";
     windowClass.hbrBackground = GetStockObject(BLACK_BRUSH);
-    windowClass.lpszMenuName = "Wing Commander";
-    windowClass.lpszClassName = "Wing Commander";
+    windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+    windowClass.cbClsExtra = 0;
+    windowClass.cbWndExtra = 0;
     if (RegisterClassA(&windowClass) == 0)
         return 0;
 
-    g_hMainWindow_005d10e0 = CreateWindowExA(0, "Wing Commander", "Wing Commander",
-                                   WS_POPUP, 0, 0, 320, 200, 0, 0,
-                                   DAT_005d12b0, 0);
+    g_hMainWindow_005d10e0 = CreateWindowExA(
+        0, "Wing Commander II: Vengeance of the Kilrathi",
+        "Wing Commander II: Vengeance of the Kilrathi",
+        WS_POPUP, 0, 0, 320, 200, 0, 0, DAT_005d12b0, 0);
     if (g_hMainWindow_005d10e0 == 0) {
-        GetLastError();
+        createError = GetLastError();
         return 0;
     }
 
@@ -803,9 +806,6 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
     DAT_005a8a34 = SetCursor(0);
     ShowWindow(g_hMainWindow_005d10e0, showCommand);
     UpdateWindow(g_hMainWindow_005d10e0);
-    PumpWindowMessages(0);
-    PumpWindowMessages(0);
-    PumpWindowMessages(0);
     DIBinstall(g_hMainWindow_005d10e0);
     g_bMainWindowRunning_005d12ac = 1;
     return 1;
@@ -1366,14 +1366,12 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 {
     char text[0x80];
 
-    DIBpositionWindow();
     sprintf(text, "Memory at %p %swritten. Corruption : (%i/%i) %s",
             memory, overrun ? "over" : "under", count, 0x100,
             count > 0x80
                 ? (count > 0xc0 ? "EXTREME" : "SEVERE")
                 : (count > 0x40 ? "BAD" : "NAUGHTY"));
     MessageBoxA(0, text, "NOTICE", 0x10);
-    exit(0);
 }
 
 /* Function start: 0x455624 */

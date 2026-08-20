@@ -4707,7 +4707,8 @@ void PanToScreen(Viewport *source, Viewport *destination)
                 (short)indices[index],
                 (unsigned short *)&originalPalette[index * 3]);
             SetPaletteEntry((short)indices[index], (short *)target);
-            memcpy(&transitionPalette[index * 3], target, 6);
+            *(PaletteRgb *)&transitionPalette[index * 3] =
+                *(PaletteRgb *)target;
         }
         CopyViewportContents(source, destination);
         while (StepPaletteTransition(
