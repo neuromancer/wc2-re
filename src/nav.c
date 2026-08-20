@@ -232,13 +232,14 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
     return placed;
 }
 
+#pragma function(strlen)
+
 /* Function start: 0x450458 */
 void PlaceNavMapLabel(short x, short y, unsigned short colour,
                       const char *text)
 {
     short width;
     short offset;
-    short force;
 
     width = (short)(strlen(text) * 4 + 2);
     g_aNavMapLabels_00475e80_WC1_UNMAPPED[
@@ -248,31 +249,27 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     offset = -1;
     do {
         offset++;
-        if (TryPlaceNavMapLabel((short)(x + offset + 4), y,
-                                width, 0) != 0)
-            break;
-        force = offset == 12;
-        if (TryPlaceNavMapLabel((short)(x - width / 2),
-                                (short)(y + offset + 5),
-                                width, force) != 0)
-            break;
-        if (TryPlaceNavMapLabel((short)(x - offset - width - 3), y,
-                                width, force) != 0)
-            break;
-        if (TryPlaceNavMapLabel(x, (short)(y + offset + 5),
-                                width, force) != 0)
-            break;
-        if (TryPlaceNavMapLabel((short)(x - width / 2),
-                                (short)(y - offset - 9),
-                                width, force) != 0)
-            break;
-    } while (offset != 12);
+    } while (TryPlaceNavMapLabel((short)(offset + x + 4), y,
+                                 width, 0) == 0 &&
+             TryPlaceNavMapLabel((short)(x - width / 2),
+                                 (short)(offset + y + 5), width,
+                                 (short)(offset == 12)) == 0 &&
+             TryPlaceNavMapLabel((short)(x - width - 3 - offset), y,
+                                 width, (short)(offset == 12)) == 0 &&
+             TryPlaceNavMapLabel(x, (short)(offset + y + 5), width,
+                                 (short)(offset == 12)) == 0 &&
+             TryPlaceNavMapLabel((short)(x - width / 2),
+                                 (short)(y - 9 - offset), width,
+                                 (short)(offset == 12)) == 0 &&
+             offset != 12);
     ReserveNavMapArea(
         g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].x,
         g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].y,
         width, 6);
     g_nNavMapLabelCount_0049bc4c++;
 }
+
+#pragma intrinsic(strlen)
 
 /* Function start: 0x450CF8 */
 /* Whether this objective sits in the star system the nav map is showing. */

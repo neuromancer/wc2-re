@@ -525,6 +525,18 @@ void show_target_disp(void)
 
 #pragma function(strcpy)
 
+/* WC2 reads the manoeuvre slot before it has checked the target, so with
+ * nothing targeted it reads the two bytes in front of the array.  What lives
+ * there is not the blowing-up marker, so the port answers "no manoeuvre" for
+ * an unset target rather than reproduce the overrun. */
+#ifdef WC1_SDL
+#define WC1_SPECIAL_MANEUVER_OF(obj) \
+    ((obj) != -1 ? g_aeSpecialManeuver_00495600[obj] \
+                 : SPECIAL_MANEUVER_NONE)
+#else
+#define WC1_SPECIAL_MANEUVER_OF(obj) g_aeSpecialManeuver_00495600[obj]
+#endif
+
 /* Function start: 0x43FF40 */
 void DrawTargetRangeReadout(void)
 {
@@ -533,8 +545,7 @@ void DrawTargetRangeReadout(void)
     target = g_acShipTarget_00495f20[0];
     if (g_bDisplayWingmanTargetData_0049347c != 0)
         target = g_nYourWingman_0049346c;
-    if (g_aeSpecialManeuver_00495600[target] ==
-        SPECIAL_MANEUVER_UNKNOWN_9) {
+    if (WC1_SPECIAL_MANEUVER_OF(target) == SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_00495f20[0] = -1;
         g_bDisplayWingmanTargetData_0049347c = 0;
         InvalidateVduMode(1);
