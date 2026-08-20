@@ -2085,12 +2085,10 @@ unsigned int approach_speed(short ship, int targetSpeed)
 }
 
 /* Function start: 0x4118A9 */
-unsigned int steady_object(short ship)
+void steady_object(short ship)
 {
-    g_anYawGoal_004954c0[ship] = 0;
-    g_anPitchGoal_004954a8[ship] = 0;
-    g_anRollGoal_004954d8[ship] = 0;
-    return 0;
+    g_anRollGoal_004954d8[ship] = g_anPitchGoal_004954a8[ship] =
+        g_anYawGoal_004954c0[ship] = 0;
 }
 
 /* Function start: 0x4118F2 */

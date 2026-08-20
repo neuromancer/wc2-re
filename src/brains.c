@@ -3157,6 +3157,35 @@ void LoadAlternateShipType(short resourceType, short logicalFile)
 
 #pragma intrinsic(strcpy, strcat)
 
+/* Function start: 0x44B981 */
+/* Re-derive the nav point of every mission ship an objective names, so the
+ * briefing map and the objective list agree on where each one is. */
+void RefreshObjectiveShipNavPoints(void)
+{
+    short source;
+    short missionShip;
+    short type;
+
+    for (source = 0; source < 8; source++) {
+        type = g_aMissionObjectiveSources_005d3c70[source].type;
+        if (type == -1)
+            continue;
+        switch (type) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+            missionShip = g_aMissionObjectiveSources_005d3c70[source].index;
+            if (g_bBriefingMapActive_0049bcb0 != 0 || type == 6 ||
+                g_aMissionShips_00492290[missionShip].navPoint != -1)
+                g_aMissionShips_00492290[missionShip].navPoint =
+                    (signed char)find_ships_sphere(missionShip);
+            break;
+        }
+    }
+}
+
 /* Function start: 0x44BA73 */
 void prepare_mission(void)
 {
@@ -4547,40 +4576,49 @@ void SetScale(void)
 void Build_objective_list(void)
 {
     MissionObjectiveSource *source;
-    MissionShipRecord *ship;
     FixedVector position;
     const char *displayName;
-    int type;
+    short type;
+    short index;
     short flightPathCount;
 
-    flightPathCount = 0;
+    RefreshObjectiveShipNavPoints();
     SetNavMapCoordinateScaling(0);
     g_cMissionObjectiveCount_00493294 = 0;
+    flightPathCount = 0;
     source = g_aMissionObjectiveSources_005d3c70;
-    type = source->type;
-    for (; type != -1; source++, type = source->type) {
+    while ((type = source->type) != -1 &&
+           g_cMissionObjectiveCount_00493294 < 8) {
+        index = source->index;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].flags = 0;
-        if (type == 0) {
-            position = g_aMissionNavPoints_00491e98[
-                source->index].position;
-            displayName = g_aMissionNavPoints_00491e98[
-                source->index].name;
+        switch (type) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+            displayName = (const char *)&g_aMissionShips_00492290[index];
+            set_sphere_point(&g_aMissionShips_00492290[index], &position);
             g_abFlightPath_004932a0[flightPathCount++] =
                 g_cMissionObjectiveCount_00493294;
-        } else if (type >= 1 && type <= 4) {
-            ship = &g_aMissionShips_00492290[source->index];
+            break;
+        case 0:
+        case 5:
             displayName =
-                g_aObjectTypeData_00496d30[ship->type].displayName;
-            set_sphere_point(ship, &position);
+                (const char *)&g_aMissionNavPoints_00491e98[index];
+            position = g_aMissionNavPoints_00491e98[index].position;
             g_abFlightPath_004932a0[flightPathCount++] =
                 g_cMissionObjectiveCount_00493294;
+            break;
         }
 
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].type = type;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].index = source->index;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].field_8 = -1;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].name = source->description;
         g_aMissionObjectives_004932a8[
@@ -4594,11 +4632,10 @@ void Build_objective_list(void)
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].displayName = displayName;
         g_cMissionObjectiveCount_00493294++;
+        source++;
     }
 
     g_abFlightPath_004932a0[flightPathCount] = -1;
-    g_aMissionObjectives_004932a8[
-        (unsigned char)g_cMissionObjectiveCount_00493294].type = -1;
     g_cCurrentNavPointIndex_00493298 = 0;
     g_cCurrentObjective_004931cc = 0;
     if (g_cMissionObjectiveCount_00493294 != 0) {

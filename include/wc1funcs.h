@@ -820,7 +820,7 @@ void rotate_object_to_goal(short obj);                                  /* 0x411
 void check_for_lost_control(short obj);                                /* 0x4115F8 */
 unsigned int celerate(short ship, int delta);                     /* 0x4117AC */
 unsigned int approach_speed(short ship, int targetSpeed);         /* 0x41181D */
-unsigned int steady_object(short ship);                               /* 0x4118A9 */
+void steady_object(short ship);                                       /* 0x4118A9 */
 short real_velocity(short obj);                                       /* 0x4118F2 */
 unsigned int fix_velocity(short obj);                                 /* 0x411922 */
 void SortViableTargetsByDistance(void);                              /* 0x41195F */
@@ -993,6 +993,7 @@ short dead_ship(short missionShip);                                   /* 0x42B0B
 short gone_ship(short missionShip);                                     /* 0x42B0FB */
 short skill_check(short obj);                                         /* 0x42B15A */
 short find_ships_sphere(short missionShip);                           /* 0x42B1AE */
+void RefreshObjectiveShipNavPoints(void);                            /* 0x44B981 */
 short locate_ship(short missionShip, FixedVector *point);             /* 0x42B2A7 */
 unsigned int get_follow_point(short obj, FixedVector *point);         /* 0x42B38F */
 unsigned int get_first_follow_point(short obj, FixedVector *point);   /* 0x42B524 */

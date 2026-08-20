@@ -127,6 +127,7 @@ src/brains.c	3589	0040B700	0044B257	check_futurion	check_futurion	WC1-fuzzy-medi
 src/brains.c	3609	0040B730	0044B2E2	init_mission	init_mission	WC1-callgraph-propagated		mapped
 src/brains.c	3612		00444F53	SpawnCapitalFlakProjectile	SpawnCapitalFlakProjectile	WC2-only		wc2-only
 src/brains.c	3629		0044B29D	ResetWeaponDisplayPositions	ResetWeaponDisplayPositions	WC2-only		wc2-only
+src/brains.c	3160		0044B981	RefreshObjectiveShipNavPoints	RefreshObjectiveShipNavPoints	WC2-only		wc2-only
 src/brains.c	3635	0040B7A0	0044BA73	prepare_mission	prepare_mission	WC1-order-semantics-verified		mapped
 src/brains.c	3649		00445087	capital_ship_strike_mission	capital_ship_strike_mission	WC2-only		wc2-only
 src/brains.c	3764	0040B940	0044BCF7	release_all_capital_ship_shapes	release_all_capital_ship_shapes	WC1-manual-verified		mapped
