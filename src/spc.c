@@ -1972,7 +1972,7 @@ void object_intelligence(short obj)
         mine_intelligence(obj);
         break;
     case OBJECT_CLASS_MISSILE:
-        if ((abs((int)g_nSpaceFrame_00493134) & 3) != 0 &&
+        if (g_nSpaceFrame_00493134 % 4 != 0 &&
             g_nExternalViewShip_00493468 != obj) {
             break;
         }

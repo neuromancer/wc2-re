@@ -745,7 +745,7 @@ void DrawNavMapLegend(void)
 /* Function start: 0x451756 */
 char *nav_note(short objective)
 {
-    if (mobile_objective(objective) == 0)
+    if (IsObjectiveInDisplayedSystem(objective) == 0)
         return g_szNoFurtherObjectives_0049bc90;
     if (*g_aMissionObjectives_004932a8[objective].name == '?')
         return g_aMissionObjectives_004932a8[objective].name + 1;
@@ -815,13 +815,11 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
         DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                         g_szNavLocationFormat_0049bdf4,
                         8, 142,
-                        g_aShipPosition_00494550[0].x,
-                        g_aShipPosition_00494550[0].y,
-                        g_aShipPosition_00494550[0].z);
+                        g_aShipPosition_00494550[0].x >> 8,
+                        g_aShipPosition_00494550[0].y >> 8,
+                        g_aShipPosition_00494550[0].z >> 8);
     }
     CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
-    MarkDibDirty();
-    DIBslamReal();
 }
 
 /* Function start: 0x451AD3 */
@@ -865,6 +863,8 @@ void BriefingMap_DisplayMap(void)
     AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0);
 }
 
+#pragma function(abs)
+
 /* Function start: 0x451C5C */
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
@@ -873,33 +873,36 @@ short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
     short oldNavPoint;
     short selected;
     short pathIndex;
-    signed char objective;
+    short distance;
 
+    selected = 0;
     oldNavPoint = (short)g_cCurrentNavPointIndex_00493298;
     mouseX = (short)(mouseX - 30);
     mouseY = (short)(mouseY - 22);
     pathIndex = 0;
-    selected = 0;
-    objective = g_abFlightPath_004932a0[pathIndex];
-    while (objective != -1) {
-        if (hidden_objective((short)objective) == 0) {
+    while (g_abFlightPath_004932a0[pathIndex] != -1 && pathIndex < 8) {
+        if (hidden_objective(g_abFlightPath_004932a0[pathIndex]) == 0 &&
+            IsObjectiveInDisplayedSystem(
+                g_abFlightPath_004932a0[pathIndex]) != 0) {
             ScaleNavMapCoordinates(
                 &mapX, &mapY,
-                g_aMissionObjectives_004932a8[objective].mapX,
-                g_aMissionObjectives_004932a8[objective].mapY);
-            if ((short)(abs((int)mouseX - mapX) +
-                        abs((int)mouseY - mapY)) < 6 ||
+                g_aMissionObjectives_004932a8[
+                    g_abFlightPath_004932a0[pathIndex]].mapX,
+                g_aMissionObjectives_004932a8[
+                    g_abFlightPath_004932a0[pathIndex]].mapY);
+            distance = (short)(abs((int)mouseY - mapY) +
+                               abs((int)mouseX - mapX));
+            if (distance < 6 ||
                 IsPointInNavMapLabel(
                     (short)g_awNavObjectiveLabelIndex_005d16b0[pathIndex],
                     mouseX, mouseY) != 0) {
                 selected = 1;
                 set_new_objective(pathIndex);
-                if (pathIndex == oldNavPoint)
+                if (oldNavPoint == pathIndex)
                     return selected;
             }
         }
         pathIndex++;
-        objective = g_abFlightPath_004932a0[pathIndex];
     }
     return selected;
 }
