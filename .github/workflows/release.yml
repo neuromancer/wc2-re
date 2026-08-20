@@ -19,6 +19,7 @@ jobs:
     outputs:
       publish: ${{ steps.release.outputs.publish }}
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
     steps:
       - id: release
         name: Validate release ref
@@ -36,9 +37,16 @@ jobs:
             fi
             echo "publish=true" >> "$GITHUB_OUTPUT"
             echo "version=$REF_NAME" >> "$GITHUB_OUTPUT"
+            # Nothing below 1.0 is a finished release.
+            if [[ "$REF_NAME" =~ ^v0\. ]]; then
+              echo "prerelease=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "prerelease=false" >> "$GITHUB_OUTPUT"
+            fi
           else
             echo "publish=false" >> "$GITHUB_OUTPUT"
             echo "version=ci-${RUN_NUMBER}-${RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
           fi
 
   build-win32-reference:
@@ -59,11 +67,11 @@ jobs:
             build-essential ca-certificates clang cmake curl file \
             libclang-dev libdigest-sha-perl make ninja-build zip
       - name: Build reconstructed Win32 executable
-        run: make -j2 WC1.EXE
+        run: make -j2 WC2.EXE
       - name: Validate reconstructed executable
         run: |
-          test -s WC1.EXE
-          file WC1.EXE | grep -q "PE32 executable"
+          test -s WC2.EXE
+          file WC2.EXE | grep -q "PE32 executable"
       - name: Package reconstructed executable
         run: packaging/package-reference.sh "${{ needs.metadata.outputs.version }}"
       - name: Upload reconstructed executable
@@ -229,10 +237,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.metadata.outputs.version }}
-        run: >-
-          gh release create "$RELEASE_TAG"
-          ./*.zip
-          ./SHA256SUMS
-          --verify-tag
-          --generate-notes
-          --title "$RELEASE_TAG"
+          PRERELEASE: ${{ needs.metadata.outputs.prerelease }}
+        run: |
+          flags=()
+          if [[ "$PRERELEASE" == true ]]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "$RELEASE_TAG" \
+            ./*.zip \
+            ./SHA256SUMS \
+            --verify-tag \
+            --generate-notes \
+            --title "$RELEASE_TAG" \
+            "${flags[@]}"

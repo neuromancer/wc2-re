@@ -9,8 +9,8 @@ case "$version" in
         ;;
 esac
 
-test -f WC1.EXE
-archive="wc1-re-${version}-win32-msvc420"
+test -f WC2.EXE
+archive="wc2-re-${version}-win32-msvc410"
 dist_dir=${DIST_DIR:-dist}
 stage_dir="${dist_dir}/${archive}"
 
@@ -20,7 +20,7 @@ if test -e "$stage_dir" || test -e "${dist_dir}/${archive}.zip"; then
 fi
 
 mkdir -p "$stage_dir"
-cp WC1.EXE "$stage_dir/WC1.EXE"
+cp WC2.EXE "$stage_dir/WC2.EXE"
 cp LICENSE "$stage_dir/LICENSE.txt"
 cp packaging/README-win32.txt "$stage_dir/README.txt"
 

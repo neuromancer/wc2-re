@@ -28,7 +28,7 @@ case "$architecture" in
 esac
 
 test -f "$binary"
-archive="wc1-re-${version}-${platform}-${architecture}-sdl2"
+archive="wc2-re-${version}-${platform}-${architecture}-sdl2"
 dist_dir=${DIST_DIR:-dist}
 stage_dir="${dist_dir}/${archive}"
 

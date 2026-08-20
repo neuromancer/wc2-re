@@ -1,12 +1,12 @@
-Wing Commander SDL2 port
-========================
+Wing Commander II SDL2 port
+===========================
 
 This archive contains the work-in-progress native SDL2 port. Release binaries
 are optimized and do not include the AddressSanitizer or
 UndefinedBehaviorSanitizer instrumentation used by development builds.
 
 No copyrighted game data is included. Extract every file in this archive into
-an installed Kilrathi Saga or DOS WC1 directory, then start wc2-modern
+an installed Kilrathi Saga or DOS WC2 directory, then start wc2-modern
 (wc2-modern.exe on Windows) from that directory. Keep the bundled runtime
 libraries beside the executable.
 
