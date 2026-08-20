@@ -804,15 +804,15 @@ void KeyboardMousePump(void)
     isDown = (short)(buttons & 2);
     if (wasDown == 0 && isDown != 0) {
         buttons &= 4;
-        QueueInputEvent(1, (unsigned short)g_nQueuedInputX_005c83f0,
-                        (unsigned short)g_nQueuedInputY_005c83f2, 0, 1,
+        QueueInputEvent(1, g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2, 0, 1,
                         buttons, 0, 0, 0);
         SetPersonnelCursorPosition(g_nQueuedInputX_005c83f0,
                                    g_nQueuedInputY_005c83f2, 0, 0);
     } else if (wasDown != 0 && isDown == 0) {
         buttons &= 4;
-        QueueInputEvent(2, (unsigned short)g_nQueuedInputX_005c83f0,
-                        (unsigned short)g_nQueuedInputY_005c83f2, 0, 0,
+        QueueInputEvent(2, g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2, 0, 0,
                         buttons, 0, 0, 0);
     }
 
@@ -820,15 +820,15 @@ void KeyboardMousePump(void)
     isDown = (short)(buttons & 4);
     if (wasDown == 0 && isDown != 0) {
         buttons &= 2;
-        QueueInputEvent(1, (unsigned short)g_nQueuedInputX_005c83f0,
-                        (unsigned short)g_nQueuedInputY_005c83f2, 0,
+        QueueInputEvent(1, g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2, 0,
                         buttons, 1, 0, 0, 0);
         SetPersonnelCursorPosition(g_nQueuedInputX_005c83f0,
                                    g_nQueuedInputY_005c83f2, 0, 0);
     } else if (wasDown != 0 && isDown == 0) {
         buttons &= 2;
-        QueueInputEvent(2, (unsigned short)g_nQueuedInputX_005c83f0,
-                        (unsigned short)g_nQueuedInputY_005c83f2, 0,
+        QueueInputEvent(2, g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2, 0,
                         buttons, 0, 0, 0, 0);
     }
     g_nKeyboardMouseButtons_005b3648 = buttons;

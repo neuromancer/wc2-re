@@ -8,47 +8,47 @@
 #include "wc1.h"
 
 /* Function start: 0x462625 */
-void TranslatePolledInputEvent(unsigned short type, unsigned int value)
+void TranslatePolledInputEvent(unsigned int type, unsigned int value)
 {
     HostMouseMessage *mouse;
 
     switch (type) {
     case 7:
-        QueueInputEvent(type,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+        QueueInputEvent(type & 0xffff,
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].x,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 10:
         QueueInputEvent(1,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].x,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 0x45:
         QueueInputEvent(2,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].x,
-            (unsigned short)g_aInputDeviceSamples_005d1780[
+            g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 3:
         mouse = &g_stHostMouseMessage_005d10d0;
-        QueueInputEvent(type,
-                        (short)g_nQueuedInputX_005c83f0,
-                        (short)g_nQueuedInputY_005c83f2,
+        QueueInputEvent(type & 0xffff,
+                        g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2,
                         0, 0, 0, 0, 0, 0);
         break;
     case 1:
         mouse = &g_stHostMouseMessage_005d10d0;
-        QueueInputEvent(type,
-                        (short)g_nQueuedInputX_005c83f0,
-                        (short)g_nQueuedInputY_005c83f2,
+        QueueInputEvent(type & 0xffff,
+                        g_nQueuedInputX_005c83f0,
+                        g_nQueuedInputY_005c83f2,
                         0,
                         mouse->primaryButton,
                         mouse->secondaryButton,
@@ -65,13 +65,11 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
 void QueueInputEventAtCursor(unsigned int type, short primaryButton,
                              short secondaryButton)
 {
-    /* Preserve the original 16-bit event ID and sample each volatile axis. */
+    /* Preserve the original 16-bit event ID. */
     unsigned int eventType = type & 0xffff;
-    int x = g_stMouseCursorState_0059ab10.x;
-    int y = g_stMouseCursorState_0059ab10.y;
 
-    QueueInputEvent((unsigned short)eventType, (unsigned short)x,
-                    (unsigned short)y, 0,
+    QueueInputEvent(eventType, g_nQueuedInputX_005c83f0,
+                    g_nQueuedInputY_005c83f2, 0,
                     primaryButton, secondaryButton, 0, 0, 0);
 }
 
@@ -113,20 +111,18 @@ void ReleaseInputEvent(InputEvent *event)
 }
 
 /* Function start: 0x4629A7 */
-void QueueInputEvent(unsigned short type, unsigned short x,
-                     unsigned short y, unsigned short value,
+void QueueInputEvent(int type, int x, int y, int value,
                      int primaryButton, int secondaryButton,
                      unsigned int ignored, unsigned int field14,
                      unsigned int field18)
 {
     unsigned int modifiers;
-    InputEvent *event;
 
     (void)ignored;
 
     modifiers = 0;
     if (GetShiftKeyState() != 0)
-        modifiers = 0xe0;
+        modifiers |= 0xe0;
     if (GetControlKeyState() != 0)
         modifiers |= 0x3800;
     if (GetKeyboardModifiers() != 0)
@@ -146,8 +142,7 @@ void QueueInputEvent(unsigned short type, unsigned short x,
         g_pInputEventHead_0049d4b4->next = 0;
         g_pInputEventTail_0049d4b8->previous = 0;
     } else {
-        event = AllocateInputEvent();
-        g_pInputEventTail_0049d4b8->next = event;
+        g_pInputEventTail_0049d4b8->next = AllocateInputEvent();
         if (g_pInputEventTail_0049d4b8->next == 0) {
             ReleaseInputEventQueue();
             return;
@@ -184,8 +179,8 @@ void QueueInputEvent(unsigned short type, unsigned short x,
              g_nPreviousPrimaryButton_0049d4c4 != 0) ||
             (g_pInputEventTail_0049d4b8->secondaryButton != 0 &&
              g_nPreviousSecondaryButton_0049d4c8 != 0)) {
-            if (g_nInputDoubleClickDeadline_0049d4c0 >
-                g_nInputClock_005c84a8) {
+            if (g_nInputClock_005c84a8 <
+                g_nInputDoubleClickDeadline_0049d4c0) {
                 g_nInputDoubleClickDeadline_0049d4c0 = 0;
                 g_pInputEventTail_0049d4b8->status = 2;
                 g_nPreviousPrimaryButton_0049d4c4 = 0;

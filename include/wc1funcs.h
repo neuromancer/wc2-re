@@ -1534,14 +1534,13 @@ void ShutdownEventManager(void);                                      /* 0x4625C
 unsigned short __stdcall ConfigureEventManagerPointer(
     unsigned char *shape, short frame);                               /* WC2 unmapped */
 void __stdcall SetEventManagerPump(void (*pump)(void));                /* WC2 unmapped */
-void TranslatePolledInputEvent(unsigned short type,
+void TranslatePolledInputEvent(unsigned int type,
                                unsigned int value);                   /* 0x462625 */
 void QueueInputEventAtCursor(unsigned int type, short primaryButton,
                              short secondaryButton);                   /* 0x462849 */
 InputEvent *AllocateInputEvent(void);                                  /* 0x462890 */
 void ReleaseInputEvent(InputEvent *event);                             /* 0x46294F */
-void QueueInputEvent(unsigned short type, unsigned short x,
-                     unsigned short y, unsigned short value,
+void QueueInputEvent(int type, int x, int y, int value,
                      int primaryButton, int secondaryButton,
                      unsigned int ignored, unsigned int field14,
                      unsigned int field18);                            /* 0x4629A7 */
