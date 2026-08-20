@@ -4398,8 +4398,16 @@ void DrawNavTextLine(unsigned char alignment, unsigned short colour,
     va_start(arguments, format);
     g_pCurrentTextContext_005c8d1c->textCursor =
         g_pCurrentTextContext_005c8d1c->text;
+    /* The original pushes the list itself; the port's FormatTextTokens takes
+     * its address, because va_arg has to advance the caller's copy on an ABI
+     * where a vararg is not always four bytes wide. */
+#ifdef WC1_SDL
+    FormatTextTokens((void (*)(int))AppendTextCharacter, format,
+                     &arguments);
+#else
     FormatTextTokens((void (*)(int))AppendTextCharacter, format,
                      (unsigned long *)arguments);
+#endif
     va_end(arguments);
     DrawTextString(g_pCurrentTextContext_005c8d1c->text);
 }
