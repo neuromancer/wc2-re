@@ -1108,7 +1108,7 @@ short ReadPersonnelTextField(unsigned int x, unsigned int y,
                              int mode, int required);                  /* 0x459BC8 */
 void DisableMouseCursorDrawing(void);                                 /* 0x463E19 */
 void EnableMouseCursorDrawing(void);                                  /* 0x463BA1 */
-void PersonnelDriveHook();                                            /* 0x464B82 */
+void PersonnelDriveHook(short drive);                                 /* 0x464B82 */
 void SetPersonnelMousePosition(short x, short y);                     /* 0x4199F0 */
 short OffsetSceneHotspotBounds(ShortRect *bounds, const SceneHotspot *hotspot,
                                short offsetX, short offsetY);          /* 0x464F75 */

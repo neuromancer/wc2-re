@@ -1263,8 +1263,10 @@ unsigned int GetStartupErrorCode(int vector)
 }
 
 /* Function start: 0x464B82 */
-void PersonnelDriveHook()
+/* WC2 hands this the drive letter index; the body ignores it. */
+void PersonnelDriveHook(short drive)
 {
+    return;
 }
 
 /* Function start: 0x464B92 */

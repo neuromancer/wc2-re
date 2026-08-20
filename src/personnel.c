@@ -1282,24 +1282,21 @@ short LocateLegacySaveGame(short source)
         return 0;
     }
     if (strlen(g_szLegacySavePath_005d2130) >= 2) {
-        index = (short)strlen(g_szLegacySavePath_005d2130);
-        do {
-            index--;
-            if (index < 0 ||
-                g_szLegacySavePath_005d2130[index] == '\\') {
+        for (index = (short)(strlen(g_szLegacySavePath_005d2130) - 1);
+             index >= 0; index--) {
+            if (g_szLegacySavePath_005d2130[index] == '\\')
                 break;
-            }
             alpha = isalnum(g_szLegacySavePath_005d2130[index]);
             if (alpha != 0) {
                 strcat(g_szLegacySavePath_005d2130, "\\");
                 break;
             }
-        } while (alpha == 0);
+        }
     }
     strcat(g_szLegacySavePath_005d2130,
            g_apszWc1SaveGameFileNames_0049a6c8[source]);
     for (index = 0;
-         (unsigned int)index < strlen(g_szLegacySavePath_005d2130);
+         strlen(g_szLegacySavePath_005d2130) > (unsigned int)index;
          index++) {
         if (g_szLegacySavePath_005d2130[index] == ':') {
             if (index == 0) {
@@ -1331,9 +1328,12 @@ void ShowNoTransferablePilots(void)
 /* Function start: 0x436A8F */
 short RunPilotDatabaseMenu(void)
 {
+    short done = 0;
+    short actionHandled = 0;
     char firstName[13] = "Christopher";
     char lastName[13] = "Blair";
     char callsign[13] = "Maverick";
+    short result = 0;
     char text[80];
     SaveGameDiskRecord *record;
     PilotRecord *pilot;
@@ -1344,17 +1344,11 @@ short RunPilotDatabaseMenu(void)
     short selected;
     short hover;
     short previousDrive;
-    short done;
-    short actionHandled;
-    short result;
     int key;
 
-    done = 0;
-    actionHandled = 0;
-    result = 0;
     g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
     g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
     g_stSecondaryViewBuffer_005d2c90.bottom = 199;
     if ((short)AllocateViewport(
             &g_stSecondaryViewBuffer_005d2c90,
