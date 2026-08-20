@@ -1892,38 +1892,33 @@ short close_behind(short range)
 /* Function start: 0x42A8B5 */
 short scan_for_enemy(short obj, unsigned short range)
 {
-    short target;
     short other;
     short distance;
 
-    target = -1;
     g_nTargetRange_0049319c = 0;
+    g_nTargetShip_004931a0 = -1;
     for (other = 0; other < 10; other++) {
-        if (g_aeObjectClass_00495328[other] < OBJECT_CLASS_SHIP ||
-            g_aeSpecialManeuver_00495600[other] ==
-                SPECIAL_MANEUVER_UNKNOWN_9)
-            continue;
-        g_nTargetShip_004931a0 = target;
-        if (g_asShipSide_004955d0[obj] == g_asShipSide_004955d0[other])
-            continue;
-        distance = distance_from_point(other, &g_aShipPosition_00494550[obj]);
-        target = g_nTargetShip_004931a0;
-        if (distance < range &&
-            (target == -1 ||
-             distance < g_nTargetRange_0049319c)) {
-            target = other;
-            g_nTargetRange_0049319c = distance;
+        if (g_aeObjectClass_00495328[other] >= OBJECT_CLASS_SHIP &&
+            g_aeSpecialManeuver_00495600[other] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_asShipSide_004955d0[other] != g_asShipSide_004955d0[obj] &&
+            target_valid(obj, other) != 0) {
+            distance =
+                distance_from_point(other, &g_aShipPosition_00494550[obj]);
+            if (distance < range &&
+                (g_nTargetShip_004931a0 == -1 ||
+                 distance < g_nTargetRange_0049319c)) {
+                g_nTargetShip_004931a0 = other;
+                g_nTargetRange_0049319c = distance;
+            }
         }
     }
-    if (target != -1) {
-        g_nTargetShip_004931a0 = target;
+    if (g_nTargetShip_004931a0 != -1) {
         get_facing_range_from_object(obj, g_nTargetShip_004931a0);
         g_nTargetRange_0049319c =
             distance_from_object(obj, g_nTargetShip_004931a0);
-        target = g_nTargetShip_004931a0;
     }
-    g_nTargetShip_004931a0 = target;
-    return target;
+    return g_nTargetShip_004931a0;
 }
 
 /* Function start: 0x42AA0D */

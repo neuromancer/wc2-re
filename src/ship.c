@@ -333,6 +333,7 @@ short onboard_explosion(short obj)
             &offset);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
                         &g_aShipPosition_00494550[debris]);
+        RecordCannedSceneObjectEvent(debris, 0);
     }
     return debris != -1;
 }

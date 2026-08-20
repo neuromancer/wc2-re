@@ -2061,10 +2061,12 @@ void streak_toward(short obj, short goal, short range)
         else
             veer_random(obj, 20);
     }
-    if (range > 2000 && normal_speed(obj) != 0)
-        fire_afterburner(obj, 10);
-    else
+    if (range > 2000 && normal_speed(obj) != 0) {
         approach_full_speed(obj);
+        fire_afterburner(obj, 10);
+    } else {
+        approach_full_speed(obj);
+    }
 }
 
 /* Function start: 0x444291 */
@@ -2334,6 +2336,7 @@ void tanker_intelligence(short obj)
 {
     if (attacker_in_range(obj, 3000) != 0) {
         approach_full_speed(obj);
+        get_facing_range_from_object(obj, g_nTargetShip_004931a0);
         g_acShipTarget_00495f20[obj] = g_nTargetShip_004931a0;
         fire(obj, g_nTargetShip_004931a0);
         if (CanSetNewShipTurnGoal(obj) != 0) {
@@ -3213,7 +3216,14 @@ void prepare_mission(void)
     load_ship(g_nPlayerShipType_00493464,
               g_aMissionShips_00492290[playerMissionShip].objectType,
               objectClass, 0);
-    set_objects_data(0, g_nPlayerShipType_00493464, -1, 0);
+    if (g_aMissionShips_00492290[playerMissionShip].field_13 != 0) {
+        LoadAlternateShipType(
+            g_nPlayerShipType_00493464,
+            g_aMissionShips_00492290[playerMissionShip].field_13);
+        ApplyAlternateShipType(0);
+    } else {
+        set_objects_data(0, g_nPlayerShipType_00493464, -1, 1);
+    }
     g_aMissionShips_00492290[playerMissionShip].navPoint =
         (signed char)g_stMissionHeader_005d3e70.entryNavPoint;
     if (g_nMissionEntryNavOverride_0049d790 != -1) {
