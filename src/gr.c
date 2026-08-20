@@ -1747,21 +1747,26 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
     short coordinate;
 #endif
 
+    if (viewport->left < 0)
+        return;
+    if (HasValidShapeAllocationSignature(shape) == 0)
+        return;
     saved = background;
-    if (background == 0)
+    if (saved == 0)
         return;
     if (shape == 0)
         return;
     if (frame < 0)
         return;
-    frameOffset = (short)(frame * 4 + 4);
-    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
+    frame++;
+    frame <<= 2;
+    if ((int)*(unsigned short *)(shape + 4) <= frame)
         return;
     left = viewport->left;
     right = viewport->right;
     top = viewport->top;
     bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frameOffset) + 8;
+    commands = shape + *(int *)(shape + frame) + 8;
 #ifdef WC1_SDL
     memcpy(&count, commands, sizeof(count));
 #else
@@ -1883,20 +1888,25 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
 #endif
 
     saved = background;
-    if (background == 0)
+    if (saved == 0)
         return;
     if (shape == 0)
         return;
     if (frame < 0)
         return;
-    frameOffset = (short)(frame * 4 + 4);
-    if ((int)*(unsigned short *)(shape + 4) <= frameOffset)
+    if (viewport->left < 0)
+        return;
+    if (HasValidShapeAllocationSignature(shape) == 0)
+        return;
+    frame++;
+    frame <<= 2;
+    if ((int)*(unsigned short *)(shape + 4) <= frame)
         return;
     left = viewport->left;
     right = viewport->right;
     top = viewport->top;
     bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frameOffset) + 8;
+    commands = shape + *(int *)(shape + frame) + 8;
 #ifdef WC1_SDL
     memcpy(&count, commands, sizeof(count));
 #else
@@ -2223,13 +2233,19 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
     short top;
     short right;
     short bottom;
+    int inside;
 
+    inside = 0;
     if (shape == 0) {
-        if (viewport->left <= x && x <= viewport->right &&
-            viewport->top <= y && y <= viewport->bottom)
-            return 1;
-        return 0;
+        if (viewport->left > x || viewport->right < x ||
+            viewport->top > y || viewport->bottom < y)
+            inside = 0;
+        else
+            inside = 1;
+        return (short)inside;
     }
+    if (HasValidShapeAllocationSignature(shape) == 0)
+        return 0;
     CheckHeapBlockSignature(shape);
     frameOffset = frame * 4 + 4;
     if (frameOffset <= (int)*(unsigned short *)(shape + 4)) {
