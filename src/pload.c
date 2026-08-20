@@ -34,6 +34,14 @@ void *PacketLoad(const char *filename, short section,
     data = 0;
     if (OpenPacketSection(filename, section, &handle) != 0) {
         switch (handle.compression) {
+#ifdef WC1_SDL
+        /* A DOS install marks its compressed sections 0x20 where the Saga
+         * conversion decompressed them and marked them 0xe0.  The payload is
+         * the same shape as compression 1 - a four byte length then the LZW
+         * stream - and only thirteen of its files still carry any, brief.pal
+         * among them. */
+        case 0x20:
+#endif
         case 1:
 #ifdef WC1_SDL
         {

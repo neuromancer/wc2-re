@@ -228,9 +228,10 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
         sectionEnd > declaredFileSize)
         return 0;
 
-    /* PacketLoad treats compression 1 as LZW and every other value as raw.
-     * Kilrathi Saga MUSIC.MID uses 0xe0 for its uncompressed MIDI sections. */
-    if (compression != 1) {
+    /* PacketLoad treats compression 1 and a DOS install's 0x20 as LZW, and
+     * every other value as raw.  Kilrathi Saga MUSIC.MID uses 0xe0 for its
+     * uncompressed MIDI sections. */
+    if (compression != 1 && compression != 0x20) {
         outputSize = sectionEnd - sectionOffset;
         if (outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
             return 0;
