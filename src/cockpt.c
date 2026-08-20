@@ -1967,19 +1967,18 @@ void draw_3d_scanner(void)
     if (g_nCurrentView_00492fa8 == 0) {
         scanner = g_stCockpitScannerGeometry_0049af78;
         grid = g_aiForwardScannerGridRows_0049b080;
-        gridColour = g_ucPrimaryTextColour_0049cb64;
+        gridColour = 0x5b;
     } else if (g_nCurrentView_00492fa8 == 4) {
         scanner = ((CockpitScannerGeometry *)(
             g_abGunDisplayConfiguration_0049d340 + 0x40))[
                 g_nGunDisplayIndex_005c8dc0];
         grid = g_aiTargetCameraScannerGridRows_0049b1b8;
-        gridColour = g_abGamePaletteReservedColours_0049cb54[0];
+        gridColour = 0x25;
     }
 
     if (g_nCockpitDisplayMode_0049d71c != 0) {
         gridRow = 0;
-        gridIndex = 0;
-        while (grid[gridIndex] != -2) {
+        for (gridIndex = 0; grid[gridIndex] != -2; gridIndex++) {
             if (grid[gridIndex] == -1) {
                 gridRow++;
             } else {
@@ -2009,7 +2008,6 @@ void draw_3d_scanner(void)
                             (short)gridColour);
                 }
             }
-            gridIndex++;
         }
     }
 
@@ -2031,8 +2029,7 @@ void draw_3d_scanner(void)
 #endif
         g_nScannerTargetObject_0049b07c = -1;
 
-    object = 1;
-    while (object <= 9) {
+    for (object = 1; object <= 9; object++) {
         if (g_anShipCloakState_00496020[object] != 1 &&
             get_color(object, (unsigned short *)&colour) != 0) {
             ComputeVectorDelta(
@@ -2060,7 +2057,6 @@ void draw_3d_scanner(void)
                 }
             }
         }
-        object++;
     }
 
     if (get_mode(1) == 5 &&
@@ -2096,53 +2092,52 @@ void draw_3d_scanner(void)
             AdjustScannerContactColourForRange(
                 spherical.radius, (short *)&colour);
 
-        object = g_nScannerTargetObject_0049b07c;
         g_asScannerTargetBackground_005d1d80[0] =
             (short)GetViewportPixel(
                 &g_stScreenViewport_005d21a0,
-                g_asScannerObjectX_005d1ea0[object],
-                g_asScannerObjectY_005d1e80[object]);
+                g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+                g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c]);
         g_asScannerTargetBackground_005d1d80[1] =
             (short)GetViewportPixel(
                 &g_stScreenViewport_005d21a0,
-                (short)(g_asScannerObjectX_005d1ea0[object] + 1),
-                g_asScannerObjectY_005d1e80[object]);
+                (short)(g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c] + 1),
+                g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c]);
         g_asScannerTargetBackground_005d1d80[2] =
             (short)GetViewportPixel(
                 &g_stScreenViewport_005d21a0,
-                (short)(g_asScannerObjectX_005d1ea0[object] - 1),
-                g_asScannerObjectY_005d1e80[object]);
+                (short)(g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c] - 1),
+                g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c]);
         g_asScannerTargetBackground_005d1d80[3] =
             (short)GetViewportPixel(
                 &g_stScreenViewport_005d21a0,
-                g_asScannerObjectX_005d1ea0[object],
-                (short)(g_asScannerObjectY_005d1e80[object] + 1));
+                g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+                (short)(g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c] + 1));
         g_asScannerTargetBackground_005d1d80[4] =
             (short)GetViewportPixel(
                 &g_stScreenViewport_005d21a0,
-                g_asScannerObjectX_005d1ea0[object],
-                (short)(g_asScannerObjectY_005d1e80[object] - 1));
+                g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+                (short)(g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c] - 1));
         DrawViewportPixel(
             &g_stScreenViewport_005d21a0,
-            g_asScannerObjectX_005d1ea0[object],
-            g_asScannerObjectY_005d1e80[object], (short)colour);
+            g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+            g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c], (short)colour);
         DrawViewportPixel(
             &g_stScreenViewport_005d21a0,
-            (short)(g_asScannerObjectX_005d1ea0[object] + 1),
-            g_asScannerObjectY_005d1e80[object], (short)colour);
+            (short)(g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c] + 1),
+            g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c], (short)colour);
         DrawViewportPixel(
             &g_stScreenViewport_005d21a0,
-            (short)(g_asScannerObjectX_005d1ea0[object] - 1),
-            g_asScannerObjectY_005d1e80[object], (short)colour);
+            (short)(g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c] - 1),
+            g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c], (short)colour);
         DrawViewportPixel(
             &g_stScreenViewport_005d21a0,
-            g_asScannerObjectX_005d1ea0[object],
-            (short)(g_asScannerObjectY_005d1e80[object] + 1),
+            g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+            (short)(g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c] + 1),
             (short)colour);
         DrawViewportPixel(
             &g_stScreenViewport_005d21a0,
-            g_asScannerObjectX_005d1ea0[object],
-            (short)(g_asScannerObjectY_005d1e80[object] - 1),
+            g_asScannerObjectX_005d1ea0[g_nScannerTargetObject_0049b07c],
+            (short)(g_asScannerObjectY_005d1e80[g_nScannerTargetObject_0049b07c] - 1),
             (short)colour);
     }
     if (g_nCurrentView_00492fa8 == 4)
@@ -3788,7 +3783,7 @@ void vid_equiv(short obj, short message)
 {
     if (get_mode(1) != 4 &&
         g_nTrainSimActive_0049d758 == 0 &&
-        g_nCannedSceneMode_0049021c == 0 && g_nCurrentView_00492fa8 == 0 &&
+        g_nCurrentView_00492fa8 == 0 &&
         message_showing() == 0)
         real_vid_transmit(obj, message);
 }
@@ -3802,8 +3797,7 @@ void update_dead_disp(short a)
 /* Function start: 0x43F0C3 */
 void check_stranded(void)
 {
-    if (g_nTrainSimActive_0049d758 == 0 &&
-        g_aMissionShips_00492290[
+    if (g_aMissionShips_00492290[
             g_nHomeMissionShipIndex_005d1e22].state == 3 &&
         any_enemy(0, 30000) == 0)
         g_nArcadeState_0049d75c = 3;

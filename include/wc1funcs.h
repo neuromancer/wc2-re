@@ -804,7 +804,7 @@ void UpdateTargetCameraTracking(void);                                 /* 0x4608
 void ClearSavedTorpedoTargetLock(void);                                /* 0x460BAF */
 void UpdateSavedTorpedoTargetLock(void);                               /* 0x460BCC */
 void SetTargetCameraEyePosition(short cameraMode);                     /* 0x460D3E */
-void DrawTargetCameraAttitudeIndicators(unsigned int colour);          /* 0x460DFE */
+void DrawTargetCameraAttitudeIndicators(unsigned short colour);       /* 0x460DFE */
 void RestoreTargetCameraAttitudeIndicators(void);                      /* 0x4610BC */
 void UpdateTargetCameraCockpitHook(void);                              /* 0x461456 */
 void FinalizeTargetCameraViewHook(void);                               /* 0x461466 */

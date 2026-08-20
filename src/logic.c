@@ -4065,7 +4065,7 @@ void SetTargetCameraEyePosition(short cameraMode)
 }
 
 /* Function start: 0x460DFE */
-void DrawTargetCameraAttitudeIndicators(unsigned int colour)
+void DrawTargetCameraAttitudeIndicators(unsigned short colour)
 {
     CockpitScannerGeometry scanner;
 
