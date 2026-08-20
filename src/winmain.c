@@ -57,27 +57,28 @@ short easy2see(short obj)
 void make_shard(short asteroid, FixedVector direction)
 {
     short fragment;
-    short speed;
 
     fragment = find_vacant_3d_object();
-    if (fragment == -1)
-        return;
-    set_objects_data(fragment, WC2_OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
-    g_asObjectCounter_00494be0[fragment] = 40;
-    g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
-    SetVectorFixedPoint((unsigned int *)&direction,
-                        (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
-    AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
-                    &g_aShipPosition_00494550[fragment]);
-    g_aShipForwardVector_00494208[fragment] = direction;
-    fix_objects_ijk(fragment);
-    alter_yaw(signed_random(20), fragment);
-    alter_pitch(signed_random(20), fragment);
-    g_aShipVelocity_00494898[fragment] =
-        g_aShipForwardVector_00494208[fragment];
-    speed = (short)(real_velocity(asteroid) + RandomInRange(0, 5));
-    SetVectorFixedPoint(
-        (unsigned int *)&g_aShipVelocity_00494898[fragment], speed);
+    if (fragment != -1) {
+        set_objects_data(fragment, WC2_OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
+        g_asObjectCounter_00494be0[fragment] = 40;
+        g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
+        SetVectorFixedPoint(
+            (unsigned int *)&direction,
+            (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
+        AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
+                        &g_aShipPosition_00494550[fragment]);
+        g_aShipForwardVector_00494208[fragment] = direction;
+        fix_objects_ijk(fragment);
+        alter_yaw(signed_random(20), fragment);
+        alter_pitch(signed_random(20), fragment);
+        g_aShipVelocity_00494898[fragment] =
+            g_aShipForwardVector_00494208[fragment];
+        SetVectorFixedPoint(
+            (unsigned int *)&g_aShipVelocity_00494898[fragment],
+            (short)(real_velocity(asteroid) + RandomInRange(0, 5)));
+        RecordCannedSceneObjectEvent(fragment, 0);
+    }
 }
 
 /* Base flight times and pitch windows for the four forward view bands. */

@@ -838,7 +838,7 @@ void repair_internal_damage(void);                                   /* 0x4135F1
 void Create_ship_hit_debris(short obj, short count);                  /* 0x4136E2 */
 void check_next_wave(void);                                          /* 0x4137C2 */
 void ProcessEnemyWaveCompletion(void);                               /* 0x4138A8 */
-unsigned int Create_explosion_debris(short obj);                      /* 0x413A3B */
+void Create_explosion_debris(short obj);                              /* 0x413A3B */
 void affect_mission_score(short pilot, int event, short amount);       /* 0x413D61 */
 unsigned int score_for_kill(short pilot, short victim);               /* 0x413E4C */
 void analyze_kill(short attacker, short victim);                      /* 0x413F58 */

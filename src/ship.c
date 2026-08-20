@@ -734,10 +734,9 @@ void Create_ship_hit_debris(short obj, short count)
 {
     FixedVector offset;
     short debris;
-    short created;
+    short piece;
 
-    created = 0;
-    while (created < count) {
+    for (piece = 0; piece < count; piece++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
             return;
@@ -750,7 +749,7 @@ void Create_ship_hit_debris(short obj, short count)
                         &g_aShipPosition_00494550[debris]);
         FillFixedVectorWithRandomComponents(
             6, &g_aShipVelocity_00494898[debris]);
-        created++;
+        RecordCannedSceneObjectEvent(debris, 0);
     }
 }
 
@@ -828,23 +827,32 @@ void ProcessEnemyWaveCompletion(void)
 }
 
 /* Function start: 0x413A3B */
-unsigned int Create_explosion_debris(short obj)
+void Create_explosion_debris(short obj)
 {
     FixedVector vector;
-    short debris;
-    short index;
     short set;
+    short slot;
+    short index;
+    short debris;
 
+    for (slot = 0; slot < 5; slot++) {
+        if (g_aObjectTypeData_00496d30[
+                g_acObjectType_00493980[obj]].resourceType ==
+            g_aObjectResourceSlots_00493398[slot].resourceType)
+            break;
+    }
     remove_object(obj);
-    index = 0;
-    check_next_wave();
+    RecordCannedSceneObjectEvent(obj, 1);
     set = RandomBelowOrEqual(3);
-    for (; index < 7; index++) {
+    for (index = 0; index < 7; index++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
             break;
         set_objects_data(debris,
                          g_aaeExplosionDebris_00492dd8[set][index], -1, 0);
+        if (g_asObjectType_00495298[debris] == WC2_OBJECT_TYPE_SHIP_WING)
+            g_apObjectShape_00493868[debris] =
+                g_aObjectResourceSlots_00493398[slot].field_12;
         g_asObjectCounter_00494be0[debris] = 40;
         FillFixedVectorWithRandomComponents(50, &vector);
         AddFixedVectors(&g_aShipPosition_00494550[obj], &vector,
@@ -855,9 +863,9 @@ unsigned int Create_explosion_debris(short obj)
         AddFixedVectors(&vector,
                         &g_aShipVelocity_00494898[debris],
                         &g_aShipVelocity_00494898[debris]);
+        RecordCannedSceneObjectEvent(debris, 0);
     }
-    index = 0;
-    for (; index < 8; index++) {
+    for (index = 0; index < 8; index++) {
         debris = find_vacant_3d_object();
         if (debris == -1)
             break;
@@ -872,11 +880,14 @@ unsigned int Create_explosion_debris(short obj)
                         &g_aShipVelocity_00494898[debris]);
         g_asObjectScreenAngle_004936b8[debris] =
             (short)(RandomBelowOrEqual(3) + 0x10);
-        g_asObjectCounter_00494be0[debris] = 40;
         g_aeObjectClass_00495328[debris] = OBJECT_CLASS_DUST;
-        g_acObjectType_00493980[debris] = OBJECT_TYPE_DEBRIS_DUST;
+        g_asObjectType_00495298[debris] = WC2_OBJECT_TYPE_DEBRIS_DUST;
+        g_acObjectType_00493980[debris] =
+            (signed char)g_asObjectType_00495298[debris];
+        g_asObjectCounter_00494be0[debris] = 40;
+        RecordCannedSceneObjectEvent(debris, 0);
     }
-    return 0;
+    ProcessEnemyWaveCompletion();
 }
 
 /* Function start: 0x413D61 */
