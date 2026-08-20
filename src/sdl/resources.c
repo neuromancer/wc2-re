@@ -263,6 +263,11 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     return 1;
 }
 
+/* Tell a DOS install from a Kilrathi Saga one by the flag byte on a packet
+ * directory entry.  The Saga conversion rewrote every 0xc1 flag to 0xe0 -- it
+ * is the only difference in 115 of the shared files, which are otherwise byte
+ * for byte the same -- so any packet carrying 0xc1 came off the floppies.
+ * COCKPIT.VGA is one of them and the game cannot run without it. */
 int Wc1SdlUsingDosData(void)
 {
     unsigned char header[8];
@@ -271,15 +276,15 @@ int Wc1SdlUsingDosData(void)
 
     if (g_nWc1SdlDosData >= 0)
         return g_nWc1SdlDosData;
-    file = _open("GAMEDAT/MODULE.000", 0x8000);
+    file = _open("GAMEDAT/COCKPIT.VGA", 0x8000);
     if (file == -1)
-        file = _open("MODULE.000", 0x8000);
+        file = _open("COCKPIT.VGA", 0x8000);
     if (file == -1)
         return 0;
     g_nWc1SdlDosData = 0;
     bytesRead = (int)_read(file, header, sizeof(header));
     _close(file);
-    if (bytesRead == (int)sizeof(header) && header[7] == 1)
+    if (bytesRead == (int)sizeof(header) && header[7] == 0xc1)
         g_nWc1SdlDosData = 1;
     return g_nWc1SdlDosData;
 }
