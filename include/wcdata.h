@@ -893,7 +893,19 @@ typedef struct CutsceneResourceTable {
 
 /* A SPRT/PLNE/SEQU/SCNE resource group has parallel DATA and SCRP halves.
  * Each half carries resource pointers, symbol names, and the runtime indices
- * assigned while the container is linked to its parent resource level. */
+ * assigned while the container is linked to its parent resource level.  The
+ * symbol lookup walks whichever half it was asked for through this view. */
+typedef struct CutsceneObjectResourceHalf {
+    unsigned char inheritedCount;           /* +0x00 */
+    unsigned char count;                    /* +0x01 */
+    void **entries;                         /* +0x02 */
+    short *runtimeIndices;                  /* +0x06 */
+    short localCount;                       /* +0x0A */
+    char **symbols;                         /* +0x0C */
+    short *symbolIndices;                   /* +0x10 */
+    short symbolCount;                      /* +0x14 */
+} CutsceneObjectResourceHalf;
+
 typedef struct CutsceneObjectResourceList {
     unsigned char inheritedDataCount;       /* +0x00 */
     unsigned char dataCount;                /* +0x01 */

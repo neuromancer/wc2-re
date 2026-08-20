@@ -969,11 +969,8 @@ void BuildCommunicationRecipientMenu(void)
         SelectCommRecipient(g_acShipTarget_00495f20[0]);
         return;
     }
-    if (have_target() == 0) {
-        SelectCommRecipient(g_nYourWingman_0049346c);
-        return;
-    }
-    if (g_acShipTarget_00495f20[0] == g_nYourWingman_0049346c) {
+    if (have_target() == 0 ||
+        g_acShipTarget_00495f20[0] == g_nYourWingman_0049346c) {
         SelectCommRecipient(g_nYourWingman_0049346c);
         return;
     }

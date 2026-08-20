@@ -300,28 +300,27 @@ short FindCutsceneResourceSymbolIndex(CutsceneObjectResourceList *list,
                                       short scriptHalf,
                                       const char *symbol)
 {
+    CutsceneObjectResourceHalf *half;
     char **symbols;
     short count;
     short index;
 
-    if (list == 0)
-        return -1;
-    if (scriptHalf == 0) {
-        symbols = list->dataSymbols;
-        count = list->dataSymbolCount;
-        for (index = 0; index < count; index++) {
-            if (AreCutsceneResourceNamesEqual(symbols[index], symbol) != 0)
-                return list->dataSymbolIndices[index];
+    if (list != 0) {
+        if (scriptHalf == 0)
+            half = (CutsceneObjectResourceHalf *)list;
+        else if (scriptHalf == 1)
+            half = (CutsceneObjectResourceHalf *)
+                ((char *)list + sizeof(CutsceneObjectResourceHalf));
+        symbols = half->symbols;
+        count = half->symbolCount;
+        for (index = 0; index < count; index++, symbols++) {
+            if (AreCutsceneResourceNamesEqual(*symbols, symbol) != 0)
+                return half->symbolIndices[index];
         }
-    } else if (scriptHalf == 1) {
-        symbols = list->scriptSymbols;
-        count = list->scriptSymbolCount;
-        for (index = 0; index < count; index++) {
-            if (AreCutsceneResourceNamesEqual(symbols[index], symbol) != 0)
-                return list->scriptSymbolIndices[index];
-        }
+        return FindCutsceneResourceSymbolIndex(list->next, scriptHalf,
+                                               symbol);
     }
-    return FindCutsceneResourceSymbolIndex(list->next, scriptHalf, symbol);
+    return -1;
 }
 
 /* Function start: 0x40D9AD */

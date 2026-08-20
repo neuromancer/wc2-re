@@ -845,6 +845,7 @@ void BriefingMap_LoadShapes(void)
 void BriefingMap_DisplayMap(void)
 {
     Viewport savedViewport;
+    short font;
 
     savedViewport = g_stSecondaryViewBuffer_005d2c90;
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
@@ -853,9 +854,13 @@ void BriefingMap_DisplayMap(void)
     DrawNavLocationReadout(g_szBriefingNavMapTitle_0049be38, 0);
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     ReleasePacketHandle(g_pNavMapShape_0049bc48);
-    g_pNavMapShape_0049bc48 = 0;
-    ReleaseTextFont(2);
-    ReleaseTextFont(1);
+    ReleasePacketSlot((void **)&g_pNavLocationText_0049bc54);
+    for (font = 0; font < 4; font++) {
+        if (g_apTextFonts_005d2200[font] != 0) {
+            ReleasePacketHandle(g_apTextFonts_005d2200[font]);
+            g_apTextFonts_005d2200[font] = 0;
+        }
+    }
     g_stSecondaryViewBuffer_005d2c90 = savedViewport;
     AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0);
 }
