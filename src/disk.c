@@ -812,7 +812,6 @@ void ReleaseCutsceneObjectResource(short owner,
                                    unsigned int formType)
 {
     CutsceneObjectResourceList *resource;
-    SceneFlicObject *sprite;
     CutscenePlane *plane;
     CutsceneSequence *sequence;
     CutsceneScene *scene;
@@ -821,45 +820,54 @@ void ReleaseCutsceneObjectResource(short owner,
     resource = *head;
     if (resource->owner == owner) {
         ReleaseCutsceneObjectResourceData(resource);
-        if (formType == 0x54525053) {
+        switch (formType) {
+        case 0x54525053:
             for (index = 0; index < 0x80; index++) {
-                sprite = g_apSceneObjects_00499c38[index];
-                if (sprite != 0 && sprite->owner == owner) {
-                    ReleasePacketSlot((void **)&sprite->locals);
+                if (g_apSceneObjects_00499c38[index] != 0 &&
+                    g_apSceneObjects_00499c38[index]->owner == owner) {
+                    ReleasePacketSlot(
+                        (void **)&g_apSceneObjects_00499c38[index]->locals);
                     ReleasePacketSlot(
                         (void **)&g_apSceneObjects_00499c38[index]);
                 }
             }
-        } else if (formType == 0x454e4c50) {
+            break;
+        case 0x454e4c50:
             for (index = 0; index < 0x40; index++) {
-                plane = g_apCutscenePlanes_00499c3c[index];
-                if (plane != 0 && plane->owner == owner) {
+                if (g_apCutscenePlanes_00499c3c[index] != 0 &&
+                    g_apCutscenePlanes_00499c3c[index]->owner == owner) {
+                    plane = g_apCutscenePlanes_00499c3c[index];
                     ReleasePacketSlot((void **)&plane->locals);
                     ReleasePacketSlot((void **)&plane->spriteIndices);
                     ReleasePacketSlot(
                         (void **)&g_apCutscenePlanes_00499c3c[index]);
                 }
             }
-        } else if (formType == 0x55514553) {
+            break;
+        case 0x55514553:
             for (index = 0; index < 0x100; index++) {
-                sequence = g_apCutsceneSequences_00499c40[index];
-                if (sequence != 0 && sequence->owner == owner) {
+                if (g_apCutsceneSequences_00499c40[index] != 0 &&
+                    g_apCutsceneSequences_00499c40[index]->owner == owner) {
+                    sequence = g_apCutsceneSequences_00499c40[index];
                     ReleasePacketSlot((void **)&sequence->locals);
                     ReleasePacketSlot((void **)&sequence->planeIndices);
                     ReleasePacketSlot(
                         (void **)&g_apCutsceneSequences_00499c40[index]);
                 }
             }
-        } else if (formType == 0x454e4353) {
+            break;
+        case 0x454e4353:
             for (index = 0; index < 0x20; index++) {
-                scene = g_apCutsceneScenes_00499c44[index];
-                if (scene != 0 && scene->owner == owner) {
+                if (g_apCutsceneScenes_00499c44[index] != 0 &&
+                    g_apCutsceneScenes_00499c44[index]->owner == owner) {
+                    scene = g_apCutsceneScenes_00499c44[index];
                     ReleasePacketSlot((void **)&scene->locals);
                     ReleasePacketSlot((void **)&scene->sequenceIndices);
                     ReleasePacketSlot(
                         (void **)&g_apCutsceneScenes_00499c44[index]);
                 }
             }
+            break;
         }
         *head = resource->next;
         ReleasePacketHandle(resource);

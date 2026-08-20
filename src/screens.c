@@ -1359,12 +1359,15 @@ void ReleaseCutsceneViewport(Viewport *viewport)
 
     release = 1;
     if (viewport->pixels != 0) {
-        if (g_cCutsceneVideoMode_00499c48 == 0x0d ||
-            g_cCutsceneVideoMode_00499c48 == 0x13) {
+        switch (g_cCutsceneVideoMode_00499c48) {
+        case 0x0d:
+        case 0x13:
             if (GetDIBPixelBuffer() != viewport->pixels)
                 release++;
-        } else {
+            break;
+        default:
             release++;
+            break;
         }
         if (release != 0) {
             free_viewport(viewport);

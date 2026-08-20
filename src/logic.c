@@ -2316,21 +2316,24 @@ short find_ratio(short inputMinimum, short inputMaximum,
 /* Function start: 0x42B985 */
 short evaluate_damage(short obj)
 {
-    ObjectTypeData *typeData =
-        &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
+    short total;
+    ObjectTypeData *typeData;
 
+    total = 0;
+    typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[obj]];
     if (g_aeObjectClass_00495328[obj] < OBJECT_CLASS_SHIP)
         return 100;
-    return (short)((g_acShipDamage_00495690[obj] * -26) /
-                       typeData->damageCapacity +
-                   (g_aasShipArmor_00495540[obj][1] * 27) /
-                       typeData->armorRear +
-                   (g_aasShipArmor_00495540[obj][0] * 23) /
-                       typeData->armorFront +
-                   (g_aasShipArmor_00495540[obj][2] * 12) /
-                       typeData->armorLeft +
-                   (g_aasShipArmor_00495540[obj][3] * 12) /
-                       typeData->armorRight + 26);
+    total = (short)(g_aasShipArmor_00495540[obj][0] * 23 /
+                        typeData->armorFront + total);
+    total = (short)(g_aasShipArmor_00495540[obj][1] * 27 /
+                        typeData->armorRear + total);
+    total = (short)(g_aasShipArmor_00495540[obj][2] * 12 /
+                        typeData->armorLeft + total);
+    total = (short)(g_aasShipArmor_00495540[obj][3] * 12 /
+                        typeData->armorRight + total);
+    total = (short)(26 - g_acShipDamage_00495690[obj] * 26 /
+                             typeData->damageCapacity + total);
+    return total;
 }
 
 /* Function start: 0x4564F0 */
