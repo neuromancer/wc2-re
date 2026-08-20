@@ -1697,26 +1697,37 @@ void check_visit(short objective, short range)
 void update_objective_location(short objective)
 {
     FixedVector delta;
+    short savedSystem;
     short object;
     short range;
 
-    object = LocateMobileObjective(objective);
-    if (sighted(objective) != 0 && visited(objective) != 0 &&
-        g_cCurrentObjective_004931cc != objective)
+    if (g_aMissionObjectives_004932a8[objective].type == 6 ||
+        g_aMissionObjectives_004932a8[objective].type == 5)
         return;
-    ComputeVectorDelta(&g_aShipPosition_00494550[0],
-                       &g_aMissionObjectives_004932a8[objective].position,
-                       &delta);
-    range = FixedToShortSaturating(
-        Vector_magnitude(&delta));
-    check_sighting(objective, range, object);
-    if (mobile_objective(objective) != 0) {
-        if (object != -1)
-            check_visit(objective, range);
-    } else if (g_aMissionNavPoints_00491e98[
-                   g_aMissionObjectives_004932a8[objective].index].type >= 1) {
-        check_visit(objective, range);
+    object = LocateMobileObjective(objective);
+    savedSystem = g_stElapsedCampaignDate_005d170c.year;
+    g_stElapsedCampaignDate_005d170c.year = g_nCurrentStarSystem_005d169c;
+    if (IsObjectiveInDisplayedSystem(objective) == 0) {
+        g_stElapsedCampaignDate_005d170c.year = savedSystem;
+        return;
     }
+    if (sighted(objective) == 0 || visited(objective) == 0 ||
+        g_cCurrentObjective_004931cc == objective) {
+        ComputeVectorDelta(
+            &g_aShipPosition_00494550[0],
+            &g_aMissionObjectives_004932a8[objective].position, &delta);
+        range = FixedToShortSaturating(Vector_magnitude(&delta));
+        check_sighting(objective, range, object);
+        if (mobile_objective(objective) != 0) {
+            if (object != -1)
+                check_visit(objective, range);
+        } else if (g_aMissionNavPoints_00491e98[
+                       g_aMissionObjectives_004932a8[objective].index]
+                       .type >= 1) {
+            check_visit(objective, range);
+        }
+    }
+    g_stElapsedCampaignDate_005d170c.year = savedSystem;
 }
 
 /* Function start: 0x43AFD3 */
