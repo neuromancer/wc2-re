@@ -87,11 +87,11 @@ static int Wc1SdlRunRuntimeChecks(void)
     if (g_aShipWeapons_004956b0[1][0] != 1)
         return 1;
 
-    /* WC2's readout indexes the special-maneuver table with the target, so
-     * the check has to name a real object; the game never reaches it with the
-     * -1 "no target" sentinel. */
-    g_acShipTarget_00495f20[0] = 1;
-    g_cTargetDisplayObject_004934f4 = 1;
+    /* Nothing targeted, the readout already showing that, and a frame the
+     * periodic redraw does not fall on: the walk stays out of show_target_disp
+     * and its text, which needs a font the check has no data to load. */
+    g_acShipTarget_00495f20[0] = -1;
+    g_cTargetDisplayObject_004934f4 = -1;
     g_nRenderedSpaceFrame_00493138 = 1;
     DrawTargetRangeReadout();
 
@@ -117,6 +117,10 @@ static int Wc1SdlRunRuntimeChecks(void)
      * leaving a rectangle behind, so the call is the check. */
     vdu_polygon(2, 50);
 
+    /* A strike whose target is gone routs, but only for a ship the mission
+     * header does not list: strike_mission reads the mission-ship record of a
+     * team member, and this parameter names none. */
+    g_asShipMissionIndex_00495d00[1] = 1;
     g_asShipMissionParameter_00495e00[1] = -1;
     g_aeShipObjective_00495f08[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
