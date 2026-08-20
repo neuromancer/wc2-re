@@ -20,15 +20,15 @@ the pilot save/load menu and space flight, with firing, targeting, the cockpit
 displays and music working. Enhanced rendering is wired but largely untested.
 
 `make report` measures machine-code similarity against the retail executable.
-The current report compares 1,575 functions:
+The current report compares 1,576 functions:
 
 | Result | Functions |
 | --- | ---: |
-| Exact matches | 997 |
-| Similarity at or above 90% | 1477 |
-| Similarity below 90% | 98 |
+| Exact matches | 1022 |
+| Similarity at or above 90% | 1488 |
+| Similarity below 90% | 88 |
 
-The current average similarity is 97.42%, with no report errors or missing
+The current average similarity is 97.62%, with no report errors or missing
 disassembly exports. Similarity measures reconstruction fidelity, not gameplay
 completeness.
 
