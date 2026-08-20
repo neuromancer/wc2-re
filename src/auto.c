@@ -90,10 +90,16 @@ void auto_position(short obj, short *formationSlot)
 }
 
 /* WC2's auto.c declares the autopilot debug flag two bytes wide where every
- * other translation unit declares it as a char.  The bytes above it are
- * padding, so the value is the same; only the load width differs. */
+ * other translation unit declares it as a char.  In the retail image the byte
+ * above it is padding, so the value is the same and only the load width
+ * differs; on the port the byte above it is the sanitizer's redzone, so read
+ * the flag at its own width there. */
+#ifdef WC1_SDL
+#define g_nAutopilotDebugEnabled g_bAutopilotDebugEnabled_00499bfc
+#else
 #define g_nAutopilotDebugEnabled \
     (*(const short *)&g_bAutopilotDebugEnabled_00499bfc)
+#endif
 
 /* Function start: 0x422B1C */
 void auto_pilot_sequence(void)

@@ -134,7 +134,12 @@ MODERN_SDL_LIBS = $(shell \
 MODERN_LZO_CFLAGS = $(shell pkg-config --cflags lzo2 2>/dev/null)
 MODERN_LZO_INCLUDEDIR = $(shell pkg-config --variable=includedir lzo2 2>/dev/null)
 MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
-MODERN_CPPFLAGS = -DWC1_SDL=1 -Iinclude $(MODERN_SDL_CFLAGS) \
+# SDL_MAIN_HANDLED keeps SDL's headers from renaming main() to SDL_main on
+# Windows, which needs SDL2main.a to supply a WinMain wrapper.  The port has
+# its own main and calls SDL_SetMainReady() itself, so the rename is only a
+# way to fail the link.
+MODERN_CPPFLAGS = -DWC1_SDL=1 -DSDL_MAIN_HANDLED -Iinclude \
+	$(MODERN_SDL_CFLAGS) \
 	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
 # The reconstruction reproduces MSVC 4.1's tolerance for mismatched pointer
 # and integer arguments; clang treats those as errors by default.  Demote them

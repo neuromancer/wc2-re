@@ -92,6 +92,42 @@ typedef struct Wc1SdlDirectDraw2 *LPDIRECTDRAW2;
 typedef struct Wc1SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
 typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
 
+/* The port stands in for a slice of the Win32 API with SDL.  A native Windows
+ * host already has kernel32, user32, gdi32, advapi32 and winmm exporting those
+ * same names, and its idea of a HANDLE, an HWND or a CRITICAL_SECTION is not
+ * the port's, so defining our own would either collide at link time or bind
+ * the game to a real entry point that does not understand these structures.
+ * Give the port's versions their own names on every host and let the game's
+ * Win32 spellings reach them through these macros; the shims below are
+ * declared after the renaming, so they carry the prefixed names too. */
+#define CloseHandle Wc1SdlCloseHandle
+#define CreateEventA Wc1SdlCreateEventA
+#define CreateFileA Wc1SdlCreateFileA
+#define CreateThread Wc1SdlCreateThread
+#define DeviceIoControl Wc1SdlDeviceIoControl
+#define GetCurrentDirectoryA Wc1SdlGetCurrentDirectoryA
+#define GetCurrentThread Wc1SdlGetCurrentThread
+#define GetDriveTypeA Wc1SdlGetDriveTypeA
+#define GetVolumeInformationA Wc1SdlGetVolumeInformationA
+#define MessageBoxA Wc1SdlMessageBoxA
+#define QueryPerformanceCounter Wc1SdlQueryPerformanceCounter
+#define ResetEvent Wc1SdlResetEvent
+#define SetCurrentDirectoryA Wc1SdlSetCurrentDirectoryA
+#define SetEvent Wc1SdlSetEvent
+#define SetThreadPriority Wc1SdlSetThreadPriority
+#define TextOutA Wc1SdlTextOutA
+#define WaitForSingleObject Wc1SdlWaitForSingleObject
+#define timeKillEvent Wc1SdlTimeKillEvent
+#define timeSetEvent Wc1SdlTimeSetEvent
+#define DeleteCriticalSection Wc1SdlDeleteCriticalSection
+#define EnterCriticalSection Wc1SdlEnterCriticalSection
+#define InitializeCriticalSection Wc1SdlInitializeCriticalSection
+#define LeaveCriticalSection Wc1SdlLeaveCriticalSection
+#define RegCloseKey Wc1SdlRegCloseKey
+#define RegOpenKeyExA Wc1SdlRegOpenKeyExA
+#define RegQueryValueExA Wc1SdlRegQueryValueExA
+#define RegSetValueExA Wc1SdlRegSetValueExA
+
 #ifdef __cplusplus
 extern "C" {
 #endif

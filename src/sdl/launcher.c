@@ -145,6 +145,9 @@ int main(int argumentCount, char **arguments)
             WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     }
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
+    /* The build defines SDL_MAIN_HANDLED, so tell SDL the process is already
+     * up rather than letting it rename main() out from under us. */
+    SDL_SetMainReady();
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER |
                  SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) != 0) {
         fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());

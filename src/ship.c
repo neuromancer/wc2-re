@@ -1686,7 +1686,15 @@ short fire_turrets(short obj)
     targetCount = build_target_list(obj, targetRange);
     for (weapon = 0;
          weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
+#ifdef WC1_SDL
+         /* WC2 walks the slot pointer forward here before anything sets it -
+          * this loop indexes the array directly and the loop below starts the
+          * pointer over - and advancing an indeterminate pointer is undefined
+          * behaviour the sanitizers catch.  Leave it alone on the port. */
+         weapon++) {
+#else
          weapon++, slot++) {
+#endif
         if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
                 weapon].type == 0x0c)
             turretCount++;
