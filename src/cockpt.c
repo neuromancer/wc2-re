@@ -16,7 +16,7 @@ ShortPoint g_stHudMessageOrigin_0049ae90;
 short g_asVduSelectionSound_0049afe4[2] = { 0x7f, 0 };
 char *g_pszPendingHudMessage_0049afec = 0;
 char *g_pszDisplayedHudMessage_0049aff0 = 0;
-unsigned char g_cLastPilotHandFrame_0049aff4 = 0xff;
+signed char g_cLastPilotHandFrame_0049aff4 = (signed char)0xff;
 short g_asPilotHandOffsets_0049aff8[34] = {
     6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
