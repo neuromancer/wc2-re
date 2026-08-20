@@ -2244,6 +2244,16 @@ void target_locking(signed char target)
         lock_off();
         return;
     }
+#ifdef WC1_SDL
+    /* With no release weapon selected the original indexes the slot array
+     * with -1, nine bytes in front of it, and switches on whatever the
+     * ion-drive damage table happens to hold.  That is never a missile type,
+     * so it lands on the default arm below; take it directly. */
+    if (g_nSelectedReleaseWeaponIndex_004934e0 < 0) {
+        lock_off();
+        return;
+    }
+#endif
     weaponType = (enum Wc2ReleaseWeaponObjectType)((ShipWeaponSlot *)(
         g_aShipWeapons_004956b0[0] + 1))[
             g_nSelectedReleaseWeaponIndex_004934e0].type;
