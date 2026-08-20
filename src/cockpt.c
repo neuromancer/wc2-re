@@ -3690,6 +3690,22 @@ void place_damage_on_cockpit(short damage)
     }
 }
 
+/* Clearing the communication resources sets the speaker to -1.  WC2's
+ * unchecked side-table load then treats the last two bytes of
+ * g_acShipLastAttacker_004955c0 as a signed word.  Reassemble that
+ * layout-derived value without crossing a native global's sanitizer redzone. */
+#ifdef WC1_SDL
+#define WC1_COMM_SPEAKER_SIDE(obj) \
+    ((obj) != -1 \
+         ? g_asShipSide_004955d0[obj] \
+         : (short)((unsigned short)(unsigned char) \
+                       g_acShipLastAttacker_004955c0[14] | \
+                   ((unsigned short)(unsigned char) \
+                        g_acShipLastAttacker_004955c0[15] << 8)))
+#else
+#define WC1_COMM_SPEAKER_SIDE(obj) g_asShipSide_004955d0[obj]
+#endif
+
 /* Function start: 0x43ECD9 */
 void vid_transmit(void)
 {
@@ -3727,7 +3743,7 @@ void vid_transmit(void)
             g_nCommDeathSequenceFrame_0049ae84 = 0;
         }
     } else if (g_bCommSpeechPlaying_0049b7a0 == 0 &&
-               g_asShipSide_004955d0[g_nCommSpeakerObject_0049b794] ==
+               WC1_COMM_SPEAKER_SIDE(g_nCommSpeakerObject_0049b794) ==
                    SIDE_NEUTRAL) {
         EndCommMenu();
     } else if (((g_nRenderedSpaceFrame_00493138 % 2 != 0 &&

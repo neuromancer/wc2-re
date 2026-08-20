@@ -28,6 +28,18 @@ int main(int argumentCount, char **arguments)
     if (get_mode(1) != 6 || g_acVduModeStackDepth_004934c8[1] != 3)
         return 1;
 
+    /* A transmission VDU can be revisited after its speaker has been cleared.
+     * WC2 then reads the zero word immediately before the ship-side table. */
+    g_nCommDeathSequenceFrame_0049ae84 = 0;
+    g_bCommSpeechPlaying_0049b7a0 = 0;
+    g_nCommSpeakerObject_0049b794 = -1;
+    g_nCommPortraitIndex_0049b79c = -1;
+    g_acShipLastAttacker_004955c0[14] = 0;
+    g_acShipLastAttacker_004955c0[15] = 0;
+    vid_transmit();
+    if (get_mode(1) != 6)
+        return 1;
+
     g_acShipTarget_00495f20[ship] = (signed char)target;
     g_asShipManeuver_00495f48[ship] = MANEUVER_BUZZ_DEBRIS;
     g_acShipSequence_00495fe8[ship] = 2;
