@@ -1996,14 +1996,14 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
 /* Function start: 0x426FD9 */
 void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char *shape, short frame,
-                           unsigned char colour)
+                           unsigned short colour)
 {
-    if (viewport->left >= 0) {
-        SetSolidColourTranslation(colour);
-        if (HasValidShapeAllocationSignature(shape) != 0)
-            DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
-                                  0x100, 0x100, 0, 1);
-    }
+    if (viewport->left < 0)
+        return;
+    SetSolidColourTranslation(colour);
+    if (HasValidShapeAllocationSignature(shape) != 0)
+        DrawSpriteTransformed(viewport, x, y, shape, frame, 0,
+                              0x100, 0x100, 0, 1);
 }
 
 /* Function start: 0x427047 */

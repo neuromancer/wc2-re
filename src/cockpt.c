@@ -2465,13 +2465,13 @@ void draw_target_box(unsigned short colour, signed char object,
 {
     short centerY;
     ShortRect bounds;
-    int colourValue;
+    short markerRadius;
     short centerX;
     short segmentLength;
     short valid;
 
-    colourValue = (short)colour;
-    if ((int)(unsigned char)g_cPrimaryViewBufferColour_0049cb88 == colourValue) {
+    if ((int)(unsigned char)g_cPrimaryViewBufferColour_0049cb88 ==
+        (int)(short)colour) {
         valid = savedBounds->left != -0x7fff;
         bounds = *savedBounds;
     } else {
@@ -2500,8 +2500,14 @@ void draw_target_box(unsigned short colour, signed char object,
         }
     }
     if (valid != 0) {
-        if ((int)g_abGamePaletteReservedColours_0049cb54[8] == colourValue &&
-            g_asShipSide_004955d0[object] == g_asShipSide_004955d0[0]) {
+        if ((int)(unsigned char)g_abGamePaletteReservedColours_0049cb54[8] ==
+                (int)(short)colour &&
+            g_asShipIdentified_00496078[object] == 0) {
+            colour = g_abGamePaletteReservedColours_0049cb54[4];
+        }
+        if ((int)(unsigned char)g_abGamePaletteReservedColours_0049cb54[8] ==
+                (int)(short)colour &&
+            g_asShipSide_004955d0[object] == SIDE_IMPERIAL) {
             colour = g_abGamePaletteReservedColours_0049cb54[0];
         }
         if (solid != 0) {
@@ -2541,15 +2547,21 @@ void draw_target_box(unsigned short colour, signed char object,
             if ((int)(short)colour != (int)(unsigned char)g_cPrimaryViewBufferColour_0049cb88) {
                 if (g_nTargetLockCountdown_004934ec > -1) {
                     g_nTargetLockMarkerAngle_004934f0 = (short)(
-                        g_nTargetLockMarkerAngle_004934f0 +
                         g_anObjectRollRotation_00495058[0] +
-                        g_anObjectPitchRotation_00494f38[0]);
+                        g_anObjectPitchRotation_00494f38[0] +
+                        g_nTargetLockMarkerAngle_004934f0);
+                    markerRadius =
+                        (short)(g_nTargetLockCountdown_004934ec * 2);
+                    if (((ShipWeaponSlot *)(g_aShipWeapons_004956b0[0] +
+                             1))[g_nSelectedReleaseWeaponIndex_004934e0]
+                            .type == 0x13)
+                        markerRadius >>= 3;
                     centerX = (short)(centerX +
                         ((CosFixed(g_nTargetLockMarkerAngle_004934f0) *
-                          g_nTargetLockCountdown_004934ec * 2) >> 8));
+                          markerRadius) >> 8));
                     centerY = (short)(centerY +
                         ((SinFixed(g_nTargetLockMarkerAngle_004934f0) *
-                          g_nTargetLockCountdown_004934ec * 2) >> 8));
+                          markerRadius) >> 8));
                     DrawSpriteDefault(&g_stViewBuffer_005d2b00, centerX, centerY,
                                       g_pCockpitHudShape_005d21f4, 1);
                     g_nTargetLockMarkerX_0049b298 = centerX;
@@ -3159,66 +3171,83 @@ void cycle_onscreen_targets(void)
 void check_target(void)
 {
     short selectNewTarget;
-    short oldTarget;
-    short targetIndex;
     short hasEnemy;
+    short targetIndex;
+    short oldTarget;
+    short target;
 
+    target = g_acShipTarget_00495f20[0];
     selectNewTarget = 1;
-    oldTarget = g_acShipTarget_00495f20[0];
-    if (oldTarget != -1 &&
-        g_aeSpecialManeuver_00495600[oldTarget] ==
+    if (g_nTargetCameraFrame_0049d3e8 == 1)
+        return;
+    if (target != -1 &&
+        g_aeSpecialManeuver_00495600[target] ==
             SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_00495f20[0] = -1;
-        oldTarget = -1;
+        target = g_acShipTarget_00495f20[0];
     }
+    oldTarget = target;
     if (g_bTargetLockMode_00493500 != 0 &&
-        (short)(g_nRenderedSpaceFrame_00493138 % 8) == 0 &&
+        g_nRenderedSpaceFrame_00493138 % 8 == 0 &&
         malf(5) != 0) {
         g_bTargetLockMode_00493500 = 0;
+        g_bTargetLockActive_0049ae80 = 0;
         malf_sound();
     }
-    if (oldTarget != -1 &&
-        (g_bTargetLockMode_00493500 != 0 ||
-         (g_asObjectScreenX_00493598[oldTarget] != (short)0x8001 &&
-          (g_bTargetLockMode_00493500 != 0 ||
-           g_asShipSide_004955d0[oldTarget] !=
-               g_asShipSide_004955d0[0]))))
-        return;
-    if (oldTarget == -1)
-        g_bTargetLockMode_00493500 = 0;
 
-    build_your_target_list(&hasEnemy);
-    if (g_cViableTargetCount_00496178 == 0) {
-        if (g_bTargetLockMode_00493500 != 0)
-            g_acShipTarget_00495f20[0] = oldTarget;
-        else
-            g_acShipTarget_00495f20[0] = -1;
-    } else {
-        if (hasEnemy == 0 && oldTarget != -1 &&
-            g_asShipSide_004955d0[oldTarget] ==
-                g_asShipSide_004955d0[0] &&
-            (g_bTargetLockMode_00493500 != 0 ||
-             g_asObjectScreenX_00493598[oldTarget] != (short)0x8001)) {
-            selectNewTarget = 0;
-            g_acShipTarget_00495f20[0] = oldTarget;
-        }
-        if (selectNewTarget != 0) {
-            for (targetIndex = 0;
-                 targetIndex < g_cViableTargetCount_00496178 &&
-                 g_asShipSide_004955d0[
-                     (short)g_acViableTarget_00496180[targetIndex]] ==
-                     g_asShipSide_004955d0[0];
-                 targetIndex++)
-                ;
-            g_acShipTarget_00495f20[0] =
-                g_acViableTarget_00496180[
-                    targetIndex % (short)g_cViableTargetCount_00496178];
-        }
-    }
-    if (g_acShipTarget_00495f20[0] != oldTarget) {
-        if (oldTarget != -1 && g_acShipTarget_00495f20[0] == -1)
+    /* Keep the current target while the lock holds it, or while it is on
+     * screen and hostile; otherwise fall through and pick a new one. */
+    if (target == -1 ||
+        (g_bTargetLockMode_00493500 == 0 &&
+         g_asObjectScreenX_00493598[target] == (short)0x8001) ||
+        (g_bTargetLockMode_00493500 == 0 &&
+         g_asShipSide_004955d0[target] == g_asShipSide_004955d0[0])) {
+        if (target == -1 && g_nCurrentView_00492fa8 != 4)
             g_bTargetLockMode_00493500 = 0;
-        g_nTargetLockCountdown_004934ec = -1;
+
+        build_your_target_list(&hasEnemy);
+        if (g_cViableTargetCount_00496178 == 0) {
+            if (g_nCurrentView_00492fa8 == 4 &&
+                g_nTargetCameraMode_005c8d50 == 1) {
+                g_acShipTarget_00495f20[0] = -1;
+                if (oldTarget != -1)
+                    g_nTargetCameraZoom_0049d3e4 = 0x21;
+            } else if (g_bTargetLockMode_00493500 != 0) {
+                g_acShipTarget_00495f20[0] = (signed char)oldTarget;
+            } else {
+                g_acShipTarget_00495f20[0] = -1;
+            }
+        } else {
+            if (hasEnemy == 0 && oldTarget != -1 &&
+                g_asShipSide_004955d0[oldTarget] ==
+                    g_asShipSide_004955d0[0] &&
+                (g_bTargetLockMode_00493500 != 0 ||
+                 g_asObjectScreenX_00493598[target] != (short)0x8001)) {
+                g_acShipTarget_00495f20[0] = (signed char)oldTarget;
+                selectNewTarget = 0;
+            }
+            if (selectNewTarget != 0) {
+                targetIndex = 0;
+                while (g_cViableTargetCount_00496178 > targetIndex &&
+                       g_asShipSide_004955d0[
+                           (short)g_acViableTarget_00496180[
+                               targetIndex]] ==
+                           g_asShipSide_004955d0[0])
+                    targetIndex++;
+                g_acShipTarget_00495f20[0] =
+                    g_acViableTarget_00496180[
+                        targetIndex %
+                        (short)g_cViableTargetCount_00496178];
+            }
+        }
+        if (g_acShipTarget_00495f20[0] != oldTarget) {
+            if (g_nCurrentView_00492fa8 != 4 && oldTarget != -1 &&
+                (g_acShipTarget_00495f20[0] == -1 ||
+                 g_asShipSide_004955d0[target] !=
+                     g_asShipSide_004955d0[oldTarget]))
+                g_bTargetLockMode_00493500 = 0;
+            g_nTargetLockCountdown_004934ec = -1;
+        }
     }
 }
 

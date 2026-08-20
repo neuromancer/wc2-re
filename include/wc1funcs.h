@@ -1909,7 +1909,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short frame);                          /* 0x426B96 */
 void DrawSolidColourSprite(Viewport *viewport, short x, short y,
                            unsigned char *shape, short frame,
-                           unsigned char colour);                    /* 0x426FD9 */
+                           unsigned short colour);                   /* 0x426FD9 */
 void CopyViewportContents(Viewport *source, Viewport *destination);    /* 0x427047 */
 void ClearViewport(Viewport *viewport, short colour);                  /* 0x427123 */
 void DrawViewportPixel(Viewport *viewport, short x, short y,
