@@ -45,6 +45,17 @@ short CreateDataFile(const char *path)
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
+#ifdef WC1_SDL
+    /* WC2 stores the descriptor in a word and then compares it against a
+     * full -1, so a failed open never reaches the branch above and the caller
+     * reports a bare error code instead.  The port says which file it could
+     * not create and why, because on a host the reason is usually the
+     * directory's permissions. */
+    if ((short)fd == -1) {
+        fprintf(stderr, "Unable to create '%s' in '%s': %s\n", path,
+                Wc1SdlDescribeWorkingDirectory(), strerror(errno));
+    }
+#endif
     return (short)fd;
 }
 

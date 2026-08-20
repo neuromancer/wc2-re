@@ -282,6 +282,8 @@ void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 #define timeGetTime Wc1SdlGetTicks
 
 int Wc1SdlChangeDirectory(const char *path);
+const char *Wc1SdlDescribeWorkingDirectory(void);
+int Wc1SdlUnlink(const char *path);
 int Wc1SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize);
 
@@ -379,7 +381,7 @@ int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define _write write
 #define _lseek lseek
 #define _filelength Wc1SdlFileLength
-#define _unlink unlink
+#define _unlink Wc1SdlUnlink
 #define _chdir Wc1SdlChangeDirectory
 #define _cprintf printf
 #define _itoa Wc1SdlItoa

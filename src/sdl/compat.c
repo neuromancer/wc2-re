@@ -120,6 +120,21 @@ int Wc1SdlChangeDirectory(const char *path)
     return chdir(resolved);
 }
 
+/*
+ *  The game removes a file by the name it writes, but a case-sensitive host
+ *  can be holding it under the case the install shipped.  Resolve first, the
+ *  way Wc1SdlOpen does, or the removal quietly misses and the next create
+ *  runs into whatever was left behind.
+ */
+int Wc1SdlUnlink(const char *path)
+{
+    char hostPath[PATH_MAX];
+
+    if (!Wc1SdlResolvePath(path, hostPath, sizeof(hostPath)))
+        return -1;
+    return unlink(hostPath);
+}
+
 int Wc1SdlOpen(const char *path, int flags, ...)
 {
     int hostFlags;
@@ -379,6 +394,11 @@ int Wc1SdlChangeDirectory(const char *path)
     return _chdir(path);
 }
 
+int Wc1SdlUnlink(const char *path)
+{
+    return _unlink(path);
+}
+
 int Wc1SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize)
 {
@@ -525,4 +545,19 @@ int Wc1SdlFlushAll(void)
 {
     fflush(0);
     return 0;
+}
+
+/*
+ *  The game changes into its data directory on the way in, so a file it
+ *  cannot open says more with the directory it was looking in.
+ */
+#define WC1_SDL_WORKING_DIRECTORY_SIZE 4096
+
+const char *Wc1SdlDescribeWorkingDirectory(void)
+{
+    static char directory[WC1_SDL_WORKING_DIRECTORY_SIZE];
+
+    if (GetCurrentDirectoryA((DWORD)sizeof(directory), directory) == 0)
+        strcpy(directory, "?");
+    return directory;
 }
