@@ -296,3 +296,30 @@ void Wc1SdlCompleteDosInstallTable(DiskFileRecord *records)
     memset(&records[72], 0, sizeof(DiskFileRecord) * 5);
     memcpy(&records[72], expansionRecords, sizeof(expansionRecords));
 }
+
+/*
+ *  An object-type record on disk is 0xF3 bytes laid out the way the original's
+ *  ObjectTypeData is, with four bytes for each of its three pointer fields.
+ *  On LP64 the host struct is wider, so the packet is read into a buffer with
+ *  the original's shape and the two pointer-free runs are copied across at
+ *  their own offsets.  The pointers themselves hold nothing worth keeping --
+ *  every caller assigns the real ones straight after this returns.
+ */
+#define WC2_OBJECT_TYPE_RECORD_BYTES 0xf3
+#define WC2_OBJECT_TYPE_HEAD_BYTES   0x2e  /* displayName..cruiseVelocity */
+#define WC2_OBJECT_TYPE_TAIL_OFFSET  0x32  /* acceleration */
+#define WC2_OBJECT_TYPE_TAIL_BYTES   0xb9  /* acceleration..armorRight */
+
+void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
+                                struct ObjectTypeData *record)
+{
+    unsigned char packed[WC2_OBJECT_TYPE_RECORD_BYTES];
+
+    memset(packed, 0, sizeof(packed));
+    if (LoadPacketIntoBuffer(fileName, section, packed, 0) == 0)
+        return;
+    memcpy(record, packed, WC2_OBJECT_TYPE_HEAD_BYTES);
+    memcpy(&record->acceleration,
+           packed + WC2_OBJECT_TYPE_TAIL_OFFSET,
+           WC2_OBJECT_TYPE_TAIL_BYTES);
+}

@@ -308,6 +308,14 @@ int Wc1SdlFlushAll(void);
  * the format and hand the rest to the C library unchanged. */
 /* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
  * input and firing through the port without disturbing the reference build. */
+/* The object-type records on disk are laid out the way the original's
+ * ObjectTypeData is: 0xF3 bytes with four-byte pointer slots.  On LP64 the
+ * struct is wider, so a packet cannot be read straight into one -- see
+ * Wc2SdlLoadObjectTypeRecord. */
+struct ObjectTypeData;
+void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
+                                struct ObjectTypeData *record);
+
 int Wc1SdlTraceEnabled(void);
 void Wc1SdlTracef(const char *format, ...);
 

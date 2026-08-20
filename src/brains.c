@@ -3149,9 +3149,8 @@ void LoadAlternateShipType(short resourceType, short logicalFile)
         strcat(fileName, "0");
     strcat(fileName,
            _itoa(g_nSelectedCampaignSlot_005d3bf2, digits, 10));
-    LoadPacketIntoBuffer(fileName, logicalFile,
-                         (unsigned char *)&g_aObjectTypeData_00496d30[4],
-                         0);
+    WC2_LOAD_OBJECT_TYPE_RECORD(fileName, logicalFile,
+                                &g_aObjectTypeData_00496d30[4]);
     strcpy(g_aObjectTypeData_00496d30[4].displayName, savedName);
     g_aObjectTypeData_00496d30[4].resourceType = resourceType;
     g_aObjectTypeData_00496d30[4].animation = savedAnimation;
@@ -3378,9 +3377,9 @@ void load_ship(short resourceType, short objectType,
                        objectClass == OBJECT_CLASS_MISSILE) {
                 if (objectClass != OBJECT_CLASS_MISSILE &&
                     g_bShipResourceReloadInProgress_0049b894 == 0) {
-                    LoadPacketIntoBuffer(
+                    WC2_LOAD_OBJECT_TYPE_RECORD(
                         fileName, 3,
-                        &g_aObjectTypeData_00496d30[slot], 0);
+                        &g_aObjectTypeData_00496d30[slot]);
                 }
                 g_aObjectResourceSlots_00493398[slot].shapeSet =
                     FetchDiskPacketRetrying(fileName, 0, 0);
@@ -3442,9 +3441,9 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectResourceSlots_00493398[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 0x27, 4);
                 }
-                LoadPacketIntoBuffer(
+                WC2_LOAD_OBJECT_TYPE_RECORD(
                     fileName, 0x26,
-                    &g_aObjectTypeData_00496d30[slot], 0);
+                    &g_aObjectTypeData_00496d30[slot]);
                 g_aObjectTypeData_00496d30[slot].shapeSet = 0;
                 g_aObjectResourceSlots_00493398[slot].shape =
                     FetchDiskPacketRetrying(fileName, 0x25, 0);

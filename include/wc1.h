@@ -70,6 +70,22 @@ typedef unsigned int Wc2DwordPtr;
  * addresses because the reconstruction does not place them that far apart. */
 #define WC2_CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
 
+/* Loading an object-type record.  The record on disk has the original's
+ * layout: 0xF3 bytes, with the animation, shapeSet and shape pointers taking
+ * four bytes each.  The reference build's struct matches that exactly, so the
+ * packet is read straight into it.  On LP64 the same struct is wider and every
+ * field past `animation` sits four bytes late -- weaponLoadout among them,
+ * which is why a ship loaded with no guns -- so the port unpacks instead.  The
+ * three pointer fields are junk in the packet and every caller overwrites them
+ * immediately, so neither path preserves them. */
+#ifdef WC1_SDL
+#define WC2_LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
+    Wc2SdlLoadObjectTypeRecord((fileName), (section), (record))
+#else
+#define WC2_LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
+    LoadPacketIntoBuffer((fileName), (section), (record), 0)
+#endif
+
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
  * where they are meant to, and the reconstruction reproduces that layout
