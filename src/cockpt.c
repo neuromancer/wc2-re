@@ -2588,12 +2588,17 @@ void draw_nav_pointer(void)
     FixedVector direction;
     FixedVector viewPosition;
     int distance;
+    int scale;
+    int product;
+    int quotient;
     short active;
-    short object;
 
     if (get_mode(1) == 5 &&
-        g_nCannedSceneMode_0049021c != 4 &&
-        (g_nCurrentView_00492fa8 == 0 || g_nCurrentView_00492fa8 == 4))
+        g_nTrainSimActive_0049d758 != 4 &&
+        g_nCannedSceneMode_0049021c == 0 &&
+        (g_nCurrentView_00492fa8 == 0 || g_nCurrentView_00492fa8 == 5) &&
+        IsMissionObjectiveOutOfSystem(
+            (short)g_cCurrentObjective_004931cc) == 0)
         active = 1;
     else
         active = 0;
@@ -2601,49 +2606,50 @@ void draw_nav_pointer(void)
         remove_nav_pointer();
         return;
     }
-    object = g_nNavPointerObject_004931b8;
-    if (object == -1) {
-        object = find_vacant_3d_object();
-        g_nNavPointerObject_004931b8 = object;
-        if (object == -1)
+    if (g_nNavPointerObject_004931b8 == -1) {
+        g_nNavPointerObject_004931b8 = find_vacant_3d_object();
+        if (g_nNavPointerObject_004931b8 == -1)
             return;
-        g_asObjectViewFrame_00493508[object] = 3;
-        g_acObjectOwner_00495208[object] = -1;
-        g_asObjectScreenAngle_004936b8[object] = 0;
-        g_asObjectScreenScale_00493a58[object] = 0x100;
-        g_aeObjectClass_00495328[object] = OBJECT_CLASS_PLANET;
-        g_apObjectShape_00493868[object] =
+        g_aeObjectClass_00495328[g_nNavPointerObject_004931b8] =
+            OBJECT_CLASS_PLANET;
+        g_asObjectViewFrame_00493508[g_nNavPointerObject_004931b8] = 3;
+        g_asObjectScreenAngle_004936b8[g_nNavPointerObject_004931b8] = 0;
+        g_asObjectScreenScale_00493a58[g_nNavPointerObject_004931b8] = 0x100;
+        g_apObjectShape_00493868[g_nNavPointerObject_004931b8] =
             g_pCockpitHudShape_005d21f4;
-        g_nNavPointerObject_004931b8 = object;
-        g_asObjectScreenX_00493598[object] = (short)0x8001;
-        g_asObjectDistance_00493ae8[object] = 0;
+        g_acObjectOwner_00495208[g_nNavPointerObject_004931b8] = -1;
+        g_asObjectScreenX_00493598[g_nNavPointerObject_004931b8] =
+            (short)0x8001;
+        g_asObjectDistance_00493ae8[g_nNavPointerObject_004931b8] = 0;
     }
     objectivePosition = g_aMissionObjectives_004932a8[
         (signed char)g_cCurrentObjective_004931cc].position;
     ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                        &objectivePosition, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >=
-        distance)
-        return;
-    transform_to_objects_frame(&direction, &viewPosition,
-                               WC2_EYE_OBJECT);
-    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 >
-        viewPosition.z)
-        return;
-    if (DivideFixed(viewPosition.z, distance) < 0x94)
-        return;
-    g_asObjectScreenX_00493598[object] = (short)(DivideFixed(
-        MultiplyFixed(
-            ((short)g_nScreenWidth_0049d4d8 & ~1) << 7,
-            viewPosition.x),
-        viewPosition.z) >> 8);
-    g_asObjectScreenY_00493628[object] = (short)(DivideFixed(
-        MultiplyFixed(
-            ((short)g_nScreenWidth_0049d4d8 & ~1) << 7,
-            viewPosition.y),
-        viewPosition.z) >> 8);
-    g_asObjectDistance_00493ae8[object] = 0x4a38;
+    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 <
+        distance) {
+        transform_to_objects_frame(&direction, &viewPosition,
+                                   WC2_EYE_OBJECT);
+        if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 <=
+            viewPosition.z) {
+            if (DivideFixed(viewPosition.z, distance) >= 0) {
+                scale = ((short)g_nScreenWidth_0049d4d8 & ~1) << 7;
+                product = MultiplyFixed(scale, viewPosition.x);
+                quotient = DivideFixed(product, viewPosition.z);
+                g_asObjectScreenX_00493598[
+                    g_nNavPointerObject_004931b8] =
+                    (short)(quotient >> 8);
+                product = MultiplyFixed(scale, viewPosition.y);
+                quotient = DivideFixed(product, viewPosition.z);
+                g_asObjectScreenY_00493628[
+                    g_nNavPointerObject_004931b8] =
+                    (short)(quotient >> 8);
+                g_asObjectDistance_00493ae8[
+                    g_nNavPointerObject_004931b8] = 0x4a38;
+            }
+        }
+    }
 }
 
 /* Function start: 0x43CE8F */
