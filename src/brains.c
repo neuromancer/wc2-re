@@ -939,6 +939,17 @@ void Mreset(short ship)
     maneuver_complete(ship);
 }
 
+/* WC2 indexes the reroll table with the ship's current manoeuvre without
+ * checking it, and MANEUVER_NONE is -1.  The byte in front of the table is
+ * zero in the retail image, so the port answers zero rather than reproduce
+ * the overrun. */
+#ifdef WC1_SDL
+#define WC1_MANEUVER_REROLL_CHANCE(m) \
+    ((m) != MANEUVER_NONE ? g_abManeuverRerollChance_0049b538[m] : 0)
+#else
+#define WC1_MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance_0049b538[m]
+#endif
+
 /* Function start: 0x4424E4 */
 void perform_maneuver(short obj)
 {
@@ -958,7 +969,7 @@ void perform_maneuver(short obj)
 
     previous = g_asShipManeuver_00495f48[obj];
     g_bCurrentManeuverReroll_005b30f4 =
-        g_abManeuverRerollChance_0049b538[g_asShipManeuver_00495f48[obj]];
+        WC1_MANEUVER_REROLL_CHANCE(g_asShipManeuver_00495f48[obj]);
     range = g_nTargetRange_0049319c;
     if (g_nTargetFacing_00493198 < 0)
         SetShipAiScratchWord(
