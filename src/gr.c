@@ -1735,32 +1735,30 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                              short frame)
 {
     unsigned char *commands;
-    unsigned char *saved;
+    unsigned char *save;
     unsigned char *screen;
     unsigned char *pixels;
     unsigned char code;
-    short left;
-    short top;
-    short right;
-    short bottom;
+    unsigned char colour;
+    unsigned short rowCode;
     short copyLength;
-    int frameOffset;
+    short xOffset;
+    short yOffset;
+    short minimumX;
+    short maximumX;
+    short minimumY;
+    short maximumY;
     int drawX;
     int drawY;
-    int endX;
+    int runRight;
     int skip;
-    unsigned short count;
-    unsigned short runLength;
-#ifdef WC1_SDL
-    short coordinate;
-#endif
 
     if (viewport->left < 0)
         return;
     if (HasValidShapeAllocationSignature(shape) == 0)
         return;
-    saved = background;
-    if (saved == 0)
+    save = background;
+    if (save == 0)
         return;
     if (shape == 0)
         return;
@@ -1768,105 +1766,116 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
         return;
     frame++;
     frame <<= 2;
-    if ((int)*(unsigned short *)(shape + 4) <= frame)
-        return;
-    left = viewport->left;
-    right = viewport->right;
-    top = viewport->top;
-    bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frame) + 8;
+    if (*(unsigned short *)(shape + 4) > frame) {
+        minimumX = viewport->left;
+        maximumX = viewport->right;
+        minimumY = viewport->top;
+        maximumY = viewport->bottom;
+        commands = shape + *(int *)(frame + shape);
+        commands += 8;
+        pixels = viewport->pixels;
 #ifdef WC1_SDL
-    memcpy(&count, commands, sizeof(count));
+        memcpy(&rowCode, commands, sizeof(rowCode));
 #else
-    count = *(unsigned short *)commands;
+        rowCode = *(unsigned short *)commands;
 #endif
-    pixels = viewport->pixels;
-    commands += 2;
-    while (count != 0) {
+        commands += 2;
+        while (rowCode != 0) {
 #ifdef WC1_SDL
-        memcpy(&coordinate, commands, sizeof(coordinate));
-        drawX = x + coordinate;
-        commands += 2;
-        memcpy(&coordinate, commands, sizeof(coordinate));
-        drawY = y + coordinate;
-        commands += 2;
+            memcpy(&xOffset, commands, sizeof(xOffset));
 #else
-        drawX = x + *(short *)commands;
-        commands += 2;
-        drawY = y + *(short *)commands;
-        commands += 2;
+            xOffset = *(short *)commands;
 #endif
-        screen = pixels + (WC1_SPRITE_ROW_OFFSET(viewport, drawY) + drawX);
-        if ((count & 1) != 0) {
-            count >>= 1;
-            while (count != 0) {
-                code = *commands;
-                commands++;
-                if ((code & 1) != 0) {
-                    runLength = (unsigned short)(code >> 1);
+            commands += 2;
+#ifdef WC1_SDL
+            memcpy(&yOffset, commands, sizeof(yOffset));
+#else
+            yOffset = *(short *)commands;
+#endif
+            commands += 2;
+            drawX = x + xOffset;
+            drawY = y + yOffset;
+            screen = viewport->rowOffsets[drawY] + drawX + pixels;
+            if ((rowCode & 1) != 0) {
+                rowCode >>= 1;
+                while (rowCode > 0) {
+                    code = *commands;
                     commands++;
-                    count -= runLength;
-                    endX = drawX + runLength - 1;
-                    if (top <= drawY && bottom >= drawY && drawX <= right &&
-                        left <= endX) {
-                        copyLength = (short)runLength;
-                        skip = 0;
-                        if (drawX < left) {
-                            copyLength = copyLength - left + drawX;
-                            skip = left - drawX;
+                    if ((code & 1) != 0) {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        colour = *commands;
+                        commands++;
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(save, skip + screen, copyLength);
+                                save += copyLength;
+                            }
                         }
-                        if (right < endX)
-                            copyLength = copyLength - endX + right;
-                        memcpy(saved, screen + skip, copyLength);
-                        saved += copyLength;
-                    }
-                } else {
-                    runLength = (unsigned short)(code >> 1);
-                    count -= runLength;
-                    endX = drawX + runLength - 1;
-                    if (top <= drawY && bottom >= drawY && drawX <= right &&
-                        left <= endX) {
-                        copyLength = (short)runLength;
-                        skip = 0;
-                        if (drawX < left) {
-                            copyLength = copyLength - left + drawX;
-                            skip = left - drawX;
+                        screen += code;
+                        drawX += code;
+                    } else {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(save, skip + screen, copyLength);
+                                save += copyLength;
+                            }
                         }
-                        if (right < endX)
-                            copyLength = copyLength - endX + right;
-                        memcpy(saved, screen + skip, copyLength);
-                        saved += copyLength;
+                        commands += code;
+                        screen += code;
+                        drawX += code;
                     }
-                    commands += runLength;
                 }
-                drawX += runLength;
-                screen += runLength;
-            }
-        } else {
-            count >>= 1;
-            endX = drawX + count - 1;
-            if (top <= drawY && bottom >= drawY && drawX <= right &&
-                left <= endX) {
-                copyLength = (short)count;
-                skip = 0;
-                if (drawX < left) {
-                    copyLength = copyLength - left + drawX;
-                    skip = left - drawX;
+            } else {
+                rowCode >>= 1;
+                if (minimumY <= drawY && maximumY >= drawY) {
+                    runRight = rowCode + drawX - 1;
+                    if (maximumX >= drawX && minimumX <= runRight) {
+                        copyLength = rowCode;
+                        skip = 0;
+                        if (minimumX > drawX) {
+                            copyLength -= minimumX - drawX;
+                            skip += minimumX - drawX;
+                        }
+                        if (maximumX < runRight)
+                            copyLength -= runRight - maximumX;
+                        memcpy(save, skip + screen, copyLength);
+                        save += copyLength;
+                    }
                 }
-                if (right < endX)
-                    copyLength = copyLength - endX + right;
-                memcpy(saved, screen + skip, copyLength);
-                saved += copyLength;
+                commands += rowCode;
             }
-            commands += count;
-        }
 #ifdef WC1_SDL
-        memcpy(&count, commands, sizeof(count));
+            memcpy(&rowCode, commands, sizeof(rowCode));
 #else
-        count = *(unsigned short *)commands;
+            rowCode = *(unsigned short *)commands;
 #endif
-        commands += 2;
+            commands += 2;
+        }
     }
+    (void)colour;
 }
 
 /* Function start: 0x426B96 */
@@ -1875,28 +1884,26 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                              short frame)
 {
     unsigned char *commands;
-    unsigned char *saved;
+    unsigned char *save;
     unsigned char *screen;
     unsigned char *pixels;
     unsigned char code;
-    short left;
-    short top;
-    short right;
-    short bottom;
+    unsigned char colour;
+    unsigned short rowCode;
     short copyLength;
-    int frameOffset;
+    short xOffset;
+    short yOffset;
+    short minimumX;
+    short maximumX;
+    short minimumY;
+    short maximumY;
     int drawX;
     int drawY;
-    int endX;
+    int runRight;
     int skip;
-    unsigned short count;
-    unsigned short runLength;
-#ifdef WC1_SDL
-    short coordinate;
-#endif
 
-    saved = background;
-    if (saved == 0)
+    save = background;
+    if (save == 0)
         return;
     if (shape == 0)
         return;
@@ -1908,107 +1915,116 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         return;
     frame++;
     frame <<= 2;
-    if ((int)*(unsigned short *)(shape + 4) <= frame)
-        return;
-    left = viewport->left;
-    right = viewport->right;
-    top = viewport->top;
-    bottom = viewport->bottom;
-    commands = shape + *(int *)(shape + frame) + 8;
+    if (*(unsigned short *)(shape + 4) > frame) {
+        minimumX = viewport->left;
+        maximumX = viewport->right;
+        minimumY = viewport->top;
+        maximumY = viewport->bottom;
+        commands = shape + *(int *)(frame + shape);
+        commands += 8;
+        pixels = viewport->pixels;
 #ifdef WC1_SDL
-    memcpy(&count, commands, sizeof(count));
+        memcpy(&rowCode, commands, sizeof(rowCode));
 #else
-    count = *(unsigned short *)commands;
+        rowCode = *(unsigned short *)commands;
 #endif
-    pixels = viewport->pixels;
-    commands += 2;
-    while (count != 0) {
+        commands += 2;
+        while (rowCode != 0) {
 #ifdef WC1_SDL
-        memcpy(&coordinate, commands, sizeof(coordinate));
-        drawX = x + coordinate;
-        commands += 2;
-        memcpy(&coordinate, commands, sizeof(coordinate));
-        drawY = y + coordinate;
-        commands += 2;
+            memcpy(&xOffset, commands, sizeof(xOffset));
 #else
-        drawX = x + *(short *)commands;
-        commands += 2;
-        drawY = y + *(short *)commands;
-        commands += 2;
+            xOffset = *(short *)commands;
 #endif
-        screen = pixels + (WC1_SPRITE_ROW_OFFSET(viewport, drawY) + drawX);
-        if ((count & 1) != 0) {
-            count >>= 1;
-            while (count != 0) {
-                code = *commands;
-                commands++;
-                if ((code & 1) != 0) {
-                    runLength = (unsigned short)(code >> 1);
+            commands += 2;
+#ifdef WC1_SDL
+            memcpy(&yOffset, commands, sizeof(yOffset));
+#else
+            yOffset = *(short *)commands;
+#endif
+            commands += 2;
+            drawX = x + xOffset;
+            drawY = y + yOffset;
+            screen = viewport->rowOffsets[drawY] + drawX + pixels;
+            if ((rowCode & 1) != 0) {
+                rowCode >>= 1;
+                while (rowCode > 0) {
+                    code = *commands;
                     commands++;
-                    count -= runLength;
-                    endX = drawX + runLength - 1;
-                    if (top <= drawY && bottom >= drawY && drawX <= right &&
-                        left <= endX) {
-                        copyLength = (short)runLength;
-                        skip = 0;
-                        if (drawX < left) {
-                            copyLength = copyLength - left + drawX;
-                            skip = left - drawX;
+                    if ((code & 1) != 0) {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        colour = *commands;
+                        commands++;
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(skip + screen, save, copyLength);
+                                save += copyLength;
+                            }
                         }
-                        if (right < endX)
-                            copyLength = copyLength - endX + right;
-                        memcpy(screen + skip, saved, copyLength);
-                        saved += copyLength;
-                    }
-                } else {
-                    runLength = (unsigned short)(code >> 1);
-                    count -= runLength;
-                    endX = drawX + runLength - 1;
-                    if (top <= drawY && bottom >= drawY && drawX <= right &&
-                        left <= endX) {
-                        copyLength = (short)runLength;
-                        skip = 0;
-                        if (drawX < left) {
-                            copyLength = copyLength - left + drawX;
-                            skip = left - drawX;
+                        screen += code;
+                        drawX += code;
+                    } else {
+                        code >>= 1;
+                        rowCode = (unsigned short)(rowCode - code);
+                        if (minimumY <= drawY && maximumY >= drawY) {
+                            runRight = code + drawX - 1;
+                            if (maximumX >= drawX &&
+                                minimumX <= runRight) {
+                                copyLength = code;
+                                skip = 0;
+                                if (minimumX > drawX) {
+                                    copyLength -= minimumX - drawX;
+                                    skip += minimumX - drawX;
+                                }
+                                if (maximumX < runRight)
+                                    copyLength -= runRight - maximumX;
+                                memcpy(skip + screen, save, copyLength);
+                                save += copyLength;
+                            }
                         }
-                        if (right < endX)
-                            copyLength = copyLength - endX + right;
-                        memcpy(screen + skip, saved, copyLength);
-                        saved += copyLength;
+                        commands += code;
+                        screen += code;
+                        drawX += code;
                     }
-                    commands += runLength;
                 }
-                drawX += runLength;
-                screen += runLength;
-            }
-        } else {
-            count >>= 1;
-            endX = drawX + count - 1;
-            if (top <= drawY && bottom >= drawY && drawX <= right &&
-                left <= endX) {
-                copyLength = (short)count;
-                skip = 0;
-                if (drawX < left) {
-                    copyLength = copyLength - left + drawX;
-                    skip = left - drawX;
+            } else {
+                rowCode >>= 1;
+                if (minimumY <= drawY && maximumY >= drawY) {
+                    runRight = rowCode + drawX - 1;
+                    if (maximumX >= drawX && minimumX <= runRight) {
+                        copyLength = rowCode;
+                        skip = 0;
+                        if (minimumX > drawX) {
+                            copyLength -= minimumX - drawX;
+                            skip += minimumX - drawX;
+                        }
+                        if (maximumX < runRight)
+                            copyLength -= runRight - maximumX;
+                        memcpy(skip + screen, save, copyLength);
+                        save += copyLength;
+                    }
                 }
-                if (right < endX)
-                    copyLength = copyLength - endX + right;
-                memcpy(screen + skip, saved, copyLength);
-                saved += copyLength;
+                commands += rowCode;
             }
-            commands += count;
-        }
 #ifdef WC1_SDL
-        memcpy(&count, commands, sizeof(count));
+            memcpy(&rowCode, commands, sizeof(rowCode));
 #else
-        count = *(unsigned short *)commands;
+            rowCode = *(unsigned short *)commands;
 #endif
-        commands += 2;
+            commands += 2;
+        }
     }
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
+    (void)colour;
 }
 
 /* Function start: 0x426FD9 */
