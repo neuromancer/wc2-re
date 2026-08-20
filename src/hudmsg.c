@@ -900,6 +900,14 @@ unsigned int DrawSpaceSceneFrame(void)
     place_exhaust_on_ships();
     reposition_fixed_child_objects();
     BuildObjectDepthOrder();
+#ifdef WC1_SDL
+    Wc1SdlBeginSpaceFrame(
+        (const struct ScreenViewportGeometry *)
+            g_pScreenViewportGeometry_005c82b0,
+        (int)g_cScreenViewportMode_005c82a6,
+        g_bFullScreenSpaceView_0049d718 > 0,
+        (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
+#endif
     if (g_bJumpSequenceActive_004962f0 != 0 &&
         g_asShipManeuver_00495f48[0] == MANEUVER_WARPING_OUT) {
         hidePlayer = 1;
@@ -1609,6 +1617,9 @@ int RunSpaceFlight(short entryNavPoint)
         WaitForFrameTick();
     }
 
+#ifdef WC1_SDL
+    Wc1SdlCancelSpaceFrame();
+#endif
     SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
                     (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
                     (unsigned short)(g_nScreenHeight_0049d4dc - 1));

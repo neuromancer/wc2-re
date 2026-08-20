@@ -842,6 +842,12 @@ void draw_sorted_objects_to_buffer(void)
     int obj;
     int objectClass;
     int sortedIndex;
+#ifdef WC1_SDL
+    float enhancedScreenX;
+    float enhancedScreenY;
+    short projectedScreenX;
+    short projectedScreenY;
+#endif
 
     for (sortedIndex = 0; sortedIndex < WC2_SPACE_OBJECT_COUNT;
          sortedIndex++) {
@@ -851,6 +857,51 @@ void draw_sorted_objects_to_buffer(void)
         if (g_asObjectType_00495298[obj] < 0)
             return;
         objectClass = g_aeObjectClass_00495328[obj];
+#ifdef WC1_SDL
+        /* The enhanced backend records each sprite at a sub-pixel position
+         * instead of stamping it into the indexed buffer.  Redo the
+         * perspective divide in double precision, and only trust the result
+         * when it rounds to the screen position the game already computed --
+         * that is what proves it is the same projection and not an object the
+         * game placed some other way. */
+        enhancedScreenX = (float)(short)(
+            g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
+        enhancedScreenY = (float)(short)(
+            g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
+        if (objectClass != OBJECT_CLASS_NULL &&
+            objectClass != OBJECT_CLASS_FIXED_OBJECT &&
+            obj != g_nNavPointerObject_004931b8 &&
+            g_aObjectViewPosition_0059afa0[obj].z != 0) {
+            projectedScreenX = (short)(DivideFixed(
+                MultiplyFixed(
+                    (short)(g_nScreenWidth_0049d4d8 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[obj].x),
+                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
+            projectedScreenY = (short)(DivideFixed(
+                MultiplyFixed(
+                    (short)(g_nScreenWidth_0049d4d8 & ~1) << 7,
+                    g_aObjectViewPosition_0059afa0[obj].y),
+                g_aObjectViewPosition_0059afa0[obj].z) >> 8);
+            if (projectedScreenX == g_asObjectScreenX_00493598[obj] &&
+                projectedScreenY == g_asObjectScreenY_00493628[obj]) {
+                enhancedScreenX =
+                    (float)g_nViewCenterX_005c80d8 +
+                    (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) * 0.5 *
+                             g_aObjectViewPosition_0059afa0[obj].x) /
+                            g_aObjectViewPosition_0059afa0[obj].z);
+                enhancedScreenY =
+                    (float)g_nViewCenterY_005c80da +
+                    (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) * 0.5 *
+                             g_aObjectViewPosition_0059afa0[obj].y) /
+                            g_aObjectViewPosition_0059afa0[obj].z);
+            }
+        } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
+                   g_asObjectType_00495298[obj] ==
+                       WC2_OBJECT_TYPE_THRUSTERS) {
+            Wc1SdlGetThrusterScreenPosition(
+                (short)obj, &enhancedScreenX, &enhancedScreenY);
+        }
+#endif
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             case OBJECT_CLASS_STAR:
@@ -862,20 +913,35 @@ void draw_sorted_objects_to_buffer(void)
                 g_asObjectDrawY_004937d8[obj] = (short)(
                     g_asObjectScreenY_00493628[obj] +
                     g_nViewCenterY_005c80da);
-                if (g_nNavPointerObject_004931b8 == obj)
+                if (g_nNavPointerObject_004931b8 == obj) {
+#ifdef WC1_SDL
+                    if (!Wc1SdlRecordSpaceSprite(
+                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            enhancedScreenY,
+                            g_apObjectShape_00493868[obj],
+                            g_asObjectViewFrame_00493508[obj], 0, 0x100, 0))
+#endif
                     DrawSpriteDefault(
                         &g_stViewBuffer_005d2b00,
                         g_asObjectDrawX_00493748[obj],
                         g_asObjectDrawY_004937d8[obj],
                         g_apObjectShape_00493868[obj],
                         g_asObjectViewFrame_00493508[obj]);
-                else
+                } else {
+#ifdef WC1_SDL
+                    if (!Wc1SdlRecordSpaceSprite(
+                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            enhancedScreenY,
+                            g_pConstellationShape_005d2c4c,
+                            g_asObjectViewFrame_00493508[obj], 0, 0x100, 0))
+#endif
                     DrawSpriteDefault(
                         &g_stViewBuffer_005d2b00,
                         g_asObjectDrawX_00493748[obj],
                         g_asObjectDrawY_004937d8[obj],
                         g_pConstellationShape_005d2c4c,
                         g_asObjectViewFrame_00493508[obj]);
+                }
                 break;
             default:
                 g_asObjectDrawX_00493748[obj] = (short)(
@@ -884,7 +950,17 @@ void draw_sorted_objects_to_buffer(void)
                 g_asObjectDrawY_004937d8[obj] = (short)(
                     g_asObjectScreenY_00493628[obj] +
                     g_nViewCenterY_005c80da);
-                if (g_apObjectShape_00493868[obj] != 0)
+                if (g_apObjectShape_00493868[obj] != 0) {
+#ifdef WC1_SDL
+                    if (!Wc1SdlRecordSpaceSprite(
+                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            enhancedScreenY,
+                            g_apObjectShape_00493868[obj],
+                            g_asObjectViewFrame_00493508[obj],
+                            g_asObjectScreenAngle_004936b8[obj],
+                            g_asObjectScreenScale_00493a58[obj],
+                            g_asObjectFlip_004939c8[obj]))
+#endif
                     DrawSpriteScaled(
                         &g_stViewBuffer_005d2b00,
                         g_asObjectDrawX_00493748[obj],
@@ -894,6 +970,7 @@ void draw_sorted_objects_to_buffer(void)
                         g_asObjectScreenAngle_004936b8[obj],
                         g_asObjectScreenScale_00493a58[obj],
                         g_asObjectFlip_004939c8[obj]);
+                }
                 break;
             }
         }
