@@ -1206,7 +1206,7 @@ extern short g_nWingmanKillCount_005a7cb8;
 extern short g_nLastFoundShip_005d2fc8;
 extern unsigned int g_dwOriginalFreeMemory_005a7cd8;
 extern unsigned char *g_pMouseCursorResource_005a7cdc;
-extern int DAT_005d3864;
+extern int g_bAfterburnerSfxActive_005d3864;
 extern signed char DAT_005c8430;
 extern int g_bSuppressNextMouseMove_005c843c;
 extern FixedVector g_vNormalizedToTarget_005d3bd0;

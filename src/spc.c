@@ -1462,6 +1462,14 @@ void accelerate_and_move_object(short obj)
                 if (g_asShipAfterburnerTimer_004955a8[obj] == 0) {
                     g_aeSpecialManeuver_00495600[obj] =
                         SPECIAL_MANEUVER_NONE;
+#ifdef WC1_SDL
+                    /* The DOS afterburner record is held rather than timed,
+                     * so the burn ending is what silences it. */
+                    if (g_bAfterburnerSfxActive_005d3864 != 0) {
+                        FlushSoundEffectsAndLog();
+                        g_bAfterburnerSfxActive_005d3864 = 0;
+                    }
+#endif
                     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                                      g_anShipSpeed_00494e20[obj], &delta);
                 } else {

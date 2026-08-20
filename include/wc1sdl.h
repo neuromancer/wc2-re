@@ -229,7 +229,6 @@ void Wc1SdlShutdownVideo(void);
 int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
 void Wc1SdlWaitForVerticalBlank(void);
 int Wc1SdlUsingDosData(void);
-void Wc1SdlPlayDosStartupIntro(void);
 int Wc1SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,
@@ -244,11 +243,10 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
     const unsigned char *midi, size_t midiSize,
     const unsigned char *timbres, size_t timbreSize);
 Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
+    const unsigned char *records, unsigned int recordCount,
     const unsigned char *timbres, size_t timbreSize);
 void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
-unsigned int Wc1SdlOriginFxPlayerSequencePosition(
-    const Wc1SdlOriginFxPlayer *player);
 int Wc1SdlPlayOriginFxSoundEffect(
     Wc1SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
@@ -264,11 +262,12 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                              short *samples,
                              unsigned int frameCount,
                              unsigned int gain);
-int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio);
-int Wc1SdlGetOriginFxMusicSequencePosition(void);
-void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
-int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
-                             int tag, int priority);
+int Wc1SdlInitializeOriginFxAudio(void);
+int Wc1SdlUsingOriginFxMusic(void);
+int Wc1SdlUsingOriginFxSoundEffects(void);
+void Wc1SdlSetOriginFxMusicTrack(int track);
+int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
+                              int looping);
 void Wc1SdlServiceOriginFxMusic(void);
 void Wc1SdlStopDosSoundEffects(void);
 void Wc1SdlShutdownOriginFxAudio(void);

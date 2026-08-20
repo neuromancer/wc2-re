@@ -4,7 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TEST_DOS_MUSIC_TRACK_COUNT 41
+/* MUSIC.A00 carries one packet section per music-script track number.  Eighteen
+ * of them are empty because the AdLib set never recorded a sequence for that
+ * track, which leaves forty-nine playable ones. */
+#define TEST_DOS_MUSIC_SECTION_COUNT 67
+#define TEST_DOS_MUSIC_SEQUENCE_COUNT 49
+#define TEST_DOS_MUSIC_AUDIBLE_BLOCKS 64
+/* Enough synthetic records to exercise a timed effect, a held one, and a sound
+ * number past the end of the table. */
+#define TEST_SOUND_RECORD_COUNT 36
+#define TEST_SOUND_RECORD_SIZE 8
+#define TEST_HELD_SOUND_NUMBER 12
 
 static void BuildAudibleTimbre(unsigned char *timbre,
                                unsigned int program)
@@ -21,6 +31,26 @@ static void BuildAudibleTimbre(unsigned char *timbre,
     timbre[13] = 5;
     timbre[14] = 0x60;
     timbre[47] = (unsigned char)program;
+}
+
+/* Sound number N selects program N - 1, so a bank whose Nth timbre carries
+ * that program is what makes the effect audible. */
+static void BuildTestSoundRecords(unsigned char *records)
+{
+    unsigned int record;
+
+    memset(records, 0, TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE);
+    record = 0;
+    while (record < TEST_SOUND_RECORD_COUNT) {
+        records[record * TEST_SOUND_RECORD_SIZE + 1] =
+            (unsigned char)(record + 1);
+        records[record * TEST_SOUND_RECORD_SIZE + 2] = 64;
+        records[record * TEST_SOUND_RECORD_SIZE + 3] = 64;
+        records[record * TEST_SOUND_RECORD_SIZE + 4] = 60;
+        record++;
+    }
+    /* The retail afterburner record holds its note the same way. */
+    records[(TEST_HELD_SOUND_NUMBER - 1) * TEST_SOUND_RECORD_SIZE] = 4;
 }
 
 static void BuildTestTimbre(unsigned char *timbres)
@@ -127,6 +157,7 @@ static int CheckSyntheticSong(void)
 
 static int CheckSyntheticSoundEffects(void)
 {
+    unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
     unsigned char timbres[49];
     short samples[4096 * 2];
     Wc1SdlOriginFxPlayer *player;
@@ -135,14 +166,16 @@ static int CheckSyntheticSoundEffects(void)
     int heardOutput;
     int result;
 
+    BuildTestSoundRecords(records);
     BuildTestTimbre(timbres);
     player = Wc1SdlCreateOriginFxSoundPlayer(
-        timbres, sizeof(timbres));
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (player == 0)
         return 0;
     result =
         !Wc1SdlPlayOriginFxSoundEffect(player, 0, 127, 64, 1, 0) &&
-        !Wc1SdlPlayOriginFxSoundEffect(player, 37, 127, 64, 1, 0) &&
+        !Wc1SdlPlayOriginFxSoundEffect(
+            player, TEST_SOUND_RECORD_COUNT + 1, 127, 64, 1, 0) &&
         Wc1SdlPlayOriginFxSoundEffect(player, 1, 127, 64, 1, 0);
     memset(samples, 0, sizeof(samples));
     Wc1SdlMixOriginFxSoundEffects(
@@ -178,7 +211,8 @@ static int CheckSyntheticSoundEffects(void)
 
 static int CheckHeldSoundEffectFlush(void)
 {
-    unsigned char timbres[1 + 14 * 48];
+    unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
+    unsigned char timbres[1 + TEST_HELD_SOUND_NUMBER * 48];
     short samples[1024 * 2];
     Wc1SdlOriginFxPlayer *player;
     unsigned long long activeEnergy;
@@ -186,15 +220,18 @@ static int CheckHeldSoundEffectFlush(void)
     unsigned int elapsed;
     int result;
 
+    BuildTestSoundRecords(records);
     memset(timbres, 0, sizeof(timbres));
-    timbres[0] = 14;
-    BuildAudibleTimbre(timbres + 1 + 13 * 48, 13);
+    timbres[0] = TEST_HELD_SOUND_NUMBER;
+    BuildAudibleTimbre(
+        timbres + 1 + (TEST_HELD_SOUND_NUMBER - 1) * 48,
+        TEST_HELD_SOUND_NUMBER - 1);
     player = Wc1SdlCreateOriginFxSoundPlayer(
-        timbres, sizeof(timbres));
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (player == 0)
         return 0;
     result = Wc1SdlPlayOriginFxSoundEffect(
-        player, 12, 127, 64, -1, 0);
+        player, TEST_HELD_SOUND_NUMBER, 127, 64, -1, 0);
     activeEnergy = 0;
     elapsed = 0;
     while (elapsed < 44100 && result) {
@@ -398,6 +435,7 @@ static int CheckOriginalPitchEnvelope(void)
 
 static int CheckOriginalRhythmRelease(void)
 {
+    unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
     unsigned char timbres[97];
     short recoveredSamples[1024 * 2];
     short rhythmSamples[1024 * 2];
@@ -411,6 +449,7 @@ static int CheckOriginalRhythmRelease(void)
     unsigned int frameCount;
     int result;
 
+    BuildTestSoundRecords(records);
     memset(timbres, 0, sizeof(timbres));
     timbres[0] = 2;
     BuildAudibleTimbre(timbres + 1, 0);
@@ -419,9 +458,9 @@ static int CheckOriginalRhythmRelease(void)
     timbres[49 + 6] = 0x3f;
     timbres[49 + 11] = 6;
     recoveredPlayer = Wc1SdlCreateOriginFxSoundPlayer(
-        timbres, sizeof(timbres));
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     rhythmPlayer = Wc1SdlCreateOriginFxSoundPlayer(
-        timbres, sizeof(timbres));
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (recoveredPlayer == 0 || rhythmPlayer == 0) {
         Wc1SdlDestroyOriginFxPlayer(recoveredPlayer);
         Wc1SdlDestroyOriginFxPlayer(rhythmPlayer);
@@ -489,13 +528,14 @@ static int CheckRetailDosSoundEffects(void)
     Wc1SdlOriginFxPlayer *player;
     size_t timbreArchiveSize;
     size_t timbreSize;
+    unsigned int recordCount;
     unsigned int soundNumber;
     unsigned int sampleIndex;
     int heardOutput;
     int result;
 
     timbreArchive = (unsigned char *)SDL_LoadFile(
-        "data/dos/GAMEDAT/WINGLDR.TIM", &timbreArchiveSize);
+        "data/dos/GAMEDAT/WING2.TIM", &timbreArchiveSize);
     if (timbreArchive == 0)
         return 1;
     timbres = 0;
@@ -504,12 +544,17 @@ static int CheckRetailDosSoundEffects(void)
     SDL_free(timbreArchive);
     if (!result)
         return 0;
-    player = Wc1SdlCreateOriginFxSoundPlayer(timbres, timbreSize);
+    /* The retail records the flight code plays, against the retail bank. */
+    recordCount = (unsigned int)(
+        sizeof(g_abSoundEffectDefinitions_0049bf18) / TEST_SOUND_RECORD_SIZE);
+    player = Wc1SdlCreateOriginFxSoundPlayer(
+        g_abSoundEffectDefinitions_0049bf18, recordCount,
+        timbres, timbreSize);
     free(timbres);
     if (player == 0)
         return 0;
     soundNumber = 1;
-    while (soundNumber <= 36 && result) {
+    while (soundNumber <= recordCount && result) {
         Wc1SdlStopOriginFxSoundEffects(player);
         result = Wc1SdlPlayOriginFxSoundEffect(
             player, soundNumber, 127, 64,
@@ -539,19 +584,22 @@ static int CheckRetailDosSongs(void)
     unsigned char *timbreArchive;
     unsigned char *timbres;
     unsigned char *midi;
-    short samples[256 * 2];
+    short samples[1024 * 2];
     Wc1SdlOriginFxPlayer *player;
     size_t musicArchiveSize;
     size_t timbreArchiveSize;
     size_t timbreSize;
     size_t midiSize;
+    unsigned int block;
+    unsigned int sequenceCount;
     unsigned int track;
+    int heardOutput;
     int result;
 
     musicArchive = (unsigned char *)SDL_LoadFile(
-        "data/dos/GAMEDAT/MUSIC.MID", &musicArchiveSize);
+        "data/dos/GAMEDAT/MUSIC.A00", &musicArchiveSize);
     timbreArchive = (unsigned char *)SDL_LoadFile(
-        "data/dos/GAMEDAT/WINGLDR.TIM", &timbreArchiveSize);
+        "data/dos/GAMEDAT/WING2.TIM", &timbreArchiveSize);
     if (musicArchive == 0 && timbreArchive == 0)
         return 1;
     if (musicArchive == 0 || timbreArchive == 0) {
@@ -563,13 +611,15 @@ static int CheckRetailDosSongs(void)
     timbres = 0;
     result = Wc1SdlExtractOriginPacketSection(
         timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize);
+    sequenceCount = 0;
     track = 0;
-    while (result && track < TEST_DOS_MUSIC_TRACK_COUNT) {
+    while (result && track < TEST_DOS_MUSIC_SECTION_COUNT) {
         midi = 0;
+        /* An empty section is a track the AdLib set never recorded. */
         if (!Wc1SdlExtractOriginPacketSection(
                 musicArchive, musicArchiveSize, track, &midi, &midiSize)) {
-            result = 0;
-            break;
+            track++;
+            continue;
         }
         player = Wc1SdlCreateOriginFxPlayer(
             midi, midiSize, timbres, timbreSize);
@@ -579,14 +629,34 @@ static int CheckRetailDosSongs(void)
             result = 0;
             break;
         }
-        Wc1SdlRenderOriginFxPlayer(
-            player, samples, 256, 0x7fff);
+        /* The longest lead-in in the set reaches its first note two seconds
+         * in, so a sequence that says nothing in three is not playing. */
+        block = 0;
+        heardOutput = 0;
+        while (block < TEST_DOS_MUSIC_AUDIBLE_BLOCKS && !heardOutput) {
+            memset(samples, 0, sizeof(samples));
+            Wc1SdlRenderOriginFxPlayer(
+                player, samples, 1024, 0x7fff);
+            heardOutput = SumAbsoluteSamples(samples, 0, 1024) != 0;
+            block++;
+        }
         Wc1SdlDestroyOriginFxPlayer(player);
+        if (!heardOutput) {
+            fprintf(stderr, "DOS music track %u is silent\n", track);
+            result = 0;
+            break;
+        }
+        sequenceCount++;
         track++;
+    }
+    if (result && sequenceCount != TEST_DOS_MUSIC_SEQUENCE_COUNT) {
+        fprintf(stderr, "Parsed %u DOS music sequences, expected %u\n",
+                sequenceCount, TEST_DOS_MUSIC_SEQUENCE_COUNT);
+        result = 0;
     }
     midi = 0;
     if (result && Wc1SdlExtractOriginPacketSection(
-            musicArchive, musicArchiveSize, TEST_DOS_MUSIC_TRACK_COUNT,
+            musicArchive, musicArchiveSize, TEST_DOS_MUSIC_SECTION_COUNT,
             &midi, &midiSize)) {
         free(midi);
         result = 0;

@@ -17,7 +17,9 @@ The reconstruction is incomplete. The current source compiles and links as
 
 The SDL2 port reaches the title screen, the campaign intro, the pilot database,
 the pilot save/load menu and space flight, with firing, targeting, the cockpit
-displays and music working. Enhanced rendering is wired but largely untested.
+displays and music working. A DOS install plays its own AdLib music and
+synthesized OriginFX sound effects instead of the Kilrathi Saga streams and
+waves. Enhanced rendering is wired but largely untested.
 
 `make report` measures machine-code similarity against the retail executable.
 The current report compares 1,576 functions:

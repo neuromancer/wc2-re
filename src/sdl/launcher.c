@@ -185,19 +185,12 @@ int main(int argumentCount, char **arguments)
         CheckLauncherAndConfig();
         usingDosData = Wc1SdlUsingDosData();
         if (usingDosData) {
-            /* DOS audio drivers cannot be used by the native SDL2 host. */
+            /* A DOS install has neither the streams the music script queues
+             * nor the sfx waves it names, so the OriginFX player takes the
+             * audio device and the ix mixer stays out of the way. */
             g_nAudioEnabled_0049c244 = 0;
-        }
-        if (usingDosData || useEnhancedRenderer) {
-            if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
-                if (usingDosData) {
-                    fprintf(stderr,
-                            "DOS audio is unavailable.\n");
-                } else {
-                    fprintf(stderr,
-                            "OriginFX intro music is unavailable.\n");
-                }
-            }
+            if (!Wc1SdlInitializeOriginFxAudio())
+                fprintf(stderr, "DOS audio is unavailable.\n");
         }
         /* The flight loop waits one timer period per frame, so this is the
          * frame duration in 60ths of a second less one -- the readout in

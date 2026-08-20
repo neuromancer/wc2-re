@@ -941,6 +941,14 @@ unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
         return;
     }
 
+#ifdef WC1_SDL
+    /* A DOS install has no streams to queue.  Its music is the MUSIC.A00
+     * section that carries this very track number. */
+    if (Wc1SdlUsingOriginFxMusic()) {
+        Wc1SdlSetOriginFxMusicTrack(track);
+        return 1;
+    }
+#endif
     if ((streamFlags & g_nActiveMusicStreamMask_0049be9c) == 0) {
         if ((streamFlags & 1) != 0) {
             Streamer_open("gameflow.str");
@@ -1210,7 +1218,7 @@ void servicetrack(void)
 void ResetSoundState(void)
 {
     FlushSoundEffects();
-    DAT_005d3864 = 0;
+    g_bAfterburnerSfxActive_005d3864 = 0;
     g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
 }
 
@@ -1272,6 +1280,14 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     int magnitude;
     int distance;
 
+#ifdef WC1_SDL
+    /* A DOS install ships no sfx waves; the effect is synthesized from the
+     * OriginFX record this number selects. */
+    if (Wc1SdlUsingOriginFxSoundEffects()) {
+        Wc1SdlPlayGameSoundEffect(soundNumber, sourceObject, looping);
+        return;
+    }
+#endif
     if (sourceObject != -1) {
         ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                            &g_aShipPosition_00494550[sourceObject],

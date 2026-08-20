@@ -2314,7 +2314,7 @@ int g_nNextAfterburnerSfxFrame_005d3820;
 short g_asWingmanDamageCredit_005d3830[10];
 short g_nAdaptiveDifficulty_005d3844;
 short g_asShipExplosionStageTimer_005d3850[10];
-int DAT_005d3864;
+int g_bAfterburnerSfxActive_005d3864;
 signed char g_abExplosionObjectVisited_005d3870[
     WC2_SPACE_OBJECT_COUNT];
 short g_asPlayerDamageCredit_005d38c0[10];

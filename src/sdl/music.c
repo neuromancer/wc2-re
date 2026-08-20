@@ -1,4 +1,22 @@
-/* SDL2-only OriginFX/AdLib playback for WC1 DOS and Kilrathi Saga data. */
+/* SDL2-only OriginFX/AdLib playback for a DOS Wing Commander II install.
+ *
+ *  A DOS install carries its music as GAMEDAT/MUSIC.A00: sixty-seven packet
+ *  sections, one standard MIDI file each, indexed by the very track number the
+ *  music script hands to ProcessMusicScriptCommand.  Eighteen of those sections
+ *  are empty because the AdLib set never recorded a sequence for the track.
+ *  GAMEDAT/WING2.TIM section 1 holds the hundred and twenty-four AdLib timbres
+ *  the sequences play through.
+ *
+ *  Sound effects are not sampled at all.  The game still carries the eight-byte
+ *  OriginFX command records the DOS release drove its FM chip with, so the port
+ *  reads that table straight out of the game's own memory and synthesizes the
+ *  effects on the same YM3812 the music runs on.
+ *
+ *  The Kilrathi Saga release replaced both with recordings -- the STREAMS
+ *  directory for music and GAMEDAT/SFX??.WAV for effects -- so this file only
+ *  takes over when the data set is a DOS one.  Speech ships as its own optional pack in either
+ *  release and never reaches the OriginFX player.
+ */
 #include "wc1.h"
 
 #include <stdio.h>
@@ -6,6 +24,25 @@
 
 #define WC1_SDL_MUSIC_PATH_SIZE 4096
 #define WC1_SDL_ADLIB_TIMBRE_SECTION 1
+#define WC2_SDL_SOUND_RECORD_SIZE 8U
+#define WC2_SDL_SOUND_RECORD_COUNT \
+    (unsigned int)(sizeof(g_abSoundEffectDefinitions_0049bf18) / \
+                   WC2_SDL_SOUND_RECORD_SIZE)
+/* Guns fire faster than a single OriginFX channel can restart, so successive
+ * shots alternate between two tags and overlap on two channels instead of
+ * cutting one another off. */
+#define WC2_SDL_GUN_SOUND_NUMBER 8
+#define WC2_SDL_GUN_SOUND_FIRST_TAG 64
+/* The afterburner record is held rather than timed, so it plays until the
+ * flight code says the burn is over. */
+#define WC2_SDL_AFTERBURNER_SOUND_NUMBER 12
+/* Vector_magnitude measures in metres scaled by 256, and an OriginFX effect
+ * carries a MIDI channel volume.  One volume step per five hundred metres is
+ * the falloff the sibling Wing Commander port settled on for the same table. */
+#define WC2_SDL_SOUND_METRES_PER_VOLUME_STEP 500L
+#define WC2_SDL_SOUND_FULL_VOLUME 127
+#define WC2_SDL_SOUND_AUDIBLE_VOLUME 10
+#define WC2_SDL_SOUND_CENTRE_PAN 64
 
 static CRITICAL_SECTION g_stWc1SdlDosMusicAudioCriticalSection;
 static SDL_mutex *g_pWc1SdlDosMusicMutex;
@@ -23,8 +60,8 @@ static int g_nWc1SdlMusicVolumeSetting = -1;
 static int g_nWc1SdlSoundVolumeSetting = -1;
 static int g_bWc1SdlDosMusicAudioCriticalSectionInitialized;
 static int g_bWc1SdlDosMusicInitialized;
-static int g_bWc1SdlOriginFxOwnsAudioDevice;
-static int g_bWc1SdlOriginFxServicesAllTracks;
+static int g_bWc1SdlOriginFxMusicSelected;
+static int g_bWc1SdlOriginFxSoundSelected;
 
 static unsigned char *Wc1SdlLoadDosMusicFile(
     const char *const *candidates, unsigned int candidateCount,
@@ -113,15 +150,15 @@ static void Wc1SdlUpdateDosAdlibMusicVolume(void)
     }
 }
 
-int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio)
+int Wc1SdlInitializeOriginFxAudio(void)
 {
     const char *musicCandidates[2] = {
-        "GAMEDAT/MUSIC.MID",
-        "MUSIC.MID"
+        "GAMEDAT/MUSIC.A00",
+        "MUSIC.A00"
     };
     const char *timbreCandidates[2] = {
-        "GAMEDAT/WINGLDR.TIM",
-        "WINGLDR.TIM"
+        "GAMEDAT/WING2.TIM",
+        "WING2.TIM"
     };
     unsigned char *timbreArchive;
     size_t timbreArchiveSize;
@@ -131,13 +168,13 @@ int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio)
     g_pWc1SdlDosMusicArchive = Wc1SdlLoadDosMusicFile(
         musicCandidates, 2, &g_nWc1SdlDosMusicArchiveSize);
     if (g_pWc1SdlDosMusicArchive == 0) {
-        fprintf(stderr, "Unable to load GAMEDAT/MUSIC.MID.\n");
+        fprintf(stderr, "Unable to load GAMEDAT/MUSIC.A00.\n");
         return 0;
     }
     timbreArchive = Wc1SdlLoadDosMusicFile(
         timbreCandidates, 2, &timbreArchiveSize);
     if (timbreArchive == 0) {
-        fprintf(stderr, "Unable to load GAMEDAT/WINGLDR.TIM.\n");
+        fprintf(stderr, "Unable to load GAMEDAT/WING2.TIM.\n");
         goto failed;
     }
     if (!Wc1SdlExtractOriginPacketSection(
@@ -151,38 +188,32 @@ int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio)
     }
     SDL_free(timbreArchive);
 
-    if (useStandaloneAudio != 0) {
-        g_pWc1SdlOriginFxSoundPlayer = Wc1SdlCreateOriginFxSoundPlayer(
-            g_pWc1SdlDosAdlibTimbres,
-            g_nWc1SdlDosAdlibTimbreSize);
-        if (g_pWc1SdlOriginFxSoundPlayer == 0) {
-            fprintf(stderr,
-                    "Unable to initialize DOS AdLib sound effects.\n");
-            goto failed;
-        }
+    /* The player reads the game's own record table rather than a copy of it,
+     * because the flight code retunes entries in place while it runs. */
+    g_pWc1SdlOriginFxSoundPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        g_abSoundEffectDefinitions_0049bf18,
+        WC2_SDL_SOUND_RECORD_COUNT,
+        g_pWc1SdlDosAdlibTimbres,
+        g_nWc1SdlDosAdlibTimbreSize);
+    if (g_pWc1SdlOriginFxSoundPlayer == 0) {
+        fprintf(stderr, "Unable to initialize DOS AdLib sound effects.\n");
+        goto failed;
     }
 
     g_pWc1SdlDosMusicMutex = SDL_CreateMutex();
     if (g_pWc1SdlDosMusicMutex == 0)
         goto failed;
-    if (useStandaloneAudio != 0) {
-        InitializeCriticalSection(
-            &g_stWc1SdlDosMusicAudioCriticalSection);
-        g_bWc1SdlDosMusicAudioCriticalSectionInitialized = 1;
-    }
+    InitializeCriticalSection(&g_stWc1SdlDosMusicAudioCriticalSection);
+    g_bWc1SdlDosMusicAudioCriticalSectionInitialized = 1;
     g_bWc1SdlDosMusicInitialized = 1;
-    g_bWc1SdlOriginFxServicesAllTracks = useStandaloneAudio != 0;
     Wc1SdlUpdateDosAdlibMusicVolume();
-    if (useStandaloneAudio != 0) {
-        if (!Wc1SdlStartAudio(
-                Wc1SdlMixDosAdlibMusic,
-                &g_stWc1SdlDosMusicAudioCriticalSection, 0))
-            goto failed;
-        g_bWc1SdlOriginFxOwnsAudioDevice = 1;
-        fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
-    } else {
-        fprintf(stderr, "OriginFX intro music enabled.\n");
-    }
+    if (!Wc1SdlStartAudio(
+            Wc1SdlMixDosAdlibMusic,
+            &g_stWc1SdlDosMusicAudioCriticalSection, 0))
+        goto failed;
+    g_bWc1SdlOriginFxMusicSelected = 1;
+    g_bWc1SdlOriginFxSoundSelected = 1;
+    fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
     return 1;
 
 failed:
@@ -190,8 +221,31 @@ failed:
     return 0;
 }
 
-int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
-                             int tag, int priority)
+int Wc1SdlUsingOriginFxMusic(void)
+{
+    return g_bWc1SdlOriginFxMusicSelected;
+}
+
+int Wc1SdlUsingOriginFxSoundEffects(void)
+{
+    return g_bWc1SdlOriginFxSoundSelected;
+}
+
+/* The music script normally queues a Kilrathi Saga stream here.  A DOS install
+ * has no streams, so the track number becomes the MUSIC.A00 section the service
+ * loop below plays instead. */
+void Wc1SdlSetOriginFxMusicTrack(int track)
+{
+    if (g_bWc1SdlOriginFxMusicSelected == 0)
+        return;
+    if (g_nCurrentMusicTrack_0049be98 == track)
+        return;
+    g_nCurrentMusicTrack_0049be98 = track;
+    g_nMusicTrackComplete_0049be88 = 0;
+}
+
+static int Wc1SdlStartDosSoundEffect(int soundNumber, int volume, int pan,
+                                     int tag, int priority)
 {
     int result;
 
@@ -200,8 +254,9 @@ int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
         g_pWc1SdlOriginFxSoundPlayer == 0)
         return 0;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
-    if (soundNumber == 8) {
-        tag = 64 + (int)(g_nWc1SdlDosRapidFireTag & 1U);
+    if (soundNumber == WC2_SDL_GUN_SOUND_NUMBER) {
+        tag = WC2_SDL_GUN_SOUND_FIRST_TAG +
+            (int)(g_nWc1SdlDosRapidFireTag & 1U);
         g_nWc1SdlDosRapidFireTag++;
     }
     result = Wc1SdlPlayOriginFxSoundEffect(
@@ -211,48 +266,51 @@ int Wc1SdlPlayDosSoundEffect(int soundNumber, int volume, int pan,
     return result;
 }
 
+/* Stands in for PlaySfxWaveFileByNumber, which has no wave to name on a DOS
+ * install.  The game measures the range itself only to hand playWAVE a volume,
+ * so the falloff is applied here instead. */
+int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
+{
+    FixedVector delta;
+    int volume;
+
+    if (g_bWc1SdlOriginFxSoundSelected == 0)
+        return 0;
+    volume = WC2_SDL_SOUND_FULL_VOLUME;
+    if (sourceObject != -1) {
+        if (sourceObject < 0 || sourceObject >= WC2_SPACE_OBJECT_COUNT)
+            return 0;
+        ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                           &g_aShipPosition_00494550[sourceObject],
+                           &delta);
+        volume -= (int)((Vector_magnitude(&delta) /
+                         WC2_SDL_SOUND_METRES_PER_VOLUME_STEP) >> 8);
+        if (volume < 0)
+            volume = 0;
+        g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
+    }
+    if (volume < WC2_SDL_SOUND_AUDIBLE_VOLUME)
+        return 0;
+    if (!Wc1SdlStartDosSoundEffect(soundNumber, volume,
+                                   WC2_SDL_SOUND_CENTRE_PAN,
+                                   sourceObject, looping))
+        return 0;
+    if (sourceObject == -1) {
+        g_bAfterburnerSfxActive_005d3864 =
+            soundNumber == WC2_SDL_AFTERBURNER_SOUND_NUMBER;
+    }
+    return 1;
+}
+
 void Wc1SdlStopDosSoundEffects(void)
 {
-    DAT_005d3864 = 0;
+    g_bAfterburnerSfxActive_005d3864 = 0;
     if (g_pWc1SdlDosMusicMutex == 0 ||
         g_pWc1SdlOriginFxSoundPlayer == 0)
         return;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
     Wc1SdlStopOriginFxSoundEffects(g_pWc1SdlOriginFxSoundPlayer);
     SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
-}
-
-void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount)
-{
-    if (g_bWc1SdlDosMusicInitialized == 0 ||
-        g_bWc1SdlOriginFxOwnsAudioDevice != 0 ||
-        g_pWc1SdlDosMusicMutex == 0 || samples == 0)
-        return;
-    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
-    if (g_pWc1SdlOriginFxPlayer != 0) {
-        Wc1SdlMixOriginFxPlayer(
-            g_pWc1SdlOriginFxPlayer, samples,
-            frameCount, g_nWc1SdlDosMusicGain);
-    }
-    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
-}
-
-int Wc1SdlGetOriginFxMusicSequencePosition(void)
-{
-    int position;
-
-    if (g_bWc1SdlDosMusicInitialized == 0 ||
-        g_pWc1SdlDosMusicMutex == 0)
-        return -1;
-    SDL_LockMutex(g_pWc1SdlDosMusicMutex);
-    if (g_pWc1SdlOriginFxPlayer == 0) {
-        position = -1;
-    } else {
-        position = (int)Wc1SdlOriginFxPlayerSequencePosition(
-            g_pWc1SdlOriginFxPlayer);
-    }
-    SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
-    return position;
 }
 
 void Wc1SdlServiceOriginFxMusic(void)
@@ -267,13 +325,6 @@ void Wc1SdlServiceOriginFxMusic(void)
         return;
     SDL_LockMutex(g_pWc1SdlDosMusicMutex);
     Wc1SdlUpdateDosAdlibMusicVolume();
-    desiredTrack = g_nCurrentMusicTrack_0049be98;
-    if (g_bWc1SdlOriginFxServicesAllTracks == 0 &&
-        desiredTrack != 19) {
-        Wc1SdlDeleteDosAdlibTrack();
-        SDL_UnlockMutex(g_pWc1SdlDosMusicMutex);
-        return;
-    }
     if (g_pWc1SdlOriginFxPlayer != 0 &&
         Wc1SdlOriginFxPlayerFinished(g_pWc1SdlOriginFxPlayer)) {
         finishedTrack = g_nWc1SdlActiveMusicTrack;
@@ -297,12 +348,15 @@ void Wc1SdlServiceOriginFxMusic(void)
 
     midi = 0;
     midiSize = 0;
+    /* Eighteen of the sections the script can ask for are empty, so a track
+     * without a sequence is data, not damage: report it finished and let the
+     * script pick the next one. */
     if (!Wc1SdlExtractOriginPacketSection(
             g_pWc1SdlDosMusicArchive,
             g_nWc1SdlDosMusicArchiveSize,
             (unsigned int)desiredTrack, &midi, &midiSize)) {
-        fprintf(stderr, "Unable to decode OriginFX music track %d.\n",
-                desiredTrack);
+        SoundDebugPrintf(
+            "no AdLib sequence for track %d\n", desiredTrack);
         g_nCurrentMusicTrack_0049be98 = -1;
         g_nMusicTrackComplete_0049be88 = 1;
         return;
@@ -334,7 +388,7 @@ void Wc1SdlServiceOriginFxMusic(void)
 
 void Wc1SdlShutdownOriginFxAudio(void)
 {
-    if (g_bWc1SdlOriginFxOwnsAudioDevice != 0)
+    if (g_bWc1SdlDosMusicInitialized != 0)
         Wc1SdlStopAudio();
     if (g_pWc1SdlDosMusicMutex != 0)
         SDL_LockMutex(g_pWc1SdlDosMusicMutex);
@@ -364,7 +418,7 @@ void Wc1SdlShutdownOriginFxAudio(void)
     g_nWc1SdlDosMusicGain = 0;
     g_nWc1SdlDosSoundGain = 0;
     g_nWc1SdlDosRapidFireTag = 0;
-    g_bWc1SdlOriginFxOwnsAudioDevice = 0;
-    g_bWc1SdlOriginFxServicesAllTracks = 0;
+    g_bWc1SdlOriginFxMusicSelected = 0;
+    g_bWc1SdlOriginFxSoundSelected = 0;
     g_bWc1SdlDosMusicInitialized = 0;
 }

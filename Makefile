@@ -414,7 +414,6 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
-	src/sdl/dos_intro.c \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
@@ -569,10 +568,18 @@ $(MODERN_TARGET): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
+# The host compatibility layer reaches into the game core for packet loads and
+# into the event pump for key waits, so these link the same objects the heavier
+# checks do.
 $(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%$(MODERN_EXE_SUFFIX): \
-		$(MODERN_OUT_DIR)/tests/%.o $(MODERN_BASE_HOST_OBJS)
-	$(MODERN_CC) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) -o $@
+		$(MODERN_OUT_DIR)/tests/%.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) \
+		$(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 $(MODERN_EVENT_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_event_compat.o \
@@ -624,9 +631,11 @@ $(MODERN_CXX_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
+# globals.o carries the OriginFX sound-effect records the retail check plays.
 $(MODERN_ADLIB_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.o \
 		$(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_OUT_DIR)/obj/globals.o \
 		$(MODERN_OUT_DIR)/obj/sdl/originfx.o \
 		$(MODERN_YMFM_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \

@@ -24,14 +24,28 @@ archives use `MODERN_RELEASE=1` to omit sanitizer instrumentation.
 
 ## Game data and audio
 
-Kilrathi Saga data is the primary supported data set. DOS game-data support is
-partial: compressed packet resources, `MUSIC.MID`, `WINGLDR.TIM`, AdLib music,
-and synthesized OriginFX sound effects are supported, while other DOS-specific
-data or behavior may not be.
+Kilrathi Saga data is the primary supported data set. A DOS install is
+recognized by the `0xc1` flag its packet directories carry, and the host then
+reads its compressed packet resources and drives its own audio.
+
+Kilrathi Saga music is streamed from `STREAMS/*.STR` and its sound effects are
+`GAMEDAT/SFX??.WAV`, neither of which a DOS install has. A DOS install instead
+plays `GAMEDAT/MUSIC.A00`, whose packet sections are standard MIDI files
+indexed by the very track number the game's music script queues; eighteen of the
+sixty-seven sections are empty, and a track without a sequence simply reports
+itself finished so the script moves on. `GAMEDAT/WING2.TIM` section 1 supplies
+the 124 AdLib timbres those sequences play through.
 
 The DOS release describes sound effects as compact OriginFX command records,
-not sampled WAV or VOC files. The SDL host interprets those records and mixes
-their YM3812 output with music in the existing audio callback.
+not sampled WAV or VOC files. The game still carries that table and retunes
+entries in it while it runs, so the host reads the live table rather than a
+copy, and synthesizes the effects on the same YM3812 the music runs on. Held
+records, such as the afterburner, play until the flight code says the burn is
+over.
+
+Speech is a separate optional pack in both releases and is not required. It is
+not available on a DOS install, whose driver-level playback the native host
+cannot use.
 
 ## Enhanced renderer
 

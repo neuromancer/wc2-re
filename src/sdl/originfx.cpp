@@ -39,48 +39,12 @@ static const unsigned char g_abWc1OriginFxModulatorOffsets[20] = {
     0, 1, 2, 8, 9, 10, 16, 20, 18, 21, 17
 };
 
-/* WC.EXE 2231:051e-063d.  FUN_16ac_07f2 indexes the table with the
- * one-based game sound number.  Each OriginFX record is flags, program + 1,
- * note, velocity, a little-endian 60 Hz duration, glide target, and an
- * unused byte.  The preceding eight bytes at 2231:0516 are not a sound. */
-static const unsigned char g_aabWc1OriginFxSoundRecords[36][8] = {
-    { 0, 1, 64, 64, 60, 0, 0, 0 },
-    { 2, 2, 64, 64, 1, 0, 0, 0 },
-    { 0, 39, 64, 64, 60, 0, 0, 0 },
-    { 0, 4, 64, 64, 60, 0, 0, 0 },
-    { 0, 7, 64, 64, 6, 0, 0, 0 },
-    { 0, 8, 64, 64, 30, 0, 0, 0 },
-    { 0, 9, 64, 64, 10, 0, 0, 0 },
-    { 0, 10, 64, 64, 60, 0, 0, 0 },
-    { 0, 11, 64, 64, 6, 0, 0, 0 },
-    { 0, 12, 64, 64, 10, 0, 0, 0 },
-    { 4, 13, 64, 64, 60, 0, 0, 0 },
-    { 4, 14, 64, 64, 60, 0, 0, 0 },
-    { 0, 15, 64, 64, 6, 0, 0, 0 },
-    { 8, 19, 64, 64, 60, 0, 0, 0 },
-    { 4, 20, 64, 64, 60, 0, 0, 0 },
-    { 0, 21, 64, 64, 60, 0, 0, 0 },
-    { 4, 22, 64, 64, 60, 0, 0, 0 },
-    { 2, 23, 84, 64, 6, 0, 57, 0 },
-    { 0, 24, 64, 64, 60, 0, 0, 0 },
-    { 2, 41, 24, 64, 2, 0, 127, 0 },
-    { 0, 42, 64, 64, 40, 0, 0, 0 },
-    { 0, 43, 64, 64, 40, 0, 0, 0 },
-    { 0, 45, 64, 64, 5, 0, 0, 0 },
-    { 0, 46, 64, 64, 5, 0, 0, 0 },
-    { 0, 47, 64, 64, 5, 0, 0, 0 },
-    { 0, 48, 64, 64, 40, 0, 0, 0 },
-    { 0, 64, 64, 64, 40, 0, 0, 0 },
-    { 0, 125, 64, 64, 40, 0, 0, 0 },
-    { 0, 62, 64, 64, 40, 0, 0, 0 },
-    { 0, 63, 64, 64, 40, 0, 0, 0 },
-    { 0, 106, 64, 64, 60, 0, 0, 0 },
-    { 8, 107, 64, 64, 40, 0, 0, 0 },
-    { 0, 109, 64, 64, 60, 0, 0, 0 },
-    { 0, 110, 64, 64, 80, 0, 0, 0 },
-    { 0, 111, 64, 64, 40, 0, 0, 0 },
-    { 0, 112, 64, 64, 60, 0, 0, 0 }
-};
+/* An OriginFX sound record is flags, program + 1, note, velocity, a
+ * little-endian 60 Hz duration, a glide target and an unused byte.  WC2 keeps
+ * its own table of them in the image at 0x49bf18, and rewrites entries in
+ * place while it runs, so the player reads the game's array rather than a
+ * copy.  WC.EXE holds the same shape at 2231:051e. */
+#define WC1_ORIGINFX_SOUND_RECORD_SIZE 8U
 
 /* WC.EXE 2231:7967 and 2231:79b4 translate MIDI channel 10 into
  * OriginFX's percussion pseudo-channels and their fixed pitches. */
@@ -169,6 +133,8 @@ struct Wc1SdlOriginFxPlayer {
     ymfm::ym3812 oplChip;
     Wc1OriginFxEvent *events;
     unsigned char *timbres;
+    const unsigned char *soundRecords;
+    size_t soundRecordCount;
     size_t eventCount;
     size_t eventCapacity;
     size_t nextEvent;
@@ -193,6 +159,8 @@ struct Wc1SdlOriginFxPlayer {
         oplChip(oplInterface),
         events(0),
         timbres(0),
+        soundRecords(0),
+        soundRecordCount(0),
         eventCount(0),
         eventCapacity(0),
         nextEvent(0),
@@ -1366,8 +1334,9 @@ static void Wc1OriginFxServiceSoundEffects(
     unsigned int targetNote;
     int restart;
 
-    recordsBegin = &g_aabWc1OriginFxSoundRecords[0][0];
-    recordsEnd = recordsBegin + sizeof(g_aabWc1OriginFxSoundRecords);
+    recordsBegin = player->soundRecords;
+    recordsEnd = recordsBegin +
+        player->soundRecordCount * WC1_ORIGINFX_SOUND_RECORD_SIZE;
     effectIndex = 0;
     while (effectIndex < WC1_ORIGINFX_SOUND_SLOT_COUNT) {
         effect = &player->soundEffects[effectIndex];
@@ -1412,9 +1381,9 @@ static void Wc1OriginFxServiceSoundEffects(
             effect->remainingTicks = (unsigned short)(
                 record[4] | ((unsigned int)record[5] << 8));
         } else if ((flags & 1U) != 0 &&
-                   record + 8 < recordsEnd &&
-                   record + 8 >= recordsBegin) {
-            effect->record = record + 8;
+                   record + WC1_ORIGINFX_SOUND_RECORD_SIZE < recordsEnd &&
+                   record + WC1_ORIGINFX_SOUND_RECORD_SIZE >= recordsBegin) {
+            effect->record = record + WC1_ORIGINFX_SOUND_RECORD_SIZE;
             Wc1OriginFxStartSoundEffectRecord(player, effect);
         } else {
             effect->active = 0;
@@ -1584,10 +1553,13 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
 }
 
 Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
+    const unsigned char *records, unsigned int recordCount,
     const unsigned char *timbres, size_t timbreSize)
 {
     Wc1SdlOriginFxPlayer *player;
 
+    if (records == 0 || recordCount == 0)
+        return 0;
     player = new (std::nothrow) Wc1SdlOriginFxPlayer;
     if (player == 0)
         return 0;
@@ -1595,6 +1567,8 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
         delete player;
         return 0;
     }
+    player->soundRecords = records;
+    player->soundRecordCount = recordCount;
     return player;
 }
 
@@ -1610,8 +1584,7 @@ int Wc1SdlPlayOriginFxSoundEffect(
     int channelPriority;
 
     if (player == 0 || soundNumber == 0 ||
-        soundNumber > sizeof(g_aabWc1OriginFxSoundRecords) /
-            sizeof(g_aabWc1OriginFxSoundRecords[0]))
+        soundNumber > player->soundRecordCount)
         return 0;
     if (volume < 0)
         volume = 0;
@@ -1650,7 +1623,8 @@ int Wc1SdlPlayOriginFxSoundEffect(
         return 0;
     effect = &player->soundEffects[freeEffectIndex];
     memset(effect, 0, sizeof(*effect));
-    effect->record = g_aabWc1OriginFxSoundRecords[soundNumber - 1];
+    effect->record = player->soundRecords +
+        (size_t)(soundNumber - 1) * WC1_ORIGINFX_SOUND_RECORD_SIZE;
     if (channelAge != 0) {
         effect->age = channelAge;
     } else {
@@ -1711,14 +1685,6 @@ void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player)
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player)
 {
     return player == 0 || player->finished != 0;
-}
-
-unsigned int Wc1SdlOriginFxPlayerSequencePosition(
-    const Wc1SdlOriginFxPlayer *player)
-{
-    if (player == 0)
-        return 0;
-    return player->sequencePosition;
 }
 
 void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
