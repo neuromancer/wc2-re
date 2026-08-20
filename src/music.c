@@ -1019,31 +1019,25 @@ void wait_for_end_of_music(void)
 /* Function start: 0x452E46 */
 void new_space_music_changes(short attacker, short victim)
 {
-    enum Side side;
-
-    if (g_nInFlightMusicActive_0049bf08 != 0 &&
-        g_nTrainSimActive_0049d758 == 0) {
-        side = g_asShipSide_004955d0[victim];
-        if (side == SIDE_KILRATHI) {
+    if (g_nInFlightMusicActive_0049bf08 != 0) {
+        if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
                 spacetrack(10, 1, 0);
                 return;
             }
             if (attacker == 0) {
-                if (g_acShipRating_0059cd80[victim] == -1 &&
-                    RandomInRange(0, 3) != 0) {
+                if (g_acShipPortrait_00495d88[victim] != -1 ||
+                    RandomInRange(0, 3) == 0)
+                    spacetrack(9, 3, 0);
+                else
                     spacetrack(6, 3, 0);
-                    return;
-                }
-                spacetrack(9, 3, 0);
-                return;
             }
         } else {
             if (g_nYourWingman_0049346c == victim) {
                 spacetrack(8, 3, 0);
                 return;
             }
-            if (side == SIDE_IMPERIAL) {
+            if (g_asShipSide_004955d0[victim] == SIDE_IMPERIAL) {
                 if ((g_asShipMissionType_00495de8[0] ==
                          MISSION_TYPE_DEFEND ||
                      g_asShipMissionType_00495de8[0] ==

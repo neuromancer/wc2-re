@@ -994,7 +994,6 @@ extern short g_nHazardFieldCount_004931d0;
 extern short g_asObjectScreenScale_00493a58[WC2_SPACE_OBJECT_COUNT];
 extern CampaignState g_stCampaignState_0059ca50;
 extern unsigned char g_aShipWeapons_004956b0[10][0xA1];
-extern signed char g_acShipRating_0059cd80[16];
 extern short g_asObjectScreenAngle_004936b8[WC2_SPACE_OBJECT_COUNT];
 extern short g_nTargetRange_0049319c;
 extern short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
