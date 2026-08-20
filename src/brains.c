@@ -72,18 +72,15 @@ void Mline_up_drop(short ship, short target)
 /* Function start: 0x4406BA */
 void Mwabble(short ship)
 {
-    short choice;
-
     g_asShipCount_00495ff8[ship]++;
     if (g_asShipCount_00495ff8[ship] > 20) {
         maneuver_complete(ship);
         return;
     }
 
-    approach_full_speed(ship);
+    fire_afterburner(ship, 20);
     if (CanSetNewShipTurnGoal(ship) != 0) {
-        choice = RandomBelowOrEqual(2);
-        switch (choice) {
+        switch (RandomBelowOrEqual(2)) {
         case 0:
             g_anYawGoal_004954c0[ship] = signed_random(6) * 5;
             break;
@@ -196,6 +193,7 @@ void Mhard_break(short ship)
 }
 
 /* Function start: 0x440A93 */
+#pragma function(abs)
 void Msit_n_spin(short ship, short target)
 {
     short advanceSequence;
@@ -218,11 +216,6 @@ void Msit_n_spin(short ship, short target)
         break;
     case 1:
         steady_object(ship);
-        if (close_behind(1000) == 0) {
-            advanceSequence = 0;
-            reset_maneuver(ship, MANEUVER_CHILL);
-            g_acShipSequence_00495fe8[ship] = 10;
-        }
         break;
     case 2:
         break;
@@ -549,14 +542,17 @@ void Mzip_past(short ship, short target)
         if (close_behind(
                 g_asObjectCollisionRadius_004950e8[target] + 2000) != 0) {
             Mtail_fire(ship, target);
-            return;
-        }
-        approach_full_speed(ship);
-        if (CanSetNewShipTurnGoal(ship) != 0) {
-            if (g_nTargetFacing_00493198 > 80)
-                point_ship_below_object(ship, target);
-            else
-                point_ship_behind_object(ship, target);
+        } else {
+            approach_full_speed(ship);
+            if (g_nTargetRange_0049319c > 3000 &&
+                g_nFacingToTarget_00493194 > 75)
+                fire_afterburner(ship, 3);
+            if (CanSetNewShipTurnGoal(ship) != 0) {
+                if (g_nTargetFacing_00493198 > 80)
+                    point_ship_below_object(ship, target);
+                else
+                    point_ship_behind_object(ship, target);
+            }
         }
     } else {
         maneuver_complete(ship);
@@ -897,9 +893,10 @@ void ShipAiState44(short ship)
 }
 
 /* Function start: 0x442404 */
+/* Dispatch slot 8: unimplemented in WC2. */
 void Mtarget_laser(short ship, short target)
 {
-    Mbest_strafe(ship, target);
+    HandleUnsupportedManeuver(8, ship, target);
 }
 
 /* Function start: 0x442421 */

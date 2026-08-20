@@ -8,7 +8,8 @@
 #include "wc1.h"
 
 /* Function start: 0x41E4E0 */
-unsigned int steer_away_from_object(short obj, short other, short amount)
+#pragma function(abs)
+void steer_away_from_object(short obj, short other, short amount)
 {
     FixedVector predicted;
     FixedVector difference;
@@ -29,7 +30,6 @@ unsigned int steer_away_from_object(short obj, short other, short amount)
             amount = -amount;
         g_anPitchGoal_004954a8[obj] = amount;
     }
-    return 0;
 }
 
 /* Function start: 0x41E5C8 */

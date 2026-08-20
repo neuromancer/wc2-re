@@ -1880,7 +1880,7 @@ void ComputePointBehindObject(short obj, unsigned short distance,
 }
 
 /* Function start: 0x42A876 */
-unsigned int close_behind(short range)
+short close_behind(short range)
 {
     if (g_nTargetRange_0049319c < range &&
         g_nTargetFacing_00493198 < -0x32)

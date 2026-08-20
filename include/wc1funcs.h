@@ -973,9 +973,9 @@ void ComputePointAheadOfObject(short obj, unsigned short distance,
 void ComputePointBehindObject(short obj, unsigned short distance,
                               FixedVector *point);                     /* 0x42A823 */
 #ifdef WC1_SDL
-unsigned int close_behind(short range);
+short close_behind(short range);
 #else
-unsigned int close_behind();                                          /* 0x42A876 */
+short close_behind();                                                 /* 0x42A876 */
 #endif
 short scan_for_enemy(short obj, unsigned short range);                  /* 0x42A8B5 */
 short any_enemy(short obj, short range);                              /* 0x42AA0D */
@@ -1442,7 +1442,7 @@ void DIBwholePaletteFromWords(unsigned short *palette);                /* 0x45E8
 void DIBwaitForVerticalBlank(void);                                      /* 0x45E9C5 */
 char *DirectDrawResultToText(int result);                              /* WC2 unmapped */
 void show_info_disp(void);                                             /* WC2 unmapped */
-unsigned int steer_away_from_object(short obj, short other,
+void steer_away_from_object(short obj, short other,
                                     short amount);                    /* 0x41E4E0 */
 void steer_away_from_predicted_object(short obj, short other,
                                       short predictionTicks,
