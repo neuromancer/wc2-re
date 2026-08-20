@@ -211,17 +211,19 @@ void RemoveWaveTableEntry(WaveTableEntry *target)
 /* Function start: 0x423ED1 */
 void FreeWaveTable(void)
 {
-    WaveTableEntry *entry = g_pWaveTableHead_004961b4;
+    WaveTableEntry *entry;
+    WaveTableEntry *next;
 
+    entry = g_pWaveTableHead_004961b4;
+    next = 0;
     while (entry != 0) {
-        WaveTableEntry *next = entry->next;
-
+        next = entry->next;
         free(entry->name);
         free(entry);
         entry = next;
     }
-    g_pWaveTableTail_004961b8 = 0;
-    g_pWaveTableHead_004961b4 = 0;
+    g_pWaveTableHead_004961b4 = g_pWaveTableTail_004961b8 = 0;
+    return;
 }
 
 /* Function start: 0x423F3F */

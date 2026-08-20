@@ -175,6 +175,7 @@ void WaitForJoystickButtonRelease(void)
             &g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726],
             g_nActiveInputDevice_005d1726, 0);
+        ServiceSoundSystem();
     } while (g_aInputDeviceSamples_005d1780[
                  g_nActiveInputDevice_005d1726].buttons != 0);
 }
@@ -187,6 +188,7 @@ void WaitForJoystickButtonPress(void)
             &g_aInputDeviceSamples_005d1780[
                 g_nActiveInputDevice_005d1726],
             g_nActiveInputDevice_005d1726, 0);
+        ServiceSoundSystem();
     } while (g_aInputDeviceSamples_005d1780[
                  g_nActiveInputDevice_005d1726].buttons == 0);
 }

@@ -141,8 +141,8 @@
 0x0040B550 copy_frame
 0x0040B5DF fix_objects_ijk
 0x0040B699 transform_to_objects_frame
-0x0040B706 alter_yaw
-0x0040B747 alter_pitch
+0x0040B706 alter_pitch
+0x0040B747 alter_yaw
 0x0040B788 alter_roll
 0x0040B7C9 distance_between_points
 0x0040B805 distance_from_point

@@ -810,7 +810,7 @@ void CompleteStarSystemJump(void)
             g_cSecondaryViewBufferColour_0049cb4c, 1);
         ClearViewport(&g_stScreenViewport_005d21a0,
                       g_cSecondaryViewBufferColour_0049cb4c);
-        free_all_slots();
+        RestoreGamePalette();
 
         for (destinationNavPoint = 0; destinationNavPoint < 10;
              destinationNavPoint++) {

@@ -542,7 +542,7 @@ void transform_to_objects_frame(const FixedVector *source,
     destination->z = dot_product(source, &g_aShipForwardVector_00494208[obj]);
 }
 
-/* Function start: 0x40B747 */
+/* Function start: 0x40B706 */
 void alter_pitch(short angle, short obj)
 {
     rotate_about_i(angle, &g_aShipUpVector_00493ec0[obj],
@@ -550,7 +550,7 @@ void alter_pitch(short angle, short obj)
     fix_objects_ijk(obj);
 }
 
-/* Function start: 0x40B706 */
+/* Function start: 0x40B747 */
 void alter_yaw(short angle, short obj)
 {
     rotate_about_j(angle, &g_aShipRightVector_00493b78[obj],

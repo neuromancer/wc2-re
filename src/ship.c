@@ -993,11 +993,12 @@ short ShipExplosion(short obj)
 {
     unsigned short originalScale;
     short explosion;
+    short explosionType;
 
     originalScale = (unsigned short)g_asObjectScale_00494d90[obj];
     explosion = find_vacant_3d_object();
     if (explosion == -1) {
-        if (g_aeObjectClass_00495328[obj] ==
+        if (g_aeObjectClass_00495328[obj] >=
             OBJECT_CLASS_CAPITAL_SHIP)
             FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
         g_asLoadedShipViewFrame_00495d18[obj] = -1;
@@ -1010,11 +1011,18 @@ short ShipExplosion(short obj)
             g_aShipVelocity_00494898[obj];
         g_acObjectOwner_00495208[explosion] = (signed char)obj;
     }
-    set_objects_data(explosion, OBJECT_TYPE_EXPLOSION1,
+    if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP) {
+        PlaySfxWaveFileByNumber(0x31, obj, 0);
+        explosionType = WC2_OBJECT_TYPE_EXPLOSION_MEDIUM;
+    } else {
+        explosionType = WC2_OBJECT_TYPE_EXPLOSION_LARGE;
+    }
+    set_objects_data(explosion, explosionType,
                      (short)g_acObjectOwner_00495208[explosion], 0);
     g_asObjectScale_00494d90[explosion] = (short)(
         (unsigned short)g_asObjectScale_00494d90[explosion] *
         originalScale >> 8);
+    RecordCannedSceneObjectEvent(explosion, 0);
     return explosion;
 }
 

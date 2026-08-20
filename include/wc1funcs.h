@@ -661,8 +661,8 @@ void fix_objects_ijk(short obj);                                 /* 0x40B5DF */
 void transform_to_objects_frame(const FixedVector *source,
                                 FixedVector *destination,
                                 short obj);                           /* 0x40B699 */
-void alter_pitch(short angle, short obj);                        /* 0x40B747 */
-void alter_yaw(short angle, short obj);                          /* 0x40B706 */
+void alter_pitch(short angle, short obj);                        /* 0x40B706 */
+void alter_yaw(short angle, short obj);                          /* 0x40B747 */
 void alter_roll(short angle, short obj);                         /* 0x40B788 */
 short distance_between_points(const FixedVector *from,
                               const FixedVector *to);                  /* 0x40B7C9 */

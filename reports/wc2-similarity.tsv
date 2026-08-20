@@ -722,8 +722,8 @@ src/geom.c	init_ijk	SetTbl0059bce8Fn8F60	00418F60	0040B41F	WC1-callgraph-propaga
 src/geom.c	copy_frame	copy_frame	00418FD0	0040B550	WC1-manual-verified		100.00	exact
 src/geom.c	fix_objects_ijk	SetUiFn9050	00419050	0040B5DF	WC1-fuzzy-followup		100.00	exact
 src/geom.c	transform_to_objects_frame	transform_to_objects_frame	004190B0	0040B699	WC1-manual-verified		100.00	exact
-src/geom.c	alter_yaw	GetUiFn9150	00419150	0040B706	WC1-fuzzy-followup		100.00	exact
-src/geom.c	alter_pitch	GetUiFn9110	00419110	0040B747	WC1-callgraph-propagated		100.00	exact
+src/geom.c	alter_yaw	GetUiFn9150	00419150	0040B747	WC1-fuzzy-followup		100.00	exact
+src/geom.c	alter_pitch	GetUiFn9110	00419110	0040B706	WC1-callgraph-propagated		100.00	exact
 src/geom.c	alter_roll	GetUiFn9190	00419190	0040B788	WC1-callgraph-propagated		100.00	exact
 src/geom.c	distance_from_object	distance_from_object	00419260	0040B85C	WC1-callgraph-propagated		100.00	exact
 src/geom.c	match_roll_orientation	match_roll_orientation	00419440	0040BA2E	WC1-callgraph-propagated		100.00	exact

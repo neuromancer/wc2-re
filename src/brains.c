@@ -1394,7 +1394,7 @@ void InitializeNewPilotCampaign(short campaignSlot)
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
     ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
-    free_all_slots();
+    RestoreGamePalette();
     ResetGameTextContexts();
     g_bNewPilotCampaignInitialized_004926c0 = 1;
 }

@@ -1782,7 +1782,7 @@ cleanup:
         g_cSecondaryViewBufferColour_0049cb4c, 1);
     ClearViewport(&g_stModalSourceViewport_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    free_all_slots();
+    RestoreGamePalette();
     for (section = 0; section < 13; section++)
         ReleasePacketHandle(g_apTitleSections_005d3f70[section]);
     FreePacketAndClear(&g_pTitleFieldShape_00491cf8, 0);

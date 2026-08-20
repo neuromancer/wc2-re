@@ -552,8 +552,8 @@ src/geom.c	621	00418F60	0040B41F	init_ijk	SetTbl0059bce8Fn8F60	WC1-callgraph-pro
 src/geom.c	638	00418FD0	0040B550	copy_frame	copy_frame	WC1-manual-verified		mapped
 src/geom.c	649	00419050	0040B5DF	fix_objects_ijk	SetUiFn9050	WC1-fuzzy-followup		mapped
 src/geom.c	663	004190B0	0040B699	transform_to_objects_frame	transform_to_objects_frame	WC1-manual-verified		mapped
-src/geom.c	672	00419110	0040B747	alter_pitch	GetUiFn9110	WC1-callgraph-propagated		mapped
-src/geom.c	680	00419150	0040B706	alter_yaw	GetUiFn9150	WC1-fuzzy-followup		mapped
+src/geom.c	672	00419110	0040B706	alter_pitch	GetUiFn9110	WC1-callgraph-propagated		mapped
+src/geom.c	680	00419150	0040B747	alter_yaw	GetUiFn9150	WC1-fuzzy-followup		mapped
 src/geom.c	688	00419190	0040B788	alter_roll	GetUiFn9190	WC1-callgraph-propagated		mapped
 src/geom.c	696	004191D0	0040B7C9	distance_between_points	distance_between_points	WC1-manual-verified		mapped
 src/geom.c	708	00419210	0040B805	distance_from_point	distance_from_point	WC1-manual-verified		mapped
