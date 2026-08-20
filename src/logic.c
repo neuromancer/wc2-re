@@ -1310,7 +1310,7 @@ short signed_random(short range)
 }
 
 /* Function start: 0x4295A9 */
-int alert_flag(short ship, unsigned int bits)
+short alert_flag(short ship, unsigned int bits)
 {
     return (g_anShipAlertFlags_00495f88[ship] & bits) != 0;
 }
@@ -1491,7 +1491,7 @@ short unactive(short ship)
 }
 
 /* Function start: 0x429BA8 */
-int are_alive(short obj)
+short are_alive(short obj)
 {
     if (unactive(obj) == 0 &&
         g_aeShipObjective_00495f08[obj] != WC2_SHIP_OBJECTIVE_NOT_ALIVE)
@@ -1619,12 +1619,12 @@ signed char no_goal(short ship)
 }
 
 /* Function start: 0x42A0A9 */
-int being_tailed(short obj, short other)
+short being_tailed(short obj, short other)
 {
     get_facing_range_from_object(obj, other);
-    return g_nFacingToTarget_00493194 < -60 &&
-           g_nTargetFacing_00493198 > 85 &&
-           g_nTargetRange_0049319c < 7000;
+    return g_nFacingToTarget_00493194 < -70 &&
+           g_nTargetFacing_00493198 > 90 &&
+           g_nTargetRange_0049319c < 4000;
 }
 
 /* Function start: 0x42A108 */
@@ -1957,7 +1957,7 @@ unsigned int ships_within_range(short obj, short other, short range)
 }
 
 /* Function start: 0x42ABCE */
-int attacker_in_range(short obj, short range)
+short attacker_in_range(short obj, short range)
 {
     short other;
 
@@ -1980,7 +1980,7 @@ int attacker_in_range(short obj, short range)
 }
 
 /* Function start: 0x42ACAF */
-int in_danger(short obj)
+short in_danger(short obj)
 {
     short target;
     short other;
@@ -2085,7 +2085,7 @@ short dead_ship(short i)
 }
 
 /* Function start: 0x42B0FB */
-int gone_ship(short missionShip)
+short gone_ship(short missionShip)
 {
     if (missionShip == -1 ||
         g_aMissionShips_00492290[missionShip].state == 3 ||
@@ -2135,7 +2135,7 @@ short find_ships_sphere(short missionShip)
 }
 
 /* Function start: 0x42B2A7 */
-int locate_ship(short missionShip, FixedVector *point)
+short locate_ship(short missionShip, FixedVector *point)
 {
     short navPoint;
     short obj;

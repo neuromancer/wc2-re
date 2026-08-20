@@ -553,7 +553,7 @@ short CountAlliesOnSameTarget(short obj)
 }
 
 /* Function start: 0x41F9AF */
-void process_maneuver_node(short obj, int event)
+void process_maneuver_node(short obj, short event)
 {
     const ManeuverChoice *choice;
     short maneuver;
@@ -630,7 +630,7 @@ chooseEvasion:
 }
 
 /* Function start: 0x41FD2B */
-void handle_stress(short obj, int event)
+void handle_stress(short obj, short event)
 {
     short aggression;
     short damage;
@@ -679,44 +679,58 @@ void handle_stress(short obj, int event)
 /* Function start: 0x41FF37 */
 void intelligence_events(short obj)
 {
-    int event;
+    short event;
     short targetGone;
     short target;
     short previousStress;
     short playerDamage;
 
     event = -1;
-    targetGone = 0;
     target = g_acShipTarget_00495f20[obj];
     previousStress = (short)g_acShipStress_00496100[obj];
-    if (FindMissileTargetingObject(obj) != 0) {
-        event = 6;
-    } else if (unactive(target) != 0) {
-        targetGone = 1;
-    } else if (g_aeSpecialManeuver_00495600[
-                   g_acShipTarget_00495f20[obj]] ==
-               SPECIAL_MANEUVER_UNKNOWN_9) {
-        event = 8;
-    } else {
-        event = 0;
-        get_facing_range_from_object(obj, target);
-        if (g_nTargetRange_0049319c > 8000) {
-            event = 2;
-        } else if (g_acShipCollisionCooldown_00496010[obj] > 0) {
-            event = 7;
-        } else if (g_nFacingToTarget_00493194 > 55 &&
-                   g_nTargetFacing_00493198 < -55) {
-            event = 5;
-        } else if (g_nFacingToTarget_00493194 > 75 &&
-                   g_nTargetFacing_00493198 > 75) {
-            event = 4;
-        } else if (g_nFacingToTarget_00493194 < -60 &&
-                   g_nTargetFacing_00493198 > 85 &&
-                   g_nTargetRange_0049319c < 7000) {
-            event = 3;
-        } else if (g_anShipSpeed_00494e20[target] < 20) {
-            event = 1;
+    targetGone = 0;
+    if (unactive(target) == 0) {
+        get_facing_range_from_object(obj, g_acShipTarget_00495f20[obj]);
+        if (g_aeSpecialManeuver_00495600[
+                g_acShipTarget_00495f20[obj]] ==
+            SPECIAL_MANEUVER_UNKNOWN_9) {
+            event = 8;
+        } else {
+            event = 0;
+            if (g_nTargetRange_0049319c > 8000) {
+                event = 2;
+            } else if (g_nFacingToTarget_00493194 > 55 &&
+                       g_nTargetFacing_00493198 < -55) {
+                event = 5;
+            } else if (g_nFacingToTarget_00493194 > 75 &&
+                       g_nTargetFacing_00493198 > 75 &&
+                       g_nTargetRange_0049319c < 5000) {
+                event = 4;
+                if (g_acShipCollisionCooldown_00496010[obj] > 0 &&
+                    g_asObjectDamage_00495178[obj] > 0)
+                    event = 7;
+            } else if (FindMissileTargetingObject(obj) != 0) {
+                event = 6;
+            } else if (g_acShipCollisionCooldown_00496010[obj] > 0) {
+                event = 7;
+            } else if (g_nFacingToTarget_00493194 < -70 &&
+                       g_nTargetFacing_00493198 > 90 &&
+                       g_nTargetRange_0049319c < 4000 &&
+                       g_nTargetRange_0049319c < 5000) {
+                event = 3;
+                if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
+                    GetAdaptiveTurnRate() <= 30)
+                    event = 0;
+            } else if (g_anShipSpeed_00494e20[target] < 5120) {
+                event = 1;
+            }
         }
+    } else if (FindMissileTargetingObject(obj) != 0) {
+        event = 6;
+    } else if (g_acShipCollisionCooldown_00496010[obj] > 0) {
+        event = 7;
+    } else {
+        targetGone = 1;
     }
 
     handle_stress(obj, event);
@@ -733,13 +747,14 @@ void intelligence_events(short obj)
     if (g_nYourWingman_0049346c == obj &&
         g_aeObjectClass_00495328[0] == OBJECT_CLASS_SHIP &&
         g_acShipPendingMessage_00495d98[g_nYourWingman_0049346c] == -1) {
-        if (previousStress < 15 && g_acShipStress_00496100[obj] >= 15) {
+        if (previousStress < 15 && g_acShipStress_00496100[obj] >= 15 &&
+            RandomBelowOrEqual(3) == 0) {
             send_message(obj, 4);
         } else {
             playerDamage = evaluate_damage(0);
             if (RandomBelow(1000) < 4 && playerDamage < 35) {
                 if (evaluate_damage(obj) > playerDamage)
-                    send_message(obj, 8);
+                    send_message(obj, 10);
                 else
                     send_message(obj, 4);
             }

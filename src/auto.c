@@ -37,7 +37,7 @@ void visit_the_cinema(int view, int obj, short frames)
 }
 
 /* Function start: 0x422953 */
-unsigned int player_wingman(short obj)
+short player_wingman(short obj)
 {
     if (obj != -1 && g_asShipWingLeader_00495dd0[obj] == 0)
         return 1;

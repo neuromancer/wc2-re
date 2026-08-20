@@ -684,7 +684,7 @@ void WaitForFrameTick(void)
 }
 
 /* Function start: 0x464072 */
-int IsFrameTickElapsed(void)
+short IsFrameTickElapsed(void)
 {
     return g_nFrameTimerPending_005c844c == 0;
 }

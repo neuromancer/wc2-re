@@ -232,7 +232,7 @@ short equ_vector(const FixedVector *left, const FixedVector *right)
 }
 
 /* Function start: 0x40A9D1 */
-int IsPairEqualityDifferentFromFlag(const unsigned int *values)
+short IsPairEqualityDifferentFromFlag(const unsigned int *values)
 {
     return ((values[1] == values[0]) == values[2]) == 0;
 }
@@ -656,7 +656,7 @@ short match_roll_orientation(short obj, short reference)
 }
 
 /* Function start: 0x40BADB */
-int set_ship_rotation_goals(short obj, short turnRate,
+short set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
                             short pointingMode,
                             short *yawGoal, short *pitchGoal)

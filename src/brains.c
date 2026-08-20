@@ -300,10 +300,9 @@ void Mburnout(short ship, short target)
         advance(ship);
         break;
     case 1:
-        if (g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE) {
-            g_anYawGoal_004954c0[ship] = 180;
-            advance(ship);
-        }
+        g_anYawGoal_004954c0[ship] =
+            (short)((RandomBelowOrEqual(2) * 2 - 1) * 90);
+        advance(ship);
         break;
     default:
         if (no_goal(ship) != 0)
@@ -1544,7 +1543,6 @@ short check_engage_target(short obj)
 short check_destroy_target(short obj)
 {
     short destroyTarget = find_ship_index(g_asShipMissionParameter_00495e00[obj]);
-    int determination;
 
     if (destroyTarget == -1) {
         g_acShipTarget_00495f20[obj] = check_engage_target(obj);
@@ -1553,10 +1551,9 @@ short check_destroy_target(short obj)
                gone_ship(g_asShipMissionParameter_00495e00[obj]) != 0) {
         check_engage_target(obj);
     } else {
-        determination = 70;
-        determination -= MaxShort(
-            0, MinShort(4, (short)g_asPilotLevel_00495d60[obj])) * 15;
-        if (evaluate_damage(obj) > determination) {
+        if (70 - MaxShort(0, MinShort(4,
+                (short)g_asPilotLevel_00495d60[obj])) * 15 <
+            evaluate_damage(obj)) {
             g_acShipTarget_00495f20[obj] = destroyTarget;
             if (g_asShipSide_004955d0[destroyTarget] ==
                 g_asShipSide_004955d0[obj])
@@ -1568,6 +1565,8 @@ short check_destroy_target(short obj)
             g_acShipTarget_00495f20[obj] = destroyTarget;
         }
     }
+    if (g_acShipTarget_00495f20[obj] == -1)
+        check_engage_target(obj);
     return g_acShipTarget_00495f20[obj];
 }
 

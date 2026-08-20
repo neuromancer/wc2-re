@@ -888,7 +888,7 @@ unsigned short SetVduModeIfChanged(short i, int state)
 }
 
 /* Function start: 0x43934D */
-int GetVduModeStackDepth(short i)
+short GetVduModeStackDepth(short i)
 {
     return g_acVduModeStackDepth_004934c8[(int)i];
 }
@@ -1604,7 +1604,7 @@ short is_any_ship_returning_to_current_nav_point(void)
 }
 
 /* Function start: 0x43AAC3 */
-unsigned int escorting_a_ship(void)
+short escorting_a_ship(void)
 {
     if (g_asShipMissionType_00495de8[0] != MISSION_TYPE_ESCORT) {
         if (is_any_ship_returning_to_current_nav_point() == 0)

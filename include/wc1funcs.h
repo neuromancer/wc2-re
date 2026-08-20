@@ -113,7 +113,7 @@ void MonoDebug_print(const char *text);                                  /* 0x43
 void ReadPerformanceCounter(LARGE_INTEGER *p);                           /* 0x4379D4 */
 void ResetStringBuilder(TextContext *context);                         /* 0x446580 */
 void visit_the_cinema(int view, int obj, short frames);                  /* 0x4228B0 */
-unsigned int player_wingman(short obj);                                  /* 0x422953 */
+short player_wingman(short obj);                                         /* 0x422953 */
 void set_speed(short obj, short speed);                                  /* 0x422990 */
 void auto_position(short obj, short *formationSlot);                     /* 0x4229B9 */
 void auto_pilot_sequence(void);                                          /* 0x422B1C */
@@ -479,7 +479,7 @@ void update_bars(void);                                              /* 0x439076
 short get_mode(short i);                                              /* 0x439264 */
 void set_mode(short i, int state);                                    /* 0x43928E */
 unsigned short SetVduModeIfChanged(short i, int state);               /* 0x4392F1 */
-int GetVduModeStackDepth(short i);                                    /* 0x43934D */
+short GetVduModeStackDepth(short i);                                  /* 0x43934D */
 void push_mode(short i, int state);                                   /* 0x439369 */
 void pop_mode(short i);                                               /* 0x4393B3 */
 void set_new_vdu(short vdu);                                          /* 0x4393E1 */
@@ -514,7 +514,7 @@ short cycle_next_objective(void);                                     /* 0x43A85
 void set_next_destination(void);                                       /* 0x43A8EA */
 short LocateMobileObjective(short objective);                         /* 0x43A9D7 */
 short is_any_ship_returning_to_current_nav_point(void);                       /* 0x43AA3F */
-unsigned int escorting_a_ship(void);                                   /* 0x43AAC3 */
+short escorting_a_ship(void);                                          /* 0x43AAC3 */
 void flag_reached(short objective, short reached);                     /* 0x43AAFF */
 void check_sighting(short objective, short range, short object);      /* 0x43AD61 */
 void check_visit(short objective, short range);                       /* 0x43ADC4 */
@@ -613,7 +613,7 @@ int AbsInt(int v);                                               /* 0x40A8BF */
 unsigned int SignFixed(int v);                                      /* 0x40A8EB */
 short WrapDegrees(short degrees);                                     /* 0x40A925 */
 short equ_vector(const FixedVector *left, const FixedVector *right);   /* 0x40A981 */
-int IsPairEqualityDifferentFromFlag(const unsigned int *values);      /* 0x40A9D1 */
+short IsPairEqualityDifferentFromFlag(const unsigned int *values);    /* 0x40A9D1 */
 void zero_vector(FixedVector *vector);                                /* 0x40AA0B */
 void negate_vector(FixedVector *vector);                              /* 0x40AA37 */
 void AddFixedVectors(const FixedVector *left, const FixedVector *right,
@@ -672,7 +672,7 @@ void get_facing_range_from_point(short obj, const FixedVector *point);/* 0x40B89
 void get_facing_range_from_object(short obj, short other);            /* 0x40B92F */
 short facing_to_object(short obj, FixedVector *point);                /* 0x40B9B5 */
 short match_roll_orientation(short obj, short reference);             /* 0x40BA2E */
-int set_ship_rotation_goals(short obj, short turnRate,
+short set_ship_rotation_goals(short obj, short turnRate,
                             const FixedVector *direction,
                             short pointingMode,
                             short *yawGoal, short *pitchGoal);         /* 0x40BADB */
@@ -927,7 +927,7 @@ void SaveAndFreeTemporaryCampaignGlobals(void);                        /* 0x4294
 void InitializeCampaignConstellationState(Wc2CampaignGlobals *globals,
                                            short copyPosition);         /* 0x42917D */
 void *LoadWholeDataFile(const char *path);                              /* 0x42949F */
-int alert_flag(short ship, unsigned int bits);                        /* 0x4295A9 */
+short alert_flag(short ship, unsigned int bits);                      /* 0x4295A9 */
 void set_alert(short obj, unsigned int bits);                          /* 0x4295D9 */
 void clear_alert(short obj);                                          /* 0x4295F2 */
 void start_collision_alert(short obj, short other);                   /* 0x429625 */
@@ -937,14 +937,14 @@ short real_crash_time(short obj, short other);                         /* 0x4297
 short crash_time(short obj, short other);                             /* 0x429958 */
 short detect_collisions(short obj);                                   /* 0x4299C9 */
 short unactive(short ship);                                             /* 0x429B55 */
-int are_alive(short obj);                                             /* 0x429BA8 */
+short are_alive(short obj);                                           /* 0x429BA8 */
 void trim_goals(short obj, short amount);                             /* 0x429BF0 */
 short report_kilrathi_rout(int mode);                                 /* 0x429CAD */
 short find_ship_index(short missionShip);                              /* 0x429E24 */
 short try2rout(short obj);                                            /* 0x429EE0 */
 signed char no_goal(short ship);                                       /* 0x42A062 */
 signed char CanSetNewShipTurnGoal(short ship);                         /* 0x42A003 */
-int being_tailed(short obj, short other);                             /* 0x42A0A9 */
+short being_tailed(short obj, short other);                           /* 0x42A0A9 */
 short detect_enemy_tail(short obj);                                    /* 0x42A108 */
 short is_ship_tailing_player_target(short obj);                       /* 0x42A1C5 */
 short FindMissileTargetingObject(short obj);                          /* 0x42A222 */
@@ -980,17 +980,17 @@ short close_behind();                                                 /* 0x42A87
 short scan_for_enemy(short obj, unsigned short range);                  /* 0x42A8B5 */
 short any_enemy(short obj, short range);                              /* 0x42AA0D */
 unsigned int ships_within_range(short obj, short other, short range); /* 0x42AB81 */
-int attacker_in_range(short obj, short range);                          /* 0x42ABCE */
-int in_danger(short obj);                                               /* 0x42ACAF */
+short attacker_in_range(short obj, short range);                        /* 0x42ABCE */
+short in_danger(short obj);                                             /* 0x42ACAF */
 short target_within_range(short obj);                                 /* 0x42ADB8 */
 short build_target_list(short obj, short range);                       /* 0x42AE32 */
 void inherit_leader_mission(short obj);                               /* 0x42AF60 */
 void inherit_leader(short obj);                                         /* 0x42B00A */
 short dead_ship(short missionShip);                                   /* 0x42B0B7 */
-int gone_ship(short missionShip);                                       /* 0x42B0FB */
+short gone_ship(short missionShip);                                     /* 0x42B0FB */
 short skill_check(short obj);                                         /* 0x42B15A */
 short find_ships_sphere(short missionShip);                           /* 0x42B1AE */
-int locate_ship(short missionShip, FixedVector *point);               /* 0x42B2A7 */
+short locate_ship(short missionShip, FixedVector *point);             /* 0x42B2A7 */
 unsigned int get_follow_point(short obj, FixedVector *point);         /* 0x42B38F */
 unsigned int get_first_follow_point(short obj, FixedVector *point);   /* 0x42B524 */
 short hostile_sphere(short obj, short navPoint);                      /* 0x42B565 */
@@ -1475,8 +1475,8 @@ enum ShipManeuver pick_from_list(const ManeuverChoice *choice,
                                  short obj, short event);              /* 0x41F714 */
 enum ShipManeuver pick_kilrathi_maneuver(short obj, int event);        /* 0x41F83F */
 short CountAlliesOnSameTarget(short obj);                               /* 0x41F902 */
-void process_maneuver_node(short obj, int event);                       /* 0x41F9AF */
-void handle_stress(short obj, int event);                              /* 0x41FD2B */
+void process_maneuver_node(short obj, short event);                     /* 0x41F9AF */
+void handle_stress(short obj, short event);                            /* 0x41FD2B */
 void intelligence_events(short obj);                                    /* 0x41FF37 */
 void chase_speed(short obj, short range);                              /* 0x440571 */
 short RandomBelow(short n);                                           /* 0x4618E0 */
@@ -1578,7 +1578,7 @@ void SetFrameTimerPeriod(short period);                                   /* 0x4
 void SetFrameTimerAndWait(short period);                               /* 0x464021 */
 void SetFrameTimerPeriodDirect(short p);                               /* 0x46403D */
 void WaitForFrameTick(void);                                          /* 0x464055 */
-int IsFrameTickElapsed(void);                                            /* 0x464072 */
+short IsFrameTickElapsed(void);                                          /* 0x464072 */
 void *AllocateZeroedRecords(int count, short elementSize, short flags); /* 0x46409B */
 unsigned short GetSoundHardwareFlag(void);                                    /* 0x464141 */
 void *AllocateDefaultMemory(unsigned int size);                         /* 0x464123 */
@@ -1938,7 +1938,7 @@ void DrawSolidColourSpriteScaled(Viewport *viewport, short x, short y,
                                  unsigned char *shape, short frame,
                                  short angle, short scale, short flip,
                                  unsigned char colour);                /* 0x428344 */
-int GetTransformedShapeBounds(Viewport *viewport, short x, short y,
+short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               unsigned char *shape, short frame,
                               short angle, short scale, short flip,
                               short *bounds);                         /* 0x4283A4 */
