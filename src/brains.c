@@ -4329,9 +4329,34 @@ void init_intelligence_data(short obj)
                     g_asShipIntelSlot_00495d30[obj]],
                 0);
             if (obj == g_nYourWingman_0049346c) {
+#ifdef WC1_SDL
+                /* Section 1 is a twelve-byte ShipIntelligenceMetadata, and
+                 * the original reads it straight over the run of wingman
+                 * behaviour shorts starting at 0x496138 -- the record's first
+                 * eight bytes are those four modes.  They are separate
+                 * objects here, so read the record and place them by hand.
+                 * The music and comm fields that follow are only ever read
+                 * from the metadata copy in the branch below, so nothing
+                 * wants the last four bytes on this path. */
+                {
+                    ShipIntelligenceMetadata wingmanIntel;
+
+                    LoadPacketIntoBuffer(intelFilename, 1,
+                                         &wingmanIntel, 0);
+                    memcpy(&g_nWingmanRoutDecisionMode_00496138,
+                           wingmanIntel.field_0, sizeof(short));
+                    memcpy(&g_nWingmanFormationDisobeyMode_0049613a,
+                           wingmanIntel.field_0 + 2, sizeof(short));
+                    memcpy(&g_nWingmanTargetingMode_0049613c,
+                           wingmanIntel.field_0 + 4, sizeof(short));
+                    memcpy(&g_nWingmanEngagementMode_0049613e,
+                           wingmanIntel.field_0 + 6, sizeof(short));
+                }
+#else
                 LoadPacketIntoBuffer(
                     intelFilename, 1,
                     &g_nWingmanRoutDecisionMode_00496138, 0);
+#endif
                 LoadCommPortraitResources(g_acShipPortrait_00495d88[obj]);
                 g_nLoadedCommPortraitPilot_004931c4 = -1;
                 if (g_pCommPortraitResource_0049b788 != 0) {
