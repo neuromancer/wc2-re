@@ -83,21 +83,24 @@ void AdjustSpaceFramePeriod(short adjustment)
                         g_nSpaceFramePeriod_0049d768 + 1);
 }
 
+static const char *g_pszFatalErrorMessage_0049ac98 =
+    "Sorry, an error has occurred.\n"
+    "Please note the following information: %s.\n"
+    "Check your configuration.  If this problem persists, please\n"
+    "call Origin Systems' service line.  We are sorry for the inconvenience.";
+
 /* Function start: 0x437A44 */
 void ReportFatalErrorCode(const char *errorCode)
 {
     FILE *errorFile;
 
+    errorFile = 0;
     errorFile = fopen("err.$$$", "w+");
+    LogMemoryStateToFile(errorFile);
     if (errorFile != 0)
         fclose(errorFile);
-    sprintf(
-        g_szDefaultTextBuffer_005d2b80,
-        "Sorry, an error has occurred.\n"
-        "Please note the following information: %s.\n"
-        "Check your configuration.  If this problem persists, please\n"
-        "call Origin Systems' service line.  We are sorry for the inconvenience.",
-        errorCode);
+    sprintf(g_szDefaultTextBuffer_005d2b80,
+            g_pszFatalErrorMessage_0049ac98, errorCode);
     FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
 }
 
@@ -112,7 +115,7 @@ void exit_squadron(const char *msg, ...)
 }
 
 /* Function start: 0x437AEC */
-unsigned int ShowMemoryStatusDebug(void)
+void ShowMemoryStatusDebug(void)
 {
     TextContext savedContext;
     TextContext *previousContext;
@@ -120,20 +123,21 @@ unsigned int ShowMemoryStatusDebug(void)
 
     previousContext = g_pCurrentTextContext_005c8d1c;
     savedContext = g_stDefaultTextContext_005d2d20;
-    if (g_nShowMemoryStatus_0049d784 != 0) {
-        InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_bPrimaryViewBufferColour_0049cb50,
-            g_cSecondaryViewBufferColour_0049cb4c);
-        SetTextContext(&g_stDefaultTextContext_005d2d20);
-        DrawFormattedText("%X%YCurrent NMem %d.",
-                          0, 176, (int)(short)GetOriginalFreeMemory());
-        sprintf(value, "%ld", GetLargestFreeMemoryBlockByType(0));
-        DrawFormattedText("%X%YCurrent FMem %s.", 0, 184, value);
-        sprintf(value, "%ld", g_dwOriginalFreeMemory_005a7cd8);
-        DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
-        g_stDefaultTextContext_005d2d20 = savedContext;
-    }
+    InitializeTextContextFromFont(
+        &g_stDefaultTextContext_005d2d20, 1,
+        (unsigned char)g_bPrimaryViewBufferColour_0049cb50,
+        g_cSecondaryViewBufferColour_0049cb4c);
+    SetTextContext(&g_stDefaultTextContext_005d2d20);
+    DrawFormattedText("%X%YCurrent NMem %d.", 70, 160,
+                      GetOriginalFreeMemory());
+    sprintf(value, "%ld", GetLargestFreeMemoryBlockByType(0));
+    DrawFormattedText("%X%YLargest Block FMem %s.", 70, 176, value);
+    sprintf(value, "%ld", GetAvailableMainMemory());
+    DrawFormattedText("%X%YCurrent FMem %s.", 70, 168, value);
+    sprintf(value, "%ld", g_dwInitialFreeMemory_005c8dd0);
+    DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
+    sprintf(value, "%ld", GetAvailableFarMemory());
+    DrawFormattedText("%X%YCurrent EMS %s.", 70, 184, value);
+    g_stDefaultTextContext_005d2d20 = savedContext;
     g_pCurrentTextContext_005c8d1c = previousContext;
-    return 0;
 }

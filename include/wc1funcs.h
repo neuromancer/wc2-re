@@ -1116,7 +1116,7 @@ void PersonnelDriveHook();                                            /* 0x464B8
 void SetPersonnelMousePosition(short x, short y);                     /* 0x4199F0 */
 short OffsetSceneHotspotBounds(ShortRect *bounds, const SceneHotspot *hotspot,
                                short offsetX, short offsetY);          /* 0x464F75 */
-unsigned int ShowMemoryStatusDebug(void);                                 /* 0x437AEC */
+void ShowMemoryStatusDebug(void);                                 /* 0x437AEC */
 void exit_squadron(const char *msg, ...);                               /* 0x437AB4 */
 #ifdef WC1_SDL
 void Wc2GameMain(short argc, char **argv);                              /* 0x45C558 */

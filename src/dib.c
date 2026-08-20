@@ -112,7 +112,7 @@ void DIBerror(const char *tag, int hr)
     COM_RELEASE(g_pPrimarySurface_0049ce94);
     IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
     IDirectDraw2_Release(g_pDirectDraw2_0049ce90);
-    OutputDebugStringA(g_szDibErrorMessage_005c33b0);
+    WriteDebugString(g_szDibErrorMessage_005c33b0);
     SetWindowPos(g_hDibWindow_005c33a4, HWND_BOTTOM, 0, 0, 320, 200,
                  SWP_SHOWWINDOW);
     errorFile = fopen("direct.err", "wt+");
@@ -120,6 +120,7 @@ void DIBerror(const char *tag, int hr)
     fclose(errorFile);
     MessageBoxA(0, g_szDibErrorMessage_005c33b0, "DirectDraw Error", MB_ICONERROR);
     exit(1);
+    return;
 #endif
 }
 
@@ -225,127 +226,107 @@ int DIBcascade(int mode, int *reportedResult)
 #else
     DDSURFACEDESC surface;
     HRESULT result;
-    const char *modeText;
 
     if (g_pDirectDraw2_0049ce90 == 0)
         return 1;
 
-    for (;;) {
-        if (mode != -2) {
-            if (mode == -1)
-                g_nDisplayModeCascade_0049cea0 = 0;
-            else
-                g_nDisplayModeCascade_0049cea0++;
-        }
-
-        switch (g_nDisplayModeCascade_0049cea0) {
-        case 0:
-            result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0049ce90, 320, 200, 8, 0, 0);
-            if (reportedResult != 0)
-                *reportedResult = result;
-            if (result != DD_OK) {
-                reportedResult = 0;
-                mode = 0;
-                continue;
-            }
-            modeText = "320x200 achieved...testing\n";
-            break;
-        case 1:
-            result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0049ce90, 640, 400, 8, 0, 0);
-            if (reportedResult != 0)
-                *reportedResult = result;
-            if (result != DD_OK) {
-                reportedResult = 0;
-                mode = 0;
-                continue;
-            }
-            modeText = "640x400 achieved...testing\n";
-            break;
-        case 2:
-            result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
-                g_pDirectDraw2_0049ce90, 640, 480, 8, 0, 0);
-            if (reportedResult != 0)
-                *reportedResult = result;
-            if (result != DD_OK) {
-                reportedResult = 0;
-                mode = 0;
-                continue;
-            }
-            modeText = "640x480 achieved...testing\n";
-            break;
-        default:
-            return 0;
-        }
-
-        OutputDebugStringA(modeText);
-        if (mode == -2) {
-            if (g_pSecondarySurface_0049ce98 != 0) {
-                result = IDirectDrawSurface_Restore(
-                    g_pSecondarySurface_0049ce98);
-                if (reportedResult != 0)
-                    *reportedResult = result;
-                if (result != DD_OK)
-                    DIBerror("DIBcascade   Unable to restore surface (secondary)",
-                             result);
-            }
-
-            result = IDirectDrawSurface_Restore(
-                g_pPrimarySurface_0049ce94);
-            if (reportedResult != 0)
-                *reportedResult = result;
-            if (result != DD_OK)
-                DIBerror("DIBcascade   Unable to restore surface", result);
-
-            result = IDirectDrawSurface_SetPalette(
-                g_pPrimarySurface_0049ce94,
-                g_pDirectDrawPalette_0049ce9c);
-            if (result != DD_OK)
-                DIBerror("DIBcascade   CreatePalette", result);
-            return 1;
-        }
-
-        OutputDebugStringA(" acquiring surface:");
-        memset(&surface, 0, sizeof(surface));
-        surface.dwSize = sizeof(surface);
-        surface.dwFlags = DDSD_CAPS;
-        surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
-        result = IDirectDraw2_CreateSurface(
-            g_pDirectDraw2_0049ce90, &surface,
-            &g_pPrimarySurface_0049ce94, 0);
-        if (reportedResult != 0)
-            *reportedResult = result;
-        if (result != DD_OK) {
-            OutputDebugStringA(" failed\n");
-            mode = 0;
-            IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
-            reportedResult = 0;
-            continue;
-        }
-
-        OutputDebugStringA(" successful\n locking surface:");
-        result = IDirectDrawSurface_Lock(
-            g_pPrimarySurface_0049ce94, 0, &surface,
-            DDLOCK_WAIT, 0);
-        if (reportedResult != 0)
-            *reportedResult = result;
-        if (result == DD_OK) {
-            IDirectDrawSurface_Unlock(
-                g_pPrimarySurface_0049ce94, surface.lpSurface);
-            IDirectDrawSurface_Release(
-                g_pPrimarySurface_0049ce94);
-            g_pPrimarySurface_0049ce94 = 0;
-            OutputDebugStringA(" successful\n");
-            return 1;
-        }
-
-        OutputDebugStringA(" failed\n");
-        mode = 0;
-        IDirectDrawSurface_Release(g_pPrimarySurface_0049ce94);
-        reportedResult = 0;
-        IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
+    if (mode != -2) {
+        if (mode == -1)
+            g_nDisplayModeCascade_0049cea0 = 0;
+        else
+            g_nDisplayModeCascade_0049cea0++;
     }
+
+    switch (g_nDisplayModeCascade_0049cea0) {
+    case 0:
+        result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
+            g_pDirectDraw2_0049ce90, 320, 200, 8, 0, 0);
+        if (reportedResult != 0)
+            *reportedResult = result;
+        if (result != DD_OK)
+            return DIBcascade(0, 0);
+        WriteDebugString("320x200 achieved...testing\n");
+        break;
+    case 1:
+        result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
+            g_pDirectDraw2_0049ce90, 640, 400, 8, 0, 0);
+        if (reportedResult != 0)
+            *reportedResult = result;
+        if (result != DD_OK)
+            return DIBcascade(0, 0);
+        WriteDebugString("640x400 achieved...testing\n");
+        break;
+    case 2:
+        result = g_pDirectDraw2_0049ce90->lpVtbl->SetDisplayMode(
+            g_pDirectDraw2_0049ce90, 640, 480, 8, 0, 0);
+        if (reportedResult != 0)
+            *reportedResult = result;
+        if (result != DD_OK)
+            return DIBcascade(0, 0);
+        WriteDebugString("640x480 achieved...testing\n");
+        break;
+    default:
+        return 0;
+    }
+
+    if (mode == -2) {
+        if (g_pSecondarySurface_0049ce98 != 0) {
+            result = IDirectDrawSurface_Restore(
+                g_pSecondarySurface_0049ce98);
+            if (reportedResult != 0)
+                *reportedResult = result;
+            if (result != DD_OK)
+                DIBerror("DIBcascade   Unable to restore surface (secondary)",
+                         result);
+        }
+
+        result = IDirectDrawSurface_Restore(g_pPrimarySurface_0049ce94);
+        if (reportedResult != 0)
+            *reportedResult = result;
+        if (result != DD_OK)
+            DIBerror("DIBcascade   Unable to restore surface", result);
+
+        result = IDirectDrawSurface_SetPalette(
+            g_pPrimarySurface_0049ce94, g_pDirectDrawPalette_0049ce9c);
+        if (result != DD_OK)
+            DIBerror("DIBcascade   CreatePalette", result);
+        return 1;
+    }
+
+    WriteDebugString(" acquiring surface:");
+    memset(&surface, 0, sizeof(surface));
+    surface.dwSize = sizeof(surface);
+    surface.dwFlags = DDSD_CAPS;
+    surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE;
+    result = IDirectDraw2_CreateSurface(
+        g_pDirectDraw2_0049ce90, &surface,
+        &g_pPrimarySurface_0049ce94, 0);
+    if (reportedResult != 0)
+        *reportedResult = result;
+    if (result != DD_OK) {
+        WriteDebugString(" failed\n");
+        IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
+        return DIBcascade(0, 0);
+    }
+
+    WriteDebugString(" successful\n locking surface:");
+    result = IDirectDrawSurface_Lock(
+        g_pPrimarySurface_0049ce94, 0, &surface, DDLOCK_WAIT, 0);
+    if (reportedResult != 0)
+        *reportedResult = result;
+    if (result != DD_OK) {
+        WriteDebugString(" failed\n");
+        IDirectDrawSurface_Release(g_pPrimarySurface_0049ce94);
+        IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
+        return DIBcascade(0, 0);
+    }
+
+    IDirectDrawSurface_Unlock(g_pPrimarySurface_0049ce94,
+                              surface.lpSurface);
+    IDirectDrawSurface_Release(g_pPrimarySurface_0049ce94);
+    g_pPrimarySurface_0049ce94 = 0;
+    WriteDebugString(" successful\n");
+    return 1;
 #endif
 }
 
