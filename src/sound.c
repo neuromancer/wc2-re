@@ -262,8 +262,17 @@ void ServiceSoundSystem(void)
                     g_bCutsceneSpeechActive_00499eb8 = 0;
                     g_bCutsceneTextAdvance_005d2ed0 = 0;
                     g_pszCutsceneSpeechCursor_00499eb0 = 0;
-                    if (g_pCurrentCutsceneSprite_00499c78 != 0)
-                        g_pCurrentCutsceneSprite_00499c78->currentFrame = 11;
+                    /* g_pCurrentCutsceneSprite_00499c78 is whichever
+                     * object happens to be executing its own script
+                     * opcodes at the moment this runs (set/restored
+                     * around every sprite/plane's dispatch) -- not
+                     * necessarily the speaker. g_pLinkedCutsceneSprite_
+                     * 00499c64 is the sprite opcode 0x8a actually armed
+                     * for mouth animation, the same one
+                     * AnimateCutsceneSpeakerMouth (screens.c) itself
+                     * resets to frame 11 on its own early-return paths. */
+                    if (g_pLinkedCutsceneSprite_00499c64 != 0)
+                        g_pLinkedCutsceneSprite_00499c64->currentFrame = 11;
                 }
             }
             g_nSpeechCompletionDelay_004a265c++;
