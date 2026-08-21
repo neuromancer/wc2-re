@@ -2823,8 +2823,27 @@ handle_queued_cutscene_input:
         case 0x8f:
             value = *(short *)instruction;
             instruction += 2;
+            /* Was 0x3b (59) / value. g_nInputClock_005c84a8 (what this
+             * delay is measured against, see PumpWindowMessages/winmain.c)
+             * ticks in exact 1/60s units -- confirmed independently by
+             * WC2_CUTSCENE_MOUTH_MIN_TICKS=3 meaning exactly 3/60s=50ms=
+             * one 20fps frame elsewhere in this file. Converting a
+             * requested-fps `value` to a tick delay is 60/value, not
+             * 59/value; the sibling opcode 0x8d (above) takes an
+             * already-computed tick delay straight from the script with
+             * no arithmetic at all, so this is specifically the "set rate
+             * by fps" formula and nothing else. With integer division,
+             * 59/value truncates to a smaller (i.e. faster) delay than
+             * 60/value for nearly every value -- e.g. a scene requesting
+             * 20fps gets 59/20=2 ticks/frame (~30fps, 50% too fast)
+             * instead of the correct 60/20=3 (20fps). Different requested
+             * rates truncate by different amounts, which is consistent
+             * with cutscenes running at inconsistent, scene-dependent
+             * speeds rather than a single uniform offset.
+             * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
+             */
             g_nCutsceneFrameDelay_00499c8c =
-                (unsigned short)(0x3b / value);
+                (unsigned short)(0x3c / value);
             break;
         case 0x75:
             index = *instruction++;
