@@ -4,6 +4,10 @@ int g_bWc2SdlCutsceneOnly;
 
 void Wc2SdlRunSelectedCampaignCutscene(void)
 {
+    short savedWingman;
+    signed char savedWingmanType;
+    short savedWingmanDamage;
+
     g_nSelectedCampaignSlot_005d3bf2 = 0;
     ReleaseSpaceflightResources();
     LoadStartingCampaignGlobals(g_nSelectedCampaignSlot_005d3bf2);
@@ -17,6 +21,17 @@ void Wc2SdlRunSelectedCampaignCutscene(void)
     g_pCampaignGlobals_00499c94->field_08 = 0;
     g_pCampaignGlobals_00499c94->arcadeState = 0;
     g_bDeveloperCampaignReady_004926c4 = 0;
+
+    savedWingman = g_nYourWingman_0049346c;
+    if (savedWingman == -1) {
+        /* Direct post-flight scenes need the intact wingman state that the
+         * skipped mission would normally leave in object slot 1. */
+        savedWingmanType = g_acObjectType_00493980[1];
+        savedWingmanDamage = g_asObjectDamage_00495178[1];
+        g_nYourWingman_0049346c = 1;
+        g_acObjectType_00493980[1] = WC2_OBJECT_TYPE_LASER_CANNON;
+        g_asObjectDamage_00495178[1] = 0;
+    }
 
     g_pCutsceneCockpitPalette_00499c0c =
         AllocateScenePointerTable(1, 0x3420, 2, "HB1");
@@ -37,6 +52,11 @@ void Wc2SdlRunSelectedCampaignCutscene(void)
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
     g_pCampaignGlobals_00499c94->field_08 = 0;
 
+    if (savedWingman == -1) {
+        g_acObjectType_00493980[1] = savedWingmanType;
+        g_asObjectDamage_00495178[1] = savedWingmanDamage;
+        g_nYourWingman_0049346c = savedWingman;
+    }
     ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
     g_pActiveCutscenePixels_005c83dc = 0;
     ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
