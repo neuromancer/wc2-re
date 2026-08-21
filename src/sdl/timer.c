@@ -14,6 +14,7 @@ typedef struct SdlTimer {
 static SdlTimer g_aSdlTimers[16];
 static void *g_pSdlTimerFallback;
 static SDL_SpinLock g_nSdlTimerLock;
+static int g_nSdlNextTitleFrameClock;
 
 static Uint32 SdlTimerCallback(Uint32 interval, void *parameter)
 {
@@ -42,6 +43,13 @@ static Uint32 SdlTimerCallback(Uint32 interval, void *parameter)
         return 0;
     callback(id, 0, user, 0, 0);
     return (eventType & SDL_TIME_PERIODIC) != 0 ? period : 0;
+}
+
+void SdlPaceTitleFrame(int ticks)
+{
+    while (g_nInputClock_005c84a8 < g_nSdlNextTitleFrameClock)
+        PumpWindowMessages(0);
+    g_nSdlNextTitleFrameClock = g_nInputClock_005c84a8 + ticks;
 }
 
 UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,
