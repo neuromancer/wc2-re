@@ -11,6 +11,7 @@
 #define ORIGIN_LZW_MAX_CODE_COUNT 0x1000
 #define ORIGIN_PACKET_OFFSET_MASK 0x00ffffffU
 #define ORIGIN_PACKET_MAX_SECTION_SIZE (16U * 1024U * 1024U)
+#define WC2_SDL_TITLE_PATH_SIZE 4096
 
 typedef struct Wc1SdlOriginLzwEntry {
     uint16_t prefix;
@@ -262,6 +263,108 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     *section = output;
     *sectionSize = writtenSize;
     return 1;
+}
+
+static int Wc2SdlOriginPacketHasSectionRange(
+    const char *const *candidates, unsigned int candidateCount,
+    unsigned int firstSection, unsigned int requiredSectionCount)
+{
+    unsigned char *archive;
+    char resolved[WC2_SDL_TITLE_PATH_SIZE];
+    size_t archiveSize;
+    uint32_t declaredFileSize;
+    uint32_t directorySize;
+    uint32_t entry;
+    uint32_t nextEntry;
+    uint32_t packetSectionCount;
+    uint32_t sectionEnd;
+    uint32_t sectionOffset;
+    unsigned int candidate;
+    unsigned int section;
+    int available;
+
+    candidate = 0;
+    while (candidate < candidateCount) {
+        archive = 0;
+        if (Wc1SdlResolvePath(
+                candidates[candidate], resolved, sizeof(resolved))) {
+            archive = (unsigned char *)SDL_LoadFile(
+                resolved, &archiveSize);
+        }
+        candidate++;
+        if (archive == 0)
+            continue;
+
+        available = 0;
+        if (archiveSize >= 8) {
+            declaredFileSize = Wc1SdlReadLittleEndian32(archive);
+            entry = Wc1SdlReadLittleEndian32(archive + 4);
+            directorySize = entry & ORIGIN_PACKET_OFFSET_MASK;
+            if (declaredFileSize <= archiveSize && directorySize >= 8 &&
+                directorySize <= declaredFileSize &&
+                (directorySize & 3U) == 0) {
+                packetSectionCount = (directorySize >> 2) - 1;
+                if (firstSection <= packetSectionCount &&
+                    requiredSectionCount <=
+                        packetSectionCount - firstSection) {
+                    available = 1;
+                    section = firstSection;
+                    while (section <
+                           firstSection + requiredSectionCount) {
+                        entry = Wc1SdlReadLittleEndian32(
+                            archive + ((size_t)section + 1U) * 4U);
+                        sectionOffset =
+                            entry & ORIGIN_PACKET_OFFSET_MASK;
+                        if (section + 1 == packetSectionCount) {
+                            sectionEnd = declaredFileSize;
+                        } else {
+                            nextEntry = Wc1SdlReadLittleEndian32(
+                                archive +
+                                ((size_t)section + 2U) * 4U);
+                            sectionEnd =
+                                nextEntry & ORIGIN_PACKET_OFFSET_MASK;
+                        }
+                        if (sectionOffset < directorySize ||
+                            sectionEnd <= sectionOffset ||
+                            sectionEnd > declaredFileSize) {
+                            available = 0;
+                            break;
+                        }
+                        section++;
+                    }
+                }
+            }
+        }
+        SDL_free(archive);
+        if (available != 0)
+            return 1;
+    }
+    return 0;
+}
+
+int Wc2SdlOriginalTitleSequenceAvailable(void)
+{
+    const char *titleCandidates[2] = {
+        "GAMEDAT/TITLE.VGA", "TITLE.VGA"
+    };
+    const char *fieldCandidates[2] = {
+        "GAMEDAT/FIELD.V00", "FIELD.V00"
+    };
+    const char *rolandMusicCandidates[2] = {
+        "GAMEDAT/MUSIC.R00", "MUSIC.R00"
+    };
+    const char *timbreCandidates[2] = {
+        "GAMEDAT/WING2.TIM", "WING2.TIM"
+    };
+
+    return Wc2SdlOriginPacketHasSectionRange(
+               titleCandidates, 2, 0, 13) &&
+        Wc2SdlOriginPacketHasSectionRange(
+               fieldCandidates, 2, 1, 1) &&
+        Wc2SdlOriginPacketHasSectionRange(
+               rolandMusicCandidates, 2, 19, 1) &&
+        Wc2SdlOriginPacketHasSectionRange(
+               timbreCandidates, 2, 1, 1);
 }
 
 /* Tell a DOS install from a Kilrathi Saga one by the flag byte on a packet

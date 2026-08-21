@@ -872,6 +872,9 @@ void StopMusic(int enabled)
 short StartMusic(void *music)
 {
     SoundDebugPrintf("startMusic %p", music);
+#ifdef WC1_SDL
+    Wc2SdlStartOriginalTitleMusic();
+#endif
     return 0;
 }
 

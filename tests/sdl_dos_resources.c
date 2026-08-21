@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TEST_TITLE_MUSIC_MAX_BLOCKS 4096
+
 typedef struct TestBitWriter {
     unsigned char *bytes;
     size_t byteCapacity;
@@ -158,6 +160,84 @@ static int CheckDosInstallCompletion(void)
         records[76].name[0] == '\0';
 }
 
+static int CheckOriginalTitleResources(void)
+{
+    int result;
+
+    result = 1;
+    if (Wc1SdlChangeDirectory("data/dos") == 0) {
+        result = Wc2SdlOriginalTitleSequenceAvailable();
+        if (Wc1SdlChangeDirectory("../..") != 0)
+            return 0;
+    }
+    if (Wc1SdlChangeDirectory("data/wc2-full") == 0) {
+        result = result && Wc2SdlOriginalTitleSequenceAvailable();
+        if (Wc1SdlChangeDirectory("../..") != 0)
+            return 0;
+    }
+    return result;
+}
+
+static int CheckWindowsTitleMusicBridge(void)
+{
+    short samples[1024 * 2];
+    unsigned int block;
+    unsigned int sample;
+    int heardOutput;
+    int result;
+
+    if (Wc1SdlChangeDirectory("data/wc2-full") != 0)
+        return 1;
+    result = Wc1SdlInitializeOriginFxAudio(0) &&
+        Wc2SdlOriginalTitleMusicReady() &&
+        !Wc1SdlUsingOriginFxMusic() &&
+        !Wc1SdlUsingOriginFxSoundEffects() &&
+        Wc2SdlStartOriginalTitleMusic();
+    block = 0;
+    heardOutput = 0;
+    while (result && block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
+           g_nCurrentMusicTrack_0049be98 == 19) {
+        memset(samples, 0, sizeof(samples));
+        Wc1SdlMixOriginFxMusic(samples, 1024);
+        sample = 0;
+        while (sample < sizeof(samples) / sizeof(samples[0])) {
+            if (samples[sample] != 0)
+                heardOutput = 1;
+            sample++;
+        }
+        Wc1SdlServiceOriginFxMusic();
+        block++;
+    }
+    result = result && heardOutput &&
+        g_nTitleMusicSequenceStage_0049be94 >= 5 &&
+        g_nCurrentMusicTrack_0049be98 == -1;
+    Wc1SdlShutdownOriginFxAudio();
+    if (Wc1SdlChangeDirectory("../..") != 0)
+        return 0;
+    return result;
+}
+
+static int CheckDosTitleMusicCancellation(void)
+{
+    int result;
+
+    if (Wc1SdlChangeDirectory("data/dos") != 0)
+        return 1;
+    g_nCurrentMusicTrack_0049be98 = -1;
+    result = Wc1SdlInitializeOriginFxAudio(1) &&
+        Wc2SdlOriginalTitleMusicReady() &&
+        Wc2SdlStartOriginalTitleMusic();
+    g_nCurrentMusicTrack_0049be98 = -1;
+    Wc1SdlServiceOriginFxMusic();
+    Wc1SdlSetOriginFxMusicTrack(19);
+    Wc1SdlServiceOriginFxMusic();
+    result = result && g_nCurrentMusicTrack_0049be98 == -1;
+    Wc1SdlShutdownOriginFxAudio();
+    if (Wc1SdlChangeDirectory("../..") != 0)
+        return 0;
+    return result;
+}
+
 int main(int argumentCount, char **arguments)
 {
     if (!CheckShortStreams()) {
@@ -174,6 +254,18 @@ int main(int argumentCount, char **arguments)
     }
     if (!CheckDosInstallCompletion()) {
         fprintf(stderr, "DOS INSTALL.DAT completion test failed\n");
+        return 1;
+    }
+    if (!CheckOriginalTitleResources()) {
+        fprintf(stderr, "Original title resource test failed\n");
+        return 1;
+    }
+    if (!CheckWindowsTitleMusicBridge()) {
+        fprintf(stderr, "Windows title music bridge test failed\n");
+        return 1;
+    }
+    if (!CheckDosTitleMusicCancellation()) {
+        fprintf(stderr, "DOS title music cancellation test failed\n");
         return 1;
     }
     return 0;

@@ -1687,6 +1687,14 @@ int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player)
     return player == 0 || player->finished != 0;
 }
 
+unsigned int Wc1SdlOriginFxPlayerSequencePosition(
+    const Wc1SdlOriginFxPlayer *player)
+{
+    if (player == 0)
+        return 0;
+    return player->sequencePosition;
+}
+
 void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                                 short *samples,
                                 unsigned int frameCount,

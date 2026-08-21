@@ -252,6 +252,8 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
     const unsigned char *timbres, size_t timbreSize);
 void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
 int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
+unsigned int Wc1SdlOriginFxPlayerSequencePosition(
+    const Wc1SdlOriginFxPlayer *player);
 int Wc1SdlPlayOriginFxSoundEffect(
     Wc1SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
@@ -267,10 +269,14 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                              short *samples,
                              unsigned int frameCount,
                              unsigned int gain);
-int Wc1SdlInitializeOriginFxAudio(void);
+int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio);
 int Wc1SdlUsingOriginFxMusic(void);
 int Wc1SdlUsingOriginFxSoundEffects(void);
 void Wc1SdlSetOriginFxMusicTrack(int track);
+void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
+int Wc2SdlOriginalTitleMusicReady(void);
+int Wc2SdlStartOriginalTitleMusic(void);
+int Wc2SdlOriginalTitleSequenceAvailable(void);
 int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                               int looping);
 void Wc1SdlServiceOriginFxMusic(void);

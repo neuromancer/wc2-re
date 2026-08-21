@@ -200,8 +200,14 @@ int main(int argumentCount, char **arguments)
              * nor the sfx waves it names, so the OriginFX player takes the
              * audio device and the ix mixer stays out of the way. */
             g_nAudioEnabled_0049c244 = 0;
-            if (!Wc1SdlInitializeOriginFxAudio())
+        }
+        if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
+            if (usingDosData) {
                 fprintf(stderr, "DOS audio is unavailable.\n");
+            } else {
+                fprintf(stderr,
+                        "Original orchestral intro music is unavailable.\n");
+            }
         }
         /* The flight loop waits one timer period per frame, so this is the
          * frame duration in 60ths of a second less one -- the readout in

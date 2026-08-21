@@ -87,6 +87,11 @@ void RunGameApplication(short argc, char **argv)
     }
 
     if (g_bDirectMissionLaunch_0049d798 == 0) {
+#ifdef WC1_SDL
+        if (Wc2SdlOriginalTitleMusicReady() &&
+            Wc2SdlOriginalTitleSequenceAvailable())
+            Title_Sequence();
+#endif
         g_bSceneEscapeRequested_0049d4b0 = 0;
         for (;;) {
             if (g_nOriginDevUnlock_0049d774 != 0 &&

@@ -38,6 +38,13 @@ sixty-seven sections are empty, and a track without a sequence simply reports
 itself finished so the script moves on. `GAMEDAT/WING2.TIM` section 1 supplies
 the 124 AdLib timbres those sequences play through.
 
+The native port also restores WC2's original orchestral startup. Its graphics
+remain in `TITLE.VGA` and `FIELD.V00`, while the synchronized score and its
+sequence markers are in `MUSIC.R00` section 19. Both the DOS and Kilrathi Saga
+data sets retain these packets. With Kilrathi Saga data, only that score is
+mixed through the OriginFX player; normal music continues to use the recorded
+`STREAMS` files.
+
 The DOS release describes sound effects as compact OriginFX command records,
 not sampled WAV or VOC files. The game still carries that table and retunes
 entries in it while it runs, so the host reads the live table rather than a

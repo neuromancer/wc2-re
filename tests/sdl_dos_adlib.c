@@ -10,6 +10,7 @@
 #define TEST_DOS_MUSIC_SECTION_COUNT 67
 #define TEST_DOS_MUSIC_SEQUENCE_COUNT 49
 #define TEST_DOS_MUSIC_AUDIBLE_BLOCKS 64
+#define TEST_TITLE_MUSIC_MAX_BLOCKS 4096
 /* Enough synthetic records to exercise a timed effect, a held one, and a sound
  * number past the end of the table. */
 #define TEST_SOUND_RECORD_COUNT 36
@@ -667,6 +668,76 @@ static int CheckRetailDosSongs(void)
     return result;
 }
 
+static int CheckRetailTitleMusicMarkers(void)
+{
+    unsigned char *musicArchive;
+    unsigned char *timbreArchive;
+    unsigned char *timbres;
+    unsigned char *midi;
+    short samples[1024 * 2];
+    Wc1SdlOriginFxPlayer *player;
+    size_t musicArchiveSize;
+    size_t timbreArchiveSize;
+    size_t timbreSize;
+    size_t midiSize;
+    unsigned int block;
+    unsigned int position;
+    unsigned int previousPosition;
+    int heardOutput;
+    int result;
+
+    musicArchive = (unsigned char *)SDL_LoadFile(
+        "data/dos/GAMEDAT/MUSIC.R00", &musicArchiveSize);
+    timbreArchive = (unsigned char *)SDL_LoadFile(
+        "data/dos/GAMEDAT/WING2.TIM", &timbreArchiveSize);
+    if (musicArchive == 0 && timbreArchive == 0)
+        return 1;
+    if (musicArchive == 0 || timbreArchive == 0) {
+        SDL_free(musicArchive);
+        SDL_free(timbreArchive);
+        return 0;
+    }
+
+    timbres = 0;
+    midi = 0;
+    result = Wc1SdlExtractOriginPacketSection(
+        timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize) &&
+        Wc1SdlExtractOriginPacketSection(
+            musicArchive, musicArchiveSize, 19, &midi, &midiSize);
+    SDL_free(musicArchive);
+    SDL_free(timbreArchive);
+    if (!result) {
+        free(timbres);
+        free(midi);
+        return 0;
+    }
+    player = Wc1SdlCreateOriginFxPlayer(
+        midi, midiSize, timbres, timbreSize);
+    free(timbres);
+    free(midi);
+    if (player == 0)
+        return 0;
+
+    block = 0;
+    previousPosition = 0;
+    heardOutput = 0;
+    while (block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
+           !Wc1SdlOriginFxPlayerFinished(player)) {
+        Wc1SdlRenderOriginFxPlayer(player, samples, 1024, 0x7fff);
+        if (SumAbsoluteSamples(samples, 0, 1024) != 0)
+            heardOutput = 1;
+        position = Wc1SdlOriginFxPlayerSequencePosition(player);
+        if (position < previousPosition)
+            result = 0;
+        previousPosition = position;
+        block++;
+    }
+    result = result && Wc1SdlOriginFxPlayerFinished(player) &&
+        previousPosition >= 5 && heardOutput;
+    Wc1SdlDestroyOriginFxPlayer(player);
+    return result;
+}
+
 int main(int argumentCount, char **arguments)
 {
     if (!CheckSyntheticSong()) {
@@ -707,6 +778,10 @@ int main(int argumentCount, char **arguments)
     }
     if (!CheckRetailDosSongs()) {
         fprintf(stderr, "Retail DOS OriginFX song test failed\n");
+        return 1;
+    }
+    if (!CheckRetailTitleMusicMarkers()) {
+        fprintf(stderr, "Retail title music marker test failed\n");
         return 1;
     }
     return 0;
