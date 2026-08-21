@@ -248,27 +248,43 @@ void ServiceSoundSystem(void)
                 if (g_bSpaceFlightActive_005c586c == 0)
                     g_nInputPressCount_0049c258 = 1;
                 g_bSpeechSoundActive_004a2660 = 0;
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    /* Was SetCinematicFrameTiming(70.0f). 70fps appears
-                     * nowhere else in the engine and is a ~3.5x spike over
-                     * the 20fps rate PlayRawSpeechSound sets when speech
-                     * starts (this same file, above). Cutscene mouth timing
-                     * (AnimateCutsceneSpeakerMouth, screens.c) holds each
-                     * shape for as little as 1/60s -- already shorter than
-                     * one 20fps frame -- against a clock resynced every
-                     * frame to real elapsed time, so mouth state advances
-                     * at whatever rate frames actually render, not at its
-                     * authored rate. A frame-rate spike exactly when speech
-                     * ends is the worst possible moment for that: mouth
-                     * state races far ahead of the (already-stopped, but
-                     * still audibly trailing) speech audio right as it
-                     * needs to settle back to neutral. Holding the rate
-                     * steady through this transition removes that spike;
-                     * it does not by itself fix the underlying sub-frame
-                     * duration issue (see the docs cited below).
+                if (g_bSpaceFlightActive_005c586c == 0) {
+                    /* Was SetCinematicFrameTiming(70.0f). That call is not
+                     * an isolated bug -- it exists to paper over a real
+                     * problem: AnimateCutsceneSpeakerMouth (screens.c)
+                     * drives the mouth from the caption TEXT, at its own
+                     * per-letter pace, completely independent of how long
+                     * the actual speech audio clip runs. If the audio
+                     * (real recorded VO on this Kilrathi Saga release,
+                     * unlike the DOS original's synthesized speech) is
+                     * shorter than the text still has left to animate,
+                     * the mouth keeps moving with no sound playing --
+                     * this is the exact "waited 20 service calls, audio's
+                     * definitely done" branch that detects that state.
+                     * The original fix was to spike the frame rate 3.5x
+                     * to rush through the remaining text faster, since
+                     * mouth state only advances when a frame renders (see
+                     * the docs cited below) -- treating the symptom, not
+                     * the cause, and badly: it also speeds up every other
+                     * sprite/plane/sequence on screen for that window, not
+                     * just the mouth.
+                     *
+                     * Root-cause fix: stop the mouth directly instead.
+                     * This is the exact reset AnimateCutsceneSpeakerMouth
+                     * already performs on its own once it notices speech
+                     * is inactive (g_wSpeechCacheState_0049bb60 == 0) --
+                     * forcing it here means it happens the instant this
+                     * function decides speech has truly ended, not
+                     * whenever the mouth-text finally catches up on its
+                     * own pace.
                      * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
                      */
-                    SetCinematicFrameTiming(20.0f);
+                    g_bCutsceneSpeechActive_00499eb8 = 0;
+                    g_bCutsceneTextAdvance_005d2ed0 = 0;
+                    g_pszCutsceneSpeechCursor_00499eb0 = 0;
+                    if (g_pCurrentCutsceneSprite_00499c78 != 0)
+                        g_pCurrentCutsceneSprite_00499c78->currentFrame = 11;
+                }
             }
         }
     }
