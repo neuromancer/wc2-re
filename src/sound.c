@@ -231,51 +231,32 @@ void ServiceSoundSystem(void)
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
 #ifdef WC1_SDL
-        /* The speech sound is created delete-on-stop, so the call above can
-         * have freed it; the original read the dead block anyway. */
-        if (!ix_sound_is_live(g_pSpeechSound_004a2658))
-            g_pSpeechSound_004a2658 = 0;
+        /* The speech sound is delete-on-stop, so the call above can have
+         * freed it already this frame. Evaluate liveness into a local
+         * before touching g_pSpeechSound_004a2658, so a same-frame free
+         * still runs the stopped-handling block below instead of being
+         * skipped because the pointer already reads as 0. */
+        int speechIsLive = g_pSpeechSound_004a2658 != 0 &&
+                            ix_sound_is_live(g_pSpeechSound_004a2658);
+#else
+        int speechIsLive = 1;
 #endif
         if (g_pSpeechSound_004a2658 != 0 &&
-            ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
+            (!speechIsLive || ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) &&
             g_nSpeechCompletionDelay_004a265c <= 20) {
-            /* Outer condition was g_bSpeechSoundActive_004a2660 != 0, which
-             * this branch itself used to clear only past the >20 check
-             * below -- a one-shot re-entry gate that this rewrite
-             * preserves via g_nSpeechCompletionDelay_004a265c instead (it
-             * resets to 0 in PlayRawSpeechSound whenever a genuinely new
-             * clip starts, same as g_bSpeechSoundActive_004a2660 did, so
-             * this stays equivalent for that purpose). Freed up because
-             * the mouth/script reset below now needs to fire on the FIRST
-             * frame audio is observed stopped, not the 21st, without
-             * changing when g_nInputPressCount_0049c258 fires below --
-             * see that reset's own comment for why. */
+            /* g_nSpeechCompletionDelay_004a265c gates re-entry instead of
+             * g_bSpeechSoundActive_004a2660: it resets to 0 in
+             * PlayRawSpeechBuffer whenever a new clip starts, so this
+             * block still only fires once per stopped clip, but the reset
+             * below can run on the first frame audio is observed stopped
+             * rather than waiting for the full grace period. */
             if (g_nSpeechCompletionDelay_004a265c == 0) {
-                /* Was SetCinematicFrameTiming(70.0f), then (in an earlier
-                 * revision of this fix) the same reset as below but only
-                 * once this whole function had already waited out the
-                 * full 20-tick grace period before running it. That
-                 * grace period exists to decide when to force-advance to
-                 * the next script line (g_nInputPressCount_0049c258
-                 * below) if nothing else happens -- it has nothing to do
-                 * with the mouth, but both were gated on the same
-                 * countdown. The cutscene script itself directly reads
-                 * g_bCutsceneTextAdvance_005d2ed0 (opcode 0x9c,
-                 * PushCutsceneScriptValue, screens.c) to know when
-                 * speech has finished, almost certainly in a "wait while
-                 * still talking" loop before advancing to the next
-                 * line -- so leaving this flag set for the full grace
-                 * period didn't just leave the mouth animating too long
-                 * (already fixed, see AnimateCutsceneSpeakerMouth), it
-                 * also blocked the *next line itself* from starting for
-                 * that same ~20-tick window, worst-case (and most
-                 * visible) whenever pre-caching left no other script
-                 * work to cover it -- i.e. consecutive lines from the
-                 * same character. Doing this reset the instant audio is
-                 * observed stopped, instead of waiting for the grace
-                 * period even that far, removes that delay too.
-                 * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
-                 */
+                /* The cutscene script polls g_bCutsceneTextAdvance_005d2ed0
+                 * (opcode 0x9c, screens.c) to know when speech has
+                 * finished before advancing to the next line, so clearing
+                 * these here -- immediately on stop, not after the grace
+                 * period below -- keeps both the mouth and the next
+                 * line's start in sync with when audio actually ends. */
                 g_bSpeechSoundActive_004a2660 = 0;
                 if (g_bSpaceFlightActive_005c586c == 0) {
                     g_bCutsceneSpeechActive_00499eb8 = 0;
@@ -294,6 +275,10 @@ void ServiceSoundSystem(void)
                     g_nInputPressCount_0049c258 = 1;
             }
         }
+#ifdef WC1_SDL
+        if (!speechIsLive)
+            g_pSpeechSound_004a2658 = 0;
+#endif
     }
 }
 

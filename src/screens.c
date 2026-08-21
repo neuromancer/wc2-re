@@ -496,41 +496,23 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         return;
     }
     if (g_bSpeechSoundActive_004a2660 == 0) {
-        /* Script-armed to talk (opcode 0x8a sets
-         * g_bCutsceneTextAdvance_005d2ed0) but the paired speech clip
-         * (opcode 0xb0) hasn't actually started producing audio yet.
-         * These two are separate, unsynchronized script events -- 0xb0
-         * only reaches here without a delay when its pre-cache (opcode
-         * 0xa2, LoadCutsceneSpeechSlot) finished in time; otherwise it
-         * falls back to LoadAndPlaySpeechPacket (music.c), a fully
-         * synchronous blocking disk load with no message-pump
-         * interleaving of its own. A same-character line immediately
-         * following another leaves less script time for 0xa2 to have
-         * completed than a speaker change does, making this fallback
-         * (and this gap) far more likely there -- matching "mouth moves
-         * during a pause, but only between two lines from the same
-         * character" exactly. g_bSpeechSoundActive_004a2660 is set the
-         * moment real playback actually begins (PlayRawSpeechBuffer,
-         * sound.c) -- hold the current frame instead of animating from
-         * text alone until that's true.
-         * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
-         */
+        /* Opcode 0x8a arms text-advance independently of when the paired
+         * speech clip (opcode 0xb0) actually starts producing audio --
+         * 0xb0's own cache miss falls back to a synchronous blocking disk
+         * load (LoadAndPlaySpeechPacket, music.c). Hold the current frame
+         * instead of animating from text alone until
+         * g_bSpeechSoundActive_004a2660 is set, which happens only once
+         * real playback begins (PlayRawSpeechBuffer, sound.c). */
         return;
     }
     if (g_pSpeechSound_004a2658 != 0 &&
         ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) {
-        /* The other end of the same gap: g_bSpeechSoundActive_004a2660
-         * only clears once ServiceSoundSystem (sound.c) has waited out
-         * its own ~20-tick grace period after audio is first observed
-         * stopped -- that delay exists to decide when to force-advance
-         * to the next script line, not to decide whether the mouth
-         * should still be moving, but AnimateCutsceneSpeakerMouth was
-         * reading the same flag for both. Check the sound object's own
-         * live state directly instead: stop animating the instant
-         * playback actually stops, without waiting on or touching that
-         * unrelated grace-period/advance logic at all.
-         * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
-         */
+        /* g_bSpeechSoundActive_004a2660 clears only after
+         * ServiceSoundSystem's (sound.c) grace period, which exists to
+         * decide when to force-advance the script, not whether the mouth
+         * should keep moving. Check the sound object's own playing state
+         * directly instead, so the mouth stops the instant playback
+         * actually stops. */
         return;
     }
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
