@@ -14,6 +14,7 @@
 static char g_szLastCutsceneWorkBuffer_00499ec0[16] = "@@@@@@@@@@";
 static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
 
+#ifdef WC1_SDL
 /* Not an original engine flag -- tracks whether any speech clip has
  * actually played yet in the cutscene currently running (reset once per
  * RunLoadedCutscene call, set the first time AnimateCutsceneSpeakerMouth
@@ -23,6 +24,7 @@ static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
  * cutscene has no audio" (animate from text, same as the original always
  * did) -- otherwise every unvoiced line blocks forever. */
 static signed char g_bCutsceneSpeechAudioSeen = 0;
+#endif
 
 /* Function start: 0x42BDDB */
 signed char HasCutsceneMusicNode(CutsceneMusicNode *node)
@@ -505,6 +507,12 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
+#ifdef WC1_SDL
+    /* The two gates below have no original-engine equivalent -- the
+     * reference build always animated the mouth straight from text,
+     * regardless of audio. Kept port-only so the reference build stays
+     * byte-comparable to the original for verification; see the PR
+     * discussion this note is based on. */
     if (g_bSpeechSoundActive_004a2660 != 0) {
         g_bCutsceneSpeechAudioSeen = 1;
     } else if (g_bCutsceneSpeechAudioSeen != 0) {
@@ -531,6 +539,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
          * actually stops. */
         return;
     }
+#endif
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0) {
         g_bCutsceneSpeechActive_00499eb8 =
@@ -807,6 +816,7 @@ void RunLoadedCutscene(void)
     short savedInputPollPeriod;
     short savedMemoryStatus;
 
+#ifdef WC1_SDL
     /* None of these are reset by the previous cutscene's own teardown
      * (ReleaseCutsceneSpeechPackets only clears the precache slot
      * arrays), so a cutscene torn down while its last line was still
@@ -822,11 +832,14 @@ void RunLoadedCutscene(void)
      * playing, it finishes on its own and self-deletes via
      * ix_sound_set_delete_on_stop, just no longer tracked here. Also
      * done unconditionally in stop_all_sounds (sound.c) now, but that is
-     * not reliably called between every cutscene, so this stays too. */
+     * not reliably called between every cutscene, so this stays too. Port
+     * only, like the mouth-gating logic it protects -- the original never
+     * reset any of this here. */
     g_pSpeechSound_004a2658 = 0;
     g_bSpeechSoundActive_004a2660 = 0;
     g_nSpeechCompletionDelay_004a265c = 0;
     g_bCutsceneSpeechAudioSeen = 0;
+#endif
     savedTextContext = g_pCurrentTextContext_005c8d1c;
     savedInputPollPeriod = g_nInputPollPeriod_0049d6d8;
     savedMemoryStatus = g_cShowMemoryStatus;
@@ -2877,14 +2890,14 @@ handle_queued_cutscene_input:
         case 0x8f:
             value = *(short *)instruction;
             instruction += 2;
-            /* Was 0x3b (59) / value. g_nInputClock_005c84a8 (what this
-             * delay is measured against, see PumpWindowMessages/winmain.c)
-             * ticks in exact 1/60s units -- confirmed independently by
-             * WC2_CUTSCENE_MOUTH_MIN_TICKS=3 meaning exactly 3/60s=50ms=
-             * one 20fps frame elsewhere in this file. Converting a
-             * requested-fps `value` to a tick delay is 60/value, not
-             * 59/value; the sibling opcode 0x8d (above) takes an
-             * already-computed tick delay straight from the script with
+            /* The original divides by 0x3b (59), not 0x3c (60).
+             * g_nInputClock_005c84a8 (what this delay is measured against,
+             * see PumpWindowMessages/winmain.c) ticks in exact 1/60s units
+             * -- confirmed independently by WC2_CUTSCENE_MOUTH_MIN_TICKS=3
+             * meaning exactly 3/60s=50ms=one 20fps frame elsewhere in this
+             * file. Converting a requested-fps `value` to a tick delay is
+             * 60/value, not 59/value; the sibling opcode 0x8d (above) takes
+             * an already-computed tick delay straight from the script with
              * no arithmetic at all, so this is specifically the "set rate
              * by fps" formula and nothing else. With integer division,
              * 59/value truncates to a smaller (i.e. faster) delay than
@@ -2893,11 +2906,18 @@ handle_queued_cutscene_input:
              * instead of the correct 60/20=3 (20fps). Different requested
              * rates truncate by different amounts, which is consistent
              * with cutscenes running at inconsistent, scene-dependent
-             * speeds rather than a single uniform offset.
+             * speeds rather than a single uniform offset. Corrected on the
+             * port only -- the reference build keeps the original's own
+             * 0x3b so it stays byte-comparable for verification.
              * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
              */
+#ifdef WC1_SDL
             g_nCutsceneFrameDelay_00499c8c =
                 (unsigned short)(0x3c / value);
+#else
+            g_nCutsceneFrameDelay_00499c8c =
+                (unsigned short)(0x3b / value);
+#endif
             break;
         case 0x75:
             index = *instruction++;

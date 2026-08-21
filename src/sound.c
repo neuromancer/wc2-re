@@ -237,16 +237,18 @@ void ServiceSoundSystem(void)
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
 #ifdef WC1_SDL
-        /* The speech sound is delete-on-stop, so the call above can have
+        /* This whole block is a port-only rewrite of the original's
+         * speech-completion handling (see the #else branch for that);
+         * kept behind WC1_SDL so the reference build stays byte-
+         * comparable to the original for verification.
+         *
+         * The speech sound is delete-on-stop, so the call above can have
          * freed it already this frame. Evaluate liveness into a local
          * before touching g_pSpeechSound_004a2658, so a same-frame free
          * still runs the stopped-handling block below instead of being
          * skipped because the pointer already reads as 0. */
         int speechIsLive = g_pSpeechSound_004a2658 != 0 &&
                             ix_sound_is_live(g_pSpeechSound_004a2658);
-#else
-        int speechIsLive = 1;
-#endif
         if (g_pSpeechSound_004a2658 != 0 &&
             (!speechIsLive || ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) &&
             g_nSpeechCompletionDelay_004a265c <= 20) {
@@ -292,9 +294,25 @@ void ServiceSoundSystem(void)
                     g_nInputPressCount_0049c258 = 1;
             }
         }
-#ifdef WC1_SDL
         if (!speechIsLive)
             g_pSpeechSound_004a2658 = 0;
+#else
+        if (g_pSpeechSound_004a2658 != 0 &&
+            ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
+            g_bSpeechSoundActive_004a2660 != 0) {
+            g_nSpeechCompletionDelay_004a265c++;
+            if (g_bSpaceFlightActive_005c586c != 0) {
+                g_bSpeechPlaybackComplete_004a266c = 1;
+                g_bSpeechSoundActive_004a2660 = 0;
+            }
+            if (g_nSpeechCompletionDelay_004a265c > 20) {
+                if (g_bSpaceFlightActive_005c586c == 0)
+                    g_nInputPressCount_0049c258 = 1;
+                g_bSpeechSoundActive_004a2660 = 0;
+                if (g_bSpaceFlightActive_005c586c == 0)
+                    SetCinematicFrameTiming(70.0f);
+            }
+        }
 #endif
     }
 }
