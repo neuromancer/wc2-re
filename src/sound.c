@@ -238,53 +238,60 @@ void ServiceSoundSystem(void)
 #endif
         if (g_pSpeechSound_004a2658 != 0 &&
             ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
-            g_bSpeechSoundActive_004a2660 != 0) {
-            g_nSpeechCompletionDelay_004a265c++;
-            if (g_bSpaceFlightActive_005c586c != 0) {
-                g_bSpeechPlaybackComplete_004a266c = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
-            }
-            if (g_nSpeechCompletionDelay_004a265c > 20) {
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    g_nInputPressCount_0049c258 = 1;
+            g_nSpeechCompletionDelay_004a265c <= 20) {
+            /* Outer condition was g_bSpeechSoundActive_004a2660 != 0, which
+             * this branch itself used to clear only past the >20 check
+             * below -- a one-shot re-entry gate that this rewrite
+             * preserves via g_nSpeechCompletionDelay_004a265c instead (it
+             * resets to 0 in PlayRawSpeechSound whenever a genuinely new
+             * clip starts, same as g_bSpeechSoundActive_004a2660 did, so
+             * this stays equivalent for that purpose). Freed up because
+             * the mouth/script reset below now needs to fire on the FIRST
+             * frame audio is observed stopped, not the 21st, without
+             * changing when g_nInputPressCount_0049c258 fires below --
+             * see that reset's own comment for why. */
+            if (g_nSpeechCompletionDelay_004a265c == 0) {
+                /* Was SetCinematicFrameTiming(70.0f), then (in an earlier
+                 * revision of this fix) the same reset as below but only
+                 * once this whole function had already waited out the
+                 * full 20-tick grace period before running it. That
+                 * grace period exists to decide when to force-advance to
+                 * the next script line (g_nInputPressCount_0049c258
+                 * below) if nothing else happens -- it has nothing to do
+                 * with the mouth, but both were gated on the same
+                 * countdown. The cutscene script itself directly reads
+                 * g_bCutsceneTextAdvance_005d2ed0 (opcode 0x9c,
+                 * PushCutsceneScriptValue, screens.c) to know when
+                 * speech has finished, almost certainly in a "wait while
+                 * still talking" loop before advancing to the next
+                 * line -- so leaving this flag set for the full grace
+                 * period didn't just leave the mouth animating too long
+                 * (already fixed, see AnimateCutsceneSpeakerMouth), it
+                 * also blocked the *next line itself* from starting for
+                 * that same ~20-tick window, worst-case (and most
+                 * visible) whenever pre-caching left no other script
+                 * work to cover it -- i.e. consecutive lines from the
+                 * same character. Doing this reset the instant audio is
+                 * observed stopped, instead of waiting for the grace
+                 * period even that far, removes that delay too.
+                 * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
+                 */
                 g_bSpeechSoundActive_004a2660 = 0;
                 if (g_bSpaceFlightActive_005c586c == 0) {
-                    /* Was SetCinematicFrameTiming(70.0f). That call is not
-                     * an isolated bug -- it exists to paper over a real
-                     * problem: AnimateCutsceneSpeakerMouth (screens.c)
-                     * drives the mouth from the caption TEXT, at its own
-                     * per-letter pace, completely independent of how long
-                     * the actual speech audio clip runs. If the audio
-                     * (real recorded VO on this Kilrathi Saga release,
-                     * unlike the DOS original's synthesized speech) is
-                     * shorter than the text still has left to animate,
-                     * the mouth keeps moving with no sound playing --
-                     * this is the exact "waited 20 service calls, audio's
-                     * definitely done" branch that detects that state.
-                     * The original fix was to spike the frame rate 3.5x
-                     * to rush through the remaining text faster, since
-                     * mouth state only advances when a frame renders (see
-                     * the docs cited below) -- treating the symptom, not
-                     * the cause, and badly: it also speeds up every other
-                     * sprite/plane/sequence on screen for that window, not
-                     * just the mouth.
-                     *
-                     * Root-cause fix: stop the mouth directly instead.
-                     * This is the exact reset AnimateCutsceneSpeakerMouth
-                     * already performs on its own once it notices speech
-                     * is inactive (g_wSpeechCacheState_0049bb60 == 0) --
-                     * forcing it here means it happens the instant this
-                     * function decides speech has truly ended, not
-                     * whenever the mouth-text finally catches up on its
-                     * own pace.
-                     * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
-                     */
                     g_bCutsceneSpeechActive_00499eb8 = 0;
                     g_bCutsceneTextAdvance_005d2ed0 = 0;
                     g_pszCutsceneSpeechCursor_00499eb0 = 0;
                     if (g_pCurrentCutsceneSprite_00499c78 != 0)
                         g_pCurrentCutsceneSprite_00499c78->currentFrame = 11;
                 }
+            }
+            g_nSpeechCompletionDelay_004a265c++;
+            if (g_bSpaceFlightActive_005c586c != 0) {
+                g_bSpeechPlaybackComplete_004a266c = 1;
+            }
+            if (g_nSpeechCompletionDelay_004a265c > 20) {
+                if (g_bSpaceFlightActive_005c586c == 0)
+                    g_nInputPressCount_0049c258 = 1;
             }
         }
     }
