@@ -240,7 +240,7 @@ int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio)
         g_bWc1SdlOriginFxMusicSelected = 1;
         g_bWc1SdlOriginFxSoundSelected = 1;
         fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
-    } else {
+    } else if (g_bWc2SdlCutsceneOnly == 0) {
         fprintf(stderr, "Original orchestral intro music enabled.\n");
     }
     return 1;
@@ -275,6 +275,8 @@ void Wc1SdlSetOriginFxMusicTrack(int track)
 
 int Wc2SdlOriginalTitleMusicReady(void)
 {
+    if (g_bWc2SdlCutsceneOnly != 0)
+        return 1;
     return g_bWc1SdlDosMusicInitialized != 0 &&
         g_pWc2SdlTitleMusicArchive != 0;
 }

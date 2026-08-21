@@ -357,6 +357,11 @@ int Wc2SdlOriginalTitleSequenceAvailable(void)
         "GAMEDAT/WING2.TIM", "WING2.TIM"
     };
 
+    if (g_bWc2SdlCutsceneOnly != 0) {
+        Wc2SdlRunSelectedCampaignCutscene();
+        Wc2SdlFinishCutsceneOnly();
+        return 0;
+    }
     return Wc2SdlOriginPacketHasSectionRange(
                titleCandidates, 2, 0, 13) &&
         Wc2SdlOriginPacketHasSectionRange(

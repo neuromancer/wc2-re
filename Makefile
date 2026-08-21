@@ -122,6 +122,11 @@ MODERN_ARGS ?=
 SERIES ?= 1
 MISSION ?= 0
 MISSION_FLAGS ?=
+MODERN_CUTSCENE_SERIES = 1 2 3 4 5 6 7 8 9 10 11 12 13
+MODERN_CUTSCENE_JOBS ?= 4
+MODERN_CUTSCENE_SELECTORS := $(filter-out v7-t3 v13-t3,\
+	$(foreach series,$(MODERN_CUTSCENE_SERIES),\
+		$(addprefix v$(series)-t,0 1 2 3)))
 
 MODERN_CC ?= cc
 MODERN_CXX ?= c++
@@ -415,6 +420,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
+	src/sdl/cutscene.c \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
@@ -661,6 +667,60 @@ run-modern-dos: run-modern
 run-modern-mission: MODERN_ARGS = Origin v$(SERIES) t$(MISSION) e \
 	$(MISSION_FLAGS) ignored
 run-modern-mission: run-modern
+
+# Run the campaign cutscene selected by the original developer arguments.  The
+# SDL host invokes the campaign VM directly and exits when it returns.
+run-modern-cutscene: MODERN_ARGS = --cutscene-only Origin v$(SERIES) \
+	t$(MISSION) ignored
+run-modern-cutscene: run-modern
+
+# MODULE.000 has four mission slots per series.  The base campaign uses every
+# slot in series 1-13 except the empty fourth slots in series 7 and 13.
+modern-test-cutscenes: modern
+	+@status=0; \
+	$(MAKE) --no-print-directory --keep-going \
+		-j$(MODERN_CUTSCENE_JOBS) \
+		$(addprefix modern-test-cutscene-,$(MODERN_CUTSCENE_SELECTORS)) || \
+		status=$$?; \
+	if test $$status -ne 0; then \
+		echo "Cutscene sanitizer sweep failed; inspect the logs above." >&2; \
+		exit $$status; \
+	fi; \
+	echo "Cutscene sanitizer sweep passed: 50 sequences."
+
+modern-test-cutscene-%: modern
+	@selector="$*"; \
+	series=$${selector#v}; \
+	mission=$${series##*-t}; \
+	series=$${series%%-t*}; \
+	case "$(MODERN_RUN_DIR)" in \
+		/*) modern_run_dir="$(MODERN_RUN_DIR)" ;; \
+		*) modern_run_dir="$(CURDIR)/$(MODERN_RUN_DIR)" ;; \
+	esac; \
+	test -d "$$modern_run_dir" || { \
+		echo "Modern run directory does not exist: $$modern_run_dir" >&2; \
+		exit 1; \
+	}; \
+	log_dir="$(CURDIR)/$(MODERN_OUT_DIR)/cutscene-asan"; \
+	mkdir -p "$$log_dir"; \
+	log="$$log_dir/$$selector.log"; \
+	echo "Running cutscene $$selector"; \
+	cd "$$modern_run_dir" && \
+		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		ASAN_OPTIONS=halt_on_error=1:abort_on_error=1 \
+		UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+		"$(CURDIR)/$(MODERN_TARGET)" --cutscene-only \
+		Origin "v$$series" "t$$mission" ignored \
+		>"$$log" 2>&1; \
+	status=$$?; \
+	if test $$status -ne 0 || \
+		grep -Eq 'ERROR: AddressSanitizer|runtime error:' "$$log"; then \
+		echo "Cutscene $$selector failed; see $$log" >&2; \
+		grep -E 'ERROR: AddressSanitizer|runtime error:|SUMMARY: (AddressSanitizer|UndefinedBehaviorSanitizer)' \
+			"$$log" >&2 || tail -n 20 "$$log" >&2; \
+		exit 1; \
+	fi; \
+	echo "Passed cutscene $$selector"
 
 -include $(MODERN_DEPFILES)
 
@@ -1139,6 +1199,7 @@ clean-modern:
 	modern \
 	modern-check-deps \
 	modern-test \
+	modern-test-cutscenes \
 	modern-test-full \
 	msvc41-toolchain \
 	order \
@@ -1148,6 +1209,7 @@ clean-modern:
 	run-check \
 	stage-run \
 	run-modern \
+	run-modern-cutscene \
 	run-modern-dos \
 	run-modern-mission \
 	seh \

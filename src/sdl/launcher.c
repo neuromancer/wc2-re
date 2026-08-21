@@ -2,6 +2,7 @@
 
 #include "video_internal.h"
 
+#include <setjmp.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -9,8 +10,30 @@
 extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
 #endif
 
+static jmp_buf g_stWc2SdlCutsceneExit;
+static int g_bWc2SdlCutsceneExitArmed;
+
+void Wc2SdlFinishCutsceneOnly(void)
+{
+    if (g_bWc2SdlCutsceneExitArmed != 0)
+        longjmp(g_stWc2SdlCutsceneExit, 1);
+}
+
+static void Wc2SdlRunGameApplication(int argumentCount, char **arguments)
+{
+    if (g_bWc2SdlCutsceneOnly != 0 &&
+        setjmp(g_stWc2SdlCutsceneExit) != 0) {
+        g_bWc2SdlCutsceneExitArmed = 0;
+        return;
+    }
+    g_bWc2SdlCutsceneExitArmed = g_bWc2SdlCutsceneOnly;
+    RunGameApplication((short)(argumentCount - 1), arguments);
+    g_bWc2SdlCutsceneExitArmed = 0;
+}
+
 static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
-                                    int *useEnhancedRenderer)
+                                    int *useEnhancedRenderer,
+                                    int *cutsceneOnly)
 {
     char *argument;
     int argumentIndex;
@@ -18,11 +41,14 @@ static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
 
     outputArgumentIndex = 1;
     *useEnhancedRenderer = 0;
+    *cutsceneOnly = 0;
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
+        } else if (strcmp(argument, "--cutscene-only") == 0) {
+            *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
             Wc1SdlEnableJoystickDebug();
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
@@ -141,6 +167,7 @@ int main(int argumentCount, char **arguments)
     SDL_Window *window;
     Uint32 windowFlags;
     int checkOnly;
+    int cutsceneOnly;
     int gameResult;
     int useEnhancedRenderer;
     int usingDosData;
@@ -149,8 +176,10 @@ int main(int argumentCount, char **arguments)
     ImmDisableIME((DWORD)-1);
 #endif
     if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
-                                   &useEnhancedRenderer))
+                                   &useEnhancedRenderer,
+                                   &cutsceneOnly))
         return 1;
+    g_bWc2SdlCutsceneOnly = cutsceneOnly;
     if (useEnhancedRenderer) {
         Wc1SdlSetVideoBackend(
             WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
@@ -235,7 +264,7 @@ int main(int argumentCount, char **arguments)
          * Its recovered option loader starts copying at argv[1], then preserves
          * WC2's original one-token lookahead by exposing one fewer argument to
          * the game's parser. */
-        RunGameApplication((short)(argumentCount - 1), arguments);
+        Wc2SdlRunGameApplication(argumentCount, arguments);
         g_bApplicationShutdownStarted_0049c23c = 1;
         ReleaseApplicationScratchBuffer();
         gameResult = 0;

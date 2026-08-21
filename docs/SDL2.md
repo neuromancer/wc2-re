@@ -181,6 +181,8 @@ make modern
 make run-modern
 make run-modern-dos
 make run-modern-mission SERIES=1 MISSION=0
+make run-modern-cutscene SERIES=3 MISSION=0
+make modern-test-cutscenes
 ```
 
 Arguments not owned by the SDL host are forwarded to WC2's recovered option
@@ -188,6 +190,19 @@ loader. For example, the executable's direct-flight form is
 `Origin v1 t0 e ignored`; the final sentinel is required by the original
 loader's one-token lookahead and is supplied automatically by
 `run-modern-mission`.
+
+For cutscene testing, `run-modern-cutscene` omits the direct-flight `e`, skips
+the restored orchestral title and campaign menus, runs the campaign VM's
+non-rendering state prepass followed by its selected rendered entry, and exits
+when the VM returns. The equivalent executable command is
+`wc2-modern --cutscene-only Origin v3 t0 ignored`.
+
+`modern-test-cutscenes` runs all 50 populated base-campaign mission sequences
+to completion with SDL's dummy video and audio drivers. Each sequence runs in
+a fresh sanitizer-enabled process, with four running in parallel by default.
+Set `MODERN_CUTSCENE_JOBS=1` for a serial sweep. Output is retained under
+`out-modern/cutscene-asan/`; the target continues after a failure so one run
+can identify every failing selector.
 
 `make modern-test` runs the integrated sanitizer smoke check.
 `make modern-test-full` adds the standalone SDL subsystem checks, including a

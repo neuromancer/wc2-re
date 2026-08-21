@@ -184,6 +184,7 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
 void Wc1SdlStopAudio(void);
 void Wc1SdlOutputDebugString(const char *text);
 void Wc1SdlPumpEvents(void);
+extern int g_bWc2SdlCutsceneOnly;
 void Wc1SdlSetMouseGrab(int enabled);
 void Wc1SdlDrawViewportStatic(struct Viewport *viewport, int effect,
                               unsigned short colour);
@@ -277,6 +278,8 @@ void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
 int Wc2SdlOriginalTitleMusicReady(void);
 int Wc2SdlStartOriginalTitleMusic(void);
 int Wc2SdlOriginalTitleSequenceAvailable(void);
+void Wc2SdlRunSelectedCampaignCutscene(void);
+void Wc2SdlFinishCutsceneOnly(void);
 int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                               int looping);
 void Wc1SdlServiceOriginFxMusic(void);
