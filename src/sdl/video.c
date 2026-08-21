@@ -23,15 +23,6 @@ int Wc1SdlInitializeVideo(SDL_Window *window)
             SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     if (g_pSdlRenderer == 0)
         return 0;
-    if (SDL_RenderSetLogicalSize(g_pSdlRenderer, WC1_SDL_FRAME_WIDTH,
-                                 WC1_SDL_FRAME_HEIGHT) != 0) {
-        Wc1SdlShutdownVideo();
-        return 0;
-    }
-    if (SDL_RenderSetIntegerScale(g_pSdlRenderer, SDL_TRUE) != 0) {
-        Wc1SdlShutdownVideo();
-        return 0;
-    }
     g_pSdlFrameTexture =
         SDL_CreateTexture(g_pSdlRenderer, SDL_PIXELFORMAT_ARGB8888,
                           SDL_TEXTUREACCESS_STREAMING,
@@ -44,6 +35,26 @@ int Wc1SdlInitializeVideo(SDL_Window *window)
     SDL_SetRenderDrawColor(g_pSdlRenderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(g_pSdlRenderer);
     SDL_RenderPresent(g_pSdlRenderer);
+    return 1;
+}
+
+/* No longer relies on SDL_RenderSetLogicalSize -- that letterboxes to
+ * the source frame's own 320x200 (8:5) shape, not the 4:3 shape the
+ * game was actually displayed at on period CRT hardware (see the
+ * comment on Wc1SdlCalculateOutputViewport, video_state.c). Computed
+ * fresh each frame since the window can be resized. */
+static int Wc1SdlComputeFrameDestRect(SDL_Rect *dest)
+{
+    int bottom;
+    int height;
+    int width;
+
+    if (SDL_GetRendererOutputSize(g_pSdlRenderer, &width, &height) != 0 ||
+        width < 1 || height < 1)
+        return 0;
+    Wc1SdlCalculateOutputViewport(width, height, &dest->x, &bottom, &dest->w,
+                                  &dest->h);
+    dest->y = height - bottom - dest->h;
     return 1;
 }
 
@@ -63,12 +74,13 @@ void Wc1SdlShutdownVideo(void)
 int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette)
 {
+    SDL_Rect dest;
     int pixel;
 
     if (Wc1SdlUsingGlRenderer())
         return Wc1SdlGlRendererPresent(pixels, palette);
     if (g_pSdlRenderer == 0 || g_pSdlFrameTexture == 0 || pixels == 0 ||
-        palette == 0)
+        palette == 0 || !Wc1SdlComputeFrameDestRect(&dest))
         return 0;
     pixel = 0;
     while (pixel < WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT) {
@@ -90,7 +102,7 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
         return 0;
     if (SDL_RenderClear(g_pSdlRenderer) != 0)
         return 0;
-    if (SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, 0) != 0)
+    if (SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, &dest) != 0)
         return 0;
     SDL_RenderPresent(g_pSdlRenderer);
     return 1;
@@ -98,6 +110,8 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
 
 void Wc1SdlWaitForVerticalBlank(void)
 {
+    SDL_Rect dest;
+
     if (Wc1SdlUsingGlRenderer()) {
         Wc1SdlGlRendererWaitForVerticalBlank();
         return;
@@ -107,7 +121,8 @@ void Wc1SdlWaitForVerticalBlank(void)
         return;
     }
     SDL_RenderClear(g_pSdlRenderer);
-    SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, 0);
+    if (Wc1SdlComputeFrameDestRect(&dest))
+        SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, &dest);
     SDL_RenderPresent(g_pSdlRenderer);
 }
 

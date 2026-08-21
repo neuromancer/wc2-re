@@ -55,21 +55,23 @@ void Wc1SdlCalculateOutputViewport(int width, int height, int *left,
                                    int *bottom, int *viewportWidth,
                                    int *viewportHeight)
 {
-    int scale;
-    double fractionalScale;
-
-    scale = width / WC1_SDL_FRAME_WIDTH;
-    if (height / WC1_SDL_FRAME_HEIGHT < scale)
-        scale = height / WC1_SDL_FRAME_HEIGHT;
-    if (scale >= 1) {
-        *viewportWidth = WC1_SDL_FRAME_WIDTH * scale;
-        *viewportHeight = WC1_SDL_FRAME_HEIGHT * scale;
+    /* Target a 4:3 output, not the source frame's own 320x200 (8:5)
+     * shape. 320x200 is square-pixel VGA Mode 13h; the original game
+     * was always displayed on 4:3 CRT hardware, which rendered it with
+     * non-square pixels (taller than wide) to fill that shape. Scaling
+     * width and height by the same factor -- as this used to, to keep
+     * the source's own 8:5 ratio and land on an exact integer multiple
+     * of it -- reproduces the square-pixel shape instead, which comes
+     * out visibly wider/flatter than the original ever looked. Fit the
+     * largest 4:3 rectangle inside (width, height) instead; this can't
+     * be an exact integer multiple of 320x200 in both axes at once,
+     * since 320x200 itself isn't 4:3. */
+    if (width * 3 > height * 4) {
+        *viewportHeight = height;
+        *viewportWidth = height * 4 / 3;
     } else {
-        fractionalScale = (double)width / WC1_SDL_FRAME_WIDTH;
-        if ((double)height / WC1_SDL_FRAME_HEIGHT < fractionalScale)
-            fractionalScale = (double)height / WC1_SDL_FRAME_HEIGHT;
-        *viewportWidth = (int)(WC1_SDL_FRAME_WIDTH * fractionalScale);
-        *viewportHeight = (int)(WC1_SDL_FRAME_HEIGHT * fractionalScale);
+        *viewportWidth = width;
+        *viewportHeight = width * 3 / 4;
     }
     if (*viewportWidth < 1)
         *viewportWidth = 1;
@@ -89,12 +91,10 @@ static int Wc1SdlGetWindowViewport(SDL_Window *window, int *left, int *top,
     SDL_GetWindowSize(window, &width, &height);
     if (width < 1 || height < 1)
         return 0;
-    *left = 0;
-    *top = 0;
-    *viewportWidth = width;
-    *viewportHeight = height;
-    if (!Wc1SdlUsingGlRenderer())
-        return 1;
+    /* Both backends now present into a manually computed 4:3 rect
+     * (video.c/gl_renderer.c) rather than relying on SDL_RenderSet
+     * LogicalSize's own native-320x200-aspect letterboxing, so mouse
+     * mapping needs the same 4:3 calculation for both, not just GL. */
     Wc1SdlCalculateOutputViewport(width, height, left, &bottom,
                                   viewportWidth, viewportHeight);
     *top = height - bottom - *viewportHeight;
@@ -104,20 +104,18 @@ static int Wc1SdlGetWindowViewport(SDL_Window *window, int *left, int *top,
 int Wc1SdlMapLogicalToWindow(SDL_Window *window, int logicalX, int logicalY,
                              int *windowX, int *windowY)
 {
-    SDL_Renderer *renderer;
     int viewportHeight;
     int viewportLeft;
     int viewportTop;
     int viewportWidth;
 
+    /* Both backends present into a manually computed 4:3 rect (see
+     * Wc1SdlGetWindowViewport) rather than an SDL_Renderer logical size,
+     * so SDL_RenderLogicalToWindow no longer has the right transform to
+     * ask even when a renderer exists -- always use the same viewport
+     * calculation the frame itself was drawn into. */
     if (window == 0 || windowX == 0 || windowY == 0)
         return 0;
-    renderer = SDL_GetRenderer(window);
-    if (renderer != 0) {
-        SDL_RenderLogicalToWindow(renderer, (float)logicalX, (float)logicalY,
-                                  windowX, windowY);
-        return 1;
-    }
     if (!Wc1SdlGetWindowViewport(window, &viewportLeft, &viewportTop,
                                  &viewportWidth, &viewportHeight))
         return 0;
@@ -129,9 +127,6 @@ int Wc1SdlMapLogicalToWindow(SDL_Window *window, int logicalX, int logicalY,
 int Wc1SdlMapWindowToLogical(SDL_Window *window, int windowX, int windowY,
                              int *logicalX, int *logicalY)
 {
-    SDL_Renderer *renderer;
-    float mappedX;
-    float mappedY;
     int viewportHeight;
     int viewportLeft;
     int viewportTop;
@@ -139,14 +134,6 @@ int Wc1SdlMapWindowToLogical(SDL_Window *window, int windowX, int windowY,
 
     if (window == 0 || logicalX == 0 || logicalY == 0)
         return 0;
-    renderer = SDL_GetRenderer(window);
-    if (renderer != 0) {
-        SDL_RenderWindowToLogical(renderer, windowX, windowY, &mappedX,
-                                  &mappedY);
-        *logicalX = (int)mappedX;
-        *logicalY = (int)mappedY;
-        return 1;
-    }
     if (!Wc1SdlGetWindowViewport(window, &viewportLeft, &viewportTop,
                                  &viewportWidth, &viewportHeight))
         return 0;
