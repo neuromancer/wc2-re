@@ -495,6 +495,28 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
+    if (g_bSpeechSoundActive_004a2660 == 0) {
+        /* Script-armed to talk (opcode 0x8a sets
+         * g_bCutsceneTextAdvance_005d2ed0) but the paired speech clip
+         * (opcode 0xb0) hasn't actually started producing audio yet.
+         * These two are separate, unsynchronized script events -- 0xb0
+         * only reaches here without a delay when its pre-cache (opcode
+         * 0xa2, LoadCutsceneSpeechSlot) finished in time; otherwise it
+         * falls back to LoadAndPlaySpeechPacket (music.c), a fully
+         * synchronous blocking disk load with no message-pump
+         * interleaving of its own. A same-character line immediately
+         * following another leaves less script time for 0xa2 to have
+         * completed than a speaker change does, making this fallback
+         * (and this gap) far more likely there -- matching "mouth moves
+         * during a pause, but only between two lines from the same
+         * character" exactly. g_bSpeechSoundActive_004a2660 is set the
+         * moment real playback actually begins (PlayRawSpeechBuffer,
+         * sound.c) -- hold the current frame instead of animating from
+         * text alone until that's true.
+         * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
+         */
+        return;
+    }
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0) {
         g_bCutsceneSpeechActive_00499eb8 =
