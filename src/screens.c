@@ -517,6 +517,22 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
          */
         return;
     }
+    if (g_pSpeechSound_004a2658 != 0 &&
+        ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) {
+        /* The other end of the same gap: g_bSpeechSoundActive_004a2660
+         * only clears once ServiceSoundSystem (sound.c) has waited out
+         * its own ~20-tick grace period after audio is first observed
+         * stopped -- that delay exists to decide when to force-advance
+         * to the next script line, not to decide whether the mouth
+         * should still be moving, but AnimateCutsceneSpeakerMouth was
+         * reading the same flag for both. Check the sound object's own
+         * live state directly instead: stop animating the instant
+         * playback actually stops, without waiting on or touching that
+         * unrelated grace-period/advance logic at all.
+         * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
+         */
+        return;
+    }
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0) {
         g_bCutsceneSpeechActive_00499eb8 =
