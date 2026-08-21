@@ -12,6 +12,8 @@ reference build or its binary comparisons.
 - SDL input is converted to the game's existing scan codes and event queue;
   gameplay code does not consume SDL events directly.
 - The game still renders a 320x200 indexed framebuffer and 256-colour palette.
+- Both video backends present it in a centered 4:3 viewport and map mouse input
+  through that same viewport.
 - Port-only state remains in SDL files. Original-address globals keep their
   reconstructed types and ownership.
 - Native objects live under `out-modern/` and never enter `WC2.EXE` or

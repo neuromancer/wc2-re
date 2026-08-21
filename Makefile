@@ -453,7 +453,7 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat \
-	sdl_dos_resources sdl_input_compat sdl_event_compat
+	sdl_dos_resources sdl_input_compat sdl_event_compat sdl_video_compat
 MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
 MODERN_RUNTIME_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_runtime_safety$(MODERN_EXE_SUFFIX)
@@ -551,6 +551,7 @@ $(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
 
 $(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DWC1_ANALYSIS=1
 $(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
+$(MODERN_OUT_DIR)/tests/sdl_video_compat.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
 
 $(MODERN_TARGET): \
 		$(MODERN_LAUNCHER_OBJ) \

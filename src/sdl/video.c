@@ -23,15 +23,6 @@ int Wc1SdlInitializeVideo(SDL_Window *window)
             SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     if (g_pSdlRenderer == 0)
         return 0;
-    if (SDL_RenderSetLogicalSize(g_pSdlRenderer, WC1_SDL_FRAME_WIDTH,
-                                 WC1_SDL_FRAME_HEIGHT) != 0) {
-        Wc1SdlShutdownVideo();
-        return 0;
-    }
-    if (SDL_RenderSetIntegerScale(g_pSdlRenderer, SDL_TRUE) != 0) {
-        Wc1SdlShutdownVideo();
-        return 0;
-    }
     g_pSdlFrameTexture =
         SDL_CreateTexture(g_pSdlRenderer, SDL_PIXELFORMAT_ARGB8888,
                           SDL_TEXTUREACCESS_STREAMING,
@@ -44,6 +35,21 @@ int Wc1SdlInitializeVideo(SDL_Window *window)
     SDL_SetRenderDrawColor(g_pSdlRenderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
     SDL_RenderClear(g_pSdlRenderer);
     SDL_RenderPresent(g_pSdlRenderer);
+    return 1;
+}
+
+static int Wc1SdlComputeFrameDestRect(SDL_Rect *dest)
+{
+    int bottom;
+    int height;
+    int width;
+
+    if (SDL_GetRendererOutputSize(g_pSdlRenderer, &width, &height) != 0 ||
+        width < 1 || height < 1)
+        return 0;
+    Wc1SdlCalculateOutputViewport(width, height, &dest->x, &bottom, &dest->w,
+                                  &dest->h);
+    dest->y = height - bottom - dest->h;
     return 1;
 }
 
@@ -63,8 +69,9 @@ void Wc1SdlShutdownVideo(void)
 int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette)
 {
-    int result;
+    SDL_Rect dest;
     int pixel;
+    int result;
 
     if (Wc1SdlUsingGlRenderer()) {
         result = Wc1SdlGlRendererPresent(pixels, palette);
@@ -75,7 +82,7 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
         return result;
     }
     if (g_pSdlRenderer == 0 || g_pSdlFrameTexture == 0 || pixels == 0 ||
-        palette == 0)
+        palette == 0 || !Wc1SdlComputeFrameDestRect(&dest))
         return 0;
     pixel = 0;
     while (pixel < WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT) {
@@ -97,7 +104,7 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
         return 0;
     if (SDL_RenderClear(g_pSdlRenderer) != 0)
         return 0;
-    if (SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, 0) != 0)
+    if (SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, &dest) != 0)
         return 0;
     SDL_RenderPresent(g_pSdlRenderer);
     if (g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
@@ -108,6 +115,8 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
 
 void Wc1SdlWaitForVerticalBlank(void)
 {
+    SDL_Rect dest;
+
     if (Wc1SdlUsingGlRenderer()) {
         Wc1SdlGlRendererWaitForVerticalBlank();
         return;
@@ -116,8 +125,12 @@ void Wc1SdlWaitForVerticalBlank(void)
         SDL_Delay(1);
         return;
     }
+    if (!Wc1SdlComputeFrameDestRect(&dest)) {
+        SDL_Delay(1);
+        return;
+    }
     SDL_RenderClear(g_pSdlRenderer);
-    SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, 0);
+    SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, &dest);
     SDL_RenderPresent(g_pSdlRenderer);
 }
 

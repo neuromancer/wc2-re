@@ -55,21 +55,26 @@ void Wc1SdlCalculateOutputViewport(int width, int height, int *left,
                                    int *bottom, int *viewportWidth,
                                    int *viewportHeight)
 {
-    int scale;
-    double fractionalScale;
+    if (width < 1 || height < 1) {
+        *left = 0;
+        *bottom = 0;
+        *viewportWidth = 1;
+        *viewportHeight = 1;
+        return;
+    }
 
-    scale = width / WC1_SDL_FRAME_WIDTH;
-    if (height / WC1_SDL_FRAME_HEIGHT < scale)
-        scale = height / WC1_SDL_FRAME_HEIGHT;
-    if (scale >= 1) {
-        *viewportWidth = WC1_SDL_FRAME_WIDTH * scale;
-        *viewportHeight = WC1_SDL_FRAME_HEIGHT * scale;
+    /* Mode 13h artwork is composed for a 4:3 display. */
+    if ((Sint64)width * WC1_SDL_DISPLAY_ASPECT_HEIGHT >
+        (Sint64)height * WC1_SDL_DISPLAY_ASPECT_WIDTH) {
+        *viewportHeight = height;
+        *viewportWidth =
+            (int)((Sint64)height * WC1_SDL_DISPLAY_ASPECT_WIDTH /
+                  WC1_SDL_DISPLAY_ASPECT_HEIGHT);
     } else {
-        fractionalScale = (double)width / WC1_SDL_FRAME_WIDTH;
-        if ((double)height / WC1_SDL_FRAME_HEIGHT < fractionalScale)
-            fractionalScale = (double)height / WC1_SDL_FRAME_HEIGHT;
-        *viewportWidth = (int)(WC1_SDL_FRAME_WIDTH * fractionalScale);
-        *viewportHeight = (int)(WC1_SDL_FRAME_HEIGHT * fractionalScale);
+        *viewportWidth = width;
+        *viewportHeight =
+            (int)((Sint64)width * WC1_SDL_DISPLAY_ASPECT_HEIGHT /
+                  WC1_SDL_DISPLAY_ASPECT_WIDTH);
     }
     if (*viewportWidth < 1)
         *viewportWidth = 1;
@@ -89,22 +94,28 @@ static int Wc1SdlGetWindowViewport(SDL_Window *window, int *left, int *top,
     SDL_GetWindowSize(window, &width, &height);
     if (width < 1 || height < 1)
         return 0;
-    *left = 0;
-    *top = 0;
-    *viewportWidth = width;
-    *viewportHeight = height;
-    if (!Wc1SdlUsingGlRenderer())
-        return 1;
     Wc1SdlCalculateOutputViewport(width, height, left, &bottom,
                                   viewportWidth, viewportHeight);
     *top = height - bottom - *viewportHeight;
     return 1;
 }
 
+static int Wc1SdlScaleCoordinate(int coordinate, int sourceExtent,
+                                 int destinationExtent)
+{
+    Sint64 numerator;
+
+    numerator = (Sint64)coordinate * destinationExtent;
+    if (numerator < 0)
+        numerator -= sourceExtent / 2;
+    else
+        numerator += sourceExtent / 2;
+    return (int)(numerator / sourceExtent);
+}
+
 int Wc1SdlMapLogicalToWindow(SDL_Window *window, int logicalX, int logicalY,
                              int *windowX, int *windowY)
 {
-    SDL_Renderer *renderer;
     int viewportHeight;
     int viewportLeft;
     int viewportTop;
@@ -112,26 +123,21 @@ int Wc1SdlMapLogicalToWindow(SDL_Window *window, int logicalX, int logicalY,
 
     if (window == 0 || windowX == 0 || windowY == 0)
         return 0;
-    renderer = SDL_GetRenderer(window);
-    if (renderer != 0) {
-        SDL_RenderLogicalToWindow(renderer, (float)logicalX, (float)logicalY,
-                                  windowX, windowY);
-        return 1;
-    }
     if (!Wc1SdlGetWindowViewport(window, &viewportLeft, &viewportTop,
                                  &viewportWidth, &viewportHeight))
         return 0;
-    *windowX = viewportLeft + logicalX * viewportWidth / WC1_SDL_FRAME_WIDTH;
-    *windowY = viewportTop + logicalY * viewportHeight / WC1_SDL_FRAME_HEIGHT;
+    *windowX = viewportLeft +
+               Wc1SdlScaleCoordinate(logicalX, WC1_SDL_FRAME_WIDTH,
+                                      viewportWidth);
+    *windowY = viewportTop +
+               Wc1SdlScaleCoordinate(logicalY, WC1_SDL_FRAME_HEIGHT,
+                                      viewportHeight);
     return 1;
 }
 
 int Wc1SdlMapWindowToLogical(SDL_Window *window, int windowX, int windowY,
                              int *logicalX, int *logicalY)
 {
-    SDL_Renderer *renderer;
-    float mappedX;
-    float mappedY;
     int viewportHeight;
     int viewportLeft;
     int viewportTop;
@@ -139,19 +145,12 @@ int Wc1SdlMapWindowToLogical(SDL_Window *window, int windowX, int windowY,
 
     if (window == 0 || logicalX == 0 || logicalY == 0)
         return 0;
-    renderer = SDL_GetRenderer(window);
-    if (renderer != 0) {
-        SDL_RenderWindowToLogical(renderer, windowX, windowY, &mappedX,
-                                  &mappedY);
-        *logicalX = (int)mappedX;
-        *logicalY = (int)mappedY;
-        return 1;
-    }
     if (!Wc1SdlGetWindowViewport(window, &viewportLeft, &viewportTop,
                                  &viewportWidth, &viewportHeight))
         return 0;
-    *logicalX = (windowX - viewportLeft) * WC1_SDL_FRAME_WIDTH / viewportWidth;
-    *logicalY =
-        (windowY - viewportTop) * WC1_SDL_FRAME_HEIGHT / viewportHeight;
+    *logicalX = Wc1SdlScaleCoordinate(windowX - viewportLeft, viewportWidth,
+                                      WC1_SDL_FRAME_WIDTH);
+    *logicalY = Wc1SdlScaleCoordinate(windowY - viewportTop, viewportHeight,
+                                      WC1_SDL_FRAME_HEIGHT);
     return 1;
 }

@@ -44,6 +44,7 @@ The native port includes these fixes and optional features:
 | --- | --- |
 | Kilrathi Saga or DOS game data, detected automatically | always on |
 | Resizable window, fullscreen toggle, and mouse capture | always on |
+| Aspect-correct 4:3 presentation and pointer mapping | always on |
 | Mouse-wheel throttle control during spaceflight | always on |
 | `Esc` pauses during spaceflight when communications are closed | always on |
 | Pointer confined only during unpaused, focused spaceflight | always on |
