@@ -472,10 +472,14 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
         g_pCurrentTextContext_005c8d1c->cursorY =
             (short)(g_pCurrentTextContext_005c8d1c->viewport->top + y);
     }
+#ifdef WC1_SDL
+    if (memcmp(text, "50", 2) != 0) {
+#else
     if ((IsCutsceneSpeechLoaded() == 0 ||
          g_pszCutsceneFormattedText_005d2dc8 == text ||
          g_nAudioEnabled_0049c244 == 0) &&
         memcmp(text, "50", 2) != 0) {
+#endif
         FormatTextBufferFromStart("%s%P", text);
     }
     g_bCutsceneTextRestorePending_00499da0 = 1;
@@ -1165,9 +1169,14 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             textShown++;
             ClearCutsceneTextViewport();
             ExpandCutsceneText(text, g_pszCutsceneWorkBuffer_005d2ecc);
+#ifdef WC1_SDL
+            if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc,
+                       "50", 2) != 0) {
+#else
             if ((IsCutsceneSpeechLoaded() == 0 ||
                  g_nAudioEnabled_0049c244 == 0) &&
                 memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0) {
+#endif
                 FormatTextBufferFromStart(
                     "%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
             }

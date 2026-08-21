@@ -159,6 +159,53 @@ int main(int argumentCount, char **arguments)
     if (g_bAfterburnerSfxActive_005d3864 != 0)
         return 1;
 
+    /* Explicit newlines in a cutscene caption are separate lines, not the
+     * end of the string.  The intro location card contains two of them. */
+    {
+        unsigned char font[2] = {3, 0};
+        TextContext context = {0};
+        Viewport viewport = {0};
+
+        viewport.left = 4;
+        viewport.right = 315;
+        context.viewport = &viewport;
+        context.cursorY = 7;
+        context.font = font;
+        SetTextContext(&context);
+        DrawTextString("\n\n");
+        if (context.cursorX != 4 || context.cursorY != 13)
+            return 1;
+    }
+
+    /* Retail hides ordinary cinematic text while a speech packet is loaded.
+     * The native port keeps that same scripted text visible. */
+    {
+        unsigned char font[2] = {3, 0};
+        char textBuffer[8] = {0};
+        const char caption[] = "\n\n";
+        TextContext context = {0};
+        Viewport viewport = {0};
+
+        viewport.left = 4;
+        viewport.right = 315;
+        context.viewport = &viewport;
+        context.cursorY = 7;
+        context.font = font;
+        context.text = textBuffer;
+        g_stCutsceneTextContext_005d2f40 = context;
+        g_stCutsceneTextViewport_005d2d90 = viewport;
+        g_stScreenViewport_005d21a0.pixels = (unsigned char *)1;
+        g_apszCutsceneSpeechFiles_005d2ee0[0] = "speech.s00";
+        g_pszCutsceneFormattedText_005d2dc8 = 0;
+        g_nAudioEnabled_0049c244 = 1;
+        g_bCinematicSpriteFontEnabled_005c82a7 = 0;
+
+        DrawCutsceneTextAt(-1, -1, 2, caption);
+        if (g_stCutsceneDrawingTextContext_005d2f60.cursorY != 13)
+            return 1;
+        g_apszCutsceneSpeechFiles_005d2ee0[0] = 0;
+    }
+
     /* A delete-on-stop speech object can disappear during sound service. */
     {
         SceneFlicObject speaker = {0};

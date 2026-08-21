@@ -1003,10 +1003,16 @@ void UpdateMap(char *text, short objective)
     ClearCutsceneTextViewport();
     ExpandCutsceneText((const unsigned char *)text,
                        g_pszCutsceneWorkBuffer_005d2ecc);
+#ifdef WC1_SDL
+    if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0)
+        FormatTextBufferFromStart(
+            "%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
+#else
     if (IsCutsceneSpeechLoaded() == 0 || g_nAudioEnabled_0049c244 == 0) {
         if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0)
             FormatTextBufferFromStart("%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
     }
+#endif
     g_bCutsceneTextRestorePending_00499da0 = 1;
     RestoreCutsceneTextBacking();
     ServiceInputDevices(-1);

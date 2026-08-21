@@ -52,9 +52,16 @@ copy, and synthesizes the effects on the same YM3812 the music runs on. Held
 records, such as the afterburner, play until the flight code says the burn is
 over.
 
-Speech is a separate optional pack in both releases and is not required. It is
-not available on a DOS install, whose driver-level playback the native host
-cannot use.
+Speech is a separate optional pack and is not required. The sampled speech
+archives are present in both supported data sets, but the native port currently
+plays them only with Kilrathi Saga data. DOS mode reserves the audio device for
+the OriginFX music and effects player, so its cutscenes display their text
+without speech.
+
+With Kilrathi Saga data, the native port keeps the original scripted caption
+visible while a voiced cinematic line plays. The retail executable deliberately
+suppresses ordinary cutscene text whenever it has speech loaded. In-flight
+radio communications retain their original speech-or-text behavior.
 
 ## Enhanced renderer
 

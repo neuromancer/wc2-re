@@ -66,6 +66,7 @@ The native port includes these fixes and optional features:
 | --- | --- |
 | Kilrathi Saga or DOS game data, detected automatically | always on |
 | Original orchestral startup and logo sequence, when its data is present | always on |
+| Original cinematic captions alongside Speech Pack dialogue | always on |
 | Resizable window, fullscreen toggle, and mouse capture | always on |
 | Aspect-correct 4:3 presentation and pointer mapping | always on |
 | Mouse-wheel throttle control during spaceflight | always on |

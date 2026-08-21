@@ -340,8 +340,6 @@ void DrawTextString(const char *text)
             g_pCurrentTextContext_005c8d1c->cursorY +=
                 *(short *)g_pCurrentTextContext_005c8d1c->font;
             wrapped = 0;
-        } else {
-            break;
         }
     }
 }
