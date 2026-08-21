@@ -1208,7 +1208,14 @@ short RunCampaignGameLoop(short campaignSlot)
 
     campaignComplete = 0;
     flightComplete = 0;
+#ifdef WC1_SDL
+    /* This base is zero-initialized in the retail image.  MSVC formed address
+     * 0x22 here and nothing ever dereferences it; express the same integer
+     * address without applying an offset to a null C pointer. */
+    DAT_005c80c0 = (unsigned char *)((uintptr_t)DAT_005d300c + 0x22);
+#else
     DAT_005c80c0 = DAT_005d300c + 0x22;
+#endif
     ReleaseSpaceflightResources();
     LoadTemporaryCampaignGlobals();
     if (g_nOriginDevUnlock_0049d774 != 0 &&
@@ -2988,6 +2995,14 @@ void chaff_intelligence(short obj)
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position)
 {
+#ifdef WC1_SDL
+    /* A nav point of -1 selects the zero-filled gap at 0x491E52 in the retail
+     * layout, making the ship coordinates absolute. */
+    if (record->navPoint == -1) {
+        *position = record->position;
+        return;
+    }
+#endif
     AddFixedVectors(
         &g_aMissionNavPoints_00491e98[record->navPoint].position,
         &record->position, position);
@@ -3261,7 +3276,14 @@ void prepare_mission(void)
     for (initial = 0; initial < 8; initial++) {
         playerMissionShip =
             g_stMissionHeader_005d3e70.initialMissionShips[initial];
+#ifdef WC1_SDL
+        /* S3M3 carries -2 in one otherwise empty initial-ship slot.  Retail
+         * walks into the preceding nav table and eventually treats its zeroes
+         * as a ship; negative mission-ship values are sentinels on the port. */
+        if (playerMissionShip >= 0) {
+#else
         if (playerMissionShip != -1) {
+#endif
             portrait = g_aMissionShips_00492290[playerMissionShip].portrait;
             if (portrait != 25 &&
                 g_aMissionShips_00492290[playerMissionShip].pilot == 5 &&
@@ -4124,7 +4146,18 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     for (gun = 0; gun < 3; gun++)
         g_asGunCooldown_005c8d70[obj * 3 + gun] = 0;
     g_acShipCollisionCooldown_00496010[obj] = 0;
+#ifdef WC1_SDL
+    /* The eight-word table is followed at 0x496100 by the stress bytes.  WC2's
+     * unchecked writes for objects 8 and 9 clear two of those bytes each. */
+    if (obj < 8) {
+        DAT_004960f0[obj] = 0;
+    } else {
+        g_acShipStress_00496100[(obj - 8) * 2] = 0;
+        g_acShipStress_00496100[(obj - 8) * 2 + 1] = 0;
+    }
+#else
     DAT_004960f0[obj] = 0;
+#endif
     g_asWingmanDamageCredit_005d3830[obj] = 0;
     g_asPlayerDamageCredit_005d38c0[obj] = 0;
     DAT_005d1bd0[obj] = (short)(
@@ -4623,8 +4656,16 @@ void Build_objective_list(void)
     g_cMissionObjectiveCount_00493294 = 0;
     flightPathCount = 0;
     source = g_aMissionObjectiveSources_005d3c70;
+#ifdef WC1_SDL
+    /* Retail reads the next word after the eight-record table before checking
+     * that all eight output slots are full.  That word is the adjacent mission
+     * header and cannot affect the loop body, so bound the native read first. */
+    while (g_cMissionObjectiveCount_00493294 < 8 &&
+           (type = source->type) != -1) {
+#else
     while ((type = source->type) != -1 &&
            g_cMissionObjectiveCount_00493294 < 8) {
+#endif
         index = source->index;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].flags = 0;

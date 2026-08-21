@@ -534,7 +534,11 @@ signed char g_abHazardObjects_00493280[0x14] = {
 };
 signed char g_cMissionObjectiveCount_00493294 = -1;
 signed char g_cCurrentNavPointIndex_00493298 = -1;
+#ifdef WC1_SDL
+signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT + 1] = { -1 };
+#else
 signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT] = { -1 };
+#endif
 MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT] = {
     { 0, 0, 0xff, 7, -1, 0xff, -1 }
 };

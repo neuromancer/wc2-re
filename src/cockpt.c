@@ -1185,10 +1185,20 @@ void show_weapon_disp(void)
     signed char count;
 
     weaponData = g_aShipWeapons_004956b0[0];
+#ifdef WC1_SDL
+    /* With no selected release weapon, retail forms a pointer ten bytes before
+     * this array but does not dereference it in the name switch. */
+    if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
+        weapon = 0;
+    } else {
+#endif
     weapon = (ShipWeaponSlot *)(
         weaponData + g_nSelectedReleaseWeaponIndex_004934e0 *
                          sizeof(ShipWeaponSlot) +
         1);
+#ifdef WC1_SDL
+    }
+#endif
     set_new_vdu(0);
     DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
                g_stLeftVduViewport_005d2180.left,
@@ -1256,9 +1266,17 @@ void show_weapon_disp(void)
         } else {
             frame = (short)(
                 2 -
+#ifdef WC1_SDL
+                ((g_nSelectedReleaseWeaponIndex_004934e0 == -1
+                      ? 0
+                      : ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                            g_nSelectedReleaseWeaponIndex_004934e0].type) ==
+                 weapon->type));
+#else
                 (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
                      g_nSelectedReleaseWeaponIndex_004934e0].type ==
                  weapon->type));
+#endif
         }
 
         x = g_aWeaponDisplayPositions_005d1de0[(int)count].x;

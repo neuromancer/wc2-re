@@ -2521,6 +2521,18 @@ void ResetCockpitPaletteEntries(void)
                     g_asSpacePaletteFade_005d2d60);
 }
 
+/* The retail heap lets a copy of the largest cockpit-view packet read through
+ * the shorter cached packets.  Their trailing bytes are not part of the shape;
+ * copy only the loaded packet on the bounds-checked native heap. */
+#ifdef WC1_SDL
+#define WC2_COCKPIT_VIEW_COPY_BYTES(section) \
+    ((unsigned short)GetNamedPacketSize( \
+        g_szCockpitResourceFilename_005d1030, (section)))
+#else
+#define WC2_COCKPIT_VIEW_COPY_BYTES(section) \
+    ((unsigned short)g_nCockpitBackgroundBytes_0049c720)
+#endif
+
 /* Function start: 0x456B1A */
 void initialize_cockpit(signed char mode)
 {
@@ -2566,7 +2578,7 @@ void initialize_cockpit(signed char mode)
                     (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[0]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      (unsigned short)g_nCockpitBackgroundBytes_0049c720);
+                      WC2_COCKPIT_VIEW_COPY_BYTES(4));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 4,
@@ -2658,7 +2670,7 @@ void initialize_cockpit(signed char mode)
                     (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[1]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      (unsigned short)g_nCockpitBackgroundBytes_0049c720);
+                      WC2_COCKPIT_VIEW_COPY_BYTES(5));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 5,
@@ -2686,7 +2698,7 @@ void initialize_cockpit(signed char mode)
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
-                    (unsigned short)g_nCockpitBackgroundBytes_0049c720);
+                    WC2_COCKPIT_VIEW_COPY_BYTES(5));
             } else {
                 LoadPacketIntoBuffer(
                     g_szCockpitResourceFilename_005d1030, 5,
@@ -2716,7 +2728,7 @@ void initialize_cockpit(signed char mode)
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
-                    (unsigned short)g_nCockpitBackgroundBytes_0049c720);
+                    WC2_COCKPIT_VIEW_COPY_BYTES(6));
             } else {
                 LoadPacketIntoBuffer(
                     g_szCockpitResourceFilename_005d1030, 6,
@@ -2748,7 +2760,7 @@ void initialize_cockpit(signed char mode)
                     (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[3]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      (unsigned short)g_nCockpitBackgroundBytes_0049c720);
+                      WC2_COCKPIT_VIEW_COPY_BYTES(7));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 7,
@@ -3599,6 +3611,11 @@ void UpdateShipTurretGuns(short ship)
     FixedVector aimPoint;
     short leadDistance;
 
+#ifdef WC1_SDL
+    /* Retail consults this local before the projectile is created.  The two
+     * tests choose a firing chance by the firing ship's side. */
+    projectile = ship;
+#endif
     projectileSpeed = 10;
     target = -1;
     gunSide = 0;
@@ -3700,12 +3717,22 @@ void UpdateShipTurretGuns(short ship)
             g_aShipForwardVector_00494208[ship].z * gunOffset.z +
             g_aShipPosition_00494550[ship].z;
         projectileType = 8;
+#ifdef WC1_SDL
+        /* Retail's SHL converts signed random offsets to fixed point. */
+        aimJitter.x =
+            ((unsigned short)RandomInRange(0, 500) - 250) * 256;
+        aimJitter.y =
+            ((unsigned short)RandomInRange(0, 500) - 250) * 256;
+        aimJitter.z =
+            ((unsigned short)RandomInRange(0, 500) - 250) * 256;
+#else
         aimJitter.x =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
         aimJitter.y =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
         aimJitter.z =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
+#endif
 
         for (shot = 0; shot < 2; shot++) {
             projectile = new_object(projectileType, ship);

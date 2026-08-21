@@ -956,7 +956,14 @@ extern signed char g_acObjectType_00493980[WC2_SPACE_OBJECT_COUNT];
 extern short g_asObjectAnimationIndex_00494c70[WC2_SPACE_OBJECT_COUNT];
 extern signed char g_acObjectAnimationDelay_00494d00[
     WC2_SPACE_OBJECT_COUNT];
+#ifdef WC1_SDL
+/* Eight objectives plus the terminator Build_objective_list always appends.
+ * Retail lets that ninth byte overlap the first objective's map coordinate. */
+extern signed char g_abFlightPath_004932a0[
+    WC2_MISSION_OBJECTIVE_COUNT + 1];
+#else
 extern signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT];
+#endif
 extern FixedVector g_aShipVelocity_00494898[WC2_SPACE_OBJECT_COUNT];
 extern short g_anYawGoal_004954c0[12];
 extern short g_asObjectCounter_00494be0[WC2_SPACE_OBJECT_COUNT];

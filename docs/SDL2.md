@@ -169,6 +169,12 @@ make run-modern-dos
 make run-modern-mission SERIES=1 MISSION=0
 ```
 
+Arguments not owned by the SDL host are forwarded to WC2's recovered option
+loader. For example, the executable's direct-flight form is
+`Origin v1 t0 e ignored`; the final sentinel is required by the original
+loader's one-token lookahead and is supplied automatically by
+`run-modern-mission`.
+
 `make modern-test` runs the integrated sanitizer smoke check.
 `make modern-test-full` adds the standalone SDL subsystem checks, including a
 virtual-joystick test for expanded controls and gamepad key translation.

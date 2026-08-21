@@ -1600,7 +1600,13 @@ int RandomFixedAimComponent(short radius, short speed, short maximum)
 
     aim = RandomSign(MinShort(
         maximum, (short)(RandomBelowOrEqual(radius) + speed)));
+#ifdef WC1_SDL
+    /* SHL supplies the fixed-point scale in retail, including for a negative
+     * random component; multiplication has the same value without C shift UB. */
+    return (int)aim * 256;
+#else
     return aim << 8;
+#endif
 }
 
 /* Function start: 0x4156A7 */

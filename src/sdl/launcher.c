@@ -225,7 +225,11 @@ int main(int argumentCount, char **arguments)
         g_nInputClock_005c84a8 = 0;
         AllocateApplicationScratchBuffer();
         g_bApplicationControllerActive_0049c25c = 1;
-        RunGameApplication(0, &g_pEmptyStartupArgumentVector_0049c470);
+        /* RunGameApplication receives the number of arguments after argv[0].
+         * Its recovered option loader starts copying at argv[1], then preserves
+         * WC2's original one-token lookahead by exposing one fewer argument to
+         * the game's parser. */
+        RunGameApplication((short)(argumentCount - 1), arguments);
         g_bApplicationShutdownStarted_0049c23c = 1;
         ReleaseApplicationScratchBuffer();
         gameResult = 0;

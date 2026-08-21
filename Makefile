@@ -121,7 +121,6 @@ MODERN_RUN_DIR ?= data/wc2-full
 MODERN_ARGS ?=
 SERIES ?= 1
 MISSION ?= 0
-NAV ?=
 MISSION_FLAGS ?=
 
 MODERN_CC ?= cc
@@ -656,11 +655,11 @@ run-modern-dos: MODERN_RUN_DIR = data/dos
 run-modern-dos: run-modern
 
 # The original startup has a hidden direct-flight path selected by the ordered
-# tokens "Origin sN mN l".  The modern build supplies the normal shared
-# LaunchPlayerShip setup before entering flight so the cockpit is initialized.
+# tokens "Origin vN tN e".  The modern build forwards these through the recovered
+# WC2 option loader just as a native argument vector would be handled.
 # The option loader exposes one fewer token than it reads, so retain a sentinel.
-run-modern-mission: MODERN_ARGS = Origin s$(SERIES) m$(MISSION) \
-	$(if $(strip $(NAV)),as$(NAV)) l $(MISSION_FLAGS) ignored
+run-modern-mission: MODERN_ARGS = Origin v$(SERIES) t$(MISSION) e \
+	$(MISSION_FLAGS) ignored
 run-modern-mission: run-modern
 
 -include $(MODERN_DEPFILES)

@@ -1199,6 +1199,9 @@ void house_keep_objects(void)
                 if (g_asObjectType_00495298[obj] !=
                         WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE &&
                     g_asShipTactic_00495f30[obj] == TACTIC_RAM &&
+#ifdef WC1_SDL
+                    g_acShipTarget_00495f20[obj] != -1 &&
+#endif
                     g_anShipCloakState_00496020[
                         g_acShipTarget_00495f20[obj]] == 1) {
                     explode(obj, obj);
