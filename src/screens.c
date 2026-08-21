@@ -13,6 +13,10 @@
 
 static char g_szLastCutsceneWorkBuffer_00499ec0[16] = "@@@@@@@@@@";
 static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
+#ifdef WC1_SDL
+static int g_nCutsceneSpeechArmClock;
+static signed char g_bCutsceneSpeechStartPending;
+#endif
 
 /* Function start: 0x42BDDB */
 signed char HasCutsceneMusicNode(CutsceneMusicNode *node)
@@ -492,6 +496,9 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
 
     speechSpeed = g_cCutsceneSpeechSpeed_00499eb4;
     if (g_bCutsceneTextAdvance_005d2ed0 == 0) {
+#ifdef WC1_SDL
+        g_bCutsceneSpeechStartPending = 0;
+#endif
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
@@ -516,6 +523,16 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     }
     if (g_wSpeechCacheState_0049bb60 != 0)
         speechSpeed = 0;
+#ifdef WC1_SDL
+    if (g_bCutsceneSpeechStartPending != 0) {
+        if ((unsigned int)g_nInputClock_005c84a8 -
+                (unsigned int)g_nCutsceneSpeechArmClock <
+            WC2_CUTSCENE_SPEECH_START_GRACE_TICKS) {
+            return;
+        }
+        g_bCutsceneSpeechStartPending = 0;
+    }
+#endif
     sprite->waitStart = g_nInputClock_005c84a8;
     if (g_pszCutsceneSpeechCursor_00499eb0 == 0)
         g_pszCutsceneSpeechCursor_00499eb0 = g_pszCurrentCutsceneText_00499da4;
@@ -544,9 +561,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         sprite->currentFrame = frame;
         sprite->waitTicks = (short)(speechSpeed * duration);
 #ifdef WC1_SDL
-        /* Hold each position for a whole frame at the speaking rate.  The
-         * pause markers in the table are already longer than this, so only
-         * the per-letter entries are affected. */
+        /* Keep text-only lines readable when no speech controls the pace. */
         if (sprite->waitTicks < WC2_CUTSCENE_MOUTH_MIN_TICKS)
             sprite->waitTicks = WC2_CUTSCENE_MOUTH_MIN_TICKS;
         Wc1SdlTracef("[mouth] ch=%c speed=%d dur=%d wait=%d clock=%d "
@@ -773,6 +788,9 @@ void RunLoadedCutscene(void)
     short savedInputPollPeriod;
     short savedMemoryStatus;
 
+#ifdef WC1_SDL
+    g_bCutsceneSpeechStartPending = 0;
+#endif
     savedTextContext = g_pCurrentTextContext_005c8d1c;
     savedInputPollPeriod = g_nInputPollPeriod_0049d6d8;
     savedMemoryStatus = g_cShowMemoryStatus;
@@ -1815,6 +1833,10 @@ handle_queued_cutscene_input:
             break;
         case 0x8a:
             g_bCutsceneTextAdvance_005d2ed0 = 1;
+#ifdef WC1_SDL
+            g_bCutsceneSpeechStartPending = 1;
+            g_nCutsceneSpeechArmClock = g_nInputClock_005c84a8;
+#endif
             resourceIndex = *instruction++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
@@ -2520,6 +2542,9 @@ handle_queued_cutscene_input:
             }
             g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
             g_asCutsceneSpeechSections_005d2dd0[value] = 0;
+#ifdef WC1_SDL
+            g_bCutsceneSpeechStartPending = 0;
+#endif
             break;
         case 0xa9:
             value = 0;

@@ -159,5 +159,44 @@ int main(int argumentCount, char **arguments)
     if (g_bAfterburnerSfxActive_005d3864 != 0)
         return 1;
 
+    /* A delete-on-stop speech object can disappear during sound service. */
+    {
+        SceneFlicObject speaker = {0};
+        int service;
+
+        speaker.currentFrame = 5;
+        speaker.waitTicks = 6;
+        g_nAudioEnabled_0049c244 = 1;
+        g_bSpaceFlightActive_005c586c = 0;
+        g_pSpeechSound_004a2658 = (IxSound *)1;
+        g_bSpeechSoundActive_004a2660 = 1;
+        g_nSpeechCompletionDelay_004a265c = 0;
+        g_bCutsceneSpeechActive_00499eb8 = 1;
+        g_bCutsceneTextAdvance_005d2ed0 = 1;
+        g_pszCutsceneSpeechCursor_00499eb0 = (char *)1;
+        g_pLinkedCutsceneSprite_00499c64 = &speaker;
+        g_nInputPressCount_0049c258 = 0;
+        SetCinematicFrameTiming(20.0f);
+        ServiceSoundSystem();
+        if (g_pSpeechSound_004a2658 != 0 ||
+            g_bSpeechSoundActive_004a2660 != 0 ||
+            g_nSpeechCompletionDelay_004a265c != 1 ||
+            g_bCutsceneSpeechActive_00499eb8 != 0 ||
+            g_bCutsceneTextAdvance_005d2ed0 != 0 ||
+            g_pszCutsceneSpeechCursor_00499eb0 != 0 ||
+            speaker.currentFrame != 11 || speaker.waitTicks != 0 ||
+            g_nFramePeriodMilliseconds_005c343c != 50) {
+            return 1;
+        }
+        for (service = 0; service < 20; service++)
+            ServiceSoundSystem();
+        if (g_nSpeechCompletionDelay_004a265c != 21 ||
+            g_nInputPressCount_0049c258 != 1 ||
+            g_nFramePeriodMilliseconds_005c343c != 14) {
+            return 1;
+        }
+        g_pLinkedCutsceneSprite_00499c64 = 0;
+    }
+
     return 0;
 }
