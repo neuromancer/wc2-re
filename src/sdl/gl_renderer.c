@@ -1302,7 +1302,11 @@ int Wc1SdlGlRendererPresent(const unsigned char *pixels,
         return 0;
     /* Mouse redraws can present the same game frame more than once.  Compare
        cursor-free copies so the recorded object layer survives those redraws
-       but is discarded as soon as the underlying game frame changes. */
+       but is discarded as soon as the underlying game frame changes outside
+       spaceflight.  WC2 presents repeatedly while update_cockpit incrementally
+       redraws the indexed base, so a completed space layer remains current for
+       the whole flight frame and is replaced only by the next completed layer
+       or the explicit flight teardown. */
     drawSprites = 0;
     if (g_renderer.frameState == WC1_GL_FRAME_COMPLETE) {
         CopyBaseWithoutMouse(g_renderer.spaceFrameBase, pixels);
@@ -1312,8 +1316,13 @@ int Wc1SdlGlRendererPresent(const unsigned char *pixels,
     } else if (g_renderer.frameState == WC1_GL_FRAME_IDLE &&
                g_renderer.hasLayerSnapshot) {
         CopyBaseWithoutMouse(g_renderer.presentedFrame, pixels);
-        if (memcmp(g_renderer.spaceFrameBase, g_renderer.presentedFrame,
-                   sizeof(g_renderer.spaceFrameBase)) == 0) {
+        if (g_bSpaceFlightActive_005c586c != 0) {
+            memcpy(g_renderer.spaceFrameBase, g_renderer.presentedFrame,
+                   sizeof(g_renderer.spaceFrameBase));
+            drawSprites = 1;
+        } else if (memcmp(g_renderer.spaceFrameBase,
+                          g_renderer.presentedFrame,
+                          sizeof(g_renderer.spaceFrameBase)) == 0) {
             drawSprites = 1;
         } else {
             ResetRecordedSprites();

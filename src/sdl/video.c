@@ -63,10 +63,17 @@ void Wc1SdlShutdownVideo(void)
 int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette)
 {
+    int result;
     int pixel;
 
-    if (Wc1SdlUsingGlRenderer())
-        return Wc1SdlGlRendererPresent(pixels, palette);
+    if (Wc1SdlUsingGlRenderer()) {
+        result = Wc1SdlGlRendererPresent(pixels, palette);
+        if (result != 0 &&
+            g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
+            g_stScreenViewport_005d21a0.pixels == pixels)
+            RestoreMouseCursorBackground();
+        return result;
+    }
     if (g_pSdlRenderer == 0 || g_pSdlFrameTexture == 0 || pixels == 0 ||
         palette == 0)
         return 0;
@@ -93,6 +100,9 @@ int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
     if (SDL_RenderCopy(g_pSdlRenderer, g_pSdlFrameTexture, 0, 0) != 0)
         return 0;
     SDL_RenderPresent(g_pSdlRenderer);
+    if (g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
+        g_stScreenViewport_005d21a0.pixels == pixels)
+        RestoreMouseCursorBackground();
     return 1;
 }
 
