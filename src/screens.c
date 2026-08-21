@@ -14,6 +14,16 @@
 static char g_szLastCutsceneWorkBuffer_00499ec0[16] = "@@@@@@@@@@";
 static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
 
+/* Not an original engine flag -- tracks whether any speech clip has
+ * actually played yet in the cutscene currently running (reset once per
+ * RunLoadedCutscene call, set the first time AnimateCutsceneSpeakerMouth
+ * observes g_bSpeechSoundActive_004a2660 go active). Most cutscenes have
+ * no voice audio at all, so AnimateCutsceneSpeakerMouth needs a way to
+ * tell "this line's audio hasn't started yet" (wait) apart from "this
+ * cutscene has no audio" (animate from text, same as the original always
+ * did) -- otherwise every unvoiced line blocks forever. */
+static signed char g_bCutsceneSpeechAudioSeen = 0;
+
 /* Function start: 0x42BDDB */
 signed char HasCutsceneMusicNode(CutsceneMusicNode *node)
 {
@@ -495,14 +505,20 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
-    if (g_bSpeechSoundActive_004a2660 == 0) {
+    if (g_bSpeechSoundActive_004a2660 != 0) {
+        g_bCutsceneSpeechAudioSeen = 1;
+    } else if (g_bCutsceneSpeechAudioSeen != 0) {
         /* Opcode 0x8a arms text-advance independently of when the paired
          * speech clip (opcode 0xb0) actually starts producing audio --
          * 0xb0's own cache miss falls back to a synchronous blocking disk
          * load (LoadAndPlaySpeechPacket, music.c). Hold the current frame
          * instead of animating from text alone until
          * g_bSpeechSoundActive_004a2660 is set, which happens only once
-         * real playback begins (PlayRawSpeechBuffer, sound.c). */
+         * real playback begins (PlayRawSpeechBuffer, sound.c). Only applies
+         * once this cutscene is known to have voice audio at all (see
+         * g_bCutsceneSpeechAudioSeen) -- most cutscenes have none, and
+         * text-driven animation with no audio to wait for is correct for
+         * those, same as the original engine always did. */
         return;
     }
     if (g_pSpeechSound_004a2658 != 0 &&
@@ -793,6 +809,24 @@ void RunLoadedCutscene(void)
     short savedInputPollPeriod;
     short savedMemoryStatus;
 
+    /* None of these are reset by the previous cutscene's own teardown
+     * (ReleaseCutsceneSpeechPackets only clears the precache slot
+     * arrays), so a cutscene torn down while its last line was still
+     * speaking leaves them stale here. ServiceSoundSystem (sound.c) keys
+     * its whole grace-period/mouth-reset/force-advance block on
+     * g_pSpeechSound_004a2658 alone being non-null -- it does not care
+     * whether THIS cutscene has any speech of its own -- so a stale
+     * pointer makes that block fight this cutscene's own (audio-less)
+     * mouth animation and force-advance its lines early. Dropping the
+     * reference here (not stopping or releasing the sound itself, which
+     * risks touching an already-freed object -- see the delete-on-stop
+     * comment in ServiceSoundSystem) is enough: if it is still genuinely
+     * playing, it finishes on its own and self-deletes via
+     * ix_sound_set_delete_on_stop, just no longer tracked here. */
+    g_pSpeechSound_004a2658 = 0;
+    g_bSpeechSoundActive_004a2660 = 0;
+    g_nSpeechCompletionDelay_004a265c = 0;
+    g_bCutsceneSpeechAudioSeen = 0;
     savedTextContext = g_pCurrentTextContext_005c8d1c;
     savedInputPollPeriod = g_nInputPollPeriod_0049d6d8;
     savedMemoryStatus = g_cShowMemoryStatus;
