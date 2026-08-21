@@ -9,7 +9,7 @@ original Win32 `WC2.EXE`.
 A native SDL2 port is available for Windows, Linux, and macOS. It supports
 Kilrathi Saga data and has partial support for the original DOS game data.
 
-No copyrighted game data is included.
+No retail game data files are included.
 
 ## Status
 
@@ -19,11 +19,24 @@ report` compares 1,575 functions against the retail executable and averages
 98.06% machine-code similarity, which measures reconstruction fidelity, not
 gameplay completeness.
 
-The SDL2 port reaches the title screen, the campaign intro, the pilot database,
-the pilot save/load menu and space flight, with firing, targeting, the cockpit
-displays and music working. A DOS install plays its own AdLib music and
+The SDL2 port runs the title sequence, campaign intro, pilot database,
+save/load menus, cutscenes, and spaceflight, including firing, targeting,
+cockpit displays, and music. A DOS install plays its own AdLib music and
 synthesized OriginFX sound effects instead of the Kilrathi Saga streams and
-waves. Enhanced rendering is wired but largely untested.
+waves. The optional OpenGL renderer redraws space objects at output resolution
+while retaining the original indexed cockpit, HUD, and palette effects.
+
+## Screenshots
+
+Captured through DREAMM at the game's original 320x200 resolution.
+
+| Title menu | Opening sequence |
+| --- | --- |
+| [![Wing Commander II: Vengeance of the Kilrathi title menu](screenshots/title-screen.png)](screenshots/title-screen.png) | [![Kilrathi figure in the Wing Commander II opening sequence](screenshots/kilrathi-intro.png)](screenshots/kilrathi-intro.png) |
+
+| Cockpit navigation | External flight sequence |
+| --- | --- |
+| [![Cockpit navigation display during spaceflight](screenshots/cockpit-navigation.png)](screenshots/cockpit-navigation.png) | [![Two fighters during an external flight sequence](screenshots/external-flight.png)](screenshots/external-flight.png) |
 
 ## Download and run the SDL2 port
 
@@ -34,9 +47,18 @@ keep the bundled runtime libraries beside the executable. Start it with that
 directory as the working directory:
 
 ```sh
+# macOS or Linux
 cd /path/to/WC2
 ./wc2-modern
 ```
+
+```powershell
+# Windows PowerShell
+cd C:\path\to\WC2
+.\wc2-modern.exe
+```
+
+### Fixes and features
 
 The native port includes these fixes and optional features:
 
@@ -49,7 +71,7 @@ The native port includes these fixes and optional features:
 | `Esc` pauses during spaceflight when communications are closed | always on |
 | Pointer confined only during unpaused, focused spaceflight | always on |
 | Automatic SDL gamepad mappings and hot-plug support | always on |
-| Background planets drawn with their own sprite and scale | always on |
+| Background planets drawn with their own sprite and scale (WCDX fix) | always on |
 | Static on knocked-out cockpit displays | always on |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
@@ -65,6 +87,19 @@ Options can be combined:
 ./wc2-modern --enhanced --joystick-rumble \
   --joystick-mode=4button-4axis
 ```
+
+### Enhanced renderer
+
+The optional OpenGL renderer keeps the original indexed artwork, palettes,
+cockpit, HUD, and text while redrawing the ordered space-object layer at output
+resolution. The original software renderer remains the default; objects that
+cannot use the enhanced path fall back to it automatically. See the
+[SDL2 port documentation](docs/SDL2.md#enhanced-renderer) for implementation
+details.
+
+| Cockpit flight | External flight sequence |
+| --- | --- |
+| [![Enhanced renderer showing a nearby ship and engine glow from the cockpit](screenshots/enhanced-cockpit-flight.png)](screenshots/enhanced-cockpit-flight.png) | [![Enhanced renderer showing two ships during an external flight sequence](screenshots/enhanced-space-objects.png)](screenshots/enhanced-space-objects.png) |
 
 ### SDL2 port controls
 
@@ -149,6 +184,25 @@ Contributor references:
 - [function naming policy](docs/LABELS.md);
 - [SDL2 port architecture](docs/SDL2.md); and
 - [release process](docs/RELEASING.md).
+
+## Acknowledgements
+
+Special thanks to:
+
+- [Origin Systems](https://en.wikipedia.org/wiki/Origin_Systems), who created
+  *Wing Commander II* and developed its *Kilrathi Saga* port;
+- [Electronic Arts](https://www.ea.com/) for publishing *Wing Commander: The
+  Kilrathi Saga*;
+- [GOG](https://www.gog.com/en/game/wing_commander_1_2) for keeping *Wing
+  Commander 1 + 2* readily available;
+- AllTinker for the [W.C.A.T. overhaul](https://alltinker.itch.io/wcat), whose
+  fixes and analysis of the DOS release have been valuable references;
+- the [WCDX project](https://github.com/Bekenn/wcdx) for its pioneering
+  compatibility work on the *Kilrathi Saga* release; and
+- Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
+  to run and study the original release, and
+  [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
+  AdLib emulation.
 
 ## License
 
