@@ -10,6 +10,7 @@
 
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <strings.h>
@@ -140,7 +141,9 @@ int Wc1SdlOpen(const char *path, int flags, ...)
     int hostFlags;
     int hostMode;
     int file;
+    int openError;
     char hostPath[PATH_MAX];
+    struct stat status;
 
     hostFlags = flags & 3;
     if ((flags & 0x0008) != 0)
@@ -170,6 +173,18 @@ int Wc1SdlOpen(const char *path, int flags, ...)
     if (!Wc1SdlResolvePath(path, hostPath, sizeof(hostPath)))
         return -1;
     file = open(hostPath, hostFlags, hostMode);
+    /* Mutable files copied from the original media may still be read-only. */
+    if (file == -1 && errno == EACCES &&
+        (hostFlags & O_ACCMODE) != O_RDONLY &&
+        ((hostFlags & O_ACCMODE) == O_WRONLY ||
+         (hostFlags & (O_CREAT | O_TRUNC)) != 0)) {
+        openError = errno;
+        if (stat(hostPath, &status) == 0 && S_ISREG(status.st_mode) &&
+            chmod(hostPath, status.st_mode | S_IWUSR) == 0)
+            file = open(hostPath, hostFlags, hostMode);
+        else
+            errno = openError;
+    }
     if (file == -1 && (hostFlags & O_ACCMODE) == O_RDWR &&
         (hostFlags & O_CREAT) == 0) {
         hostFlags = (hostFlags & ~O_ACCMODE) | O_RDONLY;

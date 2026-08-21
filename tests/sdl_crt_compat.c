@@ -40,6 +40,11 @@ int main(int argumentCount, char **arguments)
         failed = 1;
     else if (_close(file) != 0)
         failed = 1;
+    file = _open(path, 0x8101, 0x0180);
+    if (file == -1)
+        failed = 1;
+    else if (_close(file) != 0)
+        failed = 1;
     if (_unlink(path) != 0)
         failed = 1;
 
