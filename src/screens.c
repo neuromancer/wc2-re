@@ -13,9 +13,17 @@
 
 static char g_szLastCutsceneWorkBuffer_00499ec0[16] = "@@@@@@@@@@";
 static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
+
 #ifdef WC1_SDL
-static int g_nCutsceneSpeechArmClock;
-static signed char g_bCutsceneSpeechStartPending;
+/* Not an original engine flag -- tracks whether any speech clip has
+ * actually played yet in the cutscene currently running (reset once per
+ * RunLoadedCutscene call, set the first time AnimateCutsceneSpeakerMouth
+ * observes g_bSpeechSoundActive_004a2660 go active). Most cutscenes have
+ * no voice audio at all, so AnimateCutsceneSpeakerMouth needs a way to
+ * tell "this line's audio hasn't started yet" (wait) apart from "this
+ * cutscene has no audio" (animate from text, same as the original always
+ * did) -- otherwise every unvoiced line blocks forever. */
+static signed char g_bCutsceneSpeechAudioSeen = 0;
 #endif
 
 /* Function start: 0x42BDDB */
@@ -500,12 +508,42 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
 
     speechSpeed = g_cCutsceneSpeechSpeed_00499eb4;
     if (g_bCutsceneTextAdvance_005d2ed0 == 0) {
-#ifdef WC1_SDL
-        g_bCutsceneSpeechStartPending = 0;
-#endif
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
+#ifdef WC1_SDL
+    /* The two gates below have no original-engine equivalent -- the
+     * reference build always animated the mouth straight from text,
+     * regardless of audio. Kept port-only so the reference build stays
+     * byte-comparable to the original for verification; see the PR
+     * discussion this note is based on. */
+    if (g_bSpeechSoundActive_004a2660 != 0) {
+        g_bCutsceneSpeechAudioSeen = 1;
+    } else if (g_bCutsceneSpeechAudioSeen != 0) {
+        /* Opcode 0x8a arms text-advance independently of when the paired
+         * speech clip (opcode 0xb0) actually starts producing audio --
+         * 0xb0's own cache miss falls back to a synchronous blocking disk
+         * load (LoadAndPlaySpeechPacket, music.c). Hold the current frame
+         * instead of animating from text alone until
+         * g_bSpeechSoundActive_004a2660 is set, which happens only once
+         * real playback begins (PlayRawSpeechBuffer, sound.c). Only applies
+         * once this cutscene is known to have voice audio at all (see
+         * g_bCutsceneSpeechAudioSeen) -- most cutscenes have none, and
+         * text-driven animation with no audio to wait for is correct for
+         * those, same as the original engine always did. */
+        return;
+    }
+    if (g_pSpeechSound_004a2658 != 0 &&
+        ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) {
+        /* g_bSpeechSoundActive_004a2660 clears only after
+         * ServiceSoundSystem's (sound.c) grace period, which exists to
+         * decide when to force-advance the script, not whether the mouth
+         * should keep moving. Check the sound object's own playing state
+         * directly instead, so the mouth stops the instant playback
+         * actually stops. */
+        return;
+    }
+#endif
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0) {
         g_bCutsceneSpeechActive_00499eb8 =
@@ -527,16 +565,6 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     }
     if (g_wSpeechCacheState_0049bb60 != 0)
         speechSpeed = 0;
-#ifdef WC1_SDL
-    if (g_bCutsceneSpeechStartPending != 0) {
-        if ((unsigned int)g_nInputClock_005c84a8 -
-                (unsigned int)g_nCutsceneSpeechArmClock <
-            WC2_CUTSCENE_SPEECH_START_GRACE_TICKS) {
-            return;
-        }
-        g_bCutsceneSpeechStartPending = 0;
-    }
-#endif
     sprite->waitStart = g_nInputClock_005c84a8;
     if (g_pszCutsceneSpeechCursor_00499eb0 == 0)
         g_pszCutsceneSpeechCursor_00499eb0 = g_pszCurrentCutsceneText_00499da4;
@@ -793,7 +821,28 @@ void RunLoadedCutscene(void)
     short savedMemoryStatus;
 
 #ifdef WC1_SDL
-    g_bCutsceneSpeechStartPending = 0;
+    /* None of these are reset by the previous cutscene's own teardown
+     * (ReleaseCutsceneSpeechPackets only clears the precache slot
+     * arrays), so a cutscene torn down while its last line was still
+     * speaking leaves them stale here. ServiceSoundSystem (sound.c) keys
+     * its whole grace-period/mouth-reset/force-advance block on
+     * g_pSpeechSound_004a2658 alone being non-null -- it does not care
+     * whether THIS cutscene has any speech of its own -- so a stale
+     * pointer makes that block fight this cutscene's own (audio-less)
+     * mouth animation and force-advance its lines early. Dropping the
+     * reference here (not stopping or releasing the sound itself, which
+     * risks touching an already-freed object -- see the delete-on-stop
+     * comment in ServiceSoundSystem) is enough: if it is still genuinely
+     * playing, it finishes on its own and self-deletes via
+     * ix_sound_set_delete_on_stop, just no longer tracked here. Also
+     * done unconditionally in stop_all_sounds (sound.c) now, but that is
+     * not reliably called between every cutscene, so this stays too. Port
+     * only, like the mouth-gating logic it protects -- the original never
+     * reset any of this here. */
+    g_pSpeechSound_004a2658 = 0;
+    g_bSpeechSoundActive_004a2660 = 0;
+    g_nSpeechCompletionDelay_004a265c = 0;
+    g_bCutsceneSpeechAudioSeen = 0;
 #endif
     savedTextContext = g_pCurrentTextContext_005c8d1c;
     savedInputPollPeriod = g_nInputPollPeriod_0049d6d8;
@@ -1842,10 +1891,6 @@ handle_queued_cutscene_input:
             break;
         case 0x8a:
             g_bCutsceneTextAdvance_005d2ed0 = 1;
-#ifdef WC1_SDL
-            g_bCutsceneSpeechStartPending = 1;
-            g_nCutsceneSpeechArmClock = g_nInputClock_005c84a8;
-#endif
             resourceIndex = *instruction++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
@@ -2551,9 +2596,6 @@ handle_queued_cutscene_input:
             }
             g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
             g_asCutsceneSpeechSections_005d2dd0[value] = 0;
-#ifdef WC1_SDL
-            g_bCutsceneSpeechStartPending = 0;
-#endif
             break;
         case 0xa9:
             value = 0;
@@ -2857,8 +2899,34 @@ handle_queued_cutscene_input:
         case 0x8f:
             value = *(short *)instruction;
             instruction += 2;
+            /* The original divides by 0x3b (59), not 0x3c (60).
+             * g_nInputClock_005c84a8 (what this delay is measured against,
+             * see PumpWindowMessages/winmain.c) ticks in exact 1/60s units
+             * -- confirmed independently by WC2_CUTSCENE_MOUTH_MIN_TICKS=3
+             * meaning exactly 3/60s=50ms=one 20fps frame elsewhere in this
+             * file. Converting a requested-fps `value` to a tick delay is
+             * 60/value, not 59/value; the sibling opcode 0x8d (above) takes
+             * an already-computed tick delay straight from the script with
+             * no arithmetic at all, so this is specifically the "set rate
+             * by fps" formula and nothing else. With integer division,
+             * 59/value truncates to a smaller (i.e. faster) delay than
+             * 60/value for nearly every value -- e.g. a scene requesting
+             * 20fps gets 59/20=2 ticks/frame (~30fps, 50% too fast)
+             * instead of the correct 60/20=3 (20fps). Different requested
+             * rates truncate by different amounts, which is consistent
+             * with cutscenes running at inconsistent, scene-dependent
+             * speeds rather than a single uniform offset. Corrected on the
+             * port only -- the reference build keeps the original's own
+             * 0x3b so it stays byte-comparable for verification.
+             * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
+             */
+#ifdef WC1_SDL
+            g_nCutsceneFrameDelay_00499c8c =
+                (unsigned short)(0x3c / value);
+#else
             g_nCutsceneFrameDelay_00499c8c =
                 (unsigned short)(0x3b / value);
+#endif
             break;
         case 0x75:
             index = *instruction++;

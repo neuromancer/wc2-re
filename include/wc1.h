@@ -86,9 +86,19 @@ typedef unsigned int Wc2DwordPtr;
     LoadPacketIntoBuffer((fileName), (section), (record), 0)
 #endif
 
-/* Port pacing for voiced and text-only mouth animation. */
+/* One mouth position per cinematic frame is what the original animates.
+ * Nearly every entry in the mouth-duration table is a single 60Hz tick, so
+ * without a floor the clock gate only bites at 60 positions a second --
+ * the port has to name a cadence instead of inheriting one from however
+ * fast the host happens to draw, or the mouth runs the line out well
+ * before the speech does. Was 3 ticks (one frame at 20fps, the rate
+ * PlayRawSpeechBuffer sets while speech is playing) -- correct for
+ * voiced lines, where actual audio length is the real pacing reference
+ * regardless of this floor's exact value, but unvoiced lines have
+ * nothing else limiting their pace, and 3 measured twice too fast there.
+ * 6 ticks (10 positions/sec) is the current best empirical value for the
+ * unvoiced case; not derived from a DOS trace. */
 #define WC2_CUTSCENE_MOUTH_MIN_TICKS 6
-#define WC2_CUTSCENE_SPEECH_START_GRACE_TICKS 6
 
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
