@@ -4769,6 +4769,10 @@ void death_sequence(void)
 
     deathShape = 0;
     cockpitBackground = 0;
+#ifdef WC1_SDL
+    /* This sequence advances the live 3-space simulation once per frame. */
+    SetSpaceFlightFrameTiming();
+#endif
     g_nTrainSimActive_0049d758 = 1;
     g_bMissionEndPending_0049da4c = 0;
     g_bDeathSequenceActive_0049da50 = 1;
@@ -4848,6 +4852,9 @@ void death_sequence(void)
     RestoreGamePalette();
     g_bMissionEndPending_0049da4c = 1;
     g_bDeathSequenceActive_0049da50 = 0;
+#ifdef WC1_SDL
+    SetDefaultFrameTiming();
+#endif
 }
 
 #ifndef WC1_SDL
