@@ -237,68 +237,64 @@ void ServiceSoundSystem(void)
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
 #ifdef WC1_SDL
-        int speechPending;
-        int speechStopped;
-
-        speechStopped = 0;
-        if (g_pSpeechSound_004a2658 != 0) {
-            if (ix_sound_is_live(g_pSpeechSound_004a2658) == 0) {
-                speechStopped = 1;
-                g_pSpeechSound_004a2658 = 0;
-            } else if (ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) {
-                speechStopped = 1;
-            }
-        } else if (g_bSpaceFlightActive_005c586c == 0 &&
-                   g_nSpeechCompletionDelay_004a265c > 0 &&
-                   g_nSpeechCompletionDelay_004a265c <= 20) {
-            speechStopped = 1;
-        }
-        speechPending = g_bSpeechSoundActive_004a2660 != 0 ||
-            (g_bSpaceFlightActive_005c586c == 0 &&
-             g_nSpeechCompletionDelay_004a265c > 0 &&
-             g_nSpeechCompletionDelay_004a265c <= 20);
-        if (speechStopped != 0 && speechPending != 0) {
-            if (g_bSpaceFlightActive_005c586c == 0 &&
-                g_nSpeechCompletionDelay_004a265c == 0) {
-                g_bSpeechSoundActive_004a2660 = 0;
-                g_bCutsceneSpeechActive_00499eb8 = 0;
-                g_bCutsceneTextAdvance_005d2ed0 = 0;
-                g_pszCutsceneSpeechCursor_00499eb0 = 0;
-                if (g_pLinkedCutsceneSprite_00499c64 != 0) {
-                    g_pLinkedCutsceneSprite_00499c64->currentFrame = 11;
-                    g_pLinkedCutsceneSprite_00499c64->waitTicks = 0;
-                }
-            }
-            g_nSpeechCompletionDelay_004a265c++;
-            if (g_bSpaceFlightActive_005c586c != 0) {
-                g_bSpeechPlaybackComplete_004a266c = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
-            }
-            if (g_nSpeechCompletionDelay_004a265c > 20) {
-                if (g_bSpaceFlightActive_005c586c == 0) {
-                    g_nInputPressCount_0049c258 = 1;
-                    SetCinematicFrameTiming(70.0f);
-                }
-                g_bSpeechSoundActive_004a2660 = 0;
-            }
-        }
+        /* The speech sound is delete-on-stop, so the call above can have
+         * freed it already this frame. Evaluate liveness into a local
+         * before touching g_pSpeechSound_004a2658, so a same-frame free
+         * still runs the stopped-handling block below instead of being
+         * skipped because the pointer already reads as 0. */
+        int speechIsLive = g_pSpeechSound_004a2658 != 0 &&
+                            ix_sound_is_live(g_pSpeechSound_004a2658);
 #else
+        int speechIsLive = 1;
+#endif
         if (g_pSpeechSound_004a2658 != 0 &&
-            ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
-            g_bSpeechSoundActive_004a2660 != 0) {
+            (!speechIsLive || ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) &&
+            g_nSpeechCompletionDelay_004a265c <= 20) {
+            /* g_nSpeechCompletionDelay_004a265c gates re-entry instead of
+             * g_bSpeechSoundActive_004a2660: it resets to 0 in
+             * PlayRawSpeechBuffer whenever a new clip starts, so this
+             * block still only fires once per stopped clip, but the reset
+             * below can run on the first frame audio is observed stopped
+             * rather than waiting for the full grace period. */
+            if (g_nSpeechCompletionDelay_004a265c == 0) {
+                /* The cutscene script polls g_bCutsceneTextAdvance_005d2ed0
+                 * (opcode 0x9c, screens.c) to know when speech has
+                 * finished before advancing to the next line, so clearing
+                 * these here -- immediately on stop, not after the grace
+                 * period below -- keeps both the mouth and the next
+                 * line's start in sync with when audio actually ends. */
+                g_bSpeechSoundActive_004a2660 = 0;
+                if (g_bSpaceFlightActive_005c586c == 0) {
+                    g_bCutsceneSpeechActive_00499eb8 = 0;
+                    g_bCutsceneTextAdvance_005d2ed0 = 0;
+                    g_pszCutsceneSpeechCursor_00499eb0 = 0;
+                    /* g_pCurrentCutsceneSprite_00499c78 is whichever
+                     * object happens to be executing its own script
+                     * opcodes at the moment this runs (set/restored
+                     * around every sprite/plane's dispatch) -- not
+                     * necessarily the speaker. g_pLinkedCutsceneSprite_
+                     * 00499c64 is the sprite opcode 0x8a actually armed
+                     * for mouth animation, the same one
+                     * AnimateCutsceneSpeakerMouth (screens.c) itself
+                     * resets to frame 11 on its own early-return paths. */
+                    if (g_pLinkedCutsceneSprite_00499c64 != 0) {
+                        g_pLinkedCutsceneSprite_00499c64->currentFrame = 11;
+                        g_pLinkedCutsceneSprite_00499c64->waitTicks = 0;
+                    }
+                }
+            }
             g_nSpeechCompletionDelay_004a265c++;
             if (g_bSpaceFlightActive_005c586c != 0) {
                 g_bSpeechPlaybackComplete_004a266c = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
             }
             if (g_nSpeechCompletionDelay_004a265c > 20) {
                 if (g_bSpaceFlightActive_005c586c == 0)
                     g_nInputPressCount_0049c258 = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    SetCinematicFrameTiming(70.0f);
             }
         }
+#ifdef WC1_SDL
+        if (!speechIsLive)
+            g_pSpeechSound_004a2658 = 0;
 #endif
     }
 }
