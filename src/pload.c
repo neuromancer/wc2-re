@@ -4,7 +4,7 @@
  *  Address range 0x42b000-0x42b3ff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PROVEN: PacketLoad prints "Library\\Source\\Pload.c PacketLoad".
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(strcmp)
 
@@ -34,7 +34,7 @@ void *PacketLoad(const char *filename, short section,
     data = 0;
     if (OpenPacketSection(filename, section, &handle) != 0) {
         switch (handle.compression) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* A DOS install marks its compressed sections 0x20 where the Saga
          * conversion decompressed them and marked them 0xe0.  The payload is
          * the same shape as compression 1 - a four byte length then the LZW
@@ -43,7 +43,7 @@ void *PacketLoad(const char *filename, short section,
         case 0x20:
 #endif
         case 1:
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         {
             unsigned char sizeBytes[4];
             unsigned char *compressedData;
@@ -85,7 +85,7 @@ void *PacketLoad(const char *filename, short section,
             g_pLastPacketAllocation_005c80e0 = data;
             if (data == 0) {
                 g_nPacketError_0049ca90 = 4;
-            } else if (!Wc1SdlDecompressOriginLzw(
+            } else if (!SdlDecompressOriginLzw(
                            compressedData, compressedSize, data,
                            outputSize, &writtenSize)) {
                 if (allocatedPacket != 0)

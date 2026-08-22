@@ -4,7 +4,7 @@
  *  Address range 0x437000-0x43cfff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: unbroken run of Blit* screens plus ShowGetReady/Victory/GameOver.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(memcmp)
 #pragma function(memcpy)
@@ -14,7 +14,7 @@
 static char g_szLastCutsceneWorkBuffer_00499ec0[16] = "@@@@@@@@@@";
 static char g_szLastCutscenePrintBuffer_00499ed0[16] = "@@@@@@@@@@";
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* Not an original engine flag -- tracks whether any speech clip has
  * actually played yet in the cutscene currently running (reset once per
  * RunLoadedCutscene call, set the first time AnimateCutsceneSpeakerMouth
@@ -480,7 +480,7 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
         g_pCurrentTextContext_005c8d1c->cursorY =
             (short)(g_pCurrentTextContext_005c8d1c->viewport->top + y);
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (memcmp(text, "50", 2) != 0) {
 #else
     if ((IsCutsceneSpeechLoaded() == 0 ||
@@ -511,7 +511,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* The two gates below have no original-engine equivalent -- the
      * reference build always animated the mouth straight from text,
      * regardless of audio. Kept port-only so the reference build stays
@@ -592,11 +592,11 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     if (frame != -1) {
         sprite->currentFrame = frame;
         sprite->waitTicks = (short)(speechSpeed * duration);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* Keep text-only lines readable when no speech controls the pace. */
-        if (sprite->waitTicks < WC2_CUTSCENE_MOUTH_MIN_TICKS)
-            sprite->waitTicks = WC2_CUTSCENE_MOUTH_MIN_TICKS;
-        Wc1SdlTracef("[mouth] ch=%c speed=%d dur=%d wait=%d clock=%d "
+        if (sprite->waitTicks < CUTSCENE_MOUTH_MIN_TICKS)
+            sprite->waitTicks = CUTSCENE_MOUTH_MIN_TICKS;
+        SdlTracef("[mouth] ch=%c speed=%d dur=%d wait=%d clock=%d "
                      "period=%ldms cache=%d speech=%d\n",
                      (char)(character >= ' ' ? character : '.'),
                      (int)speechSpeed, (int)duration,
@@ -698,22 +698,22 @@ void InitializeCutsceneRuntimeResources(void)
         g_bCutsceneCockpitLoaded_005d2d66 = 0;
         if (g_apSceneObjects_00499c38 == 0) {
             g_apSceneObjects_00499c38 = AllocateScenePointerTable(
-                0x80, WC2_HOST_POINTER_SIZE, 0,
+                0x80, HOST_POINTER_SIZE, 0,
                 "Cannot alloc SpritesArray");
         }
         if (g_apCutscenePlanes_00499c3c == 0) {
             g_apCutscenePlanes_00499c3c = AllocateScenePointerTable(
-                0x40, WC2_HOST_POINTER_SIZE, 0,
+                0x40, HOST_POINTER_SIZE, 0,
                 "Cannot alloc PlanesArray");
         }
         if (g_apCutsceneSequences_00499c40 == 0) {
             g_apCutsceneSequences_00499c40 = AllocateScenePointerTable(
-                0x100, WC2_HOST_POINTER_SIZE, 0,
+                0x100, HOST_POINTER_SIZE, 0,
                 "Cannot alloc SequenceArray");
         }
         if (g_apCutsceneScenes_00499c44 == 0) {
             g_apCutsceneScenes_00499c44 = AllocateScenePointerTable(
-                0x20, WC2_HOST_POINTER_SIZE, 0,
+                0x20, HOST_POINTER_SIZE, 0,
                 "Cannot alloc ScriptArray");
         }
         if (g_pszCutsceneWorkBuffer_005d2ecc == 0) {
@@ -775,44 +775,6 @@ void ReleaseCutsceneSpeechPackets(void)
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int LoadBriefingRoom(void)
-{
-    g_pConversationBackdropShape_00598c04 = 0;
-    g_pBriefingAnimationShape_00598c14 = 0;
-    g_pBriefingCloseupShape_00598c2c = 0;
-    g_pBriefingBodyShape_00598c1c = 0;
-    g_pBriefingPortraitShape_00598c24 = 0;
-    InitializeConversationViewport();
-    InitializeConversationText();
-    SetTextContext(&g_stConversationTextContext_005d2d40);
-    spacetrack(0x19, 2, 1);
-    g_pConversationBackdropShape_00598c04 =
-        FetchDiskPacketRetrying(4, 0, 0);
-    g_pBriefingAnimationShape_00598c14 =
-        FetchDiskPacketRetrying(4, 1, 0);
-    g_pBriefingCloseupShape_00598c2c =
-        FetchDiskPacketRetrying(4, 3, 0);
-    g_pBriefingBodyShape_00598c1c =
-        FetchDiskPacketRetrying(4, 4, 0);
-    g_pBriefingPortraitShape_00598c24 =
-        FetchDiskPacketRetrying(4, 5, 0);
-    SceneDirector(0, g_pBriefingSceneData_00598c00,
-                  g_pBriefingTextData_00598af0);
-    FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 8);
-    FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 8);
-    FreePacketAndClear(&g_pBriefingCloseupShape_00598c2c, 8);
-    FreePacketAndClear(&g_pBriefingAnimationShape_00598c14, 8);
-    FreePacketAndClear(&g_pConversationBackdropShape_00598c04, 8);
-    ReleaseTextFont(0);
-    ResetScreenClipToFullHeight();
-    if (g_bSceneEscapeRequested_0049d4b0 != 0) {
-        StopMusicUnlessSuppressed();
-        g_bSceneEscapeRequested_0049d4b0 = 0;
-    }
-    return 0;
-}
-
 /* Function start: 0x42D568 */
 void RunLoadedCutscene(void)
 {
@@ -820,7 +782,7 @@ void RunLoadedCutscene(void)
     short savedInputPollPeriod;
     short savedMemoryStatus;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* None of these are reset by the previous cutscene's own teardown
      * (ReleaseCutsceneSpeechPackets only clears the precache slot
      * arrays), so a cutscene torn down while its last line was still
@@ -1218,7 +1180,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             textShown++;
             ClearCutsceneTextViewport();
             ExpandCutsceneText(text, g_pszCutsceneWorkBuffer_005d2ecc);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc,
                        "50", 2) != 0) {
 #else
@@ -2902,7 +2864,7 @@ handle_queued_cutscene_input:
             /* The original divides by 0x3b (59), not 0x3c (60).
              * g_nInputClock_005c84a8 (what this delay is measured against,
              * see PumpWindowMessages/winmain.c) ticks in exact 1/60s units
-             * -- confirmed independently by WC2_CUTSCENE_MOUTH_MIN_TICKS=3
+             * -- confirmed independently by CUTSCENE_MOUTH_MIN_TICKS=3
              * meaning exactly 3/60s=50ms=one 20fps frame elsewhere in this
              * file. Converting a requested-fps `value` to a tick delay is
              * 60/value, not 59/value; the sibling opcode 0x8d (above) takes
@@ -2920,7 +2882,7 @@ handle_queued_cutscene_input:
              * 0x3b so it stays byte-comparable for verification.
              * https://github.com/schlangz/openwc2/blob/main/docs/wc2re_cross_reference.md
              */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             g_nCutsceneFrameDelay_00499c8c =
                 (unsigned short)(0x3c / value);
 #else
@@ -3368,59 +3330,6 @@ void ReleaseLoadedCutsceneResource(CutsceneResourceTable *resources,
     }
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawMedalChest(char *text, short duration)
-{
-    short escaped;
-    short offset;
-
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    offset = 0;
-    FormatTextBufferFromStart(g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    do {
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 41);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(92 - offset), 64,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 43);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(228 + offset), 64,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 44);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 64,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 42);
-        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 319, 64,
-                         g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 42,
-                         0, 256, 16);
-        RefreshMemoryStatusOverlay();
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            duration = -1;
-            break;
-        }
-        offset = (short)(offset + 2);
-        MarkDibDirty();
-        DIBslamReal();
-    } while (offset < 162);
-    WaitForWc1SceneAdvance(duration, 0);
-    switch (g_nConversationMedalIndex_00598c08) {
-    case 0:
-    case 1:
-        spacetrack(39, 1, -1);
-        break;
-    case 2:
-    case 4:
-        spacetrack(40, 1, -1);
-        break;
-    case 3:
-        spacetrack(38, 1, -1);
-        break;
-    }
-    return 0;
-}
-
 /* Function start: 0x434177 */
 unsigned short HasSavedPilotCampaign(void)
 {
@@ -3456,1078 +3365,6 @@ unsigned short HasSavedPilotCampaign(void)
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawMedalLongShot(short *animation, char *text,
-                               short duration)
-{
-    short countdown;
-    short escaped;
-    short frame;
-    short *cursor;
-    short *start;
-
-    countdown = 0;
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    cursor = animation;
-    start = animation;
-    if (*cursor != -1) {
-        for (;;) {
-            if (countdown-- == 0) {
-                if (*cursor != -1)
-                    cursor += 2;
-                if (*cursor == -2)
-                    cursor = start;
-                else if (*cursor == -1)
-                    frame = -1;
-                else {
-                    frame = *cursor;
-                    countdown = (short)(cursor[1] * 2);
-                }
-            }
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                              g_pConversationBackdropShape_00598c04, 0);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
-            if (frame > -1)
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 121, 8,
-                                  g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                                  (short)(frame + 1));
-            RefreshMemoryStatusOverlay();
-            escaped = CheckEscaped();
-            if (escaped != 0) {
-                duration = -1;
-                break;
-            }
-            MarkDibDirty();
-            DIBslamReal();
-            if (*cursor == -1)
-                break;
-        }
-    }
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pConversationBackdropShape_00598c04, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
-    RefreshMemoryStatusOverlay();
-    MarkDibDirty();
-    DIBslamReal();
-    WaitForWc1SceneAdvance(duration, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int MedalEstablish(char *text, short duration)
-{
-    int distance;
-    short escaped;
-    short frame;
-    short x;
-    short y;
-
-    distance = 200;
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    frame = 0;
-    FormatTextBufferFromStart(g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    x = g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED[g_nConversationMedalIndex_00598c08];
-    y = 87;
-    for (; frame < 32; frame++) {
-        DrawMedals();
-        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, x, y,
-                         g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 12,
-                         0, (short)(0xc800L / distance), 0);
-        distance--;
-        x--;
-        y = (short)(y + 2);
-        RefreshMemoryStatusOverlay();
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            duration = -1;
-            break;
-        }
-        MarkDibDirty();
-        DIBslamReal();
-    }
-    WaitForWc1SceneAdvance(duration, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int PinMedal(char *text, short duration)
-{
-    short escaped;
-    short frame;
-
-    frame = 0;
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szPinMedalTextFormat_0046e634_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
-    SetFrameTimerPeriodDirect(duration);
-    escaped = IsFrameTickElapsed();
-    while (escaped == 0) {
-        frame++;
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                          (short)(frame % 3 + 38));
-        RefreshMemoryStatusOverlay();
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            duration = -1;
-            break;
-        }
-        MarkDibDirty();
-        DIBslamReal();
-        escaped = IsFrameTickElapsed();
-    }
-    WaitForWc1SceneAdvance(duration, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawMedals(void)
-{
-    short badge;
-    short medal;
-    short rowY;
-    short stack;
-    short x;
-
-    rowY = 78;
-    x = 188;
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pConversationBackdropShape_00598c04, 1);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED, 11);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 253, 38,
-                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                      (short)(g_stCampaignState_0059ca50.currentPilot->rank +
-                              33));
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 67, 38,
-                     g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                     (short)(g_stCampaignState_0059ca50.currentPilot->rank +
-                             33),
-                     0, 255, 16);
-    for (badge = 0; badge < 12; badge++) {
-        if (g_stCampaignState_0059ca50.badges[badge] != 0) {
-            if (x > 231) {
-                rowY = (short)(rowY + 3);
-                x = 188;
-            }
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, rowY,
-                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                              (short)(badge + 13));
-            x = (short)(x + 11);
-        }
-    }
-    rowY = (short)(rowY + 5);
-    for (medal = 0; medal < 5; medal++) {
-        if (g_stCampaignState_0059ca50.medals[medal] != 0) {
-            x = g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED[medal];
-            stack = rowY;
-            if (medal < 3) {
-                badge = 0;
-                while (badge < (signed char)
-                                   g_stCampaignState_0059ca50.medals[medal]) {
-                    badge++;
-                    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
-                                      g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                                      (short)(medal + 25));
-                    stack = (short)(stack + 2);
-                }
-            }
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, x, stack,
-                              g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED,
-                              (short)(medal + 28));
-        }
-    }
-    MarkDibDirty();
-    DIBslamReal();
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int EstablishingShot(char *text, short duration)
-{
-    short character;
-    short escaped;
-    short frame;
-
-    if (g_pBriefingBodyShape_00598c1c == 0)
-        g_pBriefingBodyShape_00598c1c =
-            FetchDiskPacketRetrying(4, 4, 0);
-    if (g_pBriefingPortraitShape_00598c24 == 0)
-        g_pBriefingPortraitShape_00598c24 =
-            FetchDiskPacketRetrying(4, 5, 0);
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szEstablishingShotTextFormat_0046e640_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    frame = 0;
-    FlushInputEvents();
-    do {
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
-                          g_pBriefingAnimationShape_00598c14, frame);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
-                          g_pBriefingAnimationShape_00598c14, 22);
-        for (character = 0; character < 8; character++) {
-            RecordCannedSceneBriefingCharacter(
-                character, 0,
-                g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character]
-                    .animation[frame]);
-        }
-        RefreshMemoryStatusOverlay();
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            frame = 21;
-            duration = -1;
-        }
-        frame++;
-        MarkDibDirty();
-        DIBslamReal();
-    } while (frame < 22);
-    WaitForWc1SceneAdvance(duration, 0);
-    spacetrack(25, 1, -1);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawBriefingLongShot(void)
-{
-    short character;
-
-    if (g_pBriefingBodyShape_00598c1c == 0)
-        g_pBriefingBodyShape_00598c1c =
-            FetchDiskPacketRetrying(4, 4, 0);
-    if (g_pBriefingPortraitShape_00598c24 == 0)
-        g_pBriefingPortraitShape_00598c24 =
-            FetchDiskPacketRetrying(4, 5, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pConversationBackdropShape_00598c04, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
-                      g_pBriefingAnimationShape_00598c14, 21);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
-                      g_pBriefingAnimationShape_00598c14, 22);
-    for (character = 0; character < 8; character++) {
-        RecordCannedSceneBriefingCharacter(character, 0, 0);
-    }
-    RefreshMemoryStatusOverlay();
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int ReturnToBriefingLongShot(char *text, short duration)
-{
-    char active[10] = "";
-    BriefingCharacterLayout *layout;
-    short character;
-    short escaped;
-    short frame;
-
-    spacetrack(26, 1, -1);
-    if (g_pBriefingBodyShape_00598c1c == 0)
-        g_pBriefingBodyShape_00598c1c =
-            FetchDiskPacketRetrying(4, 4, 0);
-    if (g_pBriefingPortraitShape_00598c24 == 0)
-        g_pBriefingPortraitShape_00598c24 =
-            FetchDiskPacketRetrying(4, 5, 0);
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    for (character = 0; character < 8; character++) {
-        g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character].animationPhase = 0;
-    }
-    frame = 0;
-    for (;;) {
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 60,
-                          g_pBriefingAnimationShape_00598c14, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 241, 64,
-                          g_pBriefingAnimationShape_00598c14, 22);
-        for (character = 0; character < 8; character++) {
-            layout = &g_aBriefingCharacters_0046e218_WC1_UNMAPPED[character];
-            if (active[character] == 0 &&
-                RandomBelowOrEqual(5) == 0)
-                active[character] = 1;
-            RecordCannedSceneBriefingCharacter(
-                character, layout->animationPhase, 0);
-            if (active[character] == 1 && layout->animationPhase < 11)
-                layout->animationPhase++;
-        }
-        RefreshMemoryStatusOverlay();
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            duration = 0;
-            StopMusicUnlessSuppressed();
-            break;
-        }
-        frame++;
-        MarkDibDirty();
-        DIBslamReal();
-        if (frame > 39)
-            break;
-    }
-    WaitForWc1SceneAdvance(duration, 0);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DismissWc1Scene(char *text, short duration)
-{
-    short frame;
-    short leftDelta;
-    short leftX;
-    short podiumDelta;
-    short podiumFrame;
-    short podiumX;
-    short rightDelta;
-    short rightX;
-
-    podiumFrame = 0;
-    rightX = 252;
-    leftX = -96;
-    podiumX = 240;
-    if (g_pTalkingHeadShape_00598c0c != 0)
-        FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    if (g_pBriefingBodyShape_00598c1c != 0)
-        FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 0);
-    if (g_pBriefingPortraitShape_00598c24 != 0)
-        FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szDismissedTextFormat_0046e658_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    frame = 0;
-    g_pTalkingHeadShape_00598c0c =
-        FetchDiskPacketRetrying(4, 2, 0);
-    g_nFrameSkipCountdown_0049d760 = 1;
-    do {
-        if (CheckEscaped() != 0) {
-            rightX = 348;
-            leftX = 0;
-            frame = 31;
-            podiumFrame = 34;
-            podiumX = 336;
-        }
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, leftX, 0,
-                              g_pConversationBackdropShape_00598c04, 1);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, (short)(leftX + 320), 0,
-                              g_pConversationBackdropShape_00598c04, 2);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, podiumX, 127,
-                              g_pTalkingHeadShape_00598c0c,
-                              g_abBriefingPodiumFrames_0046e510_WC1_UNMAPPED[
-                                  podiumFrame]);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, rightX, 127,
-                              g_pConversationBackdropShape_00598c04, 3);
-            RefreshMemoryStatusOverlay();
-        }
-        if (podiumFrame < 34)
-            podiumFrame++;
-        if (frame < 12) {
-            leftDelta =
-                (short)g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED[frame];
-            podiumDelta =
-                (short)g_aiBriefingPodiumVelocity_0046e4b0_WC1_UNMAPPED[frame];
-            rightDelta =
-                (short)g_aiBriefingRightPanelVelocity_0046e4e0_WC1_UNMAPPED[frame];
-        }
-        if (frame > 24)
-            leftDelta = (short)g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED[
-                11 - (frame - 25)];
-        podiumX = (short)(podiumX + podiumDelta);
-        frame++;
-        leftX = (short)(leftX + leftDelta);
-        rightX = (short)(rightX + rightDelta);
-        MarkDibDirty();
-        DIBslamReal();
-    } while (frame < 32);
-    WaitForWc1SceneAdvance(duration, 0);
-    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    SetTextContext(&g_stConversationTextContext_005d2d40);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawDebriefingLongShot(void)
-{
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED, 0,
-                      g_pConversationBackdropShape_00598c04, 2);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      (short)(g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED + 320), 0,
-                      g_pConversationBackdropShape_00598c04, 3);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      (short)(g_nDebriefingPilotX_0046e570_WC1_UNMAPPED - 1), 127,
-                      g_pConversationBackdropShape_00598c04, 4);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPilotX_0046e570_WC1_UNMAPPED, 127,
-                      g_pConversationBackdropShape_00598c04, 5);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED, 127,
-                      g_pConversationBackdropShape_00598c04, 8);
-    if (g_stCampaignState_0059ca50.personalityDeathMission[
-            g_nDebriefingPersonality_00465c80_WC1_UNMAPPED] == 0) {
-        if (g_nDebriefingPersonality_00465c80_WC1_UNMAPPED != 0)
-            DrawSpriteDefault(
-                &g_stSecondaryViewBuffer_005d2c90, g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
-                g_pConversationBackdropShape_00598c04,
-                (short)(g_nDebriefingPersonality_00465c80_WC1_UNMAPPED + 9));
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
-                          g_pConversationBackdropShape_00598c04, 6);
-        if (g_nDebriefingPersonality_00465c80_WC1_UNMAPPED == 0)
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                              g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED, 32,
-                              g_pConversationBackdropShape_00598c04, 9);
-    }
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, g_nDebriefingRightX_0046e574_WC1_UNMAPPED, 127,
-                      g_pConversationBackdropShape_00598c04, 7);
-    MarkDibDirty();
-    DIBslamReal();
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DebriefingEstablishingShot(char *text, short duration)
-{
-    const signed char *delta;
-    short escaped;
-    short frame;
-
-    g_nDebriefingPilotX_0046e570_WC1_UNMAPPED = 80;
-    g_nDebriefingRightX_0046e574_WC1_UNMAPPED = 278;
-    frame = 0;
-    g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED = 0;
-    g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED = 200;
-    g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED = 344;
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    g_nFrameSkipCountdown_0049d760 = 1;
-    for (;;) {
-        delta = &g_abDebriefingEstablishDeltas_0046e538_WC1_UNMAPPED[frame];
-        g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED =
-            (short)(g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED -
-                    MaxShort((short)delta[0], 0));
-        g_nDebriefingPilotX_0046e570_WC1_UNMAPPED =
-            (short)(g_nDebriefingPilotX_0046e570_WC1_UNMAPPED -
-                    MaxShort((short)(delta[0] + 1), 0));
-        g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED =
-            (short)(g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED -
-                    MaxShort((short)(delta[0] + 2), 0));
-        g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED =
-            (short)(g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED -
-                    MaxShort((short)(delta[0] + 3), 0));
-        g_nDebriefingRightX_0046e574_WC1_UNMAPPED =
-            (short)(g_nDebriefingRightX_0046e574_WC1_UNMAPPED -
-                    MaxShort((short)(delta[0] + 3), 0));
-        if (frame == 47)
-            g_nFrameSkipCountdown_0049d760 = 1;
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-            DrawDebriefingLongShot();
-            RefreshMemoryStatusOverlay();
-            MarkDibDirty();
-            DIBslamReal();
-        }
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            duration = -1;
-            break;
-        }
-        frame++;
-        if (frame >= 48)
-            break;
-    }
-    WaitForWc1SceneAdvance(duration, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-int no_objectives_achieved(void)
-{
-    short objective;
-
-    objective = 0;
-    while (objective < g_cMissionObjectiveCount_00493294) {
-        if (achieved(objective) != 0)
-            break;
-        objective++;
-    }
-    return objective >= g_cMissionObjectiveCount_00493294;
-}
-
-/* Function start: WC2_UNMAPPED */
-short wing_status(short personality)
-{
-    int currentMission;
-    int deathMission;
-
-    deathMission =
-        g_stCampaignState_0059ca50.personalityDeathMission[personality];
-    if (deathMission == 0)
-        return 3;
-    currentMission = (int)g_stCampaignState_0059ca50.currentMission +
-        (int)g_stCampaignState_0059ca50.currentSeries * 4;
-    if (deathMission == currentMission)
-        return 1;
-    if (currentMission > deathMission)
-        return 2;
-    return currentMission;
-}
-
-/* Function start: WC2_UNMAPPED */
-short int_value(char **text)
-{
-    char number[8];
-    char *destination;
-    short character;
-
-    destination = number;
-    character = (short)**text;
-    while (character != ',' && character != ')') {
-        (*text)++;
-        *destination = character;
-        destination++;
-        character = **text;
-    }
-    *destination = '\0';
-    (*text)++;
-    return (short)atoi(number);
-}
-
-/* Function start: WC2_UNMAPPED */
-ConversationSceneRecord *ParseTests(ConversationSceneRecord *record,
-                                    ConversationSceneRecord *sceneData,
-                                    unsigned char *textData)
-{
-    char *test;
-    short first;
-    short second;
-    short testCode;
-
-    test = (char *)textData + record->testsOffset;
-    for (;;) {
-        testCode = (short)*test++;
-        if (testCode == 0)
-            return record;
-        switch (testCode) {
-        case 1:
-            first = int_value(&test);
-            return sceneData + first;
-        case 2:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (g_nMissionScore_00493462 < first)
-                return sceneData + second;
-            break;
-        case 3:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (first <= g_nMissionScore_00493462)
-                return sceneData + second;
-            break;
-        case 4:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (wing_status(first) != 3)
-                return sceneData + second;
-            break;
-        case 5:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (wing_status(first) == 3)
-                return sceneData + second;
-            break;
-        case 6:
-            first = int_value(&test);
-            if (g_cPlayerKillCount_005d2fa8 == 0)
-                return sceneData + first;
-            break;
-        case 7:
-            first = int_value(&test);
-            if (g_cPlayerKillCount_005d2fa8 != 0)
-                return sceneData + first;
-            break;
-        case 8:
-            first = int_value(&test);
-            if (g_nWingmanKillCount_005a7cb8 == 0)
-                return sceneData + first;
-            break;
-        case 9:
-            first = int_value(&test);
-            if (g_nWingmanKillCount_005a7cb8 != 0)
-                return sceneData + first;
-            break;
-        case 10:
-            first = int_value(&test);
-            if (DAT_004688cc_WC1_UNMAPPED == 0)
-                return sceneData + first;
-            break;
-        case 11:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (achieved(first) == 0)
-                return sceneData + second;
-            break;
-        case 12:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (achieved(first) != 0)
-                return sceneData + second;
-            break;
-        case 27:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (sighted(first) != 0)
-                return sceneData + second;
-            break;
-        case 29:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (wing_status(first) == 2)
-                return sceneData + second;
-            break;
-        case 30:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (wing_status(first) == 1)
-                return sceneData + second;
-            break;
-        case 31:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (ace_status(first, 1) == 0)
-                return sceneData + second;
-            break;
-        case 32:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (ace_status(first, 1) != 0)
-                return sceneData + second;
-            break;
-        case 33:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (ace_status(first, 2) == 0 &&
-                ace_status(first, 1) == 0)
-                return sceneData + second;
-            break;
-        case 34:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (ace_status(first, 2) != 0)
-                return sceneData + second;
-            break;
-        }
-        switch (testCode) {
-        case 13:
-            first = int_value(&test);
-            if (g_nConversationMedalIndex_00598c08 == 4)
-                return sceneData + first;
-            break;
-        case 14:
-            first = int_value(&test);
-            if (g_nConversationMedalIndex_00598c08 < 3)
-                return sceneData + first;
-            break;
-        case 15:
-            first = int_value(&test);
-            if (g_nConversationMedalIndex_00598c08 == 3)
-                return sceneData + first;
-            break;
-        case 16:
-            first = int_value(&test);
-            if (DAT_004688d0_WC1_UNMAPPED != 1)
-                return sceneData + first;
-            break;
-        case 17:
-            first = int_value(&test);
-            if (DAT_004688d4_WC1_UNMAPPED == 0)
-                return sceneData + first;
-            break;
-        case 18:
-            first = int_value(&test);
-            if (DAT_004688d4_WC1_UNMAPPED == 1 &&
-                g_stCampaignState_0059ca50.elapsedDate.year == 1)
-                return sceneData + first;
-            break;
-        case 19:
-            first = int_value(&test);
-            if (DAT_004688d8_WC1_UNMAPPED != 1)
-                return sceneData + first;
-            break;
-        case 20:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 != 0)
-                return sceneData + first;
-            break;
-        case 21:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 != 2)
-                return sceneData + first;
-            break;
-        case 22:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 != 3)
-                return sceneData + first;
-            break;
-        case 23:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 != 1)
-                return sceneData + first;
-            break;
-        case 24:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 != 1 &&
-                g_nPlayerShipType_00493464 < DAT_004688dc_WC1_UNMAPPED)
-                return sceneData + first;
-            break;
-        case 25:
-            first = int_value(&test);
-            if (g_nPlayerShipType_00493464 == 1 ||
-                g_nPlayerShipType_00493464 >= DAT_004688dc_WC1_UNMAPPED)
-                return sceneData + first;
-            break;
-        case 26:
-            first = int_value(&test);
-            if (DAT_004688d4_WC1_UNMAPPED == 1 &&
-                g_stCampaignState_0059ca50.elapsedDate.year > 1)
-                return sceneData + first;
-            break;
-        case 28:
-            first = int_value(&test);
-            second = int_value(&test);
-            if (sighted(first) == 0)
-                return sceneData + second;
-            break;
-        case 35:
-            first = int_value(&test);
-            if (PlayersMissionScore() == FullMissionScore())
-                return sceneData + first;
-            break;
-        case 36:
-            first = int_value(&test);
-            if (PlayersMissionScore() < FullMissionScore())
-                return sceneData + first;
-            break;
-        case 37:
-            first = int_value(&test);
-            if (no_objectives_achieved() != 0)
-                return sceneData + first;
-            break;
-        case 38:
-            first = int_value(&test);
-            if (no_objectives_achieved() == 0)
-                return sceneData + first;
-            break;
-        }
-    }
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int TalkerInit(void)
-{
-    g_pFaceAnimationCommands_00598c18 =
-        AllocateTaggedMemory(0x140, 0);
-    g_pMouthAnimationCommands_00598af4 =
-        AllocateTaggedMemory(0x140, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int FreeTalker(void)
-{
-    FreePacketAndClear(&g_pConversationOverlayShape_00598c30, 0);
-    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    FreePacketAndClear(&g_pMouthAnimationCommands_00598af4, 0);
-    FreePacketAndClear(&g_pFaceAnimationCommands_00598c18, 0);
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int SceneDirector(short sceneType, unsigned char *sceneBytes,
-                           unsigned char *textData)
-{
-    ConversationSceneRecord *record;
-    ConversationSceneRecord *selected;
-    short duration;
-    short previousColour;
-    short previousShot;
-    short shot;
-    char *text;
-
-    g_nConversationSceneType_00598c0a = sceneType;
-    previousShot = -2;
-    previousColour = -2;
-    TalkerInit();
-    g_bInputMode_0059a848 = 1;
-    ClearInputKeyState();
-    FlushInputEvents();
-    SetEventManagerPump(PollJoystickButtonEvents);
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    record = (ConversationSceneRecord *)sceneBytes;
-    do {
-        do {
-            shot = (short)record->shot;
-            if (shot == -2)
-                goto scene_complete;
-            if (shot != -1) {
-                if ((shot & 0x40) != 0) {
-                    g_bConversationOverlay_0046e590_WC1_UNMAPPED = 1;
-                    shot &= 0x3f;
-                } else {
-                    g_bConversationOverlay_0046e590_WC1_UNMAPPED = 0;
-                }
-            }
-            selected = record;
-            if (record->testsOffset != 0)
-                record = ParseTests(record,
-                                    (ConversationSceneRecord *)sceneBytes,
-                                    textData);
-        } while (selected != record);
-        if (record->talker != -2)
-            g_nConversationCharacter_0046e580_WC1_UNMAPPED = record->talker;
-        duration = record->duration;
-        switch (shot & 0x3f) {
-        case 0:
-        case 3:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-        case 10:
-        case 11:
-        case 16:
-        case 17:
-            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-            previousShot = shot;
-            break;
-        case 1:
-            if (previousShot != 1) {
-                previousShot = 1;
-                DrawBriefingLongShot();
-                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-            }
-            break;
-        case 2:
-            if (previousShot != 2) {
-                previousShot = 2;
-                DrawWc1PodiumShot();
-                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-            }
-            break;
-        case 4:
-            previousShot = 4;
-            if (g_nConversationCharacter_0046e580_WC1_UNMAPPED < 0)
-                g_cCurrentObjective_004931cc =
-                    (signed char)-g_nConversationCharacter_0046e580_WC1_UNMAPPED;
-            else
-                g_cCurrentObjective_004931cc =
-                    (signed char)g_nConversationCharacter_0046e580_WC1_UNMAPPED;
-            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-            break;
-        case 12:
-        case 13:
-        case 14:
-        case 15:
-            if (previousShot != shot) {
-                init_constellation(0);
-                g_stConstellationViewport_005a6b40 = g_stSecondaryViewBuffer_005d2c90;
-                InitializeConstellationField(
-                    &g_stConstellationViewport_005a6b40, -1, 16);
-                g_bConversationConstellation_0046e58c_WC1_UNMAPPED = 1;
-                g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-                previousShot = shot;
-            }
-            break;
-        case 20:
-        case 21:
-        case 22:
-        case 23:
-        case 24:
-        case 25:
-        case 26:
-        case 27:
-        case 28:
-        case 29:
-        case 30:
-            if (previousShot != shot) {
-                LoadFace((short)(shot - 20));
-                previousShot = shot;
-            }
-            break;
-        case 50:
-        case 51:
-        case 52:
-        case 53:
-        case 54:
-        case 55:
-        case 56:
-        case 57:
-        case 58:
-        case 59:
-            previousShot = 50;
-            g_nTalkingHeadFace_0046e584_WC1_UNMAPPED = -1;
-            break;
-        }
-        if (previousColour != (short)record->textColour &&
-            record->textColour != -1) {
-            g_nConversationTextColour_00598c10 =
-                g_asConversationTextColours_004699f0_WC1_UNMAPPED[
-                    (short)record->textColour];
-            previousColour = record->textColour;
-        }
-        g_pMouthAnimationCommands_00598af4[0] = -1;
-        if (textData[record->mouthAnimationOffset] != '\0')
-            ParseMouthAnimation((char *)textData +
-                                    record->mouthAnimationOffset,
-                                g_pMouthAnimationCommands_00598af4);
-        g_pFaceAnimationCommands_00598c18[0] = -1;
-        if (textData[record->faceAnimationOffset] != '\0')
-            ParseFaceAnimation((char *)textData +
-                               record->faceAnimationOffset,
-                               g_pFaceAnimationCommands_00598c18);
-        FlushInputEvents();
-        text = (char *)textData + record->textOffset;
-        if (*text != '\0') {
-            switch (previousShot) {
-            case 0:
-                EstablishingShot(text, duration);
-                break;
-            case 1:
-            case 2:
-            case 11:
-                CloseLook(g_pBriefingCloseupShape_00598c2c,
-                          previousShot,
-                          g_pMouthAnimationCommands_00598af4,
-                          text, duration, 0);
-                break;
-            case 3:
-                previousShot = 4;
-                DismissWc1Scene(text, duration);
-                break;
-            case 4:
-                UpdateMap(text, duration);
-                break;
-            case 5:
-                previousShot = 1;
-                ReturnToBriefingLongShot(text, duration);
-                break;
-            case 6:
-                DrawMedalLongShot(g_pMouthAnimationCommands_00598af4,
-                                  text, duration);
-                break;
-            case 7:
-                MedalEstablish(text, duration);
-                break;
-            case 8:
-                PinMedal(text, duration);
-                break;
-            case 9:
-            case 12:
-            case 13:
-            case 14:
-            case 15:
-                DrawWc1FuneralLongShot(previousShot, text, duration);
-                break;
-            case 10:
-                DebriefingEstablishingShot(text, duration);
-                break;
-            case 16:
-                DrawMedalChest(text, duration);
-                break;
-            case 17:
-                funeral_wingman(text, duration);
-                break;
-            case 50:
-                PlaySceneAnimation(text, (short)(shot - 50), duration);
-                break;
-            default:
-                LongTalk(g_pTalkingHeadShape_00598c0c, text,
-                         g_pMouthAnimationCommands_00598af4,
-                         g_pFaceAnimationCommands_00598c18,
-                         duration);
-                break;
-            }
-        }
-        record++;
-    } while (g_bSceneEscapeRequested_0049d4b0 != 1);
-scene_complete:
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FreeTalker();
-    SetEventManagerPump(0);
-    if (g_bConversationConstellation_0046e58c_WC1_UNMAPPED == 1) {
-        free_constellation();
-        g_bConversationConstellation_0046e58c_WC1_UNMAPPED = 0;
-    }
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawWc1PodiumShot(void)
-{
-    if (g_pTalkingHeadShape_00598c0c != 0)
-        FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    if (g_pBriefingBodyShape_00598c1c != 0)
-        FreePacketAndClear(&g_pBriefingBodyShape_00598c1c, 0);
-    if (g_pBriefingPortraitShape_00598c24 != 0)
-        FreePacketAndClear(&g_pBriefingPortraitShape_00598c24, 0);
-    g_pTalkingHeadShape_00598c0c =
-        FetchDiskPacketRetrying(4, 2, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, -96, 0,
-                      g_pConversationBackdropShape_00598c04, 1);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 224, 0,
-                      g_pConversationBackdropShape_00598c04, 2);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 240, 127,
-                      g_pTalkingHeadShape_00598c0c, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 252, 127,
-                      g_pConversationBackdropShape_00598c04, 3);
-    RefreshMemoryStatusOverlay();
-    FreePacketAndClear(&g_pTalkingHeadShape_00598c0c, 0);
-    return 0;
-}
-
 /* Function start: 0x4021A7 */
 void RecordCannedSceneBriefingCharacter(signed char character,
                                         signed char pose,
@@ -4538,7 +3375,7 @@ void RecordCannedSceneBriefingCharacter(signed char character,
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         if (g_nCannedSceneMode_0049021c == 0) {
             g_dwHighMemoryParagraph_005d3fb4 =
-                IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+                IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
             record = (CannedSceneBriefingCharacterRecord *)(
                 (unsigned int)(unsigned short)
                     g_nCannedSceneWriteIndex_005d3fa8 +
@@ -4554,51 +3391,6 @@ void RecordCannedSceneBriefingCharacter(signed char character,
                 (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 + 0xa);
             CheckCannedSceneBufferCapacity();
         }
-    }
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int DrawWc1FuneralLongShot(short shot, char *text,
-                                    short duration)
-{
-    short escaped;
-
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    if (shot == 9) {
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04, 0);
-        RefreshMemoryStatusOverlay();
-        MarkDibDirty();
-        DIBslamReal();
-        WaitForWc1SceneAdvance(duration, 0);
-        return 0;
-    }
-    SetFrameTimerPeriodDirect(duration);
-    for (;;) {
-        escaped = IsFrameTickElapsed();
-        if (escaped != 0)
-            return 0;
-        if (g_bConversationConstellation_0046e58c_WC1_UNMAPPED == 1)
-            DrawConstellationField();
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04, 3);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pConversationBackdropShape_00598c04,
-                          (short)(shot - 8));
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 80, 127,
-                          g_pConversationBackdropShape_00598c04, 8);
-        RefreshMemoryStatusOverlay();
-        MarkDibDirty();
-        DIBslamReal();
-        escaped = CheckEscaped();
-        if (escaped != 0)
-            return 0;
     }
 }
 
@@ -4846,7 +3638,7 @@ void death_sequence(void)
 
     deathShape = 0;
     cockpitBackground = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* This sequence advances the live 3-space simulation once per frame. */
     SetSpaceFlightFrameTiming();
 #endif
@@ -4856,10 +3648,10 @@ void death_sequence(void)
     remove_nav_pointer();
     free_cockpit();
     FreePacketAndClear(
-        &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet,
+        &g_aObjectTypeData_00496d30[OBJECT_DATA_EJECTED_PILOT].shapeSet,
         0);
     for (object = 0; object < 0x46; object++) {
-        if (g_asObjectType_00495298[object] == WC2_OBJECT_TYPE_EJECTED_PILOT)
+        if (g_asObjectType_00495298[object] == OBJECT_DATA_EJECTED_PILOT)
             remove_object(object);
     }
     g_nResourcePaletteMode_005c57e6 = 1;
@@ -4929,12 +3721,12 @@ void death_sequence(void)
     RestoreGamePalette();
     g_bMissionEndPending_0049da4c = 1;
     g_bDeathSequenceActive_0049da50 = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     SetDefaultFrameTiming();
 #endif
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 
 /* Function start: 0x40243C */
 /* No inbound reference is known in the shipped executable; this routine is
@@ -8876,4 +7668,4 @@ __declspec(naked) int CollectRasterClipColours(
 
 #else
 #include "screens_portable.inc"
-#endif /* !WC1_SDL */
+#endif /* !SDL_PORT */

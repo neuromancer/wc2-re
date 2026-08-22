@@ -15,8 +15,8 @@ No retail game data files are included.
 
 The reconstruction is incomplete: the source compiles and links as `WC2.EXE`,
 but significant implementation, mapping, and runtime work remains. `make
-report` compares 1,575 functions against the retail executable and averages
-98.06% machine-code similarity, which measures reconstruction fidelity, not
+report` compares 1,501 functions against the retail executable and averages
+98.02% machine-code similarity, which measures reconstruction fidelity, not
 gameplay completeness.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
@@ -157,7 +157,7 @@ To run it, provide a Kilrathi Saga disc image. The Makefile substitutes the
 reconstructed executable and launches it under DREAMM:
 
 ```sh
-make run WC2_ISO=/path/to/kilrathi-saga.iso
+make run ISO=/path/to/kilrathi-saga.iso
 ```
 
 Use `make run-original` for the retail executable in the same environment, and

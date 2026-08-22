@@ -18,7 +18,7 @@ git push origin v0.1.0
 After every platform build succeeds, the workflow creates one release for the
 existing tag, generates release notes, attaches SHA-256 checksums, and uploads:
 
-- the reconstructed 32-bit `WC1.EXE` built with MSVC 4.20;
+- the reconstructed 32-bit `WC2.EXE` built with MSVC 4.1;
 - the SDL2 port for Windows x86-64;
 - the SDL2 port for Linux x86-64;
 - the SDL2 port for macOS x86-64; and

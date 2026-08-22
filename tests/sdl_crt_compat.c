@@ -1,4 +1,4 @@
-#include "wc1sdl.h"
+#include "sdl_port.h"
 
 #include <string.h>
 #include <sys/stat.h>
@@ -23,7 +23,7 @@ int main(int argumentCount, char **arguments)
     if (strcmp(_strupr(text), "1A2B") != 0)
         failed = 1;
 
-    path = "wc1-sdl-crt-smoke.tmp";
+    path = "sdl-crt-smoke.tmp";
     file = _open(path, 0x8301, 0x0180);
     if (file == -1)
         return 1;
@@ -48,18 +48,18 @@ int main(int argumentCount, char **arguments)
     if (_unlink(path) != 0)
         failed = 1;
 
-    casePath = "WC1-SDL-Case-Smoke.TMP";
+    casePath = "SDL-Case-Smoke.TMP";
     file = _open(casePath, 0x8301, 0x0180);
     if (file == -1)
         return 1;
     if (_close(file) != 0)
         failed = 1;
-    pathResolved = Wc1SdlResolvePath("wc1-sdl-case-smoke.tmp",
+    pathResolved = SdlResolvePath("sdl-case-smoke.tmp",
                                      resolvedPath, sizeof(resolvedPath));
     if (!pathResolved)
         failed = 1;
 #ifndef _WIN32
-    else if (strcmp(resolvedPath, "./WC1-SDL-Case-Smoke.TMP") != 0)
+    else if (strcmp(resolvedPath, "./SDL-Case-Smoke.TMP") != 0)
         failed = 1;
 #endif
     if (pathResolved) {
@@ -69,7 +69,7 @@ int main(int argumentCount, char **arguments)
         else if (fclose(stream) != 0)
             failed = 1;
     }
-    file = _open("wc1-sdl-case-smoke.tmp", 0x8000);
+    file = _open("sdl-case-smoke.tmp", 0x8000);
     if (file == -1)
         failed = 1;
     else if (_close(file) != 0)

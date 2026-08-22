@@ -91,7 +91,7 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
                     ix_file_read(g_pStreamerPackageFile_005c4b44,
                                  g_pStreamerCompressedBuffer_005c4bd0,
                                  -fileChunk->packedSize);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                     ix_lzo1x_decompress(
                         g_pStreamerCompressedBuffer_005c4bd0,
                         g_pStreamerFileBuffer_005c4bdc, chunkBytes,

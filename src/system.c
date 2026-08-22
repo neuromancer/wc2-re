@@ -4,7 +4,7 @@
  *  Address range 0x427000-0x4274df (provisional -- see docs/ORDER.md).
  *  Boundary evidence: exit_squadron/ShowMemoryStatusDebug; string band 0x46A064-0x46A10C.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x4656CC */
 void AllocateApplicationScratchBuffer(void)
@@ -48,7 +48,7 @@ short LogMemoryUsage(void)
      * it is really the string itself, so the unlink is handed the first four
      * bytes of "tape.tmp" and always fails.  The port cannot dereference a
      * 32-bit value as a pointer, so it removes the file as intended. */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     _unlink(g_szCannedSceneTapeFile_00490208);
 #else
     _unlink(*(char *const *)g_szCannedSceneTapeFile_00490208);

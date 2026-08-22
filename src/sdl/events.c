@@ -1,8 +1,8 @@
-#include "wc1.h"
+#include "game.h"
 
 #include "video_internal.h"
 
-static int Wc1SdlTranslateVirtualKey(SDL_Keycode key)
+static int SdlTranslateVirtualKey(SDL_Keycode key)
 {
     if (key >= SDLK_a && key <= SDLK_z)
         return key - SDLK_a + 'A';
@@ -56,7 +56,7 @@ static int Wc1SdlTranslateVirtualKey(SDL_Keycode key)
     }
 }
 
-int Wc1SdlTranslateScanCode(SDL_Scancode scanCode)
+int SdlTranslateScanCode(SDL_Scancode scanCode)
 {
     switch (scanCode) {
     case SDL_SCANCODE_ESCAPE:
@@ -249,10 +249,10 @@ int Wc1SdlTranslateScanCode(SDL_Scancode scanCode)
     }
 }
 
-void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
+void SdlTraceInputEvent(const char *what, int type, int scanCode,
                            int virtualKey, int x, int y);
 
-static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
+static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
                                    int primaryButton,
                                    int secondaryButton)
 {
@@ -282,16 +282,16 @@ static void Wc1SdlQueueMouseMotion(unsigned short x, unsigned short y,
     }
     QueueInputEvent(3, x, y, 0, primaryButton, secondaryButton,
                     0, 0, 0);
-    Wc1SdlTraceInputEvent("move", 3, 0, 0, x, y);
+    SdlTraceInputEvent("move", 3, 0, 0, x, y);
 }
 
 /* Mouse flight is positional: hard turns park the pointer at a window edge,
  * so flight needs confinement while menus and unfocused windows do not. */
-static int g_bWc1SdlMouseGrabRequested;
-static int g_bWc1SdlWindowFocused = 1;
-static int g_nWc1SdlMouseGrabSuspendDepth;
+static int g_bSdlMouseGrabRequested;
+static int g_bSdlWindowFocused = 1;
+static int g_nSdlMouseGrabSuspendDepth;
 
-static void Wc1SdlApplyMouseGrab(void)
+static void SdlApplyMouseGrab(void)
 {
     SDL_Window *window;
 
@@ -300,32 +300,32 @@ static void Wc1SdlApplyMouseGrab(void)
         return;
     SDL_SetWindowMouseGrab(
         window,
-        g_bWc1SdlMouseGrabRequested && g_bWc1SdlWindowFocused &&
-                g_nWc1SdlMouseGrabSuspendDepth == 0
+        g_bSdlMouseGrabRequested && g_bSdlWindowFocused &&
+                g_nSdlMouseGrabSuspendDepth == 0
             ? SDL_TRUE
             : SDL_FALSE);
 }
 
-void Wc1SdlSetMouseGrab(int enabled)
+void SdlSetMouseGrab(int enabled)
 {
-    g_bWc1SdlMouseGrabRequested = enabled;
-    Wc1SdlApplyMouseGrab();
+    g_bSdlMouseGrabRequested = enabled;
+    SdlApplyMouseGrab();
 }
 
-void Wc1SdlSuspendMouseGrab(void)
+void SdlSuspendMouseGrab(void)
 {
-    g_nWc1SdlMouseGrabSuspendDepth++;
-    Wc1SdlApplyMouseGrab();
+    g_nSdlMouseGrabSuspendDepth++;
+    SdlApplyMouseGrab();
 }
 
-void Wc1SdlResumeMouseGrab(void)
+void SdlResumeMouseGrab(void)
 {
-    if (g_nWc1SdlMouseGrabSuspendDepth > 0)
-        g_nWc1SdlMouseGrabSuspendDepth--;
-    Wc1SdlApplyMouseGrab();
+    if (g_nSdlMouseGrabSuspendDepth > 0)
+        g_nSdlMouseGrabSuspendDepth--;
+    SdlApplyMouseGrab();
 }
 
-static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
+static int SdlHandleWindowEvent(const SDL_WindowEvent *event)
 {
     SDL_Window *window;
 
@@ -335,9 +335,9 @@ static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
     }
     if (event->event == SDL_WINDOWEVENT_FOCUS_LOST ||
         event->event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-        g_bWc1SdlWindowFocused =
+        g_bSdlWindowFocused =
             event->event == SDL_WINDOWEVENT_FOCUS_GAINED;
-        Wc1SdlApplyMouseGrab();
+        SdlApplyMouseGrab();
         return 0;
     }
     if (event->event != SDL_WINDOWEVENT_SIZE_CHANGED &&
@@ -351,7 +351,7 @@ static int Wc1SdlHandleWindowEvent(const SDL_WindowEvent *event)
     return 0;
 }
 
-static SDL_Window *Wc1SdlGetFullscreenWindow(Uint32 windowId)
+static SDL_Window *SdlGetFullscreenWindow(Uint32 windowId)
 {
     SDL_Window *window;
 
@@ -365,7 +365,7 @@ static SDL_Window *Wc1SdlGetFullscreenWindow(Uint32 windowId)
     return window;
 }
 
-static int Wc1SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
+static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 {
     int enterPressed;
     int modifierPressed;
@@ -385,14 +385,14 @@ static int Wc1SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
     return enterPressed && modifierPressed;
 }
 
-static void Wc1SdlToggleFullscreen(Uint32 windowId)
+static void SdlToggleFullscreen(Uint32 windowId)
 {
     SDL_Window *window;
     SDL_bool mouseGrabbed;
     Uint32 fullscreenFlags;
     Uint32 windowFlags;
 
-    window = Wc1SdlGetFullscreenWindow(windowId);
+    window = SdlGetFullscreenWindow(windowId);
     if (window == 0)
         return;
     windowFlags = SDL_GetWindowFlags(window);
@@ -412,7 +412,7 @@ static void Wc1SdlToggleFullscreen(Uint32 windowId)
 
 /* WM_CHAR's contribution: the typed character, shift applied.  The game only
  * reads it for text entry, and the virtual key covers everything else. */
-static int Wc1SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
+static int SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
 {
     int shifted;
 
@@ -424,13 +424,13 @@ static int Wc1SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
     return virtualKey;
 }
 
-/* Set WC2_INPUT_TRACE=1 to have every queued input event printed to stderr:
+/* Set  INPUT_TRACE=1 to have every queued input event printed to stderr:
  * type, scan code, virtual key and modifiers, in the form player_input reads
  * them.  Off unless asked for, and port-only. */
-void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
+void SdlTraceInputEvent(const char *what, int type, int scanCode,
                            int virtualKey, int x, int y)
 {
-    if (!Wc1SdlTraceEnabled())
+    if (!SdlTraceEnabled())
         return;
     fprintf(stderr,
             "[input] %-6s type=%d scan=0x%02x vk=0x%02x pos=%d,%d "
@@ -440,7 +440,7 @@ void Wc1SdlTraceInputEvent(const char *what, int type, int scanCode,
     fflush(stderr);
 }
 
-static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
+static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
     int scanCode;
@@ -452,13 +452,13 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         ShutdownGameWindow();
         return 1;
     }
-    if (Wc1SdlIsFullscreenShortcut(event)) {
+    if (SdlIsFullscreenShortcut(event)) {
         if (pressed && event->repeat == 0)
-            Wc1SdlToggleFullscreen(event->windowID);
+            SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    scanCode = Wc1SdlTranslateScanCode(event->keysym.scancode);
-    virtualKey = Wc1SdlTranslateVirtualKey(event->keysym.sym);
+    scanCode = SdlTranslateScanCode(event->keysym.scancode);
+    virtualKey = SdlTranslateVirtualKey(event->keysym.sym);
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
@@ -487,9 +487,9 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
                         (unsigned short)g_stHostMouseMessage_005d10d0.y,
                         (unsigned short)virtualKey, 0, 0, 0,
                         (unsigned int)scanCode,
-                        (unsigned int)Wc1SdlKeyCharacter(event, virtualKey));
+                        (unsigned int)SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
-        Wc1SdlTraceInputEvent(pressed ? "keydn" : "keyup",
+        SdlTraceInputEvent(pressed ? "keydn" : "keyup",
                               pressed ? 4 : 5, scanCode, virtualKey,
                               g_stHostMouseMessage_005d10d0.x,
                               g_stHostMouseMessage_005d10d0.y);
@@ -501,7 +501,7 @@ static int Wc1SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     return 0;
 }
 
-static void Wc1SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
+static void SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
 {
     int scanCode;
     int wheelY;
@@ -521,7 +521,7 @@ static void Wc1SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
                     (unsigned int)scanCode, 0);
 }
 
-static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
+static void SdlHandleMouseEvent(const SDL_Event *event)
 {
     SDL_Window *window;
     Uint32 buttons;
@@ -546,7 +546,7 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
         else
             buttons &= ~(Uint32)SDL_BUTTON(event->button.button);
     }
-    Wc1SdlMapWindowToLogical(window, mouseX, mouseY, &mouseX, &mouseY);
+    SdlMapWindowToLogical(window, mouseX, mouseY, &mouseX, &mouseY);
     if (mouseX < 0)
         mouseX = 0;
     else if (mouseX > 319)
@@ -563,7 +563,7 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
             g_bSuppressNextMouseMove_005c843c = 0;
             return;
         }
-        Wc1SdlQueueMouseMotion((unsigned short)mouseX,
+        SdlQueueMouseMotion((unsigned short)mouseX,
                                (unsigned short)mouseY,
                                primaryButton, secondaryButton);
     } else {
@@ -572,7 +572,7 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
-        Wc1SdlTraceInputEvent(
+        SdlTraceInputEvent(
             event->type == SDL_MOUSEBUTTONDOWN ? "btndn" : "btnup",
             event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
             0, primaryButton | secondaryButton * 2, mouseX, mouseY);
@@ -583,47 +583,47 @@ static void Wc1SdlHandleMouseEvent(const SDL_Event *event)
     g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
 }
 
-void Wc1SdlStartEventPump(void)
+void SdlStartEventPump(void)
 {
     g_bMainWindowRunning_005d12ac = 1;
 }
 
-void Wc1SdlPumpEvents(void)
+void SdlPumpEvents(void)
 {
     SDL_Event event;
 
-    Wc1SdlServiceOriginFxMusic();
+    SdlServiceOriginFxMusic();
     while (SDL_PollEvent(&event)) {
-        Wc1SdlLogJoystickEvent(&event);
+        SdlLogJoystickEvent(&event);
         switch (event.type) {
         case SDL_QUIT:
             ShutdownGameWindow();
             return;
         case SDL_WINDOWEVENT:
-            if (Wc1SdlHandleWindowEvent(&event.window))
+            if (SdlHandleWindowEvent(&event.window))
                 return;
             break;
         case SDL_KEYDOWN:
         case SDL_KEYUP:
-            if (Wc1SdlHandleKeyboardEvent(&event.key))
+            if (SdlHandleKeyboardEvent(&event.key))
                 return;
             break;
         case SDL_MOUSEWHEEL:
-            Wc1SdlHandleMouseWheelEvent(&event.wheel);
+            SdlHandleMouseWheelEvent(&event.wheel);
             break;
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
-            Wc1SdlHandleMouseEvent(&event);
+            SdlHandleMouseEvent(&event);
             break;
         case SDL_JOYDEVICEADDED:
         case SDL_JOYDEVICEREMOVED:
-            Wc1SdlHandleJoystickDeviceEvent(event.type,
+            SdlHandleJoystickDeviceEvent(event.type,
                                              event.jdevice.which);
             break;
         case SDL_CONTROLLERBUTTONDOWN:
         case SDL_CONTROLLERBUTTONUP:
-            Wc1SdlHandleJoystickButtonEvent(event.cbutton.which,
+            SdlHandleJoystickButtonEvent(event.cbutton.which,
                                              event.cbutton.button,
                                              event.type ==
                                                  SDL_CONTROLLERBUTTONDOWN,
@@ -631,14 +631,14 @@ void Wc1SdlPumpEvents(void)
             break;
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
-            Wc1SdlHandleJoystickButtonEvent(event.jbutton.which,
+            SdlHandleJoystickButtonEvent(event.jbutton.which,
                                              event.jbutton.button,
                                              event.type ==
                                                  SDL_JOYBUTTONDOWN,
                                              0);
             break;
         case SDL_JOYHATMOTION:
-            Wc1SdlHandleJoystickHatEvent(event.jhat.which,
+            SdlHandleJoystickHatEvent(event.jhat.which,
                                          event.jhat.hat,
                                          event.jhat.value);
             break;

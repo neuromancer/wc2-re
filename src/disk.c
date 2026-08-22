@@ -4,7 +4,7 @@
  *  Address range 0x41d250-0x41efff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: OpenDiskDataFile/FetchDiskPacketRetrying/PromptInsertNumberedDisk.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x409120 */
 short WaitForSceneAdvance(void *scenePacket)
@@ -583,7 +583,7 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
     resource->packedFilenames = (char *)(
         resource->sectionIndices + resource->count);
     resource->loadedPackets = AllocateScenePointerTable(
-        resource->count, WC2_HOST_POINTER_SIZE, 0,
+        resource->count, HOST_POINTER_SIZE, 0,
         "Cannot Allocate InMemory List");
     if (resource->loadedPackets == 0)
         ReleasePacketSlot((void **)&resource);
@@ -1006,7 +1006,7 @@ void ReportPacketLoadError(void *packet, char *fileName,
     }
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(strlen, strcat)
 #endif
 
@@ -1038,7 +1038,7 @@ void AppendPacketLoadDebugLog(char *fileName, short section,
     _close((int)file);
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma intrinsic(strlen, strcat)
 #endif
 
@@ -1225,172 +1225,6 @@ void DrawTextAt(TextContext *context, short x, short y,
     context->alignment = savedAlignment;
 }
 
-/* Function start: WC2_UNMAPPED */
-short CheckWc1DiskAvailable(short logicalFile)
-{
-    short file;
-
-    FillGraphicSuffix(g_szDiskMarkerFile_00469688_WC1_UNMAPPED,
-                      (unsigned char)
-                          g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber,
-                      3);
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688_WC1_UNMAPPED);
-    if (file != -1) {
-        CloseDataFile((unsigned short)file);
-        return 1;
-    }
-    if (DAT_0059ab34 != 0)
-        return 1;
-    if (GetCurrentDiskDriveHook() == 'A') {
-        if (toupper((int)(signed char)
-                        g_abDiskPromptDriveState_005a7d20[1]) == 'B') {
-            SelectDiskDriveHook('B');
-        } else {
-            return 0;
-        }
-    } else {
-        SelectDiskDriveHook('A');
-    }
-    file = OpenDataFileOrDie(g_szDiskMarkerFile_00469688_WC1_UNMAPPED);
-    if (file != -1) {
-        CloseDataFile((unsigned short)file);
-        return 1;
-    }
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall PromptInsertNumberedDisk(short logicalFile)
-{
-    TextContext *savedTextContext;
-    short backgroundColour;
-    signed char diskReady;
-    signed char savedViewportMode;
-    signed char diskNumber;
-
-    savedViewportMode = 2;
-    diskReady = 0;
-    if (CheckWc1DiskAvailable(logicalFile) != 0)
-        return;
-    if (g_bOriginFxDriverActive_0049cbb0 == 0) {
-        diskNumber =
-            g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber;
-        do {
-            _cprintf("Please Insert Disk %d. Press any key to continue",
-                     (int)diskNumber);
-            WaitForInputKey();
-        } while (CheckWc1DiskAvailable(logicalFile) == 0);
-        return;
-    }
-
-    savedTextContext = g_pCurrentTextContext_005c8d1c;
-    SetTextContext(&g_stDiskPromptTextContext_005a7d60);
-    g_stDiskPromptBackgroundViewport_005a7d00.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptBackgroundViewport_005a7d00.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptViewport_005a7d40.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptViewport_005a7d40.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptBackgroundViewport_005a7d00.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
-    g_stDiskPromptViewport_005a7d40.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptViewport_005a7d40.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
-
-    if (g_stViewBuffer_005d2b00.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = g_stViewBuffer_005d2b00;
-        backgroundColour = (unsigned char)g_cPrimaryViewBufferColour_0049cb88;
-    } else if (g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
-        g_stDiskPromptBackgroundViewport_005a7d00 = g_stSecondaryViewBuffer_005d2c90;
-        backgroundColour = (unsigned char)g_cSecondaryViewBufferColour_0049cb4c;
-    } else {
-        savedViewportMode = (signed char)AllocateViewport(
-            &g_stDiskPromptBackgroundViewport_005a7d00, -1, 0);
-        backgroundColour = (short)(unsigned int)savedTextContext;
-    }
-
-    g_stDiskPromptBackgroundViewport_005a7d00.left =
-        (short)g_dwDiskPromptTopLeft_005a7d80;
-    g_stDiskPromptBackgroundViewport_005a7d00.top =
-        (short)(g_dwDiskPromptTopLeft_005a7d80 >> 16);
-    g_stDiskPromptBackgroundViewport_005a7d00.right =
-        (short)g_dwDiskPromptBottomRight_005a7d84;
-    g_stDiskPromptBackgroundViewport_005a7d00.bottom =
-        (short)(g_dwDiskPromptBottomRight_005a7d84 >> 16);
-    if (savedViewportMode != 0) {
-        CopyViewportContents(&g_stDiskPromptViewport_005a7d40,
-                             &g_stDiskPromptBackgroundViewport_005a7d00);
-    }
-
-    do {
-        ClearViewport(&g_stDiskPromptViewport_005a7d40,
-                      g_bPrimaryViewBufferColour_0049cb50);
-        SetTextCursor(
-            (unsigned short)(g_stDiskPromptViewport_005a7d40.left + 2),
-            (unsigned short)(g_stDiskPromptViewport_005a7d40.top + 2));
-        DrawViewportBorder(
-            &g_stDiskPromptViewport_005a7d40,
-            g_stDiskPromptViewport_005a7d40.left,
-            g_stDiskPromptViewport_005a7d40.top,
-            g_stDiskPromptViewport_005a7d40.right,
-            g_stDiskPromptViewport_005a7d40.bottom,
-            g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED);
-        FormatTextBufferFromStart(
-            "Please insert disk %d\ninto any drive\nPress any key when ready.",
-            (int)g_pDiskFileRecords_005a7cf0[logicalFile].diskNumber);
-        DrawTextString(g_szTextScratchBuffer_005d1c40);
-        WaitForInputKey();
-        if (CheckWc1DiskAvailable(logicalFile) != 0)
-            diskReady++;
-        if (savedViewportMode != 0) {
-            CopyViewportContents(
-                &g_stDiskPromptBackgroundViewport_005a7d00,
-                &g_stDiskPromptViewport_005a7d40);
-        } else {
-            ClearViewport(&g_stDiskPromptViewport_005a7d40,
-                          backgroundColour);
-        }
-    } while (diskReady == 0);
-
-    if (savedViewportMode == 1) {
-        free_viewport(&g_stDiskPromptBackgroundViewport_005a7d00);
-    } else if (savedViewportMode == 2) {
-        ClearViewport(&g_stDiskPromptBackgroundViewport_005a7d00,
-                      backgroundColour);
-    }
-    g_pCurrentTextContext_005c8d1c = savedTextContext;
-}
-
-/* Function start: WC2_UNMAPPED */
-short CheckEscaped(void)
-{
-    InputEventState event;
-    short escaped;
-
-    PumpWindowMessages(0);
-    escaped = 0;
-    if (FindQueuedInputEvent(10) != 0) {
-        PeekInputEvent(&event, 10);
-        escaped = (short)event.value + 1;
-    } else if (FindQueuedInputEvent(2) != 0) {
-        PeekInputEvent(&event, 2);
-        escaped = (short)event.value + 1;
-    } else if (FindQueuedInputEvent(3) != 0) {
-        PeekInputEvent(&event, 3);
-        escaped = (short)event.value + 1;
-        while (PollInputEvent(&event) != 0)
-            ;
-    }
-    if (escaped != 0)
-        FlushInputEvents();
-    return escaped;
-}
-
 /* Function start: 0x40F9F7 */
 void FlushPendingInputPresses(void)
 {
@@ -1454,49 +1288,6 @@ unsigned short WaitForAnyInputPress(void)
     return key;
 }
 
-/* Function start: WC2_UNMAPPED */
-void WaitForWc1SceneAdvance(short duration, short unused)
-{
-    InputEventState event;
-    unsigned char savedMode;
-    short eventType;
-    short escaped;
-    short advanced;
-
-    (void)unused;
-    advanced = 0;
-    savedMode = g_bInputMode_0059a848;
-    g_bInputMode_0059a848 = 1;
-    if (duration != -1) {
-        SetFrameTimerPeriodDirect(duration);
-    } else {
-        escaped = CheckEscaped();
-        if (escaped != 0) {
-            do {
-                escaped = CheckEscaped();
-            } while (escaped != 0);
-            SetFrameTimerPeriodDirect(0);
-        }
-    }
-    while ((short)IsFrameTickElapsed() == 0 && advanced == 0) {
-        eventType = PollInputEvent(&event);
-        switch (eventType) {
-        case 2:
-        case 3:
-        case 5:
-        case 10:
-            advanced++;
-            g_bInputMode_0059a848 = savedMode;
-            FlushInputEvents();
-            do {
-                eventType = PollInputEvent(&event);
-            } while (eventType != 0);
-            ClearInputKeyStatePreservingModifiers();
-            break;
-        }
-    }
-}
-
 /* Function start: 0x410020 */
 short CountShipProjectiles(short ship)
 {
@@ -1504,7 +1295,7 @@ short CountShipProjectiles(short ship)
     short obj;
 
     count = 0;
-    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+    for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_PROJECTILE &&
             g_acObjectOwner_00495208[obj] == ship)
             count++;
@@ -1748,38 +1539,38 @@ void set_objects_data(short obj, short type, short owner,
         g_apObjectExhaustShape_004953b8[obj] = typeData->animation;
         g_apObjectShape_00493868[obj] = typeData->shapeSet;
     } else {
-        if (type == WC2_OBJECT_TYPE_SPACE_DUST) {
-            g_asObjectType_00495298[obj] = WC2_OBJECT_TYPE_SPACE_DUST;
+        if (type == OBJECT_DATA_SPACE_DUST) {
+            g_asObjectType_00495298[obj] = OBJECT_DATA_SPACE_DUST;
             g_aeObjectClass_00495328[obj] = OBJECT_CLASS_DUST;
             return;
         }
         if (g_aObjectTypeData_00496d30[type].shapeSet == 0) {
             switch (type) {
-            case WC2_OBJECT_TYPE_EXPLOSION_MEDIUM:
-                type = WC2_OBJECT_TYPE_EXPLOSION_SMALL;
+            case OBJECT_DATA_EXPLOSION_MEDIUM:
+                type = OBJECT_DATA_EXPLOSION_SMALL;
                 break;
-            case WC2_OBJECT_TYPE_EXPLOSION_LARGE:
-                type = WC2_OBJECT_TYPE_EXPLOSION_SMALL;
+            case OBJECT_DATA_EXPLOSION_LARGE:
+                type = OBJECT_DATA_EXPLOSION_SMALL;
                 break;
-            case WC2_OBJECT_TYPE_SHIP_WING:
-                type = WC2_OBJECT_TYPE_PIPE;
+            case OBJECT_DATA_SHIP_WING:
+                type = OBJECT_DATA_PIPE;
                 break;
-            case WC2_OBJECT_TYPE_METAL_SHEET:
-                type = WC2_OBJECT_TYPE_GIRDER_CHUNK;
+            case OBJECT_DATA_METAL_SHEET:
+                type = OBJECT_DATA_GIRDER_CHUNK;
                 break;
-            case WC2_OBJECT_TYPE_ASTEROID2:
-                type = WC2_OBJECT_TYPE_ASTEROID1;
+            case OBJECT_DATA_ASTEROID2:
+                type = OBJECT_DATA_ASTEROID1;
                 break;
-            case WC2_OBJECT_TYPE_ASTEROID4:
-                type = WC2_OBJECT_TYPE_ASTEROID3;
+            case OBJECT_DATA_ASTEROID4:
+                type = OBJECT_DATA_ASTEROID3;
                 break;
-            case WC2_OBJECT_TYPE_ASTEROID6:
-                type = WC2_OBJECT_TYPE_ASTEROID5;
+            case OBJECT_DATA_ASTEROID6:
+                type = OBJECT_DATA_ASTEROID5;
                 break;
             }
         }
         if (type == 0x3d)
-            g_acObjectType_00493980[obj] = WC2_OBJECT_TYPE_SPACE_DUST;
+            g_acObjectType_00493980[obj] = OBJECT_DATA_SPACE_DUST;
         else
             g_acObjectType_00493980[obj] = (signed char)type;
         if (type == 0x3e) {
@@ -1798,15 +1589,15 @@ void set_objects_data(short obj, short type, short owner,
         if (type == 0xd)
             shapeSource = &g_aObjectTypeData_00496d30[8];
         g_asObjectType_00495298[obj] = type;
-        if (type == WC2_OBJECT_TYPE_CHAFF_POD &&
+        if (type == OBJECT_DATA_CHAFF_POD &&
             g_aObjectTypeData_00496d30[20].shapeSet == 0) {
             g_apObjectShape_00493868[obj] =
                 g_aObjectTypeData_00496d30[9].shapeSet;
         }
-        if (type == WC2_OBJECT_TYPE_ROCK_CHUNK) {
+        if (type == OBJECT_DATA_ROCK_CHUNK) {
             g_apObjectShape_00493868[obj] =
                 g_aObjectTypeData_00496d30[
-                    WC2_OBJECT_TYPE_ASTEROID1].shapeSet;
+                    OBJECT_DATA_ASTEROID1].shapeSet;
         } else {
             g_apObjectShape_00493868[obj] = shapeSource->shapeSet;
         }
@@ -1817,7 +1608,7 @@ void set_objects_data(short obj, short type, short owner,
         if (g_asShipSide_004955d0[owner] == SIDE_KILRATHI && owner != 0 &&
             g_pGenericMissileShape_0049c8f0 != 0 &&
             g_pGenericMissileExhaustShape_0049c8f4 != 0 &&
-            g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_CHAFF_POD) {
+            g_asObjectType_00495298[obj] != OBJECT_DATA_CHAFF_POD) {
             g_apObjectShape_00493868[obj] = g_pGenericMissileShape_0049c8f0;
             g_apObjectExhaustShape_004953b8[obj] =
                 g_pGenericMissileExhaustShape_0049c8f4;

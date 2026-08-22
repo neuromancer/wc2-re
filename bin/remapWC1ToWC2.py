@@ -30,15 +30,15 @@ DEFAULT_MAP = ROOT / "config" / "wc1_wc2_name_map.tsv"
 DEFAULT_MANIFEST = ROOT / "config" / "wc2-address-remap.tsv"
 SOURCE_ROOT = ROOT / "src"
 METADATA_HEADERS = (
-    ROOT / "include" / "wc1.h",
-    ROOT / "include" / "wc1extern.h",
-    ROOT / "include" / "wc1funcs.h",
+    ROOT / "include" / "game.h",
+    ROOT / "include" / "externs.h",
+    ROOT / "include" / "functions.h",
     ROOT / "src" / "ix" / "ix.h",
 )
 
 HEADER_RE = re.compile(
     r"^(?P<indent>\s*)/\*\s*Function start:\s*"
-    r"(?P<active>0x[0-9A-Fa-f]+|WC2_UNMAPPED)"
+    r"(?P<active>0x[0-9A-Fa-f]+|UNMAPPED)"
     r"(?P<inside>[^*]*?)\s*\*/"
     r"(?:\s*/\*\s*WC1 start:\s*0x(?P<original>[0-9A-Fa-f]+)\s*\*/)?"
     r"(?P<tail>.*)$"
@@ -46,7 +46,7 @@ HEADER_RE = re.compile(
 ADDRESS_COMMENT_RE = re.compile(
     r"/\*\s*(?:"
     r"(?P<raw>0x[0-9A-Fa-f]+)"
-    r"|(?P<unmapped>WC2\s+unmapped)"
+    r"|(?P<unmapped>unmapped|WC2\s+unmapped)"
     r"|WC2\s+(?P<wc2>0x[0-9A-Fa-f]+|unmapped);\s*"
     r"WC1\s+0x(?P<original>[0-9A-Fa-f]+)"
     r")\s*\*/"
@@ -145,7 +145,7 @@ def load_provenance(path: Path) -> Provenance:
     """Load WC1 origins retained outside the converted source tree.
 
     A destination lookup handles already-mapped functions.  The path/name
-    lookup is needed for WC2_UNMAPPED functions that acquire a mapping during
+    lookup is needed for UNMAPPED functions that acquire a mapping during
     a later review pass.
     """
     if not path.is_file():
@@ -218,7 +218,7 @@ def original_address(
     active = match.group("active")
     if not from_wc1 and provenance_source is not None:
         return provenance_source
-    if active == "WC2_UNMAPPED":
+    if active == "UNMAPPED":
         return None
     address = parse_address(active)
     if from_wc1:
@@ -233,6 +233,7 @@ def find_source_name(lines: list[str], start: int) -> str:
     text = "".join(lines[start:start + 12])
     text = re.sub(r"/\*.*?\*/", " ", text, flags=re.DOTALL)
     text = re.sub(r"//[^\n]*", " ", text)
+    text = re.sub(r"^\s*#.*$", " ", text, flags=re.MULTILINE)
     for match in FUNCTION_NAME_RE.finditer(text):
         name = re.sub(r"\s+", " ", match.group(1))
         if name not in FUNCTION_NAME_SKIP:
@@ -293,7 +294,7 @@ def rewrite_source(
                 symbol_key
             )
             active = match.group("active")
-            if provenance_source is None and active != "WC2_UNMAPPED":
+            if provenance_source is None and active != "UNMAPPED":
                 provenance_source = provenance.by_destination.get(
                     parse_address(active)
                 )
@@ -302,7 +303,7 @@ def rewrite_source(
         )
         mapping = None if source is None else mappings.get(source)
         if mapping is None:
-            active = "WC2_UNMAPPED"
+            active = "UNMAPPED"
             destination = None
             mapping_name = ""
             evidence = ""
@@ -385,7 +386,7 @@ def rewrite_metadata_header(
             return match.group(0)
         mapping = mappings.get(source)
         if mapping is None:
-            return "/* WC2 unmapped */"
+            return "/* unmapped */"
         return f"/* {format_address(mapping.destination)} */"
 
     return ADDRESS_COMMENT_RE.sub(replacement, old_text)

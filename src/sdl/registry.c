@@ -1,6 +1,6 @@
-#include "wc1.h"
+#include "game.h"
 
-typedef struct Wc1SdlRegistryKey {
+typedef struct SdlRegistryKey {
     DWORD musicVolume;
     DWORD soundEffectsVolume;
     DWORD cheater;
@@ -8,12 +8,12 @@ typedef struct Wc1SdlRegistryKey {
     int hasSoundEffectsVolume;
     int hasCheater;
     char *path;
-} Wc1SdlRegistryKey;
+} SdlRegistryKey;
 
 DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
                     DWORD access, HKEY *result)
 {
-    Wc1SdlRegistryKey *key;
+    SdlRegistryKey *key;
     char *directory;
     unsigned char *contents;
     size_t contentsSize;
@@ -23,7 +23,7 @@ DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
     (void)subkey;
     (void)options;
     (void)access;
-    key = (Wc1SdlRegistryKey *)SDL_calloc(1, sizeof(*key));
+    key = (SdlRegistryKey *)SDL_calloc(1, sizeof(*key));
     if (key == 0)
         return ERROR_FILE_NOT_FOUND;
     directory = SDL_GetPrefPath("Origin Systems", "WC Kilrathi Saga");
@@ -65,12 +65,12 @@ DWORD RegOpenKeyExA(HKEY root, const char *subkey, DWORD options,
 DWORD RegQueryValueExA(HKEY handle, const char *name, DWORD *reserved,
                        DWORD *type, BYTE *data, DWORD *size)
 {
-    Wc1SdlRegistryKey *key;
+    SdlRegistryKey *key;
     DWORD value;
     int present;
 
     (void)reserved;
-    key = (Wc1SdlRegistryKey *)handle;
+    key = (SdlRegistryKey *)handle;
     present = 0;
     value = 0;
     if (strcmp(name, "MusicVolume") == 0) {
@@ -95,7 +95,7 @@ DWORD RegQueryValueExA(HKEY handle, const char *name, DWORD *reserved,
 DWORD RegSetValueExA(HKEY handle, const char *name, DWORD reserved,
                      DWORD type, const BYTE *data, DWORD size)
 {
-    Wc1SdlRegistryKey *key;
+    SdlRegistryKey *key;
     DWORD value;
     SDL_RWops *file;
     char contents[128];
@@ -104,7 +104,7 @@ DWORD RegSetValueExA(HKEY handle, const char *name, DWORD reserved,
     (void)reserved;
     if (type != REG_DWORD || size < sizeof(value))
         return ERROR_FILE_NOT_FOUND;
-    key = (Wc1SdlRegistryKey *)handle;
+    key = (SdlRegistryKey *)handle;
     memcpy(&value, data, sizeof(value));
     if (strcmp(name, "MusicVolume") == 0) {
         key->musicVolume = value;
@@ -132,9 +132,9 @@ DWORD RegSetValueExA(HKEY handle, const char *name, DWORD reserved,
 
 DWORD RegCloseKey(HKEY handle)
 {
-    Wc1SdlRegistryKey *key;
+    SdlRegistryKey *key;
 
-    key = (Wc1SdlRegistryKey *)handle;
+    key = (SdlRegistryKey *)handle;
     SDL_free(key->path);
     SDL_free(key);
     return ERROR_SUCCESS;

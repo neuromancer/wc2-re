@@ -8,8 +8,8 @@ every definition that breaks the order.
 
 Blocks keep whatever comment lines precede them, and a preprocessor conditional
 (#if ... #endif) moves as a single unit keyed on the address it declares.
-Definitions with no recoverable address -- the WC1-only `/* no-address */`
-entries -- stay attached to the block they currently follow.
+Definitions with no recoverable address stay attached to the block they
+currently follow.
 
     bin/sortGlobalsByAddress.py                # check only, report files
     bin/sortGlobalsByAddress.py --write        # rewrite files in place

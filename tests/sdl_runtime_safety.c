@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 int main(int argumentCount, char **arguments)
 {
@@ -88,7 +88,7 @@ int main(int argumentCount, char **arguments)
 
     /* A base colliding with an asteroid in slot 15 produces a negative mass
      * response and reaches beyond WC2's twelve ship-velocity entries. */
-    for (object = 0; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+    for (object = 0; object <= SPACE_LAST_MOVING_OBJECT; object++) {
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
         g_asObjectScreenX_00493598[object] = (short)0x8001;
     }
@@ -118,13 +118,13 @@ int main(int argumentCount, char **arguments)
 
     /* Autopilot's view-13 camera draws the running engines as fixed children.
      * Their enhanced positions need the parent's view-space coordinates. */
-    for (object = 0; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+    for (object = 0; object <= SPACE_LAST_MOVING_OBJECT; object++) {
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
         g_asObjectScreenX_00493598[object] = (short)0x8001;
     }
-    init_ijk(WC2_EYE_OBJECT);
-    zero_vector(&g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-    g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] = 0;
+    init_ijk(EYE_OBJECT);
+    zero_vector(&g_aShipPosition_00494550[EYE_OBJECT]);
+    g_asObjectCollisionRadius_004950e8[EYE_OBJECT] = 0;
     g_nScreenWidth_0049d4d8 = 320;
     g_nViewCenterX_005c80d8 = 160;
     g_nViewCenterY_005c80da = 100;
@@ -140,7 +140,7 @@ int main(int argumentCount, char **arguments)
 
     object = 10;
     g_aeObjectClass_00495328[object] = OBJECT_CLASS_FIXED_OBJECT;
-    g_asObjectType_00495298[object] = WC2_OBJECT_TYPE_THRUSTERS;
+    g_asObjectType_00495298[object] = OBJECT_DATA_THRUSTERS;
     g_acObjectOwner_00495208[object] = (signed char)ship;
     g_asObjectScreenX_00493598[object] = 0;
     g_asObjectScreenY_00493628[object] = 0;
@@ -149,13 +149,13 @@ int main(int argumentCount, char **arguments)
     g_asObjectScreenAngle_004936b8[ship] = 0;
     g_asObjectFlip_004939c8[ship] = 0;
     reposition_fixed_child_objects();
-    Wc1SdlGetThrusterScreenPosition(
+    SdlGetThrusterScreenPosition(
         object, &thrusterScreenX, &thrusterScreenY);
     if (thrusterScreenX != 160.0f || thrusterScreenY != 100.0f)
         return 1;
 
     g_bAfterburnerSfxActive_005d3864 = 1;
-    Wc1SdlStopDosSoundEffects();
+    SdlStopDosSoundEffects();
     if (g_bAfterburnerSfxActive_005d3864 != 0)
         return 1;
 
@@ -235,6 +235,7 @@ int main(int argumentCount, char **arguments)
             g_nFramePeriodMilliseconds_005c343c != 50) {
             return 1;
         }
+
         for (service = 0; service < 20; service++)
             ServiceSoundSystem();
         if (g_nSpeechCompletionDelay_004a265c != 21 ||

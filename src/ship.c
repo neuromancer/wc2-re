@@ -6,32 +6,32 @@
  *  Boundary evidence: the ordered Mac `ship` symbols map across the larger
  *  0x41dee0-0x42193f Win32 run; this file currently owns its central tranche.
  */
-#include "wc1.h"
+#include "game.h"
 
 static const short g_aaeExplosionDebris_00492dd8[4][7] = {
     {
-        WC2_OBJECT_TYPE_PIPE, WC2_OBJECT_TYPE_O_RING,
-        WC2_OBJECT_TYPE_GIRDER_CHUNK, WC2_OBJECT_TYPE_SHIP_TUBING,
-        WC2_OBJECT_TYPE_METAL_SHEET, WC2_OBJECT_TYPE_SHIP_WING,
-        WC2_OBJECT_TYPE_BURNING_DEBRIS
+        OBJECT_DATA_PIPE, OBJECT_DATA_O_RING,
+        OBJECT_DATA_GIRDER_CHUNK, OBJECT_DATA_SHIP_TUBING,
+        OBJECT_DATA_METAL_SHEET, OBJECT_DATA_SHIP_WING,
+        OBJECT_DATA_BURNING_DEBRIS
     },
     {
-        WC2_OBJECT_TYPE_O_RING, WC2_OBJECT_TYPE_O_RING,
-        WC2_OBJECT_TYPE_GIRDER_CHUNK, WC2_OBJECT_TYPE_SHIP_TUBING,
-        WC2_OBJECT_TYPE_SHIP_WING, WC2_OBJECT_TYPE_GIRDER_CHUNK,
-        WC2_OBJECT_TYPE_BURNING_DEBRIS
+        OBJECT_DATA_O_RING, OBJECT_DATA_O_RING,
+        OBJECT_DATA_GIRDER_CHUNK, OBJECT_DATA_SHIP_TUBING,
+        OBJECT_DATA_SHIP_WING, OBJECT_DATA_GIRDER_CHUNK,
+        OBJECT_DATA_BURNING_DEBRIS
     },
     {
-        WC2_OBJECT_TYPE_PIPE, WC2_OBJECT_TYPE_O_RING,
-        WC2_OBJECT_TYPE_METAL_SHEET, WC2_OBJECT_TYPE_SHIP_TUBING,
-        WC2_OBJECT_TYPE_METAL_SHEET, WC2_OBJECT_TYPE_SHIP_WING,
-        WC2_OBJECT_TYPE_SHIP_TUBING
+        OBJECT_DATA_PIPE, OBJECT_DATA_O_RING,
+        OBJECT_DATA_METAL_SHEET, OBJECT_DATA_SHIP_TUBING,
+        OBJECT_DATA_METAL_SHEET, OBJECT_DATA_SHIP_WING,
+        OBJECT_DATA_SHIP_TUBING
     },
     {
-        WC2_OBJECT_TYPE_BURNING_DEBRIS, WC2_OBJECT_TYPE_SHIP_TUBING,
-        WC2_OBJECT_TYPE_METAL_SHEET, WC2_OBJECT_TYPE_SHIP_WING,
-        WC2_OBJECT_TYPE_PIPE, WC2_OBJECT_TYPE_O_RING,
-        WC2_OBJECT_TYPE_BURNING_DEBRIS
+        OBJECT_DATA_BURNING_DEBRIS, OBJECT_DATA_SHIP_TUBING,
+        OBJECT_DATA_METAL_SHEET, OBJECT_DATA_SHIP_WING,
+        OBJECT_DATA_PIPE, OBJECT_DATA_O_RING,
+        OBJECT_DATA_BURNING_DEBRIS
     }
 };
 
@@ -155,8 +155,8 @@ short inflict_damage(short attacker, short victim, short damage,
             return 0;
         if (victim == 0) {
             TriggerPlayerHitPaletteFlash();
-#ifdef WC1_SDL
-            Wc1SdlQueueJoystickDamageRumble(damage);
+#ifdef SDL_PORT
+            SdlQueueJoystickDamageRumble(damage);
 #endif
         }
         if (g_acObjectOwner_00495208[attacker] != -1 &&
@@ -856,7 +856,7 @@ void Create_explosion_debris(short obj)
             break;
         set_objects_data(debris,
                          g_aaeExplosionDebris_00492dd8[set][index], -1, 0);
-        if (g_asObjectType_00495298[debris] == WC2_OBJECT_TYPE_SHIP_WING)
+        if (g_asObjectType_00495298[debris] == OBJECT_DATA_SHIP_WING)
             g_apObjectShape_00493868[debris] =
                 g_aObjectResourceSlots_00493398[slot].field_12;
         g_asObjectCounter_00494be0[debris] = 40;
@@ -887,7 +887,7 @@ void Create_explosion_debris(short obj)
         g_asObjectScreenAngle_004936b8[debris] =
             (short)(RandomBelowOrEqual(3) + 0x10);
         g_aeObjectClass_00495328[debris] = OBJECT_CLASS_DUST;
-        g_asObjectType_00495298[debris] = WC2_OBJECT_TYPE_DEBRIS_DUST;
+        g_asObjectType_00495298[debris] = OBJECT_DATA_DEBRIS_DUST;
         g_acObjectType_00493980[debris] =
             (signed char)g_asObjectType_00495298[debris];
         g_asObjectCounter_00494be0[debris] = 40;
@@ -1030,9 +1030,9 @@ short ShipExplosion(short obj)
     }
     if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP) {
         PlaySfxWaveFileByNumber(0x31, obj, 0);
-        explosionType = WC2_OBJECT_TYPE_EXPLOSION_MEDIUM;
+        explosionType = OBJECT_DATA_EXPLOSION_MEDIUM;
     } else {
-        explosionType = WC2_OBJECT_TYPE_EXPLOSION_LARGE;
+        explosionType = OBJECT_DATA_EXPLOSION_LARGE;
     }
     set_objects_data(explosion, explosionType,
                      (short)g_acObjectOwner_00495208[explosion], 0);
@@ -1076,12 +1076,12 @@ short Explosion(short obj)
         }
         set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
         if (g_aObjectTypeData_00496d30[
-                WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0)
+                OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0)
             g_asObjectCounter_00494be0[obj] = 8;
         else
             g_asObjectCounter_00494be0[obj] = 4;
         if (g_aObjectTypeData_00496d30[
-                WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0)
+                OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0)
             g_asShipExplosionStageTimer_005d3850[obj] = 8;
         else
             g_asShipExplosionStageTimer_005d3850[obj] = 4;
@@ -1094,10 +1094,10 @@ short Explosion(short obj)
                 (g_aObjectTypeData_00496d30[
                      g_acObjectType_00493980[obj]].damageCapacity >> 2) +
                 (g_aObjectTypeData_00496d30[
-                     WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0 ? 8 : 4));
+                     OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0 ? 8 : 4));
             g_asShipExplosionStageTimer_005d3850[obj] = (short)(
                 (g_aObjectTypeData_00496d30[
-                     WC2_OBJECT_TYPE_EXPLOSION_LARGE].shapeSet != 0 ?
+                     OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0 ?
                      8 : 4) * 2);
             if (g_asShipExplosionStageTimer_005d3850[obj] <
                 g_nHudMessageTime_005d1c32) {
@@ -1116,13 +1116,13 @@ short Explosion(short obj)
         explosion_shock_wave(obj,
             g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].explosionDamage);
-        if (g_asObjectType_00495298[obj] == WC2_OBJECT_TYPE_TORPEDO) {
+        if (g_asObjectType_00495298[obj] == OBJECT_DATA_TORPEDO) {
             debris = obj;
-            set_objects_data(debris, WC2_OBJECT_TYPE_EXPLOSION_LARGE,
+            set_objects_data(debris, OBJECT_DATA_EXPLOSION_LARGE,
                              g_acObjectOwner_00495208[obj], 0);
         } else {
             debris = obj;
-            set_objects_data(debris, WC2_OBJECT_TYPE_EXPLOSION_SMALL,
+            set_objects_data(debris, OBJECT_DATA_EXPLOSION_SMALL,
                              g_acObjectOwner_00495208[obj], 0);
         }
         RecordCannedSceneObjectEvent(debris, 0);
@@ -1167,7 +1167,7 @@ void explosion_shock_wave(short obj, short blastDamage)
                     g_aeObjectClass_00495328[target] >=
                         OBJECT_CLASS_CAPITAL_SHIP &&
                     g_aeObjectClass_00495328[obj] == OBJECT_CLASS_MISSILE &&
-                    g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_TORPEDO)
+                    g_asObjectType_00495298[obj] != OBJECT_DATA_TORPEDO)
                     damage = 0;
                 if (target == 0)
                     damage = MaxShort(1, (short)(damage * 3 >> 2));
@@ -1176,7 +1176,7 @@ void explosion_shock_wave(short obj, short blastDamage)
                 NormalizeFixedVector(&delta);
                 ScaleFixedVector(&delta, (int)damage << 8, &force);
                 apply_force_to_objects_center(&force, target);
-                if (g_asObjectType_00495298[obj] != WC2_OBJECT_TYPE_TORPEDO) {
+                if (g_asObjectType_00495298[obj] != OBJECT_DATA_TORPEDO) {
                     inflict_damage(obj, target,
                                    MinShort(200, damage), &delta);
                 } else {
@@ -1198,7 +1198,7 @@ short explode(short attacker, short victim)
     if (victim < 10)
         g_anShipCloakState_00496020[victim] = 2;
     if (g_bExplosionTraversalIdle_00492e18 != 0) {
-        for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++)
+        for (object = 0; object < SPACE_OBJECT_COUNT; object++)
             g_abExplosionObjectVisited_005d3870[object] = 0;
     }
     g_bExplosionTraversalIdle_00492e18 = 0;
@@ -1244,7 +1244,7 @@ short ResolveObjectDestruction(short attacker, short victim)
     }
     if (victim == g_nExternalViewShip_00493468)
         g_nExternalViewShip_00493468 = -1;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* With no attacker, WC2 reads the zero-filled byte at 0x495207 just
      * before the owner table and consequently attributes the destruction to
      * object 0.  Preserve that result without crossing the native redzone. */
@@ -1254,13 +1254,13 @@ short ResolveObjectDestruction(short attacker, short victim)
 #endif
         if (g_acObjectOwner_00495208[attacker] != -1)
             attacker = g_acObjectOwner_00495208[attacker];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     }
 #endif
     if (attacker != -1 &&
         g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_SHIP) {
         analyze_kill(attacker, victim);
-        for (objective = 0; objective < WC2_MISSION_OBJECTIVE_COUNT;
+        for (objective = 0; objective < MISSION_OBJECTIVE_COUNT;
              objective++) {
             if (g_aMissionObjectives_004932a8[objective].type == 4 &&
                 g_aMissionObjectives_004932a8[objective].index ==
@@ -1298,7 +1298,7 @@ short find_child_object(short parent, short objectClass)
 {
     short obj;
 
-    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+    for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         if ((short)g_acObjectOwner_00495208[obj] == parent &&
             g_aeObjectClass_00495328[obj] == objectClass)
             return obj;
@@ -1317,7 +1317,7 @@ short IsCapitalShipObject(short obj)
 /* Function start: 0x410289 */
 /* Indexes on into g_asDifficultyLevels_004930a8, which holds the loaded
  * difflevl.000 -- see the note on the table in globals.c. */
-WC2_CROSSES_GLOBALS short GetAdaptiveTurnRate(void)
+CROSSES_GLOBALS short GetAdaptiveTurnRate(void)
 {
     short turnRate;
 
@@ -1600,7 +1600,7 @@ int RandomFixedAimComponent(short radius, short speed, short maximum)
 
     aim = RandomSign(MinShort(
         maximum, (short)(RandomBelowOrEqual(radius) + speed)));
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* SHL supplies the fixed-point scale in retail, including for a negative
      * random component; multiplication has the same value without C shift UB. */
     return (int)aim * 256;
@@ -1707,7 +1707,7 @@ short fire_turrets(short obj)
     targetCount = build_target_list(obj, targetRange);
     for (weapon = 0;
          weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
          /* WC2 walks the slot pointer forward here before anything sets it -
           * this loop indexes the array directly and the loop below starts the
           * pointer over - and advancing an indeterminate pointer is undefined
@@ -1976,9 +1976,9 @@ short fire_weapon(short obj, short weapon)
             g_asObjectCounter_00494be0[obj] =
                 (short)(14 - g_nAdaptiveDifficulty_005d3844);
         }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         if (obj == 0)
-            Wc1SdlQueueJoystickWeaponRumble(weaponType);
+            SdlQueueJoystickWeaponRumble(weaponType);
 #endif
         switch (weaponType) {
         case 7:
@@ -2012,11 +2012,11 @@ void BeginShipDestructionSequence(short obj)
     send_message(obj, 9);
     g_nPendingEjectionShip_005d1bc4 = obj;
     set_special(obj, SPECIAL_MANEUVER_UNKNOWN_9);
-    if (g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
+    if (g_aObjectTypeData_00496d30[OBJECT_DATA_INDEX(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
         g_asObjectCounter_00494be0[obj] = 8;
     else
         g_asObjectCounter_00494be0[obj] = 4;
-    if (g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
+    if (g_aObjectTypeData_00496d30[OBJECT_DATA_INDEX(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
         g_asShipExplosionStageTimer_005d3850[obj] = 8;
     else
         g_asShipExplosionStageTimer_005d3850[obj] = 4;
@@ -2038,12 +2038,12 @@ void SpawnMissionEjectionPod(short obj)
     short initialShip;
 
     if (g_aObjectTypeData_00496d30[
-            WC2_OBJECT_TYPE_EJECTION_POD].shapeSet == 0) {
+            OBJECT_DATA_EJECTION_POD].shapeSet == 0) {
         g_aObjectTypeData_00496d30[
-            WC2_OBJECT_TYPE_EJECTION_POD].shapeSet =
+            OBJECT_DATA_EJECTION_POD].shapeSet =
             FetchDiskPacketRetrying("pilotanm.vga", 2, 0);
     }
-    set_objects_data(obj, WC2_OBJECT_TYPE_EJECTION_POD, -1, 0);
+    set_objects_data(obj, OBJECT_DATA_EJECTION_POD, -1, 0);
     zero_vector(&g_aShipVelocity_00494898[obj]);
     RecordCannedSceneObjectEvent(obj, 0);
     g_bMissionEjectionPodSpawned_0049b724 = 1;

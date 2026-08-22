@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include <string.h>
 
@@ -97,13 +97,13 @@ int main(int argumentCount, char **arguments)
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_JOYSTICK |
                  SDL_INIT_GAMECONTROLLER) != 0)
         return 1;
-    window = SDL_CreateWindow("WC2 SDL event test", 0, 0, 640, 400, 0);
+    window = SDL_CreateWindow("SDL event test", 0, 0, 640, 400, 0);
     if (window == 0)
         goto cleanup;
     g_hMainWindow_005d10e0 = (HWND)window;
 
     stage = 2;
-    Wc1SdlSetMouseGrab(1);
+    SdlSetMouseGrab(1);
     stage = 20;
     if (SDL_GetWindowMouseGrab(window) != SDL_TRUE)
         goto cleanup;
@@ -113,36 +113,36 @@ int main(int argumentCount, char **arguments)
     event.window.event = SDL_WINDOWEVENT_FOCUS_LOST;
     if (SDL_PushEvent(&event) != 1)
         goto cleanup;
-    Wc1SdlPumpEvents();
+    SdlPumpEvents();
     stage = 21;
     if (SDL_GetWindowMouseGrab(window) != SDL_FALSE)
         goto cleanup;
     event.window.event = SDL_WINDOWEVENT_FOCUS_GAINED;
     if (SDL_PushEvent(&event) != 1)
         goto cleanup;
-    Wc1SdlPumpEvents();
+    SdlPumpEvents();
     stage = 22;
     if (SDL_GetWindowMouseGrab(window) != SDL_TRUE)
         goto cleanup;
-    Wc1SdlSuspendMouseGrab();
-    Wc1SdlSuspendMouseGrab();
+    SdlSuspendMouseGrab();
+    SdlSuspendMouseGrab();
     stage = 23;
     if (SDL_GetWindowMouseGrab(window) != SDL_FALSE)
         goto cleanup;
-    Wc1SdlResumeMouseGrab();
+    SdlResumeMouseGrab();
     stage = 24;
     if (SDL_GetWindowMouseGrab(window) != SDL_FALSE)
         goto cleanup;
-    Wc1SdlResumeMouseGrab();
+    SdlResumeMouseGrab();
     stage = 25;
     if (SDL_GetWindowMouseGrab(window) != SDL_TRUE)
         goto cleanup;
-    Wc1SdlSetMouseGrab(0);
+    SdlSetMouseGrab(0);
 
     stage = 3;
-    if (Wc1SdlTranslateScanCode(SDL_SCANCODE_HOME) != 0x47 ||
-        Wc1SdlTranslateScanCode(SDL_SCANCODE_DELETE) != 0x53 ||
-        Wc1SdlTranslateScanCode(SDL_SCANCODE_F12) != 0x58)
+    if (SdlTranslateScanCode(SDL_SCANCODE_HOME) != 0x47 ||
+        SdlTranslateScanCode(SDL_SCANCODE_DELETE) != 0x53 ||
+        SdlTranslateScanCode(SDL_SCANCODE_F12) != 0x58)
         goto cleanup;
 
     stage = 30;
@@ -155,7 +155,7 @@ int main(int argumentCount, char **arguments)
     g_stScreenViewport_005d21a0.top = 0;
     g_stScreenViewport_005d21a0.right = 15;
     g_stScreenViewport_005d21a0.bottom = 15;
-    Wc1SdlDrawViewportStatic(&g_stScreenViewport_005d21a0, 3, 0x5d);
+    SdlDrawViewportStatic(&g_stScreenViewport_005d21a0, 3, 0x5d);
     colouredPixelCount = 0;
     for (index = 0; index < 256; index++) {
         if (pixels[index] == 0x5d)
@@ -181,7 +181,7 @@ int main(int argumentCount, char **arguments)
     g_nNavPointerObject_004931b8 = -1;
     g_anSortedObject_005c82c0[0] = 0;
     g_anSortedObject_005c82c0[1] = -1;
-    g_asObjectType_00495298[0] = WC2_OBJECT_TYPE_LASER_CANNON;
+    g_asObjectType_00495298[0] = OBJECT_DATA_LASER_CANNON;
     g_aeObjectClass_00495328[0] = OBJECT_CLASS_PLANET;
     g_asObjectScreenX_00493598[0] = 0;
     g_asObjectScreenY_00493628[0] = 0;
@@ -217,8 +217,8 @@ int main(int argumentCount, char **arguments)
         goto cleanup;
     SDL_JoystickUpdate();
     memset(&joystickInformation, 0, sizeof(joystickInformation));
-    if (Wc1SdlReadJoystick(0, &joystickInformation) == FALSE &&
-        Wc1SdlReadJoystick(1, &joystickInformation) == FALSE)
+    if (SdlReadJoystick(0, &joystickInformation) == FALSE &&
+        SdlReadJoystick(1, &joystickInformation) == FALSE)
         goto cleanup;
     instanceId = SDL_JoystickGetDeviceInstanceID(deviceIndex);
     if (instanceId < 0)
@@ -229,8 +229,8 @@ int main(int argumentCount, char **arguments)
     g_acVduModeStackDepth_004934c8[1] = 1;
     g_aaiVduModeStack_00493498[1][0] = 0;
     stage = 5;
-    if (!Wc1SdlSetJoystickMode("4button-4axis") ||
-        !Wc1SdlSetJoystickAxesMode("twin-stick-roll"))
+    if (!SdlSetJoystickMode("4button-4axis") ||
+        !SdlSetJoystickAxesMode("twin-stick-roll"))
         goto cleanup;
 
     stage = 6;
@@ -238,8 +238,8 @@ int main(int argumentCount, char **arguments)
     while (activeSlot < 2) {
         FlushInputEvents();
         g_nActiveInputDevice_005d1726 = (short)activeSlot;
-        Wc1SdlApplyJoystickFlightControls();
-        Wc1SdlHandleJoystickButtonEvent(instanceId, 5, 1, 0);
+        SdlApplyJoystickFlightControls();
+        SdlHandleJoystickButtonEvent(instanceId, 5, 1, 0);
         eventType = GetNextInputEvent(&input);
         if (eventType != 0)
             break;
@@ -253,16 +253,16 @@ int main(int argumentCount, char **arguments)
     FlushInputEvents();
     stage = 7;
     g_bSceneEscapeRequested_0049d4b0 = 0;
-    Wc1SdlHandleJoystickButtonEvent(instanceId, 8, 1, 0);
+    SdlHandleJoystickButtonEvent(instanceId, 8, 1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0 ||
         GetNextInputEvent(&input) != 4 || input.status != 1)
         goto cleanup;
 
     FlushInputEvents();
     stage = 8;
-    Wc1SdlEndJoystickSpaceflight();
+    SdlEndJoystickSpaceflight();
     g_bInputEventQueueEnabled_0049c248 = 1;
-    Wc1SdlHandleJoystickButtonEvent(instanceId, 3, 1, 0);
+    SdlHandleJoystickButtonEvent(instanceId, 3, 1, 0);
     if (GetNextInputEvent(&input) != 5 || input.status != 0x15 ||
         input.value != 'y')
         goto cleanup;
@@ -282,8 +282,8 @@ cleanup:
     g_pConstellationShape_005d2c4c = 0;
     ReleasePreparedTestSprite(planetShape);
     ReleasePreparedTestSprite(constellationShape);
-    Wc1SdlSetMouseGrab(0);
-    Wc1SdlShutdownJoysticks();
+    SdlSetMouseGrab(0);
+    SdlShutdownJoysticks();
 #if SDL_VERSION_ATLEAST(2, 0, 14)
     if (deviceIndex >= 0)
         SDL_JoystickDetachVirtual(deviceIndex);

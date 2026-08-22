@@ -9,7 +9,7 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #include <dsound.h>
 #endif
 #include <stdlib.h>
@@ -31,7 +31,7 @@ LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_005c52ec;
 int g_nVoicesAllocated_005c574c;
 /* The host CRT's malloc takes size_t, which is not unsigned int on every
  * modern target; keep one definition so the globals audit sees one range. */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 #define IX_MALLOC_HOOK ((void *(__cdecl *)(unsigned int))malloc)
 #else
 #define IX_MALLOC_HOOK malloc
@@ -49,7 +49,7 @@ int ix_dsp_init(void)
         InitializeCriticalSection(&g_csMixer_005c5730);
         g_hMixerWakeEvent_005c4ec8 = CreateEventA(0, TRUE, FALSE, 0);
         ix_dsp_build_pan_tables();
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         g_dwDspFlags_005c4ed8 |= 4;
 #endif
         g_hMixerThread_005c4ec0 = CreateThread(
@@ -69,7 +69,7 @@ int ix_dsp_init(void)
 void ix_dsp_shutdown(void)
 {
     if ((g_dwDspFlags_005c4ed8 & 1) != 0) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         if (g_hMixerThread_005c4ec0 != 0) {
             g_dwDspFlags_005c4ed8 &= ~4U;
             SetEvent(g_hMixerWakeEvent_005c4ec8);
@@ -127,7 +127,7 @@ void ix_dsp_configure(int option, void *value)
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
                                  LPSTR module, LPVOID context)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     (void)guid;
     (void)description;
     (void)module;
@@ -291,7 +291,7 @@ void ix_dsp_build_pan_tables(void)
 /* Function start: 0x48A017 */
 const char *ix_dsp_result_to_text(int result)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     (void)result;
     return SDL_GetError();
 #else

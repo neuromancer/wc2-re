@@ -4,7 +4,7 @@
  *  Address range 0x402e00-0x4030ff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: contiguous run of Win32 input/timing wrappers with no string references.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x455A85 */
 void SetMousePosition(int x, int y)

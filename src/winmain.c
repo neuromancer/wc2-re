@@ -4,9 +4,9 @@
  *  Address range 0x401000-0x402dff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 0x465048-0x465354.
  */
-#include "wc1.h"
+#include "game.h"
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(abs)
 #endif
 
@@ -60,7 +60,7 @@ void make_shard(short asteroid, FixedVector direction)
 
     fragment = find_vacant_3d_object();
     if (fragment != -1) {
-        set_objects_data(fragment, WC2_OBJECT_TYPE_ROCK_CHUNK, asteroid, 0);
+        set_objects_data(fragment, OBJECT_DATA_ROCK_CHUNK, asteroid, 0);
         g_asObjectCounter_00494be0[fragment] = 40;
         g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
         SetVectorFixedPoint(
@@ -167,16 +167,16 @@ void init_hazard(short obj, FixedVector position, short moving)
 
     hazardMoves = moving;
     if (g_pActiveHazardField_00493278->type ==
-        WC2_OBJECT_TYPE_ASTEROID_FIELD) {
-        type = (short)(WC2_OBJECT_TYPE_ASTEROID1 +
+        OBJECT_DATA_ASTEROID_FIELD) {
+        type = (short)(OBJECT_DATA_ASTEROID1 +
                        RandomBelowOrEqual(5));
     } else {
-        type = WC2_OBJECT_TYPE_SPACE_MINE;
+        type = OBJECT_DATA_SPACE_MINE;
     }
     set_objects_data(obj, type, -1, 0);
     g_aShipPosition_00494550[obj] = position;
 
-    if (type == WC2_OBJECT_TYPE_SPACE_MINE) {
+    if (type == OBJECT_DATA_SPACE_MINE) {
         hazardMoves = 0;
         point_at(obj, g_aShipPosition_00494550[0]);
         skew_randomly(obj, 1);
@@ -219,7 +219,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     if (hazardMoves == 0) {
         int separation;
 
-        if (type == WC2_OBJECT_TYPE_ASTEROID_FIELD)
+        if (type == OBJECT_DATA_ASTEROID_FIELD)
             separation = 1500;
         else
             separation = RandomBelowOrEqual(1000) << 8;
@@ -228,7 +228,7 @@ void init_hazard(short obj, FixedVector position, short moving)
         SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
                              &g_aShipPosition_00494550[obj]);
     }
-    if (type == WC2_OBJECT_TYPE_SPACE_MINE) {
+    if (type == OBJECT_DATA_SPACE_MINE) {
         align(&g_aShipPosition_00494550[obj].x, 200);
         align(&g_aShipPosition_00494550[obj].y, 200);
         align(&g_aShipPosition_00494550[obj].z, 200);
@@ -260,8 +260,8 @@ short try_far_spot(FixedVector *spot, short *moving)
     short pitch;
     unsigned short outsideRange;
 
-    copy_frame(0, WC2_SCRATCH_VIEW_OBJECT);
-    g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT] =
+    copy_frame(0, SCRATCH_VIEW_OBJECT);
+    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] =
         g_aShipPosition_00494550[0];
     pitch = signed_random(20);
     yaw = signed_random(35);
@@ -285,12 +285,12 @@ short try_far_spot(FixedVector *spot, short *moving)
     yaw = (short)(yaw + find_ratio(
         -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
     rotate_about_j(yaw,
-                   &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT]);
+                   &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
     rotate_about_i(pitch,
-                   &g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT]);
-    position_relative_ijk(spot, WC2_SCRATCH_VIEW_OBJECT, 0, 0, 3050);
+                   &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
+    position_relative_ijk(spot, SCRATCH_VIEW_OBJECT, 0, 0, 3050);
     outsideRange = !(unsigned short)IsPointWithinRange(
         &g_aShipPosition_00494550[0], spot, 3000);
     return outsideRange != 0 &&
@@ -367,7 +367,7 @@ void manage_hazard(short obj, short slot)
         remove_hazard((signed char)obj);
         return;
     }
-    if (g_asObjectType_00495298[obj] == WC2_OBJECT_TYPE_PORCUPINE_MINE &&
+    if (g_asObjectType_00495298[obj] == OBJECT_DATA_PORCUPINE_MINE &&
         g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
         (unsigned short)g_asObjectDistance_00493ae8[obj] > 1500 &&
         real_velocity(obj) < 20)
@@ -379,18 +379,18 @@ void match_ship_to_eye(void)
 {
     g_nHazardReferenceSpeed_00492e58 = 100;
     g_aShipPosition_00494550[0] =
-        g_aShipPosition_00494550[WC2_EYE_OBJECT];
+        g_aShipPosition_00494550[EYE_OBJECT];
     g_aShipRightVector_00493b78[0] =
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT];
+        g_aShipRightVector_00493b78[EYE_OBJECT];
     g_aShipUpVector_00493ec0[0] =
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT];
+        g_aShipUpVector_00493ec0[EYE_OBJECT];
     g_aShipForwardVector_00494208[0] =
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+        g_aShipForwardVector_00494208[EYE_OBJECT];
     ScaleFixedVector(&g_aShipForwardVector_00494208[0],
                      g_nHazardReferenceSpeed_00492e58 << 8,
                      &g_aShipVelocity_00494898[0]);
     g_pActiveHazardField_00493278->center =
-        g_aShipPosition_00494550[WC2_EYE_OBJECT];
+        g_aShipPosition_00494550[EYE_OBJECT];
 }
 
 /* Function start: 0x4184F6 */
@@ -485,7 +485,7 @@ void SetPersonnelMousePosition(short x, short y)
 /* Function start: 0x453C95 */
 void CheckLauncherAndConfig(void)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     FILE *config;
     char option[100];
     char resolvedPath[PATH_MAX];
@@ -496,7 +496,7 @@ void CheckLauncherAndConfig(void)
         *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
     }
 
-    if (Wc1SdlResolvePath("WINGCMDR.CFG", resolvedPath,
+    if (SdlResolvePath("WINGCMDR.CFG", resolvedPath,
                           sizeof(resolvedPath)))
         config = fopen(resolvedPath, "rt");
     else
@@ -593,7 +593,7 @@ void CheckLauncherAndConfig(void)
 
 #pragma intrinsic(strcmp)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 
 /* Function start: 0x453E60 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
@@ -684,7 +684,7 @@ void ShutdownGameWindow(void)
 {
     g_bApplicationShutdownStarted_0049c23c = 1;
     g_dwGameExitTime_005d129c = (unsigned int)time(0);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     {
         SDL_Window *window;
 
@@ -695,7 +695,7 @@ void ShutdownGameWindow(void)
         DestroyGlobalDebugOverlayConsole();
         window = (SDL_Window *)g_hMainWindow_005d10e0;
         DIBunInstall();
-        Wc1SdlShutdownJoysticks();
+        SdlShutdownJoysticks();
         if (window != 0)
             SDL_DestroyWindow(window);
         g_hMainWindow_005d10e0 = 0;
@@ -731,7 +731,7 @@ void ShowNoticeMessageBox(const char *text)
 /* Function start: 0x45422D */
 unsigned int AbortToDesktop(void)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     HANDLE process;
 
     g_bApplicationShutdownStarted_0049c23c = 1;
@@ -747,13 +747,13 @@ unsigned int AbortToDesktop(void)
             g_dwGuardedAllocationTotalBytes_0049c24c);
     OutputDebugStringA("Memory Info:\n");
     OutputDebugStringA(g_abMemoryUsageReport_005d1170);
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
 #endif
     return 0;
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 
 /* Function start: 0x4542B7 */
 int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
@@ -812,7 +812,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 /* Function start: 0x45445A */
 unsigned int PumpWindowMessages(int skipMessages)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     MSG message;
 #endif
     int done;
@@ -829,8 +829,8 @@ unsigned int PumpWindowMessages(int skipMessages)
         if (g_pfnInputPump_005c840c != 0)
             g_pfnInputPump_005c840c();
         KeyboardMousePump();
-#ifdef WC1_SDL
-        Wc1SdlPumpEvents();
+#ifdef SDL_PORT
+        SdlPumpEvents();
 #else
         done = 0;
         while (done == 0 || g_bWindowInactive_0049c274 != 0) {
@@ -875,7 +875,7 @@ unsigned int GetF1KeyLatch(void)
     return g_bF1KeyDown_0049c240;
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 
 /* Function start: 0x454625 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
@@ -1193,8 +1193,8 @@ void GetJoystickPosition(unsigned int *x, unsigned int *y,
         device = 0;
         infoIndex = 0;
     }
-#ifdef WC1_SDL
-    if (Wc1SdlReadJoystick(
+#ifdef SDL_PORT
+    if (SdlReadJoystick(
             device, &g_aJoystickInfo_005d10b0[infoIndex]) != FALSE) {
 #else
     if (joyGetPos(device, &g_aJoystickInfo_005d10b0[infoIndex]) ==
@@ -1244,7 +1244,7 @@ short GetJoystickButtons(void)
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
                         short *yMin, short *yMax)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     unsigned int hostXMin;
     unsigned int hostXMax;
     unsigned int hostYMin;
@@ -1255,8 +1255,8 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     unsigned int device = joystick != 0;
 
     *xMin = *xMax = *yMin = *yMax = 0;
-#ifdef WC1_SDL
-    if (Wc1SdlReadJoystickAxisRange(
+#ifdef SDL_PORT
+    if (SdlReadJoystickAxisRange(
             device, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
 #else
     if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
@@ -1264,7 +1264,7 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
         return;
     }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     *xMin = (short)hostXMin;
     *xMax = (short)hostXMax;
     *yMin = (short)hostYMin;
@@ -1317,7 +1317,7 @@ void *AllocateGuardedMemory(unsigned int size)
     }
     g_pGuardedAllocationTail_005d10ec->next = 0;
     g_pGuardedAllocationTail_005d10ec->size = size;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* The 0x400-byte 0xAB fences the original hand-rolls are what ASan's
      * redzones already provide, and ASan reports the write that runs past the
      * block instead of the free that finds the damage long afterwards.  Drop
@@ -1344,7 +1344,7 @@ void *AllocateGuardedMemory(unsigned int size)
            0xab, 0x400);
 #endif
     UntrackFreedHeapBlock(g_pGuardedAllocationTail_005d10ec->block);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     return g_pGuardedAllocationTail_005d10ec->block;
 #else
     return (unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
@@ -1456,7 +1456,7 @@ void UntrackFreedHeapBlock(void *memory)
 void FreeGuardedAllocation(void *memory)
 {
     int found;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     unsigned char *guard;
     unsigned int guardValue;
 #else
@@ -1468,7 +1468,7 @@ void FreeGuardedAllocation(void *memory)
     int i;
 
     found = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* No fences to walk: the block starts where the caller's pointer does and
      * ASan owns the redzones on either side of it. */
     guard = (unsigned char *)memory;
@@ -1479,7 +1479,7 @@ void FreeGuardedAllocation(void *memory)
     allocation = g_pGuardedAllocationHead_0049c300;
     while (allocation != 0) {
         if (allocation->block == guard) {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
             corrupt = 0;
             for (i = 0; i < 0x100; i++) {
                 if (*guard != 0xabababab)

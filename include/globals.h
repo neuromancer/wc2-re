@@ -9,13 +9,13 @@
  *  boundaries are still unknown; each global belongs in whichever module
  *  defines it, and moves there as docs/ORDER.md is filled in.
  */
-#ifndef WC1_GLOBALS_H
-#define WC1_GLOBALS_H
+#ifndef GAME_GLOBALS_H
+#define GAME_GLOBALS_H
 
 extern const int g_anRLEQuarterCosine_00405cbb[901];
-extern const unsigned char g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED[4];
-extern const unsigned char g_abIffCmapChunkId_00406f78_WC1_UNMAPPED[4];
-extern const unsigned char g_abIffBodyChunkId_00406f7c_WC1_UNMAPPED[4];
+extern const unsigned char g_abIffBmhdChunkId_00406f74[4];
+extern const unsigned char g_abIffCmapChunkId_00406f78[4];
+extern const unsigned char g_abIffBodyChunkId_00406f7c[4];
 extern short g_nHazardReferenceSpeed_00492e58;
 extern short g_nActiveHazards_00492e5c;
 extern int g_nAudioEnabled_0049c244;
@@ -75,21 +75,9 @@ extern const int g_nJoystickUnavailableSample_0048e054;
 extern const unsigned short g_wSpeechCacheCodeBytes_0048e0e0;
 extern const unsigned short g_wSpeechCacheDataWords_0048e0e4;
 extern short g_nAutopilotFormationShipCount_00493060;
-extern const short g_asMouthFramesByPhoneme_004655f0_WC1_UNMAPPED[26];
-extern const char g_szConversationIntegerFormat_00465628_WC1_UNMAPPED[4];
-extern const char g_szConversationIntegerFormatAlt_0046562c_WC1_UNMAPPED[4];
-extern const char g_szCampaignDateFormat_00465630_WC1_UNMAPPED[12];
-extern const char g_szSavedCampaignDateFormat_0046563c_WC1_UNMAPPED[12];
-extern const char g_szCampaignTimeFormat_00465648_WC1_UNMAPPED[12];
-extern const char g_szConversationTextFormat_00465654_WC1_UNMAPPED[12];
 extern const char g_szBriefingMapTextFormat_0049bd30[12];
-extern const char g_szCloseLookTextFormat_0046566c_WC1_UNMAPPED[12];
-extern int g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED;
-extern const char g_szTheEnd_00465c04_WC1_UNMAPPED[8];
-extern const char g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED[12];
 extern short g_nEnemySighting_0049b670;
 extern short g_bHomeObjectiveFlagged_0049b674;
-extern short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED;
 extern void **g_apPacketReferenceGroups_0049b898[4];
 extern const short g_anPilotTurnInterval_0049b9c0[8];
 extern short g_nNavMapCoordinateScaling_0049bb80;
@@ -142,11 +130,6 @@ extern int g_bInflightComputerActive_0049bcb4;
 extern volatile short g_nNearHeapActive_00493044;
 extern volatile short g_nNearHeapMaxDescriptors_00493048;
 extern volatile int g_nNearHeapRelocationBytes_0049304c;
-extern int DAT_004688cc_WC1_UNMAPPED;
-extern int DAT_004688d0_WC1_UNMAPPED;
-extern int DAT_004688d4_WC1_UNMAPPED;
-extern int DAT_004688d8_WC1_UNMAPPED;
-extern short DAT_004688dc_WC1_UNMAPPED;
 extern char g_szCalculating_0049b3a0[12];
 extern char g_szRangeKilometresSuffix_0049b3ac[4];
 extern char g_szNoObjective_0049b3b0[8];
@@ -186,7 +169,6 @@ extern char g_szWaitForFormat_0049b428[12];
 extern unsigned int g_dwModalBoundsTopLeft_0049ca48;
 extern unsigned int g_dwModalBoundsBottomRight_0049ca4c;
 extern ModalTextPanel *g_pModalTextPanel_0049ca50;
-extern const short g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED[3];
 extern char *g_pszGameVersion_0049b528;
 extern char g_szGameVersion_0049b52c[9];
 extern short g_nPaletteTransitionInitialise_0049305c;
@@ -197,8 +179,6 @@ extern HHOOK g_hDebugKeyboardHook_0049cb30;
 extern const char g_szDebugOverlayFontName_0049cb34[8];
 extern const char g_szDebugOverlaySpinner_0049cb3c[5];
 extern const char g_szDebugOverlayNewline_0049cb44[4];
-extern char g_szDiskMarkerFile_00469688_WC1_UNMAPPED[9];
-extern short g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED;
 extern const short g_asPlayerDamageSystemTable_00492d70[50];
 extern const short g_aeShipHitDebrisTypes_00492e10[4];
 extern const signed char g_acGunRefireDelay_00492e1c[4];
@@ -206,7 +186,6 @@ extern const char g_szWeaponDestroyed_00492e20[20];
 extern const char g_szFuelTanksHit_00492e34[16];
 extern const char g_szComponentFixedFormat_00492e44[8];
 extern const char g_szNeedLock_00492e4c[12];
-extern short g_bSlowSceneAnimation_00469998_WC1_UNMAPPED;
 extern unsigned char g_cSecondaryViewBufferColour_0049cb4c;
 extern int g_bPauseInputActive_0049ac9c;
 extern unsigned char g_bPrimaryViewBufferColour_0049cb50;
@@ -218,10 +197,6 @@ extern unsigned char g_ucPlayerNavLabelColour_0049cb74;
 extern unsigned char g_ucNavObjectiveMarkerColour_0049cb78;
 extern unsigned char g_ucAsteroidNavMarkerColour_0049cb84;
 extern unsigned char g_cPrimaryViewBufferColour_0049cb88;
-extern short g_asConversationTextColours_004699f0_WC1_UNMAPPED[24];
-extern const int g_anBaseMemoryReservationByVideoMode_00469a90_WC1_UNMAPPED[4];
-extern const int g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED[4];
-extern const int g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED[3];
 extern short g_nCockpitBackgroundBytes_0049c720;
 extern PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[11];
 extern int g_nCapitalShipViewDistance_00492fa4;
@@ -230,29 +205,14 @@ extern short g_b3SpaceObjectsActive_0049c8ec;
 extern short g_bCockpitResourcesActive_0049c8e8;
 extern unsigned char *g_pGenericMissileShape_0049c8f0;
 extern unsigned char *g_pGenericMissileExhaustShape_0049c8f4;
-extern short g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED;
-extern const char g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED[12];
 extern PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8];
 extern unsigned char *g_pPilotHandAnimationShape_005d2c64;
 extern PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5];
 extern PacketResourceDescriptor g_aCockpitCommonShapeResources_0049c820[5];
 extern PacketResourceDescriptor g_aCockpitShipShapeResources_0049c858[8];
 extern PacketResourceDescriptor g_aCockpitViewShapeResources_0049c8a8[5];
-extern Viewport g_stTrainSimPanelViewport_00469da8_WC1_UNMAPPED;
-extern const ShortRect g_stTrainSimPanelBounds_00469dc0_WC1_UNMAPPED;
-extern const char g_szTrainSimTitle_00469dc8_WC1_UNMAPPED[24];
-extern unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED[6];
-extern unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[48];
-extern const char g_szTextFlushToken_00469e6c_WC1_UNMAPPED[4];
-extern const char g_szNewPilotPrompt_00469e70_WC1_UNMAPPED[80];
 extern const char g_szDefaultPilotName_0049ab4c[8];
-extern const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED[12];
 extern const char g_szDefaultCallsign_0049ab54[12];
-extern const char g_szCallsignLabel_00469ee0_WC1_UNMAPPED[12];
-extern const char g_szCheaterCallsign_00469eec_WC1_UNMAPPED[8];
-extern const char g_szHighScoresHeading_00469f70_WC1_UNMAPPED[16];
-extern const char g_szHighScoreNumberFormat_00469f80_WC1_UNMAPPED[8];
-extern const char g_szHighScoreRowFormat_00469f88_WC1_UNMAPPED[16];
 extern int g_nTrainSimActive_0049d758;
 extern short g_nCannedSceneMode_0049021c;
 extern const char g_szCannedSceneTapeFile_00490208[9];
@@ -307,9 +267,9 @@ extern short g_asWingmanDamageCredit_005d3830[10];
 extern short g_nAdaptiveDifficulty_005d3844;
 extern short g_asShipExplosionStageTimer_005d3850[10];
 extern signed char g_abExplosionObjectVisited_005d3870[
-    WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
 extern short g_asPlayerDamageCredit_005d38c0[10];
-extern short g_asObjectCreationFrame_005d3900[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectCreationFrame_005d3900[SPACE_OBJECT_COUNT];
 extern short g_asMissileProximityFuse_005d38e0[16];
 extern short g_asCapitalHitDamageStep_005d17a0[10];
 extern short g_nCarrierLaunchInterval_005d108c;
@@ -358,7 +318,7 @@ extern short *g_pPilotStatus_005d2fcc;
 extern int g_nShapePrepareTicks_005d2fd0;
 extern int g_nShapeClipTicks_005d2fd4;
 extern int g_nShapeDrawTicks_005d2fd8;
-extern Wc2CampaignGlobals *g_pCampaignGlobals_00499c94;
+extern CampaignGlobals *g_pCampaignGlobals_00499c94;
 extern short g_bKilrathiAceGreetingSent_00499bf4;
 extern CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c;
 extern CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890;
@@ -529,7 +489,7 @@ extern const ShortVector g_aaFormationPositions_0049b8d0[5][8];
 extern short g_nCommDeathSequenceFrame_0049ae84;
 extern short g_nCommMessageIndex_0049ae88;
 extern short g_nWeaponDisplayOffsetX_0049ae8c;
-extern short g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED;
+extern short g_nWeaponDisplayOffsetY_0049ae8e;
 extern const ShortPoint g_aDamageDisplayPositions_00490068[9];
 extern const char *g_apszComponentNames_00490090[9];
 extern const unsigned char g_abDamageDisplayFrames_004900b8[9];
@@ -564,7 +524,6 @@ extern int g_bAudioSystemInitialized_004961b0;
 extern WaveTableEntry *g_pWaveTableHead_004961b4;
 extern WaveTableEntry *g_pWaveTableTail_004961b8;
 extern const char g_szPlayWaveOpenError_004961ec[36];
-extern const char g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED[28];
 extern short g_nMusicDriverMode_0049be8c;
 extern short g_nCutsceneMusicVolume_0049be90;
 extern short g_nTitleMusicSequenceStage_0049be94;
@@ -697,13 +656,13 @@ extern int g_nTargetCameraSoundHandle_0049d3fc;
 extern short g_nTargetCameraEffectObjectA_0049d468;
 extern short g_nTargetCameraEffectObjectB_0049d46c;
 extern FixedVector g_vTargetCameraForce_005c8d60;
-extern MissionNavPoint g_aMissionNavPoints_00491e98[WC2_MISSION_NAV_POINT_COUNT];
+extern MissionNavPoint g_aMissionNavPoints_00491e98[MISSION_NAV_POINT_COUNT];
 extern MissionShipRecord
-    g_aMissionShips_00492290[WC2_MISSION_SHIP_COUNT];
+    g_aMissionShips_00492290[MISSION_SHIP_COUNT];
 extern const signed char g_acDirectionShapeFrame_0049d558[
-    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT];
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
 extern const signed char g_acDirectionShapeFlip_0049d618[
-    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT];
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT];
 extern InputEvent *g_pInputEventHead_0049d4b4;
 extern InputEvent *g_pInputEventTail_0049d4b8;
 extern int g_nInputEventPoolInitialized_0049d4bc;
@@ -722,43 +681,6 @@ extern signed char g_acPilotAggression_00493030[8];
 extern signed char g_acPilotRecovery_00493038[8];
 extern unsigned char *g_pDrawnInputCursorShape_0049d4d0;
 extern int g_nMouseCursorDrawDepth_0049d4d4;
-extern CampaignDate g_stSavedCampaignDate_0046e188_WC1_UNMAPPED;
-extern const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190_WC1_UNMAPPED[11];
-extern const signed char g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED[24];
-extern const signed char g_abBriefingLargeCharacterAnimation_0046e200_WC1_UNMAPPED[24];
-extern BriefingCharacterLayout g_aBriefingCharacters_0046e218_WC1_UNMAPPED[8];
-extern const short g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED[5];
-extern const char *g_apszMedalNames_0046e2e0_WC1_UNMAPPED[5];
-extern unsigned char *g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED;
-extern const int g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED[12];
-extern const int g_aiBriefingPodiumVelocity_0046e4b0_WC1_UNMAPPED[12];
-extern const int g_aiBriefingRightPanelVelocity_0046e4e0_WC1_UNMAPPED[12];
-extern const signed char g_abBriefingPodiumFrames_0046e510_WC1_UNMAPPED[40];
-extern const signed char g_abDebriefingEstablishDeltas_0046e538_WC1_UNMAPPED[48];
-extern short g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED;
-extern short g_nDebriefingPilotX_0046e570_WC1_UNMAPPED;
-extern short g_nDebriefingRightX_0046e574_WC1_UNMAPPED;
-extern short g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED;
-extern short g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED;
-extern short g_nConversationCharacter_0046e580_WC1_UNMAPPED;
-extern short g_nTalkingHeadFace_0046e584_WC1_UNMAPPED;
-extern short g_nConversationBackdropFrame_0046e588_WC1_UNMAPPED;
-extern int g_bConversationConstellation_0046e58c_WC1_UNMAPPED;
-extern int g_bConversationOverlay_0046e590_WC1_UNMAPPED;
-extern const char g_szBronzeStar_0046e594_WC1_UNMAPPED[12];
-extern const char g_szSilverStar_0046e5a0_WC1_UNMAPPED[12];
-extern const char g_szGoldStar_0046e5ac_WC1_UNMAPPED[12];
-extern const char g_szGoldenSun_0046e5b8_WC1_UNMAPPED[12];
-extern const char g_szTerranMedalOfValor_0046e5c4_WC1_UNMAPPED[24];
-extern const char g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED[12];
-extern const char g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED[12];
-extern const char g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED[12];
-extern const char g_szPinMedalTextFormat_0046e634_WC1_UNMAPPED[12];
-extern const char g_szEstablishingShotTextFormat_0046e640_WC1_UNMAPPED[12];
-extern const char g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED[12];
-extern const char g_szDismissedTextFormat_0046e658_WC1_UNMAPPED[12];
-extern const char g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED[12];
-extern const char g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED[12];
 extern void *g_apRasterDriverCallbacks_00490278[13];
 extern char g_szRasterDriverName_004902ac[13];
 extern unsigned char *g_pRLEEncodeBuffer_004902b9;
@@ -819,7 +741,7 @@ extern int g_nClearKeyState_005b3730;
 extern int g_nDeleteKeyState_005b3734;
 extern int g_nUpArrowKeyState_005b3738;
 extern int g_nDownArrowKeyState_005b373c;
-extern char g_szStreamsPath_00475c18_WC1_UNMAPPED[0x100];
+extern char g_szStreamsPath_005b3740[0x100];
 extern int g_nPageUpKeyState_005b3840;
 extern int g_nLeftArrowKeyState_005b3844;
 extern char g_szReadDataFileError_005b3848[0x40];
@@ -882,7 +804,7 @@ extern InputEvent g_aInputEventPool_005c5890[0x100];
 extern int g_nStreamerAudioPlaying_005b2810;
 extern char g_szStreamerPath_005b2818[128];
 extern unsigned char g_bInputMode_0059a848;
-extern int g_anObjectDepthPlaced_005c8180[WC2_SPACE_OBJECT_COUNT];
+extern int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
 extern short DAT_0059a9f0;
 extern signed char g_cScreenViewportMode_005c82a6;
 extern const ScreenViewportGeometry * volatile
@@ -923,10 +845,10 @@ extern void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
 extern void (*g_pfnDrawCinematicTextString_005c8cf4)(char *text);
 extern short g_asGunCooldown_005c8d70[30];
 extern short DAT_0059ab34;
-extern int g_anSortedObject_005c82c0[WC2_SPACE_OBJECT_COUNT];
-extern FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
-extern short g_anObjectPitchRotation_00494f38[WC2_SPACE_OBJECT_COUNT];
-extern int g_anShipSpeed_00494e20[WC2_SPACE_OBJECT_COUNT];
+extern int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
+extern FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
+extern short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
+extern int g_anShipSpeed_00494e20[SPACE_OBJECT_COUNT];
 extern short g_nSpaceFrame_00493134;
 extern int g_nNextSfx16PlaybackFrame_004a2668;
 extern short g_nCurrentNavPoint_004931bc;
@@ -938,43 +860,43 @@ extern signed char g_bLandingCommRequestPending_00492fa0;
 extern short g_bTargetLockMode_00493500;
 extern short g_nEscapedEnemyCount_004962e8;
 extern FixedVector g_vPlayerAcceleration_00493488;
-extern short g_asObjectDistance_00493ae8[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectDrawX_00493748[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectDrawY_004937d8[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectDistance_00493ae8[SPACE_OBJECT_COUNT];
+extern short g_asObjectDrawX_00493748[SPACE_OBJECT_COUNT];
+extern short g_asObjectDrawY_004937d8[SPACE_OBJECT_COUNT];
 extern short g_bShipResourceReloadInProgress_0049b894;
 extern unsigned char *g_apObjectExhaustShape_004953b8[10];
-extern FixedVector g_aShipRightVector_00493b78[WC2_SPACE_OBJECT_COUNT];
-extern FixedVector g_aShipUpVector_00493ec0[WC2_SPACE_OBJECT_COUNT];
-extern FixedVector g_aShipForwardVector_00494208[WC2_SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipRightVector_00493b78[SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipUpVector_00493ec0[SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipForwardVector_00494208[SPACE_OBJECT_COUNT];
 extern HazardField *g_pActiveHazardField_00493278;
 extern signed char g_acPlayerComponentDamage_00493470[9];
 extern short g_asShipMaximumVelocity_00495f70[12];
 extern unsigned int g_anShipAlertFlags_00495f88[10];
 extern signed char g_acShipAlertSource_00495fb0[12];
 extern short g_asShipAlertCountdown_00495fc0[12];
-extern signed char g_acObjectType_00493980[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectAnimationIndex_00494c70[WC2_SPACE_OBJECT_COUNT];
+extern signed char g_acObjectType_00493980[SPACE_OBJECT_COUNT];
+extern short g_asObjectAnimationIndex_00494c70[SPACE_OBJECT_COUNT];
 extern signed char g_acObjectAnimationDelay_00494d00[
-    WC2_SPACE_OBJECT_COUNT];
-#ifdef WC1_SDL
+    SPACE_OBJECT_COUNT];
+#ifdef SDL_PORT
 /* Eight objectives plus the terminator Build_objective_list always appends.
  * Retail lets that ninth byte overlap the first objective's map coordinate. */
 extern signed char g_abFlightPath_004932a0[
-    WC2_MISSION_OBJECTIVE_COUNT + 1];
+    MISSION_OBJECTIVE_COUNT + 1];
 #else
-extern signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT];
+extern signed char g_abFlightPath_004932a0[MISSION_OBJECTIVE_COUNT];
 #endif
-extern FixedVector g_aShipVelocity_00494898[WC2_SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipVelocity_00494898[SPACE_OBJECT_COUNT];
 extern short g_anYawGoal_004954c0[12];
-extern short g_asObjectCounter_00494be0[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectCounter_00494be0[SPACE_OBJECT_COUNT];
 extern short g_nTargetShip_004931a0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* Read and written by object index throughout the game -- objects run to 66 --
  * while the original's array has room for twelve ships and simply runs into
  * the per-ship arrays that follow it in .data.  The port gives it the extent
  * its indices actually need, so those accesses stay inside it; the reference
  * build keeps the original's twelve and its original neighbours. */
-extern short g_aeSpecialManeuver_00495600[WC2_SPACE_OBJECT_COUNT];
+extern short g_aeSpecialManeuver_00495600[SPACE_OBJECT_COUNT];
 #else
 extern short g_aeSpecialManeuver_00495600[12];
 #endif
@@ -989,28 +911,28 @@ extern short g_asShipCount_00495ff8[12];
 extern signed char g_acShipDamage_00495690[16];
 extern short g_asViableTargetDistance_00496190[10];
 extern signed char g_cMissionObjectiveCount_00493294;
-extern FixedVector g_aShipPosition_00494550[WC2_SPACE_OBJECT_COUNT];
-extern unsigned short g_asObjectScale_00494d90[WC2_SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipPosition_00494550[SPACE_OBJECT_COUNT];
+extern unsigned short g_asObjectScale_00494d90[SPACE_OBJECT_COUNT];
 extern short g_asShipAfterburnerTimer_004955a8[10];
 extern signed char g_acShipCommunicator_00495670[16];
 extern signed char g_cCurrentNavPointIndex_00493298;
-extern short g_asObjectFlip_004939c8[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectFlip_004939c8[SPACE_OBJECT_COUNT];
 extern signed char g_acViableTarget_00496180[16];
 extern short g_asActionCount_004955e8[12];
 extern short g_nHazardFieldCount_004931d0;
-extern short g_asObjectScreenScale_00493a58[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectScreenScale_00493a58[SPACE_OBJECT_COUNT];
 extern CampaignState g_stCampaignState_0059ca50;
 extern unsigned char g_aShipWeapons_004956b0[10][0xA1];
-extern short g_asObjectScreenAngle_004936b8[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectScreenAngle_004936b8[SPACE_OBJECT_COUNT];
 extern short g_nTargetRange_0049319c;
-extern short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
-extern signed char g_acObjectOwner_00495208[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectDamage_00495178[SPACE_OBJECT_COUNT];
+extern signed char g_acObjectOwner_00495208[SPACE_OBJECT_COUNT];
+extern short g_asObjectType_00495298[SPACE_OBJECT_COUNT];
 extern signed char g_acShipTarget_00495f20[16];
 extern short g_nPreviousPitchInput_004931b0;
 extern short g_nPreviousYawInput_004931b2;
 extern short g_nPreviousRollInput_004931b4;
-extern short g_anObjectYawRotation_00494fc8[WC2_SPACE_OBJECT_COUNT];
+extern short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
 extern signed char g_acTurnRegulator_00495618[16];
 extern short g_asPilotLevel_00495d60[12];
 extern short g_asShipListRange_00496158[16];
@@ -1018,14 +940,14 @@ extern signed char DAT_00495d78[16];
 /* Original class[] array.  The recovered ObjectClass order explains all of the
  * observed magic values: 0 null, 1 futurion, 10 mine, 11 missile, 12 ship and
  * 13 capital_ship. */
-extern short g_aeObjectClass_00495328[WC2_SPACE_OBJECT_COUNT];
+extern short g_aeObjectClass_00495328[SPACE_OBJECT_COUNT];
 extern short g_aeShipObjective_00495f08[12];
 extern short g_asShipIdentified_00496078[12];
 extern short g_asShipFriendlyFireCooldown_00496090[10];
-extern short g_asObjectViewFrame_00493508[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectViewFrame_00493508[SPACE_OBJECT_COUNT];
 extern int g_nCurrentObjectiveRange_004931c8;
 extern signed char g_acShipLastAttacker_004955c0[16];
-extern unsigned char *g_apObjectShape_00493868[WC2_SPACE_OBJECT_COUNT];
+extern unsigned char *g_apObjectShape_00493868[SPACE_OBJECT_COUNT];
 extern short g_nPitchInput_004931a8;
 extern short g_nYawInput_004931aa;
 extern short g_nRollInput_004931ac;
@@ -1055,19 +977,19 @@ extern short g_asShipSide_004955d0[12];
 extern signed char g_acShipCollisionCooldown_00496010[16];
 extern short DAT_004960f0[8];
 extern FixedVector g_vCollisionDelta_00493178;
-extern signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT];
+extern signed char g_acLastCollisionObject_00495250[SPACE_OBJECT_COUNT];
 extern signed char g_abProjectileCollisionBonus_004960a8[
-    WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
 extern short g_aasShipMaximumShield_004954f0[10][2];
-extern short g_asObjectCollisionRadius_004950e8[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectCollisionRadius_004950e8[SPACE_OBJECT_COUNT];
 extern short g_anPitchGoal_004954a8[12];
 extern signed char g_abShipNavPointIndex_00495f60[16];
 extern signed char g_acTurnInterval_00495628[16];
-extern short g_anObjectRollRotation_00495058[WC2_SPACE_OBJECT_COUNT];
+extern short g_anObjectRollRotation_00495058[SPACE_OBJECT_COUNT];
 extern signed char g_abShipTurn_00495fd8[16];
 extern short g_nFacingToTarget_00493194;
-extern short g_asObjectScreenY_00493628[WC2_SPACE_OBJECT_COUNT];
-extern short g_asObjectScreenX_00493598[WC2_SPACE_OBJECT_COUNT];
+extern short g_asObjectScreenY_00493628[SPACE_OBJECT_COUNT];
+extern short g_asObjectScreenX_00493598[SPACE_OBJECT_COUNT];
 extern int g_anCloakVisibilityPattern_00492710[20];
 extern int g_abObjectShapeOwned_00492760[12];
 extern short g_nNavPointerObject_004931b8;
@@ -1076,13 +998,13 @@ extern FixedVector g_vPreviousStarFieldMotion_00493168;
 extern short g_nStarFieldJRotation_005d320c;
 extern short g_nStarFieldIRotation_005d3210;
 extern HazardField g_aHazardFields_004931d8[7];
-extern MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT];
+extern MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT];
 extern char g_szAutopilotWaitReason_0049b2f0[28];
 extern char *g_pszAutopilotWaitReason_0049b050;
 extern short g_asShipManeuver_00495f48[12];
 extern short g_asLoadedShipViewFrame_00495d18[12];
 extern signed char g_acObjectCollisionGraceTicks_00494d48[
-    WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
 extern ObjectResourceSlot g_aObjectResourceSlots_00493398[5];
 extern signed char g_acShipDestroyedWeaponCount_00495680[16];
 extern signed char g_acShipIonDriveDamage_004956a0[16];
@@ -1110,7 +1032,7 @@ extern unsigned short g_awDibScreenRowOffsets_005d39a0[202];
 extern int g_nDibScreenAllocationState_005d3b40;
 extern Viewport *g_pDibScreenViewportMirror_005d3b44;
 extern int *g_pDibScreenAllocationState_005d3b4c;
-extern int g_aiSoundEffectSourceActive_005d12c0[WC2_SPACE_OBJECT_COUNT];
+extern int g_aiSoundEffectSourceActive_005d12c0[SPACE_OBJECT_COUNT];
 extern MusicResource g_aMusicResources_005d13e0[66];
 extern void *g_pSpeechCacheDataAllocation_005d1718;
 extern void *g_pSpeechCacheCode_005d1720;
@@ -1130,11 +1052,11 @@ extern TextContext g_stSpaceTextContext_005d21c0;
 extern unsigned char *g_pCockpitHudShape_005d21f4;
 extern unsigned char *g_apTextFonts_005d2200[4];
 extern FixedVector g_aDirectionViewRightVector_005d2210[
-    WC1_DIRECTION_VIEW_COUNT];
+    DIRECTION_VIEW_COUNT];
 extern FixedVector g_aDirectionViewUpVector_005d2500[
-    WC1_DIRECTION_VIEW_COUNT];
+    DIRECTION_VIEW_COUNT];
 extern FixedVector g_aDirectionViewForwardVector_005d27f0[
-    WC1_DIRECTION_VIEW_COUNT];
+    DIRECTION_VIEW_COUNT];
 extern Viewport g_stCockpitViewport_005d2160;
 extern Viewport g_stCockpitBarViewport_005d21e0;
 extern Viewport g_stViewBuffer_005d2b00;
@@ -1367,7 +1289,7 @@ extern volatile short g_nCockpitExplosionFrame_0049b04c;
 extern short g_nTargetLockMusicCooldown_005d1e78;
 extern unsigned int g_dwStreamerState_005c4c38;
 extern short DAT_0059a856;
-extern NavMapLabel g_aNavMapLabels_00475e80_WC1_UNMAPPED[20];
+extern NavMapLabel g_aNavMapLabels_005b34e0[20];
 extern ShortRect g_aNavMapExclusionRects_005b35a8[20];
 extern int g_nSfxVolumeSetting_0049d74c;
 extern int g_nMusicVolumeSetting_0049d750;
@@ -1400,7 +1322,7 @@ extern short g_nUiCursorFrame_005c8481;
 extern short g_wInputDeviceButtonState_005c8432;
 extern short g_nSelectedStartingCampaign_005d3bf0;
 extern short g_nSelectedCampaignSlot_005d3bf2;
-extern Wc2DwordPtr g_dwHighMemoryParagraph_005d3fb4;
+extern DwordPtr g_dwHighMemoryParagraph_005d3fb4;
 extern short g_bHighMemoryBuffersReady_005d2ad8;
 extern short g_nSceneHotspotLeft_005d2120;
 extern short g_nSceneHotspotTop_005d2122;
@@ -1424,10 +1346,10 @@ extern short g_nCannedSceneFrameCount_005d404c;
 extern short g_awPaletteEntryAllocation_005d4050[256];
 extern short g_asCannedSceneFrameOffsets_005d3fc0[70];
 
-extern Wc2PilotProfile g_stDefaultPilotProfile_00492660;
+extern PilotProfile g_stDefaultPilotProfile_00492660;
 extern short g_bNewPilotCampaignInitialized_004926c0;
 extern short g_bDeveloperCampaignReady_004926c4;
-extern Wc2PilotProfile g_stCurrentPilotProfile_00493408;
+extern PilotProfile g_stCurrentPilotProfile_00493408;
 extern char g_szPilotCallsign_00499ef8[24];
 extern char g_szPilotLastName_00499f10[24];
 extern char g_szPilotFirstName_00499f28[24];
@@ -1442,7 +1364,7 @@ extern unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
 extern short g_sPersonnelPreviousInput_0049a6bc;
 extern short g_bPersonnelMenuDrawing_0049a6c0;
 extern signed char g_bPersonnelPrimaryInputDown_0049a6d4;
-extern const char *g_apszWc1SaveGameFileNames_0049a6c8[3];
+extern const char *g_apszSaveGameFileNames_0049a6c8[3];
 extern const char *g_apszShortPilotRankNames_0049a620[5];
 extern void *g_pActiveScenePacket_00492654;
 extern short g_nPersonnelCursorX_005c8470;
@@ -1469,7 +1391,7 @@ extern unsigned char *g_pCampaignChalkboardShape_0049ca54;
 extern short g_bDisableChalkboardReplay_0049ca58;
 extern short g_bSceneBackgroundClicked_005c9018;
 extern short g_asConstellationObjectIndices_0049c8e0[4];
-extern char g_szWingCommanderOneGameDataPath_005b2898[0x400];
+extern char g_szLegacyGameDataPath_005b2898[0x400];
 
 extern short g_nActiveInputDevice_005d1726;
 extern int g_nJoystickVerticalDeadZone_005d1728;
@@ -1494,7 +1416,7 @@ extern short g_nMenuInputRepeatDelay_005a8208;
 extern unsigned char *DAT_005d300c;
 extern HostMouseMessage g_stHostMouseMessage_005d10d0;
 
-extern ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT];
+extern ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT];
 extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98;
 extern LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0049ce9c;
@@ -1509,8 +1431,8 @@ extern void (*g_apManeuverHandlers_0049b570[50])(short, short);
 
 extern ShortVector g_aShipFormationOffset_00495468[10];
 
-/* Ordered name tables read directly out of the image; see include/wcdata.h.
+/* Ordered name tables read directly out of the image; see include/game_data.h.
  * Both are packed variable-length strings, not fixed-stride arrays, so the
  * game indexes them through a pointer table rather than by multiplication. */
 
-#endif /* WC1_GLOBALS_H */
+#endif /* GAME_GLOBALS_H */

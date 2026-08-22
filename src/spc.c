@@ -6,7 +6,7 @@
  *  Boundary evidence: the Mac `spc` symbol run maps rotate_eye_to_goal through
  *  object_intelligence to 0x410a30-0x4139ff.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(abs)
 
@@ -213,7 +213,7 @@ void SetFleetOverviewView(int initializeCockpit)
             initialize_cockpit(4);
         else
             initialize_cockpit(6);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
     }
 
     object = 0;
@@ -260,37 +260,37 @@ void SetFleetOverviewView(int initializeCockpit)
     }
 
     cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
-    g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT] = centre;
-    g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT] = orientation;
-    point_at(WC2_SCRATCH_VIEW_OBJECT, g_aShipPosition_00494550[0]);
+    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] = centre;
+    g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT] = orientation;
+    g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT] = orientation;
+    point_at(SCRATCH_VIEW_OBJECT, g_aShipPosition_00494550[0]);
 
     ScaleFixedVector(
-        &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT],
+        &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
         cameraDistance >> 2, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
                     &offset,
-                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
-    ScaleFixedVector(&g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT],
+                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
+    ScaleFixedVector(&g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
                      0x9600, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
                     &offset,
-                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
+                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
     ScaleFixedVector(
-        &g_aShipForwardVector_00494208[WC2_SCRATCH_VIEW_OBJECT],
+        &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT],
         cameraDistance, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT],
+    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
                     &offset,
-                    &g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT]);
+                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
 
-    g_aShipPosition_00494550[WC2_EYE_OBJECT] =
-        g_aShipPosition_00494550[WC2_SCRATCH_VIEW_OBJECT];
-    g_aShipRightVector_00493b78[WC2_EYE_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] = orientation;
+    g_aShipPosition_00494550[EYE_OBJECT] =
+        g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT];
+    g_aShipRightVector_00493b78[EYE_OBJECT] = orientation;
+    g_aShipUpVector_00493ec0[EYE_OBJECT] = orientation;
     if (maximumRange < 0x271000)
-        point_at(WC2_EYE_OBJECT, centre);
+        point_at(EYE_OBJECT, centre);
     else
-        point_at(WC2_EYE_OBJECT, g_aShipPosition_00494550[0]);
+        point_at(EYE_OBJECT, g_aShipPosition_00494550[0]);
 }
 
 /* Function start: 0x419C10 */
@@ -299,24 +299,24 @@ unsigned int rotate_eye_to_goal(void)
     short totalError;
 
     totalError = (short)(abs(g_anObjectPitchRotation_00494f38[
-                                WC2_EYE_OBJECT] -
+                                EYE_OBJECT] -
                             g_nEyePitchGoal_00493140) +
                          abs(g_anObjectYawRotation_00494fc8[
-                                 WC2_EYE_OBJECT] -
+                                 EYE_OBJECT] -
                             g_nEyeYawGoal_00493144) +
                          abs(g_anObjectRollRotation_00495058[
-                                 WC2_EYE_OBJECT] -
+                                 EYE_OBJECT] -
                             g_nEyeRollGoal_00493148));
     match_rotation_goal(&g_anObjectPitchRotation_00494f38[
-                            WC2_EYE_OBJECT],
+                            EYE_OBJECT],
                         &g_nEyePitchGoal_00493140, totalError,
                         g_nEyePitchRate_0049314c);
     match_rotation_goal(&g_anObjectYawRotation_00494fc8[
-                            WC2_EYE_OBJECT],
+                            EYE_OBJECT],
                         &g_nEyeYawGoal_00493144, totalError,
                         g_nEyeYawRate_00493150);
     match_rotation_goal(&g_anObjectRollRotation_00495058[
-                            WC2_EYE_OBJECT],
+                            EYE_OBJECT],
                         &g_nEyeRollGoal_00493148, totalError,
                         g_nEyeRollRate_00493154);
     return 0;
@@ -346,7 +346,7 @@ unsigned int set_eye_direction_and_position(void)
         if (g_aeObjectClass_00495328[g_cViewObject_0049313c] !=
             OBJECT_CLASS_NULL) {
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &g_aShipPosition_00494550[g_cViewObject_0049313c],
                 &direction);
             desiredPosition = direction;
@@ -358,7 +358,7 @@ unsigned int set_eye_direction_and_position(void)
                 &g_aShipPosition_00494550[g_cViewObject_0049313c],
                 &desiredPosition);
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &desiredPosition, &positionDelta);
             vector = positionDelta;
             divide_vector(
@@ -369,90 +369,90 @@ unsigned int set_eye_direction_and_position(void)
                 g_nChaseCameraMaximumVelocity_00492fb0)
                 NormalizeAndScaleVector(
                     &vector, g_nChaseCameraMaximumVelocity_00492fb0);
-            g_aShipVelocity_00494898[WC2_EYE_OBJECT] = vector;
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = direction;
-            shrink_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-            fix_objects_ijk(WC2_EYE_OBJECT);
+            g_aShipVelocity_00494898[EYE_OBJECT] = vector;
+            g_aShipForwardVector_00494208[EYE_OBJECT] = direction;
+            shrink_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
+            fix_objects_ijk(EYE_OBJECT);
             g_nEyeRollGoal_00493148 = match_roll_orientation(
-                WC2_EYE_OBJECT, (short)g_cViewObject_0049313c);
+                EYE_OBJECT, (short)g_cViewObject_0049313c);
             if (g_nEyeRollGoal_00493148 != 0) {
                 if (abs((int)g_nEyeRollGoal_00493148) > 4) {
                     g_nEyeRollRate_00493154 = 4;
                     rotate_eye_to_goal();
-                    rotate_object(WC2_EYE_OBJECT);
+                    rotate_object(EYE_OBJECT);
                 } else {
                     g_nEyeRollGoal_00493148 = 0;
-                    g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+                    g_aShipUpVector_00493ec0[EYE_OBJECT] =
                         g_aShipUpVector_00493ec0[0];
                 }
             }
-            AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                            &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+            AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                            &g_aShipVelocity_00494898[EYE_OBJECT],
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
         }
         break;
     case 6:
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         ComputeVectorDelta(
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_cViewObject_0049313c], &vector);
         if (Vector_magnitude(&vector) > 0x7d000) {
             vector = g_aShipVelocity_00494898[g_cViewObject_0049313c];
             NormalizeFixedVector(&vector);
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+            g_aShipUpVector_00493ec0[EYE_OBJECT] =
                 g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
-            if (vector.x == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x &&
-                vector.y == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y &&
-                vector.z == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z) {
-                g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+            if (vector.x == g_aShipUpVector_00493ec0[EYE_OBJECT].x &&
+                vector.y == g_aShipUpVector_00493ec0[EYE_OBJECT].y &&
+                vector.z == g_aShipUpVector_00493ec0[EYE_OBJECT].z) {
+                g_aShipUpVector_00493ec0[EYE_OBJECT] =
                     g_aShipRightVector_00493b78[g_cViewObject_0049313c];
             }
             ScaleFixedVector(&vector, -0x12430, &vector);
             AddFixedVectors(
                 &g_aShipPosition_00494550[g_cViewObject_0049313c], &vector,
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-            fix_objects_ijk(WC2_EYE_OBJECT);
-            ScaleFixedVector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT]);
+            g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            fix_objects_ijk(EYE_OBJECT);
+            ScaleFixedVector(&g_aShipRightVector_00493b78[EYE_OBJECT],
                              0x19000, &vector);
-            AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                             &vector,
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-            ScaleFixedVector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
+            ScaleFixedVector(&g_aShipUpVector_00493ec0[EYE_OBJECT],
                              0x6400, &vector);
-            AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                             &vector,
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &g_aShipPosition_00494550[g_cViewObject_0049313c], &vector);
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-            fix_objects_ijk(WC2_EYE_OBJECT);
+            g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            fix_objects_ijk(EYE_OBJECT);
             generate_stars();
         } else {
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-            fix_objects_ijk(WC2_EYE_OBJECT);
+            g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            fix_objects_ijk(EYE_OBJECT);
         }
         break;
     case 14:
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         look_at(0);
         break;
     case 13:
-        ScaleFixedVector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+        ScaleFixedVector(&g_aShipRightVector_00493b78[EYE_OBJECT],
                          -0xa00, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT], &vector,
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT], &vector,
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         look_at(0);
         break;
     case 7:
         if (g_nExternalViewShip_00493468 == -1) {
-            zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+            zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
             if (g_nExternalViewTimeout_005d3212++ > 20) {
                 if (g_nCockpitDisplayMode_0049d71c == 0) {
                     new_view(0, 0);
@@ -476,7 +476,7 @@ unsigned int set_eye_direction_and_position(void)
                 0x13)
                 desiredDistance = 800;
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &g_aShipPosition_00494550[g_nExternalViewShip_00493468],
                 &vector);
             if (g_asShipTactic_00495f30[g_nExternalViewShip_00493468] != 0) {
@@ -485,7 +485,7 @@ unsigned int set_eye_direction_and_position(void)
                     divide_vector(
                         &vector,
                         ((int)g_nExternalViewDistance_005d320e & ~1) << 7,
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+                        &g_aShipVelocity_00494898[EYE_OBJECT]);
                     g_nExternalViewDistance_005d320e = MaxShort(
                         (short)(g_nExternalViewDistance_005d320e - 1), 8);
                 } else {
@@ -496,15 +496,15 @@ unsigned int set_eye_direction_and_position(void)
                                      &adjustment);
                     AddFixedVectors(
                         &vector, &adjustment,
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+                        &g_aShipVelocity_00494898[EYE_OBJECT]);
                 }
             }
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-            fix_objects_ijk(WC2_EYE_OBJECT);
+            g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            fix_objects_ijk(EYE_OBJECT);
         }
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         break;
     case 15:
         SetFleetOverviewView(0);
@@ -514,163 +514,163 @@ unsigned int set_eye_direction_and_position(void)
             ScaleFixedVector(&g_aShipRightVector_00493b78[0],
                              0x12c00, &vector);
             AddFixedVectors(&g_aShipPosition_00494550[0], &vector,
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &g_aShipPosition_00494550[g_acShipTarget_00495f20[0]],
                 &vector);
             NormalizeFixedVector(&vector);
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
+            g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
             ScaleFixedVector(&vector, -0x25800, &vector);
-            AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                             &vector,
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-            fix_objects_ijk(WC2_EYE_OBJECT);
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
+            fix_objects_ijk(EYE_OBJECT);
         } else {
             new_view(0, 0);
         }
         break;
     case 0:
         if (g_nCockpitCameraObject_0049d770 != 0) {
-            copy_frame(g_nCockpitCameraObject_0049d770, WC2_EYE_OBJECT);
-            g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+            copy_frame(g_nCockpitCameraObject_0049d770, EYE_OBJECT);
+            g_aShipVelocity_00494898[EYE_OBJECT] =
                 g_aShipVelocity_00494898[g_nCockpitCameraObject_0049d770];
-            g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+            g_aShipPosition_00494550[EYE_OBJECT] =
                 g_aShipPosition_00494550[g_nCockpitCameraObject_0049d770];
         } else {
-            copy_frame(0, WC2_EYE_OBJECT);
-            g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+            copy_frame(0, EYE_OBJECT);
+            g_aShipVelocity_00494898[EYE_OBJECT] =
                 g_aShipVelocity_00494898[0];
-            g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+            g_aShipPosition_00494550[EYE_OBJECT] =
                 g_aShipPosition_00494550[0];
         }
         break;
     case 1:
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
+        g_aShipRightVector_00493b78[EYE_OBJECT] =
             g_aShipForwardVector_00494208[0];
-        negate_vector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        negate_vector(&g_aShipRightVector_00493b78[EYE_OBJECT]);
+        g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[0];
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
+        g_aShipForwardVector_00494208[EYE_OBJECT] =
             g_aShipRightVector_00493b78[0];
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[0];
-        g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+        g_aShipPosition_00494550[EYE_OBJECT] =
             g_aShipPosition_00494550[0];
         break;
     case 2:
-        g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
+        g_aShipRightVector_00493b78[EYE_OBJECT] =
             g_aShipForwardVector_00494208[0];
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[0];
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
+        g_aShipForwardVector_00494208[EYE_OBJECT] =
             g_aShipRightVector_00493b78[0];
-        negate_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+        negate_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[0];
-        g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+        g_aShipPosition_00494550[EYE_OBJECT] =
             g_aShipPosition_00494550[0];
         break;
     case 3:
-        copy_frame(0, WC2_EYE_OBJECT);
-        negate_vector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
-        negate_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+        copy_frame(0, EYE_OBJECT);
+        negate_vector(&g_aShipRightVector_00493b78[EYE_OBJECT]);
+        negate_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[0];
-        g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+        g_aShipPosition_00494550[EYE_OBJECT] =
             g_aShipPosition_00494550[0];
         break;
     case 4:
         switch (g_nTargetCameraOverlayMode_005c8db8) {
         case 0:
-            copy_frame(0, WC2_EYE_OBJECT);
-            negate_vector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
-            negate_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+            copy_frame(0, EYE_OBJECT);
+            negate_vector(&g_aShipRightVector_00493b78[EYE_OBJECT]);
+            negate_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
             break;
         case 1:
-            g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
+            g_aShipRightVector_00493b78[EYE_OBJECT] =
                 g_aShipForwardVector_00494208[0];
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+            g_aShipUpVector_00493ec0[EYE_OBJECT] =
                 g_aShipUpVector_00493ec0[0];
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
+            g_aShipForwardVector_00494208[EYE_OBJECT] =
                 g_aShipRightVector_00493b78[0];
-            negate_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+            negate_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
             break;
         case 2:
-            g_aShipRightVector_00493b78[WC2_EYE_OBJECT] =
+            g_aShipRightVector_00493b78[EYE_OBJECT] =
                 g_aShipForwardVector_00494208[0];
-            negate_vector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+            negate_vector(&g_aShipRightVector_00493b78[EYE_OBJECT]);
+            g_aShipUpVector_00493ec0[EYE_OBJECT] =
                 g_aShipUpVector_00493ec0[0];
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] =
+            g_aShipForwardVector_00494208[EYE_OBJECT] =
                 g_aShipRightVector_00493b78[0];
             break;
         }
         rotate_about_j(g_nFleetOverviewYaw_0049d3f4,
-                       &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+                       &g_aShipRightVector_00493b78[EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[EYE_OBJECT]);
         rotate_about_i(g_nFleetOverviewPitch_0049d3f8,
-                       &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-                       &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+                       &g_aShipUpVector_00493ec0[EYE_OBJECT],
+                       &g_aShipForwardVector_00494208[EYE_OBJECT]);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[0];
         SetTargetCameraEyePosition(
             (short)g_nTargetCameraOverlayMode_005c8db8);
         UpdateFleetOverviewCameraRotation();
         break;
     case 10:
-        copy_frame(0, WC2_EYE_OBJECT);
-        negate_vector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
-        negate_vector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+        copy_frame(0, EYE_OBJECT);
+        negate_vector(&g_aShipRightVector_00493b78[EYE_OBJECT]);
+        negate_vector(&g_aShipForwardVector_00494208[EYE_OBJECT]);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[0];
-        g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+        g_aShipPosition_00494550[EYE_OBJECT] =
             g_aShipPosition_00494550[0];
         break;
     case 11:
-        copy_frame((short)g_cViewObject_0049313c, WC2_EYE_OBJECT);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+        copy_frame((short)g_cViewObject_0049313c, EYE_OBJECT);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[g_cViewObject_0049313c];
-        g_aShipPosition_00494550[WC2_EYE_OBJECT] =
+        g_aShipPosition_00494550[EYE_OBJECT] =
             g_aShipPosition_00494550[g_cViewObject_0049313c];
         break;
     case 12:
         ComputeVectorDelta(
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_cViewObject_0049313c], &vector);
         if (Vector_magnitude(&vector) < 0x25800) {
             adjustment = vector;
             NormalizeFixedVector(&adjustment);
             ScaleFixedVector(&adjustment, -0x25800, &adjustment);
             AddFixedVectors(&vector, &adjustment, &adjustment);
-            AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                             &adjustment,
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+                            &g_aShipPosition_00494550[EYE_OBJECT]);
         }
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-        fix_objects_ijk(WC2_EYE_OBJECT);
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        fix_objects_ijk(EYE_OBJECT);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         break;
     case 18:
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        rotate_object(WC2_EYE_OBJECT);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
+        rotate_object(EYE_OBJECT);
         rotate_eye_to_goal();
         break;
     case 16:
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
-                        &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
+                        &g_aShipVelocity_00494898[EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         break;
     case 17:
         AddFixedVectors(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
             &g_vExternalViewOffset_005d3200,
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT] =
+            &g_aShipPosition_00494550[EYE_OBJECT]);
+        g_aShipVelocity_00494898[EYE_OBJECT] =
             g_aShipVelocity_00494898[g_cViewObject_0049313c];
         break;
     }
@@ -750,10 +750,10 @@ unsigned int new_view(int view, short obj)
         g_bSavedPlayerTarget_0049d464 = 0;
     g_nCurrentView_00492fa8 = view;
     if (obj != -1) {
-        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] =
+        g_asObjectCollisionRadius_004950e8[EYE_OBJECT] =
             MaxShort(10, g_asObjectCollisionRadius_004950e8[obj]);
     } else {
-        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] = 10;
+        g_asObjectCollisionRadius_004950e8[EYE_OBJECT] = 10;
     }
 
     switch (view) {
@@ -787,44 +787,44 @@ unsigned int new_view(int view, short obj)
         if (NormalizeFixedVector(&vector) == 0)
             vector =
                 g_aShipForwardVector_00494208[g_cViewObject_0049313c];
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
-        if (vector.x == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x &&
-            vector.y == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y &&
-            vector.z == g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z) {
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        if (vector.x == g_aShipUpVector_00493ec0[EYE_OBJECT].x &&
+            vector.y == g_aShipUpVector_00493ec0[EYE_OBJECT].y &&
+            vector.z == g_aShipUpVector_00493ec0[EYE_OBJECT].z) {
+            g_aShipUpVector_00493ec0[EYE_OBJECT] =
                 g_aShipRightVector_00493b78[g_cViewObject_0049313c];
         }
         ScaleFixedVector(&vector, -0x12430, &vector);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &vector, &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-        fix_objects_ijk(WC2_EYE_OBJECT);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
-        ScaleFixedVector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        fix_objects_ijk(EYE_OBJECT);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
+        ScaleFixedVector(&g_aShipRightVector_00493b78[EYE_OBJECT],
                          0x19000, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                         &vector,
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        ScaleFixedVector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
+        ScaleFixedVector(&g_aShipUpVector_00493ec0[EYE_OBJECT],
                          0x6400, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+        AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
                         &vector,
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+                        &g_aShipPosition_00494550[EYE_OBJECT]);
         ComputeVectorDelta(
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
             &vector);
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-        fix_objects_ijk(WC2_EYE_OBJECT);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        fix_objects_ijk(EYE_OBJECT);
         break;
     case 13:
         initialize_cockpit(4);
-        copy_frame(0, WC2_EYE_OBJECT);
-        position_relative_ijk(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+        copy_frame(0, EYE_OBJECT);
+        position_relative_ijk(&g_aShipPosition_00494550[EYE_OBJECT],
                               0, 0, 0, 2000);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         look_at(0);
         break;
     case 14:
@@ -836,12 +836,12 @@ unsigned int new_view(int view, short obj)
             -0x4b000, &vector);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &vector, &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
+        g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-        fix_objects_ijk(WC2_EYE_OBJECT);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        fix_objects_ijk(EYE_OBJECT);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         break;
     case 7:
         initialize_cockpit(4);
@@ -850,23 +850,23 @@ unsigned int new_view(int view, short obj)
             0x25800, &vector);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_nExternalViewShip_00493468],
-            &vector, &g_aShipPosition_00494550[WC2_EYE_OBJECT]);
+            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
         ComputeVectorDelta(
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_nExternalViewShip_00493468],
             &vector);
-        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] =
+        g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[0];
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = vector;
-        fix_objects_ijk(WC2_EYE_OBJECT);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        fix_objects_ijk(EYE_OBJECT);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         g_nExternalViewDistance_005d320e = 0x20;
         g_nExternalViewTimeout_005d3212 = 0;
         break;
     case 8:
         initialize_cockpit(4);
-        copy_frame(0, WC2_EYE_OBJECT);
-        zero_vector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT]);
+        copy_frame(0, EYE_OBJECT);
+        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         break;
     case 15:
         SetFleetOverviewView(1);
@@ -889,7 +889,7 @@ unsigned int new_view(int view, short obj)
     case 17:
         ComputeVectorDelta(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_vExternalViewOffset_005d3200);
         break;
     case 16:
@@ -912,17 +912,17 @@ unsigned int start_dust(short obj, FixedVector origin,
     FixedVector offset;
 
     set_objects_data(obj, 0x2e, -1, 0);
-    ScaleFixedVector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT],
+    ScaleFixedVector(&g_aShipForwardVector_00494208[EYE_OBJECT],
                      (int)forwardDistance << 8, &offset);
     AddFixedVectors(&origin, &offset, &origin);
-    ScaleFixedVector(&g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
+    ScaleFixedVector(&g_aShipRightVector_00493b78[EYE_OBJECT],
                      rightOffset, &offset);
     AddFixedVectors(&offset, &origin, &origin);
-    ScaleFixedVector(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+    ScaleFixedVector(&g_aShipUpVector_00493ec0[EYE_OBJECT],
                      upOffset, &offset);
     AddFixedVectors(&offset, &origin, &origin);
     AddFixedVectors(&origin,
-                    &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                    &g_aShipPosition_00494550[EYE_OBJECT],
                     &g_aShipPosition_00494550[obj]);
     FillFixedVectorWithRandomComponents(2, &g_aShipVelocity_00494898[obj]);
     g_asObjectScreenAngle_004936b8[obj] =
@@ -943,7 +943,7 @@ unsigned int generate_stars(void)
     for (obj = 40; obj < 55; obj++) {
         if (obj < 48) {
             distance = RandomInRange(0, 1400);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             start_dust(obj, origin, distance,
                        signed_random(distance) * 0x100,
                        signed_random(distance) * 0x100);
@@ -956,7 +956,7 @@ unsigned int generate_stars(void)
             g_aeObjectClass_00495328[obj] = OBJECT_CLASS_STAR;
             g_nStarFieldIRotation_005d3210 = signed_random(45);
             g_nStarFieldJRotation_005d320c = signed_random(45);
-            copy_frame(WC2_EYE_OBJECT, 69);
+            copy_frame(EYE_OBJECT, 69);
             rotate_about_j(g_nStarFieldJRotation_005d320c,
                            &g_aShipRightVector_00493b78[69],
                            &g_aShipForwardVector_00494208[69]);
@@ -992,9 +992,9 @@ unsigned int update_star_field(void)
 
     hazardActive = g_pActiveHazardField_00493278 != 0;
     g_vPreviousStarFieldMotion_00493168 = g_vStarFieldMotion_00493158;
-    ScaleFixedVector(&g_aShipForwardVector_00494208[WC2_EYE_OBJECT],
+    ScaleFixedVector(&g_aShipForwardVector_00494208[EYE_OBJECT],
                      200 << 8, &cameraMotion);
-    ScaleFixedVector(&g_aShipVelocity_00494898[WC2_EYE_OBJECT],
+    ScaleFixedVector(&g_aShipVelocity_00494898[EYE_OBJECT],
                      20 << 8, &g_vStarFieldMotion_00493158);
     AddFixedVectors(&cameraMotion, &g_vStarFieldMotion_00493158,
                     &g_vStarFieldMotion_00493158);
@@ -1024,7 +1024,7 @@ unsigned int update_star_field(void)
                 randomChoice == 0 &&
                 (g_anObjectYawRotation_00494fc8[0] |
                  g_anObjectPitchRotation_00494f38[0]) != 0) {
-                copy_frame(WC2_EYE_OBJECT, 69);
+                copy_frame(EYE_OBJECT, 69);
                 if (g_anObjectPitchRotation_00494f38[0] != 0) {
                     g_nStarFieldIRotation_005d3210 =
                         g_anObjectPitchRotation_00494f38[0] < 0 ?
@@ -1055,24 +1055,24 @@ unsigned int update_star_field(void)
             if (g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_DUST &&
                 randomChoice < 2) {
                 transform_to_objects_frame(
-                    &g_aShipVelocity_00494898[WC2_EYE_OBJECT],
-                    &viewMotion, WC2_EYE_OBJECT);
+                    &g_aShipVelocity_00494898[EYE_OBJECT],
+                    &viewMotion, EYE_OBJECT);
                 ScaleFixedVector(&viewMotion, 10 << 8, &viewMotion);
                 if (viewMotion.z >= 0) {
                     distance =
                         (unsigned short)RandomInRange(
                             0, (short)(viewMotion.z >> 8)) +
-                        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT];
+                        g_asObjectCollisionRadius_004950e8[EYE_OBJECT];
                     distance = distance * 2 +
                         (unsigned short)RandomInRange(0, 350);
                 } else {
                     distance = (unsigned short)RandomInRange(0, 40) +
-                        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT];
+                        g_asObjectCollisionRadius_004950e8[EYE_OBJECT];
                 }
                 rightRandom = signed_random((short)(distance >> 1));
                 upRandom = signed_random((short)(distance >> 1));
                 shift = (unsigned char)(viewMotion.z <= 0 ? 9 : 8);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 rightOffset =
                     viewMotion.x + (int)rightRandom * (1 << shift);
                 upOffset =
@@ -1109,7 +1109,7 @@ void house_keep_objects(void)
     short gun;
     short projectileDetonated;
 
-    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+    for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
         switch (g_aeObjectClass_00495328[obj]) {
         case OBJECT_CLASS_FIXED_OBJECT:
             switch (g_asObjectType_00495298[obj]) {
@@ -1126,7 +1126,7 @@ void house_keep_objects(void)
                     if (g_aeObjectClass_00495328[other] ==
                             OBJECT_CLASS_MISSILE &&
                         g_asObjectType_00495298[other] ==
-                            WC2_OBJECT_TYPE_TORPEDO &&
+                            OBJECT_DATA_TORPEDO &&
                         g_asMissileProximityFuse_005d38e0[other] != 0 &&
                         distance_from_object(obj, other) < 200) {
                         explode((short)g_acObjectOwner_00495208[obj], obj);
@@ -1175,7 +1175,7 @@ void house_keep_objects(void)
         case OBJECT_CLASS_DEBRIS:
             if (g_asObjectType_00495298[obj] == 0x3d ||
                 g_asObjectType_00495298[obj] ==
-                    WC2_OBJECT_TYPE_EJECTION_POD)
+                    OBJECT_DATA_EJECTION_POD)
                 break;
             if (count_down(obj) == -1 &&
                 g_asObjectScreenX_00493598[obj] == (short)0x8001)
@@ -1190,16 +1190,16 @@ void house_keep_objects(void)
         case OBJECT_CLASS_MISSILE:
             g_acShipExhaustHeat_00495660[obj] = 0;
             if (g_asObjectType_00495298[obj] ==
-                    WC2_OBJECT_TYPE_CHAFF_POD) {
+                    OBJECT_DATA_CHAFF_POD) {
                 if (count_down(obj) <= 0)
                     explode(obj, obj);
             } else {
                 if (g_acObjectCollisionGraceTicks_00494d48[obj] > 0)
                     g_acObjectCollisionGraceTicks_00494d48[obj]--;
                 if (g_asObjectType_00495298[obj] !=
-                        WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE &&
+                        OBJECT_DATA_DART_DUMB_FIRE_MISSILE &&
                     g_asShipTactic_00495f30[obj] == TACTIC_RAM &&
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                     g_acShipTarget_00495f20[obj] != -1 &&
 #endif
                     g_anShipCloakState_00496020[
@@ -1214,7 +1214,7 @@ void house_keep_objects(void)
                             *(int *)&g_aObjectTypeData_00496d30[
                                 g_acObjectType_00493980[obj]].lifetime);
                         if (g_asObjectType_00495298[obj] ==
-                                WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE) {
+                                OBJECT_DATA_DART_DUMB_FIRE_MISSILE) {
                             vector_component_in_dir(
                                 &g_aShipVelocity_00494898[obj],
                                 &g_aShipForwardVector_00494208[obj],
@@ -1258,7 +1258,7 @@ void house_keep_objects(void)
                         SPECIAL_MANEUVER_UNKNOWN_9 &&
                     g_aeObjectClass_00495328[obj] >=
                         OBJECT_CLASS_CAPITAL_SHIP) {
-                    if ((g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE(OBJECT_TYPE_EXPLOSION2)].shapeSet !=
+                    if ((g_aObjectTypeData_00496d30[OBJECT_DATA_INDEX(OBJECT_TYPE_EXPLOSION2)].shapeSet !=
                           0 ? 8 : 4) - 1 ==
                             g_asObjectCounter_00494be0[obj]) {
                         ShipExplosion(obj);
@@ -1353,7 +1353,7 @@ void update_objects_in_space(void)
             HandleCannedSceneBufferBoundary();
     }
 
-    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+    for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL) {
             if (g_nCannedSceneMode_0049021c == 0 &&
                 g_aeSpecialManeuver_00495600[obj] ==
@@ -1465,7 +1465,7 @@ void accelerate_and_move_object(short obj)
                 if (g_asShipAfterburnerTimer_004955a8[obj] == 0) {
                     g_aeSpecialManeuver_00495600[obj] =
                         SPECIAL_MANEUVER_NONE;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                     /* The DOS afterburner record is held rather than timed,
                      * so the burn ending is what silences it. */
                     if (g_bAfterburnerSfxActive_005d3864 != 0) {
@@ -1638,7 +1638,7 @@ void animate_object(short obj)
         set_objects_data(
             effect,
             (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
-                              WC2_OBJECT_TYPE_SHIP_DAMAGE_EFFECT_FIRST),
+                              OBJECT_DATA_SHIP_DAMAGE_EFFECT_FIRST),
             obj, 0);
         g_asObjectScale_00494d90[effect] =
             g_asObjectScale_00494d90[obj];
@@ -1667,11 +1667,11 @@ void hit_asteroid(short asteroid, short destructionChance)
 /* WC2's collision response uses SHL for the signed mass difference.  Native C
  * cannot left-shift a negative value, so use the equivalent bounded multiply
  * in the port while retaining the original expression for comparison. */
-#ifdef WC1_SDL
-#define WC1_COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+#ifdef SDL_PORT
+#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
     (((objectMass) - (partnerMass)) * 0x100)
 #else
-#define WC1_COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
     (((objectMass) - (partnerMass)) << 8)
 #endif
 
@@ -1679,13 +1679,13 @@ void hit_asteroid(short asteroid, short destructionChance)
  * table with any colliding object.  Slot 15 reaches the zero high word of the
  * adjacent alert flags in the retail layout; make that zero result explicit
  * for every non-ship slot instead of crossing a native global's redzone. */
-#ifdef WC1_SDL
-#define WC1_COLLISION_MAXIMUM_VELOCITY(obj) \
+#ifdef SDL_PORT
+#define COLLISION_MAXIMUM_VELOCITY(obj) \
     ((unsigned short)(obj) < 12 \
          ? g_asShipMaximumVelocity_00495f70[obj] \
          : 0)
 #else
-#define WC1_COLLISION_MAXIMUM_VELOCITY(obj) \
+#define COLLISION_MAXIMUM_VELOCITY(obj) \
     g_asShipMaximumVelocity_00495f70[obj]
 #endif
 
@@ -1736,10 +1736,10 @@ void object_collision(short obj)
                         OBJECT_CLASS_MISSILE) {
                     if (partner == 0) {
                         ComputeVectorDelta(
-                            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                            &g_aShipPosition_00494550[EYE_OBJECT],
                             &g_aShipPosition_00494550[obj], &viewDelta);
                         transform_to_objects_frame(
-                            &viewDelta, &viewRelative, WC2_EYE_OBJECT);
+                            &viewDelta, &viewRelative, EYE_OBJECT);
                         rectangular_to_spherical(&viewRelative, &impact);
                         if (abs(impact.pitch) < 45) {
                             if (abs(impact.yaw) < 45) {
@@ -1797,7 +1797,7 @@ void object_collision(short obj)
                 }
                 savedScale = g_asObjectScale_00494d90[obj];
                 set_objects_data(
-                    obj, WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT,
+                    obj, OBJECT_DATA_PROJECTILE_IMPACT_EFFECT,
                     g_acObjectOwner_00495208[obj], 0);
                 g_asObjectScale_00494d90[obj] =
                     (unsigned short)(savedScale + savedScale);
@@ -1894,13 +1894,13 @@ void object_collision(short obj)
                 ComputeVectorDelta(&partnerComponent, &force,
                                    &componentDelta);
                 damage = (short)(Vector_magnitude(&componentDelta) >> 8);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 if (obj == 0 || partner == 0)
-                    Wc1SdlQueueJoystickCollisionRumble(damage);
+                    SdlQueueJoystickCollisionRumble(damage);
 #endif
                 damage = (short)((damage * damage) >> 1);
                 totalMass = partnerMass + objectMass;
-                responseScale = WC1_COLLISION_MASS_DIFFERENCE_SCALE(
+                responseScale = COLLISION_MASS_DIFFERENCE_SCALE(
                                     objectMass, partnerMass) /
                                 totalMass;
                 responseScale = MinInt(
@@ -1912,7 +1912,7 @@ void object_collision(short obj)
                     Vector_magnitude(&force)) + 0xa00;
                 speed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < WC1_COLLISION_MAXIMUM_VELOCITY(obj)) {
+                if (speed < COLLISION_MAXIMUM_VELOCITY(obj)) {
                     AddFixedVectors(&force,
                                     &g_aShipVelocity_00494898[obj],
                                     &g_aShipVelocity_00494898[obj]);
@@ -1945,7 +1945,7 @@ void object_collision(short obj)
                 AddFixedVectors(&force, &partnerComponent, &force);
                 speed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < WC1_COLLISION_MAXIMUM_VELOCITY(partner)) {
+                if (speed < COLLISION_MAXIMUM_VELOCITY(partner)) {
                     AddFixedVectors(&force,
                                     &g_aShipVelocity_00494898[partner],
                                     &g_aShipVelocity_00494898[partner]);
@@ -2014,23 +2014,23 @@ void object_intelligence(short obj)
         if (target != -1)
             get_facing_range_from_object(obj, target);
         switch (g_asObjectType_00495298[obj]) {
-        case WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE:
+        case OBJECT_DATA_DART_DUMB_FIRE_MISSILE:
             g_anShipSpeed_00494e20[obj] =
                 (get_ship_max_velocity(obj) + 10) * 0x100;
             break;
-        case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
+        case OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE:
             heat_seeking_missile_intelligence(obj);
             break;
-        case WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE:
+        case OBJECT_DATA_PILUM_FRIEND_OR_FOE_MISSILE:
             FF_missile_intelligence(obj);
             break;
-        case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
-        case WC2_OBJECT_TYPE_TORPEDO:
+        case OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+        case OBJECT_DATA_TORPEDO:
             point_ship(obj, 0, &g_vToTarget_00493188);
             g_anShipSpeed_00494e20[obj] =
                 (get_ship_max_velocity(obj) + 10) * 0x100;
             break;
-        case WC2_OBJECT_TYPE_CHAFF_POD:
+        case OBJECT_DATA_CHAFF_POD:
             chaff_intelligence(obj);
             break;
         }

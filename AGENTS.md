@@ -4,19 +4,16 @@ trigger: always_on
 
 ## Project Context
 
-You are reconstructing the source of **Wing Commander** as shipped in *Wing Commander: The
-Kilrathi Saga* (1996), the Win32 port of the 1990 DOS original. Confirmed by the registry key
+You are reconstructing the source of **Wing Commander II** as shipped in *Wing Commander: The
+Kilrathi Saga* (1996), the Win32 port of the 1991 DOS original. Confirmed by the registry key
 the binary reads: `Software\Origin Systems\WC: Kilrathi Saga`.
 
-- Original working title: **WINGLEADER**, © 1989,1990 Chris Roberts (Origin Systems).
 - Original codebase: **C** for the game core, **C++** for the `ix` audio library.
-- Compiler: **Microsoft Visual C++ 4.20**, static *debug* multithreaded CRT (LIBCMTD).
+- Compiler: **Microsoft Visual C++ 4.1**, static *debug* multithreaded CRT (LIBCMTD).
 - The shipped executable is a debug build: live `assert()`s, the MSVC debug heap, and a
   `\\.\MONODEBG.VXD` developer channel are all present.
-- ~1,450 developer-written functions; all are named in the Ghidra database, but only ~437 of
-  those names are evidence-backed. The other ~1,013 are `<Verb><Object>Fn<addr>` operational
-  labels that describe mechanism, not purpose. **Do not trust an operational label as a
-  statement of intent.**
+- Many functions have operational Ghidra labels that describe mechanism, not
+  purpose. **Do not trust an operational label as a statement of intent.**
 
 IMPORTANT: The assembly output and the extracted strings are the *only* source of truth.
 Decompiled code is a useful hint but is NOT authoritative.
@@ -28,15 +25,15 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 
 ## Absolute Rules (Do Not Violate)
 
-- DO NOT remove or modify a function whose comment header carries a WC2 address
+- DO NOT remove or modify a function whose comment header carries a numeric retail address
   (`/* Function start: 0x... */`). Those are verified against the retail image.
-- DO remove `WC2_UNMAPPED` functions and WC1-address globals once nothing that
-  survives can reach them: this branch is a WC2 reconstruction, and inherited WC1
-  code that WC2 never runs is noise. Removal must be closure-aware -- compute what
+- DO remove `UNMAPPED` functions and predecessor-only globals once nothing that
+  survives can reach them: inherited code that the retail game never runs is
+  noise. Removal must be closure-aware -- compute what
   is reachable from the mapped functions and the file-scope tables, iterate to a
-  fixpoint, and confirm `make verify` still passes. Never remove a `WC2_UNMAPPED`
+  fixpoint, and confirm `make verify` still passes. Never remove a `UNMAPPED`
   function that a mapped function still calls: that call is either a defect to fix
-  or evidence the function is really WC2 code awaiting an address.
+  or evidence the function is retail code awaiting an address.
 - DO NOT remove code that is still reachable.
 - DO NOT change calling conventions. The game core is `__cdecl`; a handful of `ix` functions
   are `__thiscall` — leave those implicit, never spell `__thiscall` out.
@@ -60,7 +57,7 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 - DO NOT uses aliases, rename instead. In particular, do not use aliases for globals (#define g_X_Y ((void *)DAT_Y)). Instead rename all of them with a proper type.
 - Do NOT manually replicate thunk functions or other compiler generated glue code (e.g. GetFixedOneMillionThunkAlt(void) { __asm { jmp GetFixedOneMillionAlt }). These need to be produced by the compiler automatically, not forced.
 
-### WC1-specific rules that differ from sibling projects
+### Project-specific rules that differ from sibling projects
 
 - **`.c` files are correct here.** The game core was C — the leaked WINGLEADER main module is
   a `.c` file including `<game.h>` and `<dos.h>`. Only `src/ix/*` is C++. Do not "upgrade"
@@ -91,9 +88,9 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   units are declared in `include/globals.h`, while compilation-unit-private globals are
   declared only in that unit. Definitions belong in their evidence-backed original unit and
   declaration order; until ownership is proven, storage may remain in `src/globals.c`.
-  Prototypes for implemented functions are in `include/wc1funcs.h`, and prototypes for
-  not-yet-written callees are in `include/wc1extern.h`; all three headers are reached through
-  `wc1.h`.
+  Prototypes for implemented functions are in `include/functions.h`, and prototypes for
+  not-yet-written callees are in `include/externs.h`; all three headers are reached through
+  `game.h`.
 
 ### Other important rules
 
@@ -128,7 +125,7 @@ To implement the function at, say, `0x004075D0`:
 Always use `-i` for case-insensitive matches.
 
 IMPORTANT: `out/*.asm` is produced by the compiler from *our* C code — it is not the
-original. `WC1.map` likewise describes only the reimplementation. Use `binary-comp` to
+original. `WC2.map` likewise describes only the reimplementation. Use `binary-comp` to
 compare against the original.
 
 ### Compiling & Comparing Assembly

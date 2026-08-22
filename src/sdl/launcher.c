@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include "video_internal.h"
 
@@ -10,28 +10,28 @@
 extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
 #endif
 
-static jmp_buf g_stWc2SdlCutsceneExit;
-static int g_bWc2SdlCutsceneExitArmed;
+static jmp_buf g_stSdlCutsceneExit;
+static int g_bSdlCutsceneExitArmed;
 
-void Wc2SdlFinishCutsceneOnly(void)
+void SdlFinishCutsceneOnly(void)
 {
-    if (g_bWc2SdlCutsceneExitArmed != 0)
-        longjmp(g_stWc2SdlCutsceneExit, 1);
+    if (g_bSdlCutsceneExitArmed != 0)
+        longjmp(g_stSdlCutsceneExit, 1);
 }
 
-static void Wc2SdlRunGameApplication(int argumentCount, char **arguments)
+static void SdlRunGameApplication(int argumentCount, char **arguments)
 {
-    if (g_bWc2SdlCutsceneOnly != 0 &&
-        setjmp(g_stWc2SdlCutsceneExit) != 0) {
-        g_bWc2SdlCutsceneExitArmed = 0;
+    if (g_bSdlCutsceneOnly != 0 &&
+        setjmp(g_stSdlCutsceneExit) != 0) {
+        g_bSdlCutsceneExitArmed = 0;
         return;
     }
-    g_bWc2SdlCutsceneExitArmed = g_bWc2SdlCutsceneOnly;
+    g_bSdlCutsceneExitArmed = g_bSdlCutsceneOnly;
     RunGameApplication((short)(argumentCount - 1), arguments);
-    g_bWc2SdlCutsceneExitArmed = 0;
+    g_bSdlCutsceneExitArmed = 0;
 }
 
-static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
+static int SdlParsePortArguments(int *argumentCount, char **arguments,
                                     int *useEnhancedRenderer,
                                     int *cutsceneOnly)
 {
@@ -50,17 +50,17 @@ static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
-            Wc1SdlEnableJoystickDebug();
+            SdlEnableJoystickDebug();
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
-            Wc1SdlEnableJoystickRumble();
+            SdlEnableJoystickRumble();
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
-            if (!Wc1SdlSetJoystickMode(argument + 16)) {
+            if (!SdlSetJoystickMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",
                         argument + 16);
                 return 0;
             }
         } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
-            if (!Wc1SdlSetJoystickAxesMode(argument + 16)) {
+            if (!SdlSetJoystickAxesMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick axes mode: %s\n",
                         argument + 16);
                 return 0;
@@ -75,7 +75,7 @@ static int Wc1SdlParsePortArguments(int *argumentCount, char **arguments,
     return 1;
 }
 
-static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
+static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
 {
     const char *argument;
     char command;
@@ -110,7 +110,7 @@ static void Wc1SdlApplyLegacyArguments(int argumentCount, char **arguments)
     }
 }
 
-static int Wc1SdlRunRuntimeChecks(void)
+static int SdlRunRuntimeChecks(void)
 {
     g_aShipWeapons_004956b0[1][0] = 2;
     remove_weapon(1, 0);
@@ -175,14 +175,14 @@ int main(int argumentCount, char **arguments)
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif
-    if (!Wc1SdlParsePortArguments(&argumentCount, arguments,
+    if (!SdlParsePortArguments(&argumentCount, arguments,
                                    &useEnhancedRenderer,
                                    &cutsceneOnly))
         return 1;
-    g_bWc2SdlCutsceneOnly = cutsceneOnly;
+    g_bSdlCutsceneOnly = cutsceneOnly;
     if (useEnhancedRenderer) {
-        Wc1SdlSetVideoBackend(
-            WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
+        SdlSetVideoBackend(
+            SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     }
     checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     /* The build defines SDL_MAIN_HANDLED, so tell SDL the process is already
@@ -195,7 +195,7 @@ int main(int argumentCount, char **arguments)
     }
 
     windowFlags = SDL_WINDOW_RESIZABLE;
-    if (!Wc1SdlConfigureVideoWindow(&windowFlags)) {
+    if (!SdlConfigureVideoWindow(&windowFlags)) {
         fprintf(stderr, "SDL video configuration failed: %s\n",
                 SDL_GetError());
         SDL_Quit();
@@ -218,13 +218,13 @@ int main(int argumentCount, char **arguments)
 
     DIBinstall((HWND)window);
     g_hMainWindow_005d10e0 = (HWND)window;
-    Wc1SdlStartEventPump();
+    SdlStartEventPump();
     if (checkOnly) {
-        gameResult = Wc1SdlRunRuntimeChecks();
+        gameResult = SdlRunRuntimeChecks();
     } else {
         CheckLauncherAndConfig();
-        usingDosData = Wc1SdlUsingDosData();
-        if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
+        usingDosData = SdlUsingDosData();
+        if (!SdlInitializeOriginFxAudio(usingDosData)) {
             if (usingDosData) {
                 fprintf(stderr, "DOS audio is unavailable.\n");
             } else {
@@ -240,7 +240,7 @@ int main(int argumentCount, char **arguments)
          * globals.c so that file stays a faithful mirror of the image's data,
          * and because the in-flight keys can still adjust it from here. */
         g_nSpaceFramePeriod_0049d768 = 3;
-        Wc1SdlApplyLegacyArguments(argumentCount, arguments);
+        SdlApplyLegacyArguments(argumentCount, arguments);
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);
@@ -258,21 +258,21 @@ int main(int argumentCount, char **arguments)
          * Its recovered option loader starts copying at argv[1], then preserves
          * WC2's original one-token lookahead by exposing one fewer argument to
          * the game's parser. */
-        Wc2SdlRunGameApplication(argumentCount, arguments);
+        SdlRunGameApplication(argumentCount, arguments);
         g_bApplicationShutdownStarted_0049c23c = 1;
         ReleaseApplicationScratchBuffer();
         gameResult = 0;
-        Wc1SdlSetMouseGrab(0);
+        SdlSetMouseGrab(0);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
         if ((g_dwStreamerState_005c4c38 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
-        Wc1SdlShutdownOriginFxAudio();
+        SdlShutdownOriginFxAudio();
     }
 
     DIBunInstall();
-    Wc1SdlShutdownJoysticks();
+    SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SDL_Quit();
     return gameResult;

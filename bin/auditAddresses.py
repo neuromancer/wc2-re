@@ -11,20 +11,24 @@ it, so the similarity number is meaningless without saying so.
     bin/auditAddresses.py            # report mismatches
     bin/auditAddresses.py --fix      # rewrite annotations to the real address
 """
-import json
 import os
 import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, 'src')
-INVENTORY = os.path.join(ROOT, 'out', 'funcs_v5.json')
+INVENTORY = os.path.join(ROOT, 'src', 'map')
 SKIP = {'void', 'if', 'while', 'for', 'return', 'TODO', 'switch', 'sizeof'}
 
 
 def main():
     fix = '--fix' in sys.argv
-    fl = {int(f['address'], 16): f['name'] for f in json.load(open(INVENTORY))}
+    fl = {}
+    with open(INVENTORY) as stream:
+        for line in stream:
+            fields = line.split(maxsplit=1)
+            if len(fields) == 2 and fields[0].startswith('0x'):
+                fl[int(fields[0], 16)] = fields[1].strip()
     byname = {}
     for addr, name in fl.items():
         byname.setdefault(name, addr)
@@ -50,7 +54,8 @@ def main():
                     # same line as the signature, so strip rather than skip.
                     seg = re.sub(r'^[^\S\n]*\*/', ' ', seg)   # tail of the marker itself
                     seg = re.sub(r'/\*.*?\*/', ' ', seg)
-                    if not seg.strip() or seg.lstrip().startswith(('/*', '*', '//')):
+                    if (not seg.strip() or
+                            seg.lstrip().startswith(('/*', '*', '//', '#'))):
                         continue
                     n = re.search(r'\b([A-Za-z_]\w*)\s*\(', seg)
                     if not n or n.group(1) in SKIP:

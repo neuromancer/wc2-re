@@ -4,17 +4,18 @@ MSVC emits functions in source order, and the linker concatenates object files
 in command-line order. Address order is therefore the primary evidence for
 source ownership and link order.
 
-`src/map` is now the address-sorted inventory of the 1,235 source functions
-with a mapped WC2 destination. The 243 unresolved functions are omitted until
-their destinations are established.
+`src/map` is the address-sorted inventory of source functions with a mapped
+retail destination. Unresolved functions are omitted until their destinations
+are established.
 
-The physical source and object order still preserves the WC1 reconstruction
-while WC2 compilation-unit ownership is recovered. Do not mechanically reorder
-the files from low-confidence transfer rows: `make sort` is expected to report
-out-of-order WC2 labels during this migration. The sections below record the
-historical WC1 boundaries as provenance, not current WC2 placement claims.
+The physical source and object order still preserves the predecessor
+reconstruction while retail compilation-unit ownership is recovered. Do not
+mechanically reorder the files from low-confidence transfer rows: `make sort`
+is expected to report out-of-order retail labels during this migration. The
+sections below record the historical predecessor boundaries as provenance, not
+current placement claims.
 
-## Proven WC2 boundaries
+## Proven retail boundaries
 
 | Reconstructed source | Range | Evidence |
 | --- | --- | --- |
@@ -24,7 +25,7 @@ The timing unit is linked between `src/music.c` and `src/screen.c`, matching
 the target sequence from `AllocateViewport` through the initializers to the
 frame throttle.
 
-## Historical WC1 image layout
+## Historical predecessor image layout
 
 ```text
 0x00401000  game core and Win32 support (mostly C; boundaries provisional)
@@ -37,7 +38,7 @@ The final core function before `ix_log_printf` starts at `0x00442600`. The
 first CRT `__FILE__` anchor is at `0x004492E0`; the final `ix` routine occupies
 the preceding range.
 
-## Historical WC1 `ix` library order
+## Historical predecessor `ix` library order
 
 Live assertion `__FILE__` and `__LINE__` strings fix these object boundaries
 and their link order:
@@ -58,7 +59,7 @@ and their link order:
 immediately before the exact sequence above, but its original object extent is
 not yet established.
 
-## Historical WC1 game-core working split
+## Historical predecessor game-core working split
 
 The core is grouped into short subsystem-named files following address order.
 The windows below are placement guides, not claims that every edge is an
@@ -82,7 +83,7 @@ containing file boundary remains provisional.
 | `src/debug.cpp` | `0x41C760`–`0x41D0BF` | Proven C++ debug-console object |
 | `src/mathutil.c` | `0x41D000`–`0x41D24F` | Integer min/max cluster |
 | `src/disk.c` | `0x41D250`–`0x41EFFF` | Disk files and packet retry paths |
-| `src/personnel.c` | WC2 `0x428C35`, `0x433AD0`–`0x436A8F`, `0x459BC8` | WC2 personnel database and WC1 pilot transfer flow |
+| `src/personnel.c` | Retail `0x428C35`, `0x433AD0`–`0x436A8F`, `0x459BC8` | Personnel database and previous-game pilot transfer flow |
 | `src/ship.c` | `0x41F000`–`0x420FFF` | Ship damage, explosions, and weapons |
 | `src/logic.c` | `0x421000`–`0x424FFF` | Mac `logic` unit and adjacent mission logic |
 | `src/pilot.cpp` | `0x425000`–`0x426FFF` | Pilot/TrainSim flow and C++ console owner |
@@ -94,7 +95,7 @@ containing file boundary remains provisional.
 | `src/music.c` | `0x42D000`–`0x42EFFF` | Self-naming music diagnostics |
 | `src/screen.c` | `0x42F000`–`0x431FFF` | Screen scopes, prompts, and comm menus |
 | `src/dib.c` | `0x432000`–`0x43390F` | Proven DirectDraw `DIB*` unit |
-| `src/text.c` | `0x433690`–`0x433ABF` | WC2 adds its cinematic sprite-font renderer before the exact Mac `show_info_disp` symbol |
+| `src/text.c` | `0x433690`–`0x433ABF` | The retail build adds its cinematic sprite-font renderer before the exact Mac `show_info_disp` symbol |
 | `src/smart.c` | `0x433AC0`–`0x434CCF` | Proven Mac `smart` symbol run |
 | `src/mathfp.c` | `0x434CD0`–`0x4353FF` | Random and floating-point helpers |
 | `src/strdos.c` | `0x435400`–`0x4355EF` | DOS-width string/memory shims and setup calls |
@@ -110,7 +111,7 @@ declaration order is not yet proven. It is not an original compilation unit.
 
 - `src/pload.c` identifies itself through the string
   `Library\Source\Pload.c PacketLoad`.
-- WC2 adds `ShutdownNearHeap` at `0x00420B12` directly between
+- The retail build adds `ShutdownNearHeap` at `0x00420B12` directly between
   `InitializeNearHeap` and `AllocateNearHeapBlockFromEnd`; its seven globals
   are the same private band used by the surrounding near-heap routines in
   `src/nav.c`.

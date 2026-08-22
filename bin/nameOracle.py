@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """Recover the developers' own function names from the shipped debug build.
 
-WC1 was released as a debug build, so its diagnostic printers are still live and
-still carry their format strings.  Many of those formats are the developer's own
+The diagnostic printers are still live and carry their format strings.  Many
+of those formats are the developer's own
 name for the routine doing the printing:
 
-    0x0042E320  ->  "FadeMusic\\n"
-    0x0042E350  ->  "StopMusic "                 (already evidence-named: a control)
-    0x00432970  ->  "DIBslamReal   secondary->Lock"
+    "FadeMusic\\n"
+    "StopMusic "                 (already evidence-named: a control)
+    "DIBslamReal   secondary->Lock"
 
 That makes every such call site a primary-source naming fact, which beats any
 operational label.  This script finds them by scanning .text for CALL sites and
@@ -25,29 +25,29 @@ are there so a change in the extraction can be caught.
 """
 import argparse
 import bisect
-import csv
 import os
 import re
 import struct
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EXE = os.path.join(ROOT, 'data', 'full', 'WC1.ORI.EXE')
-CSV = os.path.join(ROOT, '..', 'wc1_function_evidence.csv')
+ORIGINAL_EXE = os.path.join(ROOT, 'data', 'full', 'WC2.ORI.EXE')
+FUNCTION_MAP = os.path.join(ROOT, 'src', 'map')
+EXPORT_DIR = os.path.join(ROOT, 'code-full')
 
 # The printers whose format strings name their caller, found with --top.
 DEFAULT_LOGGERS = [
-    0x00403DB0,   # SoundDebugPrintf   -- music/SFX channel
-    0x00425BB0,   # SystemDebugPrintf  -- "[SYSTEM] : ..." channel
-    0x00413C40,   # on-screen text printer (%X%Y cursor codes)
-    0x00413C70,   # on-screen text printer, paged variant (%P)
-    0x00432140,   # DIBerror           -- names every DIB* routine
-    0x00428FA0,   # ShowOnScreenMessage
+    0x00437946,   # SoundDebugPrintf   -- music/SFX channel
+    0x0040FDAD,   # SystemDebugPrintf  -- "[SYSTEM] : ..." channel
+    0x0042067F,   # on-screen text printer (%X%Y cursor codes)
+    0x004206F2,   # on-screen text printer, paged variant (%P)
+    0x0045D004,   # DIBerror           -- names every DIB* routine
+    0x00437DFA,   # ShowOnScreenMessage
 ]
 
 
 def load_image():
-    raw = open(EXE, 'rb').read()
+    raw = open(ORIGINAL_EXE, 'rb').read()
     pe = struct.unpack_from('<I', raw, 0x3c)[0]
     nsec = struct.unpack_from('<H', raw, pe + 6)[0]
     optsz = struct.unpack_from('<H', raw, pe + 20)[0]
@@ -89,8 +89,23 @@ def main():
             return None
         return s.decode('latin1')
 
-    funcs = sorted((int(r['address'], 16), r['name'])
-                   for r in csv.DictReader(open(CSV)))
+    funcs_by_address = {}
+    for file_name in os.listdir(EXPORT_DIR):
+        match = re.fullmatch(r'FUN_([0-9A-Fa-f]{8})\.disassembled\.txt',
+                             file_name)
+        if match is None:
+            continue
+        address = int(match.group(1), 16)
+        with open(os.path.join(EXPORT_DIR, file_name)) as stream:
+            heading = stream.readline().strip()
+        if heading.startswith('Function: '):
+            funcs_by_address[address] = heading.removeprefix('Function: ')
+    with open(FUNCTION_MAP) as stream:
+        for line in stream:
+            fields = line.split(maxsplit=1)
+            if len(fields) == 2 and fields[0].startswith('0x'):
+                funcs_by_address[int(fields[0], 16)] = fields[1].strip()
+    funcs = sorted(funcs_by_address.items())
     starts = [f[0] for f in funcs]
 
     def enclosing(va):

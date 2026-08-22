@@ -4,7 +4,7 @@
  *  Address range 0x403100-0x4034ff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: LocateStreamsDirOnDisc..PromptInsertCorrectCd; string band 0x46535C-0x4653FC.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x456123 */
 char *LocateStreamsDirOnDisc(void)
@@ -13,7 +13,7 @@ char *LocateStreamsDirOnDisc(void)
     char *result;
     char drive;
 
-    result = g_szStreamsPath_00475c18_WC1_UNMAPPED;
+    result = g_szStreamsPath_005b3740;
     GetCurrentDirectoryA(0xff, current);
     drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc2\\streams\\");
     if (drive != 0) {
@@ -22,7 +22,7 @@ char *LocateStreamsDirOnDisc(void)
         return result;
     }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (strstr(current, "gamedat") != 0 ||
         strstr(current, "GAMEDAT") != 0)
 #else

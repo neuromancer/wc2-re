@@ -27,7 +27,7 @@
         xor	eax, 0x4d424c49
         mov	dword ptr [ebp - 0x4], eax
         push	dword ptr [ebp + 0xc]
-        push offset g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED
+        push offset g_abIffBmhdChunkId_00406f74
         call FindIFFChunkData
         add	esp, 0x8
         mov	esi, eax
@@ -75,7 +75,7 @@ dormant_loc_43e835:
 dormant_loc_43e88b:
         mov	dword ptr [ebp - 0xc], eax
         push	dword ptr [ebp + 0xc]
-        push offset g_abIffBodyChunkId_00406f7c_WC1_UNMAPPED
+        push offset g_abIffBodyChunkId_00406f7c
         call FindIFFChunkData
         add	esp, 0x8
         mov	dword ptr [ebp - 0x10], eax

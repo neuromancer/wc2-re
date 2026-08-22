@@ -5,7 +5,7 @@
  *  ordered MacsBug symbols in the Super Wing Commander `smart` unit: its
  *  final routine is chase_speed, immediately followed by the random unit.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x41E4E0 */
 #pragma function(abs)

@@ -232,7 +232,7 @@ void ix_dspv_recalc_mix(int voice)
 }
 
 /* Function start: 0x48BFF8 */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
 {
     short *output;

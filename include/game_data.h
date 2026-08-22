@@ -3,7 +3,8 @@
  *
  *  Sources, in descending order of trust:
  *
- *  1. THIS BINARY.  Anything marked "verified" was read out of WC1.EXE itself,
+ *  1. THIS BINARY. Anything marked "verified" was read from the retail
+ *     executable itself,
  *     usually from an ordered string table.  Where the community documentation
  *     and the binary disagree, the binary wins and the difference is noted.
  *  2. WCMissionTools (../WCMissionTools), a MODULE/CAMP/BRIEFING parser built
@@ -20,8 +21,8 @@
  *  a 0x1F-byte stride against the 77-byte disk nav record -- so a disk field
  *  offset is a hint about what exists, never about where it lives at runtime.
  */
-#ifndef WC1_DATA_H
-#define WC1_DATA_H
+#ifndef GAME_DATA_H
+#define GAME_DATA_H
 
 #include <stddef.h>
 
@@ -108,7 +109,7 @@ enum ObjectType {
     OBJECT_TYPE_SPARK_TRAIL               = 54,
     OBJECT_TYPE_THRUSTERS                 = 55,
     OBJECT_TYPE_EJECTED_PILOT             = 56,
-    WC1_OBJECT_TYPE_DEBRIS_GLASS          = 57,
+    OBJECT_TYPE_DEBRIS_GLASS              = 57,
     OBJECT_TYPE_TYPES                     = 58, /* original enum terminator */
     OBJECT_TYPE_COUNT                     = OBJECT_TYPE_TYPES,
     OBJECT_TYPE_SPACE_DUST                = 59,
@@ -314,16 +315,12 @@ enum CommMenuEntry {
  * Coordinates are 3-byte little-endian signed: uint16 low word plus uint8 high
  * byte, minus 16777216 when the high byte is >= 128.
  * -------------------------------------------------------------------------- */
-#define WC1_NAV_RECORD_BYTES   77
-#define WC1_SHIP_RECORD_BYTES  42
-#define WC1_MAP_RECORD_BYTES   64
-
 typedef struct FixedVector {
     int x;
     int y;
     int z;
 }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 __attribute__((packed))
 #endif
 FixedVector;
@@ -400,7 +397,7 @@ typedef struct ObjectTypeData {
 } ObjectTypeData;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char ObjectTypeData_size_must_be_0xf3[
     sizeof(ObjectTypeData) == 0xf3 ? 1 : -1];
 typedef char ObjectTypeData_objectClass_must_be_at_0x14[
@@ -430,26 +427,26 @@ typedef struct ShipWeaponSlot {
 typedef char ShipWeaponSlot_size_must_be_0x0a[
     sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
 
-enum Wc2ReleaseWeaponObjectType {
-    WC2_OBJECT_TYPE_DART_DUMB_FIRE_MISSILE = 0x0f,
-    WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE = 0x10,
-    WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE = 0x11,
-    WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE = 0x12,
-    WC2_OBJECT_TYPE_TORPEDO = 0x13,
-    WC2_OBJECT_TYPE_CHAFF_POD = 0x14
+enum ReleaseWeaponObjectType {
+    OBJECT_DATA_DART_DUMB_FIRE_MISSILE = 0x0f,
+    OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE = 0x10,
+    OBJECT_DATA_PILUM_FRIEND_OR_FOE_MISSILE = 0x11,
+    OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE = 0x12,
+    OBJECT_DATA_TORPEDO = 0x13,
+    OBJECT_DATA_CHAFF_POD = 0x14
 };
 
-enum Wc2HazardObjectType {
-    WC2_OBJECT_TYPE_ASTEROID_FIELD = 0x05,
-    WC2_OBJECT_TYPE_SPACE_MINE = 0x15,
-    WC2_OBJECT_TYPE_ASTEROID1 = 0x16
+enum HazardObjectType {
+    OBJECT_DATA_ASTEROID_FIELD = 0x05,
+    OBJECT_DATA_SPACE_MINE = 0x15,
+    OBJECT_DATA_ASTEROID1 = 0x16
 };
 
-enum Wc2EffectObjectType {
-    WC2_OBJECT_TYPE_PROJECTILE_IMPACT_EFFECT = 0x27,
-    WC2_OBJECT_TYPE_SHIP_DAMAGE_EFFECT_FIRST = 0x28,
-    WC2_OBJECT_TYPE_EJECTION_POD = 0x2c,
-    WC2_OBJECT_TYPE_STAR = 0x2d
+enum EffectObjectType {
+    OBJECT_DATA_PROJECTILE_IMPACT_EFFECT = 0x27,
+    OBJECT_DATA_SHIP_DAMAGE_EFFECT_FIRST = 0x28,
+    OBJECT_DATA_EJECTION_POD = 0x2c,
+    OBJECT_DATA_STAR = 0x2d
 };
 
 typedef struct ShortPoint {
@@ -678,7 +675,7 @@ typedef char CannedSceneBriefingCharacterRecord_size_must_be_0x10[
 typedef char CannedSceneMusicCommandRecord_size_must_be_0x16[
     sizeof(CannedSceneMusicCommandRecord) == 0x16 ? 1 : -1];
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char InputManagerState_size_must_be_0x21[
     sizeof(InputManagerState) == 0x21 ? 1 : -1];
 #endif
@@ -690,7 +687,7 @@ typedef struct MusicResource {
 } MusicResource;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char MusicResource_size_must_be_6[
     sizeof(MusicResource) == 6 ? 1 : -1];
 #endif
@@ -716,7 +713,7 @@ typedef struct NavMapLabel {
 } NavMapLabel;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char NavMapLabel_size_must_be_0x0a[
     sizeof(NavMapLabel) == 0x0a ? 1 : -1];
 #endif
@@ -730,7 +727,7 @@ typedef struct NavMapObjectiveStyle {
     unsigned char *labelColour;
 } NavMapObjectiveStyle;
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char NavMapObjectiveStyle_size_must_be_0x10[
     sizeof(NavMapObjectiveStyle) == 0x10 ? 1 : -1];
 #endif
@@ -745,14 +742,14 @@ typedef struct TitleMenuRegion {
 } TitleMenuRegion;
 
 /* One packet-backed pointer slot in a scene resource list. */
-#ifdef WC1_SDL
-typedef unsigned char *Wc1PackedResourcePointer
+#ifdef SDL_PORT
+typedef unsigned char *PackedResourcePointer
     __attribute__((aligned(1)));
 #endif
 #pragma pack(push, 1)
 typedef struct PacketResourceDescriptor {
-#ifdef WC1_SDL
-    Wc1PackedResourcePointer *resource;
+#ifdef SDL_PORT
+    PackedResourcePointer *resource;
 #else
     unsigned char **resource;
 #endif
@@ -781,7 +778,7 @@ typedef struct SceneHotspot {
 } SceneHotspot;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char PacketResourceDescriptor_size_must_be_0x0a[
     sizeof(PacketResourceDescriptor) == 0x0a ? 1 : -1];
 typedef char SceneResourceTable_size_must_be_0x08[
@@ -1121,7 +1118,7 @@ typedef struct SaveGameDiskCampaignState {
  * fields are fixed by the accesses in the startup controller and personnel
  * database.  Fields whose purpose is not yet established retain offset names. */
 #pragma pack(push, 1)
-typedef struct Wc2PilotProfile {
+typedef struct PilotProfile {
     char firstName[25];               /* +0x00 */
     char lastName[25];                /* +0x19 */
     char callsign[13];                /* +0x32 */
@@ -1133,7 +1130,7 @@ typedef struct Wc2PilotProfile {
     short mission;                    /* +0x58 */
     unsigned char field_5a[4];        /* +0x5A */
     short field_5e;                   /* +0x5E */
-} Wc2PilotProfile;
+} PilotProfile;
 
 typedef struct PersonnelFileSlot {
     short occupied;                  /* +0x00 */
@@ -1143,7 +1140,7 @@ typedef struct PersonnelFileSlot {
 /* Variable-length WC2 campaign globals.  The on-disk word count determines
  * the saved byte size; all 32 pilot-status words nevertheless have fixed
  * offsets in the retail image. */
-typedef struct Wc2CampaignGlobals {
+typedef struct CampaignGlobals {
     unsigned short wordCount;         /* +0x00 */
     short campaignSlot;               /* +0x02 */
     short series;                     /* +0x04 */
@@ -1168,15 +1165,15 @@ typedef struct Wc2CampaignGlobals {
     short missionScore;               /* +0x9C */
     short pilotCount;                 /* +0x9E */
     short pilotStatus[32];            /* +0xA0 */
-} Wc2CampaignGlobals;
+} CampaignGlobals;
 #pragma pack(pop)
 
-typedef char Wc2PilotProfile_size_must_be_0x60[
-    sizeof(Wc2PilotProfile) == 0x60 ? 1 : -1];
+typedef char PilotProfile_size_must_be_0x60[
+    sizeof(PilotProfile) == 0x60 ? 1 : -1];
 typedef char PersonnelFileSlot_size_must_be_0x26[
     sizeof(PersonnelFileSlot) == 0x26 ? 1 : -1];
-typedef char Wc2CampaignGlobals_pilot_status_must_start_at_0xa0[
-    offsetof(Wc2CampaignGlobals, pilotStatus) == 0xa0 ? 1 : -1];
+typedef char CampaignGlobals_pilot_status_must_start_at_0xa0[
+    offsetof(CampaignGlobals, pilotStatus) == 0xa0 ? 1 : -1];
 
 /* One open packet section.  OpenPacketSection fills this record and the packet
  * reader advances position while leaving the containing data file open. */
@@ -1193,7 +1190,7 @@ typedef struct PacketSectionHandle {
 
 typedef char PilotRecord_size_must_be_0x26[
     sizeof(PilotRecord) == 0x26 ? 1 : -1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char CampaignState_size_must_be_0x58[
     sizeof(CampaignState) == 0x58 ? 1 : -1];
 #endif
@@ -1201,7 +1198,7 @@ typedef char SaveGameDiskCampaignState_size_must_be_0x44[
     sizeof(SaveGameDiskCampaignState) == 0x44 ? 1 : -1];
 typedef char ConversationSceneRecord_size_must_be_0x0d[
     sizeof(ConversationSceneRecord) == 0x0d ? 1 : -1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char BriefingCharacterLayout_size_must_be_0x12[
     sizeof(BriefingCharacterLayout) == 0x12 ? 1 : -1];
 typedef char SceneAnimationObject_size_must_be_0x36[
@@ -1417,7 +1414,7 @@ typedef struct ObjectResourceSlot {
     unsigned char *shape;             /* +0x0E: archive section 1 */
     unsigned char *field_12;          /* +0x12 */
 } ObjectResourceSlot;
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char ObjectResourceSlot_size_must_be_0x16[
     sizeof(ObjectResourceSlot) == 0x16 ? 1 : -1];
 #endif
@@ -1503,12 +1500,12 @@ typedef struct ShipIntelligenceMetadata {
 } ShipIntelligenceMetadata;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char ShipIntelligenceMetadata_size_must_be_0x0c[
     sizeof(ShipIntelligenceMetadata) == 0x0c ? 1 : -1];
 #endif
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char MissionShipRecord_size_must_be_0x3c[
     sizeof(MissionShipRecord) == 0x3c ? 1 : -1];
 #endif
@@ -1516,13 +1513,13 @@ typedef char MissionHeader_size_must_be_0x18[
     sizeof(MissionHeader) == 0x18 ? 1 : -1];
 typedef char MissionObjectiveSource_size_must_be_0x40[
     sizeof(MissionObjectiveSource) == 0x40 ? 1 : -1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char MissionObjective_size_must_be_0x1e[
     sizeof(MissionObjective) == 0x1e ? 1 : -1];
 #endif
 typedef char SaveGameDiskObjective_size_must_be_0x19[
     sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char SaveGameRecord_size_must_be_0x3a0[
     sizeof(SaveGameRecord) == 0x3a0 ? 1 : -1];
 #endif
@@ -1530,19 +1527,17 @@ typedef char SaveGameDiskRecord_size_must_be_0x33c[
     sizeof(SaveGameDiskRecord) == 0x33c ? 1 : -1];
 typedef char BarracksBunkState_size_must_be_0x0a[
     sizeof(BarracksBunkState) == 0x0a ? 1 : -1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char BarracksAnimationState_size_must_be_0x68[
     sizeof(BarracksAnimationState) == 0x68 ? 1 : -1];
 #endif
 
-#define WC1_SPACE_OBJECT_COUNT 64
-#define WC2_SPACE_OBJECT_COUNT 70
-#define WC1_SPACE_LAST_MOVING_OBJECT 60
-#define WC2_SPACE_LAST_MOVING_OBJECT 66
-#define WC2_EYE_OBJECT 67
-#define WC2_SCRATCH_VIEW_OBJECT 69
-#define WC1_DIRECTION_VIEW_COUNT 62
-#define WC1_DIRECTION_SHAPE_TABLE_COUNT 3
+#define SPACE_OBJECT_COUNT 70
+#define SPACE_LAST_MOVING_OBJECT 66
+#define EYE_OBJECT 67
+#define SCRATCH_VIEW_OBJECT 69
+#define DIRECTION_VIEW_COUNT 62
+#define DIRECTION_SHAPE_TABLE_COUNT 3
 /* WC2's object-type table drops the twelve extra ship records WC1 carried --
  * WC1 numbers 22 ships and bases, WC2 ten -- so the table is 46 records at the
  * 243-byte stride the code uses, and every type from the shared block on is
@@ -1552,65 +1547,60 @@ typedef char BarracksAnimationState_size_must_be_0x68[
  * (0x410999) tests 0x1C for WC1's rock chunk 40, and manage_hazard (0x41836E)
  * tests 0x15 for WC1's space mine 33. */
 /* perform_maneuver (0x4426A0) admits maneuvers 0 through 0x31. */
-#define WC2_MANEUVER_HANDLER_COUNT 50
+#define MANEUVER_HANDLER_COUNT 50
 
-#define WC2_OBJECT_TYPE_COUNT 49
-#define WC2_OBJECT_TYPE(wc1Type) ((wc1Type) - 12)
+#define OBJECT_DATA_COUNT 49
+#define OBJECT_DATA_INDEX(sourceType) ((sourceType) - 12)
 /* The records the reconstructed table names or its classes and frame lists
  * identify.  The gun and missile block is where WC2 diverges most: it carries
  * four named guns and four more projectile slots where WC1 had three guns and
  * a turret bolt, so only the mine and everything above it line up with
- * WC2_OBJECT_TYPE(). */
-#define WC2_OBJECT_TYPE_LASER_CANNON    7
-#define WC2_OBJECT_TYPE_NEUTRON_GUN     8
-#define WC2_OBJECT_TYPE_MASS_DRIVER     9
-#define WC2_OBJECT_TYPE_PARTICLE_CANNON 10
+ * OBJECT_DATA_INDEX(). */
+#define OBJECT_DATA_LASER_CANNON    7
+#define OBJECT_DATA_NEUTRON_GUN     8
+#define OBJECT_DATA_MASS_DRIVER     9
+#define OBJECT_DATA_PARTICLE_CANNON 10
 /* Nameless projectile carrying the laser cannon's stats: the bolt a
  * turret fires.  It never appears in the pilot's gun cycle. */
-#define WC2_OBJECT_TYPE_TURRET_GUN      11
-#define WC2_OBJECT_TYPE_DART_DF        15
-#define WC2_OBJECT_TYPE_JAVELIN_HS     16
-#define WC2_OBJECT_TYPE_PILUM_FF       17
-#define WC2_OBJECT_TYPE_SPICULUM_IR    18
-#define WC2_OBJECT_TYPE_TORPEDO        19
-#define WC2_OBJECT_TYPE_CHAFF_POD      20
-#define WC2_OBJECT_TYPE_PORCUPINE_MINE 21
-#define WC2_OBJECT_TYPE_ASTEROID1      22
-#define WC2_OBJECT_TYPE_ASTEROID2      23
-#define WC2_OBJECT_TYPE_ASTEROID3      24
-#define WC2_OBJECT_TYPE_ASTEROID4      25
-#define WC2_OBJECT_TYPE_ASTEROID5      26
-#define WC2_OBJECT_TYPE_ASTEROID6      27
-#define WC2_OBJECT_TYPE_ROCK_CHUNK     28
-#define WC2_OBJECT_TYPE_GIRDER_CHUNK   29
-#define WC2_OBJECT_TYPE_SHIP_TUBING    30
-#define WC2_OBJECT_TYPE_METAL_SHEET    31
-#define WC2_OBJECT_TYPE_SHIP_WING      32
-#define WC2_OBJECT_TYPE_BURNING_DEBRIS 33
-#define WC2_OBJECT_TYPE_O_RING         34
-#define WC2_OBJECT_TYPE_PIPE           35
-#define WC2_OBJECT_TYPE_EXPLOSION_SMALL  36
-#define WC2_OBJECT_TYPE_EXPLOSION_MEDIUM 37
-#define WC2_OBJECT_TYPE_EXPLOSION_LARGE  38
-#define WC2_OBJECT_TYPE_THRUSTERS        43
-#define WC2_OBJECT_TYPE_EJECTED_PILOT    44
-#define WC2_OBJECT_TYPE_DEBRIS_GLASS     45
-#define WC2_OBJECT_TYPE_DATA_CAPSULE     46
-#define WC2_OBJECT_TYPE_SPACE_DUST       46
-#define WC2_OBJECT_TYPE_DEBRIS_DUST      47
-#define WC2_MISSION_SHIP_COUNT 16
-#define WC1_MISSION_SHIP_STORAGE_COUNT 48
-#define WC1_MISSION_SHIP_SCAN_LIMIT 64
-#define WC1_ACTIVE_MISSION_SHIP_COUNT 32
-#define WC1_MISSION_NAV_POINT_COUNT 20
+#define OBJECT_DATA_TURRET_GUN      11
+#define OBJECT_DATA_DART_DF        15
+#define OBJECT_DATA_JAVELIN_HS     16
+#define OBJECT_DATA_PILUM_FF       17
+#define OBJECT_DATA_SPICULUM_IR    18
+#define OBJECT_DATA_TORPEDO        19
+#define OBJECT_DATA_CHAFF_POD      20
+#define OBJECT_DATA_PORCUPINE_MINE 21
+#define OBJECT_DATA_ASTEROID1      22
+#define OBJECT_DATA_ASTEROID2      23
+#define OBJECT_DATA_ASTEROID3      24
+#define OBJECT_DATA_ASTEROID4      25
+#define OBJECT_DATA_ASTEROID5      26
+#define OBJECT_DATA_ASTEROID6      27
+#define OBJECT_DATA_ROCK_CHUNK     28
+#define OBJECT_DATA_GIRDER_CHUNK   29
+#define OBJECT_DATA_SHIP_TUBING    30
+#define OBJECT_DATA_METAL_SHEET    31
+#define OBJECT_DATA_SHIP_WING      32
+#define OBJECT_DATA_BURNING_DEBRIS 33
+#define OBJECT_DATA_O_RING         34
+#define OBJECT_DATA_PIPE           35
+#define OBJECT_DATA_EXPLOSION_SMALL  36
+#define OBJECT_DATA_EXPLOSION_MEDIUM 37
+#define OBJECT_DATA_EXPLOSION_LARGE  38
+#define OBJECT_DATA_THRUSTERS        43
+#define OBJECT_DATA_EJECTED_PILOT    44
+#define OBJECT_DATA_DEBRIS_GLASS     45
+#define OBJECT_DATA_DATA_CAPSULE     46
+#define OBJECT_DATA_SPACE_DUST       46
+#define OBJECT_DATA_DEBRIS_DUST      47
+#define MISSION_SHIP_COUNT 16
 /* update_nav_points (0x42B1AE) walks ten records with the 0x65 stride. */
-#define WC2_MISSION_NAV_POINT_COUNT 10
-#define WC2_MISSION_OBJECTIVE_COUNT 8
+#define MISSION_NAV_POINT_COUNT 10
+#define MISSION_OBJECTIVE_COUNT 8
 /* Ship objective code 5 has no WC1 counterpart; are_alive (0x429BA8) is the
  * only site that names it, so it stays a plain constant rather than a new
  * enum ShipObjective member. */
-#define WC2_SHIP_OBJECTIVE_NOT_ALIVE 5
-#define WC1_MISSION_OBJECTIVE_COUNT 16
+#define SHIP_OBJECTIVE_NOT_ALIVE 5
 
 /* --------------------------------------------------------------------------
  * Pilot record field order, from the DOS build's live memory layout
@@ -1627,4 +1617,4 @@ typedef char BarracksAnimationState_size_must_be_0x68[
  * cheat flag is set (see ReadCheaterFlagFromRegistry, 0x00442600).
  * -------------------------------------------------------------------------- */
 
-#endif /* WC1_DATA_H */
+#endif /* GAME_DATA_H */

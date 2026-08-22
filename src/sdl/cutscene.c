@@ -1,8 +1,8 @@
-#include "wc1.h"
+#include "game.h"
 
-int g_bWc2SdlCutsceneOnly;
+int g_bSdlCutsceneOnly;
 
-void Wc2SdlRunSelectedCampaignCutscene(void)
+void SdlRunSelectedCampaignCutscene(void)
 {
     short savedWingman;
     signed char savedWingmanType;
@@ -29,7 +29,7 @@ void Wc2SdlRunSelectedCampaignCutscene(void)
         savedWingmanType = g_acObjectType_00493980[1];
         savedWingmanDamage = g_asObjectDamage_00495178[1];
         g_nYourWingman_0049346c = 1;
-        g_acObjectType_00493980[1] = WC2_OBJECT_TYPE_LASER_CANNON;
+        g_acObjectType_00493980[1] = OBJECT_DATA_LASER_CANNON;
         g_asObjectDamage_00495178[1] = 0;
     }
 

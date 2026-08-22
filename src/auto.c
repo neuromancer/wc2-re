@@ -7,7 +7,7 @@
  *  exact order; the next Win32 function is a palette-file loader in another
  *  compilation unit.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x4228B0 */
 void visit_the_cinema(int view, int obj, short frames)
@@ -94,7 +94,7 @@ void auto_position(short obj, short *formationSlot)
  * above it is padding, so the value is the same and only the load width
  * differs; on the port the byte above it is the sanitizer's redzone, so read
  * the flag at its own width there. */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 #define g_nAutopilotDebugEnabled g_bAutopilotDebugEnabled_00499bfc
 #else
 #define g_nAutopilotDebugEnabled \

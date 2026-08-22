@@ -7,7 +7,7 @@
  *  functions throughout this Win32 range; port-specific split helpers remain
  *  interleaved in their original address order.
  */
-#include "wc1.h"
+#include "game.h"
 short g_bDisplayWingmanTargetData_0049347c;
 ShortPoint g_stHudMessageOrigin_0049ae90;
 
@@ -108,7 +108,7 @@ void EmitTextString(void (*writer)(int), const char *text)
 
 /* Function start: 0x420378 */
 void FormatTextTokens(void (*writer)(int),
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                       const char *format, va_list *arguments)
 #else
                       const char *format, va_list arguments)
@@ -125,7 +125,7 @@ void FormatTextTokens(void (*writer)(int),
             character = (signed char)*format++;
             switch (character) {
             case 'd':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(
                     writer,
                     _itoa((short)va_arg(*arguments, int), number, 10));
@@ -135,7 +135,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'u':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(
                     writer,
                     _ultoa((unsigned short)va_arg(*arguments, unsigned int),
@@ -147,7 +147,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'D':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(writer,
                                _ltoa(va_arg(*arguments, long), number, 10));
 #else
@@ -156,7 +156,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'U':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(
                     writer,
                     _ultoa(va_arg(*arguments, unsigned long), number, 10));
@@ -167,7 +167,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'x':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(
                     writer,
                     _strupr(_ultoa(
@@ -181,7 +181,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'c':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 writer((short)va_arg(*arguments, int));
 #else
                 writer(va_arg(arguments, short));
@@ -189,14 +189,14 @@ void FormatTextTokens(void (*writer)(int),
                 break;
             case 'S':
             case 's':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 EmitTextString(writer, va_arg(*arguments, char *));
 #else
                 EmitTextString(writer, va_arg(arguments, char *));
 #endif
                 break;
             case 'X':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 g_pCurrentTextContext_005c8d1c->cursorX =
                     (short)va_arg(*arguments, int);
 #else
@@ -205,7 +205,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'Y':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 g_pCurrentTextContext_005c8d1c->cursorY =
                     (short)va_arg(*arguments, int);
 #else
@@ -214,7 +214,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'B':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 g_pCurrentTextContext_005c8d1c->backgroundColour =
                     (unsigned char)va_arg(*arguments, int);
 #else
@@ -223,7 +223,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                 break;
             case 'F':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 g_pCurrentTextContext_005c8d1c->colour =
                     (unsigned char)va_arg(*arguments, int);
 #else
@@ -239,7 +239,7 @@ void FormatTextTokens(void (*writer)(int),
                         g_pCurrentTextContext_005c8d1c->text);
                 break;
             case 'J':
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 g_pCurrentTextContext_005c8d1c->alignment =
                     (unsigned char)va_arg(*arguments, int);
 #else
@@ -266,7 +266,7 @@ void DrawFormattedText(const char *format, ...)
     va_start(arguments, format);
     if (g_bCinematicSpriteFontEnabled_005c82a7 == 0) {
         FormatTextTokens((void (*)(int))DrawTextCharacter, format,
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                          &arguments);
 #else
                          arguments);
@@ -274,7 +274,7 @@ void DrawFormattedText(const char *format, ...)
     } else {
         FormatTextTokens((void (*)(int))DrawCinematicFontCharacter,
                          format,
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                          &arguments);
 #else
                          arguments);
@@ -296,7 +296,7 @@ void FormatTextBufferFromStart(const char *format, ...)
         g_pCurrentTextContext_005c8d1c->textCursor =
             g_pCurrentTextContext_005c8d1c->text;
         FormatTextTokens((void (*)(int))AppendTextCharacter, format,
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                          &arguments);
 #else
                          arguments);
@@ -315,7 +315,7 @@ void AppendFormattedText(const char *format, ...)
 
     va_start(arguments, format);
     FormatTextTokens((void (*)(int))AppendTextCharacter, format,
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                      &arguments);
 #else
                      arguments);
@@ -853,7 +853,7 @@ void update_bars(void)
 /* Function start: 0x439264 */
 short get_mode(short i)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* The depth starts at -1 for VDU 0, so until something calls set_mode on
      * it the original indexes one slot in front of the row and reads the last
      * component of g_vPlayerAcceleration_00493488 -- zero at mission init,
@@ -897,7 +897,7 @@ short GetVduModeStackDepth(short i)
 void push_mode(short i, int state)
 {
     ClearHudMessageSlot(&g_aHudMessageSlots_005d1d40[i]);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* WC2 pushes without bounding the stack, so a fifth mode writes past the
      * four-deep row and into whatever the linker put next.  Drop the
      * overflowing push on the port instead. */
@@ -1185,7 +1185,7 @@ void show_weapon_disp(void)
     signed char count;
 
     weaponData = g_aShipWeapons_004956b0[0];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* With no selected release weapon, retail forms a pointer ten bytes before
      * this array but does not dereference it in the name switch. */
     if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
@@ -1196,7 +1196,7 @@ void show_weapon_disp(void)
         weaponData + g_nSelectedReleaseWeaponIndex_004934e0 *
                          sizeof(ShipWeaponSlot) +
         1);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     }
 #endif
     set_new_vdu(0);
@@ -1239,7 +1239,7 @@ void show_weapon_disp(void)
         (short)(g_stLeftVduViewport_005d2180.left +
                 g_nWeaponDisplayOffsetX_0049ae8c);
     g_nWeaponDisplayOriginY_005d4256 =
-        (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
+        (short)(g_nWeaponDisplayOffsetY_0049ae8e +
                 g_stLeftVduViewport_005d2180.top);
     DrawSpriteDefault(
         &g_stLeftVduViewport_005d2180,
@@ -1266,7 +1266,7 @@ void show_weapon_disp(void)
         } else {
             frame = (short)(
                 2 -
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 ((g_nSelectedReleaseWeaponIndex_004934e0 == -1
                       ? 0
                       : ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
@@ -1327,7 +1327,7 @@ void update_status_text(void)
                 (short)(g_stLeftVduViewport_005d2180.left +
                         g_nWeaponDisplayOffsetX_0049ae8c);
             g_nWeaponDisplayOriginY_005d4256 =
-                (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
+                (short)(g_nWeaponDisplayOffsetY_0049ae8e +
                         g_stLeftVduViewport_005d2180.top);
             x = g_aWeaponDisplayPositions_005d1de0[index].x;
             y = g_aWeaponDisplayPositions_005d1de0[index].y;
@@ -2039,7 +2039,7 @@ void draw_3d_scanner(void)
     if ((g_nScannerTargetObject_0049b07c != -1 &&
          g_aeObjectClass_00495328[g_nScannerTargetObject_0049b07c] <
              OBJECT_CLASS_SHIP) ||
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* With no target the first test is false and the original reads the
          * cloak state at index -1, four bytes in front of the array.  The
          * outcome is the same either way: the target is already -1. */
@@ -2056,10 +2056,10 @@ void draw_3d_scanner(void)
         if (g_anShipCloakState_00496020[object] != 1 &&
             get_color(object, (unsigned short *)&colour) != 0) {
             ComputeVectorDelta(
-                &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                &g_aShipPosition_00494550[EYE_OBJECT],
                 &g_aShipPosition_00494550[object], &relative);
             transform_to_objects_frame(
-                &relative, &rotated, WC2_EYE_OBJECT);
+                &relative, &rotated, EYE_OBJECT);
             rectangular_to_spherical(&rotated, &spherical);
             if (spherical.radius < 0xea6000) {
                 AdjustScannerContactColourForRange(
@@ -2106,10 +2106,10 @@ void draw_3d_scanner(void)
         get_color(g_nScannerTargetObject_0049b07c,
                   (unsigned short *)&colour) != 0) {
         ComputeVectorDelta(
-            &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+            &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[object], &relative);
         transform_to_objects_frame(
-            &relative, &rotated, WC2_EYE_OBJECT);
+            &relative, &rotated, EYE_OBJECT);
         rectangular_to_spherical(&rotated, &spherical);
         if (spherical.radius < 0xea6000)
             AdjustScannerContactColourForRange(
@@ -2193,7 +2193,7 @@ void lock_off(void)
 {
     if (g_nTargetLockCountdown_004934ec > -1) {
         g_bTargetLockReadoutDirty_004934e8 = 1;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* -1 is the no-weapon-selected sentinel, and the original indexes the
          * slot array with it anyway -- nine bytes before the array, into the
          * ion-drive damage table, where nothing is going to read as a
@@ -2244,7 +2244,7 @@ short decrement_lock_time(short screenX)
             } else if (((ShipWeaponSlot *)(
                            g_aShipWeapons_004956b0[0] + 1))[
                            g_nSelectedReleaseWeaponIndex_004934e0]
-                               .type != WC2_OBJECT_TYPE_TORPEDO) {
+                               .type != OBJECT_DATA_TORPEDO) {
                 PlaySfxWaveFileByNumber(0x15, -1, 0);
             }
         }
@@ -2256,7 +2256,7 @@ short decrement_lock_time(short screenX)
 /* Function start: 0x43C048 */
 void target_locking(signed char target)
 {
-    enum Wc2ReleaseWeaponObjectType weaponType;
+    enum ReleaseWeaponObjectType weaponType;
     short x;
     short y;
 
@@ -2281,7 +2281,7 @@ void target_locking(signed char target)
         lock_off();
         return;
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* With no release weapon selected the original indexes the slot array
      * with -1, nine bytes in front of it, and switches on whatever the
      * ion-drive damage table happens to hold.  That is never a missile type,
@@ -2291,11 +2291,11 @@ void target_locking(signed char target)
         return;
     }
 #endif
-    weaponType = (enum Wc2ReleaseWeaponObjectType)((ShipWeaponSlot *)(
+    weaponType = (enum ReleaseWeaponObjectType)((ShipWeaponSlot *)(
         g_aShipWeapons_004956b0[0] + 1))[
             g_nSelectedReleaseWeaponIndex_004934e0].type;
     switch (weaponType) {
-    case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
+    case OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE:
         get_facing_range_from_object(0, (short)target);
         if (g_nTargetFacing_00493198 > -0x41 ||
             CanShipWeaponDamageTarget(0, (short)target) == 0) {
@@ -2305,7 +2305,7 @@ void target_locking(signed char target)
         if (starting_lock(0x0c) == 0)
             decrement_lock_time(x);
         break;
-    case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+    case OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE:
         if (CanShipWeaponDamageTarget(0, (short)target) == 0) {
             lock_off();
             break;
@@ -2313,7 +2313,7 @@ void target_locking(signed char target)
         if (starting_lock(0x16) == 0)
             decrement_lock_time(x);
         break;
-    case WC2_OBJECT_TYPE_TORPEDO:
+    case OBJECT_DATA_TORPEDO:
         if (IsCapitalShipObject((short)target) == 0) {
             lock_off();
             break;
@@ -2665,14 +2665,14 @@ void draw_nav_pointer(void)
     }
     objectivePosition = g_aMissionObjectives_004932a8[
         (signed char)g_cCurrentObjective_004931cc].position;
-    ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+    ComputeVectorDelta(&g_aShipPosition_00494550[EYE_OBJECT],
                        &objectivePosition, &direction);
     distance = Vector_magnitude(&direction);
-    if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 <
+    if (g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100 <
         distance) {
         transform_to_objects_frame(&direction, &viewPosition,
-                                   WC2_EYE_OBJECT);
-        if (g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100 <=
+                                   EYE_OBJECT);
+        if (g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100 <=
             viewPosition.z) {
             if (DivideFixed(viewPosition.z, distance) >= 0) {
                 scale = ((short)g_nScreenWidth_0049d4d8 & ~1) << 7;
@@ -2806,9 +2806,9 @@ void UpdateTargetLeadIndicator(void)
         &g_aShipPosition_00494550[0], &interceptPoint, &relative);
     targetDistance = Vector_magnitude(&relative);
     if ((int)g_asObjectCollisionRadius_004950e8[
-            WC2_EYE_OBJECT] * 0x100 < targetDistance) {
+            EYE_OBJECT] * 0x100 < targetDistance) {
         transform_to_objects_frame(
-            &relative, &eyeRelative, WC2_EYE_OBJECT);
+            &relative, &eyeRelative, EYE_OBJECT);
         if ((int)g_asObjectCollisionRadius_004950e8[0] * 0x100 <=
                 eyeRelative.z &&
             DivideFixed(eyeRelative.z, targetDistance) >= 0) {
@@ -3712,8 +3712,8 @@ void place_damage_on_cockpit(short damage)
  * unchecked side-table load then treats the last two bytes of
  * g_acShipLastAttacker_004955c0 as a signed word.  Reassemble that
  * layout-derived value without crossing a native global's sanitizer redzone. */
-#ifdef WC1_SDL
-#define WC1_COMM_SPEAKER_SIDE(obj) \
+#ifdef SDL_PORT
+#define COMM_SPEAKER_SIDE(obj) \
     ((obj) != -1 \
          ? g_asShipSide_004955d0[obj] \
          : (short)((unsigned short)(unsigned char) \
@@ -3721,7 +3721,7 @@ void place_damage_on_cockpit(short damage)
                    ((unsigned short)(unsigned char) \
                         g_acShipLastAttacker_004955c0[15] << 8)))
 #else
-#define WC1_COMM_SPEAKER_SIDE(obj) g_asShipSide_004955d0[obj]
+#define COMM_SPEAKER_SIDE(obj) g_asShipSide_004955d0[obj]
 #endif
 
 /* Function start: 0x43ECD9 */
@@ -3761,7 +3761,7 @@ void vid_transmit(void)
             g_nCommDeathSequenceFrame_0049ae84 = 0;
         }
     } else if (g_bCommSpeechPlaying_0049b7a0 == 0 &&
-               WC1_COMM_SPEAKER_SIDE(g_nCommSpeakerObject_0049b794) ==
+               COMM_SPEAKER_SIDE(g_nCommSpeakerObject_0049b794) ==
                    SIDE_NEUTRAL) {
         EndCommMenu();
     } else if (((g_nRenderedSpaceFrame_00493138 % 2 != 0 &&

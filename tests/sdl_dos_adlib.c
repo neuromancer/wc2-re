@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,20 +135,20 @@ static int CheckSyntheticSong(void)
     };
     unsigned char timbres[49];
     short samples[512 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     unsigned int frame;
     unsigned int index;
     int heardOutput;
 
     BuildTestTimbre(timbres);
-    player = Wc1SdlCreateOriginFxPlayer(
+    player = SdlCreateOriginFxPlayer(
         midi, sizeof(midi), timbres, sizeof(timbres));
     if (player == 0)
         return 0;
     frame = 0;
     heardOutput = 0;
     while (frame < 12000) {
-        Wc1SdlRenderOriginFxPlayer(player, samples, 512, 0x7fff);
+        SdlRenderOriginFxPlayer(player, samples, 512, 0x7fff);
         index = 0;
         while (index < sizeof(samples) / sizeof(samples[0])) {
             if (samples[index] != 0)
@@ -157,9 +157,9 @@ static int CheckSyntheticSong(void)
         }
         frame += 512;
     }
-    if (!Wc1SdlOriginFxPlayerFinished(player))
+    if (!SdlOriginFxPlayerFinished(player))
         heardOutput = 0;
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlDestroyOriginFxPlayer(player);
     return heardOutput;
 }
 
@@ -168,7 +168,7 @@ static int CheckSyntheticSoundEffects(void)
     unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
     unsigned char timbres[49];
     short samples[4096 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     unsigned int frame;
     unsigned int effect;
     int heardOutput;
@@ -176,17 +176,17 @@ static int CheckSyntheticSoundEffects(void)
 
     BuildTestSoundRecords(records);
     BuildTestTimbre(timbres);
-    player = Wc1SdlCreateOriginFxSoundPlayer(
+    player = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (player == 0)
         return 0;
     result =
-        !Wc1SdlPlayOriginFxSoundEffect(player, 0, 127, 64, 1, 0) &&
-        !Wc1SdlPlayOriginFxSoundEffect(
+        !SdlPlayOriginFxSoundEffect(player, 0, 127, 64, 1, 0) &&
+        !SdlPlayOriginFxSoundEffect(
             player, TEST_SOUND_RECORD_COUNT + 1, 127, 64, 1, 0) &&
-        Wc1SdlPlayOriginFxSoundEffect(player, 1, 127, 64, 1, 0);
+        SdlPlayOriginFxSoundEffect(player, 1, 127, 64, 1, 0);
     memset(samples, 0, sizeof(samples));
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         player, samples, 4096, 0x7fff);
     heardOutput = 0;
     frame = 0;
@@ -198,22 +198,22 @@ static int CheckSyntheticSoundEffects(void)
         frame++;
     }
 
-    Wc1SdlStopOriginFxSoundEffects(player);
+    SdlStopOriginFxSoundEffects(player);
     effect = 0;
     while (effect < 8) {
-        if (!Wc1SdlPlayOriginFxSoundEffect(
+        if (!SdlPlayOriginFxSoundEffect(
                 player, 1, 127, 64, (int)effect, 10))
             result = 0;
         effect++;
     }
-    if (Wc1SdlPlayOriginFxSoundEffect(
+    if (SdlPlayOriginFxSoundEffect(
             player, 1, 127, 64, 100, 9))
         result = 0;
-    if (!Wc1SdlPlayOriginFxSoundEffect(
+    if (!SdlPlayOriginFxSoundEffect(
             player, 1, 127, 64, 0, 0))
         result = 0;
-    Wc1SdlStopOriginFxSoundEffects(player);
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlStopOriginFxSoundEffects(player);
+    SdlDestroyOriginFxPlayer(player);
     return result && heardOutput;
 }
 
@@ -224,9 +224,9 @@ static int CheckSyntheticSoundEffectPanning(void)
     short leftSamples[4096 * 2];
     short centreSamples[4096 * 2];
     short rightSamples[4096 * 2];
-    Wc1SdlOriginFxPlayer *leftPlayer;
-    Wc1SdlOriginFxPlayer *centrePlayer;
-    Wc1SdlOriginFxPlayer *rightPlayer;
+    SdlOriginFxPlayer *leftPlayer;
+    SdlOriginFxPlayer *centrePlayer;
+    SdlOriginFxPlayer *rightPlayer;
     unsigned long long leftEnergy;
     unsigned long long leftLeakage;
     unsigned long long centreLeftEnergy;
@@ -240,32 +240,32 @@ static int CheckSyntheticSoundEffectPanning(void)
     /* Exercise an additive timbre whose modulator has fixed volume. */
     timbres[1 + 10] = 1;
     timbres[1 + 13] = 0;
-    leftPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+    leftPlayer = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
-    centrePlayer = Wc1SdlCreateOriginFxSoundPlayer(
+    centrePlayer = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
-    rightPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+    rightPlayer = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (leftPlayer == 0 || centrePlayer == 0 || rightPlayer == 0) {
-        Wc1SdlDestroyOriginFxPlayer(leftPlayer);
-        Wc1SdlDestroyOriginFxPlayer(centrePlayer);
-        Wc1SdlDestroyOriginFxPlayer(rightPlayer);
+        SdlDestroyOriginFxPlayer(leftPlayer);
+        SdlDestroyOriginFxPlayer(centrePlayer);
+        SdlDestroyOriginFxPlayer(rightPlayer);
         return 0;
     }
-    result = Wc1SdlPlayOriginFxSoundEffect(
+    result = SdlPlayOriginFxSoundEffect(
         leftPlayer, 1, 127, 0, 1, 0) &&
-        Wc1SdlPlayOriginFxSoundEffect(
+        SdlPlayOriginFxSoundEffect(
             centrePlayer, 1, 127, 64, 1, 0) &&
-        Wc1SdlPlayOriginFxSoundEffect(
+        SdlPlayOriginFxSoundEffect(
             rightPlayer, 1, 127, 127, 1, 0);
     memset(leftSamples, 0, sizeof(leftSamples));
     memset(centreSamples, 0, sizeof(centreSamples));
     memset(rightSamples, 0, sizeof(rightSamples));
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         leftPlayer, leftSamples, 4096, 0x7fff);
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         centrePlayer, centreSamples, 4096, 0x7fff);
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         rightPlayer, rightSamples, 4096, 0x7fff);
     leftEnergy = SumAbsoluteChannel(leftSamples, 0, 4096, 0);
     leftLeakage = SumAbsoluteChannel(leftSamples, 0, 4096, 1);
@@ -273,9 +273,9 @@ static int CheckSyntheticSoundEffectPanning(void)
     centreRightEnergy = SumAbsoluteChannel(centreSamples, 0, 4096, 1);
     rightLeakage = SumAbsoluteChannel(rightSamples, 0, 4096, 0);
     rightEnergy = SumAbsoluteChannel(rightSamples, 0, 4096, 1);
-    Wc1SdlDestroyOriginFxPlayer(leftPlayer);
-    Wc1SdlDestroyOriginFxPlayer(centrePlayer);
-    Wc1SdlDestroyOriginFxPlayer(rightPlayer);
+    SdlDestroyOriginFxPlayer(leftPlayer);
+    SdlDestroyOriginFxPlayer(centrePlayer);
+    SdlDestroyOriginFxPlayer(rightPlayer);
     return result && leftEnergy != 0 && rightEnergy != 0 &&
         centreLeftEnergy != 0 && centreLeftEnergy == centreRightEnergy &&
         leftLeakage * 16 < leftEnergy &&
@@ -287,7 +287,7 @@ static int CheckHeldSoundEffectFlush(void)
     unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
     unsigned char timbres[1 + TEST_HELD_SOUND_NUMBER * 48];
     short samples[1024 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     unsigned long long activeEnergy;
     unsigned long long flushedEnergy;
     unsigned int elapsed;
@@ -299,34 +299,34 @@ static int CheckHeldSoundEffectFlush(void)
     BuildAudibleTimbre(
         timbres + 1 + (TEST_HELD_SOUND_NUMBER - 1) * 48,
         TEST_HELD_SOUND_NUMBER - 1);
-    player = Wc1SdlCreateOriginFxSoundPlayer(
+    player = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (player == 0)
         return 0;
-    result = Wc1SdlPlayOriginFxSoundEffect(
+    result = SdlPlayOriginFxSoundEffect(
         player, TEST_HELD_SOUND_NUMBER, 127, 64, -1, 0);
     activeEnergy = 0;
     elapsed = 0;
     while (elapsed < 44100 && result) {
         memset(samples, 0, sizeof(samples));
-        Wc1SdlMixOriginFxSoundEffects(
+        SdlMixOriginFxSoundEffects(
             player, samples, 1024, 0x7fff);
         elapsed += 1024;
         if (elapsed >= 44100)
             activeEnergy = SumAbsoluteSamples(samples, 0, 1024);
     }
-    Wc1SdlStopOriginFxSoundEffects(player);
+    SdlStopOriginFxSoundEffects(player);
     flushedEnergy = 0;
     elapsed = 0;
     while (elapsed < 44100 && result) {
         memset(samples, 0, sizeof(samples));
-        Wc1SdlMixOriginFxSoundEffects(
+        SdlMixOriginFxSoundEffects(
             player, samples, 1024, 0x7fff);
         elapsed += 1024;
         if (elapsed >= 44100)
             flushedEnergy = SumAbsoluteSamples(samples, 0, 1024);
     }
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlDestroyOriginFxPlayer(player);
     return result && activeEnergy != 0 &&
         flushedEnergy * 100 < activeEnergy;
 }
@@ -337,7 +337,7 @@ static int CheckInvalidInputs(void)
     unsigned char timbres[49];
 
     BuildTestTimbre(timbres);
-    return Wc1SdlCreateOriginFxPlayer(
+    return SdlCreateOriginFxPlayer(
         invalidMidi, sizeof(invalidMidi), timbres, sizeof(timbres)) == 0;
 }
 
@@ -367,8 +367,8 @@ static int CheckOriginalPercussionMapping(void)
     unsigned char timbres[97];
     short percussionSamples[12000 * 2];
     short melodicSamples[12000 * 2];
-    Wc1SdlOriginFxPlayer *percussionPlayer;
-    Wc1SdlOriginFxPlayer *melodicPlayer;
+    SdlOriginFxPlayer *percussionPlayer;
+    SdlOriginFxPlayer *melodicPlayer;
     unsigned int sampleIndex;
     int heardOutput;
     int result;
@@ -377,18 +377,18 @@ static int CheckOriginalPercussionMapping(void)
     timbres[0] = 2;
     BuildAudibleTimbre(timbres + 1, 2);
     BuildAudibleTimbre(timbres + 49, 0x72);
-    percussionPlayer = Wc1SdlCreateOriginFxPlayer(
+    percussionPlayer = SdlCreateOriginFxPlayer(
         percussionMidi, sizeof(percussionMidi), timbres, sizeof(timbres));
-    melodicPlayer = Wc1SdlCreateOriginFxPlayer(
+    melodicPlayer = SdlCreateOriginFxPlayer(
         melodicMidi, sizeof(melodicMidi), timbres, sizeof(timbres));
     if (percussionPlayer == 0 || melodicPlayer == 0) {
-        Wc1SdlDestroyOriginFxPlayer(percussionPlayer);
-        Wc1SdlDestroyOriginFxPlayer(melodicPlayer);
+        SdlDestroyOriginFxPlayer(percussionPlayer);
+        SdlDestroyOriginFxPlayer(melodicPlayer);
         return 0;
     }
-    Wc1SdlRenderOriginFxPlayer(
+    SdlRenderOriginFxPlayer(
         percussionPlayer, percussionSamples, 12000, 0x7fff);
-    Wc1SdlRenderOriginFxPlayer(
+    SdlRenderOriginFxPlayer(
         melodicPlayer, melodicSamples, 12000, 0x7fff);
     result = memcmp(
         percussionSamples, melodicSamples,
@@ -401,8 +401,8 @@ static int CheckOriginalPercussionMapping(void)
             heardOutput = 1;
         sampleIndex++;
     }
-    Wc1SdlDestroyOriginFxPlayer(percussionPlayer);
-    Wc1SdlDestroyOriginFxPlayer(melodicPlayer);
+    SdlDestroyOriginFxPlayer(percussionPlayer);
+    SdlDestroyOriginFxPlayer(melodicPlayer);
     return result && heardOutput;
 }
 
@@ -423,8 +423,8 @@ static int CheckOriginalPitchModulation(void)
     unsigned char modulatedTimbres[49];
     short plainSamples[4096 * 2];
     short modulatedSamples[4096 * 2];
-    Wc1SdlOriginFxPlayer *plainPlayer;
-    Wc1SdlOriginFxPlayer *modulatedPlayer;
+    SdlOriginFxPlayer *plainPlayer;
+    SdlOriginFxPlayer *modulatedPlayer;
     unsigned int sampleIndex;
     int heardPlain;
     int heardModulated;
@@ -436,18 +436,18 @@ static int CheckOriginalPitchModulation(void)
      * resulting pitch modulation in its 60 Hz service routine. */
     modulatedTimbres[1 + 16] = 20;
     modulatedTimbres[1 + 17] = 10;
-    plainPlayer = Wc1SdlCreateOriginFxPlayer(
+    plainPlayer = SdlCreateOriginFxPlayer(
         midi, sizeof(midi), plainTimbres, sizeof(plainTimbres));
-    modulatedPlayer = Wc1SdlCreateOriginFxPlayer(
+    modulatedPlayer = SdlCreateOriginFxPlayer(
         midi, sizeof(midi), modulatedTimbres, sizeof(modulatedTimbres));
     if (plainPlayer == 0 || modulatedPlayer == 0) {
-        Wc1SdlDestroyOriginFxPlayer(plainPlayer);
-        Wc1SdlDestroyOriginFxPlayer(modulatedPlayer);
+        SdlDestroyOriginFxPlayer(plainPlayer);
+        SdlDestroyOriginFxPlayer(modulatedPlayer);
         return 0;
     }
-    Wc1SdlRenderOriginFxPlayer(
+    SdlRenderOriginFxPlayer(
         plainPlayer, plainSamples, 4096, 0x7fff);
-    Wc1SdlRenderOriginFxPlayer(
+    SdlRenderOriginFxPlayer(
         modulatedPlayer, modulatedSamples, 4096, 0x7fff);
     result = memcmp(
         plainSamples, modulatedSamples, sizeof(plainSamples)) != 0;
@@ -461,8 +461,8 @@ static int CheckOriginalPitchModulation(void)
             heardModulated = 1;
         sampleIndex++;
     }
-    Wc1SdlDestroyOriginFxPlayer(plainPlayer);
-    Wc1SdlDestroyOriginFxPlayer(modulatedPlayer);
+    SdlDestroyOriginFxPlayer(plainPlayer);
+    SdlDestroyOriginFxPlayer(modulatedPlayer);
     return result && heardPlain && heardModulated;
 }
 
@@ -481,7 +481,7 @@ static int CheckOriginalPitchEnvelope(void)
     };
     unsigned char timbres[49];
     short samples[14000 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     unsigned int earlyCrossings;
     unsigned int lateCrossings;
 
@@ -493,15 +493,15 @@ static int CheckOriginalPitchEnvelope(void)
     timbres[1 + 21] = 0;
     timbres[1 + 22] = 0;
     timbres[1 + 23] = 0xf0;
-    player = Wc1SdlCreateOriginFxPlayer(
+    player = SdlCreateOriginFxPlayer(
         midi, sizeof(midi), timbres, sizeof(timbres));
     if (player == 0)
         return 0;
-    Wc1SdlRenderOriginFxPlayer(
+    SdlRenderOriginFxPlayer(
         player, samples, 14000, 0x7fff);
     earlyCrossings = CountMidpointCrossings(samples, 1000, 2000);
     lateCrossings = CountMidpointCrossings(samples, 10000, 2000);
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlDestroyOriginFxPlayer(player);
     return earlyCrossings > 10 && lateCrossings > 10 &&
         lateCrossings * 4 < earlyCrossings * 3;
 }
@@ -513,8 +513,8 @@ static int CheckOriginalRhythmRelease(void)
     short recoveredSamples[1024 * 2];
     short rhythmSamples[1024 * 2];
     short discardedSamples[4096 * 2];
-    Wc1SdlOriginFxPlayer *recoveredPlayer;
-    Wc1SdlOriginFxPlayer *rhythmPlayer;
+    SdlOriginFxPlayer *recoveredPlayer;
+    SdlOriginFxPlayer *rhythmPlayer;
     unsigned long long recoveredEnergy;
     unsigned long long rhythmEnergy;
     unsigned int effect;
@@ -530,23 +530,23 @@ static int CheckOriginalRhythmRelease(void)
     timbres[49 + 1] = 0x3f;
     timbres[49 + 6] = 0x3f;
     timbres[49 + 11] = 6;
-    recoveredPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+    recoveredPlayer = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
-    rhythmPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+    rhythmPlayer = SdlCreateOriginFxSoundPlayer(
         records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
     if (recoveredPlayer == 0 || rhythmPlayer == 0) {
-        Wc1SdlDestroyOriginFxPlayer(recoveredPlayer);
-        Wc1SdlDestroyOriginFxPlayer(rhythmPlayer);
+        SdlDestroyOriginFxPlayer(recoveredPlayer);
+        SdlDestroyOriginFxPlayer(rhythmPlayer);
         return 0;
     }
 
-    result = Wc1SdlPlayOriginFxSoundEffect(
+    result = SdlPlayOriginFxSoundEffect(
         recoveredPlayer, 23, 127, 64, 100, 0);
     memset(discardedSamples, 0, sizeof(discardedSamples));
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         recoveredPlayer, discardedSamples, 4096, 0x1000);
 
-    result = result && Wc1SdlPlayOriginFxSoundEffect(
+    result = result && SdlPlayOriginFxSoundEffect(
         rhythmPlayer, 23, 127, 64, 100, 0);
     elapsed = 0;
     while (elapsed < 4096 && result) {
@@ -555,40 +555,40 @@ static int CheckOriginalRhythmRelease(void)
             frameCount = 1000;
         memset(discardedSamples, 0,
                (size_t)frameCount * sizeof(short) * 2);
-        Wc1SdlMixOriginFxSoundEffects(
+        SdlMixOriginFxSoundEffects(
             rhythmPlayer, discardedSamples, frameCount, 0x1000);
         elapsed += frameCount;
         if (elapsed < 4096)
-            result = Wc1SdlPlayOriginFxSoundEffect(
+            result = SdlPlayOriginFxSoundEffect(
                 rhythmPlayer, 23, 127, 64, 100, 0);
     }
 
     effect = 0;
     while (effect < 8 && result) {
-        result = Wc1SdlPlayOriginFxSoundEffect(
+        result = SdlPlayOriginFxSoundEffect(
             recoveredPlayer, 1, 127, 64, (int)effect, 0);
         effect++;
     }
     effect = 0;
     while (effect < 6 && result) {
-        result = Wc1SdlPlayOriginFxSoundEffect(
+        result = SdlPlayOriginFxSoundEffect(
             rhythmPlayer, 1, 127, 64, (int)effect, 0);
         effect++;
     }
     memset(recoveredSamples, 0, sizeof(recoveredSamples));
     memset(rhythmSamples, 0, sizeof(rhythmSamples));
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         recoveredPlayer, recoveredSamples, 1024, 0x1000);
-    Wc1SdlMixOriginFxSoundEffects(
+    SdlMixOriginFxSoundEffects(
         rhythmPlayer, rhythmSamples, 1024, 0x1000);
     recoveredEnergy = SumAbsoluteSamples(
         recoveredSamples, 128, 896);
     rhythmEnergy = SumAbsoluteSamples(
         rhythmSamples, 128, 896);
-    Wc1SdlStopOriginFxSoundEffects(recoveredPlayer);
-    Wc1SdlStopOriginFxSoundEffects(rhythmPlayer);
-    Wc1SdlDestroyOriginFxPlayer(recoveredPlayer);
-    Wc1SdlDestroyOriginFxPlayer(rhythmPlayer);
+    SdlStopOriginFxSoundEffects(recoveredPlayer);
+    SdlStopOriginFxSoundEffects(rhythmPlayer);
+    SdlDestroyOriginFxPlayer(recoveredPlayer);
+    SdlDestroyOriginFxPlayer(rhythmPlayer);
     return result && recoveredEnergy != 0 && rhythmEnergy != 0 &&
         recoveredEnergy * 100 > rhythmEnergy * 115;
 }
@@ -598,7 +598,7 @@ static int CheckRetailDosSoundEffects(void)
     unsigned char *timbreArchive;
     unsigned char *timbres;
     short samples[512 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     size_t timbreArchiveSize;
     size_t timbreSize;
     unsigned int recordCount;
@@ -612,7 +612,7 @@ static int CheckRetailDosSoundEffects(void)
     if (timbreArchive == 0)
         return 1;
     timbres = 0;
-    result = Wc1SdlExtractOriginPacketSection(
+    result = SdlExtractOriginPacketSection(
         timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize);
     SDL_free(timbreArchive);
     if (!result)
@@ -620,7 +620,7 @@ static int CheckRetailDosSoundEffects(void)
     /* The retail records the flight code plays, against the retail bank. */
     recordCount = (unsigned int)(
         sizeof(g_abSoundEffectDefinitions_0049bf18) / TEST_SOUND_RECORD_SIZE);
-    player = Wc1SdlCreateOriginFxSoundPlayer(
+    player = SdlCreateOriginFxSoundPlayer(
         g_abSoundEffectDefinitions_0049bf18, recordCount,
         timbres, timbreSize);
     free(timbres);
@@ -628,12 +628,12 @@ static int CheckRetailDosSoundEffects(void)
         return 0;
     soundNumber = 1;
     while (soundNumber <= recordCount && result) {
-        Wc1SdlStopOriginFxSoundEffects(player);
-        result = Wc1SdlPlayOriginFxSoundEffect(
+        SdlStopOriginFxSoundEffects(player);
+        result = SdlPlayOriginFxSoundEffect(
             player, soundNumber, 127, 64,
             (int)soundNumber, 0);
         memset(samples, 0, sizeof(samples));
-        Wc1SdlMixOriginFxSoundEffects(
+        SdlMixOriginFxSoundEffects(
             player, samples, 512, 0x7fff);
         heardOutput = 0;
         sampleIndex = 0;
@@ -646,8 +646,8 @@ static int CheckRetailDosSoundEffects(void)
             result = 0;
         soundNumber++;
     }
-    Wc1SdlStopOriginFxSoundEffects(player);
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlStopOriginFxSoundEffects(player);
+    SdlDestroyOriginFxPlayer(player);
     return result;
 }
 
@@ -658,7 +658,7 @@ static int CheckRetailDosSongs(void)
     unsigned char *timbres;
     unsigned char *midi;
     short samples[1024 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     size_t musicArchiveSize;
     size_t timbreArchiveSize;
     size_t timbreSize;
@@ -682,19 +682,19 @@ static int CheckRetailDosSongs(void)
     }
 
     timbres = 0;
-    result = Wc1SdlExtractOriginPacketSection(
+    result = SdlExtractOriginPacketSection(
         timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize);
     sequenceCount = 0;
     track = 0;
     while (result && track < TEST_DOS_MUSIC_SECTION_COUNT) {
         midi = 0;
         /* An empty section is a track the AdLib set never recorded. */
-        if (!Wc1SdlExtractOriginPacketSection(
+        if (!SdlExtractOriginPacketSection(
                 musicArchive, musicArchiveSize, track, &midi, &midiSize)) {
             track++;
             continue;
         }
-        player = Wc1SdlCreateOriginFxPlayer(
+        player = SdlCreateOriginFxPlayer(
             midi, midiSize, timbres, timbreSize);
         free(midi);
         if (player == 0) {
@@ -708,12 +708,12 @@ static int CheckRetailDosSongs(void)
         heardOutput = 0;
         while (block < TEST_DOS_MUSIC_AUDIBLE_BLOCKS && !heardOutput) {
             memset(samples, 0, sizeof(samples));
-            Wc1SdlRenderOriginFxPlayer(
+            SdlRenderOriginFxPlayer(
                 player, samples, 1024, 0x7fff);
             heardOutput = SumAbsoluteSamples(samples, 0, 1024) != 0;
             block++;
         }
-        Wc1SdlDestroyOriginFxPlayer(player);
+        SdlDestroyOriginFxPlayer(player);
         if (!heardOutput) {
             fprintf(stderr, "DOS music track %u is silent\n", track);
             result = 0;
@@ -728,7 +728,7 @@ static int CheckRetailDosSongs(void)
         result = 0;
     }
     midi = 0;
-    if (result && Wc1SdlExtractOriginPacketSection(
+    if (result && SdlExtractOriginPacketSection(
             musicArchive, musicArchiveSize, TEST_DOS_MUSIC_SECTION_COUNT,
             &midi, &midiSize)) {
         free(midi);
@@ -747,7 +747,7 @@ static int CheckRetailTitleMusicMarkers(void)
     unsigned char *timbres;
     unsigned char *midi;
     short samples[1024 * 2];
-    Wc1SdlOriginFxPlayer *player;
+    SdlOriginFxPlayer *player;
     size_t musicArchiveSize;
     size_t timbreArchiveSize;
     size_t timbreSize;
@@ -772,9 +772,9 @@ static int CheckRetailTitleMusicMarkers(void)
 
     timbres = 0;
     midi = 0;
-    result = Wc1SdlExtractOriginPacketSection(
+    result = SdlExtractOriginPacketSection(
         timbreArchive, timbreArchiveSize, 1, &timbres, &timbreSize) &&
-        Wc1SdlExtractOriginPacketSection(
+        SdlExtractOriginPacketSection(
             musicArchive, musicArchiveSize, 19, &midi, &midiSize);
     SDL_free(musicArchive);
     SDL_free(timbreArchive);
@@ -783,7 +783,7 @@ static int CheckRetailTitleMusicMarkers(void)
         free(midi);
         return 0;
     }
-    player = Wc1SdlCreateOriginFxPlayer(
+    player = SdlCreateOriginFxPlayer(
         midi, midiSize, timbres, timbreSize);
     free(timbres);
     free(midi);
@@ -794,19 +794,19 @@ static int CheckRetailTitleMusicMarkers(void)
     previousPosition = 0;
     heardOutput = 0;
     while (block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
-           !Wc1SdlOriginFxPlayerFinished(player)) {
-        Wc1SdlRenderOriginFxPlayer(player, samples, 1024, 0x7fff);
+           !SdlOriginFxPlayerFinished(player)) {
+        SdlRenderOriginFxPlayer(player, samples, 1024, 0x7fff);
         if (SumAbsoluteSamples(samples, 0, 1024) != 0)
             heardOutput = 1;
-        position = Wc1SdlOriginFxPlayerSequencePosition(player);
+        position = SdlOriginFxPlayerSequencePosition(player);
         if (position < previousPosition)
             result = 0;
         previousPosition = position;
         block++;
     }
-    result = result && Wc1SdlOriginFxPlayerFinished(player) &&
+    result = result && SdlOriginFxPlayerFinished(player) &&
         previousPosition >= 5 && heardOutput;
-    Wc1SdlDestroyOriginFxPlayer(player);
+    SdlDestroyOriginFxPlayer(player);
     return result;
 }
 

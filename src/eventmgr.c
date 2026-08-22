@@ -5,7 +5,7 @@
  *  The FM Towns executable preserves the original source name
  *  "source\\eventmgr.c" for this unit.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x462625 */
 void TranslatePolledInputEvent(unsigned int type, unsigned int value)
@@ -715,7 +715,7 @@ void TimerResetHook(void)
 }
 
 /* Function start: 0x46417A */
-Wc2DwordPtr IdentityDword(Wc2DwordPtr value)
+DwordPtr IdentityDword(DwordPtr value)
 {
     return value;
 }
@@ -796,7 +796,7 @@ void BuildObjectDepthOrder(void)
     nextObject = farthestObject;
     memset(g_anObjectDepthPlaced_005c8180, 0,
            sizeof(g_anObjectDepthPlaced_005c8180));
-    for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
+    for (object = 0; object < SPACE_OBJECT_COUNT; object++) {
         if (maximumDistance <
             (int)(unsigned short)g_asObjectDistance_00493ae8[object]) {
             maximumDistance =
@@ -806,14 +806,14 @@ void BuildObjectDepthOrder(void)
     }
     sortedIndex = 0;
     nextObject = farthestObject;
-    for (object = 0; object < WC2_SPACE_OBJECT_COUNT; object++) {
+    for (object = 0; object < SPACE_OBJECT_COUNT; object++) {
         g_anSortedObject_005c82c0[sortedIndex] = nextObject;
         if (nextObject == -1)
             return;
         g_anObjectDepthPlaced_005c8180[nextObject] = 1;
         nextDistance = -1;
         nextObject = nextDistance;
-        for (candidate = 0; candidate < WC2_SPACE_OBJECT_COUNT;
+        for (candidate = 0; candidate < SPACE_OBJECT_COUNT;
              candidate++) {
             if (g_anObjectDepthPlaced_005c8180[candidate] == 0 &&
                 g_asObjectScreenX_00493598[candidate] != (short)0x8001 &&
@@ -838,14 +838,14 @@ void draw_sorted_objects_to_buffer(void)
     int obj;
     int objectClass;
     int sortedIndex;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     float enhancedScreenX;
     float enhancedScreenY;
     short projectedScreenX;
     short projectedScreenY;
 #endif
 
-    for (sortedIndex = 0; sortedIndex < WC2_SPACE_OBJECT_COUNT;
+    for (sortedIndex = 0; sortedIndex < SPACE_OBJECT_COUNT;
          sortedIndex++) {
         obj = g_anSortedObject_005c82c0[sortedIndex];
         if (obj < 0)
@@ -853,7 +853,7 @@ void draw_sorted_objects_to_buffer(void)
         if (g_asObjectType_00495298[obj] < 0)
             return;
         objectClass = g_aeObjectClass_00495328[obj];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* The enhanced backend records each sprite at a sub-pixel position
          * instead of stamping it into the indexed buffer.  Redo the
          * perspective divide in double precision, and only trust the result
@@ -893,15 +893,15 @@ void draw_sorted_objects_to_buffer(void)
             }
         } else if (objectClass == OBJECT_CLASS_FIXED_OBJECT &&
                    g_asObjectType_00495298[obj] ==
-                       WC2_OBJECT_TYPE_THRUSTERS) {
-            Wc1SdlGetThrusterScreenPosition(
+                       OBJECT_DATA_THRUSTERS) {
+            SdlGetThrusterScreenPosition(
                 (short)obj, &enhancedScreenX, &enhancedScreenY);
         }
 #endif
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             case OBJECT_CLASS_STAR:
-#ifndef WC1_SDL
+#ifndef SDL_PORT
             case OBJECT_CLASS_PLANET:
 #else
                 /* WCDX fix: planets use their own scaled sprite instead of
@@ -915,8 +915,8 @@ void draw_sorted_objects_to_buffer(void)
                     g_asObjectScreenY_00493628[obj] +
                     g_nViewCenterY_005c80da);
                 if (g_nNavPointerObject_004931b8 == obj) {
-#ifdef WC1_SDL
-                    if (!Wc1SdlRecordSpaceSprite(
+#ifdef SDL_PORT
+                    if (!SdlRecordSpaceSprite(
                             &g_stViewBuffer_005d2b00, enhancedScreenX,
                             enhancedScreenY,
                             g_apObjectShape_00493868[obj],
@@ -929,8 +929,8 @@ void draw_sorted_objects_to_buffer(void)
                         g_apObjectShape_00493868[obj],
                         g_asObjectViewFrame_00493508[obj]);
                 } else {
-#ifdef WC1_SDL
-                    if (!Wc1SdlRecordSpaceSprite(
+#ifdef SDL_PORT
+                    if (!SdlRecordSpaceSprite(
                             &g_stViewBuffer_005d2b00, enhancedScreenX,
                             enhancedScreenY,
                             g_pConstellationShape_005d2c4c,
@@ -952,8 +952,8 @@ void draw_sorted_objects_to_buffer(void)
                     g_asObjectScreenY_00493628[obj] +
                     g_nViewCenterY_005c80da);
                 if (g_apObjectShape_00493868[obj] != 0) {
-#ifdef WC1_SDL
-                    if (!Wc1SdlRecordSpaceSprite(
+#ifdef SDL_PORT
+                    if (!SdlRecordSpaceSprite(
                             &g_stViewBuffer_005d2b00, enhancedScreenX,
                             enhancedScreenY,
                             g_apObjectShape_00493868[obj],
@@ -984,14 +984,14 @@ void intro_drawbackgroundships(void)
     int objectClass;
     int obj;
 
-    for (obj = 0; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+    for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         if (g_asObjectType_00495298[obj] < 0)
             return;
         objectClass = g_aeObjectClass_00495328[obj];
         if (objectClass != OBJECT_CLASS_NULL) {
             switch (objectClass) {
             case OBJECT_CLASS_STAR:
-#ifndef WC1_SDL
+#ifndef SDL_PORT
             case OBJECT_CLASS_PLANET:
 #else
                 /* Erase planets with the same scaled geometry used to draw

@@ -1,33 +1,33 @@
-#include "wc1.h"
+#include "game.h"
 
-#define WC1_SDL_TIME_PERIODIC 1U
+#define SDL_TIME_PERIODIC 1U
 
-typedef struct Wc1SdlTimer {
+typedef struct SdlTimer {
     SDL_TimerID sdlTimer;
     LPTIMECALLBACK callback;
     DWORD user;
     UINT period;
     UINT eventType;
     UINT id;
-} Wc1SdlTimer;
+} SdlTimer;
 
-static Wc1SdlTimer g_aSdlTimers[16];
+static SdlTimer g_aSdlTimers[16];
 static void *g_pSdlTimerFallback;
 static SDL_SpinLock g_nSdlTimerLock;
 
-static Uint32 Wc1SdlTimerCallback(Uint32 interval, void *parameter)
+static Uint32 SdlTimerCallback(Uint32 interval, void *parameter)
 {
     LPTIMECALLBACK callback;
-    Wc1SdlTimer *timer;
+    SdlTimer *timer;
     DWORD user;
     UINT eventType;
     UINT id;
     UINT period;
 
     (void)interval;
-    timer = (Wc1SdlTimer *)parameter;
+    timer = (SdlTimer *)parameter;
     if (timer == 0)
-        timer = (Wc1SdlTimer *)SDL_AtomicGetPtr(
+        timer = (SdlTimer *)SDL_AtomicGetPtr(
             &g_pSdlTimerFallback);
     if (timer == 0)
         return 0;
@@ -41,7 +41,7 @@ static Uint32 Wc1SdlTimerCallback(Uint32 interval, void *parameter)
     if (callback == 0)
         return 0;
     callback(id, 0, user, 0, 0);
-    return (eventType & WC1_SDL_TIME_PERIODIC) != 0 ? period : 0;
+    return (eventType & SDL_TIME_PERIODIC) != 0 ? period : 0;
 }
 
 UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,
@@ -62,7 +62,7 @@ UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,
     g_aSdlTimers[index].id = index + 1;
     SDL_AtomicSetPtr(&g_pSdlTimerFallback, &g_aSdlTimers[index]);
     g_aSdlTimers[index].sdlTimer =
-        SDL_AddTimer(delay, Wc1SdlTimerCallback, &g_aSdlTimers[index]);
+        SDL_AddTimer(delay, SdlTimerCallback, &g_aSdlTimers[index]);
     if (g_aSdlTimers[index].sdlTimer == 0) {
         SDL_AtomicLock(&g_nSdlTimerLock);
         if (SDL_AtomicGetPtr(&g_pSdlTimerFallback) ==
@@ -77,7 +77,7 @@ UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,
 
 UINT timeKillEvent(UINT timerId)
 {
-    Wc1SdlTimer *timer;
+    SdlTimer *timer;
 
     if (timerId == 0 || timerId > 16)
         return 1;

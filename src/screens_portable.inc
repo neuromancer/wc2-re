@@ -1,6 +1,6 @@
 /*
  * Portable counterparts for the recovered raster library's hand-written x86
- * routines.  This file is included only by the WC1_SDL build of screens.c;
+ * routines.  This file is included only by the SDL_PORT build of screens.c;
  * the recovered high-level screen code and the original x86 implementations
  * remain in their original compilation unit.
  */

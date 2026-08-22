@@ -1,4 +1,4 @@
-#include "wc1sdl.h"
+#include "sdl_port.h"
 
 #include <stdarg.h>
 #include <stdint.h>
@@ -16,7 +16,7 @@
 #include <strings.h>
 #include <sys/stat.h>
 
-static int Wc1SdlAppendPathComponent(char *path, size_t pathSize,
+static int SdlAppendPathComponent(char *path, size_t pathSize,
                                      const char *component)
 {
     size_t componentLength;
@@ -34,7 +34,7 @@ static int Wc1SdlAppendPathComponent(char *path, size_t pathSize,
     return 1;
 }
 
-static int Wc1SdlAppendResolvedComponent(char *path, size_t pathSize,
+static int SdlAppendResolvedComponent(char *path, size_t pathSize,
                                          const char *component)
 {
     DIR *directory;
@@ -42,23 +42,23 @@ static int Wc1SdlAppendResolvedComponent(char *path, size_t pathSize,
     int result;
 
     if (strcmp(component, ".") == 0 || strcmp(component, "..") == 0)
-        return Wc1SdlAppendPathComponent(path, pathSize, component);
+        return SdlAppendPathComponent(path, pathSize, component);
     directory = opendir(path);
     if (directory == 0)
-        return Wc1SdlAppendPathComponent(path, pathSize, component);
+        return SdlAppendPathComponent(path, pathSize, component);
     while ((entry = readdir(directory)) != 0) {
         if (strcasecmp(entry->d_name, component) == 0) {
-            result = Wc1SdlAppendPathComponent(path, pathSize,
+            result = SdlAppendPathComponent(path, pathSize,
                                                entry->d_name);
             closedir(directory);
             return result;
         }
     }
     closedir(directory);
-    return Wc1SdlAppendPathComponent(path, pathSize, component);
+    return SdlAppendPathComponent(path, pathSize, component);
 }
 
-int Wc1SdlResolvePath(const char *path, char *resolved,
+int SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize)
 {
     char component[PATH_MAX];
@@ -99,7 +99,7 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
             return 0;
         memcpy(component, cursor, componentLength);
         component[componentLength] = '\0';
-        if (!Wc1SdlAppendResolvedComponent(prefix, sizeof(prefix), component))
+        if (!SdlAppendResolvedComponent(prefix, sizeof(prefix), component))
             return 0;
         cursor = end;
         while (*cursor == '/')
@@ -112,11 +112,11 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
     return 1;
 }
 
-int Wc1SdlChangeDirectory(const char *path)
+int SdlChangeDirectory(const char *path)
 {
     char resolved[PATH_MAX];
 
-    if (!Wc1SdlResolvePath(path, resolved, sizeof(resolved)))
+    if (!SdlResolvePath(path, resolved, sizeof(resolved)))
         return -1;
     return chdir(resolved);
 }
@@ -124,19 +124,19 @@ int Wc1SdlChangeDirectory(const char *path)
 /*
  *  The game removes a file by the name it writes, but a case-sensitive host
  *  can be holding it under the case the install shipped.  Resolve first, the
- *  way Wc1SdlOpen does, or the removal quietly misses and the next create
+ *  way SdlOpen does, or the removal quietly misses and the next create
  *  runs into whatever was left behind.
  */
-int Wc1SdlUnlink(const char *path)
+int SdlUnlink(const char *path)
 {
     char hostPath[PATH_MAX];
 
-    if (!Wc1SdlResolvePath(path, hostPath, sizeof(hostPath)))
+    if (!SdlResolvePath(path, hostPath, sizeof(hostPath)))
         return -1;
     return unlink(hostPath);
 }
 
-int Wc1SdlOpen(const char *path, int flags, ...)
+int SdlOpen(const char *path, int flags, ...)
 {
     int hostFlags;
     int hostMode;
@@ -170,7 +170,7 @@ int Wc1SdlOpen(const char *path, int flags, ...)
             hostMode |= S_IWUSR;
     }
 
-    if (!Wc1SdlResolvePath(path, hostPath, sizeof(hostPath)))
+    if (!SdlResolvePath(path, hostPath, sizeof(hostPath)))
         return -1;
     file = open(hostPath, hostFlags, hostMode);
     /* Mutable files copied from the original media may still be read-only. */
@@ -193,7 +193,7 @@ int Wc1SdlOpen(const char *path, int flags, ...)
     return file;
 }
 
-long Wc1SdlFileLength(int file)
+long SdlFileLength(int file)
 {
     struct stat status;
 
@@ -202,7 +202,7 @@ long Wc1SdlFileLength(int file)
     return (long)status.st_size;
 }
 
-static char *Wc1SdlLowercaseDigits(char *text)
+static char *SdlLowercaseDigits(char *text)
 {
     char *cursor;
 
@@ -214,28 +214,28 @@ static char *Wc1SdlLowercaseDigits(char *text)
     return text;
 }
 
-char *Wc1SdlItoa(int value, char *text, int radix)
+char *SdlItoa(int value, char *text, int radix)
 {
-    return Wc1SdlLtoa((long)value, text, radix);
+    return SdlLtoa((long)value, text, radix);
 }
 
-char *Wc1SdlLtoa(long value, char *text, int radix)
+char *SdlLtoa(long value, char *text, int radix)
 {
     if (radix == 10)
         return SDL_ltoa(value, text, radix);
     else if (radix == 16)
-        return Wc1SdlLowercaseDigits(
+        return SdlLowercaseDigits(
             SDL_ultoa((unsigned long)value, text, radix));
     text[0] = '\0';
     return text;
 }
 
-char *Wc1SdlUltoa(unsigned long value, char *text, int radix)
+char *SdlUltoa(unsigned long value, char *text, int radix)
 {
     if (radix == 10)
         return SDL_ultoa(value, text, radix);
     else if (radix == 16)
-        return Wc1SdlLowercaseDigits(SDL_ultoa(value, text, radix));
+        return SdlLowercaseDigits(SDL_ultoa(value, text, radix));
     text[0] = '\0';
     return text;
 }
@@ -246,13 +246,13 @@ char *Wc1SdlUltoa(unsigned long value, char *text, int radix)
  *  patterns the game actually passes ("*.PLT", "SAVE*.*", ...) and fill in the
  *  name and size fields; the timestamps stay zero because nothing reads them.
  */
-typedef struct Wc1SdlFindHandle {
+typedef struct SdlFindHandle {
     DIR *directory;
     char base[PATH_MAX];
     char pattern[NAME_MAX + 1];
-} Wc1SdlFindHandle;
+} SdlFindHandle;
 
-static int Wc1SdlMatchPattern(const char *pattern, const char *name)
+static int SdlMatchPattern(const char *pattern, const char *name)
 {
     while (*pattern != '\0') {
         if (*pattern == '*') {
@@ -260,11 +260,11 @@ static int Wc1SdlMatchPattern(const char *pattern, const char *name)
             if (*pattern == '\0')
                 return 1;
             while (*name != '\0') {
-                if (Wc1SdlMatchPattern(pattern, name))
+                if (SdlMatchPattern(pattern, name))
                     return 1;
                 name++;
             }
-            return Wc1SdlMatchPattern(pattern, name);
+            return SdlMatchPattern(pattern, name);
         }
         if (*name == '\0')
             return 0;
@@ -277,7 +277,7 @@ static int Wc1SdlMatchPattern(const char *pattern, const char *name)
     return *name == '\0';
 }
 
-static int Wc1SdlFillFound(Wc1SdlFindHandle *handle,
+static int SdlFillFound(SdlFindHandle *handle,
                            struct _finddata_t *found)
 {
     struct dirent *entry;
@@ -285,7 +285,7 @@ static int Wc1SdlFillFound(Wc1SdlFindHandle *handle,
     struct stat status;
 
     while ((entry = readdir(handle->directory)) != 0) {
-        if (!Wc1SdlMatchPattern(handle->pattern, entry->d_name))
+        if (!SdlMatchPattern(handle->pattern, entry->d_name))
             continue;
         memset(found, 0, sizeof(*found));
         strncpy(found->name, entry->d_name, sizeof(found->name) - 1);
@@ -301,12 +301,12 @@ static int Wc1SdlFillFound(Wc1SdlFindHandle *handle,
 /* The game truncates the handle to a short before handing it back -- see
  * OpenDiskDataFile -- so it cannot be a pointer.  Hand out small slot indices
  * instead; the game never has more than one walk open at a time. */
-#define WC1_SDL_FIND_SLOTS 8
-static Wc1SdlFindHandle *g_apFindSlots[WC1_SDL_FIND_SLOTS];
+#define SDL_FIND_SLOTS 8
+static SdlFindHandle *g_apFindSlots[SDL_FIND_SLOTS];
 
-long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
+long SdlFindFirst(const char *pattern, struct _finddata_t *found)
 {
-    Wc1SdlFindHandle *handle;
+    SdlFindHandle *handle;
     char resolved[PATH_MAX];
     const char *leaf;
     size_t baseLength;
@@ -314,15 +314,15 @@ long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
 
     if (pattern == 0 || found == 0)
         return -1;
-    for (slot = 0; slot < WC1_SDL_FIND_SLOTS; slot++) {
+    for (slot = 0; slot < SDL_FIND_SLOTS; slot++) {
         if (g_apFindSlots[slot] == 0)
             break;
     }
-    if (slot == WC1_SDL_FIND_SLOTS)
+    if (slot == SDL_FIND_SLOTS)
         return -1;
-    if (!Wc1SdlResolvePath(pattern, resolved, (unsigned long)sizeof(resolved)))
+    if (!SdlResolvePath(pattern, resolved, (unsigned long)sizeof(resolved)))
         return -1;
-    handle = (Wc1SdlFindHandle *)calloc(1, sizeof(*handle));
+    handle = (SdlFindHandle *)calloc(1, sizeof(*handle));
     if (handle == 0)
         return -1;
     leaf = strrchr(resolved, '/');
@@ -347,7 +347,7 @@ long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
         free(handle);
         return -1;
     }
-    if (!Wc1SdlFillFound(handle, found)) {
+    if (!SdlFillFound(handle, found)) {
         closedir(handle->directory);
         free(handle);
         return -1;
@@ -359,28 +359,28 @@ long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found)
 /* MSVC returns -1 from _findfirst when nothing matched, and callers hand that
  * straight back to _findnext and _findclose without checking; both are
  * expected to shrug it off. */
-static Wc1SdlFindHandle *Wc1SdlFindWalk(long handle)
+static SdlFindHandle *SdlFindWalk(long handle)
 {
-    if (handle < 1 || handle > WC1_SDL_FIND_SLOTS)
+    if (handle < 1 || handle > SDL_FIND_SLOTS)
         return 0;
     return g_apFindSlots[handle - 1];
 }
 
-int Wc1SdlFindNext(long handle, struct _finddata_t *found)
+int SdlFindNext(long handle, struct _finddata_t *found)
 {
-    Wc1SdlFindHandle *walk;
+    SdlFindHandle *walk;
 
-    walk = Wc1SdlFindWalk(handle);
+    walk = SdlFindWalk(handle);
     if (walk == 0 || found == 0)
         return -1;
-    return Wc1SdlFillFound(walk, found) ? 0 : -1;
+    return SdlFillFound(walk, found) ? 0 : -1;
 }
 
-int Wc1SdlFindClose(long handle)
+int SdlFindClose(long handle)
 {
-    Wc1SdlFindHandle *walk;
+    SdlFindHandle *walk;
 
-    walk = Wc1SdlFindWalk(handle);
+    walk = SdlFindWalk(handle);
     if (walk == 0)
         return -1;
     g_apFindSlots[handle - 1] = 0;
@@ -390,7 +390,7 @@ int Wc1SdlFindClose(long handle)
 }
 
 
-char *Wc1SdlStrupr(char *text)
+char *SdlStrupr(char *text)
 {
     char *cursor;
 
@@ -404,17 +404,17 @@ char *Wc1SdlStrupr(char *text)
 
 #else
 
-int Wc1SdlChangeDirectory(const char *path)
+int SdlChangeDirectory(const char *path)
 {
     return _chdir(path);
 }
 
-int Wc1SdlUnlink(const char *path)
+int SdlUnlink(const char *path)
 {
     return _unlink(path);
 }
 
-int Wc1SdlResolvePath(const char *path, char *resolved,
+int SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize)
 {
     size_t pathLength;
@@ -432,7 +432,7 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
 
 /*
  *  Shared by every host.  Rewriting the formats and gating the trace are not
- *  POSIX-specific concerns -- see the note in wc1sdl.h.
+ *  POSIX-specific concerns -- see the note in sdl_port.h.
  */
 /*
  *  Rewrite a printf format the way MSVC would have read it: drop the far/near
@@ -440,7 +440,7 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
  *  clang treats as conversions in their own right.  Anything the state machine
  *  does not recognise is copied through untouched.
  */
-static const char *Wc1SdlPortableFormat(const char *format, char *scratch,
+static const char *SdlPortableFormat(const char *format, char *scratch,
                                         size_t scratchSize)
 {
     const char *read;
@@ -477,41 +477,41 @@ static const char *Wc1SdlPortableFormat(const char *format, char *scratch,
     return scratch;
 }
 
-int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
+int SdlVsnprintf(char *buffer, size_t size, const char *format,
                     va_list arguments)
 {
     char scratch[1024];
 
     return vsnprintf(buffer, size,
-                     Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+                     SdlPortableFormat(format, scratch, sizeof(scratch)),
                      arguments);
 }
 
-int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...)
+int SdlSnprintf(char *buffer, size_t size, const char *format, ...)
 {
     va_list arguments;
     int written;
 
     va_start(arguments, format);
-    written = Wc1SdlVsnprintf(buffer, size, format, arguments);
+    written = SdlVsnprintf(buffer, size, format, arguments);
     va_end(arguments);
     return written;
 }
 
-int Wc1SdlTraceEnabled(void)
+int SdlTraceEnabled(void)
 {
     static int state = -1;
 
     if (state < 0)
-        state = getenv("WC2_INPUT_TRACE") != 0;
+        state = getenv("INPUT_TRACE") != 0;
     return state;
 }
 
-void Wc1SdlTracef(const char *format, ...)
+void SdlTracef(const char *format, ...)
 {
     va_list arguments;
 
-    if (!Wc1SdlTraceEnabled())
+    if (!SdlTraceEnabled())
         return;
     va_start(arguments, format);
     vfprintf(stderr, format, arguments);
@@ -519,20 +519,20 @@ void Wc1SdlTracef(const char *format, ...)
     fflush(stderr);
 }
 
-int Wc1SdlPrintf(const char *format, ...)
+int SdlPrintf(const char *format, ...)
 {
     char scratch[1024];
     va_list arguments;
     int written;
 
     va_start(arguments, format);
-    written = vprintf(Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+    written = vprintf(SdlPortableFormat(format, scratch, sizeof(scratch)),
                       arguments);
     va_end(arguments);
     return written;
 }
 
-int Wc1SdlFprintf(FILE *stream, const char *format, ...)
+int SdlFprintf(FILE *stream, const char *format, ...)
 {
     char scratch[1024];
     va_list arguments;
@@ -540,7 +540,7 @@ int Wc1SdlFprintf(FILE *stream, const char *format, ...)
 
     va_start(arguments, format);
     written = vfprintf(stream,
-                       Wc1SdlPortableFormat(format, scratch, sizeof(scratch)),
+                       SdlPortableFormat(format, scratch, sizeof(scratch)),
                        arguments);
     va_end(arguments);
     return written;
@@ -550,13 +550,13 @@ int Wc1SdlFprintf(FILE *stream, const char *format, ...)
  *  There is no console to read on any host, so the acknowledgement wait
  *  becomes a pump of the SDL event queue.
  */
-int Wc1SdlGetChar(void)
+int SdlGetChar(void)
 {
-    Wc1SdlPumpEvents();
+    SdlPumpEvents();
     return 0;
 }
 
-int Wc1SdlFlushAll(void)
+int SdlFlushAll(void)
 {
     fflush(0);
     return 0;
@@ -566,11 +566,11 @@ int Wc1SdlFlushAll(void)
  *  The game changes into its data directory on the way in, so a file it
  *  cannot open says more with the directory it was looking in.
  */
-#define WC1_SDL_WORKING_DIRECTORY_SIZE 4096
+#define SDL_WORKING_DIRECTORY_SIZE 4096
 
-const char *Wc1SdlDescribeWorkingDirectory(void)
+const char *SdlDescribeWorkingDirectory(void)
 {
-    static char directory[WC1_SDL_WORKING_DIRECTORY_SIZE];
+    static char directory[SDL_WORKING_DIRECTORY_SIZE];
 
     if (GetCurrentDirectoryA((DWORD)sizeof(directory), directory) == 0)
         strcpy(directory, "?");

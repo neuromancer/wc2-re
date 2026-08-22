@@ -1,9 +1,9 @@
 /*
  *  ix -- Origin Systems audio library (C++), original dev tree D:\Rnd\Prj\ix.
  *
- *  Unlike the game core, this library's module layout is EXACTLY known: the
- *  shipped debug build still contains its assert __FILE__/__LINE__ anchors, and
- *  the linker laid each object file out contiguously:
+ *  The predecessor image establishes this library's original module layout:
+ *  its live assert __FILE__/__LINE__ anchors show that the linker laid each
+ *  object file out contiguously:
  *
  *      streamer.cpp  0x00442750 - 0x00443DA5
  *      thread.cpp    0x00443DA6 - 0x0044490F
@@ -15,13 +15,14 @@
  *      sound.cpp     0x00447CD8 - 0x0044879B
  *      sample.cpp    0x0044879C - 0x004492DF
  *
- *  Everything from 0x004492E0 upward is the MSVC 4.2 static debug CRT.
+ *  Everything from 0x004492E0 upward in that image is the MSVC 4.2 static
+ *  debug CRT.
  */
 #ifndef IX_H
 #define IX_H
 
-#ifdef WC1_SDL
-#include "wc1sdl.h"
+#ifdef SDL_PORT
+#include "sdl_port.h"
 #else
 #include <windows.h>   /* CRITICAL_SECTION, used by the stream/voice state below */
 #endif
@@ -273,7 +274,7 @@ extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x46AA9E */
 void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x46A5FA */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x46AB4F */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x46B0F8 */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* Port-only.  A sound created with delete-on-stop frees itself inside
  * ix_system_service_sounds, and the game keeps reading the handle it was
  * given for another frame.  On the original heap that read was harmless;
@@ -427,7 +428,7 @@ unsigned int ix_thread_service_streams(void);     /* 0x46D7C6 */
 void ix_thread_advance_audio_chunk(void);         /* 0x46D916 */
 void ix_thread_lock_stream_buffer(void);         /* 0x46DBC9 */
 unsigned int ix_thread_get_audio_chunk_size(void); /* 0x46DCA6 */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 extern "C" void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
     unsigned int destinationBytes, unsigned int sourceBytes); /* 0x48C290 */

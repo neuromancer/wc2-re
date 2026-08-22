@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include <stdio.h>
 

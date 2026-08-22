@@ -1,12 +1,12 @@
-#include "wc1sdl.h"
+#include "sdl_port.h"
 
-enum Wc1SdlHandleType {
-    WC1_SDL_HANDLE_EVENT,
-    WC1_SDL_HANDLE_THREAD
+enum SdlHandleType {
+    SDL_HANDLE_EVENT,
+    SDL_HANDLE_THREAD
 };
 
-typedef struct Wc1SdlHandle {
-    enum Wc1SdlHandleType type;
+typedef struct SdlHandle {
+    enum SdlHandleType type;
     SDL_mutex *mutex;
     SDL_cond *condition;
     SDL_Thread *thread;
@@ -16,13 +16,13 @@ typedef struct Wc1SdlHandle {
     BOOL manualReset;
     BOOL signaled;
     BOOL joined;
-} Wc1SdlHandle;
+} SdlHandle;
 
-static int Wc1SdlThreadEntry(void *parameter)
+static int SdlThreadEntry(void *parameter)
 {
-    Wc1SdlHandle *handle;
+    SdlHandle *handle;
 
-    handle = (Wc1SdlHandle *)parameter;
+    handle = (SdlHandle *)parameter;
     handle->result = handle->startRoutine(handle->parameter);
     return (int)handle->result;
 }
@@ -30,14 +30,14 @@ static int Wc1SdlThreadEntry(void *parameter)
 HANDLE CreateEventA(LPVOID security, BOOL manualReset, BOOL initialState,
                     const char *name)
 {
-    Wc1SdlHandle *handle;
+    SdlHandle *handle;
 
     (void)security;
     (void)name;
-    handle = (Wc1SdlHandle *)SDL_calloc(1, sizeof(*handle));
+    handle = (SdlHandle *)SDL_calloc(1, sizeof(*handle));
     if (handle == 0)
         return 0;
-    handle->type = WC1_SDL_HANDLE_EVENT;
+    handle->type = SDL_HANDLE_EVENT;
     handle->manualReset = manualReset;
     handle->signaled = initialState;
     handle->mutex = SDL_CreateMutex();
@@ -53,18 +53,18 @@ HANDLE CreateThread(LPVOID attributes, size_t stackSize,
                     LPTHREAD_START_ROUTINE startRoutine, LPVOID parameter,
                     DWORD creationFlags, DWORD *threadId)
 {
-    Wc1SdlHandle *handle;
+    SdlHandle *handle;
 
     (void)attributes;
     (void)stackSize;
     (void)creationFlags;
-    handle = (Wc1SdlHandle *)SDL_calloc(1, sizeof(*handle));
+    handle = (SdlHandle *)SDL_calloc(1, sizeof(*handle));
     if (handle == 0)
         return 0;
-    handle->type = WC1_SDL_HANDLE_THREAD;
+    handle->type = SDL_HANDLE_THREAD;
     handle->startRoutine = startRoutine;
     handle->parameter = parameter;
-    handle->thread = SDL_CreateThread(Wc1SdlThreadEntry, "wc1", handle);
+    handle->thread = SDL_CreateThread(SdlThreadEntry, "game-thread", handle);
     if (handle->thread == 0) {
         SDL_free(handle);
         return 0;
@@ -76,12 +76,12 @@ HANDLE CreateThread(LPVOID attributes, size_t stackSize,
 
 BOOL SetEvent(HANDLE eventHandle)
 {
-    Wc1SdlHandle *event;
+    SdlHandle *event;
 
     if (eventHandle == 0 || eventHandle == INVALID_HANDLE_VALUE)
         return FALSE;
-    event = (Wc1SdlHandle *)eventHandle;
-    if (event->type != WC1_SDL_HANDLE_EVENT)
+    event = (SdlHandle *)eventHandle;
+    if (event->type != SDL_HANDLE_EVENT)
         return FALSE;
     SDL_LockMutex(event->mutex);
     event->signaled = TRUE;
@@ -92,12 +92,12 @@ BOOL SetEvent(HANDLE eventHandle)
 
 BOOL ResetEvent(HANDLE eventHandle)
 {
-    Wc1SdlHandle *event;
+    SdlHandle *event;
 
     if (eventHandle == 0 || eventHandle == INVALID_HANDLE_VALUE)
         return FALSE;
-    event = (Wc1SdlHandle *)eventHandle;
-    if (event->type != WC1_SDL_HANDLE_EVENT)
+    event = (SdlHandle *)eventHandle;
+    if (event->type != SDL_HANDLE_EVENT)
         return FALSE;
     SDL_LockMutex(event->mutex);
     event->signaled = FALSE;
@@ -107,13 +107,13 @@ BOOL ResetEvent(HANDLE eventHandle)
 
 DWORD WaitForSingleObject(HANDLE objectHandle, DWORD milliseconds)
 {
-    Wc1SdlHandle *object;
+    SdlHandle *object;
     int result;
 
     if (objectHandle == 0 || objectHandle == INVALID_HANDLE_VALUE)
         return WAIT_TIMEOUT;
-    object = (Wc1SdlHandle *)objectHandle;
-    if (object->type == WC1_SDL_HANDLE_THREAD) {
+    object = (SdlHandle *)objectHandle;
+    if (object->type == SDL_HANDLE_THREAD) {
         if (!object->joined) {
             SDL_WaitThread(object->thread, 0);
             object->joined = TRUE;
@@ -138,12 +138,12 @@ DWORD WaitForSingleObject(HANDLE objectHandle, DWORD milliseconds)
 
 BOOL CloseHandle(HANDLE objectHandle)
 {
-    Wc1SdlHandle *object;
+    SdlHandle *object;
 
     if (objectHandle == 0 || objectHandle == INVALID_HANDLE_VALUE)
         return FALSE;
-    object = (Wc1SdlHandle *)objectHandle;
-    if (object->type == WC1_SDL_HANDLE_THREAD && !object->joined) {
+    object = (SdlHandle *)objectHandle;
+    if (object->type == SDL_HANDLE_THREAD && !object->joined) {
         SDL_WaitThread(object->thread, 0);
         object->joined = TRUE;
         object->thread = 0;

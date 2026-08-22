@@ -1,5 +1,5 @@
-/* SDL2-only support for the Origin packet containers used by WC1 data. */
-#include "wc1.h"
+/* SDL2-only support for the Origin packet containers used by DOS data. */
+#include "game.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -11,22 +11,22 @@
 #define ORIGIN_LZW_MAX_CODE_COUNT 0x1000
 #define ORIGIN_PACKET_OFFSET_MASK 0x00ffffffU
 #define ORIGIN_PACKET_MAX_SECTION_SIZE (16U * 1024U * 1024U)
-#define WC2_SDL_TITLE_PATH_SIZE 4096
+#define SDL_TITLE_PATH_SIZE 4096
 
-typedef struct Wc1SdlOriginLzwEntry {
+typedef struct SdlOriginLzwEntry {
     uint16_t prefix;
     unsigned char value;
-} Wc1SdlOriginLzwEntry;
+} SdlOriginLzwEntry;
 
-typedef struct Wc1SdlOriginLzwBitReader {
+typedef struct SdlOriginLzwBitReader {
     const unsigned char *bytes;
     size_t byteCount;
     size_t bitPosition;
-} Wc1SdlOriginLzwBitReader;
+} SdlOriginLzwBitReader;
 
-static int g_nWc1SdlDosData = -1;
+static int g_nSdlDosData = -1;
 
-static uint32_t Wc1SdlReadLittleEndian32(const unsigned char *bytes)
+static uint32_t SdlReadLittleEndian32(const unsigned char *bytes)
 {
     return (uint32_t)bytes[0] |
         ((uint32_t)bytes[1] << 8) |
@@ -34,7 +34,7 @@ static uint32_t Wc1SdlReadLittleEndian32(const unsigned char *bytes)
         ((uint32_t)bytes[3] << 24);
 }
 
-static int Wc1SdlReadOriginLzwCode(Wc1SdlOriginLzwBitReader *reader,
+static int SdlReadOriginLzwCode(SdlOriginLzwBitReader *reader,
                                    unsigned int width,
                                    uint16_t *code)
 {
@@ -68,8 +68,8 @@ static int Wc1SdlReadOriginLzwCode(Wc1SdlOriginLzwBitReader *reader,
     return 1;
 }
 
-static int Wc1SdlWriteOriginLzwCode(
-    const Wc1SdlOriginLzwEntry *dictionary, uint16_t code,
+static int SdlWriteOriginLzwCode(
+    const SdlOriginLzwEntry *dictionary, uint16_t code,
     unsigned char *destination, size_t destinationSize,
     size_t *destinationPosition, unsigned char *firstValue)
 {
@@ -96,14 +96,14 @@ static int Wc1SdlWriteOriginLzwCode(
     return 1;
 }
 
-int Wc1SdlDecompressOriginLzw(const unsigned char *source,
+int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,
                               size_t destinationSize,
                               size_t *writtenSize)
 {
-    Wc1SdlOriginLzwEntry dictionary[ORIGIN_LZW_MAX_CODE_COUNT];
-    Wc1SdlOriginLzwBitReader reader;
+    SdlOriginLzwEntry dictionary[ORIGIN_LZW_MAX_CODE_COUNT];
+    SdlOriginLzwBitReader reader;
     size_t destinationPosition;
     unsigned int codeWidth;
     unsigned int codeWidthThreshold;
@@ -123,7 +123,7 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
     *writtenSize = 0;
 
     codeWidth = 9;
-    if (!Wc1SdlReadOriginLzwCode(&reader, codeWidth, &code))
+    if (!SdlReadOriginLzwCode(&reader, codeWidth, &code))
         return 0;
     if (code == ORIGIN_LZW_STOP_CODE)
         return destinationSize == 0;
@@ -137,7 +137,7 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
         previousCode = ORIGIN_LZW_CLEAR_CODE;
 
         for (;;) {
-            if (!Wc1SdlReadOriginLzwCode(&reader, codeWidth, &code))
+            if (!SdlReadOriginLzwCode(&reader, codeWidth, &code))
                 return 0;
             if (code == ORIGIN_LZW_STOP_CODE) {
                 *writtenSize = destinationPosition;
@@ -151,7 +151,7 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
             specialCode = code == dictionarySize;
             decodedCode = specialCode ? previousCode : code;
             if (decodedCode == ORIGIN_LZW_CLEAR_CODE ||
-                !Wc1SdlWriteOriginLzwCode(
+                !SdlWriteOriginLzwCode(
                     dictionary, decodedCode, destination,
                     destinationSize, &destinationPosition,
                     &firstValue))
@@ -179,7 +179,7 @@ int Wc1SdlDecompressOriginLzw(const unsigned char *source,
     }
 }
 
-int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
+int SdlExtractOriginPacketSection(const unsigned char *archive,
                                      size_t archiveSize,
                                      unsigned int sectionIndex,
                                      unsigned char **section,
@@ -204,8 +204,8 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     if (archive == 0 || archiveSize < 8)
         return 0;
 
-    declaredFileSize = Wc1SdlReadLittleEndian32(archive);
-    entry = Wc1SdlReadLittleEndian32(archive + 4);
+    declaredFileSize = SdlReadLittleEndian32(archive);
+    entry = SdlReadLittleEndian32(archive + 4);
     directorySize = entry & ORIGIN_PACKET_OFFSET_MASK;
     if (declaredFileSize > archiveSize || directorySize < 8 ||
         directorySize > declaredFileSize || (directorySize & 3U) != 0)
@@ -214,14 +214,14 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     if (sectionIndex >= sectionCount)
         return 0;
 
-    entry = Wc1SdlReadLittleEndian32(
+    entry = SdlReadLittleEndian32(
         archive + ((size_t)sectionIndex + 1U) * 4U);
     compression = entry >> 24;
     sectionOffset = entry & ORIGIN_PACKET_OFFSET_MASK;
     if (sectionIndex + 1 == sectionCount) {
         sectionEnd = declaredFileSize;
     } else {
-        nextEntry = Wc1SdlReadLittleEndian32(
+        nextEntry = SdlReadLittleEndian32(
             archive + ((size_t)sectionIndex + 2U) * 4U);
         sectionEnd = nextEntry & ORIGIN_PACKET_OFFSET_MASK;
     }
@@ -247,13 +247,13 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     if (sectionEnd - sectionOffset < 4)
         return 0;
 
-    outputSize = Wc1SdlReadLittleEndian32(archive + sectionOffset);
+    outputSize = SdlReadLittleEndian32(archive + sectionOffset);
     if (outputSize == 0 || outputSize > ORIGIN_PACKET_MAX_SECTION_SIZE)
         return 0;
     output = (unsigned char *)malloc(outputSize);
     if (output == 0)
         return 0;
-    if (!Wc1SdlDecompressOriginLzw(
+    if (!SdlDecompressOriginLzw(
             archive + sectionOffset + 4,
             sectionEnd - sectionOffset - 4,
             output, outputSize, &writtenSize)) {
@@ -265,12 +265,12 @@ int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
     return 1;
 }
 
-static int Wc2SdlOriginPacketHasSectionRange(
+static int SdlOriginPacketHasSectionRange(
     const char *const *candidates, unsigned int candidateCount,
     unsigned int firstSection, unsigned int requiredSectionCount)
 {
     unsigned char *archive;
-    char resolved[WC2_SDL_TITLE_PATH_SIZE];
+    char resolved[SDL_TITLE_PATH_SIZE];
     size_t archiveSize;
     uint32_t declaredFileSize;
     uint32_t directorySize;
@@ -286,7 +286,7 @@ static int Wc2SdlOriginPacketHasSectionRange(
     candidate = 0;
     while (candidate < candidateCount) {
         archive = 0;
-        if (Wc1SdlResolvePath(
+        if (SdlResolvePath(
                 candidates[candidate], resolved, sizeof(resolved))) {
             archive = (unsigned char *)SDL_LoadFile(
                 resolved, &archiveSize);
@@ -297,8 +297,8 @@ static int Wc2SdlOriginPacketHasSectionRange(
 
         available = 0;
         if (archiveSize >= 8) {
-            declaredFileSize = Wc1SdlReadLittleEndian32(archive);
-            entry = Wc1SdlReadLittleEndian32(archive + 4);
+            declaredFileSize = SdlReadLittleEndian32(archive);
+            entry = SdlReadLittleEndian32(archive + 4);
             directorySize = entry & ORIGIN_PACKET_OFFSET_MASK;
             if (declaredFileSize <= archiveSize && directorySize >= 8 &&
                 directorySize <= declaredFileSize &&
@@ -311,14 +311,14 @@ static int Wc2SdlOriginPacketHasSectionRange(
                     section = firstSection;
                     while (section <
                            firstSection + requiredSectionCount) {
-                        entry = Wc1SdlReadLittleEndian32(
+                        entry = SdlReadLittleEndian32(
                             archive + ((size_t)section + 1U) * 4U);
                         sectionOffset =
                             entry & ORIGIN_PACKET_OFFSET_MASK;
                         if (section + 1 == packetSectionCount) {
                             sectionEnd = declaredFileSize;
                         } else {
-                            nextEntry = Wc1SdlReadLittleEndian32(
+                            nextEntry = SdlReadLittleEndian32(
                                 archive +
                                 ((size_t)section + 2U) * 4U);
                             sectionEnd =
@@ -342,7 +342,7 @@ static int Wc2SdlOriginPacketHasSectionRange(
     return 0;
 }
 
-int Wc2SdlOriginalTitleSequenceAvailable(void)
+int SdlOriginalTitleSequenceAvailable(void)
 {
     const char *titleCandidates[2] = {
         "GAMEDAT/TITLE.VGA", "TITLE.VGA"
@@ -357,18 +357,18 @@ int Wc2SdlOriginalTitleSequenceAvailable(void)
         "GAMEDAT/WING2.TIM", "WING2.TIM"
     };
 
-    if (g_bWc2SdlCutsceneOnly != 0) {
-        Wc2SdlRunSelectedCampaignCutscene();
-        Wc2SdlFinishCutsceneOnly();
+    if (g_bSdlCutsceneOnly != 0) {
+        SdlRunSelectedCampaignCutscene();
+        SdlFinishCutsceneOnly();
         return 0;
     }
-    return Wc2SdlOriginPacketHasSectionRange(
+    return SdlOriginPacketHasSectionRange(
                titleCandidates, 2, 0, 13) &&
-        Wc2SdlOriginPacketHasSectionRange(
+        SdlOriginPacketHasSectionRange(
                fieldCandidates, 2, 1, 1) &&
-        Wc2SdlOriginPacketHasSectionRange(
+        SdlOriginPacketHasSectionRange(
                rolandMusicCandidates, 2, 19, 1) &&
-        Wc2SdlOriginPacketHasSectionRange(
+        SdlOriginPacketHasSectionRange(
                timbreCandidates, 2, 1, 1);
 }
 
@@ -377,28 +377,28 @@ int Wc2SdlOriginalTitleSequenceAvailable(void)
  * is the only difference in 115 of the shared files, which are otherwise byte
  * for byte the same -- so any packet carrying 0xc1 came off the floppies.
  * COCKPIT.VGA is one of them and the game cannot run without it. */
-int Wc1SdlUsingDosData(void)
+int SdlUsingDosData(void)
 {
     unsigned char header[8];
     int file;
     int bytesRead;
 
-    if (g_nWc1SdlDosData >= 0)
-        return g_nWc1SdlDosData;
+    if (g_nSdlDosData >= 0)
+        return g_nSdlDosData;
     file = _open("GAMEDAT/COCKPIT.VGA", 0x8000);
     if (file == -1)
         file = _open("COCKPIT.VGA", 0x8000);
     if (file == -1)
         return 0;
-    g_nWc1SdlDosData = 0;
+    g_nSdlDosData = 0;
     bytesRead = (int)_read(file, header, sizeof(header));
     _close(file);
     if (bytesRead == (int)sizeof(header) && header[7] == 0xc1)
-        g_nWc1SdlDosData = 1;
-    return g_nWc1SdlDosData;
+        g_nSdlDosData = 1;
+    return g_nSdlDosData;
 }
 
-void Wc1SdlCompleteDosInstallTable(DiskFileRecord *records)
+void SdlCompleteDosInstallTable(DiskFileRecord *records)
 {
     const DiskFileRecord expansionRecords[4] = {
         { "MODULE.002", 1, 7, 73 },
@@ -419,21 +419,21 @@ void Wc1SdlCompleteDosInstallTable(DiskFileRecord *records)
  *  their own offsets.  The pointers themselves hold nothing worth keeping --
  *  every caller assigns the real ones straight after this returns.
  */
-#define WC2_OBJECT_TYPE_RECORD_BYTES 0xf3
-#define WC2_OBJECT_TYPE_HEAD_BYTES   0x2e  /* displayName..cruiseVelocity */
-#define WC2_OBJECT_TYPE_TAIL_OFFSET  0x32  /* acceleration */
-#define WC2_OBJECT_TYPE_TAIL_BYTES   0xb9  /* acceleration..armorRight */
+#define OBJECT_DATA_RECORD_BYTES 0xf3
+#define OBJECT_DATA_HEAD_BYTES   0x2e  /* displayName..cruiseVelocity */
+#define OBJECT_DATA_TAIL_OFFSET  0x32  /* acceleration */
+#define OBJECT_DATA_TAIL_BYTES   0xb9  /* acceleration..armorRight */
 
-void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
+void SdlLoadObjectTypeRecord(char *fileName, short section,
                                 struct ObjectTypeData *record)
 {
-    unsigned char packed[WC2_OBJECT_TYPE_RECORD_BYTES];
+    unsigned char packed[OBJECT_DATA_RECORD_BYTES];
 
     memset(packed, 0, sizeof(packed));
     if (LoadPacketIntoBuffer(fileName, section, packed, 0) == 0)
         return;
-    memcpy(record, packed, WC2_OBJECT_TYPE_HEAD_BYTES);
+    memcpy(record, packed, OBJECT_DATA_HEAD_BYTES);
     memcpy(&record->acceleration,
-           packed + WC2_OBJECT_TYPE_TAIL_OFFSET,
-           WC2_OBJECT_TYPE_TAIL_BYTES);
+           packed + OBJECT_DATA_TAIL_OFFSET,
+           OBJECT_DATA_TAIL_BYTES);
 }

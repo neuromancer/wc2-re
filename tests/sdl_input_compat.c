@@ -1,4 +1,4 @@
-#include "wc1sdl.h"
+#include "sdl_port.h"
 
 static SDL_atomic_t g_nTimerCallbackCount;
 static SDL_atomic_t g_dwTimerCallbackUser;

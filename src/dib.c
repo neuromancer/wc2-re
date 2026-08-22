@@ -5,7 +5,7 @@
  *  Boundary evidence: PROVEN: the named DirectDraw routines are followed by
  *  DirectDrawResultToText and its compiler-generated switch tables.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(memcpy, memset)
 
@@ -93,11 +93,11 @@ void SetCinematicFrameTiming(float frameRate)
 /* Function start: 0x45D004 */
 void DIBerror(const char *tag, int hr)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     const char *text = SDL_GetError();
 
     sprintf(g_szDibErrorMessage_005c33b0, "ERROR: %s - (%s)", tag, text);
-    Wc1SdlShutdownVideo();
+    SdlShutdownVideo();
     OutputDebugStringA(g_szDibErrorMessage_005c33b0);
     if (g_hDibWindow_005c33a4 != 0)
         SDL_SetWindowSize((SDL_Window *)g_hDibWindow_005c33a4, 320, 200);
@@ -127,8 +127,8 @@ void DIBerror(const char *tag, int hr)
 /* Function start: 0x45D11F */
 void DIBpositionWindow(void)
 {
-#ifdef WC1_SDL
-    Wc1SdlShutdownVideo();
+#ifdef SDL_PORT
+    SdlShutdownVideo();
     if (g_hDibWindow_005c33a4 != 0)
         SDL_SetWindowSize((SDL_Window *)g_hDibWindow_005c33a4, 320, 200);
 #else
@@ -144,7 +144,7 @@ void DIBpositionWindow(void)
 /* Function start: 0x45D1BB */
 void DIBreInstall(void)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     int err;
 
     if (g_bConfigQuickModeEnabled_0049c264 != 0) {
@@ -158,7 +158,7 @@ void DIBreInstall(void)
         g_nDisplayModeCascade_0049cea0 = -1;
     }
 #else
-    if (!Wc1SdlInitializeVideo((SDL_Window *)g_hDibWindow_005c33a4))
+    if (!SdlInitializeVideo((SDL_Window *)g_hDibWindow_005c33a4))
         DIBerror("DIBreInstall", -1);
     MarkDibDirty();
     DIBslamReal();
@@ -168,14 +168,14 @@ void DIBreInstall(void)
 /* Function start: 0x45D23B */
 void DIBinstall(HWND window)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     LPDIRECTDRAW directDraw;
     HRESULT result;
 #endif
 
     g_hDibWindow_005c33a4 = window;
-#ifdef WC1_SDL
-    if (!Wc1SdlInitializeVideo((SDL_Window *)window))
+#ifdef SDL_PORT
+    if (!SdlInitializeVideo((SDL_Window *)window))
         DIBerror("DIBinstall", -1);
     g_nDisplayModeCascade_0049cea0 = 0;
 #else
@@ -218,7 +218,7 @@ void DIBinstall(HWND window)
 /* Function start: 0x45D3A1 */
 int DIBcascade(int mode, int *reportedResult)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     g_nDisplayModeCascade_0049cea0 = 0;
     if (reportedResult != 0)
         *reportedResult = 0;
@@ -336,8 +336,8 @@ int DIBcascade(int mode, int *reportedResult)
 void DIBunInstall(void)
 {
     DIBdestroyDIB();
-#ifdef WC1_SDL
-    Wc1SdlShutdownVideo();
+#ifdef SDL_PORT
+    SdlShutdownVideo();
     g_hDibWindow_005c33a4 = 0;
 #else
     COM_RELEASE(g_pSecondarySurface_0049ce98);
@@ -350,7 +350,7 @@ void DIBunInstall(void)
 /* Function start: 0x45D80F */
 void DIBmakeDIB(void)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     DDSURFACEDESC surface;
     PALETTEENTRY entries[256];
     HRESULT result;
@@ -368,7 +368,7 @@ void DIBmakeDIB(void)
 #endif
 
     g_nDibBitsPerPixel_005c3388 = 8;
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     for (entry = 0; entry < 256; entry++) {
         entries[entry].peRed = g_abPaletteCache_005c3450[entry * 4 + 2];
         entries[entry].peGreen = g_abPaletteCache_005c3450[entry * 4 + 1];
@@ -412,7 +412,7 @@ void DIBmakeDIB(void)
     DAT_005b3974 = 0;
     DAT_005b3970 = 0;
     g_pDibPixelBuffer_005b3978 = malloc(64000);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (g_pDibPixelBuffer_005b3978 == 0)
         DIBerror("DIBmakeDIB", -1);
 #endif
@@ -426,11 +426,11 @@ void DIBmakeDIB(void)
 /* Function start: 0x45DA8C */
 void DIBdestroyDIB(void)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     int result;
 #endif
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (g_pDibPixelBuffer_005b3978 != 0) {
         memcpy(g_abDibBackingStore_005b3988, g_pDibPixelBuffer_005b3978,
                g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
@@ -439,7 +439,7 @@ void DIBdestroyDIB(void)
     memcpy(g_abDibBackingStore_005b3988, g_pDibPixelBuffer_005b3978,
            g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
 #endif
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     if (g_nDisplayModeCascade_0049cea0 > 0) {
         result = IDirectDrawSurface_Release(g_pSecondarySurface_0049ce98);
         if (result != 0)
@@ -460,7 +460,7 @@ void DIBdestroyDIB(void)
     DAT_005b3970 = 0;
     DAT_005b3974 = 0;
     g_pDibPixelBuffer_005b3978 = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     g_stScreenViewport_005d21a0.pixels = 0;
     g_stScreenViewport_005d21a0.allocation = 0;
 #endif
@@ -500,7 +500,7 @@ void DisableDibSlam(void)
 /* Function start: 0x45DC33 */
 void DIBslamReal(void)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     DDSURFACEDESC surface;
     unsigned char *destination;
     unsigned char *source;
@@ -528,12 +528,12 @@ void DIBslamReal(void)
     }
 
     if (g_bDibDirty_005c395c != 0) {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         memset(&surface, 0, sizeof(surface));
         surface.dwSize = sizeof(surface);
 #endif
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* Only stamp the software cursor into the buffer actually being
          * presented.  The WC1 cursor-state struct this used to test is filled
          * in by InitializeEventManagerResources, which the WC2 path never
@@ -551,7 +551,7 @@ void DIBslamReal(void)
         DrawMouseCursor();
 #endif
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         if (g_nDisplayModeCascade_0049cea0 > 0) {
             result = IDirectDrawSurface_Lock(
                 g_pSecondarySurface_0049ce98,
@@ -612,11 +612,11 @@ void DIBslamReal(void)
                 g_pPrimarySurface_0049ce94, surface.lpSurface);
         }
 #else
-        if (!Wc1SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+        if (!SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
             DIBerror("DIBslamReal", -1);
 #endif
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         if (g_stMouseCursorState_0059ab10.viewport != 0 &&
             g_stMouseCursorState_0059ab10.viewport->pixels == g_pDibPixelBuffer_005b3978) {
             RestoreMouseCursorBackground();
@@ -625,7 +625,7 @@ void DIBslamReal(void)
         RestoreMouseCursorBackground();
 #endif
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         if (g_nDisplayModeCascade_0049cea0 > 0) {
             destinationRect.left = 0;
             destinationRect.top = 0;
@@ -671,7 +671,7 @@ void DIBslamReal(void)
 
     g_nDibPresentCount_005c3390++;
     ServiceSoundSystem();
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     ThrottleFrameAndDrawFps(0);
 #else
     dc = GetDC(g_hDibWindow_005c33a4);
@@ -683,7 +683,7 @@ void DIBslamReal(void)
 /* Function start: 0x45E060 */
 void DIBupdate(int left, int top, int right, int bottom)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     unsigned char *destination;
     unsigned char *source;
     DDSURFACEDESC surface;
@@ -711,10 +711,10 @@ void DIBupdate(int left, int top, int right, int bottom)
     if (bottom > 199)
         bottom = 199;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (right < left || bottom < top)
         return;
-    if (!Wc1SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+    if (!SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
         DIBerror("DIBupdate", -1);
 #else
     width = right - left + 1;
@@ -779,9 +779,9 @@ void CachePaletteEntryFromWords(short index, unsigned short *rgb)
 /* Function start: 0x45E37C */
 void DIBramPalette(void)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (g_pDibPixelBuffer_005b3978 != 0 &&
-        !Wc1SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+        !SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
         DIBerror("DIBramPalette", -1);
 #else
     PALETTEENTRY entries[256];
@@ -809,7 +809,7 @@ void DIBramPalette(void)
 /* Function start: 0x45E46C */
 void DIBsetPalette(short index, short *rgb)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     PALETTEENTRY entry;
     HRESULT result;
 #endif
@@ -831,10 +831,10 @@ void DIBsetPalette(short index, short *rgb)
             g_abPaletteCache_005c3450[index * 4];
         g_abPaletteCache_005c3450[index * 4 + 3] = 1;
 
-        /* WC1_SDL consumes this cache on the next normal frame submission.
+        /* SDL_PORT consumes this cache on the next normal frame submission.
            A DirectDraw palette entry update did not blit or wait for vertical
            blank, so flight fades must not submit additional SDL frames. */
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entry.peRed = (unsigned char)g_ausPaletteWords_005d3220[index][0];
         entry.peGreen = (unsigned char)g_ausPaletteWords_005d3220[index][1];
         entry.peBlue = (unsigned char)g_ausPaletteWords_005d3220[index][2];
@@ -867,34 +867,34 @@ void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 /* Function start: 0x45E667 */
 void DIBwholePaletteFromTriplets(unsigned char *palette)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     unsigned char entries[0x400];
     int error;
 #endif
     int index = 0x100;
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
 #else
-    Wc1SdlWaitForVerticalBlank();
+    SdlWaitForVerticalBlank();
 #endif
     for (index = 0; index < 0x100; index++) {
         g_abPaletteCache_005c3450[index * 4 + 2] =
             palette[index * 3];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4] =
             g_abPaletteCache_005c3450[index * 4 + 2];
 #endif
         g_abPaletteCache_005c3450[index * 4 + 1] =
             palette[index * 3 + 1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4 + 1] =
             g_abPaletteCache_005c3450[index * 4 + 1];
 #endif
         g_abPaletteCache_005c3450[index * 4] =
             palette[index * 3 + 2];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4 + 2] =
             g_abPaletteCache_005c3450[index * 4];
         entries[index * 4 + 3] = 0;
@@ -902,7 +902,7 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
         g_abPaletteCache_005c3450[index * 4 + 3] = 4;
     }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     DIBramPalette();
 #else
     if (g_bUseHardwarePalette_0049c268 != 0) {
@@ -923,34 +923,34 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
 /* Function start: 0x45E816 */
 void DIBwholePaletteFromWords(unsigned short *palette)
 {
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     unsigned char entries[0x400];
     int error;
 #endif
     int index = 0x100;
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
 #else
-    Wc1SdlWaitForVerticalBlank();
+    SdlWaitForVerticalBlank();
 #endif
     for (index = 0; index < 0x100; index++) {
         g_abPaletteCache_005c3450[index * 4 + 2] =
             *(unsigned char *)&palette[index * 3];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4] =
             g_abPaletteCache_005c3450[index * 4 + 2];
 #endif
         g_abPaletteCache_005c3450[index * 4 + 1] =
             *(unsigned char *)&palette[index * 3 + 1];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4 + 1] =
             g_abPaletteCache_005c3450[index * 4 + 1];
 #endif
         g_abPaletteCache_005c3450[index * 4] =
             *(unsigned char *)&palette[index * 3 + 2];
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         entries[index * 4 + 2] =
             g_abPaletteCache_005c3450[index * 4];
         entries[index * 4 + 3] = 0;
@@ -958,7 +958,7 @@ void DIBwholePaletteFromWords(unsigned short *palette)
         g_abPaletteCache_005c3450[index * 4 + 3] = 4;
     }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     DIBramPalette();
 #else
     if (g_bUseHardwarePalette_0049c268 != 0) {
@@ -979,220 +979,14 @@ void DIBwholePaletteFromWords(unsigned short *palette)
 /* Function start: 0x45E9C5 */
 void DIBwaitForVerticalBlank(void)
 {
-#ifdef WC1_SDL
-    Wc1SdlWaitForVerticalBlank();
+#ifdef SDL_PORT
+    SdlWaitForVerticalBlank();
 #else
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
 #endif
 }
 
-#ifndef WC1_SDL
-
-/* Function start: WC2_UNMAPPED */
-char *DirectDrawResultToText(int result)
-{
-    switch (result) {
-    case DDERR_ALREADYINITIALIZED:
-        return "DDERR_ALREADYINITIALIZED";
-    case DDERR_CANNOTATTACHSURFACE:
-        return "DDERR_CANNOTATTACHSURFACE";
-    case DDERR_CANNOTDETACHSURFACE:
-        return "DDERR_CANNOTDETACHSURFACE";
-    case DDERR_CURRENTLYNOTAVAIL:
-        return "DDERR_CURRENTLYNOTAVAIL";
-    case DDERR_EXCEPTION:
-        return "DDERR_EXCEPTION";
-    case DDERR_GENERIC:
-        return "DDERR_GENERIC";
-    case DDERR_HEIGHTALIGN:
-        return "DDERR_HEIGHTALIGN";
-    case DDERR_INCOMPATIBLEPRIMARY:
-        return "DDERR_INCOMPATIBLEPRIMARY";
-    case DDERR_INVALIDCAPS:
-        return "DDERR_INVALIDCAPS";
-    case DDERR_INVALIDCLIPLIST:
-        return "DDERR_INVALIDCLIPLIST";
-    case DDERR_INVALIDMODE:
-        return "DDERR_INVALIDMODE";
-    case DDERR_INVALIDOBJECT:
-        return "DDERR_INVALIDOBJECT";
-    case DDERR_INVALIDPARAMS:
-        return "DDERR_INVALIDPARAMS";
-    case DDERR_INVALIDPIXELFORMAT:
-        return "DDERR_INVALIDPIXELFORMAT";
-    case DDERR_INVALIDRECT:
-        return "DDERR_INVALIDRECT";
-    case DDERR_LOCKEDSURFACES:
-        return "DDERR_LOCKEDSURFACES";
-    case DDERR_NO3D:
-        return "DDERR_NO3D";
-    case DDERR_NOALPHAHW:
-        return "DDERR_NOALPHAHW";
-    case DDERR_NOCLIPLIST:
-        return "DDERR_NOCLIPLIST";
-    case DDERR_NOCOLORCONVHW:
-        return "DDERR_NOCOLORCONVHW";
-    case DDERR_NOCOOPERATIVELEVELSET:
-        return "DDERR_NOCOOPERATIVELEVELSET";
-    case DDERR_NOCOLORKEY:
-        return "DDERR_NOCOLORKEY";
-    case DDERR_NOCOLORKEYHW:
-        return "DDERR_NOCOLORKEYHW";
-    case DDERR_NODIRECTDRAWSUPPORT:
-        return "DDERR_NODIRECTDRAWSUPPORT";
-    case DDERR_NOEXCLUSIVEMODE:
-        return "DDERR_NOEXCLUSIVEMODE";
-    case DDERR_NOFLIPHW:
-        return "DDERR_NOFLIPHW";
-    case DDERR_NOGDI:
-        return "DDERR_NOGDI";
-    case DDERR_NOMIRRORHW:
-        return "DDERR_NOMIRRORHW";
-    case DDERR_NOTFOUND:
-        return "DDERR_NOTFOUND";
-    case DDERR_NOOVERLAYHW:
-        return "DDERR_NOOVERLAYHW";
-    case DDERR_NORASTEROPHW:
-        return "DDERR_NORASTEROPHW";
-    case DDERR_NOROTATIONHW:
-        return "DDERR_NOROTATIONHW";
-    case DDERR_NOSTRETCHHW:
-        return "DDERR_NOSTRETCHHW";
-    case DDERR_NOT4BITCOLOR:
-        return "DDERR_NOT4BITCOLOR";
-    case DDERR_NOT4BITCOLORINDEX:
-        return "DDERR_NOT4BITCOLORINDEX";
-    case DDERR_NOT8BITCOLOR:
-        return "DDERR_NOT8BITCOLOR";
-    case DDERR_NOTEXTUREHW:
-        return "DDERR_NOTEXTUREHW";
-    case DDERR_NOVSYNCHW:
-        return "DDERR_NOVSYNCHW";
-    case DDERR_NOZBUFFERHW:
-        return "DDERR_NOZBUFFERHW";
-    case DDERR_NOZOVERLAYHW:
-        return "DDERR_NOZOVERLAYHW";
-    case DDERR_OUTOFCAPS:
-        return "DDERR_OUTOFCAPS";
-    case DDERR_OUTOFMEMORY:
-        return "DDERR_OUTOFMEMORY";
-    case DDERR_OUTOFVIDEOMEMORY:
-        return "DDERR_OUTOFVIDEOMEMORY";
-    case DDERR_OVERLAYCANTCLIP:
-        return "DDERR_OVERLAYCANTCLIP";
-    case DDERR_OVERLAYCOLORKEYONLYONEACTIVE:
-        return "DDERR_OVERLAYCOLORKEYONLYONEACTIVE";
-    case DDERR_PALETTEBUSY:
-        return "DDERR_PALETTEBUSY";
-    case DDERR_COLORKEYNOTSET:
-        return "DDERR_COLORKEYNOTSET";
-    case DDERR_SURFACEALREADYATTACHED:
-        return "DDERR_SURFACEALREADYATTACHED";
-    case DDERR_SURFACEALREADYDEPENDENT:
-        return "DDERR_SURFACEALREADYDEPENDENT";
-    case DDERR_SURFACEBUSY:
-        return "DDERR_SURFACEBUSY";
-    case DDERR_CANTLOCKSURFACE:
-        return "DDERR_CANTLOCKSURFACE";
-    case DDERR_SURFACEISOBSCURED:
-        return "DDERR_SURFACEISOBSCURED";
-    case DDERR_SURFACELOST:
-        return "DDERR_SURFACELOST";
-    case DDERR_SURFACENOTATTACHED:
-        return "DDERR_SURFACENOTATTACHED";
-    case DDERR_TOOBIGHEIGHT:
-        return "DDERR_TOOBIGHEIGHT";
-    case DDERR_TOOBIGSIZE:
-        return "DDERR_TOOBIGSIZE";
-    case DDERR_TOOBIGWIDTH:
-        return "DDERR_TOOBIGWIDTH";
-    case DDERR_UNSUPPORTED:
-        return "DDERR_UNSUPPORTED";
-    case DDERR_UNSUPPORTEDFORMAT:
-        return "DDERR_UNSUPPORTEDFORMAT";
-    case DDERR_UNSUPPORTEDMASK:
-        return "DDERR_UNSUPPORTEDMASK";
-    case DDERR_VERTICALBLANKINPROGRESS:
-        return "DDERR_VERTICALBLANKINPROGRESS";
-    case DDERR_WASSTILLDRAWING:
-        return "DDERR_WASSTILLDRAWING";
-    case DDERR_XALIGN:
-        return "DDERR_XALIGN";
-    case DDERR_INVALIDDIRECTDRAWGUID:
-        return "DDERR_INVALIDDIRECTDRAWGUID";
-    case DDERR_DIRECTDRAWALREADYCREATED:
-        return "DDERR_DIRECTDRAWALREADYCREATED";
-    case DDERR_NODIRECTDRAWHW:
-        return "DDERR_NODIRECTDRAWHW";
-    case DDERR_PRIMARYSURFACEALREADYEXISTS:
-        return "DDERR_PRIMARYSURFACEALREADYEXISTS";
-    case DDERR_NOEMULATION:
-        return "DDERR_NOEMULATION";
-    case DDERR_REGIONTOOSMALL:
-        return "DDERR_REGIONTOOSMALL";
-    case DDERR_CLIPPERISUSINGHWND:
-        return "DDERR_CLIPPERISUSINGHWND";
-    case DDERR_NOCLIPPERATTACHED:
-        return "DDERR_NOCLIPPERATTACHED";
-    case DDERR_NOHWND:
-        return "DDERR_NOHWND";
-    case DDERR_HWNDSUBCLASSED:
-        return "DDERR_HWNDSUBCLASSED";
-    case DDERR_HWNDALREADYSET:
-        return "DDERR_HWNDALREADYSET";
-    case DDERR_NOPALETTEATTACHED:
-        return "DDERR_NOPALETTEATTACHED";
-    case DDERR_NOPALETTEHW:
-        return "DDERR_NOPALETTEHW";
-    case DDERR_BLTFASTCANTCLIP:
-        return "DDERR_BLTFASTCANTCLIP";
-    case DDERR_NOBLTHW:
-        return "DDERR_NOBLTHW";
-    case DDERR_NODDROPSHW:
-        return "DDERR_NODDROPSHW";
-    case DDERR_OVERLAYNOTVISIBLE:
-        return "DDERR_OVERLAYNOTVISIBLE";
-    case DDERR_NOOVERLAYDEST:
-        return "DDERR_NOOVERLAYDEST";
-    case DDERR_INVALIDPOSITION:
-        return "DDERR_INVALIDPOSITION";
-    case DDERR_NOTAOVERLAYSURFACE:
-        return "DDERR_NOTAOVERLAYSURFACE";
-    case DDERR_EXCLUSIVEMODEALREADYSET:
-        return "DDERR_EXCLUSIVEMODEALREADYSET";
-    case DDERR_NOTFLIPPABLE:
-        return "DDERR_NOTFLIPPABLE";
-    case DDERR_CANTDUPLICATE:
-        return "DDERR_CANTDUPLICATE";
-    case DDERR_NOTLOCKED:
-        return "DDERR_NOTLOCKED";
-    case DDERR_CANTCREATEDC:
-        return "DDERR_CANTCREATEDC";
-    case DDERR_NODC:
-        return "DDERR_NODC";
-    case DDERR_WRONGMODE:
-        return "DDERR_WRONGMODE";
-    case DDERR_IMPLICITLYCREATED:
-        return "DDERR_IMPLICITLYCREATED";
-    case DDERR_NOTPALETTIZED:
-        return "DDERR_NOTPALETTIZED";
-    case DDERR_UNSUPPORTEDMODE:
-        return "DDERR_UNSUPPORTEDMODE";
-    case DDERR_NOMIPMAPHW:
-        return "DDERR_NOMIPMAPHW";
-    case DDERR_INVALIDSURFACETYPE:
-        return "DDERR_INVALIDSURFACETYPE";
-    case DDERR_DCALREADYCREATED:
-        return "DDERR_DCALREADYCREATED";
-    case DDERR_CANTPAGELOCK:
-        return "DDERR_CANTPAGELOCK";
-    case DDERR_CANTPAGEUNLOCK:
-        return "DDERR_CANTPAGEUNLOCK";
-    case DDERR_NOTPAGELOCKED:
-        return "DDERR_NOTPAGELOCKED";
-    }
-    return "<undefined>";
-}
+#ifndef SDL_PORT
 
 #endif

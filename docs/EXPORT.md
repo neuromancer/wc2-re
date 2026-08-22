@@ -1,9 +1,8 @@
 # Producing `code-full/`
 
-> **WC2 branch:** `make report` stages `data/full/WC2.ORI.EXE` and creates a
-> stamped WC2 `code-full/` export automatically. `make export-asm` forces a
-> clean regeneration. WC1-specific examples below are retained as historical
-> reconstruction documentation.
+`make report` stages `data/full/WC2.ORI.EXE` and creates a stamped
+`code-full/` export automatically. `make export-asm` forces a clean
+regeneration.
 
 `code-full/` holds the original disassembly that every binary-comp comparison reads. Files
 are named by **entry address**, not by symbol:
@@ -39,17 +38,17 @@ Useful flags via `EXPORT_ASM_FLAGS`:
 ```sh
 make export-asm EXPORT_ASM_FLAGS=--discover   # also find starts from calls/jumps/prologues
 make export-asm EXPORT_ASM_FLAGS=--clean      # drop stale exports first
-make export-asm EXPORT_ASM_FLAGS="--map WC1.ORIGINAL.map"   # if an original map ever surfaces
+make export-asm EXPORT_ASM_FLAGS="--map ORIGINAL.map"   # if an original map ever surfaces
 ```
 
 Limitation: it only knows addresses, so the `Function:` header carries whatever name the
-source annotation implies. It has no access to the 1,450 names in the Ghidra database.
+source annotation implies. It has no access to the names in the Ghidra database.
 
 ## 2. `ExportToCompile.java` — from Ghidra, with names
 
 The canonical exporter is maintained in binary-comp as
 [`ghidra_scripts/ExportToCompile.java`](https://github.com/gg-sl-oss/binary-comp/blob/main/ghidra_scripts/ExportToCompile.java).
-Download that script, then run it from Ghidra's **Script Manager** with `WC1.EXE` open. It
+Download that script, then run it from Ghidra's **Script Manager** with `WC2.EXE` open. It
 exports, for every function:
 
 - `FUN_XXXXXXXX.disassembled.txt` — disassembly, with the Ghidra function name in the header
@@ -71,13 +70,12 @@ than driven remotely.
 
 | Command | Needs |
 |---|---|
-| `make compare-func FUNC=X` | `FUN_<addr>.disassembled.txt`, linked `WC1.EXE` + `WC1.map` |
+| `make compare-func FUNC=X` | `FUN_<addr>.disassembled.txt`, linked `WC2.EXE` + `WC2.map` |
 | `make report` | same, for every annotated function |
 | `make order` | same |
 | `make verify-calls` | additionally the `.decompiled.txt` exports |
 | `make verify-globals` | additionally `code-full/globals.h` |
-| `make compare` / `compare-functions` | `data/full/WC1.ORI.EXE` and a linked `WC1.EXE` |
+| `make compare` / `compare-functions` | `data/full/WC2.ORI.EXE` and a linked `WC2.EXE` |
 
-Everything above also requires the project to **link**. That is why `src/stubs.c` exists: a
-`WinMain` stub so `WinMainCRTStartup` resolves and a real PE + map get produced from day one.
-Replace stubs with recovered implementations as they land; do not add new ones without need.
+Everything above also requires the project to **link**, because binary-comp
+compares the linked PE and map rather than individual source files.

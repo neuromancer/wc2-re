@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include "video_internal.h"
 
@@ -9,12 +9,12 @@
 
 #include <string.h>
 
-typedef void(APIENTRY *Wc2TestGlReadPixelsProc)(GLint x, GLint y,
+typedef void(APIENTRY *TestGlReadPixelsProc)(GLint x, GLint y,
                                                 GLsizei width,
                                                 GLsizei height,
                                                 GLenum format, GLenum type,
                                                 void *pixels);
-typedef void(APIENTRY *Wc2TestGlReadBufferProc)(GLenum source);
+typedef void(APIENTRY *TestGlReadBufferProc)(GLenum source);
 
 static unsigned char *CreateSinglePixelShape(void)
 {
@@ -34,8 +34,8 @@ static unsigned char *CreateSinglePixelShape(void)
 
 static int ReadRedPixelNearCentre(unsigned char *frame, int width,
                                   int height,
-                                  Wc2TestGlReadPixelsProc readPixels,
-                                  Wc2TestGlReadBufferProc readBuffer)
+                                  TestGlReadPixelsProc readPixels,
+                                  TestGlReadBufferProc readBuffer)
 {
     int bottom;
     int left;
@@ -70,16 +70,16 @@ static int ReadRedPixelNearCentre(unsigned char *frame, int width,
 static int CheckSpaceLayerLifetime(Viewport *viewport, unsigned char *pixels,
                                    int width, int height)
 {
-    Wc2TestGlReadPixelsProc readPixels;
-    Wc2TestGlReadBufferProc readBuffer;
+    TestGlReadPixelsProc readPixels;
+    TestGlReadBufferProc readBuffer;
     unsigned char *frame;
     unsigned char *shape;
     int result;
 
     readPixels =
-        (Wc2TestGlReadPixelsProc)SDL_GL_GetProcAddress("glReadPixels");
+        (TestGlReadPixelsProc)SDL_GL_GetProcAddress("glReadPixels");
     readBuffer =
-        (Wc2TestGlReadBufferProc)SDL_GL_GetProcAddress("glReadBuffer");
+        (TestGlReadBufferProc)SDL_GL_GetProcAddress("glReadBuffer");
     frame = malloc((size_t)width * (size_t)height * 4U);
     shape = CreateSinglePixelShape();
     if (readPixels == 0 || readBuffer == 0 || frame == 0 || shape == 0) {
@@ -92,10 +92,10 @@ static int CheckSpaceLayerLifetime(Viewport *viewport, unsigned char *pixels,
     memset(pixels, 0, 320 * 200);
     g_bSpaceFlightActive_005c586c = 1;
     g_nFrameSkipCountdown_0049d760 = 1;
-    Wc1SdlBeginSpaceFrame(0, 5, 1, 0);
-    result = Wc1SdlRecordSpaceSprite(
+    SdlBeginSpaceFrame(0, 5, 1, 0);
+    result = SdlRecordSpaceSprite(
         viewport, 160.0f, 100.0f, shape, 0, 0, 0x100, 0);
-    Wc1SdlCompleteSpaceFrame();
+    SdlCompleteSpaceFrame();
     MarkDibDirty();
     DIBslamReal();
     result = result && ReadRedPixelNearCentre(
@@ -124,7 +124,7 @@ static int CheckSpaceLayerLifetime(Viewport *viewport, unsigned char *pixels,
     result = result && !ReadRedPixelNearCentre(
                             frame, width, height, readPixels, readBuffer);
 
-    Wc1SdlCancelSpaceFrame();
+    SdlCancelSpaceFrame();
     g_bSpaceFlightActive_005c586c = 0;
     free(frame);
     ReleasePacketHandle(shape);
@@ -188,14 +188,14 @@ int main(int argumentCount, char **arguments)
         fprintf(stderr, "Skipping GL renderer tests: %s\n", SDL_GetError());
         return 77;
     }
-    Wc1SdlSetVideoBackend(WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
+    SdlSetVideoBackend(SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     windowFlags = SDL_WINDOW_HIDDEN;
-    if (!Wc1SdlConfigureVideoWindow(&windowFlags)) {
+    if (!SdlConfigureVideoWindow(&windowFlags)) {
         fprintf(stderr, "Skipping GL renderer tests: %s\n", SDL_GetError());
         SDL_Quit();
         return 77;
     }
-    window = SDL_CreateWindow("WC2 GL renderer test", 0, 0, 640, 400,
+    window = SDL_CreateWindow("GL renderer test", 0, 0, 640, 400,
                               windowFlags);
     if (window == 0) {
         fprintf(stderr, "Skipping GL renderer tests: %s\n", SDL_GetError());

@@ -1,9 +1,9 @@
 /*
  *  ix diagnostic printer.
  *
- *  MODULE BOUNDARY UNVERIFIED: ix_log_printf sits at 0x004426A0, below
- *  streamer.cpp (0x00442750), so it belongs to an earlier ix object file whose
- *  extent is not yet known.  Built /Od like the rest of ix.
+ *  MODULE BOUNDARY UNVERIFIED: ix_log_printf sits at 0x00428BD4, separate
+ *  from the other mapped ix ranges, so its original object extent is not yet
+ *  known. Built /Od like the rest of ix.
  *
  *  Every ix diagnostic goes through here, 107 call sites, always in pairs:
  *      ix_log_printf("Fatal [%s - %d]:\n", __FILE__, __LINE__);
@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #include <crtdbg.h>
 #pragma function(strcpy)
 #endif
@@ -23,7 +23,7 @@
 char g_szIxLogBuffer_005b2c98[1024];
 
 /* Mono-monitor debug printer in the game core (C linkage). */
-extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00403DB0 */
+extern "C" void SoundDebugPrintf(const char *fmt, ...);   /* 0x00437946 */
 
 /* Function start: 0x428BD4 */
 void ix_log_printf(const char *fmt, ...)
@@ -37,8 +37,8 @@ void ix_log_printf(const char *fmt, ...)
     } else {
         strcpy(g_szIxLogBuffer_005b2c98, "(null)");
     }
-#ifdef WC1_SDL
-    Wc1SdlOutputDebugString(g_szIxLogBuffer_005b2c98);
+#ifdef SDL_PORT
+    SdlOutputDebugString(g_szIxLogBuffer_005b2c98);
 #else
     OutputDebugStringA(g_szIxLogBuffer_005b2c98);
 #endif

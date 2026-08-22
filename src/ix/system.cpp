@@ -192,7 +192,7 @@ extern "C" void ix_system_delete_sound(IxSound *sound)
     }
 }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* Port-only; see ix.h.  The three lists together hold every sound the system
  * still owns, and they are short enough that a walk costs nothing. */
 extern "C" int ix_sound_is_live(const IxSound *sound)

@@ -5,7 +5,7 @@
  *  Boundary evidence: contiguous SAVEGAME.WLD helpers ending at BarracksScreen;
  *  the Win32 debug-overlay compilation unit begins at 0x41c760.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x46138D */
 void DrawUnreferencedPilotHandFrame(Viewport *viewport, unsigned char *shape,

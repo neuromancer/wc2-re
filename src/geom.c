@@ -5,7 +5,7 @@
  *  Boundary evidence: geometry helpers followed by the contiguous modal-panel
  *  drawing block, before the save/load tranche at 0x41ada0.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(strcat, memset)
 
@@ -22,12 +22,6 @@ short MeasureTextPixelWidthClamped(const char *text)
     if (*scan-- != 0)
         width = (short)(width - GetFontCharWidth(*scan));
     return width;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short GetMusicDriverPresent(short mode)
-{
-    return 1;
 }
 
 /* Function start: 0x4589D0 */
@@ -143,7 +137,7 @@ void point_at(short obj, FixedVector point)
 /* Function start: 0x40A6F7 */
 void look_at(short obj)
 {
-    point_at(WC2_EYE_OBJECT, g_aShipPosition_00494550[obj]);
+    point_at(EYE_OBJECT, g_aShipPosition_00494550[obj]);
 }
 
 /* Function start: 0x40A725 */
@@ -152,7 +146,7 @@ void position_relative(FixedVector *position, FixedVector direction,
 {
     if (distance != 0) {
         NormalizeFixedVector(&direction);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         ScaleFixedVector(&direction, (int)distance * 0x100, &direction);
 #else
         ScaleFixedVector(&direction, (int)distance << 8, &direction);
@@ -307,7 +301,7 @@ short ChooseRandomSignedMagnitude(short minimum, short maximum,
 /* Function start: 0x40AC24 */
 void MakeRandomVectorFixed(short minimum, short maximum, FixedVector *vector)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     vector->x = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
     vector->y = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
     vector->z = ChooseRandomSignedMagnitude(minimum, maximum, 1) * 0x100;
@@ -790,7 +784,7 @@ void NormalizeAndScaleVector(FixedVector *vector, int scale)
 /* Function start: 0x40BF36 */
 void SetVectorFixedPoint(unsigned int *p, short v)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     NormalizeAndScaleVector((FixedVector *)p, (int)v * 0x100);
 #else
     NormalizeAndScaleVector((FixedVector *)p, (int)v << 8);
@@ -816,7 +810,7 @@ short check_for_collision(short obj)
 
     objectPosition = &g_aShipPosition_00494550[obj];
     position = g_aShipPosition_00494550;
-    for (other = 0; other <= WC2_SPACE_LAST_MOVING_OBJECT;
+    for (other = 0; other <= SPACE_LAST_MOVING_OBJECT;
          other++, position++) {
         if (other != obj &&
             g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
@@ -880,7 +874,7 @@ short find_vacant_3d_object(void)
 {
     short object;
 
-    for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+    for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++) {
         if (g_aeObjectClass_00495328[object] == OBJECT_CLASS_NULL) {
             g_asObjectScreenX_00493598[object] = (short)0x8001;
             return object;
@@ -1072,7 +1066,7 @@ void transform_objects_to_your_view(void)
     FixedVector direction;
 
     draw_nav_pointer();
-    for (obj = 0; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+    for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL)
             continue;
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FIXED_OBJECT)
@@ -1096,13 +1090,13 @@ void transform_objects_to_your_view(void)
                 g_aeObjectClass_00495328[obj] == OBJECT_CLASS_STAR) {
                 direction = g_aShipPosition_00494550[obj];
             } else {
-                ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                ComputeVectorDelta(&g_aShipPosition_00494550[EYE_OBJECT],
                                    &g_aShipPosition_00494550[obj],
                                    &direction);
             }
             distance = Vector_magnitude(&direction);
             if (distance <
-                g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100) {
+                g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
@@ -1112,14 +1106,14 @@ void transform_objects_to_your_view(void)
                 continue;
             }
             transform_to_objects_frame(&direction, &viewPosition,
-                                       WC2_EYE_OBJECT);
-#ifdef WC1_SDL
+                                       EYE_OBJECT);
+#ifdef SDL_PORT
             /* The enhanced object layer needs the unrounded projection to
              * keep fixed thruster children attached to their ships. */
             g_aObjectViewPosition_0059afa0[obj] = viewPosition;
 #endif
             if (viewPosition.z <
-                g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] * 0x100) {
+                g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
@@ -1161,7 +1155,7 @@ void transform_objects_to_your_view(void)
             case OBJECT_CLASS_DUST:
                 dustSize = (short)(MultiplyFixed(
                     0x900, DivideFixed(
-                        g_asObjectCollisionRadius_004950e8[WC2_EYE_OBJECT] << 8,
+                        g_asObjectCollisionRadius_004950e8[EYE_OBJECT] << 8,
                         distance)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
@@ -1205,15 +1199,15 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
 
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
-    init_ijk(WC2_SCRATCH_VIEW_OBJECT);
-    alter_yaw((short)-spherical.yaw, WC2_SCRATCH_VIEW_OBJECT);
-    alter_pitch((short)-spherical.pitch, WC2_SCRATCH_VIEW_OBJECT);
+    init_ijk(SCRATCH_VIEW_OBJECT);
+    alter_yaw((short)-spherical.yaw, SCRATCH_VIEW_OBJECT);
+    alter_pitch((short)-spherical.pitch, SCRATCH_VIEW_OBJECT);
     projectedUp.x = dot_product(
-        &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-        &g_aShipRightVector_00493b78[WC2_SCRATCH_VIEW_OBJECT]);
+        &g_aShipUpVector_00493ec0[EYE_OBJECT],
+        &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT]);
     projectedUp.y = dot_product(
-        &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-        &g_aShipUpVector_00493ec0[WC2_SCRATCH_VIEW_OBJECT]);
+        &g_aShipUpVector_00493ec0[EYE_OBJECT],
+        &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT]);
     projectedUp.z = 0;
     NormalizeFixedVector(&projectedUp);
     angle = (short)ArcCos(projectedUp.y);
@@ -1260,7 +1254,7 @@ void get_right_shape(short obj, FixedVector *direction)
     NormalizeFixedVector(&up);
     NormalizeFixedVector(&forward);
     transform_to_objects_frame(&forward, &objectForward, obj);
-    transform_to_objects_frame(&g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
+    transform_to_objects_frame(&g_aShipUpVector_00493ec0[EYE_OBJECT],
                                &eyeUp, obj);
     rectangular_to_spherical(&objectForward, &spherical);
     pitchBand = (short)(spherical.pitch / 30 + 3);
@@ -1306,10 +1300,10 @@ void get_right_shape(short obj, FixedVector *direction)
     }
     if (objectClass == OBJECT_CLASS_MISSILE ||
         (objectClass < OBJECT_CLASS_SHIP && type == 12)) {
-        directionIndex = (short)(directionIndex + WC1_DIRECTION_VIEW_COUNT);
+        directionIndex = (short)(directionIndex + DIRECTION_VIEW_COUNT);
     } else if (objectClass == OBJECT_CLASS_BASE) {
         directionIndex =
-            (short)(directionIndex + WC1_DIRECTION_VIEW_COUNT * 2);
+            (short)(directionIndex + DIRECTION_VIEW_COUNT * 2);
     }
     if (g_acDirectionShapeFrame_0049d558[directionIndex] == 0)
         angle = (short)(angle + 90);
@@ -1667,7 +1661,7 @@ short ReadTextInput(char *destination, short maximumLength,
                 }
                 if (allowPathSeparators == 0 ||
                     (key != ':' && key != '\\')) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                     characterClass = isalnum((unsigned char)key);
 #else
                     if (__mb_cur_max > 1)

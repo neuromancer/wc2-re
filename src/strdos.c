@@ -4,7 +4,7 @@
  *  Address range 0x435400-0x4355ff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: all __stdcall with short-width arguments, each forwarding to one CRT routine.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(strlen, strcpy, memcpy, memset)
 
@@ -78,45 +78,10 @@ short InitializeInputManagerMemory(void)
     return 1;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned short GetEventManagerStatus(void)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall RegisterEventManagerShutdown(void (*fn)(void))
-{
-}
-
-/* Function start: WC2_UNMAPPED */
-short __stdcall InitializeEventManager(short period,
-                                       unsigned short (*initialize)(void),
-                                       void *configuration)
-{
-    g_bInputManagerInitialized_005c80ca = 1;
-    if (initialize != 0)
-        initialize();
-    return 1;
-}
-
 /* Function start: 0x4625CB */
 void ShutdownEventManager(void)
 {
     g_bInputManagerInitialized_005c80ca = 0;
     ReleasePacketHandle(g_pInputManagerState_005c8464);
     return;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short __stdcall ConfigureEventManagerPointer(
-    unsigned char *shape, short frame)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall SetEventManagerPump(void (*pump)(void))
-{
-    DAT_0059ab2c = pump;
 }

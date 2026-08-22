@@ -6,7 +6,7 @@
  *  The Mac CODE 4 `targ` symbols prove the nested 0x42A8F0-0x42ACFF unit.
  *  The Mac CODE 15 `select` symbols prove the nested 0x42AD00-0x42AF9F unit.
  */
-#include "wc1.h"
+#include "game.h"
 
 static unsigned char g_abPauseInputState_005c85d0[0x100];
 static unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
@@ -22,16 +22,16 @@ short MeasureMessageWidth(const char *text)
 /* Function start: 0x467300 */
 void AcknowledgeModalMessage(void)
 {
-#ifdef WC1_SDL
-    Wc1SdlSuspendMouseGrab();
+#ifdef SDL_PORT
+    SdlSuspendMouseGrab();
 #endif
     ConfigureInputPump(1, PollJoystickButtonEvents);
     SetFrameTimerAndWait(20);
     FlushPendingInputEvents();
     _getch();
     ConfigureInputPump(1, get_player_input);
-#ifdef WC1_SDL
-    Wc1SdlResumeMouseGrab();
+#ifdef SDL_PORT
+    SdlResumeMouseGrab();
 #endif
 }
 
@@ -70,9 +70,9 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     va_start(arguments, format);
     vsprintf(text, format, arguments);
     va_end(arguments);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (duration == 9999)
-        Wc1SdlSuspendMouseGrab();
+        SdlSuspendMouseGrab();
 #endif
     modalShown = 0;
     if (duration == 9999)
@@ -100,9 +100,9 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     } else {
         ReleaseModalTextPanel();
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if (duration == 9999)
-        Wc1SdlResumeMouseGrab();
+        SdlResumeMouseGrab();
 #endif
 }
 
@@ -112,13 +112,13 @@ void ShowGamePausedBanner(short showBanner)
     if (showBanner != 0) {
         ShowOnScreenMessage(9999, "GAME PAUSED");
     } else {
-#ifdef WC1_SDL
-        Wc1SdlSuspendMouseGrab();
+#ifdef SDL_PORT
+        SdlSuspendMouseGrab();
 #endif
         while (WaitForInputKey() == 0)
             ServiceSoundSystem();
-#ifdef WC1_SDL
-        Wc1SdlResumeMouseGrab();
+#ifdef SDL_PORT
+        SdlResumeMouseGrab();
 #endif
     }
 }
@@ -708,7 +708,7 @@ short HandleSpaceFlightControls(void)
         g_bSceneEscapeRequested_0049d4b0 = 0;
         if (get_mode(1) == 4) {
             CloseCommChoiceMenu();
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         } else {
             /* Retail leaves Escape inert here.  The port makes it another
              * pause key while preserving its communication-menu action. */
@@ -740,7 +740,7 @@ short HandleSpaceFlightControls(void)
             CalibrateJoystickInteractive();
         break;
     case 0x19:
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 pause_spaceflight:
 #endif
         g_bPauseInputActive_0049ac9c = 1;
@@ -930,8 +930,8 @@ unsigned int DrawSpaceSceneFrame(void)
     place_exhaust_on_ships();
     reposition_fixed_child_objects();
     BuildObjectDepthOrder();
-#ifdef WC1_SDL
-    Wc1SdlBeginSpaceFrame(
+#ifdef SDL_PORT
+    SdlBeginSpaceFrame(
         (const struct ScreenViewportGeometry *)
             g_pScreenViewportGeometry_005c82b0,
         (int)g_cScreenViewportMode_005c82a6,
@@ -1123,11 +1123,11 @@ void FinishCannedScenePlayback(void)
     if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
         return;
     g_pCannedSceneStateBlock_005d3fb0 =
-        (void *)IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockB_00490200);
-#ifndef WC1_SDL
+        (void *)IdentityDword((DwordPtr)g_pHighMemoryBlockB_00490200);
+#ifndef SDL_PORT
     memcpy(&g_dwCannedSceneSnapshotStart_00493130,
            g_pCannedSceneStateBlock_005d3fb0,
-           WC2_CANNED_SCENE_SNAPSHOT_BYTES);
+           CANNED_SCENE_SNAPSHOT_BYTES);
 #endif
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
@@ -1189,7 +1189,7 @@ unsigned short ApplyCannedSceneObjectEventRecord(
     event = record->event;
     switch (event) {
     case 0:
-        if (objectType == WC2_OBJECT_TYPE_STAR) {
+        if (objectType == OBJECT_DATA_STAR) {
             ClearViewport(&g_stViewBuffer_005d2b00,
                           g_bPrimaryViewBufferColour_0049cb50);
             g_bViewportDirty_0049d76c++;
@@ -1255,7 +1255,7 @@ void ApplyCannedSceneFrameEvents(void)
     done = 0;
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         g_dwHighMemoryParagraph_005d3fb4 =
-            IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+            IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
         while (done == 0) {
             record = (CannedSceneRecordHeader *)(
                 (unsigned int)(unsigned short)
@@ -1329,13 +1329,13 @@ void WriteTapeInitialState(void)
     file = CreateDataFile(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
         ReportFatalErrorCode(g_szCannedSceneCreateError_00490270);
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     WriteDataFileAtOffset((unsigned short)file,
                           g_nCannedSceneFileOffset_005d3fac,
-                          WC2_CANNED_SCENE_SNAPSHOT_BYTES,
+                          CANNED_SCENE_SNAPSHOT_BYTES,
                           &g_dwCannedSceneSnapshotStart_00493130);
 #endif
-    g_nCannedSceneFileOffset_005d3fac += WC2_CANNED_SCENE_SNAPSHOT_BYTES;
+    g_nCannedSceneFileOffset_005d3fac += CANNED_SCENE_SNAPSHOT_BYTES;
     CloseDataFile((unsigned short)file);
 }
 
@@ -1374,7 +1374,7 @@ void InitializeCannedSceneFrameIndex(void)
         g_asCannedSceneFrameOffsets_005d3fc0[index] = -1;
     g_nCannedSceneWriteIndex_005d3fa8 = 0;
     header = (CannedSceneBufferHeader *)IdentityDword(
-        (Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+        (DwordPtr)g_pHighMemoryBlockA_004901f8);
     header->nextFrame = -1;
     header->byteCount = 0x29a;
 }
@@ -1390,17 +1390,17 @@ void HandleCannedSceneBufferBoundary(void)
 
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         if (g_nCannedSceneMode_0049021c != 0) {
-            savedPosition = g_aShipPosition_00494550[WC2_EYE_OBJECT];
-            savedVelocity = g_aShipVelocity_00494898[WC2_EYE_OBJECT];
-            savedUp = g_aShipUpVector_00493ec0[WC2_EYE_OBJECT];
-            savedForward = g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+            savedPosition = g_aShipPosition_00494550[EYE_OBJECT];
+            savedVelocity = g_aShipVelocity_00494898[EYE_OBJECT];
+            savedUp = g_aShipUpVector_00493ec0[EYE_OBJECT];
+            savedForward = g_aShipForwardVector_00494208[EYE_OBJECT];
             savedView = g_nCurrentView_00492fa8;
             LoadCannedScenePlaybackBuffer();
             ResetCannedScenePlaybackBuffer();
-            g_aShipPosition_00494550[WC2_EYE_OBJECT] = savedPosition;
-            g_aShipVelocity_00494898[WC2_EYE_OBJECT] = savedVelocity;
-            g_aShipUpVector_00493ec0[WC2_EYE_OBJECT] = savedUp;
-            g_aShipForwardVector_00494208[WC2_EYE_OBJECT] = savedForward;
+            g_aShipPosition_00494550[EYE_OBJECT] = savedPosition;
+            g_aShipVelocity_00494898[EYE_OBJECT] = savedVelocity;
+            g_aShipUpVector_00493ec0[EYE_OBJECT] = savedUp;
+            g_aShipForwardVector_00494208[EYE_OBJECT] = savedForward;
             g_nCurrentView_00492fa8 = savedView;
         } else {
             FlushCannedSceneRecordingBuffer();
@@ -1458,7 +1458,7 @@ void RecordCannedSceneObjectState(short obj)
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0 &&
         g_nCannedSceneMode_0049021c == 0) {
         g_dwHighMemoryParagraph_005d3fb4 =
-            IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+            IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
         mode = GetCannedSceneObjectMode(obj);
         if ((unsigned short)g_asCannedSceneFrameOffsets_005d3fc0[obj] !=
             0xffff) {
@@ -1507,7 +1507,7 @@ void RecordCannedSceneObjectEvent(short obj, int event)
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
         if (g_nCannedSceneMode_0049021c == 0) {
             g_dwHighMemoryParagraph_005d3fb4 =
-                IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+                IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
             record = (CannedSceneObjectEventRecord *)(
                 (unsigned int)(unsigned short)
                     g_nCannedSceneWriteIndex_005d3fa8 +
@@ -1613,8 +1613,8 @@ int RunSpaceFlight(short entryNavPoint)
                  g_stViewBuffer_005d2b00.bottom) / 2));
     g_nCockpitControlState_0049d7ac = 0;
     g_nArcadeState_0049d75c = 0;
-#ifdef WC1_SDL
-    Wc1SdlSetMouseGrab(1);
+#ifdef SDL_PORT
+    SdlSetMouseGrab(1);
 #endif
 
     while (g_nArcadeState_0049d75c == 0) {
@@ -1650,9 +1650,9 @@ int RunSpaceFlight(short entryNavPoint)
         WaitForFrameTick();
     }
 
-#ifdef WC1_SDL
-    Wc1SdlSetMouseGrab(0);
-    Wc1SdlCancelSpaceFrame();
+#ifdef SDL_PORT
+    SdlSetMouseGrab(0);
+    SdlCancelSpaceFrame();
 #endif
     SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
                     (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
@@ -1929,7 +1929,7 @@ short find_next_gun(short obj, short currentGun)
     for (weapon = 0; weapon < weaponCount; weapon++, weaponSlot++) {
         if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE) {
-            if (weaponSlot->type != WC2_OBJECT_TYPE_TURRET_GUN) {
+            if (weaponSlot->type != OBJECT_DATA_TURRET_GUN) {
                 if (firstGun == -1)
                     firstGun = weaponSlot->type;
                 if (foundCurrent == 0) {

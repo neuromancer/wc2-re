@@ -4,7 +4,7 @@
  *  Address range 0x434cd0-0x4353ff (provisional -- see docs/ORDER.md).
  *  The preceding smart unit ends at chase_speed (0x434c70).
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(sin, cos, asin, acos, sqrt)
 
@@ -75,7 +75,7 @@ long SinFixed(short degrees)
     long result;
 
     angle = (float)degrees;
-    result = (long)(sin((double)angle * WC1_DEG2RAD) * 256.0);
+    result = (long)(sin((double)angle * DEG2RAD) * 256.0);
     return result;
 }
 
@@ -86,7 +86,7 @@ long CosFixed(short degrees)
     long result;
 
     angle = (float)degrees;
-    result = (long)(cos((double)angle * WC1_DEG2RAD) * 256.0);
+    result = (long)(cos((double)angle * DEG2RAD) * 256.0);
     return result;
 }
 
@@ -202,11 +202,6 @@ unsigned short GetFontCharWidth(char i)
     return g_pCurrentTextContext_005c8d1c->font[4 + (int)i];
 }
 
-/* Function start: WC2_UNMAPPED */
-void ReleaseVideoResourcesHook(void)
-{
-}
-
 /* Function start: 0x461DE0 */
 void ApplySpacePaletteModeHook(void)
 {
@@ -217,7 +212,7 @@ short GetShapeFrameBounds(short *bounds, short x, short y,
                           unsigned char *shape, short frame)
 {
     short frameTableOffset;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     short frameData[4];
 #else
     short *frameData;
@@ -226,7 +221,7 @@ short GetShapeFrameBounds(short *bounds, short x, short y,
     frameTableOffset = (short)(frame * 4);
     if ((int)frameTableOffset < (int)*(unsigned short *)(shape + 4)) {
         frameTableOffset = (short)(frameTableOffset + 4);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         memcpy(frameData,
                shape + *(unsigned short *)(shape + frameTableOffset),
                sizeof(frameData));

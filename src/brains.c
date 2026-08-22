@@ -8,7 +8,7 @@
  *  0x409760-0x40b66f.  Mac CODE 6 also maps the adjacent `fl` maneuver family
  *  across 0x4060a0-0x4075cf; the enclosing Win32 boundaries remain provisional.
  */
-#include "wc1.h"
+#include "game.h"
 
 static char g_szStartingCampaignGlobalsFile_004926c8[] = "startglb.000";
 
@@ -943,22 +943,22 @@ void Mreset(short ship)
  * checking it, and MANEUVER_NONE is -1.  The byte in front of the table is
  * zero in the retail image, so the port answers zero rather than reproduce
  * the overrun. */
-#ifdef WC1_SDL
-#define WC1_MANEUVER_REROLL_CHANCE(m) \
+#ifdef SDL_PORT
+#define MANEUVER_REROLL_CHANCE(m) \
     ((m) != MANEUVER_NONE ? g_abManeuverRerollChance_0049b538[m] : 0)
 #else
-#define WC1_MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance_0049b538[m]
+#define MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance_0049b538[m]
 #endif
 
 /* WC2 adds the target's collision radius before it has checked the target, so
  * with nothing targeted it reads the word at 0x4950e6, in the zero-filled
  * alignment gap before the radius table.  Make that result explicit on the
  * native port rather than cross a global's sanitizer redzone. */
-#ifdef WC1_SDL
-#define WC1_COLLISION_RADIUS_OF(obj) \
+#ifdef SDL_PORT
+#define COLLISION_RADIUS_OF(obj) \
     ((obj) != -1 ? g_asObjectCollisionRadius_004950e8[obj] : 0)
 #else
-#define WC1_COLLISION_RADIUS_OF(obj) g_asObjectCollisionRadius_004950e8[obj]
+#define COLLISION_RADIUS_OF(obj) g_asObjectCollisionRadius_004950e8[obj]
 #endif
 
 /* Function start: 0x4424E4 */
@@ -971,7 +971,7 @@ void perform_maneuver(short obj)
 
     target = g_acShipTarget_00495f20[obj];
     if (g_asIntelligenceEvent_00492fc0[obj] == 6) {
-        weapon = find_weapon(obj, WC2_OBJECT_TYPE_CHAFF_POD);
+        weapon = find_weapon(obj, OBJECT_DATA_CHAFF_POD);
         if (weapon != -1) {
             fire_weapon(obj, weapon);
             g_bAiMissileFiringEnabled_00492d58 = 1;
@@ -980,16 +980,16 @@ void perform_maneuver(short obj)
 
     previous = g_asShipManeuver_00495f48[obj];
     g_bCurrentManeuverReroll_005b30f4 =
-        WC1_MANEUVER_REROLL_CHANCE(g_asShipManeuver_00495f48[obj]);
+        MANEUVER_REROLL_CHANCE(g_asShipManeuver_00495f48[obj]);
     range = g_nTargetRange_0049319c;
     if (g_nTargetFacing_00493198 < 0)
         SetShipAiScratchWord(
             (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 4 +
-                             WC1_COLLISION_RADIUS_OF(target)));
+                             COLLISION_RADIUS_OF(target)));
     else
         SetShipAiScratchWord(
             (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 6 +
-                             WC1_COLLISION_RADIUS_OF(target)));
+                             COLLISION_RADIUS_OF(target)));
 
     if (unactive(target) != 0) {
         switch (g_asShipManeuver_00495f48[obj]) {
@@ -1008,7 +1008,7 @@ void perform_maneuver(short obj)
         }
     } else if (g_asShipManeuver_00495f48[obj] >= 0 &&
                g_asShipManeuver_00495f48[obj] <
-                   WC2_MANEUVER_HANDLER_COUNT) {
+                   MANEUVER_HANDLER_COUNT) {
         g_apManeuverHandlers_0049b570[
             g_asShipManeuver_00495f48[obj]](obj, target);
     } else {
@@ -1053,13 +1053,13 @@ void UpdateTargetCameraObject(short obj)
     point_ship_at_object(obj, 0);
     trim_goals(obj, 10);
     g_vTargetCameraForce_005c8d60 =
-        g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+        g_aShipForwardVector_00494208[EYE_OBJECT];
     negate_vector(&g_vTargetCameraForce_005c8d60);
     ScaleFixedVector(&g_vTargetCameraForce_005c8d60, 0x6400,
                      &g_vTargetCameraForce_005c8d60);
     apply_force_to_objects_center(&g_vTargetCameraForce_005c8d60, obj);
     g_vTargetCameraForce_005c8d60 =
-        g_aShipVelocity_00494898[WC2_EYE_OBJECT];
+        g_aShipVelocity_00494898[EYE_OBJECT];
     apply_force_to_objects_center(&g_vTargetCameraForce_005c8d60, obj);
     speed = Vector_magnitude(&g_aShipVelocity_00494898[obj]);
     if (speed > 0x6400)
@@ -1095,106 +1095,6 @@ void UpdateTargetCameraObject(short obj)
     }
 }
 
-/* Function start: WC2_UNMAPPED (Mac symbol: funeral_player) */
-unsigned int funeral_player(void)
-{
-    short index;
-    short previousY;
-    unsigned char *shape;
-
-    g_nFrameSkipCountdown_0049d760--;
-    if (g_nFrameSkipCountdown_0049d760 < 1) {
-        g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-        DrawConstellationField();
-        g_nFuneralMainScale_005a871c =
-            (short)(0x7000L / g_nFuneralMainDistance_005a8738);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nFuneralBaseX_005a8720,
-                          g_nFuneralBaseY_005a8722,
-                          g_pConversationSpecialShape_005a86ec, 0);
-        DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
-                         g_nFuneralCasketX_005a86c8,
-                         g_nFuneralCasketY_005a86ca,
-                         g_pConversationSpecialShape_005a86ec,
-                         8, 0, g_nFuneralMainScale_005a871c, 0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nFuneralBaseX_005a8720,
-                          g_nFuneralBaseY_005a8722,
-                          g_pConversationSpecialShape_005a86ec, 1);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nFuneralBaseX_005a8720,
-                          g_nFuneralBaseY_005a8722,
-                          g_pConversationSpecialShape_005a86ec,
-                          g_nFuneralGuardFrame_005a873c);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nFuneralBaseX_005a8720,
-                          g_nFuneralBaseY_005a8722,
-                          g_pConversationSpecialShape_005a86ec,
-                          g_nFuneralRifleFrame_005a871e);
-
-        index = 0;
-        g_nFuneralParticleScale_005a8728 =
-            (short)(0x1000L / g_nFuneralParticleDistance_005a8710);
-        shape = g_pConversationSpecialShape_005a86ec;
-        for (; index < 7; index++) {
-            if (g_aFuneralParticles_005a86f0[index].x != 0) {
-                DrawSpriteScaled(
-                    &g_stSecondaryViewBuffer_005d2c90,
-                    g_aFuneralParticles_005a86f0[index].x,
-                    g_aFuneralParticles_005a86f0[index].y,
-                    shape, 9, 0, g_nFuneralParticleScale_005a8728, 0);
-                shape = g_pConversationSpecialShape_005a86ec;
-                g_aFuneralParticles_005a86f0[index].x -= 6;
-                previousY = g_aFuneralParticles_005a86f0[index].y;
-                g_aFuneralParticles_005a86f0[index].y =
-                    (short)(previousY - 6);
-                if (g_stSecondaryViewBuffer_005d2c90.top >
-                    g_aFuneralParticles_005a86f0[index].y)
-                    g_aFuneralParticles_005a86f0[index].x = 0;
-            }
-        }
-
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          g_nFuneralForegroundX_005a8718,
-                          g_nFuneralForegroundY_005a871a,
-                          shape, 7);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                          (short)(g_nFuneralForegroundX_005a8718 + 180),
-                          g_nFuneralForegroundY_005a871a,
-                          g_pConversationSpecialShape_005a86ec, 6);
-        if (g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED != 0)
-            print_subtitle(&g_stSecondaryViewBuffer_005d2c90, 56,
-                           g_szTheEnd_00465c04_WC1_UNMAPPED);
-        RefreshMemoryStatusOverlay();
-        MarkDibDirty();
-        DIBslamReal();
-    }
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED (Mac symbol: funeral_wingman) */
-unsigned int funeral_wingman(char *text, short duration)
-{
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-    g_nFrameSkipCountdown_0049d760 = 1;
-    SetFrameTimerPeriodDirect(duration);
-    while ((short)IsFrameTickElapsed() == 0) {
-        PumpWindowMessages(0);
-        funeral_player();
-        if (g_bSceneEscapeRequested_0049d4b0 == 1)
-            break;
-        if (CheckEscaped() != 0)
-            break;
-    }
-    return 0;
-}
-
 /* Function start: 0x409C1A */
 short RunCampaignGameLoop(short campaignSlot)
 {
@@ -1208,7 +1108,7 @@ short RunCampaignGameLoop(short campaignSlot)
 
     campaignComplete = 0;
     flightComplete = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* This base is zero-initialized in the retail image.  MSVC formed address
      * 0x22 here and nothing ever dereferences it; express the same integer
      * address without applying an offset to a null C pointer. */
@@ -2847,7 +2747,7 @@ void heat_seeking_missile_intelligence(short obj)
     chaffFound = 0;
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
-            g_asObjectType_00495298[other] == WC2_OBJECT_TYPE_CHAFF_POD &&
+            g_asObjectType_00495298[other] == OBJECT_DATA_CHAFF_POD &&
             distance_from_object(obj, other) < 3000) {
             g_acShipTarget_00495f20[obj] = (signed char)other;
             chaffFound = 1;
@@ -2917,7 +2817,7 @@ void FF_missile_intelligence(short obj)
         for (other = 0; other < 10; other++) {
             if (g_aeObjectClass_00495328[other] != OBJECT_CLASS_NULL &&
                 g_asObjectType_00495298[other] ==
-                    WC2_OBJECT_TYPE_CHAFF_POD &&
+                    OBJECT_DATA_CHAFF_POD &&
                 g_asShipSide_004955d0[
                     g_acObjectOwner_00495208[other]] !=
                     g_asShipSide_004955d0[
@@ -2974,15 +2874,15 @@ void chaff_intelligence(short obj)
 
     for (other = 1; other < 10; other++) {
         if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_MISSILE &&
-            g_asObjectType_00495298[other] != WC2_OBJECT_TYPE_CHAFF_POD) {
+            g_asObjectType_00495298[other] != OBJECT_DATA_CHAFF_POD) {
             distance = distance_from_object(obj, other);
             if (distance < 3000) {
                 switch (g_asObjectType_00495298[other]) {
-                case WC2_OBJECT_TYPE_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+                case OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE:
                     explode(obj, other);
                     break;
-                case WC2_OBJECT_TYPE_JAVELIN_HEAT_SEEKING_MISSILE:
-                case WC2_OBJECT_TYPE_PILUM_FRIEND_OR_FOE_MISSILE:
+                case OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE:
+                case OBJECT_DATA_PILUM_FRIEND_OR_FOE_MISSILE:
                     g_acShipTarget_00495f20[other] = (signed char)obj;
                     break;
                 }
@@ -2995,7 +2895,7 @@ void chaff_intelligence(short obj)
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* A nav point of -1 selects the zero-filled gap at 0x491E52 in the retail
      * layout, making the ship coordinates absolute. */
     if (record->navPoint == -1) {
@@ -3190,7 +3090,7 @@ void LoadAlternateShipType(short resourceType, short logicalFile)
         strcat(fileName, "0");
     strcat(fileName,
            _itoa(g_nSelectedCampaignSlot_005d3bf2, digits, 10));
-    WC2_LOAD_OBJECT_TYPE_RECORD(fileName, logicalFile,
+    LOAD_OBJECT_TYPE_RECORD(fileName, logicalFile,
                                 &g_aObjectTypeData_00496d30[4]);
     strcpy(g_aObjectTypeData_00496d30[4].displayName, savedName);
     g_aObjectTypeData_00496d30[4].resourceType = resourceType;
@@ -3276,7 +3176,7 @@ void prepare_mission(void)
     for (initial = 0; initial < 8; initial++) {
         playerMissionShip =
             g_stMissionHeader_005d3e70.initialMissionShips[initial];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* S3M3 carries -2 in one otherwise empty initial-ship slot.  Retail
          * walks into the preceding nav table and eventually treats its zeroes
          * as a ship; negative mission-ship values are sentinels on the port. */
@@ -3434,7 +3334,7 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectTypeData_00496d30[23].shapeSet =
                         g_aObjectTypeData_00496d30[25].shapeSet;
                 }
-                for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT;
+                for (object = 10; object <= SPACE_LAST_MOVING_OBJECT;
                      object++) {
                     if (g_aeObjectClass_00495328[object] ==
                         OBJECT_CLASS_ASTEROID) {
@@ -3450,7 +3350,7 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectResourceSlots_00493398[slot].shapeSet =
                         g_aObjectTypeData_00496d30[21].shapeSet;
                 }
-                for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT;
+                for (object = 10; object <= SPACE_LAST_MOVING_OBJECT;
                      object++) {
                     if (g_asObjectType_00495298[object] == 0x15)
                         g_apObjectShape_00493868[object] =
@@ -3461,7 +3361,7 @@ void load_ship(short resourceType, short objectType,
                        objectClass == OBJECT_CLASS_MISSILE) {
                 if (objectClass != OBJECT_CLASS_MISSILE &&
                     g_bShipResourceReloadInProgress_0049b894 == 0) {
-                    WC2_LOAD_OBJECT_TYPE_RECORD(
+                    LOAD_OBJECT_TYPE_RECORD(
                         fileName, 3,
                         &g_aObjectTypeData_00496d30[slot]);
                 }
@@ -3509,7 +3409,7 @@ void load_ship(short resourceType, short objectType,
                 if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
                     g_nResourcePaletteMode_005c57e6 == 0) {
                     g_apPacketReferenceGroups_0049b898[slot] =
-                        (void **)calloc(0x25, WC2_HOST_POINTER_SIZE);
+                        (void **)calloc(0x25, HOST_POINTER_SIZE);
                     packetReferences =
                         g_apPacketReferenceGroups_0049b898[slot];
                     if (packetReferences == 0)
@@ -3525,7 +3425,7 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectResourceSlots_00493398[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 0x27, 4);
                 }
-                WC2_LOAD_OBJECT_TYPE_RECORD(
+                LOAD_OBJECT_TYPE_RECORD(
                     fileName, 0x26,
                     &g_aObjectTypeData_00496d30[slot]);
                 g_aObjectTypeData_00496d30[slot].shapeSet = 0;
@@ -3602,7 +3502,7 @@ void free_ship(short slot)
         return;
     }
     if (g_aObjectResourceSlots_00493398[slot].objectType == 0x2c) {
-        for (obj = 1; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+        for (obj = 1; obj < SPACE_OBJECT_COUNT; obj++) {
             if (g_asObjectType_00495298[obj] == 0x2c)
                 g_apObjectShape_00493868[obj] = 0;
         }
@@ -3620,7 +3520,7 @@ void free_ship(short slot)
             g_aObjectTypeData_00496d30[26].shapeSet;
         g_aObjectTypeData_00496d30[24].shapeSet =
             g_aObjectTypeData_00496d30[25].shapeSet;
-        for (obj = 10; obj <= WC2_SPACE_LAST_MOVING_OBJECT; obj++) {
+        for (obj = 10; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
             if (g_asObjectType_00495298[obj] == 0x1c)
                 remove_object(obj);
             else if (g_aeObjectClass_00495328[obj] ==
@@ -3895,16 +3795,16 @@ void set_up_action_sphere(short navPoint)
     g_nEnemySighting_0049b670 = 0x7fff;
 
     for (target = 0; target < 10; target++) {
-        if (g_asObjectType_00495298[target] == WC2_OBJECT_TYPE_SHIP_WING) {
+        if (g_asObjectType_00495298[target] == OBJECT_DATA_SHIP_WING) {
             remove_object(target);
         } else if (g_asObjectType_00495298[target] ==
-                   WC2_OBJECT_TYPE_EJECTED_PILOT) {
+                   OBJECT_DATA_EJECTED_PILOT) {
             remove_object(target);
             if (g_aObjectTypeData_00496d30[
-                    WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet != 0) {
+                    OBJECT_DATA_EJECTED_PILOT].shapeSet != 0) {
                 FreePacketAndClear(
                     &g_aObjectTypeData_00496d30[
-                        WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet, 0);
+                        OBJECT_DATA_EJECTED_PILOT].shapeSet, 0);
             }
         }
     }
@@ -4008,7 +3908,7 @@ short room_for_me(short obj, short minimum)
 
     if (distance_from_object(obj, 0) < minimum)
         return 0;
-    for (other = 0; other < WC2_SPACE_OBJECT_COUNT; other++) {
+    for (other = 0; other < SPACE_OBJECT_COUNT; other++) {
         if (other != obj && g_aeObjectClass_00495328[other] >= 8) {
             ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                                &g_aShipPosition_00494550[other],
@@ -4052,7 +3952,7 @@ short set_up_next_wave(void)
     g_nCurrentWave_004931c0++;
     if (waveNav->type == previousWave) {
         if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
-            for (obj = 10; obj < WC2_SPACE_OBJECT_COUNT; obj++) {
+            for (obj = 10; obj < SPACE_OBJECT_COUNT; obj++) {
                 if (g_asObjectType_00495298[obj] == OBJECT_TYPE_TORPEDO)
                     remove_object(obj);
             }
@@ -4146,7 +4046,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     for (gun = 0; gun < 3; gun++)
         g_asGunCooldown_005c8d70[obj * 3 + gun] = 0;
     g_acShipCollisionCooldown_00496010[obj] = 0;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* The eight-word table is followed at 0x496100 by the stress bytes.  WC2's
      * unchecked writes for objects 8 and 9 clear two of those bytes each. */
     if (obj < 8) {
@@ -4424,7 +4324,7 @@ void init_intelligence_data(short obj)
                     g_asShipIntelSlot_00495d30[obj]],
                 0);
             if (obj == g_nYourWingman_0049346c) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 /* Section 1 is a twelve-byte ShipIntelligenceMetadata, and
                  * the original reads it straight over the run of wingman
                  * behaviour shorts starting at 0x496138 -- the record's first
@@ -4521,7 +4421,7 @@ void DrawNavTextLine(unsigned char alignment, unsigned short colour,
     /* The original pushes the list itself; the port's FormatTextTokens takes
      * its address, because va_arg has to advance the caller's copy on an ABI
      * where a vararg is not always four bytes wide. */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     FormatTextTokens((void (*)(int))AppendTextCharacter, format,
                      &arguments);
 #else
@@ -4656,7 +4556,7 @@ void Build_objective_list(void)
     g_cMissionObjectiveCount_00493294 = 0;
     flightPathCount = 0;
     source = g_aMissionObjectiveSources_005d3c70;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* Retail reads the next word after the eight-record table before checking
      * that all eight output slots are full.  That word is the adjacent mission
      * header and cannot affect the loop body, so bound the native read first. */

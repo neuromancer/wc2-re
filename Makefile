@@ -144,7 +144,7 @@ MODERN_LZO_LIBS = $(shell pkg-config --libs lzo2 2>/dev/null)
 # Windows, which needs SDL2main.a to supply a WinMain wrapper.  The port has
 # its own main and calls SDL_SetMainReady() itself, so the rename is only a
 # way to fail the link.
-MODERN_CPPFLAGS = -DWC1_SDL=1 -DSDL_MAIN_HANDLED -Iinclude \
+MODERN_CPPFLAGS = -DSDL_PORT=1 -DSDL_MAIN_HANDLED -Iinclude \
 	$(MODERN_SDL_CFLAGS) \
 	$(MODERN_LZO_CFLAGS) $(addprefix -I,$(MODERN_LZO_INCLUDEDIR))
 # The reconstruction reproduces MSVC 4.1's tolerance for mismatched pointer
@@ -255,13 +255,13 @@ DREAMM_STAMP = $(DREAMM_DIR)/.$(DREAMM_ARCHIVE).stamp
 #
 # The disc is mounted at D: when present: the binary really does look for it
 # (LocateStreamsDirOnDisc, FindCdRomDriveByVolumeLabel, PromptInsertCorrectCd),
-# and the streaming music lives there. Point WC2_ISO at an image or a directory.
+# and the streaming music lives there. Point ISO at an image or a directory.
 RUN_DIR = data/wc2-full
 # Any disc image dropped in data/ or data/wc2-full/ is picked up automatically.
 # The recipes cd into RUN_DIR, so the mount path is made relative to it.
-WC2_ISO ?= $(firstword $(wildcard data/*.iso data/*.ISO data/wc2-full/*.iso data/wc2-full/*.ISO))
+ISO ?= $(firstword $(wildcard data/*.iso data/*.ISO data/wc2-full/*.iso data/wc2-full/*.ISO))
 DREAMM_MOUNTS = -mount rw:C=hd \
-                $(if $(WC2_ISO),-mount d=$(patsubst $(RUN_DIR)/%,%,$(patsubst data/%,../%,$(WC2_ISO))))
+                $(if $(ISO),-mount d=$(patsubst $(RUN_DIR)/%,%,$(patsubst data/%,../%,$(ISO))))
 
 # ---------------------------------------------------------------------------
 # Source order
@@ -546,10 +546,10 @@ $(MODERN_OUT_DIR)/obj/sound.o: src/sound.c | modern-check-deps
 # Keep the recovered functions intact while the native objects enter the SDL
 # positional-audio bridge.
 $(MODERN_OUT_DIR)/obj/music.o: MODERN_CPPFLAGS += \
-	-DWc1SdlUsingOriginFxSoundEffects=Wc2SdlHandlesGameSoundEffects
+	-DSdlUsingOriginFxSoundEffects=SdlHandlesGameSoundEffects
 $(MODERN_OUT_DIR)/obj/music.o: Makefile
 $(MODERN_OUT_DIR)/obj/sound.o: MODERN_CPPFLAGS += \
-	-Dix_system_new_sound=Wc2SdlNewWaveSound
+	-Dix_system_new_sound=SdlNewWaveSound
 $(MODERN_OUT_DIR)/obj/sound.o: Makefile
 
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
@@ -564,7 +564,7 @@ $(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DWC1_ANALYSIS=1
+$(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DANALYSIS_BUILD=1
 $(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
 $(MODERN_OUT_DIR)/tests/sdl_video_compat.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
 
@@ -904,19 +904,19 @@ audit-compiler-glue:
 progress:
 	@python3 bin/showProgress.py
 
-$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/wcdata.h $(GLOBALS_DEFINITION_SOURCES)
+$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/game_data.h $(GLOBALS_DEFINITION_SOURCES)
 	@python3 bin/collectGlobalDefinitions.py \
 		--output $@ \
-		--constants-header include/wcdata.h \
+		--constants-header include/game_data.h \
 		$(GLOBALS_DEFINITION_SOURCES)
 
 # Function annotations were projected through the reviewed WC1-to-WC2 map.
 # Unmapped annotations are deliberately non-numeric, preventing an apparently
 # valid score against unrelated WC2 bytes.
-wc2-remap-audit:
+remap-audit:
 	@python3 bin/remapWC1ToWC2.py --check
 
-report: $(TARGET) wc2-remap-audit | code-full $(ORIGINAL_EXE)
+report: $(TARGET) remap-audit | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) report $(BC) --no-build \
 		$(if $(FILTER),--filter $(FILTER))
 
@@ -929,7 +929,7 @@ report: $(TARGET) wc2-remap-audit | code-full $(ORIGINAL_EXE)
 # be identified.  Rebuilds only gr.c; `make` restores the reference build.
 vport-debug:
 	@rm -f $(OUT_DIR)/gr.obj
-	@$(MAKE) EXTRA_CFLAGS=/DWC2_VPORT_DEBUG
+	@$(MAKE) EXTRA_CFLAGS=/DVPORT_DEBUG
 
 compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@test -n "$(FUNC)" || (echo "usage: make compare-func FUNC=<FunctionName>" >&2 && exit 1)
@@ -940,7 +940,7 @@ compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 # Regenerate code-full/ straight from the original PE with Capstone.  Preferred
 # over scraping Ghidra; bin/exportGhidra.py remains for names Ghidra knows and
 # the PE does not.
-export-asm: wc2-remap-audit | $(ORIGINAL_EXE)
+export-asm: remap-audit | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) export-asm $(BC) --clean $(EXPORT_ASM_FLAGS)
 	@touch $(CODE_EXPORT_STAMP)
 
@@ -1015,7 +1015,7 @@ verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 # initializer.  Compare the linked bytes too, but keep the normal verify output
 # to the actionable mismatches and summary.
 verify-globals-data: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
-	@audit_output=$$(mktemp "$${TMPDIR:-/tmp}/wc1-globals-data.XXXXXX"); \
+	@audit_output=$$(mktemp "$${TMPDIR:-/tmp}/globals-data.XXXXXX"); \
 		trap 'rm -f "$$audit_output"' 0 1 2 15; \
 		status=0; \
 		$(BINARY_COMP) data $(BC) > "$$audit_output" || status=$$?; \
@@ -1132,13 +1132,13 @@ dreamm: $(DREAMM_BIN)
 # just that -- 142 MB of the disc's 634 -- rather than asking for a separate
 # install.  bsdtar reads ISO9660 directly and ships with macOS and most Linuxes.
 $(RUN_DIR)/GAMEDAT:
-	@test -n "$(WC2_ISO)" || \
-		(echo "Error: no disc image found. Put the Kilrathi Saga ISO in data/ or set WC2_ISO=." >&2 && exit 1)
+	@test -n "$(ISO)" || \
+		(echo "Error: no disc image found. Put the Kilrathi Saga ISO in data/ or set ISO=." >&2 && exit 1)
 	@command -v bsdtar >/dev/null 2>&1 || \
 		(echo "Error: bsdtar not found; needed to read the ISO." >&2 && exit 1)
-	@echo "Extracting WC2 from $(WC2_ISO)..."
+	@echo "Extracting WC2 from $(ISO)..."
 	@mkdir -p "$(RUN_DIR)"
-	@bsdtar -xf "$(WC2_ISO)" -C "$(RUN_DIR)" --strip-components=1 WC2
+	@bsdtar -xf "$(ISO)" -C "$(RUN_DIR)" --strip-components=1 WC2
 
 run-check: $(RUN_DIR)/GAMEDAT
 	@mkdir -p "$(RUN_DIR)/hd"
@@ -1232,4 +1232,4 @@ clean-modern:
 	verify-globals-code \
 	verify-values \
 	verify-values-stack-locals \
-	wc2-remap-audit \
+	remap-audit \

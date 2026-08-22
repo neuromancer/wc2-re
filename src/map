@@ -1,12 +1,13 @@
-# Address-sorted mapped developer functions in WC2.EXE.
-# Generated from reports/wc2-address-remap.tsv; unresolved functions are
-# intentionally omitted until a WC2 destination is established.
-# 1494 mapped source functions; 286 unresolved.
+# Address-sorted mapped developer functions in the retail executable.
+# Derived from config/wc2-address-remap.tsv; unresolved functions are
+# intentionally omitted until a retail destination is established.
 
 0x00401000 LoadWingCmdrCfgFile
 0x00401120 show_damage_disp
 0x004012E1 UpdateDamageDisplay
 0x00401840 ConfigureDefaultSpacePalette
+0x00401859 ReserveContiguousPaletteEntries
+0x00401922 ReleaseContiguousPaletteEntries
 0x00401978 PrintPaletteAllocationMap
 0x00401A10 ResetCannedSceneRecording
 0x00401A62 InitializeCannedSceneFrameIndex
@@ -23,23 +24,23 @@
 0x00402465 InstallRasterDriverCallbacks
 0x00402484 SetRasterClipPixel
 0x0040255F ReadRasterClipPixel
-0x00402635 optimize
-0x00403037 optimize
-0x00403170 optimize
-0x00403574 optimize
+0x00402635 DrawClippedLine
+0x00403037 FillRasterClipCheckerboard
+0x00403170 DrawRLEImage
+0x00403574 DrawRLEImageUnclipped
 0x0040363B SetPaletteTranslationTable
-0x0040365A optimize
-0x00403B32 optimize
-0x00403C65 optimize
-0x00404811 optimize
+0x0040365A DrawRLEImageColor
+0x00403B32 DrawRLEImageColorUnclipped
+0x00403C65 RotateRLEImage
+0x00404811 GetRLEFrameBounds
 0x00404989 EncodeRasterClipToRLEFrame
-0x00404C0C optimize
+0x00404C0C TranslateRLEFramePalette
 0x00404C9E EncodeRLEScanline
 0x00404E27 EmitRLEScanlineRun
 0x00405004 FillRasterClip
 0x004050E3 BlitRasterClip
 0x0040547F ScrollRasterClipWrapped
-0x0040567C optimize
+0x0040567C DrawRasterEllipse
 0x004059BD FillRasterEllipse
 0x00406ACF GetRLETransformTrig
 0x00406B87 CalculateRoundedRLEFixedProduct
@@ -237,6 +238,8 @@
 0x00410192 HasShipCockpitGunDisplay
 0x00410215 ShipHasTorpedo
 0x00410289 GetAdaptiveTurnRate
+0x004102FD IncreaseAdaptiveDifficulty
+0x00410352 DecreaseAdaptiveDifficulty
 0x004103A6 initialize_object
 0x0041040D borrow_dust
 0x004105BF new_object
@@ -247,6 +250,7 @@
 0x00410999 set_objects_data
 0x00411172 match_rotation_goal
 0x0041133D rotate_object_to_goal
+0x004115F8 check_for_lost_control
 0x004117AC celerate
 0x0041181D approach_speed
 0x004118A9 steady_object
@@ -261,6 +265,7 @@
 0x004128A7 internal_damage
 0x00412F03 revise_shields
 0x00412F90 check_computer_damage
+0x00412FA9 IsOnlyShipGun
 0x00413099 your_internal_damage
 0x00413578 ReportComponentRepaired
 0x004135F1 repair_internal_damage
@@ -289,6 +294,7 @@
 0x0041596F HasShipActiveMissile
 0x004159DB fire_turrets
 0x00415E2C fire_weapon
+0x00416690 find_weapon
 0x0041670E fire_missile
 0x0041687F fire_fixed_projectile_weapon
 0x0041693A fire_afterburner
@@ -303,6 +309,7 @@
 0x00417471 your_afterburner
 0x00417550 SaveGamePalette
 0x004175AD RestoreGamePalette
+0x00417610 easy2see
 0x004176D2 make_shard
 0x00417838 remove_hazard
 0x0041787A remove_all_hazards
@@ -374,6 +381,8 @@
 0x0041F4C6 pick_regular_maneuver
 0x0041F714 pick_from_list
 0x0041F83F pick_kilrathi_maneuver
+0x0041F902 CountAlliesOnSameTarget
+0x0041F9AF process_maneuver_node
 0x0041FD2B handle_stress
 0x0041FF37 intelligence_events
 0x00420340 EmitTextString
@@ -381,14 +390,14 @@
 0x0042067F DrawFormattedText
 0x004206F2 FormatTextBufferFromStart
 0x0042075F AppendFormattedText
-0x004207B0 advance_canned_sequence
+0x004207B0 MergeAdjacentNearHeapBlocks
 0x00420874 ReleaseNearHeapBlock
 0x004208FC PurgeNearHeapBlocks
 0x004209C2 InitializeNearHeap
 0x00420B12 ShutdownNearHeap
 0x00420B88 AllocateNearHeapBlockFromEnd
 0x00420E16 AllocateNearHeapBlockByFlags
-0x00421144 GetFreeNearHeapBytes
+0x00421144 GetNearHeapBlockSize
 0x00421210 UpdateInputDeviceTransitions
 0x00421409 PollJoystickButtonEvents
 0x00421530 PollMenuInputDevices
@@ -417,6 +426,7 @@
 0x00423ED1 FreeWaveTable
 0x00423F3F AllocateActiveSoundEntry
 0x00423FAB RemoveActiveSoundEntry
+0x0042405E FindActiveSoundEntryBySample
 0x004240AE ReleaseFinishedSoundEntries
 0x00424113 StopSoundsUsingWave
 0x0042418C playWAVE
@@ -429,11 +439,13 @@
 0x00424888 RegistryStoreValue
 0x004248B4 LoadVolumeSettingsFromRegistry
 0x00424980 SaveVolumeSettingsToRegistry
+0x00424A40 ix_sound_get_sample
 0x00424A60 find_objective
 0x00424AEE arrive_from_warp
 0x00424C05 unwarp
 0x00424D4D warp
 0x00424E8C MarkPilotDead
+0x00424EA7 clean_up_cockpit
 0x004251F2 CompleteStarSystemJump
 0x004254C0 CheckHeapBlockSignature
 0x0042550E HasValidShapeAllocationSignature
@@ -484,7 +496,7 @@
 0x00428B86 Streamer_close
 0x00428BAD DestroyAudioStreamer
 0x00428BD4 ix_log_printf
-0x00428C35 GetWingCommanderOneGameDataPath
+0x00428C35 GetLegacyGameDataPath
 0x00428D09 ReadCheaterFlagFromRegistry
 0x00428DA3 SetMusicStreamVolume
 0x00428DBF GetMusicStreamVolume
@@ -563,10 +575,11 @@
 0x0042B6C5 engage
 0x0042B73B target_valid
 0x0042B80C triumph
+0x0042B916 find_ratio
 0x0042B985 evaluate_damage
 0x0042BAC0 FillGraphicSuffix
 0x0042BB17 ConvertChar_Int
-0x0042BB70 PostMission
+0x0042BB70 AnimateCutsceneSpeakerMouth
 0x0042BDDB HasCutsceneMusicNode
 0x0042BDFE WriteMemoryStateReportHook
 0x0042BE09 LogMemoryStateToFile
@@ -651,9 +664,12 @@
 0x004346E9 DrawPersonnelSourceChoices
 0x004347D6 DrawPersonnelMenuChoices
 0x004348C3 DrawPersonnelFileSlot
+0x00434ACE HighlightPersonnelFileSlot
+0x00434BB5 SelectPersonnelFileSlot
 0x00434EBC DrawTransferredPilotRow
 0x00434F7D HighlightTransferredPilot
 0x00435064 SelectTransferredPilot
+0x004353D4 RunPilotSaveLoadMenu
 0x0043641C SelectLegacyGameSource
 0x00436722 LocateLegacySaveGame
 0x00436A4D ShowNoTransferablePilots
@@ -777,10 +793,12 @@
 0x0043D7F2 RestoreCockpitExplosionIfVisible
 0x0043D81F RestoreTransientCockpitGraphics
 0x0043D956 SetHudMessageText
+0x0043D9AB DismissHudMessageIfShowing
 0x0043D9DA malf_noise
 0x0043DA68 build_your_target_list
 0x0043DD1B cycle_onscreen_targets
 0x0043DDFC check_target
+0x0043E101 FindNearestMissileTargetingObject
 0x0043E1B2 update_missile_warning
 0x0043E297 determine_pilot_hand
 0x0043E371 DrawPilotHandFrame
@@ -838,6 +856,9 @@
 0x004415DC Mgloat
 0x004416D5 Mtail_fire
 0x00441742 Mzip_past
+0x00441837 ShipAiState47
+0x00441895 ShipAiState28
+0x004418B2 ShipAiState46
 0x0044199B Mram_missile
 0x00441A13 Mbuzz_debris
 0x00441AFC Mstrafe_enemy
@@ -856,6 +877,8 @@
 0x004423E2 ShipAiState44
 0x00442404 Mtarget_laser
 0x00442421 Mrout_me
+0x00442438 ShipAiState3
+0x00442455 ShipAiState45
 0x004424C2 Mnone
 0x004424CD Mreset
 0x004424E4 perform_maneuver
@@ -909,6 +932,7 @@
 0x00446395 chaff_intelligence
 0x00446474 mine_intelligence
 0x00446560 LoadGraphicsDriver
+0x00446580 ResetStringBuilder
 0x004465A0 PacketLoad
 0x00446710 BeginShipDestructionSequence
 0x00446823 SpawnMissionEjectionPod
@@ -966,9 +990,13 @@
 0x0044B257 check_futurion
 0x0044B29D ResetWeaponDisplayPositions
 0x0044B2E2 init_mission
+0x0044B48F ApplyAlternateShipType
+0x0044B83C LoadAlternateShipType
+0x0044B981 RefreshObjectiveShipNavPoints
 0x0044BA73 prepare_mission
 0x0044BCF7 release_all_capital_ship_shapes
 0x0044BD83 release_capital_ship_shapes
+0x0044BE84 FindObjectResourceSlot
 0x0044BEE5 load_ship
 0x0044C796 free_ship
 0x0044CC84 free_all_slots
@@ -990,6 +1018,8 @@
 0x0044E09C find_next_ship_turn_slot
 0x0044E187 init_ship
 0x0044E44F init_intelligence_data
+0x0044EA50 ClearTransientObjectsForEjection
+0x0044EB4E FlagCurrentNavObjectivesReached
 0x0044EBCA ejection_sequence
 0x0044F010 OpenPacketSection
 0x0044F1C7 CloseDataFileByHandle
@@ -1009,6 +1039,7 @@
 0x0044FC37 IncludeNavMapWorldPoint
 0x0044FC6D SetScale
 0x0044FE9F Build_objective_list
+0x00450136 NavMapPointInsideReservedArea
 0x004501B2 NavMapLabelFits
 0x00450210 NavMapLabelPositionAvailable
 0x00450329 ResetNavMapReservedAreas
@@ -1016,6 +1047,7 @@
 0x004503A7 ResetNavMapLabels
 0x004503BB TryPlaceNavMapLabel
 0x00450458 PlaceNavMapLabel
+0x00450623 ObjectivesShareNavLabel
 0x004506F8 AddUniqueObjectiveNavLabel
 0x004507DA IsPointInNavMapLabel
 0x0045087F DrawNavMapLabels
@@ -1025,9 +1057,11 @@
 0x00450B03 DrawNavTriangleOutline
 0x00450BBA DrawNavTriangleMarker
 0x00450C2A DrawNavCrossMarker
+0x00450CF8 IsObjectiveInDisplayedSystem
 0x00450DF6 SetScreenClipRect
 0x00450E1E DrawNavHazardMarker
 0x00450E98 DrawNavPlayerMarker
+0x00450F1E DrawNavMapBriefingBeacons
 0x00450FE2 BuildMap
 0x0045153A UpdateInflightNavText
 0x00451637 FormatNavCoordinates
@@ -1040,9 +1074,12 @@
 0x00451C5C SelectNavObjectiveAtPoint
 0x00451DDB CentreMouseOnCurrentNavObjective
 0x00451E57 ShowConfedNavScan
+0x00451EC9 FollowSelectedObjectiveSystem
 0x00451FAA InflightComputer
+0x00452450 KeyboardMousePump
 0x00452A00 StopMusicStream
 0x00452A10 SetMusBreakpt
+0x00452A1B SetMusicOn
 0x00452A26 StopMusic
 0x00452A40 StartMusic
 0x00452A64 StartInteractiveMusic
@@ -1096,6 +1133,19 @@
 0x00455882 FreeGuardedAllocation
 0x00455A85 SetMousePosition
 0x00455AC8 PollKeyboardState
+0x00455D2D GetHomeKeyState
+0x00455D48 GetUpArrowKeyState
+0x00455D63 GetPageUpKeyState
+0x00455D7E GetLeftArrowKeyState
+0x00455D99 GetRightArrowKeyState
+0x00455DB4 GetEndKeyState
+0x00455DCF GetDownArrowKeyState
+0x00455DEA GetPageDownKeyState
+0x00455E05 GetNumLockKeyState
+0x00455E23 GetNumpadPlusKeyState
+0x00455E3E GetNumpadMinusKeyState
+0x00455E59 GetReturnKeyState
+0x00455E74 GetSpaceKeyState
 0x00455E8F GetShiftKeyState
 0x00455EAA GetKeyboardModifiers
 0x00455EBF GetControlKeyState
@@ -1146,6 +1196,7 @@
 0x00459134 GetAvailableFarMemoryByType
 0x00459149 GetLargestFreeMemoryBlockByType
 0x00459160 EraseLastTextInputCharacter
+0x0045924D EraseTextContextBackground
 0x00459294 DrawTextInputCursor
 0x0045930A EraseCharacterAfterTextCursor
 0x00459348 ClearTextInputCharacter
@@ -1172,6 +1223,7 @@
 0x0045AC50 DebugOverlayConsole::DebugOverlayConsole
 0x0045AE6C DebugOverlayConsole::~DebugOverlayConsole
 0x0045AEE4 DebugOverlayWorkerProc
+0x0045B04E DebugKeyboardHookProc
 0x0045B0BB DebugOverlayPrintf
 0x0045B2E0 DebugOverlayConsole::Clear
 0x0045B348 DebugOverlayConsole::Scroll
@@ -1245,6 +1297,8 @@
 0x0046138D DrawUnreferencedPilotHandFrame
 0x00461456 UpdateTargetCameraCockpitHook
 0x00461466 FinalizeTargetCameraViewHook
+0x00461480 find_next_gun
+0x004615A2 select_guns
 0x0046166D select_new_gun
 0x004616B8 select_new_release_weapon
 0x004618E0 RandomBelow
@@ -1287,6 +1341,7 @@
 0x00462550 DosMemset
 0x0046257A InitializePostPaletteState
 0x0046259D InitializeInputManagerMemory
+0x004625CB ShutdownEventManager
 0x00462625 TranslatePolledInputEvent
 0x00462849 QueueInputEventAtCursor
 0x00462890 AllocateInputEvent
@@ -1348,6 +1403,8 @@
 0x00464BCB VideoReleaseHook
 0x00464BDB ExitCleanupHook
 0x00464BFE IsVectorWithinRange
+0x00464C4B shrink_vector
+0x00464CA4 shrink
 0x00464D5F ServiceInputDevices
 0x00464E06 SetInputViewport
 0x00464E1E ClearInputPump
@@ -1369,6 +1426,7 @@
 0x004656EB ReleaseApplicationScratchBuffer
 0x0046570E GetInputCursorShape
 0x00465730 WaitForQueuedInputPress
+0x00465780 SetPersonnelCursorPosition
 0x0046579D LogMemoryUsage
 0x0046589D AdjustSpaceFramePeriod
 0x0046591A RunGameApplication
@@ -1390,6 +1448,7 @@
 0x00466AD2 IsInputEventQueued
 0x00466B02 player_input
 0x004672C5 MeasureMessageWidth
+0x00467300 AcknowledgeModalMessage
 0x0046733D HandleSpaceFlightControls
 0x00468E7A DrawSpaceSceneFrame
 0x0046903F RenderSpaceViewFrame
@@ -1494,7 +1553,7 @@
 0x00489ED2 ix_dsp_build_pan_tables
 0x0048A017 ix_dsp_result_to_text
 0x0048A1A3 ix_dsp_alloc
-0x0048A1C0 function
+0x0048A1C0 ix_dsp_copy
 0x0048A1E4 ix_dsp_free
 0x0048A235 ix_dspv_set_active
 0x0048A299 ix_dspv_clear_active

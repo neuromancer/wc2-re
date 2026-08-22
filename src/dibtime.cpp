@@ -6,7 +6,7 @@
  *  scalar initialization pairs in this range immediately before the frame
  *  throttle routine.
  */
-#include "wc1.h"
+#include "game.h"
 
 static int g_nDefaultFrameRate_0049ce88 = 70;
 static int g_nDisplayFrameRate_0049ce8c = 70;

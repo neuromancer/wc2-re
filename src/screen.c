@@ -4,7 +4,7 @@
  *  Address range 0x42efc0-0x431fff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PushMemoryStackFrame/ShowChoosePrompt/ShowEnemyTargetSelectMenu.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x421910 */
 void cleanup_objectives(void)
@@ -502,7 +502,7 @@ void *MapPacketHandleToBlock(void *handle)
     return handle;
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(memcpy)
 #endif
 
@@ -511,7 +511,7 @@ void *AllocateTaggedMemory(unsigned int size, short flags)
 {
     void *memory;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     if ((flags & 0x40) != 0)
         size += 8 + sizeof(unsigned char *);
 #else
@@ -520,7 +520,7 @@ void *AllocateTaggedMemory(unsigned int size, short flags)
 #endif
     memory = AllocateGuardedMemory(size);
     if ((flags & 0x40) != 0) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         *(unsigned char **)memory = 0;
         memcpy((unsigned char *)memory + sizeof(unsigned char *),
                g_abTaggedAllocationPrefix_0049ca40,
@@ -536,7 +536,7 @@ void *AllocateTaggedMemory(unsigned int size, short flags)
     return memory;
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma intrinsic(memcpy)
 #endif
 
@@ -578,7 +578,7 @@ unsigned int GetLargestFreeMemoryBlockByType(short memoryType)
     return GetLargestFreeMemoryBlock();
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(strcat)
 #endif
 
@@ -635,7 +635,7 @@ void RunCampaignScript(short campaignSlot)
     ReleasePacketHandle(scenePacket);
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma intrinsic(strcat)
 #endif
 
@@ -1016,7 +1016,7 @@ void BuildCommunicationRecipientMenu(void)
     SendCommMenuChoice(0);
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(strcpy, strcat)
 #endif
 
@@ -1150,7 +1150,7 @@ void BuildCommunicationCommandMenu(void)
     }
 }
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma intrinsic(strcpy, strcat)
 #endif
 
@@ -1184,7 +1184,7 @@ void HandleCommunicationMenuRequest(void)
 void show_communications_disp(void)
 {
     signed char choice;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     int selectedChoice;
     unsigned char normalColour;
 #endif
@@ -1197,13 +1197,13 @@ void show_communications_disp(void)
                    g_stRightVduViewport_005d2b20.left,
                    g_stRightVduViewport_005d2b20.top,
                    g_pszCommMenuHeading_005d1950, 2);
-#ifdef WC1_SDL
-        selectedChoice = Wc1SdlGetCommunicationMenuSelection();
+#ifdef SDL_PORT
+        selectedChoice = SdlGetCommunicationMenuSelection();
         normalColour = g_stRightVduTextContext_005d2ce0.colour;
 #endif
         for (choice = 0; choice < g_nCommMenuChoiceCount_0049b770;
              choice++) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             if ((int)choice == selectedChoice)
                 g_stRightVduTextContext_005d2ce0.colour =
                     g_abGamePaletteReservedColours_0049cb54[8];
@@ -1211,7 +1211,7 @@ void show_communications_disp(void)
             DrawFormattedText(g_szCommMenuChoiceFormat_0049b868,
                               (int)choice + 1,
                               g_apszCommMenuChoiceText_005d19a0[choice]);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             g_stRightVduTextContext_005d2ce0.colour = normalColour;
 #endif
         }
@@ -1427,12 +1427,6 @@ void real_vid_transmit(short obj, short message)
 }
 
 #pragma intrinsic(strcpy, strcat)
-
-/* Function start: WC2_UNMAPPED */
-void __stdcall ShutdownVideoHook(short mode)
-{
-    ReleaseVideoResourcesHook();
-}
 
 /* Function start: 0x401859 */
 short ReserveContiguousPaletteEntries(short entryCount)

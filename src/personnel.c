@@ -1,16 +1,16 @@
 /*
- *  Wing Commander II personnel database and WC1 pilot transfer flow.
+ *  Wing Commander II personnel database and previous-game pilot transfer flow.
  *
- *  The WC2 retail image keeps the menu, transfer, and savegame helpers in the
+ *  The retail image keeps the menu, transfer, and savegame helpers in the
  *  contiguous 0x433AD0-0x436A8F band.  The registry lookup and text-entry
  *  adapter are linked from adjacent Win32 units.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(strcat, strcpy, strlen)
 
 PersonnelFileSlot *g_apPersonnelFileSlots_0049a660[8] = {0};
-Wc2PilotProfile *g_apPersonnelPilotProfiles_0049a680[8] = {0};
+PilotProfile *g_apPersonnelPilotProfiles_0049a680[8] = {0};
 static const char g_szEmptyPersonnelFileFormat_0049a840[64] =
     "%d ----------------------------------------------------------";
 static const char g_szCompactPersonnelFileFormat_0049a880[20] =
@@ -22,9 +22,9 @@ static const char g_szPersonnelFileValueFormatB_0049a8ac[4] = "%d";
 static const char g_szPersonnelFileDescriptionFormat_0049a8b0[4] = "%s";
 
 /* Function start: 0x428C35 */
-char *GetWingCommanderOneGameDataPath(void)
+char *GetLegacyGameDataPath(void)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     return 0;
 #else
     HKEY key;
@@ -44,14 +44,14 @@ char *GetWingCommanderOneGameDataPath(void)
                              &valueSize) == ERROR_SUCCESS &&
             valueData != 0) {
             valueType = REG_SZ;
-            valueSize = sizeof(g_szWingCommanderOneGameDataPath_005b2898);
+            valueSize = sizeof(g_szLegacyGameDataPath_005b2898);
             if (RegQueryValueExA(
                     key, "Installed To:", 0, &valueType,
                     (unsigned char *)
-                        g_szWingCommanderOneGameDataPath_005b2898,
+                        g_szLegacyGameDataPath_005b2898,
                     &valueSize) == ERROR_SUCCESS) {
-                path = g_szWingCommanderOneGameDataPath_005b2898;
-                strcat(g_szWingCommanderOneGameDataPath_005b2898,
+                path = g_szLegacyGameDataPath_005b2898;
+                strcat(g_szLegacyGameDataPath_005b2898,
                        "wc1\\gamedat");
             }
         }
@@ -932,7 +932,7 @@ void RunPilotSaveLoadMenu(void)
                     }
                     _lseek(file,
                            (campaignBytes + sizeof(PersonnelFileSlot) +
-                            sizeof(Wc2PilotProfile)) * slot, 0);
+                            sizeof(PilotProfile)) * slot, 0);
                     _read(file, g_apPersonnelFileSlots_0049a660[slot], 2);
                     _read(file, g_apPersonnelPilotProfiles_0049a680[slot],
                           0x60);
@@ -1021,7 +1021,7 @@ void RunPilotSaveLoadMenu(void)
                         file = (short)_open("savegame.wc2", 0x8001);
                         _lseek(file,
                                (campaignBytes + sizeof(PersonnelFileSlot) +
-                            sizeof(Wc2PilotProfile)) * slot, 0);
+                            sizeof(PilotProfile)) * slot, 0);
                         _write(file,
                                g_apPersonnelFileSlots_0049a660[slot], 2);
                         _close(file);
@@ -1109,7 +1109,7 @@ void RunPilotSaveLoadMenu(void)
                     file = (short)_open("savegame.wc2", 0x8001);
                     _lseek(file,
                            (campaignBytes + sizeof(PersonnelFileSlot) +
-                            sizeof(Wc2PilotProfile)) * slot, 0);
+                            sizeof(PilotProfile)) * slot, 0);
                     _write(file, g_apPersonnelFileSlots_0049a660[slot], 2);
                     _write(file, g_apPersonnelPilotProfiles_0049a680[slot],
                            0x60);
@@ -1256,7 +1256,7 @@ short LocateLegacySaveGame(short source)
         &g_stDefaultTextContext_005d2d20, 2,
         (unsigned char)g_nMenuShadowColour_005c5876, -1);
     if (g_nLegacySaveSource_0049a600 == 0) {
-        installedPath = GetWingCommanderOneGameDataPath();
+        installedPath = GetLegacyGameDataPath();
         if (installedPath != 0) {
             strcpy(g_szLegacySavePath_005d2130, installedPath);
         } else {
@@ -1294,7 +1294,7 @@ short LocateLegacySaveGame(short source)
         }
     }
     strcat(g_szLegacySavePath_005d2130,
-           g_apszWc1SaveGameFileNames_0049a6c8[source]);
+           g_apszSaveGameFileNames_0049a6c8[source]);
     for (index = 0;
          strlen(g_szLegacySavePath_005d2130) > (unsigned int)index;
          index++) {

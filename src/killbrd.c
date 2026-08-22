@@ -4,7 +4,7 @@
  *  Address range 0x43c000-0x440bff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: ShowTigersClawKillBoard/RunConversationScene; string band 0x4705DC-0x470668.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x45C128 */
 void ResetGameTextContexts(void)
@@ -470,7 +470,7 @@ int HasValidShapeAllocationSignature(unsigned char *shape)
 /* Function start: 0x42553A */
 unsigned char *GetPreparedShapeData(unsigned char *shape)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     return *(unsigned char **)(shape - 8 - sizeof(unsigned char *));
 #else
     return *(unsigned char **)(shape - 4);
@@ -490,20 +490,20 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
                           short *leftExtent, short *topExtent)
 {
     int rightExtent;
-#ifndef WC1_SDL
+#ifndef SDL_PORT
     short *frameHeader;
 #endif
     int frameOffset;
     int left;
     int top;
     int bottom;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     short frameExtents[4];
 #endif
 
     frameOffset = (int)(short)(frame * 4 + 4);
     if (frameOffset < (int)*(unsigned short *)(shape + 4)) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         memcpy(frameExtents, shape + *(int *)(shape + frameOffset),
                sizeof(frameExtents));
         rightExtent = frameExtents[0];
@@ -568,20 +568,20 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
         commands = shape + *(int *)(frame + shape);
         commands += 8;
         pixels = bitmap;
-    #ifdef WC1_SDL
+    #ifdef SDL_PORT
         memcpy(&rowCode, commands, sizeof(rowCode));
     #else
         rowCode = *(unsigned short *)commands;
     #endif
         commands += 2;
         while (rowCode != 0) {
-    #ifdef WC1_SDL
+    #ifdef SDL_PORT
             memcpy(&xOffset, commands, sizeof(xOffset));
     #else
             xOffset = *(short *)commands;
     #endif
             commands += 2;
-    #ifdef WC1_SDL
+    #ifdef SDL_PORT
             memcpy(&yOffset, commands, sizeof(yOffset));
     #else
             yOffset = *(short *)commands;
@@ -657,7 +657,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                 }
                 commands += rowCode;
             }
-    #ifdef WC1_SDL
+    #ifdef SDL_PORT
             memcpy(&rowCode, commands, sizeof(rowCode));
     #else
             rowCode = *(unsigned short *)commands;

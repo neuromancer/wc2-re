@@ -6,7 +6,7 @@
  *  Boundary evidence: MonoDebug_install/MonoDebug_print anchor the final block;
  *  the Mac auto unit starts at visit_the_cinema (0x403e50).
  */
-#include "wc1.h"
+#include "game.h"
 
 static char g_szSoundDebugBuffer_005d1f00[0xfa0];
 
@@ -45,7 +45,7 @@ short CreateDataFile(const char *path)
         g_nPacketError_0049ca90 = (short)errno;
         return 0;
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* WC2 stores the descriptor in a word and then compares it against a
      * full -1, so a failed open never reaches the branch above and the caller
      * reports a bare error code instead.  The port says which file it could
@@ -53,7 +53,7 @@ short CreateDataFile(const char *path)
      * directory's permissions. */
     if ((short)fd == -1) {
         fprintf(stderr, "Unable to create '%s' in '%s': %s\n", path,
-                Wc1SdlDescribeWorkingDirectory(), strerror(errno));
+                SdlDescribeWorkingDirectory(), strerror(errno));
     }
 #endif
     return (short)fd;
@@ -89,96 +89,6 @@ int SeekDataFile(unsigned short fd, int offset,
         g_nPacketError_0049ca90 = (short)errno;
     }
     return position;
-}
-
-/* Function start: WC2_UNMAPPED */
-short GetLineLength(const char *text)
-{
-    short width;
-    char c;
-
-    width = 0;
-    for (;;) {
-        c = *text;
-        text++;
-        if (c == 0)
-            break;
-        if (c >= 'A' && c <= 'z') {
-            c = (char)(c - 'A');
-            width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, c, 2);
-            width = width + 2;
-        } else if (c == '.') {
-            width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 58, 2);
-            width = width + 2;
-        } else if (c == ',') {
-            width = width + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 59, 2);
-            width = width + 2;
-        } else if (c == ' ') {
-            width = width + 6;
-        } else if (c == '\n') {
-            break;
-        }
-    }
-    return width;
-}
-
-/* Function start: WC2_UNMAPPED */
-int print_subtitle(Viewport *viewport, short colour, const char *text)
-{
-    const char *scan;
-    short lines;
-    short x;
-    short y;
-    char c;
-
-    (void)colour;
-    lines = 1;
-    scan = text;
-    c = *scan;
-    scan++;
-    while (c != 0) {
-        if (c == '\n')
-            lines++;
-        c = *scan;
-        scan++;
-    }
-    lines = (short)(lines * 16);
-    y = (short)((128 - lines) / 2);
-    x = (short)((320 - GetLineLength(text)) >> 1);
-    for (;;) {
-        c = *text;
-        text++;
-        if (c == 0)
-            break;
-        if (c >= 'A' && c <= 'z') {
-            c = (char)(c - 'A');
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, c);
-            x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, c, 2);
-            x = x + 2;
-        } else if (c == ' ') {
-            x = x + 6;
-        } else if (c == '.') {
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 58);
-            x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 58, 2);
-            x = x + 2;
-        } else if (c == ',') {
-            DrawSpriteDefault(viewport, x, y, g_pIntroFont_005a8960, 59);
-            x = x + GetShapeFrameExtent(
-                0, 0, g_pIntroFont_005a8960, 59, 2);
-            x = x + 2;
-        } else if (c == '\n') {
-            y = y + 16;
-            x = (short)((320 - GetLineLength(text)) >> 1);
-        }
-    }
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
-        MarkDibDirty();
-    return 0;
 }
 
 /* Function start: 0x437760 */

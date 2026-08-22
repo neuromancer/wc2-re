@@ -4,7 +4,7 @@
  *  Address range 0x40d000-0x40ffff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: DrawNav* family; string band 0x4687AC-0x4688F4.
  */
-#include "wc1.h"
+#include "game.h"
 
 typedef struct TitleActorMotion {
     short x;
@@ -43,11 +43,6 @@ unsigned char *g_pTitleFieldShape_00491cf8;
 volatile short g_nNearHeapActive_00493044 = 0;
 volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
 volatile int g_nNearHeapRelocationBytes_0049304c = 0;
-int DAT_004688cc_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d0_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d4_WC1_UNMAPPED /* no-address */ = 0;
-int DAT_004688d8_WC1_UNMAPPED /* no-address */ = 0;
-short DAT_004688dc_WC1_UNMAPPED /* no-address */ = 0;
 
 
 
@@ -225,8 +220,8 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
     placed = 0;
     if (NavMapLabelPositionAvailable(x, y, width, 6) != 0 ||
         (force != 0 && NavMapLabelFits(x, y, width, 6) != 0)) {
-        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].x = x;
-        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].y = y;
+        g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].x = x;
+        g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].y = y;
         placed = 1;
     }
     return placed;
@@ -242,9 +237,9 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
     short offset;
 
     width = (short)(strlen(text) * 4 + 2);
-    g_aNavMapLabels_00475e80_WC1_UNMAPPED[
+    g_aNavMapLabels_005b34e0[
         g_nNavMapLabelCount_0049bc4c].colour = colour;
-    g_aNavMapLabels_00475e80_WC1_UNMAPPED[
+    g_aNavMapLabels_005b34e0[
         g_nNavMapLabelCount_0049bc4c].text = text;
     offset = -1;
     do {
@@ -263,8 +258,8 @@ void PlaceNavMapLabel(short x, short y, unsigned short colour,
                                  (short)(offset == 12)) == 0 &&
              offset != 12);
     ReserveNavMapArea(
-        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].x,
-        g_aNavMapLabels_00475e80_WC1_UNMAPPED[g_nNavMapLabelCount_0049bc4c].y,
+        g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].x,
+        g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].y,
         width, 6);
     g_nNavMapLabelCount_0049bc4c++;
 }
@@ -349,13 +344,13 @@ void AddUniqueObjectiveNavLabel(short x, short y,
 /* Function start: 0x4507DA */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
-    if (g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].x <= x &&
+    if (g_aNavMapLabels_005b34e0[labelIndex].x <= x &&
         (unsigned int)x <=
-            (unsigned int)(g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].x +
-                           strlen(g_aNavMapLabels_00475e80_WC1_UNMAPPED[
+            (unsigned int)(g_aNavMapLabels_005b34e0[labelIndex].x +
+                           strlen(g_aNavMapLabels_005b34e0[
                                labelIndex].text) * 4) &&
-        g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].y <= y &&
-        y <= g_aNavMapLabels_00475e80_WC1_UNMAPPED[labelIndex].y + 6)
+        g_aNavMapLabels_005b34e0[labelIndex].y <= y &&
+        y <= g_aNavMapLabels_005b34e0[labelIndex].y + 6)
         return 1;
     return 0;
 }
@@ -368,10 +363,10 @@ void DrawNavMapLabels(void)
     label = 0;
     while (label < (short)g_nNavMapLabelCount_0049bc4c) {
         DrawFormattedText(g_szNavLabelTextFormat_0049bd30,
-                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].x,
-                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].y,
-                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].colour,
-                          g_aNavMapLabels_00475e80_WC1_UNMAPPED[label].text);
+                          g_aNavMapLabels_005b34e0[label].x,
+                          g_aNavMapLabels_005b34e0[label].y,
+                          g_aNavMapLabels_005b34e0[label].colour,
+                          g_aNavMapLabels_005b34e0[label].text);
         label++;
     }
 }
@@ -1559,43 +1554,6 @@ void WriteDetailedMemoryStateReport(void)
         fprintf(g_pMemoryLogFile_00499da8,
                 "----------------------\n");
     }
-}
-
-/* Function start: WC2_UNMAPPED */
-int FullMissionScore(void)
-{
-    signed char *scores;
-    short objective;
-    short score;
-
-    score = 0;
-    scores = (signed char *)(g_pMissionCampaignData_005988bc +
-        (int)g_stCampaignState_0059ca50.currentMission * 0x14 +
-        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a - 0x50);
-    objective = 0;
-    do {
-        score = (short)(score + scores[objective + 4]);
-        objective++;
-    } while (objective < 16);
-    return score;
-}
-
-/* Function start: WC2_UNMAPPED */
-int PlayersMissionScore(void)
-{
-    signed char *scores;
-    short objective;
-    short score;
-
-    scores = (signed char *)(g_pMissionCampaignData_005988bc +
-        (int)g_stCampaignState_0059ca50.currentSeries * 0x5a +
-        (int)g_stCampaignState_0059ca50.currentMission * 0x14 - 0x50);
-    score = 0;
-    for (objective = 0; objective < 16; objective++) {
-        if (achieved(objective) != 0)
-            score = (short)(score + scores[objective + 4]);
-    }
-    return score;
 }
 
 /* Function start: 0x4651B7 */

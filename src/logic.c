@@ -7,7 +7,7 @@
  *  0x422010-0x423cdf; LoadOriginFxDrivers/EMStartUp and string band
  *  0x469A28-0x469B9C anchor the provisional enclosing file.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(strcat, strcpy)
 
@@ -82,8 +82,8 @@ void fire_fixed_projectile_weapon(short obj)
     for (weapon = 0;
          weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
          weapon++, slot++) {
-#ifdef WC1_SDL
-        Wc1SdlTracef("[slot] obj=%d w=%d type=%d wtype=%d class=%d dis=%d\n",
+#ifdef SDL_PORT
+        SdlTracef("[slot] obj=%d w=%d type=%d wtype=%d class=%d dis=%d\n",
                      (int)obj, (int)weapon, (int)slot->type,
                      (int)slot->weaponType,
                      (int)g_aObjectTypeData_00496d30[
@@ -225,7 +225,7 @@ void reposition_fixed_child_objects(void)
     short angle;
     short parent;
     short object;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     int fixedCosine;
     int fixedSine;
     float attachmentRight;
@@ -236,7 +236,7 @@ void reposition_fixed_child_objects(void)
     float sineFloat;
 #endif
 
-    for (object = 10; object <= WC2_SPACE_LAST_MOVING_OBJECT; object++) {
+    for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++) {
         if (g_aeObjectClass_00495328[object] ==
             OBJECT_CLASS_FIXED_OBJECT) {
             parent = (short)g_acObjectOwner_00495208[object];
@@ -291,7 +291,7 @@ void reposition_fixed_child_objects(void)
                     g_asObjectScreenX_00493598[parent];
                 g_asObjectScreenY_00493628[object] +=
                     g_asObjectScreenY_00493628[parent];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
                 if (g_asObjectType_00495298[object] == 0x2b) {
                     /* Match the anchor to the enhanced parent transform. */
                     parentScreenX =
@@ -312,7 +312,7 @@ void reposition_fixed_child_objects(void)
                     sineFloat = (float)fixedSine / 65536.0f;
                     attachmentRight = (float)right / 256.0f;
                     attachmentUp = (float)up / 256.0f;
-                    Wc1SdlSetThrusterScreenPosition(
+                    SdlSetThrusterScreenPosition(
                         object,
                         parentScreenX + attachmentRight * cosineFloat -
                             attachmentUp * sineFloat,
@@ -413,7 +413,7 @@ void accelerate(short amount)
         if (g_nSpaceFrame_00493134 % 3 == 0)
             PlaySfxWaveFileByNumber(3, -1, 0);
     }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* amount goes negative when the throttle is cut, and shifting a negative
      * value left is undefined in C even though it is what the 386 does. */
     celerate(0, (int)amount * 256);
@@ -460,37 +460,6 @@ short QueryCurrentGraphicsMode(void)
     return 0x13;
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned int LoadWc1GamePaletteFile(void)
-{
-    short index;
-
-    PromptInsertNumberedDisk(0);
-    switch ((int)(short)g_nSpacePaletteFadeMode_004901e8) {
-    case 9:
-    case 13:
-        index = 0;
-        do {
-            g_abGamePaletteReservedColours_0049cb54[index] =
-                g_abLegacyVideoModeColours_0049cb90[index];
-            index++;
-        } while ((unsigned int)(int)index < 14);
-        index = 0;
-        do {
-            g_asConversationTextColours_004699f0_WC1_UNMAPPED[index] =
-                g_asConversationTextColours_004699f0_WC1_UNMAPPED[index + 12];
-            index++;
-        } while ((unsigned int)(int)index < 12);
-        return 0;
-    case 0x13:
-        LoadWc1PaletteTripletsFile("game.pal");
-        ResetCockpitPaletteEntries();
-        SaveGamePalette();
-        return 0;
-    }
-    return 0;
-}
-
 /* Function start: 0x45B810 */
 void LoadGamePaletteFile(void)
 {
@@ -525,32 +494,6 @@ void EMShutDown(void)
         ShutdownEventManager();
 }
 
-/* Function start: WC2_UNMAPPED */
-unsigned short InitializeEventManagerResources(void)
-{
-    DAT_0059a9f0 = 20;
-    g_nInputTickScale_005c8d24 = 20;
-    DAT_0059ab64 = 1;
-    g_stMouseCursorState_0059ab10.shape = g_pMouseCursorResource_005a7cdc =
-        FetchDiskPacketRetrying(14, 0, 0x10);
-    g_stMouseCursorState_0059ab10.frame = 0;
-    g_stMouseCursorState_0059ab10.viewport = &g_stScreenViewport_005d21a0;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int StartWc1EventManager(void)
-{
-    PromptInsertNumberedDisk(0);
-    RegisterEventManagerShutdown((void (*)(void))LogMemoryUsage);
-    if (InitializeEventManager(20, InitializeEventManagerResources, 0) == 0)
-        exit_squadron("EMStartUp Failed");
-    ConfigureEventManagerPointer(g_stMouseCursorState_0059ab10.shape, 0);
-    SetEventManagerPump(PollJoystickButtonEvents);
-    g_nMenuInputRepeatDelay_005a8208 = 6;
-    return 0;
-}
-
 /* Function start: 0x45B924 */
 void EMStartUp(void)
 {
@@ -573,99 +516,6 @@ void EMStartUp(void)
     g_nInputRepeatDelay_005c80d6 = 20;
     g_bInputCursorEnabled_005c80e6 = 1;
     g_nInputDeviceMode_005c83e6 = 3;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int LoadWc1OriginFxDrivers(void)
-{
-    int memoryThreshold;
-    int videoModeMemory;
-    short requestedGraphicsMode;
-
-    memoryThreshold = 100000;
-    _chdir("gamedat");
-    g_nNearHeapMaxDescriptors_00493048 = 0x80;
-    IsSoundHardwarePresent(8);
-    if (DAT_0059a856 == 0)
-        SystemDebugPrintf("No ");
-    SystemDebugPrintf("Expanded Memory Detected.\n");
-    g_bOriginFxDriverActive_0049cbb0 = 0;
-    PromptInsertNumberedDisk(0x38);
-    if (GetMusicDriverPresent(g_bSlowSceneAnimation_00469998_WC1_UNMAPPED) == 0)
-        exit_squadron("Failed to load Origin-FX drivers");
-    LoadJoystickCalibrationFile(9, 9, 1, 1);
-    g_nInputDoubleClickInterval_00493050 = 2;
-    StartWc1EventManager();
-    GetFxDriverInitResult();
-    g_dwOriginalFreeMemory_005a7cd8 = GetLargestFreeMemoryBlockByType(0);
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3)
-        memoryThreshold = 210000;
-    SetFrameTimerPeriodDirect(0x78);
-    if ((int)GetAvailableFarMemoryByType(4) > memoryThreshold) {
-        g_nAvailableGameMemory_005c8de0 =
-            (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED[
-                g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-        if (g_nAvailableGameMemory_005c8de0 < 0)
-            exit_squadron(
-                "You do not have enough memory to play Wing Commander.\n"
-                "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005c8dc8 = 2;
-        SystemDebugPrintf("Expanded Memory fully used.\n");
-    } else {
-        g_nAvailableGameMemory_005c8de0 =
-            (int)g_dwOriginalFreeMemory_005a7cd8 -
-            g_anBaseMemoryReservationByVideoMode_00469a90_WC1_UNMAPPED[
-                g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-        if (g_nAvailableGameMemory_005c8de0 < 0)
-            exit_squadron(
-                "You do not have enough memory to play Wing Commander.\n"
-                "Refer to your reference guide for assistance.");
-        g_nMemoryConfiguration_005c8dc8 = 0;
-        if (g_nMusicDriverMode_0049be8c == 1 ||
-            g_nMusicDriverMode_0049be8c == 2) {
-            videoModeMemory =
-                g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED[
-                    g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-            if ((int)g_dwOriginalFreeMemory_005a7cd8 > videoModeMemory) {
-                g_nMemoryConfiguration_005c8dc8 = 1;
-                g_nAvailableGameMemory_005c8de0 =
-                    (int)g_dwOriginalFreeMemory_005a7cd8 - videoModeMemory;
-                SystemDebugPrintf("Full");
-            } else {
-                SystemDebugPrintf("Limited");
-            }
-            SystemDebugPrintf(" music will play.");
-        }
-    }
-
-    LoadSpaceflightResources();
-    FxDriverShutdownHook();
-    SetEventManagerPump(PollJoystickButtonEvents);
-    PromptInsertNumberedDisk(0);
-    ShutdownVideoHook(
-        g_acExpectedGraphicsModes_00493078[
-            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED]);
-    requestedGraphicsMode =
-        g_acExpectedGraphicsModes_00493078[
-            g_bSlowSceneAnimation_00469998_WC1_UNMAPPED];
-    if (GetTargetColourIndex() != requestedGraphicsMode)
-        exit_squadron("Requested graphics display mode not available.");
-    LoadWc1GamePaletteFile();
-    InitializeGameTextContexts();
-    InitializeDiskPromptTextContext();
-    GetEventManagerStatus();
-    g_nFrameSkip_0049d764 = 1;
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3)
-        GetFxDriverStatus();
-    InitializeWc1DirectionViewFrames();
-    g_pConstellationDefinitions_00598a28 =
-        LoadPacketAllocated(0x3a, 0);
-    g_pMissionCampaignData_005988bc = LoadPacketAllocated(0x3a, 1);
-    SystemDebugPrintf("\n[SYSTEM] : Exiting initialize()\n");
-    return 0;
 }
 
 /* Function start: 0x45B9D3 */
@@ -825,11 +675,11 @@ void InitializeHighMemoryGraphicsBuffers(void)
     g_pHighMemoryBlockA_004901f8 =
         AllocateDefaultMemory((unsigned int)g_wHighMemoryBlockBytes_004901fc);
     g_dwHighMemoryParagraph_005d3fb4 =
-        IdentityDword((Wc2DwordPtr)g_pHighMemoryBlockA_004901f8);
+        IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
         g_dwHighMemoryParagraph_005d3fb4;
     g_pHighMemoryBlockB_00490200 =
-        AllocateDefaultMemory(WC2_CANNED_SCENE_SNAPSHOT_BYTES);
+        AllocateDefaultMemory(CANNED_SCENE_SNAPSHOT_BYTES);
     if (g_pHighMemoryBlockB_00490200 == 0 ||
         g_pHighMemoryBlockA_004901f8 == 0) {
         FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
@@ -878,34 +728,6 @@ unsigned int initialize_direction_view_frame(short yaw, short pitch,
     g_aDirectionViewRightVector_005d2210[index] = right;
     g_aDirectionViewUpVector_005d2500[index] = up;
     g_aDirectionViewForwardVector_005d27f0[index] = forward;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int InitializeWc1DirectionViewFrames(void)
-{
-    signed char frame;
-    signed char pitchBands;
-    signed char yawSectors;
-    short yaw;
-    short pitch;
-
-    frame = 1;
-    pitch = 90;
-    initialize_direction_view_frame(0, pitch, 0);
-    pitchBands = 5;
-    do {
-        pitch -= 30;
-        yaw = 0;
-        yawSectors = 12;
-        do {
-            initialize_direction_view_frame(yaw, pitch, frame++);
-            yaw += 30;
-            yawSectors--;
-        } while (yawSectors != 0);
-        pitchBands--;
-    } while (pitchBands != 0);
-    initialize_direction_view_frame(0, -90, frame);
     return 0;
 }
 
@@ -1000,10 +822,10 @@ void InitializeMusicResources(void)
 #pragma function(strcmp)
 
 /* Function start: 0x45C558 */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* The port's entry point is the SDL launcher, so the game's own main() is
  * compiled under a name that does not collide with it. */
-void Wc2GameMain(short argc, char **argv)
+void GameMain(short argc, char **argv)
 #else
 void main(short argc, char **argv)
 #endif
@@ -1120,24 +942,6 @@ void main(short argc, char **argv)
 
 #pragma intrinsic(strcmp)
 
-/* Function start: WC2_UNMAPPED */
-unsigned int GetFxDriverInitResult(void)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int GetFxDriverStatus(void)
-{
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-short ace_status(short ace, unsigned char bits)
-{
-    return (g_stCampaignState_0059ca50.aceFlags[ace] & bits) == bits;
-}
-
 /* Function start: 0x429550 */
 void SendKilrathiAceGreetingOnce(short obj)
 {
@@ -1183,7 +987,7 @@ short GetInitialMissionShipPilotSaveIndex(short initialShip)
 }
 
 /* Function start: 0x428EDC */
-void StoreMissionResultsInCampaignGlobals(Wc2CampaignGlobals *globals)
+void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
 {
     short value;
     short index;
@@ -1233,7 +1037,7 @@ void StoreMissionResultsInCampaignGlobals(Wc2CampaignGlobals *globals)
 }
 
 /* Function start: 0x42917D */
-void InitializeCampaignConstellationState(Wc2CampaignGlobals *globals,
+void InitializeCampaignConstellationState(CampaignGlobals *globals,
                                            short copyPosition)
 {
     short pilotIndex;
@@ -1500,7 +1304,7 @@ short unactive(short ship)
 short are_alive(short obj)
 {
     if (unactive(obj) == 0 &&
-        g_aeShipObjective_00495f08[obj] != WC2_SHIP_OBJECTIVE_NOT_ALIVE)
+        g_aeShipObjective_00495f08[obj] != SHIP_OBJECTIVE_NOT_ALIVE)
         return 1;
     return 0;
 }
@@ -2119,9 +1923,9 @@ short find_ships_sphere(short missionShip)
     fallback = -1;
     navPoint = g_aMissionNavPoints_00491e98;
     navIndex = 0;
-    for (; navIndex < WC2_MISSION_NAV_POINT_COUNT;
+    for (; navIndex < MISSION_NAV_POINT_COUNT;
          navIndex++, navPoint++) {
-        for (shipIndex = 0; shipIndex < WC2_MISSION_NAV_POINT_COUNT;
+        for (shipIndex = 0; shipIndex < MISSION_NAV_POINT_COUNT;
              shipIndex++) {
             if (navPoint->missionShips[shipIndex] == missionShip) {
                 if (navPoint->type == 1)
@@ -2177,7 +1981,7 @@ unsigned int get_follow_point(short obj, FixedVector *point)
         return 0;
     }
     pathIndex = (short)g_abShipNavPointIndex_00495f60[obj];
-    while (++pathIndex < WC2_MISSION_OBJECTIVE_COUNT) {
+    while (++pathIndex < MISSION_OBJECTIVE_COUNT) {
         objective = (short)g_abFlightPath_004932a0[pathIndex];
         type = g_aMissionObjectives_004932a8[objective].type;
         switch (type) {
@@ -2524,12 +2328,12 @@ void ResetCockpitPaletteEntries(void)
 /* The retail heap lets a copy of the largest cockpit-view packet read through
  * the shorter cached packets.  Their trailing bytes are not part of the shape;
  * copy only the loaded packet on the bounds-checked native heap. */
-#ifdef WC1_SDL
-#define WC2_COCKPIT_VIEW_COPY_BYTES(section) \
+#ifdef SDL_PORT
+#define COCKPIT_VIEW_COPY_BYTES(section) \
     ((unsigned short)GetNamedPacketSize( \
         g_szCockpitResourceFilename_005d1030, (section)))
 #else
-#define WC2_COCKPIT_VIEW_COPY_BYTES(section) \
+#define COCKPIT_VIEW_COPY_BYTES(section) \
     ((unsigned short)g_nCockpitBackgroundBytes_0049c720)
 #endif
 
@@ -2575,10 +2379,10 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[0] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[0]);
+                    (DwordPtr)g_apCockpitViewShapes_005d1040[0]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      WC2_COCKPIT_VIEW_COPY_BYTES(4));
+                      COCKPIT_VIEW_COPY_BYTES(4));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 4,
@@ -2667,10 +2471,10 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[1] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[1]);
+                    (DwordPtr)g_apCockpitViewShapes_005d1040[1]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      WC2_COCKPIT_VIEW_COPY_BYTES(5));
+                      COCKPIT_VIEW_COPY_BYTES(5));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 5,
@@ -2694,11 +2498,11 @@ void initialize_cockpit(signed char mode)
             if (g_apCockpitViewShapes_005d1040[1] != 0) {
                 g_pCockpitViewFrameData_005d1088 =
                     (unsigned char *)IdentityDword(
-                        (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[1]);
+                        (DwordPtr)g_apCockpitViewShapes_005d1040[1]);
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
-                    WC2_COCKPIT_VIEW_COPY_BYTES(5));
+                    COCKPIT_VIEW_COPY_BYTES(5));
             } else {
                 LoadPacketIntoBuffer(
                     g_szCockpitResourceFilename_005d1030, 5,
@@ -2724,11 +2528,11 @@ void initialize_cockpit(signed char mode)
             if (g_apCockpitViewShapes_005d1040[2] != 0) {
                 g_pCockpitViewFrameData_005d1088 =
                     (unsigned char *)IdentityDword(
-                        (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[2]);
+                        (DwordPtr)g_apCockpitViewShapes_005d1040[2]);
                 DosMemcpy(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameData_005d1088,
-                    WC2_COCKPIT_VIEW_COPY_BYTES(6));
+                    COCKPIT_VIEW_COPY_BYTES(6));
             } else {
                 LoadPacketIntoBuffer(
                     g_szCockpitResourceFilename_005d1030, 6,
@@ -2757,10 +2561,10 @@ void initialize_cockpit(signed char mode)
         if (g_apCockpitViewShapes_005d1040[3] != 0) {
             g_pCockpitViewFrameData_005d1088 =
                 (unsigned char *)IdentityDword(
-                    (Wc2DwordPtr)g_apCockpitViewShapes_005d1040[3]);
+                    (DwordPtr)g_apCockpitViewShapes_005d1040[3]);
             DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameData_005d1088,
-                      WC2_COCKPIT_VIEW_COPY_BYTES(7));
+                      COCKPIT_VIEW_COPY_BYTES(7));
         } else {
             LoadPacketIntoBuffer(
                 g_szCockpitResourceFilename_005d1030, 7,
@@ -3360,21 +3164,21 @@ void free_3Space_objects(void)
 {
     FreeShapeSet(g_aCommon3SpaceResources_0049c728, 0);
     free_ship(4);
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].shapeSet =
-            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].shapeSet = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_PILUM_FF].animation =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SPICULUM_IR].animation =
-            g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_DART_DF].animation = 0;
-    g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_GIRDER_CHUNK].shapeSet =
-        g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_SHIP_TUBING].shapeSet =
+    g_aObjectTypeData_00496d30[OBJECT_DATA_PILUM_FF].shapeSet =
+        g_aObjectTypeData_00496d30[OBJECT_DATA_SPICULUM_IR].shapeSet =
+            g_aObjectTypeData_00496d30[OBJECT_DATA_DART_DF].shapeSet = 0;
+    g_aObjectTypeData_00496d30[OBJECT_DATA_PILUM_FF].animation =
+        g_aObjectTypeData_00496d30[OBJECT_DATA_SPICULUM_IR].animation =
+            g_aObjectTypeData_00496d30[OBJECT_DATA_DART_DF].animation = 0;
+    g_aObjectTypeData_00496d30[OBJECT_DATA_GIRDER_CHUNK].shapeSet =
+        g_aObjectTypeData_00496d30[OBJECT_DATA_SHIP_TUBING].shapeSet =
             g_aObjectTypeData_00496d30[
-                WC2_OBJECT_TYPE_BURNING_DEBRIS].shapeSet =
-                g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_O_RING].shapeSet =
+                OBJECT_DATA_BURNING_DEBRIS].shapeSet =
+                g_aObjectTypeData_00496d30[OBJECT_DATA_O_RING].shapeSet =
                     g_aObjectTypeData_00496d30[
-                        WC2_OBJECT_TYPE_PIPE].shapeSet;
+                        OBJECT_DATA_PIPE].shapeSet;
     FreePacketAndClear(
-        &g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_EJECTED_PILOT].shapeSet,
+        &g_aObjectTypeData_00496d30[OBJECT_DATA_EJECTED_PILOT].shapeSet,
         0);
     if (g_nResourcePaletteMode_005c57e6 == 0)
         FreePacketAndClear(&g_pGenericMissileShape_0049c8f0, 4);
@@ -3467,7 +3271,7 @@ signed char DecodeSceneStructChunk(unsigned char **cursor,
     count = (unsigned short)((chunkSize - 2) / recordSize);
     (*resource)->type = 0;
     (*resource)->count = count;
-    pointerSize = WC2_HOST_POINTER_SIZE;
+    pointerSize = HOST_POINTER_SIZE;
     entries = AllocateScenePointerTable(
         count, pointerSize, 0, "Cannot Allocate STRC stuff");
     (*resource)->data = entries;
@@ -3504,7 +3308,7 @@ signed char DecodeSceneOffsetChunk(unsigned char **cursor,
     (*resource)->type = 1;
     (*resource)->count = count;
     entries = AllocateScenePointerTable(
-        count, WC2_HOST_POINTER_SIZE, 0, "Cannot Alloc OFST stuff");
+        count, HOST_POINTER_SIZE, 0, "Cannot Alloc OFST stuff");
     (*resource)->data = entries;
     index = 1;
     while (index <= (short)count) {
@@ -3543,7 +3347,7 @@ signed char DecodeSceneSymbolChunk(unsigned char **cursor,
     SwapSceneChunkSizeEndian((int *)&chunkSize);
     start = data;
     count = 0;
-    pointerSize = WC2_HOST_POINTER_SIZE;
+    pointerSize = HOST_POINTER_SIZE;
     do {
         nextString = (unsigned char *)DosStrchr((char *)data, 0) + 1;
         count++;
@@ -3611,7 +3415,7 @@ void UpdateShipTurretGuns(short ship)
     FixedVector aimPoint;
     short leadDistance;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* Retail consults this local before the projectile is created.  The two
      * tests choose a firing chance by the firing ship's side. */
     projectile = ship;
@@ -3717,7 +3521,7 @@ void UpdateShipTurretGuns(short ship)
             g_aShipForwardVector_00494208[ship].z * gunOffset.z +
             g_aShipPosition_00494550[ship].z;
         projectileType = 8;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* Retail's SHL converts signed random offsets to fixed point. */
         aimJitter.x =
             ((unsigned short)RandomInRange(0, 500) - 250) * 256;
@@ -4079,17 +3883,17 @@ void SetTargetCameraEyePosition(short cameraMode)
     ShortVector offset;
 
     offset = g_aTargetCameraEyeOffsets_0049d430[cameraMode];
-    g_aShipPosition_00494550[WC2_EYE_OBJECT].x =
+    g_aShipPosition_00494550[EYE_OBJECT].x =
         offset.y * g_aShipUpVector_00493ec0[0].x +
         offset.z * g_aShipForwardVector_00494208[0].x +
         offset.x * g_aShipRightVector_00493b78[0].x +
         g_aShipPosition_00494550[0].x;
-    g_aShipPosition_00494550[WC2_EYE_OBJECT].y =
+    g_aShipPosition_00494550[EYE_OBJECT].y =
         offset.y * g_aShipUpVector_00493ec0[0].y +
         offset.z * g_aShipForwardVector_00494208[0].y +
         offset.x * g_aShipRightVector_00493b78[0].y +
         g_aShipPosition_00494550[0].y;
-    g_aShipPosition_00494550[WC2_EYE_OBJECT].z =
+    g_aShipPosition_00494550[EYE_OBJECT].z =
         offset.y * g_aShipUpVector_00493ec0[0].z +
         offset.z * g_aShipForwardVector_00494208[0].z +
         offset.x * g_aShipRightVector_00493b78[0].z +
@@ -4281,441 +4085,4 @@ unsigned int GetAvailableMainMemory(void)
 unsigned int GetLargestMainMemoryBlock(void)
 {
     return 0x7c0600;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int PreloadMusicTrackHook(short track)
-{
-    (void)track;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int ReleaseMusicTrackHook(short track)
-{
-    (void)track;
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-signed char *__stdcall FindSceneAnimationCommand(
-    signed char *script, signed char command)
-{
-    signed char opcode;
-
-    while (*script != 0) {
-        opcode = *script++;
-        if (opcode == command) {
-            script--;
-            break;
-        }
-        switch (opcode) {
-        case 'A':
-        case 'L':
-        case 'Q':
-            script++;
-        case 'B':
-        case 'G':
-        case 'J':
-        case 'R':
-        case 'W':
-            script += 2;
-            break;
-        case 'D':
-            while (*script++ != -1) {
-            }
-            break;
-        case 'E':
-        case 'P':
-        case 'S':
-            script++;
-            break;
-        case 'X':
-            script += 10;
-            break;
-        }
-    }
-    return *script != 0 ? script : 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-short __stdcall SceneAnimationGoalReached(short delta, short current,
-                                          short goal)
-{
-    if (delta < 0) {
-        if (current <= goal)
-            return 1;
-    } else if (delta > 0) {
-        if (current >= goal)
-            return 1;
-    } else if (current == goal) {
-        return 1;
-    }
-    return 0;
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned int __stdcall UpdateSceneAnimationObject(
-    SceneAnimationObject *object, Viewport *viewport)
-{
-    SceneAnimationObject *source;
-    signed char *commandStart;
-    signed char *cursor;
-    signed char *label;
-    signed char opcode;
-    signed char property;
-    unsigned short complete;
-    unsigned short goalFlags;
-    short delay;
-    short value;
-    short frame;
-    short xOffset;
-    short labelNumber;
-    short objectIndex;
-    short objectCount;
-    signed char stop;
-
-    complete = 0;
-    delay = object->delay;
-    stop = 0;
-    if (delay != 0)
-        cursor = object->repeatCursor;
-    else
-        cursor = object->scriptCursor;
-
-    while (*cursor != 0 && stop == 0) {
-        opcode = *cursor++;
-        switch (opcode) {
-        case 'A':
-            property = *cursor++;
-            value = *(short *)cursor;
-            cursor += 2;
-            switch (property) {
-            case 'F':
-                object->frame = (short)(object->frame + value);
-                object->deltaFrame = value;
-                break;
-            case 'R':
-                object->rotation = (short)(object->rotation + value);
-                object->deltaRotation = value;
-                if (object->rotation < 0)
-                    object->rotation = (short)(
-                        ((unsigned short)(0x167 - object->rotation) /
-                         0x168) * 0x168 + object->rotation);
-                if (object->rotation > 0x167)
-                    object->rotation = (short)(
-                        object->rotation -
-                        ((unsigned short)object->rotation / 0x168) *
-                            0x168);
-                break;
-            case 'S':
-                object->scale = (short)(object->scale + value);
-                object->deltaScale = value;
-                if (object->scale < 0x40)
-                    object->scale = 0x40;
-                else if (object->scale > 0x1fff)
-                    object->scale = 0x1fff;
-                break;
-            case 'T':
-                delay = (short)(delay + value);
-                break;
-            case 'X':
-                object->x = (short)(object->x + value);
-                object->deltaX = value;
-                break;
-            case 'Y':
-                object->y = (short)(object->y + value);
-                object->deltaY = value;
-                break;
-            }
-            break;
-
-        case 'B':
-            cursor += 2;
-            break;
-
-        case 'D':
-            commandStart = cursor - 1;
-            object->repeatCursor = commandStart;
-            xOffset = 0;
-            frame = (short)*cursor++;
-            while (frame != -1) {
-                if (object->layer != 2 && g_nFrameSkipCountdown_0049d760 < 1)
-                    DrawSpriteScaled(
-                        viewport, (short)(object->x + xOffset), object->y,
-                        object->shape, frame, object->rotation,
-                        object->scale, object->frame);
-                if (object->layer == 0)
-                    xOffset = (short)(xOffset + 320);
-                frame = (short)*cursor++;
-            }
-            stop = 1;
-            break;
-
-        case 'E':
-            commandStart = cursor - 1;
-            xOffset = 0;
-            complete = 1;
-            frame = (short)*cursor++;
-            while (frame != -1) {
-                if (object->layer != 2 && g_nFrameSkipCountdown_0049d760 < 1)
-                    DrawSpriteScaled(
-                        viewport, (short)(object->x + xOffset), object->y,
-                        object->shape, frame, object->rotation,
-                        object->scale, object->frame);
-                xOffset = (short)(xOffset + 320);
-                frame = (short)*cursor++;
-            }
-            cursor = commandStart;
-            stop = 1;
-            break;
-
-        case 'G':
-        case 'J':
-            if (opcode == 'J')
-                stop = 1;
-            labelNumber = *(short *)cursor;
-            label = object->scriptStart;
-            do {
-                label = FindSceneAnimationCommand(label, 'B');
-                cursor = label + 3;
-                value = *(short *)(label + 1);
-                label = cursor;
-            } while (value != labelNumber);
-            break;
-
-        case 'L':
-            property = *cursor++;
-            value = *(short *)cursor;
-            cursor += 2;
-            switch (property) {
-            case 'F':
-                object->frame = value;
-                break;
-            case 'R':
-                object->rotation = value;
-                if (object->rotation < 0)
-                    object->rotation = (short)(
-                        ((unsigned short)(0x167 - object->rotation) /
-                         0x168) * 0x168 + object->rotation);
-                if (object->rotation > 0x167)
-                    object->rotation = (short)(
-                        object->rotation -
-                        ((unsigned short)object->rotation / 0x168) *
-                            0x168);
-                break;
-            case 'S':
-                object->scale = value;
-                if (object->scale < 0x40)
-                    object->scale = 0x40;
-                else if (object->scale > 0x1fff)
-                    object->scale = 0x1fff;
-                break;
-            case 'T':
-                delay = value;
-                break;
-            case 'X':
-                object->x = value;
-                break;
-            case 'Y':
-                object->y = value;
-                break;
-            }
-            break;
-
-        case 'P':
-            stop = 1;
-            break;
-
-        case 'Q':
-            property = *cursor++;
-            value = *(short *)cursor;
-            cursor += 2;
-            switch (property) {
-            case 'F':
-                object->goalFlags |= 0x10;
-                object->goalFrame = value;
-                break;
-            case 'R':
-                object->goalFlags |= 1;
-                object->goalRotation = value;
-                break;
-            case 'S':
-                object->goalFlags |= 2;
-                object->goalScale = value;
-                break;
-            case 'X':
-                object->goalFlags |= 4;
-                object->goalX = value;
-                break;
-            case 'Y':
-                object->goalFlags |= 8;
-                object->goalY = value;
-                break;
-            }
-            break;
-
-        case 'R':
-            objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
-            objectIndex = (short)(objectCount * (short)*cursor++);
-            objectIndex = (short)(objectIndex + (short)*cursor++);
-            source = &g_pSceneAnimationObjects_005a7c64[objectIndex];
-            object->x = source->x;
-            object->y = source->y;
-            object->rotation = source->rotation;
-            object->scale = source->scale;
-            object->frame = source->frame;
-            break;
-
-        case 'W':
-            g_nSceneAnimationWaitFrames_005a7c68 = *(short *)cursor;
-            cursor += 2;
-            g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED = 1;
-            break;
-
-        case 'X':
-            object->x = *(short *)cursor;
-            cursor += 2;
-            object->y = *(short *)cursor;
-            cursor += 2;
-            object->rotation = *(short *)cursor;
-            cursor += 2;
-            object->scale = *(short *)cursor;
-            cursor += 2;
-            object->frame = *(short *)cursor;
-            cursor += 2;
-            break;
-        }
-    }
-
-    if (object->delay != 0) {
-        object->delay--;
-        return 0;
-    }
-
-    object->scriptCursor = cursor;
-    goalFlags = object->goalFlags;
-    object->delay = delay;
-    if (complete == 0 && goalFlags != 0) {
-        if ((goalFlags & 0x10) != 0)
-            complete = SceneAnimationGoalReached(
-                object->deltaFrame, object->frame, object->goalFrame);
-        if ((goalFlags & 4) != 0)
-            complete |= SceneAnimationGoalReached(
-                object->deltaX, object->x, object->goalX);
-        if ((goalFlags & 8) != 0)
-            complete |= SceneAnimationGoalReached(
-                object->deltaY, object->y, object->goalY);
-        if ((goalFlags & 2) != 0)
-            complete |= SceneAnimationGoalReached(
-                object->deltaScale, object->scale, object->goalScale);
-        if ((goalFlags & 1) != 0)
-            complete |= SceneAnimationGoalReached(
-                object->deltaRotation, object->rotation,
-                object->goalRotation);
-    }
-    return complete;
-}
-
-/* Function start: WC2_UNMAPPED */
-void PlaySceneAnimation(char *text, short animation, short duration)
-{
-    SceneAnimationObject *object;
-    SceneAnimationObject *objects;
-    unsigned short complete;
-    short objectCount;
-    short remaining;
-
-    g_nSceneAnimationWaitFrames_005a7c68 = -1;
-    complete = 0;
-    g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED = 0;
-    AddPCName(text);
-    ClearViewport(&g_stConversationTextViewport_005d2b60,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    FormatTextBufferFromStart(g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED,
-                              0, 160,
-                              g_nConversationTextColour_00598c10,
-                              g_szTextScratchBuffer_005d1c40);
-
-    objectCount = *(short *)g_pSceneAnimationDefinitions_005a7c6c;
-    objects = g_pSceneAnimationObjects_005a7c64 +
-        (short)(objectCount * animation);
-    remaining = objectCount;
-    object = objects;
-    while (remaining > 0) {
-        if (object->layer == 0)
-            object->shape = g_pSceneAnimationPrimaryShape_005a7c58;
-        else
-            object->shape = g_pSceneAnimationSecondaryShape_005a7c70;
-        object->scriptStart =
-            (signed char *)g_pSceneAnimationDefinitions_005a7c6c +
-            object->scriptOffset;
-        object->scriptCursor = object->scriptStart;
-        object++;
-        remaining--;
-    }
-
-    g_nFrameSkipCountdown_0049d760 = 1;
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    ClearInputKeyState();
-    MarkDibDirty();
-    DIBslamReal();
-    for (;;) {
-        do {
-            g_nFrameSkipCountdown_0049d760--;
-            object = objects;
-            remaining = objectCount;
-            while (remaining > 0) {
-                complete |= (unsigned short)
-                    UpdateSceneAnimationObject(object, &g_stSecondaryViewBuffer_005d2c90);
-                object++;
-                remaining--;
-            }
-            if (g_nSceneAnimationWaitFrames_005a7c68 != -1) {
-                if (g_nSceneAnimationWaitFrames_005a7c68 == 0)
-                    complete++;
-                else
-                    g_nSceneAnimationWaitFrames_005a7c68--;
-            }
-            if (complete == 0) {
-                RefreshMemoryStatusOverlay();
-                MarkDibDirty();
-                DIBslamReal();
-            }
-            if (g_nFrameSkipCountdown_0049d760 == 0) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-                if (g_bSlowSceneAnimation_00469998_WC1_UNMAPPED != 0)
-                    g_nFrameSkipCountdown_0049d760++;
-            }
-            if ((complete == 0 && CheckEscaped() != 0) ||
-                g_bSceneEscapeRequested_0049d4b0 != 0) {
-                if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
-                    while (complete == 0 &&
-                           g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED == 0) {
-                        object = objects;
-                        remaining = objectCount;
-                        while (remaining > 0) {
-                            g_nFrameSkipCountdown_0049d760 = 2;
-                            complete |= (unsigned short)
-                                UpdateSceneAnimationObject(
-                                    object, &g_stSecondaryViewBuffer_005d2c90);
-                            object++;
-                            remaining--;
-                        }
-                    }
-                }
-                g_nSceneAnimationWaitFrames_005a7c68 = 0;
-            }
-        } while (complete == 0);
-
-        if (g_nSceneAnimationWaitFrames_005a7c68 == -1) {
-            SetFrameTimerPeriodDirect((short)(duration / 2));
-            do {
-                if (IsFrameTickElapsed() != 0 || CheckEscaped() != 0)
-                    break;
-            } while (g_bSceneEscapeRequested_0049d4b0 == 0);
-        }
-        if (complete != 0)
-            return;
-    }
 }

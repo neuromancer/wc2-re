@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@ typedef struct TestBitWriter {
     size_t bitPosition;
 } TestBitWriter;
 
-void Wc2SdlFinishCutsceneOnly(void)
+void SdlFinishCutsceneOnly(void)
 {
 }
 
@@ -48,21 +48,21 @@ static int CheckShortStreams(void)
     size_t written;
 
     memset(output, 0, sizeof(output));
-    if (!Wc1SdlDecompressOriginLzw(simpleStream, sizeof(simpleStream),
+    if (!SdlDecompressOriginLzw(simpleStream, sizeof(simpleStream),
                                    output, 2, &written) ||
         written != 2 || memcmp(output, "AB", 2) != 0)
         return 0;
     memset(output, 0, sizeof(output));
-    if (!Wc1SdlDecompressOriginLzw(specialStream,
+    if (!SdlDecompressOriginLzw(specialStream,
                                    sizeof(specialStream), output, 3,
                                    &written) ||
         written != 3 || memcmp(output, "AAA", 3) != 0)
         return 0;
-    if (Wc1SdlDecompressOriginLzw(invalidStream,
+    if (SdlDecompressOriginLzw(invalidStream,
                                   sizeof(invalidStream), output, 1,
                                   &written))
         return 0;
-    if (Wc1SdlDecompressOriginLzw(simpleStream, sizeof(simpleStream),
+    if (SdlDecompressOriginLzw(simpleStream, sizeof(simpleStream),
                                   output, 3, &written))
         return 0;
     return 1;
@@ -105,7 +105,7 @@ static int CheckCodeWidthGrowth(void)
     }
     if (!WriteTestCode(&writer, 0x101, codeWidth))
         return 0;
-    if (!Wc1SdlDecompressOriginLzw(
+    if (!SdlDecompressOriginLzw(
             compressed, (writer.bitPosition + 7) >> 3,
             output, sizeof(output), &written))
         return 0;
@@ -128,7 +128,7 @@ static int CheckPacketSections(void)
 
     section = 0;
     sectionSize = 0;
-    if (!Wc1SdlExtractOriginPacketSection(
+    if (!SdlExtractOriginPacketSection(
             archive, sizeof(archive), 0, &section, &sectionSize) ||
         sectionSize != 2 || memcmp(section, "XY", 2) != 0) {
         free(section);
@@ -136,14 +136,14 @@ static int CheckPacketSections(void)
     }
     free(section);
     section = 0;
-    if (!Wc1SdlExtractOriginPacketSection(
+    if (!SdlExtractOriginPacketSection(
             archive, sizeof(archive), 1, &section, &sectionSize) ||
         sectionSize != 2 || memcmp(section, "AB", 2) != 0) {
         free(section);
         return 0;
     }
     free(section);
-    return !Wc1SdlExtractOriginPacketSection(
+    return !SdlExtractOriginPacketSection(
         archive, sizeof(archive), 2, &section, &sectionSize);
 }
 
@@ -152,7 +152,7 @@ static int CheckDosInstallCompletion(void)
     DiskFileRecord records[77];
 
     memset(records, 0, sizeof(records));
-    Wc1SdlCompleteDosInstallTable(records);
+    SdlCompleteDosInstallTable(records);
     return strcmp(records[72].name, "MODULE.002") == 0 &&
         records[72].logicalFile == 73 &&
         strcmp(records[73].name, "BRIEFING.002") == 0 &&
@@ -169,14 +169,14 @@ static int CheckOriginalTitleResources(void)
     int result;
 
     result = 1;
-    if (Wc1SdlChangeDirectory("data/dos") == 0) {
-        result = Wc2SdlOriginalTitleSequenceAvailable();
-        if (Wc1SdlChangeDirectory("../..") != 0)
+    if (SdlChangeDirectory("data/dos") == 0) {
+        result = SdlOriginalTitleSequenceAvailable();
+        if (SdlChangeDirectory("../..") != 0)
             return 0;
     }
-    if (Wc1SdlChangeDirectory("data/wc2-full") == 0) {
-        result = result && Wc2SdlOriginalTitleSequenceAvailable();
-        if (Wc1SdlChangeDirectory("../..") != 0)
+    if (SdlChangeDirectory("data/wc2-full") == 0) {
+        result = result && SdlOriginalTitleSequenceAvailable();
+        if (SdlChangeDirectory("../..") != 0)
             return 0;
     }
     return result;
@@ -199,7 +199,7 @@ static int CheckDosSpeechPlayback(void)
     if (archive == 0)
         return 1;
     speech = 0;
-    result = Wc1SdlExtractOriginPacketSection(
+    result = SdlExtractOriginPacketSection(
         archive, archiveSize, 0, &speech, &speechSize) &&
         speechSize > 1000;
     SDL_free(archive);
@@ -207,12 +207,12 @@ static int CheckDosSpeechPlayback(void)
         free(speech);
         return 0;
     }
-    if (Wc1SdlChangeDirectory("data/dos") != 0) {
+    if (SdlChangeDirectory("data/dos") != 0) {
         free(speech);
         return 0;
     }
 
-    result = Wc1SdlInitializeOriginFxAudio(1);
+    result = SdlInitializeOriginFxAudio(1);
     g_nAudioEnabled_0049c244 = 1;
     InitializeAudioSystem(0);
     result = result && g_bAudioSystemInitialized_004961b0 != 0;
@@ -221,10 +221,10 @@ static int CheckDosSpeechPlayback(void)
         result = g_pSpeechSound_004a2658 != 0 &&
             g_bSpeechSoundActive_004a2660 != 0 &&
             ix_sound_is_playing(g_pSpeechSound_004a2658) != 0 &&
-            Wc1SdlPlayGameSoundEffect(1, -1, 0);
+            SdlPlayGameSoundEffect(1, -1, 0);
     }
     memset(samples, 0, sizeof(samples));
-    Wc1SdlMixOriginFxAudio(samples, 1024);
+    SdlMixOriginFxAudio(samples, 1024);
     heardOutput = 0;
     sample = 0;
     while (sample < sizeof(samples) / sizeof(samples[0])) {
@@ -243,8 +243,8 @@ static int CheckDosSpeechPlayback(void)
         g_bSpeechSoundActive_004a2660 == 0;
     stop_all_sounds();
     ServiceAudioStream();
-    Wc1SdlShutdownOriginFxAudio();
-    if (Wc1SdlChangeDirectory("../..") != 0)
+    SdlShutdownOriginFxAudio();
+    if (SdlChangeDirectory("../..") != 0)
         result = 0;
     free(speech);
     return result;
@@ -258,33 +258,33 @@ static int CheckWindowsTitleMusicBridge(void)
     int heardOutput;
     int result;
 
-    if (Wc1SdlChangeDirectory("data/wc2-full") != 0)
+    if (SdlChangeDirectory("data/wc2-full") != 0)
         return 1;
-    result = Wc1SdlInitializeOriginFxAudio(0) &&
-        Wc2SdlOriginalTitleMusicReady() &&
-        !Wc1SdlUsingOriginFxMusic() &&
-        !Wc1SdlUsingOriginFxSoundEffects() &&
-        Wc2SdlStartOriginalTitleMusic();
+    result = SdlInitializeOriginFxAudio(0) &&
+        SdlOriginalTitleMusicReady() &&
+        !SdlUsingOriginFxMusic() &&
+        !SdlUsingOriginFxSoundEffects() &&
+        SdlStartOriginalTitleMusic();
     block = 0;
     heardOutput = 0;
     while (result && block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
            g_nCurrentMusicTrack_0049be98 == 19) {
         memset(samples, 0, sizeof(samples));
-        Wc1SdlMixOriginFxAudio(samples, 1024);
+        SdlMixOriginFxAudio(samples, 1024);
         sample = 0;
         while (sample < sizeof(samples) / sizeof(samples[0])) {
             if (samples[sample] != 0)
                 heardOutput = 1;
             sample++;
         }
-        Wc1SdlServiceOriginFxMusic();
+        SdlServiceOriginFxMusic();
         block++;
     }
     result = result && heardOutput &&
         g_nTitleMusicSequenceStage_0049be94 >= 5 &&
         g_nCurrentMusicTrack_0049be98 == -1;
-    Wc1SdlShutdownOriginFxAudio();
-    if (Wc1SdlChangeDirectory("../..") != 0)
+    SdlShutdownOriginFxAudio();
+    if (SdlChangeDirectory("../..") != 0)
         return 0;
     return result;
 }
@@ -296,22 +296,22 @@ static int CheckDosTitleMusicCancellation(void)
     int heardOutput;
     int result;
 
-    if (Wc1SdlChangeDirectory("data/dos") != 0)
+    if (SdlChangeDirectory("data/dos") != 0)
         return 1;
     g_nCurrentMusicTrack_0049be98 = -1;
-    result = Wc1SdlInitializeOriginFxAudio(1) &&
-        Wc1SdlUsingOriginFxMusic() &&
-        Wc1SdlUsingOriginFxSoundEffects() &&
-        Wc2SdlOriginalTitleMusicReady() &&
-        Wc2SdlStartOriginalTitleMusic();
+    result = SdlInitializeOriginFxAudio(1) &&
+        SdlUsingOriginFxMusic() &&
+        SdlUsingOriginFxSoundEffects() &&
+        SdlOriginalTitleMusicReady() &&
+        SdlStartOriginalTitleMusic();
     g_nCurrentMusicTrack_0049be98 = -1;
-    Wc1SdlServiceOriginFxMusic();
-    Wc1SdlSetOriginFxMusicTrack(19);
-    Wc1SdlServiceOriginFxMusic();
+    SdlServiceOriginFxMusic();
+    SdlSetOriginFxMusicTrack(19);
+    SdlServiceOriginFxMusic();
     result = result && g_nCurrentMusicTrack_0049be98 == -1;
-    result = result && Wc1SdlPlayGameSoundEffect(1, -1, 0);
+    result = result && SdlPlayGameSoundEffect(1, -1, 0);
     memset(samples, 0, sizeof(samples));
-    Wc1SdlMixOriginFxAudio(samples, 1024);
+    SdlMixOriginFxAudio(samples, 1024);
     heardOutput = 0;
     sample = 0;
     while (sample < sizeof(samples) / sizeof(samples[0])) {
@@ -320,8 +320,8 @@ static int CheckDosTitleMusicCancellation(void)
         sample++;
     }
     result = result && heardOutput;
-    Wc1SdlShutdownOriginFxAudio();
-    if (Wc1SdlChangeDirectory("../..") != 0)
+    SdlShutdownOriginFxAudio();
+    if (SdlChangeDirectory("../..") != 0)
         return 0;
     return result;
 }

@@ -2,7 +2,7 @@
 
 The SDL2 target is a native host for the reconstructed game. It reuses the game
 logic, resource loaders, event queue, indexed framebuffer, and `ix` audio API.
-Platform code is selected with `WC1_SDL` and must not alter the MSVC 4.20
+Platform code is selected with `SDL_PORT` and must not alter the MSVC 4.20
 reference build or its binary comparisons.
 
 ## Port boundary
@@ -78,7 +78,7 @@ HUD, text, palette effects, and other screens remain in the indexed base frame.
 The default renderer always uses the original software drawing path. If the
 enhanced renderer cannot record an object, that object also falls back to the
 software path. Renderer-specific OpenGL state stays in `src/sdl/`; recovered
-game files expose only narrow `WC1_SDL` hooks.
+game files expose only narrow `SDL_PORT` hooks.
 
 ## Host controls and behavior
 

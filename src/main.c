@@ -4,7 +4,7 @@
  *  Address range 0x4274e0-0x427fff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: main() at 0x004274E0, confirmed against the leaked DOS source screenshot.
  */
-#include "wc1.h"
+#include "game.h"
 
 static short g_nTargetCameraGunCooldown_0049d33c;
 /* The two target-camera gun offsets per display sit inside the gun display
@@ -52,8 +52,8 @@ void RunGameApplication(short argc, char **argv)
     memcpy(&g_stCurrentPilotProfile_00493408,
            &g_stDefaultPilotProfile_00492660,
            sizeof(g_stCurrentPilotProfile_00493408));
-#ifdef WC1_SDL
-    Wc2GameMain(argumentCount, g_pStartupArguments_005c57f0);
+#ifdef SDL_PORT
+    GameMain(argumentCount, g_pStartupArguments_005c57f0);
 #else
     main(argumentCount, g_pStartupArguments_005c57f0);
 #endif
@@ -87,9 +87,9 @@ void RunGameApplication(short argc, char **argv)
     }
 
     if (g_bDirectMissionLaunch_0049d798 == 0) {
-#ifdef WC1_SDL
-        if (Wc2SdlOriginalTitleMusicReady() &&
-            Wc2SdlOriginalTitleSequenceAvailable())
+#ifdef SDL_PORT
+        if (SdlOriginalTitleMusicReady() &&
+            SdlOriginalTitleSequenceAvailable())
             Title_Sequence();
 #endif
         g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -192,8 +192,8 @@ void dump_buffer_to_screen(void)
 {
     int mode;
 
-#ifdef WC1_SDL
-    Wc1SdlCompleteSpaceFrame();
+#ifdef SDL_PORT
+    SdlCompleteSpaceFrame();
 #endif
     if (g_nCockpitDisplayMode_0049d71c > 0) {
         CopyViewportContents(
@@ -598,8 +598,8 @@ void process_player_input(void)
 /* Function start: 0x466908 */
 unsigned int fire_players_lasers(void)
 {
-#ifdef WC1_SDL
-    Wc1SdlTracef("[fire] counter=%d energy=%d gun=0x%x releaseIdx=%d\n",
+#ifdef SDL_PORT
+    SdlTracef("[fire] counter=%d energy=%d gun=0x%x releaseIdx=%d\n",
                  (int)g_asObjectCounter_00494be0[0],
                  (int)g_asShipWeaponEnergy_00495590[0],
                  (unsigned)g_nSelectedGunType_004934dc,
@@ -878,8 +878,8 @@ short player_input(void)
     if ((g_cCurrentKey_00493128 & (signed char)0x80) != 0 &&
         (g_wPendingInputButtons_005c80d4 & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
-#ifdef WC1_SDL
-    Wc1SdlApplyJoystickFlightControls();
+#ifdef SDL_PORT
+    SdlApplyJoystickFlightControls();
 #endif
     g_stPreviousFlightInput_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
@@ -1163,8 +1163,8 @@ void UpdateFleetOverviewCameraRotation(void)
                 (short)(-65 - g_nFleetOverviewYaw_0049d3f4);
         rotate_about_j(
             g_nFleetOverviewYawVelocity_0049d3ec,
-            &g_aShipRightVector_00493b78[WC2_EYE_OBJECT],
-            &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+            &g_aShipRightVector_00493b78[EYE_OBJECT],
+            &g_aShipForwardVector_00494208[EYE_OBJECT]);
         g_nFleetOverviewYaw_0049d3f4 =
             (short)(g_nFleetOverviewYaw_0049d3f4 +
                     g_nFleetOverviewYawVelocity_0049d3ec);
@@ -1188,13 +1188,13 @@ void UpdateFleetOverviewCameraRotation(void)
                 (short)(-65 - g_nFleetOverviewPitch_0049d3f8);
         rotate_about_i(
             g_nFleetOverviewPitchVelocity_0049d3f0,
-            &g_aShipUpVector_00493ec0[WC2_EYE_OBJECT],
-            &g_aShipForwardVector_00494208[WC2_EYE_OBJECT]);
+            &g_aShipUpVector_00493ec0[EYE_OBJECT],
+            &g_aShipForwardVector_00494208[EYE_OBJECT]);
         g_nFleetOverviewPitch_0049d3f8 =
             (short)(g_nFleetOverviewPitch_0049d3f8 +
                     g_nFleetOverviewPitchVelocity_0049d3f0);
     }
-    fix_objects_ijk(WC2_EYE_OBJECT);
+    fix_objects_ijk(EYE_OBJECT);
 }
 
 /* Function start: 0x45F439 */
@@ -1219,7 +1219,7 @@ void FireTargetCameraGuns(void)
                 g_abProjectileCollisionBonus_004960a8[projectile] = 1;
                 projectileData =
                     &g_aObjectTypeData_00496d30[projectileType];
-                copy_frame(WC2_EYE_OBJECT, projectile);
+                copy_frame(EYE_OBJECT, projectile);
                 g_asObjectDamage_00495178[projectile] =
                     projectileData->damageCapacity;
                 projectileSpeed = (short)(
@@ -1232,48 +1232,48 @@ void FireTargetCameraGuns(void)
                 g_aShipPosition_00494550[projectile].x =
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].x +
+                        g_aShipUpVector_00493ec0[EYE_OBJECT].x +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
-                            WC2_EYE_OBJECT].x +
+                            EYE_OBJECT].x +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
-                            WC2_EYE_OBJECT].x +
-                    g_aShipPosition_00494550[WC2_EYE_OBJECT].x;
+                            EYE_OBJECT].x +
+                    g_aShipPosition_00494550[EYE_OBJECT].x;
                 g_aShipPosition_00494550[projectile].y =
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].y +
+                        g_aShipUpVector_00493ec0[EYE_OBJECT].y +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
-                            WC2_EYE_OBJECT].y +
+                            EYE_OBJECT].y +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
-                            WC2_EYE_OBJECT].y +
-                    g_aShipPosition_00494550[WC2_EYE_OBJECT].y;
+                            EYE_OBJECT].y +
+                    g_aShipPosition_00494550[EYE_OBJECT].y;
                 g_aShipPosition_00494550[projectile].z =
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[WC2_EYE_OBJECT].z +
+                        g_aShipUpVector_00493ec0[EYE_OBJECT].z +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
-                            WC2_EYE_OBJECT].z +
+                            EYE_OBJECT].z +
                     g_aaTargetCameraGunOffsets_0049d3c8[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
-                            WC2_EYE_OBJECT].z +
-                    g_aShipPosition_00494550[WC2_EYE_OBJECT].z;
+                            EYE_OBJECT].z +
+                    g_aShipPosition_00494550[EYE_OBJECT].z;
                 g_asObjectCounter_00494be0[projectile] =
                     (short)g_aObjectTypeData_00496d30[
                         projectileType].lifetime;
                 zero_vector(&g_aShipVelocity_00494898[projectile]);
                 direction =
-                    g_aShipForwardVector_00494208[WC2_EYE_OBJECT];
+                    g_aShipForwardVector_00494208[EYE_OBJECT];
                 NormalizeFixedVector(&direction);
                 leadDistance = (short)(
                     (projectileData->lifetime + 5) *
@@ -1281,7 +1281,7 @@ void FireTargetCameraGuns(void)
                 ScaleFixedVector(
                     &direction, (int)leadDistance << 8, &direction);
                 AddFixedVectors(
-                    &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                    &g_aShipPosition_00494550[EYE_OBJECT],
                     &direction, &direction);
                 point_at(projectile, direction);
                 ScaleFixedVector(

@@ -4,11 +4,11 @@
  *  Address range 0x440c00-0x44274f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: PROVEN by name: shadow_draw, fizzle_fade, snow_viewport.
  */
-#include "wc1.h"
+#include "game.h"
 
 #pragma function(abs, memcpy, memset, sqrt)
 
-#ifdef WC2_VPORT_DEBUG
+#ifdef VPORT_DEBUG
 /* Diagnostic helper for `make vport-debug`; not part of the original, so it
  * carries no Function start marker -- there is no WC2 address to hold it to. */
 static const char *DescribeUnregisteredViewport(const Viewport *viewport)
@@ -62,7 +62,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
              allocation++) {
         }
         if (allocation >= g_nViewportAllocationCount_005d19bc)
-#ifdef WC2_VPORT_DEBUG
+#ifdef VPORT_DEBUG
             /* Diagnostic build (make vport-debug): name the viewport that is
              * not in the allocation registry so the caller can be identified
              * from WC2.map.  The reference build keeps the original text. */
@@ -1405,7 +1405,7 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                        (sourceLowerRows[row] + sourceLeftCenter - 1 -
                         *trailing) - copyWidth,
                    copyWidth);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             /* upperMiddleOffset is upperRowCount - 1, so on the last band the
              * backwards index reaches rowOffsets[-1].  The original read
              * whatever happened to precede the table; skip the upper half. */
@@ -1553,7 +1553,7 @@ void PrepareShapeRLEData(unsigned char *shape)
         exit_squadron(g_szShapeRLEOverflow_00496a0c);
     preparedShape = AllocateTaggedMemory(preparedSize, 0);
     memcpy(preparedShape, g_abShapeRLEScratch_004b2810, preparedSize);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     memcpy(shape - 8 - sizeof(unsigned char *), &preparedShape,
            sizeof(preparedShape));
 #else
@@ -1653,7 +1653,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
          * build draws the character it meant to skip.  Keep the comparison as
          * WC2 emits it in the reference build; the port asks the question the
          * way it was meant, which is also what an unsigned-char host does. */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         (unsigned char)character == 0xe1)
 #else
         character == 0xe1)
@@ -1789,20 +1789,20 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
         commands = shape + *(int *)(frame + shape);
         commands += 8;
         pixels = viewport->pixels;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         memcpy(&rowCode, commands, sizeof(rowCode));
 #else
         rowCode = *(unsigned short *)commands;
 #endif
         commands += 2;
         while (rowCode != 0) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&xOffset, commands, sizeof(xOffset));
 #else
             xOffset = *(short *)commands;
 #endif
             commands += 2;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&yOffset, commands, sizeof(yOffset));
 #else
             yOffset = *(short *)commands;
@@ -1810,7 +1810,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
             drawX = x + xOffset;
             drawY = y + yOffset;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             /* WC2 forms the row pointer before it knows the row is on screen,
              * so a sprite straddling the top or bottom edge reads one entry
              * off the end of the row-offset table.  Nothing is copied unless
@@ -1894,7 +1894,7 @@ void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
                 }
                 commands += rowCode;
             }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&rowCode, commands, sizeof(rowCode));
 #else
             rowCode = *(unsigned short *)commands;
@@ -1950,20 +1950,20 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
         commands = shape + *(int *)(frame + shape);
         commands += 8;
         pixels = viewport->pixels;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         memcpy(&rowCode, commands, sizeof(rowCode));
 #else
         rowCode = *(unsigned short *)commands;
 #endif
         commands += 2;
         while (rowCode != 0) {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&xOffset, commands, sizeof(xOffset));
 #else
             xOffset = *(short *)commands;
 #endif
             commands += 2;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&yOffset, commands, sizeof(yOffset));
 #else
             yOffset = *(short *)commands;
@@ -1971,7 +1971,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
             drawX = x + xOffset;
             drawY = y + yOffset;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             /* WC2 forms the row pointer before it knows the row is on screen,
              * so a sprite straddling the top or bottom edge reads one entry
              * off the end of the row-offset table.  Nothing is copied unless
@@ -2055,7 +2055,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
                 }
                 commands += rowCode;
             }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             memcpy(&rowCode, commands, sizeof(rowCode));
 #else
             rowCode = *(unsigned short *)commands;
@@ -2092,7 +2092,7 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
         return;
     if (source->left < 0)
         return;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* ValidateViewportBounds screens left but not top, and the wipe hands it
      * a viewport a row above the buffer as it steps: rowOffsets[-1].  The
      * original read the word in front of the table; skip the copy instead.
@@ -2420,8 +2420,8 @@ void fizzle_fade(Viewport *source, Viewport *destination,
 /* Function start: 0x427DE8 */
 void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 {
-#ifdef WC1_SDL
-    Wc1SdlDrawViewportStatic(viewport, effect, colour);
+#ifdef SDL_PORT
+    SdlDrawViewportStatic(viewport, effect, colour);
 #else
     (void)effect;
     (void)colour;
@@ -2434,8 +2434,8 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 /* Function start: 0x428979 */
 void UpdateStreamerStoppedFlag(void)
 {
-#ifdef WC1_SDL
-    if (Wc1SdlUsingOriginFxMusic())
+#ifdef SDL_PORT
+    if (SdlUsingOriginFxMusic())
         return;
 #endif
     if (g_nAudioEnabled_0049c244 != 0) {

@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include "video_internal.h"
 
@@ -14,7 +14,7 @@ static int CheckViewport(int width, int height, int expectedLeft,
     int viewportHeight;
     int viewportWidth;
 
-    Wc1SdlCalculateOutputViewport(width, height, &left, &bottom,
+    SdlCalculateOutputViewport(width, height, &left, &bottom,
                                   &viewportWidth, &viewportHeight);
     if (left == expectedLeft && bottom == expectedBottom &&
         viewportWidth == expectedWidth && viewportHeight == expectedHeight)
@@ -27,7 +27,7 @@ static int CheckViewport(int width, int height, int expectedLeft,
 }
 
 static int CheckCoordinateMapping(SDL_Window *window,
-                                  Wc1SdlVideoBackend backend)
+                                  SdlVideoBackend backend)
 {
     int coordinate;
     int logicalX;
@@ -35,42 +35,42 @@ static int CheckCoordinateMapping(SDL_Window *window,
     int windowX;
     int windowY;
 
-    Wc1SdlSetVideoBackend(backend);
-    if (!Wc1SdlMapLogicalToWindow(window, 0, 0, &windowX, &windowY) ||
+    SdlSetVideoBackend(backend);
+    if (!SdlMapLogicalToWindow(window, 0, 0, &windowX, &windowY) ||
         windowX != 33 || windowY != 0)
         return 0;
-    if (!Wc1SdlMapLogicalToWindow(window, 160, 100, &windowX, &windowY) ||
+    if (!SdlMapLogicalToWindow(window, 160, 100, &windowX, &windowY) ||
         windowX != 500 || windowY != 350)
         return 0;
-    if (!Wc1SdlMapWindowToLogical(window, 500, 350, &logicalX, &logicalY) ||
+    if (!SdlMapWindowToLogical(window, 500, 350, &logicalX, &logicalY) ||
         logicalX != 160 || logicalY != 100)
         return 0;
 
     coordinate = 0;
-    while (coordinate < WC1_SDL_FRAME_WIDTH) {
-        if (!Wc1SdlMapLogicalToWindow(window, coordinate, 100,
+    while (coordinate < SDL_FRAME_WIDTH) {
+        if (!SdlMapLogicalToWindow(window, coordinate, 100,
                                       &windowX, &windowY) ||
-            !Wc1SdlMapWindowToLogical(window, windowX, windowY,
+            !SdlMapWindowToLogical(window, windowX, windowY,
                                       &logicalX, &logicalY) ||
             logicalX != coordinate || logicalY != 100)
             return 0;
         coordinate++;
     }
     coordinate = 0;
-    while (coordinate < WC1_SDL_FRAME_HEIGHT) {
-        if (!Wc1SdlMapLogicalToWindow(window, 160, coordinate,
+    while (coordinate < SDL_FRAME_HEIGHT) {
+        if (!SdlMapLogicalToWindow(window, 160, coordinate,
                                       &windowX, &windowY) ||
-            !Wc1SdlMapWindowToLogical(window, windowX, windowY,
+            !SdlMapWindowToLogical(window, windowX, windowY,
                                       &logicalX, &logicalY) ||
             logicalX != 160 || logicalY != coordinate)
             return 0;
         coordinate++;
     }
-    if (!Wc1SdlMapWindowToLogical(window, 0, 350, &logicalX, &logicalY) ||
+    if (!SdlMapWindowToLogical(window, 0, 350, &logicalX, &logicalY) ||
         logicalX >= 0)
         return 0;
-    if (!Wc1SdlMapWindowToLogical(window, 999, 350, &logicalX, &logicalY) ||
-        logicalX < WC1_SDL_FRAME_WIDTH)
+    if (!SdlMapWindowToLogical(window, 999, 350, &logicalX, &logicalY) ||
+        logicalX < SDL_FRAME_WIDTH)
         return 0;
     return 1;
 }
@@ -90,7 +90,7 @@ static int ReadArgbPixel(SDL_Renderer *renderer, int x, int y, Uint32 *pixel)
 static int CheckIndexedPresentation(SDL_Window *window)
 {
     unsigned char palette[256 * 4];
-    unsigned char pixels[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
+    unsigned char pixels[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
     SDL_Renderer *renderer;
     Uint32 pixel;
     int result;
@@ -100,16 +100,16 @@ static int CheckIndexedPresentation(SDL_Window *window)
     palette[4] = 0xff;
     palette[5] = 0xff;
     palette[6] = 0xff;
-    Wc1SdlSetVideoBackend(WC1_SDL_VIDEO_BACKEND_INDEXED);
-    if (!Wc1SdlInitializeVideo(window))
+    SdlSetVideoBackend(SDL_VIDEO_BACKEND_INDEXED);
+    if (!SdlInitializeVideo(window))
         return 0;
     renderer = SDL_GetRenderer(window);
-    result = renderer != 0 && Wc1SdlPresentIndexedFrame(pixels, palette) &&
+    result = renderer != 0 && SdlPresentIndexedFrame(pixels, palette) &&
              ReadArgbPixel(renderer, 0, 350, &pixel) &&
              (pixel & 0x00ffffffU) == 0;
     result = result && ReadArgbPixel(renderer, 500, 350, &pixel) &&
              (pixel & 0x00ffffffU) == 0x00ffffffU;
-    Wc1SdlShutdownVideo();
+    SdlShutdownVideo();
     return result;
 }
 
@@ -124,7 +124,7 @@ int main(int argumentCount, char **arguments)
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         return 1;
-    window = SDL_CreateWindow("WC2 video test", 0, 0, 1000, 700,
+    window = SDL_CreateWindow("Video test", 0, 0, 1000, 700,
                               SDL_WINDOW_HIDDEN);
     if (window == 0) {
         SDL_Quit();
@@ -140,13 +140,13 @@ int main(int argumentCount, char **arguments)
              CheckViewport(1, 1, 0, 0, 1, 1) &&
              CheckViewport(INT_MAX, INT_MAX, 0, 268435456, INT_MAX,
                            1610612735) &&
-             CheckCoordinateMapping(window, WC1_SDL_VIDEO_BACKEND_INDEXED) &&
+             CheckCoordinateMapping(window, SDL_VIDEO_BACKEND_INDEXED) &&
              CheckCoordinateMapping(
-                 window, WC1_SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR) &&
+                 window, SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR) &&
              CheckIndexedPresentation(window);
     if (!result)
         fprintf(stderr, "SDL video compatibility test failed.\n");
-    Wc1SdlShutdownVideo();
+    SdlShutdownVideo();
     SDL_DestroyWindow(window);
     SDL_Quit();
     return result ? 0 : 1;

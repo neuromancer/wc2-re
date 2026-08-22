@@ -1,4 +1,4 @@
-#include "wc1.h"
+#include "game.h"
 
 #include "video_internal.h"
 
@@ -13,133 +13,133 @@
    renders only recorded space objects at output resolution.  All OpenGL
    resources and frame-lifetime state are private to this unit. */
 
-typedef void (APIENTRY *Wc1GlActiveTextureProc)(GLenum texture);
-typedef void (APIENTRY *Wc1GlAttachShaderProc)(GLuint program, GLuint shader);
-typedef void (APIENTRY *Wc1GlBindAttribLocationProc)(GLuint program,
+typedef void (APIENTRY *GlActiveTextureProc)(GLenum texture);
+typedef void (APIENTRY *GlAttachShaderProc)(GLuint program, GLuint shader);
+typedef void (APIENTRY *GlBindAttribLocationProc)(GLuint program,
                                                     GLuint index,
                                                     const GLchar *name);
-typedef void (APIENTRY *Wc1GlBindBufferProc)(GLenum target, GLuint buffer);
-typedef void (APIENTRY *Wc1GlBindTextureProc)(GLenum target, GLuint texture);
-typedef void (APIENTRY *Wc1GlBindVertexArrayProc)(GLuint array);
-typedef void (APIENTRY *Wc1GlBlendFuncProc)(GLenum source, GLenum destination);
-typedef void (APIENTRY *Wc1GlBufferDataProc)(GLenum target, GLsizeiptr size,
+typedef void (APIENTRY *GlBindBufferProc)(GLenum target, GLuint buffer);
+typedef void (APIENTRY *GlBindTextureProc)(GLenum target, GLuint texture);
+typedef void (APIENTRY *GlBindVertexArrayProc)(GLuint array);
+typedef void (APIENTRY *GlBlendFuncProc)(GLenum source, GLenum destination);
+typedef void (APIENTRY *GlBufferDataProc)(GLenum target, GLsizeiptr size,
                                             const void *data, GLenum usage);
-typedef void (APIENTRY *Wc1GlClearProc)(GLbitfield mask);
-typedef void (APIENTRY *Wc1GlClearColorProc)(GLfloat red, GLfloat green,
+typedef void (APIENTRY *GlClearProc)(GLbitfield mask);
+typedef void (APIENTRY *GlClearColorProc)(GLfloat red, GLfloat green,
                                             GLfloat blue, GLfloat alpha);
-typedef void (APIENTRY *Wc1GlCompileShaderProc)(GLuint shader);
-typedef GLuint (APIENTRY *Wc1GlCreateProgramProc)(void);
-typedef GLuint (APIENTRY *Wc1GlCreateShaderProc)(GLenum type);
-typedef void (APIENTRY *Wc1GlDeleteBuffersProc)(GLsizei count,
+typedef void (APIENTRY *GlCompileShaderProc)(GLuint shader);
+typedef GLuint (APIENTRY *GlCreateProgramProc)(void);
+typedef GLuint (APIENTRY *GlCreateShaderProc)(GLenum type);
+typedef void (APIENTRY *GlDeleteBuffersProc)(GLsizei count,
                                                const GLuint *buffers);
-typedef void (APIENTRY *Wc1GlDeleteProgramProc)(GLuint program);
-typedef void (APIENTRY *Wc1GlDeleteShaderProc)(GLuint shader);
-typedef void (APIENTRY *Wc1GlDeleteTexturesProc)(GLsizei count,
+typedef void (APIENTRY *GlDeleteProgramProc)(GLuint program);
+typedef void (APIENTRY *GlDeleteShaderProc)(GLuint shader);
+typedef void (APIENTRY *GlDeleteTexturesProc)(GLsizei count,
                                                 const GLuint *textures);
-typedef void (APIENTRY *Wc1GlDeleteVertexArraysProc)(GLsizei count,
+typedef void (APIENTRY *GlDeleteVertexArraysProc)(GLsizei count,
                                                     const GLuint *arrays);
-typedef void (APIENTRY *Wc1GlDisableProc)(GLenum capability);
-typedef void (APIENTRY *Wc1GlDrawArraysProc)(GLenum mode, GLint first,
+typedef void (APIENTRY *GlDisableProc)(GLenum capability);
+typedef void (APIENTRY *GlDrawArraysProc)(GLenum mode, GLint first,
                                             GLsizei count);
-typedef void (APIENTRY *Wc1GlEnableProc)(GLenum capability);
-typedef void (APIENTRY *Wc1GlEnableVertexAttribArrayProc)(GLuint index);
-typedef void (APIENTRY *Wc1GlGenBuffersProc)(GLsizei count, GLuint *buffers);
-typedef void (APIENTRY *Wc1GlGenTexturesProc)(GLsizei count, GLuint *textures);
-typedef void (APIENTRY *Wc1GlGenVertexArraysProc)(GLsizei count,
+typedef void (APIENTRY *GlEnableProc)(GLenum capability);
+typedef void (APIENTRY *GlEnableVertexAttribArrayProc)(GLuint index);
+typedef void (APIENTRY *GlGenBuffersProc)(GLsizei count, GLuint *buffers);
+typedef void (APIENTRY *GlGenTexturesProc)(GLsizei count, GLuint *textures);
+typedef void (APIENTRY *GlGenVertexArraysProc)(GLsizei count,
                                                  GLuint *arrays);
-typedef void (APIENTRY *Wc1GlGetProgramInfoLogProc)(GLuint program,
+typedef void (APIENTRY *GlGetProgramInfoLogProc)(GLuint program,
                                                    GLsizei bufferSize,
                                                    GLsizei *length,
                                                    GLchar *log);
-typedef void (APIENTRY *Wc1GlGetProgramivProc)(GLuint program, GLenum name,
+typedef void (APIENTRY *GlGetProgramivProc)(GLuint program, GLenum name,
                                               GLint *value);
-typedef void (APIENTRY *Wc1GlGetShaderInfoLogProc)(GLuint shader,
+typedef void (APIENTRY *GlGetShaderInfoLogProc)(GLuint shader,
                                                   GLsizei bufferSize,
                                                   GLsizei *length,
                                                   GLchar *log);
-typedef void (APIENTRY *Wc1GlGetShaderivProc)(GLuint shader, GLenum name,
+typedef void (APIENTRY *GlGetShaderivProc)(GLuint shader, GLenum name,
                                              GLint *value);
-typedef void (APIENTRY *Wc1GlGetIntegervProc)(GLenum name, GLint *value);
-typedef GLint (APIENTRY *Wc1GlGetUniformLocationProc)(GLuint program,
+typedef void (APIENTRY *GlGetIntegervProc)(GLenum name, GLint *value);
+typedef GLint (APIENTRY *GlGetUniformLocationProc)(GLuint program,
                                                      const GLchar *name);
-typedef void (APIENTRY *Wc1GlLinkProgramProc)(GLuint program);
-typedef void (APIENTRY *Wc1GlPixelStoreiProc)(GLenum name, GLint value);
-typedef void (APIENTRY *Wc1GlShaderSourceProc)(GLuint shader, GLsizei count,
+typedef void (APIENTRY *GlLinkProgramProc)(GLuint program);
+typedef void (APIENTRY *GlPixelStoreiProc)(GLenum name, GLint value);
+typedef void (APIENTRY *GlShaderSourceProc)(GLuint shader, GLsizei count,
                                               const GLchar *const *source,
                                               const GLint *length);
-typedef void (APIENTRY *Wc1GlTexImage2DProc)(GLenum target, GLint level,
+typedef void (APIENTRY *GlTexImage2DProc)(GLenum target, GLint level,
                                             GLint internalFormat,
                                             GLsizei width, GLsizei height,
                                             GLint border, GLenum format,
                                             GLenum type, const void *pixels);
-typedef void (APIENTRY *Wc1GlTexImage3DProc)(GLenum target, GLint level,
+typedef void (APIENTRY *GlTexImage3DProc)(GLenum target, GLint level,
                                             GLint internalFormat,
                                             GLsizei width, GLsizei height,
                                             GLsizei depth, GLint border,
                                             GLenum format, GLenum type,
                                             const void *pixels);
-typedef void (APIENTRY *Wc1GlTexParameteriProc)(GLenum target, GLenum name,
+typedef void (APIENTRY *GlTexParameteriProc)(GLenum target, GLenum name,
                                                GLint value);
-typedef void (APIENTRY *Wc1GlTexSubImage3DProc)(
+typedef void (APIENTRY *GlTexSubImage3DProc)(
     GLenum target, GLint level, GLint xOffset, GLint yOffset, GLint zOffset,
     GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type,
     const void *pixels);
-typedef void (APIENTRY *Wc1GlUniform1iProc)(GLint location, GLint value);
-typedef void (APIENTRY *Wc1GlUseProgramProc)(GLuint program);
-typedef void (APIENTRY *Wc1GlVertexAttribPointerProc)(GLuint index, GLint size,
+typedef void (APIENTRY *GlUniform1iProc)(GLint location, GLint value);
+typedef void (APIENTRY *GlUseProgramProc)(GLuint program);
+typedef void (APIENTRY *GlVertexAttribPointerProc)(GLuint index, GLint size,
                                                      GLenum type,
                                                      GLboolean normalized,
                                                      GLsizei stride,
                                                      const void *pointer);
-typedef void (APIENTRY *Wc1GlViewportProc)(GLint x, GLint y, GLsizei width,
+typedef void (APIENTRY *GlViewportProc)(GLint x, GLint y, GLsizei width,
                                           GLsizei height);
 
-typedef struct Wc1GlFunctions {
-    Wc1GlActiveTextureProc ActiveTexture;
-    Wc1GlAttachShaderProc AttachShader;
-    Wc1GlBindAttribLocationProc BindAttribLocation;
-    Wc1GlBindBufferProc BindBuffer;
-    Wc1GlBindTextureProc BindTexture;
-    Wc1GlBindVertexArrayProc BindVertexArray;
-    Wc1GlBlendFuncProc BlendFunc;
-    Wc1GlBufferDataProc BufferData;
-    Wc1GlClearProc Clear;
-    Wc1GlClearColorProc ClearColor;
-    Wc1GlCompileShaderProc CompileShader;
-    Wc1GlCreateProgramProc CreateProgram;
-    Wc1GlCreateShaderProc CreateShader;
-    Wc1GlDeleteBuffersProc DeleteBuffers;
-    Wc1GlDeleteProgramProc DeleteProgram;
-    Wc1GlDeleteShaderProc DeleteShader;
-    Wc1GlDeleteTexturesProc DeleteTextures;
-    Wc1GlDeleteVertexArraysProc DeleteVertexArrays;
-    Wc1GlDisableProc Disable;
-    Wc1GlDrawArraysProc DrawArrays;
-    Wc1GlEnableProc Enable;
-    Wc1GlEnableVertexAttribArrayProc EnableVertexAttribArray;
-    Wc1GlGenBuffersProc GenBuffers;
-    Wc1GlGenTexturesProc GenTextures;
-    Wc1GlGenVertexArraysProc GenVertexArrays;
-    Wc1GlGetProgramInfoLogProc GetProgramInfoLog;
-    Wc1GlGetProgramivProc GetProgramiv;
-    Wc1GlGetShaderInfoLogProc GetShaderInfoLog;
-    Wc1GlGetShaderivProc GetShaderiv;
-    Wc1GlGetIntegervProc GetIntegerv;
-    Wc1GlGetUniformLocationProc GetUniformLocation;
-    Wc1GlLinkProgramProc LinkProgram;
-    Wc1GlPixelStoreiProc PixelStorei;
-    Wc1GlShaderSourceProc ShaderSource;
-    Wc1GlTexImage2DProc TexImage2D;
-    Wc1GlTexImage3DProc TexImage3D;
-    Wc1GlTexParameteriProc TexParameteri;
-    Wc1GlTexSubImage3DProc TexSubImage3D;
-    Wc1GlUniform1iProc Uniform1i;
-    Wc1GlUseProgramProc UseProgram;
-    Wc1GlVertexAttribPointerProc VertexAttribPointer;
-    Wc1GlViewportProc Viewport;
-} Wc1GlFunctions;
+typedef struct GlFunctions {
+    GlActiveTextureProc ActiveTexture;
+    GlAttachShaderProc AttachShader;
+    GlBindAttribLocationProc BindAttribLocation;
+    GlBindBufferProc BindBuffer;
+    GlBindTextureProc BindTexture;
+    GlBindVertexArrayProc BindVertexArray;
+    GlBlendFuncProc BlendFunc;
+    GlBufferDataProc BufferData;
+    GlClearProc Clear;
+    GlClearColorProc ClearColor;
+    GlCompileShaderProc CompileShader;
+    GlCreateProgramProc CreateProgram;
+    GlCreateShaderProc CreateShader;
+    GlDeleteBuffersProc DeleteBuffers;
+    GlDeleteProgramProc DeleteProgram;
+    GlDeleteShaderProc DeleteShader;
+    GlDeleteTexturesProc DeleteTextures;
+    GlDeleteVertexArraysProc DeleteVertexArrays;
+    GlDisableProc Disable;
+    GlDrawArraysProc DrawArrays;
+    GlEnableProc Enable;
+    GlEnableVertexAttribArrayProc EnableVertexAttribArray;
+    GlGenBuffersProc GenBuffers;
+    GlGenTexturesProc GenTextures;
+    GlGenVertexArraysProc GenVertexArrays;
+    GlGetProgramInfoLogProc GetProgramInfoLog;
+    GlGetProgramivProc GetProgramiv;
+    GlGetShaderInfoLogProc GetShaderInfoLog;
+    GlGetShaderivProc GetShaderiv;
+    GlGetIntegervProc GetIntegerv;
+    GlGetUniformLocationProc GetUniformLocation;
+    GlLinkProgramProc LinkProgram;
+    GlPixelStoreiProc PixelStorei;
+    GlShaderSourceProc ShaderSource;
+    GlTexImage2DProc TexImage2D;
+    GlTexImage3DProc TexImage3D;
+    GlTexParameteriProc TexParameteri;
+    GlTexSubImage3DProc TexSubImage3D;
+    GlUniform1iProc Uniform1i;
+    GlUseProgramProc UseProgram;
+    GlVertexAttribPointerProc VertexAttribPointer;
+    GlViewportProc Viewport;
+} GlFunctions;
 
-typedef struct Wc1GlVertex {
+typedef struct GlVertex {
     float x;
     float y;
     float u;
@@ -154,9 +154,9 @@ typedef struct Wc1GlVertex {
     float clipBottom;
     float magnification;
     float atlasLayer;
-} Wc1GlVertex;
+} GlVertex;
 
-typedef struct Wc1GlCachedFrame {
+typedef struct GlCachedFrame {
     unsigned char *shape;
     int dataOffset;
     int width;
@@ -168,10 +168,10 @@ typedef struct Wc1GlCachedFrame {
     short atlasLayer;
     short atlasLeft;
     short atlasTop;
-} Wc1GlCachedFrame;
+} GlCachedFrame;
 
-typedef struct Wc1GlSprite {
-    const Wc1GlCachedFrame *cachedFrame;
+typedef struct GlSprite {
+    const GlCachedFrame *cachedFrame;
     float x;
     float y;
     short angle;
@@ -181,28 +181,28 @@ typedef struct Wc1GlSprite {
     short clipTop;
     short clipRight;
     short clipBottom;
-} Wc1GlSprite;
+} GlSprite;
 
-typedef struct Wc1GlAtlasLayer {
+typedef struct GlAtlasLayer {
     int nextX;
     int nextY;
     int rowHeight;
-} Wc1GlAtlasLayer;
+} GlAtlasLayer;
 
-typedef enum Wc1GlFrameState {
-    WC1_GL_FRAME_IDLE,
-    WC1_GL_FRAME_RECORDING,
-    WC1_GL_FRAME_COMPLETE
-} Wc1GlFrameState;
+typedef enum GlFrameState {
+    GL_FRAME_IDLE,
+    GL_FRAME_RECORDING,
+    GL_FRAME_COMPLETE
+} GlFrameState;
 
 /* A full world-object list may be followed by four three-part launch doors.
    The title logo uses only three additional entries. */
-#define WC1_GL_RECORDED_SPRITE_CAPACITY (WC2_SPACE_OBJECT_COUNT + 12)
-#define WC1_GL_SPRITE_VERTEX_COUNT (WC1_GL_RECORDED_SPRITE_CAPACITY * 6)
-#define WC1_GL_SPRITE_ATLAS_MAX_SIZE 2048
-#define WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY 4
-#define WC1_GL_SPRITE_ATLAS_PADDING 1
-#define WC1_GL_CACHED_FRAME_CAPACITY 2048
+#define GL_RECORDED_SPRITE_CAPACITY (SPACE_OBJECT_COUNT + 12)
+#define GL_SPRITE_VERTEX_COUNT (GL_RECORDED_SPRITE_CAPACITY * 6)
+#define GL_SPRITE_ATLAS_MAX_SIZE 2048
+#define GL_SPRITE_ATLAS_LAYER_CAPACITY 4
+#define GL_SPRITE_ATLAS_PADDING 1
+#define GL_CACHED_FRAME_CAPACITY 2048
 
 static const GLchar g_vertexShaderSource[] =
     "#version 150\n"
@@ -305,10 +305,10 @@ static const GLchar g_spriteFragmentShaderSource[] =
     "        discard;\n"
     "}\n";
 
-typedef struct Wc1GlRenderer {
+typedef struct GlRenderer {
     SDL_Window *window;
     SDL_GLContext context;
-    Wc1GlFunctions gl;
+    GlFunctions gl;
     GLuint vertexArray;
     GLuint vertexBuffer;
     GLuint baseProgram;
@@ -324,7 +324,7 @@ typedef struct Wc1GlRenderer {
     GLint spriteBaseUniform;
     GLint spriteMaskUniform;
     GLint spriteClearUniform;
-    Wc1GlFrameState frameState;
+    GlFrameState frameState;
     int hasLayerSnapshot;
     int hasLastFrame;
     int spaceLayerOffsetX;
@@ -337,17 +337,17 @@ typedef struct Wc1GlRenderer {
     unsigned int spriteCount;
     unsigned char *decodeScratch;
     size_t decodeScratchCapacity;
-    Wc1GlAtlasLayer atlasLayers[WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY];
-    unsigned char viewMask[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
-    unsigned char spaceFrameBase[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
-    unsigned char presentedFrame[WC1_SDL_FRAME_WIDTH * WC1_SDL_FRAME_HEIGHT];
+    GlAtlasLayer atlasLayers[GL_SPRITE_ATLAS_LAYER_CAPACITY];
+    unsigned char viewMask[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    unsigned char spaceFrameBase[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    unsigned char presentedFrame[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
     unsigned char presentedPalette[256 * 4];
-    Wc1GlCachedFrame cachedFrames[WC1_GL_CACHED_FRAME_CAPACITY];
-    Wc1GlSprite recordedSprites[WC1_GL_RECORDED_SPRITE_CAPACITY];
-    Wc1GlVertex spriteVertices[WC1_GL_SPRITE_VERTEX_COUNT];
-} Wc1GlRenderer;
+    GlCachedFrame cachedFrames[GL_CACHED_FRAME_CAPACITY];
+    GlSprite recordedSprites[GL_RECORDED_SPRITE_CAPACITY];
+    GlVertex spriteVertices[GL_SPRITE_VERTEX_COUNT];
+} GlRenderer;
 
-static Wc1GlRenderer g_renderer;
+static GlRenderer g_renderer;
 
 static void ResetRecordedSprites(void)
 {
@@ -413,75 +413,75 @@ static int LoadGlFunctions(void)
     int functionsAvailable;
 
     functionsAvailable = 1;
-#define WC1_LOAD_GL_FUNCTION(member, type, name) \
+#define LOAD_GL_FUNCTION(member, type, name) \
     g_renderer.gl.member = (type)LoadGlFunction(name, &functionsAvailable)
 
-    WC1_LOAD_GL_FUNCTION(ActiveTexture, Wc1GlActiveTextureProc,
+    LOAD_GL_FUNCTION(ActiveTexture, GlActiveTextureProc,
                          "glActiveTexture");
-    WC1_LOAD_GL_FUNCTION(AttachShader, Wc1GlAttachShaderProc,
+    LOAD_GL_FUNCTION(AttachShader, GlAttachShaderProc,
                          "glAttachShader");
-    WC1_LOAD_GL_FUNCTION(BindAttribLocation, Wc1GlBindAttribLocationProc,
+    LOAD_GL_FUNCTION(BindAttribLocation, GlBindAttribLocationProc,
                          "glBindAttribLocation");
-    WC1_LOAD_GL_FUNCTION(BindBuffer, Wc1GlBindBufferProc, "glBindBuffer");
-    WC1_LOAD_GL_FUNCTION(BindTexture, Wc1GlBindTextureProc, "glBindTexture");
-    WC1_LOAD_GL_FUNCTION(BindVertexArray, Wc1GlBindVertexArrayProc,
+    LOAD_GL_FUNCTION(BindBuffer, GlBindBufferProc, "glBindBuffer");
+    LOAD_GL_FUNCTION(BindTexture, GlBindTextureProc, "glBindTexture");
+    LOAD_GL_FUNCTION(BindVertexArray, GlBindVertexArrayProc,
                          "glBindVertexArray");
-    WC1_LOAD_GL_FUNCTION(BlendFunc, Wc1GlBlendFuncProc, "glBlendFunc");
-    WC1_LOAD_GL_FUNCTION(BufferData, Wc1GlBufferDataProc, "glBufferData");
-    WC1_LOAD_GL_FUNCTION(Clear, Wc1GlClearProc, "glClear");
-    WC1_LOAD_GL_FUNCTION(ClearColor, Wc1GlClearColorProc, "glClearColor");
-    WC1_LOAD_GL_FUNCTION(CompileShader, Wc1GlCompileShaderProc,
+    LOAD_GL_FUNCTION(BlendFunc, GlBlendFuncProc, "glBlendFunc");
+    LOAD_GL_FUNCTION(BufferData, GlBufferDataProc, "glBufferData");
+    LOAD_GL_FUNCTION(Clear, GlClearProc, "glClear");
+    LOAD_GL_FUNCTION(ClearColor, GlClearColorProc, "glClearColor");
+    LOAD_GL_FUNCTION(CompileShader, GlCompileShaderProc,
                          "glCompileShader");
-    WC1_LOAD_GL_FUNCTION(CreateProgram, Wc1GlCreateProgramProc,
+    LOAD_GL_FUNCTION(CreateProgram, GlCreateProgramProc,
                          "glCreateProgram");
-    WC1_LOAD_GL_FUNCTION(CreateShader, Wc1GlCreateShaderProc,
+    LOAD_GL_FUNCTION(CreateShader, GlCreateShaderProc,
                          "glCreateShader");
-    WC1_LOAD_GL_FUNCTION(DeleteBuffers, Wc1GlDeleteBuffersProc,
+    LOAD_GL_FUNCTION(DeleteBuffers, GlDeleteBuffersProc,
                          "glDeleteBuffers");
-    WC1_LOAD_GL_FUNCTION(DeleteProgram, Wc1GlDeleteProgramProc,
+    LOAD_GL_FUNCTION(DeleteProgram, GlDeleteProgramProc,
                          "glDeleteProgram");
-    WC1_LOAD_GL_FUNCTION(DeleteShader, Wc1GlDeleteShaderProc,
+    LOAD_GL_FUNCTION(DeleteShader, GlDeleteShaderProc,
                          "glDeleteShader");
-    WC1_LOAD_GL_FUNCTION(DeleteTextures, Wc1GlDeleteTexturesProc,
+    LOAD_GL_FUNCTION(DeleteTextures, GlDeleteTexturesProc,
                          "glDeleteTextures");
-    WC1_LOAD_GL_FUNCTION(DeleteVertexArrays, Wc1GlDeleteVertexArraysProc,
+    LOAD_GL_FUNCTION(DeleteVertexArrays, GlDeleteVertexArraysProc,
                          "glDeleteVertexArrays");
-    WC1_LOAD_GL_FUNCTION(Disable, Wc1GlDisableProc, "glDisable");
-    WC1_LOAD_GL_FUNCTION(DrawArrays, Wc1GlDrawArraysProc, "glDrawArrays");
-    WC1_LOAD_GL_FUNCTION(Enable, Wc1GlEnableProc, "glEnable");
-    WC1_LOAD_GL_FUNCTION(EnableVertexAttribArray,
-                         Wc1GlEnableVertexAttribArrayProc,
+    LOAD_GL_FUNCTION(Disable, GlDisableProc, "glDisable");
+    LOAD_GL_FUNCTION(DrawArrays, GlDrawArraysProc, "glDrawArrays");
+    LOAD_GL_FUNCTION(Enable, GlEnableProc, "glEnable");
+    LOAD_GL_FUNCTION(EnableVertexAttribArray,
+                         GlEnableVertexAttribArrayProc,
                          "glEnableVertexAttribArray");
-    WC1_LOAD_GL_FUNCTION(GenBuffers, Wc1GlGenBuffersProc, "glGenBuffers");
-    WC1_LOAD_GL_FUNCTION(GenTextures, Wc1GlGenTexturesProc, "glGenTextures");
-    WC1_LOAD_GL_FUNCTION(GenVertexArrays, Wc1GlGenVertexArraysProc,
+    LOAD_GL_FUNCTION(GenBuffers, GlGenBuffersProc, "glGenBuffers");
+    LOAD_GL_FUNCTION(GenTextures, GlGenTexturesProc, "glGenTextures");
+    LOAD_GL_FUNCTION(GenVertexArrays, GlGenVertexArraysProc,
                          "glGenVertexArrays");
-    WC1_LOAD_GL_FUNCTION(GetProgramInfoLog, Wc1GlGetProgramInfoLogProc,
+    LOAD_GL_FUNCTION(GetProgramInfoLog, GlGetProgramInfoLogProc,
                          "glGetProgramInfoLog");
-    WC1_LOAD_GL_FUNCTION(GetProgramiv, Wc1GlGetProgramivProc,
+    LOAD_GL_FUNCTION(GetProgramiv, GlGetProgramivProc,
                          "glGetProgramiv");
-    WC1_LOAD_GL_FUNCTION(GetShaderInfoLog, Wc1GlGetShaderInfoLogProc,
+    LOAD_GL_FUNCTION(GetShaderInfoLog, GlGetShaderInfoLogProc,
                          "glGetShaderInfoLog");
-    WC1_LOAD_GL_FUNCTION(GetShaderiv, Wc1GlGetShaderivProc, "glGetShaderiv");
-    WC1_LOAD_GL_FUNCTION(GetIntegerv, Wc1GlGetIntegervProc, "glGetIntegerv");
-    WC1_LOAD_GL_FUNCTION(GetUniformLocation, Wc1GlGetUniformLocationProc,
+    LOAD_GL_FUNCTION(GetShaderiv, GlGetShaderivProc, "glGetShaderiv");
+    LOAD_GL_FUNCTION(GetIntegerv, GlGetIntegervProc, "glGetIntegerv");
+    LOAD_GL_FUNCTION(GetUniformLocation, GlGetUniformLocationProc,
                          "glGetUniformLocation");
-    WC1_LOAD_GL_FUNCTION(LinkProgram, Wc1GlLinkProgramProc, "glLinkProgram");
-    WC1_LOAD_GL_FUNCTION(PixelStorei, Wc1GlPixelStoreiProc, "glPixelStorei");
-    WC1_LOAD_GL_FUNCTION(ShaderSource, Wc1GlShaderSourceProc,
+    LOAD_GL_FUNCTION(LinkProgram, GlLinkProgramProc, "glLinkProgram");
+    LOAD_GL_FUNCTION(PixelStorei, GlPixelStoreiProc, "glPixelStorei");
+    LOAD_GL_FUNCTION(ShaderSource, GlShaderSourceProc,
                          "glShaderSource");
-    WC1_LOAD_GL_FUNCTION(TexImage2D, Wc1GlTexImage2DProc, "glTexImage2D");
-    WC1_LOAD_GL_FUNCTION(TexImage3D, Wc1GlTexImage3DProc, "glTexImage3D");
-    WC1_LOAD_GL_FUNCTION(TexParameteri, Wc1GlTexParameteriProc,
+    LOAD_GL_FUNCTION(TexImage2D, GlTexImage2DProc, "glTexImage2D");
+    LOAD_GL_FUNCTION(TexImage3D, GlTexImage3DProc, "glTexImage3D");
+    LOAD_GL_FUNCTION(TexParameteri, GlTexParameteriProc,
                          "glTexParameteri");
-    WC1_LOAD_GL_FUNCTION(TexSubImage3D, Wc1GlTexSubImage3DProc,
+    LOAD_GL_FUNCTION(TexSubImage3D, GlTexSubImage3DProc,
                          "glTexSubImage3D");
-    WC1_LOAD_GL_FUNCTION(Uniform1i, Wc1GlUniform1iProc, "glUniform1i");
-    WC1_LOAD_GL_FUNCTION(UseProgram, Wc1GlUseProgramProc, "glUseProgram");
-    WC1_LOAD_GL_FUNCTION(VertexAttribPointer, Wc1GlVertexAttribPointerProc,
+    LOAD_GL_FUNCTION(Uniform1i, GlUniform1iProc, "glUniform1i");
+    LOAD_GL_FUNCTION(UseProgram, GlUseProgramProc, "glUseProgram");
+    LOAD_GL_FUNCTION(VertexAttribPointer, GlVertexAttribPointerProc,
                          "glVertexAttribPointer");
-    WC1_LOAD_GL_FUNCTION(Viewport, Wc1GlViewportProc, "glViewport");
-#undef WC1_LOAD_GL_FUNCTION
+    LOAD_GL_FUNCTION(Viewport, GlViewportProc, "glViewport");
+#undef LOAD_GL_FUNCTION
     return functionsAvailable;
 }
 
@@ -621,21 +621,21 @@ static unsigned int GetCachedFrameHash(const unsigned char *shape, short frame,
     hash ^= (unsigned int)(unsigned short)frame * 0x9e3779b1U;
     hash ^= (unsigned int)dataOffset * 0x85ebca6bU;
     hash ^= hash >> 16;
-    return hash & (WC1_GL_CACHED_FRAME_CAPACITY - 1);
+    return hash & (GL_CACHED_FRAME_CAPACITY - 1);
 }
 
-static Wc1GlCachedFrame *FindCachedFrameSlot(
+static GlCachedFrame *FindCachedFrameSlot(
     unsigned char *shape, short frame, int dataOffset,
     unsigned short shapeTableEnd, int width, int height, short leftExtent,
     short topExtent, int *cacheHit)
 {
-    Wc1GlCachedFrame *cachedFrame;
+    GlCachedFrame *cachedFrame;
     unsigned int slot;
     unsigned int probe;
 
     slot = GetCachedFrameHash(shape, frame, dataOffset);
     probe = 0;
-    while (probe < WC1_GL_CACHED_FRAME_CAPACITY) {
+    while (probe < GL_CACHED_FRAME_CAPACITY) {
         cachedFrame = &g_renderer.cachedFrames[slot];
         if (cachedFrame->shape == 0) {
             *cacheHit = 0;
@@ -650,7 +650,7 @@ static Wc1GlCachedFrame *FindCachedFrameSlot(
                         cachedFrame->topExtent == topExtent;
             return cachedFrame;
         }
-        slot = (slot + 1) & (WC1_GL_CACHED_FRAME_CAPACITY - 1);
+        slot = (slot + 1) & (GL_CACHED_FRAME_CAPACITY - 1);
         probe++;
     }
     return 0;
@@ -659,15 +659,15 @@ static Wc1GlCachedFrame *FindCachedFrameSlot(
 static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
                                   short *atlasLeft, short *atlasTop)
 {
-    Wc1GlAtlasLayer *layer;
+    GlAtlasLayer *layer;
     int packedWidth;
     int packedHeight;
     int x;
     int y;
     int layerIndex;
 
-    packedWidth = width + WC1_GL_SPRITE_ATLAS_PADDING * 2;
-    packedHeight = height + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    packedWidth = width + GL_SPRITE_ATLAS_PADDING * 2;
+    packedHeight = height + GL_SPRITE_ATLAS_PADDING * 2;
     if (packedWidth > g_renderer.spriteAtlasSize ||
         packedHeight > g_renderer.spriteAtlasSize)
         return 0;
@@ -682,8 +682,8 @@ static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
         }
         if (y + packedHeight <= g_renderer.spriteAtlasSize) {
             *atlasLayer = (short)layerIndex;
-            *atlasLeft = (short)(x + WC1_GL_SPRITE_ATLAS_PADDING);
-            *atlasTop = (short)(y + WC1_GL_SPRITE_ATLAS_PADDING);
+            *atlasLeft = (short)(x + GL_SPRITE_ATLAS_PADDING);
+            *atlasTop = (short)(y + GL_SPRITE_ATLAS_PADDING);
             layer->nextX = x + packedWidth;
             layer->nextY = y;
             if (x == 0 || packedHeight > layer->rowHeight)
@@ -695,12 +695,12 @@ static int ReserveSpriteAtlasRect(int width, int height, short *atlasLayer,
     return 0;
 }
 
-static const Wc1GlCachedFrame *CacheShapeFrame(
+static const GlCachedFrame *CacheShapeFrame(
     unsigned char *shape, short frame, int dataOffset,
     unsigned short shapeTableEnd, int width, int height, short leftExtent,
     short topExtent, size_t pixelCount)
 {
-    Wc1GlCachedFrame *cachedFrame;
+    GlCachedFrame *cachedFrame;
     unsigned char *resizedScratch;
     short atlasLayer;
     short atlasLeft;
@@ -720,8 +720,8 @@ static const Wc1GlCachedFrame *CacheShapeFrame(
     if (cacheHit)
         return cachedFrame;
 
-    packedWidth = width + WC1_GL_SPRITE_ATLAS_PADDING * 2;
-    packedHeight = height + WC1_GL_SPRITE_ATLAS_PADDING * 2;
+    packedWidth = width + GL_SPRITE_ATLAS_PADDING * 2;
+    packedHeight = height + GL_SPRITE_ATLAS_PADDING * 2;
     if (packedWidth > g_renderer.spriteAtlasSize ||
         packedHeight > g_renderer.spriteAtlasSize)
         return 0;
@@ -781,17 +781,17 @@ static void UploadPaletteTexture(const unsigned char *palette)
                              GL_UNSIGNED_BYTE, rgba);
 }
 
-static void DrawGlQuad(const Wc1GlVertex *vertices)
+static void DrawGlQuad(const GlVertex *vertices)
 {
     g_renderer.gl.BindBuffer(GL_ARRAY_BUFFER, g_renderer.vertexBuffer);
-    g_renderer.gl.BufferData(GL_ARRAY_BUFFER, sizeof(Wc1GlVertex) * 4,
+    g_renderer.gl.BufferData(GL_ARRAY_BUFFER, sizeof(GlVertex) * 4,
                              vertices, GL_STREAM_DRAW);
     g_renderer.gl.DrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
 
 static void DrawBaseFrame(void)
 {
-    const Wc1GlVertex vertices[4] = {
+    const GlVertex vertices[4] = {
         {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
          0.0f, 0.0f, 0.0f, 0.0f},
         {-0.5f, 199.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -812,7 +812,7 @@ static void DrawBaseFrame(void)
     DrawGlQuad(vertices);
 }
 
-static void TransformSpriteVertex(Wc1GlVertex *vertex, float sourceX,
+static void TransformSpriteVertex(GlVertex *vertex, float sourceX,
                                   float sourceY, float textureX,
                                   float textureY, float originX, float originY,
                                   float cosine, float sine, float scaleX,
@@ -826,11 +826,11 @@ static void TransformSpriteVertex(Wc1GlVertex *vertex, float sourceX,
     vertex->v = textureY;
 }
 
-static void SetSpriteVertexMetadata(Wc1GlVertex *vertex,
-                                    const Wc1GlSprite *sprite,
+static void SetSpriteVertexMetadata(GlVertex *vertex,
+                                    const GlSprite *sprite,
                                     float outputScale)
 {
-    const Wc1GlCachedFrame *cachedFrame;
+    const GlCachedFrame *cachedFrame;
 
     cachedFrame = sprite->cachedFrame;
     vertex->atlasLeft = (float)cachedFrame->atlasLeft;
@@ -848,12 +848,12 @@ static void SetSpriteVertexMetadata(Wc1GlVertex *vertex,
     vertex->atlasLayer = (float)cachedFrame->atlasLayer;
 }
 
-static void BuildRecordedSpriteVertices(const Wc1GlSprite *sprite,
+static void BuildRecordedSpriteVertices(const GlSprite *sprite,
                                         float outputScale,
-                                        Wc1GlVertex *vertices)
+                                        GlVertex *vertices)
 {
-    const Wc1GlCachedFrame *cachedFrame;
-    Wc1GlVertex corners[4];
+    const GlCachedFrame *cachedFrame;
+    GlVertex corners[4];
     float left;
     float top;
     float right;
@@ -939,7 +939,7 @@ static void DrawRecordedSprites(float outputScale)
     g_renderer.gl.BindBuffer(GL_ARRAY_BUFFER, g_renderer.vertexBuffer);
     g_renderer.gl.BufferData(
         GL_ARRAY_BUFFER,
-        (GLsizeiptr)(sizeof(Wc1GlVertex) *
+        (GLsizeiptr)(sizeof(GlVertex) *
                      (size_t)g_renderer.spriteCount * 6U),
         g_renderer.spriteVertices, GL_STREAM_DRAW);
     g_renderer.gl.DrawArrays(GL_TRIANGLES, 0,
@@ -964,19 +964,19 @@ static int RenderGlFrame(const unsigned char *pixels,
     SDL_GL_GetDrawableSize(g_renderer.window, &drawableWidth, &drawableHeight);
     if (drawableWidth < 1 || drawableHeight < 1)
         return 0;
-    Wc1SdlCalculateOutputViewport(drawableWidth, drawableHeight, &viewportLeft,
+    SdlCalculateOutputViewport(drawableWidth, drawableHeight, &viewportLeft,
                                   &viewportBottom, &viewportWidth,
                                   &viewportHeight);
     g_renderer.gl.PixelStorei(GL_UNPACK_ALIGNMENT, 1);
     g_renderer.gl.ActiveTexture(GL_TEXTURE0);
-    UploadIndexTexture(g_renderer.baseTexture, WC1_SDL_FRAME_WIDTH,
-                       WC1_SDL_FRAME_HEIGHT, pixels);
+    UploadIndexTexture(g_renderer.baseTexture, SDL_FRAME_WIDTH,
+                       SDL_FRAME_HEIGHT, pixels);
     g_renderer.gl.ActiveTexture(GL_TEXTURE1);
     UploadPaletteTexture(palette);
     if (drawSprites) {
         g_renderer.gl.ActiveTexture(GL_TEXTURE3);
-        UploadIndexTexture(g_renderer.maskTexture, WC1_SDL_FRAME_WIDTH,
-                           WC1_SDL_FRAME_HEIGHT, g_renderer.viewMask);
+        UploadIndexTexture(g_renderer.maskTexture, SDL_FRAME_WIDTH,
+                           SDL_FRAME_HEIGHT, g_renderer.viewMask);
     }
     g_renderer.gl.Viewport(0, 0, drawableWidth, drawableHeight);
     g_renderer.gl.ClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -986,7 +986,7 @@ static int RenderGlFrame(const unsigned char *pixels,
     g_renderer.gl.BindVertexArray(g_renderer.vertexArray);
     DrawBaseFrame();
     if (drawSprites)
-        DrawRecordedSprites((float)viewportWidth / WC1_SDL_FRAME_WIDTH);
+        DrawRecordedSprites((float)viewportWidth / SDL_FRAME_WIDTH);
     SDL_GL_SwapWindow(g_renderer.window);
     return 1;
 }
@@ -1020,7 +1020,7 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
            rows are 320 contiguous bytes, so the count is a byte length and
            a run may cover whole rows: the mode 4 geometry copies 320x128
            as the single run (0, 24, 40960). */
-        start = y * WC1_SDL_FRAME_WIDTH + x;
+        start = y * SDL_FRAME_WIDTH + x;
         if (start < 0) {
             length += start;
             start = 0;
@@ -1037,7 +1037,7 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
     }
 }
 
-int Wc1SdlGlRendererInitialize(SDL_Window *window)
+int SdlGlRendererInitialize(SDL_Window *window)
 {
     GLuint textures[4] = {0, 0, 0, 0};
     GLint maxArrayTextureLayers;
@@ -1050,12 +1050,12 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
     if (g_renderer.context == 0) {
         fprintf(stderr, "OpenGL context creation failed: %s\n",
                 SDL_GetError());
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     if (SDL_GL_MakeCurrent(window, g_renderer.context) != 0 ||
         !LoadGlFunctions()) {
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     maxTextureSize = 0;
@@ -1065,21 +1065,21 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
                               &maxArrayTextureLayers);
     if (maxTextureSize < 1 || maxArrayTextureLayers < 1) {
         fprintf(stderr, "OpenGL texture arrays are unavailable.\n");
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     g_renderer.spriteAtlasSize =
-        maxTextureSize < WC1_GL_SPRITE_ATLAS_MAX_SIZE
+        maxTextureSize < GL_SPRITE_ATLAS_MAX_SIZE
             ? maxTextureSize
-            : WC1_GL_SPRITE_ATLAS_MAX_SIZE;
+            : GL_SPRITE_ATLAS_MAX_SIZE;
     g_renderer.spriteAtlasLayerCount =
-        maxArrayTextureLayers < WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY
+        maxArrayTextureLayers < GL_SPRITE_ATLAS_LAYER_CAPACITY
             ? maxArrayTextureLayers
-            : WC1_GL_SPRITE_ATLAS_LAYER_CAPACITY;
+            : GL_SPRITE_ATLAS_LAYER_CAPACITY;
     g_renderer.baseProgram = LinkGlProgram(g_baseFragmentShaderSource);
     g_renderer.spriteProgram = LinkGlProgram(g_spriteFragmentShaderSource);
     if (g_renderer.baseProgram == 0 || g_renderer.spriteProgram == 0) {
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
 
@@ -1087,30 +1087,30 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
     g_renderer.gl.GenBuffers(1, &g_renderer.vertexBuffer);
     if (g_renderer.vertexArray == 0 || g_renderer.vertexBuffer == 0) {
         fprintf(stderr, "OpenGL renderer buffer creation failed.\n");
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     g_renderer.gl.BindVertexArray(g_renderer.vertexArray);
     g_renderer.gl.BindBuffer(GL_ARRAY_BUFFER, g_renderer.vertexBuffer);
     g_renderer.gl.EnableVertexAttribArray(0);
     g_renderer.gl.VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE,
-                                      sizeof(Wc1GlVertex), 0);
+                                      sizeof(GlVertex), 0);
     g_renderer.gl.EnableVertexAttribArray(1);
     g_renderer.gl.VertexAttribPointer(
-        1, 2, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
-        (const void *)(uintptr_t)offsetof(Wc1GlVertex, u));
+        1, 2, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
+        (const void *)(uintptr_t)offsetof(GlVertex, u));
     g_renderer.gl.EnableVertexAttribArray(2);
     g_renderer.gl.VertexAttribPointer(
-        2, 4, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
-        (const void *)(uintptr_t)offsetof(Wc1GlVertex, atlasLeft));
+        2, 4, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
+        (const void *)(uintptr_t)offsetof(GlVertex, atlasLeft));
     g_renderer.gl.EnableVertexAttribArray(3);
     g_renderer.gl.VertexAttribPointer(
-        3, 4, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
-        (const void *)(uintptr_t)offsetof(Wc1GlVertex, clipLeft));
+        3, 4, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
+        (const void *)(uintptr_t)offsetof(GlVertex, clipLeft));
     g_renderer.gl.EnableVertexAttribArray(4);
     g_renderer.gl.VertexAttribPointer(
-        4, 2, GL_FLOAT, GL_FALSE, sizeof(Wc1GlVertex),
-        (const void *)(uintptr_t)offsetof(Wc1GlVertex, magnification));
+        4, 2, GL_FLOAT, GL_FALSE, sizeof(GlVertex),
+        (const void *)(uintptr_t)offsetof(GlVertex, magnification));
 
     g_renderer.gl.GenTextures(4, textures);
     g_renderer.baseTexture = textures[0];
@@ -1121,7 +1121,7 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
         g_renderer.maskTexture == 0 ||
         g_renderer.spriteAtlasTexture == 0) {
         fprintf(stderr, "OpenGL renderer texture creation failed.\n");
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     ConfigureGlTexture(GL_TEXTURE_2D, g_renderer.baseTexture);
@@ -1136,7 +1136,7 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
         GL_RED, GL_UNSIGNED_BYTE, 0);
 
     if (!LoadGlUniformLocations()) {
-        Wc1SdlGlRendererShutdown();
+        SdlGlRendererShutdown();
         return 0;
     }
     g_renderer.gl.Disable(GL_DITHER);
@@ -1145,7 +1145,7 @@ int Wc1SdlGlRendererInitialize(SDL_Window *window)
     return 1;
 }
 
-void Wc1SdlGlRendererShutdown(void)
+void SdlGlRendererShutdown(void)
 {
     GLuint textures[4];
     int canDeleteResources;
@@ -1180,7 +1180,7 @@ void Wc1SdlGlRendererShutdown(void)
     memset(&g_renderer, 0, sizeof(g_renderer));
 }
 
-void Wc1SdlGlRendererBeginSpaceFrame(const ScreenViewportGeometry *geometry,
+void SdlGlRendererBeginSpaceFrame(const ScreenViewportGeometry *geometry,
                                      int viewportMode, int fullViewportCopy,
                                      unsigned char spaceClearColour)
 {
@@ -1190,11 +1190,11 @@ void Wc1SdlGlRendererBeginSpaceFrame(const ScreenViewportGeometry *geometry,
     g_renderer.useSoftwareForRestOfFrame = 0;
     g_renderer.hasLayerSnapshot = 0;
     g_renderer.frameState =
-        g_renderer.context != 0 ? WC1_GL_FRAME_RECORDING : WC1_GL_FRAME_IDLE;
+        g_renderer.context != 0 ? GL_FRAME_RECORDING : GL_FRAME_IDLE;
     g_renderer.spaceClearColour = spaceClearColour;
     g_renderer.spaceLayerOffsetX = 0;
     g_renderer.spaceLayerOffsetY = 0;
-    if (g_renderer.frameState == WC1_GL_FRAME_RECORDING) {
+    if (g_renderer.frameState == GL_FRAME_RECORDING) {
         if (!fullViewportCopy && viewportMode != 5 && geometry != 0) {
             g_renderer.spaceLayerOffsetX = geometry->originX;
             g_renderer.spaceLayerOffsetY = geometry->originY;
@@ -1203,30 +1203,30 @@ void Wc1SdlGlRendererBeginSpaceFrame(const ScreenViewportGeometry *geometry,
     }
 }
 
-void Wc1SdlGlRendererCompleteSpaceFrame(void)
+void SdlGlRendererCompleteSpaceFrame(void)
 {
-    if (g_renderer.frameState == WC1_GL_FRAME_RECORDING)
-        g_renderer.frameState = WC1_GL_FRAME_COMPLETE;
+    if (g_renderer.frameState == GL_FRAME_RECORDING)
+        g_renderer.frameState = GL_FRAME_COMPLETE;
 }
 
-void Wc1SdlGlRendererCancelSpaceFrame(void)
+void SdlGlRendererCancelSpaceFrame(void)
 {
     ResetRecordedSprites();
     ResetSpriteAtlasCache();
-    g_renderer.frameState = WC1_GL_FRAME_IDLE;
+    g_renderer.frameState = GL_FRAME_IDLE;
     g_renderer.hasLayerSnapshot = 0;
     g_renderer.spaceLayerOffsetX = 0;
     g_renderer.spaceLayerOffsetY = 0;
     g_renderer.useSoftwareForRestOfFrame = 0;
 }
 
-int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
+int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
                                       float y, unsigned char *shape,
                                       short frame, short angle, short scale,
                                       short flip)
 {
-    const Wc1GlCachedFrame *cachedFrame;
-    Wc1GlSprite *sprite;
+    const GlCachedFrame *cachedFrame;
+    GlSprite *sprite;
     size_t pixelCount;
     int dataOffset;
     int frameTableOffset;
@@ -1236,7 +1236,7 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     short leftExtent;
     short topExtent;
 
-    if (g_renderer.frameState != WC1_GL_FRAME_RECORDING ||
+    if (g_renderer.frameState != GL_FRAME_RECORDING ||
         g_renderer.useSoftwareForRestOfFrame)
         return 0;
     if (shape == 0 || frame < 0 || scale == 0 || viewport == 0 ||
@@ -1246,7 +1246,7 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
         return 0;
     if (frame >= GetShapeFrameCount(shape))
         return 0;
-    if (g_renderer.spriteCount >= WC1_GL_RECORDED_SPRITE_CAPACITY)
+    if (g_renderer.spriteCount >= GL_RECORDED_SPRITE_CAPACITY)
         return 0;
     width = 0;
     height = 0;
@@ -1293,7 +1293,7 @@ int Wc1SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
     return 1;
 }
 
-int Wc1SdlGlRendererPresent(const unsigned char *pixels,
+int SdlGlRendererPresent(const unsigned char *pixels,
                             const unsigned char *palette)
 {
     int drawSprites;
@@ -1308,12 +1308,12 @@ int Wc1SdlGlRendererPresent(const unsigned char *pixels,
        the whole flight frame and is replaced only by the next completed layer
        or the explicit flight teardown. */
     drawSprites = 0;
-    if (g_renderer.frameState == WC1_GL_FRAME_COMPLETE) {
+    if (g_renderer.frameState == GL_FRAME_COMPLETE) {
         CopyBaseWithoutMouse(g_renderer.spaceFrameBase, pixels);
         g_renderer.hasLayerSnapshot = 1;
-        g_renderer.frameState = WC1_GL_FRAME_IDLE;
+        g_renderer.frameState = GL_FRAME_IDLE;
         drawSprites = 1;
-    } else if (g_renderer.frameState == WC1_GL_FRAME_IDLE &&
+    } else if (g_renderer.frameState == GL_FRAME_IDLE &&
                g_renderer.hasLayerSnapshot) {
         CopyBaseWithoutMouse(g_renderer.presentedFrame, pixels);
         if (g_bSpaceFlightActive_005c586c != 0) {
@@ -1338,7 +1338,7 @@ int Wc1SdlGlRendererPresent(const unsigned char *pixels,
                          g_renderer.presentedPalette, drawSprites);
 }
 
-void Wc1SdlGlRendererWaitForVerticalBlank(void)
+void SdlGlRendererWaitForVerticalBlank(void)
 {
     if (!g_renderer.hasLastFrame ||
         !RenderGlFrame(g_renderer.presentedFrame, g_renderer.presentedPalette,

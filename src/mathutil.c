@@ -4,7 +4,7 @@
  *  Address range 0x41d000-0x41d24f (provisional -- see docs/ORDER.md).
  *  Boundary evidence: MinShort/MaxShort pair, 94 call sites, no other content in the gap.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x40F040 */
 short MinShort(short a, short b)
@@ -34,7 +34,7 @@ short MaxShort(short a, short b)
 /* Function start: 0x40F0A4 */
 void FreePacketAndClear(void *slot, unsigned short releaseFlags)
 {
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     void *packet;
 
     memcpy(&packet, slot, sizeof(packet));

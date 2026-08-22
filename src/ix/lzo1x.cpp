@@ -8,7 +8,7 @@
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 #include <limits.h>
 #include <lzo1x.h>
 #endif
@@ -16,7 +16,7 @@
 #pragma function(strcat)
 
 /* Function start: 0x48C290 */
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 extern "C" void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
     unsigned int destinationBytes, unsigned int sourceBytes)
@@ -192,7 +192,7 @@ lzo_finish:
 extern "C" FILE *ix_file_open(const char *path, int mode)
 {
     char modeString[4];
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     char resolvedPath[PATH_MAX];
 #endif
 
@@ -202,8 +202,8 @@ extern "C" FILE *ix_file_open(const char *path, int mode)
     if ((mode & 2) != 0)
         strcat(modeString, "w");
     strcat(modeString, "b");
-#ifdef WC1_SDL
-    if (!Wc1SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
+#ifdef SDL_PORT
+    if (!SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
         return 0;
     return fopen(resolvedPath, modeString);
 #else

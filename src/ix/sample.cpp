@@ -26,7 +26,7 @@
 #define IX_UNSIGNED_TO_DOUBLE(value) \
     ((double)(long)((value) - 2147483647L - 1) + 2147483648.0)
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 #pragma pack(push, 1)
 #endif
 struct IxSampleChunk {
@@ -55,7 +55,7 @@ struct IxWaveFormat {
     unsigned short blockAlignment;
     unsigned short bitsPerSample;
 };
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 #pragma pack(pop)
 #endif
 
@@ -132,7 +132,7 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             loopStart = IX_SWAP_DWORD(marker->position);
             marker = (IxAiffMarker *)((unsigned char *)marker +
                                       marker->nameLength + sizeof(IxAiffMarker));
-#ifdef WC1_SDL
+#ifdef SDL_PORT
             while (((uintptr_t)marker & 1) != 0)
 #else
             while (((unsigned int)marker & 1) != 0)

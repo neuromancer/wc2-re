@@ -7,7 +7,7 @@
  *  0x43390f; the Mac symbol order proves that the ship-AI `smart` unit starts
  *  at 0x433ac0.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x433690 */
 void DrawCinematicFontCharacter(char character)
@@ -139,49 +139,4 @@ void InitializeCinematicTextRenderer(void)
     g_pfnDrawCinematicFontCharacter_005c8d30 =
         DrawCinematicFontCharacter;
     g_pfnDrawCinematicTextString_005c8cf4 = DrawWrappedCinematicText;
-}
-
-/* Function start: WC2_UNMAPPED */
-void show_info_disp(void)
-{
-    char objectiveMarker[2];
-    char objectiveSummary[20];
-    short objective;
-    char *marker;
-
-    set_new_vdu(0);
-    DrawTextAt(&g_stLeftVduTextContext_005d2ae0, g_stLeftVduViewport_005d2180.left, g_stLeftVduViewport_005d2180.top,
-               " INFO DISPLAY \n", 0);
-    DrawFormattedText("Version: %s\n", g_pszGameVersion_0049b528);
-    DrawFormattedText("Series %d Misn %d\n",
-                      (int)g_stCampaignState_0059ca50.currentSeries,
-                      (int)g_stCampaignState_0059ca50.currentMission);
-    DrawFormattedText("PC Kills   =%d\nWing Kills =%d\n",
-                      (int)g_cPlayerKillCount_005d2fa8,
-                      (int)g_nWingmanKillCount_005a7cb8);
-    DrawFormattedText("Series Score   =%d\n",
-                      (int)g_stCampaignState_0059ca50.seriesScore);
-    DrawFormattedText("Miss Score %d, Medal %d\n",
-                      (int)g_nMissionScore_00493462,
-                      (int)g_nMissionMedalScore_005a8116);
-    DrawFormattedText("Promotion Score=%d\n",
-                      (int)g_stCampaignState_0059ca50.promotionScore);
-    objective = 0;
-    DrawFormattedText("OBJECTIVES\n");
-    strcpy(objectiveSummary, "");
-    for (; objective < 16; objective++) {
-        marker = " ";
-        if (objective < g_cMissionObjectiveCount_00493294) {
-            sprintf(objectiveMarker, "%c", objective % 10 + '1');
-            marker = objectiveMarker;
-            if (sighted(objective) != 0)
-                marker = "S";
-            if (visited(objective) != 0)
-                marker = "V";
-            if (achieved(objective) != 0)
-                marker = "A";
-        }
-        strcat(objectiveSummary, marker);
-    }
-    DrawFormattedText("%s\n", objectiveSummary);
 }

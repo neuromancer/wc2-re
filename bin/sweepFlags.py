@@ -37,7 +37,7 @@ TOTAL = re.compile(r'^\s*Total compared:\s*(\d+)', re.M)
 
 def run(flags, var, filt):
     subprocess.run(['make', 'clean'], cwd=ROOT, capture_output=True)
-    build = subprocess.run(['make', 'WC1.EXE', f'{var}={flags}'],
+    build = subprocess.run(['make', f'{var}={flags}'],
                            cwd=ROOT, capture_output=True, text=True)
     if build.returncode != 0:
         return None, 'BUILD FAILED'

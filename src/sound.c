@@ -4,9 +4,9 @@
  *  Address range 0x42b400-0x42cfff (provisional -- see docs/ORDER.md).
  *  Boundary evidence: playWAVE/PlaySnowStaticSound/LoadInstallDat; string band 0x46A46C-0x46A710.
  */
-#include "wc1.h"
+#include "game.h"
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 #pragma function(memcmp)
 #pragma function(strcpy)
 #endif
@@ -134,7 +134,7 @@ void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
         if (interrupt == 0)
             return;
         ix_sound_stop(g_pSpeechSound_004a2658);
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* This sound carries delete-on-stop, so the stop above has already
            freed it; the original released the dead block anyway. */
         if (ix_sound_is_live(g_pSpeechSound_004a2658))
@@ -165,13 +165,13 @@ void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
 /* Function start: 0x4245A2 */
 void stop_all_sounds(void)
 {
-#ifdef WC1_SDL
-    Wc1SdlStopDosSoundEffects();
+#ifdef SDL_PORT
+    SdlStopDosSoundEffects();
 #endif
     ix_system_delete_all_sounds();
     ix_system_delete_all_samples();
     FreeWaveTable();
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     g_pSpeechSound_004a2658 = 0;
     g_pSpeechWave_004a2650 = 0;
     g_bSpeechSoundActive_004a2660 = 0;
@@ -180,7 +180,7 @@ void stop_all_sounds(void)
     if (g_pSnowStaticSound_004a2664 != 0) {
         /* The bulk delete already stops, unlinks, and frees every IxSound.
            The original's following calls therefore use a stale pointer. */
-#ifndef WC1_SDL
+#ifndef SDL_PORT
         ix_sound_stop(g_pSnowStaticSound_004a2664);
         ix_sound_release(g_pSnowStaticSound_004a2664);
 #endif
@@ -196,9 +196,9 @@ void PlaySnowStaticSound(void)
     long fileSize;
     int file;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* DOS data has no sampled static sound. */
-    if (Wc1SdlUsingOriginFxSoundEffects())
+    if (SdlUsingOriginFxSoundEffects())
         return;
 #endif
     if (g_nAudioEnabled_0049c244 != 0) {
@@ -241,10 +241,10 @@ void ServiceSoundSystem(void)
 {
     if (g_nAudioEnabled_0049c244 != 0) {
         ix_system_service_sounds();
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         /* This whole block is a port-only rewrite of the original's
          * speech-completion handling (see the #else branch for that);
-         * kept behind WC1_SDL so the reference build stays byte-
+         * kept behind SDL_PORT so the reference build stays byte-
          * comparable to the original for verification.
          *
          * The speech sound is delete-on-stop, so the call above can have
@@ -402,52 +402,6 @@ IxSample * __fastcall ix_sound_get_sample(IxSound *sound)
     return sound->sample;
 }
 
-/* Function start: WC2_UNMAPPED */
-void FxDriverShutdownHook(void)
-{
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short InitializeDiskPromptTextContext(void)
-{
-    short textWidth;
-    short textHeight;
-
-    g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED = 0x50;
-    if (g_stScreenViewport_005d21a0.pixels == 0)
-        InitializeGameTextContexts();
-    g_stDiskPromptTextContext_005a7d60 = g_stDefaultTextContext_005d2d20;
-    g_stDiskPromptTextContext_005a7d60.viewport =
-        &g_stDiskPromptViewport_005a7d40;
-    g_stDiskPromptTextContext_005a7d60.text =
-        g_szTextScratchBuffer_005d1c40;
-    g_stDiskPromptTextContext_005a7d60.alignment = 2;
-    g_stDiskPromptViewport_005a7d40 = g_stScreenViewport_005d21a0;
-    textWidth =
-        (short)(MeasureTextPixelWidthClamped(
-                    g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED) +
-                10);
-    textHeight =
-        (short)((ReadWord((unsigned short *)
-                              g_stDiskPromptTextContext_005a7d60.font) +
-                 1) *
-                3);
-    ((short *)&g_dwDiskPromptTopLeft_005a7d80)[1] =
-        (short)(100 - textHeight / 2);
-    ((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] =
-        (short)(160 - textWidth / 2);
-    ((short *)&g_dwDiskPromptBottomRight_005a7d84)[1] =
-        (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[1] +
-                textHeight);
-    ((short *)&g_dwDiskPromptBottomRight_005a7d84)[0] =
-        (short)(((short *)&g_dwDiskPromptTopLeft_005a7d80)[0] + textWidth);
-    InitializeTextContextFromFont(&g_stDiskPromptTextContext_005a7d60, 1,
-                                  g_cSecondaryViewBufferColour_0049cb4c,
-                                  (signed char)g_bPrimaryViewBufferColour_0049cb50);
-    g_bOriginFxDriverActive_0049cbb0 = 1;
-    return 0;
-}
-
 /* Function start: 0x432DCC */
 char *GetPackedStringByIndex(CutsceneResourceTable *resources,
                              short index)
@@ -470,7 +424,7 @@ void RewriteDiskFileGraphicsExtensions(char *fileName)
 
     if (g_cCutsceneVideoMode_00499c48 == 13) {
         extensionPosition = DosStrchr(fileName, '.');
-#ifdef WC1_SDL
+#ifdef SDL_PORT
         if (extensionPosition != 0) {
             extensionPosition++;
             if (toupper((int)*extensionPosition) == 'V')
@@ -516,15 +470,15 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
     char *destination;
     short argumentIndex;
     short scanResult;
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     char resolvedPath[PATH_MAX];
 #endif
 
     argumentIndex = 1;
     argumentCount = 0;
     destination = g_szTextScratchBuffer_005d1c40;
-#ifdef WC1_SDL
-    if (Wc1SdlResolvePath("wc2.cfg", resolvedPath,
+#ifdef SDL_PORT
+    if (SdlResolvePath("wc2.cfg", resolvedPath,
                           sizeof(resolvedPath)))
         file = fopen(resolvedPath, "rb");
     else
@@ -549,93 +503,6 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
         destination = strchr(destination, 0) + 1;
     }
     return (short)(argumentCount - 1);
-}
-
-/* Function start: WC2_UNMAPPED */
-unsigned short LoadInstallDat(void)
-{
-    DiskFileRecord *records;
-    DiskFileRecord *record;
-    DiskFileRecord *entry;
-    unsigned int size;
-    short file;
-    short maximumId;
-
-    maximumId = 0;
-    SystemDebugPrintf("Loading INSTALL.DAT\n");
-    file = OpenDataFileOrDie("install.dat");
-    if (file == -1) {
-        SystemDebugPrintf("Unable to open INSTALL.DAT\n");
-        SystemDebugPrintf(
-            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
-        ClearDebugPauseFlags();
-        PumpMessagesDuringWait();
-        exit(0);
-    }
-    size = (unsigned int)_filelength(file);
-    records = (DiskFileRecord *)AllocateTaggedMemory(size, 0);
-    if (records == 0) {
-        SystemDebugPrintf("Unable to load INSTALL.DAT\n");
-        SystemDebugPrintf(
-            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
-        ClearDebugPauseFlags();
-        PumpMessagesDuringWait();
-        exit(0);
-    }
-    ReadDataFileAtOffset(file, 0, size, records);
-    CloseDataFile(file);
-
-    record = records;
-    while (record->name[0] != 0) {
-        if (maximumId < record->logicalFile &&
-            record->logicalFile != 0xff)
-            maximumId = record->logicalFile;
-        record++;
-    }
-    maximumId++;
-
-#ifdef WC1_SDL
-    g_pDiskFileRecords_005a7cf0 =
-        (DiskFileRecord *)AllocateTaggedMemory(
-            sizeof(DiskFileRecord) * 78, 0);
-    if (g_pDiskFileRecords_005a7cf0 != 0)
-        memset(g_pDiskFileRecords_005a7cf0, 0,
-               sizeof(DiskFileRecord) * 78);
-#else
-    g_pDiskFileRecords_005a7cf0 =
-        (DiskFileRecord *)AllocateTaggedMemory(0x4b0, 0);
-    memset(g_pDiskFileRecords_005a7cf0, 0,
-           (maximumId + 1) * sizeof(DiskFileRecord));
-#endif
-    if (g_pDiskFileRecords_005a7cf0 == 0) {
-        SystemDebugPrintf("Unable to copy INSTALL.DAT\n");
-        SystemDebugPrintf(
-            "[SYSTEM]: Exiting Prematurely (LoadInstallData)\n");
-        ClearDebugPauseFlags();
-        PumpMessagesDuringWait();
-        exit(0);
-    }
-
-    entry = g_pDiskFileRecords_005a7cf0;
-    while (maximumId > 0) {
-        entry->name[0] = ' ';
-        entry++;
-        maximumId--;
-    }
-
-    record = records;
-    while (record->name[0] != 0) {
-        if (record->logicalFile != 0xff)
-            g_pDiskFileRecords_005a7cf0[record->logicalFile] = *record;
-        record++;
-    }
-    ReleasePacketHandle(records);
-    g_pDiskFileRecords_005a7cf0++;
-#ifdef WC1_SDL
-    if (Wc1SdlUsingDosData())
-        Wc1SdlCompleteDosInstallTable(g_pDiskFileRecords_005a7cf0);
-#endif
-    return 0;
 }
 
 /* Function start: 0x401120 */
@@ -673,7 +540,7 @@ void show_damage_disp(void)
             (short)(g_stLeftVduViewport_005d2180.left +
                     g_nWeaponDisplayOffsetX_0049ae8c);
         g_nWeaponDisplayOriginY_005d4256 =
-            (short)(g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED +
+            (short)(g_nWeaponDisplayOffsetY_0049ae8e +
                     g_stLeftVduViewport_005d2180.top);
         DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
                           g_nWeaponDisplayOriginX_005d4254,

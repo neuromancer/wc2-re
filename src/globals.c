@@ -5,7 +5,7 @@
  *  so this file has no counterpart in the shipped image and contributes no
  *  code.  It exists so that regrouping functions cannot break the link.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Quarter-wave 16.16 cosine table embedded with the original raster
  * assembly.  Indices are tenths of a degree from 0 through 90 degrees. */
@@ -126,162 +126,16 @@ const int g_anRLEQuarterCosine_00405cbb[901] = {
 };
 
 /* IFF chunk identifiers embedded between the original raster routines. */
-const unsigned char g_abIffBmhdChunkId_00406f74_WC1_UNMAPPED /* no-address */[4] = {
+const unsigned char g_abIffBmhdChunkId_00406f74[4] = {
     'B', 'M', 'H', 'D'
 };
-const unsigned char g_abIffCmapChunkId_00406f78_WC1_UNMAPPED /* no-address */[4] = { 'C', 'M', 'A', 'P' };
-const unsigned char g_abIffBodyChunkId_00406f7c_WC1_UNMAPPED /* no-address */[4] = { 'B', 'O', 'D', 'Y' };
-
-const short g_asMouthFramesByPhoneme_004655f0_WC1_UNMAPPED /* no-address */[26] = {
-    0, 5, 4, 4, 1, 8, 4, 7, 0, 4, 4, 7, 5,
-    4, 2, 5, 6, 4, 4, 4, 3, 4, 6, 4, 4, 4
-};
-const char g_szConversationIntegerFormat_00465628_WC1_UNMAPPED /* no-address */[4] = "%d";
-const char g_szConversationIntegerFormatAlt_0046562c_WC1_UNMAPPED /* no-address */[4] = "%d";
-const char g_szCampaignDateFormat_00465630_WC1_UNMAPPED /* no-address */[12] = "%03d.%03d";
-const char g_szSavedCampaignDateFormat_0046563c_WC1_UNMAPPED /* no-address */[12] = "%03d.%03d";
-const char g_szCampaignTimeFormat_00465648_WC1_UNMAPPED /* no-address */[12] = "%02d:%02d";
-const char g_szConversationTextFormat_00465654_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-int g_bFuneralShowTheEnd_00465b54_WC1_UNMAPPED /* no-address */;
-const char g_szTheEnd_00465c04_WC1_UNMAPPED /* no-address */[8] = "THE END";
-const char g_szFuneralTextFormat_00465c0c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-short g_nDebriefingPersonality_00465c80_WC1_UNMAPPED /* no-address */;
+const unsigned char g_abIffCmapChunkId_00406f78[4] = { 'C', 'M', 'A', 'P' };
+const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 
-const short g_asCampaignBriefingFiles_00469458_WC1_UNMAPPED /* no-address */[3] = {10, 62, 73};
-char g_szDiskMarkerFile_00469688_WC1_UNMAPPED /* no-address */[9] = "DISK.000";
-short g_nDiskPromptBorderColour_00469694_WC1_UNMAPPED /* no-address */ = 0x50;
-short g_bSlowSceneAnimation_00469998_WC1_UNMAPPED /* no-address */;
-short g_asConversationTextColours_004699f0_WC1_UNMAPPED /* no-address */[24] = {
-    0x25, 0xb6, 0x9a, 0x50, 0x94, 0x85, 0x27, 0xa6,
-    0xfd, 0x47, 0xaa, 0x0b, 0x09, 0x0d, 0x03, 0x04,
-    0x0b, 0x0c, 0x01, 0x0a, 0x06, 0x0e, 0x02, 0x07
-};
-const int g_anBaseMemoryReservationByVideoMode_00469a90_WC1_UNMAPPED /* no-address */[4] = {
-    280000, 260000, 280000, 0
-};
-const int g_anFullMusicMemoryReservationByVideoMode_00469aa0_WC1_UNMAPPED /* no-address */[4] = {
-    306000, 286000, 306000, 0
-};
-const int g_anExpandedMemoryReservationByVideoMode_00469ab0_WC1_UNMAPPED /* no-address */[3] = {
-    258000, 238000, 258000
-};
-short g_bSceneAnimationWaitCommand_00469d70_WC1_UNMAPPED /* no-address */;
-const char g_szSceneAnimationTextFormat_00469d74_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-Viewport g_stTrainSimPanelViewport_00469da8_WC1_UNMAPPED /* no-address */;
-const ShortRect g_stTrainSimPanelBounds_00469dc0_WC1_UNMAPPED /* no-address */ = {
-    0x30, 0x1d, 0x110, 0x6d
-};
-const char g_szTrainSimTitle_00469dc8_WC1_UNMAPPED /* no-address */[24] = "SQUADRON: TRAINSIM";
-unsigned char *g_apszBuiltInHighScoreNames_00469de0_WC1_UNMAPPED /* no-address */[6] = {
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[0],
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[8],
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[16],
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[24],
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[32],
-    &g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED[40]
-};
-const char g_szPressAnyKeyWhenReady_0046a5fc_WC1_UNMAPPED /* no-address */[28] =
-    "Press any key when ready";
 
 
-CampaignDate g_stSavedCampaignDate_0046e188_WC1_UNMAPPED /* no-address */ = {20, 340};
-const TalkingHeadOrigin g_aTalkingHeadOrigins_0046e190_WC1_UNMAPPED /* no-address */[11] = {
-    {161, 60, 161, 90},
-    {161, 60, 161, 87},
-    {160, 60, 159, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {161, 60, 161, 90},
-    {160, 53, 160, 88},
-};
-const signed char g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED /* no-address */[24] = {
-    1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0
-};
-const signed char g_abBriefingLargeCharacterAnimation_0046e200_WC1_UNMAPPED /* no-address */[24] = {
-    0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0
-};
-BriefingCharacterLayout g_aBriefingCharacters_0046e218_WC1_UNMAPPED /* no-address */[8] = {
-    { 60, 123,  10, 95, 176, 1, 0, 2,
-      g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED, 0},
-    {316, 123, 264, 94, 176, 1, 2, 1,
-      g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED, 0},
-    {193, 123, 141, 95, 176, 1, 3, 1,
-      g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED, 0},
-    {250, 124, 199, 93, 176, 1, 4, 1,
-      g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED, 0},
-    {124, 123,  71, 94, 176, 1, 5, 1,
-      g_abBriefingSmallCharacterAnimation_0046e1e8_WC1_UNMAPPED, 0},
-    {103, 122,  29, 76, 256, 1, 6, 2,
-      g_abBriefingLargeCharacterAnimation_0046e200_WC1_UNMAPPED, 0},
-    {191, 122, 118, 76, 256, 1, 8, 1,
-      g_abBriefingLargeCharacterAnimation_0046e200_WC1_UNMAPPED, 0},
-    {287, 122, 212, 76, 256, 1, 9, 1,
-      g_abBriefingLargeCharacterAnimation_0046e200_WC1_UNMAPPED, 0}
-};
-const short g_asMedalDisplayX_0046e2d0_WC1_UNMAPPED /* no-address */[5] = {191, 199, 207, 216, 228};
-const char *g_apszMedalNames_0046e2e0_WC1_UNMAPPED /* no-address */[5] = {
-    g_szBronzeStar_0046e594_WC1_UNMAPPED,
-    g_szSilverStar_0046e5a0_WC1_UNMAPPED,
-    g_szGoldStar_0046e5ac_WC1_UNMAPPED,
-    g_szGoldenSun_0046e5b8_WC1_UNMAPPED,
-    g_szTerranMedalOfValor_0046e5c4_WC1_UNMAPPED
-};
-unsigned char *g_pMedalSceneShape_0046e2f4_WC1_UNMAPPED /* no-address */;
-const int g_aiBriefingLeftPanelVelocity_0046e480_WC1_UNMAPPED /* no-address */[12] = {
-    1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4
-};
-const int g_aiBriefingPodiumVelocity_0046e4b0_WC1_UNMAPPED /* no-address */[12] = {
-    1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6
-};
-const int g_aiBriefingRightPanelVelocity_0046e4e0_WC1_UNMAPPED /* no-address */[12] = {
-    2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 7, 8
-};
-const signed char g_abBriefingPodiumFrames_0046e510_WC1_UNMAPPED /* no-address */[40] = {
-     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
-    10, 11, 12, 13, 14, 15, 15, 15, 15, 15,
-    15, 15, 15, 15, 14, 13, 12, 11, 10,  9,
-     8,  7,  6,  5,  4,  0,  0,  0,  0,  0
-};
-const signed char g_abDebriefingEstablishDeltas_0046e538_WC1_UNMAPPED /* no-address */[48] = {
-    -2, -2, -1, -1,  0,  0,  1,  0,
-     1,  0,  1,  0,  1,  0,  1,  1,
-     1,  1,  1,  1,  1,  1,  1,  1,
-     1,  1,  1,  1,  1,  1,  1,  1,
-     1,  1,  1,  1,  0,  1,  0,  1,
-     0,  1,  0,  1,  0,  0, -1, -1
-};
-short g_nDebriefingLeftX_0046e56c_WC1_UNMAPPED /* no-address */;
-short g_nDebriefingPilotX_0046e570_WC1_UNMAPPED /* no-address */ = 80;
-short g_nDebriefingRightX_0046e574_WC1_UNMAPPED /* no-address */ = 278;
-short g_nDebriefingOfficerX_0046e578_WC1_UNMAPPED /* no-address */ = 200;
-short g_nDebriefingPodiumX_0046e57c_WC1_UNMAPPED /* no-address */ = 344;
-short g_nConversationCharacter_0046e580_WC1_UNMAPPED /* no-address */ = -1;
-short g_nTalkingHeadFace_0046e584_WC1_UNMAPPED /* no-address */ = -1;
-short g_nConversationBackdropFrame_0046e588_WC1_UNMAPPED /* no-address */ = -1;
-int g_bConversationConstellation_0046e58c_WC1_UNMAPPED /* no-address */;
-int g_bConversationOverlay_0046e590_WC1_UNMAPPED /* no-address */;
-const char g_szBronzeStar_0046e594_WC1_UNMAPPED /* no-address */[12] = "Bronze Star";
-const char g_szSilverStar_0046e5a0_WC1_UNMAPPED /* no-address */[12] = "Silver Star";
-const char g_szGoldStar_0046e5ac_WC1_UNMAPPED /* no-address */[12] = "Gold Star";
-const char g_szGoldenSun_0046e5b8_WC1_UNMAPPED /* no-address */[12] = "Golden Sun";
-const char g_szTerranMedalOfValor_0046e5c4_WC1_UNMAPPED /* no-address */[24] =
-    "Terran Medal of Valor";
-const char g_szMedalChestTextFormat_0046e610_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szMedalLongShotTextFormat_0046e61c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szMedalEstablishTextFormat_0046e628_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szPinMedalTextFormat_0046e634_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szEstablishingShotTextFormat_0046e640_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szBriefingReturnTextFormat_0046e64c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szDismissedTextFormat_0046e658_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szDebriefEstablishTextFormat_0046e664_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
-const char g_szFuneralLongShotTextFormat_0046e670_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
+
 const int g_nJoystickUnavailableSample_0048e054 = -1;
 const unsigned short g_wSpeechCacheCodeBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wSpeechCacheDataWords_0048e0e4 = 0x0fa0;
@@ -375,12 +229,12 @@ RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
 
 MissionNavPoint g_aMissionNavPoints_00491e98[
-    WC2_MISSION_NAV_POINT_COUNT] = { { 0 } };
+    MISSION_NAV_POINT_COUNT] = { { 0 } };
 
-MissionShipRecord g_aMissionShips_00492290[WC2_MISSION_SHIP_COUNT];
+MissionShipRecord g_aMissionShips_00492290[MISSION_SHIP_COUNT];
 void *g_pActiveScenePacket_00492654;
 char *g_pszPersonnelFooter_00492658;
-Wc2PilotProfile g_stDefaultPilotProfile_00492660;
+PilotProfile g_stDefaultPilotProfile_00492660;
 short g_bNewPilotCampaignInitialized_004926c0;
 short g_bDeveloperCampaignReady_004926c4 = 1;
 int g_anCloakVisibilityPattern_00492710[20] = {
@@ -423,9 +277,9 @@ const short g_asPlayerDamageSystemTable_00492d70[50] = {
     4, 4, 4, 4, 0, 8, 6, 5, 4, 0
 };
 const short g_aeShipHitDebrisTypes_00492e10[4] = {
-    WC2_OBJECT_TYPE_GIRDER_CHUNK,
-    WC2_OBJECT_TYPE_SHIP_TUBING,
-    WC2_OBJECT_TYPE_O_RING
+    OBJECT_DATA_GIRDER_CHUNK,
+    OBJECT_DATA_SHIP_TUBING,
+    OBJECT_DATA_O_RING
 };
 short g_bExplosionTraversalIdle_00492e18 = 1;
 const signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
@@ -534,16 +388,16 @@ signed char g_abHazardObjects_00493280[0x14] = {
 };
 signed char g_cMissionObjectiveCount_00493294 = -1;
 signed char g_cCurrentNavPointIndex_00493298 = -1;
-#ifdef WC1_SDL
-signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT + 1] = { -1 };
+#ifdef SDL_PORT
+signed char g_abFlightPath_004932a0[MISSION_OBJECTIVE_COUNT + 1] = { -1 };
 #else
-signed char g_abFlightPath_004932a0[WC2_MISSION_OBJECTIVE_COUNT] = { -1 };
+signed char g_abFlightPath_004932a0[MISSION_OBJECTIVE_COUNT] = { -1 };
 #endif
-MissionObjective g_aMissionObjectives_004932a8[WC2_MISSION_OBJECTIVE_COUNT] = {
+MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT] = {
     { 0, 0, 0xff, 7, -1, 0xff, -1 }
 };
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };
-Wc2PilotProfile g_stCurrentPilotProfile_00493408;
+PilotProfile g_stCurrentPilotProfile_00493408;
 short g_nMissionScore_00493462;
 short g_nPlayerShipType_00493464;
 short g_nExternalViewShip_00493468 = -1;
@@ -564,38 +418,38 @@ signed char g_cTargetDisplayObject_004934f4 = -1;
 short g_bTargetLockAcquired_004934fc;
 short g_bTargetLockMode_00493500;
 short g_bMissileCameraEnabled_00493504;
-short g_asObjectViewFrame_00493508[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectScreenX_00493598[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectScreenY_00493628[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectScreenAngle_004936b8[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectDrawX_00493748[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectDrawY_004937d8[WC2_SPACE_OBJECT_COUNT];
-unsigned char *g_apObjectShape_00493868[WC2_SPACE_OBJECT_COUNT];
-signed char g_acObjectType_00493980[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectFlip_004939c8[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectScreenScale_00493a58[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectDistance_00493ae8[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipRightVector_00493b78[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipUpVector_00493ec0[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipForwardVector_00494208[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipPosition_00494550[WC2_SPACE_OBJECT_COUNT];
-FixedVector g_aShipVelocity_00494898[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectCounter_00494be0[WC2_SPACE_OBJECT_COUNT];
-short g_asObjectAnimationIndex_00494c70[WC2_SPACE_OBJECT_COUNT];
-signed char g_acObjectAnimationDelay_00494d00[WC2_SPACE_OBJECT_COUNT];
+short g_asObjectViewFrame_00493508[SPACE_OBJECT_COUNT];
+short g_asObjectScreenX_00493598[SPACE_OBJECT_COUNT];
+short g_asObjectScreenY_00493628[SPACE_OBJECT_COUNT];
+short g_asObjectScreenAngle_004936b8[SPACE_OBJECT_COUNT];
+short g_asObjectDrawX_00493748[SPACE_OBJECT_COUNT];
+short g_asObjectDrawY_004937d8[SPACE_OBJECT_COUNT];
+unsigned char *g_apObjectShape_00493868[SPACE_OBJECT_COUNT];
+signed char g_acObjectType_00493980[SPACE_OBJECT_COUNT];
+short g_asObjectFlip_004939c8[SPACE_OBJECT_COUNT];
+short g_asObjectScreenScale_00493a58[SPACE_OBJECT_COUNT];
+short g_asObjectDistance_00493ae8[SPACE_OBJECT_COUNT];
+FixedVector g_aShipRightVector_00493b78[SPACE_OBJECT_COUNT];
+FixedVector g_aShipUpVector_00493ec0[SPACE_OBJECT_COUNT];
+FixedVector g_aShipForwardVector_00494208[SPACE_OBJECT_COUNT];
+FixedVector g_aShipPosition_00494550[SPACE_OBJECT_COUNT];
+FixedVector g_aShipVelocity_00494898[SPACE_OBJECT_COUNT];
+short g_asObjectCounter_00494be0[SPACE_OBJECT_COUNT];
+short g_asObjectAnimationIndex_00494c70[SPACE_OBJECT_COUNT];
+signed char g_acObjectAnimationDelay_00494d00[SPACE_OBJECT_COUNT];
 signed char g_acObjectCollisionGraceTicks_00494d48[
-    WC2_SPACE_OBJECT_COUNT];
-unsigned short g_asObjectScale_00494d90[WC2_SPACE_OBJECT_COUNT];
-int g_anShipSpeed_00494e20[WC2_SPACE_OBJECT_COUNT];
-short g_anObjectPitchRotation_00494f38[WC2_SPACE_OBJECT_COUNT];
-short g_anObjectYawRotation_00494fc8[WC2_SPACE_OBJECT_COUNT];
-short g_anObjectRollRotation_00495058[WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
+unsigned short g_asObjectScale_00494d90[SPACE_OBJECT_COUNT];
+int g_anShipSpeed_00494e20[SPACE_OBJECT_COUNT];
+short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
+short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
+short g_anObjectRollRotation_00495058[SPACE_OBJECT_COUNT];
 short g_asObjectCollisionRadius_004950e8[70];
-short g_asObjectDamage_00495178[WC2_SPACE_OBJECT_COUNT];
-signed char g_acObjectOwner_00495208[WC2_SPACE_OBJECT_COUNT] = { -1 };
-signed char g_acLastCollisionObject_00495250[WC2_SPACE_OBJECT_COUNT] = { -1 };
-short g_asObjectType_00495298[WC2_SPACE_OBJECT_COUNT];
-short g_aeObjectClass_00495328[WC2_SPACE_OBJECT_COUNT];
+short g_asObjectDamage_00495178[SPACE_OBJECT_COUNT];
+signed char g_acObjectOwner_00495208[SPACE_OBJECT_COUNT] = { -1 };
+signed char g_acLastCollisionObject_00495250[SPACE_OBJECT_COUNT] = { -1 };
+short g_asObjectType_00495298[SPACE_OBJECT_COUNT];
+short g_aeObjectClass_00495328[SPACE_OBJECT_COUNT];
 unsigned char *g_apObjectExhaustShape_004953b8[10];
 signed char g_acShipNavPoint_004953e0[12] = { -1 };
 FixedVector g_aShipDestination_004953f0[10];
@@ -611,8 +465,8 @@ short g_asShipAfterburnerTimer_004955a8[10];
 signed char g_acShipLastAttacker_004955c0[16] = { -1 };
 short g_asShipSide_004955d0[12] = { 2 };
 short g_asActionCount_004955e8[12];
-#ifdef WC1_SDL
-short g_aeSpecialManeuver_00495600[WC2_SPACE_OBJECT_COUNT];
+#ifdef SDL_PORT
+short g_aeSpecialManeuver_00495600[SPACE_OBJECT_COUNT];
 #else
 short g_aeSpecialManeuver_00495600[12];
 #endif
@@ -659,7 +513,7 @@ short g_asShipCloakElapsedFrames_00496060[10];
 short g_asShipIdentified_00496078[12] = { 1 };
 short g_asShipFriendlyFireCooldown_00496090[10];
 signed char g_abProjectileCollisionBonus_004960a8[
-    WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
 short DAT_004960f0[8];
 signed char g_acShipStress_00496100[16];
 signed char g_abPilotEjectionAttempted_00496110[16];
@@ -878,7 +732,7 @@ static const short g_asShipDebrisFlashAnimation_00496d00[24] = {
  * loads at runtime and stay zero in the image, and 7-48 are the static
  * projectile, missile, asteroid, debris and explosion records read straight
  * out of the retail .data. */
-ObjectTypeData g_aObjectTypeData_00496d30[WC2_OBJECT_TYPE_COUNT] = {
+ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT] = {
     { 0 },
     { 0 },
     { 0 },
@@ -1103,7 +957,7 @@ CutsceneScene *g_pCurrentCutsceneScene_00499c84;
 short g_nCutsceneFrameTick_00499c88;
 unsigned short g_nCutsceneFrameDelay_00499c8c;
 unsigned int g_nNextCutsceneFrameClock_00499c90;
-Wc2CampaignGlobals *g_pCampaignGlobals_00499c94;
+CampaignGlobals *g_pCampaignGlobals_00499c94;
 unsigned char g_abCutscenePaletteTranslation_00499c98[256] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
     7, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 6, 6, 6, 6, 6,
@@ -1188,7 +1042,7 @@ void *g_pPersonnelCampaignSnapshot_0049a6a4;
 unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
 short g_sPersonnelPreviousInput_0049a6bc = -128;
 short g_bPersonnelMenuDrawing_0049a6c0 = 1;
-const char *g_apszWc1SaveGameFileNames_0049a6c8[3] = {
+const char *g_apszSaveGameFileNames_0049a6c8[3] = {
     "savegame.wld", "savegame.wld", "crusade.wld"
 };
 signed char g_bPersonnelPrimaryInputDown_0049a6d4;
@@ -1203,20 +1057,14 @@ const char g_szShortCaptainRank_0049a714[8] = "CAPT.";
 const char g_szShortMajorRank_0049a71c[8] = "MAJOR";
 const char g_szShortLieutenantColonelRank_0049a724[8] = "LT COL";
 const char g_szDefaultPilotName_0049ab4c[8] = "Blair";
-const char g_szPilotNameLabel_00469ec8_WC1_UNMAPPED /* no-address */[12] = "LAST NAME: ";
 const char g_szDefaultCallsign_0049ab54[12] = "Maverick";
-const char g_szCallsignLabel_00469ee0_WC1_UNMAPPED /* no-address */[12] = "CALLSIGN : ";
-const char g_szCheaterCallsign_00469eec_WC1_UNMAPPED /* no-address */[8] = "CHEATER";
-const char g_szHighScoresHeading_00469f70_WC1_UNMAPPED /* no-address */[16] = "%JHIGH SCORES%P";
-const char g_szHighScoreNumberFormat_00469f80_WC1_UNMAPPED /* no-address */[8] = "%0ld";
-const char g_szHighScoreRowFormat_00469f88_WC1_UNMAPPED /* no-address */[16] =
-    "%X%Y%d. %s%X%s0";
 int g_bPauseInputActive_0049ac9c;
 const char g_szAllocateBufferTag_0049ae20[4] = "AB";
 short g_bTargetLockActive_0049ae80;
 short g_nCommDeathSequenceFrame_0049ae84;
 short g_nCommMessageIndex_0049ae88 = -1;
 short g_nWeaponDisplayOffsetX_0049ae8c;
+short g_nWeaponDisplayOffsetY_0049ae8e = 0x10;
 ShortPoint g_aCockpitDamagePositions_0049ae98[4];
 short g_asCockpitLightX_0049aea8[7];
 short g_asCockpitLightY_0049aeb8[7];
@@ -1426,7 +1274,6 @@ unsigned short g_wSpeechCacheSegment_0049bb64;
 unsigned short g_wSpeechCacheEndSegment_0049bb68;
 unsigned char *g_pNavLocationText_0049bc54;
 const char g_szBriefingMapTextFormat_0049bd30[12] = "%X%Y%F%s";
-const char g_szCloseLookTextFormat_0046566c_WC1_UNMAPPED /* no-address */[12] = "%X%Y%F%s%P";
 int g_bKeyboardMouseEnabled_0049be68;
 short g_nMusicTrackComplete_0049be88 = 1;
 short g_nMusicDriverMode_0049be8c = 1;
@@ -1684,7 +1531,7 @@ const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
     { 320, 200, 0, 0, 0, 0, -1536, -1 }
 };
 const signed char g_acDirectionShapeFrame_0049d558[
-    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT] = {
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
     14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
     15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16,
@@ -1703,7 +1550,7 @@ const signed char g_acDirectionShapeFrame_0049d558[
     13, 14, 15, 13, 15, 14, 13, 14, 15, 13, 15, 14, 16
 };
 const signed char g_acDirectionShapeFlip_0049d618[
-    WC1_DIRECTION_VIEW_COUNT * WC1_DIRECTION_SHAPE_TABLE_COUNT] = {
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -1732,19 +1579,6 @@ int g_anVolumeLevels_0049d720[11] = {
 int g_nSfxVolumeSetting_0049d74c = 0x14;
 int g_nMusicVolumeSetting_0049d750 = 0x14;
 int g_nTrainSimActive_0049d758;
-unsigned char g_aszBuiltInHighScores_00469e38_WC1_UNMAPPED /* no-address */[48] =
-    "BISHOP\0\0"
-    "GOBLIN\0\0"
-    "JEFFTEP\0"
-    "MANGLER\0"
-    "THE MAN\0"
-    "MONGO\0\0\0";
-const char g_szTextFlushToken_00469e6c_WC1_UNMAPPED /* no-address */[4] = "%P";
-const char g_szNewPilotPrompt_00469e70_WC1_UNMAPPED /* no-address */[80] =
-    "CONGRATULATIONS!\n"
-    "YOU HAVE A TOP SCORE!\n"
-    "PLEASE ENTER YOUR\n"
-    "NAME AND CALLSIGN:\n";
 int g_nArcadeState_0049d75c;
 short g_nFrameSkipCountdown_0049d760 = 1;
 short g_nFrameSkip_0049d764 = 0;
@@ -1844,7 +1678,7 @@ MouseCursorState g_stMouseCursorState_0059ab10;
 void (*DAT_0059ab2c)(void);
 short DAT_0059ab34;
 short DAT_0059ab64;
-FixedVector g_aObjectViewPosition_0059afa0[WC2_SPACE_OBJECT_COUNT];
+FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
 CampaignState g_stCampaignState_0059ca50;
 Viewport g_stConstellationViewport_005a6b40;
 Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
@@ -1895,12 +1729,11 @@ short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
 int g_nStreamerAudioPlaying_005b2810;
 char g_szStreamerPath_005b2818[128];
-char g_szWingCommanderOneGameDataPath_005b2898[0x400];
+char g_szLegacyGameDataPath_005b2898[0x400];
 int g_bMonoDebugInstalled_005b30e8;
 HANDLE g_hMonoDebugDevice_005b30ec;
 short DAT_005b30f0;
 unsigned char g_bCurrentManeuverReroll_005b30f4;
-NavMapLabel g_aNavMapLabels_00475e80_WC1_UNMAPPED /* no-address */[20];
 int g_nWipeRadialStep_005b30f8;
 int g_nWipeRadialThreshold_005b30fc;
 int g_nWipeRadialAccumulator_005b3100;
@@ -1932,13 +1765,13 @@ int g_nWipeVerticalThreshold_005b34bc;
 int g_nWipeVerticalAccumulator_005b34c0;
 short g_nWipeMaximumStep_005b34c4;
 Viewport g_stWipeWorkingSourceViewport_005b34c8;
+NavMapLabel g_aNavMapLabels_005b34e0[20];
 ShortRect g_aNavMapExclusionRects_005b35a8[20];
 /* The button mask KeyboardMousePump last posted. */
 int g_nKeyboardMouseButtons_005b3648;
 char g_szSfxWavePath_005b3650[0x40];
 int g_nInsertKeyState_005b3690;
 int g_nClearedKeyboardState_005b3694;
-char g_szStreamsPath_00475c18_WC1_UNMAPPED /* no-address */[0x100];
 int g_nOemPeriodKeyState_005b3718;
 int g_nHomeKeyState_005b371c;
 int g_nPageDownKeyState_005b3720;
@@ -1949,6 +1782,7 @@ int g_nClearKeyState_005b3730;
 int g_nDeleteKeyState_005b3734;
 int g_nUpArrowKeyState_005b3738;
 int g_nDownArrowKeyState_005b373c;
+char g_szStreamsPath_005b3740[0x100];
 int g_nPageUpKeyState_005b3840;
 int g_nLeftArrowKeyState_005b3844;
 char g_szReadDataFileError_005b3848[0x40];
@@ -1991,12 +1825,12 @@ unsigned char g_bInputCursorEnabled_005c80e6;
 unsigned char g_abInputKeyState_005c80f0[0x80];
 int g_nCapturedInputCursorY_005c8178;
 int g_nCapturedInputCursorX_005c817c;
-int g_anObjectDepthPlaced_005c8180[WC2_SPACE_OBJECT_COUNT];
+int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
 signed char g_cScreenViewportMode_005c82a6;
 signed char g_bCinematicSpriteFontEnabled_005c82a7;
 const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_005c82b0;
-int g_anSortedObject_005c82c0[WC2_SPACE_OBJECT_COUNT];
+int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
 unsigned char *g_pActiveCutscenePixels_005c83dc;
 unsigned char g_nInputDeviceMode_005c83e6;
 short g_nQueuedInputX_005c83f0;
@@ -2110,7 +1944,7 @@ int g_bMainWindowRunning_005d12ac;
 HINSTANCE DAT_005d12b0;
 unsigned int g_dwGameStartTime_005d12b4;
 unsigned long g_dwGameClockStart_005d12b8;
-int g_aiSoundEffectSourceActive_005d12c0[WC2_SPACE_OBJECT_COUNT];
+int g_aiSoundEffectSourceActive_005d12c0[SPACE_OBJECT_COUNT];
 MusicResource g_aMusicResources_005d13e0[66];
 unsigned int g_dwRestoredSceneMusicState_005d14e8;
 int g_nPassingShipSoundCooldown_005d156c;
@@ -2208,15 +2042,14 @@ void *g_pStartupStarPacket_005d212c;
 char g_szLegacySavePath_005d2130[0x30];
 Viewport g_stCockpitViewport_005d2160;
 Viewport g_stLeftVduViewport_005d2180;
-short g_nWeaponDisplayOffsetY_0049ae8e_WC1_UNMAPPED /* no-address */ = 0x10;
 Viewport g_stScreenViewport_005d21a0;
 TextContext g_stSpaceTextContext_005d21c0;
 Viewport g_stCockpitBarViewport_005d21e0;
 unsigned char *g_pCockpitHudShape_005d21f4;
 unsigned char *g_apTextFonts_005d2200[4];
-FixedVector g_aDirectionViewRightVector_005d2210[WC1_DIRECTION_VIEW_COUNT];
-FixedVector g_aDirectionViewUpVector_005d2500[WC1_DIRECTION_VIEW_COUNT];
-FixedVector g_aDirectionViewForwardVector_005d27f0[WC1_DIRECTION_VIEW_COUNT];
+FixedVector g_aDirectionViewRightVector_005d2210[DIRECTION_VIEW_COUNT];
+FixedVector g_aDirectionViewUpVector_005d2500[DIRECTION_VIEW_COUNT];
+FixedVector g_aDirectionViewForwardVector_005d27f0[DIRECTION_VIEW_COUNT];
 short g_bHighMemoryBuffersReady_005d2ad8;
 TextContext g_stLeftVduTextContext_005d2ae0;
 Viewport g_stViewBuffer_005d2b00;
@@ -2320,10 +2153,10 @@ short g_nAdaptiveDifficulty_005d3844;
 short g_asShipExplosionStageTimer_005d3850[10];
 int g_bAfterburnerSfxActive_005d3864;
 signed char g_abExplosionObjectVisited_005d3870[
-    WC2_SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT];
 short g_asPlayerDamageCredit_005d38c0[10];
 short g_asMissileProximityFuse_005d38e0[16];
-short g_asObjectCreationFrame_005d3900[WC2_SPACE_OBJECT_COUNT];
+short g_asObjectCreationFrame_005d3900[SPACE_OBJECT_COUNT];
 Viewport *g_pDibScreenViewport_005d398c;
 Viewport *g_pFullScreenViewport_005d3990;
 unsigned short g_awDibScreenRowOffsets_005d39a0[202];
@@ -2346,7 +2179,7 @@ short g_nCannedSceneWriteIndex_005d3fa8;
 short g_nCannedSceneRecordedFrameCount_005d3faa;
 int g_nCannedSceneFileOffset_005d3fac;
 void *g_pCannedSceneStateBlock_005d3fb0;
-Wc2DwordPtr g_dwHighMemoryParagraph_005d3fb4;
+DwordPtr g_dwHighMemoryParagraph_005d3fb4;
 short g_asCannedSceneFrameOffsets_005d3fc0[70];
 short g_nCannedSceneFrameCount_005d404c;
 short g_awPaletteEntryAllocation_005d4050[256];

@@ -1,16 +1,16 @@
-#include "wc1sdl.h"
+#include "sdl_port.h"
 
 static SDL_AudioDeviceID g_wAudioDevice;
-static Wc1SdlAudioMixer g_pAudioMixer;
+static SdlAudioMixer g_pAudioMixer;
 static CRITICAL_SECTION *g_pAudioCriticalSection;
 static unsigned int *g_pAudioTick;
 
-static void Wc1SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
+static void SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
 {
     (void)userData;
     EnterCriticalSection(g_pAudioCriticalSection);
     g_pAudioMixer(stream, (unsigned int)bytes);
-    Wc1SdlMixOriginFxAudio(
+    SdlMixOriginFxAudio(
         (short *)stream,
         (unsigned int)bytes / (sizeof(short) * 2U));
     if (g_pAudioTick != 0)
@@ -18,7 +18,7 @@ static void Wc1SdlAudioCallback(void *userData, Uint8 *stream, int bytes)
     LeaveCriticalSection(g_pAudioCriticalSection);
 }
 
-int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
+int SdlStartAudio(SdlAudioMixer mixer,
                      CRITICAL_SECTION *criticalSection,
                      unsigned int *tick)
 {
@@ -35,7 +35,7 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
     desired.format = AUDIO_S16SYS;
     desired.channels = 2;
     desired.samples = 1470;
-    desired.callback = Wc1SdlAudioCallback;
+    desired.callback = SdlAudioCallback;
     g_pAudioMixer = mixer;
     g_pAudioCriticalSection = criticalSection;
     g_pAudioTick = tick;
@@ -51,7 +51,7 @@ int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
     return TRUE;
 }
 
-void Wc1SdlStopAudio(void)
+void SdlStopAudio(void)
 {
     if (g_wAudioDevice != 0) {
         SDL_CloseAudioDevice(g_wAudioDevice);

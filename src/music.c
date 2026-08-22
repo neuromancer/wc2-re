@@ -5,7 +5,7 @@
  *  Boundary evidence: the names the routines print -- startMusic,
  *  startIntMusic, queue_next_music, queue_stop, flushFX.
  */
-#include "wc1.h"
+#include "game.h"
 
 /* Function start: 0x44F332 */
 void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
@@ -60,7 +60,7 @@ short InitializeSpeechCache(short unitCount, short sizeCode)
                              0x44);
     if (g_pSpeechCacheCode_005d1720 == 0)
         return 1;
-    codeBase = IdentityDword((Wc2DwordPtr)g_pSpeechCacheCode_005d1720);
+    codeBase = IdentityDword((DwordPtr)g_pSpeechCacheCode_005d1720);
     codeEnd = (unsigned int)g_pSpeechCacheCode_005d1720 +
         (unsigned int)g_wSpeechCacheCodeBytes_0048e0e0;
     if (codeEnd < codeBase)
@@ -406,16 +406,6 @@ void CloseDataFileByHandle(unsigned short *handle)
     CloseDataFile(*handle);
 }
 
-/* Function start: WC2_UNMAPPED */
-short GetTargetColourIndex(void)
-{
-    short v = (short)g_nSpacePaletteFadeMode_004901e8;
-
-    if ((short)g_nSpacePaletteFadeMode_004901e8 == -1)
-        v = 0x13;
-    return v;
-}
-
 /* Function start: 0x43FAC0 */
 void show_target_disp(void)
 {
@@ -529,12 +519,12 @@ void show_target_disp(void)
  * nothing targeted it reads the two bytes in front of the array.  What lives
  * there is not the blowing-up marker, so the port answers "no manoeuvre" for
  * an unset target rather than reproduce the overrun. */
-#ifdef WC1_SDL
-#define WC1_SPECIAL_MANEUVER_OF(obj) \
+#ifdef SDL_PORT
+#define SPECIAL_MANEUVER_OF(obj) \
     ((obj) != -1 ? g_aeSpecialManeuver_00495600[obj] \
                  : SPECIAL_MANEUVER_NONE)
 #else
-#define WC1_SPECIAL_MANEUVER_OF(obj) g_aeSpecialManeuver_00495600[obj]
+#define SPECIAL_MANEUVER_OF(obj) g_aeSpecialManeuver_00495600[obj]
 #endif
 
 /* Function start: 0x43FF40 */
@@ -545,7 +535,7 @@ void DrawTargetRangeReadout(void)
     target = g_acShipTarget_00495f20[0];
     if (g_bDisplayWingmanTargetData_0049347c != 0)
         target = g_nYourWingman_0049346c;
-    if (WC1_SPECIAL_MANEUVER_OF(target) == SPECIAL_MANEUVER_UNKNOWN_9) {
+    if (SPECIAL_MANEUVER_OF(target) == SPECIAL_MANEUVER_UNKNOWN_9) {
         g_acShipTarget_00495f20[0] = -1;
         g_bDisplayWingmanTargetData_0049347c = 0;
         InvalidateVduMode(1);
@@ -872,8 +862,8 @@ void StopMusic(int enabled)
 short StartMusic(void *music)
 {
     SoundDebugPrintf("startMusic %p", music);
-#ifdef WC1_SDL
-    Wc2SdlStartOriginalTitleMusic();
+#ifdef SDL_PORT
+    SdlStartOriginalTitleMusic();
 #endif
     return 0;
 }
@@ -944,11 +934,11 @@ unsigned short ProcessMusicScriptCommand(int track, int command, int enabled)
         return;
     }
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* A DOS install has no streams to queue.  Its music is the MUSIC.A00
      * section that carries this very track number. */
-    if (Wc1SdlUsingOriginFxMusic()) {
-        Wc1SdlSetOriginFxMusicTrack(track);
+    if (SdlUsingOriginFxMusic()) {
+        SdlSetOriginFxMusicTrack(track);
         return 1;
     }
 #endif
@@ -1165,7 +1155,7 @@ void servicetrack(void)
         return;
     gametrack();
     if (g_bFlightSoundEffectsEnabled_0049beb0 != 0) {
-        for (object = 0; object < WC2_SPACE_OBJECT_COUNT;
+        for (object = 0; object < SPACE_OBJECT_COUNT;
              object++) {
             if (g_nPassingShipSoundObject_0049bf10 == object &&
                 g_aeObjectClass_00495328[object] < OBJECT_CLASS_SHIP)
@@ -1184,10 +1174,10 @@ void servicetrack(void)
                     AddFixedVectors(&g_aShipPosition_00494550[object], &travel,
                                     &futurePosition);
                     ComputeVectorDelta(
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT],
                         &futurePosition, &travel);
                     ComputeVectorDelta(
-                        &g_aShipPosition_00494550[WC2_EYE_OBJECT],
+                        &g_aShipPosition_00494550[EYE_OBJECT],
                         &g_aShipPosition_00494550[object], &futurePosition);
                     if (dot_product(&travel, &futurePosition) < 0xdd) {
                         if (object == 0 && g_bJumpSequenceActive_004962f0 != 0)
@@ -1283,16 +1273,16 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     int magnitude;
     int distance;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
     /* A DOS install ships no sfx waves; the effect is synthesized from the
      * OriginFX record this number selects. */
-    if (Wc1SdlUsingOriginFxSoundEffects()) {
-        Wc1SdlPlayGameSoundEffect(soundNumber, sourceObject, looping);
+    if (SdlUsingOriginFxSoundEffects()) {
+        SdlPlayGameSoundEffect(soundNumber, sourceObject, looping);
         return;
     }
 #endif
     if (sourceObject != -1) {
-        ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
+        ComputeVectorDelta(&g_aShipPosition_00494550[EYE_OBJECT],
                            &g_aShipPosition_00494550[sourceObject],
                            &delta);
         magnitude = Vector_magnitude(&delta);

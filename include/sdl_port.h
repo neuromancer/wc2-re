@@ -1,9 +1,9 @@
 /* SDL2 host declarations used only by the native port. */
-#ifndef WC1_SDL_H
-#define WC1_SDL_H
+#ifndef SDL_PORT_H
+#define SDL_PORT_H
 
-#ifndef WC1_SDL
-#error "wc1sdl.h is only for the WC1_SDL build"
+#ifndef SDL_PORT
+#error "sdl_port.h is only for the SDL_PORT build"
 #endif
 
 #include <SDL.h>
@@ -53,12 +53,12 @@ typedef const char *LPCSTR;
 typedef BYTE *LPBYTE;
 typedef void (*LPTIMECALLBACK)(UINT, UINT, DWORD, DWORD, DWORD);
 typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
-typedef void (*Wc1SdlAudioMixer)(void *, unsigned int);
+typedef void (*SdlAudioMixer)(void *, unsigned int);
 
 struct DiskFileRecord;
 struct ScreenViewportGeometry;
 struct Viewport;
-typedef struct Wc1SdlOriginFxPlayer Wc1SdlOriginFxPlayer;
+typedef struct SdlOriginFxPlayer SdlOriginFxPlayer;
 
 typedef struct GUID {
     uint32_t Data1;
@@ -88,9 +88,9 @@ typedef struct CRITICAL_SECTION {
 } CRITICAL_SECTION;
 
 /* DirectDraw objects become SDL-owned port objects in the native build. */
-typedef struct Wc1SdlDirectDraw2 *LPDIRECTDRAW2;
-typedef struct Wc1SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
-typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
+typedef struct SdlDirectDraw2 *LPDIRECTDRAW2;
+typedef struct SdlDirectDrawSurface *LPDIRECTDRAWSURFACE;
+typedef struct SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
 
 /* The port stands in for a slice of the Win32 API with SDL.  A native Windows
  * host already has kernel32, user32, gdi32, advapi32 and winmm exporting those
@@ -100,33 +100,33 @@ typedef struct Wc1SdlDirectDrawPalette *LPDIRECTDRAWPALETTE;
  * Give the port's versions their own names on every host and let the game's
  * Win32 spellings reach them through these macros; the shims below are
  * declared after the renaming, so they carry the prefixed names too. */
-#define CloseHandle Wc1SdlCloseHandle
-#define CreateEventA Wc1SdlCreateEventA
-#define CreateFileA Wc1SdlCreateFileA
-#define CreateThread Wc1SdlCreateThread
-#define DeviceIoControl Wc1SdlDeviceIoControl
-#define GetCurrentDirectoryA Wc1SdlGetCurrentDirectoryA
-#define GetCurrentThread Wc1SdlGetCurrentThread
-#define GetDriveTypeA Wc1SdlGetDriveTypeA
-#define GetVolumeInformationA Wc1SdlGetVolumeInformationA
-#define MessageBoxA Wc1SdlMessageBoxA
-#define QueryPerformanceCounter Wc1SdlQueryPerformanceCounter
-#define ResetEvent Wc1SdlResetEvent
-#define SetCurrentDirectoryA Wc1SdlSetCurrentDirectoryA
-#define SetEvent Wc1SdlSetEvent
-#define SetThreadPriority Wc1SdlSetThreadPriority
-#define TextOutA Wc1SdlTextOutA
-#define WaitForSingleObject Wc1SdlWaitForSingleObject
-#define timeKillEvent Wc1SdlTimeKillEvent
-#define timeSetEvent Wc1SdlTimeSetEvent
-#define DeleteCriticalSection Wc1SdlDeleteCriticalSection
-#define EnterCriticalSection Wc1SdlEnterCriticalSection
-#define InitializeCriticalSection Wc1SdlInitializeCriticalSection
-#define LeaveCriticalSection Wc1SdlLeaveCriticalSection
-#define RegCloseKey Wc1SdlRegCloseKey
-#define RegOpenKeyExA Wc1SdlRegOpenKeyExA
-#define RegQueryValueExA Wc1SdlRegQueryValueExA
-#define RegSetValueExA Wc1SdlRegSetValueExA
+#define CloseHandle SdlCloseHandle
+#define CreateEventA SdlCreateEventA
+#define CreateFileA SdlCreateFileA
+#define CreateThread SdlCreateThread
+#define DeviceIoControl SdlDeviceIoControl
+#define GetCurrentDirectoryA SdlGetCurrentDirectoryA
+#define GetCurrentThread SdlGetCurrentThread
+#define GetDriveTypeA SdlGetDriveTypeA
+#define GetVolumeInformationA SdlGetVolumeInformationA
+#define MessageBoxA SdlMessageBoxA
+#define QueryPerformanceCounter SdlQueryPerformanceCounter
+#define ResetEvent SdlResetEvent
+#define SetCurrentDirectoryA SdlSetCurrentDirectoryA
+#define SetEvent SdlSetEvent
+#define SetThreadPriority SdlSetThreadPriority
+#define TextOutA SdlTextOutA
+#define WaitForSingleObject SdlWaitForSingleObject
+#define timeKillEvent SdlTimeKillEvent
+#define timeSetEvent SdlTimeSetEvent
+#define DeleteCriticalSection SdlDeleteCriticalSection
+#define EnterCriticalSection SdlEnterCriticalSection
+#define InitializeCriticalSection SdlInitializeCriticalSection
+#define LeaveCriticalSection SdlLeaveCriticalSection
+#define RegCloseKey SdlRegCloseKey
+#define RegOpenKeyExA SdlRegOpenKeyExA
+#define RegQueryValueExA SdlRegQueryValueExA
+#define RegSetValueExA SdlRegSetValueExA
 
 #ifdef __cplusplus
 extern "C" {
@@ -176,132 +176,132 @@ DWORD RegQueryValueExA(HKEY key, const char *name, DWORD *reserved,
 DWORD RegSetValueExA(HKEY key, const char *name, DWORD reserved,
                      DWORD type, const BYTE *data, DWORD size);
 
-DWORD Wc1SdlGetTicks(void);
-int Wc1SdlGetAsyncKeyState(int virtualKey);
-int Wc1SdlStartAudio(Wc1SdlAudioMixer mixer,
+DWORD SdlGetTicks(void);
+int SdlGetAsyncKeyState(int virtualKey);
+int SdlStartAudio(SdlAudioMixer mixer,
                      CRITICAL_SECTION *criticalSection,
                      unsigned int *tick);
-void Wc1SdlStopAudio(void);
-void Wc1SdlOutputDebugString(const char *text);
-void Wc1SdlPumpEvents(void);
-extern int g_bWc2SdlCutsceneOnly;
-void Wc1SdlSetMouseGrab(int enabled);
-void Wc1SdlDrawViewportStatic(struct Viewport *viewport, int effect,
+void SdlStopAudio(void);
+void SdlOutputDebugString(const char *text);
+void SdlPumpEvents(void);
+extern int g_bSdlCutsceneOnly;
+void SdlSetMouseGrab(int enabled);
+void SdlDrawViewportStatic(struct Viewport *viewport, int effect,
                               unsigned short colour);
-void Wc1SdlSuspendMouseGrab(void);
-void Wc1SdlResumeMouseGrab(void);
-int Wc1SdlInitializeVideo(SDL_Window *window);
-int Wc1SdlPresentIndexedFrame(const unsigned char *pixels,
+void SdlSuspendMouseGrab(void);
+void SdlResumeMouseGrab(void);
+int SdlInitializeVideo(SDL_Window *window);
+int SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette);
-void Wc1SdlBeginSpaceFrame(
+void SdlBeginSpaceFrame(
     const struct ScreenViewportGeometry *geometry, int viewportMode,
     int fullViewportCopy, unsigned char clearColour);
-void Wc1SdlCompleteSpaceFrame(void);
-void Wc1SdlCancelSpaceFrame(void);
-void Wc1SdlSetThrusterScreenPosition(short object, float x, float y);
-void Wc1SdlGetThrusterScreenPosition(short object, float *x, float *y);
-int Wc1SdlRecordSpaceSprite(
+void SdlCompleteSpaceFrame(void);
+void SdlCancelSpaceFrame(void);
+void SdlSetThrusterScreenPosition(short object, float x, float y);
+void SdlGetThrusterScreenPosition(short object, float *x, float *y);
+int SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
     unsigned char *shape, short frame, short angle, short scale,
     short flip);
-int Wc1SdlSetCursorPosition(int x, int y);
-BOOL Wc1SdlReadJoystick(unsigned int device, JOYINFO *information);
-BOOL Wc1SdlReadJoystickAxisRange(unsigned int device,
+int SdlSetCursorPosition(int x, int y);
+BOOL SdlReadJoystick(unsigned int device, JOYINFO *information);
+BOOL SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *xMinimum,
                                  unsigned int *xMaximum,
                                  unsigned int *yMinimum,
                                  unsigned int *yMaximum);
-int Wc1SdlSetJoystickMode(const char *name);
-int Wc1SdlSetJoystickAxesMode(const char *name);
-void Wc1SdlEnableJoystickDebug(void);
-void Wc1SdlEnableJoystickRumble(void);
-void Wc1SdlLogJoystickEvent(const SDL_Event *event);
-int Wc1SdlGetCommunicationMenuSelection(void);
-void Wc1SdlQueueJoystickWeaponRumble(int weaponType);
-void Wc1SdlQueueJoystickDamageRumble(int damage);
-void Wc1SdlQueueJoystickCollisionRumble(int collisionSpeed);
-void Wc1SdlApplyJoystickFlightControls(void);
-void Wc1SdlEndJoystickSpaceflight(void);
-void Wc1SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
+int SdlSetJoystickMode(const char *name);
+int SdlSetJoystickAxesMode(const char *name);
+void SdlEnableJoystickDebug(void);
+void SdlEnableJoystickRumble(void);
+void SdlLogJoystickEvent(const SDL_Event *event);
+int SdlGetCommunicationMenuSelection(void);
+void SdlQueueJoystickWeaponRumble(int weaponType);
+void SdlQueueJoystickDamageRumble(int damage);
+void SdlQueueJoystickCollisionRumble(int collisionSpeed);
+void SdlApplyJoystickFlightControls(void);
+void SdlEndJoystickSpaceflight(void);
+void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
                                       int button, int pressed,
                                       int controllerEvent);
-void Wc1SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
+void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
                                   Uint8 hat, Uint8 value);
-void Wc1SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which);
-void Wc1SdlSleep(DWORD milliseconds);
-void Wc1SdlStartEventPump(void);
-void Wc1SdlShutdownJoysticks(void);
-void Wc1SdlShutdownVideo(void);
-int Wc1SdlTranslateScanCode(SDL_Scancode scanCode);
-void Wc1SdlWaitForVerticalBlank(void);
-int Wc1SdlUsingDosData(void);
-int Wc1SdlDecompressOriginLzw(const unsigned char *source,
+void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which);
+void SdlSleep(DWORD milliseconds);
+void SdlStartEventPump(void);
+void SdlShutdownJoysticks(void);
+void SdlShutdownVideo(void);
+int SdlTranslateScanCode(SDL_Scancode scanCode);
+void SdlWaitForVerticalBlank(void);
+int SdlUsingDosData(void);
+int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,
                               size_t destinationSize,
                               size_t *writtenSize);
-int Wc1SdlExtractOriginPacketSection(const unsigned char *archive,
+int SdlExtractOriginPacketSection(const unsigned char *archive,
                                      size_t archiveSize,
                                      unsigned int sectionIndex,
                                      unsigned char **section,
                                      size_t *sectionSize);
-Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxPlayer(
+SdlOriginFxPlayer *SdlCreateOriginFxPlayer(
     const unsigned char *midi, size_t midiSize,
     const unsigned char *timbres, size_t timbreSize);
-Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
+SdlOriginFxPlayer *SdlCreateOriginFxSoundPlayer(
     const unsigned char *records, unsigned int recordCount,
     const unsigned char *timbres, size_t timbreSize);
-void Wc1SdlDestroyOriginFxPlayer(Wc1SdlOriginFxPlayer *player);
-int Wc1SdlOriginFxPlayerFinished(const Wc1SdlOriginFxPlayer *player);
-unsigned int Wc1SdlOriginFxPlayerSequencePosition(
-    const Wc1SdlOriginFxPlayer *player);
-int Wc1SdlPlayOriginFxSoundEffect(
-    Wc1SdlOriginFxPlayer *player, unsigned int soundNumber,
+void SdlDestroyOriginFxPlayer(SdlOriginFxPlayer *player);
+int SdlOriginFxPlayerFinished(const SdlOriginFxPlayer *player);
+unsigned int SdlOriginFxPlayerSequencePosition(
+    const SdlOriginFxPlayer *player);
+int SdlPlayOriginFxSoundEffect(
+    SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
-void Wc1SdlStopOriginFxSoundEffects(Wc1SdlOriginFxPlayer *player);
-void Wc1SdlMixOriginFxSoundEffects(
-    Wc1SdlOriginFxPlayer *player, short *samples,
+void SdlStopOriginFxSoundEffects(SdlOriginFxPlayer *player);
+void SdlMixOriginFxSoundEffects(
+    SdlOriginFxPlayer *player, short *samples,
     unsigned int frameCount, unsigned int gain);
-void Wc1SdlRenderOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
+void SdlRenderOriginFxPlayer(SdlOriginFxPlayer *player,
                                 short *samples,
                                 unsigned int frameCount,
                                 unsigned int gain);
-void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
+void SdlMixOriginFxPlayer(SdlOriginFxPlayer *player,
                              short *samples,
                              unsigned int frameCount,
                              unsigned int gain);
-int Wc1SdlInitializeOriginFxAudio(int usingDosData);
-int Wc1SdlUsingOriginFxMusic(void);
-int Wc1SdlUsingOriginFxSoundEffects(void);
-int Wc2SdlHandlesGameSoundEffects(void);
-void Wc1SdlSetOriginFxMusicTrack(int track);
-void Wc1SdlMixOriginFxAudio(short *samples, unsigned int frameCount);
-int Wc2SdlOriginalTitleMusicReady(void);
-int Wc2SdlStartOriginalTitleMusic(void);
-int Wc2SdlOriginalTitleSequenceAvailable(void);
-void Wc2SdlRunSelectedCampaignCutscene(void);
-void Wc2SdlFinishCutsceneOnly(void);
-int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
+int SdlInitializeOriginFxAudio(int usingDosData);
+int SdlUsingOriginFxMusic(void);
+int SdlUsingOriginFxSoundEffects(void);
+int SdlHandlesGameSoundEffects(void);
+void SdlSetOriginFxMusicTrack(int track);
+void SdlMixOriginFxAudio(short *samples, unsigned int frameCount);
+int SdlOriginalTitleMusicReady(void);
+int SdlStartOriginalTitleMusic(void);
+int SdlOriginalTitleSequenceAvailable(void);
+void SdlRunSelectedCampaignCutscene(void);
+void SdlFinishCutsceneOnly(void);
+int SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                               int looping);
-void Wc2SdlPlayWaveWithPan(const char *filename, int looping,
+void SdlPlayWaveWithPan(const char *filename, int looping,
                            int volume, int pan);
-void Wc1SdlServiceOriginFxMusic(void);
-void Wc1SdlStopDosSoundEffects(void);
-void Wc1SdlShutdownOriginFxAudio(void);
-void Wc1SdlCompleteDosInstallTable(struct DiskFileRecord *records);
+void SdlServiceOriginFxMusic(void);
+void SdlStopDosSoundEffects(void);
+void SdlShutdownOriginFxAudio(void);
+void SdlCompleteDosInstallTable(struct DiskFileRecord *records);
 
-#define GetTickCount Wc1SdlGetTicks
-#define GetAsyncKeyState Wc1SdlGetAsyncKeyState
-#define OutputDebugString Wc1SdlOutputDebugString
-#define OutputDebugStringA Wc1SdlOutputDebugString
-#define SetCursorPos Wc1SdlSetCursorPosition
-#define Sleep Wc1SdlSleep
-#define timeGetTime Wc1SdlGetTicks
+#define GetTickCount SdlGetTicks
+#define GetAsyncKeyState SdlGetAsyncKeyState
+#define OutputDebugString SdlOutputDebugString
+#define OutputDebugStringA SdlOutputDebugString
+#define SetCursorPos SdlSetCursorPosition
+#define Sleep SdlSleep
+#define timeGetTime SdlGetTicks
 
-int Wc1SdlChangeDirectory(const char *path);
-const char *Wc1SdlDescribeWorkingDirectory(void);
-int Wc1SdlUnlink(const char *path);
-int Wc1SdlResolvePath(const char *path, char *resolved,
+int SdlChangeDirectory(const char *path);
+const char *SdlDescribeWorkingDirectory(void);
+int SdlUnlink(const char *path);
+int SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize);
 
 #define VK_CLEAR 0x0c
@@ -328,12 +328,12 @@ int Wc1SdlResolvePath(const char *path, char *resolved,
 #define VK_SUBTRACT 0x6d
 
 #ifndef _WIN32
-int Wc1SdlOpen(const char *path, int flags, ...);
-long Wc1SdlFileLength(int file);
-char *Wc1SdlItoa(int value, char *text, int radix);
-char *Wc1SdlLtoa(long value, char *text, int radix);
-char *Wc1SdlUltoa(unsigned long value, char *text, int radix);
-char *Wc1SdlStrupr(char *text);
+int SdlOpen(const char *path, int flags, ...);
+long SdlFileLength(int file);
+char *SdlItoa(int value, char *text, int radix);
+char *SdlLtoa(long value, char *text, int radix);
+char *SdlUltoa(unsigned long value, char *text, int radix);
+char *SdlStrupr(char *text);
 
 /* MSVC's directory walk.  WC2 uses it to enumerate saved games and pilot
  * files; the shim wraps opendir/readdir and fills in the fields the game
@@ -347,9 +347,9 @@ struct _finddata_t {
     char name[260];
 };
 
-long Wc1SdlFindFirst(const char *pattern, struct _finddata_t *found);
-int Wc1SdlFindNext(long handle, struct _finddata_t *found);
-int Wc1SdlFindClose(long handle);
+long SdlFindFirst(const char *pattern, struct _finddata_t *found);
+int SdlFindNext(long handle, struct _finddata_t *found);
+int SdlFindClose(long handle);
 
 #endif
 
@@ -360,31 +360,31 @@ int Wc1SdlFindClose(long handle);
 /* The object-type records on disk are laid out the way the original's
  * ObjectTypeData is: 0xF3 bytes with four-byte pointer slots.  Anywhere a
  * pointer is wider than that, a packet cannot be read straight into one --
- * see Wc2SdlLoadObjectTypeRecord. */
+ * see SdlLoadObjectTypeRecord. */
 struct ObjectTypeData;
-void Wc2SdlLoadObjectTypeRecord(char *fileName, short section,
+void SdlLoadObjectTypeRecord(char *fileName, short section,
                                 struct ObjectTypeData *record);
 
 /* Console input.  There is no console under SDL on any host: MinGW does have
  * _getch, but it would block a windowed game on console input that never
  * arrives, and it has no flushall at all.  The acknowledgement key wait goes
  * to the event pump instead. */
-int Wc1SdlGetChar(void);
-int Wc1SdlFlushAll(void);
+int SdlGetChar(void);
+int SdlFlushAll(void);
 
-/* WC2_INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
+/*  INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
  * input and firing through the port without disturbing the reference build. */
-int Wc1SdlTraceEnabled(void);
-void Wc1SdlTracef(const char *format, ...);
+int SdlTraceEnabled(void);
+void SdlTracef(const char *format, ...);
 
 /* MSVC's far/near pointer size modifiers ("%Fs", "%Fp") are a no-op in a flat
  * model, but a modern compiler reads the F as a conversion of its own and
  * consumes an argument for it, which shifts every value after it.  These
  * wrappers rewrite the format and hand the rest to the C library unchanged. */
-int Wc1SdlPrintf(const char *format, ...);
-int Wc1SdlFprintf(FILE *stream, const char *format, ...);
-int Wc1SdlSnprintf(char *buffer, size_t size, const char *format, ...);
-int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
+int SdlPrintf(const char *format, ...);
+int SdlFprintf(FILE *stream, const char *format, ...);
+int SdlSnprintf(char *buffer, size_t size, const char *format, ...);
+int SdlVsnprintf(char *buffer, size_t size, const char *format,
                     va_list arguments);
 
 #ifdef __cplusplus
@@ -392,27 +392,27 @@ int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
 #endif
 
 #ifndef _WIN32
-#define _open Wc1SdlOpen
+#define _open SdlOpen
 #define _close close
 #define _read read
 #define _write write
 #define _lseek lseek
-#define _filelength Wc1SdlFileLength
-#define _unlink Wc1SdlUnlink
-#define _chdir Wc1SdlChangeDirectory
+#define _filelength SdlFileLength
+#define _unlink SdlUnlink
+#define _chdir SdlChangeDirectory
 #define _cprintf printf
-#define _itoa Wc1SdlItoa
-#define itoa Wc1SdlItoa
-#define _ltoa Wc1SdlLtoa
-#define _ultoa Wc1SdlUltoa
-#define _strupr Wc1SdlStrupr
-#define _findfirst Wc1SdlFindFirst
-#define _findnext Wc1SdlFindNext
-#define _findclose Wc1SdlFindClose
+#define _itoa SdlItoa
+#define itoa SdlItoa
+#define _ltoa SdlLtoa
+#define _ultoa SdlUltoa
+#define _strupr SdlStrupr
+#define _findfirst SdlFindFirst
+#define _findnext SdlFindNext
+#define _findclose SdlFindClose
 #endif
 
-#define _getch Wc1SdlGetChar
-#define flushall Wc1SdlFlushAll
+#define _getch SdlGetChar
+#define flushall SdlFlushAll
 
 #define CREATE_ALWAYS 2
 #define DRIVE_CDROM 5
@@ -464,4 +464,4 @@ int Wc1SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define TRUE 1
 #endif
 
-#endif /* WC1_SDL_H */
+#endif /* SDL_PORT_H */

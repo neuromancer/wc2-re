@@ -18,15 +18,15 @@
  *  original used a 16-bit type produces 32-bit operations and breaks the
  *  instruction comparison -- see AGENTS.md.
  */
-#ifndef WC1_H
-#define WC1_H
+#ifndef GAME_H
+#define GAME_H
 
-#ifdef WC1_SDL
-#include "wc1sdl.h"
+#ifdef SDL_PORT
+#include "sdl_port.h"
 #endif
 
-#ifndef WC1_ANALYSIS
-#ifndef WC1_SDL
+#ifndef ANALYSIS_BUILD
+#ifndef SDL_PORT
 #include <windows.h>
 #include <ddraw.h>
 #include <mmsystem.h>
@@ -50,10 +50,10 @@
  * is exactly a pointer on Win32; on LP64 it is half of one, so anything that
  * has to hold an address takes this alias instead and keeps the reference
  * build's `unsigned int` untouched. */
-#ifdef WC1_SDL
-typedef uintptr_t Wc2DwordPtr;
+#ifdef SDL_PORT
+typedef uintptr_t DwordPtr;
 #else
-typedef unsigned int Wc2DwordPtr;
+typedef unsigned int DwordPtr;
 #endif
 
 /* The in-flight replay snapshots 0x493130-0x4961A4 -- a contiguous 12404-byte
@@ -68,7 +68,7 @@ typedef unsigned int Wc2DwordPtr;
  * g_asViableTargetDistance_00496190, the last global before the sound lists
  * at 0x4961A8.  Spelled as its width rather than as the difference of the two
  * addresses because the reconstruction does not place them that far apart. */
-#define WC2_CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
+#define CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
 
 /* Loading an object-type record.  The record on disk has the original's
  * layout: 0xF3 bytes, with the animation, shapeSet and shape pointers taking
@@ -78,11 +78,11 @@ typedef unsigned int Wc2DwordPtr;
  * which is why a ship loaded with no guns -- so the port unpacks instead.  The
  * three pointer fields are junk in the packet and every caller overwrites them
  * immediately, so neither path preserves them. */
-#ifdef WC1_SDL
-#define WC2_LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
-    Wc2SdlLoadObjectTypeRecord((fileName), (section), (record))
+#ifdef SDL_PORT
+#define LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
+    SdlLoadObjectTypeRecord((fileName), (section), (record))
 #else
-#define WC2_LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
+#define LOAD_OBJECT_TYPE_RECORD(fileName, section, record) \
     LoadPacketIntoBuffer((fileName), (section), (record), 0)
 #endif
 
@@ -98,30 +98,30 @@ typedef unsigned int Wc2DwordPtr;
  * nothing else limiting their pace, and 3 measured twice too fast there.
  * 6 ticks (10 positions/sec) is the current best empirical value for the
  * unvoiced case; not derived from a DOS trace. */
-#define WC2_CUTSCENE_MOUTH_MIN_TICKS 6
+#define CUTSCENE_MOUTH_MIN_TICKS 6
 
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
  * where they are meant to, and the reconstruction reproduces that layout
  * exactly, so the sanitizers have to be told the crossing is the point. */
-#ifdef WC1_SDL
-#define WC2_CROSSES_GLOBALS \
+#ifdef SDL_PORT
+#define CROSSES_GLOBALS \
     __attribute__((no_sanitize("address", "array-bounds")))
 #else
-#define WC2_CROSSES_GLOBALS
+#define CROSSES_GLOBALS
 #endif
 
 /* Tables of host pointers -- scene and cutscene resources, packet reference
  * groups -- are sized four bytes an element throughout, because that is what a
  * pointer was.  On LP64 the same table has to be twice as wide or every entry
  * past the first runs off the end of the allocation. */
-#ifdef WC1_SDL
-#define WC2_HOST_POINTER_SIZE ((short)sizeof(void *))
+#ifdef SDL_PORT
+#define HOST_POINTER_SIZE ((short)sizeof(void *))
 #else
-#define WC2_HOST_POINTER_SIZE 4
+#define HOST_POINTER_SIZE 4
 #endif
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* Two things the reconstruction inherits from MSVC have to be corrected on the
  * way to a modern C library, and both of them corrupt a diagnostic exactly
  * when something has already gone wrong.
@@ -136,18 +136,18 @@ typedef unsigned int Wc2DwordPtr;
  * ("%Fs", "%Fp").  Those are a no-op in a flat model, but clang reads the F as
  * a conversion and consumes an argument for it, shifting every value after it.
  * The shims strip the modifier and hand the rest to the C library. */
-#define printf   Wc1SdlPrintf
-#define fprintf  Wc1SdlFprintf
+#define printf   SdlPrintf
+#define fprintf  SdlFprintf
 #define sprintf(buffer, ...) \
-    Wc1SdlSnprintf((buffer), __builtin_object_size((buffer), 1), __VA_ARGS__)
+    SdlSnprintf((buffer), __builtin_object_size((buffer), 1), __VA_ARGS__)
 #define vsprintf(buffer, format, arguments) \
-    Wc1SdlVsnprintf((buffer), __builtin_object_size((buffer), 1), (format), \
+    SdlVsnprintf((buffer), __builtin_object_size((buffer), 1), (format), \
                     (arguments))
 #endif
 
 /* Degrees are the angular unit throughout the game core (the constant lives at
  * DAT_004631b0 in the original); the trig shims convert on the way in. */
-#define WC1_DEG2RAD 0.017453292519943295
+#define DEG2RAD 0.017453292519943295
 
 /* The DirectDraw back end uses this release-and-clear shape for its surfaces. */
 #define COM_RELEASE(surface) \
@@ -205,15 +205,15 @@ typedef struct Viewport {
     unsigned char *allocation;      /* +0x10 */
 } Viewport;
 
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 /* The original rasterisers form this pointer before applying their vertical
  * clip. Avoid an otherwise unused out-of-range table read under sanitizers. */
-#define WC1_SPRITE_ROW_OFFSET(viewport, row) \
+#define SPRITE_ROW_OFFSET(viewport, row) \
     ((row) < (viewport)->top || (row) > (viewport)->bottom \
          ? 0 \
          : (viewport)->rowOffsets[row])
 #else
-#define WC1_SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
+#define SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
 #endif
 
 /* The event manager snapshots these 28 bytes with seven MOVSD operations.
@@ -244,7 +244,7 @@ typedef struct HostMouseMessage {
 
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char MouseCursorState_size_must_be_0x1c[
     sizeof(MouseCursorState) == 0x1c ? 1 : -1];
 #endif
@@ -326,7 +326,7 @@ typedef struct RLEFrameHeader {
     int right;
     int bottom;
 }
-#ifdef WC1_SDL
+#ifdef SDL_PORT
 __attribute__((packed))
 #endif
 RLEFrameHeader;
@@ -392,7 +392,7 @@ typedef struct HudMessageSlot {
 } HudMessageSlot;
 #pragma pack(pop)
 
-#ifndef WC1_SDL
+#ifndef SDL_PORT
 typedef char CockpitReadout_size_must_be_0x0a[
     sizeof(CockpitReadout) == 0x0a ? 1 : -1];
 #endif
@@ -484,7 +484,7 @@ typedef struct DebugOverlayConsole {
  * different base type.  The Win32 port therefore has to be using the windows.h
  * one, so do not redeclare it here.  TRUE/FALSE likewise come from windows.h.
  */
-#if defined(WC1_ANALYSIS) && !defined(WC1_SDL)
+#if defined(ANALYSIS_BUILD) && !defined(SDL_PORT)
 typedef unsigned char BOOLEAN;
 #ifndef TRUE
 #define FALSE 0
@@ -523,15 +523,15 @@ void ShowOnScreenMessage(short duration, const char *fmt, ...);
 void SoundDebugPrintf(const char *fmt, ...);   /* 0x437946 */
 void SystemDebugPrintf(const char *fmt, ...);  /* 0x40FDAD */
 
-#ifndef WC1_ANALYSIS
-#include "wcdata.h"
+#ifndef ANALYSIS_BUILD
+#include "game_data.h"
 #include "globals.h"
-#include "wc1funcs.h"
-#include "wc1extern.h"
+#include "functions.h"
+#include "externs.h"
 #endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* WC1_H */
+#endif /* GAME_H */

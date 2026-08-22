@@ -1,22 +1,22 @@
-#include "wc1.h"
+#include "game.h"
 
-#define WC2_SDL_WAVE_CENTRE_PAN 64
-#define WC2_SDL_WAVE_MAXIMUM_PAN 127
+#define SDL_WAVE_CENTRE_PAN 64
+#define SDL_WAVE_MAXIMUM_PAN 127
 
-static unsigned short g_nWc2SdlPendingWavePan;
-static int g_nWc2SdlPendingWavePanDepth;
+static unsigned short g_nSdlPendingWavePan;
+static int g_nSdlPendingWavePanDepth;
 
-extern "C" IxSound *Wc2SdlNewWaveSound(IxSample *sample)
+extern "C" IxSound *SdlNewWaveSound(IxSample *sample)
 {
     IxSound *sound;
 
     sound = ix_system_new_sound(sample);
-    if (sound != 0 && g_nWc2SdlPendingWavePanDepth != 0)
-        sound->ix_system_sound_set_pan(g_nWc2SdlPendingWavePan);
+    if (sound != 0 && g_nSdlPendingWavePanDepth != 0)
+        sound->ix_system_sound_set_pan(g_nSdlPendingWavePan);
     return sound;
 }
 
-extern "C" void Wc2SdlPlayWaveWithPan(
+extern "C" void SdlPlayWaveWithPan(
     const char *filename, int looping, int volume, int pan)
 {
     unsigned short previousPan;
@@ -24,14 +24,14 @@ extern "C" void Wc2SdlPlayWaveWithPan(
 
     if (pan < 0)
         pan = 0;
-    else if (pan > WC2_SDL_WAVE_MAXIMUM_PAN)
-        pan = WC2_SDL_WAVE_MAXIMUM_PAN;
-    previousPan = g_nWc2SdlPendingWavePan;
-    previousDepth = g_nWc2SdlPendingWavePanDepth;
-    g_nWc2SdlPendingWavePan = (unsigned short)(
-        (WC2_SDL_WAVE_CENTRE_PAN - pan) * 0x100);
-    g_nWc2SdlPendingWavePanDepth++;
+    else if (pan > SDL_WAVE_MAXIMUM_PAN)
+        pan = SDL_WAVE_MAXIMUM_PAN;
+    previousPan = g_nSdlPendingWavePan;
+    previousDepth = g_nSdlPendingWavePanDepth;
+    g_nSdlPendingWavePan = (unsigned short)(
+        (SDL_WAVE_CENTRE_PAN - pan) * 0x100);
+    g_nSdlPendingWavePanDepth++;
     playWAVE(filename, looping, volume);
-    g_nWc2SdlPendingWavePanDepth = previousDepth;
-    g_nWc2SdlPendingWavePan = previousPan;
+    g_nSdlPendingWavePanDepth = previousDepth;
+    g_nSdlPendingWavePan = previousPan;
 }
