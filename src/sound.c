@@ -196,6 +196,11 @@ void PlaySnowStaticSound(void)
     long fileSize;
     int file;
 
+#ifdef WC1_SDL
+    /* DOS data has no sampled static sound. */
+    if (Wc1SdlUsingOriginFxSoundEffects())
+        return;
+#endif
     if (g_nAudioEnabled_0049c244 != 0) {
         ReleaseFinishedSoundEntries();
         if (g_pSnowStaticSound_004a2664 == 0) {

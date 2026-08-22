@@ -2434,6 +2434,10 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
 /* Function start: 0x428979 */
 void UpdateStreamerStoppedFlag(void)
 {
+#ifdef WC1_SDL
+    if (Wc1SdlUsingOriginFxMusic())
+        return;
+#endif
     if (g_nAudioEnabled_0049c244 != 0) {
         if ((GetStreamerState() & 4) == 0)
             g_nMusicTrackComplete_0049be88 = 1;

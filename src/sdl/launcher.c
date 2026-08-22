@@ -224,12 +224,6 @@ int main(int argumentCount, char **arguments)
     } else {
         CheckLauncherAndConfig();
         usingDosData = Wc1SdlUsingDosData();
-        if (usingDosData) {
-            /* A DOS install has neither the streams the music script queues
-             * nor the sfx waves it names, so the OriginFX player takes the
-             * audio device and the ix mixer stays out of the way. */
-            g_nAudioEnabled_0049c244 = 0;
-        }
         if (!Wc1SdlInitializeOriginFxAudio(usingDosData)) {
             if (usingDosData) {
                 fprintf(stderr, "DOS audio is unavailable.\n");

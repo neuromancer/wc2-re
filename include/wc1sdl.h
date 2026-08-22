@@ -270,12 +270,12 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                              short *samples,
                              unsigned int frameCount,
                              unsigned int gain);
-int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio);
+int Wc1SdlInitializeOriginFxAudio(int usingDosData);
 int Wc1SdlUsingOriginFxMusic(void);
 int Wc1SdlUsingOriginFxSoundEffects(void);
 int Wc2SdlHandlesGameSoundEffects(void);
 void Wc1SdlSetOriginFxMusicTrack(int track);
-void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
+void Wc1SdlMixOriginFxAudio(short *samples, unsigned int frameCount);
 int Wc2SdlOriginalTitleMusicReady(void);
 int Wc2SdlStartOriginalTitleMusic(void);
 int Wc2SdlOriginalTitleSequenceAvailable(void);

@@ -12,6 +12,10 @@ typedef struct TestBitWriter {
     size_t bitPosition;
 } TestBitWriter;
 
+void Wc2SdlFinishCutsceneOnly(void)
+{
+}
+
 static int WriteTestCode(TestBitWriter *writer, unsigned int code,
                          unsigned int width)
 {
@@ -178,6 +182,74 @@ static int CheckOriginalTitleResources(void)
     return result;
 }
 
+static int CheckDosSpeechPlayback(void)
+{
+    unsigned char *archive;
+    unsigned char *speech;
+    short samples[1024 * 2];
+    size_t archiveSize;
+    size_t speechSize;
+    unsigned int sample;
+    unsigned int waitStep;
+    int heardOutput;
+    int result;
+
+    archive = (unsigned char *)SDL_LoadFile(
+        "data/dos/GAMEDAT/SPEECH.S00", &archiveSize);
+    if (archive == 0)
+        return 1;
+    speech = 0;
+    result = Wc1SdlExtractOriginPacketSection(
+        archive, archiveSize, 0, &speech, &speechSize) &&
+        speechSize > 1000;
+    SDL_free(archive);
+    if (!result) {
+        free(speech);
+        return 0;
+    }
+    if (Wc1SdlChangeDirectory("data/dos") != 0) {
+        free(speech);
+        return 0;
+    }
+
+    result = Wc1SdlInitializeOriginFxAudio(1);
+    g_nAudioEnabled_0049c244 = 1;
+    InitializeAudioSystem(0);
+    result = result && g_bAudioSystemInitialized_004961b0 != 0;
+    if (result) {
+        PlayRawSpeechBuffer(speech, 1024, 1);
+        result = g_pSpeechSound_004a2658 != 0 &&
+            g_bSpeechSoundActive_004a2660 != 0 &&
+            ix_sound_is_playing(g_pSpeechSound_004a2658) != 0 &&
+            Wc1SdlPlayGameSoundEffect(1, -1, 0);
+    }
+    memset(samples, 0, sizeof(samples));
+    Wc1SdlMixOriginFxAudio(samples, 1024);
+    heardOutput = 0;
+    sample = 0;
+    while (sample < sizeof(samples) / sizeof(samples[0])) {
+        if (samples[sample] != 0)
+            heardOutput = 1;
+        sample++;
+    }
+    result = result && heardOutput;
+    waitStep = 0;
+    while (g_pSpeechSound_004a2658 != 0 && waitStep < 100) {
+        SDL_Delay(10);
+        ServiceSoundSystem();
+        waitStep++;
+    }
+    result = result && g_pSpeechSound_004a2658 == 0 &&
+        g_bSpeechSoundActive_004a2660 == 0;
+    stop_all_sounds();
+    ServiceAudioStream();
+    Wc1SdlShutdownOriginFxAudio();
+    if (Wc1SdlChangeDirectory("../..") != 0)
+        result = 0;
+    free(speech);
+    return result;
+}
+
 static int CheckWindowsTitleMusicBridge(void)
 {
     short samples[1024 * 2];
@@ -198,7 +270,7 @@ static int CheckWindowsTitleMusicBridge(void)
     while (result && block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
            g_nCurrentMusicTrack_0049be98 == 19) {
         memset(samples, 0, sizeof(samples));
-        Wc1SdlMixOriginFxMusic(samples, 1024);
+        Wc1SdlMixOriginFxAudio(samples, 1024);
         sample = 0;
         while (sample < sizeof(samples) / sizeof(samples[0])) {
             if (samples[sample] != 0)
@@ -219,12 +291,17 @@ static int CheckWindowsTitleMusicBridge(void)
 
 static int CheckDosTitleMusicCancellation(void)
 {
+    short samples[1024 * 2];
+    unsigned int sample;
+    int heardOutput;
     int result;
 
     if (Wc1SdlChangeDirectory("data/dos") != 0)
         return 1;
     g_nCurrentMusicTrack_0049be98 = -1;
     result = Wc1SdlInitializeOriginFxAudio(1) &&
+        Wc1SdlUsingOriginFxMusic() &&
+        Wc1SdlUsingOriginFxSoundEffects() &&
         Wc2SdlOriginalTitleMusicReady() &&
         Wc2SdlStartOriginalTitleMusic();
     g_nCurrentMusicTrack_0049be98 = -1;
@@ -232,6 +309,17 @@ static int CheckDosTitleMusicCancellation(void)
     Wc1SdlSetOriginFxMusicTrack(19);
     Wc1SdlServiceOriginFxMusic();
     result = result && g_nCurrentMusicTrack_0049be98 == -1;
+    result = result && Wc1SdlPlayGameSoundEffect(1, -1, 0);
+    memset(samples, 0, sizeof(samples));
+    Wc1SdlMixOriginFxAudio(samples, 1024);
+    heardOutput = 0;
+    sample = 0;
+    while (sample < sizeof(samples) / sizeof(samples[0])) {
+        if (samples[sample] != 0)
+            heardOutput = 1;
+        sample++;
+    }
+    result = result && heardOutput;
     Wc1SdlShutdownOriginFxAudio();
     if (Wc1SdlChangeDirectory("../..") != 0)
         return 0;
@@ -258,6 +346,10 @@ int main(int argumentCount, char **arguments)
     }
     if (!CheckOriginalTitleResources()) {
         fprintf(stderr, "Original title resource test failed\n");
+        return 1;
+    }
+    if (!CheckDosSpeechPlayback()) {
+        fprintf(stderr, "DOS speech-playback test failed\n");
         return 1;
     }
     if (!CheckWindowsTitleMusicBridge()) {

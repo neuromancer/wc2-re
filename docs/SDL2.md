@@ -57,16 +57,15 @@ use the DOS left/right pan derived from the source's direction relative to the
 current camera. Synthesized DOS effects also use the recovered DOS distance
 falloff.
 
-Speech is a separate optional pack and is not required. The sampled speech
-archives are present in both supported data sets, but the native port currently
-plays them only with Kilrathi Saga data. DOS mode reserves the audio device for
-the OriginFX music and effects player, so its cutscenes display their text
-without speech.
+Speech is a separate optional pack and is not required. When its sampled speech
+archives are present, the native port plays them with either supported data set.
+DOS speech shares the SDL mixer with the synthesized OriginFX music and effects;
+an installation without the pack continues to display the scripted text.
 
-With Kilrathi Saga data, the native port keeps the original scripted caption
-visible while a voiced cinematic line plays. The retail executable deliberately
-suppresses ordinary cutscene text whenever it has speech loaded. In-flight
-radio communications retain their original speech-or-text behavior.
+The native port keeps the original scripted caption visible while a voiced
+cinematic line plays. The retail executable deliberately suppresses ordinary
+cutscene text whenever it has speech loaded. In-flight radio communications
+retain their original speech-or-text behavior.
 
 ## Enhanced renderer
 
