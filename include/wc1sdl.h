@@ -273,6 +273,7 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
 int Wc1SdlInitializeOriginFxAudio(int useStandaloneAudio);
 int Wc1SdlUsingOriginFxMusic(void);
 int Wc1SdlUsingOriginFxSoundEffects(void);
+int Wc2SdlHandlesGameSoundEffects(void);
 void Wc1SdlSetOriginFxMusicTrack(int track);
 void Wc1SdlMixOriginFxMusic(short *samples, unsigned int frameCount);
 int Wc2SdlOriginalTitleMusicReady(void);
@@ -282,6 +283,8 @@ void Wc2SdlRunSelectedCampaignCutscene(void);
 void Wc2SdlFinishCutsceneOnly(void);
 int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                               int looping);
+void Wc2SdlPlayWaveWithPan(const char *filename, int looping,
+                           int volume, int pan);
 void Wc1SdlServiceOriginFxMusic(void);
 void Wc1SdlStopDosSoundEffects(void);
 void Wc1SdlShutdownOriginFxAudio(void);

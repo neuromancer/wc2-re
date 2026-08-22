@@ -52,6 +52,11 @@ copy, and synthesizes the effects on the same YM3812 the music runs on. Held
 records, such as the afterburner, play until the flight code says the burn is
 over.
 
+In flight, both the sampled Kilrathi Saga effects and synthesized DOS effects
+use the DOS left/right pan derived from the source's direction relative to the
+current camera. Synthesized DOS effects also use the recovered DOS distance
+falloff.
+
 Speech is a separate optional pack and is not required. The sampled speech
 archives are present in both supported data sets, but the native port currently
 plays them only with Kilrathi Saga data. DOS mode reserves the audio device for

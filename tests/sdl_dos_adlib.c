@@ -93,9 +93,9 @@ static unsigned int CountMidpointCrossings(
     return crossings;
 }
 
-static unsigned long long SumAbsoluteSamples(
+static unsigned long long SumAbsoluteChannel(
     const short *samples, unsigned int firstFrame,
-    unsigned int frameCount)
+    unsigned int frameCount, unsigned int channel)
 {
     unsigned long long total;
     int sample;
@@ -104,13 +104,20 @@ static unsigned long long SumAbsoluteSamples(
     total = 0;
     frame = 0;
     while (frame < frameCount) {
-        sample = samples[(firstFrame + frame) * 2];
+        sample = samples[(firstFrame + frame) * 2 + channel];
         if (sample < 0)
             sample = -sample;
         total += (unsigned int)sample;
         frame++;
     }
     return total;
+}
+
+static unsigned long long SumAbsoluteSamples(
+    const short *samples, unsigned int firstFrame,
+    unsigned int frameCount)
+{
+    return SumAbsoluteChannel(samples, firstFrame, frameCount, 0);
 }
 
 static int CheckSyntheticSong(void)
@@ -208,6 +215,71 @@ static int CheckSyntheticSoundEffects(void)
     Wc1SdlStopOriginFxSoundEffects(player);
     Wc1SdlDestroyOriginFxPlayer(player);
     return result && heardOutput;
+}
+
+static int CheckSyntheticSoundEffectPanning(void)
+{
+    unsigned char records[TEST_SOUND_RECORD_COUNT * TEST_SOUND_RECORD_SIZE];
+    unsigned char timbres[49];
+    short leftSamples[4096 * 2];
+    short centreSamples[4096 * 2];
+    short rightSamples[4096 * 2];
+    Wc1SdlOriginFxPlayer *leftPlayer;
+    Wc1SdlOriginFxPlayer *centrePlayer;
+    Wc1SdlOriginFxPlayer *rightPlayer;
+    unsigned long long leftEnergy;
+    unsigned long long leftLeakage;
+    unsigned long long centreLeftEnergy;
+    unsigned long long centreRightEnergy;
+    unsigned long long rightLeakage;
+    unsigned long long rightEnergy;
+    int result;
+
+    BuildTestSoundRecords(records);
+    BuildTestTimbre(timbres);
+    /* Exercise an additive timbre whose modulator has fixed volume. */
+    timbres[1 + 10] = 1;
+    timbres[1 + 13] = 0;
+    leftPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
+    centrePlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
+    rightPlayer = Wc1SdlCreateOriginFxSoundPlayer(
+        records, TEST_SOUND_RECORD_COUNT, timbres, sizeof(timbres));
+    if (leftPlayer == 0 || centrePlayer == 0 || rightPlayer == 0) {
+        Wc1SdlDestroyOriginFxPlayer(leftPlayer);
+        Wc1SdlDestroyOriginFxPlayer(centrePlayer);
+        Wc1SdlDestroyOriginFxPlayer(rightPlayer);
+        return 0;
+    }
+    result = Wc1SdlPlayOriginFxSoundEffect(
+        leftPlayer, 1, 127, 0, 1, 0) &&
+        Wc1SdlPlayOriginFxSoundEffect(
+            centrePlayer, 1, 127, 64, 1, 0) &&
+        Wc1SdlPlayOriginFxSoundEffect(
+            rightPlayer, 1, 127, 127, 1, 0);
+    memset(leftSamples, 0, sizeof(leftSamples));
+    memset(centreSamples, 0, sizeof(centreSamples));
+    memset(rightSamples, 0, sizeof(rightSamples));
+    Wc1SdlMixOriginFxSoundEffects(
+        leftPlayer, leftSamples, 4096, 0x7fff);
+    Wc1SdlMixOriginFxSoundEffects(
+        centrePlayer, centreSamples, 4096, 0x7fff);
+    Wc1SdlMixOriginFxSoundEffects(
+        rightPlayer, rightSamples, 4096, 0x7fff);
+    leftEnergy = SumAbsoluteChannel(leftSamples, 0, 4096, 0);
+    leftLeakage = SumAbsoluteChannel(leftSamples, 0, 4096, 1);
+    centreLeftEnergy = SumAbsoluteChannel(centreSamples, 0, 4096, 0);
+    centreRightEnergy = SumAbsoluteChannel(centreSamples, 0, 4096, 1);
+    rightLeakage = SumAbsoluteChannel(rightSamples, 0, 4096, 0);
+    rightEnergy = SumAbsoluteChannel(rightSamples, 0, 4096, 1);
+    Wc1SdlDestroyOriginFxPlayer(leftPlayer);
+    Wc1SdlDestroyOriginFxPlayer(centrePlayer);
+    Wc1SdlDestroyOriginFxPlayer(rightPlayer);
+    return result && leftEnergy != 0 && rightEnergy != 0 &&
+        centreLeftEnergy != 0 && centreLeftEnergy == centreRightEnergy &&
+        leftLeakage * 16 < leftEnergy &&
+        rightLeakage * 16 < rightEnergy;
 }
 
 static int CheckHeldSoundEffectFlush(void)
@@ -750,6 +822,10 @@ int main(int argumentCount, char **arguments)
     }
     if (!CheckSyntheticSoundEffects()) {
         fprintf(stderr, "Synthetic OriginFX sound-effect test failed\n");
+        return 1;
+    }
+    if (!CheckSyntheticSoundEffectPanning()) {
+        fprintf(stderr, "OriginFX sound-effect panning test failed\n");
         return 1;
     }
     if (!CheckHeldSoundEffectFlush()) {

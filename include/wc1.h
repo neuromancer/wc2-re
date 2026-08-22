@@ -188,6 +188,7 @@ struct IxSound {
     IxSample *sample;
 #ifdef __cplusplus
     void ix_system_sound_set_volume(unsigned short volume);
+    void ix_system_sound_set_pan(unsigned short pan);
     void ix_sound_set_delete_on_stop(int enabled);
 #endif
 };

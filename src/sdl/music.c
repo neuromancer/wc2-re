@@ -38,8 +38,8 @@
  * flight code says the burn is over. */
 #define WC2_SDL_AFTERBURNER_SOUND_NUMBER 12
 /* Vector_magnitude measures in metres scaled by 256, and an OriginFX effect
- * carries a MIDI channel volume.  One volume step per five hundred metres is
- * the falloff the sibling Wing Commander port settled on for the same table. */
+ * carries a MIDI channel volume.  The DOS player drops one volume step per
+ * five hundred metres. */
 #define WC2_SDL_SOUND_METRES_PER_VOLUME_STEP 500L
 #define WC2_SDL_SOUND_FULL_VOLUME 127
 #define WC2_SDL_SOUND_AUDIBLE_VOLUME 10
@@ -260,6 +260,11 @@ int Wc1SdlUsingOriginFxSoundEffects(void)
     return g_bWc1SdlOriginFxSoundSelected;
 }
 
+int Wc2SdlHandlesGameSoundEffects(void)
+{
+    return 1;
+}
+
 /* The music script normally queues a Kilrathi Saga stream here.  A DOS install
  * has no streams, so the track number becomes the MUSIC.A00 section the service
  * loop below plays instead. */
@@ -317,39 +322,75 @@ static int Wc1SdlStartDosSoundEffect(int soundNumber, int volume, int pan,
     return result;
 }
 
-/* Stands in for PlaySfxWaveFileByNumber, which has no wave to name on a DOS
- * install.  The game measures the range itself only to hand playWAVE a volume,
- * so the falloff is applied here instead. */
 int Wc1SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
 {
     FixedVector delta;
+    long magnitude;
+    int scaledPan;
+    int stereoOffset;
+    int distance;
     int volume;
+    int pan;
 
-    if (g_bWc1SdlOriginFxSoundSelected == 0)
-        return 0;
-    volume = WC2_SDL_SOUND_FULL_VOLUME;
+    magnitude = 0;
+    pan = WC2_SDL_SOUND_CENTRE_PAN;
     if (sourceObject != -1) {
         if (sourceObject < 0 || sourceObject >= WC2_SPACE_OBJECT_COUNT)
             return 0;
         ComputeVectorDelta(&g_aShipPosition_00494550[WC2_EYE_OBJECT],
                            &g_aShipPosition_00494550[sourceObject],
                            &delta);
-        volume -= (int)((Vector_magnitude(&delta) /
-                         WC2_SDL_SOUND_METRES_PER_VOLUME_STEP) >> 8);
-        if (volume < 0)
-            volume = 0;
+        magnitude = Vector_magnitude(&delta);
+        NormalizeFixedVector(&delta);
+        stereoOffset = dot_product(
+            &delta, &g_aShipRightVector_00493b78[WC2_EYE_OBJECT]);
+        scaledPan = stereoOffset * WC2_SDL_SOUND_CENTRE_PAN;
+        if (scaledPan < 0)
+            scaledPan = -((-scaledPan + 0xff) / 0x100);
+        else
+            scaledPan /= 0x100;
+        pan -= scaledPan;
+        if (pan < 0)
+            pan = 0;
+        else if (pan > 127)
+            pan = 127;
         g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
     }
-    if (volume < WC2_SDL_SOUND_AUDIBLE_VOLUME)
-        return 0;
-    if (!Wc1SdlStartDosSoundEffect(soundNumber, volume,
-                                   WC2_SDL_SOUND_CENTRE_PAN,
-                                   sourceObject, looping))
-        return 0;
-    if (sourceObject == -1) {
-        g_bAfterburnerSfxActive_005d3864 =
-            soundNumber == WC2_SDL_AFTERBURNER_SOUND_NUMBER;
+
+    if (g_bWc1SdlOriginFxSoundSelected != 0) {
+        volume = WC2_SDL_SOUND_FULL_VOLUME;
+        if (sourceObject != -1) {
+            volume -= (int)((magnitude /
+                             WC2_SDL_SOUND_METRES_PER_VOLUME_STEP) >> 8);
+        }
+        if (volume < 0)
+            volume = 0;
+        if (volume < WC2_SDL_SOUND_AUDIBLE_VOLUME)
+            return 0;
+        if (!Wc1SdlStartDosSoundEffect(
+                soundNumber, volume, pan, sourceObject, looping))
+            return 0;
+        if (sourceObject == -1) {
+            g_bAfterburnerSfxActive_005d3864 =
+                soundNumber == WC2_SDL_AFTERBURNER_SOUND_NUMBER;
+        }
+        return 1;
     }
+
+    if (sourceObject != -1) {
+        distance = magnitude > 32000 ? 32000 : (int)magnitude;
+    } else {
+        distance = 72000;
+    }
+    if (distance < 10)
+        return 0;
+    soundNumber--;
+    SoundDebugPrintf(
+        "Playing SFX #%d on obj: %d with volume of %d\n",
+        soundNumber, sourceObject, distance);
+    sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
+    Wc2SdlPlayWaveWithPan(
+        g_szSfxWavePath_005b3650, looping, distance, pan);
     return 1;
 }
 

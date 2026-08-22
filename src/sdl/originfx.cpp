@@ -96,6 +96,7 @@ typedef struct Wc1OriginFxChannel {
     unsigned short modulationDepth;
     unsigned char program;
     unsigned char modulationRate;
+    unsigned char pan;
 } Wc1OriginFxChannel;
 
 typedef struct Wc1OriginFxVoice {
@@ -131,6 +132,8 @@ class Wc1OriginFxYmfmInterface : public ymfm::ymfm_interface {
 struct Wc1SdlOriginFxPlayer {
     Wc1OriginFxYmfmInterface oplInterface;
     ymfm::ym3812 oplChip;
+    Wc1OriginFxYmfmInterface oplRightInterface;
+    ymfm::ym3812 oplRightChip;
     Wc1OriginFxEvent *events;
     unsigned char *timbres;
     const unsigned char *soundRecords;
@@ -148,8 +151,10 @@ struct Wc1SdlOriginFxPlayer {
     uint32_t nativeSampleRate;
     unsigned int sequencePosition;
     int32_t lastNativeSample;
+    int32_t lastNativeRightSample;
     unsigned char melodicVoiceCount;
     unsigned char rhythmRegister;
+    int stereoPanningEnabled;
     int finished;
     Wc1OriginFxChannel channels[WC1_ORIGINFX_CHANNEL_COUNT];
     Wc1OriginFxVoice voices[WC1_ORIGINFX_VOICE_STATE_COUNT];
@@ -157,6 +162,7 @@ struct Wc1SdlOriginFxPlayer {
 
     Wc1SdlOriginFxPlayer() :
         oplChip(oplInterface),
+        oplRightChip(oplRightInterface),
         events(0),
         timbres(0),
         soundRecords(0),
@@ -174,8 +180,10 @@ struct Wc1SdlOriginFxPlayer {
         nativeSampleRate(oplChip.sample_rate(WC1_ORIGINFX_OPL_CLOCK)),
         sequencePosition(0),
         lastNativeSample(0),
+        lastNativeRightSample(0),
         melodicVoiceCount(WC1_ORIGINFX_MELODIC_VOICE_COUNT),
         rhythmRegister(0),
+        stereoPanningEnabled(0),
         finished(0)
     {
         memset(channels, 0, sizeof(channels));
@@ -509,6 +517,18 @@ static void Wc1OriginFxWriteRegister(Wc1SdlOriginFxPlayer *player,
 {
     player->oplChip.write(0, (uint8_t)address);
     player->oplChip.write(1, (uint8_t)value);
+    player->oplRightChip.write(0, (uint8_t)address);
+    player->oplRightChip.write(1, (uint8_t)value);
+}
+
+static void Wc1OriginFxWriteStereoRegister(
+    Wc1SdlOriginFxPlayer *player, unsigned int address,
+    unsigned int leftValue, unsigned int rightValue)
+{
+    player->oplChip.write(0, (uint8_t)address);
+    player->oplChip.write(1, (uint8_t)leftValue);
+    player->oplRightChip.write(0, (uint8_t)address);
+    player->oplRightChip.write(1, (uint8_t)rightValue);
 }
 
 static void Wc1OriginFxResetOpl(Wc1SdlOriginFxPlayer *player)
@@ -516,6 +536,7 @@ static void Wc1OriginFxResetOpl(Wc1SdlOriginFxPlayer *player)
     unsigned int voice;
 
     player->oplChip.reset();
+    player->oplRightChip.reset();
     player->melodicVoiceCount = WC1_ORIGINFX_MELODIC_VOICE_COUNT;
     player->rhythmRegister = 0;
     Wc1OriginFxWriteRegister(player, 0x01, 0x20);
@@ -686,6 +707,31 @@ static unsigned int Wc1OriginFxCalculateCarrierLevel(
     return Wc1OriginFxClampTotalLevel(registerValue, totalLevel);
 }
 
+static unsigned int Wc1OriginFxCalculatePannedLevel(
+    unsigned int registerValue, unsigned int pan, int rightChannel)
+{
+    unsigned int scale;
+    unsigned int divisor;
+    int totalLevel;
+
+    if (pan > 127)
+        pan = 127;
+    if (rightChannel != 0) {
+        if (pan >= 64)
+            return registerValue;
+        scale = pan;
+        divisor = 64;
+    } else {
+        if (pan <= 64)
+            return registerValue;
+        scale = 127 - pan;
+        divisor = 63;
+    }
+    totalLevel = (int)(registerValue & 0x3fU);
+    totalLevel = 63 - (int)(scale * (63 - totalLevel) / divisor);
+    return Wc1OriginFxClampTotalLevel(registerValue, totalLevel);
+}
+
 static void Wc1OriginFxWriteVoiceLevels(Wc1SdlOriginFxPlayer *player,
                                         unsigned int voiceIndex)
 {
@@ -693,7 +739,9 @@ static void Wc1OriginFxWriteVoiceLevels(Wc1SdlOriginFxPlayer *player,
     Wc1OriginFxChannel *channel;
     const unsigned char *timbre;
     unsigned int carrierOffset;
+    unsigned int carrierLevel;
     unsigned int modulatorOffset;
+    unsigned int modulatorLevel;
 
     voice = &player->voices[voiceIndex];
     channel = &player->channels[voice->channel];
@@ -701,17 +749,35 @@ static void Wc1OriginFxWriteVoiceLevels(Wc1SdlOriginFxPlayer *player,
     carrierOffset = Wc1OriginFxGetCarrierOffset(player, voiceIndex);
     modulatorOffset = Wc1OriginFxGetModulatorOffset(player, voiceIndex);
     if (timbre[12] != 0 || channel->volume < 0x100U) {
-        Wc1OriginFxWriteRegister(
+        carrierLevel = Wc1OriginFxCalculateCarrierLevel(
+            timbre[6], timbre[12], voice->velocity, channel->volume);
+        Wc1OriginFxWriteStereoRegister(
             player, 0x40 + carrierOffset,
-            Wc1OriginFxCalculateCarrierLevel(
-                timbre[6], timbre[12],
-                voice->velocity, channel->volume));
+            Wc1OriginFxCalculatePannedLevel(
+                carrierLevel, channel->pan, 0),
+            Wc1OriginFxCalculatePannedLevel(
+                carrierLevel, channel->pan, 1));
     }
-    if (timbre[13] != 0) {
-        Wc1OriginFxWriteRegister(
-            player, 0x40 + modulatorOffset,
-            Wc1OriginFxCalculateVelocityLevel(
-                timbre[1], timbre[13], voice->velocity));
+    if (timbre[13] != 0 ||
+        (player->stereoPanningEnabled != 0 &&
+         (timbre[10] & 1U) != 0)) {
+        if (timbre[13] != 0) {
+            modulatorLevel = Wc1OriginFxCalculateVelocityLevel(
+                timbre[1], timbre[13], voice->velocity);
+        } else {
+            modulatorLevel = timbre[1];
+        }
+        if ((timbre[10] & 1U) != 0) {
+            Wc1OriginFxWriteStereoRegister(
+                player, 0x40 + modulatorOffset,
+                Wc1OriginFxCalculatePannedLevel(
+                    modulatorLevel, channel->pan, 0),
+                Wc1OriginFxCalculatePannedLevel(
+                    modulatorLevel, channel->pan, 1));
+        } else {
+            Wc1OriginFxWriteRegister(
+                player, 0x40 + modulatorOffset, modulatorLevel);
+        }
     }
 }
 
@@ -1200,6 +1266,12 @@ static void Wc1OriginFxApplyControlChange(
             ((unsigned int)timbre[15] * value >> 7) + timbre[17]);
     } else if (controller == 7) {
         channel->volume = (unsigned short)(value + 0x80U);
+    } else if (controller == 10 && player->stereoPanningEnabled != 0) {
+        if (value > 127)
+            value = 127;
+        channel->pan = (unsigned char)value;
+        Wc1OriginFxUpdateChannelVoices(
+            player, channelIndex, 0, 1);
     } else if (controller == 123) {
         Wc1OriginFxAllNotesOff(player, (int)channelIndex);
         Wc1OriginFxDisableRhythmModeIfIdle(player);
@@ -1454,26 +1526,41 @@ static void Wc1OriginFxProcessDueEvents(Wc1SdlOriginFxPlayer *player)
     }
 }
 
-static int32_t Wc1OriginFxGenerateOutputSample(
-    Wc1SdlOriginFxPlayer *player)
+static void Wc1OriginFxGenerateOutputSample(
+    Wc1SdlOriginFxPlayer *player, int32_t *leftSample,
+    int32_t *rightSample)
 {
-    ymfm::ym3812::output_data output;
-    int64_t sampleTotal;
+    ymfm::ym3812::output_data leftOutput;
+    ymfm::ym3812::output_data rightOutput;
+    int64_t leftSampleTotal;
+    int64_t rightSampleTotal;
     unsigned int sampleCount;
 
-    sampleTotal = 0;
+    leftSampleTotal = 0;
+    rightSampleTotal = 0;
     sampleCount = 0;
     player->nativeSampleAccumulator += player->nativeSampleRate;
     while (player->nativeSampleAccumulator >= WC1_ORIGINFX_OUTPUT_RATE) {
-        player->oplChip.generate(&output);
-        player->lastNativeSample = output.data[0];
-        sampleTotal += player->lastNativeSample;
+        player->oplChip.generate(&leftOutput);
+        player->lastNativeSample = leftOutput.data[0];
+        if (player->stereoPanningEnabled != 0) {
+            player->oplRightChip.generate(&rightOutput);
+            player->lastNativeRightSample = rightOutput.data[0];
+        } else {
+            player->lastNativeRightSample = player->lastNativeSample;
+        }
+        leftSampleTotal += player->lastNativeSample;
+        rightSampleTotal += player->lastNativeRightSample;
         sampleCount++;
         player->nativeSampleAccumulator -= WC1_ORIGINFX_OUTPUT_RATE;
     }
-    if (sampleCount == 0)
-        return player->lastNativeSample;
-    return (int32_t)(sampleTotal / sampleCount);
+    if (sampleCount == 0) {
+        *leftSample = player->lastNativeSample;
+        *rightSample = player->lastNativeRightSample;
+    } else {
+        *leftSample = (int32_t)(leftSampleTotal / sampleCount);
+        *rightSample = (int32_t)(rightSampleTotal / sampleCount);
+    }
 }
 
 static short Wc1OriginFxScaleOutputSample(int32_t sample,
@@ -1519,6 +1606,7 @@ static int Wc1OriginFxInitializePlayer(
     while (channelIndex < WC1_ORIGINFX_CHANNEL_COUNT) {
         player->channels[channelIndex].pitchBend = 0x2000;
         player->channels[channelIndex].volume = 0xff;
+        player->channels[channelIndex].pan = 64;
         Wc1OriginFxSetProgram(player, channelIndex, defaultProgram);
         channelIndex++;
     }
@@ -1567,6 +1655,7 @@ Wc1SdlOriginFxPlayer *Wc1SdlCreateOriginFxSoundPlayer(
         delete player;
         return 0;
     }
+    player->stereoPanningEnabled = 1;
     player->soundRecords = records;
     player->soundRecordCount = recordCount;
     return player;
@@ -1657,8 +1746,10 @@ void Wc1SdlMixOriginFxSoundEffects(
     Wc1SdlOriginFxPlayer *player, short *samples,
     unsigned int frameCount, unsigned int gain)
 {
-    int32_t generated;
-    short output;
+    int32_t generatedLeft;
+    int32_t generatedRight;
+    short leftOutput;
+    short rightOutput;
     unsigned int frame;
 
     if (player == 0 || samples == 0)
@@ -1666,12 +1757,14 @@ void Wc1SdlMixOriginFxSoundEffects(
     frame = 0;
     while (frame < frameCount) {
         Wc1OriginFxAdvanceService(player);
-        generated = Wc1OriginFxGenerateOutputSample(player);
-        output = Wc1OriginFxScaleOutputSample(generated, gain);
+        Wc1OriginFxGenerateOutputSample(
+            player, &generatedLeft, &generatedRight);
+        leftOutput = Wc1OriginFxScaleOutputSample(generatedLeft, gain);
+        rightOutput = Wc1OriginFxScaleOutputSample(generatedRight, gain);
         samples[frame * 2] = Wc1OriginFxMixOutputSample(
-            samples[frame * 2], output);
+            samples[frame * 2], leftOutput);
         samples[frame * 2 + 1] = Wc1OriginFxMixOutputSample(
-            samples[frame * 2 + 1], output);
+            samples[frame * 2 + 1], rightOutput);
         player->currentFrame++;
         frame++;
     }
@@ -1711,8 +1804,10 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
                              unsigned int frameCount,
                              unsigned int gain)
 {
-    int32_t generated;
-    short output;
+    int32_t generatedLeft;
+    int32_t generatedRight;
+    short leftOutput;
+    short rightOutput;
     unsigned int frame;
 
     if (samples == 0 || player == 0 || player->finished != 0)
@@ -1728,12 +1823,14 @@ void Wc1SdlMixOriginFxPlayer(Wc1SdlOriginFxPlayer *player,
             return;
         }
         Wc1OriginFxAdvanceService(player);
-        generated = Wc1OriginFxGenerateOutputSample(player);
-        output = Wc1OriginFxScaleOutputSample(generated, gain);
+        Wc1OriginFxGenerateOutputSample(
+            player, &generatedLeft, &generatedRight);
+        leftOutput = Wc1OriginFxScaleOutputSample(generatedLeft, gain);
+        rightOutput = Wc1OriginFxScaleOutputSample(generatedRight, gain);
         samples[frame * 2] = Wc1OriginFxMixOutputSample(
-            samples[frame * 2], output);
+            samples[frame * 2], leftOutput);
         samples[frame * 2 + 1] = Wc1OriginFxMixOutputSample(
-            samples[frame * 2 + 1], output);
+            samples[frame * 2 + 1], rightOutput);
         player->currentFrame++;
         frame++;
     }
