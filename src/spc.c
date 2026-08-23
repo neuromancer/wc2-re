@@ -1876,8 +1876,13 @@ void object_collision(short obj)
                 forceMagnitude =
                     Vector_magnitude(&g_vCollisionDelta_00493178);
                 forceMagnitude = DivideFixed(
+#ifdef SDL_PORT
+                    (SdlGetBalancedCollisionRadius(obj) +
+                     SdlGetBalancedCollisionRadius(partner)) << 8,
+#else
                     (g_asObjectCollisionRadius_004950e8[obj] +
                      g_asObjectCollisionRadius_004950e8[partner]) << 8,
+#endif
                     forceMagnitude);
                 forceMagnitude = MinInt(forceMagnitude, 0x7d000);
                 ScaleFixedVector(&g_vCollisionDelta_00493178,

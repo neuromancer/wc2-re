@@ -1190,8 +1190,13 @@ short real_crash_time(short obj, short other)
     FixedVector travel;
     FixedVector separation;
 
+#ifdef SDL_PORT
+    collisionRadius = SdlGetBalancedCollisionRadius(obj);
+    collisionRadius += SdlGetBalancedCollisionRadius(other);
+#else
     collisionRadius = g_asObjectCollisionRadius_004950e8[obj];
     collisionRadius += g_asObjectCollisionRadius_004950e8[other];
+#endif
     collisionRadius += 30;
     collisionFound = 0;
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],

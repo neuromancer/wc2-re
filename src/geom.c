@@ -816,8 +816,14 @@ short check_for_collision(short obj)
             g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_00493178);
-            range = (short)(g_asObjectCollisionRadius_004950e8[other] +
-                            g_asObjectCollisionRadius_004950e8[obj]);
+            range = (short)(
+#ifdef SDL_PORT
+                SdlGetBalancedCollisionRadius(other) +
+                SdlGetBalancedCollisionRadius(obj));
+#else
+                g_asObjectCollisionRadius_004950e8[other] +
+                g_asObjectCollisionRadius_004950e8[obj]);
+#endif
             if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
                 range >>= 1;

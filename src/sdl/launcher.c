@@ -42,11 +42,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     outputArgumentIndex = 1;
     *useEnhancedRenderer = 0;
     *cutsceneOnly = 0;
+    g_bSdlBalancedDifficulty = 0;
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
+        } else if (strcmp(argument, "--balanced-difficulty") == 0) {
+            g_bSdlBalancedDifficulty = 1;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
@@ -112,6 +115,8 @@ static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
 
 static int SdlRunRuntimeChecks(void)
 {
+    short object;
+
     g_aShipWeapons_004956b0[1][0] = 2;
     remove_weapon(1, 0);
     if (g_aShipWeapons_004956b0[1][0] != 1)
@@ -159,6 +164,36 @@ static int SdlRunRuntimeChecks(void)
 
     g_nCommPortraitIndex_0049b79c = -1;
     FreeCommDisplayResources();
+
+    g_nSpaceFrame_00493134 = 20;
+    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
+    g_nAdaptiveDifficulty_005d3844 = 5;
+    IncreaseAdaptiveDifficulty();
+    if (g_nAdaptiveDifficulty_005d3844 !=
+        (g_bSdlBalancedDifficulty != 0 ? 5 : 6))
+        return 1;
+    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
+    g_nAdaptiveDifficulty_005d3844 = 5;
+    DecreaseAdaptiveDifficulty();
+    if (g_nAdaptiveDifficulty_005d3844 !=
+        (g_bSdlBalancedDifficulty != 0 ? 5 : 4))
+        return 1;
+
+    for (object = 0; object <= SPACE_LAST_MOVING_OBJECT; object++)
+        g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
+    g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
+    g_aeObjectClass_00495328[1] = OBJECT_CLASS_ASTEROID;
+    g_asObjectCollisionRadius_004950e8[0] = 10;
+    g_asObjectCollisionRadius_004950e8[1] = 100;
+    if (SdlGetBalancedCollisionRadius(1) !=
+        (g_bSdlBalancedDifficulty != 0 ? 50 : 100))
+        return 1;
+    zero_vector(&g_aShipPosition_00494550[0]);
+    zero_vector(&g_aShipPosition_00494550[1]);
+    g_aShipPosition_00494550[1].x = 80 * 0x100;
+    if (check_for_collision(0) !=
+        (g_bSdlBalancedDifficulty != 0 ? -1 : 1))
+        return 1;
     return 0;
 }
 

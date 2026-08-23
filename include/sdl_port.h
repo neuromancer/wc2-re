@@ -185,6 +185,8 @@ void SdlStopAudio(void);
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
 extern int g_bSdlCutsceneOnly;
+extern int g_bSdlBalancedDifficulty;
+short SdlGetBalancedCollisionRadius(short object);
 void SdlSetMouseGrab(int enabled);
 void SdlDrawViewportStatic(struct Viewport *viewport, int effect,
                               unsigned short colour);

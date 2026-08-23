@@ -75,6 +75,7 @@ The native port includes these fixes and optional features:
 | Automatic SDL gamepad mappings and hot-plug support | always on |
 | Background planets drawn with their own sprite and scale (WCDX fix) | always on |
 | Static on knocked-out cockpit displays | always on |
+| Neutral adaptive difficulty and half-size asteroid collision radii | `--balanced-difficulty` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |

@@ -421,6 +421,7 @@ MODERN_BASE_HOST_SRCS = \
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
 	src/sdl/cutscene.c \
+	src/sdl/difficulty.c \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
@@ -636,6 +637,9 @@ $(MODERN_ADLIB_TEST_BIN): \
 modern-test: modern
 	@echo "Running $(MODERN_TARGET) --check"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
+	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_TARGET) --balanced-difficulty --check
 
 modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
 	@set -e; for test_bin in $(MODERN_HEADLESS_TEST_BINS); do \
@@ -652,6 +656,9 @@ modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
 	fi
 	@echo "Running $(MODERN_TARGET) --check"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
+	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_TARGET) --balanced-difficulty --check
 
 run-modern: modern
 	@case "$(MODERN_RUN_DIR)" in \

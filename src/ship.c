@@ -1334,6 +1334,10 @@ CROSSES_GLOBALS short GetAdaptiveTurnRate(void)
 /* Function start: 0x4102FD */
 void IncreaseAdaptiveDifficulty(void)
 {
+#ifdef SDL_PORT
+    if (g_bSdlBalancedDifficulty != 0)
+        return;
+#endif
     if (g_nSpaceFrame_00493134 -
             g_nLastAdaptiveDifficultyChangeFrame_00492d60 < 20)
         return;
@@ -1347,6 +1351,10 @@ void IncreaseAdaptiveDifficulty(void)
 /* Function start: 0x410352 */
 void DecreaseAdaptiveDifficulty(void)
 {
+#ifdef SDL_PORT
+    if (g_bSdlBalancedDifficulty != 0)
+        return;
+#endif
     if (g_nSpaceFrame_00493134 -
             g_nLastAdaptiveDifficultyChangeFrame_00492d60 < 20)
         return;

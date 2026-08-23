@@ -105,6 +105,12 @@ The retail renderer grouped them with stars and dust and substituted the
 constellation sheet, which made the intended planet art disappear and erased
 the wrong footprint on the following frame.
 
+`--balanced-difficulty` keeps the adaptive combat difficulty at its neutral
+mission-start value of 5 and halves asteroid collision radii without changing
+their rendering or targeting size. Without the option, combat events continue
+to move the original 0--10 difficulty level up and down, and asteroid collision
+radii remain unchanged.
+
 On Windows the launcher disables the Input Method Editor for the process so
 IME composition cannot intercept flight keys.
 
