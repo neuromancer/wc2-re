@@ -458,7 +458,7 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/eventmgr.o \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
-MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat \
+MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_text_compat \
 	sdl_dos_resources sdl_input_compat sdl_event_compat sdl_video_compat
 MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))

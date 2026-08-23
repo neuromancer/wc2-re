@@ -199,7 +199,12 @@ unsigned short ReadWord(unsigned short *p)
 /* Function start: 0x461DBD */
 unsigned short GetFontCharWidth(char i)
 {
+#ifdef SDL_PORT
+    /* The packed format reserves one table entry for every byte value. */
+    return g_pCurrentTextContext_005c8d1c->font[4 + (unsigned char)i];
+#else
     return g_pCurrentTextContext_005c8d1c->font[4 + (int)i];
+#endif
 }
 
 /* Function start: 0x461DE0 */
@@ -289,18 +294,32 @@ void DrawTextString(const char *text)
                     break;
                 }
                 lineWidth +=
+#ifdef SDL_PORT
+                    g_pCurrentTextContext_005c8d1c
+                        ->font[4 + (unsigned char)value];
+#else
                     g_pCurrentTextContext_005c8d1c->font[4 + value];
+#endif
                 if (lineWidth >=
                     g_pCurrentTextContext_005c8d1c->viewport->right) {
                     lineWidth -=
+#ifdef SDL_PORT
+                        g_pCurrentTextContext_005c8d1c
+                            ->font[4 + (unsigned char)value];
+#else
                         g_pCurrentTextContext_005c8d1c->font[4 + value];
+#endif
                     cursor--;
                     wrapped = 1;
                     if (*cursor != ' ') {
                         while (*cursor != ' ' && cursor > text) {
                             lineWidth -=
                                 g_pCurrentTextContext_005c8d1c
+#ifdef SDL_PORT
+                                    ->font[4 + (unsigned char)*cursor];
+#else
                                     ->font[4 + *cursor];
+#endif
                             cursor--;
                         }
                         if (cursor <= text) {
@@ -362,7 +381,11 @@ void DrawTextCharacter(char character)
     } else if (character != 0) {
         font = g_pCurrentTextContext_005c8d1c->font;
         fontHeight = *(short *)font;
+#ifdef SDL_PORT
+        glyphWidth = font[4 + (unsigned char)character];
+#else
         glyphWidth = font[4 + (int)(signed char)character];
+#endif
         context = g_pCurrentTextContext_005c8d1c;
         cursorY = context->cursorY;
         DrawFontGlyph(character, context, fontHeight, glyphWidth, cursorY);

@@ -1646,21 +1646,20 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     fontBackground = context->font[3];
     g_abPaletteTranslation_00496338[fontColour] = colour;
     g_abPaletteTranslation_00496338[fontBackground] = background;
+#ifndef SDL_PORT
+    /* Preserve the retail Win32 port's signed-char comparisons. */
     if (character == 0x81 || character == 0x84 || character == 0x8e ||
         character == 0x94 || character == 0x99 || character == 0x9a ||
-        /* WC2 sign-extends the glyph before comparing it against 0xe1, so on
-         * a signed-char host that last test can never fire and the retail
-         * build draws the character it meant to skip.  Keep the comparison as
-         * WC2 emits it in the reference build; the port asks the question the
-         * way it was meant, which is also what an unsigned-char host does. */
-#ifdef SDL_PORT
-        (unsigned char)character == 0xe1)
-#else
         character == 0xe1)
-#endif
         return;
+#endif
+#ifdef SDL_PORT
+    source = (context->font[(unsigned char)character + 0x204] << 8) +
+             context->font[(unsigned char)character + 0x104] + context->font;
+#else
     source = (context->font[character + 0x204] << 8) +
              context->font[character + 0x104] + context->font;
+#endif
     if (fontColour != colour || fontBackground != background) {
         while (height-- != 0) {
             if (viewport->top == row) {
@@ -1682,7 +1681,11 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
             row++;
         }
+#ifdef SDL_PORT
+        context->cursorX += context->font[(unsigned char)character + 4];
+#else
         context->cursorX += context->font[character + 4];
+#endif
     } else {
         while (height-- != 0) {
             if (viewport->top == row) {
@@ -1703,7 +1706,11 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             }
             row++;
         }
+#ifdef SDL_PORT
+        context->cursorX += context->font[(unsigned char)character + 4];
+#else
         context->cursorX += context->font[character + 4];
+#endif
     }
     g_abPaletteTranslation_00496338[fontColour] = fontColour;
     g_abPaletteTranslation_00496338[fontBackground] = fontBackground;
