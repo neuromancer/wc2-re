@@ -177,18 +177,18 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
     InputEventState event;
     InputEventState *inputEvent;
     short controlPressed;
-    short shiftPressed;
+    short jPressed;
 
     selection = 0;
     ServiceInputDevices(15);
     inputEvent = FindQueuedInputEvent(4);
     if (inputEvent != 0) {
         controlPressed = (short)GetControlKeyState();
-        shiftPressed = (short)GetShiftKeyState();
-        if ((controlPressed != 0 && shiftPressed != 0) ||
+        jPressed = (short)GetJKeyState();
+        if ((controlPressed != 0 && jPressed != 0) ||
             g_bJoystickCalibrationHotkey_005d1284 != 0) {
             controlPressed = 0;
-            shiftPressed = 0;
+            jPressed = 0;
             g_bJoystickCalibrationHotkey_005d1284 = 0;
             CalibrateJoystickInteractive();
             ReleaseInputEventQueue();
@@ -1301,6 +1301,21 @@ short CountShipProjectiles(short ship)
             count++;
     }
     return count;
+}
+
+/* Function start: 0x41008E */
+short ShipHasCloakingDevice(short ship)
+{
+    short weapon;
+    unsigned char *loadout;
+
+    loadout = g_aShipWeapons_004956b0[ship];
+    weapon = 0;
+    for (; (short)(signed char)loadout[0] > weapon; weapon++) {
+        if (((ShipWeaponSlot *)(loadout + 1))[weapon].type == 0x3c)
+            return 1;
+    }
+    return 0;
 }
 
 /* Function start: 0x410102 */

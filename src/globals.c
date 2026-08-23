@@ -137,6 +137,7 @@ const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 
 const int g_nJoystickUnavailableSample_0048e054 = -1;
+const int g_nViewportStaticRandomRange_0048e060 = 3;
 const unsigned short g_wSpeechCacheCodeBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wSpeechCacheDataWords_0048e0e4 = 0x0fa0;
 unsigned char *g_pDamageDisplayBackground_00490060;
@@ -1826,6 +1827,7 @@ unsigned char g_abInputKeyState_005c80f0[0x80];
 int g_nCapturedInputCursorY_005c8178;
 int g_nCapturedInputCursorX_005c817c;
 int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
+short DAT_005c82a4;
 signed char g_cScreenViewportMode_005c82a6;
 signed char g_bCinematicSpriteFontEnabled_005c82a7;
 const ScreenViewportGeometry * volatile
@@ -1849,6 +1851,7 @@ int g_bSuppressNextMouseMove_005c843c;
 short g_nInputTickInterval_005c8448;
 volatile int g_nFrameTimerPending_005c844c;
 int g_bInputCursorDirty_005c8450;
+short DAT_005c8458;
 int g_nInputCursorDirtyRight_005c845c;
 int g_nInputCursorDirtyBottom_005c8460;
 InputManagerState *g_pInputManagerState_005c8464;

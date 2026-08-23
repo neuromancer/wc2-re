@@ -145,16 +145,22 @@ int GetShiftKeyState(void)
     return GetAsyncKeyState(VK_SHIFT);
 }
 
+/* Function start: 0x455EAA */
+unsigned int GetKeyboardModifiers(void)
+{
+    return g_dwSystemKey_005d10a4;
+}
+
 /* Function start: 0x455EBF */
 int GetControlKeyState(void)
 {
     return GetAsyncKeyState(VK_CONTROL);
 }
 
-/* Function start: 0x455EAA */
-unsigned int GetKeyboardModifiers(void)
+/* Function start: 0x455EDA */
+int GetJKeyState(void)
 {
-    return g_dwSystemKey_005d10a4;
+    return GetAsyncKeyState(0x4a);
 }
 
 /* Function start: 0x455EF5 */

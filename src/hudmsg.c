@@ -736,8 +736,12 @@ short HandleSpaceFlightControls(void)
             ShowVersionBanner();
         break;
     case 0x24:
-        if (notRepeated && control != 0)
-            CalibrateJoystickInteractive();
+        if (notRepeated) {
+            if (control != 0)
+                CalibrateJoystickInteractive();
+            else
+                TryBeginStarSystemJump();
+        }
         break;
     case 0x19:
 #ifdef SDL_PORT

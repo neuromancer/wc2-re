@@ -429,7 +429,7 @@ int GetNearHeapBlockSize(void *pointer)
 /* Function start: 0x458E20 */
 unsigned short IsSoundHardwarePresent(short device)
 {
-    GetSoundHardwareFlag();
+    EnableHighMemoryResources();
     return 1;
 }
 

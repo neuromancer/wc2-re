@@ -700,7 +700,7 @@ void FormatNavCoordinates(unsigned char *out)
 
     if (out == 0)
         out = (unsigned char *)&g_stElapsedCampaignDate_005d170c;
-    SplitGameClockTicks(tmp);
+    SplitGameClockTicksForNav(tmp);
     out[1] = tmp[2];
     out[0] = tmp[3];
 }

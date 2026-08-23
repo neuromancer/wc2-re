@@ -392,6 +392,15 @@ void SaveVolumeSettingsToRegistry(void)
     RegCloseKey(key);
 }
 
+/* Function start: 0x424A00 */
+void IxSample::ix_sample_set_looping(int enabled)
+{
+    if (enabled != 0)
+        flags |= 2;
+    else
+        flags &= ~2U;
+}
+
 /* The IxSound accessor FindActiveSoundEntryBySample reaches through.  It is
  * an inline member in the ix headers, so every translation unit that calls it
  * gets its own out-of-line copy; this is the one the sound unit emitted, and

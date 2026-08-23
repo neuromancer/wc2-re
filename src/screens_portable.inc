@@ -5,12 +5,6 @@
  * remain in their original compilation unit.
  */
 
-void __stdcall FillRasterBytes(void *destination, unsigned int length,
-                               short value)
-{
-    memset(destination, (unsigned char)value, length);
-}
-
 char *CopyRasterDriverName(void *const *callbacks)
 {
     const char *(*getName)(void);

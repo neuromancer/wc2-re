@@ -2431,6 +2431,44 @@ void snow_viewport(Viewport *viewport, int effect, unsigned short colour)
     RasterLineHook(g_szShadedTriangle_00496a60);
 }
 
+/* Function start: 0x4287EB */
+void DrawViewportStatic(Viewport *viewport, int effect,
+                        unsigned short colour)
+{
+    int left;
+    int top;
+    int right;
+    int bottom;
+    unsigned char *pixel;
+    int width;
+    int remaining;
+    int y;
+
+    if (viewport->left < 0)
+        return;
+    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels) {
+        left = viewport->left;
+        top = viewport->top;
+        right = viewport->right;
+        bottom = viewport->bottom;
+        width = right - left + 1;
+        for (y = top; y < bottom; y++) {
+            pixel = viewport->pixels + viewport->rowOffsets[y] + left;
+            remaining = width;
+            while (remaining-- != 0) {
+                if (RandomBelow(
+                        (short)g_nViewportStaticRandomRange_0048e060) == 1)
+                    *pixel = (unsigned char)colour;
+                else
+                    *pixel = g_cSecondaryViewBufferColour_0049cb4c;
+                pixel++;
+            }
+        }
+        MarkDibDirty();
+    }
+    RasterLineHook(g_szSnowViewport_00496a88);
+}
+
 /* Function start: 0x428979 */
 void UpdateStreamerStoppedFlag(void)
 {

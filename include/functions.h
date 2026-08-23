@@ -82,8 +82,9 @@ int GetNumpadMinusKeyState(void);                                /* 0x455E3E */
 int GetReturnKeyState(void);                                     /* 0x455E59 */
 int GetSpaceKeyState(void);                                      /* 0x455E74 */
 int GetShiftKeyState(void);                                             /* 0x455E8F */
-int GetControlKeyState(void);                                           /* 0x455EBF */
 unsigned int GetKeyboardModifiers(void);                                     /* 0x455EAA */
+int GetControlKeyState(void);                                           /* 0x455EBF */
+int GetJKeyState(void);                                                 /* 0x455EDA */
 unsigned int GetGameClockTicks(void);                                   /* 0x455EF5 */
 void InitGameClockRandomEpoch(void);                              /* 0x455F23 */
 void WriteDebugString(const char *s);                                   /* 0x455F59 */
@@ -116,6 +117,7 @@ void set_speed(short obj, short speed);                                  /* 0x42
 void auto_position(short obj, short *formationSlot);                     /* 0x4229B9 */
 void auto_pilot_sequence(void);                                          /* 0x422B1C */
 void ejection_sequence(short outcome, signed char restoreCockpit); /* 0x44EBCA */
+void TryBeginStarSystemJump(void);                                   /* 0x424EFF */
 void CompleteStarSystemJump(void);                                    /* 0x4251F2 */
 short RunCampaignContinuePromptLoop(unsigned char *promptShapes,
                                     unsigned char *fieldShape,
@@ -766,6 +768,7 @@ short initialize_ship(short type, short owner,
                       short matchLoadedType);                         /* 0x41062D */
 short CountShipProjectiles(short ship);                              /* 0x410020 */
 short CanShipWeaponDamageTarget(short ship, short target);            /* 0x410102 */
+short ShipHasCloakingDevice(short ship);                               /* 0x41008E */
 short HasShipCockpitGunDisplay(short ship);                            /* 0x410192 */
 void IncreaseAdaptiveDifficulty(void);                                 /* 0x4102FD */
 void DecreaseAdaptiveDifficulty(void);                                 /* 0x410352 */
@@ -1009,6 +1012,7 @@ void CreateDebugOverlayConsole(HINSTANCE module, HWND window,
                                short columns, short rows);             /* 0x40FCD0 */
 void DestroyGlobalDebugOverlayConsole(void);                           /* 0x40FD73 */
 void SystemDebugPrintf(const char *format, ...);                           /* 0x40FDAD */
+void OutputDebugPrintf(const char *format, ...);                        /* 0x4541BD */
 char PumpMessagesDuringWait(void);                                        /* 0x40FE23 */
 unsigned char TakeDebugStepFlag(void);                                     /* 0x40FE3E */
 void SetDebugTextPosition(short row, short column);                    /* 0x40FE59 */
@@ -1027,6 +1031,7 @@ short ReadTextInput(char *destination, short maximumLength,
 short LogMemoryUsage(void);                                            /* 0x46579D */
 void ReportFatalErrorCode(const char *errorCode);                       /* 0x437A44 */
 void AllocateApplicationScratchBuffer(void);                           /* 0x4656CC */
+void SplitGameClockTicksForNav(unsigned char *parts);                   /* 0x465644 */
 void ReleaseApplicationScratchBuffer(void);                            /* 0x4656EB */
 unsigned char *GetInputCursorShape(void);                              /* 0x46570E */
 short WaitForQueuedInputPress(void);                                  /* 0x465730 */
@@ -1508,6 +1513,7 @@ void SetFrameTimerPeriodDirect(short p);                               /* 0x4640
 void WaitForFrameTick(void);                                          /* 0x464055 */
 short IsFrameTickElapsed(void);                                          /* 0x464072 */
 void *AllocateZeroedRecords(int count, short elementSize, short flags); /* 0x46409B */
+unsigned short EnableHighMemoryResources(void);                         /* 0x4640F4 */
 unsigned short GetSoundHardwareFlag(void);                                    /* 0x464141 */
 void *AllocateDefaultMemory(unsigned int size);                         /* 0x464123 */
 void TimerResetHook(void);                                           /* 0x46416A */
@@ -1848,6 +1854,8 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               short *bounds);                         /* 0x4283A4 */
 void fizzle_fade(Viewport *source, Viewport *destination,
                  const short *runs);            /* 0x428690 */
+void DrawViewportStatic(Viewport *viewport, int effect,
+                        unsigned short colour);                       /* 0x4287EB */
 void snow_viewport(Viewport *viewport, int effect,
                    unsigned short colour);                            /* 0x427DE8 */
 void UpdateStreamerStoppedFlag(void);                                    /* 0x428979 */

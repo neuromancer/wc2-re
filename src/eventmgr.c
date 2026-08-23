@@ -697,6 +697,15 @@ void *AllocateZeroedRecords(int count, short elementSize, short flags)
 }
 #pragma intrinsic(memset)
 
+/* Function start: 0x4640F4 */
+unsigned short EnableHighMemoryResources(void)
+{
+    g_bHighMemoryResourcesEnabled_005c80e4 = 1;
+    DAT_005c8458 = 0x1000;
+    DAT_005c82a4 = 0x1000;
+    return 1;
+}
+
 /* Function start: 0x464123 */
 void *AllocateDefaultMemory(unsigned int size)
 {

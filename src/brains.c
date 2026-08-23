@@ -4080,11 +4080,11 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
             g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].damageCapacity / 2 + 1);
     }
-    if (HasShipCockpitGunDisplay(obj) == 0) {
-        g_anShipCloakState_00496020[obj] = 2;
-    } else {
+    if (ShipHasCloakingDevice(obj) != 0) {
         g_anShipCloakState_00496020[obj] = 0;
         g_aShipWeapons_004956b0[obj][0]--;
+    } else {
+        g_anShipCloakState_00496020[obj] = 2;
     }
     g_asShipCloakCooldown_00496048[obj] = 0;
     reset_mission_type(obj, record->missionType);

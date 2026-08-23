@@ -357,6 +357,87 @@ void clean_up_cockpit(void)
     ClearHudGunReadouts();
 }
 
+/* Function start: 0x424EFF */
+void TryBeginStarSystemJump(void)
+{
+    short object;
+
+    if (g_asObjectType_00495298[0] == 0x33 &&
+        g_bJumpSequenceActive_004962f0 == 0) {
+        for (object = 0; object < 10; object++) {
+            if (g_aeObjectClass_00495328[object] == OBJECT_CLASS_SHIP &&
+                g_asShipSide_004955d0[object] == SIDE_KILRATHI) {
+                set_global_message(
+                    "Enemy near",
+                    g_abGamePaletteReservedColours_0049cb54[4], 3);
+                return;
+            }
+        }
+        if (g_abJumpDriveUsedBySystem_005d2fe8[
+                g_nCurrentStarSystem_005d169c] != 0) {
+            set_global_message(
+                "Capacitors Empty",
+                g_abGamePaletteReservedColours_0049cb54[4], 3);
+            return;
+        }
+        for (object = 1; object < 10; object++) {
+            if (g_aeObjectClass_00495328[object] >=
+                    OBJECT_CLASS_CAPITAL_SHIP &&
+                g_asShipMissionType_00495de8[object] ==
+                    MISSION_TYPE_GOTO_WARP &&
+                g_asShipMissionParameter_00495e00[object] ==
+                    g_nCurrentNavPoint_004931bc &&
+                equ_vector(
+                    &g_aMissionObjectives_004932a8[
+                        g_cCurrentObjective_004931cc].position,
+                    &g_aShipDestination_004953f0[object]) == 0) {
+                sprintf(g_pszAutopilotWaitReason_0049b050,
+                        "Wait for %s",
+                        g_apShipMissionRecord_00495da8[object]->name);
+                set_global_message(
+                    g_pszAutopilotWaitReason_0049b050,
+                    g_abGamePaletteReservedColours_0049cb54[4], 3);
+                return;
+            }
+        }
+        if (g_aMissionNavPoints_00491e98[
+                g_nCurrentNavPoint_004931bc].field_2e == 0) {
+            set_global_message(
+                "No jump point",
+                g_abGamePaletteReservedColours_0049cb54[4], 3);
+            return;
+        }
+        if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
+            g_nPendingEjectionSequenceCount_0049b8b8 != 0) {
+            g_nEjectionSequenceState_0049b8c0 = 0;
+            g_nPendingEjectionSequenceCount_0049b8b8 = 0;
+            ejection_sequence(g_ucPendingEjectionTransition_0049b8ac, 1);
+            g_ucPendingEjectionTransition_0049b8ac = 0xff;
+        }
+        spacetrack(0x2f, 1, 0);
+        force_view(0x0d, 0);
+        g_bStarSystemJumpTransition_004962ec = 1;
+        g_abJumpDriveUsedBySystem_005d2fe8[
+            g_nCurrentStarSystem_005d169c]++;
+        g_bJumpSequenceActive_004962f0 = 1;
+        g_nStarSystemJumpDelay_004962f4 = 0;
+        g_nSavedPlayerObjectCounter_005d2fe0 =
+            g_asObjectCounter_00494be0[0];
+        g_asShipMissionType_00495de8[0] = MISSION_TYPE_GOTO_WARP;
+        g_asShipCount_00495ff8[0] = 0;
+        g_asShipTactic_00495f30[0] = TACTIC_SIT_STILL;
+        if (g_nYourWingman_0049346c != -1) {
+            g_nSavedWingmanObjectCounter_005d2fdc =
+                g_asObjectCounter_00494be0[g_nYourWingman_0049346c];
+            g_asShipMissionType_00495de8[g_nYourWingman_0049346c] =
+                MISSION_TYPE_GOTO_WARP;
+            g_asShipCount_00495ff8[g_nYourWingman_0049346c] = 0;
+            g_asShipTactic_00495f30[g_nYourWingman_0049346c] =
+                TACTIC_SIT_STILL;
+        }
+    }
+}
+
 /* Function start: 0x4251F2 */
 void CompleteStarSystemJump(void)
 {

@@ -3488,7 +3488,7 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
                         if (g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
                             0) {
                             if (cacheIndex == 0) {
-                                SystemDebugPrintf(
+                                OutputDebugPrintf(
                                     "FLIC Failed %s (%d)\n Hit Key to Continue",
                                     filename,
                                     object->nextSection + cacheIndex);

@@ -233,6 +233,7 @@
 0x0040FFC0 DebugOverlayConsole::TakeStepFlag
 0x0040FFF0 DebugOverlayConsole::ClearPauseFlags
 0x00410020 CountShipProjectiles
+0x0041008E ShipHasCloakingDevice
 0x00410102 CanShipWeaponDamageTarget
 0x00410161 IsCapitalShipObject
 0x00410192 HasShipCockpitGunDisplay
@@ -439,6 +440,7 @@
 0x00424888 RegistryStoreValue
 0x004248B4 LoadVolumeSettingsFromRegistry
 0x00424980 SaveVolumeSettingsToRegistry
+0x00424A00 IxSample::ix_sample_set_looping
 0x00424A40 ix_sound_get_sample
 0x00424A60 find_objective
 0x00424AEE arrive_from_warp
@@ -446,6 +448,7 @@
 0x00424D4D warp
 0x00424E8C MarkPilotDead
 0x00424EA7 clean_up_cockpit
+0x00424EFF TryBeginStarSystemJump
 0x004251F2 CompleteStarSystemJump
 0x004254C0 CheckHeapBlockSignature
 0x0042550E HasValidShapeAllocationSignature
@@ -484,6 +487,7 @@
 0x00428344 DrawSolidColourSpriteScaled
 0x004283A4 GetTransformedShapeBounds
 0x00428690 fizzle_fade
+0x004287EB DrawViewportStatic
 0x00428900 InitializeAudioStreamer
 0x0042894B SignalAudioMixerWakeEvent
 0x00428979 UpdateStreamerStoppedFlag
@@ -1113,6 +1117,7 @@
 0x00453E60 WinMain
 0x00454103 ShutdownGameWindow
 0x0045418B ShowNoticeMessageBox
+0x004541BD OutputDebugPrintf
 0x0045422D AbortToDesktop
 0x004542B7 CreateMainWindow
 0x0045445A PumpWindowMessages
@@ -1149,6 +1154,7 @@
 0x00455E8F GetShiftKeyState
 0x00455EAA GetKeyboardModifiers
 0x00455EBF GetControlKeyState
+0x00455EDA GetJKeyState
 0x00455EF5 GetGameClockTicks
 0x00455F23 InitGameClockRandomEpoch
 0x00455F59 WriteDebugString
@@ -1373,6 +1379,7 @@
 0x00464055 WaitForFrameTick
 0x00464072 IsFrameTickElapsed
 0x0046409B AllocateZeroedRecords
+0x004640F4 EnableHighMemoryResources
 0x00464123 AllocateDefaultMemory
 0x00464141 GetSoundHardwareFlag
 0x0046416A TimerResetHook
@@ -1422,6 +1429,7 @@
 0x0046502E SetMusicTickRateHook
 0x0046505E IsSpriteFrameOverlappingRect
 0x004651B7 GetViewportIntersection
+0x00465644 SplitGameClockTicksForNav
 0x004656CC AllocateApplicationScratchBuffer
 0x004656EB ReleaseApplicationScratchBuffer
 0x0046570E GetInputCursorShape

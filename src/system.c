@@ -6,6 +6,22 @@
  */
 #include "game.h"
 
+/* Function start: 0x465644 */
+void SplitGameClockTicksForNav(unsigned char *parts)
+{
+    int ticks;
+
+    ticks = (int)GetGameClockTicks();
+    parts[0] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[1] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[2] = (unsigned char)(ticks % 60);
+    ticks = ticks / 60;
+    parts[3] = (unsigned char)(ticks % 24);
+    return;
+}
+
 /* Function start: 0x4656CC */
 void AllocateApplicationScratchBuffer(void)
 {

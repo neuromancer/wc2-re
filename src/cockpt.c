@@ -3076,7 +3076,7 @@ void malf_noise(short vdu, int effect, unsigned short colour,
         else
             PlaySfxWaveFileByNumber(sound, -1, 0);
     }
-    snow_viewport(viewport, effect, colour);
+    DrawViewportStatic(viewport, effect, colour);
     if (refresh != 0)
         set_new_vdu(vdu);
 }

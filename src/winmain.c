@@ -728,6 +728,29 @@ void ShowNoticeMessageBox(const char *text)
     exit(0);
 }
 
+#ifndef SDL_PORT
+#pragma function(strcpy)
+#endif
+
+/* Function start: 0x4541BD */
+void OutputDebugPrintf(const char *format, ...)
+{
+    va_list arguments;
+    char buffer[128];
+
+    va_start(arguments, format);
+    if (format != 0)
+        vsprintf(buffer, format, arguments);
+    else
+        strcpy(buffer, va_arg(arguments, const char *));
+    va_end(arguments);
+    OutputDebugStringA(buffer);
+}
+
+#ifndef SDL_PORT
+#pragma intrinsic(strcpy)
+#endif
+
 /* Function start: 0x45422D */
 unsigned int AbortToDesktop(void)
 {
