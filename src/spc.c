@@ -1336,6 +1336,7 @@ void update_objects_in_space(void)
 {
     short obj;
 
+#ifndef SDL_PORT
     if (g_nCannedSceneMode_0049021c != 0) {
         if (g_bSceneEscapeRequested_0049d4b0 != 0) {
             g_nCannedSceneRecordedFrameCount_005d3faa =
@@ -1352,6 +1353,7 @@ void update_objects_in_space(void)
         if (g_nCannedSceneBufferNearCapacityFlag_00490214 != 0)
             HandleCannedSceneBufferBoundary();
     }
+#endif
 
     for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
         if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL) {

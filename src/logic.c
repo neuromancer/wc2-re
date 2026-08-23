@@ -562,8 +562,10 @@ void LoadOriginFxDrivers(void)
             }
         }
     }
+#ifndef SDL_PORT
     if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
         InitializeHighMemoryGraphicsBuffers();
+#endif
     memoryLogFile = fopen("mem.$$$", "w+");
     LogMemoryStateToFile(memoryLogFile);
     if (memoryLogFile != 0)
