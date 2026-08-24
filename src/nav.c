@@ -1704,6 +1704,66 @@ void free_viewport(Viewport *viewport)
         g_stSecondaryViewBuffer_005d2c90.allocation = 0;
 }
 
+#ifdef SDL_PORT
+/* Not an original mechanism. AnimateTitleOrchestra, PlayTitleConductorCue,
+ * PushTitleOrchestraAway, RevealTitleLogo and ShowVictoryScreen below
+ * each draw through a tight loop gated only by
+ * g_nFrameSkipCountdown_0049d760/g_nFrameSkip_0049d764 (or, in
+ * ShowVictoryScreen's case, nothing at all) -- a render-skip counter
+ * for slow machines (see ReportFramesSkipped, hudmsg.c), not a clock.
+ * WaitForInputKey (disk.c) polls input every iteration but never blocks
+ * on real elapsed time either. On the original, CPU speed alone kept
+ * this roughly watchable; on modern hardware the whole sequence burns
+ * through in a handful of milliseconds. The sequence's own exit
+ * condition (g_nTitleMusicSequenceStage_0049be94, set from the live
+ * OriginFx music playback position, see SdlServiceOriginFxMusic in
+ * sdl/music.c) already ties overall duration to real audio time -- this
+ * floor only paces the visible per-frame rate within that, which needed
+ * its own real-time gate since none existed.
+ *
+ * The orchestra/logo-reveal sequence (Title_Sequence through
+ * RevealTitleLogo) was empirically tuned in-game at 6 ticks (10fps;
+ * started at 3, the 20fps rate the rest of the cinematic engine uses --
+ * see CUTSCENE_MOUTH_MIN_TICKS, game.h, and opcode 0x7c's own
+ * busy-wait, screens.c -- but that measured twice too fast, same
+ * correction factor the mouth-pacing floor needed).
+ *
+ * ShowVictoryScreen's fireworks finale (the ~30-firework simultaneous
+ * burst) needed a separate, faster rate -- confirmed against a real-386
+ * capture of the DOS original (youtube.com/watch?v=uz78jS1RKOU,
+ * ~00:57-01:10): the burst's onset is a single synchronous launch (all
+ * fireworks visible within one 33ms video frame, confirming the
+ * bulk-seed-29-at-once logic is itself correct, not a reconstruction
+ * bug), and the entire burst-to-fully-faded span measured 0.467s
+ * (frame-by-frame: first visible at the capture's 19.20s mark, fully
+ * clear by 19.67s). The loop needs exactly 11 real draw iterations to
+ * finish (fireworks 0-28 complete their 8-frame cycle by iteration 8;
+ * firework 29, started 4 iterations late, finishes at iteration 11) --
+ * 0.467s / 11 = ~42.5ms/iteration = ~2.55 ticks, rounded to 3.
+ *
+ * ShowVictoryScreen's FIRST loop (the individually-staggered small
+ * fireworks, before the finale) draws at this same normal rate too --
+ * a real-386 capture (frame-differencing pass, not spot samples) shows
+ * further sparks appearing roughly every ~1-1.3s after the first,
+ * becoming continuous in the last ~2.4s (the
+ * g_nTitleMusicSequenceStage_0049be94 > 4 guaranteed-spawn phase)
+ * until the finale ignites, spanning ~6.2s total -- far more than the
+ * ~11 draws (at any per-frame rate) the reference build's own
+ * loopCount <= 10 cap allows. Disassembling the real MS-DOS WC2.EXE
+ * (D:\MSDOS\WC2\WC2.EXE, separate from and predating this Win32 port)
+ * confirms that cap is Win32-specific: DOS's equivalent loop has no
+ * iteration limit in music-driven mode at all, looping unconditionally
+ * until g_nTitleMusicSequenceStage_0049be94 > 4 AND every firework has
+ * finished animating (the same exit condition already used below) --
+ * the 10-frame ceiling only exists as DOS's own non-music-driven
+ * fallback, exactly matching frameCount below. The reference build
+ * keeps the authentic (if abbreviated) Win32 cap; SDL_PORT restores the
+ * uncapped DOS original in music-driven mode, deliberately diverging
+ * from the Win32 reference here since that cap has no DOS counterpart. */
+#define TITLE_FRAME_TICKS 6
+#define TITLE_FIREWORKS_TICKS 3
+#endif
+
 /* Function start: 0x407E40 */
 void Title_Sequence(void)
 {
@@ -1743,8 +1803,29 @@ void Title_Sequence(void)
     section = RevealTitleLogo();
     if (g_nMusicDriverMode_0049be8c == 2 ||
         g_nMusicDriverMode_0049be8c == 1) {
+#ifdef SDL_PORT
+        /* waitCount < 3 alone was enough on the original: each
+         * WaitForInputKey/ServiceInputDevices call cost real time just
+         * from polling hardware, so three iterations were three
+         * meaningful waits. On modern hardware (or DOSBox) those calls
+         * cost nothing, so this loop used to fall through in well under
+         * a millisecond regardless of g_nTitleMusicSequenceStage_
+         * 0049be94's real value -- letting ShowVictoryScreen start
+         * almost immediately after the logo forms, instead of after the
+         * real pause seen on real hardware (~9-10s between the logo
+         * settling and the first firework, confirmed against a real-386
+         * capture: youtube.com/watch?v=uz78jS1RKOU, ~00:57-01:10). Pace
+         * each check for real and raise the iteration cap so it can
+         * actually cover that span; g_nTitleMusicSequenceStage_0049be94
+         * reaching 3 remains the real exit condition, same as before --
+         * this cap is only the safety net against it never doing so. */
+        while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
+               waitCount < 200) {
+            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#else
         while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
                waitCount < 3) {
+#endif
             if (WaitForInputKey() != 0)
                 g_bSceneEscapeRequested_0049d4b0 = 1;
             if (g_bSceneEscapeRequested_0049d4b0 != 0)
@@ -1815,6 +1896,9 @@ void AnimateTitleOrchestra(void)
             g_nFrameSkipCountdown_0049d760--;
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
                 DrawTitleSky(24);
                 for (actor = 0; actor < 10; actor++) {
                     DrawSpriteDefault(
@@ -1840,6 +1924,9 @@ void AnimateTitleOrchestra(void)
             g_nFrameSkipCountdown_0049d760--;
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
                 DrawTitleSky(24);
                 for (actor = 0; actor < 10; actor++) {
                     DrawSpriteDefault(
@@ -1896,6 +1983,9 @@ void PlayTitleConductorCue(void)
         g_nFrameSkipCountdown_0049d760--;
         if (g_nFrameSkipCountdown_0049d760 < 1) {
             g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+#ifdef SDL_PORT
+            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
             DrawTitleSky(24);
             for (actor = 0; actor < 9; actor++) {
                 DrawSpriteDefault(
@@ -2022,6 +2112,9 @@ void PushTitleOrchestraAway(void)
         g_nFrameSkipCountdown_0049d760--;
         if (g_nFrameSkipCountdown_0049d760 < 1) {
             g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+#ifdef SDL_PORT
+            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
             DrawTitleSky(24);
             for (actor = 0; actor < 9; actor++) {
                 x = (short)(g_aTitleActorMotion_00491ca8[actor].x +
@@ -2101,6 +2194,9 @@ short RevealTitleLogo(void)
             g_nFrameSkipCountdown_0049d760--;
             if (g_nFrameSkipCountdown_0049d760 < 1) {
                 g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                                   0, 0,
                                   g_pTitleFieldShape_00491cf8, 0);
@@ -2184,6 +2280,14 @@ void ShowVictoryScreen(short logoY)
                 }
             }
         }
+#ifdef SDL_PORT
+        /* Same normal rate as the orchestra sequence -- this loop no
+         * longer needs its own rate now that the loopCount cap below
+         * is lifted in music-driven mode; real elapsed time comes from
+         * running as many draws as it actually takes, not from
+         * slowing each individual draw down. */
+        SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
         emptyCount = TheEndFireWorks(
@@ -2205,7 +2309,19 @@ void ShowVictoryScreen(short logoY)
         if (g_bSceneEscapeRequested_0049d4b0 != 0)
             return;
         loopCount++;
+#ifdef SDL_PORT
+        /* The real MS-DOS WC2.EXE's equivalent loop has no iteration
+         * cap at all -- see the comment above SdlPaceTitleFrame.
+         * Loop unconditionally here too: the finishing/emptyCount==5
+         * break above (DOS's own only real exit) and the escape-key
+         * return above are what actually end it. Non-music-driven mode
+         * still ends the same way DOS does -- frameCount > 10 sets
+         * finishing above, then this same break fires once every
+         * firework has finished animating. */
+    } while (1);
+#else
     } while (loopCount <= 10);
+#endif
 
     for (index = 0; index < 29; index++) {
         g_aFireworks_005c8df0[index].frame = 0;
@@ -2225,6 +2341,9 @@ void ShowVictoryScreen(short logoY)
             g_aFireworks_005c8df0[29].y = RandomInRange(0, 127);
             g_aFireworks_005c8df0[29].variant = RandomInRange(0, 2);
         }
+#ifdef SDL_PORT
+        SdlPaceTitleFrame(TITLE_FIREWORKS_TICKS);
+#endif
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
         emptyCount = TheEndFireWorks(
