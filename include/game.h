@@ -100,6 +100,15 @@ typedef unsigned int DwordPtr;
  * unvoiced case; not derived from a DOS trace. */
 #define CUTSCENE_MOUTH_MIN_TICKS 6
 
+/* Same class of bug as CUTSCENE_MOUTH_MIN_TICKS above, but for the general
+ * sprite/plane wait opcodes (0x44, 0xaa) that every cutscene object -- not
+ * just the speaker's mouth -- uses to pace its own script. A script-authored
+ * wait of a tick or two relied on the DOS host's own draw speed to look
+ * right; the port's clock gate can resolve it dozens of times a second.
+ * Starting from the mouth's proven value as a first guess, not tuned
+ * separately yet. */
+#define CUTSCENE_SPRITE_MIN_TICKS 6
+
 /* Marks a routine that deliberately indexes out of one global and into the one
  * that follows it.  The original's data layout is what makes those reads land
  * where they are meant to, and the reconstruction reproduces that layout
