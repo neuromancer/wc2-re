@@ -677,6 +677,11 @@ short player_input(void)
     short vertical;
     int savedPlayerInputActive;
     HostMouseMessage *mouse;
+#ifdef SDL_PORT
+    signed char trailingKeyRelease;
+
+    trailingKeyRelease = 0;
+#endif
 
     result = 0;
     mouse = &g_stHostMouseMessage_005d10d0;
@@ -863,12 +868,38 @@ short player_input(void)
         case 6:
             result = 1;
         case 4:
+#ifdef SDL_PORT
+            trailingKeyRelease = 0;
+#endif
             g_nCockpitControlGoal_0049d7d0 = 0;
             g_cCurrentKey_00493128 = (signed char)event.status;
             process_player_input();
             break;
+#ifdef SDL_PORT
+        case 5:
+            trailingKeyRelease = 1;
+            break;
+#endif
         }
     }
+#ifdef SDL_PORT
+    /* The reset above only peeks the queue for a pending keyup before this
+     * loop runs, so a trailing auto-repeat keydown still queued behind
+     * that keyup -- ordinary at the exact moment a key is released -- gets
+     * processed afterward and calls process_player_input() one more time,
+     * incrementing yaw/pitch/roll right back up and undoing the reset that
+     * already happened. Catch that here: if the last discrete flight event
+     * this loop actually saw was a release, not a fresh press, the reset
+     * still applies no matter what ran in between. */
+    if (trailingKeyRelease != 0 &&
+        g_bPolledFlightInputQueued_005c587a == 0 &&
+        g_nCockpitControlState_0049d7ac == 0) {
+        g_nYawInput_004931aa =
+            g_nPitchInput_004931a8 =
+            g_nRollInput_004931ac =
+            g_bMouseMoveEventQueued_0049d7fc = 0;
+    }
+#endif
 
     if (g_bSecondaryMouseButtonHeld_0049d7f4 == 1)
         g_cCurrentKey_00493128 = 0xf;
