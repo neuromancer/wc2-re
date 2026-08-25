@@ -440,6 +440,68 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
     fflush(stderr);
 }
 
+/* WC2's radio-command hotkeys (see issue #7): winmain.c's WM_SYSKEYDOWN
+ * handler sets one flag per ALT+letter combo, and its WM_SYSKEYUP handler
+ * clears all six together on the release of *any* key while ALT is held,
+ * not just the one that set them -- releasing a still-held combo's
+ * neighbor silently cancels it. Set the matching flag precisely on that
+ * key's own ALT+keydown, and clear it precisely on that key's own keyup
+ * or on ALT's release, so one held combo cannot cancel another. */
+static void SdlUpdateAltRadioHotkey(int pressed, int virtualKey,
+                                       int altHeld)
+{
+    switch (virtualKey) {
+    case 'B':
+        if (pressed) {
+            if (altHeld)
+                g_bAltBHotkey_005d1290 = 1;
+        } else {
+            g_bAltBHotkey_005d1290 = 0;
+        }
+        break;
+    case 'F':
+        if (pressed) {
+            if (altHeld)
+                g_bAltFHotkey_005d127c = 1;
+        } else {
+            g_bAltFHotkey_005d127c = 0;
+        }
+        break;
+    case 'A':
+        if (pressed) {
+            if (altHeld)
+                g_bAltAHotkey_005d1294 = 1;
+        } else {
+            g_bAltAHotkey_005d1294 = 0;
+        }
+        break;
+    case 'H':
+        if (pressed) {
+            if (altHeld)
+                g_bAltHHotkey_005d128c = 1;
+        } else {
+            g_bAltHHotkey_005d128c = 0;
+        }
+        break;
+    case 'D':
+        if (pressed) {
+            if (altHeld)
+                g_bAltDHotkey_005d1280 = 1;
+        } else {
+            g_bAltDHotkey_005d1280 = 0;
+        }
+        break;
+    case 'T':
+        if (pressed) {
+            if (altHeld)
+                g_bAltTHotkey_005d1298 = 1;
+        } else {
+            g_bAltTHotkey_005d1298 = 0;
+        }
+        break;
+    }
+}
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -463,6 +525,22 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
         g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
+    if (event->keysym.scancode == SDL_SCANCODE_LALT ||
+        event->keysym.scancode == SDL_SCANCODE_RALT) {
+        /* Releasing Alt itself ends any combo still being held, the way
+         * the original's WM_SYSKEYUP did for whichever key it caught. */
+        if (!pressed) {
+            g_bAltBHotkey_005d1290 = 0;
+            g_bAltFHotkey_005d127c = 0;
+            g_bAltAHotkey_005d1294 = 0;
+            g_bAltHHotkey_005d128c = 0;
+            g_bAltDHotkey_005d1280 = 0;
+            g_bAltTHotkey_005d1298 = 0;
+        }
+    } else {
+        SdlUpdateAltRadioHotkey(pressed, virtualKey,
+                                   (event->keysym.mod & KMOD_ALT) != 0);
+    }
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
