@@ -447,60 +447,39 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
  * neighbor silently cancels it. Set the matching flag precisely on that
  * key's own ALT+keydown, and clear it precisely on that key's own keyup
  * or on ALT's release, so one held combo cannot cancel another. */
+/* Set INPUT_TRACE=1 to see "[althotkey] Alt+X intercepted" the moment a
+ * combo's flag is recognised here, and "[althotkey] Alt+X implemented"
+ * from HandleSpaceFlightControls (hudmsg.c) when it actually results in a
+ * quick-comm command -- useful for telling a genuine no-op apart from a
+ * command that fired but was blocked by a precondition (no wingman, no
+ * enemy nearby, and so on). */
+#define SDL_ALT_HOTKEY_CASE(letter, flag) \
+    case letter: \
+        if (pressed) { \
+            if (altHeld) { \
+                if ((flag) == 0) \
+                    SdlTracef("[althotkey] Alt+%c intercepted\n", letter); \
+                (flag) = 1; \
+            } \
+        } else { \
+            (flag) = 0; \
+        } \
+        break;
+
 static void SdlUpdateAltRadioHotkey(int pressed, int virtualKey,
                                        int altHeld)
 {
     switch (virtualKey) {
-    case 'B':
-        if (pressed) {
-            if (altHeld)
-                g_bAltBHotkey_005d1290 = 1;
-        } else {
-            g_bAltBHotkey_005d1290 = 0;
-        }
-        break;
-    case 'F':
-        if (pressed) {
-            if (altHeld)
-                g_bAltFHotkey_005d127c = 1;
-        } else {
-            g_bAltFHotkey_005d127c = 0;
-        }
-        break;
-    case 'A':
-        if (pressed) {
-            if (altHeld)
-                g_bAltAHotkey_005d1294 = 1;
-        } else {
-            g_bAltAHotkey_005d1294 = 0;
-        }
-        break;
-    case 'H':
-        if (pressed) {
-            if (altHeld)
-                g_bAltHHotkey_005d128c = 1;
-        } else {
-            g_bAltHHotkey_005d128c = 0;
-        }
-        break;
-    case 'D':
-        if (pressed) {
-            if (altHeld)
-                g_bAltDHotkey_005d1280 = 1;
-        } else {
-            g_bAltDHotkey_005d1280 = 0;
-        }
-        break;
-    case 'T':
-        if (pressed) {
-            if (altHeld)
-                g_bAltTHotkey_005d1298 = 1;
-        } else {
-            g_bAltTHotkey_005d1298 = 0;
-        }
-        break;
+    SDL_ALT_HOTKEY_CASE('B', g_bAltBHotkey_005d1290)
+    SDL_ALT_HOTKEY_CASE('F', g_bAltFHotkey_005d127c)
+    SDL_ALT_HOTKEY_CASE('A', g_bAltAHotkey_005d1294)
+    SDL_ALT_HOTKEY_CASE('H', g_bAltHHotkey_005d128c)
+    SDL_ALT_HOTKEY_CASE('D', g_bAltDHotkey_005d1280)
+    SDL_ALT_HOTKEY_CASE('T', g_bAltTHotkey_005d1298)
     }
 }
+
+#undef SDL_ALT_HOTKEY_CASE
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
