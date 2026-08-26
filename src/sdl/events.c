@@ -440,6 +440,41 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
     fflush(stderr);
 }
 
+/* See issue #7: the retail radio-command hotkeys (Alt+B/F/A/H/D/T -- the
+ * wingman "quick comm" shortcuts, see IssueQuickCommCommand calls in
+ * hudmsg.c) are recognised in MainWindowProc's WM_SYSKEYDOWN/WM_SYSKEYUP
+ * handling in winmain.c, which is #ifndef SDL_PORT and so does not exist in
+ * this build at all: none of g_bAlt{A,B,F,H,D,T}Hotkey_* ever gets set here,
+ * making the shortcuts silent no-ops rather than merely unreliable.
+ *
+ * MainWindowProc's WM_SYSKEYUP handler was also the direct cause of the
+ * "erratic wingmate AI behaviour" half of #7: it clears every one of these
+ * flags together on *any* key release while Alt is held, not just the
+ * release of the key that set them -- so holding Alt and tapping two
+ * letters in a row could wipe a flag that had just been set for the second
+ * letter, or (since Break-and-Attack and Keep-Formation are opposite
+ * objectives) let two conflicting quick-comm commands fire back to back.
+ *
+ * Each SDL key event already names its own key, so track and clear each
+ * flag independently off its own SDL_KEYDOWN/SDL_KEYUP pair instead of one
+ * shared "any key up" reset. */
+static void SdlUpdateAltHotkey(const SDL_KeyboardEvent *event, int pressed,
+                               SDL_Scancode scancode, int *flag,
+                               const char *label)
+{
+    if (event->keysym.scancode != scancode)
+        return;
+    if (!pressed) {
+        *flag = 0;
+        return;
+    }
+    if ((event->keysym.mod & KMOD_ALT) == 0)
+        return;
+    if (*flag == 0 && event->repeat == 0)
+        SdlTracef("[althotkey] Alt+%s intercepted\n", label);
+    *flag = 1;
+}
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -463,6 +498,18 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
         g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_B,
+                      &g_bAltBHotkey_005d1290, "B");
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_F,
+                      &g_bAltFHotkey_005d127c, "F");
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_A,
+                      &g_bAltAHotkey_005d1294, "A");
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_H,
+                      &g_bAltHHotkey_005d128c, "H");
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_D,
+                      &g_bAltDHotkey_005d1280, "D");
+    SdlUpdateAltHotkey(event, pressed, SDL_SCANCODE_T,
+                      &g_bAltTHotkey_005d1298, "T");
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)

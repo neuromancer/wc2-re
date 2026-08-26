@@ -178,6 +178,10 @@ short HandleSpaceFlightControls(void)
         g_aeShipObjective_00495f08[g_nYourWingman_0049346c] ==
             OBJECTIVE_HOLD_FORMATION &&
         any_enemy(0, 14000) != 0) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+B implemented: break and attack "
+                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
+#endif
         IssueQuickCommCommand(g_nYourWingman_0049346c, 4);
         g_nLastAltCommandScanCode_005d1274 = 0x30;
     }
@@ -189,6 +193,10 @@ short HandleSpaceFlightControls(void)
     if (g_bAltFHotkey_005d127c != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x21 &&
         g_nYourWingman_0049346c != -1) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+F implemented: keep formation / form "
+                  "on wing (wingman=%d)\n", (int)g_nYourWingman_0049346c);
+#endif
         IssueQuickCommCommand(g_nYourWingman_0049346c, 6);
         g_nLastAltCommandScanCode_005d1274 = 0x21;
     }
@@ -196,6 +204,11 @@ short HandleSpaceFlightControls(void)
         g_nLastAltCommandScanCode_005d1274 != 0x1e &&
         g_nYourWingman_0049346c != -1 &&
         g_acShipTarget_00495f20[0] != -1) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+A implemented: attack my target "
+                  "(wingman=%d target=%d)\n", (int)g_nYourWingman_0049346c,
+                  (int)g_acShipTarget_00495f20[0]);
+#endif
         IssueQuickCommCommand(g_nYourWingman_0049346c, 1);
         g_nLastAltCommandScanCode_005d1274 = 0x1e;
     }
@@ -203,12 +216,20 @@ short HandleSpaceFlightControls(void)
         g_nLastAltCommandScanCode_005d1274 != 0x23 &&
         g_nYourWingman_0049346c != -1 &&
         any_enemy(0, 14000) != 0) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+H implemented: help me out here "
+                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
+#endif
         IssueQuickCommCommand(g_nYourWingman_0049346c, 2);
         g_nLastAltCommandScanCode_005d1274 = 0x23;
     }
     if (g_bAltDHotkey_005d1280 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x20 &&
         g_nYourWingman_0049346c != -1) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+D implemented: damage report "
+                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
+#endif
         IssueQuickCommCommand(g_nYourWingman_0049346c, 13);
         g_nLastAltCommandScanCode_005d1274 = 0x20;
     }
@@ -217,6 +238,10 @@ short HandleSpaceFlightControls(void)
         g_acShipTarget_00495f20[0] != -1 &&
         g_asShipSide_004955d0[g_acShipTarget_00495f20[0]] ==
             SIDE_KILRATHI) {
+#ifdef SDL_PORT
+        SdlTracef("[althotkey] Alt+T implemented: taunt (target=%d)\n",
+                  (int)g_acShipTarget_00495f20[0]);
+#endif
         IssueQuickCommCommand(
             g_acShipTarget_00495f20[0],
             (short)((unsigned short)RandomInRange(0, 2) +
