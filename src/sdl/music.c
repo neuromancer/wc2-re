@@ -361,6 +361,12 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
 
 void SdlStopDosSoundEffects(void)
 {
+    /* stop_all_sounds calls this port-only hook before a cutscene releases
+     * its object resources.  The armed mouth sprite is a non-owning pointer
+     * into those resources, so it must not survive that sound teardown: a
+     * later speech clip can otherwise make ServiceSoundSystem write through
+     * the freed pointer when playback finishes. */
+    g_pLinkedCutsceneSprite_00499c64 = 0;
     g_bAfterburnerSfxActive_005d3864 = 0;
     if (g_pSdlDosMusicMutex == 0 ||
         g_pSdlOriginFxSoundPlayer == 0)
