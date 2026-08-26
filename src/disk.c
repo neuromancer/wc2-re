@@ -174,7 +174,21 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
                             short maximumSelection)
 {
     short selection;
+#ifdef SDL_PORT
+    /* GetNextInputEvent leaves state->type untouched when the queue is
+     * empty (it only ever sets x/y in that case) -- fine for its other
+     * callers, who already know an event is waiting, but this function
+     * falls back to &event below whenever FindQueuedInputEvent(1) finds
+     * no click anywhere in the queue, then calls GetNextInputEvent(&event)
+     * regardless of whether anything is actually queued. An uninitialized
+     * event.type that happens to equal 1 reads as a real click at the
+     * current cursor position, with no input at all -- the main screen
+     * and mission-select door hotspots advancing with zero input. See
+     * issue #22. */
+    InputEventState event = {0};
+#else
     InputEventState event;
+#endif
     InputEventState *inputEvent;
     short controlPressed;
     short jPressed;
