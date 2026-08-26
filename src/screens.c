@@ -2186,15 +2186,6 @@ handle_queued_cutscene_input:
             g_pCurrentCutsceneSprite_00499c78->waitTicks = waitTicks;
             g_pCurrentCutsceneSprite_00499c78->waitStart =
                 g_nInputClock_005c84a8;
-#ifdef SDL_PORT
-            SdlTracef("[sprite-wait] op=0x44 sprite=%p frame=%d x=%d y=%d "
-                         "wait=%d clock=%d\n",
-                         (void *)g_pCurrentCutsceneSprite_00499c78,
-                         (int)g_pCurrentCutsceneSprite_00499c78->currentFrame,
-                         (int)g_pCurrentCutsceneSprite_00499c78->x,
-                         (int)g_pCurrentCutsceneSprite_00499c78->y,
-                         (int)waitTicks, (int)g_nInputClock_005c84a8);
-#endif
             if (objectType == 0) {
                 *scriptCursor = instruction;
                 return returnValue;
@@ -2360,14 +2351,6 @@ handle_queued_cutscene_input:
             g_pCurrentCutscenePlane_00499c7c->waitTicks = waitTicks;
             g_pCurrentCutscenePlane_00499c7c->waitStart =
                 g_nInputClock_005c84a8;
-#ifdef SDL_PORT
-            SdlTracef("[plane-wait] op=0xaa plane=%p x=%d y=%d wait=%d "
-                         "clock=%d\n",
-                         (void *)g_pCurrentCutscenePlane_00499c7c,
-                         (int)g_pCurrentCutscenePlane_00499c7c->x,
-                         (int)g_pCurrentCutscenePlane_00499c7c->y,
-                         (int)waitTicks, (int)g_nInputClock_005c84a8);
-#endif
             if (objectType == 1) {
                 *scriptCursor = instruction;
                 return returnValue;
@@ -2397,15 +2380,6 @@ handle_queued_cutscene_input:
             break;
         case 0x6b:
             waitTicks = PopCutsceneScriptValue(&stack, stackStorage + 10);
-#ifdef SDL_PORT
-            SdlTracef("[sequence-wait] op=0x6b sequence=%p wait=%d "
-                         "prevWaitTicks=%d prevWaitStart=%d clock=%d\n",
-                         (void *)g_pCurrentCutsceneSequence_00499c80,
-                         (int)waitTicks,
-                         (int)g_pCurrentCutsceneSequence_00499c80->waitTicks,
-                         (int)g_pCurrentCutsceneSequence_00499c80->waitStart,
-                         (int)g_nInputClock_005c84a8);
-#endif
             if (waitTicks != 0 && g_bCutsceneSkipFrame_00499c54 == 0) {
                 while (g_nInputClock_005c84a8 <
                        g_pCurrentCutsceneSequence_00499c80->waitStart +
@@ -2413,11 +2387,6 @@ handle_queued_cutscene_input:
                     PumpWindowMessages(0);
                 }
             }
-#ifdef SDL_PORT
-            SdlTracef("[sequence-wait] op=0x6b sequence=%p done clock=%d\n",
-                         (void *)g_pCurrentCutsceneSequence_00499c80,
-                         (int)g_nInputClock_005c84a8);
-#endif
             g_pCurrentCutsceneSequence_00499c80->waitTicks = waitTicks;
             g_pCurrentCutsceneSequence_00499c80->waitStart =
                 g_nInputClock_005c84a8;
