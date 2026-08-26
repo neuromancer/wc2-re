@@ -2903,6 +2903,24 @@ void InitializeCockpitResources(short shipType)
     g_nHudMessageBackgroundDepth_0049b294 = 0;
     LoadShapeSet(g_aCockpitCommonShapeResources_0049c820, 0,
                  g_szCockpitResourceFilename_005d1030);
+#ifdef SDL_PORT
+    /* See issue #30: LoadShapeSet aborts the whole list on the first
+     * missing resource, and g_pCockpitWeaponShape_005d2b54 (the ship's
+     * cockpit weapon-display shape, section 12 of the ship-specific
+     * pcshipNN.v file) is legitimately absent for ship types that have
+     * no cockpit weapon display -- code elsewhere already null-checks it
+     * before use. But that abort also skips every later entry in the
+     * same list, including g_pCockpitIndicatorShape_005d2c48 (the target
+     * VDU's shield-strength indicator sprite, cockpit.vga section 4),
+     * which has nothing to do with the ship-specific failure and is
+     * always present. The result: any ship without a cockpit weapon
+     * display never shows shield strength on a locked target, even at
+     * full shields. Load it directly if the set above left it null. */
+    if (g_pCockpitIndicatorShape_005d2c48 == 0) {
+        g_pCockpitIndicatorShape_005d2c48 =
+            FetchDiskPacketRetrying("cockpit.vga", 4, 0x40);
+    }
+#endif
     g_pScannerMarkerBackground_005d1c2c = AllocateTaggedMemory(
         (unsigned int)MeasureShapeFrameStorage(
             g_pCockpitHudShape_005d21f4, 2),
