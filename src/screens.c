@@ -1261,13 +1261,6 @@ void UpdateCutscenePlaneObject(CutscenePlane *plane,
             g_nInputClock_005c84a8 < plane->waitStart + plane->waitTicks) {
             waiting = 1;
         } else {
-#ifdef SDL_PORT
-            SdlTracef("[plane-wait] expired plane=%p wanted=%d "
-                         "actual=%d clock=%d\n",
-                         (void *)plane, (int)plane->waitTicks,
-                         (int)(g_nInputClock_005c84a8 - plane->waitStart),
-                         (int)g_nInputClock_005c84a8);
-#endif
             plane->waitTicks = 0;
         }
     }
@@ -1309,14 +1302,6 @@ void UpdateCutsceneSpriteObject(SceneFlicObject *sprite)
             g_nInputClock_005c84a8 < sprite->waitStart + sprite->waitTicks) {
             waiting++;
         } else {
-#ifdef SDL_PORT
-            SdlTracef("[sprite-wait] expired sprite=%p frame=%d wanted=%d "
-                         "actual=%d clock=%d\n",
-                         (void *)sprite, (int)sprite->currentFrame,
-                         (int)sprite->waitTicks,
-                         (int)(g_nInputClock_005c84a8 - sprite->waitStart),
-                         (int)g_nInputClock_005c84a8);
-#endif
             sprite->waitTicks = 0;
         }
     }
