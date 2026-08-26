@@ -965,7 +965,20 @@ void clear_message_time(void)
 /* Function start: 0x43952E */
 short message_showing(void)
 {
+#ifdef SDL_PORT
+    /* See issue #27: -1 is the "waiting on speech playback" sentinel (see
+     * set_message_time), and check_message() below already has a dedicated
+     * branch for g_nHudMessageTime_005d1c32 == -1 that detects speech
+     * completion and calls EndCommMenu(). But this strict "0 <" test made
+     * that branch unreachable -- -1 read as "not showing", so check_message()
+     * never even looked at hudtime while it was in the wait state, and the
+     * comm portrait/VDU stayed on screen forever once the speech line
+     * finished. Treat -1 as showing (waiting), matching what every other
+     * caller here already assumes when a HUD message or comm portrait is up. */
+    return g_nHudMessageTime_005d1c32 != 0;
+#else
     return 0 < g_nHudMessageTime_005d1c32;
+#endif
 }
 
 /* Function start: 0x439559 */
