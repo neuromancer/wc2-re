@@ -411,11 +411,23 @@ static void SdlToggleFullscreen(Uint32 windowId)
 }
 
 /* WM_CHAR's contribution: the typed character, shift applied.  The game only
- * reads it for text entry, and the virtual key covers everything else. */
+ * reads it for text entry, and the virtual key covers everything else.
+ *
+ * Real WM_CHAR also fires for Backspace, Tab, Enter and Escape, with their
+ * usual C0 control codes (0x08, 0x09, 0x0d, 0x1b) -- TranslateMessage()
+ * does not restrict itself to printable output. GetNextInputEvent's type-4
+ * handling (eventmgr.c) surfaces this value, not the virtual key, as the
+ * event's final value, so zeroing those four here made WaitForAnyInputPress
+ * see 0 -- "no key yet" -- for them, and its caller would loop past the
+ * keypress waiting for a different one that never came. See issue #21
+ * (Enter never submits a pilot-name text field). */
 static int SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
 {
     int shifted;
 
+    if (virtualKey == 0x08 || virtualKey == 0x09 ||
+        virtualKey == 0x0d || virtualKey == 0x1b)
+        return virtualKey;
     if (virtualKey < ' ' || virtualKey > '~')
         return 0;
     shifted = (event->keysym.mod & (KMOD_SHIFT | KMOD_CAPS)) != 0;
