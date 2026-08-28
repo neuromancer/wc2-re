@@ -2180,7 +2180,7 @@ handle_queued_cutscene_input:
             /* See CUTSCENE_SPRITE_MIN_TICKS: a short script-authored wait
              * relied on the DOS host's own draw speed, not a real-time
              * gate, to look right. */
-            if (waitTicks != 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
+            if (waitTicks > 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
                 waitTicks = CUTSCENE_SPRITE_MIN_TICKS;
 #endif
             g_pCurrentCutsceneSprite_00499c78->waitTicks = waitTicks;
@@ -2345,7 +2345,7 @@ handle_queued_cutscene_input:
             /* See CUTSCENE_SPRITE_MIN_TICKS: a short script-authored wait
              * relied on the DOS host's own draw speed, not a real-time
              * gate, to look right. */
-            if (waitTicks != 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
+            if (waitTicks > 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
                 waitTicks = CUTSCENE_SPRITE_MIN_TICKS;
 #endif
             g_pCurrentCutscenePlane_00499c7c->waitTicks = waitTicks;
