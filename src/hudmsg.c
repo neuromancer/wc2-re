@@ -1716,6 +1716,26 @@ short calculate_damage_level(void)
 /* Function start: 0x419A40 */
 void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
 {
+#ifdef SDL_PORT
+    /* See issue #37 (crash reloading a savegame): DosFarPtrToNear/
+     * DosNearPtrToFar round-trip a pointer through "unsigned int" -- exactly
+     * correct on the 32-bit reference build (a dword IS a pointer there,
+     * see the DwordPtr comment in game.h), but on this 64-bit build it
+     * silently truncates the upper 32 bits. The branch below reconstructs
+     * both pointers through that round-trip unconditionally, and which
+     * branch runs depends on comparing the two pointers' truncated low 32
+     * bits -- so whether this corrupts the pointers effectively comes down
+     * to heap-address luck, reproducing more often the more the heap has
+     * churned (e.g. reopening the save/load menu a second time).
+     *
+     * The 0xffff-sized chunking in both branches below exists only to stay
+     * within a DOS segment's 64KB limit; that does not apply on a flat
+     * 64-bit address space, so a plain memmove is exactly equivalent and
+     * correct regardless of overlap -- which is exactly what this
+     * hand-rolled routine's name promises. */
+    if (count != 0)
+        memmove(destination, source, (size_t)count);
+#else
     if (count != 0) {
         if (DosFarPtrToNear(source) < DosFarPtrToNear(destination)) {
             destination = DosNearPtrToFar(
@@ -1745,6 +1765,7 @@ void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
             DosMemcpy(destination, source, (unsigned int)count);
         }
     }
+#endif
 }
 
 #pragma function(memset)
