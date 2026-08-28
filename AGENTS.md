@@ -26,7 +26,9 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
 ## Absolute Rules (Do Not Violate)
 
 - DO NOT remove or modify a function whose comment header carries a numeric retail address
-  (`/* Function start: 0x... */`). Those are verified against the retail image.
+  (`/* Function start: 0x... */`) in the reference build. SDL-port-only compatibility
+  changes may be gated with `#ifdef SDL_PORT`/`#else` when the original implementation
+  remains unchanged in the `#else` branch and `make verify` still passes.
 - DO remove `UNMAPPED` functions and predecessor-only globals once nothing that
   survives can reach them: inherited code that the retail game never runs is
   noise. Removal must be closure-aware -- compute what
