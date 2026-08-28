@@ -883,14 +883,7 @@ short player_input(void)
         }
     }
 #ifdef SDL_PORT
-    /* The reset above only peeks the queue for a pending keyup before this
-     * loop runs, so a trailing auto-repeat keydown still queued behind
-     * that keyup -- ordinary at the exact moment a key is released -- gets
-     * processed afterward and calls process_player_input() one more time,
-     * incrementing yaw/pitch/roll right back up and undoing the reset that
-     * already happened. Catch that here: if the last discrete flight event
-     * this loop actually saw was a release, not a fresh press, the reset
-     * still applies no matter what ran in between. */
+    /* Apply a final key release after draining earlier repeat events. */
     if (trailingKeyRelease != 0 &&
         g_bPolledFlightInputQueued_005c587a == 0 &&
         g_nCockpitControlState_0049d7ac == 0) {
