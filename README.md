@@ -83,6 +83,7 @@ The native port includes these fixes and optional features:
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter | `-f` |
 | Cockpitless view | `-c` |
+| Optional graphical launcher | `--gui` |
 
 Options can be combined:
 
@@ -143,6 +144,25 @@ The executable is written to `out-modern/wc2-modern` (or
 `out-modern/wc2-modern.exe` on Windows). `make run-modern` launches it with
 Kilrathi Saga data in `data/wc2-full`; `make run-modern-dos` uses DOS data in
 `data/dos`.
+
+The experimental Slint launcher is an optional module, so the normal SDL2
+build retains the same dependencies. Building it additionally requires CMake
+3.21 or newer and Rust 1.88 or newer. On Linux, install the D-Bus development
+files as well; the folder picker uses the desktop portal instead of GTK:
+
+```sh
+make -j modern-gui
+out-modern/wc2-modern --gui
+```
+
+`make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
+The launcher has a native folder picker and validates the selected DOS or
+Kilrathi Saga directory before starting the game. Its central title artwork is
+decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
+small 247x101 image, and embedded in the module. Slint 1.16.1 and [Native File
+Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended) are
+fetched at pinned tags and compiled into one load-on-demand library beside
+`wc2-modern`.
 
 ### Reconstructed Win32 build
 

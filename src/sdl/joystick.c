@@ -99,9 +99,9 @@ void SdlEnableJoystickDebug(void)
     g_bSdlJoystickDebug = 1;
 }
 
-void SdlEnableJoystickRumble(void)
+void SdlSetJoystickRumbleEnabled(int enabled)
 {
-    g_bSdlJoystickRumbleEnabled = 1;
+    g_bSdlJoystickRumbleEnabled = enabled;
 }
 
 static void SdlStopJoystickRumble(void)

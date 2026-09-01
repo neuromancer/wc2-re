@@ -114,6 +114,42 @@ radii remain unchanged.
 On Windows the launcher disables the Input Method Editor for the process so
 IME composition cannot intercept flight keys.
 
+## Optional graphical launcher
+
+`--gui` opens the Slint configuration launcher before SDL or the game is
+initialized. It offers a native folder picker, validates an editable game
+directory, changes the process to that directory after confirmation, and
+applies the renderer, difficulty, frame-rate, cockpit, rumble, and joystick
+selections. Closing or cancelling the window exits without starting the game.
+Required data filenames are matched case-insensitively, and option flags
+supplied with `--gui` seed the corresponding controls.
+
+After an accepted launch, the host explicitly shows and raises the SDL window
+before game initialization. This transfers application focus from Slint's
+native window to SDL, including on macOS where both backends share the existing
+Cocoa application object.
+
+The native folder picker is initialized lazily when Browse is first pressed.
+In particular, this happens after Slint's event loop has finished launching the
+Cocoa application; initializing it earlier would make the picker restore
+Cocoa's temporary pre-launch activation policy when the launcher closes and
+prevent the following SDL window from becoming visible.
+
+The central banner is authentic WC2 artwork decoded offline from the completed
+title-menu composition in `WC2LOGO.VGA` (frames 25, 31, and 32) using
+`BRIEF.PAL`. The transparent 247x101 crop is hardcoded as a compact PNG byte
+array and scaled by Slint, so displaying the launcher does not read game data.
+
+The GUI is deliberately a separate load-on-demand module so the ordinary
+`make modern` build retains its existing dependencies and startup path. Build
+the module with `make modern-gui`; this additionally requires CMake 3.21 and
+Rust 1.88 to compile the pinned Slint 1.16.1 source. Native File Dialog Extended
+1.3.0 is also pinned and linked statically into the module. Linux uses its
+xdg-desktop-portal backend to avoid a GTK dependency; building that backend
+requires the D-Bus development files, and folder selection requires a desktop
+portal with FileChooser interface version 3 or newer. `make run-modern-gui`
+builds the module and opens it using `MODERN_RUN_DIR` as the initial path.
+
 ## Joystick input
 
 The default `--joystick-mode=original` mode preserves the original X/Y and
@@ -188,7 +224,9 @@ for Back/Start, 11/12 for the stick clicks, and the first hat for the D-pad.
 
 ```sh
 make modern
+make modern-gui
 make run-modern
+make run-modern-gui
 make run-modern-dos
 make run-modern-mission SERIES=1 MISSION=0
 make run-modern-cutscene SERIES=3 MISSION=0

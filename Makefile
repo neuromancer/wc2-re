@@ -130,6 +130,7 @@ MODERN_CUTSCENE_SELECTORS := $(filter-out v7-t3 v13-t3,\
 
 MODERN_CC ?= cc
 MODERN_CXX ?= c++
+MODERN_CMAKE ?= cmake
 MODERN_SDL2_CONFIG ?= sdl2-config
 MODERN_SDL_CFLAGS = $(shell \
 	$(MODERN_SDL2_CONFIG) --cflags 2>/dev/null || \
@@ -435,6 +436,24 @@ MODERN_YMFM_SRCS = \
 	third_party/ymfm/ymfm_opl.cpp \
 	third_party/ymfm/ymfm_pcm.cpp
 MODERN_LAUNCHER_SRC = src/sdl/launcher.c
+MODERN_GUI_SOURCE_DIR = src/sdl/slint
+MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
+MODERN_GUI_BUILD_TYPE ?= Release
+ifeq ($(UNAME_S),Darwin)
+MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/libwc2-slint-gui.dylib
+else
+ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
+MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/wc2-slint-gui.dll
+else
+MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/libwc2-slint-gui.so
+endif
+endif
+MODERN_GUI_SRCS = \
+	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
+	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
+	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_api.h \
+	$(MODERN_GUI_SOURCE_DIR)/wc2_logo.h
 
 MODERN_GAMEPLAY_OBJS = \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAMEPLAY_SRCS)) \
@@ -502,6 +521,27 @@ build-full: $(TARGET)
 # The native port is deliberately built in a separate output tree.  It must
 # never supply objects to the assembly-comparison target above.
 modern: $(MODERN_TARGET)
+
+# Slint is kept out of the normal native build dependency set. This target
+# adds one load-on-demand module that wc2-modern opens only for --gui.
+modern-gui: $(MODERN_TARGET) $(MODERN_GUI_LIBRARY)
+
+$(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile
+	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
+		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
+		exit 1; \
+	}
+	@command -v cargo >/dev/null 2>&1 || { \
+		echo "Rust 1.88 or newer is required to build Slint." >&2; \
+		exit 1; \
+	}
+	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \
+		-B $(MODERN_GUI_BUILD_DIR) \
+		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
+		-DWC2_GUI_OUTPUT_DIRECTORY=$(abspath $(MODERN_OUT_DIR))
+	$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
+		--config $(MODERN_GUI_BUILD_TYPE) --target wc2-slint-gui
+	@test -s $@
 
 modern-check-deps:
 	@if test -z "$(strip $(MODERN_SDL_CFLAGS))" || \
@@ -670,6 +710,18 @@ run-modern: modern
 		exit 1; \
 	}; \
 	cd "$$modern_run_dir" && "$(CURDIR)/$(MODERN_TARGET)" $(MODERN_ARGS)
+
+run-modern-gui: modern-gui
+	@case "$(MODERN_RUN_DIR)" in \
+		/*) modern_run_dir="$(MODERN_RUN_DIR)" ;; \
+		*) modern_run_dir="$(CURDIR)/$(MODERN_RUN_DIR)" ;; \
+	esac; \
+	test -d "$$modern_run_dir" || { \
+		echo "Modern run directory does not exist: $$modern_run_dir" >&2; \
+		exit 1; \
+	}; \
+	cd "$$modern_run_dir" && \
+		"$(CURDIR)/$(MODERN_TARGET)" --gui $(MODERN_ARGS)
 
 # The SDL2 host recognizes the compressed resources in an installed DOS copy
 # and plays its OriginFX music and synthesized effects through an embedded
@@ -1214,6 +1266,7 @@ clean-modern:
 	globals-missing \
 	missing-data \
 	modern \
+	modern-gui \
 	modern-check-deps \
 	modern-test \
 	modern-test-cutscenes \
@@ -1226,6 +1279,7 @@ clean-modern:
 	run-check \
 	stage-run \
 	run-modern \
+	run-modern-gui \
 	run-modern-cutscene \
 	run-modern-dos \
 	run-modern-mission \
