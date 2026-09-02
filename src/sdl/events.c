@@ -452,6 +452,37 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
     fflush(stderr);
 }
 
+/* SDL drains every queued event before flight controls inspect these flags.
+ * Latch each fresh press until that inspection so a quick keydown/keyup pair
+ * cannot erase the command.  Auto-repeat is ignored by the caller. */
+static void SdlLatchAltRadioHotkey(int virtualKey)
+{
+    switch (virtualKey) {
+    case 'B':
+        g_bAltBHotkey_005d1290 = 1;
+        break;
+    case 'F':
+        g_bAltFHotkey_005d127c = 1;
+        break;
+    case 'A':
+        g_bAltAHotkey_005d1294 = 1;
+        break;
+    case 'H':
+        g_bAltHHotkey_005d128c = 1;
+        break;
+    case 'D':
+        g_bAltDHotkey_005d1280 = 1;
+        break;
+    case 'T':
+        g_bAltTHotkey_005d1298 = 1;
+        break;
+    default:
+        return;
+    }
+    /* The matching keyup may already have been drained; rearm the gate now. */
+    g_nLastAltCommandScanCode_005d1274 = 0;
+}
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
@@ -475,6 +506,14 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
         g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
+    if (pressed && event->repeat == 0 &&
+        (event->keysym.mod & KMOD_ALT) != 0 &&
+        g_bSpaceFlightActive_005c586c != 0 &&
+        g_nArcadeState_0049d75c == 0 &&
+        g_nCannedSceneMode_0049021c == 0 &&
+        g_bJumpSequenceActive_004962f0 == 0 &&
+        g_pfnInputPump_005c840c == get_player_input)
+        SdlLatchAltRadioHotkey(virtualKey);
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)

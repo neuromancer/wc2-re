@@ -64,6 +64,38 @@ static void ReleasePreparedTestSprite(unsigned char *shape)
         ReleasePacketHandle(preparedShape);
 }
 
+static int PushKeyboardEvent(SDL_Window *window, Uint32 type,
+                             SDL_Scancode scanCode, SDL_Keycode key,
+                             SDL_Keymod modifiers, Uint8 repeat)
+{
+    SDL_Event event;
+
+    memset(&event, 0, sizeof(event));
+    event.type = type;
+    event.key.windowID = SDL_GetWindowID(window);
+    event.key.state = type == SDL_KEYDOWN ? SDL_PRESSED : SDL_RELEASED;
+    event.key.repeat = repeat;
+    event.key.keysym.scancode = scanCode;
+    event.key.keysym.sym = key;
+    event.key.keysym.mod = modifiers;
+    return SDL_PushEvent(&event) == 1;
+}
+
+typedef struct TestRadioHotkey {
+    SDL_Scancode scanCode;
+    SDL_Keycode key;
+    int *flag;
+} TestRadioHotkey;
+
+static const TestRadioHotkey g_aTestRadioHotkeys[] = {
+    {SDL_SCANCODE_B, SDLK_b, &g_bAltBHotkey_005d1290},
+    {SDL_SCANCODE_F, SDLK_f, &g_bAltFHotkey_005d127c},
+    {SDL_SCANCODE_A, SDLK_a, &g_bAltAHotkey_005d1294},
+    {SDL_SCANCODE_H, SDLK_h, &g_bAltHHotkey_005d128c},
+    {SDL_SCANCODE_D, SDLK_d, &g_bAltDHotkey_005d1280},
+    {SDL_SCANCODE_T, SDLK_t, &g_bAltTHotkey_005d1298}
+};
+
 int main(int argumentCount, char **arguments)
 {
     InputEventState input;
@@ -144,6 +176,64 @@ int main(int argumentCount, char **arguments)
         SdlTranslateScanCode(SDL_SCANCODE_DELETE) != 0x53 ||
         SdlTranslateScanCode(SDL_SCANCODE_F12) != 0x58)
         goto cleanup;
+
+    stage = 32;
+    g_bSpaceFlightActive_005c586c = 1;
+    g_nArcadeState_0049d75c = 0;
+    g_nCannedSceneMode_0049021c = 0;
+    g_bJumpSequenceActive_004962f0 = 0;
+    g_pfnInputPump_005c840c = get_player_input;
+    for (index = 0;
+         index < (int)(sizeof(g_aTestRadioHotkeys) /
+                       sizeof(g_aTestRadioHotkeys[0]));
+         index++) {
+        *g_aTestRadioHotkeys[index].flag = 0;
+        if (!PushKeyboardEvent(window, SDL_KEYDOWN,
+                               g_aTestRadioHotkeys[index].scanCode,
+                               g_aTestRadioHotkeys[index].key,
+                               KMOD_LALT, 0) ||
+            !PushKeyboardEvent(window, SDL_KEYUP,
+                               g_aTestRadioHotkeys[index].scanCode,
+                               g_aTestRadioHotkeys[index].key,
+                               KMOD_LALT, 0))
+            goto cleanup;
+    }
+    SdlPumpEvents();
+    for (index = 0;
+         index < (int)(sizeof(g_aTestRadioHotkeys) /
+                       sizeof(g_aTestRadioHotkeys[0]));
+         index++) {
+        if (*g_aTestRadioHotkeys[index].flag == 0)
+            goto cleanup;
+        *g_aTestRadioHotkeys[index].flag = 0;
+    }
+
+    stage = 33;
+    g_bAltDHotkey_005d1280 = 0;
+    g_bAltHHotkey_005d128c = 0;
+    g_bAltTHotkey_005d1298 = 0;
+    if (!PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_D,
+                           SDLK_d, KMOD_LALT, 1) ||
+        !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_D,
+                           SDLK_d, KMOD_LALT, 0) ||
+        !PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_H,
+                           SDLK_h, KMOD_NONE, 0) ||
+        !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_H,
+                           SDLK_h, KMOD_NONE, 0))
+        goto cleanup;
+    g_bSpaceFlightActive_005c586c = 0;
+    if (!PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_T,
+                           SDLK_t, KMOD_LALT, 0) ||
+        !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_T,
+                           SDLK_t, KMOD_LALT, 0))
+        goto cleanup;
+    SdlPumpEvents();
+    if (g_bAltDHotkey_005d1280 != 0 ||
+        g_bAltHHotkey_005d128c != 0 ||
+        g_bAltTHotkey_005d1298 != 0)
+        goto cleanup;
+    g_bSpaceFlightActive_005c586c = 0;
+    g_pfnInputPump_005c840c = 0;
 
     stage = 30;
     memset(pixels, 0, sizeof(pixels));

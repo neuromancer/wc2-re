@@ -223,6 +223,15 @@ short HandleSpaceFlightControls(void)
                     g_nEnemyTauntCommandBase_0049b76c));
         g_nLastAltCommandScanCode_005d1274 = 0x14;
     }
+#ifdef SDL_PORT
+    /* SDL latches these command presses until one flight-control pass. */
+    g_bAltBHotkey_005d1290 = 0;
+    g_bAltFHotkey_005d127c = 0;
+    g_bAltAHotkey_005d1294 = 0;
+    g_bAltHHotkey_005d128c = 0;
+    g_bAltDHotkey_005d1280 = 0;
+    g_bAltTHotkey_005d1298 = 0;
+#endif
     if (g_bAltNumpadAddHotkey_005d1270 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x4e) {
         g_nLastAltCommandScanCode_005d1274 = 0x4e;
