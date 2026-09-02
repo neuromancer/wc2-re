@@ -63,9 +63,9 @@ cd C:\path\to\WC2
 .\wc2-modern.exe
 ```
 
-When the graphical launcher module is installed beside the executable,
-starting without arguments opens it automatically. Supplying any command-line
-arguments starts the game directly unless `--gui` is also present.
+The release executable includes the graphical launcher. Starting without
+arguments opens it automatically. Supplying any command-line arguments starts
+the game directly unless `--gui` is also present.
 
 ### Fixes and features
 
@@ -156,9 +156,9 @@ Kilrathi Saga data in `data/wc2-full`; `make run-modern-dos` uses DOS data in
 
 #### Optional graphical launcher
 
-The optional Slint launcher works on Windows, Linux, and macOS. It is a
-separate module, so the normal SDL2 build retains the same dependencies.
-The capture below shows it running natively on macOS.
+The optional Slint launcher works on Windows, Linux, and macOS. It is linked
+statically into a separate executable, so the normal SDL2 build retains the
+same dependencies. The capture below shows it running natively on macOS.
 
 <p align="center">
   <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
@@ -170,17 +170,18 @@ the desktop portal instead of GTK:
 
 ```sh
 make -j modern-gui
-out-modern/wc2-modern
+out-modern/wc2-modern-gui
 ```
 
 `make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
 The launcher has a native folder picker and validates the selected DOS or
 Kilrathi Saga directory before starting the game. Its central title artwork is
 decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
-small 247x101 image, and embedded in the module. Slint 1.16.1 and [Native File
-Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended) are
-fetched at pinned tags and compiled into one load-on-demand library beside
-`wc2-modern`.
+small 247x101 image, and embedded in the executable. Slint 1.16.1 and [Native
+File Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended)
+are fetched at pinned tags and linked statically into `wc2-modern-gui`. Release
+archives install that integrated build under the usual `wc2-modern` name;
+SDL2 and the other platform runtime libraries remain dynamic.
 
 ### Reconstructed Win32 build
 

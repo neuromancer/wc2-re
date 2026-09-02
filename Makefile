@@ -113,6 +113,9 @@ endif
 # MSVC 4.20 reference executable.
 MODERN_OUT_DIR = out-modern
 MODERN_TARGET = $(MODERN_OUT_DIR)/wc2-modern$(MODERN_EXE_SUFFIX)
+MODERN_GUI_TARGET = $(MODERN_OUT_DIR)/wc2-modern-gui$(MODERN_EXE_SUFFIX)
+MODERN_EMPTY :=
+MODERN_SPACE := $(MODERN_EMPTY) $(MODERN_EMPTY)
 # The port runs from the game's own directory: it chdir()s into gamedat/ and
 # resolves every packet relative to that.  data/full holds only the reference
 # executable, so pointing here at the installed tree is what makes run-modern
@@ -439,15 +442,6 @@ MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 MODERN_GUI_SOURCE_DIR = src/sdl/slint
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
-ifeq ($(UNAME_S),Darwin)
-MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/libwc2-slint-gui.dylib
-else
-ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
-MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/wc2-slint-gui.dll
-else
-MODERN_GUI_LIBRARY = $(MODERN_OUT_DIR)/libwc2-slint-gui.so
-endif
-endif
 MODERN_GUI_SRCS = \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
@@ -467,6 +461,14 @@ MODERN_GAME_HOST_OBJS = \
 	$(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_SRCS)) \
 	$(patsubst src/%.cpp,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_GAME_HOST_CXX_SRCS)) \
 	$(MODERN_YMFM_OBJS)
+MODERN_STATIC_GUI_LAUNCHER_OBJ = \
+	$(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
+MODERN_GUI_GAME_OBJS = \
+	$(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
+	$(MODERN_BASE_HOST_OBJS) \
+	$(MODERN_GAME_HOST_OBJS) \
+	$(MODERN_GAMEPLAY_OBJS) \
+	$(MODERN_IX_OBJS)
 MODERN_EVENT_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/sdl/events.o \
 	$(MODERN_OUT_DIR)/obj/sdl/video.o
@@ -498,6 +500,7 @@ MODERN_DEPFILES = \
 	$(MODERN_BASE_HOST_OBJS:.o=.d) \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
+	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.d \
 	$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.d \
@@ -523,13 +526,13 @@ build-full: $(TARGET)
 modern: $(MODERN_TARGET)
 
 # Slint is kept out of the normal native build dependency set. This target
-# adds one load-on-demand module that wc2-modern opens by default without
-# arguments, or explicitly with --gui when other arguments are present.
-modern-gui: $(MODERN_TARGET) $(MODERN_GUI_LIBRARY)
+# links it statically into a separate executable that opens the launcher by
+# default without arguments, or explicitly with --gui alongside other options.
+modern-gui: $(MODERN_GUI_TARGET)
 
 # Slint enables full Rust LTO upstream; the small launcher does not need its
 # substantial clean-build cost.
-$(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile
+$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile
 	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
 		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
 		exit 1; \
@@ -540,11 +543,14 @@ $(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile
 	}
 	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \
 		-B $(MODERN_GUI_BUILD_DIR) \
+		-DCMAKE_CXX_COMPILER="$(MODERN_CXX)" \
 		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
+		-DWC2_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(abspath $(MODERN_GUI_GAME_OBJS)))" \
+		-DWC2_GAME_SANITIZERS=$(if $(MODERN_SANITIZER_FLAGS),ON,OFF) \
 		-DWC2_GUI_OUTPUT_DIRECTORY=$(abspath $(MODERN_OUT_DIR))
 	CARGO_PROFILE_RELEASE_LTO=false \
 		$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
-		--config $(MODERN_GUI_BUILD_TYPE) --target wc2-slint-gui
+		--config $(MODERN_GUI_BUILD_TYPE) --target wc2-modern-gui
 	@test -s $@
 
 modern-check-deps:
@@ -555,6 +561,12 @@ modern-check-deps:
 		echo "Install SDL2 and LZO2 development files." >&2; \
 		exit 1; \
 	fi
+
+$(MODERN_STATIC_GUI_LAUNCHER_OBJ): $(MODERN_LAUNCHER_SRC) Makefile | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) -DWC2_STATIC_GUI=1 $(MODERN_CFLAGS) \
+		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
 
 $(MODERN_OUT_DIR)/obj/%.o: src/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -725,7 +737,7 @@ run-modern-gui: modern-gui
 		exit 1; \
 	}; \
 	cd "$$modern_run_dir" && \
-		"$(CURDIR)/$(MODERN_TARGET)" --gui $(MODERN_ARGS)
+		"$(CURDIR)/$(MODERN_GUI_TARGET)" --gui $(MODERN_ARGS)
 
 # The SDL2 host recognizes the compressed resources in an installed DOS copy
 # and plays its OriginFX music and synthesized effects through an embedded

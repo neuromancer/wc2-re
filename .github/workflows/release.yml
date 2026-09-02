@@ -117,29 +117,25 @@ jobs:
         run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
         run: |
-          if [[ "${{ matrix.platform }}" == linux ]]; then
-            gui_module=out-modern/libwc2-slint-gui.so
-          else
-            gui_module=out-modern/libwc2-slint-gui.dylib
-          fi
-          test -s out-modern/wc2-modern
-          test -s "$gui_module"
-          file out-modern/wc2-modern
-          file "$gui_module"
+          binary=out-modern/wc2-modern-gui
+          test -s "$binary"
+          file "$binary"
           test "$(uname -m)" = "${{ matrix.architecture }}"
-          if nm -u out-modern/wc2-modern "$gui_module" |
-              grep -Eiq '__asan_|__ubsan_'; then
+          if nm -u "$binary" | grep -Ei '__asan_|__ubsan_' >/dev/null; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
           if [[ "${{ matrix.platform }}" == linux ]]; then
-            nm -D --defined-only "$gui_module" |
-              grep -q ' SdlRunLauncherGui$'
-            dependencies=$(ldd out-modern/wc2-modern; ldd "$gui_module")
+            nm --defined-only "$binary" |
+              grep ' SdlRunLauncherGui$' >/dev/null
+            dependencies=$(ldd "$binary")
           else
-            nm -gU "$gui_module" | grep -q ' _SdlRunLauncherGui$'
-            dependencies=$(otool -L out-modern/wc2-modern; \
-              otool -L "$gui_module")
+            nm -gU "$binary" | grep ' _SdlRunLauncherGui$' >/dev/null
+            dependencies=$(otool -L "$binary")
+          fi
+          if grep -Eiq 'wc2-slint-gui' <<< "$dependencies"; then
+            echo "Release binary still depends on a GUI module." >&2
+            exit 1
           fi
           if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
@@ -147,17 +143,11 @@ jobs:
           fi
       - name: Package SDL2 port
         run: |
-          if [[ "${{ matrix.platform }}" == linux ]]; then
-            gui_module=out-modern/libwc2-slint-gui.so
-          else
-            gui_module=out-modern/libwc2-slint-gui.dylib
-          fi
           packaging/package-modern.sh \
             "${{ needs.metadata.outputs.version }}" \
             "${{ matrix.platform }}" \
             "${{ matrix.architecture }}" \
-            out-modern/wc2-modern \
-            "$gui_module"
+            out-modern/wc2-modern-gui
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -200,18 +190,21 @@ jobs:
       - name: Validate Windows executable
         shell: msys2 {0}
         run: |
-          test -s out-modern/wc2-modern.exe
-          test -s out-modern/wc2-slint-gui.dll
-          if llvm-nm -u out-modern/wc2-modern.exe \
-              out-modern/wc2-slint-gui.dll | grep -Eiq '__asan_|__ubsan_'; then
+          binary=out-modern/wc2-modern-gui.exe
+          test -s "$binary"
+          if llvm-nm -u "$binary" |
+              grep -Ei '__asan_|__ubsan_' >/dev/null; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
-          llvm-nm -g --defined-only out-modern/wc2-slint-gui.dll |
+          llvm-nm -g --defined-only "$binary" |
             grep ' SdlRunLauncherGui$' >/dev/null
-          if (ntldd -R out-modern/wc2-modern.exe; \
-              ntldd -R out-modern/wc2-slint-gui.dll) | \
-              grep -Eiq 'asan|ubsan'; then
+          dependencies=$(ntldd -R "$binary")
+          if grep -Eiq 'wc2-slint-gui' <<< "$dependencies"; then
+            echo "Release binary still depends on a GUI module." >&2
+            exit 1
+          fi
+          if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
@@ -222,8 +215,7 @@ jobs:
           "${{ needs.metadata.outputs.version }}"
           windows
           x86_64
-          out-modern/wc2-modern.exe
-          out-modern/wc2-slint-gui.dll
+          out-modern/wc2-modern-gui.exe
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

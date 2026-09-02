@@ -13,17 +13,6 @@ extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
 
 static jmp_buf g_stSdlCutsceneExit;
 static int g_bSdlCutsceneExitArmed;
-/* Native window backends may retain callbacks after their event loop closes,
- * so keep the optional module loaded until process exit. */
-static void *g_pSdlLauncherGuiLibrary;
-
-#ifdef _WIN32
-#define SDL_LAUNCHER_LIBRARY_NAME "wc2-slint-gui.dll"
-#elif defined(__APPLE__)
-#define SDL_LAUNCHER_LIBRARY_NAME "libwc2-slint-gui.dylib"
-#else
-#define SDL_LAUNCHER_LIBRARY_NAME "libwc2-slint-gui.so"
-#endif
 
 static const char *const g_apszSdlLauncherJoystickModes[] = {
     "original", "4button-2axis", "4button-4axis"
@@ -144,50 +133,15 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
 
 static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 {
-    SdlRunLauncherGuiFunction runLauncher;
-    char *basePath;
-    char *libraryPath;
-    size_t libraryPathSize;
-    int result;
-
-    basePath = SDL_GetBasePath();
-    if (basePath == 0) {
-        fprintf(stderr, "Unable to locate the executable: %s\n",
-                SDL_GetError());
-        return SDL_LAUNCHER_ERROR;
-    }
-    libraryPathSize = strlen(basePath) + sizeof(SDL_LAUNCHER_LIBRARY_NAME);
-    libraryPath = (char *)SDL_malloc(libraryPathSize);
-    if (libraryPath == 0) {
-        SDL_free(basePath);
-        fprintf(stderr, "Unable to allocate the GUI module path.\n");
-        return SDL_LAUNCHER_ERROR;
-    }
-    SDL_snprintf(libraryPath, libraryPathSize, "%s%s", basePath,
-                 SDL_LAUNCHER_LIBRARY_NAME);
-    SDL_free(basePath);
-
-    g_pSdlLauncherGuiLibrary = SDL_LoadObject(libraryPath);
-    if (g_pSdlLauncherGuiLibrary == 0) {
-        fprintf(stderr,
-                "Unable to load %s: %s\n"
-                "Build the optional GUI with 'make modern-gui'.\n",
-                libraryPath, SDL_GetError());
-        SDL_free(libraryPath);
-        return SDL_LAUNCHER_UNAVAILABLE;
-    }
-    SDL_free(libraryPath);
-    runLauncher = (SdlRunLauncherGuiFunction)SDL_LoadFunction(
-        g_pSdlLauncherGuiLibrary, "SdlRunLauncherGui");
-    if (runLauncher == 0) {
-        fprintf(stderr, "Unable to load the GUI entry point: %s\n",
-                SDL_GetError());
-        SDL_UnloadObject(g_pSdlLauncherGuiLibrary);
-        g_pSdlLauncherGuiLibrary = 0;
-        return SDL_LAUNCHER_ERROR;
-    }
-    result = runLauncher(options);
-    return result;
+#ifdef WC2_STATIC_GUI
+    return SdlRunLauncherGui(options);
+#else
+    (void)options;
+    fprintf(stderr,
+            "The graphical launcher is not included in this build.\n"
+            "Build it with 'make modern-gui'.\n");
+    return SDL_LAUNCHER_UNAVAILABLE;
+#endif
 }
 
 static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,

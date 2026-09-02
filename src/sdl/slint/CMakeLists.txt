@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-# The launcher is compiled into one load-on-demand module. Keep Slint itself
+# The launcher is linked into the modern-gui executable. Keep Slint itself
 # static and enable only the window backend and software renderer it needs.
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(SLINT_FEATURE_ACCESSIBILITY OFF CACHE BOOL "" FORCE)
@@ -18,6 +18,10 @@ set(SLINT_FEATURE_TESTING OFF CACHE BOOL "" FORCE)
 set(NFD_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(NFD_BUILD_SDL2_TESTS OFF CACHE BOOL "" FORCE)
 set(NFD_INSTALL OFF CACHE BOOL "" FORCE)
+set(WC2_GAME_OBJECTS "" CACHE STRING
+    "Semicolon-separated game object files for the integrated launcher")
+option(WC2_GAME_SANITIZERS
+    "Link the integrated executable with the development sanitizers" OFF)
 if(UNIX AND NOT APPLE)
     # The portal backend avoids pulling GTK into the optional launcher.
     set(NFD_PORTAL ON CACHE BOOL "" FORCE)
@@ -40,15 +44,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(NativeFileDialogExtended)
 
-add_library(wc2-slint-gui SHARED
+add_library(wc2-slint-gui STATIC
     launcher.cpp
     wc2_logo.h
 )
-set_target_properties(wc2-slint-gui PROPERTIES
-    CXX_VISIBILITY_PRESET hidden
-    VISIBILITY_INLINES_HIDDEN YES
-)
-target_compile_definitions(wc2-slint-gui PRIVATE WC2_SLINT_GUI_BUILD=1)
 target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd)
 slint_target_sources(wc2-slint-gui launcher.slint)
 
@@ -85,15 +84,6 @@ if(APPLE)
         ${FOUNDATION_FRAMEWORK}
         ${QUARTZCORE_FRAMEWORK}
     )
-    target_link_options(wc2-slint-gui PRIVATE
-        "LINKER:-exported_symbol,_SdlRunLauncherGui"
-        "$<$<CONFIG:Release>:LINKER:-dead_strip>"
-    )
-elseif(UNIX)
-    target_link_options(wc2-slint-gui PRIVATE
-        "LINKER:--exclude-libs,ALL"
-        "$<$<CONFIG:Release>:LINKER:--gc-sections>"
-    )
 endif()
 
 if(MSVC)
@@ -124,4 +114,64 @@ foreach(CONFIG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
 endforeach()
 if(WIN32)
     set_target_properties(wc2-slint-gui PROPERTIES PREFIX "")
+endif()
+
+if(WC2_GAME_OBJECTS)
+    # Make compiles the game while CMake carries Slint's native link closure.
+    # Join the two only for the integrated launcher executable.
+    foreach(WC2_GAME_OBJECT IN LISTS WC2_GAME_OBJECTS)
+        if(NOT IS_ABSOLUTE "${WC2_GAME_OBJECT}")
+            message(FATAL_ERROR
+                "WC2_GAME_OBJECTS entries must be absolute: ${WC2_GAME_OBJECT}")
+        endif()
+    endforeach()
+    set_source_files_properties(${WC2_GAME_OBJECTS} PROPERTIES
+        EXTERNAL_OBJECT TRUE
+        GENERATED TRUE
+    )
+
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(WC2_SDL2 REQUIRED IMPORTED_TARGET sdl2)
+    pkg_check_modules(WC2_LZO2 REQUIRED IMPORTED_TARGET lzo2)
+
+    add_executable(wc2-modern-gui ${WC2_GAME_OBJECTS})
+    set_target_properties(wc2-modern-gui PROPERTIES LINKER_LANGUAGE CXX)
+    target_link_libraries(wc2-modern-gui PRIVATE
+        wc2-slint-gui
+        PkgConfig::WC2_SDL2
+        PkgConfig::WC2_LZO2
+    )
+    if(WC2_GAME_SANITIZERS AND NOT MSVC)
+        target_link_options(wc2-modern-gui PRIVATE
+            -fsanitize=address,undefined
+            -fno-sanitize=alignment
+            -fno-omit-frame-pointer
+        )
+    endif()
+    if(APPLE)
+        target_link_options(wc2-modern-gui PRIVATE
+            "LINKER:-dead_strip"
+            "LINKER:-no_fixup_chains"
+        )
+    elseif(MSVC)
+        target_link_options(wc2-modern-gui PRIVATE /OPT:REF)
+    elseif(WIN32)
+        target_link_options(wc2-modern-gui PRIVATE
+            "LINKER:--gc-sections"
+        )
+    else()
+        target_link_options(wc2-modern-gui PRIVATE
+            "LINKER:--exclude-libs,ALL"
+            "LINKER:--gc-sections"
+        )
+    endif()
+
+    set_target_properties(wc2-modern-gui PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${WC2_GUI_OUTPUT_DIRECTORY}"
+    )
+    foreach(CONFIG DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
+        set_target_properties(wc2-modern-gui PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY_${CONFIG} "${WC2_GUI_OUTPUT_DIRECTORY}"
+        )
+    endforeach()
 endif()

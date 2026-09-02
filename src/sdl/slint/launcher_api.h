@@ -41,14 +41,7 @@ typedef struct SdlLauncherOptions {
 extern "C" {
 #endif
 
-#if defined(_WIN32) && defined(WC2_SLINT_GUI_BUILD)
-__declspec(dllexport)
-#elif defined(WC2_SLINT_GUI_BUILD)
-__attribute__((visibility("default")))
-#endif
 int SdlRunLauncherGui(SdlLauncherOptions *options);
-
-typedef int (*SdlRunLauncherGuiFunction)(SdlLauncherOptions *options);
 
 #ifdef __cplusplus
 }
