@@ -33,12 +33,7 @@ while retaining the original indexed cockpit, HUD, and palette effects.
 ## Screenshots
 
 The game captures were taken through DREAMM at the original 320x200
-resolution. The graphical launcher works on Windows, Linux, and macOS; the
-capture below shows it running natively on macOS.
-
-<p align="center">
-  <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
-</p>
+resolution.
 
 | Title menu | Opening sequence |
 | --- | --- |
@@ -155,8 +150,16 @@ The executable is written to `out-modern/wc2-modern` (or
 Kilrathi Saga data in `data/wc2-full`; `make run-modern-dos` uses DOS data in
 `data/dos`.
 
+#### Optional graphical launcher
+
 The optional Slint launcher works on Windows, Linux, and macOS. It is a
 separate module, so the normal SDL2 build retains the same dependencies.
+The capture below shows it running natively on macOS.
+
+<p align="center">
+  <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
+</p>
+
 Building it additionally requires CMake 3.21 or newer and Rust 1.88 or newer.
 On Linux, install the D-Bus development files as well; the folder picker uses
 the desktop portal instead of GTK:
