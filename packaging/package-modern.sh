@@ -114,12 +114,16 @@ else
                 ;;
         esac
     done < <(
-        ntldd -R "$binary" |
+        {
+            ntldd -R "$binary"
+            ntldd -R "$gui_module"
+        } |
             awk '/=>/ { sub(/^.*=> /, ""); sub(/ \(0x.*$/, ""); print }'
     )
 
     test -f "$stage_dir/SDL2.dll"
     test -f "$stage_dir/liblzo2-2.dll"
+    test -f "$stage_dir/libunwind.dll"
 fi
 
 (
