@@ -527,6 +527,8 @@ modern: $(MODERN_TARGET)
 # arguments, or explicitly with --gui when other arguments are present.
 modern-gui: $(MODERN_TARGET) $(MODERN_GUI_LIBRARY)
 
+# Slint enables full Rust LTO upstream; the small launcher does not need its
+# substantial clean-build cost.
 $(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile
 	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
 		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
@@ -540,7 +542,8 @@ $(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile
 		-B $(MODERN_GUI_BUILD_DIR) \
 		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
 		-DWC2_GUI_OUTPUT_DIRECTORY=$(abspath $(MODERN_OUT_DIR))
-	$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
+	CARGO_PROFILE_RELEASE_LTO=false \
+		$(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) \
 		--config $(MODERN_GUI_BUILD_TYPE) --target wc2-slint-gui
 	@test -s $@
 
