@@ -108,8 +108,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
-            clang cmake file libdbus-1-dev liblzo2-dev libsdl2-dev make \
-            patchelf pkg-config zip
+            clang cmake file libdbus-1-dev libfontconfig1-dev liblzo2-dev \
+            libsdl2-dev make patchelf pkg-config zip
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
         run: brew install cmake lzo pkg-config sdl2
