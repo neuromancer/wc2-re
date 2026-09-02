@@ -53,7 +53,13 @@ target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd)
 slint_target_sources(wc2-slint-gui launcher.slint)
 
 if(WIN32)
-    target_link_libraries(wc2-slint-gui PRIVATE ole32 uuid shell32)
+    target_link_libraries(wc2-slint-gui PRIVATE
+        imm32
+        ole32
+        shell32
+        uuid
+        uxtheme
+    )
 endif()
 
 # Corrosion cannot propagate framework metadata out of a Rust static library.
