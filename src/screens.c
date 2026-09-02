@@ -402,8 +402,23 @@ void LoadCutsceneSpeechSlot(short resourceIndex, short slot)
         g_bCutsceneSkipAll_00499c58 == 0) {
         resources = FindActiveCutsceneFileResources(
             g_pCutsceneSpeechResources_004928a4);
+#ifdef SDL_PORT
+        /* See issue #33 (review on PR #34): bailing out here while the
+         * cache is still busy must not fall through to releasing/replacing
+         * this slot below -- a still-in-flight fetch may be filling it.
+         * g_wSpeechCacheState_0049bb60 is never set nonzero anywhere in
+         * this reconstruction today, so this loop cannot actually break
+         * early yet -- guarded correctly anyway rather than leaving
+         * unsound-if-ever-live code here. */
+        while (g_wSpeechCacheState_0049bb60 != 0) {
+            PumpWindowMessages(0);
+            if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                return;
+        }
+#else
         while (g_wSpeechCacheState_0049bb60 != 0)
             PumpWindowMessages(0);
+#endif
         ReleasePacketSlot(&g_apCutsceneSpeechPackets_005d2f80[slot]);
         g_asCutsceneSpeechChannels_005d2d70[slot] = 0;
         g_apszCutsceneSpeechFiles_005d2ee0[slot] =
@@ -1213,6 +1228,15 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                (int)g_nInputClock_005c84a8 <
                    (int)g_nNextCutsceneFrameClock_00499c90) {
             PumpWindowMessages(0);
+#ifdef SDL_PORT
+            /* See issue #33 (review on PR #34): this sequence-presentation
+             * wait is purely clock-driven -- no shared/pending resource is
+             * involved, so unlike the speech-cache waits elsewhere there is
+             * nothing to leave in an inconsistent state by bailing out
+             * early. */
+            if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                break;
+#endif
         }
         g_nFrameSkipCountdown_0049d760 = 0;
         continueSequence = RunCutsceneScript(&sequence->scriptCursor, 2);
@@ -2674,20 +2698,34 @@ handle_queued_cutscene_input:
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
                                  &g_stSecondaryViewBuffer_005d2c90);
             break;
-        case 0xb0:
+        case 0xb0: {
+#ifdef SDL_PORT
+            /* See issue #33 (review on PR #34): breaking out here while the
+             * cache is still busy must NOT fall through to the "use and
+             * clear" logic below as if the fetch had finished -- that would
+             * read g_apCutsceneSpeechPackets_005d2f80[value] before it is
+             * valid and then clear the still-in-flight fetch's own
+             * bookkeeping (g_apszCutsceneSpeechFiles_005d2ee0[value] etc.),
+             * silently dropping it. g_wSpeechCacheState_0049bb60 is never
+             * set nonzero anywhere in this reconstruction today, so this
+             * loop cannot actually break early yet -- guarded correctly
+             * anyway rather than leaving unsound-if-ever-live code here. */
+            signed char cacheStillBusy = 0;
+#endif
             while (g_wSpeechCacheState_0049bb60 != 0) {
                 PumpWindowMessages(0);
 #ifdef SDL_PORT
-                /* See issue #33; same fix as case 0x6b above -- this loop
-                 * only pumps window messages and never reads the escape
-                 * flag that pumping just set, so it can only be broken by
-                 * the speech cache naturally finishing. Bail out on a
-                 * pending Escape instead of waiting it out. */
-                if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+                    cacheStillBusy = 1;
                     break;
+                }
 #endif
             }
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+#ifdef SDL_PORT
+            if (cacheStillBusy)
+                break;
+#endif
             if (g_apCutsceneSpeechPackets_005d2f80[value] != 0 &&
                 g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
                 PlaySpeechPacketBuffer(
@@ -2706,6 +2744,7 @@ handle_queued_cutscene_input:
             g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
             g_asCutsceneSpeechSections_005d2dd0[value] = 0;
             break;
+        }
         case 0xa9:
             value = 0;
             if ((g_aObjectTypeData_00496d30[
