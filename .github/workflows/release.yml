@@ -208,7 +208,7 @@ jobs:
             exit 1
           fi
           llvm-nm -g --defined-only out-modern/wc2-slint-gui.dll |
-            grep -q ' SdlRunLauncherGui$'
+            grep ' SdlRunLauncherGui$' >/dev/null
           if (ntldd -R out-modern/wc2-modern.exe; \
               ntldd -R out-modern/wc2-slint-gui.dll) | \
               grep -Eiq 'asan|ubsan'; then
