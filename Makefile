@@ -523,7 +523,8 @@ build-full: $(TARGET)
 modern: $(MODERN_TARGET)
 
 # Slint is kept out of the normal native build dependency set. This target
-# adds one load-on-demand module that wc2-modern opens only for --gui.
+# adds one load-on-demand module that wc2-modern opens by default without
+# arguments, or explicitly with --gui when other arguments are present.
 modern-gui: $(MODERN_TARGET) $(MODERN_GUI_LIBRARY)
 
 $(MODERN_GUI_LIBRARY): $(MODERN_GUI_SRCS) Makefile

@@ -10,6 +10,10 @@ an installed Kilrathi Saga or DOS WC2 directory, then start wc2-modern
 (wc2-modern.exe on Windows) from that directory. Keep the bundled runtime
 libraries beside the executable.
 
+The graphical launcher opens automatically when the executable is started
+without arguments. Command-line arguments start the game directly unless
+--gui is also present.
+
 The DOS data path supports the original compressed packet resources and plays
 OriginFX music and synthesized sound effects through an embedded YM3812
 (AdLib) emulator using MUSIC.MID and WINGLDR.TIM. No external MIDI synthesizer

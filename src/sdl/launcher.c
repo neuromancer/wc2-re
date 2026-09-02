@@ -81,7 +81,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
     outputArgumentIndex = 1;
     *useEnhancedRenderer = 0;
     *cutsceneOnly = 0;
-    *useLauncherGui = 0;
+    *useLauncherGui = *argumentCount == 1;
     g_bSdlBalancedDifficulty = 0;
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
@@ -174,7 +174,7 @@ static int SdlOpenLauncherGui(SdlLauncherOptions *options)
                 "Build the optional GUI with 'make modern-gui'.\n",
                 libraryPath, SDL_GetError());
         SDL_free(libraryPath);
-        return SDL_LAUNCHER_ERROR;
+        return SDL_LAUNCHER_UNAVAILABLE;
     }
     SDL_free(libraryPath);
     runLauncher = (SdlRunLauncherGuiFunction)SDL_LoadFunction(
@@ -337,12 +337,14 @@ int main(int argumentCount, char **arguments)
     int checkOnly;
     int cutsceneOnly;
     int gameResult;
+    int launcherGuiImplicit;
     int launcherResult;
     int useEnhancedRenderer;
     int useLauncherGui;
     int usingDosData;
     SdlLauncherOptions launcherOptions;
 
+    launcherGuiImplicit = argumentCount == 1;
     SdlInitializeLauncherOptions(&launcherOptions);
     if (!SdlParsePortArguments(&argumentCount, arguments,
                                    &useEnhancedRenderer,
@@ -352,16 +354,21 @@ int main(int argumentCount, char **arguments)
         return 1;
     if (useLauncherGui) {
         launcherResult = SdlOpenLauncherGui(&launcherOptions);
-        if (launcherResult == SDL_LAUNCHER_CANCELLED)
+        if (launcherResult == SDL_LAUNCHER_UNAVAILABLE &&
+            launcherGuiImplicit)
+            useLauncherGui = 0;
+        else if (launcherResult == SDL_LAUNCHER_CANCELLED)
             return 0;
-        if (launcherResult != SDL_LAUNCHER_ACCEPTED)
+        else if (launcherResult != SDL_LAUNCHER_ACCEPTED)
             return 1;
-        if (!SetCurrentDirectoryA(launcherOptions.gameDirectory)) {
+        if (useLauncherGui &&
+            !SetCurrentDirectoryA(launcherOptions.gameDirectory)) {
             fprintf(stderr, "Unable to enter game directory: %s\n",
                     launcherOptions.gameDirectory);
             return 1;
         }
-        if (!SdlApplyLauncherOptions(&launcherOptions,
+        if (useLauncherGui &&
+            !SdlApplyLauncherOptions(&launcherOptions,
                                      &useEnhancedRenderer))
             return 1;
     }

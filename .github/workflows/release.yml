@@ -108,37 +108,56 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
-            clang file liblzo2-dev libsdl2-dev make patchelf pkg-config zip
+            clang cmake file libdbus-1-dev liblzo2-dev libsdl2-dev make \
+            patchelf pkg-config zip
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
-        run: brew install lzo pkg-config sdl2
+        run: brew install cmake lzo pkg-config sdl2
       - name: Build SDL2 release port
-        run: make -j2 modern MODERN_RELEASE=1
+        run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
         run: |
+          if [[ "${{ matrix.platform }}" == linux ]]; then
+            gui_module=out-modern/libwc2-slint-gui.so
+          else
+            gui_module=out-modern/libwc2-slint-gui.dylib
+          fi
           test -s out-modern/wc2-modern
+          test -s "$gui_module"
           file out-modern/wc2-modern
+          file "$gui_module"
           test "$(uname -m)" = "${{ matrix.architecture }}"
-          if nm -u out-modern/wc2-modern | grep -Eiq '__asan_|__ubsan_'; then
+          if nm -u out-modern/wc2-modern "$gui_module" |
+              grep -Eiq '__asan_|__ubsan_'; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
           if [[ "${{ matrix.platform }}" == linux ]]; then
-            dependencies=$(ldd out-modern/wc2-modern)
+            nm -D --defined-only "$gui_module" |
+              grep -q ' SdlRunLauncherGui$'
+            dependencies=$(ldd out-modern/wc2-modern; ldd "$gui_module")
           else
-            dependencies=$(otool -L out-modern/wc2-modern)
+            nm -gU "$gui_module" | grep -q ' _SdlRunLauncherGui$'
+            dependencies=$(otool -L out-modern/wc2-modern; \
+              otool -L "$gui_module")
           fi
           if grep -Eiq 'asan|ubsan' <<< "$dependencies"; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
       - name: Package SDL2 port
-        run: >-
-          packaging/package-modern.sh
-          "${{ needs.metadata.outputs.version }}"
-          "${{ matrix.platform }}"
-          "${{ matrix.architecture }}"
-          out-modern/wc2-modern
+        run: |
+          if [[ "${{ matrix.platform }}" == linux ]]; then
+            gui_module=out-modern/libwc2-slint-gui.so
+          else
+            gui_module=out-modern/libwc2-slint-gui.dylib
+          fi
+          packaging/package-modern.sh \
+            "${{ needs.metadata.outputs.version }}" \
+            "${{ matrix.platform }}" \
+            "${{ matrix.architecture }}" \
+            out-modern/wc2-modern \
+            "$gui_module"
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -174,17 +193,23 @@ jobs:
       - name: Build SDL2 release port
         shell: msys2 {0}
         run: >-
-          make -j2 modern MODERN_RELEASE=1
+          make -j2 modern-gui MODERN_RELEASE=1
           MODERN_CC=clang MODERN_CXX=clang++
       - name: Validate Windows executable
         shell: msys2 {0}
         run: |
           test -s out-modern/wc2-modern.exe
-          if llvm-nm -u out-modern/wc2-modern.exe | grep -Eiq '__asan_|__ubsan_'; then
+          test -s out-modern/wc2-slint-gui.dll
+          if llvm-nm -u out-modern/wc2-modern.exe \
+              out-modern/wc2-slint-gui.dll | grep -Eiq '__asan_|__ubsan_'; then
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
-          if ntldd -R out-modern/wc2-modern.exe | grep -Eiq 'asan|ubsan'; then
+          llvm-nm -g --defined-only out-modern/wc2-slint-gui.dll |
+            grep -q ' SdlRunLauncherGui$'
+          if (ntldd -R out-modern/wc2-modern.exe; \
+              ntldd -R out-modern/wc2-slint-gui.dll) | \
+              grep -Eiq 'asan|ubsan'; then
             echo "Release binary links a sanitizer runtime." >&2
             exit 1
           fi
@@ -196,6 +221,7 @@ jobs:
           windows
           x86_64
           out-modern/wc2-modern.exe
+          out-modern/wc2-slint-gui.dll
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:

@@ -63,6 +63,10 @@ cd C:\path\to\WC2
 .\wc2-modern.exe
 ```
 
+When the graphical launcher module is installed beside the executable,
+starting without arguments opens it automatically. Supplying any command-line
+arguments starts the game directly unless `--gui` is also present.
+
 ### Fixes and features
 
 The native port includes these fixes and optional features:
@@ -88,7 +92,7 @@ The native port includes these fixes and optional features:
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter | `-f` |
 | Cockpitless view | `-c` |
-| Optional graphical launcher | `--gui` |
+| Optional graphical launcher | no arguments, or `--gui` with other options |
 
 Options can be combined:
 
@@ -166,7 +170,7 @@ the desktop portal instead of GTK:
 
 ```sh
 make -j modern-gui
-out-modern/wc2-modern --gui
+out-modern/wc2-modern
 ```
 
 `make run-modern-gui` opens it with the repository's Kilrathi Saga data path.

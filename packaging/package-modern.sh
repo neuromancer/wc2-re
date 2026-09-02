@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version=${1:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY}
-platform=${2:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY}
-architecture=${3:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY}
-binary=${4:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY}
+version=${1:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY GUI_MODULE}
+platform=${2:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY GUI_MODULE}
+architecture=${3:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY GUI_MODULE}
+binary=${4:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY GUI_MODULE}
+gui_module=${5:?usage: package-modern.sh VERSION PLATFORM ARCH BINARY GUI_MODULE}
 
 case "$version" in
     *[!A-Za-z0-9._-]*)
@@ -28,6 +29,7 @@ case "$architecture" in
 esac
 
 test -f "$binary"
+test -f "$gui_module"
 archive="wc2-re-${version}-${platform}-${architecture}-sdl2"
 dist_dir=${DIST_DIR:-dist}
 stage_dir="${dist_dir}/${archive}"
@@ -46,11 +48,18 @@ cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
 
 if test "$platform" = windows; then
     executable="$stage_dir/wc2-modern.exe"
+    gui_name=wc2-slint-gui.dll
+elif test "$platform" = macos; then
+    executable="$stage_dir/wc2-modern"
+    gui_name=libwc2-slint-gui.dylib
 else
     executable="$stage_dir/wc2-modern"
+    gui_name=libwc2-slint-gui.so
 fi
 cp "$binary" "$executable"
 chmod +x "$executable"
+packaged_gui="$stage_dir/$gui_name"
+cp "$gui_module" "$packaged_gui"
 
 if test "$platform" = linux; then
     while read -r name marker path remainder; do
@@ -67,6 +76,7 @@ if test "$platform" = linux; then
     compgen -G "$stage_dir/libSDL2*.so*" >/dev/null
     compgen -G "$stage_dir/liblzo2*.so*" >/dev/null
     patchelf --force-rpath --set-rpath '$ORIGIN' "$executable"
+    patchelf --force-rpath --set-rpath '$ORIGIN' "$packaged_gui"
 elif test "$platform" = macos; then
     compiler=${MODERN_CXX:-c++}
     runtime_dir=$($compiler --print-runtime-dir)
@@ -91,6 +101,7 @@ elif test "$platform" = macos; then
 
     compgen -G "$stage_dir/libSDL2*.dylib" >/dev/null
     compgen -G "$stage_dir/liblzo2*.dylib" >/dev/null
+    codesign --force --sign - "$packaged_gui"
     codesign --force --sign - "$executable"
 else
     : "${MINGW_PREFIX:?MINGW_PREFIX is required for Windows packaging}"

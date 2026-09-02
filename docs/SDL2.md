@@ -116,13 +116,19 @@ IME composition cannot intercept flight keys.
 
 ## Optional graphical launcher
 
-`--gui` opens the Slint configuration launcher before SDL or the game is
-initialized. It offers a native folder picker, validates an editable game
+When its load-on-demand module is present, the Slint configuration launcher
+opens by default if the executable receives no arguments. Supplying any
+command-line arguments starts the game directly unless `--gui` is among them.
+The launcher offers a native folder picker, validates an editable game
 directory, changes the process to that directory after confirmation, and
 applies the renderer, difficulty, frame-rate, cockpit, rumble, and joystick
 selections. Closing or cancelling the window exits without starting the game.
 Required data filenames are matched case-insensitively, and option flags
 supplied with `--gui` seed the corresponding controls.
+
+If the optional module is absent, no-argument startup reports that the
+launcher is unavailable and continues directly into the game. An explicit
+`--gui` instead reports the missing module as an error and exits.
 
 After an accepted launch, the host explicitly shows and raises the SDL window
 before game initialization. This transfers application focus from Slint's
