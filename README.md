@@ -6,18 +6,22 @@ Commander: The Kilrathi Saga* (1996). The reconstructed game core is C, the
 4.1 under [`wibo`](https://github.com/neuromancer/wibo) to reproduce the
 original Win32 `WC2.EXE`.
 
-A native SDL2 port is available for Windows, Linux, and macOS. It supports
-Kilrathi Saga data and has partial support for the original DOS game data.
+A native SDL2 port and optional graphical launcher are available for Windows,
+Linux, and macOS. They support Kilrathi Saga data and have partial support for
+the original DOS game data.
 
 No retail game data files are included.
 
+If you find this project useful, you can [support its development through
+GitHub Sponsors](https://github.com/sponsors/neuromancer).
+
 ## Status
 
-The reconstruction is incomplete: the source compiles and links as `WC2.EXE`,
-but significant implementation, mapping, and runtime work remains. `make
+The reconstruction is **materially complete**: the source compiles and links
+as `WC2.EXE`, and the remaining work is focused on fidelity refinements,
+validation, and portability polish rather than missing major systems. `make
 report` compares 1,501 functions against the retail executable and averages
-98.02% machine-code similarity, which measures reconstruction fidelity, not
-gameplay completeness.
+98.02% machine-code similarity.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
 save/load menus, cutscenes, and spaceflight, including firing, targeting,
@@ -28,7 +32,13 @@ while retaining the original indexed cockpit, HUD, and palette effects.
 
 ## Screenshots
 
-Captured through DREAMM at the game's original 320x200 resolution.
+The game captures were taken through DREAMM at the original 320x200
+resolution. The graphical launcher works on Windows, Linux, and macOS; the
+capture below shows it running natively on macOS.
+
+<p align="center">
+  <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
+</p>
 
 | Title menu | Opening sequence |
 | --- | --- |
@@ -145,10 +155,11 @@ The executable is written to `out-modern/wc2-modern` (or
 Kilrathi Saga data in `data/wc2-full`; `make run-modern-dos` uses DOS data in
 `data/dos`.
 
-The experimental Slint launcher is an optional module, so the normal SDL2
-build retains the same dependencies. Building it additionally requires CMake
-3.21 or newer and Rust 1.88 or newer. On Linux, install the D-Bus development
-files as well; the folder picker uses the desktop portal instead of GTK:
+The optional Slint launcher works on Windows, Linux, and macOS. It is a
+separate module, so the normal SDL2 build retains the same dependencies.
+Building it additionally requires CMake 3.21 or newer and Rust 1.88 or newer.
+On Linux, install the D-Bus development files as well; the folder picker uses
+the desktop portal instead of GTK:
 
 ```sh
 make -j modern-gui
