@@ -185,10 +185,12 @@ jobs:
             make
             zip
             mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
             mingw-w64-clang-x86_64-lld
             mingw-w64-clang-x86_64-lzo2
             mingw-w64-clang-x86_64-ntldd
             mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
       - name: Build SDL2 release port
         shell: msys2 {0}
