@@ -411,11 +411,23 @@ static void SdlToggleFullscreen(Uint32 windowId)
 }
 
 /* WM_CHAR's contribution: the typed character, shift applied.  The game only
- * reads it for text entry, and the virtual key covers everything else. */
+ * reads it for text entry, and the virtual key covers everything else.
+ *
+ * Real WM_CHAR also fires for Backspace, Tab, Enter and Escape, with their
+ * usual C0 control codes (0x08, 0x09, 0x0d, 0x1b) -- TranslateMessage()
+ * does not restrict itself to printable output. GetNextInputEvent's type-4
+ * handling (eventmgr.c) surfaces this value, not the virtual key, as the
+ * event's final value, so zeroing those four here made WaitForAnyInputPress
+ * see 0 -- "no key yet" -- for them, and its caller would loop past the
+ * keypress waiting for a different one that never came. See issue #21
+ * (Enter never submits a pilot-name text field). */
 static int SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
 {
     int shifted;
 
+    if (virtualKey == 0x08 || virtualKey == 0x09 ||
+        virtualKey == 0x0d || virtualKey == 0x1b)
+        return virtualKey;
     if (virtualKey < ' ' || virtualKey > '~')
         return 0;
     shifted = (event->keysym.mod & (KMOD_SHIFT | KMOD_CAPS)) != 0;
@@ -440,46 +452,36 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
     fflush(stderr);
 }
 
-/* WC2's radio-command hotkeys (see issue #7): winmain.c's WM_SYSKEYDOWN
- * handler sets one flag per ALT+letter combo, and its WM_SYSKEYUP handler
- * clears all six together on the release of *any* key while ALT is held,
- * not just the one that set them -- releasing a still-held combo's
- * neighbor silently cancels it. Set the matching flag precisely on that
- * key's own ALT+keydown, and clear it precisely on that key's own keyup
- * or on ALT's release, so one held combo cannot cancel another. */
-/* Set INPUT_TRACE=1 to see "[althotkey] Alt+X intercepted" the moment a
- * combo's flag is recognised here, and "[althotkey] Alt+X implemented"
- * from HandleSpaceFlightControls (hudmsg.c) when it actually results in a
- * quick-comm command -- useful for telling a genuine no-op apart from a
- * command that fired but was blocked by a precondition (no wingman, no
- * enemy nearby, and so on). */
-#define SDL_ALT_HOTKEY_CASE(letter, flag) \
-    case letter: \
-        if (pressed) { \
-            if (altHeld) { \
-                if ((flag) == 0) \
-                    SdlTracef("[althotkey] Alt+%c intercepted\n", letter); \
-                (flag) = 1; \
-            } \
-        } else { \
-            (flag) = 0; \
-        } \
-        break;
-
-static void SdlUpdateAltRadioHotkey(int pressed, int virtualKey,
-                                       int altHeld)
+/* SDL drains every queued event before flight controls inspect these flags.
+ * Latch each fresh press until that inspection so a quick keydown/keyup pair
+ * cannot erase the command.  Auto-repeat is ignored by the caller. */
+static void SdlLatchAltRadioHotkey(int virtualKey)
 {
     switch (virtualKey) {
-    SDL_ALT_HOTKEY_CASE('B', g_bAltBHotkey_005d1290)
-    SDL_ALT_HOTKEY_CASE('F', g_bAltFHotkey_005d127c)
-    SDL_ALT_HOTKEY_CASE('A', g_bAltAHotkey_005d1294)
-    SDL_ALT_HOTKEY_CASE('H', g_bAltHHotkey_005d128c)
-    SDL_ALT_HOTKEY_CASE('D', g_bAltDHotkey_005d1280)
-    SDL_ALT_HOTKEY_CASE('T', g_bAltTHotkey_005d1298)
+    case 'B':
+        g_bAltBHotkey_005d1290 = 1;
+        break;
+    case 'F':
+        g_bAltFHotkey_005d127c = 1;
+        break;
+    case 'A':
+        g_bAltAHotkey_005d1294 = 1;
+        break;
+    case 'H':
+        g_bAltHHotkey_005d128c = 1;
+        break;
+    case 'D':
+        g_bAltDHotkey_005d1280 = 1;
+        break;
+    case 'T':
+        g_bAltTHotkey_005d1298 = 1;
+        break;
+    default:
+        return;
     }
+    /* The matching keyup may already have been drained; rearm the gate now. */
+    g_nLastAltCommandScanCode_005d1274 = 0;
 }
-
-#undef SDL_ALT_HOTKEY_CASE
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
@@ -504,22 +506,14 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
         g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
-    if (event->keysym.scancode == SDL_SCANCODE_LALT ||
-        event->keysym.scancode == SDL_SCANCODE_RALT) {
-        /* Releasing Alt itself ends any combo still being held, the way
-         * the original's WM_SYSKEYUP did for whichever key it caught. */
-        if (!pressed) {
-            g_bAltBHotkey_005d1290 = 0;
-            g_bAltFHotkey_005d127c = 0;
-            g_bAltAHotkey_005d1294 = 0;
-            g_bAltHHotkey_005d128c = 0;
-            g_bAltDHotkey_005d1280 = 0;
-            g_bAltTHotkey_005d1298 = 0;
-        }
-    } else {
-        SdlUpdateAltRadioHotkey(pressed, virtualKey,
-                                   (event->keysym.mod & KMOD_ALT) != 0);
-    }
+    if (pressed && event->repeat == 0 &&
+        (event->keysym.mod & KMOD_ALT) != 0 &&
+        g_bSpaceFlightActive_005c586c != 0 &&
+        g_nArcadeState_0049d75c == 0 &&
+        g_nCannedSceneMode_0049021c == 0 &&
+        g_bJumpSequenceActive_004962f0 == 0 &&
+        g_pfnInputPump_005c840c == get_player_input)
+        SdlLatchAltRadioHotkey(virtualKey);
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)

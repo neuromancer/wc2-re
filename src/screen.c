@@ -1405,6 +1405,19 @@ void real_vid_transmit(short obj, short message)
     if (g_bSpeechCacheEnabled_005c8de8 != 0 && packetSize > 0 &&
         packetSize < g_wSpeechCacheCodeBytes_0048e0e0) {
         DismissHudMessageIfShowing();
+#ifdef SDL_PORT
+        /* See issue #27: DismissHudMessageIfShowing() only arms the "-1"
+         * wait-for-speech sentinel (via set_message_time) when a HUD
+         * message was already showing. vid_equiv() only starts a new
+         * comm transmission once message_showing() is already false, so
+         * on the normal path the sentinel never gets armed here:
+         * check_message() then never sees g_nHudMessageTime_005d1c32 ==
+         * -1 and so never notices g_bSpeechPlaybackComplete_004a266c go
+         * true, leaving the comm portrait/VDU stuck once the speech line
+         * finishes playing. Arm the sentinel unconditionally so playback
+         * completion always gets observed. */
+        set_message_time(-1);
+#endif
         LoadAndPlaySpeechPacket(packetName, message);
         g_bCommSpeechPlaying_0049b7a0 = 1;
         return;

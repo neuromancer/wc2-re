@@ -11,25 +11,6 @@
 static unsigned char g_abPauseInputState_005c85d0[0x100];
 static unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
 
-#ifdef SDL_PORT
-/* Per-key dedup for the six radio-command hotkeys below (see issue #7).
- * The original dedups every alt-hotkey through one shared "last scancode"
- * variable (g_nLastAltCommandScanCode_005d1274): whichever command fires
- * last overwrites it for all the others, so a combo that is still being
- * held can silently re-fire once a *different* combo's scancode has
- * since been written there. Track each command's "already issued for
- * this hold" state independently instead; sdl/events.c clears the
- * matching g_bAltXHotkey flag only on that specific key's own release
- * (or on Alt's release), not on the release of an unrelated key the way
- * the original's WM_SYSKEYUP did. */
-static signed char g_bAltBCommandIssued;
-static signed char g_bAltFCommandIssued;
-static signed char g_bAltACommandIssued;
-static signed char g_bAltHCommandIssued;
-static signed char g_bAltDCommandIssued;
-static signed char g_bAltTCommandIssued;
-#endif
-
 /* Function start: 0x4672C5 */
 /* Message dwell time: grows with text length, scaled by the speed setting. */
 short MeasureMessageWidth(const char *text)
@@ -191,20 +172,6 @@ short HandleSpaceFlightControls(void)
     control = (short)GetControlKeyState();
     modifiers = (short)GetKeyboardModifiers();
 
-#ifdef SDL_PORT
-    if (g_bAltBHotkey_005d1290 != 0 && g_bAltBCommandIssued == 0 &&
-        g_nYourWingman_0049346c != -1 &&
-        g_aeShipObjective_00495f08[g_nYourWingman_0049346c] ==
-            OBJECTIVE_HOLD_FORMATION &&
-        any_enemy(0, 14000) != 0) {
-        SdlTracef("[althotkey] Alt+B implemented: break and attack "
-                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
-        IssueQuickCommCommand(g_nYourWingman_0049346c, 4);
-        g_bAltBCommandIssued = 1;
-    }
-    if (g_bAltBHotkey_005d1290 == 0)
-        g_bAltBCommandIssued = 0;
-#else
     if (g_bAltBHotkey_005d1290 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x30 &&
         g_nYourWingman_0049346c != -1 &&
@@ -214,43 +181,17 @@ short HandleSpaceFlightControls(void)
         IssueQuickCommCommand(g_nYourWingman_0049346c, 4);
         g_nLastAltCommandScanCode_005d1274 = 0x30;
     }
-#endif
     if (g_bJoystickCalibrationHotkey_005d1284 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x2e) {
         CalibrateJoystickInteractive();
         g_nLastAltCommandScanCode_005d1274 = 0x2e;
     }
-#ifdef SDL_PORT
-    if (g_bAltFHotkey_005d127c != 0 && g_bAltFCommandIssued == 0 &&
-        g_nYourWingman_0049346c != -1) {
-        SdlTracef("[althotkey] Alt+F implemented: keep formation / form "
-                  "on wing (wingman=%d)\n", (int)g_nYourWingman_0049346c);
-        IssueQuickCommCommand(g_nYourWingman_0049346c, 6);
-        g_bAltFCommandIssued = 1;
-    }
-    if (g_bAltFHotkey_005d127c == 0)
-        g_bAltFCommandIssued = 0;
-#else
     if (g_bAltFHotkey_005d127c != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x21 &&
         g_nYourWingman_0049346c != -1) {
         IssueQuickCommCommand(g_nYourWingman_0049346c, 6);
         g_nLastAltCommandScanCode_005d1274 = 0x21;
     }
-#endif
-#ifdef SDL_PORT
-    if (g_bAltAHotkey_005d1294 != 0 && g_bAltACommandIssued == 0 &&
-        g_nYourWingman_0049346c != -1 &&
-        g_acShipTarget_00495f20[0] != -1) {
-        SdlTracef("[althotkey] Alt+A implemented: attack my target "
-                  "(wingman=%d target=%d)\n", (int)g_nYourWingman_0049346c,
-                  (int)g_acShipTarget_00495f20[0]);
-        IssueQuickCommCommand(g_nYourWingman_0049346c, 1);
-        g_bAltACommandIssued = 1;
-    }
-    if (g_bAltAHotkey_005d1294 == 0)
-        g_bAltACommandIssued = 0;
-#else
     if (g_bAltAHotkey_005d1294 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x1e &&
         g_nYourWingman_0049346c != -1 &&
@@ -258,19 +199,6 @@ short HandleSpaceFlightControls(void)
         IssueQuickCommCommand(g_nYourWingman_0049346c, 1);
         g_nLastAltCommandScanCode_005d1274 = 0x1e;
     }
-#endif
-#ifdef SDL_PORT
-    if (g_bAltHHotkey_005d128c != 0 && g_bAltHCommandIssued == 0 &&
-        g_nYourWingman_0049346c != -1 &&
-        any_enemy(0, 14000) != 0) {
-        SdlTracef("[althotkey] Alt+H implemented: help me out here "
-                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
-        IssueQuickCommCommand(g_nYourWingman_0049346c, 2);
-        g_bAltHCommandIssued = 1;
-    }
-    if (g_bAltHHotkey_005d128c == 0)
-        g_bAltHCommandIssued = 0;
-#else
     if (g_bAltHHotkey_005d128c != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x23 &&
         g_nYourWingman_0049346c != -1 &&
@@ -278,41 +206,12 @@ short HandleSpaceFlightControls(void)
         IssueQuickCommCommand(g_nYourWingman_0049346c, 2);
         g_nLastAltCommandScanCode_005d1274 = 0x23;
     }
-#endif
-#ifdef SDL_PORT
-    if (g_bAltDHotkey_005d1280 != 0 && g_bAltDCommandIssued == 0 &&
-        g_nYourWingman_0049346c != -1) {
-        SdlTracef("[althotkey] Alt+D implemented: damage report "
-                  "(wingman=%d)\n", (int)g_nYourWingman_0049346c);
-        IssueQuickCommCommand(g_nYourWingman_0049346c, 13);
-        g_bAltDCommandIssued = 1;
-    }
-    if (g_bAltDHotkey_005d1280 == 0)
-        g_bAltDCommandIssued = 0;
-#else
     if (g_bAltDHotkey_005d1280 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x20 &&
         g_nYourWingman_0049346c != -1) {
         IssueQuickCommCommand(g_nYourWingman_0049346c, 13);
         g_nLastAltCommandScanCode_005d1274 = 0x20;
     }
-#endif
-#ifdef SDL_PORT
-    if (g_bAltTHotkey_005d1298 != 0 && g_bAltTCommandIssued == 0 &&
-        g_acShipTarget_00495f20[0] != -1 &&
-        g_asShipSide_004955d0[g_acShipTarget_00495f20[0]] ==
-            SIDE_KILRATHI) {
-        SdlTracef("[althotkey] Alt+T implemented: taunt (target=%d)\n",
-                  (int)g_acShipTarget_00495f20[0]);
-        IssueQuickCommCommand(
-            g_acShipTarget_00495f20[0],
-            (short)((unsigned short)RandomInRange(0, 2) +
-                    g_nEnemyTauntCommandBase_0049b76c));
-        g_bAltTCommandIssued = 1;
-    }
-    if (g_bAltTHotkey_005d1298 == 0)
-        g_bAltTCommandIssued = 0;
-#else
     if (g_bAltTHotkey_005d1298 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x14 &&
         g_acShipTarget_00495f20[0] != -1 &&
@@ -324,6 +223,14 @@ short HandleSpaceFlightControls(void)
                     g_nEnemyTauntCommandBase_0049b76c));
         g_nLastAltCommandScanCode_005d1274 = 0x14;
     }
+#ifdef SDL_PORT
+    /* SDL latches these command presses until one flight-control pass. */
+    g_bAltBHotkey_005d1290 = 0;
+    g_bAltFHotkey_005d127c = 0;
+    g_bAltAHotkey_005d1294 = 0;
+    g_bAltHHotkey_005d128c = 0;
+    g_bAltDHotkey_005d1280 = 0;
+    g_bAltTHotkey_005d1298 = 0;
 #endif
     if (g_bAltNumpadAddHotkey_005d1270 != 0 &&
         g_nLastAltCommandScanCode_005d1274 != 0x4e) {
@@ -1818,6 +1725,26 @@ short calculate_damage_level(void)
 /* Function start: 0x419A40 */
 void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
 {
+#ifdef SDL_PORT
+    /* See issue #37 (crash reloading a savegame): DosFarPtrToNear/
+     * DosNearPtrToFar round-trip a pointer through "unsigned int" -- exactly
+     * correct on the 32-bit reference build (a dword IS a pointer there,
+     * see the DwordPtr comment in game.h), but on this 64-bit build it
+     * silently truncates the upper 32 bits. The branch below reconstructs
+     * both pointers through that round-trip unconditionally, and which
+     * branch runs depends on comparing the two pointers' truncated low 32
+     * bits -- so whether this corrupts the pointers effectively comes down
+     * to heap-address luck, reproducing more often the more the heap has
+     * churned (e.g. reopening the save/load menu a second time).
+     *
+     * The 0xffff-sized chunking in both branches below exists only to stay
+     * within a DOS segment's 64KB limit; that does not apply on a flat
+     * 64-bit address space, so a plain memmove is exactly equivalent and
+     * correct regardless of overlap -- which is exactly what this
+     * hand-rolled routine's name promises. */
+    if (count != 0)
+        memmove(destination, source, (size_t)count);
+#else
     if (count != 0) {
         if (DosFarPtrToNear(source) < DosFarPtrToNear(destination)) {
             destination = DosNearPtrToFar(
@@ -1847,6 +1774,7 @@ void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
             DosMemcpy(destination, source, (unsigned int)count);
         }
     }
+#endif
 }
 
 #pragma function(memset)

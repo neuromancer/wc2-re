@@ -2176,6 +2176,13 @@ handle_queued_cutscene_input:
             waitTicks = PopCutsceneScriptValue(&stack, stackStorage + 10);
             if (g_bCutsceneSkipFrame_00499c54 != 0)
                 waitTicks = 0;
+#ifdef SDL_PORT
+            /* See CUTSCENE_SPRITE_MIN_TICKS: a short script-authored wait
+             * relied on the DOS host's own draw speed, not a real-time
+             * gate, to look right. */
+            if (waitTicks > 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
+                waitTicks = CUTSCENE_SPRITE_MIN_TICKS;
+#endif
             g_pCurrentCutsceneSprite_00499c78->waitTicks = waitTicks;
             g_pCurrentCutsceneSprite_00499c78->waitStart =
                 g_nInputClock_005c84a8;
@@ -2334,6 +2341,13 @@ handle_queued_cutscene_input:
             waitTicks = PopCutsceneScriptValue(&stack, stackStorage + 10);
             if (g_bCutsceneSkipFrame_00499c54 != 0)
                 waitTicks = 0;
+#ifdef SDL_PORT
+            /* See CUTSCENE_SPRITE_MIN_TICKS: a short script-authored wait
+             * relied on the DOS host's own draw speed, not a real-time
+             * gate, to look right. */
+            if (waitTicks > 0 && waitTicks < CUTSCENE_SPRITE_MIN_TICKS)
+                waitTicks = CUTSCENE_SPRITE_MIN_TICKS;
+#endif
             g_pCurrentCutscenePlane_00499c7c->waitTicks = waitTicks;
             g_pCurrentCutscenePlane_00499c7c->waitStart =
                 g_nInputClock_005c84a8;

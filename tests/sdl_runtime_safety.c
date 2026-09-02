@@ -154,9 +154,13 @@ int main(int argumentCount, char **arguments)
     if (thrusterScreenX != 160.0f || thrusterScreenY != 100.0f)
         return 1;
 
+    /* Sound teardown precedes cutscene-object teardown.  It must also drop
+     * the non-owning mouth-sprite pointer before that object is freed. */
+    g_pLinkedCutsceneSprite_00499c64 = (SceneFlicObject *)1;
     g_bAfterburnerSfxActive_005d3864 = 1;
-    SdlStopDosSoundEffects();
-    if (g_bAfterburnerSfxActive_005d3864 != 0)
+    stop_all_sounds();
+    if (g_bAfterburnerSfxActive_005d3864 != 0 ||
+        g_pLinkedCutsceneSprite_00499c64 != 0)
         return 1;
 
     /* Explicit newlines in a cutscene caption are separate lines, not the

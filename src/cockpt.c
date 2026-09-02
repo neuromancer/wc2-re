@@ -965,7 +965,7 @@ void clear_message_time(void)
 /* Function start: 0x43952E */
 short message_showing(void)
 {
-    return 0 < g_nHudMessageTime_005d1c32;
+    return g_nHudMessageTime_005d1c32 != 0;
 }
 
 /* Function start: 0x439559 */

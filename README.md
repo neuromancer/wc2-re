@@ -6,18 +6,22 @@ Commander: The Kilrathi Saga* (1996). The reconstructed game core is C, the
 4.1 under [`wibo`](https://github.com/neuromancer/wibo) to reproduce the
 original Win32 `WC2.EXE`.
 
-A native SDL2 port is available for Windows, Linux, and macOS. It supports
-Kilrathi Saga data and has partial support for the original DOS game data.
+A native SDL2 port and optional graphical launcher are available for Windows,
+Linux, and macOS. They support Kilrathi Saga data and have partial support for
+the original DOS game data.
 
 No retail game data files are included.
 
+If you find this project useful, you can [support its development through
+GitHub Sponsors](https://github.com/sponsors/neuromancer).
+
 ## Status
 
-The reconstruction is incomplete: the source compiles and links as `WC2.EXE`,
-but significant implementation, mapping, and runtime work remains. `make
+The reconstruction is **materially complete**: the source compiles and links
+as `WC2.EXE`, and the remaining work is focused on fidelity refinements,
+validation, and portability polish rather than missing major systems. `make
 report` compares 1,501 functions against the retail executable and averages
-98.02% machine-code similarity, which measures reconstruction fidelity, not
-gameplay completeness.
+98.02% machine-code similarity.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
 save/load menus, cutscenes, and spaceflight, including firing, targeting,
@@ -28,7 +32,13 @@ while retaining the original indexed cockpit, HUD, and palette effects.
 
 ## Screenshots
 
-Captured through DREAMM at the game's original 320x200 resolution.
+The game captures were taken through DREAMM at the original 320x200
+resolution. The graphical launcher works on Windows, Linux, and macOS; the
+capture below shows it running natively on macOS.
+
+<p align="center">
+  <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
+</p>
 
 | Title menu | Opening sequence |
 | --- | --- |
@@ -83,6 +93,7 @@ The native port includes these fixes and optional features:
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter | `-f` |
 | Cockpitless view | `-c` |
+| Optional graphical launcher | `--gui` |
 
 Options can be combined:
 
@@ -143,6 +154,26 @@ The executable is written to `out-modern/wc2-modern` (or
 `out-modern/wc2-modern.exe` on Windows). `make run-modern` launches it with
 Kilrathi Saga data in `data/wc2-full`; `make run-modern-dos` uses DOS data in
 `data/dos`.
+
+The optional Slint launcher works on Windows, Linux, and macOS. It is a
+separate module, so the normal SDL2 build retains the same dependencies.
+Building it additionally requires CMake 3.21 or newer and Rust 1.88 or newer.
+On Linux, install the D-Bus development files as well; the folder picker uses
+the desktop portal instead of GTK:
+
+```sh
+make -j modern-gui
+out-modern/wc2-modern --gui
+```
+
+`make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
+The launcher has a native folder picker and validates the selected DOS or
+Kilrathi Saga directory before starting the game. Its central title artwork is
+decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
+small 247x101 image, and embedded in the module. Slint 1.16.1 and [Native File
+Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended) are
+fetched at pinned tags and compiled into one load-on-demand library beside
+`wc2-modern`.
 
 ### Reconstructed Win32 build
 

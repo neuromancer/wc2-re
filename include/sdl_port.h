@@ -217,7 +217,7 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
 int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickAxesMode(const char *name);
 void SdlEnableJoystickDebug(void);
-void SdlEnableJoystickRumble(void);
+void SdlSetJoystickRumbleEnabled(int enabled);
 void SdlLogJoystickEvent(const SDL_Event *event);
 int SdlGetCommunicationMenuSelection(void);
 void SdlQueueJoystickWeaponRumble(int weaponType);

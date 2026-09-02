@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include "video_internal.h"
+#include "slint/launcher_api.h"
 
 #include <setjmp.h>
 #include <stdio.h>
@@ -12,6 +13,41 @@ extern __declspec(dllimport) BOOL __stdcall ImmDisableIME(DWORD threadId);
 
 static jmp_buf g_stSdlCutsceneExit;
 static int g_bSdlCutsceneExitArmed;
+/* Native window backends may retain callbacks after their event loop closes,
+ * so keep the optional module loaded until process exit. */
+static void *g_pSdlLauncherGuiLibrary;
+
+#ifdef _WIN32
+#define SDL_LAUNCHER_LIBRARY_NAME "wc2-slint-gui.dll"
+#elif defined(__APPLE__)
+#define SDL_LAUNCHER_LIBRARY_NAME "libwc2-slint-gui.dylib"
+#else
+#define SDL_LAUNCHER_LIBRARY_NAME "libwc2-slint-gui.so"
+#endif
+
+static const char *const g_apszSdlLauncherJoystickModes[] = {
+    "original", "4button-2axis", "4button-4axis"
+};
+
+static const char *const g_apszSdlLauncherJoystickAxes[] = {
+    "twin-stick-roll", "twin-stick-yaw", "hotas-yaw", "hotas-roll",
+    "linear-throttle", "rudder-yaw", "rudder-roll"
+};
+
+static int SdlFindLauncherChoice(const char *name,
+                                    const char *const *choices,
+                                    size_t choiceCount)
+{
+    size_t choice;
+
+    choice = 0;
+    while (choice < choiceCount) {
+        if (strcmp(name, choices[choice]) == 0)
+            return (int)choice;
+        choice++;
+    }
+    return 0;
+}
 
 void SdlFinishCutsceneOnly(void)
 {
@@ -33,48 +69,145 @@ static void SdlRunGameApplication(int argumentCount, char **arguments)
 
 static int SdlParsePortArguments(int *argumentCount, char **arguments,
                                     int *useEnhancedRenderer,
-                                    int *cutsceneOnly)
+                                    int *cutsceneOnly,
+                                    int *useLauncherGui,
+                                    SdlLauncherOptions *launcherOptions)
 {
     char *argument;
+    char legacyCommand;
     int argumentIndex;
     int outputArgumentIndex;
 
     outputArgumentIndex = 1;
     *useEnhancedRenderer = 0;
     *cutsceneOnly = 0;
+    *useLauncherGui = 0;
     g_bSdlBalancedDifficulty = 0;
     argumentIndex = 1;
     while (argumentIndex < *argumentCount) {
         argument = arguments[argumentIndex];
-        if (strcmp(argument, "--enhanced") == 0) {
+        if (strcmp(argument, "--gui") == 0) {
+            *useLauncherGui = 1;
+        } else if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
+            launcherOptions->enhancedRenderer = 1;
         } else if (strcmp(argument, "--balanced-difficulty") == 0) {
             g_bSdlBalancedDifficulty = 1;
+            launcherOptions->balancedDifficulty = 1;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
             SdlEnableJoystickDebug();
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
-            SdlEnableJoystickRumble();
+            SdlSetJoystickRumbleEnabled(1);
+            launcherOptions->joystickRumble = 1;
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
             if (!SdlSetJoystickMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",
                         argument + 16);
                 return 0;
             }
+            launcherOptions->joystickMode = SdlFindLauncherChoice(
+                argument + 16, g_apszSdlLauncherJoystickModes,
+                SDL_arraysize(g_apszSdlLauncherJoystickModes));
         } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
             if (!SdlSetJoystickAxesMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick axes mode: %s\n",
                         argument + 16);
                 return 0;
             }
+            launcherOptions->joystickAxes = SdlFindLauncherChoice(
+                argument + 16, g_apszSdlLauncherJoystickAxes,
+                SDL_arraysize(g_apszSdlLauncherJoystickAxes));
         } else {
+            legacyCommand = argument[0] == '-' ? argument[1] : argument[0];
+            if (legacyCommand == 'f')
+                launcherOptions->showFrameRate = 1;
+            else if (legacyCommand == 'c')
+                launcherOptions->cockpitless = 1;
             arguments[outputArgumentIndex++] = argument;
         }
         argumentIndex++;
     }
     *argumentCount = outputArgumentIndex;
     arguments[outputArgumentIndex] = 0;
+    return 1;
+}
+
+static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
+{
+    memset(options, 0, sizeof(*options));
+    if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
+                             options->gameDirectory) == 0)
+        strcpy(options->gameDirectory, ".");
+}
+
+static int SdlOpenLauncherGui(SdlLauncherOptions *options)
+{
+    SdlRunLauncherGuiFunction runLauncher;
+    char *basePath;
+    char *libraryPath;
+    size_t libraryPathSize;
+    int result;
+
+    basePath = SDL_GetBasePath();
+    if (basePath == 0) {
+        fprintf(stderr, "Unable to locate the executable: %s\n",
+                SDL_GetError());
+        return SDL_LAUNCHER_ERROR;
+    }
+    libraryPathSize = strlen(basePath) + sizeof(SDL_LAUNCHER_LIBRARY_NAME);
+    libraryPath = (char *)SDL_malloc(libraryPathSize);
+    if (libraryPath == 0) {
+        SDL_free(basePath);
+        fprintf(stderr, "Unable to allocate the GUI module path.\n");
+        return SDL_LAUNCHER_ERROR;
+    }
+    SDL_snprintf(libraryPath, libraryPathSize, "%s%s", basePath,
+                 SDL_LAUNCHER_LIBRARY_NAME);
+    SDL_free(basePath);
+
+    g_pSdlLauncherGuiLibrary = SDL_LoadObject(libraryPath);
+    if (g_pSdlLauncherGuiLibrary == 0) {
+        fprintf(stderr,
+                "Unable to load %s: %s\n"
+                "Build the optional GUI with 'make modern-gui'.\n",
+                libraryPath, SDL_GetError());
+        SDL_free(libraryPath);
+        return SDL_LAUNCHER_ERROR;
+    }
+    SDL_free(libraryPath);
+    runLauncher = (SdlRunLauncherGuiFunction)SDL_LoadFunction(
+        g_pSdlLauncherGuiLibrary, "SdlRunLauncherGui");
+    if (runLauncher == 0) {
+        fprintf(stderr, "Unable to load the GUI entry point: %s\n",
+                SDL_GetError());
+        SDL_UnloadObject(g_pSdlLauncherGuiLibrary);
+        g_pSdlLauncherGuiLibrary = 0;
+        return SDL_LAUNCHER_ERROR;
+    }
+    result = runLauncher(options);
+    return result;
+}
+
+static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
+                                      int *useEnhancedRenderer)
+{
+    if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
+        options->joystickMode >
+            SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
+        options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
+        options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
+        fprintf(stderr, "The GUI returned invalid joystick options.\n");
+        return 0;
+    }
+    *useEnhancedRenderer = options->enhancedRenderer;
+    g_bSdlBalancedDifficulty = options->balancedDifficulty;
+    SdlSetJoystickRumbleEnabled(options->joystickRumble);
+    SdlSetJoystickMode(
+        g_apszSdlLauncherJoystickModes[options->joystickMode]);
+    SdlSetJoystickAxesMode(
+        g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
     return 1;
 }
 
@@ -204,16 +337,37 @@ int main(int argumentCount, char **arguments)
     int checkOnly;
     int cutsceneOnly;
     int gameResult;
+    int launcherResult;
     int useEnhancedRenderer;
+    int useLauncherGui;
     int usingDosData;
+    SdlLauncherOptions launcherOptions;
 
+    SdlInitializeLauncherOptions(&launcherOptions);
+    if (!SdlParsePortArguments(&argumentCount, arguments,
+                                   &useEnhancedRenderer,
+                                   &cutsceneOnly,
+                                   &useLauncherGui,
+                                   &launcherOptions))
+        return 1;
+    if (useLauncherGui) {
+        launcherResult = SdlOpenLauncherGui(&launcherOptions);
+        if (launcherResult == SDL_LAUNCHER_CANCELLED)
+            return 0;
+        if (launcherResult != SDL_LAUNCHER_ACCEPTED)
+            return 1;
+        if (!SetCurrentDirectoryA(launcherOptions.gameDirectory)) {
+            fprintf(stderr, "Unable to enter game directory: %s\n",
+                    launcherOptions.gameDirectory);
+            return 1;
+        }
+        if (!SdlApplyLauncherOptions(&launcherOptions,
+                                     &useEnhancedRenderer))
+            return 1;
+    }
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif
-    if (!SdlParsePortArguments(&argumentCount, arguments,
-                                   &useEnhancedRenderer,
-                                   &cutsceneOnly))
-        return 1;
     g_bSdlCutsceneOnly = cutsceneOnly;
     if (useEnhancedRenderer) {
         SdlSetVideoBackend(
@@ -246,6 +400,14 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
+    if (useLauncherGui && !checkOnly) {
+        /* Slint may create the macOS application before SDL. Cocoa's normal
+         * show path does not reactivate an existing application, so transfer
+         * focus explicitly when replacing the launcher with the game window. */
+        SDL_ShowWindow(window);
+        SDL_RaiseWindow(window);
+        SDL_PumpEvents();
+    }
     if (useEnhancedRenderer)
         fprintf(stderr,
                 "Experimental enhanced rendering enabled "
@@ -276,6 +438,10 @@ int main(int argumentCount, char **arguments)
          * and because the in-flight keys can still adjust it from here. */
         g_nSpaceFramePeriod_0049d768 = 3;
         SdlApplyLegacyArguments(argumentCount, arguments);
+        if (useLauncherGui) {
+            g_bShowFrameRate_0049c260 = launcherOptions.showFrameRate;
+            g_bCockpitEnabled_0049c26c = !launcherOptions.cockpitless;
+        }
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);

@@ -474,7 +474,21 @@ void show_target_disp(void)
     }
     if (g_asShipIdentified_00496078[target] == 0)
         return;
+#ifdef SDL_PORT
+    /* See issue #30: retail anchors the target silhouette (ship outline,
+     * armor overlay, and shield indicator all draw from this same x) 1
+     * pixel right of dead centre in the 72px-wide right VDU viewport
+     * (0x25 == 37, but half of a 72px-wide viewport is 0x24 == 36).
+     * That single native pixel is invisible at DOS's native resolution,
+     * but the port upscales the cockpit, which turns it into a visible
+     * rightward bias -- the shield bracket's right arc clips against the
+     * panel edge while its left arc has a matching gap. Center it
+     * properly; ship, armor, and shield all still share this one x, so
+     * they stay aligned with each other. */
+    x = (short)(g_stRightVduViewport_005d2b20.left + 0x24);
+#else
     x = (short)(g_stRightVduViewport_005d2b20.left + 0x25);
+#endif
     y = (short)(g_stRightVduViewport_005d2b20.top + 0x26);
     frame = (short)(g_aasShipShield_00495518[target][1] * 6 /
                     typeData->shieldAft);
