@@ -187,6 +187,18 @@ jobs:
         run: >-
           make -j2 modern-gui MODERN_RELEASE=1
           MODERN_CC=clang MODERN_CXX=clang++
+      - name: Test Unicode filesystem paths
+        shell: msys2 {0}
+        run: |
+          make -j2 out-modern/tests/sdl_crt_compat.exe \
+            MODERN_RELEASE=1 MODERN_CC=clang MODERN_CXX=clang++
+          unicode_directory="out-modern/path-œ-遊戲"
+          mkdir -p "$unicode_directory"
+          (
+            cd "$unicode_directory"
+            ../tests/sdl_crt_compat.exe --unicode-path
+          )
+          rmdir "$unicode_directory"
       - name: Validate Windows executable
         shell: msys2 {0}
         run: |

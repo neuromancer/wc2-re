@@ -6,6 +6,11 @@
 int main(int argumentCount, char **arguments)
 {
     static const char payload[] = "Wing Commander";
+    static const char unicodePathMarker[] =
+        "path-\xc5\x93-\xe9\x81\x8a\xe6\x88\xb2";
+    char absoluteCasePath[8192];
+    char absolutePath[8192];
+    char currentDirectory[4096];
     const char *casePath;
     const char *path;
     char resolvedPath[PATH_MAX];
@@ -16,6 +21,15 @@ int main(int argumentCount, char **arguments)
     int pathResolved;
 
     failed = 0;
+    if (GetCurrentDirectoryA(sizeof(currentDirectory),
+                             currentDirectory) == 0)
+        return 1;
+    if (argumentCount > 1 &&
+        strcmp(arguments[1], "--unicode-path") == 0 &&
+        strstr(currentDirectory, unicodePathMarker) == 0)
+        failed = 1;
+    if (!SetCurrentDirectoryA(currentDirectory))
+        return 1;
     if (strcmp(_itoa(-42, text, 10), "-42") != 0)
         failed = 1;
     if (strcmp(_ultoa(0x1a2b, text, 16), "1a2b") != 0)
@@ -24,7 +38,10 @@ int main(int argumentCount, char **arguments)
         failed = 1;
 
     path = "sdl-crt-smoke.tmp";
-    file = _open(path, 0x8301, 0x0180);
+    if ((size_t)snprintf(absolutePath, sizeof(absolutePath), "%s/%s",
+                         currentDirectory, path) >= sizeof(absolutePath))
+        return 1;
+    file = _open(absolutePath, 0x8301, 0x0180);
     if (file == -1)
         return 1;
     if (_write(file, payload, sizeof(payload)) != sizeof(payload))
@@ -45,7 +62,7 @@ int main(int argumentCount, char **arguments)
         failed = 1;
     else if (_close(file) != 0)
         failed = 1;
-    if (_unlink(path) != 0)
+    if (_unlink(absolutePath) != 0)
         failed = 1;
 
     casePath = "SDL-Case-Smoke.TMP";
@@ -63,7 +80,11 @@ int main(int argumentCount, char **arguments)
         failed = 1;
 #endif
     if (pathResolved) {
-        stream = fopen(resolvedPath, "rb");
+        if ((size_t)snprintf(absoluteCasePath, sizeof(absoluteCasePath),
+                             "%s/%s", currentDirectory,
+                             resolvedPath) >= sizeof(absoluteCasePath))
+            return 1;
+        stream = fopen(absoluteCasePath, "rb");
         if (stream == 0)
             failed = 1;
         else if (fclose(stream) != 0)

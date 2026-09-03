@@ -3,6 +3,7 @@
 #include "video_internal.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 HANDLE CreateFileA(const char *path, DWORD desiredAccess, DWORD shareMode,
@@ -37,9 +38,35 @@ BOOL DeviceIoControl(HANDLE device, DWORD controlCode, LPVOID input,
 
 DWORD GetCurrentDirectoryA(DWORD size, char *path)
 {
+#ifdef _WIN32
+    wchar_t *widePath;
+    char *utf8Path;
+    size_t pathLength;
+
+    /* This is the port shim behind the game's Win32 spelling.  Its callers
+     * pass the result to SDL/Slint, so return UTF-8 rather than ANSI. */
+    if (path == 0 || size == 0)
+        return 0;
+    widePath = _wgetcwd(0, 0);
+    if (widePath == 0)
+        return 0;
+    utf8Path = SDL_iconv_wchar_utf8(widePath);
+    free(widePath);
+    if (utf8Path == 0)
+        return 0;
+    pathLength = strlen(utf8Path);
+    if (pathLength + 1 > size) {
+        SDL_free(utf8Path);
+        return 0;
+    }
+    memcpy(path, utf8Path, pathLength + 1);
+    SDL_free(utf8Path);
+    return (DWORD)pathLength;
+#else
     if (path == 0 || size == 0 || getcwd(path, size) == 0)
         return 0;
     return (DWORD)strlen(path);
+#endif
 }
 
 UINT GetDriveTypeA(const char *root)

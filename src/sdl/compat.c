@@ -6,6 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef _WIN32
+#undef fopen
+#endif
+
 #ifndef _WIN32
 
 #include <ctype.h>
@@ -404,14 +408,82 @@ char *SdlStrupr(char *text)
 
 #else
 
+/* SDL, Slint and NFD exchange paths as UTF-8.  Keep the Windows CRT's
+ * locale-dependent narrow path functions out of that boundary. */
+static wchar_t *SdlUtf8ToWide(const char *text)
+{
+    if (text == 0)
+        return 0;
+    return (wchar_t *)SDL_iconv_string(
+        "WCHAR_T", "UTF-8", text, strlen(text) + 1);
+}
+
 int SdlChangeDirectory(const char *path)
 {
-    return _chdir(path);
+    wchar_t *widePath;
+    int result;
+
+    widePath = SdlUtf8ToWide(path);
+    if (widePath == 0)
+        return -1;
+    result = _wchdir(widePath);
+    SDL_free(widePath);
+    return result;
 }
 
 int SdlUnlink(const char *path)
 {
-    return _unlink(path);
+    wchar_t *widePath;
+    int result;
+
+    widePath = SdlUtf8ToWide(path);
+    if (widePath == 0)
+        return -1;
+    result = _wunlink(widePath);
+    SDL_free(widePath);
+    return result;
+}
+
+int SdlOpen(const char *path, int flags, ...)
+{
+    wchar_t *widePath;
+    int file;
+
+    widePath = SdlUtf8ToWide(path);
+    if (widePath == 0)
+        return -1;
+    if ((flags & 0x0100) != 0) {
+        va_list arguments;
+        int mode;
+
+        va_start(arguments, flags);
+        mode = va_arg(arguments, int);
+        va_end(arguments);
+        file = _wopen(widePath, flags, mode);
+    } else {
+        file = _wopen(widePath, flags);
+    }
+    SDL_free(widePath);
+    return file;
+}
+
+FILE *SdlFopen(const char *path, const char *mode)
+{
+    FILE *file;
+    wchar_t *wideMode;
+    wchar_t *widePath;
+
+    widePath = SdlUtf8ToWide(path);
+    wideMode = SdlUtf8ToWide(mode);
+    if (widePath == 0 || wideMode == 0) {
+        SDL_free(wideMode);
+        SDL_free(widePath);
+        return 0;
+    }
+    file = _wfopen(widePath, wideMode);
+    SDL_free(wideMode);
+    SDL_free(widePath);
+    return file;
 }
 
 int SdlResolvePath(const char *path, char *resolved,

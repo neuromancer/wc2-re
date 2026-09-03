@@ -306,6 +306,11 @@ const char *SdlDescribeWorkingDirectory(void);
 int SdlUnlink(const char *path);
 int SdlResolvePath(const char *path, char *resolved,
                       unsigned long resolvedSize);
+int SdlOpen(const char *path, int flags, ...);
+
+#ifdef _WIN32
+FILE *SdlFopen(const char *path, const char *mode);
+#endif
 
 #define VK_CLEAR 0x0c
 #define VK_SHIFT 0x10
@@ -331,7 +336,6 @@ int SdlResolvePath(const char *path, char *resolved,
 #define VK_SUBTRACT 0x6d
 
 #ifndef _WIN32
-int SdlOpen(const char *path, int flags, ...);
 long SdlFileLength(int file);
 char *SdlItoa(int value, char *text, int radix);
 char *SdlLtoa(long value, char *text, int radix);
@@ -394,15 +398,18 @@ int SdlVsnprintf(char *buffer, size_t size, const char *format,
 }
 #endif
 
-#ifndef _WIN32
 #define _open SdlOpen
+#define _unlink SdlUnlink
+#define _chdir SdlChangeDirectory
+
+#ifdef _WIN32
+#define fopen SdlFopen
+#else
 #define _close close
 #define _read read
 #define _write write
 #define _lseek lseek
 #define _filelength SdlFileLength
-#define _unlink SdlUnlink
-#define _chdir SdlChangeDirectory
 #define _cprintf printf
 #define _itoa SdlItoa
 #define itoa SdlItoa
