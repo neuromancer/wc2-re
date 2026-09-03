@@ -108,6 +108,8 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->joystickAxes = SdlFindLauncherChoice(
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
+        } else if (strcmp(argument, "--ega") == 0) {
+            SdlEnableEgaDither();
         } else {
             legacyCommand = argument[0] == '-' ? argument[1] : argument[0];
             if (legacyCommand == 'f')
@@ -203,6 +205,16 @@ static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
 static int SdlRunRuntimeChecks(void)
 {
     short object;
+    unsigned char framePalette[256 * 4];
+    unsigned char framePixels[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+
+    /* Exercise the full presentation contract, including the GL backend's
+     * copy of all 256 palette entries -- catches an EGA-filter buffer size
+     * mismatch the same way wc1-re's own version of this check does. */
+    memset(framePixels, 0, sizeof(framePixels));
+    memset(framePalette, 0, sizeof(framePalette));
+    if (!SdlPresentIndexedFrame(framePixels, framePalette))
+        return 1;
 
     g_aShipWeapons_004956b0[1][0] = 2;
     remove_weapon(1, 0);
