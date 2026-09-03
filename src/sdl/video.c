@@ -65,11 +65,13 @@ static const unsigned char g_abEgaHardwarePaletteRgb[16][3] = {
     {0xff, 0x55, 0x55}, {0xff, 0x55, 0xff}, {0xff, 0xff, 0x55}, {0xff, 0xff, 0xff},
 };
 
-void SdlEnableEgaDither(void)
+void SdlSetEgaDitherEnabled(int enabled)
 {
     int index;
 
-    g_bEgaDitherEnabled = 1;
+    g_bEgaDitherEnabled = enabled != 0;
+    if (!g_bEgaDitherEnabled)
+        return;
     for (index = 0; index < 16; index++) {
         /* Same [B,G,R,pad] layout SdlPresentIndexedFrame reads below. */
         g_abEgaDitherPalette[index * 4 + 0] =

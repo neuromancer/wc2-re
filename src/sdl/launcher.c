@@ -109,7 +109,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
         } else if (strcmp(argument, "--ega") == 0) {
-            SdlEnableEgaDither();
+            launcherOptions->egaDither = 1;
         } else {
             legacyCommand = argument[0] == '-' ? argument[1] : argument[0];
             if (legacyCommand == 'f')
@@ -338,6 +338,7 @@ int main(int argumentCount, char **arguments)
                                      &useEnhancedRenderer))
             return 1;
     }
+    SdlSetEgaDitherEnabled(launcherOptions.egaDither);
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif

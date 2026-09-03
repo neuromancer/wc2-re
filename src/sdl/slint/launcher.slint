@@ -20,6 +20,7 @@ export component LauncherWindow inherits Window {
     in property <image> title-artwork;
     in-out property <string> game-directory;
     in-out property <bool> enhanced-renderer;
+    in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
     in-out property <bool> joystick-rumble;
     in-out property <bool> show-frame-rate;
@@ -113,32 +114,42 @@ export component LauncherWindow inherits Window {
         GroupBox {
             title: "Graphics and gameplay";
 
-            HorizontalBox {
-                spacing: 18px;
+            VerticalBox {
+                spacing: 4px;
 
-                VerticalBox {
-                    spacing: 4px;
+                HorizontalBox {
+                    spacing: 10px;
 
                     CheckBox {
-                        text: "Enhanced OpenGL renderer";
+                        horizontal-stretch: 1;
+                        text: "Enhanced OpenGL";
                         checked <=> root.enhanced-renderer;
                     }
 
                     CheckBox {
+                        horizontal-stretch: 1;
+                        text: "EGA 16-colour dithering";
+                        checked <=> root.ega-dither;
+                    }
+
+                    CheckBox {
+                        horizontal-stretch: 1;
                         text: "Balanced difficulty";
                         checked <=> root.balanced-difficulty;
                     }
                 }
 
-                VerticalBox {
-                    spacing: 4px;
+                HorizontalBox {
+                    spacing: 10px;
 
                     CheckBox {
+                        horizontal-stretch: 1;
                         text: "Show frame-rate counter";
                         checked <=> root.show-frame-rate;
                     }
 
                     CheckBox {
+                        horizontal-stretch: 1;
                         text: "Cockpitless view";
                         checked <=> root.cockpitless;
                     }

@@ -696,6 +696,9 @@ modern-test: modern
 	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		$(MODERN_TARGET) --balanced-difficulty --check
+	@echo "Running $(MODERN_TARGET) --ega --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_TARGET) --ega --check
 
 modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
 	@set -e; for test_bin in $(MODERN_HEADLESS_TEST_BINS); do \
@@ -715,6 +718,9 @@ modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
 	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
 	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		$(MODERN_TARGET) --balanced-difficulty --check
+	@echo "Running $(MODERN_TARGET) --ega --check"
+	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
+		$(MODERN_TARGET) --ega --check
 
 run-modern: modern
 	@case "$(MODERN_RUN_DIR)" in \

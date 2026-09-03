@@ -113,6 +113,59 @@ static int CheckIndexedPresentation(SDL_Window *window)
     return result;
 }
 
+static int CheckEgaEnhancedFallback(void)
+{
+    int result;
+
+    SdlSetVideoBackend(SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
+    SdlSetEgaDitherEnabled(1);
+    result = !SdlRecordSpaceSprite(0, 0.0f, 0.0f, 0, 0, 0, 0, 0);
+    SdlSetEgaDitherEnabled(0);
+    SdlSetVideoBackend(SDL_VIDEO_BACKEND_INDEXED);
+    return result;
+}
+
+static int CheckEgaPresentation(SDL_Window *window)
+{
+    unsigned char palette[256 * 4];
+    unsigned char pixels[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    SDL_Renderer *renderer;
+    Uint32 pixel;
+    int evenX;
+    int evenY;
+    int oddX;
+    int oddY;
+    int result;
+
+    /* VGA index 18 alternates between EGA light grey (7) and white (15). */
+    memset(palette, 0, sizeof(palette));
+    memset(pixels, 18, sizeof(pixels));
+    palette[18 * 4 + 0] = 0x12;
+    palette[18 * 4 + 1] = 0x34;
+    palette[18 * 4 + 2] = 0x56;
+    SdlSetVideoBackend(SDL_VIDEO_BACKEND_INDEXED);
+    SdlSetEgaDitherEnabled(1);
+    if (!SdlInitializeVideo(window)) {
+        SdlSetEgaDitherEnabled(0);
+        return 0;
+    }
+    renderer = SDL_GetRenderer(window);
+    result = SdlMapLogicalToWindow(window, 160, 100, &evenX, &evenY) &&
+             SdlMapLogicalToWindow(window, 161, 100, &oddX, &oddY) &&
+             renderer != 0 && SdlPresentIndexedFrame(pixels, palette) &&
+             ReadArgbPixel(renderer, evenX, evenY, &pixel) &&
+             (pixel & 0x00ffffffU) == 0x00aaaaaaU;
+    result = result && ReadArgbPixel(renderer, oddX, oddY, &pixel) &&
+             (pixel & 0x00ffffffU) == 0x00ffffffU;
+
+    SdlSetEgaDitherEnabled(0);
+    result = result && SdlPresentIndexedFrame(pixels, palette) &&
+             ReadArgbPixel(renderer, evenX, evenY, &pixel) &&
+             (pixel & 0x00ffffffU) == 0x00563412U;
+    SdlShutdownVideo();
+    return result;
+}
+
 int main(int argumentCount, char **arguments)
 {
     SDL_Window *window;
@@ -143,7 +196,9 @@ int main(int argumentCount, char **arguments)
              CheckCoordinateMapping(window, SDL_VIDEO_BACKEND_INDEXED) &&
              CheckCoordinateMapping(
                  window, SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR) &&
-             CheckIndexedPresentation(window);
+             CheckIndexedPresentation(window) &&
+             CheckEgaEnhancedFallback() &&
+             CheckEgaPresentation(window);
     if (!result)
         fprintf(stderr, "SDL video compatibility test failed.\n");
     SdlShutdownVideo();

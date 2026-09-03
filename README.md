@@ -86,6 +86,7 @@ The native port includes these fixes and optional features:
 | Static on knocked-out cockpit displays | always on |
 | Neutral adaptive difficulty and half-size asteroid collision radii | `--balanced-difficulty` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
+| Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
@@ -97,7 +98,7 @@ The native port includes these fixes and optional features:
 Options can be combined:
 
 ```sh
-./wc2-modern --enhanced --joystick-rumble \
+./wc2-modern --ega --enhanced --joystick-rumble \
   --joystick-mode=4button-4axis
 ```
 
@@ -109,6 +110,12 @@ resolution. The original software renderer remains the default; objects that
 cannot use the enhanced path fall back to it automatically. See the
 [SDL2 port documentation](docs/SDL2.md#enhanced-renderer) for implementation
 details.
+
+`--ega` converts the completed 320x200 indexed frame through the authentic
+WC2 DOS installer dither table and standard EGA palette. It works with either
+renderer. When combined with `--enhanced`, OpenGL still handles presentation
+and scaling, but high-resolution space-object redrawing is disabled so the EGA
+conversion is applied consistently to the whole frame.
 
 | Cockpit flight | External flight sequence |
 | --- | --- |

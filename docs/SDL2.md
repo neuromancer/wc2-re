@@ -80,6 +80,22 @@ enhanced renderer cannot record an object, that object also falls back to the
 software path. Renderer-specific OpenGL state stays in `src/sdl/`; recovered
 game files expose only narrow `SDL_PORT` hooks.
 
+## EGA compatibility filter
+
+`--ega` converts the composed 320x200 indexed frame to the standard 16-colour
+EGA palette using the conversion table recovered from the original WC2 DOS
+installer. Each converted pixel alternates between the two EGA indices packed
+in its table entry, using a checkerboard phase across scanlines. The exact
+installer scanline seed has not been recovered, so that phase is an
+approximation. The conversion table is original data; the output colours use
+the standard 16-colour EGA hardware palette.
+
+The option works with both DOS and Kilrathi Saga data and with either renderer.
+If `--ega` and `--enhanced` are combined, OpenGL remains responsible for
+presentation and scaling, but output-resolution space-object redrawing is
+disabled. The software path first composes every object into the indexed frame,
+then the EGA filter converts the complete result consistently.
+
 ## Host controls and behavior
 
 | Shortcut | Action |
@@ -120,9 +136,10 @@ The `modern-gui` executable contains the Slint configuration launcher. It opens
 by default if the executable receives no arguments. Supplying any command-line
 arguments starts the game directly unless `--gui` is among them. The launcher
 offers a native folder picker, validates an editable game directory, changes
-the process to that directory after confirmation, and applies the renderer,
-difficulty, frame-rate, cockpit, rumble, and joystick selections. Closing or
-cancelling the window exits without starting the game. Required data filenames
+the process to that directory after confirmation, and applies the enhanced
+renderer, EGA dithering, difficulty, frame-rate, cockpit, rumble, and
+joystick selections. Closing or cancelling the window exits without starting
+the game. Required data filenames
 are matched case-insensitively, and option flags supplied with `--gui` seed the
 corresponding controls.
 

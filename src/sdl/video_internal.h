@@ -15,7 +15,7 @@ typedef enum SdlVideoBackend {
 
 void SdlSetVideoBackend(SdlVideoBackend backend);
 int SdlUsingGlRenderer(void);
-void SdlEnableEgaDither(void);
+void SdlSetEgaDitherEnabled(int enabled);
 int SdlConfigureVideoWindow(Uint32 *windowFlags);
 void SdlCalculateOutputViewport(int width, int height, int *left,
                                    int *bottom, int *viewportWidth,

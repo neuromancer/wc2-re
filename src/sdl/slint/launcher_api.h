@@ -29,6 +29,7 @@ enum SdlLauncherJoystickAxes {
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int enhancedRenderer;
+    int egaDither;
     int balancedDifficulty;
     int joystickRumble;
     int showFrameRate;
