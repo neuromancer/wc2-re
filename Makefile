@@ -463,6 +463,7 @@ MODERN_GAME_HOST_OBJS = \
 	$(MODERN_YMFM_OBJS)
 MODERN_STATIC_GUI_LAUNCHER_OBJ = \
 	$(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
+MODERN_TEST_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/sdl/launcher_test.o
 MODERN_GUI_GAME_OBJS = \
 	$(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
 	$(MODERN_BASE_HOST_OBJS) \
@@ -507,6 +508,7 @@ MODERN_DEPFILES = \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
 	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
+	$(MODERN_TEST_LAUNCHER_OBJ:.o=.d) \
 	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
 	$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.d \
 	$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.d \
@@ -568,9 +570,12 @@ modern-check-deps:
 		exit 1; \
 	fi
 
-$(MODERN_STATIC_GUI_LAUNCHER_OBJ): $(MODERN_LAUNCHER_SRC) Makefile | modern-check-deps
+$(MODERN_STATIC_GUI_LAUNCHER_OBJ): MODERN_LAUNCHER_CPPFLAGS = -DWC2_STATIC_GUI=1
+$(MODERN_TEST_LAUNCHER_OBJ): MODERN_LAUNCHER_CPPFLAGS = -DWC2_LAUNCHER_NO_MAIN=1
+$(MODERN_STATIC_GUI_LAUNCHER_OBJ) $(MODERN_TEST_LAUNCHER_OBJ): \
+		$(MODERN_LAUNCHER_SRC) Makefile | modern-check-deps
 	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) -DWC2_STATIC_GUI=1 $(MODERN_CFLAGS) \
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_LAUNCHER_CPPFLAGS) $(MODERN_CFLAGS) \
 		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
@@ -642,6 +647,10 @@ $(MODERN_TARGET): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+# The CRT check supplies its own main, but the Windows linker also needs the
+# launcher's cutscene-exit callback referenced by the resource objects.
+$(MODERN_OUT_DIR)/tests/sdl_crt_compat$(MODERN_EXE_SUFFIX): $(MODERN_TEST_LAUNCHER_OBJ)
 
 # The host compatibility layer reaches into the game core for packet loads and
 # into the event pump for key waits, so these link the same objects the heavier

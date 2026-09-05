@@ -296,6 +296,7 @@ static int SdlRunRuntimeChecks(void)
     return 0;
 }
 
+#ifndef WC2_LAUNCHER_NO_MAIN
 int main(int argumentCount, char **arguments)
 {
     SDL_Window *window;
@@ -452,3 +453,4 @@ int main(int argumentCount, char **arguments)
     SDL_Quit();
     return gameResult;
 }
+#endif

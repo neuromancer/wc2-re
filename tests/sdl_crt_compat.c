@@ -1,5 +1,6 @@
 #include "sdl_port.h"
 
+#include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -53,9 +54,17 @@ int main(int argumentCount, char **arguments)
     if (chmod(path, S_IRUSR) != 0)
         failed = 1;
     file = _open(path, 0x8002);
+#ifdef _WIN32
+    /* The Windows shim preserves the CRT's read-only access rules. */
+    if (file != -1 || errno != EACCES)
+        failed = 1;
+    if (chmod(path, S_IRUSR | S_IWUSR) != 0)
+        failed = 1;
+#else
     if (file == -1)
         failed = 1;
-    else if (_close(file) != 0)
+#endif
+    if (file != -1 && _close(file) != 0)
         failed = 1;
     file = _open(path, 0x8101, 0x0180);
     if (file == -1)
