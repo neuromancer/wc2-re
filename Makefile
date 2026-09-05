@@ -469,6 +469,12 @@ MODERN_GUI_GAME_OBJS = \
 	$(MODERN_GAME_HOST_OBJS) \
 	$(MODERN_GAMEPLAY_OBJS) \
 	$(MODERN_IX_OBJS)
+# MSYS2 does not convert each path in a semicolon-separated CMake argument.
+# Native Windows CMake and Ninja need drive-qualified object paths.
+MODERN_GUI_CMAKE_OBJECTS = $(abspath $(MODERN_GUI_GAME_OBJS))
+ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
+MODERN_GUI_CMAKE_OBJECTS = $(shell cygpath -m $(abspath $(MODERN_GUI_GAME_OBJS)))
+endif
 MODERN_EVENT_HOST_OBJS = \
 	$(MODERN_OUT_DIR)/obj/sdl/events.o \
 	$(MODERN_OUT_DIR)/obj/sdl/video.o
@@ -545,7 +551,7 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile
 		-B $(MODERN_GUI_BUILD_DIR) \
 		-DCMAKE_CXX_COMPILER="$(MODERN_CXX)" \
 		-DCMAKE_BUILD_TYPE=$(MODERN_GUI_BUILD_TYPE) \
-		-DWC2_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(abspath $(MODERN_GUI_GAME_OBJS)))" \
+		-DWC2_GAME_OBJECTS="$(subst $(MODERN_SPACE),;,$(MODERN_GUI_CMAKE_OBJECTS))" \
 		-DWC2_GAME_SANITIZERS=$(if $(MODERN_SANITIZER_FLAGS),ON,OFF) \
 		-DWC2_GUI_OUTPUT_DIRECTORY=$(abspath $(MODERN_OUT_DIR))
 	CARGO_PROFILE_RELEASE_LTO=false \
