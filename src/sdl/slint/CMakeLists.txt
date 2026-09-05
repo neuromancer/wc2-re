@@ -51,6 +51,12 @@ add_library(wc2-slint-gui STATIC
 target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd)
 slint_target_sources(wc2-slint-gui launcher.slint)
 
+if(UNIX AND NOT APPLE)
+    # Slint's static Rust library uses Fontconfig to find system fonts.
+    find_package(Fontconfig REQUIRED)
+    target_link_libraries(wc2-slint-gui PRIVATE Fontconfig::Fontconfig)
+endif()
+
 if(WIN32)
     target_link_libraries(wc2-slint-gui PRIVATE
         imm32
