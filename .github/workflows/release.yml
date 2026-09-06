@@ -209,8 +209,16 @@ jobs:
             echo "Release binary contains sanitizer instrumentation." >&2
             exit 1
           fi
-          llvm-nm -g --defined-only "$binary" |
-            grep ' SdlRunLauncherGui$' >/dev/null
+          symbols=$(llvm-nm -g --defined-only "$binary")
+          grep ' SdlRunLauncherGui$' <<< "$symbols" >/dev/null
+          if grep -Eq ' __imp_slint_' <<< "$symbols"; then
+            echo "Static Slint functions still use DLL import pointers." >&2
+            exit 1
+          fi
+          if ! grep -q ' T slint_get_WindowItemVTable$' <<< "$symbols"; then
+            echo "Static Slint window accessor was discarded by the linker." >&2
+            exit 1
+          fi
           dependencies=$(ntldd -R "$binary")
           if grep -Eiq 'wc2-slint-gui' <<< "$dependencies"; then
             echo "Release binary still depends on a GUI module." >&2

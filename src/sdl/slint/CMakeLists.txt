@@ -46,6 +46,7 @@ FetchContent_MakeAvailable(NativeFileDialogExtended)
 
 add_library(wc2-slint-gui STATIC
     launcher.cpp
+    slint_static.h
     wc2_logo.h
 )
 target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd)
@@ -58,6 +59,19 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(WIN32)
+    # Slint's Windows headers assume a DLL even with BUILD_SHARED_LIBS=OFF.
+    # With section garbage collection, lld can discard the imported accessors
+    # and leave calls pointing at the PE image base. Correct the declarations
+    # before either launcher.cpp or Slint's generated source includes them.
+    if(MSVC)
+        target_compile_options(wc2-slint-gui PRIVATE
+            "/FI${CMAKE_CURRENT_SOURCE_DIR}/slint_static.h"
+        )
+    else()
+        target_compile_options(wc2-slint-gui PRIVATE
+            -include "${CMAKE_CURRENT_SOURCE_DIR}/slint_static.h"
+        )
+    endif()
     target_link_libraries(wc2-slint-gui PRIVATE
         imm32
         ole32

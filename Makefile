@@ -447,6 +447,7 @@ MODERN_GUI_SRCS = \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
 	$(MODERN_GUI_SOURCE_DIR)/launcher_api.h \
+	$(MODERN_GUI_SOURCE_DIR)/slint_static.h \
 	$(MODERN_GUI_SOURCE_DIR)/wc2_logo.h
 
 MODERN_GAMEPLAY_OBJS = \

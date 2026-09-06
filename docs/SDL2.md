@@ -174,6 +174,16 @@ and folder selection requires a desktop portal with FileChooser interface
 version 3 or newer. `make run-modern-gui` builds the integrated executable and
 opens it using `MODERN_RUN_DIR` as the initial path.
 
+On Windows, `slint_static.h` is forced into both launcher translation units
+before Slint's headers. Slint 1.16.1 otherwise declares its item accessors as
+DLL imports even when its runtime is linked statically. In the v0.0.9 Windows
+release, lld's section garbage collection removed those functions and left
+18 import pointers targeting the executable header. Creating the launcher
+then crashes before showing a window, regardless of locale or path spelling.
+The release workflow checks that these DLL imports are absent and the window
+accessor is present as code, without running the game. The UTF-8 filesystem
+shims remain responsible for preserving European and CJK path characters.
+
 ## Joystick input
 
 The default `--joystick-mode=original` mode preserves the original X/Y and
