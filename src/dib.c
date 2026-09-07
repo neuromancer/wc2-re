@@ -534,12 +534,16 @@ void DIBslamReal(void)
 #endif
 
 #ifdef SDL_PORT
-        /* Menus direct input to the screen; flight directs it to the
-         * offscreen view buffer while retaining the menu cursor shape.
-         * Stamp the arrow only when input belongs to the presented screen. */
+        /* Flight directs input to the offscreen space-view buffer while
+         * retaining the menu cursor shape; every other screen -- including
+         * menus that compose into the secondary view buffer, such as the
+         * campaign chalkboard, barracks, and personnel screens -- directs
+         * input to something that does end up on the presented screen.
+         * Stamp the arrow only when input isn't targeting the flight
+         * buffer specifically. */
         if (g_pInputCursorShape_005c83f9 != 0 &&
             g_pInputViewport_005c8403 != 0 &&
-            g_pInputViewport_005c8403->pixels == g_pDibPixelBuffer_005b3978 &&
+            g_pInputViewport_005c8403 != &g_stViewBuffer_005d2b00 &&
             g_stScreenViewport_005d21a0.pixels == g_pDibPixelBuffer_005b3978) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
