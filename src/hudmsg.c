@@ -948,7 +948,9 @@ unsigned int DrawSpaceSceneFrame(void)
         (const struct ScreenViewportGeometry *)
             g_pScreenViewportGeometry_005c82b0,
         (int)g_cScreenViewportMode_005c82a6,
-        g_bFullScreenSpaceView_0049d718 > 0,
+        /* Match dump_buffer_to_screen's active copy mode.  The stored
+           preference has the opposite sense and omits cockpit offsets. */
+        g_nCockpitDisplayMode_0049d71c > 0,
         (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
 #endif
     if (g_bJumpSequenceActive_004962f0 != 0 &&
