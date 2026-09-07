@@ -443,7 +443,9 @@ void MessagePumpHook(int mode)
 void *PushMemoryStackFrame(void *memory, int offset)
 {
     if (offset != 0) {
+#ifndef SDL_PORT
         printf("push %p by %d\n", memory, offset);
+#endif
         if (g_nPacketHandleCount_005d1020 == 0x1000)
             exit_squadron("qq mem push overflow");
         g_aiPacketHandleOffsets_005cd020[
