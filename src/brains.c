@@ -4046,18 +4046,7 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     for (gun = 0; gun < 3; gun++)
         g_asGunCooldown_005c8d70[obj * 3 + gun] = 0;
     g_acShipCollisionCooldown_00496010[obj] = 0;
-#ifdef SDL_PORT
-    /* The eight-word table is followed at 0x496100 by the stress bytes.  WC2's
-     * unchecked writes for objects 8 and 9 clear two of those bytes each. */
-    if (obj < 8) {
-        DAT_004960f0[obj] = 0;
-    } else {
-        g_acShipStress_00496100[(obj - 8) * 2] = 0;
-        g_acShipStress_00496100[(obj - 8) * 2 + 1] = 0;
-    }
-#else
     DAT_004960f0[obj] = 0;
-#endif
     g_asWingmanDamageCredit_005d3830[obj] = 0;
     g_asPlayerDamageCredit_005d38c0[obj] = 0;
     DAT_005d1bd0[obj] = (short)(

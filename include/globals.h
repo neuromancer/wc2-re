@@ -978,7 +978,13 @@ extern signed char g_abShipEjectionSequenceEnabled_00496120[12];
 extern short g_anRollGoal_004954d8[12];
 extern short g_asShipSide_004955d0[12];
 extern signed char g_acShipCollisionCooldown_00496010[16];
+#ifndef SDL_PORT
 extern short DAT_004960f0[8];
+#else
+/* Projectile-hit evasion timers are indexed by all ten ship slots.  Retail
+ * only reserves eight words, so slots 8 and 9 overlap the stress bytes. */
+extern short DAT_004960f0[10];
+#endif
 extern FixedVector g_vCollisionDelta_00493178;
 extern signed char g_acLastCollisionObject_00495250[SPACE_OBJECT_COUNT];
 extern signed char g_abProjectileCollisionBonus_004960a8[

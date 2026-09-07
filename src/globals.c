@@ -515,7 +515,11 @@ short g_asShipIdentified_00496078[12] = { 1 };
 short g_asShipFriendlyFireCooldown_00496090[10];
 signed char g_abProjectileCollisionBonus_004960a8[
     SPACE_OBJECT_COUNT];
+#ifndef SDL_PORT
 short DAT_004960f0[8];
+#else
+short DAT_004960f0[10];
+#endif
 signed char g_acShipStress_00496100[16];
 signed char g_abPilotEjectionAttempted_00496110[16];
 signed char g_abShipEjectionSequenceEnabled_00496120[12];
