@@ -194,6 +194,20 @@ void WaitForCutsceneInputEvent(void)
         if (FindQueuedInputEvent(2) != 0 ||
             FindQueuedInputEvent(5) != 0)
             break;
+#ifdef SDL_PORT
+        /* See issue #33.  Escape is the one input this loop can never see:
+         * it only exits on a queued mouse-up (2) or key-up (5), and once
+         * g_bSceneEscapeRequested_0049d4b0 is set the inner
+         * ServiceInputDevices() spin returns 1 immediately (eventmgr.c) --
+         * so if the Escape key-up event is flushed before this loop looks
+         * for it (ServiceInputDevices() flushes the queue on its poll-tick
+         * path, and returns 1 from it), the loop spins at full CPU with no
+         * way out but another keypress.  Adding an exit can only shorten
+         * the wait, never block one: the caller returns to the interpreter
+         * loop, whose top-of-loop check converts the pending Escape. */
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            break;
+#endif
     }
 }
 
@@ -388,8 +402,23 @@ void LoadCutsceneSpeechSlot(short resourceIndex, short slot)
         g_bCutsceneSkipAll_00499c58 == 0) {
         resources = FindActiveCutsceneFileResources(
             g_pCutsceneSpeechResources_004928a4);
+#ifdef SDL_PORT
+        /* See issue #33 (review on PR #34): bailing out here while the
+         * cache is still busy must not fall through to releasing/replacing
+         * this slot below -- a still-in-flight fetch may be filling it.
+         * g_wSpeechCacheState_0049bb60 is never set nonzero anywhere in
+         * this reconstruction today, so this loop cannot actually break
+         * early yet -- guarded correctly anyway rather than leaving
+         * unsound-if-ever-live code here. */
+        while (g_wSpeechCacheState_0049bb60 != 0) {
+            PumpWindowMessages(0);
+            if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                return;
+        }
+#else
         while (g_wSpeechCacheState_0049bb60 != 0)
             PumpWindowMessages(0);
+#endif
         ReleasePacketSlot(&g_apCutsceneSpeechPackets_005d2f80[slot]);
         g_asCutsceneSpeechChannels_005d2d70[slot] = 0;
         g_apszCutsceneSpeechFiles_005d2ee0[slot] =
@@ -1199,6 +1228,15 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                (int)g_nInputClock_005c84a8 <
                    (int)g_nNextCutsceneFrameClock_00499c90) {
             PumpWindowMessages(0);
+#ifdef SDL_PORT
+            /* See issue #33 (review on PR #34): this sequence-presentation
+             * wait is purely clock-driven -- no shared/pending resource is
+             * involved, so unlike the speech-cache waits elsewhere there is
+             * nothing to leave in an inconsistent state by bailing out
+             * early. */
+            if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                break;
+#endif
         }
         g_nFrameSkipCountdown_0049d760 = 0;
         continueSequence = RunCutsceneScript(&sequence->scriptCursor, 2);
@@ -1590,6 +1628,94 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                     scriptSymbolIndices[0]];
     }
     for (;;) {
+#ifdef SDL_PORT
+        /* See issue #33 (ESC feels slow or dead during cutscenes).
+         *
+         * The original escape-to-skip conversion is the block further down
+         * ("handle_queued_cutscene_input" and the TakeInputPressCount()
+         * block below it).  Neither of them reads
+         * g_bSceneEscapeRequested_0049d4b0 on its own: both first require a
+         * still-queued input event (FindQueuedInputEvent(4)/(1)) or a
+         * still-pending press count, and only then look at the escape flag.
+         * The escape flag is a level that stays set until somebody converts
+         * it, but the two things that gate it are one-shot and are routinely
+         * destroyed before the conversion ever gets to look at them:
+         *
+         *   - opcode 0xa4 (cases 0 and 1, the script's own "stop skipping
+         *     this line" reset) calls FlushPendingInputEvents(), which frees
+         *     the whole queue including the Escape keydown event;
+         *   - the non-escape keypress path below calls FlushInputEvents()
+         *     for the same reason;
+         *   - ServiceInputDevices() (eventmgr.c) itself calls
+         *     FlushInputEvents() on its poll-tick path -- and returns 1 from
+         *     that path, so the caller believes there is input to look at in
+         *     a queue that was just emptied;
+         *   - the press count is decremented again by the Escape KEYUP, so
+         *     TakeInputPressCount() is back to 0 by the time the loop looks.
+         *
+         * On top of that both blocks sit inside "skipframe == 0", so while
+         * the player is already skipping a line (skipframe == 1, which is
+         * exactly when they are most likely to hit Escape) the conversion is
+         * not even reached, and by the time the script clears skipframe at
+         * the next 0xa4 that same 0xa4 has just flushed the queue.
+         *
+         * Net effect: Escape gets latched in the flag and then never
+         * converted.  The scene does not end; it merely races (all the
+         * script-timed waits key off the flag now, see 0x6b/0x7c below)
+         * while still doing every load and decode, which is the "many
+         * seconds, sometimes needs three presses" behaviour in the issue --
+         * pressing Escape again just re-queues an event and re-races the
+         * same lottery.
+         *
+         * Fix: read the level directly, at the top of the interpreter loop,
+         * and run the ORIGINAL conversion body verbatim (same calls, same
+         * flags, same "return 0", see the identical sequence below).
+         *
+         * Why this cannot get stuck the way the earlier "force skipframe=1"
+         * attempt did:
+         *   - it does not set a flag and keep looping.  It performs the
+         *     complete transition and returns, so it executes at most once
+         *     per RunCutsceneScript activation;
+         *   - it clears g_bSceneEscapeRequested_0049d4b0 itself, so it
+         *     cannot re-fire;
+         *   - it cannot starve the original blocks below: when the flag is
+         *     clear this is a no-op, and when it is set the original block
+         *     would have produced exactly this state anyway;
+         *   - the state it leaves behind (skipall = 1, skipframe = 1,
+         *     escape = 0, return 0) is bit-for-bit the state a successful
+         *     Escape already produces today, so all the existing unwinding
+         *     (ExecuteCutsceneSequence's "while (continueSequence != 0)",
+         *     ExecuteCutsceneScene's "if (skipall == 0)", the branch opcodes
+         *     forcing value = 0 under skipall) applies unchanged.
+         *
+         * Still gated on g_bCutsceneViewportPreallocated_00499c4c == 0, and
+         * that guard is load-bearing rather than cosmetic: preallocated == 1
+         * marks the headless state-advance pass RunCampaignGameLoop
+         * (brains.c) runs before the chalkboard, where drawing, audio,
+         * palette work and nested scene playback are all suppressed.  The
+         * player cannot see or hear that pass, so there is nothing there to
+         * skip, and cutting it short with skipall would leave the campaign
+         * globals it exists to compute half-written.  RunCampaignScript
+         * (screen.c) clears the escape flag on the way out of that pass, so
+         * a press made during it does not leak into the real cutscene. */
+        if (g_bSceneEscapeRequested_0049d4b0 != 0 &&
+            g_bCutsceneViewportPreallocated_00499c4c == 0) {
+            SdlTracef("[cutscene] escape converted: objectType=%d "
+                      "skipframe=%d skipall=%d clock=%d\n",
+                      (int)objectType,
+                      (int)g_bCutsceneSkipFrame_00499c54,
+                      (int)g_bCutsceneSkipAll_00499c58,
+                      (int)g_nInputClock_005c84a8);
+            ReleaseSceneFlicPackets();
+            ReleaseCutsceneSoundEffects(-1);
+            ReleaseCutsceneSpeechPackets();
+            g_bCutsceneSpeechActive_00499eb8 = 0;
+            g_bCutsceneSkipFrame_00499c54 = 1;
+            g_bCutsceneSkipAll_00499c58 = 1;
+            g_bSceneEscapeRequested_0049d4b0 = 0;
+            return 0;
+        }
+#endif
         if (g_bCutsceneSkipAll_00499c58 != 0)
             g_bCutsceneSkipFrame_00499c54 = 1;
         if (g_bCutsceneSkipFrame_00499c54 == 0 &&
@@ -2385,6 +2511,27 @@ handle_queued_cutscene_input:
                        g_pCurrentCutsceneSequence_00499c80->waitStart +
                            g_pCurrentCutsceneSequence_00499c80->waitTicks) {
                     PumpWindowMessages(0);
+#ifdef SDL_PORT
+                    /* See issue #33 (ESC feels slow to skip cutscenes):
+                     * this loop only pumps the OS message queue, which is
+                     * what actually sets g_bSceneEscapeRequested_0049d4b0
+                     * (sdl/events.c) the instant Escape is pressed -- but
+                     * nothing here ever reads that flag. The real
+                     * escape-to-skip conversion lives in the outer script
+                     * loop above (case dispatch loop, "handle_queued_
+                     * cutscene_input"), which only runs BETWEEN opcodes.
+                     * A long wait (this opcode is script-timed, often
+                     * paced to the scene's music/dialogue) blocks that
+                     * outer loop from ever running again until the wait
+                     * naturally elapses, so Escape sits pending and
+                     * ignored for however long is left. Bail out of the
+                     * wait itself the instant Escape is pending, the same
+                     * way case 0x7e already does for its own wait, and
+                     * let the outer loop perform the real conversion on
+                     * its very next iteration. */
+                    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                        break;
+#endif
                 }
             }
             g_pCurrentCutsceneSequence_00499c80->waitTicks = waitTicks;
@@ -2551,10 +2698,34 @@ handle_queued_cutscene_input:
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
                                  &g_stSecondaryViewBuffer_005d2c90);
             break;
-        case 0xb0:
-            while (g_wSpeechCacheState_0049bb60 != 0)
+        case 0xb0: {
+#ifdef SDL_PORT
+            /* See issue #33 (review on PR #34): breaking out here while the
+             * cache is still busy must NOT fall through to the "use and
+             * clear" logic below as if the fetch had finished -- that would
+             * read g_apCutsceneSpeechPackets_005d2f80[value] before it is
+             * valid and then clear the still-in-flight fetch's own
+             * bookkeeping (g_apszCutsceneSpeechFiles_005d2ee0[value] etc.),
+             * silently dropping it. g_wSpeechCacheState_0049bb60 is never
+             * set nonzero anywhere in this reconstruction today, so this
+             * loop cannot actually break early yet -- guarded correctly
+             * anyway rather than leaving unsound-if-ever-live code here. */
+            signed char cacheStillBusy = 0;
+#endif
+            while (g_wSpeechCacheState_0049bb60 != 0) {
                 PumpWindowMessages(0);
+#ifdef SDL_PORT
+                if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+                    cacheStillBusy = 1;
+                    break;
+                }
+#endif
+            }
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
+#ifdef SDL_PORT
+            if (cacheStillBusy)
+                break;
+#endif
             if (g_apCutsceneSpeechPackets_005d2f80[value] != 0 &&
                 g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
                 PlaySpeechPacketBuffer(
@@ -2573,6 +2744,7 @@ handle_queued_cutscene_input:
             g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
             g_asCutsceneSpeechSections_005d2dd0[value] = 0;
             break;
+        }
         case 0xa9:
             value = 0;
             if ((g_aObjectTypeData_00496d30[
@@ -2697,6 +2869,15 @@ handle_queued_cutscene_input:
                 while (g_nInputClock_005c84a8 <
                        g_nNextCutsceneFrameClock_00499c90) {
                     PumpWindowMessages(0);
+#ifdef SDL_PORT
+                    /* See issue #33; same fix as case 0x6b above. This
+                     * runs every cutscene frame, so most frames' delay is
+                     * short enough not to matter, but a shot with a long
+                     * configured frame delay (e.g. paced to music) can
+                     * still eat a pending Escape the same way 0x6b did. */
+                    if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                        break;
+#endif
                 }
                 PresentCutsceneFrame(&g_stSecondaryViewBuffer_005d2c90,
                                      &g_stSceneFlicScratchViewport_005d2eb0);
