@@ -10,6 +10,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -192,6 +193,22 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_cockpitless(options->cockpitless != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
+    window->set_joystick_device_index(options->joystickDevice);
+    /* The game initializes SDL after the launcher has returned, so scan the
+     * joystick devices here. The model is set before the window is shown
+     * because its presence decides whether the window asks for the height of
+     * the device row. */
+    const char *deviceNames[SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY] = {};
+    const int deviceCount = SdlListLauncherJoystickDevices(deviceNames);
+    auto devices =
+        std::make_shared<slint::VectorModel<slint::SharedString>>();
+
+    for (int device = 0; device < deviceCount; ++device)
+        devices->push_back(slint::SharedString(deviceNames[device]));
+    window->set_joystick_devices(devices);
+    if (options->joystickDevice >= 0 && options->joystickDevice < deviceCount) {
+        window->set_joystick_device_index(options->joystickDevice);
+    }
     refresh_window(*window);
 
     window->on_configuration_changed([&window]() {
@@ -244,5 +261,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->cockpitless = window->get_cockpitless();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
+    options->joystickDevice =
+        std::max(0, window->get_joystick_device_index());
     return SDL_LAUNCHER_ACCEPTED;
 }

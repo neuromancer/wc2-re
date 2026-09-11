@@ -2,6 +2,7 @@
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
+#define SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY 16
 
 enum SdlLauncherResult {
     SDL_LAUNCHER_UNAVAILABLE = -2,
@@ -36,6 +37,7 @@ typedef struct SdlLauncherOptions {
     int cockpitless;
     int joystickMode;
     int joystickAxes;
+    int joystickDevice;
 } SdlLauncherOptions;
 
 #ifdef __cplusplus
@@ -43,6 +45,12 @@ extern "C" {
 #endif
 
 int SdlRunLauncherGui(SdlLauncherOptions *options);
+
+/* Fills names[] with the detected joysticks in SDL device order and returns
+ * how many entries it wrote; the returned positions are the device indices
+ * SdlSetJoystickDeviceIndex() expects. */
+int SdlListLauncherJoystickDevices(
+    const char *names[SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY]);
 
 #ifdef __cplusplus
 }

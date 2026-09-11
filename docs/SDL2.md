@@ -143,6 +143,15 @@ the game. Required data filenames
 are matched case-insensitively, and option flags supplied with `--gui` seed the
 corresponding controls.
 
+The launcher scans SDL's joystick devices itself, once its own window backend
+has started, and shows a device combo box above the control-mode row whenever it
+finds more than one. The chosen device is opened first when the game starts, so
+it becomes the joystick the game reads for the player; the remaining devices keep
+SDL's enumeration order and still fill the second slot that the twin-stick
+layouts read. A single detected device needs no choice and leaves the combo box
+hidden, and a device unplugged between the scan and the launch is ignored rather
+than failing the launch.
+
 The regular `modern` build does not contain Slint. Its no-argument startup
 reports that the launcher is unavailable and continues directly into the game.
 An explicit `--gui` instead reports the missing launcher as an error and exits.
@@ -191,6 +200,12 @@ two-button controls. SDL's mapped controller interface supplies the left stick
 and A/B buttons on recognized gamepads. Other devices use their first two axes
 and buttons. Device removal and reconnection are handled without restarting the
 port.
+
+SDL opens at most two joysticks: the first fills the slot the game reads for the
+player and the second the slot the twin-stick layouts read for their extra axes.
+With several devices attached, the graphical launcher's device combo box picks
+which one takes the first slot; without the launcher, SDL's enumeration order
+decides.
 
 The optional WCAT-style modes give each action its own button. On mapped
 gamepads, buttons 1–4 are A/B/X/Y:

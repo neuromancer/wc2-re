@@ -216,6 +216,7 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *yMaximum);
 int SdlSetJoystickMode(const char *name);
 int SdlSetJoystickAxesMode(const char *name);
+void SdlSetJoystickDeviceIndex(int deviceIndex);
 void SdlEnableJoystickDebug(void);
 void SdlSetJoystickRumbleEnabled(int enabled);
 void SdlLogJoystickEvent(const SDL_Event *event);

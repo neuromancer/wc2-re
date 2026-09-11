@@ -12,10 +12,15 @@ import {
 export component LauncherWindow inherits Window {
     title: "Wing Commander II";
     preferred-width: 660px;
-    preferred-height: 690px;
+    /* The device combo box is one more row in the joystick group, so the
+     * window asks for the room it takes whenever that row is offered. */
+    preferred-height: 690px + (root.multiple-joysticks ? 64px : 0px);
     min-width: 580px;
     min-height: 520px;
     background: Palette.background;
+
+    private property <bool> multiple-joysticks:
+        root.joystick-devices.length > 1;
 
     in property <image> title-artwork;
     in-out property <string> game-directory;
@@ -27,6 +32,9 @@ export component LauncherWindow inherits Window {
     in-out property <bool> cockpitless;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
+    in-out property <int> joystick-device-index;
+
+    in property <[string]> joystick-devices;
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
@@ -162,6 +170,23 @@ export component LauncherWindow inherits Window {
 
             VerticalBox {
                 spacing: 5px;
+
+                if root.multiple-joysticks : HorizontalBox {
+                    spacing: 8px;
+
+                    Text {
+                        text: "Device";
+                        vertical-alignment: center;
+                        width: 105px;
+                        color: Palette.foreground;
+                    }
+
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: root.joystick-devices;
+                        current-index <=> root.joystick-device-index;
+                    }
+                }
 
                 HorizontalBox {
                     spacing: 8px;
