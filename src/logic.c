@@ -165,10 +165,20 @@ void place_exhaust_on_ships(void)
         if (animation == 0)
             continue;
         viewFrame = g_asObjectViewFrame_00493508[ship];
+#ifdef SDL_PORT
+        /* These ships load each view as a separate, single-frame packet.
+         * Retail selects the loaded view's exhaust records, not frame zero
+         * within that packet. Otherwise the engines detach as the view turns. */
+        if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_CAPITAL_SHIP ||
+            g_asObjectType_00495298[ship] == 0x33 ||
+            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+             g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP))
+#else
         if (g_aeObjectClass_00495328[ship] < OBJECT_CLASS_CAPITAL_SHIP &&
             g_asObjectType_00495298[ship] != 0x33 &&
             g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
             g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP)
+#endif
             viewFrame = g_asLoadedShipViewFrame_00495d18[ship];
         animationOffset = animation[viewFrame];
         if (animationOffset == -1)
