@@ -63,7 +63,6 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                                     SdlLauncherOptions *launcherOptions)
 {
     char *argument;
-    char legacyCommand;
     int argumentIndex;
     int outputArgumentIndex;
 
@@ -111,11 +110,6 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
         } else {
-            legacyCommand = argument[0] == '-' ? argument[1] : argument[0];
-            if (legacyCommand == 'f')
-                launcherOptions->showFrameRate = 1;
-            else if (legacyCommand == 'c')
-                launcherOptions->cockpitless = 1;
             arguments[outputArgumentIndex++] = argument;
         }
         argumentIndex++;
@@ -413,10 +407,6 @@ int main(int argumentCount, char **arguments)
          * and because the in-flight keys can still adjust it from here. */
         g_nSpaceFramePeriod_0049d768 = 3;
         SdlApplyLegacyArguments(argumentCount, arguments);
-        if (useLauncherGui) {
-            g_bShowFrameRate_0049c260 = launcherOptions.showFrameRate;
-            g_bCockpitEnabled_0049c26c = !launcherOptions.cockpitless;
-        }
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
         InitializeAudioStreamer((HWND)window);

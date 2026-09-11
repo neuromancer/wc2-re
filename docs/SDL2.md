@@ -137,11 +137,10 @@ by default if the executable receives no arguments. Supplying any command-line
 arguments starts the game directly unless `--gui` is among them. The launcher
 offers a native folder picker, validates an editable game directory, changes
 the process to that directory after confirmation, and applies the enhanced
-renderer, EGA dithering, difficulty, frame-rate, cockpit, rumble, and
-joystick selections. Closing or cancelling the window exits without starting
-the game. Required data filenames
-are matched case-insensitively, and option flags supplied with `--gui` seed the
-corresponding controls.
+renderer, EGA dithering, difficulty, rumble, and joystick selections. Closing
+or cancelling the window exits without starting the game. Required data
+filenames are matched case-insensitively, and option flags supplied with
+`--gui` seed the corresponding controls.
 
 The regular `modern` build does not contain Slint. Its no-argument startup
 reports that the launcher is unavailable and continues directly into the game.

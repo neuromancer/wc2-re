@@ -337,8 +337,8 @@ signed char g_acExpectedGraphicsModes_00493078[5] = {
 };
 /* Only the first row is this table's own storage: difflevl.000 is loaded
  * straight into g_asDifficultyLevels_004930a8, which is the next eight bytes
- * on, so GetAdaptiveTurnRate indexes on into the loaded packet exactly as the
- * original does. */
+ * on in retail. The reference GetAdaptiveTurnRate indexes across the two;
+ * the SDL port addresses the loaded table directly. */
 short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 short g_asDifficultyLevels_004930a8[52] = {
     50, 200, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127, 127,

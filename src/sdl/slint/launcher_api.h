@@ -32,8 +32,6 @@ typedef struct SdlLauncherOptions {
     int egaDither;
     int balancedDifficulty;
     int joystickRumble;
-    int showFrameRate;
-    int cockpitless;
     int joystickMode;
     int joystickAxes;
 } SdlLauncherOptions;

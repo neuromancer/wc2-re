@@ -23,8 +23,6 @@ export component LauncherWindow inherits Window {
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
     in-out property <bool> joystick-rumble;
-    in-out property <bool> show-frame-rate;
-    in-out property <bool> cockpitless;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
 
@@ -136,22 +134,6 @@ export component LauncherWindow inherits Window {
                         horizontal-stretch: 1;
                         text: "Balanced difficulty";
                         checked <=> root.balanced-difficulty;
-                    }
-                }
-
-                HorizontalBox {
-                    spacing: 10px;
-
-                    CheckBox {
-                        horizontal-stretch: 1;
-                        text: "Show frame-rate counter";
-                        checked <=> root.show-frame-rate;
-                    }
-
-                    CheckBox {
-                        horizontal-stretch: 1;
-                        text: "Cockpitless view";
-                        checked <=> root.cockpitless;
                     }
                 }
             }

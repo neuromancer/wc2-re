@@ -3440,11 +3440,6 @@ void UpdateShipTurretGuns(short ship)
     FixedVector aimPoint;
     short leadDistance;
 
-#ifdef SDL_PORT
-    /* Retail consults this local before the projectile is created.  The two
-     * tests choose a firing chance by the firing ship's side. */
-    projectile = ship;
-#endif
     projectileSpeed = 10;
     target = -1;
     gunSide = 0;
@@ -3453,6 +3448,12 @@ void UpdateShipTurretGuns(short ship)
         return;
 
     for (turret = 0; turret < turretCount; turret++) {
+#ifdef SDL_PORT
+        /* These tests choose a firing chance by the firing ship's side.
+         * Reset every turret: new_object replaces this local with a
+         * projectile index (or -1) after the preceding turret fires. */
+        projectile = ship;
+#endif
         if (ship == 0 && g_nCurrentView_00492fa8 == 4 &&
             turret == g_nTargetCameraOverlayMode_005c8db8)
             continue;

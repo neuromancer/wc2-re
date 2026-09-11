@@ -1315,14 +1315,31 @@ short IsCapitalShipObject(short obj)
 }
 
 /* Function start: 0x410289 */
-/* Indexes on into g_asDifficultyLevels_004930a8, which holds the loaded
- * difflevl.000 -- see the note on the table in globals.c. */
-CROSSES_GLOBALS short GetAdaptiveTurnRate(void)
+short GetAdaptiveTurnRate(void)
 {
     short turnRate;
 
+#ifdef SDL_PORT
+    /* Retail indexes past row zero into the adjacent difflevl.000 table.
+     * Native globals need not be adjacent, so address the loaded table
+     * directly for series 1-13. Invalid missions use the zero-rate fallback. */
+    turnRate = 0;
+    if (g_nCurrentMission_005c5878 >= 0 &&
+        g_nCurrentMission_005c5878 < 4) {
+        if (g_nCurrentSeries_005c5870 == 0) {
+            turnRate = g_aasSeriesMissionTurnRate_004930a0[0][
+                g_nCurrentMission_005c5878];
+        } else if (g_nCurrentSeries_005c5870 > 0 &&
+                   g_nCurrentSeries_005c5870 <= 13) {
+            turnRate = g_asDifficultyLevels_004930a8[
+                (g_nCurrentSeries_005c5870 - 1) * 4 +
+                g_nCurrentMission_005c5878];
+        }
+    }
+#else
     turnRate = g_aasSeriesMissionTurnRate_004930a0[
         g_nCurrentSeries_005c5870][g_nCurrentMission_005c5878];
+#endif
     turnRate = (short)((int)turnRate * g_nAdaptiveDifficulty_005d3844 / 5);
     if (turnRate == 0)
         turnRate = 1;

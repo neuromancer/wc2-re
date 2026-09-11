@@ -188,8 +188,6 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_ega_dither(options->egaDither != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
     window->set_joystick_rumble(options->joystickRumble != 0);
-    window->set_show_frame_rate(options->showFrameRate != 0);
-    window->set_cockpitless(options->cockpitless != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
     refresh_window(*window);
@@ -240,8 +238,6 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->egaDither = window->get_ega_dither();
     options->balancedDifficulty = window->get_balanced_difficulty();
     options->joystickRumble = window->get_joystick_rumble();
-    options->showFrameRate = window->get_show_frame_rate();
-    options->cockpitless = window->get_cockpitless();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
     return SDL_LAUNCHER_ACCEPTED;

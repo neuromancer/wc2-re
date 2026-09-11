@@ -109,17 +109,6 @@ typedef unsigned int DwordPtr;
  * separately yet. */
 #define CUTSCENE_SPRITE_MIN_TICKS 6
 
-/* Marks a routine that deliberately indexes out of one global and into the one
- * that follows it.  The original's data layout is what makes those reads land
- * where they are meant to, and the reconstruction reproduces that layout
- * exactly, so the sanitizers have to be told the crossing is the point. */
-#ifdef SDL_PORT
-#define CROSSES_GLOBALS \
-    __attribute__((no_sanitize("address", "array-bounds")))
-#else
-#define CROSSES_GLOBALS
-#endif
-
 /* Tables of host pointers -- scene and cutscene resources, packet reference
  * groups -- are sized four bytes an element throughout, because that is what a
  * pointer was.  On LP64 the same table has to be twice as wide or every entry
