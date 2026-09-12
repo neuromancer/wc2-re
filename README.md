@@ -182,7 +182,9 @@ out-modern/wc2-modern-gui
 
 `make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
 The launcher has a native folder picker and validates the selected DOS or
-Kilrathi Saga directory before starting the game. Its central title artwork is
+Kilrathi Saga directory before starting the game. When more than one joystick is
+detected, its device combo box chooses which one the game reads for the player.
+Its central title artwork is
 decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
 small 247x101 image, and embedded in the executable. Slint 1.16.1 and [Native
 File Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended)

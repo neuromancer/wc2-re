@@ -127,6 +127,30 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
         strcpy(options->gameDirectory, ".");
 }
 
+int SdlListLauncherJoystickDevices(
+    const char *names[SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY])
+{
+    const char *name;
+    int deviceCount;
+    int deviceIndex;
+
+    /* The launcher runs before the game's own SDL_Init, so bring the joystick
+     * subsystem up here; the later SDL_Init then only adds what is missing.
+     * The main-ready flag is the same one main() sets before its SDL_Init. */
+    SDL_SetMainReady();
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0)
+        return 0;
+    deviceCount = SDL_NumJoysticks();
+    deviceIndex = 0;
+    while (deviceIndex < deviceCount &&
+           deviceIndex < SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY) {
+        name = SDL_JoystickNameForIndex(deviceIndex);
+        names[deviceIndex] = name != 0 ? name : "Unnamed joystick";
+        deviceIndex++;
+    }
+    return deviceIndex;
+}
+
 static int SdlOpenLauncherGui(SdlLauncherOptions *options)
 {
 #ifdef WC2_STATIC_GUI
@@ -154,6 +178,11 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
     *useEnhancedRenderer = options->enhancedRenderer;
     g_bSdlBalancedDifficulty = options->balancedDifficulty;
     SdlSetJoystickRumbleEnabled(options->joystickRumble);
+    /* A device that vanished while the launcher was open leaves the game on
+     * SDL's own enumeration order rather than failing the launch. */
+    if (options->joystickDevice >= 0 &&
+        options->joystickDevice < SDL_NumJoysticks())
+        SdlSetJoystickDeviceIndex(options->joystickDevice);
     SdlSetJoystickMode(
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
