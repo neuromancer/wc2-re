@@ -2344,7 +2344,16 @@ void SpawnCapitalFlakProjectile(short weapon, short obj,
             g_aObjectTypeData_00496d30[0x0d].damageCapacity;
         g_asObjectCounter_00494be0[projectile] =
             g_aObjectTypeData_00496d30[0x0d].lifetime;
+#ifdef SDL_PORT
+        /* Retail addresses three consecutive coordinate words on the stack.
+         * Native scalar arguments need not be adjacent, so supply a vector. */
+        direction.x = x;
+        direction.y = y;
+        direction.z = z;
+        send_at_point(projectile, &direction, velocity);
+#else
         send_at_point(projectile, (FixedVector *)&x, velocity);
+#endif
         RecordCannedSceneObjectEvent(projectile, 0);
     }
 }
