@@ -808,6 +808,58 @@ pause_spaceflight:
         break;
     }
 
+#ifdef SDL_PORT
+    /* See issue #6: afterburner, accelerate/decelerate and keyboard fire
+     * above only refire when the input queue gets a fresh keydown, which
+     * needs the OS's keyboard auto-repeat to keep re-arriving while the
+     * key stays down. Most controller-to-keyboard remapping tools hold
+     * the mapped key down without producing repeat events, so a mapped
+     * button reads as a single tap instead of a sustained hold.
+     * g_abInputKeyState is the port's own genuine per-scancode held
+     * state (SetInputKeyState, sdl/events.c), so consult it directly for
+     * these four flight-critical actions instead of routing through
+     * g_cCurrentKey_00493128. That shared slot also carries the current
+     * frame's steering input (arrow keys, polled joystick) and feeds the
+     * Ctrl+arrow volume shortcuts in the switch below, so overwriting it
+     * here -- as an earlier version of this fix did -- could starve out
+     * an arrow key's own scan code on any frame a remapper resends a
+     * steering keydown, breaking the ability to steer while holding
+     * afterburner. Calling the target functions directly instead leaves
+     * that slot untouched. Skip whichever action g_cCurrentKey_00493128
+     * already names so a genuine discrete event this frame -- handled by
+     * the switch above -- isn't double-applied. Priority order mirrors
+     * the switch above (afterburner, fire, accelerate, decelerate) so at
+     * most one of these fires per frame, same as retail. */
+    if (g_cCurrentKey_00493128 != 0x0f && g_cCurrentKey_00493128 != 0x37 &&
+        (g_abInputKeyState_005c80f0[0x0f] != 0 ||
+         g_abInputKeyState_005c80f0[0x37] != 0)) {
+        if (g_asObjectType_00495298[0] != 0x33)
+            your_afterburner();
+    } else if (g_cCurrentKey_00493128 != 0x39 &&
+               g_abInputKeyState_005c80f0[0x39] != 0) {
+        if (g_nCurrentView_00492fa8 == 4)
+            FireTargetCameraGuns();
+        else
+            fire_players_lasers();
+    } else if (g_cCurrentKey_00493128 != 0x0d &&
+               g_cCurrentKey_00493128 != 0x4e &&
+               (g_abInputKeyState_005c80f0[0x0d] != 0 ||
+                g_abInputKeyState_005c80f0[0x4e] != 0)) {
+        if (control != 0)
+            ReportFramesSkipped(1);
+        else
+            accelerate(1);
+    } else if (g_cCurrentKey_00493128 != 0x0c &&
+               g_cCurrentKey_00493128 != 0x4a &&
+               (g_abInputKeyState_005c80f0[0x0c] != 0 ||
+                g_abInputKeyState_005c80f0[0x4a] != 0)) {
+        if (control != 0)
+            ReportFramesSkipped(-1);
+        else
+            accelerate(-1);
+    }
+#endif
+
     switch ((signed char)g_cCurrentKey_00493128) {
     case 0x48:
         if (control != 0) {
