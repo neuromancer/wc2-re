@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef SDL_PORT
+#include <errno.h>
 #include <limits.h>
 #include <lzo1x.h>
 #endif
@@ -194,6 +195,7 @@ extern "C" FILE *ix_file_open(const char *path, int mode)
     char modeString[4];
 #ifdef SDL_PORT
     char resolvedPath[PATH_MAX];
+    FILE *file;
 #endif
 
     modeString[0] = 0;
@@ -203,9 +205,16 @@ extern "C" FILE *ix_file_open(const char *path, int mode)
         strcat(modeString, "w");
     strcat(modeString, "b");
 #ifdef SDL_PORT
-    if (!SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
+    if (!SdlResolvePath(path, resolvedPath, sizeof(resolvedPath))) {
+        fprintf(stderr, "Unable to resolve audio file path '%s'.\n",
+                path != 0 ? path : "(null)");
         return 0;
-    return fopen(resolvedPath, modeString);
+    }
+    file = fopen(resolvedPath, modeString);
+    if (file == 0)
+        fprintf(stderr, "Unable to open audio file '%s': %s\n",
+                resolvedPath, strerror(errno));
+    return file;
 #else
     return fopen(path, modeString);
 #endif

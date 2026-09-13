@@ -9,6 +9,31 @@
 /* Function start: 0x456123 */
 char *LocateStreamsDirOnDisc(void)
 {
+#ifdef SDL_PORT
+    char current[4096];
+    const char *directory;
+    int length;
+
+    if (GetCurrentDirectoryA(sizeof(current), current) == 0)
+        return 0;
+    /* Only the final path component identifies GAMEDAT. Its spelling may
+     * use any case, and an ancestor may also contain the word "gamedat". */
+    directory = current + strlen(current);
+    while (directory > current && directory[-1] != '/' &&
+           directory[-1] != '\\')
+        directory--;
+    length = snprintf(g_szStreamsPath_005b3740,
+                      sizeof(g_szStreamsPath_005b3740), "%s%s", current,
+                      SDL_strcasecmp(directory, "gamedat") == 0
+                          ? "/../streams/" : "/streams/");
+    if (length < 0 || (size_t)length >= sizeof(g_szStreamsPath_005b3740))
+        return 0;
+    if (!SetCurrentDirectoryA(g_szStreamsPath_005b3740))
+        return 0;
+    if (!SetCurrentDirectoryA(current))
+        return 0;
+    return g_szStreamsPath_005b3740;
+#else
     char current[256];
     char *result;
     char drive;
@@ -22,12 +47,7 @@ char *LocateStreamsDirOnDisc(void)
         return result;
     }
 
-#ifdef SDL_PORT
-    if (strstr(current, "gamedat") != 0 ||
-        strstr(current, "GAMEDAT") != 0)
-#else
     if (strstr(current, "gamedat") != 0)
-#endif
         sprintf(result, "%s\\..\\%s", current, "streams\\");
     else
         sprintf(result, "%s\\%s", current, "streams\\");
@@ -36,6 +56,7 @@ char *LocateStreamsDirOnDisc(void)
         result = 0;
     SetCurrentDirectoryA(current);
     return result;
+#endif
 }
 
 #pragma function(strcmp)

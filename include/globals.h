@@ -744,7 +744,11 @@ extern int g_nClearKeyState_005b3730;
 extern int g_nDeleteKeyState_005b3734;
 extern int g_nUpArrowKeyState_005b3738;
 extern int g_nDownArrowKeyState_005b373c;
+#ifdef SDL_PORT
+extern char g_szStreamsPath_005b3740[4096];
+#else
 extern char g_szStreamsPath_005b3740[0x100];
+#endif
 extern int g_nPageUpKeyState_005b3840;
 extern int g_nLeftArrowKeyState_005b3844;
 extern char g_szReadDataFileError_005b3848[0x40];
@@ -805,7 +809,11 @@ extern unsigned char *g_pBriefingCloseupShape_00598c2c;
 extern unsigned char *g_pConversationOverlayShape_00598c30;
 extern InputEvent g_aInputEventPool_005c5890[0x100];
 extern int g_nStreamerAudioPlaying_005b2810;
+#ifdef SDL_PORT
+extern char g_szStreamerPath_005b2818[4096];
+#else
 extern char g_szStreamerPath_005b2818[128];
+#endif
 extern unsigned char g_bInputMode_0059a848;
 extern int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
 extern short DAT_0059a9f0;

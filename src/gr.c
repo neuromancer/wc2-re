@@ -2517,11 +2517,32 @@ void InitializeAudioStreamer(HWND window)
 void Streamer_open(const char *streamName)
 {
     char *streamsDirectory;
+#ifdef SDL_PORT
+    int length;
+#endif
 
     if (g_nAudioEnabled_0049c244 != 0) {
         streamsDirectory = LocateStreamsDirOnDisc();
+#ifdef SDL_PORT
+        if (streamsDirectory == 0) {
+            fprintf(stderr, "Unable to locate STREAMS from '%s'.\n",
+                    SdlDescribeWorkingDirectory());
+            g_nStreamerAudioPlaying_005b2810 = 0;
+            return;
+        }
+        length = snprintf(g_szStreamerPath_005b2818,
+                          sizeof(g_szStreamerPath_005b2818), "%s%s",
+                          streamsDirectory, streamName);
+        if (length < 0 || (size_t)length >= sizeof(g_szStreamerPath_005b2818)) {
+            fprintf(stderr, "Music stream path is too long: '%s%s'.\n",
+                    streamsDirectory, streamName);
+            g_nStreamerAudioPlaying_005b2810 = 0;
+            return;
+        }
+#else
         sprintf(g_szStreamerPath_005b2818, "%s%s",
                 streamsDirectory, streamName);
+#endif
         SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_005b2818);
         ix_streamer_open_stream_file(g_szStreamerPath_005b2818);
         g_nStreamerAudioPlaying_005b2810 = 0;

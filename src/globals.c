@@ -1733,7 +1733,11 @@ short g_nTalkingHeadMouthY_005a8758;
 short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
 int g_nStreamerAudioPlaying_005b2810;
+#ifdef SDL_PORT
+char g_szStreamerPath_005b2818[4096];
+#else
 char g_szStreamerPath_005b2818[128];
+#endif
 char g_szLegacyGameDataPath_005b2898[0x400];
 int g_bMonoDebugInstalled_005b30e8;
 HANDLE g_hMonoDebugDevice_005b30ec;
@@ -1787,7 +1791,11 @@ int g_nClearKeyState_005b3730;
 int g_nDeleteKeyState_005b3734;
 int g_nUpArrowKeyState_005b3738;
 int g_nDownArrowKeyState_005b373c;
+#ifdef SDL_PORT
+char g_szStreamsPath_005b3740[4096];
+#else
 char g_szStreamsPath_005b3740[0x100];
+#endif
 int g_nPageUpKeyState_005b3840;
 int g_nLeftArrowKeyState_005b3844;
 char g_szReadDataFileError_005b3848[0x40];
