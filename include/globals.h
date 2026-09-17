@@ -1015,7 +1015,14 @@ extern FixedVector g_vPreviousStarFieldMotion_00493168;
 extern short g_nStarFieldJRotation_005d320c;
 extern short g_nStarFieldIRotation_005d3210;
 extern HazardField g_aHazardFields_004931d8[7];
+#ifdef SDL_PORT
+/* cleanup_objectives reads the next type before checking the eight-entry
+ * limit.  Reserve that discarded read without changing the retail loop. */
+extern MissionObjective g_aMissionObjectives_004932a8[
+    MISSION_OBJECTIVE_COUNT + 1];
+#else
 extern MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT];
+#endif
 extern char g_szAutopilotWaitReason_0049b2f0[28];
 extern char *g_pszAutopilotWaitReason_0049b050;
 extern short g_asShipManeuver_00495f48[12];

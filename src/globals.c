@@ -394,7 +394,13 @@ signed char g_abFlightPath_004932a0[MISSION_OBJECTIVE_COUNT + 1] = { -1 };
 #else
 signed char g_abFlightPath_004932a0[MISSION_OBJECTIVE_COUNT] = { -1 };
 #endif
+#ifdef SDL_PORT
+/* The type read at index 8 precedes cleanup_objectives' bounds check; the
+ * retail read at 0x49339D falls inside the adjacent object-resource table. */
+MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT + 1] = {
+#else
 MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT] = {
+#endif
     { 0, 0, 0xff, 7, -1, 0xff, -1 }
 };
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };

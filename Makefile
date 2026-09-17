@@ -491,7 +491,7 @@ MODERN_INPUT_CORE_OBJS = \
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_text_compat \
 	sdl_dos_resources sdl_input_compat sdl_event_compat sdl_video_compat \
 	sdl_ship_evasion sdl_adaptive_difficulty sdl_turret_guns sdl_ship_exhaust \
-	sdl_capital_weapons sdl_music_paths
+	sdl_capital_weapons sdl_music_paths sdl_mission_objectives
 MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
 	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
 MODERN_RUNTIME_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_runtime_safety$(MODERN_EXE_SUFFIX)
