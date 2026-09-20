@@ -51,6 +51,7 @@ static int g_bSdlJoystickSpaceflightActive;
 static int g_bSdlTwoAxisModifierActive;
 static int g_nSdlCommunicationMenuSelection;
 static int g_nSdlRumblingJoystick = -1;
+static int g_nSdlPreferredJoystickDevice = -1;
 static Uint16 g_wSdlRumbleLow;
 static Uint16 g_wSdlRumbleHigh;
 static Uint32 g_dwSdlRumbleDeadline;
@@ -97,6 +98,11 @@ int SdlSetJoystickAxesMode(const char *name)
 void SdlEnableJoystickDebug(void)
 {
     g_bSdlJoystickDebug = 1;
+}
+
+void SdlSetJoystickDeviceIndex(int deviceIndex)
+{
+    g_nSdlPreferredJoystickDevice = deviceIndex >= 0 ? deviceIndex : -1;
 }
 
 void SdlSetJoystickRumbleEnabled(int enabled)
@@ -464,6 +470,7 @@ static void SdlOpenJoystick(int deviceIndex)
 static void SdlRefreshJoysticks(void)
 {
     SdlJoystickDevice *device;
+    int deviceCount;
     int deviceIndex;
     int slot;
 
@@ -476,10 +483,17 @@ static void SdlRefreshJoysticks(void)
         slot++;
     }
 
+    deviceCount = SDL_NumJoysticks();
+    /* The launcher's device opens first so it lands in slot 0, the joystick
+     * the game reads as the player's; the rest keep SDL's own order. */
+    if (g_nSdlPreferredJoystickDevice >= 0 &&
+        g_nSdlPreferredJoystickDevice < deviceCount)
+        SdlOpenJoystick(g_nSdlPreferredJoystickDevice);
     deviceIndex = 0;
-    while (deviceIndex < SDL_NumJoysticks() &&
+    while (deviceIndex < deviceCount &&
            SdlFindFreeJoystickSlot() != -1) {
-        SdlOpenJoystick(deviceIndex);
+        if (deviceIndex != g_nSdlPreferredJoystickDevice)
+            SdlOpenJoystick(deviceIndex);
         deviceIndex++;
     }
 }
