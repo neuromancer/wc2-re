@@ -1022,11 +1022,13 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         mouseEvent = 1;
         break;
     case WM_LBUTTONUP:
+        g_nInputPressCount_0049c258--;
         QueueInputEvent(2, (unsigned short)mouseX,
                         (unsigned short)mouseY, 0, 1, 0, 0, 0, 0);
         mouseEvent = 1;
         break;
     case WM_RBUTTONUP:
+        g_nInputPressCount_0049c258--;
         QueueInputEvent(2, (unsigned short)mouseX,
                         (unsigned short)mouseY, 0, 0, 1, 0, 0, 0);
         mouseEvent = 1;

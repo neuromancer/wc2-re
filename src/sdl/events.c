@@ -525,14 +525,10 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
          * a character -- with the scan code and the character alongside it.
          * WC1's numbering put presses on type 3, which is WC2's mouse move,
          * so a keypress read as a pointer twitch and Enter never arrived. */
-        if (pressed) {
-            if (event->repeat == 0)
-                g_nInputPressCount_0049c258++;
-        } else {
-            g_nInputPressCount_0049c258--;
-            if (g_nInputPressCount_0049c258 < 0)
-                g_nInputPressCount_0049c258 = 0;
-        }
+        /* TakeInputPressCount consumes and clears pending presses. A key
+         * release must not cancel an unconsumed key or mouse press. */
+        if (pressed && event->repeat == 0)
+            g_nInputPressCount_0049c258++;
         QueueInputEvent(pressed ? 4 : 5,
                         (unsigned short)g_stHostMouseMessage_005d10d0.x,
                         (unsigned short)g_stHostMouseMessage_005d10d0.y,
@@ -618,6 +614,11 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
                                (unsigned short)mouseY,
                                primaryButton, secondaryButton);
     } else {
+        /* Keep presses available when ServiceInputDevices flushes the queue.
+         * Releasing after TakeInputPressCount cleared it must not create a
+         * negative count, which the cutscene would treat as another press. */
+        if (event->type == SDL_MOUSEBUTTONDOWN)
+            g_nInputPressCount_0049c258++;
         /* WC2 queues 1 for a button press and 2 for a release -- the
          * opposite way round from WC1. */
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
