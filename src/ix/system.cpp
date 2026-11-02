@@ -188,7 +188,7 @@ extern "C" void ix_system_delete_sound(IxSound *sound)
             sound->flags &= ~IX_SOUND_DELETE_ON_STOP;
             ix_sound_stop(sound);
         }
-        ix_sound_unlink_from_free_list(sound);
+        sound->ix_sound_unlink_from_free_list();
         g_pIxFree_004a0c1c(sound);
     }
 }
@@ -394,15 +394,15 @@ void IxSound::ix_system_sound_construct_centred(IxSample *newSample)
 }
 
 /* Function start: 0x46A5FA */
-void __fastcall ix_sound_unlink_from_free_list(IxSound *sound)
+void IxSound::ix_sound_unlink_from_free_list(void)
 {
-    if (sound == g_pFreeSoundList_005c4b20)
-        g_pFreeSoundList_005c4b20 = sound->next;
-    if (sound->next != 0)
-        sound->next->previous = sound->previous;
-    if (sound->previous != 0)
-        sound->previous->next = sound->next;
-    sound->flags &= ~IX_SOUND_ALLOCATED;
+    if (this == g_pFreeSoundList_005c4b20)
+        g_pFreeSoundList_005c4b20 = next;
+    if (next != 0)
+        next->previous = previous;
+    if (previous != 0)
+        previous->next = next;
+    flags &= ~IX_SOUND_ALLOCATED;
 }
 
 /* Function start: 0x46A667 */

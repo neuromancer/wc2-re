@@ -357,12 +357,17 @@ void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)
 
     deviceContext = GetDC(window);
 #endif
-    textColor = red + (blue * 0x100 + green) * 0x100;
+    textColor = (green << 8) + (blue << 16) + red;
 #ifndef SDL_PORT
     SetTextColor(deviceContext, textColor);
     ReleaseDC(window, deviceContext);
 #endif
 }
+
+#ifndef SDL_PORT
+WINGDIAPI COLORREF WINAPI SetBkColor(HDC deviceContext, COLORREF colour);
+WINUSERAPI int WINAPI ReleaseDC(HWND window, HDC deviceContext);
+#endif
 
 /* Function start: 0x45B6BB */
 void DebugOverlayConsole::SetOverlayBackgroundColor(int red, int green,
@@ -373,7 +378,7 @@ void DebugOverlayConsole::SetOverlayBackgroundColor(int red, int green,
 
     deviceContext = GetDC(window);
 #endif
-    backgroundColor = red + (blue * 0x100 + green) * 0x100;
+    backgroundColor = (blue << 16) + (green << 8) + red;
 #ifndef SDL_PORT
     SetBkColor(deviceContext, backgroundColor);
     ReleaseDC(window, deviceContext);

@@ -505,30 +505,30 @@ void cruise_to_destination(short obj)
 /* Function start: 0x443C45 */
 void prepare_for_jump(short obj)
 {
-    short count;
-    short delay;
-
     if (g_anShipSpeed_00494e20[obj] != 0) {
         set_special(obj, SPECIAL_MANEUVER_STOP_DRIFT);
         return;
     }
-    count = ++g_asShipCount_00495ff8[obj];
-    delay = g_asShipSide_004955d0[obj] == SIDE_KILRATHI ? 250 : 25;
-    if (count <= delay)
-        return;
-
-    get_facing_range_from_object(obj, 0);
-    if (g_nFacingToTarget_00493194 > 90 && CanSetNewShipTurnGoal(obj) != 0) {
-        g_anYawGoal_004954c0[obj] = signed_random(30);
-        return;
-    }
-    delay = g_asShipSide_004955d0[obj] == SIDE_KILRATHI ? 270 : 45;
-    if (g_asShipCount_00495ff8[obj] > delay ||
-        (g_nTargetFacing_00493198 > 80 && g_nTargetRange_0049319c < 6000)) {
-        reset_tactic(obj, TACTIC_WARP_OUT);
-        fire_afterburner(obj, 10);
+    g_asShipCount_00495ff8[obj]++;
+    if ((g_asShipSide_004955d0[obj] == SIDE_KILRATHI ? 250 : 25) <
+        g_asShipCount_00495ff8[obj]) {
+        get_facing_range_from_object(obj, 0);
+        if (g_nFacingToTarget_00493194 > 90 &&
+            CanSetNewShipTurnGoal(obj) != 0) {
+            g_anYawGoal_004954c0[obj] = signed_random(30);
+        } else if ((g_asShipSide_004955d0[obj] == SIDE_KILRATHI ? 250
+                                                                : 25) +
+                           20 <
+                       g_asShipCount_00495ff8[obj] ||
+                   (g_nTargetFacing_00493198 > 80 &&
+                    g_nTargetRange_0049319c < 6000)) {
+            reset_tactic(obj, TACTIC_WARP_OUT);
+            fire_afterburner(obj, 10);
+        }
     }
 }
+
+unsigned int reset_tactic(short ship, short tactic);
 
 /* Function start: 0x443D6E */
 void accelerate_and_jump(short obj)
@@ -1548,6 +1548,8 @@ void chaff_intelligence(short obj)
         }
     }
 }
+
+short explode(short attacker, short victim);
 
 /* Function start: 0x446474 */
 void mine_intelligence(short obj)

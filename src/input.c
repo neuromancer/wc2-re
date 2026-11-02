@@ -111,8 +111,8 @@ void PollJoystickButtonEvents(void)
 /* Function start: 0x421530 */
 void PollMenuInputDevices(void)
 {
-    signed char doubleClick;
-    unsigned char changes;
+    signed char clickKind;
+    signed char changes;
 
     changes = 0;
     if (g_nActiveInputDevice_005d1726 == -1)
@@ -133,14 +133,14 @@ void PollMenuInputDevices(void)
                 g_aInputDeviceSamples_005d1780
                     [g_nActiveInputDevice_005d1726].y *
                 g_nMenuPointerSpeed_00493054;
-            doubleClick = 0;
+            clickKind = 0;
             if (g_asInputButton1DoubleClick_005d3030
                     [g_nActiveInputDevice_005d1726] != 0)
-                doubleClick = 3;
+                clickKind = 3;
             QueueInputEventAtCursor(
                 (g_aInputDeviceSamples_005d1780
                     [g_nActiveInputDevice_005d1726].buttons & 1) + 1,
-                0, (short)doubleClick);
+                0, (short)clickKind);
             changes++;
         }
         if (g_asInputButton2Changed_005d3038
@@ -153,14 +153,14 @@ void PollMenuInputDevices(void)
                 g_aInputDeviceSamples_005d1780
                     [g_nActiveInputDevice_005d1726].y *
                 g_nMenuPointerSpeed_00493054;
-            doubleClick = 0;
+            clickKind = 0;
             if (g_asInputButton1DoubleClick_005d3030
                     [g_nActiveInputDevice_005d1726] != 0)
-                doubleClick = 3;
+                clickKind = 3;
             QueueInputEventAtCursor(
                 ((g_aInputDeviceSamples_005d1780
                     [g_nActiveInputDevice_005d1726].buttons & 2) >> 1) + 1,
-                1, (short)doubleClick);
+                1, (short)clickKind);
             changes++;
         }
         if (changes == 0) {

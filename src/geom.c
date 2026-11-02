@@ -920,57 +920,54 @@ void apply_force_to_objects_center(FixedVector *force, short obj)
 void apply_force_to_object(FixedVector *point, FixedVector *force,
                            short obj)
 {
-    FixedVector localPoint;
-    FixedVector localForce;
-    FixedVector acceleration;
+    FixedVector bodyPoint;
+    FixedVector bodyForce;
+    FixedVector linearAcceleration;
     int rotationalMass;
-    int mass;
-    int value;
+    int linearMass;
 
-    transform_to_objects_frame(force, &localForce, obj);
-    transform_to_objects_frame(point, &localPoint, obj);
+    transform_to_objects_frame(force, &bodyForce, obj);
+    transform_to_objects_frame(point, &bodyPoint, obj);
+    linearMass = g_aObjectTypeData_00496d30[
+        g_acObjectType_00493980[obj]].radarRadius;
     rotationalMass = DivideFixed(
         g_aObjectTypeData_00496d30[
             g_acObjectType_00493980[obj]].afterburnerVelocity << 8,
         (int)g_asObjectCollisionRadius_004950e8[obj] << 8);
 
-    value = DivideFixed(
-        MultiplyFixed(localPoint.x, localForce.y) -
-            MultiplyFixed(localPoint.y, localForce.x),
-        rotationalMass);
-    g_anObjectRollRotation_00495058[obj] += (short)(value >> 8);
-    value = DivideFixed(
-        MultiplyFixed(localPoint.x, localForce.z) -
-            MultiplyFixed(localPoint.z, localForce.x),
-        rotationalMass);
-    g_anObjectYawRotation_00494fc8[obj] += (short)(value >> 8);
-    value = DivideFixed(
-        MultiplyFixed(localPoint.z, localForce.y) -
-            MultiplyFixed(localPoint.y, localForce.z),
-        rotationalMass);
-    g_anObjectPitchRotation_00494f38[obj] += (short)(value >> 8);
+    g_anObjectRollRotation_00495058[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.x, bodyForce.y) -
+            MultiplyFixed(bodyPoint.y, bodyForce.x),
+        rotationalMass) >> 8;
+    g_anObjectYawRotation_00494fc8[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.x, bodyForce.z) -
+            MultiplyFixed(bodyPoint.z, bodyForce.x),
+        rotationalMass) >> 8;
+    g_anObjectPitchRotation_00494f38[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.z, bodyForce.y) -
+            MultiplyFixed(bodyPoint.y, bodyForce.z),
+        rotationalMass) >> 8;
     ClampTo30(&g_anObjectPitchRotation_00494f38[obj]);
     ClampTo30(&g_anObjectYawRotation_00494fc8[obj]);
     ClampTo30(&g_anObjectRollRotation_00495058[obj]);
 
-    mass = g_aObjectTypeData_00496d30[
-        g_acObjectType_00493980[obj]].radarRadius << 8;
-    acceleration.x = DivideFixed(
+    linearMass <<= 8;
+    linearAcceleration.x = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localPoint.y, localPoint.z),
-            localForce.x),
-        MultiplyFixed(0x16a, mass));
-    acceleration.y = DivideFixed(
+            PlanarMagnitude(bodyPoint.y, bodyPoint.z),
+            bodyForce.x),
+        MultiplyFixed(0x16a, linearMass));
+    linearAcceleration.y = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localPoint.x, localPoint.z),
-            localForce.y),
-        MultiplyFixed(0x16a, mass));
-    acceleration.z = DivideFixed(
+            PlanarMagnitude(bodyPoint.x, bodyPoint.z),
+            bodyForce.y),
+        MultiplyFixed(0x16a, linearMass));
+    linearAcceleration.z = DivideFixed(
         MultiplyFixed(0x16a -
-            PlanarMagnitude(localPoint.x, localPoint.y),
-            localForce.z),
-        MultiplyFixed(0x16a, mass));
-    AddFixedVectors(&g_aShipVelocity_00494898[obj], &acceleration,
+            PlanarMagnitude(bodyPoint.x, bodyPoint.y),
+            bodyForce.z),
+        MultiplyFixed(0x16a, linearMass));
+    AddFixedVectors(&g_aShipVelocity_00494898[obj], &linearAcceleration,
                     &g_aShipVelocity_00494898[obj]);
     if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
         check_for_lost_control(obj);
@@ -980,13 +977,12 @@ void apply_force_to_object(FixedVector *point, FixedVector *force,
 void rotational_acceleration(FixedVector *point, FixedVector *force,
                              short obj)
 {
-    FixedVector localPoint;
-    FixedVector localForce;
+    FixedVector bodyPoint;
+    FixedVector bodyForce;
     int denominator;
-    int value;
 
-    transform_to_objects_frame(force, &localForce, obj);
-    transform_to_objects_frame(point, &localPoint, obj);
+    transform_to_objects_frame(force, &bodyForce, obj);
+    transform_to_objects_frame(point, &bodyPoint, obj);
     denominator = DivideFixed(
         g_aObjectTypeData_00496d30[
             g_acObjectType_00493980[obj]].afterburnerVelocity << 8,
@@ -994,21 +990,18 @@ void rotational_acceleration(FixedVector *point, FixedVector *force,
             (int)g_asObjectCollisionRadius_004950e8[obj] << 8,
             0x123c));
 
-    value = DivideFixed(
-        MultiplyFixed(localPoint.x, localForce.y) -
-            MultiplyFixed(localPoint.y, localForce.x),
-        denominator);
-    g_anObjectRollRotation_00495058[obj] += (short)(value >> 8);
-    value = DivideFixed(
-        MultiplyFixed(localPoint.x, localForce.z) -
-            MultiplyFixed(localPoint.z, localForce.x),
-        denominator);
-    g_anObjectYawRotation_00494fc8[obj] += (short)(value >> 8);
-    value = DivideFixed(
-        MultiplyFixed(localPoint.z, localForce.y) -
-            MultiplyFixed(localPoint.y, localForce.z),
-        denominator);
-    g_anObjectPitchRotation_00494f38[obj] += (short)(value >> 8);
+    g_anObjectRollRotation_00495058[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.x, bodyForce.y) -
+            MultiplyFixed(bodyPoint.y, bodyForce.x),
+        denominator) >> 8;
+    g_anObjectYawRotation_00494fc8[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.x, bodyForce.z) -
+            MultiplyFixed(bodyPoint.z, bodyForce.x),
+        denominator) >> 8;
+    g_anObjectPitchRotation_00494f38[obj] += DivideFixed(
+        MultiplyFixed(bodyPoint.z, bodyForce.y) -
+            MultiplyFixed(bodyPoint.y, bodyForce.z),
+        denominator) >> 8;
     ClampTo30(&g_anObjectPitchRotation_00494f38[obj]);
     ClampTo30(&g_anObjectYawRotation_00494fc8[obj]);
     ClampTo30(&g_anObjectRollRotation_00495058[obj]);
@@ -1050,9 +1043,8 @@ void transform_objects_to_your_view(void)
 
     draw_nav_pointer();
     for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL)
-            continue;
-        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FIXED_OBJECT)
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_NULL ||
+            g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FIXED_OBJECT)
             continue;
         if (obj == g_nNavPointerObject_004931b8)
             continue;

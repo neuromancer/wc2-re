@@ -371,7 +371,7 @@ unsigned int PumpWindowMessages(int skipMessages)
 
     done = 0;
     g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_dwGameClockStart_005d12b8;
+    g_nInputClock_005c84a8 -= g_lGameClockStart_005d12b8;
     g_nInputClock_005c84a8 *= 60;
     g_nInputClock_005c84a8 /= 1000;
     if (skipMessages == 0) {
@@ -415,7 +415,7 @@ unsigned int PumpWindowMessages(int skipMessages)
         g_bWindowMessagePumpActive_0049c2e4 = 0;
     }
     g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_dwGameClockStart_005d12b8;
+    g_nInputClock_005c84a8 -= g_lGameClockStart_005d12b8;
     g_nInputClock_005c84a8 *= 60;
     g_nInputClock_005c84a8 /= 1000;
     return g_bMainWindowRunning_005d12ac;
@@ -1285,7 +1285,7 @@ unsigned int GetGameClockTicks(void)
 /* Function start: 0x455F23 */
 void InitGameClockRandomEpoch(void)
 {
-    g_dwGameClockStart_005d12b8 = GetTickCount();
+    g_lGameClockStart_005d12b8 = GetTickCount();
     g_dwGameClockBase_005d10e8 = GetTickCount() + (rand() & 3600000);
     return;
 }
@@ -1312,6 +1312,8 @@ void SetInputCursorHostPosition(int x, int y)
     return;
 }
 
+#pragma function(memset)
+
 /* Function start: 0x455FF1 */
 /* Nothing in the shipped executable calls this.  Allocates a one-entry
  * glyph workspace of 5x5 pixels filled with colour 5. */
@@ -1324,11 +1326,11 @@ FontWorkspace **AllocateFontWorkspace(short fontIndex)
     workspace = (FontWorkspace **)malloc(sizeof(*workspace));
     *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
     for (slot = 0; slot < 1; slot++) {
-        (*workspace)[slot].width = 5;
-        (*workspace)[slot].height = 5;
-        (*workspace)[slot].pixels = (unsigned char *)malloc(
+        workspace[0][slot].width = 5;
+        workspace[0][slot].height = 5;
+        workspace[0][slot].pixels = (unsigned char *)malloc(
             (*workspace)->height * (*workspace)->width);
-        memset((*workspace)[slot].pixels, 5,
+        memset(workspace[0][slot].pixels, 5,
                (*workspace)->height * (*workspace)->width);
     }
     return workspace;
@@ -1342,7 +1344,7 @@ void FreeFontWorkspace(FontWorkspace **workspace)
     int slot;
 
     for (slot = 0; slot < 1; slot++)
-        free((*workspace)[slot].pixels);
+        free(workspace[0][slot].pixels);
     free(*workspace);
     free(workspace);
     return;
@@ -1407,45 +1409,45 @@ char *LocateStreamsDirOnDisc(void)
 char FindCdRomDriveByVolumeLabel(const char *label,
                                  const char *directory)
 {
-    char volume[256];
-    char root[12];
-    char filesystem[64];
-    DWORD flags;
+    char volumeName[256];
+    char drivePath[12];
+    char systemName[64];
+    DWORD volumeFlags;
     DWORD maximumComponentLength;
-    int driveCount;
+    int count;
     char drives[26];
-    char scanRoot[12];
-    int drive;
-    char result;
+    char rootPath[12];
+    int device;
+    char answer;
 
-    driveCount = 0;
-    for (drive = 'a'; drive <= 'z'; drive++) {
-        sprintf(scanRoot, "%c:\\", (char)drive);
-        if (GetDriveTypeA(scanRoot) == DRIVE_CDROM) {
-            drives[driveCount] = (char)drive;
-            driveCount++;
+    count = 0;
+    for (device = 'a'; device <= 'z'; device++) {
+        sprintf(rootPath, "%c:\\", (char)device);
+        if (GetDriveTypeA(rootPath) == DRIVE_CDROM) {
+            drives[count] = (char)device;
+            count++;
         }
     }
 
-    result = 0;
-    for (drive = 0; drive < driveCount; drive++) {
-        sprintf(root, "%c:\\", drives[drive]);
-        GetVolumeInformationA(root, volume, 0xff, 0,
-                              &maximumComponentLength, &flags,
-                              filesystem, sizeof(filesystem));
+    answer = 0;
+    for (device = 0; device < count; device++) {
+        sprintf(drivePath, "%c:\\", drives[device]);
+        GetVolumeInformationA(drivePath, volumeName, 0xff, 0,
+                              &maximumComponentLength, &volumeFlags,
+                              systemName, sizeof(systemName));
         if (strcmp(label, "<anydisc>") == 0) {
-            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
-                result = drives[drive];
+            if (SetCurrentDirOnDrive(drives[device], directory) != 0) {
+                answer = drives[device];
                 break;
             }
-        } else if (strcmp(volume, label) == 0) {
-            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
-                result = drives[drive];
+        } else if (strcmp(volumeName, label) == 0) {
+            if (SetCurrentDirOnDrive(drives[device], directory) != 0) {
+                answer = drives[device];
                 break;
             }
         }
     }
-    return result;
+    return answer;
 }
 
 #pragma intrinsic(strcmp)

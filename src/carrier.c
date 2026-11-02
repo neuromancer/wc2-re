@@ -21,7 +21,6 @@ short has_opposing_ship(short side)
 /* Function start: 0x45655D */
 void launch_carrier_fighter(short carrier)
 {
-    short elapsed;
     short source;
     short fighter;
 
@@ -48,8 +47,8 @@ void launch_carrier_fighter(short carrier)
         return;
     }
 
-    elapsed = g_asCarrierLaunchTimer_005d1090[carrier]++;
-    if (elapsed < g_nCarrierLaunchInterval_005d108c)
+    if (g_asCarrierLaunchTimer_005d1090[carrier]++ <
+        g_nCarrierLaunchInterval_005d108c)
         return;
     g_asCarrierLaunchTimer_005d1090[carrier] = 0;
 

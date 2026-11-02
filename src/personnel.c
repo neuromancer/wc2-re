@@ -41,11 +41,9 @@ void PollPersonnelMenuInput(void)
             g_nPersonnelCursorX_005c8470 = event.x;
             g_nPersonnelCursorY_005c8472 = event.y;
             break;
-        case 2:
-            break;
-        case 5:
-            break;
         case 7:
+            break;
+        case 2:
             break;
         case 1:
             g_sPersonnelPreviousInput_0049a6bc =
@@ -383,6 +381,8 @@ void DrawPilotSaveMenuChoices(short choice)
     EnableMouseCursorDrawing();
 }
 
+void DrawFormattedText(const char *format, ...);
+
 /* Function start: 0x4346E9 */
 void DrawPersonnelSourceChoices(short choice)
 {
@@ -538,15 +538,15 @@ void HighlightPersonnelFileSlot(short choice)
 short SelectPersonnelFileSlot(void)
 {
     short hover;
-    short slot;
+    short index;
 
     DisableMouseCursorDrawing();
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
                                   (unsigned char)
                                       g_nMenuShadowColour_005c5876,
                                   -1);
-    for (slot = 0; slot < 8; slot++) {
-        DrawPersonnelFileSlot(slot);
+    for (index = 0; index < 8; index++) {
+        DrawPersonnelFileSlot(index);
     }
     g_nPersonnelMenuHighlight_0049a6a0 = -1;
     hover = 0x0b;
@@ -554,10 +554,7 @@ short SelectPersonnelFileSlot(void)
     DisableMouseCursorDrawing();
     g_cCurrentKey_00493128 = (signed char)0x80;
     SetPersonnelMousePosition(0xdc, 0x12);
-    for (;;) {
-        if (g_cCurrentKey_00493128 != (signed char)0x80) {
-            return g_cCurrentKey_00493128;
-        }
+    while (g_cCurrentKey_00493128 == (signed char)0x80) {
         PollPersonnelMenuInput();
         if (g_nPersonnelCursorX_005c8470 > 0x28 &&
             g_nPersonnelCursorX_005c8470 < 0xec) {
@@ -602,28 +599,31 @@ short SelectPersonnelFileSlot(void)
              hover == -1)) {
             return -1;
         }
-        switch (g_cCurrentKey_00493128 - 2) {
-        case 0:
-            return 1;
-        case 1:
-            return 2;
-        case 2:
-            return 3;
-        case 3:
-            return 4;
-        case 4:
-            return 5;
-        case 5:
-            return 6;
-        case 6:
-            return 7;
-        case 9:
+        switch (g_cCurrentKey_00493128) {
+        case 11:
             return 0;
-        default:
-            g_cCurrentKey_00493128 = (signed char)0x80;
-            break;
+        case 2:
+            return 1;
+        case 3:
+            return 2;
+        case 4:
+            return 3;
+        case 5:
+            return 4;
+        case 6:
+            return 5;
+        case 7:
+            return 6;
+        case 8:
+            return 7;
         }
+        g_cCurrentKey_00493128 = (signed char)0x80;
     }
+    /* Retail falls off the end here; EAX still holds the key loaded by
+     * the loop test. */
+#ifdef SDL_PORT
+    return g_cCurrentKey_00493128;
+#endif
 }
 
 /* Function start: 0x434EBC */
@@ -641,6 +641,7 @@ void DrawTransferredPilotRow(short row)
         g_apszPersonnelTransferLabels_005d2100[row] + 0x2c);
 }
 
+void SetTextCursor(unsigned short a, unsigned short b);
 void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count);
 void DrawPersonnelMenuBackdrop(void *scenePacket);
 
@@ -682,7 +683,7 @@ void HighlightTransferredPilot(short choice)
 short SelectTransferredPilot(short count)
 {
     short hover;
-    short row;
+    short index;
 
     DisableMouseCursorDrawing();
     RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
@@ -698,8 +699,8 @@ short SelectTransferredPilot(short count)
                                   (unsigned char)
                                       g_nMenuShadowColour_005c5876,
                                   -1);
-    for (row = 0; row < count; row++) {
-        DrawTransferredPilotRow(row);
+    for (index = 0; index < count; index++) {
+        DrawTransferredPilotRow(index);
     }
     g_nPersonnelMenuHighlight_0049a6a0 = -1;
     hover = 0x0b;
@@ -707,10 +708,7 @@ short SelectTransferredPilot(short count)
     DisableMouseCursorDrawing();
     g_cCurrentKey_00493128 = (signed char)0x80;
     SetPersonnelMousePosition(0xdc, 0x12);
-    for (;;) {
-        if (g_cCurrentKey_00493128 != (signed char)0x80) {
-            return g_cCurrentKey_00493128;
-        }
+    while (g_cCurrentKey_00493128 == (signed char)0x80) {
         PollPersonnelMenuInput();
         if (g_nPersonnelCursorX_005c8470 > 0x28 &&
             g_nPersonnelCursorX_005c8470 < 0xec) {
@@ -722,7 +720,7 @@ short SelectTransferredPilot(short count)
                     g_pInputManagerState_005c8464->cursorShape, 1);
             } else if (g_nPersonnelCursorY_005c8472 >= 0x28 &&
                        g_nPersonnelCursorY_005c8472 <=
-                           (count * 5 - 10) * 2 + 0x31) {
+                           (count - 2) * 10 + 0x31) {
                 hover = (short)((g_nPersonnelCursorY_005c8472 - 0x28) /
                                 10 + 2);
                 HighlightTransferredPilot(hover);
@@ -756,28 +754,31 @@ short SelectTransferredPilot(short count)
              hover == -1)) {
             return -1;
         }
-        switch (g_cCurrentKey_00493128 - 2) {
-        case 0:
-            return 1;
-        case 1:
-            return 2;
-        case 2:
-            return 3;
-        case 3:
-            return 4;
-        case 4:
-            return 5;
-        case 5:
-            return 6;
-        case 6:
-            return 7;
-        case 9:
+        switch (g_cCurrentKey_00493128) {
+        case 11:
             return 0;
-        default:
-            g_cCurrentKey_00493128 = (signed char)0x80;
-            break;
+        case 2:
+            return 1;
+        case 3:
+            return 2;
+        case 4:
+            return 3;
+        case 5:
+            return 4;
+        case 6:
+            return 5;
+        case 7:
+            return 6;
+        case 8:
+            return 7;
         }
+        g_cCurrentKey_00493128 = (signed char)0x80;
     }
+    /* Retail falls off the end here; EAX still holds the key loaded by
+     * the loop test. */
+#ifdef SDL_PORT
+    return g_cCurrentKey_00493128;
+#endif
 }
 
 /* Function start: 0x4353D4 */

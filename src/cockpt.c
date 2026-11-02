@@ -2137,69 +2137,69 @@ short GetRectHeight(const Viewport *viewport)
 /* Function start: 0x43C364 */
 void print_message_text(char *text, unsigned short colour)
 {
-    Viewport defaultViewport;
-    char source[84];
-    char wrapped[84];
-    short charactersPerLine;
-    Viewport spaceViewport;
-    TextContext defaultContext;
-    char *input;
-    TextContext spaceContext;
-    char *output;
+    Viewport menuViewport;
+    char sourceText[84];
+    short charsPerLine;
+    char wrappedText[84];
+    Viewport flightView;
+    char *in;
+    TextContext menuContext;
+    TextContext flightText;
+    short topY;
     short position;
-    short messageY;
-    short lastSpace;
+    char *out;
+    short breakPos;
 
-    lastSpace = -1;
-    DosStrcpy(source, text);
-    strcpy(wrapped, "");
-    defaultViewport = *g_stDefaultTextContext_005d2d20.viewport;
-    defaultContext = g_stDefaultTextContext_005d2d20;
-    defaultContext.viewport = &defaultViewport;
-    messageY = (short)(g_stHudMessageOrigin_0049ae90.y +
+    breakPos = -1;
+    DosStrcpy(sourceText, text);
+    strcpy(wrappedText, "");
+    menuViewport = *g_stDefaultTextContext_005d2d20.viewport;
+    menuContext = g_stDefaultTextContext_005d2d20;
+    menuContext.viewport = &menuViewport;
+    topY = (short)(g_stHudMessageOrigin_0049ae90.y +
                        g_nViewportOriginY_005c849c);
-    SetRectBounds(&defaultViewport,
+    SetRectBounds(&menuViewport,
                   g_stHudMessageOrigin_0049ae90.x,
-                  messageY,
+                  topY,
                   (short)(319 - g_stHudMessageOrigin_0049ae90.x),
-                  (short)(messageY + 60));
-    defaultContext.colour = (unsigned char)colour;
-    defaultContext.backgroundColour = 0xff;
-    spaceViewport = *g_stSpaceTextContext_005d21c0.viewport;
-    spaceContext = g_stSpaceTextContext_005d21c0;
-    spaceContext.viewport = &spaceViewport;
-    SetRectBounds(&spaceViewport,
+                  (short)(topY + 60));
+    menuContext.colour = (unsigned char)colour;
+    menuContext.backgroundColour = 0xff;
+    flightView = *g_stSpaceTextContext_005d21c0.viewport;
+    flightText = g_stSpaceTextContext_005d21c0;
+    flightText.viewport = &flightView;
+    SetRectBounds(&flightView,
                   g_stHudMessageOrigin_0049ae90.x,
                   g_stHudMessageOrigin_0049ae90.y,
                   (short)(319 - g_stHudMessageOrigin_0049ae90.x),
                   (short)(g_stHudMessageOrigin_0049ae90.y + 60));
-    spaceContext.colour = (unsigned char)colour;
-    spaceContext.backgroundColour = 0xff;
-    charactersPerLine = (short)(GetRectHeight(&defaultViewport) / 6);
-    input = source;
-    output = wrapped;
+    flightText.colour = (unsigned char)colour;
+    flightText.backgroundColour = 0xff;
+    charsPerLine = (short)(GetRectHeight(&menuViewport) / 6);
+    in = sourceText;
+    out = wrappedText;
     position = 0;
-    while (*input != 0) {
-        *output = *input;
-        if (*output == ' ')
-            lastSpace = position;
-        if ((position + 1) % charactersPerLine == 0) {
-            if (lastSpace == -1) {
-                output++;
-                *output = '\n';
+    while (*in != 0) {
+        *out = *in;
+        if (*out == ' ')
+            breakPos = position;
+        if ((position + 1) % charsPerLine == 0) {
+            if (breakPos == -1) {
+                out++;
+                *out = '\n';
             } else {
-                output[position - lastSpace] = '\n';
+                *(out + position - breakPos) = '\n';
             }
         }
-        input++;
-        output++;
+        in++;
+        out++;
         position++;
     }
-    *output = 0;
-    DrawTextAt(&defaultContext,
+    *out = 0;
+    DrawTextAt(&menuContext,
                g_stHudMessageOrigin_0049ae90.x,
-               messageY,
-               wrapped, 2);
+               topY,
+               wrappedText, 2);
     g_pszDisplayedHudMessage_0049aff0 = g_pszPendingHudMessage_0049afec;
 }
 
@@ -2234,7 +2234,7 @@ void RestoreHudMessageBackground(void)
 }
 
 /* Function start: 0x43C601 */
-void SetHudTextColour(char *text, int colour)
+void SetHudTextColour(char *text, unsigned short colour)
 {
     if (g_bCaptureHudMessageBackground_0049b290 != 0) {
         ShowHudTextLine();
@@ -2707,7 +2707,7 @@ void overlay_head_up_display(void)
     if (g_nCurrentView_00492fa8 != 4 ||
         g_nTargetCameraMode_005c8d50 != 1) {
         if (g_nTargetLockCountdown_004934ec == 0) {
-            if ((short)(g_nRenderedSpaceFrame_00493138 % 2) == 0)
+            if (g_nRenderedSpaceFrame_00493138 % 2 == 0)
                 g_bTargetBracketVisible_0049b284 ^= 1;
             if (g_bTargetBracketVisible_0049b284 == 1)
                 draw_target_box(
@@ -2723,31 +2723,33 @@ void overlay_head_up_display(void)
                 1, 1, &g_stTargetBracketBounds_0049b2a0);
         }
     }
-    if (g_nCurrentView_00492fa8 == 4 &&
-        g_nTargetCameraMode_005c8d50 == 1) {
-        DrawSpriteDefault(
-            &g_stViewBuffer_005d2b00,
-            g_nViewCenterX_005c80d8,
-            g_nViewCenterY_005c80da,
-            g_pCockpitHudShape_005d21f4, 0);
-    } else if (IsSpriteFrameOverlappingRect(
-                   &reticleBounds,
-                   g_nTargetLeadIndicatorX_0049afe8,
-                   g_nTargetLeadIndicatorY_005d1c2a,
-                   g_pCockpitHudShape_005d21f4, 5) == 0) {
-        g_bMissileLockAcquired_0049b2b0 = 0;
-        DrawSpriteDefault(
-            &g_stViewBuffer_005d2b00,
-            g_nViewCenterX_005c80d8,
-            g_nViewCenterY_005c80da,
-            g_pCockpitHudShape_005d21f4, 0);
+    if (g_nCurrentView_00492fa8 != 4 ||
+        g_nTargetCameraMode_005c8d50 != 1) {
+        if (IsSpriteFrameOverlappingRect(
+                &reticleBounds,
+                g_nTargetLeadIndicatorX_0049afe8,
+                g_nTargetLeadIndicatorY_005d1c2a,
+                g_pCockpitHudShape_005d21f4, 5) != 0) {
+            g_bMissileLockAcquired_0049b2b0++;
+            DrawSpriteDefault(
+                &g_stViewBuffer_005d2b00,
+                (short)(g_nViewCenterX_005c80d8 + 1),
+                g_nViewCenterY_005c80da,
+                g_pCockpitHudShape_005d21f4, 4);
+        } else {
+            g_bMissileLockAcquired_0049b2b0 = 0;
+            DrawSpriteDefault(
+                &g_stViewBuffer_005d2b00,
+                g_nViewCenterX_005c80d8,
+                g_nViewCenterY_005c80da,
+                g_pCockpitHudShape_005d21f4, 0);
+        }
     } else {
-        g_bMissileLockAcquired_0049b2b0++;
         DrawSpriteDefault(
             &g_stViewBuffer_005d2b00,
-            (short)(g_nViewCenterX_005c80d8 + 1),
+            g_nViewCenterX_005c80d8,
             g_nViewCenterY_005c80da,
-            g_pCockpitHudShape_005d21f4, 4);
+            g_pCockpitHudShape_005d21f4, 0);
     }
     DAT_004934e4 = 0;
     if (g_nCockpitControlState_0049d7ac == 1) {

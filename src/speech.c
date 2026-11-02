@@ -36,7 +36,7 @@ void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
     packet = destination;
     if (packet == 0) {
         packet = AllocateTaggedMemory(
-            (unsigned int)g_wDigiSampleBytes_0048e0e0, 0x44);
+            (unsigned short)g_nDigiSampleBytes_0048e0e0, 0x44);
     }
     if (packet == 0)
         return 0;
@@ -57,7 +57,7 @@ void PlaySpeechPacketBuffer(void *packet, unsigned short packetSize,
 
     PlayRawSpeechBuffer(packet, packetSize, interrupt);
     return;
-    if (packetSize > g_wDigiSampleBytes_0048e0e0)
+    if (packetSize > (unsigned short)g_nDigiSampleBytes_0048e0e0)
         return;
     g_nDigiLastBlock_0049bb78 = 0;
     g_wDigiLeft_005d1714 = packetSize;
@@ -199,13 +199,13 @@ short InitializeSoundBlaster(short port, short irq)
     unsigned int dmaAddress;
 
     g_pDigiSample_005d1720 =
-        AllocateTaggedMemory((unsigned int)g_wDigiSampleBytes_0048e0e0,
+        AllocateTaggedMemory((unsigned short)g_nDigiSampleBytes_0048e0e0,
                              0x44);
     if (g_pDigiSample_005d1720 == 0)
         return 1;
     codeAddress = IdentityDword((DwordPtr)g_pDigiSample_005d1720);
     codeLimit = (unsigned int)g_pDigiSample_005d1720 +
-        (unsigned int)g_wDigiSampleBytes_0048e0e0;
+        (unsigned short)g_nDigiSampleBytes_0048e0e0;
     if (codeLimit < codeAddress)
         ReportFatalErrorCode("027");
     g_wSoundBlasterPort_0049bb58 =

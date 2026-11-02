@@ -751,15 +751,14 @@ void DrawNavMapBriefingBeacons(void)
 /* Function start: 0x450FE2 */
 void BuildMap(short showPlayer)
 {
-    MissionNavPoint *navPoint;
-    MissionShipRecord *missionShip;
-    const NavMapObjectiveStyle *style;
-    unsigned short labelColour;
-    short navIndex;
-    short objectiveIndex;
-    short slot;
+    unsigned short nameColour;
+    MissionNavPoint *nav;
+    const NavMapObjectiveStyle *mark;
+    MissionShipRecord *ship;
     short x;
     short y;
+    short checkpoint;
+    short index;
 
     SetScreenClipRect(1, 1, 153, 138);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 1, 1,
@@ -772,34 +771,34 @@ void BuildMap(short showPlayer)
                                   2, g_ucPrimaryTextColour_0049cb64, -1);
     g_stNavLabelTextContext_005d16f0.alignment = 0;
     SetTextContext(&g_stNavLabelTextContext_005d16f0);
-    navPoint = g_aMissionNavPoints_00491e98;
+    nav = g_aMissionNavPoints_00491e98;
     ResetNavMapLabels();
     ResetNavMapReservedAreas();
     SetScale();
     DrawNavMapBriefingBeacons();
 
-    for (navIndex = 0; navIndex < 10; navIndex++) {
-        if (g_aMissionNavPoints_00491e98[navIndex].type != 0 &&
-            g_aMissionNavPoints_00491e98[navIndex].systemIndex ==
+    for (checkpoint = 0; checkpoint < 10; checkpoint++) {
+        if (g_aMissionNavPoints_00491e98[checkpoint].type != 0 &&
+            g_aMissionNavPoints_00491e98[checkpoint].systemIndex ==
                 g_stElapsedCampaignDate_005d170c.year) {
-            for (slot = 0; slot < 10; slot++) {
-                if (navPoint->missionShips[slot] != -1) {
-                    missionShip = &g_aMissionShips_00492290[
-                        navPoint->missionShips[slot]];
+            for (index = 0; index < 10; index++) {
+                if (nav->missionShips[index] != -1) {
+                    ship = &g_aMissionShips_00492290[
+                        nav->missionShips[index]];
                     /* WC2 hazard field types; the image names neither. */
-                    switch (missionShip->objectType) {
+                    switch (ship->objectType) {
                     case 5:
                         DrawNavHazardMarker(
-                            navPoint->position, missionShip->position,
-                            missionShip->speed,
+                            nav->position, ship->position,
+                            ship->speed,
                             g_ucAsteroidNavMarkerColour_0049cb84,
                             g_ucAsteroidNavMarkerColour_0049cb84,
                             g_szNavAsteroids_0049bd3c);
                         break;
                     case 6:
                         DrawNavHazardMarker(
-                            navPoint->position, missionShip->position,
-                            missionShip->speed,
+                            nav->position, ship->position,
+                            ship->speed,
                             g_abGamePaletteReservedColours_0049cb54[8],
                             g_abGamePaletteReservedColours_0049cb54[8],
                             g_szNavMines_0049bd48);
@@ -808,57 +807,57 @@ void BuildMap(short showPlayer)
                 }
             }
         }
-        navPoint++;
+        nav++;
     }
 
-    for (objectiveIndex = 0;
-         g_cMissionObjectiveCount_00493294 > objectiveIndex;
-         objectiveIndex++) {
-        if (mobile_objective(objectiveIndex) == 0 ||
+    for (index = 0;
+         g_cMissionObjectiveCount_00493294 > index;
+         index++) {
+        if (mobile_objective(index) == 0 ||
             (g_aMissionShips_00492290[
                  (signed char)g_aMissionObjectives_004932a8[
-                     objectiveIndex].index].state == 0 &&
-             achieved(objectiveIndex) == 0)) {
+                     index].index].state == 0 &&
+             achieved(index) == 0)) {
         ScaleNavMapCoordinates(
-            &x, &y, g_aMissionObjectives_004932a8[objectiveIndex].mapX,
-            g_aMissionObjectives_004932a8[objectiveIndex].mapY);
-        if (hidden_objective(objectiveIndex) == 0 &&
-            IsObjectiveInDisplayedSystem(objectiveIndex) != 0) {
-        style = &g_aNavMapObjectiveStyles_0049bb88[
-            g_aMissionObjectives_004932a8[objectiveIndex].type];
-        if (visited(objectiveIndex) == 0)
+            &x, &y, g_aMissionObjectives_004932a8[index].mapX,
+            g_aMissionObjectives_004932a8[index].mapY);
+        if (hidden_objective(index) == 0 &&
+            IsObjectiveInDisplayedSystem(index) != 0) {
+        mark = &g_aNavMapObjectiveStyles_0049bb88[
+            g_aMissionObjectives_004932a8[index].type];
+        if (visited(index) == 0)
             DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, x, y,
-                              *style->unvisitedColour);
-        switch (style->markerType) {
+                              *mark->unvisitedColour);
+        switch (mark->markerType) {
         case 0:
             break;
         case 1:
-            DrawNavSquareMarker(x, y, style->markerSize, 0,
-                                *style->markerColour, 1);
+            DrawNavSquareMarker(x, y, mark->markerSize, 0,
+                                *mark->markerColour, 1);
             break;
         case 2:
-            DrawNavRectangleMarker(x, y, style->markerSize, 0,
-                                   *style->markerColour, 1);
+            DrawNavRectangleMarker(x, y, mark->markerSize, 0,
+                                   *mark->markerColour, 1);
             break;
         case 3:
-            DrawNavTriangleMarker(x, y, style->markerSize, 0,
-                                  *style->markerColour, 1);
+            DrawNavTriangleMarker(x, y, mark->markerSize, 0,
+                                  *mark->markerColour, 1);
             break;
         case 4:
-            DrawNavCrossMarker(x, y, style->markerSize, 0,
-                               *style->markerColour, 1);
+            DrawNavCrossMarker(x, y, mark->markerSize, 0,
+                               *mark->markerColour, 1);
             break;
         }
-        if (g_cCurrentObjective_004931cc == objectiveIndex)
-            labelColour = g_abGamePaletteReservedColours_0049cb54[4];
+        if (g_cCurrentObjective_004931cc == index)
+            nameColour = g_abGamePaletteReservedColours_0049cb54[4];
         else
-            labelColour = *style->labelColour;
-        g_awNavObjectiveLabelIndex_005d16b0[objectiveIndex] =
+            nameColour = *mark->labelColour;
+        g_awNavObjectiveLabelIndex_005d16b0[index] =
             g_nNavMapLabelCount_0049bc4c;
         AddUniqueObjectiveNavLabel(
-            x, y, labelColour, objective_name(objectiveIndex),
-            objectiveIndex,
-            (short)g_aMissionObjectives_004932a8[objectiveIndex].index);
+            x, y, nameColour, objective_name(index),
+            index,
+            (short)g_aMissionObjectives_004932a8[index].index);
         }
         }
     }
@@ -876,6 +875,8 @@ void BuildMap(short showPlayer)
     DrawNavMapLabels();
     SetScreenClipRect(0, 0, 259, 155);
 }
+
+void SetTextContext(TextContext *context);
 
 /* Function start: 0x45153A */
 void UpdateInflightNavText(short showColon)

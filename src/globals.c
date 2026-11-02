@@ -143,7 +143,7 @@ const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 const int g_nJoystickUnavailableSample_0048e054 = -1;
 const int g_nViewportStaticRandomRange_0048e060 = 3;
-const unsigned short g_wDigiSampleBytes_0048e0e0 = 0xfffa;
+const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
 unsigned char *g_pDamageDisplayBackground_00490060;
 const ShortPoint g_aDamageDisplayPositions_00490068[9] = {
@@ -278,12 +278,12 @@ short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
 short g_nObjectType62Index_00492d64 = -1;
 short g_nObjectType63Index_00492d68 = -1;
 short g_nLastFriendlyFireObjectFrame_00492d6c = 0x0ee4;
-const short g_asPlayerDamageSystemTable_00492d70[50] = {
-    0, 8, 6, 5, 0, 3, 5, 5, 7, 6,
-    0, 8, 6, 5, 4, 3, 4, 0, 4, 4,
-    1, 2, 5, 2, 7, 3, 4, 7, 5, 1,
-    1, 4, 1, 5, 2, 3, 4, 7, 2, 1,
-    4, 4, 4, 4, 0, 8, 6, 5, 4, 0
+const short g_aasPlayerDamageSystemTable_00492d70[5][10] = {
+    { 0, 8, 6, 5, 0, 3, 5, 5, 7, 6 },
+    { 0, 8, 6, 5, 4, 3, 4, 0, 4, 4 },
+    { 1, 2, 5, 2, 7, 3, 4, 7, 5, 1 },
+    { 1, 4, 1, 5, 2, 3, 4, 7, 2, 1 },
+    { 4, 4, 4, 4, 0, 8, 6, 5, 4, 0 }
 };
 const short g_aeShipHitDebrisTypes_00492e10[4] = {
     OBJECT_DATA_GIRDER_CHUNK,
@@ -1103,7 +1103,7 @@ unsigned char *g_pReleaseWeaponDisplayBackground_0049b05c;
 signed char g_cReleaseWeaponDisplayFrame_0049b060 = -1;
 signed char g_cReleaseWeaponDisplayTicks_0049b064;
 signed char g_cReleaseWeaponDisplayState_0049b068;
-unsigned char g_bTargetBracketVisible_0049b284 = 1;
+signed char g_bTargetBracketVisible_0049b284 = 1;
 ShortRect g_stTargetBracketBounds_0049b2a0 = {-0x7fff, 0, 0, 0};
 ShortRect g_stCommTargetBracketBounds_0049b2a8 = {-0x7fff, 0, 0, 0};
 short g_bMissileLockAcquired_0049b2b0;
@@ -1966,7 +1966,7 @@ int g_bAltNumpadSubtractHotkey_005d12a8;
 int g_bMainWindowRunning_005d12ac;
 HINSTANCE DAT_005d12b0;
 unsigned int g_dwGameStartTime_005d12b4;
-unsigned long g_dwGameClockStart_005d12b8;
+long g_lGameClockStart_005d12b8;
 int g_aiSoundEffectSourceActive_005d12c0[SPACE_OBJECT_COUNT];
 MusicResource g_aMusicResources_005d13e0[66];
 unsigned int g_dwRestoredSceneMusicState_005d14e8;

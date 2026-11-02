@@ -12,9 +12,9 @@ signed char InitializeViewportWipe(Viewport *source,
                                    int wipeType, short duration,
                                    short passFlags, void *workspace)
 {
-    int radialWidth;
-    int radialHeight;
-    short edge;
+    int halfWidth;
+    int halfHeight;
+    short scanline;
 
     g_stWipeSourceViewport_005b3488 = *source;
     g_stWipeWorkingSourceViewport_005b34c8 =
@@ -182,11 +182,11 @@ signed char InitializeViewportWipe(Viewport *source,
             g_asWipeRadialLeadingEdges_005b3108;
         g_pWipeTrailingEdges_005b343c =
             g_asWipeRadialTrailingEdges_005b3298;
-        radialWidth = g_nWipeWidth_005b3448;
-        radialHeight = g_nWipeHeight_005b344c;
+        halfWidth = g_nWipeWidth_005b3448;
+        halfHeight = g_nWipeHeight_005b344c;
         g_nWipeTotalSteps_005b3440 = (short)(
-            sqrt((double)(radialHeight * radialHeight +
-                          radialWidth * radialWidth)) /
+            sqrt((double)(halfHeight * halfHeight +
+                          halfWidth * halfWidth)) /
             2.0 + 1.0);
         g_nWipeRadialThreshold_005b30fc = g_nWipeTotalSteps_005b3440 + 2;
         g_nWipeMaximumStep_005b34c4 = (short)(
@@ -194,9 +194,9 @@ signed char InitializeViewportWipe(Viewport *source,
                 ? g_nWipeTotalSteps_005b3440 + 2
                 : duration);
         g_nWipeRadialStep_005b30f8 = g_nWipeMaximumStep_005b34c4;
-        for (edge = 0; edge < 200; edge++) {
-            g_pWipeLeadingEdges_005b3438[edge] = -1;
-            g_pWipeTrailingEdges_005b343c[edge] = -1;
+        for (scanline = 0; scanline < 200; scanline++) {
+            g_pWipeLeadingEdges_005b3438[scanline] = -1;
+            g_pWipeTrailingEdges_005b343c[scanline] = -1;
         }
         break;
     case 9:
@@ -206,11 +206,11 @@ signed char InitializeViewportWipe(Viewport *source,
             g_asWipeRadialLeadingEdges_005b3108;
         g_pWipeTrailingEdges_005b343c =
             g_asWipeRadialTrailingEdges_005b3298;
-        radialWidth = g_nWipeWidth_005b3448;
-        radialHeight = g_nWipeHeight_005b344c;
+        halfWidth = g_nWipeWidth_005b3448;
+        halfHeight = g_nWipeHeight_005b344c;
         g_nWipeTotalSteps_005b3440 = (short)(
-            sqrt((double)(radialHeight * radialHeight +
-                          radialWidth * radialWidth)) /
+            sqrt((double)(halfHeight * halfHeight +
+                          halfWidth * halfWidth)) /
             2.0 + 1.0);
         g_nWipeRadialThreshold_005b30fc = g_nWipeTotalSteps_005b3440 + 1;
         g_nWipeMaximumStep_005b34c4 = (short)(
@@ -218,9 +218,9 @@ signed char InitializeViewportWipe(Viewport *source,
                 ? g_nWipeTotalSteps_005b3440 + 1
                 : duration);
         g_nWipeRadialStep_005b30f8 = g_nWipeMaximumStep_005b34c4;
-        for (edge = 0; edge < g_nWipeRadialRowCount_005d17b4; edge++) {
-            g_pWipeLeadingEdges_005b3438[edge] = 300;
-            g_pWipeTrailingEdges_005b343c[edge] = 300;
+        for (scanline = 0; scanline < g_nWipeRadialRowCount_005d17b4; scanline++) {
+            g_pWipeLeadingEdges_005b3438[scanline] = 300;
+            g_pWipeTrailingEdges_005b343c[scanline] = 300;
         }
         break;
     }

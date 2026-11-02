@@ -2354,37 +2354,37 @@ short IsSpriteFrameOverlappingRect(const ShortRect *rectangle,
                                    unsigned char *shape,
                                    short frame)
 {
-    int rectangleTop;
-    int rectangleRight;
-    int rectangleBottom;
-    int frameLeft;
-    int rectangleLeft;
-    ShortRect frameBounds;
-    int frameTop;
-    int frameRight;
-    int frameBottom;
+    int spR;
+    int spB;
+    int spT;
+    ShortRect spLimits;
+    int spL;
+    int rcL;
+    int rcR;
+    int rcB;
+    int rcT;
 
-    GetShapeFrameBounds(&frameBounds.left, x, y, shape, frame);
-    rectangleLeft = rectangle->left;
-    rectangleTop = rectangle->top;
-    rectangleRight = rectangle->right;
-    rectangleBottom = rectangle->bottom;
-    frameLeft = frameBounds.left;
-    frameTop = frameBounds.top;
-    frameRight = frameBounds.right;
-    frameBottom = frameBounds.bottom;
-    if (((frameLeft <= rectangleLeft && rectangleLeft <= frameRight) ||
-         (frameLeft <= rectangleRight && rectangleRight <= frameRight))) {
-        if (frameTop <= rectangleTop && rectangleTop <= frameBottom)
+    GetShapeFrameBounds(&spLimits.left, x, y, shape, frame);
+    rcL = rectangle->left;
+    rcT = rectangle->top;
+    rcR = rectangle->right;
+    rcB = rectangle->bottom;
+    spL = spLimits.left;
+    spT = spLimits.top;
+    spR = spLimits.right;
+    spB = spLimits.bottom;
+    if (((spL <= rcL && rcL <= spR) ||
+         (spL <= rcR && rcR <= spR))) {
+        if (spT <= rcT && rcT <= spB)
             return 1;
-        if (frameTop <= rectangleBottom && rectangleBottom <= frameBottom)
+        if (spT <= rcB && rcB <= spB)
             return 1;
     }
-    if (((rectangleLeft <= frameLeft && frameLeft <= rectangleRight) ||
-         (rectangleLeft <= frameRight && frameRight <= rectangleRight))) {
-        if (rectangleTop <= frameTop && frameTop <= rectangleBottom)
+    if (((rcL <= spL && spL <= rcR) ||
+         (rcL <= spR && spR <= rcR))) {
+        if (rcT <= spT && spT <= rcB)
             return 1;
-        if (rectangleTop <= frameBottom && frameBottom <= rectangleBottom)
+        if (rcT <= spB && spB <= rcB)
             return 1;
     }
     return 0;

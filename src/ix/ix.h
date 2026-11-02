@@ -130,6 +130,7 @@ struct IxSound {
     void ix_system_sound_construct(IxSample *newSample,
                                    unsigned char newBasePriority);
     void ix_system_sound_construct_centred(IxSample *newSample);
+    void ix_sound_unlink_from_free_list(void);
     void ix_system_sound_set_volume(unsigned short newVolume);
     void ix_system_sound_set_pan(unsigned short newPan);
     void ix_system_sound_set_frequency(int newPitchOffset);
@@ -140,11 +141,9 @@ struct IxSound {
 
 extern unsigned int g_dwIxSystemFlags_005c4b1c;
 extern IxSound *g_pFreeSoundList_005c4b20;
-extern IxSample *g_pSampleList_005c4b24;
 extern int g_nActiveVoices_005c4b28;
 extern int g_nSystemVoiceCount_005c4b2c;
 extern IxSound *g_pActiveSoundList_005c4b30;
-extern IxSound *g_pWaitingSoundList_005c4b34;
 extern void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int);
 extern void (__cdecl *g_pIxFree_004a0c1c)(void *);
 
@@ -269,9 +268,12 @@ IxSound *ix_system_find_lowest_playing(IxSound *sound,
                                        unsigned int maximumPriority); /* 0x46A3F4 */
 int ix_system_find_free_voice(void);             /* 0x46A447 */
 
+/* The sample list and the queue of sounds waiting for a voice. */
+extern IxSample *g_pSampleList_005c4b24;
+extern IxSound *g_pWaitingSoundList_005c4b34;
+
 extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x46A758 */
 extern "C" void __fastcall ix_sound_release(IxSound *sound); /* 0x46AA9E */
-void __fastcall ix_sound_unlink_from_free_list(IxSound *sound); /* 0x46A5FA */
 extern "C" void __fastcall ix_sound_stop(IxSound *sound);   /* 0x46AB4F */
 extern "C" int __fastcall ix_sound_is_playing(IxSound *sound); /* 0x46B0F8 */
 #ifdef SDL_PORT

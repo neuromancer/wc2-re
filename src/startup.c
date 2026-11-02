@@ -67,15 +67,14 @@ void EMStartUp(void)
 /* Function start: 0x45B9D3 */
 void LoadOriginFxDrivers(void)
 {
-    int memoryThreshold;
-    char campaignNumber[4];
+    int requiredBytes = 100000;
+    char campaignDigits[4];
     FILE *memoryLogFile;
-    char startupPacketName[13] = "stars.00";
+    char packetName[13] = "stars.00";
     int availableMemory;
-    int expandedShipMemoryBytes;
-    short postPaletteStatus;
+    int shipMemoryBytes;
+    short paletteResult;
 
-    memoryThreshold = 100000;
     g_nDetectedGraphicsMode_005c80d2 = QueryCurrentGraphicsMode();
     g_nGraphicsInitializationFlags_00493048 = 0x20c;
     IsSoundHardwarePresent(8);
@@ -125,7 +124,7 @@ void LoadOriginFxDrivers(void)
         g_nMinimumMemoryFullMusic_0049cc24 -= 20000;
         g_nMinimumMemoryAlternate_0049cc28 -= 20000;
     }
-    expandedShipMemoryBytes =
+    shipMemoryBytes =
         (int)g_nExpandedShipMemoryKb_0049cbac << 10;
     if (g_nMusicDriverMode_0049be8c != 0 &&
         g_nMusicDriverMode_0049be8c != 3) {
@@ -134,12 +133,12 @@ void LoadOriginFxDrivers(void)
         else if (g_nMusicDriverMode_0049be8c == 2)
             g_nMusicMemoryRequirement_005c8dcc = 0x13800;
         if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
-            memoryThreshold += g_nMusicMemoryRequirement_005c8dcc;
+            requiredBytes += g_nMusicMemoryRequirement_005c8dcc;
     }
     SetFrameTimerPeriodDirect(0x78);
     g_nAvailableGameMemory_005c8de0 = 0xc63e0;
     availableMemory = 0x7c0600;
-    if (availableMemory > memoryThreshold) {
+    if (availableMemory > requiredBytes) {
         g_nAvailableGameMemory_005c8de0 = 0xc63e0;
         g_nMemoryConfiguration_005c8dc8 = 2;
         printf("Expanded Memory fully used.\n");
@@ -182,7 +181,7 @@ void LoadOriginFxDrivers(void)
             "Requested graphics display mode not available.");
     LoadGamePaletteFile();
     InitializeGameTextContexts();
-    postPaletteStatus = InitializePostPaletteState();
+    paletteResult = InitializePostPaletteState();
     if (g_nMusicDriverMode_0049be8c == 3)
         SetMusicTickRateHook(0x1e00);
     else
@@ -192,11 +191,11 @@ void LoadOriginFxDrivers(void)
         g_nMusicDriverMode_0049be8c != 3)
         InitializeMusicResources();
     initialize_direction_view_frames();
-    strcat(startupPacketName,
+    strcat(packetName,
            _itoa((int)g_nSelectedCampaignSlot_005d3bf2,
-                 campaignNumber, 10));
+                 campaignDigits, 10));
     g_pStartupStarPacket_005d212c =
-        LoadPacketAllocated(startupPacketName, 0);
+        LoadPacketAllocated(packetName, 0);
     if (g_nOriginDevUnlock_0049d774 != 0)
         _unlink("logfile.txt");
     if (g_nShowMemoryStatus_0049d784 != 0) {
@@ -211,8 +210,8 @@ void LoadOriginFxDrivers(void)
         _unlink("track8.txt");
         _unlink("track9.txt");
     }
-    (void)expandedShipMemoryBytes;
-    (void)postPaletteStatus;
+    (void)shipMemoryBytes;
+    (void)paletteResult;
 }
 
 /* Function start: 0x45BF30 */
@@ -226,6 +225,21 @@ void InitializeHighMemoryGraphicsBuffers(void)
         IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
         g_dwHighMemoryParagraph_005d3fb4;
+    /* The DOS build shrank and reallocated block A until it ended inside the
+     * addressable window.  The Win32 port reduced the test to a constant, so
+     * the retry body is compiled but never runs. */
+    while (0) {
+        g_wHighMemoryBlockBytes_004901fc =
+            g_wHighMemoryBlockBytes_004901fc - 1;
+        FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
+        g_pHighMemoryBlockA_004901f8 = 0;
+        g_pHighMemoryBlockA_004901f8 = AllocateDefaultMemory(
+            (unsigned int)g_wHighMemoryBlockBytes_004901fc);
+        g_dwHighMemoryParagraph_005d3fb4 =
+            IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
+        highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
+            g_dwHighMemoryParagraph_005d3fb4;
+    }
     g_pHighMemoryBlockB_00490200 =
         AllocateDefaultMemory(CANNED_SCENE_SNAPSHOT_BYTES);
     if (g_pHighMemoryBlockB_00490200 == 0 ||
@@ -236,7 +250,6 @@ void InitializeHighMemoryGraphicsBuffers(void)
     } else {
         g_bHighMemoryBuffersReady_005d2ad8 = 1;
     }
-    (void)highMemoryEnd;
 }
 
 /* Function start: 0x45C04B */

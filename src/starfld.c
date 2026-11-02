@@ -99,121 +99,119 @@ signed char IsConstellationParticleOutsideViewport(
 /* Function start: 0x45A634 */
 void DrawConstellationField(void)
 {
+    short midX;
     short speed;
-    short middleX;
+    short midY;
     short width;
-    short middleY;
-    short index;
+    short i;
     short randomIndex;
-    short frame;
     short height;
-    int direction;
+    short phase;
 
     height = (short)(g_pConstellationViewport_005c8f5c->bottom -
                      g_pConstellationViewport_005c8f5c->top);
-    for (index = 0; index < g_nConstellationParticleCount_005c9014;
-         index++) {
+    for (i = 0; i < g_nConstellationParticleCount_005c9014;
+         i++) {
         DrawSpriteDefault(g_pConstellationViewport_005c8f5c,
-                          g_aConstellationParticles_005c8f60[index].x,
-                          g_aConstellationParticles_005c8f60[index].y,
+                          g_aConstellationParticles_005c8f60[i].x,
+                          g_aConstellationParticles_005c8f60[i].y,
                           g_pConstellationShape_005d2c4c,
-                          g_aConstellationParticles_005c8f60[index].frame);
-        g_aConstellationParticles_005c8f60[index].x = (short)(
-            g_aConstellationParticles_005c8f60[index].x +
-            g_aConstellationParticles_005c8f60[index].deltaX);
-        g_aConstellationParticles_005c8f60[index].y = (short)(
-            g_aConstellationParticles_005c8f60[index].y +
-            g_aConstellationParticles_005c8f60[index].deltaY);
-        frame = (short)(
-            (g_aConstellationParticles_005c8f60[index].frame + 1) % 4);
-        g_aConstellationParticles_005c8f60[index].frame = (short)(
-            (g_aConstellationParticles_005c8f60[index].frame & 0xfc) +
-            frame);
-        direction = g_nConstellationDirection_0049cb20;
-        switch (direction) {
+                          g_aConstellationParticles_005c8f60[i].frame);
+        g_aConstellationParticles_005c8f60[i].x = (short)(
+            g_aConstellationParticles_005c8f60[i].x +
+            g_aConstellationParticles_005c8f60[i].deltaX);
+        g_aConstellationParticles_005c8f60[i].y = (short)(
+            g_aConstellationParticles_005c8f60[i].y +
+            g_aConstellationParticles_005c8f60[i].deltaY);
+        phase = (short)(
+            (g_aConstellationParticles_005c8f60[i].frame + 1) % 4);
+        g_aConstellationParticles_005c8f60[i].frame = (short)(
+            (g_aConstellationParticles_005c8f60[i].frame & 0xfc) +
+            phase);
+        switch (g_nConstellationDirection_0049cb20) {
         case -1:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[index]) != 0) {
+                    g_aConstellationParticles_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
-                g_aConstellationParticles_005c8f60[index].x = (short)(
+                g_aConstellationParticles_005c8f60[i].x = (short)(
                     g_pConstellationViewport_005c8f5c->right -
                     RandomInRange(0, speed));
-                g_aConstellationParticles_005c8f60[index].y = (short)(
+                g_aConstellationParticles_005c8f60[i].y = (short)(
                     g_pConstellationViewport_005c8f5c->top +
                     RandomInRange(0, height));
-                g_aConstellationParticles_005c8f60[index].deltaX =
+                g_aConstellationParticles_005c8f60[i].deltaX =
                     (short)-speed;
-                g_aConstellationParticles_005c8f60[index].deltaY = 0;
-                g_aConstellationParticles_005c8f60[index].frame =
+                g_aConstellationParticles_005c8f60[i].deltaY = 0;
+                g_aConstellationParticles_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }
             break;
         case 0:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[index]) != 0) {
+                    g_aConstellationParticles_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
                 width = (short)(g_pConstellationViewport_005c8f5c->right -
                                 g_pConstellationViewport_005c8f5c->left);
                 height = (short)(g_pConstellationViewport_005c8f5c->bottom -
                                  g_pConstellationViewport_005c8f5c->top);
-                g_aConstellationParticles_005c8f60[index].x = (short)(
+                g_aConstellationParticles_005c8f60[i].x = (short)(
                     g_pConstellationViewport_005c8f5c->left +
                     RandomInRange(0, width));
-                g_aConstellationParticles_005c8f60[index].y = (short)(
+                g_aConstellationParticles_005c8f60[i].y = (short)(
                     g_pConstellationViewport_005c8f5c->top +
                     RandomInRange(0, height));
-                middleX = (short)(
+                midX = (short)(
                     (g_pConstellationViewport_005c8f5c->right -
                      g_pConstellationViewport_005c8f5c->left) / 2 +
                     g_pConstellationViewport_005c8f5c->left);
-                middleY = (short)(
+                midY = (short)(
                     (g_pConstellationViewport_005c8f5c->bottom -
                      g_pConstellationViewport_005c8f5c->top) / 2 +
                     g_pConstellationViewport_005c8f5c->top);
-                if (g_aConstellationParticles_005c8f60[index].x < middleX &&
-                    g_aConstellationParticles_005c8f60[index].y < middleY) {
-                    g_aConstellationParticles_005c8f60[index].deltaX =
+                if (g_aConstellationParticles_005c8f60[i].x < midX &&
+                    g_aConstellationParticles_005c8f60[i].y < midY) {
+                    g_aConstellationParticles_005c8f60[i].deltaX =
                         (short)-speed;
-                    g_aConstellationParticles_005c8f60[index].deltaY =
+                    g_aConstellationParticles_005c8f60[i].deltaY =
                         (short)-speed;
                 } else if (
-                    g_aConstellationParticles_005c8f60[index].x < middleX &&
-                    g_aConstellationParticles_005c8f60[index].y >= middleY) {
-                    g_aConstellationParticles_005c8f60[index].deltaX =
+                    g_aConstellationParticles_005c8f60[i].x < midX &&
+                    g_aConstellationParticles_005c8f60[i].y >= midY) {
+                    g_aConstellationParticles_005c8f60[i].deltaX =
                         (short)-speed;
-                    g_aConstellationParticles_005c8f60[index].deltaY = speed;
+                    g_aConstellationParticles_005c8f60[i].deltaY = speed;
                 } else if (
-                    g_aConstellationParticles_005c8f60[index].x >= middleX &&
-                    g_aConstellationParticles_005c8f60[index].y < middleY) {
-                    g_aConstellationParticles_005c8f60[index].deltaX = speed;
-                    g_aConstellationParticles_005c8f60[index].deltaY =
+                    g_aConstellationParticles_005c8f60[i].x >= midX &&
+                    g_aConstellationParticles_005c8f60[i].y < midY) {
+                    g_aConstellationParticles_005c8f60[i].deltaX = speed;
+                    g_aConstellationParticles_005c8f60[i].deltaY =
                         (short)-speed;
                 } else {
-                    g_aConstellationParticles_005c8f60[index].deltaX = speed;
-                    g_aConstellationParticles_005c8f60[index].deltaY = speed;
+                    g_aConstellationParticles_005c8f60[i].deltaX = speed;
+                    g_aConstellationParticles_005c8f60[i].deltaY = speed;
                 }
-                g_aConstellationParticles_005c8f60[index].frame =
+                g_aConstellationParticles_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }
             break;
         case 1:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[index]) != 0) {
+                    g_aConstellationParticles_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
-                g_aConstellationParticles_005c8f60[index].deltaX = speed;
-                g_aConstellationParticles_005c8f60[index].deltaY = 0;
-                g_aConstellationParticles_005c8f60[index].x = (short)(
+                g_aConstellationParticles_005c8f60[i].deltaX = speed;
+                g_aConstellationParticles_005c8f60[i].deltaY = 0;
+                g_aConstellationParticles_005c8f60[i].x = (short)(
                     g_pConstellationViewport_005c8f5c->left +
                     RandomInRange(0, speed));
-                g_aConstellationParticles_005c8f60[index].y = (short)(
+                g_aConstellationParticles_005c8f60[i].y = (short)(
                     g_pConstellationViewport_005c8f5c->top +
                     RandomInRange(0, height));
-                g_aConstellationParticles_005c8f60[index].frame =
+                g_aConstellationParticles_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }

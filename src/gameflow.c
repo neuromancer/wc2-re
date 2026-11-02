@@ -1326,48 +1326,48 @@ void ClearCutsceneTextViewport(void)
 /* Function start: 0x42DF80 */
 void ExpandCutsceneText(const unsigned char *source, char *destination)
 {
-    char *output;
     char character;
+    char *out;
     unsigned int number[4];
 
-    output = destination;
-    if (destination == 0)
+    out = destination;
+    if (out == 0)
         return;
-    DosMemset(destination, 0x100, 0);
+    DosMemset(out, 0x100, 0);
     while ((character = *source++) != 0) {
         if ((unsigned char)character == 0x40) {
             itoa(g_nCutsceneFormatValue_005d2f0c, (char *)number, 10);
-            output = CopyStringAndReturnEnd(output, (char *)number);
+            out = CopyStringAndReturnEnd(out, (char *)number);
         } else if ((unsigned char)character >= 0x85) {
             switch ((unsigned char)character) {
             case 0x85:
-                output = CopyStringAndReturnEnd(
-                    output, g_stPilotNameVariables_00499ef8.lastName);
+                out = CopyStringAndReturnEnd(
+                    out, g_stPilotNameVariables_00499ef8.lastName);
                 break;
             case 0x86:
-                output = CopyStringAndReturnEnd(
-                    output, g_stPilotNameVariables_00499ef8.callsign);
+                out = CopyStringAndReturnEnd(
+                    out, g_stPilotNameVariables_00499ef8.callsign);
+                break;
+            case 0x89:
+                out = CopyStringAndReturnEnd(
+                    out, g_stPilotNameVariables_00499ef8.firstName);
                 break;
             case 0x87:
                 itoa(*((short *)g_pCampaignGlobals_00499c94 + 54),
                      (char *)number, 10);
-                output = CopyStringAndReturnEnd(output, (char *)number);
+                out = CopyStringAndReturnEnd(out, (char *)number);
                 break;
             case 0x88:
                 itoa(*((short *)g_pCampaignGlobals_00499c94 + 55),
                      (char *)number, 10);
-                output = CopyStringAndReturnEnd(output, (char *)number);
-                break;
-            case 0x89:
-                output = CopyStringAndReturnEnd(
-                    output, g_stPilotNameVariables_00499ef8.firstName);
+                out = CopyStringAndReturnEnd(out, (char *)number);
                 break;
             default:
-                output++;
+                out++;
                 break;
             }
         } else {
-            *output++ = character;
+            *out++ = character;
         }
     }
 }

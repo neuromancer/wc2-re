@@ -115,6 +115,17 @@ A function's return type as its callers see it shows in the extension after
 the call: `movsx eax,ax` means `short`, `movzx eax,ax` `unsigned short`
 (`GetFontCharWidth`, `ReadWord` return `short`).
 
+A global that one unit reads as a dword and another as a word (`XOR EAX,EAX /
+MOV AX,WORD PTR [g]`) is a 4-byte variable. Declare it with the full width.
+The word readers cast it, since `(unsigned short)g` narrows the load itself
+(`g_nDigiSampleBytes_0048e0e0`: `comm.c` compares the dword, `speech.c` casts).
+
+In `ix.h` the effect of a declaration change is not a uniform key shift.
+Replacing the free `__fastcall` `ix_sound_unlink_from_free_list` with an
+`IxSound` member needed two of the system globals' `extern`s moved to where
+the free declaration was before `dspv.cpp` and `dsps.cpp` matched again.
+After any `ix.h` edit, re-run the whole report rather than one unit.
+
 ### Statement shapes that /Od makes visible
 
 Each of these was confirmed against retail code; pick the form the jumps show.
@@ -181,6 +192,39 @@ Each of these was confirmed against retail code; pick the form the jumps show.
 - `for (;;)` and `while (1)` both compile to a body ending in a `JMP` back
   to the top; a block that always leaves through `break` (`Title_Sequence`)
   ends with `JMP exit` followed by that back `JMP`.
+- `while (0) { ... }` keeps its body behind `JMP exit` and ends it with a
+  second `JMP exit`, not a jump back to the top
+  (`InitializeHighMemoryGraphicsBuffers`' disabled DOS retry loop).
+  Ghidra does not disassemble such bodies; read the bytes.
+- Read the jump table before writing a `switch`. An entry that points at the
+  switch end means there is no case for that value. Entries that share a
+  lone `JMP end` are explicit empty cases (`case 4: case 5: case 6: break;`).
+  Separate `JMP`s mean separate `break`s, and the case bodies appear in source
+  order (`RestoreCannedSceneObjectState`, `PollPersonnelMenuInput`).
+- An empty `default: break;` as the last label adds one more `JMP end`, but
+  the bounds check (`JA`) still targets the switch end
+  (`ApplyCannedSceneFrameEvents`).
+- A switch whose temporary is the only slot holding the value switches on
+  the expression itself (`switch (record->opcode)`); a named copy adds a
+  slot.
+- A sparse switch dispatch that compares `0xFF` (`JG end / JE end`) before
+  the small cases has an explicit empty `case 0xff: break;`. Like an empty
+  `default`, its label is never targeted (`ProcessMissionWaveCommands`).
+- `f(g++)` copies `g` into a temporary before the increment. A retail
+  `INC [g] / MOVSX [g] / DEC EAX / PUSH` sequence is `g++; f(g - 1);`
+  (`RunSpaceFlight`). A loop test that copies a counter to a slot, then
+  decrements and tests the copy, is `while (n-- > 0)`
+  (`ApplyAlternateShipType`).
+- `if (x) ;` followed by an unconditional statement is a stray semicolon in
+  the original: the test branches to the next instruction
+  (`your_internal_damage`'s `pilot_hit` check).
+- A `case` whose quadrant check jumps straight to the switch end is written
+  `if (...) { ...; break; }` with no `else` (`your_internal_damage`).
+- `(*p)[i]` evaluates the index before the pointer; `p[0][i]` loads the
+  pointer first (`AllocateFontWorkspace`, `FreeFontWorkspace`).
+- `(a & M) != (b & M)` always folds to `((a ^ b) & M) != 0` in this
+  compiler; a retail `AND`/`AND`/`CMP` sequence (`InitializeSoundBlaster`)
+  comes from some other source form that has not been found yet.
 
 ### Strings and library calls
 

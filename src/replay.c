@@ -49,19 +49,14 @@ unsigned short RestoreCannedSceneObjectState(
     CannedSceneObjectStateRecord *record)
 {
     short obj;
-    int mode;
 
     obj = record->object;
     g_aShipVelocity_00494898[obj] = record->velocity;
     g_aShipUpVector_00493ec0[obj] = record->up;
     g_aShipForwardVector_00494208[obj] = record->forward;
-    mode = record->mode;
-    switch (mode) {
+    switch (record->mode) {
     case 0:
         g_aeSpecialManeuver_00495600[obj] = 0;
-        break;
-    case 1:
-        g_aeSpecialManeuver_00495600[obj] = 1;
         break;
     case 2:
         g_asShipManeuver_00495f48[obj] = 1;
@@ -69,11 +64,18 @@ unsigned short RestoreCannedSceneObjectState(
     case 3:
         g_asShipManeuver_00495f48[obj] = 0;
         break;
+    case 1:
+        g_aeSpecialManeuver_00495600[obj] = 1;
+        break;
     case 7:
         BeginShipCloak(obj);
         break;
     case 8:
         ResetShipCloakState(obj);
+        break;
+    case 4:
+    case 5:
+    case 6:
         break;
     }
     return 0x2f;
@@ -151,50 +153,50 @@ unsigned short ApplyCannedSceneMusicRecord(
 /* Function start: 0x446D55 */
 void ApplyCannedSceneFrameEvents(void)
 {
-    signed char done;
+    signed char finished;
     CannedSceneRecordHeader *record;
-    unsigned int opcode;
 
-    done = 0;
-    if (g_bHighMemoryBuffersReady_005d2ad8 != 0) {
-        g_dwHighMemoryParagraph_005d3fb4 =
-            IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
-        while (done == 0) {
-            record = (CannedSceneRecordHeader *)(
-                (unsigned int)(unsigned short)
-                    g_nCannedSceneWriteIndex_005d3fa8 +
-                g_dwHighMemoryParagraph_005d3fb4);
-            if (record->frame == g_nSpaceFrame_00493134) {
-                opcode = record->opcode;
-                switch (opcode) {
-                case 0:
-                    g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                        (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-                        RestoreCannedSceneObjectState(
-                            (CannedSceneObjectStateRecord *)record));
-                    break;
-                case 1:
-                    g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                        (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-                        ApplyCannedSceneSoundRecord(
-                            (CannedSceneBriefingCharacterRecord *)record));
-                    break;
-                case 2:
-                    g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                        (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-                        ApplyCannedSceneMusicRecord(
-                            (CannedSceneMusicCommandRecord *)record));
-                    break;
-                case 3:
-                    g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                        (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-                        ApplyCannedSceneObjectEventRecord(
-                            (CannedSceneObjectEventRecord *)record));
-                    break;
-                }
-            } else {
-                done++;
+    finished = 0;
+    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+        return;
+    g_dwHighMemoryParagraph_005d3fb4 =
+        IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
+    while (finished == 0) {
+        record = (CannedSceneRecordHeader *)(
+            (unsigned int)(unsigned short)
+                g_nCannedSceneWriteIndex_005d3fa8 +
+            g_dwHighMemoryParagraph_005d3fb4);
+        if (record->frame == g_nSpaceFrame_00493134) {
+            switch (record->opcode) {
+            case 0:
+                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                    RestoreCannedSceneObjectState(
+                        (CannedSceneObjectStateRecord *)record));
+                break;
+            case 1:
+                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                    ApplyCannedSceneSoundRecord(
+                        (CannedSceneBriefingCharacterRecord *)record));
+                break;
+            case 2:
+                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                    ApplyCannedSceneMusicRecord(
+                        (CannedSceneMusicCommandRecord *)record));
+                break;
+            case 3:
+                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
+                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                    ApplyCannedSceneObjectEventRecord(
+                        (CannedSceneObjectEventRecord *)record));
+                break;
+            default:
+                break;
             }
+        } else {
+            finished++;
         }
     }
 }
@@ -247,22 +249,23 @@ void LoadCannedScenePlaybackBuffer(void)
 /* Function start: 0x446FC8 */
 void ProcessCannedSceneInput(void)
 {
-    InputEventState event;
-    short changed;
+    InputEventState nextEvent;
+    short keyChanged;
     short eventType;
 
     g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
     ServiceInputDevices(15);
-    eventType = GetNextInputEvent(&event);
+    eventType = GetNextInputEvent(&nextEvent);
     if (eventType == 4) {
-        g_cCurrentKey_00493128 = (signed char)event.status;
+        g_cCurrentKey_00493128 = (signed char)nextEvent.status;
         if (g_cPreviousKey_0049312c !=
             g_cCurrentKey_00493128)
-            changed = 1;
+            keyChanged = 1;
         else
-            changed = 0;
+            keyChanged = 0;
         switch (g_cCurrentKey_00493128) {
         case 0x33:
+            break;
         case 0x34:
             break;
         case 0x3b:
@@ -288,7 +291,7 @@ void ProcessCannedSceneInput(void)
                 new_view(8, 0);
             break;
         case 0x43:
-            if (changed != 0) {
+            if (keyChanged != 0) {
                 SelectNextExternalViewObject();
                 force_view(5, (short)g_cViewObject_0049313c);
             }

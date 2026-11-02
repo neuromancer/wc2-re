@@ -500,36 +500,38 @@ short RevealTitleLogo(void)
 {
     short scale;
     short distance;
-    short logoY;
-    short bounds[4];
+    short titleY;
+    short planetDelay;
+    short logoCovers;
     short redraw;
-    short drawPlanetFirst;
-    short scaleDelay;
+    short extent[4];
+    short aborted;
+    short logoTimer;
     short planetY;
-    short positionDelay;
 
-    drawPlanetFirst = 0;
-    logoY = 59;
+    aborted = 0;
+    logoCovers = 0;
+    titleY = 59;
     g_nFrameSkipCountdown_0049d760 = 1;
     distance = 5000;
-    scaleDelay = 0;
-    positionDelay = 0;
+    planetDelay = 0;
+    logoTimer = 0;
     for (; distance >= 1000;
-         distance--, scaleDelay--, positionDelay--) {
+         distance--, planetDelay--, logoTimer--) {
         redraw = 0;
-        if (scaleDelay == 0) {
+        if (planetDelay == 0) {
             redraw = 1;
             planetY = (short)(120000 / (int)distance);
-            scaleDelay = 200;
+            planetDelay = 200;
         }
-        if (positionDelay == 0) {
+        if (logoTimer == 0) {
             redraw = 1;
             scale = (short)(256000 / (int)distance);
             if (distance > 3000)
-                logoY = (short)(logoY - 2);
+                titleY = (short)(titleY - 2);
             else
-                logoY = (short)(logoY + 2);
-            positionDelay = 100;
+                titleY = (short)(titleY + 2);
+            logoTimer = 100;
         }
         if (redraw != 0) {
             g_nFrameSkipCountdown_0049d760--;
@@ -542,13 +544,13 @@ short RevealTitleLogo(void)
                                   0, 0,
                                   g_pTitleFieldShape_00491cf8, 0);
                 GetTransformedShapeBounds(
-                    &g_stSecondaryViewBuffer_005d2c90, 162, logoY,
+                    &g_stSecondaryViewBuffer_005d2c90, 162, titleY,
                     g_apTitleSections_005d3f70[0], 1, 0,
-                    scale, 0, bounds);
-                if (bounds[3] < planetY)
-                    drawPlanetFirst = 1;
-                if (drawPlanetFirst == 0) {
-                    DrawScaledTitleLogo(logoY, scale);
+                    scale, 0, extent);
+                if (extent[3] < planetY)
+                    logoCovers = 1;
+                if (logoCovers == 0) {
+                    DrawScaledTitleLogo(titleY, scale);
                     DrawSpriteDefault(
                         &g_stSecondaryViewBuffer_005d2c90,
                         160, planetY,
@@ -558,7 +560,7 @@ short RevealTitleLogo(void)
                         &g_stSecondaryViewBuffer_005d2c90,
                         160, planetY,
                         g_apTitleSections_005d3f70[12], 0);
-                    DrawScaledTitleLogo(logoY, scale);
+                    DrawScaledTitleLogo(titleY, scale);
                 }
                 RefreshMemoryStatusOverlay();
             }
@@ -566,33 +568,33 @@ short RevealTitleLogo(void)
         if (WaitForInputKey() != 0)
             g_bSceneEscapeRequested_0049d4b0 = 1;
         if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            return logoY;
+            return titleY;
     }
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                       g_pTitleFieldShape_00491cf8, 0);
-    DrawScaledTitleLogo(logoY, scale);
+    DrawScaledTitleLogo(titleY, scale);
     RefreshMemoryStatusOverlay();
-    return logoY;
+    return titleY;
 }
 
 /* Function start: 0x408CC8 */
 void ShowVictoryScreen(short logoY)
 {
-    short finishing;
     int loopCount;
-    short emptyCount;
+    short fadeOut;
     short finalEmptyCount;
-    short index;
+    short inactive;
+    short firework;
     short frameCount;
     short spawnFirework;
 
-    finishing = 0;
+    fadeOut = 0;
     frameCount = 0;
     loopCount = 0;
     FlushSoundEffects();
     InitializeFireworks();
     do {
-        if (finishing == 0) {
+        if (fadeOut == 0) {
             if (g_nMusicDriverMode_0049be8c == 2 ||
                 g_nMusicDriverMode_0049be8c == 1) {
                 if (g_nTitleMusicSequenceStage_0049be94 >= 4) {
@@ -607,15 +609,15 @@ void ShowVictoryScreen(short logoY)
                     (unsigned short)RandomInRange(0, 0) == 0);
             }
         }
-        if (spawnFirework != 0 && finishing == 0) {
-            for (index = 0; index < 5; index++) {
-                if (g_aFireworks_005c8df0[index].frame == -1) {
-                    g_aFireworks_005c8df0[index].frame = 0;
-                    g_aFireworks_005c8df0[index].x =
+        if (spawnFirework != 0 && fadeOut == 0) {
+            for (firework = 0; firework < 5; firework++) {
+                if (g_aFireworks_005c8df0[firework].frame == -1) {
+                    g_aFireworks_005c8df0[firework].frame = 0;
+                    g_aFireworks_005c8df0[firework].x =
                         RandomInRange(0, 319);
-                    g_aFireworks_005c8df0[index].y =
+                    g_aFireworks_005c8df0[firework].y =
                         RandomInRange(0, 127);
-                    g_aFireworks_005c8df0[index].variant =
+                    g_aFireworks_005c8df0[firework].variant =
                         RandomInRange(0, 2);
                     break;
                 }
@@ -631,50 +633,47 @@ void ShowVictoryScreen(short logoY)
 #endif
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
-        emptyCount = TheEndFireWorks(
+        inactive = TheEndFireWorks(
             &g_stSecondaryViewBuffer_005d2c90, 5);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         frameCount++;
-        if (finishing == 1 && emptyCount == 5)
+        if (fadeOut == 1 && inactive == 5)
             break;
         if (g_nMusicDriverMode_0049be8c == 2 ||
             g_nMusicDriverMode_0049be8c == 1) {
-            if (g_nTitleMusicSequenceStage_0049be94 > 4)
-                finishing = 1;
+            if (g_nTitleMusicSequenceStage_0049be94 >= 5)
+                fadeOut = 1;
         } else if (frameCount > 10) {
-            finishing = 1;
+            fadeOut = 1;
         }
         if (WaitForInputKey() != 0)
             g_bSceneEscapeRequested_0049d4b0 = 1;
         if (g_bSceneEscapeRequested_0049d4b0 != 0)
             return;
         loopCount++;
-#ifdef SDL_PORT
-        /* The real MS-DOS WC2.EXE's equivalent loop has no iteration
-         * cap at all -- see the comment above SdlPaceTitleFrame.
-         * Loop unconditionally here too: the finishing/emptyCount==5
-         * break above (DOS's own only real exit) and the escape-key
-         * return above are what actually end it. Non-music-driven mode
-         * still ends the same way DOS does -- frameCount > 10 sets
-         * finishing above, then this same break fires once every
+#ifndef SDL_PORT
+        if (loopCount > 10)
+            break;
+#endif
+        /* The SDL build drops the iteration cap: the real MS-DOS WC2.EXE's
+         * equivalent loop has none (see the comment above
+         * SdlPaceTitleFrame).  The fadeOut/inactive==5 break above (DOS's
+         * own only real exit) and the escape-key return are what end it.
+         * Non-music-driven mode still ends the same way DOS does --
+         * frameCount > 10 sets fadeOut, then that break fires once every
          * firework has finished animating. */
     } while (1);
-#else
-    } while (loopCount <= 10);
-#endif
 
-    for (index = 0; index < 29; index++) {
-        g_aFireworks_005c8df0[index].frame = 0;
-        g_aFireworks_005c8df0[index].x = RandomInRange(0, 319);
-        g_aFireworks_005c8df0[index].y = RandomInRange(0, 127);
-        g_aFireworks_005c8df0[index].variant = RandomInRange(0, 2);
+    for (firework = 0; firework < 29; firework++) {
+        g_aFireworks_005c8df0[firework].frame = 0;
+        g_aFireworks_005c8df0[firework].x = RandomInRange(0, 319);
+        g_aFireworks_005c8df0[firework].y = RandomInRange(0, 127);
+        g_aFireworks_005c8df0[firework].variant = RandomInRange(0, 2);
     }
-    emptyCount = 0;
+    inactive = 0;
     finalEmptyCount = 0;
-    do {
-        if (emptyCount == 30)
-            break;
+    while (inactive != 30) {
         finalEmptyCount++;
         if (finalEmptyCount == 4) {
             g_aFireworks_005c8df0[29].frame = 0;
@@ -687,18 +686,20 @@ void ShowVictoryScreen(short logoY)
 #endif
         DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
-        emptyCount = TheEndFireWorks(
+        inactive = TheEndFireWorks(
             &g_stSecondaryViewBuffer_005d2c90, 30);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         if (WaitForInputKey() != 0)
             g_bSceneEscapeRequested_0049d4b0 = 1;
-    } while (g_bSceneEscapeRequested_0049d4b0 == 0);
+        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            return;
+    }
 
-    for (index = 29; index >= 0; index--) {
-        if (g_aFireworks_005c8df0[index].frame != -1) {
+    for (firework = 29; firework >= 0; firework--) {
+        if (g_aFireworks_005c8df0[firework].frame != -1) {
             ((void (__cdecl *)(int, short))FlushSoundEffect)(
-                g_aFireworks_005c8df0[index].soundHandle, index);
+                g_aFireworks_005c8df0[firework].soundHandle, firework);
         }
     }
 }

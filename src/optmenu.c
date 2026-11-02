@@ -414,16 +414,17 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
     return selection;
 }
 
+#pragma function(strcpy)
 /* Function start: 0x459D74 */
 short RunCampaignChalkboardMenu(short campaignSlot)
 {
-    short replay;
+    short again;
     short result;
     short selection;
 
     selection = 0;
     result = 1;
-    replay = 1;
+    again = 1;
     PreloadMusicTrack(0x35);
     spacetrack(0x35, 2, 1);
     SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
@@ -473,11 +474,11 @@ short RunCampaignChalkboardMenu(short campaignSlot)
             StopMusicUnlessSuppressed();
             ReleaseMusicTrack(0x35);
             ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
-            while (replay != 0) {
+            while (again != 0) {
                 RunCampaignScript(campaignSlot);
-                replay = 0;
+                again = 0;
                 if (g_pCampaignGlobals_00499c94->field_16 != 0) {
-                    replay++;
+                    again++;
                     g_pCampaignGlobals_00499c94->field_08++;
                 }
                 g_pCampaignGlobals_00499c94->field_16 = 0;

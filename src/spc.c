@@ -87,7 +87,7 @@ short GetVectorMagnitude(const FixedVector *vector)
 /* Function start: 0x419D01 */
 unsigned int set_eye_direction_and_position(void)
 {
-    FixedVector positionDelta;
+    FixedVector positionError;
     FixedVector desiredPosition;
     FixedVector adjustment;
     FixedVector vector;
@@ -115,8 +115,8 @@ unsigned int set_eye_direction_and_position(void)
                 &desiredPosition);
             ComputeVectorDelta(
                 &g_aShipPosition_00494550[EYE_OBJECT],
-                &desiredPosition, &positionDelta);
-            vector = positionDelta;
+                &desiredPosition, &positionError);
+            vector = positionError;
             divide_vector(
                 &vector,
                 (g_bAlternateChaseView_00492fac == 0 ? 25 : 7) << 8,
@@ -467,7 +467,7 @@ void SaveTorpedoTargetLockForViewChange(int previousView)
 unsigned int new_view(int view, short obj)
 {
     int previousView;
-    FixedVector vector;
+    FixedVector eyeOffset;
 
     if (IsCockpitExplosionActive() != 0)
         goto finished;
@@ -477,7 +477,7 @@ unsigned int new_view(int view, short obj)
                 (short)(1 - g_bAlternateChaseView_00492fac);
         goto finished;
     }
-    if (view < 4 && g_cScreenViewportMode_005c82a6 == view) {
+    if (view <= 3 && g_cScreenViewportMode_005c82a6 == view) {
         if (g_nCurrentView_00492fa8 == -1)
             g_nCurrentView_00492fa8 = view;
         goto finished;
@@ -539,40 +539,40 @@ unsigned int new_view(int view, short obj)
         break;
     case 6:
         initialize_cockpit(4);
-        vector = g_aShipVelocity_00494898[g_cViewObject_0049313c];
-        if (NormalizeFixedVector(&vector) == 0)
-            vector =
+        eyeOffset = g_aShipVelocity_00494898[g_cViewObject_0049313c];
+        if (NormalizeFixedVector(&eyeOffset) == 0)
+            eyeOffset =
                 g_aShipForwardVector_00494208[g_cViewObject_0049313c];
         g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
-        if (vector.x == g_aShipUpVector_00493ec0[EYE_OBJECT].x &&
-            vector.y == g_aShipUpVector_00493ec0[EYE_OBJECT].y &&
-            vector.z == g_aShipUpVector_00493ec0[EYE_OBJECT].z) {
+        if (eyeOffset.x == g_aShipUpVector_00493ec0[EYE_OBJECT].x &&
+            eyeOffset.y == g_aShipUpVector_00493ec0[EYE_OBJECT].y &&
+            eyeOffset.z == g_aShipUpVector_00493ec0[EYE_OBJECT].z) {
             g_aShipUpVector_00493ec0[EYE_OBJECT] =
                 g_aShipRightVector_00493b78[g_cViewObject_0049313c];
         }
-        ScaleFixedVector(&vector, -0x12430, &vector);
+        ScaleFixedVector(&eyeOffset, -0x12430, &eyeOffset);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
-        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            &eyeOffset, &g_aShipPosition_00494550[EYE_OBJECT]);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = eyeOffset;
         fix_objects_ijk(EYE_OBJECT);
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         ScaleFixedVector(&g_aShipRightVector_00493b78[EYE_OBJECT],
-                         0x19000, &vector);
+                         0x19000, &eyeOffset);
         AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
-                        &vector,
+                        &eyeOffset,
                         &g_aShipPosition_00494550[EYE_OBJECT]);
         ScaleFixedVector(&g_aShipUpVector_00493ec0[EYE_OBJECT],
-                         0x6400, &vector);
+                         0x6400, &eyeOffset);
         AddFixedVectors(&g_aShipPosition_00494550[EYE_OBJECT],
-                        &vector,
+                        &eyeOffset,
                         &g_aShipPosition_00494550[EYE_OBJECT]);
         ComputeVectorDelta(
             &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &vector);
-        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+            &eyeOffset);
+        g_aShipForwardVector_00494208[EYE_OBJECT] = eyeOffset;
         fix_objects_ijk(EYE_OBJECT);
         break;
     case 13:
@@ -589,13 +589,13 @@ unsigned int new_view(int view, short obj)
         initialize_cockpit(4);
         ScaleFixedVector(
             &g_aShipForwardVector_00494208[g_cViewObject_0049313c],
-            -0x4b000, &vector);
+            -0x4b000, &eyeOffset);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_cViewObject_0049313c],
-            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
+            &eyeOffset, &g_aShipPosition_00494550[EYE_OBJECT]);
         g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[g_cViewObject_0049313c];
-        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        g_aShipForwardVector_00494208[EYE_OBJECT] = eyeOffset;
         fix_objects_ijk(EYE_OBJECT);
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         break;
@@ -603,17 +603,17 @@ unsigned int new_view(int view, short obj)
         initialize_cockpit(4);
         ScaleFixedVector(
             &g_aShipRightVector_00493b78[g_nExternalViewShip_00493468],
-            0x25800, &vector);
+            0x25800, &eyeOffset);
         AddFixedVectors(
             &g_aShipPosition_00494550[g_nExternalViewShip_00493468],
-            &vector, &g_aShipPosition_00494550[EYE_OBJECT]);
+            &eyeOffset, &g_aShipPosition_00494550[EYE_OBJECT]);
         ComputeVectorDelta(
             &g_aShipPosition_00494550[EYE_OBJECT],
             &g_aShipPosition_00494550[g_nExternalViewShip_00493468],
-            &vector);
+            &eyeOffset);
         g_aShipUpVector_00493ec0[EYE_OBJECT] =
             g_aShipUpVector_00493ec0[0];
-        g_aShipForwardVector_00494208[EYE_OBJECT] = vector;
+        g_aShipForwardVector_00494208[EYE_OBJECT] = eyeOffset;
         fix_objects_ijk(EYE_OBJECT);
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
         g_nExternalViewDistance_005d320e = 0x20;

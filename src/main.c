@@ -1861,16 +1861,17 @@ int RunSpaceFlight(short entryNavPoint)
     InputPumpContext *savedInputContext;
     unsigned char savedInputDelay;
     short savedUiInputMode;
-    short inputResult;
-    short index;
+    short savedCursor;
+    short result;
+    short i;
 
     savedUiInputMode = g_nUiInputMode_005c8d3c;
     g_bSpaceFlightActive_005c586c = 1;
     g_nCockpitDisplayMode_0049d71c = 0;
     if (g_bFullScreenSpaceView_0049d718 == 0)
         g_nCockpitDisplayMode_0049d71c = 1;
-    for (index = 0; index < 7; index++)
-        g_acMissionShipStatusFlags_005d2fb0[index] = 0;
+    for (i = 0; i < 7; i++)
+        g_acMissionShipStatusFlags_005d2fb0[i] = 0;
     g_bMissionDeathSequencePending_0049b720 = 0;
     g_bMissionWingmanFlag_005c8dbe = 0;
     g_nFrameSkipCountdown_0049d760 = 1;
@@ -1897,7 +1898,8 @@ int RunSpaceFlight(short entryNavPoint)
         new_view(0, 0);
         free_view_buffer();
         SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
-        initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+        g_cScreenViewportMode_005c82a6++;
+        initialize_cockpit(g_cScreenViewportMode_005c82a6 - 1);
         g_nCockpitControlState_0049d7ac =
             g_nCockpitControlGoal_0049d7d0 = 0;
         initialize_view_buffer();
@@ -1920,7 +1922,7 @@ int RunSpaceFlight(short entryNavPoint)
         SetFrameTimerPeriodDirect(g_nSpaceFramePeriod_0049d768);
         if (g_nCannedSceneMode_0049021c != 0) {
             ProcessCannedSceneInput();
-            inputResult = 0;
+            result = 0;
             if (g_nCannedSceneRecordedFrameCount_005d3faa ==
                 g_nCannedSceneFrameCount_005d404c) {
                 FinishCannedScenePlayback();
@@ -1929,8 +1931,8 @@ int RunSpaceFlight(short entryNavPoint)
         }
         if (g_nCannedSceneMode_0049021c == 0 &&
             g_bJumpSequenceActive_004962f0 == 0)
-            inputResult = (short)HandleSpaceFlightControls();
-        if (inputResult == -1) {
+            result = (short)HandleSpaceFlightControls();
+        if (result == -1) {
             g_nArcadeState_0049d75c = 5;
         } else {
             Update_3Space();

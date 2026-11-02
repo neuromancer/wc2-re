@@ -360,10 +360,10 @@ void ShowConfedNavScan(short refresh);                                /* 0x451E5
 void InflightComputer(void);                                         /* 0x451FAA */
 short MergeAdjacentNearHeapBlocks(int descriptorAddress);            /* 0x4207B0 */
 int ReleaseNearHeapBlock(int descriptorAddress);                     /* 0x420874 */
-void PurgeNearHeapBlocks(unsigned short flags);                       /* 0x4208FC */
+void PurgeNearHeapBlocks(short flags);                       /* 0x4208FC */
 unsigned short InitializeNearHeap(void);                              /* 0x4209C2 */
-void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags);   /* 0x420B88 */
-void *AllocateNearHeapBlockByFlags(int size, unsigned short flags);   /* 0x420E16 */
+void *AllocateNearHeapBlockFromEnd(int size, short flags);   /* 0x420B88 */
+void *AllocateNearHeapBlockByFlags(int size, short flags);   /* 0x420E16 */
 short GetViewportIntersection(ShortRect *intersection,
                               const ShortRect *first,
                               const ShortRect *second);                  /* 0x4651B7 */
@@ -529,7 +529,7 @@ short GetRectHeight(const Viewport *viewport);                        /* 0x43C34
 void print_message_text(char *text, unsigned short colour);            /* 0x43C364 */
 void RestoreHudMessageBackground(void);                                /* 0x43C5B0 */
 void ShowHudTextLine(void);                                            /* 0x43C570 */
-void SetHudTextColour(char *text, int colour);                          /* 0x43C601 */
+void SetHudTextColour(char *text, unsigned short colour);               /* 0x43C601 */
 void ClearHudMessageDisplay(short closeCommMenu);                       /* 0x43C64D */
 void draw_target_box(unsigned short colour, signed char object,
                      short solid, short drawLockMarker, short padding,
@@ -1309,12 +1309,12 @@ void SkipCutsceneChunk(unsigned char **cursor);                       /* 0x40D88
 short FindCutsceneResourceSymbolIndex(CutsceneObjectResourceList *list,
                                       short scriptHalf,
                                       const char *symbol);            /* 0x40D8D7 */
-short CreateCutsceneResourceInstance(unsigned int formType,
+short CreateCutsceneResourceInstance(int formType,
                                      CutsceneObjectResourceList *list,
                                      short index);                    /* 0x40DA0C */
 signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                                         short scriptHalf,
-                                        unsigned int formType);       /* 0x40DE5A */
+                                        int formType);       /* 0x40DE5A */
 CutsceneResourceTable *PushCutsceneFileResource(
     CutsceneResourceTable **head);                                    /* 0x40E230 */
 void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
@@ -1329,7 +1329,7 @@ CutsceneObjectResourceList *PushCutsceneObjectResource(
     CutsceneObjectResourceList **head);                               /* 0x40EA0F */
 void ReleaseCutsceneObjectResource(short owner,
                                    CutsceneObjectResourceList **head,
-                                   unsigned int formType);            /* 0x40EAA4 */
+                                   int formType);            /* 0x40EAA4 */
 void ReleaseCutsceneFileResourceExceptPacket(
     short owner, CutsceneResourceTable **head, void *retainedPacket); /* 0x40ED9F */
 void ReleaseCutsceneFileResource(short owner,

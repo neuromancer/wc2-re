@@ -321,63 +321,68 @@ void gametrack(void)
     spacetrack(track, 1, 0);
 }
 
+void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result);
+void AddFixedVectors(const FixedVector *left, const FixedVector *right,
+                     FixedVector *sum);
+void ComputeVectorDelta(FixedVector *from, FixedVector *to,
+                        FixedVector *delta);
+
 /* Function start: 0x453240 */
 void servicetrack(void)
 {
     short volume;
-    short object;
-    FixedVector travel;
-    FixedVector futurePosition;
+    short ship;
+    FixedVector lead;
+    FixedVector predicted;
 
     if (g_nMusicDriverMode_0049be8c == 0)
         return;
     gametrack();
     if (g_bFlightSoundEffectsEnabled_0049beb0 != 0) {
-        for (object = 0; object < SPACE_OBJECT_COUNT;
-             object++) {
-            if (g_nPassingShipSoundObject_0049bf10 == object &&
-                g_aeObjectClass_00495328[object] < OBJECT_CLASS_SHIP)
+        for (ship = 0; ship < SPACE_OBJECT_COUNT;
+             ship++) {
+            if (g_nPassingShipSoundObject_0049bf10 == ship &&
+                g_aeObjectClass_00495328[ship] < OBJECT_CLASS_SHIP)
                 g_nPassingShipSoundObject_0049bf10 = -1;
-            switch (g_aeObjectClass_00495328[object]) {
+            switch (g_aeObjectClass_00495328[ship]) {
             case OBJECT_CLASS_SHIP:
             case OBJECT_CLASS_CAPITAL_SHIP:
             case OBJECT_CLASS_BASE:
-                if (g_asObjectScreenX_00493598[object] == -32767)
-                    break;
-                if ((unsigned short)g_asObjectDistance_00493ae8[object] >= 0x384)
-                    break;
-                if (g_nPassingShipSoundObject_0049bf10 == -1) {
-                    ScaleFixedVector(&g_aShipVelocity_00494898[object], 0x1400,
-                                     &travel);
-                    AddFixedVectors(&g_aShipPosition_00494550[object], &travel,
-                                    &futurePosition);
-                    ComputeVectorDelta(
-                        &g_aShipPosition_00494550[EYE_OBJECT],
-                        &futurePosition, &travel);
-                    ComputeVectorDelta(
-                        &g_aShipPosition_00494550[EYE_OBJECT],
-                        &g_aShipPosition_00494550[object], &futurePosition);
-                    if (dot_product(&travel, &futurePosition) < 0xdd) {
-                        if (object == 0 && g_bJumpSequenceActive_004962f0 != 0)
-                            continue;
-                        g_nPassingShipSoundObject_0049bf10 = object;
-                        g_nPassingShipSoundCountdown_0049bf14 = 6;
-                        volume = 12;
-                        g_abSoundEffectDefinitions_0049bf18[0xa] =
-                            (unsigned char)volume;
-                        *(short *)&g_abSoundEffectDefinitions_0049bf18[0xc] = 2;
-                        g_abSoundEffectDefinitions_0049bf18[0xe] = 0x70;
-                        if (g_nSpaceFrame_00493134 >
-                            g_nPassingShipSoundCooldown_005d156c) {
-                            g_nPassingShipSoundCooldown_005d156c =
-                                g_nSpaceFrame_00493134 + 24;
-                            PlaySfxWaveFileByNumber(2, object, 0);
+                if (g_asObjectScreenX_00493598[ship] != -32767 &&
+                    (unsigned short)g_asObjectDistance_00493ae8[ship] < 0x384) {
+                    if (g_nPassingShipSoundObject_0049bf10 == -1) {
+                        ScaleFixedVector(&g_aShipVelocity_00494898[ship], 0x1400,
+                                         &lead);
+                        AddFixedVectors(&g_aShipPosition_00494550[ship], &lead,
+                                        &predicted);
+                        ComputeVectorDelta(
+                            &g_aShipPosition_00494550[EYE_OBJECT],
+                            &predicted, &lead);
+                        ComputeVectorDelta(
+                            &g_aShipPosition_00494550[EYE_OBJECT],
+                            &g_aShipPosition_00494550[ship], &predicted);
+                        if (dot_product(&lead, &predicted) < 0xdd) {
+                            if (ship == 0 && g_bJumpSequenceActive_004962f0 != 0)
+                                continue;
+                            g_nPassingShipSoundObject_0049bf10 = ship;
+                            g_nPassingShipSoundCountdown_0049bf14 = 6;
+                            volume = 12;
+                            g_abSoundEffectDefinitions_0049bf18[0xa] =
+                                (unsigned char)volume;
+                            *(short *)&g_abSoundEffectDefinitions_0049bf18[0xc] = 2;
+                            g_abSoundEffectDefinitions_0049bf18[0xe] = 0x70;
+                            if (g_nSpaceFrame_00493134 >
+                                g_nPassingShipSoundCooldown_005d156c) {
+                                g_nPassingShipSoundCooldown_005d156c =
+                                    g_nSpaceFrame_00493134 + 24;
+                                PlaySfxWaveFileByNumber(2, ship, 0);
+                            }
                         }
+                    } else if (g_nPassingShipSoundObject_0049bf10 == ship) {
+                        g_nPassingShipSoundCountdown_0049bf14--;
+                        if (g_nPassingShipSoundCountdown_0049bf14 == 0)
+                            g_nPassingShipSoundObject_0049bf10 = -1;
                     }
-                } else if (g_nPassingShipSoundObject_0049bf10 == object) {
-                    g_nPassingShipSoundCountdown_0049bf14--;
-                    if (g_nPassingShipSoundCountdown_0049bf14 == 0)
-                        g_nPassingShipSoundObject_0049bf10 = -1;
                 }
                 break;
             }
@@ -500,6 +505,7 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     FixedVector delta;
     int magnitude;
     int distance;
+    int channel;
 
 #ifdef SDL_PORT
     /* A DOS install ships no sfx waves; the effect is synthesized from the

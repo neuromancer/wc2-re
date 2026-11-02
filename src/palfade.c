@@ -12,57 +12,57 @@ void FadeViewportPaletteToColour(Viewport *viewport,
                                  short enabled)
 {
     unsigned char *indices;
-    short activeCount;
-    short index;
-    unsigned short target[3];
-    short *targetPalette;
-    short *currentPalette;
+    short slot;
+    short used;
+    unsigned short targetColour[3];
+    short *goalPalette;
+    short *workPalette;
 
     if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
         indices = AllocateTaggedMemory(256, 0);
         if (indices == 0)
             return;
         memset(indices, 0, 256);
-        activeCount = CollectActivePaletteIndices(viewport, indices, 256);
-        currentPalette = AllocateTaggedMemory(
-            (unsigned int)(activeCount * 6), 0);
-        if (currentPalette == 0) {
+        used = CollectActivePaletteIndices(viewport, indices, 256);
+        workPalette = AllocateTaggedMemory(
+            (unsigned int)(used * 6), 0);
+        if (workPalette == 0) {
             ReleasePacketHandle(indices);
             return;
         }
-        memset(currentPalette, 0,
-               (unsigned int)(activeCount * 6));
-        targetPalette = AllocateTaggedMemory(
-            (unsigned int)(activeCount * 6), 0);
-        if (targetPalette == 0) {
+        memset(workPalette, 0,
+               (unsigned int)(used * 6));
+        goalPalette = AllocateTaggedMemory(
+            (unsigned int)(used * 6), 0);
+        if (goalPalette == 0) {
             ReleasePacketHandle(indices);
-            ReleasePacketHandle(currentPalette);
+            ReleasePacketHandle(workPalette);
             return;
         }
-        memset(targetPalette, 0,
-               (unsigned int)(activeCount * 6));
-        GetPaletteEntry((short)colour, target);
-        for (index = 0; index < activeCount; index++) {
+        memset(goalPalette, 0,
+               (unsigned int)(used * 6));
+        GetPaletteEntry((short)colour, targetColour);
+        for (slot = 0; slot < used; slot++) {
             GetPaletteEntry(
-                (short)indices[index],
-                (unsigned short *)&currentPalette[index * 3]);
-            memcpy(&targetPalette[index * 3], target, 6);
+                (short)indices[slot],
+                (unsigned short *)&workPalette[slot * 3]);
+            memcpy(&goalPalette[slot * 3], targetColour, 6);
         }
         while (StepPaletteTransition(
-                   currentPalette, targetPalette,
-                   (short)(activeCount * 3)) != 0) {
+                   workPalette, goalPalette,
+                   (short)(used * 3)) != 0) {
             if (enabled != 0) {
-                index = enabled;
-                while (index-- != 0)
+                slot = enabled;
+                while (slot-- != 0)
                     WaitForVerticalBlankThunk();
             }
-            for (index = 0; index < activeCount; index++) {
-                SetPaletteEntry((short)indices[index],
-                                &currentPalette[index * 3]);
+            for (slot = 0; slot < used; slot++) {
+                SetPaletteEntry((short)indices[slot],
+                                &workPalette[slot * 3]);
             }
         }
-        ReleasePacketHandle(targetPalette);
-        ReleasePacketHandle(currentPalette);
+        ReleasePacketHandle(goalPalette);
+        ReleasePacketHandle(workPalette);
         ReleasePacketHandle(indices);
     }
 }

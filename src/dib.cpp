@@ -441,59 +441,59 @@ void DIBunInstall(void)
 void DIBmakeDIB(void)
 {
 #ifndef SDL_PORT
-    DDSURFACEDESC surface;
-    PALETTEENTRY entries[256];
-    HRESULT result;
-    int entry;
+    DDSURFACEDESC surfaceDesc;
+    PALETTEENTRY colours[256];
+    HRESULT hr;
+    int paletteIndex;
 
-    memset(&surface, 0, sizeof(surface));
-    surface.dwSize = sizeof(surface);
-    surface.dwFlags = DDSD_CAPS;
-    surface.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_MODEX;
-    result = IDirectDraw2_CreateSurface(
-        g_pDirectDraw2_0049ce90, &surface,
+    memset(&surfaceDesc, 0, sizeof(surfaceDesc));
+    surfaceDesc.dwSize = sizeof(surfaceDesc);
+    surfaceDesc.dwFlags = DDSD_CAPS;
+    surfaceDesc.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_MODEX;
+    hr = IDirectDraw2_CreateSurface(
+        g_pDirectDraw2_0049ce90, &surfaceDesc,
         &g_pPrimarySurface_0049ce94, 0);
-    if (result != DD_OK)
-        DIBerror("DIBmakeDIB   CreateSurface (primary)", result);
+    if (hr != DD_OK)
+        DIBerror("DIBmakeDIB   CreateSurface (primary)", hr);
 #endif
 
     g_nDibBitsPerPixel_005c3388 = 8;
 #ifndef SDL_PORT
-    for (entry = 0; entry < 256; entry++) {
-        entries[entry].peRed = g_abPaletteCache_005c3450[entry * 4 + 2];
-        entries[entry].peGreen = g_abPaletteCache_005c3450[entry * 4 + 1];
-        entries[entry].peBlue = g_abPaletteCache_005c3450[entry * 4];
-        entries[entry].peFlags = 0;
+    for (paletteIndex = 0; paletteIndex < 256; paletteIndex++) {
+        colours[paletteIndex].peRed = g_abPaletteCache_005c3450[paletteIndex * 4 + 2];
+        colours[paletteIndex].peGreen = g_abPaletteCache_005c3450[paletteIndex * 4 + 1];
+        colours[paletteIndex].peBlue = g_abPaletteCache_005c3450[paletteIndex * 4];
+        colours[paletteIndex].peFlags = 0;
     }
 
     if (g_nDibBitsPerPixel_005c3388 == 8) {
-        result = IDirectDraw2_CreatePalette(
-            g_pDirectDraw2_0049ce90, DDPCAPS_8BIT, entries,
+        hr = IDirectDraw2_CreatePalette(
+            g_pDirectDraw2_0049ce90, DDPCAPS_8BIT, colours,
             &g_pDirectDrawPalette_0049ce9c, 0);
-        if (result != DD_OK)
-            DIBerror("DIBmakeDIB   CreatePalette", result);
+        if (hr != DD_OK)
+            DIBerror("DIBmakeDIB   CreatePalette", hr);
 
         if (g_bUseHardwarePalette_0049c268 != 0) {
-            result = IDirectDrawSurface_SetPalette(
+            hr = IDirectDrawSurface_SetPalette(
                 g_pPrimarySurface_0049ce94,
                 g_pDirectDrawPalette_0049ce9c);
-            if (result != DD_OK)
-                DIBerror("DIBmakeDIB   CreatePalette", result);
+            if (hr != DD_OK)
+                DIBerror("DIBmakeDIB   CreatePalette", hr);
         }
     }
 
     if (g_nDisplayModeCascade_0049cea0 > 0) {
-        memset(&surface, 0, sizeof(surface));
-        surface.dwSize = sizeof(surface);
-        surface.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
-        surface.dwWidth = 320;
-        surface.dwHeight = 200;
-        surface.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
-        result = IDirectDraw2_CreateSurface(
-            g_pDirectDraw2_0049ce90, &surface,
+        memset(&surfaceDesc, 0, sizeof(surfaceDesc));
+        surfaceDesc.dwSize = sizeof(surfaceDesc);
+        surfaceDesc.dwFlags = DDSD_CAPS | DDSD_HEIGHT | DDSD_WIDTH;
+        surfaceDesc.dwWidth = 320;
+        surfaceDesc.dwHeight = 200;
+        surfaceDesc.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_SYSTEMMEMORY;
+        hr = IDirectDraw2_CreateSurface(
+            g_pDirectDraw2_0049ce90, &surfaceDesc,
             &g_pSecondarySurface_0049ce98, 0);
-        if (result != DD_OK)
-            DIBerror("DIBmakeDIB   CreateSurface (secondary)", result);
+        if (hr != DD_OK)
+            DIBerror("DIBmakeDIB   CreateSurface (secondary)", hr);
     }
 #endif
 

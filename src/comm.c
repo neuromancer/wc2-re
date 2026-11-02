@@ -499,6 +499,11 @@ char *ExpandCommMessageTokens(const char *text)
     return g_szTextScratchBuffer_005d1c40;
 }
 
+long GetNamedPacketSize(const char *filename, short section);
+void LoadAndPlaySpeechPacket(char *fileName, short section);
+void *LoadPacketIntoBuffer(char *fileName, short section, void *destination,
+                           int registerHandle);
+
 /* Function start: 0x4482CA */
 void real_vid_transmit(short obj, short message)
 {
@@ -547,7 +552,7 @@ void real_vid_transmit(short obj, short message)
     size = GetNamedPacketSize(packetFile, message);
     g_nCommMessageIndex_0049ae88 = message;
     if (g_bSpeechEnabled_005c8de8 != 0 && size > 0 &&
-        size < g_wDigiSampleBytes_0048e0e0) {
+        size < g_nDigiSampleBytes_0048e0e0) {
         DismissHudMessageIfShowing();
 #ifdef SDL_PORT
         /* See issue #27: DismissHudMessageIfShowing() only arms the "-1"
