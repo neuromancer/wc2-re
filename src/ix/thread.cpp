@@ -143,29 +143,33 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
     }
 }
 
+int  ix_dsps_get_buffer_free(int stream);
+void ix_dsps_unlock(int stream);
+
 /* Function start: 0x46D7C6 */
 unsigned int ix_thread_service_streams(void)
 {
     int bytesUntilRefill;
     IxStreamFile *streamFile;
-    IxStreamFile *selected;
+    IxStreamFile *chosenFile;
 
     EnterCriticalSection(&g_csStreamerFileQueue_005c4c00);
     if (g_pStreamerReadQueue_005c4bd4 != 0) {
         streamFile = g_pStreamerReadQueue_005c4bd4;
-        selected = 0;
+        chosenFile = 0;
         while (streamFile != 0) {
-            if (selected == 0)
-                selected = streamFile;
-            else if (selected->priority < streamFile->priority)
-                selected = streamFile;
-            else if (streamFile->serviceTick < selected->serviceTick)
-                selected = streamFile;
+            if (chosenFile != 0) {
+                if (chosenFile->priority < streamFile->priority)
+                    chosenFile = streamFile;
+                else if (streamFile->serviceTick < chosenFile->serviceTick)
+                    chosenFile = streamFile;
+            } else
+                chosenFile = streamFile;
             streamFile = streamFile->previous;
         }
         LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
-        if (selected != 0)
-            ix_thread_handle_file_chunk(selected);
+        if (chosenFile != 0)
+            ix_thread_handle_file_chunk(chosenFile);
     } else {
         LeaveCriticalSection(&g_csStreamerFileQueue_005c4c00);
     }
@@ -272,26 +276,26 @@ void ix_thread_advance_audio_chunk(void)
 /* Function start: 0x46DBC9 */   /* source line(s) 394: failed to lock stream buffer */
 void ix_thread_lock_stream_buffer(void)
 {
-    unsigned int remaining;
+    unsigned int bytesToCopy;
     unsigned int lockedBytes;
-    unsigned char *buffer;
+    unsigned char *data;
     unsigned int fileOffset;
 
-    remaining = ix_thread_get_audio_chunk_size();
-    if (remaining > 0) {
+    bytesToCopy = ix_thread_get_audio_chunk_size();
+    if (bytesToCopy > 0) {
         fileOffset = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].fileOffset;
-        while (remaining > 0) {
-            ix_dsps_lock(0, remaining, &buffer, &lockedBytes);
-            if (buffer == 0) {
+        while (bytesToCopy > 0) {
+            ix_dsps_lock(0, bytesToCopy, &data, &lockedBytes);
+            if (data == 0) {
                 ix_log_printf("Fatal [%s - %d]:\n", IX_THREAD_FILE, 394);
-                ix_log_printf("failed to lock stream buffer");
+                ix_log_printf("failed to lock stream data");
                 exit(-1);
             }
             ix_file_seek(g_pStreamerPackageFile_005c4b44, fileOffset);
-            ix_file_read(g_pStreamerPackageFile_005c4b44, buffer,
+            ix_file_read(g_pStreamerPackageFile_005c4b44, data,
                          lockedBytes);
-            remaining = remaining - lockedBytes;
+            bytesToCopy = bytesToCopy - lockedBytes;
             fileOffset += lockedBytes;
             ix_dsps_unlock(0);
         }

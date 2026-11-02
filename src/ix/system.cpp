@@ -9,6 +9,7 @@
  *  list below is the original source order of this file.
  */
 #include "ix.h"
+#include <memory.h>
 
 unsigned int g_dwIxSystemFlags_005c4b1c;
 IxSound *g_pFreeSoundList_005c4b20;
@@ -220,28 +221,28 @@ extern "C" int ix_sound_is_live(const IxSound *sound)
 /* Function start: 0x46A090 */
 extern "C" void ix_system_delete_all_sounds(void)
 {
-    IxSound *sound;
-    IxSound *nextActive;
-    IxSound *nextWaiting;
-    IxSound *nextFree;
+    IxSound *current;
+    IxSound *activeNext;
+    IxSound *waitingNext;
+    IxSound *freeNext;
 
-    sound = g_pActiveSoundList_005c4b30;
-    while (sound != 0) {
-        nextActive = sound->next;
-        ix_system_delete_sound(sound);
-        sound = nextActive;
+    current = g_pActiveSoundList_005c4b30;
+    while (current != 0) {
+        activeNext = current->next;
+        ix_system_delete_sound(current);
+        current = activeNext;
     }
-    sound = g_pWaitingSoundList_005c4b34;
-    while (sound != 0) {
-        nextWaiting = sound->next;
-        ix_system_delete_sound(sound);
-        sound = nextWaiting;
+    current = g_pWaitingSoundList_005c4b34;
+    while (current != 0) {
+        waitingNext = current->next;
+        ix_system_delete_sound(current);
+        current = waitingNext;
     }
-    sound = g_pFreeSoundList_005c4b20;
-    while (sound != 0) {
-        nextFree = sound->next;
-        ix_system_delete_sound(sound);
-        sound = nextFree;
+    current = g_pFreeSoundList_005c4b20;
+    while (current != 0) {
+        freeNext = current->next;
+        ix_system_delete_sound(current);
+        current = freeNext;
     }
 }
 
@@ -261,12 +262,12 @@ int ix_system_release_voice(IxSound *sound)
 void ix_system_assign_voice(IxSound *sound, int voice)
 {
     IxSample *sample = sound->sample;
-    unsigned int elapsed;
     unsigned int position;
+    unsigned int elapsedTime;
     unsigned int loopLength;
 
-    elapsed = ix_dsp_get_tick() - sound->startTime;
-    position = ((sound->pitchOffset + sample->frequency) * elapsed) / 15;
+    elapsedTime = ix_dsp_get_tick() - sound->startTime;
+    position = ((sound->pitchOffset + sample->frequency) * elapsedTime) / 15;
     if ((sound->flags & IX_SOUND_LOOPING) != 0) {
         loopLength = sample->loopEnd - sample->loopStart;
         if (sample->loopEnd < position)

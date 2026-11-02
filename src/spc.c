@@ -1,298 +1,52 @@
 /*
- *  Space-object simulation (Mac `spc` compilation unit), preceded by the
- *  Win32 joystick calibration/input helpers in this provisional range.
+ *  Space views, star field and object simulation.
  *
- *  Address range 0x410000-0x412fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: the Mac `spc` symbol run maps rotate_eye_to_goal through
- *  object_intelligence to 0x410a30-0x4139ff.
+ *  Retail object 0x419C10-0x41E4DF (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
-#pragma function(abs)
-
-int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
 short g_bAlternateChaseView_00492fac = 0;
+
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;
+
 short g_nSavedPlayerTarget_0049d460 = -1;
+
 short g_bSavedPlayerTarget_0049d464;
+
 short g_asShipTurretFireEnabled_0049d470[10];
+
 short g_nSavedTargetLockCountdown_0049d484 = 1000;
-short g_bSavedTargetLockAcquired_0049d488;
+
 short g_nCockpitCameraObject_0049d770;
+
 FixedVector g_vExternalViewOffset_005d3200;
 
-/* Function start: 0x418770 */
-void CalibrateJoystickInteractive()
-{
-    InputDeviceSample samples[2];
-    short calibration[6];
-    short savedFailureValue;
-    int file;
-    int failed;
-    short fontLoaded;
+/* WC2's collision response uses SHL for the signed mass difference.  Native C
+ * cannot left-shift a negative value, so use the equivalent bounded multiply
+ * in the port while retaining the original expression for comparison. */
+#ifdef SDL_PORT
+#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+    (((objectMass) - (partnerMass)) * 0x100)
+#else
+#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
+    (((objectMass) - (partnerMass)) << 8)
+#endif
 
-    fontLoaded = 0;
-    savedFailureValue = (short)g_nJoystickFailureValue_005d176c;
-    failed = 1;
-    if (g_nActiveInputDevice_005d1726 == -1)
-        return;
-    g_stDefaultTextContext_005d2d20.alignment = 2;
-    if (g_apTextFonts_005d2200[1] != 0)
-        fontLoaded++;
+/* Only slots 0-11 have ship maximum-velocity state, but WC2 indexes that
+ * table with any colliding object.  Slot 15 reaches the zero high word of the
+ * adjacent alert flags in the retail layout; make that zero result explicit
+ * for every non-ship slot instead of crossing a native global's redzone. */
+#ifdef SDL_PORT
+#define COLLISION_MAXIMUM_VELOCITY(obj) \
+    ((unsigned short)(obj) < 12 \
+         ? g_asShipMaximumVelocity_00495f70[obj] \
+         : 0)
+#else
+#define COLLISION_MAXIMUM_VELOCITY(obj) \
+    g_asShipMaximumVelocity_00495f70[obj]
+#endif
 
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
-        g_bPrimaryViewBufferColour_0049cb50, (signed char)g_cSecondaryViewBufferColour_0049cb4c);
-    if (ShowModalTextPanel(1,
-        "Turn AUTO FIRE off if present, press a button") != 0) {
-        DIBslamReal();
-        WaitForJoystickButtonPress();
-        WaitForJoystickButtonRelease();
-        ReleaseModalTextPanel();
-    }
-
-    if (ShowModalTextPanel(1,
-        "Move stick to the UPPER LEFT, press a button") != 0) {
-        DIBslamReal();
-        WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMinimumX_005d174c = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[0] = (short)g_nJoystickMinimumX_005d174c;
-        g_nJoystickMinimumY_005d1750 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[1] = (short)g_nJoystickMinimumY_005d1750;
-        WaitForJoystickButtonRelease();
-        ReleaseModalTextPanel();
-    }
-
-    if (ShowModalTextPanel(1,
-        "Move stick to the LOWER RIGHT, press a button") != 0) {
-        DIBslamReal();
-        WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMaximumX_005d1744 = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[2] = (short)g_nJoystickMaximumX_005d1744;
-        g_nJoystickMaximumY_005d1748 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[3] = (short)g_nJoystickMaximumY_005d1748;
-        WaitForJoystickButtonRelease();
-        ReleaseModalTextPanel();
-    }
-
-    if (ShowModalTextPanel(1,
-        "Center Joystick, press a button") != 0) {
-        DIBslamReal();
-        WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickCentreX_005d1768 = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[4] = (short)g_nJoystickCentreX_005d1768;
-        g_nJoystickCentreY_005d1764 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[5] = (short)g_nJoystickCentreY_005d1764;
-        WaitForJoystickButtonRelease();
-        ReleaseModalTextPanel();
-    }
-
-    if (fontLoaded == 0)
-        ReleaseTextFont(1);
-
-    if (g_nJoystickHorizontalRange_005d1758 == 0)
-        g_nJoystickHorizontalRange_005d1758 = 9;
-    if (g_nJoystickVerticalRange_005d1754 == 0)
-        g_nJoystickVerticalRange_005d1754 = 9;
-    g_nJoystickLeftScale_005d1740 =
-        (g_nJoystickCentreX_005d1768 - g_nJoystickMinimumX_005d174c) /
-        g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickRightScale_005d175c =
-        (g_nJoystickMaximumX_005d1744 - g_nJoystickCentreX_005d1768) /
-        g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickUpScale_005d173c =
-        (g_nJoystickCentreY_005d1764 - g_nJoystickMinimumY_005d1750) /
-        g_nJoystickVerticalRange_005d1754;
-    g_nJoystickDownScale_005d1760 =
-        (g_nJoystickMaximumY_005d1748 - g_nJoystickCentreY_005d1764) /
-        g_nJoystickVerticalRange_005d1754;
-    if (g_nJoystickLeftScale_005d1740 == 0)
-        g_nJoystickLeftScale_005d1740++;
-    if (g_nJoystickRightScale_005d175c == 0)
-        g_nJoystickRightScale_005d175c++;
-    if (g_nJoystickUpScale_005d173c == 0)
-        g_nJoystickUpScale_005d173c++;
-    if (g_nJoystickDownScale_005d1760 == 0)
-        g_nJoystickDownScale_005d1760++;
-
-    g_nJoystickMinimumX_005d174c = g_nJoystickCentreX_005d1768 -
-        g_nJoystickLeftScale_005d1740 *
-            g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickMinimumY_005d1750 = g_nJoystickCentreY_005d1764 -
-        g_nJoystickUpScale_005d173c * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickMaximumX_005d1744 = g_nJoystickCentreX_005d1768 +
-        g_nJoystickRightScale_005d175c *
-            g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickMaximumY_005d1748 = g_nJoystickCentreY_005d1764 +
-        g_nJoystickDownScale_005d1760 * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickFailureValue_005d176c = g_nJoystickMaximumX_005d1744 * 2;
-
-    if (g_nJoystickMaximumX_005d1744 <= g_nJoystickMinimumX_005d174c ||
-        g_nJoystickMaximumY_005d1748 <= g_nJoystickMinimumY_005d1750) {
-        if (ShowModalTextPanel(1,
-            "FAILED! Center Joystick, press a button") != 0) {
-            DIBslamReal();
-            WaitForJoystickButtonPress();
-            WaitForJoystickButtonRelease();
-            LoadJoystickCalibrationFile(8, 8, 1, 1);
-            ReleaseModalTextPanel();
-        }
-        _unlink("j.cal");
-        return;
-    }
-
-    file = _open("j.cal", 0x8301, 0x180);
-    if (file != -1) {
-        failed = _write(file, &g_nActiveInputDevice_005d1726, 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[0], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[1], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[2], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[3], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[4], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[5], 2) == -1;
-        _close(file);
-        if (failed != 0)
-            _unlink("j.cal");
-    }
-}
-
-/* Function start: 0x418D14 */
-void WaitForJoystickButtonRelease(void)
-{
-    do {
-        SampleJoystickDevice(
-            &g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726],
-            g_nActiveInputDevice_005d1726, 0);
-        ServiceSoundSystem();
-    } while (g_aInputDeviceSamples_005d1780[
-                 g_nActiveInputDevice_005d1726].buttons != 0);
-}
-
-/* Function start: 0x418D5F */
-void WaitForJoystickButtonPress(void)
-{
-    do {
-        SampleJoystickDevice(
-            &g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726],
-            g_nActiveInputDevice_005d1726, 0);
-        ServiceSoundSystem();
-    } while (g_aInputDeviceSamples_005d1780[
-                 g_nActiveInputDevice_005d1726].buttons == 0);
-}
-
-/* Function start: 0x44ADE0 */
-void SetFleetOverviewView(int initializeCockpit)
-{
-    FixedVector centre;
-    FixedVector orientation;
-    FixedVector offset;
-    int shipCount;
-    int maximumRange;
-    int playerRange;
-    int cameraDistance;
-    int range;
-    int object;
-
-    orientation.x = 0xff;
-    orientation.y = 0xff;
-    orientation.z = 0xff;
-    shipCount = 0;
-    if (initializeCockpit != 0) {
-        free_view_buffer();
-        if ((int)GetLargestFreeMemoryBlockByType(0) < 66000)
-            initialize_cockpit(4);
-        else
-            initialize_cockpit(6);
-        zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
-    }
-
-    object = 0;
-    do {
-        if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
-            shipCount++;
-        object++;
-    } while (object < 10);
-
-    if (shipCount > 1) {
-        zero_vector(&centre);
-        object = 0;
-        do {
-            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP) {
-                centre.x += g_aShipPosition_00494550[object].x / shipCount;
-                centre.y += g_aShipPosition_00494550[object].y / shipCount;
-                centre.z += g_aShipPosition_00494550[object].z / shipCount;
-            }
-            object++;
-        } while (object < 10);
-
-        maximumRange = 0x4b000;
-        playerRange = 0xff;
-        object = 9;
-        do {
-            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP) {
-                ComputeVectorDelta(&centre,
-                                   &g_aShipPosition_00494550[object],
-                                   &offset);
-                range = Vector_magnitude(&offset);
-                if (maximumRange < range)
-                    maximumRange = range;
-                if (object == 0)
-                    playerRange = range;
-            }
-            object--;
-        } while (object >= 0);
-        if (maximumRange <= 0x1f4000)
-            playerRange = maximumRange;
-    } else {
-        maximumRange = 0x4b000;
-        playerRange = 0x4b000;
-        position_relative_ijk(&centre, 0, 400, 400, 400);
-    }
-
-    cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
-    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] = centre;
-    g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT] = orientation;
-    point_at(SCRATCH_VIEW_OBJECT, g_aShipPosition_00494550[0]);
-
-    ScaleFixedVector(
-        &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
-        cameraDistance >> 2, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
-                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
-    ScaleFixedVector(&g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
-                     0x9600, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
-                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
-    ScaleFixedVector(
-        &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT],
-        cameraDistance, &offset);
-    AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
-                    &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
-
-    g_aShipPosition_00494550[EYE_OBJECT] =
-        g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT];
-    g_aShipRightVector_00493b78[EYE_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[EYE_OBJECT] = orientation;
-    if (maximumRange < 0x271000)
-        point_at(EYE_OBJECT, centre);
-    else
-        point_at(EYE_OBJECT, g_aShipPosition_00494550[0]);
-}
-
+#pragma function(abs)
 /* Function start: 0x419C10 */
 unsigned int rotate_eye_to_goal(void)
 {
@@ -319,7 +73,9 @@ unsigned int rotate_eye_to_goal(void)
                             EYE_OBJECT],
                         &g_nEyeRollGoal_00493148, totalError,
                         g_nEyeRollRate_00493154);
+#ifdef SDL_PORT
     return 0;
+#endif
 }
 
 /* Function start: 0x419CDC */
@@ -935,25 +691,25 @@ unsigned int generate_stars(void)
 {
     FixedVector origin;
     short distance;
-    short obj;
+    short star;
 
     origin.x = 0;
     origin.y = 0;
     origin.z = 0;
-    for (obj = 40; obj < 55; obj++) {
-        if (obj < 48) {
+    for (star = 40; star < 55; star++) {
+        if (star < 48) {
             distance = RandomInRange(0, 1400);
 #ifdef SDL_PORT
-            start_dust(obj, origin, distance,
+            start_dust(star, origin, distance,
                        signed_random(distance) * 0x100,
                        signed_random(distance) * 0x100);
 #else
-            start_dust(obj, origin, distance,
+            start_dust(star, origin, distance,
                        signed_random(distance) << 8,
                        signed_random(distance) << 8);
 #endif
         } else {
-            g_aeObjectClass_00495328[obj] = OBJECT_CLASS_STAR;
+            g_aeObjectClass_00495328[star] = OBJECT_CLASS_STAR;
             g_nStarFieldIRotation_005d3210 = signed_random(45);
             g_nStarFieldJRotation_005d320c = signed_random(45);
             copy_frame(EYE_OBJECT, 69);
@@ -965,8 +721,8 @@ unsigned int generate_stars(void)
                            &g_aShipForwardVector_00494208[69]);
             ScaleFixedVector(&g_aShipForwardVector_00494208[69],
                              15000 << 8,
-                             &g_aShipPosition_00494550[obj]);
-            g_asObjectViewFrame_00493508[obj] =
+                             &g_aShipPosition_00494550[star]);
+            g_asObjectViewFrame_00493508[star] =
                 (short)(RandomInRange(0, 5) + 32);
         }
     }
@@ -1090,7 +846,9 @@ unsigned int update_star_field(void)
     if (g_pActiveHazardField_00493278 != 0 &&
         g_nCannedSceneMode_0049021c == 0)
         update_hazards();
+#ifdef SDL_PORT
     return 0;
+#endif
 }
 
 /* Function start: 0x41BD44 */
@@ -1241,8 +999,8 @@ void house_keep_objects(void)
             if (g_asShipExplosionStageTimer_005d3850[obj] > 0)
                 g_asShipExplosionStageTimer_005d3850[obj]--;
             for (gun = 0; gun < 3; gun++) {
-                if (g_asGunCooldown_005c8d70[obj * 3 + gun] > 0)
-                    g_asGunCooldown_005c8d70[obj * 3 + gun]--;
+                if (g_aasGunCooldown_005c8d70[obj][gun] > 0)
+                    g_aasGunCooldown_005c8d70[obj][gun]--;
             }
             if (g_asShipCloakCooldown_00496048[obj] > 0)
                 g_asShipCloakCooldown_00496048[obj]--;
@@ -1431,7 +1189,9 @@ unsigned int rotate_object(short obj)
         alter_roll(g_anObjectRollRotation_00495058[obj], obj);
         ClampVectorTo30(&g_anObjectRollRotation_00495058[obj]);
     }
+#ifdef SDL_PORT
     return 0;
+#endif
 }
 
 /* Function start: 0x41CC0A */
@@ -1471,7 +1231,7 @@ void accelerate_and_move_object(short obj)
                     /* The DOS afterburner record is held rather than timed,
                      * so the burn ending is what silences it. */
                     if (g_bAfterburnerSfxActive_005d3864 != 0) {
-                        FlushSoundEffectsAndLog();
+                        FlushSoundEffectsAndLog(0, 0);
                         g_bAfterburnerSfxActive_005d3864 = 0;
                     }
 #endif
@@ -1552,23 +1312,23 @@ void accelerate_and_move_object(short obj)
 void animate_shape(short obj)
 {
     short type;
-    unsigned char *animation;
-    short command;
+    unsigned char *sequence;
+    short entry;
 
     type = g_acObjectType_00493980[obj];
-    animation = g_aObjectTypeData_00496d30[type].animation;
-    if (animation == 0)
+    sequence = g_aObjectTypeData_00496d30[type].animation;
+    if (sequence == 0)
         return;
     if (--g_acObjectAnimationDelay_00494d00[obj] > 0)
         return;
     g_acObjectAnimationDelay_00494d00[obj] =
         g_aObjectTypeData_00496d30[type].yawRate;
-    command = *(unsigned short *)(animation +
+    entry = *(unsigned short *)(sequence +
               g_asObjectAnimationIndex_00494c70[obj] * 2);
-    switch (command & 0xf000) {
+    switch (entry & 0xf000) {
     case 0x9000:
-        g_asObjectAnimationIndex_00494c70[obj] = command & 0x0fff;
-        command = *(unsigned short *)(animation +
+        g_asObjectAnimationIndex_00494c70[obj] = entry & 0x0fff;
+        entry = *(unsigned short *)(sequence +
                   g_asObjectAnimationIndex_00494c70[obj] * 2);
         if (g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
             (g_asObjectType_00495298[obj] == 0x20 ||
@@ -1582,23 +1342,22 @@ void animate_shape(short obj)
         return;
     }
 
-    switch (command & 0x0c00) {
+    switch (entry & 0x0c00) {
     case 0x0400:
         g_asObjectScale_00494d90[obj] +=
-            (command & 0x3f) *
+            (entry & 0x3f) *
             ((unsigned short)g_asObjectScale_00494d90[obj] >> 6);
         break;
     case 0x0800:
         g_asObjectScale_00494d90[obj] -=
-            (command & 0x3f) *
+            (entry & 0x3f) *
             ((unsigned short)g_asObjectScale_00494d90[obj] >> 6);
         break;
     default:
-        command &= 0x3f;
-        g_asObjectViewFrame_00493508[obj] = command;
-        break;
+        entry &= 0x3f;
+        g_asObjectViewFrame_00493508[obj] = entry;
     }
-    g_asObjectFlip_004939c8[obj] = (command & 0xc0) >> 2;
+    g_asObjectFlip_004939c8[obj] = (entry & 0xc0) >> 2;
     g_asObjectAnimationIndex_00494c70[obj]++;
 }
 
@@ -1617,35 +1376,34 @@ void animate_object(short obj)
         animate_shape(obj);
         break;
     case OBJECT_CLASS_SHIP:
-        if (g_asObjectScreenX_00493598[obj] == (short)0x8001 ||
-            (g_nRenderedSpaceFrame_00493138 & 3) != 0 ||
+        if (g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
+            (g_nRenderedSpaceFrame_00493138 & 3) == 0 &&
             (g_aObjectTypeData_00496d30[
-                 g_acObjectType_00493980[obj]].damageCapacity >> 1) - 1 >
+                 g_acObjectType_00493980[obj]].damageCapacity >> 1) - 1 <=
                 g_asObjectDamage_00495178[obj]) {
-            break;
+            effect = find_vacant_3d_object();
+            if (effect != -1) {
+                ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
+                                 -((int)g_asObjectCollisionRadius_004950e8[obj]
+                                     << 8),
+                                 &offset);
+                AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
+                                &g_aShipPosition_00494550[effect]);
+                FillFixedVectorWithRandomComponents(20, &offset);
+                AddFixedVectors(&g_aShipPosition_00494550[effect], &offset,
+                                &g_aShipPosition_00494550[effect]);
+                zero_vector(&g_aShipVelocity_00494898[effect]);
+                set_objects_data(
+                    effect,
+                    (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
+                                      OBJECT_DATA_SHIP_DAMAGE_EFFECT_FIRST),
+                    obj, 0);
+                g_asObjectScale_00494d90[effect] =
+                    g_asObjectScale_00494d90[obj];
+                if (RandomInRange(0, 3) == 0)
+                    PlaySfxWaveFileByNumber(7, obj, 0);
+            }
         }
-        effect = find_vacant_3d_object();
-        if (effect == -1)
-            break;
-        ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                         -((int)g_asObjectCollisionRadius_004950e8[obj]
-                             << 8),
-                         &offset);
-        AddFixedVectors(&g_aShipPosition_00494550[obj], &offset,
-                        &g_aShipPosition_00494550[effect]);
-        FillFixedVectorWithRandomComponents(20, &offset);
-        AddFixedVectors(&g_aShipPosition_00494550[effect], &offset,
-                        &g_aShipPosition_00494550[effect]);
-        zero_vector(&g_aShipVelocity_00494898[effect]);
-        set_objects_data(
-            effect,
-            (enum ObjectType)((unsigned short)RandomInRange(0, 2) +
-                              OBJECT_DATA_SHIP_DAMAGE_EFFECT_FIRST),
-            obj, 0);
-        g_asObjectScale_00494d90[effect] =
-            g_asObjectScale_00494d90[obj];
-        if (RandomInRange(0, 3) == 0)
-            PlaySfxWaveFileByNumber(7, obj, 0);
         break;
     }
 }
@@ -1666,100 +1424,75 @@ void hit_asteroid(short asteroid, short destructionChance)
     }
 }
 
-/* WC2's collision response uses SHL for the signed mass difference.  Native C
- * cannot left-shift a negative value, so use the equivalent bounded multiply
- * in the port while retaining the original expression for comparison. */
-#ifdef SDL_PORT
-#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
-    (((objectMass) - (partnerMass)) * 0x100)
-#else
-#define COLLISION_MASS_DIFFERENCE_SCALE(objectMass, partnerMass) \
-    (((objectMass) - (partnerMass)) << 8)
-#endif
-
-/* Only slots 0-11 have ship maximum-velocity state, but WC2 indexes that
- * table with any colliding object.  Slot 15 reaches the zero high word of the
- * adjacent alert flags in the retail layout; make that zero result explicit
- * for every non-ship slot instead of crossing a native global's redzone. */
-#ifdef SDL_PORT
-#define COLLISION_MAXIMUM_VELOCITY(obj) \
-    ((unsigned short)(obj) < 12 \
-         ? g_asShipMaximumVelocity_00495f70[obj] \
-         : 0)
-#else
-#define COLLISION_MAXIMUM_VELOCITY(obj) \
-    g_asShipMaximumVelocity_00495f70[obj]
-#endif
-
 /* Function start: 0x41D591 */
 void object_collision(short obj)
 {
-    SphericalVector impact;
-    FixedVector relativeVelocity;
-    FixedVector viewDelta;
-    FixedVector viewRelative;
-    FixedVector componentDelta;
-    FixedVector partnerComponent;
-    FixedVector tangent;
-    FixedVector force;
-    short objectMass;
-    short partnerMass;
-    int totalMass;
-    int responseScale;
-    int forceMagnitude;
-    short speed;
     short damage;
-    short savedScale;
+    short scale;
+    SphericalVector impactBearing;
     short adaptiveDamageScale;
-    short lifetime;
-    short partner;
+    FixedVector component;
+    int elasticity;
+    FixedVector offAxis;
+    short objectMass;
+    short otherMass;
+    int forceMagnitude;
+    FixedVector hitDirection;
+    FixedVector otherComponent;
+    FixedVector relativePosition;
+    short impactDamage;
+    short lifespan;
+    FixedVector closingVelocity;
+    int total;
+    FixedVector cameraSpace;
+    short travelSpeed;
+    short collider;
 
     objectMass = g_aObjectTypeData_00496d30[
         g_acObjectType_00493980[obj]].radarRadius;
-    partner = check_for_collision(obj);
-    if (partner == -1) {
-        g_acLastCollisionObject_00495250[obj] = -1;
-    } else if (g_bPlayerCollisionEnabled_0049d780 != 0 ||
-               (partner != 0 && obj != 0)) {
-        partnerMass = g_aObjectTypeData_00496d30[
-            g_acObjectType_00493980[partner]].radarRadius;
+    collider = check_for_collision(obj);
+    if (collider != -1) {
+        if (g_bPlayerCollisionEnabled_0049d780 == 0 &&
+            (collider == 0 || obj == 0))
+            return;
+        otherMass = g_aObjectTypeData_00496d30[
+            g_acObjectType_00493980[collider]].radarRadius;
         NormalizeFixedVector(&g_vCollisionDelta_00493178);
-        ComputeVectorDelta(&g_aShipVelocity_00494898[partner],
+        ComputeVectorDelta(&g_aShipVelocity_00494898[collider],
                            &g_aShipVelocity_00494898[obj],
-                           &relativeVelocity);
-        NormalizeFixedVector(&relativeVelocity);
+                           &hitDirection);
+        NormalizeFixedVector(&hitDirection);
 
         switch (g_aeObjectClass_00495328[obj]) {
         case OBJECT_CLASS_PROJECTILE:
-            if (g_acObjectOwner_00495208[obj] != partner &&
-                g_aeObjectClass_00495328[partner] !=
+            if (g_acObjectOwner_00495208[obj] != collider &&
+                g_aeObjectClass_00495328[collider] !=
                     OBJECT_CLASS_PROJECTILE) {
-                if (g_aeObjectClass_00495328[partner] >=
+                if (g_aeObjectClass_00495328[collider] >=
                         OBJECT_CLASS_MISSILE) {
-                    if (partner == 0) {
+                    if (collider == 0) {
                         ComputeVectorDelta(
                             &g_aShipPosition_00494550[EYE_OBJECT],
-                            &g_aShipPosition_00494550[obj], &viewDelta);
+                            &g_aShipPosition_00494550[obj],
+                            &relativePosition);
                         transform_to_objects_frame(
-                            &viewDelta, &viewRelative, EYE_OBJECT);
-                        rectangular_to_spherical(&viewRelative, &impact);
-                        if (abs(impact.pitch) < 45) {
-                            if (abs(impact.yaw) < 45) {
+                            &relativePosition, &cameraSpace, EYE_OBJECT);
+                        rectangular_to_spherical(&cameraSpace,
+                                                 &impactBearing);
+                        if (abs(impactBearing.pitch) < 45) {
+                            if (abs(impactBearing.yaw) < 45)
                                 g_aasCockpitHitPaletteFades_005d2cb0[1][0] =
                                     0x38;
-                            } else if (abs(impact.yaw) < 136) {
-                                if (impact.yaw < 0) {
-                                    g_aasCockpitHitPaletteFades_005d2cb0[3][0] =
-                                        0x38;
-                                } else {
-                                    g_aasCockpitHitPaletteFades_005d2cb0[5][0] =
-                                        0x38;
-                                }
-                            } else {
+                            else if (abs(impactBearing.yaw) > 135)
                                 g_aasCockpitHitPaletteFades_005d2cb0[0][0] =
                                     0x38;
-                            }
-                        } else if (impact.pitch < 0) {
+                            else if (impactBearing.yaw < 0)
+                                g_aasCockpitHitPaletteFades_005d2cb0[3][0] =
+                                    0x38;
+                            else
+                                g_aasCockpitHitPaletteFades_005d2cb0[5][0] =
+                                    0x38;
+                        } else if (impactBearing.pitch < 0) {
                             g_aasCockpitHitPaletteFades_005d2cb0[2][0] =
                                 0x38;
                         } else {
@@ -1767,79 +1500,80 @@ void object_collision(short obj)
                                 0x38;
                         }
                     }
-                    g_acShipLastAttacker_004955c0[partner] =
+                    g_acShipLastAttacker_004955c0[collider] =
                         g_acObjectOwner_00495208[obj];
-                    g_acShipCollisionCooldown_00496010[partner] += 4;
+                    g_acShipCollisionCooldown_00496010[collider] += 4;
                     if (g_abProjectileCollisionBonus_004960a8[obj] != 0)
-                        DAT_004960f0[partner] += 4;
+                        DAT_004960f0[collider] += 4;
                     if (g_asObjectType_00495298[obj] == 9 ||
                         g_asObjectType_00495298[obj] == 0x0e) {
                         damage = g_asObjectDamage_00495178[obj];
                     } else {
-                        lifetime = *(int *)&g_aObjectTypeData_00496d30[
+                        lifespan = *(int *)&g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[obj]].lifetime;
                         damage = (short)(
-                            (g_asObjectCounter_00494be0[obj] / lifetime + 1) *
+                            (g_asObjectCounter_00494be0[obj] / lifespan +
+                             1) *
                             (g_asObjectDamage_00495178[obj] >> 1));
                     }
                     adaptiveDamageScale = MinShort(
                         150, MaxShort(70, GetAdaptiveTurnRate()));
-                    if (g_asShipSide_004955d0[partner] == 0) {
-                        damage = (short)(adaptiveDamageScale * damage / 100);
+                    if (g_asShipSide_004955d0[collider] == 0) {
+                        damage = (short)(adaptiveDamageScale * damage /
+                                         100);
                     }
-                    force = g_aShipVelocity_00494898[obj];
-                    NormalizeFixedVector(&force);
-                    ScaleFixedVector(&force, (int)damage << 8, &force);
+                    component = g_aShipVelocity_00494898[obj];
+                    NormalizeFixedVector(&component);
+                    ScaleFixedVector(&component, (int)damage << 8,
+                                     &component);
                     negate_vector(&g_vCollisionDelta_00493178);
                     apply_force_to_object(&g_vCollisionDelta_00493178,
-                                          &force, partner);
+                                          &component, collider);
                     g_bApplyingCollisionDamage_00492fb8 = 1;
-                    inflict_damage(obj, partner, damage, &relativeVelocity);
+                    inflict_damage(obj, collider, damage, &hitDirection);
                     g_bApplyingCollisionDamage_00492fb8 = 0;
                 }
-                savedScale = g_asObjectScale_00494d90[obj];
+                scale = g_asObjectScale_00494d90[obj];
                 set_objects_data(
                     obj, OBJECT_DATA_PROJECTILE_IMPACT_EFFECT,
                     g_acObjectOwner_00495208[obj], 0);
                 g_asObjectScale_00494d90[obj] =
-                    (unsigned short)(savedScale + savedScale);
+                    (unsigned short)(scale * 2);
                 g_aShipVelocity_00494898[obj] =
-                    g_aShipVelocity_00494898[partner];
+                    g_aShipVelocity_00494898[collider];
                 RecordCannedSceneObjectEvent(obj, 0);
-                if (g_aeObjectClass_00495328[partner] ==
-                        OBJECT_CLASS_ASTEROID) {
-                    hit_asteroid(partner, 3);
-                }
+                if (g_aeObjectClass_00495328[collider] ==
+                        OBJECT_CLASS_ASTEROID)
+                    hit_asteroid(collider, 3);
             }
             break;
 
         case OBJECT_CLASS_MINE:
-            if (g_acObjectOwner_00495208[obj] != partner &&
-                g_acObjectCollisionGraceTicks_00494d48[obj] < 1) {
-                if (easy2see(obj) == 0 &&
-                    (g_nCurrentView_00492fa8 == 0 || partner != 0)) {
-                    remove_object(obj);
-                } else {
-                    explode(obj, obj);
-                }
-            }
+            if (g_acObjectOwner_00495208[obj] == collider ||
+                g_acObjectCollisionGraceTicks_00494d48[obj] > 0)
+                return;
+            if (easy2see(obj) == 0 &&
+                (g_nCurrentView_00492fa8 == 0 || collider != 0))
+                remove_object(obj);
+            else
+                explode(obj, obj);
             break;
 
         case OBJECT_CLASS_MISSILE:
-            if (g_acObjectOwner_00495208[obj] != partner ||
-                g_acObjectCollisionGraceTicks_00494d48[obj] < 1) {
+            if (g_acObjectOwner_00495208[obj] != collider ||
+                g_acObjectCollisionGraceTicks_00494d48[obj] <= 0) {
                 ScaleFixedVector(&g_aShipVelocity_00494898[obj],
-                                 (int)objectMass << 8, &force);
+                                 (int)objectMass << 8, &component);
                 negate_vector(&g_vCollisionDelta_00493178);
                 apply_force_to_object(&g_vCollisionDelta_00493178,
-                                      &force, partner);
+                                      &component, collider);
                 explode(obj, obj);
                 zero_vector(&g_aShipVelocity_00494898[obj]);
             }
             break;
 
         case OBJECT_CLASS_ASTEROID:
-            if (g_aeObjectClass_00495328[partner] ==
+            if (g_aeObjectClass_00495328[collider] ==
                     OBJECT_CLASS_ASTEROID) {
                 if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
                     remove_object(obj);
@@ -1851,134 +1585,133 @@ void object_collision(short obj)
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
         case OBJECT_CLASS_BASE:
-            if ((g_aeObjectClass_00495328[partner] ==
+            if ((g_aeObjectClass_00495328[collider] ==
                      OBJECT_CLASS_ASTEROID ||
-                 (g_aeObjectClass_00495328[partner] ==
+                 (g_aeObjectClass_00495328[collider] ==
                       OBJECT_CLASS_MINE &&
-                  g_acObjectOwner_00495208[partner] == -1)) &&
-                easy2see(partner) == 0 &&
-                (g_nCurrentView_00492fa8 == 0 || obj != 0)) {
-                remove_object(partner);
-            }
-            if ((g_aeObjectClass_00495328[partner] ==
+                  g_acObjectOwner_00495208[collider] == -1)) &&
+                easy2see(collider) == 0 &&
+                (g_nCurrentView_00492fa8 == 0 || obj != 0))
+                remove_object(collider);
+            if ((g_aeObjectClass_00495328[collider] ==
                      OBJECT_CLASS_ASTEROID ||
-                 g_aeObjectClass_00495328[partner] ==
+                 g_aeObjectClass_00495328[collider] ==
                      OBJECT_CLASS_SHIP ||
-                 g_aeObjectClass_00495328[partner] >=
+                 g_aeObjectClass_00495328[collider] >=
                      OBJECT_CLASS_CAPITAL_SHIP) &&
-                g_acLastCollisionObject_00495250[obj] != partner) {
+                g_acLastCollisionObject_00495250[obj] != collider) {
                 PlaySfxWaveFileByNumber(0x1c, obj, 0);
-                g_acLastCollisionObject_00495250[partner] =
+                g_acLastCollisionObject_00495250[collider] =
                     (signed char)obj;
                 g_acLastCollisionObject_00495250[obj] =
-                    (signed char)partner;
+                    (signed char)collider;
 
                 forceMagnitude =
                     Vector_magnitude(&g_vCollisionDelta_00493178);
                 forceMagnitude = DivideFixed(
 #ifdef SDL_PORT
-                    (SdlGetBalancedCollisionRadius(obj) +
-                     SdlGetBalancedCollisionRadius(partner)) << 8,
+                    (SdlGetBalancedCollisionRadius(collider) +
+                     SdlGetBalancedCollisionRadius(obj)) << 8,
 #else
-                    (g_asObjectCollisionRadius_004950e8[obj] +
-                     g_asObjectCollisionRadius_004950e8[partner]) << 8,
+                    (g_asObjectCollisionRadius_004950e8[collider] +
+                     g_asObjectCollisionRadius_004950e8[obj]) << 8,
 #endif
                     forceMagnitude);
                 forceMagnitude = MinInt(forceMagnitude, 0x7d000);
                 ScaleFixedVector(&g_vCollisionDelta_00493178,
-                                 forceMagnitude, &force);
-                AddFixedVectors(&g_aShipPosition_00494550[obj], &force,
-                                &g_aShipPosition_00494550[partner]);
+                                 forceMagnitude, &component);
+                AddFixedVectors(&g_aShipPosition_00494550[obj], &component,
+                                &g_aShipPosition_00494550[collider]);
 
                 vector_component_in_dir(
                     &g_aShipVelocity_00494898[obj],
-                    &g_vCollisionDelta_00493178, &force);
+                    &g_vCollisionDelta_00493178, &component);
                 SubtractFixedVectors(&g_aShipVelocity_00494898[obj],
-                                     &force, &tangent);
+                                     &component, &offAxis);
                 vector_component_in_dir(
-                    &g_aShipVelocity_00494898[partner],
-                    &g_vCollisionDelta_00493178, &partnerComponent);
-                ComputeVectorDelta(&partnerComponent, &force,
-                                   &componentDelta);
-                damage = (short)(Vector_magnitude(&componentDelta) >> 8);
+                    &g_aShipVelocity_00494898[collider],
+                    &g_vCollisionDelta_00493178, &otherComponent);
+                ComputeVectorDelta(&otherComponent, &component,
+                                   &closingVelocity);
+                impactDamage =
+                    (short)(Vector_magnitude(&closingVelocity) >> 8);
 #ifdef SDL_PORT
-                if (obj == 0 || partner == 0)
-                    SdlQueueJoystickCollisionRumble(damage);
+                if (obj == 0 || collider == 0)
+                    SdlQueueJoystickCollisionRumble(impactDamage);
 #endif
-                damage = (short)((damage * damage) >> 1);
-                totalMass = partnerMass + objectMass;
-                responseScale = COLLISION_MASS_DIFFERENCE_SCALE(
-                                    objectMass, partnerMass) /
-                                totalMass;
-                responseScale = MinInt(
-                    MaxInt(0x40, responseScale), 0x400);
-                ScaleFixedVector(&componentDelta, responseScale, &force);
-                AddFixedVectors(&force, &partnerComponent, &force);
+                impactDamage = (short)((impactDamage * impactDamage) >> 1);
+                total = otherMass + objectMass;
+                elasticity = COLLISION_MASS_DIFFERENCE_SCALE(
+                                 objectMass, otherMass) /
+                             total;
+                elasticity = MinInt(MaxInt(0x40, elasticity), 0x400);
+                ScaleFixedVector(&closingVelocity, elasticity, &component);
+                AddFixedVectors(&component, &otherComponent, &component);
                 forceMagnitude = MultiplyFixed(
                     (int)objectMass * 0x600,
-                    Vector_magnitude(&force)) + 0xa00;
-                speed = (short)(Vector_magnitude(
+                    Vector_magnitude(&component)) + 0xa00;
+                travelSpeed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < COLLISION_MAXIMUM_VELOCITY(obj)) {
-                    AddFixedVectors(&force,
+                if (travelSpeed < COLLISION_MAXIMUM_VELOCITY(obj)) {
+                    AddFixedVectors(&component,
                                     &g_aShipVelocity_00494898[obj],
                                     &g_aShipVelocity_00494898[obj]);
                 }
 
-                if (g_aeObjectClass_00495328[obj] ==
-                        OBJECT_CLASS_SHIP) {
-                    NormalizeFixedVector(&tangent);
-                    negate_vector(&tangent);
-                    ScaleFixedVector(&tangent, forceMagnitude, &tangent);
+                if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP) {
+                    NormalizeFixedVector(&offAxis);
+                    negate_vector(&offAxis);
+                    ScaleFixedVector(&offAxis, forceMagnitude, &offAxis);
                     rotational_acceleration(&g_vCollisionDelta_00493178,
-                                            &tangent, obj);
-                    negate_vector(&relativeVelocity);
+                                            &offAxis, obj);
+                    negate_vector(&hitDirection);
                     if (g_asObjectType_00495298[obj] == 0x33 &&
-                        g_aeObjectClass_00495328[partner] ==
-                            OBJECT_CLASS_ASTEROID) {
-                        damage /= 2;
-                    }
-                    inflict_damage(partner, obj, damage, &relativeVelocity);
-                    negate_vector(&relativeVelocity);
+                        g_aeObjectClass_00495328[collider] ==
+                            OBJECT_CLASS_ASTEROID)
+                        impactDamage /= 2;
+                    inflict_damage(collider, obj, impactDamage,
+                                   &hitDirection);
+                    negate_vector(&hitDirection);
                 }
 
-                SubtractFixedVectors(&g_aShipVelocity_00494898[partner],
-                                     &partnerComponent, &tangent);
-                responseScale = ((objectMass + objectMass) << 8) /
-                                totalMass;
-                responseScale = MinInt(
-                    MaxInt(0x40, responseScale), 0x400);
-                ScaleFixedVector(&componentDelta, responseScale, &force);
-                AddFixedVectors(&force, &partnerComponent, &force);
-                speed = (short)(Vector_magnitude(
+                SubtractFixedVectors(&g_aShipVelocity_00494898[collider],
+                                     &otherComponent, &offAxis);
+                elasticity = ((objectMass + objectMass) << 8) / total;
+                elasticity = MinInt(MaxInt(0x40, elasticity), 0x400);
+                ScaleFixedVector(&closingVelocity, elasticity, &component);
+                AddFixedVectors(&component, &otherComponent, &component);
+                travelSpeed = (short)(Vector_magnitude(
                     &g_aShipVelocity_00494898[obj]) >> 8);
-                if (speed < COLLISION_MAXIMUM_VELOCITY(partner)) {
-                    AddFixedVectors(&force,
-                                    &g_aShipVelocity_00494898[partner],
-                                    &g_aShipVelocity_00494898[partner]);
+                if (travelSpeed < COLLISION_MAXIMUM_VELOCITY(collider)) {
+                    AddFixedVectors(&component,
+                                    &g_aShipVelocity_00494898[collider],
+                                    &g_aShipVelocity_00494898[collider]);
                 }
-                if (g_aeObjectClass_00495328[partner] ==
+                if (g_aeObjectClass_00495328[collider] ==
                         OBJECT_CLASS_SHIP) {
-                    NormalizeFixedVector(&tangent);
-                    negate_vector(&tangent);
-                    ScaleFixedVector(&tangent, forceMagnitude, &tangent);
+                    NormalizeFixedVector(&offAxis);
+                    negate_vector(&offAxis);
+                    ScaleFixedVector(&offAxis, forceMagnitude, &offAxis);
                     negate_vector(&g_vCollisionDelta_00493178);
                     rotational_acceleration(&g_vCollisionDelta_00493178,
-                                            &tangent, partner);
-                    inflict_damage(obj, partner, damage, &relativeVelocity);
+                                            &offAxis, collider);
+                    inflict_damage(obj, collider, impactDamage,
+                                   &hitDirection);
                 }
-                if (g_aeObjectClass_00495328[partner] >=
+                if (g_aeObjectClass_00495328[collider] >=
                         OBJECT_CLASS_CAPITAL_SHIP) {
                     SubtractFixedVectors(&g_aShipPosition_00494550[obj],
                                          &g_aShipVelocity_00494898[obj],
                                          &g_aShipPosition_00494550[obj]);
                     g_anShipSpeed_00494e20[obj] = 0;
                     g_aShipVelocity_00494898[obj] =
-                        g_aShipVelocity_00494898[partner];
+                        g_aShipVelocity_00494898[collider];
                 }
             }
             break;
         }
+    } else {
+        g_acLastCollisionObject_00495250[obj] = -1;
     }
 }
 
@@ -2013,33 +1746,32 @@ void object_intelligence(short obj)
         mine_intelligence(obj);
         break;
     case OBJECT_CLASS_MISSILE:
-        if (g_nSpaceFrame_00493134 % 4 != 0 &&
-            g_nExternalViewShip_00493468 != obj) {
-            break;
-        }
-        target = g_acShipTarget_00495f20[obj];
-        if (target != -1)
-            get_facing_range_from_object(obj, target);
-        switch (g_asObjectType_00495298[obj]) {
-        case OBJECT_DATA_DART_DUMB_FIRE_MISSILE:
-            g_anShipSpeed_00494e20[obj] =
-                (get_ship_max_velocity(obj) + 10) * 0x100;
-            break;
-        case OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE:
-            heat_seeking_missile_intelligence(obj);
-            break;
-        case OBJECT_DATA_PILUM_FRIEND_OR_FOE_MISSILE:
-            FF_missile_intelligence(obj);
-            break;
-        case OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE:
-        case OBJECT_DATA_TORPEDO:
-            point_ship(obj, 0, &g_vToTarget_00493188);
-            g_anShipSpeed_00494e20[obj] =
-                (get_ship_max_velocity(obj) + 10) * 0x100;
-            break;
-        case OBJECT_DATA_CHAFF_POD:
-            chaff_intelligence(obj);
-            break;
+        if (g_nSpaceFrame_00493134 % 4 == 0 ||
+            g_nExternalViewShip_00493468 == obj) {
+            target = g_acShipTarget_00495f20[obj];
+            if (target != -1)
+                get_facing_range_from_object(obj, target);
+            switch (g_asObjectType_00495298[obj]) {
+            case OBJECT_DATA_DART_DUMB_FIRE_MISSILE:
+                g_anShipSpeed_00494e20[obj] =
+                    (get_ship_max_velocity(obj) + 10) * 0x100;
+                break;
+            case OBJECT_DATA_JAVELIN_HEAT_SEEKING_MISSILE:
+                heat_seeking_missile_intelligence(obj);
+                break;
+            case OBJECT_DATA_PILUM_FRIEND_OR_FOE_MISSILE:
+                FF_missile_intelligence(obj);
+                break;
+            case OBJECT_DATA_SPICULUM_IMAGE_RECOGNITION_MISSILE:
+            case OBJECT_DATA_TORPEDO:
+                point_ship(obj, 0, &g_vToTarget_00493188);
+                g_anShipSpeed_00494e20[obj] =
+                    (get_ship_max_velocity(obj) + 10) * 0x100;
+                break;
+            case OBJECT_DATA_CHAFF_POD:
+                chaff_intelligence(obj);
+                break;
+            }
         }
         break;
     }

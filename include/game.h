@@ -64,11 +64,19 @@ typedef unsigned int DwordPtr;
  * the replay recording alone rather than write the wrong bytes to disk and
  * read them back over its own globals; restoring it needs the whole span laid
  * out contiguously first. */
-/* The span runs from g_dwCannedSceneSnapshotStart_00493130 to the end of
- * g_asViableTargetDistance_00496190, the last global before the sound lists
- * at 0x4961A8.  Spelled as its width rather than as the difference of the two
- * addresses because the reconstruction does not place them that far apart. */
+/* The span runs from g_dwCannedSceneSnapshotStart_00493130 up to the marker
+ * g_dwCannedSceneSnapshotEnd_004961a4, which follows
+ * g_asViableTargetDistance_00496190 just before the sound lists at 0x4961A8.
+ * The original computes the width as the difference of the two marker
+ * addresses (MOV EAX,0x4961A4 / SUB EAX,0x493130 at every use); the port,
+ * whose globals are laid out by the host linker, spells out the width. */
+#ifdef SDL_PORT
 #define CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
+#else
+#define CANNED_SCENE_SNAPSHOT_BYTES \
+    ((char *)&g_dwCannedSceneSnapshotEnd_004961a4 - \
+     (char *)&g_dwCannedSceneSnapshotStart_00493130)
+#endif
 
 /* Loading an object-type record.  The record on disk has the original's
  * layout: 0xF3 bytes, with the animation, shapeSet and shape pointers taking
@@ -262,7 +270,7 @@ typedef struct InputEvent {
  * status are also written together as a 32-bit value at several call sites. */
 typedef struct InputEventState {
     int type;                         /* +0x00 */
-    unsigned short value;             /* +0x04 */
+    short value;                      /* +0x04 */
     short status;                     /* +0x06 */
     unsigned int timestamp;           /* +0x08 */
     unsigned short modifiers;         /* +0x0C */
@@ -462,6 +470,7 @@ typedef struct DebugOverlayConsole {
     void SetOverlayTextColor(int red, int green, int blue);
     void SetOverlayBackgroundColor(int red, int green, int blue);
     void SetTransparentBackground(void);
+    void SetOpaqueBackground(void);
     void SetTextPosition(int row, int column);
     void SetCursorPosition(int column, int row);
     void Reset(void);

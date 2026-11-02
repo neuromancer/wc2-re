@@ -1,54 +1,10 @@
 /*
- *  Nav map, location readouts and the virtual screen.
+ *  Navigation map.
  *
- *  Address range 0x40d000-0x40ffff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: DrawNav* family; string band 0x4687AC-0x4688F4.
+ *  Retail object 0x44FA70-0x45244F (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
-typedef struct TitleActorMotion {
-    short x;
-    short y;
-    short velocityX;
-    short velocityY;
-} TitleActorMotion;
-
-char g_szTitleConductorFrames_00491c68[] =
-    "opoqopoqopoqopoqqrstrq";
-char *g_apszTitleActorFrames_00491c80[10] = {
-    "abcdefghijkaakkkkaaaalllllllmmll",
-    "aaaaaaaabcddeeddccffgghhgghhiiih",
-    "aaaaaaaaaabbccbbaaccccccccccaccc",
-    "aaaabbbcccddeeddccffggaaggffcaaa",
-    "aabbbaacccddddddccddeeeeeeddccca",
-    "aaaaaabbbaaabbaaaabbbbaabbbbaccc",
-    "aabbcdbbbeaaaaaaeeaaaaaaaaaabaaa",
-    "abbbaacccdeeaaeeddaaaaaaaaaadacc",
-    "aaaaaaaaabbbccbbbbccddddddccaaaa",
-    "abccdefgghiijjiihhkkllmmllkkhnnn"
-};
-TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
-    { 58, 94, -1, 1 },
-    { 186, 94, 0, 1 },
-    { 278, 94, 1, 1 },
-    { 58, 102, -3, 2 },
-    { 186, 102, 0, 2 },
-    { 278, 102, 3, 2 },
-    { 58, 110, -5, 3 },
-    { 186, 110, 0, 3 },
-    { 278, 110, 5, 3 },
-    { 158, 74, 0, 4 }
-};
-unsigned char *g_pTitleFieldShape_00491cf8;
-volatile short g_nNearHeapActive_00493044 = 0;
-volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
-volatile int g_nNearHeapRelocationBytes_0049304c = 0;
-
-
-
-
-short g_nNavMapCoordinateScaling_0049bb80 = 0;
-short g_nNavMapScale_0049bb84 = 1;
 NavMapObjectiveStyle g_aNavMapObjectiveStyles_0049bb88[12] = {
     { 1, 2, &g_ucPrimaryTextColour_0049cb64,
       &g_ucDefaultTextColour_0049cb7c,
@@ -77,9 +33,13 @@ NavMapObjectiveStyle g_aNavMapObjectiveStyles_0049bb88[12] = {
     { 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0 }
 };
+
 unsigned char *g_pNavMapShape_0049bc48 = 0;
+
 short g_nNavMapLabelCount_0049bc4c = 0;
+
 short g_nNavMapReservedAreaCount_0049bc50 = 0;
+
 char *g_apszShipMissionTypeNames_0049bc58[14] = {
     g_szMissionPatrol_0049bcb8,
     g_szMissionEscort_0049bcc0,
@@ -96,50 +56,295 @@ char *g_apszShipMissionTypeNames_0049bc58[14] = {
     g_szMissionBreakOff_0049bd24,
     0
 };
+
 char g_szNoFurtherObjectives_0049bc90[32] =
     "Further objectives out-system.";
-short g_bBriefingMapActive_0049bcb0 = 0;
+
 int g_bInflightComputerActive_0049bcb4 = 0;
+
 char g_szMissionPatrol_0049bcb8[8] = "Patrol";
+
 char g_szMissionEscort_0049bcc0[8] = "Escort";
+
 char g_szMissionStrike_0049bcc8[8] = "Strike";
+
 char g_szMissionDefend_0049bcd0[8] = "Defend";
+
 char g_szMissionWingman_0049bcd8[8] = "Wingman";
+
 char g_szMissionFlee_0049bce0[8] = "Flee";
+
 char g_szMissionGotoWarp_0049bce8[12] = "Goto Warp";
+
 char g_szMissionWarpArrive_0049bcf4[12] = "Warp Arrive";
+
 char g_szMissionRendezvous_0049bd00[12] = "Rendezvous";
+
 char g_szMissionComeHome_0049bd0c[12] = "Come Home";
+
 char g_szMissionTanker_0049bd18[8] = "Tanker";
+
 char g_szMissionTow_0049bd20[4] = "Tow";
+
 char g_szMissionBreakOff_0049bd24[12] = "Break Off";
+
 char g_szNavLabelTextFormat_0049bd30[12] = "%X%Y%F%s";
+
 char g_szNavAsteroids_0049bd3c[12] = "Asteroids";
+
 char g_szNavMines_0049bd48[8] = "Mines";
+
 char g_szInflightTimeFieldFormat_0049bd50[8] = "%02d";
+
 char g_szStandardTimeFormat_0049bd58[24] =
     "%X%YStandard time %s";
+
 char g_szStandardTimeBlank_0049bd70[4] = " ";
+
 char g_szInflightTimeSuffixFormat_0049bd74[8] = "%02d  ";
+
 char g_szStandardTimeColon_0049bd7c[4] = ":";
+
 char g_szNavLegendNewline_0049bd80[4] = "\n";
+
 char g_szNavMissionFlightPath_0049bd84[20] = "MISSION FLIGHT PATH";
+
 char g_szNavHomeBase_0049bd98[12] = "HOME BASE";
+
 char g_szNavBlankLine_0049bdb0[4] = "\n";
+
 char g_szNavTitleFormat_0049bdb4[8] = "%s\n\n";
+
 char g_szNavSectorFormat_0049bdbc[12] = "Sector: %s\n";
+
 char g_szNavSystemFormat_0049bdc8[16] = "System: %s\n\n";
+
 char g_szNavMissionFormat_0049bdd8[8] = "* %s *\n";
+
 char g_szNavShipFormat_0049bde0[8] = "* %s *\n";
+
 char g_szNavNotesHeading_0049bde8[8] = "\nNotes\n";
+
 char g_szNavNoteFormat_0049bdf0[4] = "%s\n";
+
 char g_szNavLocationFormat_0049bdf4[48] =
     "%X%Y                         Location: %d.%d.%d";
+
 char g_szNavViewportName_0049be30[8] = "VSCREEN";
+
 char g_szBriefingNavMapTitle_0049be38[20] = "Briefing Nav Map";
+
 char g_szConfedNavScan_0049be4c[16] = "ConFed Nav Scan";
-unsigned char *g_apTitleSections_005d3f70[13];
-void *g_pTitleMusic_005d3fa4;
+
+/* Function start: 0x44FA70 */
+void DrawNavTextLine(unsigned char alignment, unsigned short colour,
+                     const char *format, ...)
+{
+    va_list arguments;
+
+    g_pCurrentTextContext_005c8d1c->colour = colour;
+    g_pCurrentTextContext_005c8d1c->alignment = alignment;
+    va_start(arguments, format);
+    g_pCurrentTextContext_005c8d1c->textCursor =
+        g_pCurrentTextContext_005c8d1c->text;
+    /* The original pushes the list itself; the port's FormatTextTokens takes
+     * its address, because va_arg has to advance the caller's copy on an ABI
+     * where a vararg is not always four bytes wide. */
+#ifdef SDL_PORT
+    FormatTextTokens((void (*)(int))AppendTextCharacter, format,
+                     &arguments);
+#else
+    FormatTextTokens((void (*)(int))AppendTextCharacter, format,
+                     (unsigned long *)arguments);
+#endif
+    va_end(arguments);
+    DrawTextString(g_pCurrentTextContext_005c8d1c->text);
+}
+
+/* Function start: 0x44FADA */
+void SetNavMapCoordinateScaling(short enabled)
+{
+    g_nNavMapCoordinateScaling_0049bb80 = enabled;
+}
+
+/* Function start: 0x44FAEF */
+void ScaleNavMapMarkerSize(short *size)
+{
+    *size = (short)(*size / (g_nNavMapScale_0049bb84 * 100));
+}
+
+/* Function start: 0x44FB19 */
+void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
+{
+    *x = (short)((mapX - g_nNavMapCentreX_005d16c2) /
+                 g_nNavMapScale_0049bb84 + 75);
+    *y = (short)(67 - (mapY - g_nNavMapCentreY_005d16ec) /
+                 g_nNavMapScale_0049bb84);
+}
+
+/* Function start: 0x44FB68 */
+void nav_getxy(short *x, short *y, int worldX, int worldZ)
+{
+    *x = (short)((worldX / 100) >> 8);
+    *y = (short)((worldZ / 100) >> 8);
+    if (g_nNavMapCoordinateScaling_0049bb80 != 0)
+        ScaleNavMapCoordinates(x, y, *x, *y);
+}
+
+/* Function start: 0x44FBC8 */
+void CheckPoint(short x, short y)
+{
+    g_nNavMapMinimumX_005d16a0 =
+        MinShort(g_nNavMapMinimumX_005d16a0, x);
+    g_nNavMapMaximumX_005d169e =
+        MaxShort(g_nNavMapMaximumX_005d169e, x);
+    g_nNavMapMinimumY_005d16c4 =
+        MinShort(g_nNavMapMinimumY_005d16c4, y);
+    g_nNavMapMaximumY_005d16c0 =
+        MaxShort(g_nNavMapMaximumY_005d16c0, y);
+}
+
+/* Function start: 0x44FC37 */
+void IncludeNavMapWorldPoint(int worldX, int worldZ)
+{
+    short x;
+    short y;
+
+    nav_getxy(&x, &y, worldX, worldZ);
+    CheckPoint(x, y);
+}
+
+/* Function start: 0x44FC6D */
+void SetScale(void)
+{
+    short objectiveIndex;
+    short obj;
+    short mapHeight;
+    short mapWidth;
+
+    SetNavMapCoordinateScaling(0);
+    g_nNavMapMinimumX_005d16a0 = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavMapMaximumX_005d169e = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavMapMinimumY_005d16c4 = g_aMissionObjectives_004932a8[0].mapY;
+    g_nNavMapMaximumY_005d16c0 = g_aMissionObjectives_004932a8[0].mapY;
+    for (objectiveIndex = 0;
+         objectiveIndex < (short)g_cMissionObjectiveCount_00493294;
+         objectiveIndex++) {
+        if (mobile_objective(objectiveIndex) != 0) {
+            obj = find_ship_index((short)
+                g_aMissionObjectives_004932a8[objectiveIndex].index);
+            if (obj != -1)
+                g_aMissionObjectives_004932a8[objectiveIndex].position =
+                    g_aShipPosition_00494550[obj];
+        }
+        nav_getxy(
+            &g_aMissionObjectives_004932a8[objectiveIndex].mapX,
+            &g_aMissionObjectives_004932a8[objectiveIndex].mapY,
+            g_aMissionObjectives_004932a8[objectiveIndex].position.x,
+            g_aMissionObjectives_004932a8[objectiveIndex].position.z);
+        CheckPoint(g_aMissionObjectives_004932a8[objectiveIndex].mapX,
+                   g_aMissionObjectives_004932a8[objectiveIndex].mapY);
+    }
+    IncludeNavMapWorldPoint(g_aShipPosition_00494550[0].x,
+                            g_aShipPosition_00494550[0].z);
+    mapWidth = (short)(g_nNavMapMaximumX_005d169e -
+                    g_nNavMapMinimumX_005d16a0);
+    mapHeight = (short)(g_nNavMapMaximumY_005d16c0 -
+                     g_nNavMapMinimumY_005d16c4);
+    g_nNavMapCentreX_005d16c2 =
+        (short)(mapWidth / 2 + g_nNavMapMinimumX_005d16a0);
+    g_nNavMapCentreY_005d16ec =
+        (short)(mapHeight / 2 + g_nNavMapMinimumY_005d16c4);
+    g_nNavMapScale_0049bb84 = MaxShort(
+        (short)((mapWidth / 2 + mapWidth) / 150),
+        (short)((mapHeight / 2 + mapHeight) / 135));
+    if (g_nNavMapScale_0049bb84 == 0)
+        g_nNavMapScale_0049bb84 = 100;
+    SetNavMapCoordinateScaling(1);
+}
+
+void set_sphere_point(const MissionShipRecord *record, FixedVector *position);
+
+/* Function start: 0x44FE9F */
+void Build_objective_list(void)
+{
+    MissionObjectiveSource *source;
+    FixedVector position;
+    const char *displayName;
+    short type;
+    short index;
+    short flightPathCount;
+
+    RefreshObjectiveShipNavPoints();
+    SetNavMapCoordinateScaling(0);
+    g_cMissionObjectiveCount_00493294 = 0;
+    flightPathCount = 0;
+    source = g_aMissionObjectiveSources_005d3c70;
+#ifdef SDL_PORT
+    /* Retail reads the next word after the eight-record table before checking
+     * that all eight output slots are full.  That word is the adjacent mission
+     * header and cannot affect the loop body, so bound the native read first. */
+    while (g_cMissionObjectiveCount_00493294 < 8 &&
+           (type = source->type) != -1) {
+#else
+    while ((type = source->type) != -1 &&
+           g_cMissionObjectiveCount_00493294 < 8) {
+#endif
+        index = source->index;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].flags = 0;
+        switch (type) {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+            displayName = (const char *)&g_aMissionShips_00492290[index];
+            set_sphere_point(&g_aMissionShips_00492290[index], &position);
+            g_abFlightPath_004932a0[flightPathCount++] =
+                g_cMissionObjectiveCount_00493294;
+            break;
+        case 0:
+        case 5:
+            displayName =
+                (const char *)&g_aMissionNavPoints_00491e98[index];
+            position = g_aMissionNavPoints_00491e98[index].position;
+            g_abFlightPath_004932a0[flightPathCount++] =
+                g_cMissionObjectiveCount_00493294;
+            break;
+        }
+
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].type = type;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].index = source->index;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].field_8 = -1;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].name = source->description;
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].position = position;
+        nav_getxy(
+            &g_aMissionObjectives_004932a8[
+                g_cMissionObjectiveCount_00493294].mapX,
+            &g_aMissionObjectives_004932a8[
+                g_cMissionObjectiveCount_00493294].mapY,
+            position.x, position.z);
+        g_aMissionObjectives_004932a8[
+            g_cMissionObjectiveCount_00493294].displayName = displayName;
+        g_cMissionObjectiveCount_00493294++;
+        source++;
+    }
+
+    g_abFlightPath_004932a0[flightPathCount] = -1;
+    g_cCurrentNavPointIndex_00493298 = 0;
+    g_cCurrentObjective_004931cc = 0;
+    if (g_cMissionObjectiveCount_00493294 != 0) {
+        while (set_new_objective(
+                   (short)g_cCurrentNavPointIndex_00493298) == 0)
+            g_cCurrentNavPointIndex_00493298++;
+    }
+}
 
 /* Function start: 0x450136 */
 short NavMapPointInsideReservedArea(short area, short x, short y)
@@ -156,34 +361,34 @@ short NavMapLabelFits(short x, short y, short width, short height)
     return x > 0 && y > 0 && x + width < 150 && y + height < 135;
 }
 
+short TryPlaceNavMapLabel(short x, short y, short width, short force);
+
 /* Function start: 0x450210 */
 short NavMapLabelPositionAvailable(short x, short y,
                                    short width, short height)
 {
-    short available;
-    short area;
+    short clear;
+    short rect;
     short checkX;
     short checkY;
 
-    available = NavMapLabelFits(x, y, width, height);
-    if (available == 1) {
-        area = 0;
-        while (area < g_nNavMapReservedAreaCount_0049bc50 &&
-               available != 0) {
-            checkX = x;
-            while (checkX < x + width && available != 0) {
-                checkY = y;
-                while (checkY < y + height && available != 0) {
-                    available = (short)((unsigned short)
-                        NavMapPointInsideReservedArea(area, checkX, checkY) == 0);
-                    checkY++;
+    clear = 1;
+    clear = NavMapLabelFits(x, y, width, height);
+    if (clear == 1) {
+        for (rect = 0;
+             rect < g_nNavMapReservedAreaCount_0049bc50 && clear != 0;
+             rect++) {
+            for (checkX = x; checkX < x + width && clear != 0;
+                 checkX++) {
+                for (checkY = y; checkY < y + height && clear != 0;
+                     checkY++) {
+                    clear = (short)(NavMapPointInsideReservedArea(
+                                        rect, checkX, checkY) == 0);
                 }
-                checkX++;
             }
-            area++;
         }
     }
-    return available;
+    return clear;
 }
 
 /* Function start: 0x450329 */
@@ -228,68 +433,39 @@ short TryPlaceNavMapLabel(short x, short y, short width, short force)
 }
 
 #pragma function(strlen)
-
 /* Function start: 0x450458 */
 void PlaceNavMapLabel(short x, short y, unsigned short colour,
                       const char *text)
 {
-    short width;
-    short offset;
+    short textWidth;
+    short shift;
 
-    width = (short)(strlen(text) * 4 + 2);
+    textWidth = (short)(strlen(text) * 4 + 2);
     g_aNavMapLabels_005b34e0[
         g_nNavMapLabelCount_0049bc4c].colour = colour;
     g_aNavMapLabels_005b34e0[
         g_nNavMapLabelCount_0049bc4c].text = text;
-    offset = -1;
+    shift = -1;
     do {
-        offset++;
-    } while (TryPlaceNavMapLabel((short)(offset + x + 4), y,
-                                 width, 0) == 0 &&
-             TryPlaceNavMapLabel((short)(x - width / 2),
-                                 (short)(offset + y + 5), width,
-                                 (short)(offset == 12)) == 0 &&
-             TryPlaceNavMapLabel((short)(x - width - 3 - offset), y,
-                                 width, (short)(offset == 12)) == 0 &&
-             TryPlaceNavMapLabel(x, (short)(offset + y + 5), width,
-                                 (short)(offset == 12)) == 0 &&
-             TryPlaceNavMapLabel((short)(x - width / 2),
-                                 (short)(y - 9 - offset), width,
-                                 (short)(offset == 12)) == 0 &&
-             offset != 12);
+        shift++;
+    } while (TryPlaceNavMapLabel((short)(shift + x + 4), y,
+                                 textWidth, 0) == 0 &&
+             TryPlaceNavMapLabel((short)(x - textWidth / 2),
+                                 (short)(shift + y + 5), textWidth,
+                                 (short)(shift == 12)) == 0 &&
+             TryPlaceNavMapLabel((short)(x - textWidth - 3 - shift), y,
+                                 textWidth, (short)(shift == 12)) == 0 &&
+             TryPlaceNavMapLabel(x, (short)(shift + y + 5), textWidth,
+                                 (short)(shift == 12)) == 0 &&
+             TryPlaceNavMapLabel((short)(x - textWidth / 2),
+                                 (short)(y - 9 - shift), textWidth,
+                                 (short)(shift == 12)) == 0 &&
+             shift != 12);
     ReserveNavMapArea(
         g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].x,
         g_aNavMapLabels_005b34e0[g_nNavMapLabelCount_0049bc4c].y,
-        width, 6);
+        textWidth, 6);
     g_nNavMapLabelCount_0049bc4c++;
-}
-
-#pragma intrinsic(strlen)
-
-/* Function start: 0x450CF8 */
-/* Whether this objective sits in the star system the nav map is showing. */
-short IsObjectiveInDisplayedSystem(short objective)
-{
-    short navPoint;
-
-    switch (g_aMissionObjectives_004932a8[objective].type) {
-    case 0:
-    case 5:
-        if (g_aMissionNavPoints_00491e98[
-                g_aMissionObjectives_004932a8[objective].index]
-                    .systemIndex == g_stElapsedCampaignDate_005d170c.year)
-            return 1;
-        return 0;
-    default:
-        navPoint = find_ships_sphere(
-            g_aMissionObjectives_004932a8[objective].index);
-        if (navPoint == -1)
-            return 1;
-        if (g_aMissionNavPoints_00491e98[navPoint].systemIndex ==
-            g_stElapsedCampaignDate_005d170c.year)
-            return 1;
-        return 0;
-    }
 }
 
 /* Function start: 0x450623 */
@@ -318,6 +494,11 @@ short ObjectivesShareNavLabel(short objective, short other)
     }
 }
 
+/* Objective-state callees from the cockpit module. */
+short hidden_objective(short objective);
+short visited(short objective);
+short achieved(short objective);
+
 /* Function start: 0x4506F8 */
 void AddUniqueObjectiveNavLabel(short x, short y,
                                 unsigned short colour, const char *text,
@@ -330,44 +511,44 @@ void AddUniqueObjectiveNavLabel(short x, short y,
         return;
     }
     for (previous = 0; previous < objective; previous++) {
-        if (hidden_objective(previous) == 0 &&
-            g_aMissionObjectives_004932a8[previous].index ==
-                missionShip &&
-            ObjectivesShareNavLabel(objective, previous) != 0)
+        if (hidden_objective(previous) != 0)
+            continue;
+        else if (g_aMissionObjectives_004932a8[previous].index ==
+                     missionShip &&
+                 ObjectivesShareNavLabel(objective, previous) != 0)
             break;
     }
-    if (previous < objective)
-        return;
-    PlaceNavMapLabel(x, y, colour, text);
+    if (previous >= objective)
+        PlaceNavMapLabel(x, y, colour, text);
 }
 
 /* Function start: 0x4507DA */
 short IsPointInNavMapLabel(short labelIndex, short x, short y)
 {
-    if (g_aNavMapLabels_005b34e0[labelIndex].x <= x &&
-        (unsigned int)x <=
-            (unsigned int)(g_aNavMapLabels_005b34e0[labelIndex].x +
-                           strlen(g_aNavMapLabels_005b34e0[
-                               labelIndex].text) * 4) &&
-        g_aNavMapLabels_005b34e0[labelIndex].y <= y &&
-        y <= g_aNavMapLabels_005b34e0[labelIndex].y + 6)
-        return 1;
-    return 0;
+    return g_aNavMapLabels_005b34e0[labelIndex].x <= x &&
+           (unsigned int)x <=
+               (unsigned int)(g_aNavMapLabels_005b34e0[labelIndex].x +
+                              strlen(g_aNavMapLabels_005b34e0[labelIndex].text) * 4) &&
+           g_aNavMapLabels_005b34e0[labelIndex].y <= y &&
+           y <= g_aNavMapLabels_005b34e0[labelIndex].y + 6;
 }
+
+#pragma intrinsic(strlen)
+
+void DrawViewportLine(Viewport *viewport, short x1, short y1, short x2, short y2, short colour);
+void DrawViewportBorder(Viewport *viewport, short left, short top, short right, short bottom, short colour);
 
 /* Function start: 0x45087F */
 void DrawNavMapLabels(void)
 {
     short label;
 
-    label = 0;
-    while (label < (short)g_nNavMapLabelCount_0049bc4c) {
+    for (label = 0; label < (short)g_nNavMapLabelCount_0049bc4c; label++) {
         DrawFormattedText(g_szNavLabelTextFormat_0049bd30,
                           g_aNavMapLabels_005b34e0[label].x,
                           g_aNavMapLabels_005b34e0[label].y,
                           g_aNavMapLabels_005b34e0[label].colour,
                           g_aNavMapLabels_005b34e0[label].text);
-        label++;
     }
 }
 
@@ -388,6 +569,10 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1),
                           (short)(size * 2 + 1));
 }
+
+/* Hazard and text-context callees from other modules. */
+short find_ships_sphere(short missionShip);
+void SetTextContext(TextContext *context);
 
 /* Function start: 0x4509C9 */
 void DrawNavSquareOutline(Viewport *viewport, short x, short y,
@@ -423,6 +608,8 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
                           (short)(size * 2 + 1));
     (void)shadow;
 }
+
+void AddFixedVectors(const FixedVector *left, const FixedVector *right, FixedVector *sum);
 
 /* Function start: 0x450B03 */
 void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
@@ -469,6 +656,34 @@ void DrawNavCrossMarker(short x, short y, short size, short shadow,
     (void)shadow;
 }
 
+/* Function start: 0x450CF8 */
+/* Whether this objective sits in the star system the nav map is showing. */
+short IsObjectiveInDisplayedSystem(short objective)
+{
+    short navPoint;
+
+    switch (g_aMissionObjectives_004932a8[objective].type) {
+    case 0:
+    case 5:
+        if (g_aMissionNavPoints_00491e98[
+                g_aMissionObjectives_004932a8[objective].index]
+                    .systemIndex == g_stElapsedCampaignDate_005d170c.year)
+            return 1;
+        else
+            return 0;
+    default:
+        navPoint = find_ships_sphere(
+            g_aMissionObjectives_004932a8[objective].index);
+        if (navPoint == -1)
+            return 1;
+        else if (g_aMissionNavPoints_00491e98[navPoint].systemIndex ==
+                 g_stElapsedCampaignDate_005d170c.year)
+            return 1;
+        else
+            return 0;
+    }
+}
+
 /* Function start: 0x450DF6 */
 void SetScreenClipRect(unsigned short a, unsigned short b,
                        unsigned short c, unsigned short d)
@@ -511,24 +726,25 @@ void DrawNavPlayerMarker(short colour, short reserve)
  * label for each active record. */
 void DrawNavMapBriefingBeacons(void)
 {
-    const NavMapBeacon *beacon;
-    short mapX;
-    short mapY;
-    short worldX;
-    short worldZ;
+    const NavMapBeacon *beaconRecord;
+    short gridX;
+    short gridY;
+    short navX;
+    short navY;
 
-    for (beacon = (const NavMapBeacon *)g_abMissionBriefingData_005d3e90;
-         beacon->active != 0; beacon++) {
-        nav_getxy(&worldX, &worldZ, beacon->position.x,
-                  beacon->position.z);
-        ScaleNavMapCoordinates(&mapX, &mapY, worldX, worldZ);
-        DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, mapX, mapY,
+    beaconRecord = (const NavMapBeacon *)g_abMissionBriefingData_005d3e90;
+    while (beaconRecord->active != 0) {
+        nav_getxy(&navX, &navY, beaconRecord->position.x,
+                  beaconRecord->position.z);
+        ScaleNavMapCoordinates(&gridX, &gridY, navX, navY);
+        DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, gridX, gridY,
                           g_ucNavObjectiveMarkerColour_0049cb78);
-        DrawNavSquareMarker(mapX, mapY, 2, 0,
+        DrawNavSquareMarker(gridX, gridY, 2, 0,
                             g_ucPrimaryTextColour_0049cb64, 1);
-        AddUniqueObjectiveNavLabel(mapX, mapY,
+        AddUniqueObjectiveNavLabel(gridX, gridY,
                                    g_ucDefaultTextColour_0049cb7c,
-                                   beacon->name, 0, -1);
+                                   beaconRecord->name, 0, -1);
+        beaconRecord++;
     }
 }
 
@@ -665,7 +881,7 @@ void BuildMap(short showPlayer)
 void UpdateInflightNavText(short showColon)
 {
     char time[12];
-    short cursorX;
+    short savedX;
 
     SetTextContext(&g_stNavMapTextContext_005d16d0);
     if (g_pElapsedCampaignDate_005d3e8c == 0)
@@ -675,10 +891,10 @@ void UpdateInflightNavText(short showColon)
             (int)((signed char *)g_pElapsedCampaignDate_005d3e8c)[0]);
     DrawFormattedText(
         g_szStandardTimeFormat_0049bd58,
-        (int)(short)(g_stNavMapTextContext_005d16d0.viewport->left + 152),
-        (int)(short)(g_stNavMapTextContext_005d16d0.viewport->top + 140),
+        g_stNavMapTextContext_005d16d0.viewport->left + 152,
+        g_stNavMapTextContext_005d16d0.viewport->top + 140,
         time);
-    cursorX = g_stNavMapTextContext_005d16d0.cursorX;
+    savedX = g_stNavMapTextContext_005d16d0.cursorX;
     if (showColon == 0) {
         DrawFormattedText(g_szStandardTimeBlank_0049bd70);
     } else {
@@ -688,7 +904,7 @@ void UpdateInflightNavText(short showColon)
     sprintf(time, g_szInflightTimeSuffixFormat_0049bd74,
             (int)((signed char *)g_pElapsedCampaignDate_005d3e8c)[1]);
     DrawFormattedText(time);
-    g_stNavMapTextContext_005d16d0.cursorX = cursorX;
+    g_stNavMapTextContext_005d16d0.cursorX = savedX;
     if (showColon != 0)
         DrawFormattedText(g_szStandardTimeColon_0049bd7c);
 }
@@ -721,11 +937,9 @@ void DrawNavMapLegend(void)
     short objective;
 
     objective = 0;
-    while (objective < (short)g_cMissionObjectiveCount_00493294) {
-        if (visited(objective) == 0 && hidden_objective(objective) == 0)
-            break;
+    while (objective < (short)g_cMissionObjectiveCount_00493294 &&
+           (visited(objective) != 0 || hidden_objective(objective) != 0))
         objective++;
-    }
     SetTextCursor((unsigned short)g_stSecondaryViewBuffer_005d2c90.left, 120);
     DrawSelectedNavLegendEntry(g_szNavMissionFlightPath_0049bd84,
                                objective);
@@ -741,15 +955,16 @@ char *nav_note(short objective)
         return g_szNoFurtherObjectives_0049bc90;
     if (*g_aMissionObjectives_004932a8[objective].name == '?')
         return g_aMissionObjectives_004932a8[objective].name + 1;
-    if (*g_aMissionObjectives_004932a8[objective].name == '.')
+    else if (*g_aMissionObjectives_004932a8[objective].name == '.')
         return strchr(g_aMissionObjectives_004932a8[objective].name, 0);
-    return g_aMissionObjectives_004932a8[objective].name;
+    else
+        return g_aMissionObjectives_004932a8[objective].name;
 }
 
 /* Function start: 0x45180F */
 void DrawNavLocationReadout(const char *title, short showFlightData)
 {
-    char sectorFile[11] = "sector.000";
+    char fileName[11] = "sector.000";
     short file;
     short length;
 
@@ -768,9 +983,9 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     g_szNavTitleFormat_0049bdb4, title);
     if (g_pNavLocationText_0049bc54 == 0) {
-        sectorFile[9] =
+        fileName[9] =
             (char)(g_nSelectedCampaignSlot_005d3bf2 + '0');
-        file = OpenDataFileOrDie(sectorFile);
+        file = OpenDataFileOrDie(fileName);
         length = (short)_filelength(file);
         g_pNavLocationText_0049bc54 =
             AllocateTaggedMemory(length + 1, 0x40);
@@ -824,18 +1039,16 @@ void BriefingMap_LoadShapes(void)
     SetScreenClipRect(0, 0, 259, 155);
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportOutOfMemoryAndExit(g_szNavViewportName_0049be30);
-    objective = 0;
-    while (objective < (short)g_cMissionObjectiveCount_00493294) {
+    for (objective = 0; objective < (short)g_cMissionObjectiveCount_00493294;
+         objective++)
         LocateMobileObjective(objective);
-        objective++;
-    }
 }
 
 /* Function start: 0x451B70 */
 void BriefingMap_DisplayMap(void)
 {
-    Viewport savedViewport;
     short font;
+    Viewport savedViewport;
 
     savedViewport = g_stSecondaryViewBuffer_005d2c90;
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
@@ -856,47 +1069,46 @@ void BriefingMap_DisplayMap(void)
 }
 
 #pragma function(abs)
-
 /* Function start: 0x451C5C */
 short SelectNavObjectiveAtPoint(short mouseX, short mouseY)
 {
     short mapX;
     short mapY;
-    short oldNavPoint;
-    short selected;
-    short pathIndex;
+    short objectiveFound;
+    short step;
     short distance;
+    short previousNav;
 
-    selected = 0;
-    oldNavPoint = (short)g_cCurrentNavPointIndex_00493298;
+    objectiveFound = 0;
+    previousNav = (short)g_cCurrentNavPointIndex_00493298;
     mouseX = (short)(mouseX - 30);
     mouseY = (short)(mouseY - 22);
-    pathIndex = 0;
-    while (g_abFlightPath_004932a0[pathIndex] != -1 && pathIndex < 8) {
-        if (hidden_objective(g_abFlightPath_004932a0[pathIndex]) == 0 &&
+    step = 0;
+    while (g_abFlightPath_004932a0[step] != -1 && step < 8) {
+        if (hidden_objective(g_abFlightPath_004932a0[step]) == 0 &&
             IsObjectiveInDisplayedSystem(
-                g_abFlightPath_004932a0[pathIndex]) != 0) {
+                g_abFlightPath_004932a0[step]) != 0) {
             ScaleNavMapCoordinates(
                 &mapX, &mapY,
                 g_aMissionObjectives_004932a8[
-                    g_abFlightPath_004932a0[pathIndex]].mapX,
+                    g_abFlightPath_004932a0[step]].mapX,
                 g_aMissionObjectives_004932a8[
-                    g_abFlightPath_004932a0[pathIndex]].mapY);
+                    g_abFlightPath_004932a0[step]].mapY);
             distance = (short)(abs((int)mouseY - mapY) +
                                abs((int)mouseX - mapX));
             if (distance < 6 ||
                 IsPointInNavMapLabel(
-                    (short)g_awNavObjectiveLabelIndex_005d16b0[pathIndex],
+                    (short)g_awNavObjectiveLabelIndex_005d16b0[step],
                     mouseX, mouseY) != 0) {
-                selected = 1;
-                set_new_objective(pathIndex);
-                if (oldNavPoint == pathIndex)
-                    return selected;
+                objectiveFound = 1;
+                set_new_objective(step);
+                if (previousNav == step)
+                    return objectiveFound;
             }
         }
-        pathIndex++;
+        step++;
     }
-    return selected;
+    return objectiveFound;
 }
 
 /* Function start: 0x451DDB */
@@ -1057,8 +1269,7 @@ void InflightComputer(void)
             g_nUiInputMode_005c8d3c = 1;
             EnableMouseCursorDrawing();
             /* The original passes a second argument the callee ignores. */
-            eventType = ((short (__cdecl *)(InputEventState *, int))
-                             PollInputEvent)(&event, 0xf);
+            eventType = PollInputEvent(&event, 0xf);
             switch (eventType) {
             case 1:
                 done = 1;
@@ -1103,1261 +1314,4 @@ void InflightComputer(void)
     force_view(0, 0);
     InitializeSpaceFlightInput();
     g_bInflightComputerActive_0049bcb4 = 0;
-}
-
-/* Function start: 0x4207B0 */
-short MergeAdjacentNearHeapBlocks(int descriptorAddress)
-{
-    NearHeapBlock *block;
-
-    block = DosNearPtrToFar(descriptorAddress);
-    if ((block->sizeAndFlags & 0x80000000) == 0 &&
-        (block[1].sizeAndFlags & 0x80000000) == 0 &&
-        block->address + (block->sizeAndFlags & 0xfffff) ==
-            block[1].address) {
-        block[1].address = block->address;
-        block[1].sizeAndFlags += block->sizeAndFlags & 0xfffff;
-        while (descriptorAddress > g_nNearHeapFirstDescriptor_005d3058) {
-            descriptorAddress -= 8;
-            block = DosNearPtrToFar(descriptorAddress);
-            block[1].address = block->address;
-            block[1].sizeAndFlags = block->sizeAndFlags;
-        }
-        g_nNearHeapFirstDescriptor_005d3058 += 8;
-        return 1;
-    }
-    return 0;
-}
-
-/* Function start: 0x420874 */
-int ReleaseNearHeapBlock(int descriptorAddress)
-{
-    NearHeapBlock *block;
-
-    block = DosNearPtrToFar(descriptorAddress);
-    /* The signed read is what keeps the mask out of the descriptor
-     * word: the compiler folds the unsigned form into `and [mem]`. */
-    block->sizeAndFlags = (int)block->sizeAndFlags & 0x7fffffff;
-    if (g_nNearHeapSize_005d3050 + g_nNearHeapBase_005d3054 >
-            descriptorAddress + 8 &&
-        MergeAdjacentNearHeapBlocks(descriptorAddress) != 0)
-        descriptorAddress += 8;
-    if (descriptorAddress > g_nNearHeapFirstDescriptor_005d3058)
-        MergeAdjacentNearHeapBlocks(descriptorAddress - 8);
-    return descriptorAddress;
-}
-
-/* Function start: 0x4208FC */
-void PurgeNearHeapBlocks(unsigned short flags)
-{
-    NearHeapBlock *block;
-    int descriptorAddress;
-    int descriptorBytes;
-
-    if (g_nNearHeapActive_00493044 != 0) {
-        if ((flags & 0x10) != 0) {
-            descriptorAddress = g_nNearHeapBase_005d3054;
-            descriptorAddress += g_nNearHeapSize_005d3050;
-            descriptorAddress -= 8;
-            g_nNearHeapFirstDescriptor_005d3058 = descriptorAddress;
-            block = DosNearPtrToFar(descriptorAddress);
-            block->address = g_nNearHeapBase_005d3054;
-            descriptorBytes = g_nNearHeapMaxDescriptors_00493048 * 8;
-            block->sizeAndFlags =
-                g_nNearHeapSize_005d3050 - descriptorBytes;
-            return;
-        }
-        descriptorAddress = g_nNearHeapBase_005d3054 +
-                            g_nNearHeapSize_005d3050 - 8;
-        for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
-             descriptorAddress -= 8) {
-            block = DosNearPtrToFar(descriptorAddress);
-            if ((block->sizeAndFlags & 0x40000000) == 0)
-                descriptorAddress = ReleaseNearHeapBlock(descriptorAddress);
-        }
-    }
-}
-
-/* Function start: 0x4209C2 */
-unsigned short InitializeNearHeap(void)
-{
-    short initialSize;
-    int adjustedSize;
-
-    if (g_nNearHeapActive_00493044 == 0) {
-        initialSize = (short)GetNavRangeSentinel();
-        g_pNearHeapAllocation_005d305c = 0;
-        g_nNearHeapSize_005d3050 = initialSize;
-        if (g_nNearHeapMaxDescriptors_00493048 * 8 <
-            g_nNearHeapSize_005d3050) {
-            g_pNearHeapAllocation_005d305c =
-                AllocateTaggedMemory(g_nNearHeapSize_005d3050, 0);
-            if (g_pNearHeapAllocation_005d305c != 0) {
-                g_nNearHeapActive_00493044++;
-                g_nNearHeapBase_005d3054 =
-                    DosFarPtrToNear(g_pNearHeapAllocation_005d305c);
-                if (*(unsigned short *)0x00400013 == 0x270) {
-                    g_nNearHeapRelocationBytes_0049304c =
-                        0x9c000 - g_nNearHeapSize_005d3050 -
-                        g_nNearHeapBase_005d3054;
-                    adjustedSize =
-                        0x98000 - g_nNearHeapRelocationBytes_0049304c;
-                    adjustedSize -= g_nNearHeapBase_005d3054;
-                    g_nNearHeapSize_005d3050 = adjustedSize;
-                    if (g_nNearHeapMaxDescriptors_00493048 * 8 <
-                        g_nNearHeapSize_005d3050) {
-                        DosMemcpy(
-                            DosNearPtrToFar(
-                                g_nNearHeapBase_005d3054 +
-                                g_nNearHeapSize_005d3050),
-                            DosNearPtrToFar(
-                                0x9c000 -
-                                g_nNearHeapRelocationBytes_0049304c),
-                            g_nNearHeapRelocationBytes_0049304c);
-                    } else {
-                        FreeIfNotNull(g_pNearHeapAllocation_005d305c);
-                        g_nNearHeapActive_00493044 = 0;
-                    }
-                }
-                if (g_nNearHeapActive_00493044 != 0)
-                    PurgeNearHeapBlocks(0x10);
-            }
-        }
-    }
-    return g_nNearHeapActive_00493044;
-}
-
-/* Function start: 0x420B12 */
-void ShutdownNearHeap(void)
-{
-    if (g_nNearHeapRelocationBytes_0049304c != 0) {
-        DosMemcpy(
-            DosNearPtrToFar(
-                0x9c000 - g_nNearHeapRelocationBytes_0049304c),
-            DosNearPtrToFar(
-                g_nNearHeapSize_005d3050 +
-                g_nNearHeapBase_005d3054),
-            g_nNearHeapRelocationBytes_0049304c);
-    }
-    if (g_nNearHeapActive_00493044 != 0)
-        FreeIfNotNull(g_pNearHeapAllocation_005d305c);
-    g_nNearHeapActive_00493044 = 0;
-}
-
-/* Function start: 0x420B88 */
-void *AllocateNearHeapBlockFromEnd(int size, unsigned short flags)
-{
-#if 1
-    NearHeapBlock *block;
-    NearHeapBlock *lastBlock;
-    int descriptorAddress;
-    int shiftAddress;
-    int allocationAddress;
-    int blockSize;
-    unsigned int allocationFlags;
-
-    if (size <= 0)
-        return 0;
-    allocationFlags = 0x80000000;
-    if ((flags & 3) == 1) {
-        allocationFlags |= 0x10000000;
-        size++;
-    } else if ((flags & 3) == 2) {
-        allocationFlags |= 0x20000000;
-        size += 0xf;
-    }
-    if ((flags & 0x10) != 0)
-        allocationFlags |= 0x40000000;
-
-    allocationAddress = 0;
-    descriptorAddress =
-        g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8;
-    for (; descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058;
-         descriptorAddress -= 8) {
-        block = DosNearPtrToFar(descriptorAddress);
-        blockSize = block->sizeAndFlags & 0xfffff;
-        if ((block->sizeAndFlags & 0x80000000) != 0)
-            continue;
-        if ((int)blockSize < size)
-            continue;
-        if ((int)blockSize > size) {
-            if (g_nNearHeapBase_005d3054 -
-                    g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
-                g_nNearHeapFirstDescriptor_005d3058) {
-                lastBlock = DosNearPtrToFar(
-                    g_nNearHeapBase_005d3054 +
-                    g_nNearHeapSize_005d3050 - 8);
-                if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
-                    blockSize = lastBlock->sizeAndFlags & 0xfffff;
-                    if (lastBlock->address + blockSize ==
-                            g_nNearHeapFirstDescriptor_005d3058 &&
-                        (int)blockSize > 8) {
-                        lastBlock->sizeAndFlags -= 8;
-                        g_nNearHeapMaxDescriptors_00493048++;
-                    }
-                }
-            }
-
-            if (g_nNearHeapBase_005d3054 -
-                    g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
-                g_nNearHeapFirstDescriptor_005d3058)
-                continue;
-
-            g_nNearHeapFirstDescriptor_005d3058 -= 8;
-            shiftAddress = g_nNearHeapFirstDescriptor_005d3058;
-            for (; descriptorAddress > shiftAddress; shiftAddress += 8) {
-                block = DosNearPtrToFar(shiftAddress);
-                block->address = block[1].address;
-                block->sizeAndFlags = block[1].sizeAndFlags;
-            }
-            descriptorAddress -= 8;
-            block = DosNearPtrToFar(descriptorAddress);
-            blockSize = block->sizeAndFlags - size;
-            block->sizeAndFlags = blockSize;
-            block[1].address += blockSize & 0xffffff;
-            blockSize = allocationFlags + size;
-            block[1].sizeAndFlags = blockSize;
-            allocationAddress = block[1].address;
-            break;
-        }
-        block->sizeAndFlags |= allocationFlags;
-        allocationAddress = block->address;
-        break;
-    }
-
-    if (allocationAddress != 0) {
-        if ((flags & 3) == 1)
-            allocationAddress = (allocationAddress + 1) & 0xfffffffe;
-        else if ((flags & 3) == 2)
-            allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
-    }
-    return DosNearPtrToFar(allocationAddress);
-#else
-    NearHeapBlock *block;
-    NearHeapBlock *lastBlock;
-    int descriptorAddress;
-    int shiftAddress;
-    unsigned int allocationAddress;
-    unsigned int allocationFlags;
-
-    if (size <= 0)
-        return 0;
-    allocationFlags = 0x80000000;
-    if ((flags & 3) == 1) {
-        allocationFlags = 0x90000000;
-        size++;
-    } else if ((flags & 3) == 2) {
-        allocationFlags = 0xa0000000;
-        size += 0xf;
-    }
-    if ((flags & 0x10) != 0)
-        allocationFlags |= 0x40000000;
-
-    allocationAddress = 0;
-    descriptorAddress = g_nNearHeapBase_005d3054 +
-                        g_nNearHeapSize_005d3050;
-    do {
-        descriptorAddress -= 8;
-        if (descriptorAddress < g_nNearHeapFirstDescriptor_005d3058)
-            goto allocation_complete;
-        block = DosNearPtrToFar(descriptorAddress);
-        if ((block->sizeAndFlags & 0x80000000) != 0 ||
-            (int)(block->sizeAndFlags & 0xfffff) < size)
-            continue;
-        if ((int)(block->sizeAndFlags & 0xfffff) <= size) {
-            block->sizeAndFlags |= allocationFlags;
-            allocationAddress = block->address;
-            goto allocation_complete;
-        }
-        if (g_nNearHeapFirstDescriptor_005d3058 <=
-                g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 -
-                    g_nNearHeapMaxDescriptors_00493048 * 8) {
-            lastBlock = DosNearPtrToFar(
-                g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 - 8);
-            if ((lastBlock->sizeAndFlags & 0x80000000) == 0 &&
-                (lastBlock->sizeAndFlags & 0xfffff) + lastBlock->address ==
-                    g_nNearHeapFirstDescriptor_005d3058 &&
-                (lastBlock->sizeAndFlags & 0xfffff) > 8) {
-                lastBlock->sizeAndFlags -= 8;
-                g_nNearHeapMaxDescriptors_00493048++;
-            }
-        }
-    } while (g_nNearHeapFirstDescriptor_005d3058 <=
-             g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050 -
-                 g_nNearHeapMaxDescriptors_00493048 * 8);
-
-    g_nNearHeapFirstDescriptor_005d3058 -= 8;
-    for (shiftAddress = g_nNearHeapFirstDescriptor_005d3058;
-         shiftAddress < descriptorAddress; shiftAddress += 8) {
-        block = DosNearPtrToFar(shiftAddress);
-        block->address = block[1].address;
-        block->sizeAndFlags = block[1].sizeAndFlags;
-    }
-    block = DosNearPtrToFar(descriptorAddress - 8);
-    block->sizeAndFlags -= size;
-    block[1].address += block->sizeAndFlags & 0xffffff;
-    block[1].sizeAndFlags = allocationFlags + size;
-    allocationAddress = block[1].address;
-
-allocation_complete:
-    if (allocationAddress != 0) {
-        if ((flags & 3) == 1)
-            allocationAddress = (allocationAddress + 1) & 0xfffffffe;
-        else if ((flags & 3) == 2)
-            allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
-    }
-    return DosNearPtrToFar(allocationAddress);
-#endif
-}
-
-/* Function start: 0x420E16 */
-void *AllocateNearHeapBlockByFlags(int size, unsigned short flags)
-{
-    NearHeapBlock *block;
-    NearHeapBlock *lastBlock;
-    int descriptorAddress;
-    int shiftAddress;
-    int allocationAddress;
-    unsigned int blockSize;
-    unsigned int allocationFlags;
-    unsigned short alignment;
-
-    if ((flags & 0x20) != 0)
-        return AllocateNearHeapBlockFromEnd(size, flags);
-    if (size <= 0)
-        return 0;
-    allocationFlags = 0x80000000;
-    alignment = flags & 3;
-    if (alignment == 1) {
-        allocationFlags = 0x90000000;
-        size++;
-    } else if (alignment == 2) {
-        allocationFlags = 0xa0000000;
-        size += 0xf;
-    }
-    if ((flags & 0x10) != 0)
-        allocationFlags |= 0x40000000;
-
-    allocationAddress = 0;
-    descriptorAddress = g_nNearHeapFirstDescriptor_005d3058;
-    for (; descriptorAddress <
-               g_nNearHeapBase_005d3054 + g_nNearHeapSize_005d3050;
-         descriptorAddress += 8) {
-        block = DosNearPtrToFar(descriptorAddress);
-        blockSize = block->sizeAndFlags & 0xfffff;
-        if ((block->sizeAndFlags & 0x80000000) != 0)
-            continue;
-        if ((int)blockSize < size)
-            continue;
-        if ((int)blockSize > size) {
-            if (g_nNearHeapBase_005d3054 -
-                    g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
-                g_nNearHeapFirstDescriptor_005d3058) {
-                lastBlock = DosNearPtrToFar(
-                    g_nNearHeapBase_005d3054 +
-                    g_nNearHeapSize_005d3050 - 8);
-                if ((lastBlock->sizeAndFlags & 0x80000000) == 0) {
-                    blockSize = lastBlock->sizeAndFlags & 0xfffff;
-                    if (lastBlock->address + blockSize ==
-                            g_nNearHeapFirstDescriptor_005d3058 &&
-                        (int)blockSize > 8) {
-                        lastBlock->sizeAndFlags -= 8;
-                        g_nNearHeapMaxDescriptors_00493048++;
-                    }
-                }
-            }
-
-            if (g_nNearHeapBase_005d3054 -
-                    g_nNearHeapMaxDescriptors_00493048 * 8 +
-                    g_nNearHeapSize_005d3050 >=
-                g_nNearHeapFirstDescriptor_005d3058)
-                continue;
-
-            g_nNearHeapFirstDescriptor_005d3058 -= 8;
-            shiftAddress = g_nNearHeapFirstDescriptor_005d3058;
-            for (; descriptorAddress > shiftAddress; shiftAddress += 8) {
-                block = DosNearPtrToFar(shiftAddress);
-                block->address = block[1].address;
-                block->sizeAndFlags = block[1].sizeAndFlags;
-            }
-            descriptorAddress -= 8;
-            block = DosNearPtrToFar(descriptorAddress);
-            block->sizeAndFlags = allocationFlags + size;
-            block[1].address += size;
-            block[1].sizeAndFlags -= size;
-            allocationAddress = block->address;
-            break;
-        }
-        block->sizeAndFlags |= allocationFlags;
-        allocationAddress = block->address;
-        break;
-    }
-
-    if (allocationAddress != 0) {
-        if (alignment == 1)
-            allocationAddress = (allocationAddress + 1) & 0xfffffffe;
-        else if (alignment == 2)
-            allocationAddress = (allocationAddress + 0xf) & 0xfffffff0;
-    }
-    return DosNearPtrToFar(allocationAddress);
-}
-
-/* Function start: 0x42BDFE */
-void WriteMemoryStateReportHook(void)
-{
-}
-
-/* Function start: 0x42BE09 */
-void LogMemoryStateToFile(FILE *file)
-{
-    FILE *previousFile;
-    unsigned char previousFileMode;
-
-    previousFile = g_pMemoryLogFile_00499da8;
-    previousFileMode = g_bMemoryLogToFile_00499bf8;
-    g_bMemoryLogToFile_00499bf8 = 1;
-    g_pMemoryLogFile_00499da8 = file;
-    WriteMemoryStateReportHook();
-    g_pMemoryLogFile_00499da8 = previousFile;
-    g_bMemoryLogToFile_00499bf8 = previousFileMode;
-}
-
-/* Function start: 0x42BE4B */
-void WriteDetailedMemoryStateReport(void)
-{
-    unsigned int availableMainMemory;
-    unsigned int largestMainMemoryBlock;
-    unsigned int availableFarMemory;
-    unsigned int largestFarMemoryBlock;
-    unsigned short originalFreeMemory;
-
-    WriteMemoryStateReportHook();
-    if (g_pMemoryLogFile_00499da8 != 0) {
-        availableMainMemory = GetAvailableMainMemory();
-        largestMainMemoryBlock = GetLargestMainMemoryBlock();
-        availableFarMemory = GetAvailableFarMemory();
-        largestFarMemoryBlock = GetLargestFreeMemoryBlock();
-        originalFreeMemory = GetOriginalFreeMemory();
-        fprintf(g_pMemoryLogFile_00499da8,
-                "----- Mem State ------\n");
-        fprintf(g_pMemoryLogFile_00499da8,
-                "NEAR: %ud\n", originalFreeMemory);
-        fprintf(g_pMemoryLogFile_00499da8,
-                "FAR:  %6ld  Largest: %6ld\n",
-                availableMainMemory, largestMainMemoryBlock);
-        fprintf(g_pMemoryLogFile_00499da8,
-                "EMS:  %6ld  Largest: %6ld\n",
-                availableFarMemory, largestFarMemoryBlock);
-        fprintf(g_pMemoryLogFile_00499da8,
-                "----------------------\n");
-    }
-}
-
-/* Function start: 0x4651B7 */
-short GetViewportIntersection(ShortRect *intersection,
-                              const ShortRect *first,
-                              const ShortRect *second)
-{
-    int pointCount;
-    int pointIndex;
-    int xCoordinates[16];
-    int yCoordinates[16];
-    int inside[4];
-    int x;
-    int insideCount;
-    int y;
-
-    pointCount = 0;
-    xCoordinates[pointCount] = first->left;
-    yCoordinates[pointCount] = first->top;
-    pointCount++;
-    xCoordinates[pointCount] = first->left;
-    yCoordinates[pointCount] = first->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = first->right;
-    yCoordinates[pointCount] = first->top;
-    pointCount++;
-    xCoordinates[pointCount] = first->right;
-    yCoordinates[pointCount] = first->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = second->left;
-    yCoordinates[pointCount] = second->top;
-    pointCount++;
-    xCoordinates[pointCount] = second->left;
-    yCoordinates[pointCount] = second->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = second->right;
-    yCoordinates[pointCount] = second->top;
-    pointCount++;
-    xCoordinates[pointCount] = second->right;
-    yCoordinates[pointCount] = second->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = first->left;
-    yCoordinates[pointCount] = second->top;
-    pointCount++;
-    xCoordinates[pointCount] = first->left;
-    yCoordinates[pointCount] = second->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = first->right;
-    yCoordinates[pointCount] = second->top;
-    pointCount++;
-    xCoordinates[pointCount] = first->right;
-    yCoordinates[pointCount] = second->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = second->left;
-    yCoordinates[pointCount] = first->top;
-    pointCount++;
-    xCoordinates[pointCount] = second->left;
-    yCoordinates[pointCount] = first->bottom;
-    pointCount++;
-    xCoordinates[pointCount] = second->right;
-    yCoordinates[pointCount] = first->top;
-    pointCount++;
-    xCoordinates[pointCount] = second->right;
-    yCoordinates[pointCount] = first->bottom;
-    pointCount++;
-
-    insideCount = 0;
-    pointIndex = 0;
-    do {
-        if (pointIndex++ == 0)
-            break;
-        x = xCoordinates[pointIndex];
-        y = yCoordinates[pointIndex];
-        if (first->left <= x && x <= first->right &&
-            second->left <= x && x <= second->right &&
-            first->top <= y && y <= first->bottom &&
-            second->top <= y && y <= second->bottom) {
-            if (insideCount == 4)
-                return 0;
-            inside[insideCount] = 1;
-            insideCount++;
-        } else {
-            if (insideCount == 4)
-                return 0;
-            inside[insideCount] = 0;
-            insideCount++;
-        }
-    } while (pointIndex < pointCount);
-    if (insideCount != 4)
-        return 0;
-
-    intersection->left = MinShort(
-        (short)xCoordinates[inside[0]],
-        MinShort((short)xCoordinates[inside[1]],
-                 (short)xCoordinates[inside[2]]));
-    intersection->top = MinShort(
-        (short)yCoordinates[inside[0]],
-        MinShort((short)yCoordinates[inside[1]],
-                 (short)yCoordinates[inside[2]]));
-    intersection->left = MaxShort(
-        (short)xCoordinates[inside[0]],
-        MaxShort((short)xCoordinates[inside[1]],
-                 (short)xCoordinates[inside[2]]));
-    intersection->top = MaxShort(
-        (short)yCoordinates[inside[0]],
-        MaxShort((short)yCoordinates[inside[1]],
-                 (short)yCoordinates[inside[2]]));
-    return 1;
-}
-
-/* Function start: 0x4471B0 */
-void free_viewport(Viewport *viewport)
-{
-    unsigned char *allocation;
-    int i;
-
-    g_nFreeViewportCalls_005d1bc0++;
-    allocation = viewport->allocation;
-    if (allocation == 0)
-        return;
-
-    for (i = 0; i < g_nViewportAllocationCount_005d19bc; i++) {
-        if (g_apViewportAllocations_005d19c0[i] == viewport->allocation) {
-            g_nViewportAllocationCount_005d19bc--;
-            g_apViewportAllocations_005d19c0[i] =
-                g_apViewportAllocations_005d19c0[
-                    g_nViewportAllocationCount_005d19bc];
-            break;
-        }
-    }
-
-    if (viewport->rowOffsets != 0) {
-        ReleasePacketHandle(viewport->rowOffsets);
-        viewport->rowOffsets = 0;
-    }
-    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
-        printf("free_viewport not mcga\n");
-    ReleasePacketHandle(allocation);
-    viewport->pixels = 0;
-    viewport->allocation = 0;
-    if (g_stScreenViewport_005d21a0.pixels == allocation)
-        g_stScreenViewport_005d21a0.pixels = 0;
-    if (g_stScreenViewport_005d21a0.allocation == allocation)
-        g_stScreenViewport_005d21a0.allocation = 0;
-    if (g_stSecondaryViewBuffer_005d2c90.pixels == allocation)
-        g_stSecondaryViewBuffer_005d2c90.pixels = 0;
-    if (g_stSecondaryViewBuffer_005d2c90.allocation == allocation)
-        g_stSecondaryViewBuffer_005d2c90.allocation = 0;
-}
-
-#ifdef SDL_PORT
-/* Not an original mechanism. AnimateTitleOrchestra, PlayTitleConductorCue,
- * PushTitleOrchestraAway, RevealTitleLogo and ShowVictoryScreen below
- * each draw through a tight loop gated only by
- * g_nFrameSkipCountdown_0049d760/g_nFrameSkip_0049d764 (or, in
- * ShowVictoryScreen's case, nothing at all) -- a render-skip counter
- * for slow machines (see ReportFramesSkipped, hudmsg.c), not a clock.
- * WaitForInputKey (disk.c) polls input every iteration but never blocks
- * on real elapsed time either. On the original, CPU speed alone kept
- * this roughly watchable; on modern hardware the whole sequence burns
- * through in a handful of milliseconds. The sequence's own exit
- * condition (g_nTitleMusicSequenceStage_0049be94, set from the live
- * OriginFx music playback position, see SdlServiceOriginFxMusic in
- * sdl/music.c) already ties overall duration to real audio time -- this
- * floor only paces the visible per-frame rate within that, which needed
- * its own real-time gate since none existed.
- *
- * The orchestra/logo-reveal sequence (Title_Sequence through
- * RevealTitleLogo) was empirically tuned in-game at 6 ticks (10fps;
- * started at 3, the 20fps rate the rest of the cinematic engine uses --
- * see CUTSCENE_MOUTH_MIN_TICKS, game.h, and opcode 0x7c's own
- * busy-wait, screens.c -- but that measured twice too fast, same
- * correction factor the mouth-pacing floor needed).
- *
- * ShowVictoryScreen's fireworks finale (the ~30-firework simultaneous
- * burst) needed a separate, faster rate -- confirmed against a real-386
- * capture of the DOS original (youtube.com/watch?v=uz78jS1RKOU,
- * ~00:57-01:10): the burst's onset is a single synchronous launch (all
- * fireworks visible within one 33ms video frame, confirming the
- * bulk-seed-29-at-once logic is itself correct, not a reconstruction
- * bug), and the entire burst-to-fully-faded span measured 0.467s
- * (frame-by-frame: first visible at the capture's 19.20s mark, fully
- * clear by 19.67s). The loop needs exactly 11 real draw iterations to
- * finish (fireworks 0-28 complete their 8-frame cycle by iteration 8;
- * firework 29, started 4 iterations late, finishes at iteration 11) --
- * 0.467s / 11 = ~42.5ms/iteration = ~2.55 ticks, rounded to 3.
- *
- * ShowVictoryScreen's FIRST loop (the individually-staggered small
- * fireworks, before the finale) draws at this same normal rate too --
- * a real-386 capture (frame-differencing pass, not spot samples) shows
- * further sparks appearing roughly every ~1-1.3s after the first,
- * becoming continuous in the last ~2.4s (the
- * g_nTitleMusicSequenceStage_0049be94 > 4 guaranteed-spawn phase)
- * until the finale ignites, spanning ~6.2s total -- far more than the
- * ~11 draws (at any per-frame rate) the reference build's own
- * loopCount <= 10 cap allows. Disassembling the real MS-DOS WC2.EXE
- * (D:\MSDOS\WC2\WC2.EXE, separate from and predating this Win32 port)
- * confirms that cap is Win32-specific: DOS's equivalent loop has no
- * iteration limit in music-driven mode at all, looping unconditionally
- * until g_nTitleMusicSequenceStage_0049be94 > 4 AND every firework has
- * finished animating (the same exit condition already used below) --
- * the 10-frame ceiling only exists as DOS's own non-music-driven
- * fallback, exactly matching frameCount below. The reference build
- * keeps the authentic (if abbreviated) Win32 cap; SDL_PORT restores the
- * uncapped DOS original in music-driven mode, deliberately diverging
- * from the Win32 reference here since that cap has no DOS counterpart. */
-#define TITLE_FRAME_TICKS 6
-#define TITLE_FIREWORKS_TICKS 3
-#endif
-
-/* Function start: 0x407E40 */
-void Title_Sequence(void)
-{
-    int waitCount;
-    short section;
-
-    waitCount = 0;
-    g_nUiInputMode_005c8d3c = 0;
-    g_pTitleMusic_005d3fa4 =
-        FetchDiskPacketRetrying("music.r00", 19, 0);
-    g_pTitleFieldShape_00491cf8 =
-        FetchDiskPacketRetrying("field.v00", 1, 0);
-    for (section = 0; section < 12; section++) {
-        g_apTitleSections_005d3f70[section] =
-            FetchDiskPacketRetrying("title.vga",
-                                    (short)(section + 1), 0);
-    }
-    g_pTitleFireworkShape_005c8f58 =
-        g_apTitleSections_005d3f70[11];
-    g_apTitleSections_005d3f70[12] =
-        FetchDiskPacketRetrying("title.vga", 0, 0);
-    InitializeConversationViewport();
-    g_bSceneEscapeRequested_0049d4b0 = 0;
-    StartMusic(g_pTitleMusic_005d3fa4);
-    DrawTitleOrchestra();
-    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-        goto cleanup;
-    AnimateTitleOrchestra();
-    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-        goto cleanup;
-    PlayTitleConductorCue();
-    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-        goto cleanup;
-    PushTitleOrchestraAway();
-    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-        goto cleanup;
-    section = RevealTitleLogo();
-    if (g_nMusicDriverMode_0049be8c == 2 ||
-        g_nMusicDriverMode_0049be8c == 1) {
-#ifdef SDL_PORT
-        /* waitCount < 3 alone was enough on the original: each
-         * WaitForInputKey/ServiceInputDevices call cost real time just
-         * from polling hardware, so three iterations were three
-         * meaningful waits. On modern hardware (or DOSBox) those calls
-         * cost nothing, so this loop used to fall through in well under
-         * a millisecond regardless of g_nTitleMusicSequenceStage_
-         * 0049be94's real value -- letting ShowVictoryScreen start
-         * almost immediately after the logo forms, instead of after the
-         * real pause seen on real hardware (~9-10s between the logo
-         * settling and the first firework, confirmed against a real-386
-         * capture: youtube.com/watch?v=uz78jS1RKOU, ~00:57-01:10). Pace
-         * each check for real and raise the iteration cap so it can
-         * actually cover that span; g_nTitleMusicSequenceStage_0049be94
-         * reaching 3 remains the real exit condition, same as before --
-         * this cap is only the safety net against it never doing so. */
-        while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
-               waitCount < 200) {
-            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#else
-        while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
-               waitCount < 3) {
-#endif
-            if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_bSceneEscapeRequested_0049d4b0 != 0)
-                break;
-            waitCount++;
-        }
-    }
-    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-        goto cleanup;
-    ShowVictoryScreen(section);
-
-cleanup:
-    StopMusic(0);
-    FadeViewportPaletteToColour(
-        &g_stModalSourceViewport_005d2c50,
-        g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stModalSourceViewport_005d2c50,
-                  g_cSecondaryViewBufferColour_0049cb4c);
-    RestoreGamePalette();
-    for (section = 0; section < 13; section++)
-        ReleasePacketHandle(g_apTitleSections_005d3f70[section]);
-    FreePacketAndClear(&g_pTitleFieldShape_00491cf8, 0);
-    ReleasePacketHandle(g_pTitleMusic_005d3fa4);
-    ResetScreenClipToFullHeight();
-}
-
-/* Function start: 0x40809D */
-void DrawTitleSky(short planetY)
-{
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pTitleFieldShape_00491cf8, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, planetY,
-                      g_apTitleSections_005d3f70[12], 0);
-}
-
-/* Function start: 0x4080DF */
-void DrawTitleOrchestra(void)
-{
-    short actor;
-
-    DrawTitleSky(24);
-    for (actor = 0; actor < 10; actor++) {
-        DrawSpriteDefault(
-            &g_stSecondaryViewBuffer_005d2c90,
-            g_aTitleActorMotion_00491ca8[actor].x,
-            g_aTitleActorMotion_00491ca8[actor].y,
-            g_apTitleSections_005d3f70[actor + 1], 0);
-    }
-    PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
-                &g_stScreenViewport_005d21a0);
-}
-
-/* Function start: 0x40815F */
-void AnimateTitleOrchestra(void)
-{
-    int repeat;
-    short frame;
-    short actor;
-    short minimumFrame;
-    short totalFrames;
-
-    minimumFrame = 0;
-    totalFrames = 0;
-    repeat = 0;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    do {
-        for (frame = minimumFrame; frame < 32; frame++) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-#ifdef SDL_PORT
-                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-                DrawTitleSky(24);
-                for (actor = 0; actor < 10; actor++) {
-                    DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
-                        g_aTitleActorMotion_00491ca8[actor].x,
-                        g_aTitleActorMotion_00491ca8[actor].y,
-                        g_apTitleSections_005d3f70[actor + 1],
-                        (short)(g_apszTitleActorFrames_00491c80[actor]
-                                    [frame] - 'a'));
-                }
-                RefreshMemoryStatusOverlay();
-            }
-            if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0)
-                goto done;
-            totalFrames++;
-        }
-        minimumFrame = (short)(
-            (unsigned short)RandomInRange(0, 13) + 9);
-        for (frame = 31; frame >= minimumFrame; frame--) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-#ifdef SDL_PORT
-                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-                DrawTitleSky(24);
-                for (actor = 0; actor < 10; actor++) {
-                    DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
-                        g_aTitleActorMotion_00491ca8[actor].x,
-                        g_aTitleActorMotion_00491ca8[actor].y,
-                        g_apTitleSections_005d3f70[actor + 1],
-                        (short)(g_apszTitleActorFrames_00491c80[actor]
-                                    [frame] - 'a'));
-                }
-                RefreshMemoryStatusOverlay();
-            }
-            if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0)
-                goto done;
-            totalFrames++;
-        }
-        if ((g_nMusicDriverMode_0049be8c == 0 ||
-             g_nMusicDriverMode_0049be8c == 3) &&
-            totalFrames > 30)
-            goto done;
-        repeat++;
-        if (repeat > 1)
-            goto done;
-    } while (1);
-
-done:
-    return;
-}
-
-/* Function start: 0x4083E6 */
-void PlayTitleConductorCue(void)
-{
-    int waitCount;
-    short cue;
-    short actor;
-
-    waitCount = 0;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    for (cue = 0; cue < 20; cue++) {
-        if (g_szTitleConductorFrames_00491c68[cue] == 'p') {
-            if (g_nMusicDriverMode_0049be8c == 2)
-                g_nFrameSkipCountdown_0049d760 = 1;
-            else if (g_nMusicDriverMode_0049be8c == 1)
-                g_nFrameSkipCountdown_0049d760 = 1;
-        } else if (g_szTitleConductorFrames_00491c68[cue] == 'q') {
-            if (g_nMusicDriverMode_0049be8c == 2)
-                g_nFrameSkipCountdown_0049d760 = 1;
-            else if (g_nMusicDriverMode_0049be8c == 1)
-                g_nFrameSkipCountdown_0049d760 = 1;
-        }
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-#ifdef SDL_PORT
-            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-            DrawTitleSky(24);
-            for (actor = 0; actor < 9; actor++) {
-                DrawSpriteDefault(
-                    &g_stSecondaryViewBuffer_005d2c90,
-                    g_aTitleActorMotion_00491ca8[actor].x,
-                    g_aTitleActorMotion_00491ca8[actor].y,
-                    g_apTitleSections_005d3f70[actor + 1],
-                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
-                                - 'a'));
-            }
-            DrawSpriteDefault(
-                &g_stSecondaryViewBuffer_005d2c90,
-                g_aTitleActorMotion_00491ca8[9].x,
-                g_aTitleActorMotion_00491ca8[9].y,
-                g_apTitleSections_005d3f70[10],
-                (short)(g_szTitleConductorFrames_00491c68[cue] - 'a'));
-            RefreshMemoryStatusOverlay();
-        }
-        if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            goto done;
-    }
-
-    DrawTitleSky(24);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[0].x,
-        g_aTitleActorMotion_00491ca8[0].y,
-        g_apTitleSections_005d3f70[1],
-        (short)(g_apszTitleActorFrames_00491c80[0][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[1].x,
-        g_aTitleActorMotion_00491ca8[1].y,
-        g_apTitleSections_005d3f70[2],
-        (short)(g_apszTitleActorFrames_00491c80[1][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[2].x,
-        g_aTitleActorMotion_00491ca8[2].y,
-        g_apTitleSections_005d3f70[3],
-        (short)(g_apszTitleActorFrames_00491c80[2][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[3].x,
-        g_aTitleActorMotion_00491ca8[3].y,
-        g_apTitleSections_005d3f70[4],
-        (short)(g_apszTitleActorFrames_00491c80[3][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[4].x,
-        g_aTitleActorMotion_00491ca8[4].y,
-        g_apTitleSections_005d3f70[5],
-        (short)(g_apszTitleActorFrames_00491c80[4][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[5].x,
-        g_aTitleActorMotion_00491ca8[5].y,
-        g_apTitleSections_005d3f70[6],
-        (short)(g_apszTitleActorFrames_00491c80[5][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[6].x,
-        g_aTitleActorMotion_00491ca8[6].y,
-        g_apTitleSections_005d3f70[7],
-        (short)(g_apszTitleActorFrames_00491c80[6][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[7].x,
-        g_aTitleActorMotion_00491ca8[7].y,
-        g_apTitleSections_005d3f70[8],
-        (short)(g_apszTitleActorFrames_00491c80[7][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[8].x,
-        g_aTitleActorMotion_00491ca8[8].y,
-        g_apTitleSections_005d3f70[9],
-        (short)(g_apszTitleActorFrames_00491c80[8][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-        g_aTitleActorMotion_00491ca8[9].x,
-        g_aTitleActorMotion_00491ca8[9].y,
-        g_apTitleSections_005d3f70[10],
-        (short)(g_szTitleConductorFrames_00491c68[20] - 'a'));
-    if (g_nMusicDriverMode_0049be8c == 2 ||
-        g_nMusicDriverMode_0049be8c == 1) {
-        do {
-            if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 2 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0) {
-                RefreshMemoryStatusOverlay();
-                break;
-            }
-            waitCount++;
-            if (waitCount > 1)
-                break;
-        } while (1);
-    }
-
-done:
-    return;
-}
-
-/* Function start: 0x4087FF */
-void DrawScaledTitleLogo(short y, short scale)
-{
-    short bounds[4];
-
-    GetTransformedShapeBounds(
-        &g_stSecondaryViewBuffer_005d2c90, 162, y,
-        g_apTitleSections_005d3f70[0], 1, 0, scale, 0, bounds);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, bounds[0], y,
-                     g_apTitleSections_005d3f70[0], 0, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 163, y,
-                     g_apTitleSections_005d3f70[0], 1, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
-                     (short)(bounds[2] + 1), y,
-                     g_apTitleSections_005d3f70[0], 2, 0, scale, 0);
-}
-
-/* Function start: 0x4088A9 */
-void PushTitleOrchestraAway(void)
-{
-    short x;
-    short y;
-    short distance;
-    short actor;
-
-    g_nFrameSkipCountdown_0049d760 = 1;
-    for (distance = 1; distance < 120;
-         distance = (short)(distance + distance / 4 + 1)) {
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-#ifdef SDL_PORT
-            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-            DrawTitleSky(24);
-            for (actor = 0; actor < 9; actor++) {
-                x = (short)(g_aTitleActorMotion_00491ca8[actor].x +
-                    g_aTitleActorMotion_00491ca8[actor].velocityX *
-                        distance);
-                y = (short)(g_aTitleActorMotion_00491ca8[actor].y +
-                    g_aTitleActorMotion_00491ca8[actor].velocityY *
-                        distance);
-                DrawSpriteScaled(
-                    &g_stSecondaryViewBuffer_005d2c90, x, y,
-                    g_apTitleSections_005d3f70[actor + 1],
-                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
-                                - 'a'),
-                    0,
-                    (short)(g_aTitleActorMotion_00491ca8[actor].velocityY *
-                                distance * 4 + 0x100),
-                    0);
-            }
-            x = (short)(g_aTitleActorMotion_00491ca8[9].x +
-                g_aTitleActorMotion_00491ca8[9].velocityX * distance);
-            y = (short)(g_aTitleActorMotion_00491ca8[9].y +
-                g_aTitleActorMotion_00491ca8[9].velocityY * distance);
-            DrawSpriteScaled(
-                &g_stSecondaryViewBuffer_005d2c90, x, y,
-                g_apTitleSections_005d3f70[10],
-                (short)(g_szTitleConductorFrames_00491c68[21] - 'a'),
-                0,
-                (short)(g_aTitleActorMotion_00491ca8[9].velocityY *
-                            distance * 4 + 0x100),
-                0);
-            RefreshMemoryStatusOverlay();
-        }
-        if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            break;
-    }
-}
-
-/* Function start: 0x408A88 */
-short RevealTitleLogo(void)
-{
-    short scale;
-    short distance;
-    short logoY;
-    short bounds[4];
-    short redraw;
-    short drawPlanetFirst;
-    short scaleDelay;
-    short planetY;
-    short positionDelay;
-
-    drawPlanetFirst = 0;
-    logoY = 59;
-    g_nFrameSkipCountdown_0049d760 = 1;
-    distance = 5000;
-    scaleDelay = 0;
-    positionDelay = 0;
-    for (; distance >= 1000;
-         distance--, scaleDelay--, positionDelay--) {
-        redraw = 0;
-        if (scaleDelay == 0) {
-            redraw = 1;
-            planetY = (short)(120000 / (int)distance);
-            scaleDelay = 200;
-        }
-        if (positionDelay == 0) {
-            redraw = 1;
-            scale = (short)(256000 / (int)distance);
-            if (distance > 3000)
-                logoY = (short)(logoY - 2);
-            else
-                logoY = (short)(logoY + 2);
-            positionDelay = 100;
-        }
-        if (redraw != 0) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
-#ifdef SDL_PORT
-                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                                  0, 0,
-                                  g_pTitleFieldShape_00491cf8, 0);
-                GetTransformedShapeBounds(
-                    &g_stSecondaryViewBuffer_005d2c90, 162, logoY,
-                    g_apTitleSections_005d3f70[0], 1, 0,
-                    scale, 0, bounds);
-                if (bounds[3] < planetY)
-                    drawPlanetFirst = 1;
-                if (drawPlanetFirst == 0) {
-                    DrawScaledTitleLogo(logoY, scale);
-                    DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
-                        160, planetY,
-                        g_apTitleSections_005d3f70[12], 0);
-                } else {
-                    DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
-                        160, planetY,
-                        g_apTitleSections_005d3f70[12], 0);
-                    DrawScaledTitleLogo(logoY, scale);
-                }
-                RefreshMemoryStatusOverlay();
-            }
-        }
-        if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            return logoY;
-    }
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                      g_pTitleFieldShape_00491cf8, 0);
-    DrawScaledTitleLogo(logoY, scale);
-    RefreshMemoryStatusOverlay();
-    return logoY;
-}
-
-/* Function start: 0x408CC8 */
-void ShowVictoryScreen(short logoY)
-{
-    short finishing;
-    int loopCount;
-    short emptyCount;
-    short finalEmptyCount;
-    short index;
-    short frameCount;
-    short spawnFirework;
-
-    finishing = 0;
-    frameCount = 0;
-    loopCount = 0;
-    FlushSoundEffects();
-    InitializeFireworks();
-    do {
-        if (finishing == 0) {
-            if (g_nMusicDriverMode_0049be8c == 2 ||
-                g_nMusicDriverMode_0049be8c == 1) {
-                if (g_nTitleMusicSequenceStage_0049be94 >= 4) {
-                    spawnFirework = (short)(
-                        (unsigned short)RandomInRange(0, 0) == 0);
-                } else {
-                    spawnFirework = (short)(
-                        (unsigned short)RandomInRange(0, 5) == 0);
-                }
-            } else {
-                spawnFirework = (short)(
-                    (unsigned short)RandomInRange(0, 0) == 0);
-            }
-        }
-        if (spawnFirework != 0 && finishing == 0) {
-            for (index = 0; index < 5; index++) {
-                if (g_aFireworks_005c8df0[index].frame == -1) {
-                    g_aFireworks_005c8df0[index].frame = 0;
-                    g_aFireworks_005c8df0[index].x =
-                        RandomInRange(0, 319);
-                    g_aFireworks_005c8df0[index].y =
-                        RandomInRange(0, 127);
-                    g_aFireworks_005c8df0[index].variant =
-                        RandomInRange(0, 2);
-                    break;
-                }
-            }
-        }
-#ifdef SDL_PORT
-        /* Same normal rate as the orchestra sequence -- this loop no
-         * longer needs its own rate now that the loopCount cap below
-         * is lifted in music-driven mode; real elapsed time comes from
-         * running as many draws as it actually takes, not from
-         * slowing each individual draw down. */
-        SdlPaceTitleFrame(TITLE_FRAME_TICKS);
-#endif
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pTitleFieldShape_00491cf8, 0);
-        emptyCount = TheEndFireWorks(
-            &g_stSecondaryViewBuffer_005d2c90, 5);
-        DrawScaledTitleLogo(logoY, 0x100);
-        RefreshMemoryStatusOverlay();
-        frameCount++;
-        if (finishing == 1 && emptyCount == 5)
-            break;
-        if (g_nMusicDriverMode_0049be8c == 2 ||
-            g_nMusicDriverMode_0049be8c == 1) {
-            if (g_nTitleMusicSequenceStage_0049be94 > 4)
-                finishing = 1;
-        } else if (frameCount > 10) {
-            finishing = 1;
-        }
-        if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
-            return;
-        loopCount++;
-#ifdef SDL_PORT
-        /* The real MS-DOS WC2.EXE's equivalent loop has no iteration
-         * cap at all -- see the comment above SdlPaceTitleFrame.
-         * Loop unconditionally here too: the finishing/emptyCount==5
-         * break above (DOS's own only real exit) and the escape-key
-         * return above are what actually end it. Non-music-driven mode
-         * still ends the same way DOS does -- frameCount > 10 sets
-         * finishing above, then this same break fires once every
-         * firework has finished animating. */
-    } while (1);
-#else
-    } while (loopCount <= 10);
-#endif
-
-    for (index = 0; index < 29; index++) {
-        g_aFireworks_005c8df0[index].frame = 0;
-        g_aFireworks_005c8df0[index].x = RandomInRange(0, 319);
-        g_aFireworks_005c8df0[index].y = RandomInRange(0, 127);
-        g_aFireworks_005c8df0[index].variant = RandomInRange(0, 2);
-    }
-    emptyCount = 0;
-    finalEmptyCount = 0;
-    do {
-        if (emptyCount == 30)
-            break;
-        finalEmptyCount++;
-        if (finalEmptyCount == 4) {
-            g_aFireworks_005c8df0[29].frame = 0;
-            g_aFireworks_005c8df0[29].x = RandomInRange(0, 319);
-            g_aFireworks_005c8df0[29].y = RandomInRange(0, 127);
-            g_aFireworks_005c8df0[29].variant = RandomInRange(0, 2);
-        }
-#ifdef SDL_PORT
-        SdlPaceTitleFrame(TITLE_FIREWORKS_TICKS);
-#endif
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
-                          g_pTitleFieldShape_00491cf8, 0);
-        emptyCount = TheEndFireWorks(
-            &g_stSecondaryViewBuffer_005d2c90, 30);
-        DrawScaledTitleLogo(logoY, 0x100);
-        RefreshMemoryStatusOverlay();
-        if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-    } while (g_bSceneEscapeRequested_0049d4b0 == 0);
-
-    for (index = 29; index >= 0; index--) {
-        if (g_aFireworks_005c8df0[index].frame != -1) {
-            ((void (__cdecl *)(int, short))FlushSoundEffect)(
-                g_aFireworks_005c8df0[index].soundHandle, index);
-        }
-    }
 }

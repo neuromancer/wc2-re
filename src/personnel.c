@@ -1,65 +1,20 @@
 /*
- *  Wing Commander II personnel database and previous-game pilot transfer flow.
+ *  Personnel database, campaign chalkboard and pilot transfer.
  *
- *  The retail image keeps the menu, transfer, and savegame helpers in the
- *  contiguous 0x433AD0-0x436A8F band.  The registry lookup and text-entry
- *  adapter are linked from adjacent Win32 units.
+ *  Retail object 0x433AD0-0x43775F (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
-#pragma function(strcat, strcpy, strlen)
-
 PersonnelFileSlot *g_apPersonnelFileSlots_0049a660[8] = {0};
+
 PilotProfile *g_apPersonnelPilotProfiles_0049a680[8] = {0};
-static const char g_szEmptyPersonnelFileFormat_0049a840[64] =
-    "%d ----------------------------------------------------------";
-static const char g_szCompactPersonnelFileFormat_0049a880[20] =
-    "%d--%s %c. \"%s\" %s";
-static const char g_szPersonnelFileFormat_0049a894[20] =
-    "%d--%s %s \"%s\" %s";
-static const char g_szPersonnelFileValueFormatA_0049a8a8[4] = "%d";
-static const char g_szPersonnelFileValueFormatB_0049a8ac[4] = "%d";
-static const char g_szPersonnelFileDescriptionFormat_0049a8b0[4] = "%s";
 
-/* Function start: 0x428C35 */
-char *GetLegacyGameDataPath(void)
-{
-#ifdef SDL_PORT
-    return 0;
-#else
-    HKEY key;
-    DWORD valueData;
-    DWORD valueType;
-    DWORD valueSize;
-    char *path;
-
-    path = 0;
-    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "Software\\Origin Systems\\WC: Kilrathi Saga",
-                      0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        valueType = REG_DWORD;
-        valueSize = sizeof(valueData);
-        if (RegQueryValueExA(key, "Wing 1 Installed", 0, &valueType,
-                             (unsigned char *)&valueData,
-                             &valueSize) == ERROR_SUCCESS &&
-            valueData != 0) {
-            valueType = REG_SZ;
-            valueSize = sizeof(g_szLegacyGameDataPath_005b2898);
-            if (RegQueryValueExA(
-                    key, "Installed To:", 0, &valueType,
-                    (unsigned char *)
-                        g_szLegacyGameDataPath_005b2898,
-                    &valueSize) == ERROR_SUCCESS) {
-                path = g_szLegacyGameDataPath_005b2898;
-                strcat(g_szLegacyGameDataPath_005b2898,
-                       "wc1\\gamedat");
-            }
-        }
-        RegCloseKey(key);
-    }
-    return path;
-#endif
-}
+/* The save-slot signature is a 0x24-byte record, not a 34-byte string: the
+ * original writes 36 bytes from the literal and picks up the two NULs that
+ * follow it in .rdata.  Spelling the object at its record width reproduces
+ * those bytes exactly and keeps the write inside it. */
+static const char g_szSaveSlotSignature[0x24] =
+    "Wing Commander II (c) 1991 Origin";
 
 /* Function start: 0x433AD0 */
 void PollPersonnelMenuInput(void)
@@ -120,7 +75,7 @@ void PollPersonnelMenuInput(void)
 /* Function start: 0x433C84 */
 void InitializeCampaignChalkboardScreen(short cockpitVariant)
 {
-    void *wipeWorkspace;
+    void *workspace;
     short frame;
 
     if (g_stModalSourceViewport_005d2c50.pixels !=
@@ -160,16 +115,16 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
                       g_nSceneHotspotTop_005d2122,
                       g_pCampaignChalkboardShape_0049ca54, frame);
     if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
-        wipeWorkspace = AllocateTaggedMemory(0xce, 0x40);
-        if (wipeWorkspace != 0) {
+        workspace = AllocateTaggedMemory(0xce, 0x40);
+        if (workspace != 0) {
             InitializeViewportWipe(
                 &g_stSecondaryViewBuffer_005d2c90,
                 &g_stScreenViewport_005d21a0,
                 g_pCampaignGlobals_00499c94->field_0e >> 8,
-                0x3c, 1, wipeWorkspace);
-            do {
-            } while (AdvanceViewportWipe(wipeWorkspace) == 0);
-            ReleasePacketHandle(wipeWorkspace);
+                0x3c, 1, workspace);
+            while (AdvanceViewportWipe(workspace) == 0) {
+            }
+            ReleasePacketHandle(workspace);
         }
     }
     RefreshMemoryStatusOverlay();
@@ -226,7 +181,6 @@ void DrawCampaignChalkboardFrame(unsigned short frame)
 void DrawPersonnelMenuBackdrop(void *scenePacket)
 {
     short selection;
-    short width;
 
     selection = 0;
     SetMenuInputPump();
@@ -237,75 +191,138 @@ void DrawPersonnelMenuBackdrop(void *scenePacket)
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
                                   g_bPrimaryViewBufferColour_0049cb50, -1);
     if (g_pszPersonnelFooter_00492658 != 0) {
-        width = MeasureTextPixelWidthClamped(
-            g_pszPersonnelFooter_00492658);
-        SetTextCursor((unsigned short)((320 - width) >> 1), 180);
+        SetTextCursor(
+            (unsigned short)((320 -
+                MeasureTextPixelWidthClamped(
+                    g_pszPersonnelFooter_00492658)) >> 1),
+            180);
         DrawFormattedText("%S", g_pszPersonnelFooter_00492658);
     }
 }
 
-/* The save-slot signature is a 0x24-byte record, not a 34-byte string: the
- * original writes 36 bytes from the literal and picks up the two NULs that
- * follow it in .rdata.  Spelling the object at its record width reproduces
- * those bytes exactly and keeps the write inside it. */
-static const char g_szSaveSlotSignature[0x24] =
-    "Wing Commander II (c) 1991 Origin";
+#pragma function(strcpy)
+/* Function start: 0x434043 */
+short LoadSelectedPilotCampaign(void)
+{
+    int campaignBytes;
+    short loadedCampaign;
+    short file;
+
+    LoadTemporaryCampaignGlobals();
+    campaignBytes = (unsigned int)g_pCampaignGlobals_00499c94->wordCount * 2;
+    file = OpenDataFileOrDie("savegame.wc2");
+    if (file < 0)
+        ReportFatalErrorCode("002");
+    SeekDataFile((unsigned short)file, (campaignBytes + 0x86) << 3, 0);
+    SeekDataFile((unsigned short)file, 2, 1);
+    ReadDataFileAtOffset((unsigned short)file, -1, 0x60,
+                         &g_stCurrentPilotProfile_00493408);
+    SeekDataFile((unsigned short)file, 0x24, 1);
+    ReadDataFileAtOffset((unsigned short)file, -1, campaignBytes,
+                         g_pCampaignGlobals_00499c94);
+    CloseDataFile((unsigned short)file);
+    strcpy(g_stPilotNameVariables_00499ef8.firstName,
+           g_stCurrentPilotProfile_00493408.firstName);
+    strcpy(g_stPilotNameVariables_00499ef8.lastName,
+           g_stCurrentPilotProfile_00493408.lastName);
+    strcpy(g_stPilotNameVariables_00499ef8.callsign,
+           g_stCurrentPilotProfile_00493408.callsign);
+    InitializeCampaignConstellationState(g_pCampaignGlobals_00499c94, 1);
+    loadedCampaign = g_pCampaignGlobals_00499c94->campaignSlot;
+    SaveAndFreeTemporaryCampaignGlobals();
+    return loadedCampaign;
+}
+
+/* Function start: 0x434177 */
+unsigned short HasSavedPilotCampaign(void)
+{
+    struct _finddata_t findData;
+    int stateBytes;
+    short occupied;
+    short file;
+    short findHandle;
+
+    LoadTemporaryCampaignGlobals();
+    stateBytes = (unsigned short)g_pCampaignGlobals_00499c94->wordCount * 2;
+    ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+    findHandle = (short)_findfirst("savegame.wc2", &findData);
+    if (findHandle == -1 ||
+        (stateBytes + 0x86) * 9 != findData.size)
+        return 0;
+    _findclose((long)findHandle);
+    file = (short)_open("savegame.wc2", 0x8000);
+    if (file < 0)
+        return 0;
+    if (_lseek((int)file, (stateBytes + 0x86) << 3, 0) !=
+        (stateBytes + 0x86) << 3) {
+        _close((int)file);
+        return 0;
+    }
+    if (_read((int)file, &occupied, 2) != 2) {
+        _close((int)file);
+        return 0;
+    }
+    _close((int)file);
+    if (occupied == 0)
+        return 0;
+    return 1;
+}
 
 /* Function start: 0x4342E8 */
 void OpenDiskDataFile(short logicalFile)
 {
-    unsigned int campaignBytes;
     struct _finddata_t findData;
-    short emptySlot;
-    short findHandle;
-    short occupiedSlot;
-    short slot;
+    unsigned int stateBytes;
+    short blank;
+    short searchHandle;
+    short inUse;
+    short index;
     short file;
 
-    occupiedSlot = 1;
-    emptySlot = 0;
+    inUse = 1;
+    blank = 0;
     if (logicalFile != 0) {
         LoadTemporaryCampaignGlobals();
     }
-    campaignBytes =
+    stateBytes =
         (unsigned int)g_pCampaignGlobals_00499c94->wordCount * 2;
-    findHandle = (short)_findfirst("savegame.wc2", &findData);
-    if (findHandle == -1 ||
-        campaignBytes * 9 + 0x4b6 != findData.size) {
+    searchHandle = (short)_findfirst("savegame.wc2", &findData);
+    if (searchHandle == -1 ||
+        (stateBytes + 0x86) * 9 != findData.size) {
         file = CreateDataFile("savegame.wc2");
         if (file < 0) {
             ReportFatalErrorCode("005");
         }
-        for (slot = 0; slot < 9; slot++) {
-            WriteDataFileAtOffset(file, -1, 2, &emptySlot);
+        for (index = 0; index < 9; index++) {
+            WriteDataFileAtOffset(file, -1, 2, &blank);
             WriteDataFileAtOffset(file, -1, 0x60,
                                   &g_stDefaultPilotProfile_00492660);
             WriteDataFileAtOffset(
                 file, -1, sizeof(g_szSaveSlotSignature),
                 g_szSaveSlotSignature);
-            WriteDataFileAtOffset(file, -1, campaignBytes,
+            WriteDataFileAtOffset(file, -1, stateBytes,
                                   g_pCampaignGlobals_00499c94);
         }
         CloseDataFile(file);
     }
-    _findclose((long)findHandle);
+    _findclose((long)searchHandle);
     file = OpenDataFileOrDie("savegame.wc2");
     if (file < 0) {
         ReportFatalErrorCode("006");
     }
     strcpy(g_stCurrentPilotProfile_00493408.firstName,
-           g_szPilotFirstName_00499f28);
+           g_stPilotNameVariables_00499ef8.firstName);
     strcpy(g_stCurrentPilotProfile_00493408.lastName,
-           g_szPilotLastName_00499f10);
+           g_stPilotNameVariables_00499ef8.lastName);
     strcpy(g_stCurrentPilotProfile_00493408.callsign,
-           g_szPilotCallsign_00499ef8);
-    SeekDataFile(file, campaignBytes * 8 + 0x430, 0);
-    WriteDataFileAtOffset(file, -1, 2, &occupiedSlot);
+           g_stPilotNameVariables_00499ef8.callsign);
+    SeekDataFile(file, (stateBytes + 0x86) << 3, 0);
+    WriteDataFileAtOffset(file, -1, 2, &inUse);
     WriteDataFileAtOffset(file, -1, 0x60,
                           &g_stCurrentPilotProfile_00493408);
     WriteDataFileAtOffset(file, -1, sizeof(g_szSaveSlotSignature),
                           g_szSaveSlotSignature);
-    WriteDataFileAtOffset(file, -1, campaignBytes,
+    WriteDataFileAtOffset(file, -1, stateBytes,
                           g_pCampaignGlobals_00499c94);
     CloseDataFile(file);
     if (logicalFile != 0) {
@@ -326,128 +343,131 @@ void RestorePersonnelMenuBackground(Viewport *viewport)
 /* Function start: 0x4345A1 */
 void DrawPilotSaveMenuChoices(short choice)
 {
-    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
-        DisableMouseCursorDrawing();
-        if (choice == 0x26) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x5a, 0x38);
-        DrawFormattedText("[L]oad a personnel file");
-        if (choice == 0x1f) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x5a, 0x4c);
-        DrawFormattedText("[S]ave a personnel file");
-        if (choice == 0x20) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x5a, 0x60);
-        DrawFormattedText("[D]elete a personnel file");
-        g_nPersonnelMenuHighlight_0049a6a0 = choice;
-        EnableMouseCursorDrawing();
+    if (choice == g_nPersonnelMenuHighlight_0049a6a0)
+        return;
+    DisableMouseCursorDrawing();
+    if (choice == 0x26) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
     }
+    SetTextCursor(0x5a, 0x38);
+    DrawFormattedText("[L]oad a personnel file");
+    if (choice == 0x1f) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+    }
+    SetTextCursor(0x5a, 0x4c);
+    DrawFormattedText("[S]ave a personnel file");
+    if (choice == 0x20) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+    }
+    SetTextCursor(0x5a, 0x60);
+    DrawFormattedText("[D]elete a personnel file");
+    g_nPersonnelMenuHighlight_0049a6a0 = choice;
+    EnableMouseCursorDrawing();
 }
 
 /* Function start: 0x4346E9 */
 void DrawPersonnelSourceChoices(short choice)
 {
-    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
-        DisableMouseCursorDrawing();
-        if (choice == 0x11) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x50, 0x2e);
-        DrawFormattedText("[W]ing Commander");
-        if (choice == 0x20) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x50, 0x42);
-        DrawFormattedText("[D]os Version of Wing Commander");
-        g_nPersonnelMenuHighlight_0049a6a0 = choice;
-        EnableMouseCursorDrawing();
+    if (choice == g_nPersonnelMenuHighlight_0049a6a0)
+        return;
+    DisableMouseCursorDrawing();
+    if (choice == 0x11) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
     }
+    SetTextCursor(0x50, 0x2e);
+    DrawFormattedText("[W]ing Commander");
+    if (choice == 0x20) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+    }
+    SetTextCursor(0x50, 0x42);
+    DrawFormattedText("[D]os Version of Wing Commander");
+    g_nPersonnelMenuHighlight_0049a6a0 = choice;
+    EnableMouseCursorDrawing();
 }
+
+void InitializeTextContextFromFont(TextContext *context, short fontIndex, unsigned char colour, signed char background);
 
 /* Function start: 0x4347D6 */
 void DrawPersonnelMenuChoices(short choice)
 {
-    if (g_nPersonnelMenuHighlight_0049a6a0 != choice) {
-        DisableMouseCursorDrawing();
-        if (choice == 0x14) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x3c, 0x38);
-        DrawFormattedText("[T]ransfer an existing personnel file");
-        if (choice == 0x2e) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-        } else {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-        }
-        SetTextCursor(0x3c, 0x4c);
-        DrawFormattedText("[C]reate a new personnel file");
-        g_nPersonnelMenuHighlight_0049a6a0 = choice;
-        EnableMouseCursorDrawing();
+    if (g_nPersonnelMenuHighlight_0049a6a0 == choice)
+        return;
+    DisableMouseCursorDrawing();
+    if (choice == 0x14) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
     }
+    SetTextCursor(0x3c, 0x38);
+    DrawFormattedText("[T]ransfer an existing personnel file");
+    if (choice == 0x2e) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+    } else {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+    }
+    SetTextCursor(0x3c, 0x4c);
+    DrawFormattedText("[C]reate a new personnel file");
+    g_nPersonnelMenuHighlight_0049a6a0 = choice;
+    EnableMouseCursorDrawing();
 }
 
+#pragma function(strlen)
 /* Function start: 0x4348C3 */
 void DrawPersonnelFileSlot(short slot)
 {
-    unsigned int nameLength;
-
     if (g_apPersonnelFileSlots_0049a660[slot]->occupied == 0) {
         SetTextCursor(0x32, (unsigned short)(slot * 12 + 0x12));
-        DrawFormattedText(g_szEmptyPersonnelFileFormat_0049a840, slot);
+        DrawFormattedText(
+            "%d ----------------------------------------------------------",
+            slot);
         return;
     }
 
     SetTextCursor(0x32, (unsigned short)(slot * 12 + 0x12));
-    nameLength = strlen(g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
-    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
-    nameLength += strlen(g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
-    if (nameLength > 0x16) {
+    if (strlen(g_apPersonnelPilotProfiles_0049a680[slot]->lastName) +
+            strlen(g_apPersonnelPilotProfiles_0049a680[slot]->callsign) +
+            strlen(g_apPersonnelPilotProfiles_0049a680[slot]->firstName) >
+        0x16) {
         DrawFormattedText(
-            g_szCompactPersonnelFileFormat_0049a880,
+            "%d--%s %c. \"%s\" %s",
             slot,
             g_apszShortPilotRankNames_0049a620[
                 g_apPersonnelPilotProfiles_0049a680[slot]->rank],
@@ -456,7 +476,7 @@ void DrawPersonnelFileSlot(short slot)
             g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
     } else {
         DrawFormattedText(
-            g_szPersonnelFileFormat_0049a894,
+            "%d--%s %s \"%s\" %s",
             slot,
             g_apszPilotRankNames_0049a608[
                 g_apPersonnelPilotProfiles_0049a680[slot]->rank],
@@ -466,50 +486,52 @@ void DrawPersonnelFileSlot(short slot)
     }
     SetTextCursor(0xc6, (unsigned short)(slot * 12 + 0x12));
     DrawFormattedText(
-        g_szPersonnelFileValueFormatA_0049a8a8,
+        "%d",
         g_apPersonnelPilotProfiles_0049a680[slot]->field_41);
     SetTextCursor(0xde, (unsigned short)(slot * 12 + 0x12));
     DrawFormattedText(
-        g_szPersonnelFileValueFormatB_0049a8ac,
+        "%d",
         g_apPersonnelPilotProfiles_0049a680[slot]->field_43);
     SetTextCursor(0x36, (unsigned short)(slot * 12 + 0x18));
     DrawFormattedText(
-        g_szPersonnelFileDescriptionFormat_0049a8b0,
+        "%s",
         g_apPersonnelFileSlots_0049a660[slot]->description);
 }
+
+void DrawTransferredPilotRow(short row);
 
 /* Function start: 0x434ACE */
 void HighlightPersonnelFileSlot(short choice)
 {
     short slot;
 
-    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
-        if (choice == 0x0b) {
+    if (choice == g_nPersonnelMenuHighlight_0049a6a0)
+        return;
+    if (choice == 0x0b) {
+        slot = 0;
+    } else {
+        slot = (short)(choice - 1);
+    }
+    DisableMouseCursorDrawing();
+    if (choice != -1) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 2,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+        DrawPersonnelFileSlot(slot);
+    }
+    if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 2,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        if (g_nPersonnelMenuHighlight_0049a6a0 == 0x0b) {
             slot = 0;
         } else {
-            slot = (short)(choice - 1);
+            slot = (short)(g_nPersonnelMenuHighlight_0049a6a0 - 1);
         }
-        DisableMouseCursorDrawing();
-        if (choice != -1) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 2,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-            DrawPersonnelFileSlot(slot);
-        }
-        if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 2,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-            if (g_nPersonnelMenuHighlight_0049a6a0 == 0x0b) {
-                slot = 0;
-            } else {
-                slot = (short)(g_nPersonnelMenuHighlight_0049a6a0 - 1);
-            }
-            DrawPersonnelFileSlot(slot);
-        }
-        g_nPersonnelMenuHighlight_0049a6a0 = choice;
-        EnableMouseCursorDrawing();
+        DrawPersonnelFileSlot(slot);
     }
+    g_nPersonnelMenuHighlight_0049a6a0 = choice;
+    EnableMouseCursorDrawing();
 }
 
 /* Function start: 0x434BB5 */
@@ -619,38 +641,41 @@ void DrawTransferredPilotRow(short row)
         g_apszPersonnelTransferLabels_005d2100[row] + 0x2c);
 }
 
+void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count);
+void DrawPersonnelMenuBackdrop(void *scenePacket);
+
 /* Function start: 0x434F7D */
 void HighlightTransferredPilot(short choice)
 {
     short row;
 
-    if (choice != g_nPersonnelMenuHighlight_0049a6a0) {
-        if (choice == 0x0b) {
+    if (choice == g_nPersonnelMenuHighlight_0049a6a0)
+        return;
+    if (choice == 0x0b) {
+        row = 0;
+    } else {
+        row = (short)(choice - 1);
+    }
+    DisableMouseCursorDrawing();
+    if (choice != -1) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+        DrawTransferredPilotRow(row);
+    }
+    if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
+        InitializeTextContextFromFont(
+            &g_stDefaultTextContext_005d2d20, 1,
+            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        if (g_nPersonnelMenuHighlight_0049a6a0 == 0x0b) {
             row = 0;
         } else {
-            row = (short)(choice - 1);
+            row = (short)(g_nPersonnelMenuHighlight_0049a6a0 - 1);
         }
-        DisableMouseCursorDrawing();
-        if (choice != -1) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuHighlightColour_005c5874, -1);
-            DrawTransferredPilotRow(row);
-        }
-        if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
-            InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
-                (unsigned char)g_nMenuShadowColour_005c5876, -1);
-            if (g_nPersonnelMenuHighlight_0049a6a0 == 0x0b) {
-                row = 0;
-            } else {
-                row = (short)(g_nPersonnelMenuHighlight_0049a6a0 - 1);
-            }
-            DrawTransferredPilotRow(row);
-        }
-        g_nPersonnelMenuHighlight_0049a6a0 = choice;
-        EnableMouseCursorDrawing();
+        DrawTransferredPilotRow(row);
     }
+    g_nPersonnelMenuHighlight_0049a6a0 = choice;
+    EnableMouseCursorDrawing();
 }
 
 /* Function start: 0x435064 */
@@ -939,11 +964,11 @@ void RunPilotSaveLoadMenu(void)
                     _read(file,
                           g_apPersonnelFileSlots_0049a660[slot]->description,
                           0x24);
-                    strcpy(g_szPilotFirstName_00499f28,
+                    strcpy(g_stPilotNameVariables_00499ef8.firstName,
                            g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
                     strcpy(g_stCurrentPilotProfile_00493408.firstName,
                            g_apPersonnelPilotProfiles_0049a680[slot]->firstName);
-                    strcpy(g_szPilotLastName_00499f10,
+                    strcpy(g_stPilotNameVariables_00499ef8.lastName,
                            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
                     strcpy(g_stCurrentPilotProfile_00493408.lastName,
                            g_apPersonnelPilotProfiles_0049a680[slot]->lastName);
@@ -952,7 +977,7 @@ void RunPilotSaveLoadMenu(void)
                             g_apPersonnelPilotProfiles_0049a680[slot]->callsign,
                             "CHEATER");
                     }
-                    strcpy(g_szPilotCallsign_00499ef8,
+                    strcpy(g_stPilotNameVariables_00499ef8.callsign,
                            g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
                     strcpy(g_stCurrentPilotProfile_00493408.callsign,
                            g_apPersonnelPilotProfiles_0049a680[slot]->callsign);
@@ -1147,13 +1172,13 @@ void RunPilotSaveLoadMenu(void)
 /* Function start: 0x43641C */
 short SelectLegacyGameSource(void)
 {
-    short result;
+    short choice;
     short done;
     short handled;
-    short hover;
+    short focus;
 
     done = 0;
-    result = -1;
+    choice = -1;
     RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
     SetPersonnelMousePosition(200, 0x2c);
     while (done == 0) {
@@ -1164,7 +1189,7 @@ short SelectLegacyGameSource(void)
         DrawFormattedText("Transfer a character from:");
         RefreshMemoryStatusOverlay();
         g_nPersonnelMenuHighlight_0049a6a0 = -1;
-        DrawPersonnelSourceChoices(hover);
+        DrawPersonnelSourceChoices(focus);
         DisableMouseCursorDrawing();
         g_cCurrentKey_00493128 = (signed char)0x80;
         while (g_cCurrentKey_00493128 == (signed char)0x80) {
@@ -1173,25 +1198,25 @@ short SelectLegacyGameSource(void)
                 g_nPersonnelCursorX_005c8470 < 0xe0) {
                 if (g_nPersonnelCursorY_005c8472 >= 0x26 &&
                     g_nPersonnelCursorY_005c8472 <= 0x39) {
-                    hover = 0x11;
-                    DrawPersonnelSourceChoices(hover);
+                    focus = 0x11;
+                    DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
                 } else if (g_nPersonnelCursorY_005c8472 >= 0x3a &&
                            g_nPersonnelCursorY_005c8472 <= 0x4d) {
-                    hover = 0x20;
-                    DrawPersonnelSourceChoices(hover);
+                    focus = 0x20;
+                    DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
                 } else {
-                    hover = -1;
-                    DrawPersonnelSourceChoices(hover);
+                    focus = -1;
+                    DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 0);
                 }
             } else {
-                hover = -1;
-                DrawPersonnelSourceChoices(hover);
+                focus = -1;
+                DrawPersonnelSourceChoices(focus);
                 SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     0);
             }
@@ -1201,28 +1226,28 @@ short SelectLegacyGameSource(void)
             EnableMouseCursorDrawing();
             RefreshMemoryStatusOverlay();
             handled = 0;
-            result = -1;
+            choice = -1;
             if ((g_cCurrentKey_00493128 == 0x1c ||
                  g_cCurrentKey_00493128 == 0x39) &&
-                hover != -1) {
-                g_cCurrentKey_00493128 = (signed char)hover;
+                focus != -1) {
+                g_cCurrentKey_00493128 = (signed char)focus;
             }
             if (g_cCurrentKey_00493128 == 1 ||
                 ((g_cCurrentKey_00493128 == 0x1c ||
                   g_cCurrentKey_00493128 == 0x39) &&
-                 hover == -1)) {
+                 focus == -1)) {
                 done++;
                 handled++;
             }
             switch (toupper((int)g_cCurrentKey_00493128)) {
             case 0x11:
-                result = 0;
+                choice = 0;
                 done++;
                 handled++;
                 g_nLegacySaveSource_0049a600 = 0;
                 break;
             case 0x20:
-                result = 0;
+                choice = 0;
                 done++;
                 handled++;
                 g_nLegacySaveSource_0049a600 = 1;
@@ -1234,24 +1259,25 @@ short SelectLegacyGameSource(void)
         }
     }
     RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
-    return result;
+    return choice;
 }
 
+#pragma function(strcat)
 /* Function start: 0x436722 */
 short LocateLegacySaveGame(short source)
 {
-    const char *gameNames[3];
-    char *installedPath;
-    struct _finddata_t findData;
-    short findHandle;
-    unsigned int alpha;
+    unsigned int isAlnum;
     short pathEntered;
-    short drive;
+    struct _finddata_t findData;
+    short handle;
+    const char *nameList[3];
+    char *installedPath;
+    short driveIndex;
     short index;
 
-    gameNames[0] = "Wing Commander";
-    gameNames[1] = "Secret Missions 1";
-    gameNames[2] = "Crusade:Secret Missions 2";
+    nameList[0] = "Wing Commander";
+    nameList[1] = "Secret Missions 1";
+    nameList[2] = "Crusade:Secret Missions 2";
     InitializeTextContextFromFont(
         &g_stDefaultTextContext_005d2d20, 2,
         (unsigned char)g_nMenuShadowColour_005c5876, -1);
@@ -1268,7 +1294,7 @@ short LocateLegacySaveGame(short source)
         SetTextCursor(0x32, 0x28);
         DrawFormattedText("Please enter the full path name of");
         SetTextCursor(0x32, 0x34);
-        DrawFormattedText("your %s saved game file.", gameNames[source]);
+        DrawFormattedText("your %s saved game file.", nameList[source]);
         SetTextCursor(0x32, 0x40);
         DrawFormattedText("Example: c:\\wing\\gamedat");
         RefreshMemoryStatusOverlay();
@@ -1286,8 +1312,8 @@ short LocateLegacySaveGame(short source)
              index >= 0; index--) {
             if (g_szLegacySavePath_005d2130[index] == '\\')
                 break;
-            alpha = isalnum(g_szLegacySavePath_005d2130[index]);
-            if (alpha != 0) {
+            isAlnum = isalnum(g_szLegacySavePath_005d2130[index]);
+            if (isAlnum != 0) {
                 strcat(g_szLegacySavePath_005d2130, "\\");
                 break;
             }
@@ -1302,13 +1328,13 @@ short LocateLegacySaveGame(short source)
             if (index == 0) {
                 return 0;
             }
-            drive = (short)(toupper(
+            driveIndex = (short)(toupper(
                 g_szLegacySavePath_005d2130[index - 1]) - 'A');
-            PersonnelDriveHook(drive);
+            PersonnelDriveHook(driveIndex);
         }
     }
-    findHandle = (short)_findfirst(g_szLegacySavePath_005d2130, &findData);
-    if (findHandle == -1) {
+    handle = (short)_findfirst(g_szLegacySavePath_005d2130, &findData);
+    if (handle == -1) {
         return 0;
     }
     return 1;
@@ -1563,12 +1589,15 @@ short RunPilotDatabaseMenu(void)
                                 ReadPersonnelTextField(
                                     0x32, 0x3c, 1, "", firstName,
                                     0x0c, 0, 0);
-                                strcpy(g_szPilotFirstName_00499f28,
-                                       firstName);
-                                strcpy(g_szPilotLastName_00499f10,
-                                       pilot->name);
-                                strcpy(g_szPilotCallsign_00499ef8,
-                                       pilot->callsign);
+                                strcpy(
+                                    g_stPilotNameVariables_00499ef8.firstName,
+                                    firstName);
+                                strcpy(
+                                    g_stPilotNameVariables_00499ef8.lastName,
+                                    pilot->name);
+                                strcpy(
+                                    g_stPilotNameVariables_00499ef8.callsign,
+                                    pilot->callsign);
                                 strcpy(
                                     g_stCurrentPilotProfile_00493408.firstName,
                                     firstName);
@@ -1607,21 +1636,24 @@ short RunPilotDatabaseMenu(void)
                     0x32, 0x1e, 2, "Enter first name: ", firstName,
                     0x0b, 0, 0);
                 if (inputResult != 0) {
-                    strcpy(g_szPilotFirstName_00499f28, firstName);
+                    strcpy(g_stPilotNameVariables_00499ef8.firstName,
+                           firstName);
                     strcpy(g_stCurrentPilotProfile_00493408.firstName,
                            firstName);
                     inputResult = ReadPersonnelTextField(
                         0x32, 0x32, 2, "Enter last name: ", lastName,
                         0x0b, 0, 0);
                     if (inputResult != 0) {
-                        strcpy(g_szPilotLastName_00499f10, lastName);
+                        strcpy(g_stPilotNameVariables_00499ef8.lastName,
+                               lastName);
                         strcpy(g_stCurrentPilotProfile_00493408.lastName,
                                lastName);
                         inputResult = ReadPersonnelTextField(
                             0x32, 0x46, 2, "Enter callsign: ", callsign,
                             0x0b, 0, 0);
                         if (inputResult != 0) {
-                            strcpy(g_szPilotCallsign_00499ef8, callsign);
+                            strcpy(g_stPilotNameVariables_00499ef8.callsign,
+                                   callsign);
                             strcpy(
                                 g_stCurrentPilotProfile_00493408.callsign,
                                 callsign);
@@ -1660,29 +1692,5 @@ short RunPilotDatabaseMenu(void)
     }
     free_viewport(&g_stSecondaryViewBuffer_005d2c90);
     FlushInputEvents();
-    return result;
-}
-
-/* Function start: 0x459BC8 */
-short ReadPersonnelTextField(unsigned int x, unsigned int y,
-                             int font, const char *prompt,
-                             char *destination, int maximumLength,
-                             int mode, int required)
-{
-    short result;
-
-    g_stDefaultTextContext_005d2d20.viewport =
-        &g_stScreenViewport_005d21a0;
-    SetTextCursor((unsigned short)x, (unsigned short)y);
-    DrawFormattedText("%s", prompt);
-    MarkDibDirty();
-    DIBslamReal();
-    result = ReadTextInput(destination, (short)maximumLength,
-                           (short)mode, (short)required);
-    if (result != 0) {
-        result = 1;
-    }
-    g_stDefaultTextContext_005d2d20.viewport =
-        &g_stSecondaryViewBuffer_005d2c90;
     return result;
 }

@@ -1,54 +1,9 @@
 /*
- *  Vector, angle and fixed-point geometry helpers.
+ *  Ship velocity limits, vector arithmetic and orientation geometry.
  *
- *  Address range 0x418000-0x41ad4f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: geometry helpers followed by the contiguous modal-panel
- *  drawing block, before the save/load tranche at 0x41ada0.
+ *  Retail object 0x40A3A0-0x40D6AF (link order; see docs/ORDER.md).
  */
 #include "game.h"
-
-#pragma function(strcat, memset)
-
-/* Function start: 0x453B30 */
-short MeasureTextPixelWidthClamped(const char *text)
-{
-    const char *scan;
-    short width;
-
-    width = 0;
-    scan = text;
-    while (width < 320 && *scan != 0)
-        width = (short)(width + GetFontCharWidth(*scan++));
-    if (*scan-- != 0)
-        width = (short)(width - GetFontCharWidth(*scan));
-    return width;
-}
-
-/* Function start: 0x4589D0 */
-short CollectActivePaletteIndices(Viewport *viewport,
-                                  unsigned char *indices,
-                                  short capacity)
-{
-    short count;
-    short index;
-    unsigned char *active;
-
-    count = 0;
-    active = AllocateTaggedMemory((unsigned int)capacity, 0);
-    if (active == 0)
-        return 0;
-
-    memset(active, 0, (unsigned int)capacity);
-    MarkActivePaletteEntries(viewport, active);
-    for (index = 0; index < capacity; index++) {
-        if (active[index] != 0) {
-            indices[count] = (unsigned char)index;
-            count++;
-        }
-    }
-    ReleasePacketHandle(active);
-    return count;
-}
 
 /* Function start: 0x40A3A0 */
 short get_ship_max_velocity(short obj)
@@ -65,7 +20,8 @@ short get_ship_max_velocity(short obj)
     if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT &&
         g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
         return velocity + velocity / 3;
-    return velocity;
+    else
+        return velocity;
 }
 
 /* Function start: 0x40A481 */
@@ -74,7 +30,7 @@ void recalc_max_velocity(short ship)
     short oldVelocity;
 
     oldVelocity = g_asShipMaximumVelocity_00495f70[ship];
-    if (g_anShipFuel_00495638[ship] < 1) {
+    if (g_anShipFuel_00495638[ship] <= 0) {
         g_asShipMaximumVelocity_00495f70[ship] = 5;
     } else {
         g_asShipMaximumVelocity_00495f70[ship] =
@@ -120,7 +76,8 @@ int GetShipAccelerationRate(short ship)
     if (g_asPilotLevel_00495d60[ship] == RATING_ACE_SPIRIT &&
         g_asShipSide_004955d0[ship] == SIDE_KILRATHI)
         return acceleration + acceleration / 3;
-    return acceleration;
+    else
+        return acceleration;
 }
 
 /* Function start: 0x40A691 */
@@ -170,31 +127,37 @@ short FixedToShortSaturating(int value)
 {
     if (value < -0x7fff00)
         return -0x7fff;
-    if (value > 0x7fff00)
+    else if (value > 0x7fff00)
         return 0x7fff;
-    return (short)(value >> 8);
+    else
+        return (short)(value >> 8);
 }
 
 /* Function start: 0x40A867 */
 int MinInt(int a, int b)
 {
-    if (a <= b) b = a;
-    return b;
+    if (b < a)
+        return b;
+    else
+        return a;
 }
 
 /* Function start: 0x40A893 */
 int MaxInt(int a, int b)
 {
-    if (b <= a) b = a;
-    return b;
+    if (b > a)
+        return b;
+    else
+        return a;
 }
 
 /* Function start: 0x40A8BF */
 int AbsInt(int v)
 {
     if (v < 0)
-        v = -v;
-    return v;
+        return -v;
+    else
+        return v;
 }
 
 /* Function start: 0x40A8EB */
@@ -202,20 +165,21 @@ unsigned int SignFixed(int v)
 {
     if (v < 0)
         return 0xffffff00;
-    return v > 0 ? 0x100 : 0;
+    if (v > 0)
+        return 0x100;
+    return 0;
 }
 
 /* Function start: 0x40A925 */
 /* Normalise a degree value into (-180, 180]. 0x168 == 360, 0xB4 == 180. */
 short WrapDegrees(short degrees)
 {
-    short v = degrees % 0x168;
-
-    if (v < -0xb4)
-        v = v + 0x168;
-    if (0xb4 < v)
-        v = v - 0x168;
-    return v;
+    degrees %= 0x168;
+    if (degrees < -0xb4)
+        degrees += 0x168;
+    if (0xb4 < degrees)
+        degrees -= 0x168;
+    return degrees;
 }
 
 /* Function start: 0x40A981 */
@@ -224,6 +188,8 @@ short equ_vector(const FixedVector *left, const FixedVector *right)
     return left->x == right->x && left->y == right->y &&
            left->z == right->z;
 }
+
+void negate_vector(FixedVector *vector);
 
 /* Function start: 0x40A9D1 */
 short IsPairEqualityDifferentFromFlag(const unsigned int *values)
@@ -289,7 +255,7 @@ void divide_vector(FixedVector *vector, int divisor, FixedVector *result)
 
 /* Function start: 0x40ABCC */
 short ChooseRandomSignedMagnitude(short minimum, short maximum,
-                                  int allowNegative)
+                                  short allowNegative)
 {
     short value = RandomInRange(minimum, maximum);
 
@@ -333,16 +299,12 @@ void random_radial(const FixedVector *center, short radius,
 void rectangular_to_spherical(const FixedVector *rectangular,
                               SphericalVector *spherical)
 {
-    int horizontalLength;
-    int z;
-
     spherical->radius = Vector_magnitude(rectangular);
     if (spherical->radius == 0)
         return;
-    z = rectangular->z;
-    horizontalLength = PlanarMagnitude(rectangular->x, z);
     spherical->yaw = (short)ArcCos(
-        DivideFixed(z, horizontalLength));
+        DivideFixed(rectangular->z,
+                    PlanarMagnitude(rectangular->x, rectangular->z)));
     if (rectangular->x < 0)
         spherical->yaw = -spherical->yaw;
     spherical->pitch = (short)(ArcCos(
@@ -371,9 +333,12 @@ int dot_product(const FixedVector *left, const FixedVector *right)
 /* Function start: 0x40AE18 */
 short vector_angle(FixedVector left, FixedVector right)
 {
+    short cosine;
+
     NormalizeFixedVector(&left);
     NormalizeFixedVector(&right);
-    return (short)(((short)dot_product(&left, &right) * 100) / 0x100);
+    cosine = (short)dot_product(&left, &right);
+    return (short)((cosine * 100) / 0x100);
 }
 
 /* Function start: 0x40AE70 */
@@ -407,11 +372,13 @@ int vector_length_in_dir(const FixedVector *vector,
                          const FixedVector *direction)
 {
     FixedVector normalized;
+    int projection;
 
     normalized = *vector;
     NormalizeFixedVector(&normalized);
-    return MultiplyFixed(
-        Vector_magnitude(vector), dot_product(direction, &normalized));
+    projection = MultiplyFixed(Vector_magnitude(vector),
+                           dot_product(direction, &normalized));
+    return projection;
 }
 
 /* Function start: 0x40AFFA */
@@ -425,24 +392,31 @@ void vector_component_in_dir(const FixedVector *vector,
     ScaleFixedVector((FixedVector *)direction, length, component);
 }
 
+void vector_cross_product(const FixedVector *left, const FixedVector *right, FixedVector *product);
+void vector_component_in_dir(const FixedVector *vector, const FixedVector *direction, FixedVector *component);
+void transform_to_objects_frame(const FixedVector *source, FixedVector *destination, short obj);
+void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result);
+int vector_length_in_dir(const FixedVector *vector, const FixedVector *direction);
+void copy_frame(short source, short destination);
+
 /* Function start: 0x40B02F */
 void rotate_about_i(short angle, FixedVector *j, FixedVector *k)
 {
-    int old;
-    int cosine;
+    int original;
     int sine;
+    int cosine;
 
     cosine = CosFixed(angle);
     sine = SinFixed(angle);
-    old = j->x;
-    j->x = MultiplyFixed(old, cosine) - MultiplyFixed(k->x, sine);
-    k->x = MultiplyFixed(old, sine) + MultiplyFixed(k->x, cosine);
-    old = j->y;
-    j->y = MultiplyFixed(old, cosine) - MultiplyFixed(k->y, sine);
-    k->y = MultiplyFixed(old, sine) + MultiplyFixed(k->y, cosine);
-    old = j->z;
-    j->z = MultiplyFixed(old, cosine) - MultiplyFixed(k->z, sine);
-    k->z = MultiplyFixed(old, sine) + MultiplyFixed(k->z, cosine);
+    original = j->x;
+    j->x = MultiplyFixed(original, cosine) - MultiplyFixed(k->x, sine);
+    k->x = MultiplyFixed(original, sine) + MultiplyFixed(k->x, cosine);
+    original = j->y;
+    j->y = MultiplyFixed(original, cosine) - MultiplyFixed(k->y, sine);
+    k->y = MultiplyFixed(original, sine) + MultiplyFixed(k->y, cosine);
+    original = j->z;
+    j->z = MultiplyFixed(original, cosine) - MultiplyFixed(k->z, sine);
+    k->z = MultiplyFixed(original, sine) + MultiplyFixed(k->z, cosine);
 }
 
 /* Function start: 0x40B17F */
@@ -450,39 +424,39 @@ void rotate_about_j(short angle, FixedVector *i, FixedVector *k)
 {
     int cosine;
     int sine;
-    int old;
+    int original;
 
     cosine = CosFixed(angle);
     sine = SinFixed(angle);
-    old = i->x;
-    i->x = MultiplyFixed(k->x, sine) + MultiplyFixed(old, cosine);
-    k->x = MultiplyFixed(k->x, cosine) - MultiplyFixed(old, sine);
-    old = i->y;
-    i->y = MultiplyFixed(k->y, sine) + MultiplyFixed(old, cosine);
-    k->y = MultiplyFixed(k->y, cosine) - MultiplyFixed(old, sine);
-    old = i->z;
-    i->z = MultiplyFixed(k->z, sine) + MultiplyFixed(old, cosine);
-    k->z = MultiplyFixed(k->z, cosine) - MultiplyFixed(old, sine);
+    original = i->x;
+    i->x = MultiplyFixed(k->x, sine) + MultiplyFixed(original, cosine);
+    k->x = MultiplyFixed(k->x, cosine) - MultiplyFixed(original, sine);
+    original = i->y;
+    i->y = MultiplyFixed(k->y, sine) + MultiplyFixed(original, cosine);
+    k->y = MultiplyFixed(k->y, cosine) - MultiplyFixed(original, sine);
+    original = i->z;
+    i->z = MultiplyFixed(k->z, sine) + MultiplyFixed(original, cosine);
+    k->z = MultiplyFixed(k->z, cosine) - MultiplyFixed(original, sine);
 }
 
 /* Function start: 0x40B2CF */
 void rotate_about_k(short angle, FixedVector *i, FixedVector *j)
 {
-    int old;
-    int cosine;
+    int original;
     int sine;
+    int cosine;
 
     cosine = CosFixed(angle);
     sine = SinFixed(angle);
-    old = i->x;
-    i->x = MultiplyFixed(old, cosine) - MultiplyFixed(j->x, sine);
-    j->x = MultiplyFixed(old, sine) + MultiplyFixed(j->x, cosine);
-    old = i->y;
-    i->y = MultiplyFixed(old, cosine) - MultiplyFixed(j->y, sine);
-    j->y = MultiplyFixed(old, sine) + MultiplyFixed(j->y, cosine);
-    old = i->z;
-    i->z = MultiplyFixed(old, cosine) - MultiplyFixed(j->z, sine);
-    j->z = MultiplyFixed(old, sine) + MultiplyFixed(j->z, cosine);
+    original = i->x;
+    i->x = MultiplyFixed(original, cosine) - MultiplyFixed(j->x, sine);
+    j->x = MultiplyFixed(original, sine) + MultiplyFixed(j->x, cosine);
+    original = i->y;
+    i->y = MultiplyFixed(original, cosine) - MultiplyFixed(j->y, sine);
+    j->y = MultiplyFixed(original, sine) + MultiplyFixed(j->y, cosine);
+    original = i->z;
+    i->z = MultiplyFixed(original, cosine) - MultiplyFixed(j->z, sine);
+    j->z = MultiplyFixed(original, sine) + MultiplyFixed(j->z, cosine);
 }
 
 /* Function start: 0x40B41F */
@@ -565,22 +539,17 @@ short distance_between_points(const FixedVector *from,
                               const FixedVector *to)
 {
     FixedVector delta;
-    long magnitude;
 
     ComputeVectorDelta((FixedVector *)from, (FixedVector *)to, &delta);
-    magnitude = Vector_magnitude(&delta);
-    return FixedToShortSaturating((int)magnitude);
+    return FixedToShortSaturating((int)Vector_magnitude(&delta));
 }
 
 /* Function start: 0x40B805 */
 short distance_from_point(short obj, const FixedVector *point)
 {
-    long magnitude;
-
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        (FixedVector *)point, &g_vToTarget_00493188);
-    magnitude = Vector_magnitude(&g_vToTarget_00493188);
-    return FixedToShortSaturating((int)magnitude) -
+    return FixedToShortSaturating((int)Vector_magnitude(&g_vToTarget_00493188)) -
            g_asObjectCollisionRadius_004950e8[obj];
 }
 
@@ -591,43 +560,48 @@ short distance_from_object(short obj, short other)
            g_asObjectCollisionRadius_004950e8[other];
 }
 
+/* Counts facing and range queries; nothing reads it. */
+int g_nFacingRangeQueryCount_00492708;
+
 /* Function start: 0x40B898 */
 void get_facing_range_from_point(short obj, const FixedVector *point)
 {
+    int cosine;
+
     g_nTargetRange_0049319c =
         distance_from_point(obj, point) -
         g_asObjectCollisionRadius_004950e8[obj];
     g_vNormalizedToTarget_005d3bd0 = g_vToTarget_00493188;
     NormalizeFixedVector(&g_vNormalizedToTarget_005d3bd0);
-    g_nFacingToTarget_00493194 =
-        (short)(((short)dot_product(
-            &g_vNormalizedToTarget_005d3bd0,
-            &g_aShipForwardVector_00494208[obj]) * 100) >> 8);
+    cosine = dot_product(&g_vNormalizedToTarget_005d3bd0,
+                         &g_aShipForwardVector_00494208[obj]);
+    g_nFacingToTarget_00493194 = (short)(((short)cosine * 100) >> 8);
+    g_nFacingRangeQueryCount_00492708++;
 }
 
 /* Function start: 0x40B92F */
 void get_facing_range_from_object(short obj, short other)
 {
+    int cosine;
+
     get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
     g_nTargetRange_0049319c -= g_asObjectCollisionRadius_004950e8[other];
     negate_vector(&g_vNormalizedToTarget_005d3bd0);
-    g_nTargetFacing_00493198 =
-        (short)(((short)dot_product(
-            &g_vNormalizedToTarget_005d3bd0,
-            &g_aShipForwardVector_00494208[other]) * 100) >> 8);
+    cosine = dot_product(&g_vNormalizedToTarget_005d3bd0,
+                         &g_aShipForwardVector_00494208[other]);
+    g_nTargetFacing_00493198 = (short)(((short)cosine * 100) >> 8);
 }
 
 /* Function start: 0x40B9B5 */
 short facing_to_object(short obj, FixedVector *point)
 {
     FixedVector direction;
+    int cosine;
 
-    ComputeVectorDelta(&g_aShipPosition_00494550[obj],
-                       point, &direction);
+    ComputeVectorDelta(&g_aShipPosition_00494550[obj], point, &direction);
     NormalizeFixedVector(&direction);
-    g_nFacingToTarget_00493194 =
-        (short)(((short)dot_product(
-            &direction, &g_aShipForwardVector_00494208[obj]) * 100) >> 8);
+    cosine = dot_product(&direction, &g_aShipForwardVector_00494208[obj]);
+    g_nFacingToTarget_00493194 = (short)(((short)cosine * 100) >> 8);
     return g_nFacingToTarget_00493194;
 }
 
@@ -664,10 +638,10 @@ short set_ship_rotation_goals(short obj, short turnRate,
         rectangular_to_spherical(&localDirection, &spherical);
         if (spherical.radius == 0)
             return 1;
-        if (spherical.yaw <= 0)
-            spherical.yaw = (short)(spherical.yaw + turnRate);
-        else
+        if (spherical.yaw > 0)
             spherical.yaw = (short)(spherical.yaw - turnRate);
+        else
+            spherical.yaw = (short)(spherical.yaw + turnRate);
     } else {
         magnitude = Vector_magnitude(&localDirection);
         if (magnitude == 0)
@@ -679,15 +653,15 @@ short set_ship_rotation_goals(short obj, short turnRate,
             DivideFixed(localDirection.y, magnitude));
         if (localDirection.z < 0) {
             spherical.yaw = (short)-spherical.yaw;
-            if (spherical.pitch <= 0)
-                spherical.pitch = (short)(spherical.pitch - 180);
-            else
+            if (spherical.pitch > 0)
                 spherical.pitch = (short)(spherical.pitch + 180);
+            else
+                spherical.pitch = (short)(spherical.pitch - 180);
         }
-        if (spherical.pitch <= 0)
-            spherical.pitch = (short)(spherical.pitch + turnRate);
-        else
+        if (spherical.pitch > 0)
             spherical.pitch = (short)(spherical.pitch - turnRate);
+        else
+            spherical.pitch = (short)(spherical.pitch + turnRate);
     }
     *yawGoal = WrapDegrees((short)-spherical.yaw);
     *pitchGoal = WrapDegrees((short)-spherical.pitch);
@@ -729,14 +703,24 @@ void point_capital_ship_at_object(short obj, short other)
     point_ship(obj, 0, &direction);
 }
 
+/* Function start: 0x40BD58 */
+void point_perpendicular_to_point(short obj, const FixedVector *point)
+{
+    point_ship_at_point(obj, point);
+    if (g_anYawGoal_004954c0[obj] < 0)
+        g_anYawGoal_004954c0[obj] += 90;
+    else
+        g_anYawGoal_004954c0[obj] -= 90;
+}
+
 /* Function start: 0x40BDC2 */
 void point_ship_behind_object(short obj, short other)
 {
     FixedVector point = g_aShipPosition_00494550[other];
 
     position_relative(&point, g_aShipForwardVector_00494208[other],
-                      (short)(-500 -
-                          g_asObjectCollisionRadius_004950e8[other]));
+                      (short)-(g_asObjectCollisionRadius_004950e8[other] +
+                               500));
     point_ship_at_point(obj, &point);
 }
 
@@ -749,16 +733,6 @@ void point_ship_below_object(short obj, short other)
                       (short)(g_asObjectCollisionRadius_004950e8[other] +
                               500));
     point_ship_at_point(obj, &point);
-}
-
-/* Function start: 0x40BD58 */
-void point_perpendicular_to_point(short obj, const FixedVector *point)
-{
-    point_ship_at_point(obj, point);
-    if (g_anYawGoal_004954c0[obj] < 0)
-        g_anYawGoal_004954c0[obj] += 90;
-    else
-        g_anYawGoal_004954c0[obj] -= 90;
 }
 
 /* Function start: 0x40BEB0 */
@@ -792,7 +766,7 @@ void SetVectorFixedPoint(unsigned int *p, short v)
 }
 
 /* Function start: 0x40BF55 */
-unsigned int IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
+short IsPointWithinRange(FixedVector *from, FixedVector *to, short range)
 {
     FixedVector delta;
 
@@ -805,31 +779,31 @@ short check_for_collision(short obj)
 {
     FixedVector *objectPosition;
     FixedVector *position;
-    short other;
+    short candidate;
     short range;
 
     objectPosition = &g_aShipPosition_00494550[obj];
     position = g_aShipPosition_00494550;
-    for (other = 0; other <= SPACE_LAST_MOVING_OBJECT;
-         other++, position++) {
-        if (other != obj &&
-            g_aeObjectClass_00495328[other] >= OBJECT_CLASS_PROJECTILE) {
+    for (candidate = 0; candidate <= SPACE_LAST_MOVING_OBJECT;
+         candidate++, position++) {
+        if (candidate != obj &&
+            g_aeObjectClass_00495328[candidate] >= OBJECT_CLASS_PROJECTILE) {
             ComputeVectorDelta(objectPosition, position,
                                &g_vCollisionDelta_00493178);
             range = (short)(
 #ifdef SDL_PORT
-                SdlGetBalancedCollisionRadius(other) +
+                SdlGetBalancedCollisionRadius(candidate) +
                 SdlGetBalancedCollisionRadius(obj));
 #else
-                g_asObjectCollisionRadius_004950e8[other] +
+                g_asObjectCollisionRadius_004950e8[candidate] +
                 g_asObjectCollisionRadius_004950e8[obj]);
 #endif
-            if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
+            if (g_aeObjectClass_00495328[candidate] == OBJECT_CLASS_SHIP &&
                 g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)
                 range >>= 1;
             if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
                                     range) != 0)
-                return other;
+                return candidate;
         }
     }
     return -1;
@@ -888,6 +862,9 @@ short find_vacant_3d_object(void)
     }
     return -1;
 }
+
+/* Packet-release callee from the resource loader. */
+void FreePacketAndClear(void *slot, unsigned short releaseFlags);
 
 /* Function start: 0x40C2C9 */
 void remove_object(short obj)
@@ -1200,29 +1177,31 @@ void transform_objects_to_your_view(void)
 void set_background_objects_rotation(short obj, FixedVector *direction)
 {
     SphericalVector spherical;
-    FixedVector projectedUp;
-    short angle;
+    FixedVector flatUp;
+    short rollAngle;
 
     negate_vector(direction);
     rectangular_to_spherical(direction, &spherical);
     init_ijk(SCRATCH_VIEW_OBJECT);
     alter_yaw((short)-spherical.yaw, SCRATCH_VIEW_OBJECT);
     alter_pitch((short)-spherical.pitch, SCRATCH_VIEW_OBJECT);
-    projectedUp.x = dot_product(
+    flatUp.z = 0;
+    flatUp.x = dot_product(
         &g_aShipUpVector_00493ec0[EYE_OBJECT],
         &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT]);
-    projectedUp.y = dot_product(
+    flatUp.y = dot_product(
         &g_aShipUpVector_00493ec0[EYE_OBJECT],
         &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT]);
-    projectedUp.z = 0;
-    NormalizeFixedVector(&projectedUp);
-    angle = (short)ArcCos(projectedUp.y);
-    if (projectedUp.x >= 0)
-        angle = 360 - angle;
-    g_asObjectScreenAngle_004936b8[obj] = angle;
+    NormalizeFixedVector(&flatUp);
+    rollAngle = (short)ArcCos(flatUp.y);
+    rollAngle %= 360;
+    if (flatUp.x >= 0)
+        rollAngle = 360 - rollAngle;
+    g_asObjectScreenAngle_004936b8[obj] = rollAngle;
     g_asObjectScreenScale_00493a58[obj] = 0xff;
 }
 
+#pragma function(strcat)
 /* Function start: 0x40CFF8 */
 void get_right_shape(short obj, FixedVector *direction)
 {
@@ -1338,7 +1317,7 @@ void get_right_shape(short obj, FixedVector *direction)
                 g_acDirectionShapeFrame_0049d558[directionIndex];
             if (g_stViewBuffer_005d2b00.pixels != 0 &&
                 IdentityWord(
-                    (unsigned short)g_apObjectShape_00493868[obj]) == 0)
+                    (unsigned int)g_apObjectShape_00493868[obj]) == 0)
                 free_view_buffer();
             if (g_abObjectShapeOwned_00492760[obj] != 0)
                 FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
@@ -1371,346 +1350,4 @@ void get_right_shape(short obj, FixedVector *direction)
         g_asObjectViewFrame_00493508[obj] =
             g_acDirectionShapeFrame_0049d558[directionIndex];
     }
-}
-
-/* Function start: 0x459160 */
-void EraseLastTextInputCharacter(void)
-{
-    short textWidth;
-    Viewport clearArea;
-    char *text;
-    short characterWidth;
-    short length;
-
-    text = g_pCurrentTextContext_005c8d1c->text;
-    textWidth = MeasureTextPixelWidthClamped(text);
-    length = DosStrlen(text);
-    if (length != 0) {
-        characterWidth = (short)GetFontCharWidth(text[length - 1]);
-        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
-        clearArea.left = (short)(clearArea.left +
-                                 textWidth - characterWidth);
-        clearArea.right = (short)(clearArea.left + characterWidth - 1);
-        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
-        clearArea.bottom = (short)(clearArea.top +
-            ReadWord((unsigned short *)
-                g_pCurrentTextContext_005c8d1c->font) - 1);
-        ClearViewport(&clearArea,
-                      g_pCurrentTextContext_005c8d1c->backgroundColour);
-        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
-    }
-}
-
-/* Function start: 0x45924D */
-void EraseTextContextBackground(TextContext *context)
-{
-    short colour;
-
-    colour = context->backgroundColour;
-    if (colour == 0xff)
-        colour = g_cSecondaryViewBufferColour_0049cb4c;
-    ClearViewport(context->viewport, colour);
-}
-
-/* Function start: 0x459294 */
-void DrawTextInputCursor(char character)
-{
-    unsigned char savedBackground =
-        g_pCurrentTextContext_005c8d1c->backgroundColour;
-    unsigned char colour = g_pCurrentTextContext_005c8d1c->colour;
-    short savedX;
-    char cursor[2] = { character, 0 };
-
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    g_pCurrentTextContext_005c8d1c->cursorX = (short)(savedX + 1);
-    g_pCurrentTextContext_005c8d1c->backgroundColour = colour;
-    DrawFormattedText(cursor);
-    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
-    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
-}
-
-/* Function start: 0x45930A */
-void EraseCharacterAfterTextCursor(char character)
-{
-    short savedX;
-
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    g_pCurrentTextContext_005c8d1c->cursorX++;
-    ClearTextInputCharacter(character);
-    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
-}
-
-/* Function start: 0x459348 */
-void ClearTextInputCharacter(char character)
-{
-    Viewport clearArea;
-    short characterWidth;
-
-    characterWidth = (short)GetFontCharWidth(character);
-    clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
-    clearArea.left = g_pCurrentTextContext_005c8d1c->cursorX;
-    clearArea.right = (short)(clearArea.left + characterWidth - 1);
-    clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
-    clearArea.bottom = (short)(clearArea.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
-    ClearViewport(&clearArea,
-                  g_pCurrentTextContext_005c8d1c->backgroundColour);
-}
-
-/* Function start: 0x4593D6 */
-short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
-                               unsigned int topLeft,
-                               unsigned int bottomRight,
-                               short clearColour,
-                               unsigned char backgroundColour,
-                               short borderColour)
-{
-    memcpy(&panel->left, &topLeft, sizeof(topLeft));
-    memcpy(&panel->right, &bottomRight, sizeof(bottomRight));
-    panel->previousContext = g_pCurrentTextContext_005c8d1c;
-    g_pCurrentTextContext_005c8d1c = &panel->context;
-    panel->context = g_stDefaultTextContext_005d2d20;
-    if (fontIndex == -1)
-        fontIndex = 1;
-    InitializeTextContextFromFont(&panel->context, fontIndex,
-                                  (unsigned char)clearColour,
-                                  backgroundColour);
-    panel->viewport = g_stModalSourceViewport_005d2c50;
-    memcpy(&panel->savedBackground.left, &panel->left,
-           sizeof(topLeft) + sizeof(bottomRight));
-    memcpy(&panel->viewport.left, &panel->left,
-           sizeof(topLeft) + sizeof(bottomRight));
-    if (AllocateViewport(&panel->savedBackground, clearColour, 0) == 0)
-        return 0;
-    CopyViewportContents(&panel->viewport, &panel->savedBackground);
-    panel->context.text = g_szTextScratchBuffer_005d1c40;
-    panel->context.viewport = &panel->viewport;
-    ResetStringBuilder(&panel->context);
-    EraseTextContextBackground(&panel->context);
-    DrawViewportBorder(&panel->viewport, panel->left, panel->top,
-                       panel->right, panel->bottom, borderColour);
-    return 1;
-}
-
-/* Function start: 0x459527 */
-void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
-                        unsigned char alignment,
-                        const char *format, ...)
-{
-    va_list arguments;
-    char text[84];
-
-    va_start(arguments, format);
-    vsprintf(text, format, arguments);
-    va_end(arguments);
-    SetTextCursor((unsigned short)(panel->left + x),
-                  (unsigned short)(panel->top + y));
-    panel->context.alignment = alignment;
-    strcat(text, "%P");
-    FormatTextBufferFromStart(text);
-    MarkDibDirty();
-    DIBslamReal();
-}
-
-/* Function start: 0x4595AA */
-void RestoreModalTextPanel(ModalTextPanel *panel)
-{
-    CopyViewportContents(&panel->savedBackground, &panel->viewport);
-    MarkDibDirty();
-    DIBslamReal();
-    free_viewport(&panel->savedBackground);
-    g_pCurrentTextContext_005c8d1c = panel->previousContext;
-}
-
-/* Function start: 0x4595EF */
-short ShowModalTextPanel(short fontIndex, const char *format, ...)
-{
-    unsigned int topLeft;
-    unsigned int bottomRight;
-    short halfWidth;
-    va_list arguments;
-    char text[52];
-
-    va_start(arguments, format);
-    vsprintf(text, format, arguments);
-    va_end(arguments);
-    topLeft = g_dwModalBoundsTopLeft_0049ca48;
-    bottomRight = g_dwModalBoundsBottomRight_0049ca4c;
-    if (g_pModalTextPanel_0049ca50 == 0) {
-        g_pModalTextPanel_0049ca50 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0);
-    }
-    if (g_pModalTextPanel_0049ca50 == 0)
-        return 0;
-    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
-                                 topLeft, bottomRight,
-                                 g_cSecondaryViewBufferColour_0049cb4c, g_cSecondaryViewBufferColour_0049cb4c,
-                                 g_cSecondaryViewBufferColour_0049cb4c) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
-        return 0;
-    }
-    halfWidth = MeasureTextPixelWidthClamped(text);
-    halfWidth = (short)(((int)halfWidth * 8 +
-        (((int)halfWidth * 8 >> 31) & 15)) >> 4);
-    RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
-    *(short *)&topLeft = (short)(159 - halfWidth);
-    *(short *)&bottomRight = (short)(161 + halfWidth);
-    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
-                                 topLeft, bottomRight,
-                                 g_bPrimaryViewBufferColour_0049cb50,
-                                 g_abGamePaletteReservedColours_0049cb54[0],
-                                 g_abGamePaletteReservedColours_0049cb54[8]) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
-        return 0;
-    }
-    DrawModalTextPanel(g_pModalTextPanel_0049ca50, 0, 6, 2, text);
-    MarkDibDirty();
-    DIBslamReal();
-    return 1;
-}
-
-/* Function start: 0x45979B */
-void ReleaseModalTextPanel(void)
-{
-    if (g_pModalTextPanel_0049ca50 != 0) {
-        RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
-        MarkDibDirty();
-        DIBslamReal();
-    }
-}
-
-/* Function start: 0x4597E3 */
-short ReadTextInput(char *destination, short maximumLength,
-                    volatile short mode,
-                    volatile short allowPathSeparators)
-{
-    Viewport inputViewport;
-    Viewport *savedViewport;
-    char *savedText;
-    short savedX;
-    short savedY;
-    short inputLength;
-    short accepted;
-    short handled;
-    unsigned char savedBackground;
-    short key;
-    int characterClass;
-    char input[40];
-
-    accepted = 0;
-    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
-    if (g_bRewritePacketExtensions_0049cb48 == 0)
-        g_pCurrentTextContext_005c8d1c->backgroundColour = 0x5e;
-    else
-        g_pCurrentTextContext_005c8d1c->backgroundColour = 2;
-    savedText = g_pCurrentTextContext_005c8d1c->text;
-    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->text = input;
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    savedY = g_pCurrentTextContext_005c8d1c->cursorY;
-    inputViewport = *g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->viewport = &inputViewport;
-    DosStrcpy(input, destination);
-    inputLength = DosStrlen(input);
-
-    inputViewport.left = savedX;
-    inputViewport.top = savedY;
-    inputViewport.bottom = (short)(inputViewport.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font));
-    inputViewport.right = (short)(inputViewport.left +
-        MeasureTextPixelWidthClamped(input));
-    ClearViewport(&inputViewport,
-                  g_pCurrentTextContext_005c8d1c->backgroundColour);
-    inputViewport.right = savedViewport->right;
-    DrawFormattedText(input);
-    DrawTextInputCursor(' ');
-
-    MarkDibDirty();
-    DIBslamReal();
-    while (accepted == 0) {
-        handled = 0;
-        while (handled == 0) {
-            ServiceSoundSystem();
-            key = WaitForQueuedInputPress();
-            switch (key) {
-            case 27:
-                handled++;
-                if (input[0] != 0)
-                    EraseCharacterAfterTextCursor(' ');
-                g_pCurrentTextContext_005c8d1c->text = savedText;
-                g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
-                return 0;
-            case 13:
-                handled++;
-                if (input[0] != 0) {
-                    EraseCharacterAfterTextCursor(' ');
-                    accepted++;
-                }
-                break;
-            default:
-                if (key == 8 && inputLength != 0) {
-                    EraseCharacterAfterTextCursor(' ');
-                    EraseLastTextInputCharacter();
-                    DrawTextInputCursor(' ');
-                    inputLength--;
-                    input[inputLength] = 0;
-                    handled++;
-                    break;
-                }
-                if (maximumLength <= inputLength) {
-                    handled++;
-                    break;
-                }
-                if (allowPathSeparators == 0 ||
-                    (key != ':' && key != '\\')) {
-#ifdef SDL_PORT
-                    characterClass = isalnum((unsigned char)key);
-#else
-                    if (__mb_cur_max > 1)
-                        characterClass = _isctype(key, 0x107);
-                    else
-                        characterClass = _pctype[key] & 0x107;
-#endif
-                    if (characterClass == 0 &&
-                        (key != ' ' || inputLength == 0)) {
-                        handled++;
-                        break;
-                    }
-                }
-                switch (mode) {
-                case 1:
-                    key = (short)toupper(key);
-                    break;
-                case 2:
-                    if (key < '0' || key > '9')
-                        key = 0;
-                    break;
-                }
-                if (key == 0)
-                    continue;
-                EraseCharacterAfterTextCursor(' ');
-                input[inputLength] = (char)key;
-                inputLength++;
-                input[inputLength] = 0;
-                SetTextCursor((unsigned short)savedX,
-                              (unsigned short)savedY);
-                DrawFormattedText(input);
-                DrawTextInputCursor(' ');
-                handled++;
-                break;
-            }
-        }
-        MarkDibDirty();
-        DIBslamReal();
-    }
-
-    DosStrcpy(destination, input);
-    g_pCurrentTextContext_005c8d1c->text = savedText;
-    g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
-    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
-    return 1;
 }

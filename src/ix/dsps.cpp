@@ -9,6 +9,9 @@
  *  voice slot allocated after the regular voices: voice[voice_count + index].
  */
 #include "ix.h"
+#ifndef SDL_PORT
+#include <dos.h>
+#endif
 #include <stdlib.h>
 
 int      g_nStreamCount_005c5750;
@@ -51,8 +54,12 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     v->flags = IX_VOICE_FLAG4 | 1;
     if (bps == 16)
         v->flags |= IX_VOICE_16BIT;
+    else
+        ;
     if (channels == 2)
         v->flags |= IX_VOICE_STEREO;
+    else
+        ;
     v->cursor = g_streams_005c5758[stream].buffer;
     v->start = v->cursor;
     v->end = v->cursor + size;
@@ -66,6 +73,8 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     g_nStreamsAllocated_005c5754 = g_nStreamsAllocated_005c5754 + 1;
     g_streams_005c5758[stream].flags |= IX_STREAM_ALLOCATED;
 }
+
+void ix_dsps_stop(int stream);
 
 /* Function start: 0x48ACCB */   /* source lines 62, 63 */
 void ix_dsps_free(int stream)
@@ -162,6 +171,11 @@ void ix_dsps_stop(int stream)
     g_streams_005c5758[stream].flags &= ~IX_STREAM_PLAYING;
 }
 
+void ix_dsps_lock(int stream, unsigned int requestedBytes,
+                  unsigned char **buffer, unsigned int *lockedBytes);
+unsigned int ix_dsps_get_flags(int stream);
+void ix_dsps_unlock(int stream);
+
 /* Function start: 0x48B166 */   /* source lines 109, 110 */
 void ix_dsps_set_volume(int stream, unsigned short vol)
 {
@@ -200,7 +214,7 @@ unsigned int ix_dsps_get_flags(int stream)
 /* Function start: 0x48B2CF */   /* source lines 128, 129 */
 int ix_dsps_get_buffer_free(int stream)
 {
-    int elapsed;
+    int consumed;
     unsigned int played;
 
     if (stream < 0 || stream >= g_nStreamCount_005c5750) {
@@ -213,7 +227,7 @@ int ix_dsps_get_buffer_free(int stream)
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    elapsed = 0;
+    consumed = 0;
     EnterCriticalSection(&g_streams_005c5758[stream].cs);
     played = g_voices_005c52f0[g_nVoiceCount_005c5748 + stream].cursor
            - g_streams_005c5758[stream].buffer;
@@ -224,15 +238,15 @@ int ix_dsps_get_buffer_free(int stream)
         return g_streams_005c5758[stream].size;
     }
     if (g_streams_005c5758[stream].playPos < played) {
-        elapsed = played - g_streams_005c5758[stream].playPos;
+        consumed = played - g_streams_005c5758[stream].playPos;
         g_streams_005c5758[stream].pending =
-            g_streams_005c5758[stream].pending - elapsed;
+            g_streams_005c5758[stream].pending - consumed;
     }
     else if (g_streams_005c5758[stream].playPos != played) {
-        elapsed = (g_streams_005c5758[stream].size
+        consumed = (g_streams_005c5758[stream].size
                    - g_streams_005c5758[stream].playPos) + played;
         g_streams_005c5758[stream].pending =
-            g_streams_005c5758[stream].pending - elapsed;
+            g_streams_005c5758[stream].pending - consumed;
     }
     g_streams_005c5758[stream].playPos = played;
     LeaveCriticalSection(&g_streams_005c5758[stream].cs);

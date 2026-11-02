@@ -308,7 +308,7 @@ extern "C" int ix_streamer_open_stream_file(char *path)
 extern "C" void ix_streamer_close_stream_file(void)
 {
     IxStreamFile *streamFile;
-    IxStreamFile *previous;
+    IxStreamFile *prev;
 
     if ((g_dwStreamerState_005c4c38 & IX_STREAMER_INITIALIZED) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_STREAMER_FILE, 250);
@@ -322,9 +322,9 @@ extern "C" void ix_streamer_close_stream_file(void)
     }
     streamFile = g_pStreamerIdleFiles_005c4b48;
     while (streamFile != 0) {
-        previous = streamFile->previous;
+        prev = streamFile->previous;
         ix_streamer_close_file(streamFile);
-        streamFile = previous;
+        streamFile = prev;
     }
     EnterCriticalSection(&g_csStreamer_005c4c48);
     g_dwStreamerState_005c4c38 &= 0xffffff91;
@@ -434,8 +434,8 @@ char ix_streamer_get_trigger(void)
 extern "C" void ix_streamer_force_trigger(char trigger)
 {
     unsigned int triggerCount;
-    unsigned int chunk;
-    unsigned int chunkCount;
+    unsigned int chunkIndex;
+    unsigned int audioChunks;
     unsigned int triggerIndex;
 
     if ((g_dwStreamerState_005c4c38 & IX_STREAMER_HAS_AUDIO) == 0) {
@@ -443,15 +443,15 @@ extern "C" void ix_streamer_force_trigger(char trigger)
         ix_log_printf("Stream has no audio");
         return;
     }
-    chunk = g_dwStreamerAudioChunk_005c4c30;
-    chunkCount = g_pStreamerHeader_005c4bec->audioChunkCount;
+    chunkIndex = g_dwStreamerAudioChunk_005c4c30;
+    audioChunks = g_pStreamerHeader_005c4bec->audioChunkCount;
     EnterCriticalSection(&g_csStreamer_005c4c48);
-    while (-1 < trigger && chunkCount--) {
-        if (g_pStreamerAudioChunks_005c4bf0[chunk].triggerCount > 0) {
+    while (-1 < trigger && audioChunks--) {
+        if (g_pStreamerAudioChunks_005c4bf0[chunkIndex].triggerCount > 0) {
             triggerCount =
-                g_pStreamerAudioChunks_005c4bf0[chunk].triggerCount;
+                g_pStreamerAudioChunks_005c4bf0[chunkIndex].triggerCount;
             triggerIndex =
-                g_pStreamerAudioChunks_005c4bf0[chunk].firstTrigger;
+                g_pStreamerAudioChunks_005c4bf0[chunkIndex].firstTrigger;
             while (triggerCount--) {
                 if (g_pStreamerTriggers_005c4c60[triggerIndex].tag ==
                     trigger) {
@@ -469,9 +469,9 @@ extern "C" void ix_streamer_force_trigger(char trigger)
                 triggerIndex++;
             }
         }
-        chunk++;
-        if (g_pStreamerHeader_005c4bec->audioChunkCount - 1 <= chunk)
-            chunk = 0;
+        chunkIndex++;
+        if (g_pStreamerHeader_005c4bec->audioChunkCount - 1 <= chunkIndex)
+            chunkIndex = 0;
     }
     if ((g_dwStreamerState_005c4c38 & IX_STREAMER_DSP_PLAYING) != 0) {
         ix_dsps_stop(0);
@@ -549,20 +549,20 @@ unsigned int ix_streamer_hash_name(unsigned char *name)
 /* Function start: 0x46CD55 */
 IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash)
 {
-    unsigned int last;
+    unsigned int limit;
     IxStreamerFileEntry *entry;
     unsigned int first;
-    unsigned int middle;
+    unsigned int mid;
 
     first = 0;
-    last = g_pStreamerHeader_005c4bec->fileEntryCount;
-    while (last > first) {
-        middle = (first + last) >> 1;
-        entry = &g_pStreamerFileEntries_005c4be8[middle];
+    limit = g_pStreamerHeader_005c4bec->fileEntryCount;
+    while (limit > first) {
+        mid = (first + limit) >> 1;
+        entry = &g_pStreamerFileEntries_005c4be8[mid];
         if (entry->nameHash < hash) {
-            first = middle + 1;
+            first = mid + 1;
         } else if (entry->nameHash > hash) {
-            last = middle;
+            limit = mid;
         } else {
             return entry;
         }
@@ -734,7 +734,6 @@ DWORD WINAPI ix_streamer_thread_proc(void *parameter)
 unsigned int ix_streamer_service_audio(void)
 {
     unsigned int bytesUntilStop;
-    register unsigned int chunkSize;
 
     if ((g_dwStreamerState_005c4c38 & IX_STREAMER_END_TRIGGERED) != 0) {
         bytesUntilStop = g_pStreamerHeader_005c4bec->audioBufferSize -
@@ -747,20 +746,14 @@ unsigned int ix_streamer_service_audio(void)
                 IX_STREAMER_DSP_PLAYING) == 0) {
         g_dwStreamerState_005c4c38 |= IX_STREAMER_DSP_PLAYING;
         ix_dsps_prepare(0);
-        for (;;) {
-            chunkSize = ix_thread_get_audio_chunk_size();
-            if (chunkSize >= (unsigned int)ix_dsps_get_buffer_free(0))
-                break;
+        while (ix_thread_get_audio_chunk_size() <
+               (unsigned int)ix_dsps_get_buffer_free(0))
             ix_thread_lock_stream_buffer();
-        }
         ix_dsps_play(0);
     } else {
-        for (;;) {
-            chunkSize = ix_thread_get_audio_chunk_size();
-            if (chunkSize >= (unsigned int)ix_dsps_get_buffer_free(0))
-                break;
+        while (ix_thread_get_audio_chunk_size() <
+               (unsigned int)ix_dsps_get_buffer_free(0))
             ix_thread_lock_stream_buffer();
-        }
     }
     return ix_thread_service_streams();
 }

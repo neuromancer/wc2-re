@@ -1,11 +1,7 @@
 /*
- *  Cockpit information display.
+ *  Cinematic sprite-font renderer.
  *
- *  Address range 0x433690-0x433abf (provisional -- see docs/ORDER.md).
- *  WC2 adds the cinematic sprite-font renderer before show_info_disp.
- *  The DirectDraw error switch and its generated lookup tables end at
- *  0x43390f; the Mac symbol order proves that the ship-AI `smart` unit starts
- *  at 0x433ac0.
+ *  Retail object 0x433690-0x433ACF (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
@@ -28,8 +24,8 @@ void DrawCinematicFontCharacter(char character)
                       g_pCurrentTextContext_005c8d1c->cursorY,
                       g_pCurrentTextContext_005c8d1c->font, frame);
     g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-        g_pCurrentTextContext_005c8d1c->cursorX +
-        bounds.right - bounds.left + 2);
+        bounds.right - bounds.left +
+        g_pCurrentTextContext_005c8d1c->cursorX + 2);
 }
 
 /* Function start: 0x43374E */
@@ -43,45 +39,44 @@ short IsCinematicFontCharacterPrintable(short character)
 /* Function start: 0x433777 */
 void DrawWrappedCinematicText(char *text)
 {
-    char *cursor;
-    char *lineEnd;
+    char *lineStart;
+    char *end;
+    short terminator;
+    short usedWidth;
     short viewportWidth;
-    short lineWidth;
-    short character;
-    short characterWidth;
-    char savedCharacter;
+    short advance;
+    short ch;
 
-    cursor = text;
+    lineStart = text;
     viewportWidth = (short)(
         g_pCurrentTextContext_005c8d1c->viewport->right -
         g_pCurrentTextContext_005c8d1c->viewport->left + 1);
-    while (*cursor != 0) {
-        lineWidth = 0;
-        lineEnd = cursor;
-        for (;;) {
-            character = (signed char)*lineEnd;
-            if (character == 0 || character == '\n')
+    while (*lineStart != 0) {
+        usedWidth = 0;
+        end = lineStart;
+        while ((ch = (signed char)*end) != 0) {
+            if (ch == '\n')
                 break;
-            characterWidth = MeasureCinematicFontCharacterWidth(character);
-            lineWidth = (short)(lineWidth + characterWidth);
-            if (viewportWidth <= lineWidth) {
-                if (isalnum(character) != 0) {
-                    while (isalpha(character) != 0) {
-                        lineWidth = (short)(lineWidth - characterWidth);
-                        lineEnd--;
-                        character = (signed char)*lineEnd;
-                        characterWidth =
-                            MeasureCinematicFontCharacterWidth(character);
+            advance = MeasureCinematicFontCharacterWidth(ch);
+            usedWidth = (short)(usedWidth + advance);
+            if (viewportWidth <= usedWidth) {
+                if (isalnum(ch) != 0) {
+                    while (isalpha(ch) != 0) {
+                        usedWidth = (short)(usedWidth - advance);
+                        end--;
+                        ch = (signed char)*end;
+                        advance =
+                            MeasureCinematicFontCharacterWidth(ch);
                     }
                 } else {
-                    lineWidth = (short)(lineWidth - characterWidth);
+                    usedWidth = (short)(usedWidth - advance);
                 }
                 break;
             }
-            lineEnd++;
+            end++;
         }
-        savedCharacter = (char)character;
-        *lineEnd = 0;
+        terminator = ch;
+        *end = 0;
         switch (g_pCurrentTextContext_005c8d1c->alignment) {
         case 0:
             g_pCurrentTextContext_005c8d1c->cursorX =
@@ -90,22 +85,22 @@ void DrawWrappedCinematicText(char *text)
         case 1:
             g_pCurrentTextContext_005c8d1c->cursorX = (short)(
                 g_pCurrentTextContext_005c8d1c->viewport->right -
-                lineWidth + 1);
+                usedWidth + 1);
             break;
         case 2:
             g_pCurrentTextContext_005c8d1c->cursorX = (short)(
                 g_pCurrentTextContext_005c8d1c->viewport->left +
-                (viewportWidth - lineWidth) / 2);
+                (viewportWidth - usedWidth) / 2);
             break;
         }
-        while (*cursor != 0)
-            DrawCinematicFontCharacter(*cursor++);
-        *cursor = savedCharacter;
-        if (savedCharacter == '\n') {
+        while (*lineStart != 0)
+            DrawCinematicFontCharacter(*lineStart++);
+        *lineStart = (char)terminator;
+        if (terminator == '\n') {
             g_pCurrentTextContext_005c8d1c->cursorY = (short)(
                 g_pCurrentTextContext_005c8d1c->cursorY +
                 MeasureCinematicFontLineHeight() + 1);
-            cursor++;
+            lineStart++;
         }
     }
 }

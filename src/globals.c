@@ -7,6 +7,10 @@
  */
 #include "game.h"
 
+/* The raster library's tables live in src/raster.asm in the Win32 build;
+ * the SDL build, which uses the C counterparts in src/sdl/raster.c, keeps
+ * them here. */
+#ifdef SDL_PORT
 /* Quarter-wave 16.16 cosine table embedded with the original raster
  * assembly.  Indices are tenths of a degree from 0 through 90 degrees. */
 const int g_anRLEQuarterCosine_00405cbb[901] = {
@@ -131,6 +135,7 @@ const unsigned char g_abIffBmhdChunkId_00406f74[4] = {
 };
 const unsigned char g_abIffCmapChunkId_00406f78[4] = { 'C', 'M', 'A', 'P' };
 const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
+#endif
 
 
 
@@ -138,8 +143,8 @@ const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 const int g_nJoystickUnavailableSample_0048e054 = -1;
 const int g_nViewportStaticRandomRange_0048e060 = 3;
-const unsigned short g_wSpeechCacheCodeBytes_0048e0e0 = 0xfffa;
-const unsigned short g_wSpeechCacheDataWords_0048e0e4 = 0x0fa0;
+const unsigned short g_wDigiSampleBytes_0048e0e0 = 0xfffa;
+const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
 unsigned char *g_pDamageDisplayBackground_00490060;
 const ShortPoint g_aDamageDisplayPositions_00490068[9] = {
     {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
@@ -200,6 +205,8 @@ short g_nCannedSceneStateRecordMarker_00490220;
 const char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
 const char g_szCannedSceneCreateError_00490270[4] = "029";
 const char g_szCannedSceneWriteOpenError_00490274[4] = "030";
+/* Raster library state: native storage is in src/raster.asm. */
+#ifdef SDL_PORT
 void *g_apRasterDriverCallbacks_00490278[13];
 char g_szRasterDriverName_004902ac[13] = "MCGA.DLL";
 unsigned char *g_pRLEEncodeBuffer_004902b9;
@@ -228,6 +235,7 @@ RasterClip *g_pGifRasterTarget_00491b04;
 unsigned char g_abRasterPaletteTranslation_00491b08[256];
 RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
+#endif
 
 MissionNavPoint g_aMissionNavPoints_00491e98[
     MISSION_NAV_POINT_COUNT] = { { 0 } };
@@ -541,6 +549,7 @@ short g_asShipListRange_00496158[16];
 signed char g_cViableTargetCount_00496178;
 signed char g_acViableTarget_00496180[16] = { -1 };
 short g_asViableTargetDistance_00496190[10];
+unsigned int g_dwCannedSceneSnapshotEnd_004961a4;
 ActiveSoundEntry *g_pActiveSoundHead_004961a8;
 ActiveSoundEntry *g_pActiveSoundTail_004961ac;
 int g_bAudioSystemInitialized_004961b0;
@@ -650,18 +659,6 @@ unsigned short g_awAbsoluteSine_00496708[360] = {
     104, 100,  96,  92,  88,  83,  79,  74,  71,  66,  62,  58,
      53,  49,  45,  40,  36,  31,  27,  22,  18,  13,   9,   4
 };
-const char g_szInvalidShapeAllocation_004969ec[12] = "not jefftep";
-const char g_szBadViewport_004969f8[12] = "bad vport";
-const char g_szShapeRLEVersion_00496a04[8] = "1.00";
-const char g_szShapeRLEOverflow_00496a0c[20] = "qq copy overflow";
-const char g_szBadShapeFlip_00496a20[12] = "bad flip";
-const char g_szCopyLine_00496a2c[12] = "__copyline";
-const char g_szWipeLine_00496a38[12] = "__wipeline";
-const char g_szTriangle_00496a54[12] = "triangle";
-const char g_szShadedTriangle_00496a60[16] = "shaded_triangle";
-const char g_szShadowDraw_00496a70[12] = "shadow_draw";
-const char g_szFizzleFade_00496a7c[12] = "fizzle_fade";
-const char g_szSnowViewport_00496a88[16] = "snow_viewport";
 
 
 
@@ -1023,9 +1020,9 @@ short g_nCutsceneTextBottom_00499ee6 = 199;
 signed char g_bCutsceneDebugOverlayEnabled_00499ee8;
 unsigned short g_wCutsceneDebugFrameNumber_00499eec;
 CutscenePlane *g_pCutsceneSpriteParentPlane_00499ef0;
-char g_szPilotCallsign_00499ef8[24] = "CALLSIGN";
-char g_szPilotLastName_00499f10[24] = "PCNAME";
-char g_szPilotFirstName_00499f28[24] = "FIRSTNAME";
+PilotNameVariables g_stPilotNameVariables_00499ef8 = {
+    "CALLSIGN", "PCNAME", "FIRSTNAME"
+};
 signed char g_cCutsceneTextStyle_00499f40;
 const char g_szCutsceneSpriteType_00499f44[8] = "sprite";
 const char g_szCutscenePlaneType_00499f4c[8] = "plane";
@@ -1278,11 +1275,15 @@ const ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
 const short g_anPilotTurnInterval_0049b9c0[8] = {
     5, 5, 4, 4, 3, 1, 1, 0
 };
-unsigned short g_wSpeechCacheBlockBytes_0049bb58 = 0x220;
-unsigned short g_wSpeechCacheSizeCode_0049bb5c = 7;
-unsigned short g_wSpeechCacheState_0049bb60;
-unsigned short g_wSpeechCacheSegment_0049bb64;
-unsigned short g_wSpeechCacheEndSegment_0049bb68;
+unsigned short g_wSoundBlasterPort_0049bb58 = 0x220;
+unsigned short g_wSoundBlasterIrq_0049bb5c = 7;
+unsigned short g_wDigiPlaying_0049bb60;
+unsigned short g_wDmaAddressA_0049bb64;
+unsigned short g_wDmaAddressB_0049bb68;
+unsigned short g_wDmaCountA_0049bb6c;
+unsigned short g_wDmaCountB_0049bb70;
+int g_nDmaHalfSelect_0049bb74;
+short g_nDigiLastBlock_0049bb78;
 unsigned char *g_pNavLocationText_0049bc54;
 const char g_szBriefingMapTextFormat_0049bd30[12] = "%X%Y%F%s";
 int g_bKeyboardMouseEnabled_0049be68;
@@ -1497,7 +1498,7 @@ int g_nMinimumMemoryNoMusic_0049cc20 = 0x43238;
 int g_nMinimumMemoryFullMusic_0049cc24 = 0x49bb0;
 int g_nMinimumMemoryAlternate_0049cc28 = 0x43238;
 short g_bSpeechResourcesEnabled_0049cc2c;
-unsigned char g_abMusicResourcePresent_0049cc30[66] = {
+signed char g_acMusicResourcePresent_0049cc30[66] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
@@ -1863,6 +1864,7 @@ short g_nInputCursorFrame_005c83fd;
 Viewport *g_pInputViewport_005c8403;
 unsigned char g_bInputCursorShapeChanged_005c840b;
 void (*g_pfnInputPump_005c840c)(void);
+short g_nEmsIsrBusy_005c841c;
 signed char DAT_005c8430;
 short g_wInputDeviceButtonState_005c8432;
 int g_bSuppressNextMouseMove_005c843c;
@@ -1903,7 +1905,7 @@ int g_nTargetCameraMode_005c8d50;
 FixedVector g_vTargetCameraForce_005c8d60;
 short g_nTargetCameraPitchIndicatorX_005c8d6c;
 short g_nTargetCameraPitchIndicatorY_005c8d6e;
-short g_asGunCooldown_005c8d70[30];
+short g_aasGunCooldown_005c8d70[10][3];
 short g_asTargetCameraPitchIndicatorBackground_005c8db0[3];
 int g_nTargetCameraOverlayMode_005c8db8;
 short g_nGunDisplayCount_005c8dbc;
@@ -1913,13 +1915,13 @@ int g_nAllocateViewportCalls_005c8dc4;
 int g_nMemoryConfiguration_005c8dc8;
 int g_nMusicMemoryRequirement_005c8dcc;
 unsigned int g_dwInitialFreeMemory_005c8dd0;
-short g_nSpeechCacheSizeCode_005c8dd8;
+short g_nSoundBlasterIrqSetting_005c8dd8;
 short g_nMemoryAdjustmentKb_005c8dda;
 short g_bPumpMessagesWhileLoading_005c8ddc;
-short g_nSpeechCacheUnitCount_005c8dde;
+short g_nSoundBlasterPortSetting_005c8dde;
 int g_nAvailableGameMemory_005c8de0;
 int g_nMissionResourceBudget_005c8de4;
-short g_bSpeechCacheEnabled_005c8de8;
+short g_bSpeechEnabled_005c8de8;
 FireworkState g_aFireworks_005c8df0[30];
 unsigned char *g_pTitleFireworkShape_005c8f58;
 Viewport *g_pConstellationViewport_005c8f5c;
@@ -1969,6 +1971,8 @@ int g_aiSoundEffectSourceActive_005d12c0[SPACE_OBJECT_COUNT];
 MusicResource g_aMusicResources_005d13e0[66];
 unsigned int g_dwRestoredSceneMusicState_005d14e8;
 int g_nPassingShipSoundCooldown_005d156c;
+short g_nAlternateSampleToggle_005d1570;
+int g_anObjectSoundEffects_005d1580[SPACE_OBJECT_COUNT];
 short g_nCurrentStarSystem_005d169c;
 short g_nNavMapMaximumX_005d169e;
 short g_nNavMapMinimumX_005d16a0;
@@ -1984,9 +1988,12 @@ TextContext g_stNavLabelTextContext_005d16f0;
  * it is still null; the readouts take its first short two bytes at a time,
  * and the inflight nav map keeps the system it is showing in the second. */
 CampaignDate g_stElapsedCampaignDate_005d170c;
-void *g_pSpeechCacheDataAllocation_005d1718;
-void *g_pSpeechCacheCode_005d1720;
-unsigned char g_ucSpeechCachePage_005d1724;
+void *g_pDigiData_005d1710;
+unsigned short g_wDigiLeft_005d1714;
+void *g_pDmaBuffer_005d1718;
+unsigned short g_wDigiPosition_005d171c;
+void *g_pDigiSample_005d1720;
+unsigned char g_ucDmaPage_005d1724;
 short g_nActiveInputDevice_005d1726;
 int g_nJoystickVerticalDeadZone_005d1728;
 int g_nJoystickHorizontalDeadZone_005d172c;
@@ -2107,7 +2114,7 @@ TextContext g_stCutsceneDebugTextContext_005d2df0;
 SceneFlicCacheEntry g_aSceneFlicCache_005d2e10[15];
 unsigned int g_nCutsceneInitialAvailableMemory_005d2e88;
 short g_nCutsceneBranchOffset_005d2e8c;
-void *g_pCutscenePalettePacket_005d2e98;
+unsigned char *g_pCutscenePalettePacket_005d2e98;
 short g_nCutsceneResourceScratch_005d2e9c;
 short g_nCutsceneTextIndex_005d2ea4;
 unsigned int g_nCutsceneInitialLargestBlock_005d2ea8;
@@ -2137,7 +2144,7 @@ int g_nShapeClipTicks_005d2fd4;
 int g_nShapeDrawTicks_005d2fd8;
 int g_nSavedWingmanObjectCounter_005d2fdc;
 int g_nSavedPlayerObjectCounter_005d2fe0;
-unsigned char g_abJumpDriveUsedBySystem_005d2fe8[5];
+signed char g_acJumpDriveUsedBySystem_005d2fe8[5];
 int g_nJoystickCalibrationMinimumY_005d2ff0;
 int g_nJoystickCalibrationMinimumX_005d2ff4;
 int g_nJoystickRawX_005d2ff8;

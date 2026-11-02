@@ -1,16 +1,13 @@
 /*
  *  Win32 developer overlay console.
  *
- *  Address range 0x41c760-0x41d0bf (exact).  The new/delete call sites,
- *  implicit ECX object parameter, and callee-cleanup member arguments prove
- *  this isolated utility was compiled as C++ despite the surrounding game
- *  sources being C.
+ *  Retail object 0x45AC50-0x45B7DF (link order; see docs/ORDER.md).
  */
 #include "game.h"
+
 #include <stdarg.h>
 
 #pragma function(memcpy, memset)
-
 /* Function start: 0x45AC50 */
 DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
                                          HWND targetWindow,
@@ -73,6 +70,25 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     animationState = 1;
     spinnerCharacters = (char *)malloc(5);
     strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0049cb3c);
+}
+
+/* Function start: 0x45AE6C */
+DebugOverlayConsole::~DebugOverlayConsole(void)
+{
+    int shutdownKey;
+
+    animationState = 2;
+    shutdownKey = 0x103;
+    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0) {
+#ifndef SDL_PORT
+        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
+#endif
+        free(textBuffer);
+        free(dirtyLines);
+        free(spinnerCharacters);
+    }
+    (void)shutdownKey;
+    return;
 }
 
 /* Function start: 0x45AEE4 */
@@ -148,14 +164,13 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 }
 
 #pragma function(strcpy, strlen)
-
 /* Function start: 0x45B0BB */
 extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                                      const char *format, ...)
 {
-    va_list arguments;
+    int position;
     int length;
-    int index;
+    va_list arguments;
 
     va_start(arguments, format);
     if (format != 0)
@@ -164,13 +179,13 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
         strcpy(console->formatBuffer, g_szDebugOverlayNewline_0049cb44);
     va_end(arguments);
     length = strlen(console->formatBuffer);
-    for (index = 0; length > index; index++) {
+    for (position = 0; length > position; position++) {
         console->dirtyLines[console->cursorRow] = 1;
-        if (console->formatBuffer[index] >= ' ' &&
-            console->formatBuffer[index] <= '~') {
+        if (console->formatBuffer[position] >= ' ' &&
+            console->formatBuffer[position] <= '~') {
             console->textBuffer[console->cursorRow * console->columns +
                                 console->cursorColumn] =
-                console->formatBuffer[index];
+                console->formatBuffer[position];
             console->cursorColumn++;
             if (console->cursorColumn == console->columns) {
                 console->cursorColumn = 0;
@@ -179,7 +194,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
                     console->Scroll();
             }
         } else {
-            switch (console->formatBuffer[index]) {
+            switch (console->formatBuffer[position]) {
             case '\n':
             case '\r':
                 console->cursorColumn = 0;
@@ -212,27 +227,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
     console->DrawPendingLines();
 }
 
-/* Function start: 0x45AE6C */
-DebugOverlayConsole::~DebugOverlayConsole(void)
-{
-    int shutdownKey;
-
-    animationState = 2;
-    shutdownKey = 0x103;
-    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0) {
-#ifndef SDL_PORT
-        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
-#endif
-        free(textBuffer);
-        free(dirtyLines);
-        free(spinnerCharacters);
-    }
-    (void)shutdownKey;
-    return;
-}
-
 #pragma intrinsic(strcpy, strlen)
-
 /* Function start: 0x45B2E0 */
 void DebugOverlayConsole::Clear(void)
 {
@@ -393,6 +388,22 @@ void DebugOverlayConsole::SetTransparentBackground(void)
 #endif
 
     backgroundMode = TRANSPARENT;
+#ifndef SDL_PORT
+    deviceContext = GetDC(window);
+    SetBkMode(deviceContext, backgroundMode);
+    ReleaseDC(window, deviceContext);
+#endif
+}
+
+/* Function start: 0x45B77A */
+/* Nothing in the shipped executable calls this. */
+void DebugOverlayConsole::SetOpaqueBackground(void)
+{
+#ifndef SDL_PORT
+    HDC deviceContext;
+#endif
+
+    backgroundMode = OPAQUE;
 #ifndef SDL_PORT
     deviceContext = GetDC(window);
     SetBkMode(deviceContext, backgroundMode);

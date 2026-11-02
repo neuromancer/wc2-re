@@ -9,17 +9,13 @@ scorer.
 
 ## Compilation profiles
 
-The two main code groups use visibly different compiler settings:
-
-- The game core is optimized with the `CFLAGS_CORE` profile. Functions commonly
-  omit frame pointers, schedule registers across expressions, and duplicate
-  short epilogues.
-- The `ix` library uses `/Od /Oi`. Its functions preserve EBP, EBX, ESI, and
-  EDI, expose stack locals directly, and share one epilogue.
-
-Do not tune a single function by changing a compilation-unit profile unless
-the surrounding original functions prove that the unit used different flags.
-The evidence for the current flags is in [COMPILER.md](COMPILER.md).
+Both the game core and the `ix` library are compiled `/Od /Oi` (see
+[COMPILER.md](COMPILER.md)). Every function opens with
+`PUSH EBP / MOV EBP,ESP / PUSH EBX / PUSH ESI / PUSH EDI`, keeps locals and
+expression temporaries on the frame, and leaves through one shared
+`POP EDI / POP ESI / POP EBX / LEAVE / RET` epilogue. Because nothing is
+optimized away, the statement shape of the source is visible in the code:
+every `return`, `break`, `else` and dead statement emits instructions.
 
 ## Types and calling conventions
 
@@ -60,7 +56,131 @@ original jumps and epilogue placement.
 When the original stores an array element address in a stack slot, declare the
 corresponding local pointer and reuse it. Re-indexing the array at every access
 is behaviorally equivalent but does not reproduce the unoptimized instruction
-stream. Preserve local declaration order when stack layout is visible.
+stream.
+
+CL 4.1 at `/Od` lays out a function's locals by identifier spelling, not by
+declaration or first use. Each local hashes to one of 16 buckets,
+`key = (h ^ (h >> 16)) & 0xF`, where `h` is C1's identifier hash
+(`h = (h >> 4) + 4 * h + c` over the characters, 32-bit). Slots are handed
+out from the top of the frame (`[ebp-4]` first) in ascending key order; locals
+with the same key take slots in reverse declaration order. The rule predicted
+all 600 random two-local probes. `bin/frameOrder.py name ...` prints the keys
+and the resulting order, so a stack layout that differs from the original is
+fixed by choosing local names, not by reordering declarations.
+
+Locals declared in a nested block get their slots after every function-scope
+local, below them in the frame, whatever their keys; hoist such a local to the
+top of the function when the original slot order needs it
+(`RetainInputEventsOfType`, `ReleaseInputEventQueue`).
+
+`/Od` gives every declared local a slot even when nothing reads it, so a frame
+larger than the slots the code touches is evidence of a dead local in the
+original. Several Win32-port routines keep one, sometimes with a lone
+initializing store (`PollCampaignChalkboardMenu`'s `done = 0`,
+`WaitForInputKey`).
+
+Operand order of commutative operations and comparisons follows the
+signatures of C1 symbol keys (see `../wc1-re/docs/COMPILER.md`). Every
+identifier, named prototype parameter, label and string literal takes a key,
+so adding or removing a local, a `for` loop, an `else`, or a literal shifts the
+order decided in every later function of the unit. A struct type declared in a
+header shifts every unit; declare a type used by one global next to that
+global. C++ units (`/TP`, e.g. `sound.c`) also count unnamed prototype
+parameters; C units do not. When a correct structural fix in one function
+breaks the operand order of a later one, look first for a neighbouring
+function whose local or label count is still wrong; a sweep
+(`extern` placeholders inserted at one line) shows the shift each later
+function needs.
+
+Shifts are realized with ordinary source, as in WC1 (`docs/WORKAROUNDS.md`
+there): a standard `#include` after `game.h`/`ix.h` moves a whole unit
+(`usedcols.c` takes `<malloc.h>`, `system.cpp` `<memory.h>`, `dspv.cpp`
+`<time.h>`), and a local prototype of a callee costs one key per named
+parameter, so a block of them before a function moves that function and
+every later one (`logic.c`, `smart.c`, `ship.c`, `nav.c`, `brains.c`,
+...). Only the parameters count: the function name is already a symbol
+from `functions.h`. A function name's own key still matters when its call is
+an operand of a commutative expression (`dot_product`'s three
+`MultiplyFixed` calls), so header edits must keep every name's position.
+
+A call that the original made without a prototype in scope shows up as
+promoted arguments: every retail caller of `DrawTextAt`, `maintain_formation`
+and `intelligence_events` sign-extends its `short` arguments. Declaring the
+parameter `int` in `functions.h` (definition keeps `short`; MSVC only warns
+C4028) reproduces the push without moving any key; the SDL build keeps the
+`short` prototype under `#ifdef SDL_PORT`. A callee with C++ linkage cannot
+take this, since the parameter type is part of its decorated name.
+
+A function's return type as its callers see it shows in the extension after
+the call: `movsx eax,ax` means `short`, `movzx eax,ax` `unsigned short`
+(`GetFontCharWidth`, `ReadWord` return `short`).
+
+### Statement shapes that /Od makes visible
+
+Each of these was confirmed against retail code; pick the form the jumps show.
+
+- A `return;` as the last statement emits a `JMP` to the epilogue that sits
+  right before it (`E9 00000000`). Empty hooks and many void functions end
+  with one; leave it out when the retail code has none.
+- A non-void function that the Win32 port left without a `return` falls off
+  its end with no `XOR EAX,EAX`. Keep such returns under `#ifdef SDL_PORT`.
+- `if (c) return 1; return 0;` jumps straight to the epilogue from both
+  arms. `return c;` (a boolean expression) instead makes the `MOV AX,1` arm
+  jump to the shared `JMP` after `XOR AX,AX`.
+- `if (c) return a; else return b;` adds a second `JMP` after the first
+  return (the end of the then-arm). Two consecutive identical `JMP`s mean an
+  `else` follows a `return`.
+- `if (!c) return;` followed by the body compiles to `Jcc body / JMP end`;
+  a body wrapped in `if (c) { ... }` compiles to a single inverted `Jcc`.
+- The last `case` of a `switch` (including `default`) normally has no
+  `break` in the original; a trailing `break` adds a `JMP` before the
+  dispatch block. Case bodies are emitted in source order while the
+  dispatch compares in value order, so the order of the call targets in the
+  retail bodies gives the source order of the cases.
+- `switch (f(x))` stores the value straight into the switch temporary; a
+  separate local shows up as an extra frame slot.
+- `while ((x = f()) == 0) { ... }` tests at the top with a single `Jcc` to
+  the exit; a `do { } while` or `if (...) break;` form adds jumps.
+- `return c ? a : b;` jumps to a shared epilogue `JMP` after the `b` arm;
+  `if (c) return a; return b;` sends both arms straight to the epilogue
+  (`PollKeyboardState`).
+- A `break` or `return` inside an `if` whose `else` is the rest of the case
+  or loop body leaves no jump over an `else`: write the early exit and drop
+  the `else` (`PacketLoad`'s empty-section case, `UntrackFreedHeapBlock`).
+- `x += a - b;` evaluates `a - b` first; `x = x + a - b;` starts from `x`
+  (`EraseLastTextInputCharacter`).
+- When two variables share one stack slot, the original reused one variable
+  for both jobs (`ValidateViewportBounds`' allocation scan and top offset).
+- A `for` loop jumps over its increment on entry (`JMP` then `INC`); a
+  `while` with the increment at the bottom does not. Bounds keep their
+  spelling: `i <= 9` compiles to `CMP 9 / JG`, `i < 10` to `CMP 0xA / JGE`.
+- A structure assignment from an array element with a constant index copies
+  through a computed address; component assignments (`v.x = a[K].x; ...`)
+  give the three direct `MOV`s (`UpdateTargetCameraObject`).
+- A call's result kept in a register across a second call (`MOV EBX,EAX`)
+  is an expression temporary, not a variable: write the calls inside the
+  comparison (`ix_streamer_service_audio`).
+- A frame-size difference with every touched slot matching means a local
+  the original did not have (fold it into the expression) or one it never
+  read (see the dead-local note above).
+- An early `return;` in front of a disabled DOS body, and `if (0) { ... }`
+  debug blocks, keep the dead code in the image. Reproduce the dead body.
+- A short argument pushed with `MOVSX` into a callee whose parameter is
+  `short` means the original caller had no prototype in scope (K&R
+  promotion). Casting the argument does not reproduce it.
+- `x <<= 2` on a short local or parameter compiles to `SHL WORD PTR [x],2`;
+  `x *= 4` loads, shifts and stores through `EAX`.
+- `x == 0 ? a : b` compiles to `CMP EAX,1 / SBB EAX,EAX / AND / ADD`, and
+  `!x` to `CMP EAX,1 / SBB EAX,EAX / NEG EAX`; `x < 1` uses `SETL`.
+- `if (c) stmt; else ;` keeps a `JMP` over the empty else-arm, and
+  `if (c) ;` keeps a test whose `Jcc` lands on the next instruction. Both
+  appear in the original (`PeekInputEvent`, `PollSceneHotspotInput`).
+- A `for` whose condition and step were transposed in the original
+  (`for (i = 0; i++; i < n)`) keeps the post-increment test and evaluates
+  the comparison as a discarded statement (`GetViewportIntersection`).
+- `for (;;)` and `while (1)` both compile to a body ending in a `JMP` back
+  to the top; a block that always leaves through `break` (`Title_Sequence`)
+  ends with `JMP exit` followed by that back `JMP`.
 
 ### Strings and library calls
 

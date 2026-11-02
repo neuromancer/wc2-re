@@ -1,37 +1,90 @@
 /*
- *  WINGLEADER main module.
+ *  Main application loop and spaceflight frame.
  *
- *  Address range 0x4274e0-0x427fff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: main() at 0x004274E0, confirmed against the leaked DOS source screenshot.
+ *  Retail object 0x465780-0x46979F (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
-static short g_nTargetCameraGunCooldown_0049d33c;
-/* The two target-camera gun offsets per display sit inside the gun display
- * configuration record at +0x88, not in a table of their own. */
-#define g_aaTargetCameraGunOffsets_0049d3c8 \
-    ((ShortVector (*)[2])(g_abGunDisplayConfiguration_0049d340 + 0x88))
-static const short g_asFleetMouseYawThresholds_0049d400[6] = {
-    10, 37, 52, 57, 62, 1070
-};
-static const short g_asFleetMousePitchThresholds_0049d410[6] = {
-    5, 18, 27, 35, 38, 1040
-};
-static signed char g_bFleetPolledInputActive_0049d420;
-static signed char g_bFleetButtonInputActive_0049d424;
-static short g_nFleetMouseYawVelocity_0049d428;
-static short g_nFleetMousePitchVelocity_0049d42c;
-static short g_bFleetPrimaryInputQueued_005c57dc;
-static short g_bFleetMouseMoveQueued_005c57ea;
+static unsigned char g_abPauseInputState_005c85d0[0x100];
+
+static unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
 
 #pragma function(strcpy)
-
 /* Function start: 0x465780 */
-void SetPersonnelCursorPosition(short x, short y, short unused1,
+void SetPersonnelCursorPosition(int x, int y, short unused1,
                                 short unused2)
 {
     g_nPersonnelCursorX_005c8470 = x;
     g_nPersonnelCursorY_005c8472 = y;
+}
+
+/* Function start: 0x46579D */
+short LogMemoryUsage(void)
+{
+    /* WC2's system.c declares the canned-scene tape file as a pointer where
+     * it is really the string itself, so the unlink is handed the first four
+     * bytes of "tape.tmp" and always fails.  The port cannot dereference a
+     * 32-bit value as a pointer, so it removes the file as intended. */
+#ifdef SDL_PORT
+    _unlink(g_szCannedSceneTapeFile_00490208);
+#else
+    _unlink(*(char *const *)g_szCannedSceneTapeFile_00490208);
+#endif
+    StopMusicIfDriverActive();
+    EMShutDown();
+    if (g_bSpeechEnabled_005c8de8 != 0)
+        ShutdownSoundBlaster();
+    if (g_bParentDirectorySelected_0049d78c == 0) {
+        _chdir("..");
+        g_bParentDirectorySelected_0049d78c++;
+    }
+    ConfigureDefaultSpacePalette(g_nDetectedGraphicsMode_005c80d2);
+    if (g_nOriginDevUnlock_0049d774 != 0) {
+        printf("Series %d, Mission %d (%c)\n",
+               (int)g_nCurrentSeries_005c5870,
+               (int)g_nCurrentMission_005c5878,
+               (int)g_nCurrentMission_005c5878 + 'A');
+    }
+    if (g_nShowMemoryStatus_0049d784 != 0) {
+        printf(
+            "initial far: %lu.  current far: %lu.  current near: %u.\n",
+            g_dwInitialFreeMemory_005c8dd0,
+            GetLargestFreeMemoryBlockByType(0), 0);
+    }
+    FinalizeInputManagerHook();
+    MessagePumpHook(8);
+    if (g_pMemoryAdjustment_0049d788 != 0)
+        free(g_pMemoryAdjustment_0049d788);
+    return 0;
+}
+
+/* Function start: 0x46589D */
+void AdjustSpaceFramePeriod(short adjustment)
+{
+    g_nSpaceFramePeriod_0049d768 = MinShort(
+        MaxShort((short)(g_nSpaceFramePeriod_0049d768 + adjustment), 1),
+        0x13);
+    ShowOnScreenMessage(0, "%d/60th SEC FRAME DURATION.",
+                        g_nSpaceFramePeriod_0049d768 + 1);
+}
+
+/* Function start: 0x4658E9 */
+/* Nothing in the shipped executable calls this.  The DOS near-heap check;
+ * the Win32 port always reports a sound heap. */
+short CheckHeap(void)
+{
+    short status;
+
+    status = 1;
+    return status;
+}
+
+/* Function start: 0x465906 */
+/* Nothing in the shipped executable calls this.  The DOS Ctrl-Break
+ * handler: returning 1 lets the program continue. */
+short CtrlBreakHandler(void)
+{
+    return 1;
 }
 
 /* Function start: 0x46591A */
@@ -122,7 +175,8 @@ void RunGameApplication(short argc, char **argv)
                 if (g_nOriginDevUnlock_0049d774 != 0) {
                     strcpy(g_stCurrentPilotProfile_00493408.callsign,
                            "CHEATER");
-                    strcpy(g_szPilotCallsign_00499ef8, "CHEATER");
+                    strcpy(g_stPilotNameVariables_00499ef8.callsign,
+                           "CHEATER");
                 }
                 while (RunSelectedCampaign() != 0) {
                 }
@@ -162,7 +216,6 @@ void RunGameApplication(short argc, char **argv)
 }
 
 #pragma intrinsic(strcpy)
-
 /* Function start: 0x465CBC */
 void free_view_buffer(void)
 {
@@ -190,8 +243,6 @@ void initialize_view_buffer(void)
 /* Function start: 0x465D55 */
 void dump_buffer_to_screen(void)
 {
-    int mode;
-
 #ifdef SDL_PORT
     SdlCompleteSpaceFrame();
 #endif
@@ -199,8 +250,7 @@ void dump_buffer_to_screen(void)
         CopyViewportContents(
             &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
     } else {
-        mode = (int)g_cScreenViewportMode_005c82a6;
-        switch (mode) {
+        switch (g_cScreenViewportMode_005c82a6) {
         case 4:
             g_stScreenViewport_005d21a0.top = 24;
             CopyViewportContents(
@@ -212,7 +262,7 @@ void dump_buffer_to_screen(void)
                 &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0);
             break;
         default:
-            fizzle_fade(
+            CopyViewportRuns(
                 &g_stViewBuffer_005d2b00, &g_stScreenViewport_005d21a0,
                 (const short *)g_pScreenViewportGeometry_005c82b0);
             break;
@@ -222,54 +272,29 @@ void dump_buffer_to_screen(void)
         ShowMemoryStatusDebug();
 }
 
+/* Function start: 0x465E25 */
+void SelectNextExternalViewObject(void)
+{
+    signed char object;
+
+    object = g_cViewObject_0049313c;
+    g_cViewObject_0049313c = -1;
+    while (g_cViewObject_0049313c == -1) {
+        object++;
+        if (object > 9)
+            object = 0;
+        if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
+            g_cViewObject_0049313c = object;
+    }
+}
+
 /* Function start: 0x465E88 */
 unsigned int clear_view_buffer(void)
 {
     ClearViewport(&g_stViewBuffer_005d2b00, (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
+#ifdef SDL_PORT
     return 0;
-}
-
-/* Function start: 0x437CBF */
-void InitializeConversationViewport(void)
-{
-    ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
-    if (g_stSecondaryViewBuffer_005d2c90.pixels != 0)
-        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    g_stScreenViewport_005d21a0.top = 24;
-    g_stScreenViewport_005d21a0.bottom = 151;
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 127;
-    if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
-        ReportPacketLoadError(0, 0, 0, 0,
-                              g_szAllocateBufferTag_0049ae20);
-}
-
-/* Function start: 0x437D68 */
-void ResetScreenClipToFullHeight(void)
-{
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    g_stScreenViewport_005d21a0.top = 0;
-    g_stScreenViewport_005d21a0.bottom = 199;
-}
-
-/* Function start: 0x437D92 */
-void InitializeConversationText(void)
-{
-    g_stConversationTextViewport_005d2b60 =
-        g_stModalSourceViewport_005d2c50;
-    g_stConversationTextViewport_005d2b60.top = 152;
-    g_stConversationTextContext_005d2d40.viewport =
-        &g_stConversationTextViewport_005d2b60;
-    g_stConversationTextContext_005d2d40.text =
-        g_szDefaultTextBuffer_005d2b80;
-    g_stConversationTextContext_005d2d40.alignment = 2;
-    InitializeTextContextFromFont(&g_stConversationTextContext_005d2d40,
-                                  0,
-                                  g_bPrimaryViewBufferColour_0049cb50,
-                                  g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005d2d40);
+#endif
 }
 
 /* Function start: 0x465EA9 */
@@ -464,7 +489,6 @@ void process_player_input(void)
         break;
     default:
         *key++ = (short)g_cCurrentKey_00493128;
-        break;
     }
     *key = -1;
 
@@ -612,7 +636,9 @@ unsigned int fire_players_lasers(void)
             get_mode(1) == 5)
             SelectCockpitVduMode(1, 3);
     }
+#ifdef SDL_PORT
     return 0;
+#endif
 }
 
 /* Function start: 0x46696E */
@@ -655,10 +681,7 @@ void players_flight_dynamics(void)
 /* Function start: 0x466AD2 */
 short IsInputEventQueued(int type)
 {
-    if (FindQueuedInputEvent(type) != 0) {
-        return 1;
-    }
-    return 0;
+    return FindQueuedInputEvent(type) != 0;
 }
 
 /* Function start: 0x466B02 */
@@ -911,412 +934,1077 @@ short player_input(void)
     return result;
 }
 
-/* Function start: 0x465E25 */
-void SelectNextExternalViewObject(void)
-{
-    signed char object;
+#pragma function(strlen)
 
-    object = g_cViewObject_0049313c;
-    g_cViewObject_0049313c = -1;
-    while (g_cViewObject_0049313c == -1) {
-        object++;
-        if (object > 9)
-            object = 0;
-        if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
-            g_cViewObject_0049313c = object;
-    }
+/* Function start: 0x4672C5 */
+/* Message dwell time: grows with text length, scaled by the speed setting. */
+short MeasureMessageWidth(const char *text)
+{
+    return (short)((MinShort(5, (short)(strlen(text) >> 1)) + 5) *
+                   ((char)g_cMessageSpeed_0049b778 + 1));
 }
 
-/* Function start: 0x45E9F0 */
-short HandleFleetOverviewInput(void)
+/* Function start: 0x467300 */
+void AcknowledgeModalMessage(void)
 {
-    InputEventState event;
-    short result;
-    int fired;
-    signed char discreteInput;
-    short eventType;
-    short horizontal;
-    short vertical;
-    short horizontalMagnitude;
-    short verticalMagnitude;
-    short threshold;
+#ifdef SDL_PORT
+    SdlSuspendMouseGrab();
+#endif
+    ConfigureInputPump(1, PollJoystickButtonEvents);
+    SetFrameTimerAndWait(20);
+    FlushPendingInputEvents();
+    getch();
+    ConfigureInputPump(1, get_player_input);
+#ifdef SDL_PORT
+    SdlResumeMouseGrab();
+#endif
+}
+
+/* Function start: 0x46733D */
+short HandleSpaceFlightControls(void)
+{
+    short inputHandled;
     short notRepeated;
-    short pauseModifiers;
-    short unusedModifiers;
+    short control;
+    short modifiers;
+    short keyState;
+    short object;
 
-    result = 0;
-    fired = 0;
-    g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
-    ServiceInputDevices(15);
-    g_bPolledFlightInputQueued_005c587a = IsInputEventQueued(7);
-    g_bFleetMouseMoveQueued_005c57ea = IsInputEventQueued(3);
-    g_bDiscreteFlightInputQueued_005c57e4 =
-        (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
-    g_bFleetPrimaryInputQueued_005c57dc = IsInputEventQueued(1);
-    discreteInput = 0;
-    if (g_bFleetMouseMoveQueued_005c57ea == 0)
-        g_cCurrentKey_00493128 |= (signed char)0x80;
-    if (g_bDiscreteFlightInputQueued_005c57e4 == 0) {
-        g_cCurrentKey_00493128 |= (signed char)0x80;
-        if (g_bPolledFlightInputQueued_005c587a == 0 &&
-            g_nCockpitControlState_0049d7ac == 0)
-            g_bFleetPolledInputActive_0049d420 = 0;
+    g_bInputCursorEnabled_005c80e6 = 1;
+    g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
+    if (g_nCurrentView_00492fa8 == 4) {
+        inputHandled = HandleFleetOverviewInput();
     } else {
-        discreteInput = 1;
+        inputHandled = player_input();
+        players_flight_dynamics();
     }
-    if (g_bFleetPrimaryInputQueued_005c57dc == 0 &&
-        g_stHostMouseMessage_005d10d0.primaryButton != 0) {
-        g_cCurrentKey_00493128 = 0x39;
-        fired = 1;
-    }
-    if (g_bFleetPrimaryInputQueued_005c57dc == 0)
-        g_bFleetButtonInputActive_0049d424 = 0;
+    notRepeated =
+        g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
+        inputHandled == 0;
+    control = (short)GetControlKeyState();
+    modifiers = (short)GetKeyboardModifiers();
 
-    while ((eventType = GetNextInputEvent(&event)) != 0) {
-        switch (eventType) {
-        case 3:
-            if (g_nCockpitControlState_0049d7ac == 0) {
-                SetPersonnelMousePosition(
-                    (short)((g_stViewBuffer_005d2b00.left +
-                             g_stViewBuffer_005d2b00.right) / 2),
-                    (short)((g_stViewBuffer_005d2b00.top +
-                             g_stViewBuffer_005d2b00.bottom) / 2));
-                g_nCockpitControlState_0049d7ac = 1;
-                g_nUiCursorFrame_005c8481 = 2;
+    if (g_bAltBHotkey_005d1290 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x30 &&
+        g_nYourWingman_0049346c != -1 &&
+        g_aeShipObjective_00495f08[g_nYourWingman_0049346c] ==
+            OBJECTIVE_HOLD_FORMATION &&
+        any_enemy(0, 14000) != 0) {
+        IssueQuickCommCommand(g_nYourWingman_0049346c, 4);
+        g_nLastAltCommandScanCode_005d1274 = 0x30;
+    }
+    if (g_bJoystickCalibrationHotkey_005d1284 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x2e) {
+        CalibrateJoystickInteractive();
+        g_nLastAltCommandScanCode_005d1274 = 0x2e;
+    }
+    if (g_bAltFHotkey_005d127c != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x21 &&
+        g_nYourWingman_0049346c != -1) {
+        IssueQuickCommCommand(g_nYourWingman_0049346c, 6);
+        g_nLastAltCommandScanCode_005d1274 = 0x21;
+    }
+    if (g_bAltAHotkey_005d1294 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x1e &&
+        g_nYourWingman_0049346c != -1 &&
+        g_acShipTarget_00495f20[0] != -1) {
+        IssueQuickCommCommand(g_nYourWingman_0049346c, 1);
+        g_nLastAltCommandScanCode_005d1274 = 0x1e;
+    }
+    if (g_bAltHHotkey_005d128c != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x23 &&
+        g_nYourWingman_0049346c != -1 &&
+        any_enemy(0, 14000) != 0) {
+        IssueQuickCommCommand(g_nYourWingman_0049346c, 2);
+        g_nLastAltCommandScanCode_005d1274 = 0x23;
+    }
+    if (g_bAltDHotkey_005d1280 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x20 &&
+        g_nYourWingman_0049346c != -1) {
+        IssueQuickCommCommand(g_nYourWingman_0049346c, 13);
+        g_nLastAltCommandScanCode_005d1274 = 0x20;
+    }
+    if (g_bAltTHotkey_005d1298 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x14 &&
+        g_acShipTarget_00495f20[0] != -1 &&
+        g_asShipSide_004955d0[g_acShipTarget_00495f20[0]] ==
+            SIDE_KILRATHI) {
+        IssueQuickCommCommand(
+            g_acShipTarget_00495f20[0],
+            (short)((unsigned short)RandomInRange(0, 2) +
+                    g_nEnemyTauntCommandBase_0049b76c));
+        g_nLastAltCommandScanCode_005d1274 = 0x14;
+    }
+#ifdef SDL_PORT
+    /* SDL latches these command presses until one flight-control pass. */
+    g_bAltBHotkey_005d1290 = 0;
+    g_bAltFHotkey_005d127c = 0;
+    g_bAltAHotkey_005d1294 = 0;
+    g_bAltHHotkey_005d128c = 0;
+    g_bAltDHotkey_005d1280 = 0;
+    g_bAltTHotkey_005d1298 = 0;
+#endif
+    if (g_bAltNumpadAddHotkey_005d1270 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x4e) {
+        g_nLastAltCommandScanCode_005d1274 = 0x4e;
+        AdjustSpaceFramePeriod(1);
+    }
+    if (g_bAltNumpadSubtractHotkey_005d12a8 != 0 &&
+        g_nLastAltCommandScanCode_005d1274 != 0x4a) {
+        g_nLastAltCommandScanCode_005d1274 = 0x4a;
+        AdjustSpaceFramePeriod(-1);
+    }
+
+    switch ((signed char)g_cCurrentKey_00493128) {
+        case 0x13:
+            if (notRepeated && g_bHighMemoryBuffersReady_005d2ad8 != 0) {
+                g_bSceneEscapeRequested_0049d4b0 = 0;
+                BeginInflightReplayHook();
             }
-            horizontal = (short)(
-                event.x -
-                (g_stViewBuffer_005d2b00.right -
-                 g_stViewBuffer_005d2b00.left) / 2 + 1);
-            vertical = (short)(
-                event.y -
-                (g_stViewBuffer_005d2b00.bottom -
-                 g_stViewBuffer_005d2b00.top) / 2);
-            g_nPersonnelCursorX_005c8470 = event.x;
-            g_nPersonnelCursorY_005c8472 = event.y;
-            horizontalMagnitude = (short)labs((long)horizontal);
-            verticalMagnitude = (short)labs((long)vertical);
-            threshold = 0;
-            while (g_asFleetMouseYawThresholds_0049d400[threshold] <=
-                   horizontalMagnitude)
-                threshold++;
-            if (horizontal < 0)
-                horizontal = (short)-threshold;
-            else
-                horizontal = threshold;
-            threshold = 0;
-            while (g_asFleetMousePitchThresholds_0049d410[threshold] <=
-                   verticalMagnitude)
-                threshold++;
-            if (vertical < 0)
-                vertical = (short)-threshold;
-            else
-                vertical = threshold;
-            if ((int)event.x - 4 <=
-                (int)g_stViewBuffer_005d2b00.left)
-                horizontal = -8;
-            if ((int)event.x + 4 >=
-                (int)g_stViewBuffer_005d2b00.right)
-                horizontal = 8;
-            if ((int)event.y - 4 <=
-                (int)g_stViewBuffer_005d2b00.top)
-                vertical = -8;
-            if ((int)event.y + 4 >=
-                (int)g_stViewBuffer_005d2b00.bottom)
-                vertical = 8;
-            if (horizontal >= 9)
-                horizontal = 8;
-            if (horizontal <= -9)
-                horizontal = -8;
-            if (vertical >= 9)
-                vertical = 8;
-            if (vertical <= -9)
-                vertical = -8;
-            g_nFleetMouseYawVelocity_0049d428 =
-                (short)-horizontal;
-            g_nFleetOverviewYawVelocity_0049d3ec =
-                g_nFleetMouseYawVelocity_0049d428;
-            g_nFleetMousePitchVelocity_0049d42c = vertical;
-            g_nFleetOverviewPitchVelocity_0049d3f0 =
-                g_nFleetMousePitchVelocity_0049d42c;
             break;
-        case 7:
-            g_nCockpitControlState_0049d7ac = 0;
-            if (g_nTargetCameraFrame_0049d3e8 == 0) {
-                g_nFleetOverviewYawVelocity_0049d3ec =
-                    (short)-g_stCurrentFlightInput_0049d7b0.x;
-                g_nFleetOverviewPitchVelocity_0049d3f0 =
-                    (short)-g_stCurrentFlightInput_0049d7b0.y;
-            }
-            break;
-        case 1:
-            g_nCockpitControlState_0049d7ac = 0;
-            g_cCurrentKey_00493128 = 0x39;
-            fired = 1;
-            break;
-        case 5:
-            g_nCockpitControlState_0049d7ac = 0;
-            g_nFleetOverviewYawVelocity_0049d3ec = 0;
-            g_nFleetOverviewPitchVelocity_0049d3f0 =
-                g_nFleetOverviewYawVelocity_0049d3ec;
-            break;
-        case 6:
-            result = 1;
-        case 4:
-            g_nCockpitControlState_0049d7ac = 0;
-            g_nCockpitControlGoal_0049d7d0 = 0;
-            g_cCurrentKey_00493128 = (signed char)event.status;
-            notRepeated =
-                g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
-                result == 0;
-            pauseModifiers =
-                (short)(g_wInputDeviceButtonState_005c8432 & 0x1800);
-            unusedModifiers =
-                (short)(g_wInputDeviceButtonState_005c8432 & 0x600);
-            switch ((signed char)g_cCurrentKey_00493128) {
-            case 0x1c:
-            case 0x39:
-                g_cCurrentKey_00493128 = 0x39;
-                fired = 1;
-                break;
-            case 0x50:
-                if (g_nFleetOverviewPitchVelocity_0049d3f0 > -8)
-                    g_nFleetOverviewPitchVelocity_0049d3f0--;
-                break;
-            case 0x48:
-                if (g_nFleetOverviewPitchVelocity_0049d3f0 < 8)
-                    g_nFleetOverviewPitchVelocity_0049d3f0++;
-                break;
-            case 0x4b:
-                if (g_nFleetOverviewYawVelocity_0049d3ec < 8)
-                    g_nFleetOverviewYawVelocity_0049d3ec++;
-                break;
-            case 0x4d:
-                if (g_nFleetOverviewYawVelocity_0049d3ec > -8)
-                    g_nFleetOverviewYawVelocity_0049d3ec--;
-                break;
-            case 0x26:
-                if (g_cPreviousKey_0049312c !=
-                    g_cCurrentKey_00493128) {
-                    g_bTargetLockMode_00493500 =
-                        (short)(g_bTargetLockMode_00493500 == 0);
-                    PlaySfxWaveFileByNumber(0x19, -1, 0);
+        case 0x1e:
+            if (notRepeated && control == 0) {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (get_mode(1) != 5)
+                    SelectCockpitVduMode(1, 5);
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    auto_pilot_sequence();
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    g_nCockpitDisplayMode_0049d71c = -2;
+                    auto_pilot_sequence();
+                    g_nCockpitDisplayMode_0049d71c = 1;
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
                 }
-                break;
-            case 0x14:
-                if (g_cPreviousKey_0049312c !=
-                    g_cCurrentKey_00493128)
-                    cycle_onscreen_targets();
-                break;
-            case 0x22:
+            }
+            break;
+        case 0x2e:
+            if (notRepeated) {
+                g_bDisplayWingmanTargetData_0049347c = 0;
+                if (message_showing() != 0) {
+                    EndCommMenu();
+                } else if (get_mode(1) != 4) {
+                    SelectCockpitVduMode(1, 4);
+                } else {
+                    CloseCommChoiceMenu();
+                }
+            }
+            break;
+        case 0x12:
+            if (notRepeated && control != 0 &&
+                g_acPlayerComponentDamage_00493470[7] != 4) {
+                if (RandomInRange(
+                        0, g_acPlayerComponentDamage_00493470[7]) == 0)
+                    g_nArcadeState_0049d75c = 2;
+                else
+                    malf_sound();
+            }
+            break;
+        case 0x31:
+            if (notRepeated) {
+                SelectCockpitVduMode(1, 5);
+                g_bDisplayWingmanTargetData_0049347c = 0;
+            }
+            break;
+        case 0x32:
+            if (notRepeated && control == 0)
+                SetMessageDisplaySpeed();
+            break;
+        case 0x2f:
+            if (notRepeated && control == 0) {
+                g_bVideoImagesSuppressed_0049b784 =
+                    g_bVideoImagesSuppressed_0049b784 == 0;
+                if (g_bVideoImagesSuppressed_0049b784 != 0)
+                    SetHudMessageText(
+                        "VIDEO IMAGES SUPRESSED",
+                        g_abGamePaletteReservedColours_0049cb54[8], 20);
+                else
+                    SetHudMessageText("VIDEO IMAGES ENABLED",
+                                      g_ucPrimaryTextColour_0049cb64, 20);
+            }
+            break;
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            if (notRepeated && get_mode(1) == 4 &&
+                g_nCurrentView_00492fa8 == 0 && (signed char)g_cCurrentKey_00493128 >= 2 &&
+                (signed char)g_cCurrentKey_00493128 <=
+                    g_nCommMenuChoiceCount_0049b770 + 2 &&
+                get_mode(1) == 4) {
+                Chosen_communicate_option(
+                    (short)((signed char)g_cCurrentKey_00493128 - 2));
+            }
+            break;
+        case 0x1f:
+            if (control != 0 && notRepeated) {
+                if (g_nSfxVolumeSetting_0049d74c == 0)
+                    g_nSfxVolumeSetting_0049d74c = 20;
+                else
+                    g_nSfxVolumeSetting_0049d74c = 0;
+                SetSoundEffectsVolume(
+                    g_anVolumeLevels_0049d720[
+                        g_nSfxVolumeSetting_0049d74c / 2]);
+                ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+                                    g_nSfxVolumeSetting_0049d74c / 2);
+            }
+            break;
+        case 0x3b:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            case 0x3b:
-            case 0x3c:
-            case 0x3d:
-            case 0x3e:
-            case 0x3f:
-            case 0x40:
-            case 0x41:
-                break;
-            case 0x19:
-                ShowGamePausedBanner(pauseModifiers < 1);
-            default:
-                g_cCurrentKey_00493128 = (signed char)0x80;
-                break;
+            g_nCockpitControlState_0049d7ac = 0;
+            if (GetF1KeyLatch() != 0) {
+                if (g_cScreenViewportMode_005c82a6 == 0) {
+                    g_nCockpitDisplayMode_0049d71c =
+                        g_nCockpitDisplayMode_0049d71c == 0;
+                    free_view_buffer();
+                    if (g_nCockpitDisplayMode_0049d71c != 0) {
+                        g_bFullScreenSpaceView_0049d718 = 0;
+                        SetViewportRect(&g_stViewBuffer_005d2b00,
+                                        0, 0, 319, 199);
+                        initialize_cockpit(
+                            g_cScreenViewportMode_005c82a6++);
+                    } else {
+                        g_bFullScreenSpaceView_0049d718 = 1;
+                        SetViewportRect(
+                            &g_stViewBuffer_005d2b00, 0, 0,
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
+                        initialize_cockpit(
+                            g_cScreenViewportMode_005c82a6++);
+                    }
+                } else {
+                    g_nCockpitControlState_0049d7ac = 0;
+                    if (g_nCockpitDisplayMode_0049d71c == 0) {
+                        new_view(0, 0);
+                    } else {
+                        free_view_buffer();
+                        SetViewportRect(
+                            &g_stViewBuffer_005d2b00, 0, 0,
+                            (short)(g_nScreenWidth_0049d4d8 - 1),
+                            (short)(g_nScreenHeight_0049d4dc - 1));
+                        initialize_view_buffer();
+                        new_view(0, 0);
+                        free_view_buffer();
+                        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
+                        initialize_view_buffer();
+                    }
+                }
+                FlushInputEvents();
+            }
+            break;
+        case 0x3c:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 2) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(2, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(2, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x3d:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 1) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(1, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(1, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x3e:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 3) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(3, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(3, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x3f:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 5) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(5, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(5, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x40:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 15) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(15, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(15, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x41:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (g_cScreenViewportMode_005c82a6 == 8) {
+                g_nCockpitDisplayMode_0049d71c =
+                    g_nCockpitDisplayMode_0049d71c == 0;
+                free_view_buffer();
+                if (g_nCockpitDisplayMode_0049d71c != 0) {
+                    g_bFullScreenSpaceView_0049d718 = 0;
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                } else {
+                    g_bFullScreenSpaceView_0049d718 = 1;
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+                }
+            } else if (g_acShipTarget_00495f20[0] != -1) {
+                g_nCockpitControlState_0049d7ac = 0;
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(8, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    new_view(8, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+        case 0x42:
+            if (g_nTargetCameraFrame_0049d3e8 == 1)
+                ClearTargetCameraView();
+            if (notRepeated) {
+                g_nCockpitControlState_0049d7ac = 0;
+                g_bMissileCameraEnabled_00493504 ^= 1;
+                if (g_bMissileCameraEnabled_00493504 != 0)
+                    SetHudMessageText("MISSILE CAMERA ON",
+                                      g_abGamePaletteReservedColours_0049cb54[8], 20);
+                else
+                    SetHudMessageText("MISSILE CAMERA OFF",
+                                      g_ucPrimaryTextColour_0049cb64, 20);
+            }
+            break;
+        case 0x43:
+            if (notRepeated) {
+                g_nCockpitControlState_0049d7ac = 0;
+                SelectNextExternalViewObject();
+                if (g_nCockpitDisplayMode_0049d71c == 0) {
+                    new_view(5, 0);
+                } else {
+                    free_view_buffer();
+                    SetViewportRect(
+                        &g_stViewBuffer_005d2b00, 0, 0,
+                        (short)(g_nScreenWidth_0049d4d8 - 1),
+                        (short)(g_nScreenHeight_0049d4dc - 1));
+                    initialize_view_buffer();
+                    force_view(5, 0);
+                    free_view_buffer();
+                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                                    0, 0, 319, 199);
+                    initialize_view_buffer();
+                }
+            }
+            break;
+    }
+
+    switch ((signed char)g_cCurrentKey_00493128) {
+    case 0x0d:
+    case 0x4e:
+        if (control != 0) {
+            ReportFramesSkipped(1);
+        } else {
+            accelerate(1);
+        }
+        break;
+    case 0x2b:
+        accelerate(9000);
+        break;
+    case 0x0c:
+    case 0x4a:
+        if (control != 0) {
+            ReportFramesSkipped(-1);
+        } else {
+            accelerate(-1);
+        }
+        break;
+    case 0x0e:
+        g_anShipSpeed_00494e20[0] = 0;
+        break;
+    case 0x1c:
+        if (notRepeated && g_nSelectedReleaseWeaponIndex_004934e0 != -1 &&
+            g_nExternalViewShip_00493468 == -1) {
+            g_nExternalViewShip_00493468 = fire_missile(0);
+            if (g_nExternalViewShip_00493468 != -1 &&
+                g_asObjectType_00495298[g_nExternalViewShip_00493468] ==
+                    0x14) {
+                g_nExternalViewShip_00493468 = -1;
+            } else if (g_bMissileCameraEnabled_00493504 == 1 &&
+                       g_nExternalViewShip_00493468 != -1) {
+                new_view(7, g_nExternalViewShip_00493468);
+            }
+        }
+        break;
+    case 0x39:
+        if (g_nCurrentView_00492fa8 == 4)
+            FireTargetCameraGuns();
+        else
+            fire_players_lasers();
+        break;
+    case 0x0f:
+    case 0x37:
+        if (g_asObjectType_00495298[0] != 0x33)
+            your_afterburner();
+        break;
+    case 1:
+        g_bSceneEscapeRequested_0049d4b0 = 0;
+        if (get_mode(1) == 4) {
+            CloseCommChoiceMenu();
+#ifdef SDL_PORT
+        } else {
+            /* Retail leaves Escape inert here.  The port makes it another
+             * pause key while preserving its communication-menu action. */
+            goto pause_spaceflight;
+#endif
+        }
+        break;
+    case 0x14:
+        if (notRepeated && control == 0) {
+            SelectCockpitVduMode(1, 3);
+            g_bDisplayWingmanTargetData_0049347c = 0;
+        }
+        break;
+    case 0x11:
+        if (notRepeated) {
+            if (g_nCurrentView_00492fa8 == 4) {
+                ToggleTargetCameraOverlay();
+            } else if (IsCockpitWeaponShapeLoaded() != 0) {
+                SelectCockpitVduMode(0, 1);
+            }
+        }
+        break;
+    case 0x2f:
+        if (notRepeated && control != 0)
+            ShowVersionBanner();
+        break;
+    case 0x24:
+        if (notRepeated) {
+            if (control != 0)
+                CalibrateJoystickInteractive();
+            else
+                TryBeginStarSystemJump();
+        }
+        break;
+    case 0x19:
+#ifdef SDL_PORT
+pause_spaceflight:
+#endif
+        g_bPauseInputActive_0049ac9c = 1;
+        ShowGamePausedBanner((short)(control < 1));
+        g_bPauseInputActive_0049ac9c = 0;
+        SetFrameTimerPeriodDirect(1);
+        for (keyState = 0; keyState < 0x100; keyState++) {
+            g_abPauseInputState_005c85d0[keyState] = 0;
+            g_abPreviousPauseInputState_005c86e0[keyState] =
+                g_abPauseInputState_005c85d0[keyState];
+        }
+        ServiceInputDevices(-1);
+        g_nCockpitControlGoal_0049d7d0 = 0;
+        g_nCockpitControlState_0049d7ac =
+            g_nCockpitControlGoal_0049d7d0;
+        break;
+    case 0x20:
+        if (notRepeated && control == 0 &&
+            IsCockpitWeaponShapeLoaded() != 0)
+            SelectCockpitVduMode(0, 2);
+        break;
+    case 0x22:
+        if (notRepeated) {
+            if (g_nCurrentView_00492fa8 == 4) {
+                ToggleTargetCameraOverlay();
+            } else if (IsCockpitWeaponShapeLoaded() != 0) {
+                SelectCockpitVduMode(0, 1);
+            }
+        }
+        break;
+    case 0x26:
+        if (notRepeated) {
+            g_bTargetLockMode_00493500 =
+                (short)(g_bTargetLockMode_00493500 == 0);
+            PlaySfxWaveFileByNumber(0x19, -1, 0);
+            if (get_mode(1) == 3)
+                InvalidateVduMode(1);
+        }
+        break;
+    case 0x32:
+        if (notRepeated && control != 0) {
+            if (g_nMusicVolumeSetting_0049d750 == 0)
+                g_nMusicVolumeSetting_0049d750 = 20;
+            else
+                g_nMusicVolumeSetting_0049d750 = 0;
+            SetMusicStreamVolume(
+                (unsigned short)g_anVolumeLevels_0049d720[
+                    g_nMusicVolumeSetting_0049d750 / 2]);
+            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+                                g_nMusicVolumeSetting_0049d750 / 2);
+        }
+        break;
+    }
+
+    switch ((signed char)g_cCurrentKey_00493128) {
+    case 0x48:
+        if (control != 0) {
+            g_nSfxVolumeSetting_0049d74c++;
+            if (g_nSfxVolumeSetting_0049d74c > 20)
+                g_nSfxVolumeSetting_0049d74c = 20;
+            SaveVolumeSettingsToRegistry();
+            SetSoundEffectsVolume(
+                g_anVolumeLevels_0049d720[
+                    g_nSfxVolumeSetting_0049d74c / 2]);
+            ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+                                g_nSfxVolumeSetting_0049d74c / 2);
+            return 0;
+        }
+        break;
+    case 0x50:
+        if (control != 0) {
+            g_nSfxVolumeSetting_0049d74c--;
+            if (g_nSfxVolumeSetting_0049d74c < 0)
+                g_nSfxVolumeSetting_0049d74c = 0;
+            SetSoundEffectsVolume(
+                g_anVolumeLevels_0049d720[
+                    g_nSfxVolumeSetting_0049d74c / 2]);
+            SaveVolumeSettingsToRegistry();
+            ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+                                g_nSfxVolumeSetting_0049d74c / 2);
+            return 0;
+        }
+        break;
+    case 0x4d:
+        if (control != 0) {
+            g_nMusicVolumeSetting_0049d750++;
+            if (g_nMusicVolumeSetting_0049d750 > 20)
+                g_nMusicVolumeSetting_0049d750 = 20;
+            SaveVolumeSettingsToRegistry();
+            SetMusicStreamVolume(
+                (unsigned short)g_anVolumeLevels_0049d720[
+                    g_nMusicVolumeSetting_0049d750 / 2]);
+            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+                                g_nMusicVolumeSetting_0049d750 / 2);
+            return 0;
+        }
+        break;
+    case 0x4b:
+        if (control != 0) {
+            g_nMusicVolumeSetting_0049d750--;
+            if (g_nMusicVolumeSetting_0049d750 < 0)
+                g_nMusicVolumeSetting_0049d750 = 0;
+            SaveVolumeSettingsToRegistry();
+            SetMusicStreamVolume(
+                (unsigned short)g_anVolumeLevels_0049d720[
+                    g_nMusicVolumeSetting_0049d750 / 2]);
+            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+                                g_nMusicVolumeSetting_0049d750 / 2);
+            return 0;
+        }
+        break;
+    }
+
+    if (g_nOriginDevUnlock_0049d774 != 0) {
+        switch ((signed char)g_cCurrentKey_00493128) {
+        case 0x52:
+            if (notRepeated && control != 0) {
+                for (object = 1; object < 10; object++) {
+                    if (g_asShipSide_004955d0[object] !=
+                            g_asShipSide_004955d0[0] &&
+                        g_aeObjectClass_00495328[object] ==
+                            OBJECT_CLASS_SHIP) {
+                        while (explode(0, object) == 0) {
+                        }
+                    }
+                }
+            }
+            break;
+        case 0x53:
+            if (notRepeated && control != 0 &&
+                g_bDebugBreakEnabled_0049c238 != 0) {
+                object = g_acShipTarget_00495f20[0];
+                if (object != -1) {
+                    while (explode(0, object) == 0) {
+                    }
+                }
             }
             break;
         }
     }
-
-    if (g_nTargetCameraMode_005c8d50 == 0) {
-        if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
-            (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0)
-            g_cCurrentKey_00493128 = 0x39;
-    } else if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
-               (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0 &&
-               (g_stPreviousFlightInput_005c57d0.buttons & 1) == 0) {
-        g_cCurrentKey_00493128 = 0x39;
-    }
-    if (g_nTargetCameraMode_005c8d50 == 0 &&
-        (g_cCurrentKey_00493128 & 0x80) != 0 &&
-        (g_wPendingInputButtons_005c80d4 & 1) != 0)
-        g_cCurrentKey_00493128 = 0x39;
-    if (g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
-        g_cCurrentKey_00493128 == 0x39) {
-        if (g_nTargetCameraMode_005c8d50 == 0) {
-            FireTargetCameraGuns();
-        } else if (g_nTargetCameraZoom_0049d3e4 >= 0x21 &&
-                   g_nTargetCameraFrame_0049d3e8 == 0) {
-            ToggleTargetCameraTracking();
-        }
-        g_cCurrentKey_00493128 = (signed char)0x80;
-    }
-    if (g_nTargetCameraFrame_0049d3e8 == 1 &&
-        (g_nCurrentView_00492fa8 != 4 ||
-         g_nTargetCameraMode_005c8d50 != 1 || fired == 0))
-        ClearTargetCameraView();
-    g_stPreviousFlightInput_005c57d0 =
-        g_stCurrentFlightInput_0049d7b0;
-    if (g_nTargetCameraGunCooldown_0049d33c > 0)
-        g_nTargetCameraGunCooldown_0049d33c--;
-    else
-        g_nTargetCameraGunCooldown_0049d33c = 0;
-    return result;
+    return 0;
 }
 
-/* Function start: 0x45F200 */
-void UpdateFleetOverviewCameraRotation(void)
+/* Function start: 0x468E7A */
+unsigned int DrawSpaceSceneFrame(void)
 {
-    char yawRotated;
+    short paletteCycleActive;
+    short hidePlayer;
 
-    yawRotated = 0;
-    if (g_nFleetOverviewYawVelocity_0049d3ec != 0 &&
-        ((g_nFleetOverviewYaw_0049d3f4 < 65 &&
-          g_nFleetOverviewYaw_0049d3f4 > -65) ||
-         (g_nFleetOverviewYaw_0049d3f4 == 65 &&
-          g_nFleetOverviewYawVelocity_0049d3ec < 0) ||
-         (g_nFleetOverviewYaw_0049d3f4 == -65 &&
-          g_nFleetOverviewYawVelocity_0049d3ec > 0))) {
-        if (g_nFleetOverviewYaw_0049d3f4 +
-                g_nFleetOverviewYawVelocity_0049d3ec > 65)
-            g_nFleetOverviewYawVelocity_0049d3ec =
-                (short)(65 - g_nFleetOverviewYaw_0049d3f4);
-        else if (g_nFleetOverviewYaw_0049d3f4 +
-                     g_nFleetOverviewYawVelocity_0049d3ec < -65)
-            g_nFleetOverviewYawVelocity_0049d3ec =
-                (short)(-65 - g_nFleetOverviewYaw_0049d3f4);
-        rotate_about_j(
-            g_nFleetOverviewYawVelocity_0049d3ec,
-            &g_aShipRightVector_00493b78[EYE_OBJECT],
-            &g_aShipForwardVector_00494208[EYE_OBJECT]);
-        g_nFleetOverviewYaw_0049d3f4 =
-            (short)(g_nFleetOverviewYaw_0049d3f4 +
-                    g_nFleetOverviewYawVelocity_0049d3ec);
-        yawRotated++;
-    }
-    if (g_nFleetOverviewPitchVelocity_0049d3f0 != 0 &&
-        yawRotated == 0 &&
-        ((g_nFleetOverviewPitch_0049d3f8 < 65 &&
-          g_nFleetOverviewPitch_0049d3f8 > -65) ||
-         (g_nFleetOverviewPitch_0049d3f8 >= 65 &&
-          g_nFleetOverviewPitchVelocity_0049d3f0 < 0) ||
-         (g_nFleetOverviewPitch_0049d3f8 <= -65 &&
-          g_nFleetOverviewPitchVelocity_0049d3f0 > 0))) {
-        if (g_nFleetOverviewPitch_0049d3f8 +
-                g_nFleetOverviewPitchVelocity_0049d3f0 > 65)
-            g_nFleetOverviewPitchVelocity_0049d3f0 =
-                (short)(65 - g_nFleetOverviewPitch_0049d3f8);
-        else if (g_nFleetOverviewPitch_0049d3f8 +
-                     g_nFleetOverviewPitchVelocity_0049d3f0 < -65)
-            g_nFleetOverviewPitchVelocity_0049d3f0 =
-                (short)(-65 - g_nFleetOverviewPitch_0049d3f8);
-        rotate_about_i(
-            g_nFleetOverviewPitchVelocity_0049d3f0,
-            &g_aShipUpVector_00493ec0[EYE_OBJECT],
-            &g_aShipForwardVector_00494208[EYE_OBJECT]);
-        g_nFleetOverviewPitch_0049d3f8 =
-            (short)(g_nFleetOverviewPitch_0049d3f8 +
-                    g_nFleetOverviewPitchVelocity_0049d3f0);
-    }
-    fix_objects_ijk(EYE_OBJECT);
-}
-
-/* Function start: 0x45F439 */
-void FireTargetCameraGuns(void)
-{
-    short projectileSpeed;
-    short projectileType;
-    short shot;
-    short projectile;
-    ObjectTypeData *projectileData;
-    FixedVector direction;
-    short leadDistance;
-
-    projectileSpeed = 10;
-    projectileType = 8;
-    if (g_nGunDisplayEnergyPercent_005c8d4e <= 0 ||
-        g_nTargetCameraGunCooldown_0049d33c > 0)
-        return;
-    for (shot = 0; shot < 2; shot++) {
-            projectile = new_object(projectileType, 0);
-            if (projectile != -1) {
-                g_abProjectileCollisionBonus_004960a8[projectile] = 1;
-                projectileData =
-                    &g_aObjectTypeData_00496d30[projectileType];
-                copy_frame(EYE_OBJECT, projectile);
-                g_asObjectDamage_00495178[projectile] =
-                    projectileData->damageCapacity;
-                projectileSpeed = (short)(
-                    g_aObjectTypeData_00496d30[
-                        g_acObjectType_00493980[projectile]]
-                        .maximumVelocity * 2);
-                g_nGunDisplayEnergyPercent_005c8d4e =
-                    (short)(g_nGunDisplayEnergyPercent_005c8d4e -
-                            projectileData->animationDelay / 2);
-                g_aShipPosition_00494550[projectile].x =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[EYE_OBJECT].x +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].z *
-                        g_aShipForwardVector_00494208[
-                            EYE_OBJECT].x +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].x *
-                        g_aShipRightVector_00493b78[
-                            EYE_OBJECT].x +
-                    g_aShipPosition_00494550[EYE_OBJECT].x;
-                g_aShipPosition_00494550[projectile].y =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[EYE_OBJECT].y +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].z *
-                        g_aShipForwardVector_00494208[
-                            EYE_OBJECT].y +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].x *
-                        g_aShipRightVector_00493b78[
-                            EYE_OBJECT].y +
-                    g_aShipPosition_00494550[EYE_OBJECT].y;
-                g_aShipPosition_00494550[projectile].z =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[EYE_OBJECT].z +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].z *
-                        g_aShipForwardVector_00494208[
-                            EYE_OBJECT].z +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
-                        g_nGunDisplayIndex_005c8dc0][shot].x *
-                        g_aShipRightVector_00493b78[
-                            EYE_OBJECT].z +
-                    g_aShipPosition_00494550[EYE_OBJECT].z;
-                g_asObjectCounter_00494be0[projectile] =
-                    (short)g_aObjectTypeData_00496d30[
-                        projectileType].lifetime;
-                zero_vector(&g_aShipVelocity_00494898[projectile]);
-                direction =
-                    g_aShipForwardVector_00494208[EYE_OBJECT];
-                NormalizeFixedVector(&direction);
-                leadDistance = (short)(
-                    (projectileData->lifetime + 5) *
-                    projectileData->maximumVelocity);
-                ScaleFixedVector(
-                    &direction, (int)leadDistance << 8, &direction);
-                AddFixedVectors(
-                    &g_aShipPosition_00494550[EYE_OBJECT],
-                    &direction, &direction);
-                point_at(projectile, direction);
-                ScaleFixedVector(
-                    &g_aShipForwardVector_00494208[projectile],
-                    (int)projectileSpeed << 8, &direction);
-                g_aShipVelocity_00494898[projectile] = direction;
-                RecordCannedSceneObjectEvent(projectile, 0);
-                g_nTargetCameraGunCooldown_0049d33c =
-                    (short)(g_acGunRefireDelay_00492e1c[
-                                projectileType - 7] >> 1);
-                PlaySfxWaveFileByNumber(8, projectile, 0);
+    paletteCycleActive = 0;
+    hidePlayer = 0;
+    if (g_nSpaceExplosionFlashActive_00492fb4 != 0) {
+        if ((short)g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+            g_nSpaceExplosionFlashStep_005c5872++;
+            if (g_nSpaceExplosionFlashStep_005c5872 < 4)
+                paletteCycleActive++;
+            if (g_aSpaceExplosionFlashPalette_0049d808[
+                    g_nSpaceExplosionFlashStep_005c5872][0] != 0) {
+                g_asSpacePaletteFade_005d2d60[0] =
+                    g_aSpaceExplosionFlashPalette_0049d808[
+                        g_nSpaceExplosionFlashStep_005c5872][0];
+                g_asSpacePaletteFade_005d2d60[1] =
+                    g_aSpaceExplosionFlashPalette_0049d808[
+                        g_nSpaceExplosionFlashStep_005c5872][1];
+                g_asSpacePaletteFade_005d2d60[2] =
+                    g_aSpaceExplosionFlashPalette_0049d808[
+                        g_nSpaceExplosionFlashStep_005c5872][2];
+            } else {
+                g_asSpacePaletteFade_005d2d60[0] = 0;
+                g_asSpacePaletteFade_005d2d60[1] = 0;
+                g_asSpacePaletteFade_005d2d60[2] = 0x20;
+                g_nSpaceExplosionFlashActive_00492fb4 = 0;
             }
+            SetPaletteEntry((short)g_cPrimaryViewBufferColour_0049cb88,
+                            g_asSpacePaletteFade_005d2d60);
+        }
+    } else {
+        UpdateSpacePaletteFade();
     }
+    g_nFrameSkipCountdown_0049d760--;
+    if (g_nFrameSkipCountdown_0049d760 > 0)
+        return 0;
+    g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+    g_nRenderedSpaceFrame_00493138++;
+    transform_objects_to_your_view();
+    update_star_field();
+    place_exhaust_on_ships();
+    reposition_fixed_child_objects();
+    BuildObjectDepthOrder();
+#ifdef SDL_PORT
+    SdlBeginSpaceFrame(
+        (const struct ScreenViewportGeometry *)
+            g_pScreenViewportGeometry_005c82b0,
+        (int)g_cScreenViewportMode_005c82a6,
+        /* Match dump_buffer_to_screen's active copy mode.  The stored
+           preference has the opposite sense and omits cockpit offsets. */
+        g_nCockpitDisplayMode_0049d71c > 0,
+        (unsigned char)g_cPrimaryViewBufferColour_0049cb88);
+#endif
+    if (g_bJumpSequenceActive_004962f0 != 0 &&
+        g_asShipManeuver_00495f48[0] == MANEUVER_WARPING_OUT) {
+        hidePlayer = 1;
+        g_aeObjectClass_00495328[0] = OBJECT_CLASS_NULL;
+    }
+    if (paletteCycleActive == 0)
+        draw_sorted_objects_to_buffer();
+    if (hidePlayer != 0)
+        g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
+    if (g_nCurrentView_00492fa8 == 0 || g_nCurrentView_00492fa8 == 4)
+        overlay_head_up_display();
+    return 1;
+}
+
+/* Function start: 0x46903F */
+void RenderSpaceViewFrame(void)
+{
+    int displayMode;
+
+    if (DrawSpaceSceneFrame() == 0)
+        return;
+    check_message();
+    RestoreCockpitExplosionIfVisible();
+    if (g_pszPendingHudMessage_0049afec !=
+            g_pszDisplayedHudMessage_0049aff0 &&
+        g_pszDisplayedHudMessage_0049aff0 != 0) {
+        ClearHudMessageDisplay(0);
+    }
+    if (g_nCockpitDisplayMode_0049d71c > 0) {
+        displayMode = g_nCockpitDisplayMode_0049d71c;
+        g_nCockpitDisplayMode_0049d71c = 9;
+    }
+    dump_buffer_to_screen();
+    if (g_nCockpitDisplayMode_0049d71c == 9)
+        g_nCockpitDisplayMode_0049d71c = displayMode;
+    if (g_nCurrentView_00492fa8 == 0 || g_nCurrentView_00492fa8 == 4)
+        RestoreTransientCockpitGraphics();
+    ClearViewport(&g_stViewBuffer_005d2b00,
+                  g_cPrimaryViewBufferColour_0049cb88);
+}
+
+/* Function start: 0x4690FF */
+short Draw_3Space_Frame(void)
+{
+    Update_3Space();
+    if (g_nArcadeState_0049d75c != 0)
+        return 0;
+    if (g_nFrameSkipCountdown_0049d760 <= 1)
+        clear_view_buffer();
+    return (unsigned short)DrawSpaceSceneFrame();
+}
+
+/* Function start: 0x469143 */
+short GetShipDistanceToNavPoint(short ship, MissionNavPoint *navPoint)
+{
+    FixedVector delta;
+
+    ComputeVectorDelta(&g_aShipPosition_00494550[ship],
+                       &navPoint->position, &delta);
+    return FixedToShortSaturating(Vector_magnitude(&delta));
+}
+
+/* Function start: 0x46918D */
+short FindNearestNavPoint(short ship)
+{
+    MissionNavPoint *entry = g_aMissionNavPoints_00491e98;
+    short navPointIndex = 0;
+
+    for (; navPointIndex < 10; navPointIndex++, entry++) {
+        if (entry->type == 1 &&
+            entry->systemIndex == g_nCurrentStarSystem_005d169c &&
+            GetShipDistanceToNavPoint(ship, entry) <
+                entry->proximityRadius)
+            return navPointIndex;
+    }
+    return g_nCurrentNavPoint_004931bc;
+}
+
+/* Function start: 0x469223 */
+unsigned int ReleaseStaleNavTarget(void)
+{
+    short v = FindNearestNavPoint(0);
+
+    if (g_nCurrentNavPoint_004931bc != v)
+        set_up_action_sphere(v);
+#ifdef SDL_PORT
+    return 0;
+#endif
+}
+
+/* Function start: 0x46925E */
+int RunSpaceFlight(short entryNavPoint)
+{
+    InputPumpContext *savedInputContext;
+    unsigned char savedInputDelay;
+    short savedUiInputMode;
+    short inputResult;
+    short index;
+
+    savedUiInputMode = g_nUiInputMode_005c8d3c;
+    g_bSpaceFlightActive_005c586c = 1;
+    g_nCockpitDisplayMode_0049d71c = 0;
+    if (g_bFullScreenSpaceView_0049d718 == 0)
+        g_nCockpitDisplayMode_0049d71c = 1;
+    for (index = 0; index < 7; index++)
+        g_acMissionShipStatusFlags_005d2fb0[index] = 0;
+    g_bMissionDeathSequencePending_0049b720 = 0;
+    g_bMissionWingmanFlag_005c8dbe = 0;
+    g_nFrameSkipCountdown_0049d760 = 1;
+    InitializeSpaceFlightInput();
+    g_nSpaceExplosionFlashActive_00492fb4 = 0;
+    savedInputDelay = g_nInputRepeatDelay_005c80d6;
+    savedInputContext = g_pActiveInputContext_005c8487;
+    ReleaseSceneMusicPacket();
+    init_inflight_music();
+
+    if (entryNavPoint == -1)
+        entryNavPoint = g_aMissionShips_00492290[
+            g_stMissionHeader_005d3e70.playerMissionShip].navPoint;
+    set_up_action_sphere(entryNavPoint);
+    force_view(0, 0);
+    SetSpaceFlightFrameTiming();
+
+    if (g_nCockpitDisplayMode_0049d71c != 0) {
+        free_view_buffer();
+        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
+                        (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                        (unsigned short)(g_nScreenHeight_0049d4dc - 1));
+        initialize_view_buffer();
+        new_view(0, 0);
+        free_view_buffer();
+        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
+        initialize_cockpit(g_cScreenViewportMode_005c82a6++);
+        g_nCockpitControlState_0049d7ac =
+            g_nCockpitControlGoal_0049d7d0 = 0;
+        initialize_view_buffer();
+        FlushInputEvents();
+    }
+
+    copy_frame(0, 0x44);
+    SetPersonnelMousePosition(
+        (short)((g_stViewBuffer_005d2b00.left +
+                 g_stViewBuffer_005d2b00.right) / 2),
+        (short)((g_stViewBuffer_005d2b00.top +
+                 g_stViewBuffer_005d2b00.bottom) / 2));
+    g_nCockpitControlState_0049d7ac = 0;
+    g_nArcadeState_0049d75c = 0;
+#ifdef SDL_PORT
+    SdlSetMouseGrab(1);
+#endif
+
+    while (g_nArcadeState_0049d75c == 0) {
+        SetFrameTimerPeriodDirect(g_nSpaceFramePeriod_0049d768);
+        if (g_nCannedSceneMode_0049021c != 0) {
+            ProcessCannedSceneInput();
+            inputResult = 0;
+            if (g_nCannedSceneRecordedFrameCount_005d3faa ==
+                g_nCannedSceneFrameCount_005d404c) {
+                FinishCannedScenePlayback();
+                ResetCannedSceneRecording();
+            }
+        }
+        if (g_nCannedSceneMode_0049021c == 0 &&
+            g_bJumpSequenceActive_004962f0 == 0)
+            inputResult = (short)HandleSpaceFlightControls();
+        if (inputResult == -1) {
+            g_nArcadeState_0049d75c = 5;
+        } else {
+            Update_3Space();
+            if (g_nArcadeState_0049d75c != 0)
+                break;
+            g_bRenderingSpaceFrame_0049d858 = 1;
+            RenderSpaceViewFrame();
+            g_bRenderingSpaceFrame_0049d858 = 0;
+            update_cockpit();
+            if (g_pszPendingHudMessage_0049afec != 0)
+                SetHudTextColour(g_pszPendingHudMessage_0049afec,
+                                  g_nHudMessageColour_005d1ef0);
+        }
+        MarkDibDirty();
+        DIBslamReal();
+        WaitForFrameTick();
+    }
+
+#ifdef SDL_PORT
+    SdlSetMouseGrab(0);
+    SdlCancelSpaceFrame();
+#endif
+    SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
+                    (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
+                    (unsigned short)(g_nScreenHeight_0049d4dc - 1));
+    g_nCockpitDisplayMode_0049d71c = 0;
+    if (g_nArcadeState_0049d75c == 1)
+        flag_objective(find_objective(1, -1), 2);
+    ResetCockpitPaletteEntries();
+    SetDefaultFrameTiming();
+    if (savedInputContext != 0)
+        SetInputViewport(savedInputContext->viewport);
+    free_inflight_music();
+    ConfigureInputPump(1, 0);
+    g_nCockpitControlState_0049d7ac = 0;
+    g_nUiInputMode_005c8d3c = savedUiInputMode;
+    g_nInputRepeatDelay_005c80d6 = savedInputDelay;
+    g_bSpaceFlightActive_005c586c = 0;
+    return g_nArcadeState_0049d75c;
+}
+
+/* Function start: 0x4695FD */
+short calculate_damage_level(void)
+{
+    ObjectTypeData *typeData;
+    int damage;
+    int armorDamage;
+
+    armorDamage = 0;
+    typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[0]];
+    damage = g_asObjectDamage_00495178[0] * 5;
+    damage += (g_acShipDamage_00495690[0] * 30) /
+              typeData->damageCapacity;
+    if (typeData->armorFront < g_aasShipArmor_00495540[0][0])
+        armorDamage += (typeData->armorFront * 100) /
+                       g_aasShipArmor_00495540[0][0];
+    if (typeData->armorRear < g_aasShipArmor_00495540[0][1])
+        armorDamage += (typeData->armorRear * 100) /
+                       g_aasShipArmor_00495540[0][1];
+    if (typeData->armorLeft < g_aasShipArmor_00495540[0][2])
+        armorDamage += (typeData->armorLeft * 100) /
+                       g_aasShipArmor_00495540[0][2];
+    if (typeData->armorRight < g_aasShipArmor_00495540[0][3])
+        armorDamage += (typeData->armorRight * 100) /
+                       g_aasShipArmor_00495540[0][3];
+    armorDamage /= 4;
+    damage += armorDamage;
+
+    if (damage < 5)
+        return 0;
+    else if (damage < 40)
+        return 1;
+    else if (damage < 70)
+        return 2;
+    else
+        return 3;
 }

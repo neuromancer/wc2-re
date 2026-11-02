@@ -1517,6 +1517,70 @@ typedef char MissionObjectiveSource_size_must_be_0x40[
 typedef char MissionObjective_size_must_be_0x1e[
     sizeof(MissionObjective) == 0x1e ? 1 : -1];
 #endif
+/* Mission packet records as stored on disk. */
+#pragma pack(push, 1)
+
+typedef struct MissionHeaderDisk {
+    short entryNavPoint;
+    short homeMissionShip;
+    short playerMissionShip;
+    short initialMissionShips[8];
+    short field_16;
+} MissionHeaderDisk;
+
+typedef struct MissionNavPointDisk {
+    char name[30];
+    signed char type;
+    FixedVector position;
+    unsigned short proximityRadius;
+    signed char triggers[4][2];
+    short preloadObjectTypes[2];
+    short missionShips[10];
+} MissionNavPointDisk;
+
+typedef struct MissionObjectiveDisk {
+    short type;
+    short index;
+    char description[60];
+} MissionObjectiveDisk;
+
+typedef struct MissionShipDisk {
+    short type;
+    short side;
+    signed char leader;
+    signed char field_5;
+    short missionType;
+    signed char navPoint;
+    FixedVector position;
+    short pitch;
+    short yaw;
+    short roll;
+    signed char formationSpot;
+    short speed;
+    short rating;
+    short pilot;
+    short field_2c;
+    short field_2e;
+    signed char state;
+    signed char leaderMissionIndex;
+    signed char formationIndex;
+    signed char targetMissionIndex;
+} MissionShipDisk;
+
+#pragma pack(pop)
+
+typedef char MissionHeaderDisk_size_must_be_0x18[
+    sizeof(MissionHeaderDisk) == 0x18 ? 1 : -1];
+
+typedef char MissionNavPointDisk_size_must_be_0x4d[
+    sizeof(MissionNavPointDisk) == 0x4d ? 1 : -1];
+
+typedef char MissionObjectiveDisk_size_must_be_0x40[
+    sizeof(MissionObjectiveDisk) == 0x40 ? 1 : -1];
+
+typedef char MissionShipDisk_size_must_be_0x2a[
+    sizeof(MissionShipDisk) == 0x2a ? 1 : -1];
+
 typedef char SaveGameDiskObjective_size_must_be_0x19[
     sizeof(SaveGameDiskObjective) == 0x19 ? 1 : -1];
 #ifndef SDL_PORT

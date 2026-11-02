@@ -313,6 +313,7 @@ FILE *SdlFopen(const char *path, const char *mode);
 #endif
 
 #define VK_CLEAR 0x0c
+#define VK_ESCAPE 0x1b
 #define VK_SHIFT 0x10
 #define VK_CONTROL 0x11
 #define VK_F1 0x70
@@ -373,11 +374,9 @@ void SdlLoadObjectTypeRecord(char *fileName, short section,
                                 struct ObjectTypeData *record);
 
 /* Console input.  There is no console under SDL on any host: MinGW does have
- * _getch, but it would block a windowed game on console input that never
- * arrives, and it has no flushall at all.  The acknowledgement key wait goes
- * to the event pump instead. */
+ * getch, but it would block a windowed game on console input that never
+ * arrives.  The acknowledgement key wait goes to the event pump instead. */
 int SdlGetChar(void);
-int SdlFlushAll(void);
 
 /*  INPUT_TRACE=1 turns these on; they are silent otherwise.  Used to trace
  * input and firing through the port without disturbing the reference build. */
@@ -421,8 +420,7 @@ int SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define _findclose SdlFindClose
 #endif
 
-#define _getch SdlGetChar
-#define flushall SdlFlushAll
+#define getch SdlGetChar
 
 #define CREATE_ALWAYS 2
 #define DRIVE_CDROM 5

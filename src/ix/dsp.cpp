@@ -202,12 +202,13 @@ void ix_dsp_set_voice_count(int voiceCount)
         g_nStreamsAllocated_005c5754 != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_DSP_FILE, 176);
         ix_log_printf("can't change voice count while voices are in use");
-    } else {
-        if (voiceCount >= 0)
-            g_nVoiceCount_005c5748 = voiceCount < 32 ? voiceCount : 32;
-        else
-            g_nVoiceCount_005c5748 = 0;
+        return;
     }
+    if (voiceCount >= 0)
+        g_nVoiceCount_005c5748 = voiceCount < 32 ? voiceCount : 32;
+    else
+        g_nVoiceCount_005c5748 = 0;
+    return;
 }
 
 /* Function start: 0x489D98 */
@@ -223,12 +224,13 @@ void ix_dsp_set_stream_count(int streamCount)
         g_nStreamsAllocated_005c5754 != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_DSP_FILE, 187);
         ix_log_printf("can't change stream count while voices are in use");
-    } else {
-        if (streamCount >= 0)
-            g_nStreamCount_005c5750 = streamCount < 2 ? streamCount : 2;
-        else
-            g_nStreamCount_005c5750 = 0;
+        return;
     }
+    if (streamCount >= 0)
+        g_nStreamCount_005c5750 = streamCount < 2 ? streamCount : 2;
+    else
+        g_nStreamCount_005c5750 = 0;
+    return;
 }
 
 /* Function start: 0x489E2F */
@@ -257,33 +259,33 @@ void ix_dsp_set_master_volume(unsigned short volume)
 /* Function start: 0x489ED2 */
 void ix_dsp_build_pan_tables(void)
 {
-    short left;
-    short distance;
-    short position;
-    short scale;
+    short step;
+    short leftAmp;
+    short offset;
+    short entry;
     short right;
 
-    scale = 0x3ff;
-    left = 0x7fff;
-    for (position = 0; position < 0x40; position++) {
-        distance = (short)(0x20 - position);
-        right = (short)(distance * scale);
-        g_anPanTable_005c4ee8[position * 2] = left;
-        g_anPanTable_005c4ee8[position * 2 + 1] = right;
-        g_anPanTable_005c4ee8[0x100 + position * 2] =
-            (short)(left * -1);
-        g_anPanTable_005c4ee8[0x100 + position * 2 + 1] =
+    step = 0x3ff;
+    leftAmp = 0x7fff;
+    for (entry = 0; entry < 0x40; entry++) {
+        offset = (short)(0x20 - entry);
+        right = (short)(offset * step);
+        g_anPanTable_005c4ee8[entry * 2] = leftAmp;
+        g_anPanTable_005c4ee8[entry * 2 + 1] = right;
+        g_anPanTable_005c4ee8[0x100 + entry * 2] =
+            (short)(leftAmp * -1);
+        g_anPanTable_005c4ee8[0x100 + entry * 2 + 1] =
             (short)(right * -1);
     }
     right = (short)0x8001;
-    for (position = 0x40; position < 0x80; position++) {
-        distance = (short)(0x60 - position);
-        left = (short)(distance * scale);
-        g_anPanTable_005c4ee8[position * 2] = left;
-        g_anPanTable_005c4ee8[position * 2 + 1] = right;
-        g_anPanTable_005c4ee8[0x100 + position * 2] =
-            (short)(left * -1);
-        g_anPanTable_005c4ee8[0x100 + position * 2 + 1] =
+    for (entry = 0x40; entry < 0x80; entry++) {
+        offset = (short)(0x60 - entry);
+        leftAmp = (short)(offset * step);
+        g_anPanTable_005c4ee8[entry * 2] = leftAmp;
+        g_anPanTable_005c4ee8[entry * 2 + 1] = right;
+        g_anPanTable_005c4ee8[0x100 + entry * 2] =
+            (short)(leftAmp * -1);
+        g_anPanTable_005c4ee8[0x100 + entry * 2 + 1] =
             (short)(right * -1);
     }
 }

@@ -1,487 +1,22 @@
 /*
- *  Win32 shell: window creation, message loop, exit paths.
+ *  Win32 entry point, window, joystick, guarded heap and keyboard state.
  *
- *  Address range 0x401000-0x402dff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 0x465048-0x465354.
+ *  Retail object 0x453C80-0x4564EF (link order; see docs/ORDER.md).
  */
 #include "game.h"
-
-#ifndef SDL_PORT
-#pragma function(abs)
-#endif
-
-/* Function start: 0x417550 */
-void SaveGamePalette(void)
-{
-    unsigned short index;
-
-    for (index = 0; (short)index < 256; index++) {
-        if ((index & 15) == 0)
-            WaitForVerticalBlankThunk();
-        GetPaletteEntry(index, g_ausPaletteWords_005d3220[index]);
-    }
-}
-
-/* Function start: 0x4175AD */
-void RestoreGamePalette(void)
-{
-    short index;
-
-    for (index = 0; (short)index < 256; index++) {
-        if ((index & 15) == 0)
-            WaitForVerticalBlankThunk();
-        SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
-    }
-}
-
-/* Function start: 0x417610 */
-short easy2see(short obj)
-{
-    short bounds[4];
-    short x;
-    short y;
-
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
-        return 0;
-    x = (short)(g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
-    y = (short)(g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
-    return GetTransformedShapeBounds(
-        &g_stViewBuffer_005d2b00, x, y, g_apObjectShape_00493868[obj],
-        g_asObjectViewFrame_00493508[obj],
-        g_asObjectScreenAngle_004936b8[obj],
-        g_asObjectScreenScale_00493a58[obj],
-        g_asObjectFlip_004939c8[obj], bounds);
-}
-
-/* Function start: 0x4176D2 */
-void make_shard(short asteroid, FixedVector direction)
-{
-    short fragment;
-
-    fragment = find_vacant_3d_object();
-    if (fragment != -1) {
-        set_objects_data(fragment, OBJECT_DATA_ROCK_CHUNK, asteroid, 0);
-        g_asObjectCounter_00494be0[fragment] = 40;
-        g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
-        SetVectorFixedPoint(
-            (unsigned int *)&direction,
-            (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
-        AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
-                        &g_aShipPosition_00494550[fragment]);
-        g_aShipForwardVector_00494208[fragment] = direction;
-        fix_objects_ijk(fragment);
-        alter_yaw(signed_random(20), fragment);
-        alter_pitch(signed_random(20), fragment);
-        g_aShipVelocity_00494898[fragment] =
-            g_aShipForwardVector_00494208[fragment];
-        SetVectorFixedPoint(
-            (unsigned int *)&g_aShipVelocity_00494898[fragment],
-            (short)(real_velocity(asteroid) + RandomInRange(0, 5)));
-        RecordCannedSceneObjectEvent(fragment, 0);
-    }
-}
 
 /* Base flight times and pitch windows for the four forward view bands. */
 static const signed char g_acHazardTravelTimeByView_00465048[8] = {
     56, 52, 75, 73, 0, 0, 0, 0
 };
 
-/* The cockpit layout packs the hazard pitch range into the two bytes of
- * field_f7: the low byte is the minimum, the high byte the maximum. */
-#define g_acHazardPitchRange \
-    ((const signed char *)&g_nHazardPitchRange_0049af98)
-
-/* Function start: 0x417838 */
-void remove_hazard(signed char hazard)
+/* Function start: 0x453C80 */
+unsigned int GetF1KeyLatch(void)
 {
-    remove_object((short)hazard);
-    g_nActiveHazards_00492e5c =
-        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
-    RecordCannedSceneObjectEvent((short)hazard, 1);
-}
-
-/* Function start: 0x41787A */
-void remove_all_hazards(void)
-{
-    short slot;
-
-    for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1) {
-            remove_hazard(g_abHazardObjects_00493280[slot]);
-            g_abHazardObjects_00493280[slot] = -1;
-        }
-    }
-    g_pActiveHazardField_00493278 = 0;
-}
-
-/* Function start: 0x4178E5 */
-short difficulty(void)
-{
-    return (short)(abs(25 - (int)g_nHazardReferenceSpeed_00492e58) * 2);
-}
-
-/* Function start: 0x417916 */
-short asteroid_velocity(void)
-{
-    return MinShort(20, (short)(RandomBelowOrEqual(7) + 10));
-}
-
-/* Function start: 0x417941 */
-void skew_randomly(short obj, short allowReverse)
-{
-    FixedVector saved;
-
-    if (RandomBelow(100) < 50) {
-        saved = g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] = saved;
-    } else {
-        saved = g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] = saved;
-    }
-    if (allowReverse != 0 && RandomBelow(100) < 50)
-        negate_vector(&g_aShipForwardVector_00494208[obj]);
-}
-
-/* Function start: 0x417AD7 */
-void align(int *value, short quantum)
-{
-    *value -= *value % quantum;
-}
-
-/* Function start: 0x417AF9 */
-void init_hazard(short obj, FixedVector position, short moving)
-{
-    short type;
-    FixedVector vector;
-    short hazardMoves;
-    short travelTime;
-    short speed;
-
-    hazardMoves = moving;
-    if (g_pActiveHazardField_00493278->type ==
-        OBJECT_DATA_ASTEROID_FIELD) {
-        type = (short)(OBJECT_DATA_ASTEROID1 +
-                       RandomBelowOrEqual(5));
-    } else {
-        type = OBJECT_DATA_SPACE_MINE;
-    }
-    set_objects_data(obj, type, -1, 0);
-    g_aShipPosition_00494550[obj] = position;
-
-    if (type == OBJECT_DATA_SPACE_MINE) {
-        hazardMoves = 0;
-        point_at(obj, g_aShipPosition_00494550[0]);
-        skew_randomly(obj, 1);
-        speed = 2;
-        hazardMoves = (short)(speed != 0);
-    } else if (hazardMoves != 0) {
-        travelTime = (short)(RandomBelowOrEqual(15) +
-                             g_cHazardBaseTravelTime_0049af94);
-        if (g_bUseEyePositionForHazards_0049327c != 0) {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(45, travelTime);
-        } else {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(7, travelTime);
-        }
-        ScaleFixedVector(&g_aShipVelocity_00494898[0],
-                         (int)travelTime << 8, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
-        point_at(obj, vector);
-        speed = distance_between_points(
-            &vector, &g_aShipPosition_00494550[obj]);
-        travelTime = MaxShort(3,
-            (short)(travelTime - RandomBelow(5)));
-        speed = (short)(speed / travelTime);
-    } else {
-        point_at(obj, g_pActiveHazardField_00493278->center);
-        skew_randomly(obj, 1);
-        if (RandomBelow(100) < 20)
-            speed = 0;
-        else
-            speed = asteroid_velocity();
-    }
-    if (kilrathi_near(0, 16000) != 0)
-        speed = 0;
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     (int)speed << 8, &g_aShipVelocity_00494898[obj]);
-
-    if (hazardMoves == 0) {
-        int separation;
-
-        if (type == OBJECT_DATA_ASTEROID_FIELD)
-            separation = 1500;
-        else
-            separation = RandomBelowOrEqual(1000) << 8;
-        ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                         separation, &vector);
-        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
-                             &g_aShipPosition_00494550[obj]);
-    }
-    if (type == OBJECT_DATA_SPACE_MINE) {
-        align(&g_aShipPosition_00494550[obj].x, 200);
-        align(&g_aShipPosition_00494550[obj].y, 200);
-        align(&g_aShipPosition_00494550[obj].z, 200);
-    }
-    g_acObjectCollisionGraceTicks_00494d48[obj] = 0;
-    g_asObjectCounter_00494be0[obj] = 0;
-    g_nActiveHazards_00492e5c++;
-}
-
-/* Function start: 0x417EA4 */
-short near_field(const HazardField *field, const FixedVector *point)
-{
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point,
-                              (short)(field->innerRadius + 4300));
-}
-
-/* Function start: 0x417ED4 */
-short within_field(const HazardField *field, const FixedVector *point)
-{
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point, field->innerRadius);
-}
-
-/* Function start: 0x417EFF */
-short try_far_spot(FixedVector *spot, short *moving)
-{
-    short yaw;
-    short pitch;
-    unsigned short outsideRange;
-
-    copy_frame(0, SCRATCH_VIEW_OBJECT);
-    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] =
-        g_aShipPosition_00494550[0];
-    pitch = signed_random(20);
-    yaw = signed_random(35);
-    if (g_nCurrentView_00492fa8 == 0) {
-        if (g_acHazardPitchRange[0] < pitch &&
-            g_acHazardPitchRange[1] > pitch &&
-            abs(yaw) < 19 &&
-            RandomBelow(100) < 60)
-            *moving = 1;
-        else
-            *moving = 0;
-    } else {
-        if (abs(pitch) > 5 && abs(pitch) < 20 &&
-            abs(yaw) > 5 && abs(yaw) < 20 && RandomBelow(100) < 30)
-            *moving = 1;
-        else
-            *moving = 0;
-    }
-    pitch = (short)(pitch + find_ratio(
-        -15, 15, g_anObjectPitchRotation_00494f38[0], -150, 150));
-    yaw = (short)(yaw + find_ratio(
-        -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
-    rotate_about_j(yaw,
-                   &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
-    rotate_about_i(pitch,
-                   &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
-    position_relative_ijk(spot, SCRATCH_VIEW_OBJECT, 0, 0, 3050);
-    outsideRange = !(unsigned short)IsPointWithinRange(
-        &g_aShipPosition_00494550[0], spot, 3000);
-    return outsideRange != 0 &&
-           within_field(g_pActiveHazardField_00493278, spot) != 0;
-}
-
-/* Function start: 0x418175 */
-short rear_sphere(void)
-{
-    return find_ratio(0, 20, (short)g_nHazardReferenceSpeed_00492e58,
-                      4300, 3100);
-}
-
-/* Function start: 0x4181A2 */
-short ok_hazard_spot(short obj)
-{
-    int range;
-    short result;
-
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
-        range = rear_sphere();
-    else
-        range = 4300;
-    result = IsPointWithinRange(&g_aShipPosition_00494550[0],
-                                &g_aShipPosition_00494550[obj],
-                                (short)range);
-    return result;
-}
-
-/* Function start: 0x41820B */
-short make_hazard(void)
-{
-    FixedVector spot;
-    short moving;
-    short obj = find_vacant_3d_object();
-
-    if (obj != -1 && try_far_spot(&spot, &moving) != 0) {
-        init_hazard(obj, spot, moving);
-        RecordCannedSceneObjectEvent(obj, 0);
-    } else
-        obj = -1;
-    return obj;
-}
-
-/* Function start: 0x418288 */
-void extra_hazard(short obj)
-{
-    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST)
-        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
-}
-
-/* Function start: 0x4182B6 */
-void approach(short obj)
-{
-    FixedVector vector;
-
-    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &vector);
-    AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
-    point_at(obj, vector);
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
-                     &vector);
-    AddFixedVectors(&g_aShipVelocity_00494898[obj], &vector,
-                    &g_aShipVelocity_00494898[obj]);
-    if (g_nCannedSceneMode_0049021c == 0)
-        RecordCannedSceneObjectEvent(obj, 3);
-}
-
-/* Function start: 0x41836E */
-void manage_hazard(short obj, short slot)
-{
-    if (g_nRenderedSpaceFrame_00493138 % 20 != slot)
-        return;
-    if (ok_hazard_spot(obj) == 0) {
-        remove_hazard((signed char)obj);
-        return;
-    }
-    if (g_asObjectType_00495298[obj] == OBJECT_DATA_PORCUPINE_MINE &&
-        g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
-        (unsigned short)g_asObjectDistance_00493ae8[obj] > 1500 &&
-        real_velocity(obj) < 20)
-        approach(obj);
-}
-
-/* Function start: 0x418426 */
-void match_ship_to_eye(void)
-{
-    g_nHazardReferenceSpeed_00492e58 = 100;
-    g_aShipPosition_00494550[0] =
-        g_aShipPosition_00494550[EYE_OBJECT];
-    g_aShipRightVector_00493b78[0] =
-        g_aShipRightVector_00493b78[EYE_OBJECT];
-    g_aShipUpVector_00493ec0[0] =
-        g_aShipUpVector_00493ec0[EYE_OBJECT];
-    g_aShipForwardVector_00494208[0] =
-        g_aShipForwardVector_00494208[EYE_OBJECT];
-    ScaleFixedVector(&g_aShipForwardVector_00494208[0],
-                     g_nHazardReferenceSpeed_00492e58 << 8,
-                     &g_aShipVelocity_00494898[0]);
-    g_pActiveHazardField_00493278->center =
-        g_aShipPosition_00494550[EYE_OBJECT];
-}
-
-/* Function start: 0x4184F6 */
-void update_hazards(void)
-{
-    short emptySlot;
-    short slot;
-
-    emptySlot = -1;
-
-    if (g_bUseEyePositionForHazards_0049327c != 0)
-        match_ship_to_eye();
-    else
-        g_nHazardReferenceSpeed_00492e58 = real_velocity(0);
-    for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1)
-            manage_hazard((short)g_abHazardObjects_00493280[slot], slot);
-        else
-            emptySlot = slot;
-    }
-    if (emptySlot != -1 &&
-        RandomBelowOrEqual(215) <
-            (short)g_nHazardReferenceSpeed_00492e58 + 30)
-        g_abHazardObjects_00493280[emptySlot] = (signed char)make_hazard();
-}
-
-/* Function start: 0x4185CC */
-void start_hazard_field(short region)
-{
-    short slot;
-
-    slot = 0;
-    remove_all_hazards();
-    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
-    while (slot++ < 3)
-        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
-}
-
-/* Function start: 0x418626 */
-void add_hazard_field(enum ObjectType type, FixedVector center,
-                      short radius, short density)
-{
-    HazardField *field;
-
-    if (g_nHazardFieldCount_004931d0 >= 7)
-        return;
-    field = &g_aHazardFields_004931d8[g_nHazardFieldCount_004931d0];
-    field->type = type;
-    field->center = center;
-    field->outerRadius = radius;
-    field->innerRadius = radius;
-    field->density = density;
-    g_nHazardFieldCount_004931d0++;
-}
-
-/* Function start: 0x4186A4 */
-void check_hazards(void)
-{
-    HazardField *field;
-    short region;
-
-    if (g_bUseEyePositionForHazards_0049327c != 0)
-        return;
-    if (g_pActiveHazardField_00493278 == 0) {
-        field = g_aHazardFields_004931d8;
-        for (region = 0; g_nHazardFieldCount_004931d0 > region;
-             region++, field++) {
-            if (field != g_pActiveHazardField_00493278 &&
-                near_field(field, &g_aShipPosition_00494550[0]) != 0) {
-                start_hazard_field(region);
-                return;
-            }
-        }
-    } else if (near_field(g_pActiveHazardField_00493278,
-                          &g_aShipPosition_00494550[0]) == 0) {
-        remove_all_hazards();
-    }
-}
-
-/* Function start: 0x4199F0 */
-void SetPersonnelMousePosition(short x, short y)
-{
-    g_nPersonnelMouseX_005c8d00 = x;
-    g_nPersonnelMouseY_005c8d02 = y;
-    g_nQueuedInputX_005c83f0 = x;
-    g_nQueuedInputY_005c83f2 = y;
-    SetMouseHomePosition(x, y);
+    return g_bF1KeyDown_0049c240;
 }
 
 #pragma function(strcmp)
-
 /* Function start: 0x453C95 */
 void CheckLauncherAndConfig(void)
 {
@@ -531,10 +66,10 @@ void CheckLauncherAndConfig(void)
         fclose(config);
     }
 #else
-    int scanResult;
+    int scanned;
     char option[100];
-    int controlFile;
     char command;
+    int ctrlFile;
     FILE *config;
 
     if (ReadCheaterFlagFromRegistry() != 0) {
@@ -543,16 +78,16 @@ void CheckLauncherAndConfig(void)
         *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
     }
 
-    controlFile = _open("ctrl.del", O_BINARY);
-    if (controlFile != -1) {
+    ctrlFile = _open("ctrl.del", O_BINARY);
+    if (ctrlFile != -1) {
         g_bDebugBreakEnabled_0049c238 = 1;
-        _close(controlFile);
+        _close(ctrlFile);
     }
 
     config = fopen("WC2.CFG", "rt");
     while (config != 0) {
-        scanResult = fscanf(config, "%s", option);
-        if (scanResult == -1) {
+        scanned = fscanf(config, "%s", option);
+        if (scanned == -1) {
             fclose(config);
             break;
         }
@@ -563,11 +98,11 @@ void CheckLauncherAndConfig(void)
         if (command == '-')
             command = option[1];
         switch (command) {
-        case 'b':
-            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
-            break;
         case 'k':
             *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+            break;
+        case 'b':
+            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
             break;
         case 's':
             break;
@@ -592,7 +127,6 @@ void CheckLauncherAndConfig(void)
 }
 
 #pragma intrinsic(strcmp)
-
 #ifndef SDL_PORT
 
 /* Function start: 0x453E60 */
@@ -726,12 +260,10 @@ void ShowNoticeMessageBox(const char *text)
     DIBpositionWindow();
     MessageBoxA(0, text, "NOTICE", 0x10);
     exit(0);
+    return;
 }
 
-#ifndef SDL_PORT
 #pragma function(strcpy)
-#endif
-
 /* Function start: 0x4541BD */
 void OutputDebugPrintf(const char *format, ...)
 {
@@ -745,11 +277,8 @@ void OutputDebugPrintf(const char *format, ...)
         strcpy(buffer, va_arg(arguments, const char *));
     va_end(arguments);
     OutputDebugStringA(buffer);
+    return;
 }
-
-#ifndef SDL_PORT
-#pragma intrinsic(strcpy)
-#endif
 
 /* Function start: 0x45422D */
 unsigned int AbortToDesktop(void)
@@ -783,7 +312,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
                      int showCommand)
 {
     WNDCLASSA windowClass;
-    DWORD createError;
+    DWORD error;
 
     DAT_005d12b0 = instance;
     if (previous != 0)
@@ -807,7 +336,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
         "Wing Commander II: Vengeance of the Kilrathi",
         WS_POPUP, 0, 0, 320, 200, 0, 0, DAT_005d12b0, 0);
     if (g_hMainWindow_005d10e0 == 0) {
-        createError = GetLastError();
+        error = GetLastError();
         return 0;
     }
 
@@ -890,12 +419,6 @@ unsigned int PumpWindowMessages(int skipMessages)
     g_nInputClock_005c84a8 *= 60;
     g_nInputClock_005c84a8 /= 1000;
     return g_bMainWindowRunning_005d12ac;
-}
-
-/* Function start: 0x453C80 */
-unsigned int GetF1KeyLatch(void)
-{
-    return g_bF1KeyDown_0049c240;
 }
 
 #ifndef SDL_PORT
@@ -1323,7 +846,6 @@ HDC GetMainWindowDeviceContext(void)
 }
 
 #pragma function(memset)
-
 /* Function start: 0x455466 */
 void *AllocateGuardedMemory(unsigned int size)
 {
@@ -1376,7 +898,6 @@ void *AllocateGuardedMemory(unsigned int size)
 }
 
 #pragma intrinsic(memset)
-
 /* Function start: 0x455565 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 {
@@ -1394,6 +915,10 @@ void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 void CheckAllGuardedAllocations(void)
 {
 }
+
+int DetectDoubleFree(void *memory);
+void TrackFreedHeapBlock(void *memory);
+void UntrackFreedHeapBlock(void *memory);
 
 /* Function start: 0x45562F */
 int IsFreedHeapBlockTracked(void *memory)
@@ -1443,6 +968,7 @@ void TrackFreedHeapBlock(void *memory)
     }
     g_pFreedHeapBlockTail_0049c308->next = 0;
     g_pFreedHeapBlockTail_0049c308->block = memory;
+    return;
 }
 
 /* Function start: 0x455787 */
@@ -1450,43 +976,65 @@ void TrackFreedHeapBlock(void *memory)
  * mistaken for a double free. */
 void UntrackFreedHeapBlock(void *memory)
 {
-    FreedHeapBlock *previous;
-    FreedHeapBlock *block;
+    FreedHeapBlock *prev;
+    FreedHeapBlock *current;
 
-    previous = 0;
-    block = g_pFreedHeapBlockHead_0049c304;
-    while (block != 0) {
-        if (block->block == memory) {
-            if (previous != 0) {
-                previous->next = block->next;
-                if (block->next == 0)
-                    g_pFreedHeapBlockTail_0049c308 = previous;
+    prev = 0;
+    current = g_pFreedHeapBlockHead_0049c304;
+    while (current != 0) {
+        if (current->block == memory) {
+            if (prev != 0) {
+                prev->next = current->next;
+                if (current->next == 0)
+                    g_pFreedHeapBlockTail_0049c308 = prev;
             } else {
-                g_pFreedHeapBlockHead_0049c304 = block->next;
-                if (block->next == 0)
-                    g_pFreedHeapBlockTail_0049c308 = previous;
+                g_pFreedHeapBlockHead_0049c304 = current->next;
+                if (current->next == 0)
+                    g_pFreedHeapBlockTail_0049c308 = prev;
             }
-            free(block);
-            break;
+            free(current);
+            return;
         }
-        previous = block;
-        block = block->next;
+        prev = current;
+        current = current->next;
     }
     return;
 }
+
+/* Function start: 0x455836 */
+/* Nothing in the shipped executable calls this.  Frees the whole list of
+ * tracked freed-block records. */
+void FreeTrackedHeapBlocks(void)
+{
+    FreedHeapBlock *entry;
+    FreedHeapBlock *freed;
+
+    entry = g_pFreedHeapBlockHead_0049c304;
+    freed = 0;
+    while (entry != 0) {
+        freed = entry;
+        entry = entry->next;
+        free(freed);
+    }
+    return;
+}
+
+void ReportHeapGuardCorruption(void *memory, int count, int overrun);
+void WriteDebugString(const char *s);
+void TrackFreedHeapBlock(void *memory);
 
 /* Function start: 0x455882 */
 void FreeGuardedAllocation(void *memory)
 {
     int found;
 #ifdef SDL_PORT
-    unsigned char *guard;
+    unsigned char *fence;
     unsigned int guardValue;
 #else
-    unsigned int *guard;
+    unsigned int *fence;
 #endif
     GuardedAllocation *previous;
-    GuardedAllocation *allocation;
+    GuardedAllocation *entry;
     int corrupt;
     int i;
 
@@ -1494,63 +1042,457 @@ void FreeGuardedAllocation(void *memory)
 #ifdef SDL_PORT
     /* No fences to walk: the block starts where the caller's pointer does and
      * ASan owns the redzones on either side of it. */
-    guard = (unsigned char *)memory;
+    fence = (unsigned char *)memory;
 #else
-    guard = (unsigned int *)((unsigned char *)memory - 0x400);
+    fence = (unsigned int *)((unsigned char *)memory - 0x400);
 #endif
     previous = 0;
-    allocation = g_pGuardedAllocationHead_0049c300;
-    while (allocation != 0) {
-        if (allocation->block == guard) {
+    entry = g_pGuardedAllocationHead_0049c300;
+    while (entry != 0) {
+        if (entry->block == fence) {
 #ifndef SDL_PORT
             corrupt = 0;
             for (i = 0; i < 0x100; i++) {
-                if (*guard != 0xabababab)
+                if (*fence != 0xabababab)
                     corrupt++;
-                guard++;
+                fence++;
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 0);
 
+            fence =
+                (unsigned int *)((unsigned char *)memory + entry->size);
             corrupt = 0;
-            guard =
-                (unsigned int *)((unsigned char *)memory + allocation->size);
             for (i = 0; i < 0x100; i++) {
-                if (*guard != 0xabababab)
+                if (*fence != 0xabababab)
                     corrupt++;
-                guard++;
+                fence++;
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 1);
 
-            guard = (unsigned int *)((unsigned char *)memory - 0x400);
+            fence = (unsigned int *)((unsigned char *)memory - 0x400);
 #endif
-            TrackFreedHeapBlock(guard);
-            free(guard);
+            TrackFreedHeapBlock(fence);
+            free(fence);
             if (previous != 0)
-                previous->next = allocation->next;
+                previous->next = entry->next;
             else
-                g_pGuardedAllocationHead_0049c300 = allocation->next;
-            if (g_pGuardedAllocationTail_005d10ec == allocation) {
+                g_pGuardedAllocationHead_0049c300 = entry->next;
+            if (g_pGuardedAllocationTail_005d10ec == entry) {
                 if (previous != 0)
                     g_pGuardedAllocationTail_005d10ec = previous;
                 else
                     g_pGuardedAllocationTail_005d10ec = 0;
             }
-            free(allocation);
-            allocation = 0;
+            free(entry);
+            entry = 0;
             found = 1;
+            break;
         }
-        if (allocation != 0) {
-            previous = allocation;
-            allocation = allocation->next;
+        if (entry != 0) {
+            previous = entry;
+            entry = entry->next;
+        }
+    }
+    if (found == 0 && DetectDoubleFree(fence) == 0) {
+        sprintf(g_szGuardedHeapDebugMessage_005d10f0,
+                "MEM: Unknown memory lost (%p)\n", fence);
+        WriteDebugString(g_szGuardedHeapDebugMessage_005d10f0);
+    }
+    return;
+}
+
+/* Function start: 0x455A85 */
+void SetMousePosition(int x, int y)
+{
+    SetCursorPos(x, y);
+}
+
+/* Function start: 0x455A9E */
+/* Nothing in the shipped executable calls this.  Latches a scene escape
+ * while the Escape key is down. */
+void PollEscapeKey(void)
+{
+    if (GetAsyncKeyState(VK_ESCAPE) != 0)
+        g_bSceneEscapeRequested_0049d4b0 = 1;
+    return;
+}
+
+/* Function start: 0x455AC8 */
+unsigned int PollKeyboardState(void)
+{
+    g_nClearedKeyboardState_005b3694 = 0;
+    g_nHomeKeyState_005b371c = GetAsyncKeyState(VK_HOME);
+    g_nUpArrowKeyState_005b3738 = GetAsyncKeyState(VK_UP);
+    g_nPageUpKeyState_005b3840 = GetAsyncKeyState(VK_PRIOR);
+    g_nLeftArrowKeyState_005b3844 = GetAsyncKeyState(VK_LEFT);
+    g_nRightArrowKeyState_005b3728 = GetAsyncKeyState(VK_RIGHT);
+    g_nEndKeyState_005b372c = GetAsyncKeyState(VK_END);
+    g_nDownArrowKeyState_005b373c = GetAsyncKeyState(VK_DOWN);
+    g_nPageDownKeyState_005b3720 = GetAsyncKeyState(VK_NEXT);
+    g_nClearKeyState_005b3730 = GetAsyncKeyState(VK_CLEAR);
+    g_nOemPeriodKeyState_005b3718 = GetAsyncKeyState(0xbe);
+    g_nOemCommaKeyState_005b3724 = GetAsyncKeyState(0xbc);
+    g_nInsertKeyState_005b3690 = GetAsyncKeyState(VK_INSERT);
+    g_nDeleteKeyState_005b3734 = GetAsyncKeyState(VK_DELETE);
+
+    if (g_nHomeKeyState_005b371c != 0)
+        return 0x47;
+    if (g_nPageUpKeyState_005b3840 != 0)
+        return 0x49;
+    if (g_nEndKeyState_005b372c != 0)
+        return 0x4f;
+    if (g_nPageDownKeyState_005b3720 != 0)
+        return 0x51;
+    if (g_nInsertKeyState_005b3690 != 0 ||
+        g_nOemCommaKeyState_005b3724 != 0)
+        return 0x52;
+    if (g_nDeleteKeyState_005b3734 != 0 ||
+        g_nOemPeriodKeyState_005b3718 != 0)
+        return 0x53;
+    if (g_nClearKeyState_005b3730 != 0)
+        return 0x4c;
+    if (g_nUpArrowKeyState_005b3738 != 0) {
+        if (g_nLeftArrowKeyState_005b3844 != 0)
+            return 0x47;
+        if (g_nRightArrowKeyState_005b3728 != 0)
+            return 0x49;
+        return 0x48;
+    }
+    if (g_nDownArrowKeyState_005b373c != 0) {
+        if (g_nLeftArrowKeyState_005b3844 != 0)
+            return 0x4f;
+        if (g_nRightArrowKeyState_005b3728 != 0)
+            return 0x51;
+        return 0x50;
+    }
+    if (g_nLeftArrowKeyState_005b3844 != 0)
+        return 0x4b;
+    if (g_nRightArrowKeyState_005b3728 != 0)
+        return 0x4d;
+    return 0;
+}
+
+/* Function start: 0x455D2D */
+int GetHomeKeyState(void)
+{
+    return GetAsyncKeyState(VK_HOME);
+}
+
+/* Function start: 0x455D48 */
+int GetUpArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_UP);
+}
+
+/* Function start: 0x455D63 */
+int GetPageUpKeyState(void)
+{
+    return GetAsyncKeyState(VK_PRIOR);
+}
+
+/* Function start: 0x455D7E */
+int GetLeftArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_LEFT);
+}
+
+/* Function start: 0x455D99 */
+int GetRightArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_RIGHT);
+}
+
+/* Function start: 0x455DB4 */
+int GetEndKeyState(void)
+{
+    return GetAsyncKeyState(VK_END);
+}
+
+/* Function start: 0x455DCF */
+int GetDownArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_DOWN);
+}
+
+/* Function start: 0x455DEA */
+int GetPageDownKeyState(void)
+{
+    return GetAsyncKeyState(VK_NEXT);
+}
+
+/* Function start: 0x455E05 */
+int GetNumLockKeyState(void)
+{
+    return GetAsyncKeyState(VK_NUMLOCK);
+}
+
+/* Function start: 0x455E23 */
+int GetNumpadPlusKeyState(void)
+{
+    return GetAsyncKeyState(VK_ADD);
+}
+
+/* Function start: 0x455E3E */
+int GetNumpadMinusKeyState(void)
+{
+    return GetAsyncKeyState(VK_SUBTRACT);
+}
+
+/* Function start: 0x455E59 */
+int GetReturnKeyState(void)
+{
+    return GetAsyncKeyState(VK_RETURN);
+}
+
+/* Function start: 0x455E74 */
+int GetSpaceKeyState(void)
+{
+    return GetAsyncKeyState(VK_SPACE);
+}
+
+/* Function start: 0x455E8F */
+int GetShiftKeyState(void)
+{
+    return GetAsyncKeyState(VK_SHIFT);
+}
+
+/* Function start: 0x455EAA */
+unsigned int GetKeyboardModifiers(void)
+{
+    return g_dwSystemKey_005d10a4;
+}
+
+/* Function start: 0x455EBF */
+int GetControlKeyState(void)
+{
+    return GetAsyncKeyState(VK_CONTROL);
+}
+
+/* Function start: 0x455EDA */
+int GetJKeyState(void)
+{
+    return GetAsyncKeyState(0x4a);
+}
+
+/* Function start: 0x455EF5 */
+unsigned int GetGameClockTicks(void)
+{
+    return (GetTickCount() - g_dwGameClockBase_005d10e8) * 60 / 1000;
+}
+
+/* Function start: 0x455F23 */
+void InitGameClockRandomEpoch(void)
+{
+    g_dwGameClockStart_005d12b8 = GetTickCount();
+    g_dwGameClockBase_005d10e8 = GetTickCount() + (rand() & 3600000);
+    return;
+}
+
+/* Function start: 0x455F59 */
+void WriteDebugString(const char *s)
+{
+    if (s != 0) {
+        OutputDebugString(s);
+        if (g_nDebugFileLoggingEnabled_0049c2d8 != 0) {
+            if (g_pDebugLogFile_0049c2dc == 0)
+                g_pDebugLogFile_0049c2dc = fopen("log.log", "wt");
+            fprintf(g_pDebugLogFile_0049c2dc, "%s", s);
+            fflush(g_pDebugLogFile_0049c2dc);
+        }
+    }
+    return;
+}
+
+/* Function start: 0x455FD3 */
+void SetInputCursorHostPosition(int x, int y)
+{
+    SetCursorPos(x, y);
+    return;
+}
+
+/* Function start: 0x455FF1 */
+/* Nothing in the shipped executable calls this.  Allocates a one-entry
+ * glyph workspace of 5x5 pixels filled with colour 5. */
+FontWorkspace **AllocateFontWorkspace(short fontIndex)
+{
+    int slot;
+    FontWorkspace **workspace;
+
+    workspace = 0;
+    workspace = (FontWorkspace **)malloc(sizeof(*workspace));
+    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
+    for (slot = 0; slot < 1; slot++) {
+        (*workspace)[slot].width = 5;
+        (*workspace)[slot].height = 5;
+        (*workspace)[slot].pixels = (unsigned char *)malloc(
+            (*workspace)->height * (*workspace)->width);
+        memset((*workspace)[slot].pixels, 5,
+               (*workspace)->height * (*workspace)->width);
+    }
+    return workspace;
+}
+
+/* Function start: 0x4560C0 */
+/* Nothing in the shipped executable calls this.  Frees a workspace from
+ * AllocateFontWorkspace. */
+void FreeFontWorkspace(FontWorkspace **workspace)
+{
+    int slot;
+
+    for (slot = 0; slot < 1; slot++)
+        free((*workspace)[slot].pixels);
+    free(*workspace);
+    free(workspace);
+    return;
+}
+
+/* Function start: 0x456123 */
+char *LocateStreamsDirOnDisc(void)
+{
+#ifdef SDL_PORT
+    char current[4096];
+    const char *directory;
+    int length;
+
+    if (GetCurrentDirectoryA(sizeof(current), current) == 0)
+        return 0;
+    /* Only the final path component identifies GAMEDAT. Its spelling may
+     * use any case, and an ancestor may also contain the word "gamedat". */
+    directory = current + strlen(current);
+    while (directory > current && directory[-1] != '/' &&
+           directory[-1] != '\\')
+        directory--;
+    length = snprintf(g_szStreamsPath_005b3740,
+                      sizeof(g_szStreamsPath_005b3740), "%s%s", current,
+                      SDL_strcasecmp(directory, "gamedat") == 0
+                          ? "/../streams/" : "/streams/");
+    if (length < 0 || (size_t)length >= sizeof(g_szStreamsPath_005b3740))
+        return 0;
+    if (!SetCurrentDirectoryA(g_szStreamsPath_005b3740))
+        return 0;
+    if (!SetCurrentDirectoryA(current))
+        return 0;
+    return g_szStreamsPath_005b3740;
+#else
+    char current[256];
+    char *result;
+    char drive;
+
+    GetCurrentDirectoryA(0xff, current);
+    result = g_szStreamsPath_005b3740;
+    drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc2\\streams\\");
+    if (drive != 0) {
+        sprintf(g_szStreamsPath_005b3740, "%c:%s", drive,
+                "\\wc2\\streams\\");
+    } else {
+        if (strstr(current, "gamedat") != 0)
+            sprintf(g_szStreamsPath_005b3740, "%s\\..\\%s", current,
+                    "streams\\");
+        else
+            sprintf(g_szStreamsPath_005b3740, "%s\\%s", current,
+                    "streams\\");
+        GetCurrentDirectoryA(0xff, current);
+        if (!SetCurrentDirectoryA(g_szStreamsPath_005b3740))
+            result = 0;
+        SetCurrentDirectoryA(current);
+    }
+    return result;
+#endif
+}
+
+#pragma function(strcmp)
+/* Function start: 0x456236 */
+char FindCdRomDriveByVolumeLabel(const char *label,
+                                 const char *directory)
+{
+    char volume[256];
+    char root[12];
+    char filesystem[64];
+    DWORD flags;
+    DWORD maximumComponentLength;
+    int driveCount;
+    char drives[26];
+    char scanRoot[12];
+    int drive;
+    char result;
+
+    driveCount = 0;
+    for (drive = 'a'; drive <= 'z'; drive++) {
+        sprintf(scanRoot, "%c:\\", (char)drive);
+        if (GetDriveTypeA(scanRoot) == DRIVE_CDROM) {
+            drives[driveCount] = (char)drive;
+            driveCount++;
         }
     }
 
-    guard = (unsigned int *)((unsigned char *)memory - 0x400);
-    if (found == 0 && DetectDoubleFree(guard) == 0) {
-        sprintf(g_szGuardedHeapDebugMessage_005d10f0,
-                "MEM: Unknown memory lost (%p)\n", guard);
-        WriteDebugString(g_szGuardedHeapDebugMessage_005d10f0);
+    result = 0;
+    for (drive = 0; drive < driveCount; drive++) {
+        sprintf(root, "%c:\\", drives[drive]);
+        GetVolumeInformationA(root, volume, 0xff, 0,
+                              &maximumComponentLength, &flags,
+                              filesystem, sizeof(filesystem));
+        if (strcmp(label, "<anydisc>") == 0) {
+            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
+                result = drives[drive];
+                break;
+            }
+        } else if (strcmp(volume, label) == 0) {
+            if (SetCurrentDirOnDrive(drives[drive], directory) != 0) {
+                result = drives[drive];
+                break;
+            }
+        }
     }
+    return result;
+}
+
+#pragma intrinsic(strcmp)
+/* Function start: 0x4563A3 */
+int SetCurrentDirOnDrive(char drive, const char *directory)
+{
+    char path[256];
+    char previous[256];
+    int result;
+
+    result = 0;
+    GetCurrentDirectoryA(0xff, previous);
+    sprintf(path, "%c:%s", drive, directory);
+    if (SetCurrentDirectoryA(path) != 0)
+        result = 1;
+    SetCurrentDirectoryA(previous);
+    return result;
+}
+
+/* Function start: 0x45641B */
+int TakeInputPressCount(void)
+{
+    int pressCount;
+
+    pressCount = g_nInputPressCount_0049c258;
+    g_nInputPressCount_0049c258 = 0;
+    return pressCount;
+}
+
+#pragma intrinsic(strcpy)
+/* Function start: 0x456443 */
+int PromptInsertCorrectCd(void)
+{
+    int discNumber;
+    char title[18];
+    char message[1024];
+
+    discNumber = 1;
+    strcpy(title, "Insert Correct CD");
+    sprintf(message,
+            "Please place The Kilrathi Saga discNumber %d into your CD-ROM drive and click OK\n"
+            "or click cancel to quit",
+            discNumber);
+    while (LocateStreamsDirOnDisc() == 0) {
+        if (MessageBoxA(0, message, title,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+            return 0;
+    }
+    return 1;
 }

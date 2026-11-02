@@ -14,6 +14,7 @@
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 unsigned short g_nMasterVolume_004a0c14 = 0xffff;
 short          g_anPanTable_005c4ee8[512];
@@ -42,6 +43,8 @@ void ix_dspv_clear_active(int voice)
     }
     g_voices_005c52f0[voice].flags &= ~IX_VOICE_ACTIVE;
 }
+
+unsigned int ix_dspv_get_flags(int voice);
 
 /* Function start: 0x48A2FE */   /* source line 35 */
 void ix_dspv_clear_flag4(int voice)
@@ -105,6 +108,8 @@ int ix_dspv_get_position(int voice)
     return v->cursor - v->start;
 }
 
+void ix_dspv_recalc_mix(int voice);
+
 /* Function start: 0x48A510 */   /* source line 77 */
 void ix_dspv_set_position(int voice, int off)
 {
@@ -117,6 +122,9 @@ void ix_dspv_set_position(int voice, int off)
 
     v->cursor = v->start + off;
 }
+
+void ix_dspv_set_pan(int voice, unsigned short angle);
+void ix_dspv_set_frequency(int voice, unsigned int hz);
 
 /* Function start: 0x48A588 */   /* source line 85 */
 void ix_dspv_set_volume(int voice, short vol)
@@ -136,7 +144,7 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
     IxVoice *state;
     short step;
     short delta;
-    short pos;
+    short position;
 
     if (voice < 0 || g_nVoiceCount_005c5748 <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 93);
@@ -150,13 +158,13 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
         delta = delta - 0x80;
     if (delta < -0x40)
         delta = delta + 0x80;
-    pos = state->panPos + delta;
-    if (pos < 0)
-        pos = pos + 0x100;
-    if (pos >= 0x100)
-        pos = pos - 0x100;
+    position = state->panPos + delta;
+    if (position < 0)
+        position = position + 0x100;
+    if (position >= 0x100)
+        position = position - 0x100;
     state->panAngle = step;
-    state->panPos = pos;
+    state->panPos = position;
     ix_dspv_recalc_mix(voice);
 }
 
@@ -214,18 +222,18 @@ void ix_dspv_set_channels(int voice, int channels)
 void ix_dspv_recalc_mix(int voice)
 {
     IxVoice *state;
-    short pos;
-    int gain;
+    short position;
+    int level;
 
     state = &g_voices_005c52f0[voice];
-    pos = state->panPos;
-    gain = ((unsigned int)state->volume
+    position = state->panPos;
+    level = ((unsigned int)state->volume
             * (unsigned int)g_nMasterVolume_004a0c14) / 0xffff;
     EnterCriticalSection(&g_csMixer_005c5730);
     state->leftGain =
-        (short)((int)g_anPanTable_005c4ee8[pos * 2] * gain >> 0x10);
+        (short)((int)g_anPanTable_005c4ee8[position * 2] * level >> 0x10);
     state->rightGain =
-        (short)((int)g_anPanTable_005c4ee8[pos * 2 + 1] * gain >> 0x10);
+        (short)((int)g_anPanTable_005c4ee8[position * 2 + 1] * level >> 0x10);
     state->leftGainHi = (unsigned char)(state->leftGain >> 8);
     state->rightGainHi = (unsigned char)(state->rightGain >> 8);
     LeaveCriticalSection(&g_csMixer_005c5730);

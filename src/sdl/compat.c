@@ -628,12 +628,6 @@ int SdlGetChar(void)
     return 0;
 }
 
-int SdlFlushAll(void)
-{
-    fflush(0);
-    return 0;
-}
-
 /*
  *  The game changes into its data directory on the way in, so a file it
  *  cannot open says more with the directory it was looking in.

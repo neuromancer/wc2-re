@@ -1,22 +1,32 @@
 /*
  *  Autopilot travel and interstitial flight sequences.
  *
- *  Address range 0x403e50-0x40460f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: the Mac auto unit preserves visit_the_cinema,
- *  player_wingman, set_speed, auto_position, and auto_pilot_sequence in this
- *  exact order; the next Win32 function is a palette-file loader in another
- *  compilation unit.
+ *  Retail object 0x4228B0-0x42347F (link order; see docs/ORDER.md).
  */
 #include "game.h"
+
+/* WC2's auto.c declares the autopilot debug flag two bytes wide where every
+ * other translation unit declares it as a char.  In the retail image the byte
+ * above it is padding, so the value is the same and only the load width
+ * differs; on the port the byte above it is the sanitizer's redzone, so read
+ * the flag at its own width there. */
+#ifdef SDL_PORT
+#define g_nAutopilotDebugEnabled g_bAutopilotDebugEnabled_00499bfc
+#else
+#define g_nAutopilotDebugEnabled \
+    (*(const short *)&g_bAutopilotDebugEnabled_00499bfc)
+#endif
+
+int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
 
 /* Function start: 0x4228B0 */
 void visit_the_cinema(int view, int obj, short frames)
 {
-    int savedOriginUnlock;
+    int originalUnlock;
     int savedInputFlag;
     int savedKeyboardFlag;
 
-    savedOriginUnlock = g_nOriginDevUnlock_0049d774;
+    originalUnlock = g_nOriginDevUnlock_0049d774;
     savedInputFlag = g_bPlayerDamageEnabled_0049d77c;
     savedKeyboardFlag = g_bPlayerCollisionEnabled_0049d780;
     g_nOriginDevUnlock_0049d774 = 1;
@@ -31,7 +41,7 @@ void visit_the_cinema(int view, int obj, short frames)
         MarkDibDirty();
         DIBslamReal();
     }
-    g_nOriginDevUnlock_0049d774 = savedOriginUnlock;
+    g_nOriginDevUnlock_0049d774 = originalUnlock;
     g_bPlayerDamageEnabled_0049d77c = (short)savedInputFlag;
     g_bPlayerCollisionEnabled_0049d780 = (short)savedKeyboardFlag;
 }
@@ -39,9 +49,7 @@ void visit_the_cinema(int view, int obj, short frames)
 /* Function start: 0x422953 */
 short player_wingman(short obj)
 {
-    if (obj != -1 && g_asShipWingLeader_00495dd0[obj] == 0)
-        return 1;
-    return 0;
+    return obj != -1 && g_asShipWingLeader_00495dd0[obj] == 0;
 }
 
 /* Function start: 0x422990 */
@@ -51,11 +59,13 @@ void set_speed(short obj, short speed)
     fix_velocity(obj);
 }
 
-/* Function start: 0x4229B9 */
 #pragma function(abs)
+void set_speed(short obj, short speed);
+
+/* Function start: 0x4229B9 */
 void auto_position(short obj, short *formationSlot)
 {
-    short lateral;
+    short sideways;
     short vertical;
     short forward;
 
@@ -69,14 +79,13 @@ void auto_position(short obj, short *formationSlot)
 
     (*formationSlot)++;
     if ((*formationSlot & 1) != 0)
-        lateral = 650;
+        sideways = 650;
     else
-        lateral = -650;
+        sideways = -650;
     if (g_nAutopilotFormationShipCount_00493060 == *formationSlot)
-        lateral = 0;
+        sideways = 0;
     vertical = 0;
-    forward = MaxShort(1, (short)(*formationSlot >> 1));
-    forward = (short)(forward * -1800);
+    forward = (short)(MaxShort(1, (short)(*formationSlot >> 1)) * -1800);
     if (g_nYourWingman_0049346c != -1) {
         if (abs(
             g_aShipFormationOffset_00495468[g_nYourWingman_0049346c].z -
@@ -86,20 +95,8 @@ void auto_position(short obj, short *formationSlot)
             vertical = 500;
     }
     position_relative_ijk(&g_aShipPosition_00494550[obj], 0,
-                          lateral, vertical, forward);
+                          sideways, vertical, forward);
 }
-
-/* WC2's auto.c declares the autopilot debug flag two bytes wide where every
- * other translation unit declares it as a char.  In the retail image the byte
- * above it is padding, so the value is the same and only the load width
- * differs; on the port the byte above it is the sanitizer's redzone, so read
- * the flag at its own width there. */
-#ifdef SDL_PORT
-#define g_nAutopilotDebugEnabled g_bAutopilotDebugEnabled_00499bfc
-#else
-#define g_nAutopilotDebugEnabled \
-    (*(const short *)&g_bAutopilotDebugEnabled_00499bfc)
-#endif
 
 /* Function start: 0x422B1C */
 void auto_pilot_sequence(void)

@@ -4,10 +4,15 @@ out-modern/
 dist/
 compilers/msvc41/
 compilers/.msvc41-*/
+compilers/uasm/
+compilers/.uasm-*/
 3rdparty/msvc4.1.tar.gz
 3rdparty/msvc420-support.tar.gz
+3rdparty/msvc410.tar.gz
+3rdparty/uasm.tar.gz
 *.obj
 *.asm
+!src/*.asm
 *.map
 *.stdout
 

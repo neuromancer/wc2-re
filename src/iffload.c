@@ -1,0 +1,754 @@
+/*
+ *  Cutscene IFF resource parsing and release.
+ *
+ *  Retail object 0x40D6B0-0x40F01F (link order; see docs/ORDER.md).
+ */
+#include "game.h"
+
+/* Function start: 0x40D6B0 */
+void ReleasePacketSlot(void **slot)
+{
+    if (slot == 0)
+        return;
+    ReleasePacketHandle(*slot);
+    *slot = 0;
+}
+
+/* Function start: 0x40D6E1 */
+void SwapSceneChunkSizeEndian(int *value)
+{
+    char *bytes;
+
+    bytes = (char *)value;
+    bytes[0] ^= bytes[3];
+    bytes[3] ^= bytes[0];
+    bytes[0] ^= bytes[3];
+    bytes[1] ^= bytes[2];
+    bytes[2] ^= bytes[1];
+    bytes[1] ^= bytes[2];
+}
+
+/* Function start: 0x40D762 */
+signed char AreCutsceneResourceNamesEqual(const char *left,
+                                          const char *right)
+{
+    short length;
+
+    if (left == right)
+        return 1;
+    length = DosStrlen(left);
+    if (DosStrlen(right) == length) {
+        while (length-- != 0) {
+            if (toupper((int)right[length]) !=
+                toupper((int)left[length]))
+                return 0;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+/* Function start: 0x40D812 */
+unsigned int ReadNextSceneForm(unsigned char **cursor,
+                               unsigned char **nextForm)
+{
+    unsigned int chunkSize;
+    unsigned int formType;
+    unsigned char *read;
+
+    read = *cursor;
+    formType = 0;
+    if (*(unsigned int *)read == 0x4d524f46) {
+        read += 4;
+        chunkSize = *(unsigned int *)read;
+        read += 4;
+        SwapSceneChunkSizeEndian((int *)&chunkSize);
+        *nextForm = read + ((chunkSize + 1) & ~1);
+        formType = *(unsigned int *)read;
+        read += 4;
+        *cursor = IdentityHandle(read);
+    }
+    return formType;
+}
+
+/* Function start: 0x40D88E */
+void SkipCutsceneChunk(unsigned char **cursor)
+{
+    unsigned int size;
+    unsigned char *data;
+
+    data = *cursor;
+    size = *(unsigned int *)data;
+    data += 4;
+    SwapSceneChunkSizeEndian((int *)&size);
+    data += (size + 1) & ~1U;
+    *cursor = IdentityHandle(data);
+}
+
+/* Function start: 0x40D8D7 */
+short FindCutsceneResourceSymbolIndex(CutsceneObjectResourceList *list,
+                                      short scriptHalf,
+                                      const char *symbol)
+{
+    CutsceneObjectResourceHalf *halfInfo;
+    char **symbols;
+    short count;
+    short symbolIndex;
+
+    if (list != 0) {
+        if (scriptHalf == 0)
+            halfInfo = (CutsceneObjectResourceHalf *)list;
+        else if (scriptHalf == 1)
+            halfInfo = (CutsceneObjectResourceHalf *)
+                ((char *)list + sizeof(CutsceneObjectResourceHalf));
+        symbols = halfInfo->symbols;
+        count = halfInfo->symbolCount;
+        for (symbolIndex = 0; symbolIndex < count; symbolIndex++, symbols++) {
+            if (AreCutsceneResourceNamesEqual(*symbols, symbol) != 0)
+                return halfInfo->symbolIndices[symbolIndex];
+        }
+        return FindCutsceneResourceSymbolIndex(list->next, scriptHalf,
+                                               symbol);
+    }
+    return -1;
+}
+
+/* Function start: 0x40D9AD */
+void *AllocateScenePointerTable(int count, short elementSize,
+                                unsigned short flags,
+                                const char *errorMessage)
+{
+    void *allocation;
+
+    allocation = AllocateZeroedRecords(count, elementSize, flags);
+    if (count * elementSize <= 4)
+        flags = 0;
+    if (allocation == 0)
+        FatalCutsceneError("%s", errorMessage);
+    return allocation;
+}
+
+/* Function start: 0x40DA0C */
+short CreateCutsceneResourceInstance(unsigned int formType,
+                                     CutsceneObjectResourceList *list,
+                                     short index)
+{
+    SceneFlicObject *sprite;
+    CutscenePlane *plane;
+    CutsceneSequence *sequence;
+    CutsceneScene *scene;
+    short slot;
+
+    slot = 0;
+    if (formType == 0x54525053) {
+        while (slot < 0x80) {
+            if (g_apSceneObjects_00499c38[slot] == 0) {
+                sprite = AllocateScenePointerTable(
+                    1, sizeof(SceneFlicObject), 0,
+                    "Cannot Allocate Sprite Data");
+                g_apSceneObjects_00499c38[slot] = sprite;
+                sprite->owner = g_nCutsceneResourceLevel_00499d98;
+                sprite->field_3 = -1;
+                sprite->active = 1;
+                sprite->visible = 1;
+                sprite->scale = 0x100;
+                sprite->scriptStart = list->scripts[index];
+                sprite->scriptCursor = sprite->scriptStart;
+                if (sprite->scriptCursor != 0)
+                    UpdateCutsceneSpriteObject(sprite);
+                sprite->scriptStart = sprite->scriptCursor;
+                break;
+            }
+            slot++;
+        }
+        if (slot == 0x80)
+            FatalCutsceneError("Too few sprite slots");
+    } else if (formType == 0x454e4c50) {
+        while (slot < 0x40) {
+            if (g_apCutscenePlanes_00499c3c[slot] == 0) {
+                plane = AllocateScenePointerTable(
+                    1, sizeof(CutscenePlane), 0,
+                    "Cannot Allocate Plane Data");
+                g_apCutscenePlanes_00499c3c[slot] = plane;
+                plane->owner = g_nCutsceneResourceLevel_00499d98;
+                plane->active = 1;
+                plane->visible = 1;
+                plane->scriptStart = list->scripts[index];
+                plane->scriptCursor = plane->scriptStart;
+                plane->spriteIndices = AllocateScenePointerTable(
+                    0x10, 1, 0, "Cannot allocate SpriteNumList");
+                if (plane->scriptCursor != 0)
+                    UpdateCutscenePlaneObject(plane, 0);
+                plane->scriptStart = plane->scriptCursor;
+                break;
+            }
+            slot++;
+        }
+        if (slot == 0x40)
+            FatalCutsceneError("Too few plane slots");
+    } else if (formType == 0x55514553) {
+        while (slot < 0x100) {
+            if (g_apCutsceneSequences_00499c40[slot] == 0) {
+                sequence = AllocateScenePointerTable(
+                    1, sizeof(CutsceneSequence), 0,
+                    "Cannot allocate Sequence Data");
+                g_apCutsceneSequences_00499c40[slot] = sequence;
+                sequence->owner = g_nCutsceneResourceLevel_00499d98;
+                sequence->active = 1;
+                sequence->scriptStart = list->scripts[index];
+                sequence->scriptCursor = sequence->scriptStart;
+                sequence->planeIndices = AllocateScenePointerTable(
+                    0x10, 1, 0, "Cannot Allocate PlaneNumList");
+                if (sequence->scriptCursor != 0)
+                    ExecuteCutsceneSequence(sequence, 0, 0);
+                sequence->scriptStart = sequence->scriptCursor;
+                break;
+            }
+            slot++;
+        }
+        if (slot == 0x100)
+            FatalCutsceneError("Too few sequence slots");
+    } else if (formType == 0x454e4353) {
+        while (slot < 0x20) {
+            if (g_apCutsceneScenes_00499c44[slot] == 0) {
+                scene = AllocateScenePointerTable(
+                    1, sizeof(CutsceneScene), 0,
+                    "Cannot Allocate Script Data");
+                g_apCutsceneScenes_00499c44[slot] = scene;
+                scene->owner = g_nCutsceneResourceLevel_00499d98;
+                scene->active = 1;
+                scene->scriptStart = list->scripts[index];
+                scene->scriptCursor = scene->scriptStart;
+                scene->sequenceIndices = AllocateScenePointerTable(
+                    0x10, 1, 0, "Cannot Allocate SequenceNumList");
+                if (scene->scriptCursor != 0)
+                    ExecuteCutsceneScene(scene);
+                scene->scriptStart = scene->scriptCursor;
+                break;
+            }
+            slot++;
+        }
+        if (slot == 0x20)
+            FatalCutsceneError("Too few script slots");
+    }
+    return slot;
+}
+
+/* Function start: 0x40DE5A */
+signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
+                                        short scriptHalf,
+                                        unsigned int formType)
+{
+    CutsceneObjectResourceList *parent;
+    CutsceneObjectResourceHalf *half;
+    short count;
+    short runtimeIndex;
+    SceneFlicObject *sprite;
+    CutscenePlane *plane;
+    CutsceneSequence *sequence;
+    CutsceneScene *scene;
+
+    if (scriptHalf == 0)
+        half = (CutsceneObjectResourceHalf *)list;
+    else if (scriptHalf == 1)
+        half = (CutsceneObjectResourceHalf *)
+            ((char *)list + sizeof(CutsceneObjectResourceHalf));
+    count = half->symbolCount;
+    parent = list->next;
+    if (parent == 0) {
+        while (count-- != 0)
+            half->symbolIndices[count] = CreateCutsceneResourceInstance(
+                formType, list, count);
+        half->count = (unsigned char)half->symbolCount;
+        return 1;
+    }
+    half->count = (unsigned char)(half->inheritedCount + count);
+    while (count-- != 0) {
+        runtimeIndex = FindCutsceneResourceSymbolIndex(
+            parent, scriptHalf, half->symbols[count]);
+        if (runtimeIndex != -1) {
+            half->symbolIndices[count] = runtimeIndex;
+            switch (formType) {
+            case 0x54525053:
+                sprite = g_apSceneObjects_00499c38[runtimeIndex];
+                if (sprite->scriptCursor == 0) {
+                    sprite->scriptStart = list->scripts[count];
+                    sprite->scriptCursor = sprite->scriptStart;
+                    UpdateCutsceneSpriteObject(sprite);
+                }
+                break;
+            case 0x454e4c50:
+                plane = g_apCutscenePlanes_00499c3c[runtimeIndex];
+                if (plane->scriptCursor == 0) {
+                    plane->scriptStart = list->scripts[count];
+                    plane->scriptCursor = plane->scriptStart;
+                    UpdateCutscenePlaneObject(plane, 0);
+                }
+                break;
+            case 0x55514553:
+                sequence = g_apCutsceneSequences_00499c40[runtimeIndex];
+                if (sequence->scriptCursor == 0) {
+                    sequence->scriptStart = list->scripts[count];
+                    sequence->scriptCursor = sequence->scriptStart;
+                    ExecuteCutsceneSequence(sequence, 0, 0);
+                }
+                break;
+            case 0x454e4353:
+                scene = g_apCutsceneScenes_00499c44[runtimeIndex];
+                if (scene->scriptCursor == 0) {
+                    scene->scriptStart = list->scripts[count];
+                    scene->scriptCursor = scene->scriptStart;
+                    ExecuteCutsceneScene(scene);
+                }
+                break;
+            }
+        } else {
+            half->symbolIndices[count] = CreateCutsceneResourceInstance(
+                formType, list, count);
+        }
+    }
+    return 1;
+}
+
+/* Function start: 0x40E130 */
+signed char DecodeSceneResourceChunk(unsigned char **cursor,
+                                     SceneResourceTable *resource)
+{
+    unsigned char *chunk;
+    signed char decoded;
+
+    chunk = *cursor;
+    decoded = 0;
+    switch (*(int *)chunk) {
+    case 0x43525453:
+        decoded = DecodeSceneStructChunk(&chunk, &resource);
+        break;
+    case 0x5453464f:
+        decoded = DecodeSceneOffsetChunk(&chunk, &resource);
+        break;
+    case 0x424d5953:
+        decoded = DecodeSceneSymbolChunk(&chunk, &resource);
+        break;
+    case 0x454c4946:
+        decoded = DecodeSceneFileChunk(&chunk, &resource);
+        break;
+    case 0x4d524f46:
+        break;
+    default:
+        break;
+    }
+    *cursor = IdentityHandle(chunk);
+    return decoded;
+}
+
+/* Function start: 0x40E230 */
+CutsceneResourceTable *PushCutsceneFileResource(
+    CutsceneResourceTable **head)
+{
+    CutsceneResourceTable *resource;
+
+    resource = AllocateScenePointerTable(
+        1, sizeof(CutsceneResourceTable), 0,
+        "Cannot allocate FileChunk");
+    if (resource != 0) {
+        resource->owner = g_nCutsceneResourceLevel_00499d98;
+        resource->next = *head;
+        *head = resource;
+    }
+    return resource;
+}
+
+/* Function start: 0x40E285 */
+void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
+                                unsigned char **cursor)
+{
+    SceneResourceTable decodedResource;
+    short entryCount;
+
+    DecodeSceneResourceChunk(cursor, &decodedResource);
+    resource->count = decodedResource.count;
+    entryCount = resource->count;
+    resource->owner = g_nCutsceneResourceLevel_00499d98;
+    resource->filenameIndices = decodedResource.data;
+    resource->sectionIndices =
+        entryCount + (const unsigned char *)decodedResource.data;
+    resource->packedFilenames =
+        entryCount * 2 + (char *)decodedResource.data;
+    resource->loadedPackets = AllocateScenePointerTable(
+        entryCount, HOST_POINTER_SIZE, 0,
+        "Cannot Allocate InMemory List");
+    if (resource->loadedPackets == 0)
+        ReleasePacketSlot((void **)&resource);
+}
+
+/* Function start: 0x40E31F */
+unsigned int ParseCutsceneContainer(void *scenePacket)
+{
+    unsigned char *cursor;
+    unsigned char *containerEnd;
+    unsigned char *formEnd;
+    int formType;
+    SceneResourceTable decodedResource;
+    CutsceneTextResource *textResource;
+    short globalCount;
+
+    cursor = IdentityHandle(scenePacket);
+    InitializeCutsceneRuntimeResources();
+    if (ReadNextSceneForm(&cursor, &containerEnd) != 0x50435343)
+        return 0;
+    PushCutsceneObjectResource(&g_pCutsceneSpriteResources_0049288c);
+    PushCutsceneObjectResource(&g_pCutscenePlaneResources_00492890);
+    PushCutsceneObjectResource(&g_pCutsceneSequenceResources_00492894);
+    PushCutsceneObjectResource(&g_pCutsceneSceneResources_00492898);
+    PushCutsceneFileResource(&g_pCutsceneFxResources_004928b8);
+    PushCutsceneFileResource(&g_pCutsceneMusicResources_004928bc);
+    PushCutsceneFileResource(&g_pCutsceneMouseResources_004928ac);
+    PushCutsceneFileResource(&g_pCutsceneShapeResources_004928a8);
+    PushCutsceneFileResource(&g_pCutsceneFilmResources_004928b4);
+    PushCutsceneFileResource(&g_pCutsceneFontResources_004928a0);
+    PushCutsceneFileResource(&g_pCutsceneSpeechResources_004928a4);
+    PushCutsceneFileResource(&g_pCutscenePaletteResources_004928b0);
+    while (cursor < containerEnd) {
+        formType = ReadNextSceneForm(&cursor, &formEnd);
+        switch (formType) {
+        case 0x54525053:
+            DecodeCutsceneObjectResource(
+                g_pCutsceneSpriteResources_0049288c,
+                &cursor, formEnd, formType);
+            break;
+        case 0x454e4c50:
+            DecodeCutsceneObjectResource(
+                g_pCutscenePlaneResources_00492890,
+                &cursor, formEnd, formType);
+            break;
+        case 0x55514553:
+            DecodeCutsceneObjectResource(
+                g_pCutsceneSequenceResources_00492894,
+                &cursor, formEnd, formType);
+            break;
+        case 0x454e4353:
+            DecodeCutsceneObjectResource(
+                g_pCutsceneSceneResources_00492898,
+                &cursor, formEnd, formType);
+            break;
+        case 0x20205846:
+            DecodeCutsceneFileResource(
+                g_pCutsceneFxResources_004928b8, &cursor);
+            break;
+        case 0x2053554d:
+            DecodeCutsceneFileResource(
+                g_pCutsceneMusicResources_004928bc, &cursor);
+            break;
+        case 0x204c4150:
+            DecodeCutsceneFileResource(
+                g_pCutscenePaletteResources_004928b0, &cursor);
+            break;
+        case 0x544e4f46:
+            DecodeCutsceneFileResource(
+                g_pCutsceneFontResources_004928a0, &cursor);
+            break;
+        case 0x48435053:
+            DecodeCutsceneFileResource(
+                g_pCutsceneSpeechResources_004928a4, &cursor);
+            break;
+        case 0x4d4c4946:
+            DecodeCutsceneFileResource(
+                g_pCutsceneFilmResources_004928b4, &cursor);
+            break;
+        case 0x50414853:
+            DecodeCutsceneFileResource(
+                g_pCutsceneShapeResources_004928a8, &cursor);
+            break;
+        case 0x53554f4d:
+            DecodeCutsceneFileResource(
+                g_pCutsceneMouseResources_004928ac, &cursor);
+            break;
+        case 0x424f4c47:
+            DecodeSceneResourceChunk(&cursor, &decodedResource);
+            globalCount = *(short *)(
+                ((void **)decodedResource.data)[0]);
+            if (g_pCampaignGlobals_00499c94 == 0) {
+                g_pCampaignGlobals_00499c94 = AllocateScenePointerTable(
+                    globalCount, 2, 0, "Cannot Reallocate Globals");
+            }
+            ReleasePacketSlot(&decodedResource.data);
+            break;
+        case 0x54584554:
+            DecodeSceneResourceChunk(&cursor, &decodedResource);
+            textResource = AllocateScenePointerTable(
+                1, sizeof(CutsceneTextResource), 0,
+                "Cannot Allocate Text Ptrs");
+            textResource->next = g_pCutsceneTextResources_0049289c;
+            textResource->owner = g_nCutsceneResourceLevel_00499d98;
+            textResource->entries = decodedResource.data;
+            g_pCutsceneTextResources_0049289c = textResource;
+            break;
+        default:
+            cursor = formEnd;
+            break;
+        }
+    }
+    return 1;
+}
+
+/* Function start: 0x40E726 */
+signed char DecodeCutsceneObjectResource(
+    CutsceneObjectResourceList *resource, unsigned char **cursor,
+    unsigned char *end, unsigned int formType)
+{
+    unsigned char *chunkCursor;
+    unsigned char *formEnd;
+    unsigned int nestedFormType;
+    SceneResourceTable decodedResource;
+
+    chunkCursor = *cursor;
+    while (chunkCursor < end) {
+        nestedFormType = ReadNextSceneForm(&chunkCursor, &formEnd);
+        if (nestedFormType == 0x41544144) {
+            while (chunkCursor < formEnd) {
+                while (DecodeSceneResourceChunk(
+                           &chunkCursor, &decodedResource) != 0) {
+                    if (decodedResource.type == 0) {
+                        resource->dataEntries = decodedResource.data;
+                        resource->localDataCount = decodedResource.count;
+                        resource->dataRuntimeIndices =
+                            AllocateScenePointerTable(
+                                decodedResource.count, 2, 0,
+                                "Cannot Allocate Index Array");
+                    } else if (decodedResource.type == 2) {
+                        resource->dataSymbols = decodedResource.data;
+                        resource->dataSymbolCount = decodedResource.count;
+                        resource->dataSymbolIndices =
+                            AllocateScenePointerTable(
+                                decodedResource.count, 2, 0,
+                                "Cannot Allocate Symbol Index Array");
+                        if (LinkCutsceneObjectResources(
+                                resource, 0, formType) == 0)
+                            return 0;
+                    }
+                }
+            }
+        } else if (nestedFormType == 0x50524353) {
+            while (chunkCursor < formEnd) {
+                while (DecodeSceneResourceChunk(
+                           &chunkCursor, &decodedResource) != 0) {
+                    if (decodedResource.type == 1) {
+                        resource->scripts = decodedResource.data;
+                        resource->localScriptCount = decodedResource.count;
+                        resource->scriptRuntimeIndices =
+                            AllocateScenePointerTable(
+                                decodedResource.count, 2, 0,
+                                "Cannot Allocate Index Array");
+                    } else if (decodedResource.type == 2) {
+                        resource->scriptSymbols = decodedResource.data;
+                        resource->scriptSymbolCount = decodedResource.count;
+                        resource->scriptSymbolIndices =
+                            AllocateScenePointerTable(
+                                decodedResource.count, 2, 0,
+                                "Cannot Allocate Symbol Index Array");
+                        if (LinkCutsceneObjectResources(
+                                resource, 1, formType) == 0)
+                            return 0;
+                    }
+                }
+            }
+        } else {
+            SkipCutsceneChunk(&chunkCursor);
+        }
+    }
+    *cursor = chunkCursor;
+    return 1;
+}
+
+/* Function start: 0x40E985 */
+unsigned char ReleaseCutsceneObjectResourceData(
+    CutsceneObjectResourceList *resource)
+{
+    ReleasePacketSlot((void **)&resource->dataEntries);
+    ReleasePacketSlot((void **)&resource->dataRuntimeIndices);
+    ReleasePacketSlot((void **)&resource->dataSymbols);
+    ReleasePacketSlot((void **)&resource->dataSymbolIndices);
+    ReleasePacketSlot((void **)&resource->scripts);
+    ReleasePacketSlot((void **)&resource->scriptRuntimeIndices);
+    ReleasePacketSlot((void **)&resource->scriptSymbols);
+    ReleasePacketSlot((void **)&resource->scriptSymbolIndices);
+    return 1;
+}
+
+/* Function start: 0x40EA0F */
+CutsceneObjectResourceList *PushCutsceneObjectResource(
+    CutsceneObjectResourceList **head)
+{
+    CutsceneObjectResourceList *resource;
+
+    resource = AllocateScenePointerTable(
+        1, sizeof(CutsceneObjectResourceList), 0,
+        "Cannot Allocate Chunk Descriptor");
+    if (resource != 0) {
+        resource->next = *head;
+        if (*head != 0) {
+            resource->owner = g_nCutsceneResourceLevel_00499d98;
+            resource->dataCount = (*head)->dataCount;
+            resource->inheritedDataCount = resource->dataCount;
+            resource->scriptCount = (*head)->scriptCount;
+            resource->inheritedScriptCount = resource->scriptCount;
+        }
+        *head = resource;
+    }
+    return resource;
+}
+
+/* Function start: 0x40EAA4 */
+void ReleaseCutsceneObjectResource(short owner,
+                                   CutsceneObjectResourceList **head,
+                                   unsigned int formType)
+{
+    CutsceneObjectResourceList *resource;
+    CutscenePlane *plane;
+    CutsceneSequence *sequence;
+    CutsceneScene *scene;
+    short index;
+
+    resource = *head;
+    if (resource->owner == owner) {
+        ReleaseCutsceneObjectResourceData(resource);
+        switch (formType) {
+        case 0x54525053:
+            for (index = 0; index < 0x80; index++) {
+                if (g_apSceneObjects_00499c38[index] != 0 &&
+                    g_apSceneObjects_00499c38[index]->owner == owner) {
+                    ReleasePacketSlot(
+                        (void **)&g_apSceneObjects_00499c38[index]->locals);
+                    ReleasePacketSlot(
+                        (void **)&g_apSceneObjects_00499c38[index]);
+                }
+            }
+            break;
+        case 0x454e4c50:
+            for (index = 0; index < 0x40; index++) {
+                if (g_apCutscenePlanes_00499c3c[index] != 0 &&
+                    g_apCutscenePlanes_00499c3c[index]->owner == owner) {
+                    plane = g_apCutscenePlanes_00499c3c[index];
+                    ReleasePacketSlot((void **)&plane->locals);
+                    ReleasePacketSlot((void **)&plane->spriteIndices);
+                    ReleasePacketSlot(
+                        (void **)&g_apCutscenePlanes_00499c3c[index]);
+                }
+            }
+            break;
+        case 0x55514553:
+            for (index = 0; index < 0x100; index++) {
+                if (g_apCutsceneSequences_00499c40[index] != 0 &&
+                    g_apCutsceneSequences_00499c40[index]->owner == owner) {
+                    sequence = g_apCutsceneSequences_00499c40[index];
+                    ReleasePacketSlot((void **)&sequence->locals);
+                    ReleasePacketSlot((void **)&sequence->planeIndices);
+                    ReleasePacketSlot(
+                        (void **)&g_apCutsceneSequences_00499c40[index]);
+                }
+            }
+            break;
+        case 0x454e4353:
+            for (index = 0; index < 0x20; index++) {
+                if (g_apCutsceneScenes_00499c44[index] != 0 &&
+                    g_apCutsceneScenes_00499c44[index]->owner == owner) {
+                    scene = g_apCutsceneScenes_00499c44[index];
+                    ReleasePacketSlot((void **)&scene->locals);
+                    ReleasePacketSlot((void **)&scene->sequenceIndices);
+                    ReleasePacketSlot(
+                        (void **)&g_apCutsceneScenes_00499c44[index]);
+                }
+            }
+            break;
+        }
+        *head = resource->next;
+        ReleasePacketHandle(resource);
+    }
+}
+
+/* Function start: 0x40ED9F */
+void ReleaseCutsceneFileResourceExceptPacket(
+    short owner, CutsceneResourceTable **head, void *retainedPacket)
+{
+    CutsceneResourceTable *resource;
+    short index;
+
+    resource = *head;
+    if (resource->owner == owner) {
+        index = resource->count;
+        while (index-- != 0) {
+            if (resource->loadedPackets[index] != retainedPacket) {
+                ReleasePacketSlot(
+                    &resource->loadedPackets[index]);
+            }
+        }
+        ReleasePacketSlot((void **)&resource->loadedPackets);
+        *head = resource->next;
+        ReleasePacketHandle(resource);
+    }
+}
+
+/* Function start: 0x40EE41 */
+void ReleaseCutsceneFileResource(short owner,
+                                 CutsceneResourceTable **head)
+{
+    CutsceneResourceTable *resource;
+    short index;
+
+    resource = *head;
+    if (resource->owner == owner) {
+        index = resource->count;
+        while (index-- != 0)
+            ReleaseLoadedCutsceneResource(resource, index);
+        ReleasePacketSlot((void **)&resource->loadedPackets);
+        *head = resource->next;
+        ReleasePacketHandle(resource);
+    }
+}
+
+/* Function start: 0x40EEC7 */
+void ReleaseCutsceneTextResource(short owner,
+                                 CutsceneTextResource **head)
+{
+    CutsceneTextResource *resource;
+
+    resource = *head;
+    if (resource->owner == owner) {
+        ReleasePacketSlot((void **)&resource->entries);
+        *head = resource->next;
+        ReleasePacketHandle(resource);
+    }
+}
+
+/* Function start: 0x40EF15 */
+void ReleaseCutsceneResourceLevel(short owner)
+{
+    ReleaseCutsceneObjectResource(
+        owner, &g_pCutsceneSpriteResources_0049288c, 0x54525053);
+    ReleaseCutsceneObjectResource(
+        owner, &g_pCutscenePlaneResources_00492890, 0x454e4c50);
+    ReleaseCutsceneObjectResource(
+        owner, &g_pCutsceneSequenceResources_00492894, 0x55514553);
+    ReleaseCutsceneObjectResource(
+        owner, &g_pCutsceneSceneResources_00492898, 0x454e4353);
+    if (owner != 0) {
+        ReleaseCutsceneFileResource(
+            owner, &g_pCutsceneMusicResources_004928bc);
+    }
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneFxResources_004928b8);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneFontResources_004928a0);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneSpeechResources_004928a4);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneShapeResources_004928a8);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneMouseResources_004928ac);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutscenePaletteResources_004928b0);
+    ReleaseCutsceneFileResource(
+        owner, &g_pCutsceneFilmResources_004928b4);
+    ReleaseCutsceneTextResource(
+        owner, &g_pCutsceneTextResources_0049289c);
+}
