@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
+const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
+
 unsigned short g_wSoundBlasterPort_0049bb58 = 0x220;
 unsigned short g_wSoundBlasterIrq_0049bb5c = 7;
 unsigned short g_wDigiPlaying_0049bb60 = 0;

@@ -141,10 +141,6 @@ const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 
 
-const int g_nJoystickUnavailableSample_0048e054 = -1;
-const int g_nViewportStaticRandomRange_0048e060 = 3;
-const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
-const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
 /* Raster library state: native storage is in src/raster.asm. */
 #ifdef SDL_PORT
 void *g_apRasterDriverCallbacks_00490278[13];

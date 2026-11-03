@@ -5,6 +5,8 @@
  */
 #include "game.h"
 
+const int g_nJoystickUnavailableSample_0048e054 = -1;
+
 signed char g_acExpectedGraphicsModes_00493078[5] = {
     0x13, 0x0d, 4, 9, 7
 };

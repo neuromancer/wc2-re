@@ -22,10 +22,43 @@ long g_nFramePeriodMilliseconds_005c343c =
 float g_fPreviousFrameRate_005c3440 =
     (float)g_nDisplayFrameRate_0049ce8c;
 
-const GUID g_guidDirectDraw2_0048e120 = {
+#ifndef SDL_PORT
+/* The DirectDraw GUIDs, instantiated here in the order of DirectX 3's
+ * ddraw.h (as INITGUID would).  The compiler's SDK ships the DirectX 2
+ * header, which lacks CLSID_DirectDrawClipper, so they are spelled out. */
+const GUID CLSID_DirectDraw = {
+    0xd7b70ee0, 0x4340, 0x11cf,
+    { 0xb0, 0x63, 0x00, 0x20, 0xaf, 0xc2, 0xcd, 0x35 }
+};
+const GUID CLSID_DirectDrawClipper = {
+    0x593817a0, 0x7db3, 0x11cf,
+    { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }
+};
+const GUID IID_IDirectDraw = {
+    0x6c14db80, 0xa733, 0x11ce,
+    { 0xa5, 0x21, 0x00, 0x20, 0xaf, 0x0b, 0xe5, 0x60 }
+};
+const GUID IID_IDirectDraw2 = {
     0xb3a6f3e0, 0x2b43, 0x11cf,
     { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }
 };
+const GUID IID_IDirectDrawSurface = {
+    0x6c14db81, 0xa733, 0x11ce,
+    { 0xa5, 0x21, 0x00, 0x20, 0xaf, 0x0b, 0xe5, 0x60 }
+};
+const GUID IID_IDirectDrawSurface2 = {
+    0x57805885, 0x6eec, 0x11cf,
+    { 0x94, 0x41, 0xa8, 0x23, 0x03, 0xc1, 0x0e, 0x27 }
+};
+const GUID IID_IDirectDrawPalette = {
+    0x6c14db84, 0xa733, 0x11ce,
+    { 0xa5, 0x21, 0x00, 0x20, 0xaf, 0x0b, 0xe5, 0x60 }
+};
+const GUID IID_IDirectDrawClipper = {
+    0x6c14db85, 0xa733, 0x11ce,
+    { 0xa5, 0x21, 0x00, 0x20, 0xaf, 0x0b, 0xe5, 0x60 }
+};
+#endif
 
 LPDIRECTDRAW2 g_pDirectDraw2_0049ce90 = 0;
 
@@ -277,7 +310,7 @@ void DIBinstall(HWND window)
         DIBerror("DIBInstall   Create", result);
 
     result = IDirectDraw_QueryInterface(
-        directDraw, g_guidDirectDraw2_0048e120,
+        directDraw, IID_IDirectDraw2,
         (void **)&g_pDirectDraw2_0049ce90);
     if (result != DD_OK)
         DIBerror("DIBInstall   Unable to acquire DirectDraw2 interface", result);

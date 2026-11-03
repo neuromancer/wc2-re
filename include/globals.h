@@ -678,7 +678,9 @@ extern char g_szRangeMetresSuffix_0049b504[4];
 extern char g_szTargetOffscreenRange_0049b508[8];
 extern char g_szTargetDataXmit_0049b510[12];
 extern short g_nSpacePaletteFadeMode_004901e8;
-extern const GUID g_guidDirectDraw2_0048e120;
+/* dib.cpp defines the DirectDraw GUIDs; this one is missing from the
+ * compiler's DirectX 2 ddraw.h (it takes the slot of an older name). */
+extern const GUID CLSID_DirectDrawClipper;
 extern LPDIRECTDRAW2 g_pDirectDraw2_0049ce90;
 extern short g_nCurrentWave_004931c0;
 extern short g_bUseEyePositionForHazards_0049327c;

@@ -8,10 +8,8 @@
 static char g_szWindowClassName_0049c278[45];
 static char g_szWindowTitle_0049c2a8[45];
 
-/* Base flight times and pitch windows for the four forward view bands. */
-static const signed char g_acHazardTravelTimeByView_00465048[8] = {
-    56, 52, 75, 73, 0, 0, 0, 0
-};
+/* The debug log writer is defined near the end of this unit. */
+void WriteDebugString(const char *s);
 
 /* Function start: 0x453C80 */
 unsigned int GetF1KeyLatch(void)
