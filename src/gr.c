@@ -3,6 +3,8 @@
  *
  *  Retail object 0x4254C0-0x4288FF (link order; see docs/ORDER.md).
  */
+/* This unit owns the gr storage declared in globals.h (as statics). */
+#define GR_C
 #include "game.h"
 
 const int g_nViewportStaticRandomRange_0048e060 = 3;
@@ -414,11 +416,6 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     clip->bottom = viewport->bottom - viewport->top;
 }
 
-/* Private uninitialized storage: this unit's .bss, which LINK orders by
- * the identifiers' hash keys. */
-static RasterSurface g_stRasterBitmap_004a2670;
-static RasterClip g_stScreenLimits_004b2088;
-
 /* Function start: 0x425B9E */
 void ClipViewportToScreen(Viewport *viewport)
 {
@@ -427,10 +424,6 @@ void ClipViewportToScreen(Viewport *viewport)
 }
 
 #pragma function(memset)
-/* Private uninitialized storage: this unit's .bss, which LINK orders by
- * the identifiers' hash keys. */
-static unsigned char g_abSolidColourTranslation_004b2710[256];
-
 /* Function start: 0x425BBF */
 void SetSolidColourTranslation(unsigned char colour)
 {
@@ -440,19 +433,6 @@ void SetSolidColourTranslation(unsigned char colour)
 }
 
 #pragma function(memcpy)
-/* Private uninitialized storage: this unit's .bss, which LINK orders by
- * the identifiers' hash keys. */
-static unsigned char g_abShapeRLEScratch_004b2810[0x100000];
-static unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
-
-/* The sprite background save and restore pair further down. */
-void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
-                             short frame);
-void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
-                             short x, short y, unsigned char *shape,
-                             short frame);
-
 /* Function start: 0x425BF6 */
 void PrepareShapeRLEData(unsigned char *shape)
 {

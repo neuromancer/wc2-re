@@ -469,37 +469,45 @@ extern signed char g_bAutopilotDebugEnabled_00499bfc;
 extern signed char g_bRoomTransitionAnimationEnabled_00499c00;
 extern unsigned char g_bMemoryLogToFile_00499bf8;
 extern FILE *g_pMemoryLogFile_00499da8;
-extern int g_nWipeRadialStep_005b30f8;
-extern int g_nWipeRadialAccumulator_005b3100;
-extern int g_nWipeRadialThreshold_005b30fc;
-extern short g_asWipeRadialLeadingEdges_005b3108[200];
-extern short g_asWipeRadialTrailingEdges_005b3298[200];
-extern short g_nWipeShortDimension_005b3428;
-extern signed char g_bWipeWidthAtLeastHeight_005b342c;
-extern signed char g_bWipeWidthLessThanHeight_005b3430;
-extern short g_nWipeProgress_005b3434;
-extern short *g_pWipeLeadingEdges_005b3438;
-extern short *g_pWipeTrailingEdges_005b343c;
-extern short g_nWipeTotalSteps_005b3440;
-extern int g_nWipeType_005b3444;
-extern short g_nWipeWidth_005b3448;
-extern short g_nWipeHeight_005b344c;
-extern Viewport g_stWipeDestinationViewport_005b3450;
-extern short g_nWipeCurrentHorizontalEdge_005b3464;
-extern short g_nWipeCurrentVerticalEdge_005b3468;
-extern short g_nWipePreviousHorizontalEdge_005b346c;
-extern short g_nWipePreviousVerticalEdge_005b3470;
-extern int g_nWipeHorizontalStep_005b3478;
-extern int g_nWipeHorizontalAccumulator_005b3480;
-extern int g_nWipeHorizontalThreshold_005b347c;
-extern Viewport g_stWipeSourceViewport_005b3488;
-extern Viewport g_stWipeWorkingDestinationViewport_005b34a0;
-extern short g_nWipePassFlags_005b34b4;
-extern int g_nWipeVerticalStep_005b34b8;
-extern int g_nWipeVerticalAccumulator_005b34c0;
-extern int g_nWipeVerticalThreshold_005b34bc;
-extern short g_nWipeMaximumStep_005b34c4;
-extern Viewport g_stWipeWorkingSourceViewport_005b34c8;
+/* wipe.c keeps this storage private: it defines WIPE_C before including the
+ * game headers, so these become its statics at their header positions and
+ * keep the symbol numbering; every other unit sees external declarations. */
+#ifdef WIPE_C
+#define WIPE_STATIC static
+#else
+#define WIPE_STATIC extern
+#endif
+WIPE_STATIC int g_nBlendRadialStep_005b30f8;
+WIPE_STATIC int g_nWipeRadialAccumulator_005b3100;
+WIPE_STATIC int g_nFadeRadialThreshold_005b30fc;
+WIPE_STATIC short g_asWipeRadialLeadingEdge_005b3108[200];
+WIPE_STATIC short g_asWipeRadialTrailingEdges_005b3298[200];
+WIPE_STATIC short g_nWipeMinorExtent_005b3428;
+WIPE_STATIC signed char g_bWipeWidthAtLeastHeight_005b342c;
+WIPE_STATIC signed char g_bBlendWidthLessThanHeight_005b3430;
+WIPE_STATIC short g_nDissolveProgress_005b3434;
+WIPE_STATIC short *g_pWipeFrontEdges_005b3438;
+WIPE_STATIC short *g_pWipeRearEdges_005b343c;
+WIPE_STATIC short g_nWipeTotalStages_005b3440;
+WIPE_STATIC int g_nFadeType_005b3444;
+WIPE_STATIC short g_nFadeWidth_005b3448;
+WIPE_STATIC short g_nBlendHeight_005b344c;
+WIPE_STATIC Viewport g_stFadeToView_005b3450;
+WIPE_STATIC short g_nFadeCurrentHorizontalEdge_005b3464;
+WIPE_STATIC short g_nWipeCurrentVerticalEdges_005b3468;
+WIPE_STATIC short g_nWipePreviousAcrossEdge_005b346c;
+WIPE_STATIC short g_nFadePreviousVerticalEdge_005b3470;
+WIPE_STATIC int g_nWipeAcrossStride_005b3478;
+WIPE_STATIC int g_nBlendHorizontalTotal_005b3480;
+WIPE_STATIC int g_nWipeAcrossThreshold_005b347c;
+WIPE_STATIC Viewport g_stDissolveSourceViewport_005b3488;
+WIPE_STATIC Viewport g_stWipeTempDestinationViewport_005b34a0;
+WIPE_STATIC short g_nWipeRoundFlags_005b34b4;
+WIPE_STATIC int g_nRevealVerticalDelta_005b34b8;
+WIPE_STATIC int g_nTransitionVertSum_005b34c0;
+WIPE_STATIC int g_nRevealVertThreshold_005b34bc;
+WIPE_STATIC short g_nBlendMaximumStep_005b34c4;
+WIPE_STATIC Viewport g_stWipeScratchSourcePort_005b34c8;
 extern short g_nWipeRadialRowCount_005d17b4;
 extern short g_bExpandedShipGraphicsEnabled_004931a4;
 extern short g_nExpandedShipMemoryKb_0049cbac;
@@ -605,7 +613,7 @@ extern short g_nInFlightMusicActive_0049bf08;
 extern short g_nPassingShipSoundObject_0049bf10;
 extern short g_nPassingShipSoundCountdown_0049bf14;
 /* A literal in music.c; dead name kept for the header's symbol count. */
-extern char g_szSfxWaveFormat_0049c22c[12];
+WIPE_STATIC int g_nWipeUnusedValue_005b3474; /* never referenced */
 extern unsigned char g_abTaggedAllocationPrefix_0049ca40[8];
 extern short g_nEnemyTauntCommandBase_0049b76c;
 extern short g_nCommMenuChoiceCount_0049b770;
@@ -815,14 +823,28 @@ extern char g_szReadDataFileError_005b3848[0x40];
 extern char g_szCreateDataFileError_005b3888[0x40];
 extern char g_szWriteDataFileError_005b38c8[0x40];
 extern char g_szSeekDataFileError_005b3908[0x80];
-extern int g_bMonoDebugInstalledSlot_005b30e8;
-extern HANDLE g_hMonoDebugDeviceSlot_005b30ec;
+/* mono.c keeps this storage private: it defines MONO_C before including the
+ * game headers, so these become its statics at their header positions. */
+#ifdef MONO_C
+#define MONO_STATIC static
+#else
+#define MONO_STATIC extern
+#endif
+MONO_STATIC int g_bMonoDebugInstalled_005b30e8;
+MONO_STATIC HANDLE g_hMonoDebugDevice_005b30ec;
 extern WaveTableEntry *g_pSnowStaticClip_004a2654;
 extern IxSound *g_pSnowStaticAudio_004a2664;
 extern int g_nKeyboardMouseButtons_005b3648;
 extern char g_szSfxWavePath_005b3650[0x40];
-extern short DATSlot_005b30f0;
-extern unsigned char g_bCurrentManeuverRerollSlot_005b30f4;
+/* fl.c keeps this storage private: it defines FL_C before including the
+ * game headers, so these become its statics at their header positions. */
+#ifdef FL_C
+#define FL_STATIC static
+#else
+#define FL_STATIC extern
+#endif
+FL_STATIC short g_nShipAiScratchValue_005b30f0;
+FL_STATIC unsigned char g_bCurrentManeuverReroll_005b30f4;
 extern DebugOverlayConsole *g_pDiagnosticOverlay_004a2548;
 extern char g_szSystemDebugBuffer_004a2550[256];
 extern unsigned int DAT_005b3970;
@@ -839,11 +861,18 @@ extern int g_bDibSlamEnabled_0049cec0;
 extern char g_szSpaceFlightMaxFpsMessage_005c3970[0x80];
 /* gr.c keeps its raster and shape scratch storage in statics; these dead
  * "Slot" names hold the header's symbol count. */
-extern RasterSurface g_stRasterSurfaceSlot_004a2670;
-extern unsigned char g_abShapeTransformScratchSlot_004a2688[0xfa00];
-extern RasterClip g_stRasterClipSlot_004b2088;
-extern unsigned char g_abSolidColourTranslationSlot_004b2710[256];
-extern unsigned char g_abShapeRLEScratchSlot_004b2810[0x100000];
+/* gr.c keeps this storage private: it defines GR_C before including the
+ * game headers, so these become its statics at their header positions. */
+#ifdef GR_C
+#define GR_STATIC static
+#else
+#define GR_STATIC extern
+#endif
+GR_STATIC RasterSurface g_stRasterBitmap_004a2670;
+GR_STATIC unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
+GR_STATIC RasterClip g_stScreenLimits_004b2088;
+GR_STATIC unsigned char g_abSolidColourTranslation_004b2710[256];
+GR_STATIC unsigned char g_abShapeRLEScratch_004b2810[0x100000];
 extern unsigned char *g_pMissionCampaignData_005988bc;
 extern PilotRecord g_aPilotRecords_005988d0[9];
 extern ConstellationObjectDefinition

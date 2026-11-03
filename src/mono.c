@@ -3,14 +3,11 @@
  *
  *  Retail object 0x4377F0-0x4379EF (link order; see docs/ORDER.md).
  */
+/* This unit owns the mono storage declared in globals.h (as statics). */
+#define MONO_C
 #include "game.h"
 
 char g_szSoundDebugBuffer_005d1f00[0xfa0];
-
-/* Private uninitialized storage: this unit's .bss, ordered by the
- * identifiers' hash keys. */
-static int g_bMonoDebugInstalled_005b30e8;
-static HANDLE g_hMonoDebugDevice_005b30ec;
 
 /* Function start: 0x4377F0 */
 void MonoDebug_install(void)

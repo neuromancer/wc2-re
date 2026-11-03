@@ -3,6 +3,8 @@
  *
  *  Retail object 0x440490-0x44276F (link order; see docs/ORDER.md).
  */
+/* This unit owns the fl storage declared in globals.h (as statics). */
+#define FL_C
 #include "game.h"
 
 unsigned char g_abManeuverRerollChance_0049b538[50] = {
@@ -131,10 +133,6 @@ void chase_speed(short obj, short range)
                            g_acShipTarget_00495f20[obj]]);
     }
 }
-
-/* Private uninitialized storage: this unit's .bss, ordered by the
- * identifiers' hash keys. */
-static short g_nShipAiScratchValue_005b30f0;
 
 /* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
@@ -1021,10 +1019,6 @@ void Mreset(short ship)
 {
     maneuver_complete(ship);
 }
-
-/* Private uninitialized storage: this unit's .bss, ordered by the
- * identifiers' hash keys. */
-static unsigned char g_bCurrentManeuverReroll_005b30f4;
 
 /* Function start: 0x4424E4 */
 void perform_maneuver(short obj)

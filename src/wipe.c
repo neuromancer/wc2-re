@@ -3,6 +3,8 @@
  *
  *  Retail object 0x448570-0x44ADDF (link order; see docs/ORDER.md).
  */
+/* This unit owns the wipe storage declared in globals.h (as statics). */
+#define WIPE_C
 #include "game.h"
 
 #pragma function(sqrt)
@@ -16,18 +18,18 @@ signed char InitializeViewportWipe(Viewport *source,
     int halfHeight;
     short scanline;
 
-    g_stWipeSourceViewport_005b3488 = *source;
-    g_stWipeWorkingSourceViewport_005b34c8 =
-        g_stWipeSourceViewport_005b3488;
-    g_stWipeDestinationViewport_005b3450 = *destination;
-    g_stWipeWorkingDestinationViewport_005b34a0 =
-        g_stWipeDestinationViewport_005b3450;
-    g_nWipeType_005b3444 = wipeType;
-    g_nWipePassFlags_005b34b4 = passFlags;
-    g_nWipeProgress_005b3434 = 0;
+    g_stDissolveSourceViewport_005b3488 = *source;
+    g_stWipeScratchSourcePort_005b34c8 =
+        g_stDissolveSourceViewport_005b3488;
+    g_stFadeToView_005b3450 = *destination;
+    g_stWipeTempDestinationViewport_005b34a0 =
+        g_stFadeToView_005b3450;
+    g_nFadeType_005b3444 = wipeType;
+    g_nWipeRoundFlags_005b34b4 = passFlags;
+    g_nDissolveProgress_005b3434 = 0;
     duration = 15;
 
-    switch (g_nWipeType_005b3444) {
+    switch (g_nFadeType_005b3444) {
     case 0:
     case 1:
     case 2:
@@ -38,199 +40,199 @@ signed char InitializeViewportWipe(Viewport *source,
     case 7:
     case 8:
     case 9:
-        g_nWipeWidth_005b3448 =
+        g_nFadeWidth_005b3448 =
             destination->right - destination->left + 1;
-        g_nWipeHeight_005b344c =
+        g_nBlendHeight_005b344c =
             destination->bottom - destination->top + 1;
-        if (g_nWipeHeight_005b344c <= g_nWipeWidth_005b3448) {
+        if (g_nBlendHeight_005b344c <= g_nFadeWidth_005b3448) {
             g_bWipeWidthAtLeastHeight_005b342c = 1;
-            g_bWipeWidthLessThanHeight_005b3430 = 0;
-            g_nWipeShortDimension_005b3428 = g_nWipeWidth_005b3448;
+            g_bBlendWidthLessThanHeight_005b3430 = 0;
+            g_nWipeMinorExtent_005b3428 = g_nFadeWidth_005b3448;
         } else {
             g_bWipeWidthAtLeastHeight_005b342c = 0;
-            g_bWipeWidthLessThanHeight_005b3430 = 1;
-            g_nWipeShortDimension_005b3428 = g_nWipeHeight_005b344c;
+            g_bBlendWidthLessThanHeight_005b3430 = 1;
+            g_nWipeMinorExtent_005b3428 = g_nBlendHeight_005b344c;
         }
         break;
     }
 
-    switch (g_nWipeType_005b3444) {
+    switch (g_nFadeType_005b3444) {
     case 0:
         SetViewportVerticalBounds(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            g_stWipeSourceViewport_005b3488.top - 1,
-            g_stWipeSourceViewport_005b3488.top - 1);
+            &g_stWipeScratchSourcePort_005b34c8,
+            g_stDissolveSourceViewport_005b3488.top - 1,
+            g_stDissolveSourceViewport_005b3488.top - 1);
         SetViewportVerticalBounds(
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_stWipeDestinationViewport_005b3450.top - 1,
-            g_stWipeDestinationViewport_005b3450.top - 1);
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeHeight_005b344c + 1;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeHeight_005b344c + 1 < duration
-                ? g_nWipeHeight_005b344c + 1
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_stFadeToView_005b3450.top - 1,
+            g_stFadeToView_005b3450.top - 1);
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nBlendHeight_005b344c + 1;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nBlendHeight_005b344c + 1 < duration
+                ? g_nBlendHeight_005b344c + 1
                 : duration);
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
         break;
     case 1:
         SetViewportHorizontalBounds(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            g_stWipeSourceViewport_005b3488.right + 1,
-            g_stWipeSourceViewport_005b3488.right + 1);
+            &g_stWipeScratchSourcePort_005b34c8,
+            g_stDissolveSourceViewport_005b3488.right + 1,
+            g_stDissolveSourceViewport_005b3488.right + 1);
         SetViewportHorizontalBounds(
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_stWipeDestinationViewport_005b3450.right + 1,
-            g_stWipeDestinationViewport_005b3450.right + 1);
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeWidth_005b3448 + 1 < duration
-                ? g_nWipeWidth_005b3448 + 1
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_stFadeToView_005b3450.right + 1,
+            g_stFadeToView_005b3450.right + 1);
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nFadeWidth_005b3448 + 1 < duration
+                ? g_nFadeWidth_005b3448 + 1
                 : duration);
-        g_nWipeHorizontalStep_005b3478 = g_nWipeMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nBlendMaximumStep_005b34c4;
         break;
     case 2:
         SetViewportVerticalBounds(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            g_stWipeSourceViewport_005b3488.bottom + 1,
-            g_stWipeSourceViewport_005b3488.bottom + 1);
+            &g_stWipeScratchSourcePort_005b34c8,
+            g_stDissolveSourceViewport_005b3488.bottom + 1,
+            g_stDissolveSourceViewport_005b3488.bottom + 1);
         SetViewportVerticalBounds(
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_stWipeDestinationViewport_005b3450.bottom + 1,
-            g_stWipeDestinationViewport_005b3450.bottom + 1);
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeHeight_005b344c + 1;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeHeight_005b344c + 1 < duration
-                ? g_nWipeHeight_005b344c + 1
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_stFadeToView_005b3450.bottom + 1,
+            g_stFadeToView_005b3450.bottom + 1);
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nBlendHeight_005b344c + 1;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nBlendHeight_005b344c + 1 < duration
+                ? g_nBlendHeight_005b344c + 1
                 : duration);
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
         break;
     case 3:
         SetViewportHorizontalBounds(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            g_stWipeSourceViewport_005b3488.left - 1,
-            g_stWipeSourceViewport_005b3488.left - 1);
+            &g_stWipeScratchSourcePort_005b34c8,
+            g_stDissolveSourceViewport_005b3488.left - 1,
+            g_stDissolveSourceViewport_005b3488.left - 1);
         SetViewportHorizontalBounds(
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_stWipeDestinationViewport_005b3450.left - 1,
-            g_stWipeDestinationViewport_005b3450.left - 1);
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeWidth_005b3448 + 1 < duration
-                ? g_nWipeWidth_005b3448 + 1
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_stFadeToView_005b3450.left - 1,
+            g_stFadeToView_005b3450.left - 1);
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nFadeWidth_005b3448 + 1 < duration
+                ? g_nFadeWidth_005b3448 + 1
                 : duration);
-        g_nWipeHorizontalStep_005b3478 = g_nWipeMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nBlendMaximumStep_005b34c4;
         break;
     case 4:
-        g_nWipePreviousHorizontalEdge_005b346c = -1;
-        g_nWipePreviousVerticalEdge_005b3470 = -1;
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 =
+        g_nWipePreviousAcrossEdge_005b346c = -1;
+        g_nFadePreviousVerticalEdge_005b3470 = -1;
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 =
             (short)(duration < 320 ? duration : 320);
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
-        g_nWipeHorizontalStep_005b3478 = g_nWipeVerticalStep_005b34b8;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nRevealVerticalDelta_005b34b8;
         break;
     case 5:
-        g_nWipePreviousHorizontalEdge_005b346c =
-            g_stWipeSourceViewport_005b3488.right -
-            g_stWipeSourceViewport_005b3488.left + 1;
-        g_nWipePreviousVerticalEdge_005b3470 = -1;
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 =
+        g_nWipePreviousAcrossEdge_005b346c =
+            g_stDissolveSourceViewport_005b3488.right -
+            g_stDissolveSourceViewport_005b3488.left + 1;
+        g_nFadePreviousVerticalEdge_005b3470 = -1;
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 =
             (short)(duration < 320 ? duration : 320);
-        g_nWipeHorizontalStep_005b3478 = g_nWipeMaximumStep_005b34c4;
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nBlendMaximumStep_005b34c4;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
         break;
     case 6:
-        g_nWipePreviousHorizontalEdge_005b346c =
-            g_stWipeSourceViewport_005b3488.right -
-            g_stWipeSourceViewport_005b3488.left + 1;
-        g_nWipePreviousVerticalEdge_005b3470 =
-            g_stWipeSourceViewport_005b3488.bottom -
-            g_stWipeSourceViewport_005b3488.top + 1;
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 =
+        g_nWipePreviousAcrossEdge_005b346c =
+            g_stDissolveSourceViewport_005b3488.right -
+            g_stDissolveSourceViewport_005b3488.left + 1;
+        g_nFadePreviousVerticalEdge_005b3470 =
+            g_stDissolveSourceViewport_005b3488.bottom -
+            g_stDissolveSourceViewport_005b3488.top + 1;
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 =
             (short)(duration < 320 ? duration : 320);
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
-        g_nWipeHorizontalStep_005b3478 = g_nWipeVerticalStep_005b34b8;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nRevealVerticalDelta_005b34b8;
         break;
     case 7:
-        g_nWipePreviousHorizontalEdge_005b346c = -1;
-        g_nWipePreviousVerticalEdge_005b3470 =
-            g_stWipeSourceViewport_005b3488.bottom -
-            g_stWipeSourceViewport_005b3488.top + 1;
-        g_nWipeHorizontalThreshold_005b347c = g_nWipeWidth_005b3448 + 1;
-        g_nWipeVerticalThreshold_005b34bc = g_nWipeHeight_005b344c + 1;
-        g_nWipeTotalSteps_005b3440 = g_nWipeWidth_005b3448 + 1;
-        g_nWipeMaximumStep_005b34c4 =
+        g_nWipePreviousAcrossEdge_005b346c = -1;
+        g_nFadePreviousVerticalEdge_005b3470 =
+            g_stDissolveSourceViewport_005b3488.bottom -
+            g_stDissolveSourceViewport_005b3488.top + 1;
+        g_nWipeAcrossThreshold_005b347c = g_nFadeWidth_005b3448 + 1;
+        g_nRevealVertThreshold_005b34bc = g_nBlendHeight_005b344c + 1;
+        g_nWipeTotalStages_005b3440 = g_nFadeWidth_005b3448 + 1;
+        g_nBlendMaximumStep_005b34c4 =
             (short)(duration < 320 ? duration : 320);
-        g_nWipeVerticalStep_005b34b8 = g_nWipeMaximumStep_005b34c4;
-        g_nWipeHorizontalStep_005b3478 = g_nWipeVerticalStep_005b34b8;
+        g_nRevealVerticalDelta_005b34b8 = g_nBlendMaximumStep_005b34c4;
+        g_nWipeAcrossStride_005b3478 = g_nRevealVerticalDelta_005b34b8;
         break;
     case 8:
         g_nWipeRadialAccumulator_005b3100 = 0;
-        g_nWipeRadialRowCount_005d17b4 = g_nWipeHeight_005b344c / 2 + 1;
-        g_pWipeLeadingEdges_005b3438 =
-            g_asWipeRadialLeadingEdges_005b3108;
-        g_pWipeTrailingEdges_005b343c =
+        g_nWipeRadialRowCount_005d17b4 = g_nBlendHeight_005b344c / 2 + 1;
+        g_pWipeFrontEdges_005b3438 =
+            g_asWipeRadialLeadingEdge_005b3108;
+        g_pWipeRearEdges_005b343c =
             g_asWipeRadialTrailingEdges_005b3298;
-        halfWidth = g_nWipeWidth_005b3448;
-        halfHeight = g_nWipeHeight_005b344c;
-        g_nWipeTotalSteps_005b3440 = (short)(
+        halfWidth = g_nFadeWidth_005b3448;
+        halfHeight = g_nBlendHeight_005b344c;
+        g_nWipeTotalStages_005b3440 = (short)(
             sqrt((double)(halfHeight * halfHeight +
                           halfWidth * halfWidth)) /
             2.0 + 1.0);
-        g_nWipeRadialThreshold_005b30fc = g_nWipeTotalSteps_005b3440 + 2;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeTotalSteps_005b3440 + 2 < duration
-                ? g_nWipeTotalSteps_005b3440 + 2
+        g_nFadeRadialThreshold_005b30fc = g_nWipeTotalStages_005b3440 + 2;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nWipeTotalStages_005b3440 + 2 < duration
+                ? g_nWipeTotalStages_005b3440 + 2
                 : duration);
-        g_nWipeRadialStep_005b30f8 = g_nWipeMaximumStep_005b34c4;
+        g_nBlendRadialStep_005b30f8 = g_nBlendMaximumStep_005b34c4;
         for (scanline = 0; scanline < 200; scanline++) {
-            g_pWipeLeadingEdges_005b3438[scanline] = -1;
-            g_pWipeTrailingEdges_005b343c[scanline] = -1;
+            g_pWipeFrontEdges_005b3438[scanline] = -1;
+            g_pWipeRearEdges_005b343c[scanline] = -1;
         }
         break;
     case 9:
         g_nWipeRadialAccumulator_005b3100 = 0;
-        g_nWipeRadialRowCount_005d17b4 = g_nWipeHeight_005b344c / 2 + 1;
-        g_pWipeLeadingEdges_005b3438 =
-            g_asWipeRadialLeadingEdges_005b3108;
-        g_pWipeTrailingEdges_005b343c =
+        g_nWipeRadialRowCount_005d17b4 = g_nBlendHeight_005b344c / 2 + 1;
+        g_pWipeFrontEdges_005b3438 =
+            g_asWipeRadialLeadingEdge_005b3108;
+        g_pWipeRearEdges_005b343c =
             g_asWipeRadialTrailingEdges_005b3298;
-        halfWidth = g_nWipeWidth_005b3448;
-        halfHeight = g_nWipeHeight_005b344c;
-        g_nWipeTotalSteps_005b3440 = (short)(
+        halfWidth = g_nFadeWidth_005b3448;
+        halfHeight = g_nBlendHeight_005b344c;
+        g_nWipeTotalStages_005b3440 = (short)(
             sqrt((double)(halfHeight * halfHeight +
                           halfWidth * halfWidth)) /
             2.0 + 1.0);
-        g_nWipeRadialThreshold_005b30fc = g_nWipeTotalSteps_005b3440 + 1;
-        g_nWipeMaximumStep_005b34c4 = (short)(
-            g_nWipeTotalSteps_005b3440 + 1 < duration
-                ? g_nWipeTotalSteps_005b3440 + 1
+        g_nFadeRadialThreshold_005b30fc = g_nWipeTotalStages_005b3440 + 1;
+        g_nBlendMaximumStep_005b34c4 = (short)(
+            g_nWipeTotalStages_005b3440 + 1 < duration
+                ? g_nWipeTotalStages_005b3440 + 1
                 : duration);
-        g_nWipeRadialStep_005b30f8 = g_nWipeMaximumStep_005b34c4;
+        g_nBlendRadialStep_005b30f8 = g_nBlendMaximumStep_005b34c4;
         for (scanline = 0; scanline < g_nWipeRadialRowCount_005d17b4; scanline++) {
-            g_pWipeLeadingEdges_005b3438[scanline] = 300;
-            g_pWipeTrailingEdges_005b343c[scanline] = 300;
+            g_pWipeFrontEdges_005b3438[scanline] = 300;
+            g_pWipeRearEdges_005b343c[scanline] = 300;
         }
         break;
     }
 
-    g_nWipeHorizontalAccumulator_005b3480 =
-        g_nWipeHorizontalStep_005b3478 >> 2;
-    g_nWipeVerticalAccumulator_005b34c0 =
-        g_nWipeVerticalStep_005b34b8 >> 2;
+    g_nBlendHorizontalTotal_005b3480 =
+        g_nWipeAcrossStride_005b3478 >> 2;
+    g_nTransitionVertSum_005b34c0 =
+        g_nRevealVerticalDelta_005b34b8 >> 2;
     g_nWipeRadialAccumulator_005b3100 =
-        g_nWipeRadialStep_005b30f8 >> 2;
+        g_nBlendRadialStep_005b30f8 >> 2;
     (void)workspace;
     return 1;
 }
@@ -256,621 +258,621 @@ signed char AdvanceViewportWipe(void *workspace)
     short horizontalCount;
     short *edgeSwap;
 
-    switch (g_nWipeType_005b3444) {
+    switch (g_nFadeType_005b3444) {
     case 0:
         verticalCount = 0;
-        while (g_nWipeVerticalThreshold_005b34bc >
-                   g_nWipeVerticalAccumulator_005b34c0 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        while (g_nRevealVertThreshold_005b34bc >
+                   g_nTransitionVertSum_005b34c0 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
             SetViewportVerticalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.bottom + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.bottom +
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.bottom + 1,
+                g_stWipeScratchSourcePort_005b34c8.bottom +
                     verticalCount);
             SetViewportVerticalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.bottom + 1,
-                g_stWipeWorkingDestinationViewport_005b34a0.bottom +
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.bottom + 1,
+                g_stWipeTempDestinationViewport_005b34a0.bottom +
                     verticalCount);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         } else {
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 0, 1, 0, verticalCount);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 0, 1, 0, verticalCount);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 0, -1, 0, 0);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 0, -1, 0, 0);
         }
         break;
     case 1:
         horizontalCount = 0;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.left -
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.left -
                     horizontalCount,
-                g_stWipeWorkingSourceViewport_005b34c8.left - 1);
+                g_stWipeScratchSourcePort_005b34c8.left - 1);
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.left -
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.left -
                     horizontalCount,
-                g_stWipeWorkingDestinationViewport_005b34a0.left - 1);
+                g_stWipeTempDestinationViewport_005b34a0.left - 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         } else {
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 -horizontalCount, 0, -1, 0);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 -horizontalCount, 0, -1, 0);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 0, 0, 1, 0);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 0, 0, 1, 0);
         }
         break;
     case 2:
         verticalCount = 0;
-        while (g_nWipeVerticalThreshold_005b34bc >
-                   g_nWipeVerticalAccumulator_005b34c0 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        while (g_nRevealVertThreshold_005b34bc >
+                   g_nTransitionVertSum_005b34c0 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
             SetViewportVerticalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.top - verticalCount,
-                g_stWipeWorkingSourceViewport_005b34c8.top - 1);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.top - verticalCount,
+                g_stWipeScratchSourcePort_005b34c8.top - 1);
             SetViewportVerticalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.top -
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.top -
                     verticalCount,
-                g_stWipeWorkingDestinationViewport_005b34a0.top - 1);
+                g_stWipeTempDestinationViewport_005b34a0.top - 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         } else {
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 0, -verticalCount, 0, -1);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 0, -verticalCount, 0, -1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 0, 0, 0, 1);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 0, 0, 0, 1);
         }
         break;
     case 3:
         horizontalCount = 0;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.right + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.right +
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.right + 1,
+                g_stWipeScratchSourcePort_005b34c8.right +
                     horizontalCount);
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.right + 1,
-                g_stWipeWorkingDestinationViewport_005b34a0.right +
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.right + 1,
+                g_stWipeTempDestinationViewport_005b34a0.right +
                     horizontalCount);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         } else {
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 1, 0, horizontalCount, 0);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 1, 0, horizontalCount, 0);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             OffsetViewportBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
+                &g_stWipeScratchSourcePort_005b34c8,
                 -1, 0, 0, 0);
             OffsetViewportBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
+                &g_stWipeTempDestinationViewport_005b34a0,
                 -1, 0, 0, 0);
         }
         break;
     case 4:
         verticalCount = 0;
         horizontalCount = verticalCount;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        while (g_nWipeVerticalThreshold_005b34bc >
-               g_nWipeVerticalAccumulator_005b34c0) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        while (g_nRevealVertThreshold_005b34bc >
+               g_nTransitionVertSum_005b34c0) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        g_nWipeCurrentHorizontalEdge_005b3464 =
-            horizontalCount + g_nWipePreviousHorizontalEdge_005b346c;
-        g_nWipeCurrentVerticalEdge_005b3468 =
-            verticalCount + g_nWipePreviousVerticalEdge_005b3470;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0 &&
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        g_nFadeCurrentHorizontalEdge_005b3464 =
+            horizontalCount + g_nWipePreviousAcrossEdge_005b346c;
+        g_nWipeCurrentVerticalEdges_005b3468 =
+            verticalCount + g_nFadePreviousVerticalEdge_005b3470;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0 &&
                 horizontalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeSourceViewport_005b3488.top,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stDissolveSourceViewport_005b3488.top,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeDestinationViewport_005b3450.top,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stFadeToView_005b3450.top,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             if (verticalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470 + 1,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipeCurrentVerticalEdge_005b3468);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470 + 1,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nWipeCurrentVerticalEdges_005b3468);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470 + 1,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipeCurrentVerticalEdge_005b3468);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470 + 1,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nWipeCurrentVerticalEdges_005b3468);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
         } else {
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left,
-                g_stWipeSourceViewport_005b3488.top,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left,
+                g_stDissolveSourceViewport_005b3488.top,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left,
-                g_stWipeDestinationViewport_005b3450.top,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left,
+                g_stFadeToView_005b3450.top,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         }
         break;
     case 5:
         verticalCount = 0;
         horizontalCount = verticalCount;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        while (g_nWipeVerticalThreshold_005b34bc >
-               g_nWipeVerticalAccumulator_005b34c0) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        while (g_nRevealVertThreshold_005b34bc >
+               g_nTransitionVertSum_005b34c0) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        g_nWipeCurrentHorizontalEdge_005b3464 =
-            g_nWipePreviousHorizontalEdge_005b346c - horizontalCount;
-        g_nWipeCurrentVerticalEdge_005b3468 =
-            verticalCount + g_nWipePreviousVerticalEdge_005b3470;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0 &&
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        g_nFadeCurrentHorizontalEdge_005b3464 =
+            g_nWipePreviousAcrossEdge_005b346c - horizontalCount;
+        g_nWipeCurrentVerticalEdges_005b3468 =
+            verticalCount + g_nFadePreviousVerticalEdge_005b3470;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0 &&
                 horizontalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             if (verticalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470 + 1,
-                    g_stWipeSourceViewport_005b3488.right,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipeCurrentVerticalEdge_005b3468);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470 + 1,
+                    g_stDissolveSourceViewport_005b3488.right,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nWipeCurrentVerticalEdges_005b3468);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470 + 1,
-                    g_stWipeDestinationViewport_005b3450.right,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipeCurrentVerticalEdge_005b3468);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470 + 1,
+                    g_stFadeToView_005b3450.right,
+                    g_stFadeToView_005b3450.top +
+                        g_nWipeCurrentVerticalEdges_005b3468);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
         } else {
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top,
-                g_stWipeSourceViewport_005b3488.right,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top,
+                g_stDissolveSourceViewport_005b3488.right,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top,
-                g_stWipeDestinationViewport_005b3450.right,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top,
+                g_stFadeToView_005b3450.right,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         }
         break;
     case 6:
         verticalCount = 0;
         horizontalCount = verticalCount;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        while (g_nWipeVerticalThreshold_005b34bc >
-               g_nWipeVerticalAccumulator_005b34c0) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        while (g_nRevealVertThreshold_005b34bc >
+               g_nTransitionVertSum_005b34c0) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        g_nWipeCurrentHorizontalEdge_005b3464 =
-            g_nWipePreviousHorizontalEdge_005b346c - horizontalCount;
-        g_nWipeCurrentVerticalEdge_005b3468 =
-            g_nWipePreviousVerticalEdge_005b3470 - verticalCount;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            if (g_nWipePreviousVerticalEdge_005b3470 <=
-                    g_stWipeSourceViewport_005b3488.bottom -
-                        g_stWipeSourceViewport_005b3488.top &&
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        g_nFadeCurrentHorizontalEdge_005b3464 =
+            g_nWipePreviousAcrossEdge_005b346c - horizontalCount;
+        g_nWipeCurrentVerticalEdges_005b3468 =
+            g_nFadePreviousVerticalEdge_005b3470 - verticalCount;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            if (g_nFadePreviousVerticalEdge_005b3470 <=
+                    g_stDissolveSourceViewport_005b3488.bottom -
+                        g_stDissolveSourceViewport_005b3488.top &&
                 horizontalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeSourceViewport_005b3488.bottom);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stDissolveSourceViewport_005b3488.bottom);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeDestinationViewport_005b3450.bottom);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stFadeToView_005b3450.bottom);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             if (verticalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipeCurrentVerticalEdge_005b3468,
-                    g_stWipeSourceViewport_005b3488.right,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470 - 1);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nWipeCurrentVerticalEdges_005b3468,
+                    g_stDissolveSourceViewport_005b3488.right,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470 - 1);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipeCurrentVerticalEdge_005b3468,
-                    g_stWipeDestinationViewport_005b3450.right,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470 - 1);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nWipeCurrentVerticalEdges_005b3468,
+                    g_stFadeToView_005b3450.right,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470 - 1);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
         } else {
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeSourceViewport_005b3488.right,
-                g_stWipeSourceViewport_005b3488.bottom);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stDissolveSourceViewport_005b3488.right,
+                g_stDissolveSourceViewport_005b3488.bottom);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeDestinationViewport_005b3450.right,
-                g_stWipeDestinationViewport_005b3450.bottom);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stFadeToView_005b3450.right,
+                g_stFadeToView_005b3450.bottom);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         }
         break;
     case 7:
         verticalCount = 0;
         horizontalCount = verticalCount;
-        while (g_nWipeHorizontalThreshold_005b347c >
-                   g_nWipeHorizontalAccumulator_005b3480 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
-            g_nWipeHorizontalAccumulator_005b3480 +=
-                g_nWipeHorizontalStep_005b3478;
+        while (g_nWipeAcrossThreshold_005b347c >
+                   g_nBlendHorizontalTotal_005b3480 &&
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
+            g_nBlendHorizontalTotal_005b3480 +=
+                g_nWipeAcrossStride_005b3478;
             horizontalCount++;
-            g_nWipeProgress_005b3434++;
+            g_nDissolveProgress_005b3434++;
         }
-        g_nWipeHorizontalAccumulator_005b3480 -=
-            g_nWipeHorizontalThreshold_005b347c;
-        while (g_nWipeVerticalThreshold_005b34bc >
-               g_nWipeVerticalAccumulator_005b34c0) {
-            g_nWipeVerticalAccumulator_005b34c0 +=
-                g_nWipeVerticalStep_005b34b8;
+        g_nBlendHorizontalTotal_005b3480 -=
+            g_nWipeAcrossThreshold_005b347c;
+        while (g_nRevealVertThreshold_005b34bc >
+               g_nTransitionVertSum_005b34c0) {
+            g_nTransitionVertSum_005b34c0 +=
+                g_nRevealVerticalDelta_005b34b8;
             verticalCount++;
         }
-        g_nWipeVerticalAccumulator_005b34c0 -=
-            g_nWipeVerticalThreshold_005b34bc;
-        g_nWipeCurrentHorizontalEdge_005b3464 =
-            horizontalCount + g_nWipePreviousHorizontalEdge_005b346c;
-        g_nWipeCurrentVerticalEdge_005b3468 =
-            g_nWipePreviousVerticalEdge_005b3470 - verticalCount;
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            if (g_nWipePreviousVerticalEdge_005b3470 <=
-                    g_stWipeSourceViewport_005b3488.bottom -
-                        g_stWipeSourceViewport_005b3488.top &&
+        g_nTransitionVertSum_005b34c0 -=
+            g_nRevealVertThreshold_005b34bc;
+        g_nFadeCurrentHorizontalEdge_005b3464 =
+            horizontalCount + g_nWipePreviousAcrossEdge_005b346c;
+        g_nWipeCurrentVerticalEdges_005b3468 =
+            g_nFadePreviousVerticalEdge_005b3470 - verticalCount;
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            if (g_nFadePreviousVerticalEdge_005b3470 <=
+                    g_stDissolveSourceViewport_005b3488.bottom -
+                        g_stDissolveSourceViewport_005b3488.top &&
                 horizontalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.bottom);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.bottom);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.bottom);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.bottom);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             if (verticalCount != 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipeCurrentVerticalEdge_005b3468,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470 - 1);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nWipeCurrentVerticalEdges_005b3468,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470 - 1);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipeCurrentVerticalEdge_005b3468,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470 - 1);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left,
+                    g_stFadeToView_005b3450.top +
+                        g_nWipeCurrentVerticalEdges_005b3468,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470 - 1);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
         } else {
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.bottom);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.bottom);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.bottom);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.bottom);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
         }
         break;
     case 8:
-        while (g_nWipeRadialThreshold_005b30fc >
+        while (g_nFadeRadialThreshold_005b30fc >
                    g_nWipeRadialAccumulator_005b3100 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
             g_nWipeRadialAccumulator_005b3100 +=
-                g_nWipeRadialStep_005b30f8;
-            g_nWipeProgress_005b3434++;
+                g_nBlendRadialStep_005b30f8;
+            g_nDissolveProgress_005b3434++;
         }
         g_nWipeRadialAccumulator_005b3100 -=
-            g_nWipeRadialThreshold_005b30fc;
-        GenerateWipeRadialEdges(g_pWipeLeadingEdges_005b3438,
-                                g_nWipeProgress_005b3434);
+            g_nFadeRadialThreshold_005b30fc;
+        GenerateWipeRadialEdges(g_pWipeFrontEdges_005b3438,
+                                g_nDissolveProgress_005b3434);
         BlitWipeRadialBands(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_pWipeTrailingEdges_005b343c,
-            g_pWipeLeadingEdges_005b3438);
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            edgeSwap = g_pWipeTrailingEdges_005b343c;
-            g_pWipeTrailingEdges_005b343c = g_pWipeLeadingEdges_005b3438;
-            g_pWipeLeadingEdges_005b3438 = edgeSwap;
+            &g_stWipeScratchSourcePort_005b34c8,
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_pWipeRearEdges_005b343c,
+            g_pWipeFrontEdges_005b3438);
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            edgeSwap = g_pWipeRearEdges_005b343c;
+            g_pWipeRearEdges_005b343c = g_pWipeFrontEdges_005b3438;
+            g_pWipeFrontEdges_005b3438 = edgeSwap;
         }
         break;
     case 9:
-        while (g_nWipeRadialThreshold_005b30fc >
+        while (g_nFadeRadialThreshold_005b30fc >
                    g_nWipeRadialAccumulator_005b3100 &&
-               g_nWipeTotalSteps_005b3440 > g_nWipeProgress_005b3434) {
+               g_nWipeTotalStages_005b3440 > g_nDissolveProgress_005b3434) {
             g_nWipeRadialAccumulator_005b3100 +=
-                g_nWipeRadialStep_005b30f8;
-            g_nWipeProgress_005b3434++;
+                g_nBlendRadialStep_005b30f8;
+            g_nDissolveProgress_005b3434++;
         }
         g_nWipeRadialAccumulator_005b3100 -=
-            g_nWipeRadialThreshold_005b30fc;
+            g_nFadeRadialThreshold_005b30fc;
         GenerateWipeRadialEdges(
-            g_pWipeTrailingEdges_005b343c,
-            g_nWipeTotalSteps_005b3440 - g_nWipeProgress_005b3434);
+            g_pWipeRearEdges_005b343c,
+            g_nWipeTotalStages_005b3440 - g_nDissolveProgress_005b3434);
         BlitWipeRadialBands(
-            &g_stWipeWorkingSourceViewport_005b34c8,
-            &g_stWipeWorkingDestinationViewport_005b34a0,
-            g_pWipeTrailingEdges_005b343c,
-            g_pWipeLeadingEdges_005b3438);
-        if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
-            edgeSwap = g_pWipeTrailingEdges_005b343c;
-            g_pWipeTrailingEdges_005b343c = g_pWipeLeadingEdges_005b3438;
-            g_pWipeLeadingEdges_005b3438 = edgeSwap;
+            &g_stWipeScratchSourcePort_005b34c8,
+            &g_stWipeTempDestinationViewport_005b34a0,
+            g_pWipeRearEdges_005b343c,
+            g_pWipeFrontEdges_005b3438);
+        if ((g_nWipeRoundFlags_005b34b4 & 1) != 0) {
+            edgeSwap = g_pWipeRearEdges_005b343c;
+            g_pWipeRearEdges_005b343c = g_pWipeFrontEdges_005b3438;
+            g_pWipeFrontEdges_005b3438 = edgeSwap;
         }
         break;
     }
 
-    g_nWipePreviousHorizontalEdge_005b346c =
-        g_nWipeCurrentHorizontalEdge_005b3464;
-    g_nWipePreviousVerticalEdge_005b3470 =
-        g_nWipeCurrentVerticalEdge_005b3468;
+    g_nWipePreviousAcrossEdge_005b346c =
+        g_nFadeCurrentHorizontalEdge_005b3464;
+    g_nFadePreviousVerticalEdge_005b3470 =
+        g_nWipeCurrentVerticalEdges_005b3468;
     (void)workspace;
-    if (g_nWipeTotalSteps_005b3440 == g_nWipeProgress_005b3434)
+    if (g_nWipeTotalStages_005b3440 == g_nDissolveProgress_005b3434)
         return 1;
     else
         return 0;
@@ -903,292 +905,292 @@ void FinishViewportWipe(void *workspace)
     short height;
 
     /* "!flags & 1" binds as "(!flags) & 1"; retail tests it that way. */
-    if (!g_nWipePassFlags_005b34b4 & 1) {
-        CopyViewportContents(&g_stWipeSourceViewport_005b3488,
-                             &g_stWipeDestinationViewport_005b3450);
+    if (!g_nWipeRoundFlags_005b34b4 & 1) {
+        CopyViewportContents(&g_stDissolveSourceViewport_005b3488,
+                             &g_stFadeToView_005b3450);
     } else {
-        switch (g_nWipeType_005b3444) {
+        switch (g_nFadeType_005b3444) {
         case 0:
-            height = g_nWipeTotalSteps_005b3440 -
-                g_nWipeProgress_005b3434;
+            height = g_nWipeTotalStages_005b3440 -
+                g_nDissolveProgress_005b3434;
             SetViewportVerticalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.bottom + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.bottom + height);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.bottom + 1,
+                g_stWipeScratchSourcePort_005b34c8.bottom + height);
             SetViewportVerticalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.bottom + 1,
-                g_stWipeWorkingDestinationViewport_005b34a0.bottom +
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.bottom + 1,
+                g_stWipeTempDestinationViewport_005b34a0.bottom +
                     height);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 1:
-            width = g_nWipeTotalSteps_005b3440 -
-                g_nWipeProgress_005b3434;
+            width = g_nWipeTotalStages_005b3440 -
+                g_nDissolveProgress_005b3434;
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.left - width,
-                g_stWipeWorkingSourceViewport_005b34c8.left - 1);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.left - width,
+                g_stWipeScratchSourcePort_005b34c8.left - 1);
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.left - width,
-                g_stWipeWorkingDestinationViewport_005b34a0.left - 1);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.left - width,
+                g_stWipeTempDestinationViewport_005b34a0.left - 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 2:
-            height = g_nWipeTotalSteps_005b3440 -
-                g_nWipeProgress_005b3434;
+            height = g_nWipeTotalStages_005b3440 -
+                g_nDissolveProgress_005b3434;
             SetViewportVerticalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.top - height,
-                g_stWipeWorkingSourceViewport_005b34c8.top - 1);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.top - height,
+                g_stWipeScratchSourcePort_005b34c8.top - 1);
             SetViewportVerticalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.top - height,
-                g_stWipeWorkingDestinationViewport_005b34a0.top - 1);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.top - height,
+                g_stWipeTempDestinationViewport_005b34a0.top - 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 3:
-            width = g_nWipeTotalSteps_005b3440 -
-                g_nWipeProgress_005b3434;
+            width = g_nWipeTotalStages_005b3440 -
+                g_nDissolveProgress_005b3434;
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.right + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.right + width);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stWipeScratchSourcePort_005b34c8.right + 1,
+                g_stWipeScratchSourcePort_005b34c8.right + width);
             SetViewportHorizontalBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.right + 1,
-                g_stWipeWorkingDestinationViewport_005b34a0.right + width);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stWipeTempDestinationViewport_005b34a0.right + 1,
+                g_stWipeTempDestinationViewport_005b34a0.right + width);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 4:
-            g_nWipeCurrentHorizontalEdge_005b3464 =
-                g_stWipeSourceViewport_005b3488.right -
-                g_stWipeSourceViewport_005b3488.left;
-            g_nWipeCurrentVerticalEdge_005b3468 =
-                g_stWipeSourceViewport_005b3488.bottom -
-                g_stWipeSourceViewport_005b3488.top;
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
+            g_nFadeCurrentHorizontalEdge_005b3464 =
+                g_stDissolveSourceViewport_005b3488.right -
+                g_stDissolveSourceViewport_005b3488.left;
+            g_nWipeCurrentVerticalEdges_005b3468 =
+                g_stDissolveSourceViewport_005b3488.bottom -
+                g_stDissolveSourceViewport_005b3488.top;
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeSourceViewport_005b3488.top,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stDissolveSourceViewport_005b3488.top,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeDestinationViewport_005b3450.top,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stFadeToView_005b3450.top,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left,
+                g_stFadeToView_005b3450.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 5:
-            g_nWipeCurrentHorizontalEdge_005b3464 = 0;
-            g_nWipeCurrentVerticalEdge_005b3468 =
-                g_stWipeSourceViewport_005b3488.bottom -
-                g_stWipeSourceViewport_005b3488.top;
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
+            g_nFadeCurrentHorizontalEdge_005b3464 = 0;
+            g_nWipeCurrentVerticalEdges_005b3468 =
+                g_stDissolveSourceViewport_005b3488.bottom -
+                g_stDissolveSourceViewport_005b3488.top;
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1,
-                g_stWipeSourceViewport_005b3488.right,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1,
+                g_stDissolveSourceViewport_005b3488.right,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1,
-                g_stWipeDestinationViewport_005b3450.right,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1,
+                g_stFadeToView_005b3450.right,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 6:
-            g_nWipeCurrentHorizontalEdge_005b3464 = 0;
-            g_nWipeCurrentVerticalEdge_005b3468 = 0;
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
+            g_nFadeCurrentHorizontalEdge_005b3464 = 0;
+            g_nWipeCurrentVerticalEdges_005b3468 = 0;
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeSourceViewport_005b3488.bottom);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stDissolveSourceViewport_005b3488.bottom);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c - 1,
-                    g_stWipeDestinationViewport_005b3450.bottom);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c - 1,
+                    g_stFadeToView_005b3450.bottom);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeSourceViewport_005b3488.right,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stDissolveSourceViewport_005b3488.right,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeDestinationViewport_005b3450.right,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stFadeToView_005b3450.right,
+                g_stFadeToView_005b3450.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 7:
-            g_nWipeCurrentHorizontalEdge_005b3464 =
-                g_stWipeSourceViewport_005b3488.right -
-                g_stWipeSourceViewport_005b3488.left;
-            g_nWipeCurrentVerticalEdge_005b3468 = 0;
-            if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
+            g_nFadeCurrentHorizontalEdge_005b3464 =
+                g_stDissolveSourceViewport_005b3488.right -
+                g_stDissolveSourceViewport_005b3488.left;
+            g_nWipeCurrentVerticalEdges_005b3468 = 0;
+            if (g_nFadePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeSourceViewport_005b3488.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeSourceViewport_005b3488.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeSourceViewport_005b3488.bottom);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stDissolveSourceViewport_005b3488.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stDissolveSourceViewport_005b3488.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stDissolveSourceViewport_005b3488.bottom);
                 SetViewportRectangleBounds(
-                    &g_stWipeWorkingDestinationViewport_005b34a0,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipePreviousHorizontalEdge_005b346c + 1,
-                    g_stWipeDestinationViewport_005b3450.top +
-                        g_nWipePreviousVerticalEdge_005b3470,
-                    g_stWipeDestinationViewport_005b3450.left +
-                        g_nWipeCurrentHorizontalEdge_005b3464,
-                    g_stWipeDestinationViewport_005b3450.bottom);
+                    &g_stWipeTempDestinationViewport_005b34a0,
+                    g_stFadeToView_005b3450.left +
+                        g_nWipePreviousAcrossEdge_005b346c + 1,
+                    g_stFadeToView_005b3450.top +
+                        g_nFadePreviousVerticalEdge_005b3470,
+                    g_stFadeToView_005b3450.left +
+                        g_nFadeCurrentHorizontalEdge_005b3464,
+                    g_stFadeToView_005b3450.bottom);
                 CopyViewportContents(
-                    &g_stWipeWorkingSourceViewport_005b34c8,
-                    &g_stWipeWorkingDestinationViewport_005b34a0);
+                    &g_stWipeScratchSourcePort_005b34c8,
+                    &g_stWipeTempDestinationViewport_005b34a0);
             }
             SetViewportRectangleBounds(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeSourceViewport_005b3488.left,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeSourceViewport_005b3488.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeSourceViewport_005b3488.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1);
+                &g_stWipeScratchSourcePort_005b34c8,
+                g_stDissolveSourceViewport_005b3488.left,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stDissolveSourceViewport_005b3488.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stDissolveSourceViewport_005b3488.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1);
             SetViewportRectangleBounds(
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeDestinationViewport_005b3450.left,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipeCurrentVerticalEdge_005b3468,
-                g_stWipeDestinationViewport_005b3450.left +
-                    g_nWipeCurrentHorizontalEdge_005b3464,
-                g_stWipeDestinationViewport_005b3450.top +
-                    g_nWipePreviousVerticalEdge_005b3470 + 1);
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_stFadeToView_005b3450.left,
+                g_stFadeToView_005b3450.top +
+                    g_nWipeCurrentVerticalEdges_005b3468,
+                g_stFadeToView_005b3450.left +
+                    g_nFadeCurrentHorizontalEdge_005b3464,
+                g_stFadeToView_005b3450.top +
+                    g_nFadePreviousVerticalEdge_005b3470 + 1);
             CopyViewportContents(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0);
             break;
         case 8:
-            g_nWipeProgress_005b3434 = g_nWipeTotalSteps_005b3440;
-            GenerateWipeRadialEdges(g_pWipeLeadingEdges_005b3438,
-                                    g_nWipeProgress_005b3434);
+            g_nDissolveProgress_005b3434 = g_nWipeTotalStages_005b3440;
+            GenerateWipeRadialEdges(g_pWipeFrontEdges_005b3438,
+                                    g_nDissolveProgress_005b3434);
             BlitWipeRadialBands(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_pWipeTrailingEdges_005b343c,
-                g_pWipeLeadingEdges_005b3438);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_pWipeRearEdges_005b343c,
+                g_pWipeFrontEdges_005b3438);
             break;
         case 9:
-            g_nWipeProgress_005b3434 = g_nWipeTotalSteps_005b3440;
+            g_nDissolveProgress_005b3434 = g_nWipeTotalStages_005b3440;
             GenerateWipeRadialEdges(
-                g_pWipeTrailingEdges_005b343c,
-                g_nWipeTotalSteps_005b3440 - g_nWipeProgress_005b3434);
+                g_pWipeRearEdges_005b343c,
+                g_nWipeTotalStages_005b3440 - g_nDissolveProgress_005b3434);
             BlitWipeRadialBands(
-                &g_stWipeWorkingSourceViewport_005b34c8,
-                &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_pWipeTrailingEdges_005b343c,
-                g_pWipeLeadingEdges_005b3438);
+                &g_stWipeScratchSourcePort_005b34c8,
+                &g_stWipeTempDestinationViewport_005b34a0,
+                g_pWipeRearEdges_005b343c,
+                g_pWipeFrontEdges_005b3438);
             break;
         }
     }
