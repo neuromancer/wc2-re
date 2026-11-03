@@ -1035,13 +1035,13 @@ void ClampTo30(short *p)
 /* Function start: 0x40C9DD */
 void transform_objects_to_your_view(void)
 {
-    short screenScale;
+    FixedVector direction;
+    int range;
+    FixedVector viewPos;
     short dustSize;
     short obj;
-    int objectRadius;
-    int distance;
-    FixedVector viewPosition;
-    FixedVector direction;
+    int radius;
+    short screenZoom;
 
     draw_nav_pointer();
     for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
@@ -1071,61 +1071,61 @@ void transform_objects_to_your_view(void)
                                    &g_aShipPosition_00494550[obj],
                                    &direction);
             }
-            distance = Vector_magnitude(&direction);
-            if (distance <
+            range = Vector_magnitude(&direction);
+            if (range <
                 g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
             if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST &&
-                distance > 0x57800) {
+                range > 0x57800) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            transform_to_objects_frame(&direction, &viewPosition,
+            transform_to_objects_frame(&direction, &viewPos,
                                        EYE_OBJECT);
 #ifdef SDL_PORT
             /* The enhanced object layer needs the unrounded projection to
              * keep fixed thruster children attached to their ships. */
-            g_aObjectViewPosition_0059afa0[obj] = viewPosition;
+            g_aObjectViewPosition_0059afa0[obj] = viewPos;
 #endif
-            if (viewPosition.z <
+            if (viewPos.z <
                 g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 0x100) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            if (DivideFixed(viewPosition.z, distance) < 0) {
+            if (DivideFixed(viewPos.z, range) < 0) {
                 g_asObjectScreenX_00493598[obj] = (short)0x8001;
                 continue;
             }
-            objectRadius = g_asObjectCollisionRadius_004950e8[obj] * 0x100;
-            if (distance <= objectRadius)
-                distance = objectRadius + 1;
-            if (g_aeObjectClass_00495328[obj] > OBJECT_CLASS_DUST) {
-                screenScale = (short)MultiplyFixed(
+            radius = g_asObjectCollisionRadius_004950e8[obj] * 0x100;
+            if (range <= radius)
+                range = radius + 1;
+            if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_EXPLOSION) {
+                screenZoom = (short)MultiplyFixed(
                     (unsigned short)g_asObjectScale_00494d90[obj],
                     DivideFixed(
                         (g_nScreenWidth_0049d4d8 & ~1) << 7,
-                        distance - objectRadius));
-                screenScale = MinShort(0x2000, screenScale);
-                screenScale = MaxShort(0, screenScale);
-                g_asObjectScreenScale_00493a58[obj] = screenScale;
+                        range -
+                            g_asObjectCollisionRadius_004950e8[obj] * 0x100));
+                screenZoom = MaxShort(0, MinShort(0x2000, screenZoom));
+                g_asObjectScreenScale_00493a58[obj] = screenZoom;
                 if ((unsigned short)g_asObjectScreenScale_00493a58[obj] <= 4) {
                     g_asObjectScreenX_00493598[obj] = (short)0x8001;
                     continue;
                 }
             }
-            g_asObjectDistance_00493ae8[obj] = (short)(distance >> 8);
-            if (distance > 0xfffe00)
+            g_asObjectDistance_00493ae8[obj] = (short)(range >> 8);
+            if (range > 0xfffe00)
                 g_asObjectDistance_00493ae8[obj] = (short)0xfffe;
             g_asObjectScreenX_00493598[obj] = (short)DivideFixed(
                 MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
-                              viewPosition.x),
-                viewPosition.z);
+                              viewPos.x),
+                viewPos.z);
             g_asObjectScreenY_00493628[obj] = (short)DivideFixed(
                 MultiplyFixed(g_nScreenWidth_0049d4d8 >> 1,
-                              viewPosition.y),
-                viewPosition.z);
+                              viewPos.y),
+                viewPos.z);
             switch (g_aeObjectClass_00495328[obj]) {
             case OBJECT_CLASS_STAR:
                 break;
@@ -1133,7 +1133,7 @@ void transform_objects_to_your_view(void)
                 dustSize = (short)(MultiplyFixed(
                     0x900, DivideFixed(
                         g_asObjectCollisionRadius_004950e8[EYE_OBJECT] << 8,
-                        distance)) >> 8);
+                        range)) >> 8);
                 if (dustSize > 3)
                     dustSize = 3;
                 dustSize = (short)(
@@ -1149,11 +1149,11 @@ void transform_objects_to_your_view(void)
                     0xff)
                     set_background_objects_rotation(obj, &direction);
                 break;
-            case OBJECT_CLASS_EXPLOSION:
             case OBJECT_CLASS_DEBRIS:
             case OBJECT_CLASS_PROJECTILE:
             case OBJECT_CLASS_ASTEROID:
-            case OBJECT_CLASS_MINE:
+                break;
+            case OBJECT_CLASS_EXPLOSION:
                 break;
             case OBJECT_CLASS_MISSILE:
             case OBJECT_CLASS_SHIP:
