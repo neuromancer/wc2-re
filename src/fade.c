@@ -4,6 +4,8 @@
  *  Retail object 0x4225A0-0x4228AF (link order; see docs/ORDER.md).
  */
 #include "game.h"
+
+short g_nPaletteTransitionInitialise_0049305c = 1;
 #ifndef SDL_PORT
 #include <malloc.h>
 #endif

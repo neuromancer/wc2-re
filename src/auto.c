@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+short g_nAutopilotFormationShipCount_00493060 = 0;
+short g_bAutopilotSequenceActive_00493064 = 0;
+
 /* WC2's auto.c declares the autopilot debug flag two bytes wide where every
  * other translation unit declares it as a char.  In the retail image the byte
  * above it is padding, so the value is the same and only the load width
@@ -17,7 +20,6 @@
     (*(const short *)&g_bAutopilotDebugEnabled_00499bfc)
 #endif
 
-int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
 
 /* Function start: 0x4228B0 */
 void visit_the_cinema(int view, int obj, short frames)

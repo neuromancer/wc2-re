@@ -177,47 +177,6 @@ RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
 #endif
 
-signed char g_bLandingCommRequestPending_00492fa0;
-int g_nCurrentView_00492fa8 = -1;
-short g_nSpaceExplosionFlashActive_00492fb4;
-short g_bApplyingCollisionDamage_00492fb8;
-short g_asIntelligenceEvent_00492fc0[12];
-signed char g_aDefenseManeuversNovice_00492fd8[8] = {
-    24, 24, 13, 14, -1, 0, 0, 0
-};
-signed char g_aDefenseManeuversVeteran_00492fe0[8] = {
-    8, 13, 15, 14, 19, 24, -1, 0
-};
-signed char g_aDefenseManeuversElite_00492fe8[16] = {
-    8, 15, 17, 23, 19, 9, 20, 24, 14, -1, 0, 0, 0, 0, 0, 0
-};
-signed char g_aDefenseManeuversAce_00492ff8[16] = {
-    17, 23, 15, 19, 9, 14, 20, 12, -1, 0, 0, 0, 0, 0, 0, 0
-};
-signed char g_aDefenseManeuversBoss_00493008[16] = {
-    15, 19, 12, 11, 17, 23, 7, 9, -1, 0, 0, 0, 0, 0, 0, 0
-};
-signed char *g_apDefenseManeuvers_00493018[5] = {
-    g_aDefenseManeuversNovice_00492fd8,
-    g_aDefenseManeuversVeteran_00492fe0,
-    g_aDefenseManeuversElite_00492fe8,
-    g_aDefenseManeuversAce_00492ff8,
-    g_aDefenseManeuversBoss_00493008
-};
-signed char g_acPilotAggression_00493030[8] = {
-    3, 3, 3, 2, 2, 3, 0, 0
-};
-signed char g_acPilotRecovery_00493038[8] = {
-    6, 7, 8, 8, 9, 8, 0, 0
-};
-short g_bWingmanTurnRateUnlocked_00493040;
-short g_nGraphicsInitializationFlags_00493048 = 0x80;
-short g_nInputDoubleClickInterval_00493050 = 1;
-short g_nMenuPointerSpeed_00493054 = 2;
-short g_bEjectionSequencePending_00493058;
-short g_nPaletteTransitionInitialise_0049305c = 1;
-short g_nAutopilotFormationShipCount_00493060;
-short g_bAutopilotSequenceActive_00493064;
 signed char g_acExpectedGraphicsModes_00493078[5] = {
     0x13, 0x0d, 4, 9, 7
 };

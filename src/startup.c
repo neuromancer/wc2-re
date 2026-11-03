@@ -76,7 +76,7 @@ void LoadOriginFxDrivers(void)
     short paletteResult;
 
     g_nDetectedGraphicsMode_005c80d2 = QueryCurrentGraphicsMode();
-    g_nGraphicsInitializationFlags_00493048 = 0x20c;
+    g_nNearHeapMaxDescriptors_00493048 = 0x20c;
     IsSoundHardwarePresent(8);
     if (g_bPumpMessagesWhileLoading_005c8ddc != 0)
         MessagePumpHook(4);

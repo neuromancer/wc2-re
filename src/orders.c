@@ -5,6 +5,8 @@
  */
 #include "game.h"
 
+short g_bEjectionSequencePending_00493058 = 0;
+
 /* Function start: 0x421910 */
 void cleanup_objectives(void)
 {

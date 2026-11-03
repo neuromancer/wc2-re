@@ -5,6 +5,36 @@
  */
 #include "game.h"
 
+signed char g_aDefenseManeuversNovice_00492fd8[8] = {
+    24, 24, 13, 14, -1, 0, 0, 0
+};
+signed char g_aDefenseManeuversVeteran_00492fe0[8] = {
+    8, 13, 15, 14, 19, 24, -1, 0
+};
+signed char g_aDefenseManeuversElite_00492fe8[16] = {
+    8, 15, 17, 23, 19, 9, 20, 24, 14, -1, 0, 0, 0, 0, 0, 0
+};
+signed char g_aDefenseManeuversAce_00492ff8[16] = {
+    17, 23, 15, 19, 9, 14, 20, 12, -1, 0, 0, 0, 0, 0, 0, 0
+};
+signed char g_aDefenseManeuversBoss_00493008[16] = {
+    15, 19, 12, 11, 17, 23, 7, 9, -1, 0, 0, 0, 0, 0, 0, 0
+};
+signed char *g_apDefenseManeuvers_00493018[5] = {
+    g_aDefenseManeuversNovice_00492fd8,
+    g_aDefenseManeuversVeteran_00492fe0,
+    g_aDefenseManeuversElite_00492fe8,
+    g_aDefenseManeuversAce_00492ff8,
+    g_aDefenseManeuversBoss_00493008
+};
+signed char g_acPilotAggression_00493030[8] = {
+    3, 3, 3, 2, 2, 3, 0, 0
+};
+signed char g_acPilotRecovery_00493038[8] = {
+    6, 7, 8, 8, 9, 8, 0, 0
+};
+short g_bWingmanTurnRateUnlocked_00493040 = 0;
+
 #pragma function(labs)
 /* Function start: 0x41E4E0 */
 void steer_away_from_object(short obj, short other, short amount)

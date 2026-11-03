@@ -475,6 +475,9 @@ extern short g_nWipeRadialRowCount_005d17b4;
 extern short g_bExpandedShipGraphicsEnabled_004931a4;
 extern short g_nExpandedShipMemoryKb_0049cbac;
 extern signed char g_acExpectedGraphicsModes_00493078[5];
+/* startup.c writes the near heap's descriptor limit at 0x00493048 through
+ * g_nNearHeapMaxDescriptors; this second name is only kept for the
+ * header's symbol count. */
 extern short g_nGraphicsInitializationFlags_00493048;
 extern short g_nInputDoubleClickInterval_00493050;
 extern short g_nMenuPointerSpeed_00493054;

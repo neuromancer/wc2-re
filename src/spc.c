@@ -5,17 +5,14 @@
  */
 #include "game.h"
 
+signed char g_bLandingCommRequestPending_00492fa0 = 0;
+int g_nCapitalShipViewDistance_00492fa4 = 0x7d000;
+int g_nCurrentView_00492fa8 = -1;
 short g_bAlternateChaseView_00492fac = 0;
-
 int g_nChaseCameraMaximumVelocity_00492fb0 = 0x8c00;
-
-short g_nSavedPlayerTarget_0049d460 = -1;
-
-short g_bSavedPlayerTarget_0049d464;
-
-short g_asShipTurretFireEnabled_0049d470[10];
-
-short g_nSavedTargetLockCountdown_0049d484 = 1000;
+short g_nSpaceExplosionFlashActive_00492fb4 = 0;
+short g_bApplyingCollisionDamage_00492fb8 = 0;
+short g_asIntelligenceEvent_00492fc0[12] = { 0 };
 
 short g_nCockpitCameraObject_0049d770;
 

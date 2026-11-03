@@ -4,13 +4,11 @@
  *  Retail object 0x4207B0-0x42120F (link order; see docs/ORDER.md).
  */
 #include "game.h"
-#include <float.h>
 
 volatile short g_nNearHeapActive_00493044 = 0;
-
 volatile short g_nNearHeapMaxDescriptors_00493048 = 0x80;
-
 volatile int g_nNearHeapRelocationBytes_0049304c = 0;
+#include <float.h>
 
 /* Function start: 0x4207B0 */
 short MergeAdjacentNearHeapBlocks(int descriptorAddress)

@@ -1255,3 +1255,8 @@ void FinalizeTargetCameraViewHook(void)
 {
     return;
 }
+
+short g_nSavedPlayerTarget_0049d460 = -1;
+short g_bSavedPlayerTarget_0049d464 = 0;
+short g_asShipTurretFireEnabled_0049d470[10] = { 0 };
+short g_nSavedTargetLockCountdown_0049d484 = 1000;

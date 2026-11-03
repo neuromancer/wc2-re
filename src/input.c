@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+short g_nInputDoubleClickInterval_00493050 = 1;
+short g_nMenuPointerSpeed_00493054 = 2;
+
 /* Function start: 0x421210 */
 short UpdateInputDeviceTransitions(short raw)
 {
