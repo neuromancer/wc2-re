@@ -2385,115 +2385,115 @@ short HasShipActiveMissile(short obj)
 /* Function start: 0x4159DB */
 short fire_turrets(short obj)
 {
-    FixedVector hardpoint;
-    short turretCount;
+    short mounts;
+    FixedVector mountOrigin;
     short startTarget;
-    short weapon;
     short targetHemisphere;
-    short targetIndex;
+    short turret;
     short targetRange;
-    short targetCount;
-    short other;
-    short target;
-    ShipWeaponSlot *slot;
+    short pick;
+    short hostiles;
+    short candidate;
+    ShipWeaponSlot *fitting;
+    short lockedShip;
 
-    turretCount = 0;
+    mounts = 0;
     targetRange = 10000;
     if (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL)
         targetRange = 5000;
-    targetCount = build_target_list(obj, targetRange);
-    for (weapon = 0;
-         weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
+    hostiles = build_target_list(obj, targetRange);
+    for (turret = 0;
+         turret < (signed char)g_aShipWeapons_004956b0[obj][0];
 #ifdef SDL_PORT
-         /* WC2 walks the slot pointer forward here before anything sets it -
+         /* WC2 walks the fitting pointer forward here before anything sets it -
           * this loop indexes the array directly and the loop below starts the
           * pointer over - and advancing an indeterminate pointer is undefined
           * behaviour the sanitizers catch.  Leave it alone on the port. */
-         weapon++) {
+         turret++) {
 #else
-         weapon++, slot++) {
+         turret++, fitting++) {
 #endif
         if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
-                weapon].type == 0x0c)
-            turretCount++;
+                turret].type == 0x0c)
+            mounts++;
     }
 
-    slot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1];
-    for (weapon = 0;
-         weapon < (signed char)g_aShipWeapons_004956b0[obj][0];
-         weapon++, slot++) {
-        if (slot->type == 0x0d || slot->type == 0x0e)
+    fitting = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1];
+    for (turret = 0;
+         turret < (signed char)g_aShipWeapons_004956b0[obj][0];
+         turret++, fitting++) {
+        if (fitting->type == 0x0d || fitting->type == 0x0e)
             continue;
         if ((g_asShipSide_004955d0[obj] == SIDE_KILRATHI &&
              (unsigned short)RandomInRange(0, 200) <
                  GetAdaptiveTurnRate()) ||
             (g_asShipSide_004955d0[obj] == SIDE_IMPERIAL &&
              RandomBelowOrEqual(2) == 0)) {
-            position_child(obj, weapon, &hardpoint);
-            if (slot->type == 0x0c) {
-                for (other = 1; other < 10; other++) {
-                    if (g_aeObjectClass_00495328[other] !=
+            position_child(obj, turret, &mountOrigin);
+            if (fitting->type == 0x0c) {
+                for (candidate = 1; candidate < 10; candidate++) {
+                    if (g_aeObjectClass_00495328[candidate] !=
                             OBJECT_CLASS_NULL &&
-                        g_asObjectType_00495298[other] == 0x13 &&
-                        g_acShipTarget_00495f20[other] == obj) {
+                        g_asObjectType_00495298[candidate] == 0x13 &&
+                        g_acShipTarget_00495f20[candidate] == obj) {
                         targetHemisphere = hemisphere(
-                            &g_aShipPosition_00494550[other],
-                            &g_aShipPosition_00494550[obj], &hardpoint);
-                        if (g_asMissileProximityFuse_005d38e0[other] != 0 &&
+                            &g_aShipPosition_00494550[candidate],
+                            &g_aShipPosition_00494550[obj], &mountOrigin);
+                        if (g_asMissileProximityFuse_005d38e0[candidate] != 0 &&
                             RandomBelowOrEqual(
-                                (short)(turretCount * 4 - 1)) == 0) {
+                                (short)(mounts * 4 - 1)) == 0) {
                             g_acShipTarget_00495f20[obj] =
-                                (signed char)other;
+                                (signed char)candidate;
                             g_asObjectCounter_00494be0[obj] = 0;
                             SpawnFlakBurst(
-                                obj, distance_from_object(obj, other),
-                                &hardpoint, 1);
+                                obj, distance_from_object(obj, candidate),
+                                &mountOrigin, 1);
                         }
                     }
                 }
             }
-            if (targetCount != 0) {
+            if (hostiles != 0) {
                 startTarget = RandomBelowOrEqual(
-                    (short)(targetCount - 1));
-                targetIndex = startTarget;
+                    (short)(hostiles - 1));
+                pick = startTarget;
                 do {
-                    target = (short)g_acShipList_00496148[targetIndex];
+                    lockedShip = (short)g_acShipList_00496148[pick];
                     targetHemisphere = hemisphere(
-                        &g_aShipPosition_00494550[target],
-                        &g_aShipPosition_00494550[obj], &hardpoint);
-                    if (slot->type != 0x0c &&
-                        g_aeObjectClass_00495328[target] >=
+                        &g_aShipPosition_00494550[lockedShip],
+                        &g_aShipPosition_00494550[obj], &mountOrigin);
+                    if (fitting->type != 0x0c &&
+                        g_aeObjectClass_00495328[lockedShip] >=
                             OBJECT_CLASS_SHIP) {
                         if (targetHemisphere > 60 &&
                             RandomBelowOrEqual(
                                 (short)(200 - GetAdaptiveTurnRate())) == 0 &&
                             HasShipActiveMissile(obj) == 0) {
-                            if (slot->type == 0x13) {
-                                if (IsCapitalShipObject(target) != 0) {
+                            if (fitting->type == 0x13) {
+                                if (IsCapitalShipObject(lockedShip) != 0) {
                                     g_acShipTarget_00495f20[obj] =
-                                        (signed char)target;
-                                    fire_weapon(obj, weapon);
+                                        (signed char)lockedShip;
+                                    fire_weapon(obj, turret);
                                 }
                             } else {
                                 g_acShipTarget_00495f20[obj] =
-                                    (signed char)target;
-                                fire_weapon(obj, weapon);
+                                    (signed char)lockedShip;
+                                fire_weapon(obj, turret);
                             }
                         }
                         break;
                     }
                     if (RandomBelowOrEqual(2) == 0) {
                         g_acShipTarget_00495f20[obj] =
-                            (signed char)target;
+                            (signed char)lockedShip;
                         SpawnFlakBurst(
-                            obj, g_asShipListRange_00496158[targetIndex],
-                            &hardpoint, 0);
+                            obj, g_asShipListRange_00496158[pick],
+                            &mountOrigin, 0);
                         break;
                     }
-                    targetIndex++;
-                    if (targetIndex > targetCount - 1)
-                        targetIndex = 0;
-                } while (targetIndex != startTarget);
+                    pick++;
+                    if (pick > hostiles - 1)
+                        pick = 0;
+                } while (pick != startTarget);
             }
         }
     }
