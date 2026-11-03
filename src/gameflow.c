@@ -1381,15 +1381,15 @@ void ExpandCutsceneText(const unsigned char *source, char *destination)
 void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                              unsigned char *text, signed char draw)
 {
-    short savedOwner;
-    short planeIndex;
-    CutsceneSequence *savedSequence;
+    short priorOwner;
     signed char continueSequence;
     signed char textShown;
+    short planeIndex;
+    CutsceneSequence *priorSequence;
 
     textShown = 0;
-    savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
-    savedSequence = g_pCurrentCutsceneSequence_00499c80;
+    priorOwner = g_nActiveCutsceneResourceLevel_00499d9c;
+    priorSequence = g_pCurrentCutsceneSequence_00499c80;
     if (sequence == 0)
         FatalCutsceneError("A13");
     g_nActiveCutsceneResourceLevel_00499d9c = sequence->owner;
@@ -1417,8 +1417,8 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
             g_bCutsceneTextRestorePending_00499da0 = 1;
         }
         while (g_bCutsceneSkipFrame_00499c54 == 0 &&
-               (int)g_nInputClock_005c84a8 <
-                   (int)g_nNextCutsceneFrameClock_00499c90) {
+               (int)g_nNextCutsceneFrameClock_00499c90 >
+                   (int)g_nInputClock_005c84a8) {
             PumpWindowMessages(0);
 #ifdef SDL_PORT
             /* See issue #33 (review on PR #34): this sequence-presentation
@@ -1434,10 +1434,8 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
         continueSequence = RunCutsceneScript(&sequence->scriptCursor, 2);
         g_pCurrentCutsceneSequence_00499c80 = sequence;
         if (draw != 0) {
-            if (continueSequence == 0 || sequence->planeCount == 0 ||
-                g_bCutsceneFramePresented_005d2de0 != 0) {
-                g_bCutsceneFramePresented_005d2de0 = 0;
-            } else {
+            if (continueSequence != 0 && sequence->planeCount != 0 &&
+                g_bCutsceneFramePresented_005d2de0 == 0) {
                 for (planeIndex = 0; planeIndex < sequence->planeCount;
                      planeIndex++) {
                     UpdateCutscenePlaneObject(
@@ -1462,13 +1460,15 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                             g_nCutsceneFrameDelay_00499c8c;
                     }
                 }
+            } else {
+                g_bCutsceneFramePresented_005d2de0 = 0;
             }
         } else {
             continueSequence = 0;
         }
     } while (continueSequence != 0);
-    g_pCurrentCutsceneSequence_00499c80 = savedSequence;
-    g_nActiveCutsceneResourceLevel_00499d9c = savedOwner;
+    g_pCurrentCutsceneSequence_00499c80 = priorSequence;
+    g_nActiveCutsceneResourceLevel_00499d9c = priorOwner;
 }
 
 /* Function start: 0x42E3CF */
