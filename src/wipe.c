@@ -447,9 +447,9 @@ signed char AdvanceViewportWipe(void *workspace)
             g_nWipeHorizontalThreshold_005b347c;
         while (g_nWipeVerticalThreshold_005b34bc >
                g_nWipeVerticalAccumulator_005b34c0) {
-            verticalCount++;
             g_nWipeVerticalAccumulator_005b34c0 +=
                 g_nWipeVerticalStep_005b34b8;
+            verticalCount++;
         }
         g_nWipeVerticalAccumulator_005b34c0 -=
             g_nWipeVerticalThreshold_005b34bc;
@@ -542,9 +542,9 @@ signed char AdvanceViewportWipe(void *workspace)
             g_nWipeHorizontalThreshold_005b347c;
         while (g_nWipeVerticalThreshold_005b34bc >
                g_nWipeVerticalAccumulator_005b34c0) {
-            verticalCount++;
             g_nWipeVerticalAccumulator_005b34c0 +=
                 g_nWipeVerticalStep_005b34b8;
+            verticalCount++;
         }
         g_nWipeVerticalAccumulator_005b34c0 -=
             g_nWipeVerticalThreshold_005b34bc;
@@ -637,9 +637,9 @@ signed char AdvanceViewportWipe(void *workspace)
             g_nWipeHorizontalThreshold_005b347c;
         while (g_nWipeVerticalThreshold_005b34bc >
                g_nWipeVerticalAccumulator_005b34c0) {
-            verticalCount++;
             g_nWipeVerticalAccumulator_005b34c0 +=
                 g_nWipeVerticalStep_005b34b8;
+            verticalCount++;
         }
         g_nWipeVerticalAccumulator_005b34c0 -=
             g_nWipeVerticalThreshold_005b34bc;
@@ -734,9 +734,9 @@ signed char AdvanceViewportWipe(void *workspace)
             g_nWipeHorizontalThreshold_005b347c;
         while (g_nWipeVerticalThreshold_005b34bc >
                g_nWipeVerticalAccumulator_005b34c0) {
-            verticalCount++;
             g_nWipeVerticalAccumulator_005b34c0 +=
                 g_nWipeVerticalStep_005b34b8;
+            verticalCount++;
         }
         g_nWipeVerticalAccumulator_005b34c0 -=
             g_nWipeVerticalThreshold_005b34bc;
@@ -833,8 +833,8 @@ signed char AdvanceViewportWipe(void *workspace)
             &g_stWipeWorkingDestinationViewport_005b34a0,
             g_pWipeTrailingEdges_005b343c,
             g_pWipeLeadingEdges_005b3438);
-        edgeSwap = g_pWipeTrailingEdges_005b343c;
         if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+            edgeSwap = g_pWipeTrailingEdges_005b343c;
             g_pWipeTrailingEdges_005b343c = g_pWipeLeadingEdges_005b3438;
             g_pWipeLeadingEdges_005b3438 = edgeSwap;
         }
@@ -857,8 +857,8 @@ signed char AdvanceViewportWipe(void *workspace)
             &g_stWipeWorkingDestinationViewport_005b34a0,
             g_pWipeTrailingEdges_005b343c,
             g_pWipeLeadingEdges_005b3438);
-        edgeSwap = g_pWipeTrailingEdges_005b343c;
         if ((g_nWipePassFlags_005b34b4 & 1) != 0) {
+            edgeSwap = g_pWipeTrailingEdges_005b343c;
             g_pWipeTrailingEdges_005b343c = g_pWipeLeadingEdges_005b3438;
             g_pWipeLeadingEdges_005b3438 = edgeSwap;
         }
@@ -870,7 +870,10 @@ signed char AdvanceViewportWipe(void *workspace)
     g_nWipePreviousVerticalEdge_005b3470 =
         g_nWipeCurrentVerticalEdge_005b3468;
     (void)workspace;
-    return g_nWipeTotalSteps_005b3440 == g_nWipeProgress_005b3434;
+    if (g_nWipeTotalSteps_005b3440 == g_nWipeProgress_005b3434)
+        return 1;
+    else
+        return 0;
 }
 
 /* Function start: 0x449FAE */
@@ -1195,12 +1198,12 @@ void FinishViewportWipe(void *workspace)
 /* Function start: 0x44A910 */
 void GenerateWipeRadialEdges(short *edges, int radius)
 {
-    short x;
     short y;
     short err;
     short lastY;
     short decision;
     short blankRow;
+    short x;
 
     x = 0;
     y = (short)radius;
