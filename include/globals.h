@@ -387,7 +387,9 @@ extern signed char g_cCutsceneSpeechSpeed_00499eb4;
 extern signed char g_bCutsceneSpeechActive_00499eb8;
 extern signed char g_bCutsceneTextBoundsOverride_00499edc;
 extern unsigned int g_nNextCutsceneFrameClock_00499c90;
-extern short g_nCutsceneTextLeft_00499ee0;
+extern ShortRect g_stCutsceneTextBounds_00499ee0;
+/* The three bounds below are fields of g_stCutsceneTextBounds_00499ee0;
+ * the dead declarations keep the header's symbol count. */
 extern short g_nCutsceneTextTop_00499ee2;
 extern short g_nCutsceneTextRight_00499ee4;
 extern short g_nCutsceneTextBottom_00499ee6;

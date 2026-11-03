@@ -1085,3 +1085,5 @@ short evaluate_damage(short obj)
                              typeData->damageCapacity + total);
     return total;
 }
+
+short g_bKilrathiAceGreetingSent_00499bf4 = 0;

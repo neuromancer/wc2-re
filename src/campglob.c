@@ -231,6 +231,8 @@ void *LoadWholeDataFile(const char *path)
 /* This unit's initialized data, after its functions so that the animation
  * tables do not move the functions' symbol keys.  The object-type records and
  * their animation streams precede the campaign file name in the original. */
+/* Frame lists the object-type records point at; 0xA000 and 0x9000 end a
+ * sequence.  They sit immediately below the table in the retail image. */
 static short g_asExplosionSmallAnimation_00496af0[8] = {
     0, 1, 2, 3, 4, 5, 6, (short)0xa000
 };
