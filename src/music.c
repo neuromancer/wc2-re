@@ -3,6 +3,8 @@
  *
  *  Retail object 0x452A00-0x45381F (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define MUSIC_C
 #include "game.h"
 
 static int g_nActiveMusicStreamMask_0049be9c;

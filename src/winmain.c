@@ -3,6 +3,8 @@
  *
  *  Retail object 0x453C80-0x4564EF (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define WINMAIN_C
 #include "game.h"
 
 static char g_szWindowClassName_0049c278[45];
@@ -1137,53 +1139,53 @@ void PollEscapeKey(void)
 unsigned int PollKeyboardState(void)
 {
     g_nClearedKeyboardState_005b3694 = 0;
-    g_nHomeKeyState_005b371c = GetAsyncKeyState(VK_HOME);
-    g_nUpArrowKeyState_005b3738 = GetAsyncKeyState(VK_UP);
-    g_nPageUpKeyState_005b3840 = GetAsyncKeyState(VK_PRIOR);
-    g_nLeftArrowKeyState_005b3844 = GetAsyncKeyState(VK_LEFT);
-    g_nRightArrowKeyState_005b3728 = GetAsyncKeyState(VK_RIGHT);
+    g_nBeginKeyboardState_005b371c = GetAsyncKeyState(VK_HOME);
+    g_nUpDirKeyState_005b3738 = GetAsyncKeyState(VK_UP);
+    g_nPgUpwardKeyMode_005b3840 = GetAsyncKeyState(VK_PRIOR);
+    g_nLeftDirKeyboardState_005b3844 = GetAsyncKeyState(VK_LEFT);
+    g_nRightDirKeyboardState_005b3728 = GetAsyncKeyState(VK_RIGHT);
     g_nEndKeyState_005b372c = GetAsyncKeyState(VK_END);
     g_nDownArrowKeyState_005b373c = GetAsyncKeyState(VK_DOWN);
-    g_nPageDownKeyState_005b3720 = GetAsyncKeyState(VK_NEXT);
-    g_nClearKeyState_005b3730 = GetAsyncKeyState(VK_CLEAR);
+    g_nPageDownKeyboardMode_005b3720 = GetAsyncKeyState(VK_NEXT);
+    g_nClearKeyMode_005b3730 = GetAsyncKeyState(VK_CLEAR);
     g_nOemPeriodKeyState_005b3718 = GetAsyncKeyState(0xbe);
     g_nOemCommaKeyState_005b3724 = GetAsyncKeyState(0xbc);
-    g_nInsertKeyState_005b3690 = GetAsyncKeyState(VK_INSERT);
+    g_nInsertKeyStatus_005b3690 = GetAsyncKeyState(VK_INSERT);
     g_nDeleteKeyState_005b3734 = GetAsyncKeyState(VK_DELETE);
 
-    if (g_nHomeKeyState_005b371c != 0)
+    if (g_nBeginKeyboardState_005b371c != 0)
         return 0x47;
-    if (g_nPageUpKeyState_005b3840 != 0)
+    if (g_nPgUpwardKeyMode_005b3840 != 0)
         return 0x49;
     if (g_nEndKeyState_005b372c != 0)
         return 0x4f;
-    if (g_nPageDownKeyState_005b3720 != 0)
+    if (g_nPageDownKeyboardMode_005b3720 != 0)
         return 0x51;
-    if (g_nInsertKeyState_005b3690 != 0 ||
+    if (g_nInsertKeyStatus_005b3690 != 0 ||
         g_nOemCommaKeyState_005b3724 != 0)
         return 0x52;
     if (g_nDeleteKeyState_005b3734 != 0 ||
         g_nOemPeriodKeyState_005b3718 != 0)
         return 0x53;
-    if (g_nClearKeyState_005b3730 != 0)
+    if (g_nClearKeyMode_005b3730 != 0)
         return 0x4c;
-    if (g_nUpArrowKeyState_005b3738 != 0) {
-        if (g_nLeftArrowKeyState_005b3844 != 0)
+    if (g_nUpDirKeyState_005b3738 != 0) {
+        if (g_nLeftDirKeyboardState_005b3844 != 0)
             return 0x47;
-        if (g_nRightArrowKeyState_005b3728 != 0)
+        if (g_nRightDirKeyboardState_005b3728 != 0)
             return 0x49;
         return 0x48;
     }
     if (g_nDownArrowKeyState_005b373c != 0) {
-        if (g_nLeftArrowKeyState_005b3844 != 0)
+        if (g_nLeftDirKeyboardState_005b3844 != 0)
             return 0x4f;
-        if (g_nRightArrowKeyState_005b3728 != 0)
+        if (g_nRightDirKeyboardState_005b3728 != 0)
             return 0x51;
         return 0x50;
     }
-    if (g_nLeftArrowKeyState_005b3844 != 0)
+    if (g_nLeftDirKeyboardState_005b3844 != 0)
         return 0x4b;
-    if (g_nRightArrowKeyState_005b3728 != 0)
+    if (g_nRightDirKeyboardState_005b3728 != 0)
         return 0x4d;
     return 0;
 }

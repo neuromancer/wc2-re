@@ -16,10 +16,10 @@ static int g_nDefaultFrameRate_0049ce88 = 70;
 
 static int g_nDisplayFrameRate_0049ce8c = 70;
 
-long g_nFramePeriodMilliseconds_005c343c =
+long g_nFramePeriodMillis_005c343c =
     (long)(1000.0 / g_nDisplayFrameRate_0049ce8c);
 
-float g_fPreviousFrameRate_005c3440 =
+float g_fPreviousFrameSpeed_005c3440 =
     (float)g_nDisplayFrameRate_0049ce8c;
 
 #ifndef SDL_PORT
@@ -86,45 +86,40 @@ int g_bFrameTimingInitialized_0049cebc = 0;
 
 int g_bDibSlamEnabled_0049cec0 = 1;
 
-char g_szFrameRateText_005b3950[32];
-
-unsigned int DAT_005b3970;
-
-unsigned int DAT_005b3974;
-
-unsigned char *g_pDibPixelBuffer_005b3978;
-
-unsigned int g_nDibRowBytes_005b397c;
-
-unsigned int g_nDibHeight_005b3980;
-
-unsigned char g_abDibBackingStore_005b3988[0xfa00];
-
-int g_nDibBitsPerPixel_005c3388;
-
-int g_nDibPresentCount_005c3390;
-
-HWND g_hDibWindow_005c33a4;
-
-int g_nDibDirtyMarkCount_005c33a8;
-
-char g_szDibErrorMessage_005c33b0[0x8c];
-
-unsigned char g_abPaletteCache_005c3450[1024];
-
+/* This unit's .bss: LINK orders C++ definitions by the identifiers' hash
+ * keys, and these spellings follow the original addresses. */
+char g_szFrameFrequencyString_005b3950[32];
+unsigned int g_nDibOriginX_005b3970;
+unsigned int g_nDibOffsetY_005b3974;
+unsigned char *g_pDisplayPixelBuffer_005b3978;
+unsigned int g_nDisplayRowBytes_005b397c;
+unsigned int g_nSurfaceHeight_005b3980;
+unsigned char g_abFrameBackingStore_005b3988[0xfa00];
+int g_nDibBitsEachPx_005c3388;
+int g_nDibShowCount_005c3390;
+HWND g_hFrameHwnd_005c33a4;
+int g_nDibDirtyHitTotal_005c33a8;
+char g_szFrameErrorMessage_005c33b0[0x8c];
+unsigned char g_abColourShadow_005c3450[1024];
 float g_fMeasuredFrameRate_005c3850;
-
-char g_szDibDebugBuffer_005c3858[256];
-
-int g_bDibDirty_005c395c;
-
-int g_nDibSlamRealCount_005c3960;
-
-unsigned int g_dwLastDibSlamRealReportTick_005c396c;
-
-unsigned int g_dwLastDibDirtyReportTick_005c39f0;
-
-char g_szDibSlamRealDebugBuffer_005c39f8[256];
+char g_szDibDebugScratch_005c3858[MAX_PATH];
+int g_bScreenStale_005c395c;
+int g_nDibFlipRealCount_005c3960;
+unsigned int g_dwLastSurfaceSlamRealNoticeTick_005c396c;
+char g_szSpaceFlightBestFpsMessage_005c3970[0x80];
+unsigned int g_dwLastDibDirtyReportTime_005c39f0;
+char g_szDibSlamRealDebugBuf_005c39f8[256];
+/* Never referenced; retail reserves their storage among the words above. */
+int g_nUnusedFrameSlot_005c338c;
+int g_nUnusedScreenWord_005c3394;
+int g_nUnusedScreenWord_005c3398;
+int g_nUnusedFrameWord_005c339c;
+int g_nUnusedDibWord_005c33a0;
+int g_nUnusedDibWord_005c3444;
+int g_nUnusedDibWord_005c3448;
+int g_nReservedDibWord_005c344c;
+int g_nIdleFrameWord_005c3964;
+int g_nIdleFrameWord_005c3968;
 
 #pragma function(strlen)
 /* Function start: 0x45CD2C */
@@ -134,13 +129,13 @@ void ThrottleFrameAndDrawFps(HDC dc)
         SetDefaultFrameTiming();
 
     if (g_bShowFrameRate_0049c260 != 0) {
-        sprintf(g_szFrameRateText_005b3950, "%f",
+        sprintf(g_szFrameFrequencyString_005b3950, "%f",
                 g_fMeasuredFrameRate_005c3850);
-        TextOutA(dc, 0, 0, g_szFrameRateText_005b3950,
-                 strlen(g_szFrameRateText_005b3950));
+        TextOutA(dc, 0, 0, g_szFrameFrequencyString_005b3950,
+                 strlen(g_szFrameFrequencyString_005b3950));
     }
 
-    if (g_pInputViewport_005c8403->pixels == g_pDibPixelBuffer_005b3978) {
+    if (g_pInputViewport_005c8403->pixels == g_pDisplayPixelBuffer_005b3978) {
         while (timeGetTime() < g_dwNextFrameDeadline_0049cea4) {
             Sleep(0);
             RefreshMouseCursorDisplay();
@@ -157,14 +152,14 @@ void ThrottleFrameAndDrawFps(HDC dc)
                            g_lPreviousFrameTick_0049ceac);
         }
         g_lPreviousFrameTick_0049ceac = timeGetTime();
-        sprintf(g_szFrameRateText_005b3950, "%f",
+        sprintf(g_szFrameFrequencyString_005b3950, "%f",
                 g_fMeasuredFrameRate_005c3850);
-        TextOutA(dc, 0, 0, g_szFrameRateText_005b3950,
-                 strlen(g_szFrameRateText_005b3950));
+        TextOutA(dc, 0, 0, g_szFrameFrequencyString_005b3950,
+                 strlen(g_szFrameFrequencyString_005b3950));
     }
 
     g_dwNextFrameDeadline_0049cea4 =
-        timeGetTime() + g_nFramePeriodMilliseconds_005c343c;
+        timeGetTime() + g_nFramePeriodMillis_005c343c;
 }
 
 void SetHudMessageText(char *text, unsigned short colour, unsigned short duration);
@@ -178,10 +173,10 @@ void ReportSpaceFlightMaxFps(float adjustment)
         g_fSpaceFlightFrameRate_0049ceb4 = 8.0f;
     else if (g_fSpaceFlightFrameRate_0049ceb4 > 32.0)
         g_fSpaceFlightFrameRate_0049ceb4 = 32.0f;
-    sprintf(g_szSpaceFlightMaxFpsMessage_005c3970,
+    sprintf(g_szSpaceFlightBestFpsMessage_005c3970,
             "Space Flight Max FPS : %.1f",
             (double)g_fSpaceFlightFrameRate_0049ceb4);
-    SetHudMessageText(g_szSpaceFlightMaxFpsMessage_005c3970, 0x50, 0x14);
+    SetHudMessageText(g_szSpaceFlightBestFpsMessage_005c3970, 0x50, 0x14);
     if (g_nFrameTimingMode_0049ceb0 == 1)
         SetSpaceFlightFrameTiming();
 }
@@ -190,7 +185,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
 void SetSpaceFlightFrameTiming(void)
 {
     g_nFrameTimingMode_0049ceb0 = 1;
-    g_nFramePeriodMilliseconds_005c343c =
+    g_nFramePeriodMillis_005c343c =
         (long)(1000.0 / g_fSpaceFlightFrameRate_0049ceb4);
     g_dwNextFrameDeadline_0049cea4 = 0;
     g_bFrameTimingInitialized_0049cebc = 1;
@@ -200,8 +195,8 @@ void SetSpaceFlightFrameTiming(void)
 void SetDefaultFrameTiming(void)
 {
     g_nFrameTimingMode_0049ceb0 = 0;
-    g_nFramePeriodMilliseconds_005c343c =
-        (long)(1000.0 / g_fPreviousFrameRate_005c3440);
+    g_nFramePeriodMillis_005c343c =
+        (long)(1000.0 / g_fPreviousFrameSpeed_005c3440);
     g_dwNextFrameDeadline_0049cea4 = 0;
     g_bFrameTimingInitialized_0049cebc = 1;
 }
@@ -210,7 +205,7 @@ void SetDefaultFrameTiming(void)
 void SetCinematicFrameTiming(float frameRate)
 {
     g_nFrameTimingMode_0049ceb0 = 0;
-    g_nFramePeriodMilliseconds_005c343c = (long)(1000.0 / frameRate);
+    g_nFramePeriodMillis_005c343c = (long)(1000.0 / frameRate);
     g_dwNextFrameDeadline_0049cea4 = 0;
     g_bFrameTimingInitialized_0049cebc = 1;
 }
@@ -221,29 +216,29 @@ void DIBerror(const char *tag, int hr)
 #ifdef SDL_PORT
     const char *text = SDL_GetError();
 
-    sprintf(g_szDibErrorMessage_005c33b0, "ERROR: %s - (%s)", tag, text);
+    sprintf(g_szFrameErrorMessage_005c33b0, "ERROR: %s - (%s)", tag, text);
     SdlShutdownVideo();
-    OutputDebugStringA(g_szDibErrorMessage_005c33b0);
-    if (g_hDibWindow_005c33a4 != 0)
-        SDL_SetWindowSize((SDL_Window *)g_hDibWindow_005c33a4, 320, 200);
-    MessageBoxA(0, g_szDibErrorMessage_005c33b0, "SDL Video Error", MB_ICONERROR);
+    OutputDebugStringA(g_szFrameErrorMessage_005c33b0);
+    if (g_hFrameHwnd_005c33a4 != 0)
+        SDL_SetWindowSize((SDL_Window *)g_hFrameHwnd_005c33a4, 320, 200);
+    MessageBoxA(0, g_szFrameErrorMessage_005c33b0, "SDL Video Error", MB_ICONERROR);
     exit(1);
 #else
     FILE *errorFile;
 
-    sprintf(g_szDibErrorMessage_005c33b0, "ERROR: %i in %s",
+    sprintf(g_szFrameErrorMessage_005c33b0, "ERROR: %i in %s",
             (unsigned short)hr, tag);
     COM_RELEASE(g_pSecondarySurface_0049ce98);
     COM_RELEASE(g_pPrimarySurface_0049ce94);
     IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
     IDirectDraw2_Release(g_pDirectDraw2_0049ce90);
-    WriteDebugString(g_szDibErrorMessage_005c33b0);
-    SetWindowPos(g_hDibWindow_005c33a4, HWND_BOTTOM, 0, 0, 320, 200,
+    WriteDebugString(g_szFrameErrorMessage_005c33b0);
+    SetWindowPos(g_hFrameHwnd_005c33a4, HWND_BOTTOM, 0, 0, 320, 200,
                  SWP_SHOWWINDOW);
     errorFile = fopen("direct.err", "wt+");
-    fprintf(errorFile, g_szDibErrorMessage_005c33b0);
+    fprintf(errorFile, g_szFrameErrorMessage_005c33b0);
     fclose(errorFile);
-    MessageBoxA(0, g_szDibErrorMessage_005c33b0, "DirectDraw Error", MB_ICONERROR);
+    MessageBoxA(0, g_szFrameErrorMessage_005c33b0, "DirectDraw Error", MB_ICONERROR);
     exit(1);
     return;
 #endif
@@ -254,14 +249,14 @@ void DIBpositionWindow(void)
 {
 #ifdef SDL_PORT
     SdlShutdownVideo();
-    if (g_hDibWindow_005c33a4 != 0)
-        SDL_SetWindowSize((SDL_Window *)g_hDibWindow_005c33a4, 320, 200);
+    if (g_hFrameHwnd_005c33a4 != 0)
+        SDL_SetWindowSize((SDL_Window *)g_hFrameHwnd_005c33a4, 320, 200);
 #else
     COM_RELEASE(g_pSecondarySurface_0049ce98);
     COM_RELEASE(g_pPrimarySurface_0049ce94);
     IDirectDraw2_RestoreDisplayMode(g_pDirectDraw2_0049ce90);
     IDirectDraw2_Release(g_pDirectDraw2_0049ce90);
-    SetWindowPos(g_hDibWindow_005c33a4, HWND_BOTTOM, 0, 0, 320, 200,
+    SetWindowPos(g_hFrameHwnd_005c33a4, HWND_BOTTOM, 0, 0, 320, 200,
                  SWP_SHOWWINDOW);
 #endif
 }
@@ -276,14 +271,14 @@ void DIBreInstall(void)
         if (g_pDirectDraw2_0049ce90 == 0)
             return;
         IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0049ce90, g_hDibWindow_005c33a4, 0x13);
+            g_pDirectDraw2_0049ce90, g_hFrameHwnd_005c33a4, 0x13);
         if (DIBcascade(-2, &err) == 0)
             DIBerror("DIBreInstall   DIBcascade Failure", err);
     } else {
         g_nDisplayModeCascade_0049cea0 = -1;
     }
 #else
-    if (!SdlInitializeVideo((SDL_Window *)g_hDibWindow_005c33a4))
+    if (!SdlInitializeVideo((SDL_Window *)g_hFrameHwnd_005c33a4))
         DIBerror("DIBreInstall", -1);
     MarkDibDirty();
     DIBslamReal();
@@ -299,7 +294,7 @@ void DIBinstall(HWND window)
     HRESULT result;
 #endif
 
-    g_hDibWindow_005c33a4 = window;
+    g_hFrameHwnd_005c33a4 = window;
 #ifdef SDL_PORT
     if (!SdlInitializeVideo((SDL_Window *)window))
         DIBerror("DIBinstall", -1);
@@ -317,10 +312,10 @@ void DIBinstall(HWND window)
 
     if (g_bConfigQuickModeEnabled_0049c264 != 0)
         result = IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0049ce90, g_hDibWindow_005c33a4, 0x13);
+            g_pDirectDraw2_0049ce90, g_hFrameHwnd_005c33a4, 0x13);
     else
         result = IDirectDraw2_SetCooperativeLevel(
-            g_pDirectDraw2_0049ce90, g_hDibWindow_005c33a4, 0x17);
+            g_pDirectDraw2_0049ce90, g_hFrameHwnd_005c33a4, 0x17);
     if (result != DD_OK)
         DIBerror("DIBmakeInstall   SetCooperativeLevel", result);
 
@@ -332,12 +327,12 @@ void DIBinstall(HWND window)
     }
 #endif
 
-    g_hDibWindow_005c33a4 = window;
-    memset(g_abPaletteCache_005c3450, 0, sizeof(g_abPaletteCache_005c3450));
-    memset(g_abDibBackingStore_005b3988, 0, sizeof(g_abDibBackingStore_005b3988));
+    g_hFrameHwnd_005c33a4 = window;
+    memset(g_abColourShadow_005c3450, 0, sizeof(g_abColourShadow_005c3450));
+    memset(g_abFrameBackingStore_005b3988, 0, sizeof(g_abFrameBackingStore_005b3988));
     DIBmakeDIB();
-    g_bDibDirty_005c395c = 1;
-    g_nDibPresentCount_005c3390 = 0;
+    g_bScreenStale_005c395c = 1;
+    g_nDibShowCount_005c3390 = 0;
     return;
 }
 
@@ -464,7 +459,7 @@ void DIBunInstall(void)
     DIBdestroyDIB();
 #ifdef SDL_PORT
     SdlShutdownVideo();
-    g_hDibWindow_005c33a4 = 0;
+    g_hFrameHwnd_005c33a4 = 0;
 #else
     COM_RELEASE(g_pSecondarySurface_0049ce98);
     COM_RELEASE(g_pPrimarySurface_0049ce94);
@@ -494,16 +489,16 @@ void DIBmakeDIB(void)
         DIBerror("DIBmakeDIB   CreateSurface (primary)", hr);
 #endif
 
-    g_nDibBitsPerPixel_005c3388 = 8;
+    g_nDibBitsEachPx_005c3388 = 8;
 #ifndef SDL_PORT
     for (paletteIndex = 0; paletteIndex < 256; paletteIndex++) {
-        colours[paletteIndex].peRed = g_abPaletteCache_005c3450[paletteIndex * 4 + 2];
-        colours[paletteIndex].peGreen = g_abPaletteCache_005c3450[paletteIndex * 4 + 1];
-        colours[paletteIndex].peBlue = g_abPaletteCache_005c3450[paletteIndex * 4];
+        colours[paletteIndex].peRed = g_abColourShadow_005c3450[paletteIndex * 4 + 2];
+        colours[paletteIndex].peGreen = g_abColourShadow_005c3450[paletteIndex * 4 + 1];
+        colours[paletteIndex].peBlue = g_abColourShadow_005c3450[paletteIndex * 4];
         colours[paletteIndex].peFlags = 0;
     }
 
-    if (g_nDibBitsPerPixel_005c3388 == 8) {
+    if (g_nDibBitsEachPx_005c3388 == 8) {
         hr = IDirectDraw2_CreatePalette(
             g_pDirectDraw2_0049ce90, DDPCAPS_8BIT, colours,
             &g_pDirectDrawPalette_0049ce9c, 0);
@@ -534,19 +529,19 @@ void DIBmakeDIB(void)
     }
 #endif
 
-    g_nDibRowBytes_005b397c = 320;
-    g_nDibHeight_005b3980 = 200;
-    DAT_005b3974 = 0;
-    DAT_005b3970 = 0;
-    g_pDibPixelBuffer_005b3978 = (unsigned char *)malloc(64000);
+    g_nDisplayRowBytes_005b397c = 320;
+    g_nSurfaceHeight_005b3980 = 200;
+    g_nDibOffsetY_005b3974 = 0;
+    g_nDibOriginX_005b3970 = 0;
+    g_pDisplayPixelBuffer_005b3978 = (unsigned char *)malloc(64000);
 #ifdef SDL_PORT
-    if (g_pDibPixelBuffer_005b3978 == 0)
+    if (g_pDisplayPixelBuffer_005b3978 == 0)
         DIBerror("DIBmakeDIB", -1);
 #endif
     g_stScreenViewport_005d21a0.allocation = GetDIBPixelBuffer();
     g_stScreenViewport_005d21a0.pixels = g_stScreenViewport_005d21a0.allocation;
-    memcpy(g_pDibPixelBuffer_005b3978, g_abDibBackingStore_005b3988,
-           g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
+    memcpy(g_pDisplayPixelBuffer_005b3978, g_abFrameBackingStore_005b3988,
+           g_nDisplayRowBytes_005b397c * g_nSurfaceHeight_005b3980);
     return;
 }
 
@@ -558,13 +553,13 @@ void DIBdestroyDIB(void)
 #endif
 
 #ifdef SDL_PORT
-    if (g_pDibPixelBuffer_005b3978 != 0) {
-        memcpy(g_abDibBackingStore_005b3988, g_pDibPixelBuffer_005b3978,
-               g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
+    if (g_pDisplayPixelBuffer_005b3978 != 0) {
+        memcpy(g_abFrameBackingStore_005b3988, g_pDisplayPixelBuffer_005b3978,
+               g_nDisplayRowBytes_005b397c * g_nSurfaceHeight_005b3980);
     }
 #else
-    memcpy(g_abDibBackingStore_005b3988, g_pDibPixelBuffer_005b3978,
-           g_nDibRowBytes_005b397c * g_nDibHeight_005b3980);
+    memcpy(g_abFrameBackingStore_005b3988, g_pDisplayPixelBuffer_005b3978,
+           g_nDisplayRowBytes_005b397c * g_nSurfaceHeight_005b3980);
 #endif
 #ifndef SDL_PORT
     if (g_nDisplayModeCascade_0049cea0 > 0) {
@@ -580,13 +575,13 @@ void DIBdestroyDIB(void)
         g_pPrimarySurface_0049ce94 = 0;
     }
 #endif
-    if (g_pDibPixelBuffer_005b3978 != 0) {
-        free(g_pDibPixelBuffer_005b3978);
-        g_pDibPixelBuffer_005b3978 = 0;
+    if (g_pDisplayPixelBuffer_005b3978 != 0) {
+        free(g_pDisplayPixelBuffer_005b3978);
+        g_pDisplayPixelBuffer_005b3978 = 0;
     }
-    DAT_005b3970 = 0;
-    DAT_005b3974 = 0;
-    g_pDibPixelBuffer_005b3978 = 0;
+    g_nDibOriginX_005b3970 = 0;
+    g_nDibOffsetY_005b3974 = 0;
+    g_pDisplayPixelBuffer_005b3978 = 0;
 #ifdef SDL_PORT
     g_stScreenViewport_005d21a0.pixels = 0;
     g_stScreenViewport_005d21a0.allocation = 0;
@@ -600,15 +595,15 @@ void MarkDibDirty(void)
     unsigned int tick;
 
     tick = GetTickCount();
-    g_bDibDirty_005c395c = 1;
-    g_nDibDirtyMarkCount_005c33a8++;
-    if (g_dwLastDibDirtyReportTick_005c39f0 + 1000 <= tick) {
-        sprintf(g_szDibDebugBuffer_005c3858,
+    g_bScreenStale_005c395c = 1;
+    g_nDibDirtyHitTotal_005c33a8++;
+    if (g_dwLastDibDirtyReportTime_005c39f0 + 1000 <= tick) {
+        sprintf(g_szDibDebugScratch_005c3858,
                 "DIBslam %d times in %d seconds\n",
-                g_nDibDirtyMarkCount_005c33a8,
-                tick - g_dwLastDibDirtyReportTick_005c39f0);
-        g_nDibDirtyMarkCount_005c33a8 = 0;
-        g_dwLastDibDirtyReportTick_005c39f0 = tick;
+                g_nDibDirtyHitTotal_005c33a8,
+                tick - g_dwLastDibDirtyReportTime_005c39f0);
+        g_nDibDirtyHitTotal_005c33a8 = 0;
+        g_dwLastDibDirtyReportTime_005c39f0 = tick;
     }
 }
 
@@ -644,17 +639,17 @@ void DIBslamReal(void)
     if (g_bDibSlamEnabled_0049cec0 == 0)
         return;
 
-    g_nDibSlamRealCount_005c3960++;
-    if (g_dwLastDibSlamRealReportTick_005c396c + 1000 <= tick) {
-        sprintf(g_szDibSlamRealDebugBuffer_005c39f8,
+    g_nDibFlipRealCount_005c3960++;
+    if (g_dwLastSurfaceSlamRealNoticeTick_005c396c + 1000 <= tick) {
+        sprintf(g_szDibSlamRealDebugBuf_005c39f8,
                 "DIBslamReal %d times in %d seconds\n",
-                g_nDibSlamRealCount_005c3960,
-                tick - g_dwLastDibSlamRealReportTick_005c396c);
-        g_nDibSlamRealCount_005c3960 = 0;
-        g_dwLastDibSlamRealReportTick_005c396c = tick;
+                g_nDibFlipRealCount_005c3960,
+                tick - g_dwLastSurfaceSlamRealNoticeTick_005c396c);
+        g_nDibFlipRealCount_005c3960 = 0;
+        g_dwLastSurfaceSlamRealNoticeTick_005c396c = tick;
     }
 
-    if (g_bDibDirty_005c395c != 0) {
+    if (g_bScreenStale_005c395c != 0) {
 #ifndef SDL_PORT
         memset(&surface, 0, sizeof(surface));
         surface.dwSize = sizeof(surface);
@@ -671,7 +666,7 @@ void DIBslamReal(void)
         if (g_pInputCursorShape_005c83f9 != 0 &&
             g_pInputViewport_005c8403 != 0 &&
             g_pInputViewport_005c8403 != &g_stViewBuffer_005d2b00 &&
-            g_stScreenViewport_005d21a0.pixels == g_pDibPixelBuffer_005b3978) {
+            g_stScreenViewport_005d21a0.pixels == g_pDisplayPixelBuffer_005b3978) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }
@@ -722,15 +717,15 @@ void DIBslamReal(void)
         }
 
         destination = (unsigned char *)surface.lpSurface;
-        source = g_pDibPixelBuffer_005b3978;
+        source = g_pDisplayPixelBuffer_005b3978;
         if (g_nDisplayModeCascade_0049cea0 <= 0) {
             IDirectDraw2_WaitForVerticalBlank(
                 g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
         }
-        for (row = 0; row < (int)g_nDibHeight_005b3980; row++) {
-            memcpy(destination, source, g_nDibRowBytes_005b397c);
+        for (row = 0; row < (int)g_nSurfaceHeight_005b3980; row++) {
+            memcpy(destination, source, g_nDisplayRowBytes_005b397c);
             destination += surface.lPitch;
-            source += g_nDibRowBytes_005b397c;
+            source += g_nDisplayRowBytes_005b397c;
         }
 
         if (g_nDisplayModeCascade_0049cea0 > 0) {
@@ -741,13 +736,13 @@ void DIBslamReal(void)
                 g_pPrimarySurface_0049ce94, surface.lpSurface);
         }
 #else
-        if (!SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+        if (!SdlPresentIndexedFrame(g_pDisplayPixelBuffer_005b3978, g_abColourShadow_005c3450))
             DIBerror("DIBslamReal", -1);
 #endif
 
 #ifdef SDL_PORT
         if (g_stMouseCursorState_0059ab10.viewport != 0 &&
-            g_stMouseCursorState_0059ab10.viewport->pixels == g_pDibPixelBuffer_005b3978) {
+            g_stMouseCursorState_0059ab10.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
             RestoreMouseCursorBackground();
         }
 #else
@@ -795,17 +790,17 @@ void DIBslamReal(void)
             }
         }
 #endif
-        g_bDibDirty_005c395c = 0;
+        g_bScreenStale_005c395c = 0;
     }
 
-    g_nDibPresentCount_005c3390++;
+    g_nDibShowCount_005c3390++;
     ServiceSoundSystem();
 #ifdef SDL_PORT
     ThrottleFrameAndDrawFps(0);
 #else
-    dc = GetDC(g_hDibWindow_005c33a4);
+    dc = GetDC(g_hFrameHwnd_005c33a4);
     ThrottleFrameAndDrawFps(dc);
-    ReleaseDC(g_hDibWindow_005c33a4, dc);
+    ReleaseDC(g_hFrameHwnd_005c33a4, dc);
 #endif
 }
 
@@ -843,7 +838,7 @@ void DIBupdate(int left, int top, int right, int bottom)
 #ifdef SDL_PORT
     if (right < left || bottom < top)
         return;
-    if (!SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+    if (!SdlPresentIndexedFrame(g_pDisplayPixelBuffer_005b3978, g_abColourShadow_005c3450))
         DIBerror("DIBupdate", -1);
 #else
     width = right - left + 1;
@@ -861,13 +856,13 @@ void DIBupdate(int left, int top, int right, int bottom)
 
     destination = (unsigned char *)surface.lpSurface
                 + surface.lPitch * top + left;
-    source = g_pDibPixelBuffer_005b3978 + g_nDibRowBytes_005b397c * top + left;
+    source = g_pDisplayPixelBuffer_005b3978 + g_nDisplayRowBytes_005b397c * top + left;
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
     while (height > 0) {
         memcpy(destination, source, width);
         destination += surface.lPitch;
-        source += g_nDibRowBytes_005b397c;
+        source += g_nDisplayRowBytes_005b397c;
         height--;
     }
     IDirectDrawSurface_Unlock(
@@ -878,7 +873,7 @@ void DIBupdate(int left, int top, int right, int bottom)
 /* Function start: 0x45E276 */
 unsigned char *GetDIBPixelBuffer(void)
 {
-    return g_pDibPixelBuffer_005b3978;
+    return g_pDisplayPixelBuffer_005b3978;
 }
 
 /* Function start: 0x45E28B */
@@ -892,46 +887,46 @@ void DIBpixelBufferHook(void)
 /* Nothing in the shipped executable calls this. */
 HWND GetDIBWindowHandle(void)
 {
-    return g_hDibWindow_005c33a4;
+    return g_hFrameHwnd_005c33a4;
 }
 
 /* Function start: 0x45E2B0 */
 /* Nothing in the shipped executable calls this. */
 unsigned int GetDIBWidth(void)
 {
-    return g_nDibRowBytes_005b397c;
+    return g_nDisplayRowBytes_005b397c;
 }
 
 /* Function start: 0x45E2C5 */
 unsigned int GetDIBHeight(void)
 {
-    return g_nDibHeight_005b3980;
+    return g_nSurfaceHeight_005b3980;
 }
 
 /* Function start: 0x45E2DA */
 void CachePaletteEntryFromWords(short index, unsigned short *rgb)
 {
-    g_abPaletteCache_005c3450[index * 4 + 2] =
+    g_abColourShadow_005c3450[index * 4 + 2] =
         *(unsigned char *)&rgb[0];
     g_ausPaletteWords_005d3220[index][0] =
-        g_abPaletteCache_005c3450[index * 4 + 2];
-    g_abPaletteCache_005c3450[index * 4 + 1] =
+        g_abColourShadow_005c3450[index * 4 + 2];
+    g_abColourShadow_005c3450[index * 4 + 1] =
         *(unsigned char *)&rgb[1];
     g_ausPaletteWords_005d3220[index][1] =
-        g_abPaletteCache_005c3450[index * 4 + 1];
-    g_abPaletteCache_005c3450[index * 4] =
+        g_abColourShadow_005c3450[index * 4 + 1];
+    g_abColourShadow_005c3450[index * 4] =
         *(unsigned char *)&rgb[2];
     g_ausPaletteWords_005d3220[index][2] =
-        g_abPaletteCache_005c3450[index * 4];
-    g_abPaletteCache_005c3450[index * 4 + 3] = 1;
+        g_abColourShadow_005c3450[index * 4];
+    g_abColourShadow_005c3450[index * 4 + 3] = 1;
 }
 
 /* Function start: 0x45E37C */
 void DIBramPalette(void)
 {
 #ifdef SDL_PORT
-    if (g_pDibPixelBuffer_005b3978 != 0 &&
-        !SdlPresentIndexedFrame(g_pDibPixelBuffer_005b3978, g_abPaletteCache_005c3450))
+    if (g_pDisplayPixelBuffer_005b3978 != 0 &&
+        !SdlPresentIndexedFrame(g_pDisplayPixelBuffer_005b3978, g_abColourShadow_005c3450))
         DIBerror("DIBramPalette", -1);
 #else
     PALETTEENTRY entries[256];
@@ -940,11 +935,11 @@ void DIBramPalette(void)
 
     for (index = 0; index < 256; index++) {
         entries[index].peRed =
-            g_abPaletteCache_005c3450[index * 4 + 2];
+            g_abColourShadow_005c3450[index * 4 + 2];
         entries[index].peGreen =
-            g_abPaletteCache_005c3450[index * 4 + 1];
+            g_abColourShadow_005c3450[index * 4 + 1];
         entries[index].peBlue =
-            g_abPaletteCache_005c3450[index * 4];
+            g_abColourShadow_005c3450[index * 4];
         entries[index].peFlags = 0;
     }
     if (g_bUseHardwarePalette_0049c268 != 0) {
@@ -964,23 +959,23 @@ void DIBsetPalette(short index, short *rgb)
     HRESULT error;
 #endif
 
-    if ((int)g_abPaletteCache_005c3450[index * 4 + 2] == (int)rgb[0] &&
-        (int)g_abPaletteCache_005c3450[index * 4 + 1] == (int)rgb[1] &&
-        (int)g_abPaletteCache_005c3450[index * 4] == (int)rgb[2])
+    if ((int)g_abColourShadow_005c3450[index * 4 + 2] == (int)rgb[0] &&
+        (int)g_abColourShadow_005c3450[index * 4 + 1] == (int)rgb[1] &&
+        (int)g_abColourShadow_005c3450[index * 4] == (int)rgb[2])
         return;
-    g_abPaletteCache_005c3450[index * 4 + 2] =
+    g_abColourShadow_005c3450[index * 4 + 2] =
         *(unsigned char *)&rgb[0];
     g_ausPaletteWords_005d3220[index][0] =
-        g_abPaletteCache_005c3450[index * 4 + 2];
-    g_abPaletteCache_005c3450[index * 4 + 1] =
+        g_abColourShadow_005c3450[index * 4 + 2];
+    g_abColourShadow_005c3450[index * 4 + 1] =
         *(unsigned char *)&rgb[1];
     g_ausPaletteWords_005d3220[index][1] =
-        g_abPaletteCache_005c3450[index * 4 + 1];
-    g_abPaletteCache_005c3450[index * 4] =
+        g_abColourShadow_005c3450[index * 4 + 1];
+    g_abColourShadow_005c3450[index * 4] =
         *(unsigned char *)&rgb[2];
     g_ausPaletteWords_005d3220[index][2] =
-        g_abPaletteCache_005c3450[index * 4];
-    g_abPaletteCache_005c3450[index * 4 + 3] = 1;
+        g_abColourShadow_005c3450[index * 4];
+    g_abColourShadow_005c3450[index * 4 + 3] = 1;
 
     /* SDL_PORT consumes this cache on the next normal frame submission.
        A DirectDraw palette entry update did not blit or wait for vertical
@@ -1009,9 +1004,9 @@ void DIBsetPalette(short index, short *rgb)
 /* Function start: 0x45E61C */
 void GetPaletteEntryAsWords(short i, unsigned short *rgb)
 {
-    rgb[0] = g_abPaletteCache_005c3450[i * 4 + 2];
-    rgb[1] = g_abPaletteCache_005c3450[i * 4 + 1];
-    rgb[2] = g_abPaletteCache_005c3450[i * 4];
+    rgb[0] = g_abColourShadow_005c3450[i * 4 + 2];
+    rgb[1] = g_abColourShadow_005c3450[i * 4 + 1];
+    rgb[2] = g_abColourShadow_005c3450[i * 4];
 }
 
 /* Function start: 0x45E667 */
@@ -1030,26 +1025,26 @@ void DIBwholePaletteFromTriplets(unsigned char *palette)
     SdlWaitForVerticalBlank();
 #endif
     for (index = 0; index < 0x100; index++) {
-        g_abPaletteCache_005c3450[index * 4 + 2] =
+        g_abColourShadow_005c3450[index * 4 + 2] =
             palette[index * 3];
 #ifndef SDL_PORT
         entries[index * 4] =
-            g_abPaletteCache_005c3450[index * 4 + 2];
+            g_abColourShadow_005c3450[index * 4 + 2];
 #endif
-        g_abPaletteCache_005c3450[index * 4 + 1] =
+        g_abColourShadow_005c3450[index * 4 + 1] =
             palette[index * 3 + 1];
 #ifndef SDL_PORT
         entries[index * 4 + 1] =
-            g_abPaletteCache_005c3450[index * 4 + 1];
+            g_abColourShadow_005c3450[index * 4 + 1];
 #endif
-        g_abPaletteCache_005c3450[index * 4] =
+        g_abColourShadow_005c3450[index * 4] =
             palette[index * 3 + 2];
 #ifndef SDL_PORT
         entries[index * 4 + 2] =
-            g_abPaletteCache_005c3450[index * 4];
+            g_abColourShadow_005c3450[index * 4];
         entries[index * 4 + 3] = 0;
 #endif
-        g_abPaletteCache_005c3450[index * 4 + 3] = 4;
+        g_abColourShadow_005c3450[index * 4 + 3] = 4;
     }
 
 #ifdef SDL_PORT
@@ -1086,26 +1081,26 @@ void DIBwholePaletteFromWords(unsigned short *palette)
     SdlWaitForVerticalBlank();
 #endif
     for (index = 0; index < 0x100; index++) {
-        g_abPaletteCache_005c3450[index * 4 + 2] =
+        g_abColourShadow_005c3450[index * 4 + 2] =
             *(unsigned char *)&palette[index * 3];
 #ifndef SDL_PORT
         entries[index * 4] =
-            g_abPaletteCache_005c3450[index * 4 + 2];
+            g_abColourShadow_005c3450[index * 4 + 2];
 #endif
-        g_abPaletteCache_005c3450[index * 4 + 1] =
+        g_abColourShadow_005c3450[index * 4 + 1] =
             *(unsigned char *)&palette[index * 3 + 1];
 #ifndef SDL_PORT
         entries[index * 4 + 1] =
-            g_abPaletteCache_005c3450[index * 4 + 1];
+            g_abColourShadow_005c3450[index * 4 + 1];
 #endif
-        g_abPaletteCache_005c3450[index * 4] =
+        g_abColourShadow_005c3450[index * 4] =
             *(unsigned char *)&palette[index * 3 + 2];
 #ifndef SDL_PORT
         entries[index * 4 + 2] =
-            g_abPaletteCache_005c3450[index * 4];
+            g_abColourShadow_005c3450[index * 4];
         entries[index * 4 + 3] = 0;
 #endif
-        g_abPaletteCache_005c3450[index * 4 + 3] = 4;
+        g_abColourShadow_005c3450[index * 4 + 3] = 4;
     }
 
 #ifdef SDL_PORT

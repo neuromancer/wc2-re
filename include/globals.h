@@ -26,8 +26,8 @@ extern int g_bSpeechSoundActive_004a2660;
 extern int g_bSpaceFlightActive_005c586c;
 extern int g_nFrameTimingMode_0049ceb0;
 extern float g_fSpaceFlightFrameRate_0049ceb4;
-extern long g_nFramePeriodMilliseconds_005c343c;
-extern float g_fPreviousFrameRate_005c3440;
+extern long g_nFramePeriodMillis_005c343c;
+extern float g_fPreviousFrameSpeed_005c3440;
 extern DWORD g_dwNextFrameDeadline_0049cea4;
 extern long g_lPreviousFrameTick_0049ceac;
 extern int g_bFrameTimingInitialized_0049cebc;
@@ -112,16 +112,18 @@ extern char g_szMissionTanker_0049bd18[8];
 extern char g_szMissionTow_0049bd20[4];
 extern char g_szMissionBreakOff_0049bd24[12];
 extern char g_szNavLabelTextFormat_0049bd30[12];
-extern char g_szNavAsteroids_0049bd3c[12];
-extern char g_szNavMines_0049bd48[8];
-extern char g_szInflightTimeFieldFormat_0049bd50[8];
-extern char g_szStandardTimeFormat_0049bd58[24];
-extern char g_szStandardTimeBlank_0049bd70[4];
-extern char g_szInflightTimeSuffixFormat_0049bd74[8];
-extern char g_szStandardTimeColon_0049bd7c[4];
-extern char g_szNavLegendNewline_0049bd80[4];
-extern char g_szNavMissionFlightPath_0049bd84[20];
-extern char g_szNavHomeBase_0049bd98[12];
+/* dib.cpp's ten unreferenced words take these header slots, which once
+ * named nav.c strings that are now literals. */
+extern int g_nUnusedFrameSlot_005c338c;
+extern int g_nUnusedScreenWord_005c3394;
+extern int g_nUnusedScreenWord_005c3398;
+extern int g_nUnusedFrameWord_005c339c;
+extern int g_nUnusedDibWord_005c33a0;
+extern int g_nUnusedDibWord_005c3444;
+extern int g_nUnusedDibWord_005c3448;
+extern int g_nReservedDibWord_005c344c;
+extern int g_nIdleFrameWord_005c3964;
+extern int g_nIdleFrameWord_005c3968;
 extern char g_szNavBlankLine_0049bdb0[4];
 extern char g_szNavTitleFormat_0049bdb4[8];
 extern char g_szNavSectorFormat_0049bdbc[12];
@@ -168,7 +170,14 @@ extern int g_aiTargetCameraScannerGridRows_0049b1b8[50];
 extern short g_nTargetLockMarkerX_0049b298;
 extern int g_nCommPortraitFrame_0049b2bc;
 extern int g_bForceDamageDisplayRedraw_0049b2ec;
-extern char g_szMissileLocked_0049b30c[16];
+/* winmain.c keeps this storage private: it defines WINMAIN_C before including the game
+ * headers, so these become its statics at their header positions. */
+#ifdef WINMAIN_C
+#define WINMAIN_STATIC static
+#else
+#define WINMAIN_STATIC extern
+#endif
+WINMAIN_STATIC unsigned char g_abUnusedKeyboardArea_005b3698[0x80]; /* never referenced */
 extern char g_szNotEnoughMemoryMessage_0049cbb8[];
 /* Unreferenced: cockpt.c uses literals for these HUD reasons; the dead
  * names keep the header's symbol count. */
@@ -800,29 +809,36 @@ extern char g_szShortLieutenantColonelRank_0049a724[8];
 extern unsigned char g_abPaletteTranslation_00496338[256];
 extern unsigned short g_awAbsoluteCosine_00496438[360];
 extern unsigned short g_awAbsoluteSine_00496708[360];
-extern int g_nInsertKeyState_005b3690;
-extern int g_nClearedKeyboardState_005b3694;
-extern int g_nOemPeriodKeyState_005b3718;
-extern int g_nHomeKeyState_005b371c;
-extern int g_nPageDownKeyState_005b3720;
-extern int g_nOemCommaKeyState_005b3724;
-extern int g_nRightArrowKeyState_005b3728;
-extern int g_nEndKeyState_005b372c;
-extern int g_nClearKeyState_005b3730;
-extern int g_nDeleteKeyState_005b3734;
-extern int g_nUpArrowKeyState_005b3738;
-extern int g_nDownArrowKeyState_005b373c;
+WINMAIN_STATIC int g_nInsertKeyStatus_005b3690;
+WINMAIN_STATIC int g_nClearedKeyboardState_005b3694;
+WINMAIN_STATIC int g_nOemPeriodKeyState_005b3718;
+WINMAIN_STATIC int g_nBeginKeyboardState_005b371c;
+WINMAIN_STATIC int g_nPageDownKeyboardMode_005b3720;
+WINMAIN_STATIC int g_nOemCommaKeyState_005b3724;
+WINMAIN_STATIC int g_nRightDirKeyboardState_005b3728;
+WINMAIN_STATIC int g_nEndKeyState_005b372c;
+WINMAIN_STATIC int g_nClearKeyMode_005b3730;
+WINMAIN_STATIC int g_nDeleteKeyState_005b3734;
+WINMAIN_STATIC int g_nUpDirKeyState_005b3738;
+WINMAIN_STATIC int g_nDownArrowKeyState_005b373c;
 #ifdef SDL_PORT
-extern char g_szStreamsPath_005b3740[4096];
+WINMAIN_STATIC char g_szStreamsPath_005b3740[4096];
 #else
-extern char g_szStreamsPath_005b3740[0x100];
+WINMAIN_STATIC char g_szStreamsPath_005b3740[0x100];
 #endif
-extern int g_nPageUpKeyState_005b3840;
-extern int g_nLeftArrowKeyState_005b3844;
-extern char g_szReadDataFileError_005b3848[0x40];
-extern char g_szCreateDataFileError_005b3888[0x40];
-extern char g_szWriteDataFileError_005b38c8[0x40];
-extern char g_szSeekDataFileError_005b3908[0x80];
+WINMAIN_STATIC int g_nPgUpwardKeyMode_005b3840;
+WINMAIN_STATIC int g_nLeftDirKeyboardState_005b3844;
+/* datafile.c keeps this storage private: it defines DATAFILE_C before including the game
+ * headers, so these become its statics at their header positions. */
+#ifdef DATAFILE_C
+#define DATAFILE_STATIC static
+#else
+#define DATAFILE_STATIC extern
+#endif
+DATAFILE_STATIC char g_szReadDataFileFault_005b3848[0x40];
+DATAFILE_STATIC char g_szCreateBlockFileError_005b3888[0x40];
+DATAFILE_STATIC char g_szWriteDataFileError_005b38c8[0x40];
+DATAFILE_STATIC char g_szSeekDataFileFailure_005b3908[0x48];
 /* mono.c keeps this storage private: it defines MONO_C before including the
  * game headers, so these become its statics at their header positions. */
 #ifdef MONO_C
@@ -834,8 +850,22 @@ MONO_STATIC int g_bMonoDebugInstalled_005b30e8;
 MONO_STATIC HANDLE g_hMonoDebugDevice_005b30ec;
 extern WaveTableEntry *g_pSnowStaticClip_004a2654;
 extern IxSound *g_pSnowStaticAudio_004a2664;
-extern int g_nKeyboardMouseButtons_005b3648;
-extern char g_szSfxWavePath_005b3650[0x40];
+/* kbmouse.c keeps this storage private: it defines KBMOUSE_C before including the game
+ * headers, so these become its statics at their header positions. */
+#ifdef KBMOUSE_C
+#define KBMOUSE_STATIC static
+#else
+#define KBMOUSE_STATIC extern
+#endif
+KBMOUSE_STATIC int g_nKeyboardMouseButtons_005b3648;
+/* music.c keeps its wave-path buffer private (MUSIC_C); the SDL music
+ * adapter shares it, so the port keeps the external declaration. */
+#if defined(MUSIC_C) && !defined(SDL_PORT)
+#define MUSIC_STATIC static
+#else
+#define MUSIC_STATIC extern
+#endif
+MUSIC_STATIC char g_szSfxWavePath_005b3650[0x40];
 /* fl.c keeps this storage private: it defines FL_C before including the
  * game headers, so these become its statics at their header positions. */
 #ifdef FL_C
@@ -847,18 +877,18 @@ FL_STATIC short g_nShipAiScratchValue_005b30f0;
 FL_STATIC unsigned char g_bCurrentManeuverReroll_005b30f4;
 extern DebugOverlayConsole *g_pDiagnosticOverlay_004a2548;
 extern char g_szSystemDebugBuffer_004a2550[256];
-extern unsigned int DAT_005b3970;
-extern unsigned int DAT_005b3974;
-extern unsigned char *g_pDibPixelBuffer_005b3978;
-extern unsigned int g_nDibRowBytes_005b397c;
-extern unsigned int g_nDibHeight_005b3980;
-extern unsigned char g_abDibBackingStore_005b3988[0xfa00];
-extern int g_nDibBitsPerPixel_005c3388;
-extern int g_nDibPresentCount_005c3390;
-extern HWND g_hDibWindow_005c33a4;
-extern unsigned char g_abPaletteCache_005c3450[1024];
+extern unsigned int g_nDibOriginX_005b3970;
+extern unsigned int g_nDibOffsetY_005b3974;
+extern unsigned char *g_pDisplayPixelBuffer_005b3978;
+extern unsigned int g_nDisplayRowBytes_005b397c;
+extern unsigned int g_nSurfaceHeight_005b3980;
+extern unsigned char g_abFrameBackingStore_005b3988[0xfa00];
+extern int g_nDibBitsEachPx_005c3388;
+extern int g_nDibShowCount_005c3390;
+extern HWND g_hFrameHwnd_005c33a4;
+extern unsigned char g_abColourShadow_005c3450[1024];
 extern int g_bDibSlamEnabled_0049cec0;
-extern char g_szSpaceFlightMaxFpsMessage_005c3970[0x80];
+extern char g_szSpaceFlightBestFpsMessage_005c3970[0x80];
 /* gr.c keeps its raster and shape scratch storage in statics; these dead
  * "Slot" names hold the header's symbol count. */
 /* gr.c keeps this storage private: it defines GR_C before including the
@@ -1368,13 +1398,13 @@ extern int g_bMainWindowRunning_005d12ac;
 extern HDC DAT_005d1278;
 extern HINSTANCE DAT_005d12b0;
 extern unsigned short g_ausPaletteWords_005d3220[256][3];
-extern int g_bDibDirty_005c395c;
-extern int g_nDibDirtyMarkCount_005c33a8;
-extern unsigned int g_dwLastDibDirtyReportTick_005c39f0;
-extern char g_szDibDebugBuffer_005c3858[256];
-extern int g_nDibSlamRealCount_005c3960;
-extern unsigned int g_dwLastDibSlamRealReportTick_005c396c;
-extern char g_szDibSlamRealDebugBuffer_005c39f8[256];
+extern int g_bScreenStale_005c395c;
+extern int g_nDibDirtyHitTotal_005c33a8;
+extern unsigned int g_dwLastDibDirtyReportTime_005c39f0;
+extern char g_szDibDebugScratch_005c3858[MAX_PATH];
+extern int g_nDibFlipRealCount_005c3960;
+extern unsigned int g_dwLastSurfaceSlamRealNoticeTick_005c396c;
+extern char g_szDibSlamRealDebugBuf_005c39f8[256];
 extern const char *g_pszMissileLocked_0049b280;
 extern unsigned long g_dwGameClockBase_005d10e8;
 extern long g_lGameClockStart_005d12b8;
@@ -1416,8 +1446,15 @@ extern volatile short g_nCockpitExplosionFrame_0049b04c;
 extern short g_nTargetLockMusicCooldown_005d1e78;
 extern unsigned int g_dwStreamerState_005c4c38;
 extern short DAT_0059a856;
-extern NavMapLabel g_aNavMapLabels_005b34e0[20];
-extern ShortRect g_aNavMapExclusionRects_005b35a8[20];
+/* nav.c keeps this storage private: it defines NAV_C before including the game
+ * headers, so these become its statics at their header positions. */
+#ifdef NAV_C
+#define NAV_STATIC static
+#else
+#define NAV_STATIC extern
+#endif
+NAV_STATIC NavMapLabel g_aNavMapLabels_005b34e0[20];
+NAV_STATIC ShortRect g_aNavMapExclusionRects_005b35a8[20];
 extern int g_nSfxVolumeSetting_0049d74c;
 extern int g_nMusicVolumeSetting_0049d750;
 extern short g_bViewportDirty_0049d76c;
@@ -1557,8 +1594,8 @@ extern LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94;
 extern LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98;
 extern LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0049ce9c;
 extern int   g_nDisplayModeCascade_0049cea0;
-extern char g_szDibErrorMessage_005c33b0[0x8c];
-extern char g_szFrameRateText_005b3950[32];
+extern char g_szFrameErrorMessage_005c33b0[0x8c];
+extern char g_szFrameFrequencyString_005b3950[32];
 extern float g_fMeasuredFrameRate_005c3850;
 
 extern signed char g_cMessageSpeed_0049b778;

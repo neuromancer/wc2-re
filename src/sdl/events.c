@@ -359,7 +359,7 @@ static SDL_Window *SdlGetFullscreenWindow(Uint32 windowId)
     if (window == 0)
         window = SDL_GetKeyboardFocus();
     if (window == 0)
-        window = (SDL_Window *)g_hDibWindow_005c33a4;
+        window = (SDL_Window *)g_hFrameHwnd_005c33a4;
     if (window == 0)
         window = (SDL_Window *)g_hMainWindow_005d10e0;
     return window;

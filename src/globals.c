@@ -265,35 +265,11 @@ short g_nTalkingHeadFaceY_005a8756;
 short g_nTalkingHeadMouthY_005a8758;
 short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
-NavMapLabel g_aNavMapLabels_005b34e0[20];
-ShortRect g_aNavMapExclusionRects_005b35a8[20];
 /* The button mask KeyboardMousePump last posted. */
-int g_nKeyboardMouseButtons_005b3648;
-char g_szSfxWavePath_005b3650[0x40];
-int g_nInsertKeyState_005b3690;
-int g_nClearedKeyboardState_005b3694;
-int g_nOemPeriodKeyState_005b3718;
-int g_nHomeKeyState_005b371c;
-int g_nPageDownKeyState_005b3720;
-int g_nOemCommaKeyState_005b3724;
-int g_nRightArrowKeyState_005b3728;
-int g_nEndKeyState_005b372c;
-int g_nClearKeyState_005b3730;
-int g_nDeleteKeyState_005b3734;
-int g_nUpArrowKeyState_005b3738;
-int g_nDownArrowKeyState_005b373c;
 #ifdef SDL_PORT
-char g_szStreamsPath_005b3740[4096];
-#else
-char g_szStreamsPath_005b3740[0x100];
+/* The SDL music adapter formats into it too, so the port keeps it shared. */
+char g_szSfxWavePath_005b3650[0x40];
 #endif
-int g_nPageUpKeyState_005b3840;
-int g_nLeftArrowKeyState_005b3844;
-char g_szReadDataFileError_005b3848[0x40];
-char g_szCreateDataFileError_005b3888[0x40];
-char g_szWriteDataFileError_005b38c8[0x40];
-char g_szSeekDataFileError_005b3908[0x80];
-char g_szSpaceFlightMaxFpsMessage_005c3970[0x80];
 InputEventState g_stFoundInputEvent_005c3af8;
 unsigned char g_abInputCursorBackground_005c3b10[0x400];
 int g_bMouseFireButtonLatched_005c4b10;

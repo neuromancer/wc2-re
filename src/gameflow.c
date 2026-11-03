@@ -158,7 +158,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
                      (char)(speaker >= ' ' ? speaker : '.'),
                      (int)speechSpeed, (int)ticks,
                      (int)sprite->waitTicks, (int)g_nInputClock_005c84a8,
-                     g_nFramePeriodMilliseconds_005c343c,
+                     g_nFramePeriodMillis_005c343c,
                      (int)g_wDigiPlaying_0049bb60,
                      (int)g_bSpeechSoundActive_004a2660);
 #endif

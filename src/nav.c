@@ -3,6 +3,8 @@
  *
  *  Retail object 0x44FA70-0x45244F (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define NAV_C
 #include "game.h"
 
 short g_nNavMapCoordinateScaling_0049bb80 = 0;

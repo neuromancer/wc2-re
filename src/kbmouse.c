@@ -3,6 +3,8 @@
  *
  *  Retail object 0x452450-0x45292F (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define KBMOUSE_C
 #include "game.h"
 
 int g_bKeyboardMouseEnabled_0049be68 = 0;
