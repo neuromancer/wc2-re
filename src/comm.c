@@ -578,7 +578,7 @@ void real_vid_transmit(short obj, short message)
          * comm transmission once message_showing() is already false, so
          * on the normal path the sentinel never gets armed here:
          * check_message() then never sees g_nHudMessageTime_005d1c32 ==
-         * -1 and so never notices g_bSpeechPlaybackComplete_004a266c go
+         * -1 and so never notices g_bSpeechPlaybackDone_004a266c go
          * true, leaving the comm portrait/VDU stuck once the speech line
          * finishes playing. Arm the sentinel unconditionally so playback
          * completion always gets observed. */

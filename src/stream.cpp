@@ -9,8 +9,18 @@
  */
 #include "game.h"
 
-/* Formatting scratch buffer for ix_log_printf. */
-char g_szIxLogBuffer_005b2c98[1024];
+/* Uninitialized C++ definitions: this unit's .bss, which LINK orders by the
+ * identifiers' hash keys (the spellings follow the original addresses). */
+int g_nStreamerAudioPlaying_005b2810;
+#ifdef SDL_PORT
+char g_szStreamerDirectory_005b2818[4096];
+#else
+char g_szStreamerDirectory_005b2818[128];
+#endif
+char g_szLegacyGameDataPath_005b2898[0x400];
+/* Formatting scratch buffer for ix_log_printf; it fills the 0x450 bytes up
+ * to mono.c's storage. */
+char g_szIxLogText_005b2c98[0x450];
 
 void ix_log_printf(const char *fmt, ...);
 
@@ -77,21 +87,21 @@ void Streamer_open(const char *streamName)
         g_nStreamerAudioPlaying_005b2810 = 0;
         return;
     }
-    length = snprintf(g_szStreamerPath_005b2818,
-                      sizeof(g_szStreamerPath_005b2818), "%s%s",
+    length = snprintf(g_szStreamerDirectory_005b2818,
+                      sizeof(g_szStreamerDirectory_005b2818), "%s%s",
                       streamsDirectory, streamName);
-    if (length < 0 || (size_t)length >= sizeof(g_szStreamerPath_005b2818)) {
+    if (length < 0 || (size_t)length >= sizeof(g_szStreamerDirectory_005b2818)) {
         fprintf(stderr, "Music stream path is too long: '%s%s'.\n",
                 streamsDirectory, streamName);
         g_nStreamerAudioPlaying_005b2810 = 0;
         return;
     }
 #else
-    sprintf(g_szStreamerPath_005b2818, "%s%s",
+    sprintf(g_szStreamerDirectory_005b2818, "%s%s",
             streamsDirectory, streamName);
 #endif
-    SoundDebugPrintf("Streamer_open %s\n", g_szStreamerPath_005b2818);
-    ix_streamer_open_stream_file(g_szStreamerPath_005b2818);
+    SoundDebugPrintf("Streamer_open %s\n", g_szStreamerDirectory_005b2818);
+    ix_streamer_open_stream_file(g_szStreamerDirectory_005b2818);
     g_nStreamerAudioPlaying_005b2810 = 0;
     return;
 }
@@ -186,15 +196,15 @@ void ix_log_printf(const char *fmt, ...)
 
     if (fmt != 0) {
         va_start(arguments, fmt);
-        vsprintf(g_szIxLogBuffer_005b2c98, fmt, arguments);
+        vsprintf(g_szIxLogText_005b2c98, fmt, arguments);
         va_end(arguments);
     } else {
-        strcpy(g_szIxLogBuffer_005b2c98, "(null)");
+        strcpy(g_szIxLogText_005b2c98, "(null)");
     }
 #ifdef SDL_PORT
-    SdlOutputDebugString(g_szIxLogBuffer_005b2c98);
+    SdlOutputDebugString(g_szIxLogText_005b2c98);
 #else
-    OutputDebugStringA(g_szIxLogBuffer_005b2c98);
+    OutputDebugStringA(g_szIxLogText_005b2c98);
 #endif
 }
 

@@ -234,11 +234,11 @@ static int SdlRunRuntimeChecks(void)
     g_asShipManeuver_00495f48[0] = MANEUVER_THINKING;
     perform_maneuver(0);
 
-    g_pSnowStaticSound_004a2664 = ix_system_new_sound(0);
-    if (g_pSnowStaticSound_004a2664 == 0)
+    g_pSnowStaticAudio_004a2664 = ix_system_new_sound(0);
+    if (g_pSnowStaticAudio_004a2664 == 0)
         return 1;
     stop_all_sounds();
-    if (g_pSnowStaticSound_004a2664 != 0)
+    if (g_pSnowStaticAudio_004a2664 != 0)
         return 1;
 
     /* WC2's vdu_polygon draws straight into the panel shape instead of

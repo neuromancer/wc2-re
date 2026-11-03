@@ -414,14 +414,23 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
     clip->bottom = viewport->bottom - viewport->top;
 }
 
+/* Private uninitialized storage: this unit's .bss, which LINK orders by
+ * the identifiers' hash keys. */
+static RasterSurface g_stRasterBitmap_004a2670;
+static RasterClip g_stScreenLimits_004b2088;
+
 /* Function start: 0x425B9E */
 void ClipViewportToScreen(Viewport *viewport)
 {
-    ValidateViewportBounds(viewport, &g_stRasterSurface_004a2670,
-                           &g_stRasterClip_004b2088);
+    ValidateViewportBounds(viewport, &g_stRasterBitmap_004a2670,
+                           &g_stScreenLimits_004b2088);
 }
 
 #pragma function(memset)
+/* Private uninitialized storage: this unit's .bss, which LINK orders by
+ * the identifiers' hash keys. */
+static unsigned char g_abSolidColourTranslation_004b2710[256];
+
 /* Function start: 0x425BBF */
 void SetSolidColourTranslation(unsigned char colour)
 {
@@ -431,6 +440,19 @@ void SetSolidColourTranslation(unsigned char colour)
 }
 
 #pragma function(memcpy)
+/* Private uninitialized storage: this unit's .bss, which LINK orders by
+ * the identifiers' hash keys. */
+static unsigned char g_abShapeRLEScratch_004b2810[0x100000];
+static unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
+
+/* The sprite background save and restore pair further down. */
+void CaptureSpriteBackground(Viewport *viewport, unsigned char *background,
+                             short x, short y, unsigned char *shape,
+                             short frame);
+void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
+                             short x, short y, unsigned char *shape,
+                             short frame);
+
 /* Function start: 0x425BF6 */
 void PrepareShapeRLEData(unsigned char *shape)
 {
@@ -548,6 +570,7 @@ void PrepareShapeRLEData(unsigned char *shape)
 #endif
 }
 
+
 /* Function start: 0x425FB4 */
 void DrawSpriteTransformed(Viewport *viewport, int x, int y,
                            unsigned char *shape, int frame,
@@ -585,13 +608,13 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
         }
     }
     if (blendMode != 0) {
-        RotateRLEImage(&g_stRasterClip_004b2088,
+        RotateRLEImage(&g_stScreenLimits_004b2088,
                        GetPreparedShapeData(shape), frame,
                        x - viewport->left, y - viewport->top,
                        g_abShapeTransformScratch_004a2688,
                        angle * 10, scaleX * 256, scaleY * 256, 1);
     } else {
-        RotateRLEImage(&g_stRasterClip_004b2088,
+        RotateRLEImage(&g_stScreenLimits_004b2088,
                        GetPreparedShapeData(shape), frame,
                        x - viewport->left, y - viewport->top,
                        g_abShapeTransformScratch_004a2688,
@@ -1187,7 +1210,7 @@ void ClearViewport(Viewport *viewport, short colour)
         if (viewport->left < 0)
             return;
         ClipViewportToScreen(viewport);
-        FillRasterClip(&g_stRasterClip_004b2088, colour);
+        FillRasterClip(&g_stScreenLimits_004b2088, colour);
     }
 }
 
@@ -1198,7 +1221,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    SetRasterClipPixel(&g_stRasterClip_004b2088, (int)x - viewport->left,
+    SetRasterClipPixel(&g_stScreenLimits_004b2088, (int)x - viewport->left,
                        (int)y - viewport->top, colour);
 }
 
@@ -1208,7 +1231,7 @@ short GetViewportPixel(Viewport *viewport, short x, short y)
     if (viewport->left < 0)
         return 0;
     ClipViewportToScreen(viewport);
-    return (short)ReadRasterClipPixel(&g_stRasterClip_004b2088,
+    return (short)ReadRasterClipPixel(&g_stScreenLimits_004b2088,
                                       (int)x - viewport->left,
                                       (int)y - viewport->top);
 }
@@ -1220,7 +1243,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_004b2088,
+    DrawClippedLine(&g_stScreenLimits_004b2088,
                     x1 - viewport->left, y1 - viewport->top,
                     x2 - viewport->left, y2 - viewport->top,
                     0, colour);
@@ -1229,7 +1252,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
 /* Left and right edge of each scanline of the polygon being filled, two
  * ints per row.  Only FillPolygon uses it; WC1's optimized build kept the
  * same 1,648 bytes in gr.c without a reference. */
-static int g_anPolygonSpans_004b20a0[412];
+static int g_anPolyExtents_004b20a0[412];
 
 /* Function start: 0x4272A5 */
 /* Fills a convex polygon: clips it against the viewport's top, right,
@@ -1416,14 +1439,14 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
                 y1 = y;
             }
             for (y = y0; y <= y1; y++)
-                g_anPolygonSpans_004b20a0[y * 2 + side] = x0;
+                g_anPolyExtents_004b20a0[y * 2 + side] = x0;
         } else if (y1 == y0) {
             if (x1 > x0) {
-                g_anPolygonSpans_004b20a0[y0 * 2] = x0;
-                g_anPolygonSpans_004b20a0[y0 * 2 + 1] = x1;
+                g_anPolyExtents_004b20a0[y0 * 2] = x0;
+                g_anPolyExtents_004b20a0[y0 * 2 + 1] = x1;
             } else {
-                g_anPolygonSpans_004b20a0[y0 * 2] = x1;
-                g_anPolygonSpans_004b20a0[y0 * 2 + 1] = x0;
+                g_anPolyExtents_004b20a0[y0 * 2] = x1;
+                g_anPolyExtents_004b20a0[y0 * 2 + 1] = x0;
             }
         } else {
             if (y1 < y0) {
@@ -1436,30 +1459,30 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
             }
             fractionStep = 1.0f / ((y1 - y0) + 1.0f);
             frac = 0;
-            g_anPolygonSpans_004b20a0[y0 * 2 + side] = x0;
+            g_anPolyExtents_004b20a0[y0 * 2 + side] = x0;
             for (y = y0; y <= y1; y++) {
-                g_anPolygonSpans_004b20a0[y * 2 + side] =
+                g_anPolyExtents_004b20a0[y * 2 + side] =
                     (x1 - x0) * frac + x0;
                 frac += fractionStep;
             }
-            g_anPolygonSpans_004b20a0[y1 * 2 + side] = x1;
+            g_anPolyExtents_004b20a0[y1 * 2 + side] = x1;
         }
     }
 
     i = polyB[topIndex].y * 2;
-    if (g_anPolygonSpans_004b20a0[i + 1] < g_anPolygonSpans_004b20a0[i]) {
+    if (g_anPolyExtents_004b20a0[i + 1] < g_anPolyExtents_004b20a0[i]) {
         for (y = polyB[topIndex].y; y < polyB[bottomIndex].y; y++) {
             i = y * 2;
-            x0 = g_anPolygonSpans_004b20a0[i];
-            g_anPolygonSpans_004b20a0[i] = g_anPolygonSpans_004b20a0[i + 1];
-            g_anPolygonSpans_004b20a0[i + 1] = x0;
+            x0 = g_anPolyExtents_004b20a0[i];
+            g_anPolyExtents_004b20a0[i] = g_anPolyExtents_004b20a0[i + 1];
+            g_anPolyExtents_004b20a0[i + 1] = x0;
         }
     }
 
     stride = viewport->rowOffsets[1];
     row = viewport->pixels;
     row += (polyB[topIndex].y - viewport->top) * stride;
-    rowBounds = &g_anPolygonSpans_004b20a0[polyB[topIndex].y * 2];
+    rowBounds = &g_anPolyExtents_004b20a0[polyB[topIndex].y * 2];
     x = viewport->left;
     for (y = polyB[topIndex].y; y <= polyB[bottomIndex].y; y++) {
         memset(row + (rowBounds[0] - x), colour, abs(rowBounds[1] - rowBounds[0]) + 1);
@@ -1504,7 +1527,7 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
         return;
     ClipViewportToScreen(viewport);
     for (y = 0; y <= rows; y++) {
-        DrawClippedLine(&g_stRasterClip_004b2088,
+        DrawClippedLine(&g_stScreenLimits_004b2088,
                         left - viewport->left,
                         y + top - viewport->top,
                         right - viewport->left,
@@ -1520,19 +1543,19 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stRasterClip_004b2088,
+    DrawClippedLine(&g_stScreenLimits_004b2088,
                     left - viewport->left, top - viewport->top,
                     right - viewport->left, top - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_004b2088,
+    DrawClippedLine(&g_stScreenLimits_004b2088,
                     left - viewport->left, bottom - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_004b2088,
+    DrawClippedLine(&g_stScreenLimits_004b2088,
                     left - viewport->left, top - viewport->top,
                     left - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stRasterClip_004b2088,
+    DrawClippedLine(&g_stScreenLimits_004b2088,
                     right - viewport->left, top - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
@@ -1546,7 +1569,7 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y, horizontalRadius,
+    DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
@@ -1561,7 +1584,7 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    FillRasterEllipse(&g_stRasterClip_004b2088, x, y, horizontalRadius,
+    FillRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();
@@ -1576,7 +1599,7 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stRasterClip_004b2088, x, y, horizontalRadius,
+    DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
     if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
         MarkDibDirty();

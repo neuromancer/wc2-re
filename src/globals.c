@@ -186,21 +186,6 @@ short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 
 /* Set while a mission is ending; ejection_sequence and death_sequence both
  * return immediately when it is clear. */
-DebugOverlayConsole *g_pDebugOverlay_004a2548;
-char g_szSystemDebugBuffer_004a2550[256];
-WaveTableEntry *g_pSpeechWave_004a2650;
-WaveTableEntry *g_pSnowStaticWave_004a2654;
-IxSound *g_pSpeechSound_004a2658;
-int g_nSpeechCompletionDelay_004a265c;
-int g_bSpeechSoundActive_004a2660;
-IxSound *g_pSnowStaticSound_004a2664;
-int g_nNextSfx16PlaybackFrame_004a2668;
-int g_bSpeechPlaybackComplete_004a266c;
-RasterSurface g_stRasterSurface_004a2670;
-unsigned char g_abShapeTransformScratch_004a2688[0xfa00];
-RasterClip g_stRasterClip_004b2088;
-unsigned char g_abSolidColourTranslation_004b2710[256];
-unsigned char g_abShapeRLEScratch_004b2810[0x100000];
 unsigned char *g_pMissionCampaignData_005988bc;
 PilotRecord g_aPilotRecords_005988d0[9];
 ConstellationObjectDefinition *g_pConstellationDefinitions_00598a28;
@@ -280,17 +265,6 @@ short g_nTalkingHeadFaceY_005a8756;
 short g_nTalkingHeadMouthY_005a8758;
 short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
-int g_nStreamerAudioPlaying_005b2810;
-#ifdef SDL_PORT
-char g_szStreamerPath_005b2818[4096];
-#else
-char g_szStreamerPath_005b2818[128];
-#endif
-char g_szLegacyGameDataPath_005b2898[0x400];
-int g_bMonoDebugInstalled_005b30e8;
-HANDLE g_hMonoDebugDevice_005b30ec;
-short DAT_005b30f0;
-unsigned char g_bCurrentManeuverReroll_005b30f4;
 int g_nWipeRadialStep_005b30f8;
 int g_nWipeRadialThreshold_005b30fc;
 int g_nWipeRadialAccumulator_005b3100;

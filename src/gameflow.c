@@ -90,8 +90,8 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
          * those, same as the original engine always did. */
         return;
     }
-    if (g_pSpeechSound_004a2658 != 0 &&
-        ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) {
+    if (g_pSpeechSnd_004a2658 != 0 &&
+        ix_sound_is_playing(g_pSpeechSnd_004a2658) == 0) {
         /* g_bSpeechSoundActive_004a2660 clears only after
          * ServiceSoundSystem's (sound.c) grace period, which exists to
          * decide when to force-advance the script, not whether the mouth
@@ -1028,7 +1028,7 @@ void RunLoadedCutscene(void)
      * arrays), so a cutscene torn down while its last line was still
      * speaking leaves them stale here. ServiceSoundSystem (sound.c) keys
      * its whole grace-period/mouth-reset/force-advance block on
-     * g_pSpeechSound_004a2658 alone being non-null -- it does not care
+     * g_pSpeechSnd_004a2658 alone being non-null -- it does not care
      * whether THIS cutscene has any speech of its own -- so a stale
      * pointer makes that block fight this cutscene's own (audio-less)
      * mouth animation and force-advance its lines early. Dropping the
@@ -1041,7 +1041,7 @@ void RunLoadedCutscene(void)
      * not reliably called between every cutscene, so this stays too. Port
      * only, like the mouth-gating logic it protects -- the original never
      * reset any of this here. */
-    g_pSpeechSound_004a2658 = 0;
+    g_pSpeechSnd_004a2658 = 0;
     g_bSpeechSoundActive_004a2660 = 0;
     g_nSpeechCompletionDelay_004a265c = 0;
     g_bCutsceneSpeechAudioSeen = 0;

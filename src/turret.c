@@ -23,9 +23,9 @@ static short g_nFleetMouseYawVelocity_0049d428;
 
 static short g_nFleetMousePitchVelocity_0049d42c;
 
-static short g_bFleetPrimaryInputQueued_005c57dc;
+short g_bFleetPrimaryInputQueued_005c57dc;
 
-static short g_bFleetMouseMoveQueued_005c57ea;
+short g_bFleetMouseMoveQueued_005c57ea;
 
 #pragma function(abs)
 /* Function start: 0x45E9F0 */

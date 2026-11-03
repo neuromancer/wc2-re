@@ -11,6 +11,17 @@ int g_bAudioSystemInitialized_004961b0 = 0;
 WaveTableEntry *g_pWaveTableHead_004961b4 = 0;
 WaveTableEntry *g_pWaveTableTail_004961b8 = 0;
 
+/* Uninitialized C++ definitions: this unit's .bss, which LINK orders by the
+ * identifiers' hash keys (the spellings follow the original addresses). */
+WaveTableEntry *g_pVoiceWav_004a2650;
+WaveTableEntry *g_pSnowStaticClip_004a2654;
+IxSound *g_pSpeechSnd_004a2658;
+int g_nSpeechCompletionDelay_004a265c;
+int g_bSpeechSoundActive_004a2660;
+IxSound *g_pSnowStaticAudio_004a2664;
+int g_nNextSfx16PlaybackFrame_004a2668;
+int g_bSpeechPlaybackDone_004a266c;
+
 /* Function start: 0x423CA0 */
 void InitializeAudioSystem(HWND window)
 {
@@ -298,35 +309,35 @@ void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
     }
     SoundDebugPrintf(
         "Playing RAW with length of %d stop=%d\n", size, interrupt);
-    if (g_pSpeechSound_004a2658 != 0 &&
+    if (g_pSpeechSnd_004a2658 != 0 &&
         g_bSpeechSoundActive_004a2660 != 0) {
         if (interrupt != 0) {
-            ix_sound_stop(g_pSpeechSound_004a2658);
+            ix_sound_stop(g_pSpeechSnd_004a2658);
 #ifdef SDL_PORT
             /* This sound carries delete-on-stop, so the stop above has
                already freed it; the original released the dead block
                anyway. */
-            if (ix_sound_is_live(g_pSpeechSound_004a2658))
-                ix_sound_release(g_pSpeechSound_004a2658);
-            g_pSpeechSound_004a2658 = 0;
+            if (ix_sound_is_live(g_pSpeechSnd_004a2658))
+                ix_sound_release(g_pSpeechSnd_004a2658);
+            g_pSpeechSnd_004a2658 = 0;
 #else
-            ix_sound_release(g_pSpeechSound_004a2658);
+            ix_sound_release(g_pSpeechSnd_004a2658);
 #endif
         } else
             return;
     }
-    g_pSpeechWave_004a2650 = AllocateWaveTableEntry();
-    g_pSpeechWave_004a2650->sample = ix_system_new_sample();
-    g_pSpeechWave_004a2650->sample->ix_sample_load_raw(
+    g_pVoiceWav_004a2650 = AllocateWaveTableEntry();
+    g_pVoiceWav_004a2650->sample = ix_system_new_sample();
+    g_pVoiceWav_004a2650->sample->ix_sample_load_raw(
         buffer, size, 0x29ab, 8, 1);
-    g_pSpeechSound_004a2658 = ix_system_new_sound(
-        g_pSpeechWave_004a2650->sample);
-    g_pSpeechSound_004a2658->ix_sound_set_delete_on_stop(1);
-    g_pSpeechSound_004a2658->ix_system_sound_set_volume(65000);
-    ix_sound_start(g_pSpeechSound_004a2658);
-    g_pSpeechWave_004a2650->name =
+    g_pSpeechSnd_004a2658 = ix_system_new_sound(
+        g_pVoiceWav_004a2650->sample);
+    g_pSpeechSnd_004a2658->ix_sound_set_delete_on_stop(1);
+    g_pSpeechSnd_004a2658->ix_system_sound_set_volume(65000);
+    ix_sound_start(g_pSpeechSnd_004a2658);
+    g_pVoiceWav_004a2650->name =
         (char *)malloc(strlen("RAW") + 1);
-    strcpy(g_pSpeechWave_004a2650->name, "RAW");
+    strcpy(g_pVoiceWav_004a2650->name, "RAW");
     g_bSpeechSoundActive_004a2660 = 1;
     g_nSpeechCompletionDelay_004a265c = 0;
     if (g_bSpaceFlightActive_005c586c == 0)
@@ -343,20 +354,20 @@ void stop_all_sounds(void)
     ix_system_delete_all_samples();
     FreeWaveTable();
 #ifdef SDL_PORT
-    g_pSpeechSound_004a2658 = 0;
-    g_pSpeechWave_004a2650 = 0;
+    g_pSpeechSnd_004a2658 = 0;
+    g_pVoiceWav_004a2650 = 0;
     g_bSpeechSoundActive_004a2660 = 0;
     g_nSpeechCompletionDelay_004a265c = 0;
 #endif
-    if (g_pSnowStaticSound_004a2664 != 0) {
+    if (g_pSnowStaticAudio_004a2664 != 0) {
         /* The bulk delete already stops, unlinks, and frees every IxSound.
            The original's following calls therefore use a stale pointer. */
 #ifndef SDL_PORT
-        ix_sound_stop(g_pSnowStaticSound_004a2664);
-        ix_sound_release(g_pSnowStaticSound_004a2664);
+        ix_sound_stop(g_pSnowStaticAudio_004a2664);
+        ix_sound_release(g_pSnowStaticAudio_004a2664);
 #endif
-        g_pSnowStaticSound_004a2664 = 0;
-        g_pSnowStaticWave_004a2654 = 0;
+        g_pSnowStaticAudio_004a2664 = 0;
+        g_pSnowStaticClip_004a2654 = 0;
     }
 }
 
@@ -375,7 +386,7 @@ void PlaySnowStaticSound(void)
     if (g_nAudioEnabled_0049c244 == 0)
         return;
     ReleaseFinishedSoundEntries();
-    if (g_pSnowStaticSound_004a2664 == 0) {
+    if (g_pSnowStaticAudio_004a2664 == 0) {
         file = _open("sfx22.wav", 0x8000);
         if (file == -1) {
             MessageBoxA(0,
@@ -388,22 +399,22 @@ void PlaySnowStaticSound(void)
         _read(file, fileData, (unsigned int)size);
         _close(file);
 
-        g_pSnowStaticWave_004a2654 = AllocateWaveTableEntry();
-        g_pSnowStaticWave_004a2654->sample = ix_system_new_sample();
-        g_pSnowStaticWave_004a2654->sample->ix_sample_load_wav(
+        g_pSnowStaticClip_004a2654 = AllocateWaveTableEntry();
+        g_pSnowStaticClip_004a2654->sample = ix_system_new_sample();
+        g_pSnowStaticClip_004a2654->sample->ix_sample_load_wav(
             fileData, size);
-        g_pSnowStaticSound_004a2664 = ix_system_new_sound(
-            g_pSnowStaticWave_004a2654->sample);
-        g_pSnowStaticSound_004a2664->ix_system_sound_set_volume(50000);
-        ix_sound_start(g_pSnowStaticSound_004a2664);
+        g_pSnowStaticAudio_004a2664 = ix_system_new_sound(
+            g_pSnowStaticClip_004a2654->sample);
+        g_pSnowStaticAudio_004a2664->ix_system_sound_set_volume(50000);
+        ix_sound_start(g_pSnowStaticAudio_004a2664);
 
-        g_pSnowStaticWave_004a2654->name =
+        g_pSnowStaticClip_004a2654->name =
             (char *)malloc(strlen("SNOW") + 1);
-        strcpy(g_pSnowStaticWave_004a2654->name, "SNOW");
+        strcpy(g_pSnowStaticClip_004a2654->name, "SNOW");
         free(fileData);
     } else if (ix_sound_is_playing(
-                   g_pSnowStaticSound_004a2664) == 0) {
-        ix_sound_start(g_pSnowStaticSound_004a2664);
+                   g_pSnowStaticAudio_004a2664) == 0) {
+        ix_sound_start(g_pSnowStaticAudio_004a2664);
     }
 }
 
@@ -421,13 +432,13 @@ void ServiceSoundSystem(void)
      *
      * The speech sound is delete-on-stop, so the call above can have
      * freed it already this frame. Evaluate liveness into a local
-     * before touching g_pSpeechSound_004a2658, so a same-frame free
+     * before touching g_pSpeechSnd_004a2658, so a same-frame free
      * still runs the stopped-handling block below instead of being
      * skipped because the pointer already reads as 0. */
-    int speechIsLive = g_pSpeechSound_004a2658 != 0 &&
-                        ix_sound_is_live(g_pSpeechSound_004a2658);
-    if (g_pSpeechSound_004a2658 != 0 &&
-        (!speechIsLive || ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) &&
+    int speechIsLive = g_pSpeechSnd_004a2658 != 0 &&
+                        ix_sound_is_live(g_pSpeechSnd_004a2658);
+    if (g_pSpeechSnd_004a2658 != 0 &&
+        (!speechIsLive || ix_sound_is_playing(g_pSpeechSnd_004a2658) == 0) &&
         g_nSpeechCompletionDelay_004a265c <= 20) {
         /* g_nSpeechCompletionDelay_004a265c gates re-entry instead of
          * g_bSpeechSoundActive_004a2660: it resets to 0 in
@@ -464,7 +475,7 @@ void ServiceSoundSystem(void)
         }
         g_nSpeechCompletionDelay_004a265c++;
         if (g_bSpaceFlightActive_005c586c != 0) {
-            g_bSpeechPlaybackComplete_004a266c = 1;
+            g_bSpeechPlaybackDone_004a266c = 1;
         }
         if (g_nSpeechCompletionDelay_004a265c > 20) {
             if (g_bSpaceFlightActive_005c586c == 0)
@@ -472,14 +483,14 @@ void ServiceSoundSystem(void)
         }
     }
     if (!speechIsLive)
-        g_pSpeechSound_004a2658 = 0;
+        g_pSpeechSnd_004a2658 = 0;
 #else
-    if (g_pSpeechSound_004a2658 != 0 &&
-        ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
+    if (g_pSpeechSnd_004a2658 != 0 &&
+        ix_sound_is_playing(g_pSpeechSnd_004a2658) == 0 &&
         g_bSpeechSoundActive_004a2660 != 0) {
         g_nSpeechCompletionDelay_004a265c++;
         if (g_bSpaceFlightActive_005c586c != 0) {
-            g_bSpeechPlaybackComplete_004a266c = 1;
+            g_bSpeechPlaybackDone_004a266c = 1;
             g_bSpeechSoundActive_004a2660 = 0;
         }
         if (g_nSpeechCompletionDelay_004a265c > 20) {

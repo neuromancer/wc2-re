@@ -132,10 +132,14 @@ void chase_speed(short obj, short range)
     }
 }
 
+/* Private uninitialized storage: this unit's .bss, ordered by the
+ * identifiers' hash keys. */
+static short g_nShipAiScratchValue_005b30f0;
+
 /* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
 {
-    DAT_005b30f0 = v;
+    g_nShipAiScratchValue_005b30f0 = v;
 }
 
 /* Function start: 0x44061B */
@@ -953,7 +957,7 @@ void Mveer_away(short ship, short target)
                     veer_random(ship, 16);
                 }
             }
-            if ((DAT_005b30f0 >= g_nTargetRange_0049319c ||
+            if ((g_nShipAiScratchValue_005b30f0 >= g_nTargetRange_0049319c ||
                  RandomBelowOrEqual(100) < 10) &&
                 normal_speed(ship) != 0)
                 fire_afterburner(ship, 10);
@@ -1017,6 +1021,10 @@ void Mreset(short ship)
 {
     maneuver_complete(ship);
 }
+
+/* Private uninitialized storage: this unit's .bss, ordered by the
+ * identifiers' hash keys. */
+static unsigned char g_bCurrentManeuverReroll_005b30f4;
 
 /* Function start: 0x4424E4 */
 void perform_maneuver(short obj)

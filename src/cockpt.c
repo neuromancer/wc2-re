@@ -762,7 +762,7 @@ void set_message_time(short duration)
 {
     g_nHudMessageTime_005d1c32 = duration;
     if (g_nHudMessageTime_005d1c32 == -1)
-        g_bSpeechPlaybackComplete_004a266c = 0;
+        g_bSpeechPlaybackDone_004a266c = 0;
 }
 
 /* Function start: 0x439588 */
@@ -770,7 +770,7 @@ void check_message(void)
 {
     if (message_showing() != 0) {
         if (g_nHudMessageTime_005d1c32 == -1) {
-            if (g_bSpeechPlaybackComplete_004a266c != 0) {
+            if (g_bSpeechPlaybackDone_004a266c != 0) {
                 clear_message_time();
                 if (g_aeSpecialManeuver_00495600[
                         g_nCommSpeakerObject_0049b794] ==

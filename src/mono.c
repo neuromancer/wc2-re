@@ -5,7 +5,12 @@
  */
 #include "game.h"
 
-static char g_szSoundDebugBuffer_005d1f00[0xfa0];
+char g_szSoundDebugBuffer_005d1f00[0xfa0];
+
+/* Private uninitialized storage: this unit's .bss, ordered by the
+ * identifiers' hash keys. */
+static int g_bMonoDebugInstalled_005b30e8;
+static HANDLE g_hMonoDebugDevice_005b30ec;
 
 /* Function start: 0x4377F0 */
 void MonoDebug_install(void)

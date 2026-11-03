@@ -5,9 +5,9 @@
  */
 #include "game.h"
 
-static unsigned char g_abPauseInputState_005c85d0[0x100];
+unsigned char g_abPauseInputState_005c85d0[0x100];
 
-static unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
+unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
 
 #pragma function(strcpy)
 /* Function start: 0x465780 */
