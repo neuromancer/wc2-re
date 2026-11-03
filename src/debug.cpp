@@ -262,13 +262,13 @@ void DebugOverlayConsole::DrawPendingLines(void)
 {
 #ifndef SDL_PORT
     HDC deviceContext;
-    int row;
+    int rowIndex;
 
     deviceContext = GetDC(window);
-    for (row = 0; rows > row; row++) {
-        if (dirtyLines[row] != 0) {
-            TextOutA(deviceContext, 0, characterHeight * row,
-                     columns * row + textBuffer, columns);
+    for (rowIndex = 0; rows > rowIndex; rowIndex++) {
+        if (dirtyLines[rowIndex] != 0) {
+            TextOutA(deviceContext, 0, characterHeight * rowIndex,
+                     columns * rowIndex + textBuffer, columns);
         }
     }
     ReleaseDC(window, deviceContext);
