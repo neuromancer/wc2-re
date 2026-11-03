@@ -83,26 +83,26 @@ void ClearDebugPauseFlags(void)
 }
 
 /* Function start: 0x40FF40 */
-void DebugOverlayConsole::SetTextPosition(int row, int column)
+inline void DebugOverlayConsole::SetTextPosition(int row, int column)
 {
     cursorColumn = column;
     cursorRow = row;
 }
 
 /* Function start: 0x40FF70 */
-void DebugOverlayConsole::SetCursorPosition(int column, int row)
+inline void DebugOverlayConsole::SetCursorPosition(int column, int row)
 {
     SetTextPosition(row, column);
 }
 
 /* Function start: 0x40FFA0 */
-void DebugOverlayConsole::Reset(void)
+inline void DebugOverlayConsole::Reset(void)
 {
     Clear();
 }
 
 /* Function start: 0x40FFC0 */
-unsigned char DebugOverlayConsole::TakeStepFlag(void)
+inline unsigned char DebugOverlayConsole::TakeStepFlag(void)
 {
     DWORD value;
 
@@ -112,7 +112,7 @@ unsigned char DebugOverlayConsole::TakeStepFlag(void)
 }
 
 /* Function start: 0x40FFF0 */
-void DebugOverlayConsole::ClearPauseFlags(void)
+inline void DebugOverlayConsole::ClearPauseFlags(void)
 {
     g_dwDebugOverlayKeyLatch_0049cb2c = 0;
     g_dwDebugOverlayKey_0049cb28 = 0;
