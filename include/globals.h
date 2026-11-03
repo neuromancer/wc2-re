@@ -1401,7 +1401,7 @@ extern unsigned short g_ausPaletteWords_005d3220[256][3];
 extern int g_bScreenStale_005c395c;
 extern int g_nDibDirtyHitTotal_005c33a8;
 extern unsigned int g_dwLastDibDirtyReportTime_005c39f0;
-extern char g_szDibDebugScratch_005c3858[MAX_PATH];
+extern char g_szDibDebugScratch_005c3858[260]; /* MAX_PATH */
 extern int g_nDibFlipRealCount_005c3960;
 extern unsigned int g_dwLastSurfaceSlamRealNoticeTick_005c396c;
 extern char g_szDibSlamRealDebugBuf_005c39f8[256];

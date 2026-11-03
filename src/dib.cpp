@@ -102,7 +102,7 @@ int g_nDibDirtyHitTotal_005c33a8;
 char g_szFrameErrorMessage_005c33b0[0x8c];
 unsigned char g_abColourShadow_005c3450[1024];
 float g_fMeasuredFrameRate_005c3850;
-char g_szDibDebugScratch_005c3858[MAX_PATH];
+char g_szDibDebugScratch_005c3858[260]; /* MAX_PATH */
 int g_bScreenStale_005c395c;
 int g_nDibFlipRealCount_005c3960;
 unsigned int g_dwLastSurfaceSlamRealNoticeTick_005c396c;
