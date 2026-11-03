@@ -199,19 +199,29 @@ void StopSoundsUsingWave(const char *name)
 /* Function start: 0x42418C */
 void playWAVE(const char *filename, int looping, int volume)
 {
-    char error[100];
-    WaveTableEntry *wave;
-    ActiveSoundEntry *active;
-    IxSound *sound;
+    char errorMsg[100];
+    long size;
+    IxSound *voice;
+    int fd;
     unsigned char *fileData;
-    long fileSize;
-    int file;
+    WaveTableEntry *wave;
 
     if (memcmp(filename, "sfx16.wav", 9) == 0) {
-        if (g_nSpaceFrame_00493134 <= g_nNextSfx16PlaybackFrame_004a2668)
+#ifdef SDL_PORT
+        if (g_nSpaceFrame_00493134 > g_nNextSfx16PlaybackFrame_004a2668)
+            g_nNextSfx16PlaybackFrame_004a2668 =
+                g_nSpaceFrame_00493134 + 100;
+        else
             return;
-        g_nNextSfx16PlaybackFrame_004a2668 =
-            g_nSpaceFrame_00493134 + 100;
+#else
+        /* This unit reads the frame counter as a dword. */
+        if (*(int *)&g_nSpaceFrame_00493134 >
+            g_nNextSfx16PlaybackFrame_004a2668)
+            g_nNextSfx16PlaybackFrame_004a2668 =
+                *(int *)&g_nSpaceFrame_00493134 + 100;
+        else
+            return;
+#endif
     }
     if (g_nAudioEnabled_0049c244 == 0)
         return;
@@ -221,48 +231,52 @@ void playWAVE(const char *filename, int looping, int volume)
     wave = FindWaveTableEntryByName(filename);
     if (wave != 0) {
         if (looping != 0) {
+            ActiveSoundEntry *active;
+
             active = AllocateActiveSoundEntry();
             active->sound = ix_system_new_sound(wave->sample);
             active->sound->ix_system_sound_set_volume(volume);
             ix_sound_start(active->sound);
         } else {
-            sound = ix_system_new_sound(wave->sample);
-            sound->ix_sound_set_delete_on_stop(1);
-            sound->ix_system_sound_set_volume(volume);
-            ix_sound_start(sound);
+            voice = ix_system_new_sound(wave->sample);
+            voice->ix_sound_set_delete_on_stop(1);
+            voice->ix_system_sound_set_volume(volume);
+            ix_sound_start(voice);
         }
-        return;
-    }
-
-    file = _open(filename, 0x8000);
-    if (file == -1) {
-        sprintf(error, "playWAVE Unable to open file '%s'", filename);
-        MessageBoxA(0, error, "Error", MB_ICONHAND);
-        exit(1);
-    }
-    fileSize = _filelength(file);
-    fileData = (unsigned char *)malloc((unsigned int)fileSize);
-    _read(file, fileData, (unsigned int)fileSize);
-    _close(file);
-
-    wave = AllocateWaveTableEntry();
-    wave->sample = ix_system_new_sample();
-    wave->sample->ix_sample_load_wav(fileData, fileSize);
-    if (looping == 0) {
-        sound = ix_system_new_sound(wave->sample);
-        sound->ix_sound_set_delete_on_stop(1);
-        sound->ix_system_sound_set_volume(volume);
-        ix_sound_start(sound);
     } else {
-        wave->sample->ix_sample_set_looping(1);
-        active = AllocateActiveSoundEntry();
-        active->sound = ix_system_new_sound(wave->sample);
-        active->sound->ix_system_sound_set_volume(volume);
-        ix_sound_start(active->sound);
+        fd = _open(filename, 0x8000);
+        if (fd == -1) {
+            sprintf(errorMsg, "playWAVE Unable to open file '%s'", filename);
+            MessageBoxA(0, errorMsg, "Error", MB_ICONHAND);
+            exit(1);
+        }
+        size = _filelength(fd);
+        fileData = (unsigned char *)malloc((unsigned int)size);
+        _read(fd, fileData, (unsigned int)size);
+        _close(fd);
+
+        wave = AllocateWaveTableEntry();
+        wave->sample = ix_system_new_sample();
+        wave->sample->ix_sample_load_wav(fileData, size);
+        if (looping != 0) {
+            ActiveSoundEntry *active;
+
+            wave->sample->ix_sample_set_looping(1);
+            active = AllocateActiveSoundEntry();
+            active->sound = ix_system_new_sound(wave->sample);
+            active->sound->ix_system_sound_set_volume(volume);
+            ix_sound_start(active->sound);
+        } else {
+            voice = ix_system_new_sound(wave->sample);
+            voice->ix_sound_set_delete_on_stop(1);
+            voice->ix_system_sound_set_volume(volume);
+            ix_sound_start(voice);
+        }
+        wave->name = (char *)malloc(strlen(filename) + 1);
+        strcpy(wave->name, filename);
+        free(fileData);
     }
-    wave->name = (char *)malloc(strlen(filename) + 1);
-    strcpy(wave->name, filename);
-    free(fileData);
+    return;
 }
 
 /* Function start: 0x424417 */
