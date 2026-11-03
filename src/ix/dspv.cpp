@@ -16,7 +16,6 @@
 #include <string.h>
 #include <time.h>
 
-unsigned short g_nMasterVolume_004a0c14 = 0xffff;
 short          g_anPanTable_005c4ee8[512];
 IxVoice        g_voices_005c52f0[34];
 CRITICAL_SECTION g_csMixer_005c5730;

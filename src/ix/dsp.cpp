@@ -36,6 +36,7 @@ int g_nVoicesAllocated_005c574c;
 #else
 #define IX_MALLOC_HOOK malloc
 #endif
+unsigned short g_nMasterVolume_004a0c14 = 0xffff;
 void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int) = IX_MALLOC_HOOK;
 void (__cdecl *g_pIxFree_004a0c1c)(void *) = free;
 

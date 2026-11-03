@@ -290,7 +290,7 @@ void ix_thread_lock_stream_buffer(void)
             ix_dsps_lock(0, bytesToCopy, &data, &lockedBytes);
             if (data == 0) {
                 ix_log_printf("Fatal [%s - %d]:\n", IX_THREAD_FILE, 394);
-                ix_log_printf("failed to lock stream data");
+                ix_log_printf("failed to lock stream buffer");
                 exit(-1);
             }
             ix_file_seek(g_pStreamerPackageFile_005c4b44, fileOffset);
