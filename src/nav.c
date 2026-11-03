@@ -268,29 +268,29 @@ void set_sphere_point(const MissionShipRecord *record, FixedVector *position);
 /* Function start: 0x44FE9F */
 void Build_objective_list(void)
 {
-    MissionObjectiveSource *source;
-    FixedVector position;
-    const char *displayName;
+    MissionObjectiveSource *record;
     short type;
-    short index;
+    const char *text;
+    FixedVector location;
     short flightPathCount;
+    short i;
 
     RefreshObjectiveShipNavPoints();
     SetNavMapCoordinateScaling(0);
     g_cMissionObjectiveCount_00493294 = 0;
     flightPathCount = 0;
-    source = g_aMissionObjectiveSources_005d3c70;
+    record = g_aMissionObjectiveSources_005d3c70;
 #ifdef SDL_PORT
     /* Retail reads the next word after the eight-record table before checking
      * that all eight output slots are full.  That word is the adjacent mission
      * header and cannot affect the loop body, so bound the native read first. */
     while (g_cMissionObjectiveCount_00493294 < 8 &&
-           (type = source->type) != -1) {
+           (type = record->type) != -1) {
 #else
-    while ((type = source->type) != -1 &&
+    while ((type = record->type) != -1 &&
            g_cMissionObjectiveCount_00493294 < 8) {
 #endif
-        index = source->index;
+        i = record->index;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].flags = 0;
         switch (type) {
@@ -299,16 +299,16 @@ void Build_objective_list(void)
         case 3:
         case 4:
         case 6:
-            displayName = (const char *)&g_aMissionShips_00492290[index];
-            set_sphere_point(&g_aMissionShips_00492290[index], &position);
+            text = (const char *)&g_aMissionShips_00492290[i];
+            set_sphere_point(&g_aMissionShips_00492290[i], &location);
             g_abFlightPath_004932a0[flightPathCount++] =
                 g_cMissionObjectiveCount_00493294;
             break;
         case 0:
         case 5:
-            displayName =
-                (const char *)&g_aMissionNavPoints_00491e98[index];
-            position = g_aMissionNavPoints_00491e98[index].position;
+            text =
+                (const char *)&g_aMissionNavPoints_00491e98[i];
+            location = g_aMissionNavPoints_00491e98[i].position;
             g_abFlightPath_004932a0[flightPathCount++] =
                 g_cMissionObjectiveCount_00493294;
             break;
@@ -317,23 +317,23 @@ void Build_objective_list(void)
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].type = type;
         g_aMissionObjectives_004932a8[
-            g_cMissionObjectiveCount_00493294].index = source->index;
+            g_cMissionObjectiveCount_00493294].index = record->index;
         g_aMissionObjectives_004932a8[
             g_cMissionObjectiveCount_00493294].field_8 = -1;
         g_aMissionObjectives_004932a8[
-            g_cMissionObjectiveCount_00493294].name = source->description;
+            g_cMissionObjectiveCount_00493294].name = record->description;
         g_aMissionObjectives_004932a8[
-            g_cMissionObjectiveCount_00493294].position = position;
+            g_cMissionObjectiveCount_00493294].position = location;
         nav_getxy(
             &g_aMissionObjectives_004932a8[
                 g_cMissionObjectiveCount_00493294].mapX,
             &g_aMissionObjectives_004932a8[
                 g_cMissionObjectiveCount_00493294].mapY,
-            position.x, position.z);
+            location.x, location.z);
         g_aMissionObjectives_004932a8[
-            g_cMissionObjectiveCount_00493294].displayName = displayName;
+            g_cMissionObjectiveCount_00493294].displayName = text;
         g_cMissionObjectiveCount_00493294++;
-        source++;
+        record++;
     }
 
     g_abFlightPath_004932a0[flightPathCount] = -1;
