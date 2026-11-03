@@ -8,21 +8,26 @@
 /* Function start: 0x418770 */
 void CalibrateJoystickInteractive()
 {
-    InputDeviceSample samples[2];
-    short calibration[6];
-    short savedFailureValue;
+    short yTop;
+    short leftX;
+    short savedFailure;
+    InputDeviceSample sample[2];
+    short centreX;
+    short midY;
+    short fontReady;
+    short maxX;
+    short yMax;
+    int error;
     int file;
-    int failed;
-    short fontLoaded;
 
-    fontLoaded = 0;
-    savedFailureValue = (short)g_nJoystickFailureValue_005d176c;
-    failed = 1;
+    fontReady = 0;
+    savedFailure = (short)g_nJoystickFailureValue_005d176c;
+    error = 1;
     if (g_nActiveInputDevice_005d1726 == -1)
         return;
     g_stDefaultTextContext_005d2d20.alignment = 2;
     if (g_apTextFonts_005d2200[1] != 0)
-        fontLoaded++;
+        fontReady++;
 
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
         g_bPrimaryViewBufferColour_0049cb50, (signed char)g_cSecondaryViewBufferColour_0049cb4c);
@@ -38,11 +43,11 @@ void CalibrateJoystickInteractive()
         "Move stick to the UPPER LEFT, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMinimumX_005d174c = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[0] = (short)g_nJoystickMinimumX_005d174c;
-        g_nJoystickMinimumY_005d1750 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[1] = (short)g_nJoystickMinimumY_005d1750;
+        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickMinimumX_005d174c = sample[g_nActiveInputDevice_005d1726].x;
+        leftX = (short)g_nJoystickMinimumX_005d174c;
+        g_nJoystickMinimumY_005d1750 = sample[g_nActiveInputDevice_005d1726].y;
+        yTop = (short)g_nJoystickMinimumY_005d1750;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -51,11 +56,11 @@ void CalibrateJoystickInteractive()
         "Move stick to the LOWER RIGHT, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMaximumX_005d1744 = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[2] = (short)g_nJoystickMaximumX_005d1744;
-        g_nJoystickMaximumY_005d1748 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[3] = (short)g_nJoystickMaximumY_005d1748;
+        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickMaximumX_005d1744 = sample[g_nActiveInputDevice_005d1726].x;
+        maxX = (short)g_nJoystickMaximumX_005d1744;
+        g_nJoystickMaximumY_005d1748 = sample[g_nActiveInputDevice_005d1726].y;
+        yMax = (short)g_nJoystickMaximumY_005d1748;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -64,16 +69,16 @@ void CalibrateJoystickInteractive()
         "Center Joystick, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(samples, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickCentreX_005d1768 = samples[g_nActiveInputDevice_005d1726].x;
-        calibration[4] = (short)g_nJoystickCentreX_005d1768;
-        g_nJoystickCentreY_005d1764 = samples[g_nActiveInputDevice_005d1726].y;
-        calibration[5] = (short)g_nJoystickCentreY_005d1764;
+        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
+        g_nJoystickCentreX_005d1768 = sample[g_nActiveInputDevice_005d1726].x;
+        centreX = (short)g_nJoystickCentreX_005d1768;
+        g_nJoystickCentreY_005d1764 = sample[g_nActiveInputDevice_005d1726].y;
+        midY = (short)g_nJoystickCentreY_005d1764;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
 
-    if (fontLoaded == 0)
+    if (fontReady == 0)
         ReleaseTextFont(1);
 
     if (g_nJoystickHorizontalRange_005d1758 == 0)
@@ -129,21 +134,21 @@ void CalibrateJoystickInteractive()
 
     file = _open("j.cal", 0x8301, 0x180);
     if (file != -1) {
-        failed = _write(file, &g_nActiveInputDevice_005d1726, 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[0], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[1], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[2], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[3], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[4], 2) == -1;
-        if (failed == 0)
-            failed = _write(file, &calibration[5], 2) == -1;
+        error = _write(file, &g_nActiveInputDevice_005d1726, 2) == -1;
+        if (error == 0)
+            error = _write(file, &leftX, 2) == -1;
+        if (error == 0)
+            error = _write(file, &yTop, 2) == -1;
+        if (error == 0)
+            error = _write(file, &maxX, 2) == -1;
+        if (error == 0)
+            error = _write(file, &yMax, 2) == -1;
+        if (error == 0)
+            error = _write(file, &centreX, 2) == -1;
+        if (error == 0)
+            error = _write(file, &midY, 2) == -1;
         _close(file);
-        if (failed != 0)
+        if (error != 0)
             _unlink("j.cal");
     }
 }
