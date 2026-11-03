@@ -971,7 +971,7 @@ void UpdateSavedTorpedoTargetLock(void)
             ClearSavedTorpedoTargetLock();
             SetHudMessageText(
                 "Torpedo Lock Lost",
-                (unsigned short)g_abGamePaletteReservedColours_0049cb54[4],
+                (unsigned short)g_cYellowColour_0049cb58,
                 20);
             handle_collisions(0);
             return;
@@ -986,7 +986,7 @@ void UpdateSavedTorpedoTargetLock(void)
         if (g_nSavedTargetLockCountdown_0049d484 == 0) {
             SetHudMessageText(
                 "Torpedo Locked!",
-                (unsigned short)g_abGamePaletteReservedColours_0049cb54[4],
+                (unsigned short)g_cYellowColour_0049cb58,
                 20);
             g_bSavedTargetLockAcquired_0049d488 = 1;
         }

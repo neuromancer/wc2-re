@@ -493,7 +493,7 @@ short auto_pilot_valid(short showReason)
         reason = "Hazard Near";
     }
     if (showReason != 0 && reason != 0)
-        CockpitMessage(reason, g_abGamePaletteReservedColours_0049cb54[4], 3);
+        CockpitMessage(reason, g_cYellowColour_0049cb58, 3);
     return reason == 0;
 }
 
@@ -709,7 +709,7 @@ void pop_mode(short i)
 void set_new_vdu(short vdu)
 {
     if (get_mode(vdu) == 0) {
-        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], 0x17, 0);
+        malf_noise(vdu, 1, g_cDarkGreenColour_0049cb60, 0x17, 0);
     } else {
         switch (vdu) {
         case 1:
@@ -850,7 +850,7 @@ void vdu_malf(short vdu, short sound)
     if (g_nCurrentView_00492fa8 == 0 &&
         ((vdu == 0 && g_stLeftVduViewport_005d2180.top > 0) ||
          (vdu == 1 && g_stRightVduViewport_005d2b20.top > 0))) {
-        malf_noise(vdu, 1, g_abGamePaletteReservedColours_0049cb54[12], sound, 0);
+        malf_noise(vdu, 1, g_cDarkGreenColour_0049cb60, sound, 0);
         set_mode(vdu, 0);
     }
 }
@@ -892,7 +892,7 @@ signed char damage_your_component(char component, char amount,
     if (get_mode(0) == 2 || get_mode(0) == 1) {
         sprintf(text, "%s HIT",
                 g_apszComponentNames_00490090[(int)component]);
-        ShowComponentHitHudMessage(text, g_abGamePaletteReservedColours_0049cb54[8], 5);
+        ShowComponentHitHudMessage(text, g_cRedColour_0049cb5c, 5);
     }
     return g_acPlayerComponentDamage_00493470[(int)component];
 }
@@ -1446,10 +1446,10 @@ void flag_reached(short objective, short reached)
                 g_asShipMissionParameter_00495e00[0]) {
             if (visited(objective) != 0) {
                 CockpitMessage("Already Visited",
-                               g_abGamePaletteReservedColours_0049cb54[4], 4);
+                               g_cYellowColour_0049cb58, 4);
             } else {
                 CockpitMessage("Objective Reached",
-                               g_abGamePaletteReservedColours_0049cb54[4], 4);
+                               g_cYellowColour_0049cb58, 4);
             }
             moveOn = visit = 1;
         } else if (type != 1 ||
@@ -1458,7 +1458,7 @@ void flag_reached(short objective, short reached)
                     "Wait for %s",
                     g_apShipMissionRecord_00495da8[carrierObject]->name);
             CockpitMessage(g_pszAutopilotWaitReason_0049b050,
-                           g_abGamePaletteReservedColours_0049cb54[4], 4);
+                           g_cYellowColour_0049cb58, 4);
         }
     }
     if (type != 1 && visit != 0) {
@@ -1704,7 +1704,7 @@ void AdjustScannerContactColourForRange(
         return;
     if (*colour == g_bPrimaryViewBufferColour_0049cb50)
         *colour = 0xa0;
-    if (*colour == g_abGamePaletteReservedColours_0049cb54[4])
+    if (*colour == g_cYellowColour_0049cb58)
         increment = 1;
     if (range < 0x138800)
         return;
@@ -1723,16 +1723,16 @@ short get_color(short object, unsigned short *colour)
     if (objectClass != OBJECT_CLASS_NULL &&
         (g_asObjectType_00495298[object] == 0x3d ||
          g_asObjectType_00495298[object] == 0x2c)) {
-        *colour = g_abGamePaletteReservedColours_0049cb54[4];
+        *colour = g_cYellowColour_0049cb58;
         return 1;
     }
     if (objectClass < OBJECT_CLASS_MISSILE)
         return 0;
     else if (objectClass == OBJECT_CLASS_SHIP) {
         if (g_asShipSide_004955d0[object] == SIDE_KILRATHI)
-            *colour = g_abGamePaletteReservedColours_0049cb54[8];
+            *colour = g_cRedColour_0049cb5c;
         else if (g_asShipSide_004955d0[object] == SIDE_IMPERIAL)
-            *colour = g_abGamePaletteReservedColours_0049cb54[0];
+            *colour = g_cBlueColour_0049cb54;
         else
             *colour = g_ucPrimaryTextColour_0049cb64;
     } else if (objectClass >= OBJECT_CLASS_CAPITAL_SHIP) {
@@ -1745,7 +1745,7 @@ short get_color(short object, unsigned short *colour)
             *colour = g_ucHomeCarrierScannerColour_0049cb70;
     } else {
         if (g_acShipTarget_00495f20[object] == 0)
-            *colour = g_abGamePaletteReservedColours_0049cb54[4];
+            *colour = g_cYellowColour_0049cb58;
         else
             return 0;
     }
@@ -2020,7 +2020,7 @@ short decrement_lock_time(short screenX)
                 if (CheckTargetLockMalfunction() == 0)
                     PlaySfxWaveFileByNumber(0x16, -1, 0);
                 CockpitMessage(g_pszMissileLocked_0049b280,
-                               g_abGamePaletteReservedColours_0049cb54[8], 2);
+                               g_cRedColour_0049cb5c, 2);
             } else if (((ShipWeaponSlot *)(
                            g_aShipWeapons_004956b0[0] + 1))[
                            g_nSelectedReleaseWeaponIndex_004934e0]
@@ -2300,15 +2300,15 @@ void draw_target_box(unsigned short colour, signed char object,
         }
     }
     if (visible != 0) {
-        if ((int)(unsigned char)g_abGamePaletteReservedColours_0049cb54[8] ==
+        if ((int)(unsigned char)g_cRedColour_0049cb5c ==
                 (int)(short)colour &&
             g_asShipIdentified_00496078[object] == 0) {
-            colour = g_abGamePaletteReservedColours_0049cb54[4];
+            colour = g_cYellowColour_0049cb58;
         }
-        if ((int)(unsigned char)g_abGamePaletteReservedColours_0049cb54[8] ==
+        if ((int)(unsigned char)g_cRedColour_0049cb5c ==
                 (int)(short)colour &&
             g_asShipSide_004955d0[object] == SIDE_IMPERIAL) {
-            colour = g_abGamePaletteReservedColours_0049cb54[0];
+            colour = g_cBlueColour_0049cb54;
         }
         if (solid != 0) {
             DrawViewportBorder(&g_stViewBuffer_005d2b00, bounds.left, bounds.top,
@@ -2566,7 +2566,7 @@ void UpdateTargetLeadIndicator(void)
             distance_from_point(0, &meetPoint)) == 0) {
         SetHudMessageText(
             "OUT OF RANGE",
-            g_abGamePaletteReservedColours_0049cb54[8], 20);
+            g_cRedColour_0049cb5c, 20);
         g_bTargetLockActive_0049ae80 = 0;
         return;
     }
@@ -2659,7 +2659,7 @@ void overlay_head_up_display(void)
         g_bTargetLockActive_0049ae80 = 1;
         SetHudMessageText(
             "ITTS ENGAGED",
-            g_abGamePaletteReservedColours_0049cb54[8], 20);
+            g_cRedColour_0049cb5c, 20);
     }
     if (g_acShipTarget_00495f20[0] == -1 ||
         (g_anShipCloakState_00496020[
@@ -2684,7 +2684,7 @@ void overlay_head_up_display(void)
         g_nTargetCameraMode_005c8d50 == 1 &&
         g_acShipTarget_00495f20[0] != -1) {
         if (g_nTargetCameraFrame_0049d3e8 == 0) {
-            draw_target_box(g_abGamePaletteReservedColours_0049cb54[4],
+            draw_target_box(g_cYellowColour_0049cb58,
                             g_acShipTarget_00495f20[0],
                             g_bTargetLockMode_00493500,
                             1, 1,
@@ -2706,13 +2706,13 @@ void overlay_head_up_display(void)
                 g_bTargetBracketVisible_0049b284 ^= 1;
             if (g_bTargetBracketVisible_0049b284 == 1)
                 draw_target_box(
-                    g_abGamePaletteReservedColours_0049cb54[8],
+                    g_cRedColour_0049cb5c,
                     g_acShipTarget_00495f20[0],
                     g_bTargetLockMode_00493500,
                     1, 1, &g_stTargetBracketBounds_0049b2a0);
         } else {
             draw_target_box(
-                g_abGamePaletteReservedColours_0049cb54[8],
+                g_cRedColour_0049cb5c,
                 g_acShipTarget_00495f20[0],
                 g_bTargetLockMode_00493500,
                 1, 1, &g_stTargetBracketBounds_0049b2a0);
@@ -3527,7 +3527,7 @@ void vid_equiv(short obj, short message)
 /* Function start: 0x43F09D */
 void update_dead_disp(short a)
 {
-    malf_noise(a, 1, g_abGamePaletteReservedColours_0049cb54[12], 0x17, 0);
+    malf_noise(a, 1, g_cDarkGreenColour_0049cb60, 0x17, 0);
 }
 
 /* Function start: 0x43F0C3 */

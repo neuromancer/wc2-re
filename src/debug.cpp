@@ -7,6 +7,11 @@
 
 #include <stdarg.h>
 
+int g_nDebugOverlayConsoleCount_0049cb24 = 0;
+DWORD g_dwDebugOverlayKey_0049cb28 = 0;
+DWORD g_dwDebugOverlayKeyLatch_0049cb2c = 0;
+HHOOK g_hDebugKeyboardHook_0049cb30 = 0;
+
 #pragma function(memcpy, memset, strcpy)
 /* Function start: 0x45AC50 */
 DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
@@ -40,7 +45,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #else
     dc = GetDC(window);
     font = CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
-                       0x30, g_szDebugOverlayFontName_0049cb34);
+                       0x30, "Courier");
     SelectObject(dc, font);
 #endif
     textColor = 0xffffff;
@@ -69,7 +74,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     spinnerIndex = 0;
     animationState = 1;
     spinnerCharacters = (char *)malloc(5);
-    strcpy(spinnerCharacters, g_szDebugOverlaySpinner_0049cb3c);
+    strcpy(spinnerCharacters, "-\\|/");
 }
 
 /* Function start: 0x45AE6C */
@@ -185,7 +190,7 @@ extern "C" void DebugOverlayPrintf(DebugOverlayConsole *console,
     if (format != 0)
         vsprintf(console->formatBuffer, format, arguments);
     else
-        strcpy(console->formatBuffer, g_szDebugOverlayNewline_0049cb44);
+        strcpy(console->formatBuffer, "\n");
     va_end(arguments);
     length = strlen(console->formatBuffer);
     for (position = 0; length > position; position++) {
@@ -357,6 +362,14 @@ void DebugOverlayConsole::DisableReverseVideo(void)
 #endif
     }
 }
+
+#ifndef SDL_PORT
+WINUSERAPI HDC WINAPI GetDC(HWND window);
+WINGDIAPI COLORREF WINAPI SetTextColor(HDC deviceContext, COLORREF colour);
+WINGDIAPI int WINAPI SetBkMode(HDC deviceContext, int mode);
+WINGDIAPI BOOL WINAPI TextOutA(HDC deviceContext, int x, int y, LPCSTR text,
+                               int length);
+#endif
 
 /* Function start: 0x45B654 */
 void DebugOverlayConsole::SetOverlayTextColor(int red, int green, int blue)

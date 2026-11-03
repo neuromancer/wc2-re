@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+static char g_szWindowClassName_0049c278[45];
+static char g_szWindowTitle_0049c2a8[45];
+
 /* Base flight times and pitch windows for the four forward view bands. */
 static const signed char g_acHazardTravelTimeByView_00465048[8] = {
     56, 52, 75, 73, 0, 0, 0, 0
@@ -197,7 +200,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     g_nInputClock_005c84a8 = 0;
     AllocateApplicationScratchBuffer();
     g_bApplicationControllerActive_0049c25c = 1;
-    RunGameApplication(0, &g_pEmptyStartupArgumentVector_0049c470);
+    /* argc is zero, so the argument vector is never read. */
+    RunGameApplication(0, (char **)"");
     g_bApplicationShutdownStarted_0049c23c = 1;
     ReleaseApplicationScratchBuffer();
 
@@ -319,12 +323,12 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
     if (previous != 0)
         return 0;
 
-    windowClass.lpszClassName = "Wing Commander II: Vengeance of the Kilrathi";
+    windowClass.lpszClassName = g_szWindowClassName_0049c278;
     windowClass.hInstance = DAT_005d12b0;
     windowClass.lpfnWndProc = MainWindowProc;
     windowClass.hCursor = 0;
     windowClass.hIcon = LoadIconA(0, IDI_APPLICATION);
-    windowClass.lpszMenuName = "Wing Commander II: Vengeance of the Kilrathi";
+    windowClass.lpszMenuName = g_szWindowClassName_0049c278;
     windowClass.hbrBackground = GetStockObject(BLACK_BRUSH);
     windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     windowClass.cbClsExtra = 0;
@@ -333,8 +337,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
         return 0;
 
     g_hMainWindow_005d10e0 = CreateWindowExA(
-        0, "Wing Commander II: Vengeance of the Kilrathi",
-        "Wing Commander II: Vengeance of the Kilrathi",
+        0, g_szWindowClassName_0049c278, g_szWindowTitle_0049c2a8,
         WS_POPUP, 0, 0, 320, 200, 0, 0, DAT_005d12b0, 0);
     if (g_hMainWindow_005d10e0 == 0) {
         error = GetLastError();
@@ -946,6 +949,9 @@ int IsFreedHeapBlockTracked(void *memory)
     return 0;
 }
 
+/* The guarded free below checks for double frees through this routine. */
+void FreeGuardedAllocation(void *memory);
+
 /* Function start: 0x455697 */
 int DetectDoubleFree(void *memory)
 {
@@ -1498,7 +1504,7 @@ int PromptInsertCorrectCd(void)
     discNumber = 1;
     strcpy(title, "Insert Correct CD");
     sprintf(message,
-            "Please place The Kilrathi Saga discNumber %d into your CD-ROM drive and click OK\n"
+            "Please place The Kilrathi Saga disc %d into your CD-ROM drive and click OK\n"
             "or click cancel to quit",
             discNumber);
     while (LocateStreamsDirOnDisc() == 0) {
@@ -1508,3 +1514,39 @@ int PromptInsertCorrectCd(void)
     }
     return 1;
 }
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys. */
+int g_bDebugBreakEnabled_0049c238 = 0;
+int g_bApplicationShutdownStarted_0049c23c = 0;
+int g_bF1KeyDown_0049c240 = 0;
+int g_nAudioEnabled_0049c244 = 1;
+int g_bInputEventQueueEnabled_0049c248 = 0;
+unsigned int g_dwGuardedAllocationTotalBytes_0049c24c = 0;
+unsigned int g_dwGuardedAllocationBytes_0049c250 = 0;
+unsigned int g_dwGuardedAllocationPeakBytes_0049c254 = 0;
+int g_nInputPressCount_0049c258 = 0;
+int g_bApplicationControllerActive_0049c25c = 0;
+int g_bShowFrameRate_0049c260 = 0;
+int g_bConfigQuickModeEnabled_0049c264 = 1;
+int g_bUseHardwarePalette_0049c268 = 1;
+int g_bCockpitEnabled_0049c26c = 1;
+int g_bSkipCampaignVideo_0049c270 = 0;
+int g_bWindowInactive_0049c274 = 0;
+static char g_szWindowClassName_0049c278[45] =
+    "Wing Commander II: Vengeance of the Kilrathi";
+static char g_szWindowTitle_0049c2a8[45] =
+    "Wing Commander II: Vengeance of the Kilrathi";
+int g_nDebugFileLoggingEnabled_0049c2d8 = 0;
+FILE *g_pDebugLogFile_0049c2dc = 0;
+int g_bConfigMemoryOption_0049c2e0 = 0;
+int g_bWindowMessagePumpActive_0049c2e4 = 0;
+int g_nUnusedWinMainWord_0049c2e8 = 0;
+int g_nPendingMouseX_0049c2ec = 0;
+int g_nPendingMouseY_0049c2f0 = 0;
+int g_nUnusedWinMainWord_0049c2f4 = 0;
+int g_bJoystickPrimaryButtonLatched_0049c2f8 = 0;
+int g_bJoystickSecondaryButtonLatched_0049c2fc = 0;
+GuardedAllocation *g_pGuardedAllocationHead_0049c300 = 0;
+FreedHeapBlock *g_pFreedHeapBlockHead_0049c304 = 0;
+FreedHeapBlock *g_pFreedHeapBlockTail_0049c308 = 0;

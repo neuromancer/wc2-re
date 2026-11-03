@@ -36,7 +36,7 @@ void FinishCannedScenePlayback(void)
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
         SetHudMessageText("END INFLIGHT REPLAY",
-                          (unsigned short)g_abGamePaletteReservedColours_0049cb54[8],
+                          (unsigned short)g_cRedColour_0049cb5c,
                           20);
     }
     _unlink(g_szCannedSceneTapeFile_00490208);

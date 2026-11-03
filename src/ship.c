@@ -1391,7 +1391,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                     remove_weapon(0, (short)weapon);
                     ShowComponentHitHudMessage(
                         "Weapon destroyed",
-                        g_abGamePaletteReservedColours_0049cb54[8], 8);
+                        g_cRedColour_0049cb5c, 8);
                 }
             }
             break;
@@ -1436,7 +1436,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(
                 "Fuel tanks hit",
-                g_abGamePaletteReservedColours_0049cb54[8], 8);
+                g_cRedColour_0049cb5c, 8);
             break;
         case 1:
             if (quadrant != 1) {
@@ -1462,7 +1462,7 @@ short ReportComponentRepaired(short component, short minimumDamage)
         sprintf(message, "%s FIXD",
                 g_apszComponentNames_00490090[component]);
         ShowComponentHitHudMessage(
-            message, g_abGamePaletteReservedColours_0049cb54[8], 8);
+            message, g_cRedColour_0049cb5c, 8);
         return 1;
     } else {
         return 0;
@@ -2768,7 +2768,7 @@ short fire_missile(short ship)
                     if (get_mode(0) == 1)
                         ShowComponentHitHudMessage(
                             "Need Lock",
-                            g_abGamePaletteReservedColours_0049cb54[4], 3);
+                            g_cYellowColour_0049cb58, 3);
                     return -1;
                 }
                 return fire_weapon(ship, weapon);

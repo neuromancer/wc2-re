@@ -359,7 +359,7 @@ void UpdateSpacePaletteFade(void)
         case 9:
         case 13:
             ClearViewport(&g_stViewBuffer_005d2b00,
-                          g_abGamePaletteReservedColours_0049cb54[8]);
+                          g_cRedColour_0049cb5c);
             g_bViewportDirty_0049d76c = 1;
             g_asSpacePaletteFade_005d2d60[0] = 0;
             break;
@@ -1132,7 +1132,7 @@ short HandleSpaceFlightControls(void)
                 if (g_bVideoImagesSuppressed_0049b784 != 0)
                     SetHudMessageText(
                         "VIDEO IMAGES SUPRESSED",
-                        g_abGamePaletteReservedColours_0049cb54[8], 20);
+                        g_cRedColour_0049cb5c, 20);
                 else
                     SetHudMessageText("VIDEO IMAGES ENABLED",
                                       g_ucPrimaryTextColour_0049cb64, 20);
@@ -1455,7 +1455,7 @@ short HandleSpaceFlightControls(void)
                 g_bMissileCameraEnabled_00493504 ^= 1;
                 if (g_bMissileCameraEnabled_00493504 != 0)
                     SetHudMessageText("MISSILE CAMERA ON",
-                                      g_abGamePaletteReservedColours_0049cb54[8], 20);
+                                      g_cRedColour_0049cb5c, 20);
                 else
                     SetHudMessageText("MISSILE CAMERA OFF",
                                       g_ucPrimaryTextColour_0049cb64, 20);

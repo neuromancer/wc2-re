@@ -175,7 +175,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
         ClearHudMessageDisplay(1);
         DosStrcpy(g_szOnScreenMessageBuffer_005d1890, text);
         SetHudMessageText(g_szOnScreenMessageBuffer_005d1890,
-                          g_abGamePaletteReservedColours_0049cb54[8], duration);
+                          g_cRedColour_0049cb5c, duration);
     }
     if (g_bPauseInputActive_0049ac9c != 0) {
         FlushPendingInputPresses();
@@ -189,7 +189,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
     if (modalShown != 0)
         ReleaseModalTextPanel();
     else if (duration == 9999)
-        SetHudMessageText("", g_abGamePaletteReservedColours_0049cb54[8], 2);
+        SetHudMessageText("", g_cRedColour_0049cb5c, 2);
 #ifdef SDL_PORT
     if (duration == 9999)
         SdlResumeMouseGrab();

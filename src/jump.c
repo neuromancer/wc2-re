@@ -144,7 +144,7 @@ void TryBeginStarSystemJump(void)
             g_asShipSide_004955d0[object] == SIDE_KILRATHI) {
             set_global_message(
                 "Enemy near",
-                g_abGamePaletteReservedColours_0049cb54[4], 3);
+                g_cYellowColour_0049cb58, 3);
             return;
         }
     }
@@ -152,7 +152,7 @@ void TryBeginStarSystemJump(void)
             g_nCurrentStarSystem_005d169c] != 0) {
         set_global_message(
             "Capacitors Empty",
-            g_abGamePaletteReservedColours_0049cb54[4], 3);
+            g_cYellowColour_0049cb58, 3);
         return;
     }
     for (object = 1; object < 10; object++) {
@@ -171,7 +171,7 @@ void TryBeginStarSystemJump(void)
                     g_apShipMissionRecord_00495da8[object]->name);
             set_global_message(
                 g_pszAutopilotWaitReason_0049b050,
-                g_abGamePaletteReservedColours_0049cb54[4], 3);
+                g_cYellowColour_0049cb58, 3);
             return;
         }
     }
@@ -179,7 +179,7 @@ void TryBeginStarSystemJump(void)
             g_nCurrentNavPoint_004931bc].field_2e == 0) {
         set_global_message(
             "No jump point",
-            g_abGamePaletteReservedColours_0049cb54[4], 3);
+            g_cYellowColour_0049cb58, 3);
         return;
     }
     if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&

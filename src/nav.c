@@ -20,8 +20,8 @@ NavMapObjectiveStyle g_aNavMapObjectiveStyles_0049bb88[12] = {
     { 2, 3, &g_ucNavObjectiveMarkerColour_0049cb78,
       &g_ucDefaultTextColour_0049cb7c,
       &g_ucDefaultTextColour_0049cb7c },
-    { 2, 3, &g_abGamePaletteReservedColours_0049cb54[8],
-      &g_abGamePaletteReservedColours_0049cb54[8],
+    { 2, 3, &g_cRedColour_0049cb5c,
+      &g_cRedColour_0049cb5c,
       &g_ucDefaultTextColour_0049cb7c },
     { 1, 2, &g_ucPrimaryTextColour_0049cb64,
       &g_ucDefaultTextColour_0049cb7c,
@@ -729,8 +729,8 @@ void BuildMap(short showPlayer)
                         DrawNavHazardMarker(
                             nav->position, ship->position,
                             ship->speed,
-                            g_abGamePaletteReservedColours_0049cb54[8],
-                            g_abGamePaletteReservedColours_0049cb54[8],
+                            g_cRedColour_0049cb5c,
+                            g_cRedColour_0049cb5c,
                             "Mines");
                         break;
                     }
@@ -779,7 +779,7 @@ void BuildMap(short showPlayer)
             break;
         }
         if (g_cCurrentObjective_004931cc == index)
-            nameColour = g_abGamePaletteReservedColours_0049cb54[4];
+            nameColour = g_cYellowColour_0049cb58;
         else
             nameColour = *mark->labelColour;
         g_awNavObjectiveLabelIndex_005d16b0[index] =
@@ -856,8 +856,8 @@ void FormatNavCoordinates(unsigned char *out)
 void DrawSelectedNavLegendEntry(const char *text, short navPoint)
 {
     if ((short)g_cCurrentNavPointIndex_00493298 == navPoint) {
-        DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4], text);
-        DrawNavTextLine(0, (unsigned short)g_abGamePaletteReservedColours_0049cb54[4],
+        DrawNavTextLine(0, (unsigned short)g_cYellowColour_0049cb58, text);
+        DrawNavTextLine(0, (unsigned short)g_cYellowColour_0049cb58,
                         "\n");
     }
 }

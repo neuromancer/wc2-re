@@ -5,6 +5,14 @@
  */
 #include "game.h"
 
+short g_asConstellationVelocity_0049cae0[16] = {
+    8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1
+};
+short g_asConstellationFrame_0049cb00[16] = {
+    0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
+};
+short g_nConstellationDirection_0049cb20 = -1;
+
 /* Function start: 0x45A2C0 */
 void InitializeFireworks(void)
 {

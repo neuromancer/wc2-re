@@ -45,7 +45,7 @@ void show_target_disp(void)
         g_bDisplayWingmanTargetData_0049347c == 0) {
         DrawFormattedText(
             "%F%s%F",
-            (unsigned int)g_abGamePaletteReservedColours_0049cb54[8],
+            (unsigned int)g_cRedColour_0049cb5c,
             "   LOCKED TARGET",
             (unsigned int)g_ucDefaultTextColour_0049cb7c);
     } else {

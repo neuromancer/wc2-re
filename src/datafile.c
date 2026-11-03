@@ -5,6 +5,8 @@
  */
 #include "game.h"
 
+short g_nPacketError_0049ca90 = 0;
+
 /* Function start: 0x45A010 */
 short OpenDataFileOrDie(const char *path)
 {

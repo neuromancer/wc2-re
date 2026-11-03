@@ -5,6 +5,14 @@
  */
 #include "game.h"
 
+unsigned char g_abTaggedAllocationPrefix_0049ca40[8] = {
+    'j', 'e', 'f', 'f', 0, 0, 0, 0
+};
+ShortRect g_stModalBounds_0049ca48 = {0x18, 0x28, 0x128, 0x3c};
+ModalTextPanel *g_pModalTextPanel_0049ca50 = 0;
+unsigned char *g_pCampaignChalkboardShape_0049ca54 = 0;
+short g_bDisableChalkboardReplay_0049ca58 = 0;
+
 /* Function start: 0x459160 */
 void EraseLastTextInputCharacter(void)
 {
@@ -184,8 +192,8 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
                                  bounds,
                                  g_bPrimaryViewBufferColour_0049cb50,
-                                 g_abGamePaletteReservedColours_0049cb54[0],
-                                 g_abGamePaletteReservedColours_0049cb54[8]) == 0) {
+                                 g_cBlueColour_0049cb54,
+                                 g_cRedColour_0049cb5c) == 0) {
         ReleasePacketHandle(g_pModalTextPanel_0049ca50);
         g_pModalTextPanel_0049ca50 = 0;
         return 0;

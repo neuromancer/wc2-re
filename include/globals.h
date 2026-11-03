@@ -50,7 +50,10 @@ extern int g_nPendingMouseX_0049c2ec;
 extern int g_nPendingMouseY_0049c2f0;
 extern int g_bJoystickPrimaryButtonLatched_0049c2f8;
 extern int g_bJoystickSecondaryButtonLatched_0049c2fc;
-extern char *g_pEmptyStartupArgumentVector_0049c470;
+/* The yellow, red and dark green palette colours take the header slots of
+ * three names that became literals (WinMain's empty argument vector, nav's
+ * label format and the conversation-viewport tag), keeping its symbol count. */
+extern unsigned char g_cYellowColour_0049cb58;
 extern FreedHeapBlock *g_pFreedHeapBlockHead_0049c304;
 extern FreedHeapBlock *g_pFreedHeapBlockTail_0049c308;
 extern unsigned int g_dwGuardedAllocationTotalBytes_0049c24c;
@@ -59,7 +62,7 @@ extern unsigned int g_dwGuardedAllocationPeakBytes_0049c254;
 extern GuardedAllocation *g_pGuardedAllocationHead_0049c300;
 extern short g_nPacketError_0049ca90;
 extern short g_bRewritePacketExtensions_0049cb48;
-extern unsigned char g_abGamePaletteReservedColours_0049cb54[14];
+extern unsigned char g_cBlueColour_0049cb54;
 extern unsigned char g_abLegacyVideoModeColours_0049cb90[14];
 extern short g_bOriginFxDriverActive_0049cbb0;
 extern char g_szInputCursorPacketName_0049cba0[12];
@@ -80,9 +83,7 @@ extern const int g_nViewportStaticRandomRange_0048e060;
 extern const int g_nDigiSampleBytes_0048e0e0;
 extern const unsigned short g_wDmaHalfBytes_0048e0e4;
 extern short g_nAutopilotFormationShipCount_00493060;
-/* Duplicate of nav.c's label format, which is a literal; dead name kept
- * for the header's symbol count. */
-extern char g_szBriefingMapTextFormat_0049bd30[12];
+extern unsigned char g_cRedColour_0049cb5c;
 extern short g_nEnemySighting_0049b670;
 extern short g_bHomeObjectiveFlagged_0049b674;
 extern void **g_apPacketReferenceGroups_0049b898[5];
@@ -190,6 +191,8 @@ extern int g_nDebugOverlayConsoleCount_0049cb24;
 extern DWORD g_dwDebugOverlayKey_0049cb28;
 extern DWORD g_dwDebugOverlayKeyLatch_0049cb2c;
 extern HHOOK g_hDebugKeyboardHook_0049cb30;
+/* debug.cpp pools its font name, spinner and newline as literals; the dead
+ * names keep the header's symbol count. */
 extern char g_szDebugOverlayFontName_0049cb34[8];
 extern char g_szDebugOverlaySpinner_0049cb3c[5];
 extern char g_szDebugOverlayNewline_0049cb44[4];
@@ -551,9 +554,7 @@ extern short g_nMissionEntryNavOverride_0049d790;
 extern short g_asMouseYawThresholds_0049d7d8[6];
 extern short g_asMousePitchThresholds_0049d7e8[6];
 extern char g_szSpaceBuffer_0049d978[16];
-/* A literal in InitializeConversationViewport; dead name kept for the
- * header's symbol count. */
-extern char g_szAllocateBufferTag_0049ae20[4];
+extern unsigned char g_cDarkGreenColour_0049cb60;
 extern ActiveSoundEntry *g_pActiveSoundHead_004961a8;
 extern ActiveSoundEntry *g_pActiveSoundTail_004961ac;
 extern int g_bAudioSystemInitialized_004961b0;

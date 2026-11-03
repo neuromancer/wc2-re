@@ -15,7 +15,9 @@ void LoadGamePaletteFile(void)
     unsigned char *colours;
     unsigned char *paletteData;
 
-    colours = g_abGamePaletteReservedColours_0049cb54;
+    /* As in WC1, the legacy modes treat the colour list from blue onwards as
+     * a byte array; the Win32 globals are four bytes apart. */
+    colours = &g_cBlueColour_0049cb54;
     switch (g_nSpacePaletteFadeMode_004901e8) {
     case 9:
     case 13:
@@ -284,7 +286,7 @@ void InitializeGameTextContexts(void)
     g_stSpaceTextContext_005d21c0.text = g_szDefaultTextBuffer_005d2b80;
     g_stSpaceTextContext_005d21c0.alignment = 2;
     InitializeTextContextFromFont(&g_stSpaceTextContext_005d21c0, 1,
-                                  g_abGamePaletteReservedColours_0049cb54[8], -1);
+                                  g_cRedColour_0049cb5c, -1);
 }
 
 /* Function start: 0x45C128 */
@@ -302,7 +304,7 @@ void ResetGameTextContexts(void)
     g_stSpaceTextContext_005d21c0.text = g_szDefaultTextBuffer_005d2b80;
     g_stSpaceTextContext_005d21c0.alignment = 2;
     InitializeTextContextFromFont(&g_stSpaceTextContext_005d21c0, 1,
-                                  g_abGamePaletteReservedColours_0049cb54[8], -1);
+                                  g_cRedColour_0049cb5c, -1);
 }
 
 /* Function start: 0x45C1A1 */
@@ -541,3 +543,50 @@ void main(short argc, char **argv)
         }
     }
 }
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys.  The colour list matches WC1's (blue,
+ * yellow, red, dark green, primary text, orange, dark blue, ...); WC2 never
+ * reads its dark blue or brown entries. */
+short g_bRewritePacketExtensions_0049cb48 = 0;
+unsigned char g_cSecondaryViewBufferColour_0049cb4c = 0;
+unsigned char g_bPrimaryViewBufferColour_0049cb50 = 15;
+unsigned char g_cBlueColour_0049cb54 = 0x25;
+unsigned char g_cYellowColour_0049cb58 = 0x42;
+unsigned char g_cRedColour_0049cb5c = 0x47;
+unsigned char g_cDarkGreenColour_0049cb60 = 0x5d;
+unsigned char g_ucPrimaryTextColour_0049cb64 = 0x5b;
+unsigned char g_ucHostileCapitalScannerColour_0049cb68 = 0x46;
+unsigned char g_cDarkBlueColour_0049cb6c = 0x27;
+unsigned char g_ucHomeCarrierScannerColour_0049cb70 = 0xa9;
+unsigned char g_ucPlayerNavLabelColour_0049cb74 = 0xa5;
+unsigned char g_ucNavObjectiveMarkerColour_0049cb78 = 0xb6;
+unsigned char g_ucDefaultTextColour_0049cb7c = 0x5c;
+unsigned char g_cBrownColour_0049cb80 = 0xe8;
+unsigned char g_ucAsteroidNavMarkerColour_0049cb84 = 0xf5;
+unsigned char g_cPrimaryViewBufferColour_0049cb88 = 0xf8;
+unsigned char g_abLegacyVideoModeColours_0049cb90[14] = {
+    9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
+};
+char g_szInputCursorPacketName_0049cba0[12] = "arrow.vga";
+short g_nExpandedShipMemoryKb_0049cbac = 0;
+short g_bOriginFxDriverActive_0049cbb0 = 0;
+char g_szNotEnoughMemoryMessage_0049cbb8[] =
+    "You do not have enough memory to play Wing Commander 2.\n"
+    "Refer to your reference guide for assistance.";
+int g_nMinimumMemoryNoMusic_0049cc20 = 0x43238;
+int g_nMinimumMemoryFullMusic_0049cc24 = 0x49bb0;
+int g_nMinimumMemoryAlternate_0049cc28 = 0x43238;
+short g_bSpeechResourcesEnabled_0049cc2c = 0;
+signed char g_acMusicResourcePresent_0049cc30[66] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+    0, 0
+};
+short g_bDirectCampaignSelection_0049cc74 = 0;
+short g_bSkipCampaignScenes_0049cc78 = 0;
+short g_bPumpMessagesDuringLoad_0049cc7c = 0;
+int g_nUnusedStartupWord_0049cc80 = 0;
+short g_bMemoryAdjustmentEnabled_0049cc84 = 0;

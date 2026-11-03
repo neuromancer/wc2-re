@@ -83,7 +83,7 @@ void SendCommMenuChoice(short i)
 /* Function start: 0x4474CA */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
-    CockpitMessage(message, g_abGamePaletteReservedColours_0049cb54[4], -1);
+    CockpitMessage(message, g_cYellowColour_0049cb58, -1);
     g_pszCommMenuHeading_005d1950 = heading;
 }
 
@@ -376,7 +376,7 @@ void show_communications_disp(void)
 #ifdef SDL_PORT
             if ((int)choice == selectedChoice)
                 g_stRightVduTextContext_005d2ce0.colour =
-                    g_abGamePaletteReservedColours_0049cb54[8];
+                    g_cRedColour_0049cb5c;
 #endif
             DrawFormattedText("\n%d.%s",
                               (int)choice + 1,
@@ -445,7 +445,7 @@ void FreeCommDisplayResources(void)
 void EndCommSessionWithWingman(void)
 {
     if (g_pCommPortraitResource_0049b788 != 0)
-        malf_noise(1, 1, g_abGamePaletteReservedColours_0049cb54[12],
+        malf_noise(1, 1, g_cDarkGreenColour_0049cb60,
                    23, 1);
     FreeCommDisplayResources();
     if (get_mode(1) == 6)
@@ -548,7 +548,7 @@ void real_vid_transmit(short obj, short message)
         }
         if (g_pCommPortraitResource_0049b788 != 0) {
             push_mode(1, 6);
-            malf_noise(1, 3, g_abGamePaletteReservedColours_0049cb54[12],
+            malf_noise(1, 3, g_cDarkGreenColour_0049cb60,
                        0x17, 1);
             g_nCommPortraitAnimationFrame_005d1d94 = 0;
             DrawSpriteDefault(&g_stRightVduViewport_005d2b20,

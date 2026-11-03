@@ -1018,3 +1018,69 @@ void ReleaseMusicTrack(int track)
         }
     }
 }
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys. */
+short g_nCockpitBackgroundBytes_0049c720 = 0;
+PacketResourceDescriptor g_aCommon3SpaceResources_0049c728[11] = {
+    { &g_aObjectTypeData_00496d30[43].shapeSet, 0, 0 },
+    { &g_aObjectTypeData_00496d30[36].shapeSet, 0, 1 },
+    { &g_aObjectTypeData_00496d30[7].shapeSet, 0, 6 },
+    { &g_aObjectTypeData_00496d30[9].shapeSet, 0, 7 },
+    { &g_aObjectTypeData_00496d30[8].shapeSet, 0, 8 },
+    { &g_aObjectTypeData_00496d30[39].shapeSet, 0, 9 },
+    { &g_aObjectTypeData_00496d30[41].shapeSet, 0, 10 },
+    { &g_aObjectTypeData_00496d30[40].shapeSet, 0, 11 },
+    { &g_aObjectTypeData_00496d30[42].shapeSet, 0, 12 },
+    { &g_aObjectTypeData_00496d30[10].shapeSet, 0, 18 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aMissionResourceDescriptors_0049c798[8] = {
+    { &g_aObjectTypeData_00496d30[21].shapeSet, 0, 15 },
+    { &g_aObjectTypeData_00496d30[20].shapeSet, 0, 20 },
+    { &g_aObjectTypeData_00496d30[45].shapeSet, 0, 14 },
+    { &g_aObjectTypeData_00496d30[37].shapeSet, 0, 2 },
+    { &g_aObjectTypeData_00496d30[38].shapeSet, 0, 3 },
+    { &g_aObjectTypeData_00496d30[35].shapeSet, 0, 4 },
+    { &g_aObjectTypeData_00496d30[31].shapeSet, 0, 5 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5] = {
+    { &g_pCockpitHudShape_005d21f4, 0, 0 },
+    { &g_pPilotHandAnimationShape_005d2c64, "pilotanm.vga", 3 },
+    { (unsigned char **)&g_pCockpitExplosionShape_0049b048, 0, 5 },
+    { &g_pCockpitIndicatorShape_005d2c48, 0, 4 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aCockpitCommonShapeResources_0049c820[5] = {
+    { &g_pCockpitPanelShape_005d2cd4, 0, 10 },
+    { &g_pCockpitHudShape_005d21f4, "cockpit.vga", 0 },
+    { &g_pCockpitWeaponShape_005d2b54, 0, 12 },
+    { &g_pCockpitIndicatorShape_005d2c48, "cockpit.vga", 4 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aCockpitShipShapeResources_0049c858[8] = {
+    { &g_pPendingCockpitDamageShape_0049b03c, 0, 8 },
+    { &g_pCockpitPanelShape_005d2cd4, 0, 10 },
+    { &g_pCockpitWeaponShape_005d2b54, 0, 12 },
+    { &g_apCockpitShipShapes_005d1070[0], 0, 0 },
+    { &g_apCockpitShipShapes_005d1070[1], 0, 1 },
+    { &g_apCockpitShipShapes_005d1070[2], 0, 2 },
+    { &g_apCockpitShipShapes_005d1070[3], 0, 3 },
+    { 0, 0, 0 }
+};
+PacketResourceDescriptor g_aCockpitViewShapeResources_0049c8a8[5] = {
+    { &g_apCockpitViewShapes_005d1040[0], 0, 4 },
+    { &g_apCockpitViewShapes_005d1040[1], 0, 5 },
+    { &g_apCockpitViewShapes_005d1040[2], 0, 6 },
+    { &g_apCockpitViewShapes_005d1040[3], 0, 7 },
+    { 0, 0, 0 }
+};
+int g_nUnusedFltsetupWord_0049c8dc = 1;
+short g_asConstellationObjectIndices_0049c8e0[4] = {
+    -1, -1, -1, -1
+};
+short g_bCockpitResourcesActive_0049c8e8 = 0;
+short g_b3SpaceObjectsActive_0049c8ec = 0;
+unsigned char *g_pGenericMissileShape_0049c8f0 = 0;
+unsigned char *g_pGenericMissileExhaustShape_0049c8f4 = 0;
