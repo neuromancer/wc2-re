@@ -7,7 +7,7 @@
 
 #include <stdarg.h>
 
-#pragma function(memcpy, memset)
+#pragma function(memcpy, memset, strcpy)
 /* Function start: 0x45AC50 */
 DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
                                          HWND targetWindow,
@@ -16,8 +16,8 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
                                          int waitMode)
 {
 #ifndef SDL_PORT
-    TEXTMETRICA metrics;
-    HDC deviceContext;
+    TEXTMETRICA textMetrics;
+    HDC dc;
     HGDIOBJ font;
 #endif
 
@@ -38,21 +38,21 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     characterWidth = 8;
     characterHeight = 10;
 #else
-    deviceContext = GetDC(window);
+    dc = GetDC(window);
     font = CreateFontA(10, 10, 0, 0, 400, 0, 0, 0, 0, 2, 0, 0,
                        0x30, g_szDebugOverlayFontName_0049cb34);
-    SelectObject(deviceContext, font);
+    SelectObject(dc, font);
 #endif
     textColor = 0xffffff;
     backgroundColor = 0;
     backgroundMode = OPAQUE;
 #ifndef SDL_PORT
-    GetTextMetricsA(deviceContext, &metrics);
-    SetTextColor(deviceContext, 0xffffff);
-    SetBkColor(deviceContext, 0);
-    ReleaseDC(window, deviceContext);
-    characterWidth = metrics.tmMaxCharWidth;
-    characterHeight = metrics.tmHeight;
+    GetTextMetricsA(dc, &textMetrics);
+    SetTextColor(dc, 0xffffff);
+    SetBkColor(dc, 0);
+    ReleaseDC(window, dc);
+    characterWidth = textMetrics.tmMaxCharWidth;
+    characterHeight = textMetrics.tmHeight;
 
     if (g_hDebugKeyboardHook_0049cb30 == 0) {
         g_hDebugKeyboardHook_0049cb30 =
@@ -91,47 +91,52 @@ DebugOverlayConsole::~DebugOverlayConsole(void)
     return;
 }
 
+#pragma function(strlen)
 /* Function start: 0x45AEE4 */
 extern "C" DWORD WINAPI DebugOverlayWorkerProc(void *parameter)
 {
-    DebugOverlayConsole *console;
+    int done;
+    DebugOverlayConsole *context;
 #ifndef SDL_PORT
     /* Retail compares against this stack slot before its first assignment. */
-    DWORD timer;
-    DWORD waitResult;
-    HDC deviceContext;
+    int lastTick;
+    DWORD waited;
+    HDC dc;
 #endif
 
-    console = (DebugOverlayConsole *)parameter;
+    context = (DebugOverlayConsole *)parameter;
+    done = 0;
 #ifdef SDL_PORT
-    while (console->animationState != 2)
+    while (done == 0 && context->animationState != 2)
         SDL_Delay(10);
     return 0;
 #else
-    while (console->animationState != 2) {
-        if (timeGetTime() > timer + 500) {
-            waitResult = WaitForSingleObject(console->mutex, 500);
-            if (waitResult == WAIT_FAILED) {
+    while (done == 0) {
+        if (context->animationState == 2)
+            break;
+        if ((int)timeGetTime() > lastTick + 500) {
+            waited = WaitForSingleObject(context->mutex, 500);
+            if (waited == WAIT_FAILED) {
                 ExitThread(1);
-            } else if (waitResult == WAIT_TIMEOUT) {
+            } else if (waited == WAIT_TIMEOUT) {
                 continue;
             }
-            if (console->animationState != 0) {
-                deviceContext = GetDC(console->window);
-                TextOutA(deviceContext,
-                         console->characterWidth * console->cursorColumn,
-                         console->characterHeight * console->cursorRow,
-                         console->spinnerCharacters + console->spinnerIndex,
+            if (context->animationState != 0) {
+                dc = GetDC(context->window);
+                TextOutA(dc,
+                         context->characterWidth * context->cursorColumn,
+                         context->characterHeight * context->cursorRow,
+                         context->spinnerCharacters + context->spinnerIndex,
                          1);
-                console->spinnerIndex++;
-                if ((int)strlen(console->spinnerCharacters) ==
-                    console->spinnerIndex) {
-                    console->spinnerIndex = 0;
+                context->spinnerIndex++;
+                if ((int)strlen(context->spinnerCharacters) ==
+                    context->spinnerIndex) {
+                    context->spinnerIndex = 0;
                 }
-                ReleaseDC(console->window, deviceContext);
+                ReleaseDC(context->window, dc);
             }
-            ReleaseMutex(console->mutex);
-            timer = timeGetTime();
+            ReleaseMutex(context->mutex);
+            lastTick = timeGetTime();
         }
     }
     ExitThread(0);
@@ -162,6 +167,10 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                           code, key, flags);
 #endif
 }
+
+#ifndef SDL_PORT
+WINBASEAPI BOOL WINAPI Beep(DWORD frequency, DWORD duration);
+#endif
 
 #pragma function(strcpy, strlen)
 /* Function start: 0x45B0BB */

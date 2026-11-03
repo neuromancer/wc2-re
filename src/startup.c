@@ -60,7 +60,7 @@ void EMStartUp(void)
     g_nInputTickInterval_005c8448 = 20;
     g_nInputRepeatDelay_005c80d6 = 20;
     g_bInputCursorEnabled_005c80e6 = 1;
-    g_nInputDeviceMode_005c83e6 = 3;
+    g_cKeypadMouseSpeed_005c83e6 = 3;
 }
 
 #pragma function(strcat)
@@ -429,8 +429,8 @@ void main(short argc, char **argv)
 #endif
 {
     short argumentIndex;
-    int campaignIsNumeric;
-    int missionIsNumeric;
+    int campaignIsDigit;
+    int missionIsDigit;
 
     g_bRewritePacketExtensions_0049cb48 = 0;
     g_bSpeechResourcesEnabled_0049cc2c = 1;
@@ -482,8 +482,8 @@ void main(short argc, char **argv)
         case 'T':
         case 't':
             if (g_nOriginDevUnlock_0049d774 != 0) {
-                missionIsNumeric = isdigit(argv[argumentIndex][1]);
-                if (missionIsNumeric != 0) {
+                missionIsDigit = isdigit(argv[argumentIndex][1]);
+                if (missionIsDigit != 0) {
                     g_nDirectMission_0049d79a =
                         (short)atoi(argv[argumentIndex] + 1);
                 } else {
@@ -505,13 +505,16 @@ void main(short argc, char **argv)
             break;
         case 'Z':
         case 'z':
-            campaignIsNumeric = isdigit(argv[argumentIndex][1]);
-            if (campaignIsNumeric != 0) {
+            campaignIsDigit = isdigit(argv[argumentIndex][1]);
+            if (campaignIsDigit != 0) {
                 g_nSelectedStartingCampaign_005d3bf0 =
                     (short)(argv[argumentIndex][1] - '0');
             } else {
                 g_nSelectedStartingCampaign_005d3bf0 = 0;
             }
+            break;
+        case 'R':
+        case 'r':
             break;
         case 'X':
         case 'x':
@@ -521,10 +524,9 @@ void main(short argc, char **argv)
             break;
         case 'A':
         case 'a':
+            break;
         case 'P':
         case 'p':
-        case 'R':
-        case 'r':
             break;
         case 'C':
         case 'c':

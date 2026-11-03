@@ -11,65 +11,69 @@ short LoadJoystickCalibrationFile(short horizontalRange,
                                   short horizontalDeadZone,
                                   short verticalDeadZone)
 {
-    unsigned short storedCentreX;
-    unsigned short storedCentreY;
-    unsigned short minimumX;
-    unsigned short maximumX;
-    unsigned short maximumY;
-    unsigned short minimumY;
-    short activeDevice;
-    InputDeviceSample samples[2];
+    InputDeviceSample stickSamples[2];
+    unsigned short restX;
+    unsigned short restY;
+    unsigned short maxY;
+    unsigned short minY;
+    unsigned short minX;
+    int fileError;
+    unsigned short maxX;
     int file;
-    int failed;
+    short activeDevice;
+    unsigned short passes;
+
     activeDevice = -1;
-    failed = 1;
+    /* The DOS polling calibration's starting pass count; unused here. */
+    passes = 0x40;
+    fileError = 1;
     if (horizontalRange == 0)
         horizontalRange++;
     if (verticalRange == 0)
         verticalRange++;
     g_nJoystickFailureValue_005d176c =
         g_nJoystickUnavailableSample_0048e054;
-    SampleBothJoysticks(samples, g_nJoystickUnavailableSample_0048e054);
-    if (samples[0].x != g_nJoystickUnavailableSample_0048e054 &&
-        samples[0].y != g_nJoystickUnavailableSample_0048e054)
+    SampleBothJoysticks(stickSamples, g_nJoystickUnavailableSample_0048e054);
+    if (stickSamples[0].x != g_nJoystickUnavailableSample_0048e054 &&
+        stickSamples[0].y != g_nJoystickUnavailableSample_0048e054)
         activeDevice = 0;
-    else if (samples[1].x != g_nJoystickUnavailableSample_0048e054 &&
-             samples[1].y != g_nJoystickUnavailableSample_0048e054)
+    else if (stickSamples[1].x != g_nJoystickUnavailableSample_0048e054 &&
+             stickSamples[1].y != g_nJoystickUnavailableSample_0048e054)
         activeDevice = 1;
 
     if (activeDevice != -1) {
         file = _open("j.cal", 0x8000);
         if (file != -1) {
-            failed = _read(file, &activeDevice, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &minimumX, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &minimumY, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &maximumX, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &maximumY, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &storedCentreX, 2) <= 0;
-            if (failed == 0)
-                failed = _read(file, &storedCentreY, 2) <= 0;
-            g_nJoystickCentreX_005d1768 = (unsigned int)storedCentreX;
-            g_nJoystickCentreY_005d1764 = (unsigned int)storedCentreY;
+            fileError = _read(file, &activeDevice, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &minX, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &minY, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &maxX, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &maxY, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &restX, 2) <= 0;
+            if (fileError == 0)
+                fileError = _read(file, &restY, 2) <= 0;
+            g_nJoystickCentreX_005d1768 = (unsigned int)restX;
+            g_nJoystickCentreY_005d1764 = (unsigned int)restY;
             _close(file);
-            if (failed != 0)
+            if (fileError != 0)
                 _unlink("j.cal");
         }
 
-        if (failed != 0) {
+        if (fileError != 0) {
             GetJoystickDevCaps(activeDevice,
-                               (short *)&minimumX,
-                               (short *)&maximumX,
-                               (short *)&minimumY,
-                               (short *)&maximumY);
+                               (short *)&minX,
+                               (short *)&maxX,
+                               (short *)&minY,
+                               (short *)&maxY);
             g_nJoystickCentreX_005d1768 =
-                ((int)minimumX + (int)maximumX) / 2;
+                ((int)minX + (int)maxX) / 2;
             g_nJoystickCentreY_005d1764 =
-                ((int)minimumY + (int)maximumY) / 2;
+                ((int)minY + (int)maxY) / 2;
         }
 
         if (g_nJoystickCentreX_005d1768 > 10) {

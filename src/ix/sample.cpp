@@ -65,20 +65,20 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
     unsigned char *end;
     IxSampleChunk *chunk;
 
-    unsigned char *file;
-    file = (unsigned char *)data;
+    unsigned char *form;
+    form = (unsigned char *)data;
     if ((flags & IX_SAMPLE_READY) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 166);
         ix_log_printf("sample already ready!");
         return -1;
     }
     flags |= IX_SAMPLE_LOADING;
-    if (*(unsigned int *)file != *(unsigned int *)"FORM") {
+    if (*(unsigned int *)form != *(unsigned int *)"FORM") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 169);
         ix_log_printf("FORM id not found!");
         return -1;
     }
-    if (*(unsigned int *)(file + 8) != *(unsigned int *)"AIFF") {
+    if (*(unsigned int *)(form + 8) != *(unsigned int *)"AIFF") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 170);
         ix_log_printf("AIFF id not found!");
         return -1;
@@ -177,20 +177,20 @@ int IxSample::ix_sample_load_wav(void *data, int bytes)
     unsigned char *end;
     IxSampleChunk *chunk;
 
-    unsigned char *file;
-    file = (unsigned char *)data;
+    unsigned char *riff;
+    riff = (unsigned char *)data;
     if ((flags & IX_SAMPLE_READY) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 261);
         ix_log_printf("sample already ready!");
         return -1;
     }
     flags |= IX_SAMPLE_LOADING;
-    if (*(unsigned int *)file != *(unsigned int *)"RIFF") {
+    if (*(unsigned int *)riff != *(unsigned int *)"RIFF") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 264);
         ix_log_printf("RIFF id not found!");
         return -1;
     }
-    if (*(unsigned int *)(file + 8) != *(unsigned int *)"WAVE") {
+    if (*(unsigned int *)(riff + 8) != *(unsigned int *)"WAVE") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 265);
         ix_log_printf("WAVE id not found!");
         return -1;
@@ -253,6 +253,8 @@ int IxSample::ix_sample_load_wav(void *data, int bytes)
             ix_dsp_copy(buffer, chunk + 1, chunk->size);
             break;
         }
+        default:
+            break;
         }
         chunk = (IxSampleChunk *)((unsigned char *)chunk +
                                   chunk->size + sizeof(IxSampleChunk));
@@ -288,35 +290,39 @@ int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
     return 0;
 }
 
+void *ix_dsp_copy(void *destination, const void *source,
+                  unsigned int bytes);
+
 /* Function start: 0x46BBCC */
 long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)
 {
-    unsigned long lowMantissa;
-    int exponent;
-    double value;
-    unsigned long highMantissa;
-    unsigned char *source;
+    unsigned long loMant;
+    int expon;
+    double f;
+    unsigned long hiMant;
+    unsigned char *src;
 
-    source = bytes;
-    exponent = ((source[0] & 0x7f) << 8) | source[1];
-    highMantissa = ((unsigned long)source[2] << 24) |
-                   ((unsigned long)source[3] << 16) |
-                   ((unsigned long)source[4] << 8) |
-                   (unsigned long)source[5];
-    lowMantissa = ((unsigned long)source[6] << 24) |
-                  ((unsigned long)source[7] << 16) |
-                  ((unsigned long)source[8] << 8) |
-                  (unsigned long)source[9];
-    if (exponent == 0 && highMantissa == 0 && lowMantissa == 0) {
-        value = 0;
-    } else if (exponent == 0x7fff) {
-        value = HUGE_VAL;
+    src = bytes;
+    expon = ((src[0] & 0x7f) << 8) | (src[1] & 0xff);
+    hiMant = ((unsigned long)(src[2] & 0xff) << 24) |
+                   ((unsigned long)(src[3] & 0xff) << 16) |
+                   ((unsigned long)(src[4] & 0xff) << 8) |
+                   ((unsigned long)(src[5] & 0xff));
+    loMant = ((unsigned long)(src[6] & 0xff) << 24) |
+                  ((unsigned long)(src[7] & 0xff) << 16) |
+                  ((unsigned long)(src[8] & 0xff) << 8) |
+                  ((unsigned long)(src[9] & 0xff));
+    if (expon == 0 && hiMant == 0 && loMant == 0) {
+        f = 0;
+    } else if (expon == 0x7fff) {
+        f = HUGE_VAL;
     } else {
-        exponent -= 16383;
-        value = ldexp(IX_UNSIGNED_TO_DOUBLE(highMantissa), exponent -= 31);
-        value += ldexp(IX_UNSIGNED_TO_DOUBLE(lowMantissa), exponent -= 32);
+        expon -= 16383;
+        f = ldexp(IX_UNSIGNED_TO_DOUBLE(hiMant), expon -= 31);
+        f += ldexp(IX_UNSIGNED_TO_DOUBLE(loMant), expon -= 32);
     }
-    if ((source[0] & 0x80) != 0)
-        return (long)-value;
-    return (long)value;
+    if ((src[0] & 0x80) != 0)
+        return (long)-f;
+    else
+        return (long)f;
 }

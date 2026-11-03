@@ -255,23 +255,24 @@ short RunTitleMenuInputLoop(unsigned char *buttons,
 /* Function start: 0x418FFC */
 short RunTitleScreen(void)
 {
-    int soundHandle;
     unsigned char *background;
-    unsigned char *logo;
+    int sfxHandle;
     unsigned char *buttons;
+    unsigned char *logo;
+    signed char done;
+    short logoFrame;
+    short canContinueCampaign;
     signed char menuChoice;
-    short savedCampaignPresent;
-    short frame;
-    Viewport screenBuffer;
     int wipeType;
-    void *wipe;
-    signed char wipeDone;
+    Viewport screenCopy;
+    void *wipeState;
 
     menuChoice = 0;
+    done = 0;
     buttons = 0;
     logo = 0;
     background = 0;
-    soundHandle = 0;
+    sfxHandle = 0;
     g_nUiInputMode_005c8d3c = 0;
     SetMenuInputPump();
     DisableMouseCursorDrawing();
@@ -279,17 +280,17 @@ short RunTitleScreen(void)
     ClearViewport(&g_stModalSourceViewport_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
     g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
     g_stSecondaryViewBuffer_005d2c90.right = 319;
+    g_stSecondaryViewBuffer_005d2c90.top = 0;
     g_stSecondaryViewBuffer_005d2c90.bottom = 199;
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
                          g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportFatalErrorCode("031");
-    screenBuffer.left = 0;
-    screenBuffer.top = 0;
-    screenBuffer.right = 319;
-    screenBuffer.bottom = 199;
-    if (AllocateViewport(&screenBuffer,
+    screenCopy.left = 0;
+    screenCopy.right = 319;
+    screenCopy.top = 0;
+    screenCopy.bottom = 199;
+    if (AllocateViewport(&screenCopy,
                          g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportFatalErrorCode("032");
     PreloadMusicTrack(0x36);
@@ -307,12 +308,12 @@ short RunTitleScreen(void)
     if (g_bSceneEscapeRequested_0049d4b0 == 0)
         PlaySfxWaveFileByNumber(0x28, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
-        for (frame = 0; frame < 0x1a; frame++) {
+        for (logoFrame = 0; logoFrame < 0x1a; logoFrame++) {
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                              160, 100, logo, frame);
+                              160, 100, logo, logoFrame);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
                 g_bSceneEscapeRequested_0049d4b0 = 1;
@@ -321,17 +322,17 @@ short RunTitleScreen(void)
             SetFrameTimerAndWait(4);
         }
     }
-    if (soundHandle != 0) {
+    if (sfxHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            soundHandle, 0);
+            sfxHandle, 0);
     }
-    soundHandle = 0;
+    sfxHandle = 0;
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(0, 0);
         PlaySfxWaveFileByNumber(99, -1, 0);
     }
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
-        for (frame = 0; frame < 10; frame++) {
+        for (logoFrame = 0; logoFrame < 10; logoFrame++) {
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
@@ -345,21 +346,21 @@ short RunTitleScreen(void)
             SetFrameTimerAndWait(4);
         }
     }
-    if (soundHandle != 0) {
+    if (sfxHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            soundHandle, 0);
+            sfxHandle, 0);
     }
-    soundHandle = 0;
+    sfxHandle = 0;
     PlaySfxWaveFileByNumber(6, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
-        for (frame = 0x1a; frame < 0x20; frame++) {
+        for (logoFrame = 0x1a; logoFrame < 0x20; logoFrame++) {
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               160, 100, logo, 0x19);
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                              160, 100, logo, frame);
+                              160, 100, logo, logoFrame);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
                 g_bSceneEscapeRequested_0049d4b0 = 1;
@@ -368,15 +369,15 @@ short RunTitleScreen(void)
             SetFrameTimerAndWait(4);
         }
     }
-    if (soundHandle != 0) {
+    if (sfxHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            soundHandle, 0);
+            sfxHandle, 0);
     }
-    soundHandle = 0;
+    sfxHandle = 0;
     if (g_bSceneEscapeRequested_0049d4b0 == 0)
         PlaySfxWaveFileByNumber(99, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
-        for (frame = 0; frame < 10; frame++) {
+        for (logoFrame = 0; logoFrame < 10; logoFrame++) {
             DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
@@ -392,11 +393,11 @@ short RunTitleScreen(void)
             SetFrameTimerAndWait(4);
         }
     }
-    if (soundHandle != 0) {
+    if (sfxHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            soundHandle, 0);
+            sfxHandle, 0);
     }
-    soundHandle = 0;
+    sfxHandle = 0;
     if (g_bSceneEscapeRequested_0049d4b0 == 0)
         PlaySfxWaveFileByNumber(100, -1, 0);
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
@@ -410,26 +411,26 @@ short RunTitleScreen(void)
     DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                       160, 100, logo, 0x20);
     CopyViewportContents(&g_stScreenViewport_005d21a0,
-                         &screenBuffer);
+                         &screenCopy);
     MarkDibDirty();
     DIBslamReal();
     wipeType = 8;
     g_bRoomTransitionAnimationEnabled_00499c00 = 1;
     if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
-        wipe = AllocateTaggedMemory(0xce, 0);
-        if (wipe != 0) {
+        wipeState = AllocateTaggedMemory(0xce, 0);
+        if (wipeState != 0) {
             InitializeViewportWipe(&g_stSecondaryViewBuffer_005d2c90,
-                                   &screenBuffer, wipeType, 0x3c, 0,
-                                   wipe);
-            wipeDone = 0;
-            while (wipeDone == 0) {
-                wipeDone = AdvanceViewportWipe(wipe);
+                                   &screenCopy, wipeType, 0x3c, 0,
+                                   wipeState);
+            done = 0;
+            while (done == 0) {
+                done = AdvanceViewportWipe(wipeState);
                 if (WaitForInputKey() != 0 ||
                     g_bSceneEscapeRequested_0049d4b0 != 0) {
                     g_bSceneEscapeRequested_0049d4b0 = 1;
                     break;
                 }
-                CopyViewportContents(&screenBuffer,
+                CopyViewportContents(&screenCopy,
                                      &g_stScreenViewport_005d21a0);
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                                   0, 0, background, 0);
@@ -441,38 +442,48 @@ short RunTitleScreen(void)
                 DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
                                   160, 100, logo, 0x20);
             }
-            FinishViewportWipe(wipe);
-            ReleasePacketHandle(wipe);
+            FinishViewportWipe(wipeState);
+            ReleasePacketHandle(wipeState);
         }
     }
-    if (soundHandle != 0) {
+    if (sfxHandle != 0) {
         ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-            soundHandle, 0);
+            sfxHandle, 0);
     }
-    soundHandle = 0;
-    savedCampaignPresent = (short)HasSavedPilotCampaign();
+    sfxHandle = 0;
+    canContinueCampaign = (short)HasSavedPilotCampaign();
     SetMenuInputPump();
     g_nUiInputMode_005c8d3c = 1;
     SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
     SetPersonnelMousePosition(159, 159);
     EnableMouseCursorDrawing();
     ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
-        soundHandle, 0);
+        sfxHandle, 0);
     g_bNewPilotCampaignInitialized_004926c0 = 0;
-    free_viewport(&screenBuffer);
+    free_viewport(&screenCopy);
     if (g_bSceneEscapeRequested_0049d4b0 != 0)
         g_bSceneEscapeRequested_0049d4b0 = 0;
+    /* Retail calls the pump here with no argument at all (no prototype
+     * was in scope); the SDL build passes the zero the other callers use. */
+#ifdef SDL_PORT
     PumpWindowMessages(0);
     while (TakeInputPressCount() != 0) {
         PumpWindowMessages(0);
         FlushInputEvents();
     }
+#else
+    ((unsigned int (__cdecl *)(void))PumpWindowMessages)();
+    while (TakeInputPressCount() != 0) {
+        ((unsigned int (__cdecl *)(void))PumpWindowMessages)();
+        FlushInputEvents();
+    }
+#endif
     FlushInputEvents();
     g_bSceneEscapeRequested_0049d4b0 = 0;
     menuChoice = 0;
     while (menuChoice == 0) {
         menuChoice = (signed char)RunTitleMenuInputLoop(
-            buttons, logo, background, savedCampaignPresent);
+            buttons, logo, background, canContinueCampaign);
     }
     DisableMouseCursorDrawing();
     FreePacketAndClear(&buttons, 0);

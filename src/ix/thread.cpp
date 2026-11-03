@@ -209,8 +209,8 @@ void ix_thread_advance_audio_chunk(void)
                     g_adwStreamerBranchStack_005c4b50[
                         g_nStreamerBranchStackIndex_0049e158];
                 return;
-            }
-            if (g_pStreamerTriggers_005c4c60[triggerIndex].tag == '@') {
+            } else if (g_pStreamerTriggers_005c4c60[triggerIndex].tag ==
+                       '@') {
                 g_dwStreamerState_005c4c38 |= 0x800;
             } else if (g_pStreamerTriggers_005c4c60[triggerIndex].tag ==
                        g_cStreamerBranchTag_0049e154) {
@@ -230,47 +230,48 @@ void ix_thread_advance_audio_chunk(void)
 
     if (g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].branchCount > 0) {
-        unsigned int branchCount;
-        unsigned int branchIndex;
-        unsigned int bestDistance;
-        unsigned int selectedBranch;
-        unsigned int distance;
+        unsigned int branch;
+        unsigned int count;
+        unsigned int pick;
+        unsigned int bestGap;
+        unsigned int gap;
 
-        branchCount = g_pStreamerAudioChunks_005c4bf0[
+        count = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].branchCount - 1;
-        branchIndex = g_pStreamerAudioChunks_005c4bf0[
+        branch = g_pStreamerAudioChunks_005c4bf0[
             g_dwStreamerAudioChunk_005c4c30].firstBranch;
-        bestDistance =
-            ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+        bestGap =
+            ((g_pStreamerBranches_005c4bf4[branch].intensity -
               g_bStreamerIntensity_005c4be0) >> 31 ^
-             (g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+             (g_pStreamerBranches_005c4bf4[branch].intensity -
               g_bStreamerIntensity_005c4be0)) -
-            ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+            ((g_pStreamerBranches_005c4bf4[branch].intensity -
               g_bStreamerIntensity_005c4be0) >> 31);
-        selectedBranch = branchIndex;
-        branchIndex++;
-        while (branchCount--) {
-            distance =
-                ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+        pick = branch;
+        branch++;
+        while (count--) {
+            gap =
+                ((g_pStreamerBranches_005c4bf4[branch].intensity -
                   g_bStreamerIntensity_005c4be0) >> 31 ^
-                 (g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+                 (g_pStreamerBranches_005c4bf4[branch].intensity -
                   g_bStreamerIntensity_005c4be0)) -
-                ((g_pStreamerBranches_005c4bf4[branchIndex].intensity -
+                ((g_pStreamerBranches_005c4bf4[branch].intensity -
                   g_bStreamerIntensity_005c4be0) >> 31);
-            if (distance < bestDistance) {
-                bestDistance = distance;
-                selectedBranch = branchIndex;
+            if (gap < bestGap) {
+                bestGap = gap;
+                pick = branch;
             }
-            branchIndex++;
+            branch++;
         }
         g_dwStreamerAudioChunk_005c4c30 =
-            g_pStreamerBranches_005c4bf4[selectedBranch].audioChunk;
-    } else {
-        g_dwStreamerAudioChunk_005c4c30++;
-        if (g_pStreamerHeader_005c4bec->audioChunkCount - 1 <=
-            g_dwStreamerAudioChunk_005c4c30)
-            g_dwStreamerAudioChunk_005c4c30 = 0;
+            g_pStreamerBranches_005c4bf4[pick].audioChunk;
+        return;
     }
+    g_dwStreamerAudioChunk_005c4c30++;
+    if (g_pStreamerHeader_005c4bec->audioChunkCount - 1 <=
+        g_dwStreamerAudioChunk_005c4c30)
+        g_dwStreamerAudioChunk_005c4c30 = 0;
+    return;
 }
 
 /* Function start: 0x46DBC9 */   /* source line(s) 394: failed to lock stream buffer */

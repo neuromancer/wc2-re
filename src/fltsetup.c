@@ -99,12 +99,14 @@ void ResetCockpitPaletteEntries(void)
                     g_asSpacePaletteFade_005d2d60);
 }
 
-#pragma function(strcat, strcpy)
+void ClearViewport(Viewport *viewport, short colour);
+
+#pragma function(strcat, strcpy, strlen)
 /* Function start: 0x456B1A */
 void initialize_cockpit(signed char mode)
 {
+    char resourceText[4];
     Viewport savedScreen;
-    char resourceNumber[4];
     unsigned char *backdrop;
 
     backdrop = 0;
@@ -112,7 +114,7 @@ void initialize_cockpit(signed char mode)
     if (message_showing())
         EndCommMenu();
 
-    if (g_nCockpitDisplayMode_0049d71c == 0 && mode == g_cScreenViewportMode_005c82a6) {
+    if (g_nCockpitDisplayMode_0049d71c == 0 && g_cScreenViewportMode_005c82a6 == mode) {
         if (g_stViewBuffer_005d2b00.pixels != 0)
             ClearViewport(&g_stViewBuffer_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
         else
@@ -122,8 +124,7 @@ void initialize_cockpit(signed char mode)
 
     free_view_buffer();
     savedScreen = g_stScreenViewport_005d21a0;
-    g_stScreenViewport_005d21a0.left = 0;
-    g_stScreenViewport_005d21a0.top = 0;
+    g_stScreenViewport_005d21a0.left = g_stScreenViewport_005d21a0.top = 0;
     g_stScreenViewport_005d21a0.right = 319;
     g_stScreenViewport_005d21a0.bottom = 199;
     ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
@@ -132,10 +133,10 @@ void initialize_cockpit(signed char mode)
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
     _itoa((int)g_aObjectTypeData_00496d30[
               g_acObjectType_00493980[0]].resourceType,
-          resourceNumber, 10);
-    if (strlen(resourceNumber) == 1)
+          resourceText, 10);
+    if (strlen(resourceText) == 1)
         strcat(g_szCockpitResourceFilename_005d1030, "0");
-    strcat(g_szCockpitResourceFilename_005d1030, resourceNumber);
+    strcat(g_szCockpitResourceFilename_005d1030, resourceText);
 
     switch (mode) {
     case 0:
@@ -512,12 +513,12 @@ void init_vdus(void)
 void InitializeCockpitResources(short shipType)
 {
     CockpitResourceLayout layout;
-    short frame;
-    short maximumSize;
+    short displayFrame;
+    short maxSize;
     short gunDisplay;
     char resourceNumber[4];
     int packetSize;
-    int index;
+    int slot;
 
     g_bCockpitResourcesActive_0049c8e8 = 1;
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
@@ -540,21 +541,21 @@ void InitializeCockpitResources(short shipType)
     LoadPacketIntoBuffer(g_szCockpitResourceFilename_005d1030, 0x0d,
                          &layout, 0);
     g_stHudMessageOrigin_0049ae90 = layout.hudMessageOrigin;
-    for (index = 0; index < 4; index++)
-        g_aCockpitDamagePositions_0049ae98[index] =
-            layout.damagePositions[index];
-    for (index = 0; index < 7; index++)
-        g_asCockpitLightX_0049aea8[index] = layout.lightX[index];
-    for (index = 0; index < 7; index++)
-        g_asCockpitLightY_0049aeb8[index] = layout.lightY[index];
-    for (index = 0; index < 7; index++)
-        g_acCockpitLightOffFrame_0049aec8[index] =
-            layout.lightOffFrame[index];
-    for (index = 0; index < 7; index++)
-        g_acCockpitLightOnFrame_0049aed0[index] =
-            layout.lightOnFrame[index];
-    for (index = 0; index < 8; index++)
-        g_aCockpitBarDefinitions_0049aed8[index] = layout.bars[index];
+    for (slot = 0; slot < 4; slot++)
+        g_aCockpitDamagePositions_0049ae98[slot] =
+            layout.damagePositions[slot];
+    for (slot = 0; slot < 7; slot++)
+        g_asCockpitLightX_0049aea8[slot] = layout.lightX[slot];
+    for (slot = 0; slot < 7; slot++)
+        g_asCockpitLightY_0049aeb8[slot] = layout.lightY[slot];
+    for (slot = 0; slot < 7; slot++)
+        g_acCockpitLightOffFrame_0049aec8[slot] =
+            layout.lightOffFrame[slot];
+    for (slot = 0; slot < 7; slot++)
+        g_acCockpitLightOnFrame_0049aed0[slot] =
+            layout.lightOnFrame[slot];
+    for (slot = 0; slot < 8; slot++)
+        g_aCockpitBarDefinitions_0049aed8[slot] = layout.bars[slot];
     g_aCockpitReadoutOrigins_0049af58[0] = layout.readoutOrigins[0];
     g_aCockpitReadoutOrigins_0049af58[1] = layout.readoutOrigins[1];
     g_aCockpitReadoutOrigins_0049af58[2] = layout.readoutOrigins[2];
@@ -566,22 +567,20 @@ void InitializeCockpitResources(short shipType)
     g_stPilotHandOrigin_0049af90 = layout.pilotHandOrigin;
     g_cHazardBaseTravelTime_0049af94 = layout.field_f6;
     g_nHazardPitchRange_0049af98 = layout.field_f7;
-    for (index = 0; index < 16; index++)
-        g_aDefaultWeaponDisplayPositions_0049afa0[index] =
-            layout.weaponDisplayPositions[index];
+    for (slot = 0; slot < 16; slot++)
+        g_aDefaultWeaponDisplayPositions_0049afa0[slot] =
+            layout.weaponDisplayPositions[slot];
     g_bTargetLockDisplayEnabled_0049afe0 =
         layout.targetLockDisplayEnabled;
 
     if (g_pCockpitBackgroundPacket_0049a5f0 == 0) {
-        maximumSize = 0;
-        gunDisplay = 4;
-        while (gunDisplay <= 7) {
+        maxSize = 0;
+        for (gunDisplay = 4; gunDisplay <= 7; gunDisplay++) {
             packetSize = (int)GetNamedPacketSize(
                 g_szCockpitResourceFilename_005d1030, gunDisplay);
-            maximumSize = MaxShort(maximumSize, (short)packetSize);
-            gunDisplay++;
+            maxSize = MaxShort(maxSize, (short)packetSize);
         }
-        g_nCockpitBackgroundBytes_0049c720 = maximumSize;
+        g_nCockpitBackgroundBytes_0049c720 = maxSize;
         g_pCockpitBackgroundPacket_0049a5f0 =
             AllocateTaggedMemory(
                 (int)g_nCockpitBackgroundBytes_0049c720, 0x40);
@@ -593,13 +592,11 @@ void InitializeCockpitResources(short shipType)
         g_nGunDisplayCount_005c8dbc = CountShipCockpitGunDisplays(0);
         if (g_nGunDisplayCount_005c8dbc == 3)
             g_nGunDisplayCount_005c8dbc--;
-        gunDisplay = 0;
-        while (gunDisplay < g_nGunDisplayCount_005c8dbc) {
+        for (gunDisplay = 0; gunDisplay < g_nGunDisplayCount_005c8dbc; gunDisplay++) {
             g_apCockpitVduOverlayShapes_0049a5f8[gunDisplay] =
                 FetchDiskPacketRetrying(
                     g_szCockpitResourceFilename_005d1030,
                     (short)(gunDisplay + 0x0e), 0);
-            gunDisplay++;
         }
         LoadPacketIntoBuffer(
             g_szCockpitResourceFilename_005d1030,
@@ -634,14 +631,11 @@ void InitializeCockpitResources(short shipType)
         (unsigned short)g_aCockpitReadoutOrigins_0049af58[3].y);
     InitializeCockpitReadout(3, &g_stCockpitTextContext_005d2d00);
 
-    memcpy(&g_stLeftVduViewport_005d2180.left,
-           &g_stLeftVduBounds_0049af68, sizeof(ShortRect));
-    memcpy(&g_stRightVduViewport_005d2b20.left,
-           &g_stRightVduBounds_0049af70, sizeof(ShortRect));
+    *(ShortRect *)&g_stLeftVduViewport_005d2180.left = g_stLeftVduBounds_0049af68;
+    *(ShortRect *)&g_stRightVduViewport_005d2b20.left = g_stRightVduBounds_0049af70;
     if (g_pPilotHandAnimationShape_005d2c64 != 0) {
         g_stCockpitViewport_005d2160 = g_stScreenViewport_005d21a0;
-        memcpy(&g_stCockpitViewport_005d2160.left,
-               &g_stPilotHandBounds_0049af88, sizeof(ShortRect));
+        *(ShortRect *)&g_stCockpitViewport_005d2160.left = g_stPilotHandBounds_0049af88;
         SetViewportRect(
             &g_stPilotHandViewport_005d2c70, 0, 0,
             (unsigned short)(g_stPilotHandBounds_0049af88.right -
@@ -685,22 +679,20 @@ void InitializeCockpitResources(short shipType)
     g_pDamageDisplayBackground_00490060 = 0;
     g_pCockpitExplosionBackground_0049b040 = 0;
     if (g_pCockpitWeaponShape_005d2b54 != 0) {
-        maximumSize = (short)MeasureShapeFrameStorage(
+        maxSize = (short)MeasureShapeFrameStorage(
             g_pCockpitWeaponShape_005d2b54, 1);
         g_pReleaseWeaponDisplayBackground_0049b05c =
-            AllocateTaggedMemory((int)maximumSize, 0);
-        maximumSize = 0;
-        frame = 0x20;
-        while (frame < 0x29) {
-            maximumSize = MaxShort(
-                maximumSize,
+            AllocateTaggedMemory((int)maxSize, 0);
+        maxSize = 0;
+        for (displayFrame = 0x20; displayFrame < 0x29; displayFrame++) {
+            maxSize = MaxShort(
+                maxSize,
                 (short)MeasureShapeFrameStorage(
-                    g_pCockpitWeaponShape_005d2b54, frame));
-            frame++;
+                    g_pCockpitWeaponShape_005d2b54, displayFrame));
         }
-        if (maximumSize != 0)
+        if (maxSize != 0)
             g_pDamageDisplayBackground_00490060 =
-                AllocateTaggedMemory((int)maximumSize, 0);
+                AllocateTaggedMemory((int)maxSize, 0);
     }
     if (g_bTargetLockDisplayEnabled_0049afe0 != 0) {
         g_pCockpitHudBackground_0049b044 = AllocateTaggedMemory(
@@ -709,18 +701,16 @@ void InitializeCockpitResources(short shipType)
             0);
     }
     if (g_pCockpitExplosionShape_0049b048 != 0) {
-        maximumSize = 0;
-        frame = 0;
-        while (frame < 8) {
-            maximumSize = MaxShort(
-                maximumSize,
+        maxSize = 0;
+        for (displayFrame = 0; displayFrame < 8; displayFrame++) {
+            maxSize = MaxShort(
+                maxSize,
                 (short)MeasureShapeFrameStorage(
-                    g_pCockpitExplosionShape_0049b048, frame));
-            frame++;
+                    g_pCockpitExplosionShape_0049b048, displayFrame));
         }
-        if (maximumSize != 0)
+        if (maxSize != 0)
             g_pCockpitExplosionBackground_0049b040 =
-                AllocateTaggedMemory((int)maximumSize, 0);
+                AllocateTaggedMemory((int)maxSize, 0);
     }
     g_pHudMessageFrameShape_0049b288 =
         FetchDiskPacketRetrying("message.v00", 0, 0);
@@ -732,14 +722,14 @@ void InitializeCockpitResources(short shipType)
     g_bRadioSilence_0049b780 = 0;
     g_nCockpitExplosionFrame_0049b04c = 8;
     for (g_nObjectType62Index_00492d64 = 0;
-         g_nObjectType62Index_00492d64 < 0x40;
+         g_nObjectType62Index_00492d64 <= 0x3f;
          g_nObjectType62Index_00492d64++) {
         if (g_aObjectTypeData_00496d30[
                 g_nObjectType62Index_00492d64].field_18 == 0x3e)
             break;
     }
     for (g_nObjectType63Index_00492d68 = 0;
-         g_nObjectType63Index_00492d68 < 0x40;
+         g_nObjectType63Index_00492d68 <= 0x3f;
          g_nObjectType63Index_00492d68++) {
         if (g_aObjectTypeData_00496d30[
                 g_nObjectType63Index_00492d68].field_18 == 0x3f)
@@ -767,14 +757,11 @@ void InitializeCockpitResources(short shipType)
                 4);
         }
     }
-    gunDisplay = 0;
-    while (gunDisplay < 50) {
+    for (gunDisplay = 0; gunDisplay < 50; gunDisplay++) {
         g_apCommunicationTextPackets_005d17c0[gunDisplay] = 0;
-        gunDisplay++;
     }
 }
 
-#pragma function(strlen)
 /* Function start: 0x458196 */
 void free_cockpit(void)
 {

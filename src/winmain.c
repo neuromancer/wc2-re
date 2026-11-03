@@ -129,13 +129,14 @@ void CheckLauncherAndConfig(void)
 #pragma intrinsic(strcmp)
 #ifndef SDL_PORT
 
+#pragma function(memset)
 /* Function start: 0x453E60 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
                    LPSTR commandLine, int showCommand)
 {
     MEMORYSTATUS memoryStatus;
     RECT clip;
-    HANDLE process;
+    HANDLE processHandle;
 
     if (commandLine != 0 && strchr(commandLine, 's') != 0)
         g_nAudioEnabled_0049c244 = 0;
@@ -164,7 +165,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         exit(0);
     }
 
-    if (waveOutGetNumDevs() == 0)
+    if (waveOutGetNumDevs() < 1)
         g_nAudioEnabled_0049c244 = 0;
     CheckLauncherAndConfig();
     if (!PromptInsertCorrectCd()) {
@@ -175,9 +176,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         return 0;
 
     g_bWindowInactive_0049c274 = 0;
-    process = GetCurrentProcess();
+    processHandle = GetCurrentProcess();
     MonoDebug_install();
-    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
+    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
     InitializeAudioSystem(g_hMainWindow_005d10e0);
     InitializeAudioStreamer(g_hMainWindow_005d10e0);
     srand((unsigned int)time(0));

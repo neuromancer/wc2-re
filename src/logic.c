@@ -74,71 +74,62 @@ short normal_speed(short obj)
 /* Function start: 0x429736 */
 short real_crash_time(short obj, short other)
 {
-    short collisionRadius;
+    short crash;
+    short gap;
+    short contactRange;
     short time;
-    short range;
-    short elapsed;
-    short step;
-    int collisionFound;
-    long distance;
-    long relativeSpeed;
-    FixedVector relativePosition;
+    long speed;
+    FixedVector future;
+    long startDistance;
     FixedVector relativeVelocity;
-    FixedVector travel;
-    FixedVector separation;
+    FixedVector currentOffset;
+    FixedVector travelled;
+    short checkTime;
 
+    crash = 0;
 #ifdef SDL_PORT
-    collisionRadius = SdlGetBalancedCollisionRadius(obj);
-    collisionRadius += SdlGetBalancedCollisionRadius(other);
+    contactRange = (short)(SdlGetBalancedCollisionRadius(obj) +
+                           SdlGetBalancedCollisionRadius(other) + 30);
 #else
-    collisionRadius = g_asObjectCollisionRadius_004950e8[obj];
-    collisionRadius += g_asObjectCollisionRadius_004950e8[other];
+    contactRange = (short)(g_asObjectCollisionRadius_004950e8[obj] +
+                           g_asObjectCollisionRadius_004950e8[other] + 30);
 #endif
-    collisionRadius += 30;
-    collisionFound = 0;
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &g_aShipPosition_00494550[other],
-                       &relativePosition);
-    distance = Vector_magnitude(&relativePosition);
-    if (((long)collisionRadius + 1500) * 0x100 < distance)
-        return 0x7fff;
-
+                       &currentOffset);
+    startDistance = Vector_magnitude(&currentOffset);
     ComputeVectorDelta(&g_aShipVelocity_00494898[obj],
                        &g_aShipVelocity_00494898[other],
                        &relativeVelocity);
-    relativeSpeed = Vector_magnitude(&relativeVelocity);
-    if (relativeSpeed == 0)
+    speed = Vector_magnitude(&relativeVelocity);
+    if (speed == 0)
         return 0x7fbc;
 
     time = FixedToShortSaturating(
-        DivideFixed((int)distance, (int)relativeSpeed));
+        DivideFixed((int)startDistance, (int)speed));
     if (time >= 30)
         return time;
 
-    ScaleFixedVector(&relativeVelocity, (int)time << 8, &travel);
-    AddFixedVectors(&relativePosition, &travel, &separation);
-    range = FixedToShortSaturating(
-        Vector_magnitude(&separation));
-    if (range > collisionRadius) {
-        if ((collisionRadius * 2 >> 4) > range)
+    ScaleFixedVector(&relativeVelocity, (int)time << 8, &travelled);
+    AddFixedVectors(&currentOffset, &travelled, &future);
+    gap = FixedToShortSaturating(Vector_magnitude(&future));
+    if (contactRange < gap) {
+        if ((contactRange + contactRange) >> 4 > gap)
             return 25;
-        return 32000;
+        else
+            return 32000;
     }
 
-    elapsed = 0;
-    do {
-        if (elapsed >= time)
-            break;
-        step = MaxShort(1, (short)((time - elapsed) >> 1));
-        elapsed += step;
-        ScaleFixedVector(&relativeVelocity, (int)elapsed << 8, &travel);
-        AddFixedVectors(&relativePosition, &travel, &separation);
-        range = FixedToShortSaturating(
-            Vector_magnitude(&separation));
-        if (collisionRadius >= range)
-            collisionFound = 1;
-    } while (collisionFound == 0);
-    return elapsed;
+    checkTime = 0;
+    while (crash == 0 && checkTime < time) {
+        checkTime += MaxShort(1, (short)((time - checkTime) >> 1));
+        ScaleFixedVector(&relativeVelocity, (int)checkTime << 8, &travelled);
+        AddFixedVectors(&currentOffset, &travelled, &future);
+        gap = FixedToShortSaturating(Vector_magnitude(&future));
+        if (contactRange >= gap)
+            crash = 1;
+    }
+    return checkTime;
 }
 
 /* Function start: 0x429958 */
@@ -615,6 +606,8 @@ short close_behind(short range)
 {
     return g_nTargetRange_0049319c < range && g_nTargetFacing_00493198 < -0x32;
 }
+
+void trim_goals(short obj, short amount);
 
 /* Function start: 0x42A8B5 */
 short scan_for_enemy(short obj, unsigned short range)

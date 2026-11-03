@@ -22,9 +22,9 @@
 extern HANDLE g_hMixerThread_005c4ec0;
 extern HWND g_hDspWindow_005c4ec4;
 extern HANDLE g_hMixerWakeEvent_005c4ec8;
+extern unsigned int g_dwMixerBufferSize_005c4ed4;
 extern unsigned int g_dwMixerWriteOffset_005c4ecc;
 extern LPDIRECTSOUND g_pDirectSound_005c4ed0;
-extern unsigned int g_dwMixerBufferSize_005c4ed4;
 extern unsigned int g_dwDspFlags_005c4ed8;
 extern LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
 extern unsigned int g_dwDspTick_005c52e8;
@@ -52,11 +52,11 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
     SdlStopAudio();
     return 0;
 #else
-    DSCAPS driverCaps;
+    DSCAPS dsCaps;
     PCMWAVEFORMAT format;
-    DSBUFFERDESC bufferDescription;
+    DSBUFFERDESC description;
     HRESULT result;
-    DSBCAPS bufferCaps;
+    DSBCAPS bufCaps;
 
     g_dwDspFlags_005c4ed8 |= 4;
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
@@ -74,11 +74,11 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
         exit(-1);
     }
 
-    memset(&driverCaps, 0, 0x60);
-    driverCaps.dwSize = 0x60;
-    g_pDirectSound_005c4ed0->GetCaps(&driverCaps);
+    memset(&dsCaps, 0, 0x60);
+    dsCaps.dwSize = 0x60;
+    g_pDirectSound_005c4ed0->GetCaps(&dsCaps);
     if ((g_dwDspFlags_005c4ed8 & 0x10) == 0 &&
-        (driverCaps.dwFlags &
+        (dsCaps.dwFlags &
          (DSCAPS_PRIMARY16BIT | DSCAPS_PRIMARYSTEREO)) !=
         (DSCAPS_PRIMARY16BIT | DSCAPS_PRIMARYSTEREO)) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 60);
@@ -100,11 +100,11 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
     format.wf.nAvgBytesPerSec = 88200;
     format.wBitsPerSample = 16;
 
-    memset(&bufferDescription, 0, 0x14);
-    bufferDescription.dwSize = 0x14;
-    bufferDescription.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME;
+    memset(&description, 0, 0x14);
+    description.dwSize = 0x14;
+    description.dwFlags = DSBCAPS_PRIMARYBUFFER | DSBCAPS_CTRLVOLUME;
     result = g_pDirectSound_005c4ed0->CreateSoundBuffer(
-        &bufferDescription, &g_pPrimarySoundBuffer_005c52ec, 0);
+        &description, &g_pPrimarySoundBuffer_005c52ec, 0);
     if (result != DS_OK) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_MIXER_FILE, 81);
         ix_log_printf("Failed to create primary buffer");
@@ -119,13 +119,13 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
                       ix_dsp_result_to_text(result));
     }
     if ((g_dwDspFlags_005c4ed8 & 0x10) != 0) {
-        memset(&bufferDescription, 0, 0x14);
-        bufferDescription.dwSize = 0x14;
-        bufferDescription.dwFlags = DSBCAPS_CTRLVOLUME;
-        bufferDescription.dwBufferBytes = 0x8000;
-        bufferDescription.lpwfxFormat = (LPWAVEFORMATEX)&format;
+        memset(&description, 0, 0x14);
+        description.dwSize = 0x14;
+        description.dwFlags = DSBCAPS_CTRLVOLUME;
+        description.dwBufferBytes = 0x8000;
+        description.lpwfxFormat = (LPWAVEFORMATEX)&format;
         result = g_pDirectSound_005c4ed0->CreateSoundBuffer(
-            &bufferDescription, &g_pMixerBuffer_005c4ee0, 0);
+            &description, &g_pMixerBuffer_005c4ee0, 0);
         if (result != DS_OK) {
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 96);
             ix_log_printf("Failed to CreateSoundBuffer, %s",
@@ -136,11 +136,11 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
         ix_log_printf("secondary buffer, size = %d\n",
                       g_dwMixerBufferSize_005c4ed4);
     } else {
-        memset(&bufferCaps, 0, 0x14);
-        bufferCaps.dwSize = 0x14;
-        g_pPrimarySoundBuffer_005c52ec->GetCaps(&bufferCaps);
+        memset(&bufCaps, 0, 0x14);
+        bufCaps.dwSize = 0x14;
+        g_pPrimarySoundBuffer_005c52ec->GetCaps(&bufCaps);
         g_pMixerBuffer_005c4ee0 = g_pPrimarySoundBuffer_005c52ec;
-        g_dwMixerBufferSize_005c4ed4 = bufferCaps.dwBufferBytes;
+        g_dwMixerBufferSize_005c4ed4 = bufCaps.dwBufferBytes;
         ix_log_printf("primary buffer, size = %d\n",
                       g_dwMixerBufferSize_005c4ed4);
     }
@@ -181,85 +181,89 @@ int ix_mixer_service(void)
     return 0;
 #else
     DWORD delay;
-    HRESULT result;
-    void *firstBuffer;
-    DWORD firstBytes;
-    void *secondBuffer;
-    DWORD secondBytes;
-    DWORD playCursor;
-    DWORD hardwareWriteCursor;
-    int bufferedBytes;
+    DWORD initialBytes;
+    HRESULT hr;
+    void *initialBuffer;
 
     delay = 0x42;
-    result = g_pMixerBuffer_005c4ee0->Lock(
-        0, 0x2df0, &firstBuffer, &firstBytes, 0, 0, 0);
-    if (result != DS_OK) {
+    hr = g_pMixerBuffer_005c4ee0->Lock(
+        0, 0x2df0, &initialBuffer, &initialBytes, 0, 0, 0);
+    if (hr != DS_OK) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 150);
-        ix_log_printf("Failed to Lock, %s", ix_dsp_result_to_text(result));
+        ix_log_printf("Failed to Lock, %s", ix_dsp_result_to_text(hr));
         return -1;
     }
     EnterCriticalSection(&g_csMixer_005c5730);
-    ix_dspv_mix(firstBuffer, firstBytes);
+    ix_dspv_mix(initialBuffer, initialBytes);
     LeaveCriticalSection(&g_csMixer_005c5730);
-    result = g_pMixerBuffer_005c4ee0->Unlock(firstBuffer, firstBytes, 0, 0);
-    if (result != DS_OK) {
+    hr = g_pMixerBuffer_005c4ee0->Unlock(initialBuffer, initialBytes, 0, 0);
+    if (hr != DS_OK) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 157);
-        ix_log_printf("Failed to Unlock, %s", ix_dsp_result_to_text(result));
+        ix_log_printf("Failed to Unlock, %s", ix_dsp_result_to_text(hr));
         return -1;
     }
-    result = g_pMixerBuffer_005c4ee0->Play(0, 0, DSBPLAY_LOOPING);
-    if (result != DS_OK) {
+    hr = g_pMixerBuffer_005c4ee0->Play(0, 0, DSBPLAY_LOOPING);
+    if (hr != DS_OK) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 161);
-        ix_log_printf("Failed to Play, %s", ix_dsp_result_to_text(result));
+        ix_log_printf("Failed to Play, %s", ix_dsp_result_to_text(hr));
         return -1;
     }
 
     g_dwMixerWriteOffset_005c4ecc = 0x2df0;
-    result = DS_OK;
     while ((g_dwDspFlags_005c4ed8 & 4) != 0) {
+        DWORD writePosition;
+        HRESULT hr;
+        DWORD bufferHeadLen;
+        int bufferedBytes;
+        void *bufferTail;
+        DWORD lockBytes;
+        void *bufferHead;
+        DWORD playCursor;
+        DWORD bufferTailLen;
+
         Sleep(delay);
         g_dwDspTick_005c52e8++;
-        result = g_pMixerBuffer_005c4ee0->GetCurrentPosition(
-            &playCursor, &hardwareWriteCursor);
-        if (result != DS_OK) {
+        hr = g_pMixerBuffer_005c4ee0->GetCurrentPosition(
+            &playCursor, &writePosition);
+        if (hr != DS_OK) {
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 176);
             ix_log_printf("Failed to get current position, %s",
-                          ix_dsp_result_to_text(result));
+                          ix_dsp_result_to_text(hr));
             return -1;
         }
-        if (g_dwMixerWriteOffset_005c4ecc < playCursor)
+        if (playCursor > g_dwMixerWriteOffset_005c4ecc)
             playCursor -= g_dwMixerBufferSize_005c4ed4;
         bufferedBytes = g_dwMixerWriteOffset_005c4ecc - playCursor;
         delay = (unsigned int)(bufferedBytes * 0x42) / 0x16f8;
 
-        result = g_pMixerBuffer_005c4ee0->Lock(
-            g_dwMixerWriteOffset_005c4ecc, 0x16f8,
-            &firstBuffer, &firstBytes, &secondBuffer, &secondBytes, 0);
-        if (result != DS_OK) {
+        lockBytes = 0x16f8;
+        hr = g_pMixerBuffer_005c4ee0->Lock(
+            g_dwMixerWriteOffset_005c4ecc, lockBytes,
+            &bufferHead, &bufferHeadLen, &bufferTail, &bufferTailLen, 0);
+        if (hr != DS_OK) {
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 186);
-            ix_log_printf("Failed to Lock, %s", ix_dsp_result_to_text(result));
+            ix_log_printf("Failed to Lock, %s", ix_dsp_result_to_text(hr));
             return -1;
         }
         EnterCriticalSection(&g_csMixer_005c5730);
-        ix_dspv_mix(firstBuffer, firstBytes);
-        if (secondBuffer != 0)
-            ix_dspv_mix(secondBuffer, secondBytes);
+        ix_dspv_mix(bufferHead, bufferHeadLen);
+        if (bufferTail != 0)
+            ix_dspv_mix(bufferTail, bufferTailLen);
         LeaveCriticalSection(&g_csMixer_005c5730);
-        result = g_pMixerBuffer_005c4ee0->Unlock(
-            firstBuffer, firstBytes, secondBuffer, secondBytes);
-        if (result != DS_OK) {
+        hr = g_pMixerBuffer_005c4ee0->Unlock(
+            bufferHead, bufferHeadLen, bufferTail, bufferTailLen);
+        if (hr != DS_OK) {
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 196);
-            ix_log_printf("Failed to Unlock, %s", ix_dsp_result_to_text(result));
+            ix_log_printf("Failed to Unlock, %s", ix_dsp_result_to_text(hr));
             return -1;
         }
-        g_dwMixerWriteOffset_005c4ecc += firstBytes;
-        if (secondBuffer != 0) {
-            g_dwMixerWriteOffset_005c4ecc = secondBytes;
+        g_dwMixerWriteOffset_005c4ecc += bufferHeadLen;
+        if (bufferTail != 0) {
+            g_dwMixerWriteOffset_005c4ecc = bufferTailLen;
         } else {
             if (g_dwMixerWriteOffset_005c4ecc >= g_dwMixerBufferSize_005c4ed4)
                 g_dwMixerWriteOffset_005c4ecc = 0;
         }
-        result = DS_OK;
     }
     return 0;
 #endif

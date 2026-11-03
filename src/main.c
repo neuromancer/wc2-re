@@ -92,11 +92,9 @@ void RunGameApplication(short argc, char **argv)
 {
     short argumentCount;
     int memoryBytes;
-    short campaignSelected;
-    int roomSelection;
-    int flightResult;
+    short selectionMade;
 
-    campaignSelected = 0;
+    selectionMade = 0;
     argumentCount = LoadWingCmdrCfgFile(argc, argv);
     _chdir("gamedat");
     printf("Loading WING COMMANDER 2.  Please wait...\n");
@@ -116,8 +114,15 @@ void RunGameApplication(short argc, char **argv)
         g_pMemoryAdjustment_0049d788 =
             AllocateTaggedMemory((unsigned int)memoryBytes, 0x40);
         if (g_pMemoryAdjustment_0049d788 != 0)
+#ifdef SDL_PORT
             printf("Adjusting Mem size by %dK\n",
                    g_nMemoryAdjustmentKb_005c8dda);
+#else
+            /* This unit passed the short as a full dword (MOV EAX,[g]),
+             * so the next global's bytes ride along in the high half. */
+            printf("Adjusting Mem size by %dK\n",
+                   *(int *)&g_nMemoryAdjustmentKb_005c8dda);
+#endif
     }
 
     g_stCurrentPilotProfile_00493408.series = g_nDirectSeries_0049d79c;
@@ -154,24 +159,23 @@ void RunGameApplication(short argc, char **argv)
                 while (RunSelectedCampaign() != 0) {
                 }
             } else {
-                while (campaignSelected == 0) {
-                    roomSelection = RunTitleScreen();
-                    switch (roomSelection) {
+                while (selectionMade == 0) {
+                    switch (RunTitleScreen()) {
                     case 0:
                         g_nSelectedCampaignSlot_005d3bf2 =
                             BarracksScreen();
                         InitializeNewPilotCampaign(
                             g_nSelectedCampaignSlot_005d3bf2);
-                        campaignSelected = RunPilotDatabaseMenu();
+                        selectionMade = RunPilotDatabaseMenu();
                         break;
                     case 1:
                         g_nSelectedCampaignSlot_005d3bf2 =
                             LoadSelectedPilotCampaign();
-                        campaignSelected = 1;
+                        selectionMade = 1;
                         break;
                     }
                 }
-                campaignSelected = 0;
+                selectionMade = 0;
                 if (g_nOriginDevUnlock_0049d774 != 0) {
                     strcpy(g_stCurrentPilotProfile_00493408.callsign,
                            "CHEATER");
@@ -195,7 +199,7 @@ void RunGameApplication(short argc, char **argv)
         RunSpaceFlight(g_nMissionEntryNavOverride_0049d790);
         LogMemoryUsage();
         printf("You ");
-        switch (flightResult = g_nArcadeState_0049d75c) {
+        switch (g_nArcadeState_0049d75c) {
         case 1:
             printf("have landed.\n");
             break;
@@ -209,9 +213,9 @@ void RunGameApplication(short argc, char **argv)
             printf("have ejected.\n");
             break;
         }
-        if (g_pMemoryAdjustment_0049d788 != 0) {
-            free(g_pMemoryAdjustment_0049d788);
-        }
+    }
+    if (g_pMemoryAdjustment_0049d788 != 0) {
+        free(g_pMemoryAdjustment_0049d788);
     }
 }
 

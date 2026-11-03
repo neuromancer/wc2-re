@@ -1318,7 +1318,9 @@ void capital_ship_intelligence(short obj)
     default:
         if (obj == 0) {
             approach_cruise_speed(0);
-        } else if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI) {
+            break;
+        }
+        if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI) {
             switch (g_asObjectType_00495298[obj]) {
             case 0x36:
             case 0x37:
@@ -1332,37 +1334,35 @@ void capital_ship_intelligence(short obj)
                 destroyer_intelligence(obj);
                 break;
             }
-        } else {
-            g_nTargetShip_004931a0 = g_acShipTarget_00495f20[obj];
-            if (unactive(g_nTargetShip_004931a0) != 0)
-                scan_for_enemy(obj, 15000);
+            break;
+        }
+        g_nTargetShip_004931a0 = g_acShipTarget_00495f20[obj];
+        if (unactive(g_nTargetShip_004931a0) != 0)
+            scan_for_enemy(obj, 15000);
 
-            switch (g_asShipTactic_00495f30[obj]) {
-            case TACTIC_SELF_DEFENSE:
+        switch (g_asShipTactic_00495f30[obj]) {
+        case TACTIC_SELF_DEFENSE:
+            approach_full_speed(obj);
+            if (unactive(g_acShipTarget_00495f20[obj]) != 0) {
+                select_target(obj);
+                if (unactive(g_acShipTarget_00495f20[obj]) != 0)
+                    reset_tactic(obj, TACTIC_NONE);
+            } else {
+                fire_turrets(obj);
+            }
+            break;
+        default:
+            if (g_nTargetShip_004931a0 != -1) {
                 approach_full_speed(obj);
-                if (unactive(g_acShipTarget_00495f20[obj]) != 0) {
-                    select_target(obj);
-                    if (unactive(g_acShipTarget_00495f20[obj]) != 0)
-                        reset_tactic(obj, TACTIC_NONE);
-                } else {
-                    fire_turrets(obj);
-                }
-                break;
-            default:
-                if (g_nTargetShip_004931a0 != -1) {
-                    approach_full_speed(obj);
-                    g_asShipTactic_00495f30[obj] =
-                        TACTIC_SELF_DEFENSE;
-                    g_acShipTarget_00495f20[obj] =
-                        (signed char)g_nTargetShip_004931a0;
-                    fire_turrets(obj);
-                } else {
-                    approach_cruise_speed(obj);
-                }
-                break;
+                g_asShipTactic_00495f30[obj] =
+                    TACTIC_SELF_DEFENSE;
+                g_acShipTarget_00495f20[obj] =
+                    (signed char)g_nTargetShip_004931a0;
+                fire_turrets(obj);
+            } else {
+                approach_cruise_speed(obj);
             }
         }
-        break;
     }
 }
 
@@ -1463,6 +1463,7 @@ void send_message(short obj, signed char message);
 short get_ship_max_velocity(short obj);
 short RandomBelowOrEqual(short n);
 void mine_intelligence(short obj);
+short distance_from_object(short obj, short other);
 
 /* Function start: 0x446133 */
 void FF_missile_intelligence(short obj)

@@ -187,72 +187,69 @@ void *LoadPacketAllocated(char *fileName, short section)
 
 /* Function start: 0x40F5B6 */
 void *FetchDiskPacketRetrying(char *fileName, short section,
-                              unsigned short flags)
+                              short flags)
 {
-    void *packet;
-    unsigned int availableMemory;
+    unsigned int available;
+    void *result;
     short retries;
     unsigned int largestBlock;
 
-    packet = 0;
+    result = 0;
     retries = 5;
     if (g_bRewritePacketExtensions_0049cb48 == 1)
         RewritePacketFilenameForInstalledData(fileName);
     do {
-        FreePacketAndClear(&packet, flags);
+        FreePacketAndClear(&result, flags);
         largestBlock = GetLargestMainMemoryBlock();
-        availableMemory = GetAvailableMainMemory();
-        packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+        available = GetAvailableMainMemory();
+        result = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
         largestBlock = GetLargestMainMemoryBlock();
-        availableMemory = GetAvailableMainMemory();
+        available = GetAvailableMainMemory();
         retries--;
-        if (retries < 1 || g_nPacketError_0049ca90 == 0)
-            break;
-    } while (g_nPacketError_0049ca90 != 8);
+    } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
+             g_nPacketError_0049ca90 != 8);
 
-    if (packet == 0 && g_stViewBuffer_005d2b00.pixels != 0) {
+    if (result == 0 && g_stViewBuffer_005d2b00.pixels != 0) {
         free_viewport(&g_stViewBuffer_005d2b00);
         do {
-            FreePacketAndClear(&packet, flags);
+            FreePacketAndClear(&result, flags);
             largestBlock = GetLargestMainMemoryBlock();
-            availableMemory = GetAvailableMainMemory();
-            packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+            available = GetAvailableMainMemory();
+            result = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
             largestBlock = GetLargestMainMemoryBlock();
-            availableMemory = GetAvailableMainMemory();
+            available = GetAvailableMainMemory();
             retries--;
-            if (retries < 1 || g_nPacketError_0049ca90 == 0)
-                break;
-        } while (g_nPacketError_0049ca90 != 8);
+        } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
+                 g_nPacketError_0049ca90 != 8);
         if (AllocateViewport(&g_stViewBuffer_005d2b00,
                              g_cPrimaryViewBufferColour_0049cb88,
                              0x20) == 0) {
-            ReportPacketLoadError(0, fileName, flags, section, "LP2");
+            ReportPacketLoadError(0, fileName, flags, flags, "LP2");
         }
     }
-    if (packet == 0 &&
+    if (result == 0 &&
         g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
         free_viewport(&g_stSecondaryViewBuffer_005d2c90);
         do {
-            FreePacketAndClear(&packet, flags);
-            packet = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
+            FreePacketAndClear(&result, flags);
+            result = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
             retries--;
-            if (retries < 1 || g_nPacketError_0049ca90 == 0)
-                break;
-        } while (g_nPacketError_0049ca90 != 8);
+        } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
+                 g_nPacketError_0049ca90 != 8);
         if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
                              g_cSecondaryViewBufferColour_0049cb4c,
                              0) == 0) {
             ReportPacketLoadError(0, fileName, flags, section, "LP3");
         }
     }
-    if (packet == 0 && (flags & 4) == 0 &&
+    if (result == 0 && (flags & 4) == 0 &&
         g_nPacketError_0049ca90 != 0 && g_nPacketError_0049ca90 != 8) {
-        ReportPacketLoadError(0, fileName, flags, section, "LP4");
+        ReportPacketLoadError(result, fileName, flags, section, "LP4");
     }
     if (g_nOriginDevUnlock_0049d774 != 0) {
-        AppendPacketLoadDebugLog(fileName, section, packet);
+        AppendPacketLoadDebugLog(fileName, section, result);
     }
-    return packet;
+    return result;
 }
 
 /* Function start: 0x40F882 */
@@ -309,7 +306,17 @@ void DrawTextAt(TextContext *context, short x, short y,
 /* Function start: 0x40F9F7 */
 void FlushPendingInputPresses(void)
 {
+    short done;
+
+    /* The DOS release wait looped on this flag; the port left it set. */
+    done = 0;
+    /* Retail calls the pump with no argument (no prototype in scope); the
+     * SDL build passes the zero the other callers use. */
+#ifdef SDL_PORT
     PumpWindowMessages(0);
+#else
+    ((unsigned int (__cdecl *)(void))PumpWindowMessages)();
+#endif
     while (TakeInputPressCount() != 0)
         ServiceInputDevices(15);
 }

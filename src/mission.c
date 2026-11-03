@@ -324,7 +324,7 @@ short FindObjectResourceSlot(short resourceType);
 void ReleasePacketHandle(void *handle);
 void add_hazard_field(short type, FixedVector center, short radius, short density);
 void flag_objective(short objective, unsigned char flags);
-void *FetchDiskPacketRetrying(char *fileName, short section, unsigned short flags);
+void *FetchDiskPacketRetrying(char *fileName, short section, short flags);
 
 /* Function start: 0x44BCF7 */
 void release_all_capital_ship_shapes(void)

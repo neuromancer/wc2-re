@@ -115,10 +115,29 @@ A function's return type as its callers see it shows in the extension after
 the call: `movsx eax,ax` means `short`, `movzx eax,ax` `unsigned short`
 (`GetFontCharWidth`, `ReadWord` return `short`).
 
+A call with no argument pushed at all (`CALL PumpWindowMessages` with no
+`PUSH`, no `ADD ESP`) is an unprototyped call made with too few arguments.
+Reproduce it through a cast to a no-argument function type and keep the
+SDL build on the normal call (`RunTitleScreen`, `FlushPendingInputPresses`).
+A caller that pushes a 16-bit value without extending it (`MOV AX,[g] /
+PUSH EAX`) saw a 16-bit parameter, even when the definition reads a dword
+(`DosMemcpy`'s prototype is `unsigned short`, its definition masks
+`size_t`).
+
+In C++ units a renamed local can move later functions' keys. A name already
+seen in the unit (`description` is a parameter of `ix_dsp_open_driver`)
+appears to add no new key, so re-check the following function after any
+rename in `src/ix` (`ix_mixer_thread_proc` and `ix_mixer_service`).
+
 A global that one unit reads as a dword and another as a word (`XOR EAX,EAX /
 MOV AX,WORD PTR [g]`) is a 4-byte variable. Declare it with the full width.
 The word readers cast it, since `(unsigned short)g` narrows the load itself
 (`g_nDigiSampleBytes_0048e0e0`: `comm.c` compares the dword, `speech.c` casts).
+The same holds for word and byte: `fltsetup.c` stores and tests
+`g_bTargetLockDisplayEnabled_0049afe0` as a word while `cockpt.c` reads
+`(signed char)` of it. Where only one site in a unit reads a short global as
+a dword (`RunGameApplication` passes `g_nMemoryAdjustmentKb_005c8dda` to
+`printf` with `MOV EAX,[g]`), the read is `*(int *)&g` under `#ifndef SDL_PORT`.
 
 In `ix.h` the effect of a declaration change is not a uniform key shift.
 Replacing the free `__fastcall` `ix_sound_unlink_from_free_list` with an
@@ -225,6 +244,26 @@ Each of these was confirmed against retail code; pick the form the jumps show.
 - `(a & M) != (b & M)` always folds to `((a ^ b) & M) != 0` in this
   compiler; a retail `AND`/`AND`/`CMP` sequence (`InitializeSoundBlaster`)
   comes from some other source form that has not been found yet.
+- A `JMP` over a test that nothing reaches is a condition the compiler
+  folded to zero: `(g & 0) && ...` (`house_keep_objects`; the DOS source
+  has `g_frameCounter & 0`). `!flags & 1` parses as `(!flags) & 1` and
+  compiles to `CMP/SBB/NEG/TEST AL,1` (`FinishViewportWipe`).
+- The last case of a `switch` that ends in `break;` leaves two `JMP end`
+  instructions before the dispatch; with no `break;` there is only the
+  implicit one (`capital_ship_intelligence`). Ghidra hides the dead
+  second `JMP`; count them in a linear disassembly.
+- A loop body with its own declarations gives those locals separate slots
+  below the function's own (`ix_mixer_service` relocks into a second set of
+  pointers).
+- Retail sometimes reuses one local for two unrelated jobs: the DOS `dx`
+  and `dy` later hold button states (`KeyboardMousePump`). The frame shows
+  this as fewer slots than the reconstruction's locals.
+- A `for` loop's step sits before the test (`JMP test / INC / test`); a
+  `while` with the increment at the end of the body does not
+  (`InitializeCockpitResources`).
+- A local the original only assigned is still a slot. The DOS sources often
+  name it: `passes = 0x40` in `LoadJoystickCalibrationFile`, `done = 0` in
+  `FlushPendingInputPresses`.
 
 ### Strings and library calls
 

@@ -5,60 +5,66 @@
  */
 #include "game.h"
 
+short OpenDataFileOrDie(const char *path);
+int ReadDataFileAtOffset(unsigned short fd, int offset, unsigned int length,
+                         void *data);
+int SeekDataFile(unsigned short fd, int offset, unsigned int origin);
+
 /* Function start: 0x44F010 */
 short OpenPacketSection(const char *filename, short section,
-                        PacketSectionHandle *handle)
+                        PacketSectionHandle *out)
 {
-    unsigned int sectionEntry;
-    unsigned int fileSize;
-    unsigned int nextEntry;
-    int sectionIndex;
+    unsigned int start;
+    unsigned int length;
+    unsigned int next;
+    int offset;
     unsigned int directorySize;
-    short compression;
-    short sectionCount;
-    short file;
+    short method;
+    short entryCount;
+    short handle;
 
-    file = OpenDataFileOrDie(filename);
-    if (file == -1)
-        goto failed;
-    if (ReadDataFileAtOffset(file, 0, 4, &fileSize) == 0)
-        goto failed;
-    if (ReadDataFileAtOffset(file, 4, 4, &directorySize) == 0)
-        goto failed;
-    sectionCount = (short)(directorySize >> 2) - 1;
-    if (section >= sectionCount) {
-        g_nPacketError_0049ca90 = 3;
-        goto failed;
-    }
-    sectionIndex = (int)section;
-    if (ReadDataFileAtOffset(file, sectionIndex * 4 + 4, 4,
-                             &sectionEntry) == 0)
-        goto failed;
-    handle->finalSection = 0;
-    compression = (short)(sectionEntry >> 24);
-    if (sectionCount - sectionIndex == 1) {
-        handle->finalSection = 1;
-        nextEntry = fileSize;
-        sectionEntry &= 0x00ffffff;
-    } else {
-        sectionEntry &= 0x00ffffff;
-        if (ReadDataFileAtOffset(file, sectionIndex * 4 + 8, 4,
-                                 &nextEntry) == 0)
-            goto failed;
-        nextEntry &= 0x00ffffff;
-    }
-    fileSize = nextEntry - sectionEntry;
-    if (SeekDataFile(file, sectionEntry, 0) != 0) {
-        handle->file = file;
-        handle->dataOffset = sectionEntry;
-        handle->sectionCount = sectionCount;
-        handle->compression = compression;
-        handle->dataSize = fileSize;
-        handle->position = 0;
-        return 1;
+    handle = OpenDataFileOrDie(filename);
+    if (handle != -1) {
+        for (;;) {
+            if (ReadDataFileAtOffset(handle, 0, 4, &length) == 0)
+                goto failed;
+            if (ReadDataFileAtOffset(handle, 4, 4, &directorySize) == 0)
+                goto failed;
+            entryCount = (short)((directorySize >> 2) - 1);
+            if (section >= entryCount) {
+                g_nPacketError_0049ca90 = 3;
+                goto failed;
+            }
+            offset = (section + 1) * 4;
+            if (ReadDataFileAtOffset(handle, offset, 4, &start) == 0)
+                goto failed;
+            method = (short)(start >> 24);
+            start &= 0x00ffffff;
+            out->finalSection = 0;
+            if (entryCount - 1 == section) {
+                next = length;
+                out->finalSection = 1;
+            } else {
+                offset += 4;
+                if (ReadDataFileAtOffset(handle, offset, 4, &next) == 0)
+                    goto failed;
+                /* The top byte holds the next section's method flag. */
+                ((unsigned char *)&next)[3] = 0;
+            }
+            length = next - start;
+            if (SeekDataFile(handle, start, 0) == 0)
+                goto failed;
+            out->file = handle;
+            out->sectionCount = entryCount;
+            out->compression = method;
+            out->dataOffset = start;
+            out->position = 0;
+            out->dataSize = length;
+            return 1;
+        }
     }
 failed:
-    CloseDataFile((unsigned short)file);
+    CloseDataFile((unsigned short)handle);
     return 0;
 }
 

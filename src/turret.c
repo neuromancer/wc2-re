@@ -18,11 +18,6 @@ static const ShortVector g_aaTurretProjectileOffsets_0049d448[2][2] = {
 
 static short g_nTargetCameraGunCooldown_0049d33c;
 
-/* The two target-camera gun offsets per display sit inside the gun display
- * configuration record at +0x88, not in a table of their own. */
-#define g_aaTargetCameraGunOffsets_0049d3c8 \
-    ((ShortVector (*)[2])(g_abGunDisplayConfiguration_0049d340 + 0x88))
-
 static const short g_asFleetMouseYawThresholds_0049d400[6] = {
     10, 37, 52, 57, 62, 1070
 };
@@ -342,98 +337,109 @@ void UpdateFleetOverviewCameraRotation(void)
 /* Function start: 0x45F439 */
 void FireTargetCameraGuns(void)
 {
-    short projectileSpeed;
-    short projectileType;
+    short type;
     short shot;
     short projectile;
     ObjectTypeData *projectileData;
+    short projectileVelocity;
     FixedVector direction;
-    short leadDistance;
+    short travel;
 
-    projectileSpeed = 10;
-    projectileType = 8;
+    projectileVelocity = 10;
+    type = 8;
     if (g_nGunDisplayEnergyPercent_005c8d4e <= 0 ||
         g_nTargetCameraGunCooldown_0049d33c > 0)
         return;
     for (shot = 0; shot < 2; shot++) {
-            projectile = new_object(projectileType, 0);
+            projectile = new_object(type, 0);
             if (projectile != -1) {
                 g_abProjectileCollisionBonus_004960a8[projectile] = 1;
                 projectileData =
-                    &g_aObjectTypeData_00496d30[projectileType];
+                    &g_aObjectTypeData_00496d30[type];
                 copy_frame(EYE_OBJECT, projectile);
                 g_asObjectDamage_00495178[projectile] =
                     projectileData->damageCapacity;
-                projectileSpeed = (short)(
+                projectileVelocity = (short)(
                     g_aObjectTypeData_00496d30[
                         g_acObjectType_00493980[projectile]]
                         .maximumVelocity * 2);
                 g_nGunDisplayEnergyPercent_005c8d4e =
                     (short)(g_nGunDisplayEnergyPercent_005c8d4e -
                             projectileData->animationDelay / 2);
+                /* The two gun offsets per display sit inside the gun
+                 * display configuration record at +0x88. */
                 g_aShipPosition_00494550[projectile].x =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
                         g_aShipUpVector_00493ec0[EYE_OBJECT].x +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
                             EYE_OBJECT].x +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
                             EYE_OBJECT].x +
                     g_aShipPosition_00494550[EYE_OBJECT].x;
                 g_aShipPosition_00494550[projectile].y =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
                         g_aShipUpVector_00493ec0[EYE_OBJECT].y +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
                             EYE_OBJECT].y +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
                             EYE_OBJECT].y +
                     g_aShipPosition_00494550[EYE_OBJECT].y;
                 g_aShipPosition_00494550[projectile].z =
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].y *
                         g_aShipUpVector_00493ec0[EYE_OBJECT].z +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].z *
                         g_aShipForwardVector_00494208[
                             EYE_OBJECT].z +
-                    g_aaTargetCameraGunOffsets_0049d3c8[
+                    (*(ShortVector (*)[2][2])(
+                        g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplayIndex_005c8dc0][shot].x *
                         g_aShipRightVector_00493b78[
                             EYE_OBJECT].z +
                     g_aShipPosition_00494550[EYE_OBJECT].z;
                 g_asObjectCounter_00494be0[projectile] =
                     (short)g_aObjectTypeData_00496d30[
-                        projectileType].lifetime;
+                        type].lifetime;
                 zero_vector(&g_aShipVelocity_00494898[projectile]);
                 direction =
                     g_aShipForwardVector_00494208[EYE_OBJECT];
                 NormalizeFixedVector(&direction);
-                leadDistance = (short)(
+                travel = (short)(
                     (projectileData->lifetime + 5) *
                     projectileData->maximumVelocity);
                 ScaleFixedVector(
-                    &direction, (int)leadDistance << 8, &direction);
+                    &direction, (int)travel << 8, &direction);
                 AddFixedVectors(
                     &g_aShipPosition_00494550[EYE_OBJECT],
                     &direction, &direction);
                 point_at(projectile, direction);
                 ScaleFixedVector(
                     &g_aShipForwardVector_00494208[projectile],
-                    (int)projectileSpeed << 8, &direction);
+                    (int)projectileVelocity << 8, &direction);
                 g_aShipVelocity_00494898[projectile] = direction;
                 RecordCannedSceneObjectEvent(projectile, 0);
                 g_nTargetCameraGunCooldown_0049d33c =
                     (short)(g_acGunRefireDelay_00492e1c[
-                                projectileType - 7] >> 1);
+                                type - 7] >> 1);
                 PlaySfxWaveFileByNumber(8, projectile, 0);
             }
     }

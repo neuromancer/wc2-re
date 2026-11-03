@@ -1293,7 +1293,8 @@ extern ShortRect g_stPilotHandBounds_0049af88;
 extern ShortPoint g_stPilotHandOrigin_0049af90;
 extern signed char g_cHazardBaseTravelTime_0049af94;
 extern short g_nHazardPitchRange_0049af98;
-extern signed char g_bTargetLockDisplayEnabled_0049afe0;
+/* fltsetup.c stores and tests a word; cockpt.c reads the low byte. */
+extern short g_bTargetLockDisplayEnabled_0049afe0;
 extern short g_nTargetLeadIndicatorX_0049afe8;
 extern short g_nTargetLeadIndicatorY_005d1c2a;
 extern char g_szTargetOutOfRange_0049b438[13];
@@ -1337,7 +1338,7 @@ extern InputManagerState *g_pInputManagerState_005c8464;
 extern InputPumpContext *g_pActiveInputContext_005c8487;
 extern void (*g_pfnEventManagerShutdown_005c8be0)(void);
 extern short g_nInputTickInterval_005c8448;
-extern unsigned char g_nInputDeviceMode_005c83e6;
+extern signed char g_cKeypadMouseSpeed_005c83e6;
 extern volatile int g_nInputClock_005c84a8;
 extern void *g_pApplicationScratchBuffer_005c8483;
 extern short g_nUiCursorFrame_005c8481;

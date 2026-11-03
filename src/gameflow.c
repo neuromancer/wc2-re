@@ -1172,17 +1172,25 @@ void LinkCutsceneSpriteScript(unsigned char destination,
     sourceSprite->owner = g_nActiveCutsceneResourceLevel_00499d9c;
 }
 
+/* Two sprites a developer could watch: drawing either one resets x first,
+ * a store the real x then overwrites. */
+extern SceneFlicObject *g_pWatchedCutsceneSpriteA_005d2e90;
+extern SceneFlicObject *g_pWatchedCutsceneSpriteB_005d2e94;
+
 /* Function start: 0x42DA25 */
 void DrawCutsceneSprite(SceneFlicObject *sprite)
 {
     short y;
-    short flags;
     short x;
     short rotation;
+    short attributes;
     short scale;
 
     if (sprite == 0)
         FatalCutsceneError("A11");
+    if (sprite == g_pWatchedCutsceneSpriteA_005d2e90 ||
+        sprite == g_pWatchedCutsceneSpriteB_005d2e94)
+        x = 0;
     if (g_bCutsceneDrawingEnabled_00499c60 == 0 &&
         g_bCutsceneSkipFrame_00499c54 != 0)
         return;
@@ -1192,7 +1200,7 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
         y = sprite->y;
         rotation = sprite->rotation;
         scale = sprite->scale;
-        flags = sprite->drawFlags;
+        attributes = sprite->drawFlags;
         if (g_pCutsceneSpriteParentPlane_00499ef0 != 0) {
             x = (short)(x + g_pCutsceneSpriteParentPlane_00499ef0->x);
             y = (short)(y + g_pCutsceneSpriteParentPlane_00499ef0->y);
@@ -1200,7 +1208,7 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
                 g_pCutsceneSpriteParentPlane_00499ef0->rotation);
             scale = (short)(scale +
                 g_pCutsceneSpriteParentPlane_00499ef0->scale);
-            flags ^= g_pCutsceneSpriteParentPlane_00499ef0->drawFlags;
+            attributes ^= (short)g_pCutsceneSpriteParentPlane_00499ef0->drawFlags;
         }
         rotation = (short)(rotation % 360);
         if (rotation < 0)
@@ -1209,30 +1217,41 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
             scale = 0;
         if (scale > 0x4000)
             scale = 0x4000;
-        if ((flags & 1) != 0) {
-            if ((flags & 0x10) != 0) {
-                x = (short)(160 - x);
-                x = (short)(x + 160);
+        if ((attributes & 1) != 0) {
+            if ((attributes & 0x10) != 0) {
+                x = (short)(160 - x + 160);
             }
-            if ((flags & 0x20) != 0) {
-                y = (short)(100 - y);
-                y = (short)(y + 100);
+            if ((attributes & 0x20) != 0) {
+                y = (short)(100 - y + 100);
             }
-            flags &= 0xfffe;
+            attributes &= ~1;
         }
         g_nCutsceneSpritesDrawn_00499c10++;
         g_pCutscenePalettePacket_005d2e98 = 0;
         switch (sprite->drawType) {
+        case 4:
+            if (g_nFrameSkipCountdown_0049d760 == 0) {
+                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                    x, y, sprite->shape,
+                    (short)(sprite->currentFrame -
+                            sprite->segmentStartFrame),
+                    rotation, scale, attributes);
+            }
+            sprite->currentFrame++;
+            g_pCutscenePalettePacket_005d2e98 =
+                (void *)sprite->decoderState;
+            AdvanceSceneFlicStream(sprite);
+            break;
         case 0:
         case 2:
             if (g_nFrameSkipCountdown_0049d760 == 0) {
                 DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
                     x, y, sprite->shape, sprite->baseFrame,
-                    rotation, scale, flags);
+                    rotation, scale, attributes);
                 DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
                     x, y, sprite->shape,
                     (short)(sprite->baseFrame + sprite->currentFrame + 1),
-                    rotation, scale, flags);
+                    rotation, scale, attributes);
             }
             sprite->tick++;
             break;
@@ -1242,22 +1261,9 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
                 DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
                     x, y, sprite->shape,
                     (short)(sprite->baseFrame + sprite->currentFrame),
-                    rotation, scale, flags);
+                    rotation, scale, attributes);
             }
             sprite->tick++;
-            break;
-        case 4:
-            if (g_nFrameSkipCountdown_0049d760 == 0) {
-                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
-                    x, y, sprite->shape,
-                    (short)(sprite->currentFrame -
-                            sprite->segmentStartFrame),
-                    rotation, scale, flags);
-            }
-            sprite->currentFrame++;
-            g_pCutscenePalettePacket_005d2e98 =
-                (void *)sprite->decoderState;
-            AdvanceSceneFlicStream(sprite);
             break;
         }
     }

@@ -896,70 +896,72 @@ void SetViewportRectangleBounds(Viewport *viewport, int left, int top,
 /* Function start: 0x44A03C */
 void FinishViewportWipe(void *workspace)
 {
-    short remaining;
+    short width;
+    short height;
 
-    if (g_nWipePassFlags_005b34b4 == 0) {
+    /* "!flags & 1" binds as "(!flags) & 1"; retail tests it that way. */
+    if (!g_nWipePassFlags_005b34b4 & 1) {
         CopyViewportContents(&g_stWipeSourceViewport_005b3488,
                              &g_stWipeDestinationViewport_005b3450);
     } else {
         switch (g_nWipeType_005b3444) {
         case 0:
-            remaining = g_nWipeTotalSteps_005b3440 -
+            height = g_nWipeTotalSteps_005b3440 -
                 g_nWipeProgress_005b3434;
             SetViewportVerticalBounds(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 g_stWipeWorkingSourceViewport_005b34c8.bottom + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.bottom + remaining);
+                g_stWipeWorkingSourceViewport_005b34c8.bottom + height);
             SetViewportVerticalBounds(
                 &g_stWipeWorkingDestinationViewport_005b34a0,
                 g_stWipeWorkingDestinationViewport_005b34a0.bottom + 1,
                 g_stWipeWorkingDestinationViewport_005b34a0.bottom +
-                    remaining);
+                    height);
             CopyViewportContents(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0);
             break;
         case 1:
-            remaining = g_nWipeTotalSteps_005b3440 -
+            width = g_nWipeTotalSteps_005b3440 -
                 g_nWipeProgress_005b3434;
             SetViewportHorizontalBounds(
                 &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.left - remaining,
+                g_stWipeWorkingSourceViewport_005b34c8.left - width,
                 g_stWipeWorkingSourceViewport_005b34c8.left - 1);
             SetViewportHorizontalBounds(
                 &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.left - remaining,
+                g_stWipeWorkingDestinationViewport_005b34a0.left - width,
                 g_stWipeWorkingDestinationViewport_005b34a0.left - 1);
             CopyViewportContents(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0);
             break;
         case 2:
-            remaining = g_nWipeTotalSteps_005b3440 -
+            height = g_nWipeTotalSteps_005b3440 -
                 g_nWipeProgress_005b3434;
             SetViewportVerticalBounds(
                 &g_stWipeWorkingSourceViewport_005b34c8,
-                g_stWipeWorkingSourceViewport_005b34c8.top - remaining,
+                g_stWipeWorkingSourceViewport_005b34c8.top - height,
                 g_stWipeWorkingSourceViewport_005b34c8.top - 1);
             SetViewportVerticalBounds(
                 &g_stWipeWorkingDestinationViewport_005b34a0,
-                g_stWipeWorkingDestinationViewport_005b34a0.top - remaining,
+                g_stWipeWorkingDestinationViewport_005b34a0.top - height,
                 g_stWipeWorkingDestinationViewport_005b34a0.top - 1);
             CopyViewportContents(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0);
             break;
         case 3:
-            remaining = g_nWipeTotalSteps_005b3440 -
+            width = g_nWipeTotalSteps_005b3440 -
                 g_nWipeProgress_005b3434;
             SetViewportHorizontalBounds(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 g_stWipeWorkingSourceViewport_005b34c8.right + 1,
-                g_stWipeWorkingSourceViewport_005b34c8.right + remaining);
+                g_stWipeWorkingSourceViewport_005b34c8.right + width);
             SetViewportHorizontalBounds(
                 &g_stWipeWorkingDestinationViewport_005b34a0,
                 g_stWipeWorkingDestinationViewport_005b34a0.right + 1,
-                g_stWipeWorkingDestinationViewport_005b34a0.right + remaining);
+                g_stWipeWorkingDestinationViewport_005b34a0.right + width);
             CopyViewportContents(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0);
@@ -1024,7 +1026,8 @@ void FinishViewportWipe(void *workspace)
             if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
                     &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left,
+                    g_stWipeSourceViewport_005b3488.left +
+                        g_nWipeCurrentHorizontalEdge_005b3464,
                     g_stWipeSourceViewport_005b3488.top,
                     g_stWipeSourceViewport_005b3488.left +
                         g_nWipePreviousHorizontalEdge_005b346c - 1,
@@ -1071,7 +1074,8 @@ void FinishViewportWipe(void *workspace)
             if (g_nWipePreviousVerticalEdge_005b3470 >= 0) {
                 SetViewportRectangleBounds(
                     &g_stWipeWorkingSourceViewport_005b34c8,
-                    g_stWipeSourceViewport_005b3488.left,
+                    g_stWipeSourceViewport_005b3488.left +
+                        g_nWipeCurrentHorizontalEdge_005b3464,
                     g_stWipeSourceViewport_005b3488.top +
                         g_nWipePreviousVerticalEdge_005b3470,
                     g_stWipeSourceViewport_005b3488.left +
@@ -1165,7 +1169,7 @@ void FinishViewportWipe(void *workspace)
         case 8:
             g_nWipeProgress_005b3434 = g_nWipeTotalSteps_005b3440;
             GenerateWipeRadialEdges(g_pWipeLeadingEdges_005b3438,
-                                    g_nWipeTotalSteps_005b3440);
+                                    g_nWipeProgress_005b3434);
             BlitWipeRadialBands(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0,
@@ -1176,7 +1180,7 @@ void FinishViewportWipe(void *workspace)
             g_nWipeProgress_005b3434 = g_nWipeTotalSteps_005b3440;
             GenerateWipeRadialEdges(
                 g_pWipeTrailingEdges_005b343c,
-                g_nWipeTotalSteps_005b3440 - g_nWipeTotalSteps_005b3440);
+                g_nWipeTotalSteps_005b3440 - g_nWipeProgress_005b3434);
             BlitWipeRadialBands(
                 &g_stWipeWorkingSourceViewport_005b34c8,
                 &g_stWipeWorkingDestinationViewport_005b34a0,
@@ -1193,57 +1197,57 @@ void GenerateWipeRadialEdges(short *edges, int radius)
 {
     short x;
     short y;
-    short error;
-    short previousY;
-    short fillRadius;
+    short err;
+    short lastY;
     short decision;
+    short blankRow;
 
     x = 0;
     y = (short)radius;
-    error = (short)((1 - radius) * 2);
+    err = (short)((1 - radius) * 2);
     if (g_nWipeRadialRowCount_005d17b4 > y)
         edges[y] = x;
-    previousY = y;
+    lastY = y;
 
     while (y > 0) {
-        if (error < 0) {
-            decision = (short)((error + y) * 2 - 1);
+        if (err < 0) {
+            decision = (short)((err + y) * 2 - 1);
             if (decision > 0) {
                 x++;
                 y--;
-                error += 2 + (x - y) * 2;
+                err += 2 * (x - y + 1);
             } else {
                 x++;
-                error += x * 2 + 1;
+                err += x * 2 + 1;
             }
-        } else if (error > 0) {
-            decision = (short)((error - x) * 2 - 1);
+        } else if (err > 0) {
+            decision = (short)((err - x) * 2 - 1);
             if (decision > 0) {
                 y--;
-                error += 1 - y * 2;
+                err += 1 - y * 2;
             } else {
                 x++;
                 y--;
-                error += 2 + (x - y) * 2;
+                err += 2 * (x - y + 1);
             }
         } else {
             x++;
             y--;
-            error += 2 + (x - y) * 2;
+            err += 2 * (x - y + 1);
         }
-        if (previousY != y) {
+        if (lastY != y) {
             if (g_nWipeRadialRowCount_005d17b4 > y)
                 edges[y] = x;
-            previousY = y;
+            lastY = y;
         }
     }
 
     if (radius == 0)
         edges[0] = -1;
-    for (fillRadius = (short)(radius + 1);
-         g_nWipeRadialRowCount_005d17b4 > fillRadius;
-         fillRadius++) {
-        edges[fillRadius] = -1;
+    for (blankRow = (short)(radius + 1);
+         g_nWipeRadialRowCount_005d17b4 > blankRow;
+         blankRow++) {
+        edges[blankRow] = -1;
     }
 }
 

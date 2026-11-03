@@ -166,78 +166,80 @@ void EraseCockpitReadoutRegion(Viewport *viewport, short left,
 void vdu_polygon(signed char bar, short percent)
 {
     CockpitBarDefinition definition;
-    unsigned char *shape;
+    short barLeft;
+    unsigned char *sprite;
     short length;
-    short left;
-    short swapFrame;
-    short direction;
-    signed char filledFrame;
-    short top;
-    signed char emptyFrame;
-    short right;
-    short bottom;
+    short tmp;
+    short barDirection;
+    short barTop;
+    signed char frameNumberFilled;
+    short barRight;
+    short barBottom;
+    signed char frameNumberEmpty;
 
     if (g_nCurrentView_00492fa8 == 0) {
         definition = g_aCockpitBarDefinitions_0049aed8[(int)bar];
-        shape = g_pCockpitPanelShape_005d2cd4;
+        sprite = g_pCockpitPanelShape_005d2cd4;
     } else {
-        definition = ((CockpitBarDefinition *)
-            (g_abGunDisplayConfiguration_0049d340 +
-             g_nGunDisplayIndex_005c8dc0 * 0x20))[(int)bar];
-        shape = g_apCockpitVduOverlayShapes_0049a5f8[
+        definition = ((CockpitBarDefinition (*)[2])
+            g_abGunDisplayConfiguration_0049d340)[
+            g_nGunDisplayIndex_005c8dc0][(int)bar];
+        sprite = g_apCockpitVduOverlayShapes_0049a5f8[
             g_nGunDisplayIndex_005c8dc0];
     }
     length = definition.length;
     percent = (short)(((int)percent * (int)length) / 100);
     g_stCockpitBarViewport_005d21e0.left = definition.left;
-    left = g_stCockpitBarViewport_005d21e0.left;
-    if (left == -99)
+    barLeft = g_stCockpitBarViewport_005d21e0.left;
+    if (barLeft == -99)
         return;
     g_stCockpitBarViewport_005d21e0.right = definition.right;
-    right = g_stCockpitBarViewport_005d21e0.right;
+    barRight = g_stCockpitBarViewport_005d21e0.right;
     g_stCockpitBarViewport_005d21e0.top = definition.top;
-    top = g_stCockpitBarViewport_005d21e0.top;
+    barTop = g_stCockpitBarViewport_005d21e0.top;
     g_stCockpitBarViewport_005d21e0.bottom = definition.bottom;
-    bottom = g_stCockpitBarViewport_005d21e0.bottom;
-    emptyFrame = (signed char)definition.emptyFrame;
-    filledFrame = (signed char)definition.filledFrame;
-    direction = definition.direction;
-    if (direction < 2) {
-        if (direction == 1) {
+    barBottom = g_stCockpitBarViewport_005d21e0.bottom;
+    frameNumberEmpty = (signed char)definition.emptyFrame;
+    frameNumberFilled = (signed char)definition.filledFrame;
+    barDirection = definition.direction;
+    if (barDirection < 2) {
+        if (barDirection == 1) {
             percent = (short)(length - percent);
-            swapFrame = emptyFrame;
-            emptyFrame = filledFrame;
-            filledFrame = (signed char)swapFrame;
+            tmp = frameNumberEmpty;
+            frameNumberEmpty = frameNumberFilled;
+            frameNumberFilled = (signed char)tmp;
         }
         g_stCockpitBarViewport_005d21e0.bottom -= percent;
         if (g_stCockpitBarViewport_005d21e0.top <=
             g_stCockpitBarViewport_005d21e0.bottom)
-            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
-                              shape, filledFrame);
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, barLeft, barTop,
+                              sprite, frameNumberFilled);
         g_stCockpitBarViewport_005d21e0.top =
             (short)(g_stCockpitBarViewport_005d21e0.bottom + 1);
-        g_stCockpitBarViewport_005d21e0.bottom = bottom;
-        if (g_stCockpitBarViewport_005d21e0.top <= bottom)
-            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
-                              shape, emptyFrame);
+        g_stCockpitBarViewport_005d21e0.bottom = barBottom;
+        if (g_stCockpitBarViewport_005d21e0.top <=
+            g_stCockpitBarViewport_005d21e0.bottom)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, barLeft, barTop,
+                              sprite, frameNumberEmpty);
     } else {
-        if (direction == 3) {
+        if (barDirection == 3) {
             percent = (short)(length - percent);
-            swapFrame = emptyFrame;
-            emptyFrame = filledFrame;
-            filledFrame = (signed char)swapFrame;
+            tmp = frameNumberEmpty;
+            frameNumberEmpty = frameNumberFilled;
+            frameNumberFilled = (signed char)tmp;
         }
         g_stCockpitBarViewport_005d21e0.right -= percent;
         if (g_stCockpitBarViewport_005d21e0.left <=
             g_stCockpitBarViewport_005d21e0.right)
-            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
-                              shape, filledFrame);
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, barLeft, barTop,
+                              sprite, frameNumberFilled);
         g_stCockpitBarViewport_005d21e0.left =
             (short)(g_stCockpitBarViewport_005d21e0.right + 1);
-        g_stCockpitBarViewport_005d21e0.right = right;
-        if (g_stCockpitBarViewport_005d21e0.left <= right)
-            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, left, top,
-                              shape, emptyFrame);
+        g_stCockpitBarViewport_005d21e0.right = barRight;
+        if (g_stCockpitBarViewport_005d21e0.left <=
+            g_stCockpitBarViewport_005d21e0.right)
+            DrawSpriteDefault(&g_stCockpitBarViewport_005d21e0, barLeft, barTop,
+                              sprite, frameNumberEmpty);
     }
 }
 
@@ -2510,7 +2512,7 @@ void UpdateTargetLeadIndicator(void)
     FixedVector relative;
     FixedVector eyeRelative;
 
-    if (g_bTargetLockDisplayEnabled_0049afe0 == 0)
+    if ((signed char)g_bTargetLockDisplayEnabled_0049afe0 == 0)
         return;
     if (g_bTargetLockMode_00493500 == 0) {
         g_bTargetLockActive_0049ae80 = 0;
@@ -2627,7 +2629,7 @@ void UpdateTargetLeadIndicator(void)
 /* Function start: 0x43D323 */
 void RestoreTargetLeadIndicator(void)
 {
-    if (g_bTargetLockDisplayEnabled_0049afe0 == 0)
+    if ((signed char)g_bTargetLockDisplayEnabled_0049afe0 == 0)
         return;
     if (g_nTargetLeadIndicatorX_0049afe8 != 0x7fff) {
         RestoreSpriteBackground(&g_stViewBuffer_005d2b00,
@@ -2660,7 +2662,7 @@ void overlay_head_up_display(void)
         HasInRangeGunForTargetLead(
             distance_from_object(
                 0, g_acShipTarget_00495f20[0])) != 0 &&
-        g_bTargetLockDisplayEnabled_0049afe0 != 0) {
+        (signed char)g_bTargetLockDisplayEnabled_0049afe0 != 0) {
         g_bTargetLockActive_0049ae80 = 1;
         SetHudMessageText(
             g_szIttsEngaged_0049b448,
@@ -3626,13 +3628,13 @@ void update_VDUs(void)
                 g_stLeftVduViewport_005d2180.top,
                 g_stLeftVduViewport_005d2180.right,
                 g_stLeftVduViewport_005d2180.bottom, 0);
-            DrawFilledViewportRect(
-                &g_stScreenViewport_005d21a0,
-                g_stRightVduViewport_005d2b20.left,
-                g_stRightVduViewport_005d2b20.top,
-                g_stRightVduViewport_005d2b20.right,
-                g_stRightVduViewport_005d2b20.bottom, 0);
         }
+        DrawFilledViewportRect(
+            &g_stScreenViewport_005d21a0,
+            g_stRightVduViewport_005d2b20.left,
+            g_stRightVduViewport_005d2b20.top,
+            g_stRightVduViewport_005d2b20.right,
+            g_stRightVduViewport_005d2b20.bottom, 0);
     }
     if (IsCockpitWeaponShapeLoaded() != 0) {
         SetTextContext(&g_stLeftVduTextContext_005d2ae0);
@@ -3641,22 +3643,17 @@ void update_VDUs(void)
             case 0:
                 update_dead_disp(0);
                 break;
-            case 1:
-                show_weapon_disp();
-                break;
             case 2:
                 show_damage_disp();
+                break;
+            case 1:
+                show_weapon_disp();
                 break;
             }
         } else {
             switch (get_mode(0)) {
             case 0:
                 update_dead_disp(0);
-                break;
-            case 1:
-                if (g_nCockpitDisplayMode_0049d71c != 0)
-                    show_weapon_disp();
-                update_status_text();
                 break;
             case 2:
                 if (g_nCockpitDisplayMode_0049d71c != 0) {
@@ -3665,6 +3662,11 @@ void update_VDUs(void)
                     g_bForceDamageDisplayRedraw_0049b2ec = 0;
                 }
                 UpdateDamageDisplay();
+                break;
+            case 1:
+                if (g_nCockpitDisplayMode_0049d71c != 0)
+                    show_weapon_disp();
+                update_status_text();
                 break;
             }
         }
@@ -3680,14 +3682,15 @@ void update_VDUs(void)
         case 0:
             update_dead_disp(1);
             break;
-        case 3:
-            show_target_disp();
-            break;
         case 4:
             show_communications_disp();
             break;
         case 5:
             show_navigation_disp();
+            break;
+        case 3:
+        case 9:
+            show_target_disp();
             break;
         case 6:
             vid_transmit();
@@ -3697,11 +3700,6 @@ void update_VDUs(void)
         switch (get_mode(1)) {
         case 0:
             update_dead_disp(1);
-            break;
-        case 3:
-            if (g_nCockpitDisplayMode_0049d71c != 0)
-                show_target_disp();
-            DrawTargetRangeReadout();
             break;
         case 4:
             if (g_nCockpitDisplayMode_0049d71c != 0)
@@ -3713,19 +3711,21 @@ void update_VDUs(void)
                 show_navigation_disp();
             check_objectives();
             break;
+        case 3:
+        case 9:
+            if (g_nCockpitDisplayMode_0049d71c != 0)
+                show_target_disp();
+            DrawTargetRangeReadout();
+            break;
         case 6:
             vid_transmit();
             break;
         }
     }
-    if (get_mode(1) == 6)
+    if (get_mode(1) == 6 || get_mode(1) == 0)
         g_aHudMessageSlots_005d1d40[1].text = 0;
-    else {
-        if (get_mode(1) == 0)
-            g_aHudMessageSlots_005d1d40[1].text = 0;
-        else
-            UpdateMessage(&g_aHudMessageSlots_005d1d40[1]);
-    }
+    else
+        UpdateMessage(&g_aHudMessageSlots_005d1d40[1]);
     if (g_nCockpitDisplayMode_0049d71c == 0 &&
         g_pPilotHandAnimationShape_005d2c64 != 0)
         CopyTrainSimPilotViewToVdus();

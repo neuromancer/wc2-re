@@ -731,7 +731,7 @@ void *LoadPacketIntoBuffer(char *fileName, short section,
                            void *destination, int registerHandle);   /* 0x40F40E */
 void *LoadPacketAllocated(char *fileName, short section);              /* 0x40F49D */
 void *FetchDiskPacketRetrying(char *fileName, short section,
-                              unsigned short flags);                    /* 0x40F5B6 */
+                              short flags);                             /* 0x40F5B6 */
 void RewritePacketFilenameForInstalledData(char *fileName);            /* 0x40F3AE */
 void InitializeTextContextFromFont(TextContext *context, short fontIndex,
                                    unsigned char colour,
@@ -1497,7 +1497,13 @@ char *CopyStringAndReturnEnd(char *destination,
                              const char *source);                    /* 0x4624C7 */
 short DosStrlen(const char *s);                                       /* 0x46250B */
 short ParseHexNumber(char *text);                                     /* 0x452930 */
-void DosMemcpy(void *dst, const void *src, size_t n);                 /* 0x462527 */
+#ifdef SDL_PORT
+void DosMemcpy(void *dst, const void *src, size_t n);
+#else
+/* Callers push a 16-bit length (MOV AX,[n] / PUSH EAX); the definition
+ * reads the full dword and masks it. */
+void DosMemcpy(void *dst, const void *src, unsigned short n);         /* 0x462527 */
+#endif
 void DosMemset(void *destination, unsigned int count,
                short value);                                        /* 0x462550 */
 void ShutdownEventManager(void);                                      /* 0x4625CB */

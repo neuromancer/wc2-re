@@ -824,8 +824,8 @@ short inflict_damage(short attacker, short victim, short damage,
                      const FixedVector *impactDirection)
 {
     short *protection;
-    int sideDot;
-    short ship;
+    int sideProjection;
+    short ally;
     short destroyed;
     short quadrant;
 
@@ -931,22 +931,22 @@ short inflict_damage(short attacker, short victim, short damage,
                         g_asObjectCreationFrame_005d3900[attacker];
                     g_asShipSide_004955d0[0] = SIDE_KILRATHI;
                     g_nYourWingman_0049346c = -1;
-                    for (ship = 1; ship < 10; ship++) {
-                        if (g_asShipSide_004955d0[ship] == SIDE_IMPERIAL) {
-                            if (g_aeObjectClass_00495328[ship] ==
+                    for (ally = 1; ally < 10; ally++) {
+                        if (g_asShipSide_004955d0[ally] == SIDE_IMPERIAL) {
+                            if (g_aeObjectClass_00495328[ally] ==
                                 OBJECT_CLASS_SHIP) {
-                                g_asShipMissionType_00495de8[ship] =
+                                g_asShipMissionType_00495de8[ally] =
                                     MISSION_TYPE_STRIKE;
-                                g_asShipMissionParameter_00495e00[ship] =
+                                g_asShipMissionParameter_00495e00[ally] =
                                     g_asShipMissionIndex_00495d00[0];
-                                g_aeShipObjective_00495f08[ship] =
+                                g_aeShipObjective_00495f08[ally] =
                                     OBJECTIVE_DESTROY_SHIP;
-                                g_acShipTarget_00495f20[ship] = 0;
-                            } else if (g_aeObjectClass_00495328[ship] >=
+                                g_acShipTarget_00495f20[ally] = 0;
+                            } else if (g_aeObjectClass_00495328[ally] >=
                                        OBJECT_CLASS_CAPITAL_SHIP) {
-                                g_asShipMissionType_00495de8[ship] =
+                                g_asShipMissionType_00495de8[ally] =
                                     MISSION_TYPE_NONE;
-                                g_asShipTactic_00495f30[ship] =
+                                g_asShipTactic_00495f30[ally] =
                                     TACTIC_SELF_DEFENSE;
                             }
                         }
@@ -984,11 +984,11 @@ short inflict_damage(short attacker, short victim, short damage,
             else
                 PlaySfxWaveFileByNumber(9, victim, 0);
         }
-        sideDot = dot_product(
+        sideProjection = dot_product(
             impactDirection, &g_aShipRightVector_00493b78[victim]);
-        if (sideDot > 0xb5)
+        if (sideProjection > 0xb5)
             quadrant = 3;
-        else if (sideDot < -0xb5)
+        else if (sideProjection < -0xb5)
             quadrant = 2;
         protection = &g_aasShipArmor_00495540[victim][quadrant];
         damage = (short)(damage - *protection);

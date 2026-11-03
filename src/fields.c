@@ -136,76 +136,74 @@ void align(int *value, short quantum)
 /* Function start: 0x417AF9 */
 void init_hazard(short obj, FixedVector position, short moving)
 {
-    short type;
-    FixedVector vector;
-    short hazardMoves;
+    short hazardType;
+    FixedVector aimPoint;
+    short moves;
     short travelTime;
-    short speed;
+    short velocity;
 
-    hazardMoves = moving;
+    moves = moving;
     if (g_pActiveHazardField_00493278->type ==
         OBJECT_DATA_ASTEROID_FIELD) {
-        type = (short)(OBJECT_DATA_ASTEROID1 +
+        hazardType = (short)(OBJECT_DATA_ASTEROID1 +
                        RandomBelowOrEqual(5));
     } else {
-        type = OBJECT_DATA_SPACE_MINE;
+        hazardType = OBJECT_DATA_SPACE_MINE;
     }
-    set_objects_data(obj, type, -1, 0);
+    set_objects_data(obj, hazardType, -1, 0);
     g_aShipPosition_00494550[obj] = position;
 
-    if (type == OBJECT_DATA_SPACE_MINE) {
-        hazardMoves = 0;
+    if (hazardType == OBJECT_DATA_SPACE_MINE) {
+        moves = 0;
         point_at(obj, g_aShipPosition_00494550[0]);
         skew_randomly(obj, 1);
-        speed = 2;
-        hazardMoves = (short)(speed != 0);
-    } else if (hazardMoves != 0) {
+        velocity = 2;
+        moves = (short)(velocity == 0);
+    } else if (moves != 0) {
         travelTime = (short)(RandomBelowOrEqual(15) +
                              g_cHazardBaseTravelTime_0049af94);
         if (g_bUseEyePositionForHazards_0049327c != 0) {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(45, travelTime);
+            travelTime = MaxShort(
+                45, (short)(travelTime -
+                            RandomBelowOrEqual(difficulty())));
         } else {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(7, travelTime);
+            travelTime = MaxShort(
+                7, (short)(travelTime -
+                           RandomBelowOrEqual(difficulty())));
         }
         ScaleFixedVector(&g_aShipVelocity_00494898[0],
-                         (int)travelTime << 8, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
-        point_at(obj, vector);
-        speed = distance_between_points(
-            &vector, &g_aShipPosition_00494550[obj]);
-        travelTime = MaxShort(3,
-            (short)(travelTime - RandomBelow(5)));
-        speed = (short)(speed / travelTime);
+                         (int)travelTime << 8, &aimPoint);
+        AddFixedVectors(&g_aShipPosition_00494550[0], &aimPoint, &aimPoint);
+        point_at(obj, aimPoint);
+        velocity = (short)(distance_between_points(
+                               &aimPoint, &g_aShipPosition_00494550[obj]) /
+                           MaxShort(3, (short)(travelTime - RandomBelow(5))));
     } else {
         point_at(obj, g_pActiveHazardField_00493278->center);
         skew_randomly(obj, 1);
         if (RandomBelow(100) < 20)
-            speed = 0;
+            velocity = 0;
         else
-            speed = asteroid_velocity();
+            velocity = asteroid_velocity();
     }
     if (kilrathi_near(0, 16000) != 0)
-        speed = 0;
+        velocity = 0;
     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     (int)speed << 8, &g_aShipVelocity_00494898[obj]);
+                     (int)velocity << 8, &g_aShipVelocity_00494898[obj]);
 
-    if (hazardMoves == 0) {
+    if (moves == 0) {
         int separation;
 
-        if (type == OBJECT_DATA_ASTEROID_FIELD)
+        if (hazardType == OBJECT_DATA_ASTEROID_FIELD)
             separation = 1500;
         else
             separation = RandomBelowOrEqual(1000) << 8;
         ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                         separation, &vector);
-        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
+                         separation, &aimPoint);
+        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &aimPoint,
                              &g_aShipPosition_00494550[obj]);
     }
-    if (type == OBJECT_DATA_SPACE_MINE) {
+    if (hazardType == OBJECT_DATA_SPACE_MINE) {
         align(&g_aShipPosition_00494550[obj].x, 200);
         align(&g_aShipPosition_00494550[obj].y, 200);
         align(&g_aShipPosition_00494550[obj].z, 200);

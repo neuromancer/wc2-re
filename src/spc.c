@@ -862,7 +862,7 @@ short count_down(short obj)
 /* Function start: 0x41BD81 */
 void house_keep_objects(void)
 {
-    short other;
+    short missile;
     short obj;
     short gun;
     short projectileDetonated;
@@ -880,13 +880,13 @@ void house_keep_objects(void)
         case OBJECT_CLASS_PROJECTILE:
             projectileDetonated = 0;
             if (g_asObjectType_00495298[obj] == 0x0c) {
-                for (other = 0; other < 10; other++) {
-                    if (g_aeObjectClass_00495328[other] ==
+                for (missile = 0; missile < 10; missile++) {
+                    if (g_aeObjectClass_00495328[missile] ==
                             OBJECT_CLASS_MISSILE &&
-                        g_asObjectType_00495298[other] ==
+                        g_asObjectType_00495298[missile] ==
                             OBJECT_DATA_TORPEDO &&
-                        g_asMissileProximityFuse_005d38e0[other] != 0 &&
-                        distance_from_object(obj, other) < 200) {
+                        g_asMissileProximityFuse_005d38e0[missile] != 0 &&
+                        distance_from_object(obj, missile) < 200) {
                         explode((short)g_acObjectOwner_00495208[obj], obj);
                         projectileDetonated = 1;
                     }
@@ -998,6 +998,11 @@ void house_keep_objects(void)
                 DAT_005d1bf0[obj]--;
             if (g_asShipExplosionStageTimer_005d3850[obj] > 0)
                 g_asShipExplosionStageTimer_005d3850[obj]--;
+            /* Masked off with "& 0" in the original; the compiler keeps
+             * the dead test behind a jump. */
+            if ((g_nSpaceFrame_00493134 & 0) &&
+                g_asPlayerDamageCredit_005d38c0[obj] > 0)
+                g_asPlayerDamageCredit_005d38c0[obj]--;
             for (gun = 0; gun < 3; gun++) {
                 if (g_aasGunCooldown_005c8d70[obj][gun] > 0)
                     g_aasGunCooldown_005c8d70[obj][gun]--;
@@ -1119,9 +1124,11 @@ void update_objects_in_space(void)
                 g_aeSpecialManeuver_00495600[obj] ==
                     SPECIAL_MANEUVER_UNKNOWN_9)
                 RecordCannedSceneObjectState(obj);
-        } else if (g_aeObjectClass_00495328[obj] ==
-                   OBJECT_CLASS_FUTURION) {
+            continue;
+        }
+        if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_FUTURION) {
             futurion_intelligence(obj);
+            continue;
         } else if (g_aeObjectClass_00495328[obj] > OBJECT_CLASS_PLANET) {
             animate_object(obj);
             if (g_nCannedSceneMode_0049021c != 0) {
@@ -1130,45 +1137,45 @@ void update_objects_in_space(void)
                                 &g_aShipPosition_00494550[obj]);
                 if (obj < 10)
                     fix_objects_ijk(obj);
-            } else {
-                if (g_aeObjectClass_00495328[obj] >=
-                    OBJECT_CLASS_PROJECTILE) {
-                    object_collision(obj);
-                    rotate_object(obj);
-                    if (obj >= 10 ||
-                        g_aeSpecialManeuver_00495600[obj] !=
-                            SPECIAL_MANEUVER_UNKNOWN_9) {
-                        if (obj != 0 ||
-                            g_bJumpSequenceActive_004962f0 != 0) {
-                            object_intelligence(obj);
-                        } else if (g_nCurrentView_00492fa8 == 4) {
-                            UpdateSavedTorpedoTargetLock();
-                        }
-                        if (g_aeObjectClass_00495328[obj] ==
-                                OBJECT_CLASS_SHIP &&
-                            g_asShipTurretFireEnabled_0049d470[obj] != 0)
-                            UpdateShipTurretGuns(obj);
-                        if (obj < 10 &&
-                            g_aeObjectClass_00495328[obj] >=
-                                OBJECT_CLASS_MISSILE) {
-                            if (g_nCannedSceneMode_0049021c == 0)
-                                RecordCannedSceneObjectState(obj);
-                            if (obj != 0 || g_nCurrentView_00492fa8 == 4)
-                                rotate_object_to_goal(obj);
-                        }
+                continue;
+            }
+            if (g_aeObjectClass_00495328[obj] >=
+                OBJECT_CLASS_PROJECTILE) {
+                object_collision(obj);
+                rotate_object(obj);
+                if (obj >= 10 ||
+                    g_aeSpecialManeuver_00495600[obj] !=
+                        SPECIAL_MANEUVER_UNKNOWN_9) {
+                    if (obj != 0 ||
+                        g_bJumpSequenceActive_004962f0 != 0) {
+                        object_intelligence(obj);
+                    } else if (g_nCurrentView_00492fa8 == 4) {
+                        UpdateSavedTorpedoTargetLock();
+                    }
+                    if (g_aeObjectClass_00495328[obj] ==
+                            OBJECT_CLASS_SHIP &&
+                        g_asShipTurretFireEnabled_0049d470[obj] != 0)
+                        UpdateShipTurretGuns(obj);
+                    if (obj < 10 &&
+                        g_aeObjectClass_00495328[obj] >=
+                            OBJECT_CLASS_MISSILE) {
+                        if (g_nCannedSceneMode_0049021c == 0)
+                            RecordCannedSceneObjectState(obj);
+                        if (obj != 0 || g_nCurrentView_00492fa8 == 4)
+                            rotate_object_to_goal(obj);
                     }
                 }
-                if (g_nCurrentView_00492fa8 == 4 &&
-                    g_nTargetCameraMode_005c8d50 == 1 &&
-                    g_nTargetCameraObject_0049d338 == obj &&
-                    g_nTargetCameraFrame_0049d3e8 == 1)
-                    UpdateTargetCameraObject(obj);
-                accelerate_and_move_object(obj);
-                if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
-                    replenish_shields(obj);
-                    housekeep_power_plant_and_fuel(obj);
-                    replenish_weapon_energy_bank(obj);
-                }
+            }
+            if (g_nCurrentView_00492fa8 == 4 &&
+                g_nTargetCameraMode_005c8d50 == 1 &&
+                g_nTargetCameraObject_0049d338 == obj &&
+                g_nTargetCameraFrame_0049d3e8 == 1)
+                UpdateTargetCameraObject(obj);
+            accelerate_and_move_object(obj);
+            if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_SHIP) {
+                replenish_shields(obj);
+                housekeep_power_plant_and_fuel(obj);
+                replenish_weapon_energy_bank(obj);
             }
         }
     }
@@ -1423,6 +1430,9 @@ void hit_asteroid(short asteroid, short destructionChance)
         make_shard(asteroid, g_vCollisionDelta_00493178);
     }
 }
+
+void rectangular_to_spherical(const FixedVector *rectangular,
+                              SphericalVector *spherical);
 
 /* Function start: 0x41D591 */
 void object_collision(short obj)
