@@ -410,7 +410,10 @@ void house_keep(void)
 /* Function start: 0x4661C2 */
 void get_player_input(void)
 {
+    /* t and ev held the DOS double-click logic; the port left them unused. */
+    long t;
     short buttons;
+    short ev;
 
     if (g_nActiveInputDevice_005d1726 == -1)
         return;

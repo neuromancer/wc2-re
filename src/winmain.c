@@ -367,8 +367,14 @@ unsigned int PumpWindowMessages(int skipMessages)
 {
 #ifndef SDL_PORT
     MSG message;
+    /* Retail reserves 28 more bytes around these that nothing touches. */
+    DWORD cursor;
+    POINT point;
 #endif
     int done;
+#ifndef SDL_PORT
+    RECT windowRect;
+#endif
 
     done = 0;
     g_nInputClock_005c84a8 = GetTickCount();
@@ -423,6 +429,9 @@ unsigned int PumpWindowMessages(int skipMessages)
 }
 
 #ifndef SDL_PORT
+
+void SetInputKeyState(int scanCode, unsigned char pressed);
+WINUSERAPI VOID WINAPI PostQuitMessage(int exitCode);
 
 /* Function start: 0x454625 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,

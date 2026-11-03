@@ -51,6 +51,9 @@ void ResetWeaponDisplayPositions(void)
 /* Function start: 0x44B2E2 */
 void init_mission(short series, short mission)
 {
+    /* Two dwords the port kept from the DOS memory budget code; unused. */
+    long freeMemory;
+    long largestBlock;
     short index;
 
     g_bTargetLockActive_0049ae80 = 0;
@@ -982,7 +985,6 @@ void set_up_action_sphere(short navPoint)
         ResetCannedSceneRecording();
 }
 
-short distance_from_object(short obj, short other);
 void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta);
 void random_radial(const FixedVector *center, short radius, FixedVector *position);
 void place_ship_near_player_until_valid(short obj, short minimum,

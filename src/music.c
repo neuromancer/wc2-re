@@ -88,6 +88,10 @@ void FadeMusic(int duration)
 /* Function start: 0x452AF0 */
 void SceneLeaveHook(void)
 {
+    /* The body was compiled out; its one local still takes a slot. */
+    int state;
+
+    return;
 }
 
 /* Function start: 0x452B03 */

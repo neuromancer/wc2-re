@@ -1675,54 +1675,59 @@ void SetInputKeyState(int scanCode, unsigned char pressed)
 /* Function start: 0x46436E */
 void BuildObjectDepthOrder(void)
 {
-    int maximumDistance;
-    int farthestObject;
+    /* Two slots retail reserves and never touches. */
+    int minimumDistance;
+    int scan;
+    int test;
     int nextObject;
-    int sortedIndex;
-    int nextDistance;
-    int object;
-    int candidate;
+    int ceiling;
+    int furthest;
+    int nextFarthest;
+    int placed;
+    int remaining;
 
-    maximumDistance = -999999999;
-    farthestObject = -1;
-    nextObject = farthestObject;
+    ceiling = -999999999;
+    furthest = -1;
+    nextObject = furthest;
     memset(g_anObjectDepthPlaced_005c8180, 0,
            sizeof(g_anObjectDepthPlaced_005c8180));
-    for (object = 0; object < SPACE_OBJECT_COUNT; object++) {
-        if (maximumDistance <
-            (int)(unsigned short)g_asObjectDistance_00493ae8[object]) {
-            maximumDistance =
-                (int)(unsigned short)g_asObjectDistance_00493ae8[object];
-            farthestObject = object;
+    for (scan = 0; scan < SPACE_OBJECT_COUNT; scan++) {
+        if (ceiling <
+            (int)(unsigned short)g_asObjectDistance_00493ae8[scan]) {
+            ceiling =
+                (int)(unsigned short)g_asObjectDistance_00493ae8[scan];
+            furthest = scan;
         }
     }
-    sortedIndex = 0;
-    nextObject = farthestObject;
-    for (object = 0; object < SPACE_OBJECT_COUNT; object++) {
-        g_anSortedObject_005c82c0[sortedIndex] = nextObject;
+    placed = 0;
+    nextObject = furthest;
+    for (scan = 0; scan < SPACE_OBJECT_COUNT; scan++) {
+        g_anSortedObject_005c82c0[placed] = nextObject;
         if (nextObject == -1)
             return;
         g_anObjectDepthPlaced_005c8180[nextObject] = 1;
-        nextDistance = -1;
-        nextObject = nextDistance;
-        for (candidate = 0; candidate < SPACE_OBJECT_COUNT;
-             candidate++) {
-            if (g_anObjectDepthPlaced_005c8180[candidate] == 0 &&
-                g_asObjectScreenX_00493598[candidate] != (short)0x8001 &&
-                nextDistance <
+        nextFarthest = -1;
+        nextObject = nextFarthest;
+        for (test = 0; test < SPACE_OBJECT_COUNT;
+             test++) {
+            if (g_anObjectDepthPlaced_005c8180[test] == 0 &&
+                g_asObjectScreenX_00493598[test] != (short)0x8001 &&
+                nextFarthest <
                     (int)(unsigned short)
-                        g_asObjectDistance_00493ae8[candidate] &&
-                (int)(unsigned short)g_asObjectDistance_00493ae8[candidate] <=
-                    maximumDistance) {
-                nextObject = candidate;
-                nextDistance =
+                        g_asObjectDistance_00493ae8[test] &&
+                (int)(unsigned short)g_asObjectDistance_00493ae8[test] <=
+                    ceiling) {
+                nextObject = test;
+                nextFarthest =
                     (int)(unsigned short)
-                        g_asObjectDistance_00493ae8[candidate];
+                        g_asObjectDistance_00493ae8[test];
             }
         }
-        sortedIndex++;
+        placed++;
     }
 }
+
+long DivideFixed(int numerator, int denominator);
 
 /* Function start: 0x4644DA */
 void draw_sorted_objects_to_buffer(void)
