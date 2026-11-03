@@ -11,10 +11,10 @@ short SampleBothJoysticks(InputDeviceSample *samples,
 {
     GetJoystickPosition((unsigned int *)&samples[0].x,
                         (unsigned int *)&samples[0].y,
-                        &samples[0].buttons, 0, fallback);
+                        (int *)&samples[0].buttons, 0, fallback);
     GetJoystickPosition((unsigned int *)&samples[1].x,
                         (unsigned int *)&samples[1].y,
-                        &samples[1].buttons, 1, fallback);
+                        (int *)&samples[1].buttons, 1, fallback);
     return 1;
 }
 
@@ -32,7 +32,7 @@ void SampleJoystickDevice(InputDeviceSample *samples, short joystick,
     GetJoystickPosition(
         (unsigned int *)&samples[sampleIndex].x,
         (unsigned int *)&samples[sampleIndex].y,
-        &samples[sampleIndex].buttons, joystick, fallback);
+        (int *)&samples[sampleIndex].buttons, joystick, fallback);
 }
 
 /* Function start: 0x44F2B8 */

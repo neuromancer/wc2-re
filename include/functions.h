@@ -46,7 +46,7 @@ unsigned int GetF1KeyLatch(void);                                     /* 0x453C8
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam);         /* 0x454625 */
 void GetJoystickPosition(unsigned int *x, unsigned int *y,
-                         unsigned int *buttons, short joystick,
+                         int *buttons, unsigned short joystick,
                          unsigned int fallback);                       /* 0x4551E7 */
 short GetJoystickButtons(void);                                                   /* 0x455346 */
 void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,

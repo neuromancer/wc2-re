@@ -734,40 +734,40 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 
 /* Function start: 0x4551E7 */
 void GetJoystickPosition(unsigned int *x, unsigned int *y,
-                         unsigned int *buttons, short joystick,
+                         int *buttons, unsigned short joystick,
                          unsigned int fallback)
 {
-    unsigned int infoIndex;
-    unsigned int device;
-    JOYINFO sample;
+    unsigned int slot;
+    unsigned int deviceId;
+    JOYINFO joyInfo;
 
-    infoIndex = 0;
+    slot = 0;
     if (joystick != 0) {
-        device = 1;
-        infoIndex = 1;
+        deviceId = 1;
+        slot = 1;
     } else {
-        device = 0;
-        infoIndex = 0;
+        deviceId = 0;
+        slot = 0;
     }
 #ifdef SDL_PORT
     if (SdlReadJoystick(
-            device, &g_aJoystickInfo_005d10b0[infoIndex]) != FALSE) {
+            deviceId, &g_aJoystickInfo_005d10b0[slot]) != FALSE) {
 #else
-    if (joyGetPos(device, &g_aJoystickInfo_005d10b0[infoIndex]) ==
+    if (joyGetPos(deviceId, &g_aJoystickInfo_005d10b0[slot]) ==
         JOYERR_NOERROR) {
 #endif
-        *x = g_aJoystickInfo_005d10b0[infoIndex].wXpos;
-        *y = g_aJoystickInfo_005d10b0[infoIndex].wYpos;
-        *buttons = g_aJoystickInfo_005d10b0[infoIndex].wButtons;
-        sample = g_aJoystickInfo_005d10b0[infoIndex];
-        if ((sample.wButtons & 1) != 0) {
+        *x = g_aJoystickInfo_005d10b0[slot].wXpos;
+        *y = g_aJoystickInfo_005d10b0[slot].wYpos;
+        *buttons = g_aJoystickInfo_005d10b0[slot].wButtons;
+        joyInfo = g_aJoystickInfo_005d10b0[slot];
+        if ((joyInfo.wButtons & 1) != 0) {
             if (g_bJoystickPrimaryButtonLatched_0049c2f8 == 0)
                 g_nInputPressCount_0049c258++;
             g_bJoystickPrimaryButtonLatched_0049c2f8 = 1;
         } else {
             g_bJoystickPrimaryButtonLatched_0049c2f8 = 0;
         }
-        if ((sample.wButtons & 2) != 0) {
+        if ((joyInfo.wButtons & 2) != 0) {
             if (g_bJoystickSecondaryButtonLatched_0049c2fc == 0)
                 g_nInputPressCount_0049c258++;
             g_bJoystickSecondaryButtonLatched_0049c2fc = 1;
@@ -806,16 +806,16 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     unsigned int hostYMin;
     unsigned int hostYMax;
 #else
-    JOYCAPSA caps;
+    JOYCAPSA devCaps;
 #endif
-    unsigned int device = joystick != 0;
+    unsigned int deviceId = joystick != 0;
 
     *xMin = *xMax = *yMin = *yMax = 0;
 #ifdef SDL_PORT
     if (SdlReadJoystickAxisRange(
-            device, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
+            deviceId, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
 #else
-    if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
+    if (joyGetDevCapsA(deviceId, &devCaps, sizeof(devCaps)) != JOYERR_NOERROR) {
 #endif
         return;
     }
@@ -826,10 +826,10 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     *yMin = (short)hostYMin;
     *yMax = (short)hostYMax;
 #else
-    *xMin = (short)caps.wXmin;
-    *xMax = (short)caps.wXmax;
-    *yMin = (short)caps.wYmin;
-    *yMax = (short)caps.wYmax;
+    *xMin = (short)devCaps.wXmin;
+    *xMax = (short)devCaps.wXmax;
+    *yMin = (short)devCaps.wYmin;
+    *yMax = (short)devCaps.wYmax;
 #endif
 }
 
