@@ -1576,95 +1576,91 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
                               short angle, short scale, short flip,
                               short *bounds)
 {
-    unsigned char *cursor;
-    int frameOffset;
-    int frameLeft;
-    int frameRight;
-    int frameTop;
-    int frameBottom;
-    int extentX;
-    int extentY;
-    int cosine;
-    int sine;
+    int touches;
+    ShortRect box;
+    int s;
     int transformedHeight;
-    int transformedWidth;
-    int topEdge;
-    int leftEdge;
-    short left;
-    short top;
-    short right;
-    short bottom;
-    int inside;
+    int framePos;
+    int frameBottom;
+    int width;
+    int right;
+    int widthSum;
+    int topExtent;
+    int fullHeight;
+    unsigned char *frameHeader;
+    int topY;
+    int frameLeft;
+    int screenLeft;
+    int cosTerm;
 
-    inside = 0;
+    touches = 0;
     if (shape == 0) {
         if (viewport->left > x || viewport->right < x ||
             viewport->top > y || viewport->bottom < y)
-            inside = 0;
+            touches = 0;
         else
-            inside = 1;
-        return (short)inside;
+            touches = 1;
+        return (short)touches;
     }
     if (HasValidShapeAllocationSignature(shape) == 0)
         return 0;
     CheckHeapBlockSignature(shape);
-    frameOffset = frame;
-    cursor = shape;
-    frameOffset++;
-    frameOffset <<= 2;
-    if (*(unsigned short *)(cursor + 4) >= frameOffset) {
-        cursor += *(int *)(frameOffset + cursor);
-        frameRight = *(short *)(cursor + 2);
-        frameLeft = *(short *)cursor;
-        frameTop = *(short *)(cursor + 4);
-        frameBottom = *(short *)(cursor + 6);
-        cosine = g_awAbsoluteCosine_00496438[angle] * scale;
-        cosine >>= 8;
-        sine = g_awAbsoluteSine_00496708[angle] * scale;
-        sine >>= 8;
-        if (cosine == 0)
-            cosine++;
-        if (sine == 0)
-            sine++;
-        extentX = frameLeft + frameRight;
-        extentY = frameBottom + frameTop;
-        /* WC2 rounds each extent up when the 8.8 fraction is not zero, and
-         * asks the question of the low byte in place. */
-        transformedHeight = sine * extentX + cosine * extentY;
-        if (*(char *)&transformedHeight != 0)
+    framePos = frame;
+    frameHeader = shape;
+    framePos++;
+    framePos <<= 2;
+    if (*(unsigned short *)(frameHeader + 4) >= framePos) {
+        frameHeader += *(int *)(framePos + frameHeader);
+        right = *(short *)(frameHeader + 2);
+        frameLeft = *(short *)frameHeader;
+        topExtent = *(short *)(frameHeader + 4);
+        frameBottom = *(short *)(frameHeader + 6);
+        cosTerm = g_awAbsoluteCosine_00496438[angle] * scale;
+        cosTerm >>= 8;
+        s = g_awAbsoluteSine_00496708[angle] * scale;
+        s >>= 8;
+        if (cosTerm == 0)
+            cosTerm++;
+        if (s == 0)
+            s++;
+        widthSum = frameLeft + right;
+        fullHeight = frameBottom + topExtent;
+        /* WC2 rounds each extent up when the 8.8 fraction is not zero. */
+        transformedHeight = s * widthSum + cosTerm * fullHeight;
+        if ((transformedHeight & 0xff) != 0)
             transformedHeight += 0x100;
         transformedHeight >>= 8;
-        transformedWidth = sine * extentY + cosine * extentX;
-        if (*(char *)&transformedWidth != 0)
-            transformedWidth += 0x100;
-        transformedWidth >>= 8;
-        if (cosine == 0)
-            cosine = 1;
-        if (sine == 0)
-            sine = 1;
-        leftEdge = (sine * frameTop >> 8) + x - (cosine * frameRight >> 8);
-        topEdge = y - (cosine * frameTop >> 8) - (sine * frameRight >> 8);
-        top = (short)topEdge;
-        bottom = (short)(top + transformedHeight);
-        extentY = sine * extentY;
-        extentY >>= 8;
-        extentY++;
-        extentY = leftEdge - extentY;
-        left = (short)extentY;
-        right = (short)(extentY + transformedWidth);
-        if (viewport->left > right || viewport->right < left ||
-            viewport->top > bottom || top > viewport->bottom) {
-            inside = 0;
+        width = s * fullHeight + cosTerm * widthSum;
+        if ((width & 0xff) != 0)
+            width += 0x100;
+        width >>= 8;
+        if (cosTerm == 0)
+            cosTerm = 1;
+        if (s == 0)
+            s = 1;
+        screenLeft = (s * topExtent >> 8) + x - (cosTerm * right >> 8);
+        topY = y - (cosTerm * topExtent >> 8) - (s * right >> 8);
+        box.top = (short)topY;
+        box.bottom = (short)(box.top + transformedHeight);
+        fullHeight = s * fullHeight;
+        fullHeight >>= 8;
+        fullHeight++;
+        fullHeight = screenLeft - fullHeight;
+        box.left = (short)fullHeight;
+        box.right = (short)(fullHeight + width);
+        if (viewport->left > box.right || viewport->right < box.left ||
+            viewport->top > box.bottom || box.top > viewport->bottom) {
+            touches = 0;
         } else {
-            bounds[0] = left;
-            bounds[2] = right;
-            bounds[1] = top;
-            bounds[3] = bottom;
-            inside = 1;
+            bounds[0] = box.left;
+            bounds[2] = box.right;
+            bounds[1] = box.top;
+            bounds[3] = box.bottom;
+            touches = 1;
         }
     }
     (void)flip;
-    return (short)inside;
+    return (short)touches;
 }
 
 /* Function start: 0x428690 */

@@ -1020,112 +1020,116 @@ void SpawnCapitalFlakProjectile(short weapon, short obj,
     }
 }
 
+int send_at_point(short obj, FixedVector *point, short speed);
+void point_capital_ship_at_object(short obj, short other);
+void get_facing_range_from_object(short obj, short other);
+short unactive(short ship);
+
 /* Function start: 0x445087 */
 void capital_ship_strike_mission(short obj)
 {
-    short projectileVelocity;
-    short enemyFighterCount;
-    short effect;
-    int aimOffset;
-    short travelTicks;
-    short target;
-    short range;
-    short found;
-    short flakBurstIndex;
-    FixedVector direction;
-    FixedVector lead;
-    short clearance;
-    short firedFlak;
-    short evasive;
-    short friendlyFighterCount;
-    FixedVector adjustedAim;
-    FixedVector aimPoint;
-    short weapon;
-    short other;
-    ShipWeaponSlot *slot;
     short lockedTarget;
+    int aimOffset;
+    short cue;
+    short victim;
+    short mayFire;
+    short enemyShips;
+    FixedVector adjustedAim;
+    ShipWeaponSlot *mountSlot;
+    short allies;
+    short frames;
+    FixedVector spot;
+    short gun;
+    FixedVector leadVector;
+    FixedVector direction;
+    short candidate;
+    short dodging;
+    short seen;
+    short shotSpeed;
+    short flakShot;
+    short flakIndex;
+    short dist;
 
-    flakBurstIndex = 0;
-    firedFlak = 0;
-    target = g_acShipTarget_00495f20[obj];
-    if (target != -1 &&
-        g_aeObjectClass_00495328[target] < OBJECT_CLASS_CAPITAL_SHIP)
+    flakIndex = 0;
+    flakShot = 0;
+    victim = g_acShipTarget_00495f20[obj];
+    if (victim != -1 &&
+        g_aeObjectClass_00495328[victim] < OBJECT_CLASS_CAPITAL_SHIP)
         destroyer_intelligence(obj);
-    if (target == -1) {
+    if (victim == -1) {
         g_acShipTarget_00495f20[obj] =
             (signed char)find_ship_index(
                 g_asShipMissionParameter_00495e00[obj]);
         g_acShipSequence_00495fe8[obj] = 0;
     }
-    target = g_acShipTarget_00495f20[obj];
-    if (target == -1 || unactive(target) != 0) {
-        found = 0;
-        for (other = 0; other < 10; other++) {
-            if (g_aeObjectClass_00495328[other] >=
+    victim = g_acShipTarget_00495f20[obj];
+    if (victim == -1 || unactive(victim) != 0) {
+        seen = 0;
+        for (candidate = 0; candidate < 10; candidate++) {
+            if (g_aeObjectClass_00495328[candidate] >=
                     OBJECT_CLASS_CAPITAL_SHIP &&
-                g_asShipSide_004955d0[other] !=
-                    g_asShipSide_004955d0[obj]) {
-                g_acShipTarget_00495f20[obj] = (signed char)other;
-                target = other;
-                found = 1;
+                g_asShipSide_004955d0[obj] !=
+                    g_asShipSide_004955d0[candidate]) {
+                g_acShipTarget_00495f20[obj] = (signed char)candidate;
+                victim = candidate;
+                seen = 1;
             }
         }
-        if (found == 0) {
+        if (seen == 0) {
             g_acShipTarget_00495f20[obj] = -1;
             approach_zero_speed(obj);
             fire_turrets(obj);
             return;
         }
     }
-    if (g_aeObjectClass_00495328[target] < OBJECT_CLASS_CAPITAL_SHIP)
+    if (g_aeObjectClass_00495328[victim] < OBJECT_CLASS_CAPITAL_SHIP)
         destroyer_intelligence(obj);
     fire_turrets(obj);
-    g_acShipTarget_00495f20[obj] = (signed char)target;
-    get_facing_range_from_object(obj, target);
+    g_acShipTarget_00495f20[obj] = (signed char)victim;
+    get_facing_range_from_object(obj, victim);
 
-    if (DAT_005d1c10[obj] != 0) {
-        DAT_005d1c10[obj]--;
-        if (DAT_005d1c10[obj] == 0) {
-            effect = new_object(0x0e, obj);
-            if (effect != -1) {
-                DAT_005d1bf0[obj] =
-                    (short)((unsigned short)RandomInRange(0, 200) +
-                            400);
-                g_acObjectOwner_00495208[effect] = (signed char)obj;
-                ComputeVectorDelta(
-                    &g_aShipPosition_00494550[obj],
-                    &g_aShipPosition_00494550[
-                        g_acShipTarget_00495f20[obj]],
-                    &direction);
-                NormalizeFixedVector(&direction);
-                ScaleFixedVector(
-                    &direction,
-                    (int)g_aObjectTypeData_00496d30[
-                        g_acObjectType_00493980[obj]].collisionRadius << 8,
-                    &direction);
-                zero_vector(&g_aShipPosition_00494550[effect]);
-                AddFixedVectors(&g_aShipPosition_00494550[obj],
-                                &direction,
-                                &g_aShipPosition_00494550[effect]);
-                projectileVelocity =
-                    g_aObjectTypeData_00496d30[0x0e].maximumVelocity;
-                g_asObjectDamage_00495178[effect] =
-                    g_aObjectTypeData_00496d30[0x0e].damageCapacity;
-                g_asObjectCounter_00494be0[effect] =
-                    g_aObjectTypeData_00496d30[0x0e].lifetime;
-                send_at_point(
-                    effect,
-                    &g_aShipPosition_00494550[
-                        g_acShipTarget_00495f20[obj]],
-                    projectileVelocity);
-                RecordCannedSceneObjectEvent(effect, 0);
-                PlaySfxWaveFileByNumber(0x29, obj, 0);
-            }
+    /* The flak countdown shares its else with the idle case: retail
+     * decrements inside the condition. */
+    if (DAT_005d1c10[obj] != 0 && --DAT_005d1c10[obj] == 0) {
+        cue = new_object(0x0e, obj);
+        if (cue != -1) {
+            DAT_005d1bf0[obj] =
+                (short)((unsigned short)RandomInRange(0, 200) +
+                        400);
+            g_acObjectOwner_00495208[cue] = (signed char)obj;
+            ComputeVectorDelta(
+                &g_aShipPosition_00494550[obj],
+                &g_aShipPosition_00494550[
+                    g_acShipTarget_00495f20[obj]],
+                &direction);
+            NormalizeFixedVector(&direction);
+            ScaleFixedVector(
+                &direction,
+                (int)g_aObjectTypeData_00496d30[
+                    g_acObjectType_00493980[obj]].collisionRadius << 8,
+                &direction);
+            zero_vector(&g_aShipPosition_00494550[cue]);
+            AddFixedVectors(&g_aShipPosition_00494550[obj],
+                            &direction,
+                            &g_aShipPosition_00494550[cue]);
+            shotSpeed =
+                g_aObjectTypeData_00496d30[0x0e].maximumVelocity;
+            g_asObjectDamage_00495178[cue] =
+                g_aObjectTypeData_00496d30[0x0e].damageCapacity;
+            g_asObjectCounter_00494be0[cue] =
+                g_aObjectTypeData_00496d30[0x0e].lifetime;
+            send_at_point(
+                cue,
+                &g_aShipPosition_00494550[
+                    g_acShipTarget_00495f20[obj]],
+                shotSpeed);
+            RecordCannedSceneObjectEvent(cue, 0);
+            PlaySfxWaveFileByNumber(0x29, obj, 0);
         }
     } else {
-        range = distance_from_object(obj, target);
-        lockedTarget = target;
-        if (range < 5000) {
+        dist = distance_from_object(obj, victim);
+        lockedTarget = victim;
+        if (dist < 5000) {
             g_acShipSequence_00495fe8[obj] = 1;
             point_capital_ship_at_object(obj, lockedTarget);
             approach_speed(
@@ -1133,7 +1137,7 @@ void capital_ship_strike_mission(short obj)
                 (unsigned short)RandomInRange(
                     50, (unsigned short)(
                         g_asShipMaximumVelocity_00495f70[obj] << 8)));
-        } else if (range > 10000 ||
+        } else if (dist > 10000 ||
                    g_acShipSequence_00495fe8[obj] != 1) {
             g_acShipSequence_00495fe8[obj] = 2;
             point_ship_at_object(obj, lockedTarget);
@@ -1143,144 +1147,144 @@ void capital_ship_strike_mission(short obj)
                     50, (unsigned short)(
                         g_asShipMaximumVelocity_00495f70[obj] << 8)));
         }
-        if (range < 10000) {
-            slot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1];
-            for (weapon = 0;
-                 weapon <
+        if (dist < 10000) {
+            mountSlot = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1];
+            for (gun = 0;
+                 gun <
                      (signed char)g_aShipWeapons_004956b0[obj][0];
-                 weapon++, slot++) {
-                if (slot->type == 0x0e &&
+                 gun++, mountSlot++) {
+                if (mountSlot->type == 0x0e &&
                     DAT_005d1bf0[obj] == 0 &&
                     DAT_005d1c10[obj] == 0 &&
                     g_nFacingToTarget_00493194 > 20) {
                     PlaySfxWaveFileByNumber(0x28, obj, 0);
                     DAT_005d1c10[obj] = 20;
                 }
-                if (slot->type == 0x0d &&
+                if (mountSlot->type == 0x0d &&
                     DAT_005d1bd0[obj] == 0) {
-                    enemyFighterCount = 0;
-                    friendlyFighterCount = 0;
-                    evasive = 0;
-                    for (other = 0; other < 10; other++) {
-                        if (g_aeObjectClass_00495328[other] ==
+                    enemyShips = 0;
+                    allies = 0;
+                    dodging = 0;
+                    for (candidate = 0; candidate < 10; candidate++) {
+                        if (g_aeObjectClass_00495328[candidate] ==
                             OBJECT_CLASS_SHIP) {
-                            if (g_asShipSide_004955d0[other] !=
-                                g_asShipSide_004955d0[obj])
-                                enemyFighterCount =
-                                    (short)(enemyFighterCount + 1);
+                            if (g_asShipSide_004955d0[obj] !=
+                                g_asShipSide_004955d0[candidate])
+                                enemyShips =
+                                    (short)(enemyShips + 1);
                             else
-                                friendlyFighterCount =
-                                    (short)(friendlyFighterCount + 1);
+                                allies =
+                                    (short)(allies + 1);
                         }
                     }
-                    if (enemyFighterCount > friendlyFighterCount &&
+                    if (enemyShips > allies &&
                         RandomBelowOrEqual(2) == 0)
-                        evasive = 1;
+                        dodging = 1;
                     if (g_asObjectDamage_00495178[obj] > 0 &&
                         RandomBelowOrEqual(1) == 0)
-                        evasive = 1;
+                        dodging = 1;
                     aimOffset =
                         ((int)g_asObjectCollisionRadius_004950e8[
                             lockedTarget] << 8) * 3;
-                    firedFlak = 1;
-                    switch (flakBurstIndex % 8) {
+                    flakShot = 1;
+                    switch (flakIndex % 8) {
                     case 0:
                         ComputeVectorDelta(
                             &g_aShipPosition_00494550[obj],
                             &g_aShipPosition_00494550[lockedTarget],
                             &g_vToTarget_00493188);
-                        clearance = (short)(
+                        mayFire = (short)(
                             FixedToShortSaturating(
                                 Vector_magnitude(
                                     &g_vToTarget_00493188)) -
                             g_asObjectCollisionRadius_004950e8[obj] -
                             g_asObjectCollisionRadius_004950e8[
                                 lockedTarget]);
-                        travelTicks = (short)(clearance / 250);
+                        frames = (short)(mayFire / 250);
                         ScaleFixedVector(
                             &g_aShipVelocity_00494898[lockedTarget],
-                            (int)travelTicks << 8, &lead);
+                            (int)frames << 8, &leadVector);
                         AddFixedVectors(
                             &g_aShipPosition_00494550[lockedTarget],
-                            &lead, &aimPoint);
-                        if (evasive == 1) {
+                            &leadVector, &spot);
+                        if (dodging == 1) {
                             if (RandomBelowOrEqual(1) == 0)
-                                aimPoint.x +=
-                                    (int)(clearance / 3) << 8;
+                                spot.x +=
+                                    (int)(mayFire / 3) << 8;
                             if (RandomBelowOrEqual(1) == 0)
-                                aimPoint.y +=
-                                    (int)(clearance / 3) << 8;
+                                spot.y +=
+                                    (int)(mayFire / 3) << 8;
                             if (RandomBelowOrEqual(1) == 0)
-                                aimPoint.z +=
-                                    (int)(clearance / 3) << 8;
+                                spot.z +=
+                                    (int)(mayFire / 3) << 8;
                         }
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, aimPoint.x,
-                            aimPoint.y, aimPoint.z);
+                            gun, obj, spot.x,
+                            spot.y, spot.z);
                         break;
                     case 1:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.x += aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 2:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.x -= aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 3:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.y += aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 4:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.y -= aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 5:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.y -= aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 6:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.y += aimOffset;
                         adjustedAim.x -= aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     case 7:
-                        adjustedAim = aimPoint;
+                        adjustedAim = spot;
                         adjustedAim.x -= aimOffset;
                         adjustedAim.y -= aimOffset;
                         SpawnCapitalFlakProjectile(
-                            weapon, obj, adjustedAim.x,
+                            gun, obj, adjustedAim.x,
                             adjustedAim.y, adjustedAim.z);
                         break;
                     }
-                    flakBurstIndex = (short)(flakBurstIndex + 1);
+                    flakIndex = (short)(flakIndex + 1);
                 }
             }
         }
-        if (firedFlak != 0) {
-            found = 0;
-            for (other = 0; other < 10; other++) {
-                if (DAT_005d1c10[other] != 0)
-                    found = 1;
+        if (flakShot != 0) {
+            seen = 0;
+            for (candidate = 0; candidate < 10; candidate++) {
+                if (DAT_005d1c10[candidate] != 0)
+                    seen = 1;
             }
-            if (found == 0)
+            if (seen == 0)
                 PlaySfxWaveFileByNumber(0x27, obj, 0);
             DAT_005d1bd0[obj] =
                 (short)((unsigned short)RandomInRange(0, 200) + 300);
@@ -1459,12 +1463,6 @@ void point_ship(short obj, short turnRate, const FixedVector *direction);
 void point_ship_at_object(short obj, short other);
 short explode(short attacker, short victim);
 short distance_from_object(short obj, short other);
-void send_message(short obj, signed char message);
-short get_ship_max_velocity(short obj);
-short RandomBelowOrEqual(short n);
-void mine_intelligence(short obj);
-short distance_from_object(short obj, short other);
-
 /* Function start: 0x446133 */
 void FF_missile_intelligence(short obj)
 {

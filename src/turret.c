@@ -448,43 +448,42 @@ void FireTargetCameraGuns(void)
 /* Function start: 0x45F7EC */
 void UpdateShipTurretGuns(short ship)
 {
-    short projectileSpeed;
-    short target;
-    short gunSide;
-    short turretCount;
-    int turret;
-    FixedVector gunRight;
-    FixedVector gunUp;
-    FixedVector gunForward;
-    short candidate;
-    int facing;
-    FixedVector facingRight;
-    ShortVector gunOffset;
-    FixedVector gunPosition;
-    short projectileType;
-    FixedVector aimJitter;
-    short shot;
-    short projectile;
+    short victim;
+    short whichSide;
+    short aimLead;
     ObjectTypeData *projectileData;
+    FixedVector front;
+    short projectile;
+    FixedVector spread;
     FixedVector aimPoint;
-    short leadDistance;
+    short boltSpeed;
+    int t;
+    short round;
+    int angle;
+    ShortVector gunOffset;
+    FixedVector gunLateral;
+    short ammo;
+    FixedVector gunUp;
+    short candidate;
+    short turrets;
+    FixedVector gunOrigin;
 
-    projectileSpeed = 10;
-    target = -1;
-    gunSide = 0;
-    turretCount = CountShipCockpitGunDisplays(ship);
-    if (turretCount == 0)
+    boltSpeed = 10;
+    victim = -1;
+    whichSide = 0;
+    turrets = CountShipCockpitGunDisplays(ship);
+    if (turrets == 0)
         return;
 
-    for (turret = 0; turret < turretCount; turret++) {
+    for (t = 0; t < turrets; t++) {
 #ifdef SDL_PORT
         /* These tests choose a firing chance by the firing ship's side.
-         * Reset every turret: new_object replaces this local with a
-         * projectile index (or -1) after the preceding turret fires. */
+         * Reset every t: new_object replaces this local with a
+         * projectile index (or -1) after the preceding t fires. */
         projectile = ship;
 #endif
         if (ship == 0 && g_nCurrentView_00492fa8 == 4 &&
-            turret == g_nTargetCameraOverlayMode_005c8db8)
+            t == g_nTargetCameraOverlayMode_005c8db8)
             continue;
         if (g_asShipSide_004955d0[projectile] == SIDE_IMPERIAL &&
             (unsigned short)RandomInRange(0, 10) < 8)
@@ -492,37 +491,37 @@ void UpdateShipTurretGuns(short ship)
         if (g_asShipSide_004955d0[projectile] == SIDE_KILRATHI &&
             (unsigned short)RandomInRange(0, 10) < 5)
             continue;
-        if (g_aasGunCooldown_005c8d70[ship][turret] > 0)
+        if (g_aasGunCooldown_005c8d70[ship][t] > 0)
             continue;
 
-        switch (turret) {
+        switch (t) {
         case 0:
-            gunRight = g_aShipRightVector_00493b78[ship];
-            negate_vector(&gunRight);
+            gunLateral = g_aShipRightVector_00493b78[ship];
+            negate_vector(&gunLateral);
             gunUp = g_aShipUpVector_00493ec0[ship];
-            gunForward = g_aShipForwardVector_00494208[ship];
-            negate_vector(&gunForward);
-            gunSide = 0;
+            front = g_aShipForwardVector_00494208[ship];
+            negate_vector(&front);
+            whichSide = 0;
             break;
         case 1:
-            gunRight = g_aShipRightVector_00493b78[ship];
+            gunLateral = g_aShipRightVector_00493b78[ship];
             gunUp = g_aShipUpVector_00493ec0[ship];
-            gunForward = g_aShipForwardVector_00494208[ship];
-            negate_vector(&gunForward);
-            gunSide = 1;
+            front = g_aShipForwardVector_00494208[ship];
+            negate_vector(&front);
+            whichSide = 1;
             break;
         case 2:
-            gunRight = g_aShipRightVector_00493b78[ship];
-            negate_vector(&gunRight);
+            gunLateral = g_aShipRightVector_00493b78[ship];
+            negate_vector(&gunLateral);
             gunUp = g_aShipUpVector_00493ec0[ship];
-            gunForward = g_aShipForwardVector_00494208[ship];
-            gunSide = 1;
+            front = g_aShipForwardVector_00494208[ship];
+            whichSide = 1;
             break;
         }
 
-        NormalizeFixedVector(&gunRight);
+        NormalizeFixedVector(&gunLateral);
         NormalizeFixedVector(&gunUp);
-        NormalizeFixedVector(&gunForward);
+        NormalizeFixedVector(&front);
         for (candidate = 0; candidate < 10; candidate++) {
             if (g_aeObjectClass_00495328[candidate] ==
                     OBJECT_CLASS_SHIP &&
@@ -536,126 +535,130 @@ void UpdateShipTurretGuns(short ship)
                 g_vNormalizedToTarget_005d3bd0 =
                     g_vToTarget_00493188;
                 NormalizeFixedVector(&g_vNormalizedToTarget_005d3bd0);
-                if (turret == 2) {
-                    facing = dot_product(
+                if (t == 2) {
+                    angle = dot_product(
                         &g_vNormalizedToTarget_005d3bd0,
                         &g_aShipRightVector_00493b78[ship]);
-                } else if (turret == 1) {
-                    facingRight = g_aShipRightVector_00493b78[ship];
-                    negate_vector(&facingRight);
-                    facing = dot_product(
-                        &g_vNormalizedToTarget_005d3bd0, &facingRight);
+                } else if (t == 1) {
+                    aimPoint = g_aShipRightVector_00493b78[ship];
+                    negate_vector(&aimPoint);
+                    angle = dot_product(
+                        &g_vNormalizedToTarget_005d3bd0, &aimPoint);
                 } else {
-                    facing = dot_product(
-                        &g_vNormalizedToTarget_005d3bd0, &gunForward);
+                    angle = dot_product(
+                        &g_vNormalizedToTarget_005d3bd0, &front);
                 }
                 g_nFacingToTarget_00493194 =
-                    (short)(((short)facing * 100) >> 8);
+                    (short)(((short)angle * 100) >> 8);
                 if (g_nFacingToTarget_00493194 > 85 &&
                     g_nTargetRange_0049319c < 4000)
-                    target = candidate;
+                    victim = candidate;
             }
         }
-        if (target == -1)
+        if (victim == -1)
             continue;
 
-        gunOffset = g_aTargetCameraEyeOffsets_0049d430[turret];
-        gunPosition.x =
+        gunOffset = g_aTargetCameraEyeOffsets_0049d430[t];
+        gunOrigin.x =
             g_aShipUpVector_00493ec0[ship].x * gunOffset.y +
             g_aShipForwardVector_00494208[ship].x * gunOffset.z +
             g_aShipRightVector_00493b78[ship].x * gunOffset.x +
             g_aShipPosition_00494550[ship].x;
-        gunPosition.y =
+        gunOrigin.y =
             g_aShipUpVector_00493ec0[ship].y * gunOffset.y +
             g_aShipForwardVector_00494208[ship].y * gunOffset.z +
             g_aShipRightVector_00493b78[ship].y * gunOffset.x +
             g_aShipPosition_00494550[ship].y;
-        gunPosition.z =
+        gunOrigin.z =
             g_aShipUpVector_00493ec0[ship].z * gunOffset.y +
             g_aShipRightVector_00493b78[ship].z * gunOffset.x +
             g_aShipForwardVector_00494208[ship].z * gunOffset.z +
             g_aShipPosition_00494550[ship].z;
-        projectileType = 8;
+        ammo = 8;
 #ifdef SDL_PORT
         /* Retail's SHL converts signed random offsets to fixed point. */
-        aimJitter.x =
+        spread.x =
             ((unsigned short)RandomInRange(0, 500) - 250) * 256;
-        aimJitter.y =
+        spread.y =
             ((unsigned short)RandomInRange(0, 500) - 250) * 256;
-        aimJitter.z =
+        spread.z =
             ((unsigned short)RandomInRange(0, 500) - 250) * 256;
 #else
-        aimJitter.x =
+        spread.x =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
-        aimJitter.y =
+        spread.y =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
-        aimJitter.z =
+        spread.z =
             ((unsigned short)RandomInRange(0, 500) - 250) << 8;
 #endif
 
-        for (shot = 0; shot < 2; shot++) {
-            projectile = new_object(projectileType, ship);
+        for (round = 0; round < 2; round++) {
+            projectile = new_object(ammo, ship);
             if (projectile != -1) {
                 projectileData =
-                    &g_aObjectTypeData_00496d30[projectileType];
-                g_aShipRightVector_00493b78[projectile] = gunRight;
+                    &g_aObjectTypeData_00496d30[ammo];
+                g_aShipRightVector_00493b78[projectile] = gunLateral;
                 g_aShipUpVector_00493ec0[projectile] = gunUp;
-                g_aShipForwardVector_00494208[projectile] = gunForward;
+                g_aShipForwardVector_00494208[projectile] = front;
                 g_asObjectDamage_00495178[projectile] =
                     projectileData->damageCapacity;
-                projectileSpeed =
+                boltSpeed =
                     g_aObjectTypeData_00496d30[
                         g_acObjectType_00493980[projectile]]
                         .maximumVelocity;
                 g_aShipPosition_00494550[projectile].x =
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].y *
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].y *
                         gunUp.x +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].z *
-                        gunForward.x +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].x *
-                        gunRight.x +
-                    gunPosition.x;
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].z *
+                        front.x +
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].x *
+                        gunLateral.x +
+                    gunOrigin.x;
                 g_aShipPosition_00494550[projectile].y =
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].y *
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].y *
                         gunUp.y +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].z *
-                        gunForward.y +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].x *
-                        gunRight.y +
-                    gunPosition.y;
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].z *
+                        front.y +
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].x *
+                        gunLateral.y +
+                    gunOrigin.y;
                 g_aShipPosition_00494550[projectile].z =
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].z *
-                        gunForward.z +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].y *
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].z *
+                        front.z +
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].y *
                         gunUp.z +
-                    g_aaTurretProjectileOffsets_0049d448[gunSide][shot].x *
-                        gunRight.z +
-                    gunPosition.z;
+                    g_aaTurretProjectileOffsets_0049d448[whichSide][round].x *
+                        gunLateral.z +
+                    gunOrigin.z;
                 g_asObjectCounter_00494be0[projectile] =
-                    projectileData->lifetime;
+                    (short)g_aObjectTypeData_00496d30[ammo].lifetime;
                 zero_vector(&g_aShipVelocity_00494898[projectile]);
-                aimPoint = gunForward;
+                aimPoint = front;
                 NormalizeFixedVector(&aimPoint);
-                leadDistance = (short)(
+                aimLead = (short)(
                     (projectileData->lifetime + 5) *
                     projectileData->maximumVelocity);
                 ScaleFixedVector(
-                    &aimPoint, (int)leadDistance << 8, &aimPoint);
-                aimPoint = g_aShipPosition_00494550[target];
-                AddFixedVectors(&aimJitter, &aimPoint, &aimPoint);
+                    &aimPoint, (int)aimLead << 8, &aimPoint);
+                aimPoint.x = g_aShipPosition_00494550[victim].x;
+                aimPoint.y = g_aShipPosition_00494550[victim].y;
+                aimPoint.z = g_aShipPosition_00494550[victim].z;
+                AddFixedVectors(&spread, &aimPoint, &aimPoint);
                 point_at(projectile, aimPoint);
                 ScaleFixedVector(
                     &g_aShipForwardVector_00494208[projectile],
-                    (int)projectileSpeed << 8, &aimPoint);
-                g_aShipVelocity_00494898[projectile] = aimPoint;
+                    (int)boltSpeed << 8, &aimPoint);
+                g_aShipVelocity_00494898[projectile].x = aimPoint.x;
+                g_aShipVelocity_00494898[projectile].y = aimPoint.y;
+                g_aShipVelocity_00494898[projectile].z = aimPoint.z;
                 RecordCannedSceneObjectEvent(projectile, 0);
                 PlaySfxWaveFileByNumber(8, projectile, 0);
-                g_aasGunCooldown_005c8d70[ship][turret] = 12;
+                g_aasGunCooldown_005c8d70[ship][t] = 12;
                 if (ship != 0 &&
                     g_asShipSide_004955d0[ship] == SIDE_IMPERIAL)
-                    g_aasGunCooldown_005c8d70[ship][turret] =
+                    g_aasGunCooldown_005c8d70[ship][t] =
                         (short)(
-                            g_aasGunCooldown_005c8d70[ship][turret] +
+                            g_aasGunCooldown_005c8d70[ship][t] +
                             6);
             }
         }

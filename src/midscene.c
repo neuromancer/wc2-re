@@ -62,31 +62,31 @@ void FlagCurrentNavObjectivesReached(void)
  * 3-Space objects back for the next leg. */
 void ejection_sequence(short outcome, signed char restoreCockpit)
 {
-    FILE *log;
-    long mainBefore;
-    long farBefore;
-    long mainLargestBefore;
-    long farLargestBefore;
-    long mainMid;
-    long farMid;
-    long mainLargestMid;
-    long farLargestMid;
-    long mainAfter;
-    long farAfter;
-    long mainLargestAfter;
-    long farLargestAfter;
-    long mainEnd;
+    long mainMiddle;
+    long lowBefore;
+    long mainBlockEnd;
     long farEnd;
-    long mainLargestEnd;
-    long farLargestEnd;
-    short savedSeries;
+    long farLargestBefore;
+    FILE *stream;
+    long extMid;
+    long mainLargestBefore;
+    long baseAfter;
+    long farLargestDuring;
+    long mainBlockMiddle;
+    long farBegin;
+    long farLargestPost;
+    long baseFinal;
+    long farBlockEnd;
+    long nearBlockPost;
+    long farLater;
+    short series;
     short ship;
 
     if (g_bMissionEndPending_0049da4c == 0)
         return;
 
-    mainBefore = GetAvailableMainMemory();
-    farBefore = GetAvailableFarMemory();
+    lowBefore = GetAvailableMainMemory();
+    farBegin = GetAvailableFarMemory();
     mainLargestBefore = GetLargestMainMemoryBlock();
     farLargestBefore = GetLargestFreeMemoryBlock();
     if ((unsigned short)outcome == 0x75) {
@@ -96,18 +96,18 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
 
     g_nResourcePaletteMode_005c57e6 = 1;
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
-        log = fopen("mid.$$$", "w+");
+        stream = fopen("mid.$$$", "w+");
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
-        LogMemoryStateToFile(log);
+        LogMemoryStateToFile(stream);
     ReleaseSpaceflightResources();
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
-        LogMemoryStateToFile(log);
+        LogMemoryStateToFile(stream);
     if (g_pCampaignGlobals_00499c94 == 0)
         LoadTemporaryCampaignGlobals();
     if (g_pCampaignGlobals_00499c94 == 0)
         ReportFatalErrorCode("021");
 
-    savedSeries = g_pCampaignGlobals_00499c94->series;
+    series = g_pCampaignGlobals_00499c94->series;
     g_pCampaignGlobals_00499c94->series = 1000;
     g_pCampaignGlobals_00499c94->mission = outcome;
     g_pCampaignGlobals_00499c94->previousSeries =
@@ -117,24 +117,24 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
     g_pCampaignGlobals_00499c94->damageLevel =
         (short)calculate_damage_level();
 
-    mainMid = GetAvailableMainMemory();
-    farMid = GetAvailableFarMemory();
-    mainLargestMid = GetLargestMainMemoryBlock();
-    farLargestMid = GetLargestFreeMemoryBlock();
+    mainMiddle = GetAvailableMainMemory();
+    extMid = GetAvailableFarMemory();
+    mainBlockMiddle = GetLargestMainMemoryBlock();
+    farLargestDuring = GetLargestFreeMemoryBlock();
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
-        LogMemoryStateToFile(log);
+        LogMemoryStateToFile(stream);
     StoreMissionResultsInCampaignGlobals(g_pCampaignGlobals_00499c94);
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
     g_cHudMessageView_005d1c37 = -1;
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
-        LogMemoryStateToFile(log);
+        LogMemoryStateToFile(stream);
     g_nArcadeState_0049d75c = g_pCampaignGlobals_00499c94->arcadeState;
     InitializeCampaignConstellationState(g_pCampaignGlobals_00499c94, 0);
 
-    mainAfter = GetAvailableMainMemory();
-    farAfter = GetAvailableFarMemory();
-    mainLargestAfter = GetLargestMainMemoryBlock();
-    farLargestAfter = GetLargestFreeMemoryBlock();
+    baseAfter = GetAvailableMainMemory();
+    farLater = GetAvailableFarMemory();
+    nearBlockPost = GetLargestMainMemoryBlock();
+    farLargestPost = GetLargestFreeMemoryBlock();
     ReleasePacketSlot(&g_pCampaignGlobals_00499c94);
     FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
     ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
@@ -145,10 +145,10 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
 
     if (restoreCockpit != 0 && g_nArcadeState_0049d75c == 0) {
         if (g_bAutopilotDebugEnabled_00499bfc != 0)
-            LogMemoryStateToFile(log);
+            LogMemoryStateToFile(stream);
         InitializeCockpitResources(g_nPlayerShipType_00493464);
         load_common_3Space_objects();
-        init_constellation(savedSeries);
+        init_constellation(series);
         g_b3SpaceObjectsActive_0049c8ec = 1;
         load_all_slots();
         g_bSpaceViewBufferEnabled_0049d7a4 = 1;
@@ -159,33 +159,33 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
             remove_object(g_nYourWingman_0049346c);
         g_cScreenViewportMode_005c82a6 = -1;
         force_view(0, 0);
-        if (g_bAutopilotDebugEnabled_00499bfc != 0)
-            LogMemoryStateToFile(log);
     }
+    if (g_bAutopilotDebugEnabled_00499bfc != 0)
+        LogMemoryStateToFile(stream);
 
     g_nResourcePaletteMode_005c57e6 = 0;
     InitializeSpaceFlightInput();
     ReleaseSceneMusicPacket();
 
     if (g_nShowMemoryStatus_0049d784 != 0) {
-        mainEnd = GetAvailableMainMemory();
+        baseFinal = GetAvailableMainMemory();
         farEnd = GetAvailableFarMemory();
-        mainLargestEnd = GetLargestMainMemoryBlock();
-        farLargestEnd = GetLargestFreeMemoryBlock();
+        mainBlockEnd = GetLargestMainMemoryBlock();
+        farBlockEnd = GetLargestFreeMemoryBlock();
         printf("      before  large    after   large\n");
-        printf("Main: %6ld  %6ld   %6ld  %6ld\n", mainBefore,
-               mainLargestBefore, mainEnd, mainLargestEnd);
-        printf("EMS:  %7ld %6ld   %7ld %6ld\n", farBefore,
-               farLargestBefore, farEnd, farLargestEnd);
-        printf("CMem: %6ld  %6ld   %6ld  %6ld\n", mainMid,
-               mainLargestMid, mainAfter, mainLargestAfter);
-        printf("EEMS: %7ld %6ld   %7ld %6ld\n", farAfter,
-               farLargestAfter, farAfter, farLargestAfter);
+        printf("Main: %6ld  %6ld   %6ld  %6ld\n", lowBefore,
+               mainLargestBefore, baseFinal, mainBlockEnd);
+        printf("EMS:  %7ld %6ld   %7ld %6ld\n", farBegin,
+               farLargestBefore, farEnd, farBlockEnd);
+        printf("CMem: %6ld  %6ld   %6ld  %6ld\n", mainMiddle,
+               mainBlockMiddle, baseAfter, nearBlockPost);
+        printf("EEMS: %7ld %6ld   %7ld %6ld\n", farLater,
+               farLargestPost, farLater, farLargestPost);
         WaitForAnyInputPress();
     }
     FlagCurrentNavObjectivesReached();
     if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
         ResetCannedSceneRecording();
-    if (log != 0 && g_bAutopilotDebugEnabled_00499bfc != 0)
-        fclose(log);
+    if (stream != 0 && g_bAutopilotDebugEnabled_00499bfc != 0)
+        fclose(stream);
 }

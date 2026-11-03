@@ -2500,16 +2500,15 @@ short HasInRangeGunForTargetLead(short targetRange)
 void UpdateTargetLeadIndicator(void)
 {
     FixedVector combinedProjectileVelocity;
-    short targetObject;
-    short weapon;
-    short projectileSpeed;
-    FixedVector projectileVelocity;
-    short targetRange;
+    short tracked;
+    short gun;
+    short boltSpeed;
+    FixedVector scratch;
+    short rangeToTarget;
     int targetDistance;
-    short interceptFrames;
-    FixedVector targetVelocityOffset;
-    FixedVector interceptPoint;
-    FixedVector relative;
+    short frames;
+    FixedVector targetMotion;
+    FixedVector meetPoint;
     FixedVector eyeRelative;
 
     if ((signed char)g_bTargetLockDisplayEnabled_0049afe0 == 0)
@@ -2519,32 +2518,32 @@ void UpdateTargetLeadIndicator(void)
         return;
     }
 
-    targetObject = g_acShipTarget_00495f20[0];
-    targetRange = distance_from_object(0, targetObject);
-    projectileSpeed = 100;
+    tracked = g_acShipTarget_00495f20[0];
+    rangeToTarget = distance_from_object(0, tracked);
+    boltSpeed = 100;
     if (g_nCurrentView_00492fa8 == 4) {
-        projectileSpeed =
+        boltSpeed =
             g_aObjectTypeData_00496d30[
                 OBJECT_TYPE_TIGERS_CLAW].maximumVelocity;
     } else {
-        weapon = (signed char)g_aShipWeapons_004956b0[0][0];
-        while (weapon-- > 0) {
+        gun = (signed char)g_aShipWeapons_004956b0[0][0];
+        while (gun-- > 0) {
             if (((ShipWeaponSlot *)(
-                    g_aShipWeapons_004956b0[0] + 1))[weapon].disabled == 0 &&
+                    g_aShipWeapons_004956b0[0] + 1))[gun].disabled == 0 &&
                 g_aObjectTypeData_00496d30[
                     ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[0] + 1))[
-                        weapon].weaponType].objectClass ==
+                        gun].weaponType].objectClass ==
                     OBJECT_CLASS_PROJECTILE &&
-                projectileSpeed <
+                boltSpeed <
                     g_aObjectTypeData_00496d30[
                         ((ShipWeaponSlot *)(
                             g_aShipWeapons_004956b0[0] + 1))[
-                            weapon].weaponType].maximumVelocity)
-                projectileSpeed =
+                            gun].weaponType].maximumVelocity)
+                boltSpeed =
                     g_aObjectTypeData_00496d30[
                         ((ShipWeaponSlot *)(
                             g_aShipWeapons_004956b0[0] + 1))[
-                            weapon].weaponType].maximumVelocity;
+                            gun].weaponType].maximumVelocity;
         }
     }
 
@@ -2554,23 +2553,23 @@ void UpdateTargetLeadIndicator(void)
         &combinedProjectileVelocity);
     ScaleFixedVector(
         &g_aShipForwardVector_00494208[0],
-        (int)projectileSpeed << 8, &projectileVelocity);
+        (int)boltSpeed << 8, &scratch);
     AddFixedVectors(
-        &projectileVelocity, &combinedProjectileVelocity,
+        &scratch, &combinedProjectileVelocity,
         &combinedProjectileVelocity);
-    projectileSpeed =
+    boltSpeed =
         (short)((Vector_magnitude(&combinedProjectileVelocity) >> 8) + 1);
-    interceptFrames = (short)(targetRange / projectileSpeed);
-    zero_vector(&targetVelocityOffset);
-    if (interceptFrames > 0)
+    frames = (short)(rangeToTarget / boltSpeed);
+    zero_vector(&targetMotion);
+    if (frames > 0)
         ScaleFixedVector(
-            &g_aShipVelocity_00494898[targetObject],
-            (int)interceptFrames << 8, &targetVelocityOffset);
+            &g_aShipVelocity_00494898[tracked],
+            (int)frames << 8, &targetMotion);
     AddFixedVectors(
-        &g_aShipPosition_00494550[targetObject],
-        &targetVelocityOffset, &interceptPoint);
+        &g_aShipPosition_00494550[tracked],
+        &targetMotion, &meetPoint);
     if (HasInRangeGunForTargetLead(
-            distance_from_point(0, &interceptPoint)) == 0) {
+            distance_from_point(0, &meetPoint)) == 0) {
         SetHudMessageText(
             g_szTargetOutOfRange_0049b438,
             g_abGamePaletteReservedColours_0049cb54[8], 20);
@@ -2579,12 +2578,12 @@ void UpdateTargetLeadIndicator(void)
     }
 
     ComputeVectorDelta(
-        &g_aShipPosition_00494550[0], &interceptPoint, &relative);
-    targetDistance = Vector_magnitude(&relative);
+        &g_aShipPosition_00494550[0], &meetPoint, &scratch);
+    targetDistance = Vector_magnitude(&scratch);
     if ((int)g_asObjectCollisionRadius_004950e8[
             EYE_OBJECT] * 0x100 < targetDistance) {
         transform_to_objects_frame(
-            &relative, &eyeRelative, EYE_OBJECT);
+            &scratch, &eyeRelative, EYE_OBJECT);
         if ((int)g_asObjectCollisionRadius_004950e8[0] * 0x100 <=
                 eyeRelative.z &&
             DivideFixed(eyeRelative.z, targetDistance) >= 0) {
