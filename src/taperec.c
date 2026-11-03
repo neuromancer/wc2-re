@@ -5,6 +5,15 @@
  */
 #include "game.h"
 
+void *g_pHighMemoryBlockA_004901f8 = 0;
+unsigned short g_wHighMemoryBlockBytes_004901fc = 0xd4e4;
+void *g_pHighMemoryBlockB_00490200 = 0;
+char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
+short g_nCannedSceneBufferNearCapacityFlag_00490214 = 0;
+short g_nCannedSceneSegmentEndFrame_00490218 = -1;
+short g_nCannedSceneMode_0049021c = 0;
+short g_nCannedSceneStateRecordMarker_00490220 = 0;
+
 extern unsigned int g_dwCannedSceneSnapshotEnd_004961a4;
 
 /* Function start: 0x401A10 */
@@ -73,7 +82,7 @@ void CheckCannedSceneBufferCapacity(void)
             (int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8) {
         if ((int)(unsigned short)g_wHighMemoryBlockBytes_004901fc <=
                 (int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8) {
-            ReportFatalErrorCode(g_abCannedSceneBufferOverflowCode_00490224);
+            ReportFatalErrorCode("028");
         }
         g_nCannedSceneBufferNearCapacityFlag_00490214 = 1;
     }
@@ -275,7 +284,7 @@ void WriteTapeInitialState(void)
 
     file = CreateDataFile(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
-        ReportFatalErrorCode(g_szCannedSceneCreateError_00490270);
+        ReportFatalErrorCode("029");
 #ifndef SDL_PORT
     WriteDataFileAtOffset((unsigned short)file,
                           g_nCannedSceneFileOffset_005d3fac,
@@ -293,7 +302,7 @@ void FlushCannedSceneRecordingBuffer(void)
 
     file = OpenDataFileOrDie(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
-        ReportFatalErrorCode(g_szCannedSceneWriteOpenError_00490274);
+        ReportFatalErrorCode("030");
     WriteDataFileAtOffset((unsigned short)file,
                           g_nCannedSceneFileOffset_005d3fac,
                           2, &g_nSpaceFrame_00493134);

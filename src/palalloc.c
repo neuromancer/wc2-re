@@ -5,6 +5,8 @@
  */
 #include "game.h"
 
+short g_nSpacePaletteFadeMode_004901e8 = -1;
+
 /* Function start: 0x401840 */
 void ConfigureDefaultSpacePalette(short mode)
 {

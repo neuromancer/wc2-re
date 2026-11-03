@@ -226,6 +226,8 @@ extern char g_szCannedSceneTapeFile_00490208[9];
 extern short g_nCannedSceneBufferNearCapacityFlag_00490214;
 extern short g_nCannedSceneSegmentEndFrame_00490218;
 extern short g_nCannedSceneStateRecordMarker_00490220;
+/* taperec.c passes these codes as literals; the declarations hold the
+ * header's symbol count (see the damage strings below). */
 extern char g_abCannedSceneBufferOverflowCode_00490224[4];
 extern char g_szCannedSceneCreateError_00490270[4];
 extern char g_szCannedSceneWriteOpenError_00490274[4];

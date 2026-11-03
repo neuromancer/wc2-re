@@ -145,18 +145,6 @@ const int g_nJoystickUnavailableSample_0048e054 = -1;
 const int g_nViewportStaticRandomRange_0048e060 = 3;
 const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
-short g_nSpacePaletteFadeMode_004901e8 = -1;
-void *g_pHighMemoryBlockA_004901f8;
-unsigned short g_wHighMemoryBlockBytes_004901fc = 0xd4e4;
-void *g_pHighMemoryBlockB_00490200;
-char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
-short g_nCannedSceneBufferNearCapacityFlag_00490214;
-short g_nCannedSceneSegmentEndFrame_00490218 = -1;
-short g_nCannedSceneMode_0049021c;
-short g_nCannedSceneStateRecordMarker_00490220;
-char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
-char g_szCannedSceneCreateError_00490270[4] = "029";
-char g_szCannedSceneWriteOpenError_00490274[4] = "030";
 /* Raster library state: native storage is in src/raster.asm. */
 #ifdef SDL_PORT
 void *g_apRasterDriverCallbacks_00490278[13];
