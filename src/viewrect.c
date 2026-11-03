@@ -47,12 +47,8 @@ short g_nTargetFacing_00493198 = 0;
 short g_nTargetRange_0049319c = 0;
 short g_nTargetShip_004931a0 = 0;
 short g_bExpandedShipGraphicsEnabled_004931a4 = 0;
-short g_nPitchInput_004931a8 = 0;
-short g_nYawInput_004931aa = 0;
-short g_nRollInput_004931ac = 0;
-short g_nPreviousPitchInput_004931b0 = 0;
-short g_nPreviousYawInput_004931b2 = 0;
-short g_nPreviousRollInput_004931b4 = 0;
+short g_anFlightInput_004931a8[3] = { 0 };
+short g_anPreviousFlightInput_004931b0[3] = { 0 };
 short g_nNavPointerObject_004931b8 = -1;
 short g_nCurrentNavPoint_004931bc = 0;
 short g_nCurrentWave_004931c0 = -1;
@@ -60,7 +56,7 @@ short g_nLoadedCommPortraitPilot_004931c4 = -1;
 int g_nCurrentObjectiveRange_004931c8 = 0;
 signed char g_cCurrentObjective_004931cc = -1;
 short g_nHazardFieldCount_004931d0 = 0;
-HazardField g_aHazardFields_004931d8[7] = { { -1 } };
+HazardField g_aHazardFields_004931d8[8] = { { -1 } };
 HazardField *g_pActiveHazardField_00493278 = 0;
 short g_bUseEyePositionForHazards_0049327c = 0;
 signed char g_abHazardObjects_00493280[0x14] = {
@@ -85,24 +81,23 @@ MissionObjective g_aMissionObjectives_004932a8[MISSION_OBJECTIVE_COUNT] = {
 };
 ObjectResourceSlot g_aObjectResourceSlots_00493398[5] = { { -1 } };
 PilotProfile g_stCurrentPilotProfile_00493408 = { 0 };
-short g_nMissionScore_00493462 = 0;
-short g_nPlayerShipType_00493464 = 0;
 short g_nExternalViewShip_00493468 = -1;
 short g_nYourWingman_0049346c = -1;
 signed char g_acPlayerComponentDamage_00493470[9] = { -1 };
 short g_bDisplayWingmanTargetData_0049347c = 0;
 short g_nPlayerCollisionObject_00493480 = -1;
 FixedVector g_vPlayerAcceleration_00493488 = { 0 };
-int g_aaiVduModeStack_00493498[2][4] = { 0 };
+int g_aaiVduModeStack_00493498[3][4] = { 0 };
 signed char g_acVduModeStackDepth_004934c8[2] = { -1, 0 };
-int g_anLastDrawnVduMode_004934d0[2] = { 0 };
+int g_anLastDrawnVduMode_004934d0[3] = { 0 };
 short g_nSelectedGunType_004934dc = -1;
 short g_nSelectedReleaseWeaponIndex_004934e0 = -1;
-short DAT_004934e4;
+short DAT_004934e4 = 0;
 short g_bTargetLockReadoutDirty_004934e8 = 0;
 short g_nTargetLockCountdown_004934ec = 0;
 short g_nTargetLockMarkerAngle_004934f0 = 0;
 signed char g_cTargetDisplayObject_004934f4 = -1;
+int g_nUnusedTargetWord_004934f8 = 0;   /* no references in the original */
 short g_bTargetLockAcquired_004934fc = 0;
 short g_bTargetLockMode_00493500 = 0;
 short g_bMissileCameraEnabled_00493504 = 0;
@@ -126,7 +121,7 @@ short g_asObjectCounter_00494be0[SPACE_OBJECT_COUNT] = { 0 };
 short g_asObjectAnimationIndex_00494c70[SPACE_OBJECT_COUNT] = { 0 };
 signed char g_acObjectAnimationDelay_00494d00[SPACE_OBJECT_COUNT] = { 0 };
 signed char g_acObjectCollisionGraceTicks_00494d48[
-    SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT] = { 0 };
 unsigned short g_asObjectScale_00494d90[SPACE_OBJECT_COUNT] = { 0 };
 int g_anShipSpeed_00494e20[SPACE_OBJECT_COUNT] = { 0 };
 short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT] = { 0 };
@@ -181,7 +176,7 @@ MissionShipRecord *g_apShipMissionRecord_00495da8[10] = { 0 };
 short g_asShipWingLeader_00495dd0[12] = { 0 };
 short g_asShipMissionType_00495de8[12] = { 0 };
 short g_asShipMissionParameter_00495e00[12] = { 0 };
-FixedVector g_aShipMissionSpot_00495e18[10] = { 0 };
+FixedVector g_aShipMissionSpot_00495e18[20] = { 0 };
 short g_aeShipObjective_00495f08[12] = { 0 };
 signed char g_acShipTarget_00495f20[16] = { -1 };
 short g_asShipTactic_00495f30[12] = { 0 };
@@ -201,21 +196,19 @@ short g_asShipCloakElapsedFrames_00496060[10] = { 0 };
 short g_asShipIdentified_00496078[12] = { 1 };
 short g_asShipFriendlyFireCooldown_00496090[10] = { 0 };
 signed char g_abProjectileCollisionBonus_004960a8[
-    SPACE_OBJECT_COUNT];
+    SPACE_OBJECT_COUNT] = { 0 };
 #ifndef SDL_PORT
-short DAT_004960f0[8];
+short DAT_004960f0[8] = { 0 };
 #else
-short DAT_004960f0[10];
+short DAT_004960f0[10] = { 0 };
 #endif
 signed char g_acShipStress_00496100[16] = { 0 };
 signed char g_abPilotEjectionAttempted_00496110[16] = { 0 };
 signed char g_abShipEjectionSequenceEnabled_00496120[12] = { 0 };
 short g_bEngageAllowed_0049612c = 0;
 short g_nAutoEngageTimer_00496130 = -1;
-short g_nWingmanRoutDecisionMode_00496138 = 0;
-short g_nWingmanFormationDisobeyMode_0049613a = 0;
-short g_nWingmanTargetingMode_0049613c = 0;
-short g_nWingmanEngagementMode_0049613e = 0;
+int g_nUnusedWingmanWord_00496134 = 0;   /* no references in the original */
+ShipIntelligenceMetadata g_stWingmanIntelligence_00496138 = { 0 };
 int g_nMissionMusicTrackOverride_00496144 = 0;
 signed char g_acShipList_00496148[16] = { -1 };
 short g_asShipListRange_00496158[16] = { 0 };

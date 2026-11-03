@@ -3107,8 +3107,8 @@ void determine_pilot_hand(void)
     short yaw;
     short pitch;
 
-    yaw = g_nYawInput_004931aa / 2;
-    pitch = g_nPitchInput_004931a8 / 2;
+    yaw = g_anFlightInput_004931a8[1] / 2;
+    pitch = g_anFlightInput_004931a8[0] / 2;
     if (yaw > 0) {
         g_cPilotHandFrame_005d1c30 =
             (unsigned char)MinShort((short)(yaw + 8), 12);

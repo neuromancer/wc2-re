@@ -11,7 +11,7 @@ void ShowPlayerEjectionSequence(void)
     InputPumpContext *savedInputContext;
 
     savedInputContext = g_pActiveInputContext_005c8487;
-    ejection_sequence((short)(g_nPlayerShipType_00493464 + 0x19), 0);
+    ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 0x19), 0);
     if (savedInputContext != 0)
         SetInputViewport(savedInputContext->viewport);
     ConfigureInputPump(1, 0);
@@ -22,5 +22,5 @@ void ShowPlayerEjectionSequence(void)
 /* Function start: 0x438080 */
 void ShowPlayerStrandingSequence(void)
 {
-    ejection_sequence((short)(g_nPlayerShipType_00493464 + 500), 0);
+    ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 500), 0);
 }

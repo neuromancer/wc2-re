@@ -1580,7 +1580,7 @@ void ProcessEnemyWaveCompletion(void)
         if (g_bMissionDeathSequencePending_0049b720 != 0 &&
             g_bMissionEjectionPodSpawned_0049b724 != 0) {
             ejection_sequence(
-                (short)(g_nPlayerShipType_00493464 + 300), 1);
+                (short)(g_stCurrentPilotProfile_00493408.playerShipType + 300), 1);
             g_bMissionDeathSequencePending_0049b720 = 0;
             g_bMissionEjectionPodSpawned_0049b724 = 0;
         }
@@ -1691,7 +1691,7 @@ void affect_mission_score(short pilot, int event, short amount)
         score = amount;
         break;
     }
-    g_nMissionScore_00493462 += score;
+    g_stCurrentPilotProfile_00493408.missionScore += score;
 }
 
 /* Function start: 0x413E4C */

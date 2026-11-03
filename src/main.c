@@ -509,41 +509,41 @@ void process_player_input(void)
             SetPersonnelMousePosition(
                 (short)((g_stViewBuffer_005d2b00.left + g_stViewBuffer_005d2b00.right) / 2),
                 (short)((g_stViewBuffer_005d2b00.top + g_stViewBuffer_005d2b00.bottom) / 2));
-            g_nYawInput_004931aa =
-                g_nPitchInput_004931a8 =
-                g_nRollInput_004931ac = 0;
+            g_anFlightInput_004931a8[1] =
+                g_anFlightInput_004931a8[0] =
+                g_anFlightInput_004931a8[2] = 0;
             handled = 1;
             break;
         case 0x48:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nPitchInput_004931a8 < 0) {
-                g_nPitchInput_004931a8 = 0;
+            if (g_anFlightInput_004931a8[0] < 0) {
+                g_anFlightInput_004931a8[0] = 0;
             } else {
                 if (shift != 0)
-                    g_nPitchInput_004931a8 = 9;
-                if (g_nPitchInput_004931a8 < 9)
-                    g_nPitchInput_004931a8++;
+                    g_anFlightInput_004931a8[0] = 9;
+                if (g_anFlightInput_004931a8[0] < 9)
+                    g_anFlightInput_004931a8[0]++;
                 else if (g_cPreviousKey_0049312c < 0)
-                    g_nPitchInput_004931a8++;
+                    g_anFlightInput_004931a8[0]++;
                 else
-                    g_nPitchInput_004931a8--;
+                    g_anFlightInput_004931a8[0]--;
             }
             handled = 1;
             break;
         case 0x50:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nPitchInput_004931a8 > 0) {
-                g_nPitchInput_004931a8 = 0;
+            if (g_anFlightInput_004931a8[0] > 0) {
+                g_anFlightInput_004931a8[0] = 0;
             } else {
                 if (shift != 0)
-                    g_nPitchInput_004931a8 = -9;
-                if (g_nPitchInput_004931a8 > -9) {
-                    g_nPitchInput_004931a8--;
+                    g_anFlightInput_004931a8[0] = -9;
+                if (g_anFlightInput_004931a8[0] > -9) {
+                    g_anFlightInput_004931a8[0]--;
                 } else {
                     if (g_cPreviousKey_0049312c < 0)
-                        g_nPitchInput_004931a8--;
+                        g_anFlightInput_004931a8[0]--;
                     else
-                        g_nPitchInput_004931a8++;
+                        g_anFlightInput_004931a8[0]++;
                 }
             }
             handled = 1;
@@ -551,69 +551,69 @@ void process_player_input(void)
         case 0x34:
         case 0x53:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nRollInput_004931ac < 0) {
-                g_nRollInput_004931ac = 0;
+            if (g_anFlightInput_004931a8[2] < 0) {
+                g_anFlightInput_004931a8[2] = 0;
             } else {
                 if (shift != 0)
-                    g_nRollInput_004931ac = 9;
-                if (g_nRollInput_004931ac < 9)
-                    g_nRollInput_004931ac++;
+                    g_anFlightInput_004931a8[2] = 9;
+                if (g_anFlightInput_004931a8[2] < 9)
+                    g_anFlightInput_004931a8[2]++;
                 else if (g_cPreviousKey_0049312c < 0)
-                    g_nRollInput_004931ac++;
+                    g_anFlightInput_004931a8[2]++;
                 else
-                    g_nRollInput_004931ac--;
+                    g_anFlightInput_004931a8[2]--;
             }
             handled = 1;
             break;
         case 0x33:
         case 0x52:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nRollInput_004931ac > 0) {
-                g_nRollInput_004931ac = 0;
+            if (g_anFlightInput_004931a8[2] > 0) {
+                g_anFlightInput_004931a8[2] = 0;
             } else {
                 if (shift != 0)
-                    g_nRollInput_004931ac = -9;
-                if (g_nRollInput_004931ac > -9) {
-                    g_nRollInput_004931ac--;
+                    g_anFlightInput_004931a8[2] = -9;
+                if (g_anFlightInput_004931a8[2] > -9) {
+                    g_anFlightInput_004931a8[2]--;
                 } else {
                     if (g_cPreviousKey_0049312c < 0)
-                        g_nRollInput_004931ac--;
+                        g_anFlightInput_004931a8[2]--;
                     else
-                        g_nRollInput_004931ac++;
+                        g_anFlightInput_004931a8[2]++;
                 }
             }
             handled = 1;
             break;
         case 0x4d:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nYawInput_004931aa < 0) {
-                g_nYawInput_004931aa = 0;
+            if (g_anFlightInput_004931a8[1] < 0) {
+                g_anFlightInput_004931a8[1] = 0;
             } else {
                 if (shift != 0)
-                    g_nYawInput_004931aa = 9;
-                if (g_nYawInput_004931aa < 9)
-                    g_nYawInput_004931aa++;
+                    g_anFlightInput_004931a8[1] = 9;
+                if (g_anFlightInput_004931a8[1] < 9)
+                    g_anFlightInput_004931a8[1]++;
                 else if (g_cPreviousKey_0049312c < 0)
-                    g_nYawInput_004931aa++;
+                    g_anFlightInput_004931a8[1]++;
                 else
-                    g_nYawInput_004931aa--;
+                    g_anFlightInput_004931a8[1]--;
             }
             handled = 1;
             break;
         case 0x4b:
             g_nCockpitControlState_0049d7ac = 0;
-            if (g_nYawInput_004931aa > 0) {
-                g_nYawInput_004931aa = 0;
+            if (g_anFlightInput_004931a8[1] > 0) {
+                g_anFlightInput_004931a8[1] = 0;
             } else {
                 if (shift != 0)
-                    g_nYawInput_004931aa = -9;
-                if (g_nYawInput_004931aa > -9) {
-                    g_nYawInput_004931aa--;
+                    g_anFlightInput_004931a8[1] = -9;
+                if (g_anFlightInput_004931a8[1] > -9) {
+                    g_anFlightInput_004931a8[1]--;
                 } else {
                     if (g_cPreviousKey_0049312c < 0)
-                        g_nYawInput_004931aa--;
+                        g_anFlightInput_004931a8[1]--;
                     else
-                        g_nYawInput_004931aa++;
+                        g_anFlightInput_004931a8[1]++;
                 }
             }
             handled = 1;
@@ -665,23 +665,23 @@ void players_flight_dynamics(void)
                     g_anObjectRollRotation_00495058[0]) {
                 g_aeSpecialManeuver_00495600[0] = SPECIAL_MANEUVER_NONE;
             } else {
-                g_anObjectYawRotation_00494fc8[0] -= g_nYawInput_004931aa;
-                g_anObjectPitchRotation_00494f38[0] -= g_nPitchInput_004931a8;
+                g_anObjectYawRotation_00494fc8[0] -= g_anFlightInput_004931a8[1];
+                g_anObjectPitchRotation_00494f38[0] -= g_anFlightInput_004931a8[0];
             }
         }
     } else {
         g_anObjectPitchRotation_00494f38[0] = (short)(
             (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[0]].yawRate *
-             g_nPitchInput_004931a8) / 8);
+             g_anFlightInput_004931a8[0]) / 8);
         g_anObjectYawRotation_00494fc8[0] = (short)-(
             (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[0]].pitchRate *
-             g_nYawInput_004931aa) / 8);
+             g_anFlightInput_004931a8[1]) / 8);
         g_anObjectRollRotation_00495058[0] = (short)-(
             (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[0]].rollRate *
-             g_nRollInput_004931ac) / 8);
+             g_anFlightInput_004931a8[2]) / 8);
     }
 }
 
@@ -718,9 +718,9 @@ short player_input(void)
     buttons = 0;
     polledInput = 0;
     g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
-    g_nPreviousYawInput_004931b2 = g_nYawInput_004931aa;
-    g_nPreviousPitchInput_004931b0 = g_nPitchInput_004931a8;
-    g_nPreviousRollInput_004931b4 = g_nRollInput_004931ac;
+    g_anPreviousFlightInput_004931b0[1] = g_anFlightInput_004931a8[1];
+    g_anPreviousFlightInput_004931b0[0] = g_anFlightInput_004931a8[0];
+    g_anPreviousFlightInput_004931b0[2] = g_anFlightInput_004931a8[2];
     savedPlayerInputActive = g_bPlayerInputActive_005c8090;
     g_bPlayerInputActive_005c8090 = 1;
     ServiceInputDevices(15);
@@ -735,9 +735,9 @@ short player_input(void)
         g_cCurrentKey_00493128 |= (signed char)0x80;
         if (g_bPolledFlightInputQueued_005c587a == 0 &&
             g_nCockpitControlState_0049d7ac == 0) {
-            g_nYawInput_004931aa =
-                g_nPitchInput_004931a8 =
-                g_nRollInput_004931ac =
+            g_anFlightInput_004931a8[1] =
+                g_anFlightInput_004931a8[0] =
+                g_anFlightInput_004931a8[2] =
                 g_bMouseMoveEventQueued_0049d7fc = 0;
         }
     }
@@ -821,25 +821,25 @@ short player_input(void)
                 vertical = -8;
             if (afterburnerControl != 0) {
                 g_nCockpitControlGoal_0049d7d0 = 1;
-                g_nRollInput_004931ac =
+                g_anFlightInput_004931a8[2] =
                     g_nMouseYawInput_0049d800 = horizontal;
                 g_nMousePitchInput_0049d804 = (short)-vertical;
                 accelerate((short)(g_nMousePitchInput_0049d804 / 2));
             } else if (g_nCockpitControlGoal_0049d7d0 == 1) {
                 g_nCockpitControlGoal_0049d7d0 = 0;
-                g_nRollInput_004931ac = 0;
-                g_nYawInput_004931aa = g_nMouseYawInput_0049d800 = 0;
-                g_nPitchInput_004931a8 = g_nMousePitchInput_0049d804 = 0;
+                g_anFlightInput_004931a8[2] = 0;
+                g_anFlightInput_004931a8[1] = g_nMouseYawInput_0049d800 = 0;
+                g_anFlightInput_004931a8[0] = g_nMousePitchInput_0049d804 = 0;
                 SetPersonnelMousePosition(
                     (short)((g_stViewBuffer_005d2b00.left +
                              g_stViewBuffer_005d2b00.right) / 2),
                     (short)((g_stViewBuffer_005d2b00.top +
                              g_stViewBuffer_005d2b00.bottom) / 2));
             } else {
-                g_nRollInput_004931ac = 0;
-                g_nYawInput_004931aa =
+                g_anFlightInput_004931a8[2] = 0;
+                g_anFlightInput_004931a8[1] =
                     g_nMouseYawInput_0049d800 = horizontal;
-                g_nPitchInput_004931a8 =
+                g_anFlightInput_004931a8[0] =
                     g_nMousePitchInput_0049d804 = vertical;
             }
             break;
@@ -857,23 +857,23 @@ short player_input(void)
                     SPECIAL_MANEUVER_AFTERBURNER)
                 afterburnerControl = 0;
             if (afterburnerControl != 0) {
-                g_nRollInput_004931ac =
+                g_anFlightInput_004931a8[2] =
                     (short)g_stCurrentFlightInput_0049d7b0.x;
                 accelerate((short)-(
                     g_stCurrentFlightInput_0049d7b0.y / 2));
             } else {
-                if (g_nRollInput_004931ac != 0 &&
+                if (g_anFlightInput_004931a8[2] != 0 &&
                     g_cCurrentKey_00493128 == 0) {
-                    g_nRollInput_004931ac = 0;
+                    g_anFlightInput_004931a8[2] = 0;
                     g_stPreviousFlightInput_005c57d0.x = -1;
                 }
                 if (g_stPreviousFlightInput_005c57d0.x !=
                         g_stCurrentFlightInput_0049d7b0.x ||
                     g_stPreviousFlightInput_005c57d0.y !=
                         g_stCurrentFlightInput_0049d7b0.y) {
-                    g_nYawInput_004931aa =
+                    g_anFlightInput_004931a8[1] =
                         (short)g_stCurrentFlightInput_0049d7b0.x;
-                    g_nPitchInput_004931a8 =
+                    g_anFlightInput_004931a8[0] =
                         (short)-g_stCurrentFlightInput_0049d7b0.y;
                 }
             }
@@ -917,9 +917,9 @@ short player_input(void)
     if (trailingKeyRelease != 0 &&
         g_bPolledFlightInputQueued_005c587a == 0 &&
         g_nCockpitControlState_0049d7ac == 0) {
-        g_nYawInput_004931aa =
-            g_nPitchInput_004931a8 =
-            g_nRollInput_004931ac =
+        g_anFlightInput_004931a8[1] =
+            g_anFlightInput_004931a8[0] =
+            g_anFlightInput_004931a8[2] =
             g_bMouseMoveEventQueued_0049d7fc = 0;
     }
 #endif

@@ -79,15 +79,15 @@ void init_mission(short series, short mission)
         g_asShipIntelSlot_00495d30[index] = -1;
         g_asShipIntelResourceKey_00495d48[index] = -1;
     }
-    g_nWingmanRoutDecisionMode_00496138 = 0;
-    g_nWingmanFormationDisobeyMode_0049613a = 0;
-    g_nWingmanTargetingMode_0049613c = 0;
-    g_nWingmanEngagementMode_0049613e = 0;
+    g_stWingmanIntelligence_00496138.routDecisionMode = 0;
+    g_stWingmanIntelligence_00496138.formationDisobeyMode = 0;
+    g_stWingmanIntelligence_00496138.targetingMode = 0;
+    g_stWingmanIntelligence_00496138.engagementMode = 0;
     prepare_mission();
     g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
     g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
     g_bFuelGaugeDamaged_0049b054 = 0;
-    InitializeCockpitResources(g_nPlayerShipType_00493464);
+    InitializeCockpitResources(g_stCurrentPilotProfile_00493408.playerShipType);
     g_bMissionDeathSequencePending_0049b720 = 0;
     for (index = 0; index < 5; index++)
         g_acJumpDriveUsedBySystem_005d2fe8[index] = 0;
@@ -250,7 +250,7 @@ void prepare_mission(void)
     short playerMissionShip;
     short portraitIndex;
 
-    g_nMissionScore_00493462 = 0;
+    g_stCurrentPilotProfile_00493408.missionScore = 0;
     g_cPlayerKillCount_005d2fa8 = 0;
     for (slot = 0; slot < 7; slot++)
         g_acInitialShipKillCount_005d2fc0[slot] = 0;
@@ -259,19 +259,19 @@ void prepare_mission(void)
         g_bWingmanKilledThisMission_005d2fb8;
 
     playerMissionShip = g_stMissionHeader_005d3e70.playerMissionShip;
-    g_nPlayerShipType_00493464 =
+    g_stCurrentPilotProfile_00493408.playerShipType =
         g_aMissionShips_00492290[playerMissionShip].type;
     objectKind = OBJECT_CLASS_SHIP;
-    load_ship(g_nPlayerShipType_00493464,
+    load_ship(g_stCurrentPilotProfile_00493408.playerShipType,
               g_aMissionShips_00492290[playerMissionShip].objectType,
               objectKind, 0);
     if (g_aMissionShips_00492290[playerMissionShip].field_13 != 0) {
         LoadAlternateShipType(
-            g_nPlayerShipType_00493464,
+            g_stCurrentPilotProfile_00493408.playerShipType,
             g_aMissionShips_00492290[playerMissionShip].field_13);
         ApplyAlternateShipType(0);
     } else {
-        set_objects_data(0, g_nPlayerShipType_00493464, -1, 1);
+        set_objects_data(0, g_stCurrentPilotProfile_00493408.playerShipType, -1, 1);
     }
     g_aMissionShips_00492290[playerMissionShip].navPoint =
         (signed char)g_stMissionHeader_005d3e70.entryNavPoint;
@@ -1418,19 +1418,19 @@ void init_intelligence_data(short obj)
 
                     LoadPacketIntoBuffer(filename, 1,
                                          &wingmanIntel, 0);
-                    memcpy(&g_nWingmanRoutDecisionMode_00496138,
-                           wingmanIntel.field_0, sizeof(short));
-                    memcpy(&g_nWingmanFormationDisobeyMode_0049613a,
-                           wingmanIntel.field_0 + 2, sizeof(short));
-                    memcpy(&g_nWingmanTargetingMode_0049613c,
-                           wingmanIntel.field_0 + 4, sizeof(short));
-                    memcpy(&g_nWingmanEngagementMode_0049613e,
-                           wingmanIntel.field_0 + 6, sizeof(short));
+                    g_stWingmanIntelligence_00496138.routDecisionMode =
+                        wingmanIntel.routDecisionMode;
+                    g_stWingmanIntelligence_00496138.formationDisobeyMode =
+                        wingmanIntel.formationDisobeyMode;
+                    g_stWingmanIntelligence_00496138.targetingMode =
+                        wingmanIntel.targetingMode;
+                    g_stWingmanIntelligence_00496138.engagementMode =
+                        wingmanIntel.engagementMode;
                 }
 #else
                 LoadPacketIntoBuffer(
                     filename, 1,
-                    &g_nWingmanRoutDecisionMode_00496138, 0);
+                    &g_stWingmanIntelligence_00496138, 0);
 #endif
                 LoadCommPortraitResources(g_acShipPortrait_00495d88[obj]);
                 g_nLoadedCommPortraitPilot_004931c4 = -1;

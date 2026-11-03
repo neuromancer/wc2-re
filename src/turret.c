@@ -866,7 +866,7 @@ void UpdateTargetCameraObject(short obj)
         g_aMissionShips_00492290[
             g_asShipMissionIndex_00495d00[obj]].state = 2;
         ClearTargetCameraView();
-        ejection_sequence((short)(g_nPlayerShipType_00493464 + 0x32), 1);
+        ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 0x32), 1);
     }
 }
 

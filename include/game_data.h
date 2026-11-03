@@ -1142,7 +1142,8 @@ typedef struct PilotProfile {
     unsigned char field_45[0x11];     /* +0x45 */
     short series;                     /* +0x56 */
     short mission;                    /* +0x58 */
-    unsigned char field_5a[4];        /* +0x5A */
+    short missionScore;               /* +0x5A */
+    short playerShipType;             /* +0x5C */
     short field_5e;                   /* +0x5E */
 } PilotProfile;
 
@@ -1508,7 +1509,10 @@ typedef char MissionNavPoint_size_must_be_0x65[
  * consumed here; the final words override flight music and enemy comms. */
 #pragma pack(push, 1)
 typedef struct ShipIntelligenceMetadata {
-    unsigned char field_0[8];
+    short routDecisionMode;         /* +0x00 */
+    short formationDisobeyMode;     /* +0x02 */
+    short targetingMode;            /* +0x04 */
+    short engagementMode;           /* +0x06 */
     short musicTrack;
     short enemyCommCommandBase;
 } ShipIntelligenceMetadata;

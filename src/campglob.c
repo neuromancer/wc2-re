@@ -88,7 +88,7 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
             pilotTotal = (short)(pilotTotal * 2);
         globals->shipPilotIndices[index] = pilotTotal;
     }
-    globals->missionScore = g_nMissionScore_00493462;
+    globals->missionScore = g_stCurrentPilotProfile_00493408.missionScore;
     FreePacketAndClear(&g_pPilotStatus_005d2fcc, 0x80);
 }
 

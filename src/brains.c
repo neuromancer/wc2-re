@@ -216,11 +216,11 @@ void try2allow_engage(short obj)
         allow_engage();
         return;
     }
-    if (g_nWingmanEngagementMode_0049613e == 1) {
+    if (g_stWingmanIntelligence_00496138.engagementMode == 1) {
         allow_engage();
         return;
     }
-    if (g_nWingmanEngagementMode_0049613e == 2 &&
+    if (g_stWingmanIntelligence_00496138.engagementMode == 2 &&
         RandomBelowOrEqual(100) < 50) {
         allow_engage();
         return;

@@ -661,7 +661,9 @@ extern short g_bTargetLockAcquired_004934fc;
 extern short g_bMissileCameraEnabled_00493504;
 extern short g_bEngageAllowed_0049612c;
 extern short g_nAutoEngageTimer_00496130;
-extern short g_nWingmanRoutDecisionMode_00496138;
+extern ShipIntelligenceMetadata g_stWingmanIntelligence_00496138;
+/* The wingman's behaviour modes are the first fields of the record above;
+ * these names stay declared for the header's symbol count. */
 extern short g_nWingmanFormationDisobeyMode_0049613a;
 extern short g_nWingmanEngagementMode_0049613e;
 extern signed char g_cViableTargetCount_00496178;
@@ -871,6 +873,8 @@ extern int g_nNextSfx16PlaybackFrame_004a2668;
 extern short g_nSpaceFrame_00493134;
 extern short g_nCurrentNavPoint_004931bc;
 extern short g_nCurrentStarSystem_005d169c;
+/* The current pilot profile's score and ship type fields; these names stay
+ * declared only for the header's symbol count. */
 extern short g_nMissionScore_00493462;
 extern short g_nPlayerShipType_00493464;
 extern short g_bMissionShipInitializationInProgress_0049b890;
@@ -924,7 +928,7 @@ extern MissionShipRecord *g_apShipMissionRecord_00495da8[10];
 extern signed char g_acShipPendingMessage_00495d98[16];
 extern short g_asShipMissionIndex_00495d00[12];
 extern short g_asShipMissionParameter_00495e00[12];
-extern FixedVector g_aShipMissionSpot_00495e18[10];
+extern FixedVector g_aShipMissionSpot_00495e18[20];
 extern short g_asShipCount_00495ff8[12];
 extern signed char g_acShipDamage_00495690[16];
 extern short g_asViableTargetDistance_00496190[10];
@@ -947,7 +951,7 @@ extern short g_asObjectDamage_00495178[SPACE_OBJECT_COUNT];
 extern signed char g_acObjectOwner_00495208[SPACE_OBJECT_COUNT];
 extern short g_asObjectType_00495298[SPACE_OBJECT_COUNT];
 extern signed char g_acShipTarget_00495f20[16];
-extern short g_nPreviousPitchInput_004931b0;
+extern short g_anPreviousFlightInput_004931b0[3];
 extern short g_nPreviousYawInput_004931b2;
 extern short g_nPreviousRollInput_004931b4;
 extern short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
@@ -966,7 +970,9 @@ extern short g_asObjectViewFrame_00493508[SPACE_OBJECT_COUNT];
 extern int g_nCurrentObjectiveRange_004931c8;
 extern signed char g_acShipLastAttacker_004955c0[16];
 extern unsigned char *g_apObjectShape_00493868[SPACE_OBJECT_COUNT];
-extern short g_nPitchInput_004931a8;
+extern short g_anFlightInput_004931a8[3];
+/* Pitch, yaw and roll are one array in the original; the remaining old names
+ * stay declared for the header's symbol count. */
 extern short g_nYawInput_004931aa;
 extern short g_nRollInput_004931ac;
 extern short g_nFleetOverviewYawVelocity_0049d3ec;
@@ -978,7 +984,7 @@ extern short g_aasShipArmor_00495540[10][4];
 extern short g_asShipWeaponEnergy_00495590[10];
 extern signed char g_acShipList_00496148[16];
 extern FixedVector g_vToTarget_00493188;
-extern int g_aaiVduModeStack_00493498[2][4];
+extern int g_aaiVduModeStack_00493498[3][4];
 extern signed char g_acShipSequence_00495fe8[14];
 extern short g_nTargetFacing_00493198;
 extern signed char g_acShipNavPoint_004953e0[12];
@@ -1021,7 +1027,7 @@ extern FixedVector g_vStarFieldMotion_00493158;
 extern FixedVector g_vPreviousStarFieldMotion_00493168;
 extern short g_nStarFieldJRotation_005d320c;
 extern short g_nStarFieldIRotation_005d3210;
-extern HazardField g_aHazardFields_004931d8[7];
+extern HazardField g_aHazardFields_004931d8[8];
 #ifdef SDL_PORT
 /* cleanup_objectives reads the next type before checking the eight-entry
  * limit.  Reserve that discarded read without changing the retail loop. */
@@ -1322,7 +1328,7 @@ extern short g_nGunDisplayCount_005c8dbc;
 extern short g_nGunDisplayIndex_005c8dc0;
 extern int g_nTargetCameraOverlayMode_005c8db8;
 extern short g_nTargetCameraFrame_0049d3e8;
-extern int g_anLastDrawnVduMode_004934d0[2];
+extern int g_anLastDrawnVduMode_004934d0[3];
 extern unsigned char * volatile g_pCockpitExplosionShape_0049b048;
 extern volatile short g_nCockpitExplosionFrame_0049b04c;
 extern short g_nTargetLockMusicCooldown_005d1e78;

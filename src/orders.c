@@ -103,7 +103,7 @@ short disobey_formation(short ship)
 {
     if (ship != g_nYourWingman_0049346c)
         return 0;
-    switch (g_nWingmanFormationDisobeyMode_0049613a) {
+    switch (g_stWingmanIntelligence_00496138.formationDisobeyMode) {
     case 1:
         return report_kilrathi_rout(0);
     case 2:
@@ -159,7 +159,7 @@ short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
     if (pilot <= 4 || ship != g_nYourWingman_0049346c)
         return 1;
     else
-        switch (g_nWingmanRoutDecisionMode_00496138) {
+        switch (g_stWingmanIntelligence_00496138.routDecisionMode) {
         case 1:
             return 0;
         case 2:
