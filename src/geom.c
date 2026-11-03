@@ -1195,27 +1195,27 @@ void set_background_objects_rotation(short obj, FixedVector *direction)
     g_asObjectScreenScale_00493a58[obj] = 0xff;
 }
 
-#pragma function(strcat)
+#pragma function(strcat, strcpy, strlen)
 /* Function start: 0x40CFF8 */
 void get_right_shape(short obj, FixedVector *direction)
 {
-    short type;
-    char fileName[12];
-    short yawSector;
-    SphericalVector spherical;
-    short slot;
-    short angle;
-    FixedVector projectedUp;
-    FixedVector objectForward;
+    SphericalVector angles;
+    short yawIndex;
+    char fileName[20];
+    short shipType;
+    short slotIndex;
+    FixedVector shipForward;
+    FixedVector projectedUpVector;
+    short twist;
     short pitchBand;
-    short directionIndex;
-    char numberText[12];
     FixedVector right;
-    void **resourceGroup;
-    short objectClass;
+    char numberString[4];
+    short directionIndex;
+    short shipClass;
+    void **packetGroup;
     FixedVector eyeUp;
     FixedVector up;
-    FixedVector forward;
+    FixedVector forwardAxis;
 
     right.x = 0x100;
     right.y = 0;
@@ -1223,29 +1223,29 @@ void get_right_shape(short obj, FixedVector *direction)
     up.x = 0;
     up.y = 0x100;
     up.z = 0;
-    forward.x = 0;
-    forward.y = 0;
-    forward.z = 0x100;
+    forwardAxis.x = 0;
+    forwardAxis.y = 0;
+    forwardAxis.z = 0x100;
     negate_vector(direction);
-    rectangular_to_spherical(direction, &spherical);
-    rotate_about_j((short)-spherical.yaw, &right, &forward);
-    rotate_about_i((short)-spherical.pitch, &up, &forward);
+    rectangular_to_spherical(direction, &angles);
+    rotate_about_j((short)-angles.yaw, &right, &forwardAxis);
+    rotate_about_i((short)-angles.pitch, &up, &forwardAxis);
     NormalizeFixedVector(&up);
-    NormalizeFixedVector(&forward);
-    transform_to_objects_frame(&forward, &objectForward, obj);
+    NormalizeFixedVector(&forwardAxis);
+    transform_to_objects_frame(&forwardAxis, &shipForward, obj);
     transform_to_objects_frame(&g_aShipUpVector_00493ec0[EYE_OBJECT],
                                &eyeUp, obj);
-    rectangular_to_spherical(&objectForward, &spherical);
-    pitchBand = (short)(spherical.pitch / 30 + 3);
-    if (spherical.pitch % 30 > 15)
+    rectangular_to_spherical(&shipForward, &angles);
+    pitchBand = (short)(angles.pitch / 30 + 3);
+    if (angles.pitch % 30 > 15)
         pitchBand = MinShort(6, (short)(pitchBand + 1));
-    else if (spherical.pitch % 30 < -15)
+    else if (angles.pitch % 30 < -15)
         pitchBand = MaxShort(0, (short)(pitchBand - 1));
-    yawSector = (short)((12 - spherical.yaw / 30) % 12);
-    if (spherical.yaw % 30 > 15)
-        yawSector = (short)((yawSector + 11) % 12);
-    else if (spherical.yaw % 30 < -15)
-        yawSector = (short)((yawSector + 1) % 12);
+    yawIndex = (short)((12 - angles.yaw / 30) % 12);
+    if (angles.yaw % 30 > 15)
+        yawIndex = (short)((yawIndex + 11) % 12);
+    else if (angles.yaw % 30 < -15)
+        yawIndex = (short)((yawIndex + 1) % 12);
     switch (pitchBand) {
     case 0:
         directionIndex = 0;
@@ -1255,55 +1255,55 @@ void get_right_shape(short obj, FixedVector *direction)
     case 3:
     case 4:
     case 5:
-        directionIndex = (short)(pitchBand * 12 + yawSector - 11);
+        directionIndex = (short)((pitchBand - 1) * 12 + yawIndex + 1);
         break;
     case 6:
         directionIndex = 61;
         break;
     }
-    projectedUp.z = 0;
-    projectedUp.x = dot_product(
+    projectedUpVector.z = 0;
+    projectedUpVector.x = dot_product(
         &eyeUp, &g_aDirectionViewRightVector_005d2210[directionIndex]);
-    projectedUp.y = dot_product(
+    projectedUpVector.y = dot_product(
         &eyeUp, &g_aDirectionViewUpVector_005d2500[directionIndex]);
-    NormalizeFixedVector(&projectedUp);
-    angle = ArcCos(projectedUp.y);
-    if (projectedUp.x >= 0)
-        angle = (short)(360 - angle);
-    objectClass = g_aeObjectClass_00495328[obj];
-    if (objectClass >= OBJECT_CLASS_SHIP) {
-        type = g_aObjectTypeData_00496d30[
+    NormalizeFixedVector(&projectedUpVector);
+    twist = ArcCos(projectedUpVector.y);
+    if (projectedUpVector.x >= 0)
+        twist = (short)(360 - twist);
+    shipClass = g_aeObjectClass_00495328[obj];
+    if (shipClass >= OBJECT_CLASS_SHIP) {
+        shipType = g_aObjectTypeData_00496d30[
             g_acObjectType_00493980[obj]].resourceType;
     } else {
-        type = g_asObjectType_00495298[obj];
+        shipType = g_asObjectType_00495298[obj];
     }
-    if (objectClass == OBJECT_CLASS_MISSILE ||
-        (objectClass < OBJECT_CLASS_SHIP && type == 12)) {
+    if (shipClass == OBJECT_CLASS_MISSILE ||
+        (shipClass < OBJECT_CLASS_SHIP && shipType == 12)) {
         directionIndex = (short)(directionIndex + DIRECTION_VIEW_COUNT);
-    } else if (objectClass == OBJECT_CLASS_BASE) {
+    } else if (shipClass == OBJECT_CLASS_BASE) {
         directionIndex =
             (short)(directionIndex + DIRECTION_VIEW_COUNT * 2);
     }
     if (g_acDirectionShapeFrame_0049d558[directionIndex] == 0)
-        angle = (short)(angle + 90);
+        twist = (short)(twist + 90);
     if (g_acDirectionShapeFrame_0049d558[directionIndex] == 0x24 &&
-        objectClass != OBJECT_CLASS_MISSILE)
-        angle = (short)(angle - 90);
+        shipClass != OBJECT_CLASS_MISSILE)
+        twist = (short)(twist - 90);
     g_asObjectFlip_004939c8[obj] =
         (short)(g_acDirectionShapeFlip_0049d618[directionIndex] << 4);
-    angle = (short)(angle % 360);
-    if (angle < 0)
-        angle = (short)(angle + 360);
-    g_asObjectScreenAngle_004936b8[obj] = angle;
+    twist = (short)(twist % 360);
+    if (twist < 0)
+        twist = (short)(twist + 360);
+    g_asObjectScreenAngle_004936b8[obj] = twist;
     if (g_asObjectType_00495298[obj] == 0x33 ||
-        objectClass >= OBJECT_CLASS_CAPITAL_SHIP ||
+        shipClass >= OBJECT_CLASS_CAPITAL_SHIP ||
         (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-         objectClass == OBJECT_CLASS_SHIP)) {
+         shipClass == OBJECT_CLASS_SHIP)) {
         if (g_acDirectionShapeFrame_0049d558[directionIndex] !=
             g_asLoadedShipViewFrame_00495d18[obj]) {
-            for (slot = 0; slot < 4; slot++) {
-                if (g_aObjectResourceSlots_00493398[slot].resourceType ==
-                    type)
+            for (slotIndex = 0; slotIndex < 4; slotIndex++) {
+                if (g_aObjectResourceSlots_00493398[slotIndex].resourceType ==
+                    shipType)
                     break;
             }
             g_asObjectViewFrame_00493508[obj] = 0;
@@ -1315,11 +1315,11 @@ void get_right_shape(short obj, FixedVector *direction)
                 free_view_buffer();
             if (g_abObjectShapeOwned_00492760[obj] != 0)
                 FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-            resourceGroup = g_apPacketReferenceGroups_0049b898[slot];
-            if (resourceGroup != 0 &&
-                resourceGroup[g_asLoadedShipViewFrame_00495d18[obj]] != 0) {
+            packetGroup = g_apPacketReferenceGroups_0049b898[slotIndex];
+            if (packetGroup != 0 &&
+                packetGroup[g_asLoadedShipViewFrame_00495d18[obj]] != 0) {
                 g_apObjectShape_00493868[obj] =
-                    resourceGroup[g_asLoadedShipViewFrame_00495d18[obj]];
+                    packetGroup[g_asLoadedShipViewFrame_00495d18[obj]];
                 CheckHeapBlockSignature(g_apObjectShape_00493868[obj]);
                 g_abObjectShapeOwned_00492760[obj] = 0;
             } else {
@@ -1327,12 +1327,12 @@ void get_right_shape(short obj, FixedVector *direction)
                     free_view_buffer();
                 strcpy(fileName, "ship.v");
                 if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-                    objectClass == OBJECT_CLASS_SHIP)
+                    shipClass == OBJECT_CLASS_SHIP)
                     strcpy(fileName, "xship.v");
-                itoa((int)type, numberText, 10);
-                if (strlen(numberText) == 1)
+                itoa((int)shipType, numberString, 10);
+                if (strlen(numberString) == 1)
                     strcat(fileName, "0");
-                strcat(fileName, numberText);
+                strcat(fileName, numberString);
                 g_apObjectShape_00493868[obj] = FetchDiskPacketRetrying(
                     fileName, g_asLoadedShipViewFrame_00495d18[obj], 0);
                 CheckHeapBlockSignature(g_apObjectShape_00493868[obj]);
