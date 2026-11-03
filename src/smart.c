@@ -468,10 +468,10 @@ short pick_regular_maneuver(short obj, short event)
     case 2:
         return MANEUVER_TRY2TAIL;
     case 4:
-        if (g_asPilotLevel_00495d60[obj] * 20 + 30 <=
-            RandomBelowOrEqual(100))
-            return any_defense(obj);
-        return MANEUVER_STRAFE_ENEMY;
+        return RandomBelowOrEqual(100) >=
+                       g_asPilotLevel_00495d60[obj] * 20 + 30
+                   ? any_defense(obj)
+                   : MANEUVER_STRAFE_ENEMY;
     case 5:
         return MANEUVER_TAIL_FIRE;
     case 6:
@@ -486,6 +486,8 @@ short pick_regular_maneuver(short obj, short event)
     }
     return MANEUVER_ROLL_OVER;
 }
+
+short RandomBelow(short n);
 
 /* Function start: 0x41F714 */
 short pick_from_list(const ManeuverChoice *choice, short obj,
