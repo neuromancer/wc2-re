@@ -3850,10 +3850,10 @@ void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
                                  short index, int resourceType)
 {
     short retryMusicExtension;
-    long packetSize;
+    long size;
     char filename[132];
     char *packedFilename;
-    unsigned short section;
+    short sectionIndex;
     void *packet;
 
     packet = resources->loadedPackets[index];
@@ -3864,66 +3864,67 @@ void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
                 packet, (int)g_nActiveCutsceneResourceLevel_00499d9c,
                 GetAvailableMainMemory());
     }
-    if (packet == 0) {
+    while (packet == 0) {
         if (g_nSceneFlicContext_00499c50 == 4 &&
             g_bHighMemoryResourcesEnabled_005c80e4 == 0) {
             g_nSceneFlicContext_00499c50 = 0x40;
-        } else {
-            packedFilename = GetPackedStringByIndex(
-                resources, resources->filenameIndices[index]);
-            DosStrcpy(filename, packedFilename);
-            switch (resourceType) {
-            case 1:
-                RewriteDiskFileGraphicsExtensions(filename);
-                break;
-            case 2:
-                RewriteCutsceneMusicExtensionForDriver(filename);
-                retryMusicExtension = 1;
-                break;
-            }
-            section = resources->sectionIndices[index];
-            packet = LoadNamedPacket(filename, section, 0,
-                (unsigned short)(g_nSceneFlicContext_00499c50 & 0x7f),
-                0, 1);
-            if (packet == 0 && g_nPacketError_0049ca90 == 8) {
-                if (retryMusicExtension != 0) {
-                    retryMusicExtension = 0;
-                    RewriteCutsceneMusicExtensionForRetry(filename);
-                    packet = LoadNamedPacket(filename, section, 0,
-                        (unsigned short)(
-                            g_nSceneFlicContext_00499c50 & 0x7f),
-                        0, 1);
-                    if (packet == 0) {
-                        ReportCutscenePacketAllocationFailure(
-                            filename, section, 0);
-                    }
-                } else {
-                    ReportCutscenePacketAllocationFailure(
-                        filename, section, 0);
-                }
-            } else if (packet == 0 &&
-                       (g_nSceneFlicContext_00499c50 & 0x40) != 0) {
-                FatalCutsceneError(
-                    "Unsuccessful load of %s packet %d error = %d",
-                    filename, section, g_nPacketError_0049ca90);
-            }
-            if (packet == 0) {
-                ReportCutscenePacketAllocationFailure(
-                    filename, section,
-                    GetNamedPacketSize(filename, section));
-            }
-            if (g_pMemoryLogFile_00499da8 != 0) {
-                packetSize = GetNamedPacketSize(filename, section);
-                fprintf(g_pMemoryLogFile_00499da8,
-                        "Loaded: %12s (%03d) size %ld loc: %Fp  "
-                        "level = %d, free = %8lu\n",
-                        filename, section, packetSize, packet,
-                        (int)g_nActiveCutsceneResourceLevel_00499d9c,
-                        GetAvailableMainMemory());
-            }
-            g_nSceneFlicContext_00499c50 = 0x40;
-            resources->loadedPackets[index] = packet;
+            break;
         }
+        packedFilename = GetPackedStringByIndex(
+            resources, resources->filenameIndices[index]);
+        DosStrcpy(filename, packedFilename);
+        switch (resourceType) {
+        case 1:
+            RewriteDiskFileGraphicsExtensions(filename);
+            break;
+        case 2:
+            RewriteCutsceneMusicExtensionForDriver(filename);
+            retryMusicExtension = 1;
+            break;
+        }
+        sectionIndex = resources->sectionIndices[index];
+        packet = LoadNamedPacket(filename, sectionIndex, 0,
+            (unsigned short)(g_nSceneFlicContext_00499c50 & 0x7f),
+            0, 1);
+        if (packet == 0 && g_nPacketError_0049ca90 == 8) {
+            if (retryMusicExtension != 0) {
+                retryMusicExtension = 0;
+                RewriteCutsceneMusicExtensionForRetry(filename);
+                packet = LoadNamedPacket(filename, sectionIndex, 0,
+                    (unsigned short)(
+                        g_nSceneFlicContext_00499c50 & 0x7f),
+                    0, 1);
+                if (packet == 0) {
+                    ReportCutscenePacketAllocationFailure(
+                        filename, sectionIndex, 0);
+                }
+            } else {
+                ReportCutscenePacketAllocationFailure(
+                    filename, sectionIndex, 0);
+            }
+        } else if (packet == 0 &&
+                   (g_nSceneFlicContext_00499c50 & 0x40) != 0) {
+            FatalCutsceneError(
+                "Unsuccessful load of %s packet %d error = %d",
+                filename, sectionIndex, g_nPacketError_0049ca90);
+        }
+        if (packet == 0) {
+            ReportCutscenePacketAllocationFailure(
+                filename, sectionIndex,
+                GetNamedPacketSize(filename, sectionIndex));
+        }
+        if (g_pMemoryLogFile_00499da8 != 0) {
+            size = GetNamedPacketSize(filename, sectionIndex);
+            fprintf(g_pMemoryLogFile_00499da8,
+                    "Loaded: %12s (%03d) size %ld loc: %Fp  "
+                    "level = %d, free = %8lu\n",
+                    filename, sectionIndex, size, packet,
+                    (int)g_nActiveCutsceneResourceLevel_00499d9c,
+                    GetAvailableMainMemory());
+        }
+        g_nSceneFlicContext_00499c50 = 0x40;
+        resources->loadedPackets[index] = packet;
+        break;
     }
     return packet;
 }
