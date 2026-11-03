@@ -104,15 +104,20 @@ extern "C" void __fastcall ix_sound_release(IxSound *sound)
     if ((sound->flags & IX_SOUND_PLAYING) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SOUND_FILE, 151);
         ix_log_printf("can't release non playing sound!");
-    } else if ((sound->flags & IX_SOUND_LOOPING) == 0) {
+        return;
+    }
+    if ((sound->flags & IX_SOUND_LOOPING) == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SOUND_FILE, 152);
         ix_log_printf("can't release non looping sound!");
-    } else if ((sound->flags & IX_SOUND_HAS_VOICE) != 0) {
+        return;
+    }
+    if ((sound->flags & IX_SOUND_HAS_VOICE) != 0) {
         ix_dspv_clear_flag4(sound->voice);
         sound->flags |= IX_SOUND_RELEASE_PENDING;
     } else {
         ix_sound_stop(sound);
     }
+    return;
 }
 
 /* Function start: 0x46AB4F */   /* source line(s) 165: can't stop sound that's not playing! */

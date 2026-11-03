@@ -153,7 +153,12 @@ void RunCampaignScript(short campaignSlot)
     largestMainBlock = GetLargestMainMemoryBlock();
     totalFar = GetAvailableFarMemory();
     largestFarMemoryBlock = GetLargestFreeMemoryBlock();
+#ifdef SDL_PORT
     if (g_bCutsceneViewportPreallocated_00499c4c == 0)
+#else
+    /* This unit reads the byte flag as a word. */
+    if (*(short *)&g_bCutsceneViewportPreallocated_00499c4c == 0)
+#endif
         ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
     if (g_bSkipCampaignScenes_0049cc78 == 0) {
         g_bSceneEscapeRequested_0049d4b0 = 0;
