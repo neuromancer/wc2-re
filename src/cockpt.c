@@ -27,7 +27,7 @@ int g_nDisplayedObjectiveRange_0049b078 = 40000;
 
 short g_nScannerTargetObject_0049b07c = -1;
 
-const int g_aiForwardScannerGridRows_0049b080[78] = {
+int g_aiForwardScannerGridRows_0049b080[78] = {
     5, 13, 16, -1,
     5, 13, 16, -1,
     5, 13, 16, -1,
@@ -50,7 +50,7 @@ const int g_aiForwardScannerGridRows_0049b080[78] = {
     -2
 };
 
-const int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
+int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
     5, 13, -1,
     5, 13, -1,
     5, 13, -1,

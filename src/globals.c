@@ -146,7 +146,7 @@ const int g_nViewportStaticRandomRange_0048e060 = 3;
 const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
 unsigned char *g_pDamageDisplayBackground_00490060;
-const ShortPoint g_aDamageDisplayPositions_00490068[9] = {
+ShortPoint g_aDamageDisplayPositions_00490068[9] = {
     {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
     {36, 15}, {36, 24}, {36, 16}, {36, 22}
 };
@@ -161,7 +161,7 @@ const char *g_apszComponentNames_00490090[9] = {
     g_szEjectorSystem_00490144,
     g_szRepairSystems_00490154
 };
-const unsigned char g_abDamageDisplayFrames_004900b8[9] = {
+unsigned char g_abDamageDisplayFrames_004900b8[9] = {
     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28
 };
 const char *g_apszDamageSeverityNames_004900c8[5] = {
@@ -171,40 +171,40 @@ const char *g_apszDamageSeverityNames_004900c8[5] = {
     g_szDamageHeavy_0049017c,
     g_szDamageDestroyed_00490184
 };
-const char g_szIonDrive_004900dc[12] = "Ion drive";
-const char g_szPowerPlant_004900e8[12] = "Power plant";
-const char g_szShieldGenerator_004900f4[16] = "Shield gen'r";
-const char g_szComputerSystem_00490104[16] = "Computer sys";
-const char g_szIntercomUnit_00490114[16] = "InterCom unit";
-const char g_szTargetTracking_00490124[16] = "Target track";
-const char g_szAccelerationAbsorbers_00490134[16] = "Acc. absorbers";
-const char g_szEjectorSystem_00490144[16] = "Ejector system";
-const char g_szRepairSystems_00490154[16] = "Repair systems";
-const char g_szDamageOk_00490164[4] = "Ok";
-const char g_szDamageLight_00490168[8] = "Light";
-const char g_szDamageModerate_00490170[12] = "Moderate";
-const char g_szDamageHeavy_0049017c[8] = "Heavy";
-const char g_szDamageDestroyed_00490184[12] = "Destroyed";
-const char g_szDamageReport_00490190[16] = "DAMAGE REPORT";
-const char g_szNoInternalDamage_004901a0[20] =
+char g_szIonDrive_004900dc[12] = "Ion drive";
+char g_szPowerPlant_004900e8[12] = "Power plant";
+char g_szShieldGenerator_004900f4[16] = "Shield gen'r";
+char g_szComputerSystem_00490104[16] = "Computer sys";
+char g_szIntercomUnit_00490114[16] = "InterCom unit";
+char g_szTargetTracking_00490124[16] = "Target track";
+char g_szAccelerationAbsorbers_00490134[16] = "Acc. absorbers";
+char g_szEjectorSystem_00490144[16] = "Ejector system";
+char g_szRepairSystems_00490154[16] = "Repair systems";
+char g_szDamageOk_00490164[4] = "Ok";
+char g_szDamageLight_00490168[8] = "Light";
+char g_szDamageModerate_00490170[12] = "Moderate";
+char g_szDamageHeavy_0049017c[8] = "Heavy";
+char g_szDamageDestroyed_00490184[12] = "Destroyed";
+char g_szDamageReport_00490190[16] = "DAMAGE REPORT";
+char g_szNoInternalDamage_004901a0[20] =
     "NO INTERNAL\n\nDAMAGE";
-const char g_szDamagedUnitCountFormat_004901b4[20] =
+char g_szDamagedUnitCountFormat_004901b4[20] =
     "%d Unit%c Damaged";
-const char g_szDamageStatusFormat_004901c8[16] = "%s\nDamage: %s";
-const char g_szDamageStatusFormatHighRes_004901d8[16] =
+char g_szDamageStatusFormat_004901c8[16] = "%s\nDamage: %s";
+char g_szDamageStatusFormatHighRes_004901d8[16] =
     "%s\nDamage: %s";
 short g_nSpacePaletteFadeMode_004901e8 = -1;
 void *g_pHighMemoryBlockA_004901f8;
 unsigned short g_wHighMemoryBlockBytes_004901fc = 0xd4e4;
 void *g_pHighMemoryBlockB_00490200;
-const char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
+char g_szCannedSceneTapeFile_00490208[9] = "tape.tmp";
 short g_nCannedSceneBufferNearCapacityFlag_00490214;
 short g_nCannedSceneSegmentEndFrame_00490218 = -1;
 short g_nCannedSceneMode_0049021c;
 short g_nCannedSceneStateRecordMarker_00490220;
-const char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
-const char g_szCannedSceneCreateError_00490270[4] = "029";
-const char g_szCannedSceneWriteOpenError_00490274[4] = "030";
+char g_abCannedSceneBufferOverflowCode_00490224[4] = "028";
+char g_szCannedSceneCreateError_00490270[4] = "029";
+char g_szCannedSceneWriteOpenError_00490274[4] = "030";
 /* Raster library state: native storage is in src/raster.asm. */
 #ifdef SDL_PORT
 void *g_apRasterDriverCallbacks_00490278[13];
@@ -278,24 +278,24 @@ short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
 short g_nObjectType62Index_00492d64 = -1;
 short g_nObjectType63Index_00492d68 = -1;
 short g_nLastFriendlyFireObjectFrame_00492d6c = 0x0ee4;
-const short g_aasPlayerDamageSystemTable_00492d70[5][10] = {
+short g_aasPlayerDamageSystemTable_00492d70[5][10] = {
     { 0, 8, 6, 5, 0, 3, 5, 5, 7, 6 },
     { 0, 8, 6, 5, 4, 3, 4, 0, 4, 4 },
     { 1, 2, 5, 2, 7, 3, 4, 7, 5, 1 },
     { 1, 4, 1, 5, 2, 3, 4, 7, 2, 1 },
     { 4, 4, 4, 4, 0, 8, 6, 5, 4, 0 }
 };
-const short g_aeShipHitDebrisTypes_00492e10[4] = {
+short g_aeShipHitDebrisTypes_00492e10[4] = {
     OBJECT_DATA_GIRDER_CHUNK,
     OBJECT_DATA_SHIP_TUBING,
     OBJECT_DATA_O_RING
 };
 short g_bExplosionTraversalIdle_00492e18 = 1;
-const signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
-const char g_szWeaponDestroyed_00492e20[20] = "Weapon destroyed";
-const char g_szFuelTanksHit_00492e34[16] = "Fuel tanks hit";
-const char g_szComponentFixedFormat_00492e44[8] = "%s FIXD";
-const char g_szNeedLock_00492e4c[12] = "Need Lock";
+signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
+char g_szWeaponDestroyed_00492e20[20] = "Weapon destroyed";
+char g_szFuelTanksHit_00492e34[16] = "Fuel tanks hit";
+char g_szComponentFixedFormat_00492e44[8] = "%s FIXD";
+char g_szNeedLock_00492e4c[12] = "Need Lock";
 
 short g_nHazardReferenceSpeed_00492e58;
 short g_nActiveHazards_00492e5c;
@@ -555,7 +555,7 @@ ActiveSoundEntry *g_pActiveSoundTail_004961ac;
 int g_bAudioSystemInitialized_004961b0;
 WaveTableEntry *g_pWaveTableHead_004961b4;
 WaveTableEntry *g_pWaveTableTail_004961b8;
-const char g_szPlayWaveOpenError_004961ec[36] =
+char g_szPlayWaveOpenError_004961ec[36] =
     "playWAVE Unable to open file '%s'";
 short g_nEscapedEnemyCount_004962e8;
 short g_bStarSystemJumpTransition_004962ec;
@@ -1024,10 +1024,10 @@ PilotNameVariables g_stPilotNameVariables_00499ef8 = {
     "CALLSIGN", "PCNAME", "FIRSTNAME"
 };
 signed char g_cCutsceneTextStyle_00499f40;
-const char g_szCutsceneSpriteType_00499f44[8] = "sprite";
-const char g_szCutscenePlaneType_00499f4c[8] = "plane";
-const char g_szCutsceneSequenceType_00499f54[12] = "sequence";
-const char g_szCutsceneScriptType_00499f60[8] = "script";
+char g_szCutsceneSpriteType_00499f44[8] = "sprite";
+char g_szCutscenePlaneType_00499f4c[8] = "plane";
+char g_szCutsceneSequenceType_00499f54[12] = "sequence";
+char g_szCutsceneScriptType_00499f60[8] = "script";
 unsigned char *g_pCockpitBackgroundPacket_0049a5f0;
 unsigned char *g_apCockpitVduOverlayShapes_0049a5f8[2];
 int g_nLegacySaveSource_0049a600;
@@ -1054,20 +1054,20 @@ const char *g_apszSaveGameFileNames_0049a6c8[3] = {
     "savegame.wld", "savegame.wld", "crusade.wld"
 };
 signed char g_bPersonnelPrimaryInputDown_0049a6d4;
-const char g_szSecondLieutenantRank_0049a6d8[8] = "2ND LT.";
-const char g_szFirstLieutenantRank_0049a6e0[8] = "1ST LT.";
-const char g_szCaptainRank_0049a6e8[8] = "CAPTAIN";
-const char g_szMajorRank_0049a6f0[8] = "MAJOR";
-const char g_szLieutenantColonelRank_0049a6f8[12] = "LT. COL.";
-const char g_szShortSecondLieutenantRank_0049a704[8] = "2ND LT";
-const char g_szShortFirstLieutenantRank_0049a70c[8] = "1ST LT";
-const char g_szShortCaptainRank_0049a714[8] = "CAPT.";
-const char g_szShortMajorRank_0049a71c[8] = "MAJOR";
-const char g_szShortLieutenantColonelRank_0049a724[8] = "LT COL";
-const char g_szDefaultPilotName_0049ab4c[8] = "Blair";
-const char g_szDefaultCallsign_0049ab54[12] = "Maverick";
+char g_szSecondLieutenantRank_0049a6d8[8] = "2ND LT.";
+char g_szFirstLieutenantRank_0049a6e0[8] = "1ST LT.";
+char g_szCaptainRank_0049a6e8[8] = "CAPTAIN";
+char g_szMajorRank_0049a6f0[8] = "MAJOR";
+char g_szLieutenantColonelRank_0049a6f8[12] = "LT. COL.";
+char g_szShortSecondLieutenantRank_0049a704[8] = "2ND LT";
+char g_szShortFirstLieutenantRank_0049a70c[8] = "1ST LT";
+char g_szShortCaptainRank_0049a714[8] = "CAPT.";
+char g_szShortMajorRank_0049a71c[8] = "MAJOR";
+char g_szShortLieutenantColonelRank_0049a724[8] = "LT COL";
+char g_szDefaultPilotName_0049ab4c[8] = "Blair";
+char g_szDefaultCallsign_0049ab54[12] = "Maverick";
 int g_bPauseInputActive_0049ac9c;
-const char g_szAllocateBufferTag_0049ae20[4] = "AB";
+char g_szAllocateBufferTag_0049ae20[4] = "AB";
 short g_bTargetLockActive_0049ae80;
 short g_nCommDeathSequenceFrame_0049ae84;
 short g_nCommMessageIndex_0049ae88 = -1;
@@ -1116,27 +1116,27 @@ char g_szAutopilotWaitReason_0049b2f0[28] =
 char g_szTargetOutOfRange_0049b438[13] = "OUT OF RANGE";
 char g_szIttsEngaged_0049b448[13] = "ITTS ENGAGED";
 unsigned short g_wPacketCompressionFormatFlags_0049b46c;
-const ShortRect g_aTargetArmorClipRects_0049b470[4] = {
+ShortRect g_aTargetArmorClipRects_0049b470[4] = {
     { 12, -20, 29, 20 },
     { -11, 1, 11, 20 },
     { -11, -20, 11, 0 },
     { -29, -20, -12, 20 }
 };
 char g_szEmptyTargetDisplayText_0049b490[4] = "";
-const char g_szLockedTarget_0049b494[20] = "   LOCKED TARGET";
-const char g_szTextColourStringColourFormat_0049b4a8[8] = "%F%s%F";
-const char g_szAutoTargetting_0049b4b0[20] = "  AUTO TARGETTING";
-const char g_szTextColourStringFormat_0049b4c4[8] = "%F%s";
-const char g_szTargetLabel_0049b4cc[12] = "\nTarget:";
-const char g_szNoTarget_0049b4d8[8] = " None";
-const char g_szIdentifiedTargetNameFormat_0049b4e0[4] = " %s";
-const char g_szUnknownTarget_0049b4e4[8] = "UNKNOWN";
-const char g_szShipTargetNameFormat_0049b4ec[4] = " %s";
-const char g_szRangeLabel_0049b4f0[12] = "\nRange : ";
-const char g_szTargetTooFar_0049b4fc[8] = "TOO FAR";
-const char g_szRangeMetresSuffix_0049b504[4] = " m";
-const char g_szTargetOffscreenRange_0049b508[8] = "----- m";
-const char g_szTargetDataXmit_0049b510[12] = "DATA XMIT";
+char g_szLockedTarget_0049b494[20] = "   LOCKED TARGET";
+char g_szTextColourStringColourFormat_0049b4a8[8] = "%F%s%F";
+char g_szAutoTargetting_0049b4b0[20] = "  AUTO TARGETTING";
+char g_szTextColourStringFormat_0049b4c4[8] = "%F%s";
+char g_szTargetLabel_0049b4cc[12] = "\nTarget:";
+char g_szNoTarget_0049b4d8[8] = " None";
+char g_szIdentifiedTargetNameFormat_0049b4e0[4] = " %s";
+char g_szUnknownTarget_0049b4e4[8] = "UNKNOWN";
+char g_szShipTargetNameFormat_0049b4ec[4] = " %s";
+char g_szRangeLabel_0049b4f0[12] = "\nRange : ";
+char g_szTargetTooFar_0049b4fc[8] = "TOO FAR";
+char g_szRangeMetresSuffix_0049b504[4] = " m";
+char g_szTargetOffscreenRange_0049b508[8] = "----- m";
+char g_szTargetDataXmit_0049b510[12] = "DATA XMIT";
 unsigned char g_abManeuverRerollChance_0049b538[50] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1203,7 +1203,7 @@ short g_asShipIntelState_0049b678[10];
 short g_bMissionDeathSequencePending_0049b720;
 short g_bMissionEjectionPodSpawned_0049b724;
 char g_szEndInflightReplay_0049b738[20] = "END INFLIGHT REPLAY";
-const char g_szCannedSceneReadOpenError_0049b750[4] = "026";
+char g_szCannedSceneReadOpenError_0049b750[4] = "026";
 short g_nEnemyTauntCommandBase_0049b76c = 20;
 short g_nCommMenuChoiceCount_0049b770 = -1;
 short g_nCommMenuReuseMode_0049b774;
@@ -1231,8 +1231,8 @@ char g_szCommHeadingPrefix_0049b834[24] =
 char g_szUnidentifiedCommRecipient_0049b84c[16] = "UNIDENTIFIED";
 char g_szCommHeadingNewline_0049b85c[4] = "\n";
 char g_szChooseCommPrompt_0049b860[8] = "CHOOSE";
-const char g_szCommMenuChoiceFormat_0049b868[8] = "\n%d.%s";
-const char g_szCommSpeakerTextFormat_0049b888[8] = "%s: %Fs";
+char g_szCommMenuChoiceFormat_0049b868[8] = "\n%d.%s";
+char g_szCommSpeakerTextFormat_0049b888[8] = "%s: %Fs";
 short g_bMissionShipInitializationInProgress_0049b890;
 short g_bShipResourceReloadInProgress_0049b894;
 void **g_apPacketReferenceGroups_0049b898[4];
@@ -1244,7 +1244,7 @@ short g_bEjectionTriggerImmediately_0049b8bc;
 short g_nEjectionSequenceState_0049b8c0;
 signed char g_cQueuedNpcPortrait_0049b8c4 = -1;
 signed char g_cQueuedNpcMessage_0049b8c8 = -1;
-const ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
+ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
         { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
@@ -1272,7 +1272,7 @@ const ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
         { 0, 500, -500 }, { 0, 500, -1250 }
     }
 };
-const short g_anPilotTurnInterval_0049b9c0[8] = {
+short g_anPilotTurnInterval_0049b9c0[8] = {
     5, 5, 4, 4, 3, 1, 1, 0
 };
 unsigned short g_wSoundBlasterPort_0049bb58 = 0x220;
@@ -1285,7 +1285,7 @@ unsigned short g_wDmaCountB_0049bb70;
 int g_nDmaHalfSelect_0049bb74;
 short g_nDigiLastBlock_0049bb78;
 unsigned char *g_pNavLocationText_0049bc54;
-const char g_szBriefingMapTextFormat_0049bd30[12] = "%X%Y%F%s";
+char g_szBriefingMapTextFormat_0049bd30[12] = "%X%Y%F%s";
 int g_bKeyboardMouseEnabled_0049be68;
 short g_nMusicTrackComplete_0049be88 = 1;
 short g_nMusicDriverMode_0049be8c = 1;
@@ -1360,7 +1360,7 @@ unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
     4, 83, 48, 127, 90, 0, 0, 0,
     0, 92, 48, 96, 120
 };
-const char g_szSfxWaveFormat_0049c22c[12] = "sfx%02i.wav";
+char g_szSfxWaveFormat_0049c22c[12] = "sfx%02i.wav";
 int g_bDebugBreakEnabled_0049c238;
 int g_bApplicationShutdownStarted_0049c23c;
 int g_bF1KeyDown_0049c240;
@@ -1459,10 +1459,10 @@ ModalTextPanel *g_pModalTextPanel_0049ca50;
 unsigned char *g_pCampaignChalkboardShape_0049ca54;
 short g_bDisableChalkboardReplay_0049ca58;
 short g_nPacketError_0049ca90;
-const short g_asConstellationVelocity_0049cae0[16] = {
+short g_asConstellationVelocity_0049cae0[16] = {
     8, 8, 7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1
 };
-const short g_asConstellationFrame_0049cb00[16] = {
+short g_asConstellationFrame_0049cb00[16] = {
     0, 16, 16, 0, 4, 4, 20, 20, 24, 8, 8, 24, 28, 12, 12, 28
 };
 short g_nConstellationDirection_0049cb20 = -1;
@@ -1470,9 +1470,9 @@ int g_nDebugOverlayConsoleCount_0049cb24;
 DWORD g_dwDebugOverlayKey_0049cb28;
 DWORD g_dwDebugOverlayKeyLatch_0049cb2c;
 HHOOK g_hDebugKeyboardHook_0049cb30;
-const char g_szDebugOverlayFontName_0049cb34[8] = "Courier";
-const char g_szDebugOverlaySpinner_0049cb3c[5] = "-\\|/";
-const char g_szDebugOverlayNewline_0049cb44[4] = "\n";
+char g_szDebugOverlayFontName_0049cb34[8] = "Courier";
+char g_szDebugOverlaySpinner_0049cb3c[5] = "-\\|/";
+char g_szDebugOverlayNewline_0049cb44[4] = "\n";
 short g_bRewritePacketExtensions_0049cb48;
 unsigned char g_cSecondaryViewBufferColour_0049cb4c;
 unsigned char g_bPrimaryViewBufferColour_0049cb50 = 15;
@@ -1533,7 +1533,7 @@ unsigned char *g_pDrawnInputCursorShape_0049d4d0;
 int g_nMouseCursorDrawDepth_0049d4d4 = 1;
 short g_nScreenWidth_0049d4d8 = 320;
 short g_nScreenHeight_0049d4dc = 200;
-const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
+ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -1541,7 +1541,7 @@ const ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6] = {
     { 320, 128, 0, 24, 0, 24, -24576, -1 },
     { 320, 200, 0, 0, 0, 0, -1536, -1 }
 };
-const signed char g_acDirectionShapeFrame_0049d558[
+signed char g_acDirectionShapeFrame_0049d558[
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
     14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
@@ -1560,7 +1560,7 @@ const signed char g_acDirectionShapeFrame_0049d558[
     10, 11, 12, 10, 12, 11, 10, 11, 12, 10, 12, 11,
     13, 14, 15, 13, 15, 14, 13, 14, 15, 13, 15, 14, 16
 };
-const signed char g_acDirectionShapeFlip_0049d618[
+signed char g_acDirectionShapeFlip_0049d618[
     DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
     0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
@@ -1613,17 +1613,17 @@ short g_wFlightInputButtonState_0049d7c0;
 int g_bFlightButtonTwoHeld_0049d7c8;
 int g_bFlightButtonOneHeld_0049d7cc;
 short g_nCockpitControlGoal_0049d7d0;
-const short g_asMouseYawThresholds_0049d7d8[6] = {
+short g_asMouseYawThresholds_0049d7d8[6] = {
     10, 37, 52, 57, 62, 1070
 };
-const short g_asMousePitchThresholds_0049d7e8[6] = {
+short g_asMousePitchThresholds_0049d7e8[6] = {
     5, 18, 27, 35, 38, 1040
 };
 signed char g_bSecondaryMouseButtonHeld_0049d7f4;
 signed char g_bMouseMoveEventQueued_0049d7fc;
 short g_nMouseYawInput_0049d800;
 short g_nMousePitchInput_0049d804;
-const short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
+short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
     {63, 63, 35},
     {63, 63, 35},
     {63, 63, 63},
@@ -1639,7 +1639,7 @@ const short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
     {0, 0, 0}
 };
 int g_bRenderingSpaceFrame_0049d858;
-const char g_szSpaceBuffer_0049d978[16] = "SPACE BUFFER";
+char g_szSpaceBuffer_0049d978[16] = "SPACE BUFFER";
 /* Set while a mission is ending; ejection_sequence and death_sequence both
  * return immediately when it is clear. */
 short g_bMissionEndPending_0049da4c = 1;
