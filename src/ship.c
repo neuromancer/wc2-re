@@ -150,13 +150,12 @@ short GetAdaptiveTurnRate(void)
         } else if (g_nCurrentSeries_005c5870 > 0 &&
                    g_nCurrentSeries_005c5870 <= 13) {
             turnRate = g_asDifficultyLevels_004930a8[
-                (g_nCurrentSeries_005c5870 - 1) * 4 +
-                g_nCurrentMission_005c5878];
+                g_nCurrentSeries_005c5870 - 1][g_nCurrentMission_005c5878];
         }
     }
 #else
-    turnRate = g_aasSeriesMissionTurnRate_004930a0[
-        g_nCurrentSeries_005c5870][g_nCurrentMission_005c5878];
+    turnRate = g_asDifficultyLevels_004930a8[
+        g_nCurrentSeries_005c5870 - 1][g_nCurrentMission_005c5878];
 #endif
     turnRate = (short)((int)turnRate * g_nAdaptiveDifficulty_005d3844 / 5);
     if (turnRate == 0)

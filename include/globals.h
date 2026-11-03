@@ -269,6 +269,9 @@ extern signed char g_bParentDirectorySelected_0049d78c;
 extern short g_bDirectMissionLaunch_0049d798;
 extern short g_nDirectMission_0049d79a;
 extern short g_nDirectSeries_0049d79c;
+/* SDL port only: retail reads series 0 from the eight bytes before the
+ * difficulty table (the end of joycal.c's literals); this models them.  The
+ * declaration also holds the header's symbol count. */
 extern short g_aasSeriesMissionTurnRate_004930a0[1][4];
 extern short g_nCurrentMission_005c5878;
 extern short g_nCurrentSeries_005c5870;
@@ -301,7 +304,7 @@ extern short g_bMissileLockAcquired_0049b2b0;
 extern short g_nEnemyCommCommandBase_005d179c;
 extern short g_nEnemyCommPilotIndex_005d179e;
 extern int g_nMissionResourceBudget_005c8de4;
-extern short g_asDifficultyLevels_004930a8[52];
+extern short g_asDifficultyLevels_004930a8[16][4];
 extern short g_asShipIntelSlot_00495d30[10];
 extern short g_asShipIntelResourceKey_00495d48[10];
 extern unsigned char g_aShipIntelligenceData_005d3060[5][0x51];

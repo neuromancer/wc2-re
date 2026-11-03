@@ -5,8 +5,6 @@
  */
 #include "game.h"
 
-short g_bDisplayWingmanTargetData_0049347c;
-
 ShortPoint g_stHudMessageOrigin_0049ae90;
 
 short g_asVduSelectionSound_0049afe4[2] = { 0x7f, 0 };

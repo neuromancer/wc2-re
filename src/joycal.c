@@ -5,6 +5,10 @@
  */
 #include "game.h"
 
+signed char g_acExpectedGraphicsModes_00493078[5] = {
+    0x13, 0x0d, 4, 9, 7
+};
+
 /* Function start: 0x423480 */
 short LoadJoystickCalibrationFile(short horizontalRange,
                                   short verticalRange,
@@ -225,3 +229,7 @@ short ReadCalibratedJoystick(void)
     g_aInputDeviceSamples_005d1780[inputDevice].y = (int)normalizedY;
     return 1;
 }
+
+/* Unreferenced driver names; WC1's joystick unit has the same pair. */
+static char g_szTMDriverName_00493080[] = "TM.DRV";
+static char g_szSuperTMDriverName_00493088[] = "SUPERTM.DRV";
