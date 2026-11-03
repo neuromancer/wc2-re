@@ -21,6 +21,13 @@ IxVoice        g_voices_005c52f0[34];
 CRITICAL_SECTION g_csMixer_005c5730;
 int            g_nVoiceCount_005c5748;
 
+/* The buffer, position and volume setters further down.  With the voice
+ * table's initializer, their named parameters give this unit retail's
+ * symbol-key numbering. */
+void ix_dspv_set_buffer(int voice, unsigned char *buffer, int length);
+void ix_dspv_set_position(int voice, int offset);
+void ix_dspv_set_volume(int voice, short volume);
+
 /* Function start: 0x48A235 */   /* source line 23 */
 void ix_dspv_set_active(int voice)
 {

@@ -63,6 +63,10 @@ struct IxVoice {                  /* 32 bytes; offsets confirmed from the access
     short          rightGain;     /* +0x1A */
     short          panAngle;      /* +0x1C  0..0x7F, wraps at +-0x40 */
     short          panPos;        /* +0x1E  0..0xFF, indexes the pan table */
+    /* Declared, never defined: voices are not assigned whole.  It also
+     * makes the record a non-aggregate, so the voice table gets the
+     * (empty) dynamic initializer retail has at 0x48A210. */
+    IxVoice &operator=(const IxVoice &);
 };
 
 /* Sample and sound layouts are fixed by system.cpp/sound.cpp field accesses. */
@@ -200,6 +204,9 @@ struct IxStream {                       /* 0x38 bytes */
     unsigned char *lockPtr;             /* +0x18 */
     unsigned int   lockLen;             /* +0x1C */
     CRITICAL_SECTION cs;                /* +0x20, 24 bytes */
+    /* Declared, never defined, as for IxVoice: the stream table gets the
+     * empty dynamic initializer retail has at 0x48A9F0. */
+    IxStream &operator=(const IxStream &);
 };
 
 extern IxStream g_streams_005c5758[];

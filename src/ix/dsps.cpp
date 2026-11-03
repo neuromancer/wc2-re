@@ -18,6 +18,16 @@ int      g_nStreamCount_005c5750;
 int      g_nStreamsAllocated_005c5754;
 IxStream g_streams_005c5758[8];
 
+/* The stream operations further down.  With the stream table's
+ * initializer, their named parameters give this unit retail's symbol-key
+ * numbering. */
+void ix_dsps_prepare(int stream);
+void ix_dsps_play(int stream);
+void ix_dsps_stop(int stream);
+void ix_dsps_set_volume(int stream, unsigned short volume);
+int ix_dsps_get_buffer_free(int stream);
+void ix_dsps_unlock(int stream);
+
 /* Function start: 0x48AA15 */   /* source lines 26, 27, 28, 32 */
 void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channels)
 {
