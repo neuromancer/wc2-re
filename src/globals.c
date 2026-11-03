@@ -145,54 +145,6 @@ const int g_nJoystickUnavailableSample_0048e054 = -1;
 const int g_nViewportStaticRandomRange_0048e060 = 3;
 const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
 const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
-unsigned char *g_pDamageDisplayBackground_00490060;
-ShortPoint g_aDamageDisplayPositions_00490068[9] = {
-    {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
-    {36, 15}, {36, 24}, {36, 16}, {36, 22}
-};
-const char *g_apszComponentNames_00490090[9] = {
-    g_szIonDrive_004900dc,
-    g_szPowerPlant_004900e8,
-    g_szShieldGenerator_004900f4,
-    g_szComputerSystem_00490104,
-    g_szIntercomUnit_00490114,
-    g_szTargetTracking_00490124,
-    g_szAccelerationAbsorbers_00490134,
-    g_szEjectorSystem_00490144,
-    g_szRepairSystems_00490154
-};
-unsigned char g_abDamageDisplayFrames_004900b8[9] = {
-    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28
-};
-const char *g_apszDamageSeverityNames_004900c8[5] = {
-    g_szDamageOk_00490164,
-    g_szDamageLight_00490168,
-    g_szDamageModerate_00490170,
-    g_szDamageHeavy_0049017c,
-    g_szDamageDestroyed_00490184
-};
-char g_szIonDrive_004900dc[12] = "Ion drive";
-char g_szPowerPlant_004900e8[12] = "Power plant";
-char g_szShieldGenerator_004900f4[16] = "Shield gen'r";
-char g_szComputerSystem_00490104[16] = "Computer sys";
-char g_szIntercomUnit_00490114[16] = "InterCom unit";
-char g_szTargetTracking_00490124[16] = "Target track";
-char g_szAccelerationAbsorbers_00490134[16] = "Acc. absorbers";
-char g_szEjectorSystem_00490144[16] = "Ejector system";
-char g_szRepairSystems_00490154[16] = "Repair systems";
-char g_szDamageOk_00490164[4] = "Ok";
-char g_szDamageLight_00490168[8] = "Light";
-char g_szDamageModerate_00490170[12] = "Moderate";
-char g_szDamageHeavy_0049017c[8] = "Heavy";
-char g_szDamageDestroyed_00490184[12] = "Destroyed";
-char g_szDamageReport_00490190[16] = "DAMAGE REPORT";
-char g_szNoInternalDamage_004901a0[20] =
-    "NO INTERNAL\n\nDAMAGE";
-char g_szDamagedUnitCountFormat_004901b4[20] =
-    "%d Unit%c Damaged";
-char g_szDamageStatusFormat_004901c8[16] = "%s\nDamage: %s";
-char g_szDamageStatusFormatHighRes_004901d8[16] =
-    "%s\nDamage: %s";
 short g_nSpacePaletteFadeMode_004901e8 = -1;
 void *g_pHighMemoryBlockA_004901f8;
 unsigned short g_wHighMemoryBlockBytes_004901fc = 0xd4e4;

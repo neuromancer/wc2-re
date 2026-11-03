@@ -501,6 +501,11 @@ extern ShortPoint g_aDamageDisplayPositions_00490068[9];
 extern const char *g_apszComponentNames_00490090[9];
 extern unsigned char g_abDamageDisplayFrames_004900b8[9];
 extern const char *g_apszDamageSeverityNames_004900c8[5];
+/* The original damage.c holds these strings as literals (its pointer tables'
+ * initializers and use sites), so nothing defines the following names.  The
+ * declarations stay because every unit's code depends on how many symbols
+ * this header declares: removing them moves operands in about 90 functions.
+ * They stand in for original declarations not yet identified. */
 extern char g_szIonDrive_004900dc[12];
 extern char g_szPowerPlant_004900e8[12];
 extern char g_szShieldGenerator_004900f4[16];

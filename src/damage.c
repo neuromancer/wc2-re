@@ -5,6 +5,33 @@
  */
 #include "game.h"
 
+unsigned char *g_pDamageDisplayBackground_00490060 = 0;
+ShortPoint g_aDamageDisplayPositions_00490068[9] = {
+    {36, 37}, {36, 28}, {36, 30}, {36, 23}, {36, 19},
+    {36, 15}, {36, 24}, {36, 16}, {36, 22}
+};
+const char *g_apszComponentNames_00490090[9] = {
+    "Ion drive",
+    "Power plant",
+    "Shield gen'r",
+    "Computer sys",
+    "InterCom unit",
+    "Target track",
+    "Acc. absorbers",
+    "Ejector system",
+    "Repair systems"
+};
+unsigned char g_abDamageDisplayFrames_004900b8[9] = {
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28
+};
+const char *g_apszDamageSeverityNames_004900c8[5] = {
+    "Ok",
+    "Light",
+    "Moderate",
+    "Heavy",
+    "Destroyed"
+};
+
 /* Function start: 0x401120 */
 void show_damage_disp(void)
 {
@@ -23,7 +50,7 @@ void show_damage_disp(void)
     DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
                g_stLeftVduViewport_005d2180.left,
                g_stLeftVduViewport_005d2180.top,
-               g_szDamageReport_00490190, 2);
+               "DAMAGE REPORT", 2);
     DrawViewportLine(&g_stLeftVduViewport_005d2180,
                      g_stLeftVduViewport_005d2180.left + 2,
                      g_stLeftVduViewport_005d2180.top + 6,
@@ -34,7 +61,7 @@ void show_damage_disp(void)
         DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
                    g_stLeftVduViewport_005d2180.left,
                    g_stLeftVduViewport_005d2180.top + 20,
-                   g_szNoInternalDamage_004901a0, 2);
+                   "NO INTERNAL\n\nDAMAGE", 2);
     } else {
         g_nWeaponDisplayOriginX_005d4254 =
             (short)(g_stLeftVduViewport_005d2180.left +
@@ -54,7 +81,7 @@ void show_damage_disp(void)
             plural = 's';
         else
             plural = ' ';
-        sprintf(message, g_szDamagedUnitCountFormat_004901b4,
+        sprintf(message, "%d Unit%c Damaged",
                 (int)g_cDamagedComponentCount_005d42a7, (int)plural);
         ShowComponentHitHudMessage(message,
                                    g_ucPrimaryTextColour_0049cb64, -1);
@@ -102,7 +129,7 @@ void UpdateDamageDisplay(void)
 
                 sprintf(
                     g_szDamageStatusText_005d4260,
-                    g_szDamageStatusFormat_004901c8,
+                    "%s\nDamage: %s",
                     g_apszComponentNames_00490090[
                         g_cDamageDisplayComponent_005d42a6],
                     g_apszDamageSeverityNames_004900c8[(int)damage]);
@@ -193,7 +220,7 @@ void UpdateDamageDisplay(void)
 
         sprintf(
             g_szDamageStatusText_005d4260,
-            g_szDamageStatusFormatHighRes_004901d8,
+            "%s\nDamage: %s",
             g_apszComponentNames_00490090[g_cDamageDisplayComponent_005d42a6],
             g_apszDamageSeverityNames_004900c8[
                 g_nDisplayedComponentDamage_005d42a8]);
