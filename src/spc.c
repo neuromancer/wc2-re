@@ -1191,10 +1191,11 @@ unsigned int rotate_object(short obj)
 /* Function start: 0x41CC0A */
 void accelerate_and_move_object(short obj)
 {
+    int size;
+    int thrust;
+    int accel;
     FixedVector delta;
-    FixedVector accelerationVector;
-    int acceleration;
-    int magnitude;
+    FixedVector impulse;
 
     if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_MISSILE) {
         switch (g_aeSpecialManeuver_00495600[obj]) {
@@ -1214,31 +1215,35 @@ void accelerate_and_move_object(short obj)
         if (g_aeSpecialManeuver_00495600[obj] <
                 SPECIAL_MANEUVER_KILL_ENGINES &&
             g_asShipTactic_00495f30[obj] != TACTIC_SIT_STILL) {
-            zero_vector(&accelerationVector);
+            zero_vector(&impulse);
             switch (g_aeSpecialManeuver_00495600[obj]) {
             case SPECIAL_MANEUVER_AFTERBURNER:
                 g_asShipAfterburnerTimer_004955a8[obj]--;
                 if (g_asShipAfterburnerTimer_004955a8[obj] == 0) {
+                    if (obj == 0) {
+                        /* The DOS build stopped the afterburner sound here;
+                         * the Win32 port compiled the body out. */
+#ifdef SDL_PORT
+                        /* The DOS afterburner record is held rather than
+                         * timed, so the burn ending is what silences it. */
+                        if (g_bAfterburnerSfxActive_005d3864 != 0) {
+                            FlushSoundEffectsAndLog(0, 0);
+                            g_bAfterburnerSfxActive_005d3864 = 0;
+                        }
+#endif
+                    }
                     g_aeSpecialManeuver_00495600[obj] =
                         SPECIAL_MANEUVER_NONE;
-#ifdef SDL_PORT
-                    /* The DOS afterburner record is held rather than timed,
-                     * so the burn ending is what silences it. */
-                    if (g_bAfterburnerSfxActive_005d3864 != 0) {
-                        FlushSoundEffectsAndLog(0, 0);
-                        g_bAfterburnerSfxActive_005d3864 = 0;
-                    }
-#endif
                     ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
                                      g_anShipSpeed_00494e20[obj], &delta);
                 } else {
-                    ScaleFixedVector(
-                        &g_aShipForwardVector_00494208[obj],
-                        (g_aObjectTypeData_00496d30[
-                             g_acObjectType_00493980[obj]].maximumVelocity *
-                             2 +
-                         40) << 8,
-                        &delta);
+                    thrust = (g_aObjectTypeData_00496d30[
+                                     g_acObjectType_00493980[obj]]
+                                         .maximumVelocity *
+                                     2 +
+                                 40) << 8;
+                    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
+                                     thrust, &delta);
                     drain_fuel(obj, 200);
                     g_acShipExhaustHeat_00495660[obj] = 3;
                 }
@@ -1262,39 +1267,36 @@ void accelerate_and_move_object(short obj)
             }
             ComputeVectorDelta(&g_aShipVelocity_00494898[obj], &delta,
                                &delta);
-            magnitude = Vector_magnitude(&delta);
-            if (magnitude > 0) {
-                acceleration = GetShipAccelerationRate(obj);
-                if (alert_flag(obj, 1) != 0 && acceleration < 0x500)
-                    acceleration = 0x500;
+            size = Vector_magnitude(&delta);
+            if (size > 0) {
+                accel = GetShipAccelerationRate(obj);
+                if (alert_flag(obj, 1) != 0 && accel < 0x500)
+                    accel = 0x500;
                 if (g_aeSpecialManeuver_00495600[obj] ==
                         SPECIAL_MANEUVER_AFTERBURNER ||
                     g_aeSpecialManeuver_00495600[obj] ==
                         SPECIAL_MANEUVER_SUPER_BRAKE) {
-                    acceleration *= 2;
+                    accel *= 2;
                 }
-                acceleration = MultiplyFixed(
-                    acceleration,
+                accel = MultiplyFixed(
+                    accel,
                     DivideFixed(
                         dot_product(
                             &delta,
                             &g_aShipForwardVector_00494208[obj]),
-                        magnitude) + 0x200);
-                ScaleFixedVector(
-                    &delta,
-                    MinInt(DivideFixed(acceleration >> 1, magnitude),
-                           0x100),
-                    &accelerationVector);
+                        size) + 0x200) >> 1;
+                accel = MinInt(DivideFixed(accel, size), 0x100);
+                ScaleFixedVector(&delta, accel, &impulse);
                 if (g_aeSpecialManeuver_00495600[obj] !=
                         SPECIAL_MANEUVER_AFTERBURNER) {
                     g_acShipExhaustHeat_00495660[obj] = 2;
                 }
             }
-            AddFixedVectors(&accelerationVector,
+            AddFixedVectors(&impulse,
                             &g_aShipVelocity_00494898[obj],
                             &g_aShipVelocity_00494898[obj]);
             if (obj == 0)
-                g_vPlayerAcceleration_00493488 = accelerationVector;
+                g_vPlayerAcceleration_00493488 = impulse;
         }
     }
     AddFixedVectors(&g_aShipPosition_00494550[obj],
@@ -1417,9 +1419,6 @@ void hit_asteroid(short asteroid, short destructionChance)
         make_shard(asteroid, g_vCollisionDelta_00493178);
     }
 }
-
-void rectangular_to_spherical(const FixedVector *rectangular,
-                              SphericalVector *spherical);
 
 /* Function start: 0x41D591 */
 void object_collision(short obj)
