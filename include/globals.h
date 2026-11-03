@@ -135,6 +135,7 @@ extern int g_bInflightComputerActive_0049bcb4;
 extern volatile short g_nNearHeapActive_00493044;
 extern volatile short g_nNearHeapMaxDescriptors_00493048;
 extern volatile int g_nNearHeapRelocationBytes_0049304c;
+/* Unreferenced; dead names kept for the header's symbol count. */
 extern char g_szCalculating_0049b3a0[12];
 extern char g_szRangeKilometresSuffix_0049b3ac[4];
 extern char g_szNoObjective_0049b3b0[8];
@@ -165,7 +166,9 @@ extern short g_nTargetLockMarkerX_0049b298;
 extern int g_nCommPortraitFrame_0049b2bc;
 extern int g_bForceDamageDisplayRedraw_0049b2ec;
 extern char g_szMissileLocked_0049b30c[16];
-extern char g_szAlreadyNear_0049b334[16];
+extern char g_szNotEnoughMemoryMessage_0049cbb8[];
+/* Unreferenced: cockpt.c uses literals for these HUD reasons; the dead
+ * names keep the header's symbol count. */
 extern char g_szEnemyNear_0049b344[12];
 extern char g_szHazardNear_0049b350[12];
 extern char g_szAlreadyVisited_0049b404[16];
@@ -218,6 +221,7 @@ extern PacketResourceDescriptor g_aHighMemoryCockpitResources_0049c7e8[5];
 extern PacketResourceDescriptor g_aCockpitCommonShapeResources_0049c820[5];
 extern PacketResourceDescriptor g_aCockpitShipShapeResources_0049c858[8];
 extern PacketResourceDescriptor g_aCockpitViewShapeResources_0049c8a8[5];
+/* Literals in RunPilotDatabaseMenu; dead names kept for the symbol count. */
 extern char g_szDefaultPilotName_0049ab4c[8];
 extern char g_szDefaultCallsign_0049ab54[12];
 extern int g_nTrainSimActive_0049d758;
@@ -539,6 +543,8 @@ extern short g_nMissionEntryNavOverride_0049d790;
 extern short g_asMouseYawThresholds_0049d7d8[6];
 extern short g_asMousePitchThresholds_0049d7e8[6];
 extern char g_szSpaceBuffer_0049d978[16];
+/* A literal in InitializeConversationViewport; dead name kept for the
+ * header's symbol count. */
 extern char g_szAllocateBufferTag_0049ae20[4];
 extern ActiveSoundEntry *g_pActiveSoundHead_004961a8;
 extern ActiveSoundEntry *g_pActiveSoundTail_004961ac;
@@ -730,6 +736,8 @@ extern unsigned char g_abRasterPaletteTranslation_00491b08[256];
 extern RLETransformVertex g_aRLETransformVertices_00491c08[4];
 extern int g_anRLESourceSteps_00491c58[4];
 extern const char *g_apszPilotRankNames_0049a608[5];
+/* The rank names are literals in personnel.c's tables; these dead names
+ * keep the header's symbol count. */
 extern char g_szSecondLieutenantRank_0049a6d8[8];
 extern char g_szFirstLieutenantRank_0049a6e0[8];
 extern char g_szCaptainRank_0049a6e8[8];

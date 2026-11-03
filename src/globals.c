@@ -186,46 +186,11 @@ short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 
 
 
-unsigned char *g_pCockpitBackgroundPacket_0049a5f0;
-unsigned char *g_apCockpitVduOverlayShapes_0049a5f8[2];
-int g_nLegacySaveSource_0049a600;
-const char *g_apszPilotRankNames_0049a608[5] = {
-    g_szSecondLieutenantRank_0049a6d8,
-    g_szFirstLieutenantRank_0049a6e0,
-    g_szCaptainRank_0049a6e8,
-    g_szMajorRank_0049a6f0,
-    g_szLieutenantColonelRank_0049a6f8
-};
-const char *g_apszShortPilotRankNames_0049a620[5] = {
-    g_szShortSecondLieutenantRank_0049a704,
-    g_szShortFirstLieutenantRank_0049a70c,
-    g_szShortCaptainRank_0049a714,
-    g_szShortMajorRank_0049a71c,
-    g_szShortLieutenantColonelRank_0049a724
-};
-short g_nPersonnelMenuHighlight_0049a6a0 = -1;
-void *g_pPersonnelCampaignSnapshot_0049a6a4;
-unsigned char *g_pPersonnelMenuBackdrop_0049a6b8;
-short g_sPersonnelPreviousInput_0049a6bc = -128;
-short g_bPersonnelMenuDrawing_0049a6c0 = 1;
-const char *g_apszSaveGameFileNames_0049a6c8[3] = {
-    "savegame.wld", "savegame.wld", "crusade.wld"
-};
-signed char g_bPersonnelPrimaryInputDown_0049a6d4;
-char g_szSecondLieutenantRank_0049a6d8[8] = "2ND LT.";
-char g_szFirstLieutenantRank_0049a6e0[8] = "1ST LT.";
-char g_szCaptainRank_0049a6e8[8] = "CAPTAIN";
-char g_szMajorRank_0049a6f0[8] = "MAJOR";
-char g_szLieutenantColonelRank_0049a6f8[12] = "LT. COL.";
-char g_szShortSecondLieutenantRank_0049a704[8] = "2ND LT";
-char g_szShortFirstLieutenantRank_0049a70c[8] = "1ST LT";
-char g_szShortCaptainRank_0049a714[8] = "CAPT.";
-char g_szShortMajorRank_0049a71c[8] = "MAJOR";
-char g_szShortLieutenantColonelRank_0049a724[8] = "LT COL";
-char g_szDefaultPilotName_0049ab4c[8] = "Blair";
-char g_szDefaultCallsign_0049ab54[12] = "Maverick";
-int g_bPauseInputActive_0049ac9c;
-char g_szAllocateBufferTag_0049ae20[4] = "AB";
+char *g_pszGameVersion_0049b528 = g_szGameVersion_0049b52c;
+char g_szGameVersion_0049b52c[9] = "1.03F-95";
+short g_nNavMapCoordinateScaling_0049bb80 = 0;
+short g_nNavMapScale_0049bb84 = 1;
+short g_bBriefingMapActive_0049bcb0 = 0;
 short g_bTargetLockActive_0049ae80;
 short g_nCommDeathSequenceFrame_0049ae84;
 short g_nCommMessageIndex_0049ae88 = -1;
@@ -651,6 +616,9 @@ unsigned char g_abLegacyVideoModeColours_0049cb90[14] = {
 char g_szInputCursorPacketName_0049cba0[12] = "arrow.vga";
 short g_nExpandedShipMemoryKb_0049cbac;
 short g_bOriginFxDriverActive_0049cbb0;
+char g_szNotEnoughMemoryMessage_0049cbb8[] =
+    "You do not have enough memory to play Wing Commander 2.\n"
+    "Refer to your reference guide for assistance.";
 int g_nMinimumMemoryNoMusic_0049cc20 = 0x43238;
 int g_nMinimumMemoryFullMusic_0049cc24 = 0x49bb0;
 int g_nMinimumMemoryAlternate_0049cc28 = 0x43238;

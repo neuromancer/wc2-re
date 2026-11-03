@@ -147,9 +147,7 @@ void LoadOriginFxDrivers(void)
             (int)g_dwInitialFreeMemory_005c8dd0 -
             g_nMinimumMemoryNoMusic_0049cc20;
         if (g_nAvailableGameMemory_005c8de0 < 0)
-            exit_squadron(
-                "You do not have enough memory to play Wing Commander 2.\n"
-                "Refer to your reference guide for assistance.");
+            exit_squadron(g_szNotEnoughMemoryMessage_0049cbb8);
         g_nMemoryConfiguration_005c8dc8 = 0;
         if (g_nMusicDriverMode_0049be8c == 1 ||
             g_nMusicDriverMode_0049be8c == 2) {
@@ -213,6 +211,10 @@ void LoadOriginFxDrivers(void)
     (void)shipMemoryBytes;
     (void)paletteResult;
 }
+
+/* The memory check above reports through exit_squadron with the shared
+ * message; its named parameter also keeps this unit's symbol-key numbering. */
+void exit_squadron(const char *msg, ...);
 
 /* Function start: 0x45BF30 */
 void InitializeHighMemoryGraphicsBuffers(void)

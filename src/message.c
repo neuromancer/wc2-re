@@ -5,31 +5,12 @@
  */
 #include "game.h"
 
-char g_szAlreadyNear_0049b334[16] = "Already Near";
-
-char g_szEnemyNear_0049b344[12] = "Enemy Near";
-
-char g_szHazardNear_0049b350[12] = "Hazard Near";
-
-char g_szCalculating_0049b3a0[12] = "CALCULATING";
-
-char g_szRangeKilometresSuffix_0049b3ac[4] = " km";
-
-char *g_pszGameVersion_0049b528 = g_szGameVersion_0049b52c;
-
-char g_szGameVersion_0049b52c[9] = "1.03F-95";
-
-short g_nNavMapCoordinateScaling_0049bb80 = 0;
-
-short g_nNavMapScale_0049bb84 = 1;
-
-short g_bBriefingMapActive_0049bcb0 = 0;
-
 static const char *g_pszFatalErrorMessage_0049ac98 =
     "Sorry, an error has occurred.\n"
     "Please note the following information: %s.\n"
     "Check your configuration.  If this problem persists, please\n"
     "call Origin Systems' service line.  We are sorry for the inconvenience.";
+int g_bPauseInputActive_0049ac9c = 0;
 
 /* Function start: 0x4379F0 */
 void InitializeSpaceFlightInput(void)
@@ -64,7 +45,7 @@ void exit_squadron(const char *msg, ...)
 {
     if (msg != 0)
         ShowNoticeMessageBox(msg);
-    _unlink("tape.tmp");
+    _unlink(g_szCannedSceneTapeFile_00490208);
     LogMemoryUsage();
     ShutdownGameWindow();
 }
@@ -125,7 +106,7 @@ void ShowModalMessage(const char *format, ...)
 void ReportOutOfMemoryAndExit(const char *resource)
 {
     ShowModalMessage("ERROR: Out of memory for %s", resource);
-    FatalErrorAndExit("You do not have enough memory to run Wing Commander.");
+    FatalErrorAndExit(g_szNotEnoughMemoryMessage_0049cbb8);
 }
 
 /* Function start: 0x437CBF */
@@ -142,7 +123,7 @@ void InitializeConversationViewport(void)
     g_stSecondaryViewBuffer_005d2c90.bottom = 127;
     if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportPacketLoadError(0, 0, 0, 0,
-                              g_szAllocateBufferTag_0049ae20);
+                              "AB");
 }
 
 /* Function start: 0x437D68 */
