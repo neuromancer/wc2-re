@@ -146,10 +146,10 @@ short crash_time(short obj, short other)
 /* Function start: 0x4299C9 */
 short detect_collisions(short obj)
 {
+    short object;
     short time;
     short soonest;
     short candidate;
-    short object;
 
     candidate = -1;
     soonest = 30;

@@ -145,6 +145,29 @@ Replacing the free `__fastcall` `ix_sound_unlink_from_free_list` with an
 the free declaration was before `dspv.cpp` and `dsps.cpp` matched again.
 After any `ix.h` edit, re-run the whole report rather than one unit.
 
+Locals take keys in declaration order, but frame slots follow name buckets.
+When the locals of a function all have distinct buckets, reordering their
+declarations permutes their keys without moving a slot or changing the unit's
+key count. `detect_collisions` needed `object` above the parameter `obj` and
+`time` above `soonest`; no uniform shift gives both, but declaring `object`
+first does. `reposition_fixed_child_objects` orders two `MultiplyFixed` calls
+by their last arguments; swapping the `sine`/`cosA` declarations moved the
+hash wrap between them. Swapping two adjacent header `extern`s does the same
+for globals and moves only those two keys (`g_nCurrentSeries`/
+`g_nCurrentMission` for `GetAdaptiveTurnRate`).
+
+A struct member and a plain global differ in tree weight, not only in key: a
+member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key
+hash; a member read outweighs a scalar. `fire_computer_graphic_missile`
+compares the released weapon's y against `viewport.bottom`, so y has to be a
+record member (`ReleaseWeaponPosition`) before any key matters.
+
+The signature-logging C2 copy from `../wc1-re/out/c2sig` runs on WC2's `/Bk`
+intermediates (copy it and `msvcrt40.dll` into `out/c2trace`). Its log shows
+each commutative node's operand signatures, so the needed key change can be
+computed from the WC1 formulas instead of swept. A call's signature comes
+from its symbol and its last argument only.
+
 A header declaration removed by a merge must be refilled at the same spot, as
 in WC1. Merging the two modal-bounds dwords into one `ShortRect` cost one
 `extern` in `globals.h` and one prototype parameter name in `functions.h`;

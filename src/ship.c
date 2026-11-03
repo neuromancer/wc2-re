@@ -2910,8 +2910,8 @@ void reposition_fixed_child_objects(void)
     int right;
     short child;
     int up;
-    long sine;
     long cosA;
+    long sine;
     short angle;
     short owner;
 #ifdef SDL_PORT
