@@ -129,6 +129,11 @@
       "build": {
         "clean": "make clean",
         "build": "make WC2.EXE"
+      },
+      "preprocessor": {
+        "undefined": [
+          "SDL_PORT"
+        ]
       }
     }
   },
