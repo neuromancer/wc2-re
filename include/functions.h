@@ -1538,8 +1538,8 @@ void SetPaletteEntryFromTriplet(const unsigned char *triplet,
                                 short index);                          /* 0x464FE7 */
 void SetMusicTickRateHook(short period);                               /* 0x46502E */
 short PeekInputEvent(InputEventState *event, short type);              /* 0x4632A5 */
-InputEventState *FindQueuedInputEvent(int type);                        /* 0x4633E7 */
 short IsInputEventQueued(int type);                                   /* 0x466AD2 */
+InputEventState *FindQueuedInputEvent(int type);                        /* 0x4633E7 */
 void FlushInputEvents(void);                                          /* 0x46354F */
 short InitializeMouseCursorDepth();                              /* 0x463571 */
 void CheckCursor(void);                                                /* 0x4635D3 */

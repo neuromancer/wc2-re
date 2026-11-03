@@ -40,25 +40,26 @@ static short g_bFleetMouseMoveQueued_005c57ea;
 
 short g_bSavedTargetLockAcquired_0049d488;
 
+#pragma function(abs)
 /* Function start: 0x45E9F0 */
 short HandleFleetOverviewInput(void)
 {
-    InputEventState event;
-    short result;
-    int fired;
-    signed char discreteInput;
+    short absX;
+    short scrollY;
+    signed char arrowKeys;
+    short otherKeys;
+    InputEventState state;
     short eventType;
-    short horizontal;
-    short vertical;
-    short horizontalMagnitude;
-    short verticalMagnitude;
-    short threshold;
-    short notRepeated;
+    short action;
+    short yAbs;
+    short deadZone;
+    int firePressed;
     short pauseModifiers;
-    short unusedModifiers;
+    short justPressed;
+    short scrollX;
 
-    result = 0;
-    fired = 0;
+    action = 0;
+    firePressed = 0;
     g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
     ServiceInputDevices(15);
     g_bPolledFlightInputQueued_005c587a = IsInputEventQueued(7);
@@ -66,7 +67,7 @@ short HandleFleetOverviewInput(void)
     g_bDiscreteFlightInputQueued_005c57e4 =
         (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
     g_bFleetPrimaryInputQueued_005c57dc = IsInputEventQueued(1);
-    discreteInput = 0;
+    arrowKeys = 0;
     if (g_bFleetMouseMoveQueued_005c57ea == 0)
         g_cCurrentKey_00493128 |= (signed char)0x80;
     if (g_bDiscreteFlightInputQueued_005c57e4 == 0) {
@@ -75,17 +76,17 @@ short HandleFleetOverviewInput(void)
             g_nCockpitControlState_0049d7ac == 0)
             g_bFleetPolledInputActive_0049d420 = 0;
     } else {
-        discreteInput = 1;
+        arrowKeys = 1;
     }
     if (g_bFleetPrimaryInputQueued_005c57dc == 0 &&
         g_stHostMouseMessage_005d10d0.primaryButton != 0) {
         g_cCurrentKey_00493128 = 0x39;
-        fired = 1;
+        firePressed = 1;
     }
     if (g_bFleetPrimaryInputQueued_005c57dc == 0)
         g_bFleetButtonInputActive_0049d424 = 0;
 
-    while ((eventType = GetNextInputEvent(&event)) != 0) {
+    while ((eventType = GetNextInputEvent(&state)) != 0) {
         switch (eventType) {
         case 3:
             if (g_nCockpitControlState_0049d7ac == 0) {
@@ -97,59 +98,59 @@ short HandleFleetOverviewInput(void)
                 g_nCockpitControlState_0049d7ac = 1;
                 g_nUiCursorFrame_005c8481 = 2;
             }
-            horizontal = (short)(
-                event.x -
+            scrollX = (short)(
+                state.x -
                 (g_stViewBuffer_005d2b00.right -
                  g_stViewBuffer_005d2b00.left) / 2 + 1);
-            vertical = (short)(
-                event.y -
+            scrollY = (short)(
+                state.y -
                 (g_stViewBuffer_005d2b00.bottom -
                  g_stViewBuffer_005d2b00.top) / 2);
-            g_nPersonnelCursorX_005c8470 = event.x;
-            g_nPersonnelCursorY_005c8472 = event.y;
-            horizontalMagnitude = (short)labs((long)horizontal);
-            verticalMagnitude = (short)labs((long)vertical);
-            threshold = 0;
-            while (g_asFleetMouseYawThresholds_0049d400[threshold] <=
-                   horizontalMagnitude)
-                threshold++;
-            if (horizontal < 0)
-                horizontal = (short)-threshold;
+            g_nPersonnelCursorX_005c8470 = state.x;
+            g_nPersonnelCursorY_005c8472 = state.y;
+            absX = (short)abs(scrollX);
+            yAbs = (short)abs(scrollY);
+            deadZone = 0;
+            while (g_asFleetMouseYawThresholds_0049d400[deadZone] <=
+                   absX)
+                deadZone++;
+            if (scrollX < 0)
+                scrollX = (short)-deadZone;
             else
-                horizontal = threshold;
-            threshold = 0;
-            while (g_asFleetMousePitchThresholds_0049d410[threshold] <=
-                   verticalMagnitude)
-                threshold++;
-            if (vertical < 0)
-                vertical = (short)-threshold;
+                scrollX = deadZone;
+            deadZone = 0;
+            while (g_asFleetMousePitchThresholds_0049d410[deadZone] <=
+                   yAbs)
+                deadZone++;
+            if (scrollY < 0)
+                scrollY = (short)-deadZone;
             else
-                vertical = threshold;
-            if ((int)event.x - 4 <=
+                scrollY = deadZone;
+            if ((int)state.x - 4 <=
                 (int)g_stViewBuffer_005d2b00.left)
-                horizontal = -8;
-            if ((int)event.x + 4 >=
+                scrollX = -8;
+            if ((int)state.x + 4 >=
                 (int)g_stViewBuffer_005d2b00.right)
-                horizontal = 8;
-            if ((int)event.y - 4 <=
+                scrollX = 8;
+            if ((int)state.y - 4 <=
                 (int)g_stViewBuffer_005d2b00.top)
-                vertical = -8;
-            if ((int)event.y + 4 >=
+                scrollY = -8;
+            if ((int)state.y + 4 >=
                 (int)g_stViewBuffer_005d2b00.bottom)
-                vertical = 8;
-            if (horizontal >= 9)
-                horizontal = 8;
-            if (horizontal <= -9)
-                horizontal = -8;
-            if (vertical >= 9)
-                vertical = 8;
-            if (vertical <= -9)
-                vertical = -8;
+                scrollY = 8;
+            if (scrollX >= 9)
+                scrollX = 8;
+            if (scrollX <= -9)
+                scrollX = -8;
+            if (scrollY >= 9)
+                scrollY = 8;
+            if (scrollY <= -9)
+                scrollY = -8;
             g_nFleetMouseYawVelocity_0049d428 =
-                (short)-horizontal;
+                (short)-scrollX;
             g_nFleetOverviewYawVelocity_0049d3ec =
                 g_nFleetMouseYawVelocity_0049d428;
-            g_nFleetMousePitchVelocity_0049d42c = vertical;
+            g_nFleetMousePitchVelocity_0049d42c = scrollY;
             g_nFleetOverviewPitchVelocity_0049d3f0 =
                 g_nFleetMousePitchVelocity_0049d42c;
             break;
@@ -165,7 +166,7 @@ short HandleFleetOverviewInput(void)
         case 1:
             g_nCockpitControlState_0049d7ac = 0;
             g_cCurrentKey_00493128 = 0x39;
-            fired = 1;
+            firePressed = 1;
             break;
         case 5:
             g_nCockpitControlState_0049d7ac = 0;
@@ -174,23 +175,23 @@ short HandleFleetOverviewInput(void)
                 g_nFleetOverviewYawVelocity_0049d3ec;
             break;
         case 6:
-            result = 1;
+            action = 1;
         case 4:
             g_nCockpitControlState_0049d7ac = 0;
             g_nCockpitControlGoal_0049d7d0 = 0;
-            g_cCurrentKey_00493128 = (signed char)event.status;
-            notRepeated =
+            g_cCurrentKey_00493128 = (signed char)state.status;
+            justPressed =
                 g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
-                result == 0;
+                action == 0;
             pauseModifiers =
-                (short)(g_wInputDeviceButtonState_005c8432 & 0x1800);
-            unusedModifiers =
-                (short)(g_wInputDeviceButtonState_005c8432 & 0x600);
+                (short)((unsigned short)g_wInputDeviceButtonState_005c8432 & 0x1800);
+            otherKeys =
+                (short)((unsigned short)g_wInputDeviceButtonState_005c8432 & 0x600);
             switch ((signed char)g_cCurrentKey_00493128) {
             case 0x1c:
             case 0x39:
                 g_cCurrentKey_00493128 = 0x39;
-                fired = 1;
+                firePressed = 1;
                 break;
             case 0x50:
                 if (g_nFleetOverviewPitchVelocity_0049d3f0 > -8)
@@ -232,7 +233,7 @@ short HandleFleetOverviewInput(void)
             case 0x41:
                 break;
             case 0x19:
-                ShowGamePausedBanner(pauseModifiers < 1);
+                ShowGamePausedBanner(pauseModifiers == 0);
             default:
                 g_cCurrentKey_00493128 = (signed char)0x80;
                 break;
@@ -266,7 +267,7 @@ short HandleFleetOverviewInput(void)
     }
     if (g_nTargetCameraFrame_0049d3e8 == 1 &&
         (g_nCurrentView_00492fa8 != 4 ||
-         g_nTargetCameraMode_005c8d50 != 1 || fired == 0))
+         g_nTargetCameraMode_005c8d50 != 1 || firePressed == 0))
         ClearTargetCameraView();
     g_stPreviousFlightInput_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
@@ -274,7 +275,7 @@ short HandleFleetOverviewInput(void)
         g_nTargetCameraGunCooldown_0049d33c--;
     else
         g_nTargetCameraGunCooldown_0049d33c = 0;
-    return result;
+    return action;
 }
 
 /* Function start: 0x45F200 */
