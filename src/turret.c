@@ -23,9 +23,9 @@ static short g_nFleetMouseYawVelocity_0049d428;
 
 static short g_nFleetMousePitchVelocity_0049d42c;
 
-short g_bFleetPrimaryInputQueued_005c57dc;
+extern short g_bMapPrimaryInputQueued_005c57dc; /* main.c common */
 
-short g_bFleetMouseMoveQueued_005c57ea;
+extern short g_bFleetMouseMovePosted_005c57ea; /* main.c common */
 
 #pragma function(abs)
 /* Function start: 0x45E9F0 */
@@ -50,14 +50,14 @@ short HandleFleetOverviewInput(void)
     g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
     ServiceInputDevices(15);
     g_bPolledFlightInputQueued_005c587a = IsInputEventQueued(7);
-    g_bFleetMouseMoveQueued_005c57ea = IsInputEventQueued(3);
-    g_bDiscreteFlightInputQueued_005c57e4 =
+    g_bFleetMouseMovePosted_005c57ea = IsInputEventQueued(3);
+    g_bDiscreteFlightInputWaiting_005c57e4 =
         (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
-    g_bFleetPrimaryInputQueued_005c57dc = IsInputEventQueued(1);
+    g_bMapPrimaryInputQueued_005c57dc = IsInputEventQueued(1);
     arrowKeys = 0;
-    if (g_bFleetMouseMoveQueued_005c57ea == 0)
+    if (g_bFleetMouseMovePosted_005c57ea == 0)
         g_cCurrentKey_00493128 |= (signed char)0x80;
-    if (g_bDiscreteFlightInputQueued_005c57e4 == 0) {
+    if (g_bDiscreteFlightInputWaiting_005c57e4 == 0) {
         g_cCurrentKey_00493128 |= (signed char)0x80;
         if (g_bPolledFlightInputQueued_005c587a == 0 &&
             g_nCockpitControlState_0049d7ac == 0)
@@ -65,12 +65,12 @@ short HandleFleetOverviewInput(void)
     } else {
         arrowKeys = 1;
     }
-    if (g_bFleetPrimaryInputQueued_005c57dc == 0 &&
+    if (g_bMapPrimaryInputQueued_005c57dc == 0 &&
         g_stHostMouseMessage_005d10d0.primaryButton != 0) {
         g_cCurrentKey_00493128 = 0x39;
         firePressed = 1;
     }
-    if (g_bFleetPrimaryInputQueued_005c57dc == 0)
+    if (g_bMapPrimaryInputQueued_005c57dc == 0)
         g_bFleetButtonInputActive_0049d424 = 0;
 
     while ((eventType = GetNextInputEvent(&state)) != 0) {
@@ -235,7 +235,7 @@ short HandleFleetOverviewInput(void)
             g_cCurrentKey_00493128 = 0x39;
     } else if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
                (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0 &&
-               (g_stPreviousFlightInput_005c57d0.buttons & 1) == 0) {
+               (g_stPrevFlightControls_005c57d0.buttons & 1) == 0) {
         g_cCurrentKey_00493128 = 0x39;
     }
     if (g_nTargetCameraMode_005c8d50 == 0 &&
@@ -256,7 +256,7 @@ short HandleFleetOverviewInput(void)
         (g_nCurrentView_00492fa8 != 4 ||
          g_nTargetCameraMode_005c8d50 != 1 || firePressed == 0))
         ClearTargetCameraView();
-    g_stPreviousFlightInput_005c57d0 =
+    g_stPrevFlightControls_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
     if (g_nTargetCameraGunCooldown_0049d33c > 0)
         g_nTargetCameraGunCooldown_0049d33c--;

@@ -142,20 +142,20 @@ short GetAdaptiveTurnRate(void)
      * Native globals need not be adjacent, so address the loaded table
      * directly for series 1-13. Invalid missions use the zero-rate fallback. */
     turnRate = 0;
-    if (g_nCurrentMission_005c5878 >= 0 &&
-        g_nCurrentMission_005c5878 < 4) {
-        if (g_nCurrentSeries_005c5870 == 0) {
+    if (g_nCurrentLevel_005c5878 >= 0 &&
+        g_nCurrentLevel_005c5878 < 4) {
+        if (g_nCurSeries_005c5870 == 0) {
             turnRate = g_aasSeriesMissionTurnRate_004930a0[0][
-                g_nCurrentMission_005c5878];
-        } else if (g_nCurrentSeries_005c5870 > 0 &&
-                   g_nCurrentSeries_005c5870 <= 13) {
+                g_nCurrentLevel_005c5878];
+        } else if (g_nCurSeries_005c5870 > 0 &&
+                   g_nCurSeries_005c5870 <= 13) {
             turnRate = g_asDifficultyLevels_004930a8[
-                g_nCurrentSeries_005c5870 - 1][g_nCurrentMission_005c5878];
+                g_nCurSeries_005c5870 - 1][g_nCurrentLevel_005c5878];
         }
     }
 #else
     turnRate = g_asDifficultyLevels_004930a8[
-        g_nCurrentSeries_005c5870 - 1][g_nCurrentMission_005c5878];
+        g_nCurSeries_005c5870 - 1][g_nCurrentLevel_005c5878];
 #endif
     turnRate = (short)((int)turnRate * g_nAdaptiveDifficulty_005d3844 / 5);
     if (turnRate == 0)

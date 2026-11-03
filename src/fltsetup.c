@@ -531,7 +531,7 @@ void InitializeCockpitResources(short shipType)
     ClearHudGunReadouts();
     reset_cockpit();
     free_view_buffer();
-    if (g_nResourcePaletteMode_005c57e6 == 0) {
+    if (g_nResourcePaletteState_005c57e6 == 0) {
         clear_cockpit_damage();
         LoadShapeSet(g_aCockpitShipShapeResources_0049c858, 4,
                      g_szCockpitResourceFilename_005d1030);
@@ -803,7 +803,7 @@ void free_cockpit(void)
     if (strlen(shipTypeText) == 1)
         strcat(g_szCockpitResourceFilename_005d1030, "0");
     strcat(g_szCockpitResourceFilename_005d1030, shipTypeText);
-    if (g_nResourcePaletteMode_005c57e6 == 0) {
+    if (g_nResourcePaletteState_005c57e6 == 0) {
         FreeShapeSet(g_aCockpitShipShapeResources_0049c858, 4);
         FreeShapeSet(g_aCockpitViewShapeResources_0049c8a8, 4);
     }
@@ -890,7 +890,7 @@ void load_common_3Space_objects(void)
     g_aObjectTypeData_00496d30[17].animation =
         g_aObjectTypeData_00496d30[18].animation;
     if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
-        if (g_nResourcePaletteMode_005c57e6 == 0) {
+        if (g_nResourcePaletteState_005c57e6 == 0) {
             g_pGenericMissileShape_0049c8f0 =
                 FetchDiskPacketRetrying("missile.v00", 0, 4);
         }
@@ -950,7 +950,7 @@ void free_3Space_objects(void)
     FreePacketAndClear(
         &g_aObjectTypeData_00496d30[OBJECT_DATA_EJECTED_PILOT].shapeSet,
         0);
-    if (g_nResourcePaletteMode_005c57e6 == 0)
+    if (g_nResourcePaletteState_005c57e6 == 0)
         FreePacketAndClear(&g_pGenericMissileShape_0049c8f0, 4);
     FreePacketAndClear(&g_pGenericMissileExhaustShape_0049c8f4, 0);
 }

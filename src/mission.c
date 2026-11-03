@@ -543,7 +543,7 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectResourceSlots_00493398[slot].shape;
                 if (objectClass == OBJECT_CLASS_SHIP &&
                     g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
-                    g_nResourcePaletteMode_005c57e6 == 0) {
+                    g_nResourcePaletteState_005c57e6 == 0) {
                     g_aObjectResourceSlots_00493398[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 4, 4);
                     g_aObjectTypeData_00496d30[32].shapeSet =
@@ -571,7 +571,7 @@ void load_ship(short resourceType, short objectType,
                 }
             } else {
                 if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
-                    g_nResourcePaletteMode_005c57e6 == 0) {
+                    g_nResourcePaletteState_005c57e6 == 0) {
                     g_apPacketReferenceGroups_0049b898[slot] =
                         (void **)calloc(0x25, HOST_POINTER_SIZE);
                     packetRefs =
@@ -630,10 +630,10 @@ void free_ship(short slot)
         (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
          g_aObjectResourceSlots_00493398[slot].objectClass ==
              OBJECT_CLASS_SHIP)) {
-        if (g_nResourcePaletteMode_005c57e6 == 0)
+        if (g_nResourcePaletteState_005c57e6 == 0)
             release_capital_ship_shapes(resourceType);
         if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
-            g_nResourcePaletteMode_005c57e6 == 0 &&
+            g_nResourcePaletteState_005c57e6 == 0 &&
             g_apPacketReferenceGroups_0049b898[slot] != 0) {
             refCount = g_apPacketReferenceGroups_0049b898[slot];
             for (section = 0; section < 0x25; section++) {
@@ -647,7 +647,7 @@ void free_ship(short slot)
         g_aObjectTypeData_00496d30[slot].shape = 0;
         FreePacketAndClear(
             &g_aObjectResourceSlots_00493398[slot].animation, 8);
-        if (g_nResourcePaletteMode_005c57e6 == 0) {
+        if (g_nResourcePaletteState_005c57e6 == 0) {
             FreePacketAndClear(
                 &g_aObjectResourceSlots_00493398[slot].field_12, 8);
         }
@@ -703,7 +703,7 @@ void free_ship(short slot)
     FreePacketAndClear(
         &g_aObjectResourceSlots_00493398[slot].shape, 8);
     g_aObjectTypeData_00496d30[slot].shape = 0;
-    if (g_nResourcePaletteMode_005c57e6 == 0) {
+    if (g_nResourcePaletteState_005c57e6 == 0) {
         FreePacketAndClear(
             &g_aObjectResourceSlots_00493398[slot].field_12, 8);
     }

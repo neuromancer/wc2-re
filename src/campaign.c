@@ -221,9 +221,9 @@ short RunCampaignGameLoop(short campaignSlot)
             }
             g_nTrainSimActive_0049d758 = 0;
             series = g_stCurrentPilotProfile_00493408.series;
-            g_nCurrentSeries_005c5870 = series;
+            g_nCurSeries_005c5870 = series;
             mission = g_stCurrentPilotProfile_00493408.mission;
-            g_nCurrentMission_005c5878 = mission;
+            g_nCurrentLevel_005c5878 = mission;
             ResetGameTextContexts();
             OpenDiskDataFile(1);
             init_mission(series, mission);

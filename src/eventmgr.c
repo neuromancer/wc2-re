@@ -656,17 +656,17 @@ InputEvent *AllocateInputEvent(void)
         for (index = 0; index < 0x100; index++) {
             if (g_anInputEventSlotUsed_005c87e0[index] == 0) {
                 g_anInputEventSlotUsed_005c87e0[index] = 1;
-                return &g_aInputEventPool_005c5890[index];
+                return &g_aInputEventArray_005c5890[index];
             }
         }
     } else {
-        memset(g_aInputEventPool_005c5890, 0,
-               sizeof(g_aInputEventPool_005c5890));
+        memset(g_aInputEventArray_005c5890, 0,
+               sizeof(g_aInputEventArray_005c5890));
         memset(g_anInputEventSlotUsed_005c87e0, 0,
                sizeof(g_anInputEventSlotUsed_005c87e0));
         g_nInputEventPoolInitialized_0049d4bc = 1;
         g_anInputEventSlotUsed_005c87e0[0] = 1;
-        return &g_aInputEventPool_005c5890[0];
+        return &g_aInputEventArray_005c5890[0];
     }
     return 0;
 }
@@ -678,7 +678,7 @@ void ReleaseInputEvent(InputEvent *event)
     int slot;
 
     for (slot = 0; slot < 0x100; slot++) {
-        if (&g_aInputEventPool_005c5890[slot] == event)
+        if (&g_aInputEventArray_005c5890[slot] == event)
             g_anInputEventSlotUsed_005c87e0[slot] = 0;
     }
     return;

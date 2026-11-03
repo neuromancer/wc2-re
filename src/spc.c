@@ -894,7 +894,7 @@ void house_keep_objects(void)
                 g_asObjectAnimationIndex_00494c70[obj] == 0x0c &&
                 g_asObjectScreenX_00493598[obj] != (short)0x8001) {
                 if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
-                    g_nSpaceExplosionFlashStep_005c5872 = 0;
+                    g_nSpaceBlastFlashIncrement_005c5872 = 0;
                     g_asSpacePaletteFade_005d2d60[0] =
                         (short)(g_aSpaceExplosionFlashPalette_0049d808[0][0]
                                 << 2);

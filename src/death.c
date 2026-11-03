@@ -34,7 +34,7 @@ void death_sequence(void)
         if (g_asObjectType_00495298[objIndex] == OBJECT_DATA_EJECTED_PILOT)
             remove_object(objIndex);
     }
-    g_nResourcePaletteMode_005c57e6 = 1;
+    g_nResourcePaletteState_005c57e6 = 1;
     StopMusicUnlessSuppressed();
     if (g_nMemoryConfiguration_005c8dc8 == 1)
         SceneLeaveHook(0x20);
@@ -72,7 +72,7 @@ void death_sequence(void)
             break;
         g_nArcadeState_0049d75c = 0;
         load_all_slots();
-        g_nResourcePaletteMode_005c57e6 = 0;
+        g_nResourcePaletteState_005c57e6 = 0;
         new_view(5, 0);
         g_nFrameSkipCountdown_0049d760 = 1;
         for (frame = 0; frame < 0x3c; frame++) {

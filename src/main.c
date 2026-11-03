@@ -43,9 +43,9 @@ short LogMemoryUsage(void)
     ConfigureDefaultSpacePalette(g_nDetectedGraphicsMode_005c80d2);
     if (g_nOriginDevUnlock_0049d774 != 0) {
         printf("Series %d, Mission %d (%c)\n",
-               (int)g_nCurrentSeries_005c5870,
-               (int)g_nCurrentMission_005c5878,
-               (int)g_nCurrentMission_005c5878 + 'A');
+               (int)g_nCurSeries_005c5870,
+               (int)g_nCurrentLevel_005c5878,
+               (int)g_nCurrentLevel_005c5878 + 'A');
     }
     if (g_nShowMemoryStatus_0049d784 != 0) {
         printf(
@@ -106,9 +106,9 @@ void RunGameApplication(short argc, char **argv)
            &g_stDefaultPilotProfile_00492660,
            sizeof(g_stCurrentPilotProfile_00493408));
 #ifdef SDL_PORT
-    GameMain(argumentCount, g_pStartupArguments_005c57f0);
+    GameMain(argumentCount, g_pInitialArguments_005c57f0);
 #else
-    main(argumentCount, g_pStartupArguments_005c57f0);
+    main(argumentCount, g_pInitialArguments_005c57f0);
 #endif
 
     if (g_bMemoryAdjustmentEnabled_0049cc84 != 0) {
@@ -133,17 +133,17 @@ void RunGameApplication(short argc, char **argv)
     g_stCurrentPilotProfile_00493408.mission = g_stDirectMissionSelection_0049d798.mission;
     g_stDefaultPilotProfile_00492660.mission =
         g_stCurrentPilotProfile_00493408.mission;
-    g_nResourcePaletteMode_005c57e6 = 0;
+    g_nResourcePaletteState_005c57e6 = 0;
     LoadOriginFxDrivers();
     SetMenuInputPump();
     if (g_bRewritePacketExtensions_0049cb48 == 0) {
-        g_nMenuShadowColour_005c5876 = 2;
-        g_nMenuHighlightColour_005c5874 = 10;
-        g_nMenuTextColour_005c57e8 = 0x5e;
+        g_nMenuDarkColour_005c5876 = 2;
+        g_nMenuSelectedCol_005c5874 = 10;
+        g_nOptionMessageColour_005c57e8 = 0x5e;
     } else {
-        g_nMenuShadowColour_005c5876 = 0;
-        g_nMenuHighlightColour_005c5874 = 10;
-        g_nMenuTextColour_005c57e8 = 2;
+        g_nMenuDarkColour_005c5876 = 0;
+        g_nMenuSelectedCol_005c5874 = 10;
+        g_nOptionMessageColour_005c57e8 = 2;
     }
 
     if (g_stDirectMissionSelection_0049d798.launch == 0) {
@@ -189,8 +189,8 @@ void RunGameApplication(short argc, char **argv)
             }
         }
     } else {
-        g_nCurrentSeries_005c5870 = g_nDirectSeries_0049d79c;
-        g_nCurrentMission_005c5878 = g_stDirectMissionSelection_0049d798.mission;
+        g_nCurSeries_005c5870 = g_nDirectSeries_0049d79c;
+        g_nCurrentLevel_005c5878 = g_stDirectMissionSelection_0049d798.mission;
         LoadTemporaryCampaignGlobals();
         g_pCampaignGlobals_00499c94->field_08 = 0;
         InitializeCampaignConstellationState(
@@ -729,7 +729,7 @@ short player_input(void)
     g_bPolledFlightInputQueued_005c587a = IsInputEventQueued(7);
     g_bMouseMoveEventQueued_0049d7fc =
         (signed char)IsInputEventQueued(3);
-    g_bDiscreteFlightInputQueued_005c57e4 =
+    g_bDiscreteFlightInputWaiting_005c57e4 =
         (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
     if (g_bMouseMoveEventQueued_0049d7fc == 0)
         g_cCurrentKey_00493128 |= (signed char)0x80;
@@ -867,11 +867,11 @@ short player_input(void)
                 if (g_anFlightInput_004931a8[2] != 0 &&
                     g_cCurrentKey_00493128 == 0) {
                     g_anFlightInput_004931a8[2] = 0;
-                    g_stPreviousFlightInput_005c57d0.x = -1;
+                    g_stPrevFlightControls_005c57d0.x = -1;
                 }
-                if (g_stPreviousFlightInput_005c57d0.x !=
+                if (g_stPrevFlightControls_005c57d0.x !=
                         g_stCurrentFlightInput_0049d7b0.x ||
-                    g_stPreviousFlightInput_005c57d0.y !=
+                    g_stPrevFlightControls_005c57d0.y !=
                         g_stCurrentFlightInput_0049d7b0.y) {
                     g_anFlightInput_004931a8[1] =
                         (short)g_stCurrentFlightInput_0049d7b0.x;
@@ -937,7 +937,7 @@ short player_input(void)
 #ifdef SDL_PORT
     SdlApplyJoystickFlightControls();
 #endif
-    g_stPreviousFlightInput_005c57d0 =
+    g_stPrevFlightControls_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
     g_bPlayerInputActive_005c8090 = savedPlayerInputActive;
     return result;
@@ -1728,20 +1728,20 @@ unsigned int DrawSpaceSceneFrame(void)
     hidePlayer = 0;
     if (g_nSpaceExplosionFlashActive_00492fb4 != 0) {
         if ((short)g_nSpacePaletteFadeMode_004901e8 == 0x13) {
-            g_nSpaceExplosionFlashStep_005c5872++;
-            if (g_nSpaceExplosionFlashStep_005c5872 < 4)
+            g_nSpaceBlastFlashIncrement_005c5872++;
+            if (g_nSpaceBlastFlashIncrement_005c5872 < 4)
                 paletteCycleActive++;
             if (g_aSpaceExplosionFlashPalette_0049d808[
-                    g_nSpaceExplosionFlashStep_005c5872][0] != 0) {
+                    g_nSpaceBlastFlashIncrement_005c5872][0] != 0) {
                 g_asSpacePaletteFade_005d2d60[0] =
                     g_aSpaceExplosionFlashPalette_0049d808[
-                        g_nSpaceExplosionFlashStep_005c5872][0];
+                        g_nSpaceBlastFlashIncrement_005c5872][0];
                 g_asSpacePaletteFade_005d2d60[1] =
                     g_aSpaceExplosionFlashPalette_0049d808[
-                        g_nSpaceExplosionFlashStep_005c5872][1];
+                        g_nSpaceBlastFlashIncrement_005c5872][1];
                 g_asSpacePaletteFade_005d2d60[2] =
                     g_aSpaceExplosionFlashPalette_0049d808[
-                        g_nSpaceExplosionFlashStep_005c5872][2];
+                        g_nSpaceBlastFlashIncrement_005c5872][2];
             } else {
                 g_asSpacePaletteFade_005d2d60[0] = 0;
                 g_asSpacePaletteFade_005d2d60[1] = 0;
@@ -2087,3 +2087,27 @@ short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
     {0, 0, 0}
 };
 int g_bRenderingSpaceFrame_0049d858 = 0;
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+InputDeviceSample g_stPrevFlightControls_005c57d0;
+short g_bMapPrimaryInputQueued_005c57dc;
+int g_nUnusedMainNumber_005c57e0; /* never referenced */
+short g_bDiscreteFlightInputWaiting_005c57e4;
+short g_nResourcePaletteState_005c57e6;
+short g_nOptionMessageColour_005c57e8;
+short g_bFleetMouseMovePosted_005c57ea;
+char *g_pInitialArguments_005c57f0[31];
+int g_bSpaceFlightActive_005c586c;
+short g_nCurSeries_005c5870;
+short g_nSpaceBlastFlashIncrement_005c5872;
+short g_nMenuSelectedCol_005c5874;
+short g_nMenuDarkColour_005c5876;
+short g_nCurrentLevel_005c5878;
+short g_bPolledFlightInputQueued_005c587a;
+int g_nIdleMainNumber_005c5880[4]; /* never referenced */
+InputEvent g_aInputEventArray_005c5890[0x100];
+int g_bPlayerInputActive_005c8090;
+int g_nUnusedMainValue_005c8094; /* never referenced */
+int g_nUnusedMainValue_005c8098[2]; /* never referenced */
+int g_nUnusedMainNumber_005c80a0[2]; /* never referenced */

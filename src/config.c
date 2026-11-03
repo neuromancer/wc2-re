@@ -36,7 +36,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
             fclose(file);
             break;
         }
-        g_pStartupArguments_005c57f0[argumentCount++] =
+        g_pInitialArguments_005c57f0[argumentCount++] =
             destination;
         destination = strchr(destination, 0);
         destination++;
@@ -44,7 +44,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 
     while (argc-- != 0) {
         strcpy(destination, argv[argumentIndex++]);
-        g_pStartupArguments_005c57f0[argumentCount++] = destination;
+        g_pInitialArguments_005c57f0[argumentCount++] = destination;
         destination = strchr(destination, 0);
         destination++;
     }

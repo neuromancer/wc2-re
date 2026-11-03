@@ -273,7 +273,7 @@ extern int g_bRenderingSpaceFrame_0049d858;
 extern short g_bExplosionTraversalIdle_00492e18;
 extern short g_nSpaceExplosionFlashActive_00492fb4;
 extern short g_bApplyingCollisionDamage_00492fb8;
-extern short g_nSpaceExplosionFlashStep_005c5872;
+extern short g_nSpaceBlastFlashIncrement_005c5872;
 extern short g_aSpaceExplosionFlashPalette_0049d808[13][3];
 extern short g_bJumpSequenceActive_004962f0;
 extern short g_bStarSystemJumpTransition_004962ec;
@@ -305,8 +305,8 @@ extern short g_nDirectSeries_0049d79c;
  * difficulty table (the end of joycal.c's literals); this models them.  The
  * declaration also holds the header's symbol count. */
 extern short g_aasSeriesMissionTurnRate_004930a0[1][4];
-extern short g_nCurrentMission_005c5878;
-extern short g_nCurrentSeries_005c5870;
+extern short g_nCurrentLevel_005c5878;
+extern short g_nCurSeries_005c5870;
 extern short g_asWingmanDamageCredit_005d3830[10];
 extern short g_asShipExplosionStageTimer_005d3850[10];
 extern signed char g_abExplosionObjectVisited_005d3870[
@@ -935,7 +935,7 @@ extern unsigned char *g_pBriefingPortraitShape_00598c24;
 extern unsigned char *g_pDebriefingTextData_00598c28;
 extern unsigned char *g_pBriefingCloseupShape_00598c2c;
 extern unsigned char *g_pConversationOverlayShape_00598c30;
-extern InputEvent g_aInputEventPool_005c5890[0x100];
+extern InputEvent g_aInputEventArray_005c5890[0x100];
 extern int g_nStreamerAudioPlaying_005b2810;
 #ifdef SDL_PORT
 extern char g_szStreamerDirectory_005b2818[4096];
@@ -1282,8 +1282,8 @@ extern TextContext g_stDefaultTextContext_005d2d20;
 extern TextContext g_stConversationTextContext_005d2d40;
 extern short g_asSpacePaletteFade_005d2d60[3];
 extern unsigned int g_uFrameTimerEventId_005d3bec;
-extern InputDeviceSample g_stPreviousFlightInput_005c57d0;
-extern char *g_pStartupArguments_005c57f0[30];
+extern InputDeviceSample g_stPrevFlightControls_005c57d0;
+extern char *g_pInitialArguments_005c57f0[31];
 extern Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
 extern Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
 extern TextContext g_stTrainSimTextContext_005a7bd0;
@@ -1540,10 +1540,10 @@ typedef struct PilotNameVariables {
 } PilotNameVariables;
 
 extern PilotNameVariables g_stPilotNameVariables_00499ef8;
-extern short g_nResourcePaletteMode_005c57e6;
-extern short g_nMenuTextColour_005c57e8;
-extern short g_nMenuHighlightColour_005c5874;
-extern short g_nMenuShadowColour_005c5876;
+extern short g_nResourcePaletteState_005c57e6;
+extern short g_nOptionMessageColour_005c57e8;
+extern short g_nMenuSelectedCol_005c5874;
+extern short g_nMenuDarkColour_005c5876;
 extern int g_nLegacySaveSource_0049a600;
 extern short g_nPersonnelMenuHighlight_0049a6a0;
 extern void *g_pPersonnelCampaignSnapshot_0049a6a4;
@@ -1558,7 +1558,7 @@ extern short g_nPersonnelCursorX_005c8470;
 extern short g_nPersonnelCursorY_005c8472;
 MAIN_STATIC int g_bMouseFireButtonLatched_005c4b10;
 MAIN_STATIC short g_wSavedInputDeviceButtonState_005c4b14;
-extern short g_bDiscreteFlightInputQueued_005c57e4;
+extern short g_bDiscreteFlightInputWaiting_005c57e4;
 extern short g_bPolledFlightInputQueued_005c587a;
 extern int g_bPlayerInputActive_005c8090;
 extern short g_wPendingInputButtons_005c80d4;

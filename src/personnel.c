@@ -388,33 +388,33 @@ void DrawPilotSaveMenuChoices(short choice)
     if (choice == PERSONNEL_KEY_L) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x38);
     DrawFormattedText("[L]oad a personnel file");
     if (choice == PERSONNEL_KEY_S) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x4c);
     DrawFormattedText("[S]ave a personnel file");
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x60);
     DrawFormattedText("[D]elete a personnel file");
@@ -433,22 +433,22 @@ void DrawPersonnelSourceChoices(short choice)
     if (choice == PERSONNEL_KEY_W) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x50, 0x2e);
     DrawFormattedText("[W]ing Commander");
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x50, 0x42);
     DrawFormattedText("[D]os Version of Wing Commander");
@@ -467,22 +467,22 @@ void DrawPersonnelMenuChoices(short choice)
     if (choice == PERSONNEL_KEY_T) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x3c, 0x38);
     DrawFormattedText("[T]ransfer an existing personnel file");
     if (choice == PERSONNEL_KEY_C) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x3c, 0x4c);
     DrawFormattedText("[C]reate a new personnel file");
@@ -557,13 +557,13 @@ void HighlightPersonnelFileSlot(short choice)
     if (choice != -1) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 2,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
         DrawPersonnelFileSlot(slot);
     }
     if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 2,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
         if (g_nPersonnelMenuHighlight_0049a6a0 == PERSONNEL_KEY_0) {
             slot = 0;
         } else {
@@ -584,7 +584,7 @@ short SelectPersonnelFileSlot(void)
     DisableMouseCursorDrawing();
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
                                   (unsigned char)
-                                      g_nMenuShadowColour_005c5876,
+                                      g_nMenuDarkColour_005c5876,
                                   -1);
     for (index = 0; index < 8; index++) {
         DrawPersonnelFileSlot(index);
@@ -707,13 +707,13 @@ void HighlightTransferredPilot(short choice)
     if (choice != -1) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+            (unsigned char)g_nMenuSelectedCol_005c5874, -1);
         DrawTransferredPilotRow(row);
     }
     if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
         if (g_nPersonnelMenuHighlight_0049a6a0 == PERSONNEL_KEY_0) {
             row = 0;
         } else {
@@ -735,7 +735,7 @@ short SelectTransferredPilot(short count)
     RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
                                   (unsigned char)
-                                      g_nMenuShadowColour_005c5876,
+                                      g_nMenuDarkColour_005c5876,
                                   -1);
     SetTextCursor(0x32, 0x0f);
     DrawFormattedText("Select a character to transfer");
@@ -743,7 +743,7 @@ short SelectTransferredPilot(short count)
     DrawFormattedText("Missions Kills");
     InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
                                   (unsigned char)
-                                      g_nMenuShadowColour_005c5876,
+                                      g_nMenuDarkColour_005c5876,
                                   -1);
     for (index = 0; index < count; index++) {
         DrawTransferredPilotRow(index);
@@ -916,7 +916,7 @@ void RunPilotSaveLoadMenu(void)
         SetTextContext(&g_stDefaultTextContext_005d2d20);
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x50, 0x12);
         DrawFormattedText("TERRAN CONFEDERATION NAVY");
         SetTextCursor(0x60, 0x1c);
@@ -989,7 +989,7 @@ void RunPilotSaveLoadMenu(void)
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 2,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0x50, 0x0c);
                 DrawFormattedText("Select a game to load");
                 SetTextCursor(0xb8, 0x0c);
@@ -1052,7 +1052,7 @@ void RunPilotSaveLoadMenu(void)
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 2,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0xb8, 0x0c);
                 DrawFormattedText("Missions Kills");
                 SetTextCursor(0x50, 0x0c);
@@ -1065,14 +1065,14 @@ void RunPilotSaveLoadMenu(void)
                         &g_stSecondaryViewBuffer_005d2c90);
                     InitializeTextContextFromFont(
                         &g_stDefaultTextContext_005d2d20, 2,
-                        (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                        (unsigned char)g_nMenuDarkColour_005c5876, -1);
                     confirm = 1;
                     SetTextCursor(0x32, 0x32);
                     DrawFormattedText("Are you sure?");
                     InitializeTextContextFromFont(
                         &g_stDefaultTextContext_005d2d20, 2,
-                        (unsigned char)g_nMenuHighlightColour_005c5874,
-                        (unsigned char)g_nMenuTextColour_005c57e8);
+                        (unsigned char)g_nMenuSelectedCol_005c5874,
+                        (unsigned char)g_nOptionMessageColour_005c57e8);
                     SetTextCursor(0x6a, 0x32);
                     DrawFormattedText("Yes");
                     RefreshMemoryStatusOverlay();
@@ -1108,7 +1108,7 @@ void RunPilotSaveLoadMenu(void)
                     &g_stSecondaryViewBuffer_005d2c90);
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 2,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0xb8, 0x0c);
                 DrawFormattedText("Missions Kills");
                 SetTextCursor(0x50, 0x0c);
@@ -1124,15 +1124,15 @@ void RunPilotSaveLoadMenu(void)
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 2,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 confirm = 1;
                 if (g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
                     SetTextCursor(0x32, 0x32);
                     DrawFormattedText("Are you sure?");
                     InitializeTextContextFromFont(
                         &g_stDefaultTextContext_005d2d20, 2,
-                        (unsigned char)g_nMenuHighlightColour_005c5874,
-                        (unsigned char)g_nMenuTextColour_005c57e8);
+                        (unsigned char)g_nMenuSelectedCol_005c5874,
+                        (unsigned char)g_nOptionMessageColour_005c57e8);
                     SetTextCursor(0x6a, 0x32);
                     DrawFormattedText("Yes");
                     RefreshMemoryStatusOverlay();
@@ -1153,7 +1153,7 @@ void RunPilotSaveLoadMenu(void)
                 }
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 2,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 if (confirm != 0) {
                     g_apPersonnelFileSlots_0049a660[slot]->occupied = 1;
                     g_apPersonnelFileSlots_0049a660[slot]->description[0] = 0;
@@ -1162,7 +1162,7 @@ void RunPilotSaveLoadMenu(void)
                     RefreshMemoryStatusOverlay();
                     InitializeTextContextFromFont(
                         &g_stDefaultTextContext_005d2d20, 2,
-                        (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+                        (unsigned char)g_nMenuSelectedCol_005c5874, -1);
                     ReadPersonnelTextField(
                         0x32, 0x4c, 2, "",
                         g_apPersonnelFileSlots_0049a660[slot]->description,
@@ -1232,7 +1232,7 @@ short SelectLegacyGameSource(void)
     while (done == 0) {
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x3c, 0x1e);
         DrawFormattedText("Transfer a character from:");
         RefreshMemoryStatusOverlay();
@@ -1329,7 +1329,7 @@ short LocateLegacySaveGame(short source)
 
     InitializeTextContextFromFont(
         &g_stDefaultTextContext_005d2d20, 2,
-        (unsigned char)g_nMenuShadowColour_005c5876, -1);
+        (unsigned char)g_nMenuDarkColour_005c5876, -1);
     if (g_nLegacySaveSource_0049a600 == 0) {
         installedPath = GetLegacyGameDataPath();
         if (installedPath != 0) {
@@ -1467,7 +1467,7 @@ short RunPilotDatabaseMenu(void)
         SetTextContext(&g_stDefaultTextContext_005d2d20);
         InitializeTextContextFromFont(
             &g_stDefaultTextContext_005d2d20, 1,
-            (unsigned char)g_nMenuShadowColour_005c5876, -1);
+            (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x50, 0x12);
         DrawFormattedText("TERRAN CONFEDERATION NAVY");
         SetTextCursor(0x60, 0x1c);
@@ -1534,7 +1534,7 @@ short RunPilotDatabaseMenu(void)
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 1,
-                    (unsigned char)g_nMenuShadowColour_005c5876, -1);
+                    (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 selected = SelectLegacyGameSource();
                 if (selected == -1) {
                     result = 0;
@@ -1620,7 +1620,7 @@ short RunPilotDatabaseMenu(void)
                                 InitializeTextContextFromFont(
                                     &g_stDefaultTextContext_005d2d20, 1,
                                     (unsigned char)
-                                        g_nMenuHighlightColour_005c5874,
+                                        g_nMenuSelectedCol_005c5874,
                                     -1);
                                 DisableMouseCursorDrawing();
                                 RestorePersonnelMenuBackground(
@@ -1680,7 +1680,7 @@ short RunPilotDatabaseMenu(void)
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
                     &g_stDefaultTextContext_005d2d20, 1,
-                    (unsigned char)g_nMenuHighlightColour_005c5874, -1);
+                    (unsigned char)g_nMenuSelectedCol_005c5874, -1);
                 inputResult = ReadPersonnelTextField(
                     0x32, 0x1e, 2, "Enter first name: ", firstName,
                     0x0b, 0, 0);

@@ -94,7 +94,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
         return;
     }
 
-    g_nResourcePaletteMode_005c57e6 = 1;
+    g_nResourcePaletteState_005c57e6 = 1;
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
         stream = fopen("mid.$$$", "w+");
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
@@ -163,7 +163,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
         LogMemoryStateToFile(stream);
 
-    g_nResourcePaletteMode_005c57e6 = 0;
+    g_nResourcePaletteState_005c57e6 = 0;
     InitializeSpaceFlightInput();
     ReleaseSceneMusicPacket();
 
