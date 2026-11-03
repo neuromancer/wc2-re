@@ -388,20 +388,24 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
         ReleasePacketSlot((void **)&resource);
 }
 
-/* Function start: 0x40E31F */
-unsigned int ParseCutsceneContainer(void *scenePacket)
-{
-    unsigned char *cursor;
-    unsigned char *containerEnd;
-    unsigned char *formEnd;
-    int formType;
-    SceneResourceTable decodedResource;
-    CutsceneTextResource *textResource;
-    short globalCount;
+/* Read into an unused local when a GLOB chunk is decoded (DOS g_ce02); no
+ * code in the Win32 port writes it. */
+extern short g_nPreviousGlobalCount_005d2ec4;
 
-    cursor = IdentityHandle(scenePacket);
+/* Function start: 0x40E31F */
+unsigned char ParseCutsceneContainer(void *scenePacket)
+{
+    unsigned char *formEnd;
+    SceneResourceTable decodedResource;
+    unsigned char *containerEnd;
+    CutsceneTextResource *text;
+    unsigned char *location;
+    short globalLength;
+    short oldCount;
+
+    location = IdentityHandle(scenePacket);
     InitializeCutsceneRuntimeResources();
-    if (ReadNextSceneForm(&cursor, &containerEnd) != 0x50435343)
+    if (ReadNextSceneForm(&location, &containerEnd) != 0x50435343)
         return 0;
     PushCutsceneObjectResource(&g_pCutsceneSpriteResources_0049288c);
     PushCutsceneObjectResource(&g_pCutscenePlaneResources_00492890);
@@ -415,83 +419,83 @@ unsigned int ParseCutsceneContainer(void *scenePacket)
     PushCutsceneFileResource(&g_pCutsceneFontResources_004928a0);
     PushCutsceneFileResource(&g_pCutsceneSpeechResources_004928a4);
     PushCutsceneFileResource(&g_pCutscenePaletteResources_004928b0);
-    while (cursor < containerEnd) {
-        formType = ReadNextSceneForm(&cursor, &formEnd);
-        switch (formType) {
+    while (location < containerEnd) {
+        switch ((long)ReadNextSceneForm(&location, &formEnd)) {
         case 0x54525053:
             DecodeCutsceneObjectResource(
                 g_pCutsceneSpriteResources_0049288c,
-                &cursor, formEnd, formType);
+                &location, formEnd, 0x54525053);
             break;
         case 0x454e4c50:
             DecodeCutsceneObjectResource(
                 g_pCutscenePlaneResources_00492890,
-                &cursor, formEnd, formType);
+                &location, formEnd, 0x454e4c50);
             break;
         case 0x55514553:
             DecodeCutsceneObjectResource(
                 g_pCutsceneSequenceResources_00492894,
-                &cursor, formEnd, formType);
+                &location, formEnd, 0x55514553);
             break;
         case 0x454e4353:
             DecodeCutsceneObjectResource(
                 g_pCutsceneSceneResources_00492898,
-                &cursor, formEnd, formType);
+                &location, formEnd, 0x454e4353);
             break;
         case 0x20205846:
             DecodeCutsceneFileResource(
-                g_pCutsceneFxResources_004928b8, &cursor);
+                g_pCutsceneFxResources_004928b8, &location);
             break;
         case 0x2053554d:
             DecodeCutsceneFileResource(
-                g_pCutsceneMusicResources_004928bc, &cursor);
+                g_pCutsceneMusicResources_004928bc, &location);
             break;
         case 0x204c4150:
             DecodeCutsceneFileResource(
-                g_pCutscenePaletteResources_004928b0, &cursor);
+                g_pCutscenePaletteResources_004928b0, &location);
             break;
         case 0x544e4f46:
             DecodeCutsceneFileResource(
-                g_pCutsceneFontResources_004928a0, &cursor);
+                g_pCutsceneFontResources_004928a0, &location);
             break;
         case 0x48435053:
             DecodeCutsceneFileResource(
-                g_pCutsceneSpeechResources_004928a4, &cursor);
+                g_pCutsceneSpeechResources_004928a4, &location);
             break;
         case 0x4d4c4946:
             DecodeCutsceneFileResource(
-                g_pCutsceneFilmResources_004928b4, &cursor);
+                g_pCutsceneFilmResources_004928b4, &location);
             break;
         case 0x50414853:
             DecodeCutsceneFileResource(
-                g_pCutsceneShapeResources_004928a8, &cursor);
+                g_pCutsceneShapeResources_004928a8, &location);
             break;
         case 0x53554f4d:
             DecodeCutsceneFileResource(
-                g_pCutsceneMouseResources_004928ac, &cursor);
+                g_pCutsceneMouseResources_004928ac, &location);
             break;
         case 0x424f4c47:
-            DecodeSceneResourceChunk(&cursor, &decodedResource);
-            globalCount = *(short *)(
+            oldCount = g_nPreviousGlobalCount_005d2ec4;
+            DecodeSceneResourceChunk(&location, &decodedResource);
+            globalLength = *(short *)(
                 ((void **)decodedResource.data)[0]);
             if (g_pCampaignGlobals_00499c94 == 0) {
                 g_pCampaignGlobals_00499c94 = AllocateScenePointerTable(
-                    globalCount, 2, 0, "Cannot Reallocate Globals");
+                    globalLength, 2, 0, "Cannot Reallocate Globals");
             }
             ReleasePacketSlot(&decodedResource.data);
             break;
         case 0x54584554:
-            DecodeSceneResourceChunk(&cursor, &decodedResource);
-            textResource = AllocateScenePointerTable(
+            DecodeSceneResourceChunk(&location, &decodedResource);
+            text = AllocateScenePointerTable(
                 1, sizeof(CutsceneTextResource), 0,
                 "Cannot Allocate Text Ptrs");
-            textResource->next = g_pCutsceneTextResources_0049289c;
-            textResource->owner = g_nCutsceneResourceLevel_00499d98;
-            textResource->entries = decodedResource.data;
-            g_pCutsceneTextResources_0049289c = textResource;
+            text->next = g_pCutsceneTextResources_0049289c;
+            text->owner = g_nCutsceneResourceLevel_00499d98;
+            text->entries = decodedResource.data;
+            g_pCutsceneTextResources_0049289c = text;
             break;
         default:
-            cursor = formEnd;
+            location = formEnd;
             break;
         }
     }

@@ -2117,6 +2117,7 @@ short g_nCutsceneResourceScratch_005d2e9c;
 short g_nCutsceneTextIndex_005d2ea4;
 unsigned int g_nCutsceneInitialLargestBlock_005d2ea8;
 Viewport g_stSceneFlicScratchViewport_005d2eb0;
+short g_nPreviousGlobalCount_005d2ec4;
 int g_nCutsceneMemoryDelta_005d2ec8;
 char *g_pszCutsceneWorkBuffer_005d2ecc;
 short g_bCutsceneTextAdvance_005d2ed0;

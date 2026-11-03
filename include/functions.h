@@ -1320,7 +1320,7 @@ CutsceneResourceTable *PushCutsceneFileResource(
     CutsceneResourceTable **head);                                    /* 0x40E230 */
 void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
                                 unsigned char **cursor);              /* 0x40E285 */
-unsigned int ParseCutsceneContainer(void *scenePacket);               /* 0x40E31F */
+unsigned char ParseCutsceneContainer(void *scenePacket);              /* 0x40E31F */
 signed char DecodeCutsceneObjectResource(
     CutsceneObjectResourceList *resource, unsigned char **cursor,
     unsigned char *end, unsigned int formType);                       /* 0x40E726 */
