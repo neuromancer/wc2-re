@@ -424,8 +424,22 @@ typedef struct ShipWeaponSlot {
 } ShipWeaponSlot;
 #pragma pack(pop)
 
+#ifdef __cplusplus
 typedef char ShipWeaponSlot_size_must_be_0x0a[
     sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
+#else
+/* One row of g_aShipWeapons_004956b0 and of ObjectTypeData.weaponLoadout:
+ * the slot count, then the slots.  Indexing the row as this record lets the
+ * count and member offsets fold into one constant.  The array bound also
+ * checks the ten-byte slot size.  (No C++ unit uses it; there it would add
+ * implicit members and their keys.) */
+#pragma pack(push, 1)
+struct ShipLoadout {
+    signed char count;
+    ShipWeaponSlot slots[sizeof(ShipWeaponSlot) == 0x0a ? 16 : -1];
+};
+#pragma pack(pop)
+#endif
 
 enum ReleaseWeaponObjectType {
     OBJECT_DATA_DART_DUMB_FIRE_MISSILE = 0x0f,

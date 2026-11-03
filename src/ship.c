@@ -291,36 +291,33 @@ void remove_weapon(short obj, short weapon)
     short removedType;
     short objectClass;
     short dataType;
-    unsigned char *slots;
+    struct ShipLoadout *slots;
     short index;
 
-    slots = g_aShipWeapons_004956b0[obj];
+    slots = &((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj];
     dataType = ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[obj] + 1))[
         weapon].weaponType;
     removedType = ((ShipWeaponSlot *)(g_aShipWeapons_004956b0[obj] + 1))[
         weapon].type;
     objectClass = g_aObjectTypeData_00496d30[dataType].objectClass;
-    if ((signed char)slots[0] - 1 > weapon) {
-        for (index = weapon; (signed char)slots[0] - 1 > index; index++) {
-            ((ShipWeaponSlot *)(slots + 1))[index].type =
-                ((ShipWeaponSlot *)(slots + 1))[index + 1].type;
-            ((ShipWeaponSlot *)(slots + 1))[index].mount =
-                ((ShipWeaponSlot *)(slots + 1))[index + 1].mount;
-            ((ShipWeaponSlot *)(slots + 1))[index].disabled =
-                ((ShipWeaponSlot *)(slots + 1))[index + 1].disabled;
-            ((ShipWeaponSlot *)(slots + 1))[index].weaponType =
-                ((ShipWeaponSlot *)(slots + 1))[index + 1].weaponType;
+    if (slots->count - 1 > weapon) {
+        for (index = weapon; slots->count - 1 > index; index++) {
+            slots->slots[index].type = slots->slots[index + 1].type;
+            slots->slots[index].mount = slots->slots[index + 1].mount;
+            slots->slots[index].disabled = slots->slots[index + 1].disabled;
+            slots->slots[index].weaponType =
+                slots->slots[index + 1].weaponType;
             if (obj == 0) {
                 g_aWeaponDisplayPositions_005d1de0[index] =
                     g_aWeaponDisplayPositions_005d1de0[index + 1];
             }
         }
-        if (slots[0] < 0x10)
-            ((ShipWeaponSlot *)(slots + 1))[slots[0]].disabled = 1;
+        if (slots->count < 0x10)
+            slots->slots[slots->count].disabled = 1;
     }
-    slots[0]--;
+    slots->count--;
     if (obj == 0) {
-        if (any_selected(slots, objectClass) == 0) {
+        if (any_selected((unsigned char *)slots, objectClass) == 0) {
             if (objectClass == OBJECT_CLASS_PROJECTILE) {
                 select_new_gun();
             } else {

@@ -103,6 +103,7 @@ void init_mission(short series, short mission)
 void ApplyAlternateShipType(short obj)
 {
     ObjectTypeData *typeData;
+    void InitializeShipWeaponTypeIndices(short ship);
     short weapon;
 
     typeData = &g_aObjectTypeData_00496d30[4];
@@ -145,21 +146,16 @@ void ApplyAlternateShipType(short obj)
         g_nSelectedGunType_004934dc = -1;
         weapon = (short)(signed char)g_aShipWeapons_004956b0[obj][0];
         while (weapon-- > 0) {
-            if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
-                    weapon].disabled == 0) {
+            if (((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].disabled == 0) {
                 if (g_aObjectTypeData_00496d30[
-                        ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[obj][1])[
-                            weapon].weaponType].objectClass == 8) {
+                        ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].weaponType].objectClass == 8) {
                     if (g_nSelectedGunType_004934dc != -1 &&
-                        ((ShipWeaponSlot *)
-                             &g_aShipWeapons_004956b0[obj][1])[weapon].type !=
+                        ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].type !=
                             g_nSelectedGunType_004934dc)
                         g_nSelectedGunType_004934dc = 0x80;
                     else
                         g_nSelectedGunType_004934dc =
-                            ((ShipWeaponSlot *)
-                                 &g_aShipWeapons_004956b0[obj][1])[
-                                weapon].type;
+                            ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].type;
                 } else {
                     g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
                 }
@@ -324,7 +320,7 @@ void ReportFatalErrorCode(const char *errorCode);
 void release_capital_ship_shapes(short resourceType);
 void free_ship(short slot);
 short FindObjectResourceSlot(short resourceType);
-void ReleasePacketHandle(void *handle);
+void ReleasePacketHandle(void *);
 void add_hazard_field(short type, FixedVector center, short radius, short density);
 void flag_objective(short objective, unsigned char flags);
 void *FetchDiskPacketRetrying(char *fileName, short section, short flags);

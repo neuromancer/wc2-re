@@ -809,15 +809,7 @@ short check_for_collision(short obj)
     return -1;
 }
 
-/* One row of g_aShipWeapons_004956b0: the slot count, then the slots.
- * position_child indexes the row as this record, so the +1 of the count and
- * the +2 of the mount fold into one offset. */
-#pragma pack(push, 1)
-struct ShipLoadout {
-    signed char count;
-    ShipWeaponSlot slots[16];
-};
-#pragma pack(pop)
+void remove_object(short obj);
 
 /* Function start: 0x40C08C */
 void position_child(short parent, short weapon, FixedVector *position)
