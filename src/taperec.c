@@ -12,7 +12,7 @@ void ResetCannedSceneRecording(void)
 {
     if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
         return;
-    _unlink(g_szCannedSceneTapeFile_00490208);
+    unlink(g_szCannedSceneTapeFile_00490208);
     g_nCannedSceneFrameCount_005d404c = 0;
     g_nCannedSceneFileOffset_005d3fac = 0;
     g_nCannedSceneMode_0049021c = 0;

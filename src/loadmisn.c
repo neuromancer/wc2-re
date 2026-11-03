@@ -16,7 +16,7 @@ void LoadMissionData(short series, short mission)
     char fileName[13] = "module.00";
 
     strcat(fileName,
-           _itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+           itoa((int)g_nSelectedCampaignSlot_005d3bf2,
                  campaignSlot, 10));
 
     packet = FetchDiskPacketRetrying(fileName, 0, 0);

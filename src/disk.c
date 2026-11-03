@@ -104,24 +104,24 @@ void AppendPacketLoadDebugLog(char *fileName, short section,
     char truncatedFileName[36];
     char logLine[80];
 
-    file = (short)_open("logfile.txt", 0x4109, 0x80);
+    file = (short)open("logfile.txt", 0x4109, 0x80);
     strncpy(truncatedFileName, fileName, strlen(truncatedFileName));
     sprintf(logLine, "\n%s, #%d, %Fp", truncatedFileName,
             (int)section, packet);
     if (g_nShowMemoryStatus_0049d784 != 0) {
-        _ltoa((long)GetNamedPacketSize(fileName, section),
+        ltoa((long)GetNamedPacketSize(fileName, section),
               truncatedFileName, 10);
         strcat(logLine, ",Size:");
         strcat(logLine, truncatedFileName);
-        _ltoa((long)GetLargestMainMemoryBlock(), truncatedFileName, 10);
+        ltoa((long)GetLargestMainMemoryBlock(), truncatedFileName, 10);
         strcat(logLine, ",LB:");
         strcat(logLine, truncatedFileName);
-        _ltoa((long)GetAvailableMainMemory(), truncatedFileName, 10);
+        ltoa((long)GetAvailableMainMemory(), truncatedFileName, 10);
         strcat(logLine, ",Free:");
         strcat(logLine, truncatedFileName);
     }
-    _write((int)file, logLine, strlen(logLine));
-    _close((int)file);
+    write((int)file, logLine, strlen(logLine));
+    close((int)file);
 }
 
 /* Function start: 0x40F3AE */

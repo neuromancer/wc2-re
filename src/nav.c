@@ -987,7 +987,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
         fileName[9] =
             (char)(g_nSelectedCampaignSlot_005d3bf2 + '0');
         file = OpenDataFileOrDie(fileName);
-        length = (short)_filelength(file);
+        length = (short)filelength(file);
         g_pNavLocationText_0049bc54 =
             AllocateTaggedMemory(length + 1, 0x40);
         ReadDataFileAtOffset((unsigned short)file, 0, length,

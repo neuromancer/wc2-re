@@ -192,7 +192,7 @@ void LoadOriginFxDrivers(void)
         InitializeMusicResources();
     initialize_direction_view_frames();
     strcat(packetName,
-           _itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+           itoa((int)g_nSelectedCampaignSlot_005d3bf2,
                  campaignDigits, 10));
     g_pStartupStarPacket_005d212c =
         LoadPacketAllocated(packetName, 0);

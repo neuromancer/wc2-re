@@ -21,7 +21,6 @@ void ResetCannedScenePlaybackBuffer(void)
         new_view(5, 0);
 }
 
-#pragma function(memcpy)
 /* Function start: 0x44698F */
 void FinishCannedScenePlayback(void)
 {
@@ -30,9 +29,9 @@ void FinishCannedScenePlayback(void)
     g_pCannedSceneStateBlock_005d3fb0 =
         (void *)IdentityDword((DwordPtr)g_pHighMemoryBlockB_00490200);
 #ifndef SDL_PORT
-    memcpy(&g_dwCannedSceneSnapshotStart_00493130,
-           g_pCannedSceneStateBlock_005d3fb0,
-           CANNED_SCENE_SNAPSHOT_BYTES);
+    memmove(&g_dwCannedSceneSnapshotStart_00493130,
+            g_pCannedSceneStateBlock_005d3fb0,
+            CANNED_SCENE_SNAPSHOT_BYTES);
 #endif
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
@@ -43,7 +42,6 @@ void FinishCannedScenePlayback(void)
     _unlink(g_szCannedSceneTapeFile_00490208);
 }
 
-#pragma intrinsic(memcpy)
 /* Function start: 0x446A1D */
 unsigned short RestoreCannedSceneObjectState(
     CannedSceneObjectStateRecord *record)

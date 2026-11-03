@@ -625,7 +625,7 @@ void update_bars(void)
     if (g_asObjectType_00495298[0] == 0x33)
         shieldShown = (short)(shieldShown / 10);
     DrawCockpitReadout(
-        4, _itoa((int)shieldShown,
+        4, itoa((int)shieldShown,
                  g_szTextScratchBuffer_005d1c40, 10));
     shieldPercent = (short)((g_aasShipShield_00495518[0][1] * 100) /
                             typeData->shieldAft);
@@ -635,7 +635,7 @@ void update_bars(void)
     if (g_asObjectType_00495298[0] == 0x33)
         shieldShown = (short)(shieldShown / 10);
     DrawCockpitReadout(
-        5, _itoa((int)shieldShown,
+        5, itoa((int)shieldShown,
                  g_szTextScratchBuffer_005d1c40, 10));
 }
 
@@ -820,11 +820,11 @@ void update_digital_readouts(void)
     speed = (short)(g_anShipSpeed_00494e20[0] >> 8);
     speed = (short)(speed * 10);
     DrawCockpitReadout(
-        2, _itoa(speed, g_szTextScratchBuffer_005d1c40, 10));
+        2, itoa(speed, g_szTextScratchBuffer_005d1c40, 10));
     velocity = (short)(MultiplyFixed(
         Vector_magnitude(&g_aShipVelocity_00494898[0]), 0xa00) >> 8);
     DrawCockpitReadout(
-        3, _itoa(velocity, g_szTextScratchBuffer_005d1c40, 10));
+        3, itoa(velocity, g_szTextScratchBuffer_005d1c40, 10));
 }
 
 /* Function start: 0x439753 */
@@ -1214,7 +1214,7 @@ void DrawCalculatingLabel(void)
             DrawCockpitReadout(0, "CALCULATING");
         } else {
             strcpy(g_szTextScratchBuffer_005d1c40 +
-                       strlen(_ltoa((long)g_nCurrentObjectiveRange_004931c8,
+                       strlen(ltoa((long)g_nCurrentObjectiveRange_004931c8,
                                     g_szTextScratchBuffer_005d1c40, 10)),
                    " km");
             DrawCockpitReadout(0, g_szTextScratchBuffer_005d1c40);

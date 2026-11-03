@@ -547,7 +547,7 @@ void real_vid_transmit(short obj, short message)
     strcpy(packetFile, "communic.s");
     if (g_nCommPortraitIndex_0049b79c < 10)
         strcat(packetFile, "0");
-    _itoa((int)g_nCommPortraitIndex_0049b79c, indexText, 10);
+    itoa((int)g_nCommPortraitIndex_0049b79c, indexText, 10);
     strcat(packetFile, indexText);
     size = GetNamedPacketSize(packetFile, message);
     g_nCommMessageIndex_0049ae88 = message;

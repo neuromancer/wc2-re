@@ -174,7 +174,7 @@ void DrawTargetRangeReadout(void)
                        g_szTargetTooFar_0049b4fc);
             } else {
                 strcpy(g_szTextScratchBuffer_005d1c40 +
-                           strlen(_itoa((unsigned short)
+                           strlen(itoa((unsigned short)
                                             g_asObjectDistance_00493ae8[
                                                 target],
                                         g_szTextScratchBuffer_005d1c40, 10)),

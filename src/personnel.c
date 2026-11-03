@@ -251,7 +251,7 @@ unsigned short HasSavedPilotCampaign(void)
     file = (short)_open("savegame.wc2", 0x8000);
     if (file < 0)
         return 0;
-    if (_lseek((int)file, (stateBytes + 0x86) << 3, 0) !=
+    if (lseek((int)file, (stateBytes + 0x86) << 3, 0) !=
         (stateBytes + 0x86) << 3) {
         _close((int)file);
         return 0;
@@ -956,7 +956,7 @@ void RunPilotSaveLoadMenu(void)
                         ReportFatalErrorCode("011");
                         break;
                     }
-                    _lseek(file,
+                    lseek(file,
                            (campaignBytes + sizeof(PersonnelFileSlot) +
                             sizeof(PilotProfile)) * slot, 0);
                     _read(file, g_apPersonnelFileSlots_0049a660[slot], 2);
@@ -1045,7 +1045,7 @@ void RunPilotSaveLoadMenu(void)
                     if (confirm != 0) {
                         g_apPersonnelFileSlots_0049a660[slot]->occupied = 0;
                         file = (short)_open("savegame.wc2", 0x8001);
-                        _lseek(file,
+                        lseek(file,
                                (campaignBytes + sizeof(PersonnelFileSlot) +
                             sizeof(PilotProfile)) * slot, 0);
                         _write(file,
@@ -1133,7 +1133,7 @@ void RunPilotSaveLoadMenu(void)
                     g_apPersonnelPilotProfiles_0049a680[slot]->field_43 =
                         g_stCurrentPilotProfile_00493408.field_43;
                     file = (short)_open("savegame.wc2", 0x8001);
-                    _lseek(file,
+                    lseek(file,
                            (campaignBytes + sizeof(PersonnelFileSlot) +
                             sizeof(PilotProfile)) * slot, 0);
                     _write(file, g_apPersonnelFileSlots_0049a660[slot], 2);
@@ -1527,17 +1527,17 @@ short RunPilotDatabaseMenu(void)
                                     g_apszPersonnelTransferLabels_005d2100[
                                         transferCount],
                                     pilot->name);
-                                _itoa(pilot->missions, text, 10);
+                                itoa(pilot->missions, text, 10);
                                 strcpy(
                                     g_apszPersonnelTransferLabels_005d2100[
                                         transferCount] + 0x28,
                                     text);
-                                _itoa(pilot->kills, text, 10);
+                                itoa(pilot->kills, text, 10);
                                 strcpy(
                                     g_apszPersonnelTransferLabels_005d2100[
                                         transferCount] + 0x2c,
                                     text);
-                                _itoa(index, text, 10);
+                                itoa(index, text, 10);
                                 strcpy(
                                     g_apszPersonnelTransferLabels_005d2100[
                                         transferCount] + 0x3c,
@@ -1564,7 +1564,7 @@ short RunPilotDatabaseMenu(void)
                                         selected] + 0x3c);
                                 file = (short)_open(
                                     g_szLegacySavePath_005d2130, 0x8000);
-                                _lseek(file, (long)index * 0x33c, 0);
+                                lseek(file, (long)index * 0x33c, 0);
                                 _read(file, record, 0x33c);
                                 pilot = &record->pilots[8];
                                 _close(file);

@@ -1,5 +1,9 @@
 #include "sdl_port.h"
 
+/* This file implements the game's open and unlink on the host's own calls. */
+#undef open
+#undef unlink
+
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>

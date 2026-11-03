@@ -5,7 +5,7 @@
  */
 #include "game.h"
 
-#pragma function(abs)
+#pragma function(labs)
 /* Function start: 0x41E4E0 */
 void steer_away_from_object(short obj, short other, short amount)
 {
@@ -19,7 +19,7 @@ void steer_away_from_object(short obj, short other, short amount)
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &predicted, &gap);
     transform_to_objects_frame(&gap, &relative, obj);
-    if (abs(relative.x) < abs(relative.y)) {
+    if (labs(relative.x) < labs(relative.y)) {
         if (relative.x > 0)
             amount = -amount;
         g_anYawGoal_004954c0[obj] = amount;
@@ -33,6 +33,10 @@ void steer_away_from_object(short obj, short other, short amount)
 void transform_to_objects_frame(const FixedVector *source, FixedVector *destination, short obj);
 void ComputeVectorDelta(FixedVector *from, FixedVector *to, FixedVector *delta);
 void try2end_collision_alert(short obj);
+
+unsigned int offset_location(short obj, const ShortVector *offset, FixedVector *location);
+unsigned int compute_formation_destination(short leader, const ShortVector *offset, FixedVector *destination);
+unsigned int select_target(short obj);
 
 /* Function start: 0x41E5C8 */
 void steer_away_from_predicted_object(short obj, short other,
@@ -50,7 +54,7 @@ void steer_away_from_predicted_object(short obj, short other,
     ComputeVectorDelta(&g_aShipPosition_00494550[obj],
                        &predicted, &delta);
     transform_to_objects_frame(&delta, &relative, obj);
-    if (abs(relative.x) < abs(relative.y)) {
+    if (labs(relative.x) < labs(relative.y)) {
         if (relative.x < 0)
             amount = -amount;
         g_anYawGoal_004954c0[obj] = amount;
@@ -132,11 +136,8 @@ short CountEnemyFighters(void)
 }
 
 void position_relative(FixedVector *position, FixedVector direction, short distance);
-unsigned int offset_location(short obj, const ShortVector *offset, FixedVector *location);
-unsigned int compute_formation_destination(short leader, const ShortVector *offset, FixedVector *destination);
 short scan_for_enemy(short obj, unsigned short range);
 short attacker_in_range(short obj, unsigned short range);
-unsigned int select_target(short obj);
 
 /* Function start: 0x41E945 */
 short regulate_turn(short obj)

@@ -140,7 +140,7 @@ void RunCampaignScript(short campaignSlot)
         return;
     SetMenuInputPump();
     strcat(campaignFileName,
-           _itoa((int)campaignSlot, number, 10));
+           itoa((int)campaignSlot, number, 10));
     scenePacket = FetchDiskPacketRetrying(
         campaignFileName, 0, 0);
     for (font = 0; font < 4; font++) {
@@ -215,7 +215,7 @@ void *LoadWholeDataFile(const char *path)
     data = 0;
     handle = OpenDataFileOrDie(path);
     if (handle >= 0) {
-        bytes = (unsigned int)_filelength(handle);
+        bytes = (unsigned int)filelength(handle);
         if (bytes == (unsigned int)-1) {
             CloseDataFile((unsigned short)handle);
             return 0;

@@ -221,7 +221,7 @@ void Mhard_break(short ship)
         advance(ship);
 }
 
-#pragma function(abs)
+#pragma function(labs)
 /* Function start: 0x440A93 */
 void Msit_n_spin(short ship, short target)
 {
@@ -249,7 +249,7 @@ void Msit_n_spin(short ship, short target)
     case 2:
         break;
     case 3:
-        if (abs(g_anShipSpeed_00494e20[ship] -
+        if (labs(g_anShipSpeed_00494e20[ship] -
                 g_anShipSpeed_00494e20[target]) < 0x200) {
             approach_speed(ship, g_anShipSpeed_00494e20[target]);
             advanceSequence = 0;

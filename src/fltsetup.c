@@ -131,7 +131,7 @@ void initialize_cockpit(signed char mode)
 
     g_cScreenViewportMode_005c82a6 = mode;
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
-    _itoa((int)g_aObjectTypeData_00496d30[
+    itoa((int)g_aObjectTypeData_00496d30[
               g_acObjectType_00493980[0]].resourceType,
           resourceText, 10);
     if (strlen(resourceText) == 1)
@@ -399,7 +399,7 @@ void InitializeConstellationObject(
     char campaignNumber[4];
 
     strcat(packetName,
-           _itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+           itoa((int)g_nSelectedCampaignSlot_005d3bf2,
                  campaignNumber, 10));
     g_aeObjectClass_00495328[object] = OBJECT_CLASS_PLANET;
     init_ijk(69);
@@ -522,7 +522,7 @@ void InitializeCockpitResources(short shipType)
 
     g_bCockpitResourcesActive_0049c8e8 = 1;
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
-    _itoa((int)g_aObjectTypeData_00496d30[
+    itoa((int)g_aObjectTypeData_00496d30[
               g_acObjectType_00493980[0]].resourceType,
           resourceNumber, 10);
     if (strlen(resourceNumber) == 1)
@@ -797,7 +797,7 @@ void free_cockpit(void)
         free_viewport(&g_stPilotHandBackgroundViewport_005d2b40);
     }
     strcpy(g_szCockpitResourceFilename_005d1030, "pcship.v");
-    _itoa((int)g_aObjectTypeData_00496d30[
+    itoa((int)g_aObjectTypeData_00496d30[
               g_acObjectType_00493980[0]].resourceType,
           shipTypeText, 10);
     if (strlen(shipTypeText) == 1)

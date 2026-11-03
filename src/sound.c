@@ -250,7 +250,7 @@ void playWAVE(const char *filename, int looping, int volume)
             MessageBoxA(0, errorMsg, "Error", MB_ICONHAND);
             exit(1);
         }
-        size = _filelength(fd);
+        size = filelength(fd);
         fileData = (unsigned char *)malloc((unsigned int)size);
         _read(fd, fileData, (unsigned int)size);
         _close(fd);
@@ -377,7 +377,7 @@ void PlaySnowStaticSound(void)
                         "Notice", MB_ICONHAND);
             exit(1);
         }
-        size = _filelength(file);
+        size = filelength(file);
         fileData = (unsigned char *)malloc((unsigned int)size);
         _read(file, fileData, (unsigned int)size);
         _close(file);

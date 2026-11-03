@@ -197,7 +197,7 @@ void LoadAlternateShipType(short resourceType, short logicalFile)
     if (g_nSelectedCampaignSlot_005d3bf2 < 10)
         strcat(filename, "0");
     strcat(filename,
-           _itoa(g_nSelectedCampaignSlot_005d3bf2, numberText, 10));
+           itoa(g_nSelectedCampaignSlot_005d3bf2, numberText, 10));
     LOAD_OBJECT_TYPE_RECORD(filename, logicalFile,
                                 &g_aObjectTypeData_00496d30[4]);
     strcpy(g_aObjectTypeData_00496d30[4].displayName, nameCopy);
@@ -405,7 +405,7 @@ void load_ship(short resourceType, short objectType,
                 objectClass = OBJECT_CLASS_CAPITAL_SHIP;
                 strcpy(fileName, "xship.v");
             }
-            _itoa((int)resourceType, resourceNumber, 10);
+            itoa((int)resourceType, resourceNumber, 10);
             if (strlen(resourceNumber) == 1)
                 strcat(fileName, "0");
             strcat(fileName, resourceNumber);
@@ -823,7 +823,7 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
                 strcat(fileName, "0");
             if (number < 10)
                 strcat(fileName, "0");
-            strcat(fileName, _itoa((int)number, digits, 10));
+            strcat(fileName, itoa((int)number, digits, 10));
             LoadPacketIntoBuffer(
                 fileName, 0,
                 g_aShipIntelligenceData_005d3060[
@@ -1395,7 +1395,7 @@ void init_intelligence_data(short obj)
                 strcpy(filename, "intelshp.0");
             if (intelNum < 10)
                 strcat(filename, "0");
-            _itoa((int)intelNum, intelDigits, 10);
+            itoa((int)intelNum, intelDigits, 10);
             strcat(filename, intelDigits);
 
             LoadPacketIntoBuffer(

@@ -37,55 +37,55 @@ void FormatTextTokens(void (*writer)(int),
 #ifdef SDL_PORT
                     EmitTextString(
                         writer,
-                        _itoa((short)va_arg(*arguments, int), number, 10));
+                        itoa((short)va_arg(*arguments, int), number, 10));
 #else
                     EmitTextString(writer,
-                                   _itoa(va_arg(arguments, short), number, 10));
+                                   itoa(va_arg(arguments, short), number, 10));
 #endif
                     break;
                 case 'u':
 #ifdef SDL_PORT
                     EmitTextString(
                         writer,
-                        _ultoa((unsigned short)va_arg(*arguments, unsigned int),
+                        ultoa((unsigned short)va_arg(*arguments, unsigned int),
                                number, 10));
 #else
                     EmitTextString(
                         writer,
-                        _ultoa(va_arg(arguments, unsigned short), number, 10));
+                        ultoa(va_arg(arguments, unsigned short), number, 10));
 #endif
                     break;
                 case 'D':
 #ifdef SDL_PORT
                     EmitTextString(writer,
-                                   _ltoa(va_arg(*arguments, long), number, 10));
+                                   ltoa(va_arg(*arguments, long), number, 10));
 #else
                     EmitTextString(writer,
-                                   _ltoa(va_arg(arguments, long), number, 10));
+                                   ltoa(va_arg(arguments, long), number, 10));
 #endif
                     break;
                 case 'U':
 #ifdef SDL_PORT
                     EmitTextString(
                         writer,
-                        _ultoa(va_arg(*arguments, unsigned long), number, 10));
+                        ultoa(va_arg(*arguments, unsigned long), number, 10));
 #else
                     EmitTextString(
                         writer,
-                        _ultoa(va_arg(arguments, unsigned long), number, 10));
+                        ultoa(va_arg(arguments, unsigned long), number, 10));
 #endif
                     break;
                 case 'x':
 #ifdef SDL_PORT
                     EmitTextString(
                         writer,
-                        _strupr(_ultoa(
+                        strupr(ultoa(
                             (unsigned short)va_arg(*arguments, unsigned int),
                             number, 16)));
 #else
                     EmitTextString(
                         writer,
-                        _strupr(_ultoa(va_arg(arguments, unsigned short),
+                        strupr(ultoa(va_arg(arguments, unsigned short),
                                        number, 16)));
 #endif
                     break;

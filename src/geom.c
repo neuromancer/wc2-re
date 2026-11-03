@@ -1329,7 +1329,7 @@ void get_right_shape(short obj, FixedVector *direction)
                 if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
                     objectClass == OBJECT_CLASS_SHIP)
                     strcpy(fileName, "xship.v");
-                _itoa((int)type, numberText, 10);
+                itoa((int)type, numberText, 10);
                 if (strlen(numberText) == 1)
                     strcat(fileName, "0");
                 strcat(fileName, numberText);

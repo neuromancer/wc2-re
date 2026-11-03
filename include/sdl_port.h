@@ -400,6 +400,10 @@ int SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define _open SdlOpen
 #define _unlink SdlUnlink
 #define _chdir SdlChangeDirectory
+/* Several units call the DOS-era names (the original link resolved them
+ * through OLDNAMES.LIB); they share the implementations above. */
+#define open SdlOpen
+#define unlink SdlUnlink
 
 #ifdef _WIN32
 #define fopen SdlFopen
@@ -415,6 +419,10 @@ int SdlVsnprintf(char *buffer, size_t size, const char *format,
 #define _ltoa SdlLtoa
 #define _ultoa SdlUltoa
 #define _strupr SdlStrupr
+#define filelength SdlFileLength
+#define ltoa SdlLtoa
+#define ultoa SdlUltoa
+#define strupr SdlStrupr
 #define _findfirst SdlFindFirst
 #define _findnext SdlFindNext
 #define _findclose SdlFindClose
