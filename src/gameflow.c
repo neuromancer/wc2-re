@@ -1728,22 +1728,22 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
 void ReleaseActiveCutscenePacket(CutsceneResourceTable *resources,
                                  void *packet)
 {
+    short scan;
+    short count;
     CutsceneResourceTable *activeResources;
     void **packetSlot;
-    short resourceCount;
-    short index;
 
     activeResources = FindActiveCutsceneFileResources(resources);
-    resourceCount = activeResources->count;
+    count = activeResources->count;
     packetSlot = activeResources->loadedPackets;
-    for (index = 0; index < resourceCount; index++, packetSlot++) {
+    for (scan = 0; scan < count; scan++, packetSlot++) {
         if (*packetSlot == packet) {
             ReleasePacketSlot(packetSlot);
             if (g_pMemoryLogFile_00499da8 != 0) {
                 fprintf(g_pMemoryLogFile_00499da8,
                         "--- Dumped (reset): %Fp  item: %3d  "
                         "level = %d free = %8lu\n",
-                        packet, (int)index,
+                        packet, (int)scan,
                         (int)g_nActiveCutsceneResourceLevel_00499d9c,
                         GetAvailableMainMemory());
             }
@@ -1848,11 +1848,11 @@ void ReleaseCutsceneViewport(Viewport *viewport)
 /* Function start: 0x42EF12 */
 void DrawCinematicMemoryStatus(const char *message)
 {
-    unsigned int availableFarMemory;
+    unsigned int farMemory;
     char text[256];
+    unsigned int largest;
     Viewport viewport;
-    unsigned int largestBlock;
-    unsigned int availableMemory;
+    unsigned int memory;
 
     viewport = g_stModalSourceViewport_005d2c50;
     if ((g_cCutsceneVideoMode_00499c48 == 0x13 ||
@@ -1864,15 +1864,15 @@ void DrawCinematicMemoryStatus(const char *message)
                 &g_stCutsceneTextViewport_005d2d90);
             g_bCutsceneTextRestorePending_00499da0 = 1;
         }
-        largestBlock = GetLargestMainMemoryBlock();
-        availableMemory = GetAvailableMainMemory();
-        availableFarMemory = GetAvailableFarMemory();
+        largest = GetLargestMainMemoryBlock();
+        memory = GetAvailableMainMemory();
+        farMemory = GetAvailableFarMemory();
         if (*message != '~') {
             sprintf(text,
                     "%s Far: %lu (Lg) = %lu  EMS: %lu\n"
                     "OVR: %lu INITIAL: %lu",
-                    message, availableMemory, largestBlock,
-                    availableFarMemory,
+                    message, memory, largest,
+                    farMemory,
                     g_nCutsceneMemoryDelta_005d2ec8,
                     g_nCutsceneInitialAvailableMemory_005d2e88);
         } else {
@@ -1925,36 +1925,36 @@ void ReportCutscenePacketAllocationFailure(const char *filename,
 /* Function start: 0x42F135 */
 short PopCutsceneScriptValue(short **stack, short *stackBottom)
 {
-    int stackAddress;
-    short *value;
-    int bottomAddress;
+    int current;
+    short *top;
+    int limit;
 
-    value = *stack;
-    stackAddress = DosFarPtrToNear(value);
-    bottomAddress = DosFarPtrToNear(stackBottom);
-    if (bottomAddress <= stackAddress)
+    top = *stack;
+    current = DosFarPtrToNear(top);
+    limit = DosFarPtrToNear(stackBottom);
+    if (limit <= current)
         FatalCutsceneError("A18");
-    value++;
-    *stack = value;
-    return value[-1];
+    top++;
+    *stack = top;
+    return top[-1];
 }
 
 /* Function start: 0x42F19A */
 void PushCutsceneScriptValue(short **stack, short *stackTop,
                              short value)
 {
-    int stackAddress;
-    short *slot;
+    int current;
+    short *cell;
     int topAddress;
 
-    slot = *stack;
-    stackAddress = DosFarPtrToNear(slot);
+    cell = *stack;
+    current = DosFarPtrToNear(cell);
     topAddress = DosFarPtrToNear(stackTop);
-    if (topAddress >= stackAddress)
+    if (topAddress >= current)
         FatalCutsceneError("A19");
-    slot--;
-    *slot = value;
-    *stack = slot;
+    cell--;
+    *cell = value;
+    *stack = cell;
 }
 
 /* Function start: 0x42F1FD */
@@ -3932,23 +3932,23 @@ void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
 /* Function start: 0x433269 */
 void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite)
 {
-    SceneFlicObject *other;
-    void *shape;
+    SceneFlicObject *peer;
+    void *frames;
     short index;
 
-    shape = sprite->shape;
+    frames = sprite->shape;
     g_nSavedCutsceneResourceOwner_005d2d68 =
         g_nActiveCutsceneResourceLevel_00499d9c;
-    if (shape != 0) {
+    if (frames != 0) {
         for (index = 0; index < 0x80; index++) {
-            other = g_apSceneObjects_00499c38[index];
-            if (other != 0 && other->shape == shape && other != sprite) {
+            peer = g_apSceneObjects_00499c38[index];
+            if (peer != 0 && peer->shape == frames && peer != sprite) {
                 goto shape_is_shared;
             }
         }
     }
     g_nActiveCutsceneResourceLevel_00499d9c = sprite->owner;
-    ReleaseActiveCutscenePacket(g_pCutsceneShapeResources_004928a8, shape);
+    ReleaseActiveCutscenePacket(g_pCutsceneShapeResources_004928a8, frames);
 shape_is_shared:
     g_nActiveCutsceneResourceLevel_00499d9c =
         g_nSavedCutsceneResourceOwner_005d2d68;
@@ -3959,22 +3959,22 @@ shape_is_shared:
 void ReleaseLoadedCutsceneResource(CutsceneResourceTable *resources,
                                    short index)
 {
-    SceneFlicObject *sprite;
-    void *packet;
-    short spriteIndex;
+    SceneFlicObject *flic;
+    short scan;
+    void *resource;
 
-    packet = resources->loadedPackets[index];
+    resource = resources->loadedPackets[index];
     ReleasePacketSlot(&resources->loadedPackets[index]);
-    if (g_pMemoryLogFile_00499da8 != 0 && packet != 0)
+    if (g_pMemoryLogFile_00499da8 != 0 && resource != 0)
         fprintf(g_pMemoryLogFile_00499da8,
-                "--- Dumped: %Fp  level = %d free = %8lu\n", packet,
+                "--- Dumped: %Fp  level = %d free = %8lu\n", resource,
                 (int)g_nActiveCutsceneResourceLevel_00499d9c,
                 GetAvailableMainMemory());
-    if (packet != 0) {
-        for (spriteIndex = 0; spriteIndex < 0x80; spriteIndex++) {
-            sprite = g_apSceneObjects_00499c38[spriteIndex];
-            if (sprite != 0 && sprite->shape == packet)
-                sprite->shape = 0;
+    if (resource != 0) {
+        for (scan = 0; scan < 0x80; scan++) {
+            flic = g_apSceneObjects_00499c38[scan];
+            if (flic != 0 && flic->shape == resource)
+                flic->shape = 0;
         }
     }
 }
