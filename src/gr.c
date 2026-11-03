@@ -1138,31 +1138,31 @@ static int g_anPolygonSpans_004b20a0[412];
 void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
                  char colour)
 {
-    int i;
-    int k;
-    int prev;
-    int bottomIndex;
-    int *rowBounds;
-    int y1;
     ShortPoint polyB[8];
     int side;
-    int x;
-    int topIndex;
-    int x1;
+    int prev;
+    unsigned char *row;
+    int bottomIndex;
     int stride;
     float denominator;
     int countA;
-    int countB;
-    int y0;
+    int *rowBounds;
+    int x;
     ShortPoint polyA[8];
+    int topIndex;
+    int y1;
+    int i;
     int x0;
-    float fractionStep;
-    float frac;
-    int y;
-    unsigned char *row;
-    int crossed;
-    int j;
+    int x1;
+    int k;
+    int y0;
+    int countB;
     float distance;
+    float fractionStep;
+    int j;
+    float frac;
+    int crossed;
+    int y;
 
     return;
     countA = 0;
