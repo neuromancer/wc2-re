@@ -967,26 +967,25 @@ void fire_computer_graphic_missile(void)
 /* Function start: 0x439BB7 */
 void show_weapon_disp(void)
 {
-    unsigned char *weaponData;
-    ShipWeaponSlot *weapon;
-    const char *releaseName;
-    const char *gunName;
-    int selectedGunType;
-    short frame;
+    signed char slotIndex;
+    const char *releaseLabel;
+    const char *gunCaption;
     short x;
+    ShipWeaponSlot *entry;
+    short frame;
+    unsigned char *weapons;
     short y;
-    signed char count;
 
-    weaponData = g_aShipWeapons_004956b0[0];
+    weapons = g_aShipWeapons_004956b0[0];
 #ifdef SDL_PORT
-    /* With no selected release weapon, retail forms a pointer ten bytes before
+    /* With no selected release entry, retail forms a pointer ten bytes before
      * this array but does not dereference it in the name switch. */
     if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
-        weapon = 0;
+        entry = 0;
     } else {
 #endif
-    weapon = (ShipWeaponSlot *)(
-        weaponData + g_nSelectedReleaseWeaponIndex_004934e0 *
+    entry = (ShipWeaponSlot *)(
+        weapons + g_nSelectedReleaseWeaponIndex_004934e0 *
                          sizeof(ShipWeaponSlot) +
         1);
 #ifdef SDL_PORT
@@ -1005,28 +1004,25 @@ void show_weapon_disp(void)
 
     switch (g_nSelectedReleaseWeaponIndex_004934e0) {
     case -1:
-        releaseName = "";
+        releaseLabel = "";
         break;
     default:
-        releaseName = g_aObjectTypeData_00496d30[
-            (int)weapon->weaponType].displayName;
-        break;
+        releaseLabel = g_aObjectTypeData_00496d30[
+            (int)entry->weaponType].displayName;
     }
-    selectedGunType = g_nSelectedGunType_004934dc;
-    switch (selectedGunType) {
+    switch (g_nSelectedGunType_004934dc) {
     case -1:
-        gunName = "";
+        gunCaption = "";
         break;
     case 0x80:
-        gunName = "Full Guns";
+        gunCaption = "Full Guns";
         break;
     default:
-        gunName = g_aObjectTypeData_00496d30[
-            selectedGunType].displayName;
-        break;
+        gunCaption = g_aObjectTypeData_00496d30[
+            g_nSelectedGunType_004934dc].displayName;
     }
-    DrawFormattedText("\nWeapon: %s", releaseName);
-    DrawFormattedText("\nGun: %s", gunName);
+    DrawFormattedText("\nWeapon: %s", releaseLabel);
+    DrawFormattedText("\nGun: %s", gunCaption);
 
     g_nWeaponDisplayOriginX_005d4254 =
         (short)(g_stLeftVduViewport_005d2180.left +
@@ -1040,68 +1036,66 @@ void show_weapon_disp(void)
         g_nWeaponDisplayOriginY_005d4256,
         g_pCockpitWeaponShape_005d2b54, 0);
 
-    weapon = (ShipWeaponSlot *)(weaponData + 1);
-    count = 0;
-    while (count < (signed char)weaponData[0]) {
+    entry = (ShipWeaponSlot *)(weapons + 1);
+    for (slotIndex = 0; slotIndex < (signed char)weapons[0];
+         slotIndex++, entry++) {
         if (g_aObjectTypeData_00496d30[
-                (int)weapon->weaponType].field_18 == 0x0b) {
+                (int)entry->weaponType].field_18 == 0x0b) {
             frame = 0x1a;
             if (g_aWeaponDisplayPositions_005d1de0[
-                    (int)count].x > 0x29)
+                    (int)slotIndex].x > 0x29)
                 frame = (short)(frame + 2);
             if (g_aWeaponDisplayPositions_005d1de0[
-                    (int)count].x < 0x1f)
+                    (int)slotIndex].x < 0x1f)
                 frame++;
         } else if (g_aObjectTypeData_00496d30[
-                       (int)weapon->weaponType].objectClass == 8) {
-            frame = (short)(
-                weapon->disabled + weapon->type * 2 - 0x0b);
+                       (int)entry->weaponType].objectClass == 8) {
+            frame = (short)((entry->type - 7) * 2 + entry->disabled + 3);
         } else {
             frame = (short)(
-                2 -
 #ifdef SDL_PORT
                 ((g_nSelectedReleaseWeaponIndex_004934e0 == -1
                       ? 0
                       : ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
-                            g_nSelectedReleaseWeaponIndex_004934e0].type) ==
-                 weapon->type));
+                            g_nSelectedReleaseWeaponIndex_004934e0].type) !=
+                 entry->type) + 1);
 #else
                 (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
-                     g_nSelectedReleaseWeaponIndex_004934e0].type ==
-                 weapon->type));
+                     g_nSelectedReleaseWeaponIndex_004934e0].type !=
+                 entry->type) + 1);
 #endif
         }
 
-        x = g_aWeaponDisplayPositions_005d1de0[(int)count].x;
-        y = g_aWeaponDisplayPositions_005d1de0[(int)count].y;
+        x = g_aWeaponDisplayPositions_005d1de0[(int)slotIndex].x;
+        y = g_aWeaponDisplayPositions_005d1de0[(int)slotIndex].y;
         if (g_aObjectTypeData_00496d30[
-                (int)weapon->weaponType].field_18 != 0x14) {
+                (int)entry->weaponType].field_18 != 0x14) {
             DrawSpriteDefault(
                 &g_stLeftVduViewport_005d2180,
                 (short)(g_nWeaponDisplayOriginX_005d4254 + x),
                 (short)(g_nWeaponDisplayOriginY_005d4256 + y),
                 g_pCockpitWeaponShape_005d2b54, frame);
         }
-        if ((int)count == g_nSelectedReleaseWeaponIndex_004934e0 &&
+        if ((int)slotIndex == g_nSelectedReleaseWeaponIndex_004934e0 &&
             g_aObjectTypeData_00496d30[
-                (int)weapon->weaponType].field_18 == 0x14) {
+                (int)entry->weaponType].field_18 == 0x14) {
             DrawSpriteDefault(
                 &g_stLeftVduViewport_005d2180,
                 (short)(g_nWeaponDisplayOriginX_005d4254 + 10),
                 (short)(g_nWeaponDisplayOriginY_005d4256 + 13),
                 g_pCockpitWeaponShape_005d2b54,
-                (short)(weapon->type + 4));
+                (short)(entry->type + 4));
             DrawSpriteDefault(
                 &g_stLeftVduViewport_005d2180,
                 (short)(g_nWeaponDisplayOriginX_005d4254 + 60),
                 (short)(g_nWeaponDisplayOriginY_005d4256 + 13),
                 g_pCockpitWeaponShape_005d2b54,
-                (short)(weapon->type + 4));
+                (short)(entry->type + 4));
         }
-        count++;
-        weapon++;
     }
 }
+
+short get_mode(short i);
 
 /* Function start: 0x439F5F */
 void update_status_text(void)
