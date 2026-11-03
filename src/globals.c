@@ -177,59 +177,6 @@ RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
 #endif
 
-int g_anCloakVisibilityPattern_00492710[20] = {
-    1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
-    0, 0, 1, 1, 1, 0, 0, 1, 1, 0
-};
-int g_abObjectShapeOwned_00492760[12];
-CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c;
-CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890;
-CutsceneObjectResourceList *g_pCutsceneSequenceResources_00492894;
-CutsceneObjectResourceList *g_pCutsceneSceneResources_00492898;
-CutsceneTextResource *g_pCutsceneTextResources_0049289c;
-CutsceneResourceTable *g_pCutsceneFontResources_004928a0;
-CutsceneResourceTable *g_pCutsceneSpeechResources_004928a4;
-CutsceneResourceTable *g_pCutsceneShapeResources_004928a8;
-CutsceneResourceTable *g_pCutsceneMouseResources_004928ac;
-CutsceneResourceTable *g_pCutscenePaletteResources_004928b0;
-CutsceneResourceTable *g_pCutsceneFilmResources_004928b4;
-CutsceneResourceTable *g_pCutsceneFxResources_004928b8;
-CutsceneResourceTable *g_pCutsceneMusicResources_004928bc;
-const char *g_pszPacketReadOperation_00492b0c = "reading from disk";
-const char *g_pszPacketAllocateOperation_00492b10 = "allocating memory";
-const char *g_pszPacketLoadErrorFormat_00492b14 =
-    "Sorry, an error has occurred while %s.\n"
-    "Please note the following information:\n"
-    "%Fs #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
-    "Check your configuration.  If this problem persists, please\n"
-    "call Origin Systems' service line.  We are sorry for the inconvenience.";
-short g_bAiMissileFiringEnabled_00492d58 = 1;
-short g_bFriendlyFireWarningIssued_00492d5c;
-short g_nLastAdaptiveDifficultyChangeFrame_00492d60;
-short g_nObjectType62Index_00492d64 = -1;
-short g_nObjectType63Index_00492d68 = -1;
-short g_nLastFriendlyFireObjectFrame_00492d6c = 0x0ee4;
-short g_aasPlayerDamageSystemTable_00492d70[5][10] = {
-    { 0, 8, 6, 5, 0, 3, 5, 5, 7, 6 },
-    { 0, 8, 6, 5, 4, 3, 4, 0, 4, 4 },
-    { 1, 2, 5, 2, 7, 3, 4, 7, 5, 1 },
-    { 1, 4, 1, 5, 2, 3, 4, 7, 2, 1 },
-    { 4, 4, 4, 4, 0, 8, 6, 5, 4, 0 }
-};
-short g_aeShipHitDebrisTypes_00492e10[4] = {
-    OBJECT_DATA_GIRDER_CHUNK,
-    OBJECT_DATA_SHIP_TUBING,
-    OBJECT_DATA_O_RING
-};
-short g_bExplosionTraversalIdle_00492e18 = 1;
-signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
-char g_szWeaponDestroyed_00492e20[20] = "Weapon destroyed";
-char g_szFuelTanksHit_00492e34[16] = "Fuel tanks hit";
-char g_szComponentFixedFormat_00492e44[8] = "%s FIXD";
-char g_szNeedLock_00492e4c[12] = "Need Lock";
-
-short g_nHazardReferenceSpeed_00492e58;
-short g_nActiveHazards_00492e5c;
 signed char g_bLandingCommRequestPending_00492fa0;
 int g_nCurrentView_00492fa8 = -1;
 short g_nSpaceExplosionFlashActive_00492fb4;

@@ -5,6 +5,15 @@
  */
 #include "game.h"
 
+const char *g_pszPacketReadOperation_00492b0c = "reading from disk";
+const char *g_pszPacketAllocateOperation_00492b10 = "allocating memory";
+const char *g_pszPacketLoadErrorFormat_00492b14 =
+    "Sorry, an error has occurred while %s.\n"
+    "Please note the following information:\n"
+    "%Fs #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
+    "Check your configuration.  If this problem persists, please\n"
+    "call Origin Systems' service line.  We are sorry for the inconvenience.";
+
 #pragma function(memset)
 /* Function start: 0x40F020 */
 /* Nothing in the shipped executable calls this.  Fills count bytes with a
@@ -375,3 +384,8 @@ unsigned short WaitForAnyInputPress(void)
     g_bKeyboardMouseEnabled_0049be68 = savedKeyboardMouse;
     return result;
 }
+
+/* Unreferenced in WC2.  WC1's disk unit has the same 0x50 word as its
+ * prompt border colour. */
+int g_nUnusedDiskWord_00492b18 = 0;
+short g_nUnusedDiskPromptBorderColour_00492b1c = 0x50;

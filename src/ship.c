@@ -5,7 +5,20 @@
  */
 #include "game.h"
 
-static const short g_aaeExplosionDebris_00492dd8[4][7] = {
+short g_bAiMissileFiringEnabled_00492d58 = 1;
+short g_bFriendlyFireWarningIssued_00492d5c = 0;
+short g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
+short g_nObjectType62Index_00492d64 = -1;
+short g_nObjectType63Index_00492d68 = -1;
+short g_nLastFriendlyFireObjectFrame_00492d6c = 0x0ee4;
+short g_aasPlayerDamageSystemTable_00492d70[5][10] = {
+    { 0, 8, 6, 5, 0, 3, 5, 5, 7, 6 },
+    { 0, 8, 6, 5, 4, 3, 4, 0, 4, 4 },
+    { 1, 2, 5, 2, 7, 3, 4, 7, 5, 1 },
+    { 1, 4, 1, 5, 2, 3, 4, 7, 2, 1 },
+    { 4, 4, 4, 4, 0, 8, 6, 5, 4, 0 }
+};
+static short g_aaeExplosionDebris_00492dd8[4][7] = {
     {
         OBJECT_DATA_PIPE, OBJECT_DATA_O_RING,
         OBJECT_DATA_GIRDER_CHUNK, OBJECT_DATA_SHIP_TUBING,
@@ -31,6 +44,13 @@ static const short g_aaeExplosionDebris_00492dd8[4][7] = {
         OBJECT_DATA_BURNING_DEBRIS
     }
 };
+short g_aeShipHitDebrisTypes_00492e10[4] = {
+    OBJECT_DATA_GIRDER_CHUNK,
+    OBJECT_DATA_SHIP_TUBING,
+    OBJECT_DATA_O_RING
+};
+short g_bExplosionTraversalIdle_00492e18 = 1;
+signed char g_acGunRefireDelay_00492e1c[4] = {5, 9, 3, 4};
 
 /* Function start: 0x410020 */
 short CountShipProjectiles(short ship)
@@ -1371,7 +1391,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                 if (IsOnlyShipGun(0, (short)weapon) == 0) {
                     remove_weapon(0, (short)weapon);
                     ShowComponentHitHudMessage(
-                        g_szWeaponDestroyed_00492e20,
+                        "Weapon destroyed",
                         g_abGamePaletteReservedColours_0049cb54[8], 8);
                 }
             }
@@ -1416,7 +1436,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                 g_anShipFuel_00495638[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(
-                g_szFuelTanksHit_00492e34,
+                "Fuel tanks hit",
                 g_abGamePaletteReservedColours_0049cb54[8], 8);
             break;
         case 1:
@@ -1440,7 +1460,7 @@ short ReportComponentRepaired(short component, short minimumDamage)
     if (minimumDamage <
         (short)g_acPlayerComponentDamage_00493470[component]) {
         g_acPlayerComponentDamage_00493470[component]--;
-        sprintf(message, g_szComponentFixedFormat_00492e44,
+        sprintf(message, "%s FIXD",
                 g_apszComponentNames_00490090[component]);
         ShowComponentHitHudMessage(
             message, g_abGamePaletteReservedColours_0049cb54[8], 8);
@@ -1475,7 +1495,6 @@ void repair_internal_damage(void)
     }
 }
 
-void FillFixedVectorWithRandomComponents(short limit, FixedVector *vector);
 void AddFixedVectors(const FixedVector *left, const FixedVector *right,
                      FixedVector *sum);
 
@@ -1573,10 +1592,10 @@ void ProcessEnemyWaveCompletion(void)
 void Create_explosion_debris(short obj)
 {
     FixedVector vector;
-    short set;
-    short i;
     short fragment;
+    short i;
     short index;
+    short set;
 
     for (i = 0; i < 5; i++) {
         if (g_aObjectTypeData_00496d30[
@@ -1716,7 +1735,6 @@ void score_for_kill(short pilot, short victim)
     }
 }
 
-short find_ship_index(short missionShip);
 
 /* Function start: 0x413F58 */
 void analyze_kill(short attacker, short victim)
@@ -2750,7 +2768,7 @@ short fire_missile(short ship)
                     g_nTargetLockCountdown_004934ec != 0) {
                     if (get_mode(0) == 1)
                         ShowComponentHitHudMessage(
-                            g_szNeedLock_00492e4c,
+                            "Need Lock",
                             g_abGamePaletteReservedColours_0049cb54[4], 3);
                     return -1;
                 }
@@ -2919,11 +2937,11 @@ void place_exhaust_on_ships(void)
 /* Function start: 0x416DC3 */
 void reposition_fixed_child_objects(void)
 {
-    int right;
     short angle;
     short child;
     int up;
     short owner;
+    int right;
     long sine;
     long cosA;
 #ifdef SDL_PORT
@@ -3038,8 +3056,8 @@ void housekeep_power_plant_and_fuel(short ship)
         drain_fuel(ship, 5);
 }
 
-void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping);
-short MinShort(short a, short b);
+void ScaleFixedVector(FixedVector *vector, int scale, FixedVector *result);
+short HasShipCockpitGunDisplay(short ship);
 
 /* Function start: 0x417124 */
 void replenish_shields(short ship)

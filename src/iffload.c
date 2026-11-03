@@ -5,6 +5,20 @@
  */
 #include "game.h"
 
+CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c = 0;
+CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890 = 0;
+CutsceneObjectResourceList *g_pCutsceneSequenceResources_00492894 = 0;
+CutsceneObjectResourceList *g_pCutsceneSceneResources_00492898 = 0;
+CutsceneTextResource *g_pCutsceneTextResources_0049289c = 0;
+CutsceneResourceTable *g_pCutsceneFontResources_004928a0 = 0;
+CutsceneResourceTable *g_pCutsceneSpeechResources_004928a4 = 0;
+CutsceneResourceTable *g_pCutsceneShapeResources_004928a8 = 0;
+CutsceneResourceTable *g_pCutsceneMouseResources_004928ac = 0;
+CutsceneResourceTable *g_pCutscenePaletteResources_004928b0 = 0;
+CutsceneResourceTable *g_pCutsceneFilmResources_004928b4 = 0;
+CutsceneResourceTable *g_pCutsceneFxResources_004928b8 = 0;
+CutsceneResourceTable *g_pCutsceneMusicResources_004928bc = 0;
+
 /* Function start: 0x40D6B0 */
 void ReleasePacketSlot(void **slot)
 {

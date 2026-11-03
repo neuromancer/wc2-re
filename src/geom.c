@@ -561,7 +561,12 @@ short distance_from_object(short obj, short other)
 }
 
 /* Counts facing and range queries; nothing reads it. */
-int g_nFacingRangeQueryCount_00492708;
+int g_nFacingRangeQueryCount_00492708 = 0;
+int g_anCloakVisibilityPattern_00492710[20] = {
+    1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
+    0, 0, 1, 1, 1, 0, 0, 1, 1, 0
+};
+int g_abObjectShapeOwned_00492760[SPACE_OBJECT_COUNT] = { 0 };
 
 /* Function start: 0x40B898 */
 void get_facing_range_from_point(short obj, const FixedVector *point)

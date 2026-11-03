@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+short g_nHazardReferenceSpeed_00492e58 = 0;
+short g_nActiveHazards_00492e5c = 0;
+
 /* The cockpit layout packs the hazard pitch range into the two bytes of
  * field_f7: the low byte is the minimum, the high byte the maximum. */
 #define g_acHazardPitchRange \
