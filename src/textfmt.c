@@ -22,147 +22,149 @@ void FormatTextTokens(void (*writer)(int),
                       const char *format, va_list arguments)
 #endif
 {
-    short character;
+    short spec;
     char number[64];
+    short ch;
 
     if (g_pCurrentTextContext_005c8d1c == 0)
         return;
-    character = (signed char)*format++;
-    while (character != 0) {
-        if (character == '%') {
-            character = (signed char)*format++;
-            switch (character) {
-            case 'd':
+    while ((ch = (signed char)*format++) != 0) {
+        switch (ch) {
+        case '%':
+            spec = (signed char)*format++;
+            switch (spec) {
+                case 'd':
 #ifdef SDL_PORT
-                EmitTextString(
-                    writer,
-                    _itoa((short)va_arg(*arguments, int), number, 10));
+                    EmitTextString(
+                        writer,
+                        _itoa((short)va_arg(*arguments, int), number, 10));
 #else
-                EmitTextString(writer,
-                               _itoa(va_arg(arguments, short), number, 10));
+                    EmitTextString(writer,
+                                   _itoa(va_arg(arguments, short), number, 10));
 #endif
-                break;
-            case 'u':
+                    break;
+                case 'u':
 #ifdef SDL_PORT
-                EmitTextString(
-                    writer,
-                    _ultoa((unsigned short)va_arg(*arguments, unsigned int),
-                           number, 10));
+                    EmitTextString(
+                        writer,
+                        _ultoa((unsigned short)va_arg(*arguments, unsigned int),
+                               number, 10));
 #else
-                EmitTextString(
-                    writer,
-                    _ultoa(va_arg(arguments, unsigned short), number, 10));
+                    EmitTextString(
+                        writer,
+                        _ultoa(va_arg(arguments, unsigned short), number, 10));
 #endif
-                break;
-            case 'D':
+                    break;
+                case 'D':
 #ifdef SDL_PORT
-                EmitTextString(writer,
-                               _ltoa(va_arg(*arguments, long), number, 10));
+                    EmitTextString(writer,
+                                   _ltoa(va_arg(*arguments, long), number, 10));
 #else
-                EmitTextString(writer,
-                               _ltoa(va_arg(arguments, long), number, 10));
+                    EmitTextString(writer,
+                                   _ltoa(va_arg(arguments, long), number, 10));
 #endif
-                break;
-            case 'U':
+                    break;
+                case 'U':
 #ifdef SDL_PORT
-                EmitTextString(
-                    writer,
-                    _ultoa(va_arg(*arguments, unsigned long), number, 10));
+                    EmitTextString(
+                        writer,
+                        _ultoa(va_arg(*arguments, unsigned long), number, 10));
 #else
-                EmitTextString(
-                    writer,
-                    _ultoa(va_arg(arguments, unsigned long), number, 10));
+                    EmitTextString(
+                        writer,
+                        _ultoa(va_arg(arguments, unsigned long), number, 10));
 #endif
-                break;
-            case 'x':
+                    break;
+                case 'x':
 #ifdef SDL_PORT
-                EmitTextString(
-                    writer,
-                    _strupr(_ultoa(
-                        (unsigned short)va_arg(*arguments, unsigned int),
-                        number, 16)));
+                    EmitTextString(
+                        writer,
+                        _strupr(_ultoa(
+                            (unsigned short)va_arg(*arguments, unsigned int),
+                            number, 16)));
 #else
-                EmitTextString(
-                    writer,
-                    _strupr(_ultoa(va_arg(arguments, unsigned short),
-                                   number, 16)));
+                    EmitTextString(
+                        writer,
+                        _strupr(_ultoa(va_arg(arguments, unsigned short),
+                                       number, 16)));
 #endif
-                break;
-            case 'c':
+                    break;
+                case 'c':
 #ifdef SDL_PORT
-                writer((short)va_arg(*arguments, int));
+                    writer((short)va_arg(*arguments, int));
 #else
-                writer(va_arg(arguments, short));
+                    writer(va_arg(arguments, short));
 #endif
-                break;
-            case 'S':
-            case 's':
+                    break;
+                case 'S':
+                case 's':
 #ifdef SDL_PORT
-                EmitTextString(writer, va_arg(*arguments, char *));
+                    EmitTextString(writer, va_arg(*arguments, char *));
 #else
-                EmitTextString(writer, va_arg(arguments, char *));
+                    EmitTextString(writer, va_arg(arguments, char *));
 #endif
-                break;
-            case 'X':
+                    break;
+                case 'X':
 #ifdef SDL_PORT
-                g_pCurrentTextContext_005c8d1c->cursorX =
-                    (short)va_arg(*arguments, int);
+                    g_pCurrentTextContext_005c8d1c->cursorX =
+                        (short)va_arg(*arguments, int);
 #else
-                g_pCurrentTextContext_005c8d1c->cursorX =
-                    va_arg(arguments, short);
+                    g_pCurrentTextContext_005c8d1c->cursorX =
+                        va_arg(arguments, short);
 #endif
-                break;
-            case 'Y':
+                    break;
+                case 'Y':
 #ifdef SDL_PORT
-                g_pCurrentTextContext_005c8d1c->cursorY =
-                    (short)va_arg(*arguments, int);
+                    g_pCurrentTextContext_005c8d1c->cursorY =
+                        (short)va_arg(*arguments, int);
 #else
-                g_pCurrentTextContext_005c8d1c->cursorY =
-                    va_arg(arguments, short);
+                    g_pCurrentTextContext_005c8d1c->cursorY =
+                        va_arg(arguments, short);
 #endif
-                break;
-            case 'B':
+                    break;
+                case 'B':
 #ifdef SDL_PORT
-                g_pCurrentTextContext_005c8d1c->backgroundColour =
-                    (unsigned char)va_arg(*arguments, int);
+                    g_pCurrentTextContext_005c8d1c->backgroundColour =
+                        (unsigned char)va_arg(*arguments, int);
 #else
-                g_pCurrentTextContext_005c8d1c->backgroundColour =
-                    va_arg(arguments, unsigned char);
+                    g_pCurrentTextContext_005c8d1c->backgroundColour =
+                        va_arg(arguments, unsigned char);
 #endif
-                break;
-            case 'F':
+                    break;
+                case 'F':
 #ifdef SDL_PORT
-                g_pCurrentTextContext_005c8d1c->colour =
-                    (unsigned char)va_arg(*arguments, int);
+                    g_pCurrentTextContext_005c8d1c->colour =
+                        (unsigned char)va_arg(*arguments, int);
 #else
-                g_pCurrentTextContext_005c8d1c->colour =
-                    va_arg(arguments, unsigned char);
+                    g_pCurrentTextContext_005c8d1c->colour =
+                        va_arg(arguments, unsigned char);
 #endif
-                break;
-            case 'P':
-                if (g_bCinematicSpriteFontEnabled_005c82a7 == 0)
-                    DrawTextString(g_pCurrentTextContext_005c8d1c->text);
-                else
-                    DrawWrappedCinematicText(
-                        g_pCurrentTextContext_005c8d1c->text);
-                break;
-            case 'J':
+                    break;
+                case 'P':
+                    if (g_bCinematicSpriteFontEnabled_005c82a7 == 0)
+                        DrawTextString(g_pCurrentTextContext_005c8d1c->text);
+                    else
+                        DrawWrappedCinematicText(
+                            g_pCurrentTextContext_005c8d1c->text);
+                    break;
+                case 'J':
 #ifdef SDL_PORT
-                g_pCurrentTextContext_005c8d1c->alignment =
-                    (unsigned char)va_arg(*arguments, int);
+                    g_pCurrentTextContext_005c8d1c->alignment =
+                        (unsigned char)va_arg(*arguments, int);
 #else
-                g_pCurrentTextContext_005c8d1c->alignment =
-                    va_arg(arguments, unsigned char);
+                    g_pCurrentTextContext_005c8d1c->alignment =
+                        va_arg(arguments, unsigned char);
 #endif
-                break;
-            default:
-                writer(character);
-                break;
+                    break;
+                default:
+                    writer(spec);
+                    break;
             }
-        } else {
-            writer(character);
+            break;
+        default:
+            writer(ch);
+            break;
         }
-        character = (signed char)*format++;
     }
 }
 
