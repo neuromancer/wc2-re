@@ -1475,21 +1475,22 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
 void UpdateCutscenePlaneObject(CutscenePlane *plane,
                                signed char updateChildren)
 {
-    CutscenePlane *savedPlane;
     short savedOwner;
-    short spriteIndex;
-    signed char waiting;
+    short blocked;
+    CutscenePlane *savedPlane;
+    short listSlot;
+    short objectIndex;
 
     savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
     savedPlane = g_pCurrentCutscenePlane_00499c7c;
-    waiting = 0;
+    blocked = 0;
     if (plane == 0)
         FatalCutsceneError("Cannot update a null cutscene plane");
     if (plane->waitTicks != 0) {
         if (g_bCutsceneViewportPreallocated_00499c4c == 0 &&
             g_bCutsceneSkipFrame_00499c54 == 0 &&
             g_nInputClock_005c84a8 < plane->waitStart + plane->waitTicks) {
-            waiting = 1;
+            blocked++;
         } else {
             plane->waitTicks = 0;
         }
@@ -1497,13 +1498,12 @@ void UpdateCutscenePlaneObject(CutscenePlane *plane,
     g_pCurrentCutscenePlane_00499c7c = plane;
     g_nActiveCutsceneResourceLevel_00499d9c = plane->owner;
     PumpWindowMessages(0);
-    if (waiting == 0)
+    if (blocked == 0)
         RunCutsceneScript(&plane->scriptCursor, 1);
     if (updateChildren != 0) {
-        for (spriteIndex = 0; spriteIndex < plane->spriteCount;
-             spriteIndex++) {
-            UpdateCutsceneSpriteObject(g_apSceneObjects_00499c38[
-                plane->spriteIndices[spriteIndex]]);
+        for (listSlot = 0; listSlot < plane->spriteCount; listSlot++) {
+            objectIndex = plane->spriteIndices[listSlot];
+            UpdateCutsceneSpriteObject(g_apSceneObjects_00499c38[objectIndex]);
         }
         plane->x = (short)(plane->x + plane->deltaX);
         plane->y = (short)(plane->y + plane->deltaY);
@@ -1617,13 +1617,13 @@ void ReleaseSceneFlicPackets(void)
 /* Function start: 0x42E868 */
 void AdvanceSceneFlicStream(SceneFlicObject *object)
 {
-    signed char loading;
+    signed char fetch;
     char filename[68];
-    short cacheIndex;
-    short releaseIndex;
-    void *oldShape;
+    short slot;
+    short probe;
+    void *retired;
 
-    loading = 1;
+    fetch = 1;
     object->decoderState = 0;
     if (object->segmentEndFrame <= object->currentFrame) {
         if (object->finalFrame <= object->currentFrame) {
@@ -1637,82 +1637,82 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
             }
             DosStrcpy(filename, object->filename);
             RewriteDiskFileGraphicsExtensions(filename);
-            oldShape = object->shape;
-            if (oldShape != 0) {
-                for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
-                    if (g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
-                        oldShape) {
-                        ReleasePacketSlot(&oldShape);
-                        g_aSceneFlicCache_005d2e10[cacheIndex].shape = 0;
-                        oldShape =
-                            g_aSceneFlicCache_005d2e10[cacheIndex].shape;
+            retired = object->shape;
+            if (retired != 0) {
+                for (slot = 0; slot < 15U; slot++) {
+                    if (g_aSceneFlicCache_005d2e10[slot].shape ==
+                        retired) {
+                        ReleasePacketSlot(&retired);
+                        g_aSceneFlicCache_005d2e10[slot].shape = 0;
+                        retired =
+                            g_aSceneFlicCache_005d2e10[slot].shape;
                         break;
                     }
                 }
             }
-            while (loading != 0) {
+            while (fetch != 0) {
                 if (g_aSceneFlicCache_005d2e10[0].shape == 0) {
                     object->shape = 0;
-                    for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
-                        g_aSceneFlicCache_005d2e10[cacheIndex]
+                    for (slot = 0; slot < 15U; slot++) {
+                        g_aSceneFlicCache_005d2e10[slot]
                             .auxiliaryAllocation = 0;
-                        g_aSceneFlicCache_005d2e10[cacheIndex].shape =
+                        g_aSceneFlicCache_005d2e10[slot].shape =
                             LoadNamedPacket(
                                 filename,
-                                (short)(object->nextSection + cacheIndex),
+                                (short)(object->nextSection + slot),
                                 0, 0x0c, 0, 1);
-                        if (g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
+                        if (g_aSceneFlicCache_005d2e10[slot].shape ==
                             0) {
-                            if (cacheIndex == 0) {
+                            if (slot == 0) {
                                 OutputDebugPrintf(
                                     "FLIC Failed %s (%d)\n Hit Key to Continue",
                                     filename,
-                                    object->nextSection + cacheIndex);
+                                    object->nextSection + slot);
                                 WaitForCutsceneInputEvent();
                                 object->segmentEndFrame = 0;
                                 object->currentFrame = object->finalFrame;
                             }
+                            fetch = 0;
                             break;
-                        }
-                        if (g_pMemoryLogFile_00499da8 != 0) {
+                        } else if (g_pMemoryLogFile_00499da8 != 0) {
                             fprintf(
                                 g_pMemoryLogFile_00499da8,
                                 "Loaded Flic %s (%d) at %Fp\n", filename,
-                                object->nextSection + cacheIndex,
-                                g_aSceneFlicCache_005d2e10[cacheIndex].shape);
+                                object->nextSection + slot,
+                                g_aSceneFlicCache_005d2e10[slot].shape);
                         }
                     }
-                    loading = 0;
+                    fetch = 0;
                 }
                 if (g_aSceneFlicCache_005d2e10[0].shape != 0) {
-                    cacheIndex = 0;
+                    slot = 0;
                     if (object->shape != 0) {
-                        while (cacheIndex < 15U) {
-                            cacheIndex++;
-                            if (g_aSceneFlicCache_005d2e10[cacheIndex - 1]
+                        while (slot < 15U) {
+                            slot++;
+                            if (g_aSceneFlicCache_005d2e10[slot - 1]
                                     .shape == object->shape)
                                 break;
                         }
                     }
-                    if (g_aSceneFlicCache_005d2e10[cacheIndex].shape != 0) {
+                    if (g_aSceneFlicCache_005d2e10[slot].shape != 0) {
                         object->shape =
-                            g_aSceneFlicCache_005d2e10[cacheIndex].shape;
+                            g_aSceneFlicCache_005d2e10[slot].shape;
                         object->decoderState = 0;
-                        g_aSceneFlicCache_005d2e10[cacheIndex]
+                        g_aSceneFlicCache_005d2e10[slot]
                             .auxiliaryAllocation = 0;
                         object->segmentStartFrame = object->currentFrame;
                         object->segmentEndFrame =
                             (short)(GetShapeFrameCount(object->shape) +
                                     object->currentFrame);
                         object->nextSection++;
-                        loading = 0;
+                        fetch = 0;
                     } else {
-                        for (releaseIndex = 0;
-                             releaseIndex < cacheIndex;
-                             releaseIndex++) {
+                        for (probe = 0;
+                             probe < slot;
+                             probe++) {
                             ReleasePacketSlot(
                                 (void **)&g_aSceneFlicCache_005d2e10[
-                                    releaseIndex].shape);
+                                    probe].shape);
                         }
                         object->shape = 0;
                     }
