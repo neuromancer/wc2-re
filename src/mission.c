@@ -1281,53 +1281,58 @@ short init_ship(short missionShip, short navPoint)
 }
 
 #pragma function(strcat, strcpy)
+void clear_alert(short obj);
+void LoadCommPortraitResources(short portrait);
+
 /* Function start: 0x44E44F */
 void init_intelligence_data(short obj)
 {
-    short usedIntelSlots[5];
-    char intelFilename[16];
-    short foundMatchingIntel;
-    ShipIntelligenceMetadata *metadata;
-    short shipIndex;
+    char filename[16];
+    short usedSlots[5];
+    short matched;
+    short navEntry;
+    ShipIntelligenceMetadata *meta;
     short shipIntelFile;
-    short missionShipIndex;
-    char intelNumber[8];
-    short intelIndex;
-    short missionSystem;
+    short intelNum;
+    char intelDigits[8];
+    short member;
+    short index;
 
-    metadata = AllocateTaggedMemory(0x0c, 0x40);
+    meta = AllocateTaggedMemory(0x0c, 0x40);
     g_abShipTurn_00495fd8[obj] = 0;
     clear_alert(obj);
     g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
     g_asShipIntelState_0049b678[obj] = 0;
-    missionSystem = g_asShipMissionParameter_00495e00[obj];
+    index = g_asShipMissionParameter_00495e00[obj];
     g_aShipMissionSpot_00495e18[obj] = g_aMissionNavPoints_00491e98[
         g_nCurrentNavPoint_004931bc].position;
 
     switch (g_asShipMissionType_00495de8[obj]) {
+    case 0:
+        break;
     case MISSION_TYPE_ESCORT:
     case MISSION_TYPE_DEFEND:
     case MISSION_TYPE_WINGMAN:
-        g_asShipMissionParameter_00495e00[obj] = missionSystem;
+        g_asShipMissionParameter_00495e00[obj] = index;
         break;
     case MISSION_TYPE_STRIKE:
-        g_asShipMissionParameter_00495e00[obj] = missionSystem;
-        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
-            for (missionShipIndex = 0; missionShipIndex < 10;
-                 missionShipIndex++) {
-                if (g_aMissionNavPoints_00491e98[shipIndex]
-                        .missionShips[missionShipIndex] ==
+        g_asShipMissionParameter_00495e00[obj] = index;
+        for (navEntry = 0; navEntry < 10; navEntry++) {
+            for (member = 0; member < 10;
+                 member++) {
+                if (g_aMissionNavPoints_00491e98[navEntry]
+                        .missionShips[member] ==
                     g_asShipMissionParameter_00495e00[obj]) {
-                    missionSystem = shipIndex;
+                    index = navEntry;
                 }
             }
         }
         g_aShipMissionSpot_00495e18[obj] =
-            g_aMissionNavPoints_00491e98[missionSystem].position;
+            g_aMissionNavPoints_00491e98[index].position;
         break;
     case MISSION_TYPE_GOTO_WARP:
         g_aShipMissionSpot_00495e18[obj] =
-            g_aMissionNavPoints_00491e98[missionSystem].position;
+            g_aMissionNavPoints_00491e98[index].position;
         break;
     case MISSION_TYPE_WARP_ARRIVE:
         g_asShipTactic_00495f30[obj] = TACTIC_WARP_IN;
@@ -1339,8 +1344,6 @@ void init_intelligence_data(short obj)
         locate_ship(g_stMissionHeader_005d3e70.homeMissionShip,
                     &g_aShipMissionSpot_00495e18[obj]);
         break;
-    default:
-        break;
     }
 
     g_acShipStress_00496100[obj] = 0;
@@ -1350,53 +1353,53 @@ void init_intelligence_data(short obj)
          g_asShipSide_004955d0[obj] != SIDE_IMPERIAL)) {
         shipIntelFile = 0;
         if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT) {
-            intelIndex = g_acShipPortrait_00495d88[obj];
+            intelNum = g_acShipPortrait_00495d88[obj];
         } else if (g_asPilotLevel_00495d60[obj] < RATING_ACE_SPIRIT) {
-            intelIndex = g_aObjectTypeData_00496d30[
+            intelNum = g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].resourceType;
             shipIntelFile = 1;
         } else {
             ReportFatalErrorCode("024");
         }
 
-        for (shipIndex = 0; shipIndex < 5; shipIndex++)
-            usedIntelSlots[shipIndex] = 0;
+        for (index = 0; index < 5; index++)
+            usedSlots[index] = 0;
 
-        foundMatchingIntel = 0;
-        for (shipIndex = 0; shipIndex < 10; shipIndex++) {
-            if (g_asShipIntelSlot_00495d30[shipIndex] != -1) {
-                usedIntelSlots[
-                    g_asShipIntelSlot_00495d30[shipIndex]] = 1;
+        matched = 0;
+        for (index = 0; index < 10; index++) {
+            if (g_asShipIntelSlot_00495d30[index] != -1) {
+                usedSlots[
+                    g_asShipIntelSlot_00495d30[index]] = 1;
             }
-            if (g_asShipIntelResourceKey_00495d48[shipIndex] ==
-                shipIntelFile * 100 + intelIndex) {
-                foundMatchingIntel = 1;
+            if (g_asShipIntelResourceKey_00495d48[index] ==
+                shipIntelFile * 100 + intelNum) {
+                matched = 1;
                 g_asShipIntelSlot_00495d30[obj] =
-                    g_asShipIntelSlot_00495d30[shipIndex];
+                    g_asShipIntelSlot_00495d30[index];
                 g_asShipIntelResourceKey_00495d48[obj] =
-                    (short)(shipIntelFile * 100 + intelIndex);
+                    (short)(shipIntelFile * 100 + intelNum);
                 break;
             }
         }
-        if (foundMatchingIntel == 0) {
-            for (shipIndex = 0; shipIndex < 5; shipIndex++) {
-                if (usedIntelSlots[shipIndex] == 0)
+        if (matched == 0) {
+            for (index = 0; index < 5; index++) {
+                if (usedSlots[index] == 0)
                     break;
             }
-            g_asShipIntelSlot_00495d30[obj] = shipIndex;
+            g_asShipIntelSlot_00495d30[obj] = index;
             g_asShipIntelResourceKey_00495d48[obj] =
-                (short)(shipIntelFile * 100 + intelIndex);
+                (short)(shipIntelFile * 100 + intelNum);
 
-            strcpy(intelFilename, "intel.0");
+            strcpy(filename, "intel.0");
             if (shipIntelFile != 0)
-                strcpy(intelFilename, "intelshp.0");
-            if (intelIndex < 10)
-                strcat(intelFilename, "0");
-            _itoa((int)intelIndex, intelNumber, 10);
-            strcat(intelFilename, intelNumber);
+                strcpy(filename, "intelshp.0");
+            if (intelNum < 10)
+                strcat(filename, "0");
+            _itoa((int)intelNum, intelDigits, 10);
+            strcat(filename, intelDigits);
 
             LoadPacketIntoBuffer(
-                intelFilename, 0,
+                filename, 0,
                 g_aShipIntelligenceData_005d3060[
                     g_asShipIntelSlot_00495d30[obj]],
                 0);
@@ -1408,12 +1411,12 @@ void init_intelligence_data(short obj)
                  * eight bytes are those four modes.  They are separate
                  * objects here, so read the record and place them by hand.
                  * The music and comm fields that follow are only ever read
-                 * from the metadata copy in the branch below, so nothing
+                 * from the meta copy in the branch below, so nothing
                  * wants the last four bytes on this path. */
                 {
                     ShipIntelligenceMetadata wingmanIntel;
 
-                    LoadPacketIntoBuffer(intelFilename, 1,
+                    LoadPacketIntoBuffer(filename, 1,
                                          &wingmanIntel, 0);
                     memcpy(&g_nWingmanRoutDecisionMode_00496138,
                            wingmanIntel.field_0, sizeof(short));
@@ -1426,7 +1429,7 @@ void init_intelligence_data(short obj)
                 }
 #else
                 LoadPacketIntoBuffer(
-                    intelFilename, 1,
+                    filename, 1,
                     &g_nWingmanRoutDecisionMode_00496138, 0);
 #endif
                 LoadCommPortraitResources(g_acShipPortrait_00495d88[obj]);
@@ -1436,14 +1439,14 @@ void init_intelligence_data(short obj)
                         g_acShipPortrait_00495d88[obj];
                 }
             } else if (shipIntelFile == 0) {
-                LoadPacketIntoBuffer(intelFilename, 1, metadata, 1);
-                if (metadata->musicTrack != 0) {
+                LoadPacketIntoBuffer(filename, 1, meta, 1);
+                if (meta->musicTrack != 0) {
                     g_nMissionMusicTrackOverride_00496144 =
-                        metadata->musicTrack;
+                        meta->musicTrack;
                 }
-                if (metadata->enemyCommCommandBase != 0) {
+                if (meta->enemyCommCommandBase != 0) {
                     g_nEnemyCommCommandBase_005d179c =
-                        metadata->enemyCommCommandBase;
+                        meta->enemyCommCommandBase;
                     g_nEnemyCommPilotIndex_005d179e =
                         g_acShipPortrait_00495d88[obj];
                 }
