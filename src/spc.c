@@ -731,22 +731,20 @@ unsigned int generate_stars(void)
 /* Function start: 0x41B8D6 */
 unsigned int update_star_field(void)
 {
-    FixedVector cameraMotion;
-    FixedVector viewMotion;
-    FixedVector origin;
-    int distance;
-    short randomChoice;
-    short rightRandom;
-    short upRandom;
-    unsigned char shift;
+    unsigned char scaleShift;
     int rightOffset;
-    int upOffset;
-    int objectIndex;
-    int objectOffset;
-    short obj;
-    unsigned int hazardActive;
+    short hazardFlag;
+    short upSpread;
+    short slot;
+    FixedVector motion;
+    int range;
+    int dustUp;
+    FixedVector delta;
+    FixedVector cameraMotion;
+    short outcome;
+    short lateralSpread;
 
-    hazardActive = g_pActiveHazardField_00493278 != 0;
+    hazardFlag = g_pActiveHazardField_00493278 != 0;
     g_vPreviousStarFieldMotion_00493168 = g_vStarFieldMotion_00493158;
     ScaleFixedVector(&g_aShipForwardVector_00494208[EYE_OBJECT],
                      200 << 8, &cameraMotion);
@@ -755,36 +753,31 @@ unsigned int update_star_field(void)
     AddFixedVectors(&cameraMotion, &g_vStarFieldMotion_00493158,
                     &g_vStarFieldMotion_00493158);
     ComputeVectorDelta(&g_vPreviousStarFieldMotion_00493168,
-                       &g_vStarFieldMotion_00493158, &origin);
-    for (obj = 40; obj < 55; obj++) {
-        objectIndex = (int)obj;
-        objectOffset = objectIndex * sizeof(short);
-        if (*(short *)((unsigned char *)g_asObjectScreenX_00493598 +
-                       objectOffset) == (short)0x8001) {
-            randomChoice = RandomInRange(0, 7);
-            if (hazardActive == 0) {
-                if (g_aeObjectClass_00495328[objectIndex] ==
+                       &g_vStarFieldMotion_00493158, &delta);
+    for (slot = 40; slot < 55; slot++) {
+        if (g_asObjectScreenX_00493598[slot] == (short)0x8001) {
+            outcome = RandomInRange(0, 7);
+            if (hazardFlag == 0) {
+                if (g_aeObjectClass_00495328[slot] ==
                         OBJECT_CLASS_ASTEROID ||
-                    (int)g_aeObjectClass_00495328[objectIndex] == 0x15 ||
-                    g_aeObjectClass_00495328[objectIndex] ==
-                        OBJECT_CLASS_NULL) {
-                    set_objects_data(obj, 0x2e, -1, 0);
-                    randomChoice = 0;
+                    (int)g_aeObjectClass_00495328[slot] == 0x15 ||
+                    g_aeObjectClass_00495328[slot] == OBJECT_CLASS_NULL) {
+                    set_objects_data(slot, 0x2e, -1, 0);
+                    outcome = 0;
                 }
-            } else if (obj < 48) {
-                extra_hazard(obj);
+            } else if (slot < 48) {
+                extra_hazard(slot);
             }
-            if ((g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_STAR ||
-                 g_aeObjectClass_00495328[objectIndex] ==
-                     OBJECT_CLASS_PLANET) &&
-                randomChoice == 0 &&
-                (g_anObjectYawRotation_00494fc8[0] |
-                 g_anObjectPitchRotation_00494f38[0]) != 0) {
+            if ((g_aeObjectClass_00495328[slot] == OBJECT_CLASS_STAR ||
+                 g_aeObjectClass_00495328[slot] == OBJECT_CLASS_PLANET) &&
+                outcome == 0) {
+                if ((g_anObjectYawRotation_00494fc8[0] |
+                     g_anObjectPitchRotation_00494f38[0]) == 0)
+                    continue;
                 copy_frame(EYE_OBJECT, 69);
                 if (g_anObjectPitchRotation_00494f38[0] != 0) {
                     g_nStarFieldIRotation_005d3210 =
-                        g_anObjectPitchRotation_00494f38[0] < 0 ?
-                            -45 : 45;
+                        g_anObjectPitchRotation_00494f38[0] < 0 ? -45 : 45;
                     g_nStarFieldJRotation_005d320c = signed_random(45);
                 }
                 if (g_anObjectYawRotation_00494fc8[0] != 0 &&
@@ -802,43 +795,37 @@ unsigned int update_star_field(void)
                                &g_aShipForwardVector_00494208[69]);
                 ScaleFixedVector(&g_aShipForwardVector_00494208[69],
                                  15000 << 8,
-                                 &g_aShipPosition_00494550[objectIndex]);
-                *(short *)((unsigned char *)g_asObjectViewFrame_00493508 +
-                           objectOffset) =
-                    (short)(RandomInRange(0, 5) + 32);
+                                 &g_aShipPosition_00494550[slot]);
+                g_asObjectViewFrame_00493508[slot] =
+                    RandomInRange(0, 5) + 32;
                 break;
-            }
-            if (g_aeObjectClass_00495328[objectIndex] == OBJECT_CLASS_DUST &&
-                randomChoice < 2) {
+            } else if (g_aeObjectClass_00495328[slot] == OBJECT_CLASS_DUST &&
+                       outcome < 2) {
                 transform_to_objects_frame(
                     &g_aShipVelocity_00494898[EYE_OBJECT],
-                    &viewMotion, EYE_OBJECT);
-                ScaleFixedVector(&viewMotion, 10 << 8, &viewMotion);
-                if (viewMotion.z >= 0) {
-                    distance =
-                        (unsigned short)RandomInRange(
-                            0, (short)(viewMotion.z >> 8)) +
-                        g_asObjectCollisionRadius_004950e8[EYE_OBJECT];
-                    distance = distance * 2 +
-                        (unsigned short)RandomInRange(0, 350);
+                    &motion, EYE_OBJECT);
+                ScaleFixedVector(&motion, 10 << 8, &motion);
+                if (motion.z >= 0) {
+                    range = (unsigned short)RandomInRange(
+                                0, (short)(motion.z >> 8)) * 2 +
+                            (unsigned short)RandomInRange(0, 350) +
+                            g_asObjectCollisionRadius_004950e8[EYE_OBJECT] * 2;
                 } else {
-                    distance = (unsigned short)RandomInRange(0, 40) +
+                    range = (unsigned short)RandomInRange(0, 40) +
                         g_asObjectCollisionRadius_004950e8[EYE_OBJECT];
                 }
-                rightRandom = signed_random((short)(distance >> 1));
-                upRandom = signed_random((short)(distance >> 1));
-                shift = (unsigned char)(viewMotion.z <= 0 ? 9 : 8);
+                lateralSpread = signed_random((short)(range >> 1));
+                upSpread = signed_random((short)(range >> 1));
+                scaleShift = (unsigned char)(motion.z <= 0 ? 9 : 8);
 #ifdef SDL_PORT
                 rightOffset =
-                    viewMotion.x + (int)rightRandom * (1 << shift);
-                upOffset =
-                    viewMotion.y + (int)upRandom * (1 << shift);
+                    (int)lateralSpread * (1 << scaleShift) + motion.x;
+                dustUp = (int)upSpread * (1 << scaleShift) + motion.y;
 #else
-                rightOffset =
-                    viewMotion.x + ((int)rightRandom << shift);
-                upOffset = viewMotion.y + ((int)upRandom << shift);
+                rightOffset = ((int)lateralSpread << scaleShift) + motion.x;
+                dustUp = ((int)upSpread << scaleShift) + motion.y;
 #endif
-                start_dust(obj, origin, distance, rightOffset, upOffset);
+                start_dust(slot, delta, range, rightOffset, dustUp);
                 break;
             }
         }
