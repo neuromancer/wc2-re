@@ -1961,8 +1961,7 @@ short ResolveObjectDestruction(short attacker, short victim)
             if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI)
                 send_message(victim, 0x1d);
             return 0;
-        }
-        if (RandomBelowOrEqual(1) == 0)
+        } else if (RandomBelowOrEqual(1) == 0)
             return 0;
     }
     if (g_aeSpecialManeuver_00495600[victim] ==
@@ -1972,24 +1971,26 @@ short ResolveObjectDestruction(short attacker, short victim)
     if (victim == 0) {
         if (g_bPlayerDamageEnabled_0049d77c == 0)
             return 0;
-        g_bPlayerDestroyed_005d2fa4 = 1;
-        if (g_bDeathSequenceActive_0049da50 == 0)
-            g_nArcadeState_0049d75c = 4;
-        return 1;
-    }
-    if (victim == g_nExternalViewShip_00493468)
+        else {
+            g_bPlayerDestroyed_005d2fa4 = 1;
+            if (g_bDeathSequenceActive_0049da50 == 0)
+                g_nArcadeState_0049d75c = 4;
+            return 1;
+        }
+    } else if (victim == g_nExternalViewShip_00493468)
         g_nExternalViewShip_00493468 = -1;
 #ifdef SDL_PORT
     /* With no attacker, WC2 reads the zero-filled byte at 0x495207 just
      * before the owner table and consequently attributes the destruction to
      * object 0.  Preserve that result without crossing the native redzone. */
-    if (attacker == -1) {
+    if (attacker == -1)
         attacker = 0;
+    else
+        attacker = g_acObjectOwner_00495208[attacker];
+#else
+    if (g_acObjectOwner_00495208[attacker] == -1) {
     } else {
-#endif
-        if (g_acObjectOwner_00495208[attacker] != -1)
-            attacker = g_acObjectOwner_00495208[attacker];
-#ifdef SDL_PORT
+        attacker = g_acObjectOwner_00495208[attacker];
     }
 #endif
     if (attacker != -1 &&
@@ -2009,7 +2010,7 @@ short ResolveObjectDestruction(short attacker, short victim)
         g_abShipEjectionSequenceEnabled_00496120[victim] != 0) {
         if (g_aeObjectClass_00495328[victim] >= OBJECT_CLASS_CAPITAL_SHIP)
             return 0;
-        if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_SHIP) {
+        else if (g_aeObjectClass_00495328[victim] == OBJECT_CLASS_SHIP) {
             BeginShipDestructionSequence(victim);
             return 1;
         }
@@ -2017,6 +2018,13 @@ short ResolveObjectDestruction(short attacker, short victim)
     Explosion(victim);
     return 1;
 }
+
+short SpawnFlakBurst(short obj, short range, FixedVector *hardpoint,
+                     short burstMode);
+void fire_flack(short owner, short explosion, short range,
+                FixedVector *aim, short burstMode);
+short hemisphere(FixedVector *target, FixedVector *parent,
+                 FixedVector *hardpoint);
 
 /* Function start: 0x414BE9 */
 int send_at_point(short obj, FixedVector *point, short speed)
