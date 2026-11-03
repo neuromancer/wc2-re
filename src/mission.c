@@ -5,6 +5,49 @@
  */
 #include "game.h"
 
+short g_bMissionShipInitializationInProgress_0049b890 = 0;
+short g_bShipResourceReloadInProgress_0049b894 = 0;
+void **g_apPacketReferenceGroups_0049b898[5] = { 0 };
+unsigned char g_ucPendingEjectionTransition_0049b8ac = 0xff;
+short g_bEjectionWaitForEnemyWave_0049b8b0 = 0;
+short g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
+short g_nPendingEjectionSequenceCount_0049b8b8 = 0;
+short g_bEjectionTriggerImmediately_0049b8bc = 0;
+short g_nEjectionSequenceState_0049b8c0 = 0;
+signed char g_cQueuedNpcPortrait_0049b8c4 = -1;
+signed char g_cQueuedNpcMessage_0049b8c8 = -1;
+ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
+    {
+        { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
+        { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
+        { 0, 0, -1500 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, 0 }, { -750, -100, -250 },
+        { 1500, -100, -250 }, { -1500, -200, -500 },
+        { -2250, -300, -750 }, { 2250, -200, -500 },
+        { 3000, -300, -750 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, -500 }, { -750, 0, -500 },
+        { 0, 0, -1000 }, { -1500, 0, -1000 }, { -750, 0, -1500 },
+        { 1500, 0, -1000 }, { 750, 0, -1500 }
+    },
+    {
+        { 0, 0, 0 }, { 750, 0, -250 }, { 0, 325, -500 },
+        { 750, -325, -750 }, { 0, 325, -500 }, { 750, -325, -750 },
+        { 0, 0, -1000 }, { 750, 0, -1250 }
+    },
+    {
+        { 0, 0, 0 }, { 0, 0, -750 }, { -750, 0, -500 },
+        { -750, 0, -1250 }, { 750, 0, -500 }, { 750, 0, -1250 },
+        { 0, 500, -500 }, { 0, 500, -1250 }
+    }
+};
+short g_anPilotTurnInterval_0049b9c0[8] = {
+    5, 5, 4, 4, 3, 1, 1, 0
+};
+
 /* Function start: 0x44B200 */
 void set_sphere_point(const MissionShipRecord *record,
                       FixedVector *position)

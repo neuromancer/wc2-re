@@ -5,6 +5,8 @@
  */
 #include "game.h"
 
+int g_bKeyboardMouseEnabled_0049be68 = 0;
+
 /* Function start: 0x452450 */
 /* Drive the mouse cursor from the numeric keypad when keyboard-mouse mode is
  * on: the arrows and corners move it by the current speed, NumLock resets the

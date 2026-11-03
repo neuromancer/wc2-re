@@ -80,10 +80,12 @@ extern const int g_nViewportStaticRandomRange_0048e060;
 extern const int g_nDigiSampleBytes_0048e0e0;
 extern const unsigned short g_wDmaHalfBytes_0048e0e4;
 extern short g_nAutopilotFormationShipCount_00493060;
+/* Duplicate of nav.c's label format, which is a literal; dead name kept
+ * for the header's symbol count. */
 extern char g_szBriefingMapTextFormat_0049bd30[12];
 extern short g_nEnemySighting_0049b670;
 extern short g_bHomeObjectiveFlagged_0049b674;
-extern void **g_apPacketReferenceGroups_0049b898[4];
+extern void **g_apPacketReferenceGroups_0049b898[5];
 extern short g_anPilotTurnInterval_0049b9c0[8];
 extern short g_nNavMapCoordinateScaling_0049bb80;
 extern short g_nNavMapScale_0049bb84;
@@ -561,8 +563,21 @@ extern char g_szPlayWaveOpenError_004961ec[36];
 extern short g_nMusicDriverMode_0049be8c;
 extern short g_nCutsceneMusicVolume_0049be90;
 extern short g_nTitleMusicSequenceStage_0049be94;
+/* The two limited-memory music buffers: packed {buffer, state} records, so
+ * the second buffer pointer sits at 0x49BEA6.  Only C units use them; in C++
+ * a struct declaration takes more symbol keys than in C, so the C++ units
+ * see the four dead scalar names instead and keep their numbering. */
+#ifdef __cplusplus
 extern void *g_pLimitedMusicBufferA_0049bea0;
 extern short g_nLimitedMusicBufferAState_0049bea4;
+#else
+#pragma pack(2)
+extern struct LimitedMusicBuffer {
+    void *buffer;
+    short state;
+} g_aLimitedMusicBuffers_0049bea0[2];
+#pragma pack()
+#endif
 extern void *g_pLimitedMusicBufferB_0049bea6;
 extern short g_nLimitedMusicBufferBState_0049beaa;
 extern signed char g_acMusicResourcePresent_0049cc30[66];
@@ -591,6 +606,8 @@ extern short g_nCommSpeakerRating_0049b798;
 extern short g_nCommPortraitIndex_0049b79c;
 extern unsigned char *g_pCommPortraitResource_0049b788;
 extern unsigned char *g_pCommVduFrameResource_0049b78c;
+/* comm.c pools these strings as literals; the dead names below keep the
+ * header's symbol count. */
 extern char g_szSelectCommPrompt_0049b7c4[8];
 extern char g_szCommRecipientHeading_0049b7cc[36];
 extern char g_szEnemyTarget_0049b7f0[16];

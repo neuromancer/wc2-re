@@ -969,15 +969,15 @@ void free_inflight_music(void)
 {
     StopMusicUnlessSuppressed();
     g_nInFlightMusicActive_0049bf08 = 0;
-    if (g_nLimitedMusicBufferAState_0049bea4 != -1) {
+    if (g_aLimitedMusicBuffers_0049bea0[0].state != -1) {
         g_aMusicResources_005d13e0[
-            g_nLimitedMusicBufferAState_0049bea4].packet = 0;
-        g_nLimitedMusicBufferAState_0049bea4 = -1;
+            g_aLimitedMusicBuffers_0049bea0[0].state].packet = 0;
+        g_aLimitedMusicBuffers_0049bea0[0].state = -1;
     }
-    if (g_nLimitedMusicBufferBState_0049beaa != -1) {
+    if (g_aLimitedMusicBuffers_0049bea0[1].state != -1) {
         g_aMusicResources_005d13e0[
-            g_nLimitedMusicBufferBState_0049beaa].packet = 0;
-        g_nLimitedMusicBufferBState_0049beaa = -1;
+            g_aLimitedMusicBuffers_0049bea0[1].state].packet = 0;
+        g_aLimitedMusicBuffers_0049bea0[1].state = -1;
     }
 }
 
@@ -1003,11 +1003,11 @@ void ReleaseMusicTrack(int track)
         g_nMusicDriverMode_0049be8c == 2) {
         if (g_nMemoryConfiguration_005c8dc8 == 1) {
             if (g_aMusicResources_005d13e0[track].packet ==
-                g_pLimitedMusicBufferA_0049bea0) {
-                g_nLimitedMusicBufferAState_0049bea4 = -1;
+                g_aLimitedMusicBuffers_0049bea0[0].buffer) {
+                g_aLimitedMusicBuffers_0049bea0[0].state = -1;
             } else if (g_aMusicResources_005d13e0[track].packet ==
-                       g_pLimitedMusicBufferB_0049bea6) {
-                g_nLimitedMusicBufferBState_0049beaa = -1;
+                       g_aLimitedMusicBuffers_0049bea0[1].buffer) {
+                g_aLimitedMusicBuffers_0049bea0[1].state = -1;
             } else {
                 FreePacketAndClear(
                     &g_aMusicResources_005d13e0[track].packet, 0);

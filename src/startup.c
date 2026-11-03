@@ -411,12 +411,12 @@ void InitializeMusicResources(void)
                 g_aMusicResources_005d13e0[resource].loaded = 1;
         }
     } else if (g_nMemoryConfiguration_005c8dc8 == 1) {
-        g_pLimitedMusicBufferA_0049bea0 =
+        g_aLimitedMusicBuffers_0049bea0[0].buffer =
             AllocateTaggedMemory(0x33d0, 0x10);
-        g_nLimitedMusicBufferAState_0049bea4 = -1;
-        g_pLimitedMusicBufferB_0049bea6 =
+        g_aLimitedMusicBuffers_0049bea0[0].state = -1;
+        g_aLimitedMusicBuffers_0049bea0[1].buffer =
             AllocateTaggedMemory(0x33d0, 0x10);
-        g_nLimitedMusicBufferBState_0049beaa = -1;
+        g_aLimitedMusicBuffers_0049bea0[1].state = -1;
     }
 }
 

@@ -6,15 +6,7 @@
 #include "game.h"
 
 static int g_nActiveMusicStreamMask_0049be9c;
-
-static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
-    6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
-    6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0,
-    0, 0, 0, 6, 16, 16, 0, 6, 6, 16, 16, 0,
-    16, 16, 16, 16, 16, 6, 10, 1, 1, 1, 1, 7,
-    1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 1, 16,
-    16, 1, 1, 16, 16, 16, 0, 0, 0, 0, 0, 0
-};
+static signed char g_acMusicTrackStreamFlags_0049beb8[72];
 
 /* Function start: 0x452A00 */
 void StopMusicStream(void)
@@ -42,7 +34,7 @@ void StopMusic(short enabled)
 /* Function start: 0x452A40 */
 short StartMusic(void *music)
 {
-    SoundDebugPrintf("startMusic %p", music);
+    SoundDebugPrintf("startMusic %p\n", music);
 #ifdef SDL_PORT
     SdlStartOriginalTitleMusic();
 #endif
@@ -69,14 +61,14 @@ int StartSoundEffectHook(const unsigned char *definition, int effectHandle,
 /* Function start: 0x452AAB */
 void FlushSoundEffect(void)
 {
-    SoundDebugPrintf("FLUSH_EFFECT");
+    SoundDebugPrintf("FLUSH EFFECT\n");
     stop_all_sounds();
 }
 
 /* Function start: 0x452AC8 */
 void FlushSoundEffects(void)
 {
-    SoundDebugPrintf("FLUSH_EFFECTS");
+    SoundDebugPrintf("FLUSH EFFECTS\n");
     stop_all_sounds();
 }
 
@@ -540,3 +532,89 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
     playWAVE(g_szSfxWavePath_005b3650, looping, distance);
 }
+
+/* This unit's initialized data, after its functions so that the tables do
+ * not move the functions' symbol keys. */
+short g_nMusicTrackComplete_0049be88 = 1;
+short g_nMusicDriverMode_0049be8c = 1;
+short g_nCutsceneMusicVolume_0049be90 = 0;
+short g_nTitleMusicSequenceStage_0049be94 = 0;
+int g_nCurrentMusicTrack_0049be98 = -1;
+static int g_nActiveMusicStreamMask_0049be9c = 0;
+struct LimitedMusicBuffer g_aLimitedMusicBuffers_0049bea0[2] = {
+    { 0, -1 },
+    { 0, -1 }
+};
+short g_nWaitForMusicEnabled_0049beac = 1;
+short g_bFlightSoundEffectsEnabled_0049beb0 = 1;
+static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
+    6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
+    6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0,
+    0, 0, 0, 6, 16, 16, 0, 6, 6, 16, 16, 0,
+    16, 16, 16, 16, 16, 6, 10, 1, 1, 1, 1, 7,
+    1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 1, 16,
+    16, 1, 1, 16, 16, 16, 0, 0, 0, 0, 0, 0
+};
+short g_nInitialFlightMusicPending_0049bf00 = 1;
+short g_nCombatMusicActive_0049bf04 = 0;
+short g_nInFlightMusicActive_0049bf08 = 0;
+int g_nUnusedMusicWord_0049bf0c = 0;
+short g_nPassingShipSoundObject_0049bf10 = -1;
+short g_nPassingShipSoundCountdown_0049bf14 = 0;
+unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
+    0, 104, 48, 64, 120, 0, 0, 0,
+    2, 55, 48, 96, 2, 0, 0, 0,
+    0, 39, 48, 64, 60, 0, 0, 0,
+    0, 100, 48, 80, 30, 0, 0, 0,
+    0, 7, 48, 127, 6, 0, 0, 0,
+    0, 16, 48, 64, 30, 0, 0, 0,
+    0, 9, 48, 64, 10, 0, 0, 0,
+    0, 10, 48, 127, 15, 0, 0, 0,
+    0, 11, 48, 64, 6, 0, 0, 0,
+    0, 12, 48, 64, 10, 0, 0, 0,
+    4, 13, 48, 64, 60, 0, 0, 0,
+    4, 14, 64, 64, 60, 0, 0, 0,
+    0, 15, 48, 64, 6, 0, 0, 0,
+    8, 19, 48, 64, 60, 0, 0, 0,
+    4, 20, 64, 64, 60, 0, 0, 0,
+    0, 21, 48, 64, 60, 0, 0, 0,
+    4, 22, 48, 64, 60, 0, 0, 0,
+    2, 23, 119, 64, 5, 0, 52, 0,
+    0, 24, 48, 96, 60, 0, 0, 0,
+    2, 41, 24, 24, 2, 0, 100, 0,
+    0, 42, 64, 64, 40, 0, 0, 0,
+    0, 43, 64, 64, 40, 0, 0, 0,
+    0, 61, 48, 64, 7, 0, 0, 0,
+    0, 46, 48, 64, 7, 0, 0, 0,
+    0, 47, 48, 64, 7, 0, 0, 0,
+    0, 60, 48, 64, 20, 0, 0, 0,
+    0, 64, 48, 127, 40, 0, 0, 0,
+    0, 125, 48, 108, 40, 0, 0, 0,
+    0, 54, 48, 96, 30, 0, 0, 0,
+    0, 96, 64, 127, 40, 0, 0, 0,
+    0, 106, 64, 86, 60, 0, 0, 0,
+    8, 107, 48, 64, 40, 0, 0, 0,
+    0, 110, 48, 96, 30, 0, 0, 0,
+    0, 109, 48, 64, 80, 0, 0, 0,
+    0, 111, 48, 64, 30, 0, 0, 0,
+    0, 112, 48, 64, 60, 0, 0, 0,
+    0, 128, 48, 64, 60, 0, 0, 0,
+    4, 32, 64, 64, 60, 0, 0, 0,
+    0, 126, 40, 96, 5, 0, 0, 0,
+    0, 40, 48, 96, 180, 0, 0, 0,
+    0, 44, 64, 96, 90, 0, 0, 0,
+    0, 116, 48, 127, 20, 0, 0, 0,
+    0, 117, 48, 127, 20, 0, 0, 0,
+    0, 31, 64, 96, 200, 0, 0, 0,
+    4, 84, 12, 127, 90, 0, 0, 0,
+    0, 81, 64, 96, 20, 0, 0, 0,
+    0, 18, 64, 84, 30, 0, 0, 0,
+    4, 88, 12, 127, 90, 0, 0, 0,
+    0, 68, 36, 96, 90, 0, 0, 0,
+    0, 35, 36, 96, 60, 0, 0, 0,
+    0, 35, 36, 96, 60, 0, 0, 0,
+    0, 82, 60, 96, 60, 0, 0, 0,
+    4, 77, 48, 96, 200, 0, 0, 0,
+    4, 83, 48, 127, 90, 0, 0, 0,
+    0, 92, 48, 96, 120
+};

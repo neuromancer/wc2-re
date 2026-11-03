@@ -5,6 +5,16 @@
  */
 #include "game.h"
 
+unsigned short g_wSoundBlasterPort_0049bb58 = 0x220;
+unsigned short g_wSoundBlasterIrq_0049bb5c = 7;
+unsigned short g_wDigiPlaying_0049bb60 = 0;
+unsigned short g_wDmaAddressA_0049bb64 = 0;
+unsigned short g_wDmaAddressB_0049bb68 = 0;
+unsigned short g_wDmaCountA_0049bb6c = 0;
+unsigned short g_wDmaCountB_0049bb70 = 0;
+int g_nDmaHalfSelect_0049bb74 = 0;
+short g_nDigiLastBlock_0049bb78 = 0;
+
 /* Function start: 0x44F300 */
 /* The DOS release wrote the Sound Blaster's I/O ports here; the Win32 port
  * keeps the entry point and does nothing. */

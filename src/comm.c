@@ -5,6 +5,21 @@
  */
 #include "game.h"
 
+short g_nEnemyTauntCommandBase_0049b76c = 20;
+short g_nCommMenuChoiceCount_0049b770 = -1;
+short g_nCommMenuReuseMode_0049b774 = 0;
+signed char g_cMessageSpeed_0049b778 = 2;
+signed char g_cPendingCommMenuAction_0049b77c = 1;
+signed char g_bRadioSilence_0049b780 = 0;
+signed char g_bVideoImagesSuppressed_0049b784 = 0;
+unsigned char *g_pCommPortraitResource_0049b788 = 0;
+unsigned char *g_pCommVduFrameResource_0049b78c = 0;
+signed char g_cCommMenuRecipient_0049b790 = -1;
+short g_nCommSpeakerObject_0049b794 = 0;
+short g_nCommSpeakerRating_0049b798 = 0;
+short g_nCommPortraitIndex_0049b79c = -1;
+short g_bCommSpeechPlaying_0049b7a0 = 0;
+
 /* Function start: 0x447300 */
 void LoadCommPortraitResources(short portrait)
 {
@@ -123,8 +138,8 @@ void BuildCommunicationRecipientMenu(void)
     short target;
 
     ResetCommMenuChoices(g_nCommMenuReuseMode_0049b774);
-    OpenCommMenuForTarget(g_szCommRecipientHeading_0049b7cc,
-                          g_szSelectCommPrompt_0049b7c4);
+    OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
+                          "SELECT");
     if (wingman_dead() != 0) {
         SelectCommRecipient(g_acShipTarget_00495f20[0]);
         return;
@@ -142,10 +157,10 @@ void BuildCommunicationRecipientMenu(void)
         if (g_asShipSide_004955d0[target] == SIDE_KILRATHI &&
             g_aeObjectClass_00495328[target] >= OBJECT_CLASS_SHIP) {
             if (g_asShipIdentified_00496078[target] != 0)
-                AppendCommMenuChoice(g_szEnemyTarget_0049b7f0, 2);
+                AppendCommMenuChoice("ENEMY TARGET", 2);
             else
                 AppendCommMenuChoice(
-                    g_szUnidentifiedEnemyTarget_0049b800, 2);
+                    "UNIDENTIFIED", 2);
         } else if (g_asShipSide_004955d0[target] == SIDE_IMPERIAL) {
             if (g_aeObjectClass_00495328[target] >= OBJECT_CLASS_SHIP &&
                 g_asShipMissionType_00495de8[target] ==
@@ -163,7 +178,7 @@ void BuildCommunicationRecipientMenu(void)
                                          3);
                 else
                     AppendCommMenuChoice(
-                        g_szUnidentifiedFriendlyTarget_0049b810, 3);
+                        "UNIDENTIFIED", 3);
             } else if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
                        g_bEjectionAwaitingCommCommand_0049b8b4 != 0 &&
                        g_asObjectType_00495298[target] >=
@@ -290,22 +305,22 @@ void BuildCommunicationCommandMenu(void)
     if (IsCommChoiceMenuOpen() != 0) {
         if (g_nCommMenuChoiceCount_0049b770 >= 5)
             strcpy(g_szCommMenuHeadingBuffer_005d1960,
-                   g_szCommCompactHeadingPrefix_0049b820);
+                   "VID-COM SYSTEM\nTo: ");
         else
             strcpy(g_szCommMenuHeadingBuffer_005d1960,
-                   g_szCommHeadingPrefix_0049b834);
+                   "VID-COM SYSTEM\n\nTo: ");
         if (g_asShipIdentified_00496078[
                 g_cCommMenuRecipient_0049b790] == 0)
             strcat(g_szCommMenuHeadingBuffer_005d1960,
-                   g_szUnidentifiedCommRecipient_0049b84c);
+                   "UNIDENTIFIED");
         else
             strcat(g_szCommMenuHeadingBuffer_005d1960,
                    g_apShipMissionRecord_00495da8[
                        g_cCommMenuRecipient_0049b790]->name);
         strcat(g_szCommMenuHeadingBuffer_005d1960,
-               g_szCommHeadingNewline_0049b85c);
+               "\n");
         OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_005d1960,
-                              g_szChooseCommPrompt_0049b860);
+                              "CHOOSE");
     }
 }
 
@@ -363,7 +378,7 @@ void show_communications_disp(void)
                 g_stRightVduTextContext_005d2ce0.colour =
                     g_abGamePaletteReservedColours_0049cb54[8];
 #endif
-            DrawFormattedText(g_szCommMenuChoiceFormat_0049b868,
+            DrawFormattedText("\n%d.%s",
                               (int)choice + 1,
                               g_apszCommMenuChoiceText_005d19a0[choice]);
 #ifdef SDL_PORT
@@ -503,6 +518,8 @@ long GetNamedPacketSize(const char *filename, short section);
 void LoadAndPlaySpeechPacket(char *fileName, short section);
 void *LoadPacketIntoBuffer(char *fileName, short section, void *destination,
                            int registerHandle);
+void malf_noise(short vdu, int effect, unsigned short colour, short sound,
+                short refresh);
 
 /* Function start: 0x4482CA */
 void real_vid_transmit(short obj, short message)
@@ -581,7 +598,7 @@ void real_vid_transmit(short obj, short message)
             sprintf(callsign, g_apShipMissionRecord_00495da8[obj]->name);
         else
             sprintf(callsign, "UNKNOWN");
-        sprintf(text, g_szCommSpeakerTextFormat_0049b888, callsign,
+        sprintf(text, "%s: %Fs", callsign,
                 g_szCommMessageText_005d18f0);
         expanded = ExpandCommMessageTokens(text);
         ShowCentredPrompt(expanded, MeasureMessageWidth(text));
