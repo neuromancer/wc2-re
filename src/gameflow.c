@@ -304,9 +304,8 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
         break;
     }
     SetTextContext(&g_stCutsceneDrawingTextContext_005d2f60);
-    memcpy(&savedBounds,
-           &g_stCutsceneDrawingTextContext_005d2f60.viewport->left,
-           sizeof(savedBounds));
+    savedBounds =
+        *(ShortRect *)&g_stCutsceneDrawingTextContext_005d2f60.viewport->left;
     if (g_bCutsceneTextBoundsOverride_00499edc != 0) {
         g_stCutsceneDrawingTextContext_005d2f60.viewport->left =
             MaxShort(g_nCutsceneTextLeft_00499ee0,
@@ -348,8 +347,8 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
     }
     g_bCutsceneTextRestorePending_00499da0 = 1;
     SetTextContext(&g_stCutsceneTextContext_005d2f40);
-    memcpy(&g_stCutsceneDrawingTextContext_005d2f60.viewport->left,
-           &savedBounds, sizeof(savedBounds));
+    *(ShortRect *)&g_stCutsceneDrawingTextContext_005d2f60.viewport->left =
+        savedBounds;
     g_bCutsceneTextBoundsOverride_00499edc = 0;
 }
 
@@ -1536,18 +1535,18 @@ void UpdateCutsceneSpriteObject(SceneFlicObject *sprite)
             sprite->waitTicks = 0;
         }
     }
-    if (waiting == 0) {
-        PumpWindowMessages(0);
-        savedSprite = g_pCurrentCutsceneSprite_00499c78;
-        g_pCurrentCutsceneSprite_00499c78 = sprite;
-        if (sprite->field_3 >= 0)
-            DispatchCutsceneSpriteHandler(sprite, 0);
-        RunCutsceneScript(&sprite->scriptCursor, 0);
-        sprite->x = (short)(sprite->x + sprite->deltaX);
-        sprite->y = (short)(sprite->y + sprite->deltaY);
-        sprite->field_2f = (short)(sprite->field_2f + sprite->deltaDepth);
-        g_pCurrentCutsceneSprite_00499c78 = savedSprite;
-    }
+    if (waiting != 0)
+        return;
+    PumpWindowMessages(0);
+    savedSprite = g_pCurrentCutsceneSprite_00499c78;
+    g_pCurrentCutsceneSprite_00499c78 = sprite;
+    if (sprite->field_3 >= 0)
+        DispatchCutsceneSpriteHandler(sprite, 0);
+    RunCutsceneScript(&sprite->scriptCursor, 0);
+    sprite->x = (short)(sprite->x + sprite->deltaX);
+    sprite->y = (short)(sprite->y + sprite->deltaY);
+    sprite->field_2f = (short)(sprite->field_2f + sprite->deltaDepth);
+    g_pCurrentCutsceneSprite_00499c78 = savedSprite;
 }
 
 /* Function start: 0x42E692 */
@@ -1563,9 +1562,7 @@ void DispatchCutsceneSpriteHandler(SceneFlicObject *sprite,
         handler = g_apCutsceneSpriteHandlers_00499c5c[object->field_3];
         handler(object);
         break;
-    case 1:
-        break;
-    case 2:
+    default:
         break;
     }
 }
@@ -1904,13 +1901,13 @@ void DrawCinematicMemoryStatus(const char *message)
 /* Function start: 0x42F0B3 */
 void FormatCinematicMemoryStatus(const char *format, ...)
 {
-    va_list arguments;
-    char message[256];
+    va_list marker;
+    char text[256];
 
-    va_start(arguments, format);
-    vsprintf(message, format, arguments);
-    va_end(arguments);
-    DrawCinematicMemoryStatus(message);
+    va_start(marker, format);
+    vsprintf(text, format, marker);
+    DrawCinematicMemoryStatus(text);
+    va_end(marker);
 }
 
 /* Function start: 0x42F100 */
