@@ -145,6 +145,13 @@ Replacing the free `__fastcall` `ix_sound_unlink_from_free_list` with an
 the free declaration was before `dspv.cpp` and `dsps.cpp` matched again.
 After any `ix.h` edit, re-run the whole report rather than one unit.
 
+A header declaration removed by a merge must be refilled at the same spot, as
+in WC1. Merging the two modal-bounds dwords into one `ShortRect` cost one
+`extern` in `globals.h` and one prototype parameter name in `functions.h`;
+the same two keys placed anywhere else broke 2 to 87 functions. The fillers
+used are `extern short DAT_005a86a6` (a real but unreferenced word) and the
+`ModalPanelBounds` typedef that the new prototype uses.
+
 ### Statement shapes that /Od makes visible
 
 Each of these was confirmed against retail code; pick the form the jumps show.
@@ -276,6 +283,14 @@ when the binary calls or inlines `strcpy`, `memcpy`, or another CRT routine.
 Use typed structure fields and arrays. If a field's purpose is unknown, retain
 an offset-based field name until evidence supports a better one. Raw pointer
 arithmetic often hides a wrong width and makes comparison harder.
+
+A record copied whole shows the struct-assignment shape: both source dwords
+are loaded before the destination address is formed (`MOV EAX,[src]; MOV
+ECX,[src+4]; MOV EDX,dst; MOV [EDX],EAX; MOV [EDX+4],ECX`). An inlined
+`memcpy` forms the destination first. A record passed by value is pushed as
+both loads, then both pushes. `InitializeModalTextPanel` takes its rectangle
+as one 8-byte `ShortRect`. It stores the rectangle into the four loose
+`Viewport` bounds through a `ShortRect` cast.
 
 ## Analysis traps
 

@@ -171,8 +171,10 @@ extern char g_szHazardNear_0049b350[12];
 extern char g_szAlreadyVisited_0049b404[16];
 extern char g_szObjectiveReached_0049b414[20];
 extern char g_szWaitForFormat_0049b428[12];
-extern unsigned int g_dwModalBoundsTopLeft_0049ca48;
-extern unsigned int g_dwModalBoundsBottomRight_0049ca4c;
+extern ShortRect g_stModalBounds_0049ca48;
+/* Unreferenced word.  Declared in the slot the second modal-bounds dword
+ * freed, so the header keeps its symbol count (docs/PATTERNS.md). */
+extern short DAT_005a86a6;
 extern ModalTextPanel *g_pModalTextPanel_0049ca50;
 extern char *g_pszGameVersion_0049b528;
 extern char g_szGameVersion_0049b52c[9];
@@ -1107,8 +1109,10 @@ extern unsigned char *g_pReleaseWeaponDisplayBackground_0049b05c;
 extern signed char g_cReleaseWeaponDisplayFrame_0049b060;
 extern signed char g_cReleaseWeaponDisplayTicks_0049b064;
 extern signed char g_cReleaseWeaponDisplayState_0049b068;
-extern short g_nReleaseWeaponDisplayX_005d1c24;
-extern short g_nReleaseWeaponDisplayY_005d1c26;
+/* Where the released-weapon sprite drops from; one record, so its y reads as a
+ * member (the typedef keeps the header's symbol count of the two words). */
+typedef ShortPoint ReleaseWeaponPosition;
+extern ReleaseWeaponPosition g_stReleaseWeaponDisplayPosition_005d1c24;
 extern short g_nReleaseWeaponDisplayType_005d1c28;
 extern short g_nWeaponDisplayOriginX_005d4254;
 extern short g_nWeaponDisplayOriginY_005d4256;

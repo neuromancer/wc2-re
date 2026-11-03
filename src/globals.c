@@ -1454,8 +1454,7 @@ unsigned char *g_pGenericMissileExhaustShape_0049c8f4;
 unsigned char g_abTaggedAllocationPrefix_0049ca40[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
 };
-unsigned int g_dwModalBoundsTopLeft_0049ca48 = 0x00280018;
-unsigned int g_dwModalBoundsBottomRight_0049ca4c = 0x003c0128;
+ShortRect g_stModalBounds_0049ca48 = {0x18, 0x28, 0x128, 0x3c};
 ModalTextPanel *g_pModalTextPanel_0049ca50;
 unsigned char *g_pCampaignChalkboardShape_0049ca54;
 short g_bDisableChalkboardReplay_0049ca58;
@@ -2030,8 +2029,7 @@ short g_nPendingEjectionShip_005d1bc4;
 short DAT_005d1bd0[16];
 short DAT_005d1bf0[16];
 short DAT_005d1c10[10];
-short g_nReleaseWeaponDisplayX_005d1c24;
-short g_nReleaseWeaponDisplayY_005d1c26;
+ReleaseWeaponPosition g_stReleaseWeaponDisplayPosition_005d1c24;
 short g_nReleaseWeaponDisplayType_005d1c28;
 short g_nTargetLeadIndicatorY_005d1c2a;
 unsigned char *g_pScannerMarkerBackground_005d1c2c;

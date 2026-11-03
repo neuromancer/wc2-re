@@ -904,10 +904,10 @@ void RemovePlayerReleaseWeapon(signed char weapon)
     g_nReleaseWeaponDisplayType_005d1c28 =
         ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[weapon].type;
     g_cReleaseWeaponDisplayFrame_0049b060 = 1;
-    g_nReleaseWeaponDisplayX_005d1c24 =
+    g_stReleaseWeaponDisplayPosition_005d1c24.x =
         (short)(g_aWeaponDisplayPositions_005d1de0[weapon].x +
                 g_nWeaponDisplayOriginX_005d4254);
-    g_nReleaseWeaponDisplayY_005d1c26 =
+    g_stReleaseWeaponDisplayPosition_005d1c24.y =
         (short)(g_aWeaponDisplayPositions_005d1de0[weapon].y +
                 g_nWeaponDisplayOriginY_005d4256);
     g_cReleaseWeaponDisplayTicks_0049b064 = 3;
@@ -929,31 +929,31 @@ void fire_computer_graphic_missile(void)
             RestoreSpriteBackground(
                 &g_stLeftVduViewport_005d2180,
                 g_pReleaseWeaponDisplayBackground_0049b05c,
-                g_nReleaseWeaponDisplayX_005d1c24,
-                g_nReleaseWeaponDisplayY_005d1c26,
+                g_stReleaseWeaponDisplayPosition_005d1c24.x,
+                g_stReleaseWeaponDisplayPosition_005d1c24.y,
                 g_pCockpitWeaponShape_005d2b54,
                 g_cReleaseWeaponDisplayFrame_0049b060);
         }
         if (g_stLeftVduViewport_005d2180.top - 10 <
-                g_nReleaseWeaponDisplayY_005d1c26 &&
-            g_nReleaseWeaponDisplayY_005d1c26 <
+                g_stReleaseWeaponDisplayPosition_005d1c24.y &&
+            g_stReleaseWeaponDisplayPosition_005d1c24.y <
                 g_stLeftVduViewport_005d2180.bottom) {
-            g_nReleaseWeaponDisplayY_005d1c26 =
-                (short)(g_nReleaseWeaponDisplayY_005d1c26 -
+            g_stReleaseWeaponDisplayPosition_005d1c24.y =
+                (short)(g_stReleaseWeaponDisplayPosition_005d1c24.y -
                         g_cReleaseWeaponDisplayTicks_0049b064);
             g_cReleaseWeaponDisplayTicks_0049b064++;
             if (visible != 0) {
                 CaptureSpriteBackground(
                     &g_stLeftVduViewport_005d2180,
                     g_pReleaseWeaponDisplayBackground_0049b05c,
-                    g_nReleaseWeaponDisplayX_005d1c24,
-                    g_nReleaseWeaponDisplayY_005d1c26,
+                    g_stReleaseWeaponDisplayPosition_005d1c24.x,
+                    g_stReleaseWeaponDisplayPosition_005d1c24.y,
                     g_pCockpitWeaponShape_005d2b54,
                     g_cReleaseWeaponDisplayFrame_0049b060);
                 DrawSpriteDefault(
                     &g_stLeftVduViewport_005d2180,
-                    g_nReleaseWeaponDisplayX_005d1c24,
-                    g_nReleaseWeaponDisplayY_005d1c26,
+                    g_stReleaseWeaponDisplayPosition_005d1c24.x,
+                    g_stReleaseWeaponDisplayPosition_005d1c24.y,
                     g_pCockpitWeaponShape_005d2b54,
                     g_cReleaseWeaponDisplayFrame_0049b060);
             }

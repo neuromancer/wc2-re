@@ -693,12 +693,13 @@ void transform_objects_to_your_view(void);                             /* 0x40C9
 void set_background_objects_rotation(short obj,
                                      FixedVector *direction);    /* 0x40CEF6 */
 void get_right_shape(short obj, FixedVector *direction);          /* 0x40CFF8 */
+/* The modal panel rectangle travels by value as one 8-byte record.  The
+ * typedef also stands in for the parameter name the old two-dword prototype
+ * had, keeping the header's symbol count. */
+typedef ShortRect ModalPanelBounds;
 short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
-                               unsigned int topLeft,
-                               unsigned int bottomRight,
-                               short clearColour,
-                               unsigned char backgroundColour,
-                               short borderColour);                    /* 0x4593D6 */
+                               ModalPanelBounds bounds, short clearColour,
+                               short backgroundColour, short borderColour);                    /* 0x4593D6 */
 void DrawModalTextPanel(ModalTextPanel *panel, short x, short y,
                         unsigned char alignment,
                         const char *format, ...);                      /* 0x459527 */

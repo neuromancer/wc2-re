@@ -83,8 +83,14 @@ void ShowMemoryStatusDebug(void)
         (unsigned char)g_bPrimaryViewBufferColour_0049cb50,
         g_cSecondaryViewBufferColour_0049cb4c);
     SetTextContext(&g_stDefaultTextContext_005d2d20);
+#ifdef SDL_PORT
     DrawFormattedText("%X%YCurrent NMem %d.", 70, 160,
                       GetOriginalFreeMemory());
+#else
+    /* Called without a prototype: the int return is pushed unextended. */
+    DrawFormattedText("%X%YCurrent NMem %d.", 70, 160,
+                      ((int (*)(void))GetOriginalFreeMemory)());
+#endif
     sprintf(value, "%ld", GetLargestFreeMemoryBlockByType(0));
     DrawFormattedText("%X%YLargest Block FMem %s.", 70, 176, value);
     sprintf(value, "%ld", GetAvailableMainMemory());
