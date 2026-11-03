@@ -25,39 +25,49 @@ The timing unit is linked between `src/music.c` and `src/screen.c`, matching
 the target sequence from `AllocateViewport` through the initializers to the
 frame throttle.
 
-## Historical predecessor image layout
+## Image layout and link line
 
 ```text
-0x00401000  game core and Win32 support (mostly C; boundaries provisional)
-0x004426A0  ix_log_printf (C++; owning object boundary unproven)
-0x00442750  ix audio object sequence (C++; boundaries exact)
-0x004492E0  MSVC 4.20 static debug CRT (not reconstructed)
+0x00401000  game core (command-line objects)
+0x00469C80  ix sound library: system.cpp, sound.cpp, sample.cpp
+0x0046BD50  ix streamer library: streamer.cpp, thread.cpp (stream files last)
+0x0046DF08  import thunks of the first search pass (DDRAW ... ADVAPI32)
+0x0046E0E0  LIBCMTD members the game needs, in first-reference order
+0x00473E50  wincrt0.obj, then the CRT members only the CRT and ix need
+0x00489990  ix dsp library: dsp, dspv, dsps, mixer, dspmix (assembled)
+0x0048C290  ix LZO library: lzo1x.cpp
+0x0048C400  ix file library: ixfile.cpp
+0x0048C58A  import thunks of the second search pass (DSOUND, KERNEL32)
+0x0048C760  CRT members reached through OLDNAMES (getch, strupr, flength),
+            then those the file module needs (fseek, ftell, fread, fwrite)
 ```
 
-The final core function before `ix_log_printf` starts at `0x00442600`. The
-first CRT `__FILE__` anchor is at `0x004492E0`; the final `ix` routine occupies
-the preceding range.
+LINK 3.10 pulls each library member when its symbol is first needed: by each
+command-line object in turn, then the entry point, then each pulled member,
+and it searches the libraries again on later passes.  The layout above
+therefore records the link line, which the Makefile reproduces:
 
-## Historical predecessor `ix` library order
+| Evidence in the original | Link-line choice |
+| --- | --- |
+| MISC and CodeView debug records (`Debug/wc2.exe`, `C:\WCB\wc2\Debug\wc2.pdb`), 126 FPO records, a thunk for every import | `/DEBUG /INCREMENTAL:NO`, which keeps unreferenced thunks |
+| `wincrt0.obj` follows the CRT members the game references | No `/ENTRY` |
+| ix sound and streamer members precede the first-pass thunks; `ldexp`, needed by `sample.cpp`, follows `wincrt0.obj` | Those two ix libraries precede the import libraries |
+| The dsp, LZO and file members follow the whole first-pass CRT | Their libraries follow `libcmtd.lib oldnames.lib` |
+| Import descriptors run DDRAW, WINMM, KERNEL32, USER32, GDI32, ADVAPI32, DSOUND | Only dsp members need DirectSound, so its imports come from the second pass |
+| `ix_dspv_mix` starts at `0x0048BFF8`, directly after `mixer.cpp` | `dspmix.asm` is a four-byte-aligned member of its own, as in WC1 |
 
-Live assertion `__FILE__` and `__LINE__` strings fix these object boundaries
-and their link order:
+The CRT's first-pass order also records which names the game called.  The
+DOS-era names (`itoa`, `ltoa`, `ultoa`, `strupr`, `filelength`, and `unlink`,
+`open`, `write`, `close` and `lseek` in specific units) resolve through
+OLDNAMES, so their members are pulled later than a direct reference would put
+them.  `smart.c` and `fl.c` call `labs`, a separate member from the `abs` the
+rest of the game calls.
 
-| Order | Range | Reconstructed source |
-| ---: | --- | --- |
-| 1 | `0x00442750`–`0x00443DA5` | `src/ix/streamer.cpp` |
-| 2 | `0x00443DA6`–`0x0044490F` | `src/ix/thread.cpp` |
-| 3 | `0x00444910`–`0x004451B4` | `src/ix/dsp.cpp` |
-| 4 | `0x004451B5`–`0x00445F5F` | `src/ix/dsps.cpp` |
-| 5 | `0x00445F60`–`0x004467C4` | `src/ix/mixer.cpp` |
-| 6 | `0x004467C5`–`0x004471FF` | `src/ix/dspv.cpp` |
-| 7 | `0x00447200`–`0x00447CD7` | `src/ix/system.cpp` |
-| 8 | `0x00447CD8`–`0x0044879B` | `src/ix/sound.cpp` |
-| 9 | `0x0044879C`–`0x004492DF` | `src/ix/sample.cpp` |
-
-`src/ix/ixlog.cpp` contains `ix_log_printf` at `0x004426A0`. It is linked
-immediately before the exact sequence above, but its original object extent is
-not yet established.
+`dspv.cpp` and `dsps.cpp` each begin with an empty `$E2`/`$E1` initializer
+pair in the original (`0x0048A210`, `0x0048A9F0`), registered in `CRT$XCU`.
+VC++ emits them for a global array of a non-aggregate record.  Making
+`IxVoice` and `IxStream` non-aggregate is not yet done: the friend
+declarations their accessors need shift symbol keys in every ix unit.
 
 ## Historical predecessor game-core working split
 

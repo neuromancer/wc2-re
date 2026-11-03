@@ -177,7 +177,7 @@ void ix_dspv_set_bits_per_sample(int voice, int bps);          /* 0x00446D2C  8 
 void ix_dspv_set_channels(int voice, int ch);                  /* 0x00446DF5  1 or 2 */
 void ix_dspv_set_flag4(int voice, int on);                     /* 0x48A3C6 */
 void ix_dspv_recalc_mix(int voice);                            /* 0x48A92F */
-void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes); /* 0x48BFF8 */
+extern "C" void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes); /* 0x48BFF8 */
 
 /* --------------------------------------------------------------------------
  * DSP stream.  Array at 0x00598138, stride 0x38; count at 0x00598130.

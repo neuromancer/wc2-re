@@ -26,6 +26,7 @@ MSVC41_DIR = compilers/msvc41
 MSVC41_STAMP = $(MSVC41_DIR)/.installed
 CC = $(WIBO) $(MSVC41_DIR)/Bin/CL.EXE
 LINK = $(WIBO) $(MSVC41_DIR)/Bin/LINK.EXE
+LIBEXE = $(WIBO) $(MSVC41_DIR)/Bin/LIB.EXE
 
 # MSVC expects Windows-style include/library search paths.  The recipes pass
 # these through the host shell to wibo, so command-line /I paths use doubled
@@ -77,12 +78,23 @@ CFLAGS_IX   = $(CFLAGS_COMMON) /Od /Oi
 # Default for anything not covered by a more specific rule.
 CFLAGS = $(CFLAGS_CORE)
 
-LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /ENTRY:WinMainCRTStartup /ALIGN:4096
+# The original was the IDE's Debug configuration: /DEBUG (which keeps every
+# import thunk, /OPT:NOREF) without incremental linking, and no /ENTRY.
+# Without /ENTRY LINK adds WinMainCRTStartup as an undefined symbol after
+# reading every command-line object, so wincrt0.obj lands after the CRT
+# members the game itself needs, at 0x00473E50.  The image's MISC and
+# CodeView debug records name Debug/wc2.exe and C:\WCB\wc2\Debug\wc2.pdb.
+LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /DEBUG /INCREMENTAL:NO \
+	/PDB:$(OUT_DIR)/wc2.pdb /ALIGN:4096
 
 # DDRAW.DLL and DSOUND.DLL are bound statically through the import table, so
 # import libraries are required at link time.  The MSVC420 submodule already
 # ships DDRAW.LIB/DSOUND.LIB and DDRAW.H/DSOUND.H, so no extra SDK is needed.
 GAME_LIBPATH = $(MSVC_LIB)
+#
+# The import descriptors run DDRAW, WINMM, KERNEL32, USER32, GDI32, ADVAPI32,
+# DSOUND: only the dsp library members, pulled after the CRT, need DirectSound,
+# so its descriptor and thunks come from the second search pass.
 GAME_LIBS = \
 	ddraw.lib \
 	dsound.lib \
@@ -91,6 +103,15 @@ GAME_LIBS = \
 	user32.lib \
 	gdi32.lib \
 	advapi32.lib
+
+# The ix code reached the link as five libraries.  The sound and streamer
+# libraries precede the import libraries: their members sit before the first
+# pass's import thunks at 0x0046DF08, and sample.cpp's ldexp is pulled after
+# wincrt0.obj.  The dsp, LZO and file libraries are searched after LIBCMTD and
+# OLDNAMES: their members follow the whole first-pass CRT at 0x00489990.
+IX_LIBS_BEFORE_CRT = $(IX_SOUND_LIB) $(IX_STREAMER_LIB)
+IX_LIBS_AFTER_CRT = $(IX_DSP_LIB) $(IX_LZO_LIB) $(IX_FILE_LIB)
+CRT_LIBS = libcmtd.lib oldnames.lib
 
 # ---------------------------------------------------------------------------
 # Project inputs and generated outputs
@@ -382,21 +403,32 @@ SRCS_ORDERED_CORE = \
 	src/resread.c \
 	src/globals.c
 
-SRCS_ORDERED_IX = \
-	src/ix/streamer.cpp \
-	src/ix/thread.cpp \
-	src/ix/dsp.cpp \
-	src/ix/dsps.cpp \
-	src/ix/mixer.cpp \
-	src/ix/dspv.cpp \
+# Each ix library's members, in the order LINK pulls them.
+SRCS_IX_SOUND = \
 	src/ix/system.cpp \
 	src/ix/sound.cpp \
 	src/ix/sample.cpp
+SRCS_IX_STREAMER = \
+	src/ix/streamer.cpp \
+	src/ix/thread.cpp
+SRCS_IX_DSP = \
+	src/ix/dsp.cpp \
+	src/ix/dspv.cpp \
+	src/ix/dsps.cpp \
+	src/ix/mixer.cpp \
+	src/ix/dspmix.asm
+SRCS_IX_LZO = \
+	src/ix/lzo1x.cpp
+SRCS_IX_FILE = \
+	src/ix/ixfile.cpp
+
+SRCS_ORDERED_IX = $(SRCS_IX_SOUND) $(SRCS_IX_STREAMER) $(SRCS_IX_DSP) \
+	$(SRCS_IX_LZO) $(SRCS_IX_FILE)
 
 SRCS_ORDERED = $(SRCS_ORDERED_CORE) $(SRCS_ORDERED_IX)
 
 ALL_SRCS = $(wildcard src/*.c) $(wildcard src/*.cpp) $(wildcard src/*.asm) \
-           $(wildcard src/ix/*.cpp)
+           $(wildcard src/ix/*.cpp) $(wildcard src/ix/*.asm)
 SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
        $(filter-out $(SRCS_ORDERED), $(ALL_SRCS))
 
@@ -406,9 +438,21 @@ SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
 # object never gets compared against the original.
 GAME_HEADERS = $(wildcard include/*.h) $(wildcard src/ix/*.h)
 
-OBJS = $(patsubst src/%,$(OUT_DIR)/%, \
+objects_of = $(patsubst src/%,$(OUT_DIR)/%, \
          $(patsubst %.c,%.obj, $(patsubst %.cpp,%.obj, \
-         $(patsubst %.asm,%.obj, $(SRCS)))))
+         $(patsubst %.asm,%.obj, $(1)))))
+
+OBJS = $(call objects_of,$(SRCS))
+
+# Everything except the ix library members is an object on the command line.
+LINK_OBJS = $(call objects_of,$(filter-out $(SRCS_ORDERED_IX),$(SRCS)))
+
+IX_SOUND_LIB = $(OUT_DIR)/ix/sound.lib
+IX_STREAMER_LIB = $(OUT_DIR)/ix/streamer.lib
+IX_DSP_LIB = $(OUT_DIR)/ix/dsp.lib
+IX_LZO_LIB = $(OUT_DIR)/ix/lzo.lib
+IX_FILE_LIB = $(OUT_DIR)/ix/file.lib
+IX_LIBS = $(IX_LIBS_BEFORE_CRT) $(IX_LIBS_AFTER_CRT)
 
 # Platform-neutral recovered units: every core C and C++ unit.  sound.c keeps
 # its C file name but is compiled as C++ (see its Win32 rule).  The assembled
@@ -432,7 +476,8 @@ MODERN_IX_SRCS = \
 	src/ix/system.cpp \
 	src/ix/sound.cpp \
 	src/ix/sample.cpp \
-	src/ix/lzo1x.cpp
+	src/ix/lzo1x.cpp \
+	src/ix/ixfile.cpp
 
 MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
@@ -1012,8 +1057,19 @@ $(OUT_DIR)/%.obj: src/%.asm | $(UASM)
 	@$(UASM) -q -coff -Fo$@ -Fw$(OUT_DIR)/$*.err $< > $(OUT_DIR)/$*.stdout || \
 		(cat $(OUT_DIR)/$*.stdout >&2; exit 1)
 
-$(TARGET): $(OBJS) | $(MSVCRT_DLL)
-	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) $^ $(GAME_LIBS) /OUT:$@
+$(IX_SOUND_LIB): $(call objects_of,$(SRCS_IX_SOUND))
+$(IX_STREAMER_LIB): $(call objects_of,$(SRCS_IX_STREAMER))
+$(IX_DSP_LIB): $(call objects_of,$(SRCS_IX_DSP))
+$(IX_LZO_LIB): $(call objects_of,$(SRCS_IX_LZO))
+$(IX_FILE_LIB): $(call objects_of,$(SRCS_IX_FILE))
+$(IX_LIBS): | $(MSVCRT_DLL)
+	@rm -f $@
+	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
+
+$(TARGET): $(LINK_OBJS) $(IX_LIBS) | $(MSVCRT_DLL)
+	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) \
+		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
+		$(IX_LIBS_AFTER_CRT) /OUT:$@
 
 # The game-side wave module calls directly into IxSample and IxSound member
 # functions.  Those ECX-based calls at 0x42B4A0 and 0x42B680 prove this one

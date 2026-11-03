@@ -13,6 +13,7 @@ compilers/.uasm-*/
 *.obj
 *.asm
 !src/*.asm
+!src/ix/*.asm
 *.map
 *.stdout
 
