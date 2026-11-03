@@ -5,6 +5,11 @@
  */
 #include "game.h"
 
+short g_nEscapedEnemyCount_004962e8 = 0;
+short g_bStarSystemJumpTransition_004962ec = 0;
+short g_bJumpSequenceActive_004962f0 = 0;
+short g_nStarSystemJumpDelay_004962f4 = 0;
+
 /* Function start: 0x424A60 */
 short find_objective(short type, short index)
 {

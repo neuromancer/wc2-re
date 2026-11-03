@@ -90,7 +90,7 @@ void Streamer_open(const char *streamName)
     sprintf(g_szStreamerPath_005b2818, "%s%s",
             streamsDirectory, streamName);
 #endif
-    SoundDebugPrintf("Streamer_open %s", g_szStreamerPath_005b2818);
+    SoundDebugPrintf("Streamer_open %s\n", g_szStreamerPath_005b2818);
     ix_streamer_open_stream_file(g_szStreamerPath_005b2818);
     g_nStreamerAudioPlaying_005b2810 = 0;
     return;
@@ -198,6 +198,14 @@ void ix_log_printf(const char *fmt, ...)
 #endif
 }
 
+/* The registry key and value names are constant arrays (the original keeps
+ * one copy of each in .rdata, shared by both functions below). */
+const char g_szOriginRegistryKey_0048e070[] =
+    "Software\\Origin Systems\\WC: Kilrathi Saga";
+const char g_szInstalledToValueName_0048e0a0[] = "Installed To:";
+const char g_szWing1InstalledValueName_0048e0b0[] = "Wing 1 Installed";
+const char g_szCheaterValueName_0048e0c8[] = "Cheater";
+
 #pragma function(strcat)
 /* Function start: 0x428C35 */
 char *GetLegacyGameDataPath(void)
@@ -213,18 +221,18 @@ char *GetLegacyGameDataPath(void)
 
     path = 0;
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "Software\\Origin Systems\\WC: Kilrathi Saga",
+                      g_szOriginRegistryKey_0048e070,
                       0, KEY_ALL_ACCESS, &hKey) == ERROR_SUCCESS) {
         valueType = REG_SZ;
         valueSize = sizeof(installed);
-        if (RegQueryValueExA(hKey, "Wing 1 Installed", 0, &valueType,
+        if (RegQueryValueExA(hKey, g_szWing1InstalledValueName_0048e0b0, 0, &valueType,
                              (unsigned char *)&installed,
                              &valueSize) == ERROR_SUCCESS &&
             installed != 0) {
             valueType = REG_SZ;
             valueSize = sizeof(g_szLegacyGameDataPath_005b2898);
             if (RegQueryValueExA(
-                    hKey, "Installed To:", 0, &valueType,
+                    hKey, g_szInstalledToValueName_0048e0a0, 0, &valueType,
                     (unsigned char *)
                         g_szLegacyGameDataPath_005b2898,
                     &valueSize) == ERROR_SUCCESS) {
@@ -248,11 +256,11 @@ int ReadCheaterFlagFromRegistry(void)
     int enabled = 0;
 
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
-                      "Software\\Origin Systems\\WC: Kilrathi Saga",
+                      g_szOriginRegistryKey_0048e070,
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
         type = REG_DWORD;
         length = sizeof(int);
-        RegQueryValueExA(key, "Cheater", 0, &type,
+        RegQueryValueExA(key, g_szCheaterValueName_0048e0c8, 0, &type,
                          (LPBYTE)&enabled, &length);
         RegCloseKey(key);
     }

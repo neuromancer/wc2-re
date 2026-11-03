@@ -5,6 +5,12 @@
  */
 #include "game.h"
 
+ActiveSoundEntry *g_pActiveSoundHead_004961a8 = 0;
+ActiveSoundEntry *g_pActiveSoundTail_004961ac = 0;
+int g_bAudioSystemInitialized_004961b0 = 0;
+WaveTableEntry *g_pWaveTableHead_004961b4 = 0;
+WaveTableEntry *g_pWaveTableTail_004961b8 = 0;
+
 /* Function start: 0x423CA0 */
 void InitializeAudioSystem(HWND window)
 {
@@ -509,6 +515,11 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
     RegSetValueExA(key, name, 0, type, data, size);
 }
 
+/* One copy of each registry value name serves both the load and the save:
+ * the original has a single address for each. */
+static char g_szMusicVolumeValueName_004961c0[] = "MusicVolume";
+static char g_szSfxVolumeValueName_004961d0[] = "SFXVolume";
+
 /* Function start: 0x4248B4 */
 void LoadVolumeSettingsFromRegistry(void)
 {
@@ -517,21 +528,21 @@ void LoadVolumeSettingsFromRegistry(void)
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        if (RegistryQueryValue(key, "MusicVolume", REG_DWORD,
+        if (RegistryQueryValue(key, g_szMusicVolumeValueName_004961c0, REG_DWORD,
                                (LPBYTE)&g_nMusicVolumeSetting_0049d750,
                                sizeof(g_nMusicVolumeSetting_0049d750)) !=
             ERROR_SUCCESS) {
             g_nMusicVolumeSetting_0049d750 = 0x14;
-            RegistryStoreValue(key, "MusicVolume", REG_DWORD,
+            RegistryStoreValue(key, g_szMusicVolumeValueName_004961c0, REG_DWORD,
                                (const BYTE *)&g_nMusicVolumeSetting_0049d750,
                                sizeof(g_nMusicVolumeSetting_0049d750));
         }
-        if (RegistryQueryValue(key, "SFXVolume", REG_DWORD,
+        if (RegistryQueryValue(key, g_szSfxVolumeValueName_004961d0, REG_DWORD,
                                (LPBYTE)&g_nSfxVolumeSetting_0049d74c,
                                sizeof(g_nSfxVolumeSetting_0049d74c)) !=
             ERROR_SUCCESS) {
             g_nSfxVolumeSetting_0049d74c = 0x14;
-            RegistryStoreValue(key, "SFXVolume", REG_DWORD,
+            RegistryStoreValue(key, g_szSfxVolumeValueName_004961d0, REG_DWORD,
                                (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
                                sizeof(g_nSfxVolumeSetting_0049d74c));
         }
@@ -548,10 +559,10 @@ void SaveVolumeSettingsToRegistry(void)
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        RegistryStoreValue(key, "MusicVolume", REG_DWORD,
+        RegistryStoreValue(key, g_szMusicVolumeValueName_004961c0, REG_DWORD,
                            (const BYTE *)&g_nMusicVolumeSetting_0049d750,
                            sizeof(g_nMusicVolumeSetting_0049d750));
-        RegistryStoreValue(key, "SFXVolume", REG_DWORD,
+        RegistryStoreValue(key, g_szSfxVolumeValueName_004961d0, REG_DWORD,
                            (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
                            sizeof(g_nSfxVolumeSetting_0049d74c));
     }
