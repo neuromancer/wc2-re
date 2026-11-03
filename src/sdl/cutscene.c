@@ -17,7 +17,7 @@ void SdlRunSelectedCampaignCutscene(void)
     g_pCampaignGlobals_00499c94->series =
         g_nDirectSeries_0049d79c;
     g_pCampaignGlobals_00499c94->mission =
-        g_nDirectMission_0049d79a;
+        g_stDirectMissionSelection_0049d798.mission;
     g_pCampaignGlobals_00499c94->field_08 = 0;
     g_pCampaignGlobals_00499c94->arcadeState = 0;
     g_bDeveloperCampaignReady_004926c4 = 0;

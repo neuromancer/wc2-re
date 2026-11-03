@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+short g_bMissionEndPending_0049da4c = 1;
+short g_bDeathSequenceActive_0049da50 = 0;
+
 /* Function start: 0x4697A0 (Mac symbol: death_sequence) */
 void death_sequence(void)
 {

@@ -14,7 +14,7 @@ short g_nSpaceExplosionFlashActive_00492fb4 = 0;
 short g_bApplyingCollisionDamage_00492fb8 = 0;
 short g_asIntelligenceEvent_00492fc0[12] = { 0 };
 
-short g_nCockpitCameraObject_0049d770;
+extern short g_nCockpitCameraObject_0049d770;
 
 FixedVector g_vExternalViewOffset_005d3200;
 

@@ -2539,3 +2539,69 @@ unsigned char *GetInputCursorShape(void)
 {
     return g_pInputCursorShape_005c83f9;
 }
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys. */
+signed char g_bSceneEscapeRequested_0049d4b0 = 0;
+InputEvent *g_pInputEventHead_0049d4b4 = 0;
+InputEvent *g_pInputEventTail_0049d4b8 = 0;
+int g_nInputEventPoolInitialized_0049d4bc = 0;
+int g_nInputDoubleClickDeadline_0049d4c0 = 0;
+int g_nPreviousPrimaryButton_0049d4c4 = 0;
+int g_nPreviousSecondaryButton_0049d4c8 = 0;
+int g_nNextInputQueueFlushTick_0049d4cc = 0;
+unsigned char *g_pDrawnInputCursorShape_0049d4d0 = 0;
+int g_nMouseCursorDrawDepth_0049d4d4 = 1;
+short g_nScreenWidth_0049d4d8 = 320;
+short g_nScreenHeight_0049d4dc = 200;
+int g_nUnusedEventWord_0049d4e0 = 0;
+int g_nUnusedEventWord_0049d4e4 = 0;
+ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[7] = {
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 320, 128, 0, 24, 0, 24, -24576, -1 },
+    { 320, 200, 0, 0, 0, 0, -1536, -1 },
+    { 0, 0, 0, 0, 0, 0, 0, 0 }
+};
+signed char g_acDirectionShapeFrame_0049d558[
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
+    0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
+    14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16,
+    28, 27, 26, 25, 24, 23, 22, 23, 24, 25, 26, 27,
+    29, 30, 31, 32, 33, 34, 35, 34, 33, 32, 31, 30,
+    36,
+    0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2,
+    14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
+    15, 16, 17, 18, 19, 20, 21, 20, 19, 18, 17, 16,
+    14, 13, 12, 11, 10, 9, 8, 9, 10, 11, 12, 13,
+    1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 0,
+    0, 1, 2, 3, 1, 3, 2, 1, 2, 3, 1, 3, 2,
+    4, 5, 6, 4, 6, 5, 4, 5, 6, 4, 6, 5,
+    7, 8, 9, 7, 9, 8, 7, 8, 9, 7, 9, 8,
+    10, 11, 12, 10, 12, 11, 10, 11, 12, 10, 12, 11,
+    13, 14, 15, 13, 15, 14, 13, 14, 15, 13, 15, 14, 16
+};
+signed char g_acDirectionShapeFlip_0049d618[
+    DIRECTION_VIEW_COUNT * DIRECTION_SHAPE_TABLE_COUNT] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3,
+    2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1,
+    0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0
+};
+int g_nNextInputPollTick_0049d6d4 = 0;
+short g_nInputPollPeriod_0049d6d8 = 0;

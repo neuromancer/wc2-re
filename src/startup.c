@@ -481,21 +481,21 @@ void main(short argc, char **argv)
         case 'E':
         case 'e':
             if (g_nOriginDevUnlock_0049d774 != 0)
-                g_bDirectMissionLaunch_0049d798 = 1;
+                g_stDirectMissionSelection_0049d798.launch = 1;
             break;
         case 'T':
         case 't':
             if (g_nOriginDevUnlock_0049d774 != 0) {
                 missionIsDigit = isdigit(argv[argumentIndex][1]);
                 if (missionIsDigit != 0) {
-                    g_nDirectMission_0049d79a =
+                    g_stDirectMissionSelection_0049d798.mission =
                         (short)atoi(argv[argumentIndex] + 1);
                 } else {
-                    g_nDirectMission_0049d79a = (short)(
+                    g_stDirectMissionSelection_0049d798.mission = (short)(
                         toupper(argv[argumentIndex][1]) - 'A');
                 }
-                if (g_nDirectMission_0049d79a > 3)
-                    g_nDirectMission_0049d79a = 0;
+                if (g_stDirectMissionSelection_0049d798.mission > 3)
+                    g_stDirectMissionSelection_0049d798.mission = 0;
                 g_bDirectCampaignSelection_0049cc74 = 1;
             }
             break;

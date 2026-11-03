@@ -172,8 +172,9 @@ extern char g_szMissileLocked_0049b30c[16];
 extern char g_szNotEnoughMemoryMessage_0049cbb8[];
 /* Unreferenced: cockpt.c uses literals for these HUD reasons; the dead
  * names keep the header's symbol count. */
-extern char g_szEnemyNear_0049b344[12];
-extern char g_szHazardNear_0049b350[12];
+/* dib.cpp's two unreferenced words take these two header slots. */
+extern int g_nUnusedDibWord_0049cea8;
+extern int g_nUnusedDibWord_0049ceb8;
 extern char g_szAlreadyVisited_0049b404[16];
 extern char g_szObjectiveReached_0049b414[20];
 extern char g_szWaitForFormat_0049b428[12];
@@ -278,8 +279,18 @@ extern short g_bDeathSequenceActive_0049da50;
 extern short g_bPlayerCollisionEnabled_0049d780;
 extern void *g_pMemoryAdjustment_0049d788;
 extern signed char g_bParentDirectorySelected_0049d78c;
+/* The direct-launch flag and mission number are one packed record (the
+ * mission sits at 0x49D79A).  C++ units never use it; a struct declaration
+ * takes more symbol keys there, so they see the two dead scalar names. */
+#ifdef __cplusplus
 extern short g_bDirectMissionLaunch_0049d798;
 extern short g_nDirectMission_0049d79a;
+#else
+extern struct DirectMissionSelection {
+    short launch;
+    short mission;
+} g_stDirectMissionSelection_0049d798;
+#endif
 extern short g_nDirectSeries_0049d79c;
 /* SDL port only: retail reads series 0 from the eight bytes before the
  * difficulty table (the end of joycal.c's literals); this models them.  The
@@ -553,6 +564,7 @@ extern char g_szDamageStatusFormatHighRes_004901d8[16];
 extern short g_nMissionEntryNavOverride_0049d790;
 extern short g_asMouseYawThresholds_0049d7d8[6];
 extern short g_asMousePitchThresholds_0049d7e8[6];
+/* A literal in main.c; dead name kept for the header's symbol count. */
 extern char g_szSpaceBuffer_0049d978[16];
 extern unsigned char g_cDarkGreenColour_0049cb60;
 extern ActiveSoundEntry *g_pActiveSoundHead_004961a8;
@@ -592,6 +604,7 @@ extern short g_nCombatMusicActive_0049bf04;
 extern short g_nInFlightMusicActive_0049bf08;
 extern short g_nPassingShipSoundObject_0049bf10;
 extern short g_nPassingShipSoundCountdown_0049bf14;
+/* A literal in music.c; dead name kept for the header's symbol count. */
 extern char g_szSfxWaveFormat_0049c22c[12];
 extern unsigned char g_abTaggedAllocationPrefix_0049ca40[8];
 extern short g_nEnemyTauntCommandBase_0049b76c;
@@ -727,7 +740,7 @@ extern int g_nInputEventPoolInitialized_0049d4bc;
 extern int g_nInputDoubleClickDeadline_0049d4c0;
 extern int g_nPreviousPrimaryButton_0049d4c4;
 extern int g_nPreviousSecondaryButton_0049d4c8;
-extern ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[6];
+extern ScreenViewportGeometry g_aScreenViewportGeometry_0049d4e8[7];
 extern short g_asIntelligenceEvent_00492fc0[12];
 extern signed char g_aDefenseManeuversNovice_00492fd8[8];
 extern signed char g_aDefenseManeuversVeteran_00492fe0[8];

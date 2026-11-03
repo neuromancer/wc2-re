@@ -5,26 +5,15 @@
  */
 #include "game.h"
 
-static const ShortVector g_aTargetCameraEyeOffsets_0049d430[3] = {
-    {0, 0, -80},
-    {-50, 0, 0},
-    {50, 0, 0}
-};
+static ShortVector g_aTargetCameraEyeOffsets_0049d430[3];
 
-static const ShortVector g_aaTurretProjectileOffsets_0049d448[2][2] = {
-    {{-25, 0, -80}, {25, 0, -80}},
-    {{-50, 0, 25}, {-50, 0, -25}}
-};
+static ShortVector g_aaTurretProjectileOffsets_0049d448[2][2];
 
 static short g_nTargetCameraGunCooldown_0049d33c;
 
-static const short g_asFleetMouseYawThresholds_0049d400[6] = {
-    10, 37, 52, 57, 62, 1070
-};
+static short g_asFleetMouseYawThresholds_0049d400[6];
 
-static const short g_asFleetMousePitchThresholds_0049d410[6] = {
-    5, 18, 27, 35, 38, 1040
-};
+static short g_asFleetMousePitchThresholds_0049d410[6];
 
 static signed char g_bFleetPolledInputActive_0049d420;
 
@@ -37,8 +26,6 @@ static short g_nFleetMousePitchVelocity_0049d42c;
 static short g_bFleetPrimaryInputQueued_005c57dc;
 
 static short g_bFleetMouseMoveQueued_005c57ea;
-
-short g_bSavedTargetLockAcquired_0049d488;
 
 #pragma function(abs)
 /* Function start: 0x45E9F0 */
@@ -1256,7 +1243,42 @@ void FinalizeTargetCameraViewHook(void)
     return;
 }
 
+/* This unit's initialized data, in retail order; the statics are declared
+ * at the top so that the functions keep their symbol keys. */
+short g_nTargetCameraObject_0049d338 = -1;
+static short g_nTargetCameraGunCooldown_0049d33c = 4;
+unsigned char g_abGunDisplayConfiguration_0049d340[0xa4] = { 0 };
+short g_nTargetCameraZoom_0049d3e4 = 0;
+short g_nTargetCameraFrame_0049d3e8 = 0;
+short g_nFleetOverviewYawVelocity_0049d3ec = 0;
+short g_nFleetOverviewPitchVelocity_0049d3f0 = 0;
+short g_nFleetOverviewYaw_0049d3f4 = 0;
+short g_nFleetOverviewPitch_0049d3f8 = 0;
+int g_nTargetCameraSoundHandle_0049d3fc = 0;
+static short g_asFleetMouseYawThresholds_0049d400[6] = {
+    10, 37, 52, 57, 62, 1070
+};
+static short g_asFleetMousePitchThresholds_0049d410[6] = {
+    5, 18, 27, 35, 38, 1040
+};
+int g_nUnusedTurretWord_0049d41c = 0;
+static signed char g_bFleetPolledInputActive_0049d420 = 0;
+static signed char g_bFleetButtonInputActive_0049d424 = 0;
+static short g_nFleetMouseYawVelocity_0049d428 = 0;
+static short g_nFleetMousePitchVelocity_0049d42c = 0;
+static ShortVector g_aTargetCameraEyeOffsets_0049d430[3] = {
+    {0, 0, -80},
+    {-50, 0, 0},
+    {50, 0, 0}
+};
+static ShortVector g_aaTurretProjectileOffsets_0049d448[2][2] = {
+    {{-25, 0, -80}, {25, 0, -80}},
+    {{-50, 0, 25}, {-50, 0, -25}}
+};
 short g_nSavedPlayerTarget_0049d460 = -1;
 short g_bSavedPlayerTarget_0049d464 = 0;
+short g_nTargetCameraEffectObjectA_0049d468 = -1;
+short g_nTargetCameraEffectObjectB_0049d46c = -1;
 short g_asShipTurretFireEnabled_0049d470[10] = { 0 };
 short g_nSavedTargetLockCountdown_0049d484 = 1000;
+short g_bSavedTargetLockAcquired_0049d488 = 0;

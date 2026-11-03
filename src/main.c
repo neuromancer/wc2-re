@@ -128,7 +128,7 @@ void RunGameApplication(short argc, char **argv)
     g_stCurrentPilotProfile_00493408.series = g_nDirectSeries_0049d79c;
     g_stDefaultPilotProfile_00492660.series =
         g_stCurrentPilotProfile_00493408.series;
-    g_stCurrentPilotProfile_00493408.mission = g_nDirectMission_0049d79a;
+    g_stCurrentPilotProfile_00493408.mission = g_stDirectMissionSelection_0049d798.mission;
     g_stDefaultPilotProfile_00492660.mission =
         g_stCurrentPilotProfile_00493408.mission;
     g_nResourcePaletteMode_005c57e6 = 0;
@@ -144,7 +144,7 @@ void RunGameApplication(short argc, char **argv)
         g_nMenuTextColour_005c57e8 = 2;
     }
 
-    if (g_bDirectMissionLaunch_0049d798 == 0) {
+    if (g_stDirectMissionSelection_0049d798.launch == 0) {
 #ifdef SDL_PORT
         if (SdlOriginalTitleMusicReady() &&
             SdlOriginalTitleSequenceAvailable())
@@ -188,14 +188,14 @@ void RunGameApplication(short argc, char **argv)
         }
     } else {
         g_nCurrentSeries_005c5870 = g_nDirectSeries_0049d79c;
-        g_nCurrentMission_005c5878 = g_nDirectMission_0049d79a;
+        g_nCurrentMission_005c5878 = g_stDirectMissionSelection_0049d798.mission;
         LoadTemporaryCampaignGlobals();
         g_pCampaignGlobals_00499c94->field_08 = 0;
         InitializeCampaignConstellationState(
             g_pCampaignGlobals_00499c94, 1);
         SaveAndFreeTemporaryCampaignGlobals();
         init_mission(g_nDirectSeries_0049d79c,
-                     g_nDirectMission_0049d79a);
+                     g_stDirectMissionSelection_0049d798.mission);
         RunSpaceFlight(g_nMissionEntryNavOverride_0049d790);
         LogMemoryUsage();
         printf("You ");
@@ -240,7 +240,7 @@ void initialize_view_buffer(void)
             &g_stViewBuffer_005d2b00,
             (short)g_cPrimaryViewBufferColour_0049cb88, 0x20);
         if (allocated == 0)
-            ReportOutOfMemoryAndExit(g_szSpaceBuffer_0049d978);
+            ReportOutOfMemoryAndExit("SPACE BUFFER");
     }
 }
 
@@ -2017,3 +2017,71 @@ short calculate_damage_level(void)
     else
         return 3;
 }
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys. */
+int g_bFullScreenSpaceView_0049d718 = 1;
+int g_nCockpitDisplayMode_0049d71c = 0;
+int g_anVolumeLevels_0049d720[11] = {
+    0, 500, 1000, 2500, 5000, 11000,
+    22500, 34000, 44000, 54000, 64000
+};
+int g_nSfxVolumeSetting_0049d74c = 0x14;
+int g_nMusicVolumeSetting_0049d750 = 0x14;
+int g_nUnusedMainWord_0049d754 = 0x1370;
+int g_nTrainSimActive_0049d758 = 0;
+int g_nArcadeState_0049d75c = 0;
+short g_nFrameSkipCountdown_0049d760 = 1;
+short g_nFrameSkip_0049d764 = 0;
+short g_nSpaceFramePeriod_0049d768 = 4;
+short g_bViewportDirty_0049d76c = 0;
+short g_nCockpitCameraObject_0049d770 = 0;
+short g_nOriginDevUnlock_0049d774 = 0;
+short g_bCarrierLandingEnabled_0049d778 = 1;
+short g_bPlayerDamageEnabled_0049d77c = 1;
+short g_bPlayerCollisionEnabled_0049d780 = 1;
+short g_nShowMemoryStatus_0049d784 = 0;
+void *g_pMemoryAdjustment_0049d788 = 0;
+signed char g_bParentDirectorySelected_0049d78c = 0;
+short g_nMissionEntryNavOverride_0049d790 = -1;
+int g_nUnusedMainWord_0049d794 = 0;
+struct DirectMissionSelection g_stDirectMissionSelection_0049d798 = { 0, 0 };
+short g_nDirectSeries_0049d79c = 1;
+int g_nUnusedMainWord_0049d7a0 = 0;
+short g_bSpaceViewBufferEnabled_0049d7a4 = 0;
+int g_nUnusedMainWord_0049d7a8 = 0;
+short g_nCockpitControlState_0049d7ac = 0;
+InputDeviceSample g_stCurrentFlightInput_0049d7b0 = { 0 };
+int g_nUnusedMainWord_0049d7bc = 0;
+short g_wFlightInputButtonState_0049d7c0 = 0;
+int g_nUnusedMainWord_0049d7c4 = 0;
+int g_bFlightButtonTwoHeld_0049d7c8 = 0;
+int g_bFlightButtonOneHeld_0049d7cc = 0;
+short g_nCockpitControlGoal_0049d7d0 = 0;
+short g_asMouseYawThresholds_0049d7d8[6] = {
+    10, 37, 52, 57, 62, 1070
+};
+short g_asMousePitchThresholds_0049d7e8[6] = {
+    5, 18, 27, 35, 38, 1040
+};
+signed char g_bSecondaryMouseButtonHeld_0049d7f4 = 0;
+int g_nUnusedMainWord_0049d7f8 = 0;
+signed char g_bMouseMoveEventQueued_0049d7fc = 0;
+short g_nMouseYawInput_0049d800 = 0;
+short g_nMousePitchInput_0049d804 = 0;
+short g_aSpaceExplosionFlashPalette_0049d808[13][3] = {
+    {63, 63, 35},
+    {63, 63, 35},
+    {63, 63, 63},
+    {63, 63, 63},
+    {63, 63, 63},
+    {58, 58, 58},
+    {50, 50, 50},
+    {42, 42, 42},
+    {33, 33, 33},
+    {25, 25, 25},
+    {17, 17, 17},
+    {8, 8, 8},
+    {0, 0, 0}
+};
+int g_bRenderingSpaceFrame_0049d858 = 0;

@@ -27,25 +27,29 @@ const GUID g_guidDirectDraw2_0048e120 = {
     { 0xa2, 0xde, 0x00, 0xaa, 0x00, 0xb9, 0x33, 0x56 }
 };
 
-LPDIRECTDRAW2 g_pDirectDraw2_0049ce90;
+LPDIRECTDRAW2 g_pDirectDraw2_0049ce90 = 0;
 
-LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94;
+LPDIRECTDRAWSURFACE g_pPrimarySurface_0049ce94 = 0;
 
-LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98;
+LPDIRECTDRAWSURFACE g_pSecondarySurface_0049ce98 = 0;
 
-LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0049ce9c;
+LPDIRECTDRAWPALETTE g_pDirectDrawPalette_0049ce9c = 0;
 
 int g_nDisplayModeCascade_0049cea0 = -1;
 
-DWORD g_dwNextFrameDeadline_0049cea4;
+DWORD g_dwNextFrameDeadline_0049cea4 = 0;
 
-long g_lPreviousFrameTick_0049ceac;
+int g_nUnusedDibWord_0049cea8 = 0;
 
-int g_nFrameTimingMode_0049ceb0;
+long g_lPreviousFrameTick_0049ceac = 0;
+
+int g_nFrameTimingMode_0049ceb0 = 0;
 
 float g_fSpaceFlightFrameRate_0049ceb4 = 20.0f;
 
-int g_bFrameTimingInitialized_0049cebc;
+int g_nUnusedDibWord_0049ceb8 = 0;
+
+int g_bFrameTimingInitialized_0049cebc = 0;
 
 int g_bDibSlamEnabled_0049cec0 = 1;
 
@@ -567,7 +571,7 @@ void MarkDibDirty(void)
     g_nDibDirtyMarkCount_005c33a8++;
     if (g_dwLastDibDirtyReportTick_005c39f0 + 1000 <= tick) {
         sprintf(g_szDibDebugBuffer_005c3858,
-                "DIBslam %d times in %d seconds",
+                "DIBslam %d times in %d seconds\n",
                 g_nDibDirtyMarkCount_005c33a8,
                 tick - g_dwLastDibDirtyReportTick_005c39f0);
         g_nDibDirtyMarkCount_005c33a8 = 0;
@@ -610,7 +614,7 @@ void DIBslamReal(void)
     g_nDibSlamRealCount_005c3960++;
     if (g_dwLastDibSlamRealReportTick_005c396c + 1000 <= tick) {
         sprintf(g_szDibSlamRealDebugBuffer_005c39f8,
-                "DIBslamReal %d times in %d seconds",
+                "DIBslamReal %d times in %d seconds\n",
                 g_nDibSlamRealCount_005c3960,
                 tick - g_dwLastDibSlamRealReportTick_005c396c);
         g_nDibSlamRealCount_005c3960 = 0;
