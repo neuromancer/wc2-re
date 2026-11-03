@@ -41,7 +41,7 @@ TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
     { 158, 74, 0, 4 }
 };
 
-unsigned char *g_pTitleFieldShape_00491cf8;
+unsigned char *g_pTitleFieldShape_00491cf8 = 0;
 
 unsigned char *g_apTitleSections_005d3f70[13];
 

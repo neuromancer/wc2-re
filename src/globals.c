@@ -177,15 +177,6 @@ RLETransformVertex g_aRLETransformVertices_00491c08[4];
 int g_anRLESourceSteps_00491c58[4];
 #endif
 
-MissionNavPoint g_aMissionNavPoints_00491e98[
-    MISSION_NAV_POINT_COUNT] = { { 0 } };
-
-MissionShipRecord g_aMissionShips_00492290[MISSION_SHIP_COUNT];
-void *g_pActiveScenePacket_00492654;
-char *g_pszPersonnelFooter_00492658;
-PilotProfile g_stDefaultPilotProfile_00492660;
-short g_bNewPilotCampaignInitialized_004926c0;
-short g_bDeveloperCampaignReady_004926c4 = 1;
 int g_anCloakVisibilityPattern_00492710[20] = {
     1, 0, 0, 0, 1, 0, 0, 1, 1, 0,
     0, 0, 1, 1, 1, 0, 0, 1, 1, 0

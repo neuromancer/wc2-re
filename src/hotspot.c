@@ -242,3 +242,17 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
     }
     return selection;
 }
+
+/* This unit's initialized data, after its functions so that the two unused
+ * words do not move the functions' symbol keys.  Nothing between intro.c's
+ * literals and campaign.c's data marks the boundary between the two units,
+ * so placing the mission arrays here is evidence of position, not of
+ * ownership.  Nothing in the original references the two unused words. */
+MissionNavPoint g_aMissionNavPoints_00491e98[MISSION_NAV_POINT_COUNT] = {
+    { 0 }
+};
+MissionShipRecord g_aMissionShips_00492290[MISSION_SHIP_COUNT] = { { 0 } };
+int g_nUnusedSceneWord_00492650 = 0;
+void *g_pActiveScenePacket_00492654 = 0;
+char *g_pszPersonnelFooter_00492658 = 0;
+int g_nUnusedSceneFlag_0049265c = 1;

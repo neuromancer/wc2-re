@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+PilotProfile g_stDefaultPilotProfile_00492660 = { 0 };
+short g_bNewPilotCampaignInitialized_004926c0 = 0;
+short g_bDeveloperCampaignReady_004926c4 = 1;
 static char g_szStartingCampaignGlobalsFile_004926c8[] = "startglb.000";
 
 /* Function start: 0x409850 */
