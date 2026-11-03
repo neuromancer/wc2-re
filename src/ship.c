@@ -2827,88 +2827,90 @@ short flip_angle(short ship, short angle)
 /* Function start: 0x416A87 */
 void place_exhaust_on_ships(void)
 {
-    short *animation;
-    short frame;
+    short *exhaustTable;
+    short shapeFrame;
     short scale;
     short object;
     short ship;
     short viewFrame;
-    short animationOffset;
+    short tableOffset;
 
     for (ship = 0; ship < 10; ship++) {
-        if (g_aeObjectClass_00495328[ship] < OBJECT_CLASS_MISSILE ||
-            g_anShipSpeed_00494e20[ship] == 0 ||
-            g_asObjectType_00495298[ship] == 0x14 ||
-            g_aeSpecialManeuver_00495600[ship] ==
-                SPECIAL_MANEUVER_UNKNOWN_9 ||
-            g_aeSpecialManeuver_00495600[ship] ==
-                SPECIAL_MANEUVER_KILL_ENGINES ||
-            g_anShipCloakState_00496020[ship] == 1)
-            continue;
-        if (ship == 0 && g_bJumpSequenceActive_004962f0 != 0)
-            continue;
-        if (g_asObjectScreenX_00493598[ship] == (short)0x8001)
-            continue;
-
-        animation = (short *)g_apObjectExhaustShape_004953b8[ship];
-        if (animation == 0)
-            continue;
-        viewFrame = g_asObjectViewFrame_00493508[ship];
-#ifdef SDL_PORT
-        /* These ships load each view as a separate, single-frame packet.
-         * Retail selects the loaded view's exhaust records, not frame zero
-         * within that packet. Otherwise the engines detach as the view turns. */
-        if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_CAPITAL_SHIP ||
-            g_asObjectType_00495298[ship] == 0x33 ||
-            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-             g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP))
-#else
-        if (g_aeObjectClass_00495328[ship] < OBJECT_CLASS_CAPITAL_SHIP &&
-            g_asObjectType_00495298[ship] != 0x33 &&
-            g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-            g_aeObjectClass_00495328[ship] == OBJECT_CLASS_SHIP)
-#endif
-            viewFrame = g_asLoadedShipViewFrame_00495d18[ship];
-        animationOffset = animation[viewFrame];
-        if (animationOffset == -1)
-            continue;
-        animation =
-            (short *)((unsigned char *)animation + animationOffset);
-        if (*animation == -1)
-            continue;
-
-        while (*animation != -1) {
-            object = find_vacant_3d_object();
-            if (object == -1)
-                return;
-            set_objects_data(object, 0x2b, ship, 0);
-            frame = *animation++;
-            scale = *animation++;
-            if (g_aeObjectClass_00495328[ship] >=
-                    OBJECT_CLASS_CAPITAL_SHIP)
-                scale = (short)(scale +
-                    (unsigned short)RandomInRange(0x10, 0x30));
-            else
-                scale = (short)(scale +
-                    (unsigned short)RandomInRange(0, 0x20));
-            if (g_acShipExhaustHeat_00495660[ship] == 0)
-                scale = (short)(scale - 0x20);
-            g_asObjectScale_00494d90[object] = scale;
-            g_asObjectDistance_00493ae8[object] = *animation++;
-            g_asObjectScreenAngle_004936b8[object] =
-                flip_angle(ship, *animation++);
-            g_asObjectFlip_004939c8[object] = 0;
-            g_asObjectScreenX_00493598[object] = *animation++;
-            g_asObjectScreenY_00493628[object] = *animation++;
-            if (g_aeSpecialManeuver_00495600[ship] ==
-                    SPECIAL_MANEUVER_AFTERBURNER) {
-                g_asObjectViewFrame_00493508[object] =
-                    (short)(frame * 3 +
-                            (unsigned short)RandomInRange(0, 2));
-            } else {
-                g_asObjectViewFrame_00493508[object] =
-                    (short)((unsigned short)RandomInRange(0, 1) +
-                            frame * 2 + 12);
+        if (g_aeObjectClass_00495328[ship] >= OBJECT_CLASS_MISSILE &&
+            g_anShipSpeed_00494e20[ship] != 0 &&
+            g_asObjectType_00495298[ship] != 0x14 &&
+            g_aeSpecialManeuver_00495600[ship] !=
+                SPECIAL_MANEUVER_UNKNOWN_9 &&
+            g_aeSpecialManeuver_00495600[ship] !=
+                SPECIAL_MANEUVER_KILL_ENGINES) {
+            if (g_anShipCloakState_00496020[ship] != 1) {
+                if (ship == 0 && g_bJumpSequenceActive_004962f0 != 0)
+                    continue;
+                if (g_asObjectScreenX_00493598[ship] != (short)0x8001) {
+                    exhaustTable =
+                        (short *)g_apObjectExhaustShape_004953b8[ship];
+                    if (exhaustTable != 0) {
+                        viewFrame = g_asObjectViewFrame_00493508[ship];
+                        /* These ships load each view as a separate,
+                         * single-frame packet, so the loaded view's exhaust
+                         * records are used rather than frame zero within
+                         * that packet. */
+                        if (g_aeObjectClass_00495328[ship] >=
+                                OBJECT_CLASS_CAPITAL_SHIP ||
+                            g_asObjectType_00495298[ship] == 0x33 ||
+                            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+                             g_aeObjectClass_00495328[ship] ==
+                                 OBJECT_CLASS_SHIP))
+                            viewFrame = g_asLoadedShipViewFrame_00495d18[ship];
+                        tableOffset = exhaustTable[viewFrame];
+                        if (tableOffset != -1) {
+                            exhaustTable =
+                                (short *)((unsigned char *)exhaustTable +
+                                          tableOffset);
+                            while (*exhaustTable != -1) {
+                                object = find_vacant_3d_object();
+                                if (object == -1)
+                                    return;
+                                set_objects_data(object, 0x2b, ship, 0);
+                                shapeFrame = *exhaustTable++;
+                                scale = *exhaustTable++;
+                                if (g_aeObjectClass_00495328[ship] >=
+                                        OBJECT_CLASS_CAPITAL_SHIP)
+                                    scale = (short)(scale +
+                                        (unsigned short)RandomInRange(0x10,
+                                                                      0x30));
+                                else
+                                    scale = (short)(scale +
+                                        (unsigned short)RandomInRange(0,
+                                                                      0x20));
+                                if (g_acShipExhaustHeat_00495660[ship] == 0)
+                                    scale = (short)(scale - 0x20);
+                                g_asObjectScale_00494d90[object] = scale;
+                                g_asObjectDistance_00493ae8[object] =
+                                    *exhaustTable++;
+                                g_asObjectScreenAngle_004936b8[object] =
+                                    flip_angle(ship, *exhaustTable++);
+                                g_asObjectFlip_004939c8[object] = 0;
+                                g_asObjectScreenX_00493598[object] =
+                                    *exhaustTable++;
+                                g_asObjectScreenY_00493628[object] =
+                                    *exhaustTable++;
+                                if (g_aeSpecialManeuver_00495600[ship] ==
+                                        SPECIAL_MANEUVER_AFTERBURNER) {
+                                    g_asObjectViewFrame_00493508[object] =
+                                        (short)(shapeFrame * 3 +
+                                                (unsigned short)RandomInRange(
+                                                    0, 2));
+                                } else {
+                                    g_asObjectViewFrame_00493508[object] =
+                                        (short)((unsigned short)RandomInRange(
+                                                    0, 1) +
+                                                shapeFrame * 2 + 12);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -2918,12 +2920,12 @@ void place_exhaust_on_ships(void)
 void reposition_fixed_child_objects(void)
 {
     int right;
+    short angle;
     short child;
     int up;
-    long cosA;
-    long sine;
-    short angle;
     short owner;
+    long sine;
+    long cosA;
 #ifdef SDL_PORT
     int fixedCosine;
     int fixedSine;
