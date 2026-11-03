@@ -370,8 +370,8 @@ void servicetrack(void)
                             *(short *)&g_abSoundEffectDefinitions_0049bf18[0xc] = 2;
                             g_abSoundEffectDefinitions_0049bf18[0xe] = 0x70;
                             if (g_nSpaceFrame_00493134 >
-                                g_nPassingShipSoundCooldown_005d156c) {
-                                g_nPassingShipSoundCooldown_005d156c =
+                                g_nPassingShipSndCooldown_005d156c) {
+                                g_nPassingShipSndCooldown_005d156c =
                                     g_nSpaceFrame_00493134 + 24;
                                 PlaySfxWaveFileByNumber(2, ship, 0);
                             }
@@ -393,7 +393,7 @@ void ResetSoundState(void)
 {
     FlushSoundEffects();
     g_bAfterburnerSfxActive_005d3864 = 0;
-    g_nCriticalDamageWarningSfxHandle_005d1ec0 = 0;
+    g_nSevereDmgWarningSfxHandle_005d1ec0 = 0;
 }
 
 /* Function start: 0x4534BA */
@@ -521,7 +521,7 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
         distance = magnitude;
         if (distance > 32000)
             distance = 32000;
-        g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
+        g_aiSoundEffectSourceActiveValue_005d12c0[sourceObject] = 1;
     } else {
         distance = 72000;
     }
@@ -620,3 +620,12 @@ unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
     4, 83, 48, 127, 90, 0, 0, 0,
     0, 92, 48, 96, 120
 };
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_aiSoundEffectSourceActiveValue_005d12c0[SPACE_OBJECT_COUNT];
+MusicResource g_aTuneResources_005d13e0[66];
+int g_nPassingShipSndCooldown_005d156c;
+short g_nAlternateSampleToggle_005d1570;
+int g_anObjectSoundEffects_005d1580[SPACE_OBJECT_COUNT];
+int g_nUnusedMusicWord_005d1698; /* never referenced */

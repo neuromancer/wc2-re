@@ -125,7 +125,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
         LogMemoryStateToFile(stream);
     StoreMissionResultsInCampaignGlobals(g_pCampaignGlobals_00499c94);
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
-    g_cHudMessageView_005d1c37 = -1;
+    g_cOverlayMessageView_005d1c37 = -1;
     if (g_bAutopilotDebugEnabled_00499bfc != 0)
         LogMemoryStateToFile(stream);
     g_nArcadeState_0049d75c = g_pCampaignGlobals_00499c94->arcadeState;
@@ -136,8 +136,8 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
     nearBlockPost = GetLargestMainMemoryBlock();
     farLargestPost = GetLargestFreeMemoryBlock();
     ReleasePacketSlot(&g_pCampaignGlobals_00499c94);
-    FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
-    ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
+    FadeViewportPaletteToColour(&g_stModalSourceWindow_005d2c50, 0, 1);
+    ClearViewport(&g_stModalSourceWindow_005d2c50, 0);
     RestoreGamePalette();
     ResetGameTextContexts();
     for (ship = 0; ship < 10; ship++)
@@ -184,7 +184,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
         WaitForAnyInputPress();
     }
     FlagCurrentNavObjectivesReached();
-    if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 != 0)
         ResetCannedSceneRecording();
     if (stream != 0 && g_bAutopilotDebugEnabled_00499bfc != 0)
         fclose(stream);

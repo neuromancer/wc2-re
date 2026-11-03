@@ -589,37 +589,37 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     switch (type) {
     case 7:
         QueueInputEvent(type,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].x,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].y,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].x,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 10:
         QueueInputEvent(1,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].x,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].y,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].x,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 0x45:
         QueueInputEvent(2,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].x,
-            g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726].y,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].x,
+            g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726].y,
             0, value & 1, (value & 2) >> 1, 0, 0, 0);
         break;
     case 3:
-        mouse = &g_stHostMouseMessage_005d10d0;
+        mouse = &g_stHostMouseTextBlock_005d10d0;
         QueueInputEvent(type,
                         g_nQueuedInputX_005c83f0,
                         g_nQueuedInputY_005c83f2,
                         0, 0, 0, 0, 0, 0);
         break;
     case 1:
-        mouse = &g_stHostMouseMessage_005d10d0;
+        mouse = &g_stHostMouseTextBlock_005d10d0;
         QueueInputEvent(type,
                         g_nQueuedInputX_005c83f0,
                         g_nQueuedInputY_005c83f2,
@@ -1100,7 +1100,7 @@ void CaptureMouseCursorBackground(void)
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pInputViewport_005c8403 != 0 &&
         g_pInputCursorShape_005c83f9 != 0) {
-        CaptureSpriteBackground(&g_stScreenViewport_005d21a0,
+        CaptureSpriteBackground(&g_stScrViewInfo_005d21a0,
                                 g_abInputCursorBehind_005c3b10,
                                 g_nQueuedInputX_005c83f0,
                                 g_nQueuedInputY_005c83f2,
@@ -1136,7 +1136,7 @@ void DrawMouseCursor(void)
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pInputViewport_005c8403 != 0 &&
         g_pInputCursorShape_005c83f9 != 0) {
-        DrawSpriteDefault(&g_stScreenViewport_005d21a0,
+        DrawSpriteDefault(&g_stScrViewInfo_005d21a0,
                           g_nQueuedInputX_005c83f0,
                           g_nQueuedInputY_005c83f2,
                           g_pInputCursorShape_005c83f9,
@@ -1169,7 +1169,7 @@ void RestoreMouseCursorBackground(void)
         g_pInputViewport_005c8403 != 0 &&
         g_pInputCursorShape_005c83f9 != 0 &&
         g_bInputCursorBackgroundCaptured_005c80c4 != 0) {
-        RestoreSpriteBackground(&g_stScreenViewport_005d21a0,
+        RestoreSpriteBackground(&g_stScrViewInfo_005d21a0,
                                 g_abInputCursorBehind_005c3b10,
                                 (short)g_nCapturedInputCursorX_005c817c,
                                 (short)g_nCapturedInputCursorY_005c8178,
@@ -1818,13 +1818,13 @@ void draw_sorted_objects_to_buffer(void)
                 if (g_nNavPointerObject_004931b8 == drawObject) {
 #ifdef SDL_PORT
                     if (!SdlRecordSpaceSprite(
-                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            &g_stViewScratchInfo_005d2b00, enhancedScreenX,
                             enhancedScreenY,
                             g_apObjectShape_00493868[drawObject],
                             g_asObjectViewFrame_00493508[drawObject], 0, 0x100, 0))
 #endif
                     DrawSpriteDefault(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
                         g_apObjectShape_00493868[drawObject],
@@ -1832,16 +1832,16 @@ void draw_sorted_objects_to_buffer(void)
                 } else {
 #ifdef SDL_PORT
                     if (!SdlRecordSpaceSprite(
-                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            &g_stViewScratchInfo_005d2b00, enhancedScreenX,
                             enhancedScreenY,
-                            g_pConstellationShape_005d2c4c,
+                            g_pConstellationSprite_005d2c4c,
                             g_asObjectViewFrame_00493508[drawObject], 0, 0x100, 0))
 #endif
                     DrawSpriteDefault(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
-                        g_pConstellationShape_005d2c4c,
+                        g_pConstellationSprite_005d2c4c,
                         g_asObjectViewFrame_00493508[drawObject]);
                 }
                 break;
@@ -1856,7 +1856,7 @@ void draw_sorted_objects_to_buffer(void)
                 if (g_apObjectShape_00493868[drawObject] != 0) {
 #ifdef SDL_PORT
                     if (!SdlRecordSpaceSprite(
-                            &g_stViewBuffer_005d2b00, enhancedScreenX,
+                            &g_stViewScratchInfo_005d2b00, enhancedScreenX,
                             enhancedScreenY,
                             g_apObjectShape_00493868[drawObject],
                             g_asObjectViewFrame_00493508[drawObject],
@@ -1865,7 +1865,7 @@ void draw_sorted_objects_to_buffer(void)
                             g_asObjectFlip_004939c8[drawObject]))
 #endif
                     DrawSpriteScaled(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
                         g_apObjectShape_00493868[drawObject],
@@ -1903,7 +1903,7 @@ void intro_drawbackgroundships(void)
                 drawObject = object;
                 if (drawObject == g_nNavPointerObject_004931b8)
                     DrawSolidColourSprite(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
                         g_apObjectShape_00493868[drawObject],
@@ -1911,10 +1911,10 @@ void intro_drawbackgroundships(void)
                         g_cPrimaryViewBufferColour_0049cb88);
                 else
                     DrawSolidColourSprite(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
-                        g_pConstellationShape_005d2c4c,
+                        g_pConstellationSprite_005d2c4c,
                         g_asObjectViewFrame_00493508[drawObject],
                         g_cPrimaryViewBufferColour_0049cb88);
                 break;
@@ -1922,7 +1922,7 @@ void intro_drawbackgroundships(void)
                 drawObject = object;
                 if (g_apObjectShape_00493868[drawObject] != 0)
                     DrawSolidColourSpriteScaled(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         g_asObjectDrawX_00493748[drawObject],
                         g_asObjectDrawY_004937d8[drawObject],
                         g_apObjectShape_00493868[drawObject],

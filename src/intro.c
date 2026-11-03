@@ -43,9 +43,9 @@ TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
 
 unsigned char *g_pTitleFieldShape_00491cf8 = 0;
 
-unsigned char *g_apTitleSections_005d3f70[13];
+extern unsigned char *g_apTitleSections_005d3f70[13];
 
-void *g_pTitleMusic_005d3fa4;
+extern void *g_pTitleMusic_005d3fa4;
 
 #ifdef SDL_PORT
 /* Not an original mechanism. AnimateTitleOrchestra, PlayTitleConductorCue,
@@ -184,9 +184,9 @@ void Title_Sequence(void)
     }
     StopMusic(0);
     FadeViewportPaletteToColour(
-        &g_stModalSourceViewport_005d2c50,
+        &g_stModalSourceWindow_005d2c50,
         g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stModalSourceViewport_005d2c50,
+    ClearViewport(&g_stModalSourceWindow_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
     RestoreGamePalette();
     for (sectionIndex = 0; sectionIndex < 13; sectionIndex++)
@@ -199,9 +199,9 @@ void Title_Sequence(void)
 /* Function start: 0x40809D */
 void DrawTitleSky(short planetY)
 {
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pTitleFieldShape_00491cf8, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, planetY,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 160, planetY,
                       g_apTitleSections_005d3f70[12], 0);
 }
 
@@ -213,13 +213,13 @@ void DrawTitleOrchestra(void)
     DrawTitleSky(24);
     for (actor = 0; actor < 10; actor++) {
         DrawSpriteDefault(
-            &g_stSecondaryViewBuffer_005d2c90,
+            &g_stSecondaryViewBufferBlock_005d2c90,
             g_aTitleActorMotion_00491ca8[actor].x,
             g_aTitleActorMotion_00491ca8[actor].y,
             g_apTitleSections_005d3f70[actor + 1], 0);
     }
-    PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
-                &g_stScreenViewport_005d21a0);
+    PanToScreen(&g_stSecondaryViewBufferBlock_005d2c90,
+                &g_stScrViewInfo_005d21a0);
 }
 
 /* Random-range callee from the event manager. */
@@ -249,7 +249,7 @@ void AnimateTitleOrchestra(void)
                 DrawTitleSky(24);
                 for (actorIndex = 0; actorIndex < 10; actorIndex++) {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSecondaryViewBufferBlock_005d2c90,
                         g_aTitleActorMotion_00491ca8[actorIndex].x,
                         g_aTitleActorMotion_00491ca8[actorIndex].y,
                         g_apTitleSections_005d3f70[actorIndex + 1],
@@ -277,7 +277,7 @@ void AnimateTitleOrchestra(void)
                 DrawTitleSky(24);
                 for (actorIndex = 0; actorIndex < 10; actorIndex++) {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSecondaryViewBufferBlock_005d2c90,
                         g_aTitleActorMotion_00491ca8[actorIndex].x,
                         g_aTitleActorMotion_00491ca8[actorIndex].y,
                         g_apTitleSections_005d3f70[actorIndex + 1],
@@ -333,7 +333,7 @@ void PlayTitleConductorCue(void)
             DrawTitleSky(24);
             for (actor = 0; actor < 9; actor++) {
                 DrawSpriteDefault(
-                    &g_stSecondaryViewBuffer_005d2c90,
+                    &g_stSecondaryViewBufferBlock_005d2c90,
                     g_aTitleActorMotion_00491ca8[actor].x,
                     g_aTitleActorMotion_00491ca8[actor].y,
                     g_apTitleSections_005d3f70[actor + 1],
@@ -341,7 +341,7 @@ void PlayTitleConductorCue(void)
                                 - 'a'));
             }
             DrawSpriteDefault(
-                &g_stSecondaryViewBuffer_005d2c90,
+                &g_stSecondaryViewBufferBlock_005d2c90,
                 g_aTitleActorMotion_00491ca8[9].x,
                 g_aTitleActorMotion_00491ca8[9].y,
                 g_apTitleSections_005d3f70[10],
@@ -355,52 +355,52 @@ void PlayTitleConductorCue(void)
     }
 
     DrawTitleSky(24);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[0].x,
         g_aTitleActorMotion_00491ca8[0].y,
         g_apTitleSections_005d3f70[1],
         (short)(g_apszTitleActorFrames_00491c80[0][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[1].x,
         g_aTitleActorMotion_00491ca8[1].y,
         g_apTitleSections_005d3f70[2],
         (short)(g_apszTitleActorFrames_00491c80[1][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[2].x,
         g_aTitleActorMotion_00491ca8[2].y,
         g_apTitleSections_005d3f70[3],
         (short)(g_apszTitleActorFrames_00491c80[2][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[3].x,
         g_aTitleActorMotion_00491ca8[3].y,
         g_apTitleSections_005d3f70[4],
         (short)(g_apszTitleActorFrames_00491c80[3][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[4].x,
         g_aTitleActorMotion_00491ca8[4].y,
         g_apTitleSections_005d3f70[5],
         (short)(g_apszTitleActorFrames_00491c80[4][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[5].x,
         g_aTitleActorMotion_00491ca8[5].y,
         g_apTitleSections_005d3f70[6],
         (short)(g_apszTitleActorFrames_00491c80[5][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[6].x,
         g_aTitleActorMotion_00491ca8[6].y,
         g_apTitleSections_005d3f70[7],
         (short)(g_apszTitleActorFrames_00491c80[6][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[7].x,
         g_aTitleActorMotion_00491ca8[7].y,
         g_apTitleSections_005d3f70[8],
         (short)(g_apszTitleActorFrames_00491c80[7][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[8].x,
         g_aTitleActorMotion_00491ca8[8].y,
         g_apTitleSections_005d3f70[9],
         (short)(g_apszTitleActorFrames_00491c80[8][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
         g_aTitleActorMotion_00491ca8[9].x,
         g_aTitleActorMotion_00491ca8[9].y,
         g_apTitleSections_005d3f70[10],
@@ -428,13 +428,13 @@ void DrawScaledTitleLogo(short y, short scale)
     short bounds[4];
 
     GetTransformedShapeBounds(
-        &g_stSecondaryViewBuffer_005d2c90, 162, y,
+        &g_stSecondaryViewBufferBlock_005d2c90, 162, y,
         g_apTitleSections_005d3f70[0], 1, 0, scale, 0, bounds);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, bounds[0], y,
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90, bounds[0], y,
                      g_apTitleSections_005d3f70[0], 0, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90, 163, y,
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90, 163, y,
                      g_apTitleSections_005d3f70[0], 1, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
                      (short)(bounds[2] + 1), y,
                      g_apTitleSections_005d3f70[0], 2, 0, scale, 0);
 }
@@ -465,7 +465,7 @@ void PushTitleOrchestraAway(void)
                     g_aTitleActorMotion_00491ca8[actor].velocityY *
                         step);
                 DrawSpriteScaled(
-                    &g_stSecondaryViewBuffer_005d2c90, x, y,
+                    &g_stSecondaryViewBufferBlock_005d2c90, x, y,
                     g_apTitleSections_005d3f70[actor + 1],
                     (short)(g_apszTitleActorFrames_00491c80[actor][31]
                                 - 'a'),
@@ -479,7 +479,7 @@ void PushTitleOrchestraAway(void)
             y = (short)(g_aTitleActorMotion_00491ca8[9].y +
                 g_aTitleActorMotion_00491ca8[9].velocityY * step);
             DrawSpriteScaled(
-                &g_stSecondaryViewBuffer_005d2c90, x, y,
+                &g_stSecondaryViewBufferBlock_005d2c90, x, y,
                 g_apTitleSections_005d3f70[10],
                 (short)(g_szTitleConductorFrames_00491c68[21] - 'a'),
                 0,
@@ -540,11 +540,11 @@ short RevealTitleLogo(void)
 #ifdef SDL_PORT
                 SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   0, 0,
                                   g_pTitleFieldShape_00491cf8, 0);
                 GetTransformedShapeBounds(
-                    &g_stSecondaryViewBuffer_005d2c90, 162, titleY,
+                    &g_stSecondaryViewBufferBlock_005d2c90, 162, titleY,
                     g_apTitleSections_005d3f70[0], 1, 0,
                     scale, 0, extent);
                 if (extent[3] < planetY)
@@ -552,12 +552,12 @@ short RevealTitleLogo(void)
                 if (logoCovers == 0) {
                     DrawScaledTitleLogo(titleY, scale);
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSecondaryViewBufferBlock_005d2c90,
                         160, planetY,
                         g_apTitleSections_005d3f70[12], 0);
                 } else {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSecondaryViewBufferBlock_005d2c90,
                         160, planetY,
                         g_apTitleSections_005d3f70[12], 0);
                     DrawScaledTitleLogo(titleY, scale);
@@ -570,7 +570,7 @@ short RevealTitleLogo(void)
         if (g_bSceneEscapeRequested_0049d4b0 != 0)
             return titleY;
     }
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pTitleFieldShape_00491cf8, 0);
     DrawScaledTitleLogo(titleY, scale);
     RefreshMemoryStatusOverlay();
@@ -631,10 +631,10 @@ void ShowVictoryScreen(short logoY)
          * slowing each individual draw down. */
         SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
         inactive = TheEndFireWorks(
-            &g_stSecondaryViewBuffer_005d2c90, 5);
+            &g_stSecondaryViewBufferBlock_005d2c90, 5);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         frameCount++;
@@ -684,10 +684,10 @@ void ShowVictoryScreen(short logoY)
 #ifdef SDL_PORT
         SdlPaceTitleFrame(TITLE_FIREWORKS_TICKS);
 #endif
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                           g_pTitleFieldShape_00491cf8, 0);
         inactive = TheEndFireWorks(
-            &g_stSecondaryViewBuffer_005d2c90, 30);
+            &g_stSecondaryViewBufferBlock_005d2c90, 30);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         if (WaitForInputKey() != 0)
@@ -703,3 +703,8 @@ void ShowVictoryScreen(short logoY)
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned char *g_apTitleSections_005d3f70[13];
+void *g_pTitleMusic_005d3fa4;

@@ -41,7 +41,7 @@ void ResetCommMenuChoices(short reuse)
 
     if (reuse == 0) {
         for (choice = 0; choice < 7; choice++) {
-            g_apszCommMenuChoiceText_005d19a0[choice] = 0;
+            g_apszCommMenuChoiceTextTable_005d19a0[choice] = 0;
             g_abCommMenuChoiceCommand_005d1948[choice] = -1;
         }
     }
@@ -59,12 +59,12 @@ short IsCommMenuIdle(void)
 void AppendCommMenuChoice(const char *text, short command)
 {
     if (g_nCommMenuReuseMode_0049b774 == 1 &&
-        (g_apszCommMenuChoiceText_005d19a0[
+        (g_apszCommMenuChoiceTextTable_005d19a0[
              g_nCommMenuChoiceCount_0049b770] != text ||
          g_abCommMenuChoiceCommand_005d1948[
              g_nCommMenuChoiceCount_0049b770] != command))
         g_nCommMenuReuseMode_0049b774 = 0;
-    g_apszCommMenuChoiceText_005d19a0[
+    g_apszCommMenuChoiceTextTable_005d19a0[
         g_nCommMenuChoiceCount_0049b770] = text;
     g_abCommMenuChoiceCommand_005d1948[
         g_nCommMenuChoiceCount_0049b770] = (signed char)command;
@@ -74,17 +74,17 @@ void AppendCommMenuChoice(const char *text, short command)
 /* Function start: 0x447479 */
 void SendCommMenuChoice(short i)
 {
-    if (g_apCommunicationTextPackets_005d17c0[i] == 0)
-        g_apCommunicationTextPackets_005d17c0[i] =
+    if (g_apCommunicationTextPacketsTable_005d17c0[i] == 0)
+        g_apCommunicationTextPacketsTable_005d17c0[i] =
             LoadPacketAllocated("communic.you", i);
-    AppendCommMenuChoice(g_apCommunicationTextPackets_005d17c0[i], i);
+    AppendCommMenuChoice(g_apCommunicationTextPacketsTable_005d17c0[i], i);
 }
 
 /* Function start: 0x4474CA */
 void OpenCommMenuForTarget(const char *heading, const char *message)
 {
     CockpitMessage(message, g_cYellowColour_0049cb58, -1);
-    g_pszCommMenuHeading_005d1950 = heading;
+    g_pszCommScreenHeading_005d1950 = heading;
 }
 
 /* Function start: 0x4474F4 */
@@ -171,7 +171,7 @@ void BuildCommunicationRecipientMenu(void)
             if ((g_aeObjectClass_00495328[target] == OBJECT_CLASS_SHIP &&
                  any_enemy(0, 14000) != 0) ||
                 g_asShipMissionIndex_00495d00[target] ==
-                    g_nHomeMissionShipIndex_005d1e22) {
+                    g_nHomeOperationShipIndexValue_005d1e22) {
                 if (g_asShipIdentified_00496078[target] != 0)
                     AppendCommMenuChoice(g_apShipMissionRecord_00495da8[
                                              g_acShipTarget_00495f20[0]]->name,
@@ -270,10 +270,10 @@ void BuildCommunicationCommandMenu(void)
                 SIDE_IMPERIAL) {
                 if ((g_asShipMissionIndex_00495d00[
                          g_cCommMenuRecipient_0049b790] ==
-                         g_nHomeMissionShipIndex_005d1e22 ||
+                         g_nHomeOperationShipIndexValue_005d1e22 ||
                      g_asShipMissionIndex_00495d00[
                          g_cCommMenuRecipient_0049b790] ==
-                         g_stMissionHeader_005d3e70.wingmanMissionShip) &&
+                         g_stMissionHeaderBlock_005d3e70.wingmanMissionShip) &&
                     g_bLandingCommRequestPending_00492fa0 == 0) {
                     if (g_aObjectTypeData_00496d30[
                             g_acObjectType_00493980[
@@ -304,22 +304,22 @@ void BuildCommunicationCommandMenu(void)
     }
     if (IsCommChoiceMenuOpen() != 0) {
         if (g_nCommMenuChoiceCount_0049b770 >= 5)
-            strcpy(g_szCommMenuHeadingBuffer_005d1960,
+            strcpy(g_szCommMenuHeadingStore_005d1960,
                    "VID-COM SYSTEM\nTo: ");
         else
-            strcpy(g_szCommMenuHeadingBuffer_005d1960,
+            strcpy(g_szCommMenuHeadingStore_005d1960,
                    "VID-COM SYSTEM\n\nTo: ");
         if (g_asShipIdentified_00496078[
                 g_cCommMenuRecipient_0049b790] == 0)
-            strcat(g_szCommMenuHeadingBuffer_005d1960,
+            strcat(g_szCommMenuHeadingStore_005d1960,
                    "UNIDENTIFIED");
         else
-            strcat(g_szCommMenuHeadingBuffer_005d1960,
+            strcat(g_szCommMenuHeadingStore_005d1960,
                    g_apShipMissionRecord_00495da8[
                        g_cCommMenuRecipient_0049b790]->name);
-        strcat(g_szCommMenuHeadingBuffer_005d1960,
+        strcat(g_szCommMenuHeadingStore_005d1960,
                "\n");
-        OpenCommMenuForTarget(g_szCommMenuHeadingBuffer_005d1960,
+        OpenCommMenuForTarget(g_szCommMenuHeadingStore_005d1960,
                               "CHOOSE");
     }
 }
@@ -363,26 +363,26 @@ void show_communications_disp(void)
         HandleCommunicationMenuRequest();
     if (IsCommChoiceMenuOpen() != 0) {
         set_new_vdu(1);
-        DrawTextAt(&g_stRightVduTextContext_005d2ce0,
-                   g_stRightVduViewport_005d2b20.left,
-                   g_stRightVduViewport_005d2b20.top,
-                   g_pszCommMenuHeading_005d1950, 2);
+        DrawTextAt(&g_stRightVduTextContextBlock_005d2ce0,
+                   g_stRightVduView_005d2b20.left,
+                   g_stRightVduView_005d2b20.top,
+                   g_pszCommScreenHeading_005d1950, 2);
 #ifdef SDL_PORT
         selectedChoice = SdlGetCommunicationMenuSelection();
-        normalColour = g_stRightVduTextContext_005d2ce0.colour;
+        normalColour = g_stRightVduTextContextBlock_005d2ce0.colour;
 #endif
         for (choice = 0; choice < g_nCommMenuChoiceCount_0049b770;
              choice++) {
 #ifdef SDL_PORT
             if ((int)choice == selectedChoice)
-                g_stRightVduTextContext_005d2ce0.colour =
+                g_stRightVduTextContextBlock_005d2ce0.colour =
                     g_cRedColour_0049cb5c;
 #endif
             DrawFormattedText("\n%d.%s",
                               (int)choice + 1,
-                              g_apszCommMenuChoiceText_005d19a0[choice]);
+                              g_apszCommMenuChoiceTextTable_005d19a0[choice]);
 #ifdef SDL_PORT
-            g_stRightVduTextContext_005d2ce0.colour = normalColour;
+            g_stRightVduTextContextBlock_005d2ce0.colour = normalColour;
 #endif
         }
         g_nCommMenuReuseMode_0049b774 = 1;
@@ -478,9 +478,9 @@ char *ExpandCommMessageTokens(const char *text)
     const char *tag;
     short scratchLength;
 
-    g_szTextScratchBuffer_005d1c40[0] = '\0';
+    g_szTextBufferBuffer_005d1c40[0] = '\0';
     while ((marker = DosStrchr(text, '$')) != 0) {
-        dest = DosStrchr(g_szTextScratchBuffer_005d1c40, '\0');
+        dest = DosStrchr(g_szTextBufferBuffer_005d1c40, '\0');
         while (marker != text)
             *dest++ = *text++;
         *dest = '\0';
@@ -488,30 +488,30 @@ char *ExpandCommMessageTokens(const char *text)
         tag = marker++;
         switch (*tag) {
         case 'C':
-            DosStrcat(g_szTextScratchBuffer_005d1c40,
+            DosStrcat(g_szTextBufferBuffer_005d1c40,
                       g_stCurrentPilotProfile_00493408.callsign);
             break;
         case 'R':
-            DosStrcat(g_szTextScratchBuffer_005d1c40,
+            DosStrcat(g_szTextBufferBuffer_005d1c40,
                       g_apszPilotRankNames_0049a608[
                           g_stCurrentPilotProfile_00493408.rank]);
-            if (g_szTextScratchBuffer_005d1c40[
-                    DosStrlen(g_szTextScratchBuffer_005d1c40) - 1] == '.' &&
+            if (g_szTextBufferBuffer_005d1c40[
+                    DosStrlen(g_szTextBufferBuffer_005d1c40) - 1] == '.' &&
                 *marker == '.') {
-                scratchLength = DosStrlen(g_szTextScratchBuffer_005d1c40);
-                g_szTextScratchBuffer_005d1c40[scratchLength - 1] = '\0';
+                scratchLength = DosStrlen(g_szTextBufferBuffer_005d1c40);
+                g_szTextBufferBuffer_005d1c40[scratchLength - 1] = '\0';
             }
             break;
         case 'N':
         case 'P':
-            DosStrcat(g_szTextScratchBuffer_005d1c40,
+            DosStrcat(g_szTextBufferBuffer_005d1c40,
                       g_stCurrentPilotProfile_00493408.lastName);
             break;
         }
         text = marker;
     }
-    DosStrcat(g_szTextScratchBuffer_005d1c40, text);
-    return g_szTextScratchBuffer_005d1c40;
+    DosStrcat(g_szTextBufferBuffer_005d1c40, text);
+    return g_szTextBufferBuffer_005d1c40;
 }
 
 long GetNamedPacketSize(const char *filename, short section);
@@ -550,14 +550,14 @@ void real_vid_transmit(short obj, short message)
             push_mode(1, 6);
             malf_noise(1, 3, g_cDarkGreenColour_0049cb60,
                        0x17, 1);
-            g_nCommPortraitAnimationFrame_005d1d94 = 0;
-            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
-                              g_stRightVduViewport_005d2b20.left,
-                              g_stRightVduViewport_005d2b20.top,
+            g_nCommPortraitAnimationTickWord_005d1d94 = 0;
+            DrawSpriteDefault(&g_stRightVduView_005d2b20,
+                              g_stRightVduView_005d2b20.left,
+                              g_stRightVduView_005d2b20.top,
                               g_pCommPortraitResource_0049b788, 0);
-            DrawSpriteDefault(&g_stRightVduViewport_005d2b20,
-                              g_stRightVduViewport_005d2b20.left,
-                              g_stRightVduViewport_005d2b20.top,
+            DrawSpriteDefault(&g_stRightVduView_005d2b20,
+                              g_stRightVduView_005d2b20.left,
+                              g_stRightVduView_005d2b20.top,
                               g_pCommPortraitResource_0049b788, 1);
         }
     }
@@ -568,7 +568,7 @@ void real_vid_transmit(short obj, short message)
     strcat(packetFile, indexText);
     size = GetNamedPacketSize(packetFile, message);
     g_nCommMessageIndex_0049ae88 = message;
-    if (g_bSpeechEnabled_005c8de8 != 0 && size > 0 &&
+    if (g_bSpeechEnabledFlag_005c8de8 != 0 && size > 0 &&
         size < g_nDigiSampleBytes_0048e0e0) {
         DismissHudMessageIfShowing();
 #ifdef SDL_PORT
@@ -577,7 +577,7 @@ void real_vid_transmit(short obj, short message)
          * message was already showing. vid_equiv() only starts a new
          * comm transmission once message_showing() is already false, so
          * on the normal path the sentinel never gets armed here:
-         * check_message() then never sees g_nHudMessageTime_005d1c32 ==
+         * check_message() then never sees g_nScreenMessageTimeNumber_005d1c32 ==
          * -1 and so never notices g_bSpeechPlaybackDone_004a266c go
          * true, leaving the comm portrait/VDU stuck once the speech line
          * finishes playing. Arm the sentinel unconditionally so playback
@@ -593,14 +593,25 @@ void real_vid_transmit(short obj, short message)
     packetFile[9] = 't';
     if (GetNamedPacketSize(packetFile, message) > 0) {
         LoadPacketIntoBuffer(packetFile, message,
-                             g_szCommMessageText_005d18f0, 0);
+                             g_szCommMessageTextText_005d18f0, 0);
         if (g_asShipIdentified_00496078[obj] != 0)
             sprintf(callsign, g_apShipMissionRecord_00495da8[obj]->name);
         else
             sprintf(callsign, "UNKNOWN");
         sprintf(text, "%s: %Fs", callsign,
-                g_szCommMessageText_005d18f0);
+                g_szCommMessageTextText_005d18f0);
         expanded = ExpandCommMessageTokens(text);
         ShowCentredPrompt(expanded, MeasureMessageWidth(text));
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+char *g_apCommunicationTextPacketsTable_005d17c0[50];
+char g_szOnScreenMessageBuffer_005d1890[52];
+int g_nUnusedCommWordWord_005d18d0[5]; /* never referenced */
+char g_szCommMessageTextText_005d18f0[0x58];
+signed char g_abCommMenuChoiceCommand_005d1948[7];
+const char *g_pszCommScreenHeading_005d1950;
+char g_szCommMenuHeadingStore_005d1960[0x40];
+const char *g_apszCommMenuChoiceTextTable_005d19a0[7];

@@ -105,7 +105,7 @@ void ScaleNavMapMarkerSize(short *size)
 /* Function start: 0x44FB19 */
 void ScaleNavMapCoordinates(short *x, short *y, short mapX, short mapY)
 {
-    *x = (short)((mapX - g_nNavMapCentreX_005d16c2) /
+    *x = (short)((mapX - g_nNavmapMapCentreX_005d16c2) /
                  g_nNavMapScale_0049bb84 + 75);
     *y = (short)(67 - (mapY - g_nNavMapCentreY_005d16ec) /
                  g_nNavMapScale_0049bb84);
@@ -123,14 +123,14 @@ void nav_getxy(short *x, short *y, int worldX, int worldZ)
 /* Function start: 0x44FBC8 */
 void CheckPoint(short x, short y)
 {
-    g_nNavMapMinimumX_005d16a0 =
-        MinShort(g_nNavMapMinimumX_005d16a0, x);
-    g_nNavMapMaximumX_005d169e =
-        MaxShort(g_nNavMapMaximumX_005d169e, x);
-    g_nNavMapMinimumY_005d16c4 =
-        MinShort(g_nNavMapMinimumY_005d16c4, y);
-    g_nNavMapMaximumY_005d16c0 =
-        MaxShort(g_nNavMapMaximumY_005d16c0, y);
+    g_nNavmapMapMinimumX_005d16a0 =
+        MinShort(g_nNavmapMapMinimumX_005d16a0, x);
+    g_nNavPlotMaxX_005d169e =
+        MaxShort(g_nNavPlotMaxX_005d169e, x);
+    g_nNavMapMinimumYValue_005d16c4 =
+        MinShort(g_nNavMapMinimumYValue_005d16c4, y);
+    g_nNavmapMapMaximumY_005d16c0 =
+        MaxShort(g_nNavmapMapMaximumY_005d16c0, y);
 }
 
 /* Function start: 0x44FC37 */
@@ -152,10 +152,10 @@ void SetScale(void)
     short mapWidth;
 
     SetNavMapCoordinateScaling(0);
-    g_nNavMapMinimumX_005d16a0 = g_aMissionObjectives_004932a8[0].mapX;
-    g_nNavMapMaximumX_005d169e = g_aMissionObjectives_004932a8[0].mapX;
-    g_nNavMapMinimumY_005d16c4 = g_aMissionObjectives_004932a8[0].mapY;
-    g_nNavMapMaximumY_005d16c0 = g_aMissionObjectives_004932a8[0].mapY;
+    g_nNavmapMapMinimumX_005d16a0 = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavPlotMaxX_005d169e = g_aMissionObjectives_004932a8[0].mapX;
+    g_nNavMapMinimumYValue_005d16c4 = g_aMissionObjectives_004932a8[0].mapY;
+    g_nNavmapMapMaximumY_005d16c0 = g_aMissionObjectives_004932a8[0].mapY;
     for (objectiveIndex = 0;
          objectiveIndex < (short)g_cMissionObjectiveCount_00493294;
          objectiveIndex++) {
@@ -176,14 +176,14 @@ void SetScale(void)
     }
     IncludeNavMapWorldPoint(g_aShipPosition_00494550[0].x,
                             g_aShipPosition_00494550[0].z);
-    mapWidth = (short)(g_nNavMapMaximumX_005d169e -
-                    g_nNavMapMinimumX_005d16a0);
-    mapHeight = (short)(g_nNavMapMaximumY_005d16c0 -
-                     g_nNavMapMinimumY_005d16c4);
-    g_nNavMapCentreX_005d16c2 =
-        (short)(mapWidth / 2 + g_nNavMapMinimumX_005d16a0);
+    mapWidth = (short)(g_nNavPlotMaxX_005d169e -
+                    g_nNavmapMapMinimumX_005d16a0);
+    mapHeight = (short)(g_nNavmapMapMaximumY_005d16c0 -
+                     g_nNavMapMinimumYValue_005d16c4);
+    g_nNavmapMapCentreX_005d16c2 =
+        (short)(mapWidth / 2 + g_nNavmapMapMinimumX_005d16a0);
     g_nNavMapCentreY_005d16ec =
-        (short)(mapHeight / 2 + g_nNavMapMinimumY_005d16c4);
+        (short)(mapHeight / 2 + g_nNavMapMinimumYValue_005d16c4);
     g_nNavMapScale_0049bb84 = MaxShort(
         (short)((mapWidth / 2 + mapWidth) / 150),
         (short)((mapHeight / 2 + mapHeight) / 135));
@@ -486,12 +486,12 @@ void DrawNavRectangleMarker(short x, short y, short size, short shadow,
                             unsigned short colour, short reserve)
 {
     if (shadow == 0)
-        DrawViewportEllipse(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawViewportEllipse(g_stNavLabelTextContextInfo_005d16f0.viewport,
                             x, y, size, (short)((size * 7) / 8),
                             (short)colour);
     else
         DrawViewportEllipseShadow(
-            g_stNavLabelTextContext_005d16f0.viewport,
+            g_stNavLabelTextContextInfo_005d16f0.viewport,
             x, y, size, (short)((size * 7) / 8), (short)colour);
     if (reserve != 0 && size < 5)
         ReserveNavMapArea((short)(x - size), (short)(y - size),
@@ -517,17 +517,17 @@ void DrawNavSquareMarker(short x, short y, short size, short shadow,
                          short colour, short reserve)
 {
     if (size == 0) {
-        DrawViewportPixel(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawViewportPixel(g_stNavLabelTextContextInfo_005d16f0.viewport,
                           x, y, colour);
-        DrawViewportPixel(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawViewportPixel(g_stNavLabelTextContextInfo_005d16f0.viewport,
                           (short)(x + 1), y, colour);
-        DrawViewportPixel(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawViewportPixel(g_stNavLabelTextContextInfo_005d16f0.viewport,
                           x, (short)(y + 1), colour);
-        DrawViewportPixel(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawViewportPixel(g_stNavLabelTextContextInfo_005d16f0.viewport,
                           (short)(x + 1),
                           (short)(y + 1), colour);
     } else {
-        DrawNavSquareOutline(g_stNavLabelTextContext_005d16f0.viewport,
+        DrawNavSquareOutline(g_stNavLabelTextContextInfo_005d16f0.viewport,
                              x, y, size,
                              (signed char)colour);
     }
@@ -556,7 +556,7 @@ void DrawNavTriangleOutline(Viewport *viewport, short x, short y,
 void DrawNavTriangleMarker(short x, short y, short size, short shadow,
                            unsigned short colour, short reserve)
 {
-    DrawNavTriangleOutline(g_stNavLabelTextContext_005d16f0.viewport,
+    DrawNavTriangleOutline(g_stNavLabelTextContextInfo_005d16f0.viewport,
                            x, y, size,
                            (signed char)colour);
     if (reserve != 0 && size < 5)
@@ -573,11 +573,11 @@ void DrawNavPlayerMarker(short colour, short reserve);
 void DrawNavCrossMarker(short x, short y, short size, short shadow,
                         unsigned short colour, short reserve)
 {
-    DrawViewportLine(g_stNavLabelTextContext_005d16f0.viewport,
+    DrawViewportLine(g_stNavLabelTextContextInfo_005d16f0.viewport,
                      (short)(x - size), (short)(y - size),
                      (short)(x + size), (short)(y + size),
                      (short)colour);
-    DrawViewportLine(g_stNavLabelTextContext_005d16f0.viewport,
+    DrawViewportLine(g_stNavLabelTextContextInfo_005d16f0.viewport,
                      (short)(x - size), (short)(y + size),
                      (short)(x + size), (short)(y - size),
                      (short)colour);
@@ -620,7 +620,7 @@ short IsObjectiveInDisplayedSystem(short objective)
 void SetScreenClipRect(unsigned short a, unsigned short b,
                        unsigned short c, unsigned short d)
 {
-    SetRectBounds(&g_stSecondaryViewBuffer_005d2c90, a, b, c, d);
+    SetRectBounds(&g_stSecondaryViewBufferBlock_005d2c90, a, b, c, d);
 }
 
 /* Function start: 0x450E1E */
@@ -646,9 +646,9 @@ void DrawNavPlayerMarker(short colour, short reserve)
 
     nav_getxy(&x, &y, g_aShipPosition_00494550[0].x,
               g_aShipPosition_00494550[0].z);
-    x = (short)(x + g_stNavLabelTextContext_005d16f0.viewport->left);
-    y = (short)(y + g_stNavLabelTextContext_005d16f0.viewport->top);
-    DrawViewportPixel(g_stNavLabelTextContext_005d16f0.viewport,
+    x = (short)(x + g_stNavLabelTextContextInfo_005d16f0.viewport->left);
+    y = (short)(y + g_stNavLabelTextContextInfo_005d16f0.viewport->top);
+    DrawViewportPixel(g_stNavLabelTextContextInfo_005d16f0.viewport,
                       x, y, colour);
     DrawNavSquareMarker(x, y, 0, 0, colour, reserve);
 }
@@ -669,7 +669,7 @@ void DrawNavMapBriefingBeacons(void)
         nav_getxy(&navX, &navY, beaconRecord->position.x,
                   beaconRecord->position.z);
         ScaleNavMapCoordinates(&gridX, &gridY, navX, navY);
-        DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, gridX, gridY,
+        DrawViewportPixel(&g_stSecondaryViewBufferBlock_005d2c90, gridX, gridY,
                           g_ucNavObjectiveMarkerColour_0049cb78);
         DrawNavSquareMarker(gridX, gridY, 2, 0,
                             g_ucPrimaryTextColour_0049cb64, 1);
@@ -693,16 +693,16 @@ void BuildMap(short showPlayer)
     short index;
 
     SetScreenClipRect(1, 1, 153, 138);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 1, 1,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 1, 1,
                       g_pNavMapShape_0049bc48, 0);
     SetScreenClipRect(2, 2, 152, 137);
-    g_stNavLabelTextContext_005d16f0.viewport =
-        &g_stSecondaryViewBuffer_005d2c90;
-    g_stNavLabelTextContext_005d16f0.text = g_szDefaultTextBuffer_005d2b80;
-    InitializeTextContextFromFont(&g_stNavLabelTextContext_005d16f0,
+    g_stNavLabelTextContextInfo_005d16f0.viewport =
+        &g_stSecondaryViewBufferBlock_005d2c90;
+    g_stNavLabelTextContextInfo_005d16f0.text = g_szDefaultTextBufferText_005d2b80;
+    InitializeTextContextFromFont(&g_stNavLabelTextContextInfo_005d16f0,
                                   2, g_ucPrimaryTextColour_0049cb64, -1);
-    g_stNavLabelTextContext_005d16f0.alignment = 0;
-    SetTextContext(&g_stNavLabelTextContext_005d16f0);
+    g_stNavLabelTextContextInfo_005d16f0.alignment = 0;
+    SetTextContext(&g_stNavLabelTextContextInfo_005d16f0);
     nav = g_aMissionNavPoints_00491e98;
     ResetNavMapLabels();
     ResetNavMapReservedAreas();
@@ -758,7 +758,7 @@ void BuildMap(short showPlayer)
         mark = &g_aNavMapObjectiveStyles_0049bb88[
             g_aMissionObjectives_004932a8[index].type];
         if (visited(index) == 0)
-            DrawViewportPixel(&g_stSecondaryViewBuffer_005d2c90, x, y,
+            DrawViewportPixel(&g_stSecondaryViewBufferBlock_005d2c90, x, y,
                               *mark->unvisitedColour);
         switch (mark->markerType) {
         case 0:
@@ -796,7 +796,7 @@ void BuildMap(short showPlayer)
 
     if (showPlayer != 0 &&
         g_stElapsedCampaignDate_005d170c.year ==
-            g_nCurrentStarSystem_005d169c) {
+            g_nCurStellarSystem_005d169c) {
         DrawNavPlayerMarker(g_bPrimaryViewBufferColour_0049cb50, 1);
         nav_getxy(&x, &y, g_aShipPosition_00494550[0].x,
                   g_aShipPosition_00494550[0].z);
@@ -816,28 +816,28 @@ void UpdateInflightNavText(short showColon)
     char time[12];
     short savedX;
 
-    SetTextContext(&g_stNavMapTextContext_005d16d0);
-    if (g_pElapsedCampaignDate_005d3e8c == 0)
-        g_pElapsedCampaignDate_005d3e8c =
+    SetTextContext(&g_stNavMapTextCtx_005d16d0);
+    if (g_pElapsedCampaignDatePointer_005d3e8c == 0)
+        g_pElapsedCampaignDatePointer_005d3e8c =
             &g_stElapsedCampaignDate_005d170c;
     sprintf(time, "%02d",
-            (int)((signed char *)g_pElapsedCampaignDate_005d3e8c)[0]);
+            (int)((signed char *)g_pElapsedCampaignDatePointer_005d3e8c)[0]);
     DrawFormattedText(
         "%X%YStandard time %s",
-        g_stNavMapTextContext_005d16d0.viewport->left + 152,
-        g_stNavMapTextContext_005d16d0.viewport->top + 140,
+        g_stNavMapTextCtx_005d16d0.viewport->left + 152,
+        g_stNavMapTextCtx_005d16d0.viewport->top + 140,
         time);
-    savedX = g_stNavMapTextContext_005d16d0.cursorX;
+    savedX = g_stNavMapTextCtx_005d16d0.cursorX;
     if (showColon == 0) {
         DrawFormattedText(" ");
     } else {
-        g_stNavMapTextContext_005d16d0.cursorX =
-            (short)(g_stNavMapTextContext_005d16d0.cursorX + 4);
+        g_stNavMapTextCtx_005d16d0.cursorX =
+            (short)(g_stNavMapTextCtx_005d16d0.cursorX + 4);
     }
     sprintf(time, "%02d  ",
-            (int)((signed char *)g_pElapsedCampaignDate_005d3e8c)[1]);
+            (int)((signed char *)g_pElapsedCampaignDatePointer_005d3e8c)[1]);
     DrawFormattedText(time);
-    g_stNavMapTextContext_005d16d0.cursorX = savedX;
+    g_stNavMapTextCtx_005d16d0.cursorX = savedX;
     if (showColon != 0)
         DrawFormattedText(":");
 }
@@ -873,7 +873,7 @@ void DrawNavMapLegend(void)
     while (objective < (short)g_cMissionObjectiveCount_00493294 &&
            (visited(objective) != 0 || hidden_objective(objective) != 0))
         objective++;
-    SetTextCursor((unsigned short)g_stSecondaryViewBuffer_005d2c90.left, 120);
+    SetTextCursor((unsigned short)g_stSecondaryViewBufferBlock_005d2c90.left, 120);
     DrawSelectedNavLegendEntry("MISSION FLIGHT PATH",
                                objective);
     DrawSelectedNavLegendEntry(
@@ -901,16 +901,16 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     short file;
     short length;
 
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
+    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90, g_cSecondaryViewBufferColour_0049cb4c);
     SetScreenClipRect(155, 2, 259, 155);
-    g_stNavMapTextContext_005d16d0.viewport = &g_stSecondaryViewBuffer_005d2c90;
-    g_stNavMapTextContext_005d16d0.text = g_szDefaultTextBuffer_005d2b80;
-    InitializeTextContextFromFont(&g_stNavMapTextContext_005d16d0,
+    g_stNavMapTextCtx_005d16d0.viewport = &g_stSecondaryViewBufferBlock_005d2c90;
+    g_stNavMapTextCtx_005d16d0.text = g_szDefaultTextBufferText_005d2b80;
+    InitializeTextContextFromFont(&g_stNavMapTextCtx_005d16d0,
                                   1, g_ucPrimaryTextColour_0049cb64, g_cSecondaryViewBufferColour_0049cb4c);
-    g_stNavMapTextContext_005d16d0.alignment = 0;
-    g_stNavMapTextContext_005d16d0.cursorX = 0;
-    g_stNavMapTextContext_005d16d0.cursorY = 0;
-    SetTextContext(&g_stNavMapTextContext_005d16d0);
+    g_stNavMapTextCtx_005d16d0.alignment = 0;
+    g_stNavMapTextCtx_005d16d0.cursorX = 0;
+    g_stNavMapTextCtx_005d16d0.cursorY = 0;
+    SetTextContext(&g_stNavMapTextCtx_005d16d0);
     DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                     "\n");
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
@@ -934,12 +934,12 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                     g_abSeriesAuxData_005d3c40);
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     "* %s *\n",
-                    g_abMissionAuxData_005d3c10);
+                    g_abMissionAuxBlockBytes_005d3c10);
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     "* %s *\n",
                     g_apszShipMissionTypeNames_0049bc58[
                         g_aMissionShips_00492290[
-                            g_stMissionHeader_005d3e70
+                            g_stMissionHeaderBlock_005d3e70
                                 .playerMissionShip].missionType]);
     DrawNavTextLine(2, g_ucDefaultTextColour_0049cb7c,
                     "\nNotes\n");
@@ -951,7 +951,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
     BuildMap(showFlightData);
     if (showFlightData != 0) {
         SetScreenClipRect(0, 0, 259, 155);
-        SetTextContext(&g_stNavMapTextContext_005d16d0);
+        SetTextContext(&g_stNavMapTextCtx_005d16d0);
         DrawNavTextLine(0, g_ucDefaultTextColour_0049cb7c,
                         "%X%Y                         Location: %d.%d.%d",
                         8, 142,
@@ -959,7 +959,7 @@ void DrawNavLocationReadout(const char *title, short showFlightData)
                         g_aShipPosition_00494550[0].y >> 8,
                         g_aShipPosition_00494550[0].z >> 8);
     }
-    CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90, &g_stScreenViewport_005d21a0);
+    CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90, &g_stScrViewInfo_005d21a0);
 }
 
 /* Function start: 0x451AD3 */
@@ -970,7 +970,7 @@ void BriefingMap_LoadShapes(void)
     g_pNavMapShape_0049bc48 =
         FetchDiskPacketRetrying("cockpit.vga", 2, 0);
     SetScreenClipRect(0, 0, 259, 155);
-    if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
+    if (AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportOutOfMemoryAndExit("VSCREEN");
     for (objective = 0; objective < (short)g_cMissionObjectiveCount_00493294;
          objective++)
@@ -983,22 +983,22 @@ void BriefingMap_DisplayMap(void)
     short font;
     Viewport savedViewport;
 
-    savedViewport = g_stSecondaryViewBuffer_005d2c90;
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    savedViewport = g_stSecondaryViewBufferBlock_005d2c90;
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
     BriefingMap_LoadShapes();
-    g_stScreenViewport_005d21a0.top = 4;
+    g_stScrViewInfo_005d21a0.top = 4;
     DrawNavLocationReadout("Briefing Nav Map", 0);
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
     ReleasePacketHandle(g_pNavMapShape_0049bc48);
     ReleasePacketSlot((void **)&g_pNavLocationText_0049bc54);
     for (font = 0; font < 4; font++) {
-        if (g_apTextFonts_005d2200[font] != 0) {
-            ReleasePacketHandle(g_apTextFonts_005d2200[font]);
-            g_apTextFonts_005d2200[font] = 0;
+        if (g_apTextGlyphs_005d2200[font] != 0) {
+            ReleasePacketHandle(g_apTextGlyphs_005d2200[font]);
+            g_apTextGlyphs_005d2200[font] = 0;
         }
     }
-    g_stSecondaryViewBuffer_005d2c90 = savedViewport;
-    AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0);
+    g_stSecondaryViewBufferBlock_005d2c90 = savedViewport;
+    AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0);
 }
 
 #pragma function(abs)
@@ -1066,13 +1066,13 @@ void CentreMouseOnCurrentNavObjective(void)
 /* Function start: 0x451E57 */
 void ShowConfedNavScan(short refresh)
 {
-    SetRectBounds(&g_stScreenViewport_005d21a0, 30, 22, 289, 177);
+    SetRectBounds(&g_stScrViewInfo_005d21a0, 30, 22, 289, 177);
     if (refresh != 0)
         DisableMouseCursorDrawing();
     DrawNavLocationReadout("ConFed Nav Scan", 1);
     if (refresh != 0)
         EnableMouseCursorDrawing();
-    SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 319, 199);
+    SetRectBounds(&g_stScrViewInfo_005d21a0, 0, 0, 319, 199);
 }
 
 /* Function start: 0x451EC9 */
@@ -1082,8 +1082,8 @@ void FollowSelectedObjectiveSystem(void)
 {
     short navPoint;
 
-    if (g_stElapsedCampaignDate_005d170c.year != g_nCurrentStarSystem_005d169c) {
-        g_stElapsedCampaignDate_005d170c.year = g_nCurrentStarSystem_005d169c;
+    if (g_stElapsedCampaignDate_005d170c.year != g_nCurStellarSystem_005d169c) {
+        g_stElapsedCampaignDate_005d170c.year = g_nCurStellarSystem_005d169c;
         return;
     }
     switch (g_aMissionObjectives_004932a8[
@@ -1135,12 +1135,12 @@ void InflightComputer(void)
     free_view_buffer();
     g_cScreenViewportMode_005c82a6 = -1;
     background = FetchDiskPacketRetrying("cockpit.vga", 1, 0);
-    ClearViewport(&g_stScreenViewport_005d21a0,
+    ClearViewport(&g_stScrViewInfo_005d21a0,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    DrawSpriteDefault(&g_stScreenViewport_005d21a0, 0, 0, background, 0);
+    DrawSpriteDefault(&g_stScrViewInfo_005d21a0, 0, 0, background, 0);
     ReleasePacketHandle(background);
-    SetInputViewport(&g_stScreenViewport_005d21a0);
-    g_stElapsedCampaignDate_005d170c.year = g_nCurrentStarSystem_005d169c;
+    SetInputViewport(&g_stScrViewInfo_005d21a0);
+    g_stElapsedCampaignDate_005d170c.year = g_nCurStellarSystem_005d169c;
     BriefingMap_LoadShapes();
     ShowConfedNavScan(0);
 
@@ -1162,7 +1162,7 @@ void InflightComputer(void)
         SetFrameTimerAndWait(20);
         ConfigureInputPump(1, get_player_input);
     } else {
-        pointerViewport = g_stScreenViewport_005d21a0;
+        pointerViewport = g_stScrViewInfo_005d21a0;
         SetRectBounds(&pointerViewport, 0x20, 0x18, 0xb6, 0x9f);
         SetInputViewport(&pointerViewport);
         SetMenuInputPump();
@@ -1178,25 +1178,25 @@ void InflightComputer(void)
                 PlaySfxWaveFileByNumber(0x19, -1, 0);
                 ShowConfedNavScan(1);
             }
-            SetRectBounds(&g_stScreenViewport_005d21a0, 0x20, 0x18,
+            SetRectBounds(&g_stScrViewInfo_005d21a0, 0x20, 0x18,
                           0x121, 0xb1);
-            if (g_pElapsedCampaignDate_005d3e8c == 0)
-                g_pElapsedCampaignDate_005d3e8c =
+            if (g_pElapsedCampaignDatePointer_005d3e8c == 0)
+                g_pElapsedCampaignDatePointer_005d3e8c =
                     &g_stElapsedCampaignDate_005d170c;
             FormatNavCoordinates(
-                (unsigned char *)g_pElapsedCampaignDate_005d3e8c);
+                (unsigned char *)g_pElapsedCampaignDatePointer_005d3e8c);
             frame = g_nInputClock_005c84a8 / 15;
-            g_stNavLabelTextContext_005d16f0.viewport =
-                &g_stScreenViewport_005d21a0;
+            g_stNavLabelTextContextInfo_005d16f0.viewport =
+                &g_stScrViewInfo_005d21a0;
             if (frame % 2 != 0)
                 markerColour = g_bPrimaryViewBufferColour_0049cb50;
             else
                 markerColour = g_ucHomeCarrierScannerColour_0049cb70;
             DrawNavPlayerMarker((short)markerColour, 0);
-            g_stNavMapTextContext_005d16d0.viewport =
-                &g_stScreenViewport_005d21a0;
+            g_stNavMapTextCtx_005d16d0.viewport =
+                &g_stScrViewInfo_005d21a0;
             UpdateInflightNavText((short)((frame / 4) % 2));
-            SetRectBounds(&g_stScreenViewport_005d21a0, 0, 0, 0x13f, 0xc7);
+            SetRectBounds(&g_stScrViewInfo_005d21a0, 0, 0, 0x13f, 0xc7);
             SetMouseCursorShape(
                 g_pInputManagerState_005c8464->cursorShape, 0);
             g_nUiInputMode_005c8d3c = 1;
@@ -1222,8 +1222,8 @@ void InflightComputer(void)
                 break;
             }
             SelectNavObjectiveAtPoint(
-                (short)g_stHostMouseMessage_005d10d0.x,
-                (short)g_stHostMouseMessage_005d10d0.y);
+                (short)g_stHostMouseTextBlock_005d10d0.x,
+                (short)g_stHostMouseTextBlock_005d10d0.y);
             MarkDibDirty();
             DIBslamReal();
         } while (done == 0 && g_bSceneEscapeRequested_0049d4b0 == 0);
@@ -1234,10 +1234,10 @@ void InflightComputer(void)
                 (signed char)savedNavPoint;
             set_new_objective((short)g_cCurrentNavPointIndex_00493298);
         }
-        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+        free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
         DisableMouseCursorDrawing();
         ReleasePacketHandle(g_pNavMapShape_0049bc48);
-        SetTextContext(&g_stDefaultTextContext_005d2d20);
+        SetTextContext(&g_stDefaultStringContext_005d2d20);
         PlaySfxWaveFileByNumber(0x19, -1, 0);
     }
 
@@ -1248,3 +1248,19 @@ void InflightComputer(void)
     InitializeSpaceFlightInput();
     g_bInflightComputerActive_0049bcb4 = 0;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nCurStellarSystem_005d169c;
+short g_nNavPlotMaxX_005d169e;
+short g_nNavmapMapMinimumX_005d16a0;
+unsigned short g_awNavObjectiveLabelIndex_005d16b0[8];
+short g_nNavmapMapMaximumY_005d16c0;
+short g_nNavmapMapCentreX_005d16c2;
+short g_nNavMapMinimumYValue_005d16c4;
+TextContext g_stNavMapTextCtx_005d16d0;
+short g_nNavMapCentreY_005d16ec;
+TextContext g_stNavLabelTextContextInfo_005d16f0;
+CampaignDate g_stElapsedCampaignDate_005d170c;
+void *g_pDigiData_005d1710;
+unsigned short g_wDigiLeft_005d1714;

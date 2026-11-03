@@ -1354,3 +1354,7 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
             break;
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nWipeRadialRowCount_005d17b4;

@@ -117,24 +117,24 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
     void *workspace;
     short frame;
 
-    if (g_stModalSourceViewport_005d2c50.pixels !=
+    if (g_stModalSourceWindow_005d2c50.pixels !=
         (unsigned char *)0xa000) {
         InitializeGameTextContexts();
     }
     DisableMouseCursorDrawing();
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
     if ((short)AllocateViewport(
-            &g_stSecondaryViewBuffer_005d2c90,
+            &g_stSecondaryViewBufferBlock_005d2c90,
             g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
         ReportFatalErrorCode("001");
     }
-    g_nCockpitArchiveVariant_005c901a = cockpitVariant;
+    g_nCockpitArchiveVariantNumber_005c901a = cockpitVariant;
     g_pCampaignChalkboardShape_0049ca54 = FetchDiskPacketRetrying(
         "options.v00",
-        (short)(g_nCockpitArchiveVariant_005c901a * 3), 0);
+        (short)(g_nCockpitArchiveVariantNumber_005c901a * 3), 0);
     if (g_pCampaignGlobals_00499c94->field_08 ==
         g_pCampaignGlobals_00499c94->field_0a) {
         frame = 1;
@@ -147,18 +147,18 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
     LoadSceneHotspotBoundsForSelection(
         g_pCampaignChalkboardShape_0049ca54,
         (unsigned short)frame);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pCampaignChalkboardShape_0049ca54, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      g_nSceneHotspotLeft_005d2120,
-                      g_nSceneHotspotTop_005d2122,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+                      g_nShotHotspotLeft_005d2120,
+                      g_nSceneHotspotTopValue_005d2122,
                       g_pCampaignChalkboardShape_0049ca54, frame);
     if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
         workspace = AllocateTaggedMemory(0xce, 0x40);
         if (workspace != 0) {
             InitializeViewportWipe(
-                &g_stSecondaryViewBuffer_005d2c90,
-                &g_stScreenViewport_005d21a0,
+                &g_stSecondaryViewBufferBlock_005d2c90,
+                &g_stScrViewInfo_005d21a0,
                 g_pCampaignGlobals_00499c94->field_0e >> 8,
                 0x3c, 1, workspace);
             while (AdvanceViewportWipe(workspace) == 0) {
@@ -168,12 +168,12 @@ void InitializeCampaignChalkboardScreen(short cockpitVariant)
     }
     RefreshMemoryStatusOverlay();
     SetPersonnelMousePosition(
-        (short)((g_nSceneHotspotRight_005d2124 -
-                 g_nSceneHotspotLeft_005d2120) / 2 +
-                g_nSceneHotspotLeft_005d2120),
-        (short)((g_nSceneHotspotBottom_005d2126 -
-                 g_nSceneHotspotTop_005d2122) / 2 +
-                g_nSceneHotspotTop_005d2122));
+        (short)((g_nSceneRegionRightWord_005d2124 -
+                 g_nShotHotspotLeft_005d2120) / 2 +
+                g_nShotHotspotLeft_005d2120),
+        (short)((g_nSceneAreaLowestWord_005d2126 -
+                 g_nSceneHotspotTopValue_005d2122) / 2 +
+                g_nSceneHotspotTopValue_005d2122));
 }
 
 /* Function start: 0x433E8C */
@@ -200,19 +200,19 @@ void DrawCampaignChalkboardFrame(unsigned short frame)
     LoadSceneHotspotBoundsForSelection(
         g_pCampaignChalkboardShape_0049ca54,
         (unsigned short)frame);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pCampaignChalkboardShape_0049ca54, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
-                      g_nSceneHotspotLeft_005d2120,
-                      g_nSceneHotspotTop_005d2122,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+                      g_nShotHotspotLeft_005d2120,
+                      g_nSceneHotspotTopValue_005d2122,
                       g_pCampaignChalkboardShape_0049ca54, frame);
     SetPersonnelMousePosition(
-        (short)((g_nSceneHotspotRight_005d2124 -
-                 g_nSceneHotspotLeft_005d2120) / 2 +
-                g_nSceneHotspotLeft_005d2120),
-        (short)((g_nSceneHotspotBottom_005d2126 -
-                 g_nSceneHotspotTop_005d2122) / 2 +
-                g_nSceneHotspotTop_005d2122));
+        (short)((g_nSceneRegionRightWord_005d2124 -
+                 g_nShotHotspotLeft_005d2120) / 2 +
+                g_nShotHotspotLeft_005d2120),
+        (short)((g_nSceneAreaLowestWord_005d2126 -
+                 g_nSceneHotspotTopValue_005d2122) / 2 +
+                g_nSceneHotspotTopValue_005d2122));
     RefreshMemoryStatusOverlay();
 }
 
@@ -224,10 +224,10 @@ void DrawPersonnelMenuBackdrop(void *scenePacket)
     selection = 0;
     SetMenuInputPump();
     DisableMouseCursorDrawing();
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pPersonnelMenuBackdrop_0049a6b8, 0);
     selection = PollSceneHotspotInput(scenePacket, 0, 0, 0, 0);
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 0,
                                   g_bPrimaryViewBufferColour_0049cb50, -1);
     if (g_pszPersonnelFooter_00492658 != 0) {
         SetTextCursor(
@@ -387,33 +387,33 @@ void DrawPilotSaveMenuChoices(short choice)
     DisableMouseCursorDrawing();
     if (choice == PERSONNEL_KEY_L) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x38);
     DrawFormattedText("[L]oad a personnel file");
     if (choice == PERSONNEL_KEY_S) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x4c);
     DrawFormattedText("[S]ave a personnel file");
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x5a, 0x60);
@@ -432,22 +432,22 @@ void DrawPersonnelSourceChoices(short choice)
     DisableMouseCursorDrawing();
     if (choice == PERSONNEL_KEY_W) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x50, 0x2e);
     DrawFormattedText("[W]ing Commander");
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x50, 0x42);
@@ -466,22 +466,22 @@ void DrawPersonnelMenuChoices(short choice)
     DisableMouseCursorDrawing();
     if (choice == PERSONNEL_KEY_T) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x3c, 0x38);
     DrawFormattedText("[T]ransfer an existing personnel file");
     if (choice == PERSONNEL_KEY_C) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
     } else {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
     }
     SetTextCursor(0x3c, 0x4c);
@@ -556,13 +556,13 @@ void HighlightPersonnelFileSlot(short choice)
     DisableMouseCursorDrawing();
     if (choice != -1) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 2,
+            &g_stDefaultStringContext_005d2d20, 2,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
         DrawPersonnelFileSlot(slot);
     }
     if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 2,
+            &g_stDefaultStringContext_005d2d20, 2,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
         if (g_nPersonnelMenuHighlight_0049a6a0 == PERSONNEL_KEY_0) {
             slot = 0;
@@ -582,7 +582,7 @@ short SelectPersonnelFileSlot(void)
     short index;
 
     DisableMouseCursorDrawing();
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 2,
                                   (unsigned char)
                                       g_nMenuDarkColour_005c5876,
                                   -1);
@@ -678,13 +678,13 @@ void DrawTransferredPilotRow(short row)
     SetTextCursor(0x32, (unsigned short)(row * 10 + 0x1e));
     DrawFormattedText("%d", row);
     SetTextCursor(0x3c, (unsigned short)(row * 10 + 0x1e));
-    DrawFormattedText(g_apszPersonnelTransferLabels_005d2100[row]);
+    DrawFormattedText(g_apszPersonnelImportCaptionsTable_005d2100[row]);
     SetTextCursor(0xc4, (unsigned short)(row * 10 + 0x1e));
     DrawFormattedText(
-        g_apszPersonnelTransferLabels_005d2100[row] + 0x28);
+        g_apszPersonnelImportCaptionsTable_005d2100[row] + 0x28);
     SetTextCursor(0xda, (unsigned short)(row * 10 + 0x1e));
     DrawFormattedText(
-        g_apszPersonnelTransferLabels_005d2100[row] + 0x2c);
+        g_apszPersonnelImportCaptionsTable_005d2100[row] + 0x2c);
 }
 
 void SetTextCursor(unsigned short a, unsigned short b);
@@ -706,13 +706,13 @@ void HighlightTransferredPilot(short choice)
     DisableMouseCursorDrawing();
     if (choice != -1) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuSelectedCol_005c5874, -1);
         DrawTransferredPilotRow(row);
     }
     if (g_nPersonnelMenuHighlight_0049a6a0 != -1) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
         if (g_nPersonnelMenuHighlight_0049a6a0 == PERSONNEL_KEY_0) {
             row = 0;
@@ -732,8 +732,8 @@ short SelectTransferredPilot(short count)
     short index;
 
     DisableMouseCursorDrawing();
-    RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
+    RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 2,
                                   (unsigned char)
                                       g_nMenuDarkColour_005c5876,
                                   -1);
@@ -741,7 +741,7 @@ short SelectTransferredPilot(short count)
     DrawFormattedText("Select a character to transfer");
     SetTextCursor(0xba, 0x16);
     DrawFormattedText("Missions Kills");
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 1,
                                   (unsigned char)
                                       g_nMenuDarkColour_005c5876,
                                   -1);
@@ -846,13 +846,13 @@ void RunPilotSaveLoadMenu(void)
     refresh = 0;
     g_pPersonnelMenuBackdrop_0049a6b8 = FetchDiskPacketRetrying(
         "options.v00",
-        (short)(g_nCockpitArchiveVariant_005c901a * 3 + 1), 0);
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+        (short)(g_nCockpitArchiveVariantNumber_005c901a * 3 + 1), 0);
+    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pPersonnelMenuBackdrop_0049a6b8, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pPersonnelMenuBackdrop_0049a6b8, 1);
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     campaignBytes = g_pCampaignGlobals_00499c94->wordCount * 2;
     g_pPersonnelCampaignSnapshot_0049a6a4 =
         AllocateTaggedMemory(campaignBytes, 0x40);
@@ -908,14 +908,14 @@ void RunPilotSaveLoadMenu(void)
     SetPersonnelMousePosition(0xc8, 0x36);
     while (done == 0) {
         DisableMouseCursorDrawing();
-        g_stDefaultTextContext_005d2d20.viewport =
-            &g_stSecondaryViewBuffer_005d2c90;
-        g_stDefaultTextContext_005d2d20.text =
-            g_szDefaultTextBuffer_005d2b80;
-        RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
-        SetTextContext(&g_stDefaultTextContext_005d2d20);
+        g_stDefaultStringContext_005d2d20.viewport =
+            &g_stSecondaryViewBufferBlock_005d2c90;
+        g_stDefaultStringContext_005d2d20.text =
+            g_szDefaultTextBufferText_005d2b80;
+        RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
+        SetTextContext(&g_stDefaultStringContext_005d2d20);
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x50, 0x12);
         DrawFormattedText("TERRAN CONFEDERATION NAVY");
@@ -985,10 +985,10 @@ void RunPilotSaveLoadMenu(void)
                 refresh = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 2,
+                    &g_stDefaultStringContext_005d2d20, 2,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0x50, 0x0c);
                 DrawFormattedText("Select a game to load");
@@ -1048,10 +1048,10 @@ void RunPilotSaveLoadMenu(void)
                 refresh = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 2,
+                    &g_stDefaultStringContext_005d2d20, 2,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0xb8, 0x0c);
                 DrawFormattedText("Missions Kills");
@@ -1062,15 +1062,15 @@ void RunPilotSaveLoadMenu(void)
                     g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
                     DisableMouseCursorDrawing();
                     RestorePersonnelMenuBackground(
-                        &g_stSecondaryViewBuffer_005d2c90);
+                        &g_stSecondaryViewBufferBlock_005d2c90);
                     InitializeTextContextFromFont(
-                        &g_stDefaultTextContext_005d2d20, 2,
+                        &g_stDefaultStringContext_005d2d20, 2,
                         (unsigned char)g_nMenuDarkColour_005c5876, -1);
                     confirm = 1;
                     SetTextCursor(0x32, 0x32);
                     DrawFormattedText("Are you sure?");
                     InitializeTextContextFromFont(
-                        &g_stDefaultTextContext_005d2d20, 2,
+                        &g_stDefaultStringContext_005d2d20, 2,
                         (unsigned char)g_nMenuSelectedCol_005c5874,
                         (unsigned char)g_nOptionMessageColour_005c57e8);
                     SetTextCursor(0x6a, 0x32);
@@ -1105,9 +1105,9 @@ void RunPilotSaveLoadMenu(void)
                 refresh = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 2,
+                    &g_stDefaultStringContext_005d2d20, 2,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 SetTextCursor(0xb8, 0x0c);
                 DrawFormattedText("Missions Kills");
@@ -1120,17 +1120,17 @@ void RunPilotSaveLoadMenu(void)
                 }
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 2,
+                    &g_stDefaultStringContext_005d2d20, 2,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 confirm = 1;
                 if (g_apPersonnelFileSlots_0049a660[slot]->occupied != 0) {
                     SetTextCursor(0x32, 0x32);
                     DrawFormattedText("Are you sure?");
                     InitializeTextContextFromFont(
-                        &g_stDefaultTextContext_005d2d20, 2,
+                        &g_stDefaultStringContext_005d2d20, 2,
                         (unsigned char)g_nMenuSelectedCol_005c5874,
                         (unsigned char)g_nOptionMessageColour_005c57e8);
                     SetTextCursor(0x6a, 0x32);
@@ -1152,7 +1152,7 @@ void RunPilotSaveLoadMenu(void)
                     }
                 }
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 2,
+                    &g_stDefaultStringContext_005d2d20, 2,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 if (confirm != 0) {
                     g_apPersonnelFileSlots_0049a660[slot]->occupied = 1;
@@ -1161,7 +1161,7 @@ void RunPilotSaveLoadMenu(void)
                     DrawFormattedText("%s", "Saved game comments:");
                     RefreshMemoryStatusOverlay();
                     InitializeTextContextFromFont(
-                        &g_stDefaultTextContext_005d2d20, 2,
+                        &g_stDefaultStringContext_005d2d20, 2,
                         (unsigned char)g_nMenuSelectedCol_005c5874, -1);
                     ReadPersonnelTextField(
                         0x32, 0x4c, 2, "",
@@ -1206,10 +1206,10 @@ void RunPilotSaveLoadMenu(void)
     }
 
     g_pActiveScenePacket_00492654 = 0;
-    ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
-    ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+    ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
+    ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
     FreePacketAndClear(&g_pPersonnelMenuBackdrop_0049a6b8, 0);
-    g_stDefaultTextContext_005d2d20.viewport = &g_stScreenViewport_005d21a0;
+    g_stDefaultStringContext_005d2d20.viewport = &g_stScrViewInfo_005d21a0;
     ReleasePacketHandle(g_pPersonnelCampaignSnapshot_0049a6a4);
     for (index = 0; index < 8; index++) {
         ReleasePacketHandle(g_apPersonnelFileSlots_0049a660[index]);
@@ -1227,11 +1227,11 @@ short SelectLegacyGameSource(void)
 
     done = 0;
     choice = -1;
-    RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
+    RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
     SetPersonnelMousePosition(200, 0x2c);
     while (done == 0) {
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x3c, 0x1e);
         DrawFormattedText("Transfer a character from:");
@@ -1306,7 +1306,7 @@ short SelectLegacyGameSource(void)
             }
         }
     }
-    RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
+    RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
     return choice;
 }
 
@@ -1328,18 +1328,18 @@ short LocateLegacySaveGame(short source)
     short index;
 
     InitializeTextContextFromFont(
-        &g_stDefaultTextContext_005d2d20, 2,
+        &g_stDefaultStringContext_005d2d20, 2,
         (unsigned char)g_nMenuDarkColour_005c5876, -1);
     if (g_nLegacySaveSource_0049a600 == 0) {
         installedPath = GetLegacyGameDataPath();
         if (installedPath != 0) {
-            strcpy(g_szLegacySavePath_005d2130, installedPath);
+            strcpy(g_szLegacySaveFolder_005d2130, installedPath);
         } else {
-            strcpy(g_szLegacySavePath_005d2130, "");
+            strcpy(g_szLegacySaveFolder_005d2130, "");
         }
     } else {
-        strcpy(g_szLegacySavePath_005d2130, "");
-        RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
+        strcpy(g_szLegacySaveFolder_005d2130, "");
+        RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
         SetTextCursor(0x32, 0x28);
         DrawFormattedText("Please enter the full path name of");
         SetTextCursor(0x32, 0x34);
@@ -1350,39 +1350,39 @@ short LocateLegacySaveGame(short source)
         DisableMouseCursorDrawing();
         pathEntered = ReadPersonnelTextField(
             0x32, 0x50, 2, "Path name: ",
-            g_szLegacySavePath_005d2130, 0x19, 0, 1);
+            g_szLegacySaveFolder_005d2130, 0x19, 0, 1);
         EnableMouseCursorDrawing();
     }
     if (pathEntered == 0) {
         return 0;
     }
-    if (strlen(g_szLegacySavePath_005d2130) >= 2) {
-        for (index = (short)(strlen(g_szLegacySavePath_005d2130) - 1);
+    if (strlen(g_szLegacySaveFolder_005d2130) >= 2) {
+        for (index = (short)(strlen(g_szLegacySaveFolder_005d2130) - 1);
              index >= 0; index--) {
-            if (g_szLegacySavePath_005d2130[index] == '\\')
+            if (g_szLegacySaveFolder_005d2130[index] == '\\')
                 break;
-            isAlnum = isalnum(g_szLegacySavePath_005d2130[index]);
+            isAlnum = isalnum(g_szLegacySaveFolder_005d2130[index]);
             if (isAlnum != 0) {
-                strcat(g_szLegacySavePath_005d2130, "\\");
+                strcat(g_szLegacySaveFolder_005d2130, "\\");
                 break;
             }
         }
     }
-    strcat(g_szLegacySavePath_005d2130,
+    strcat(g_szLegacySaveFolder_005d2130,
            g_apszSaveGameFileNames_0049a6c8[source]);
     for (index = 0;
-         strlen(g_szLegacySavePath_005d2130) > (unsigned int)index;
+         strlen(g_szLegacySaveFolder_005d2130) > (unsigned int)index;
          index++) {
-        if (g_szLegacySavePath_005d2130[index] == ':') {
+        if (g_szLegacySaveFolder_005d2130[index] == ':') {
             if (index == 0) {
                 return 0;
             }
             driveIndex = (short)(toupper(
-                g_szLegacySavePath_005d2130[index - 1]) - 'A');
+                g_szLegacySaveFolder_005d2130[index - 1]) - 'A');
             PersonnelDriveHook(driveIndex);
         }
     }
-    handle = (short)_findfirst(g_szLegacySavePath_005d2130, &findData);
+    handle = (short)_findfirst(g_szLegacySaveFolder_005d2130, &findData);
     if (handle == -1) {
         return 0;
     }
@@ -1392,7 +1392,7 @@ short LocateLegacySaveGame(short source)
 /* Function start: 0x436A4D */
 void ShowNoTransferablePilots(void)
 {
-    RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
+    RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
     SetTextCursor(0x50, 0x3c);
     DrawFormattedText("No valid characters found.");
     RefreshMemoryStatusOverlay();
@@ -1421,52 +1421,52 @@ short RunPilotDatabaseMenu(void)
     short previousDrive;
     int key;
 
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
     if ((short)AllocateViewport(
-            &g_stSecondaryViewBuffer_005d2c90,
+            &g_stSecondaryViewBufferBlock_005d2c90,
             g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
         ReportFatalErrorCode("012");
     }
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     DisableMouseCursorDrawing();
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 0,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 0,
                                   g_bPrimaryViewBufferColour_0049cb50, -1);
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 2,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 2,
                                   g_bPrimaryViewBufferColour_0049cb50, -1);
     g_pPersonnelMenuBackdrop_0049a6b8 = FetchDiskPacketRetrying(
-        "options.v00", (short)(g_nCockpitArchiveVariant_005c901a * 3 + 1),
+        "options.v00", (short)(g_nCockpitArchiveVariantNumber_005c901a * 3 + 1),
         0);
     SetMenuInputPump();
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pPersonnelMenuBackdrop_0049a6b8, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                       g_pPersonnelMenuBackdrop_0049a6b8, 1);
     record = AllocateTaggedMemory(0x33c, 0x40);
     if (record == 0) {
         ReportFatalErrorCode("013");
     }
     for (index = 0; index < 8; index++) {
-        g_apszPersonnelTransferLabels_005d2100[index] =
+        g_apszPersonnelImportCaptionsTable_005d2100[index] =
             AllocateTaggedMemory(0x50, 0x40);
-        if (g_apszPersonnelTransferLabels_005d2100[index] == 0) {
+        if (g_apszPersonnelImportCaptionsTable_005d2100[index] == 0) {
             ReportFatalErrorCode("014");
         }
     }
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     while (done == 0) {
         DisableMouseCursorDrawing();
-        g_stDefaultTextContext_005d2d20.viewport =
-            &g_stSecondaryViewBuffer_005d2c90;
-        g_stDefaultTextContext_005d2d20.text =
-            g_szDefaultTextBuffer_005d2b80;
-        RestorePersonnelMenuBackground(&g_stSecondaryViewBuffer_005d2c90);
-        SetTextContext(&g_stDefaultTextContext_005d2d20);
+        g_stDefaultStringContext_005d2d20.viewport =
+            &g_stSecondaryViewBufferBlock_005d2c90;
+        g_stDefaultStringContext_005d2d20.text =
+            g_szDefaultTextBufferText_005d2b80;
+        RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock_005d2c90);
+        SetTextContext(&g_stDefaultStringContext_005d2d20);
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 1,
+            &g_stDefaultStringContext_005d2d20, 1,
             (unsigned char)g_nMenuDarkColour_005c5876, -1);
         SetTextCursor(0x50, 0x12);
         DrawFormattedText("TERRAN CONFEDERATION NAVY");
@@ -1530,10 +1530,10 @@ short RunPilotDatabaseMenu(void)
                 actionHandled = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 1,
+                    &g_stDefaultStringContext_005d2d20, 1,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
                 selected = SelectLegacyGameSource();
                 if (selected == -1) {
@@ -1545,7 +1545,7 @@ short RunPilotDatabaseMenu(void)
                         result = 0;
                         g_cCurrentKey_00493128 = 0x14;
                     } else {
-                        file = (short)_open(g_szLegacySavePath_005d2130,
+                        file = (short)_open(g_szLegacySaveFolder_005d2130,
                                             0x8000);
                         transferCount = 0;
                         for (index = 0; index < 8; index++) {
@@ -1555,39 +1555,39 @@ short RunPilotDatabaseMenu(void)
                                     selected) {
                                 pilot = &record->pilots[8];
                                 strcpy(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     g_apszShortPilotRankNames_0049a620[
                                         pilot->rank]);
                                 strcat(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     " \"");
                                 strcat(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     pilot->callsign);
                                 strcat(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     "\" ");
                                 strcat(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     pilot->name);
                                 itoa(pilot->missions, text, 10);
                                 strcpy(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x28,
                                     text);
                                 itoa(pilot->kills, text, 10);
                                 strcpy(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x2c,
                                     text);
                                 itoa(index, text, 10);
                                 strcpy(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x3c,
                                     text);
                                 transferCount++;
@@ -1608,23 +1608,23 @@ short RunPilotDatabaseMenu(void)
                                 g_cCurrentKey_00493128 = 0x14;
                             } else {
                                 index = (short)atoi(
-                                    g_apszPersonnelTransferLabels_005d2100[
+                                    g_apszPersonnelImportCaptionsTable_005d2100[
                                         selected] + 0x3c);
                                 file = (short)_open(
-                                    g_szLegacySavePath_005d2130, 0x8000);
+                                    g_szLegacySaveFolder_005d2130, 0x8000);
                                 lseek(file, (long)index * 0x33c, 0);
                                 _read(file, record, 0x33c);
                                 pilot = &record->pilots[8];
                                 _close(file);
                                 PersonnelDriveHook(previousDrive);
                                 InitializeTextContextFromFont(
-                                    &g_stDefaultTextContext_005d2d20, 1,
+                                    &g_stDefaultStringContext_005d2d20, 1,
                                     (unsigned char)
                                         g_nMenuSelectedCol_005c5874,
                                     -1);
                                 DisableMouseCursorDrawing();
                                 RestorePersonnelMenuBackground(
-                                    &g_stSecondaryViewBuffer_005d2c90);
+                                    &g_stSecondaryViewBufferBlock_005d2c90);
                                 RefreshMemoryStatusOverlay();
                                 strcpy(text,
                                        g_apszShortPilotRankNames_0049a620[
@@ -1676,10 +1676,10 @@ short RunPilotDatabaseMenu(void)
                 actionHandled = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
-                    &g_stSecondaryViewBuffer_005d2c90);
+                    &g_stSecondaryViewBufferBlock_005d2c90);
                 RefreshMemoryStatusOverlay();
                 InitializeTextContextFromFont(
-                    &g_stDefaultTextContext_005d2d20, 1,
+                    &g_stDefaultStringContext_005d2d20, 1,
                     (unsigned char)g_nMenuSelectedCol_005c5874, -1);
                 inputResult = ReadPersonnelTextField(
                     0x32, 0x1e, 2, "Enter first name: ", firstName,
@@ -1728,18 +1728,18 @@ short RunPilotDatabaseMenu(void)
         g_cCurrentKey_00493128 = (signed char)0x80;
     }
     FlushInputEvents();
-    ReleasePacketSlot(&g_stSceneHotspotTable_005d3bf8.data);
-    ReleasePacketSlot(&g_stSceneTextTable_005d3c00.data);
+    ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
+    ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
     g_pActiveScenePacket_00492654 = 0;
     FreePacketAndClear(&g_pPersonnelMenuBackdrop_0049a6b8, 0);
-    g_stDefaultTextContext_005d2d20.viewport =
-        &g_stScreenViewport_005d21a0;
+    g_stDefaultStringContext_005d2d20.viewport =
+        &g_stScrViewInfo_005d21a0;
     ReleasePacketHandle(record);
     for (index = 0; index < 8; index++) {
         ReleasePacketHandle(
-            g_apszPersonnelTransferLabels_005d2100[index]);
+            g_apszPersonnelImportCaptionsTable_005d2100[index]);
     }
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
     FlushInputEvents();
     return result;
 }

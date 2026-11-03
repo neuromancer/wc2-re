@@ -576,9 +576,9 @@ void get_facing_range_from_point(short obj, const FixedVector *point)
     g_nTargetRange_0049319c =
         distance_from_point(obj, point) -
         g_asObjectCollisionRadius_004950e8[obj];
-    g_vNormalizedToTarget_005d3bd0 = g_vToTarget_00493188;
-    NormalizeFixedVector(&g_vNormalizedToTarget_005d3bd0);
-    cosine = dot_product(&g_vNormalizedToTarget_005d3bd0,
+    g_vNormalizedToTgt_005d3bd0 = g_vToTarget_00493188;
+    NormalizeFixedVector(&g_vNormalizedToTgt_005d3bd0);
+    cosine = dot_product(&g_vNormalizedToTgt_005d3bd0,
                          &g_aShipForwardVector_00494208[obj]);
     g_nFacingToTarget_00493194 = (short)(((short)cosine * 100) >> 8);
     g_nFacingRangeQueryCount_00492708++;
@@ -591,8 +591,8 @@ void get_facing_range_from_object(short obj, short other)
 
     get_facing_range_from_point(obj, &g_aShipPosition_00494550[other]);
     g_nTargetRange_0049319c -= g_asObjectCollisionRadius_004950e8[other];
-    negate_vector(&g_vNormalizedToTarget_005d3bd0);
-    cosine = dot_product(&g_vNormalizedToTarget_005d3bd0,
+    negate_vector(&g_vNormalizedToTgt_005d3bd0);
+    cosine = dot_product(&g_vNormalizedToTgt_005d3bd0,
                          &g_aShipForwardVector_00494208[other]);
     g_nTargetFacing_00493198 = (short)(((short)cosine * 100) >> 8);
 }
@@ -1268,9 +1268,9 @@ void get_right_shape(short obj, FixedVector *direction)
     }
     projectedUpVector.z = 0;
     projectedUpVector.x = dot_product(
-        &eyeUp, &g_aDirectionViewRightVector_005d2210[directionIndex]);
+        &eyeUp, &g_aDirectionLookRightVector_005d2210[directionIndex]);
     projectedUpVector.y = dot_product(
-        &eyeUp, &g_aDirectionViewUpVector_005d2500[directionIndex]);
+        &eyeUp, &g_aDirectionViewUpVectorArray_005d2500[directionIndex]);
     NormalizeFixedVector(&projectedUpVector);
     twist = ArcCos(projectedUpVector.y);
     if (projectedUpVector.x >= 0)
@@ -1314,7 +1314,7 @@ void get_right_shape(short obj, FixedVector *direction)
             g_asObjectViewFrame_00493508[obj] = 0;
             g_asLoadedShipViewFrame_00495d18[obj] =
                 g_acDirectionShapeFrame_0049d558[directionIndex];
-            if (g_stViewBuffer_005d2b00.pixels != 0 &&
+            if (g_stViewScratchInfo_005d2b00.pixels != 0 &&
                 IdentityWord(
                     (unsigned int)g_apObjectShape_00493868[obj]) == 0)
                 free_view_buffer();
@@ -1328,7 +1328,7 @@ void get_right_shape(short obj, FixedVector *direction)
                 CheckHeapBlockSignature(g_apObjectShape_00493868[obj]);
                 g_abObjectShapeOwned_00492760[obj] = 0;
             } else {
-                if (g_stViewBuffer_005d2b00.pixels != 0)
+                if (g_stViewScratchInfo_005d2b00.pixels != 0)
                     free_view_buffer();
                 strcpy(fileName, "ship.v");
                 if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
@@ -1350,3 +1350,8 @@ void get_right_shape(short obj, FixedVector *direction)
             g_acDirectionShapeFrame_0049d558[directionIndex];
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+FixedVector g_vNormalizedToTgt_005d3bd0;
+int g_nUnusedGeomWord_005d3be0[3]; /* never referenced */

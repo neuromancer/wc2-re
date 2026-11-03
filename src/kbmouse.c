@@ -72,13 +72,13 @@ void KeyboardMousePump(void)
     }
 
     if ((dx != 0 || dy != 0) &&
-        g_stScreenViewport_005d21a0.pixels != 0) {
+        g_stScrViewInfo_005d21a0.pixels != 0) {
         x = (short)(g_nQueuedInputX_005c83f0 + dx);
         y = (short)(g_nQueuedInputY_005c83f2 + dy);
-        left = g_stScreenViewport_005d21a0.left;
-        right = g_stScreenViewport_005d21a0.right;
-        top = g_stScreenViewport_005d21a0.top;
-        bottom = g_stScreenViewport_005d21a0.bottom;
+        left = g_stScrViewInfo_005d21a0.left;
+        right = g_stScrViewInfo_005d21a0.right;
+        top = g_stScrViewInfo_005d21a0.top;
+        bottom = g_stScrViewInfo_005d21a0.bottom;
         if (left > x)
             x = left;
         else if (right < x)

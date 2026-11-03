@@ -126,7 +126,7 @@ static const char *DescribeUnregisteredViewport(const Viewport *viewport)
             (int)viewport->left, (int)viewport->top,
             (int)viewport->right, (int)viewport->bottom,
             (void *)viewport->allocation,
-            (void *)g_stScreenViewport_005d21a0.pixels,
+            (void *)g_stScrViewInfo_005d21a0.pixels,
             (void *)GetDIBPixelBuffer(),
             g_nViewportAllocationCount_005d19bc);
     cursor = text + strlen(text);
@@ -380,7 +380,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 
     if (viewport->left < 0)
         return;
-    if (viewport->pixels != g_stScreenViewport_005d21a0.pixels) {
+    if (viewport->pixels != g_stScrViewInfo_005d21a0.pixels) {
         for (offset = 0;
              offset < g_nViewportAllocationCount_005d19bc &&
                  g_apViewportAllocations_005d19c0[offset] !=
@@ -397,7 +397,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
             exit_squadron("bad vport");
 #endif
     }
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     offset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
     nextOffset = SignExtendClipCoord(
@@ -602,9 +602,9 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
     }
     ReadPerformanceCounter(&t3);
     g_nShapePrepareTicks_005d2fd0 += t1.LowPart - t0.LowPart;
-    g_nShapeClipTicks_005d2fd4 += t2.LowPart - t1.LowPart;
+    g_nShapeClipTicksValue_005d2fd4 += t2.LowPart - t1.LowPart;
     g_nShapeDrawTicks_005d2fd8 += t3.LowPart - t2.LowPart;
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }
 
@@ -1123,7 +1123,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
         }
     }
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     (void)color;
 }
@@ -1469,7 +1469,7 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
         row += stride;
         rowBounds += 2;
     }
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }
 
@@ -1478,7 +1478,7 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
 void triangle(Viewport *viewport, ShortPoint *points, int colour)
 {
     FillPolygon(viewport, points, 3, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     RasterLineHook("triangle");
     return;
@@ -1489,7 +1489,7 @@ void triangle(Viewport *viewport, ShortPoint *points, int colour)
  * implement the driver's shaded triangle and only reports the call. */
 void shaded_triangle(Viewport *viewport)
 {
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     RasterLineHook("shaded_triangle");
     return;
@@ -1551,7 +1551,7 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
     ClipViewportToScreen(viewport);
     DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     return;
 }
@@ -1566,7 +1566,7 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
     ClipViewportToScreen(viewport);
     FillRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     return;
 }
@@ -1581,7 +1581,7 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
     ClipViewportToScreen(viewport);
     DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     return;
 }
@@ -1593,7 +1593,7 @@ void shadow_draw(Viewport *viewport)
 {
     if (viewport->left < 0)
         return;
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     RasterLineHook("shadow_draw");
     return;
@@ -1804,7 +1804,7 @@ void CopyViewportRuns(Viewport *source, Viewport *destination,
         destinationX = *runs;
         runs++;
     }
-    if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (destination->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }
 
@@ -1815,7 +1815,7 @@ void fizzle_fade(Viewport *source, Viewport *destination)
 {
     if (destination->left < 0)
         return;
-    if (destination->pixels == g_stScreenViewport_005d21a0.pixels)
+    if (destination->pixels == g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
     RasterLineHook("fizzle_fade");
     return;
@@ -1837,7 +1837,7 @@ void snow_viewport(Viewport *viewport, int effect,
 
     if (viewport->left < 0)
         return;
-    if (viewport->pixels == g_stScreenViewport_005d21a0.pixels) {
+    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels) {
         left = viewport->left;
         topY = viewport->top;
         endX = viewport->right;
@@ -1860,3 +1860,9 @@ void snow_viewport(Viewport *viewport, int effect,
     RasterLineHook("snow_viewport");
     return;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_nShapePrepareTicks_005d2fd0;
+int g_nShapeClipTicksValue_005d2fd4;
+int g_nShapeDrawTicks_005d2fd8;

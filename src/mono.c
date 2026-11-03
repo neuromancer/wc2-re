@@ -7,7 +7,7 @@
 #define MONO_C
 #include "game.h"
 
-char g_szSoundDebugBuffer_005d1f00[0xfa0];
+extern char g_szSoundTraceScratch_005d1f00[0x200];
 
 /* Function start: 0x4377F0 */
 void MonoDebug_install(void)
@@ -66,9 +66,9 @@ void SoundDebugPrintf(const char *fmt, ...)
     va_list arguments;
 
     va_start(arguments, fmt);
-    vsprintf(g_szSoundDebugBuffer_005d1f00, fmt, arguments);
+    vsprintf(g_szSoundTraceScratch_005d1f00, fmt, arguments);
     va_end(arguments);
-    MonoDebug_print(g_szSoundDebugBuffer_005d1f00);
+    MonoDebug_print(g_szSoundTraceScratch_005d1f00);
 }
 
 /* Function start: 0x437983 */

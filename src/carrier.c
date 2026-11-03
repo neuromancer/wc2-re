@@ -29,26 +29,26 @@ void launch_carrier_fighter(short carrier)
 
     switch (g_asObjectType_00495298[carrier]) {
     case 0x35:
-        g_nCarrierLaunchInterval_005d108c = 300;
+        g_nCarrierLaunchIntervalValue_005d108c = 300;
         break;
     case 0x38:
-        g_nCarrierLaunchInterval_005d108c = 250;
+        g_nCarrierLaunchIntervalValue_005d108c = 250;
         break;
     case 0x39:
-        g_nCarrierLaunchInterval_005d108c = 150;
+        g_nCarrierLaunchIntervalValue_005d108c = 150;
         break;
     case 0x3A:
-        g_nCarrierLaunchInterval_005d108c = 100;
+        g_nCarrierLaunchIntervalValue_005d108c = 100;
         break;
     case 0x3B:
-        g_nCarrierLaunchInterval_005d108c = 75;
+        g_nCarrierLaunchIntervalValue_005d108c = 75;
         break;
     default:
         return;
     }
 
     if (g_asCarrierLaunchTimer_005d1090[carrier]++ <
-        g_nCarrierLaunchInterval_005d108c)
+        g_nCarrierLaunchIntervalValue_005d108c)
         return;
     g_asCarrierLaunchTimer_005d1090[carrier] = 0;
 
@@ -103,3 +103,8 @@ void launch_carrier_fighter(short carrier)
                      g_anShipSpeed_00494e20[fighter],
                      &g_aShipVelocity_00494898[fighter]);
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nCarrierLaunchIntervalValue_005d108c;
+short g_asCarrierLaunchTimer_005d1090[10];

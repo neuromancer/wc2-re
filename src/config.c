@@ -20,7 +20,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 
     argumentCount = 0;
     argumentIndex = 1;
-    destination = g_szTextScratchBuffer_005d1c40;
+    destination = g_szTextBufferBuffer_005d1c40;
 #ifdef SDL_PORT
     if (SdlResolvePath("wc2.cfg", resolvedPath,
                           sizeof(resolvedPath)))

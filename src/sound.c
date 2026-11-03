@@ -447,7 +447,7 @@ void ServiceSoundSystem(void)
          * below can run on the first frame audio is observed stopped
          * rather than waiting for the full grace period. */
         if (g_nSpeechCompletionDelay_004a265c == 0) {
-            /* The cutscene script polls g_bCutsceneTextAdvance_005d2ed0
+            /* The cutscene script polls g_bMovieStringAdvanceState_005d2ed0
              * (opcode 0x9c, screens.c) to know when speech has
              * finished before advancing to the next line, so clearing
              * these here -- immediately on stop, not after the grace
@@ -456,7 +456,7 @@ void ServiceSoundSystem(void)
             g_bSpeechSoundActive_004a2660 = 0;
             if (g_bSpaceFlightActive_005c586c == 0) {
                 g_bCutsceneSpeechActive_00499eb8 = 0;
-                g_bCutsceneTextAdvance_005d2ed0 = 0;
+                g_bMovieStringAdvanceState_005d2ed0 = 0;
                 g_pszCutsceneSpeechCursor_00499eb0 = 0;
                 /* g_pCurrentCutsceneSprite_00499c78 is whichever
                  * object happens to be executing its own script

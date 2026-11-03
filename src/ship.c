@@ -378,7 +378,7 @@ void set_objects_data(short obj, short type, short owner,
     short weapon;
     ObjectTypeData *typeData;
 
-    g_asObjectCreationFrame_005d3900[obj] = g_nSpaceFrame_00493134;
+    g_asObjectCreationFrameTable_005d3900[obj] = g_nSpaceFrame_00493134;
     g_abProjectileCollisionBonus_004960a8[obj] = 0;
     if (matchResourceType != 0) {
         for (weapon = 0; weapon < 5; weapon++) {
@@ -810,7 +810,7 @@ void send_appropriate_message(short attacker, short victim)
                 g_aeObjectClass_00495328[victim] == OBJECT_CLASS_SHIP) {
                 if ((short)g_acObjectOwner_00495208[attacker] ==
                     g_nYourWingman_0049346c) {
-                    if (g_asPlayerDamageCredit_005d38c0[victim] <=
+                    if (g_asPlayerHitsCreditValues_005d38c0[victim] <=
                             g_asWingmanDamageCredit_005d3830[victim] ||
                         g_aeObjectClass_00495328[attacker] ==
                             OBJECT_CLASS_MISSILE)
@@ -918,13 +918,13 @@ short inflict_damage(short attacker, short victim, short damage,
             g_nYourWingman_0049346c)
             g_asWingmanDamageCredit_005d3830[victim]++;
         if (g_acObjectOwner_00495208[attacker] == 0)
-            g_asPlayerDamageCredit_005d38c0[victim] =
-                (short)(g_asPlayerDamageCredit_005d38c0[victim] + 2);
+            g_asPlayerHitsCreditValues_005d38c0[victim] =
+                (short)(g_asPlayerHitsCreditValues_005d38c0[victim] + 2);
         if (attacker == g_nYourWingman_0049346c && victim == 0)
             send_message(g_nYourWingman_0049346c, 0x0c);
         if (attacker == 0 && victim == g_nYourWingman_0049346c)
             send_message(g_nYourWingman_0049346c, 0x0c);
-        if (g_asObjectCreationFrame_005d3900[attacker] !=
+        if (g_asObjectCreationFrameTable_005d3900[attacker] !=
                 g_nLastFriendlyFireObjectFrame_00492d6c &&
             attacker != -1 &&
             g_asShipSide_004955d0[victim] == SIDE_IMPERIAL &&
@@ -934,17 +934,17 @@ short inflict_damage(short attacker, short victim, short damage,
             if (kilrathi_near(0, 30000) != 0) {
                 send_message(victim, 0x0c);
                 g_nLastFriendlyFireObjectFrame_00492d6c =
-                    g_asObjectCreationFrame_005d3900[attacker];
+                    g_asObjectCreationFrameTable_005d3900[attacker];
             } else if (g_asShipSide_004955d0[0] != SIDE_KILRATHI) {
                 if (g_bFriendlyFireWarningIssued_00492d5c == 0) {
                     g_bFriendlyFireWarningIssued_00492d5c++;
                     send_message(victim, 0x0d);
                     g_nLastFriendlyFireObjectFrame_00492d6c =
-                        g_asObjectCreationFrame_005d3900[attacker];
+                        g_asObjectCreationFrameTable_005d3900[attacker];
                 } else {
                     send_message(victim, 0x0e);
                     g_nLastFriendlyFireObjectFrame_00492d6c =
-                        g_asObjectCreationFrame_005d3900[attacker];
+                        g_asObjectCreationFrameTable_005d3900[attacker];
                     g_asShipSide_004955d0[0] = SIDE_KILRATHI;
                     g_nYourWingman_0049346c = -1;
                     for (ally = 1; ally < 10; ally++) {
@@ -1130,7 +1130,7 @@ short internal_damage(short attacker, short owner, short victim,
             } else if (g_asObjectType_00495298[attacker] == 0x13 &&
                        damage > 100) {
                 g_asObjectDamage_00495178[victim] = (short)(
-                    g_asCapitalHitDamageStep_005d17a0[victim] +
+                    g_asCapitalHitDamageStepTable_005d17a0[victim] +
                     g_asObjectDamage_00495178[victim]);
             } else {
                 g_asObjectDamage_00495178[victim] = (short)(
@@ -1747,13 +1747,13 @@ void analyze_kill(short attacker, short victim)
     if (hostile != 0) {
         score_for_kill(attacker, victim);
         if (attacker == 0) {
-            g_cPlayerKillCount_005d2fa8++;
+            g_cPilotKillCountValue_005d2fa8++;
         } else {
             for (initialShip = 0; initialShip < 8; initialShip++) {
-                if (g_stMissionHeader_005d3e70
+                if (g_stMissionHeaderBlock_005d3e70
                         .initialMissionShips[initialShip] ==
                     g_asShipMissionIndex_00495d00[attacker])
-                    g_acInitialShipKillCount_005d2fc0[initialShip]++;
+                    g_acInitialShipKillNumber_005d2fc0[initialShip]++;
             }
         }
     }
@@ -1778,7 +1778,7 @@ void explosion_shock_wave(short obj, short blastDamage)
                         g_asObjectCollisionRadius_004950e8[target]));
             if (range > 1000 ||
                 (g_aeObjectClass_00495328[target] == OBJECT_CLASS_MISSILE &&
-                 ((g_asMissileProximityFuse_005d38e0[target] + 1) * 100 <
+                 ((g_asMissileProximityFuseValues_005d38e0[target] + 1) * 100 <
                       range ||
                   g_asShipTactic_00495f30[target] != 4))) {
                 damage = 0;
@@ -1880,9 +1880,9 @@ short Explosion(short obj)
                 send_message(obj, 8);
         }
         for (slot = 0; slot < 8; slot++) {
-            if (g_stMissionHeader_005d3e70.initialMissionShips[slot] ==
+            if (g_stMissionHeaderBlock_005d3e70.initialMissionShips[slot] ==
                 g_asShipMissionIndex_00495d00[obj]) {
-                g_acMissionShipStatusFlags_005d2fb0[slot] |= 1;
+                g_acMissionShipStatusFlagsBytes_005d2fb0[slot] |= 1;
                 if (g_nYourWingman_0049346c == obj)
                     g_nYourWingman_0049346c = -1;
             }
@@ -1895,9 +1895,9 @@ short Explosion(short obj)
             g_asObjectCounter_00494be0[obj] = 4;
         if (g_aObjectTypeData_00496d30[
                 OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0)
-            g_asShipExplosionStageTimer_005d3850[obj] = 8;
+            g_asShipBurstStageCountdown_005d3850[obj] = 8;
         else
-            g_asShipExplosionStageTimer_005d3850[obj] = 4;
+            g_asShipBurstStageCountdown_005d3850[obj] = 4;
         g_aMissionShips_00492290[
             g_asShipMissionIndex_00495d00[obj]].state = 3;
         if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_CAPITAL_SHIP) {
@@ -1908,14 +1908,14 @@ short Explosion(short obj)
                      g_acObjectType_00493980[obj]].damageCapacity >> 2) +
                 (g_aObjectTypeData_00496d30[
                      OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0 ? 8 : 4));
-            g_asShipExplosionStageTimer_005d3850[obj] = (short)(
+            g_asShipBurstStageCountdown_005d3850[obj] = (short)(
                 (g_aObjectTypeData_00496d30[
                      OBJECT_DATA_EXPLOSION_LARGE].shapeSet != 0 ?
                      8 : 4) * 2);
-            if (g_asShipExplosionStageTimer_005d3850[obj] <
-                g_nHudMessageTime_005d1c32) {
-                g_asShipExplosionStageTimer_005d3850[obj] =
-                    g_nHudMessageTime_005d1c32;
+            if (g_asShipBurstStageCountdown_005d3850[obj] <
+                g_nScreenMessageTimeNumber_005d1c32) {
+                g_asShipBurstStageCountdown_005d3850[obj] =
+                    g_nScreenMessageTimeNumber_005d1c32;
             }
         } else {
             debris = ShipExplosion(obj);
@@ -1955,13 +1955,13 @@ short explode(short attacker, short victim)
         g_anShipCloakState_00496020[victim] = 2;
     if (g_bExplosionTraversalIdle_00492e18 != 0) {
         for (object = 0; object < SPACE_OBJECT_COUNT; object++)
-            g_abExplosionObjectVisited_005d3870[object] = 0;
+            g_abExplosionEntityDoneBytes_005d3870[object] = 0;
     }
     g_bExplosionTraversalIdle_00492e18 = 0;
-    if (g_abExplosionObjectVisited_005d3870[victim] != 0)
+    if (g_abExplosionEntityDoneBytes_005d3870[victim] != 0)
         return 1;
     else
-        g_abExplosionObjectVisited_005d3870[victim] = 1;
+        g_abExplosionEntityDoneBytes_005d3870[victim] = 1;
     result = ResolveObjectDestruction(attacker, victim);
     g_bExplosionTraversalIdle_00492e18 = 1;
     return result;
@@ -1994,7 +1994,7 @@ short ResolveObjectDestruction(short attacker, short victim)
         if (g_bPlayerDamageEnabled_0049d77c == 0)
             return 0;
         else {
-            g_bPlayerDestroyed_005d2fa4 = 1;
+            g_bUserDestroyedFlag_005d2fa4 = 1;
             if (g_bDeathSequenceActive_0049da50 == 0)
                 g_nArcadeState_0049d75c = 4;
             return 1;
@@ -2461,7 +2461,7 @@ short fire_turrets(short obj)
                         targetHemisphere = hemisphere(
                             &g_aShipPosition_00494550[candidate],
                             &g_aShipPosition_00494550[obj], &mountOrigin);
-                        if (g_asMissileProximityFuse_005d38e0[candidate] != 0 &&
+                        if (g_asMissileProximityFuseValues_005d38e0[candidate] != 0 &&
                             RandomBelowOrEqual(
                                 (short)(mounts * 4 - 1)) == 0) {
                             g_acShipTarget_00495f20[obj] =
@@ -2666,9 +2666,9 @@ short fire_weapon(short obj, short weapon)
                 if (triggerDistance > 9 ||
                     (unsigned short)RandomInRange(0, 15) <
                         triggerDistance)
-                    g_asMissileProximityFuse_005d38e0[missile] = 1;
+                    g_asMissileProximityFuseValues_005d38e0[missile] = 1;
                 else
-                    g_asMissileProximityFuse_005d38e0[missile] = 0;
+                    g_asMissileProximityFuseValues_005d38e0[missile] = 0;
                 break;
             case 0x11:
                 g_asObjectCounter_00494be0[missile] = 15;
@@ -3093,9 +3093,9 @@ void replenish_weapon_energy_bank(short ship)
             g_acPlayerComponentDamage_00493470[1])
         return;
     if (ship == 0 && HasShipCockpitGunDisplay(0) != 0) {
-        if (g_nTargetCameraMode_005c8d50 == 0) {
-            g_nGunDisplayEnergyPercent_005c8d4e = MinShort(
-                (short)(g_nGunDisplayEnergyPercent_005c8d4e + 2), 100);
+        if (g_nAimCameraMode_005c8d50 == 0) {
+            g_nGunShowEnergyPercent_005c8d4e = MinShort(
+                (short)(g_nGunShowEnergyPercent_005c8d4e + 2), 100);
         } else if (g_nTargetCameraZoom_0049d3e4 < 0x21 &&
                    g_nSpaceFrame_00493134 % 2 == 0) {
             g_nTargetCameraZoom_0049d3e4 = MinShort(
@@ -3165,11 +3165,24 @@ void your_afterburner(void)
             }
             fire_afterburner(0, time);
             if (g_nSpaceFrame_00493134 >
-                g_nNextAfterburnerSfxFrame_005d3820) {
-                g_nNextAfterburnerSfxFrame_005d3820 =
+                g_nPendingAfterburnerSfxFrame_005d3820) {
+                g_nPendingAfterburnerSfxFrame_005d3820 =
                     (int)g_nSpaceFrame_00493134 + 6;
                 PlaySfxWaveFileByNumber(12, -1, 0);
             }
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_nPendingAfterburnerSfxFrame_005d3820;
+short g_asWingmanDamageCredit_005d3830[10];
+short g_nAdaptiveDifficulty_005d3844;
+short g_asShipBurstStageCountdown_005d3850[10];
+int g_bAfterburnerSfxActive_005d3864;
+signed char g_abExplosionEntityDoneBytes_005d3870[
+    SPACE_OBJECT_COUNT];
+short g_asPlayerHitsCreditValues_005d38c0[10];
+short g_asMissileProximityFuseValues_005d38e0[16];
+short g_asObjectCreationFrameTable_005d3900[SPACE_OBJECT_COUNT];

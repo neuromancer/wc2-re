@@ -34,7 +34,7 @@ short easy2see(short obj)
         x = (short)(g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
         y = (short)(g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
         return GetTransformedShapeBounds(
-            &g_stViewBuffer_005d2b00, x, y, g_apObjectShape_00493868[obj],
+            &g_stViewScratchInfo_005d2b00, x, y, g_apObjectShape_00493868[obj],
             g_asObjectViewFrame_00493508[obj],
             g_asObjectScreenAngle_004936b8[obj],
             g_asObjectScreenScale_00493a58[obj],

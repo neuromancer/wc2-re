@@ -17,20 +17,20 @@ void BeginInflightReplayHook(void)
 void ResetCannedScenePlaybackBuffer(void)
 {
     g_nCannedSceneWriteIndex_005d3fa8 = 0;
-    if (g_nCannedSceneRecordedFrameCount_005d3faa == 0)
+    if (g_nCannedSceneRecordedFrameCountNumber_005d3faa == 0)
         new_view(5, 0);
 }
 
 /* Function start: 0x44698F */
 void FinishCannedScenePlayback(void)
 {
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
         return;
-    g_pCannedSceneStateBlock_005d3fb0 =
+    g_pCannedSceneStateBlockRef_005d3fb0 =
         (void *)IdentityDword((DwordPtr)g_pHighMemoryBlockB_00490200);
 #ifndef SDL_PORT
     memmove(&g_dwCannedSceneSnapshotStart_00493130,
-            g_pCannedSceneStateBlock_005d3fb0,
+            g_pCannedSceneStateBlockRef_005d3fb0,
             CANNED_SCENE_SNAPSHOT_BYTES);
 #endif
     if (g_nArcadeState_0049d75c != 4) {
@@ -93,7 +93,7 @@ unsigned short ApplyCannedSceneObjectEventRecord(
     switch (record->event) {
     case 0:
         if (kind == OBJECT_DATA_STAR) {
-            ClearViewport(&g_stViewBuffer_005d2b00,
+            ClearViewport(&g_stViewScratchInfo_005d2b00,
                           g_bPrimaryViewBufferColour_0049cb50);
             g_bViewportDirty_0049d76c++;
         }
@@ -155,15 +155,15 @@ void ApplyCannedSceneFrameEvents(void)
     CannedSceneRecordHeader *record;
 
     finished = 0;
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
         return;
-    g_dwHighMemoryParagraph_005d3fb4 =
+    g_dwHighMemoryParagraphValue_005d3fb4 =
         IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     while (finished == 0) {
         record = (CannedSceneRecordHeader *)(
             (unsigned int)(unsigned short)
                 g_nCannedSceneWriteIndex_005d3fa8 +
-            g_dwHighMemoryParagraph_005d3fb4);
+            g_dwHighMemoryParagraphValue_005d3fb4);
         if (record->frame == g_nSpaceFrame_00493134) {
             switch (record->opcode) {
             case 0:

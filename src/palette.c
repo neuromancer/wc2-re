@@ -28,3 +28,7 @@ void RestoreGamePalette(void)
         SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned short g_ausPaletteWords_005d3220[256][3];

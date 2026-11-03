@@ -12,10 +12,10 @@ unsigned short InitializeDIBScreenViewport(
     short row;
 
     g_pDibScreenViewport_005d398c = viewport;
-    g_pDibScreenAllocationState_005d3b4c =
-        &g_nDibScreenAllocationState_005d3b40;
-    g_nDibScreenAllocationState_005d3b40 = 0;
-    g_pDibScreenViewportMirror_005d3b44 = viewport;
+    g_pDibScreenAllocationStatePointer_005d3b4c =
+        &g_nDibScreenChunkState_005d3b40;
+    g_nDibScreenChunkState_005d3b40 = 0;
+    g_pDibScreenViewportMirrorRef_005d3b44 = viewport;
     viewport->left = 0;
     viewport->top = 0;
     viewport->right = 319;
@@ -27,9 +27,9 @@ unsigned short InitializeDIBScreenViewport(
     }
     colour = (unsigned short)-1;
     viewport->pixels = GetDIBPixelBuffer();
-    viewport->rowOffsets = g_awDibScreenRowOffsets_005d39a0;
+    viewport->rowOffsets = g_awDibScreenRowOffsetsData_005d39a0;
     for (row = 0; row < 202; row++)
-        g_awDibScreenRowOffsets_005d39a0[row] =
+        g_awDibScreenRowOffsetsData_005d39a0[row] =
             (unsigned short)(row * 320);
     if ((short)colour != -1)
         ClearViewport(viewport, colour);
@@ -48,3 +48,15 @@ void InitFullScreenViewport(Viewport *viewport, short arg)
     AllocateViewport(viewport, arg, 0);
     return;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+Viewport *g_pDibScreenViewport_005d398c;
+Viewport *g_pFullScreenViewport_005d3990;
+unsigned short g_awDibScreenRowOffsetsData_005d39a0[202];
+int g_nUnusedScreenSlot_005d3b38[2]; /* never referenced */
+int g_nDibScreenChunkState_005d3b40;
+Viewport *g_pDibScreenViewportMirrorRef_005d3b44;
+char g_nUnusedScreenWord_005d3b48; /* never referenced */
+int *g_pDibScreenAllocationStatePointer_005d3b4c;
+int g_nUnusedScreenWordValue_005d3b50[29]; /* never referenced */

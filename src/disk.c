@@ -85,13 +85,13 @@ void ReportPacketLoadError(void *packet, char *fileName,
             action = g_pszPacketAllocateOperation_00492b10;
         else
             action = g_pszPacketReadOperation_00492b0c;
-        sprintf(g_szDefaultTextBuffer_005d2b80,
+        sprintf(g_szDefaultTextBufferText_005d2b80,
                 g_pszPacketLoadErrorFormat_00492b14,
                 action, fileName, (int)section,
                 (int)g_nPacketError_0049ca90, packetSize,
                 GetLargestFreeMemoryBlockByType(retry), (int)retry,
                 sourceTag);
-        FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
+        FatalErrorAndExit(g_szDefaultTextBufferText_005d2b80);
     } else {
         printf("Error: %Fs, packet %d\n", fileName, (int)section);
         printf("packet size: %ld\n", packetSize);
@@ -218,8 +218,8 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
     } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
              g_nPacketError_0049ca90 != 8);
 
-    if (result == 0 && g_stViewBuffer_005d2b00.pixels != 0) {
-        free_viewport(&g_stViewBuffer_005d2b00);
+    if (result == 0 && g_stViewScratchInfo_005d2b00.pixels != 0) {
+        free_viewport(&g_stViewScratchInfo_005d2b00);
         do {
             FreePacketAndClear(&result, flags);
             largestBlock = GetLargestMainMemoryBlock();
@@ -230,22 +230,22 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
             retries--;
         } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
                  g_nPacketError_0049ca90 != 8);
-        if (AllocateViewport(&g_stViewBuffer_005d2b00,
+        if (AllocateViewport(&g_stViewScratchInfo_005d2b00,
                              g_cPrimaryViewBufferColour_0049cb88,
                              0x20) == 0) {
             ReportPacketLoadError(0, fileName, flags, flags, "LP2");
         }
     }
     if (result == 0 &&
-        g_stSecondaryViewBuffer_005d2c90.pixels != 0) {
-        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+        g_stSecondaryViewBufferBlock_005d2c90.pixels != 0) {
+        free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
         do {
             FreePacketAndClear(&result, flags);
             result = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
             retries--;
         } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
                  g_nPacketError_0049ca90 != 8);
-        if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
+        if (AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90,
                              g_cSecondaryViewBufferColour_0049cb4c,
                              0) == 0) {
             ReportPacketLoadError(0, fileName, flags, section, "LP3");
@@ -266,16 +266,16 @@ void InitializeTextContextFromFont(TextContext *context, short fontIndex,
                                    unsigned char colour,
                                    signed char background)
 {
-    if (g_apTextFonts_005d2200[fontIndex] == 0) {
+    if (g_apTextGlyphs_005d2200[fontIndex] == 0) {
         if (fontIndex == 1) {
-            g_apTextFonts_005d2200[fontIndex] =
+            g_apTextGlyphs_005d2200[fontIndex] =
                 FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0x10);
         } else {
-            g_apTextFonts_005d2200[fontIndex] =
+            g_apTextGlyphs_005d2200[fontIndex] =
                 FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0);
         }
     }
-    context->font = g_apTextFonts_005d2200[fontIndex];
+    context->font = g_apTextGlyphs_005d2200[fontIndex];
     context->colour = colour;
     context->backgroundColour = (unsigned char)background;
     SetTextContext(context);
@@ -286,9 +286,9 @@ void ReleaseTextFont(short fontIndex)
 {
     if (fontIndex == 1)
         return;
-    if (g_apTextFonts_005d2200[fontIndex] != 0) {
-        ReleasePacketHandle(g_apTextFonts_005d2200[fontIndex]);
-        g_apTextFonts_005d2200[fontIndex] = 0;
+    if (g_apTextGlyphs_005d2200[fontIndex] != 0) {
+        ReleasePacketHandle(g_apTextGlyphs_005d2200[fontIndex]);
+        g_apTextGlyphs_005d2200[fontIndex] = 0;
     }
 }
 

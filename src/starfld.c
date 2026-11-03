@@ -60,34 +60,34 @@ void InitializeConstellationField(Viewport *viewport, short direction,
     short randomSlot;
     short height;
 
-    g_pConstellationViewport_005c8f5c = viewport;
+    g_pConstellationWindow_005c8f5c = viewport;
     g_nConstellationDirection_0049cb20 = direction;
-    width = (short)(g_pConstellationViewport_005c8f5c->right -
-                    g_pConstellationViewport_005c8f5c->left);
-    height = (short)(g_pConstellationViewport_005c8f5c->bottom -
-                     g_pConstellationViewport_005c8f5c->top);
-    g_nConstellationParticleCount_005c9014 =
+    width = (short)(g_pConstellationWindow_005c8f5c->right -
+                    g_pConstellationWindow_005c8f5c->left);
+    height = (short)(g_pConstellationWindow_005c8f5c->bottom -
+                     g_pConstellationWindow_005c8f5c->top);
+    g_nConstellationParticleTotal_005c9014 =
         (short)(density * 16 / 16);
-    for (particle = 0; particle < g_nConstellationParticleCount_005c9014;
+    for (particle = 0; particle < g_nConstellationParticleTotal_005c9014;
          particle++) {
         if (g_nConstellationDirection_0049cb20 != 0) {
             randomSlot = RandomInRange(0, 15);
-            g_aConstellationParticles_005c8f60[particle].x =
-                (short)(g_pConstellationViewport_005c8f5c->left +
+            g_aConstellationParticlesTable_005c8f60[particle].x =
+                (short)(g_pConstellationWindow_005c8f5c->left +
                         RandomInRange(0, width));
-            g_aConstellationParticles_005c8f60[particle].y =
-                (short)(g_pConstellationViewport_005c8f5c->top +
+            g_aConstellationParticlesTable_005c8f60[particle].y =
+                (short)(g_pConstellationWindow_005c8f5c->top +
                         RandomInRange(0, height));
-            g_aConstellationParticles_005c8f60[particle].deltaX =
+            g_aConstellationParticlesTable_005c8f60[particle].deltaX =
                 (short)(g_asConstellationVelocity_0049cae0[randomSlot] *
                         g_nConstellationDirection_0049cb20);
-            g_aConstellationParticles_005c8f60[particle].frame =
+            g_aConstellationParticlesTable_005c8f60[particle].frame =
                 (short)(g_asConstellationFrame_0049cb00[randomSlot] +
                         RandomInRange(0, 3));
         } else {
-            g_aConstellationParticles_005c8f60[particle].x =
-                (short)(g_pConstellationViewport_005c8f5c->left - 1);
-            g_aConstellationParticles_005c8f60[particle].frame = 0;
+            g_aConstellationParticlesTable_005c8f60[particle].x =
+                (short)(g_pConstellationWindow_005c8f5c->left - 1);
+            g_aConstellationParticlesTable_005c8f60[particle].frame = 0;
         }
     }
 }
@@ -96,10 +96,10 @@ void InitializeConstellationField(Viewport *viewport, short direction,
 signed char IsConstellationParticleOutsideViewport(
     ConstellationParticle particle)
 {
-    if (g_pConstellationViewport_005c8f5c->left > particle.x ||
-        g_pConstellationViewport_005c8f5c->right < particle.x ||
-        g_pConstellationViewport_005c8f5c->top > particle.y ||
-        g_pConstellationViewport_005c8f5c->bottom < particle.y)
+    if (g_pConstellationWindow_005c8f5c->left > particle.x ||
+        g_pConstellationWindow_005c8f5c->right < particle.x ||
+        g_pConstellationWindow_005c8f5c->top > particle.y ||
+        g_pConstellationWindow_005c8f5c->bottom < particle.y)
         return 1;
     return 0;
 }
@@ -116,110 +116,110 @@ void DrawConstellationField(void)
     short height;
     short phase;
 
-    height = (short)(g_pConstellationViewport_005c8f5c->bottom -
-                     g_pConstellationViewport_005c8f5c->top);
-    for (i = 0; i < g_nConstellationParticleCount_005c9014;
+    height = (short)(g_pConstellationWindow_005c8f5c->bottom -
+                     g_pConstellationWindow_005c8f5c->top);
+    for (i = 0; i < g_nConstellationParticleTotal_005c9014;
          i++) {
-        DrawSpriteDefault(g_pConstellationViewport_005c8f5c,
-                          g_aConstellationParticles_005c8f60[i].x,
-                          g_aConstellationParticles_005c8f60[i].y,
-                          g_pConstellationShape_005d2c4c,
-                          g_aConstellationParticles_005c8f60[i].frame);
-        g_aConstellationParticles_005c8f60[i].x = (short)(
-            g_aConstellationParticles_005c8f60[i].x +
-            g_aConstellationParticles_005c8f60[i].deltaX);
-        g_aConstellationParticles_005c8f60[i].y = (short)(
-            g_aConstellationParticles_005c8f60[i].y +
-            g_aConstellationParticles_005c8f60[i].deltaY);
+        DrawSpriteDefault(g_pConstellationWindow_005c8f5c,
+                          g_aConstellationParticlesTable_005c8f60[i].x,
+                          g_aConstellationParticlesTable_005c8f60[i].y,
+                          g_pConstellationSprite_005d2c4c,
+                          g_aConstellationParticlesTable_005c8f60[i].frame);
+        g_aConstellationParticlesTable_005c8f60[i].x = (short)(
+            g_aConstellationParticlesTable_005c8f60[i].x +
+            g_aConstellationParticlesTable_005c8f60[i].deltaX);
+        g_aConstellationParticlesTable_005c8f60[i].y = (short)(
+            g_aConstellationParticlesTable_005c8f60[i].y +
+            g_aConstellationParticlesTable_005c8f60[i].deltaY);
         phase = (short)(
-            (g_aConstellationParticles_005c8f60[i].frame + 1) % 4);
-        g_aConstellationParticles_005c8f60[i].frame = (short)(
-            (g_aConstellationParticles_005c8f60[i].frame & 0xfc) +
+            (g_aConstellationParticlesTable_005c8f60[i].frame + 1) % 4);
+        g_aConstellationParticlesTable_005c8f60[i].frame = (short)(
+            (g_aConstellationParticlesTable_005c8f60[i].frame & 0xfc) +
             phase);
         switch (g_nConstellationDirection_0049cb20) {
         case -1:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[i]) != 0) {
+                    g_aConstellationParticlesTable_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
-                g_aConstellationParticles_005c8f60[i].x = (short)(
-                    g_pConstellationViewport_005c8f5c->right -
+                g_aConstellationParticlesTable_005c8f60[i].x = (short)(
+                    g_pConstellationWindow_005c8f5c->right -
                     RandomInRange(0, speed));
-                g_aConstellationParticles_005c8f60[i].y = (short)(
-                    g_pConstellationViewport_005c8f5c->top +
+                g_aConstellationParticlesTable_005c8f60[i].y = (short)(
+                    g_pConstellationWindow_005c8f5c->top +
                     RandomInRange(0, height));
-                g_aConstellationParticles_005c8f60[i].deltaX =
+                g_aConstellationParticlesTable_005c8f60[i].deltaX =
                     (short)-speed;
-                g_aConstellationParticles_005c8f60[i].deltaY = 0;
-                g_aConstellationParticles_005c8f60[i].frame =
+                g_aConstellationParticlesTable_005c8f60[i].deltaY = 0;
+                g_aConstellationParticlesTable_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }
             break;
         case 0:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[i]) != 0) {
+                    g_aConstellationParticlesTable_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
-                width = (short)(g_pConstellationViewport_005c8f5c->right -
-                                g_pConstellationViewport_005c8f5c->left);
-                height = (short)(g_pConstellationViewport_005c8f5c->bottom -
-                                 g_pConstellationViewport_005c8f5c->top);
-                g_aConstellationParticles_005c8f60[i].x = (short)(
-                    g_pConstellationViewport_005c8f5c->left +
+                width = (short)(g_pConstellationWindow_005c8f5c->right -
+                                g_pConstellationWindow_005c8f5c->left);
+                height = (short)(g_pConstellationWindow_005c8f5c->bottom -
+                                 g_pConstellationWindow_005c8f5c->top);
+                g_aConstellationParticlesTable_005c8f60[i].x = (short)(
+                    g_pConstellationWindow_005c8f5c->left +
                     RandomInRange(0, width));
-                g_aConstellationParticles_005c8f60[i].y = (short)(
-                    g_pConstellationViewport_005c8f5c->top +
+                g_aConstellationParticlesTable_005c8f60[i].y = (short)(
+                    g_pConstellationWindow_005c8f5c->top +
                     RandomInRange(0, height));
                 midX = (short)(
-                    (g_pConstellationViewport_005c8f5c->right -
-                     g_pConstellationViewport_005c8f5c->left) / 2 +
-                    g_pConstellationViewport_005c8f5c->left);
+                    (g_pConstellationWindow_005c8f5c->right -
+                     g_pConstellationWindow_005c8f5c->left) / 2 +
+                    g_pConstellationWindow_005c8f5c->left);
                 midY = (short)(
-                    (g_pConstellationViewport_005c8f5c->bottom -
-                     g_pConstellationViewport_005c8f5c->top) / 2 +
-                    g_pConstellationViewport_005c8f5c->top);
-                if (g_aConstellationParticles_005c8f60[i].x < midX &&
-                    g_aConstellationParticles_005c8f60[i].y < midY) {
-                    g_aConstellationParticles_005c8f60[i].deltaX =
+                    (g_pConstellationWindow_005c8f5c->bottom -
+                     g_pConstellationWindow_005c8f5c->top) / 2 +
+                    g_pConstellationWindow_005c8f5c->top);
+                if (g_aConstellationParticlesTable_005c8f60[i].x < midX &&
+                    g_aConstellationParticlesTable_005c8f60[i].y < midY) {
+                    g_aConstellationParticlesTable_005c8f60[i].deltaX =
                         (short)-speed;
-                    g_aConstellationParticles_005c8f60[i].deltaY =
+                    g_aConstellationParticlesTable_005c8f60[i].deltaY =
                         (short)-speed;
                 } else if (
-                    g_aConstellationParticles_005c8f60[i].x < midX &&
-                    g_aConstellationParticles_005c8f60[i].y >= midY) {
-                    g_aConstellationParticles_005c8f60[i].deltaX =
+                    g_aConstellationParticlesTable_005c8f60[i].x < midX &&
+                    g_aConstellationParticlesTable_005c8f60[i].y >= midY) {
+                    g_aConstellationParticlesTable_005c8f60[i].deltaX =
                         (short)-speed;
-                    g_aConstellationParticles_005c8f60[i].deltaY = speed;
+                    g_aConstellationParticlesTable_005c8f60[i].deltaY = speed;
                 } else if (
-                    g_aConstellationParticles_005c8f60[i].x >= midX &&
-                    g_aConstellationParticles_005c8f60[i].y < midY) {
-                    g_aConstellationParticles_005c8f60[i].deltaX = speed;
-                    g_aConstellationParticles_005c8f60[i].deltaY =
+                    g_aConstellationParticlesTable_005c8f60[i].x >= midX &&
+                    g_aConstellationParticlesTable_005c8f60[i].y < midY) {
+                    g_aConstellationParticlesTable_005c8f60[i].deltaX = speed;
+                    g_aConstellationParticlesTable_005c8f60[i].deltaY =
                         (short)-speed;
                 } else {
-                    g_aConstellationParticles_005c8f60[i].deltaX = speed;
-                    g_aConstellationParticles_005c8f60[i].deltaY = speed;
+                    g_aConstellationParticlesTable_005c8f60[i].deltaX = speed;
+                    g_aConstellationParticlesTable_005c8f60[i].deltaY = speed;
                 }
-                g_aConstellationParticles_005c8f60[i].frame =
+                g_aConstellationParticlesTable_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }
             break;
         case 1:
             if (IsConstellationParticleOutsideViewport(
-                    g_aConstellationParticles_005c8f60[i]) != 0) {
+                    g_aConstellationParticlesTable_005c8f60[i]) != 0) {
                 randomIndex = RandomInRange(0, 15);
                 speed = g_asConstellationVelocity_0049cae0[randomIndex];
-                g_aConstellationParticles_005c8f60[i].deltaX = speed;
-                g_aConstellationParticles_005c8f60[i].deltaY = 0;
-                g_aConstellationParticles_005c8f60[i].x = (short)(
-                    g_pConstellationViewport_005c8f5c->left +
+                g_aConstellationParticlesTable_005c8f60[i].deltaX = speed;
+                g_aConstellationParticlesTable_005c8f60[i].deltaY = 0;
+                g_aConstellationParticlesTable_005c8f60[i].x = (short)(
+                    g_pConstellationWindow_005c8f5c->left +
                     RandomInRange(0, speed));
-                g_aConstellationParticles_005c8f60[i].y = (short)(
-                    g_pConstellationViewport_005c8f5c->top +
+                g_aConstellationParticlesTable_005c8f60[i].y = (short)(
+                    g_pConstellationWindow_005c8f5c->top +
                     RandomInRange(0, height));
-                g_aConstellationParticles_005c8f60[i].frame =
+                g_aConstellationParticlesTable_005c8f60[i].frame =
                     (short)(g_asConstellationFrame_0049cb00[randomIndex] +
                             RandomInRange(0, 3));
             }
@@ -227,3 +227,14 @@ void DrawConstellationField(void)
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+FireworkState g_aFireworks_005c8df0[30];
+unsigned char *g_pTitleFireworkShape_005c8f58;
+Viewport *g_pConstellationWindow_005c8f5c;
+ConstellationParticle g_aConstellationParticlesTable_005c8f60[18];
+short g_nConstellationParticleTotal_005c9014;
+char g_nUnusedStarfldWord_005c9016; /* never referenced */
+short g_bSceneBackdropClicked_005c9018;
+short g_nCockpitArchiveVariantNumber_005c901a;

@@ -19,9 +19,9 @@ void InitializeSpaceFlightInput(void)
     InitializeInputDriverHook();
     g_bInputCursorEnabled_005c80e6 = 1;
     g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
-    g_nFlightInputCommand_005d1798 = 0;
+    g_nFlightControlCommandValue_005d1798 = 0;
     ConfigureInputPump(1, get_player_input);
-    SetInputViewport(&g_stViewBuffer_005d2b00);
+    SetInputViewport(&g_stViewScratchInfo_005d2b00);
     g_nUiInputMode_005c8d3c = 0;
 }
 
@@ -35,9 +35,9 @@ void ReportFatalErrorCode(const char *errorCode)
     LogMemoryStateToFile(errorFile);
     if (errorFile != 0)
         fclose(errorFile);
-    sprintf(g_szDefaultTextBuffer_005d2b80,
+    sprintf(g_szDefaultTextBufferText_005d2b80,
             g_pszFatalErrorMessage_0049ac98, errorCode);
-    FatalErrorAndExit(g_szDefaultTextBuffer_005d2b80);
+    FatalErrorAndExit(g_szDefaultTextBufferText_005d2b80);
 }
 
 /* Function start: 0x437AB4 */
@@ -58,12 +58,12 @@ void ShowMemoryStatusDebug(void)
     TextContext savedTextContext;
 
     previousContext = g_pCurrentTextContext_005c8d1c;
-    savedTextContext = g_stDefaultTextContext_005d2d20;
+    savedTextContext = g_stDefaultStringContext_005d2d20;
     InitializeTextContextFromFont(
-        &g_stDefaultTextContext_005d2d20, 1,
+        &g_stDefaultStringContext_005d2d20, 1,
         (unsigned char)g_bPrimaryViewBufferColour_0049cb50,
         g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stDefaultTextContext_005d2d20);
+    SetTextContext(&g_stDefaultStringContext_005d2d20);
 #ifdef SDL_PORT
     DrawFormattedText("%X%YCurrent NMem %d.", 70, 160,
                       GetOriginalFreeMemory());
@@ -76,11 +76,11 @@ void ShowMemoryStatusDebug(void)
     DrawFormattedText("%X%YLargest Block FMem %s.", 70, 176, value);
     sprintf(value, "%ld", GetAvailableMainMemory());
     DrawFormattedText("%X%YCurrent FMem %s.", 70, 168, value);
-    sprintf(value, "%ld", g_dwInitialFreeMemory_005c8dd0);
+    sprintf(value, "%ld", g_dwInitialSpareMemory_005c8dd0);
     DrawFormattedText("%X%YOriginal FMem %s.", 0, 0, value);
     sprintf(value, "%ld", GetAvailableFarMemory());
     DrawFormattedText("%X%YCurrent EMS %s.", 70, 184, value);
-    g_stDefaultTextContext_005d2d20 = savedTextContext;
+    g_stDefaultStringContext_005d2d20 = savedTextContext;
     g_pCurrentTextContext_005c8d1c = previousContext;
 }
 
@@ -112,16 +112,16 @@ void ReportOutOfMemoryAndExit(const char *resource)
 /* Function start: 0x437CBF */
 void InitializeConversationViewport(void)
 {
-    ClearViewport(&g_stModalSourceViewport_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
-    if (g_stSecondaryViewBuffer_005d2c90.pixels != 0)
-        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    g_stScreenViewport_005d21a0.top = 24;
-    g_stScreenViewport_005d21a0.bottom = 151;
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 127;
-    if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
+    ClearViewport(&g_stModalSourceWindow_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
+    if (g_stSecondaryViewBufferBlock_005d2c90.pixels != 0)
+        free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    g_stScrViewInfo_005d21a0.top = 24;
+    g_stScrViewInfo_005d21a0.bottom = 151;
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 127;
+    if (AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90, (short)g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportPacketLoadError(0, 0, 0, 0,
                               "AB");
 }
@@ -129,27 +129,27 @@ void InitializeConversationViewport(void)
 /* Function start: 0x437D68 */
 void ResetScreenClipToFullHeight(void)
 {
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    g_stScreenViewport_005d21a0.top = 0;
-    g_stScreenViewport_005d21a0.bottom = 199;
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    g_stScrViewInfo_005d21a0.top = 0;
+    g_stScrViewInfo_005d21a0.bottom = 199;
 }
 
 /* Function start: 0x437D92 */
 void InitializeConversationText(void)
 {
     g_stConversationTextViewport_005d2b60 =
-        g_stModalSourceViewport_005d2c50;
+        g_stModalSourceWindow_005d2c50;
     g_stConversationTextViewport_005d2b60.top = 152;
-    g_stConversationTextContext_005d2d40.viewport =
+    g_stConversationTextCtx_005d2d40.viewport =
         &g_stConversationTextViewport_005d2b60;
-    g_stConversationTextContext_005d2d40.text =
-        g_szDefaultTextBuffer_005d2b80;
-    g_stConversationTextContext_005d2d40.alignment = 2;
-    InitializeTextContextFromFont(&g_stConversationTextContext_005d2d40,
+    g_stConversationTextCtx_005d2d40.text =
+        g_szDefaultTextBufferText_005d2b80;
+    g_stConversationTextCtx_005d2d40.alignment = 2;
+    InitializeTextContextFromFont(&g_stConversationTextCtx_005d2d40,
                                   0,
                                   g_bPrimaryViewBufferColour_0049cb50,
                                   g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stConversationTextContext_005d2d40);
+    SetTextContext(&g_stConversationTextCtx_005d2d40);
 }
 
 /* Function start: 0x437DFA */
@@ -240,3 +240,21 @@ void ReportFramesSkipped(short adjustment)
     ShowOnScreenMessage(0, "%d FRAMES SKIPPED.",
                         g_nFrameSkip_0049d764 - 1);
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+Viewport g_stConversationTextViewport_005d2b60;
+char g_szDefaultTextBufferText_005d2b80[0xc8];
+unsigned char *g_pCockpitIndicatorShape_005d2c48;
+unsigned char *g_pConstellationSprite_005d2c4c;
+Viewport g_stModalSourceWindow_005d2c50;
+unsigned char *g_pPilotHandAnimationShapePtr_005d2c64;
+Viewport g_stPilotHandViewportRecord_005d2c70;
+Viewport g_stSecondaryViewBufferBlock_005d2c90;
+short g_aasCockpitHitPaletteFades_005d2cb0[6][3];
+unsigned char *g_pCockpitPanelShape_005d2cd4;
+TextContext g_stRightVduTextContextBlock_005d2ce0;
+TextContext g_stCockpitTextSettingsRecord_005d2d00;
+TextContext g_stDefaultStringContext_005d2d20;
+TextContext g_stConversationTextCtx_005d2d40;
+short g_asSpacePaletteFade_005d2d60[3];

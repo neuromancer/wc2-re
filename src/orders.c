@@ -18,9 +18,9 @@ void cleanup_objectives(void)
     short navObjective;
 
     navObjective = 0;
-    home = find_ship_index(g_stMissionHeader_005d3e70.wingmanMissionShip);
+    home = find_ship_index(g_stMissionHeaderBlock_005d3e70.wingmanMissionShip);
     proximityRadius = g_aMissionNavPoints_00491e98[
-        g_stMissionHeader_005d3e70.entryNavPoint].proximityRadius;
+        g_stMissionHeaderBlock_005d3e70.entryNavPoint].proximityRadius;
     while ((type =
                 g_aMissionObjectives_004932a8[navObjective].type) != -1 &&
            navObjective < 8) {
@@ -137,7 +137,7 @@ short CanPlayerLand(void)
             g_asShipSide_004955d0[index] == SIDE_KILRATHI)
             return 0;
     }
-    if (g_cPlayerKillCount_005d2fa8 > 0)
+    if (g_cPilotKillCountValue_005d2fa8 > 0)
         ok = 1;
     for (index = 0; index < g_cMissionObjectiveCount_00493294; index++) {
         if (g_aMissionObjectives_004932a8[index].type != 1 &&
@@ -294,7 +294,7 @@ void request(short requester, short ship, short command)
             g_ucPendingEjectionTransition_0049b8ac = 0xff;
             g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
         } else if (g_asShipMissionIndex_00495d00[ship] !=
-                   g_nHomeMissionShipIndex_005d1e22) {
+                   g_nHomeOperationShipIndexValue_005d1e22) {
             send_message(ship, 0x11);
         } else {
             cleanup_objectives();

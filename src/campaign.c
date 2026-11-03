@@ -22,7 +22,7 @@ void InitializeNewPilotCampaign(short campaignSlot)
         ReportFatalErrorCode("015");
     g_pCampaignGlobals_00499c94->series = 1000;
     g_pCampaignGlobals_00499c94->mission = 2000;
-    FadeViewportPaletteToColour(&g_stModalSourceViewport_005d2c50, 0, 1);
+    FadeViewportPaletteToColour(&g_stModalSourceWindow_005d2c50, 0, 1);
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
     ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
     RestoreGamePalette();
@@ -41,17 +41,17 @@ short RunCampaignContinuePromptLoop(unsigned char *promptShapes,
     while ((selection = PollSceneHotspotInput(promptShapes, 0, 0, 0, 0)) ==
            0) {
         DisableMouseCursorDrawing();
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                           0, 0, fieldShape, 0);
         DrawConstellationField();
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                           160, 66, promptShapes, promptFrame);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                           0, 126, promptShapes, 2);
         EnableMouseCursorDrawing();
         WaitForVerticalBlankThunk();
-        CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
-                             &g_stScreenViewport_005d21a0);
+        CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90,
+                             &g_stScrViewInfo_005d21a0);
     }
     return selection;
 }
@@ -68,22 +68,22 @@ short PromptToContinueCampaign(short promptFrame)
     choice = 0;
     StopMusicUnlessSuppressed();
     free_view_buffer();
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
     if ((short)AllocateViewport(
-            &g_stSecondaryViewBuffer_005d2c90,
+            &g_stSecondaryViewBufferBlock_005d2c90,
             g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
         ReportFatalErrorCode("016");
     }
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90,
+    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90,
                   g_cSecondaryViewBufferColour_0049cb4c);
     init_constellation(0);
-    InitializeConstellationField(&g_stSecondaryViewBuffer_005d2c90,
+    InitializeConstellationField(&g_stSecondaryViewBufferBlock_005d2c90,
                                  0, 16);
     SetMenuInputPump();
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     EnableMouseCursorDrawing();
     promptShapes = FetchDiskPacketRetrying("continue.vga", 0, 0);
     starField = FetchDiskPacketRetrying("field.v00", 1, 0);
@@ -93,16 +93,16 @@ short PromptToContinueCampaign(short promptFrame)
         case 1:
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&starField, 0);
-            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-            FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 1;
         case 2:
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&starField, 0);
-            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-            FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 0;
@@ -124,9 +124,9 @@ void ReleaseSpaceflightResources(void)
     free_all_slots();
     free_3Space();
     for (font = 0; font < 4; font++) {
-        if (g_apTextFonts_005d2200[font] != 0) {
-            ReleasePacketHandle(g_apTextFonts_005d2200[font]);
-            g_apTextFonts_005d2200[font] = 0;
+        if (g_apTextGlyphs_005d2200[font] != 0) {
+            ReleasePacketHandle(g_apTextGlyphs_005d2200[font]);
+            g_apTextGlyphs_005d2200[font] = 0;
         }
     }
     if (g_nShowMemoryStatus_0049d784 != 0) {
@@ -203,9 +203,9 @@ short RunCampaignGameLoop(short campaignSlot)
         g_pCampaignGlobals_00499c94->arcadeState = 0;
         SaveAndFreeTemporaryCampaignGlobals();
         for (slot = 0; slot < 4; slot++) {
-            if (g_apTextFonts_005d2200[slot] != 0) {
-                ReleasePacketHandle(g_apTextFonts_005d2200[slot]);
-                g_apTextFonts_005d2200[slot] = 0;
+            if (g_apTextGlyphs_005d2200[slot] != 0) {
+                ReleasePacketHandle(g_apTextGlyphs_005d2200[slot]);
+                g_apTextGlyphs_005d2200[slot] = 0;
             }
         }
         if (campaignDone != 0)
@@ -279,7 +279,7 @@ short RunCampaignGameLoop(short campaignSlot)
         }
 
         g_stCurrentPilotProfile_00493408.field_43 +=
-            g_cPlayerKillCount_005d2fa8;
+            g_cPilotKillCountValue_005d2fa8;
         g_stCurrentPilotProfile_00493408.field_41++;
         DAT_005c8430 = 0;
         LoadTemporaryCampaignGlobals();
@@ -357,3 +357,8 @@ short RunSelectedCampaign(void)
 {
     return (short)RunCampaignGameLoop(g_nSelectedCampaignSlot_005d3bf2);
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nSelectedStartingCampaign_005d3bf0;
+short g_nSelectedCampaignSlot_005d3bf2;

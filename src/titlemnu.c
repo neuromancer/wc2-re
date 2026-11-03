@@ -21,15 +21,15 @@ void CalibrateJoystickInteractive()
     int file;
 
     fontReady = 0;
-    savedFailure = (short)g_nJoystickFailureValue_005d176c;
+    savedFailure = (short)g_nControllerFailureValue_005d176c;
     error = 1;
-    if (g_nActiveInputDevice_005d1726 == -1)
+    if (g_nActiveInputDeviceWord_005d1726 == -1)
         return;
-    g_stDefaultTextContext_005d2d20.alignment = 2;
-    if (g_apTextFonts_005d2200[1] != 0)
+    g_stDefaultStringContext_005d2d20.alignment = 2;
+    if (g_apTextGlyphs_005d2200[1] != 0)
         fontReady++;
 
-    InitializeTextContextFromFont(&g_stDefaultTextContext_005d2d20, 1,
+    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 1,
         g_bPrimaryViewBufferColour_0049cb50, (signed char)g_cSecondaryViewBufferColour_0049cb4c);
     if (ShowModalTextPanel(1,
         "Turn AUTO FIRE off if present, press a button") != 0) {
@@ -43,11 +43,11 @@ void CalibrateJoystickInteractive()
         "Move stick to the UPPER LEFT, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMinimumX_005d174c = sample[g_nActiveInputDevice_005d1726].x;
-        leftX = (short)g_nJoystickMinimumX_005d174c;
-        g_nJoystickMinimumY_005d1750 = sample[g_nActiveInputDevice_005d1726].y;
-        yTop = (short)g_nJoystickMinimumY_005d1750;
+        SampleJoystickDevice(sample, g_nActiveInputDeviceWord_005d1726, 0x7fff);
+        g_nJoystickMinimumXNumber_005d174c = sample[g_nActiveInputDeviceWord_005d1726].x;
+        leftX = (short)g_nJoystickMinimumXNumber_005d174c;
+        g_nJsMinimumY_005d1750 = sample[g_nActiveInputDeviceWord_005d1726].y;
+        yTop = (short)g_nJsMinimumY_005d1750;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
     }
@@ -56,10 +56,10 @@ void CalibrateJoystickInteractive()
         "Move stick to the LOWER RIGHT, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickMaximumX_005d1744 = sample[g_nActiveInputDevice_005d1726].x;
-        maxX = (short)g_nJoystickMaximumX_005d1744;
-        g_nJoystickMaximumY_005d1748 = sample[g_nActiveInputDevice_005d1726].y;
+        SampleJoystickDevice(sample, g_nActiveInputDeviceWord_005d1726, 0x7fff);
+        g_nJoystickMaximumXValue_005d1744 = sample[g_nActiveInputDeviceWord_005d1726].x;
+        maxX = (short)g_nJoystickMaximumXValue_005d1744;
+        g_nJoystickMaximumY_005d1748 = sample[g_nActiveInputDeviceWord_005d1726].y;
         yMax = (short)g_nJoystickMaximumY_005d1748;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
@@ -69,10 +69,10 @@ void CalibrateJoystickInteractive()
         "Center Joystick, press a button") != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
-        SampleJoystickDevice(sample, g_nActiveInputDevice_005d1726, 0x7fff);
-        g_nJoystickCentreX_005d1768 = sample[g_nActiveInputDevice_005d1726].x;
-        centreX = (short)g_nJoystickCentreX_005d1768;
-        g_nJoystickCentreY_005d1764 = sample[g_nActiveInputDevice_005d1726].y;
+        SampleJoystickDevice(sample, g_nActiveInputDeviceWord_005d1726, 0x7fff);
+        g_nJoystickCentreXNumber_005d1768 = sample[g_nActiveInputDeviceWord_005d1726].x;
+        centreX = (short)g_nJoystickCentreXNumber_005d1768;
+        g_nJoystickCentreY_005d1764 = sample[g_nActiveInputDeviceWord_005d1726].y;
         midY = (short)g_nJoystickCentreY_005d1764;
         WaitForJoystickButtonRelease();
         ReleaseModalTextPanel();
@@ -81,45 +81,45 @@ void CalibrateJoystickInteractive()
     if (fontReady == 0)
         ReleaseTextFont(1);
 
-    if (g_nJoystickHorizontalRange_005d1758 == 0)
-        g_nJoystickHorizontalRange_005d1758 = 9;
-    if (g_nJoystickVerticalRange_005d1754 == 0)
-        g_nJoystickVerticalRange_005d1754 = 9;
-    g_nJoystickLeftScale_005d1740 =
-        (g_nJoystickCentreX_005d1768 - g_nJoystickMinimumX_005d174c) /
-        g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickRightScale_005d175c =
-        (g_nJoystickMaximumX_005d1744 - g_nJoystickCentreX_005d1768) /
-        g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickUpScale_005d173c =
-        (g_nJoystickCentreY_005d1764 - g_nJoystickMinimumY_005d1750) /
-        g_nJoystickVerticalRange_005d1754;
-    g_nJoystickDownScale_005d1760 =
+    if (g_nControllerHorizontalRange_005d1758 == 0)
+        g_nControllerHorizontalRange_005d1758 = 9;
+    if (g_nJoystickVerticalRangeNumber_005d1754 == 0)
+        g_nJoystickVerticalRangeNumber_005d1754 = 9;
+    g_nControllerLeftScaleValue_005d1740 =
+        (g_nJoystickCentreXNumber_005d1768 - g_nJoystickMinimumXNumber_005d174c) /
+        g_nControllerHorizontalRange_005d1758;
+    g_nJsRightScaleWord_005d175c =
+        (g_nJoystickMaximumXValue_005d1744 - g_nJoystickCentreXNumber_005d1768) /
+        g_nControllerHorizontalRange_005d1758;
+    g_nJoystickUpScaleWord_005d173c =
+        (g_nJoystickCentreY_005d1764 - g_nJsMinimumY_005d1750) /
+        g_nJoystickVerticalRangeNumber_005d1754;
+    g_nJoystickDownScaleWord_005d1760 =
         (g_nJoystickMaximumY_005d1748 - g_nJoystickCentreY_005d1764) /
-        g_nJoystickVerticalRange_005d1754;
-    if (g_nJoystickLeftScale_005d1740 == 0)
-        g_nJoystickLeftScale_005d1740++;
-    if (g_nJoystickRightScale_005d175c == 0)
-        g_nJoystickRightScale_005d175c++;
-    if (g_nJoystickUpScale_005d173c == 0)
-        g_nJoystickUpScale_005d173c++;
-    if (g_nJoystickDownScale_005d1760 == 0)
-        g_nJoystickDownScale_005d1760++;
+        g_nJoystickVerticalRangeNumber_005d1754;
+    if (g_nControllerLeftScaleValue_005d1740 == 0)
+        g_nControllerLeftScaleValue_005d1740++;
+    if (g_nJsRightScaleWord_005d175c == 0)
+        g_nJsRightScaleWord_005d175c++;
+    if (g_nJoystickUpScaleWord_005d173c == 0)
+        g_nJoystickUpScaleWord_005d173c++;
+    if (g_nJoystickDownScaleWord_005d1760 == 0)
+        g_nJoystickDownScaleWord_005d1760++;
 
-    g_nJoystickMinimumX_005d174c = g_nJoystickCentreX_005d1768 -
-        g_nJoystickLeftScale_005d1740 *
-            g_nJoystickHorizontalRange_005d1758;
-    g_nJoystickMinimumY_005d1750 = g_nJoystickCentreY_005d1764 -
-        g_nJoystickUpScale_005d173c * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickMaximumX_005d1744 = g_nJoystickCentreX_005d1768 +
-        g_nJoystickRightScale_005d175c *
-            g_nJoystickHorizontalRange_005d1758;
+    g_nJoystickMinimumXNumber_005d174c = g_nJoystickCentreXNumber_005d1768 -
+        g_nControllerLeftScaleValue_005d1740 *
+            g_nControllerHorizontalRange_005d1758;
+    g_nJsMinimumY_005d1750 = g_nJoystickCentreY_005d1764 -
+        g_nJoystickUpScaleWord_005d173c * g_nJoystickVerticalRangeNumber_005d1754;
+    g_nJoystickMaximumXValue_005d1744 = g_nJoystickCentreXNumber_005d1768 +
+        g_nJsRightScaleWord_005d175c *
+            g_nControllerHorizontalRange_005d1758;
     g_nJoystickMaximumY_005d1748 = g_nJoystickCentreY_005d1764 +
-        g_nJoystickDownScale_005d1760 * g_nJoystickVerticalRange_005d1754;
-    g_nJoystickFailureValue_005d176c = g_nJoystickMaximumX_005d1744 * 2;
+        g_nJoystickDownScaleWord_005d1760 * g_nJoystickVerticalRangeNumber_005d1754;
+    g_nControllerFailureValue_005d176c = g_nJoystickMaximumXValue_005d1744 * 2;
 
-    if (g_nJoystickMaximumX_005d1744 <= g_nJoystickMinimumX_005d174c ||
-        g_nJoystickMaximumY_005d1748 <= g_nJoystickMinimumY_005d1750) {
+    if (g_nJoystickMaximumXValue_005d1744 <= g_nJoystickMinimumXNumber_005d174c ||
+        g_nJoystickMaximumY_005d1748 <= g_nJsMinimumY_005d1750) {
         if (ShowModalTextPanel(1,
             "FAILED! Center Joystick, press a button") != 0) {
             DIBslamReal();
@@ -134,7 +134,7 @@ void CalibrateJoystickInteractive()
 
     file = _open("j.cal", 0x8301, 0x180);
     if (file != -1) {
-        error = _write(file, &g_nActiveInputDevice_005d1726, 2) == -1;
+        error = _write(file, &g_nActiveInputDeviceWord_005d1726, 2) == -1;
         if (error == 0)
             error = _write(file, &leftX, 2) == -1;
         if (error == 0)
@@ -158,12 +158,12 @@ void WaitForJoystickButtonRelease(void)
 {
     do {
         SampleJoystickDevice(
-            &g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726],
-            g_nActiveInputDevice_005d1726, 0);
+            &g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726],
+            g_nActiveInputDeviceWord_005d1726, 0);
         ServiceSoundSystem();
-    } while (g_aInputDeviceSamples_005d1780[
-                 g_nActiveInputDevice_005d1726].buttons != 0);
+    } while (g_aInputDeviceSamplesList_005d1780[
+                 g_nActiveInputDeviceWord_005d1726].buttons != 0);
 }
 
 /* Function start: 0x418D5F */
@@ -171,12 +171,12 @@ void WaitForJoystickButtonPress(void)
 {
     do {
         SampleJoystickDevice(
-            &g_aInputDeviceSamples_005d1780[
-                g_nActiveInputDevice_005d1726],
-            g_nActiveInputDevice_005d1726, 0);
+            &g_aInputDeviceSamplesList_005d1780[
+                g_nActiveInputDeviceWord_005d1726],
+            g_nActiveInputDeviceWord_005d1726, 0);
         ServiceSoundSystem();
-    } while (g_aInputDeviceSamples_005d1780[
-                 g_nActiveInputDevice_005d1726].buttons == 0);
+    } while (g_aInputDeviceSamplesList_005d1780[
+                 g_nActiveInputDeviceWord_005d1726].buttons == 0);
 }
 
 /* Function start: 0x418DAA */
@@ -188,15 +188,15 @@ short RunCampaignSelectionFrame(void *scene, void *field)
     while ((selection = PollSceneHotspotInput(scene, 0, 0, 0, 0)) == 0) {
         DisableMouseCursorDrawing();
         DrawSpriteDefault(
-            &g_stSecondaryViewBuffer_005d2c90, 0, 0, field, 0);
+            &g_stSecondaryViewBufferBlock_005d2c90, 0, 0, field, 0);
         DrawConstellationField();
         DrawSpriteDefault(
-            &g_stSecondaryViewBuffer_005d2c90, 0, 0, scene, 0);
+            &g_stSecondaryViewBufferBlock_005d2c90, 0, 0, scene, 0);
         if (g_pszPersonnelFooter_00492658 != 0) {
-            g_stDefaultTextContext_005d2d20.viewport =
-                &g_stSecondaryViewBuffer_005d2c90;
+            g_stDefaultStringContext_005d2d20.viewport =
+                &g_stSecondaryViewBufferBlock_005d2c90;
             InitializeTextContextFromFont(
-                &g_stDefaultTextContext_005d2d20, 1,
+                &g_stDefaultStringContext_005d2d20, 1,
                 g_bPrimaryViewBufferColour_0049cb50, -1);
             SetTextCursor(
                 (unsigned short)((320 -
@@ -204,13 +204,13 @@ short RunCampaignSelectionFrame(void *scene, void *field)
                         g_pszPersonnelFooter_00492658)) >> 1),
                 180);
             DrawFormattedText("%S", g_pszPersonnelFooter_00492658);
-            g_stDefaultTextContext_005d2d20.viewport =
-                &g_stScreenViewport_005d21a0;
+            g_stDefaultStringContext_005d2d20.viewport =
+                &g_stScrViewInfo_005d21a0;
         }
         EnableMouseCursorDrawing();
         WaitForVerticalBlankThunk();
-        CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
-                             &g_stScreenViewport_005d21a0);
+        CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90,
+                             &g_stScrViewInfo_005d21a0);
     }
     if (g_bSceneEscapeRequested_0049d4b0 != 0)
         selection = 0;
@@ -237,19 +237,19 @@ short RunTitleMenuInputLoop(unsigned char *buttons,
     while ((choice = PollSceneHotspotInput(buttons, 0, 0, 0,
                                            maxSelection)) == 0) {
         PumpWindowMessages(0);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                           background, 0);
         DrawConstellationField();
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 160, 100,
                           logo, 0x19);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 160, 100,
                           logo, 0x1f);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 160, 100,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 160, 100,
                           logo, 0x20);
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                           buttons, 0);
         if (showSecondButton != 0)
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90, 0, 0,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
                               buttons, 1);
         RefreshMemoryStatusOverlay();
     }
@@ -282,13 +282,13 @@ short RunTitleScreen(void)
     SetMenuInputPump();
     DisableMouseCursorDrawing();
     g_nUiInputMode_005c8d3c = 0;
-    ClearViewport(&g_stModalSourceViewport_005d2c50,
+    ClearViewport(&g_stModalSourceWindow_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
-    if (AllocateViewport(&g_stSecondaryViewBuffer_005d2c90,
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
+    if (AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90,
                          g_cSecondaryViewBufferColour_0049cb4c, 0) == 0)
         ReportFatalErrorCode("031");
     screenCopy.left = 0;
@@ -302,7 +302,7 @@ short RunTitleScreen(void)
     spacetrack(0x36, 1, 1);
     init_constellation(0);
     InitializeConstellationField(
-        &g_stSecondaryViewBuffer_005d2c90, 0, 0x10);
+        &g_stSecondaryViewBufferBlock_005d2c90, 0, 0x10);
     buttons = FetchDiskPacketRetrying("buttons.v00", 0, 0);
     logo = FetchDiskPacketRetrying("wc2logo.vga", 0, 0);
     background = FetchDiskPacketRetrying("field.v00", 1, 0);
@@ -314,10 +314,10 @@ short RunTitleScreen(void)
         PlaySfxWaveFileByNumber(0x28, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         for (logoFrame = 0; logoFrame < 0x1a; logoFrame++) {
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, logoFrame);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
@@ -338,10 +338,10 @@ short RunTitleScreen(void)
     }
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         for (logoFrame = 0; logoFrame < 10; logoFrame++) {
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, 0x19);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
@@ -359,12 +359,12 @@ short RunTitleScreen(void)
     PlaySfxWaveFileByNumber(6, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         for (logoFrame = 0x1a; logoFrame < 0x20; logoFrame++) {
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, 0x19);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, logoFrame);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
@@ -383,12 +383,12 @@ short RunTitleScreen(void)
         PlaySfxWaveFileByNumber(99, -1, 0);
     if (g_bSceneEscapeRequested_0049d4b0 == 0) {
         for (logoFrame = 0; logoFrame < 10; logoFrame++) {
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               0, 0, background, 0);
             DrawConstellationField();
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, 0x19);
-            DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+            DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                               160, 100, logo, 0x1f);
             RefreshMemoryStatusOverlay();
             if (WaitForInputKey() != 0) {
@@ -405,17 +405,17 @@ short RunTitleScreen(void)
     sfxHandle = 0;
     if (g_bSceneEscapeRequested_0049d4b0 == 0)
         PlaySfxWaveFileByNumber(100, -1, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                       0, 0, background, 0);
     DrawConstellationField();
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                       160, 100, logo, 0x19);
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                       160, 100, logo, 0x1f);
     RefreshMemoryStatusOverlay();
-    DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                       160, 100, logo, 0x20);
-    CopyViewportContents(&g_stScreenViewport_005d21a0,
+    CopyViewportContents(&g_stScrViewInfo_005d21a0,
                          &screenCopy);
     MarkDibDirty();
     DIBslamReal();
@@ -424,7 +424,7 @@ short RunTitleScreen(void)
     if (g_bRoomTransitionAnimationEnabled_00499c00 != 0) {
         wipeState = AllocateTaggedMemory(0xce, 0);
         if (wipeState != 0) {
-            InitializeViewportWipe(&g_stSecondaryViewBuffer_005d2c90,
+            InitializeViewportWipe(&g_stSecondaryViewBufferBlock_005d2c90,
                                    &screenCopy, wipeType, 0x3c, 0,
                                    wipeState);
             done = 0;
@@ -436,15 +436,15 @@ short RunTitleScreen(void)
                     break;
                 }
                 CopyViewportContents(&screenCopy,
-                                     &g_stScreenViewport_005d21a0);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                                     &g_stScrViewInfo_005d21a0);
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   0, 0, background, 0);
                 DrawConstellationField();
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   160, 100, logo, 0x19);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   160, 100, logo, 0x1f);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   160, 100, logo, 0x20);
             }
             FinishViewportWipe(wipeState);
@@ -459,7 +459,7 @@ short RunTitleScreen(void)
     canContinueCampaign = (short)HasSavedPilotCampaign();
     SetMenuInputPump();
     g_nUiInputMode_005c8d3c = 1;
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     SetPersonnelMousePosition(159, 159);
     EnableMouseCursorDrawing();
     ((void (__cdecl *)(int, int))FlushSoundEffectsAndLog)(
@@ -494,8 +494,8 @@ short RunTitleScreen(void)
     FreePacketAndClear(&buttons, 0);
     FreePacketAndClear(&logo, 0);
     FreePacketAndClear(&background, 0);
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
-    FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
     StopMusicUnlessSuppressed();
     ReleaseMusicTrack(0x36);
     g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -513,40 +513,40 @@ short BarracksScreen(void)
     campaignScene = 0;
     field = 0;
     DisableMouseCursorDrawing();
-    ClearViewport(&g_stModalSourceViewport_005d2c50,
+    ClearViewport(&g_stModalSourceWindow_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
-    g_stSecondaryViewBuffer_005d2c90.left = 0;
-    g_stSecondaryViewBuffer_005d2c90.right = 319;
-    g_stSecondaryViewBuffer_005d2c90.top = 0;
-    g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
+    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
     if ((short)AllocateViewport(
-            &g_stSecondaryViewBuffer_005d2c90,
+            &g_stSecondaryViewBufferBlock_005d2c90,
             g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
         ReportFatalErrorCode("033");
     }
-    ClearViewport(&g_stSecondaryViewBuffer_005d2c90, 0);
+    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90, 0);
     campaignScene = LoadNamedPacket(
         "campaign.vga", 0, 0, 0, 0, 1);
     if (campaignScene != 0 && WaitForSceneAdvance(campaignScene) != 0) {
         field = FetchDiskPacketRetrying("field.v00", 1, 0);
         init_constellation(0);
         InitializeConstellationField(
-            &g_stSecondaryViewBuffer_005d2c90, 0, 16);
+            &g_stSecondaryViewBufferBlock_005d2c90, 0, 16);
         SetMenuInputPump();
-        SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+        SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
         SetPersonnelMousePosition(159, 99);
         EnableMouseCursorDrawing();
         while (choice == 0) {
             choice = (signed char)RunCampaignSelectionFrame(
                 campaignScene, field);
         }
-        FreePacketAndClear(&g_pConstellationShape_005d2c4c, 0);
+        FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
         FreePacketAndClear(&campaignScene, 0);
         FreePacketAndClear(&field, 0);
-        free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+        free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
         return (short)(choice - 1);
     }
     FreePacketAndClear(&campaignScene, 0);
-    free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+    free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
     return 0;
 }

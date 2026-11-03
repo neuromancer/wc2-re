@@ -39,11 +39,11 @@ void *PushMemoryStackFrame(void *memory, int offset)
             g_nPacketHandleCount_005d1020] = offset;
         if (offset < 0) {
             memory = (unsigned char *)memory - offset;
-            g_apPacketHandles_005c9020[
+            g_apPacketHandlesTable_005c9020[
                 g_nPacketHandleCount_005d1020] = memory;
         } else {
             memory = (unsigned char *)memory + offset;
-            g_apPacketHandles_005c9020[
+            g_apPacketHandlesTable_005c9020[
                 g_nPacketHandleCount_005d1020] = memory;
         }
         g_nPacketHandleCount_005d1020++;
@@ -57,7 +57,7 @@ int IsPushedPacketHandle(void *handle)
     int index;
 
     for (index = 0; index < g_nPacketHandleCount_005d1020; index++) {
-        if (g_apPacketHandles_005c9020[index] == handle) {
+        if (g_apPacketHandlesTable_005c9020[index] == handle) {
             return g_aiPacketHandleOffsets_005cd020[index] < 0;
         }
     }
@@ -70,7 +70,7 @@ void *MapPacketHandleToBlock(void *handle)
     int i;
 
     for (i = 0; i < g_nPacketHandleCount_005d1020; i++) {
-        if (g_apPacketHandles_005c9020[i] == handle) {
+        if (g_apPacketHandlesTable_005c9020[i] == handle) {
             if (g_aiPacketHandleOffsets_005cd020[i] < 0)
                 handle = (unsigned char *)handle +
                     g_aiPacketHandleOffsets_005cd020[i];
@@ -78,8 +78,8 @@ void *MapPacketHandleToBlock(void *handle)
                 handle = (unsigned char *)handle -
                     g_aiPacketHandleOffsets_005cd020[i];
             g_nPacketHandleCount_005d1020--;
-            g_apPacketHandles_005c9020[i] =
-                g_apPacketHandles_005c9020[g_nPacketHandleCount_005d1020];
+            g_apPacketHandlesTable_005c9020[i] =
+                g_apPacketHandlesTable_005c9020[g_nPacketHandleCount_005d1020];
             g_aiPacketHandleOffsets_005cd020[i] =
                 g_aiPacketHandleOffsets_005cd020[
                     g_nPacketHandleCount_005d1020];
@@ -157,3 +157,9 @@ unsigned int GetLargestFreeMemoryBlockByType(short memoryType)
     (void)memoryType;
     return GetLargestFreeMemoryBlock();
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+void *g_apPacketHandlesTable_005c9020[0x1000];
+int g_aiPacketHandleOffsets_005cd020[0x1000];
+int g_nPacketHandleCount_005d1020;

@@ -538,8 +538,8 @@ void DIBmakeDIB(void)
     if (g_pDisplayPixelBuffer_005b3978 == 0)
         DIBerror("DIBmakeDIB", -1);
 #endif
-    g_stScreenViewport_005d21a0.allocation = GetDIBPixelBuffer();
-    g_stScreenViewport_005d21a0.pixels = g_stScreenViewport_005d21a0.allocation;
+    g_stScrViewInfo_005d21a0.allocation = GetDIBPixelBuffer();
+    g_stScrViewInfo_005d21a0.pixels = g_stScrViewInfo_005d21a0.allocation;
     memcpy(g_pDisplayPixelBuffer_005b3978, g_abFrameBackingStore_005b3988,
            g_nDisplayRowBytes_005b397c * g_nSurfaceHeight_005b3980);
     return;
@@ -583,8 +583,8 @@ void DIBdestroyDIB(void)
     g_nDibOffsetY_005b3974 = 0;
     g_pDisplayPixelBuffer_005b3978 = 0;
 #ifdef SDL_PORT
-    g_stScreenViewport_005d21a0.pixels = 0;
-    g_stScreenViewport_005d21a0.allocation = 0;
+    g_stScrViewInfo_005d21a0.pixels = 0;
+    g_stScrViewInfo_005d21a0.allocation = 0;
 #endif
     return;
 }
@@ -665,8 +665,8 @@ void DIBslamReal(void)
          * buffer specifically. */
         if (g_pInputCursorShape_005c83f9 != 0 &&
             g_pInputViewport_005c8403 != 0 &&
-            g_pInputViewport_005c8403 != &g_stViewBuffer_005d2b00 &&
-            g_stScreenViewport_005d21a0.pixels == g_pDisplayPixelBuffer_005b3978) {
+            g_pInputViewport_005c8403 != &g_stViewScratchInfo_005d2b00 &&
+            g_stScrViewInfo_005d21a0.pixels == g_pDisplayPixelBuffer_005b3978) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }

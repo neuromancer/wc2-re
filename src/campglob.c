@@ -36,7 +36,7 @@ short GetInitialMissionShipPilotSaveIndex(short initialShip)
 {
     short pilot;
 
-    pilot = g_stMissionHeader_005d3e70.initialMissionShips[initialShip];
+    pilot = g_stMissionHeaderBlock_005d3e70.initialMissionShips[initialShip];
     if (pilot != -1)
         pilot = GetMissionShipPilotSaveIndex(pilot);
     return pilot;
@@ -65,7 +65,7 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
         globals->shipVelocityState[index] =
             (short)(GetMissionShipVelocityState(index) + 1);
 
-    globals->shipKillCounts[0] = g_cPlayerKillCount_005d2fa8;
+    globals->shipKillCounts[0] = g_cPilotKillCountValue_005d2fa8;
     globals->shipMissionFlags[0] = 0;
     globals->damageLevel = (short)calculate_damage_level();
     globals->arcadeState = (short)g_nArcadeState_0049d75c;
@@ -78,10 +78,10 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
 
     for (index = 1; index < 8; index++) {
         globals->shipKillCounts[index] =
-            g_acInitialShipKillCount_005d2fc0[index - 1];
+            g_acInitialShipKillNumber_005d2fc0[index - 1];
         globals->shipMissionFlags[index] =
-            g_acMissionShipStatusFlags_005d2fb0[index - 1];
-        if (index == 1 && g_bMissionWingmanFlag_005c8dbe != 0)
+            g_acMissionShipStatusFlagsBytes_005d2fb0[index - 1];
+        if (index == 1 && g_bMissionWingmanState_005c8dbe != 0)
             globals->shipMissionFlags[index] |= 8;
         pilotTotal = GetInitialMissionShipPilotSaveIndex(index);
         if (pilotTotal != -1)
@@ -144,9 +144,9 @@ void RunCampaignScript(short campaignSlot)
     scenePacket = FetchDiskPacketRetrying(
         campaignFileName, 0, 0);
     for (font = 0; font < 4; font++) {
-        if (g_apTextFonts_005d2200[font] != 0) {
-            ReleasePacketHandle(g_apTextFonts_005d2200[font]);
-            g_apTextFonts_005d2200[font] = 0;
+        if (g_apTextGlyphs_005d2200[font] != 0) {
+            ReleasePacketHandle(g_apTextGlyphs_005d2200[font]);
+            g_apTextGlyphs_005d2200[font] = 0;
         }
     }
     totalMain = GetAvailableMainMemory();
@@ -159,7 +159,7 @@ void RunCampaignScript(short campaignSlot)
     /* This unit reads the byte flag as a word. */
     if (*(short *)&g_bCutsceneViewportPreallocated_00499c4c == 0)
 #endif
-        ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
+        ClearViewport(&g_stModalSourceWindow_005d2c50, 0);
     if (g_bSkipCampaignScenes_0049cc78 == 0) {
         g_bSceneEscapeRequested_0049d4b0 = 0;
         ParseCutsceneContainer(scenePacket);
@@ -495,3 +495,7 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT] = {
 int g_nUnusedObjectDataWord_00499bb4 = 0;   /* no references in the original */
 int g_bSceneDisplayUpdateActive_00499bb8 = 0;
 static char g_szTemporaryCampaignGlobalsFile_00499bc0[13] = "TEMPGLOB.000";
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short *g_pPilotStatus_005d2fcc;

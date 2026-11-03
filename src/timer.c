@@ -41,3 +41,7 @@ void SetMultimediaTimerCallback(int period)
                                 FrameTimerCallback, 0, 0);
     return;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned int g_uFrameTimerEventId_005d3bec;

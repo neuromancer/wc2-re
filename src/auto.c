@@ -301,7 +301,7 @@ void auto_pilot_sequence(void)
         force_view(0, 0);
     } else {
         free_view_buffer();
-        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0,
+        SetViewportRect(&g_stViewScratchInfo_005d2b00, 0, 0,
                         (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
                         (unsigned short)(g_nScreenHeight_0049d4dc - 1));
         initialize_view_buffer();
@@ -309,10 +309,10 @@ void auto_pilot_sequence(void)
         force_view(0, 0);
         g_nCockpitDisplayMode_0049d71c = 1;
         free_view_buffer();
-        SetViewportRect(&g_stViewBuffer_005d2b00, 0, 0, 319, 199);
+        SetViewportRect(&g_stViewScratchInfo_005d2b00, 0, 0, 319, 199);
         initialize_view_buffer();
     }
-    if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 != 0)
         ResetCannedSceneRecording();
     if (g_nAutopilotDebugEnabled != 0)
         LogMemoryStateToFile(autoLog);

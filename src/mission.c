@@ -111,7 +111,7 @@ void init_mission(short series, short mission)
     init_3Space_objects(series);
     g_nMissionResourceBudget_005c8de4 = 0x7c0600;
     LoadPacketResourceList(g_aMissionResourceDescriptors_0049c798, 0,
-                           g_nAvailableGameMemory_005c8de0,
+                           g_nAvailableGameMemoryNumber_005c8de0,
                            "objects.vga");
     LoadPacketIntoBuffer("difflevl.000", 0,
                          g_asDifficultyLevels_004930a8, 0);
@@ -135,9 +135,9 @@ void init_mission(short series, short mission)
     for (index = 0; index < 5; index++)
         g_acJumpDriveUsedBySystem_005d2fe8[index] = 0;
     ResetWeaponDisplayPositions();
-    g_nCurrentStarSystem_005d169c =
+    g_nCurStellarSystem_005d169c =
         g_aMissionNavPoints_00491e98[
-            g_stMissionHeader_005d3e70.entryNavPoint].systemIndex;
+            g_stMissionHeaderBlock_005d3e70.entryNavPoint].systemIndex;
 }
 
 /* Function start: 0x44B48F */
@@ -294,14 +294,14 @@ void prepare_mission(void)
     short portraitIndex;
 
     g_stCurrentPilotProfile_00493408.missionScore = 0;
-    g_cPlayerKillCount_005d2fa8 = 0;
+    g_cPilotKillCountValue_005d2fa8 = 0;
     for (slot = 0; slot < 7; slot++)
-        g_acInitialShipKillCount_005d2fc0[slot] = 0;
+        g_acInitialShipKillNumber_005d2fc0[slot] = 0;
     g_bWingmanKilledThisMission_005d2fb8 = 0;
-    g_bPlayerDestroyed_005d2fa4 =
+    g_bUserDestroyedFlag_005d2fa4 =
         g_bWingmanKilledThisMission_005d2fb8;
 
-    playerMissionShip = g_stMissionHeader_005d3e70.playerMissionShip;
+    playerMissionShip = g_stMissionHeaderBlock_005d3e70.playerMissionShip;
     g_stCurrentPilotProfile_00493408.playerShipType =
         g_aMissionShips_00492290[playerMissionShip].type;
     objectKind = OBJECT_CLASS_SHIP;
@@ -317,7 +317,7 @@ void prepare_mission(void)
         set_objects_data(0, g_stCurrentPilotProfile_00493408.playerShipType, -1, 1);
     }
     g_aMissionShips_00492290[playerMissionShip].navPoint =
-        (signed char)g_stMissionHeader_005d3e70.entryNavPoint;
+        (signed char)g_stMissionHeaderBlock_005d3e70.entryNavPoint;
     if (g_nMissionEntryNavOverride_0049d790 != -1) {
         g_aMissionShips_00492290[playerMissionShip].navPoint =
             (signed char)g_nMissionEntryNavOverride_0049d790;
@@ -330,7 +330,7 @@ void prepare_mission(void)
     g_nYourWingman_0049346c = -1;
     for (slot = 0; slot < 8; slot++) {
         playerMissionShip =
-            g_stMissionHeader_005d3e70.initialMissionShips[slot];
+            g_stMissionHeaderBlock_005d3e70.initialMissionShips[slot];
 #ifdef SDL_PORT
         /* S3M3 carries -2 in one otherwise empty initial-ship slot.  Retail
          * walks into the preceding nav table and eventually treats its zeroes
@@ -345,15 +345,15 @@ void prepare_mission(void)
                 is_alive(portraitIndex) != 0) {
                 if (find_ships_sphere(playerMissionShip) == -1) {
                     init_ship(playerMissionShip,
-                              g_stMissionHeader_005d3e70.entryNavPoint);
+                              g_stMissionHeaderBlock_005d3e70.entryNavPoint);
                 }
             }
         }
     }
     g_bMissionShipInitializationInProgress_0049b890 = 0;
     Build_objective_list();
-    g_nHomeMissionShipIndex_005d1e22 =
-        g_stMissionHeader_005d3e70.homeMissionShip;
+    g_nHomeOperationShipIndexValue_005d1e22 =
+        g_stMissionHeaderBlock_005d3e70.homeMissionShip;
     g_bLandingCommRequestPending_00492fa0 = 0;
     g_bTargetLockMode_00493500 = 0;
 }
@@ -490,7 +490,7 @@ void load_ship(short resourceType, short objectType,
                     g_aObjectTypeData_00496d30[24].shapeSet;
                 g_aObjectResourceSlots_00493398[slot].shapeSet =
                     g_aObjectTypeData_00496d30[22].shapeSet;
-                if (g_nMemoryConfiguration_005c8dc8 == 2) {
+                if (g_nMemConfiguration_005c8dc8 == 2) {
                     g_aObjectTypeData_00496d30[27].shapeSet =
                         FetchDiskPacketRetrying("objects.vga", 0x11, 4);
                     g_aObjectTypeData_00496d30[25].shapeSet =
@@ -947,7 +947,7 @@ void set_up_action_sphere(short navPoint)
     load_all_slots();
     g_nCurrentNavPoint_004931bc = navPoint;
     point = &g_aMissionNavPoints_00491e98[navPoint];
-    g_nCurrentStarSystem_005d169c = point->systemIndex;
+    g_nCurStellarSystem_005d169c = point->systemIndex;
     ProcessMissionWaveCommands(point);
     if (g_aMissionNavPoints_00491e98[navPoint + 1].type == 2)
         g_nCurrentWave_004931c0 = 2;
@@ -1020,7 +1020,7 @@ void set_up_action_sphere(short navPoint)
     g_bLandingCommRequestPending_00492fa0 = 0;
     g_nEscapedEnemyCount_004962e8 = 0;
     if (g_bAutopilotSequenceActive_00493064 == 0 &&
-        g_bHighMemoryBuffersReady_005d2ad8 != 0)
+        g_bHighMemoryBuffersSetState_005d2ad8 != 0)
         ResetCannedSceneRecording();
 }
 
@@ -1181,24 +1181,24 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_acShipCollisionCooldown_00496010[obj] = 0;
     DAT_004960f0[obj] = 0;
     g_asWingmanDamageCredit_005d3830[obj] = 0;
-    g_asPlayerDamageCredit_005d38c0[obj] = 0;
-    DAT_005d1bd0[obj] = (short)(
+    g_asPlayerHitsCreditValues_005d38c0[obj] = 0;
+    g_asFlakCooldownTable_005d1bd0[obj] = (short)(
         (unsigned short)RandomInRange(0, 200) + 600);
     if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
-        DAT_005d1bd0[obj] >>= 1;
-    DAT_005d1bf0[obj] = (short)(
+        g_asFlakCooldownTable_005d1bd0[obj] >>= 1;
+    g_asSpikeriCooldown_005d1bf0[obj] = (short)(
         (unsigned short)RandomInRange(0, 400) + 600);
-    DAT_005d1c10[obj] = 0;
+    g_asSpikeriLaunchCountdown_005d1c10[obj] = 0;
     recalc_max_velocity(obj);
-    g_asCapitalHitDamageStep_005d17a0[obj] = 0;
+    g_asCapitalHitDamageStepTable_005d17a0[obj] = 0;
     if (g_aObjectTypeData_00496d30[
             g_acObjectType_00493980[obj]].damageCapacity +
             g_aasShipArmor_00495540[obj][0] < 400) {
-        g_asCapitalHitDamageStep_005d17a0[obj] =
+        g_asCapitalHitDamageStepTable_005d17a0[obj] =
             g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].damageCapacity;
     } else {
-        g_asCapitalHitDamageStep_005d17a0[obj] = (short)(
+        g_asCapitalHitDamageStepTable_005d17a0[obj] = (short)(
             g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[obj]].damageCapacity / 2 + 1);
     }
@@ -1233,10 +1233,10 @@ short is_team_member(short missionShip)
 {
     short index;
 
-    if (g_stMissionHeader_005d3e70.playerMissionShip == missionShip)
+    if (g_stMissionHeaderBlock_005d3e70.playerMissionShip == missionShip)
         return 1;
     for (index = 0; index < 8; index++) {
-        if (g_stMissionHeader_005d3e70.initialMissionShips[index] == missionShip)
+        if (g_stMissionHeaderBlock_005d3e70.initialMissionShips[index] == missionShip)
             return 1;
     }
     return 0;
@@ -1384,7 +1384,7 @@ void init_intelligence_data(short obj)
             break;
         /* fall through */
     case 9: /* WC2's home-base mission value in this dispatch table. */
-        locate_ship(g_stMissionHeader_005d3e70.homeMissionShip,
+        locate_ship(g_stMissionHeaderBlock_005d3e70.homeMissionShip,
                     &g_aShipMissionSpot_00495e18[obj]);
         break;
     }
@@ -1497,3 +1497,9 @@ void init_intelligence_data(short obj)
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nEnemyCommCommandBase_005d179c;
+short g_nEnemyCommPilotIndex_005d179e;
+short g_asCapitalHitDamageStepTable_005d17a0[10];

@@ -59,7 +59,7 @@ void unwarp(short obj)
 {
     short effect;
 
-    ClearViewport(&g_stViewBuffer_005d2b00,
+    ClearViewport(&g_stViewScratchInfo_005d2b00,
                   g_bPrimaryViewBufferColour_0049cb50);
     g_bViewportDirty_0049d76c = 1;
     PlaySfxWaveFileByNumber(0x34, obj, 0);
@@ -89,7 +89,7 @@ void warp(short obj)
 {
     short effect;
 
-    ClearViewport(&g_stViewBuffer_005d2b00,
+    ClearViewport(&g_stViewScratchInfo_005d2b00,
                   g_bPrimaryViewBufferColour_0049cb50);
     g_bViewportDirty_0049d76c = 1;
     PlaySfxWaveFileByNumber(0x34, obj, 0);
@@ -149,7 +149,7 @@ void TryBeginStarSystemJump(void)
         }
     }
     if (g_acJumpDriveUsedBySystem_005d2fe8[
-            g_nCurrentStarSystem_005d169c] != 0) {
+            g_nCurStellarSystem_005d169c] != 0) {
         set_global_message(
             "Capacitors Empty",
             g_cYellowColour_0049cb58, 3);
@@ -193,7 +193,7 @@ void TryBeginStarSystemJump(void)
     force_view(0x0d, 0);
     g_bStarSystemJumpTransition_004962ec = 1;
     g_acJumpDriveUsedBySystem_005d2fe8[
-        g_nCurrentStarSystem_005d169c]++;
+        g_nCurStellarSystem_005d169c]++;
     g_bJumpSequenceActive_004962f0 = 1;
     g_nStarSystemJumpDelay_004962f4 = 0;
     g_nSavedPlayerObjectCounter_005d2fe0 =
@@ -202,7 +202,7 @@ void TryBeginStarSystemJump(void)
     g_asShipCount_00495ff8[0] = 0;
     g_asShipTactic_00495f30[0] = TACTIC_SIT_STILL;
     if (g_nYourWingman_0049346c != -1) {
-        g_nSavedWingmanObjectCounter_005d2fdc =
+        g_nSavedWingmanObjectCounterValue_005d2fdc =
             g_asObjectCounter_00494be0[g_nYourWingman_0049346c];
         g_asShipMissionType_00495de8[g_nYourWingman_0049346c] =
             MISSION_TYPE_GOTO_WARP;
@@ -224,9 +224,9 @@ void CompleteStarSystemJump(void)
         g_asObjectCounter_00494be0[0] = 1;
     } else {
         FadeViewportPaletteToColour(
-            &g_stScreenViewport_005d21a0,
+            &g_stScrViewInfo_005d21a0,
             g_cSecondaryViewBufferColour_0049cb4c, 1);
-        ClearViewport(&g_stScreenViewport_005d21a0,
+        ClearViewport(&g_stScrViewInfo_005d21a0,
                       g_cSecondaryViewBufferColour_0049cb4c);
         RestoreGamePalette();
 
@@ -234,7 +234,7 @@ void CompleteStarSystemJump(void)
              destinationNavPoint++) {
             if (g_aMissionNavPoints_00491e98[destinationNavPoint].type != 0 &&
                 g_aMissionNavPoints_00491e98[destinationNavPoint]
-                        .systemIndex != g_nCurrentStarSystem_005d169c &&
+                        .systemIndex != g_nCurStellarSystem_005d169c &&
                 g_aMissionNavPoints_00491e98[destinationNavPoint].field_2e !=
                     0) {
                 break;
@@ -264,7 +264,7 @@ void CompleteStarSystemJump(void)
             g_anShipFuel_00495638[g_nYourWingman_0049346c] -=
                 g_anShipFuel_00495638[g_nYourWingman_0049346c] / 2;
             g_asObjectCounter_00494be0[g_nYourWingman_0049346c] =
-                (short)g_nSavedWingmanObjectCounter_005d2fdc;
+                (short)g_nSavedWingmanObjectCounterValue_005d2fdc;
             g_asShipMissionType_00495de8[g_nYourWingman_0049346c] =
                 MISSION_TYPE_WINGMAN;
             g_aeShipObjective_00495f08[g_nYourWingman_0049346c] =
@@ -279,11 +279,17 @@ void CompleteStarSystemJump(void)
                         g_nYourWingman_0049346c]].scale;
         }
 
-        ClearViewport(&g_stViewBuffer_005d2b00,
+        ClearViewport(&g_stViewScratchInfo_005d2b00,
                       g_bPrimaryViewBufferColour_0049cb50);
         g_bViewportDirty_0049d76c = 1;
         g_bJumpSequenceActive_004962f0 = 0;
-        if (g_bHighMemoryBuffersReady_005d2ad8 != 0)
+        if (g_bHighMemoryBuffersSetState_005d2ad8 != 0)
             ResetCannedSceneRecording();
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_nSavedWingmanObjectCounterValue_005d2fdc;
+int g_nSavedPlayerObjectCounter_005d2fe0;
+signed char g_acJumpDriveUsedBySystem_005d2fe8[5];

@@ -413,7 +413,7 @@ int main(int argumentCount, char **arguments)
         srand((unsigned int)time(0));
         InitGameClockRandomEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-        g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
+        g_dwGameZeroTime_005d12b4 = (unsigned int)time(0);
         g_pfnInputPump_005c840c = 0;
         SDL_ShowCursor(SDL_DISABLE);
         /* The same sequence WinMain runs once the window exists. */

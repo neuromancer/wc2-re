@@ -36,12 +36,12 @@ void death_sequence(void)
     }
     g_nResourcePaletteState_005c57e6 = 1;
     StopMusicUnlessSuppressed();
-    if (g_nMemoryConfiguration_005c8dc8 == 1)
+    if (g_nMemConfiguration_005c8dc8 == 1)
         SceneLeaveHook(0x20);
     spacetrack(0x20, 2, 1);
     animShape = FetchDiskPacketRetrying("pilotanm.vga", 0, 0);
     cockpitBackground = FetchDiskPacketRetrying(
-        g_szCockpitResourceFilename_005d1030, 3, 0);
+        g_szCockpitAssetFilenameText_005d1030, 3, 0);
     PlaySfxWaveFileByNumber(4, -1, 0);
     new_view(10, 0);
     g_bSceneEscapeRequested_0049d4b0 = 0;
@@ -49,14 +49,14 @@ void death_sequence(void)
         g_nFrameSkipCountdown_0049d760 = 1;
         for (frame = 0; frame < 8; frame++) {
             if (frame == 7) {
-                ClearViewport(&g_stViewBuffer_005d2b00,
+                ClearViewport(&g_stViewScratchInfo_005d2b00,
                               g_bPrimaryViewBufferColour_0049cb50);
             } else {
                 Draw_3Space_Frame();
-                DrawSpriteDefault(&g_stViewBuffer_005d2b00, 0, 0,
+                DrawSpriteDefault(&g_stViewScratchInfo_005d2b00, 0, 0,
                                   cockpitBackground, 0);
             }
-            DrawSpriteDefault(&g_stViewBuffer_005d2b00, 160, 199,
+            DrawSpriteDefault(&g_stViewScratchInfo_005d2b00, 160, 199,
                               animShape, frame);
             dump_buffer_to_screen();
             clear_view_buffer();
@@ -92,11 +92,11 @@ void death_sequence(void)
     g_nArcadeState_0049d75c = 4;
     g_bSceneEscapeRequested_0049d4b0 = 0;
     free_all_slots();
-    g_stScreenViewport_005d21a0.top = 0;
-    g_stScreenViewport_005d21a0.bottom = 199;
-    FadeViewportPaletteToColour(&g_stScreenViewport_005d21a0,
+    g_stScrViewInfo_005d21a0.top = 0;
+    g_stScrViewInfo_005d21a0.bottom = 199;
+    FadeViewportPaletteToColour(&g_stScrViewInfo_005d21a0,
                                 g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stScreenViewport_005d21a0,
+    ClearViewport(&g_stScrViewInfo_005d21a0,
                   g_cSecondaryViewBufferColour_0049cb4c);
     RestoreGamePalette();
     g_bMissionEndPending_0049da4c = 1;

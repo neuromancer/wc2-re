@@ -73,3 +73,7 @@ short AllocateViewport(Viewport *viewport,
         ClearViewport(viewport, clearColour);
     return 1;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_nAllocateViewportCalls_005c8dc4;

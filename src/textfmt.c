@@ -192,7 +192,7 @@ void DrawFormattedText(const char *format, ...)
     }
     va_end(arguments);
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScreenViewport_005d21a0.pixels)
+        g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }
 
@@ -214,7 +214,7 @@ void FormatTextBufferFromStart(const char *format, ...)
 #endif
     va_end(arguments);
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScreenViewport_005d21a0.pixels)
+        g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }
 
@@ -232,6 +232,6 @@ void AppendFormattedText(const char *format, ...)
 #endif
     va_end(arguments);
     if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScreenViewport_005d21a0.pixels)
+        g_stScrViewInfo_005d21a0.pixels)
         MarkDibDirty();
 }

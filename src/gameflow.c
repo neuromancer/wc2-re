@@ -64,7 +64,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     signed char speechSpeed;
 
     speechSpeed = g_cCutsceneSpeechSpeed_00499eb4;
-    if (g_bCutsceneTextAdvance_005d2ed0 == 0) {
+    if (g_bMovieStringAdvanceState_005d2ed0 == 0) {
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         return;
     }
@@ -104,7 +104,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     if (g_bCutsceneSkipFrame_00499c54 != 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0) {
         g_bCutsceneSpeechActive_00499eb8 =
-            (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+            (signed char)(g_bMovieStringAdvanceState_005d2ed0 = 0);
         g_pszCutsceneSpeechCursor_00499eb0 = 0;
         sprite->currentFrame = 11;
         return;
@@ -113,7 +113,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
         g_bCutsceneSpeechActive_00499eb8 != 0) {
         if (g_wDigiPlaying_0049bb60 == 0) {
             g_bCutsceneSpeechActive_00499eb8 =
-                (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+                (signed char)(g_bMovieStringAdvanceState_005d2ed0 = 0);
             sprite->currentFrame = 11;
             g_pszCutsceneSpeechCursor_00499eb0 = 0;
             return;
@@ -133,7 +133,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     } else if (speaker < ' ') {
         if (speaker == 0) {
             g_bCutsceneSpeechActive_00499eb8 =
-                (signed char)(g_bCutsceneTextAdvance_005d2ed0 = 0);
+                (signed char)(g_bMovieStringAdvanceState_005d2ed0 = 0);
             g_pszCutsceneSpeechCursor_00499eb0 = 0;
         }
         frame = -1;
@@ -236,20 +236,20 @@ void WriteDetailedMemoryStateReport(void)
 void LogChangedCutsceneWorkBuffers(void)
 {
     if (memcmp(g_szLastCutsceneWorkBuffer_00499ec0,
-               g_pszCutsceneWorkBuffer_005d2ecc,
+               g_pszFilmWorkScratch_005d2ecc,
                strlen(g_szLastCutsceneWorkBuffer_00499ec0)) != 0 ||
         memcmp(g_szLastCutscenePrintBuffer_00499ed0,
-               g_pszCutscenePrintBuffer_005d2f10,
+               g_pszFilmPrintStore_005d2f10,
                strlen(g_szLastCutscenePrintBuffer_00499ed0)) != 0) {
         fprintf(g_pMemoryLogFile_00499da8,
                 "Show Work: %.10s...  %.10s...  %.10s...\n",
-                g_pszCutsceneWorkBuffer_005d2ecc,
-                g_pszCutscenePrintBuffer_005d2f10,
+                g_pszFilmWorkScratch_005d2ecc,
+                g_pszFilmPrintStore_005d2f10,
                 g_pszCutsceneFormattedText_005d2dc8);
         memcpy(g_szLastCutsceneWorkBuffer_00499ec0,
-               g_pszCutsceneWorkBuffer_005d2ecc, 10);
+               g_pszFilmWorkScratch_005d2ecc, 10);
         memcpy(g_szLastCutscenePrintBuffer_00499ed0,
-               g_pszCutscenePrintBuffer_005d2f10, 10);
+               g_pszFilmPrintStore_005d2f10, 10);
     }
 }
 
@@ -259,11 +259,11 @@ void RouteCutsceneViewportToDisplay(void)
     unsigned char *firstRow;
 
     firstRow = 0;
-    if (g_stSecondaryViewBuffer_005d2c90.pixels != 0 &&
+    if (g_stSecondaryViewBufferBlock_005d2c90.pixels != 0 &&
         g_cCutsceneVideoMode_00499c48 == 0x13 &&
         g_bCutsceneViewportPreallocated_00499c4c == 0) {
-        firstRow = g_stSecondaryViewBuffer_005d2c90.pixels +
-            g_stSecondaryViewBuffer_005d2c90.rowOffsets[0];
+        firstRow = g_stSecondaryViewBufferBlock_005d2c90.pixels +
+            g_stSecondaryViewBufferBlock_005d2c90.rowOffsets[0];
         WriteDetailedMemoryStateReport();
         ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
         if (g_pMemoryLogFile_00499da8 != 0)
@@ -278,10 +278,10 @@ void ClearActiveCutscenePixelAlias(void)
 {
     unsigned char *firstRow;
 
-    if (g_stSecondaryViewBuffer_005d2c90.pixels != 0 &&
+    if (g_stSecondaryViewBufferBlock_005d2c90.pixels != 0 &&
         g_cCutsceneVideoMode_00499c48 == 0x13) {
-        firstRow = g_stSecondaryViewBuffer_005d2c90.pixels +
-            g_stSecondaryViewBuffer_005d2c90.rowOffsets[0];
+        firstRow = g_stSecondaryViewBufferBlock_005d2c90.pixels +
+            g_stSecondaryViewBufferBlock_005d2c90.rowOffsets[0];
         if (g_pActiveCutscenePixels_005c83dc == firstRow)
             g_pActiveCutscenePixels_005c83dc = 0;
     }
@@ -293,7 +293,7 @@ signed char IsCutsceneSpeechLoaded(void)
     short slot;
 
     for (slot = 0; slot < 8; slot++) {
-        if (g_apszCutsceneSpeechFiles_005d2ee0[slot] != 0)
+        if (g_apszMovieSpeechFiles_005d2ee0[slot] != 0)
             return 1;
     }
     return 0;
@@ -306,46 +306,46 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
 {
     ShortRect savedBounds;
 
-    g_stCutsceneDrawingTextContext_005d2f60 =
-        g_stCutsceneTextContext_005d2f40;
+    g_stCutsceneDrawingTextSettingsInfo_005d2f60 =
+        g_stCutsceneMessageCtxInfo_005d2f40;
     switch (viewportIndex) {
     case 0:
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
             &g_stSceneFlicScratchViewport_005d2eb0;
         break;
     case 1:
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
-            &g_stSecondaryViewBuffer_005d2c90;
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
+            &g_stSecondaryViewBufferBlock_005d2c90;
         break;
     case 2:
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
-            &g_stCutsceneTextViewport_005d2d90;
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
+            &g_stCutsceneStringViewportBlock_005d2d90;
         break;
     case 3:
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
-            &g_stCutsceneTextBackingViewport_005d2db0;
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
+            &g_stCutsceneTextBackingPort_005d2db0;
         break;
     case 4:
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
-            &g_stModalSourceViewport_005d2c50;
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
+            &g_stModalSourceWindow_005d2c50;
         break;
     }
-    SetTextContext(&g_stCutsceneDrawingTextContext_005d2f60);
+    SetTextContext(&g_stCutsceneDrawingTextSettingsInfo_005d2f60);
     savedBounds =
-        *(ShortRect *)&g_stCutsceneDrawingTextContext_005d2f60.viewport->left;
+        *(ShortRect *)&g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->left;
     if (g_bCutsceneTextBoundsOverride_00499edc != 0) {
-        g_stCutsceneDrawingTextContext_005d2f60.viewport->left =
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->left =
             MaxShort(g_stCutsceneTextBounds_00499ee0.left,
-                     g_stCutsceneDrawingTextContext_005d2f60.viewport->left);
-        g_stCutsceneDrawingTextContext_005d2f60.viewport->top =
+                     g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->left);
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->top =
             MaxShort(g_stCutsceneTextBounds_00499ee0.top,
-                     g_stCutsceneDrawingTextContext_005d2f60.viewport->top);
-        g_stCutsceneDrawingTextContext_005d2f60.viewport->right =
+                     g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->top);
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->right =
             MinShort(g_stCutsceneTextBounds_00499ee0.right,
-                     g_stCutsceneDrawingTextContext_005d2f60.viewport->right);
-        g_stCutsceneDrawingTextContext_005d2f60.viewport->bottom =
+                     g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->right);
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->bottom =
             MinShort(g_stCutsceneTextBounds_00499ee0.bottom,
-                     g_stCutsceneDrawingTextContext_005d2f60.viewport->bottom);
+                     g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->bottom);
     }
     if (g_bCinematicSpriteFontEnabled_005c82a7 == 0) {
         if (x > -1) {
@@ -373,8 +373,8 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
         FormatTextBufferFromStart("%s%P", text);
     }
     g_bCutsceneTextRestorePending_00499da0 = 1;
-    SetTextContext(&g_stCutsceneTextContext_005d2f40);
-    *(ShortRect *)&g_stCutsceneDrawingTextContext_005d2f60.viewport->left =
+    SetTextContext(&g_stCutsceneMessageCtxInfo_005d2f40);
+    *(ShortRect *)&g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->left =
         savedBounds;
     g_bCutsceneTextBoundsOverride_00499edc = 0;
 }
@@ -384,7 +384,7 @@ void LoadCutsceneCockpitOverlay(int scriptValue)
 {
     if (g_pCutsceneCockpitPacket_00499c04 == 0) {
         g_pCutsceneCockpitPacket_00499c04 = LoadNamedPacket(
-            g_szCockpitResourceFilename_005d1030, 8, 0, 0, 0, 1);
+            g_szCockpitAssetFilenameText_005d1030, 8, 0, 0, 0, 1);
     }
     (void)scriptValue;
 }
@@ -398,12 +398,12 @@ void DrawCutsceneCockpitOverlay(int unused, short verticalOffset)
 
     if (g_pCutsceneCockpitPacket_00499c04 != 0) {
         for (hits = 0; hits < 4; hits++) {
-            if (g_asCockpitDamageState_005d1ee8[hits] == 1) {
+            if (g_asCockpitDmgStateList_005d1ee8[hits] == 1) {
                 x = g_aCockpitDamagePositions_0049ae98[hits].x;
                 y = (short)(
                     g_aCockpitDamagePositions_0049ae98[hits].y +
                     verticalOffset);
-                DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                                   x, y,
                                   g_pCutsceneCockpitPacket_00499c04,
                                   hits);
@@ -540,11 +540,11 @@ void FatalCutsceneError(const char *format, ...)
     va_list arguments;
 
     va_start(arguments, format);
-    vsprintf(g_pszCutsceneWorkBuffer_005d2ecc, format, arguments);
+    vsprintf(g_pszFilmWorkScratch_005d2ecc, format, arguments);
 #ifdef SDL_PORT
     va_end(arguments);
 #endif
-    exit_squadron(g_pszCutsceneWorkBuffer_005d2ecc);
+    exit_squadron(g_pszFilmWorkScratch_005d2ecc);
 }
 
 /* Function start: 0x42C75D */
@@ -569,21 +569,21 @@ void PresentCutsceneFrame(Viewport *source, Viewport *destination)
         g_cCutsceneVideoMode_00499c48 != 0x0d)
         return;
     if (g_bCutsceneDebugOverlayEnabled_00499ee8 != 0) {
-        debugViewport = g_stModalSourceViewport_005d2c50;
+        debugViewport = g_stModalSourceWindow_005d2c50;
         debugViewport.bottom = 0x17;
-        g_stCutsceneDebugTextContext_005d2df0 =
-            g_stCutsceneTextContext_005d2f40;
-        g_stCutsceneDebugTextContext_005d2df0.viewport = &debugViewport;
-        g_stCutsceneDebugTextContext_005d2df0.alignment = 0;
-        g_stCutsceneDebugTextContext_005d2df0.cursorY = 0;
-        g_stCutsceneDebugTextContext_005d2df0.cursorX = 0;
-        SetTextContext(&g_stCutsceneDebugTextContext_005d2df0);
+        g_stMovieDebugTextCtx_005d2df0 =
+            g_stCutsceneMessageCtxInfo_005d2f40;
+        g_stMovieDebugTextCtx_005d2df0.viewport = &debugViewport;
+        g_stMovieDebugTextCtx_005d2df0.alignment = 0;
+        g_stMovieDebugTextCtx_005d2df0.cursorY = 0;
+        g_stMovieDebugTextCtx_005d2df0.cursorX = 0;
+        SetTextContext(&g_stMovieDebugTextCtx_005d2df0);
         debugFrameNumber = g_wCutsceneDebugFrameNumber_00499eec++;
         DrawFormattedText(
             "%X%Y%d Delay: %d DrawsCalled: %d * %d Time: %U   ",
             0, 0, debugFrameNumber, g_nCutsceneFrameDelay_00499c8c,
             g_nCutsceneSpritesDrawn_00499c10,
-            g_bCutsceneFramePresented_005d2de0,
+            g_bMovieFramePresented_005d2de0,
             g_nInputClock_005c84a8);
     }
     if (g_nFrameSkipCountdown_0049d760 == 0) {
@@ -591,7 +591,7 @@ void PresentCutsceneFrame(Viewport *source, Viewport *destination)
         CopyViewportContents(source, destination);
         ResetCutsceneSpriteDrawTicks();
     }
-    SetTextContext(&g_stCutsceneTextContext_005d2f40);
+    SetTextContext(&g_stCutsceneMessageCtxInfo_005d2f40);
 }
 
 /* Function start: 0x42C8E1 */
@@ -604,15 +604,15 @@ void ConsumeCutscenePalettePacket(short firstColour, short count,
     unsigned char *chunk;
 
     malformed = 0;
-    if (g_pCutscenePalettePacket_005d2e98 == 0)
+    if (g_pFilmRgbPacket_005d2e98 == 0)
         return;
-    if (ReadNextSceneForm(&g_pCutscenePalettePacket_005d2e98, &nextChunk) ==
+    if (ReadNextSceneForm(&g_pFilmRgbPacket_005d2e98, &nextChunk) ==
         0x204c4150) {
-        chunk = g_pCutscenePalettePacket_005d2e98;
-        g_pCutscenePalettePacket_005d2e98 += 4;
+        chunk = g_pFilmRgbPacket_005d2e98;
+        g_pFilmRgbPacket_005d2e98 += 4;
         if (*(unsigned int *)chunk == 0x50414d43) {
-            size = *(unsigned int *)g_pCutscenePalettePacket_005d2e98;
-            g_pCutscenePalettePacket_005d2e98 += 4;
+            size = *(unsigned int *)g_pFilmRgbPacket_005d2e98;
+            g_pFilmRgbPacket_005d2e98 += 4;
             SwapSceneChunkSizeEndian((int *)&size);
             if (size / 3 != 0x100)
                 malformed++;
@@ -623,7 +623,7 @@ void ConsumeCutscenePalettePacket(short firstColour, short count,
             FatalCutsceneError("A3");
     }
     if (releasePacket != 0)
-        ReleasePacketSlot((void **)&g_pCutscenePalettePacket_005d2e98);
+        ReleasePacketSlot((void **)&g_pFilmRgbPacket_005d2e98);
 }
 
 /* Function start: 0x42C9B0 */
@@ -728,7 +728,7 @@ void LoadCutsceneSpeechSlot(short resourceIndex, short slot)
     CutsceneResourceTable *resourceTable;
     int packetSize;
 
-    if (g_bSpeechEnabled_005c8de8 == 0 ||
+    if (g_bSpeechEnabledFlag_005c8de8 == 0 ||
         g_bCutsceneViewportPreallocated_00499c4c != 0 ||
         g_bCutsceneSkipAll_00499c58 != 0)
         return;
@@ -751,26 +751,26 @@ void LoadCutsceneSpeechSlot(short resourceIndex, short slot)
     while (g_wDigiPlaying_0049bb60 != 0)
         PumpWindowMessages(0);
 #endif
-    ReleasePacketSlot(&g_apCutsceneSpeechPackets_005d2f80[slot]);
-    g_asCutsceneSpeechChannels_005d2d70[slot] = 0;
-    g_apszCutsceneSpeechFiles_005d2ee0[slot] =
+    ReleasePacketSlot(&g_apSceneSpeechPacketsList_005d2f80[slot]);
+    g_asCutsceneSpeechChannelsTable_005d2d70[slot] = 0;
+    g_apszMovieSpeechFiles_005d2ee0[slot] =
         GetPackedStringByIndex(
             resourceTable, resourceTable->filenameIndices[resourceIndex]);
-    g_asCutsceneSpeechSections_005d2dd0[slot] =
+    g_asCutsceneSpeechSectionsList_005d2dd0[slot] =
         resourceTable->sectionIndices[resourceIndex];
     packetSize = (int)GetNamedPacketSize(
-        g_apszCutsceneSpeechFiles_005d2ee0[slot],
-        g_asCutsceneSpeechSections_005d2dd0[slot]);
+        g_apszMovieSpeechFiles_005d2ee0[slot],
+        g_asCutsceneSpeechSectionsList_005d2dd0[slot]);
     if (packetSize <= 0) {
-        g_apszCutsceneSpeechFiles_005d2ee0[slot] = 0;
-        g_asCutsceneSpeechSections_005d2dd0[slot] = 0;
+        g_apszMovieSpeechFiles_005d2ee0[slot] = 0;
+        g_asCutsceneSpeechSectionsList_005d2dd0[slot] = 0;
     } else {
-        g_apCutsceneSpeechPackets_005d2f80[slot] =
+        g_apSceneSpeechPacketsList_005d2f80[slot] =
             LoadSpeechPacketIntoBuffer(
-                g_apszCutsceneSpeechFiles_005d2ee0[slot],
-                g_asCutsceneSpeechSections_005d2dd0[slot], 0);
-        if (g_apCutsceneSpeechPackets_005d2f80[slot] != 0) {
-            g_asCutsceneSpeechChannels_005d2d70[slot] =
+                g_apszMovieSpeechFiles_005d2ee0[slot],
+                g_asCutsceneSpeechSectionsList_005d2dd0[slot], 0);
+        if (g_apSceneSpeechPacketsList_005d2f80[slot] != 0) {
+            g_asCutsceneSpeechChannelsTable_005d2d70[slot] =
                 (short)packetSize;
         }
     }
@@ -910,7 +910,7 @@ void InitializeCutsceneRuntimeResources(void)
 {
     if (g_nCutsceneResourceLevel_00499d98 == 0) {
         if (g_bAutopilotDebugEnabled_00499bfc != 0 &&
-            g_bSpeechEnabled_005c8de8 == 0)
+            g_bSpeechEnabledFlag_005c8de8 == 0)
             g_pMemoryLogFile_00499da8 = fopen("logger.$$$", "w");
         g_bCutsceneDrawingEnabled_00499c60 = 0;
         g_bMemoryLogToFile_00499bf8 = 1;
@@ -918,13 +918,13 @@ void InitializeCutsceneRuntimeResources(void)
         g_bMemoryLogToFile_00499bf8 = 0;
         InitializeCinematicTextRenderer();
         g_nCutsceneFrameDelay_00499c8c = g_nCutsceneFrameTick_00499c88 = 0;
-        g_nCutsceneInitialAvailableMemory_005d2e88 =
+        g_nCutsceneInitialAvailableMemoryWord_005d2e88 =
             GetAvailableMainMemory();
-        g_nCutsceneInitialLargestBlock_005d2ea8 =
+        g_nSceneInitialLargestBlockWord_005d2ea8 =
             GetLargestMainMemoryBlock();
         /* The retail image sets and immediately clears this flag. */
-        g_bCutsceneCockpitLoaded_005d2d66 = 1;
-        g_bCutsceneCockpitLoaded_005d2d66 = 0;
+        g_bSceneCockpitLoaded_005d2d66 = 1;
+        g_bSceneCockpitLoaded_005d2d66 = 0;
         if (g_apSceneObjects_00499c38 == 0) {
             g_apSceneObjects_00499c38 = AllocateScenePointerTable(
                 0x80, HOST_POINTER_SIZE, 0,
@@ -945,26 +945,26 @@ void InitializeCutsceneRuntimeResources(void)
                 0x20, HOST_POINTER_SIZE, 0,
                 "Cannot alloc ScriptArray");
         }
-        if (g_pszCutsceneWorkBuffer_005d2ecc == 0) {
+        if (g_pszFilmWorkScratch_005d2ecc == 0) {
             WriteDetailedMemoryStateReport();
-            g_pszCutsceneWorkBuffer_005d2ecc = calloc(0x100, 1);
-            if (g_pszCutsceneWorkBuffer_005d2ecc == 0)
+            g_pszFilmWorkScratch_005d2ecc = calloc(0x100, 1);
+            if (g_pszFilmWorkScratch_005d2ecc == 0)
                 FatalCutsceneError("A8");
             if (g_pMemoryLogFile_00499da8 != 0)
                 fprintf(g_pMemoryLogFile_00499da8,
                         "Alloc ___workstring: %p free: %d\n",
-                        g_pszCutsceneWorkBuffer_005d2ecc,
+                        g_pszFilmWorkScratch_005d2ecc,
                         (int)GetOriginalFreeMemory());
         }
-        if (g_pszCutscenePrintBuffer_005d2f10 == 0) {
+        if (g_pszFilmPrintStore_005d2f10 == 0) {
             WriteDetailedMemoryStateReport();
-            g_pszCutscenePrintBuffer_005d2f10 = calloc(0x100, 1);
-            if (g_pszCutscenePrintBuffer_005d2f10 == 0)
+            g_pszFilmPrintStore_005d2f10 = calloc(0x100, 1);
+            if (g_pszFilmPrintStore_005d2f10 == 0)
                 FatalCutsceneError("A9");
             if (g_pMemoryLogFile_00499da8 != 0)
                 fprintf(g_pMemoryLogFile_00499da8,
                         "Alloc ___printstring: %p free: %d\n",
-                        g_pszCutscenePrintBuffer_005d2f10,
+                        g_pszFilmPrintStore_005d2f10,
                         (int)GetOriginalFreeMemory());
         }
     }
@@ -974,20 +974,20 @@ void InitializeCutsceneRuntimeResources(void)
 void InitializeCutsceneViewports(void)
 {
     if (g_stSceneFlicScratchViewport_005d2eb0.pixels == 0) {
-        g_stCutsceneTextViewport_005d2d90 =
-            g_stModalSourceViewport_005d2c50;
+        g_stCutsceneStringViewportBlock_005d2d90 =
+            g_stModalSourceWindow_005d2c50;
         g_stSceneFlicScratchViewport_005d2eb0 =
-            g_stCutsceneTextViewport_005d2d90;
+            g_stCutsceneStringViewportBlock_005d2d90;
     }
-    if (g_stCutsceneTextContext_005d2f40.viewport == 0) {
-        g_stCutsceneTextContext_005d2f40.viewport =
-            &g_stCutsceneTextBackingViewport_005d2db0;
-        g_stCutsceneTextContext_005d2f40.text =
-            g_szTextScratchBuffer_005d1c40;
-        g_stCutsceneTextContext_005d2f40.colour = 15;
-        g_stCutsceneTextContext_005d2f40.backgroundColour = 0;
-        g_stCutsceneTextContext_005d2f40.alignment = 2;
-        SetTextContext(&g_stCutsceneTextContext_005d2f40);
+    if (g_stCutsceneMessageCtxInfo_005d2f40.viewport == 0) {
+        g_stCutsceneMessageCtxInfo_005d2f40.viewport =
+            &g_stCutsceneTextBackingPort_005d2db0;
+        g_stCutsceneMessageCtxInfo_005d2f40.text =
+            g_szTextBufferBuffer_005d1c40;
+        g_stCutsceneMessageCtxInfo_005d2f40.colour = 15;
+        g_stCutsceneMessageCtxInfo_005d2f40.backgroundColour = 0;
+        g_stCutsceneMessageCtxInfo_005d2f40.alignment = 2;
+        SetTextContext(&g_stCutsceneMessageCtxInfo_005d2f40);
     }
 }
 
@@ -996,8 +996,9 @@ void ReleaseSceneMusicPacket(void)
 {
     if (g_pSceneMusicPacket_00499c08 != 0) {
         StopMusic(0);
-        g_dwRestoredSceneMusicState_005d14e8 =
-            g_dwSceneMusicState_005d2dc4;
+        /* Track 44's slot of the music table holds the scene music. */
+        g_aTuneResources_005d13e0[44].packet =
+            (void *)g_dwSceneMusicMode_005d2dc4;
         ReleasePacketSlot(&g_pSceneMusicPacket_00499c08);
     }
 }
@@ -1008,10 +1009,10 @@ void ReleaseCutsceneSpeechPackets(void)
     short index;
 
     for (index = 0; index < 8; index++) {
-        ReleasePacketSlot(&g_apCutsceneSpeechPackets_005d2f80[index]);
-        g_apszCutsceneSpeechFiles_005d2ee0[index] = 0;
-        g_asCutsceneSpeechSections_005d2dd0[index] = 0;
-        g_asCutsceneSpeechChannels_005d2d70[index] = 0;
+        ReleasePacketSlot(&g_apSceneSpeechPacketsList_005d2f80[index]);
+        g_apszMovieSpeechFiles_005d2ee0[index] = 0;
+        g_asCutsceneSpeechSectionsList_005d2dd0[index] = 0;
+        g_asCutsceneSpeechChannelsTable_005d2d70[index] = 0;
     }
 }
 
@@ -1054,10 +1055,10 @@ void RunLoadedCutscene(void)
     g_nInputPollPeriod_0049d6d8 = 1;
     g_cCutsceneVideoMode_00499c48 =
         (signed char)QueryCurrentGraphicsMode();
-    ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50, 0);
-    g_stCutsceneTextContext_005d2f40.viewport = 0;
-    g_nCutsceneMemoryDelta_005d2ec8 =
-        (int)(g_nCutsceneInitialAvailableMemory_005d2e88 -
+    ClearCutsceneViewport(&g_stModalSourceWindow_005d2c50, 0);
+    g_stCutsceneMessageCtxInfo_005d2f40.viewport = 0;
+    g_nCutsceneMemDelta_005d2ec8 =
+        (int)(g_nCutsceneInitialAvailableMemoryWord_005d2e88 -
               GetAvailableMainMemory());
     g_bCutsceneSkipAll_00499c58 = 0;
     g_bMemoryLogToFile_00499bf8 = 1;
@@ -1067,8 +1068,8 @@ void RunLoadedCutscene(void)
         fprintf(g_pMemoryLogFile_00499da8,
                 "************************************\n"
                 "Initial %ld Overhead %ld\n",
-                g_nCutsceneInitialAvailableMemory_005d2e88,
-                g_nCutsceneMemoryDelta_005d2ec8);
+                g_nCutsceneInitialAvailableMemoryWord_005d2e88,
+                g_nCutsceneMemDelta_005d2ec8);
     }
     ReleaseSceneMusicPacket();
     ExecuteCutsceneScene(g_apCutsceneScenes_00499c44[
@@ -1084,27 +1085,27 @@ void RunLoadedCutscene(void)
     ReleasePacketSlot((void **)&g_apCutscenePlanes_00499c3c);
     ReleasePacketSlot((void **)&g_apCutsceneSequences_00499c40);
     ReleasePacketSlot((void **)&g_apCutsceneScenes_00499c44);
-    free(g_pszCutsceneWorkBuffer_005d2ecc);
+    free(g_pszFilmWorkScratch_005d2ecc);
     if (g_pMemoryLogFile_00499da8 != 0) {
         fprintf(g_pMemoryLogFile_00499da8,
                 "Free ___workstring %p free: %d\n",
-                g_pszCutsceneWorkBuffer_005d2ecc,
+                g_pszFilmWorkScratch_005d2ecc,
                 (int)(short)GetOriginalFreeMemory());
     }
-    free(g_pszCutscenePrintBuffer_005d2f10);
+    free(g_pszFilmPrintStore_005d2f10);
     if (g_pMemoryLogFile_00499da8 != 0) {
         fprintf(g_pMemoryLogFile_00499da8,
                 "Free ___printstring %p free: %d\n",
-                g_pszCutscenePrintBuffer_005d2f10,
+                g_pszFilmPrintStore_005d2f10,
                 (int)(short)GetOriginalFreeMemory());
     }
-    g_pszCutsceneWorkBuffer_005d2ecc = 0;
-    g_pszCutscenePrintBuffer_005d2f10 = 0;
+    g_pszFilmWorkScratch_005d2ecc = 0;
+    g_pszFilmPrintStore_005d2f10 = 0;
     g_pszCutsceneFormattedText_005d2dc8 = 0;
     ClearActiveCutscenePixelAlias();
-    ReleaseCutsceneViewport(&g_stCutsceneTextBackingViewport_005d2db0);
-    ReleaseCutsceneViewport(&g_stSecondaryViewBuffer_005d2c90);
-    if (g_bCutsceneCockpitLoaded_005d2d66 != 0) {
+    ReleaseCutsceneViewport(&g_stCutsceneTextBackingPort_005d2db0);
+    ReleaseCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    if (g_bSceneCockpitLoaded_005d2d66 != 0) {
         ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
         g_pActiveCutscenePixels_005c83dc = 0;
     }
@@ -1200,8 +1201,8 @@ void LinkCutsceneSpriteScript(unsigned char destination,
 
 /* Two sprites a developer could watch: drawing either one resets x first,
  * a store the real x then overwrites. */
-extern SceneFlicObject *g_pWatchedCutsceneSpriteA_005d2e90;
-extern SceneFlicObject *g_pWatchedCutsceneSpriteB_005d2e94;
+extern SceneFlicObject *g_pWatchedSceneSpriteA_005d2e90;
+extern SceneFlicObject *g_pWatchedSceneSpriteB_005d2e94;
 
 /* Function start: 0x42DA25 */
 void DrawCutsceneSprite(SceneFlicObject *sprite)
@@ -1214,8 +1215,8 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
 
     if (sprite == 0)
         FatalCutsceneError("A11");
-    if (sprite == g_pWatchedCutsceneSpriteA_005d2e90 ||
-        sprite == g_pWatchedCutsceneSpriteB_005d2e94)
+    if (sprite == g_pWatchedSceneSpriteA_005d2e90 ||
+        sprite == g_pWatchedSceneSpriteB_005d2e94)
         x = 0;
     if (g_bCutsceneDrawingEnabled_00499c60 == 0 &&
         g_bCutsceneSkipFrame_00499c54 != 0)
@@ -1253,28 +1254,28 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
             attributes &= ~1;
         }
         g_nCutsceneSpritesDrawn_00499c10++;
-        g_pCutscenePalettePacket_005d2e98 = 0;
+        g_pFilmRgbPacket_005d2e98 = 0;
         switch (sprite->drawType) {
         case 4:
             if (g_nFrameSkipCountdown_0049d760 == 0) {
-                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
                     x, y, sprite->shape,
                     (short)(sprite->currentFrame -
                             sprite->segmentStartFrame),
                     rotation, scale, attributes);
             }
             sprite->currentFrame++;
-            g_pCutscenePalettePacket_005d2e98 =
+            g_pFilmRgbPacket_005d2e98 =
                 (void *)sprite->decoderState;
             AdvanceSceneFlicStream(sprite);
             break;
         case 0:
         case 2:
             if (g_nFrameSkipCountdown_0049d760 == 0) {
-                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
                     x, y, sprite->shape, sprite->baseFrame,
                     rotation, scale, attributes);
-                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
                     x, y, sprite->shape,
                     (short)(sprite->baseFrame + sprite->currentFrame + 1),
                     rotation, scale, attributes);
@@ -1284,7 +1285,7 @@ void DrawCutsceneSprite(SceneFlicObject *sprite)
         case 1:
         case 3:
             if (g_nFrameSkipCountdown_0049d760 == 0) {
-                DrawSpriteScaled(&g_stSecondaryViewBuffer_005d2c90,
+                DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
                     x, y, sprite->shape,
                     (short)(sprite->baseFrame + sprite->currentFrame),
                     rotation, scale, attributes);
@@ -1330,16 +1331,16 @@ void RestoreCutsceneTextBacking(void)
     short height;
 
     if (g_bCutsceneTextRestorePending_00499da0 != 0) {
-        destination = g_stCutsceneTextViewport_005d2d90;
-        height = (short)(g_stCutsceneTextViewport_005d2d90.bottom -
-                         g_stCutsceneTextViewport_005d2d90.top + 1);
+        destination = g_stCutsceneStringViewportBlock_005d2d90;
+        height = (short)(g_stCutsceneStringViewportBlock_005d2d90.bottom -
+                         g_stCutsceneStringViewportBlock_005d2d90.top + 1);
         destination.top =
             (short)((height - g_pCurrentTextContext_005c8d1c->cursorY) / 4 +
-                    g_stCutsceneTextViewport_005d2d90.top);
-        ClearCutsceneViewport(&g_stCutsceneTextViewport_005d2d90,
+                    g_stCutsceneStringViewportBlock_005d2d90.top);
+        ClearCutsceneViewport(&g_stCutsceneStringViewportBlock_005d2d90,
             g_pCurrentTextContext_005c8d1c->backgroundColour);
         CopyViewportContents(
-            &g_stCutsceneTextBackingViewport_005d2db0, &destination);
+            &g_stCutsceneTextBackingPort_005d2db0, &destination);
         g_bCutsceneTextRestorePending_00499da0 = 0;
     }
 }
@@ -1368,7 +1369,7 @@ void ExpandCutsceneText(const unsigned char *source, char *destination)
     DosMemset(out, 0x100, 0);
     while ((character = *source++) != 0) {
         if ((unsigned char)character == 0x40) {
-            itoa(g_nCutsceneFormatValue_005d2f0c, (char *)number, 10);
+            itoa(g_nCutsceneFormatValueWord_005d2f0c, (char *)number, 10);
             out = CopyStringAndReturnEnd(out, (char *)number);
         } else if ((unsigned char)character >= 0x85) {
             switch ((unsigned char)character) {
@@ -1421,26 +1422,26 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
         FatalCutsceneError("A13");
     g_nActiveCutsceneResourceLevel_00499d9c = sequence->owner;
     g_pCurrentCutsceneSequence_00499c80 = sequence;
-    g_bCutsceneFramePresented_005d2de0 = 0;
+    g_bMovieFramePresented_005d2de0 = 0;
     do {
         PumpWindowMessages(0);
         if (textShown == 0 && text != 0) {
             textShown++;
             ClearCutsceneTextViewport();
-            ExpandCutsceneText(text, g_pszCutsceneWorkBuffer_005d2ecc);
+            ExpandCutsceneText(text, g_pszFilmWorkScratch_005d2ecc);
 #ifdef SDL_PORT
-            if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc,
+            if (memcmp(g_pszFilmWorkScratch_005d2ecc,
                        "50", 2) != 0) {
 #else
             if ((IsCutsceneSpeechLoaded() == 0 ||
                  g_nAudioEnabled_0049c244 == 0) &&
-                memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0) {
+                memcmp(g_pszFilmWorkScratch_005d2ecc, "50", 2) != 0) {
 #endif
                 FormatTextBufferFromStart(
-                    "%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
+                    "%s%P", g_pszFilmWorkScratch_005d2ecc);
             }
             g_pszCurrentCutsceneText_00499da4 =
-                g_pszCutsceneWorkBuffer_005d2ecc;
+                g_pszFilmWorkScratch_005d2ecc;
             g_bCutsceneTextRestorePending_00499da0 = 1;
         }
         while (g_bCutsceneSkipFrame_00499c54 == 0 &&
@@ -1462,7 +1463,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
         g_pCurrentCutsceneSequence_00499c80 = sequence;
         if (draw != 0) {
             if (continueSequence != 0 && sequence->planeCount != 0 &&
-                g_bCutsceneFramePresented_005d2de0 == 0) {
+                g_bMovieFramePresented_005d2de0 == 0) {
                 for (planeIndex = 0; planeIndex < sequence->planeCount;
                      planeIndex++) {
                     UpdateCutscenePlaneObject(
@@ -1478,7 +1479,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                     g_bCutsceneViewportPreallocated_00499c4c == 0) {
                     ConsumeCutscenePalettePacket(0, 0x100, 1);
                     PresentCutsceneFrame(
-                        &g_stSecondaryViewBuffer_005d2c90,
+                        &g_stSecondaryViewBufferBlock_005d2c90,
                         &g_stSceneFlicScratchViewport_005d2eb0);
                     RestoreCutsceneTextBacking();
                     if (g_nCutsceneFrameDelay_00499c8c != 0) {
@@ -1488,7 +1489,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                     }
                 }
             } else {
-                g_bCutsceneFramePresented_005d2de0 = 0;
+                g_bMovieFramePresented_005d2de0 = 0;
             }
         } else {
             continueSequence = 0;
@@ -1620,11 +1621,11 @@ void ReleaseSceneFlicPackets(void)
     SceneFlicObject *object;
 
     for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
-        if (g_aSceneFlicCache_005d2e10[cacheIndex].shape != 0) {
+        if (g_aSceneFlicCopyTable_005d2e10[cacheIndex].shape != 0) {
             for (objectIndex = 0; objectIndex < 128; objectIndex++) {
                 object = g_apSceneObjects_00499c38[objectIndex];
                 if (object != 0 && object->drawType == 4 &&
-                    g_aSceneFlicCache_005d2e10[cacheIndex].shape ==
+                    g_aSceneFlicCopyTable_005d2e10[cacheIndex].shape ==
                         object->shape) {
                     object->shape = 0;
                     object->active = 0;
@@ -1635,9 +1636,9 @@ void ReleaseSceneFlicPackets(void)
     }
     for (cacheIndex = 0; cacheIndex < 15U; cacheIndex++) {
         ReleasePacketSlot(
-            (void **)&g_aSceneFlicCache_005d2e10[cacheIndex].shape);
+            (void **)&g_aSceneFlicCopyTable_005d2e10[cacheIndex].shape);
         ReleasePacketSlot(
-            &g_aSceneFlicCache_005d2e10[cacheIndex].auxiliaryAllocation);
+            &g_aSceneFlicCopyTable_005d2e10[cacheIndex].auxiliaryAllocation);
     }
 }
 
@@ -1659,7 +1660,7 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
             object->shape = 0;
         } else {
             if (object->currentFrame != 0) {
-                CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90,
                                      &g_stSceneFlicScratchViewport_005d2eb0);
             }
             DosStrcpy(filename, object->filename);
@@ -1667,28 +1668,28 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
             retired = object->shape;
             if (retired != 0) {
                 for (slot = 0; slot < 15U; slot++) {
-                    if (g_aSceneFlicCache_005d2e10[slot].shape ==
+                    if (g_aSceneFlicCopyTable_005d2e10[slot].shape ==
                         retired) {
                         ReleasePacketSlot(&retired);
-                        g_aSceneFlicCache_005d2e10[slot].shape = 0;
+                        g_aSceneFlicCopyTable_005d2e10[slot].shape = 0;
                         retired =
-                            g_aSceneFlicCache_005d2e10[slot].shape;
+                            g_aSceneFlicCopyTable_005d2e10[slot].shape;
                         break;
                     }
                 }
             }
             while (fetch != 0) {
-                if (g_aSceneFlicCache_005d2e10[0].shape == 0) {
+                if (g_aSceneFlicCopyTable_005d2e10[0].shape == 0) {
                     object->shape = 0;
                     for (slot = 0; slot < 15U; slot++) {
-                        g_aSceneFlicCache_005d2e10[slot]
+                        g_aSceneFlicCopyTable_005d2e10[slot]
                             .auxiliaryAllocation = 0;
-                        g_aSceneFlicCache_005d2e10[slot].shape =
+                        g_aSceneFlicCopyTable_005d2e10[slot].shape =
                             LoadNamedPacket(
                                 filename,
                                 (short)(object->nextSection + slot),
                                 0, 0x0c, 0, 1);
-                        if (g_aSceneFlicCache_005d2e10[slot].shape ==
+                        if (g_aSceneFlicCopyTable_005d2e10[slot].shape ==
                             0) {
                             if (slot == 0) {
                                 OutputDebugPrintf(
@@ -1706,26 +1707,26 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
                                 g_pMemoryLogFile_00499da8,
                                 "Loaded Flic %s (%d) at %Fp\n", filename,
                                 object->nextSection + slot,
-                                g_aSceneFlicCache_005d2e10[slot].shape);
+                                g_aSceneFlicCopyTable_005d2e10[slot].shape);
                         }
                     }
                     fetch = 0;
                 }
-                if (g_aSceneFlicCache_005d2e10[0].shape != 0) {
+                if (g_aSceneFlicCopyTable_005d2e10[0].shape != 0) {
                     slot = 0;
                     if (object->shape != 0) {
                         while (slot < 15U) {
                             slot++;
-                            if (g_aSceneFlicCache_005d2e10[slot - 1]
+                            if (g_aSceneFlicCopyTable_005d2e10[slot - 1]
                                     .shape == object->shape)
                                 break;
                         }
                     }
-                    if (g_aSceneFlicCache_005d2e10[slot].shape != 0) {
+                    if (g_aSceneFlicCopyTable_005d2e10[slot].shape != 0) {
                         object->shape =
-                            g_aSceneFlicCache_005d2e10[slot].shape;
+                            g_aSceneFlicCopyTable_005d2e10[slot].shape;
                         object->decoderState = 0;
-                        g_aSceneFlicCache_005d2e10[slot]
+                        g_aSceneFlicCopyTable_005d2e10[slot]
                             .auxiliaryAllocation = 0;
                         object->segmentStartFrame = object->currentFrame;
                         object->segmentEndFrame =
@@ -1738,7 +1739,7 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
                              probe < slot;
                              probe++) {
                             ReleasePacketSlot(
-                                (void **)&g_aSceneFlicCache_005d2e10[
+                                (void **)&g_aSceneFlicCopyTable_005d2e10[
                                     probe].shape);
                         }
                         object->shape = 0;
@@ -1746,7 +1747,7 @@ void AdvanceSceneFlicStream(SceneFlicObject *object)
                 }
             }
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
-                                 &g_stSecondaryViewBuffer_005d2c90);
+                                 &g_stSecondaryViewBufferBlock_005d2c90);
         }
     }
 }
@@ -1786,11 +1787,11 @@ void ReleaseCutsceneFontPacket(void)
 
     savedOwner = g_nActiveCutsceneResourceLevel_00499d9c;
     g_nActiveCutsceneResourceLevel_00499d9c =
-        g_nCutsceneFontOwner_005d2fa0;
+        g_nCutsceneFontOwnerNumber_005d2fa0;
     ReleaseActiveCutscenePacket(
         g_pCutsceneFontResources_004928a0,
-        g_stCutsceneTextContext_005d2f40.font);
-    g_stCutsceneTextContext_005d2f40.font = 0;
+        g_stCutsceneMessageCtxInfo_005d2f40.font);
+    g_stCutsceneMessageCtxInfo_005d2f40.font = 0;
     g_nActiveCutsceneResourceLevel_00499d9c = savedOwner;
 }
 
@@ -1799,7 +1800,7 @@ void UpdateMap(char *text, short objective)
 {
     int deadline;
 
-    ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50, 0);
+    ClearCutsceneViewport(&g_stModalSourceWindow_005d2c50, 0);
     g_bBriefingMapActive_0049bcb0 = 1;
     LoadMissionData(g_pCampaignGlobals_00499c94->series,
                     g_pCampaignGlobals_00499c94->mission);
@@ -1809,18 +1810,18 @@ void UpdateMap(char *text, short objective)
     BriefingMap_DisplayMap();
     g_bBriefingMapActive_0049bcb0 = 0;
     RouteCutsceneViewportToDisplay();
-    SetTextContext(&g_stCutsceneTextContext_005d2f40);
+    SetTextContext(&g_stCutsceneMessageCtxInfo_005d2f40);
     ClearCutsceneTextViewport();
     ExpandCutsceneText((const unsigned char *)text,
-                       g_pszCutsceneWorkBuffer_005d2ecc);
+                       g_pszFilmWorkScratch_005d2ecc);
 #ifdef SDL_PORT
-    if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0)
+    if (memcmp(g_pszFilmWorkScratch_005d2ecc, "50", 2) != 0)
         FormatTextBufferFromStart(
-            "%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
+            "%s%P", g_pszFilmWorkScratch_005d2ecc);
 #else
     if (IsCutsceneSpeechLoaded() == 0 || g_nAudioEnabled_0049c244 == 0) {
-        if (memcmp(g_pszCutsceneWorkBuffer_005d2ecc, "50", 2) != 0)
-            FormatTextBufferFromStart("%s%P", g_pszCutsceneWorkBuffer_005d2ecc);
+        if (memcmp(g_pszFilmWorkScratch_005d2ecc, "50", 2) != 0)
+            FormatTextBufferFromStart("%s%P", g_pszFilmWorkScratch_005d2ecc);
     }
 #endif
     g_bCutsceneTextRestorePending_00499da0 = 1;
@@ -1836,7 +1837,7 @@ void UpdateMap(char *text, short objective)
                 break;
         }
     }
-    ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50, 0);
+    ClearCutsceneViewport(&g_stModalSourceWindow_005d2c50, 0);
 }
 
 /* Function start: 0x42EE4F */
@@ -1881,14 +1882,14 @@ void DrawCinematicMemoryStatus(const char *message)
     Viewport viewport;
     unsigned int memory;
 
-    viewport = g_stModalSourceViewport_005d2c50;
+    viewport = g_stModalSourceWindow_005d2c50;
     if ((g_cCutsceneVideoMode_00499c48 == 0x13 ||
          g_cCutsceneVideoMode_00499c48 == 0x0d) &&
         g_cShowMemoryStatus != 0) {
         if (*message != '~') {
             PresentCutsceneFrame(
-                &g_stCutsceneTextBackingViewport_005d2db0,
-                &g_stCutsceneTextViewport_005d2d90);
+                &g_stCutsceneTextBackingPort_005d2db0,
+                &g_stCutsceneStringViewportBlock_005d2d90);
             g_bCutsceneTextRestorePending_00499da0 = 1;
         }
         largest = GetLargestMainMemoryBlock();
@@ -1900,16 +1901,16 @@ void DrawCinematicMemoryStatus(const char *message)
                     "OVR: %lu INITIAL: %lu",
                     message, memory, largest,
                     farMemory,
-                    g_nCutsceneMemoryDelta_005d2ec8,
-                    g_nCutsceneInitialAvailableMemory_005d2e88);
+                    g_nCutsceneMemDelta_005d2ec8,
+                    g_nCutsceneInitialAvailableMemoryWord_005d2e88);
         } else {
             strcpy(text, "Game Paused");
         }
-        g_stCutsceneDrawingTextContext_005d2f60 =
-            g_stCutsceneTextContext_005d2f40;
-        g_stCutsceneDrawingTextContext_005d2f60.viewport =
-            &g_stModalSourceViewport_005d2c50;
-        SetTextContext(&g_stCutsceneDrawingTextContext_005d2f60);
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60 =
+            g_stCutsceneMessageCtxInfo_005d2f40;
+        g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport =
+            &g_stModalSourceWindow_005d2c50;
+        SetTextContext(&g_stCutsceneDrawingTextSettingsInfo_005d2f60);
         g_pCurrentTextContext_005c8d1c->cursorX =
             g_pCurrentTextContext_005c8d1c->viewport->left;
         g_pCurrentTextContext_005c8d1c->cursorY =
@@ -1917,7 +1918,7 @@ void DrawCinematicMemoryStatus(const char *message)
         FormatTextBufferFromStart("%s%P", text);
         WaitForCutsceneInputEvent();
         g_bCutsceneSkipFrame_00499c54 = 0;
-        SetTextContext(&g_stCutsceneTextContext_005d2f40);
+        SetTextContext(&g_stCutsceneMessageCtxInfo_005d2f40);
         viewport.top = 0;
         viewport.bottom =
             (short)(g_stSceneFlicScratchViewport_005d2eb0.top - 1);
@@ -2142,9 +2143,9 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_bCutsceneViewportPreallocated_00499c4c == 0) {
             if (ServiceInputDevices(-1) != 0) {
                 ServiceCutsceneRuntimeHook();
-                g_pCutsceneInputEvent_005d2f08 = FindQueuedInputEvent(4);
-                if (g_pCutsceneInputEvent_005d2f08 != 0) {
-                    switch (g_pCutsceneInputEvent_005d2f08->status) {
+                g_pFilmInputFlag_005d2f08 = FindQueuedInputEvent(4);
+                if (g_pFilmInputFlag_005d2f08 != 0) {
+                    switch (g_pFilmInputFlag_005d2f08->status) {
                     case 2:
                         g_cCutsceneSpeechSpeed_00499eb4 = 0;
                         break;
@@ -2162,7 +2163,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                         break;
                     case 0x19:
                         WaitForCutsceneInputEvent();
-                        if ((g_pCutsceneInputEvent_005d2f08->modifiers &
+                        if ((g_pFilmInputFlag_005d2f08->modifiers &
                              0x1800) == 0) {
                             DrawCinematicMemoryStatus("~");
                         } else {
@@ -2171,7 +2172,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                         break;
                     case 0x11:
                         WaitForCutsceneInputEvent();
-                        if ((g_pCutsceneInputEvent_005d2f08->modifiers &
+                        if ((g_pFilmInputFlag_005d2f08->modifiers &
                              0x1800) != 0) {
                             FormatCinematicMemoryStatus(
                                 "Series: %d Mission: %c Talk: %d\n",
@@ -2198,7 +2199,7 @@ handle_queued_cutscene_input:
                             g_bSceneEscapeRequested_0049d4b0 = 0;
                             return 0;
                         }
-                        g_bCutsceneTextAdvance_005d2ed0 = 0;
+                        g_bMovieStringAdvanceState_005d2ed0 = 0;
                         g_pszCutsceneSpeechCursor_00499eb0 = 0;
                         g_bCutsceneSkipFrame_00499c54 = 1;
                         g_nNextCutsceneFrameClock_00499c90 =
@@ -2219,7 +2220,7 @@ handle_queued_cutscene_input:
                     g_bSceneEscapeRequested_0049d4b0 = 0;
                     return 0;
                 }
-                g_bCutsceneTextAdvance_005d2ed0 = 0;
+                g_bMovieStringAdvanceState_005d2ed0 = 0;
                 g_pszCutsceneSpeechCursor_00499eb0 = 0;
                 g_bCutsceneSkipFrame_00499c54 = 1;
                 g_nNextCutsceneFrameClock_00499c90 =
@@ -2308,8 +2309,8 @@ handle_queued_cutscene_input:
             if (g_bCutsceneSkipAll_00499c58 != 0)
                 value = 0;
             if (value == 0) {
-                g_nCutsceneBranchOffset_005d2e8c = *(short *)instruction;
-                instruction += g_nCutsceneBranchOffset_005d2e8c;
+                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
+                instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
             } else {
                 instruction += 2;
             }
@@ -2330,15 +2331,15 @@ handle_queued_cutscene_input:
             if (g_bCutsceneSkipAll_00499c58 != 0)
                 value = 0;
             if (value == 1) {
-                g_nCutsceneBranchOffset_005d2e8c = *(short *)instruction;
-                instruction += g_nCutsceneBranchOffset_005d2e8c;
+                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
+                instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
             } else {
                 instruction += 2;
             }
             break;
         case 0x0e:
-            g_nCutsceneBranchOffset_005d2e8c = *(short *)instruction;
-            instruction += g_nCutsceneBranchOffset_005d2e8c;
+            g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
+            instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
             break;
         case 0x17:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2398,7 +2399,7 @@ handle_queued_cutscene_input:
                 FatalCutsceneError("A23");
             break;
         case 0x8a:
-            g_bCutsceneTextAdvance_005d2ed0 = 1;
+            g_bMovieStringAdvanceState_005d2ed0 = 1;
             resourceIndex = *instruction++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
@@ -2414,7 +2415,7 @@ handle_queued_cutscene_input:
             break;
         case 0x77:
             index = *instruction++;
-            g_pCutsceneLocalsScratch_005d2f00 = AllocateScenePointerTable(
+            g_pCutsceneLocalsTemp_005d2f00 = AllocateScenePointerTable(
                 index, 2, 0, "Cannot Allocate Loacls Data");
             switch (objectType) {
             case 0:
@@ -2422,27 +2423,27 @@ handle_queued_cutscene_input:
                 if (sprite == 0)
                     FatalCutsceneError("A25");
                 if (sprite->locals != 0)
-                    ReleasePacketSlot((void **)&g_pCutsceneLocalsScratch_005d2f00);
+                    ReleasePacketSlot((void **)&g_pCutsceneLocalsTemp_005d2f00);
                 if (sprite->linkedScript == 0)
-                    sprite->locals = g_pCutsceneLocalsScratch_005d2f00;
+                    sprite->locals = g_pCutsceneLocalsTemp_005d2f00;
                 else
-                    ReleasePacketSlot((void **)&g_pCutsceneLocalsScratch_005d2f00);
+                    ReleasePacketSlot((void **)&g_pCutsceneLocalsTemp_005d2f00);
                 break;
             case 1:
                 plane = g_pCurrentCutscenePlane_00499c7c;
                 if (plane == 0)
                     FatalCutsceneError("A26");
                 if (plane->locals != 0)
-                    ReleasePacketSlot((void **)&g_pCutsceneLocalsScratch_005d2f00);
-                plane->locals = g_pCutsceneLocalsScratch_005d2f00;
+                    ReleasePacketSlot((void **)&g_pCutsceneLocalsTemp_005d2f00);
+                plane->locals = g_pCutsceneLocalsTemp_005d2f00;
                 break;
             case 2:
                 sequence = g_pCurrentCutsceneSequence_00499c80;
                 if (sequence == 0)
                     FatalCutsceneError("A27");
                 if (sequence->locals != 0)
-                    ReleasePacketSlot((void **)&g_pCutsceneLocalsScratch_005d2f00);
-                sequence->locals = g_pCutsceneLocalsScratch_005d2f00;
+                    ReleasePacketSlot((void **)&g_pCutsceneLocalsTemp_005d2f00);
+                sequence->locals = g_pCutsceneLocalsTemp_005d2f00;
                 break;
             }
             break;
@@ -2465,62 +2466,62 @@ handle_queued_cutscene_input:
             }
             break;
         case 0x7f:
-            g_nCutsceneResourceScratch_005d2e9c =
+            g_nCutsceneResourceScratchValue_005d2e9c =
                 (short)(signed char)*instruction++;
-            if (g_stSecondaryViewBuffer_005d2c90.pixels ==
-                g_stCutsceneTextBackingViewport_005d2db0.pixels) {
-                g_stCutsceneTextBackingViewport_005d2db0.pixels = 0;
+            if (g_stSecondaryViewBufferBlock_005d2c90.pixels ==
+                g_stCutsceneTextBackingPort_005d2db0.pixels) {
+                g_stCutsceneTextBackingPort_005d2db0.pixels = 0;
             }
             g_stSceneFlicScratchViewport_005d2eb0.left = 0;
             g_stSceneFlicScratchViewport_005d2eb0.top =
-                g_nCutsceneResourceScratch_005d2e9c;
+                g_nCutsceneResourceScratchValue_005d2e9c;
             g_stSceneFlicScratchViewport_005d2eb0.right = 0x13f;
             g_stSceneFlicScratchViewport_005d2eb0.bottom =
-                (short)(g_nCutsceneResourceScratch_005d2e9c + 0x7d);
-            g_stCutsceneTextViewport_005d2d90.left = 0x10;
-            g_stCutsceneTextViewport_005d2d90.top =
-                (short)(g_nCutsceneResourceScratch_005d2e9c + 0x7e);
-            g_stCutsceneTextViewport_005d2d90.right = 0x12f;
-            g_stCutsceneTextViewport_005d2d90.bottom = 199;
-            ReleaseCutsceneViewport(&g_stSecondaryViewBuffer_005d2c90);
-            g_stSecondaryViewBuffer_005d2c90.left =
-                g_stSecondaryViewBuffer_005d2c90.top = 0;
-            g_stSecondaryViewBuffer_005d2c90.right = 0x13f;
-            g_stSecondaryViewBuffer_005d2c90.bottom = 0x7d;
+                (short)(g_nCutsceneResourceScratchValue_005d2e9c + 0x7d);
+            g_stCutsceneStringViewportBlock_005d2d90.left = 0x10;
+            g_stCutsceneStringViewportBlock_005d2d90.top =
+                (short)(g_nCutsceneResourceScratchValue_005d2e9c + 0x7e);
+            g_stCutsceneStringViewportBlock_005d2d90.right = 0x12f;
+            g_stCutsceneStringViewportBlock_005d2d90.bottom = 199;
+            ReleaseCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            g_stSecondaryViewBufferBlock_005d2c90.left =
+                g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+            g_stSecondaryViewBufferBlock_005d2c90.right = 0x13f;
+            g_stSecondaryViewBufferBlock_005d2c90.bottom = 0x7d;
             AllocateCutsceneViewportOrFatal(
-                &g_stSecondaryViewBuffer_005d2c90, 0, 0);
+                &g_stSecondaryViewBufferBlock_005d2c90, 0, 0);
             RouteCutsceneViewportToDisplay();
             ReleaseCutsceneViewport(
-                &g_stCutsceneTextBackingViewport_005d2db0);
-            g_stCutsceneTextBackingViewport_005d2db0.left =
-                g_stCutsceneTextBackingViewport_005d2db0.top = 0;
-            g_stCutsceneTextBackingViewport_005d2db0.right = 0x11f;
-            g_stCutsceneTextBackingViewport_005d2db0.bottom = 0x24;
+                &g_stCutsceneTextBackingPort_005d2db0);
+            g_stCutsceneTextBackingPort_005d2db0.left =
+                g_stCutsceneTextBackingPort_005d2db0.top = 0;
+            g_stCutsceneTextBackingPort_005d2db0.right = 0x11f;
+            g_stCutsceneTextBackingPort_005d2db0.bottom = 0x24;
             AllocateCutsceneViewportOrFatal(
-                &g_stCutsceneTextBackingViewport_005d2db0, 0, 0);
+                &g_stCutsceneTextBackingPort_005d2db0, 0, 0);
             break;
         case 0x80:
             g_stSceneFlicScratchViewport_005d2eb0.left = 0;
             g_stSceneFlicScratchViewport_005d2eb0.top =
-                g_nCutsceneResourceScratch_005d2e9c;
+                g_nCutsceneResourceScratchValue_005d2e9c;
             g_stSceneFlicScratchViewport_005d2eb0.right = 0x13f;
             g_stSceneFlicScratchViewport_005d2eb0.bottom = 199;
-            g_stCutsceneTextViewport_005d2d90.left = 0;
-            g_stCutsceneTextViewport_005d2d90.top = 0;
-            g_stCutsceneTextViewport_005d2d90.right = 0x13f;
-            g_stCutsceneTextViewport_005d2d90.bottom = 199;
-            ReleaseCutsceneViewport(&g_stSecondaryViewBuffer_005d2c90);
-            g_stSecondaryViewBuffer_005d2c90.left =
-                g_stSecondaryViewBuffer_005d2c90.top = 0;
-            g_stSecondaryViewBuffer_005d2c90.right = 0x13f;
-            g_stSecondaryViewBuffer_005d2c90.bottom = 199;
+            g_stCutsceneStringViewportBlock_005d2d90.left = 0;
+            g_stCutsceneStringViewportBlock_005d2d90.top = 0;
+            g_stCutsceneStringViewportBlock_005d2d90.right = 0x13f;
+            g_stCutsceneStringViewportBlock_005d2d90.bottom = 199;
+            ReleaseCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            g_stSecondaryViewBufferBlock_005d2c90.left =
+                g_stSecondaryViewBufferBlock_005d2c90.top = 0;
+            g_stSecondaryViewBufferBlock_005d2c90.right = 0x13f;
+            g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
             AllocateCutsceneViewportOrFatal(
-                &g_stSecondaryViewBuffer_005d2c90, 0, 0);
+                &g_stSecondaryViewBufferBlock_005d2c90, 0, 0);
             RouteCutsceneViewportToDisplay();
             ReleaseCutsceneViewport(
-                &g_stCutsceneTextBackingViewport_005d2db0);
-            g_stCutsceneTextBackingViewport_005d2db0 =
-                g_stSecondaryViewBuffer_005d2c90;
+                &g_stCutsceneTextBackingPort_005d2db0);
+            g_stCutsceneTextBackingPort_005d2db0 =
+                g_stSecondaryViewBufferBlock_005d2c90;
             break;
         case 0xb8:
             PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2962,7 +2963,7 @@ handle_queued_cutscene_input:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             if (g_cCutsceneVideoMode_00499c48 == 0x0d)
                 value = g_abCutscenePaletteTranslation_00499c98[value];
-            g_stCutsceneTextContext_005d2f40.colour = (unsigned char)value;
+            g_stCutsceneMessageCtxInfo_005d2f40.colour = (unsigned char)value;
             break;
         case 0x8b:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2971,11 +2972,11 @@ handle_queued_cutscene_input:
                 ClearCutsceneViewport(
                     &g_stSceneFlicScratchViewport_005d2eb0,
                     (unsigned char)value);
-                PanToScreen(&g_stSecondaryViewBuffer_005d2c90,
+                PanToScreen(&g_stSecondaryViewBufferBlock_005d2c90,
                             &g_stSceneFlicScratchViewport_005d2eb0);
                 MarkDibDirty();
                 DIBslamReal();
-                CopyViewportContents(&g_stSecondaryViewBuffer_005d2c90,
+                CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90,
                                      &g_stSceneFlicScratchViewport_005d2eb0);
             }
             break;
@@ -2983,9 +2984,9 @@ handle_queued_cutscene_input:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             SaveGamePalette();
             FadeViewportPaletteToColour(
-                &g_stModalSourceViewport_005d2c50, value, 1);
+                &g_stModalSourceWindow_005d2c50, value, 1);
             ClearCutsceneViewport(
-                &g_stModalSourceViewport_005d2c50,
+                &g_stModalSourceWindow_005d2c50,
                 (unsigned char)value);
             MarkDibDirty();
             DIBslamReal();
@@ -2996,30 +2997,30 @@ handle_queued_cutscene_input:
                 &stack, stackStorage + 10);
             value = PopCutsceneScriptValue(
                 &stack, stackStorage + 10);
-            g_nCutsceneFormatValue_005d2f0c =
+            g_nCutsceneFormatValueWord_005d2f0c =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
-            g_nCutsceneTextIndex_005d2ea4 = *(short *)instruction;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
             instruction += 2;
-            g_pszCutsceneSourceText_005d2dcc =
+            g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
-                    g_nCutsceneTextIndex_005d2ea4];
+                    g_nCutsceneTextIdx_005d2ea4];
             ExpandCutsceneText(
-                (unsigned char *)g_pszCutsceneSourceText_005d2dcc,
+                (unsigned char *)g_pszFilmSourceText_005d2dcc,
                 g_pszCutsceneFormattedText_005d2dc8);
             DrawCutsceneTextAt(value, otherValue, 4,
                                g_pszCutsceneFormattedText_005d2dc8);
             break;
         case 0x6f:
-            g_nCutsceneTextIndex_005d2ea4 = *(short *)instruction;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
             instruction += 2;
-            g_pszCutsceneSourceText_005d2dcc =
+            g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
-                    g_nCutsceneTextIndex_005d2ea4];
+                    g_nCutsceneTextIdx_005d2ea4];
             ExpandCutsceneText(
-                (unsigned char *)g_pszCutsceneSourceText_005d2dcc,
-                g_pszCutscenePrintBuffer_005d2f10);
+                (unsigned char *)g_pszFilmSourceText_005d2dcc,
+                g_pszFilmPrintStore_005d2f10);
             g_pszCurrentCutsceneText_00499da4 =
-                g_pszCutscenePrintBuffer_005d2f10;
+                g_pszFilmPrintStore_005d2f10;
             break;
         case 0xb4:
             g_nCutsceneMusicVolume_0049be90 =
@@ -3031,7 +3032,7 @@ handle_queued_cutscene_input:
                 &stack, stackStorage + 10);
             resourceIndex = *instruction++;
             DrawCutsceneTextAt(otherValue, value, resourceIndex,
-                               g_pszCutscenePrintBuffer_005d2f10);
+                               g_pszFilmPrintStore_005d2f10);
             break;
         case 0xad:
             resourceIndex = *instruction++;
@@ -3050,20 +3051,20 @@ handle_queued_cutscene_input:
                     (unsigned char)value);
                 break;
             case 1:
-                ClearCutsceneViewport(&g_stSecondaryViewBuffer_005d2c90,
+                ClearCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90,
                                       (unsigned char)value);
                 break;
             case 2:
-                ClearCutsceneViewport(&g_stCutsceneTextViewport_005d2d90,
+                ClearCutsceneViewport(&g_stCutsceneStringViewportBlock_005d2d90,
                                       (unsigned char)value);
                 break;
             case 3:
                 ClearCutsceneViewport(
-                    &g_stCutsceneTextBackingViewport_005d2db0,
+                    &g_stCutsceneTextBackingPort_005d2db0,
                     (unsigned char)value);
                 break;
             case 4:
-                ClearCutsceneViewport(&g_stModalSourceViewport_005d2c50,
+                ClearCutsceneViewport(&g_stModalSourceWindow_005d2c50,
                                       (unsigned char)value);
                 break;
             }
@@ -3106,26 +3107,26 @@ handle_queued_cutscene_input:
             break;
         case 0x9b:
             PushCutsceneScriptValue(&stack, stackStorage,
-                (short)(g_stSecondaryViewBuffer_005d2c90.bottom + 1));
+                (short)(g_stSecondaryViewBufferBlock_005d2c90.bottom + 1));
             break;
         case 0x9c:
             PushCutsceneScriptValue(&stack, stackStorage,
-                g_bCutsceneTextAdvance_005d2ed0);
+                g_bMovieStringAdvanceState_005d2ed0);
             break;
         case 0xa2:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             LoadCutsceneSpeechSlot(*instruction++, value);
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
-                                 &g_stSecondaryViewBuffer_005d2c90);
+                                 &g_stSecondaryViewBufferBlock_005d2c90);
             break;
         case 0xb0: {
 #ifdef SDL_PORT
             /* See issue #33 (review on PR #34): breaking out here while the
              * cache is still busy must NOT fall through to the "use and
              * clear" logic below as if the fetch had finished -- that would
-             * read g_apCutsceneSpeechPackets_005d2f80[value] before it is
+             * read g_apSceneSpeechPacketsList_005d2f80[value] before it is
              * valid and then clear the still-in-flight fetch's own
-             * bookkeeping (g_apszCutsceneSpeechFiles_005d2ee0[value] etc.),
+             * bookkeeping (g_apszMovieSpeechFiles_005d2ee0[value] etc.),
              * silently dropping it. g_wDigiPlaying_0049bb60 is never
              * set nonzero anywhere in this reconstruction today, so this
              * loop cannot actually break early yet -- guarded correctly
@@ -3146,23 +3147,23 @@ handle_queued_cutscene_input:
             if (cacheStillBusy)
                 break;
 #endif
-            if (g_apCutsceneSpeechPackets_005d2f80[value] != 0 &&
-                g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
+            if (g_apSceneSpeechPacketsList_005d2f80[value] != 0 &&
+                g_apszMovieSpeechFiles_005d2ee0[value] != 0) {
                 PlaySpeechPacketBuffer(
-                    g_apCutsceneSpeechPackets_005d2f80[value],
-                    g_asCutsceneSpeechChannels_005d2d70[value], 1);
-            } else if (g_apszCutsceneSpeechFiles_005d2ee0[value] != 0) {
+                    g_apSceneSpeechPacketsList_005d2f80[value],
+                    g_asCutsceneSpeechChannelsTable_005d2d70[value], 1);
+            } else if (g_apszMovieSpeechFiles_005d2ee0[value] != 0) {
                 LoadAndPlaySpeechPacket(
-                    g_apszCutsceneSpeechFiles_005d2ee0[value],
-                    g_asCutsceneSpeechSections_005d2dd0[value]);
+                    g_apszMovieSpeechFiles_005d2ee0[value],
+                    g_asCutsceneSpeechSectionsList_005d2dd0[value]);
                 CopyViewportContents(
                     &g_stSceneFlicScratchViewport_005d2eb0,
-                    &g_stSecondaryViewBuffer_005d2c90);
-                g_apCutsceneSpeechPackets_005d2f80[value] = 0;
-                g_asCutsceneSpeechChannels_005d2d70[value] = 0;
+                    &g_stSecondaryViewBufferBlock_005d2c90);
+                g_apSceneSpeechPacketsList_005d2f80[value] = 0;
+                g_asCutsceneSpeechChannelsTable_005d2d70[value] = 0;
             }
-            g_apszCutsceneSpeechFiles_005d2ee0[value] = 0;
-            g_asCutsceneSpeechSections_005d2dd0[value] = 0;
+            g_apszMovieSpeechFiles_005d2ee0[value] = 0;
+            g_asCutsceneSpeechSectionsList_005d2dd0[value] = 0;
             break;
         }
         case 0xa9:
@@ -3182,11 +3183,11 @@ handle_queued_cutscene_input:
             resourceIndex = *instruction++;
             fileResources = FindActiveCutsceneFileResources(
                 g_pCutsceneFontResources_004928a0);
-            g_stCutsceneTextContext_005d2f40.font =
+            g_stCutsceneMessageCtxInfo_005d2f40.font =
                 LoadCachedCutsceneResource(fileResources, resourceIndex, 1);
             g_bCinematicSpriteFontEnabled_005c82a7 =
                 (signed char)*instruction++;
-            g_nCutsceneFontOwner_005d2fa0 =
+            g_nCutsceneFontOwnerNumber_005d2fa0 =
                 g_nActiveCutsceneResourceLevel_00499d9c;
             break;
         case 0x9f:
@@ -3265,20 +3266,20 @@ handle_queued_cutscene_input:
         case 0x83:
             if (g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 resourceIndex = *instruction++;
-                g_pActiveCutsceneFileResources_005d2da4 =
+                g_pActiveSceneFileResourcesRef_005d2da4 =
                     FindActiveCutsceneFileResources(
                     g_pCutscenePaletteResources_004928b0);
-                g_pCutscenePalettePacket_005d2e98 =
+                g_pFilmRgbPacket_005d2e98 =
                     LoadCachedCutsceneResource(
-                        g_pActiveCutsceneFileResources_005d2da4,
+                        g_pActiveSceneFileResourcesRef_005d2da4,
                         resourceIndex, 1);
                 value = *instruction++;
                 otherValue = (short)(*instruction++ + 1);
                 ConsumeCutscenePalettePacket(value, otherValue, 0);
                 ReleaseLoadedCutsceneResource(
-                    g_pActiveCutsceneFileResources_005d2da4,
+                    g_pActiveSceneFileResourcesRef_005d2da4,
                     resourceIndex);
-                g_pCutscenePalettePacket_005d2e98 = 0;
+                g_pFilmRgbPacket_005d2e98 = 0;
             } else {
                 instruction += 3;
             }
@@ -3299,12 +3300,12 @@ handle_queued_cutscene_input:
                         break;
 #endif
                 }
-                PresentCutsceneFrame(&g_stSecondaryViewBuffer_005d2c90,
+                PresentCutsceneFrame(&g_stSecondaryViewBufferBlock_005d2c90,
                                      &g_stSceneFlicScratchViewport_005d2eb0);
                 if (g_pMemoryLogFile_00499da8 != 0)
                     LogChangedCutsceneWorkBuffers();
                 RestoreCutsceneTextBacking();
-                g_bCutsceneFramePresented_005d2de0 = 1;
+                g_bMovieFramePresented_005d2de0 = 1;
                 if (g_nCutsceneFrameDelay_00499c8c != 0) {
                     g_nNextCutsceneFrameClock_00499c90 =
                         g_nInputClock_005c84a8 +
@@ -3371,15 +3372,15 @@ handle_queued_cutscene_input:
             break;
         case 0xb9:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            g_nCutsceneTextIndex_005d2ea4 = *(short *)instruction;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
             instruction += 2;
-            g_pszCutsceneSourceText_005d2dcc =
+            g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
-                    g_nCutsceneTextIndex_005d2ea4];
+                    g_nCutsceneTextIdx_005d2ea4];
             if (g_pMemoryLogFile_00499da8 != 0) {
                 fprintf(g_pMemoryLogFile_00499da8,
                         "%%%%%% ELOG: %Fs = %d\n",
-                        g_pszCutsceneSourceText_005d2dcc, value);
+                        g_pszFilmSourceText_005d2dcc, value);
             }
             break;
         case 0xb1:
@@ -3414,10 +3415,10 @@ handle_queued_cutscene_input:
                     g_nCutsceneResourceLevel_00499d98;
                 ParseCutsceneContainer(packet);
                 WriteMemoryStateReportHook();
-                DosMemset(g_pszCutsceneWorkBuffer_005d2ecc, 4, 0);
+                DosMemset(g_pszFilmWorkScratch_005d2ecc, 4, 0);
                 ClearCutsceneTextViewport();
                 ClearCutsceneViewport(
-                    &g_stCutsceneTextViewport_005d2d90, 0);
+                    &g_stCutsceneStringViewportBlock_005d2d90, 0);
                 objectResources = FindActiveCutsceneObjectResources(
                     g_pCutsceneSceneResources_00492898);
                 ExecuteCutsceneScene(g_apCutsceneScenes_00499c44[
@@ -3447,18 +3448,18 @@ handle_queued_cutscene_input:
                 g_bCutsceneSkipFrame_00499c54 = 0;
             break;
         case 0x87:
-            g_nCutsceneTextIndex_005d2ea4 = *(short *)instruction;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
             instruction += 2;
             resourceIndex = *instruction++;
-            g_pszCutsceneSourceText_005d2dcc =
+            g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
-                    g_nCutsceneTextIndex_005d2ea4];
+                    g_nCutsceneTextIdx_005d2ea4];
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSequenceResources_00492894);
             ExecuteCutsceneSequence(
                 g_apCutsceneSequences_00499c40[
                     objectResources->scriptSymbolIndices[resourceIndex]],
-                (unsigned char *)g_pszCutsceneSourceText_005d2dcc, 1);
+                (unsigned char *)g_pszFilmSourceText_005d2dcc, 1);
             if (g_bCutsceneSkipFrame_00499c54 != 0 &&
                 (objectType == 3 || objectType == 2)) {
                 g_bCutsceneSkipFrame_00499c54 = 0;
@@ -3517,7 +3518,7 @@ handle_queued_cutscene_input:
             break;
         case 0x78:
             if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
-                g_nSavedCutsceneResourceOwner_005d2d68 =
+                g_nSavedCutsceneResourceOwnerValue_005d2d68 =
                     g_nActiveCutsceneResourceLevel_00499d9c;
             }
             if (g_pCurrentCutsceneSprite_00499c78 == 0) {
@@ -3552,7 +3553,7 @@ handle_queued_cutscene_input:
             }
             if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
                 g_nActiveCutsceneResourceLevel_00499d9c =
-                    g_nSavedCutsceneResourceOwner_005d2d68;
+                    g_nSavedCutsceneResourceOwnerValue_005d2d68;
             }
             break;
         case 0x99:
@@ -3566,15 +3567,15 @@ handle_queued_cutscene_input:
             ReleaseLoadedCutsceneResource(fileResources, index);
             break;
         case 0x9a:
-            g_pActiveCutsceneFileResources_005d2da4 =
+            g_pActiveSceneFileResourcesRef_005d2da4 =
                 FindActiveCutsceneFileResources(
                 g_pCutsceneShapeResources_004928a8);
-            g_nCutsceneResourceScratch_005d2e9c =
-                g_pActiveCutsceneFileResources_005d2da4->count;
-            while (g_nCutsceneResourceScratch_005d2e9c-- != 0) {
+            g_nCutsceneResourceScratchValue_005d2e9c =
+                g_pActiveSceneFileResourcesRef_005d2da4->count;
+            while (g_nCutsceneResourceScratchValue_005d2e9c-- != 0) {
                 ReleaseLoadedCutsceneResource(
-                    g_pActiveCutsceneFileResources_005d2da4,
-                    g_nCutsceneResourceScratch_005d2e9c);
+                    g_pActiveSceneFileResourcesRef_005d2da4,
+                    g_nCutsceneResourceScratchValue_005d2e9c);
             }
             break;
         case 0x7b:
@@ -3687,7 +3688,7 @@ handle_queued_cutscene_input:
             break;
         case 0xb7:
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
-                                 &g_stSecondaryViewBuffer_005d2c90);
+                                 &g_stSecondaryViewBufferBlock_005d2c90);
             break;
         case 0xa8:
             value = *instruction++;
@@ -3774,19 +3775,19 @@ handle_queued_cutscene_input:
         case 0xa5:
             RunCutsceneWipeTransition(
                 &g_stSceneFlicScratchViewport_005d2eb0,
-                &g_stSecondaryViewBuffer_005d2c90,
+                &g_stSecondaryViewBufferBlock_005d2c90,
                 (int)(signed char)*instruction++,
                 PopCutsceneScriptValue(&stack, stackStorage + 10));
             break;
         case 0xa6:
             resourceIndex = *instruction++;
-            g_nCutsceneTextIndex_005d2ea4 = *(short *)instruction;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
             instruction += 2;
-            g_pszCutsceneSourceText_005d2dcc =
+            g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
-                    g_nCutsceneTextIndex_005d2ea4];
+                    g_nCutsceneTextIdx_005d2ea4];
             if (g_bCutsceneSkipFrame_00499c54 == 0) {
-                UpdateMap(g_pszCutsceneSourceText_005d2dcc,
+                UpdateMap(g_pszFilmSourceText_005d2dcc,
                           resourceIndex);
             }
             break;
@@ -3964,7 +3965,7 @@ void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite)
     short index;
 
     frames = sprite->shape;
-    g_nSavedCutsceneResourceOwner_005d2d68 =
+    g_nSavedCutsceneResourceOwnerValue_005d2d68 =
         g_nActiveCutsceneResourceLevel_00499d9c;
     if (frames != 0) {
         for (index = 0; index < 0x80; index++) {
@@ -3978,7 +3979,7 @@ void ReleaseCutsceneSpriteShape(SceneFlicObject *sprite)
     ReleaseActiveCutscenePacket(g_pCutsceneShapeResources_004928a8, frames);
 shape_is_shared:
     g_nActiveCutsceneResourceLevel_00499d9c =
-        g_nSavedCutsceneResourceOwner_005d2d68;
+        g_nSavedCutsceneResourceOwnerValue_005d2d68;
     sprite->shape = 0;
 }
 
@@ -4100,3 +4101,49 @@ PilotNameVariables g_stPilotNameVariables_00499ef8 = {
     "CALLSIGN", "PCNAME", "FIRSTNAME"
 };
 signed char g_cCutsceneTextStyle_00499f40 = 0;
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+signed char g_bSceneCockpitLoaded_005d2d66;
+short g_nSavedCutsceneResourceOwnerValue_005d2d68;
+short g_asCutsceneSpeechChannelsTable_005d2d70[8];
+char g_nFreeGameflowWord_005d2d80; /* never referenced */
+Viewport g_stCutsceneStringViewportBlock_005d2d90;
+CutsceneResourceTable *g_pActiveSceneFileResourcesRef_005d2da4;
+Viewport g_stCutsceneTextBackingPort_005d2db0;
+unsigned int g_dwSceneMusicMode_005d2dc4;
+char *g_pszCutsceneFormattedText_005d2dc8;
+char *g_pszFilmSourceText_005d2dcc;
+short g_asCutsceneSpeechSectionsList_005d2dd0[8];
+signed char g_bMovieFramePresented_005d2de0;
+TextContext g_stMovieDebugTextCtx_005d2df0;
+SceneFlicCacheEntry g_aSceneFlicCopyTable_005d2e10[15];
+unsigned int g_nCutsceneInitialAvailableMemoryWord_005d2e88;
+short g_nCutsceneForkOffsetNumber_005d2e8c;
+SceneFlicObject *g_pWatchedSceneSpriteA_005d2e90;
+SceneFlicObject *g_pWatchedSceneSpriteB_005d2e94;
+unsigned char *g_pFilmRgbPacket_005d2e98;
+short g_nCutsceneResourceScratchValue_005d2e9c;
+int g_nIdleGameflowWord_005d2ea0; /* never referenced */
+short g_nCutsceneTextIdx_005d2ea4;
+unsigned int g_nSceneInitialLargestBlockWord_005d2ea8;
+Viewport g_stSceneFlicScratchViewport_005d2eb0;
+short g_nEarlierGlobalCount_005d2ec4;
+int g_nCutsceneMemDelta_005d2ec8;
+char *g_pszFilmWorkScratch_005d2ecc;
+short g_bMovieStringAdvanceState_005d2ed0;
+char *g_apszMovieSpeechFiles_005d2ee0[8];
+short *g_pCutsceneLocalsTemp_005d2f00;
+char g_nSpareGameflowWord_005d2f04; /* never referenced */
+InputEventState *g_pFilmInputFlag_005d2f08;
+short g_nCutsceneFormatValueWord_005d2f0c;
+char *g_pszFilmPrintStore_005d2f10;
+int g_nIdleGameflowWord_005d2f20[5]; /* never referenced */
+TextContext g_stCutsceneMessageCtxInfo_005d2f40;
+TextContext g_stCutsceneDrawingTextSettingsInfo_005d2f60;
+void *g_apSceneSpeechPacketsList_005d2f80[8];
+short g_nCutsceneFontOwnerNumber_005d2fa0;
+char g_nUnusedGameflowNumberValue_005d2fa2; /* never referenced */
+short g_bUserDestroyedFlag_005d2fa4;
+short g_nFreeGameflowWord_005d2fa6; /* never referenced */
+signed char g_cPilotKillCountValue_005d2fa8;

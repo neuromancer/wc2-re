@@ -19,9 +19,9 @@ void BeginShipDestructionSequence(short obj)
     else
         g_asObjectCounter_00494be0[obj] = 4;
     if (g_aObjectTypeData_00496d30[OBJECT_DATA_INDEX(OBJECT_TYPE_EXPLOSION2)].shapeSet != 0)
-        g_asShipExplosionStageTimer_005d3850[obj] = 8;
+        g_asShipBurstStageCountdown_005d3850[obj] = 8;
     else
-        g_asShipExplosionStageTimer_005d3850[obj] = 4;
+        g_asShipBurstStageCountdown_005d3850[obj] = 4;
     g_aMissionShips_00492290[g_asShipMissionIndex_00495d00[obj]].state = 3;
     ShipExplosion(obj);
     explosion_shock_wave(
@@ -55,11 +55,15 @@ void SpawnMissionEjectionPod(short obj)
     RecordCannedSceneObjectEvent(obj, 0);
     g_bMissionEjectionPodSpawned_0049b724 = 1;
     for (initialShip = 0; initialShip < 8; initialShip++) {
-        if (g_stMissionHeader_005d3e70.initialMissionShips[initialShip] ==
+        if (g_stMissionHeaderBlock_005d3e70.initialMissionShips[initialShip] ==
                 g_asShipMissionIndex_00495d00[obj]) {
-            g_acMissionShipStatusFlags_005d2fb0[initialShip] |= 2;
+            g_acMissionShipStatusFlagsBytes_005d2fb0[initialShip] |= 2;
             if (obj == g_nYourWingman_0049346c)
                 g_nYourWingman_0049346c = -1;
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nPendingEjectionShip_005d1bc4;

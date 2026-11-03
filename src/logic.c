@@ -153,7 +153,7 @@ short detect_collisions(short obj)
 
     candidate = -1;
     soonest = 30;
-    g_nCollisionCountdown_005d2faa = 1000;
+    g_nCollisionCountdownNumber_005d2faa = 1000;
     candidate = -1;
     if (g_pActiveHazardField_00493278 != 0) {
         for (object = 0; object <= 0x42; object++) {
@@ -182,7 +182,7 @@ short detect_collisions(short obj)
         }
     }
     if (candidate != -1)
-        g_nCollisionCountdown_005d2faa = soonest;
+        g_nCollisionCountdownNumber_005d2faa = soonest;
     return candidate;
 }
 
@@ -296,7 +296,7 @@ short try2rout(short obj)
     } else {
         reset_mission_type(obj, MISSION_TYPE_ROUT);
         if (obj == g_nYourWingman_0049346c) {
-            g_acMissionShipStatusFlags_005d2fb0[0] |= 4;
+            g_acMissionShipStatusFlagsBytes_005d2fb0[0] |= 4;
             send_message(obj, 0xb);
         }
     }
@@ -1087,3 +1087,11 @@ short evaluate_damage(short obj)
 }
 
 short g_bKilrathiAceGreetingSent_00499bf4 = 0;
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nCollisionCountdownNumber_005d2faa;
+signed char g_acMissionShipStatusFlagsBytes_005d2fb0[8];
+short g_bWingmanKilledThisMission_005d2fb8;
+signed char g_acInitialShipKillNumber_005d2fc0[8];
+short g_nLastFoundShip_005d2fc8;

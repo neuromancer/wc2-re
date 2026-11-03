@@ -23,7 +23,7 @@ void LoadMissionData(short series, short mission)
     position = series * 0x60;
     position += mission * 0x18;
     source = packet + position;
-    DosMemcpy(&g_stMissionHeader_005d3e70, source, 0x18);
+    DosMemcpy(&g_stMissionHeaderBlock_005d3e70, source, 0x18);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 1, 0);
@@ -51,7 +51,7 @@ void LoadMissionData(short series, short mission)
     position = series * 0xa0;
     position += mission * 0x28;
     source = packet + position;
-    DosMemcpy(g_abMissionAuxData_005d3c10, source, 0x28);
+    DosMemcpy(g_abMissionAuxBlockBytes_005d3c10, source, 0x28);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 5, 0);

@@ -22,19 +22,19 @@ short StepPaletteTransition(short *current,
     if (g_nPaletteTransitionInitialise_0049305c != 0) {
         g_pPaletteTransitionAccumulator_005d301c =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
-        g_pPaletteTransitionDelta_005d3014 =
+        g_pPaletteTransitionDeltaPtr_005d3014 =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
-        g_pPaletteTransitionDirection_005d3010 =
+        g_pPaletteTransitionDirectionRef_005d3010 =
             AllocateTaggedMemory((unsigned int)(componentCount * 2), 0);
         if (g_pPaletteTransitionAccumulator_005d301c == 0 ||
-            g_pPaletteTransitionDelta_005d3014 == 0 ||
-            g_pPaletteTransitionDirection_005d3010 == 0) {
+            g_pPaletteTransitionDeltaPtr_005d3014 == 0 ||
+            g_pPaletteTransitionDirectionRef_005d3010 == 0) {
             if (g_pPaletteTransitionAccumulator_005d301c != 0)
                 ReleasePacketHandle(g_pPaletteTransitionAccumulator_005d301c);
-            if (g_pPaletteTransitionDelta_005d3014 != 0)
-                ReleasePacketHandle(g_pPaletteTransitionDelta_005d3014);
-            if (g_pPaletteTransitionDirection_005d3010 != 0)
-                ReleasePacketHandle(g_pPaletteTransitionDirection_005d3010);
+            if (g_pPaletteTransitionDeltaPtr_005d3014 != 0)
+                ReleasePacketHandle(g_pPaletteTransitionDeltaPtr_005d3014);
+            if (g_pPaletteTransitionDirectionRef_005d3010 != 0)
+                ReleasePacketHandle(g_pPaletteTransitionDirectionRef_005d3010);
             return 0;
         }
 
@@ -43,11 +43,11 @@ short StepPaletteTransition(short *current,
             difference = (short)(current[colour] - target[colour]);
             if (difference < 0) {
                 difference = (short)-difference;
-                g_pPaletteTransitionDirection_005d3010[colour] = 1;
+                g_pPaletteTransitionDirectionRef_005d3010[colour] = 1;
             } else {
-                g_pPaletteTransitionDirection_005d3010[colour] = -1;
+                g_pPaletteTransitionDirectionRef_005d3010[colour] = -1;
             }
-            g_pPaletteTransitionDelta_005d3014[colour] = difference;
+            g_pPaletteTransitionDeltaPtr_005d3014[colour] = difference;
             if (g_nPaletteTransitionMaxDelta_005d3018 < difference)
                 g_nPaletteTransitionMaxDelta_005d3018 = difference;
         }
@@ -55,17 +55,17 @@ short StepPaletteTransition(short *current,
         difference = (short)(g_nPaletteTransitionMaxDelta_005d3018 / 2);
         for (colour = 0; colour < componentCount; colour++)
             g_pPaletteTransitionAccumulator_005d301c[colour] = difference;
-        g_nPaletteTransitionCountdown_005d3020 =
+        g_nPaletteTransitionCountdownNumber_005d3020 =
             g_nPaletteTransitionMaxDelta_005d3018;
         g_nPaletteTransitionInitialise_0049305c = 0;
     }
 
-    previousCountdown = g_nPaletteTransitionCountdown_005d3020;
-    g_nPaletteTransitionCountdown_005d3020--;
+    previousCountdown = g_nPaletteTransitionCountdownNumber_005d3020;
+    g_nPaletteTransitionCountdownNumber_005d3020--;
     if (previousCountdown == 0) {
         ReleasePacketHandle(g_pPaletteTransitionAccumulator_005d301c);
-        ReleasePacketHandle(g_pPaletteTransitionDelta_005d3014);
-        ReleasePacketHandle(g_pPaletteTransitionDirection_005d3010);
+        ReleasePacketHandle(g_pPaletteTransitionDeltaPtr_005d3014);
+        ReleasePacketHandle(g_pPaletteTransitionDirectionRef_005d3010);
         g_nPaletteTransitionInitialise_0049305c = 1;
         return 0;
     }
@@ -73,7 +73,7 @@ short StepPaletteTransition(short *current,
     for (colour = 0; colour < componentCount; colour++) {
         g_pPaletteTransitionAccumulator_005d301c[colour] =
             (short)(g_pPaletteTransitionAccumulator_005d301c[colour] +
-                    g_pPaletteTransitionDelta_005d3014[colour]);
+                    g_pPaletteTransitionDeltaPtr_005d3014[colour]);
         if (g_pPaletteTransitionAccumulator_005d301c[colour] >
             g_nPaletteTransitionMaxDelta_005d3018) {
             g_pPaletteTransitionAccumulator_005d301c[colour] =
@@ -81,8 +81,16 @@ short StepPaletteTransition(short *current,
                         g_nPaletteTransitionMaxDelta_005d3018);
             current[colour] =
                 (short)(current[colour] +
-                        g_pPaletteTransitionDirection_005d3010[colour]);
+                        g_pPaletteTransitionDirectionRef_005d3010[colour]);
         }
     }
     return 1;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short *g_pPaletteTransitionDirectionRef_005d3010;
+short *g_pPaletteTransitionDeltaPtr_005d3014;
+short g_nPaletteTransitionMaxDelta_005d3018;
+short *g_pPaletteTransitionAccumulator_005d301c;
+short g_nPaletteTransitionCountdownNumber_005d3020;

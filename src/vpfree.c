@@ -38,12 +38,18 @@ void free_viewport(Viewport *viewport)
     ReleasePacketHandle(allocation);
     viewport->pixels = 0;
     viewport->allocation = 0;
-    if (g_stScreenViewport_005d21a0.pixels == allocation)
-        g_stScreenViewport_005d21a0.pixels = 0;
-    if (g_stScreenViewport_005d21a0.allocation == allocation)
-        g_stScreenViewport_005d21a0.allocation = 0;
-    if (g_stSecondaryViewBuffer_005d2c90.pixels == allocation)
-        g_stSecondaryViewBuffer_005d2c90.pixels = 0;
-    if (g_stSecondaryViewBuffer_005d2c90.allocation == allocation)
-        g_stSecondaryViewBuffer_005d2c90.allocation = 0;
+    if (g_stScrViewInfo_005d21a0.pixels == allocation)
+        g_stScrViewInfo_005d21a0.pixels = 0;
+    if (g_stScrViewInfo_005d21a0.allocation == allocation)
+        g_stScrViewInfo_005d21a0.allocation = 0;
+    if (g_stSecondaryViewBufferBlock_005d2c90.pixels == allocation)
+        g_stSecondaryViewBufferBlock_005d2c90.pixels = 0;
+    if (g_stSecondaryViewBufferBlock_005d2c90.allocation == allocation)
+        g_stSecondaryViewBufferBlock_005d2c90.allocation = 0;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+int g_nViewportAllocationCount_005d19bc;
+unsigned char *g_apViewportAllocations_005d19c0[128];
+int g_nFreeViewportCalls_005d1bc0;

@@ -16,7 +16,7 @@ short g_asIntelligenceEvent_00492fc0[12] = { 0 };
 
 extern short g_nCockpitCameraObject_0049d770;
 
-FixedVector g_vExternalViewOffset_005d3200;
+extern FixedVector g_vExternalViewOffset_005d3200;
 
 /* WC2's collision response uses SHL for the signed mass difference.  Native C
  * cannot left-shift a negative value, so use the equivalent bounded multiply
@@ -212,13 +212,13 @@ unsigned int set_eye_direction_and_position(void)
                 } else {
                     free_view_buffer();
                     SetViewportRect(
-                        &g_stViewBuffer_005d2b00, 0, 0,
+                        &g_stViewScratchInfo_005d2b00, 0, 0,
                         (unsigned short)(g_nScreenWidth_0049d4d8 - 1),
                         (unsigned short)(g_nScreenHeight_0049d4dc - 1));
                     initialize_view_buffer();
                     new_view(0, 0);
                     free_view_buffer();
-                    SetViewportRect(&g_stViewBuffer_005d2b00,
+                    SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
                     initialize_view_buffer();
                 }
@@ -237,10 +237,10 @@ unsigned int set_eye_direction_and_position(void)
                     ((int)desiredDistance + 50) << 8) {
                     divide_vector(
                         &vector,
-                        ((int)g_nExternalViewDistance_005d320e & ~1) << 7,
+                        ((int)g_nExternalViewDistanceValue_005d320e & ~1) << 7,
                         &g_aShipVelocity_00494898[EYE_OBJECT]);
-                    g_nExternalViewDistance_005d320e = MaxShort(
-                        (short)(g_nExternalViewDistance_005d320e - 1), 8);
+                    g_nExternalViewDistanceValue_005d320e = MaxShort(
+                        (short)(g_nExternalViewDistanceValue_005d320e - 1), 8);
                 } else {
                     adjustment = vector;
                     NormalizeFixedVector(&adjustment);
@@ -613,7 +613,7 @@ unsigned int new_view(int view, short obj)
         g_aShipForwardVector_00494208[EYE_OBJECT] = eyeOffset;
         fix_objects_ijk(EYE_OBJECT);
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
-        g_nExternalViewDistance_005d320e = 0x20;
+        g_nExternalViewDistanceValue_005d320e = 0x20;
         g_nExternalViewTimeout_005d3212 = 0;
         break;
     case 8:
@@ -708,9 +708,9 @@ unsigned int generate_stars(void)
         } else {
             g_aeObjectClass_00495328[star] = OBJECT_CLASS_STAR;
             g_nStarFieldIRotation_005d3210 = signed_random(45);
-            g_nStarFieldJRotation_005d320c = signed_random(45);
+            g_nStarFieldJRotationNumber_005d320c = signed_random(45);
             copy_frame(EYE_OBJECT, 69);
-            rotate_about_j(g_nStarFieldJRotation_005d320c,
+            rotate_about_j(g_nStarFieldJRotationNumber_005d320c,
                            &g_aShipRightVector_00493b78[69],
                            &g_aShipForwardVector_00494208[69]);
             rotate_about_i(g_nStarFieldIRotation_005d3210,
@@ -775,19 +775,19 @@ unsigned int update_star_field(void)
                 if (g_anObjectPitchRotation_00494f38[0] != 0) {
                     g_nStarFieldIRotation_005d3210 =
                         g_anObjectPitchRotation_00494f38[0] < 0 ? -45 : 45;
-                    g_nStarFieldJRotation_005d320c = signed_random(45);
+                    g_nStarFieldJRotationNumber_005d320c = signed_random(45);
                 }
                 if (g_anObjectYawRotation_00494fc8[0] != 0 &&
                     (g_anObjectPitchRotation_00494f38[0] == 0 ||
                      RandomInRange(0, 1) != 0)) {
-                    g_nStarFieldJRotation_005d320c =
+                    g_nStarFieldJRotationNumber_005d320c =
                         g_anObjectYawRotation_00494fc8[0] < 0 ? -45 : 45;
                     g_nStarFieldIRotation_005d3210 = signed_random(45);
                 }
                 rotate_about_i(g_nStarFieldIRotation_005d3210,
                                &g_aShipUpVector_00493ec0[69],
                                &g_aShipForwardVector_00494208[69]);
-                rotate_about_j(g_nStarFieldJRotation_005d320c,
+                rotate_about_j(g_nStarFieldJRotationNumber_005d320c,
                                &g_aShipRightVector_00493b78[69],
                                &g_aShipForwardVector_00494208[69]);
                 ScaleFixedVector(&g_aShipForwardVector_00494208[69],
@@ -869,7 +869,7 @@ void house_keep_objects(void)
                             OBJECT_CLASS_MISSILE &&
                         g_asObjectType_00495298[missile] ==
                             OBJECT_DATA_TORPEDO &&
-                        g_asMissileProximityFuse_005d38e0[missile] != 0 &&
+                        g_asMissileProximityFuseValues_005d38e0[missile] != 0 &&
                         distance_from_object(obj, missile) < 200) {
                         explode((short)g_acObjectOwner_00495208[obj], obj);
                         projectileDetonated = 1;
@@ -908,7 +908,7 @@ void house_keep_objects(void)
                     g_nSpaceExplosionFlashActive_00492fb4++;
                 } else {
                     ClearViewport(
-                        &g_stViewBuffer_005d2b00,
+                        &g_stViewScratchInfo_005d2b00,
                         (short)g_bPrimaryViewBufferColour_0049cb50);
                     g_bViewportDirty_0049d76c++;
                 }
@@ -971,22 +971,22 @@ void house_keep_objects(void)
         case OBJECT_CLASS_SHIP:
         case OBJECT_CLASS_CAPITAL_SHIP:
         case OBJECT_CLASS_BASE:
-            if (DAT_005d1bd0[obj] > 0)
-                DAT_005d1bd0[obj]--;
+            if (g_asFlakCooldownTable_005d1bd0[obj] > 0)
+                g_asFlakCooldownTable_005d1bd0[obj]--;
             if (DAT_004960f0[obj] > 0)
                 DAT_004960f0[obj]--;
-            if (DAT_005d1bd0[obj] > 0 &&
+            if (g_asFlakCooldownTable_005d1bd0[obj] > 0 &&
                 g_asObjectType_00495298[obj] < 0x3a)
-                DAT_005d1bd0[obj]--;
-            if (DAT_005d1bf0[obj] > 0)
-                DAT_005d1bf0[obj]--;
-            if (g_asShipExplosionStageTimer_005d3850[obj] > 0)
-                g_asShipExplosionStageTimer_005d3850[obj]--;
+                g_asFlakCooldownTable_005d1bd0[obj]--;
+            if (g_asSpikeriCooldown_005d1bf0[obj] > 0)
+                g_asSpikeriCooldown_005d1bf0[obj]--;
+            if (g_asShipBurstStageCountdown_005d3850[obj] > 0)
+                g_asShipBurstStageCountdown_005d3850[obj]--;
             /* Masked off with "& 0" in the original; the compiler keeps
              * the dead test behind a jump. */
             if ((g_nSpaceFrame_00493134 & 0) &&
-                g_asPlayerDamageCredit_005d38c0[obj] > 0)
-                g_asPlayerDamageCredit_005d38c0[obj]--;
+                g_asPlayerHitsCreditValues_005d38c0[obj] > 0)
+                g_asPlayerHitsCreditValues_005d38c0[obj]--;
             for (gun = 0; gun < 3; gun++) {
                 if (g_aasGunCooldown_005c8d70[obj][gun] > 0)
                     g_aasGunCooldown_005c8d70[obj][gun]--;
@@ -1065,7 +1065,7 @@ void house_keep_objects(void)
                 }
             }
             if (g_asShipMissionIndex_00495d00[obj] ==
-                    g_nHomeMissionShipIndex_005d1e22 &&
+                    g_nHomeOperationShipIndexValue_005d1e22 &&
                 g_bCarrierLandingEnabled_0049d778 != 0 &&
                 g_bLandingCommRequestPending_00492fa0 != 0 &&
                 normal_speed(0) != 0 &&
@@ -1086,10 +1086,10 @@ void update_objects_in_space(void)
 #ifndef SDL_PORT
     if (g_nCannedSceneMode_0049021c != 0) {
         if (g_bSceneEscapeRequested_0049d4b0 != 0) {
-            g_nCannedSceneRecordedFrameCount_005d3faa =
+            g_nCannedSceneRecordedFrameCountNumber_005d3faa =
                 g_nCannedSceneFrameCount_005d404c;
         } else {
-            g_nCannedSceneRecordedFrameCount_005d3faa++;
+            g_nCannedSceneRecordedFrameCountNumber_005d3faa++;
             if (g_nCannedSceneSegmentEndFrame_00490218 ==
                 g_nSpaceFrame_00493134)
                 HandleCannedSceneBufferBoundary();
@@ -1151,7 +1151,7 @@ void update_objects_in_space(void)
                 }
             }
             if (g_nCurrentView_00492fa8 == 4 &&
-                g_nTargetCameraMode_005c8d50 == 1 &&
+                g_nAimCameraMode_005c8d50 == 1 &&
                 g_nTargetCameraObject_0049d338 == obj &&
                 g_nTargetCameraFrame_0049d3e8 == 1)
                 UpdateTargetCameraObject(obj);
@@ -1769,3 +1769,11 @@ void object_intelligence(short obj)
         break;
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+FixedVector g_vExternalViewOffset_005d3200;
+short g_nStarFieldJRotationNumber_005d320c;
+short g_nExternalViewDistanceValue_005d320e;
+short g_nStarFieldIRotation_005d3210;
+short g_nExternalViewTimeout_005d3212;

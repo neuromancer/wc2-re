@@ -152,7 +152,7 @@ static void SdlUpdateJoystickRumble(void)
 
     if (!g_bSdlJoystickRumbleEnabled)
         return;
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_nActiveInputDeviceWord_005d1726;
     if (!g_bSdlJoystickSpaceflightActive || activeSlot < 0 ||
         activeSlot >= 2 ||
         g_aSdlJoystickDevices[activeSlot].joystick == 0) {
@@ -602,7 +602,7 @@ static int SdlReadExtraJoystickAxes(Sint16 *first, Sint16 *second)
     SdlJoystickDevice *other;
     int activeSlot;
 
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_nActiveInputDeviceWord_005d1726;
     if (activeSlot < 0 || activeSlot >= 2)
         return 0;
     device = &g_aSdlJoystickDevices[activeSlot];
@@ -682,12 +682,12 @@ void SdlApplyJoystickFlightControls(void)
         SdlUpdateJoystickRumble();
         return;
     }
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_nActiveInputDeviceWord_005d1726;
     if (activeSlot < 0 || activeSlot >= 2) {
         SdlUpdateJoystickRumble();
         return;
     }
-    sample = &g_aInputDeviceSamples_005d1780[activeSlot];
+    sample = &g_aInputDeviceSamplesList_005d1780[activeSlot];
     if (SdlReadJoystickButton(
             &g_aSdlJoystickDevices[activeSlot], 2))
         your_afterburner();
@@ -926,7 +926,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726)
+    if (slot == -1 || slot != (int)g_nActiveInputDeviceWord_005d1726)
         return;
     device = &g_aSdlJoystickDevices[slot];
     if (controllerEvent) {
@@ -986,7 +986,7 @@ void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726 ||
+    if (slot == -1 || slot != (int)g_nActiveInputDeviceWord_005d1726 ||
         hat != 0)
         return;
     device = &g_aSdlJoystickDevices[slot];
@@ -1039,7 +1039,7 @@ void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which)
     SdlRefreshJoysticks();
     if (type == SDL_JOYDEVICEADDED &&
         g_bSdlJoystickInputStarted &&
-        g_nActiveInputDevice_005d1726 == -1)
+        g_nActiveInputDeviceWord_005d1726 == -1)
         LoadJoystickCalibrationFile(9, 9, 1, 1);
 }
 

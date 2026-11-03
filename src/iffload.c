@@ -404,7 +404,7 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
 
 /* Read into an unused local when a GLOB chunk is decoded (DOS g_ce02); no
  * code in the Win32 port writes it. */
-extern short g_nPreviousGlobalCount_005d2ec4;
+extern short g_nEarlierGlobalCount_005d2ec4;
 
 /* Function start: 0x40E31F */
 unsigned char ParseCutsceneContainer(void *scenePacket)
@@ -488,7 +488,7 @@ unsigned char ParseCutsceneContainer(void *scenePacket)
                 g_pCutsceneMouseResources_004928ac, &location);
             break;
         case 0x424f4c47:
-            oldCount = g_nPreviousGlobalCount_005d2ec4;
+            oldCount = g_nEarlierGlobalCount_005d2ec4;
             DecodeSceneResourceChunk(&location, &decodedResource);
             globalLength = *(short *)(
                 ((void **)decodedResource.data)[0]);

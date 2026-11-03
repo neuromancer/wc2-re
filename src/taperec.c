@@ -19,7 +19,7 @@ extern unsigned int g_dwCannedSceneSnapshotEnd_004961a4;
 /* Function start: 0x401A10 */
 void ResetCannedSceneRecording(void)
 {
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
         return;
     unlink(g_szCannedSceneTapeFile_00490208);
     g_nCannedSceneFrameCount_005d404c = 0;
@@ -36,7 +36,7 @@ void InitializeCannedSceneFrameIndex(void)
     short index;
 
     for (index = 0; index < 70; index++)
-        g_asCannedSceneFrameOffsets_005d3fc0[index] = -1;
+        g_asCannedSceneFrameStarts_005d3fc0[index] = -1;
     g_nCannedSceneWriteIndex_005d3fa8 = 0;
     header = (CannedSceneBufferHeader *)IdentityDword(
         (DwordPtr)g_pHighMemoryBlockA_004901f8);
@@ -53,7 +53,7 @@ void HandleCannedSceneBufferBoundary(void)
     int savedView;
     FixedVector savedVelocity;
 
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0)
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
         return;
     if (g_nCannedSceneMode_0049021c != 0) {
         savedPoint = g_aShipPosition_00494550[EYE_OBJECT];
@@ -120,19 +120,19 @@ void RecordCannedSceneObjectState(short obj)
     int objectMode;
     FixedVector recordedUp;
 
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0 ||
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0 ||
         g_nCannedSceneMode_0049021c != 0)
         return;
     {
-        g_dwHighMemoryParagraph_005d3fb4 =
+        g_dwHighMemoryParagraphValue_005d3fb4 =
             IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
         objectMode = GetCannedSceneObjectMode(obj);
-        if ((unsigned short)g_asCannedSceneFrameOffsets_005d3fc0[obj] !=
+        if ((unsigned short)g_asCannedSceneFrameStarts_005d3fc0[obj] !=
             0xffff) {
             record = (CannedSceneObjectStateRecord *)(
                 (unsigned int)(unsigned short)
-                    g_asCannedSceneFrameOffsets_005d3fc0[obj] +
-                g_dwHighMemoryParagraph_005d3fb4);
+                    g_asCannedSceneFrameStarts_005d3fc0[obj] +
+                g_dwHighMemoryParagraphValue_005d3fb4);
             recordedVelocity = record->velocity;
             recordedUp = record->up;
             recordedForward = record->forward;
@@ -148,8 +148,8 @@ void RecordCannedSceneObjectState(short obj)
         g_nCannedSceneStateRecordMarker_00490220 = 0;
         record = (CannedSceneObjectStateRecord *)(
             (unsigned int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-            g_dwHighMemoryParagraph_005d3fb4);
-        g_asCannedSceneFrameOffsets_005d3fc0[obj] =
+            g_dwHighMemoryParagraphValue_005d3fb4);
+        g_asCannedSceneFrameStarts_005d3fc0[obj] =
             g_nCannedSceneWriteIndex_005d3fa8;
         if (0) {
             LogMemoryUsage();
@@ -177,15 +177,15 @@ void RecordCannedSceneObjectEvent(short obj, int event)
 {
     CannedSceneObjectEventRecord *record;
 
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0 ||
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0 ||
         g_nCannedSceneMode_0049021c != 0)
         return;
-    g_dwHighMemoryParagraph_005d3fb4 =
+    g_dwHighMemoryParagraphValue_005d3fb4 =
         IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     record = (CannedSceneObjectEventRecord *)(
         (unsigned int)(unsigned short)
             g_nCannedSceneWriteIndex_005d3fa8 +
-        g_dwHighMemoryParagraph_005d3fb4);
+        g_dwHighMemoryParagraphValue_005d3fb4);
     if (0) {
         LogMemoryUsage();
         printf("master script error:  segment wrap");
@@ -230,15 +230,15 @@ void RecordCannedSceneBriefingCharacter(signed char character,
 {
     CannedSceneBriefingCharacterRecord *record;
 
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0 ||
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0 ||
         g_nCannedSceneMode_0049021c != 0)
         return;
-    g_dwHighMemoryParagraph_005d3fb4 =
+    g_dwHighMemoryParagraphValue_005d3fb4 =
         IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     record = (CannedSceneBriefingCharacterRecord *)(
         (unsigned int)(unsigned short)
             g_nCannedSceneWriteIndex_005d3fa8 +
-        g_dwHighMemoryParagraph_005d3fb4);
+        g_dwHighMemoryParagraphValue_005d3fb4);
     record->opcode = 1;
     record->frame = g_nSpaceFrame_00493134;
     record->character = character;
@@ -257,14 +257,14 @@ void RecordMusicCommandHook(int track, int command, short enabled)
     CannedSceneMusicCommandRecord *record;
 
     return;
-    if (g_bHighMemoryBuffersReady_005d2ad8 == 0 ||
+    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0 ||
         g_nCannedSceneMode_0049021c != 0)
         return;
-    g_dwHighMemoryParagraph_005d3fb4 =
+    g_dwHighMemoryParagraphValue_005d3fb4 =
         IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
     record = (CannedSceneMusicCommandRecord *)(
         (unsigned int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
-        g_dwHighMemoryParagraph_005d3fb4);
+        g_dwHighMemoryParagraphValue_005d3fb4);
     record->opcode = 2;
     record->frame = g_nSpaceFrame_00493134;
     record->track = track;
@@ -319,3 +319,13 @@ void FlushCannedSceneRecordingBuffer(void)
         (unsigned short)g_nCannedSceneWriteIndex_005d3fa8;
     CloseDataFile((unsigned short)file);
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_nCannedSceneWriteIndex_005d3fa8;
+short g_nCannedSceneRecordedFrameCountNumber_005d3faa;
+int g_nCannedSceneFileOffset_005d3fac;
+void *g_pCannedSceneStateBlockRef_005d3fb0;
+DwordPtr g_dwHighMemoryParagraphValue_005d3fb4;
+short g_asCannedSceneFrameStarts_005d3fc0[70];
+short g_nCannedSceneFrameCount_005d404c;

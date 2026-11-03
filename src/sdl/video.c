@@ -152,7 +152,7 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
 
     restoreMouseCursor =
         g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
-        g_stScreenViewport_005d21a0.pixels == pixels;
+        g_stScrViewInfo_005d21a0.pixels == pixels;
 
     if (g_bEgaDitherEnabled && pixels != 0) {
         for (pixel = 0; pixel < SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT;

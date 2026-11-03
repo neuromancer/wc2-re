@@ -70,3 +70,7 @@ void PrintPaletteAllocationMap(void)
         printf("\n");
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_awPaletteEntryAllocation_005d4050[256];

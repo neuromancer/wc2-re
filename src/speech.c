@@ -92,7 +92,7 @@ void PlaySpeechPacketBuffer(void *packet, unsigned short packetSize,
             g_wDmaHalfBytes_0048e0e4;
     }
     src = (void *)IdentityDword((DwordPtr)g_pDigiData_005d1710);
-    memcpy(g_pDmaBuffer_005d1718, src, g_wDmaHalfBytes_0048e0e4 * 2);
+    memcpy(g_pDmaBufferPointer_005d1718, src, g_wDmaHalfBytes_0048e0e4 * 2);
     g_wDigiLeft_005d1714 -= g_wDmaCountA_0049bb6c + g_wDmaCountB_0049bb70;
     g_wDigiPosition_005d171c += g_wDmaCountA_0049bb6c + g_wDmaCountB_0049bb70;
     return;
@@ -172,7 +172,7 @@ void SoundBlasterDspInterrupt(void)
     SoundBlasterOut(0x0b, 0x49);
     SoundBlasterOut(2, (unsigned char)dmaAddress);
     SoundBlasterOut(2, (unsigned char)(dmaAddress >> 8));
-    SoundBlasterOut(0x83, g_ucDmaPage_005d1724);
+    SoundBlasterOut(0x83, g_ucDmaPageValue_005d1724);
     SoundBlasterOut(3, (unsigned char)total);
     SoundBlasterOut(3, (unsigned char)(total >> 8));
     SoundBlasterOut(0x0a, 1);
@@ -186,7 +186,7 @@ void SoundBlasterDspInterrupt(void)
                     (unsigned char)((total - 1) >> 8));
     resolved = (unsigned char *)IdentityDword((DwordPtr)g_pDigiData_005d1710);
     src = g_wDigiPosition_005d171c + resolved;
-    dmaHalf = offset + (unsigned char *)g_pDmaBuffer_005d1718;
+    dmaHalf = offset + (unsigned char *)g_pDmaBufferPointer_005d1718;
     if (g_nDmaHalfSelect_0049bb74 == 0)
         slot = &g_wDmaCountB_0049bb70;
     else
@@ -227,27 +227,27 @@ short InitializeSoundBlaster(short port, short irq)
     cacheMetadata = AllocateTaggedMemory(0x0c, 0x40);
     if (cacheMetadata == 0)
         return 2;
-    g_pDmaBuffer_005d1718 =
+    g_pDmaBufferPointer_005d1718 =
         AllocateTaggedMemory(
             (unsigned int)g_wDmaHalfBytes_0048e0e4 * 2 + 0x0f,
             0x42);
-    if (g_pDmaBuffer_005d1718 == 0)
+    if (g_pDmaBufferPointer_005d1718 == 0)
         return 1;
     oldBuffer = 0;
     do {
-        dmaAddress = (unsigned int)g_pDmaBuffer_005d1718;
+        dmaAddress = (unsigned int)g_pDmaBufferPointer_005d1718;
         dmaEnd = dmaAddress +
             ((int)((unsigned int)g_wDmaHalfBytes_0048e0e4 * 2) /
              16);
         if ((dmaEnd & 0xfffff000) != (dmaAddress & 0xfffff000)) {
             oldBuffer =
-                g_pDmaBuffer_005d1718;
-            g_pDmaBuffer_005d1718 =
+                g_pDmaBufferPointer_005d1718;
+            g_pDmaBufferPointer_005d1718 =
                 AllocateTaggedMemory(
                     (unsigned int)g_wDmaHalfBytes_0048e0e4 * 2 +
                         0x0f,
                     0x42);
-            if (g_pDmaBuffer_005d1718 == 0)
+            if (g_pDmaBufferPointer_005d1718 == 0)
                 return 1;
             ReleasePacketHandle(oldBuffer);
         } else {
@@ -255,8 +255,8 @@ short InitializeSoundBlaster(short port, short irq)
         }
         PumpWindowMessages(0);
     } while (oldBuffer != 0);
-    g_ucDmaPage_005d1724 = (unsigned char)(dmaAddress >> 12);
-    dmaAddress -= (unsigned int)g_ucDmaPage_005d1724 << 12;
+    g_ucDmaPageValue_005d1724 = (unsigned char)(dmaAddress >> 12);
+    dmaAddress -= (unsigned int)g_ucDmaPageValue_005d1724 << 12;
     g_wDmaAddressA_0049bb64 = (unsigned short)(dmaAddress << 4);
     g_wDmaAddressB_0049bb68 =
         (unsigned short)(g_wDmaHalfBytes_0048e0e4 +
@@ -268,6 +268,13 @@ short InitializeSoundBlaster(short port, short irq)
 void ShutdownSoundBlaster(void)
 {
     g_wDigiPlaying_0049bb60 = 0;
-    FreePacketAndClear(&g_pDmaBuffer_005d1718, 0x40);
+    FreePacketAndClear(&g_pDmaBufferPointer_005d1718, 0x40);
     FreePacketAndClear(&g_pDigiSample_005d1720, 0x44);
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+void *g_pDmaBufferPointer_005d1718;
+unsigned short g_wDigiPosition_005d171c;
+void *g_pDigiSample_005d1720;
+unsigned char g_ucDmaPageValue_005d1724;

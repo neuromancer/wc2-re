@@ -459,28 +459,28 @@ static void SdlLatchAltRadioHotkey(int virtualKey)
 {
     switch (virtualKey) {
     case 'B':
-        g_bAltBHotkey_005d1290 = 1;
+        g_bMenuBHotkey_005d1290 = 1;
         break;
     case 'F':
-        g_bAltFHotkey_005d127c = 1;
+        g_bAltFHotkeyFlag_005d127c = 1;
         break;
     case 'A':
-        g_bAltAHotkey_005d1294 = 1;
+        g_bMenuAHotkey_005d1294 = 1;
         break;
     case 'H':
         g_bAltHHotkey_005d128c = 1;
         break;
     case 'D':
-        g_bAltDHotkey_005d1280 = 1;
+        g_bAltDChordState_005d1280 = 1;
         break;
     case 'T':
-        g_bAltTHotkey_005d1298 = 1;
+        g_bMenuTHotkeySwitch_005d1298 = 1;
         break;
     default:
         return;
     }
     /* The matching keyup may already have been drained; rearm the gate now. */
-    g_nLastAltCommandScanCode_005d1274 = 0;
+    g_nLastAltCommandScanNumberWord_005d1274 = 0;
 }
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
@@ -505,7 +505,7 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
-        g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
+        g_dwSysKeyValue_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
     if (pressed && event->repeat == 0 &&
         (event->keysym.mod & KMOD_ALT) != 0 &&
         g_bSpaceFlightActive_005c586c != 0 &&
@@ -530,16 +530,16 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         if (pressed && event->repeat == 0)
             g_nInputPressCount_0049c258++;
         QueueInputEvent(pressed ? 4 : 5,
-                        (unsigned short)g_stHostMouseMessage_005d10d0.x,
-                        (unsigned short)g_stHostMouseMessage_005d10d0.y,
+                        (unsigned short)g_stHostMouseTextBlock_005d10d0.x,
+                        (unsigned short)g_stHostMouseTextBlock_005d10d0.y,
                         (unsigned short)virtualKey, 0, 0, 0,
                         (unsigned int)scanCode,
                         (unsigned int)SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
         SdlTraceInputEvent(pressed ? "keydn" : "keyup",
                               pressed ? 4 : 5, scanCode, virtualKey,
-                              g_stHostMouseMessage_005d10d0.x,
-                              g_stHostMouseMessage_005d10d0.y);
+                              g_stHostMouseTextBlock_005d10d0.x,
+                              g_stHostMouseTextBlock_005d10d0.y);
     }
     if (!pressed) {
         g_dwDebugOverlayKey_0049cb28 = (DWORD)virtualKey;
@@ -629,10 +629,10 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
             event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
             0, primaryButton | secondaryButton * 2, mouseX, mouseY);
     }
-    g_stHostMouseMessage_005d10d0.x = mouseX;
-    g_stHostMouseMessage_005d10d0.y = mouseY;
-    g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
-    g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
+    g_stHostMouseTextBlock_005d10d0.x = mouseX;
+    g_stHostMouseTextBlock_005d10d0.y = mouseY;
+    g_stHostMouseTextBlock_005d10d0.primaryButton = primaryButton;
+    g_stHostMouseTextBlock_005d10d0.secondaryButton = secondaryButton;
 }
 
 void SdlStartEventPump(void)

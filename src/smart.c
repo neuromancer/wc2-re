@@ -107,7 +107,7 @@ void prevent_collision(short obj)
         clear_alert(obj);
         return;
     }
-    timeToImpact = g_nCollisionCountdown_005d2faa;
+    timeToImpact = g_nCollisionCountdownNumber_005d2faa;
     if (timeToImpact >= 30) {
         approach_full_speed(obj);
         try2end_collision_alert(obj);
@@ -624,12 +624,12 @@ void process_maneuver_node(short obj, short event)
 
     if (g_nYourWingman_0049346c == obj) {
         for (index = 0; index < 8; index++) {
-            if (g_stMissionHeader_005d3e70.initialMissionShips[index] ==
+            if (g_stMissionHeaderBlock_005d3e70.initialMissionShips[index] ==
                 g_asShipMissionIndex_00495d00[obj])
                 break;
         }
-        if (g_acInitialShipKillCount_005d2fc0[index] <
-            g_cPlayerKillCount_005d2fa8)
+        if (g_acInitialShipKillNumber_005d2fc0[index] <
+            g_cPilotKillCountValue_005d2fa8)
             g_bWingmanTurnRateUnlocked_00493040 = 1;
         else
             g_bWingmanTurnRateUnlocked_00493040 = 0;
@@ -807,3 +807,7 @@ void intelligence_events(short obj)
     }
     g_asIntelligenceEvent_00492fc0[obj] = event;
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned char g_aShipIntelligenceData_005d3060[5][0x51];

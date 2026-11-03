@@ -37,9 +37,9 @@ void show_target_disp(void)
     short y;
     ObjectTypeData *typeData;
 
-    DrawTextAt(&g_stRightVduTextContext_005d2ce0,
-               g_stRightVduViewport_005d2b20.left,
-               g_stRightVduViewport_005d2b20.top,
+    DrawTextAt(&g_stRightVduTextContextBlock_005d2ce0,
+               g_stRightVduView_005d2b20.left,
+               g_stRightVduView_005d2b20.top,
                g_szEmptyTargetDisplayText_0049b490, 2);
     if (g_bTargetLockMode_00493500 != 0 &&
         g_bDisplayWingmanTargetData_0049347c == 0) {
@@ -85,7 +85,7 @@ void show_target_disp(void)
                           "UNKNOWN");
     }
     DrawFormattedText("\nRange : ");
-    InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
+    InitializeCockpitReadout(1, &g_stRightVduTextContextBlock_005d2ce0);
     if (g_asObjectScreenX_00493598[ship] == -32767 &&
         g_bDisplayWingmanTargetData_0049347c == 0) {
         g_cTargetDisplayObject_004934f4 = -1;
@@ -103,19 +103,19 @@ void show_target_disp(void)
          * panel edge while its left arc has a matching gap. Center it
          * properly; ship, armor, and shield all still share this one x, so
          * they stay aligned with each other. */
-        x = (short)(g_stRightVduViewport_005d2b20.left + 0x24);
+        x = (short)(g_stRightVduView_005d2b20.left + 0x24);
 #else
-        x = (short)(g_stRightVduViewport_005d2b20.left + 0x25);
+        x = (short)(g_stRightVduView_005d2b20.left + 0x25);
 #endif
-        y = (short)(g_stRightVduViewport_005d2b20.top + 0x26);
+        y = (short)(g_stRightVduView_005d2b20.top + 0x26);
         cel = (short)(g_aasShipShield_00495518[ship][1] * 6 /
                       typeData->shieldAft);
         cel = (short)((3 - MinShort(cel, 3)) * 2);
         if (cel < 6) {
-            DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
+            DrawSpriteDefault(&g_stRightVduView_005d2b20, x, y,
                               g_pCockpitIndicatorShape_005d2c48, cel);
         }
-        clip = g_stRightVduViewport_005d2b20;
+        clip = g_stRightVduView_005d2b20;
         maximumArmor = &typeData->armorFront;
         for (armor = 0; armor < 4; armor++) {
             clip.left =
@@ -133,13 +133,13 @@ void show_target_disp(void)
                 DrawSpriteDefault(&clip, x, y, typeData->shape, 1);
             }
         }
-        DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
+        DrawSpriteDefault(&g_stRightVduView_005d2b20, x, y,
                           typeData->shape, 2);
         cel = (short)(g_aasShipShield_00495518[ship][0] * 6 /
                       typeData->shieldFore);
         cel = (short)((3 - MinShort(cel, 3)) * 2);
         if (cel < 6) {
-            DrawSpriteDefault(&g_stRightVduViewport_005d2b20, x, y,
+            DrawSpriteDefault(&g_stRightVduView_005d2b20, x, y,
                               g_pCockpitIndicatorShape_005d2c48,
                               (short)(cel + 1));
         }
@@ -178,35 +178,35 @@ void DrawTargetRangeReadout(void)
             if ((unsigned short)g_asObjectDistance_00493ae8[target] >
                     30000 ||
                 (unsigned short)g_asObjectDistance_00493ae8[target] < 0) {
-                strcpy(g_szTextScratchBuffer_005d1c40,
+                strcpy(g_szTextBufferBuffer_005d1c40,
                        "TOO FAR");
             } else {
-                strcpy(g_szTextScratchBuffer_005d1c40 +
+                strcpy(g_szTextBufferBuffer_005d1c40 +
                            strlen(itoa((unsigned short)
                                             g_asObjectDistance_00493ae8[
                                                 target],
-                                        g_szTextScratchBuffer_005d1c40, 10)),
+                                        g_szTextBufferBuffer_005d1c40, 10)),
                        " m");
             }
         } else {
-            strcpy(g_szTextScratchBuffer_005d1c40,
+            strcpy(g_szTextBufferBuffer_005d1c40,
                    "----- m");
         }
         if (g_bDisplayWingmanTargetData_0049347c != 0) {
-            strcpy(g_szTextScratchBuffer_005d1c40,
+            strcpy(g_szTextBufferBuffer_005d1c40,
                    "DATA XMIT");
         }
-        DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
+        DrawCockpitReadout(1, g_szTextBufferBuffer_005d1c40);
         if (g_nTargetLockCountdown_004934ec == 0) {
             if (g_bTargetLockAcquired_004934fc == 1)
                 g_bTargetLockAcquired_004934fc = 0;
         } else if (g_bTargetLockReadoutDirty_004934e8 != 0) {
             EraseCockpitReadoutRegion(
-                &g_stRightVduViewport_005d2b20,
-                g_stRightVduViewport_005d2b20.left,
-                (short)(g_stRightVduViewport_005d2b20.bottom - 6),
-                g_stRightVduViewport_005d2b20.right,
-                g_stRightVduViewport_005d2b20.bottom,
+                &g_stRightVduView_005d2b20,
+                g_stRightVduView_005d2b20.left,
+                (short)(g_stRightVduView_005d2b20.bottom - 6),
+                g_stRightVduView_005d2b20.right,
+                g_stRightVduView_005d2b20.bottom,
                 g_cSecondaryViewBufferColour_0049cb4c);
             g_bTargetLockReadoutDirty_004934e8 = 0;
         }

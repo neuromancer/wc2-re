@@ -319,7 +319,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             pan = 0;
         else if (pan > 127)
             pan = 127;
-        g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
+        g_aiSoundEffectSourceActiveValue_005d12c0[sourceObject] = 1;
     }
 
     if (g_bSdlOriginFxSoundSelected != 0) {

@@ -69,7 +69,7 @@ void coming_home(short obj)
         cruise_home(obj);
         break;
     case TACTIC_HEAD_HOME:
-        home = find_ship_index(g_stMissionHeader_005d3e70.homeMissionShip);
+        home = find_ship_index(g_stMissionHeaderBlock_005d3e70.homeMissionShip);
         range = distance_from_object(obj, home);
         if (g_asObjectCollisionRadius_004950e8[obj] + 800 < range)
             approach_cruise_speed(obj);
@@ -723,7 +723,7 @@ void strike_mission(short obj)
                 set_next_destination();
                 g_bHomeObjectiveFlagged_0049b674++;
             }
-            locate_ship(g_stMissionHeader_005d3e70.homeMissionShip,
+            locate_ship(g_stMissionHeaderBlock_005d3e70.homeMissionShip,
                         &g_aShipMissionSpot_00495e18[obj]);
             g_aShipDestination_004953f0[obj] =
                 g_aShipMissionSpot_00495e18[obj];
@@ -1094,10 +1094,10 @@ void capital_ship_strike_mission(short obj)
 
     /* The flak countdown shares its else with the idle case: retail
      * decrements inside the condition. */
-    if (DAT_005d1c10[obj] != 0 && --DAT_005d1c10[obj] == 0) {
+    if (g_asSpikeriLaunchCountdown_005d1c10[obj] != 0 && --g_asSpikeriLaunchCountdown_005d1c10[obj] == 0) {
         cue = new_object(0x0e, obj);
         if (cue != -1) {
-            DAT_005d1bf0[obj] =
+            g_asSpikeriCooldown_005d1bf0[obj] =
                 (short)((unsigned short)RandomInRange(0, 200) +
                         400);
             g_acObjectOwner_00495208[cue] = (signed char)obj;
@@ -1158,14 +1158,14 @@ void capital_ship_strike_mission(short obj)
                      (signed char)g_aShipWeapons_004956b0[obj][0];
                  gun++, mountSlot++) {
                 if (mountSlot->type == 0x0e &&
-                    DAT_005d1bf0[obj] == 0 &&
-                    DAT_005d1c10[obj] == 0 &&
+                    g_asSpikeriCooldown_005d1bf0[obj] == 0 &&
+                    g_asSpikeriLaunchCountdown_005d1c10[obj] == 0 &&
                     g_nFacingToTarget_00493194 > 20) {
                     PlaySfxWaveFileByNumber(0x28, obj, 0);
-                    DAT_005d1c10[obj] = 20;
+                    g_asSpikeriLaunchCountdown_005d1c10[obj] = 20;
                 }
                 if (mountSlot->type == 0x0d &&
-                    DAT_005d1bd0[obj] == 0) {
+                    g_asFlakCooldownTable_005d1bd0[obj] == 0) {
                     enemyShips = 0;
                     allies = 0;
                     dodging = 0;
@@ -1285,12 +1285,12 @@ void capital_ship_strike_mission(short obj)
         if (flakShot != 0) {
             seen = 0;
             for (candidate = 0; candidate < 10; candidate++) {
-                if (DAT_005d1c10[candidate] != 0)
+                if (g_asSpikeriLaunchCountdown_005d1c10[candidate] != 0)
                     seen = 1;
             }
             if (seen == 0)
                 PlaySfxWaveFileByNumber(0x27, obj, 0);
-            DAT_005d1bd0[obj] =
+            g_asFlakCooldownTable_005d1bd0[obj] =
                 (short)((unsigned short)RandomInRange(0, 200) + 300);
         }
     }
@@ -1575,3 +1575,9 @@ void mine_intelligence(short obj)
         }
     }
 }
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+short g_asFlakCooldownTable_005d1bd0[16];
+short g_asSpikeriCooldown_005d1bf0[16];
+short g_asSpikeriLaunchCountdown_005d1c10[10];

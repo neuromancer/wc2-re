@@ -143,7 +143,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 
     if (commandLine != 0 && strchr(commandLine, 's') != 0)
         g_nAudioEnabled_0049c244 = 0;
-    g_hSingleInstanceSemaphore_005d10e4 =
+    g_hOneProcessLock_005d10e4 =
         CreateSemaphoreA(0, 0, 1, "Wing Commander 2");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         MessageBoxA(0,
@@ -172,7 +172,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         g_nAudioEnabled_0049c244 = 0;
     CheckLauncherAndConfig();
     if (!PromptInsertCorrectCd()) {
-        CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+        CloseHandle(g_hOneProcessLock_005d10e4);
         return 0;
     }
     if (!CreateMainWindow(instance, previous, showCommand))
@@ -187,7 +187,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     srand((unsigned int)time(0));
     InitGameClockRandomEpoch();
     CreateDebugOverlayConsole(instance, g_hMainWindow_005d10e0, 60, 20);
-    g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
+    g_dwGameZeroTime_005d12b4 = (unsigned int)time(0);
     ShowCursor(FALSE);
     g_pfnInputPump_005c840c = 0;
     clip.left = 0;
@@ -207,12 +207,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 
     ClipCursor(0);
     ShowCursor(TRUE);
-    g_dwGameExitTime_005d129c = (unsigned int)time(0);
+    g_dwGameExitClockValue_005d129c = (unsigned int)time(0);
     DestroyGlobalDebugOverlayConsole();
     ServiceAudioStream();
     DestroyWindow(g_hMainWindow_005d10e0);
     DIBunInstall();
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_hOneProcessLock_005d10e4);
     return 1;
 }
 
@@ -222,7 +222,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 void ShutdownGameWindow(void)
 {
     g_bApplicationShutdownStarted_0049c23c = 1;
-    g_dwGameExitTime_005d129c = (unsigned int)time(0);
+    g_dwGameExitClockValue_005d129c = (unsigned int)time(0);
 #ifdef SDL_PORT
     {
         SDL_Window *window;
@@ -254,7 +254,7 @@ void ShutdownGameWindow(void)
         process = GetCurrentProcess();
         SetPriorityClass(process, IDLE_PRIORITY_CLASS);
     }
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_hOneProcessLock_005d10e4);
 #endif
     exit(0);
 }
@@ -297,15 +297,15 @@ unsigned int AbortToDesktop(void)
     process = GetCurrentProcess();
     SetPriorityClass(process, IDLE_PRIORITY_CLASS);
 #endif
-    sprintf(g_abMemoryUsageReport_005d1170,
+    sprintf(g_abMemoryLoadNotice_005d1170,
             "Current: %i\nMax    : %i\nTotal : %i\n",
             g_dwGuardedAllocationBytes_0049c250,
             g_dwGuardedAllocationPeakBytes_0049c254,
             g_dwGuardedAllocationTotalBytes_0049c24c);
     OutputDebugStringA("Memory Info:\n");
-    OutputDebugStringA(g_abMemoryUsageReport_005d1170);
+    OutputDebugStringA(g_abMemoryLoadNotice_005d1170);
 #ifndef SDL_PORT
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_hOneProcessLock_005d10e4);
 #endif
     return 0;
 }
@@ -319,12 +319,12 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
     WNDCLASSA windowClass;
     DWORD error;
 
-    DAT_005d12b0 = instance;
+    g_hAppCopy_005d12b0 = instance;
     if (previous != 0)
         return 0;
 
     windowClass.lpszClassName = g_szWindowClassName_0049c278;
-    windowClass.hInstance = DAT_005d12b0;
+    windowClass.hInstance = g_hAppCopy_005d12b0;
     windowClass.lpfnWndProc = MainWindowProc;
     windowClass.hCursor = 0;
     windowClass.hIcon = LoadIconA(0, IDI_APPLICATION);
@@ -338,16 +338,16 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
 
     g_hMainWindow_005d10e0 = CreateWindowExA(
         0, g_szWindowClassName_0049c278, g_szWindowTitle_0049c2a8,
-        WS_POPUP, 0, 0, 320, 200, 0, 0, DAT_005d12b0, 0);
+        WS_POPUP, 0, 0, 320, 200, 0, 0, g_hAppCopy_005d12b0, 0);
     if (g_hMainWindow_005d10e0 == 0) {
         error = GetLastError();
         return 0;
     }
 
-    DAT_005d1278 = GetDC(g_hMainWindow_005d10e0);
-    SetTextColor(DAT_005d1278, RGB(255, 0, 0));
-    SetBkColor(DAT_005d1278, RGB(0, 0, 0));
-    if (GetDeviceCaps(DAT_005d1278, BITSPIXEL) < 8) {
+    g_hMainWindowContext_005d1278 = GetDC(g_hMainWindow_005d10e0);
+    SetTextColor(g_hMainWindowContext_005d1278, RGB(255, 0, 0));
+    SetBkColor(g_hMainWindowContext_005d1278, RGB(0, 0, 0));
+    if (GetDeviceCaps(g_hMainWindowContext_005d1278, BITSPIXEL) < 8) {
         MessageBoxA(0,
                     "You must be running with 256, or more, colors to play Wing Commander",
                     "NOTICE", MB_ICONEXCLAMATION);
@@ -355,7 +355,7 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
         return 0;
     }
 
-    DAT_005d1288 = SetCursor(0);
+    g_hMainWndCursor_005d1288 = SetCursor(0);
     ShowWindow(g_hMainWindow_005d10e0, showCommand);
     UpdateWindow(g_hMainWindow_005d10e0);
     DIBinstall(g_hMainWindow_005d10e0);
@@ -381,7 +381,7 @@ unsigned int PumpWindowMessages(int skipMessages)
 
     done = 0;
     g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_lGameClockStart_005d12b8;
+    g_nInputClock_005c84a8 -= g_lGameClockStartData_005d12b8;
     g_nInputClock_005c84a8 *= 60;
     g_nInputClock_005c84a8 /= 1000;
     if (skipMessages == 0) {
@@ -425,7 +425,7 @@ unsigned int PumpWindowMessages(int skipMessages)
         g_bWindowMessagePumpActive_0049c2e4 = 0;
     }
     g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_lGameClockStart_005d12b8;
+    g_nInputClock_005c84a8 -= g_lGameClockStartData_005d12b8;
     g_nInputClock_005c84a8 *= 60;
     g_nInputClock_005c84a8 /= 1000;
     return g_bMainWindowRunning_005d12ac;
@@ -482,15 +482,15 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                     SetForegroundWindow(g_hMainWindow_005d10e0);
                     DIBreInstall();
                     ClipCursor(&clip);
-                    SetCursorPos(g_nSavedWindowCursorX_005d12a0,
-                                 g_nSavedWindowCursorY_005d12a4);
+                    SetCursorPos(g_nSavedOwnerCursorX_005d12a0,
+                                 g_nStoredWindowCursorYWord_005d12a4);
                     g_bWindowInactive_0049c274 = 0;
                     WriteDebugString("UNPAUSING...\n");
                 }
             } else if (g_bWindowInactive_0049c274 == 0 &&
                        g_bApplicationShutdownStarted_0049c23c == 0) {
-                g_nSavedWindowCursorX_005d12a0 = 160;
-                g_nSavedWindowCursorY_005d12a4 = 100;
+                g_nSavedOwnerCursorX_005d12a0 = 160;
+                g_nStoredWindowCursorYWord_005d12a4 = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
                 process = GetCurrentProcess();
@@ -521,15 +521,15 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                     SetForegroundWindow(g_hMainWindow_005d10e0);
                     DIBreInstall();
                     ClipCursor(&clip);
-                    SetCursorPos(g_nSavedWindowCursorX_005d12a0,
-                                 g_nSavedWindowCursorY_005d12a4);
+                    SetCursorPos(g_nSavedOwnerCursorX_005d12a0,
+                                 g_nStoredWindowCursorYWord_005d12a4);
                     g_bWindowInactive_0049c274 = 0;
                     WriteDebugString("UNPAUSING...\n");
                 }
             } else if (g_bWindowInactive_0049c274 == 0 &&
                        g_bApplicationShutdownStarted_0049c23c == 0) {
-                g_nSavedWindowCursorX_005d12a0 = 160;
-                g_nSavedWindowCursorY_005d12a4 = 100;
+                g_nSavedOwnerCursorX_005d12a0 = 160;
+                g_nStoredWindowCursorYWord_005d12a4 = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
                 process = GetCurrentProcess();
@@ -627,20 +627,20 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         SetInputKeyState((int)scanCode, 0);
         break;
     case WM_SYSKEYUP:
-        g_bAltAHotkey_005d1294 = 0;
-        g_bAltBHotkey_005d1290 = 0;
+        g_bMenuAHotkey_005d1294 = 0;
+        g_bMenuBHotkey_005d1290 = 0;
         g_bJoystickCalibrationHotkey_005d1284 = 0;
-        g_bAltTHotkey_005d1298 = 0;
+        g_bMenuTHotkeySwitch_005d1298 = 0;
         g_bAltHHotkey_005d128c = 0;
-        g_bAltFHotkey_005d127c = 0;
-        g_bAltDHotkey_005d1280 = 0;
-        g_nLastAltCommandScanCode_005d1274 = 0;
-        g_bAltNumpadAddHotkey_005d1270 = 0;
-        g_bAltNumpadSubtractHotkey_005d12a8 = 0;
-        g_dwSystemKey_005d10a4 = 0;
+        g_bAltFHotkeyFlag_005d127c = 0;
+        g_bAltDChordState_005d1280 = 0;
+        g_nLastAltCommandScanNumberWord_005d1274 = 0;
+        g_bAltNumpadAddHotkeySwitch_005d1270 = 0;
+        g_bAltNumpadSubtractShortcut_005d12a8 = 0;
+        g_dwSysKeyValue_005d10a4 = 0;
         break;
     case WM_SYSKEYDOWN:
-        g_dwSystemKey_005d10a4 = (unsigned int)wParam;
+        g_dwSysKeyValue_005d10a4 = (unsigned int)wParam;
         switch (wParam) {
         case 'X':
             g_bApplicationShutdownStarted_0049c23c = 1;
@@ -655,11 +655,11 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             break;
         case 'A':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltAHotkey_005d1294 = 1;
+                g_bMenuAHotkey_005d1294 = 1;
             break;
         case 'B':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltBHotkey_005d1290 = 1;
+                g_bMenuBHotkey_005d1290 = 1;
             break;
         case 'C':
             if (((unsigned long)lParam & 0x20000000) != 0)
@@ -667,7 +667,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             break;
         case 'T':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltTHotkey_005d1298 = 1;
+                g_bMenuTHotkeySwitch_005d1298 = 1;
             break;
         case 'H':
             if (((unsigned long)lParam & 0x20000000) != 0)
@@ -675,19 +675,19 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             break;
         case 'F':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltFHotkey_005d127c = 1;
+                g_bAltFHotkeyFlag_005d127c = 1;
             break;
         case 'D':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltDHotkey_005d1280 = 1;
+                g_bAltDChordState_005d1280 = 1;
             break;
         case VK_ADD:
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltNumpadAddHotkey_005d1270 = 1;
+                g_bAltNumpadAddHotkeySwitch_005d1270 = 1;
             break;
         case VK_SUBTRACT:
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltNumpadSubtractHotkey_005d12a8 = 1;
+                g_bAltNumpadSubtractShortcut_005d12a8 = 1;
             break;
         case 'Z':
             if (((unsigned long)lParam & 0x20000000) != 0 &&
@@ -725,10 +725,10 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         break;
     }
     if (mouseEvent != 0) {
-        g_stHostMouseMessage_005d10d0.x = mouseX;
-        g_stHostMouseMessage_005d10d0.y = mouseY;
-        g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
-        g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
+        g_stHostMouseTextBlock_005d10d0.x = mouseX;
+        g_stHostMouseTextBlock_005d10d0.y = mouseY;
+        g_stHostMouseTextBlock_005d10d0.primaryButton = primaryButton;
+        g_stHostMouseTextBlock_005d10d0.secondaryButton = secondaryButton;
     }
     return DefWindowProcA(window, message, wParam, lParam);
 }
@@ -754,15 +754,15 @@ void GetJoystickPosition(unsigned int *x, unsigned int *y,
     }
 #ifdef SDL_PORT
     if (SdlReadJoystick(
-            deviceId, &g_aJoystickInfo_005d10b0[slot]) != FALSE) {
+            deviceId, &g_aJoystickInfoArray_005d10b0[slot]) != FALSE) {
 #else
-    if (joyGetPos(deviceId, &g_aJoystickInfo_005d10b0[slot]) ==
+    if (joyGetPos(deviceId, &g_aJoystickInfoArray_005d10b0[slot]) ==
         JOYERR_NOERROR) {
 #endif
-        *x = g_aJoystickInfo_005d10b0[slot].wXpos;
-        *y = g_aJoystickInfo_005d10b0[slot].wYpos;
-        *buttons = g_aJoystickInfo_005d10b0[slot].wButtons;
-        joyInfo = g_aJoystickInfo_005d10b0[slot];
+        *x = g_aJoystickInfoArray_005d10b0[slot].wXpos;
+        *y = g_aJoystickInfoArray_005d10b0[slot].wYpos;
+        *buttons = g_aJoystickInfoArray_005d10b0[slot].wButtons;
+        joyInfo = g_aJoystickInfoArray_005d10b0[slot];
         if ((joyInfo.wButtons & 1) != 0) {
             if (g_bJoystickPrimaryButtonLatched_0049c2f8 == 0)
                 g_nInputPressCount_0049c258++;
@@ -794,8 +794,8 @@ short GetJoystickButtons(void)
 {
     short buttons;
 
-    buttons = (g_aJoystickInfo_005d10b0[1].wButtons << 2) |
-              g_aJoystickInfo_005d10b0[0].wButtons;
+    buttons = (g_aJoystickInfoArray_005d10b0[1].wButtons << 2) |
+              g_aJoystickInfoArray_005d10b0[0].wButtons;
     return buttons;
 }
 
@@ -839,7 +839,7 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
 /* Function start: 0x455427 */
 HINSTANCE GetApplicationInstance(void)
 {
-    return DAT_005d12b0;
+    return g_hAppCopy_005d12b0;
 }
 
 /* Function start: 0x45543C */
@@ -855,7 +855,7 @@ HWND GetMainWindowHandle(void)
  * believed unreachable. */
 HDC GetMainWindowDeviceContext(void)
 {
-    return DAT_005d1278;
+    return g_hMainWindowContext_005d1278;
 }
 
 #pragma function(memset)
@@ -865,16 +865,16 @@ void *AllocateGuardedMemory(unsigned int size)
     if (g_pGuardedAllocationHead_0049c300 == 0) {
         g_pGuardedAllocationHead_0049c300 =
             malloc(sizeof(GuardedAllocation));
-        g_pGuardedAllocationTail_005d10ec =
+        g_pGuardedAllocationLastRef_005d10ec =
             g_pGuardedAllocationHead_0049c300;
     } else {
-        g_pGuardedAllocationTail_005d10ec->next =
+        g_pGuardedAllocationLastRef_005d10ec->next =
             malloc(sizeof(GuardedAllocation));
-        g_pGuardedAllocationTail_005d10ec =
-            g_pGuardedAllocationTail_005d10ec->next;
+        g_pGuardedAllocationLastRef_005d10ec =
+            g_pGuardedAllocationLastRef_005d10ec->next;
     }
-    g_pGuardedAllocationTail_005d10ec->next = 0;
-    g_pGuardedAllocationTail_005d10ec->size = size;
+    g_pGuardedAllocationLastRef_005d10ec->next = 0;
+    g_pGuardedAllocationLastRef_005d10ec->size = size;
 #ifdef SDL_PORT
     /* The 0x400-byte 0xAB fences the original hand-rolls are what ASan's
      * redzones already provide, and ASan reports the write that runs past the
@@ -886,26 +886,26 @@ void *AllocateGuardedMemory(unsigned int size)
      * one, so the original's fence was load-bearing there.  Four bytes is the
      * least that probe needs and still leaves any store wider than a tag --
      * every pointer-width mistake included -- landing in ASan's redzone. */
-    g_pGuardedAllocationTail_005d10ec->block = malloc(size + 4);
-    memset(g_pGuardedAllocationTail_005d10ec->block, 0, size);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block + size,
+    g_pGuardedAllocationLastRef_005d10ec->block = malloc(size + 4);
+    memset(g_pGuardedAllocationLastRef_005d10ec->block, 0, size);
+    memset((unsigned char *)g_pGuardedAllocationLastRef_005d10ec->block + size,
            0xab, 4);
 #else
-    g_pGuardedAllocationTail_005d10ec->block = malloc(size + 0x800);
+    g_pGuardedAllocationLastRef_005d10ec->block = malloc(size + 0x800);
 
-    memset(g_pGuardedAllocationTail_005d10ec->block, 0xab, 0x400);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    memset(g_pGuardedAllocationLastRef_005d10ec->block, 0xab, 0x400);
+    memset((unsigned char *)g_pGuardedAllocationLastRef_005d10ec->block +
                0x400,
            0, size);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    memset((unsigned char *)g_pGuardedAllocationLastRef_005d10ec->block +
                0x400 + size,
            0xab, 0x400);
 #endif
-    UntrackFreedHeapBlock(g_pGuardedAllocationTail_005d10ec->block);
+    UntrackFreedHeapBlock(g_pGuardedAllocationLastRef_005d10ec->block);
 #ifdef SDL_PORT
-    return g_pGuardedAllocationTail_005d10ec->block;
+    return g_pGuardedAllocationLastRef_005d10ec->block;
 #else
-    return (unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    return (unsigned char *)g_pGuardedAllocationLastRef_005d10ec->block +
            0x400;
 #endif
 }
@@ -1095,11 +1095,11 @@ void FreeGuardedAllocation(void *memory)
                 previous->next = entry->next;
             else
                 g_pGuardedAllocationHead_0049c300 = entry->next;
-            if (g_pGuardedAllocationTail_005d10ec == entry) {
+            if (g_pGuardedAllocationLastRef_005d10ec == entry) {
                 if (previous != 0)
-                    g_pGuardedAllocationTail_005d10ec = previous;
+                    g_pGuardedAllocationLastRef_005d10ec = previous;
                 else
-                    g_pGuardedAllocationTail_005d10ec = 0;
+                    g_pGuardedAllocationLastRef_005d10ec = 0;
             }
             free(entry);
             entry = 0;
@@ -1112,9 +1112,9 @@ void FreeGuardedAllocation(void *memory)
         }
     }
     if (found == 0 && DetectDoubleFree(fence) == 0) {
-        sprintf(g_szGuardedHeapDebugMessage_005d10f0,
+        sprintf(g_szGuardedHeapDiagnosticMessage_005d10f0,
                 "MEM: Unknown memory lost (%p)\n", fence);
-        WriteDebugString(g_szGuardedHeapDebugMessage_005d10f0);
+        WriteDebugString(g_szGuardedHeapDiagnosticMessage_005d10f0);
     }
     return;
 }
@@ -1277,7 +1277,7 @@ int GetShiftKeyState(void)
 /* Function start: 0x455EAA */
 unsigned int GetKeyboardModifiers(void)
 {
-    return g_dwSystemKey_005d10a4;
+    return g_dwSysKeyValue_005d10a4;
 }
 
 /* Function start: 0x455EBF */
@@ -1301,7 +1301,7 @@ unsigned int GetGameClockTicks(void)
 /* Function start: 0x455F23 */
 void InitGameClockRandomEpoch(void)
 {
-    g_lGameClockStart_005d12b8 = GetTickCount();
+    g_lGameClockStartData_005d12b8 = GetTickCount();
     g_dwGameClockBase_005d10e8 = GetTickCount() + (rand() & 3600000);
     return;
 }
@@ -1550,3 +1550,35 @@ int g_bJoystickSecondaryButtonLatched_0049c2fc = 0;
 GuardedAllocation *g_pGuardedAllocationHead_0049c300 = 0;
 FreedHeapBlock *g_pFreedHeapBlockHead_0049c304 = 0;
 FreedHeapBlock *g_pFreedHeapBlockTail_0049c308 = 0;
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned int g_dwSysKeyValue_005d10a4;
+JOYINFO g_aJoystickInfoArray_005d10b0[2];
+HostMouseMessage g_stHostMouseTextBlock_005d10d0;
+HWND g_hMainWindow_005d10e0;
+HANDLE g_hOneProcessLock_005d10e4;
+unsigned long g_dwGameClockBase_005d10e8;
+GuardedAllocation *g_pGuardedAllocationLastRef_005d10ec;
+char g_szGuardedHeapDiagnosticMessage_005d10f0[0x80];
+char g_abMemoryLoadNotice_005d1170[0x80];
+int g_nIdleWinmainWord_005d11f0[32]; /* never referenced */
+int g_bAltNumpadAddHotkeySwitch_005d1270;
+int g_nLastAltCommandScanNumberWord_005d1274;
+HDC g_hMainWindowContext_005d1278;
+int g_bAltFHotkeyFlag_005d127c;
+int g_bAltDChordState_005d1280;
+int g_bJoystickCalibrationHotkey_005d1284;
+HCURSOR g_hMainWndCursor_005d1288;
+int g_bAltHHotkey_005d128c;
+int g_bMenuBHotkey_005d1290;
+int g_bMenuAHotkey_005d1294;
+int g_bMenuTHotkeySwitch_005d1298;
+unsigned int g_dwGameExitClockValue_005d129c;
+int g_nSavedOwnerCursorX_005d12a0;
+int g_nStoredWindowCursorYWord_005d12a4;
+int g_bAltNumpadSubtractShortcut_005d12a8;
+int g_bMainWindowRunning_005d12ac;
+HINSTANCE g_hAppCopy_005d12b0;
+unsigned int g_dwGameZeroTime_005d12b4;
+long g_lGameClockStartData_005d12b8;

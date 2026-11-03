@@ -105,13 +105,13 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
     *(ShortRect *)&panel->left = bounds;
     panel->previousContext = g_pCurrentTextContext_005c8d1c;
     g_pCurrentTextContext_005c8d1c = &panel->context;
-    panel->context = g_stDefaultTextContext_005d2d20;
+    panel->context = g_stDefaultStringContext_005d2d20;
     if (fontIndex == -1)
         fontIndex = 1;
     InitializeTextContextFromFont(&panel->context, fontIndex,
                                   (unsigned char)clearColour,
                                   (signed char)backgroundColour);
-    panel->viewport = g_stModalSourceViewport_005d2c50;
+    panel->viewport = g_stModalSourceWindow_005d2c50;
     /* The panel and its viewports keep their bounds as four loose shorts;
      * the rectangle is copied between them as one 8-byte record. */
     *(ShortRect *)&panel->savedBackground.left = *(ShortRect *)&panel->left;
@@ -120,7 +120,7 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
         return 0;
     CopyViewportContents(&panel->viewport, &panel->savedBackground);
     panel->context.viewport = &panel->viewport;
-    panel->context.text = g_szTextScratchBuffer_005d1c40;
+    panel->context.text = g_szTextBufferBuffer_005d1c40;
     ResetStringBuilder(&panel->context);
     EraseTextContextBackground(&panel->context);
     DrawViewportBorder(&panel->viewport, panel->left, panel->top,
@@ -357,8 +357,8 @@ short ReadPersonnelTextField(unsigned int x, unsigned int y,
     short result;
 
     result = 0;
-    g_stDefaultTextContext_005d2d20.viewport =
-        &g_stScreenViewport_005d21a0;
+    g_stDefaultStringContext_005d2d20.viewport =
+        &g_stScrViewInfo_005d21a0;
     SetTextCursor((unsigned short)x, (unsigned short)y);
     DrawFormattedText("%s", prompt);
     MarkDibDirty();
@@ -367,8 +367,8 @@ short ReadPersonnelTextField(unsigned int x, unsigned int y,
                       (short)required) != 0) {
         result = 1;
     }
-    g_stDefaultTextContext_005d2d20.viewport =
-        &g_stSecondaryViewBuffer_005d2c90;
+    g_stDefaultStringContext_005d2d20.viewport =
+        &g_stSecondaryViewBufferBlock_005d2c90;
     return result;
 }
 
@@ -385,13 +385,13 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
     FlushInputEvents();
     while ((selection = PollSceneHotspotInput(scene, 0, 0, 0, 0)) == 0) {
         DisableMouseCursorDrawing();
-        DrawSpriteDefault(&g_stSecondaryViewBuffer_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
                           58, 175,
                           g_pCampaignChalkboardShape_0049ca54, 3);
-        g_stDefaultTextContext_005d2d20.viewport =
-            &g_stSecondaryViewBuffer_005d2c90;
+        g_stDefaultStringContext_005d2d20.viewport =
+            &g_stSecondaryViewBufferBlock_005d2c90;
         InitializeTextContextFromFont(
-            &g_stDefaultTextContext_005d2d20, 0,
+            &g_stDefaultStringContext_005d2d20, 0,
             g_bPrimaryViewBufferColour_0049cb50, -1);
         if (g_pszPersonnelFooter_00492658 != 0) {
             SetTextCursor(
@@ -407,8 +407,8 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
                 DrawFormattedText("%S", "Exit the Game");
             }
         }
-        g_stDefaultTextContext_005d2d20.viewport =
-            &g_stScreenViewport_005d21a0;
+        g_stDefaultStringContext_005d2d20.viewport =
+            &g_stScrViewInfo_005d21a0;
         EnableMouseCursorDrawing();
         RefreshMemoryStatusOverlay();
     }
@@ -428,7 +428,7 @@ short RunCampaignChalkboardMenu(short campaignSlot)
     again = 1;
     PreloadMusicTrack(0x35);
     spacetrack(0x35, 2, 1);
-    SetInputViewport(&g_stSecondaryViewBuffer_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     while (selection == 0) {
         g_bDisableChalkboardReplay_0049ca58 =
             (short)(g_pCampaignGlobals_00499c94->field_0a == 0);
@@ -439,7 +439,7 @@ short RunCampaignChalkboardMenu(short campaignSlot)
             g_bDisableChalkboardReplay_0049ca58 = 0;
             DisableMouseCursorDrawing();
             FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
-            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
             StopMusicUnlessSuppressed();
             ReleaseMusicTrack(0x35);
             g_pCampaignGlobals_00499c94->field_08 =
@@ -471,10 +471,10 @@ short RunCampaignChalkboardMenu(short campaignSlot)
             g_bDisableChalkboardReplay_0049ca58 = 0;
             DisableMouseCursorDrawing();
             FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
-            free_viewport(&g_stSecondaryViewBuffer_005d2c90);
+            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
             StopMusicUnlessSuppressed();
             ReleaseMusicTrack(0x35);
-            ClearViewport(&g_stModalSourceViewport_005d2c50, 0);
+            ClearViewport(&g_stModalSourceWindow_005d2c50, 0);
             while (again != 0) {
                 RunCampaignScript(campaignSlot);
                 again = 0;
