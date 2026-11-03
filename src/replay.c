@@ -35,7 +35,7 @@ void FinishCannedScenePlayback(void)
 #endif
     if (g_nArcadeState_0049d75c != 4) {
         force_view(0, 0);
-        SetHudMessageText(g_szEndInflightReplay_0049b738,
+        SetHudMessageText("END INFLIGHT REPLAY",
                           (unsigned short)g_abGamePaletteReservedColours_0049cb54[8],
                           20);
     }
@@ -226,7 +226,7 @@ void LoadCannedScenePlaybackBuffer(void)
 
     file = OpenDataFileOrDie(g_szCannedSceneTapeFile_00490208);
     if (file == -1)
-        ReportFatalErrorCode(g_szCannedSceneReadOpenError_0049b750);
+        ReportFatalErrorCode("026");
     ReadDataFileAtOffset((unsigned short)file,
                          g_nCannedSceneFileOffset_005d3fac,
                          2, &g_nCannedSceneSegmentEndFrame_00490218);

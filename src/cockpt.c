@@ -5,26 +5,52 @@
  */
 #include "game.h"
 
-ShortPoint g_stHudMessageOrigin_0049ae90;
-
+short g_bTargetLockActive_0049ae80 = 0;
+short g_nCommDeathSequenceFrame_0049ae84 = 0;
+short g_nCommMessageIndex_0049ae88 = -1;
+ShortPoint g_stWeaponDisplayOffset_0049ae8c = { 0, 0x10 };
+ShortPoint g_stHudMessageOrigin_0049ae90 = { 0 };
+ShortPoint g_aCockpitDamagePositions_0049ae98[4] = { 0 };
+short g_asCockpitLightX_0049aea8[7] = { 0 };
+short g_asCockpitLightY_0049aeb8[7] = { 0 };
+signed char g_acCockpitLightOffFrame_0049aec8[7] = { 0 };
+signed char g_acCockpitLightOnFrame_0049aed0[7] = { 0 };
+CockpitBarDefinition g_aCockpitBarDefinitions_0049aed8[8] = { 0 };
+ShortPoint g_aCockpitReadoutOrigins_0049af58[4] = { 0 };
+ShortRect g_stLeftVduBounds_0049af68 = { 0 };
+ShortRect g_stRightVduBounds_0049af70 = { 0 };
+CockpitScannerGeometry g_stCockpitScannerGeometry_0049af78 = { 0 };
+ShortRect g_stPilotHandBounds_0049af88 = { 0 };
+ShortPoint g_stPilotHandOrigin_0049af90 = { 0 };
+signed char g_cHazardBaseTravelTime_0049af94 = 0;
+short g_nHazardPitchRange_0049af98 = 0;
+ShortPoint g_aDefaultWeaponDisplayPositions_0049afa0[16] = { 0 };
+short g_bTargetLockDisplayEnabled_0049afe0 = 0;
 short g_asVduSelectionSound_0049afe4[2] = { 0x7f, 0 };
-
+short g_nTargetLeadIndicatorX_0049afe8 = (short)0x8001;
 char *g_pszPendingHudMessage_0049afec = 0;
-
 char *g_pszDisplayedHudMessage_0049aff0 = 0;
-
 signed char g_cLastPilotHandFrame_0049aff4 = (signed char)0xff;
-
 short g_asPilotHandOffsets_0049aff8[34] = {
     6, -3, 7, 2, 7, 9, 7, 12, 8, 13, 0, -1, -1, -1,
     -4, -1, -6, -1, 6, 0, 8, 0, 10, 0, 13, 3, 8, -7,
     6, -9, 5, -11, 5, -14
 };
-
+unsigned char *g_pPendingCockpitDamageShape_0049b03c = 0;
+unsigned char *g_pCockpitExplosionBackground_0049b040 = 0;
+unsigned char *g_pCockpitHudBackground_0049b044 = 0;
+unsigned char * volatile g_pCockpitExplosionShape_0049b048 = 0;
+volatile short g_nCockpitExplosionFrame_0049b04c = 8;
+char *g_pszAutopilotWaitReason_0049b050 = g_szAutopilotWaitReason_0049b2f0;
+short g_bFuelGaugeDamaged_0049b054 = 0;
+short g_bForceCriticalDamageWarning_0049b058 = 0;
+unsigned char *g_pReleaseWeaponDisplayBackground_0049b05c = 0;
+signed char g_cReleaseWeaponDisplayFrame_0049b060 = -1;
+signed char g_cReleaseWeaponDisplayTicks_0049b064 = 0;
+signed char g_cReleaseWeaponDisplayState_0049b068 = 0;
+static char g_szNoWeaponSelected_0049b070[8] = "None";
 int g_nDisplayedObjectiveRange_0049b078 = 40000;
-
 short g_nScannerTargetObject_0049b07c = -1;
-
 int g_aiForwardScannerGridRows_0049b080[78] = {
     5, 13, 16, -1,
     5, 13, 16, -1,
@@ -47,7 +73,6 @@ int g_aiForwardScannerGridRows_0049b080[78] = {
     0, 1, 2, 3,
     -2
 };
-
 int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
     5, 13, -1,
     5, 13, -1,
@@ -66,46 +91,23 @@ int g_aiTargetCameraScannerGridRows_0049b1b8[50] = {
     0, 1, 2, 3,
     -2
 };
-
-const char *g_pszMissileLocked_0049b280 = g_szMissileLocked_0049b30c;
-
+const char *g_pszMissileLocked_0049b280 = "MISSILE LOCKED ";
+signed char g_bTargetBracketVisible_0049b284 = 1;
 unsigned char *g_pHudMessageFrameShape_0049b288 = 0;
-
 unsigned char *g_pHudMessageBackground_0049b28c = 0;
-
 short g_bCaptureHudMessageBackground_0049b290 = 1;
-
-short g_nHudMessageBackgroundDepth_0049b294;
-
+short g_nHudMessageBackgroundDepth_0049b294 = 0;
 short g_nTargetLockMarkerX_0049b298 = -0x7fff;
-
+ShortRect g_stTargetBracketBounds_0049b2a0 = { -0x7fff, 0, 0, 0 };
+ShortRect g_stCommTargetBracketBounds_0049b2a8 = { -0x7fff, 0, 0, 0 };
+short g_bMissileLockAcquired_0049b2b0 = 0;
+short g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
+short g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
 int g_nCommPortraitFrame_0049b2bc = -1;
-
+Viewport g_stTrainSimRightVduSource_0049b2c0 = { 0 };
+Viewport g_stTrainSimLeftVduSource_0049b2d8 = { 0 };
 int g_bForceDamageDisplayRedraw_0049b2ec = 0;
-
-char g_szMissileLocked_0049b30c[16] = "MISSILE LOCKED ";
-
-char g_szComponentHitFormat_0049b35c[8] = "%s HIT";
-
-char g_szNoObjective_0049b3b0[8] = "NONE";
-
-char g_szUnknownObjective_0049b3b8[8] = "UNKNOWN";
-
-char g_szCompNavigation_0049b3c0[16] = "COMP NAVIGATION";
-
-char g_szDestinationFormat_0049b3d0[20] =
-    "\n\nDESTINATION\n %s";
-
-char g_szNavigationRangeLabel_0049b3e4[12] = "\n\nRANGE\n ";
-
-char g_szNewObjectivePrompt_0049b3f0[20] =
-    "\n\n(N)ew Objective";
-
-char g_szAlreadyVisited_0049b404[16] = "Already Visited";
-
-char g_szObjectiveReached_0049b414[20] = "Objective Reached";
-
-char g_szWaitForFormat_0049b428[12] = "Wait for %s";
+char g_szAutopilotWaitReason_0049b2f0[28] = "Wait for ??????????????????";
 
 signed char g_cHudMessageView_005d1c37;
 
@@ -888,7 +890,7 @@ signed char damage_your_component(char component, char amount,
         }
     }
     if (get_mode(0) == 2 || get_mode(0) == 1) {
-        sprintf(text, g_szComponentHitFormat_0049b35c,
+        sprintf(text, "%s HIT",
                 g_apszComponentNames_00490090[(int)component]);
         ShowComponentHitHudMessage(text, g_abGamePaletteReservedColours_0049cb54[8], 5);
     }
@@ -1002,7 +1004,7 @@ void show_weapon_disp(void)
 
     switch (g_nSelectedReleaseWeaponIndex_004934e0) {
     case -1:
-        releaseLabel = "";
+        releaseLabel = g_szNoWeaponSelected_0049b070;
         break;
     default:
         releaseLabel = g_aObjectTypeData_00496d30[
@@ -1010,7 +1012,7 @@ void show_weapon_disp(void)
     }
     switch (g_nSelectedGunType_004934dc) {
     case -1:
-        gunCaption = "";
+        gunCaption = g_szNoWeaponSelected_0049b070;
         break;
     case 0x80:
         gunCaption = "Full Guns";
@@ -1019,14 +1021,14 @@ void show_weapon_disp(void)
         gunCaption = g_aObjectTypeData_00496d30[
             g_nSelectedGunType_004934dc].displayName;
     }
-    DrawFormattedText("\nWeapon: %s", releaseLabel);
-    DrawFormattedText("\nGun: %s", gunCaption);
+    DrawFormattedText("\nWeapon:%s", releaseLabel);
+    DrawFormattedText("\nGun:%s", gunCaption);
 
     g_nWeaponDisplayOriginX_005d4254 =
         (short)(g_stLeftVduViewport_005d2180.left +
-                g_nWeaponDisplayOffsetX_0049ae8c);
+                g_stWeaponDisplayOffset_0049ae8c.x);
     g_nWeaponDisplayOriginY_005d4256 =
-        (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+        (short)(g_stWeaponDisplayOffset_0049ae8c.y +
                 g_stLeftVduViewport_005d2180.top);
     DrawSpriteDefault(
         &g_stLeftVduViewport_005d2180,
@@ -1110,9 +1112,9 @@ void update_status_text(void)
                 i].type == 11) {
             g_nWeaponDisplayOriginX_005d4254 =
                 (short)(g_stLeftVduViewport_005d2180.left +
-                        g_nWeaponDisplayOffsetX_0049ae8c);
+                        g_stWeaponDisplayOffset_0049ae8c.x);
             g_nWeaponDisplayOriginY_005d4256 =
-                (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+                (short)(g_stWeaponDisplayOffset_0049ae8c.y +
                         g_stLeftVduViewport_005d2180.top);
             x = g_aWeaponDisplayPositions_005d1de0[i].x;
             y = g_aWeaponDisplayPositions_005d1de0[i].y;
@@ -1226,24 +1228,24 @@ void DrawCalculatingLabel(void)
 const char *objective_name(short objective)
 {
     if (objective >= (short)g_cMissionObjectiveCount_00493294)
-        return g_szNoObjective_0049b3b0;
+        return "NONE";
     else if (*g_aMissionObjectives_004932a8[objective].name != '?' ||
              sighted(objective) != 0)
         return g_aMissionObjectives_004932a8[objective].displayName;
     else
-        return g_szUnknownObjective_0049b3b8;
+        return "UNKNOWN";
 }
 
 /* Function start: 0x43A3F8 */
 void show_navigation_disp(void)
 {
     DrawTextAt(&g_stRightVduTextContext_005d2ce0, g_stRightVduViewport_005d2b20.left, g_stRightVduViewport_005d2b20.top,
-               g_szCompNavigation_0049b3c0, 2);
-    DrawFormattedText(g_szDestinationFormat_0049b3d0,
+               "COMP NAVIGATION", 2);
+    DrawFormattedText("\n\nDESTINATION\n %s",
                       objective_name((short)g_cCurrentObjective_004931cc));
-    DrawFormattedText(g_szNavigationRangeLabel_0049b3e4);
+    DrawFormattedText("\n\nRANGE\n ");
     InitializeCockpitReadout(0, &g_stRightVduTextContext_005d2ce0);
-    DrawFormattedText(g_szNewObjectivePrompt_0049b3f0);
+    DrawFormattedText("\n\n(N)ew Objective");
     DrawCalculatingLabel();
 }
 
@@ -1443,17 +1445,17 @@ void flag_reached(short objective, short reached)
             g_aMissionObjectives_004932a8[objective].index ==
                 g_asShipMissionParameter_00495e00[0]) {
             if (visited(objective) != 0) {
-                CockpitMessage(g_szAlreadyVisited_0049b404,
+                CockpitMessage("Already Visited",
                                g_abGamePaletteReservedColours_0049cb54[4], 4);
             } else {
-                CockpitMessage(g_szObjectiveReached_0049b414,
+                CockpitMessage("Objective Reached",
                                g_abGamePaletteReservedColours_0049cb54[4], 4);
             }
             moveOn = visit = 1;
         } else if (type != 1 ||
                    g_aMissionShips_00492290[carrierShip].state != 1) {
             sprintf(g_pszAutopilotWaitReason_0049b050,
-                    g_szWaitForFormat_0049b428,
+                    "Wait for %s",
                     g_apShipMissionRecord_00495da8[carrierObject]->name);
             CockpitMessage(g_pszAutopilotWaitReason_0049b050,
                            g_abGamePaletteReservedColours_0049cb54[4], 4);
@@ -2563,7 +2565,7 @@ void UpdateTargetLeadIndicator(void)
     if (HasInRangeGunForTargetLead(
             distance_from_point(0, &meetPoint)) == 0) {
         SetHudMessageText(
-            g_szTargetOutOfRange_0049b438,
+            "OUT OF RANGE",
             g_abGamePaletteReservedColours_0049cb54[8], 20);
         g_bTargetLockActive_0049ae80 = 0;
         return;
@@ -2656,7 +2658,7 @@ void overlay_head_up_display(void)
         (signed char)g_bTargetLockDisplayEnabled_0049afe0 != 0) {
         g_bTargetLockActive_0049ae80 = 1;
         SetHudMessageText(
-            g_szIttsEngaged_0049b448,
+            "ITTS ENGAGED",
             g_abGamePaletteReservedColours_0049cb54[8], 20);
     }
     if (g_acShipTarget_00495f20[0] == -1 ||
@@ -2937,6 +2939,7 @@ void build_your_target_list(short *hasEnemy)
 void build_your_target_list(short *hasEnemy);
 short distance_from_object(short obj, short other);
 short malf(char component);
+short FindNearestMissileTargetingObject(short obj);
 
 /* Function start: 0x43DD1B */
 void cycle_onscreen_targets(void)

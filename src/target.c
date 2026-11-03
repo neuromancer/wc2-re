@@ -5,6 +5,14 @@
  */
 #include "game.h"
 
+ShortRect g_aTargetArmorClipRects_0049b470[4] = {
+    { 12, -20, 29, 20 },
+    { -11, 1, 11, 20 },
+    { -11, -20, 11, 0 },
+    { -29, -20, -12, 20 }
+};
+char g_szEmptyTargetDisplayText_0049b490[4] = "";
+
 /* WC2 reads the manoeuvre slot before it has checked the target, so with
  * nothing targeted it reads the two bytes in front of the array.  What lives
  * there is not the blowing-up marker, so the port answers "no manoeuvre" for
@@ -36,14 +44,14 @@ void show_target_disp(void)
     if (g_bTargetLockMode_00493500 != 0 &&
         g_bDisplayWingmanTargetData_0049347c == 0) {
         DrawFormattedText(
-            g_szTextColourStringColourFormat_0049b4a8,
+            "%F%s%F",
             (unsigned int)g_abGamePaletteReservedColours_0049cb54[8],
-            g_szLockedTarget_0049b494,
+            "   LOCKED TARGET",
             (unsigned int)g_ucDefaultTextColour_0049cb7c);
     } else {
-        DrawFormattedText(g_szTextColourStringFormat_0049b4c4,
+        DrawFormattedText("%F%s",
                           (unsigned int)g_ucDefaultTextColour_0049cb7c,
-                          g_szAutoTargetting_0049b4b0);
+                          "  AUTO TARGETTING");
     }
     ship = g_acShipTarget_00495f20[0];
     if (ship != -1 && g_anShipCloakState_00496020[ship] == 1 &&
@@ -63,20 +71,20 @@ void show_target_disp(void)
         g_bDisplayWingmanTargetData_0049347c = 0;
     }
     g_cTargetDisplayObject_004934f4 = (signed char)ship;
-    DrawFormattedText(g_szTargetLabel_0049b4cc);
+    DrawFormattedText("\nTarget:");
     if (ship == -1) {
-        DrawFormattedText(g_szNoTarget_0049b4d8);
+        DrawFormattedText(" None");
         return;
     }
     typeData = &g_aObjectTypeData_00496d30[g_acObjectType_00493980[ship]];
     if (g_asShipIdentified_00496078[ship] != 0) {
-        DrawFormattedText(g_szIdentifiedTargetNameFormat_0049b4e0,
+        DrawFormattedText(" %s",
                           g_apShipMissionRecord_00495da8[ship]->name);
     } else {
-        DrawFormattedText(g_szShipTargetNameFormat_0049b4ec,
-                          g_szUnknownTarget_0049b4e4);
+        DrawFormattedText(" %s",
+                          "UNKNOWN");
     }
-    DrawFormattedText(g_szRangeLabel_0049b4f0);
+    DrawFormattedText("\nRange : ");
     InitializeCockpitReadout(1, &g_stRightVduTextContext_005d2ce0);
     if (g_asObjectScreenX_00493598[ship] == -32767 &&
         g_bDisplayWingmanTargetData_0049347c == 0) {
@@ -171,22 +179,22 @@ void DrawTargetRangeReadout(void)
                     30000 ||
                 (unsigned short)g_asObjectDistance_00493ae8[target] < 0) {
                 strcpy(g_szTextScratchBuffer_005d1c40,
-                       g_szTargetTooFar_0049b4fc);
+                       "TOO FAR");
             } else {
                 strcpy(g_szTextScratchBuffer_005d1c40 +
                            strlen(itoa((unsigned short)
                                             g_asObjectDistance_00493ae8[
                                                 target],
                                         g_szTextScratchBuffer_005d1c40, 10)),
-                       g_szRangeMetresSuffix_0049b504);
+                       " m");
             }
         } else {
             strcpy(g_szTextScratchBuffer_005d1c40,
-                   g_szTargetOffscreenRange_0049b508);
+                   "----- m");
         }
         if (g_bDisplayWingmanTargetData_0049347c != 0) {
             strcpy(g_szTextScratchBuffer_005d1c40,
-                   g_szTargetDataXmit_0049b510);
+                   "DATA XMIT");
         }
         DrawCockpitReadout(1, g_szTextScratchBuffer_005d1c40);
         if (g_nTargetLockCountdown_004934ec == 0) {

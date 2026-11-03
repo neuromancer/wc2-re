@@ -5,6 +5,10 @@
  */
 #include "game.h"
 
+short g_nEnemySighting_0049b670 = 0x7fff;
+short g_bHomeObjectiveFlagged_0049b674 = 0;
+short g_asShipIntelState_0049b678[10] = { 0 };
+
 /* Function start: 0x442770 */
 void cruise_home(short obj)
 {

@@ -5,6 +5,9 @@
  */
 #include "game.h"
 
+short g_bMissionDeathSequencePending_0049b720 = 0;
+short g_bMissionEjectionPodSpawned_0049b724 = 0;
+
 /* Function start: 0x446710 */
 void BeginShipDestructionSequence(short obj)
 {

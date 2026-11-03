@@ -180,6 +180,8 @@ extern ShortRect g_stModalBounds_0049ca48;
 extern short DAT_005a86a6;
 extern ModalTextPanel *g_pModalTextPanel_0049ca50;
 extern char *g_pszGameVersion_0049b528;
+/* The version text is a literal in version.c; the dead name keeps the
+ * header's symbol count. */
 extern char g_szGameVersion_0049b52c[9];
 extern short g_nPaletteTransitionInitialise_0049305c;
 extern int g_nDebugOverlayConsoleCount_0049cb24;
@@ -235,6 +237,7 @@ extern short g_nCannedSceneStateRecordMarker_00490220;
 extern char g_abCannedSceneBufferOverflowCode_00490224[4];
 extern char g_szCannedSceneCreateError_00490270[4];
 extern char g_szCannedSceneWriteOpenError_00490274[4];
+/* A literal in replay.c; dead name kept for the header's symbol count. */
 extern char g_szCannedSceneReadOpenError_0049b750[4];
 extern int g_bFullScreenSpaceView_0049d718;
 extern int g_nArcadeState_0049d75c;
@@ -325,6 +328,7 @@ extern short g_bForceCriticalDamageWarning_0049b058;
 extern short g_nPendingEjectionShip_005d1bc4;
 extern short g_bMissionDeathSequencePending_0049b720;
 extern short g_bMissionEjectionPodSpawned_0049b724;
+/* A literal in replay.c; dead name kept for the header's symbol count. */
 extern char g_szEndInflightReplay_0049b738[20];
 extern signed char g_acMissionShipStatusFlags_005d2fb0[8];
 extern short g_bMissionWingmanFlag_005c8dbe;
@@ -509,7 +513,9 @@ extern signed char g_cQueuedNpcMessage_0049b8c8;
 extern ShortVector g_aaFormationPositions_0049b8d0[5][8];
 extern short g_nCommDeathSequenceFrame_0049ae84;
 extern short g_nCommMessageIndex_0049ae88;
-extern short g_nWeaponDisplayOffsetX_0049ae8c;
+extern ShortPoint g_stWeaponDisplayOffset_0049ae8c;
+/* The Y offset below is field y of g_stWeaponDisplayOffset_0049ae8c; the
+ * dead declaration keeps the header's symbol count. */
 extern short g_nWeaponDisplayOffsetY_0049ae8e;
 extern ShortPoint g_aDamageDisplayPositions_00490068[9];
 extern const char *g_apszComponentNames_00490090[9];
@@ -621,6 +627,8 @@ extern int g_nInputPressCount_0049c258;
 extern short g_asConstellationVelocity_0049cae0[16];
 extern short g_asConstellationFrame_0049cb00[16];
 extern short g_nConstellationDirection_0049cb20;
+/* No storage: 0x49B46C is the padding before target.c's 8-aligned data.
+ * The dead name keeps the header's symbol count. */
 extern unsigned short g_wPacketCompressionFormatFlags_0049b46c;
 extern ShortRect g_aTargetArmorClipRects_0049b470[4];
 extern char g_szEmptyTargetDisplayText_0049b490[4];

@@ -354,6 +354,7 @@ SRCS_ORDERED_CORE = \
 	src/cockpt.c \
 	src/target.c \
 	src/loadmisn.c \
+	src/version.c \
 	src/fl.c \
 	src/brains.c \
 	src/grdriver.c \

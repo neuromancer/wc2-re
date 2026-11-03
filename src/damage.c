@@ -65,9 +65,9 @@ void show_damage_disp(void)
     } else {
         g_nWeaponDisplayOriginX_005d4254 =
             (short)(g_stLeftVduViewport_005d2180.left +
-                    g_nWeaponDisplayOffsetX_0049ae8c);
+                    g_stWeaponDisplayOffset_0049ae8c.x);
         g_nWeaponDisplayOriginY_005d4256 =
-            (short)(g_nWeaponDisplayOffsetY_0049ae8e +
+            (short)(g_stWeaponDisplayOffset_0049ae8c.y +
                     g_stLeftVduViewport_005d2180.top);
         DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
                           g_nWeaponDisplayOriginX_005d4254,
