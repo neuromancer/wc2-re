@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 int      g_nStreamCount_005c5750;
-int      g_nStreamsAllocated_005c5754;
-IxStream g_streams_005c5758[8];
+int      g_nStreamsTaken_005c5754;
+IxStream g_streams_005c5758[2];
 
 /* The stream operations further down.  With the stream table's
  * initializer, their named parameters give this unit retail's symbol-key
@@ -60,7 +60,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     g_streams_005c5758[stream].pending = g_streams_005c5758[stream].playPos;
     InitializeCriticalSection(&g_streams_005c5758[stream].cs);
 
-    v = &g_voices_005c52f0[g_nVoiceCount_005c5748 + stream];
+    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
     v->flags = IX_VOICE_FLAG4 | 1;
     if (bps == 16)
         v->flags |= IX_VOICE_16BIT;
@@ -80,7 +80,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
     v->field_10 = 0;
     v->rate = (short)((freq << 8) / IX_MIXER_BASE_RATE);
-    g_nStreamsAllocated_005c5754 = g_nStreamsAllocated_005c5754 + 1;
+    g_nStreamsTaken_005c5754 = g_nStreamsTaken_005c5754 + 1;
     g_streams_005c5758[stream].flags |= IX_STREAM_ALLOCATED;
 }
 
@@ -103,7 +103,7 @@ void ix_dsps_free(int stream)
         ix_dsps_stop(stream);
     DeleteCriticalSection(&g_streams_005c5758[stream].cs);
     delete[] g_streams_005c5758[stream].buffer;
-    g_nStreamsAllocated_005c5754 = g_nStreamsAllocated_005c5754 - 1;
+    g_nStreamsTaken_005c5754 = g_nStreamsTaken_005c5754 - 1;
     g_streams_005c5758[stream].flags &= ~IX_STREAM_ALLOCATED;
 }
 
@@ -128,7 +128,7 @@ void ix_dsps_prepare(int stream)
     g_streams_005c5758[stream].playPos = 0;
     g_streams_005c5758[stream].pending = g_streams_005c5758[stream].playPos;
     g_streams_005c5758[stream].writePos = g_streams_005c5758[stream].pending;
-    g_voices_005c52f0[g_nVoiceCount_005c5748 + stream].cursor =
+    g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].cursor =
         g_streams_005c5758[stream].buffer;
 }
 
@@ -152,7 +152,7 @@ void ix_dsps_play(int stream)
         ix_log_printf("stream is already playing!");
         exit(-1);
     }
-    v = &g_voices_005c52f0[g_nVoiceCount_005c5748 + stream];
+    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
     v->cursor = g_streams_005c5758[stream].playPos
               + g_streams_005c5758[stream].buffer;
     v->flags |= IX_VOICE_ACTIVE;
@@ -177,7 +177,7 @@ void ix_dsps_stop(int stream)
         ix_log_printf("stream isnt playing!");
         exit(-1);
     }
-    g_voices_005c52f0[g_nVoiceCount_005c5748 + stream].flags &= ~IX_VOICE_ACTIVE;
+    g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].flags &= ~IX_VOICE_ACTIVE;
     g_streams_005c5758[stream].flags &= ~IX_STREAM_PLAYING;
 }
 
@@ -201,7 +201,7 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    v = &g_voices_005c52f0[g_nVoiceCount_005c5748 + stream];
+    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
     v->volume =
         (unsigned short)(((int)(vol & 0xffff) * 0x7fff) / 0xffff);
     v->leftGain = v->volume;
@@ -239,7 +239,7 @@ int ix_dsps_get_buffer_free(int stream)
     }
     consumed = 0;
     EnterCriticalSection(&g_streams_005c5758[stream].cs);
-    played = g_voices_005c52f0[g_nVoiceCount_005c5748 + stream].cursor
+    played = g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].cursor
            - g_streams_005c5758[stream].buffer;
     if ((int)g_streams_005c5758[stream].pending < 0) {
         g_streams_005c5758[stream].pending = 0;

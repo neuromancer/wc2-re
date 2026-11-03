@@ -16,10 +16,9 @@
 #include <string.h>
 #include <time.h>
 
-short          g_anPanTable_005c4ee8[512];
 IxVoice        g_voices_005c52f0[34];
 CRITICAL_SECTION g_csMixer_005c5730;
-int            g_nVoiceCount_005c5748;
+int            g_nVoiceCapacity_005c5748;
 
 /* The buffer, position and volume setters further down.  With the voice
  * table's initializer, their named parameters give this unit retail's
@@ -31,7 +30,7 @@ void ix_dspv_set_volume(int voice, short volume);
 /* Function start: 0x48A235 */   /* source line 23 */
 void ix_dspv_set_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 23);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -42,7 +41,7 @@ void ix_dspv_set_active(int voice)
 /* Function start: 0x48A299 */   /* source line 29 */
 void ix_dspv_clear_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 29);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -55,7 +54,7 @@ unsigned int ix_dspv_get_flags(int voice);
 /* Function start: 0x48A2FE */   /* source line 35 */
 void ix_dspv_clear_flag4(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 35);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -66,7 +65,7 @@ void ix_dspv_clear_flag4(int voice)
 /* Function start: 0x48A362 */   /* source line 41 */
 unsigned int ix_dspv_get_flags(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 41);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -87,7 +86,7 @@ void ix_dspv_set_flag4(int voice, int on)
 /* Function start: 0x48A3FF */   /* source line 55 */
 void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 55);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -104,7 +103,7 @@ void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
 /* Function start: 0x48A49B */   /* source line 69 */
 int ix_dspv_get_position(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 69);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -119,7 +118,7 @@ void ix_dspv_recalc_mix(int voice);
 /* Function start: 0x48A510 */   /* source line 77 */
 void ix_dspv_set_position(int voice, int off)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 77);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -135,7 +134,7 @@ void ix_dspv_set_frequency(int voice, unsigned int hz);
 /* Function start: 0x48A588 */   /* source line 85 */
 void ix_dspv_set_volume(int voice, short vol)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 85);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -152,7 +151,7 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
     short delta;
     short position;
 
-    if (voice < 0 || g_nVoiceCount_005c5748 <= voice) {
+    if (voice < 0 || g_nVoiceCapacity_005c5748 <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 93);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -177,7 +176,7 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
 /* Function start: 0x48A721 */   /* source line 131 */
 void ix_dspv_set_frequency(int voice, unsigned int hz)
 {
-    if (voice < 0 || g_nVoiceCount_005c5748 <= voice) {
+    if (voice < 0 || g_nVoiceCapacity_005c5748 <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 131);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -189,7 +188,7 @@ void ix_dspv_set_frequency(int voice, unsigned int hz)
 /* Function start: 0x48A79C */   /* source lines 137, 138 */
 void ix_dspv_set_bits_per_sample(int voice, int bps)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 137);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -208,7 +207,7 @@ void ix_dspv_set_bits_per_sample(int voice, int bps)
 /* Function start: 0x48A865 */   /* source lines 148, 149 */
 void ix_dspv_set_channels(int voice, int channels)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity_005c5748) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 148);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -257,7 +256,7 @@ extern "C" void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
     output = (short *)outputBuffer;
     frameCount = outputBytes / 4;
     voice = 0;
-    while (voice < g_nVoiceCount_005c5748 + g_nStreamCount_005c5750) {
+    while (voice < g_nVoiceCapacity_005c5748 + g_nStreamCount_005c5750) {
         IxVoice *state;
 
         state = &g_voices_005c52f0[voice];
@@ -344,3 +343,7 @@ extern "C" void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
     }
 }
 #endif
+
+/* The allocated-voice counter that dsp.cpp maintains; retail keeps it in
+ * this unit's .bss. */
+int g_nVoicesReserved_005c574c;

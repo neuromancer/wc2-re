@@ -19,15 +19,15 @@
 
 #define IX_MIXER_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\mixer.cpp"
 
-extern HANDLE g_hMixerThread_005c4ec0;
-extern HWND g_hDspWindow_005c4ec4;
-extern HANDLE g_hMixerWakeEvent_005c4ec8;
-extern unsigned int g_dwMixerBufferSize_005c4ed4;
-extern unsigned int g_dwMixerWriteOffset_005c4ecc;
+extern HANDLE g_hMixerTask_005c4ec0;
+extern HWND g_hDspWnd_005c4ec4;
+extern HANDLE g_hMixerRouseEvent_005c4ec8;
+extern unsigned int g_dwMixerScratchSize_005c4ed4;
+extern unsigned int g_dwMixWriteOffset_005c4ecc;
 extern LPDIRECTSOUND g_pDirectSound_005c4ed0;
-extern unsigned int g_dwDspFlags_005c4ed8;
+extern unsigned int g_dwSoundOptions_005c4ed8;
 extern LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
-extern unsigned int g_dwDspTick_005c52e8;
+extern unsigned int g_dwDsoundTick_005c52e8;
 extern LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_005c52ec;
 
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
@@ -40,14 +40,14 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
     (void)parameter;
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
     if (!SdlStartAudio(ix_dspv_mix, &g_csMixer_005c5730,
-                          &g_dwDspTick_005c52e8)) {
+                          &g_dwDsoundTick_005c52e8)) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_MIXER_FILE, 50);
         ix_log_printf("Failed to init SDL audio: %s", SDL_GetError());
         exit(-1);
     }
-    while ((g_dwDspFlags_005c4ed8 & 4) != 0) {
-        WaitForSingleObject(g_hMixerWakeEvent_005c4ec8, INFINITE);
-        ResetEvent(g_hMixerWakeEvent_005c4ec8);
+    while ((g_dwSoundOptions_005c4ed8 & 4) != 0) {
+        WaitForSingleObject(g_hMixerRouseEvent_005c4ec8, INFINITE);
+        ResetEvent(g_hMixerRouseEvent_005c4ec8);
     }
     SdlStopAudio();
     return 0;
@@ -58,14 +58,14 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
     HRESULT result;
     DSBCAPS bufCaps;
 
-    g_dwDspFlags_005c4ed8 |= 4;
+    g_dwSoundOptions_005c4ed8 |= 4;
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
     DirectSoundEnumerateA(ix_dsp_open_driver, 0);
-    if ((g_dwDspFlags_005c4ed8 & 0x10) == 0 &&
+    if ((g_dwSoundOptions_005c4ed8 & 0x10) == 0 &&
         g_pDirectSound_005c4ed0 == 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 46);
         ix_log_printf("Failed to find write primary driver, using secondary buffer");
-        g_dwDspFlags_005c4ed8 |= 0x10;
+        g_dwSoundOptions_005c4ed8 |= 0x10;
         DirectSoundEnumerateA(ix_dsp_open_driver, 0);
     }
     if (g_pDirectSound_005c4ed0 == 0) {
@@ -77,13 +77,13 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
     memset(&dsCaps, 0, 0x60);
     dsCaps.dwSize = 0x60;
     g_pDirectSound_005c4ed0->GetCaps(&dsCaps);
-    if ((g_dwDspFlags_005c4ed8 & 0x10) == 0 &&
+    if ((g_dwSoundOptions_005c4ed8 & 0x10) == 0 &&
         (dsCaps.dwFlags &
          (DSCAPS_PRIMARY16BIT | DSCAPS_PRIMARYSTEREO)) !=
         (DSCAPS_PRIMARY16BIT | DSCAPS_PRIMARYSTEREO)) {
         ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 60);
         ix_log_printf("sound driver doesn't support our primary buffer format, using secondary buffer");
-        g_dwDspFlags_005c4ed8 |= 0x10;
+        g_dwSoundOptions_005c4ed8 |= 0x10;
         DirectSoundEnumerateA(ix_dsp_open_driver, 0);
         if (g_pDirectSound_005c4ed0 == 0) {
             ix_log_printf("Fatal [%s - %d]:\n", IX_MIXER_FILE, 63);
@@ -118,7 +118,7 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
         ix_log_printf("Failed to SetFormat, %s",
                       ix_dsp_result_to_text(result));
     }
-    if ((g_dwDspFlags_005c4ed8 & 0x10) != 0) {
+    if ((g_dwSoundOptions_005c4ed8 & 0x10) != 0) {
         memset(&description, 0, 0x14);
         description.dwSize = 0x14;
         description.dwFlags = DSBCAPS_CTRLVOLUME;
@@ -132,26 +132,26 @@ DWORD WINAPI ix_mixer_thread_proc(void *parameter)
                           ix_dsp_result_to_text(result));
             return (DWORD)-1;
         }
-        g_dwMixerBufferSize_005c4ed4 = 0x8000;
+        g_dwMixerScratchSize_005c4ed4 = 0x8000;
         ix_log_printf("secondary buffer, size = %d\n",
-                      g_dwMixerBufferSize_005c4ed4);
+                      g_dwMixerScratchSize_005c4ed4);
     } else {
         memset(&bufCaps, 0, 0x14);
         bufCaps.dwSize = 0x14;
         g_pPrimarySoundBuffer_005c52ec->GetCaps(&bufCaps);
         g_pMixerBuffer_005c4ee0 = g_pPrimarySoundBuffer_005c52ec;
-        g_dwMixerBufferSize_005c4ed4 = bufCaps.dwBufferBytes;
+        g_dwMixerScratchSize_005c4ed4 = bufCaps.dwBufferBytes;
         ix_log_printf("primary buffer, size = %d\n",
-                      g_dwMixerBufferSize_005c4ed4);
+                      g_dwMixerScratchSize_005c4ed4);
     }
 
     g_pPrimarySoundBuffer_005c52ec->SetVolume(
         10000 - (g_nMasterVolume_004a0c14 * 10000) / 0xffff);
-    while ((g_dwDspFlags_005c4ed8 & 4) != 0) {
+    while ((g_dwSoundOptions_005c4ed8 & 4) != 0) {
         ix_mixer_service();
-        if ((g_dwDspFlags_005c4ed8 & 4) != 0) {
-            WaitForSingleObject(g_hMixerWakeEvent_005c4ec8, 1000);
-            ResetEvent(g_hMixerWakeEvent_005c4ec8);
+        if ((g_dwSoundOptions_005c4ed8 & 4) != 0) {
+            WaitForSingleObject(g_hMixerRouseEvent_005c4ec8, 1000);
+            ResetEvent(g_hMixerRouseEvent_005c4ec8);
             g_pMixerBuffer_005c4ee0->Restore();
         }
     }
@@ -209,8 +209,8 @@ int ix_mixer_service(void)
         return -1;
     }
 
-    g_dwMixerWriteOffset_005c4ecc = 0x2df0;
-    while ((g_dwDspFlags_005c4ed8 & 4) != 0) {
+    g_dwMixWriteOffset_005c4ecc = 0x2df0;
+    while ((g_dwSoundOptions_005c4ed8 & 4) != 0) {
         DWORD writePosition;
         HRESULT hr;
         DWORD bufferHeadLen;
@@ -222,7 +222,7 @@ int ix_mixer_service(void)
         DWORD bufferTailLen;
 
         Sleep(delay);
-        g_dwDspTick_005c52e8++;
+        g_dwDsoundTick_005c52e8++;
         hr = g_pMixerBuffer_005c4ee0->GetCurrentPosition(
             &playCursor, &writePosition);
         if (hr != DS_OK) {
@@ -231,14 +231,14 @@ int ix_mixer_service(void)
                           ix_dsp_result_to_text(hr));
             return -1;
         }
-        if (playCursor > g_dwMixerWriteOffset_005c4ecc)
-            playCursor -= g_dwMixerBufferSize_005c4ed4;
-        bufferedBytes = g_dwMixerWriteOffset_005c4ecc - playCursor;
+        if (playCursor > g_dwMixWriteOffset_005c4ecc)
+            playCursor -= g_dwMixerScratchSize_005c4ed4;
+        bufferedBytes = g_dwMixWriteOffset_005c4ecc - playCursor;
         delay = (unsigned int)(bufferedBytes * 0x42) / 0x16f8;
 
         lockBytes = 0x16f8;
         hr = g_pMixerBuffer_005c4ee0->Lock(
-            g_dwMixerWriteOffset_005c4ecc, lockBytes,
+            g_dwMixWriteOffset_005c4ecc, lockBytes,
             &bufferHead, &bufferHeadLen, &bufferTail, &bufferTailLen, 0);
         if (hr != DS_OK) {
             ix_log_printf("Warning [%s - %d]:\n", IX_MIXER_FILE, 186);
@@ -257,12 +257,12 @@ int ix_mixer_service(void)
             ix_log_printf("Failed to Unlock, %s", ix_dsp_result_to_text(hr));
             return -1;
         }
-        g_dwMixerWriteOffset_005c4ecc += bufferHeadLen;
+        g_dwMixWriteOffset_005c4ecc += bufferHeadLen;
         if (bufferTail != 0) {
-            g_dwMixerWriteOffset_005c4ecc = bufferTailLen;
+            g_dwMixWriteOffset_005c4ecc = bufferTailLen;
         } else {
-            if (g_dwMixerWriteOffset_005c4ecc >= g_dwMixerBufferSize_005c4ed4)
-                g_dwMixerWriteOffset_005c4ecc = 0;
+            if (g_dwMixWriteOffset_005c4ecc >= g_dwMixerScratchSize_005c4ed4)
+                g_dwMixWriteOffset_005c4ecc = 0;
         }
     }
     return 0;

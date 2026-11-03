@@ -387,7 +387,7 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     viewport = g_stScreenViewport_005d21a0;
     viewport.pixels = destination;
     viewport.allocation = destination;
-    RestoreSpriteBackground(&viewport, g_abInputCursorBackground_005c3b10,
+    RestoreSpriteBackground(&viewport, g_abInputCursorBehind_005c3b10,
                             (short)g_nCapturedInputCursorX_005c817c,
                             (short)g_nCapturedInputCursorY_005c8178,
                             g_pInputCursorShape_005c83f9,

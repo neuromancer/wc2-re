@@ -12,7 +12,7 @@
         option casemap:none
 
         extern syscall ?g_voices_005c52f0@@3PAUIxVoice@@A:byte
-        extern syscall ?g_nVoiceCount_005c5748@@3HA:dword
+        extern syscall ?g_nVoiceCapacity_005c5748@@3HA:dword
         extern syscall ?g_nStreamCount_005c5750@@3HA:dword
         public ix_dspv_mix
 
@@ -35,7 +35,7 @@ ix_dspv_mix proc
         shr ecx, 2
         rep stosd
         mov ebx, offset ?g_voices_005c52f0@@3PAUIxVoice@@A
-        mov ecx, dword ptr [?g_nVoiceCount_005c5748@@3HA]
+        mov ecx, dword ptr [?g_nVoiceCapacity_005c5748@@3HA]
         add ecx, dword ptr [?g_nStreamCount_005c5750@@3HA]
 
     voice_loop:

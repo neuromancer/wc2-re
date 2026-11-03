@@ -40,8 +40,8 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound)
     if (g_nActiveVoices_005c4b28 < g_nSystemVoiceCount_005c4b2c) {
         voice = ix_system_find_free_voice();
 
-        if (sound == g_pFreeSoundList_005c4b20)
-            g_pFreeSoundList_005c4b20 = sound->next;
+        if (sound == g_pFreeSoundHead_005c4b20)
+            g_pFreeSoundHead_005c4b20 = sound->next;
         if (sound->next != 0)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
@@ -70,8 +70,8 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound)
                 g_pWaitingSoundList_005c4b34->previous = lowestPlaying;
             g_pWaitingSoundList_005c4b34 = lowestPlaying;
 
-            if (sound == g_pFreeSoundList_005c4b20)
-                g_pFreeSoundList_005c4b20 = sound->next;
+            if (sound == g_pFreeSoundHead_005c4b20)
+                g_pFreeSoundHead_005c4b20 = sound->next;
             if (sound->next != 0)
                 sound->next->previous = sound->previous;
             if (sound->previous != 0)
@@ -83,8 +83,8 @@ extern "C" void __fastcall ix_sound_start(IxSound *sound)
             g_pActiveSoundList_005c4b30 = sound;
             ix_system_assign_voice(sound, releasedVoice);
         } else {
-            if (sound == g_pFreeSoundList_005c4b20)
-                g_pFreeSoundList_005c4b20 = sound->next;
+            if (sound == g_pFreeSoundHead_005c4b20)
+                g_pFreeSoundHead_005c4b20 = sound->next;
             if (sound->next != 0)
                 sound->next->previous = sound->previous;
             if (sound->previous != 0)
@@ -144,11 +144,11 @@ extern "C" void __fastcall ix_sound_stop(IxSound *sound)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
             sound->previous->next = sound->next;
-        sound->next = g_pFreeSoundList_005c4b20;
+        sound->next = g_pFreeSoundHead_005c4b20;
         sound->previous = 0;
-        if (g_pFreeSoundList_005c4b20 != 0)
-            g_pFreeSoundList_005c4b20->previous = sound;
-        g_pFreeSoundList_005c4b20 = sound;
+        if (g_pFreeSoundHead_005c4b20 != 0)
+            g_pFreeSoundHead_005c4b20->previous = sound;
+        g_pFreeSoundHead_005c4b20 = sound;
 
         if (replacement != 0) {
             ix_system_assign_voice(replacement, voice);
@@ -171,11 +171,11 @@ extern "C" void __fastcall ix_sound_stop(IxSound *sound)
             sound->next->previous = sound->previous;
         if (sound->previous != 0)
             sound->previous->next = sound->next;
-        sound->next = g_pFreeSoundList_005c4b20;
+        sound->next = g_pFreeSoundHead_005c4b20;
         sound->previous = 0;
-        if (g_pFreeSoundList_005c4b20 != 0)
-            g_pFreeSoundList_005c4b20->previous = sound;
-        g_pFreeSoundList_005c4b20 = sound;
+        if (g_pFreeSoundHead_005c4b20 != 0)
+            g_pFreeSoundHead_005c4b20->previous = sound;
+        g_pFreeSoundHead_005c4b20 = sound;
     }
 
     if ((sound->flags & IX_SOUND_DELETE_ON_STOP) != 0)

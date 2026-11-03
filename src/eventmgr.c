@@ -3,6 +3,8 @@
  *
  *  Retail object 0x4618E0-0x46572F (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define EVENTMGR_C
 #include "game.h"
 
 #pragma function(acos, asin, cos, sin, sqrt)
@@ -1099,7 +1101,7 @@ void CaptureMouseCursorBackground(void)
         g_pInputViewport_005c8403 != 0 &&
         g_pInputCursorShape_005c83f9 != 0) {
         CaptureSpriteBackground(&g_stScreenViewport_005d21a0,
-                                g_abInputCursorBackground_005c3b10,
+                                g_abInputCursorBehind_005c3b10,
                                 g_nQueuedInputX_005c83f0,
                                 g_nQueuedInputY_005c83f2,
                                 g_pInputCursorShape_005c83f9,
@@ -1168,7 +1170,7 @@ void RestoreMouseCursorBackground(void)
         g_pInputCursorShape_005c83f9 != 0 &&
         g_bInputCursorBackgroundCaptured_005c80c4 != 0) {
         RestoreSpriteBackground(&g_stScreenViewport_005d21a0,
-                                g_abInputCursorBackground_005c3b10,
+                                g_abInputCursorBehind_005c3b10,
                                 (short)g_nCapturedInputCursorX_005c817c,
                                 (short)g_nCapturedInputCursorY_005c8178,
                                 g_pInputCursorShape_005c83f9,
@@ -1234,7 +1236,7 @@ void ResumeMouseCursorHook(void)
     if (g_pInputViewport_005c8403 != 0) {
         if (g_pDrawnInputCursorShape_0049d4d0 != 0) {
             RestoreSpriteBackground(g_pInputViewport_005c8403,
-                                    g_abInputCursorBackground_005c3b10,
+                                    g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnInputCursorX_005c80ac,
                                     (short)g_nDrawnInputCursorY_005c80a8,
                                     g_pDrawnInputCursorShape_0049d4d0,
@@ -1253,7 +1255,7 @@ void ResumeMouseCursorHook(void)
         if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
             g_pInputCursorShape_005c83f9 != 0) {
             CaptureSpriteBackground(g_pInputViewport_005c8403,
-                                    g_abInputCursorBackground_005c3b10,
+                                    g_abInputCursorBehind_005c3b10,
                                     g_nQueuedInputX_005c83f0,
                                     g_nQueuedInputY_005c83f2,
                                     g_pInputCursorShape_005c83f9,
@@ -1297,7 +1299,7 @@ void EnableMouseCursorDrawing(void)
     return;
     if (g_pInputViewport_005c8403 != 0 && g_pInputCursorShape_005c83f9 != 0)
         CaptureSpriteBackground(g_pInputViewport_005c8403,
-                                g_abInputCursorBackground_005c3b10,
+                                g_abInputCursorBehind_005c3b10,
                                 g_nQueuedInputX_005c83f0,
                                 g_nQueuedInputY_005c83f2,
                                 g_pInputCursorShape_005c83f9,
@@ -1314,7 +1316,7 @@ void EnableMouseCursorDrawing(void)
         g_pInputCursorShape_005c83f9 != 0) {
         if (g_pDrawnInputCursorShape_0049d4d0 != 0) {
             RestoreSpriteBackground(g_pInputViewport_005c8403,
-                                    g_abInputCursorBackground_005c3b10,
+                                    g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnInputCursorX_005c80ac,
                                     (short)g_nDrawnInputCursorY_005c80a8,
                                     g_pInputCursorShape_005c83f9,
@@ -1329,7 +1331,7 @@ void EnableMouseCursorDrawing(void)
                 maxY = g_nDrawnInputCursorY_005c80a8 + 16;
         }
         CaptureSpriteBackground(g_pInputViewport_005c8403,
-                                g_abInputCursorBackground_005c3b10,
+                                g_abInputCursorBehind_005c3b10,
                                 g_nQueuedInputX_005c83f0,
                                 g_nQueuedInputY_005c83f2,
                                 g_pInputCursorShape_005c83f9,
@@ -1370,7 +1372,7 @@ void DisableMouseCursorDrawing(void)
         if (g_pInputViewport_005c8403 != 0 &&
             g_pInputCursorShape_005c83f9 != 0) {
             RestoreSpriteBackground(g_pInputViewport_005c8403,
-                                    g_abInputCursorBackground_005c3b10,
+                                    g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnInputCursorX_005c80ac,
                                     (short)g_nDrawnInputCursorY_005c80a8,
                                     g_pInputCursorShape_005c83f9,
@@ -1394,7 +1396,7 @@ void SetMouseCursorShape(unsigned char *shape, short frame)
         g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pDrawnInputCursorShape_0049d4d0 != 0) {
         RestoreSpriteBackground(g_pInputViewport_005c8403,
-                                g_abInputCursorBackground_005c3b10,
+                                g_abInputCursorBehind_005c3b10,
                                 (short)g_nDrawnInputCursorX_005c80ac,
                                 (short)g_nDrawnInputCursorY_005c80a8,
                                 g_pDrawnInputCursorShape_0049d4d0,

@@ -693,7 +693,14 @@ extern char g_szRangeLabel_0049b4f0[12];
 extern char g_szTargetTooFar_0049b4fc[8];
 extern char g_szRangeMetresSuffix_0049b504[4];
 extern char g_szTargetOffscreenRange_0049b508[8];
-extern char g_szTargetDataXmit_0049b510[12];
+/* main.c keeps this storage private: it defines MAIN_C before including the
+ * game headers, so these become its statics at their header positions. */
+#ifdef MAIN_C
+#define MAIN_STATIC static
+#else
+#define MAIN_STATIC extern
+#endif
+MAIN_STATIC int g_nFreeMainWord_005c4b18; /* never referenced */
 extern short g_nSpacePaletteFadeMode_004901e8;
 /* dib.cpp defines the DirectDraw GUIDs; this one is missing from the
  * compiler's DirectX 2 ddraw.h (it takes the slot of an older name). */
@@ -958,7 +965,14 @@ extern unsigned short g_wQueuedInputFlags_005c83f7;
 extern unsigned char *g_pInputCursorShape_005c83f9;
 extern short g_nInputCursorFrame_005c83fd;
 extern unsigned char g_bInputCursorShapeChanged_005c840b;
-extern unsigned char g_abInputCursorBackground_005c3b10[0x400];
+/* eventmgr.c keeps its found-event record and cursor background private
+ * (EVENTMGR_C); the SDL adapters share them, so the port keeps them external. */
+#if defined(EVENTMGR_C) && !defined(SDL_PORT)
+#define EVENTMGR_STATIC static
+#else
+#define EVENTMGR_STATIC extern
+#endif
+EVENTMGR_STATIC unsigned char g_abInputCursorBehind_005c3b10[0x1000];
 extern int g_nDrawnInputCursorY_005c80a8;
 extern int g_nDrawnInputCursorX_005c80ac;
 extern unsigned char *DAT_005c80c0;
@@ -970,7 +984,7 @@ extern int g_nInputCursorDirtyRight_005c845c;
 extern int g_nInputCursorDirtyBottom_005c8460;
 extern int g_nInputCursorDirtyLeft_005c85c0;
 extern int g_nInputCursorDirtyTop_005c85c4;
-extern InputEventState g_stFoundInputEvent_005c3af8;
+EVENTMGR_STATIC InputEventState g_stFoundInputEvent_005c3af8;
 extern signed char g_bCinematicSpriteFontEnabled_005c82a7;
 extern TextContext *g_pCurrentTextContext_005c8d1c;
 extern void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
@@ -1444,7 +1458,7 @@ extern int g_anLastDrawnVduMode_004934d0[3];
 extern unsigned char * volatile g_pCockpitExplosionShape_0049b048;
 extern volatile short g_nCockpitExplosionFrame_0049b04c;
 extern short g_nTargetLockMusicCooldown_005d1e78;
-extern unsigned int g_dwStreamerState_005c4c38;
+extern unsigned int g_dwStreamerMode_005c4c38;
 extern short DAT_0059a856;
 /* nav.c keeps this storage private: it defines NAV_C before including the game
  * headers, so these become its statics at their header positions. */
@@ -1542,8 +1556,8 @@ extern const char *g_apszShortPilotRankNames_0049a620[5];
 extern void *g_pActiveScenePacket_00492654;
 extern short g_nPersonnelCursorX_005c8470;
 extern short g_nPersonnelCursorY_005c8472;
-extern int g_bMouseFireButtonLatched_005c4b10;
-extern short g_wSavedInputDeviceButtonState_005c4b14;
+MAIN_STATIC int g_bMouseFireButtonLatched_005c4b10;
+MAIN_STATIC short g_wSavedInputDeviceButtonState_005c4b14;
 extern short g_bDiscreteFlightInputQueued_005c57e4;
 extern short g_bPolledFlightInputQueued_005c587a;
 extern int g_bPlayerInputActive_005c8090;

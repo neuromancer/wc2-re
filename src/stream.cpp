@@ -29,7 +29,7 @@ void ix_log_printf(const char *fmt, ...);
 /* Function start: 0x428DE0 */
 inline unsigned int GetStreamerState(void)
 {
-    return g_dwStreamerState_005c4c38;
+    return g_dwStreamerMode_005c4c38;
 }
 
 /* Function start: 0x428900 */

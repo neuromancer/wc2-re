@@ -228,7 +228,7 @@ void ShutdownGameWindow(void)
         SDL_Window *window;
 
         g_bMainWindowRunning_005d12ac = 0;
-        if ((g_dwStreamerState_005c4c38 & 1) != 0)
+        if ((g_dwStreamerMode_005c4c38 & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         DestroyGlobalDebugOverlayConsole();

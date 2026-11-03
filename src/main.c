@@ -3,6 +3,8 @@
  *
  *  Retail object 0x465780-0x46979F (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define MAIN_C
 #include "game.h"
 
 unsigned char g_abPauseInputState_005c85d0[0x100];

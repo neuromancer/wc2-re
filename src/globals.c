@@ -267,14 +267,12 @@ short g_nTalkingHeadMouthX_005a875a;
 unsigned char *g_pIntroFont_005a8960;
 /* The button mask KeyboardMousePump last posted. */
 #ifdef SDL_PORT
-/* The SDL music adapter formats into it too, so the port keeps it shared. */
+/* The SDL adapters use these too, so the port keeps them shared. */
+InputEventState g_stFoundInputEvent_005c3af8;
+unsigned char g_abInputCursorBehind_005c3b10[0x1000];
 char g_szSfxWavePath_005b3650[0x40];
 #endif
-InputEventState g_stFoundInputEvent_005c3af8;
-unsigned char g_abInputCursorBackground_005c3b10[0x400];
-int g_bMouseFireButtonLatched_005c4b10;
-short g_wSavedInputDeviceButtonState_005c4b14;
-extern unsigned int g_dwStreamerState_005c4c38;
+extern unsigned int g_dwStreamerMode_005c4c38;
 InputDeviceSample g_stPreviousFlightInput_005c57d0;
 short g_bDiscreteFlightInputQueued_005c57e4;
 short g_nResourcePaletteMode_005c57e6;
