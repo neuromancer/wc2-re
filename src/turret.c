@@ -83,7 +83,7 @@ short HandleFleetOverviewInput(void)
                     (short)((g_stViewScratchInfo_005d2b00.top +
                              g_stViewScratchInfo_005d2b00.bottom) / 2));
                 g_nCockpitControlState_0049d7ac = 1;
-                g_nUiCursorFrame_005c8481 = 2;
+                g_stPersonnelCursor_005c8470.frame = 2;
             }
             scrollX = (short)(
                 state.x -
@@ -93,8 +93,8 @@ short HandleFleetOverviewInput(void)
                 state.y -
                 (g_stViewScratchInfo_005d2b00.bottom -
                  g_stViewScratchInfo_005d2b00.top) / 2);
-            g_nPersonnelCursorX_005c8470 = state.x;
-            g_nPersonnelCursorY_005c8472 = state.y;
+            g_stPersonnelCursor_005c8470.x = state.x;
+            g_stPersonnelCursor_005c8470.y = state.y;
             absX = (short)abs(scrollX);
             yAbs = (short)abs(scrollY);
             deadZone = 0;

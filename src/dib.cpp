@@ -749,8 +749,8 @@ void DIBslamReal(void)
 #endif
 
 #ifdef SDL_PORT
-        if (g_stMouseCursorState_0059ab10.viewport != 0 &&
-            g_stMouseCursorState_0059ab10.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
+        if (g_pInputViewport_005c8403 != 0 &&
+            g_pInputViewport_005c8403->pixels == g_pDisplayPixelBuffer_005b3978) {
             RestoreMouseCursorBackground();
         }
 #else

@@ -10,7 +10,7 @@ void ShowPlayerEjectionSequence(void)
 {
     InputPumpContext *savedInputContext;
 
-    savedInputContext = g_pActiveInputContext_005c8487;
+    savedInputContext = g_stPersonnelCursor_005c8470.context;
     ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 0x19), 0);
     if (savedInputContext != 0)
         SetInputViewport(savedInputContext->viewport);

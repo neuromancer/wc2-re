@@ -1126,7 +1126,7 @@ void InflightComputer(void)
     hasObjectives = 0;
     savedNavPoint = (short)g_cCurrentNavPointIndex_00493298;
     g_bInflightComputerActive_0049bcb4 = 1;
-    savedCursor = g_stMouseCursorState_0059ab10;
+    savedCursor = g_stPersonnelCursor_005c8470;
 
     if (message_showing() != 0)
         EndCommMenu();
@@ -1241,9 +1241,9 @@ void InflightComputer(void)
         PlaySfxWaveFileByNumber(0x19, -1, 0);
     }
 
-    g_stMouseCursorState_0059ab10 = savedCursor;
-    SetPersonnelMousePosition(g_nPersonnelCursorX_005c8470,
-                              g_nPersonnelCursorY_005c8472);
+    g_stPersonnelCursor_005c8470 = savedCursor;
+    SetPersonnelMousePosition(g_stPersonnelCursor_005c8470.x,
+                              g_stPersonnelCursor_005c8470.y);
     force_view(0, 0);
     InitializeSpaceFlightInput();
     g_bInflightComputerActive_0049bcb4 = 0;

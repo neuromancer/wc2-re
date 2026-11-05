@@ -153,6 +153,29 @@ by the original image.
 can inspect distributed definitions as one manifest. Use `make globals-data`
 before and after moving a global band.
 
+The public event-manager state occupies `0x005C80A8`-`0x005C8D3D`, after
+main's event pool and before the turret block. Its definitions, including the
+two pause-input arrays used by main, belong to `eventmgr.c`. Moving this band
+out of the provisional `globals.c` lets all 21 main commons land at their
+retail addresses. The event-manager block still needs its internal symbol
+order and packed records recovered; declaration order alone does not order
+LINK's commons.
+
+`InflightComputer` saves and restores 33 bytes at `0x005C8470` (eight `MOVSD`s
+and one `MOVSB`). This is the personnel cursor record: x/y are at `+0/+2`,
+the shape pointer at `+0x0D`, frame at `+0x11`, scratch pointer at `+0x13`, and
+input context at `+0x17`. Those fields share the record's storage. The older
+28-byte snapshot at `0x0059AB10` was inherited from WC1 and is not its WC2
+destination.
+
+The remaining 78 predecessor commons formerly in `globals.c` had no
+relocation references from any reference-build object, including data
+tables; because they were uninitialized leaves, reachability was already at
+a fixpoint. Seventy-seven definitions were removed and the eye-space cache
+was retained under `SDL_PORT`. Reference builds now allocate no storage in
+`globals.c`. Shared-header declarations remain where needed to preserve
+MSVC's existing symbol keys during further recovery.
+
 ## Recovering another boundary
 
 1. Run `make order` and inspect adjacent entries in `src/map`.

@@ -951,7 +951,7 @@ extern const ScreenViewportGeometry * volatile
 extern short g_nViewCenterX_005c80d8;
 extern short g_nViewCenterY_005c80da;
 extern unsigned char g_abInputKeyState_005c80f0[0x80];
-extern MouseCursorState g_stMouseCursorState_0059ab10;
+extern MouseCursorState g_stPersonnelCursor_005c8470;
 extern void (*DAT_0059ab2c)(void);
 extern volatile int g_nFrameTimerPending_005c844c;
 extern short g_nViewportOriginX_005c849e;

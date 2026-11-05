@@ -1,9 +1,6 @@
 /*
- *  Definitions for the globals declared in include/globals.h.
- *
- *  Provisional: the original scatters these across the modules that own them,
- *  so this file has no counterpart in the shipped image and contributes no
- *  code.  It exists so that regrouping functions cannot break the link.
+ *  Storage used only by the native SDL build. Reference-build globals live
+ *  in their owner units; this file has no counterpart in the shipped image.
  */
 #include "game.h"
 
@@ -184,167 +181,13 @@ short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 
 
 
-/* Set while a mission is ending; ejection_sequence and death_sequence both
- * return immediately when it is clear. */
-unsigned char *g_pMissionCampaignData_005988bc;
-PilotRecord g_aPilotRecords_005988d0[9];
-ConstellationObjectDefinition *g_pConstellationDefinitions_00598a28;
-PilotRecord *g_apWingmanPilots_00598a30[8];
-unsigned char *g_apRecRoomTextData_00598aa0[3];
-unsigned char *g_apRecRoomSceneData_00598ae0[3];
-unsigned char *g_pBriefingPacket_00598aec;
-unsigned char *g_pBriefingTextData_00598af0;
-short *g_pMouthAnimationCommands_00598af4;
-unsigned char *g_pDebriefingSceneData_00598afc;
-unsigned char *g_pBriefingSceneData_00598c00;
-unsigned char *g_pConversationBackdropShape_00598c04;
-short g_nConversationMedalIndex_00598c08;
-short g_nConversationSceneType_00598c0a;
-unsigned char *g_pTalkingHeadShape_00598c0c;
-short g_nConversationTextColour_00598c10;
-unsigned char *g_pBriefingAnimationShape_00598c14;
-short *g_pFaceAnimationCommands_00598c18;
-unsigned char *g_pBriefingBodyShape_00598c1c;
-unsigned char *g_pBriefingPortraitShape_00598c24;
-unsigned char *g_pDebriefingTextData_00598c28;
-unsigned char *g_pBriefingCloseupShape_00598c2c;
-unsigned char *g_pConversationOverlayShape_00598c30;
-unsigned char g_bInputMode_0059a848;
-short DAT_0059a856;
-short DAT_0059a9f0;
-MouseCursorState g_stMouseCursorState_0059ab10;
-void (*DAT_0059ab2c)(void);
-short DAT_0059ab34;
-short DAT_0059ab64;
+#ifdef SDL_PORT
+/* Eye-space cache used only by the native renderer. */
 FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
-CampaignState g_stCampaignState_0059ca50;
-Viewport g_stConstellationViewport_005a6b40;
-Viewport g_stTrainSimTitleDisplayViewport_005a7b90;
-Viewport g_stTrainSimHighScoreBufferViewport_005a7bb0;
-TextContext g_stTrainSimTextContext_005a7bd0;
-Viewport g_stTrainSimHighScoreDisplayViewport_005a7bf0;
-TextContext g_stTrainSimHighScoreTextContext_005a7c10;
-HighScoreEntry g_aHighScoreEntries_005a7c30[6];
-unsigned char *g_pSceneAnimationPrimaryShape_005a7c58;
-SceneAnimationObject *g_pSceneAnimationObjects_005a7c64;
-short g_nSceneAnimationWaitFrames_005a7c68;
-unsigned char *g_pSceneAnimationDefinitions_005a7c6c;
-unsigned char *g_pSceneAnimationSecondaryShape_005a7c70;
-signed char g_cCockpitLogicalFile_005a7c74;
-short g_nWingmanKillCount_005a7cb8;
-unsigned int g_dwOriginalFreeMemory_005a7cd8;
-unsigned char *g_pMouseCursorResource_005a7cdc;
-DiskFileRecord *g_pDiskFileRecords_005a7cf0;
-Viewport g_stDiskPromptBackgroundViewport_005a7d00;
-unsigned char g_abDiskPromptDriveState_005a7d20[2];
-Viewport g_stDiskPromptViewport_005a7d40;
-TextContext g_stDiskPromptTextContext_005a7d60;
-unsigned int g_dwDiskPromptTopLeft_005a7d80;
-unsigned int g_dwDiskPromptBottomRight_005a7d84;
-short g_nMissionMedalScore_005a8116;
-short g_nCampaignDataSet_005a8118;
-short g_nMenuInputRepeatDelay_005a8208;
-short DAT_005a86a6;
-CampaignDate *g_pCurrentCampaignDate_005a86a8;
-short g_nFuneralCasketX_005a86c8;
-short g_nFuneralCasketY_005a86ca;
-unsigned char *g_pConversationSpecialShape_005a86ec;
-ShortPoint g_aFuneralParticles_005a86f0[7];
-short g_nFuneralParticleDistance_005a8710;
-short g_nFuneralForegroundX_005a8718;
-short g_nFuneralForegroundY_005a871a;
-short g_nFuneralMainScale_005a871c;
-short g_nFuneralRifleFrame_005a871e;
-short g_nFuneralBaseX_005a8720;
-short g_nFuneralBaseY_005a8722;
-short g_nFuneralParticleScale_005a8728;
-short g_nFuneralMainDistance_005a8738;
-short g_nFuneralGuardFrame_005a873c;
-short g_nTalkingHeadFaceX_005a8754;
-short g_nTalkingHeadFaceY_005a8756;
-short g_nTalkingHeadMouthY_005a8758;
-short g_nTalkingHeadMouthX_005a875a;
-unsigned char *g_pIntroFont_005a8960;
-/* The button mask KeyboardMousePump last posted. */
+#endif
 #ifdef SDL_PORT
 /* The SDL adapters use these too, so the port keeps them shared. */
 InputEventState g_stFoundInputEvent_005c3af8;
 unsigned char g_abInputCursorBehind_005c3b10[0x1000];
 char g_szSfxWavePath_005b3650[0x40];
 #endif
-extern unsigned int g_dwStreamerMode_005c4c38;
-int g_nDrawnInputCursorY_005c80a8;
-int g_nDrawnInputCursorX_005c80ac;
-unsigned char *DAT_005c80c0;
-int g_bInputCursorBackgroundCaptured_005c80c4;
-short g_bInputManagerInitialized_005c80ca;
-short g_nDetectedGraphicsMode_005c80d2;
-short g_wPendingInputButtons_005c80d4;
-unsigned char g_nInputRepeatDelay_005c80d6;
-short g_nViewCenterX_005c80d8;
-short g_nViewCenterY_005c80da;
-void *g_pLastPacketAllocation_005c80e0;
-short g_bHighMemoryResourcesEnabled_005c80e4;
-unsigned char g_bInputCursorEnabled_005c80e6;
-unsigned char g_abInputKeyState_005c80f0[0x80];
-int g_nCapturedInputCursorY_005c8178;
-int g_nCapturedInputCursorX_005c817c;
-int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
-short DAT_005c82a4;
-signed char g_cScreenViewportMode_005c82a6;
-signed char g_bCinematicSpriteFontEnabled_005c82a7;
-const ScreenViewportGeometry * volatile
-    g_pScreenViewportGeometry_005c82b0;
-int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
-unsigned char *g_pActiveCutscenePixels_005c83dc;
-signed char g_cKeypadMouseSpeed_005c83e6;
-short g_nQueuedInputX_005c83f0;
-short g_nQueuedInputY_005c83f2;
-unsigned char g_bQueuedPrimaryButton_005c83f4;
-unsigned char g_bQueuedSecondaryButton_005c83f5;
-unsigned short g_wQueuedInputFlags_005c83f7;
-unsigned char *g_pInputCursorShape_005c83f9;
-short g_nInputCursorFrame_005c83fd;
-Viewport *g_pInputViewport_005c8403;
-unsigned char g_bInputCursorShapeChanged_005c840b;
-void (*g_pfnInputPump_005c840c)(void);
-short g_nEmsIsrBusy_005c841c;
-signed char DAT_005c8430;
-short g_wInputDeviceButtonState_005c8432;
-int g_bSuppressNextMouseMove_005c843c;
-short g_nInputTickInterval_005c8448;
-volatile int g_nFrameTimerPending_005c844c;
-int g_bInputCursorDirty_005c8450;
-short DAT_005c8458;
-int g_nInputCursorDirtyRight_005c845c;
-int g_nInputCursorDirtyBottom_005c8460;
-InputManagerState *g_pInputManagerState_005c8464;
-short g_nPersonnelCursorX_005c8470;
-short g_nPersonnelCursorY_005c8472;
-short g_nUiCursorFrame_005c8481;
-void *g_pApplicationScratchBuffer_005c8483;
-InputPumpContext *g_pActiveInputContext_005c8487;
-short g_nViewportOriginY_005c849c;
-short g_nViewportOriginX_005c849e;
-volatile int g_nInputClock_005c84a8;
-int g_nInputCursorDirtyLeft_005c85c0;
-int g_nInputCursorDirtyTop_005c85c4;
-int g_anInputEventSlotUsed_005c87e0[0x100];
-void (*g_pfnEventManagerShutdown_005c8be0)(void);
-void (*g_pfnDrawCinematicTextString_005c8cf4)(char *text);
-short g_nPersonnelMouseX_005c8d00;
-short g_nPersonnelMouseY_005c8d02;
-unsigned char g_bPersonnelPrimaryButton_005c8d04;
-unsigned char g_bPersonnelSecondaryButton_005c8d05;
-unsigned short g_wPersonnelInputFlags_005c8d07;
-TextContext *g_pCurrentTextContext_005c8d1c;
-int g_nInputTickScale_005c8d24;
-void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
-short g_nUiInputMode_005c8d3c;
-/* Where UpdateInflightNavText (0x451561), InflightComputer (0x4521e2)
- * and FormatNavCoordinates (0x45164A) point g_pElapsedCampaignDate when
- * it is still null; the readouts take its first short two bytes at a time,
- * and the inflight nav map keeps the system it is showing in the second. */
-extern SceneFlicObject *g_pWatchedSceneSpriteA_005d2e90;
-extern SceneFlicObject *g_pWatchedSceneSpriteB_005d2e94;
-extern short g_nEarlierGlobalCount_005d2ec4;

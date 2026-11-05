@@ -216,23 +216,22 @@ typedef struct Viewport {
 #define SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
 #endif
 
-/* The event manager snapshots these 28 bytes with seven MOVSD operations.
- * The unaligned pointer fields and reserved spans are fixed by the original
- * addresses at 0x0059AB10-0x0059AB2B. */
+/* InflightComputer snapshots 0x005C8470-0x005C8490 with eight MOVSDs and
+ * one MOVSB. The cursor shape is at +0x0D in the allocated copy too. */
 #pragma pack(push, 1)
 typedef struct MouseCursorState {
     volatile short x;                    /* +0x00 */
     volatile short y;                    /* +0x02 */
-    unsigned char primaryButton;         /* +0x04 */
-    unsigned char secondaryButton;       /* +0x05 */
-    unsigned char reserved;              /* +0x06 */
-    unsigned short flags;                /* +0x07 */
-    unsigned char * volatile shape;      /* +0x09 */
-    unsigned short frame;                /* +0x0D */
-    unsigned int reservedAfterFrame;     /* +0x0F */
-    Viewport * volatile viewport;        /* +0x13 */
-    unsigned int reservedAfterViewport;  /* +0x17 */
-    unsigned char shapeChanged;          /* +0x1B */
+    unsigned char field_4;               /* +0x04 */
+    unsigned char field_5;               /* +0x05 */
+    unsigned char field_6;               /* +0x06 */
+    unsigned short field_7;              /* +0x07 */
+    unsigned int field_9;                /* +0x09 */
+    unsigned char * volatile shape;      /* +0x0D */
+    short frame;                        /* +0x11 */
+    void *scratchBuffer;                /* +0x13 */
+    struct InputPumpContext *context;    /* +0x17 */
+    unsigned char field_1b[6];           /* +0x1B */
 } MouseCursorState;
 
 typedef struct HostMouseMessage {
@@ -245,8 +244,8 @@ typedef struct HostMouseMessage {
 #pragma pack(pop)
 
 #ifndef SDL_PORT
-typedef char MouseCursorState_size_must_be_0x1c[
-    sizeof(MouseCursorState) == 0x1c ? 1 : -1];
+typedef char MouseCursorState_size_must_be_0x21[
+    sizeof(MouseCursorState) == 0x21 ? 1 : -1];
 #endif
 
 /* The event manager keeps a fixed pool of doubly-linked input records. */

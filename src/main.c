@@ -7,17 +7,17 @@
 #define MAIN_C
 #include "game.h"
 
-unsigned char g_abPauseInputState_005c85d0[0x100];
+extern unsigned char g_abPauseInputState_005c85d0[0x100];
 
-unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
+extern unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
 
 #pragma function(strcpy)
 /* Function start: 0x465780 */
 void SetPersonnelCursorPosition(int x, int y, short unused1,
                                 short unused2)
 {
-    g_nPersonnelCursorX_005c8470 = x;
-    g_nPersonnelCursorY_005c8472 = y;
+    g_stPersonnelCursor_005c8470.x = x;
+    g_stPersonnelCursor_005c8470.y = y;
 }
 
 /* Function start: 0x46579D */
@@ -777,7 +777,7 @@ short player_input(void)
                     (short)((g_stViewScratchInfo_005d2b00.top +
                              g_stViewScratchInfo_005d2b00.bottom) / 2));
                 g_nCockpitControlState_0049d7ac = 1;
-                g_nUiCursorFrame_005c8481 = 2;
+                g_stPersonnelCursor_005c8470.frame = 2;
             }
             horizontal = (short)(event.x -
                 (g_stViewScratchInfo_005d2b00.right -
@@ -785,8 +785,8 @@ short player_input(void)
             vertical = (short)(event.y -
                 (g_stViewScratchInfo_005d2b00.bottom -
                  g_stViewScratchInfo_005d2b00.top) / 2);
-            g_nPersonnelCursorX_005c8470 = event.x;
-            g_nPersonnelCursorY_005c8472 = event.y;
+            g_stPersonnelCursor_005c8470.x = event.x;
+            g_stPersonnelCursor_005c8470.y = event.y;
             horizontalMagnitude = (short)abs((int)horizontal);
             verticalMagnitude = (short)abs((int)vertical);
             threshold = 0;
@@ -1887,7 +1887,7 @@ int RunSpaceFlight(short entryNavPoint)
     InitializeSpaceFlightInput();
     g_nSpaceExplosionFlashActive_00492fb4 = 0;
     savedInputDelay = g_nInputRepeatDelay_005c80d6;
-    savedInputContext = g_pActiveInputContext_005c8487;
+    savedInputContext = g_stPersonnelCursor_005c8470.context;
     ReleaseSceneMusicPacket();
     init_inflight_music();
 

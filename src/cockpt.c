@@ -2749,15 +2749,15 @@ void overlay_head_up_display(void)
     if (g_nCockpitControlState_0049d7ac == 1) {
         CaptureSpriteBackground(
             &g_stViewScratchInfo_005d2b00,
-            (unsigned char *)g_pApplicationScratchBuffer_005c8483,
-            g_nPersonnelCursorX_005c8470,
-            g_nPersonnelCursorY_005c8472,
-            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+            (unsigned char *)g_stPersonnelCursor_005c8470.scratchBuffer,
+            g_stPersonnelCursor_005c8470.x,
+            g_stPersonnelCursor_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
         DrawSpriteDefault(
             &g_stViewScratchInfo_005d2b00,
-            g_nPersonnelCursorX_005c8470,
-            g_nPersonnelCursorY_005c8472,
-            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+            g_stPersonnelCursor_005c8470.x,
+            g_stPersonnelCursor_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
     }
 }
 
@@ -2776,10 +2776,10 @@ void RestoreTransientCockpitGraphics(void)
     if (g_nCockpitControlState_0049d7ac == 1)
         RestoreSpriteBackground(
             &g_stViewScratchInfo_005d2b00,
-            (unsigned char *)g_pApplicationScratchBuffer_005c8483,
-            g_nPersonnelCursorX_005c8470,
-            g_nPersonnelCursorY_005c8472,
-            GetInputCursorShape(), g_nUiCursorFrame_005c8481);
+            (unsigned char *)g_stPersonnelCursor_005c8470.scratchBuffer,
+            g_stPersonnelCursor_005c8470.x,
+            g_stPersonnelCursor_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
     if (g_bTargetLockActive_0049ae80 != 0)
         RestoreTargetLeadIndicator();
     if (g_cEarlierTargetObjectValue_005d1d8e != -1) {

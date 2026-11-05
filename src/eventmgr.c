@@ -2525,15 +2525,15 @@ void SplitGameClockTicksForNav(unsigned char *parts)
 /* Function start: 0x4656CC */
 void AllocateApplicationScratchBuffer(void)
 {
-    g_pApplicationScratchBuffer_005c8483 =
+    g_stPersonnelCursor_005c8470.scratchBuffer =
         AllocateTaggedMemory(0x1000, 0);
 }
 
 /* Function start: 0x4656EB */
 void ReleaseApplicationScratchBuffer(void)
 {
-    ReleasePacketHandle(g_pApplicationScratchBuffer_005c8483);
-    g_pApplicationScratchBuffer_005c8483 = 0;
+    ReleasePacketHandle(g_stPersonnelCursor_005c8470.scratchBuffer);
+    g_stPersonnelCursor_005c8470.scratchBuffer = 0;
 }
 
 /* Function start: 0x46570E */
@@ -2607,3 +2607,72 @@ signed char g_acDirectionShapeFlip_0049d618[
 };
 int g_nNextInputPollTick_0049d6d4 = 0;
 short g_nInputPollPeriod_0049d6d8 = 0;
+
+/* The public input state occupies the retail commons block at
+ * 0x005C80A8-0x005C8D3D, immediately after main.c's event pool. */
+int g_nDrawnInputCursorY_005c80a8;
+int g_nDrawnInputCursorX_005c80ac;
+unsigned char *DAT_005c80c0;
+int g_bInputCursorBackgroundCaptured_005c80c4;
+short g_bInputManagerInitialized_005c80ca;
+short g_nDetectedGraphicsMode_005c80d2;
+short g_wPendingInputButtons_005c80d4;
+unsigned char g_nInputRepeatDelay_005c80d6;
+short g_nViewCenterX_005c80d8;
+short g_nViewCenterY_005c80da;
+void *g_pLastPacketAllocation_005c80e0;
+short g_bHighMemoryResourcesEnabled_005c80e4;
+unsigned char g_bInputCursorEnabled_005c80e6;
+unsigned char g_abInputKeyState_005c80f0[0x80];
+int g_nCapturedInputCursorY_005c8178;
+int g_nCapturedInputCursorX_005c817c;
+int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
+short DAT_005c82a4;
+signed char g_cScreenViewportMode_005c82a6;
+signed char g_bCinematicSpriteFontEnabled_005c82a7;
+const ScreenViewportGeometry * volatile
+    g_pScreenViewportGeometry_005c82b0;
+int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
+unsigned char *g_pActiveCutscenePixels_005c83dc;
+signed char g_cKeypadMouseSpeed_005c83e6;
+short g_nQueuedInputX_005c83f0;
+short g_nQueuedInputY_005c83f2;
+unsigned char g_bQueuedPrimaryButton_005c83f4;
+unsigned char g_bQueuedSecondaryButton_005c83f5;
+unsigned short g_wQueuedInputFlags_005c83f7;
+unsigned char *g_pInputCursorShape_005c83f9;
+short g_nInputCursorFrame_005c83fd;
+Viewport *g_pInputViewport_005c8403;
+unsigned char g_bInputCursorShapeChanged_005c840b;
+void (*g_pfnInputPump_005c840c)(void);
+short g_nEmsIsrBusy_005c841c;
+signed char DAT_005c8430;
+short g_wInputDeviceButtonState_005c8432;
+int g_bSuppressNextMouseMove_005c843c;
+short g_nInputTickInterval_005c8448;
+volatile int g_nFrameTimerPending_005c844c;
+int g_bInputCursorDirty_005c8450;
+short DAT_005c8458;
+int g_nInputCursorDirtyRight_005c845c;
+int g_nInputCursorDirtyBottom_005c8460;
+InputManagerState *g_pInputManagerState_005c8464;
+MouseCursorState g_stPersonnelCursor_005c8470;
+short g_nViewportOriginY_005c849c;
+short g_nViewportOriginX_005c849e;
+volatile int g_nInputClock_005c84a8;
+int g_nInputCursorDirtyLeft_005c85c0;
+int g_nInputCursorDirtyTop_005c85c4;
+unsigned char g_abPauseInputState_005c85d0[0x100];
+unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
+int g_anInputEventSlotUsed_005c87e0[0x100];
+void (*g_pfnEventManagerShutdown_005c8be0)(void);
+void (*g_pfnDrawCinematicTextString_005c8cf4)(char *text);
+short g_nPersonnelMouseX_005c8d00;
+short g_nPersonnelMouseY_005c8d02;
+unsigned char g_bPersonnelPrimaryButton_005c8d04;
+unsigned char g_bPersonnelSecondaryButton_005c8d05;
+unsigned short g_wPersonnelInputFlags_005c8d07;
+TextContext *g_pCurrentTextContext_005c8d1c;
+int g_nInputTickScale_005c8d24;
+void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
+short g_nUiInputMode_005c8d3c;
