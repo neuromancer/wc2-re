@@ -894,11 +894,21 @@ FL_STATIC short g_nShipAiScratchValue_005b30f0;
 FL_STATIC unsigned char g_bCurrentManeuverReroll_005b30f4;
 extern DebugOverlayConsole *g_pDiagnosticOverlay_004a2548;
 extern char g_szSystemDebugBuffer_004a2550[256];
+/* DIBslamReal's row loop needs this declaration order to reproduce the
+ * retail comparison operands and jump. */
+#ifdef DIB_C
+extern unsigned int g_nSurfaceHeight_005b3980;
+#else
 extern unsigned int g_nDibOriginX_005b3970;
+#endif
 extern unsigned int g_nDibOffsetY_005b3974;
 extern unsigned char *g_pDisplayPixelBuffer_005b3978;
 extern unsigned int g_nDisplayRowBytes_005b397c;
+#ifdef DIB_C
+extern unsigned int g_nDibOriginX_005b3970;
+#else
 extern unsigned int g_nSurfaceHeight_005b3980;
+#endif
 extern unsigned char g_abFrameBackingStore_005b3988[0xfa00];
 extern int g_nDibBitsEachPx_005c3388;
 extern int g_nDibShowCount_005c3390;

@@ -136,13 +136,27 @@ displaced from its retail address.
 Declaration ordering scoped to `logic.c` and `turret.c` makes `try2rout`,
 `UpdateShipTurretGuns`, `SetTargetCameraEyePosition`, and the trailing
 `FinalizeTargetCameraViewHook` span normalized-byte exact. These four rows
-are the only report changes from the preceding checkpoint. The camera-eye
-routine loses four excess code bytes, with four alignment bytes restored
-at the unit's end, so the whole-image sizes below do not change. No function
-body, type, initializer, or storage definition changes.
+were the only report changes at that step. The camera-eye routine lost four
+excess code bytes, with four alignment bytes restored at the unit's end,
+leaving the whole-image sizes unchanged at that step. No function body,
+type, initializer, or storage definition changed.
+
+The latest change reproduces all nine local slots in `DIBslamReal` and its
+row-loop comparison through names and declaration ordering. It now scores
+99.28%, with six missing bytes instead of 53 excess bytes. The missing bytes
+are two stores of surface-unlock results; those assignments remain absent
+under the mapped-body restriction. The trailing `DIBwaitForVerticalBlank`
+span changes from four excess padding bytes to one missing padding byte.
+Its 36 instruction bytes remain normalized-exact; the current span has
+six alignment bytes where retail has seven.
+These are the only normalized report changes from the preceding checkpoint.
+The smaller code and alignment reduce `.text` by 64 bytes and shift later
+functions, reducing the byte-identical mapped-span count from 586 to 580.
+Correcting one function does not necessarily improve a positional metric
+while other size differences remain.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-586 byte-identical mapped spans and 261 functions at their retail addresses.
+580 byte-identical mapped spans and 261 functions at their retail addresses.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
 library gaps as described above, so neither the 41 spans nor their net size
@@ -151,13 +165,13 @@ delta is a count of source defects.
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,836 |
+| `.text` virtual bytes | 576,332 | 575,772 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473C70` |
+| Entry point | `0x00473E50` | `0x00473C30` |
 
 `make compare-bytes` still fails. With the link timestamps restored and
-declaration ordering corrected, it reports 139,916 identical file positions
-out of 714,752 (19.5755%). Address
+the DIB frame and comparison corrected, it reports 139,713 identical file
+positions out of 714,752 (19.5471%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

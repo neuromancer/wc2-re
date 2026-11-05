@@ -79,6 +79,25 @@ backward-indexed copies. The reconstruction instead loads the upper pointers
 at `[ebp-8]` and `[ebp-4]`. Correcting those selections changes the mapped
 body's logic and remains separate from the name-only layout recovery.
 
+The same rule applies to the mixed-size locals in `DIBslamReal`
+(`0x0045DC33`). Its nine locals occupy a `0xA4`-byte frame: the source and
+destination pointers are at `-4/-8`, the source rectangle at `-0x18`, tick
+at `-0x1C`, destination rectangle at `-0x2C`, result at `-0x30`, row at
+`-0x34`, HDC at `-0x38`, and 108-byte surface description at `-0xA4`.
+Renaming eight locals reproduces all those slots and removes 60 bytes of
+long stack-displacement encodings. The `/Bk` symbol records confirm that
+the locals retain keys 34821–34829 and the following function keeps its
+keys; no declaration was added, removed, or reordered.
+
+The DIB-only header order exchanges the height and origin-X declarations,
+moving the height key from 29862 to 29858. Its load signature becomes
+`0x2E` instead of `0x21`, above the row local's `0x2D`. This reproduces the
+retail `MOV` from the local, comparison against the global, and `JLE`,
+adding one byte back. The function moves from 53 excess bytes to six missing
+bytes at 99.28% mnemonic similarity. The remaining six bytes are the two
+original stores of `Unlock` results at `0x0045DEC5` and `0x0045DEE4`; they
+require assignments in the mapped body, beyond name and header recovery.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it

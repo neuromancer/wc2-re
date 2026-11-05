@@ -10,6 +10,7 @@
  *  as the C++ one.
  */
 #define CINTERFACE
+#define DIB_C
 #include "game.h"
 
 static int g_nDefaultFrameRate_0049ce88 = 70;
@@ -631,36 +632,36 @@ void DisableDibSlam(void)
 void DIBslamReal(void)
 {
 #ifndef SDL_PORT
-    DDSURFACEDESC surface;
-    unsigned char *destination;
+    DDSURFACEDESC surfaceDetails;
+    unsigned char *destPixels;
     unsigned char *source;
-    RECT destinationRect;
-    RECT sourceRect;
-    HRESULT result;
-    int row;
-    HDC dc;
+    RECT outputRect;
+    RECT sourceArea;
+    HRESULT status;
+    int scanline;
+    HDC drawDC;
 #endif
-    unsigned int tick;
+    unsigned int nowTick;
 
     UpdateStreamerStoppedFlag();
-    tick = GetTickCount();
+    nowTick = GetTickCount();
     if (g_bDibSlamEnabled_0049cec0 == 0)
         return;
 
     g_nDibFlipRealCount_005c3960++;
-    if (g_dwLastSurfaceSlamRealNoticeTick_005c396c + 1000 <= tick) {
+    if (g_dwLastSurfaceSlamRealNoticeTick_005c396c + 1000 <= nowTick) {
         sprintf(g_szDibSlamRealDebugBuf_005c39f8,
                 "DIBslamReal %d times in %d seconds\n",
                 g_nDibFlipRealCount_005c3960,
-                tick - g_dwLastSurfaceSlamRealNoticeTick_005c396c);
+                nowTick - g_dwLastSurfaceSlamRealNoticeTick_005c396c);
         g_nDibFlipRealCount_005c3960 = 0;
-        g_dwLastSurfaceSlamRealNoticeTick_005c396c = tick;
+        g_dwLastSurfaceSlamRealNoticeTick_005c396c = nowTick;
     }
 
     if (g_bScreenStale_005c395c != 0) {
 #ifndef SDL_PORT
-        memset(&surface, 0, sizeof(surface));
-        surface.dwSize = sizeof(surface);
+        memset(&surfaceDetails, 0, sizeof(surfaceDetails));
+        surfaceDetails.dwSize = sizeof(surfaceDetails);
 #endif
 
 #ifdef SDL_PORT
@@ -685,63 +686,63 @@ void DIBslamReal(void)
 
 #ifndef SDL_PORT
         if (g_nDisplayModeCascade_0049cea0 > 0) {
-            result = IDirectDrawSurface_Lock(
+            status = IDirectDrawSurface_Lock(
                 g_pSecondarySurface_0049ce98,
-                0, &surface, DDLOCK_WAIT, 0);
+                0, &surfaceDetails, DDLOCK_WAIT, 0);
         } else {
-            result = IDirectDrawSurface_Lock(
+            status = IDirectDrawSurface_Lock(
                 g_pPrimarySurface_0049ce94,
-                0, &surface, DDLOCK_WAIT, 0);
+                0, &surfaceDetails, DDLOCK_WAIT, 0);
         }
-        if (result != DD_OK) {
-            if (result == DDERR_SURFACELOST) {
+        if (status != DD_OK) {
+            if (status == DDERR_SURFACELOST) {
                 if (g_nDisplayModeCascade_0049cea0 > 0) {
-                    result = IDirectDrawSurface_Restore(
+                    status = IDirectDrawSurface_Restore(
                         g_pSecondarySurface_0049ce98);
-                    if (result != DD_OK)
+                    if (status != DD_OK)
                         return;
                 }
-                result = IDirectDrawSurface_Restore(
+                status = IDirectDrawSurface_Restore(
                     g_pPrimarySurface_0049ce94);
-                if (result != DD_OK)
+                if (status != DD_OK)
                     return;
 
                 if (g_nDisplayModeCascade_0049cea0 > 0) {
-                    result = IDirectDrawSurface_Lock(
+                    status = IDirectDrawSurface_Lock(
                         g_pSecondarySurface_0049ce98,
-                        0, &surface, DDLOCK_WAIT, 0);
+                        0, &surfaceDetails, DDLOCK_WAIT, 0);
                 } else {
-                    result = IDirectDrawSurface_Lock(
+                    status = IDirectDrawSurface_Lock(
                         g_pPrimarySurface_0049ce94,
-                        0, &surface, DDLOCK_WAIT, 0);
+                        0, &surfaceDetails, DDLOCK_WAIT, 0);
                 }
-                if (result != DD_OK)
+                if (status != DD_OK)
                     return;
             } else {
                 IDirectDrawSurface_Unlock(
-                    g_pPrimarySurface_0049ce94, surface.lpSurface);
-                DIBerror("DIBslamReal   secondary->Lock", result);
+                    g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
+                DIBerror("DIBslamReal   secondary->Lock", status);
             }
         }
 
-        destination = (unsigned char *)surface.lpSurface;
+        destPixels = (unsigned char *)surfaceDetails.lpSurface;
         source = g_pDisplayPixelBuffer_005b3978;
         if (g_nDisplayModeCascade_0049cea0 <= 0) {
             IDirectDraw2_WaitForVerticalBlank(
                 g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
         }
-        for (row = 0; row < (int)g_nSurfaceHeight_005b3980; row++) {
-            memcpy(destination, source, g_nDisplayRowBytes_005b397c);
-            destination += surface.lPitch;
+        for (scanline = 0; scanline < (int)g_nSurfaceHeight_005b3980; scanline++) {
+            memcpy(destPixels, source, g_nDisplayRowBytes_005b397c);
+            destPixels += surfaceDetails.lPitch;
             source += g_nDisplayRowBytes_005b397c;
         }
 
         if (g_nDisplayModeCascade_0049cea0 > 0) {
             IDirectDrawSurface_Unlock(
-                g_pSecondarySurface_0049ce98, surface.lpSurface);
+                g_pSecondarySurface_0049ce98, surfaceDetails.lpSurface);
         } else {
             IDirectDrawSurface_Unlock(
-                g_pPrimarySurface_0049ce94, surface.lpSurface);
+                g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
         }
 #else
         if (!SdlPresentIndexedFrame(g_pDisplayPixelBuffer_005b3978, g_abColourShadow_005c3450))
@@ -759,41 +760,41 @@ void DIBslamReal(void)
 
 #ifndef SDL_PORT
         if (g_nDisplayModeCascade_0049cea0 > 0) {
-            destinationRect.left = 0;
-            destinationRect.top = 0;
-            destinationRect.right = 639;
-            destinationRect.bottom = 399;
-            sourceRect.left = 0;
-            sourceRect.top = 0;
-            sourceRect.right = 319;
-            sourceRect.bottom = 199;
+            outputRect.left = 0;
+            outputRect.top = 0;
+            outputRect.right = 639;
+            outputRect.bottom = 399;
+            sourceArea.left = 0;
+            sourceArea.top = 0;
+            sourceArea.right = 319;
+            sourceArea.bottom = 199;
             if (g_nDisplayModeCascade_0049cea0 == 2) {
-                destinationRect.top += 40;
-                destinationRect.bottom += 40;
+                outputRect.top += 40;
+                outputRect.bottom += 40;
             }
 
-            result = IDirectDrawSurface_Blt(
-                g_pPrimarySurface_0049ce94, &destinationRect,
-                g_pSecondarySurface_0049ce98, &sourceRect,
+            status = IDirectDrawSurface_Blt(
+                g_pPrimarySurface_0049ce94, &outputRect,
+                g_pSecondarySurface_0049ce98, &sourceArea,
                 DDBLT_WAIT, 0);
-            if (result != DD_OK) {
-                if (result == DDERR_SURFACELOST) {
-                    result = IDirectDrawSurface_Restore(
+            if (status != DD_OK) {
+                if (status == DDERR_SURFACELOST) {
+                    status = IDirectDrawSurface_Restore(
                         g_pPrimarySurface_0049ce94);
-                    if (result != DD_OK)
+                    if (status != DD_OK)
                         return;
-                    result = IDirectDrawSurface_Restore(
+                    status = IDirectDrawSurface_Restore(
                         g_pSecondarySurface_0049ce98);
-                    if (result != DD_OK)
+                    if (status != DD_OK)
                         return;
-                    result = IDirectDrawSurface_Blt(
-                        g_pPrimarySurface_0049ce94, &destinationRect,
-                        g_pSecondarySurface_0049ce98, &sourceRect,
+                    status = IDirectDrawSurface_Blt(
+                        g_pPrimarySurface_0049ce94, &outputRect,
+                        g_pSecondarySurface_0049ce98, &sourceArea,
                         DDBLT_WAIT, 0);
-                    if (result != DD_OK)
+                    if (status != DD_OK)
                         return;
                 } else {
-                    DIBerror("DIBslamReal   primary->Blt", result);
+                    DIBerror("DIBslamReal   primary->Blt", status);
                 }
             }
         }
@@ -806,9 +807,9 @@ void DIBslamReal(void)
 #ifdef SDL_PORT
     ThrottleFrameAndDrawFps(0);
 #else
-    dc = GetDC(g_hFrameHwnd_005c33a4);
-    ThrottleFrameAndDrawFps(dc);
-    ReleaseDC(g_hFrameHwnd_005c33a4, dc);
+    drawDC = GetDC(g_hFrameHwnd_005c33a4);
+    ThrottleFrameAndDrawFps(drawDC);
+    ReleaseDC(g_hFrameHwnd_005c33a4, drawDC);
 #endif
 }
 
