@@ -98,9 +98,10 @@ adds 123 compiler-private data symbols to `WC2.map` using
 COFF section offsets, public-symbol anchors, and relocated `DIR32` operands
 in the rebuilt image. Address suffixes are never used as linked addresses,
 and the script does not read the original executable. This lets
-`make verify-globals-data` check all 1,247 serialized globals: the 25 that
-previously lacked map symbols now compare successfully. This is coverage
-of declared storage, not proof that all original data has been reconstructed.
+`make verify-globals-data` check all 1,243 serialized globals after grouping
+the personnel mouse sample: the 25 that previously lacked map symbols now
+compare successfully. This covers declared storage; it does not prove that
+all original data has been reconstructed.
 
 The `verify-globals-code` inventory check still needs the Ghidra-generated
 `code-full/globals.h`, which is absent from the current automatic export.
@@ -118,7 +119,7 @@ The current `binary-comp report --bytes` covers 1,677 annotated functions:
 spans. Its mean mnemonic similarity is 99.93%; 1,659 functions score 100%.
 These are different measurements from literal byte identity.
 
-The unnormalized `binary-comp exe --functions --no-build` comparison finds
+The unnormalized `binary-comp exe --functions` comparison finds
 584 byte-identical mapped spans and 261 functions at their retail addresses.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
@@ -129,16 +130,23 @@ delta is a count of source defects.
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
 | `.text` virtual bytes | 576,332 | 575,836 |
-| `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,464 |
+| `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
 | Entry point | `0x00473E50` | `0x00473C70` |
 
 `make compare-bytes` still fails. After restoring the link timestamps it
-reports 139,913 identical file positions out of 714,752 (19.575%). Address
+reports 139,909 identical file positions out of 714,752 (19.5745%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
 and the CodeView/PDB metadata. Passing the declared-global data comparison
 does not resolve those differences.
+
+Packing the proven nine-byte personnel mouse sample preserves all function
+scores and corrects its internal field offsets, including the unaligned flags
+word at `+7`. Allocation and alignment now leave the `.data` virtual size
+720 bytes short of retail, down from 736. Its absolute placement and the
+unreferenced extent after the sample still need evidence; this is not a
+complete reconstruction of the event-manager commons.
 
 The first source-level size discrepancy to investigate is `inflict_damage`
 at `0x00411C72` (17 bytes short). The three routines below 90% mnemonic

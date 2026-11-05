@@ -179,9 +179,12 @@ globals now share `QueuedMouseState` storage; the unreferenced gaps retain
 offset-based field names. This fixes their relative layout, while placement
 of the record within the event-manager band remains unresolved.
 
-The personnel mouse sample at `0x005C8D00` has the same first nine bytes,
-but no observed access proves its full extent. Do not infer the remaining
-19 bytes solely from the next known global at `0x005C8D1C`.
+The personnel mouse sample at `0x005C8D00` has the same first nine bytes.
+`PollMenuInputDevices` reads its flags as a word at `+7`, which cannot be
+represented by an independently aligned short global. `PersonnelMouseSample`
+now groups the two coordinates, two button bytes, intervening byte, and flags
+into that packed prefix. No observed access proves its full extent; do not
+infer another 19 bytes solely from the next known global at `0x005C8D1C`.
 
 Within an object's commons, MSVC's identifier hash determines emission
 order: compute `h = (h >> 4) + 4*h + character` with 32-bit wrapping, then

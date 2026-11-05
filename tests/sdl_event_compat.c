@@ -88,12 +88,12 @@ typedef struct TestRadioHotkey {
 } TestRadioHotkey;
 
 static const TestRadioHotkey g_aTestRadioHotkeys[] = {
-    {SDL_SCANCODE_B, SDLK_b, &g_bAltBHotkey_005d1290},
-    {SDL_SCANCODE_F, SDLK_f, &g_bAltFHotkey_005d127c},
-    {SDL_SCANCODE_A, SDLK_a, &g_bAltAHotkey_005d1294},
+    {SDL_SCANCODE_B, SDLK_b, &g_bMenuBHotkey_005d1290},
+    {SDL_SCANCODE_F, SDLK_f, &g_bAltFHotkeyFlag_005d127c},
+    {SDL_SCANCODE_A, SDLK_a, &g_bMenuAHotkey_005d1294},
     {SDL_SCANCODE_H, SDLK_h, &g_bAltHHotkey_005d128c},
-    {SDL_SCANCODE_D, SDLK_d, &g_bAltDHotkey_005d1280},
-    {SDL_SCANCODE_T, SDLK_t, &g_bAltTHotkey_005d1298}
+    {SDL_SCANCODE_D, SDLK_d, &g_bAltDChordState_005d1280},
+    {SDL_SCANCODE_T, SDLK_t, &g_bMenuTHotkeySwitch_005d1298}
 };
 
 int main(int argumentCount, char **arguments)
@@ -209,9 +209,9 @@ int main(int argumentCount, char **arguments)
     }
 
     stage = 33;
-    g_bAltDHotkey_005d1280 = 0;
+    g_bAltDChordState_005d1280 = 0;
     g_bAltHHotkey_005d128c = 0;
-    g_bAltTHotkey_005d1298 = 0;
+    g_bMenuTHotkeySwitch_005d1298 = 0;
     if (!PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_D,
                            SDLK_d, KMOD_LALT, 1) ||
         !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_D,
@@ -228,9 +228,9 @@ int main(int argumentCount, char **arguments)
                            SDLK_t, KMOD_LALT, 0))
         goto cleanup;
     SdlPumpEvents();
-    if (g_bAltDHotkey_005d1280 != 0 ||
+    if (g_bAltDChordState_005d1280 != 0 ||
         g_bAltHHotkey_005d128c != 0 ||
-        g_bAltTHotkey_005d1298 != 0)
+        g_bMenuTHotkeySwitch_005d1298 != 0)
         goto cleanup;
     g_bSpaceFlightActive_005c586c = 0;
     g_pfnInputPump_005c840c = 0;
@@ -239,13 +239,13 @@ int main(int argumentCount, char **arguments)
     memset(pixels, 0, sizeof(pixels));
     for (index = 0; index < 17; index++)
         rowOffsets[index] = (unsigned short)(index * 16);
-    g_stScreenViewport_005d21a0.pixels = pixels;
-    g_stScreenViewport_005d21a0.rowOffsets = rowOffsets;
-    g_stScreenViewport_005d21a0.left = 0;
-    g_stScreenViewport_005d21a0.top = 0;
-    g_stScreenViewport_005d21a0.right = 15;
-    g_stScreenViewport_005d21a0.bottom = 15;
-    SdlDrawViewportStatic(&g_stScreenViewport_005d21a0, 3, 0x5d);
+    g_stScrViewInfo_005d21a0.pixels = pixels;
+    g_stScrViewInfo_005d21a0.rowOffsets = rowOffsets;
+    g_stScrViewInfo_005d21a0.left = 0;
+    g_stScrViewInfo_005d21a0.top = 0;
+    g_stScrViewInfo_005d21a0.right = 15;
+    g_stScrViewInfo_005d21a0.bottom = 15;
+    SdlDrawViewportStatic(&g_stScrViewInfo_005d21a0, 3, 0x5d);
     colouredPixelCount = 0;
     for (index = 0; index < 256; index++) {
         if (pixels[index] == 0x5d)
@@ -264,7 +264,7 @@ int main(int argumentCount, char **arguments)
     constellationShape =
         InitializeSolidTestSprite(constellationStorage, 0x17);
     memset(pixels, 0, sizeof(pixels));
-    g_stViewBuffer_005d2b00 = g_stScreenViewport_005d21a0;
+    g_stViewScratchInfo_005d2b00 = g_stScrViewInfo_005d21a0;
     g_nScreenWidth_0049d4d8 = 16;
     g_nViewCenterX_005c80d8 = 8;
     g_nViewCenterY_005c80da = 8;
@@ -281,7 +281,7 @@ int main(int argumentCount, char **arguments)
     g_asObjectFlip_004939c8[0] = 0;
     g_aObjectViewPosition_0059afa0[0].z = 0;
     g_apObjectShape_00493868[0] = planetShape;
-    g_pConstellationShape_005d2c4c = constellationShape;
+    g_pConstellationSprite_005d2c4c = constellationShape;
     draw_sorted_objects_to_buffer();
     planetPixelCount = 0;
     for (index = 0; index < 256; index++) {
@@ -327,7 +327,7 @@ int main(int argumentCount, char **arguments)
     activeSlot = 0;
     while (activeSlot < 2) {
         FlushInputEvents();
-        g_nActiveInputDevice_005d1726 = (short)activeSlot;
+        g_nActiveInputDeviceWord_005d1726 = (short)activeSlot;
         SdlApplyJoystickFlightControls();
         SdlHandleJoystickButtonEvent(instanceId, 5, 1, 0);
         eventType = GetNextInputEvent(&input);
@@ -369,7 +369,7 @@ cleanup:
                 stage);
     FlushInputEvents();
     g_apObjectShape_00493868[0] = 0;
-    g_pConstellationShape_005d2c4c = 0;
+    g_pConstellationSprite_005d2c4c = 0;
     ReleasePreparedTestSprite(planetShape);
     ReleasePreparedTestSprite(constellationShape);
     SdlSetMouseGrab(0);

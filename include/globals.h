@@ -945,13 +945,26 @@ extern unsigned char *g_pBriefingSceneData_00598c00;
 extern unsigned char *g_pConversationBackdropShape_00598c04;
 extern short g_nConversationMedalIndex_00598c08;
 #endif
-extern short g_nConversationSceneType_00598c0a;
-extern unsigned char *g_pTalkingHeadShape_00598c0c;
+/* PollMenuInputDevices reads flags at +7, proving this packed prefix.
+ * The original record's extent beyond these nine bytes is not yet known. */
+#pragma pack(push, 1)
+typedef struct PersonnelMouseSample {
+    short x;                         /* +0x00 */
+    short y;                         /* +0x02 */
+    unsigned char primaryButton;      /* +0x04 */
+    unsigned char secondaryButton;    /* +0x05 */
+    unsigned char field_6;            /* +0x06 */
+    unsigned short flags;             /* +0x07 */
+} PersonnelMouseSample;
+#pragma pack(pop)
+/* Its type replaces two obsolete C symbols, or seven C++ symbols. */
+#ifndef __cplusplus
 extern short g_nConversationTextColour_00598c10;
 extern unsigned char *g_pBriefingAnimationShape_00598c14;
 extern short *g_pFaceAnimationCommands_00598c18;
 extern unsigned char *g_pBriefingBodyShape_00598c1c;
 extern unsigned char *g_pBriefingPortraitShape_00598c24;
+#endif
 extern unsigned char *g_pDebriefingTextData_00598c28;
 extern unsigned char *g_pBriefingCloseupShape_00598c2c;
 extern unsigned char *g_pConversationOverlayShape_00598c30;
@@ -1584,7 +1597,8 @@ extern short g_bDiscreteFlightInputWaiting_005c57e4;
 extern short g_bPolledFlightInputQueued_005c587a;
 extern int g_bPlayerInputActive_005c8090;
 extern short g_wPendingInputButtons_005c80d4;
-extern short g_nPersonnelMouseX_005c8d00;
+extern PersonnelMouseSample g_stPersonnelMouse_005c8d00;
+/* Obsolete field declarations retain C1's numbering; they have no definitions. */
 extern short g_nPersonnelMouseY_005c8d02;
 extern unsigned char g_bPersonnelPrimaryButton_005c8d04;
 extern unsigned char g_bPersonnelSecondaryButton_005c8d05;

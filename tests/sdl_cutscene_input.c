@@ -42,13 +42,13 @@ static int CheckCutsceneAdvance(int expectedAdvance)
     g_pCurrentCutscenePlane_00499c7c = &plane;
     g_pCurrentCutsceneSequence_00499c80 = &sequence;
     g_bCutsceneSkipFrame_00499c54 = 0;
-    g_bCutsceneTextAdvance_005d2ed0 = 1;
+    g_bMovieStringAdvanceState_005d2ed0 = 1;
     /* Exercise ServiceInputDevices' flush between its two message pumps. */
     g_nNextInputPollTick_0049d6d4 = 0;
     result = RunCutsceneScript(&cursor, 2) == 0 &&
              cursor == script + sizeof(script) &&
              g_bCutsceneSkipFrame_00499c54 == expectedAdvance &&
-             g_bCutsceneTextAdvance_005d2ed0 == !expectedAdvance &&
+             g_bMovieStringAdvanceState_005d2ed0 == !expectedAdvance &&
              g_nInputPressCount_0049c258 == 0;
     g_pCurrentCutsceneSprite_00499c78 = 0;
     g_pCurrentCutscenePlane_00499c7c = 0;

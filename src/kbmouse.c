@@ -88,9 +88,9 @@ void KeyboardMousePump(void)
         else if (bottom < y)
             y = bottom;
         g_stQueuedMouse_005c83f0.x = x;
-        g_nPersonnelMouseX_005c8d00 = g_stQueuedMouse_005c83f0.x;
+        g_stPersonnelMouse_005c8d00.x = g_stQueuedMouse_005c83f0.x;
         g_stQueuedMouse_005c83f0.y = y;
-        g_nPersonnelMouseY_005c8d02 = g_stQueuedMouse_005c83f0.y;
+        g_stPersonnelMouse_005c8d00.y = g_stQueuedMouse_005c83f0.y;
         SetPersonnelCursorPosition(g_stQueuedMouse_005c83f0.x,
                                    g_stQueuedMouse_005c83f0.y, 0, 0);
         g_bSuppressNextMouseMove_005c843c = 1;
