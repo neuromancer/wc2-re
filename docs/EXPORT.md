@@ -155,7 +155,7 @@ functions, reducing the byte-identical mapped-span count from 586 to 580.
 Correcting one function does not necessarily improve a positional metric
 while other size differences remain.
 
-The latest local-name recovery covers `ReadTextInput`,
+Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
 (the instruction-extent comparison in [PATTERNS.md](PATTERNS.md)).
@@ -165,6 +165,13 @@ change from -123 to -127 without changing its instructions. These are the
 only two changed rows in the full normalized report; `.text` shrinks by
 160 bytes in total. The 41 differing spans now sum to +222 bytes, including
 the library gaps described above.
+
+The latest name-only correction puts all nine `SetFleetOverviewView` locals
+at their retail offsets and reduces differing instruction encodings from
+80/292 to 66/292. Its code remains 70 bytes short, with another ten bytes of
+span difference due to padding. The full normalized report is unchanged:
+its `SIZE` label does not expose the improved stack operands. File and
+section sizes are also unchanged.
 
 The unnormalized `binary-comp exe --functions` comparison finds
 580 byte-identical mapped spans and 261 functions at their retail addresses.
@@ -181,8 +188,8 @@ delta is a count of source defects.
 | Entry point | `0x00473E50` | `0x00473B90` |
 
 `make compare-bytes` still fails. With the link timestamps restored and
-the three additional local layouts corrected, it reports 139,718 identical
-file positions out of 714,752 (19.5478%). Address
+the fleet-view local layout corrected, it reports 139,719 identical
+file positions out of 714,752 (19.5479%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

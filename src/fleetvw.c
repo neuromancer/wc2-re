@@ -9,18 +9,18 @@
 void SetFleetOverviewView(int initializeCockpit)
 {
     FixedVector centre;
-    FixedVector orientation;
-    FixedVector offset;
+    FixedVector axes;
+    FixedVector viewOffset;
     int shipCount;
-    int maximumRange;
+    int furthestRange;
     int playerRange;
     int cameraDistance;
     int range;
-    int object;
+    int shipSlot;
 
-    orientation.x = 0xff;
-    orientation.y = 0xff;
-    orientation.z = 0xff;
+    axes.x = 0xff;
+    axes.y = 0xff;
+    axes.z = 0xff;
     shipCount = 0;
     if (initializeCockpit != 0) {
         free_view_buffer();
@@ -31,78 +31,78 @@ void SetFleetOverviewView(int initializeCockpit)
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
     }
 
-    object = 0;
+    shipSlot = 0;
     do {
-        if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP)
+        if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP)
             shipCount++;
-        object++;
-    } while (object < 10);
+        shipSlot++;
+    } while (shipSlot < 10);
 
     if (shipCount > 1) {
         zero_vector(&centre);
-        object = 0;
+        shipSlot = 0;
         do {
-            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP) {
-                centre.x += g_aShipPosition_00494550[object].x / shipCount;
-                centre.y += g_aShipPosition_00494550[object].y / shipCount;
-                centre.z += g_aShipPosition_00494550[object].z / shipCount;
+            if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP) {
+                centre.x += g_aShipPosition_00494550[shipSlot].x / shipCount;
+                centre.y += g_aShipPosition_00494550[shipSlot].y / shipCount;
+                centre.z += g_aShipPosition_00494550[shipSlot].z / shipCount;
             }
-            object++;
-        } while (object < 10);
+            shipSlot++;
+        } while (shipSlot < 10);
 
-        maximumRange = 0x4b000;
+        furthestRange = 0x4b000;
         playerRange = 0xff;
-        object = 9;
+        shipSlot = 9;
         do {
-            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP) {
+            if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP) {
                 ComputeVectorDelta(&centre,
-                                   &g_aShipPosition_00494550[object],
-                                   &offset);
-                range = Vector_magnitude(&offset);
-                if (maximumRange < range)
-                    maximumRange = range;
-                if (object == 0)
+                                   &g_aShipPosition_00494550[shipSlot],
+                                   &viewOffset);
+                range = Vector_magnitude(&viewOffset);
+                if (furthestRange < range)
+                    furthestRange = range;
+                if (shipSlot == 0)
                     playerRange = range;
             }
-            object--;
-        } while (object >= 0);
-        if (maximumRange <= 0x1f4000)
-            playerRange = maximumRange;
+            shipSlot--;
+        } while (shipSlot >= 0);
+        if (furthestRange <= 0x1f4000)
+            playerRange = furthestRange;
     } else {
-        maximumRange = 0x4b000;
+        furthestRange = 0x4b000;
         playerRange = 0x4b000;
         position_relative_ijk(&centre, 0, 400, 400, 400);
     }
 
     cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
     g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] = centre;
-    g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT] = orientation;
+    g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT] = axes;
+    g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT] = axes;
     point_at(SCRATCH_VIEW_OBJECT, g_aShipPosition_00494550[0]);
 
     ScaleFixedVector(
         &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
-        cameraDistance >> 2, &offset);
+        cameraDistance >> 2, &viewOffset);
     AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
+                    &viewOffset,
                     &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
     ScaleFixedVector(&g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
-                     0x9600, &offset);
+                     0x9600, &viewOffset);
     AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
+                    &viewOffset,
                     &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
     ScaleFixedVector(
         &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT],
-        cameraDistance, &offset);
+        cameraDistance, &viewOffset);
     AddFixedVectors(&g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT],
-                    &offset,
+                    &viewOffset,
                     &g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT]);
 
     g_aShipPosition_00494550[EYE_OBJECT] =
         g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT];
-    g_aShipRightVector_00493b78[EYE_OBJECT] = orientation;
-    g_aShipUpVector_00493ec0[EYE_OBJECT] = orientation;
-    if (maximumRange < 0x271000)
+    g_aShipRightVector_00493b78[EYE_OBJECT] = axes;
+    g_aShipUpVector_00493ec0[EYE_OBJECT] = axes;
+    if (furthestRange < 0x271000)
         point_at(EYE_OBJECT, centre);
     else
         point_at(EYE_OBJECT, g_aShipPosition_00494550[0]);

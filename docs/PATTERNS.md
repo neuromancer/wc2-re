@@ -126,6 +126,19 @@ These edits preserve declaration order, types, literals, and expressions;
 the `/Bk` records preserve the local symbol keys. The remaining operand,
 control-flow, and frame-size differences require separate body corrections.
 
+`SetFleetOverviewView` (`0x0044ADE0`) also has the correct `0x3C` frame size
+but initially had misplaced locals. Four renames reproduce all nine slots:
+`centre` at `-0x0C`, `cameraDistance` at `-0x10`, `shipSlot` at `-0x14`,
+`shipCount` at `-0x18`, `playerRange` at `-0x1C`, `viewOffset` at `-0x28`,
+`furthestRange` at `-0x2C`, `range` at `-0x30`, and `axes` at `-0x3C`.
+The same instruction-extent comparison drops from 80/292 differing
+encodings to 66/292. Code size remains 974 bytes versus retail's 1,044;
+the mapped span remains 80 bytes short because its padding also differs.
+Declaration order, types, expressions, and C1 symbol keys are preserved.
+The remaining differences include retail's 16-bit parameter and counters,
+loop control flow, and camera-distance selection. Matching slot offsets
+does not establish matching access widths or behavior.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it
