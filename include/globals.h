@@ -917,14 +917,34 @@ extern ConstellationObjectDefinition
 extern PilotRecord *g_apWingmanPilots_00598a30[8];
 extern unsigned char *g_apRecRoomTextData_00598aa0[3];
 extern char g_szTextBufferBuffer_005d1c40[256];
-extern unsigned char *g_apRecRoomSceneData_00598ae0[3];
-extern unsigned char *g_pBriefingPacket_00598aec;
-extern unsigned char *g_pBriefingTextData_00598af0;
+/* Queued mouse state: the unaligned flags and pointers fix this packed
+ * record at 0x005C83F0-0x005C840B in the retail image. */
+#pragma pack(push, 1)
+typedef struct QueuedMouseState {
+    short x;                         /* +0x00 */
+    short y;                         /* +0x02 */
+    unsigned char primaryButton;      /* +0x04 */
+    unsigned char secondaryButton;    /* +0x05 */
+    unsigned char field_6;            /* +0x06 */
+    unsigned short flags;             /* +0x07 */
+    unsigned char *shape;             /* +0x09 */
+    short frame;                     /* +0x0D */
+    unsigned int field_f;             /* +0x0F */
+    Viewport *viewport;               /* +0x13 */
+    unsigned int field_17;            /* +0x17 */
+    unsigned char shapeChanged;       /* +0x1B */
+} QueuedMouseState;
+#pragma pack(pop)
+extern QueuedMouseState g_stQueuedMouse_005c83f0;
+/* Retain these predecessor declarations only where C1 needs their symbol
+ * slots; its C++ front end assigns five more keys to the packed record. */
+#ifndef __cplusplus
 extern short *g_pMouthAnimationCommands_00598af4;
 extern unsigned char *g_pDebriefingSceneData_00598afc;
 extern unsigned char *g_pBriefingSceneData_00598c00;
 extern unsigned char *g_pConversationBackdropShape_00598c04;
 extern short g_nConversationMedalIndex_00598c08;
+#endif
 extern short g_nConversationSceneType_00598c0a;
 extern unsigned char *g_pTalkingHeadShape_00598c0c;
 extern short g_nConversationTextColour_00598c10;

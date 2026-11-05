@@ -120,8 +120,8 @@ void PollMenuInputDevices(void)
     changes = 0;
     if (g_nActiveInputDeviceWord_005d1726 == -1)
         return;
-    g_nPersonnelMouseX_005c8d00 = g_nQueuedInputX_005c83f0;
-    g_nPersonnelMouseY_005c8d02 = g_nQueuedInputY_005c83f2;
+    g_nPersonnelMouseX_005c8d00 = g_stQueuedMouse_005c83f0.x;
+    g_nPersonnelMouseY_005c8d02 = g_stQueuedMouse_005c83f0.y;
     if (g_bInputPollingGuard_005d304c == 0) {
         g_bInputPollingGuard_005d304c++;
         UpdateInputDeviceTransitions(0);
@@ -219,13 +219,13 @@ void PollMenuInputDevices(void)
         if (changes != 0) {
             if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
                 DisableMouseCursorDrawing();
-            g_nQueuedInputX_005c83f0 = g_nPersonnelMouseX_005c8d00;
-            g_nQueuedInputY_005c83f2 = g_nPersonnelMouseY_005c8d02;
-            g_bQueuedPrimaryButton_005c83f4 =
+            g_stQueuedMouse_005c83f0.x = g_nPersonnelMouseX_005c8d00;
+            g_stQueuedMouse_005c83f0.y = g_nPersonnelMouseY_005c8d02;
+            g_stQueuedMouse_005c83f0.primaryButton =
                 g_bPersonnelPrimaryButton_005c8d04;
-            g_bQueuedSecondaryButton_005c83f5 =
+            g_stQueuedMouse_005c83f0.secondaryButton =
                 g_bPersonnelSecondaryButton_005c8d05;
-            g_wQueuedInputFlags_005c83f7 = g_wPersonnelInputFlags_005c8d07;
+            g_stQueuedMouse_005c83f0.flags = g_wPersonnelInputFlags_005c8d07;
             if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
                 EnableMouseCursorDrawing();
         }

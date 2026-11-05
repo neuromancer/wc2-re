@@ -10,7 +10,7 @@ void SetPersonnelMousePosition(short x, short y)
 {
     g_nPersonnelMouseX_005c8d00 = x;
     g_nPersonnelMouseY_005c8d02 = y;
-    g_nQueuedInputX_005c83f0 = x;
-    g_nQueuedInputY_005c83f2 = y;
+    g_stQueuedMouse_005c83f0.x = x;
+    g_stQueuedMouse_005c83f0.y = y;
     SetMouseHomePosition(x, y);
 }

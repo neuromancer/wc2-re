@@ -168,6 +168,28 @@ input context at `+0x17`. Those fields share the record's storage. The older
 28-byte snapshot at `0x0059AB10` was inherited from WC1 and is not its WC2
 destination.
 
+The queued mouse record at `0x005C83F0` is 28 packed bytes. The event and
+cursor routines access x/y at `+0/+2`, button bytes at `+4/+5`, flags at
+`+7`, shape at `+9`, frame at `+0x0D`, viewport at `+0x13`, and the shape
+change flag at `+0x1B`. In particular, the unaligned word and pointer
+addresses cannot be reproduced by separately allocated commons. These nine
+globals now share `QueuedMouseState` storage; the unreferenced gaps retain
+offset-based field names. This fixes their relative layout, while placement
+of the record within the event-manager band remains unresolved.
+
+The personnel mouse sample at `0x005C8D00` has the same first nine bytes,
+but no observed access proves its full extent. Do not infer the remaining
+19 bytes solely from the next known global at `0x005C8D1C`.
+
+Within an object's commons, MSVC's identifier hash determines emission
+order: compute `h = (h >> 4) + 4*h + character` with 32-bit wrapping, then
+`(h ^ (h >> 16)) & 0x3FF`. The event-manager map follows ascending hash
+buckets. This differs from the sequential C1 symbol keys that affect
+instruction selection. Recovering spelling and allocation sizes must
+therefore preserve both constraints; merely sorting declarations is
+insufficient. Unreferenced gaps in this band still need evidence before
+their storage can be reconstructed.
+
 The remaining 78 predecessor commons formerly in `globals.c` had no
 relocation references from any reference-build object, including data
 tables; because they were uninitialized leaves, reachability was already at

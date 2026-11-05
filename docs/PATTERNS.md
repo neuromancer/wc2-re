@@ -182,6 +182,14 @@ the same two keys placed anywhere else broke 2 to 87 functions. The fillers
 used are `extern short DAT_005a86a6` (a real but unreferenced word) and the
 `ModalPanelBounds` typedef that the new prototype uses.
 
+`QueuedMouseState` demonstrates a C/C++ difference in this accounting: its
+tag, typedef, members, and global declaration consume three keys in the C
+units and eight in the C++ units with the current headers. Replacing three
+obsolete predecessor declarations at their existing location, and retaining
+the next five only for C, preserves all 1,677 function report results.
+Counting member declarations as one key each would instead change 119
+report rows. The retained declarations allocate no storage.
+
 ### Statement shapes that /Od makes visible
 
 Each of these was confirmed against retail code; pick the form the jumps show.

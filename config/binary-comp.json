@@ -41,6 +41,7 @@
       "PacketResourceDescriptor": 10,
       "PacketSectionHandle": 20,
       "PilotRecord": 38,
+      "QueuedMouseState": 28,
       "RLETransformVertex": 20,
       "RasterClip": 20,
       "RasterSurface": 20,
