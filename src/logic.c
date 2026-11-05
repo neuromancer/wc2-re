@@ -3,6 +3,7 @@
  *
  *  Retail object 0x429550-0x42BABF (link order; see docs/ORDER.md).
  */
+#define LOGIC_C
 #include "game.h"
 
 /* Function start: 0x429550 */

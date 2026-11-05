@@ -174,6 +174,27 @@ hash wrap between them. Swapping two adjacent header `extern`s does the same
 for globals and moves only those two keys (`g_nCurrentSeries`/
 `g_nCurrentMission` for `GetAdaptiveTurnRate`).
 
+Shared declarations can also need a different order in different units.
+In `logic.c`, exchanging the wingman and target-lock-readout declarations
+moves `g_nYourWingman_0049346c` from key 20742 to 20747 while leaving every
+other key unchanged. C2's sign-extended operand signature changes from
+`0x4B` to `0x40`, below the `try2rout` parameter's `0x45`; the comparison
+then loads the parameter first, as retail does. `LOGIC_C` limits this order
+to that unit. Applying a shared-header swap to every unit broke already
+matching functions.
+
+`TURRET_C` exchanges the right-vector declaration with player acceleration
+and the forward-vector declaration with object distance. This moves the
+vector keys from 20966/20968 to 20960/20961 without changing the unit's
+total key count or any storage definition. The keys reproduce both
+`UpdateShipTurretGuns`' three-product order and `SetTargetCameraEyePosition`'s
+choice of register or memory multiply operands. All 20 turret functions
+then compare normalized-byte exact, including the four-byte camera-eye
+size correction and the trailing alignment span. Moving only the forward
+vector fixes the gun routine but breaks camera-eye ordering. These are
+verified matching declaration orders, not a claim to have recovered the
+original header text; function bodies and all declared types are unchanged.
+
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key
 hash; a member read outweighs a scalar. `fire_computer_graphic_missile`

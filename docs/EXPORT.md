@@ -119,26 +119,33 @@ does not define. A passing inventory subcommand therefore does not establish
 complete global coverage. Use the strict whole-file comparison for the
 completion claim.
 
-## Matching checkpoint (2026-11-05)
+## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,614 normalized `EXACT`, 20 same-size byte differences, and 43 differing
-spans. Its mean mnemonic similarity is 99.93%; 1,659 functions score 100%.
+1,618 normalized `EXACT`, 18 same-size byte differences, and 41 differing
+spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
 Local-name recovery in `BlitWipeRadialBands` reduces its normalized byte
 differences from 90 instruction encodings to four out of 263. Its stack slots
 now agree with retail; the remaining four loads select different row pointers
-(see [PATTERNS.md](PATTERNS.md)). All other function report rows are unchanged,
-so the aggregate counts above do not move. The whole-file positional
-comparison below is also unchanged; this function remains displaced from its
-retail address.
+(see [PATTERNS.md](PATTERNS.md)). At that step, all other report rows and
+the whole-file positional result stayed unchanged; the function remains
+displaced from its retail address.
+
+Declaration ordering scoped to `logic.c` and `turret.c` makes `try2rout`,
+`UpdateShipTurretGuns`, `SetTargetCameraEyePosition`, and the trailing
+`FinalizeTargetCameraViewHook` span normalized-byte exact. These four rows
+are the only report changes from the preceding checkpoint. The camera-eye
+routine loses four excess code bytes, with four alignment bytes restored
+at the unit's end, so the whole-image sizes below do not change. No function
+body, type, initializer, or storage definition changes.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-584 byte-identical mapped spans and 261 functions at their retail addresses.
+586 byte-identical mapped spans and 261 functions at their retail addresses.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 43 spans nor their net size
+library gaps as described above, so neither the 41 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
@@ -148,8 +155,9 @@ delta is a count of source defects.
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
 | Entry point | `0x00473E50` | `0x00473C70` |
 
-`make compare-bytes` still fails. After restoring the link timestamps it
-reports 139,909 identical file positions out of 714,752 (19.5745%). Address
+`make compare-bytes` still fails. With the link timestamps restored and
+declaration ordering corrected, it reports 139,916 identical file positions
+out of 714,752 (19.5755%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

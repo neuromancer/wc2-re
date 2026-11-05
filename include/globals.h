@@ -721,12 +721,22 @@ extern short g_asShipTurretFireEnabled_0049d470[10];
 extern short g_nSavedTargetLockCountdown_0049d484;
 extern short g_bSavedTargetLockAcquired_0049d488;
 extern signed char g_cViewObject_0049313c;
+/* CL 4.1 orders the wingman comparison by declaration keys.  logic.c
+ * needs the wingman key five places later; other units keep this order. */
+#ifdef LOGIC_C
+extern short g_bTargetLockReadoutDirty_004934e8;
+#else
 extern short g_nYourWingman_0049346c;
+#endif
 extern short g_nPlayerCollisionObject_00493480;
 extern short g_nSelectedGunType_004934dc;
 extern short g_nSelectedReleaseWeaponIndex_004934e0;
 extern short DAT_004934e4;
+#ifdef LOGIC_C
+extern short g_nYourWingman_0049346c;
+#else
 extern short g_bTargetLockReadoutDirty_004934e8;
+#endif
 extern short g_nTargetLockCountdown_004934ec;
 extern short g_nTargetLockMarkerAngle_004934f0;
 extern signed char g_cTargetDisplayObject_004934f4;
@@ -1040,15 +1050,30 @@ extern short g_bMissionShipInitializationInProgress_0049b890;
 extern signed char g_bLandingCommRequestPending_00492fa0;
 extern short g_bTargetLockMode_00493500;
 extern short g_nEscapedEnemyCount_004962e8;
+/* The turret unit needs these vector keys earlier to reproduce both the
+ * gun-origin sums and the camera-eye multiply operands. */
+#ifdef TURRET_C
+extern FixedVector g_aShipRightVector_00493b78[SPACE_OBJECT_COUNT];
+extern FixedVector g_aShipForwardVector_00494208[SPACE_OBJECT_COUNT];
+#else
 extern FixedVector g_vPlayerAcceleration_00493488;
 extern short g_asObjectDistance_00493ae8[SPACE_OBJECT_COUNT];
+#endif
 extern short g_asObjectDrawX_00493748[SPACE_OBJECT_COUNT];
 extern short g_asObjectDrawY_004937d8[SPACE_OBJECT_COUNT];
 extern short g_bShipResourceReloadInProgress_0049b894;
 extern unsigned char *g_apObjectExhaustShape_004953b8[10];
+#ifdef TURRET_C
+extern FixedVector g_vPlayerAcceleration_00493488;
+#else
 extern FixedVector g_aShipRightVector_00493b78[SPACE_OBJECT_COUNT];
+#endif
 extern FixedVector g_aShipUpVector_00493ec0[SPACE_OBJECT_COUNT];
+#ifdef TURRET_C
+extern short g_asObjectDistance_00493ae8[SPACE_OBJECT_COUNT];
+#else
 extern FixedVector g_aShipForwardVector_00494208[SPACE_OBJECT_COUNT];
+#endif
 extern HazardField *g_pActiveHazardField_00493278;
 extern signed char g_acPlayerComponentDamage_00493470[9];
 extern short g_asShipMaximumVelocity_00495f70[12];

@@ -3,6 +3,7 @@
  *
  *  Retail object 0x45E9F0-0x46147F (link order; see docs/ORDER.md).
  */
+#define TURRET_C
 #include "game.h"
 
 static ShortVector g_aTargetCameraEyeOffsets_0049d430[3];
