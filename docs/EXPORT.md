@@ -86,6 +86,13 @@ label masks relocation operands and external call/jump targets; it does not
 prove literal file identity. `make compare-bytes` performs that final check
 without masking and returns a failure status when any byte or file size differs.
 
+The `BYTES differing/total` label counts differing decoded instruction
+encodings, plus one grouped difference for any bytes outside the decoded
+instructions. For example, `FillPolygon` reports `BYTES 1/12` even though
+its twelve reachable instructions agree: its span also contains the disabled
+polygon body. A small numerator is therefore not necessarily a small number
+of instructions left to reconstruct.
+
 Function spans at library boundaries can include padding or unmapped thunks.
 For example, the restored `IxStreamFile::ix_stream_file_is_reading` at
 `0x0046DED9` has 46 instruction bytes, all literally matching, but its mapped
@@ -118,6 +125,14 @@ The current `binary-comp report --bytes` covers 1,677 annotated functions:
 1,614 normalized `EXACT`, 20 same-size byte differences, and 43 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,659 functions score 100%.
 These are different measurements from literal byte identity.
+
+Local-name recovery in `BlitWipeRadialBands` reduces its normalized byte
+differences from 90 instruction encodings to four out of 263. Its stack slots
+now agree with retail; the remaining four loads select different row pointers
+(see [PATTERNS.md](PATTERNS.md)). All other function report rows are unchanged,
+so the aggregate counts above do not move. The whole-file positional
+comparison below is also unchanged; this function remains displaced from its
+retail address.
 
 The unnormalized `binary-comp exe --functions` comparison finds
 584 byte-identical mapped spans and 261 functions at their retail addresses.

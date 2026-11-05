@@ -68,6 +68,17 @@ all 600 random two-local probes. `bin/frameOrder.py name ...` prints the keys
 and the resulting order, so a stack layout that differs from the original is
 fixed by choosing local names, not by reordering declarations.
 
+`BlitWipeRadialBands` at `0x0044AAE5` is a larger confirmed example: renaming
+its 21 existing locals reproduces every slot in the `0x54`-byte frame,
+without changing declaration order, types, or expressions. The normalized
+`binary-comp` report drops from `BYTES 90/263` to `BYTES 4/263`; every other
+function's report is unchanged. The four remaining differences are actual
+pointer selections, not allocation: retail loads the lower source-row pointer
+at `[ebp-0x54]` and lower destination-row pointer at `[ebp-0x24]` in both
+backward-indexed copies. The reconstruction instead loads the upper pointers
+at `[ebp-8]` and `[ebp-4]`. Correcting those selections changes the mapped
+body's logic and remains separate from the name-only layout recovery.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it

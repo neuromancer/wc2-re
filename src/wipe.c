@@ -1261,96 +1261,96 @@ void GenerateWipeRadialEdges(short *edges, int radius)
 void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                          short *trailingEdges, short *leadingEdges)
 {
-    short sourceLeftCenter;
-    unsigned short *destinationLowerRows;
-    short rightHalfWidthMinusOne;
-    short halfWidth;
-    short sourceRightCenter;
-    short destinationRightCenter;
-    short height;
-    short upperRowCount;
-    short width;
-    int leadingWidth;
-    short upperMiddleOffset;
-    int row;
-    short *trailing;
-    short *leading;
-    short halfWidthMinusOne;
-    unsigned short *sourceLowerRows;
-    short lowerMiddleOffset;
-    short copyWidth;
-    short destinationLeftCenter;
-    unsigned short *sourceUpperRows;
-    unsigned short *destinationUpperRows;
+    short src_left_center;
+    unsigned short *dst_row_offsets_lower;
+    short radial_right_half_end;
+    short half_source_width;
+    short source_right_x;
+    short dest_right_x;
+    short wipe_row_count;
+    short remaining_upper_rows;
+    short wipe_width;
+    int lead_width;
+    short top_center_row;
+    int bands_processed;
+    short *wipe_trailing_edge;
+    short *wipe_leading_widths;
+    short wipe_left_half_extent;
+    unsigned short *lower_src_row_offsets;
+    short lower_center_offset;
+    short band_width;
+    short dst_midpoint_left;
+    unsigned short *src_top_rows;
+    unsigned short *destination_top_rows;
 
-    width = source->right - source->left + 1;
-    halfWidth = (width + 1) >> 1;
-    halfWidthMinusOne = halfWidth - 1;
-    rightHalfWidthMinusOne = halfWidthMinusOne;
-    height = source->bottom - source->top + 1;
-    upperRowCount = (height + 1) >> 1;
-    upperMiddleOffset = upperRowCount - 1;
-    lowerMiddleOffset = height >> 1;
-    sourceLeftCenter = source->left + halfWidthMinusOne;
-    sourceRightCenter = source->left + rightHalfWidthMinusOne;
-    sourceUpperRows = source->rowOffsets +
-        (source->top + upperMiddleOffset);
-    sourceLowerRows = source->rowOffsets +
-        (source->top + lowerMiddleOffset);
-    destinationLeftCenter = destination->left + halfWidthMinusOne;
-    destinationRightCenter = destination->left + rightHalfWidthMinusOne;
-    destinationUpperRows = destination->rowOffsets +
-        (destination->top + upperMiddleOffset);
-    destinationLowerRows = destination->rowOffsets +
-        (destination->top + lowerMiddleOffset);
-    row = 0;
-    leading = leadingEdges;
-    trailing = trailingEdges;
+    wipe_width = source->right - source->left + 1;
+    half_source_width = (wipe_width + 1) >> 1;
+    wipe_left_half_extent = half_source_width - 1;
+    radial_right_half_end = wipe_left_half_extent;
+    wipe_row_count = source->bottom - source->top + 1;
+    remaining_upper_rows = (wipe_row_count + 1) >> 1;
+    top_center_row = remaining_upper_rows - 1;
+    lower_center_offset = wipe_row_count >> 1;
+    src_left_center = source->left + wipe_left_half_extent;
+    source_right_x = source->left + radial_right_half_end;
+    src_top_rows = source->rowOffsets +
+        (source->top + top_center_row);
+    lower_src_row_offsets = source->rowOffsets +
+        (source->top + lower_center_offset);
+    dst_midpoint_left = destination->left + wipe_left_half_extent;
+    dest_right_x = destination->left + radial_right_half_end;
+    destination_top_rows = destination->rowOffsets +
+        (destination->top + top_center_row);
+    dst_row_offsets_lower = destination->rowOffsets +
+        (destination->top + lower_center_offset);
+    bands_processed = 0;
+    wipe_leading_widths = leadingEdges;
+    wipe_trailing_edge = trailingEdges;
 
-    while ((leadingWidth = *leading) >= 0) {
-        if (leadingWidth >= halfWidth)
-            leadingWidth = halfWidth - 1;
-        if (*trailing < halfWidth) {
-            copyWidth = (short)(leadingWidth - *trailing);
-            memcpy(destination->pixels + destinationLowerRows[row] +
-                       *trailing + destinationRightCenter + 1,
-                   source->pixels + sourceLowerRows[row] +
-                       *trailing + sourceRightCenter + 1,
-                   copyWidth);
+    while ((lead_width = *wipe_leading_widths) >= 0) {
+        if (lead_width >= half_source_width)
+            lead_width = half_source_width - 1;
+        if (*wipe_trailing_edge < half_source_width) {
+            band_width = (short)(lead_width - *wipe_trailing_edge);
+            memcpy(destination->pixels + dst_row_offsets_lower[bands_processed] +
+                       *wipe_trailing_edge + dest_right_x + 1,
+                   source->pixels + lower_src_row_offsets[bands_processed] +
+                       *wipe_trailing_edge + source_right_x + 1,
+                   band_width);
             memcpy(destination->pixels +
-                       (destinationLowerRows[row] + destinationLeftCenter -
-                        1 - *trailing) - copyWidth,
+                       (dst_row_offsets_lower[bands_processed] + dst_midpoint_left -
+                        1 - *wipe_trailing_edge) - band_width,
                    source->pixels +
-                       (sourceLowerRows[row] + sourceLeftCenter - 1 -
-                        *trailing) - copyWidth,
-                   copyWidth);
+                       (lower_src_row_offsets[bands_processed] + src_left_center - 1 -
+                        *wipe_trailing_edge) - band_width,
+                   band_width);
 #ifdef SDL_PORT
-            /* upperMiddleOffset is upperRowCount - 1, so on the last band the
+            /* top_center_row is remaining_upper_rows - 1, so on the last band the
              * backwards index reaches rowOffsets[-1].  The original read
              * whatever happened to precede the table; skip the upper half. */
-            if (sourceUpperRows - row - 1 >= source->rowOffsets &&
-                destinationUpperRows - row - 1 >= destination->rowOffsets)
+            if (src_top_rows - bands_processed - 1 >= source->rowOffsets &&
+                destination_top_rows - bands_processed - 1 >= destination->rowOffsets)
 #endif
             {
-            memcpy(destination->pixels + *(destinationUpperRows - row - 1) +
-                       *trailing + destinationRightCenter,
-                   source->pixels + *(sourceUpperRows - row - 1) +
-                       *trailing + sourceRightCenter,
-                   copyWidth);
+            memcpy(destination->pixels + *(destination_top_rows - bands_processed - 1) +
+                       *wipe_trailing_edge + dest_right_x,
+                   source->pixels + *(src_top_rows - bands_processed - 1) +
+                       *wipe_trailing_edge + source_right_x,
+                   band_width);
             memcpy(destination->pixels +
-                       (*(destinationUpperRows - row - 1) +
-                        destinationLeftCenter - *trailing) - copyWidth,
+                       (*(destination_top_rows - bands_processed - 1) +
+                        dst_midpoint_left - *wipe_trailing_edge) - band_width,
                    source->pixels +
-                       (*(sourceUpperRows - row - 1) + sourceLeftCenter -
-                        *trailing) - copyWidth,
-                   copyWidth);
+                       (*(src_top_rows - bands_processed - 1) + src_left_center -
+                        *wipe_trailing_edge) - band_width,
+                   band_width);
             }
         }
-        row++;
-        leading++;
-        trailing++;
-        upperRowCount--;
-        if (upperRowCount == 0)
+        bands_processed++;
+        wipe_leading_widths++;
+        wipe_trailing_edge++;
+        remaining_upper_rows--;
+        if (remaining_upper_rows == 0)
             break;
     }
 }
