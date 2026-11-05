@@ -98,6 +98,34 @@ bytes at 99.28% mnemonic similarity. The remaining six bytes are the two
 original stores of `Unlock` results at `0x0045DEC5` and `0x0045DEE4`; they
 require assignments in the mapped body, beyond name and header recovery.
 
+Three more name-only corrections recover the local slots in the text-input,
+save/load-menu, and window-procedure frames. The counts below come from
+`binary-comp`'s `compare_function_bytes` API over decoded instruction extents,
+without trailing alignment. They count differing instruction encodings, not
+individual bytes; normalized calls and relocations are still excluded.
+
+| Function | Before | After | Remaining code-size delta |
+| --- | ---: | ---: | ---: |
+| `ReadTextInput` | 115/268 | 47/268 | +28 bytes |
+| `RunPilotSaveLoadMenu` | 222/991 | 77/991 | +15 bytes |
+| `MainWindowProc` | 220/568 | 146/568 | +30 bytes |
+
+`ReadTextInput` now places all twelve locals at their retail offsets in the
+`0x6C` frame, including the 40-byte text buffer at `-0x30` and viewport at
+`-0x50`. `RunPilotSaveLoadMenu` puts its slot and campaign-byte count at
+`-4/-8`, ahead of the 280-byte file-search record at `-0x120`. This removes
+156 bytes of long stack-displacement encodings. Its ten non-command locals
+now match retail; the explicit command local and compiler switch temporary
+still leave a `0x144` frame where retail uses `0x140`.
+
+All twelve named locals in `MainWindowProc` now match, including the
+character at `-4`, message at `-0x3C`, and paint record at `-0x90`.
+Its `0x98` frame remains four bytes shorter than retail's `0x9C`: the retail
+`WM_COMMAND` arm uses a switch temporary, while the source uses an `if`.
+These edits preserve declaration order, types, literals, and expressions;
+the `/Bk` records preserve the local symbol keys. The remaining operand,
+control-flow, and frame-size differences require separate body corrections.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it

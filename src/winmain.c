@@ -441,30 +441,30 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT paint;
-    int mouseEvent;
-    unsigned int command;
-    unsigned int primaryButton;
-    unsigned int secondaryButton;
-    unsigned int mouseX;
-    unsigned int mouseY;
-    unsigned int scanCode;
-    MSG characterMessage;
+    int mouseInput;
+    unsigned int menuId;
+    unsigned int primaryButtonDown;
+    unsigned int secondaryDown;
+    unsigned int pointerPositionX;
+    unsigned int cursorY;
+    unsigned int scanValue;
+    MSG textEvent;
     unsigned int character;
-    HANDLE process;
+    HANDLE processHandle;
     RECT clip;
 
-    command = (unsigned int)wParam & 0xffff;
-    mouseEvent = 0;
-    primaryButton = ((unsigned int)wParam & 1) != 0;
-    secondaryButton = ((unsigned int)wParam & 2) != 0;
+    menuId = (unsigned int)wParam & 0xffff;
+    mouseInput = 0;
+    primaryButtonDown = ((unsigned int)wParam & 1) != 0;
+    secondaryDown = ((unsigned int)wParam & 2) != 0;
     if (message == WM_MOUSEMOVE || message == WM_RBUTTONUP ||
         message == WM_LBUTTONUP || message == WM_LBUTTONDOWN ||
         message == WM_RBUTTONDOWN) {
         g_nPendingMouseX_0049c2ec = LOWORD(lParam);
         g_nPendingMouseY_0049c2f0 = HIWORD(lParam);
     }
-    mouseX = g_nPendingMouseX_0049c2ec;
-    mouseY = g_nPendingMouseY_0049c2f0;
+    pointerPositionX = g_nPendingMouseX_0049c2ec;
+    cursorY = g_nPendingMouseY_0049c2f0;
 
     switch (message) {
     case WM_ACTIVATEAPP:
@@ -476,8 +476,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                     clip.right = 320;
                     clip.bottom = 200;
                     ShowCursor(FALSE);
-                    process = GetCurrentProcess();
-                    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
+                    processHandle = GetCurrentProcess();
+                    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
                     SetActiveWindow(g_hMainWindow_005d10e0);
                     SetForegroundWindow(g_hMainWindow_005d10e0);
                     DIBreInstall();
@@ -493,8 +493,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                 g_nStoredWindowCursorYWord_005d12a4 = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
-                process = GetCurrentProcess();
-                SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+                processHandle = GetCurrentProcess();
+                SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
                 g_bWindowInactive_0049c274 = 1;
                 WriteDebugString("PAUSING...\n");
             }
@@ -515,8 +515,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                     clip.right = 320;
                     clip.bottom = 200;
                     ShowCursor(FALSE);
-                    process = GetCurrentProcess();
-                    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
+                    processHandle = GetCurrentProcess();
+                    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
                     SetActiveWindow(g_hMainWindow_005d10e0);
                     SetForegroundWindow(g_hMainWindow_005d10e0);
                     DIBreInstall();
@@ -532,8 +532,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                 g_nStoredWindowCursorYWord_005d12a4 = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
-                process = GetCurrentProcess();
-                SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+                processHandle = GetCurrentProcess();
+                SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
                 g_bWindowInactive_0049c274 = 1;
                 WriteDebugString("PAUSING...\n");
             }
@@ -544,7 +544,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         SignalAudioMixerWakeEvent();
         return 0;
     case WM_COMMAND:
-        if (command == 3) {
+        if (menuId == 3) {
             g_bMainWindowRunning_005d12ac = 0;
             PostQuitMessage(0);
         }
@@ -552,37 +552,37 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
         g_nInputPressCount_0049c258++;
-        QueueInputEvent(1, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0,
-                        primaryButton, secondaryButton, 0, 0, 0);
-        mouseEvent = 1;
+        QueueInputEvent(1, (unsigned short)pointerPositionX,
+                        (unsigned short)cursorY, 0,
+                        primaryButtonDown, secondaryDown, 0, 0, 0);
+        mouseInput = 1;
         break;
     case WM_LBUTTONUP:
         g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0, 1, 0, 0, 0, 0);
-        mouseEvent = 1;
+        QueueInputEvent(2, (unsigned short)pointerPositionX,
+                        (unsigned short)cursorY, 0, 1, 0, 0, 0, 0);
+        mouseInput = 1;
         break;
     case WM_RBUTTONUP:
         g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0, 0, 1, 0, 0, 0);
-        mouseEvent = 1;
+        QueueInputEvent(2, (unsigned short)pointerPositionX,
+                        (unsigned short)cursorY, 0, 0, 1, 0, 0, 0);
+        mouseInput = 1;
         break;
     case WM_MOUSEMOVE:
         if (g_bSuppressNextMouseMove_005c843c == 0) {
-            QueueInputEvent(3, (unsigned short)mouseX,
-                            (unsigned short)mouseY, 0,
-                            primaryButton, secondaryButton, 0, 0, 0);
-            mouseEvent = 1;
+            QueueInputEvent(3, (unsigned short)pointerPositionX,
+                            (unsigned short)cursorY, 0,
+                            primaryButtonDown, secondaryDown, 0, 0, 0);
+            mouseInput = 1;
         } else {
             g_bSuppressNextMouseMove_005c843c = 0;
         }
         break;
     case WM_KEYDOWN:
-        if (PeekMessageA(&characterMessage, window, WM_CHAR, WM_CHAR,
+        if (PeekMessageA(&textEvent, window, WM_CHAR, WM_CHAR,
                          PM_REMOVE) != 0) {
-            character = (unsigned int)characterMessage.wParam;
+            character = (unsigned int)textEvent.wParam;
         } else {
             character = 0;
         }
@@ -592,39 +592,39 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             else
                 g_bF1KeyDown_0049c240 = 0;
         }
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        if (scanCode == 1)
+        scanValue = ((unsigned long)lParam & 0xff0000) >> 16;
+        if (scanValue == 1)
             g_bSceneEscapeRequested_0049d4b0 = 1;
         if (((unsigned long)lParam & 0x40000000) == 0 &&
-            scanCode != 1) {
+            scanValue != 1) {
             g_nInputPressCount_0049c258++;
         }
-        QueueInputEvent(4, (unsigned short)mouseX,
-                        (unsigned short)mouseY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanCode,
+        QueueInputEvent(4, (unsigned short)pointerPositionX,
+                        (unsigned short)cursorY, (unsigned short)wParam,
+                        0, 0, 0, (unsigned short)scanValue,
                         (unsigned short)character);
-        SetInputKeyState((int)scanCode, 1);
+        SetInputKeyState((int)scanValue, 1);
         break;
     case WM_KEYUP:
-        if (PeekMessageA(&characterMessage, window, WM_CHAR, WM_CHAR,
+        if (PeekMessageA(&textEvent, window, WM_CHAR, WM_CHAR,
                          PM_REMOVE) != 0) {
-            character = (unsigned int)characterMessage.wParam;
+            character = (unsigned int)textEvent.wParam;
         } else {
             character = 0;
         }
         if (wParam == VK_F1)
             g_bF1KeyDown_0049c240 = 0;
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        if (scanCode != 0x81) {
+        scanValue = ((unsigned long)lParam & 0xff0000) >> 16;
+        if (scanValue != 0x81) {
             g_nInputPressCount_0049c258--;
             if (g_nInputPressCount_0049c258 < 0)
                 g_nInputPressCount_0049c258 = 0;
         }
-        QueueInputEvent(5, (unsigned short)mouseX,
-                        (unsigned short)mouseY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanCode,
+        QueueInputEvent(5, (unsigned short)pointerPositionX,
+                        (unsigned short)cursorY, (unsigned short)wParam,
+                        0, 0, 0, (unsigned short)scanValue,
                         (unsigned short)character);
-        SetInputKeyState((int)scanCode, 0);
+        SetInputKeyState((int)scanValue, 0);
         break;
     case WM_SYSKEYUP:
         g_bMenuAHotkey_005d1294 = 0;
@@ -706,16 +706,16 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         g_bMainWindowRunning_005d12ac = 0;
         ClipCursor(0);
         ShowCursor(TRUE);
-        process = GetCurrentProcess();
-        SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+        processHandle = GetCurrentProcess();
+        SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
         PostQuitMessage(0);
         break;
     case WM_QUIT:
         g_bMainWindowRunning_005d12ac = 0;
         ClipCursor(0);
         ShowCursor(TRUE);
-        process = GetCurrentProcess();
-        SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+        processHandle = GetCurrentProcess();
+        SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
         g_bApplicationShutdownStarted_0049c23c = 1;
         break;
     case WM_SYSCOMMAND:
@@ -724,11 +724,11 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             return 0;
         break;
     }
-    if (mouseEvent != 0) {
-        g_stHostMouseTextBlock_005d10d0.x = mouseX;
-        g_stHostMouseTextBlock_005d10d0.y = mouseY;
-        g_stHostMouseTextBlock_005d10d0.primaryButton = primaryButton;
-        g_stHostMouseTextBlock_005d10d0.secondaryButton = secondaryButton;
+    if (mouseInput != 0) {
+        g_stHostMouseTextBlock_005d10d0.x = pointerPositionX;
+        g_stHostMouseTextBlock_005d10d0.y = cursorY;
+        g_stHostMouseTextBlock_005d10d0.primaryButton = primaryButtonDown;
+        g_stHostMouseTextBlock_005d10d0.secondaryButton = secondaryDown;
     }
     return DefWindowProcA(window, message, wParam, lParam);
 }

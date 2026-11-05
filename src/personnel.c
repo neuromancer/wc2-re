@@ -830,20 +830,20 @@ short SelectTransferredPilot(short count)
 /* Function start: 0x4353D4 */
 void RunPilotSaveLoadMenu(void)
 {
-    struct _finddata_t findData;
+    struct _finddata_t fileSearchData;
     int campaignBytes;
-    int action;
-    char answer;
+    int menuCommand;
+    char reply;
     short confirm;
     short file;
-    short index;
+    short i;
     short hover;
-    short refresh;
-    short done;
+    short redrawFlag;
+    short finishedMenu;
     short slot;
 
-    done = 0;
-    refresh = 0;
+    finishedMenu = 0;
+    redrawFlag = 0;
     g_pPersonnelMenuBackdrop_0049a6b8 = FetchDiskPacketRetrying(
         "options.v00",
         (short)(g_nCockpitArchiveVariantNumber_005c901a * 3 + 1), 0);
@@ -862,8 +862,8 @@ void RunPilotSaveLoadMenu(void)
 
     /* The find handle shares storage with the menu's exit flag; the
      * original reuses the same short once the file has been sized. */
-    done = (short)_findfirst(g_szPersonnelFileName_0049a6a8, &findData);
-    if (done == -1 || campaignBytes * 9 + 0x4b6 != findData.size) {
+    finishedMenu = (short)_findfirst(g_szPersonnelFileName_0049a6a8, &fileSearchData);
+    if (finishedMenu == -1 || campaignBytes * 9 + 0x4b6 != fileSearchData.size) {
         file = (short)_open(g_szPersonnelFileName_0049a6a8, 0x8301, 0x180);
         if (file < 0) {
             ReportFatalErrorCode("008");
@@ -871,8 +871,8 @@ void RunPilotSaveLoadMenu(void)
         CopyHugeMemoryOverlapSafe(g_pPersonnelCampaignSnapshot_0049a6a4,
                                   g_pCampaignGlobals_00499c94,
                                   campaignBytes);
-        for (index = 0; index < 9; index++) {
-            _write(file, &refresh, 2);
+        for (i = 0; i < 9; i++) {
+            _write(file, &redrawFlag, 2);
             _write(file, &g_stDefaultPilotProfile_00492660, 0x60);
             _write(file, g_szSaveSlotSignature_0049a638,
                    sizeof(g_szSaveSlotSignature_0049a638));
@@ -881,32 +881,32 @@ void RunPilotSaveLoadMenu(void)
         }
         _close(file);
     }
-    _findclose((long)done);
+    _findclose((long)finishedMenu);
 
     file = (short)_open(g_szPersonnelFileName_0049a6a8, 0x8000);
-    for (index = 0; index < 8; index++) {
-        g_apPersonnelFileSlots_0049a660[index] =
+    for (i = 0; i < 8; i++) {
+        g_apPersonnelFileSlots_0049a660[i] =
             AllocateTaggedMemory(0x26, 0x40);
-        if (g_apPersonnelFileSlots_0049a660[index] == 0) {
+        if (g_apPersonnelFileSlots_0049a660[i] == 0) {
             ReportFatalErrorCode("009");
         }
-        g_apPersonnelPilotProfiles_0049a680[index] =
+        g_apPersonnelPilotProfiles_0049a680[i] =
             AllocateTaggedMemory(0x60, 0x40);
-        if (g_apPersonnelPilotProfiles_0049a680[index] == 0) {
+        if (g_apPersonnelPilotProfiles_0049a680[i] == 0) {
             ReportFatalErrorCode("010");
         }
-        _read(file, g_apPersonnelFileSlots_0049a660[index], 2);
-        _read(file, g_apPersonnelPilotProfiles_0049a680[index], 0x60);
-        _read(file, g_apPersonnelFileSlots_0049a660[index]->description,
+        _read(file, g_apPersonnelFileSlots_0049a660[i], 2);
+        _read(file, g_apPersonnelPilotProfiles_0049a680[i], 0x60);
+        _read(file, g_apPersonnelFileSlots_0049a660[i]->description,
               0x24);
         _read(file, g_pPersonnelCampaignSnapshot_0049a6a4,
               campaignBytes);
     }
     _close(file);
 
-    done = 0;
+    finishedMenu = 0;
     SetPersonnelMousePosition(0xc8, 0x36);
-    while (done == 0) {
+    while (finishedMenu == 0) {
         DisableMouseCursorDrawing();
         g_stDefaultStringContext_005d2d20.viewport =
             &g_stSecondaryViewBufferBlock_005d2c90;
@@ -966,7 +966,7 @@ void RunPilotSaveLoadMenu(void)
             g_bPersonnelMenuDrawing_0049a6c0 = 1;
             EnableMouseCursorDrawing();
             RefreshMemoryStatusOverlay();
-            refresh = 0;
+            redrawFlag = 0;
             if ((g_cCurrentKey_00493128 == PERSONNEL_KEY_ENTER ||
                  g_cCurrentKey_00493128 == PERSONNEL_KEY_SPACE) &&
                 hover != -1) {
@@ -976,13 +976,13 @@ void RunPilotSaveLoadMenu(void)
                 ((g_cCurrentKey_00493128 == PERSONNEL_KEY_ENTER ||
                   g_cCurrentKey_00493128 == PERSONNEL_KEY_SPACE) &&
                  hover == -1)) {
-                done++;
-                refresh++;
+                finishedMenu++;
+                redrawFlag++;
             }
-            action = toupper(g_cCurrentKey_00493128);
-            switch (action) {
+            menuCommand = toupper(g_cCurrentKey_00493128);
+            switch (menuCommand) {
             case PERSONNEL_KEY_L:
-                refresh = 1;
+                redrawFlag = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
                     &g_stSecondaryViewBufferBlock_005d2c90);
@@ -1045,7 +1045,7 @@ void RunPilotSaveLoadMenu(void)
                 }
                 break;
             case PERSONNEL_KEY_D:
-                refresh = 1;
+                redrawFlag = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
                     &g_stSecondaryViewBufferBlock_005d2c90);
@@ -1076,10 +1076,10 @@ void RunPilotSaveLoadMenu(void)
                     SetTextCursor(0x6a, 0x32);
                     DrawFormattedText("Yes");
                     RefreshMemoryStatusOverlay();
-                    answer = (char)WaitForQueuedInputPress();
-                    while (answer != 0x0d) {
+                    reply = (char)WaitForQueuedInputPress();
+                    while (reply != 0x0d) {
                         SetTextCursor(0x6a, 0x32);
-                        if (toupper(answer) == 'Y') {
+                        if (toupper(reply) == 'Y') {
                             DrawFormattedText("Yes");
                             confirm = 1;
                         } else {
@@ -1087,7 +1087,7 @@ void RunPilotSaveLoadMenu(void)
                             confirm = 0;
                         }
                         RefreshMemoryStatusOverlay();
-                        answer = (char)WaitForQueuedInputPress();
+                        reply = (char)WaitForQueuedInputPress();
                     }
                     if (confirm != 0) {
                         g_apPersonnelFileSlots_0049a660[slot]->occupied = 0;
@@ -1102,7 +1102,7 @@ void RunPilotSaveLoadMenu(void)
                 }
                 break;
             case PERSONNEL_KEY_S:
-                refresh = 1;
+                redrawFlag = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
                     &g_stSecondaryViewBufferBlock_005d2c90);
@@ -1136,10 +1136,10 @@ void RunPilotSaveLoadMenu(void)
                     SetTextCursor(0x6a, 0x32);
                     DrawFormattedText("Yes");
                     RefreshMemoryStatusOverlay();
-                    answer = (char)WaitForQueuedInputPress();
-                    while (answer != 0x0d) {
+                    reply = (char)WaitForQueuedInputPress();
+                    while (reply != 0x0d) {
                         SetTextCursor(0x6a, 0x32);
-                        if (toupper(answer) == 'Y') {
+                        if (toupper(reply) == 'Y') {
                             DrawFormattedText("Yes");
                             confirm = 1;
                         } else {
@@ -1147,7 +1147,7 @@ void RunPilotSaveLoadMenu(void)
                             confirm = 0;
                         }
                         RefreshMemoryStatusOverlay();
-                        answer = (char)WaitForQueuedInputPress();
+                        reply = (char)WaitForQueuedInputPress();
                         ServiceSoundSystem();
                     }
                 }
@@ -1198,7 +1198,7 @@ void RunPilotSaveLoadMenu(void)
                 }
                 break;
             }
-            if (refresh != 0) {
+            if (redrawFlag != 0) {
                 g_cCurrentKey_00493128 = 0;
             }
         }
@@ -1211,9 +1211,9 @@ void RunPilotSaveLoadMenu(void)
     FreePacketAndClear(&g_pPersonnelMenuBackdrop_0049a6b8, 0);
     g_stDefaultStringContext_005d2d20.viewport = &g_stScrViewInfo_005d21a0;
     ReleasePacketHandle(g_pPersonnelCampaignSnapshot_0049a6a4);
-    for (index = 0; index < 8; index++) {
-        ReleasePacketHandle(g_apPersonnelFileSlots_0049a660[index]);
-        ReleasePacketHandle(g_apPersonnelPilotProfiles_0049a680[index]);
+    for (i = 0; i < 8; i++) {
+        ReleasePacketHandle(g_apPersonnelFileSlots_0049a660[i]);
+        ReleasePacketHandle(g_apPersonnelPilotProfiles_0049a680[i]);
     }
 }
 

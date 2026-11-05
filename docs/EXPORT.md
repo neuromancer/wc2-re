@@ -141,7 +141,7 @@ excess code bytes, with four alignment bytes restored at the unit's end,
 leaving the whole-image sizes unchanged at that step. No function body,
 type, initializer, or storage definition changed.
 
-The latest change reproduces all nine local slots in `DIBslamReal` and its
+The DIB change reproduces all nine local slots in `DIBslamReal` and its
 row-loop comparison through names and declaration ordering. It now scores
 99.28%, with six missing bytes instead of 53 excess bytes. The missing bytes
 are two stores of surface-unlock results; those assignments remain absent
@@ -149,11 +149,22 @@ under the mapped-body restriction. The trailing `DIBwaitForVerticalBlank`
 span changes from four excess padding bytes to one missing padding byte.
 Its 36 instruction bytes remain normalized-exact; the current span has
 six alignment bytes where retail has seven.
-These are the only normalized report changes from the preceding checkpoint.
-The smaller code and alignment reduce `.text` by 64 bytes and shift later
+Those were the only normalized report changes at that step.
+The smaller code and alignment reduced `.text` by 64 bytes and shifted later
 functions, reducing the byte-identical mapped-span count from 586 to 580.
 Correcting one function does not necessarily improve a positional metric
 while other size differences remain.
+
+The latest local-name recovery covers `ReadTextInput`,
+`RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
+encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
+(the instruction-extent comparison in [PATTERNS.md](PATTERNS.md)).
+The save/load menu loses 156 excess code bytes, leaving 15. Four fewer
+alignment bytes after `RunPilotDatabaseMenu` make its reported span delta
+change from -123 to -127 without changing its instructions. These are the
+only two changed rows in the full normalized report; `.text` shrinks by
+160 bytes in total. The 41 differing spans now sum to +222 bytes, including
+the library gaps described above.
 
 The unnormalized `binary-comp exe --functions` comparison finds
 580 byte-identical mapped spans and 261 functions at their retail addresses.
@@ -165,13 +176,13 @@ delta is a count of source defects.
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,772 |
+| `.text` virtual bytes | 576,332 | 575,612 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473C30` |
+| Entry point | `0x00473E50` | `0x00473B90` |
 
 `make compare-bytes` still fails. With the link timestamps restored and
-the DIB frame and comparison corrected, it reports 139,713 identical file
-positions out of 714,752 (19.5471%). Address
+the three additional local layouts corrected, it reports 139,718 identical
+file positions out of 714,752 (19.5478%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
@@ -189,15 +200,18 @@ The first source-level size discrepancy to investigate is `inflict_damage`
 at `0x00411C72` (17 bytes short). The three routines below 90% mnemonic
 similarity are `fire_afterburner` at `0x0041693A` (70.45%), `DIBupdate` at
 `0x0045E060` (84.40%), and `SetFleetOverviewView` at `0x0044ADE0` (85.27%).
-The value audit reports three differences in `RunPilotSaveLoadMenu`: our
+Three expression-shape differences remain in `RunPilotSaveLoadMenu`: our
 compiler combines the 38-byte slot header and 96-byte pilot profile into
 one addition of 134, while retail emits separate additions of 38 and 96.
 The record sizes are already correct; changing them would not fix the source
-expression shape.
+expression shape. Both value-audit passes now report zero findings after
+the local-layout correction, although direct `binary-comp compare` still
+shows all three combined additions. The earlier value-audit findings have
+disappeared without these instructions being corrected.
 
 `make verify` now completes with exit status zero. Its reports still list
-22 functions with call-target diagnostics, 26 with global-access diagnostics,
-and the three value differences above. Those commands do not fail the default
-verification target on these findings, and some diagnostics compare source
-references with unreachable code or unresolved symbols. The exit status is
-therefore not a claim of zero differences or complete inventory coverage.
+22 functions with call-target diagnostics and 26 with global-access
+diagnostics. Those commands do not fail the default verification target on
+these findings, and some diagnostics compare source references with
+unreachable code or unresolved symbols. Neither the exit status nor the
+zero value-audit count establishes zero differences or complete coverage.

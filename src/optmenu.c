@@ -221,119 +221,119 @@ short ReadTextInput(char *destination, short maximumLength,
                     volatile short mode,
                     volatile short allowPathSeparators)
 {
-    Viewport inputViewport;
-    Viewport *savedViewport;
-    char *savedText;
-    short savedX;
-    short savedY;
-    short inputLength;
-    short accepted;
-    short handled;
-    unsigned char savedBackground;
-    short key;
-    int characterClass;
-    char input[40];
+    Viewport textArea;
+    Viewport *oldViewport;
+    char *oldText;
+    short textX;
+    short textY;
+    short length;
+    short done;
+    short keyHandled;
+    unsigned char backgroundInk;
+    short inputCode;
+    int keyClass;
+    char textBuffer[40];
 
-    accepted = 0;
-    savedBackground = g_pCurrentTextContext_005c8d1c->backgroundColour;
+    done = 0;
+    backgroundInk = g_pCurrentTextContext_005c8d1c->backgroundColour;
     if (g_bRewritePacketExtensions_0049cb48 == 0)
         g_pCurrentTextContext_005c8d1c->backgroundColour = 0x5e;
     else
         g_pCurrentTextContext_005c8d1c->backgroundColour = 2;
-    savedText = g_pCurrentTextContext_005c8d1c->text;
-    savedViewport = g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->text = input;
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    savedY = g_pCurrentTextContext_005c8d1c->cursorY;
-    inputViewport = *g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->viewport = &inputViewport;
-    DosStrcpy(input, destination);
-    inputLength = DosStrlen(input);
+    oldText = g_pCurrentTextContext_005c8d1c->text;
+    oldViewport = g_pCurrentTextContext_005c8d1c->viewport;
+    g_pCurrentTextContext_005c8d1c->text = textBuffer;
+    textX = g_pCurrentTextContext_005c8d1c->cursorX;
+    textY = g_pCurrentTextContext_005c8d1c->cursorY;
+    textArea = *g_pCurrentTextContext_005c8d1c->viewport;
+    g_pCurrentTextContext_005c8d1c->viewport = &textArea;
+    DosStrcpy(textBuffer, destination);
+    length = DosStrlen(textBuffer);
 
-    inputViewport.left = savedX;
-    inputViewport.top = savedY;
-    inputViewport.bottom = (short)(inputViewport.top +
+    textArea.left = textX;
+    textArea.top = textY;
+    textArea.bottom = (short)(textArea.top +
         ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font));
-    inputViewport.right = (short)(inputViewport.left +
-        MeasureTextPixelWidthClamped(input));
-    ClearViewport(&inputViewport,
+    textArea.right = (short)(textArea.left +
+        MeasureTextPixelWidthClamped(textBuffer));
+    ClearViewport(&textArea,
                   g_pCurrentTextContext_005c8d1c->backgroundColour);
-    inputViewport.right = savedViewport->right;
-    DrawFormattedText(input);
+    textArea.right = oldViewport->right;
+    DrawFormattedText(textBuffer);
     DrawTextInputCursor(' ');
 
     MarkDibDirty();
     DIBslamReal();
-    while (accepted == 0) {
-        handled = 0;
-        while (handled == 0) {
+    while (done == 0) {
+        keyHandled = 0;
+        while (keyHandled == 0) {
             ServiceSoundSystem();
-            key = WaitForQueuedInputPress();
-            switch (key) {
+            inputCode = WaitForQueuedInputPress();
+            switch (inputCode) {
             case 27:
-                handled++;
-                if (input[0] != 0)
+                keyHandled++;
+                if (textBuffer[0] != 0)
                     EraseCharacterAfterTextCursor(' ');
-                g_pCurrentTextContext_005c8d1c->text = savedText;
-                g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
+                g_pCurrentTextContext_005c8d1c->text = oldText;
+                g_pCurrentTextContext_005c8d1c->viewport = oldViewport;
                 return 0;
             case 13:
-                handled++;
-                if (input[0] != 0) {
+                keyHandled++;
+                if (textBuffer[0] != 0) {
                     EraseCharacterAfterTextCursor(' ');
-                    accepted++;
+                    done++;
                 }
                 break;
             default:
-                if (key == 8 && inputLength != 0) {
+                if (inputCode == 8 && length != 0) {
                     EraseCharacterAfterTextCursor(' ');
                     EraseLastTextInputCharacter();
                     DrawTextInputCursor(' ');
-                    inputLength--;
-                    input[inputLength] = 0;
-                    handled++;
+                    length--;
+                    textBuffer[length] = 0;
+                    keyHandled++;
                     break;
                 }
-                if (maximumLength <= inputLength) {
-                    handled++;
+                if (maximumLength <= length) {
+                    keyHandled++;
                     break;
                 }
                 if (allowPathSeparators == 0 ||
-                    (key != ':' && key != '\\')) {
+                    (inputCode != ':' && inputCode != '\\')) {
 #ifdef SDL_PORT
-                    characterClass = isalnum((unsigned char)key);
+                    keyClass = isalnum((unsigned char)inputCode);
 #else
                     if (__mb_cur_max > 1)
-                        characterClass = _isctype(key, 0x107);
+                        keyClass = _isctype(inputCode, 0x107);
                     else
-                        characterClass = _pctype[key] & 0x107;
+                        keyClass = _pctype[inputCode] & 0x107;
 #endif
-                    if (characterClass == 0 &&
-                        (key != ' ' || inputLength == 0)) {
-                        handled++;
+                    if (keyClass == 0 &&
+                        (inputCode != ' ' || length == 0)) {
+                        keyHandled++;
                         break;
                     }
                 }
                 switch (mode) {
                 case 1:
-                    key = (short)toupper(key);
+                    inputCode = (short)toupper(inputCode);
                     break;
                 case 2:
-                    if (key < '0' || key > '9')
-                        key = 0;
+                    if (inputCode < '0' || inputCode > '9')
+                        inputCode = 0;
                     break;
                 }
-                if (key == 0)
+                if (inputCode == 0)
                     continue;
                 EraseCharacterAfterTextCursor(' ');
-                input[inputLength] = (char)key;
-                inputLength++;
-                input[inputLength] = 0;
-                SetTextCursor((unsigned short)savedX,
-                              (unsigned short)savedY);
-                DrawFormattedText(input);
+                textBuffer[length] = (char)inputCode;
+                length++;
+                textBuffer[length] = 0;
+                SetTextCursor((unsigned short)textX,
+                              (unsigned short)textY);
+                DrawFormattedText(textBuffer);
                 DrawTextInputCursor(' ');
-                handled++;
+                keyHandled++;
                 break;
             }
         }
@@ -341,10 +341,10 @@ short ReadTextInput(char *destination, short maximumLength,
         DIBslamReal();
     }
 
-    DosStrcpy(destination, input);
-    g_pCurrentTextContext_005c8d1c->text = savedText;
-    g_pCurrentTextContext_005c8d1c->viewport = savedViewport;
-    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
+    DosStrcpy(destination, textBuffer);
+    g_pCurrentTextContext_005c8d1c->text = oldText;
+    g_pCurrentTextContext_005c8d1c->viewport = oldViewport;
+    g_pCurrentTextContext_005c8d1c->backgroundColour = backgroundInk;
     return 1;
 }
 
