@@ -236,6 +236,8 @@ GLOBALS_DISTRIBUTED_SOURCES = \
 	src/ix/mixer.cpp src/ix/dspv.cpp src/ix/system.cpp
 GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
 GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
+GLOBALS_AUDIT_DIR = $(OUT_DIR)/globals-audit
+GLOBALS_AUDIT_MANIFEST = $(GLOBALS_AUDIT_DIR)/sources.txt
 
 # ---------------------------------------------------------------------------
 # Host platform and DREAMM runtime
@@ -1158,9 +1160,10 @@ audit-compiler-glue:
 progress:
 	@python3 bin/showProgress.py
 
-$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/game_data.h $(GLOBALS_DEFINITION_SOURCES)
+$(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST): bin/collectGlobalDefinitions.py Makefile include/game_data.h $(GLOBALS_DEFINITION_SOURCES)
 	@python3 bin/collectGlobalDefinitions.py \
-		--output $@ \
+		--output $(GLOBALS_AUDIT_SOURCE) \
+		--unit-dir $(GLOBALS_AUDIT_DIR) \
 		--constants-header include/game_data.h \
 		$(GLOBALS_DEFINITION_SOURCES)
 
@@ -1176,7 +1179,7 @@ function-map:
 	@python3 bin/updateFunctionMap.py
 
 report: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) report $(BC) --no-build \
+	@$(BINARY_COMP) report $(BC) --no-build --bytes \
 		$(if $(FILTER),--filter $(FILTER))
 
 # Compare a single rebuilt function against the original.  This is the inner
@@ -1230,6 +1233,10 @@ missing-data: $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 compare: $(TARGET) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC)
 
+# Literal file identity, including PE/debug metadata and every padding byte.
+compare-bytes: $(TARGET) | $(ORIGINAL_EXE)
+	@$(BINARY_COMP) byte-compare --fail-on-difference $(ORIGINAL_EXE) $(TARGET)
+
 compare-functions: $(TARGET) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC) --functions
 
@@ -1259,16 +1266,16 @@ verify:
 # still holds globals belonging to the owner units, every unit boundary reads
 # as an address decrease that no ordering can remove.  Score the order per
 # definition file instead, and keep the combined run for everything else.
-verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings \
 		--no-source-order
-	@set -e; for global_source in src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES); do \
+	@set -e; while IFS= read -r global_source; do \
 		$(BINARY_COMP) globals $(BC) \
-			--globals-source $$global_source \
-			--globals-h $$global_source \
+			--globals-source "$$global_source" \
+			--globals-h "$$global_source" \
 			--no-address-warnings \
 			--fail-on-issues; \
-	done
+	done < $(GLOBALS_AUDIT_MANIFEST)
 
 # The source-level globals audit cannot serialize every nested or symbolic
 # initializer.  Compare the linked bytes too, but keep the normal verify output
@@ -1278,7 +1285,7 @@ verify-globals-data: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 		trap 'rm -f "$$audit_output"' 0 1 2 15; \
 		status=0; \
 		$(BINARY_COMP) data $(BC) > "$$audit_output" || status=$$?; \
-		awk '/ MISMATCH / || / not in rebuilt map/ || /^Summary:/' \
+		awk '/ MISMATCH / || / NO_SYMBOL / || /^Summary:/' \
 			"$$audit_output"; \
 		exit $$status
 
@@ -1300,20 +1307,15 @@ globals-verbose: globals-data-verbose
 audit-auto-complete-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --show-auto-complete-reviewed
 
-audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) globals $(BC) \
-		--globals-source src/globals.c \
-		--check-rebuilt-layout \
-		--no-address-warnings \
-		--fail-on-issues
-	@set -e; for global_source in $(GLOBALS_DISTRIBUTED_SOURCES); do \
+audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST) | code-full $(ORIGINAL_EXE)
+	@set -e; while IFS= read -r global_source; do \
 		$(BINARY_COMP) globals $(BC) \
-			--globals-source $$global_source \
-			--globals-h $$global_source \
+			--globals-source "$$global_source" \
+			--globals-h "$$global_source" \
 			--check-rebuilt-layout \
 			--no-address-warnings \
 			--fail-on-issues; \
-	done
+	done < $(GLOBALS_AUDIT_MANIFEST)
 
 # WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
 # interfaces are dispatched through vtables, so this stays in the checklist.
@@ -1327,10 +1329,10 @@ verify-global-access: $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) global-access $(BC) $(GLOBAL_ACCESS_FLAGS) $(if $(FILTER),$(FILTER))
 
 verify-values: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) values $(BC) --min-similarity $(VALUE_MIN_SIMILARITY) $(VALUES_FLAGS)
+	@$(BINARY_COMP) values $(BC) --no-build --min-similarity $(VALUE_MIN_SIMILARITY) $(VALUES_FLAGS)
 
 verify-values-stack-locals: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) values $(BC) \
+	@$(BINARY_COMP) values $(BC) --no-build \
 		--min-similarity $(STACK_LOCAL_VALUE_MIN_SIMILARITY) \
 		--include-stack-locals \
 		$(STACK_LOCAL_VALUES_FLAGS) \
@@ -1459,6 +1461,7 @@ clean-modern:
 	clean-dreamm \
 	dreamm \
 	compare \
+	compare-bytes \
 	compare-functions \
 	globals-data \
 	globals-data-verbose \

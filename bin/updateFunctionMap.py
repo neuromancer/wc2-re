@@ -66,7 +66,8 @@ def collect():
     for path in sources:
         for address, name in c_functions(path):
             entries[address] = name
-    for path in sorted(glob.glob(os.path.join(ROOT, 'src', '*.asm'))):
+    for path in sorted(glob.glob(os.path.join(ROOT, 'src', '*.asm')) +
+                       glob.glob(os.path.join(ROOT, 'src', 'ix', '*.asm'))):
         for address, name in asm_functions(path):
             entries[address] = name
     return entries

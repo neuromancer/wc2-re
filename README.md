@@ -17,11 +17,16 @@ GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
 ## Status
 
-The reconstruction is **materially complete**: the source compiles and links
-as `WC2.EXE`, and the remaining work is focused on fidelity refinements,
-validation, and portability polish rather than missing major systems. `make
-report` compares 1,501 functions against the retail executable and averages
-98.02% machine-code similarity.
+The source compiles and links as `WC2.EXE`. `make report` compares 1,677
+functions against the retail executable and averages 99.93% instruction
+mnemonic similarity. Of those, 1,614 match after binary-comp normalizes
+relocation operands and external call/jump targets; `make compare-functions`
+finds 584 raw byte-identical mapped function spans.
+
+The executable is **not yet byte-identical**. Function layout, operand values,
+data placement, and PE/debug metadata still differ. `make compare-bytes`
+checks every file byte without normalization and fails until the complete
+files match. Function similarity is not a whole-executable completion percentage.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
 save/load menus, cutscenes, and spaceflight, including firing, targeting,

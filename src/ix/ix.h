@@ -402,7 +402,8 @@ struct IxStreamFile {
     void ix_stream_file_seek(unsigned int position);
     unsigned int ix_stream_file_tell(void);
     unsigned int ix_stream_file_size(void);
-    void ix_stream_file_wait(void);
+    void ix_stream_file_wait();
+    int ix_stream_file_is_reading();
 };
 
 extern "C" int ix_streamer_init(void);           /* 0x46BD50 */

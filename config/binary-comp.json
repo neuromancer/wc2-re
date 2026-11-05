@@ -65,6 +65,7 @@
     },
     "reviewed_layout_issues": {
       "full": {
+        "SOURCE_ORDER_DECREASE:0x005c338c": "src/dib.cpp's uninitialized C++ globals follow symbol hash order, not declaration order. Its trailing unused words occupy their annotated retail addresses in WC2.map (including 0x5C338C and 0x5C3394), before the earlier-declared debug buffer at 0x5C39F8. The rebuilt-layout audit still checks their placement.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x0048e0e0": "Read as a dword once and as a word three times; the speech-cache code and data counts are adjacent words that one site loads together.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00493134": "Read as a word 32 times and as a dword twice; g_nSpaceFrame is a short and the wide reads take it with the next word.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00499bfc": "Read as a byte ten times and as a word three times; the flag is a byte and the wide reads take the next one with it.",
@@ -83,6 +84,9 @@
     },
     "struct_formats": {
       "CampaignDate": {
+        "format": "<hh"
+      },
+      "ShortPoint": {
         "format": "<hh"
       }
     }

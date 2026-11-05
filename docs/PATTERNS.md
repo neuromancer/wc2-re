@@ -145,6 +145,13 @@ Replacing the free `__fastcall` `ix_sound_unlink_from_free_list` with an
 the free declaration was before `dspv.cpp` and `dsps.cpp` matched again.
 After any `ix.h` edit, re-run the whole report rather than one unit.
 
+C++ declarations with `()` and `(void)` denote the same no-argument signature,
+but CL 4.1's symbol bookkeeping differs. Restoring
+`IxStreamFile::ix_stream_file_is_reading` at `0x0046DED9` with `()` and changing
+the adjacent `ix_stream_file_wait` declaration to `()` preserves the existing
+ix operand orders; adding `(void)` declarations shifts them. The restored
+method's 46 instruction bytes match the retail image literally.
+
 Locals take keys in declaration order, but frame slots follow name buckets.
 When the locals of a function all have distinct buckets, reordering their
 declarations permutes their keys without moving a slot or changing the unit's

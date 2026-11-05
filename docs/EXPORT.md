@@ -76,6 +76,18 @@ than driven remotely.
 | `make verify-calls` | additionally the `.decompiled.txt` exports |
 | `make verify-globals` | additionally `code-full/globals.h` |
 | `make compare` / `compare-functions` | `data/full/WC2.ORI.EXE` and a linked `WC2.EXE` |
+| `make compare-bytes` | both executable files; strict identity including padding and PE/debug metadata |
 
 Everything above also requires the project to **link**, because binary-comp
 compares the linked PE and map rather than individual source files.
+
+`make report` includes binary-comp's normalized byte comparison. Its `EXACT`
+label masks relocation operands and external call/jump targets; it does not
+prove literal file identity. `make compare-bytes` performs that final check
+without masking and returns a failure status when any byte or file size differs.
+
+Function spans at library boundaries can include padding or unmapped thunks.
+For example, the restored `IxStreamFile::ix_stream_file_is_reading` at
+`0x0046DED9` has 46 instruction bytes, all literally matching, but its mapped
+span extends into the import gap. Do not treat that span's reported size
+difference as the method's instruction-size difference.

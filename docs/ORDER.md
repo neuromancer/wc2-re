@@ -42,6 +42,10 @@ frame throttle.
             then those the file module needs (fseek, ftell, fread, fwrite)
 ```
 
+The final source-written function in `thread.cpp` is
+`IxStreamFile::ix_stream_file_is_reading` at `0x0046DED9`; its return is at
+`0x0046DF06`, immediately before the first-pass import thunks.
+
 LINK 3.10 pulls each library member when its symbol is first needed: by each
 command-line object in turn, then the entry point, then each pulled member,
 and it searches the libraries again on later passes.  The layout above
