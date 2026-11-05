@@ -120,6 +120,9 @@ CRT_LIBS = libcmtd.lib oldnames.lib
 TARGET = WC2.EXE
 MAPFILE = WC2.map
 OUT_DIR = out
+LINKMAPFILE = $(OUT_DIR)/WC2.link.map
+# PE header and three debug-directory entries: 1996-09-24 17:41:25 UTC.
+ORIGINAL_TIMESTAMP = 0x32481D45
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
@@ -1069,10 +1072,19 @@ $(IX_LIBS): | $(MSVCRT_DLL)
 	@rm -f $@
 	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
 
-$(TARGET): $(LINK_OBJS) $(IX_LIBS) | $(MSVCRT_DLL)
-	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) \
+$(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(MSVCRT_DLL)
+	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
 		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
 		$(IX_LIBS_AFTER_CRT) /OUT:$@
+	@python3 bin/stampPeTimestamp.py $@ $(ORIGINAL_TIMESTAMP)
+	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
+		--rebuilt $(TARGET) --output $(MAPFILE) $(OBJS)
+
+# Recreate missing analysis metadata without changing the executable. LINK's
+# original map is retained; private addresses come from COFF and relocations.
+$(MAPFILE): $(TARGET) bin/appendStaticSymbols.py
+	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
+		--rebuilt $(TARGET) --output $@ $(OBJS)
 
 # The game-side wave module calls directly into IxSample and IxSound member
 # functions.  Those ECX-based calls at 0x42B4A0 and 0x42B680 prove this one
@@ -1247,6 +1259,13 @@ compare-full-functions: compare-functions
 # ---------------------------------------------------------------------------
 # Verification
 # ---------------------------------------------------------------------------
+
+# These commands consume addresses, including compiler-private data symbols.
+all build build-full report compare-func triage order seh globals-data \
+globals-data-verbose compare compare-functions verify-globals \
+verify-globals-data verify-globals-code audit-auto-complete-globals \
+audit-rebuilt-global-layout verify-vtables verify-values \
+verify-values-stack-locals: $(MAPFILE)
 
 verify:
 	@$(MAKE) audit-compiler-glue
@@ -1425,7 +1444,7 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 
 clean:
 	rm -rf $(OUT_DIR)/*.obj $(OUT_DIR)/*.asm $(OUT_DIR)/*.stdout \
-	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE)
+	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE) $(LINKMAPFILE)
 
 clean-run:
 	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/WC2.ORI.EXE" \

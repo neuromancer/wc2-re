@@ -69,9 +69,11 @@ rest of the game calls.
 
 `dspv.cpp` and `dsps.cpp` each begin with an empty `$E2`/`$E1` initializer
 pair in the original (`0x0048A210`, `0x0048A9F0`), registered in `CRT$XCU`.
-VC++ emits them for a global array of a non-aggregate record.  Making
-`IxVoice` and `IxStream` non-aggregate is not yet done: the friend
-declarations their accessors need shift symbol keys in every ix unit.
+VC++ emits them for these global record arrays when their types declare a
+copy-assignment operator. `IxVoice` and `IxStream` now have those declarations
+in `ix.h`; no assignment implementation or handwritten initializer is needed.
+The compiler listings contain both `$E2`/`$E1` pairs and their `CRT$XCU`
+references.
 
 ## Historical predecessor game-core working split
 

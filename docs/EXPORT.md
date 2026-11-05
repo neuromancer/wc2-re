@@ -91,3 +91,68 @@ For example, the restored `IxStreamFile::ix_stream_file_is_reading` at
 `0x0046DED9` has 46 instruction bytes, all literally matching, but its mapped
 span extends into the import gap. Do not treat that span's reported size
 difference as the method's instruction-size difference.
+
+LINK's unmodified symbol map is retained at `out/WC2.link.map`. The build
+adds 123 compiler-private data symbols to `WC2.map` using
+`bin/appendStaticSymbols.py`. Their linked addresses are recovered from
+COFF section offsets, public-symbol anchors, and relocated `DIR32` operands
+in the rebuilt image. Address suffixes are never used as linked addresses,
+and the script does not read the original executable. This lets
+`make verify-globals-data` check all 1,247 serialized globals: the 25 that
+previously lacked map symbols now compare successfully. This is coverage
+of declared storage, not proof that all original data has been reconstructed.
+
+The `verify-globals-code` inventory check still needs the Ghidra-generated
+`code-full/globals.h`, which is absent from the current automatic export.
+The current legacy configuration also points its header scan at the absent
+`src/globals.h`; scanning `include/globals.h` explicitly reports declarations
+for assembly storage and string literals that the combined C/C++ manifest
+does not define. A passing inventory subcommand therefore does not establish
+complete global coverage. Use the strict whole-file comparison for the
+completion claim.
+
+## Matching checkpoint (2026-11-05)
+
+The current `binary-comp report --bytes` covers 1,677 annotated functions:
+1,614 normalized `EXACT`, 20 same-size byte differences, and 43 differing
+spans. Its mean mnemonic similarity is 99.93%; 1,659 functions score 100%.
+These are different measurements from literal byte identity.
+
+The unnormalized `binary-comp exe --functions --no-build` comparison finds
+584 byte-identical mapped spans and 261 functions at their retail addresses.
+The first address drift follows `inflict_damage`: the next function starts
+at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
+library gaps as described above, so neither the 43 spans nor their net size
+delta is a count of source defects.
+
+| Whole-image measurement | Retail | Rebuilt |
+| --- | ---: | ---: |
+| File bytes | 714,752 | 714,240 |
+| `.text` virtual bytes | 576,332 | 575,836 |
+| `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,464 |
+| Entry point | `0x00473E50` | `0x00473C70` |
+
+`make compare-bytes` still fails. After restoring the link timestamps it
+reports 139,913 identical file positions out of 714,752 (19.575%). Address
+drift changes encoded operands and shifts subsequent bytes, so that number
+is not a percentage of reconstruction work completed. Remaining work includes
+instruction shape, uninitialized-data layout, library boundary alignment,
+and the CodeView/PDB metadata. Passing the declared-global data comparison
+does not resolve those differences.
+
+The first source-level size discrepancy to investigate is `inflict_damage`
+at `0x00411C72` (17 bytes short). The three routines below 90% mnemonic
+similarity are `fire_afterburner` at `0x0041693A` (70.45%), `DIBupdate` at
+`0x0045E060` (84.40%), and `SetFleetOverviewView` at `0x0044ADE0` (85.27%).
+The value audit reports three differences in `RunPilotSaveLoadMenu`: our
+compiler combines the 38-byte slot header and 96-byte pilot profile into
+one addition of 134, while retail emits separate additions of 38 and 96.
+The record sizes are already correct; changing them would not fix the source
+expression shape.
+
+`make verify` now completes with exit status zero. Its reports still list
+22 functions with call-target diagnostics, 26 with global-access diagnostics,
+and the three value differences above. Those commands do not fail the default
+verification target on these findings, and some diagnostics compare source
+references with unreachable code or unresolved symbols. The exit status is
+therefore not a claim of zero differences or complete inventory coverage.

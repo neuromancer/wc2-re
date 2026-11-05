@@ -11,6 +11,14 @@ incremental linker **3.10.6038**, matching the shipped image's linker stamp.
 Both the game core and ix library have the unoptimized debug-build shape, so
 this branch uses `/MTd /Od /Oi` throughout.
 
+The PE `TimeDateStamp` and all three `IMAGE_DEBUG_DIRECTORY` timestamps are
+`0x32481D45` (1996-09-24 17:41:25 UTC). LINK 3.10 writes the current time;
+`bin/stampPeTimestamp.py` restores those four fields after linking. It
+validates the PE32 header, the file-backed debug directory, matching link
+times, and the zero image checksum before writing. It does not modify code,
+data, section sizes, or debug payloads. CodeView's separate PDB signature
+(`0x32385F33`), age (`22`), and embedded paths remain separate matching work.
+
 ### WC2 DirectDraw timing initializer unit
 
 The four routines at `0x0045CCB0`-`0x0045CD2B` are two MSVC scalar dynamic
