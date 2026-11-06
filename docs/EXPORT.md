@@ -217,6 +217,12 @@ full normalized report and all section sizes stay unchanged; the `SIZE`
 label does not expose this operand improvement. The frame and variable
 reuse remain incomplete (see [PATTERNS.md](PATTERNS.md)).
 
+Three further cutscene renames recover the branch-control and return flags
+at `-0x10/-0x14`, retaining the input flag and primary operand at `-4/-8`.
+Differing encodings fall from 1,519/3,672 to 1,518/3,672. All normalized report
+rows and image sizes remain unchanged. The displaced function's changed
+stack operands lose seven accidental whole-file positional matches.
+
 The unnormalized `binary-comp exe --functions` comparison finds
 558 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
@@ -236,8 +242,9 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,455 identical file positions out of 714,752 (19.5110%). The
-cutscene rename and PDB-path recovery each add ten matching positions. Address
+reports 139,448 identical file positions out of 714,752 (19.5100%). The first
+cutscene rename and PDB-path recovery each added ten matching positions;
+the later flag renames remove seven. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

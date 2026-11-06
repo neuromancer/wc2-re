@@ -173,6 +173,14 @@ that use separate retail slots, so `-8` is not correct for every use. A
 larger probe placing six leading slots at their apparent retail offsets
 regressed the same binary-comp comparison to 1,725/3,672 and was discarded.
 
+Three further renames place `protectCondition` and `shouldContinue` at
+retail `-0x10/-0x14` while retaining the input flag at `-4` and primary
+operand at `-8`. The instruction pointer becomes `scriptBytes`, at `-0x20`;
+its retail `-0x80` slot remains unrecovered. This reduces differing encodings
+from 1,519/3,672 to 1,518/3,672 and preserves all 242 parsed symbol keys.
+Code and frame sizes remain unchanged. Adding the stack-pointer move to this
+variant regressed the comparison to 1,780/3,672 and was rejected.
+
 `SetFleetOverviewView` (`0x0044ADE0`) also has the correct `0x3C` frame size
 but initially had misplaced locals. Four renames reproduce all nine slots:
 `centre` at `-0x0C`, `cameraDistance` at `-0x10`, `shipSlot` at `-0x14`,
@@ -347,6 +355,16 @@ therefore cannot reverse these operands with the current expression trees.
 An isolated `long`-to-`int` spelling change for the magnitude return type
 also leaves the order unchanged. The mapped expression still needs separate
 recovery; do not keep sweeping header keys for this case.
+
+`HasSavedPilotCampaign` (`0x00434177`) has a similar limit. Its `lseek` call
+has signature `0xA7`, above the offset expression's `0x71`; retail computes
+the offset into EBX before calling `lseek`. Across all 256 independent hash
+pairs for the function symbol and `stateBytes`, the call ranges from
+`0xA0` to `0xAF` and the offset from `0x66` to `0x84`. The call remains at
+least `0x1C` higher. The call's last argument is constant zero, so the file
+local's key cannot affect its signature. Header declaration ordering and
+local spelling cannot reverse these current expression trees; further
+header-key sweeps are not warranted.
 
 The signature-logging C2 copy from `../wc1-re/out/c2sig` runs on WC2's `/Bk`
 intermediates (copy it and `msvcrt40.dll` into `out/c2trace`). Its log shows

@@ -1989,7 +1989,7 @@ void PushCutsceneScriptValue(short **stack, short *stackTop,
 signed char RunCutsceneScript(unsigned char **scriptCursor,
                               short objectType)
 {
-    unsigned char *instruction;
+    unsigned char *scriptBytes;
     unsigned char opcode;
     unsigned char resourceIndex;
     unsigned char memberType;
@@ -2008,16 +2008,16 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     short waitTicks;
     int inputSeen;
     int waitUntil;
-    signed char returnValue;
-    signed char branchGuard;
+    signed char shouldContinue;
+    signed char protectCondition;
     void *packet;
 
-    instruction = *scriptCursor;
-    returnValue = 1;
-    branchGuard = 1;
+    scriptBytes = *scriptCursor;
+    shouldContinue = 1;
+    protectCondition = 1;
     stack = stackStorage + 10;
     inputSeen = 0;
-    if (instruction == 0)
+    if (scriptBytes == 0)
         FatalCutsceneError(
             "ERROR: Running script for UNLINKED EXTERNAL (%s)",
             g_apszCutsceneObjectTypeNames_00499c18[objectType]);
@@ -2238,7 +2238,7 @@ handle_queued_cutscene_input:
                 g_pCurrentCutsceneSequence_00499c80->waitTicks = 0;
             }
         }
-        opcode = *instruction++;
+        opcode = *scriptBytes++;
         switch (opcode) {
         case 0x07:
             *stack = (short)(*stack == 0);
@@ -2301,7 +2301,7 @@ handle_queued_cutscene_input:
             break;
         case 0x0f:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            if (branchGuard == 0 &&
+            if (protectCondition == 0 &&
                 g_bCutsceneSkipFrame_00499c54 != 0 &&
                 g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 value = 0;
@@ -2309,10 +2309,10 @@ handle_queued_cutscene_input:
             if (g_bCutsceneSkipAll_00499c58 != 0)
                 value = 0;
             if (value == 0) {
-                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
-                instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
+                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)scriptBytes;
+                scriptBytes += g_nCutsceneForkOffsetNumber_005d2e8c;
             } else {
-                instruction += 2;
+                scriptBytes += 2;
             }
             break;
         case 0x10:
@@ -2323,7 +2323,7 @@ handle_queued_cutscene_input:
         case 0x15:
         case 0x16:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            if (branchGuard == 0 &&
+            if (protectCondition == 0 &&
                 g_bCutsceneSkipFrame_00499c54 != 0 &&
                 g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 value = 1;
@@ -2331,15 +2331,15 @@ handle_queued_cutscene_input:
             if (g_bCutsceneSkipAll_00499c58 != 0)
                 value = 0;
             if (value == 1) {
-                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
-                instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
+                g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)scriptBytes;
+                scriptBytes += g_nCutsceneForkOffsetNumber_005d2e8c;
             } else {
-                instruction += 2;
+                scriptBytes += 2;
             }
             break;
         case 0x0e:
-            g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)instruction;
-            instruction += g_nCutsceneForkOffsetNumber_005d2e8c;
+            g_nCutsceneForkOffsetNumber_005d2e8c = *(short *)scriptBytes;
+            scriptBytes += g_nCutsceneForkOffsetNumber_005d2e8c;
             break;
         case 0x17:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
@@ -2374,7 +2374,7 @@ handle_queued_cutscene_input:
         case 0x1f:
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
-            runtimeIndex = objectResources->scriptSymbolIndices[*instruction++];
+            runtimeIndex = objectResources->scriptSymbolIndices[*scriptBytes++];
             g_pCurrentCutsceneSprite_00499c78 =
                 g_apSceneObjects_00499c38[runtimeIndex];
             if (g_pCurrentCutsceneSprite_00499c78 == 0)
@@ -2383,7 +2383,7 @@ handle_queued_cutscene_input:
         case 0x20:
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutscenePlaneResources_00492890);
-            runtimeIndex = objectResources->scriptSymbolIndices[*instruction++];
+            runtimeIndex = objectResources->scriptSymbolIndices[*scriptBytes++];
             g_pCurrentCutscenePlane_00499c7c =
                 g_apCutscenePlanes_00499c3c[runtimeIndex];
             if (g_pCurrentCutscenePlane_00499c7c == 0)
@@ -2392,7 +2392,7 @@ handle_queued_cutscene_input:
         case 0x21:
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSequenceResources_00492894);
-            runtimeIndex = objectResources->scriptSymbolIndices[*instruction++];
+            runtimeIndex = objectResources->scriptSymbolIndices[*scriptBytes++];
             g_pCurrentCutsceneSequence_00499c80 =
                 g_apCutsceneSequences_00499c40[runtimeIndex];
             if (g_pCurrentCutscenePlane_00499c7c == 0)
@@ -2400,7 +2400,7 @@ handle_queued_cutscene_input:
             break;
         case 0x8a:
             g_bMovieStringAdvanceState_005d2ed0 = 1;
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
             g_pLinkedCutsceneSprite_00499c64 =
@@ -2411,10 +2411,10 @@ handle_queued_cutscene_input:
             g_pLinkedCutsceneSprite_00499c64->field_3 = 0;
             break;
         case 0x9e:
-            g_nSceneFlicContext_00499c50 = *instruction++;
+            g_nSceneFlicContext_00499c50 = *scriptBytes++;
             break;
         case 0x77:
-            index = *instruction++;
+            index = *scriptBytes++;
             g_pCutsceneLocalsTemp_005d2f00 = AllocateScenePointerTable(
                 index, 2, 0, "Cannot Allocate Loacls Data");
             switch (objectType) {
@@ -2467,7 +2467,7 @@ handle_queued_cutscene_input:
             break;
         case 0x7f:
             g_nCutsceneResourceScratchValue_005d2e9c =
-                (short)(signed char)*instruction++;
+                (short)(signed char)*scriptBytes++;
             if (g_stSecondaryViewBufferBlock_005d2c90.pixels ==
                 g_stCutsceneTextBackingPort_005d2db0.pixels) {
                 g_stCutsceneTextBackingPort_005d2db0.pixels = 0;
@@ -2525,36 +2525,36 @@ handle_queued_cutscene_input:
             break;
         case 0xb8:
             PopCutsceneScriptValue(&stack, stackStorage + 10);
-            branchGuard = 1;
+            protectCondition = 1;
             break;
         case 0x22:
-            returnValue = 0;
+            shouldContinue = 0;
             break;
         case 0x23:
-            *scriptCursor = instruction;
+            *scriptCursor = scriptBytes;
             return 0;
         case 0x24:
             PushCutsceneScriptValue(&stack, stackStorage,
-                                    (short)(signed char)*instruction++);
+                                    (short)(signed char)*scriptBytes++);
             break;
         case 0x25:
             PushCutsceneScriptValue(&stack, stackStorage,
-                                    *(short *)instruction);
-            instruction += 2;
+                                    *(short *)scriptBytes);
+            scriptBytes += 2;
             break;
         case 0x26:
             if (g_pCampaignGlobals_00499c94 == 0)
                 FatalCutsceneError("A28");
             index = 0;
-            while (*instruction == 0xff) {
-                index = (short)(index + *instruction++);
+            while (*scriptBytes == 0xff) {
+                index = (short)(index + *scriptBytes++);
             }
-            index = (short)(index + *instruction++);
+            index = (short)(index + *scriptBytes++);
             PushCutsceneScriptValue(&stack, stackStorage,
                 ((short *)g_pCampaignGlobals_00499c94)[index]);
             break;
         case 0xae:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             switch (resourceIndex) {
             case 0:
                 g_stCutsceneTextBounds_00499ee0.left =
@@ -2576,24 +2576,24 @@ handle_queued_cutscene_input:
             g_bCutsceneTextBoundsOverride_00499edc = 1;
             break;
         case 0xaf:
-            g_pCurrentTextContext_005c8d1c->alignment = *instruction++;
+            g_pCurrentTextContext_005c8d1c->alignment = *scriptBytes++;
             break;
         case 0x28:
             if (g_pCampaignGlobals_00499c94 == 0)
                 FatalCutsceneError("A29");
             index = 0;
-            while (*instruction == 0xff) {
-                index = (short)(index + *instruction++);
+            while (*scriptBytes == 0xff) {
+                index = (short)(index + *scriptBytes++);
             }
-            index = (short)(index + *instruction++);
+            index = (short)(index + *scriptBytes++);
             ((short *)g_pCampaignGlobals_00499c94)[index] =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x27:
             if (g_pCampaignGlobals_00499c94 == 0)
                 FatalCutsceneError("A30");
-            index = *(short *)instruction;
-            instruction += 2;
+            index = *(short *)scriptBytes;
+            scriptBytes += 2;
             index = (short)(index + PopCutsceneScriptValue(
                 &stack, stackStorage + 10));
             PushCutsceneScriptValue(&stack, stackStorage,
@@ -2602,8 +2602,8 @@ handle_queued_cutscene_input:
         case 0x29:
             if (g_pCampaignGlobals_00499c94 == 0)
                 FatalCutsceneError("A31");
-            index = *(short *)instruction;
-            instruction += 2;
+            index = *(short *)scriptBytes;
+            scriptBytes += 2;
             index = (short)(index + PopCutsceneScriptValue(
                 &stack, stackStorage + 10));
             ((short *)g_pCampaignGlobals_00499c94)[index] =
@@ -2681,7 +2681,7 @@ handle_queued_cutscene_input:
             break;
         case 0x3d:
             PushCutsceneScriptValue(&stack, stackStorage,
-                g_pCurrentCutsceneSprite_00499c78->locals[*instruction++]);
+                g_pCurrentCutsceneSprite_00499c78->locals[*scriptBytes++]);
             break;
         case 0x3a:
             PushCutsceneScriptValue(&stack, stackStorage,
@@ -2734,8 +2734,8 @@ handle_queued_cutscene_input:
             g_pCurrentCutsceneSprite_00499c78->waitStart =
                 g_nInputClock_005c84a8;
             if (objectType == 0) {
-                *scriptCursor = instruction;
-                return returnValue;
+                *scriptCursor = scriptBytes;
+                return shouldContinue;
             }
             break;
         case 0x45:
@@ -2768,7 +2768,7 @@ handle_queued_cutscene_input:
                     &stack, stackStorage + 10);
             break;
         case 0x4f:
-            g_pCurrentCutsceneSprite_00499c78->locals[*instruction++] =
+            g_pCurrentCutsceneSprite_00499c78->locals[*scriptBytes++] =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x4c:
@@ -2821,7 +2821,7 @@ handle_queued_cutscene_input:
             break;
         case 0x57:
             PushCutsceneScriptValue(&stack, stackStorage,
-                g_pCurrentCutscenePlane_00499c7c->locals[*instruction++]);
+                g_pCurrentCutscenePlane_00499c7c->locals[*scriptBytes++]);
             break;
         case 0x59:
             PushCutsceneScriptValue(&stack, stackStorage,
@@ -2869,7 +2869,7 @@ handle_queued_cutscene_input:
                     &stack, stackStorage + 10);
             break;
         case 0x63:
-            g_pCurrentCutscenePlane_00499c7c->locals[*instruction++] =
+            g_pCurrentCutscenePlane_00499c7c->locals[*scriptBytes++] =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x65:
@@ -2899,17 +2899,17 @@ handle_queued_cutscene_input:
             g_pCurrentCutscenePlane_00499c7c->waitStart =
                 g_nInputClock_005c84a8;
             if (objectType == 1) {
-                *scriptCursor = instruction;
-                return returnValue;
+                *scriptCursor = scriptBytes;
+                return shouldContinue;
             }
             break;
         case 0x71:
-            g_pCurrentCutsceneSequence_00499c80->locals[*instruction++] =
+            g_pCurrentCutsceneSequence_00499c80->locals[*scriptBytes++] =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x70:
             PushCutsceneScriptValue(&stack, stackStorage,
-                g_pCurrentCutsceneSequence_00499c80->locals[*instruction++]);
+                g_pCurrentCutsceneSequence_00499c80->locals[*scriptBytes++]);
             break;
         case 0x68:
             PushCutsceneScriptValue(&stack, stackStorage,
@@ -2999,8 +2999,8 @@ handle_queued_cutscene_input:
                 &stack, stackStorage + 10);
             g_nCutsceneFormatValueWord_005d2f0c =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
-            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
-            instruction += 2;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)scriptBytes;
+            scriptBytes += 2;
             g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
                     g_nCutsceneTextIdx_005d2ea4];
@@ -3011,8 +3011,8 @@ handle_queued_cutscene_input:
                                g_pszCutsceneFormattedText_005d2dc8);
             break;
         case 0x6f:
-            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
-            instruction += 2;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)scriptBytes;
+            scriptBytes += 2;
             g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
                     g_nCutsceneTextIdx_005d2ea4];
@@ -3030,12 +3030,12 @@ handle_queued_cutscene_input:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
             otherValue = PopCutsceneScriptValue(
                 &stack, stackStorage + 10);
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             DrawCutsceneTextAt(otherValue, value, resourceIndex,
                                g_pszFilmPrintStore_005d2f10);
             break;
         case 0xad:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSpriteResources_0049288c);
             ReleaseCutsceneSpriteShape(g_apSceneObjects_00499c38[
@@ -3043,7 +3043,7 @@ handle_queued_cutscene_input:
             break;
         case 0x94:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             switch (resourceIndex) {
             case 0:
                 ClearCutsceneViewport(
@@ -3115,7 +3115,7 @@ handle_queued_cutscene_input:
             break;
         case 0xa2:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            LoadCutsceneSpeechSlot(*instruction++, value);
+            LoadCutsceneSpeechSlot(*scriptBytes++, value);
             CopyViewportContents(&g_stSceneFlicScratchViewport_005d2eb0,
                                  &g_stSecondaryViewBufferBlock_005d2c90);
             break;
@@ -3180,13 +3180,13 @@ handle_queued_cutscene_input:
             ReleaseCutsceneFontPacket();
             break;
         case 0x82:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             fileResources = FindActiveCutsceneFileResources(
                 g_pCutsceneFontResources_004928a0);
             g_stCutsceneMessageCtxInfo_005d2f40.font =
                 LoadCachedCutsceneResource(fileResources, resourceIndex, 1);
             g_bCinematicSpriteFontEnabled_005c82a7 =
-                (signed char)*instruction++;
+                (signed char)*scriptBytes++;
             g_nCutsceneFontOwnerNumber_005d2fa0 =
                 g_nActiveCutsceneResourceLevel_00499d9c;
             break;
@@ -3195,7 +3195,7 @@ handle_queued_cutscene_input:
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x91:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             SoundDebugPrintf(
                 "VAL=========================================%d\n",
                 (int)resourceIndex);
@@ -3208,11 +3208,11 @@ handle_queued_cutscene_input:
             PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x93:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             ReleaseCutsceneSoundEffects((short)(signed char)resourceIndex);
             break;
         case 0x84:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             if ((g_nMusicDriverMode_0049be8c == 1 ||
                  g_nMusicDriverMode_0049be8c == 2) &&
                 g_bCutsceneViewportPreallocated_00499c4c == 0) {
@@ -3231,7 +3231,7 @@ handle_queued_cutscene_input:
             ReleasePacketSlot(&g_pCutsceneFxPacket_00499c30);
             break;
         case 0xb2:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             if ((g_nMusicDriverMode_0049be8c == 1 ||
                  g_nMusicDriverMode_0049be8c == 2) &&
                 g_bCutsceneViewportPreallocated_00499c4c == 0) {
@@ -3241,7 +3241,7 @@ handle_queued_cutscene_input:
         case 0x90:
             if (g_pSceneMusicPacket_00499c08 != 0)
                 StopMusic(0);
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             if (g_bCutsceneSkipFrame_00499c54 == 0 &&
                 g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 g_pSceneMusicPacket_00499c08 =
@@ -3250,22 +3250,22 @@ handle_queued_cutscene_input:
             }
             break;
         case 0x92:
-            value = *(short *)instruction;
-            instruction += 2;
+            value = *(short *)scriptBytes;
+            scriptBytes += 2;
             StopMusic(value);
             g_pSceneMusicPacket_00499c08 = 0;
             break;
         case 0x85:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             break;
         case 0x97:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             ReleaseCutsceneMusicNodes(
                 &g_pCutsceneMusicPackets_00499c34, resourceIndex);
             break;
         case 0x83:
             if (g_bCutsceneViewportPreallocated_00499c4c == 0) {
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 g_pActiveSceneFileResourcesRef_005d2da4 =
                     FindActiveCutsceneFileResources(
                     g_pCutscenePaletteResources_004928b0);
@@ -3273,15 +3273,15 @@ handle_queued_cutscene_input:
                     LoadCachedCutsceneResource(
                         g_pActiveSceneFileResourcesRef_005d2da4,
                         resourceIndex, 1);
-                value = *instruction++;
-                otherValue = (short)(*instruction++ + 1);
+                value = *scriptBytes++;
+                otherValue = (short)(*scriptBytes++ + 1);
                 ConsumeCutscenePalettePacket(value, otherValue, 0);
                 ReleaseLoadedCutsceneResource(
                     g_pActiveSceneFileResourcesRef_005d2da4,
                     resourceIndex);
                 g_pFilmRgbPacket_005d2e98 = 0;
             } else {
-                instruction += 3;
+                scriptBytes += 3;
             }
             break;
         case 0x7c:
@@ -3317,9 +3317,9 @@ handle_queued_cutscene_input:
             if (g_bCutsceneDrawingEnabled_00499c60 == 0 &&
                 (g_bCutsceneSkipFrame_00499c54 != 0 ||
                  g_bCutsceneViewportPreallocated_00499c4c != 0)) {
-                instruction++;
+                scriptBytes++;
             } else {
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 g_pCutsceneSpriteParentPlane_00499ef0 = 0;
                 if (resourceIndex == 0xff) {
                     if (g_pCurrentCutsceneSprite_00499c78 != 0) {
@@ -3345,9 +3345,9 @@ handle_queued_cutscene_input:
             if (g_bCutsceneDrawingEnabled_00499c60 == 0 &&
                 (g_bCutsceneSkipFrame_00499c54 != 0 ||
                  g_bCutsceneViewportPreallocated_00499c4c != 0)) {
-                instruction++;
+                scriptBytes++;
             } else {
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 if (resourceIndex == 0xff) {
                     if (g_pCurrentCutscenePlane_00499c7c != 0) {
                         UpdateCutscenePlaneObject(
@@ -3372,8 +3372,8 @@ handle_queued_cutscene_input:
             break;
         case 0xb9:
             value = PopCutsceneScriptValue(&stack, stackStorage + 10);
-            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
-            instruction += 2;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)scriptBytes;
+            scriptBytes += 2;
             g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
                     g_nCutsceneTextIdx_005d2ea4];
@@ -3384,8 +3384,8 @@ handle_queued_cutscene_input:
             }
             break;
         case 0xb1:
-            value = *(short *)instruction;
-            instruction += 2;
+            value = *(short *)scriptBytes;
+            scriptBytes += 2;
             if (g_pMemoryLogFile_00499da8 != 0) {
                 fprintf(g_pMemoryLogFile_00499da8,
                         "@@@@@@@@@@@@@@@@ Logged: %d\n", value);
@@ -3397,10 +3397,10 @@ handle_queued_cutscene_input:
             WriteDetailedMemoryStateReport();
             break;
         case 0x95:
-            g_cCutsceneTextStyle_00499f40 = (signed char)*instruction++;
+            g_cCutsceneTextStyle_00499f40 = (signed char)*scriptBytes++;
             break;
         case 0x89:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             g_nSceneFlicContext_00499c50 = 0x40;
             if (g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 fileResources = FindActiveCutsceneFileResources(
@@ -3437,7 +3437,7 @@ handle_queued_cutscene_input:
             }
             break;
         case 0x88:
-            resourceIndex = *instruction++;
+            resourceIndex = *scriptBytes++;
             objectResources = FindActiveCutsceneObjectResources(
                 g_pCutsceneSequenceResources_00492894);
             ExecuteCutsceneSequence(
@@ -3448,9 +3448,9 @@ handle_queued_cutscene_input:
                 g_bCutsceneSkipFrame_00499c54 = 0;
             break;
         case 0x87:
-            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
-            instruction += 2;
-            resourceIndex = *instruction++;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)scriptBytes;
+            scriptBytes += 2;
+            resourceIndex = *scriptBytes++;
             g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
                     g_nCutsceneTextIdx_005d2ea4];
@@ -3475,8 +3475,8 @@ handle_queued_cutscene_input:
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x8f:
-            value = *(short *)instruction;
-            instruction += 2;
+            value = *(short *)scriptBytes;
+            scriptBytes += 2;
             /* The original divides by 0x3b (59), not 0x3c (60).
              * g_nInputClock_005c84a8 (what this delay is measured against,
              * see PumpWindowMessages/winmain.c) ticks in exact 1/60s units
@@ -3507,12 +3507,12 @@ handle_queued_cutscene_input:
 #endif
             break;
         case 0x75:
-            index = *instruction++;
+            index = *scriptBytes++;
             g_pCurrentCutsceneScene_00499c84->locals[index * 2] =
                 PopCutsceneScriptValue(&stack, stackStorage + 10);
             break;
         case 0x74:
-            index = *instruction++;
+            index = *scriptBytes++;
             PushCutsceneScriptValue(&stack, stackStorage,
                 g_pCurrentCutsceneScene_00499c84->locals[index * 2]);
             break;
@@ -3527,15 +3527,15 @@ handle_queued_cutscene_input:
             }
             if (g_pCurrentCutsceneSprite_00499c78 == 0)
                 FatalCutsceneError("A32");
-            g_pCurrentCutsceneSprite_00499c78->drawType = *instruction++;
-            g_pCurrentCutsceneSprite_00499c78->baseFrame = *instruction++;
-            g_pCurrentCutsceneSprite_00499c78->finalFrame = *instruction++;
+            g_pCurrentCutsceneSprite_00499c78->drawType = *scriptBytes++;
+            g_pCurrentCutsceneSprite_00499c78->baseFrame = *scriptBytes++;
+            g_pCurrentCutsceneSprite_00499c78->finalFrame = *scriptBytes++;
             g_pCurrentCutsceneSprite_00499c78->currentFrame = 0;
             index = 0;
-            while (*instruction == 0xff) {
-                index = (short)(index + *instruction++);
+            while (*scriptBytes == 0xff) {
+                index = (short)(index + *scriptBytes++);
             }
-            index = (short)(index + *instruction++);
+            index = (short)(index + *scriptBytes++);
             if (g_pCurrentCutsceneSprite_00499c78->linkedScript != 0) {
                 g_nActiveCutsceneResourceLevel_00499d9c =
                     g_pCurrentCutsceneSprite_00499c78->owner;
@@ -3558,10 +3558,10 @@ handle_queued_cutscene_input:
             break;
         case 0x99:
             index = 0;
-            while (*instruction == 0xff) {
-                index = (short)(index + *instruction++);
+            while (*scriptBytes == 0xff) {
+                index = (short)(index + *scriptBytes++);
             }
-            index = (short)(index + *instruction++);
+            index = (short)(index + *scriptBytes++);
             fileResources = FindActiveCutsceneFileResources(
                 g_pCutsceneShapeResources_004928a8);
             ReleaseLoadedCutsceneResource(fileResources, index);
@@ -3580,12 +3580,12 @@ handle_queued_cutscene_input:
             break;
         case 0x7b:
             if (g_bCutsceneViewportPreallocated_00499c4c == 0) {
-                memberType = *instruction++;
+                memberType = *scriptBytes++;
                 switch (memberType) {
                 case 0:
                     if (g_pCurrentCutscenePlane_00499c7c == 0)
                         FatalCutsceneError("A33");
-                    resourceIndex = *instruction++;
+                    resourceIndex = *scriptBytes++;
                     objectResources = FindActiveCutsceneObjectResources(
                         g_pCutsceneSpriteResources_0049288c);
                     runtimeIndex = objectResources->scriptSymbolIndices[
@@ -3599,7 +3599,7 @@ handle_queued_cutscene_input:
                 case 1:
                     if (g_pCurrentCutsceneSequence_00499c80 == 0)
                         FatalCutsceneError("A34");
-                    resourceIndex = *instruction++;
+                    resourceIndex = *scriptBytes++;
                     objectResources = FindActiveCutsceneObjectResources(
                         g_pCutscenePlaneResources_00492890);
                     runtimeIndex = objectResources->scriptSymbolIndices[
@@ -3612,7 +3612,7 @@ handle_queued_cutscene_input:
                     break;
                 case 2:
                 case 3:
-                    instruction++;
+                    scriptBytes++;
                     break;
                 case 4:
                     if (g_pCurrentCutscenePlane_00499c7c == 0)
@@ -3633,17 +3633,17 @@ handle_queued_cutscene_input:
                     break;
                 }
             } else {
-                instruction += 2;
+                scriptBytes += 2;
             }
             break;
         case 0x79:
             if (g_bCutsceneViewportPreallocated_00499c4c == 0) {
-                memberType = *instruction++;
+                memberType = *scriptBytes++;
                 switch (memberType) {
                 case 0:
                     if (g_pCurrentCutscenePlane_00499c7c == 0)
                         FatalCutsceneError("A38");
-                    resourceIndex = *instruction++;
+                    resourceIndex = *scriptBytes++;
                     objectResources = FindActiveCutsceneObjectResources(
                         g_pCutsceneSpriteResources_0049288c);
                     g_pCurrentCutscenePlane_00499c7c->spriteIndices[
@@ -3654,7 +3654,7 @@ handle_queued_cutscene_input:
                 case 1:
                     if (g_pCurrentCutsceneSequence_00499c80 == 0)
                         FatalCutsceneError("A39");
-                    resourceIndex = *instruction++;
+                    resourceIndex = *scriptBytes++;
                     objectResources = FindActiveCutsceneObjectResources(
                         g_pCutscenePlaneResources_00492890);
                     g_pCurrentCutsceneSequence_00499c80->planeIndices[
@@ -3665,7 +3665,7 @@ handle_queued_cutscene_input:
                 case 2:
                     if (g_pCurrentCutsceneScene_00499c84 == 0)
                         FatalCutsceneError("A40");
-                    resourceIndex = *instruction++;
+                    resourceIndex = *scriptBytes++;
                     objectResources = FindActiveCutsceneObjectResources(
                         g_pCutsceneSequenceResources_00492894);
                     g_pCurrentCutsceneScene_00499c84->sequenceIndices[
@@ -3674,16 +3674,16 @@ handle_queued_cutscene_input:
                             resourceIndex];
                     break;
                 case 3:
-                    instruction++;
+                    scriptBytes++;
                     break;
                 }
             } else {
-                instruction += 2;
+                scriptBytes += 2;
             }
             break;
         case 0xac:
-            value = *instruction++;
-            otherValue = *instruction++;
+            value = *scriptBytes++;
+            otherValue = *scriptBytes++;
             CopyCutsceneSpriteDisplay(value, otherValue);
             break;
         case 0xb7:
@@ -3691,15 +3691,15 @@ handle_queued_cutscene_input:
                                  &g_stSecondaryViewBufferBlock_005d2c90);
             break;
         case 0xa8:
-            value = *instruction++;
-            otherValue = *instruction++;
+            value = *scriptBytes++;
+            otherValue = *scriptBytes++;
             LinkCutsceneSpriteScript(value, otherValue);
             break;
         case 0x7a:
-            memberType = *instruction++;
+            memberType = *scriptBytes++;
             switch (memberType) {
             case 0:
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 objectResources = FindActiveCutsceneObjectResources(
                     g_pCutsceneSpriteResources_0049288c);
                 g_pLinkedCutsceneSprite_00499c64 =
@@ -3719,7 +3719,7 @@ handle_queued_cutscene_input:
                 if (g_pLinkedCutsceneSprite_00499c64 ==
                         g_pCurrentCutsceneSprite_00499c78 &&
                     objectType == 0) {
-                    instruction =
+                    scriptBytes =
                         g_pCurrentCutsceneSprite_00499c78->scriptStart;
                 }
                 g_pLinkedCutsceneSprite_00499c64->scriptCursor =
@@ -3732,7 +3732,7 @@ handle_queued_cutscene_input:
                     g_pLinkedCutsceneSprite_00499c64->linkedOwner;
                 break;
             case 1:
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 objectResources = FindActiveCutsceneObjectResources(
                     g_pCutscenePlaneResources_00492890);
                 g_pLinkedCutscenePlane_00499c68 =
@@ -3743,14 +3743,14 @@ handle_queued_cutscene_input:
                 if (g_pLinkedCutscenePlane_00499c68 ==
                         g_pCurrentCutscenePlane_00499c7c &&
                     objectType == 1) {
-                    instruction =
+                    scriptBytes =
                         g_pCurrentCutscenePlane_00499c7c->scriptStart;
                 }
                 g_pLinkedCutscenePlane_00499c68->scriptCursor =
                     g_pLinkedCutscenePlane_00499c68->scriptStart;
                 break;
             case 2:
-                resourceIndex = *instruction++;
+                resourceIndex = *scriptBytes++;
                 objectResources = FindActiveCutsceneObjectResources(
                     g_pCutsceneSequenceResources_00492894);
                 g_pLinkedCutsceneSequence_00499c6c =
@@ -3761,14 +3761,14 @@ handle_queued_cutscene_input:
                 if (g_pLinkedCutsceneSequence_00499c6c ==
                         g_pCurrentCutsceneSequence_00499c80 &&
                     objectType == 1) {
-                    instruction =
+                    scriptBytes =
                         g_pCurrentCutsceneSequence_00499c80->scriptStart;
                 }
                 g_pLinkedCutsceneSequence_00499c6c->scriptCursor =
                     g_pLinkedCutsceneSequence_00499c6c->scriptStart;
                 break;
             case 3:
-                instruction++;
+                scriptBytes++;
                 break;
             }
             break;
@@ -3776,13 +3776,13 @@ handle_queued_cutscene_input:
             RunCutsceneWipeTransition(
                 &g_stSceneFlicScratchViewport_005d2eb0,
                 &g_stSecondaryViewBufferBlock_005d2c90,
-                (int)(signed char)*instruction++,
+                (int)(signed char)*scriptBytes++,
                 PopCutsceneScriptValue(&stack, stackStorage + 10));
             break;
         case 0xa6:
-            resourceIndex = *instruction++;
-            g_nCutsceneTextIdx_005d2ea4 = *(short *)instruction;
-            instruction += 2;
+            resourceIndex = *scriptBytes++;
+            g_nCutsceneTextIdx_005d2ea4 = *(short *)scriptBytes;
+            scriptBytes += 2;
             g_pszFilmSourceText_005d2dcc =
                 g_pCutsceneTextResources_0049289c->entries[
                     g_nCutsceneTextIdx_005d2ea4];
