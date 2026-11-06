@@ -118,8 +118,8 @@ The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 development packages. It produces `out-modern/wc2-modern-gui`, which release
 archives ship as `wc2-modern`.
 
-For a macOS app bundle and disk image, see the
-[packaging build instructions](packaging/README-macos-build.txt).
+For installer builds, see the [macOS packaging instructions](packaging/README-macos-build.txt)
+or [Windows packaging instructions](packaging/README-windows-build.txt).
 
 ### Reconstructed Win32 build
 

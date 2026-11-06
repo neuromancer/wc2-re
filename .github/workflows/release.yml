@@ -247,6 +247,14 @@ jobs:
             mingw-w64-clang-x86_64-pkgconf
             mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
+      - name: Install NSIS packaging tools
+        shell: pwsh
+        run: |
+          choco install nsis --version=3.13.0 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          if (!(Test-Path $compiler)) { throw "NSIS compiler not found: $compiler" }
+          "MAKENSIS=$compiler" >> $env:GITHUB_ENV
       - name: Build SDL2 release port
         shell: msys2 {0}
         run: >-
@@ -301,11 +309,20 @@ jobs:
           windows
           x86_64
           out-modern/wc2-modern-gui.exe
+      - name: Package Windows installer
+        shell: msys2 {0}
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          packaging/package-windows.sh "$RELEASE_VERSION" x86_64 \
+            "dist/wc2-re-$RELEASE_VERSION-windows-x86_64-sdl2"
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-windows-x86_64
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*-setup.exe
           if-no-files-found: error
           retention-days: 7
 
@@ -331,7 +348,8 @@ jobs:
         run: |
           test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
           test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
-          sha256sum -- *.zip *.dmg | sort -k2 > SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*-setup.exe' | wc -l)" -eq 1
+          sha256sum -- *.zip *.dmg *-setup.exe | sort -k2 > SHA256SUMS
       - name: Publish GitHub Release
         working-directory: release-assets
         env:
@@ -347,6 +365,7 @@ jobs:
           gh release create "$RELEASE_TAG" \
             ./*.zip \
             ./*.dmg \
+            ./*-setup.exe \
             ./SHA256SUMS \
             --verify-tag \
             --generate-notes \
