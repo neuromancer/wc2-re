@@ -175,7 +175,7 @@ unsigned char *GetPreparedShapeData(unsigned char *shape)
 short GetShapeFrameCount(unsigned char *shape)
 {
     CheckHeapBlockSignature(shape);
-    return (short)((*(unsigned short *)(shape + 4) >> 2) - 1);
+    return (*(unsigned short *)(shape + 4) >> 2) - 1;
 }
 
 /* Function start: 0x42557C */
@@ -210,10 +210,10 @@ void GetShapeFrameExtents(unsigned char *shape, short frame,
         top = *frameHeader++;
         bottom = *frameHeader++;
 #endif
-        *width = (short)(left + right + 1);
-        *height = (short)(bottom + top + 1);
-        *leftExtent = (short)left;
-        *topExtent = (short)top;
+        *width = left + right + 1;
+        *height = bottom + top + 1;
+        *leftExtent = left;
+        *topExtent = top;
     }
 }
 
@@ -254,9 +254,9 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     if (*(unsigned short *)(shape + 4) > frame) {
 
         leftmost = 0;
-        rightmost = (short)(width - 1);
+        rightmost = width - 1;
         minY = 0;
-        maxY = (short)(height - 1);
+        maxY = height - 1;
         commands = shape + *(int *)(frame + shape);
         commands += 8;
         pixels = bitmap;
@@ -265,23 +265,24 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     #else
         rowOp = *(unsigned short *)commands;
     #endif
-        commands += 2;
+        commands += sizeof(rowOp);
         while (rowOp != 0) {
+            /* Retain the original two word reads and cursor advances. */
     #ifdef SDL_PORT
             memcpy(&xDelta, commands, sizeof(xDelta));
     #else
             xDelta = *(short *)commands;
     #endif
-            commands += 2;
+            commands += sizeof(xDelta);
     #ifdef SDL_PORT
             memcpy(&yDelta, commands, sizeof(yDelta));
     #else
             yDelta = *(short *)commands;
     #endif
-            commands += 2;
+            commands += sizeof(yDelta);
             screenX = xDelta + shapeX;
             row = yDelta + shapeY;
-            dest = row * width + screenX + pixels;
+            dest = &pixels[row * width + screenX];
             if ((rowOp & 1) != 0) {
                 rowOp >>= 1;
                 while (rowOp > 0) {
@@ -289,7 +290,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                     commands++;
                     if ((action & 1) != 0) {
                         action >>= 1;
-                        rowOp = (unsigned short)(rowOp - action);
+                        rowOp -= action;
                         color = *commands;
                         commands++;
                         if (minY <= row && maxY >= row) {
@@ -303,14 +304,14 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                                 }
                                 if (rightmost < endX)
                                     span -= endX - rightmost;
-                                memset(skip + dest, color, span);
+                                memset(&dest[skip], color, span);
                             }
                         }
                         dest += action;
                         screenX += action;
                     } else {
                         action >>= 1;
-                        rowOp = (unsigned short)(rowOp - action);
+                        rowOp -= action;
                         if (minY <= row && maxY >= row) {
                             endX = action + screenX - 1;
                             if (rightmost >= screenX && leftmost <= endX) {
@@ -322,7 +323,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                                 }
                                 if (rightmost < endX)
                                     span -= endX - rightmost;
-                                memcpy(skip + dest, skip + commands,
+                                memcpy(&dest[skip], &commands[skip],
                                        span);
                             }
                         }
@@ -344,7 +345,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
                         }
                         if (rightmost < endX)
                             span -= endX - rightmost;
-                        memcpy(skip + dest, skip + commands, span);
+                        memcpy(&dest[skip], &commands[skip], span);
                     }
                 }
                 commands += rowOp;
@@ -354,7 +355,7 @@ void DecodeShapeFrame(unsigned char *shape, short frame,
     #else
             rowOp = *(unsigned short *)commands;
     #endif
-            commands += 2;
+            commands += sizeof(rowOp);
         }
     }
 }
