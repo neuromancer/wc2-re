@@ -8,12 +8,21 @@ import ast
 import re
 from pathlib import Path
 
+from binary_comp.analyzers.globals import (
+    declaration_has_storage,
+    declaration_value_and_declarator,
+    declarator_identifier_node,
+    is_global_declaration_node,
+    leading_comments_before,
+    trailing_comments_after,
+)
+from binary_comp.source.cpp import make_cpp_parser, node_text, sanitize_source, walk
+from binary_comp.source.preprocessor import (
+    PreprocessorConfig,
+    blank_inactive_conditionals,
+)
 
-FUNCTION_MARKER = "/* Function start:"
-# Definitions start after the unit's own top-level include: the game core
-# includes game.h, the ix library includes ix.h.
 INCLUDE = '#include "game.h"'
-IX_INCLUDE = '#include "ix.h"'
 BLOCK_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
 LINE_COMMENT_RE = re.compile(r"//[^\r\n]*")
 DEFINE_RE = re.compile(
@@ -166,93 +175,99 @@ def expand_array_dimensions(text: str, constants: dict[str, int]) -> str:
     return "".join(expanded)
 
 
-FALSE_CONDITIONS = ("#if 0", "#ifdef SDL_PORT", "#if defined(SDL_PORT)")
-TRUE_CONDITIONS = ("#ifndef SDL_PORT", "#if !defined(SDL_PORT)")
-
-
 def resolve_conditionals(text: str) -> str:
-    """Drop the branches the retail build never compiles.
-
-    Some definition files keep the reference global beside a port-only one
-    under `#if 0` or `#ifdef SDL_PORT`.  The parser has no preprocessor, so a
-    conditional pair would otherwise declare the same global twice and the
-    audit would score the dead branch as a second, overlapping definition.
-    """
-    out: list[str] = []
-    # (emitting, seen_taken_branch) for each open conditional
-    stack: list[tuple[bool, bool]] = []
-    for line in text.split("\n"):
-        stripped = line.strip()
-        if stripped.startswith("#if"):
-            if stripped.startswith(FALSE_CONDITIONS):
-                stack.append((False, False))
-                continue
-            if stripped.startswith(TRUE_CONDITIONS):
-                stack.append((True, True))
-                continue
-            stack.append((True, True))
-            out.append(line)
-            continue
-        if stripped.startswith("#else") and stack:
-            emitting, taken = stack[-1]
-            if taken and emitting:
-                out.append(line)
-            stack[-1] = (not taken, True)
-            continue
-        if stripped.startswith("#endif") and stack:
-            emitting, taken = stack.pop()
-            if emitting and taken:
-                out.append(line)
-            continue
-        if all(emitting for emitting, _ in stack):
-            out.append(line)
-    return "\n".join(out)
+    """Use the same reference-build conditional filtering as binary-comp."""
+    return blank_inactive_conditionals(
+        text.encode("utf-8"),
+        PreprocessorConfig(enabled=True, undefined=frozenset({"SDL_PORT"})),
+    ).decode("utf-8")
 
 
 def definition_block(path: Path) -> str:
-    text = path.read_text(encoding="utf-8")
-    if path.name == "globals.c":
-        return text
+    """Collect file-scope storage, including definitions after functions.
 
-    include_at = text.find(INCLUDE)
-    if include_at < 0:
-        include_at = text.find(IX_INCLUDE)
-    function_at = text.find(FUNCTION_MARKER)
-    if include_at < 0:
-        raise ValueError(f"cannot locate global-definition block in {path}")
-    if function_at < 0:
-        function_at = len(text)
-    elif function_at <= include_at:
-        raise ValueError(f"cannot locate global-definition block in {path}")
-    declarations_at = text.find("\n", include_at) + 1
-    return text[declarations_at:function_at].strip() + "\n"
+    A tentative declaration before the functions can have its initializer at
+    the end of the unit. Keep that definition once, at its actual position;
+    the early declaration neither initializes nor orders the object's data.
+    """
+    source = resolve_conditionals(path.read_text(encoding="utf-8")).encode("utf-8")
+    tree = make_cpp_parser().parse(sanitize_source(source))
+    definitions = {}
+    context = []
+    for node in walk(tree.root_node):
+        if node.type == "preproc_def" and is_global_declaration_node(node):
+            context.append(node)
+        if node.type != "declaration" or not is_global_declaration_node(node):
+            continue
+        initializer, declarator = declaration_value_and_declarator(node)
+        if declaration_has_storage(source, node, "extern") and initializer is None:
+            continue
+        name_node = declarator_identifier_node(declarator)
+        if name_node is None:
+            continue
+        # The first operator binding the name distinguishes a function that
+        # returns a pointer from a variable holding a pointer to a function.
+        binding = name_node.parent
+        while binding is not None and binding.type == "parenthesized_declarator":
+            binding = binding.parent
+        if binding is not None and binding.type == "function_declarator":
+            continue
+        name = node_text(source, name_node)
+        previous = definitions.get(name)
+        if previous is not None:
+            previous_initializer, _ = declaration_value_and_declarator(previous)
+            if initializer is None:
+                continue
+            if previous_initializer is not None:
+                raise ValueError(f"multiple active initialized definitions of {name} in {path}")
+        definitions[name] = node
+
+    if not definitions:
+        return "\n"
+    parts = []
+    for node in sorted([*context, *definitions.values()], key=lambda item: item.start_byte):
+        parts.extend((
+            leading_comments_before(source, node.start_byte),
+            node_text(source, node) + trailing_comments_after(source, node.end_byte),
+        ))
+    return "\n".join(part for part in parts if part) + "\n"
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=Path)
+    parser.add_argument("--unit-dir", type=Path)
     parser.add_argument("--constants-header", action="append", default=[], type=Path)
     parser.add_argument("sources", nargs="+", type=Path)
     args = parser.parse_args()
     constants = header_constants(args.constants_header)
 
-    parts = [
+    preamble = [
         "/* Generated by bin/collectGlobalDefinitions.py; do not edit. */\n",
         f"{INCLUDE}\n",
     ]
+    parts = list(preamble)
+    unit_paths = []
     for source in args.sources:
-        parts.append(f'\n#line 1 "{source.as_posix()}"\n')
-        parts.append(
-            expand_array_dimensions(
-                resolve_conditionals(definition_block(source)), constants
-            )
-        )
+        definitions = expand_array_dimensions(definition_block(source), constants)
+        unit = f'\n#line 1 "{source.as_posix()}"\n' + definitions
+        parts.append(unit)
+        if args.unit_dir is not None and definitions.strip():
+            unit_path = args.unit_dir / source.as_posix().replace("/", "_")
+            write_if_changed(unit_path, "".join(preamble) + unit)
+            unit_paths.append(unit_path.as_posix())
     output = "".join(parts)
 
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    if not args.output.exists() or args.output.read_text(encoding="utf-8") != output:
-        args.output.write_text(output, encoding="utf-8")
+    write_if_changed(args.output, output)
+    if args.unit_dir is not None:
+        write_if_changed(args.unit_dir / "sources.txt", "\n".join(unit_paths) + "\n")
     return 0
+
+
+def write_if_changed(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not path.exists() or path.read_text(encoding="utf-8") != text:
+        path.write_text(text, encoding="utf-8")
 
 
 if __name__ == "__main__":

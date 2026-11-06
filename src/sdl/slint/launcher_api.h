@@ -26,20 +26,34 @@ enum SdlLauncherJoystickAxes {
     SDL_LAUNCHER_AXES_RUDDER_ROLL = 6
 };
 
+enum SdlLauncherExplicitOption {
+    SDL_LAUNCHER_EXPLICIT_ENHANCED = 1 << 0,
+    SDL_LAUNCHER_EXPLICIT_EGA = 1 << 1,
+    SDL_LAUNCHER_EXPLICIT_BALANCED = 1 << 2,
+    SDL_LAUNCHER_EXPLICIT_RUMBLE = 1 << 3,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE = 1 << 4,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5,
+    SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6
+};
+
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;
+    int cheatMode;
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
+    /* Command-line values take precedence over saved GUI settings. */
+    unsigned int explicitOptions;
 } SdlLauncherOptions;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* Accepting also sets the working directory to the selected installation. */
 int SdlRunLauncherGui(SdlLauncherOptions *options);
 
 #ifdef __cplusplus

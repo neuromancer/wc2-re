@@ -1,0 +1,710 @@
+/*
+ *  Title orchestra sequence and victory fireworks.
+ *
+ *  Retail object 0x407E40-0x40911F (link order; see docs/ORDER.md).
+ */
+#include "game.h"
+
+typedef struct TitleActorMotion {
+    short x;
+    short y;
+    short velocityX;
+    short velocityY;
+} TitleActorMotion;
+
+char g_szTitleConductorFrames[] =
+    "opoqopoqopoqopoqqrstrq"; /* 0x00491c68 */
+
+char *g_apszTitleActorFrames[10] = {
+    "abcdefghijkaakkkkaaaalllllllmmll",
+    "aaaaaaaabcddeeddccffgghhgghhiiih",
+    "aaaaaaaaaabbccbbaaccccccccccaccc",
+    "aaaabbbcccddeeddccffggaaggffcaaa",
+    "aabbbaacccddddddccddeeeeeeddccca",
+    "aaaaaabbbaaabbaaaabbbbaabbbbaccc",
+    "aabbcdbbbeaaaaaaeeaaaaaaaaaabaaa",
+    "abbbaacccdeeaaeeddaaaaaaaaaadacc",
+    "aaaaaaaaabbbccbbbbccddddddccaaaa",
+    "abccdefgghiijjiihhkkllmmllkkhnnn"
+}; /* 0x00491c80 */
+
+TitleActorMotion g_aTitleActorMotion[10] = {
+    { 58, 94, -1, 1 },
+    { 186, 94, 0, 1 },
+    { 278, 94, 1, 1 },
+    { 58, 102, -3, 2 },
+    { 186, 102, 0, 2 },
+    { 278, 102, 3, 2 },
+    { 58, 110, -5, 3 },
+    { 186, 110, 0, 3 },
+    { 278, 110, 5, 3 },
+    { 158, 74, 0, 4 }
+}; /* 0x00491ca8 */
+
+unsigned char *g_pTitleFieldShape = 0; /* 0x00491cf8 */
+
+extern unsigned char *g_apTitleSections[13]; /* 0x005d3f70 */
+
+extern void *g_pTitleMusic; /* 0x005d3fa4 */
+
+#ifdef SDL_PORT
+/* Not an original mechanism. AnimateTitleOrchestra, PlayTitleConductorCue,
+ * PushTitleOrchestraAway, RevealTitleLogo and ShowVictoryScreen below
+ * each draw through a tight loop gated only by
+ * g_nFrameSkipCountdown/g_nFrameSkip (or, in
+ * ShowVictoryScreen's case, nothing at all) -- a render-skip counter
+ * for slow machines (see ReportFramesSkipped, hudmsg.c), not a clock.
+ * WaitForInputKey (disk.c) polls input every iteration but never blocks
+ * on real elapsed time either. On the original, CPU speed alone kept
+ * this roughly watchable; on modern hardware the whole sequence burns
+ * through in a handful of milliseconds. The sequence's own exit
+ * condition (g_nTitleMusicSequenceStage, set from the live
+ * OriginFx music playback position, see SdlServiceOriginFxMusic in
+ * sdl/music.c) already ties overall duration to real audio time -- this
+ * floor only paces the visible per-frame rate within that, which needed
+ * its own real-time gate since none existed.
+ *
+ * The orchestra/logo-reveal sequence (Title_Sequence through
+ * RevealTitleLogo) was empirically tuned in-game at 6 ticks (10fps;
+ * started at 3, the 20fps rate the rest of the cinematic engine uses --
+ * see CUTSCENE_MOUTH_MIN_TICKS, game.h, and opcode 0x7c's own
+ * busy-wait, screens.c -- but that measured twice too fast, same
+ * correction factor the mouth-pacing floor needed).
+ *
+ * ShowVictoryScreen's fireworks finale (the ~30-firework simultaneous
+ * burst) needed a separate, faster rate -- confirmed against a real-386
+ * capture of the DOS original (youtube.com/watch?v=uz78jS1RKOU,
+ * ~00:57-01:10): the burst's onset is a single synchronous launch (all
+ * fireworks visible within one 33ms video frame, confirming the
+ * bulk-seed-29-at-once logic is itself correct, not a reconstruction
+ * bug), and the entire burst-to-fully-faded span measured 0.467s
+ * (frame-by-frame: first visible at the capture's 19.20s mark, fully
+ * clear by 19.67s). The loop needs exactly 11 real draw iterations to
+ * finish (fireworks 0-28 complete their 8-frame cycle by iteration 8;
+ * firework 29, started 4 iterations late, finishes at iteration 11) --
+ * 0.467s / 11 = ~42.5ms/iteration = ~2.55 ticks, rounded to 3.
+ *
+ * ShowVictoryScreen's FIRST loop (the individually-staggered small
+ * fireworks, before the finale) draws at this same normal rate too --
+ * a real-386 capture (frame-differencing pass, not spot samples) shows
+ * further sparks appearing roughly every ~1-1.3s after the first,
+ * becoming continuous in the last ~2.4s (the
+ * g_nTitleMusicSequenceStage > 4 guaranteed-spawn phase)
+ * until the finale ignites, spanning ~6.2s total -- far more than the
+ * ~11 draws (at any per-frame rate) the reference build's own
+ * loopCount <= 10 cap allows. Disassembling the real MS-DOS WC2.EXE
+ * (D:\MSDOS\WC2\WC2.EXE, separate from and predating this Win32 port)
+ * confirms that cap is Win32-specific: DOS's equivalent loop has no
+ * iteration limit in music-driven mode at all, looping unconditionally
+ * until g_nTitleMusicSequenceStage > 4 AND every firework has
+ * finished animating (the same exit condition already used below) --
+ * the 10-frame ceiling only exists as DOS's own non-music-driven
+ * fallback, exactly matching frameCount below. The reference build
+ * keeps the authentic (if abbreviated) Win32 cap; SDL_PORT restores the
+ * uncapped DOS original in music-driven mode, deliberately diverging
+ * from the Win32 reference here since that cap has no DOS counterpart. */
+#define TITLE_FRAME_TICKS 6
+#define TITLE_FIREWORKS_TICKS 3
+#endif
+
+/* Function start: 0x407E40 */
+void Title_Sequence(void)
+{
+    int waitCount;
+    short sectionIndex;
+
+    waitCount = 0;
+    g_18_nInterfaceEventMode = 0;
+    g_pTitleMusic =
+        FetchDiskPacketRetrying("music.r00", 19, 0);
+    g_pTitleFieldShape =
+        FetchDiskPacketRetrying("field.v00", 1, 0);
+    for (sectionIndex = 0; sectionIndex < 12; sectionIndex++) {
+        g_apTitleSections[sectionIndex] =
+            FetchDiskPacketRetrying("title.vga",
+                                    (short)(sectionIndex + 1), 0);
+    }
+    g_1_pTitleFireworkShape =
+        g_apTitleSections[11];
+    g_apTitleSections[12] =
+        FetchDiskPacketRetrying("title.vga", 0, 0);
+    InitializeConversationViewport();
+    g_bSceneEscapeRequested = 0;
+    while (1) {
+        StartMusic(g_pTitleMusic);
+        DrawTitleOrchestra();
+        if (g_bSceneEscapeRequested != 0)
+            break;
+        AnimateTitleOrchestra();
+        if (g_bSceneEscapeRequested != 0)
+            break;
+        PlayTitleConductorCue();
+        if (g_bSceneEscapeRequested != 0)
+            break;
+        PushTitleOrchestraAway();
+        if (g_bSceneEscapeRequested != 0)
+            break;
+        sectionIndex = RevealTitleLogo();
+        if (g_nMusicDriverMode == 2 ||
+            g_nMusicDriverMode == 1) {
+#ifdef SDL_PORT
+            /* waitCount < 3 alone was enough on the original: each
+             * WaitForInputKey/ServiceInputDevices call cost real time just
+             * from polling hardware, so three iterations were three
+             * meaningful waits. On modern hardware (or DOSBox) those calls
+             * cost nothing, so this loop used to fall through in well under
+             * a millisecond regardless of g_nTitleMusicSequenceStage_
+             * 0049be94's real value -- letting ShowVictoryScreen start
+             * almost immediately after the logo forms, instead of after the
+             * real pause seen on real hardware (~9-10s between the logo
+             * settling and the first firework, confirmed against a real-386
+             * capture: youtube.com/watch?v=uz78jS1RKOU, ~00:57-01:10). Pace
+             * each check for real and raise the iteration cap so it can
+             * actually cover that span; g_nTitleMusicSequenceStage
+             * reaching 3 remains the real exit condition, same as before --
+             * this cap is only the safety net against it never doing so. */
+            while (g_nTitleMusicSequenceStage < 3 &&
+                   waitCount < 200) {
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#else
+            while (g_nTitleMusicSequenceStage < 3 &&
+                   waitCount < 3) {
+#endif
+                if (WaitForInputKey() != 0)
+                    g_bSceneEscapeRequested = 1;
+                if (g_bSceneEscapeRequested != 0)
+                    break;
+                waitCount++;
+            }
+        }
+        if (g_bSceneEscapeRequested != 0)
+            break;
+        ShowVictoryScreen(sectionIndex);
+        break;
+    }
+    StopMusic(0);
+    FadeViewportPaletteToColour(
+        &g_2_stModalSourceWindow,
+        g_cSecondaryViewBufferColour, 1);
+    ClearViewport(&g_2_stModalSourceWindow,
+                  g_cSecondaryViewBufferColour);
+    RestoreGamePalette();
+    for (sectionIndex = 0; sectionIndex < 13; sectionIndex++)
+        ReleasePacketHandle(g_apTitleSections[sectionIndex]);
+    FreePacketAndClear(&g_pTitleFieldShape, 0);
+    ReleasePacketHandle(g_pTitleMusic);
+    ResetScreenClipToFullHeight();
+}
+
+/* Function start: 0x40809D */
+void DrawTitleSky(short planetY)
+{
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                      g_pTitleFieldShape, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 160, planetY,
+                      g_apTitleSections[12], 0);
+}
+
+/* Function start: 0x4080DF */
+void DrawTitleOrchestra(void)
+{
+    short actor;
+
+    DrawTitleSky(24);
+    for (actor = 0; actor < 10; actor++) {
+        DrawSpriteDefault(
+            &g_stSecondaryViewBufferBlock,
+            g_aTitleActorMotion[actor].x,
+            g_aTitleActorMotion[actor].y,
+            g_apTitleSections[actor + 1], 0);
+    }
+    PanToScreen(&g_stSecondaryViewBufferBlock,
+                &g_101_stScrViewInfo);
+}
+
+/* Random-range callee from the event manager. */
+unsigned short RandomInRange(unsigned short lo, unsigned short hi);
+
+/* Function start: 0x40815F */
+void AnimateTitleOrchestra(void)
+{
+    int repeat;
+    short frameNumber;
+    short actorIndex;
+    short minimumFrame;
+    short totalFrames;
+
+    minimumFrame = 0;
+    totalFrames = 0;
+    repeat = 0;
+    g_nFrameSkipCountdown = 1;
+    do {
+        for (frameNumber = minimumFrame; frameNumber < 32; frameNumber++) {
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+                DrawTitleSky(24);
+                for (actorIndex = 0; actorIndex < 10; actorIndex++) {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBufferBlock,
+                        g_aTitleActorMotion[actorIndex].x,
+                        g_aTitleActorMotion[actorIndex].y,
+                        g_apTitleSections[actorIndex + 1],
+                        (short)(g_apszTitleActorFrames[actorIndex]
+                                    [frameNumber] - 'a'));
+                }
+                RefreshMemoryStatusOverlay();
+            }
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 1 ||
+                g_bSceneEscapeRequested != 0)
+                return;
+            totalFrames++;
+        }
+        minimumFrame = (short)(
+            (unsigned short)RandomInRange(0, 13) + 9);
+        for (frameNumber = 31; frameNumber >= minimumFrame; frameNumber--) {
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+                DrawTitleSky(24);
+                for (actorIndex = 0; actorIndex < 10; actorIndex++) {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBufferBlock,
+                        g_aTitleActorMotion[actorIndex].x,
+                        g_aTitleActorMotion[actorIndex].y,
+                        g_apTitleSections[actorIndex + 1],
+                        (short)(g_apszTitleActorFrames[actorIndex]
+                                    [frameNumber] - 'a'));
+                }
+                RefreshMemoryStatusOverlay();
+            }
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 1 ||
+                g_bSceneEscapeRequested != 0)
+                return;
+            totalFrames++;
+        }
+        if ((g_nMusicDriverMode == 0 ||
+             g_nMusicDriverMode == 3) &&
+            totalFrames > 30)
+            return;
+        repeat++;
+        if (repeat > 1)
+            return;
+    } while (1);
+}
+
+/* Function start: 0x4083E6 */
+void PlayTitleConductorCue(void)
+{
+    int repeat;
+    short cueNumber;
+    short actor;
+
+    repeat = 0;
+    g_nFrameSkipCountdown = 1;
+    for (cueNumber = 0; cueNumber < 20; cueNumber++) {
+        if (g_szTitleConductorFrames[cueNumber] == 'p') {
+            if (g_nMusicDriverMode == 2)
+                g_nFrameSkipCountdown = 1;
+            else if (g_nMusicDriverMode == 1)
+                g_nFrameSkipCountdown = 1;
+        } else if (g_szTitleConductorFrames[cueNumber] == 'q') {
+            if (g_nMusicDriverMode == 2)
+                g_nFrameSkipCountdown = 1;
+            else if (g_nMusicDriverMode == 1)
+                g_nFrameSkipCountdown = 1;
+        }
+        g_nFrameSkipCountdown--;
+        if (g_nFrameSkipCountdown < 1) {
+            g_nFrameSkipCountdown = g_nFrameSkip;
+#ifdef SDL_PORT
+            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+            DrawTitleSky(24);
+            for (actor = 0; actor < 9; actor++) {
+                DrawSpriteDefault(
+                    &g_stSecondaryViewBufferBlock,
+                    g_aTitleActorMotion[actor].x,
+                    g_aTitleActorMotion[actor].y,
+                    g_apTitleSections[actor + 1],
+                    (short)(g_apszTitleActorFrames[actor][31]
+                                - 'a'));
+            }
+            DrawSpriteDefault(
+                &g_stSecondaryViewBufferBlock,
+                g_aTitleActorMotion[9].x,
+                g_aTitleActorMotion[9].y,
+                g_apTitleSections[10],
+                (short)(g_szTitleConductorFrames[cueNumber] - 'a'));
+            RefreshMemoryStatusOverlay();
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
+            return;
+    }
+
+    DrawTitleSky(24);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[0].x,
+        g_aTitleActorMotion[0].y,
+        g_apTitleSections[1],
+        (short)(g_apszTitleActorFrames[0][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[1].x,
+        g_aTitleActorMotion[1].y,
+        g_apTitleSections[2],
+        (short)(g_apszTitleActorFrames[1][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[2].x,
+        g_aTitleActorMotion[2].y,
+        g_apTitleSections[3],
+        (short)(g_apszTitleActorFrames[2][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[3].x,
+        g_aTitleActorMotion[3].y,
+        g_apTitleSections[4],
+        (short)(g_apszTitleActorFrames[3][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[4].x,
+        g_aTitleActorMotion[4].y,
+        g_apTitleSections[5],
+        (short)(g_apszTitleActorFrames[4][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[5].x,
+        g_aTitleActorMotion[5].y,
+        g_apTitleSections[6],
+        (short)(g_apszTitleActorFrames[5][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[6].x,
+        g_aTitleActorMotion[6].y,
+        g_apTitleSections[7],
+        (short)(g_apszTitleActorFrames[6][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[7].x,
+        g_aTitleActorMotion[7].y,
+        g_apTitleSections[8],
+        (short)(g_apszTitleActorFrames[7][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[8].x,
+        g_aTitleActorMotion[8].y,
+        g_apTitleSections[9],
+        (short)(g_apszTitleActorFrames[8][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[9].x,
+        g_aTitleActorMotion[9].y,
+        g_apTitleSections[10],
+        (short)(g_szTitleConductorFrames[20] - 'a'));
+    if (g_nMusicDriverMode == 2 ||
+        g_nMusicDriverMode == 1) {
+        do {
+            if (WaitForInputKey() != 0)
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 2 ||
+                g_bSceneEscapeRequested != 0) {
+                RefreshMemoryStatusOverlay();
+                break;
+            }
+            repeat++;
+            if (repeat > 1)
+                break;
+        } while (1);
+    }
+}
+
+/* Function start: 0x4087FF */
+void DrawScaledTitleLogo(short y, short scale)
+{
+    short bounds[4];
+
+    GetTransformedShapeBounds(
+        &g_stSecondaryViewBufferBlock, 162, y,
+        g_apTitleSections[0], 1, 0, scale, 0, bounds);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock, bounds[0], y,
+                     g_apTitleSections[0], 0, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock, 163, y,
+                     g_apTitleSections[0], 1, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock,
+                     (short)(bounds[2] + 1), y,
+                     g_apTitleSections[0], 2, 0, scale, 0);
+}
+
+/* Function start: 0x4088A9 */
+void PushTitleOrchestraAway(void)
+{
+    short x;
+    short y;
+    short actor;
+    short step;
+
+    g_nFrameSkipCountdown = 1;
+    for (step = 1; step < 120;
+         step = (short)(step + step / 4 + 1)) {
+        g_nFrameSkipCountdown--;
+        if (g_nFrameSkipCountdown < 1) {
+            g_nFrameSkipCountdown = g_nFrameSkip;
+#ifdef SDL_PORT
+            SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+            DrawTitleSky(24);
+            for (actor = 0; actor < 9; actor++) {
+                x = (short)(g_aTitleActorMotion[actor].x +
+                    g_aTitleActorMotion[actor].velocityX *
+                        step);
+                y = (short)(g_aTitleActorMotion[actor].y +
+                    g_aTitleActorMotion[actor].velocityY *
+                        step);
+                DrawSpriteScaled(
+                    &g_stSecondaryViewBufferBlock, x, y,
+                    g_apTitleSections[actor + 1],
+                    (short)(g_apszTitleActorFrames[actor][31]
+                                - 'a'),
+                    0,
+                    (short)(g_aTitleActorMotion[actor].velocityY *
+                                step * 4 + 0x100),
+                    0);
+            }
+            x = (short)(g_aTitleActorMotion[9].x +
+                g_aTitleActorMotion[9].velocityX * step);
+            y = (short)(g_aTitleActorMotion[9].y +
+                g_aTitleActorMotion[9].velocityY * step);
+            DrawSpriteScaled(
+                &g_stSecondaryViewBufferBlock, x, y,
+                g_apTitleSections[10],
+                (short)(g_szTitleConductorFrames[21] - 'a'),
+                0,
+                (short)(g_aTitleActorMotion[9].velocityY *
+                            step * 4 + 0x100),
+                0);
+            RefreshMemoryStatusOverlay();
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
+            break;
+    }
+}
+
+/* Function start: 0x408A88 */
+short RevealTitleLogo(void)
+{
+    short scale;
+    short distance;
+    short titleY;
+    short planetDelay;
+    short logoCovers;
+    short redraw;
+    short extent[4];
+    short aborted;
+    short logoTimer;
+    short planetY;
+
+    aborted = 0;
+    logoCovers = 0;
+    titleY = 59;
+    g_nFrameSkipCountdown = 1;
+    distance = 5000;
+    planetDelay = 0;
+    logoTimer = 0;
+    for (; distance >= 1000;
+         distance--, planetDelay--, logoTimer--) {
+        redraw = 0;
+        if (planetDelay == 0) {
+            redraw = 1;
+            planetY = (short)(120000 / (int)distance);
+            planetDelay = 200;
+        }
+        if (logoTimer == 0) {
+            redraw = 1;
+            scale = (short)(256000 / (int)distance);
+            if (distance > 3000)
+                titleY = (short)(titleY - 2);
+            else
+                titleY = (short)(titleY + 2);
+            logoTimer = 100;
+        }
+        if (redraw != 0) {
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
+#ifdef SDL_PORT
+                SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+                                  0, 0,
+                                  g_pTitleFieldShape, 0);
+                GetTransformedShapeBounds(
+                    &g_stSecondaryViewBufferBlock, 162, titleY,
+                    g_apTitleSections[0], 1, 0,
+                    scale, 0, extent);
+                if (extent[3] < planetY)
+                    logoCovers = 1;
+                if (logoCovers == 0) {
+                    DrawScaledTitleLogo(titleY, scale);
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBufferBlock,
+                        160, planetY,
+                        g_apTitleSections[12], 0);
+                } else {
+                    DrawSpriteDefault(
+                        &g_stSecondaryViewBufferBlock,
+                        160, planetY,
+                        g_apTitleSections[12], 0);
+                    DrawScaledTitleLogo(titleY, scale);
+                }
+                RefreshMemoryStatusOverlay();
+            }
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
+            return titleY;
+    }
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                      g_pTitleFieldShape, 0);
+    DrawScaledTitleLogo(titleY, scale);
+    RefreshMemoryStatusOverlay();
+    return titleY;
+}
+
+/* Function start: 0x408CC8 */
+void ShowVictoryScreen(short logoY)
+{
+    int loopCount;
+    short fadeOut;
+    short finalEmptyCount;
+    short inactive;
+    short firework;
+    short frameCount;
+    short spawnFirework;
+
+    fadeOut = 0;
+    frameCount = 0;
+    loopCount = 0;
+    FlushSoundEffects();
+    InitializeFireworks();
+    do {
+        if (fadeOut == 0) {
+            if (g_nMusicDriverMode == 2 ||
+                g_nMusicDriverMode == 1) {
+                if (g_nTitleMusicSequenceStage >= 4) {
+                    spawnFirework = (short)(
+                        (unsigned short)RandomInRange(0, 0) == 0);
+                } else {
+                    spawnFirework = (short)(
+                        (unsigned short)RandomInRange(0, 5) == 0);
+                }
+            } else {
+                spawnFirework = (short)(
+                    (unsigned short)RandomInRange(0, 0) == 0);
+            }
+        }
+        if (spawnFirework != 0 && fadeOut == 0) {
+            for (firework = 0; firework < 5; firework++) {
+                if (g_16_aFireworks[firework].frame == -1) {
+                    g_16_aFireworks[firework].frame = 0;
+                    g_16_aFireworks[firework].x =
+                        RandomInRange(0, 319);
+                    g_16_aFireworks[firework].y =
+                        RandomInRange(0, 127);
+                    g_16_aFireworks[firework].variant =
+                        RandomInRange(0, 2);
+                    break;
+                }
+            }
+        }
+#ifdef SDL_PORT
+        /* Same normal rate as the orchestra sequence -- this loop no
+         * longer needs its own rate now that the loopCount cap below
+         * is lifted in music-driven mode; real elapsed time comes from
+         * running as many draws as it actually takes, not from
+         * slowing each individual draw down. */
+        SdlPaceTitleFrame(TITLE_FRAME_TICKS);
+#endif
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                          g_pTitleFieldShape, 0);
+        inactive = TheEndFireWorks(
+            &g_stSecondaryViewBufferBlock, 5);
+        DrawScaledTitleLogo(logoY, 0x100);
+        RefreshMemoryStatusOverlay();
+        frameCount++;
+        if (fadeOut == 1 && inactive == 5)
+            break;
+        if (g_nMusicDriverMode == 2 ||
+            g_nMusicDriverMode == 1) {
+            if (g_nTitleMusicSequenceStage >= 5)
+                fadeOut = 1;
+        } else if (frameCount > 10) {
+            fadeOut = 1;
+        }
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
+            return;
+        loopCount++;
+#ifndef SDL_PORT
+        if (loopCount > 10)
+            break;
+#endif
+        /* The SDL build drops the iteration cap: the real MS-DOS WC2.EXE's
+         * equivalent loop has none (see the comment above
+         * SdlPaceTitleFrame).  The fadeOut/inactive==5 break above (DOS's
+         * own only real exit) and the escape-key return are what end it.
+         * Non-music-driven mode still ends the same way DOS does --
+         * frameCount > 10 sets fadeOut, then that break fires once every
+         * firework has finished animating. */
+    } while (1);
+
+    for (firework = 0; firework < 29; firework++) {
+        g_16_aFireworks[firework].frame = 0;
+        g_16_aFireworks[firework].x = RandomInRange(0, 319);
+        g_16_aFireworks[firework].y = RandomInRange(0, 127);
+        g_16_aFireworks[firework].variant = RandomInRange(0, 2);
+    }
+    inactive = 0;
+    finalEmptyCount = 0;
+    while (inactive != 30) {
+        finalEmptyCount++;
+        if (finalEmptyCount == 4) {
+            g_16_aFireworks[29].frame = 0;
+            g_16_aFireworks[29].x = RandomInRange(0, 319);
+            g_16_aFireworks[29].y = RandomInRange(0, 127);
+            g_16_aFireworks[29].variant = RandomInRange(0, 2);
+        }
+#ifdef SDL_PORT
+        SdlPaceTitleFrame(TITLE_FIREWORKS_TICKS);
+#endif
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                          g_pTitleFieldShape, 0);
+        inactive = TheEndFireWorks(
+            &g_stSecondaryViewBufferBlock, 30);
+        DrawScaledTitleLogo(logoY, 0x100);
+        RefreshMemoryStatusOverlay();
+        if (WaitForInputKey() != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
+            return;
+    }
+
+    for (firework = 29; firework >= 0; firework--) {
+        if (g_16_aFireworks[firework].frame != -1) {
+            ((void (__cdecl *)(int, short))FlushSoundEffect)(
+                g_16_aFireworks[firework].soundHandle, firework);
+        }
+    }
+}
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned char *g_apTitleSections[13]; /* 0x005d3f70 */
+void *g_pTitleMusic; /* 0x005d3fa4 */

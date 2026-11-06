@@ -14,6 +14,10 @@ The graphical launcher opens automatically when the executable is started
 without arguments. Command-line arguments start the game directly unless
 --gui is also present.
 
+Select Cheat mode in the launcher's Gameplay section, or use --cheats on the
+command line, to enable invulnerability and disable player collisions with
+either DOS or Kilrathi Saga data. The launcher remembers the checkbox setting.
+
 The DOS data path supports the original compressed packet resources and plays
 OriginFX music and synthesized sound effects through an embedded YM3812
 (AdLib) emulator using MUSIC.MID and WINGLDR.TIM. No external MIDI synthesizer

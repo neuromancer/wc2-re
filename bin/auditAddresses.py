@@ -28,11 +28,12 @@ NAME_RE = re.compile(
     r'[~A-Za-z_][A-Za-z0-9_]*(?:::[~A-Za-z_][A-Za-z0-9_]*)*)\s*\('
 )
 CALL_RE = re.compile(r'\bCALL\s+0x([0-9A-Fa-f]+)\b', re.IGNORECASE)
+ASM_NAME_RE = re.compile(r'^\s*(\w+)\s+proc\b', re.IGNORECASE)
 
 # The linker pulled a large static-CRT band between ix objects.  Calls into
 # that band and the import-thunk tail are library dependencies, not omissions.
 DEVELOPER_CODE_RANGES = (
-    (0x00401000, 0x0046DED9),
+    (0x00401000, 0x0046DF08),
     (0x00489990, 0x0048C58A),
 )
 
@@ -100,7 +101,7 @@ def main():
     markers_by_name = {}
     for root, _dirs, files in os.walk(SRC):
         for fn in sorted(files):
-            if not fn.endswith(('.c', '.cpp')):
+            if not fn.endswith(('.c', '.cpp', '.asm')):
                 continue
             path = os.path.join(root, fn)
             lines = open(path).read().split('\n')
@@ -110,7 +111,12 @@ def main():
                 if not m:
                     continue
                 addr = int(m.group(1), 16)
-                name = find_function_name(lines, i, m.end(), fl.get(addr))
+                if fn.endswith('.asm'):
+                    name = next((match.group(1)
+                                 for candidate in lines[i + 1:i + 13]
+                                 if (match := ASM_NAME_RE.match(candidate))), None)
+                else:
+                    name = find_function_name(lines, i, m.end(), fl.get(addr))
                 if name is None:
                     bad += 1
                     rel = os.path.relpath(path, ROOT)

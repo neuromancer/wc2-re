@@ -1,7 +1,7 @@
 #include "game.h"
 
 /* The native build selects this implementation instead of narrowing a host
- * find handle to the reconstructed DOS-width local in screens.c. */
+ * find handle to the reconstructed DOS-width local in personnel.c. */
 unsigned short HasSavedPilotCampaign(void)
 {
     int campaignBytes;
@@ -11,8 +11,8 @@ unsigned short HasSavedPilotCampaign(void)
     short file;
 
     LoadTemporaryCampaignGlobals();
-    campaignBytes = (unsigned short)g_pCampaignGlobals_00499c94->wordCount * 2;
-    ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+    campaignBytes = (unsigned short)g_pCampaignGlobals->wordCount * 2;
+    ReleasePacketSlot((void **)&g_pCampaignGlobals);
     findHandle = _findfirst("savegame.wc2", &findData);
     if (findHandle == -1)
         return 0;

@@ -1,487 +1,25 @@
 /*
- *  Win32 shell: window creation, message loop, exit paths.
+ *  Win32 entry point, window, joystick, guarded heap and keyboard state.
  *
- *  Address range 0x401000-0x402dff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: CreateMainWindow/MainWindowProc/AbortToDesktop cluster; string band 0x465048-0x465354.
+ *  Retail object 0x453C80-0x4564EF (link order; see docs/ORDER.md).
  */
+/* This unit owns storage declared in globals.h as statics. */
+#define WINMAIN_C
 #include "game.h"
 
-#ifndef SDL_PORT
-#pragma function(abs)
-#endif
+static char g_szWindowClassName[45]; /* 0x0049c278 */
+static char g_szWindowTitle[45]; /* 0x0049c2a8 */
 
-/* Function start: 0x417550 */
-void SaveGamePalette(void)
+/* The debug log writer is defined near the end of this unit. */
+void WriteDebugString(const char *s);
+
+/* Function start: 0x453C80 */
+unsigned int GetF1KeyLatch(void)
 {
-    unsigned short index;
-
-    for (index = 0; (short)index < 256; index++) {
-        if ((index & 15) == 0)
-            WaitForVerticalBlankThunk();
-        GetPaletteEntry(index, g_ausPaletteWords_005d3220[index]);
-    }
-}
-
-/* Function start: 0x4175AD */
-void RestoreGamePalette(void)
-{
-    short index;
-
-    for (index = 0; (short)index < 256; index++) {
-        if ((index & 15) == 0)
-            WaitForVerticalBlankThunk();
-        SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
-    }
-}
-
-/* Function start: 0x417610 */
-short easy2see(short obj)
-{
-    short bounds[4];
-    short x;
-    short y;
-
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
-        return 0;
-    x = (short)(g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
-    y = (short)(g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
-    return GetTransformedShapeBounds(
-        &g_stViewBuffer_005d2b00, x, y, g_apObjectShape_00493868[obj],
-        g_asObjectViewFrame_00493508[obj],
-        g_asObjectScreenAngle_004936b8[obj],
-        g_asObjectScreenScale_00493a58[obj],
-        g_asObjectFlip_004939c8[obj], bounds);
-}
-
-/* Function start: 0x4176D2 */
-void make_shard(short asteroid, FixedVector direction)
-{
-    short fragment;
-
-    fragment = find_vacant_3d_object();
-    if (fragment != -1) {
-        set_objects_data(fragment, OBJECT_DATA_ROCK_CHUNK, asteroid, 0);
-        g_asObjectCounter_00494be0[fragment] = 40;
-        g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
-        SetVectorFixedPoint(
-            (unsigned int *)&direction,
-            (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
-        AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
-                        &g_aShipPosition_00494550[fragment]);
-        g_aShipForwardVector_00494208[fragment] = direction;
-        fix_objects_ijk(fragment);
-        alter_yaw(signed_random(20), fragment);
-        alter_pitch(signed_random(20), fragment);
-        g_aShipVelocity_00494898[fragment] =
-            g_aShipForwardVector_00494208[fragment];
-        SetVectorFixedPoint(
-            (unsigned int *)&g_aShipVelocity_00494898[fragment],
-            (short)(real_velocity(asteroid) + RandomInRange(0, 5)));
-        RecordCannedSceneObjectEvent(fragment, 0);
-    }
-}
-
-/* Base flight times and pitch windows for the four forward view bands. */
-static const signed char g_acHazardTravelTimeByView_00465048[8] = {
-    56, 52, 75, 73, 0, 0, 0, 0
-};
-
-/* The cockpit layout packs the hazard pitch range into the two bytes of
- * field_f7: the low byte is the minimum, the high byte the maximum. */
-#define g_acHazardPitchRange \
-    ((const signed char *)&g_nHazardPitchRange_0049af98)
-
-/* Function start: 0x417838 */
-void remove_hazard(signed char hazard)
-{
-    remove_object((short)hazard);
-    g_nActiveHazards_00492e5c =
-        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
-    RecordCannedSceneObjectEvent((short)hazard, 1);
-}
-
-/* Function start: 0x41787A */
-void remove_all_hazards(void)
-{
-    short slot;
-
-    for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1) {
-            remove_hazard(g_abHazardObjects_00493280[slot]);
-            g_abHazardObjects_00493280[slot] = -1;
-        }
-    }
-    g_pActiveHazardField_00493278 = 0;
-}
-
-/* Function start: 0x4178E5 */
-short difficulty(void)
-{
-    return (short)(abs(25 - (int)g_nHazardReferenceSpeed_00492e58) * 2);
-}
-
-/* Function start: 0x417916 */
-short asteroid_velocity(void)
-{
-    return MinShort(20, (short)(RandomBelowOrEqual(7) + 10));
-}
-
-/* Function start: 0x417941 */
-void skew_randomly(short obj, short allowReverse)
-{
-    FixedVector saved;
-
-    if (RandomBelow(100) < 50) {
-        saved = g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] = saved;
-    } else {
-        saved = g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] = saved;
-    }
-    if (allowReverse != 0 && RandomBelow(100) < 50)
-        negate_vector(&g_aShipForwardVector_00494208[obj]);
-}
-
-/* Function start: 0x417AD7 */
-void align(int *value, short quantum)
-{
-    *value -= *value % quantum;
-}
-
-/* Function start: 0x417AF9 */
-void init_hazard(short obj, FixedVector position, short moving)
-{
-    short type;
-    FixedVector vector;
-    short hazardMoves;
-    short travelTime;
-    short speed;
-
-    hazardMoves = moving;
-    if (g_pActiveHazardField_00493278->type ==
-        OBJECT_DATA_ASTEROID_FIELD) {
-        type = (short)(OBJECT_DATA_ASTEROID1 +
-                       RandomBelowOrEqual(5));
-    } else {
-        type = OBJECT_DATA_SPACE_MINE;
-    }
-    set_objects_data(obj, type, -1, 0);
-    g_aShipPosition_00494550[obj] = position;
-
-    if (type == OBJECT_DATA_SPACE_MINE) {
-        hazardMoves = 0;
-        point_at(obj, g_aShipPosition_00494550[0]);
-        skew_randomly(obj, 1);
-        speed = 2;
-        hazardMoves = (short)(speed != 0);
-    } else if (hazardMoves != 0) {
-        travelTime = (short)(RandomBelowOrEqual(15) +
-                             g_cHazardBaseTravelTime_0049af94);
-        if (g_bUseEyePositionForHazards_0049327c != 0) {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(45, travelTime);
-        } else {
-            travelTime = (short)(travelTime -
-                                 RandomBelowOrEqual(difficulty()));
-            travelTime = MaxShort(7, travelTime);
-        }
-        ScaleFixedVector(&g_aShipVelocity_00494898[0],
-                         (int)travelTime << 8, &vector);
-        AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
-        point_at(obj, vector);
-        speed = distance_between_points(
-            &vector, &g_aShipPosition_00494550[obj]);
-        travelTime = MaxShort(3,
-            (short)(travelTime - RandomBelow(5)));
-        speed = (short)(speed / travelTime);
-    } else {
-        point_at(obj, g_pActiveHazardField_00493278->center);
-        skew_randomly(obj, 1);
-        if (RandomBelow(100) < 20)
-            speed = 0;
-        else
-            speed = asteroid_velocity();
-    }
-    if (kilrathi_near(0, 16000) != 0)
-        speed = 0;
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     (int)speed << 8, &g_aShipVelocity_00494898[obj]);
-
-    if (hazardMoves == 0) {
-        int separation;
-
-        if (type == OBJECT_DATA_ASTEROID_FIELD)
-            separation = 1500;
-        else
-            separation = RandomBelowOrEqual(1000) << 8;
-        ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                         separation, &vector);
-        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &vector,
-                             &g_aShipPosition_00494550[obj]);
-    }
-    if (type == OBJECT_DATA_SPACE_MINE) {
-        align(&g_aShipPosition_00494550[obj].x, 200);
-        align(&g_aShipPosition_00494550[obj].y, 200);
-        align(&g_aShipPosition_00494550[obj].z, 200);
-    }
-    g_acObjectCollisionGraceTicks_00494d48[obj] = 0;
-    g_asObjectCounter_00494be0[obj] = 0;
-    g_nActiveHazards_00492e5c++;
-}
-
-/* Function start: 0x417EA4 */
-short near_field(const HazardField *field, const FixedVector *point)
-{
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point,
-                              (short)(field->innerRadius + 4300));
-}
-
-/* Function start: 0x417ED4 */
-short within_field(const HazardField *field, const FixedVector *point)
-{
-    return IsPointWithinRange((FixedVector *)&field->center,
-                              (FixedVector *)point, field->innerRadius);
-}
-
-/* Function start: 0x417EFF */
-short try_far_spot(FixedVector *spot, short *moving)
-{
-    short yaw;
-    short pitch;
-    unsigned short outsideRange;
-
-    copy_frame(0, SCRATCH_VIEW_OBJECT);
-    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] =
-        g_aShipPosition_00494550[0];
-    pitch = signed_random(20);
-    yaw = signed_random(35);
-    if (g_nCurrentView_00492fa8 == 0) {
-        if (g_acHazardPitchRange[0] < pitch &&
-            g_acHazardPitchRange[1] > pitch &&
-            abs(yaw) < 19 &&
-            RandomBelow(100) < 60)
-            *moving = 1;
-        else
-            *moving = 0;
-    } else {
-        if (abs(pitch) > 5 && abs(pitch) < 20 &&
-            abs(yaw) > 5 && abs(yaw) < 20 && RandomBelow(100) < 30)
-            *moving = 1;
-        else
-            *moving = 0;
-    }
-    pitch = (short)(pitch + find_ratio(
-        -15, 15, g_anObjectPitchRotation_00494f38[0], -150, 150));
-    yaw = (short)(yaw + find_ratio(
-        -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
-    rotate_about_j(yaw,
-                   &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
-    rotate_about_i(pitch,
-                   &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
-    position_relative_ijk(spot, SCRATCH_VIEW_OBJECT, 0, 0, 3050);
-    outsideRange = !(unsigned short)IsPointWithinRange(
-        &g_aShipPosition_00494550[0], spot, 3000);
-    return outsideRange != 0 &&
-           within_field(g_pActiveHazardField_00493278, spot) != 0;
-}
-
-/* Function start: 0x418175 */
-short rear_sphere(void)
-{
-    return find_ratio(0, 20, (short)g_nHazardReferenceSpeed_00492e58,
-                      4300, 3100);
-}
-
-/* Function start: 0x4181A2 */
-short ok_hazard_spot(short obj)
-{
-    int range;
-    short result;
-
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
-        range = rear_sphere();
-    else
-        range = 4300;
-    result = IsPointWithinRange(&g_aShipPosition_00494550[0],
-                                &g_aShipPosition_00494550[obj],
-                                (short)range);
-    return result;
-}
-
-/* Function start: 0x41820B */
-short make_hazard(void)
-{
-    FixedVector spot;
-    short moving;
-    short obj = find_vacant_3d_object();
-
-    if (obj != -1 && try_far_spot(&spot, &moving) != 0) {
-        init_hazard(obj, spot, moving);
-        RecordCannedSceneObjectEvent(obj, 0);
-    } else
-        obj = -1;
-    return obj;
-}
-
-/* Function start: 0x418288 */
-void extra_hazard(short obj)
-{
-    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST)
-        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
-}
-
-/* Function start: 0x4182B6 */
-void approach(short obj)
-{
-    FixedVector vector;
-
-    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &vector);
-    AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
-    point_at(obj, vector);
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
-                     &vector);
-    AddFixedVectors(&g_aShipVelocity_00494898[obj], &vector,
-                    &g_aShipVelocity_00494898[obj]);
-    if (g_nCannedSceneMode_0049021c == 0)
-        RecordCannedSceneObjectEvent(obj, 3);
-}
-
-/* Function start: 0x41836E */
-void manage_hazard(short obj, short slot)
-{
-    if (g_nRenderedSpaceFrame_00493138 % 20 != slot)
-        return;
-    if (ok_hazard_spot(obj) == 0) {
-        remove_hazard((signed char)obj);
-        return;
-    }
-    if (g_asObjectType_00495298[obj] == OBJECT_DATA_PORCUPINE_MINE &&
-        g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
-        (unsigned short)g_asObjectDistance_00493ae8[obj] > 1500 &&
-        real_velocity(obj) < 20)
-        approach(obj);
-}
-
-/* Function start: 0x418426 */
-void match_ship_to_eye(void)
-{
-    g_nHazardReferenceSpeed_00492e58 = 100;
-    g_aShipPosition_00494550[0] =
-        g_aShipPosition_00494550[EYE_OBJECT];
-    g_aShipRightVector_00493b78[0] =
-        g_aShipRightVector_00493b78[EYE_OBJECT];
-    g_aShipUpVector_00493ec0[0] =
-        g_aShipUpVector_00493ec0[EYE_OBJECT];
-    g_aShipForwardVector_00494208[0] =
-        g_aShipForwardVector_00494208[EYE_OBJECT];
-    ScaleFixedVector(&g_aShipForwardVector_00494208[0],
-                     g_nHazardReferenceSpeed_00492e58 << 8,
-                     &g_aShipVelocity_00494898[0]);
-    g_pActiveHazardField_00493278->center =
-        g_aShipPosition_00494550[EYE_OBJECT];
-}
-
-/* Function start: 0x4184F6 */
-void update_hazards(void)
-{
-    short emptySlot;
-    short slot;
-
-    emptySlot = -1;
-
-    if (g_bUseEyePositionForHazards_0049327c != 0)
-        match_ship_to_eye();
-    else
-        g_nHazardReferenceSpeed_00492e58 = real_velocity(0);
-    for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1)
-            manage_hazard((short)g_abHazardObjects_00493280[slot], slot);
-        else
-            emptySlot = slot;
-    }
-    if (emptySlot != -1 &&
-        RandomBelowOrEqual(215) <
-            (short)g_nHazardReferenceSpeed_00492e58 + 30)
-        g_abHazardObjects_00493280[emptySlot] = (signed char)make_hazard();
-}
-
-/* Function start: 0x4185CC */
-void start_hazard_field(short region)
-{
-    short slot;
-
-    slot = 0;
-    remove_all_hazards();
-    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
-    while (slot++ < 3)
-        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
-}
-
-/* Function start: 0x418626 */
-void add_hazard_field(enum ObjectType type, FixedVector center,
-                      short radius, short density)
-{
-    HazardField *field;
-
-    if (g_nHazardFieldCount_004931d0 >= 7)
-        return;
-    field = &g_aHazardFields_004931d8[g_nHazardFieldCount_004931d0];
-    field->type = type;
-    field->center = center;
-    field->outerRadius = radius;
-    field->innerRadius = radius;
-    field->density = density;
-    g_nHazardFieldCount_004931d0++;
-}
-
-/* Function start: 0x4186A4 */
-void check_hazards(void)
-{
-    HazardField *field;
-    short region;
-
-    if (g_bUseEyePositionForHazards_0049327c != 0)
-        return;
-    if (g_pActiveHazardField_00493278 == 0) {
-        field = g_aHazardFields_004931d8;
-        for (region = 0; g_nHazardFieldCount_004931d0 > region;
-             region++, field++) {
-            if (field != g_pActiveHazardField_00493278 &&
-                near_field(field, &g_aShipPosition_00494550[0]) != 0) {
-                start_hazard_field(region);
-                return;
-            }
-        }
-    } else if (near_field(g_pActiveHazardField_00493278,
-                          &g_aShipPosition_00494550[0]) == 0) {
-        remove_all_hazards();
-    }
-}
-
-/* Function start: 0x4199F0 */
-void SetPersonnelMousePosition(short x, short y)
-{
-    g_nPersonnelMouseX_005c8d00 = x;
-    g_nPersonnelMouseY_005c8d02 = y;
-    g_nQueuedInputX_005c83f0 = x;
-    g_nQueuedInputY_005c83f2 = y;
-    SetMouseHomePosition(x, y);
+    return g_bF1KeyDown;
 }
 
 #pragma function(strcmp)
-
 /* Function start: 0x453C95 */
 void CheckLauncherAndConfig(void)
 {
@@ -491,9 +29,9 @@ void CheckLauncherAndConfig(void)
     char resolvedPath[PATH_MAX];
 
     if (ReadCheaterFlagFromRegistry() != 0) {
-        *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
-        *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
-        *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
+        *(unsigned char *)&g_nOriginDevUnlock = 1;
+        *(unsigned char *)&g_bPlayerDamageEnabled = 0;
+        *(unsigned char *)&g_bPlayerCollisionEnabled = 0;
     }
 
     if (SdlResolvePath("WINGCMDR.CFG", resolvedPath,
@@ -506,23 +44,23 @@ void CheckLauncherAndConfig(void)
             char command;
 
             if (memcmp(option, "$#SAGA.EXE", 11) == 0)
-                g_bApplicationControllerActive_0049c25c = 1;
+                g_bApplicationControllerActive = 1;
             command = option[0] == '-' ? option[1] : option[0];
             switch (command) {
             case 'b':
-                *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
+                *(unsigned char *)&g_bPlayerCollisionEnabled = 0;
                 break;
             case 'c':
-                g_bCockpitEnabled_0049c26c = 0;
+                g_bCockpitEnabled = 0;
                 break;
             case 'f':
-                g_bShowFrameRate_0049c260 = 1;
+                g_bShowFrameRate = 1;
                 break;
             case 'k':
-                *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+                *(unsigned char *)&g_bPlayerDamageEnabled = 0;
                 break;
             case 'q':
-                g_bConfigQuickModeEnabled_0049c264 = 0;
+                g_bConfigQuickModeEnabled = 0;
                 break;
             }
             if (config == 0)
@@ -531,60 +69,60 @@ void CheckLauncherAndConfig(void)
         fclose(config);
     }
 #else
-    int scanResult;
+    int scanned;
     char option[100];
-    int controlFile;
     char command;
+    int ctrlFile;
     FILE *config;
 
     if (ReadCheaterFlagFromRegistry() != 0) {
-        *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
-        *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
-        *(unsigned char *)&g_nOriginDevUnlock_0049d774 = 1;
+        *(unsigned char *)&g_bPlayerDamageEnabled = 0;
+        *(unsigned char *)&g_bPlayerCollisionEnabled = 0;
+        *(unsigned char *)&g_nOriginDevUnlock = 1;
     }
 
-    controlFile = _open("ctrl.del", O_BINARY);
-    if (controlFile != -1) {
-        g_bDebugBreakEnabled_0049c238 = 1;
-        _close(controlFile);
+    ctrlFile = _open("ctrl.del", O_BINARY);
+    if (ctrlFile != -1) {
+        g_bDebugBreakEnabled = 1;
+        _close(ctrlFile);
     }
 
     config = fopen("WC2.CFG", "rt");
     while (config != 0) {
-        scanResult = fscanf(config, "%s", option);
-        if (scanResult == -1) {
+        scanned = fscanf(config, "%s", option);
+        if (scanned == -1) {
             fclose(config);
             break;
         }
         if (strcmp("[[log]]", option) == 0)
-            g_nDebugFileLoggingEnabled_0049c2d8 = 1;
+            g_nDebugFileLoggingEnabled = 1;
 
         command = option[0];
         if (command == '-')
             command = option[1];
         switch (command) {
-        case 'b':
-            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
-            break;
         case 'k':
-            *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+            *(unsigned char *)&g_bPlayerDamageEnabled = 0;
+            break;
+        case 'b':
+            *(unsigned char *)&g_bPlayerCollisionEnabled = 0;
             break;
         case 's':
             break;
         case 'f':
-            g_bShowFrameRate_0049c260 = 1;
+            g_bShowFrameRate = 1;
             break;
         case 'q':
-            g_bConfigQuickModeEnabled_0049c264 = 0;
+            g_bConfigQuickModeEnabled = 0;
             break;
         case 'l':
-            g_bSkipCampaignVideo_0049c270 = 1;
+            g_bSkipCampaignVideo = 1;
             break;
         case 'w':
-            g_bUseHardwarePalette_0049c268 = 0;
+            g_bUseHardwarePalette = 0;
             break;
         case 'm':
-            g_bConfigMemoryOption_0049c2e0 = 1;
+            g_bConfigMemoryOption = 1;
             break;
         }
     }
@@ -592,20 +130,20 @@ void CheckLauncherAndConfig(void)
 }
 
 #pragma intrinsic(strcmp)
-
 #ifndef SDL_PORT
 
+#pragma function(memset)
 /* Function start: 0x453E60 */
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
                    LPSTR commandLine, int showCommand)
 {
     MEMORYSTATUS memoryStatus;
     RECT clip;
-    HANDLE process;
+    HANDLE processHandle;
 
     if (commandLine != 0 && strchr(commandLine, 's') != 0)
-        g_nAudioEnabled_0049c244 = 0;
-    g_hSingleInstanceSemaphore_005d10e4 =
+        g_nAudioEnabled = 0;
+    g_19_hOneProcessLock =
         CreateSemaphoreA(0, 0, 1, "Wing Commander 2");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         MessageBoxA(0,
@@ -630,28 +168,28 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
         exit(0);
     }
 
-    if (waveOutGetNumDevs() == 0)
-        g_nAudioEnabled_0049c244 = 0;
+    if (waveOutGetNumDevs() < 1)
+        g_nAudioEnabled = 0;
     CheckLauncherAndConfig();
     if (!PromptInsertCorrectCd()) {
-        CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+        CloseHandle(g_19_hOneProcessLock);
         return 0;
     }
     if (!CreateMainWindow(instance, previous, showCommand))
         return 0;
 
-    g_bWindowInactive_0049c274 = 0;
-    process = GetCurrentProcess();
+    g_bWindowInactive = 0;
+    processHandle = GetCurrentProcess();
     MonoDebug_install();
-    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-    InitializeAudioSystem(g_hMainWindow_005d10e0);
-    InitializeAudioStreamer(g_hMainWindow_005d10e0);
+    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
+    InitializeAudioSystem(g_10_hMainWindow);
+    InitializeAudioStreamer(g_10_hMainWindow);
     srand((unsigned int)time(0));
     InitGameClockRandomEpoch();
-    CreateDebugOverlayConsole(instance, g_hMainWindow_005d10e0, 60, 20);
-    g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
+    CreateDebugOverlayConsole(instance, g_10_hMainWindow, 60, 20);
+    g_11_dwGameZeroTime = (unsigned int)time(0);
     ShowCursor(FALSE);
-    g_pfnInputPump_005c840c = 0;
+    g_176_pfnCurrentInputPump = 0;
     clip.left = 0;
     clip.top = 0;
     clip.right = 320;
@@ -659,21 +197,22 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     ClipCursor(&clip);
 
     _onexit((_onexit_t)AbortToDesktop);
-    g_nInputClock_005c84a8 = 0;
+    g_196_nInputTimerTicks = 0;
     AllocateApplicationScratchBuffer();
-    g_bApplicationControllerActive_0049c25c = 1;
-    RunGameApplication(0, &g_pEmptyStartupArgumentVector_0049c470);
-    g_bApplicationShutdownStarted_0049c23c = 1;
+    g_bApplicationControllerActive = 1;
+    /* argc is zero, so the argument vector is never read. */
+    RunGameApplication(0, (char **)"");
+    g_bApplicationShutdownStarted = 1;
     ReleaseApplicationScratchBuffer();
 
     ClipCursor(0);
     ShowCursor(TRUE);
-    g_dwGameExitTime_005d129c = (unsigned int)time(0);
+    g_48_dwGameExitClockValue = (unsigned int)time(0);
     DestroyGlobalDebugOverlayConsole();
     ServiceAudioStream();
-    DestroyWindow(g_hMainWindow_005d10e0);
+    DestroyWindow(g_10_hMainWindow);
     DIBunInstall();
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_19_hOneProcessLock);
     return 1;
 }
 
@@ -682,30 +221,30 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
 /* Function start: 0x454103 */
 void ShutdownGameWindow(void)
 {
-    g_bApplicationShutdownStarted_0049c23c = 1;
-    g_dwGameExitTime_005d129c = (unsigned int)time(0);
+    g_bApplicationShutdownStarted = 1;
+    g_48_dwGameExitClockValue = (unsigned int)time(0);
 #ifdef SDL_PORT
     {
         SDL_Window *window;
 
-        g_bMainWindowRunning_005d12ac = 0;
-        if ((g_dwStreamerState_005c4c38 & 1) != 0)
+        g_16_bMainWindowRunning = 0;
+        if ((g_dwStreamerMode & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         DestroyGlobalDebugOverlayConsole();
-        window = (SDL_Window *)g_hMainWindow_005d10e0;
+        window = (SDL_Window *)g_10_hMainWindow;
         DIBunInstall();
         SdlShutdownJoysticks();
         if (window != 0)
             SDL_DestroyWindow(window);
-        g_hMainWindow_005d10e0 = 0;
+        g_10_hMainWindow = 0;
         SDL_Quit();
     }
 #else
     ClipCursor(0);
     ShowCursor(TRUE);
     DestroyGlobalDebugOverlayConsole();
-    DestroyWindow(g_hMainWindow_005d10e0);
+    DestroyWindow(g_10_hMainWindow);
     DIBunInstall();
     ClipCursor(0);
     ShowCursor(TRUE);
@@ -715,7 +254,7 @@ void ShutdownGameWindow(void)
         process = GetCurrentProcess();
         SetPriorityClass(process, IDLE_PRIORITY_CLASS);
     }
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_19_hOneProcessLock);
 #endif
     exit(0);
 }
@@ -726,12 +265,10 @@ void ShowNoticeMessageBox(const char *text)
     DIBpositionWindow();
     MessageBoxA(0, text, "NOTICE", 0x10);
     exit(0);
+    return;
 }
 
-#ifndef SDL_PORT
 #pragma function(strcpy)
-#endif
-
 /* Function start: 0x4541BD */
 void OutputDebugPrintf(const char *format, ...)
 {
@@ -745,11 +282,8 @@ void OutputDebugPrintf(const char *format, ...)
         strcpy(buffer, va_arg(arguments, const char *));
     va_end(arguments);
     OutputDebugStringA(buffer);
+    return;
 }
-
-#ifndef SDL_PORT
-#pragma intrinsic(strcpy)
-#endif
 
 /* Function start: 0x45422D */
 unsigned int AbortToDesktop(void)
@@ -757,21 +291,21 @@ unsigned int AbortToDesktop(void)
 #ifndef SDL_PORT
     HANDLE process;
 
-    g_bApplicationShutdownStarted_0049c23c = 1;
+    g_bApplicationShutdownStarted = 1;
     ClipCursor(0);
     ShowCursor(TRUE);
     process = GetCurrentProcess();
     SetPriorityClass(process, IDLE_PRIORITY_CLASS);
 #endif
-    sprintf(g_abMemoryUsageReport_005d1170,
+    sprintf(g_29_abMemoryLoadNotice,
             "Current: %i\nMax    : %i\nTotal : %i\n",
-            g_dwGuardedAllocationBytes_0049c250,
-            g_dwGuardedAllocationPeakBytes_0049c254,
-            g_dwGuardedAllocationTotalBytes_0049c24c);
+            g_dwGuardedAllocationBytes,
+            g_dwGuardedAllocationPeakBytes,
+            g_dwGuardedAllocationTotalBytes);
     OutputDebugStringA("Memory Info:\n");
-    OutputDebugStringA(g_abMemoryUsageReport_005d1170);
+    OutputDebugStringA(g_29_abMemoryLoadNotice);
 #ifndef SDL_PORT
-    CloseHandle(g_hSingleInstanceSemaphore_005d10e4);
+    CloseHandle(g_19_hOneProcessLock);
 #endif
     return 0;
 }
@@ -783,18 +317,18 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
                      int showCommand)
 {
     WNDCLASSA windowClass;
-    DWORD createError;
+    DWORD error;
 
-    DAT_005d12b0 = instance;
+    g_7_hAppCopy = instance;
     if (previous != 0)
         return 0;
 
-    windowClass.lpszClassName = "Wing Commander II: Vengeance of the Kilrathi";
-    windowClass.hInstance = DAT_005d12b0;
+    windowClass.lpszClassName = g_szWindowClassName;
+    windowClass.hInstance = g_7_hAppCopy;
     windowClass.lpfnWndProc = MainWindowProc;
     windowClass.hCursor = 0;
     windowClass.hIcon = LoadIconA(0, IDI_APPLICATION);
-    windowClass.lpszMenuName = "Wing Commander II: Vengeance of the Kilrathi";
+    windowClass.lpszMenuName = g_szWindowClassName;
     windowClass.hbrBackground = GetStockObject(BLACK_BRUSH);
     windowClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     windowClass.cbClsExtra = 0;
@@ -802,31 +336,30 @@ int CreateMainWindow(HINSTANCE instance, HINSTANCE previous,
     if (RegisterClassA(&windowClass) == 0)
         return 0;
 
-    g_hMainWindow_005d10e0 = CreateWindowExA(
-        0, "Wing Commander II: Vengeance of the Kilrathi",
-        "Wing Commander II: Vengeance of the Kilrathi",
-        WS_POPUP, 0, 0, 320, 200, 0, 0, DAT_005d12b0, 0);
-    if (g_hMainWindow_005d10e0 == 0) {
-        createError = GetLastError();
+    g_10_hMainWindow = CreateWindowExA(
+        0, g_szWindowClassName, g_szWindowTitle,
+        WS_POPUP, 0, 0, 320, 200, 0, 0, g_7_hAppCopy, 0);
+    if (g_10_hMainWindow == 0) {
+        error = GetLastError();
         return 0;
     }
 
-    DAT_005d1278 = GetDC(g_hMainWindow_005d10e0);
-    SetTextColor(DAT_005d1278, RGB(255, 0, 0));
-    SetBkColor(DAT_005d1278, RGB(0, 0, 0));
-    if (GetDeviceCaps(DAT_005d1278, BITSPIXEL) < 8) {
+    g_18_hMainWindowContext = GetDC(g_10_hMainWindow);
+    SetTextColor(g_18_hMainWindowContext, RGB(255, 0, 0));
+    SetBkColor(g_18_hMainWindowContext, RGB(0, 0, 0));
+    if (GetDeviceCaps(g_18_hMainWindowContext, BITSPIXEL) < 8) {
         MessageBoxA(0,
                     "You must be running with 256, or more, colors to play Wing Commander",
                     "NOTICE", MB_ICONEXCLAMATION);
-        DestroyWindow(g_hMainWindow_005d10e0);
+        DestroyWindow(g_10_hMainWindow);
         return 0;
     }
 
-    DAT_005d1288 = SetCursor(0);
-    ShowWindow(g_hMainWindow_005d10e0, showCommand);
-    UpdateWindow(g_hMainWindow_005d10e0);
-    DIBinstall(g_hMainWindow_005d10e0);
-    g_bMainWindowRunning_005d12ac = 1;
+    g_1_hMainWndCursor = SetCursor(0);
+    ShowWindow(g_10_hMainWindow, showCommand);
+    UpdateWindow(g_10_hMainWindow);
+    DIBinstall(g_10_hMainWindow);
+    g_16_bMainWindowRunning = 1;
     return 1;
 }
 
@@ -837,27 +370,33 @@ unsigned int PumpWindowMessages(int skipMessages)
 {
 #ifndef SDL_PORT
     MSG message;
+    /* Retail reserves 28 more bytes around these that nothing touches. */
+    DWORD cursor;
+    POINT point;
 #endif
     int done;
+#ifndef SDL_PORT
+    RECT windowRect;
+#endif
 
     done = 0;
-    g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_dwGameClockStart_005d12b8;
-    g_nInputClock_005c84a8 *= 60;
-    g_nInputClock_005c84a8 /= 1000;
+    g_196_nInputTimerTicks = GetTickCount();
+    g_196_nInputTimerTicks -= g_13_lGameClockStartData;
+    g_196_nInputTimerTicks *= 60;
+    g_196_nInputTimerTicks /= 1000;
     if (skipMessages == 0) {
-        if (g_bWindowMessagePumpActive_0049c2e4 != 0)
+        if (g_bWindowMessagePumpActive != 0)
             return 1;
-        g_bWindowMessagePumpActive_0049c2e4 = 1;
-        if (g_pfnInputPump_005c840c != 0)
-            g_pfnInputPump_005c840c();
+        g_bWindowMessagePumpActive = 1;
+        if (g_176_pfnCurrentInputPump != 0)
+            g_176_pfnCurrentInputPump();
         KeyboardMousePump();
 #ifdef SDL_PORT
         SdlPumpEvents();
 #else
         done = 0;
-        while (done == 0 || g_bWindowInactive_0049c274 != 0) {
-            if (g_bWindowInactive_0049c274 != 0) {
+        while (done == 0 || g_bWindowInactive != 0) {
+            if (g_bWindowInactive != 0) {
                 if (GetMessageA(&message, 0, 0, 0) != 0) {
                     TranslateMessage(&message);
                     DispatchMessageA(&message);
@@ -883,19 +422,13 @@ unsigned int PumpWindowMessages(int skipMessages)
             }
         }
 #endif
-        g_bWindowMessagePumpActive_0049c2e4 = 0;
+        g_bWindowMessagePumpActive = 0;
     }
-    g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_dwGameClockStart_005d12b8;
-    g_nInputClock_005c84a8 *= 60;
-    g_nInputClock_005c84a8 /= 1000;
-    return g_bMainWindowRunning_005d12ac;
-}
-
-/* Function start: 0x453C80 */
-unsigned int GetF1KeyLatch(void)
-{
-    return g_bF1KeyDown_0049c240;
+    g_196_nInputTimerTicks = GetTickCount();
+    g_196_nInputTimerTicks -= g_13_lGameClockStartData;
+    g_196_nInputTimerTicks *= 60;
+    g_196_nInputTimerTicks /= 1000;
+    return g_16_bMainWindowRunning;
 }
 
 #ifndef SDL_PORT
@@ -905,100 +438,102 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
 {
     PAINTSTRUCT paint;
-    int mouseEvent;
-    unsigned int command;
-    unsigned int primaryButton;
-    unsigned int secondaryButton;
-    unsigned int mouseX;
-    unsigned int mouseY;
-    unsigned int scanCode;
-    MSG characterMessage;
+    int mouseInput;
+    unsigned int menuId;
+    unsigned int primaryButtonDown;
+    unsigned int secondaryDown;
+    unsigned int pointerPositionX;
+    unsigned int cursorY;
+    unsigned int scanValue;
+    MSG textEvent;
     unsigned int character;
-    HANDLE process;
+    HANDLE processHandle;
     RECT clip;
 
-    command = (unsigned int)wParam & 0xffff;
-    mouseEvent = 0;
-    primaryButton = ((unsigned int)wParam & 1) != 0;
-    secondaryButton = ((unsigned int)wParam & 2) != 0;
+    menuId = (unsigned int)wParam & 0xffff;
+    mouseInput = 0;
+    primaryButtonDown = ((unsigned int)wParam & 1) != 0;
+    secondaryDown = ((unsigned int)wParam & 2) != 0;
     if (message == WM_MOUSEMOVE || message == WM_RBUTTONUP ||
         message == WM_LBUTTONUP || message == WM_LBUTTONDOWN ||
         message == WM_RBUTTONDOWN) {
-        g_nPendingMouseX_0049c2ec = LOWORD(lParam);
-        g_nPendingMouseY_0049c2f0 = HIWORD(lParam);
+        g_nPendingMouseX = LOWORD(lParam);
+        pointerPositionX = g_nPendingMouseX;
+        g_nPendingMouseY = HIWORD(lParam);
+        cursorY = g_nPendingMouseY;
+    } else {
+        pointerPositionX = g_nPendingMouseX;
+        cursorY = g_nPendingMouseY;
     }
-    mouseX = g_nPendingMouseX_0049c2ec;
-    mouseY = g_nPendingMouseY_0049c2f0;
 
     switch (message) {
     case WM_ACTIVATEAPP:
-        if (g_bApplicationControllerActive_0049c25c != 0) {
+        if (g_bApplicationControllerActive != 0) {
             if (wParam != 0) {
-                if (g_bWindowInactive_0049c274 == 1) {
+                if (g_bWindowInactive == 1) {
                     clip.left = 0;
                     clip.top = 0;
                     clip.right = 320;
                     clip.bottom = 200;
                     ShowCursor(FALSE);
-                    process = GetCurrentProcess();
-                    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-                    SetActiveWindow(g_hMainWindow_005d10e0);
-                    SetForegroundWindow(g_hMainWindow_005d10e0);
+                    processHandle = GetCurrentProcess();
+                    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
+                    SetActiveWindow(g_10_hMainWindow);
+                    SetForegroundWindow(g_10_hMainWindow);
                     DIBreInstall();
                     ClipCursor(&clip);
-                    SetCursorPos(g_nSavedWindowCursorX_005d12a0,
-                                 g_nSavedWindowCursorY_005d12a4);
-                    g_bWindowInactive_0049c274 = 0;
+                    SetCursorPos(g_3_nSavedOwnerCursorX,
+                                 g_102_nStoredWindowCursorYWord);
+                    g_bWindowInactive = 0;
                     WriteDebugString("UNPAUSING...\n");
                 }
-            } else if (g_bWindowInactive_0049c274 == 0 &&
-                       g_bApplicationShutdownStarted_0049c23c == 0) {
-                g_nSavedWindowCursorX_005d12a0 = 160;
-                g_nSavedWindowCursorY_005d12a4 = 100;
+            } else if (g_bWindowInactive == 0 &&
+                       g_bApplicationShutdownStarted == 0) {
+                g_3_nSavedOwnerCursorX = 160;
+                g_102_nStoredWindowCursorYWord = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
-                process = GetCurrentProcess();
-                SetPriorityClass(process, IDLE_PRIORITY_CLASS);
-                g_bWindowInactive_0049c274 = 1;
+                processHandle = GetCurrentProcess();
+                SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
+                g_bWindowInactive = 1;
                 WriteDebugString("PAUSING...\n");
             }
             return 0;
         }
         /* fall through */
     case WM_ACTIVATE:
-        if (g_bApplicationControllerActive_0049c25c != 0) {
+        if (g_bApplicationControllerActive != 0) {
             if (((unsigned int)wParam & 0xffff) != 0) {
-                if (((unsigned int)wParam >> 16) != 0) {
-                    g_bWindowInactive_0049c274 = 1;
+                if (HIWORD(wParam) != 0) {
+                    g_bWindowInactive = 1;
                     WriteDebugString("MINIMIZED PAUSING...\n");
                     return 0;
-                }
-                if (g_bWindowInactive_0049c274 == 1) {
+                } else if (g_bWindowInactive == 1) {
                     clip.left = 0;
                     clip.top = 0;
                     clip.right = 320;
                     clip.bottom = 200;
                     ShowCursor(FALSE);
-                    process = GetCurrentProcess();
-                    SetPriorityClass(process, HIGH_PRIORITY_CLASS);
-                    SetActiveWindow(g_hMainWindow_005d10e0);
-                    SetForegroundWindow(g_hMainWindow_005d10e0);
+                    processHandle = GetCurrentProcess();
+                    SetPriorityClass(processHandle, HIGH_PRIORITY_CLASS);
+                    SetActiveWindow(g_10_hMainWindow);
+                    SetForegroundWindow(g_10_hMainWindow);
                     DIBreInstall();
                     ClipCursor(&clip);
-                    SetCursorPos(g_nSavedWindowCursorX_005d12a0,
-                                 g_nSavedWindowCursorY_005d12a4);
-                    g_bWindowInactive_0049c274 = 0;
+                    SetCursorPos(g_3_nSavedOwnerCursorX,
+                                 g_102_nStoredWindowCursorYWord);
+                    g_bWindowInactive = 0;
                     WriteDebugString("UNPAUSING...\n");
                 }
-            } else if (g_bWindowInactive_0049c274 == 0 &&
-                       g_bApplicationShutdownStarted_0049c23c == 0) {
-                g_nSavedWindowCursorX_005d12a0 = 160;
-                g_nSavedWindowCursorY_005d12a4 = 100;
+            } else if (g_bWindowInactive == 0 &&
+                       g_bApplicationShutdownStarted == 0) {
+                g_3_nSavedOwnerCursorX = 160;
+                g_102_nStoredWindowCursorYWord = 100;
                 ClipCursor(0);
                 ShowCursor(TRUE);
-                process = GetCurrentProcess();
-                SetPriorityClass(process, IDLE_PRIORITY_CLASS);
-                g_bWindowInactive_0049c274 = 1;
+                processHandle = GetCurrentProcess();
+                SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
+                g_bWindowInactive = 1;
                 WriteDebugString("PAUSING...\n");
             }
             return 0;
@@ -1007,107 +542,113 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_SETFOCUS:
         SignalAudioMixerWakeEvent();
         return 0;
+        /* Retail retains the switch break after this return. */
+        break;
+    case WM_CREATE:
+        break;
     case WM_COMMAND:
-        if (command == 3) {
-            g_bMainWindowRunning_005d12ac = 0;
+        switch (menuId) {
+        case 3:
+            g_16_bMainWindowRunning = 0;
             PostQuitMessage(0);
+            break;
         }
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
-        g_nInputPressCount_0049c258++;
-        QueueInputEvent(1, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0,
-                        primaryButton, secondaryButton, 0, 0, 0);
-        mouseEvent = 1;
-        break;
-    case WM_LBUTTONUP:
-        g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0, 1, 0, 0, 0, 0);
-        mouseEvent = 1;
+        g_nInputPressCount++;
+        QueueInputEvent(1, pointerPositionX,
+                        cursorY, 0,
+                        primaryButtonDown, secondaryDown, 0, 0, 0);
+        mouseInput = 1;
         break;
     case WM_RBUTTONUP:
-        g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)mouseX,
-                        (unsigned short)mouseY, 0, 0, 1, 0, 0, 0);
-        mouseEvent = 1;
+        g_nInputPressCount--;
+        QueueInputEvent(2, pointerPositionX,
+                        cursorY, 0, 0, 1, 0, 0, 0);
+        mouseInput = 1;
+        break;
+    case WM_LBUTTONUP:
+        g_nInputPressCount--;
+        QueueInputEvent(2, pointerPositionX,
+                        cursorY, 0, 1, 0, 0, 0, 0);
+        mouseInput = 1;
         break;
     case WM_MOUSEMOVE:
-        if (g_bSuppressNextMouseMove_005c843c == 0) {
-            QueueInputEvent(3, (unsigned short)mouseX,
-                            (unsigned short)mouseY, 0,
-                            primaryButton, secondaryButton, 0, 0, 0);
-            mouseEvent = 1;
+        if (g_2_bIgnoreNextCursorMoveFlag == 0) {
+            QueueInputEvent(3, pointerPositionX,
+                            cursorY, 0,
+                            primaryButtonDown, secondaryDown, 0, 0, 0);
+            mouseInput = 1;
         } else {
-            g_bSuppressNextMouseMove_005c843c = 0;
+            g_2_bIgnoreNextCursorMoveFlag = 0;
         }
         break;
     case WM_KEYDOWN:
-        if (PeekMessageA(&characterMessage, window, WM_CHAR, WM_CHAR,
+        if (PeekMessageA(&textEvent, window, WM_CHAR, WM_CHAR,
                          PM_REMOVE) != 0) {
-            character = (unsigned int)characterMessage.wParam;
+            character = (unsigned int)textEvent.wParam;
         } else {
             character = 0;
         }
         if (wParam == VK_F1) {
             if (((unsigned long)lParam & 0x40000000) == 0)
-                g_bF1KeyDown_0049c240 = 1;
+                g_bF1KeyDown = 1;
             else
-                g_bF1KeyDown_0049c240 = 0;
+                g_bF1KeyDown = 0;
         }
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        if (scanCode == 1)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
+        scanValue = ((unsigned long)lParam & 0xff0000) >> 16;
+        if (scanValue == 1)
+            g_bSceneEscapeRequested = 1;
         if (((unsigned long)lParam & 0x40000000) == 0 &&
-            scanCode != 1) {
-            g_nInputPressCount_0049c258++;
+            scanValue != 1) {
+            g_nInputPressCount++;
         }
-        QueueInputEvent(4, (unsigned short)mouseX,
-                        (unsigned short)mouseY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanCode,
-                        (unsigned short)character);
-        SetInputKeyState((int)scanCode, 1);
+        QueueInputEvent(4, pointerPositionX,
+                        cursorY, wParam,
+                        0, 0, 0, scanValue,
+                        character);
+        SetInputKeyState((int)scanValue, 1);
         break;
     case WM_KEYUP:
-        if (PeekMessageA(&characterMessage, window, WM_CHAR, WM_CHAR,
+        if (PeekMessageA(&textEvent, window, WM_CHAR, WM_CHAR,
                          PM_REMOVE) != 0) {
-            character = (unsigned int)characterMessage.wParam;
+            character = (unsigned int)textEvent.wParam;
         } else {
             character = 0;
         }
         if (wParam == VK_F1)
-            g_bF1KeyDown_0049c240 = 0;
-        scanCode = ((unsigned long)lParam & 0xff0000) >> 16;
-        if (scanCode != 0x81) {
-            g_nInputPressCount_0049c258--;
-            if (g_nInputPressCount_0049c258 < 0)
-                g_nInputPressCount_0049c258 = 0;
+            g_bF1KeyDown = 0;
+        scanValue = ((unsigned long)lParam & 0xff0000) >> 16;
+        if (scanValue != 0x81) {
+            g_nInputPressCount--;
+            if (g_nInputPressCount < 0)
+                g_nInputPressCount = 0;
         }
-        QueueInputEvent(5, (unsigned short)mouseX,
-                        (unsigned short)mouseY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanCode,
-                        (unsigned short)character);
-        SetInputKeyState((int)scanCode, 0);
+        QueueInputEvent(5, pointerPositionX,
+                        cursorY, wParam,
+                        0, 0, 0, scanValue,
+                        character);
+        SetInputKeyState((int)scanValue, 0);
         break;
     case WM_SYSKEYUP:
-        g_bAltAHotkey_005d1294 = 0;
-        g_bAltBHotkey_005d1290 = 0;
-        g_bJoystickCalibrationHotkey_005d1284 = 0;
-        g_bAltTHotkey_005d1298 = 0;
-        g_bAltHHotkey_005d128c = 0;
-        g_bAltFHotkey_005d127c = 0;
-        g_bAltDHotkey_005d1280 = 0;
-        g_nLastAltCommandScanCode_005d1274 = 0;
-        g_bAltNumpadAddHotkey_005d1270 = 0;
-        g_bAltNumpadSubtractHotkey_005d12a8 = 0;
-        g_dwSystemKey_005d10a4 = 0;
+        g_bMenuAHotkey = 0;
+        g_4_bMenuBHotkey = 0;
+        g_bJoystickCalibrationHotkey = 0;
+        g_6_bMenuTHotkeySwitch = 0;
+        g_2_bAltHHotkey = 0;
+        g_2_bAltFHotkeyFlag = 0;
+        g_6_bAltDChordState = 0;
+        g_27_nLastAltCommandScanNumberWord = 0;
+        g_39_bAltNumpadAddHotkeySwitch = 0;
+        g_bAltNumpadSubtractShortcut = 0;
+        g_69_dwSysKeyValue = 0;
         break;
     case WM_SYSKEYDOWN:
-        g_dwSystemKey_005d10a4 = (unsigned int)wParam;
+        g_69_dwSysKeyValue = (unsigned int)wParam;
         switch (wParam) {
         case 'X':
-            g_bApplicationShutdownStarted_0049c23c = 1;
+            g_bApplicationShutdownStarted = 1;
             if (((unsigned long)lParam & 0x20000000) != 0)
                 PostQuitMessage(0);
             break;
@@ -1119,68 +660,70 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             break;
         case 'A':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltAHotkey_005d1294 = 1;
+                g_bMenuAHotkey = 1;
             break;
         case 'B':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltBHotkey_005d1290 = 1;
+                g_4_bMenuBHotkey = 1;
             break;
         case 'C':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bJoystickCalibrationHotkey_005d1284 = 1;
+                g_bJoystickCalibrationHotkey = 1;
             break;
         case 'T':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltTHotkey_005d1298 = 1;
+                g_6_bMenuTHotkeySwitch = 1;
             break;
         case 'H':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltHHotkey_005d128c = 1;
+                g_2_bAltHHotkey = 1;
             break;
         case 'F':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltFHotkey_005d127c = 1;
+                g_2_bAltFHotkeyFlag = 1;
             break;
         case 'D':
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltDHotkey_005d1280 = 1;
+                g_6_bAltDChordState = 1;
             break;
         case VK_ADD:
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltNumpadAddHotkey_005d1270 = 1;
+                g_39_bAltNumpadAddHotkeySwitch = 1;
             break;
         case VK_SUBTRACT:
             if (((unsigned long)lParam & 0x20000000) != 0)
-                g_bAltNumpadSubtractHotkey_005d12a8 = 1;
+                g_bAltNumpadSubtractShortcut = 1;
             break;
         case 'Z':
             if (((unsigned long)lParam & 0x20000000) != 0 &&
-                g_bDebugBreakEnabled_0049c238 != 0) {
+                g_bDebugBreakEnabled != 0) {
                 DebugBreak();
             }
             break;
         }
         break;
+    case WM_SIZE:
+        break;
     case WM_PAINT:
-        BeginPaint(g_hMainWindow_005d10e0, &paint);
-        EndPaint(g_hMainWindow_005d10e0, &paint);
+        BeginPaint(g_10_hMainWindow, &paint);
+        EndPaint(g_10_hMainWindow, &paint);
         break;
     case WM_CLOSE:
     case WM_DESTROY:
-        g_bMainWindowRunning_005d12ac = 0;
+        g_16_bMainWindowRunning = 0;
         ClipCursor(0);
         ShowCursor(TRUE);
-        process = GetCurrentProcess();
-        SetPriorityClass(process, IDLE_PRIORITY_CLASS);
+        processHandle = GetCurrentProcess();
+        SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
         PostQuitMessage(0);
         break;
     case WM_QUIT:
-        g_bMainWindowRunning_005d12ac = 0;
+        g_16_bMainWindowRunning = 0;
         ClipCursor(0);
         ShowCursor(TRUE);
-        process = GetCurrentProcess();
-        SetPriorityClass(process, IDLE_PRIORITY_CLASS);
-        g_bApplicationShutdownStarted_0049c23c = 1;
+        processHandle = GetCurrentProcess();
+        SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
+        g_bApplicationShutdownStarted = 1;
         break;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_SCREENSAVE ||
@@ -1188,11 +731,11 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             return 0;
         break;
     }
-    if (mouseEvent != 0) {
-        g_stHostMouseMessage_005d10d0.x = mouseX;
-        g_stHostMouseMessage_005d10d0.y = mouseY;
-        g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
-        g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
+    if (mouseInput != 0) {
+        g_6_stHostMouseTextBlock.x = pointerPositionX;
+        g_6_stHostMouseTextBlock.y = cursorY;
+        g_6_stHostMouseTextBlock.primaryButton = primaryButtonDown;
+        g_6_stHostMouseTextBlock.secondaryButton = secondaryDown;
     }
     return DefWindowProcA(window, message, wParam, lParam);
 }
@@ -1201,45 +744,45 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
 
 /* Function start: 0x4551E7 */
 void GetJoystickPosition(unsigned int *x, unsigned int *y,
-                         unsigned int *buttons, short joystick,
+                         int *buttons, unsigned short joystick,
                          unsigned int fallback)
 {
-    unsigned int infoIndex;
-    unsigned int device;
-    JOYINFO sample;
+    unsigned int slot;
+    unsigned int deviceId;
+    JOYINFO joyInfo;
 
-    infoIndex = 0;
+    slot = 0;
     if (joystick != 0) {
-        device = 1;
-        infoIndex = 1;
+        deviceId = 1;
+        slot = 1;
     } else {
-        device = 0;
-        infoIndex = 0;
+        deviceId = 0;
+        slot = 0;
     }
 #ifdef SDL_PORT
     if (SdlReadJoystick(
-            device, &g_aJoystickInfo_005d10b0[infoIndex]) != FALSE) {
+            deviceId, &g_1_aJoystickInfoArray[slot]) != FALSE) {
 #else
-    if (joyGetPos(device, &g_aJoystickInfo_005d10b0[infoIndex]) ==
+    if (joyGetPos(deviceId, &g_1_aJoystickInfoArray[slot]) ==
         JOYERR_NOERROR) {
 #endif
-        *x = g_aJoystickInfo_005d10b0[infoIndex].wXpos;
-        *y = g_aJoystickInfo_005d10b0[infoIndex].wYpos;
-        *buttons = g_aJoystickInfo_005d10b0[infoIndex].wButtons;
-        sample = g_aJoystickInfo_005d10b0[infoIndex];
-        if ((sample.wButtons & 1) != 0) {
-            if (g_bJoystickPrimaryButtonLatched_0049c2f8 == 0)
-                g_nInputPressCount_0049c258++;
-            g_bJoystickPrimaryButtonLatched_0049c2f8 = 1;
+        *x = g_1_aJoystickInfoArray[slot].wXpos;
+        *y = g_1_aJoystickInfoArray[slot].wYpos;
+        *buttons = g_1_aJoystickInfoArray[slot].wButtons;
+        joyInfo = g_1_aJoystickInfoArray[slot];
+        if ((joyInfo.wButtons & 1) != 0) {
+            if (g_bJoystickPrimaryButtonLatched == 0)
+                g_nInputPressCount++;
+            g_bJoystickPrimaryButtonLatched = 1;
         } else {
-            g_bJoystickPrimaryButtonLatched_0049c2f8 = 0;
+            g_bJoystickPrimaryButtonLatched = 0;
         }
-        if ((sample.wButtons & 2) != 0) {
-            if (g_bJoystickSecondaryButtonLatched_0049c2fc == 0)
-                g_nInputPressCount_0049c258++;
-            g_bJoystickSecondaryButtonLatched_0049c2fc = 1;
+        if ((joyInfo.wButtons & 2) != 0) {
+            if (g_bJoystickSecondaryButtonLatched == 0)
+                g_nInputPressCount++;
+            g_bJoystickSecondaryButtonLatched = 1;
         } else {
-            g_bJoystickSecondaryButtonLatched_0049c2fc = 0;
+            g_bJoystickSecondaryButtonLatched = 0;
         }
         if (joystick != 0)
             *buttons >>= 2;
@@ -1258,8 +801,8 @@ short GetJoystickButtons(void)
 {
     short buttons;
 
-    buttons = (g_aJoystickInfo_005d10b0[1].wButtons << 2) |
-              g_aJoystickInfo_005d10b0[0].wButtons;
+    buttons = (g_1_aJoystickInfoArray[1].wButtons << 2) |
+              g_1_aJoystickInfoArray[0].wButtons;
     return buttons;
 }
 
@@ -1273,16 +816,16 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     unsigned int hostYMin;
     unsigned int hostYMax;
 #else
-    JOYCAPSA caps;
+    JOYCAPSA devCaps;
 #endif
-    unsigned int device = joystick != 0;
+    unsigned int deviceId = joystick != 0;
 
     *xMin = *xMax = *yMin = *yMax = 0;
 #ifdef SDL_PORT
     if (SdlReadJoystickAxisRange(
-            device, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
+            deviceId, &hostXMin, &hostXMax, &hostYMin, &hostYMax) == FALSE) {
 #else
-    if (joyGetDevCapsA(device, &caps, sizeof(caps)) != JOYERR_NOERROR) {
+    if (joyGetDevCapsA(deviceId, &devCaps, sizeof(devCaps)) != JOYERR_NOERROR) {
 #endif
         return;
     }
@@ -1293,17 +836,17 @@ void GetJoystickDevCaps(short joystick, short *xMin, short *xMax,
     *yMin = (short)hostYMin;
     *yMax = (short)hostYMax;
 #else
-    *xMin = (short)caps.wXmin;
-    *xMax = (short)caps.wXmax;
-    *yMin = (short)caps.wYmin;
-    *yMax = (short)caps.wYmax;
+    *xMin = (short)devCaps.wXmin;
+    *xMax = (short)devCaps.wXmax;
+    *yMin = (short)devCaps.wYmin;
+    *yMax = (short)devCaps.wYmax;
 #endif
 }
 
 /* Function start: 0x455427 */
 HINSTANCE GetApplicationInstance(void)
 {
-    return DAT_005d12b0;
+    return g_7_hAppCopy;
 }
 
 /* Function start: 0x45543C */
@@ -1311,7 +854,7 @@ HINSTANCE GetApplicationInstance(void)
  * believed unreachable. */
 HWND GetMainWindowHandle(void)
 {
-    return g_hMainWindow_005d10e0;
+    return g_10_hMainWindow;
 }
 
 /* Function start: 0x455451 */
@@ -1319,27 +862,26 @@ HWND GetMainWindowHandle(void)
  * believed unreachable. */
 HDC GetMainWindowDeviceContext(void)
 {
-    return DAT_005d1278;
+    return g_18_hMainWindowContext;
 }
 
 #pragma function(memset)
-
 /* Function start: 0x455466 */
 void *AllocateGuardedMemory(unsigned int size)
 {
-    if (g_pGuardedAllocationHead_0049c300 == 0) {
-        g_pGuardedAllocationHead_0049c300 =
+    if (g_pGuardedAllocationHead == 0) {
+        g_pGuardedAllocationHead =
             malloc(sizeof(GuardedAllocation));
-        g_pGuardedAllocationTail_005d10ec =
-            g_pGuardedAllocationHead_0049c300;
+        g_9_pGuardedAllocationLastRef =
+            g_pGuardedAllocationHead;
     } else {
-        g_pGuardedAllocationTail_005d10ec->next =
+        g_9_pGuardedAllocationLastRef->next =
             malloc(sizeof(GuardedAllocation));
-        g_pGuardedAllocationTail_005d10ec =
-            g_pGuardedAllocationTail_005d10ec->next;
+        g_9_pGuardedAllocationLastRef =
+            g_9_pGuardedAllocationLastRef->next;
     }
-    g_pGuardedAllocationTail_005d10ec->next = 0;
-    g_pGuardedAllocationTail_005d10ec->size = size;
+    g_9_pGuardedAllocationLastRef->next = 0;
+    g_9_pGuardedAllocationLastRef->size = size;
 #ifdef SDL_PORT
     /* The 0x400-byte 0xAB fences the original hand-rolls are what ASan's
      * redzones already provide, and ASan reports the write that runs past the
@@ -1351,32 +893,31 @@ void *AllocateGuardedMemory(unsigned int size)
      * one, so the original's fence was load-bearing there.  Four bytes is the
      * least that probe needs and still leaves any store wider than a tag --
      * every pointer-width mistake included -- landing in ASan's redzone. */
-    g_pGuardedAllocationTail_005d10ec->block = malloc(size + 4);
-    memset(g_pGuardedAllocationTail_005d10ec->block, 0, size);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block + size,
+    g_9_pGuardedAllocationLastRef->block = malloc(size + 4);
+    memset(g_9_pGuardedAllocationLastRef->block, 0, size);
+    memset((unsigned char *)g_9_pGuardedAllocationLastRef->block + size,
            0xab, 4);
 #else
-    g_pGuardedAllocationTail_005d10ec->block = malloc(size + 0x800);
+    g_9_pGuardedAllocationLastRef->block = malloc(size + 0x800);
 
-    memset(g_pGuardedAllocationTail_005d10ec->block, 0xab, 0x400);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    memset(g_9_pGuardedAllocationLastRef->block, 0xab, 0x400);
+    memset((unsigned char *)g_9_pGuardedAllocationLastRef->block +
                0x400,
            0, size);
-    memset((unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    memset((unsigned char *)g_9_pGuardedAllocationLastRef->block +
                0x400 + size,
            0xab, 0x400);
 #endif
-    UntrackFreedHeapBlock(g_pGuardedAllocationTail_005d10ec->block);
+    UntrackFreedHeapBlock(g_9_pGuardedAllocationLastRef->block);
 #ifdef SDL_PORT
-    return g_pGuardedAllocationTail_005d10ec->block;
+    return g_9_pGuardedAllocationLastRef->block;
 #else
-    return (unsigned char *)g_pGuardedAllocationTail_005d10ec->block +
+    return (unsigned char *)g_9_pGuardedAllocationLastRef->block +
            0x400;
 #endif
 }
 
 #pragma intrinsic(memset)
-
 /* Function start: 0x455565 */
 void ReportHeapGuardCorruption(void *memory, int count, int overrun)
 {
@@ -1400,7 +941,7 @@ int IsFreedHeapBlockTracked(void *memory)
 {
     FreedHeapBlock *block;
 
-    block = g_pFreedHeapBlockHead_0049c304;
+    block = g_pFreedHeapBlockHead;
     while (block != 0) {
         if (block->block == memory)
             return 1;
@@ -1416,7 +957,7 @@ int DetectDoubleFree(void *memory)
 {
     FreedHeapBlock *block;
 
-    block = g_pFreedHeapBlockHead_0049c304;
+    block = g_pFreedHeapBlockHead;
     while (block != 0) {
         if (block->block == memory) {
             OutputDebugStringA("DoubleFree Detected\n");
@@ -1434,15 +975,16 @@ int DetectDoubleFree(void *memory)
 /* Function start: 0x455715 */
 void TrackFreedHeapBlock(void *memory)
 {
-    if (g_pFreedHeapBlockHead_0049c304 == 0) {
-        g_pFreedHeapBlockHead_0049c304 = malloc(sizeof(FreedHeapBlock));
-        g_pFreedHeapBlockTail_0049c308 = g_pFreedHeapBlockHead_0049c304;
+    if (g_pFreedHeapBlockHead == 0) {
+        g_pFreedHeapBlockHead = malloc(sizeof(FreedHeapBlock));
+        g_pFreedHeapBlockTail = g_pFreedHeapBlockHead;
     } else {
-        g_pFreedHeapBlockTail_0049c308->next = malloc(sizeof(FreedHeapBlock));
-        g_pFreedHeapBlockTail_0049c308 = g_pFreedHeapBlockTail_0049c308->next;
+        g_pFreedHeapBlockTail->next = malloc(sizeof(FreedHeapBlock));
+        g_pFreedHeapBlockTail = g_pFreedHeapBlockTail->next;
     }
-    g_pFreedHeapBlockTail_0049c308->next = 0;
-    g_pFreedHeapBlockTail_0049c308->block = memory;
+    g_pFreedHeapBlockTail->next = 0;
+    g_pFreedHeapBlockTail->block = memory;
+    return;
 }
 
 /* Function start: 0x455787 */
@@ -1450,43 +992,64 @@ void TrackFreedHeapBlock(void *memory)
  * mistaken for a double free. */
 void UntrackFreedHeapBlock(void *memory)
 {
-    FreedHeapBlock *previous;
-    FreedHeapBlock *block;
+    FreedHeapBlock *prev;
+    FreedHeapBlock *current;
 
-    previous = 0;
-    block = g_pFreedHeapBlockHead_0049c304;
-    while (block != 0) {
-        if (block->block == memory) {
-            if (previous != 0) {
-                previous->next = block->next;
-                if (block->next == 0)
-                    g_pFreedHeapBlockTail_0049c308 = previous;
+    prev = 0;
+    current = g_pFreedHeapBlockHead;
+    while (current != 0) {
+        if (current->block == memory) {
+            if (prev != 0) {
+                prev->next = current->next;
+                if (current->next == 0)
+                    g_pFreedHeapBlockTail = prev;
             } else {
-                g_pFreedHeapBlockHead_0049c304 = block->next;
-                if (block->next == 0)
-                    g_pFreedHeapBlockTail_0049c308 = previous;
+                g_pFreedHeapBlockHead = current->next;
+                if (current->next == 0)
+                    g_pFreedHeapBlockTail = prev;
             }
-            free(block);
-            break;
+            free(current);
+            return;
         }
-        previous = block;
-        block = block->next;
+        prev = current;
+        current = current->next;
     }
     return;
 }
+
+/* Function start: 0x455836 */
+/* Nothing in the shipped executable calls this.  Frees the whole list of
+ * tracked freed-block records. */
+void FreeTrackedHeapBlocks(void)
+{
+    FreedHeapBlock *entry;
+    FreedHeapBlock *freed;
+
+    entry = g_pFreedHeapBlockHead;
+    freed = 0;
+    while (entry != 0) {
+        freed = entry;
+        entry = entry->next;
+        free(freed);
+    }
+    return;
+}
+
+void ReportHeapGuardCorruption(void *memory, int count, int overrun);
+void WriteDebugString(const char *s);
 
 /* Function start: 0x455882 */
 void FreeGuardedAllocation(void *memory)
 {
     int found;
 #ifdef SDL_PORT
-    unsigned char *guard;
+    unsigned char *fence;
     unsigned int guardValue;
 #else
-    unsigned int *guard;
+    unsigned int *fence;
 #endif
     GuardedAllocation *previous;
-    GuardedAllocation *allocation;
+    GuardedAllocation *entry;
     int corrupt;
     int i;
 
@@ -1494,63 +1057,527 @@ void FreeGuardedAllocation(void *memory)
 #ifdef SDL_PORT
     /* No fences to walk: the block starts where the caller's pointer does and
      * ASan owns the redzones on either side of it. */
-    guard = (unsigned char *)memory;
+    fence = (unsigned char *)memory;
 #else
-    guard = (unsigned int *)((unsigned char *)memory - 0x400);
+    fence = (unsigned int *)((unsigned char *)memory - 0x400);
 #endif
     previous = 0;
-    allocation = g_pGuardedAllocationHead_0049c300;
-    while (allocation != 0) {
-        if (allocation->block == guard) {
+    entry = g_pGuardedAllocationHead;
+    while (entry != 0) {
+        if (entry->block == fence) {
 #ifndef SDL_PORT
             corrupt = 0;
             for (i = 0; i < 0x100; i++) {
-                if (*guard != 0xabababab)
+                if (*fence != 0xabababab)
                     corrupt++;
-                guard++;
+                fence++;
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 0);
 
+            fence =
+                (unsigned int *)((unsigned char *)memory + entry->size);
             corrupt = 0;
-            guard =
-                (unsigned int *)((unsigned char *)memory + allocation->size);
             for (i = 0; i < 0x100; i++) {
-                if (*guard != 0xabababab)
+                if (*fence != 0xabababab)
                     corrupt++;
-                guard++;
+                fence++;
             }
             if (corrupt != 0)
                 ReportHeapGuardCorruption(memory, corrupt, 1);
 
-            guard = (unsigned int *)((unsigned char *)memory - 0x400);
+            fence = (unsigned int *)((unsigned char *)memory - 0x400);
 #endif
-            TrackFreedHeapBlock(guard);
-            free(guard);
+            TrackFreedHeapBlock(fence);
+            free(fence);
             if (previous != 0)
-                previous->next = allocation->next;
+                previous->next = entry->next;
             else
-                g_pGuardedAllocationHead_0049c300 = allocation->next;
-            if (g_pGuardedAllocationTail_005d10ec == allocation) {
+                g_pGuardedAllocationHead = entry->next;
+            if (g_9_pGuardedAllocationLastRef == entry) {
                 if (previous != 0)
-                    g_pGuardedAllocationTail_005d10ec = previous;
+                    g_9_pGuardedAllocationLastRef = previous;
                 else
-                    g_pGuardedAllocationTail_005d10ec = 0;
+                    g_9_pGuardedAllocationLastRef = 0;
             }
-            free(allocation);
-            allocation = 0;
+            free(entry);
+            entry = 0;
             found = 1;
+            break;
         }
-        if (allocation != 0) {
-            previous = allocation;
-            allocation = allocation->next;
+        if (entry != 0) {
+            previous = entry;
+            entry = entry->next;
+        }
+    }
+    if (found == 0 && DetectDoubleFree(fence) == 0) {
+        sprintf(g_szGuardedHeapDiagnosticMessage,
+                "MEM: Unknown memory lost (%p)\n", fence);
+        WriteDebugString(g_szGuardedHeapDiagnosticMessage);
+    }
+    return;
+}
+
+/* Function start: 0x455A85 */
+void SetMousePosition(int x, int y)
+{
+    SetCursorPos(x, y);
+}
+
+/* Function start: 0x455A9E */
+/* Nothing in the shipped executable calls this.  Latches a scene escape
+ * while the Escape key is down. */
+void PollEscapeKey(void)
+{
+    if (GetAsyncKeyState(VK_ESCAPE) != 0)
+        g_bSceneEscapeRequested = 1;
+    return;
+}
+
+/* Function start: 0x455AC8 */
+unsigned int PollKeyboardState(void)
+{
+    g_2_nClearedKeyboardState = 0;
+    g_3_nBeginKeyboardState = GetAsyncKeyState(VK_HOME);
+    g_13_nUpDirKeyState = GetAsyncKeyState(VK_UP);
+    g_nPgUpwardKeyMode = GetAsyncKeyState(VK_PRIOR);
+    g_102_nLeftDirKeyboardState = GetAsyncKeyState(VK_LEFT);
+    g_nRightDirKeyboardState = GetAsyncKeyState(VK_RIGHT);
+    g_18_nEndKeyState = GetAsyncKeyState(VK_END);
+    g_15_nDownArrowKeyState = GetAsyncKeyState(VK_DOWN);
+    g_1_nPageDownKeyboardMode = GetAsyncKeyState(VK_NEXT);
+    g_nClearKeyMode = GetAsyncKeyState(VK_CLEAR);
+    g_3_nOemPeriodKeyState = GetAsyncKeyState(0xbe);
+    g_nOemCommaKeyState = GetAsyncKeyState(0xbc);
+    g_nInsertKeyStatus = GetAsyncKeyState(VK_INSERT);
+    g_nDeleteKeyState = GetAsyncKeyState(VK_DELETE);
+
+    if (g_3_nBeginKeyboardState != 0)
+        return 0x47;
+    if (g_nPgUpwardKeyMode != 0)
+        return 0x49;
+    if (g_18_nEndKeyState != 0)
+        return 0x4f;
+    if (g_1_nPageDownKeyboardMode != 0)
+        return 0x51;
+    if (g_nInsertKeyStatus != 0 ||
+        g_nOemCommaKeyState != 0)
+        return 0x52;
+    if (g_nDeleteKeyState != 0 ||
+        g_3_nOemPeriodKeyState != 0)
+        return 0x53;
+    if (g_nClearKeyMode != 0)
+        return 0x4c;
+    if (g_13_nUpDirKeyState != 0) {
+        if (g_102_nLeftDirKeyboardState != 0)
+            return 0x47;
+        if (g_nRightDirKeyboardState != 0)
+            return 0x49;
+        return 0x48;
+    }
+    if (g_15_nDownArrowKeyState != 0) {
+        if (g_102_nLeftDirKeyboardState != 0)
+            return 0x4f;
+        if (g_nRightDirKeyboardState != 0)
+            return 0x51;
+        return 0x50;
+    }
+    if (g_102_nLeftDirKeyboardState != 0)
+        return 0x4b;
+    if (g_nRightDirKeyboardState != 0)
+        return 0x4d;
+    return 0;
+}
+
+/* Function start: 0x455D2D */
+int GetHomeKeyState(void)
+{
+    return GetAsyncKeyState(VK_HOME);
+}
+
+/* Function start: 0x455D48 */
+int GetUpArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_UP);
+}
+
+/* Function start: 0x455D63 */
+int GetPageUpKeyState(void)
+{
+    return GetAsyncKeyState(VK_PRIOR);
+}
+
+/* Function start: 0x455D7E */
+int GetLeftArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_LEFT);
+}
+
+/* Function start: 0x455D99 */
+int GetRightArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_RIGHT);
+}
+
+/* Function start: 0x455DB4 */
+int GetEndKeyState(void)
+{
+    return GetAsyncKeyState(VK_END);
+}
+
+/* Function start: 0x455DCF */
+int GetDownArrowKeyState(void)
+{
+    return GetAsyncKeyState(VK_DOWN);
+}
+
+/* Function start: 0x455DEA */
+int GetPageDownKeyState(void)
+{
+    return GetAsyncKeyState(VK_NEXT);
+}
+
+/* Function start: 0x455E05 */
+int GetNumLockKeyState(void)
+{
+    return GetAsyncKeyState(VK_NUMLOCK);
+}
+
+/* Function start: 0x455E23 */
+int GetNumpadPlusKeyState(void)
+{
+    return GetAsyncKeyState(VK_ADD);
+}
+
+/* Function start: 0x455E3E */
+int GetNumpadMinusKeyState(void)
+{
+    return GetAsyncKeyState(VK_SUBTRACT);
+}
+
+/* Function start: 0x455E59 */
+int GetReturnKeyState(void)
+{
+    return GetAsyncKeyState(VK_RETURN);
+}
+
+/* Function start: 0x455E74 */
+int GetSpaceKeyState(void)
+{
+    return GetAsyncKeyState(VK_SPACE);
+}
+
+/* Function start: 0x455E8F */
+int GetShiftKeyState(void)
+{
+    return GetAsyncKeyState(VK_SHIFT);
+}
+
+/* Function start: 0x455EAA */
+unsigned int GetKeyboardModifiers(void)
+{
+    return g_69_dwSysKeyValue;
+}
+
+/* Function start: 0x455EBF */
+int GetControlKeyState(void)
+{
+    return GetAsyncKeyState(VK_CONTROL);
+}
+
+/* Function start: 0x455EDA */
+int GetJKeyState(void)
+{
+    return GetAsyncKeyState(0x4a);
+}
+
+/* Function start: 0x455EF5 */
+unsigned int GetGameClockTicks(void)
+{
+    return (GetTickCount() - g_128_dwGameClockBase) * 60 / 1000;
+}
+
+/* Function start: 0x455F23 */
+void InitGameClockRandomEpoch(void)
+{
+    g_13_lGameClockStartData = GetTickCount();
+    g_128_dwGameClockBase = GetTickCount() + (rand() & 3600000);
+    return;
+}
+
+/* Function start: 0x455F59 */
+void WriteDebugString(const char *s)
+{
+    if (s != 0) {
+        OutputDebugString(s);
+        if (g_nDebugFileLoggingEnabled != 0) {
+            if (g_pDebugLogFile == 0)
+                g_pDebugLogFile = fopen("log.log", "wt");
+            fprintf(g_pDebugLogFile, "%s", s);
+            fflush(g_pDebugLogFile);
+        }
+    }
+    return;
+}
+
+/* Function start: 0x455FD3 */
+void SetInputCursorHostPosition(int x, int y)
+{
+    SetCursorPos(x, y);
+    return;
+}
+
+#pragma function(memset)
+
+/* Function start: 0x455FF1 */
+/* Nothing in the shipped executable calls this.  Allocates a one-entry
+ * glyph workspace of 5x5 pixels filled with colour 5. */
+FontWorkspace **AllocateFontWorkspace(short fontIndex)
+{
+    int slot;
+    FontWorkspace **workspace;
+
+    workspace = 0;
+    workspace = (FontWorkspace **)malloc(sizeof(*workspace));
+    *workspace = (FontWorkspace *)malloc(sizeof(**workspace));
+    for (slot = 0; slot < 1; slot++) {
+        workspace[0][slot].width = 5;
+        workspace[0][slot].height = 5;
+        workspace[0][slot].pixels = (unsigned char *)malloc(
+            (*workspace)->height * (*workspace)->width);
+        memset(workspace[0][slot].pixels, 5,
+               (*workspace)->height * (*workspace)->width);
+    }
+    return workspace;
+}
+
+/* Function start: 0x4560C0 */
+/* Nothing in the shipped executable calls this.  Frees a workspace from
+ * AllocateFontWorkspace. */
+void FreeFontWorkspace(FontWorkspace **workspace)
+{
+    int slot;
+
+    for (slot = 0; slot < 1; slot++)
+        free(workspace[0][slot].pixels);
+    free(*workspace);
+    free(workspace);
+    return;
+}
+
+/* Function start: 0x456123 */
+char *LocateStreamsDirOnDisc(void)
+{
+#ifdef SDL_PORT
+    char current[4096];
+    const char *directory;
+    int length;
+
+    if (GetCurrentDirectoryA(sizeof(current), current) == 0)
+        return 0;
+    /* Only the final path component identifies GAMEDAT. Its spelling may
+     * use any case, and an ancestor may also contain the word "gamedat". */
+    directory = current + strlen(current);
+    while (directory > current && directory[-1] != '/' &&
+           directory[-1] != '\\')
+        directory--;
+    length = snprintf(g_9_szStreamsPath,
+                      sizeof(g_9_szStreamsPath), "%s%s", current,
+                      SDL_strcasecmp(directory, "gamedat") == 0
+                          ? "/../streams/" : "/streams/");
+    if (length < 0 || (size_t)length >= sizeof(g_9_szStreamsPath))
+        return 0;
+    if (!SetCurrentDirectoryA(g_9_szStreamsPath))
+        return 0;
+    if (!SetCurrentDirectoryA(current))
+        return 0;
+    return g_9_szStreamsPath;
+#else
+    char current[256];
+    char *result;
+    char drive;
+
+    GetCurrentDirectoryA(0xff, current);
+    result = g_9_szStreamsPath;
+    drive = FindCdRomDriveByVolumeLabel("<anydisc>", "\\wc2\\streams\\");
+    if (drive != 0) {
+        sprintf(g_9_szStreamsPath, "%c:%s", drive,
+                "\\wc2\\streams\\");
+    } else {
+        if (strstr(current, "gamedat") != 0)
+            sprintf(g_9_szStreamsPath, "%s\\..\\%s", current,
+                    "streams\\");
+        else
+            sprintf(g_9_szStreamsPath, "%s\\%s", current,
+                    "streams\\");
+        GetCurrentDirectoryA(0xff, current);
+        if (!SetCurrentDirectoryA(g_9_szStreamsPath))
+            result = 0;
+        SetCurrentDirectoryA(current);
+    }
+    return result;
+#endif
+}
+
+#pragma function(strcmp)
+/* Function start: 0x456236 */
+char FindCdRomDriveByVolumeLabel(const char *label,
+                                 const char *directory)
+{
+    char volumeName[256];
+    char drivePath[12];
+    char systemName[64];
+    DWORD volumeFlags;
+    DWORD maximumComponentLength;
+    int count;
+    char drives[26];
+    char rootPath[12];
+    int device;
+    char answer;
+
+    count = 0;
+    for (device = 'a'; device <= 'z'; device++) {
+        sprintf(rootPath, "%c:\\", (char)device);
+        if (GetDriveTypeA(rootPath) == DRIVE_CDROM) {
+            drives[count] = (char)device;
+            count++;
         }
     }
 
-    guard = (unsigned int *)((unsigned char *)memory - 0x400);
-    if (found == 0 && DetectDoubleFree(guard) == 0) {
-        sprintf(g_szGuardedHeapDebugMessage_005d10f0,
-                "MEM: Unknown memory lost (%p)\n", guard);
-        WriteDebugString(g_szGuardedHeapDebugMessage_005d10f0);
+    answer = 0;
+    for (device = 0; device < count; device++) {
+        sprintf(drivePath, "%c:\\", drives[device]);
+        GetVolumeInformationA(drivePath, volumeName, 0xff, 0,
+                              &maximumComponentLength, &volumeFlags,
+                              systemName, sizeof(systemName));
+        if (strcmp(label, "<anydisc>") == 0) {
+            if (SetCurrentDirOnDrive(drives[device], directory) != 0) {
+                answer = drives[device];
+                break;
+            }
+        } else if (strcmp(volumeName, label) == 0) {
+            if (SetCurrentDirOnDrive(drives[device], directory) != 0) {
+                answer = drives[device];
+                break;
+            }
+        }
     }
+    return answer;
 }
+
+#pragma intrinsic(strcmp)
+/* Function start: 0x4563A3 */
+int SetCurrentDirOnDrive(char drive, const char *directory)
+{
+    char path[256];
+    char previous[256];
+    int result;
+
+    result = 0;
+    GetCurrentDirectoryA(0xff, previous);
+    sprintf(path, "%c:%s", drive, directory);
+    if (SetCurrentDirectoryA(path) != 0)
+        result = 1;
+    SetCurrentDirectoryA(previous);
+    return result;
+}
+
+/* Function start: 0x45641B */
+int TakeInputPressCount(void)
+{
+    int pressCount;
+
+    pressCount = g_nInputPressCount;
+    g_nInputPressCount = 0;
+    return pressCount;
+}
+
+#pragma intrinsic(strcpy)
+/* Function start: 0x456443 */
+int PromptInsertCorrectCd(void)
+{
+    int discNumber;
+    char title[18];
+    char message[1024];
+
+    discNumber = 1;
+    strcpy(title, "Insert Correct CD");
+    sprintf(message,
+            "Please place The Kilrathi Saga disc %d into your CD-ROM drive and click OK\n"
+            "or click cancel to quit",
+            discNumber);
+    while (LocateStreamsDirOnDisc() == 0) {
+        if (MessageBoxA(0, message, title,
+                        MB_OKCANCEL | MB_ICONEXCLAMATION) == IDCANCEL)
+            return 0;
+    }
+    return 1;
+}
+
+/* This unit's initialized data, after its functions so that it does not
+ * move the functions' symbol keys. */
+int g_bDebugBreakEnabled = 0; /* 0x0049c238 */
+int g_bApplicationShutdownStarted = 0; /* 0x0049c23c */
+int g_bF1KeyDown = 0; /* 0x0049c240 */
+int g_nAudioEnabled = 1; /* 0x0049c244 */
+int g_bInputEventQueueEnabled = 0; /* 0x0049c248 */
+unsigned int g_dwGuardedAllocationTotalBytes = 0; /* 0x0049c24c */
+unsigned int g_dwGuardedAllocationBytes = 0; /* 0x0049c250 */
+unsigned int g_dwGuardedAllocationPeakBytes = 0; /* 0x0049c254 */
+int g_nInputPressCount = 0; /* 0x0049c258 */
+int g_bApplicationControllerActive = 0; /* 0x0049c25c */
+int g_bShowFrameRate = 0; /* 0x0049c260 */
+int g_bConfigQuickModeEnabled = 1; /* 0x0049c264 */
+int g_bUseHardwarePalette = 1; /* 0x0049c268 */
+int g_bCockpitEnabled = 1; /* 0x0049c26c */
+int g_bSkipCampaignVideo = 0; /* 0x0049c270 */
+int g_bWindowInactive = 0; /* 0x0049c274 */
+static char g_szWindowClassName[45] =
+    "Wing Commander II: Vengeance of the Kilrathi"; /* 0x0049c278 */
+static char g_szWindowTitle[45] =
+    "Wing Commander II: Vengeance of the Kilrathi"; /* 0x0049c2a8 */
+int g_nDebugFileLoggingEnabled = 0; /* 0x0049c2d8 */
+FILE *g_pDebugLogFile = 0; /* 0x0049c2dc */
+int g_bConfigMemoryOption = 0; /* 0x0049c2e0 */
+int g_bWindowMessagePumpActive = 0; /* 0x0049c2e4 */
+int g_nUnusedWinMainWord1 = 0; /* 0x0049c2e8 */
+int g_nPendingMouseX = 0; /* 0x0049c2ec */
+int g_nPendingMouseY = 0; /* 0x0049c2f0 */
+int g_nUnusedWinMainWord2 = 0; /* 0x0049c2f4 */
+int g_bJoystickPrimaryButtonLatched = 0; /* 0x0049c2f8 */
+int g_bJoystickSecondaryButtonLatched = 0; /* 0x0049c2fc */
+GuardedAllocation *g_pGuardedAllocationHead = 0; /* 0x0049c300 */
+FreedHeapBlock *g_pFreedHeapBlockHead = 0; /* 0x0049c304 */
+FreedHeapBlock *g_pFreedHeapBlockTail = 0; /* 0x0049c308 */
+
+/* Linker commons defined here.  LINK lays a unit's commons out by the
+ * identifiers' hash keys, so these spellings follow the original addresses. */
+unsigned int g_69_dwSysKeyValue; /* 0x005d10a4 */
+JOYINFO g_1_aJoystickInfoArray[2]; /* 0x005d10b0 */
+HostMouseMessage g_6_stHostMouseTextBlock; /* 0x005d10d0 */
+HWND g_10_hMainWindow; /* 0x005d10e0 */
+HANDLE g_19_hOneProcessLock; /* 0x005d10e4 */
+unsigned long g_128_dwGameClockBase; /* 0x005d10e8 */
+GuardedAllocation *g_9_pGuardedAllocationLastRef; /* 0x005d10ec */
+char g_szGuardedHeapDiagnosticMessage[0x80]; /* 0x005d10f0 */
+char g_29_abMemoryLoadNotice[0x80]; /* 0x005d1170 */
+int g_5_nIdleWinmainWord[32]; /* 0x005d11f0 */ /* never referenced */
+int g_39_bAltNumpadAddHotkeySwitch; /* 0x005d1270 */
+int g_27_nLastAltCommandScanNumberWord; /* 0x005d1274 */
+HDC g_18_hMainWindowContext; /* 0x005d1278 */
+int g_2_bAltFHotkeyFlag; /* 0x005d127c */
+int g_6_bAltDChordState; /* 0x005d1280 */
+int g_bJoystickCalibrationHotkey; /* 0x005d1284 */
+HCURSOR g_1_hMainWndCursor; /* 0x005d1288 */
+int g_2_bAltHHotkey; /* 0x005d128c */
+int g_4_bMenuBHotkey; /* 0x005d1290 */
+int g_bMenuAHotkey; /* 0x005d1294 */
+int g_6_bMenuTHotkeySwitch; /* 0x005d1298 */
+unsigned int g_48_dwGameExitClockValue; /* 0x005d129c */
+int g_3_nSavedOwnerCursorX; /* 0x005d12a0 */
+int g_102_nStoredWindowCursorYWord; /* 0x005d12a4 */
+int g_bAltNumpadSubtractShortcut; /* 0x005d12a8 */
+int g_16_bMainWindowRunning; /* 0x005d12ac */
+HINSTANCE g_7_hAppCopy; /* 0x005d12b0 */
+unsigned int g_11_dwGameZeroTime; /* 0x005d12b4 */
+long g_13_lGameClockStartData; /* 0x005d12b8 */

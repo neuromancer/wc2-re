@@ -12,16 +12,22 @@ the original DOS game data.
 
 No retail game data files are included.
 
+Browse the [reconstructed Win32 source](https://neuromancer.github.io/wc2-re/)
+with searchable Doxygen references, subsystem groups and assembly listings.
+
 If you find this project useful, you can [support its development through
 GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
 ## Status
 
-The reconstruction is **materially complete**: the source compiles and links
-as `WC2.EXE`, and the remaining work is focused on fidelity refinements,
-validation, and portability polish rather than missing major systems. `make
-report` compares 1,501 functions against the retail executable and averages
-98.02% machine-code similarity.
+The reference build produces a **byte-identical `WC2.EXE`**: all 714,752 bytes
+match the Kilrathi Saga retail executable, including code, data, padding, and
+PE/debug metadata. `make compare-bytes` verifies the complete files without
+normalization and fails on any difference.
+
+The build uses the original MSVC 4.1 toolchain, a reproducible PDB seed, and
+the retail link timestamp. `make report` and `make compare-functions` provide
+function-level diagnostics; the whole-file comparison is the completion gate.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
 save/load menus, cutscenes, and spaceflight, including firing, targeting,
@@ -85,6 +91,7 @@ The native port includes these fixes and optional features:
 | Background planets drawn with their own sprite and scale (WCDX fix) | always on |
 | Static on knocked-out cockpit displays | always on |
 | Neutral adaptive difficulty and half-size asteroid collision radii | `--balanced-difficulty` |
+| Cheat mode: invulnerability and no collisions | Launcher checkbox or `--cheats` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
@@ -171,7 +178,7 @@ same dependencies. The capture below shows it running natively on macOS.
   <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
 </p>
 
-Building it additionally requires CMake 3.21 or newer and Rust 1.88 or newer.
+Building it additionally requires CMake 3.21 or newer and Rust 1.92 or newer.
 On Linux, install the D-Bus development files as well; the folder picker uses
 the desktop portal instead of GTK:
 
@@ -181,10 +188,20 @@ out-modern/wc2-modern-gui
 ```
 
 `make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
-The launcher has a native folder picker and validates the selected DOS or
-Kilrathi Saga directory before starting the game. Its central title artwork is
+The launcher automatically finds WC2 installations beside the executable,
+in the working directory, and in common Heroic, GOG, Steam, and Windows
+EA/Origin library paths. It recognizes the DOS and Kilrathi Saga editions,
+including Heroic's `Wing Commander II/DOS` and
+`Wing Commander II/Kilrathi_Saga` layouts. Choose an installation from the
+dropdown or use **Add path…** to select another directory containing `GAMEDAT`.
+The launcher validates the data before enabling **Start game** and remembers
+the selected directory and options in `wc2-launcher.ini` in the user's SDL
+preferences directory. Explicit command-line options override saved settings;
+WC1's launcher preferences are kept separate.
+
+Its central title artwork is
 decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
-small 247x101 image, and embedded in the executable. Slint 1.16.1 and [Native
+small 247x101 image, and embedded in the executable. Slint 1.18.1 and [Native
 File Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended)
 are fetched at pinned tags and linked statically into `wc2-modern-gui`. Release
 archives install that integrated build under the usual `wc2-modern` name;
@@ -194,11 +211,21 @@ SDL2 and the other platform runtime libraries remain dynamic.
 
 The default target downloads and checksum-verifies the MSVC 4.1 package, then
 builds `WC2.EXE`, `WC2.map`, and compiler-generated assembly under `out/`. The
-original executable is not required to compile it:
+build verifies `WC2.EXE` against the pinned retail SHA-256 and fails on any
+mismatch, including when the executable is already up to date. The original
+executable is not required to compile it:
 
 ```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -r requirements-build.txt
 make -j
 ```
+
+Python 3.10 or newer and the pinned `binary-comp` package are needed to normalize
+the executable's link metadata and generate its complete symbol map. Metadata
+normalization sets the retail timestamps and clears three reserved debug bytes
+that the linker leaves uninitialized on some hosts.
 
 To run it, provide a Kilrathi Saga disc image. The Makefile substitutes the
 reconstructed executable and launches it under DREAMM:
@@ -210,13 +237,32 @@ make run ISO=/path/to/kilrathi-saga.iso
 Use `make run-original` for the retail executable in the same environment, and
 `make debug` to start DREAMM's debugger.
 
-## Reconstruction workflow
+## Source browser
 
-[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required only for
-comparison and verification commands:
+The [Doxygen website](https://neuromancer.github.io/wc2-re/) presents the
+Win32 sources that reproduce the retail executable, with SDL-only branches
+removed. Files are grouped by subsystem and listed in link order, using the
+same theme and publishing pipeline as
+[wc1-re](https://neuromancer.github.io/wc1-re/).
+
+Install Doxygen 1.18.0, `unifdef` and Pygments (`pygmentize`), then run:
 
 ```sh
-python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"
+make site
+```
+
+Open `out/site/html/index.html` locally. This target needs neither game data
+nor the MSVC toolchain. File descriptions live in `site/files.tsv`, so
+documentation edits preserve the source line numbers used by live assertions
+in the matching build. GitHub Actions publishes the site on pushes to `main`.
+
+## Reconstruction workflow
+
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) also provides
+comparison and verification commands. Install its optional analysis dependencies:
+
+```sh
+python3 -m pip install -r requirements-build.txt "capstone>=5" "tree-sitter>=0.20" "tree-sitter-cpp>=0.20"
 make compare-func FUNC=WinMain
 make verify
 ```

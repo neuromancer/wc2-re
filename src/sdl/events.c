@@ -262,7 +262,7 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
      * WM_MOUSEMOVE, and what QueueInputEvent watches for when it updates the
      * cursor position the game draws and reads.  Queueing WC1's type 13 left
      * the pointer pinned wherever the last click had put it. */
-    queued = g_pInputEventTail_0049d4b8;
+    queued = g_pInputEventTail;
     if (queued != 0 && queued->type == 3) {
         queued->x = (short)x;
         queued->y = (short)y;
@@ -295,7 +295,7 @@ static void SdlApplyMouseGrab(void)
 {
     SDL_Window *window;
 
-    window = (SDL_Window *)g_hMainWindow_005d10e0;
+    window = (SDL_Window *)g_10_hMainWindow;
     if (window == 0)
         return;
     SDL_SetWindowMouseGrab(
@@ -359,9 +359,9 @@ static SDL_Window *SdlGetFullscreenWindow(Uint32 windowId)
     if (window == 0)
         window = SDL_GetKeyboardFocus();
     if (window == 0)
-        window = (SDL_Window *)g_hDibWindow_005c33a4;
+        window = (SDL_Window *)g_2_hFrameHwnd;
     if (window == 0)
-        window = (SDL_Window *)g_hMainWindow_005d10e0;
+        window = (SDL_Window *)g_10_hMainWindow;
     return window;
 }
 
@@ -380,7 +380,7 @@ static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 #else
     modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
         (SDL_GetModState() & KMOD_ALT) != 0 ||
-        g_abInputKeyState_005c80f0[0x38] != 0;
+        g_77_abKeyboardEventStates[0x38] != 0;
 #endif
     return enterPressed && modifierPressed;
 }
@@ -448,7 +448,7 @@ void SdlTraceInputEvent(const char *what, int type, int scanCode,
             "[input] %-6s type=%d scan=0x%02x vk=0x%02x pos=%d,%d "
             "curkey=0x%02x\n",
             what, type, scanCode, virtualKey, x, y,
-            (unsigned char)g_cCurrentKey_00493128);
+            (unsigned char)g_cCurrentKey);
     fflush(stderr);
 }
 
@@ -459,28 +459,28 @@ static void SdlLatchAltRadioHotkey(int virtualKey)
 {
     switch (virtualKey) {
     case 'B':
-        g_bAltBHotkey_005d1290 = 1;
+        g_4_bMenuBHotkey = 1;
         break;
     case 'F':
-        g_bAltFHotkey_005d127c = 1;
+        g_2_bAltFHotkeyFlag = 1;
         break;
     case 'A':
-        g_bAltAHotkey_005d1294 = 1;
+        g_bMenuAHotkey = 1;
         break;
     case 'H':
-        g_bAltHHotkey_005d128c = 1;
+        g_2_bAltHHotkey = 1;
         break;
     case 'D':
-        g_bAltDHotkey_005d1280 = 1;
+        g_6_bAltDChordState = 1;
         break;
     case 'T':
-        g_bAltTHotkey_005d1298 = 1;
+        g_6_bMenuTHotkeySwitch = 1;
         break;
     default:
         return;
     }
     /* The matching keyup may already have been drained; rearm the gate now. */
-    g_nLastAltCommandScanCode_005d1274 = 0;
+    g_27_nLastAltCommandScanNumberWord = 0;
 }
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
@@ -505,19 +505,19 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
         event->keysym.scancode == SDL_SCANCODE_RALT)
-        g_dwSystemKey_005d10a4 = pressed ? (unsigned int)virtualKey : 0;
+        g_69_dwSysKeyValue = pressed ? (unsigned int)virtualKey : 0;
     if (pressed && event->repeat == 0 &&
         (event->keysym.mod & KMOD_ALT) != 0 &&
-        g_bSpaceFlightActive_005c586c != 0 &&
-        g_nArcadeState_0049d75c == 0 &&
-        g_nCannedSceneMode_0049021c == 0 &&
-        g_bJumpSequenceActive_004962f0 == 0 &&
-        g_pfnInputPump_005c840c == get_player_input)
+        g_1_bSpaceFlightActive != 0 &&
+        g_nArcadeState == 0 &&
+        g_nCannedSceneMode == 0 &&
+        g_bJumpSequenceActive == 0 &&
+        g_176_pfnCurrentInputPump == get_player_input)
         SdlLatchAltRadioHotkey(virtualKey);
     if (event->keysym.scancode == SDL_SCANCODE_F1)
-        g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
+        g_bF1KeyDown = pressed && event->repeat == 0;
     if (pressed && scanCode == 1)
-        g_bSceneEscapeRequested_0049d4b0 = 1;
+        g_bSceneEscapeRequested = 1;
     if (scanCode != 0) {
         /* WC2 queues one event per key, the way MainWindowProc does: type 4
          * for a press and 5 for a release, the virtual key in value -- which
@@ -528,22 +528,22 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         /* TakeInputPressCount consumes and clears pending presses. A key
          * release must not cancel an unconsumed key or mouse press. */
         if (pressed && event->repeat == 0)
-            g_nInputPressCount_0049c258++;
+            g_nInputPressCount++;
         QueueInputEvent(pressed ? 4 : 5,
-                        (unsigned short)g_stHostMouseMessage_005d10d0.x,
-                        (unsigned short)g_stHostMouseMessage_005d10d0.y,
+                        (unsigned short)g_6_stHostMouseTextBlock.x,
+                        (unsigned short)g_6_stHostMouseTextBlock.y,
                         (unsigned short)virtualKey, 0, 0, 0,
                         (unsigned int)scanCode,
                         (unsigned int)SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
         SdlTraceInputEvent(pressed ? "keydn" : "keyup",
                               pressed ? 4 : 5, scanCode, virtualKey,
-                              g_stHostMouseMessage_005d10d0.x,
-                              g_stHostMouseMessage_005d10d0.y);
+                              g_6_stHostMouseTextBlock.x,
+                              g_6_stHostMouseTextBlock.y);
     }
     if (!pressed) {
-        g_dwDebugOverlayKey_0049cb28 = (DWORD)virtualKey;
-        g_dwDebugOverlayKeyLatch_0049cb2c = (DWORD)virtualKey;
+        g_dwDebugOverlayKey = (DWORD)virtualKey;
+        g_dwDebugOverlayKeyLatch = (DWORD)virtualKey;
     }
     return 0;
 }
@@ -606,8 +606,8 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
 
     if (event->type == SDL_MOUSEMOTION) {
-        if (g_bSuppressNextMouseMove_005c843c != 0) {
-            g_bSuppressNextMouseMove_005c843c = 0;
+        if (g_2_bIgnoreNextCursorMoveFlag != 0) {
+            g_2_bIgnoreNextCursorMoveFlag = 0;
             return;
         }
         SdlQueueMouseMotion((unsigned short)mouseX,
@@ -618,7 +618,7 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
          * Releasing after TakeInputPressCount cleared it must not create a
          * negative count, which the cutscene would treat as another press. */
         if (event->type == SDL_MOUSEBUTTONDOWN)
-            g_nInputPressCount_0049c258++;
+            g_nInputPressCount++;
         /* WC2 queues 1 for a button press and 2 for a release -- the
          * opposite way round from WC1. */
         QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
@@ -629,15 +629,15 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
             event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
             0, primaryButton | secondaryButton * 2, mouseX, mouseY);
     }
-    g_stHostMouseMessage_005d10d0.x = mouseX;
-    g_stHostMouseMessage_005d10d0.y = mouseY;
-    g_stHostMouseMessage_005d10d0.primaryButton = primaryButton;
-    g_stHostMouseMessage_005d10d0.secondaryButton = secondaryButton;
+    g_6_stHostMouseTextBlock.x = mouseX;
+    g_6_stHostMouseTextBlock.y = mouseY;
+    g_6_stHostMouseTextBlock.primaryButton = primaryButton;
+    g_6_stHostMouseTextBlock.secondaryButton = secondaryButton;
 }
 
 void SdlStartEventPump(void)
 {
-    g_bMainWindowRunning_005d12ac = 1;
+    g_16_bMainWindowRunning = 1;
 }
 
 void SdlPumpEvents(void)

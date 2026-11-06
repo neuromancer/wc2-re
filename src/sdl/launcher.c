@@ -79,9 +79,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
             launcherOptions->enhancedRenderer = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_ENHANCED;
         } else if (strcmp(argument, "--balanced-difficulty") == 0) {
             g_bSdlBalancedDifficulty = 1;
             launcherOptions->balancedDifficulty = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_BALANCED;
+        } else if (strcmp(argument, "--cheats") == 0) {
+            launcherOptions->cheatMode = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CHEATS;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
@@ -89,6 +94,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
             SdlSetJoystickRumbleEnabled(1);
             launcherOptions->joystickRumble = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_RUMBLE;
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
             if (!SdlSetJoystickMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",
@@ -98,6 +104,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->joystickMode = SdlFindLauncherChoice(
                 argument + 16, g_apszSdlLauncherJoystickModes,
                 SDL_arraysize(g_apszSdlLauncherJoystickModes));
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE;
         } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
             if (!SdlSetJoystickAxesMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick axes mode: %s\n",
@@ -107,8 +114,10 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->joystickAxes = SdlFindLauncherChoice(
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES;
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
         } else {
             arguments[outputArgumentIndex++] = argument;
         }
@@ -171,23 +180,23 @@ static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
     while (argumentIndex < argumentCount) {
         argument = arguments[argumentIndex];
         if (strcmp(argument, "$#SAGA.EXE") == 0)
-            g_bApplicationControllerActive_0049c25c = 1;
+            g_bApplicationControllerActive = 1;
         command = argument[0] == '-' ? argument[1] : argument[0];
         switch (command) {
         case 'b':
-            *(unsigned char *)&g_bPlayerCollisionEnabled_0049d780 = 0;
+            *(unsigned char *)&g_bPlayerCollisionEnabled = 0;
             break;
         case 'c':
-            g_bCockpitEnabled_0049c26c = 0;
+            g_bCockpitEnabled = 0;
             break;
         case 'f':
-            g_bShowFrameRate_0049c260 = 1;
+            g_bShowFrameRate = 1;
             break;
         case 'k':
-            *(unsigned char *)&g_bPlayerDamageEnabled_0049d77c = 0;
+            *(unsigned char *)&g_bPlayerDamageEnabled = 0;
             break;
         case 'q':
-            g_bConfigQuickModeEnabled_0049c264 = 0;
+            g_bConfigQuickModeEnabled = 0;
             break;
         default:
             break;
@@ -210,35 +219,35 @@ static int SdlRunRuntimeChecks(void)
     if (!SdlPresentIndexedFrame(framePixels, framePalette))
         return 1;
 
-    g_aShipWeapons_004956b0[1][0] = 2;
+    g_aShipWeapons[1][0] = 2;
     remove_weapon(1, 0);
-    if (g_aShipWeapons_004956b0[1][0] != 1)
+    if (g_aShipWeapons[1][0] != 1)
         return 1;
 
     /* Nothing targeted, the readout already showing that, and a frame the
      * periodic redraw does not fall on: the walk stays out of show_target_disp
      * and its text, which needs a font the check has no data to load. */
-    g_acShipTarget_00495f20[0] = -1;
-    g_cTargetDisplayObject_004934f4 = -1;
-    g_nRenderedSpaceFrame_00493138 = 1;
+    g_acShipTarget[0] = -1;
+    g_cTargetDisplayObject = -1;
+    g_nRenderedSpaceFrame = 1;
     DrawTargetRangeReadout();
 
-    g_aeObjectClass_00495328[1] = OBJECT_CLASS_SHIP;
-    g_acObjectOwner_00495208[1] = -1;
-    g_nYourWingman_0049346c = -1;
+    g_aeObjectClass[1] = OBJECT_CLASS_SHIP;
+    g_acObjectOwner[1] = -1;
+    g_nYourWingman = -1;
     send_appropriate_message(1, 0);
 
     /* Likewise the reroll-chance table is indexed by the maneuver, so drive
      * it with one the ship can actually be flying. */
-    g_acShipTarget_00495f20[0] = 1;
-    g_asShipManeuver_00495f48[0] = MANEUVER_THINKING;
+    g_acShipTarget[0] = 1;
+    g_asShipManeuver[0] = MANEUVER_THINKING;
     perform_maneuver(0);
 
-    g_pSnowStaticSound_004a2664 = ix_system_new_sound(0);
-    if (g_pSnowStaticSound_004a2664 == 0)
+    g_9_pSnowStaticAudio = ix_system_new_sound(0);
+    if (g_9_pSnowStaticAudio == 0)
         return 1;
     stop_all_sounds();
-    if (g_pSnowStaticSound_004a2664 != 0)
+    if (g_9_pSnowStaticAudio != 0)
         return 1;
 
     /* WC2's vdu_polygon draws straight into the panel shape instead of
@@ -248,42 +257,42 @@ static int SdlRunRuntimeChecks(void)
     /* A strike whose target is gone routs, but only for a ship the mission
      * header does not list: strike_mission reads the mission-ship record of a
      * team member, and this parameter names none. */
-    g_asShipMissionIndex_00495d00[1] = 1;
-    g_asShipMissionParameter_00495e00[1] = -1;
-    g_aeShipObjective_00495f08[1] = OBJECTIVE_HOME_BASE;
+    g_asShipMissionIndex[1] = 1;
+    g_asShipMissionParameter[1] = -1;
+    g_aeShipObjective[1] = OBJECTIVE_HOME_BASE;
     strike_mission(1);
-    if (g_asShipMissionType_00495de8[1] != MISSION_TYPE_ROUT)
+    if (g_asShipMissionType[1] != MISSION_TYPE_ROUT)
         return 1;
 
-    g_nCommPortraitIndex_0049b79c = -1;
+    g_nCommPortraitIndex = -1;
     FreeCommDisplayResources();
 
-    g_nSpaceFrame_00493134 = 20;
-    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
-    g_nAdaptiveDifficulty_005d3844 = 5;
+    g_nSpaceFrame = 20;
+    g_nLastAdaptiveDifficultyChangeFrame = 0;
+    g_nAdaptiveDifficulty = 5;
     IncreaseAdaptiveDifficulty();
-    if (g_nAdaptiveDifficulty_005d3844 !=
+    if (g_nAdaptiveDifficulty !=
         (g_bSdlBalancedDifficulty != 0 ? 5 : 6))
         return 1;
-    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
-    g_nAdaptiveDifficulty_005d3844 = 5;
+    g_nLastAdaptiveDifficultyChangeFrame = 0;
+    g_nAdaptiveDifficulty = 5;
     DecreaseAdaptiveDifficulty();
-    if (g_nAdaptiveDifficulty_005d3844 !=
+    if (g_nAdaptiveDifficulty !=
         (g_bSdlBalancedDifficulty != 0 ? 5 : 4))
         return 1;
 
     for (object = 0; object <= SPACE_LAST_MOVING_OBJECT; object++)
-        g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
-    g_aeObjectClass_00495328[0] = OBJECT_CLASS_SHIP;
-    g_aeObjectClass_00495328[1] = OBJECT_CLASS_ASTEROID;
-    g_asObjectCollisionRadius_004950e8[0] = 10;
-    g_asObjectCollisionRadius_004950e8[1] = 100;
+        g_aeObjectClass[object] = OBJECT_CLASS_NULL;
+    g_aeObjectClass[0] = OBJECT_CLASS_SHIP;
+    g_aeObjectClass[1] = OBJECT_CLASS_ASTEROID;
+    g_asObjectCollisionRadius[0] = 10;
+    g_asObjectCollisionRadius[1] = 100;
     if (SdlGetBalancedCollisionRadius(1) !=
         (g_bSdlBalancedDifficulty != 0 ? 50 : 100))
         return 1;
-    zero_vector(&g_aShipPosition_00494550[0]);
-    zero_vector(&g_aShipPosition_00494550[1]);
-    g_aShipPosition_00494550[1].x = 80 * 0x100;
+    zero_vector(&g_aShipPosition[0]);
+    zero_vector(&g_aShipPosition[1]);
+    g_aShipPosition[1].x = 80 * 0x100;
     if (check_for_collision(0) !=
         (g_bSdlBalancedDifficulty != 0 ? -1 : 1))
         return 1;
@@ -334,6 +343,13 @@ int main(int argumentCount, char **arguments)
             return 1;
     }
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
+    if (launcherOptions.cheatMode) {
+        /* CheckLauncherAndConfig (0x453C95) uses the same combination for
+         * Saga's Cheater setting. Both DOS and Saga data share these flags. */
+        g_nOriginDevUnlock = 1;
+        g_bPlayerDamageEnabled = 0;
+        g_bPlayerCollisionEnabled = 0;
+    }
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif
@@ -383,7 +399,7 @@ int main(int argumentCount, char **arguments)
                 "(GL sharp bilinear).\n");
 
     DIBinstall((HWND)window);
-    g_hMainWindow_005d10e0 = (HWND)window;
+    g_10_hMainWindow = (HWND)window;
     SdlStartEventPump();
     if (checkOnly) {
         gameResult = SdlRunRuntimeChecks();
@@ -405,7 +421,7 @@ int main(int argumentCount, char **arguments)
          * about 15fps, which visibly smooths flight.  Set here rather than in
          * globals.c so that file stays a faithful mirror of the image's data,
          * and because the in-flight keys can still adjust it from here. */
-        g_nSpaceFramePeriod_0049d768 = 3;
+        g_nSpaceFramePeriod = 3;
         SdlApplyLegacyArguments(argumentCount, arguments);
         MonoDebug_install();
         InitializeAudioSystem((HWND)window);
@@ -413,25 +429,25 @@ int main(int argumentCount, char **arguments)
         srand((unsigned int)time(0));
         InitGameClockRandomEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-        g_dwGameStartTime_005d12b4 = (unsigned int)time(0);
-        g_pfnInputPump_005c840c = 0;
+        g_11_dwGameZeroTime = (unsigned int)time(0);
+        g_176_pfnCurrentInputPump = 0;
         SDL_ShowCursor(SDL_DISABLE);
         /* The same sequence WinMain runs once the window exists. */
-        g_nInputClock_005c84a8 = 0;
+        g_196_nInputTimerTicks = 0;
         AllocateApplicationScratchBuffer();
-        g_bApplicationControllerActive_0049c25c = 1;
+        g_bApplicationControllerActive = 1;
         /* RunGameApplication receives the number of arguments after argv[0].
          * Its recovered option loader starts copying at argv[1], then preserves
          * WC2's original one-token lookahead by exposing one fewer argument to
          * the game's parser. */
         SdlRunGameApplication(argumentCount, arguments);
-        g_bApplicationShutdownStarted_0049c23c = 1;
+        g_bApplicationShutdownStarted = 1;
         ReleaseApplicationScratchBuffer();
         gameResult = 0;
         SdlSetMouseGrab(0);
         SDL_ShowCursor(SDL_ENABLE);
         DestroyGlobalDebugOverlayConsole();
-        if ((g_dwStreamerState_005c4c38 & 1) != 0)
+        if ((g_dwStreamerMode & 1) != 0)
             ix_streamer_destroy();
         ServiceAudioStream();
         SdlShutdownOriginFxAudio();

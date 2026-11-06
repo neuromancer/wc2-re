@@ -31,7 +31,7 @@ include(FetchContent)
 FetchContent_Declare(
     Slint
     GIT_REPOSITORY https://github.com/slint-ui/slint.git
-    GIT_TAG v1.16.1
+    GIT_TAG v1.18.1
     GIT_SHALLOW TRUE
     SOURCE_SUBDIR api/cpp
 )
@@ -44,12 +44,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(NativeFileDialogExtended)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(WC2_SDL2 REQUIRED IMPORTED_TARGET sdl2)
+
 add_library(wc2-slint-gui STATIC
     launcher.cpp
+    launcher_config.cpp
+    launcher_config.h
+    launcher_paths.cpp
+    launcher_paths.h
     slint_static.h
     wc2_logo.h
 )
-target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd)
+target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd PkgConfig::WC2_SDL2)
 slint_target_sources(wc2-slint-gui launcher.slint)
 
 if(UNIX AND NOT APPLE)
@@ -150,8 +157,6 @@ if(WC2_GAME_OBJECTS)
         GENERATED TRUE
     )
 
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(WC2_SDL2 REQUIRED IMPORTED_TARGET sdl2)
     pkg_check_modules(WC2_LZO2 REQUIRED IMPORTED_TARGET lzo2)
 
     add_executable(wc2-modern-gui ${WC2_GAME_OBJECTS})

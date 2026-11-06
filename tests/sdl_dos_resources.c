@@ -213,14 +213,14 @@ static int CheckDosSpeechPlayback(void)
     }
 
     result = SdlInitializeOriginFxAudio(1);
-    g_nAudioEnabled_0049c244 = 1;
+    g_nAudioEnabled = 1;
     InitializeAudioSystem(0);
-    result = result && g_bAudioSystemInitialized_004961b0 != 0;
+    result = result && g_bAudioSystemInitialized != 0;
     if (result) {
         PlayRawSpeechBuffer(speech, 1024, 1);
-        result = g_pSpeechSound_004a2658 != 0 &&
-            g_bSpeechSoundActive_004a2660 != 0 &&
-            ix_sound_is_playing(g_pSpeechSound_004a2658) != 0 &&
+        result = g_pSpeechSnd != 0 &&
+            g_bSpeechSoundActive != 0 &&
+            ix_sound_is_playing(g_pSpeechSnd) != 0 &&
             SdlPlayGameSoundEffect(1, -1, 0);
     }
     memset(samples, 0, sizeof(samples));
@@ -234,13 +234,13 @@ static int CheckDosSpeechPlayback(void)
     }
     result = result && heardOutput;
     waitStep = 0;
-    while (g_pSpeechSound_004a2658 != 0 && waitStep < 100) {
+    while (g_pSpeechSnd != 0 && waitStep < 100) {
         SDL_Delay(10);
         ServiceSoundSystem();
         waitStep++;
     }
-    result = result && g_pSpeechSound_004a2658 == 0 &&
-        g_bSpeechSoundActive_004a2660 == 0;
+    result = result && g_pSpeechSnd == 0 &&
+        g_bSpeechSoundActive == 0;
     stop_all_sounds();
     ServiceAudioStream();
     SdlShutdownOriginFxAudio();
@@ -268,7 +268,7 @@ static int CheckWindowsTitleMusicBridge(void)
     block = 0;
     heardOutput = 0;
     while (result && block < TEST_TITLE_MUSIC_MAX_BLOCKS &&
-           g_nCurrentMusicTrack_0049be98 == 19) {
+           g_nCurrentMusicTrack == 19) {
         memset(samples, 0, sizeof(samples));
         SdlMixOriginFxAudio(samples, 1024);
         sample = 0;
@@ -281,8 +281,8 @@ static int CheckWindowsTitleMusicBridge(void)
         block++;
     }
     result = result && heardOutput &&
-        g_nTitleMusicSequenceStage_0049be94 >= 5 &&
-        g_nCurrentMusicTrack_0049be98 == -1;
+        g_nTitleMusicSequenceStage >= 5 &&
+        g_nCurrentMusicTrack == -1;
     SdlShutdownOriginFxAudio();
     if (SdlChangeDirectory("../..") != 0)
         return 0;
@@ -298,17 +298,17 @@ static int CheckDosTitleMusicCancellation(void)
 
     if (SdlChangeDirectory("data/dos") != 0)
         return 1;
-    g_nCurrentMusicTrack_0049be98 = -1;
+    g_nCurrentMusicTrack = -1;
     result = SdlInitializeOriginFxAudio(1) &&
         SdlUsingOriginFxMusic() &&
         SdlUsingOriginFxSoundEffects() &&
         SdlOriginalTitleMusicReady() &&
         SdlStartOriginalTitleMusic();
-    g_nCurrentMusicTrack_0049be98 = -1;
+    g_nCurrentMusicTrack = -1;
     SdlServiceOriginFxMusic();
     SdlSetOriginFxMusicTrack(19);
     SdlServiceOriginFxMusic();
-    result = result && g_nCurrentMusicTrack_0049be98 == -1;
+    result = result && g_nCurrentMusicTrack == -1;
     result = result && SdlPlayGameSoundEffect(1, -1, 0);
     memset(samples, 0, sizeof(samples));
     SdlMixOriginFxAudio(samples, 1024);

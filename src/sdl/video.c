@@ -9,7 +9,7 @@ static Uint32 g_adwSdlFramePixels[
     SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
 
 /* EGA compatibility filter (--ega). WC2's own reconstructed engine is
- * hardcoded to MCGA/VGA mode 0x13 (g_szRasterDriverName_004902ac is always
+ * hardcoded to MCGA/VGA mode 0x13 (g_szRasterDriverName is always
  * "MCGA.DLL", and several LogDisplayMode("not MCGA")-style fatal checks
  * abort on anything else) -- unlike WC1, no EGA path exists anywhere in
  * what this project reconstructs. But WC2's *original* 1991 floppy
@@ -151,8 +151,8 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
     int restoreMouseCursor;
 
     restoreMouseCursor =
-        g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
-        g_stScreenViewport_005d21a0.pixels == pixels;
+        g_6_bCurrentInputCursorBackgroundCapturedState != 0 &&
+        g_101_stScrViewInfo.pixels == pixels;
 
     if (g_bEgaDitherEnabled && pixels != 0) {
         for (pixel = 0; pixel < SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT;

@@ -38,21 +38,21 @@ static int CheckCutsceneAdvance(int expectedAdvance)
     int result;
 
     cursor = script;
-    g_pCurrentCutsceneSprite_00499c78 = &sprite;
-    g_pCurrentCutscenePlane_00499c7c = &plane;
-    g_pCurrentCutsceneSequence_00499c80 = &sequence;
-    g_bCutsceneSkipFrame_00499c54 = 0;
-    g_bCutsceneTextAdvance_005d2ed0 = 1;
+    g_pCurrentCutsceneSprite = &sprite;
+    g_pCurrentCutscenePlane = &plane;
+    g_pCurrentCutsceneSequence = &sequence;
+    g_bCutsceneSkipFrame = 0;
+    g_2_bMovieStringAdvanceState = 1;
     /* Exercise ServiceInputDevices' flush between its two message pumps. */
-    g_nNextInputPollTick_0049d6d4 = 0;
+    g_nNextInputPollTick = 0;
     result = RunCutsceneScript(&cursor, 2) == 0 &&
              cursor == script + sizeof(script) &&
-             g_bCutsceneSkipFrame_00499c54 == expectedAdvance &&
-             g_bCutsceneTextAdvance_005d2ed0 == !expectedAdvance &&
-             g_nInputPressCount_0049c258 == 0;
-    g_pCurrentCutsceneSprite_00499c78 = 0;
-    g_pCurrentCutscenePlane_00499c7c = 0;
-    g_pCurrentCutsceneSequence_00499c80 = 0;
+             g_bCutsceneSkipFrame == expectedAdvance &&
+             g_2_bMovieStringAdvanceState == !expectedAdvance &&
+             g_nInputPressCount == 0;
+    g_pCurrentCutsceneSprite = 0;
+    g_pCurrentCutscenePlane = 0;
+    g_pCurrentCutsceneSequence = 0;
     return result;
 }
 
@@ -73,9 +73,9 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
-    g_hMainWindow_005d10e0 = (HWND)window;
-    g_bKeyboardMouseEnabled_0049be68 = 0;
-    g_pfnInputPump_005c840c = 0;
+    g_10_hMainWindow = (HWND)window;
+    g_bKeyboardMouseEnabled = 0;
+    g_176_pfnCurrentInputPump = 0;
     SdlPumpEvents();
     FlushInputEvents();
     result = 1;
@@ -84,7 +84,7 @@ int main(int argumentCount, char **arguments)
         /* A complete click drained before the script polls still advances
          * once, even though the poll flushes both queued mouse events. */
         stage = 1;
-        g_nInputPollPeriod_0049d6d8 = 0;
+        g_nInputPollPeriod = 0;
         if (!PushMouseButton(window, SDL_MOUSEBUTTONDOWN, buttons[button]) ||
             !PushMouseButton(window, SDL_MOUSEBUTTONUP, buttons[button]))
             goto cleanup;
@@ -109,7 +109,7 @@ int main(int argumentCount, char **arguments)
         /* Poll period 1 skips the first message pump, so these events arrive
          * after the flush and exercise the script's queued-input path. */
         stage = 3;
-        g_nInputPollPeriod_0049d6d8 = 1;
+        g_nInputPollPeriod = 1;
         if (!PushMouseButton(window, SDL_MOUSEBUTTONDOWN, buttons[button]) ||
             !CheckCutsceneAdvance(1) ||
             !PushMouseButton(window, SDL_MOUSEBUTTONUP, buttons[button]) ||
@@ -118,7 +118,7 @@ int main(int argumentCount, char **arguments)
 
         /* An unrelated key release cannot cancel a pending mouse advance. */
         stage = 4;
-        g_nInputPollPeriod_0049d6d8 = 0;
+        g_nInputPollPeriod = 0;
         if (!PushMouseButton(window, SDL_MOUSEBUTTONDOWN, buttons[button]) ||
             !PushMouseButton(window, SDL_MOUSEBUTTONUP, buttons[button]) ||
             !PushSpaceKey(window, SDL_KEYUP))
@@ -136,7 +136,7 @@ int main(int argumentCount, char **arguments)
         goto cleanup;
     SdlPumpEvents();
     if (FindQueuedInputEvent(5) == 0 ||
-        g_abInputKeyState_005c80f0[0x39] != 0 ||
+        g_77_abKeyboardEventStates[0x39] != 0 ||
         !CheckCutsceneAdvance(1) || !CheckCutsceneAdvance(0))
         goto cleanup;
     result = 0;
@@ -146,7 +146,7 @@ cleanup:
         fprintf(stderr, "Cutscene input failure at stage %d, button %d\n",
                 stage, button);
     FlushInputEvents();
-    g_hMainWindow_005d10e0 = 0;
+    g_10_hMainWindow = 0;
     SDL_DestroyWindow(window);
     SDL_Quit();
     return result;

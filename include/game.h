@@ -64,11 +64,19 @@ typedef unsigned int DwordPtr;
  * the replay recording alone rather than write the wrong bytes to disk and
  * read them back over its own globals; restoring it needs the whole span laid
  * out contiguously first. */
-/* The span runs from g_dwCannedSceneSnapshotStart_00493130 to the end of
- * g_asViableTargetDistance_00496190, the last global before the sound lists
- * at 0x4961A8.  Spelled as its width rather than as the difference of the two
- * addresses because the reconstruction does not place them that far apart. */
+/* The span runs from g_dwCannedSceneSnapshotStart up to the marker
+ * g_dwCannedSceneSnapshotEnd, which follows
+ * g_asViableTargetDistance just before the sound lists at 0x4961A8.
+ * The original computes the width as the difference of the two marker
+ * addresses (MOV EAX,0x4961A4 / SUB EAX,0x493130 at every use); the port,
+ * whose globals are laid out by the host linker, spells out the width. */
+#ifdef SDL_PORT
 #define CANNED_SCENE_SNAPSHOT_BYTES 0x3074u
+#else
+#define CANNED_SCENE_SNAPSHOT_BYTES \
+    ((char *)&g_dwCannedSceneSnapshotEnd - \
+     (char *)&g_dwCannedSceneSnapshotStart)
+#endif
 
 /* Loading an object-type record.  The record on disk has the original's
  * layout: 0xF3 bytes, with the animation, shapeSet and shape pointers taking
@@ -168,7 +176,7 @@ typedef struct IxSample IxSample;
 struct IxSample {
     unsigned int flags;
 #ifdef __cplusplus
-    void ix_sample_set_looping(int enabled);
+    inline void ix_sample_set_looping(int enabled);
     int ix_sample_load_wav(void *data, int bytes);
     int ix_sample_load_raw(void *data, int bytes, int frequency,
                            int bitsPerSample, int channels);
@@ -208,23 +216,22 @@ typedef struct Viewport {
 #define SPRITE_ROW_OFFSET(viewport, row) viewport->rowOffsets[row]
 #endif
 
-/* The event manager snapshots these 28 bytes with seven MOVSD operations.
- * The unaligned pointer fields and reserved spans are fixed by the original
- * addresses at 0x0059AB10-0x0059AB2B. */
+/* InflightComputer snapshots 0x005C8470-0x005C8490 with eight MOVSDs and
+ * one MOVSB. The cursor shape is at +0x0D in the allocated copy too. */
 #pragma pack(push, 1)
 typedef struct MouseCursorState {
     volatile short x;                    /* +0x00 */
     volatile short y;                    /* +0x02 */
-    unsigned char primaryButton;         /* +0x04 */
-    unsigned char secondaryButton;       /* +0x05 */
-    unsigned char reserved;              /* +0x06 */
-    unsigned short flags;                /* +0x07 */
-    unsigned char * volatile shape;      /* +0x09 */
-    unsigned short frame;                /* +0x0D */
-    unsigned int reservedAfterFrame;     /* +0x0F */
-    Viewport * volatile viewport;        /* +0x13 */
-    unsigned int reservedAfterViewport;  /* +0x17 */
-    unsigned char shapeChanged;          /* +0x1B */
+    unsigned char field_4;               /* +0x04 */
+    unsigned char field_5;               /* +0x05 */
+    unsigned char field_6;               /* +0x06 */
+    unsigned short field_7;              /* +0x07 */
+    unsigned int field_9;                /* +0x09 */
+    unsigned char * volatile shape;      /* +0x0D */
+    short frame;                        /* +0x11 */
+    void *scratchBuffer;                /* +0x13 */
+    struct InputPumpContext *context;    /* +0x17 */
+    unsigned char field_1b[6];           /* +0x1B */
 } MouseCursorState;
 
 typedef struct HostMouseMessage {
@@ -237,8 +244,8 @@ typedef struct HostMouseMessage {
 #pragma pack(pop)
 
 #ifndef SDL_PORT
-typedef char MouseCursorState_size_must_be_0x1c[
-    sizeof(MouseCursorState) == 0x1c ? 1 : -1];
+typedef char MouseCursorState_size_must_be_0x21[
+    sizeof(MouseCursorState) == 0x21 ? 1 : -1];
 #endif
 
 /* The event manager keeps a fixed pool of doubly-linked input records. */
@@ -262,7 +269,7 @@ typedef struct InputEvent {
  * status are also written together as a 32-bit value at several call sites. */
 typedef struct InputEventState {
     int type;                         /* +0x00 */
-    unsigned short value;             /* +0x04 */
+    short value;                      /* +0x04 */
     short status;                     /* +0x06 */
     unsigned int timestamp;           /* +0x08 */
     unsigned short modifiers;         /* +0x0C */
@@ -462,6 +469,7 @@ typedef struct DebugOverlayConsole {
     void SetOverlayTextColor(int red, int green, int blue);
     void SetOverlayBackgroundColor(int red, int green, int blue);
     void SetTransparentBackground(void);
+    void SetOpaqueBackground(void);
     void SetTextPosition(int row, int column);
     void SetCursorPosition(int column, int row);
     void Reset(void);

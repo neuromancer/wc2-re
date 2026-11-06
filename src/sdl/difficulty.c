@@ -6,9 +6,9 @@ short SdlGetBalancedCollisionRadius(short object)
 {
     short radius;
 
-    radius = g_asObjectCollisionRadius_004950e8[object];
+    radius = g_asObjectCollisionRadius[object];
     if (g_bSdlBalancedDifficulty != 0 &&
-        g_aeObjectClass_00495328[object] == OBJECT_CLASS_ASTEROID)
+        g_aeObjectClass[object] == OBJECT_CLASS_ASTEROID)
         radius = (short)(radius / 2);
     return radius;
 }

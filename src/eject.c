@@ -1,0 +1,26 @@
+/*
+ *  Player ejection and stranding sequences.
+ *
+ *  Retail object 0x438020-0x4380AF (link order; see docs/ORDER.md).
+ */
+#include "game.h"
+
+/* Function start: 0x438020 */
+void ShowPlayerEjectionSequence(void)
+{
+    InputPumpContext *savedInputContext;
+
+    savedInputContext = g_37_stPersonnelMousePointerState.context;
+    ejection_sequence((short)(g_stCurrentPilotProfile.playerShipType + 0x19), 0);
+    if (savedInputContext != 0)
+        SetInputViewport(savedInputContext->viewport);
+    ConfigureInputPump(1, 0);
+    g_18_nInterfaceEventMode = 1;
+    g_88_nEventRepeatDelayState = 0x14;
+}
+
+/* Function start: 0x438080 */
+void ShowPlayerStrandingSequence(void)
+{
+    ejection_sequence((short)(g_stCurrentPilotProfile.playerShipType + 500), 0);
+}

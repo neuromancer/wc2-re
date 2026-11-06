@@ -49,7 +49,7 @@ int main(void)
     SDL_setenv("SDL_AUDIODRIVER", "dummy", 1);
     if (SDL_Init(0) != 0 || ix_streamer_init() != 0)
         return 1;
-    g_nAudioEnabled_0049c244 = 1;
+    g_nAudioEnabled = 1;
     failed = 0;
 
     for (scenario = 0; scenario < 4; scenario++) {
@@ -100,12 +100,12 @@ int main(void)
             for (fileIndex = 0; fileIndex < 3; fileIndex++) {
                 Streamer_open(requests[fileIndex]);
                 /* Both FILE_OPEN and HAS_AUDIO must be set. */
-                if ((g_dwStreamerState_005c4c38 & 0x82) != 0x82) {
+                if ((g_dwStreamerMode & 0x82) != 0x82) {
                     fprintf(stderr, "music path case %d/%d: %s was not opened\n",
                             scenario, location, requests[fileIndex]);
                     failed = 1;
                 }
-                if ((g_dwStreamerState_005c4c38 & 2) != 0)
+                if ((g_dwStreamerMode & 2) != 0)
                     ix_streamer_close_stream_file();
                 if (strcmp(SdlDescribeWorkingDirectory(), currentDirectory) != 0) {
                     fprintf(stderr, "music lookup changed the working directory\n");
@@ -116,7 +116,7 @@ int main(void)
         if (scenario == 3) {
             /* A real open failure should report the complete attempted path. */
             Streamer_open("missing.str");
-            if ((g_dwStreamerState_005c4c38 & 2) != 0) {
+            if ((g_dwStreamerMode & 2) != 0) {
                 fprintf(stderr, "a missing music file was reported as open\n");
                 failed = 1;
             }
@@ -147,7 +147,7 @@ int main(void)
     }
     /* STREAMS no longer exists. Do not pass a null directory to sprintf. */
     Streamer_open("gameflow.str");
-    if ((g_dwStreamerState_005c4c38 & 2) != 0) {
+    if ((g_dwStreamerMode & 2) != 0) {
         fprintf(stderr, "a missing STREAMS directory was reported as open\n");
         failed = 1;
     }

@@ -1,0 +1,15 @@
+/*
+ * The groups of the source browser's file list, in the order the main page
+ * shows them. site/files.tsv assigns each file a group and description;
+ * the build emits the corresponding @file, @ingroup and @brief comments.
+ */
+
+/** @defgroup shell Startup and Win32 shell */
+/** @defgroup graphics Graphics */
+/** @defgroup data Data, files and memory */
+/** @defgroup flight Flight and combat */
+/** @defgroup cockpit Cockpit */
+/** @defgroup campaign Campaign and carrier scenes */
+/** @defgroup audio Sound and music */
+/** @defgroup ixlib ix audio library (C++) */
+/** @defgroup headers Headers */

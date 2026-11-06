@@ -9,13 +9,14 @@
 # PE header reports linker 3.10.6038, exactly matching the MSVC 4.1 package.
 #
 # Common entry points:
-#   make                 # build WC2.EXE
-#   make WC2.EXE         # build WC2.EXE
+#   make                 # build WC2.EXE and verify its retail SHA-256
+#   make WC2.EXE         # build WC2.EXE and verify its retail SHA-256
 #   make run             # build and launch in DREAMM
 #   make report          # WC2 per-function similarity report on this branch
 #   make order           # compilation-unit boundary hints
 #   make verify          # primary recovery verification checklist
 #   make progress        # reimplementation progress summary
+#   make site            # build the Win32 source browser for GitHub Pages
 
 # ---------------------------------------------------------------------------
 # Original toolchain
@@ -26,6 +27,7 @@ MSVC41_DIR = compilers/msvc41
 MSVC41_STAMP = $(MSVC41_DIR)/.installed
 CC = $(WIBO) $(MSVC41_DIR)/Bin/CL.EXE
 LINK = $(WIBO) $(MSVC41_DIR)/Bin/LINK.EXE
+LIBEXE = $(WIBO) $(MSVC41_DIR)/Bin/LIB.EXE
 
 # MSVC expects Windows-style include/library search paths.  The recipes pass
 # these through the host shell to wibo, so command-line /I paths use doubled
@@ -45,9 +47,10 @@ MSVC_LIB = compilers\msvc41\Lib
 #   NO /Gf string pooling.  Two byte-identical "DIBsetWholePalette   SetEntries"
 #          literals exist at 0x0046b6e0 and 0x0046b71c, so identical strings
 #          were NOT merged.
-#   /GX is off for the core by default.  The one proven exception is pilot.cpp:
-#          its debug-console new expression at 0x425B00 has a C++ unwind map and
-#          jumps to __CxxFrameHandler.  A target-specific flag below reproduces it.
+#   /GX is off for the core by default.  The one proven exception is
+#          console.cpp: its debug-console new expression at 0x40FCD0 has a C++
+#          unwind map and jumps to __CxxFrameHandler.  A target-specific flag
+#          below reproduces it.
 # Extra compiler flags for temporary diagnostic builds; empty for the reference
 # build so binary-comp still sees the shipped code.  See the vport-debug target.
 EXTRA_CFLAGS ?=
@@ -76,12 +79,23 @@ CFLAGS_IX   = $(CFLAGS_COMMON) /Od /Oi
 # Default for anything not covered by a more specific rule.
 CFLAGS = $(CFLAGS_CORE)
 
-LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /ENTRY:WinMainCRTStartup /ALIGN:4096
+# The original was the IDE's Debug configuration: /DEBUG (which keeps every
+# import thunk, /OPT:NOREF) without incremental linking, and no /ENTRY.
+# Without /ENTRY LINK adds WinMainCRTStartup as an undefined symbol after
+# reading every command-line object, so wincrt0.obj lands after the CRT
+# members the game itself needs, at 0x00473E50.  The image's MISC and
+# CodeView debug records name Debug/wc2.exe and C:\WCB\wc2\Debug\wc2.pdb.
+LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /DEBUG /INCREMENTAL:NO \
+	/PDB:C:/WCB/wc2/Debug/wc2.pdb /ALIGN:4096
 
 # DDRAW.DLL and DSOUND.DLL are bound statically through the import table, so
 # import libraries are required at link time.  The MSVC420 submodule already
 # ships DDRAW.LIB/DSOUND.LIB and DDRAW.H/DSOUND.H, so no extra SDK is needed.
 GAME_LIBPATH = $(MSVC_LIB)
+#
+# The import descriptors run DDRAW, WINMM, KERNEL32, USER32, GDI32, ADVAPI32,
+# DSOUND: only the dsp library members, pulled after the CRT, need DirectSound,
+# so its descriptor and thunks come from the second search pass.
 GAME_LIBS = \
 	ddraw.lib \
 	dsound.lib \
@@ -91,13 +105,36 @@ GAME_LIBS = \
 	gdi32.lib \
 	advapi32.lib
 
+# The ix code reached the link as five libraries.  The sound and streamer
+# libraries precede the import libraries: their members sit before the first
+# pass's import thunks at 0x0046DF08, and sample.cpp's ldexp is pulled after
+# wincrt0.obj.  The dsp, LZO and file libraries are searched after LIBCMTD and
+# OLDNAMES: their members follow the whole first-pass CRT at 0x00489990.
+IX_LIBS_BEFORE_CRT = $(IX_SOUND_LIB) $(IX_STREAMER_LIB)
+IX_LIBS_AFTER_CRT = $(IX_DSP_LIB) $(IX_LZO_LIB) $(IX_FILE_LIB)
+CRT_LIBS = libcmtd.lib oldnames.lib
+
 # ---------------------------------------------------------------------------
 # Project inputs and generated outputs
 # ---------------------------------------------------------------------------
 
 TARGET = WC2.EXE
+# LINK records this spelling in IMAGE_DEBUG_MISC, as in the retail image.
+LINK_TARGET = Debug/wc2.exe
 MAPFILE = WC2.map
 OUT_DIR = out
+LINK_DRIVE_C = $(abspath $(OUT_DIR)/drive-c)
+LINK_PDB_DIR = $(LINK_DRIVE_C)/WCB/wc2/Debug
+PDB_SEED_TOOL = $(OUT_DIR)/createPdbSeed.exe
+PDB_SEED = $(OUT_DIR)/wc2-pdb-seed.pdb
+ORIGINAL_PDB_SIGNATURE = 0x32385F33
+ORIGINAL_PDB_AGE = 22
+PDB_SEED_AGE = 21
+LINKMAPFILE = $(OUT_DIR)/WC2.link.map
+# PE header and three debug-directory entries: 1996-09-24 17:41:25 UTC.
+ORIGINAL_TIMESTAMP = 0x32481D45
+# SHA-256 of the complete 714,752-byte Kilrathi Saga retail executable.
+ORIGINAL_SHA256 = f5e133e8eca8eb1a02e21a7d1afbb44d082e384a38d39db58a694371fa583bbe
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
@@ -208,12 +245,14 @@ GLOBALS_MISSING_MAX_ADDRESS = 0x004751ff
 # Global definitions are migrating back to their original compilation units.
 # binary-comp currently accepts one definition source, so generate a parser-only
 # manifest from globals.c and the declaration block at the top of each owner.
-GLOBALS_DISTRIBUTED_SOURCES = src/nav.c src/spc.c src/cockpt.c src/ship.c \
-	src/personnel.c src/dib.c src/dibtime.cpp \
-	src/ix/ixlog.cpp src/ix/streamer.cpp src/ix/dsp.cpp src/ix/dsps.cpp \
+GLOBALS_DISTRIBUTED_SOURCES = \
+	$(filter-out src/globals.c %.asm,$(SRCS_ORDERED_CORE)) \
+	src/ix/streamer.cpp src/ix/dsp.cpp src/ix/dsps.cpp \
 	src/ix/mixer.cpp src/ix/dspv.cpp src/ix/system.cpp
 GLOBALS_DEFINITION_SOURCES = src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES)
 GLOBALS_AUDIT_SOURCE = $(OUT_DIR)/globals-audit.c
+GLOBALS_AUDIT_DIR = $(OUT_DIR)/globals-audit
+GLOBALS_AUDIT_MANIFEST = $(GLOBALS_AUDIT_DIR)/sources.txt
 
 # ---------------------------------------------------------------------------
 # Host platform and DREAMM runtime
@@ -275,75 +314,140 @@ DREAMM_MOUNTS = -mount rw:C=hd \
 # MSVC emits functions in source order and the linker concatenates objects in
 # command-line order, so address order == link order.
 #
-# This is the inherited WC1 object order. Its ix portion was exact for WC1,
-# recovered from live assert __FILE__ anchors; each module occupied one range:
-#     streamer.cpp 0x00442750   thread.cpp 0x00443da6   dsp.cpp    0x00444910
-#     dsps.cpp     0x004451b5   mixer.cpp  0x00445f60   dspv.cpp   0x004467c5
-#     system.cpp   0x00447200   sound.cpp  0x00447cd8   sample.cpp 0x0044879c
-# WC2 placement is not assumed from these ranges. Keep the inherited order
-# stable until the remapped call graph and WC2 string anchors prove its units.
-#
-# The inherited WC1 core order was not yet fully known: no source-file anchors exist below
-# 0x00442750, so game-core module boundaries have to be recovered incrementally
-# with `make order`.  Add files here as boundaries are established; anything not
-# listed is appended automatically so new work still builds.
-# Game-core order below is by ADDRESS, which is the best available proxy for
-# link order until `make order` proves the real boundaries.  Each file states
-# its range and the evidence for it in its header comment.
+# Game-core link order.  Every core object is on the command line, so object
+# order is address order.  The order and each object's extent are recovered
+# from the retail image (docs/ORDER.md): the compiler starts each object's
+# code on a 16-byte boundary and the linker fills the gap with INT3, the
+# string literals of each object form one band in .data in the same order,
+# and the DOS release's modules map one-to-one onto these objects with the
+# same function order.
 SRCS_ORDERED_CORE = \
-	src/winmain.c \
-	src/sysinput.c \
-	src/cdrom.c \
-	src/mono.c \
-	src/auto.c \
-	src/cmpgn.c \
-	src/brains.c \
-	src/nav.c \
-	src/spc.c \
-	src/cockpt.c \
+	src/config.c \
+	src/damage.c \
+	src/joypres.c \
+	src/palalloc.c \
+	src/taperec.c \
+	src/raster.asm \
+	src/intro.c \
+	src/hotspot.c \
+	src/campaign.c \
+	src/timer.c \
 	src/geom.c \
-	src/barracks.c \
-	src/debug.cpp \
-	src/mathutil.c \
+	src/iffload.c \
 	src/disk.c \
-	src/personnel.c \
-	src/ship.c \
-	src/logic.c \
-	src/pilot.cpp \
-	src/system.c \
-	src/main.c \
-	src/hudmsg.c \
-	src/pload.c \
-	src/sound.c \
-	src/music.c \
-	src/dibtime.cpp \
 	src/screen.c \
-	src/dib.c \
-	src/text.c \
+	src/console.cpp \
+	src/ship.c \
+	src/palette.c \
+	src/fields.c \
+	src/titlemnu.c \
+	src/mousepos.c \
+	src/hugemove.c \
+	src/spc.c \
 	src/smart.c \
-	src/mathfp.c \
-	src/strdos.c \
-	src/eventmgr.c \
-	src/screens.c \
-	src/killbrd.c \
+	src/textfmt.c \
+	src/nearheap.c \
+	src/input.c \
+	src/orders.c \
+	src/fade.c \
+	src/auto.c \
+	src/joycal.c \
+	src/viewrect.c \
+	src/sound.c \
+	src/jump.c \
 	src/gr.c \
+	src/stream.cpp \
+	src/campglob.c \
+	src/logic.c \
+	src/suffix.c \
+	src/gameflow.c \
+	src/pan.c \
+	src/text.c \
+	src/personnel.c \
+	src/clock.c \
+	src/mono.c \
+	src/message.c \
+	src/eject.c \
+	src/cockpt.c \
+	src/target.c \
+	src/loadmisn.c \
+	src/version.c \
+	src/fl.c \
+	src/brains.c \
+	src/grdriver.c \
+	src/pload.c \
+	src/destroy.c \
+	src/fstrcat.c \
+	src/replay.c \
+	src/shpext.c \
+	src/vpfree.c \
+	src/comm.c \
+	src/wipe.c \
+	src/fleetvw.c \
+	src/mission.c \
+	src/midscene.c \
+	src/packet.c \
+	src/joystick.c \
+	src/speech.c \
+	src/nav.c \
+	src/kbmouse.c \
+	src/hexnum.c \
+	src/music.c \
+	src/palfade.c \
+	src/pktsize.c \
+	src/strwidth.c \
+	src/parsenum.c \
+	src/winmain.c \
+	src/carrier.c \
+	src/fltsetup.c \
+	src/usedcols.c \
+	src/iffindex.c \
+	src/memapi.c \
+	src/optmenu.c \
+	src/datafile.c \
+	src/starfld.c \
+	src/debug.cpp \
+	src/getmode.c \
+	src/startup.c \
+	src/vpalloc.c \
+	src/dib.cpp \
+	src/turret.c \
+	src/select.c \
+	src/eventmgr.c \
+	src/waitkey.c \
+	src/main.c \
+	src/death.c \
+	src/memfree.c \
+	src/resread.c \
 	src/globals.c
 
-SRCS_ORDERED_IX = \
-	src/ix/ixlog.cpp \
-	src/ix/streamer.cpp \
-	src/ix/thread.cpp \
-	src/ix/dsp.cpp \
-	src/ix/dsps.cpp \
-	src/ix/mixer.cpp \
-	src/ix/dspv.cpp \
+# Each ix library's members, in the order LINK pulls them.
+SRCS_IX_SOUND = \
 	src/ix/system.cpp \
 	src/ix/sound.cpp \
 	src/ix/sample.cpp
+SRCS_IX_STREAMER = \
+	src/ix/streamer.cpp \
+	src/ix/thread.cpp \
+	src/ix/streamfile.cpp
+SRCS_IX_DSP = \
+	src/ix/dsp.cpp \
+	src/ix/dspv.cpp \
+	src/ix/dsps.cpp \
+	src/ix/mixer.cpp \
+	src/ix/dspmix.asm
+SRCS_IX_LZO = \
+	src/ix/lzo1x.cpp
+SRCS_IX_FILE = \
+	src/ix/ixfile.cpp
+
+SRCS_ORDERED_IX = $(SRCS_IX_SOUND) $(SRCS_IX_STREAMER) $(SRCS_IX_DSP) \
+	$(SRCS_IX_LZO) $(SRCS_IX_FILE)
 
 SRCS_ORDERED = $(SRCS_ORDERED_CORE) $(SRCS_ORDERED_IX)
 
-ALL_SRCS = $(wildcard src/*.c) $(wildcard src/*.cpp) $(wildcard src/ix/*.cpp)
+ALL_SRCS = $(wildcard src/*.c) $(wildcard src/*.cpp) $(wildcard src/*.asm) \
+           $(wildcard src/ix/*.cpp) $(wildcard src/ix/*.asm)
 SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
        $(filter-out $(SRCS_ORDERED), $(ALL_SRCS))
 
@@ -353,58 +457,38 @@ SRCS = $(filter $(ALL_SRCS), $(SRCS_ORDERED)) \
 # object never gets compared against the original.
 GAME_HEADERS = $(wildcard include/*.h) $(wildcard src/ix/*.h)
 
-OBJS = $(patsubst src/%,$(OUT_DIR)/%, \
-         $(patsubst %.c,%.obj, $(patsubst %.cpp,%.obj, $(SRCS))))
+objects_of = $(patsubst src/%,$(OUT_DIR)/%, \
+         $(patsubst %.c,%.obj, $(patsubst %.cpp,%.obj, \
+         $(patsubst %.asm,%.obj, $(1)))))
 
-# Platform-neutral recovered units.  This list grows as each Win32 boundary is
-# isolated; keeping it explicit makes native compile progress measurable.
+OBJS = $(call objects_of,$(SRCS))
+
+# Everything except the ix library members is an object on the command line.
+LINK_OBJS = $(call objects_of,$(filter-out $(SRCS_ORDERED_IX),$(SRCS)))
+
+IX_SOUND_LIB = $(OUT_DIR)/ix/sound.lib
+IX_STREAMER_LIB = $(OUT_DIR)/ix/streamer.lib
+IX_DSP_LIB = $(OUT_DIR)/ix/dsp.lib
+IX_LZO_LIB = $(OUT_DIR)/ix/lzo.lib
+IX_FILE_LIB = $(OUT_DIR)/ix/file.lib
+IX_LIBS = $(IX_LIBS_BEFORE_CRT) $(IX_LIBS_AFTER_CRT)
+
+# Platform-neutral recovered units: every core C and C++ unit.  sound.c keeps
+# its C file name but is compiled as C++ (see its Win32 rule).  The assembled
+# raster library has portable counterparts in src/sdl/raster.c.
 MODERN_GAMEPLAY_SRCS = \
-	src/auto.c \
-	src/barracks.c \
-	src/brains.c \
-	src/cdrom.c \
-	src/cmpgn.c \
-	src/cockpt.c \
-	src/dib.c \
-	src/disk.c \
-	src/eventmgr.c \
-	src/geom.c \
-	src/gr.c \
-	src/globals.c \
-	src/hudmsg.c \
-	src/killbrd.c \
-	src/logic.c \
-	src/main.c \
-	src/mathfp.c \
-	src/mathutil.c \
-	src/mono.c \
-	src/music.c \
-	src/nav.c \
-	src/personnel.c \
-	src/pload.c \
-	src/screen.c \
-	src/screens.c \
-	src/ship.c \
-	src/smart.c \
-	src/spc.c \
-	src/strdos.c \
-	src/sysinput.c \
-	src/system.c \
-	src/text.c \
-	src/winmain.c
+	$(filter-out src/sound.c,$(filter %.c,$(SRCS_ORDERED_CORE)))
 
 MODERN_GAMEPLAY_CXX_SRCS = \
-	src/debug.cpp \
-	src/dibtime.cpp \
-	src/pilot.cpp
+	$(filter %.cpp,$(SRCS_ORDERED_CORE))
 
 MODERN_GAMEPLAY_CXX_C_SRCS = \
 	src/sound.c
 
 MODERN_IX_SRCS = \
-	src/ix/ixlog.cpp \
 	src/ix/streamer.cpp \
 	src/ix/thread.cpp \
+	src/ix/streamfile.cpp \
 	src/ix/dsp.cpp \
 	src/ix/dsps.cpp \
 	src/ix/mixer.cpp \
@@ -412,7 +496,8 @@ MODERN_IX_SRCS = \
 	src/ix/system.cpp \
 	src/ix/sound.cpp \
 	src/ix/sample.cpp \
-	src/ix/lzo1x.cpp
+	src/ix/lzo1x.cpp \
+	src/ix/ixfile.cpp
 
 MODERN_BASE_HOST_SRCS = \
 	src/sdl/compat.c \
@@ -431,6 +516,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
 	src/sdl/music.c \
+	src/sdl/raster.c \
 	src/sdl/video.c
 MODERN_GAME_HOST_CXX_SRCS = \
 	src/sdl/originfx.cpp \
@@ -448,6 +534,10 @@ MODERN_GUI_SRCS = \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
 	$(MODERN_GUI_SOURCE_DIR)/launcher_api.h \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_config.cpp \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_config.h \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_paths.cpp \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_paths.h \
 	$(MODERN_GUI_SOURCE_DIR)/slint_static.h \
 	$(MODERN_GUI_SOURCE_DIR)/wc2_logo.h
 
@@ -551,7 +641,7 @@ $(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile
 		exit 1; \
 	}
 	@command -v cargo >/dev/null 2>&1 || { \
-		echo "Rust 1.88 or newer is required to build Slint." >&2; \
+		echo "Rust 1.92 or newer is required to build Slint." >&2; \
 		exit 1; \
 	}
 	$(MODERN_CMAKE) -S $(MODERN_GUI_SOURCE_DIR) \
@@ -626,9 +716,9 @@ $(MODERN_OUT_DIR)/obj/sound.o: MODERN_CPPFLAGS += \
 $(MODERN_OUT_DIR)/obj/sound.o: Makefile
 
 # Keep the retail-address body intact; only native callers use campaign.c.
-$(MODERN_OUT_DIR)/obj/screens.o: MODERN_CPPFLAGS += \
+$(MODERN_OUT_DIR)/obj/personnel.o: MODERN_CPPFLAGS += \
 	-DHasSavedPilotCampaign=SdlRetailHasSavedPilotCampaign
-$(MODERN_OUT_DIR)/obj/screens.o: Makefile
+$(MODERN_OUT_DIR)/obj/personnel.o: Makefile
 
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
@@ -707,11 +797,11 @@ $(MODERN_CXX_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
-# globals.o carries the OriginFX sound-effect records the retail check plays.
+# music.o carries the OriginFX sound-effect records the retail check plays.
 $(MODERN_ADLIB_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.o \
 		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_OUT_DIR)/obj/globals.o \
+		$(MODERN_OUT_DIR)/obj/music.o \
 		$(MODERN_OUT_DIR)/obj/sdl/originfx.o \
 		$(MODERN_YMFM_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
@@ -850,7 +940,7 @@ WIBO_PRESET = release-macos
 WIBO_BIN = wibo-src/build/release/wibo
 endif
 
-$(WIBO):
+$(WIBO): wibo-src/src/files.cpp wibo-src/CMakeLists.txt
 	cd wibo-src && cmake --preset $(WIBO_PRESET) && cmake --build --preset $(WIBO_PRESET)
 	ln -sf $(WIBO_BIN) $@
 
@@ -858,6 +948,15 @@ $(WIBO):
 # libraries or DirectX headers. Bootstrap the compiler from the requested
 # release and add only build-support files from the old pinned SDK snapshot;
 # the compiler and linker themselves always come from MSVC 4.1.
+#
+# The support snapshot's CRT and Win32 import libraries are the MSVC 4.20
+# ones.  The original was linked against the MSVC 4.10 set instead:
+# WinMainCRTStartup calls _heap_init without testing its result before
+# _mtinit/_amsg_exit(_RT_THREAD), and every KERNEL32/USER32/GDI32/ADVAPI32/
+# WINMM import hint matches the 4.10 import libraries, not the 4.20 ones.
+# The 4.10 libraries are therefore installed over the support set; the
+# DirectX import libraries (DDRAW.LIB, DSOUND.LIB), which 4.10 lacks, still
+# come from the support snapshot.
 MSVC41_URL = https://github.com/decompme/compilers/releases/download/compilers/msvc4.1.tar.gz
 MSVC41_SHA256 = ba2a100dad6b5f1f097860c8cb5e0d3b5f78881e69f96f16168b174e12af80b0
 MSVC41_ARCHIVE = 3rdparty/msvc4.1.tar.gz
@@ -865,6 +964,10 @@ MSVC41_SUPPORT_COMMIT = df2c13aad74c094988c6c7e784234c2e778a0e91
 MSVC41_SUPPORT_URL = https://github.com/itsmattkc/MSVC420/archive/$(MSVC41_SUPPORT_COMMIT).tar.gz
 MSVC41_SUPPORT_SHA256 = caddbd356e57106050565297c1931871339ee488a58019ba766dc6cb8b214939
 MSVC41_SUPPORT_ARCHIVE = 3rdparty/msvc420-support.tar.gz
+MSVC410_LIBS_COMMIT = 373f5e621ac8fb7b219873b37334ef1d0a2149e6
+MSVC410_LIBS_URL = https://github.com/archaic-msvc/msvc410/archive/$(MSVC410_LIBS_COMMIT).tar.gz
+MSVC410_LIBS_SHA256 = 72904772611a8cb23ea51fc2e670e58cf35d4e5d26c80d7a9c740ac73ef3636a
+MSVC410_LIBS_ARCHIVE = 3rdparty/msvc410.tar.gz
 
 # wibo needs this compatible runtime beside CL.EXE and LINK.EXE.
 MSVCRT40_URL = https://raw.githubusercontent.com/neuromancer/my-teacher-is-an-alien-re/3d1bfe60522ae05b86bbd2252fd01c8d0a11c3df/3rdparty/msvcrt40.dll
@@ -890,24 +993,44 @@ $(MSVC41_SUPPORT_ARCHIVE):
 		(rm -f "$@.tmp"; echo "Error: support archive checksum mismatch." >&2; exit 1)
 	@mv "$@.tmp" "$@"
 
-$(MSVC41_STAMP): $(MSVC41_ARCHIVE) $(MSVC41_SUPPORT_ARCHIVE)
+$(MSVC410_LIBS_ARCHIVE):
+	@mkdir -p $(dir $@)
+	@echo "Downloading pinned Microsoft Visual C++ 4.10 libraries..."
+	@curl -fL --retry 3 -o "$@.tmp" "$(MSVC410_LIBS_URL)"
+	@printf '%s  %s\n' "$(MSVC410_LIBS_SHA256)" "$@.tmp" | \
+		shasum -a 256 -c - >/dev/null || \
+		(rm -f "$@.tmp"; echo "Error: MSVC 4.10 library archive checksum mismatch." >&2; exit 1)
+	@mv "$@.tmp" "$@"
+
+$(MSVC41_STAMP): $(MSVC41_ARCHIVE) $(MSVC41_SUPPORT_ARCHIVE) $(MSVC410_LIBS_ARCHIVE)
 	@mkdir -p compilers
 	@msvc41_install=$$(mktemp -d compilers/.msvc41-install.XXXXXX); \
 		msvc41_support=$$(mktemp -d compilers/.msvc41-support.XXXXXX); \
-		trap 'rm -rf "$$msvc41_install" "$$msvc41_support"' 0; \
+		msvc410_libs=$$(mktemp -d compilers/.msvc41-libs.XXXXXX); \
+		trap 'rm -rf "$$msvc41_install" "$$msvc41_support" "$$msvc410_libs"' 0; \
 		tar -xzf "$(MSVC41_ARCHIVE)" -C "$$msvc41_install"; \
 		tar -xzf "$(MSVC41_SUPPORT_ARCHIVE)" -C "$$msvc41_support"; \
+		tar -xzf "$(MSVC410_LIBS_ARCHIVE)" -C "$$msvc410_libs" \
+			'msvc410-$(MSVC410_LIBS_COMMIT)/lib'; \
 		support_root=$$(find "$$msvc41_support" -mindepth 1 -maxdepth 1 \
 			-type d -name 'MSVC420-*' -print -quit); \
 		test -n "$$support_root"; \
+		libs_root="$$msvc410_libs/msvc410-$(MSVC410_LIBS_COMMIT)"; \
+		test -f "$$libs_root/lib/LIBCMTD.LIB"; \
 		mkdir -p "$$msvc41_install/Lib" "$$msvc41_install/SdkInclude"; \
 		cp -R "$$support_root/lib/." "$$msvc41_install/Lib/"; \
+		cp -R "$$libs_root/lib/." "$$msvc41_install/Lib/"; \
 		cp -R "$$support_root/include/." "$$msvc41_install/SdkInclude/"; \
 		touch "$$msvc41_install/.installed"; \
 		rm -rf "$(MSVC41_DIR)"; \
 		mv "$$msvc41_install" "$(MSVC41_DIR)"; \
-		rm -rf "$$msvc41_support"; \
+		rm -rf "$$msvc41_support" "$$msvc410_libs"; \
 		trap - 0
+
+# The PDB seed names this DLL as a direct prerequisite. Declare how the
+# compiler install supplies it so a clean parallel build can schedule it.
+$(MSVC41_DIR)/Bin/MSPDB41.DLL: | $(MSVC41_STAMP)
+	@test -f "$@"
 
 msvc41-toolchain: $(MSVCRT_DLL)
 
@@ -923,8 +1046,103 @@ $(MSVCRT_SOURCE):
 		(rm -f "$@.tmp"; echo "Error: msvcrt40.dll checksum mismatch." >&2; exit 1)
 	@mv "$@.tmp" "$@"
 
-$(TARGET): $(OBJS) | $(MSVCRT_DLL)
-	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(MAPFILE) $^ $(GAME_LIBS) /OUT:$@
+# The raster library was hand-written assembly (docs/COMPILER.md).  UASM, a
+# MASM-compatible assembler built from a pinned source snapshot, reproduces it.
+UASM_COMMIT = 29a2237acab283c572aff734c6fbbf26295068c1
+UASM_URL = https://github.com/neuviemeporte/UASM/archive/$(UASM_COMMIT).tar.gz
+UASM_SHA256 = 5f5fe810e641d118f16ba87135e4c26e4a13733c5f96dcd9db0c1edc618f34f9
+UASM_ARCHIVE = 3rdparty/uasm.tar.gz
+UASM_DIR = compilers/uasm
+UASM = $(OUT_DIR)/uasm/uasm
+HOST_CC ?= cc
+
+$(UASM_ARCHIVE):
+	@mkdir -p $(dir $@)
+	@echo "Downloading pinned UASM sources..."
+	@curl -fL --retry 3 -o "$@.tmp" "$(UASM_URL)"
+	@printf '%s  %s\n' "$(UASM_SHA256)" "$@.tmp" | \
+		shasum -a 256 -c - >/dev/null || \
+		(rm -f "$@.tmp"; echo "Error: UASM archive checksum mismatch." >&2; exit 1)
+	@mv "$@.tmp" "$@"
+
+$(UASM_DIR)/gccmod.inc: $(UASM_ARCHIVE)
+	@mkdir -p compilers
+	@uasm_install=$$(mktemp -d compilers/.uasm-install.XXXXXX); \
+		trap 'rm -rf "$$uasm_install"' 0; \
+		tar -xzf "$(UASM_ARCHIVE)" -C "$$uasm_install"; \
+		rm -rf "$(UASM_DIR)"; \
+		mv "$$uasm_install/UASM-$(UASM_COMMIT)" "$(UASM_DIR)"; \
+		touch "$@"; \
+		trap - 0
+
+# UASM's own makefile links with GNU ld's -Map option, which Apple's linker
+# rejects, so build its objects there and link them here.
+$(UASM): $(UASM_DIR)/gccmod.inc
+	@mkdir -p $(dir $@)
+	@echo "Building UASM..."
+	@uasm_objs="main.o $$(sed -n 's|^\$$(OUTD)/\([A-Za-z0-9_]*\.o\).*|\1|p' \
+			$(UASM_DIR)/gccmod.inc)"; \
+		$(MAKE) -C $(UASM_DIR) CC=$(HOST_CC) \
+			OUTD=$(abspath $(dir $@)) \
+			$$(for o in $$uasm_objs; do printf '%s ' "$(abspath $(dir $@))/$$o"; done) \
+			> $(dir $@)build.log 2>&1 || (cat $(dir $@)build.log >&2; exit 1); \
+		$(HOST_CC) $$(for o in $$uasm_objs; do printf '%s ' "$(dir $@)$$o"; done) -o $@
+
+# The raster library is assembled; everything else is compiled.
+$(OUT_DIR)/%.obj: src/%.asm | $(UASM)
+	@mkdir -p $(dir $(OUT_DIR)/$*)
+	@$(UASM) -q -coff -Fo$@ -Fw$(OUT_DIR)/$*.err $< > $(OUT_DIR)/$*.stdout || \
+		(cat $(OUT_DIR)/$*.stdout >&2; exit 1)
+
+$(IX_SOUND_LIB): $(call objects_of,$(SRCS_IX_SOUND))
+$(IX_STREAMER_LIB): $(call objects_of,$(SRCS_IX_STREAMER))
+$(IX_DSP_LIB): $(call objects_of,$(SRCS_IX_DSP))
+$(IX_LZO_LIB): $(call objects_of,$(SRCS_IX_LZO))
+$(IX_FILE_LIB): $(call objects_of,$(SRCS_IX_FILE))
+$(IX_LIBS): | $(MSVCRT_DLL)
+	@rm -f $@
+	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
+
+$(PDB_SEED_TOOL): bin/createPdbSeed.c | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(OUT_DIR)
+	env INCLUDE='$(MSVC_INC)' LIB='$(GAME_LIBPATH)' $(CC) /nologo /MT $< \
+		/Fo$(OUT_DIR)/createPdbSeed.obj /Fe$@ /link kernel32.lib
+
+$(PDB_SEED): $(PDB_SEED_TOOL) Makefile $(MSVC41_DIR)/Bin/MSPDB41.DLL
+	@rm -f $@.tmp
+	env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) create \
+		$(MSVC41_DIR)/Bin/MSPDB41.DLL $@.tmp $(ORIGINAL_PDB_SIGNATURE) $(PDB_SEED_AGE)
+	@mv $@.tmp $@
+
+test-pdb-seed: $(PDB_SEED_TOOL)
+	python3 tests/test_pdb_seed.py
+
+$(TARGET):: $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(dir $(LINK_TARGET)) "$(LINK_PDB_DIR)"
+	@cp -f $(PDB_SEED) "$(LINK_PDB_DIR)/wc2.pdb"
+	env LIB='$(GAME_LIBPATH)' WIBO_DRIVE_C='$(LINK_DRIVE_C)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
+		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
+		$(IX_LIBS_AFTER_CRT) /OUT:$(LINK_TARGET)
+	@env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) verify \
+		$(MSVC41_DIR)/Bin/MSPDB41.DLL "$(LINK_PDB_DIR)/wc2.pdb" \
+		$(ORIGINAL_PDB_SIGNATURE) $(ORIGINAL_PDB_AGE)
+	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP) \
+		--clear-misc-reserved
+	@cp -f $(LINK_TARGET) $@
+	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
+		--rebuilt $(TARGET) --output $(MAPFILE) $(OBJS)
+
+# A prerequisite-free double-colon rule runs after the link rule on every
+# invocation, including an up-to-date build, without forcing a relink.
+# Keep the hash check after link metadata normalization and the final copy.
+$(TARGET)::
+	@printf '%s  %s\n' "$(ORIGINAL_SHA256)" "$@" | shasum -a 256 -c -
+
+# Recreate missing analysis metadata without changing the executable. LINK's
+# original map is retained; private addresses come from COFF and relocations.
+$(MAPFILE): $(TARGET) bin/appendStaticSymbols.py
+	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
+		--rebuilt $(TARGET) --output $@ $(OBJS)
 
 # The game-side wave module calls directly into IxSample and IxSound member
 # functions.  Those ECX-based calls at 0x42B4A0 and 0x42B680 prove this one
@@ -951,10 +1169,10 @@ $(OUT_DIR)/ix/%.obj $(OUT_DIR)/ix/%.asm: src/ix/%.cpp $(GAME_HEADERS) | $(WIBO) 
 		/Fa$(OUT_DIR)/ix/$*.asm \
 		> $(OUT_DIR)/ix/$*.stdout
 
-# The console-owner wrapper at 0x425B00 contains compiler-generated C++
+# The console-owner wrapper at 0x40FCD0 contains compiler-generated C++
 # construction cleanup.  /GX on this unit reproduces it exactly; debug.cpp has
 # no such unwind records and stays on the core defaults.
-$(OUT_DIR)/pilot.obj $(OUT_DIR)/pilot.asm: CFLAGS_CORE_CPP_EXTRA = /GX
+$(OUT_DIR)/console.obj $(OUT_DIR)/console.asm: CFLAGS_CORE_CPP_EXTRA = /GX
 
 $(OUT_DIR)/%.obj $(OUT_DIR)/%.asm: src/%.cpp $(GAME_HEADERS) | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(OUT_DIR)/$*)
@@ -1012,20 +1230,26 @@ audit-compiler-glue:
 progress:
 	@python3 bin/showProgress.py
 
-$(GLOBALS_AUDIT_SOURCE): bin/collectGlobalDefinitions.py include/game_data.h $(GLOBALS_DEFINITION_SOURCES)
+$(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST): bin/collectGlobalDefinitions.py Makefile include/game_data.h $(GLOBALS_DEFINITION_SOURCES)
 	@python3 bin/collectGlobalDefinitions.py \
-		--output $@ \
+		--output $(GLOBALS_AUDIT_SOURCE) \
+		--unit-dir $(GLOBALS_AUDIT_DIR) \
 		--constants-header include/game_data.h \
 		$(GLOBALS_DEFINITION_SOURCES)
 
-# Function annotations were projected through the reviewed WC1-to-WC2 map.
-# Unmapped annotations are deliberately non-numeric, preventing an apparently
-# valid score against unrelated WC2 bytes.
+# Function annotations were first projected through the reviewed WC1-to-WC2
+# map.  That migration is complete: the source annotations are authoritative
+# and src/map is rebuilt from them (bin/updateFunctionMap.py).  The remap
+# audit is kept for provenance and is no longer a gate, because functions the
+# WC1 map never covered have since been implemented and named.
 remap-audit:
 	@python3 bin/remapWC1ToWC2.py --check
 
-report: $(TARGET) remap-audit | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) report $(BC) --no-build \
+function-map:
+	@python3 bin/updateFunctionMap.py
+
+report: $(TARGET) | code-full $(ORIGINAL_EXE)
+	@$(BINARY_COMP) report $(BC) --no-build --bytes \
 		$(if $(FILTER),--filter $(FILTER))
 
 # Compare a single rebuilt function against the original.  This is the inner
@@ -1048,7 +1272,7 @@ compare-func: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 # Regenerate code-full/ straight from the original PE with Capstone.  Preferred
 # over scraping Ghidra; bin/exportGhidra.py remains for names Ghidra knows and
 # the PE does not.
-export-asm: remap-audit | $(ORIGINAL_EXE)
+export-asm: | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) export-asm $(BC) --clean $(EXPORT_ASM_FLAGS)
 	@touch $(CODE_EXPORT_STAMP)
 
@@ -1079,6 +1303,10 @@ missing-data: $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 compare: $(TARGET) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC)
 
+# Literal file identity, including PE/debug metadata and every padding byte.
+compare-bytes: $(TARGET) | $(ORIGINAL_EXE)
+	@$(BINARY_COMP) byte-compare --fail-on-difference $(ORIGINAL_EXE) $(TARGET)
+
 compare-functions: $(TARGET) | $(ORIGINAL_EXE)
 	@$(BINARY_COMP) exe $(BC) --functions
 
@@ -1089,6 +1317,13 @@ compare-full-functions: compare-functions
 # ---------------------------------------------------------------------------
 # Verification
 # ---------------------------------------------------------------------------
+
+# These commands consume addresses, including compiler-private data symbols.
+all build build-full report compare-func triage order seh globals-data \
+globals-data-verbose compare compare-functions verify-globals \
+verify-globals-data verify-globals-code audit-auto-complete-globals \
+audit-rebuilt-global-layout verify-vtables verify-values \
+verify-values-stack-locals: $(MAPFILE)
 
 verify:
 	@$(MAKE) audit-compiler-glue
@@ -1108,16 +1343,16 @@ verify:
 # still holds globals belonging to the owner units, every unit boundary reads
 # as an address decrease that no ordering can remove.  Score the order per
 # definition file instead, and keep the combined run for everything else.
-verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
+verify-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --fail-on-issues --fail-on-warnings \
 		--no-source-order
-	@set -e; for global_source in src/globals.c $(GLOBALS_DISTRIBUTED_SOURCES); do \
+	@set -e; while IFS= read -r global_source; do \
 		$(BINARY_COMP) globals $(BC) \
-			--globals-source $$global_source \
-			--globals-h $$global_source \
+			--globals-source "$$global_source" \
+			--globals-h "$$global_source" \
 			--no-address-warnings \
 			--fail-on-issues; \
-	done
+	done < $(GLOBALS_AUDIT_MANIFEST)
 
 # The source-level globals audit cannot serialize every nested or symbolic
 # initializer.  Compare the linked bytes too, but keep the normal verify output
@@ -1127,7 +1362,7 @@ verify-globals-data: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | $(ORIGINAL_EXE)
 		trap 'rm -f "$$audit_output"' 0 1 2 15; \
 		status=0; \
 		$(BINARY_COMP) data $(BC) > "$$audit_output" || status=$$?; \
-		awk '/ MISMATCH / || / not in rebuilt map/ || /^Summary:/' \
+		awk '/ MISMATCH / || / NO_SYMBOL / || /^Summary:/' \
 			"$$audit_output"; \
 		exit $$status
 
@@ -1149,20 +1384,15 @@ globals-verbose: globals-data-verbose
 audit-auto-complete-globals: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) globals $(BC) --show-auto-complete-reviewed
 
-audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) globals $(BC) \
-		--globals-source src/globals.c \
-		--check-rebuilt-layout \
-		--no-address-warnings \
-		--fail-on-issues
-	@set -e; for global_source in $(GLOBALS_DISTRIBUTED_SOURCES); do \
+audit-rebuilt-global-layout: $(TARGET) $(GLOBALS_AUDIT_SOURCE) $(GLOBALS_AUDIT_MANIFEST) | code-full $(ORIGINAL_EXE)
+	@set -e; while IFS= read -r global_source; do \
 		$(BINARY_COMP) globals $(BC) \
-			--globals-source $$global_source \
-			--globals-h $$global_source \
+			--globals-source "$$global_source" \
+			--globals-h "$$global_source" \
 			--check-rebuilt-layout \
 			--no-address-warnings \
 			--fail-on-issues; \
-	done
+	done < $(GLOBALS_AUDIT_MANIFEST)
 
 # WC1's own code is C and has no vtables, but the DirectDraw/DirectSound COM
 # interfaces are dispatched through vtables, so this stays in the checklist.
@@ -1176,10 +1406,10 @@ verify-global-access: $(GLOBALS_AUDIT_SOURCE) | code-full $(ORIGINAL_EXE)
 	@$(BINARY_COMP) global-access $(BC) $(GLOBAL_ACCESS_FLAGS) $(if $(FILTER),$(FILTER))
 
 verify-values: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) values $(BC) --min-similarity $(VALUE_MIN_SIMILARITY) $(VALUES_FLAGS)
+	@$(BINARY_COMP) values $(BC) --no-build --min-similarity $(VALUE_MIN_SIMILARITY) $(VALUES_FLAGS)
 
 verify-values-stack-locals: $(TARGET) | code-full $(ORIGINAL_EXE)
-	@$(BINARY_COMP) values $(BC) \
+	@$(BINARY_COMP) values $(BC) --no-build \
 		--min-similarity $(STACK_LOCAL_VALUE_MIN_SIMILARITY) \
 		--include-stack-locals \
 		$(STACK_LOCAL_VALUES_FLAGS) \
@@ -1201,8 +1431,7 @@ $(ORIGINAL_EXE):
 # has no WC2 stamp, so `make report` replaces it automatically.
 code-full: $(CODE_EXPORT_STAMP)
 
-$(CODE_EXPORT_STAMP): $(SRCS) config/wc1_wc2_name_map.tsv \
-		bin/remapWC1ToWC2.py | $(ORIGINAL_EXE)
+$(CODE_EXPORT_STAMP): $(SRCS) | $(ORIGINAL_EXE)
 	@$(MAKE) export-asm
 	@test -f $@
 
@@ -1268,12 +1497,22 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 		-launch WC2.EXE > debug.log
 
 # ---------------------------------------------------------------------------
+# Source browser
+# ---------------------------------------------------------------------------
+
+# Same static Doxygen/Pygments browser as wc1-re. Only the Win32 branches
+# are staged; the matching sources are never rewritten. No game data or
+# original toolchain is needed. Output: out/site/html/index.html.
+site:
+	@sh site/build.sh $(SRCS)
+
+# ---------------------------------------------------------------------------
 # Cleanup and phony declarations
 # ---------------------------------------------------------------------------
 
 clean:
 	rm -rf $(OUT_DIR)/*.obj $(OUT_DIR)/*.asm $(OUT_DIR)/*.stdout \
-	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE)
+	       $(OUT_DIR)/ix $(TARGET) $(LINK_TARGET) $(MAPFILE) $(LINKMAPFILE)
 
 clean-run:
 	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/WC2.ORI.EXE" \
@@ -1286,7 +1525,9 @@ clean-modern:
 	rm -rf $(MODERN_OUT_DIR)
 
 .PHONY: \
+	site \
 	all \
+	test-pdb-seed \
 	audit-addresses \
 	audit-compiler-glue \
 	audit-auto-complete-globals \
@@ -1309,6 +1550,7 @@ clean-modern:
 	clean-dreamm \
 	dreamm \
 	compare \
+	compare-bytes \
 	compare-functions \
 	globals-data \
 	globals-data-verbose \
@@ -1343,3 +1585,4 @@ clean-modern:
 	verify-values \
 	verify-values-stack-locals \
 	remap-audit \
+	function-map \

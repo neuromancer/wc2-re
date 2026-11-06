@@ -152,7 +152,7 @@ static void SdlUpdateJoystickRumble(void)
 
     if (!g_bSdlJoystickRumbleEnabled)
         return;
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (!g_bSdlJoystickSpaceflightActive || activeSlot < 0 ||
         activeSlot >= 2 ||
         g_aSdlJoystickDevices[activeSlot].joystick == 0) {
@@ -165,10 +165,10 @@ static void SdlUpdateJoystickRumble(void)
 
     low = 0;
     high = 0;
-    if (g_anShipFuel_00495638[0] > 0 &&
-        g_aeSpecialManeuver_00495600[0] ==
+    if (g_anShipFuel[0] > 0 &&
+        g_aeSpecialManeuver[0] ==
             SPECIAL_MANEUVER_AFTERBURNER &&
-        g_asShipAfterburnerTimer_004955a8[0] > 0) {
+        g_asShipAfterburnerTimer[0] > 0) {
         low = 0x6000;
         high = 0x3000;
     }
@@ -569,7 +569,7 @@ BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
         (unsigned int)((int)SdlReadJoystickAxis(device, 1) + 32768);
     information->wZpos = 0;
     buttonState = 0;
-    if (g_pfnInputPump_005c840c == get_player_input &&
+    if (g_176_pfnCurrentInputPump == get_player_input &&
         g_eSdlJoystickMode != SDL_JOYSTICK_ORIGINAL) {
         if (SdlReadJoystickButton(device, 0))
             buttonState = 1;
@@ -602,7 +602,7 @@ static int SdlReadExtraJoystickAxes(Sint16 *first, Sint16 *second)
     SdlJoystickDevice *other;
     int activeSlot;
 
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (activeSlot < 0 || activeSlot >= 2)
         return 0;
     device = &g_aSdlJoystickDevices[activeSlot];
@@ -659,11 +659,11 @@ static void SdlApplyLinearThrottle(Sint16 raw)
     int targetSpeed;
     unsigned int position;
 
-    maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[0] << 8;
+    maximumSpeed = (int)g_asShipMaximumVelocity[0] << 8;
     position = (unsigned int)((int)raw + 32768);
     targetSpeed = (int)(((int64_t)(65535U - position) * maximumSpeed) /
                         65535);
-    celerate(0, targetSpeed - g_anShipSpeed_00494e20[0]);
+    celerate(0, targetSpeed - g_anShipSpeed[0]);
 }
 
 void SdlApplyJoystickFlightControls(void)
@@ -677,17 +677,17 @@ void SdlApplyJoystickFlightControls(void)
     int axisCount;
 
     g_bSdlJoystickSpaceflightActive = 1;
-    if (g_pfnInputPump_005c840c != get_player_input ||
+    if (g_176_pfnCurrentInputPump != get_player_input ||
         g_eSdlJoystickMode == SDL_JOYSTICK_ORIGINAL) {
         SdlUpdateJoystickRumble();
         return;
     }
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (activeSlot < 0 || activeSlot >= 2) {
         SdlUpdateJoystickRumble();
         return;
     }
-    sample = &g_aInputDeviceSamples_005d1780[activeSlot];
+    sample = &g_aInputDeviceSamplesList[activeSlot];
     if (SdlReadJoystickButton(
             &g_aSdlJoystickDevices[activeSlot], 2))
         your_afterburner();
@@ -698,15 +698,15 @@ void SdlApplyJoystickFlightControls(void)
         if (SdlReadJoystickButton(
                 &g_aSdlJoystickDevices[activeSlot], 3)) {
             g_bSdlTwoAxisModifierActive = 1;
-            g_nYawInput_004931aa = 0;
-            g_nPitchInput_004931a8 = 0;
-            g_nRollInput_004931ac = (short)sample->x;
+            g_anFlightInput[1] = 0;
+            g_anFlightInput[0] = 0;
+            g_anFlightInput[2] = (short)sample->x;
             accelerate((short)-(sample->y / 2));
         } else if (g_bSdlTwoAxisModifierActive) {
             g_bSdlTwoAxisModifierActive = 0;
-            g_nRollInput_004931ac = 0;
-            g_nYawInput_004931aa = (short)sample->x;
-            g_nPitchInput_004931a8 = (short)-sample->y;
+            g_anFlightInput[2] = 0;
+            g_anFlightInput[1] = (short)sample->x;
+            g_anFlightInput[0] = (short)-sample->y;
         }
         return;
     }
@@ -719,24 +719,24 @@ void SdlApplyJoystickFlightControls(void)
 
     switch (g_eSdlJoystickAxesMode) {
     case SDL_JOYSTICK_AXES_TWIN_STICK_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_JOYSTICK_AXES_TWIN_STICK_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_JOYSTICK_AXES_HOTAS_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
     case SDL_JOYSTICK_AXES_HOTAS_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
@@ -748,11 +748,11 @@ void SdlApplyJoystickFlightControls(void)
             SdlApplyLinearThrottle(firstRaw);
         break;
     case SDL_JOYSTICK_AXES_RUDDER_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         break;
     case SDL_JOYSTICK_AXES_RUDDER_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         break;
     }
 }
@@ -813,13 +813,13 @@ static void SdlQueueScanCodePress(unsigned short scanCode)
 
 int SdlGetCommunicationMenuSelection(void)
 {
-    if (g_nCommMenuChoiceCount_0049b770 <= 0) {
+    if (g_nCommMenuChoiceCount <= 0) {
         g_nSdlCommunicationMenuSelection = 0;
         return -1;
     }
-    if (g_nCommMenuReuseMode_0049b774 == 0 ||
+    if (g_nCommMenuReuseMode == 0 ||
         g_nSdlCommunicationMenuSelection >=
-            g_nCommMenuChoiceCount_0049b770)
+            g_nCommMenuChoiceCount)
         g_nSdlCommunicationMenuSelection = 0;
     return g_nSdlCommunicationMenuSelection;
 }
@@ -835,7 +835,7 @@ static int SdlHandleCommunicationDpad(int button)
     case SDL_JOYSTICK_BUTTON_DPAD_UP:
         if (selection != -1) {
             if (selection == 0)
-                selection = g_nCommMenuChoiceCount_0049b770;
+                selection = g_nCommMenuChoiceCount;
             g_nSdlCommunicationMenuSelection = selection - 1;
             InvalidateVduMode(1);
         }
@@ -843,7 +843,7 @@ static int SdlHandleCommunicationDpad(int button)
     case SDL_JOYSTICK_BUTTON_DPAD_DOWN:
         if (selection != -1) {
             selection++;
-            if (selection >= g_nCommMenuChoiceCount_0049b770)
+            if (selection >= g_nCommMenuChoiceCount)
                 selection = 0;
             g_nSdlCommunicationMenuSelection = selection;
             InvalidateVduMode(1);
@@ -926,7 +926,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726)
+    if (slot == -1 || slot != (int)g_8_nActiveInputDeviceWord)
         return;
     device = &g_aSdlJoystickDevices[slot];
     if (controllerEvent) {
@@ -939,12 +939,12 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     }
 
     spaceflightActive = g_bSdlJoystickSpaceflightActive &&
-        g_pfnInputPump_005c840c == get_player_input &&
-        g_nArcadeState_0049d75c == 0;
+        g_176_pfnCurrentInputPump == get_player_input &&
+        g_nArcadeState == 0;
     eventType = pressed ? 4 : 5;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
+            g_bSceneEscapeRequested = 1;
         QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0x01, 0);
         return;
     }
@@ -956,7 +956,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (!pressed)
         return;
     if (button == SDL_JOYSTICK_BUTTON_Y &&
-        !spaceflightActive && g_bInputEventQueueEnabled_0049c248 != 0) {
+        !spaceflightActive && g_bInputEventQueueEnabled != 0) {
         QueueInputEvent(5, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
         QueueInputEvent(4, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
         return;
@@ -986,7 +986,7 @@ void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726 ||
+    if (slot == -1 || slot != (int)g_8_nActiveInputDeviceWord ||
         hat != 0)
         return;
     device = &g_aSdlJoystickDevices[slot];
@@ -1039,7 +1039,7 @@ void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which)
     SdlRefreshJoysticks();
     if (type == SDL_JOYDEVICEADDED &&
         g_bSdlJoystickInputStarted &&
-        g_nActiveInputDevice_005d1726 == -1)
+        g_8_nActiveInputDeviceWord == -1)
         LoadJoystickCalibrationFile(9, 9, 1, 1);
 }
 

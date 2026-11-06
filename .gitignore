@@ -4,10 +4,16 @@ out-modern/
 dist/
 compilers/msvc41/
 compilers/.msvc41-*/
+compilers/uasm/
+compilers/.uasm-*/
 3rdparty/msvc4.1.tar.gz
 3rdparty/msvc420-support.tar.gz
+3rdparty/msvc410.tar.gz
+3rdparty/uasm.tar.gz
 *.obj
 *.asm
+!src/*.asm
+!src/ix/*.asm
 *.map
 *.stdout
 
@@ -23,6 +29,9 @@ wibo
 
 # Ghidra export (large; regenerate from the WC project)
 code-full/
+
+# Keep reconstruction notes local.
+/docs/
 
 # Original binary and game data (never vendored).  The whole tree, not just
 # data/full/: disc images land directly in data/ and one of them is 605 MB.

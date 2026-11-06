@@ -47,9 +47,9 @@ static Uint32 SdlTimerCallback(Uint32 interval, void *parameter)
 
 void SdlPaceTitleFrame(int ticks)
 {
-    while (g_nInputClock_005c84a8 < g_nSdlNextTitleFrameClock)
+    while (g_196_nInputTimerTicks < g_nSdlNextTitleFrameClock)
         PumpWindowMessages(0);
-    g_nSdlNextTitleFrameClock = g_nInputClock_005c84a8 + ticks;
+    g_nSdlNextTitleFrameClock = g_196_nInputTimerTicks + ticks;
 }
 
 UINT timeSetEvent(UINT delay, UINT resolution, LPTIMECALLBACK callback,

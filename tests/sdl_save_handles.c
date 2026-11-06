@@ -83,7 +83,7 @@ static int TestClose(int file)
 #define _close TestClose
 #define LoadTemporaryCampaignGlobals TestLoadCampaign
 #define ReleasePacketSlot TestReleasePacket
-#define g_pCampaignGlobals_00499c94 testCampaign
+#define g_pCampaignGlobals testCampaign
 #define HasSavedPilotCampaign TestHasSavedPilotCampaign
 #include "../src/sdl/campaign.c"
 

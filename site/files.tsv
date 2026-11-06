@@ -1,0 +1,117 @@
+src/config.c	shell	Reads the WINGCMDR.CFG installation configuration.
+src/damage.c	cockpit	Cockpit damage display.
+src/joypres.c	shell	Joystick presence query.
+src/palalloc.c	graphics	Space palette layout and contiguous palette-entry reservation.
+src/taperec.c	flight	Canned-scene tape recorder.
+src/raster.asm	graphics	Hand-written raster library: RLE sprites, clipped drawing and IFF, PCX and GIF image decoding.
+src/intro.c	campaign	Title orchestra sequence and victory fireworks.
+src/hotspot.c	campaign	Scene hotspot selection.
+src/campaign.c	campaign	Campaign start, continue prompt and game loop.
+src/timer.c	shell	Multimedia frame timer callback.
+src/geom.c	flight	Ship velocity limits, vector arithmetic and orientation geometry.
+src/iffload.c	data	Cutscene IFF resource parsing and release.
+src/disk.c	data	Packet loading, text contexts and input waits.
+src/screen.c	graphics	Full-screen DIB viewport setup.
+src/console.cpp	shell	Owner and C wrappers of the Win32 developer overlay console.
+src/ship.c	flight	Space objects: creation, weapons, movement and damage.
+src/palette.c	graphics	Saves and restores the game palette.
+src/fields.c	flight	Asteroid and mine hazard fields.
+src/titlemnu.c	campaign	Joystick calibration, title menu and barracks screen.
+src/mousepos.c	shell	Sets the mouse position.
+src/hugemove.c	data	Overlap-safe huge memory copy.
+src/spc.c	flight	Space views, star field and object simulation.
+src/smart.c	flight	Pilot steering, formation flying and maneuver selection.
+src/textfmt.c	data	Formatted text output.
+src/nearheap.c	data	Near heap allocator.
+src/input.c	shell	Menu input devices and joystick button events.
+src/orders.c	flight	Wingman orders and landing requests.
+src/fade.c	graphics	Palette transition step.
+src/auto.c	flight	Autopilot travel and interstitial flight sequences.
+src/joycal.c	shell	Joystick calibration file and calibrated reads.
+src/viewrect.c	graphics	Sets a viewport rectangle.
+src/sound.c	audio	Wave playback, sound bookkeeping and volume settings.
+src/jump.c	flight	Objectives, warp arrival and star-system jumps.
+src/gr.c	graphics	Shape decoding, viewport drawing and raster effects.
+src/stream.cpp	audio	Game wrappers around the audio streamer.
+src/campglob.c	campaign	Campaign globals and campaign scripts.
+src/logic.c	flight	Ship AI bookkeeping: alerts, collisions, goals and squads.
+src/suffix.c	data	Graphics file suffixes and character conversion.
+src/gameflow.c	campaign	Cutscene engine and game flow.
+src/pan.c	graphics	Pans between screens.
+src/text.c	graphics	Cinematic sprite-font renderer.
+src/personnel.c	campaign	Personnel database, campaign chalkboard and pilot transfer.
+src/clock.c	shell	Splits game clock ticks.
+src/mono.c	shell	MONODEBG developer channel.
+src/message.c	shell	Flight input setup, fatal errors and on-screen messages.
+src/eject.c	campaign	Player ejection and stranding sequences.
+src/cockpt.c	cockpit	Cockpit displays, HUD messages and VDUs.
+src/target.c	cockpit	Target display.
+src/loadmisn.c	campaign	Loads mission data.
+src/version.c	shell	Game version string.
+src/fl.c	flight	Flight maneuvers.
+src/brains.c	flight	Ship intelligence and missions.
+src/grdriver.c	graphics	Loads the graphics driver.
+src/pload.c	data	Packet loader (Library\Source\Pload.c).
+src/destroy.c	flight	Ship destruction and mission ejection pods.
+src/fstrcat.c	data	String concatenation shim.
+src/replay.c	flight	Canned-scene playback.
+src/shpext.c	graphics	Shape frame extent.
+src/vpfree.c	graphics	Frees a viewport.
+src/comm.c	cockpit	Communications menu and transmissions.
+src/wipe.c	graphics	Viewport wipe transitions.
+src/fleetvw.c	flight	Fleet overview view.
+src/mission.c	flight	Mission setup, action spheres and ship loading.
+src/midscene.c	flight	Mid-mission ejection scene.
+src/packet.c	data	Packet sections and data file handles.
+src/joystick.c	shell	Joystick sampling.
+src/speech.c	audio	Speech packets and speech cache.
+src/nav.c	cockpit	Navigation map.
+src/kbmouse.c	shell	Keyboard mouse pump.
+src/hexnum.c	data	Hexadecimal number parser.
+src/music.c	audio	Music and sound-effect control.
+src/palfade.c	graphics	Fades a viewport palette towards a colour.
+src/pktsize.c	data	Packet size.
+src/strwidth.c	graphics	Clamped text pixel width.
+src/parsenum.c	data	Number parser.
+src/winmain.c	shell	Win32 entry point, window, joystick, guarded heap and keyboard state.
+src/carrier.c	flight	Carrier fighter launches.
+src/fltsetup.c	flight	Spaceflight setup: shapes, cockpit, constellations and music.
+src/usedcols.c	graphics	Collects the palette indices in use.
+src/iffindex.c	data	Scene chunk decoding.
+src/memapi.c	data	Memory stack frames and packet handles.
+src/optmenu.c	campaign	Text input and modal text panels.
+src/datafile.c	data	Data file I/O.
+src/starfld.c	graphics	Fireworks and constellation fields.
+src/debug.cpp	shell	Win32 developer overlay console.
+src/getmode.c	graphics	Queries the graphics mode.
+src/startup.c	shell	Game startup and main.
+src/vpalloc.c	graphics	Viewport buffer allocation.
+src/dib.cpp	graphics	DirectDraw DIB display, frame timing and palettes.
+src/turret.c	flight	Fleet overview, target camera and turret guns.
+src/select.c	flight	Weapon selection.
+src/eventmgr.c	shell	Win32 library port: random, fixed-point math, text, strings and events.
+src/waitkey.c	shell	Waits for a queued input press.
+src/main.c	shell	Main application loop and spaceflight frame.
+src/death.c	campaign	Death sequence.
+src/memfree.c	data	Available main memory.
+src/resread.c	data	Reads packet section data.
+src/globals.c	data	Reference-build placeholder; native-only storage is omitted.
+src/ix/system.cpp	ixlib	Sound-system startup, master volume and voice allocation.
+src/ix/sound.cpp	ixlib	Sound objects, playback control and completion callbacks.
+src/ix/sample.cpp	ixlib	Sample loading, format conversion and sample lifetime.
+src/ix/streamer.cpp	ixlib	Audio stream management, buffering and playback control.
+src/ix/thread.cpp	ixlib	Worker thread and asynchronous audio chunk delivery.
+src/ix/streamfile.cpp	ixlib	Stream-file objects and read status.
+src/ix/dsp.cpp	ixlib	DirectSound initialization, device configuration and buffers.
+src/ix/dspv.cpp	ixlib	DirectSound voices, sample playback and voice parameters.
+src/ix/dsps.cpp	ixlib	DirectSound streaming ring buffers.
+src/ix/mixer.cpp	ixlib	Software-mixer scheduling and buffer management.
+src/ix/dspmix.asm	ixlib	Hand-written software sample mixer.
+src/ix/lzo1x.cpp	ixlib	LZO1X decompression for packed audio streams.
+src/ix/ixfile.cpp	ixlib	File I/O wrappers for the audio streamer.
+include/game.h	headers	Shared Win32 declarations, types and library interfaces.
+include/game_data.h	headers	Game data structures, constants and packed resource formats.
+include/globals.h	headers	Shared globals and their retail address annotations.
+include/functions.h	headers	Declarations for reconstructed game functions.
+include/externs.h	headers	Declarations for external game and runtime functions.
+src/ix/ix.h	headers	Audio classes, DirectSound interfaces and shared ix state.

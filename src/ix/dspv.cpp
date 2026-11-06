@@ -14,55 +14,63 @@
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
-unsigned short g_nMasterVolume_004a0c14 = 0xffff;
-short          g_anPanTable_005c4ee8[512];
-IxVoice        g_voices_005c52f0[34];
-CRITICAL_SECTION g_csMixer_005c5730;
-int            g_nVoiceCount_005c5748;
+IxVoice        g_2_voices[34]; /* 0x005c52f0 */
+CRITICAL_SECTION g_7_csMixer; /* 0x005c5730 */
+int            g_nVoiceCapacity; /* 0x005c5748 */
+
+/* The buffer, position and volume setters further down.  With the voice
+ * table's initializer, their named parameters give this unit retail's
+ * symbol-key numbering. */
+void ix_dspv_set_buffer(int voice, unsigned char *buffer, int length);
+void ix_dspv_set_position(int voice, int offset);
+void ix_dspv_set_volume(int voice, short volume);
 
 /* Function start: 0x48A235 */   /* source line 23 */
 void ix_dspv_set_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 23);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005c52f0[voice].flags |= IX_VOICE_ACTIVE;
+    g_2_voices[voice].flags |= IX_VOICE_ACTIVE;
 }
 
 /* Function start: 0x48A299 */   /* source line 29 */
 void ix_dspv_clear_active(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 29);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005c52f0[voice].flags &= ~IX_VOICE_ACTIVE;
+    g_2_voices[voice].flags &= ~IX_VOICE_ACTIVE;
 }
+
+unsigned int ix_dspv_get_flags(int voice);
 
 /* Function start: 0x48A2FE */   /* source line 35 */
 void ix_dspv_clear_flag4(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 35);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005c52f0[voice].flags &= ~IX_VOICE_FLAG4;
+    g_2_voices[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
 /* Function start: 0x48A362 */   /* source line 41 */
 unsigned int ix_dspv_get_flags(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 41);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    return g_voices_005c52f0[voice].flags;
+    return g_2_voices[voice].flags;
 }
 
 /* Function start: 0x48A3C6 */
@@ -70,63 +78,68 @@ unsigned int ix_dspv_get_flags(int voice)
 void ix_dspv_set_flag4(int voice, int on)
 {
     if (on != 0)
-        g_voices_005c52f0[voice].flags |= IX_VOICE_FLAG4;
+        g_2_voices[voice].flags |= IX_VOICE_FLAG4;
     else
-        g_voices_005c52f0[voice].flags &= ~IX_VOICE_FLAG4;
+        g_2_voices[voice].flags &= ~IX_VOICE_FLAG4;
 }
 
 /* Function start: 0x48A3FF */   /* source line 55 */
 void ix_dspv_set_buffer(int voice, unsigned char *p, int len)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 55);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005c52f0[voice];
+    IxVoice *v = &g_2_voices[voice];
 
-    EnterCriticalSection(&g_csMixer_005c5730);
+    EnterCriticalSection(&g_7_csMixer);
     v->cursor = p;
     v->start = p;
     v->end = p + len;
-    LeaveCriticalSection(&g_csMixer_005c5730);
+    LeaveCriticalSection(&g_7_csMixer);
 }
 
 /* Function start: 0x48A49B */   /* source line 69 */
 int ix_dspv_get_position(int voice)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 69);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005c52f0[voice];
+    IxVoice *v = &g_2_voices[voice];
 
     return v->cursor - v->start;
 }
 
+void ix_dspv_recalc_mix(int voice);
+
 /* Function start: 0x48A510 */   /* source line 77 */
 void ix_dspv_set_position(int voice, int off)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 77);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    IxVoice *v = &g_voices_005c52f0[voice];
+    IxVoice *v = &g_2_voices[voice];
 
     v->cursor = v->start + off;
 }
 
+void ix_dspv_set_pan(int voice, unsigned short angle);
+void ix_dspv_set_frequency(int voice, unsigned int hz);
+
 /* Function start: 0x48A588 */   /* source line 85 */
 void ix_dspv_set_volume(int voice, short vol)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 85);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005c52f0[voice].volume = vol;
+    g_2_voices[voice].volume = vol;
     ix_dspv_recalc_mix(voice);
 }
 
@@ -136,46 +149,46 @@ void ix_dspv_set_pan(int voice, unsigned short angle)
     IxVoice *state;
     short step;
     short delta;
-    short pos;
+    short position;
 
-    if (voice < 0 || g_nVoiceCount_005c5748 <= voice) {
+    if (voice < 0 || g_nVoiceCapacity <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 93);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    state = &g_voices_005c52f0[voice];
+    state = &g_2_voices[voice];
     step = (short)((unsigned short)angle >> 9);
     delta = step - state->panAngle;
     if (delta > 0x40)
         delta = delta - 0x80;
     if (delta < -0x40)
         delta = delta + 0x80;
-    pos = state->panPos + delta;
-    if (pos < 0)
-        pos = pos + 0x100;
-    if (pos >= 0x100)
-        pos = pos - 0x100;
+    position = state->panPos + delta;
+    if (position < 0)
+        position = position + 0x100;
+    if (position >= 0x100)
+        position = position - 0x100;
     state->panAngle = step;
-    state->panPos = pos;
+    state->panPos = position;
     ix_dspv_recalc_mix(voice);
 }
 
 /* Function start: 0x48A721 */   /* source line 131 */
 void ix_dspv_set_frequency(int voice, unsigned int hz)
 {
-    if (voice < 0 || g_nVoiceCount_005c5748 <= voice) {
+    if (voice < 0 || g_nVoiceCapacity <= voice) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 131);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
-    g_voices_005c52f0[voice].rate =
+    g_2_voices[voice].rate =
         (short)(((int)(hz & 0xffff) << 8) / IX_MIXER_BASE_RATE);
 }
 
 /* Function start: 0x48A79C */   /* source lines 137, 138 */
 void ix_dspv_set_bits_per_sample(int voice, int bps)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 137);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -186,15 +199,15 @@ void ix_dspv_set_bits_per_sample(int voice, int bps)
         exit(-1);
     }
     if (bps == 16)
-        g_voices_005c52f0[voice].flags |= IX_VOICE_16BIT;
+        g_2_voices[voice].flags |= IX_VOICE_16BIT;
     else
-        g_voices_005c52f0[voice].flags &= ~IX_VOICE_16BIT;
+        g_2_voices[voice].flags &= ~IX_VOICE_16BIT;
 }
 
 /* Function start: 0x48A865 */   /* source lines 148, 149 */
 void ix_dspv_set_channels(int voice, int channels)
 {
-    if (voice < 0 || voice >= g_nVoiceCount_005c5748) {
+    if (voice < 0 || voice >= g_nVoiceCapacity) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPV_FILE, 148);
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
@@ -205,35 +218,35 @@ void ix_dspv_set_channels(int voice, int channels)
         exit(-1);
     }
     if (channels == 2)
-        g_voices_005c52f0[voice].flags |= IX_VOICE_STEREO;
+        g_2_voices[voice].flags |= IX_VOICE_STEREO;
     else
-        g_voices_005c52f0[voice].flags &= ~IX_VOICE_STEREO;
+        g_2_voices[voice].flags &= ~IX_VOICE_STEREO;
 }
 
 /* Function start: 0x48A92F */
 void ix_dspv_recalc_mix(int voice)
 {
     IxVoice *state;
-    short pos;
-    int gain;
+    short position;
+    int level;
 
-    state = &g_voices_005c52f0[voice];
-    pos = state->panPos;
-    gain = ((unsigned int)state->volume
-            * (unsigned int)g_nMasterVolume_004a0c14) / 0xffff;
-    EnterCriticalSection(&g_csMixer_005c5730);
+    state = &g_2_voices[voice];
+    position = state->panPos;
+    level = ((unsigned int)state->volume
+            * (unsigned int)g_nMasterVolume) / 0xffff;
+    EnterCriticalSection(&g_7_csMixer);
     state->leftGain =
-        (short)((int)g_anPanTable_005c4ee8[pos * 2] * gain >> 0x10);
+        (short)((int)g_3_anPanTable[position * 2] * level >> 0x10);
     state->rightGain =
-        (short)((int)g_anPanTable_005c4ee8[pos * 2 + 1] * gain >> 0x10);
+        (short)((int)g_3_anPanTable[position * 2 + 1] * level >> 0x10);
     state->leftGainHi = (unsigned char)(state->leftGain >> 8);
     state->rightGainHi = (unsigned char)(state->rightGain >> 8);
-    LeaveCriticalSection(&g_csMixer_005c5730);
+    LeaveCriticalSection(&g_7_csMixer);
 }
 
-/* Function start: 0x48BFF8 */
 #ifdef SDL_PORT
-void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
+/* The retail mixer is hand-written assembly in dspmix.asm. */
+extern "C" void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
 {
     short *output;
     unsigned int frameCount;
@@ -243,10 +256,10 @@ void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
     output = (short *)outputBuffer;
     frameCount = outputBytes / 4;
     voice = 0;
-    while (voice < g_nVoiceCount_005c5748 + g_nStreamCount_005c5750) {
+    while (voice < g_nVoiceCapacity + g_3_nStreamCount) {
         IxVoice *state;
 
-        state = &g_voices_005c52f0[voice];
+        state = &g_2_voices[voice];
         if ((state->flags & IX_VOICE_ACTIVE) != 0) {
             unsigned char *cursor;
             unsigned int frame;
@@ -329,296 +342,8 @@ void ix_dspv_mix(void *outputBuffer, unsigned int outputBytes)
         voice++;
     }
 }
-#else
-__declspec(naked) void ix_dspv_mix(void *outputBuffer,
-                                   unsigned int outputBytes)
-{
-    __asm {
-        push ebp
-        mov ebp, esp
-        push eax
-        push ebx
-        push ecx
-        push edx
-        push esi
-        push edi
-        mov eax, 0
-        mov edi, dword ptr [ebp + 8]
-        mov ecx, dword ptr [ebp + 0xc]
-        shr ecx, 2
-        rep stosd
-        mov ebx, offset g_voices_005c52f0
-        mov ecx, dword ptr [g_nVoiceCount_005c5748]
-        add ecx, dword ptr [g_nStreamCount_005c5750]
-
-    voice_loop:
-        mov eax, dword ptr [ebx]
-        test eax, 2
-        jz next_voice
-        push ecx
-        mov edi, dword ptr [ebp + 8]
-        mov ecx, dword ptr [ebp + 0xc]
-        shr ecx, 2
-        mov esi, dword ptr [ebx + 4]
-        test eax, 8
-        jnz mix_16bit
-        test eax, 0x10
-        jnz mix_8bit_stereo
-
-    mix_8bit_mono_sample:
-        mov al, byte ptr [esi]
-        mov dl, al
-        imul byte ptr [ebx + 0x17]
-        rol eax, 0x10
-        mov al, dl
-        imul byte ptr [ebx + 0x16]
-
-    mix_8bit_mono_accumulate:
-        mov edx, dword ptr [edi]
-        add ax, dx
-        jno mix_8bit_mono_left_done
-        jnc mix_8bit_mono_left_positive
-        mov ax, 0x8000
-        jmp mix_8bit_mono_left_done
-
-    mix_8bit_mono_left_positive:
-        mov ax, 0x7fff
-
-    mix_8bit_mono_left_done:
-        ror eax, 0x10
-        ror edx, 0x10
-        add ax, dx
-        jno mix_8bit_mono_right_done
-        jnc mix_8bit_mono_right_positive
-        mov ax, 0x8000
-        jmp mix_8bit_mono_right_done
-
-    mix_8bit_mono_right_positive:
-        mov ax, 0x7fff
-
-    mix_8bit_mono_right_done:
-        rol eax, 0x10
-        mov dword ptr [edi], eax
-        add edi, 4
-        dec ecx
-        jz voice_done
-        mov edx, 0
-        mov dx, word ptr [ebx + 0x10]
-        add dx, word ptr [ebx + 0x12]
-        mov word ptr [ebx + 0x10], dx
-        and word ptr [ebx + 0x10], 0xff
-        shr dx, 8
-        jz mix_8bit_mono_accumulate
-        add esi, edx
-        cmp esi, dword ptr [ebx + 0xc]
-        jl mix_8bit_mono_sample
-        test dword ptr [ebx], 4
-        jz stop_voice
-        mov esi, dword ptr [ebx + 8]
-        jmp mix_8bit_mono_sample
-
-    mix_8bit_stereo:
-        cmp esi, dword ptr [ebx + 0xc]
-        jge mix_8bit_stereo_at_end
-
-    mix_8bit_stereo_sample:
-        mov al, byte ptr [esi + 1]
-        imul byte ptr [ebx + 0x17]
-        rol eax, 0x10
-        mov al, byte ptr [esi]
-        imul byte ptr [ebx + 0x16]
-
-    mix_8bit_stereo_accumulate:
-        mov edx, dword ptr [edi]
-        add ax, dx
-        jno mix_8bit_stereo_left_done
-        jnc mix_8bit_stereo_left_positive
-        mov ax, 0x8000
-        jmp mix_8bit_stereo_left_done
-
-    mix_8bit_stereo_left_positive:
-        mov ax, 0x7fff
-
-    mix_8bit_stereo_left_done:
-        ror eax, 0x10
-        ror edx, 0x10
-        add ax, dx
-        jno mix_8bit_stereo_right_done
-        jnc mix_8bit_stereo_right_positive
-        mov ax, 0x8000
-        jmp mix_8bit_stereo_right_done
-
-    mix_8bit_stereo_right_positive:
-        mov ax, 0x7fff
-
-    mix_8bit_stereo_right_done:
-        rol eax, 0x10
-        mov dword ptr [edi], eax
-        add edi, 4
-        dec ecx
-        jz voice_done
-        mov edx, 0
-        mov dx, word ptr [ebx + 0x10]
-        add dx, word ptr [ebx + 0x12]
-        mov word ptr [ebx + 0x10], dx
-        and word ptr [ebx + 0x10], 0xff
-        shr dx, 8
-        jz mix_8bit_stereo_accumulate
-        shl dx, 1
-        add esi, edx
-        jmp mix_8bit_stereo
-
-    mix_8bit_stereo_at_end:
-        test dword ptr [ebx], 4
-        jz stop_voice
-        mov esi, dword ptr [ebx + 8]
-        jmp mix_8bit_stereo_sample
-
-    mix_16bit:
-        test eax, 0x10
-        jnz mix_16bit_stereo
-
-    mix_16bit_mono:
-        cmp esi, dword ptr [ebx + 0xc]
-        jge mix_16bit_mono_at_end
-
-    mix_16bit_mono_sample:
-        mov ax, word ptr [esi]
-        push ax
-        imul word ptr [ebx + 0x1a]
-        mov ax, dx
-        rol eax, 0x10
-        pop ax
-        imul word ptr [ebx + 0x18]
-        mov ax, dx
-
-    mix_16bit_mono_accumulate:
-        mov edx, dword ptr [edi]
-        add ax, dx
-        jno mix_16bit_mono_left_done
-        jnc mix_16bit_mono_left_positive
-        mov ax, 0x8000
-        jmp mix_16bit_mono_left_done
-
-    mix_16bit_mono_left_positive:
-        mov ax, 0x7fff
-
-    mix_16bit_mono_left_done:
-        ror eax, 0x10
-        ror edx, 0x10
-        add ax, dx
-        jno mix_16bit_mono_right_done
-        jnc mix_16bit_mono_right_positive
-        mov ax, 0x8000
-        jmp mix_16bit_mono_right_done
-
-    mix_16bit_mono_right_positive:
-        mov ax, 0x7fff
-
-    mix_16bit_mono_right_done:
-        rol eax, 0x10
-        mov dword ptr [edi], eax
-        add edi, 4
-        dec ecx
-        jz voice_done
-        mov edx, 0
-        mov dx, word ptr [ebx + 0x10]
-        add dx, word ptr [ebx + 0x12]
-        mov word ptr [ebx + 0x10], dx
-        and word ptr [ebx + 0x10], 0xff
-        shr dx, 8
-        jz mix_16bit_mono_accumulate
-        shl dx, 1
-        add esi, edx
-        jmp mix_16bit_mono
-
-    mix_16bit_mono_at_end:
-        test dword ptr [ebx], 4
-        jz stop_voice
-        mov esi, dword ptr [ebx + 8]
-        jmp mix_16bit_mono_sample
-
-    mix_16bit_stereo:
-        cmp esi, dword ptr [ebx + 0xc]
-        jge mix_16bit_stereo_at_end
-
-    mix_16bit_stereo_sample:
-        mov ax, word ptr [esi + 2]
-        imul word ptr [ebx + 0x1a]
-        mov ax, dx
-        rol eax, 0x10
-        mov ax, word ptr [esi]
-        imul word ptr [ebx + 0x18]
-        mov ax, dx
-
-    mix_16bit_stereo_accumulate:
-        mov edx, dword ptr [edi]
-        add ax, dx
-        jno mix_16bit_stereo_left_done
-        jnc mix_16bit_stereo_left_positive
-        mov ax, 0x8000
-        jmp mix_16bit_stereo_left_done
-
-    mix_16bit_stereo_left_positive:
-        mov ax, 0x7fff
-
-    mix_16bit_stereo_left_done:
-        ror eax, 0x10
-        ror edx, 0x10
-        add ax, dx
-        jno mix_16bit_stereo_right_done
-        jnc mix_16bit_stereo_right_positive
-        mov ax, 0x8000
-        jmp mix_16bit_stereo_right_done
-
-    mix_16bit_stereo_right_positive:
-        mov ax, 0x7fff
-
-    mix_16bit_stereo_right_done:
-        rol eax, 0x10
-        mov dword ptr [edi], eax
-        add edi, 4
-        dec ecx
-        jz voice_done
-        mov edx, 0
-        mov dx, word ptr [ebx + 0x10]
-        add dx, word ptr [ebx + 0x12]
-        mov word ptr [ebx + 0x10], dx
-        and word ptr [ebx + 0x10], 0xff
-        shr dx, 8
-        jz mix_16bit_stereo_accumulate
-        shl dx, 2
-        add esi, edx
-        jmp mix_16bit_stereo
-
-    mix_16bit_stereo_at_end:
-        test dword ptr [ebx], 4
-        jz stop_voice
-        mov esi, dword ptr [ebx + 8]
-        jmp mix_16bit_stereo_sample
-
-    stop_voice:
-        and dword ptr [ebx], 0xfffffffd
-
-    voice_done:
-        mov dword ptr [ebx + 4], esi
-        pop ecx
-
-    next_voice:
-        dec ecx
-        jz mix_done
-        lea ebx, [ebx + 0x20]
-        jmp voice_loop
-
-    mix_done:
-        pop edi
-        pop esi
-        pop edx
-        pop ecx
-        pop ebx
-        pop eax
-        leave
-        ret
-    }
-}
 #endif
+
+/* The allocated-voice counter that dsp.cpp maintains; retail keeps it in
+ * this unit's .bss. */
+int g_nVoicesReserved; /* 0x005c574c */
