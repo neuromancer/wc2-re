@@ -10,7 +10,11 @@
 #include <optional>
 #include <system_error>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+#else
 #include <pwd.h>
 #include <unistd.h>
 #endif
@@ -258,25 +262,44 @@ std::vector<GameInstallation> discover_game_installations()
     auto systemDrive = environment_directory("SystemDrive");
     if (systemDrive.empty())
         systemDrive = L"C:";
-    const auto driveRoot = systemDrive / L"\\";
-    libraries.push_back(driveRoot); // WING2, WC2, WCKS
-    libraries.push_back(driveRoot / "GOG Games");
-    libraries.push_back(driveRoot / "Games");
-    libraries.push_back(driveRoot / "Origin");
-    libraries.push_back(driveRoot / "Origin Games");
-    libraries.push_back(driveRoot / "EA Games");
+    // Keep the system drive as a fallback if drive enumeration fails.
+    std::vector<fs::path> driveRoots = {systemDrive / L"\\"};
+    const DWORD driveMask = GetLogicalDrives();
+    for (wchar_t letter = L'A'; letter <= L'Z'; ++letter) {
+        if ((driveMask & (1UL << (letter - L'A'))) == 0)
+            continue;
+        const wchar_t root[] = {letter, L':', L'\\', L'\0'};
+        if (GetDriveTypeW(root) == DRIVE_FIXED &&
+            std::find(driveRoots.begin(), driveRoots.end(), root) == driveRoots.end())
+            driveRoots.emplace_back(root);
+    }
+
+    std::vector<fs::path> libraryRoots;
+    for (const auto &driveRoot : driveRoots) {
+        libraryRoots.push_back(driveRoot); // WING2, WC2, WCKS
+        libraryRoots.push_back(driveRoot / "Program Files");
+        libraryRoots.push_back(driveRoot / "Program Files (x86)");
+    }
+    // Environment paths also cover relocated Program Files directories.
     for (const auto &programFiles : {
              environment_directory("ProgramFiles"),
              environment_directory("ProgramFiles(x86)"),
-             environment_directory("ProgramW6432"),
-             driveRoot / "Program Files", driveRoot / "Program Files (x86)"}) {
-        if (programFiles.empty())
-            continue;
-        libraries.push_back(programFiles);
+             environment_directory("ProgramW6432")}) {
+        if (!programFiles.empty() &&
+            std::find(libraryRoots.begin(), libraryRoots.end(), programFiles) == libraryRoots.end())
+            libraryRoots.push_back(programFiles);
+    }
+
+    // Probe the same known layouts on every fixed drive; only recognized WC2
+    // folders and their package layouts are explored by scan_game_library.
+    for (const auto &libraryRoot : libraryRoots) {
+        libraries.push_back(libraryRoot);
         for (const auto relative : {"GOG.com", "GOG Games", "GOG Galaxy/Games",
-                                    "Steam/steamapps/common", "EA Games", "Origin Games",
-                                    "Origin Systems"})
-            libraries.push_back(programFiles / relative);
+                                    "Games", "Games/Heroic", "Heroic",
+                                    "Steam/steamapps/common", "SteamLibrary/steamapps/common",
+                                    "steamapps/common", "Origin", "Origin Games",
+                                    "Origin Systems", "EA Games", "EA/Games"})
+            libraries.push_back(libraryRoot / relative);
     }
 #elif defined(__APPLE__)
     if (!home.empty())
