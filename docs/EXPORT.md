@@ -122,7 +122,7 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,619 normalized `EXACT`, 19 same-size byte differences, and 39 differing
+1,620 normalized `EXACT`, 19 same-size byte differences, and 38 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
@@ -238,6 +238,20 @@ stay unchanged. The full report changes only the reader's `SIZE +1` to
 +350 bytes. The byte-identical span count remains 563. Whole-file positional
 agreement loses four accidental matches, reaching 139,470/714,752 (19.5131%).
 
+Sound-specific declaration spelling and ordering restore all four list
+comparisons in `IxSound::ix_sound_reprioritise`. It becomes normalized-byte
+exact at the retail 811 bytes, with zero differing encodings out of 228
+instead of 32. Its raw span improves from 22.1% to 99.3%. All eight functions
+in `sound.cpp` now match their normalized instruction encodings; no mapped
+function body changes. Only four subsequent functions move, each two bytes
+earlier, and alignment absorbs the size reduction before `sample.cpp`.
+The full report changes only the priority routine's `SIZE +2` to `EXACT`
+and the sample destructor's alignment-inclusive `SIZE +4` to `SIZE +6`.
+There are 38 differing spans, still net +350 bytes. The raw-identical span
+count falls from 563 to 561: the new/delete sample wrappers' relative calls
+lose accidental agreement when their constructor/destructor targets move.
+Whole-file positional agreement increases to 139,477/714,752 (19.5140%).
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
@@ -317,13 +331,13 @@ rows and image sizes remain unchanged. The displaced function's changed
 stack operands lose seven accidental whole-file positional matches.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-563 byte-identical mapped spans and 261 functions at their retail addresses.
+561 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
 count from 580; correct local instruction changes can disrupt earlier
 accidental agreement between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 39 spans nor their net size
+library gaps as described above, so neither the 38 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
@@ -335,11 +349,11 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,470 identical file positions out of 714,752 (19.5131%). The first
+reports 139,477 identical file positions out of 714,752 (19.5140%). The first
 cutscene rename and PDB-path recovery each added ten matching positions;
 the later flag renames removed seven, and the DIB/near-heap header ordering
-adds 25; the IEEE mantissa correction adds one and the streamer correction
-removes four. Address
+adds 25; the IEEE mantissa correction adds one, the streamer correction
+removes four, and the sound-priority correction adds seven. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

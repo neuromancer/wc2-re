@@ -46,6 +46,22 @@ The final source-written function in `thread.cpp` is
 `IxStreamFile::ix_stream_file_is_reading` at `0x0046DED9`; its return is at
 `0x0046DF06`, immediately before the first-pass import thunks.
 
+The source-file order above does not by itself prove separate compilation
+units. Retail has no padding between `system.cpp` and `sound.cpp`, between
+`sound.cpp` and `sample.cpp`, or between `streamer.cpp` and `thread.cpp`.
+Our individual CL 4.1 objects request 16-byte `.text` alignment, adding
+padding at those boundaries. Isolated `/G3`, `/Gy`, and `/Zp1` builds all
+retain that alignment; `/Gy` additionally splits every function into its
+own 16-byte-aligned COMDAT and is inconsistent with the observed layout.
+
+Compiling the three sound sources together and the two streamer sources
+together is a candidate for recovering those boundaries. The initial
+include-based probe compiles and links, but only 65 of the 75 functions
+retain exact normalized instruction encodings, versus 74 in the separate
+build. Changed declaration context and compiler pragmas must be understood
+before adopting it. The production build remains separate; do not infer
+original object boundaries solely from diagnostic `__FILE__` paths.
+
 LINK 3.10 pulls each library member when its symbol is first needed: by each
 command-line object in turn, then the entry point, then each pulled member,
 and it searches the libraries again on later passes.  The layout above

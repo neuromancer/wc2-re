@@ -1,13 +1,14 @@
 /*
  *  ix / D:\Rnd\prj\ix\src\sound\sound.cpp
  *
- *  Original address range: 0x00447CD8 - 0x0044879B   (8 functions)
+ *  Retail address range:   0x0046A758 - 0x0046B21B   (8 functions)
  *  Range is exact: recovered from this module's own assert __FILE__ anchors in
  *  the shipped debug build (see docs/ORDER.md).
  *
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
+#define IX_SOUND_CPP
 #include "ix.h"
 
 #define IX_SOUND_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\sound.cpp"

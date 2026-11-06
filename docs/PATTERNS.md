@@ -385,13 +385,35 @@ absorbs that byte, leaving subsequent objects and all section sizes unchanged.
 The audit of 100%-mnemonic functions with size differences also finds four
 reversed list comparisons in `IxSound::ix_sound_reprioritise`. Merely moving
 the waiting-list declaration fixes two and removes two code bytes, but
-leaves the active-list comparisons wrong. Their current load signatures
-are `this = 0x22`, active list `= 0x23`, and `playingSound = 0x26`; retail
+leaves the active-list comparisons wrong. Their initial load signatures
+were `this = 0x22`, active list `= 0x23`, and `playingSound = 0x26`; retail
 requires the active-list load before `this` and after `playingSound`.
-A global-declaration exchange alone cannot satisfy both. The partial
-waiting-list change is rejected; this function still has 32/228 differing
-encodings and two excess code bytes. Its 100% mnemonic score does not
-establish an instruction match.
+A global-declaration exchange alone cannot satisfy both; the partial
+waiting-list change was rejected.
+
+The complete correction is scoped to `IX_SOUND_CPP`. Seven no-argument
+streamer declarations use the equivalent C++ spelling `()` instead of
+`(void)`, moving all 19 sound-unit parameter/local keys down seven without
+changing any stack offset. `this` becomes key 26429 (load signature `0x2B`)
+and `playingSound` becomes 26434 (`0x20`), straddling the unchanged active
+list's `0x23`. The waiting-list/system-bits declarations exchange keys
+26170/25988, giving the waiting list signature `0x20`, below both `this`
+and `waiting` (`0x2E`). This restores all four comparisons.
+
+The same local-key shift would reverse the sample destructor's list
+comparison. Exchanging the sample-list/free-sound-head declarations at
+keys 26169/25989 preserves that comparison and the start routine's existing
+free-list comparisons. Only the priority routine's four load/compare pairs
+change in the entire unit. Its differing encodings fall from 32/228 to
+zero and its instruction size becomes the retail 811 bytes. All eight
+sound-unit functions now have zero normalized instruction differences;
+all mapped function bodies are unchanged.
+
+Four following functions move two bytes earlier, and the object's trailing
+alignment grows by two bytes. Subsequent object addresses and section sizes
+remain unchanged. Removing names from prototype parameters is not an
+alternative to the `()` spelling: CL 4.1 still allocates those unnamed C++
+parameter symbols, as the seven-parameter voice-helper probe confirms.
 
 Locals take keys in declaration order, but frame slots follow name buckets.
 When the locals of a function all have distinct buckets, reordering their
