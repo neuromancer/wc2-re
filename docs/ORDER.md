@@ -163,6 +163,24 @@ retail addresses. The event-manager block still needs its internal symbol
 order and packed records recovered; declaration order alone does not order
 LINK's commons.
 
+The drawn-cursor Y/X pair now occupies retail `0x005C80A8/0x005C80AC`.
+Four global renames place `g_nMouseRenderY_005c80a8` and
+`g_nDrawnCursorX_005c80ac` first in this unit's common-symbol order, in hash
+buckets 4 and 36. `g_cScreenViewMode_005c82a6` and
+`g_wPendingButtonMask_005c80d4` move to buckets 189 and 169 so they no longer
+precede that pair. All four preserve their C1 symbol keys; definitions,
+types, and function-body expressions are unchanged. Nine global addresses
+move, all within this band, and the allocation's total extent is unchanged.
+Only the leading coordinate pair is now at retail addresses.
+
+The current 53 common allocations cover every direct assembly address and
+every relocated pointer target found in the original within
+`0x005C80A8`-`0x005C8D3D`. The remaining gaps, including
+`0x005C80B0`-`0x005C80BF`, have no such references. This does not prove that
+the gaps are unused or establish their declarations: calculated accesses
+and unreferenced storage remain possible. Do not fill them with guessed
+globals merely to reach the next known address.
+
 `InflightComputer` saves and restores 33 bytes at `0x005C8470` (eight `MOVSD`s
 and one `MOVSB`). This is the personnel cursor record: x/y are at `+0/+2`,
 the shape pointer at `+0x0D`, frame at `+0x11`, scratch pointer at `+0x13`, and

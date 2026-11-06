@@ -241,7 +241,7 @@ short HandleFleetOverviewInput(void)
     }
     if (g_nAimCameraMode_005c8d50 == 0 &&
         (g_cCurrentKey_00493128 & 0x80) != 0 &&
-        (g_wPendingInputButtons_005c80d4 & 1) != 0)
+        (g_wPendingButtonMask_005c80d4 & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
     if (g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
         g_cCurrentKey_00493128 == 0x39) {

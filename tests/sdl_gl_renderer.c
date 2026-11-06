@@ -142,12 +142,11 @@ static int CheckPresentedCursorIsRestored(Viewport *viewport,
     if (shape == 0)
         return 0;
     memset(pixels, 0, 320 * 200);
-    g_stMouseCursorState_0059ab10.viewport = 0;
-    g_pInputViewport_005c8403 = viewport;
-    g_pInputCursorShape_005c83f9 = shape;
-    g_nInputCursorFrame_005c83fd = 0;
-    g_nQueuedInputX_005c83f0 = 40;
-    g_nQueuedInputY_005c83f2 = 40;
+    g_stQueuedMouse_005c83f0.viewport = viewport;
+    g_stQueuedMouse_005c83f0.shape = shape;
+    g_stQueuedMouse_005c83f0.frame = 0;
+    g_stQueuedMouse_005c83f0.x = 40;
+    g_stQueuedMouse_005c83f0.y = 40;
     g_nMouseCursorDrawDepth_0049d4d4 = 1;
     g_bInputCursorBackgroundCaptured_005c80c4 = 0;
     MarkDibDirty();
@@ -162,7 +161,7 @@ static int CheckPresentedCursorIsRestored(Viewport *viewport,
         pixel++;
     }
     RestoreMouseCursorBackground();
-    g_pInputCursorShape_005c83f9 = 0;
+    g_stQueuedMouse_005c83f0.shape = 0;
     ReleasePacketHandle(shape);
     return result;
 }
@@ -221,13 +220,13 @@ static int CheckCockpitSpaceLayer(Viewport *viewport, unsigned char *pixels,
     shape = CreateSinglePixelShape();
     if (shape == 0)
         return 0;
-    g_stViewBuffer_005d2b00 = *viewport;
+    g_stViewScratchInfo_005d2b00 = *viewport;
     g_nSpacePaletteFadeMode_004901e8 = 0x13;
-    if (!AllocateViewport(&g_stViewBuffer_005d2b00, 0, 0)) {
+    if (!AllocateViewport(&g_stViewScratchInfo_005d2b00, 0, 0)) {
         ReleasePacketHandle(shape);
         return 0;
     }
-    spacePixels = g_stViewBuffer_005d2b00.pixels;
+    spacePixels = g_stViewScratchInfo_005d2b00.pixels;
     for (object = 0; object < SPACE_OBJECT_COUNT; object++) {
         g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
         g_asObjectType_00495298[object] = -1;
@@ -235,7 +234,7 @@ static int CheckCockpitSpaceLayer(Viewport *viewport, unsigned char *pixels,
     }
     g_bSpaceFlightActive_005c586c = 1;
     g_nCurrentView_00492fa8 = 1;
-    g_cScreenViewportMode_005c82a6 = 0;
+    g_cScreenViewMode_005c82a6 = 0;
     g_pScreenViewportGeometry_005c82b0 = &geometry;
     g_cPrimaryViewBufferColour_0049cb88 = 0;
     g_nFrameSkip_0049d764 = 1;
@@ -243,7 +242,7 @@ static int CheckCockpitSpaceLayer(Viewport *viewport, unsigned char *pixels,
     for (mode = 0; mode < 3; mode++) {
         g_nCockpitDisplayMode_0049d71c = displayModes[mode];
         g_bFullScreenSpaceView_0049d718 = displayModes[mode] == 0;
-        g_stViewBuffer_005d2b00.bottom = displayModes[mode] > 0 ? 199 : 69;
+        g_stViewScratchInfo_005d2b00.bottom = displayModes[mode] > 0 ? 199 : 69;
         memset(spacePixels, 0, 320 * 200);
         memset(pixels, 2, 320 * 200);
         g_nFrameSkipCountdown_0049d760 = 1;
@@ -252,7 +251,7 @@ static int CheckCockpitSpaceLayer(Viewport *viewport, unsigned char *pixels,
            list, then put a red probe near the bottom of the source view. */
         result &= DrawSpaceSceneFrame() != 0;
         probeY = displayModes[mode] > 0 ? 160 : 60;
-        result &= SdlRecordSpaceSprite(&g_stViewBuffer_005d2b00,
+        result &= SdlRecordSpaceSprite(&g_stViewScratchInfo_005d2b00,
                                        160.0f, (float)probeY,
                                        shape, 0, 0, 0x100, 0);
         dump_buffer_to_screen();
@@ -270,7 +269,7 @@ static int CheckCockpitSpaceLayer(Viewport *viewport, unsigned char *pixels,
     g_bSpaceFlightActive_005c586c = 0;
     g_nCockpitDisplayMode_0049d71c = 0;
     g_pScreenViewportGeometry_005c82b0 = 0;
-    free_viewport(&g_stViewBuffer_005d2b00);
+    free_viewport(&g_stViewScratchInfo_005d2b00);
     ReleasePacketHandle(shape);
     return result;
 }
@@ -287,11 +286,11 @@ static int CheckFlightCursorDisplay(Viewport *viewport,
     if (shape == 0)
         return 0;
     memset(pixels, 0, 320 * 200);
-    g_pInputViewport_005c8403 = viewport;
-    g_pInputCursorShape_005c83f9 = shape;
-    g_nInputCursorFrame_005c83fd = 0;
-    g_nQueuedInputX_005c83f0 = 40;
-    g_nQueuedInputY_005c83f2 = 40;
+    g_stQueuedMouse_005c83f0.viewport = viewport;
+    g_stQueuedMouse_005c83f0.shape = shape;
+    g_stQueuedMouse_005c83f0.frame = 0;
+    g_stQueuedMouse_005c83f0.x = 40;
+    g_stQueuedMouse_005c83f0.y = 40;
     g_nMouseCursorDrawDepth_0049d4d4 = 1;
     g_bInputCursorBackgroundCaptured_005c80c4 = 0;
     MarkDibDirty();
@@ -300,8 +299,8 @@ static int CheckFlightCursorDisplay(Viewport *viewport,
 
     /* Flight redirects input to its offscreen viewport but retains the
        menu cursor shape and draw depth.  It must not stamp that arrow. */
-    g_stViewBuffer_005d2b00 = *viewport;
-    g_stViewBuffer_005d2b00.pixels = &flightPixel;
+    g_stViewScratchInfo_005d2b00 = *viewport;
+    g_stViewScratchInfo_005d2b00.pixels = &flightPixel;
     g_bSpaceFlightActive_005c586c = 1;
     InitializeSpaceFlightInput();
     MarkDibDirty();
@@ -315,9 +314,9 @@ static int CheckFlightCursorDisplay(Viewport *viewport,
     result &= CheckLogicalPixel(width, height, 40, 40, 1);
 
     g_bSpaceFlightActive_005c586c = 0;
-    g_pInputCursorShape_005c83f9 = 0;
+    g_stQueuedMouse_005c83f0.shape = 0;
     ClearInputPump();
-    memset(&g_stViewBuffer_005d2b00, 0, sizeof(g_stViewBuffer_005d2b00));
+    memset(&g_stViewScratchInfo_005d2b00, 0, sizeof(g_stViewScratchInfo_005d2b00));
     ReleasePacketHandle(shape);
     return result;
 }
@@ -378,16 +377,16 @@ int main(int argumentCount, char **arguments)
     viewport.right = 319;
     viewport.bottom = 199;
     viewport.allocation = pixels;
-    g_pInputViewport_005c8403 = &viewport;
+    g_stQueuedMouse_005c83f0.viewport = &viewport;
     g_bFrameTimingInitialized_0049cebc = 1;
-    g_nFramePeriodMilliseconds_005c343c = 0;
+    g_nFramePeriodMillis_005c343c = 0;
     g_dwNextFrameDeadline_0049cea4 = 0;
     row = 0;
     while (row < 202) {
         rowOffsets[row] = (unsigned short)(row * 320);
         row++;
     }
-    g_stScreenViewport_005d21a0 = viewport;
+    g_stScrViewInfo_005d21a0 = viewport;
     red[0] = 255;
     red[1] = 0;
     red[2] = 0;
@@ -410,7 +409,7 @@ int main(int argumentCount, char **arguments)
     if (!result)
         fprintf(stderr, "GL renderer test failed.\n");
 
-    g_pInputViewport_005c8403 = 0;
+    g_stQueuedMouse_005c83f0.viewport = 0;
     DIBunInstall();
     SDL_DestroyWindow(window);
     SDL_Quit();

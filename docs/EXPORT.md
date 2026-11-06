@@ -191,6 +191,15 @@ Both builds still call `strcpy`; the wrapper's source and instruction
 sequence are unchanged. This is an unresolved image-layout difference,
 not an additional source-level defect introduced by the pragma.
 
+The event-manager naming correction places its drawn-cursor coordinates at
+retail `0x005C80A8/0x005C80AC` without changing storage sizes or instruction
+selection (see [ORDER.md](ORDER.md)). The raw function-span comparison
+improves four cursor routines: `ResumeMouseCursorHook` from 86.9% to 92.2%,
+`EnableMouseCursorDrawing` from 85.6% to 90.3%, `DisableMouseCursorDrawing`
+from 89.7% to 93.9%, and `SetMouseCursorShape` from 87.3% to 89.6%.
+The full normalized report, section sizes, byte-identical span count, and
+strict whole-file positional result remain unchanged at this step.
+
 The unnormalized `binary-comp exe --functions` comparison finds
 558 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span

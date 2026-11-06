@@ -998,7 +998,7 @@ extern char g_szStreamerDirectory_005b2818[128];
 extern unsigned char g_bInputMode_0059a848;
 extern int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
 extern short DAT_0059a9f0;
-extern signed char g_cScreenViewportMode_005c82a6;
+extern signed char g_cScreenViewMode_005c82a6;
 extern const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_005c82b0;
 extern short g_nViewCenterX_005c80d8;
@@ -1026,8 +1026,8 @@ extern unsigned char g_bInputCursorShapeChanged_005c840b;
 #define EVENTMGR_STATIC extern
 #endif
 EVENTMGR_STATIC unsigned char g_abInputCursorBehind_005c3b10[0x1000];
-extern int g_nDrawnInputCursorY_005c80a8;
-extern int g_nDrawnInputCursorX_005c80ac;
+extern int g_nMouseRenderY_005c80a8;
+extern int g_nDrawnCursorX_005c80ac;
 extern unsigned char *DAT_005c80c0;
 extern int g_bInputCursorBackgroundCaptured_005c80c4;
 extern int g_nCapturedInputCursorY_005c8178;
@@ -1631,7 +1631,7 @@ MAIN_STATIC short g_wSavedInputDeviceButtonState_005c4b14;
 extern short g_bDiscreteFlightInputWaiting_005c57e4;
 extern short g_bPolledFlightInputQueued_005c587a;
 extern int g_bPlayerInputActive_005c8090;
-extern short g_wPendingInputButtons_005c80d4;
+extern short g_wPendingButtonMask_005c80d4;
 extern PersonnelMouseSample g_stPersonnelMouse_005c8d00;
 /* Obsolete field declarations retain C1's numbering; they have no definitions. */
 extern short g_nPersonnelMouseY_005c8d02;

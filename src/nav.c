@@ -1133,7 +1133,7 @@ void InflightComputer(void)
     DisableMouseCursorDrawing();
     g_nUiInputMode_005c8d3c = 0;
     free_view_buffer();
-    g_cScreenViewportMode_005c82a6 = -1;
+    g_cScreenViewMode_005c82a6 = -1;
     cockpitShape = FetchDiskPacketRetrying("cockpit.vga", 1, 0);
     ClearViewport(&g_stScrViewInfo_005d21a0,
                   g_cSecondaryViewBufferColour_0049cb4c);
