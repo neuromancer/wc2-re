@@ -3,6 +3,7 @@
  *
  *  Retail object 0x4207B0-0x42120F (link order; see docs/ORDER.md).
  */
+#define NEARHEAP_C
 #include "game.h"
 
 volatile short g_nNearHeapActive_00493044 = 0;

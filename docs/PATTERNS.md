@@ -108,6 +108,17 @@ height and result remain 32 bytes above their retail slots, and the surface
 description remains 36 bytes above its slot. Renaming cannot supply that
 absent storage or its setup.
 
+The DIB header order also exchanges row width and origin Y at keys
+29861/29859, keeping the height key at 29858. The width load's signature
+becomes `0x2F`, above height's `0x2E`. This restores width-before-height in
+`DIBmakeDIB` and `DIBdestroyDIB`, and width-before-top in `DIBupdate`, while
+preserving `DIBslamReal`'s row comparison. The two 12-byte copy-size products
+and the nine-byte row-offset product now match retail literally. The latter
+loses an excess byte, taking `DIBupdate` from 53/141 differing encodings to
+51/141 and from 445 code bytes to 444, against retail's 534. All local
+symbol records remain identical; the 44 parsed defined-global records
+change only those two keys. Linked global addresses are unchanged.
+
 Three more name-only corrections recover the local slots in the text-input,
 save/load-menu, and window-procedure frames. The counts below come from
 `binary-comp`'s `compare_function_bytes` API over decoded instruction extents,
@@ -370,6 +381,16 @@ compiler listing are those two load addresses. Other units retain their
 header order. The normalized comparison remains 12/134 differing encodings
 because relocation normalization masks the exchanged global operands; the
 separate DMA-page comparison still has the wrong expression shape.
+
+`NEARHEAP_C` exchanges arena-size and heap-base declarations at keys
+21245/21246. Retail loads arena size before adding base in all fifteen
+end-address sums across eight near-heap functions. The older ordering
+reversed those operands; the exchange restores all fifteen sequences.
+Local symbol streams are identical, the seven parsed defined-global records
+change only those two keys, and instruction sizes and normalized comparisons
+stay unchanged. These globals remain `0x2D0` bytes early with the surrounding
+storage, so correcting operand order does not establish literal identity
+for the near-heap functions.
 
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key

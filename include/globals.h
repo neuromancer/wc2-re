@@ -904,19 +904,19 @@ FL_STATIC short g_nShipAiScratchValue_005b30f0;
 FL_STATIC unsigned char g_bCurrentManeuverReroll_005b30f4;
 extern DebugOverlayConsole *g_pDiagnosticOverlay_004a2548;
 extern char g_szSystemDebugBuffer_004a2550[256];
-/* DIBslamReal's row loop needs this declaration order to reproduce the
- * retail comparison operands and jump. */
+/* DIBslamReal's row loop and the DIB copy-size expressions need this
+ * declaration order to reproduce the retail operands (docs/PATTERNS.md). */
 #ifdef DIB_C
 extern unsigned int g_nSurfaceHeight_005b3980;
+extern unsigned int g_nDisplayRowBytes_005b397c;
+extern unsigned char *g_pDisplayPixelBuffer_005b3978;
+extern unsigned int g_nDibOffsetY_005b3974;
+extern unsigned int g_nDibOriginX_005b3970;
 #else
 extern unsigned int g_nDibOriginX_005b3970;
-#endif
 extern unsigned int g_nDibOffsetY_005b3974;
 extern unsigned char *g_pDisplayPixelBuffer_005b3978;
 extern unsigned int g_nDisplayRowBytes_005b397c;
-#ifdef DIB_C
-extern unsigned int g_nDibOriginX_005b3970;
-#else
 extern unsigned int g_nSurfaceHeight_005b3980;
 #endif
 extern unsigned char g_abFrameBackingStore_005b3988[0xfa00];
@@ -1413,8 +1413,14 @@ extern unsigned char *g_apViewportAllocations_005d19c0[128];
 extern int g_nFreeViewportCalls_005d1bc0;
 extern short g_nMissionMedalScore_005a8116;
 extern short g_nCampaignDataSet_005a8118;
+/* The near-heap unit loads arena size before base in its end-address sums. */
+#ifdef NEARHEAP_C
+extern volatile int g_nNearHeapBase_005d3054;
+extern volatile int g_nNearArenaSize_005d3050;
+#else
 extern volatile int g_nNearArenaSize_005d3050;
 extern volatile int g_nNearHeapBase_005d3054;
+#endif
 extern int g_nNearHeapFirstDescriptor_005d3058;
 extern void * volatile g_pNearHeapAllocationPtr_005d305c;
 extern short g_nNavPlotMaxX_005d169e;

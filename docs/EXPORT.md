@@ -122,7 +122,7 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,617 normalized `EXACT`, 19 same-size byte differences, and 41 differing
+1,618 normalized `EXACT`, 19 same-size byte differences, and 40 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
@@ -160,6 +160,23 @@ width slots, reducing differing instruction encodings from 62/141 to 53/141.
 Its code remains 89 bytes short; the two rectangle records and row counter
 are still absent. The full normalized report, file sizes, strict positional
 comparison, and byte-identical mapped-span count remain unchanged at this step.
+
+Further DIB header ordering restores the two copy-size products and the
+row-offset product, all three now literally byte-identical to retail.
+`DIBupdate`'s differing encodings fall to 51/141; correcting the product
+removes one code byte, leaving a 90-byte deficit. The trailing
+`DIBwaitForVerticalBlank` span gains one alignment byte and becomes `EXACT`.
+These are the only changed rows in the full normalized report. All section
+sizes remain unchanged, and the 40 differing spans still sum to +350 bytes.
+The vertical-blank routine and three callers now match raw spans, raising
+that count from 558 to 562 with no lost matches.
+
+A near-heap-only header exchange restores the operand order of fifteen
+end-address additions across eight functions. Their normalized comparisons
+mask those operands and remain unchanged; their referenced globals still
+occupy displaced storage. All 1,149 shared global map records retain their
+addresses across these two header changes. See [PATTERNS.md](PATTERNS.md)
+for the declaration keys and the limits of these comparisons.
 
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
@@ -240,13 +257,13 @@ rows and image sizes remain unchanged. The displaced function's changed
 stack operands lose seven accidental whole-file positional matches.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-558 byte-identical mapped spans and 261 functions at their retail addresses.
+562 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
 count from 580; correct local instruction changes can disrupt earlier
 accidental agreement between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 41 spans nor their net size
+library gaps as described above, so neither the 40 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
@@ -258,9 +275,10 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,448 identical file positions out of 714,752 (19.5100%). The first
+reports 139,473 identical file positions out of 714,752 (19.5135%). The first
 cutscene rename and PDB-path recovery each added ten matching positions;
-the later flag renames remove seven. Address
+the later flag renames removed seven, and the DIB/near-heap header ordering
+adds 25. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
