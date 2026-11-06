@@ -452,11 +452,58 @@ their displaced addresses: the corrected order loses one accidental byte
 match in the raw span, from 360/409 to 359/409, despite matching retail's
 operand selection. The event-manager storage layout remains unresolved.
 
+Constant array entries and structure fields also expose declaration-order
+differences that normalized bytes can hide. Three further exchanges restore
+these sequences without changing their expressions:
+
+| Unit | Retail sequence restored | Exchanged C1 keys |
+| --- | --- | --- |
+| `spc.c` | yaw before pitch in `update_star_field`'s rotation test | 21016 / 20948 |
+| `cockpt.c` | roll before pitch in `draw_target_box`'s marker-angle sum | 21065 / 20948 |
+| `gameflow.c` | load text-backing pixels, compare secondary-view pixels in `RunCutsceneScript` | 20507 / 21184 |
+
+The two 16-byte rotation sequences now match literally: 32/32 bytes,
+versus 26/32 before. The cutscene viewport globals remain displaced, so
+their restored operand order does not establish literal identity.
+
+The cutscene frame wait at retail `0x00431A5E` needs both declaration
+ordering and a signed deadline. Retail loads the input clock, compares the
+next-frame deadline against it, and exits with `JLE`. The prior unsigned
+deadline declaration emitted `JAE` with the operands reversed. Declare
+`g_nNextCutsceneFrameClock_00499c90` as `int` in both its header and definition;
+the other deadline comparison already casts it to `int`.
+
+Within `GAMEFLOW_C`, exchanging the input clock's key 21395 with the
+text-bounds override flag's key 20487 lowers the clock's load signature
+from `0x2F` to `0x2E`. This puts it below the next-frame deadline's `0x2F`
+while preserving `UpdateMap`'s comparison with its local deadline (`0x2E`).
+An exchange with the frame-tick key 20477 instead lowers it to `0x26` and
+reverses that already-correct comparison; discard that variant. Exchanging
+the two clocks directly does nothing because both original load signatures
+are `0x2F`.
+
+The final timer sequence matches 15/17 literal bytes, versus 10/17 before;
+only the input clock's displaced address differs. Across the three units,
+local symbol streams remain identical and only eight load/compare operands
+plus the timer branch change. All 4,512 linker-map symbol addresses and all
+code sizes remain unchanged. `RunCutsceneScript`'s mnemonic score improves
+from 91.20% to 91.23%; its normalized differing-encoding count remains
+1,518/3,672 despite the corrected sequence.
+
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key
 hash; a member read outweighs a scalar. `fire_computer_graphic_missile`
 compares the released weapon's y against `viewport.bottom`, so y has to be a
 record member (`ReleaseWeaponPosition`) before any key matters.
+
+`UpdateDamageDisplay` has four reversed coordinate sums: retail loads the
+scalar origin before the sprite-position member. The current sign-extended
+scalar signatures range from `0x40` to `0x4F` across all sixteen symbol
+hashes. The corresponding x-member range is `0x60` to `0x6F`, and the
+y-member range is `0x6F` to `0x7E`. The members always outweigh the scalars
+by at least `0x11` and `0x20` respectively. Swapping their declarations
+cannot correct these current expression trees; the tested swap changes no
+instructions and is not retained.
 
 `fire_afterburner` is another weight mismatch. The current product's C2
 signature is `0x11E`, below the vector-magnitude call's `0x14B`, so C2

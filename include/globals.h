@@ -470,8 +470,12 @@ extern signed char g_acCutsceneMouthDurations_00499e30[128];
 extern char *g_pszCutsceneSpeechCursor_00499eb0;
 extern signed char g_cCutsceneSpeechSpeed_00499eb4;
 extern signed char g_bCutsceneSpeechActive_00499eb8;
+#ifdef GAMEFLOW_C
+extern volatile int g_nInputClock_005c84a8;
+#else
 extern signed char g_bCutsceneTextBoundsOverride_00499edc;
-extern unsigned int g_nNextCutsceneFrameClock_00499c90;
+#endif
+extern int g_nNextCutsceneFrameClock_00499c90;
 extern ShortRect g_stCutsceneTextBounds_00499ee0;
 /* The three bounds below are fields of g_stCutsceneTextBounds_00499ee0;
  * the dead declarations keep the header's symbol count. */
@@ -492,7 +496,11 @@ extern short g_asCutsceneSpeechChannelsTable_005d2d70[8];
 extern Viewport g_stCutsceneStringViewportBlock_005d2d90;
 extern char *g_pszCutsceneFormattedText_005d2dc8;
 extern CutsceneResourceTable *g_pActiveSceneFileResourcesRef_005d2da4;
+#ifdef GAMEFLOW_C
+extern Viewport g_stSecondaryViewBufferBlock_005d2c90;
+#else
 extern Viewport g_stCutsceneTextBackingPort_005d2db0;
+#endif
 extern char *g_pszFilmSourceText_005d2dcc;
 extern short g_asCutsceneSpeechSectionsList_005d2dd0[8];
 extern signed char g_bMovieFramePresented_005d2de0;
@@ -1115,7 +1123,13 @@ extern short g_aasGunCooldown_005c8d70[10][3];
 extern short DAT_0059ab34;
 extern int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
 extern FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
+#if defined(SPC_C)
+extern short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
+#elif defined(COCKPT_C)
+extern short g_anObjectRollRotation_00495058[SPACE_OBJECT_COUNT];
+#else
 extern short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
+#endif
 extern int g_anShipSpeed_00494e20[SPACE_OBJECT_COUNT];
 extern int g_nNextSfx16PlaybackFrame_004a2668;
 #ifdef SPC_C
@@ -1221,7 +1235,11 @@ extern signed char g_acShipTarget_00495f20[16];
 extern short g_anPreviousFlightInput_004931b0[3];
 extern short g_nPreviousYawInput_004931b2;
 extern short g_nPreviousRollInput_004931b4;
+#ifdef SPC_C
+extern short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
+#else
 extern short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
+#endif
 extern signed char g_acTurnRegulator_00495618[16];
 extern short g_asPilotLevel_00495d60[12];
 extern short g_asShipListRange_00496158[16];
@@ -1286,7 +1304,11 @@ extern short g_asObjectCollisionRadius_004950e8[SPACE_OBJECT_COUNT];
 extern short g_anPitchGoal_004954a8[12];
 extern signed char g_abShipNavPointIndex_00495f60[16];
 extern signed char g_acTurnInterval_00495628[16];
+#ifdef COCKPT_C
+extern short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
+#else
 extern short g_anObjectRollRotation_00495058[SPACE_OBJECT_COUNT];
+#endif
 extern signed char g_abShipTurn_00495fd8[16];
 extern short g_nFacingToTarget_00493194;
 extern short g_nNavPointerObject_004931b8;
@@ -1423,7 +1445,11 @@ extern Viewport g_stConversationTextViewport_005d2b60;
 extern char g_szDefaultTextBufferText_005d2b80[0xc8];
 extern Viewport g_stModalSourceWindow_005d2c50;
 extern unsigned char *g_pCockpitIndicatorShape_005d2c48;
+#ifdef GAMEFLOW_C
+extern Viewport g_stCutsceneTextBackingPort_005d2db0;
+#else
 extern Viewport g_stSecondaryViewBufferBlock_005d2c90;
+#endif
 extern SceneFlicCacheEntry g_aSceneFlicCopyTable_005d2e10[15];
 extern Viewport g_stSceneFlicScratchViewport_005d2eb0;
 extern short g_aasCockpitHitPaletteFades_005d2cb0[6][3];
@@ -1650,7 +1676,11 @@ extern InputPumpContext *g_pActiveInputContext_005c8487;
 extern void (*g_pfnEventManagerShutdown_005c8be0)(void);
 extern short g_nInputTickInterval_005c8448;
 extern signed char g_cKeypadMouseSpeed_005c83e6;
+#ifdef GAMEFLOW_C
+extern signed char g_bCutsceneTextBoundsOverride_00499edc;
+#else
 extern volatile int g_nInputClock_005c84a8;
+#endif
 extern void *g_pApplicationScratchBuffer_005c8483;
 extern short g_nUiCursorFrame_005c8481;
 extern short g_wInputDeviceButtonState_005c8432;

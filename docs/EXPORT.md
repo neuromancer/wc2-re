@@ -201,6 +201,21 @@ whole-file positional result remain unchanged. The viewport routine's raw
 span loses one accidental matching byte because its correctly selected
 globals still occupy the wrong addresses (see [PATTERNS.md](PATTERNS.md)).
 
+Three more declaration exchanges restore the star-field rotation test,
+target-lock marker sum, and cutscene viewport comparison. The two rotation
+sequences now match 32/32 literal bytes, versus 26/32 before. A fourth
+exchange, together with correcting the cutscene frame deadline to signed
+`int`, restores its timer comparison and `JLE`: 15/17 literal bytes now
+match, versus 10/17 before, with the input clock's displaced address still
+unresolved. No mapped function body changes. The local symbol streams,
+all 4,512 linker-map symbol addresses, and image sizes remain unchanged.
+Only `RunCutsceneScript` changes in the normalized report, from 91.20% to
+91.23% mnemonic similarity; its `SIZE -437` classification and normalized
+1,518/3,672 differing encodings remain unchanged. The byte-identical span
+count remains 563, and the strict whole-file result remains 19.5135%.
+See [PATTERNS.md](PATTERNS.md) for the declaration keys and the rejected
+damage-coordinate and timer-order variants.
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively

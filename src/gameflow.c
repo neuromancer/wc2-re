@@ -4042,7 +4042,7 @@ CutsceneSequence *g_pCurrentCutsceneSequence_00499c80 = 0;
 CutsceneScene *g_pCurrentCutsceneScene_00499c84 = 0;
 short g_nCutsceneFrameTick_00499c88 = 0;
 unsigned short g_nCutsceneFrameDelay_00499c8c = 0;
-unsigned int g_nNextCutsceneFrameClock_00499c90 = 0;
+int g_nNextCutsceneFrameClock_00499c90 = 0;
 CampaignGlobals *g_pCampaignGlobals_00499c94 = 0;
 unsigned char g_abCutscenePaletteTranslation_00499c98[256] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
