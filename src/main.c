@@ -693,20 +693,22 @@ short IsInputEventQueued(int type)
     return FindQueuedInputEvent(type) != 0;
 }
 
+#pragma function(abs)
+
 /* Function start: 0x466B02 */
 short player_input(void)
 {
-    InputEventState event;
-    short result;
+    InputEventState message;
+    short keyHandled;
     unsigned int buttons;
-    int polledInput;
-    short eventType;
-    short afterburnerControl;
-    short horizontalMagnitude;
-    short verticalMagnitude;
+    int inputPolled;
+    short inputCode;
+    short boostControl;
+    short absX;
+    short verticalDistance;
     short threshold;
-    short horizontal;
-    short vertical;
+    short dx;
+    short mouseY;
     int savedPlayerInputActive;
     HostMouseMessage *mouse;
 #ifdef SDL_PORT
@@ -715,10 +717,10 @@ short player_input(void)
     trailingKeyRelease = 0;
 #endif
 
-    result = 0;
+    keyHandled = 0;
     mouse = &g_stHostMouseTextBlock_005d10d0;
     buttons = 0;
-    polledInput = 0;
+    inputPolled = 0;
     g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
     g_anPreviousFlightInput_004931b0[1] = g_anFlightInput_004931a8[1];
     g_anPreviousFlightInput_004931b0[0] = g_anFlightInput_004931a8[0];
@@ -760,16 +762,16 @@ short player_input(void)
             g_cCurrentKey_00493128 = 0x1c;
     }
 
-    while ((eventType = GetNextInputEvent(&event)) != 0) {
-        switch (eventType) {
+    while ((inputCode = GetNextInputEvent(&message)) != 0) {
+        switch (inputCode) {
         case 3:
-            if (polledInput != 0)
+            if (inputPolled != 0)
                 break;
-            afterburnerControl = (short)(event.modifiers & 2);
-            if (afterburnerControl != 0 &&
+            boostControl = (short)(message.modifiers & 2);
+            if (boostControl != 0 &&
                 g_aeSpecialManeuver_00495600[0] ==
                     SPECIAL_MANEUVER_AFTERBURNER)
-                afterburnerControl = 0;
+                boostControl = 0;
             if (g_nCockpitControlState_0049d7ac == 0) {
                 SetPersonnelMousePosition(
                     (short)((g_stViewScratchInfo_005d2b00.left +
@@ -779,53 +781,53 @@ short player_input(void)
                 g_nCockpitControlState_0049d7ac = 1;
                 g_stPersonnelCursor_005c8470.frame = 2;
             }
-            horizontal = (short)(event.x -
+            dx = (short)(message.x -
                 (g_stViewScratchInfo_005d2b00.right -
                  g_stViewScratchInfo_005d2b00.left) / 2 + 1);
-            vertical = (short)(event.y -
+            mouseY = (short)(message.y -
                 (g_stViewScratchInfo_005d2b00.bottom -
                  g_stViewScratchInfo_005d2b00.top) / 2);
-            g_stPersonnelCursor_005c8470.x = event.x;
-            g_stPersonnelCursor_005c8470.y = event.y;
-            horizontalMagnitude = (short)abs((int)horizontal);
-            verticalMagnitude = (short)abs((int)vertical);
+            g_stPersonnelCursor_005c8470.x = message.x;
+            g_stPersonnelCursor_005c8470.y = message.y;
+            absX = (short)abs((int)dx);
+            verticalDistance = (short)abs((int)mouseY);
             threshold = 0;
             while (g_asMouseYawThresholds_0049d7d8[threshold] <=
-                   horizontalMagnitude)
+                   absX)
                 threshold++;
-            if (horizontal < 0)
-                horizontal = (short)-threshold;
+            if (dx < 0)
+                dx = (short)-threshold;
             else
-                horizontal = threshold;
+                dx = threshold;
             threshold = 0;
             while (g_asMousePitchThresholds_0049d7e8[threshold] <=
-                   verticalMagnitude)
+                   verticalDistance)
                 threshold++;
-            if (vertical < 0)
-                vertical = (short)-threshold;
+            if (mouseY < 0)
+                mouseY = (short)-threshold;
             else
-                vertical = threshold;
-            if ((int)event.x - 4 <= (int)g_stViewScratchInfo_005d2b00.left)
-                horizontal = -8;
-            if ((int)event.x + 4 >= (int)g_stViewScratchInfo_005d2b00.right)
-                horizontal = 8;
-            if ((int)event.y - 4 <= (int)g_stViewScratchInfo_005d2b00.top)
-                vertical = -8;
-            if ((int)event.y + 4 >= (int)g_stViewScratchInfo_005d2b00.bottom)
-                vertical = 8;
-            if (horizontal > 8)
-                horizontal = 8;
-            if (horizontal < -8)
-                horizontal = -8;
-            if (vertical > 8)
-                vertical = 8;
-            if (vertical < -8)
-                vertical = -8;
-            if (afterburnerControl != 0) {
+                mouseY = threshold;
+            if ((int)message.x - 4 <= (int)g_stViewScratchInfo_005d2b00.left)
+                dx = -8;
+            if ((int)message.x + 4 >= (int)g_stViewScratchInfo_005d2b00.right)
+                dx = 8;
+            if ((int)message.y - 4 <= (int)g_stViewScratchInfo_005d2b00.top)
+                mouseY = -8;
+            if ((int)message.y + 4 >= (int)g_stViewScratchInfo_005d2b00.bottom)
+                mouseY = 8;
+            if (dx > 8)
+                dx = 8;
+            if (dx < -8)
+                dx = -8;
+            if (mouseY > 8)
+                mouseY = 8;
+            if (mouseY < -8)
+                mouseY = -8;
+            if (boostControl != 0) {
                 g_nCockpitControlGoal_0049d7d0 = 1;
                 g_anFlightInput_004931a8[2] =
-                    g_nMouseYawInput_0049d800 = horizontal;
-                g_nMousePitchInput_0049d804 = (short)-vertical;
+                    g_nMouseYawInput_0049d800 = dx;
+                g_nMousePitchInput_0049d804 = (short)-mouseY;
                 accelerate((short)(g_nMousePitchInput_0049d804 / 2));
             } else if (g_nCockpitControlGoal_0049d7d0 == 1) {
                 g_nCockpitControlGoal_0049d7d0 = 0;
@@ -840,25 +842,25 @@ short player_input(void)
             } else {
                 g_anFlightInput_004931a8[2] = 0;
                 g_anFlightInput_004931a8[1] =
-                    g_nMouseYawInput_0049d800 = horizontal;
+                    g_nMouseYawInput_0049d800 = dx;
                 g_anFlightInput_004931a8[0] =
-                    g_nMousePitchInput_0049d804 = vertical;
+                    g_nMousePitchInput_0049d804 = mouseY;
             }
             break;
         case 7:
-            polledInput = 1;
+            inputPolled = 1;
             g_cCurrentKey_00493128 = (signed char)PollKeyboardState();
             if (g_cCurrentKey_00493128 != 0)
                 process_player_input();
             g_nCockpitControlGoal_0049d7d0 = 0;
             g_nCockpitControlState_0049d7ac =
                 g_nCockpitControlGoal_0049d7d0;
-            afterburnerControl = (short)(event.modifiers & 2);
-            if (afterburnerControl != 0 &&
+            boostControl = (short)(message.modifiers & 2);
+            if (boostControl != 0 &&
                 g_aeSpecialManeuver_00495600[0] ==
                     SPECIAL_MANEUVER_AFTERBURNER)
-                afterburnerControl = 0;
-            if (afterburnerControl != 0) {
+                boostControl = 0;
+            if (boostControl != 0) {
                 g_anFlightInput_004931a8[2] =
                     (short)g_stCurrentFlightInput_0049d7b0.x;
                 accelerate((short)-(
@@ -881,30 +883,30 @@ short player_input(void)
             }
             break;
         case 2:
-            if (event.value == 2)
+            if (message.value == 2)
                 g_bSecondaryMouseButtonHeld_0049d7f4 = 0;
             break;
         case 1:
-            if ((event.modifiers & 1) != 0) {
+            if ((message.modifiers & 1) != 0) {
                 g_cCurrentKey_00493128 = 0x39;
-                if ((event.modifiers & 2) == 0)
+                if ((message.modifiers & 2) == 0)
                     fire_players_lasers();
                 else if (g_bSecondaryMouseButtonHeld_0049d7f4 == 1)
                     fire_players_lasers();
                 else
                     g_cCurrentKey_00493128 = 0x1c;
             }
-            if (event.value == 2 && event.status > 1)
+            if (message.value == 2 && message.status > 1)
                 g_bSecondaryMouseButtonHeld_0049d7f4 = 1;
             break;
         case 6:
-            result = 1;
+            keyHandled = 1;
         case 4:
 #ifdef SDL_PORT
             trailingKeyRelease = 0;
 #endif
             g_nCockpitControlGoal_0049d7d0 = 0;
-            g_cCurrentKey_00493128 = (signed char)event.status;
+            g_cCurrentKey_00493128 = (signed char)message.status;
             process_player_input();
             break;
 #ifdef SDL_PORT
@@ -940,7 +942,7 @@ short player_input(void)
     g_stPrevFlightControls_005c57d0 =
         g_stCurrentFlightInput_0049d7b0;
     g_bPlayerInputActive_005c8090 = savedPlayerInputActive;
-    return result;
+    return keyHandled;
 }
 
 #pragma function(strlen)

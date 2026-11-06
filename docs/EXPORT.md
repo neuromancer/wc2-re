@@ -122,7 +122,7 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,618 normalized `EXACT`, 18 same-size byte differences, and 41 differing
+1,617 normalized `EXACT`, 19 same-size byte differences, and 41 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
@@ -163,18 +163,39 @@ The save/load menu loses 156 excess code bytes, leaving 15. Four fewer
 alignment bytes after `RunPilotDatabaseMenu` make its reported span delta
 change from -123 to -127 without changing its instructions. These are the
 only two changed rows in the full normalized report; `.text` shrinks by
-160 bytes in total. The 41 differing spans now sum to +222 bytes, including
+160 bytes in total. At that step the 41 span deltas sum to +222 bytes, including
 the library gaps described above.
 
-The latest name-only correction puts all nine `SetFleetOverviewView` locals
+The fleet-view name correction puts all nine `SetFleetOverviewView` locals
 at their retail offsets and reduces differing instruction encodings from
 80/292 to 66/292. Its code remains 70 bytes short, with another ten bytes of
 span difference due to padding. The full normalized report is unchanged:
 its `SIZE` label does not expose the improved stack operands. File and
 section sizes are also unchanged.
 
+The latest local-name corrections reduce `InflightComputer`'s differing
+instruction encodings from 62/307 to 36/307 and `player_input`'s from
+163/431 to 82/431. These renames leave the full report and image sizes
+unchanged. A separate `#pragma function(abs)` restores `player_input`'s two
+retail CRT calls, reducing its differences to 76/431 and raising mnemonic
+similarity to 95.36%. Its code-size delta grows from +1 to +9; the final
+`calculate_damage_level` span gains eight alignment bytes, so `.text` grows
+by 16 bytes overall. The 41 span deltas now sum to +238 bytes.
+
+The only other changed normalized row is `CopyStringAndReturnEnd`, now
+`BYTES 1/22`. Its unreachable `strcpy` call at retail `0x004624F9` is absent
+from the exported instructions, so binary-comp does not normalize its
+relative call operand. The CRT moved by 16 bytes while this wrapper did
+not, changing the call encoding from `E8 B2 BC 00 00` to `E8 C2 BC 00 00`.
+Both builds still call `strcpy`; the wrapper's source and instruction
+sequence are unchanged. This is an unresolved image-layout difference,
+not an additional source-level defect introduced by the pragma.
+
 The unnormalized `binary-comp exe --functions` comparison finds
-580 byte-identical mapped spans and 261 functions at their retail addresses.
+558 byte-identical mapped spans and 261 functions at their retail addresses.
+Restoring the `abs` calls shifts later code and lowers the identical-span
+count from 580; correct local instruction changes can disrupt earlier
+accidental agreement between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
 library gaps as described above, so neither the 41 spans nor their net size
@@ -183,13 +204,13 @@ delta is a count of source defects.
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,612 |
+| `.text` virtual bytes | 576,332 | 575,628 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473B90` |
+| Entry point | `0x00473E50` | `0x00473BA0` |
 
 `make compare-bytes` still fails. With the link timestamps restored and
-the fleet-view local layout corrected, it reports 139,719 identical
-file positions out of 714,752 (19.5479%). Address
+the input-frame corrections and CRT calls restored, it reports 139,590
+identical file positions out of 714,752 (19.5299%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

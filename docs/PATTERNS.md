@@ -139,6 +139,36 @@ The remaining differences include retail's 16-bit parameter and counters,
 loop control flow, and camera-distance selection. Matching slot offsets
 does not establish matching access widths or behavior.
 
+`InflightComputer` (`0x00451FAA`) puts the cockpit shape at `-4`, objective
+at `-8`, input record at `-0x1C`, viewport at `-0x30`, done flag at `-0x34`,
+saved nav point at `-0x38`, frame at `-0x3C`, cursor at `-0x60`, selected
+nav point at `-0x64`, objective flag at `-0x68`, and marker colour at
+`-0x6C`. Eight renames recover these offsets, reducing differing instruction
+encodings from 62/307 to 36/307. The explicit input-type local still adds
+four bytes before the compiler's switch temporary: the frame remains
+`0x74` instead of retail's `0x70`. Retail reads the input record at `+6`,
+where this function still reads `value` at `+4`; moving the record cannot
+correct that field selection. Code remains 22 bytes longer than retail,
+with the mapped span reporting +16 because of its alignment boundary.
+
+Nine renames in `player_input` (`0x00466B02`) recover all thirteen named
+slots in the original `0x48` frame. The order is X magnitude, Y displacement,
+Y magnitude, polled-input flag, buttons, result, event type, 20-byte input
+record, mouse pointer, threshold, boost control, saved input state, and X
+displacement; the switch temporary is last. Differing encodings decrease
+from 163/431 to 82/431. The `/Bk` records preserve all parsed local and
+parameter keys in both units, including the functions after `player_input`.
+
+Retail calls the CRT's `abs` at `0x0046F3D0` from `0x00466DCB` and
+`0x00466DDC`; `/Oi` was instead inlining those two calls. The unit-scoped
+`#pragma function(abs)` before `player_input` restores the calls without
+changing its body or C1 symbol keys. Its differing encodings fall further
+to 76/431, and mnemonic similarity rises from 93.97% to 95.36%. The eight
+added code bytes leave the function nine bytes longer than retail. The
+remaining differences include mouse-button branch ordering and the
+equivalent but differently encoded clamping comparisons against +/-8
+instead of +/-9.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it
