@@ -433,9 +433,6 @@ unsigned int PumpWindowMessages(int skipMessages)
 
 #ifndef SDL_PORT
 
-void SetInputKeyState(int scanCode, unsigned char pressed);
-WINUSERAPI VOID WINAPI PostQuitMessage(int exitCode);
-
 /* Function start: 0x454625 */
 LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
                                 WPARAM wParam, LPARAM lParam)
@@ -461,10 +458,13 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         message == WM_LBUTTONUP || message == WM_LBUTTONDOWN ||
         message == WM_RBUTTONDOWN) {
         g_nPendingMouseX_0049c2ec = LOWORD(lParam);
+        pointerPositionX = g_nPendingMouseX_0049c2ec;
         g_nPendingMouseY_0049c2f0 = HIWORD(lParam);
+        cursorY = g_nPendingMouseY_0049c2f0;
+    } else {
+        pointerPositionX = g_nPendingMouseX_0049c2ec;
+        cursorY = g_nPendingMouseY_0049c2f0;
     }
-    pointerPositionX = g_nPendingMouseX_0049c2ec;
-    cursorY = g_nPendingMouseY_0049c2f0;
 
     switch (message) {
     case WM_ACTIVATEAPP:
@@ -504,12 +504,11 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_ACTIVATE:
         if (g_bApplicationControllerActive_0049c25c != 0) {
             if (((unsigned int)wParam & 0xffff) != 0) {
-                if (((unsigned int)wParam >> 16) != 0) {
+                if (HIWORD(wParam) != 0) {
                     g_bWindowInactive_0049c274 = 1;
                     WriteDebugString("MINIMIZED PAUSING...\n");
                     return 0;
-                }
-                if (g_bWindowInactive_0049c274 == 1) {
+                } else if (g_bWindowInactive_0049c274 == 1) {
                     clip.left = 0;
                     clip.top = 0;
                     clip.right = 320;
@@ -543,36 +542,42 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_SETFOCUS:
         SignalAudioMixerWakeEvent();
         return 0;
+        /* Retail retains the switch break after this return. */
+        break;
+    case WM_CREATE:
+        break;
     case WM_COMMAND:
-        if (menuId == 3) {
+        switch (menuId) {
+        case 3:
             g_bMainWindowRunning_005d12ac = 0;
             PostQuitMessage(0);
+            break;
         }
         break;
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
         g_nInputPressCount_0049c258++;
-        QueueInputEvent(1, (unsigned short)pointerPositionX,
-                        (unsigned short)cursorY, 0,
+        QueueInputEvent(1, pointerPositionX,
+                        cursorY, 0,
                         primaryButtonDown, secondaryDown, 0, 0, 0);
-        mouseInput = 1;
-        break;
-    case WM_LBUTTONUP:
-        g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)pointerPositionX,
-                        (unsigned short)cursorY, 0, 1, 0, 0, 0, 0);
         mouseInput = 1;
         break;
     case WM_RBUTTONUP:
         g_nInputPressCount_0049c258--;
-        QueueInputEvent(2, (unsigned short)pointerPositionX,
-                        (unsigned short)cursorY, 0, 0, 1, 0, 0, 0);
+        QueueInputEvent(2, pointerPositionX,
+                        cursorY, 0, 0, 1, 0, 0, 0);
+        mouseInput = 1;
+        break;
+    case WM_LBUTTONUP:
+        g_nInputPressCount_0049c258--;
+        QueueInputEvent(2, pointerPositionX,
+                        cursorY, 0, 1, 0, 0, 0, 0);
         mouseInput = 1;
         break;
     case WM_MOUSEMOVE:
         if (g_bSuppressNextMouseMove_005c843c == 0) {
-            QueueInputEvent(3, (unsigned short)pointerPositionX,
-                            (unsigned short)cursorY, 0,
+            QueueInputEvent(3, pointerPositionX,
+                            cursorY, 0,
                             primaryButtonDown, secondaryDown, 0, 0, 0);
             mouseInput = 1;
         } else {
@@ -599,10 +604,10 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             scanValue != 1) {
             g_nInputPressCount_0049c258++;
         }
-        QueueInputEvent(4, (unsigned short)pointerPositionX,
-                        (unsigned short)cursorY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanValue,
-                        (unsigned short)character);
+        QueueInputEvent(4, pointerPositionX,
+                        cursorY, wParam,
+                        0, 0, 0, scanValue,
+                        character);
         SetInputKeyState((int)scanValue, 1);
         break;
     case WM_KEYUP:
@@ -620,10 +625,10 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             if (g_nInputPressCount_0049c258 < 0)
                 g_nInputPressCount_0049c258 = 0;
         }
-        QueueInputEvent(5, (unsigned short)pointerPositionX,
-                        (unsigned short)cursorY, (unsigned short)wParam,
-                        0, 0, 0, (unsigned short)scanValue,
-                        (unsigned short)character);
+        QueueInputEvent(5, pointerPositionX,
+                        cursorY, wParam,
+                        0, 0, 0, scanValue,
+                        character);
         SetInputKeyState((int)scanValue, 0);
         break;
     case WM_SYSKEYUP:
@@ -696,6 +701,8 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             }
             break;
         }
+        break;
+    case WM_SIZE:
         break;
     case WM_PAINT:
         BeginPaint(g_hMainWindow_005d10e0, &paint);
@@ -929,10 +936,6 @@ void CheckAllGuardedAllocations(void)
 {
 }
 
-int DetectDoubleFree(void *memory);
-void TrackFreedHeapBlock(void *memory);
-void UntrackFreedHeapBlock(void *memory);
-
 /* Function start: 0x45562F */
 int IsFreedHeapBlockTracked(void *memory)
 {
@@ -948,9 +951,6 @@ int IsFreedHeapBlockTracked(void *memory)
     }
     return 0;
 }
-
-/* The guarded free below checks for double frees through this routine. */
-void FreeGuardedAllocation(void *memory);
 
 /* Function start: 0x455697 */
 int DetectDoubleFree(void *memory)
@@ -1037,7 +1037,6 @@ void FreeTrackedHeapBlocks(void)
 
 void ReportHeapGuardCorruption(void *memory, int count, int overrun);
 void WriteDebugString(const char *s);
-void TrackFreedHeapBlock(void *memory);
 
 /* Function start: 0x455882 */
 void FreeGuardedAllocation(void *memory)

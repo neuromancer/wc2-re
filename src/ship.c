@@ -558,9 +558,6 @@ void set_objects_data(short obj, short type, short owner,
     }
 }
 
-short HasShipCockpitGunDisplay(short ship);
-void rotate_object_to_goal(short obj);
-
 #pragma function(abs)
 /* Function start: 0x411172 */
 unsigned int match_rotation_goal(short *rotation, short *goal,
@@ -1047,6 +1044,11 @@ short inflict_damage(short attacker, short victim, short damage,
     return 0;
 #endif
 }
+
+/* Keep this declaration context after the damage code: CL 4.1's symbol keys
+ * determine its operand order and those of the following ship functions. */
+short HasShipCockpitGunDisplay(short ship);
+void rotate_object_to_goal(short obj);
 
 /* Function start: 0x41262D */
 short pilot_hit(short obj)
