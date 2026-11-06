@@ -1201,8 +1201,8 @@ void InflightComputer(void)
             EnableMouseCursorDrawing();
             /* The original passes a second argument the callee ignores. */
             switch (PollInputEvent(&inputEvent, 0xf)) {
-            case 4:
-            case 6:
+            case INPUT_EVENT_KEY_DOWN:
+            case INPUT_EVENT_LEGACY_6:
                 if (inputEvent.status != 0x1c &&
                     inputEvent.status != 0x39) {
                     if (inputEvent.status == 0x31) {
@@ -1214,7 +1214,7 @@ void InflightComputer(void)
                     }
                     break;
                 }
-            case 1:
+            case INPUT_EVENT_BUTTON_DOWN:
                 done = 1;
                 break;
             }

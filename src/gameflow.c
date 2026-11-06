@@ -460,12 +460,12 @@ void RunCutsceneWipeTransition(Viewport *destination, Viewport *source,
 /* Function start: 0x42C5A2 */
 void WaitForCutsceneInputEvent(void)
 {
-    if (FindQueuedInputEvent(2) == 0) {
+    if (FindQueuedInputEvent(INPUT_EVENT_BUTTON_UP) == 0) {
         for (;;) {
             if (ServiceInputDevices(-1) != 0) {
                 ServiceCutsceneRuntimeHook();
-                if (FindQueuedInputEvent(2) != 0 ||
-                    FindQueuedInputEvent(5) != 0)
+                if (FindQueuedInputEvent(INPUT_EVENT_BUTTON_UP) != 0 ||
+                    FindQueuedInputEvent(INPUT_EVENT_KEY_UP) != 0)
                     break;
             }
 #ifdef SDL_PORT
@@ -1834,7 +1834,8 @@ void UpdateMap(char *text, short objective)
            g_bCutsceneViewportPreallocated == 0) {
         if (ServiceInputDevices(-1) != 0) {
             ServiceCutsceneRuntimeHook();
-            if (FindQueuedInputEvent(2) != 0 || FindQueuedInputEvent(5) != 0)
+            if (FindQueuedInputEvent(INPUT_EVENT_BUTTON_UP) != 0 ||
+                FindQueuedInputEvent(INPUT_EVENT_KEY_UP) != 0)
                 break;
         }
     }
@@ -2049,7 +2050,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
          * ("handle_queued_cutscene_input" and the TakeInputPressCount()
          * block below it).  Neither of them reads
          * g_bSceneEscapeRequested on its own: both first require a
-         * still-queued input event (FindQueuedInputEvent(4)/(1)) or a
+         * still-queued key or button press, or a
          * still-pending press count, and only then look at the escape flag.
          * The escape flag is a level that stays set until somebody converts
          * it, but the two things that gate it are one-shot and are routinely
@@ -2136,7 +2137,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
             g_bCutsceneViewportPreallocated == 0) {
             if (ServiceInputDevices(-1) != 0) {
                 ServiceCutsceneRuntimeHook();
-                g_19_pFilmInputFlag = FindQueuedInputEvent(4);
+                g_19_pFilmInputFlag = FindQueuedInputEvent(INPUT_EVENT_KEY_DOWN);
                 if (g_19_pFilmInputFlag != 0) {
                     switch (g_19_pFilmInputFlag->status) {
                     case 2:
@@ -2177,8 +2178,8 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                     }
                 }
                 if (g_wDigiPlaying == 0 &&
-                    (FindQueuedInputEvent(4) != 0 ||
-                     FindQueuedInputEvent(1) != 0)) {
+                    (FindQueuedInputEvent(INPUT_EVENT_KEY_DOWN) != 0 ||
+                     FindQueuedInputEvent(INPUT_EVENT_BUTTON_DOWN) != 0)) {
                     ReleaseSceneFlicPackets();
                     ReleaseCutsceneSoundEffects(-1);
                     if (g_bSceneEscapeRequested != 0) {
@@ -2460,8 +2461,8 @@ cutscene_input_processed:
                    g_bCutsceneViewportPreallocated == 0) {
                 if (ServiceInputDevices(-1) != 0) {
                     ServiceCutsceneRuntimeHook();
-                    if (FindQueuedInputEvent(2) != 0 ||
-                        FindQueuedInputEvent(5) != 0) {
+                    if (FindQueuedInputEvent(INPUT_EVENT_BUTTON_UP) != 0 ||
+                        FindQueuedInputEvent(INPUT_EVENT_KEY_UP) != 0) {
                         break;
                     }
                 }

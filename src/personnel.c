@@ -66,40 +66,40 @@ void PollPersonnelMenuInput(void)
     g_cPreviousKey =
         (signed char)g_sPersonnelPreviousInput;
     ServiceInputDevices(15);
-    g_bPersonnelPrimaryInputDown = IsInputEventQueued(3);
+    g_bPersonnelPrimaryInputDown = IsInputEventQueued(INPUT_EVENT_MOUSE_MOVE);
     if (g_bPersonnelPrimaryInputDown == 0) {
         g_cCurrentKey |= (signed char)0x80;
         g_sPersonnelPreviousInput |= 0x80;
     }
-    if (IsInputEventQueued(5) != 0) {
+    if (IsInputEventQueued(INPUT_EVENT_KEY_UP) != 0) {
         g_cCurrentKey |= (signed char)0x80;
         g_sPersonnelPreviousInput |= 0x80;
         g_bPersonnelPrimaryInputDown = 0;
     }
-    while ((eventType = GetNextInputEvent(&event)) != 0) {
+    while ((eventType = GetNextInputEvent(&event)) != INPUT_EVENT_NONE) {
         switch (eventType) {
-        case 3:
+        case INPUT_EVENT_MOUSE_MOVE:
             g_37_stPersonnelMousePointerState.x = event.x;
             g_37_stPersonnelMousePointerState.y = event.y;
             break;
-        case 7:
+        case INPUT_EVENT_JOYSTICK_MOVE:
             break;
-        case 2:
+        case INPUT_EVENT_BUTTON_UP:
             break;
-        case 1:
+        case INPUT_EVENT_BUTTON_DOWN:
             g_sPersonnelPreviousInput =
                 (g_cCurrentKey = 0x1c);
-            if ((event.modifiers & 1) != 0) {
+            if ((event.modifiers & INPUT_MOD_PRIMARY_BUTTON) != 0) {
                 g_sPersonnelPreviousInput =
                     (g_cCurrentKey = 0x1c);
             }
-            if ((event.modifiers & 2) != 0) {
+            if ((event.modifiers & INPUT_MOD_SECONDARY_BUTTON) != 0) {
                 g_sPersonnelPreviousInput =
                     (g_cCurrentKey = 0x1c);
             }
             break;
-        case 4:
-        case 6:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_LEGACY_6:
             g_sPersonnelPreviousInput =
                 (g_cCurrentKey = (signed char)event.status);
             break;

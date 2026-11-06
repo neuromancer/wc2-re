@@ -587,38 +587,41 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     HostMouseMessage *mouse;
 
     switch (type) {
-    case 7:
+    case INPUT_EVENT_JOYSTICK_MOVE:
         QueueInputEvent(type,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].x,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].y,
-            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+            0, value & INPUT_BUTTON_PRIMARY,
+            (value & INPUT_BUTTON_SECONDARY) >> 1, 0, 0, 0);
         break;
-    case 10:
-        QueueInputEvent(1,
+    case POLLED_INPUT_BUTTON_DOWN:
+        QueueInputEvent(INPUT_EVENT_BUTTON_DOWN,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].x,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].y,
-            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+            0, value & INPUT_BUTTON_PRIMARY,
+            (value & INPUT_BUTTON_SECONDARY) >> 1, 0, 0, 0);
         break;
-    case 0x45:
-        QueueInputEvent(2,
+    case POLLED_INPUT_BUTTON_UP:
+        QueueInputEvent(INPUT_EVENT_BUTTON_UP,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].x,
             g_aInputDeviceSamplesList[
                 g_8_nActiveInputDeviceWord].y,
-            0, value & 1, (value & 2) >> 1, 0, 0, 0);
+            0, value & INPUT_BUTTON_PRIMARY,
+            (value & INPUT_BUTTON_SECONDARY) >> 1, 0, 0, 0);
         break;
-    case 3:
+    case INPUT_EVENT_MOUSE_MOVE:
         mouse = &g_6_stHostMouseTextBlock;
         QueueInputEvent(type,
                         g_16_stEventQueuePointerData.x,
                         g_16_stEventQueuePointerData.y,
                         0, 0, 0, 0, 0, 0);
         break;
-    case 1:
+    case INPUT_EVENT_BUTTON_DOWN:
         mouse = &g_6_stHostMouseTextBlock;
         QueueInputEvent(type,
                         g_16_stEventQueuePointerData.x,
@@ -630,7 +633,7 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
                             mouse->primaryButton | value >> 2,
                         0, 0);
         break;
-    case 4:
+    case INPUT_EVENT_KEY_DOWN:
         break;
     }
 }
@@ -696,15 +699,15 @@ void QueueInputEvent(int type, int x, int y, int value,
 
     modifiers = 0;
     if (GetShiftKeyState() != 0)
-        modifiers |= 0xe0;
+        modifiers |= INPUT_MOD_SHIFT;
     if (GetControlKeyState() != 0)
-        modifiers |= 0x3800;
+        modifiers |= INPUT_MOD_CONTROL;
     if (GetKeyboardModifiers() != 0)
-        modifiers |= 0x700;
+        modifiers |= INPUT_MOD_ALT;
     if (primaryButton != 0)
-        modifiers |= 1;
+        modifiers |= INPUT_MOD_PRIMARY_BUTTON;
     if (secondaryButton != 0)
-        modifiers |= 2;
+        modifiers |= INPUT_MOD_SECONDARY_BUTTON;
 
     if (g_pInputEventHead == 0) {
         g_pInputEventHead = AllocateInputEvent();
@@ -736,19 +739,19 @@ void QueueInputEvent(int type, int x, int y, int value,
     g_pInputEventTail->field_14 = field14;
     g_pInputEventTail->field_18 = field18;
     g_pInputEventTail->status = 1;
-    if (g_pInputEventTail->type == 3) {
+    if (g_pInputEventTail->type == INPUT_EVENT_MOUSE_MOVE) {
         g_16_stEventQueuePointerData.x = g_pInputEventTail->x;
         g_16_stEventQueuePointerData.y = g_pInputEventTail->y;
     }
-    if (g_pInputEventTail->type == 2) {
+    if (g_pInputEventTail->type == INPUT_EVENT_BUTTON_UP) {
         g_nInputDoubleClickDeadline =
             g_196_nInputTimerTicks + 25;
         g_nPreviousPrimaryButton = primaryButton;
         g_nPreviousSecondaryButton = secondaryButton;
     }
-    if (g_pInputEventTail->type == 1 ||
-        g_pInputEventTail->type == 8 ||
-        g_pInputEventTail->type == 9) {
+    if (g_pInputEventTail->type == INPUT_EVENT_BUTTON_DOWN ||
+        g_pInputEventTail->type == INPUT_EVENT_LEGACY_8 ||
+        g_pInputEventTail->type == INPUT_EVENT_LEGACY_9) {
         if ((g_pInputEventTail->primaryButton != 0 &&
              g_nPreviousPrimaryButton != 0) ||
             (g_pInputEventTail->secondaryButton != 0 &&
@@ -843,7 +846,7 @@ int GetNextInputEvent(InputEventState *state)
     if (g_nNextInputQueueFlushTick < g_196_nInputTimerTicks)
         FlushInputEvents();
     g_nNextInputQueueFlushTick = g_196_nInputTimerTicks + 20;
-    type = 0;
+    type = INPUT_EVENT_NONE;
     if (g_pInputEventHead != 0) {
         posX = (int)g_pInputEventHead->x;
         posY = (int)g_pInputEventHead->y;
@@ -866,7 +869,7 @@ int GetNextInputEvent(InputEventState *state)
         state->modifiers =
             (short)g_pInputEventHead->modifiers;
         switch (g_pInputEventHead->type) {
-        case 2:
+        case INPUT_EVENT_BUTTON_UP:
             g_16_stEventQueuePointerData.x = g_pInputEventHead->x;
             g_16_stEventQueuePointerData.y = g_pInputEventHead->y;
             g_16_stEventQueuePointerData.primaryButton = 0;
@@ -877,9 +880,9 @@ int GetNextInputEvent(InputEventState *state)
                 (int)g_pInputEventHead->primaryButton;
             state->value = (short)*(unsigned int *)&state->value;
             state->status = (short)g_pInputEventHead->status;
-            type = 2;
+            type = INPUT_EVENT_BUTTON_UP;
             break;
-        case 1:
+        case INPUT_EVENT_BUTTON_DOWN:
             g_16_stEventQueuePointerData.x = g_pInputEventHead->x;
             g_16_stEventQueuePointerData.y = g_pInputEventHead->y;
             g_16_stEventQueuePointerData.primaryButton =
@@ -893,20 +896,20 @@ int GetNextInputEvent(InputEventState *state)
                 (int)g_pInputEventHead->primaryButton;
             state->value = (short)*(unsigned int *)&state->value;
             state->status = (short)g_pInputEventHead->status;
-            type = 1;
+            type = INPUT_EVENT_BUTTON_DOWN;
             if (state->status > 1)
-                type = 1;
+                type = INPUT_EVENT_BUTTON_DOWN;
             break;
-        case 4:
+        case INPUT_EVENT_KEY_DOWN:
             *(unsigned int *)&state->value =
                 (int)g_pInputEventHead->value;
             state->value = (short)g_pInputEventHead->field_18;
             state->status = (short)g_pInputEventHead->field_14;
             state->x = g_16_stEventQueuePointerData.x;
             state->y = g_16_stEventQueuePointerData.y;
-            type = 4;
+            type = INPUT_EVENT_KEY_DOWN;
             break;
-        case 5:
+        case INPUT_EVENT_KEY_UP:
             state->x = g_pInputEventHead->value;
             *(unsigned int *)&state->value =
                 (int)g_pInputEventHead->value;
@@ -914,31 +917,31 @@ int GetNextInputEvent(InputEventState *state)
             state->status = (short)g_pInputEventHead->field_14;
             state->x = g_16_stEventQueuePointerData.x;
             state->y = g_16_stEventQueuePointerData.y;
-            type = 5;
+            type = INPUT_EVENT_KEY_UP;
             break;
-        case 6:
+        case INPUT_EVENT_LEGACY_6:
             state->x = g_pInputEventHead->value;
-            type = 6;
+            type = INPUT_EVENT_LEGACY_6;
             break;
-        case 7:
-        case 8:
-        case 9:
+        case INPUT_EVENT_JOYSTICK_MOVE:
+        case INPUT_EVENT_LEGACY_8:
+        case INPUT_EVENT_LEGACY_9:
             state->x = g_pInputEventHead->x;
             state->y = g_pInputEventHead->y;
             type = (int)g_pInputEventHead->type;
             break;
-        case 3:
+        case INPUT_EVENT_MOUSE_MOVE:
             g_16_stEventQueuePointerData.x = g_pInputEventHead->x;
             g_16_stEventQueuePointerData.y = g_pInputEventHead->y;
             state->x = g_pInputEventHead->x;
             state->y = g_pInputEventHead->y;
-            type = 3;
+            type = INPUT_EVENT_MOUSE_MOVE;
             clearQueue = 1;
             break;
         default:
             state->x = g_pInputEventHead->x;
             state->y = g_pInputEventHead->y;
-            type = 0;
+            type = INPUT_EVENT_NONE;
             break;
         }
         RemoveInputEvent(g_pInputEventHead);
@@ -980,14 +983,15 @@ short PeekInputEvent(InputEventState *state, short type)
         state->value = (short)event->field_18;
         state->timestamp = event->timestamp;
         eventType = (int)event->type;
-        if (eventType == 1 || eventType == 2)
-            flags |= 8;
+        if (eventType == INPUT_EVENT_BUTTON_DOWN ||
+            eventType == INPUT_EVENT_BUTTON_UP)
+            flags |= INPUT_MOD_BUTTON_EVENT;
         if (event->primaryButton != 0)
-            flags |= 1;
+            flags |= INPUT_MOD_PRIMARY_BUTTON;
         else
             ;
         if (event->secondaryButton != 0)
-            flags |= 2;
+            flags |= INPUT_MOD_SECONDARY_BUTTON;
         else
             ;
         state->modifiers = (unsigned short)flags;
@@ -1013,7 +1017,7 @@ InputEventState *FindQueuedInputEvent(int type)
          event = event->next)
         ;
     if (event != 0) {
-        if (event->type == 3) {
+        if (event->type == INPUT_EVENT_MOUSE_MOVE) {
             g_16_stEventQueuePointerData.x = g_pInputEventHead->x;
             g_16_stEventQueuePointerData.y = g_pInputEventHead->y;
         }
@@ -1023,14 +1027,15 @@ InputEventState *FindQueuedInputEvent(int type)
         g_1_stFoundInputEvent.value = (short)event->field_18;
         g_1_stFoundInputEvent.status = (short)event->field_14;
         g_1_stFoundInputEvent.timestamp = event->timestamp;
-        if (event->type == 1 || event->type == 2)
-            modifiers |= 8;
+        if (event->type == INPUT_EVENT_BUTTON_DOWN ||
+            event->type == INPUT_EVENT_BUTTON_UP)
+            modifiers |= INPUT_MOD_BUTTON_EVENT;
         if (event->primaryButton != 0)
-            modifiers |= 1;
+            modifiers |= INPUT_MOD_PRIMARY_BUTTON;
         else
             ;
         if (event->secondaryButton != 0)
-            modifiers |= 2;
+            modifiers |= INPUT_MOD_SECONDARY_BUTTON;
         else
             ;
         g_1_stFoundInputEvent.modifiers =

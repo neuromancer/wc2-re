@@ -174,8 +174,8 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
 #ifdef SDL_PORT
     /* GetNextInputEvent leaves state->type untouched when the queue is
      * empty (it only ever sets x/y in that case) -- fine for its other
-     * callers, who already know an polled is waiting, but this function
-     * falls back to &polled below whenever FindQueuedInputEvent(1) finds
+     * callers, who already know an event is waiting, but this function
+     * falls back to &polled below whenever FindQueuedInputEvent finds
      * no click anywhere in the queue, then calls GetNextInputEvent(&polled)
      * regardless of whether anything is actually queued. An uninitialized
      * polled.type that happens to equal 1 reads as a real click at the
@@ -193,7 +193,7 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
 
     selection = 0;
     ServiceInputDevices(15);
-    inputEvent = FindQueuedInputEvent(4);
+    inputEvent = FindQueuedInputEvent(INPUT_EVENT_KEY_DOWN);
     /* The original test ends in a stray semicolon, so the block below runs
      * whether or not a key event is queued. */
     if (inputEvent != 0)
@@ -210,7 +210,7 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
             ReleaseInputEventQueue();
         }
     }
-    inputEvent = FindQueuedInputEvent(1);
+    inputEvent = FindQueuedInputEvent(INPUT_EVENT_BUTTON_DOWN);
     if (inputEvent == 0)
         inputEvent = &polled;
     GetNextInputEvent(&polled);
@@ -228,7 +228,7 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
         SetMouseCursorShape(g_18_pEventManager->cursorShape, 0);
     }
     g_8_bSceneBackdropClicked = 0;
-    if (inputEvent->type != 1) {
+    if (inputEvent->type != INPUT_EVENT_BUTTON_DOWN) {
         selection = 0;
     } else if (selection == 0 && dismissOnBackground != 0) {
         g_8_bSceneBackdropClicked = 1;

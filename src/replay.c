@@ -254,7 +254,7 @@ void ProcessCannedSceneInput(void)
     g_cPreviousKey = g_cCurrentKey;
     ServiceInputDevices(15);
     eventType = GetNextInputEvent(&nextEvent);
-    if (eventType == 4) {
+    if (eventType == INPUT_EVENT_KEY_DOWN) {
         g_cCurrentKey = (signed char)nextEvent.status;
         if (g_cPreviousKey !=
             g_cCurrentKey)

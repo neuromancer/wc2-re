@@ -263,7 +263,7 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
      * cursor position the game draws and reads.  Queueing WC1's type 13 left
      * the pointer pinned wherever the last click had put it. */
     queued = g_pInputEventTail;
-    if (queued != 0 && queued->type == 3) {
+    if (queued != 0 && queued->type == INPUT_EVENT_MOUSE_MOVE) {
         queued->x = (short)x;
         queued->y = (short)y;
         queued->primaryButton = (short)primaryButton;
@@ -273,16 +273,17 @@ static void SdlQueueMouseMotion(unsigned short x, unsigned short y,
          * modifiers & 2 as "secondary held" to mean afterburner and roll --
          * so with WC1's numbering, dragging with the left button engaged the
          * afterburner instead of pitching and yawing. */
-        queued->modifiers &= ~3U;
+        queued->modifiers &= ~(unsigned int)(
+            INPUT_MOD_PRIMARY_BUTTON | INPUT_MOD_SECONDARY_BUTTON);
         if (primaryButton != 0)
-            queued->modifiers |= 1;
+            queued->modifiers |= INPUT_MOD_PRIMARY_BUTTON;
         if (secondaryButton != 0)
-            queued->modifiers |= 2;
+            queued->modifiers |= INPUT_MOD_SECONDARY_BUTTON;
         return;
     }
-    QueueInputEvent(3, x, y, 0, primaryButton, secondaryButton,
-                    0, 0, 0);
-    SdlTraceInputEvent("move", 3, 0, 0, x, y);
+    QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, x, y, 0,
+                    primaryButton, secondaryButton, 0, 0, 0);
+    SdlTraceInputEvent("move", INPUT_EVENT_MOUSE_MOVE, 0, 0, x, y);
 }
 
 /* Mouse flight is positional: hard turns park the pointer at a window edge,
@@ -529,7 +530,7 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
          * release must not cancel an unconsumed key or mouse press. */
         if (pressed && event->repeat == 0)
             g_nInputPressCount++;
-        QueueInputEvent(pressed ? 4 : 5,
+        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
                         (unsigned short)g_6_stHostMouseTextBlock.x,
                         (unsigned short)g_6_stHostMouseTextBlock.y,
                         (unsigned short)virtualKey, 0, 0, 0,
@@ -537,7 +538,8 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
                         (unsigned int)SdlKeyCharacter(event, virtualKey));
         SetInputKeyState(scanCode, (unsigned char)pressed);
         SdlTraceInputEvent(pressed ? "keydn" : "keyup",
-                              pressed ? 4 : 5, scanCode, virtualKey,
+                              pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                              scanCode, virtualKey,
                               g_6_stHostMouseTextBlock.x,
                               g_6_stHostMouseTextBlock.y);
     }
@@ -562,9 +564,9 @@ static void SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse.  WC2's key events are
        4 for a press and 5 for a release. */
-    QueueInputEvent(5, 0, 0, (unsigned short)scanCode, 0, 0, 0,
+    QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, (unsigned short)scanCode, 0, 0, 0,
                     (unsigned int)scanCode, 0);
-    QueueInputEvent(4, 0, 0, (unsigned short)scanCode, 0, 0, 0,
+    QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, (unsigned short)scanCode, 0, 0, 0,
                     (unsigned int)scanCode, 0);
 }
 
@@ -621,12 +623,14 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
             g_nInputPressCount++;
         /* WC2 queues 1 for a button press and 2 for a release -- the
          * opposite way round from WC1. */
-        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
+        QueueInputEvent(event->type == SDL_MOUSEBUTTONDOWN
+                            ? INPUT_EVENT_BUTTON_DOWN : INPUT_EVENT_BUTTON_UP,
                         (unsigned short)mouseX, (unsigned short)mouseY,
                         0, primaryButton, secondaryButton, 0, 0, 0);
         SdlTraceInputEvent(
             event->type == SDL_MOUSEBUTTONDOWN ? "btndn" : "btnup",
-            event->type == SDL_MOUSEBUTTONDOWN ? 1 : 2,
+            event->type == SDL_MOUSEBUTTONDOWN
+                ? INPUT_EVENT_BUTTON_DOWN : INPUT_EVENT_BUTTON_UP,
             0, primaryButton | secondaryButton * 2, mouseX, mouseY);
     }
     g_6_stHostMouseTextBlock.x = mouseX;

@@ -102,14 +102,14 @@ void KeyboardMousePump(void)
         dy = (short)(buttons & 2);
         if (dx == 0 && dy != 0) {
             buttons &= 4;
-            QueueInputEvent(1, g_16_stEventQueuePointerData.x,
+            QueueInputEvent(INPUT_EVENT_BUTTON_DOWN, g_16_stEventQueuePointerData.x,
                             g_16_stEventQueuePointerData.y, 0, 1,
                             buttons, 0, 0, 0);
             SetPersonnelCursorPosition(g_16_stEventQueuePointerData.x,
                                        g_16_stEventQueuePointerData.y, 0, 0);
         } else if (dx != 0 && dy == 0) {
             buttons &= 4;
-            QueueInputEvent(2, g_16_stEventQueuePointerData.x,
+            QueueInputEvent(INPUT_EVENT_BUTTON_UP, g_16_stEventQueuePointerData.x,
                             g_16_stEventQueuePointerData.y, 0, 0,
                             buttons, 0, 0, 0);
         }
@@ -118,14 +118,14 @@ void KeyboardMousePump(void)
         dy = (short)(buttons & 4);
         if (dx == 0 && dy != 0) {
             buttons &= 2;
-            QueueInputEvent(1, g_16_stEventQueuePointerData.x,
+            QueueInputEvent(INPUT_EVENT_BUTTON_DOWN, g_16_stEventQueuePointerData.x,
                             g_16_stEventQueuePointerData.y, 0,
                             buttons, 1, 0, 0, 0);
             SetPersonnelCursorPosition(g_16_stEventQueuePointerData.x,
                                        g_16_stEventQueuePointerData.y, 0, 0);
         } else if (dx != 0 && dy == 0) {
             buttons &= 2;
-            QueueInputEvent(2, g_16_stEventQueuePointerData.x,
+            QueueInputEvent(INPUT_EVENT_BUTTON_UP, g_16_stEventQueuePointerData.x,
                             g_16_stEventQueuePointerData.y, 0,
                             buttons, 0, 0, 0, 0);
         }

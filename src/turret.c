@@ -50,11 +50,12 @@ short HandleFleetOverviewInput(void)
     firePressed = 0;
     g_cPreviousKey = g_cCurrentKey;
     ServiceInputDevices(15);
-    g_19_bPolledFlightInputQueued = IsInputEventQueued(7);
-    g_2_bFleetMouseMovePosted = IsInputEventQueued(3);
+    g_19_bPolledFlightInputQueued = IsInputEventQueued(INPUT_EVENT_JOYSTICK_MOVE);
+    g_2_bFleetMouseMovePosted = IsInputEventQueued(INPUT_EVENT_MOUSE_MOVE);
     g_1_bDiscreteFlightInputWaiting =
-        (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
-    g_bMapPrimaryInputQueued = IsInputEventQueued(1);
+        (short)(IsInputEventQueued(INPUT_EVENT_KEY_DOWN) |
+                IsInputEventQueued(INPUT_EVENT_LEGACY_6));
+    g_bMapPrimaryInputQueued = IsInputEventQueued(INPUT_EVENT_BUTTON_DOWN);
     arrowKeys = 0;
     if (g_2_bFleetMouseMovePosted == 0)
         g_cCurrentKey |= (signed char)0x80;
@@ -74,9 +75,9 @@ short HandleFleetOverviewInput(void)
     if (g_bMapPrimaryInputQueued == 0)
         g_bFleetButtonInputActive = 0;
 
-    while ((eventType = GetNextInputEvent(&state)) != 0) {
+    while ((eventType = GetNextInputEvent(&state)) != INPUT_EVENT_NONE) {
         switch (eventType) {
-        case 3:
+        case INPUT_EVENT_MOUSE_MOVE:
             if (g_nCockpitControlState == 0) {
                 SetPersonnelMousePosition(
                     (short)((g_27_stViewScratchInfo.left +
@@ -142,7 +143,7 @@ short HandleFleetOverviewInput(void)
             g_nFleetOverviewPitchVelocity =
                 g_nFleetMousePitchVelocity;
             break;
-        case 7:
+        case INPUT_EVENT_JOYSTICK_MOVE:
             g_nCockpitControlState = 0;
             if (g_nTargetCameraFrame == 0) {
                 g_nFleetOverviewYawVelocity =
@@ -151,20 +152,20 @@ short HandleFleetOverviewInput(void)
                     (short)-g_stCurrentFlightInput.y;
             }
             break;
-        case 1:
+        case INPUT_EVENT_BUTTON_DOWN:
             g_nCockpitControlState = 0;
             g_cCurrentKey = 0x39;
             firePressed = 1;
             break;
-        case 5:
+        case INPUT_EVENT_KEY_UP:
             g_nCockpitControlState = 0;
             g_nFleetOverviewYawVelocity = 0;
             g_nFleetOverviewPitchVelocity =
                 g_nFleetOverviewYawVelocity;
             break;
-        case 6:
+        case INPUT_EVENT_LEGACY_6:
             action = 1;
-        case 4:
+        case INPUT_EVENT_KEY_DOWN:
             g_nCockpitControlState = 0;
             g_nCockpitControlGoal = 0;
             g_cCurrentKey = (signed char)state.status;

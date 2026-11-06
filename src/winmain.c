@@ -557,26 +557,26 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
     case WM_LBUTTONDOWN:
     case WM_RBUTTONDOWN:
         g_nInputPressCount++;
-        QueueInputEvent(1, pointerPositionX,
+        QueueInputEvent(INPUT_EVENT_BUTTON_DOWN, pointerPositionX,
                         cursorY, 0,
                         primaryButtonDown, secondaryDown, 0, 0, 0);
         mouseInput = 1;
         break;
     case WM_RBUTTONUP:
         g_nInputPressCount--;
-        QueueInputEvent(2, pointerPositionX,
+        QueueInputEvent(INPUT_EVENT_BUTTON_UP, pointerPositionX,
                         cursorY, 0, 0, 1, 0, 0, 0);
         mouseInput = 1;
         break;
     case WM_LBUTTONUP:
         g_nInputPressCount--;
-        QueueInputEvent(2, pointerPositionX,
+        QueueInputEvent(INPUT_EVENT_BUTTON_UP, pointerPositionX,
                         cursorY, 0, 1, 0, 0, 0, 0);
         mouseInput = 1;
         break;
     case WM_MOUSEMOVE:
         if (g_2_bIgnoreNextCursorMoveFlag == 0) {
-            QueueInputEvent(3, pointerPositionX,
+            QueueInputEvent(INPUT_EVENT_MOUSE_MOVE, pointerPositionX,
                             cursorY, 0,
                             primaryButtonDown, secondaryDown, 0, 0, 0);
             mouseInput = 1;
@@ -604,7 +604,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             scanValue != 1) {
             g_nInputPressCount++;
         }
-        QueueInputEvent(4, pointerPositionX,
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, pointerPositionX,
                         cursorY, wParam,
                         0, 0, 0, scanValue,
                         character);
@@ -625,7 +625,7 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
             if (g_nInputPressCount < 0)
                 g_nInputPressCount = 0;
         }
-        QueueInputEvent(5, pointerPositionX,
+        QueueInputEvent(INPUT_EVENT_KEY_UP, pointerPositionX,
                         cursorY, wParam,
                         0, 0, 0, scanValue,
                         character);

@@ -343,11 +343,11 @@ short WaitForInputKey(void)
     previousPump = g_176_pfnCurrentInputPump;
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ServiceInputDevices(15);
-    press = FindQueuedInputEvent(1);
+    press = FindQueuedInputEvent(INPUT_EVENT_BUTTON_DOWN);
     if (press != 0) {
         key = (short)(press->value + 1);
     } else {
-        press = FindQueuedInputEvent(4);
+        press = FindQueuedInputEvent(INPUT_EVENT_KEY_DOWN);
         if (press != 0)
             key = (short)press->status;
     }
@@ -372,11 +372,11 @@ unsigned short WaitForAnyInputPress(void)
     g_bKeyboardMouseEnabled = 0;
     while (acknowledged == 0) {
         switch (PollInputEvent(&polled, 15)) {
-        case 4:
-        case 6:
+        case INPUT_EVENT_KEY_DOWN:
+        case INPUT_EVENT_LEGACY_6:
             result = (unsigned char)polled.value;
             ReleaseInputEventQueue();
-        case 1:
+        case INPUT_EVENT_BUTTON_DOWN:
             acknowledged++;
             break;
         }

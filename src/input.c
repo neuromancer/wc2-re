@@ -30,11 +30,12 @@ short UpdateInputDeviceTransitions(short raw)
         g_9_asInputButton2ChangedList[activeDevice];
     buttons = (short)g_aInputDeviceSamplesList[activeDevice].buttons;
     if (g_2_asPreviousInputButtonsList[activeDevice] != buttons) {
-        changed = buttons & 1;
-        changed ^= g_2_asPreviousInputButtonsList[activeDevice] & 1;
+        changed = buttons & INPUT_BUTTON_PRIMARY;
+        changed ^= g_2_asPreviousInputButtonsList[activeDevice] &
+            INPUT_BUTTON_PRIMARY;
         if (changed != 0) {
             g_3_asControlsButton1ChangedValues[activeDevice]++;
-            if ((buttons & 1) != 0) {
+            if ((buttons & INPUT_BUTTON_PRIMARY) != 0) {
                 if (g_196_nInputTimerTicks -
                     g_anControlsButton1PressTime[activeDevice] <=
                         g_nInputDoubleClickInterval *
@@ -44,11 +45,12 @@ short UpdateInputDeviceTransitions(short raw)
                     g_196_nInputTimerTicks;
             }
         }
-        changed = buttons & 2;
-        changed ^= g_2_asPreviousInputButtonsList[activeDevice] & 2;
+        changed = buttons & INPUT_BUTTON_SECONDARY;
+        changed ^= g_2_asPreviousInputButtonsList[activeDevice] &
+            INPUT_BUTTON_SECONDARY;
         if (changed != 0) {
             g_9_asInputButton2ChangedList[activeDevice]++;
-            if ((buttons & 2) != 0) {
+            if ((buttons & INPUT_BUTTON_SECONDARY) != 0) {
                 if (g_196_nInputTimerTicks -
                     g_9_anInputButton2PushTime[activeDevice] <=
                         g_nInputDoubleClickInterval *
@@ -88,7 +90,8 @@ void PollJoystickButtonEvents(void)
                 doubleClick = 3;
             QueueInputEventAtCursor(
                 (g_aInputDeviceSamplesList
-                    [g_8_nActiveInputDeviceWord].buttons & 1) + 1,
+                    [g_8_nActiveInputDeviceWord].buttons &
+                    INPUT_BUTTON_PRIMARY) + 1,
                 0, doubleClick);
         }
         if (g_9_asInputButton2ChangedList
@@ -99,7 +102,8 @@ void PollJoystickButtonEvents(void)
                 doubleClick = 3;
             QueueInputEventAtCursor(
                 ((g_aInputDeviceSamplesList
-                    [g_8_nActiveInputDeviceWord].buttons & 2) >> 1) + 1,
+                    [g_8_nActiveInputDeviceWord].buttons &
+                    INPUT_BUTTON_SECONDARY) >> 1) + 1,
                 1, doubleClick);
         }
         g_6_stPersonnelMouseData.secondaryButton =
@@ -142,7 +146,8 @@ void PollMenuInputDevices(void)
                 clickKind = 3;
             QueueInputEventAtCursor(
                 (g_aInputDeviceSamplesList
-                    [g_8_nActiveInputDeviceWord].buttons & 1) + 1,
+                    [g_8_nActiveInputDeviceWord].buttons &
+                    INPUT_BUTTON_PRIMARY) + 1,
                 0, (short)clickKind);
             changes++;
         }
@@ -162,7 +167,8 @@ void PollMenuInputDevices(void)
                 clickKind = 3;
             QueueInputEventAtCursor(
                 ((g_aInputDeviceSamplesList
-                    [g_8_nActiveInputDeviceWord].buttons & 2) >> 1) + 1,
+                    [g_8_nActiveInputDeviceWord].buttons &
+                    INPUT_BUTTON_SECONDARY) >> 1) + 1,
                 1, (short)clickKind);
             changes++;
         }

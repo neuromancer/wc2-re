@@ -248,6 +248,39 @@ typedef char MouseCursorState_size_must_be_0x21[
     sizeof(MouseCursorState) == 0x21 ? 1 : -1];
 #endif
 
+/* WC2 event IDs are values, not masks. Unlike WC1, button-down is 1,
+ * mouse movement is 3, and key-down/key-up are 4/5. */
+#define INPUT_EVENT_NONE           0
+#define INPUT_EVENT_BUTTON_DOWN    1
+#define INPUT_EVENT_BUTTON_UP      2
+#define INPUT_EVENT_MOUSE_MOVE     3
+#define INPUT_EVENT_KEY_DOWN       4
+#define INPUT_EVENT_KEY_UP         5
+/* Event 6 is accepted alongside key-down; its original producer is unknown. */
+#define INPUT_EVENT_LEGACY_6       6
+#define INPUT_EVENT_JOYSTICK_MOVE  7
+/* Retained event cases with no recovered Win32 producer. */
+#define INPUT_EVENT_LEGACY_8       8
+#define INPUT_EVENT_LEGACY_9       9
+
+/* The polled joystick translates these into queued button events. */
+#define POLLED_INPUT_BUTTON_DOWN  10
+#define POLLED_INPUT_BUTTON_UP    0x45
+
+/* QueueInputEvent's flags differ from WC1, Win32 MK_*, and scan codes.
+ * The button-event marker is added by PeekInputEvent/FindQueuedInputEvent. */
+#define INPUT_MOD_PRIMARY_BUTTON   1
+#define INPUT_MOD_SECONDARY_BUTTON 2
+#define INPUT_MOD_BUTTON_EVENT     8
+#define INPUT_MOD_SHIFT            0xe0
+#define INPUT_MOD_ALT              0x700
+#define INPUT_MOD_CONTROL          0x3800
+
+/* Sampled device button masks, before event-queue translation. */
+#define INPUT_BUTTON_PRIMARY       1
+#define INPUT_BUTTON_SECONDARY     2
+#define INPUT_BUTTON_BOTH          3
+
 /* The event manager keeps a fixed pool of doubly-linked input records. */
 typedef struct InputEvent {
     short type;                       /* +0x00 */

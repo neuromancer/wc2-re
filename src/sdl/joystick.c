@@ -807,8 +807,8 @@ static void SdlQueueScanCodePress(unsigned short scanCode)
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse.  WC2 key events are
        type 4 for a press and type 5 for a release. */
-    QueueInputEvent(5, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
-    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
 }
 
 int SdlGetCommunicationMenuSelection(void)
@@ -941,7 +941,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     spaceflightActive = g_bSdlJoystickSpaceflightActive &&
         g_176_pfnCurrentInputPump == get_player_input &&
         g_nArcadeState == 0;
-    eventType = pressed ? 4 : 5;
+    eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
             g_bSceneEscapeRequested = 1;
@@ -957,8 +957,8 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     if (button == SDL_JOYSTICK_BUTTON_Y &&
         !spaceflightActive && g_bInputEventQueueEnabled != 0) {
-        QueueInputEvent(5, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
-        QueueInputEvent(4, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
+        QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
         return;
     }
     if (!spaceflightActive ||

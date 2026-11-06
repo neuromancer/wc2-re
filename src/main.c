@@ -421,7 +421,7 @@ void get_player_input(void)
         return;
     ReadCalibratedJoystick();
     buttons = (short)(g_aInputDeviceSamplesList[
-        g_8_nActiveInputDeviceWord].buttons & 3);
+        g_8_nActiveInputDeviceWord].buttons & INPUT_BUTTON_BOTH);
     g_wSavedInputDeviceButtonState =
         g_wFlightInputButtonState =
         g_12_wInputDeviceButtonStatus;
@@ -429,32 +429,32 @@ void get_player_input(void)
     g_wFlightInputButtonState |= buttons;
     g_12_wInputDeviceButtonStatus =
         g_wFlightInputButtonState;
-    if ((buttons & 1) != 0) {
-        TranslatePolledInputEvent(10, (unsigned int)buttons);
+    if ((buttons & INPUT_BUTTON_PRIMARY) != 0) {
+        TranslatePolledInputEvent(POLLED_INPUT_BUTTON_DOWN, (unsigned int)buttons);
         g_bFlightButtonOneHeld = 1;
     } else if (g_bFlightButtonOneHeld != 0) {
-        TranslatePolledInputEvent(0x45, 1);
+        TranslatePolledInputEvent(POLLED_INPUT_BUTTON_UP, INPUT_BUTTON_PRIMARY);
         g_bFlightButtonOneHeld = 0;
     }
-    if ((buttons & 2) != 0) {
-        TranslatePolledInputEvent(10, (unsigned int)buttons);
+    if ((buttons & INPUT_BUTTON_SECONDARY) != 0) {
+        TranslatePolledInputEvent(POLLED_INPUT_BUTTON_DOWN, (unsigned int)buttons);
         g_bFlightButtonTwoHeld = 1;
     } else if (g_bFlightButtonTwoHeld != 0) {
-        TranslatePolledInputEvent(0x45, 2);
+        TranslatePolledInputEvent(POLLED_INPUT_BUTTON_UP, INPUT_BUTTON_SECONDARY);
         g_bFlightButtonTwoHeld = 0;
     }
     if (g_aInputDeviceSamplesList[
             g_8_nActiveInputDeviceWord].x != 0 ||
         g_aInputDeviceSamplesList[
             g_8_nActiveInputDeviceWord].y != 0) {
-        TranslatePolledInputEvent(7, (unsigned int)buttons);
+        TranslatePolledInputEvent(INPUT_EVENT_JOYSTICK_MOVE, (unsigned int)buttons);
     } else if (g_aInputDeviceSamplesList[
                    g_8_nActiveInputDeviceWord].x !=
                    g_stCurrentFlightInput.x ||
                g_aInputDeviceSamplesList[
                    g_8_nActiveInputDeviceWord].y !=
                    g_stCurrentFlightInput.y) {
-        TranslatePolledInputEvent(7, (unsigned int)buttons);
+        TranslatePolledInputEvent(INPUT_EVENT_JOYSTICK_MOVE, (unsigned int)buttons);
     }
     g_stCurrentFlightInput =
         g_aInputDeviceSamplesList[g_8_nActiveInputDeviceWord];
@@ -728,14 +728,15 @@ short player_input(void)
     savedPlayerInputActive = g_10_bPlayerInputActive;
     g_10_bPlayerInputActive = 1;
     ServiceInputDevices(15);
-    g_19_bPolledFlightInputQueued = IsInputEventQueued(7);
+    g_19_bPolledFlightInputQueued = IsInputEventQueued(INPUT_EVENT_JOYSTICK_MOVE);
     g_bMouseMoveEventQueued =
-        (signed char)IsInputEventQueued(3);
+        (signed char)IsInputEventQueued(INPUT_EVENT_MOUSE_MOVE);
     g_1_bDiscreteFlightInputWaiting =
-        (short)(IsInputEventQueued(4) | IsInputEventQueued(6));
+        (short)(IsInputEventQueued(INPUT_EVENT_KEY_DOWN) |
+                IsInputEventQueued(INPUT_EVENT_LEGACY_6));
     if (g_bMouseMoveEventQueued == 0)
         g_cCurrentKey |= (signed char)0x80;
-    if (IsInputEventQueued(5) != 0) {
+    if (IsInputEventQueued(INPUT_EVENT_KEY_UP) != 0) {
         g_cCurrentKey |= (signed char)0x80;
         if (g_19_bPolledFlightInputQueued == 0 &&
             g_nCockpitControlState == 0) {
@@ -748,8 +749,8 @@ short player_input(void)
 
     buttons = mouse->secondaryButton * 2 | mouse->primaryButton;
     if (buttons != 0) {
-        if ((buttons & 1) != 0) {
-            if ((buttons & 2) != 0) {
+        if ((buttons & INPUT_BUTTON_PRIMARY) != 0) {
+            if ((buttons & INPUT_BUTTON_SECONDARY) != 0) {
                 if (g_bSecondaryMouseButtonHeld == 1)
                     fire_players_lasers();
                 else
@@ -758,18 +759,18 @@ short player_input(void)
                 fire_players_lasers();
             }
         }
-        if (buttons == 3)
+        if (buttons == INPUT_BUTTON_BOTH)
             g_cCurrentKey = 0x1c;
     } else {
         g_bMouseFireButtonLatched = 0;
     }
 
-    while ((inputCode = GetNextInputEvent(&message)) != 0) {
+    while ((inputCode = GetNextInputEvent(&message)) != INPUT_EVENT_NONE) {
         switch (inputCode) {
-        case 3:
+        case INPUT_EVENT_MOUSE_MOVE:
             if (inputPolled != 0)
                 break;
-            boostControl = (short)(message.modifiers & 2);
+            boostControl = (short)(message.modifiers & INPUT_MOD_SECONDARY_BUTTON);
             if (boostControl != 0 &&
                 g_aeSpecialManeuver[0] ==
                     SPECIAL_MANEUVER_AFTERBURNER)
@@ -849,7 +850,7 @@ short player_input(void)
                     g_nMousePitchInput = mouseY;
             }
             break;
-        case 7:
+        case INPUT_EVENT_JOYSTICK_MOVE:
             inputPolled = 1;
             g_cCurrentKey = (signed char)PollKeyboardState();
             if (g_cCurrentKey != 0)
@@ -857,7 +858,7 @@ short player_input(void)
             g_nCockpitControlGoal = 0;
             g_nCockpitControlState =
                 g_nCockpitControlGoal;
-            boostControl = (short)(message.modifiers & 2);
+            boostControl = (short)(message.modifiers & INPUT_MOD_SECONDARY_BUTTON);
             if (boostControl != 0 &&
                 g_aeSpecialManeuver[0] ==
                     SPECIAL_MANEUVER_AFTERBURNER)
@@ -884,14 +885,14 @@ short player_input(void)
                 }
             }
             break;
-        case 2:
-            if (message.value == 2)
+        case INPUT_EVENT_BUTTON_UP:
+            if (message.value == INPUT_BUTTON_SECONDARY)
                 g_bSecondaryMouseButtonHeld = 0;
             break;
-        case 1:
-            if ((message.modifiers & 1) != 0) {
+        case INPUT_EVENT_BUTTON_DOWN:
+            if ((message.modifiers & INPUT_MOD_PRIMARY_BUTTON) != 0) {
                 g_cCurrentKey = 0x39;
-                if ((message.modifiers & 2) != 0) {
+                if ((message.modifiers & INPUT_MOD_SECONDARY_BUTTON) != 0) {
                     if (g_bSecondaryMouseButtonHeld == 1)
                         fire_players_lasers();
                     else
@@ -900,12 +901,12 @@ short player_input(void)
                     fire_players_lasers();
                 }
             }
-            if (message.value == 2 && message.status > 1)
+            if (message.value == INPUT_BUTTON_SECONDARY && message.status > 1)
                 g_bSecondaryMouseButtonHeld = 1;
             break;
-        case 6:
+        case INPUT_EVENT_LEGACY_6:
             keyHandled = 1;
-        case 4:
+        case INPUT_EVENT_KEY_DOWN:
 #ifdef SDL_PORT
             trailingKeyRelease = 0;
 #endif
@@ -914,7 +915,7 @@ short player_input(void)
             process_player_input();
             break;
 #ifdef SDL_PORT
-        case 5:
+        case INPUT_EVENT_KEY_UP:
             trailingKeyRelease = 1;
             break;
 #endif
@@ -935,7 +936,7 @@ short player_input(void)
     if (g_bSecondaryMouseButtonHeld == 1)
         g_cCurrentKey = 0xf;
     if ((g_cCurrentKey & 0x80) != 0 &&
-        (g_stCurrentFlightInput.buttons & 1) != 0)
+        (g_stCurrentFlightInput.buttons & INPUT_BUTTON_PRIMARY) != 0)
         g_cCurrentKey = 0x39;
     if ((g_cCurrentKey & 0x80) != 0 &&
         (g_6_wQueuedButtonsState & 1) != 0)
