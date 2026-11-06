@@ -7,15 +7,15 @@
 #define FL_C
 #include "game.h"
 
-unsigned char g_abManeuverRerollChance_0049b538[50] = {
+unsigned char g_abManeuverRerollChance[50] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0,
     0, 0, 0
-};
+}; /* 0x0049b538 */
 /* perform_maneuver (0x4426AF) dispatches through this table; its guard admits
  * maneuvers 0 through 0x31, and "Maneuver error %d" follows at 0x49B638. */
-void (*g_apManeuverHandlers_0049b570[50])(short, short) = {
+void (*g_apManeuverHandlers[50])(short, short) = {
     /* 00 */ (void (*)(short, short))Mnone,
     /* 01 */ (void (*)(short, short))Mnone,
     /* 02 */ (void (*)(short, short))Mveer_away,
@@ -74,9 +74,9 @@ void (*g_apManeuverHandlers_0049b570[50])(short, short) = {
  * the overrun. */
 #ifdef SDL_PORT
 #define MANEUVER_REROLL_CHANCE(m) \
-    ((m) != MANEUVER_NONE ? g_abManeuverRerollChance_0049b538[m] : 0)
+    ((m) != MANEUVER_NONE ? g_abManeuverRerollChance[m] : 0)
 #else
-#define MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance_0049b538[m]
+#define MANEUVER_REROLL_CHANCE(m) g_abManeuverRerollChance[m]
 #endif
 
 /* WC2 adds the target's collision radius before it has checked the target, so
@@ -85,15 +85,15 @@ void (*g_apManeuverHandlers_0049b570[50])(short, short) = {
  * native port rather than cross a global's sanitizer redzone. */
 #ifdef SDL_PORT
 #define COLLISION_RADIUS_OF(obj) \
-    ((obj) != -1 ? g_asObjectCollisionRadius_004950e8[obj] : 0)
+    ((obj) != -1 ? g_asObjectCollisionRadius[obj] : 0)
 #else
-#define COLLISION_RADIUS_OF(obj) g_asObjectCollisionRadius_004950e8[obj]
+#define COLLISION_RADIUS_OF(obj) g_asObjectCollisionRadius[obj]
 #endif
 
 /* Function start: 0x440490 */
 void HandleUnsupportedManeuver(short maneuver, short ship, short target)
 {
-    if (g_nOriginDevUnlock_0049d774 != 0)
+    if (g_nOriginDevUnlock != 0)
         printf("Maneuver error %d", maneuver);
     Mzip_past(ship, target);
 }
@@ -101,12 +101,12 @@ void HandleUnsupportedManeuver(short maneuver, short ship, short target)
 /* Function start: 0x4404CC */
 void BeginShipCloak(short ship)
 {
-    if (g_anShipCloakState_00496020[ship] != 1) {
-        g_anShipCloakState_00496020[ship] = 1;
+    if (g_anShipCloakState[ship] != 1) {
+        g_anShipCloakState[ship] = 1;
         recalc_max_velocity(ship);
-        g_asShipCloakElapsedFrames_00496060[ship] = 0;
-        if (g_asObjectScreenX_00493598[ship] != -0x7fff &&
-            g_nCannedSceneMode_0049021c == 0)
+        g_asShipCloakElapsedFrames[ship] = 0;
+        if (g_asObjectScreenX[ship] != -0x7fff &&
+            g_nCannedSceneMode == 0)
             PlaySfxWaveFileByNumber(44, ship, 0);
     }
 }
@@ -114,30 +114,30 @@ void BeginShipCloak(short ship)
 /* Function start: 0x440549 */
 void ResetShipCloakState(short ship)
 {
-    g_anShipCloakState_00496020[ship] = 0;
-    g_asShipCloakCooldown_00496048[ship] = 40;
+    g_anShipCloakState[ship] = 0;
+    g_asShipCloakCooldown[ship] = 40;
 }
 
 /* Function start: 0x440571 */
 void chase_speed(short obj, short range)
 {
-    if (range < g_nTargetRange_0049319c) {
+    if (range < g_nTargetRange) {
         approach_full_speed(obj);
-        if (range * 2 < g_nTargetRange_0049319c)
+        if (range * 2 < g_nTargetRange)
             fire_afterburner(obj, 2);
-    } else if (range > g_nTargetRange_0049319c) {
+    } else if (range > g_nTargetRange) {
         approach_zero_speed(obj);
     } else {
         approach_speed(obj,
-                       g_anShipSpeed_00494e20[
-                           g_acShipTarget_00495f20[obj]]);
+                       g_anShipSpeed[
+                           g_acShipTarget[obj]]);
     }
 }
 
 /* Function start: 0x440606 */
 void SetShipAiScratchWord(unsigned short v)
 {
-    g_nShipAiScratchValue_005b30f0 = v;
+    g_nShipAiScratchValue = v;
 }
 
 /* Function start: 0x44061B */
@@ -152,22 +152,22 @@ void Mline_up_drop(short ship, short target)
 {
     /* The shipped comparison normalizes this test to 0/1, then compares it
        with 9.  We therefore believe this completion path is unreachable. */
-    if ((g_aeSpecialManeuver_00495600[target] ==
+    if ((g_aeSpecialManeuver[target] ==
          SPECIAL_MANEUVER_NORMAL) == 9) {
         maneuver_complete(ship);
         return;
     }
     if (CanSetNewShipTurnGoal(ship) != 0) {
-        point_ship_at_point(ship, &g_aShipPosition_00494550[target]);
-        g_anRollGoal_004954d8[ship] = 360;
+        point_ship_at_point(ship, &g_aShipPosition[target]);
+        g_anRollGoal[ship] = 360;
     }
 }
 
 /* Function start: 0x4406BA */
 void Mwabble(short ship)
 {
-    g_asShipCount_00495ff8[ship]++;
-    if (g_asShipCount_00495ff8[ship] > 20) {
+    g_asShipCount[ship]++;
+    if (g_asShipCount[ship] > 20) {
         maneuver_complete(ship);
         return;
     }
@@ -176,13 +176,13 @@ void Mwabble(short ship)
     if (CanSetNewShipTurnGoal(ship) != 0) {
         switch (RandomBelowOrEqual(2)) {
         case 0:
-            g_anYawGoal_004954c0[ship] = signed_random(6) * 5;
+            g_anYawGoal[ship] = signed_random(6) * 5;
             break;
         case 1:
-            g_anPitchGoal_004954a8[ship] = signed_random(6) * 5;
+            g_anPitchGoal[ship] = signed_random(6) * 5;
             break;
         default:
-            g_anRollGoal_004954d8[ship] = signed_random(10) * 5;
+            g_anRollGoal[ship] = signed_random(10) * 5;
         }
     }
 }
@@ -190,8 +190,8 @@ void Mwabble(short ship)
 /* Function start: 0x4407B0 */
 void advance(short ship)
 {
-    if (g_asShipManeuver_00495f48[ship] != MANEUVER_NONE)
-        g_acShipSequence_00495fe8[ship]++;
+    if (g_asShipManeuver[ship] != MANEUVER_NONE)
+        g_acShipSequence[ship]++;
 }
 
 /* Function start: 0x4407DA */
@@ -233,9 +233,9 @@ void Mthink(short ship, short target)
 void Mtight_loop(short ship)
 {
     approach_cruise_speed(ship);
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anPitchGoal_004954a8[ship] = 180;
+        g_anPitchGoal[ship] = 180;
         advance(ship);
         return;
     case 1:
@@ -244,7 +244,7 @@ void Mtight_loop(short ship)
         approach_cruise_speed(ship);
         break;
     case 2:
-        g_anPitchGoal_004954a8[ship] = 180;
+        g_anPitchGoal[ship] = 180;
         advance(ship);
         return;
     case 3:
@@ -262,20 +262,20 @@ void Mhard_break(short ship)
     short advanceSequence;
 
     advanceSequence = 1;
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         set_special(ship, SPECIAL_MANEUVER_KILL_ENGINES);
         break;
     case 1:
-        advanceSequence = ++g_asShipCount_00495ff8[ship] > 3;
+        advanceSequence = ++g_asShipCount[ship] > 3;
         if (advanceSequence != 0)
-            g_asShipCount_00495ff8[ship] = 0;
+            g_asShipCount[ship] = 0;
         break;
     case 2:
         fire_super_brake(ship);
         break;
     case 3:
-        advanceSequence = ++g_asShipCount_00495ff8[ship] > 3;
+        advanceSequence = ++g_asShipCount[ship] > 3;
         if (advanceSequence != 0)
             maneuver_complete(ship);
         break;
@@ -292,18 +292,18 @@ void Msit_n_spin(short ship, short target)
     FixedVector aimPoint;
 
     advanceSequence = 1;
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        if (++g_asShipCount_00495ff8[ship] < 4) {
-            approach_speed(ship, g_anShipSpeed_00494e20[target]);
-            ScaleFixedVector(&g_aShipForwardVector_00494208[target],
-                             g_nTargetRange_0049319c * 2, &aimPoint);
-            AddFixedVectors(&g_aShipPosition_00494550[target],
+        if (++g_asShipCount[ship] < 4) {
+            approach_speed(ship, g_anShipSpeed[target]);
+            ScaleFixedVector(&g_aShipForwardVector[target],
+                             g_nTargetRange * 2, &aimPoint);
+            AddFixedVectors(&g_aShipPosition[target],
                             &aimPoint, &aimPoint);
             point_ship_at_point(ship, &aimPoint);
             advanceSequence = 0;
         } else {
-            g_asShipCount_00495ff8[ship] = 0;
+            g_asShipCount[ship] = 0;
         }
         break;
     case 1:
@@ -312,9 +312,9 @@ void Msit_n_spin(short ship, short target)
     case 2:
         break;
     case 3:
-        if (labs(g_anShipSpeed_00494e20[ship] -
-                g_anShipSpeed_00494e20[target]) < 0x200) {
-            approach_speed(ship, g_anShipSpeed_00494e20[target]);
+        if (labs(g_anShipSpeed[ship] -
+                g_anShipSpeed[target]) < 0x200) {
+            approach_speed(ship, g_anShipSpeed[target]);
             advanceSequence = 0;
         }
         break;
@@ -329,9 +329,9 @@ void Msit_n_spin(short ship, short target)
         advanceSequence = no_goal(ship);
         break;
     case 7:
-        if (g_nFacingToTarget_00493194 > 85)
+        if (g_nFacingToTarget > 85)
             fire(ship, target);
-        if (++g_asShipCount_00495ff8[ship] <= 5)
+        if (++g_asShipCount[ship] <= 5)
             advanceSequence = 0;
         break;
     case 8:
@@ -355,16 +355,16 @@ void Mturn_n_spin(short ship, short target)
     short advanceSequence;
 
     advanceSequence = 1;
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         veer_random(ship, 90);
         break;
     case 1:
-        ++g_asShipCount_00495ff8[ship];
-        advanceSequence = g_asShipCount_00495ff8[ship] > 2;
+        ++g_asShipCount[ship];
+        advanceSequence = g_asShipCount[ship] > 2;
         break;
     case 2:
-        advanceSequence = g_nTargetFacing_00493198 <= 80;
+        advanceSequence = g_nTargetFacing <= 80;
         if (advanceSequence == 0) {
             maneuver_complete(ship);
         } else {
@@ -386,13 +386,13 @@ void Mburnout(short ship, short target)
 {
     (void)target;
 
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         fire_afterburner(ship, 10);
         advance(ship);
         break;
     case 1:
-        g_anYawGoal_004954c0[ship] =
+        g_anYawGoal[ship] =
             (short)((RandomBelowOrEqual(2) * 2 - 1) * 90);
         advance(ship);
         break;
@@ -406,13 +406,13 @@ void Mburnout(short ship, short target)
 /* Function start: 0x440F01 */
 void Mkickit(short ship)
 {
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         fire_afterburner(ship, 10);
         advance(ship);
         break;
     default:
-        if (g_aeSpecialManeuver_00495600[ship] ==
+        if (g_aeSpecialManeuver[ship] ==
             SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
     }
@@ -425,11 +425,11 @@ void Mturn_n_kick(short ship)
     short obj;
 
     pointed = 0;
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         for (obj = 0; obj < 10; obj++) {
-            if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_MISSILE &&
-                g_acShipTarget_00495f20[obj] == ship) {
+            if (g_aeObjectClass[obj] == OBJECT_CLASS_MISSILE &&
+                g_acShipTarget[obj] == ship) {
                 point_perpendicular(ship, obj);
                 pointed = 1;
                 break;
@@ -448,7 +448,7 @@ void Mturn_n_kick(short ship)
         }
         break;
     case 2:
-        if (g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE)
+        if (g_aeSpecialManeuver[ship] == SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
     }
 }
@@ -456,11 +456,11 @@ void Mturn_n_kick(short ship)
 /* Function start: 0x4410C0 */
 void Mroll_over(short ship)
 {
-    if (g_acShipSequence_00495fe8[ship] == 0) {
+    if (g_acShipSequence[ship] == 0) {
         advance(ship);
-        g_anRollGoal_004954d8[ship] =
+        g_anRollGoal[ship] =
             (RandomBelowOrEqual(2) * 2 - 1) * 180;
-    } else if (g_anRollGoal_004954d8[ship] == 0) {
+    } else if (g_anRollGoal[ship] == 0) {
         maneuver_complete(ship);
     } else {
         approach_full_speed(ship);
@@ -471,9 +471,9 @@ void Mroll_over(short ship)
 void Mhard_turn(short ship)
 {
     approach_full_speed(ship);
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anYawGoal_004954c0[ship] =
+        g_anYawGoal[ship] =
             (RandomBelowOrEqual(2) * 2 - 1) * 180;
         advance(ship);
         break;
@@ -489,9 +489,9 @@ void Mfish_hook(short ship, short target)
     short advanceSequence = 1;
 
     (void)target;
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anYawGoal_004954c0[ship] =
+        g_anYawGoal[ship] =
             (RandomBelowOrEqual(2) * 2 - 1) * 120;
         fire_afterburner(ship, 5);
         break;
@@ -501,13 +501,13 @@ void Mfish_hook(short ship, short target)
         break;
     case 2:
         fire_super_brake(ship);
-        g_anYawGoal_004954c0[ship] =
+        g_anYawGoal[ship] =
             (RandomBelowOrEqual(2) * 2 - 1) * 45;
         break;
     case 3:
         advanceSequence =
-            g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[ship]].cruiseVelocity >=
+            g_aObjectTypeData[
+                g_acObjectType[ship]].cruiseVelocity >=
             real_velocity(ship);
         break;
     case 4:
@@ -530,14 +530,14 @@ void Mtry2tail(short ship, short target)
     FixedVector position;
 
     if (unactive(target) == 0) {
-        position = g_aShipPosition_00494550[target];
-        position_relative(&position, g_aShipRightVector_00493b78[target],
-                          (short)-(g_asObjectCollisionRadius_004950e8[target] +
+        position = g_aShipPosition[target];
+        position_relative(&position, g_aShipRightVector[target],
+                          (short)-(g_asObjectCollisionRadius[target] +
                                    1000));
         point_ship_at_point(ship, &position);
         fire_afterburner(ship, 10);
-        if (g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE ||
-            g_nTargetRange_0049319c < 0x1f40)
+        if (g_aeSpecialManeuver[ship] == SPECIAL_MANEUVER_NONE ||
+            g_nTargetRange < 0x1f40)
             maneuver_complete(ship);
     } else {
         maneuver_complete(ship);
@@ -548,9 +548,9 @@ void Mtry2tail(short ship, short target)
 void Msplit_left(short ship)
 {
     approach_full_speed(ship);
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anYawGoal_004954c0[ship] = 90;
+        g_anYawGoal[ship] = 90;
         advance(ship);
         break;
     case 1:
@@ -559,7 +559,7 @@ void Msplit_left(short ship)
         /* The retail switch falls through into the completion test. */
     default:
         if (no_goal(ship) != 0 &&
-            g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE)
+            g_aeSpecialManeuver[ship] == SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
         break;
     }
@@ -569,9 +569,9 @@ void Msplit_left(short ship)
 void Msplit_right(short ship)
 {
     approach_full_speed(ship);
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anYawGoal_004954c0[ship] = -90;
+        g_anYawGoal[ship] = -90;
         advance(ship);
         break;
     case 1:
@@ -580,7 +580,7 @@ void Msplit_right(short ship)
         /* The retail switch falls through into the completion test. */
     default:
         if (no_goal(ship) != 0 &&
-            g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE)
+            g_aeSpecialManeuver[ship] == SPECIAL_MANEUVER_NONE)
             maneuver_complete(ship);
         break;
     }
@@ -589,21 +589,21 @@ void Msplit_right(short ship)
 /* Function start: 0x4415DC */
 void Mgloat(short ship)
 {
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         set_special(ship, SPECIAL_MANEUVER_KILL_ENGINES);
         advance(ship);
         break;
     case 1:
-        g_anPitchGoal_004954a8[ship] = 15;
+        g_anPitchGoal[ship] = 15;
         if (RandomBelow(100) < 50)
             advance(ship);
         break;
     default:
-        g_anPitchGoal_004954a8[ship] = -30;
+        g_anPitchGoal[ship] = -30;
         if (RandomBelow(100) < 50) {
-            if (++g_asShipCount_00495ff8[ship] < 10)
-                g_acShipSequence_00495fe8[ship] = 1;
+            if (++g_asShipCount[ship] < 10)
+                g_acShipSequence[ship] = 1;
             else
                 maneuver_complete(ship);
         }
@@ -617,8 +617,8 @@ void Mtail_fire(short ship, short target)
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
     chase_speed(ship,
-        (short)(g_asObjectCollisionRadius_004950e8[ship] * 6 +
-                g_asObjectCollisionRadius_004950e8[target]));
+        (short)(g_asObjectCollisionRadius[ship] * 6 +
+                g_asObjectCollisionRadius[target]));
     fire(ship, target);
 }
 
@@ -627,15 +627,15 @@ void Mzip_past(short ship, short target)
 {
     if (unactive(target) == 0) {
         if (close_behind(
-                g_asObjectCollisionRadius_004950e8[target] + 2000) != 0) {
+                g_asObjectCollisionRadius[target] + 2000) != 0) {
             Mtail_fire(ship, target);
         } else {
             approach_full_speed(ship);
-            if (g_nTargetRange_0049319c > 3000 &&
-                g_nFacingToTarget_00493194 > 75)
+            if (g_nTargetRange > 3000 &&
+                g_nFacingToTarget > 75)
                 fire_afterburner(ship, 3);
             if (CanSetNewShipTurnGoal(ship) != 0) {
-                if (g_nTargetFacing_00493198 > 80)
+                if (g_nTargetFacing > 80)
                     point_ship_below_object(ship, target);
                 else
                     point_ship_behind_object(ship, target);
@@ -651,8 +651,8 @@ void Mzip_past(short ship, short target)
  * unavailable. */
 void ShipAiState47(short ship, short target)
 {
-    if (g_asShipCloakCooldown_00496048[ship] == 0 &&
-        g_anShipCloakState_00496020[ship] == 0) {
+    if (g_asShipCloakCooldown[ship] == 0 &&
+        g_anShipCloakState[ship] == 0) {
         maneuver_complete(ship);
         BeginShipCloak(ship);
     } else {
@@ -673,11 +673,11 @@ void ShipAiState28(short ship, short target)
  * wait for the turn to finish. */
 void ShipAiState46(short ship)
 {
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        g_anRollGoal_004954d8[ship] =
+        g_anRollGoal[ship] =
             (short)((2 * RandomBelowOrEqual(2) - 1) * 180);
-        g_anYawGoal_004954c0[ship] =
+        g_anYawGoal[ship] =
             (short)((2 * RandomBelowOrEqual(2) - 1) * 60);
         approach_full_speed(ship);
         fire_afterburner(ship, 10);
@@ -686,7 +686,7 @@ void ShipAiState46(short ship)
     default:
         approach_full_speed(ship);
         if (no_goal(ship) != 0) {
-            DAT_004960f0[ship] = 0;
+            g_asProjectileEvasionTicks[ship] = 0;
             maneuver_complete(ship);
         }
     }
@@ -698,8 +698,8 @@ void Mram_missile(short ship, short target)
     approach_full_speed(ship);
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
-    if (g_nFacingToTarget_00493194 > 75 &&
-        g_nTargetRange_0049319c < 6000) {
+    if (g_nFacingToTarget > 75 &&
+        g_nTargetRange < 6000) {
         fire_missile(ship);
         maneuver_complete(ship);
     }
@@ -708,7 +708,7 @@ void Mram_missile(short ship, short target)
 /* Function start: 0x441A13 */
 void Mbuzz_debris(short ship)
 {
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         veer_random(ship, 10);
         advance(ship);
@@ -722,10 +722,10 @@ void Mbuzz_debris(short ship)
         }
         break;
     default:
-        if (g_aeSpecialManeuver_00495600[ship] ==
+        if (g_aeSpecialManeuver[ship] ==
             SPECIAL_MANEUVER_NONE) {
             maneuver_complete(ship);
-        } else if (g_nFacingToTarget_00493194 > 95) {
+        } else if (g_nFacingToTarget > 95) {
             veer_random(ship, 10);
         }
     }
@@ -735,15 +735,15 @@ void Mbuzz_debris(short ship)
 void Mstrafe_enemy(short ship, short target)
 {
     point_ship_at_object(ship, target);
-    if (g_asObjectType_00495298[ship] == 0x33 &&
-        (g_asShipMissionType_00495de8[ship] == 2 ||
-         g_aeObjectClass_00495328[target] >= 0xd)) {
-        if (g_nTargetRange_0049319c < 3000)
+    if (g_asObjectType[ship] == 0x33 &&
+        (g_asShipMissionType[ship] == 2 ||
+         g_aeObjectClass[target] >= 0xd)) {
+        if (g_nTargetRange < 3000)
             approach_zero_speed(ship);
         else
             approach_cruise_speed(ship);
     }
-    if (g_nTargetRange_0049319c > 5000)
+    if (g_nTargetRange > 5000)
         fire_afterburner(ship, 10);
     fire(ship, target);
     maneuver_complete(ship);
@@ -752,7 +752,7 @@ void Mstrafe_enemy(short ship, short target)
 /* Function start: 0x441BC1 */
 void Mbest_strafe(short ship, short target)
 {
-    if (g_nTargetFacing_00493198 < 0x50) {
+    if (g_nTargetFacing < 0x50) {
         Mstrafe_enemy(ship, target);
         return;
     }
@@ -763,7 +763,7 @@ void Mbest_strafe(short ship, short target)
 void Mtarget_missile(short ship, short target)
 {
 
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
         point_ship_at_object(ship, target);
         advance(ship);
@@ -780,7 +780,7 @@ void Mtarget_missile(short ship, short target)
         break;
     case 3:
         if (no_goal(ship) != 0 &&
-            g_aeSpecialManeuver_00495600[ship] != -1)
+            g_aeSpecialManeuver[ship] != -1)
             maneuver_complete(ship);
         break;
     }
@@ -792,7 +792,7 @@ void Msit_n_fire(short ship, short target)
 {
     if (CanSetNewShipTurnGoal(ship) != 0)
         point_ship_at_object(ship, target);
-    if (g_nTargetRange_0049319c > 3000)
+    if (g_nTargetRange > 3000)
         approach_cruise_speed(ship);
     else
         approach_zero_speed(ship);
@@ -802,8 +802,8 @@ void Msit_n_fire(short ship, short target)
 /* Function start: 0x441D71 */
 void Mstrafe_n_roll(short ship, short target)
 {
-    if (0 < g_asObjectCounter_00494be0[ship]) {
-        g_anRollGoal_004954d8[ship] = 0x2d;
+    if (0 < g_asObjectCounter[ship]) {
+        g_anRollGoal[ship] = 0x2d;
         return;
     }
     Mstrafe_enemy(ship, target);
@@ -816,20 +816,20 @@ void Mkill_missile(short ship, short target)
         maneuver_complete(ship);
         return;
     }
-    get_facing_range_from_object(ship, g_nTargetShip_004931a0);
-    if (g_nFacingToTarget_00493194 < 0) {
+    get_facing_range_from_object(ship, g_nTargetShip);
+    if (g_nFacingToTarget < 0) {
         reset_maneuver(ship, MANEUVER_FISH_HOOK);
         Mfish_hook(ship, target);
         return;
     }
-    if (g_nFacingToTarget_00493194 < 80) {
+    if (g_nFacingToTarget < 80) {
         reset_maneuver(ship, MANEUVER_BURNOUT);
         Mburnout(ship, target);
         return;
     }
-    point_ship_at_object(ship, g_nTargetShip_004931a0);
-    if (g_nTargetRange_0049319c < 8000)
-        fire(ship, g_acShipTarget_00495f20[ship]);
+    point_ship_at_object(ship, g_nTargetShip);
+    if (g_nTargetRange < 8000)
+        fire(ship, g_acShipTarget[ship]);
 }
 
 /* Function start: 0x441E9C */
@@ -842,17 +842,17 @@ void Msuicide_run(short ship, short target)
 /* Function start: 0x441EC8 */
 void Mget_distance(short ship, short target)
 {
-    if (g_nTargetRange_0049319c > 2000) {
+    if (g_nTargetRange > 2000) {
         maneuver_complete(ship);
         return;
     }
-    if (g_nTargetRange_0049319c < 700 && normal_speed(ship) != 0)
+    if (g_nTargetRange < 700 && normal_speed(ship) != 0)
         fire_afterburner(ship, 10);
     else
         approach_full_speed(ship);
-    if (g_nFacingToTarget_00493194 > 0 && CanSetNewShipTurnGoal(ship) != 0)
+    if (g_nFacingToTarget > 0 && CanSetNewShipTurnGoal(ship) != 0)
         steer_away_from_object(ship, target,
-                               MinShort(20, g_nFacingToTarget_00493194));
+                               MinShort(20, g_nFacingToTarget));
 }
 
 /* Function start: 0x441F86 */
@@ -862,30 +862,30 @@ void general_zig(short ship, unsigned int target, short pitch)
 
     (void)target;
     complete = 1;
-    switch (g_acShipSequence_00495fe8[ship] % 6) {
+    switch (g_acShipSequence[ship] % 6) {
     case 0:
         fire_afterburner(ship, 10);
-        g_anYawGoal_004954c0[ship] = -60;
-        g_anPitchGoal_004954a8[ship] = pitch;
+        g_anYawGoal[ship] = -60;
+        g_anPitchGoal[ship] = pitch;
         break;
     case 3:
         fire_afterburner(ship, 10);
-        g_anYawGoal_004954c0[ship] = 60;
-        g_anPitchGoal_004954a8[ship] = (short)-pitch;
+        g_anYawGoal[ship] = 60;
+        g_anPitchGoal[ship] = (short)-pitch;
         break;
     case 1:
     case 4:
         complete = no_goal(ship);
-        g_asShipCount_00495ff8[ship] = 0;
+        g_asShipCount[ship] = 0;
         break;
     case 2:
     case 5:
-        g_asShipCount_00495ff8[ship]++;
-        complete = (short)(g_asShipCount_00495ff8[ship] >= 2);
+        g_asShipCount[ship]++;
+        complete = (short)(g_asShipCount[ship] >= 2);
         break;
     }
-    if (g_acShipSequence_00495fe8[ship] >= 12 &&
-        g_aeSpecialManeuver_00495600[ship] == SPECIAL_MANEUVER_NONE &&
+    if (g_acShipSequence[ship] >= 12 &&
+        g_aeSpecialManeuver[ship] == SPECIAL_MANEUVER_NONE &&
         no_goal(ship) != 0)
         maneuver_complete(ship);
     if (complete != 0)
@@ -909,53 +909,53 @@ void Mcorkscrew(short ship)
 {
     approach_full_speed(ship);
     if (no_goal(ship) != 0) {
-        if (--g_asShipCount_00495ff8[ship] <= 0) {
-            switch (g_acShipSequence_00495fe8[ship] % 4) {
+        if (--g_asShipCount[ship] <= 0) {
+            switch (g_acShipSequence[ship] % 4) {
             case 0:
-                g_anYawGoal_004954c0[ship] = -20;
+                g_anYawGoal[ship] = -20;
                 break;
             case 2:
-                g_anYawGoal_004954c0[ship] = 20;
+                g_anYawGoal[ship] = 20;
                 break;
             case 1:
             case 3:
-                g_anRollGoal_004954d8[ship] = 20;
+                g_anRollGoal[ship] = 20;
                 break;
             }
-            g_asShipCount_00495ff8[ship] = 4;
+            g_asShipCount[ship] = 4;
             advance(ship);
         }
     }
-    if (g_acShipSequence_00495fe8[ship] > 8)
+    if (g_acShipSequence[ship] > 8)
         maneuver_complete(ship);
 }
 
 /* Function start: 0x442252 */
 void Mveer_away(short ship, short target)
 {
-    switch (g_acShipSequence_00495fe8[ship]) {
+    switch (g_acShipSequence[ship]) {
     case 0:
-        if (g_nFacingToTarget_00493194 > 80)
+        if (g_nFacingToTarget > 80)
             steer_away_from_object(ship, target, 40);
         else
             steer_away_from_object(ship, target, 10);
         advance(ship);
         break;
     default:
-        if (g_asObjectCollisionRadius_004950e8[target] * 3 <
-            g_nTargetRange_0049319c) {
+        if (g_asObjectCollisionRadius[target] * 3 <
+            g_nTargetRange) {
             veer_random(ship, 8);
             maneuver_complete(ship);
         } else {
             if (no_goal(ship) != 0) {
-                if (g_nFacingToTarget_00493194 > 80) {
+                if (g_nFacingToTarget > 80) {
                     steer_away_from_object(ship, target, 40);
-                } else if (g_nFacingToTarget_00493194 < -65 ||
+                } else if (g_nFacingToTarget < -65 ||
                            RandomBelowOrEqual(100) < 4) {
                     veer_random(ship, 16);
                 }
             }
-            if ((g_nShipAiScratchValue_005b30f0 >= g_nTargetRange_0049319c ||
+            if ((g_nShipAiScratchValue >= g_nTargetRange ||
                  RandomBelowOrEqual(100) < 10) &&
                 normal_speed(ship) != 0)
                 fire_afterburner(ship, 10);
@@ -968,7 +968,7 @@ void Mveer_away(short ship, short target)
 /* Function start: 0x4423E2 */
 void ShipAiState44(short ship)
 {
-    g_acShipStress_00496100[ship] = 0;
+    g_acShipStress[ship] = 0;
     maneuver_complete(ship);
 }
 
@@ -1001,7 +1001,7 @@ void ShipAiState45(short ship, short target)
     if (unactive(target) == 0) {
         approach_full_speed(ship);
         point_ship_at_object(ship, target);
-        if (g_nFacingToTarget_00493194 > 80)
+        if (g_nFacingToTarget > 80)
             fire_afterburner(ship, 10);
     } else {
         maneuver_complete(ship);
@@ -1028,29 +1028,29 @@ void perform_maneuver(short obj)
     short weaponSlot;
     short target;
 
-    target = g_acShipTarget_00495f20[obj];
-    if (g_asIntelligenceEvent_00492fc0[obj] == 6) {
+    target = g_acShipTarget[obj];
+    if (g_asIntelligenceEvent[obj] == 6) {
         weaponSlot = find_weapon(obj, OBJECT_DATA_CHAFF_POD);
         if (weaponSlot != -1)
             fire_weapon(obj, weaponSlot);
     }
-    g_bAiMissileFiringEnabled_00492d58 = 1;
+    g_bAiMissileFiringEnabled = 1;
 
-    previous = g_asShipManeuver_00495f48[obj];
-    g_bCurrentManeuverReroll_005b30f4 =
-        MANEUVER_REROLL_CHANCE(g_asShipManeuver_00495f48[obj]);
-    range = g_nTargetRange_0049319c;
-    if (g_nTargetFacing_00493198 < 0)
+    previous = g_asShipManeuver[obj];
+    g_bCurrentManeuverReroll =
+        MANEUVER_REROLL_CHANCE(g_asShipManeuver[obj]);
+    range = g_nTargetRange;
+    if (g_nTargetFacing < 0)
         SetShipAiScratchWord(
-            (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 4 +
+            (unsigned short)(g_asObjectCollisionRadius[obj] * 4 +
                              COLLISION_RADIUS_OF(target)));
     else
         SetShipAiScratchWord(
-            (unsigned short)(g_asObjectCollisionRadius_004950e8[obj] * 6 +
+            (unsigned short)(g_asObjectCollisionRadius[obj] * 6 +
                              COLLISION_RADIUS_OF(target)));
 
     if (unactive(target) != 0) {
-        switch (g_asShipManeuver_00495f48[obj]) {
+        switch (g_asShipManeuver[obj]) {
         case MANEUVER_GLOAT:
             ((void (__cdecl *)(short, short))Mgloat)(obj, target);
             break;
@@ -1063,23 +1063,23 @@ void perform_maneuver(short obj)
         default:
             maneuver_complete(obj);
         }
-    } else if (g_asShipManeuver_00495f48[obj] >= 0 &&
-               g_asShipManeuver_00495f48[obj] <
+    } else if (g_asShipManeuver[obj] >= 0 &&
+               g_asShipManeuver[obj] <
                    MANEUVER_HANDLER_COUNT) {
-        g_apManeuverHandlers_0049b570[
-            g_asShipManeuver_00495f48[obj]](obj, target);
+        g_apManeuverHandlers[
+            g_asShipManeuver[obj]](obj, target);
     } else {
-        if (g_nOriginDevUnlock_0049d774 != 0) {
+        if (g_nOriginDevUnlock != 0) {
             printf("bigtime_maneuver_error %d %d %d %d", obj,
-                   g_asShipManeuver_00495f48[obj],
-                   g_asShipIntelSlot_00495d30[3],
-                   g_asShipIntelSlot_00495d30[obj]);
+                   g_asShipManeuver[obj],
+                   g_asShipIntelSlot[3],
+                   g_asShipIntelSlot[obj]);
             getch();
         }
         maneuver_complete(obj);
     }
 
-    if (g_asShipManeuver_00495f48[obj] == previous &&
-        RandomBelowOrEqual(100) < g_bCurrentManeuverReroll_005b30f4)
+    if (g_asShipManeuver[obj] == previous &&
+        RandomBelowOrEqual(100) < g_bCurrentManeuverReroll)
         maneuver_complete(obj);
 }

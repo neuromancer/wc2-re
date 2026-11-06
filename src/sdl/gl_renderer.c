@@ -378,20 +378,20 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     memcpy(destination, pixels, sizeof(g_renderer.spaceFrameBase));
     /* Undraw the cursor exactly the way RestoreMouseCursorBackground does:
      * same save area, same captured position, same guards. */
-    if (g_bCurrentInputCursorBackgroundCapturedState_005c80c4 == 0 ||
-        g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
-        g_stEventQueuePointerData_005c83f0.viewport == 0 ||
-        g_stEventQueuePointerData_005c83f0.shape == 0 ||
-        g_stScrViewInfo_005d21a0.pixels != pixels)
+    if (g_6_bCurrentInputCursorBackgroundCapturedState == 0 ||
+        g_nMouseCursorDrawDepth <= 0 ||
+        g_16_stEventQueuePointerData.viewport == 0 ||
+        g_16_stEventQueuePointerData.shape == 0 ||
+        g_101_stScrViewInfo.pixels != pixels)
         return;
-    viewport = g_stScrViewInfo_005d21a0;
+    viewport = g_101_stScrViewInfo;
     viewport.pixels = destination;
     viewport.allocation = destination;
-    RestoreSpriteBackground(&viewport, g_abInputCursorBehind_005c3b10,
-                            (short)g_nCapturedInputCursorX_005c817c,
-                            (short)g_nSavedPointerY_005c8178,
-                            g_stEventQueuePointerData_005c83f0.shape,
-                            g_stEventQueuePointerData_005c83f0.frame);
+    RestoreSpriteBackground(&viewport, g_abInputCursorBehind,
+                            (short)g_4_nCapturedInputCursorX,
+                            (short)g_10_nSavedPointerY,
+                            g_16_stEventQueuePointerData.shape,
+                            g_16_stEventQueuePointerData.frame);
 }
 
 static void *LoadGlFunction(const char *name, int *functionsAvailable)
@@ -1316,7 +1316,7 @@ int SdlGlRendererPresent(const unsigned char *pixels,
     } else if (g_renderer.frameState == GL_FRAME_IDLE &&
                g_renderer.hasLayerSnapshot) {
         CopyBaseWithoutMouse(g_renderer.presentedFrame, pixels);
-        if (g_bSpaceFlightActive_005c586c != 0) {
+        if (g_1_bSpaceFlightActive != 0) {
             memcpy(g_renderer.spaceFrameBase, g_renderer.presentedFrame,
                    sizeof(g_renderer.spaceFrameBase));
             drawSprites = 1;

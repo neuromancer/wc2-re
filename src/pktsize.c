@@ -16,7 +16,7 @@ unsigned int GetPacketSize(const char *filename, short section)
         switch (handle.compression) {
         case 1:
             ReadPacketSectionData(&handle, &size, 4);
-            if (g_nPacketError_0049ca90 != 0)
+            if (g_nPacketError != 0)
                 size = (unsigned int)-1;
             break;
         case 2:

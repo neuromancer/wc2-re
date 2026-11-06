@@ -8,7 +8,7 @@
 /* Function start: 0x45B7E0 */
 short QueryCurrentGraphicsMode(void)
 {
-    if ((short)g_nSpacePaletteFadeMode_004901e8 != -1)
-        return (short)g_nSpacePaletteFadeMode_004901e8;
+    if ((short)g_nSpacePaletteFadeMode != -1)
+        return (short)g_nSpacePaletteFadeMode;
     return 0x13;
 }

@@ -5,13 +5,13 @@
  */
 #include "game.h"
 
-short g_nHazardReferenceSpeed_00492e58 = 0;
-short g_nActiveHazards_00492e5c = 0;
+short g_nHazardReferenceSpeed = 0; /* 0x00492e58 */
+short g_nActiveHazards = 0; /* 0x00492e5c */
 
 /* The cockpit layout packs the hazard pitch range into the two bytes of
  * field_f7: the low byte is the minimum, the high byte the maximum. */
 #define g_acHazardPitchRange \
-    ((const signed char *)&g_nHazardPitchRange_0049af98)
+    ((const signed char *)&g_nHazardPitchRange)
 
 void make_shard(short asteroid, FixedVector direction);
 void init_hazard(short obj, FixedVector position, short moving);
@@ -28,17 +28,17 @@ short easy2see(short obj)
     short x;
     short y;
 
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001) {
+    if (g_asObjectScreenX[obj] == (short)0x8001) {
         return 0;
     } else {
-        x = (short)(g_asObjectScreenX_00493598[obj] + g_nStoredScreenViewCentreX_005c80d8);
-        y = (short)(g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
+        x = (short)(g_asObjectScreenX[obj] + g_15_nStoredScreenViewCentreX);
+        y = (short)(g_asObjectScreenY[obj] + g_37_nViewCenterY);
         return GetTransformedShapeBounds(
-            &g_stViewScratchInfo_005d2b00, x, y, g_apObjectShape_00493868[obj],
-            g_asObjectViewFrame_00493508[obj],
-            g_asObjectScreenAngle_004936b8[obj],
-            g_asObjectScreenScale_00493a58[obj],
-            g_asObjectFlip_004939c8[obj], bounds);
+            &g_27_stViewScratchInfo, x, y, g_apObjectShape[obj],
+            g_asObjectViewFrame[obj],
+            g_asObjectScreenAngle[obj],
+            g_asObjectScreenScale[obj],
+            g_asObjectFlip[obj], bounds);
     }
 }
 
@@ -50,21 +50,21 @@ void make_shard(short asteroid, FixedVector direction)
     fragment = find_vacant_3d_object();
     if (fragment != -1) {
         set_objects_data(fragment, OBJECT_DATA_ROCK_CHUNK, asteroid, 0);
-        g_asObjectCounter_00494be0[fragment] = 40;
-        g_acObjectOwner_00495208[fragment] = (signed char)asteroid;
+        g_asObjectCounter[fragment] = 40;
+        g_acObjectOwner[fragment] = (signed char)asteroid;
         SetVectorFixedPoint(
             (unsigned int *)&direction,
-            (short)(g_asObjectCollisionRadius_004950e8[asteroid] >> 1));
-        AddFixedVectors(&g_aShipPosition_00494550[asteroid], &direction,
-                        &g_aShipPosition_00494550[fragment]);
-        g_aShipForwardVector_00494208[fragment] = direction;
+            (short)(g_asObjectCollisionRadius[asteroid] >> 1));
+        AddFixedVectors(&g_aShipPosition[asteroid], &direction,
+                        &g_aShipPosition[fragment]);
+        g_aShipForwardVector[fragment] = direction;
         fix_objects_ijk(fragment);
         alter_yaw(signed_random(20), fragment);
         alter_pitch(signed_random(20), fragment);
-        g_aShipVelocity_00494898[fragment] =
-            g_aShipForwardVector_00494208[fragment];
+        g_aShipVelocity[fragment] =
+            g_aShipForwardVector[fragment];
         SetVectorFixedPoint(
-            (unsigned int *)&g_aShipVelocity_00494898[fragment],
+            (unsigned int *)&g_aShipVelocity[fragment],
             (short)(real_velocity(asteroid) + RandomInRange(0, 5)));
         RecordCannedSceneObjectEvent(fragment, 0);
     }
@@ -74,8 +74,8 @@ void make_shard(short asteroid, FixedVector direction)
 void remove_hazard(signed char hazard)
 {
     remove_object((short)hazard);
-    g_nActiveHazards_00492e5c =
-        MaxShort(0, (short)(g_nActiveHazards_00492e5c - 1));
+    g_nActiveHazards =
+        MaxShort(0, (short)(g_nActiveHazards - 1));
     RecordCannedSceneObjectEvent((short)hazard, 1);
 }
 
@@ -85,19 +85,19 @@ void remove_all_hazards(void)
     short slot;
 
     for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1) {
-            remove_hazard(g_abHazardObjects_00493280[slot]);
-            g_abHazardObjects_00493280[slot] = -1;
+        if (g_abHazardObjects[slot] != -1) {
+            remove_hazard(g_abHazardObjects[slot]);
+            g_abHazardObjects[slot] = -1;
         }
     }
-    g_pActiveHazardField_00493278 = 0;
+    g_pActiveHazardField = 0;
 }
 
 #pragma function(abs)
 /* Function start: 0x4178E5 */
 short difficulty(void)
 {
-    return (short)(abs(25 - (int)g_nHazardReferenceSpeed_00492e58) * 2);
+    return (short)(abs(25 - (int)g_nHazardReferenceSpeed) * 2);
 }
 
 /* Function start: 0x417916 */
@@ -112,22 +112,22 @@ void skew_randomly(short obj, short allowReverse)
     FixedVector saved;
 
     if (RandomBelow(100) < 50) {
-        saved = g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] = saved;
+        saved = g_aShipRightVector[obj];
+        g_aShipRightVector[obj] =
+            g_aShipForwardVector[obj];
+        g_aShipForwardVector[obj] =
+            g_aShipUpVector[obj];
+        g_aShipUpVector[obj] = saved;
     } else {
-        saved = g_aShipUpVector_00493ec0[obj];
-        g_aShipUpVector_00493ec0[obj] =
-            g_aShipForwardVector_00494208[obj];
-        g_aShipForwardVector_00494208[obj] =
-            g_aShipRightVector_00493b78[obj];
-        g_aShipRightVector_00493b78[obj] = saved;
+        saved = g_aShipUpVector[obj];
+        g_aShipUpVector[obj] =
+            g_aShipForwardVector[obj];
+        g_aShipForwardVector[obj] =
+            g_aShipRightVector[obj];
+        g_aShipRightVector[obj] = saved;
     }
     if (allowReverse != 0 && RandomBelow(100) < 50)
-        negate_vector(&g_aShipForwardVector_00494208[obj]);
+        negate_vector(&g_aShipForwardVector[obj]);
 }
 
 /* Function start: 0x417AD7 */
@@ -146,7 +146,7 @@ void init_hazard(short obj, FixedVector position, short moving)
     short velocity;
 
     moves = moving;
-    if (g_pActiveHazardField_00493278->type ==
+    if (g_pActiveHazardField->type ==
         OBJECT_DATA_ASTEROID_FIELD) {
         hazardType = (short)(OBJECT_DATA_ASTEROID1 +
                        RandomBelowOrEqual(5));
@@ -154,18 +154,18 @@ void init_hazard(short obj, FixedVector position, short moving)
         hazardType = OBJECT_DATA_SPACE_MINE;
     }
     set_objects_data(obj, hazardType, -1, 0);
-    g_aShipPosition_00494550[obj] = position;
+    g_aShipPosition[obj] = position;
 
     if (hazardType == OBJECT_DATA_SPACE_MINE) {
         moves = 0;
-        point_at(obj, g_aShipPosition_00494550[0]);
+        point_at(obj, g_aShipPosition[0]);
         skew_randomly(obj, 1);
         velocity = 2;
         moves = (short)(velocity == 0);
     } else if (moves != 0) {
         travelTime = (short)(RandomBelowOrEqual(15) +
-                             g_cHazardBaseTravelTime_0049af94);
-        if (g_bUseEyePositionForHazards_0049327c != 0) {
+                             g_cHazardBaseTravelTime);
+        if (g_bUseEyePositionForHazards != 0) {
             travelTime = MaxShort(
                 45, (short)(travelTime -
                             RandomBelowOrEqual(difficulty())));
@@ -174,15 +174,15 @@ void init_hazard(short obj, FixedVector position, short moving)
                 7, (short)(travelTime -
                            RandomBelowOrEqual(difficulty())));
         }
-        ScaleFixedVector(&g_aShipVelocity_00494898[0],
+        ScaleFixedVector(&g_aShipVelocity[0],
                          (int)travelTime << 8, &aimPoint);
-        AddFixedVectors(&g_aShipPosition_00494550[0], &aimPoint, &aimPoint);
+        AddFixedVectors(&g_aShipPosition[0], &aimPoint, &aimPoint);
         point_at(obj, aimPoint);
         velocity = (short)(distance_between_points(
-                               &aimPoint, &g_aShipPosition_00494550[obj]) /
+                               &aimPoint, &g_aShipPosition[obj]) /
                            MaxShort(3, (short)(travelTime - RandomBelow(5))));
     } else {
-        point_at(obj, g_pActiveHazardField_00493278->center);
+        point_at(obj, g_pActiveHazardField->center);
         skew_randomly(obj, 1);
         if (RandomBelow(100) < 20)
             velocity = 0;
@@ -191,8 +191,8 @@ void init_hazard(short obj, FixedVector position, short moving)
     }
     if (kilrathi_near(0, 16000) != 0)
         velocity = 0;
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
-                     (int)velocity << 8, &g_aShipVelocity_00494898[obj]);
+    ScaleFixedVector(&g_aShipForwardVector[obj],
+                     (int)velocity << 8, &g_aShipVelocity[obj]);
 
     if (moves == 0) {
         int separation;
@@ -201,19 +201,19 @@ void init_hazard(short obj, FixedVector position, short moving)
             separation = 1500;
         else
             separation = RandomBelowOrEqual(1000) << 8;
-        ScaleFixedVector(&g_aShipForwardVector_00494208[obj],
+        ScaleFixedVector(&g_aShipForwardVector[obj],
                          separation, &aimPoint);
-        SubtractFixedVectors(&g_aShipPosition_00494550[obj], &aimPoint,
-                             &g_aShipPosition_00494550[obj]);
+        SubtractFixedVectors(&g_aShipPosition[obj], &aimPoint,
+                             &g_aShipPosition[obj]);
     }
     if (hazardType == OBJECT_DATA_SPACE_MINE) {
-        align(&g_aShipPosition_00494550[obj].x, 200);
-        align(&g_aShipPosition_00494550[obj].y, 200);
-        align(&g_aShipPosition_00494550[obj].z, 200);
+        align(&g_aShipPosition[obj].x, 200);
+        align(&g_aShipPosition[obj].y, 200);
+        align(&g_aShipPosition[obj].z, 200);
     }
-    g_acObjectCollisionGraceTicks_00494d48[obj] = 0;
-    g_asObjectCounter_00494be0[obj] = 0;
-    g_nActiveHazards_00492e5c++;
+    g_acObjectCollisionGraceTicks[obj] = 0;
+    g_asObjectCounter[obj] = 0;
+    g_nActiveHazards++;
 }
 
 /* Function start: 0x417EA4 */
@@ -239,11 +239,11 @@ short try_far_spot(FixedVector *spot, short *moving)
     short usable;
 
     copy_frame(0, SCRATCH_VIEW_OBJECT);
-    g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] =
-        g_aShipPosition_00494550[0];
+    g_aShipPosition[SCRATCH_VIEW_OBJECT] =
+        g_aShipPosition[0];
     pitchDelta = signed_random(20);
     yawDelta = signed_random(35);
-    if (g_nCurrentView_00492fa8 == 0) {
+    if (g_nCurrentView == 0) {
         if (g_acHazardPitchRange[0] < pitchDelta &&
             g_acHazardPitchRange[1] > pitchDelta &&
             abs(yawDelta) < 19 &&
@@ -259,26 +259,26 @@ short try_far_spot(FixedVector *spot, short *moving)
             *moving = 0;
     }
     pitchDelta = (short)(pitchDelta + find_ratio(
-        -15, 15, g_anObjectPitchRotation_00494f38[0], -150, 150));
+        -15, 15, g_anObjectPitchRotation[0], -150, 150));
     yawDelta = (short)(yawDelta + find_ratio(
-        -15, 15, g_anObjectYawRotation_00494fc8[0], -150, 150));
+        -15, 15, g_anObjectYawRotation[0], -150, 150));
     rotate_about_j(yawDelta,
-                   &g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
+                   &g_aShipRightVector[SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector[SCRATCH_VIEW_OBJECT]);
     rotate_about_i(pitchDelta,
-                   &g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT],
-                   &g_aShipForwardVector_00494208[SCRATCH_VIEW_OBJECT]);
+                   &g_aShipUpVector[SCRATCH_VIEW_OBJECT],
+                   &g_aShipForwardVector[SCRATCH_VIEW_OBJECT]);
     position_relative_ijk(spot, SCRATCH_VIEW_OBJECT, 0, 0, 3050);
-    usable = !IsPointWithinRange(&g_aShipPosition_00494550[0], spot, 3000);
+    usable = !IsPointWithinRange(&g_aShipPosition[0], spot, 3000);
     usable = usable != 0 &&
-             within_field(g_pActiveHazardField_00493278, spot) != 0;
+             within_field(g_pActiveHazardField, spot) != 0;
     return usable;
 }
 
 /* Function start: 0x418175 */
 short rear_sphere(void)
 {
-    return find_ratio(0, 20, (short)g_nHazardReferenceSpeed_00492e58,
+    return find_ratio(0, 20, (short)g_nHazardReferenceSpeed,
                       4300, 3100);
 }
 
@@ -288,12 +288,12 @@ short ok_hazard_spot(short obj)
     int range;
     short result;
 
-    if (g_asObjectScreenX_00493598[obj] == (short)0x8001)
+    if (g_asObjectScreenX[obj] == (short)0x8001)
         range = rear_sphere();
     else
         range = 4300;
-    result = IsPointWithinRange(&g_aShipPosition_00494550[0],
-                                &g_aShipPosition_00494550[obj],
+    result = IsPointWithinRange(&g_aShipPosition[0],
+                                &g_aShipPosition[obj],
                                 (short)range);
     return result;
 }
@@ -316,8 +316,8 @@ short make_hazard(void)
 /* Function start: 0x418288 */
 void extra_hazard(short obj)
 {
-    if (g_aeObjectClass_00495328[obj] == OBJECT_CLASS_DUST)
-        g_aeObjectClass_00495328[obj] = OBJECT_CLASS_NULL;
+    if (g_aeObjectClass[obj] == OBJECT_CLASS_DUST)
+        g_aeObjectClass[obj] = OBJECT_CLASS_NULL;
 }
 
 /* Function start: 0x4182B6 */
@@ -325,28 +325,28 @@ void approach(short obj)
 {
     FixedVector vector;
 
-    ScaleFixedVector(&g_aShipVelocity_00494898[0], 20 << 8, &vector);
-    AddFixedVectors(&g_aShipPosition_00494550[0], &vector, &vector);
+    ScaleFixedVector(&g_aShipVelocity[0], 20 << 8, &vector);
+    AddFixedVectors(&g_aShipPosition[0], &vector, &vector);
     point_at(obj, vector);
-    ScaleFixedVector(&g_aShipForwardVector_00494208[obj], 20 << 8,
+    ScaleFixedVector(&g_aShipForwardVector[obj], 20 << 8,
                      &vector);
-    AddFixedVectors(&g_aShipVelocity_00494898[obj], &vector,
-                    &g_aShipVelocity_00494898[obj]);
-    if (g_nCannedSceneMode_0049021c == 0)
+    AddFixedVectors(&g_aShipVelocity[obj], &vector,
+                    &g_aShipVelocity[obj]);
+    if (g_nCannedSceneMode == 0)
         RecordCannedSceneObjectEvent(obj, 3);
 }
 
 /* Function start: 0x41836E */
 void manage_hazard(short obj, short slot)
 {
-    if (g_nRenderedSpaceFrame_00493138 % 20 == slot) {
+    if (g_nRenderedSpaceFrame % 20 == slot) {
         if (ok_hazard_spot(obj) == 0) {
             remove_hazard((signed char)obj);
             return;
         }
-        if (g_asObjectType_00495298[obj] == OBJECT_DATA_PORCUPINE_MINE &&
-            g_asObjectScreenX_00493598[obj] != (short)0x8001 &&
-            (unsigned short)g_asObjectDistance_00493ae8[obj] > 1500 &&
+        if (g_asObjectType[obj] == OBJECT_DATA_PORCUPINE_MINE &&
+            g_asObjectScreenX[obj] != (short)0x8001 &&
+            (unsigned short)g_asObjectDistance[obj] > 1500 &&
             real_velocity(obj) < 20)
             approach(obj);
     }
@@ -355,20 +355,20 @@ void manage_hazard(short obj, short slot)
 /* Function start: 0x418426 */
 void match_ship_to_eye(void)
 {
-    g_nHazardReferenceSpeed_00492e58 = 100;
-    g_aShipPosition_00494550[0] =
-        g_aShipPosition_00494550[EYE_OBJECT];
-    g_aShipRightVector_00493b78[0] =
-        g_aShipRightVector_00493b78[EYE_OBJECT];
-    g_aShipUpVector_00493ec0[0] =
-        g_aShipUpVector_00493ec0[EYE_OBJECT];
-    g_aShipForwardVector_00494208[0] =
-        g_aShipForwardVector_00494208[EYE_OBJECT];
-    ScaleFixedVector(&g_aShipForwardVector_00494208[0],
-                     g_nHazardReferenceSpeed_00492e58 << 8,
-                     &g_aShipVelocity_00494898[0]);
-    g_pActiveHazardField_00493278->center =
-        g_aShipPosition_00494550[EYE_OBJECT];
+    g_nHazardReferenceSpeed = 100;
+    g_aShipPosition[0] =
+        g_aShipPosition[EYE_OBJECT];
+    g_aShipRightVector[0] =
+        g_aShipRightVector[EYE_OBJECT];
+    g_aShipUpVector[0] =
+        g_aShipUpVector[EYE_OBJECT];
+    g_aShipForwardVector[0] =
+        g_aShipForwardVector[EYE_OBJECT];
+    ScaleFixedVector(&g_aShipForwardVector[0],
+                     g_nHazardReferenceSpeed << 8,
+                     &g_aShipVelocity[0]);
+    g_pActiveHazardField->center =
+        g_aShipPosition[EYE_OBJECT];
 }
 
 /* Function start: 0x4184F6 */
@@ -379,20 +379,20 @@ void update_hazards(void)
 
     freeSlot = -1;
 
-    if (g_bUseEyePositionForHazards_0049327c != 0)
+    if (g_bUseEyePositionForHazards != 0)
         match_ship_to_eye();
     else
-        g_nHazardReferenceSpeed_00492e58 = real_velocity(0);
+        g_nHazardReferenceSpeed = real_velocity(0);
     for (slot = 0; slot < 20; slot++) {
-        if (g_abHazardObjects_00493280[slot] != -1)
-            manage_hazard((short)g_abHazardObjects_00493280[slot], slot);
+        if (g_abHazardObjects[slot] != -1)
+            manage_hazard((short)g_abHazardObjects[slot], slot);
         else
             freeSlot = slot;
     }
     if (freeSlot != -1 &&
         RandomBelowOrEqual(215) <
-            (short)g_nHazardReferenceSpeed_00492e58 + 30)
-        g_abHazardObjects_00493280[freeSlot] = (signed char)make_hazard();
+            (short)g_nHazardReferenceSpeed + 30)
+        g_abHazardObjects[freeSlot] = (signed char)make_hazard();
 }
 
 /* Function start: 0x4185CC */
@@ -402,9 +402,9 @@ void start_hazard_field(short region)
 
     slot = 0;
     remove_all_hazards();
-    g_pActiveHazardField_00493278 = &g_aHazardFields_004931d8[region];
+    g_pActiveHazardField = &g_aHazardFields[region];
     while (slot++ < 3)
-        g_abHazardObjects_00493280[slot] = (signed char)make_hazard();
+        g_abHazardObjects[slot] = (signed char)make_hazard();
 }
 
 /* Function start: 0x418626 */
@@ -413,14 +413,14 @@ void add_hazard_field(short type, FixedVector center,
 {
     HazardField *field;
 
-    if (g_nHazardFieldCount_004931d0 < 7) {
-        field = &g_aHazardFields_004931d8[g_nHazardFieldCount_004931d0];
+    if (g_nHazardFieldCount < 7) {
+        field = &g_aHazardFields[g_nHazardFieldCount];
         field->type = type;
         field->center = center;
         field->outerRadius = radius;
         field->innerRadius = radius;
         field->density = density;
-        g_nHazardFieldCount_004931d0++;
+        g_nHazardFieldCount++;
     }
 }
 
@@ -430,20 +430,20 @@ void check_hazards(void)
     HazardField *field;
     short region;
 
-    if (g_bUseEyePositionForHazards_0049327c != 0)
+    if (g_bUseEyePositionForHazards != 0)
         return;
-    if (g_pActiveHazardField_00493278 == 0) {
-        field = g_aHazardFields_004931d8;
-        for (region = 0; g_nHazardFieldCount_004931d0 > region;
+    if (g_pActiveHazardField == 0) {
+        field = g_aHazardFields;
+        for (region = 0; g_nHazardFieldCount > region;
              region++, field++) {
-            if (field != g_pActiveHazardField_00493278 &&
-                near_field(field, &g_aShipPosition_00494550[0]) != 0) {
+            if (field != g_pActiveHazardField &&
+                near_field(field, &g_aShipPosition[0]) != 0) {
                 start_hazard_field(region);
                 break;
             }
         }
-    } else if (near_field(g_pActiveHazardField_00493278,
-                          &g_aShipPosition_00494550[0]) == 0) {
+    } else if (near_field(g_pActiveHazardField,
+                          &g_aShipPosition[0]) == 0) {
         remove_all_hazards();
     }
 }

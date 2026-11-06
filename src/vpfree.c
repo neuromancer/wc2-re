@@ -14,17 +14,17 @@ void free_viewport(Viewport *viewport)
     int i;
     unsigned char *allocation;
 
-    g_nFreeViewportCalls_005d1bc0++;
+    g_2_nFreeViewportCalls++;
     allocation = viewport->allocation;
     if (allocation == 0)
         return;
 
-    for (i = 0; i < g_nViewportAllocationCount_005d19bc; i++) {
-        if (g_apViewportAllocations_005d19c0[i] == viewport->allocation) {
-            g_nViewportAllocationCount_005d19bc--;
-            g_apViewportAllocations_005d19c0[i] =
-                g_apViewportAllocations_005d19c0[
-                    g_nViewportAllocationCount_005d19bc];
+    for (i = 0; i < g_nViewportAllocationCount; i++) {
+        if (g_apViewportAllocations[i] == viewport->allocation) {
+            g_nViewportAllocationCount--;
+            g_apViewportAllocations[i] =
+                g_apViewportAllocations[
+                    g_nViewportAllocationCount];
             break;
         }
     }
@@ -33,23 +33,23 @@ void free_viewport(Viewport *viewport)
         ReleasePacketHandle(viewport->rowOffsets);
         viewport->rowOffsets = 0;
     }
-    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
+    if (g_nSpacePaletteFadeMode != 0x13)
         printf("free_viewport not mcga\n");
     ReleasePacketHandle(allocation);
     viewport->pixels = 0;
     viewport->allocation = 0;
-    if (g_stScrViewInfo_005d21a0.pixels == allocation)
-        g_stScrViewInfo_005d21a0.pixels = 0;
-    if (g_stScrViewInfo_005d21a0.allocation == allocation)
-        g_stScrViewInfo_005d21a0.allocation = 0;
-    if (g_stSecondaryViewBufferBlock_005d2c90.pixels == allocation)
-        g_stSecondaryViewBufferBlock_005d2c90.pixels = 0;
-    if (g_stSecondaryViewBufferBlock_005d2c90.allocation == allocation)
-        g_stSecondaryViewBufferBlock_005d2c90.allocation = 0;
+    if (g_101_stScrViewInfo.pixels == allocation)
+        g_101_stScrViewInfo.pixels = 0;
+    if (g_101_stScrViewInfo.allocation == allocation)
+        g_101_stScrViewInfo.allocation = 0;
+    if (g_stSecondaryViewBufferBlock.pixels == allocation)
+        g_stSecondaryViewBufferBlock.pixels = 0;
+    if (g_stSecondaryViewBufferBlock.allocation == allocation)
+        g_stSecondaryViewBufferBlock.allocation = 0;
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_nViewportAllocationCount_005d19bc;
-unsigned char *g_apViewportAllocations_005d19c0[128];
-int g_nFreeViewportCalls_005d1bc0;
+int g_nViewportAllocationCount; /* 0x005d19bc */
+unsigned char *g_apViewportAllocations[128]; /* 0x005d19c0 */
+int g_2_nFreeViewportCalls; /* 0x005d1bc0 */

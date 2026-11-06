@@ -13,8 +13,8 @@ short WaitForSceneAdvance(void *scenePacket)
     short hotspotCount;
     unsigned int formId;
 
-    if (g_pActiveScenePacket_00492654 != scenePacket) {
-        ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
+    if (g_pActiveScenePacket != scenePacket) {
+        ReleasePacketSlot(&g_stSceneZoneTable.data);
         nextChunk = (unsigned char *)scenePacket +
             ((ScenePacketHeader *)scenePacket)->formOffset;
         for (;;) {
@@ -22,25 +22,25 @@ short WaitForSceneAdvance(void *scenePacket)
             formId = ReadNextSceneForm(&cursor, &nextChunk);
             if (formId == 0x52544f48) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneZoneTable_005d3bf8);
-                if (g_stSceneZoneTable_005d3bf8.type != 0)
+                    &cursor, &g_stSceneZoneTable);
+                if (g_stSceneZoneTable.type != 0)
                     ReleasePacketSlot(
-                        &g_stSceneZoneTable_005d3bf8.data);
+                        &g_stSceneZoneTable.data);
             } else if (formId == 0x54585448) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneTextList_005d3c00);
-                if (g_stSceneTextList_005d3c00.type == 2)
+                    &cursor, &g_stSceneTextList);
+                if (g_stSceneTextList.type == 2)
                     break;
-                ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+                ReleasePacketSlot(&g_stSceneTextList.data);
             } else if (formId == 0)
                 break;
         }
-        g_pActiveScenePacket_00492654 = scenePacket;
+        g_pActiveScenePacket = scenePacket;
     }
-    hotspotCount = g_stSceneZoneTable_005d3bf8.count;
-    g_pActiveScenePacket_00492654 = 0;
-    ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
-    ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+    hotspotCount = g_stSceneZoneTable.count;
+    g_pActiveScenePacket = 0;
+    ReleasePacketSlot(&g_stSceneZoneTable.data);
+    ReleasePacketSlot(&g_stSceneTextList.data);
     if (hotspotCount <= 2)
         return 0;
     return 1;
@@ -59,8 +59,8 @@ void LoadSceneHotspotBoundsForSelection(void *scenePacket,
     short index;
     unsigned int magic;
 
-    if (g_pActiveScenePacket_00492654 != scenePacket) {
-        ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
+    if (g_pActiveScenePacket != scenePacket) {
+        ReleasePacketSlot(&g_stSceneZoneTable.data);
         nextForm = (unsigned char *)scenePacket +
             ((ScenePacketHeader *)scenePacket)->formOffset;
         for (;;) {
@@ -68,37 +68,37 @@ void LoadSceneHotspotBoundsForSelection(void *scenePacket,
             magic = ReadNextSceneForm(&cursor, &nextForm);
             if (magic == 0x52544f48) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneZoneTable_005d3bf8);
-                if (g_stSceneZoneTable_005d3bf8.type != 0)
+                    &cursor, &g_stSceneZoneTable);
+                if (g_stSceneZoneTable.type != 0)
                     ReleasePacketSlot(
-                        &g_stSceneZoneTable_005d3bf8.data);
+                        &g_stSceneZoneTable.data);
             } else if (magic == 0x54585448) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneTextList_005d3c00);
-                if (g_stSceneTextList_005d3c00.type == 2)
+                    &cursor, &g_stSceneTextList);
+                if (g_stSceneTextList.type == 2)
                     break;
-                ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+                ReleasePacketSlot(&g_stSceneTextList.data);
             } else if (magic == 0)
                 break;
         }
-        g_pActiveScenePacket_00492654 = scenePacket;
+        g_pActiveScenePacket = scenePacket;
     }
 
-    for (index = 0; index < g_stSceneZoneTable_005d3bf8.count;
+    for (index = 0; index < g_stSceneZoneTable.count;
          index++) {
         hotspot = ((SceneHotspot **)
-            g_stSceneZoneTable_005d3bf8.data)[index];
+            g_stSceneZoneTable.data)[index];
         if (hotspot->selection == selection) {
-            g_nShotHotspotLeft_005d2120 = hotspot->left;
-            g_nSceneHotspotTopValue_005d2122 = hotspot->top;
-            g_nSceneRegionRightWord_005d2124 = hotspot->right;
-            g_nSceneAreaLowestWord_005d2126 = hotspot->bottom;
+            g_128_nShotHotspotLeft = hotspot->left;
+            g_27_nSceneHotspotTopValue = hotspot->top;
+            g_8_nSceneRegionRightWord = hotspot->right;
+            g_15_nSceneAreaLowestWord = hotspot->bottom;
             break;
         }
     }
-    g_pActiveScenePacket_00492654 = 0;
-    ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
-    ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+    g_pActiveScenePacket = 0;
+    ReleasePacketSlot(&g_stSceneZoneTable.data);
+    ReleasePacketSlot(&g_stSceneTextList.data);
 }
 
 /* Function start: 0x409417 */
@@ -114,9 +114,9 @@ short FindSceneHotspotAtPosition(void *scenePacket, short offsetX,
     unsigned int magic;
 
     selection = 0;
-    g_pszPersonnelFooter_00492658 = 0;
-    if (g_pActiveScenePacket_00492654 != scenePacket) {
-        ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
+    g_pszPersonnelFooter = 0;
+    if (g_pActiveScenePacket != scenePacket) {
+        ReleasePacketSlot(&g_stSceneZoneTable.data);
         nextForm = (unsigned char *)scenePacket +
             ((ScenePacketHeader *)scenePacket)->formOffset;
         for (;;) {
@@ -124,41 +124,41 @@ short FindSceneHotspotAtPosition(void *scenePacket, short offsetX,
             magic = ReadNextSceneForm(&cursor, &nextForm);
             if (magic == 0x52544f48) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneZoneTable_005d3bf8);
-                if (g_stSceneZoneTable_005d3bf8.type != 0)
+                    &cursor, &g_stSceneZoneTable);
+                if (g_stSceneZoneTable.type != 0)
                     ReleasePacketSlot(
-                        &g_stSceneZoneTable_005d3bf8.data);
+                        &g_stSceneZoneTable.data);
             } else if (magic == 0x54585448) {
                 DecodeSceneResourceChunk(
-                    &cursor, &g_stSceneTextList_005d3c00);
-                if (g_stSceneTextList_005d3c00.type == 2)
+                    &cursor, &g_stSceneTextList);
+                if (g_stSceneTextList.type == 2)
                     break;
-                ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+                ReleasePacketSlot(&g_stSceneTextList.data);
             } else if (magic == 0)
                 break;
         }
-        g_pActiveScenePacket_00492654 = scenePacket;
+        g_pActiveScenePacket = scenePacket;
     }
 
-    for (index = 0; index < g_stSceneZoneTable_005d3bf8.count; index++) {
+    for (index = 0; index < g_stSceneZoneTable.count; index++) {
         hotspot =
-            ((SceneHotspot **)g_stSceneZoneTable_005d3bf8.data)[index];
+            ((SceneHotspot **)g_stSceneZoneTable.data)[index];
         OffsetSceneHotspotBounds(&hitRect, hotspot, offsetX, offsetY);
         if (IsPointInRect(x, y, &hitRect.left) != 0) {
             selection = hotspot->selection;
-            if (g_stSceneTextList_005d3c00.data != 0) {
-                g_pszPersonnelFooter_00492658 =
-                    ((char **)g_stSceneTextList_005d3c00.data)[0];
-                if (index != g_stSceneZoneTable_005d3bf8.count - 1) {
+            if (g_stSceneTextList.data != 0) {
+                g_pszPersonnelFooter =
+                    ((char **)g_stSceneTextList.data)[0];
+                if (index != g_stSceneZoneTable.count - 1) {
                     index = (short)(selection - 1);
                     while (index-- != 0) {
-                        g_pszPersonnelFooter_00492658 =
-                            DosStrchr(g_pszPersonnelFooter_00492658, 0) + 1;
+                        g_pszPersonnelFooter =
+                            DosStrchr(g_pszPersonnelFooter, 0) + 1;
                     }
-                    if (*g_pszPersonnelFooter_00492658 == 0)
-                        g_pszPersonnelFooter_00492658 = 0;
+                    if (*g_pszPersonnelFooter == 0)
+                        g_pszPersonnelFooter = 0;
                 } else
-                    g_pszPersonnelFooter_00492658 = 0;
+                    g_pszPersonnelFooter = 0;
             }
             break;
         }
@@ -202,10 +202,10 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
         controlPressed = (short)GetControlKeyState();
         jPressed = (short)GetJKeyState();
         if ((controlPressed != 0 && jPressed != 0) ||
-            g_bJoystickCalibrationHotkey_005d1284 != 0) {
+            g_bJoystickCalibrationHotkey != 0) {
             controlPressed = 0;
             jPressed = 0;
-            g_bJoystickCalibrationHotkey_005d1284 = 0;
+            g_bJoystickCalibrationHotkey = 0;
             CalibrateJoystickInteractive();
             ReleaseInputEventQueue();
         }
@@ -218,27 +218,27 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
         scenePacket, offsetX, offsetY, inputEvent->x, inputEvent->y);
     if (maximumSelection != 0 && selection > maximumSelection)
         selection = 0;
-    if (g_bDisableChalkboardReplay_0049ca58 != 0 && selection == 2) {
+    if (g_bDisableChalkboardReplay != 0 && selection == 2) {
         selection = 0;
-        g_pszPersonnelFooter_00492658 = 0;
+        g_pszPersonnelFooter = 0;
     }
     if (selection != 0) {
-        SetMouseCursorShape(g_pEventManager_005c8464->cursorShape, 1);
-    } else if (g_bPersonnelMenuDrawing_0049a6c0 != 0) {
-        SetMouseCursorShape(g_pEventManager_005c8464->cursorShape, 0);
+        SetMouseCursorShape(g_18_pEventManager->cursorShape, 1);
+    } else if (g_bPersonnelMenuDrawing != 0) {
+        SetMouseCursorShape(g_18_pEventManager->cursorShape, 0);
     }
-    g_bSceneBackdropClicked_005c9018 = 0;
+    g_8_bSceneBackdropClicked = 0;
     if (inputEvent->type != 1) {
         selection = 0;
     } else if (selection == 0 && dismissOnBackground != 0) {
-        g_bSceneBackdropClicked_005c9018 = 1;
+        g_8_bSceneBackdropClicked = 1;
     }
     if (selection != 0 ||
         (dismissOnBackground != 0 &&
-         g_bSceneBackdropClicked_005c9018 != 0)) {
-        g_pActiveScenePacket_00492654 = 0;
-        ReleasePacketSlot(&g_stSceneZoneTable_005d3bf8.data);
-        ReleasePacketSlot(&g_stSceneTextList_005d3c00.data);
+         g_8_bSceneBackdropClicked != 0)) {
+        g_pActiveScenePacket = 0;
+        ReleasePacketSlot(&g_stSceneZoneTable.data);
+        ReleasePacketSlot(&g_stSceneTextList.data);
     }
     return selection;
 }
@@ -248,23 +248,23 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
  * literals and campaign.c's data marks the boundary between the two units,
  * so placing the mission arrays here is evidence of position, not of
  * ownership.  Nothing in the original references the two unused words. */
-MissionNavPoint g_aMissionNavPoints_00491e98[MISSION_NAV_POINT_COUNT] = {
+MissionNavPoint g_aMissionNavPoints[MISSION_NAV_POINT_COUNT] = {
     { 0 }
-};
-MissionShipRecord g_aMissionShips_00492290[MISSION_SHIP_COUNT] = { { 0 } };
-int g_nUnusedSceneWord_00492650 = 0;
-void *g_pActiveScenePacket_00492654 = 0;
-char *g_pszPersonnelFooter_00492658 = 0;
-int g_nUnusedSceneFlag_0049265c = 1;
+}; /* 0x00491e98 */
+MissionShipRecord g_aMissionShips[MISSION_SHIP_COUNT] = { { 0 } }; /* 0x00492290 */
+int g_nUnusedSceneWord = 0; /* 0x00492650 */
+void *g_pActiveScenePacket = 0; /* 0x00492654 */
+char *g_pszPersonnelFooter = 0; /* 0x00492658 */
+int g_nUnusedSceneFlag = 1; /* 0x0049265c */
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-SceneResourceTable g_stSceneZoneTable_005d3bf8;
-SceneResourceTable g_stSceneTextList_005d3c00;
-unsigned char g_abMissionAuxBlockBytes_005d3c10[0x28];
-unsigned char g_abSeriesAuxData_005d3c40[0x28];
-MissionObjectiveSource g_aMissionObjectiveSources_005d3c70[8];
-MissionHeader g_stMissionHeaderBlock_005d3e70;
-char g_nUnusedHotspotWord_005d3e88; /* never referenced */
-CampaignDate *g_pElapsedCampaignDatePointer_005d3e8c;
-unsigned char g_abMissionBriefingData_005d3e90[0xde];
+SceneResourceTable g_stSceneZoneTable; /* 0x005d3bf8 */
+SceneResourceTable g_stSceneTextList; /* 0x005d3c00 */
+unsigned char g_5_abMissionAuxBlockBytes[0x28]; /* 0x005d3c10 */
+unsigned char g_abSeriesAuxData[0x28]; /* 0x005d3c40 */
+MissionObjectiveSource g_69_aMissionObjectiveSources[8]; /* 0x005d3c70 */
+MissionHeader g_13_stMissionHeaderBlock; /* 0x005d3e70 */
+char g_10_nUnusedHotspotWord; /* 0x005d3e88 */ /* never referenced */
+CampaignDate *g_4_pElapsedCampaignDatePointer; /* 0x005d3e8c */
+unsigned char g_abMissionBriefingData[0xde]; /* 0x005d3e90 */

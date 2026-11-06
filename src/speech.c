@@ -6,18 +6,18 @@
 #define SPEECH_C
 #include "game.h"
 
-const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;
-const unsigned short g_wDmaHalfBytes_0048e0e4 = 0x0fa0;
+const int g_nDigiSampleBytes = 0xfffa; /* 0x0048e0e0 */
+const unsigned short g_wDmaHalfBytes = 0x0fa0; /* 0x0048e0e4 */
 
-unsigned short g_wSoundBlasterPort_0049bb58 = 0x220;
-unsigned short g_wSoundBlasterIrq_0049bb5c = 7;
-unsigned short g_wDigiPlaying_0049bb60 = 0;
-unsigned short g_wDmaAddressA_0049bb64 = 0;
-unsigned short g_wDmaAddressB_0049bb68 = 0;
-unsigned short g_wDmaCountA_0049bb6c = 0;
-unsigned short g_wDmaCountB_0049bb70 = 0;
-int g_nDmaHalfSelect_0049bb74 = 0;
-short g_nDigiLastBlock_0049bb78 = 0;
+unsigned short g_wSoundBlasterPort = 0x220; /* 0x0049bb58 */
+unsigned short g_wSoundBlasterIrq = 7; /* 0x0049bb5c */
+unsigned short g_wDigiPlaying = 0; /* 0x0049bb60 */
+unsigned short g_wDmaAddressA = 0; /* 0x0049bb64 */
+unsigned short g_wDmaAddressB = 0; /* 0x0049bb68 */
+unsigned short g_wDmaCountA = 0; /* 0x0049bb6c */
+unsigned short g_wDmaCountB = 0; /* 0x0049bb70 */
+int g_nDmaHalfSelect = 0; /* 0x0049bb74 */
+short g_nDigiLastBlock = 0; /* 0x0049bb78 */
 
 /* Function start: 0x44F300 */
 /* The DOS release wrote the Sound Blaster's I/O ports here; the Win32 port
@@ -50,7 +50,7 @@ void *LoadSpeechPacketIntoBuffer(char *fileName, short section,
     packet = destination;
     if (packet == 0) {
         packet = AllocateTaggedMemory(
-            (unsigned short)g_nDigiSampleBytes_0048e0e0, 0x44);
+            (unsigned short)g_nDigiSampleBytes, 0x44);
     }
     if (packet == 0)
         return 0;
@@ -71,31 +71,31 @@ void PlaySpeechPacketBuffer(void *packet, unsigned short packetSize,
 
     PlayRawSpeechBuffer(packet, packetSize, interrupt);
     return;
-    if (packetSize > (unsigned short)g_nDigiSampleBytes_0048e0e0)
+    if (packetSize > (unsigned short)g_nDigiSampleBytes)
         return;
-    g_nDigiLastBlock_0049bb78 = 0;
-    g_wDigiLeft_005d1714 = packetSize;
-    g_pDigiData_005d1710 = packet;
-    g_wDigiPosition_005d171c = 0;
-    g_wDigiPlaying_0049bb60++;
-    g_nDmaHalfSelect_0049bb74 = 0;
-    if (g_wDmaHalfBytes_0048e0e4 * 2 > g_wDigiLeft_005d1714) {
-        if (g_wDmaHalfBytes_0048e0e4 > g_wDigiLeft_005d1714) {
-            g_wDmaCountA_0049bb6c = g_wDigiLeft_005d1714;
-            g_wDmaCountB_0049bb70 = 0;
+    g_nDigiLastBlock = 0;
+    g_wDigiLeft = packetSize;
+    g_4_pDigiData = packet;
+    g_2_wDigiPosition = 0;
+    g_wDigiPlaying++;
+    g_nDmaHalfSelect = 0;
+    if (g_wDmaHalfBytes * 2 > g_wDigiLeft) {
+        if (g_wDmaHalfBytes > g_wDigiLeft) {
+            g_wDmaCountA = g_wDigiLeft;
+            g_wDmaCountB = 0;
         } else {
-            g_wDmaCountA_0049bb6c = g_wDmaHalfBytes_0048e0e4;
-            g_wDmaCountB_0049bb70 =
-                g_wDigiLeft_005d1714 - g_wDmaHalfBytes_0048e0e4;
+            g_wDmaCountA = g_wDmaHalfBytes;
+            g_wDmaCountB =
+                g_wDigiLeft - g_wDmaHalfBytes;
         }
     } else {
-        g_wDmaCountA_0049bb6c = g_wDmaCountB_0049bb70 =
-            g_wDmaHalfBytes_0048e0e4;
+        g_wDmaCountA = g_wDmaCountB =
+            g_wDmaHalfBytes;
     }
-    src = (void *)IdentityDword((DwordPtr)g_pDigiData_005d1710);
-    memcpy(g_pDmaBufferPointer_005d1718, src, g_wDmaHalfBytes_0048e0e4 * 2);
-    g_wDigiLeft_005d1714 -= g_wDmaCountA_0049bb6c + g_wDmaCountB_0049bb70;
-    g_wDigiPosition_005d171c += g_wDmaCountA_0049bb6c + g_wDmaCountB_0049bb70;
+    src = (void *)IdentityDword((DwordPtr)g_4_pDigiData);
+    memcpy(g_4_pDmaBufferPointer, src, g_wDmaHalfBytes * 2);
+    g_wDigiLeft -= g_wDmaCountA + g_wDmaCountB;
+    g_2_wDigiPosition += g_wDmaCountA + g_wDmaCountB;
     return;
 }
 
@@ -106,9 +106,9 @@ void LoadAndPlaySpeechPacket(char *fileName, short section)
 
     packetSize = GetNamedPacketSize(fileName, section);
     if (LoadSpeechPacketIntoBuffer(
-            fileName, section, g_pDigiSample_005d1720) != 0) {
+            fileName, section, g_pDigiSample) != 0) {
         PlaySpeechPacketBuffer(
-            g_pDigiSample_005d1720, packetSize, 0);
+            g_pDigiSample, packetSize, 0);
     }
 }
 
@@ -120,7 +120,7 @@ void SoundBlasterEndOfInterrupt(void)
 {
     return;
     EmsRestoreMapping();
-    if (g_nEmsIsrBusyValue_005c841c == 0)
+    if (g_105_nEmsIsrBusyValue == 0)
         SoundBlasterOut(0x20, 0x20);
 }
 
@@ -128,7 +128,7 @@ void SoundBlasterEndOfInterrupt(void)
 /* Marks the digitised sample as finished. */
 void StopDigiPlayback(void)
 {
-    g_wDigiPlaying_0049bb60 = 0;
+    g_wDigiPlaying = 0;
 }
 
 /* Function start: 0x44F5C5 */
@@ -148,54 +148,54 @@ void SoundBlasterDspInterrupt(void)
 
     return;
     EmsSaveMapping();
-    SoundBlasterIn(g_wSoundBlasterPort_0049bb58 + 0xe);
-    if (g_nDigiLastBlock_0049bb78 != 0 || g_wDigiPlaying_0049bb60 == 0) {
+    SoundBlasterIn(g_wSoundBlasterPort + 0xe);
+    if (g_nDigiLastBlock != 0 || g_wDigiPlaying == 0) {
         StopDigiPlayback();
         SoundBlasterEndOfInterrupt();
         return;
     }
-    if (g_wDigiLeft_005d1714 == 0)
-        g_nDigiLastBlock_0049bb78++;
-    g_wDigiPlaying_0049bb60++;
-    if (g_nDmaHalfSelect_0049bb74 == 0) {
-        g_nDmaHalfSelect_0049bb74 = 1;
-        dmaAddress = g_wDmaAddressB_0049bb68;
-        total = g_wDmaCountB_0049bb70;
+    if (g_wDigiLeft == 0)
+        g_nDigiLastBlock++;
+    g_wDigiPlaying++;
+    if (g_nDmaHalfSelect == 0) {
+        g_nDmaHalfSelect = 1;
+        dmaAddress = g_wDmaAddressB;
+        total = g_wDmaCountB;
         offset = 0;
     } else {
-        g_nDmaHalfSelect_0049bb74 = 0;
-        dmaAddress = g_wDmaAddressA_0049bb64;
-        total = g_wDmaCountA_0049bb6c;
-        offset = g_wDmaHalfBytes_0048e0e4;
+        g_nDmaHalfSelect = 0;
+        dmaAddress = g_wDmaAddressA;
+        total = g_wDmaCountA;
+        offset = g_wDmaHalfBytes;
     }
     SoundBlasterOut(0x0a, 5);
     SoundBlasterOut(0x0c, 0);
     SoundBlasterOut(0x0b, 0x49);
     SoundBlasterOut(2, (unsigned char)dmaAddress);
     SoundBlasterOut(2, (unsigned char)(dmaAddress >> 8));
-    SoundBlasterOut(0x83, g_ucDmaPageValue_005d1724);
+    SoundBlasterOut(0x83, g_1_ucDmaPageValue);
     SoundBlasterOut(3, (unsigned char)total);
     SoundBlasterOut(3, (unsigned char)(total >> 8));
     SoundBlasterOut(0x0a, 1);
     SoundBlasterWaitWrite();
-    SoundBlasterOut(g_wSoundBlasterPort_0049bb58 + 0xc, 0x14);
+    SoundBlasterOut(g_wSoundBlasterPort + 0xc, 0x14);
     SoundBlasterWaitWrite();
-    SoundBlasterOut(g_wSoundBlasterPort_0049bb58 + 0xc,
+    SoundBlasterOut(g_wSoundBlasterPort + 0xc,
                     (unsigned char)(total - 1));
     SoundBlasterWaitWrite();
-    SoundBlasterOut(g_wSoundBlasterPort_0049bb58 + 0xc,
+    SoundBlasterOut(g_wSoundBlasterPort + 0xc,
                     (unsigned char)((total - 1) >> 8));
-    resolved = (unsigned char *)IdentityDword((DwordPtr)g_pDigiData_005d1710);
-    src = g_wDigiPosition_005d171c + resolved;
-    dmaHalf = offset + (unsigned char *)g_pDmaBufferPointer_005d1718;
-    if (g_nDmaHalfSelect_0049bb74 == 0)
-        slot = &g_wDmaCountB_0049bb70;
+    resolved = (unsigned char *)IdentityDword((DwordPtr)g_4_pDigiData);
+    src = g_2_wDigiPosition + resolved;
+    dmaHalf = offset + (unsigned char *)g_4_pDmaBufferPointer;
+    if (g_nDmaHalfSelect == 0)
+        slot = &g_wDmaCountB;
     else
-        slot = &g_wDmaCountA_0049bb6c;
-    *slot = g_wDmaHalfBytes_0048e0e4 < g_wDigiLeft_005d1714 ?
-                g_wDmaHalfBytes_0048e0e4 : g_wDigiLeft_005d1714;
-    g_wDigiLeft_005d1714 -= *slot;
-    g_wDigiPosition_005d171c += *slot;
+        slot = &g_wDmaCountA;
+    *slot = g_wDmaHalfBytes < g_wDigiLeft ?
+                g_wDmaHalfBytes : g_wDigiLeft;
+    g_wDigiLeft -= *slot;
+    g_2_wDigiPosition += *slot;
     memcpy(dmaHalf, src, *slot);
     SoundBlasterEndOfInterrupt();
     return;
@@ -212,43 +212,43 @@ short InitializeSoundBlaster(short port, short irq)
     void *oldBuffer;
     unsigned int dmaAddress;
 
-    g_pDigiSample_005d1720 =
-        AllocateTaggedMemory((unsigned short)g_nDigiSampleBytes_0048e0e0,
+    g_pDigiSample =
+        AllocateTaggedMemory((unsigned short)g_nDigiSampleBytes,
                              0x44);
-    if (g_pDigiSample_005d1720 == 0)
+    if (g_pDigiSample == 0)
         return 1;
-    codeAddress = IdentityDword((DwordPtr)g_pDigiSample_005d1720);
-    codeLimit = (unsigned int)g_pDigiSample_005d1720 +
-        (unsigned short)g_nDigiSampleBytes_0048e0e0;
+    codeAddress = IdentityDword((DwordPtr)g_pDigiSample);
+    codeLimit = (unsigned int)g_pDigiSample +
+        (unsigned short)g_nDigiSampleBytes;
     if (codeLimit < codeAddress)
         ReportFatalErrorCode("027");
-    g_wSoundBlasterPort_0049bb58 =
+    g_wSoundBlasterPort =
         (unsigned short)(((unsigned short)port << 4) + 0x200);
-    g_wSoundBlasterIrq_0049bb5c = (unsigned short)irq;
+    g_wSoundBlasterIrq = (unsigned short)irq;
     cacheMetadata = AllocateTaggedMemory(0x0c, 0x40);
     if (cacheMetadata == 0)
         return 2;
-    g_pDmaBufferPointer_005d1718 =
+    g_4_pDmaBufferPointer =
         AllocateTaggedMemory(
-            (unsigned int)g_wDmaHalfBytes_0048e0e4 * 2 + 0x0f,
+            (unsigned int)g_wDmaHalfBytes * 2 + 0x0f,
             0x42);
-    if (g_pDmaBufferPointer_005d1718 == 0)
+    if (g_4_pDmaBufferPointer == 0)
         return 1;
     oldBuffer = 0;
     do {
-        dmaAddress = (unsigned int)g_pDmaBufferPointer_005d1718;
+        dmaAddress = (unsigned int)g_4_pDmaBufferPointer;
         dmaEnd = dmaAddress +
-            ((int)((unsigned int)g_wDmaHalfBytes_0048e0e4 * 2) /
+            ((int)((unsigned int)g_wDmaHalfBytes * 2) /
              16);
         if ((dmaEnd >> 12) != (dmaAddress >> 12)) {
             oldBuffer =
-                g_pDmaBufferPointer_005d1718;
-            g_pDmaBufferPointer_005d1718 =
+                g_4_pDmaBufferPointer;
+            g_4_pDmaBufferPointer =
                 AllocateTaggedMemory(
-                    (unsigned int)g_wDmaHalfBytes_0048e0e4 * 2 +
+                    (unsigned int)g_wDmaHalfBytes * 2 +
                         0x0f,
                     0x42);
-            if (g_pDmaBufferPointer_005d1718 == 0)
+            if (g_4_pDmaBufferPointer == 0)
                 return 1;
             ReleasePacketHandle(oldBuffer);
         } else {
@@ -256,26 +256,26 @@ short InitializeSoundBlaster(short port, short irq)
         }
         PumpWindowMessages(0);
     } while (oldBuffer != 0);
-    g_ucDmaPageValue_005d1724 = (unsigned char)(dmaAddress >> 12);
-    dmaAddress -= (unsigned int)g_ucDmaPageValue_005d1724 << 12;
-    g_wDmaAddressA_0049bb64 = (unsigned short)(dmaAddress << 4);
-    g_wDmaAddressB_0049bb68 =
-        (unsigned short)(g_wDmaHalfBytes_0048e0e4 +
-                         g_wDmaAddressA_0049bb64);
+    g_1_ucDmaPageValue = (unsigned char)(dmaAddress >> 12);
+    dmaAddress -= (unsigned int)g_1_ucDmaPageValue << 12;
+    g_wDmaAddressA = (unsigned short)(dmaAddress << 4);
+    g_wDmaAddressB =
+        (unsigned short)(g_wDmaHalfBytes +
+                         g_wDmaAddressA);
     return 0;
 }
 
 /* Function start: 0x44FA31 */
 void ShutdownSoundBlaster(void)
 {
-    g_wDigiPlaying_0049bb60 = 0;
-    FreePacketAndClear(&g_pDmaBufferPointer_005d1718, 0x40);
-    FreePacketAndClear(&g_pDigiSample_005d1720, 0x44);
+    g_wDigiPlaying = 0;
+    FreePacketAndClear(&g_4_pDmaBufferPointer, 0x40);
+    FreePacketAndClear(&g_pDigiSample, 0x44);
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-void *g_pDmaBufferPointer_005d1718;
-unsigned short g_wDigiPosition_005d171c;
-void *g_pDigiSample_005d1720;
-unsigned char g_ucDmaPageValue_005d1724;
+void *g_4_pDmaBufferPointer; /* 0x005d1718 */
+unsigned short g_2_wDigiPosition; /* 0x005d171c */
+void *g_pDigiSample; /* 0x005d1720 */
+unsigned char g_1_ucDmaPageValue; /* 0x005d1724 */

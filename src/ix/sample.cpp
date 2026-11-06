@@ -65,11 +65,11 @@ void IxSample::ix_sample_construct(void)
 {
     flags = 0;
     buffer = 0;
-    next = g_pSampleList_005c4b24;
+    next = g_7_pSampleList;
     previous = 0;
-    if (g_pSampleList_005c4b24 != 0)
-        g_pSampleList_005c4b24->previous = this;
-    g_pSampleList_005c4b24 = this;
+    if (g_7_pSampleList != 0)
+        g_7_pSampleList->previous = this;
+    g_7_pSampleList = this;
 }
 
 /* Function start: 0x46B18F */
@@ -79,8 +79,8 @@ void IxSample::ix_sample_destruct(void)
         ix_dsp_free(buffer);
         buffer = 0;
     }
-    if (this == g_pSampleList_005c4b24)
-        g_pSampleList_005c4b24 = next;
+    if (this == g_7_pSampleList)
+        g_7_pSampleList = next;
     if (next != 0)
         next->previous = previous;
     if (previous != 0)

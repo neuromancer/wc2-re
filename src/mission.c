@@ -5,18 +5,18 @@
  */
 #include "game.h"
 
-short g_bMissionShipInitializationInProgress_0049b890 = 0;
-short g_bShipResourceReloadInProgress_0049b894 = 0;
-void **g_apPacketReferenceGroups_0049b898[5] = { 0 };
-unsigned char g_ucPendingEjectionTransition_0049b8ac = 0xff;
-short g_bEjectionWaitForEnemyWave_0049b8b0 = 0;
-short g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
-short g_nPendingEjectionSequenceCount_0049b8b8 = 0;
-short g_bEjectionTriggerImmediately_0049b8bc = 0;
-short g_nEjectionSequenceState_0049b8c0 = 0;
-signed char g_cQueuedNpcPortrait_0049b8c4 = -1;
-signed char g_cQueuedNpcMessage_0049b8c8 = -1;
-ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
+short g_bMissionShipInitializationInProgress = 0; /* 0x0049b890 */
+short g_bShipResourceReloadInProgress = 0; /* 0x0049b894 */
+void **g_apPacketReferenceGroups[5] = { 0 }; /* 0x0049b898 */
+unsigned char g_ucPendingEjectionTransition = 0xff; /* 0x0049b8ac */
+short g_bEjectionWaitForEnemyWave = 0; /* 0x0049b8b0 */
+short g_bEjectionAwaitingCommCommand = 0; /* 0x0049b8b4 */
+short g_nPendingEjectionSequenceCount = 0; /* 0x0049b8b8 */
+short g_bEjectionTriggerImmediately = 0; /* 0x0049b8bc */
+short g_nEjectionSequenceState = 0; /* 0x0049b8c0 */
+signed char g_cQueuedNpcPortrait = -1; /* 0x0049b8c4 */
+signed char g_cQueuedNpcMessage = -1; /* 0x0049b8c8 */
+ShortVector g_aaFormationPositions[5][8] = {
     {
         { 0, 0, 0 }, { -750, 0, 0 }, { 750, 0, 0 }, { 0, 0, -750 },
         { 0, 0, 750 }, { -750, 0, -750 }, { 750, 0, -750 },
@@ -43,10 +43,10 @@ ShortVector g_aaFormationPositions_0049b8d0[5][8] = {
         { -750, 0, -1250 }, { 750, 0, -500 }, { 750, 0, -1250 },
         { 0, 500, -500 }, { 0, 500, -1250 }
     }
-};
-short g_anPilotTurnInterval_0049b9c0[8] = {
+}; /* 0x0049b8d0 */
+short g_anPilotTurnInterval[8] = {
     5, 5, 4, 4, 3, 1, 1, 0
-};
+}; /* 0x0049b9c0 */
 
 /* Function start: 0x44B200 */
 void set_sphere_point(const MissionShipRecord *record,
@@ -61,23 +61,23 @@ void set_sphere_point(const MissionShipRecord *record,
     }
 #endif
     AddFixedVectors(
-        &g_aMissionNavPoints_00491e98[record->navPoint].position,
+        &g_aMissionNavPoints[record->navPoint].position,
         &record->position, position);
 }
 
 /* Function start: 0x44B239 */
 short is_alive(signed char pilot)
 {
-    return g_pPilotStatus_005d2fcc[pilot];
+    return g_pPilotStatus[pilot];
 
 }
 
 /* Function start: 0x44B257 */
 void check_futurion(short i)
 {
-    if (g_asShipMissionType_00495de8[i] == MISSION_TYPE_WARP_ARRIVE) {
-        g_asObjectCounter_00494be0[i] = g_aeObjectClass_00495328[i];
-        g_aeObjectClass_00495328[i] = OBJECT_CLASS_FUTURION;
+    if (g_asShipMissionType[i] == MISSION_TYPE_WARP_ARRIVE) {
+        g_asObjectCounter[i] = g_aeObjectClass[i];
+        g_aeObjectClass[i] = OBJECT_CLASS_FUTURION;
     }
 }
 
@@ -87,8 +87,8 @@ void ResetWeaponDisplayPositions(void)
     short index;
 
     for (index = 0; index < 16; index++)
-        g_aWeaponDisplayPositions_005d1de0[index] =
-            g_aDefaultWeaponDisplayPositions_0049afa0[index];
+        g_116_aWeaponDisplayPositions[index] =
+            g_aDefaultWeaponDisplayPositions[index];
 }
 
 /* Function start: 0x44B2E2 */
@@ -99,45 +99,45 @@ void init_mission(short series, short mission)
     long largestBlock;
     short index;
 
-    g_bTargetLockActive_0049ae80 = 0;
-    g_bMissileLockAcquired_0049b2b0 = 0;
-    g_nLastAdaptiveDifficultyChangeFrame_00492d60 = 0;
-    g_ucPendingEjectionTransition_0049b8ac = 0xff;
-    g_nEnemyCommCommandBase_005d179c = 20;
-    g_nEnemyCommPilotIndex_005d179e = -1;
-    g_nCommDeathSequenceFrame_0049ae84 = 0;
-    g_bDisplayWingmanTargetData_0049347c = 0;
+    g_bTargetLockActive = 0;
+    g_bMissileLockAcquired = 0;
+    g_nLastAdaptiveDifficultyChangeFrame = 0;
+    g_ucPendingEjectionTransition = 0xff;
+    g_1_nEnemyCommCommandBase = 20;
+    g_nEnemyCommPilotIndex = -1;
+    g_nCommDeathSequenceFrame = 0;
+    g_bDisplayWingmanTargetData = 0;
     LoadMissionData(series, mission);
     init_3Space_objects(series);
-    g_nMissionResourceBudget_005c8de4 = 0x7c0600;
-    LoadPacketResourceList(g_aMissionResourceDescriptors_0049c798, 0,
-                           g_nAvailableGameMemoryNumber_005c8de0,
+    g_11_nMissionResourceBudget = 0x7c0600;
+    LoadPacketResourceList(g_aMissionResourceDescriptors, 0,
+                           g_nAvailableGameMemoryNumber,
                            "objects.vga");
     LoadPacketIntoBuffer("difflevl.000", 0,
-                         g_asDifficultyLevels_004930a8, 0);
-    g_nEnemyTauntCommandBase_0049b76c = 20;
-    g_bFriendlyFireWarningIssued_00492d5c = 0;
-    g_nAdaptiveDifficulty_005d3844 = 5;
+                         g_asDifficultyLevels, 0);
+    g_nEnemyTauntCommandBase = 20;
+    g_bFriendlyFireWarningIssued = 0;
+    g_nAdaptiveDifficulty = 5;
     for (index = 0; index < 10; index++) {
-        g_asShipIntelSlot_00495d30[index] = -1;
-        g_asShipIntelResourceKey_00495d48[index] = -1;
+        g_asShipIntelSlot[index] = -1;
+        g_asShipIntelResourceKey[index] = -1;
     }
-    g_stWingmanIntelligence_00496138.routDecisionMode = 0;
-    g_stWingmanIntelligence_00496138.formationDisobeyMode = 0;
-    g_stWingmanIntelligence_00496138.targetingMode = 0;
-    g_stWingmanIntelligence_00496138.engagementMode = 0;
+    g_stWingmanIntelligence.routDecisionMode = 0;
+    g_stWingmanIntelligence.formationDisobeyMode = 0;
+    g_stWingmanIntelligence.targetingMode = 0;
+    g_stWingmanIntelligence.engagementMode = 0;
     prepare_mission();
-    g_bCockpitDamageFrame0Shown_0049b2b4 = 0;
-    g_bCockpitDamageFrame2Shown_0049b2b8 = 0;
-    g_bFuelGaugeDamaged_0049b054 = 0;
-    InitializeCockpitResources(g_stCurrentPilotProfile_00493408.playerShipType);
-    g_bMissionDeathSequencePending_0049b720 = 0;
+    g_bCockpitDamageFrame0Shown = 0;
+    g_bCockpitDamageFrame2Shown = 0;
+    g_bFuelGaugeDamaged = 0;
+    InitializeCockpitResources(g_stCurrentPilotProfile.playerShipType);
+    g_bMissionDeathSequencePending = 0;
     for (index = 0; index < 5; index++)
-        g_acJumpDriveUsedBySystem_005d2fe8[index] = 0;
+        g_acJumpDriveUsedBySystem[index] = 0;
     ResetWeaponDisplayPositions();
-    g_nCurStellarSystem_005d169c =
-        g_aMissionNavPoints_00491e98[
-            g_stMissionHeaderBlock_005d3e70.entryNavPoint].systemIndex;
+    g_nCurStellarSystem =
+        g_aMissionNavPoints[
+            g_13_stMissionHeaderBlock.entryNavPoint].systemIndex;
 }
 
 /* Function start: 0x44B48F */
@@ -149,69 +149,69 @@ void ApplyAlternateShipType(short obj)
     void InitializeShipWeaponTypeIndices(short ship);
     short weapon;
 
-    typeData = &g_aObjectTypeData_00496d30[4];
-    g_acObjectType_00493980[obj] = 4;
-    g_apObjectShape_00493868[obj] = typeData->shapeSet;
-    g_apObjectExhaustShape_004953b8[obj] = typeData->animation;
-    g_asObjectType_00495298[obj] = typeData->field_18;
-    g_aeObjectClass_00495328[obj] = typeData->objectClass;
+    typeData = &g_aObjectTypeData[4];
+    g_acObjectType[obj] = 4;
+    g_apObjectShape[obj] = typeData->shapeSet;
+    g_apObjectExhaustShape[obj] = typeData->animation;
+    g_asObjectType[obj] = typeData->field_18;
+    g_aeObjectClass[obj] = typeData->objectClass;
     init_ijk(obj);
-    g_asObjectCollisionRadius_004950e8[obj] = typeData->collisionRadius;
-    g_asObjectScale_00494d90[obj] = typeData->scale;
-    g_asObjectDamage_00495178[obj] = 0;
-    g_asObjectFlip_004939c8[obj] = g_asObjectDamage_00495178[obj];
-    g_asObjectScreenAngle_004936b8[obj] = g_asObjectFlip_004939c8[obj];
-    g_acObjectOwner_00495208[obj] = -1;
-    g_acLastCollisionObject_00495250[obj] = -1;
-    g_asObjectViewFrame_00493508[obj] = 0;
-    g_acShipTarget_00495f20[obj] = -1;
-    g_aasShipShield_00495518[obj][0] = typeData->shieldFore;
-    g_aasShipMaximumShield_004954f0[obj][0] =
-        g_aasShipShield_00495518[obj][0];
-    g_aasShipShield_00495518[obj][1] = typeData->shieldAft;
-    g_aasShipMaximumShield_004954f0[obj][1] =
-        g_aasShipShield_00495518[obj][1];
-    g_aasShipArmor_00495540[obj][0] = typeData->armorFront;
-    g_aasShipArmor_00495540[obj][2] = typeData->armorLeft;
-    g_aasShipArmor_00495540[obj][3] = typeData->armorRight;
-    g_aasShipArmor_00495540[obj][1] = typeData->armorRear;
-    g_anShipFuel_00495638[obj] = *(const int *)&typeData->lifetime;
-    g_acShipIonDriveDamage_004956a0[obj] = 0;
-    g_acShipDamage_00495690[obj] = 0;
+    g_asObjectCollisionRadius[obj] = typeData->collisionRadius;
+    g_asObjectScale[obj] = typeData->scale;
+    g_asObjectDamage[obj] = 0;
+    g_asObjectFlip[obj] = g_asObjectDamage[obj];
+    g_asObjectScreenAngle[obj] = g_asObjectFlip[obj];
+    g_acObjectOwner[obj] = -1;
+    g_acLastCollisionObject[obj] = -1;
+    g_asObjectViewFrame[obj] = 0;
+    g_acShipTarget[obj] = -1;
+    g_aasShipShield[obj][0] = typeData->shieldFore;
+    g_aasShipMaximumShield[obj][0] =
+        g_aasShipShield[obj][0];
+    g_aasShipShield[obj][1] = typeData->shieldAft;
+    g_aasShipMaximumShield[obj][1] =
+        g_aasShipShield[obj][1];
+    g_aasShipArmor[obj][0] = typeData->armorFront;
+    g_aasShipArmor[obj][2] = typeData->armorLeft;
+    g_aasShipArmor[obj][3] = typeData->armorRight;
+    g_aasShipArmor[obj][1] = typeData->armorRear;
+    g_anShipFuel[obj] = *(const int *)&typeData->lifetime;
+    g_acShipIonDriveDamage[obj] = 0;
+    g_acShipDamage[obj] = 0;
     recalc_max_velocity(obj);
-    DAT_00495d78[obj] = 4;
-    memcpy(g_aShipWeapons_004956b0[obj], typeData->weaponLoadout,
+    g_acPilotHitPoints[obj] = 4;
+    memcpy(g_aShipWeapons[obj], typeData->weaponLoadout,
            sizeof(typeData->weaponLoadout));
     InitializeShipWeaponTypeIndices(obj);
 
     if (obj == 0) {
-        g_nSelectedReleaseWeaponIndex_004934e0 = -1;
-        g_nSelectedGunType_004934dc = -1;
-        weapon = (short)(signed char)g_aShipWeapons_004956b0[obj][0];
+        g_nSelectedReleaseWeaponIndex = -1;
+        g_nSelectedGunType = -1;
+        weapon = (short)(signed char)g_aShipWeapons[obj][0];
         while (weapon-- > 0) {
-            if (((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].disabled == 0) {
-                if (g_aObjectTypeData_00496d30[
-                        ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].weaponType].objectClass == 8) {
-                    if (g_nSelectedGunType_004934dc != -1 &&
-                        ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].type !=
-                            g_nSelectedGunType_004934dc)
-                        g_nSelectedGunType_004934dc = 0x80;
+            if (((struct ShipLoadout *)g_aShipWeapons)[obj].slots[weapon].disabled == 0) {
+                if (g_aObjectTypeData[
+                        ((struct ShipLoadout *)g_aShipWeapons)[obj].slots[weapon].weaponType].objectClass == 8) {
+                    if (g_nSelectedGunType != -1 &&
+                        ((struct ShipLoadout *)g_aShipWeapons)[obj].slots[weapon].type !=
+                            g_nSelectedGunType)
+                        g_nSelectedGunType = 0x80;
                     else
-                        g_nSelectedGunType_004934dc =
-                            ((struct ShipLoadout *)g_aShipWeapons_004956b0)[obj].slots[weapon].type;
+                        g_nSelectedGunType =
+                            ((struct ShipLoadout *)g_aShipWeapons)[obj].slots[weapon].type;
                 } else {
-                    g_nSelectedReleaseWeaponIndex_004934e0 = weapon;
+                    g_nSelectedReleaseWeaponIndex = weapon;
                 }
             }
         }
     }
 
     if (HasShipCockpitGunDisplay(obj) != 0)
-        g_asShipTurretFireEnabled_0049d470[obj] = 1;
+        g_asShipTurretFireEnabled[obj] = 1;
     else
-        g_asShipTurretFireEnabled_0049d470[obj] = 0;
-    g_asShipWeaponEnergy_00495590[obj] = 100;
-    g_acShipLastAttacker_004955c0[obj] = -1;
+        g_asShipTurretFireEnabled[obj] = 0;
+    g_asShipWeaponEnergy[obj] = 100;
+    g_acShipLastAttacker[obj] = -1;
 }
 
 #pragma function(strcat, strcpy)
@@ -230,24 +230,24 @@ void LoadAlternateShipType(short resourceType, short logicalFile)
     char numberText[4];
 
     slot = FindObjectResourceSlot(resourceType);
-    strcpy(nameCopy, g_aObjectTypeData_00496d30[slot].displayName);
-    keptAnimation = g_aObjectTypeData_00496d30[slot].animation;
-    savedShapeSet = g_aObjectTypeData_00496d30[slot].shapeSet;
-    savedShape = g_aObjectTypeData_00496d30[slot].shape;
+    strcpy(nameCopy, g_aObjectTypeData[slot].displayName);
+    keptAnimation = g_aObjectTypeData[slot].animation;
+    savedShapeSet = g_aObjectTypeData[slot].shapeSet;
+    savedShape = g_aObjectTypeData[slot].shape;
     strcpy(filename, "altships.");
-    if (g_nSelectedCampaignSlot_005d3bf2 < 100)
+    if (g_nSelectedCampaignSlot < 100)
         strcat(filename, "0");
-    if (g_nSelectedCampaignSlot_005d3bf2 < 10)
+    if (g_nSelectedCampaignSlot < 10)
         strcat(filename, "0");
     strcat(filename,
-           itoa(g_nSelectedCampaignSlot_005d3bf2, numberText, 10));
+           itoa(g_nSelectedCampaignSlot, numberText, 10));
     LOAD_OBJECT_TYPE_RECORD(filename, logicalFile,
-                                &g_aObjectTypeData_00496d30[4]);
-    strcpy(g_aObjectTypeData_00496d30[4].displayName, nameCopy);
-    g_aObjectTypeData_00496d30[4].resourceType = resourceType;
-    g_aObjectTypeData_00496d30[4].animation = keptAnimation;
-    g_aObjectTypeData_00496d30[4].shapeSet = savedShapeSet;
-    g_aObjectTypeData_00496d30[4].shape = savedShape;
+                                &g_aObjectTypeData[4]);
+    strcpy(g_aObjectTypeData[4].displayName, nameCopy);
+    g_aObjectTypeData[4].resourceType = resourceType;
+    g_aObjectTypeData[4].animation = keptAnimation;
+    g_aObjectTypeData[4].shapeSet = savedShapeSet;
+    g_aObjectTypeData[4].shape = savedShape;
 }
 
 #pragma intrinsic(strcat, strcpy)
@@ -263,7 +263,7 @@ void RefreshObjectiveShipNavPoints(void)
     short type;
 
     for (source = 0; source < 8; source++) {
-        type = g_aMissionObjectiveSources_005d3c70[source].type;
+        type = g_69_aMissionObjectiveSources[source].type;
         if (type != -1) {
             switch (type) {
             case 1:
@@ -272,10 +272,10 @@ void RefreshObjectiveShipNavPoints(void)
             case 4:
             case 6:
                 missionShip =
-                    g_aMissionObjectiveSources_005d3c70[source].index;
-                if (g_bBriefingMapActive_0049bcb0 != 0 || type == 6 ||
-                    g_aMissionShips_00492290[missionShip].navPoint != -1)
-                    g_aMissionShips_00492290[missionShip].navPoint =
+                    g_69_aMissionObjectiveSources[source].index;
+                if (g_bBriefingMapActive != 0 || type == 6 ||
+                    g_aMissionShips[missionShip].navPoint != -1)
+                    g_aMissionShips[missionShip].navPoint =
                         (signed char)find_ships_sphere(missionShip);
                 break;
             default:
@@ -293,44 +293,44 @@ void prepare_mission(void)
     short playerMissionShip;
     short portraitIndex;
 
-    g_stCurrentPilotProfile_00493408.missionScore = 0;
-    g_cPilotKillCountValue_005d2fa8 = 0;
+    g_stCurrentPilotProfile.missionScore = 0;
+    g_36_cPilotKillCountValue = 0;
     for (slot = 0; slot < 7; slot++)
-        g_acInitialShipKillNumber_005d2fc0[slot] = 0;
-    g_bWingmanKilledThisMission_005d2fb8 = 0;
-    g_bUserDestroyedFlag_005d2fa4 =
-        g_bWingmanKilledThisMission_005d2fb8;
+        g_4_acInitialShipKillNumber[slot] = 0;
+    g_bWingmanKilledThisMission = 0;
+    g_8_bUserDestroyedFlag =
+        g_bWingmanKilledThisMission;
 
-    playerMissionShip = g_stMissionHeaderBlock_005d3e70.playerMissionShip;
-    g_stCurrentPilotProfile_00493408.playerShipType =
-        g_aMissionShips_00492290[playerMissionShip].type;
+    playerMissionShip = g_13_stMissionHeaderBlock.playerMissionShip;
+    g_stCurrentPilotProfile.playerShipType =
+        g_aMissionShips[playerMissionShip].type;
     objectKind = OBJECT_CLASS_SHIP;
-    load_ship(g_stCurrentPilotProfile_00493408.playerShipType,
-              g_aMissionShips_00492290[playerMissionShip].objectType,
+    load_ship(g_stCurrentPilotProfile.playerShipType,
+              g_aMissionShips[playerMissionShip].objectType,
               objectKind, 0);
-    if (g_aMissionShips_00492290[playerMissionShip].field_13 != 0) {
+    if (g_aMissionShips[playerMissionShip].field_13 != 0) {
         LoadAlternateShipType(
-            g_stCurrentPilotProfile_00493408.playerShipType,
-            g_aMissionShips_00492290[playerMissionShip].field_13);
+            g_stCurrentPilotProfile.playerShipType,
+            g_aMissionShips[playerMissionShip].field_13);
         ApplyAlternateShipType(0);
     } else {
-        set_objects_data(0, g_stCurrentPilotProfile_00493408.playerShipType, -1, 1);
+        set_objects_data(0, g_stCurrentPilotProfile.playerShipType, -1, 1);
     }
-    g_aMissionShips_00492290[playerMissionShip].navPoint =
-        (signed char)g_stMissionHeaderBlock_005d3e70.entryNavPoint;
-    if (g_nMissionEntryNavOverride_0049d790 != -1) {
-        g_aMissionShips_00492290[playerMissionShip].navPoint =
-            (signed char)g_nMissionEntryNavOverride_0049d790;
+    g_aMissionShips[playerMissionShip].navPoint =
+        (signed char)g_13_stMissionHeaderBlock.entryNavPoint;
+    if (g_nMissionEntryNavOverride != -1) {
+        g_aMissionShips[playerMissionShip].navPoint =
+            (signed char)g_nMissionEntryNavOverride;
     }
     Set_up_ship_info(0, playerMissionShip, -1);
 
     for (slot = 0; slot < 9; slot++)
-        g_acPlayerComponentDamage_00493470[slot] = 0;
-    g_bMissionShipInitializationInProgress_0049b890 = 1;
-    g_nYourWingman_0049346c = -1;
+        g_acPlayerComponentDamage[slot] = 0;
+    g_bMissionShipInitializationInProgress = 1;
+    g_nYourWingman = -1;
     for (slot = 0; slot < 8; slot++) {
         playerMissionShip =
-            g_stMissionHeaderBlock_005d3e70.initialMissionShips[slot];
+            g_13_stMissionHeaderBlock.initialMissionShips[slot];
 #ifdef SDL_PORT
         /* S3M3 carries -2 in one otherwise empty initial-ship slot.  Retail
          * walks into the preceding nav table and eventually treats its zeroes
@@ -339,23 +339,23 @@ void prepare_mission(void)
             continue;
 #endif
         if (playerMissionShip != -1) {
-            portraitIndex = g_aMissionShips_00492290[playerMissionShip].portrait;
+            portraitIndex = g_aMissionShips[playerMissionShip].portrait;
             if (portraitIndex == 25 ||
-                g_aMissionShips_00492290[playerMissionShip].pilot != 5 ||
+                g_aMissionShips[playerMissionShip].pilot != 5 ||
                 is_alive(portraitIndex) != 0) {
                 if (find_ships_sphere(playerMissionShip) == -1) {
                     init_ship(playerMissionShip,
-                              g_stMissionHeaderBlock_005d3e70.entryNavPoint);
+                              g_13_stMissionHeaderBlock.entryNavPoint);
                 }
             }
         }
     }
-    g_bMissionShipInitializationInProgress_0049b890 = 0;
+    g_bMissionShipInitializationInProgress = 0;
     Build_objective_list();
-    g_nHomeOperationShipIndexValue_005d1e22 =
-        g_stMissionHeaderBlock_005d3e70.homeMissionShip;
-    g_bLandingCommRequestPending_00492fa0 = 0;
-    g_bTargetLockMode_00493500 = 0;
+    g_6_nHomeOperationShipIndexValue =
+        g_13_stMissionHeaderBlock.homeMissionShip;
+    g_bLandingCommRequestPending = 0;
+    g_bTargetLockMode = 0;
 }
 
 void FreePacketAndClear(void *slot, unsigned short releaseFlags);
@@ -374,12 +374,12 @@ void release_all_capital_ship_shapes(void)
     short obj;
 
     for (obj = 0; obj < 10; obj++) {
-        if (g_aeObjectClass_00495328[obj] >=
+        if (g_aeObjectClass[obj] >=
                 OBJECT_CLASS_CAPITAL_SHIP ||
-            (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-             g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP)) {
-            FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-            g_asLoadedShipViewFrame_00495d18[obj] = -1;
+            (g_bExpandedShipGraphicsEnabled != 0 &&
+             g_aeObjectClass[obj] == OBJECT_CLASS_SHIP)) {
+            FreePacketAndClear(&g_apObjectShape[obj], 0);
+            g_asLoadedShipViewFrame[obj] = -1;
         }
     }
 }
@@ -391,20 +391,20 @@ void release_capital_ship_shapes(short resourceType)
     short obj;
 
     for (slot = 0; slot < 5; slot++) {
-        if (g_aObjectTypeData_00496d30[slot].resourceType == resourceType)
+        if (g_aObjectTypeData[slot].resourceType == resourceType)
             break;
     }
-    if (g_aObjectTypeData_00496d30[slot].objectClass >=
+    if (g_aObjectTypeData[slot].objectClass >=
             OBJECT_CLASS_CAPITAL_SHIP ||
-        (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-         g_aObjectTypeData_00496d30[slot].objectClass ==
+        (g_bExpandedShipGraphicsEnabled != 0 &&
+         g_aObjectTypeData[slot].objectClass ==
              OBJECT_CLASS_SHIP)) {
         for (obj = 1; obj < 10; obj++) {
-            if (g_aObjectTypeData_00496d30[
-                    g_acObjectType_00493980[obj]].resourceType ==
+            if (g_aObjectTypeData[
+                    g_acObjectType[obj]].resourceType ==
                 resourceType) {
-                FreePacketAndClear(&g_apObjectShape_00493868[obj], 0);
-                g_asLoadedShipViewFrame_00495d18[obj] = -1;
+                FreePacketAndClear(&g_apObjectShape[obj], 0);
+                g_asLoadedShipViewFrame[obj] = -1;
             }
         }
     }
@@ -418,7 +418,7 @@ short FindObjectResourceSlot(short resourceType)
     short slot;
 
     for (slot = 0; slot <= 5; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].resourceType ==
+        if (g_aObjectResourceSlots[slot].resourceType ==
             resourceType)
             return slot;
     }
@@ -437,13 +437,13 @@ void load_ship(short resourceType, short objectType,
     void **packetRefs;
 
     if (resourceType != -1) {
-        if (g_aObjectResourceSlots_00493398[slot].shapeSet == 0) {
-            g_aObjectResourceSlots_00493398[slot].resourceType = resourceType;
+        if (g_aObjectResourceSlots[slot].shapeSet == 0) {
+            g_aObjectResourceSlots[slot].resourceType = resourceType;
             if (objectClass == OBJECT_CLASS_MISSILE)
                 strcpy(fileName, "missile.v");
             else
                 strcpy(fileName, "ship.v");
-            if (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
+            if (g_bExpandedShipGraphicsEnabled != 0 &&
                 objectClass == OBJECT_CLASS_SHIP) {
                 objectClass = OBJECT_CLASS_CAPITAL_SHIP;
                 strcpy(fileName, "xship.v");
@@ -452,130 +452,130 @@ void load_ship(short resourceType, short objectType,
             if (strlen(resourceNumber) == 1)
                 strcat(fileName, "0");
             strcat(fileName, resourceNumber);
-            g_aObjectResourceSlots_00493398[slot].objectType = objectType;
-            g_aObjectResourceSlots_00493398[slot].objectClass = objectClass;
+            g_aObjectResourceSlots[slot].objectType = objectType;
+            g_aObjectResourceSlots[slot].objectClass = objectClass;
 
             if (objectType == 0x3d) {
-                g_aObjectTypeData_00496d30[46].shapeSet =
+                g_aObjectTypeData[46].shapeSet =
                     FetchDiskPacketRetrying("objects.vga", 0x13, 0);
-                g_aObjectResourceSlots_00493398[slot].shapeSet =
-                    g_aObjectTypeData_00496d30[46].shapeSet;
+                g_aObjectResourceSlots[slot].shapeSet =
+                    g_aObjectTypeData[46].shapeSet;
                 for (entry = 1; entry < 10; entry++) {
-                    if (g_asObjectType_00495298[entry] == 0x3d) {
-                        g_apObjectShape_00493868[entry] =
-                            g_aObjectTypeData_00496d30[
-                                g_acObjectType_00493980[entry]].shapeSet;
+                    if (g_asObjectType[entry] == 0x3d) {
+                        g_apObjectShape[entry] =
+                            g_aObjectTypeData[
+                                g_acObjectType[entry]].shapeSet;
                     }
                 }
             } else if (objectType == 0x2c) {
-                if (g_aObjectTypeData_00496d30[44].shapeSet == 0) {
-                    g_aObjectTypeData_00496d30[44].shapeSet =
+                if (g_aObjectTypeData[44].shapeSet == 0) {
+                    g_aObjectTypeData[44].shapeSet =
                         FetchDiskPacketRetrying("pilotanm.vga", 2, 0);
-                    g_aObjectResourceSlots_00493398[slot].shapeSet =
-                        g_aObjectTypeData_00496d30[44].shapeSet;
+                    g_aObjectResourceSlots[slot].shapeSet =
+                        g_aObjectTypeData[44].shapeSet;
                 }
                 for (entry = 1; entry < 70; entry++) {
-                    if (g_asObjectType_00495298[entry] == 0x2c) {
-                        g_apObjectShape_00493868[entry] =
-                            g_aObjectTypeData_00496d30[
-                                g_acObjectType_00493980[entry]].shapeSet;
+                    if (g_asObjectType[entry] == 0x2c) {
+                        g_apObjectShape[entry] =
+                            g_aObjectTypeData[
+                                g_acObjectType[entry]].shapeSet;
                     }
                 }
             } else if (objectType == 5) {
-                g_aObjectTypeData_00496d30[26].shapeSet =
+                g_aObjectTypeData[26].shapeSet =
                     FetchDiskPacketRetrying("objects.vga", 0x10, 0);
-                g_aObjectTypeData_00496d30[24].shapeSet =
-                    g_aObjectTypeData_00496d30[26].shapeSet;
-                g_aObjectTypeData_00496d30[22].shapeSet =
-                    g_aObjectTypeData_00496d30[24].shapeSet;
-                g_aObjectResourceSlots_00493398[slot].shapeSet =
-                    g_aObjectTypeData_00496d30[22].shapeSet;
-                if (g_nMemConfiguration_005c8dc8 == 2) {
-                    g_aObjectTypeData_00496d30[27].shapeSet =
+                g_aObjectTypeData[24].shapeSet =
+                    g_aObjectTypeData[26].shapeSet;
+                g_aObjectTypeData[22].shapeSet =
+                    g_aObjectTypeData[24].shapeSet;
+                g_aObjectResourceSlots[slot].shapeSet =
+                    g_aObjectTypeData[22].shapeSet;
+                if (g_98_nMemConfiguration == 2) {
+                    g_aObjectTypeData[27].shapeSet =
                         FetchDiskPacketRetrying("objects.vga", 0x11, 4);
-                    g_aObjectTypeData_00496d30[25].shapeSet =
-                        g_aObjectTypeData_00496d30[27].shapeSet;
-                    g_aObjectTypeData_00496d30[23].shapeSet =
-                        g_aObjectTypeData_00496d30[25].shapeSet;
+                    g_aObjectTypeData[25].shapeSet =
+                        g_aObjectTypeData[27].shapeSet;
+                    g_aObjectTypeData[23].shapeSet =
+                        g_aObjectTypeData[25].shapeSet;
                 }
                 for (entry = 10; entry <= SPACE_LAST_MOVING_OBJECT;
                      entry++) {
-                    if (g_aeObjectClass_00495328[entry] ==
+                    if (g_aeObjectClass[entry] ==
                         OBJECT_CLASS_ASTEROID) {
-                        g_apObjectShape_00493868[entry] =
-                            g_aObjectTypeData_00496d30[
-                                g_acObjectType_00493980[entry]].shapeSet;
+                        g_apObjectShape[entry] =
+                            g_aObjectTypeData[
+                                g_acObjectType[entry]].shapeSet;
                     }
                 }
             } else if (objectType == 6) {
-                if (g_aObjectTypeData_00496d30[21].shapeSet == 0) {
-                    g_aObjectTypeData_00496d30[21].shapeSet =
+                if (g_aObjectTypeData[21].shapeSet == 0) {
+                    g_aObjectTypeData[21].shapeSet =
                         FetchDiskPacketRetrying("objects.vga", 0x0f, 0);
-                    g_aObjectResourceSlots_00493398[slot].shapeSet =
-                        g_aObjectTypeData_00496d30[21].shapeSet;
+                    g_aObjectResourceSlots[slot].shapeSet =
+                        g_aObjectTypeData[21].shapeSet;
                 }
                 for (entry = 10; entry <= SPACE_LAST_MOVING_OBJECT;
                      entry++) {
-                    if (g_asObjectType_00495298[entry] == 0x15)
-                        g_apObjectShape_00493868[entry] =
-                            g_aObjectTypeData_00496d30[21].shapeSet;
+                    if (g_asObjectType[entry] == 0x15)
+                        g_apObjectShape[entry] =
+                            g_aObjectTypeData[21].shapeSet;
                 }
             } else if ((objectClass == OBJECT_CLASS_SHIP &&
                         objectType != 0x33) ||
                        objectClass == OBJECT_CLASS_MISSILE) {
                 if (objectClass != OBJECT_CLASS_MISSILE &&
-                    g_bShipResourceReloadInProgress_0049b894 == 0) {
+                    g_bShipResourceReloadInProgress == 0) {
                     LOAD_OBJECT_TYPE_RECORD(
                         fileName, 3,
-                        &g_aObjectTypeData_00496d30[slot]);
+                        &g_aObjectTypeData[slot]);
                 }
-                g_aObjectResourceSlots_00493398[slot].shapeSet =
+                g_aObjectResourceSlots[slot].shapeSet =
                     FetchDiskPacketRetrying(fileName, 0, 0);
-                g_aObjectTypeData_00496d30[slot].shapeSet =
-                    g_aObjectResourceSlots_00493398[slot].shapeSet;
-                g_aObjectResourceSlots_00493398[slot].animation =
+                g_aObjectTypeData[slot].shapeSet =
+                    g_aObjectResourceSlots[slot].shapeSet;
+                g_aObjectResourceSlots[slot].animation =
                     FetchDiskPacketRetrying(fileName, 2, 0);
-                g_aObjectTypeData_00496d30[slot].animation =
-                    g_aObjectResourceSlots_00493398[slot].animation;
-                g_aObjectResourceSlots_00493398[slot].shape =
+                g_aObjectTypeData[slot].animation =
+                    g_aObjectResourceSlots[slot].animation;
+                g_aObjectResourceSlots[slot].shape =
                     FetchDiskPacketRetrying(fileName, 1, 0);
-                g_aObjectTypeData_00496d30[slot].shape =
-                    g_aObjectResourceSlots_00493398[slot].shape;
+                g_aObjectTypeData[slot].shape =
+                    g_aObjectResourceSlots[slot].shape;
                 if (objectClass == OBJECT_CLASS_SHIP &&
-                    g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
-                    g_nResourcePaletteState_005c57e6 == 0) {
-                    g_aObjectResourceSlots_00493398[slot].field_12 =
+                    g_19_bStoredHighMemoryEnabled != 0 &&
+                    g_1_nResourcePaletteState == 0) {
+                    g_aObjectResourceSlots[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 4, 4);
-                    g_aObjectTypeData_00496d30[32].shapeSet =
-                        g_aObjectResourceSlots_00493398[slot].field_12;
+                    g_aObjectTypeData[32].shapeSet =
+                        g_aObjectResourceSlots[slot].field_12;
                 }
                 for (entry = 0; entry < 10; entry++) {
-                    if (g_aeObjectClass_00495328[entry] >=
+                    if (g_aeObjectClass[entry] >=
                             OBJECT_CLASS_MISSILE &&
-                        g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[entry]].resourceType ==
+                        g_aObjectTypeData[
+                            g_acObjectType[entry]].resourceType ==
                             resourceType) {
-                        g_apObjectExhaustShape_004953b8[entry] =
-                            g_aObjectResourceSlots_00493398[slot].animation;
-                        g_apObjectShape_00493868[entry] =
-                            g_aObjectResourceSlots_00493398[slot].shapeSet;
+                        g_apObjectExhaustShape[entry] =
+                            g_aObjectResourceSlots[slot].animation;
+                        g_apObjectShape[entry] =
+                            g_aObjectResourceSlots[slot].shapeSet;
                     }
                 }
                 if (objectClass == OBJECT_CLASS_MISSILE) {
-                    g_aObjectTypeData_00496d30[objectType].shapeSet =
-                        g_aObjectTypeData_00496d30[slot].shapeSet;
-                    g_aObjectTypeData_00496d30[objectType].animation =
-                        g_aObjectTypeData_00496d30[slot].animation;
-                    g_aObjectTypeData_00496d30[objectType].shape =
-                        g_aObjectTypeData_00496d30[slot].shape;
+                    g_aObjectTypeData[objectType].shapeSet =
+                        g_aObjectTypeData[slot].shapeSet;
+                    g_aObjectTypeData[objectType].animation =
+                        g_aObjectTypeData[slot].animation;
+                    g_aObjectTypeData[objectType].shape =
+                        g_aObjectTypeData[slot].shape;
                 }
             } else {
-                if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
-                    g_nResourcePaletteState_005c57e6 == 0) {
-                    g_apPacketReferenceGroups_0049b898[slot] =
+                if (g_19_bStoredHighMemoryEnabled != 0 &&
+                    g_1_nResourcePaletteState == 0) {
+                    g_apPacketReferenceGroups[slot] =
                         (void **)calloc(0x25, HOST_POINTER_SIZE);
                     packetRefs =
-                        g_apPacketReferenceGroups_0049b898[slot];
+                        g_apPacketReferenceGroups[slot];
                     if (packetRefs == 0)
                         ReportFatalErrorCode("023");
                     for (section = 0; section < 0x25; section++) {
@@ -584,30 +584,30 @@ void load_ship(short resourceType, short objectType,
                         if (packetRefs[section] == 0)
                             break;
                     }
-                    g_aObjectResourceSlots_00493398[slot].field_12 =
+                    g_aObjectResourceSlots[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 0x27, 4);
                 }
                 LOAD_OBJECT_TYPE_RECORD(
                     fileName, 0x26,
-                    &g_aObjectTypeData_00496d30[slot]);
-                g_aObjectTypeData_00496d30[slot].shapeSet = 0;
-                g_aObjectResourceSlots_00493398[slot].shape =
+                    &g_aObjectTypeData[slot]);
+                g_aObjectTypeData[slot].shapeSet = 0;
+                g_aObjectResourceSlots[slot].shape =
                     FetchDiskPacketRetrying(fileName, 0x25, 0);
-                g_aObjectTypeData_00496d30[slot].shape =
-                    g_aObjectResourceSlots_00493398[slot].shape;
-                g_aObjectResourceSlots_00493398[slot].animation =
+                g_aObjectTypeData[slot].shape =
+                    g_aObjectResourceSlots[slot].shape;
+                g_aObjectResourceSlots[slot].animation =
                     FetchDiskPacketRetrying(fileName, 0x28, 0);
-                g_aObjectTypeData_00496d30[slot].animation =
-                    g_aObjectResourceSlots_00493398[slot].animation;
+                g_aObjectTypeData[slot].animation =
+                    g_aObjectResourceSlots[slot].animation;
                 for (entry = 0; entry < 10; entry++) {
-                    if (g_aObjectTypeData_00496d30[
-                            g_acObjectType_00493980[entry]].resourceType ==
+                    if (g_aObjectTypeData[
+                            g_acObjectType[entry]].resourceType ==
                         resourceType) {
-                        g_apObjectExhaustShape_004953b8[entry] =
-                            g_aObjectResourceSlots_00493398[slot].animation;
+                        g_apObjectExhaustShape[entry] =
+                            g_aObjectResourceSlots[slot].animation;
                         FreePacketAndClear(
-                            &g_apObjectShape_00493868[entry], 0);
-                        g_asLoadedShipViewFrame_00495d18[entry] = -1;
+                            &g_apObjectShape[entry], 0);
+                        g_asLoadedShipViewFrame[entry] = -1;
                     }
                 }
             }
@@ -623,94 +623,94 @@ void free_ship(short slot)
     short obj;
     void **refCount;
 
-    resourceType = g_aObjectResourceSlots_00493398[slot].resourceType;
-    if (g_aObjectResourceSlots_00493398[slot].objectClass >=
+    resourceType = g_aObjectResourceSlots[slot].resourceType;
+    if (g_aObjectResourceSlots[slot].objectClass >=
             OBJECT_CLASS_CAPITAL_SHIP ||
-        g_aObjectResourceSlots_00493398[slot].objectType == 0x33 ||
-        (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-         g_aObjectResourceSlots_00493398[slot].objectClass ==
+        g_aObjectResourceSlots[slot].objectType == 0x33 ||
+        (g_bExpandedShipGraphicsEnabled != 0 &&
+         g_aObjectResourceSlots[slot].objectClass ==
              OBJECT_CLASS_SHIP)) {
-        if (g_nResourcePaletteState_005c57e6 == 0)
+        if (g_1_nResourcePaletteState == 0)
             release_capital_ship_shapes(resourceType);
-        if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
-            g_nResourcePaletteState_005c57e6 == 0 &&
-            g_apPacketReferenceGroups_0049b898[slot] != 0) {
-            refCount = g_apPacketReferenceGroups_0049b898[slot];
+        if (g_19_bStoredHighMemoryEnabled != 0 &&
+            g_1_nResourcePaletteState == 0 &&
+            g_apPacketReferenceGroups[slot] != 0) {
+            refCount = g_apPacketReferenceGroups[slot];
             for (section = 0; section < 0x25; section++) {
                 FreePacketAndClear(&refCount[section], 8);
             }
             ReleasePacketHandle(refCount);
-            g_apPacketReferenceGroups_0049b898[slot] = 0;
+            g_apPacketReferenceGroups[slot] = 0;
         }
         FreePacketAndClear(
-            &g_aObjectResourceSlots_00493398[slot].shape, 8);
-        g_aObjectTypeData_00496d30[slot].shape = 0;
+            &g_aObjectResourceSlots[slot].shape, 8);
+        g_aObjectTypeData[slot].shape = 0;
         FreePacketAndClear(
-            &g_aObjectResourceSlots_00493398[slot].animation, 8);
-        if (g_nResourcePaletteState_005c57e6 == 0) {
+            &g_aObjectResourceSlots[slot].animation, 8);
+        if (g_1_nResourcePaletteState == 0) {
             FreePacketAndClear(
-                &g_aObjectResourceSlots_00493398[slot].field_12, 8);
+                &g_aObjectResourceSlots[slot].field_12, 8);
         }
     }
-    if (g_aObjectResourceSlots_00493398[slot].shapeSet == 0)
+    if (g_aObjectResourceSlots[slot].shapeSet == 0)
         return;
     FreePacketAndClear(
-        &g_aObjectResourceSlots_00493398[slot].shapeSet, 8);
-    if (g_aObjectResourceSlots_00493398[slot].objectType == 0x3d) {
+        &g_aObjectResourceSlots[slot].shapeSet, 8);
+    if (g_aObjectResourceSlots[slot].objectType == 0x3d) {
         for (obj = 1; obj < 10; obj++) {
-            if (g_asObjectType_00495298[obj] == 0x3d)
-                g_apObjectShape_00493868[obj] = 0;
+            if (g_asObjectType[obj] == 0x3d)
+                g_apObjectShape[obj] = 0;
         }
         return;
     }
-    if (g_aObjectResourceSlots_00493398[slot].objectType == 0x2c) {
+    if (g_aObjectResourceSlots[slot].objectType == 0x2c) {
         for (obj = 1; obj < SPACE_OBJECT_COUNT; obj++) {
-            if (g_asObjectType_00495298[obj] == 0x2c)
-                g_apObjectShape_00493868[obj] = 0;
+            if (g_asObjectType[obj] == 0x2c)
+                g_apObjectShape[obj] = 0;
         }
         return;
     }
-    if (g_aObjectResourceSlots_00493398[slot].objectType == 5) {
+    if (g_aObjectResourceSlots[slot].objectType == 5) {
         FreePacketAndClear(
-            &g_aObjectTypeData_00496d30[28].shapeSet, 8);
+            &g_aObjectTypeData[28].shapeSet, 8);
         FreePacketAndClear(
-            &g_aObjectTypeData_00496d30[23].shapeSet, 8);
-        g_aObjectTypeData_00496d30[27].shapeSet = 0;
-        g_aObjectTypeData_00496d30[26].shapeSet =
-            g_aObjectTypeData_00496d30[27].shapeSet;
-        g_aObjectTypeData_00496d30[25].shapeSet =
-            g_aObjectTypeData_00496d30[26].shapeSet;
-        g_aObjectTypeData_00496d30[24].shapeSet =
-            g_aObjectTypeData_00496d30[25].shapeSet;
+            &g_aObjectTypeData[23].shapeSet, 8);
+        g_aObjectTypeData[27].shapeSet = 0;
+        g_aObjectTypeData[26].shapeSet =
+            g_aObjectTypeData[27].shapeSet;
+        g_aObjectTypeData[25].shapeSet =
+            g_aObjectTypeData[26].shapeSet;
+        g_aObjectTypeData[24].shapeSet =
+            g_aObjectTypeData[25].shapeSet;
         for (obj = 10; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
-            if (g_asObjectType_00495298[obj] == 0x1c)
+            if (g_asObjectType[obj] == 0x1c)
                 remove_object(obj);
-            else if (g_aeObjectClass_00495328[obj] ==
+            else if (g_aeObjectClass[obj] ==
                      OBJECT_CLASS_ASTEROID)
-                g_apObjectShape_00493868[obj] = 0;
+                g_apObjectShape[obj] = 0;
         }
         return;
     }
-    if (g_aObjectResourceSlots_00493398[slot].objectType == 6) {
+    if (g_aObjectResourceSlots[slot].objectType == 6) {
         FreePacketAndClear(
-            &g_aObjectTypeData_00496d30[21].shapeSet, 8);
+            &g_aObjectTypeData[21].shapeSet, 8);
         return;
     }
-    g_aObjectTypeData_00496d30[slot].shapeSet = 0;
+    g_aObjectTypeData[slot].shapeSet = 0;
     FreePacketAndClear(
-        &g_aObjectResourceSlots_00493398[slot].animation, 8);
-    g_aObjectTypeData_00496d30[slot].animation = 0;
+        &g_aObjectResourceSlots[slot].animation, 8);
+    g_aObjectTypeData[slot].animation = 0;
     FreePacketAndClear(
-        &g_aObjectResourceSlots_00493398[slot].shape, 8);
-    g_aObjectTypeData_00496d30[slot].shape = 0;
-    if (g_nResourcePaletteState_005c57e6 == 0) {
+        &g_aObjectResourceSlots[slot].shape, 8);
+    g_aObjectTypeData[slot].shape = 0;
+    if (g_1_nResourcePaletteState == 0) {
         FreePacketAndClear(
-            &g_aObjectResourceSlots_00493398[slot].field_12, 8);
+            &g_aObjectResourceSlots[slot].field_12, 8);
     }
     for (obj = 0; obj < 10; obj++) {
-        if (g_aeObjectClass_00495328[obj] >= OBJECT_CLASS_MISSILE &&
-            g_acObjectType_00493980[obj] == slot)
-            g_apObjectShape_00493868[obj] = 0;
+        if (g_aeObjectClass[obj] >= OBJECT_CLASS_MISSILE &&
+            g_acObjectType[obj] == slot)
+            g_apObjectShape[obj] = 0;
     }
 }
 
@@ -721,7 +721,7 @@ void free_all_slots(void)
 
     release_all_capital_ship_shapes();
     for (slot = 0; slot < 4; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].resourceType != -1)
+        if (g_aObjectResourceSlots[slot].resourceType != -1)
             free_ship(slot);
     }
 }
@@ -733,24 +733,24 @@ void load_all_slots(void)
     short type;
     short object;
 
-    g_bShipResourceReloadInProgress_0049b894 = 1;
+    g_bShipResourceReloadInProgress = 1;
     free_view_buffer();
     release_all_capital_ship_shapes();
     for (slot = 0; slot < 4; slot++) {
-        type = g_aObjectResourceSlots_00493398[slot].resourceType;
+        type = g_aObjectResourceSlots[slot].resourceType;
         if (type != -1) {
             load_ship(type,
-                      g_aObjectResourceSlots_00493398[slot].objectType,
-                      g_aObjectResourceSlots_00493398[slot].objectClass,
+                      g_aObjectResourceSlots[slot].objectType,
+                      g_aObjectResourceSlots[slot].objectClass,
                       slot);
         }
     }
     for (object = 0; object < 10; object++) {
-        g_apObjectExhaustShape_004953b8[object] =
-            g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[object]].animation;
+        g_apObjectExhaustShape[object] =
+            g_aObjectTypeData[
+                g_acObjectType[object]].animation;
     }
-    g_bShipResourceReloadInProgress_0049b894 = 0;
+    g_bShipResourceReloadInProgress = 0;
 }
 
 /* Function start: 0x44CDCF */
@@ -768,7 +768,7 @@ short get_shape_slot(void)
     short slot;
 
     for (slot = 0; slot < 5; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].resourceType == -1)
+        if (g_aObjectResourceSlots[slot].resourceType == -1)
             return slot;
     }
     return -1;
@@ -780,7 +780,7 @@ short shape_loaded(short resourceType)
     short slot;
 
     for (slot = 0; slot < 5; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].resourceType == resourceType)
+        if (g_aObjectResourceSlots[slot].resourceType == resourceType)
             return 1;
     }
     return 0;
@@ -811,11 +811,11 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
     free_view_buffer();
     release_all_capital_ship_shapes();
     for (slot = 1; slot < 4; slot++) {
-        if (g_aObjectResourceSlots_00493398[slot].resourceType != -1 &&
+        if (g_aObjectResourceSlots[slot].resourceType != -1 &&
             !shape_needed(navPoint,
-                          g_aObjectResourceSlots_00493398[slot].resourceType)) {
+                          g_aObjectResourceSlots[slot].resourceType)) {
             free_ship(slot);
-            g_aObjectResourceSlots_00493398[slot].resourceType = -1;
+            g_aObjectResourceSlots[slot].resourceType = -1;
         }
     }
 
@@ -869,59 +869,59 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
             strcat(fileName, itoa((int)number, digits, 10));
             LoadPacketIntoBuffer(
                 fileName, 0,
-                g_aShipIntelligenceData_005d3060[
-                    g_asShipIntelSlot_00495d30[pilotIndex]],
+                g_aShipIntelligenceData[
+                    g_asShipIntelSlot[pilotIndex]],
                 0);
             break;
         case 1:
             ejectTarget =
                 (unsigned char)navPoint->waveCommands[offset + 1];
-            g_bEjectionWaitForEnemyWave_0049b8b0 = 0;
-            g_nPendingEjectionSequenceCount_0049b8b8 = 0;
-            g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
-            g_bEjectionTriggerImmediately_0049b8bc = 0;
+            g_bEjectionWaitForEnemyWave = 0;
+            g_nPendingEjectionSequenceCount = 0;
+            g_bEjectionAwaitingCommCommand = 0;
+            g_bEjectionTriggerImmediately = 0;
             switch ((unsigned char)
                         navPoint->waveCommands[offset + 2]) {
             case 0:
-                g_nEjectionSequenceState_0049b8c0 = 0;
-                g_ucPendingEjectionTransition_0049b8ac =
+                g_nEjectionSequenceState = 0;
+                g_ucPendingEjectionTransition =
                     (signed char)ejectTarget;
-                g_nPendingEjectionSequenceCount_0049b8b8 = 1;
+                g_nPendingEjectionSequenceCount = 1;
                 break;
             case 1:
-                g_ucPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition =
                     (signed char)ejectTarget;
                 break;
             case 2:
-                g_ucPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition =
                     (signed char)ejectTarget;
-                g_bEjectionWaitForEnemyWave_0049b8b0++;
+                g_bEjectionWaitForEnemyWave++;
                 break;
             case 3:
-                g_ucPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition =
                     (signed char)ejectTarget;
-                g_bEjectionAwaitingCommCommand_0049b8b4++;
+                g_bEjectionAwaitingCommCommand++;
                 break;
             case 4:
                 ejection_sequence(
                     (unsigned char)navPoint->waveCommands[offset + 1],
                     1);
-                if (g_nArcadeState_0049d75c != 0)
+                if (g_nArcadeState != 0)
                     return;
                 break;
             case 5:
-                g_ucPendingEjectionTransition_0049b8ac =
+                g_ucPendingEjectionTransition =
                     (signed char)ejectTarget;
-                g_bEjectionWaitForEnemyWave_0049b8b0++;
-                g_bEjectionTriggerImmediately_0049b8bc++;
+                g_bEjectionWaitForEnemyWave++;
+                g_bEjectionTriggerImmediately++;
                 break;
             }
             navPoint->waveCommands[offset] = -1;
             break;
         case 2:
-            g_cQueuedNpcPortrait_0049b8c4 =
+            g_cQueuedNpcPortrait =
                 navPoint->waveCommands[offset + 1];
-            g_cQueuedNpcMessage_0049b8c8 =
+            g_cQueuedNpcMessage =
                 navPoint->waveCommands[offset + 2];
             break;
         case 0xff:
@@ -945,52 +945,52 @@ void set_up_action_sphere(short navPoint)
     MissionNavPoint *point;
 
     load_all_slots();
-    g_nCurrentNavPoint_004931bc = navPoint;
-    point = &g_aMissionNavPoints_00491e98[navPoint];
-    g_nCurStellarSystem_005d169c = point->systemIndex;
+    g_nCurrentNavPoint = navPoint;
+    point = &g_aMissionNavPoints[navPoint];
+    g_nCurStellarSystem = point->systemIndex;
     ProcessMissionWaveCommands(point);
-    if (g_aMissionNavPoints_00491e98[navPoint + 1].type == 2)
-        g_nCurrentWave_004931c0 = 2;
+    if (g_aMissionNavPoints[navPoint + 1].type == 2)
+        g_nCurrentWave = 2;
     else
-        g_nCurrentWave_004931c0 = -1;
-    g_nEnemySighting_0049b670 = 0x7fff;
+        g_nCurrentWave = -1;
+    g_nEnemySighting = 0x7fff;
 
     for (stale = 0; stale < 10; stale++) {
-        if (g_asObjectType_00495298[stale] == OBJECT_DATA_SHIP_WING) {
+        if (g_asObjectType[stale] == OBJECT_DATA_SHIP_WING) {
             remove_object(stale);
-        } else if (g_asObjectType_00495298[stale] ==
+        } else if (g_asObjectType[stale] ==
                    OBJECT_DATA_EJECTED_PILOT) {
             remove_object(stale);
-            if (g_aObjectTypeData_00496d30[
+            if (g_aObjectTypeData[
                     OBJECT_DATA_EJECTED_PILOT].shapeSet != 0) {
                 FreePacketAndClear(
-                    &g_aObjectTypeData_00496d30[
+                    &g_aObjectTypeData[
                         OBJECT_DATA_EJECTED_PILOT].shapeSet, 0);
             }
         }
     }
 
     for (leftover = 1; leftover < 10; leftover++) {
-        if (g_aeObjectClass_00495328[leftover] != OBJECT_CLASS_NULL &&
-            g_acShipNavPoint_004953e0[leftover] != -1) {
-            if (g_aeObjectClass_00495328[leftover] >= OBJECT_CLASS_SHIP &&
-                g_asShipMissionType_00495de8[leftover] == MISSION_TYPE_ROUT) {
-                g_aMissionShips_00492290[
-                    g_asShipMissionIndex_00495d00[leftover]].state = 3;
+        if (g_aeObjectClass[leftover] != OBJECT_CLASS_NULL &&
+            g_acShipNavPoint[leftover] != -1) {
+            if (g_aeObjectClass[leftover] >= OBJECT_CLASS_SHIP &&
+                g_asShipMissionType[leftover] == MISSION_TYPE_ROUT) {
+                g_aMissionShips[
+                    g_asShipMissionIndex[leftover]].state = 3;
             }
-            if (g_aeObjectClass_00495328[leftover] >= OBJECT_CLASS_CAPITAL_SHIP ||
-                (g_bExpandedShipGraphicsEnabled_004931a4 != 0 &&
-                 g_aeObjectClass_00495328[leftover] == OBJECT_CLASS_SHIP))
-                FreePacketAndClear(&g_apObjectShape_00493868[leftover], 0);
-            if (g_asObjectScreenX_00493598[leftover] != -32767 &&
-                g_bJumpSequenceActive_004962f0 == 0)
+            if (g_aeObjectClass[leftover] >= OBJECT_CLASS_CAPITAL_SHIP ||
+                (g_bExpandedShipGraphicsEnabled != 0 &&
+                 g_aeObjectClass[leftover] == OBJECT_CLASS_SHIP))
+                FreePacketAndClear(&g_apObjectShape[leftover], 0);
+            if (g_asObjectScreenX[leftover] != -32767 &&
+                g_bJumpSequenceActive == 0)
                 explode(-1, leftover);
             else
                 remove_object(leftover);
         }
     }
     remove_all_hazards();
-    g_nHazardFieldCount_004931d0 = 0;
+    g_nHazardFieldCount = 0;
     new_sphere_shapes(point);
 
     for (slot = 0; slot < 10; slot++) {
@@ -1002,25 +1002,25 @@ void set_up_action_sphere(short navPoint)
     for (slot = 0; slot < 8; slot += 2) {
         if (((signed char *)point->triggers)[slot] != -1) {
             trigger = ((signed char *)point->triggers)[slot + 1];
-            g_aMissionNavPoints_00491e98[trigger].type =
+            g_aMissionNavPoints[trigger].type =
                 ((signed char *)point->triggers)[slot];
         }
     }
 
-    if (g_aMissionObjectives_004932a8[
-            g_cCurrentObjective_004931cc].type == 0 &&
-        g_aMissionNavPoints_00491e98[
-            g_aMissionObjectives_004932a8[
-                g_cCurrentObjective_004931cc].index].type == 0)
-        flag_objective(g_cCurrentObjective_004931cc, 1);
+    if (g_aMissionObjectives[
+            g_cCurrentObjective].type == 0 &&
+        g_aMissionNavPoints[
+            g_aMissionObjectives[
+                g_cCurrentObjective].index].type == 0)
+        flag_objective(g_cCurrentObjective, 1);
 
-    for (slot = 0; slot < g_cMissionObjectiveCount_00493294; slot++)
+    for (slot = 0; slot < g_cMissionObjectiveCount; slot++)
         LocateMobileObjective(slot);
     clean_up_cockpit();
-    g_bLandingCommRequestPending_00492fa0 = 0;
-    g_nEscapedEnemyCount_004962e8 = 0;
-    if (g_bAutopilotSequenceActive_00493064 == 0 &&
-        g_bHighMemoryBuffersSetState_005d2ad8 != 0)
+    g_bLandingCommRequestPending = 0;
+    g_nEscapedEnemyCount = 0;
+    if (g_bAutopilotSequenceActive == 0 &&
+        g_78_bHighMemoryBuffersSetState != 0)
         ResetCannedSceneRecording();
 }
 
@@ -1040,13 +1040,13 @@ short room_for_me(short obj, short minimum)
     if (distance_from_object(obj, 0) < minimum)
         return 0;
     for (other = 0; other < SPACE_OBJECT_COUNT; other++) {
-        if (other != obj && g_aeObjectClass_00495328[other] >= 8) {
-            ComputeVectorDelta(&g_aShipPosition_00494550[obj],
-                               &g_aShipPosition_00494550[other],
-                               &g_vCollisionDelta_00493178);
-            distance = (short)((g_asObjectCollisionRadius_004950e8[other] +
-                             g_asObjectCollisionRadius_004950e8[obj]) * 2);
-            if (IsVectorWithinRange(&g_vCollisionDelta_00493178,
+        if (other != obj && g_aeObjectClass[other] >= 8) {
+            ComputeVectorDelta(&g_aShipPosition[obj],
+                               &g_aShipPosition[other],
+                               &g_vCollisionDelta);
+            distance = (short)((g_asObjectCollisionRadius[other] +
+                             g_asObjectCollisionRadius[obj]) * 2);
+            if (IsVectorWithinRange(&g_vCollisionDelta,
                                     distance) != 0)
                 return 0;
         }
@@ -1060,8 +1060,8 @@ void place_ship_near_player_until_valid(short obj, short minimum, short maximum)
     if (obj == -1 || obj == 0)
         return;
     while (room_for_me(obj, minimum) == 0) {
-        random_radial(&g_aShipPosition_00494550[0], maximum,
-                      &g_aShipPosition_00494550[obj]);
+        random_radial(&g_aShipPosition[0], maximum,
+                      &g_aShipPosition[obj]);
     }
 }
 
@@ -1073,18 +1073,18 @@ short set_up_next_wave(void)
     short obj;
     short entry;
 
-    if (g_nCurrentWave_004931c0 == -1 ||
-        g_nTrainSimActive_0049d758 != 0)
+    if (g_nCurrentWave == -1 ||
+        g_nTrainSimActive != 0)
         return 0;
 
-    waveRecord = &g_aMissionNavPoints_00491e98[
-        g_nCurrentWave_004931c0 - 1 + g_nCurrentNavPoint_004931bc];
-    prevWave = g_nCurrentWave_004931c0;
-    g_nCurrentWave_004931c0++;
+    waveRecord = &g_aMissionNavPoints[
+        g_nCurrentWave - 1 + g_nCurrentNavPoint];
+    prevWave = g_nCurrentWave;
+    g_nCurrentWave++;
     if (waveRecord->type == prevWave) {
-        if (g_bStoredHighMemoryEnabled_005c80e4 != 0) {
+        if (g_19_bStoredHighMemoryEnabled != 0) {
             for (obj = 10; obj < SPACE_OBJECT_COUNT; obj++) {
-                if (g_asObjectType_00495298[obj] == OBJECT_TYPE_TORPEDO)
+                if (g_asObjectType[obj] == OBJECT_TYPE_TORPEDO)
                     remove_object(obj);
             }
         }
@@ -1094,11 +1094,11 @@ short set_up_next_wave(void)
         for (entry = 0; entry < 10; entry++) {
             place_ship_near_player_until_valid(
                 init_ship(waveRecord->missionShips[entry],
-                          g_nCurrentNavPoint_004931bc),
+                          g_nCurrentNavPoint),
                 5000, 10000);
         }
     } else {
-        g_nCurrentWave_004931c0 = -1;
+        g_nCurrentWave = -1;
         return 0;
     }
     return 1;
@@ -1127,22 +1127,22 @@ void set_formation_position(short obj, const MissionShipRecord *record)
         source = obj;
         while (leader->leaderMissionIndex != -1) {
             source = find_ship_index(leader->leaderMissionIndex);
-            leader = &g_aMissionShips_00492290[leader->leaderMissionIndex];
+            leader = &g_aMissionShips[leader->leaderMissionIndex];
         }
         sub_int_vector(
-            &g_aaFormationPositions_0049b8d0[leader->formationIndex]
+            &g_aaFormationPositions[leader->formationIndex]
                                             [record->formationSpot],
-            &g_aaFormationPositions_0049b8d0[leader->formationIndex]
+            &g_aaFormationPositions[leader->formationIndex]
                                             [leader->formationSpot],
-            &g_aShipFormationOffset_00495468[obj]);
+            &g_aShipFormationOffset[obj]);
         if (source == 0 &&
-            g_bMissionShipInitializationInProgress_0049b890 == 0)
+            g_bMissionShipInitializationInProgress == 0)
             return;
         copy_frame(source, obj);
-        set_sphere_point(leader, &g_aShipPosition_00494550[obj]);
-        offset_location(obj, &g_aShipFormationOffset_00495468[obj],
-                        &g_aShipPosition_00494550[obj]);
-        g_anShipSpeed_00494e20[obj] = leader->speed << 8;
+        set_sphere_point(leader, &g_aShipPosition[obj]);
+        offset_location(obj, &g_aShipFormationOffset[obj],
+                        &g_aShipPosition[obj]);
+        g_anShipSpeed[obj] = leader->speed << 8;
     }
 }
 
@@ -1152,80 +1152,80 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     MissionShipRecord *record;
     short gun;
 
-    g_bKilrathiAceGreetingSent_00499bf4 = 0;
-    g_asLoadedShipViewFrame_00495d18[obj] =
-        g_acShipLastAttacker_004955c0[obj] =
-            g_acShipPendingMessage_00495d98[obj] = -1;
-    g_acShipCommunicator_00495680[obj] =
-        g_acShipComputerDamage_00495670[obj] =
-            g_asShipFriendlyFireCooldown_00496090[obj] =
-                g_asObjectDamage_00495178[obj] =
-                    g_acShipIonDriveDamage_004956a0[obj] =
-                        g_acShipDamage_00495690[obj] =
-                            g_asActionCount_004955e8[obj] =
-                                g_acShipExhaustHeat_00495660[obj] = 0;
-    g_asShipMissionIndex_00495d00[obj] = missionShip;
-    g_acShipNavPoint_004953e0[obj] = navPoint;
-    record = &g_aMissionShips_00492290[missionShip];
-    g_acShipPortrait_00495d88[obj] = record->portrait;
+    g_bKilrathiAceGreetingSent = 0;
+    g_asLoadedShipViewFrame[obj] =
+        g_acShipLastAttacker[obj] =
+            g_acShipPendingMessage[obj] = -1;
+    g_acShipCommunicator[obj] =
+        g_acShipComputerDamage[obj] =
+            g_asShipFriendlyFireCooldown[obj] =
+                g_asObjectDamage[obj] =
+                    g_acShipIonDriveDamage[obj] =
+                        g_acShipDamage[obj] =
+                            g_asActionCount[obj] =
+                                g_acShipExhaustHeat[obj] = 0;
+    g_asShipMissionIndex[obj] = missionShip;
+    g_acShipNavPoint[obj] = navPoint;
+    record = &g_aMissionShips[missionShip];
+    g_acShipPortrait[obj] = record->portrait;
 
-    set_sphere_point(record, &g_aShipPosition_00494550[obj]);
+    set_sphere_point(record, &g_aShipPosition[obj]);
     alter_yaw((short)-record->pitch, obj);
     alter_pitch((short)-record->yaw, obj);
     alter_roll(record->roll, obj);
-    g_asShipSide_004955d0[obj] = record->side;
-    g_anShipSpeed_00494e20[obj] = record->speed << 8;
-    g_asPilotLevel_00495d60[obj] = record->pilot;
+    g_asShipSide[obj] = record->side;
+    g_anShipSpeed[obj] = record->speed << 8;
+    g_asPilotLevel[obj] = record->pilot;
     for (gun = 0; gun < 3; gun++)
-        g_aasGunCooldown_005c8d70[obj][gun] = 0;
-    g_acShipCollisionCooldown_00496010[obj] = 0;
-    DAT_004960f0[obj] = 0;
-    g_asWingmanDamageCredit_005d3830[obj] = 0;
-    g_asPlayerHitsCreditValues_005d38c0[obj] = 0;
-    g_asFlakCooldownTable_005d1bd0[obj] = (short)(
+        g_27_aasGunCooldown[obj][gun] = 0;
+    g_acShipCollisionCooldown[obj] = 0;
+    g_asProjectileEvasionTicks[obj] = 0;
+    g_asWingmanDamageCredit[obj] = 0;
+    g_asPlayerHitsCreditValues[obj] = 0;
+    g_2_asFlakCooldownTable[obj] = (short)(
         (unsigned short)RandomInRange(0, 200) + 600);
-    if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
-        g_asFlakCooldownTable_005d1bd0[obj] >>= 1;
-    g_asSpikeriCooldown_005d1bf0[obj] = (short)(
+    if (g_asShipSide[obj] == SIDE_KILRATHI)
+        g_2_asFlakCooldownTable[obj] >>= 1;
+    g_asSpikeriCooldown[obj] = (short)(
         (unsigned short)RandomInRange(0, 400) + 600);
-    g_asSpikeriLaunchCountdown_005d1c10[obj] = 0;
+    g_asSpikeriLaunchCountdown[obj] = 0;
     recalc_max_velocity(obj);
-    g_asCapitalHitDamageStepTable_005d17a0[obj] = 0;
-    if (g_aObjectTypeData_00496d30[
-            g_acObjectType_00493980[obj]].damageCapacity +
-            g_aasShipArmor_00495540[obj][0] < 400) {
-        g_asCapitalHitDamageStepTable_005d17a0[obj] =
-            g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[obj]].damageCapacity;
+    g_asCapitalHitDamageStepTable[obj] = 0;
+    if (g_aObjectTypeData[
+            g_acObjectType[obj]].damageCapacity +
+            g_aasShipArmor[obj][0] < 400) {
+        g_asCapitalHitDamageStepTable[obj] =
+            g_aObjectTypeData[
+                g_acObjectType[obj]].damageCapacity;
     } else {
-        g_asCapitalHitDamageStepTable_005d17a0[obj] = (short)(
-            g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[obj]].damageCapacity / 2 + 1);
+        g_asCapitalHitDamageStepTable[obj] = (short)(
+            g_aObjectTypeData[
+                g_acObjectType[obj]].damageCapacity / 2 + 1);
     }
     if (ShipHasCloakingDevice(obj) != 0) {
-        g_anShipCloakState_00496020[obj] = 0;
-        g_aShipWeapons_004956b0[obj][0]--;
+        g_anShipCloakState[obj] = 0;
+        g_aShipWeapons[obj][0]--;
     } else {
-        g_anShipCloakState_00496020[obj] = 2;
+        g_anShipCloakState[obj] = 2;
     }
-    g_asShipCloakCooldown_00496048[obj] = 0;
+    g_asShipCloakCooldown[obj] = 0;
     reset_mission_type(obj, record->missionType);
-    g_asShipMissionParameter_00495e00[obj] = record->missionParameter;
-    g_asShipWingLeader_00495dd0[obj] =
+    g_asShipMissionParameter[obj] = record->missionParameter;
+    g_asShipWingLeader[obj] =
         find_ship_index(record->leaderMissionIndex);
     set_formation_position(obj, record);
-    zero_vector(&g_aShipVelocity_00494898[obj]);
+    zero_vector(&g_aShipVelocity[obj]);
     init_intelligence_data(obj);
     if (record->name[0] == '?')
-        g_asShipIdentified_00496078[obj] = 0;
+        g_asShipIdentified[obj] = 0;
     else
-        g_asShipIdentified_00496078[obj] = 1;
-    g_apShipMissionRecord_00495da8[obj] = record;
-    g_abPilotEjectionAttempted_00496110[obj] = 0;
-    g_abShipEjectionSequenceEnabled_00496120[obj] = record->field_19;
-    g_abShipArrivalMessageSent_005d1dd0[obj] = 0;
-    if (g_asObjectType_00495298[obj] >= 0x39)
-        g_asCarrierLaunchTimer_005d1090[obj] = 0;
+        g_asShipIdentified[obj] = 1;
+    g_apShipMissionRecord[obj] = record;
+    g_abPilotEjectionAttempted[obj] = 0;
+    g_abShipEjectionSequenceEnabled[obj] = record->field_19;
+    g_13_abShipArrivalMessageSent[obj] = 0;
+    if (g_asObjectType[obj] >= 0x39)
+        g_2_asCarrierLaunchTimer[obj] = 0;
 }
 
 /* Function start: 0x44E028 */
@@ -1233,10 +1233,10 @@ short is_team_member(short missionShip)
 {
     short index;
 
-    if (g_stMissionHeaderBlock_005d3e70.playerMissionShip == missionShip)
+    if (g_13_stMissionHeaderBlock.playerMissionShip == missionShip)
         return 1;
     for (index = 0; index < 8; index++) {
-        if (g_stMissionHeaderBlock_005d3e70.initialMissionShips[index] == missionShip)
+        if (g_13_stMissionHeaderBlock.initialMissionShips[index] == missionShip)
             return 1;
     }
     return 0;
@@ -1247,20 +1247,20 @@ void find_next_ship_turn_slot(short obj)
 {
     short other;
 
-    g_acTurnInterval_00495628[obj] = (signed char)
-        g_anPilotTurnInterval_0049b9c0[g_asPilotLevel_00495d60[obj]];
-    g_acTurnRegulator_00495618[obj] = 1;
+    g_acTurnInterval[obj] = (signed char)
+        g_anPilotTurnInterval[g_asPilotLevel[obj]];
+    g_acTurnRegulator[obj] = 1;
     for (other = 1; other <= 9; other++) {
-        if (g_aeObjectClass_00495328[other] == OBJECT_CLASS_SHIP &&
+        if (g_aeObjectClass[other] == OBJECT_CLASS_SHIP &&
             other != obj &&
-            g_acTurnRegulator_00495618[obj] ==
-                g_acTurnRegulator_00495618[other] &&
-            g_acTurnInterval_00495628[other] ==
-                g_acTurnInterval_00495628[obj]) {
-            g_acTurnRegulator_00495618[obj]++;
+            g_acTurnRegulator[obj] ==
+                g_acTurnRegulator[other] &&
+            g_acTurnInterval[other] ==
+                g_acTurnInterval[obj]) {
+            g_acTurnRegulator[obj]++;
             other = 1;
-            if (g_acTurnInterval_00495628[obj] <
-                g_acTurnRegulator_00495618[obj])
+            if (g_acTurnInterval[obj] <
+                g_acTurnRegulator[obj])
                 return;
         }
     }
@@ -1277,19 +1277,19 @@ short init_ship(short missionShip, short navPoint)
 
     if (missionShip == -1)
         return -1;
-    record = &g_aMissionShips_00492290[missionShip];
+    record = &g_aMissionShips[missionShip];
     shipType = record->type;
     objectType = record->objectType;
 
     if (objectType == 0x3d || objectType == 0x2c) {
         obj = initialize_ship(objectType, -1, 0);
-        g_asShipMissionIndex_00495d00[obj] = missionShip;
-        AddFixedVectors(&g_aMissionNavPoints_00491e98[navPoint].position,
+        g_asShipMissionIndex[obj] = missionShip;
+        AddFixedVectors(&g_aMissionNavPoints[navPoint].position,
                         &record->position,
-                        &g_aShipPosition_00494550[obj]);
-        g_asShipSide_004955d0[obj] = 0;
+                        &g_aShipPosition[obj]);
+        g_asShipSide[obj] = 0;
     } else if (objectType == 5 || objectType == 6) {
-        AddFixedVectors(&g_aMissionNavPoints_00491e98[navPoint].position,
+        AddFixedVectors(&g_aMissionNavPoints[navPoint].position,
                         &record->position, &hazardCenter);
         add_hazard_field(objectType, hazardCenter,
                          (short)(record->speed + 3000),
@@ -1310,9 +1310,9 @@ short init_ship(short missionShip, short navPoint)
             LoadAlternateShipType(record->type, record->field_13);
         obj = initialize_ship(shipType, -1, 1);
         if (obj != -1) {
-            if (g_nYourWingman_0049346c == -1 && record->pilot > 4 &&
+            if (g_nYourWingman == -1 && record->pilot > 4 &&
                 record->side == 0)
-                g_nYourWingman_0049346c = obj;
+                g_nYourWingman = obj;
             Set_up_ship_info(obj, missionShip, (signed char)navPoint);
             if (record->field_13 != 0)
                 ApplyAlternateShipType(obj);
@@ -1342,64 +1342,64 @@ void init_intelligence_data(short obj)
     short index;
 
     meta = AllocateTaggedMemory(0x0c, 0x40);
-    g_abShipTurn_00495fd8[obj] = 0;
+    g_abShipTurn[obj] = 0;
     clear_alert(obj);
-    g_aeSpecialManeuver_00495600[obj] = SPECIAL_MANEUVER_NONE;
-    g_asShipIntelState_0049b678[obj] = 0;
-    index = g_asShipMissionParameter_00495e00[obj];
-    g_aShipMissionSpot_00495e18[obj] = g_aMissionNavPoints_00491e98[
-        g_nCurrentNavPoint_004931bc].position;
+    g_aeSpecialManeuver[obj] = SPECIAL_MANEUVER_NONE;
+    g_asShipIntelState[obj] = 0;
+    index = g_asShipMissionParameter[obj];
+    g_aShipMissionSpot[obj] = g_aMissionNavPoints[
+        g_nCurrentNavPoint].position;
 
-    switch (g_asShipMissionType_00495de8[obj]) {
+    switch (g_asShipMissionType[obj]) {
     case 0:
         break;
     case MISSION_TYPE_ESCORT:
     case MISSION_TYPE_DEFEND:
     case MISSION_TYPE_WINGMAN:
-        g_asShipMissionParameter_00495e00[obj] = index;
+        g_asShipMissionParameter[obj] = index;
         break;
     case MISSION_TYPE_STRIKE:
-        g_asShipMissionParameter_00495e00[obj] = index;
+        g_asShipMissionParameter[obj] = index;
         for (navEntry = 0; navEntry < 10; navEntry++) {
             for (member = 0; member < 10;
                  member++) {
-                if (g_aMissionNavPoints_00491e98[navEntry]
+                if (g_aMissionNavPoints[navEntry]
                         .missionShips[member] ==
-                    g_asShipMissionParameter_00495e00[obj]) {
+                    g_asShipMissionParameter[obj]) {
                     index = navEntry;
                 }
             }
         }
-        g_aShipMissionSpot_00495e18[obj] =
-            g_aMissionNavPoints_00491e98[index].position;
+        g_aShipMissionSpot[obj] =
+            g_aMissionNavPoints[index].position;
         break;
     case MISSION_TYPE_GOTO_WARP:
-        g_aShipMissionSpot_00495e18[obj] =
-            g_aMissionNavPoints_00491e98[index].position;
+        g_aShipMissionSpot[obj] =
+            g_aMissionNavPoints[index].position;
         break;
     case MISSION_TYPE_WARP_ARRIVE:
-        g_asShipTactic_00495f30[obj] = TACTIC_WARP_IN;
-        g_asShipManeuver_00495f48[obj] = MANEUVER_WARPING_IN;
-        if (g_asShipSide_004955d0[obj] == SIDE_KILRATHI)
+        g_asShipTactic[obj] = TACTIC_WARP_IN;
+        g_asShipManeuver[obj] = MANEUVER_WARPING_IN;
+        if (g_asShipSide[obj] == SIDE_KILRATHI)
             break;
         /* fall through */
     case 9: /* WC2's home-base mission value in this dispatch table. */
-        locate_ship(g_stMissionHeaderBlock_005d3e70.homeMissionShip,
-                    &g_aShipMissionSpot_00495e18[obj]);
+        locate_ship(g_13_stMissionHeaderBlock.homeMissionShip,
+                    &g_aShipMissionSpot[obj]);
         break;
     }
 
-    g_acShipStress_00496100[obj] = 0;
-    g_asShipIntelSlot_00495d30[obj] = -1;
-    if (obj != 0 && g_aeObjectClass_00495328[obj] == OBJECT_CLASS_SHIP &&
-        (obj == g_nYourWingman_0049346c ||
-         g_asShipSide_004955d0[obj] != SIDE_IMPERIAL)) {
+    g_acShipStress[obj] = 0;
+    g_asShipIntelSlot[obj] = -1;
+    if (obj != 0 && g_aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
+        (obj == g_nYourWingman ||
+         g_asShipSide[obj] != SIDE_IMPERIAL)) {
         shipIntelFile = 0;
-        if (g_asPilotLevel_00495d60[obj] == RATING_ACE_SPIRIT) {
-            intelNum = g_acShipPortrait_00495d88[obj];
-        } else if (g_asPilotLevel_00495d60[obj] < RATING_ACE_SPIRIT) {
-            intelNum = g_aObjectTypeData_00496d30[
-                g_acObjectType_00493980[obj]].resourceType;
+        if (g_asPilotLevel[obj] == RATING_ACE_SPIRIT) {
+            intelNum = g_acShipPortrait[obj];
+        } else if (g_asPilotLevel[obj] < RATING_ACE_SPIRIT) {
+            intelNum = g_aObjectTypeData[
+                g_acObjectType[obj]].resourceType;
             shipIntelFile = 1;
         } else {
             ReportFatalErrorCode("024");
@@ -1410,16 +1410,16 @@ void init_intelligence_data(short obj)
 
         matched = 0;
         for (index = 0; index < 10; index++) {
-            if (g_asShipIntelSlot_00495d30[index] != -1) {
+            if (g_asShipIntelSlot[index] != -1) {
                 usedSlots[
-                    g_asShipIntelSlot_00495d30[index]] = 1;
+                    g_asShipIntelSlot[index]] = 1;
             }
-            if (g_asShipIntelResourceKey_00495d48[index] ==
+            if (g_asShipIntelResourceKey[index] ==
                 shipIntelFile * 100 + intelNum) {
                 matched = 1;
-                g_asShipIntelSlot_00495d30[obj] =
-                    g_asShipIntelSlot_00495d30[index];
-                g_asShipIntelResourceKey_00495d48[obj] =
+                g_asShipIntelSlot[obj] =
+                    g_asShipIntelSlot[index];
+                g_asShipIntelResourceKey[obj] =
                     (short)(shipIntelFile * 100 + intelNum);
                 break;
             }
@@ -1429,8 +1429,8 @@ void init_intelligence_data(short obj)
                 if (usedSlots[index] == 0)
                     break;
             }
-            g_asShipIntelSlot_00495d30[obj] = index;
-            g_asShipIntelResourceKey_00495d48[obj] =
+            g_asShipIntelSlot[obj] = index;
+            g_asShipIntelResourceKey[obj] =
                 (short)(shipIntelFile * 100 + intelNum);
 
             strcpy(filename, "intel.0");
@@ -1443,10 +1443,10 @@ void init_intelligence_data(short obj)
 
             LoadPacketIntoBuffer(
                 filename, 0,
-                g_aShipIntelligenceData_005d3060[
-                    g_asShipIntelSlot_00495d30[obj]],
+                g_aShipIntelligenceData[
+                    g_asShipIntelSlot[obj]],
                 0);
-            if (obj == g_nYourWingman_0049346c) {
+            if (obj == g_nYourWingman) {
 #ifdef SDL_PORT
                 /* Section 1 is a twelve-byte ShipIntelligenceMetadata, and
                  * the original reads it straight over the run of wingman
@@ -1461,37 +1461,37 @@ void init_intelligence_data(short obj)
 
                     LoadPacketIntoBuffer(filename, 1,
                                          &wingmanIntel, 0);
-                    g_stWingmanIntelligence_00496138.routDecisionMode =
+                    g_stWingmanIntelligence.routDecisionMode =
                         wingmanIntel.routDecisionMode;
-                    g_stWingmanIntelligence_00496138.formationDisobeyMode =
+                    g_stWingmanIntelligence.formationDisobeyMode =
                         wingmanIntel.formationDisobeyMode;
-                    g_stWingmanIntelligence_00496138.targetingMode =
+                    g_stWingmanIntelligence.targetingMode =
                         wingmanIntel.targetingMode;
-                    g_stWingmanIntelligence_00496138.engagementMode =
+                    g_stWingmanIntelligence.engagementMode =
                         wingmanIntel.engagementMode;
                 }
 #else
                 LoadPacketIntoBuffer(
                     filename, 1,
-                    &g_stWingmanIntelligence_00496138, 0);
+                    &g_stWingmanIntelligence, 0);
 #endif
-                LoadCommPortraitResources(g_acShipPortrait_00495d88[obj]);
-                g_nLoadedCommPortraitPilot_004931c4 = -1;
-                if (g_pCommPortraitResource_0049b788 != 0) {
-                    g_nLoadedCommPortraitPilot_004931c4 =
-                        g_acShipPortrait_00495d88[obj];
+                LoadCommPortraitResources(g_acShipPortrait[obj]);
+                g_nLoadedCommPortraitPilot = -1;
+                if (g_pCommPortraitResource != 0) {
+                    g_nLoadedCommPortraitPilot =
+                        g_acShipPortrait[obj];
                 }
             } else if (shipIntelFile == 0) {
                 LoadPacketIntoBuffer(filename, 1, meta, 1);
                 if (meta->musicTrack != 0) {
-                    g_nMissionMusicTrackOverride_00496144 =
+                    g_nMissionMusicTrackOverride =
                         meta->musicTrack;
                 }
                 if (meta->enemyCommCommandBase != 0) {
-                    g_nEnemyCommCommandBase_005d179c =
+                    g_1_nEnemyCommCommandBase =
                         meta->enemyCommCommandBase;
-                    g_nEnemyCommPilotIndex_005d179e =
-                        g_acShipPortrait_00495d88[obj];
+                    g_nEnemyCommPilotIndex =
+                        g_acShipPortrait[obj];
                 }
             }
         }
@@ -1500,6 +1500,6 @@ void init_intelligence_data(short obj)
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-short g_nEnemyCommCommandBase_005d179c;
-short g_nEnemyCommPilotIndex_005d179e;
-short g_asCapitalHitDamageStepTable_005d17a0[10];
+short g_1_nEnemyCommCommandBase; /* 0x005d179c */
+short g_nEnemyCommPilotIndex; /* 0x005d179e */
+short g_asCapitalHitDamageStepTable[10]; /* 0x005d17a0 */

@@ -7,7 +7,7 @@
 #define KBMOUSE_C
 #include "game.h"
 
-int g_bKeyboardMouseEnabled_0049be68 = 0;
+int g_bKeyboardMouseEnabled = 0; /* 0x0049be68 */
 
 /* Function start: 0x452450 */
 /* Drive the mouse cursor from the numeric keypad when keyboard-mouse mode is
@@ -30,18 +30,18 @@ void KeyboardMousePump(void)
     dx = 0;
     dy = 0;
     buttons = 0;
-    if (g_bKeyboardMouseEnabled_0049be68 == 0)
+    if (g_bKeyboardMouseEnabled == 0)
         return;
 
-    speed = g_cKeypadMouseSpeedValue_005c83e6;
+    speed = g_cKeypadMouseSpeedValue;
     if (GetShiftKeyState() != 0)
         speed *= 2;
     if (GetNumLockKeyState() != 0)
-        g_cKeypadMouseSpeedValue_005c83e6 = 1;
-    if (GetNumpadPlusKeyState() != 0 && g_cKeypadMouseSpeedValue_005c83e6 < 10)
-        g_cKeypadMouseSpeedValue_005c83e6++;
-    if (GetNumpadMinusKeyState() != 0 && g_cKeypadMouseSpeedValue_005c83e6 > 1)
-        g_cKeypadMouseSpeedValue_005c83e6--;
+        g_cKeypadMouseSpeedValue = 1;
+    if (GetNumpadPlusKeyState() != 0 && g_cKeypadMouseSpeedValue < 10)
+        g_cKeypadMouseSpeedValue++;
+    if (GetNumpadMinusKeyState() != 0 && g_cKeypadMouseSpeedValue > 1)
+        g_cKeypadMouseSpeedValue--;
     if (GetReturnKeyState() != 0)
         buttons |= 4;
     if (GetSpaceKeyState() != 0)
@@ -72,13 +72,13 @@ void KeyboardMousePump(void)
     }
 
     if ((dx != 0 || dy != 0) &&
-        g_stScrViewInfo_005d21a0.pixels != 0) {
-        x = (short)(g_stEventQueuePointerData_005c83f0.x + dx);
-        y = (short)(g_stEventQueuePointerData_005c83f0.y + dy);
-        left = g_stScrViewInfo_005d21a0.left;
-        right = g_stScrViewInfo_005d21a0.right;
-        top = g_stScrViewInfo_005d21a0.top;
-        bottom = g_stScrViewInfo_005d21a0.bottom;
+        g_101_stScrViewInfo.pixels != 0) {
+        x = (short)(g_16_stEventQueuePointerData.x + dx);
+        y = (short)(g_16_stEventQueuePointerData.y + dy);
+        left = g_101_stScrViewInfo.left;
+        right = g_101_stScrViewInfo.right;
+        top = g_101_stScrViewInfo.top;
+        bottom = g_101_stScrViewInfo.bottom;
         if (left > x)
             x = left;
         else if (right < x)
@@ -87,48 +87,48 @@ void KeyboardMousePump(void)
             y = top;
         else if (bottom < y)
             y = bottom;
-        g_stEventQueuePointerData_005c83f0.x = x;
-        g_stPersonnelMouseData_005c8d00.x = g_stEventQueuePointerData_005c83f0.x;
-        g_stEventQueuePointerData_005c83f0.y = y;
-        g_stPersonnelMouseData_005c8d00.y = g_stEventQueuePointerData_005c83f0.y;
-        SetPersonnelCursorPosition(g_stEventQueuePointerData_005c83f0.x,
-                                   g_stEventQueuePointerData_005c83f0.y, 0, 0);
-        g_bIgnoreNextCursorMoveFlag_005c843c = 1;
+        g_16_stEventQueuePointerData.x = x;
+        g_6_stPersonnelMouseData.x = g_16_stEventQueuePointerData.x;
+        g_16_stEventQueuePointerData.y = y;
+        g_6_stPersonnelMouseData.y = g_16_stEventQueuePointerData.y;
+        SetPersonnelCursorPosition(g_16_stEventQueuePointerData.x,
+                                   g_16_stEventQueuePointerData.y, 0, 0);
+        g_2_bIgnoreNextCursorMoveFlag = 1;
         SetMousePosition(x, y);
     }
 
-    if (buttons != g_nKeyboardMouseButtons_005b3648) {
-        dx = (short)(g_nKeyboardMouseButtons_005b3648 & 2);
+    if (buttons != g_nKeyboardMouseButtons) {
+        dx = (short)(g_nKeyboardMouseButtons & 2);
         dy = (short)(buttons & 2);
         if (dx == 0 && dy != 0) {
             buttons &= 4;
-            QueueInputEvent(1, g_stEventQueuePointerData_005c83f0.x,
-                            g_stEventQueuePointerData_005c83f0.y, 0, 1,
+            QueueInputEvent(1, g_16_stEventQueuePointerData.x,
+                            g_16_stEventQueuePointerData.y, 0, 1,
                             buttons, 0, 0, 0);
-            SetPersonnelCursorPosition(g_stEventQueuePointerData_005c83f0.x,
-                                       g_stEventQueuePointerData_005c83f0.y, 0, 0);
+            SetPersonnelCursorPosition(g_16_stEventQueuePointerData.x,
+                                       g_16_stEventQueuePointerData.y, 0, 0);
         } else if (dx != 0 && dy == 0) {
             buttons &= 4;
-            QueueInputEvent(2, g_stEventQueuePointerData_005c83f0.x,
-                            g_stEventQueuePointerData_005c83f0.y, 0, 0,
+            QueueInputEvent(2, g_16_stEventQueuePointerData.x,
+                            g_16_stEventQueuePointerData.y, 0, 0,
                             buttons, 0, 0, 0);
         }
 
-        dx = (short)(g_nKeyboardMouseButtons_005b3648 & 4);
+        dx = (short)(g_nKeyboardMouseButtons & 4);
         dy = (short)(buttons & 4);
         if (dx == 0 && dy != 0) {
             buttons &= 2;
-            QueueInputEvent(1, g_stEventQueuePointerData_005c83f0.x,
-                            g_stEventQueuePointerData_005c83f0.y, 0,
+            QueueInputEvent(1, g_16_stEventQueuePointerData.x,
+                            g_16_stEventQueuePointerData.y, 0,
                             buttons, 1, 0, 0, 0);
-            SetPersonnelCursorPosition(g_stEventQueuePointerData_005c83f0.x,
-                                       g_stEventQueuePointerData_005c83f0.y, 0, 0);
+            SetPersonnelCursorPosition(g_16_stEventQueuePointerData.x,
+                                       g_16_stEventQueuePointerData.y, 0, 0);
         } else if (dx != 0 && dy == 0) {
             buttons &= 2;
-            QueueInputEvent(2, g_stEventQueuePointerData_005c83f0.x,
-                            g_stEventQueuePointerData_005c83f0.y, 0,
+            QueueInputEvent(2, g_16_stEventQueuePointerData.x,
+                            g_16_stEventQueuePointerData.y, 0,
                             buttons, 0, 0, 0, 0);
         }
     }
-    g_nKeyboardMouseButtons_005b3648 = buttons;
+    g_nKeyboardMouseButtons = buttons;
 }

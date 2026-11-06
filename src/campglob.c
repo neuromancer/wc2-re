@@ -5,18 +5,18 @@
  */
 #include "game.h"
 
-static char g_szTemporaryCampaignGlobalsFile_00499bc0[13];
+static char g_szTemporaryCampaignGlobalsFile[13]; /* 0x00499bc0 */
 
 /* Function start: 0x428E00 */
 short GetMissionShipPilotSaveIndex(short missionShip)
 {
     short pilot;
 
-    pilot = g_aMissionShips_00492290[missionShip].pilot;
+    pilot = g_aMissionShips[missionShip].pilot;
     if (pilot < 6)
         pilot = 99;
     else
-        pilot = g_aMissionShips_00492290[missionShip].portrait;
+        pilot = g_aMissionShips[missionShip].portrait;
     return pilot;
 }
 
@@ -26,7 +26,7 @@ short GetMissionShipVelocityState(short missionShip)
     short state;
 
     state = -1;
-    if (g_aMissionShips_00492290[missionShip].state == 3)
+    if (g_aMissionShips[missionShip].state == 3)
         state++;
     return state;
 }
@@ -36,7 +36,7 @@ short GetInitialMissionShipPilotSaveIndex(short initialShip)
 {
     short pilot;
 
-    pilot = g_stMissionHeaderBlock_005d3e70.initialMissionShips[initialShip];
+    pilot = g_13_stMissionHeaderBlock.initialMissionShips[initialShip];
     if (pilot != -1)
         pilot = GetMissionShipPilotSaveIndex(pilot);
     return pilot;
@@ -54,7 +54,7 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
     }
     pilotTotal = globals->pilotCount;
     for (index = 0; index < pilotTotal; index++)
-        globals->pilotStatus[index] = g_pPilotStatus_005d2fcc[index];
+        globals->pilotStatus[index] = g_pPilotStatus[index];
 
     for (index = 0; index < 8; index++) {
         /* Preserve retail's achieved/sighted/visited call order in CL 4.1;
@@ -67,31 +67,31 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
         globals->shipVelocityState[index] =
             (short)(GetMissionShipVelocityState(index) + 1);
 
-    globals->shipKillCounts[0] = g_cPilotKillCountValue_005d2fa8;
+    globals->shipKillCounts[0] = g_36_cPilotKillCountValue;
     globals->shipMissionFlags[0] = 0;
     globals->damageLevel = (short)calculate_damage_level();
-    globals->arcadeState = (short)g_nArcadeState_0049d75c;
-    if (g_nArcadeState_0049d75c == 2)
+    globals->arcadeState = (short)g_nArcadeState;
+    if (g_nArcadeState == 2)
         globals->shipMissionFlags[0] |= 2;
-    if (g_asShipSide_004955d0[0] == 1)
+    if (g_asShipSide[0] == 1)
         globals->shipMissionFlags[0] |= 4;
-    if (g_nArcadeState_0049d75c >= 3)
+    if (g_nArcadeState >= 3)
         globals->shipMissionFlags[0] |= 1;
 
     for (index = 1; index < 8; index++) {
         globals->shipKillCounts[index] =
-            g_acInitialShipKillNumber_005d2fc0[index - 1];
+            g_4_acInitialShipKillNumber[index - 1];
         globals->shipMissionFlags[index] =
-            g_acMissionShipStatusFlagsBytes_005d2fb0[index - 1];
-        if (index == 1 && g_bMissionWingmanState_005c8dbe != 0)
+            g_acMissionShipStatusFlagsBytes[index - 1];
+        if (index == 1 && g_6_bMissionWingmanState != 0)
             globals->shipMissionFlags[index] |= 8;
         pilotTotal = GetInitialMissionShipPilotSaveIndex(index);
         if (pilotTotal != -1)
             pilotTotal = (short)(pilotTotal * 2);
         globals->shipPilotIndices[index] = pilotTotal;
     }
-    globals->missionScore = g_stCurrentPilotProfile_00493408.missionScore;
-    FreePacketAndClear(&g_pPilotStatus_005d2fcc, 0x80);
+    globals->missionScore = g_stCurrentPilotProfile.missionScore;
+    FreePacketAndClear(&g_pPilotStatus, 0x80);
 }
 
 /* Function start: 0x42917D */
@@ -102,23 +102,23 @@ void InitializeCampaignConstellationState(CampaignGlobals *globals,
     short count;
 
     count = globals->pilotCount;
-    if (g_pPilotStatus_005d2fcc == 0)
-        g_pPilotStatus_005d2fcc =
+    if (g_pPilotStatus == 0)
+        g_pPilotStatus =
             (short *)calloc((int)count, 2);
-    if (g_pPilotStatus_005d2fcc == 0)
+    if (g_pPilotStatus == 0)
         ReportFatalErrorCode("017");
     if (count != 32)
         ReportFatalErrorCode("018");
 
     for (pilot = 0; pilot < count; pilot++)
-        g_pPilotStatus_005d2fcc[pilot] =
+        g_pPilotStatus[pilot] =
             globals->pilotStatus[pilot];
 
     if (copyPosition != 0) {
-        g_stCurrentPilotProfile_00493408.series = globals->series;
-        g_stCurrentPilotProfile_00493408.mission = globals->mission;
+        g_stCurrentPilotProfile.series = globals->series;
+        g_stCurrentPilotProfile.mission = globals->mission;
     }
-    g_nArcadeState_0049d75c = (int)globals->arcadeState;
+    g_nArcadeState = (int)globals->arcadeState;
 }
 
 #pragma function(strcat)
@@ -135,10 +135,10 @@ void RunCampaignScript(short campaignSlot)
     unsigned int totalFar;
     unsigned int largestFarMemoryBlock;
 
-    inputMode = g_nInterfaceEventMode_005c8d3c;
+    inputMode = g_18_nInterfaceEventMode;
     memcpy(campaignFileName, "campaign.s0", 12);
     campaignFileName[12] = 0;
-    if (g_bSkipCampaignVideo_0049c270 != 0)
+    if (g_bSkipCampaignVideo != 0)
         return;
     SetMenuInputPump();
     strcat(campaignFileName,
@@ -146,9 +146,9 @@ void RunCampaignScript(short campaignSlot)
     scenePacket = FetchDiskPacketRetrying(
         campaignFileName, 0, 0);
     for (font = 0; font < 4; font++) {
-        if (g_apTextGlyphs_005d2200[font] != 0) {
-            ReleasePacketHandle(g_apTextGlyphs_005d2200[font]);
-            g_apTextGlyphs_005d2200[font] = 0;
+        if (g_36_apTextGlyphs[font] != 0) {
+            ReleasePacketHandle(g_36_apTextGlyphs[font]);
+            g_36_apTextGlyphs[font] = 0;
         }
     }
     totalMain = GetAvailableMainMemory();
@@ -156,22 +156,22 @@ void RunCampaignScript(short campaignSlot)
     totalFar = GetAvailableFarMemory();
     largestFarMemoryBlock = GetLargestFreeMemoryBlock();
 #ifdef SDL_PORT
-    if (g_bCutsceneViewportPreallocated_00499c4c == 0)
+    if (g_bCutsceneViewportPreallocated == 0)
 #else
     /* This unit reads the byte flag as a word. */
-    if (*(short *)&g_bCutsceneViewportPreallocated_00499c4c == 0)
+    if (*(short *)&g_bCutsceneViewportPreallocated == 0)
 #endif
-        ClearViewport(&g_stModalSourceWindow_005d2c50, 0);
-    if (g_bSkipCampaignScenes_0049cc78 == 0) {
-        g_bSceneEscapeRequested_0049d4b0 = 0;
+        ClearViewport(&g_2_stModalSourceWindow, 0);
+    if (g_bSkipCampaignScenes == 0) {
+        g_bSceneEscapeRequested = 0;
         ParseCutsceneContainer(scenePacket);
-        g_bSceneDisplayUpdateActive_00499bb8 = 1;
+        g_bSceneDisplayUpdateActive = 1;
         DisableMouseCursorDrawing();
-        g_nInterfaceEventMode_005c8d3c = 0;
+        g_18_nInterfaceEventMode = 0;
         RunLoadedCutscene();
-        g_nInterfaceEventMode_005c8d3c = inputMode;
-        g_bSceneDisplayUpdateActive_00499bb8 = 0;
-        g_bSceneEscapeRequested_0049d4b0 = 0;
+        g_18_nInterfaceEventMode = inputMode;
+        g_bSceneDisplayUpdateActive = 0;
+        g_bSceneEscapeRequested = 0;
     }
     totalMain = GetAvailableMainMemory();
     largestMainBlock = GetLargestMainMemoryBlock();
@@ -183,9 +183,9 @@ void RunCampaignScript(short campaignSlot)
 /* Function start: 0x4293F9 */
 void LoadTemporaryCampaignGlobals(void)
 {
-    ReleasePacketSlot(&g_pCampaignGlobals_00499c94);
-    g_pCampaignGlobals_00499c94 =
-        LoadWholeDataFile(g_szTemporaryCampaignGlobalsFile_00499bc0);
+    ReleasePacketSlot(&g_pCampaignGlobals);
+    g_pCampaignGlobals =
+        LoadWholeDataFile(g_szTemporaryCampaignGlobalsFile);
 }
 
 /* Function start: 0x429423 */
@@ -193,18 +193,18 @@ void SaveAndFreeTemporaryCampaignGlobals(void)
 {
     short file;
 
-    if (g_pCampaignGlobals_00499c94 == 0)
+    if (g_pCampaignGlobals == 0)
         return;
-    file = CreateDataFile(g_szTemporaryCampaignGlobalsFile_00499bc0);
+    file = CreateDataFile(g_szTemporaryCampaignGlobalsFile);
     if (file >= 0) {
         WriteDataFileAtOffset(
             (unsigned short)file, 0,
-            (unsigned int)*(unsigned short *)g_pCampaignGlobals_00499c94 *
+            (unsigned int)*(unsigned short *)g_pCampaignGlobals *
                 2,
-            g_pCampaignGlobals_00499c94);
+            g_pCampaignGlobals);
         CloseDataFile((unsigned short)file);
     }
-    ReleasePacketSlot(&g_pCampaignGlobals_00499c94);
+    ReleasePacketSlot(&g_pCampaignGlobals);
 }
 
 /* Function start: 0x42949F */
@@ -235,83 +235,83 @@ void *LoadWholeDataFile(const char *path)
  * their animation streams precede the campaign file name in the original. */
 /* Frame lists the object-type records point at; 0xA000 and 0x9000 end a
  * sequence.  They sit immediately below the table in the retail image. */
-static short g_asExplosionSmallAnimation_00496af0[8] = {
+static short g_asExplosionSmallAnimation[8] = {
     0, 1, 2, 3, 4, 5, 6, (short)0xa000
-};
-static short g_asExplosionMediumAnimation_00496b00[16] = {
+}; /* 0x00496af0 */
+static short g_asExplosionMediumAnimation[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0xa000, 0, 0
-};
-static short g_asExplosionLargeAnimation_00496b20[20] = {
+}; /* 0x00496b00 */
+static short g_asExplosionLargeAnimation[20] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
     (short)0xa000, 0, 0
-};
-static short g_asLaserSparkAnimation_00496b48[8] = {
+}; /* 0x00496b20 */
+static short g_asLaserSparkAnimation[8] = {
     0, 1, 2, 3, 4, 5, (short)0xa000, 0
-};
-static short g_asBlueSparkAnimation_00496b58[8] = {
+}; /* 0x00496b48 */
+static short g_asBlueSparkAnimation[8] = {
     0, 1, 2, 3, (short)0xa000, 0, 0, 0
-};
-static short g_asRedSparkAnimation_00496b68[8] = {
+}; /* 0x00496b58 */
+static short g_asRedSparkAnimation[8] = {
     0, 1, 2, 3, (short)0xa000, 0, 0, 0
-};
-static short g_asSparkTrailAnimation_00496b78[8] = {
+}; /* 0x00496b68 */
+static short g_asSparkTrailAnimation[8] = {
     0, 1, 2, 3, (short)0xa000, 0, 0, 0
-};
-static short g_asGirderChunkAnimation_00496b88[8] = {
+}; /* 0x00496b78 */
+static short g_asGirderChunkAnimation[8] = {
     0, 1, 2, 3, 4, 5, (short)0x9000, 0
-};
-static short g_asShipTubingAnimation_00496b98[8] = {
+}; /* 0x00496b88 */
+static short g_asShipTubingAnimation[8] = {
     6, 7, 8, 9, 10, 11, (short)0x9000, 0
-};
-static short g_asBurningDebrisAnimation_00496ba8[20] = {
+}; /* 0x00496b98 */
+static short g_asBurningDebrisAnimation[20] = {
     12, 13, 14, 15, 16, 17, 18, 19, 146, 145, 144, 143, 142, 141, 140,
     20, (short)0x9000, 0, 0, 0
-};
-static short g_asORingDebrisAnimation_00496bd0[8] = {
+}; /* 0x00496ba8 */
+static short g_asORingDebrisAnimation[8] = {
     21, 22, 23, 24, 25, 26, (short)0x9000, 0
-};
-static short g_asPipeDebrisAnimation_00496be0[8] = {
+}; /* 0x00496bd0 */
+static short g_asPipeDebrisAnimation[8] = {
     27, 28, 29, 30, 31, 32, (short)0x9000, 0
-};
-static short g_asMetalSheetAnimation_00496bf0[16] = {
+}; /* 0x00496be0 */
+static short g_asMetalSheetAnimation[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
-};
-static short g_asDataCapsuleAnimation_00496c10[12] = {
+}; /* 0x00496bf0 */
+static short g_asDataCapsuleAnimation[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
-};
-static short g_asMineAnimation_00496c28[12] = {
+}; /* 0x00496c10 */
+static short g_asMineAnimation[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000
-};
-static short g_asChaffPodAnimation_00496c40[20] = {
+}; /* 0x00496c28 */
+static short g_asChaffPodAnimation[20] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, (short)0x9000, 0, 1, 2, 3, 4, 5,
     (short)0x9000, 0
-};
-static short g_asAsteroidSpinAnimation_00496c68[16] = {
+}; /* 0x00496c40 */
+static short g_asAsteroidSpinAnimation[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
-};
-static short g_asAsteroidRollAnimation_00496c88[16] = {
+}; /* 0x00496c68 */
+static short g_asAsteroidRollAnimation[16] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, (short)0x9000, 0, 0
-};
-static short g_asAsteroidSpinReverseAnimation_00496ca8[16] = {
+}; /* 0x00496c88 */
+static short g_asAsteroidSpinReverseAnimation[16] = {
     12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, (short)0x9000, 0, 0
-};
-static short g_asAsteroidRollReverseAnimation_00496cc8[16] = {
+}; /* 0x00496ca8 */
+static short g_asAsteroidRollReverseAnimation[16] = {
     12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0, (short)0x9000, 0, 0
-};
-static short g_asEjectedPilotAnimation_00496ce8[12] = {
+}; /* 0x00496cc8 */
+static short g_asEjectedPilotAnimation[12] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, (short)0x9000, 0
-};
-static short g_asShipDebrisFlashAnimation_00496d00[24] = {
+}; /* 0x00496ce8 */
+static short g_asShipDebrisFlashAnimation[24] = {
     0, 1026, 1028, 1028, 1032, 1032, 1032, 1040, 1040, 1040, 1040, 2080,
     2080, 2064, 2056, 2052, 1, 2052, 2052, 2052, 2052, (short)0xa000, 0,
     0
-};
+}; /* 0x00496d00 */
 
 /* WC2 keeps its own 49-record table: slots 0-6 are the ship types the game
  * loads at runtime and stay zero in the image, and 7-48 are the static
  * projectile, missile, asteroid, debris and explosion records read straight
  * out of the retail .data. */
-ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT] = {
+ObjectTypeData g_aObjectTypeData[OBJECT_DATA_COUNT] = {
     { 0 },
     { 0 },
     { 0 },
@@ -366,124 +366,124 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT] = {
     },
     {
         "Chaff Pod", OBJECT_CLASS_MISSILE, 0, 20, 50, 1, 768, 400, 160, 4, 1000, 90, 0, (unsigned char
-        *)g_asChaffPodAnimation_00496c40, 1689, 11, 11, 11, 100
+        *)g_asChaffPodAnimation, 1689, 11, 11, 11, 100
     },
     {
         "Porcupine", OBJECT_CLASS_MINE, 0, 21, 20, 5, 768, 110, 120,
-        4, 20000, 20, 20, (unsigned char *)g_asMineAnimation_00496c28,
+        4, 20000, 20, 20, (unsigned char *)g_asMineAnimation,
         0, 0, 2, 2
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 22, 100, 300, 1024, 0, 0, -1,
-        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0,
+        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation, 0,
         0, 1, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 23, 100, 300, 1024, 0, 0, -1,
-        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation_00496c88, 0,
+        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation, 0,
         0, 1, 12
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 24, 100, 300, 1024, 0, 0, -1,
         0, 0, 0, (unsigned char
-        *)g_asAsteroidSpinReverseAnimation_00496ca8, 0, 0, 1, 13
+        *)g_asAsteroidSpinReverseAnimation, 0, 0, 1, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 25, 100, 300, 1024, 0, 0, -1,
         0, 0, 0, (unsigned char
-        *)g_asAsteroidRollReverseAnimation_00496cc8, 0, 0, 1, 12
+        *)g_asAsteroidRollReverseAnimation, 0, 0, 1, 12
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 26, 100, 300, 1024, 0, 0, -1,
-        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0,
+        0, 0, 0, (unsigned char *)g_asAsteroidSpinAnimation, 0,
         0, 2, 13
     },
     {
         "", OBJECT_CLASS_ASTEROID, 0, 27, 100, 300, 1024, 0, 0, -1,
-        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation_00496c88, 0,
+        0, 0, 0, (unsigned char *)g_asAsteroidRollAnimation, 0,
         0, 2, 12
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 28, 10, 4, 192, 0, 0, -1, 0, 0,
-        0, (unsigned char *)g_asAsteroidSpinAnimation_00496c68, 0, 0, 2,
+        0, (unsigned char *)g_asAsteroidSpinAnimation, 0, 0, 2,
         13
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 29, 10, 1, 2048, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asGirderChunkAnimation_00496b88, 0, 0, 2,
+        0, (unsigned char *)g_asGirderChunkAnimation, 0, 0, 2,
         5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 30, 10, 1, 2048, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asShipTubingAnimation_00496b98, 0, 0, 2, 5
+        0, (unsigned char *)g_asShipTubingAnimation, 0, 0, 2, 5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 31, 20, 2, 1280, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asMetalSheetAnimation_00496bf0, 0, 0, 1,
+        0, (unsigned char *)g_asMetalSheetAnimation, 0, 0, 1,
         11
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 32, 20, 2, 1280, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asDataCapsuleAnimation_00496c10, 0, 0, 1,
+        0, (unsigned char *)g_asDataCapsuleAnimation, 0, 0, 1,
         2
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 33, 20, 2, 768, 0, 0, 0, 0, 0, 0,
-        (unsigned char *)g_asBurningDebrisAnimation_00496ba8, 0, 0, 1,
+        (unsigned char *)g_asBurningDebrisAnimation, 0, 0, 1,
         15
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 34, 2, 1, 1792, 0, 0, 0, 0, 0, 0,
-        (unsigned char *)g_asORingDebrisAnimation_00496bd0, 0, 0, 1, 5
+        (unsigned char *)g_asORingDebrisAnimation, 0, 0, 1, 5
     },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 35, 6, 1, 1536, 0, 0, 0, 0, 0, 0,
-        (unsigned char *)g_asPipeDebrisAnimation_00496be0, 0, 0, 1, 5
+        (unsigned char *)g_asPipeDebrisAnimation, 0, 0, 1, 5
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 36, 0, 0, 768, 0, 0, -1, 6000,
-        0, 0, (unsigned char *)g_asExplosionSmallAnimation_00496af0, 0,
+        0, 0, (unsigned char *)g_asExplosionSmallAnimation, 0,
         0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 37, 0, 0, 1024, 0, 0, -1,
         6000, 0, 0, (unsigned char
-        *)g_asExplosionMediumAnimation_00496b00, 0, 0, 1
+        *)g_asExplosionMediumAnimation, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 38, 0, 0, 336, 0, 0, -1, 6000,
-        0, 0, (unsigned char *)g_asExplosionLargeAnimation_00496b20, 0,
+        0, 0, (unsigned char *)g_asExplosionLargeAnimation, 0,
         0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 39, 0, 0, 256, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asLaserSparkAnimation_00496b48, 0, 0, 1
+        0, (unsigned char *)g_asLaserSparkAnimation, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 40, 0, 0, 256, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asRedSparkAnimation_00496b68, 0, 0, 2, 3
+        0, (unsigned char *)g_asRedSparkAnimation, 0, 0, 2, 3
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 41, 0, 0, 256, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asBlueSparkAnimation_00496b58, 0, 0, 2, 3
+        0, (unsigned char *)g_asBlueSparkAnimation, 0, 0, 2, 3
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 42, 1, 1, 256, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asSparkTrailAnimation_00496b78, 0, 0, 2, 3
+        0, (unsigned char *)g_asSparkTrailAnimation, 0, 0, 2, 3
     },
     { "", OBJECT_CLASS_FIXED_OBJECT, 0, 43, 0, 0, 256 },
     {
         "", OBJECT_CLASS_DEBRIS, 0, 44, 6, 10, 512, 0, 0, 0, 0, 0, 0,
-        (unsigned char *)g_asEjectedPilotAnimation_00496ce8, 0, 0, 1, 12
+        (unsigned char *)g_asEjectedPilotAnimation, 0, 0, 1, 12
     },
     {
         "", OBJECT_CLASS_EXPLOSION, 0, 45, 0, 0, 1024, 0, 0, 0, 0, 0,
-        0, (unsigned char *)g_asShipDebrisFlashAnimation_00496d00, 0, 0,
+        0, (unsigned char *)g_asShipDebrisFlashAnimation, 0, 0,
         1
     },
     {
         "data capsule", OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0, 0, 0, 0, 0, (unsigned char
-        *)g_asDataCapsuleAnimation_00496c10, 0, 0, 1
+        *)g_asDataCapsuleAnimation, 0, 0, 1
     },
     {
         "", OBJECT_CLASS_FIXED_OBJECT, 0, 62, 0, 0, 192, 0, 0, 0, 0,
@@ -493,11 +493,11 @@ ObjectTypeData g_aObjectTypeData_00496d30[OBJECT_DATA_COUNT] = {
         "", OBJECT_CLASS_FIXED_OBJECT, 0, 63, 0, 0, 192, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 1
     }
-};
-int g_nUnusedObjectDataWord_00499bb4 = 0;   /* no references in the original */
-int g_bSceneDisplayUpdateActive_00499bb8 = 0;
-static char g_szTemporaryCampaignGlobalsFile_00499bc0[13] = "TEMPGLOB.000";
+}; /* 0x00496d30 */
+int g_nUnusedObjectDataWord = 0; /* 0x00499bb4 */   /* no references in the original */
+int g_bSceneDisplayUpdateActive = 0; /* 0x00499bb8 */
+static char g_szTemporaryCampaignGlobalsFile[13] = "TEMPGLOB.000"; /* 0x00499bc0 */
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-short *g_pPilotStatus_005d2fcc;
+short *g_pPilotStatus; /* 0x005d2fcc */

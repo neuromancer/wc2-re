@@ -784,11 +784,11 @@ $(MODERN_CXX_TEST_BIN): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
-# globals.o carries the OriginFX sound-effect records the retail check plays.
+# music.o carries the OriginFX sound-effect records the retail check plays.
 $(MODERN_ADLIB_TEST_BIN): \
 		$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.o \
 		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_OUT_DIR)/obj/globals.o \
+		$(MODERN_OUT_DIR)/obj/music.o \
 		$(MODERN_OUT_DIR)/obj/sdl/originfx.o \
 		$(MODERN_YMFM_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \

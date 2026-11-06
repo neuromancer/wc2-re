@@ -32,7 +32,7 @@ short OpenPacketSection(const char *filename, short section,
                 goto failed;
             entryCount = (short)((directorySize >> 2) - 1);
             if (section >= entryCount) {
-                g_nPacketError_0049ca90 = 3;
+                g_nPacketError = 3;
                 goto failed;
             }
             offset = (section + 1) * 4;

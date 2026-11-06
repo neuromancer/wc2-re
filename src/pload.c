@@ -46,7 +46,7 @@ void *PacketLoad(const char *filename, short section,
                 ReadDataFileAtOffset((unsigned short)handle.file,
                                      (int)handle.dataOffset, 4,
                                      sizeBytes) == 0) {
-                g_nPacketError_0049ca90 = 6;
+                g_nPacketError = 6;
                 break;
             }
             outputSize = (unsigned int)sizeBytes[0] |
@@ -57,7 +57,7 @@ void *PacketLoad(const char *filename, short section,
             compressedData = (unsigned char *)malloc(
                 compressedSize != 0 ? compressedSize : 1);
             if (compressedData == 0) {
-                g_nPacketError_0049ca90 = 1;
+                g_nPacketError = 1;
                 break;
             }
             handle.position = 4;
@@ -72,17 +72,17 @@ void *PacketLoad(const char *filename, short section,
             data = destination;
             if (data == 0)
                 data = AllocateTaggedMemory(outputSize, flags);
-            g_pLibraryCurrentLastPacketAllocation_005c80e0 = data;
+            g_26_pLibraryCurrentLastPacketAllocation = data;
             if (data == 0) {
-                g_nPacketError_0049ca90 = 4;
+                g_nPacketError = 4;
             } else if (!SdlDecompressOriginLzw(
                            compressedData, compressedSize, data,
                            outputSize, &writtenSize)) {
                 if (allocatedPacket != 0)
                     ReleasePacketHandle(data);
                 data = 0;
-                g_pLibraryCurrentLastPacketAllocation_005c80e0 = 0;
-                g_nPacketError_0049ca90 = 6;
+                g_26_pLibraryCurrentLastPacketAllocation = 0;
+                g_nPacketError = 6;
             }
             free(compressedData);
             break;
@@ -101,16 +101,16 @@ void *PacketLoad(const char *filename, short section,
         default:
             if (handle.dataSize == 0) {
                 data = 0;
-                g_nPacketError_0049ca90 = 8;
+                g_nPacketError = 8;
                 break;
             }
             data = destination;
             if (data == 0) {
-                g_pLibraryCurrentLastPacketAllocation_005c80e0 = AllocateTaggedMemory(
+                g_26_pLibraryCurrentLastPacketAllocation = AllocateTaggedMemory(
                     handle.dataSize, (short)(flags | 0x40));
-                data = g_pLibraryCurrentLastPacketAllocation_005c80e0;
+                data = g_26_pLibraryCurrentLastPacketAllocation;
                 if (data == 0)
-                    g_nPacketError_0049ca90 = 4;
+                    g_nPacketError = 4;
             }
             if (data != 0) {
                 if (registerHandle != 0 &&

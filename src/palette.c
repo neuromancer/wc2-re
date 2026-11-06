@@ -13,7 +13,7 @@ void SaveGamePalette(void)
     for (index = 0; index < 256; index++) {
         if ((index & 15) == 0)
             WaitForVerticalBlankThunk();
-        GetPaletteEntry(index, g_ausPaletteWords_005d3220[index]);
+        GetPaletteEntry(index, g_ausPaletteWords[index]);
     }
 }
 
@@ -25,10 +25,10 @@ void RestoreGamePalette(void)
     for (index = 0; (short)index < 256; index++) {
         if ((index & 15) == 0)
             WaitForVerticalBlankThunk();
-        SetPaletteEntry(index, (short *)g_ausPaletteWords_005d3220[index]);
+        SetPaletteEntry(index, (short *)g_ausPaletteWords[index]);
     }
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-unsigned short g_ausPaletteWords_005d3220[256][3];
+unsigned short g_ausPaletteWords[256][3]; /* 0x005d3220 */

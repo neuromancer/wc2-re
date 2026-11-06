@@ -20,7 +20,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_FILES = ['src/globals.c']
-ADDRESS = re.compile(r'_(00[0-9a-f]{6})\b')
+ADDRESS = re.compile(r'/\*\s*0x(00[0-9a-fA-F]{6})\s*\*/')
 NO_ADDRESS = '/* no-address */'
 
 
@@ -69,7 +69,8 @@ def split_blocks(lines):
                 body.append(lines[i])
                 depth += lines[i].count('{') + lines[i].count('(')
                 depth -= lines[i].count('}') + lines[i].count(')')
-                if depth <= 0 and lines[i].rstrip().endswith(';'):
+                statement = re.sub(r'/\*.*?\*/|//.*', '', lines[i]).rstrip()
+                if depth <= 0 and statement.endswith(';'):
                     i += 1
                     break
                 i += 1

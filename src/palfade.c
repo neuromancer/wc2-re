@@ -18,7 +18,7 @@ void FadeViewportPaletteToColour(Viewport *viewport,
     short *goalPalette;
     short *workPalette;
 
-    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+    if (g_nSpacePaletteFadeMode == 0x13) {
         indices = AllocateTaggedMemory(256, 0);
         if (indices == 0)
             return;

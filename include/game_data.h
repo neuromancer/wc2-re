@@ -428,7 +428,7 @@ typedef struct ShipWeaponSlot {
 typedef char ShipWeaponSlot_size_must_be_0x0a[
     sizeof(ShipWeaponSlot) == 0x0a ? 1 : -1];
 #else
-/* One row of g_aShipWeapons_004956b0 and of ObjectTypeData.weaponLoadout:
+/* One row of g_aShipWeapons and of ObjectTypeData.weaponLoadout:
  * the slot count, then the slots.  Indexing the row as this record lets the
  * count and member offsets fold into one constant.  The array bound also
  * checks the ten-byte slot size.  (No C++ unit uses it; there it would add

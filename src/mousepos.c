@@ -8,9 +8,9 @@
 /* Function start: 0x4199F0 */
 void SetPersonnelMousePosition(short x, short y)
 {
-    g_stPersonnelMouseData_005c8d00.x = x;
-    g_stPersonnelMouseData_005c8d00.y = y;
-    g_stEventQueuePointerData_005c83f0.x = x;
-    g_stEventQueuePointerData_005c83f0.y = y;
+    g_6_stPersonnelMouseData.x = x;
+    g_6_stPersonnelMouseData.y = y;
+    g_16_stEventQueuePointerData.x = x;
+    g_16_stEventQueuePointerData.y = y;
     SetMouseHomePosition(x, y);
 }

@@ -5,7 +5,7 @@
  */
 #include "game.h"
 
-extern unsigned int g_dwCannedSceneSnapshotEnd_004961a4;
+extern unsigned int g_dwCannedSceneSnapshotEnd; /* 0x004961a4 */
 
 /* Function start: 0x45B810 */
 void LoadGamePaletteFile(void)
@@ -17,12 +17,12 @@ void LoadGamePaletteFile(void)
 
     /* As in WC1, the legacy modes treat the colour list from blue onwards as
      * a byte array; the Win32 globals are four bytes apart. */
-    colours = &g_cBlueColour_0049cb54;
-    switch (g_nSpacePaletteFadeMode_004901e8) {
+    colours = &g_cBlueColour;
+    switch (g_nSpacePaletteFadeMode) {
     case 9:
     case 13:
         for (entry = 0; entry < 14u; entry++)
-            colours[entry] = g_abLegacyVideoModeColours_0049cb90[entry];
+            colours[entry] = g_abLegacyVideoModeColours[entry];
         break;
     case 0x13:
         paletteData = FetchDiskPacketRetrying("brief.pal", 0, 0);
@@ -37,7 +37,7 @@ void LoadGamePaletteFile(void)
 /* Function start: 0x45B905 */
 void EMShutDown(void)
 {
-    if (g_bEventManagerInitializationState_005c80ca != 0)
+    if (g_18_bEventManagerInitializationState != 0)
         ShutdownEventManager();
 }
 
@@ -46,23 +46,23 @@ void EMStartUp(void)
 {
     if (InitializeInputManagerMemory(20) == 0)
         ReportFatalErrorCode("020");
-    g_pfnEventShutdownCallback_005c8be0 = (void (*)(void))LogMemoryUsage;
+    g_59_pfnEventShutdownCallback = (void (*)(void))LogMemoryUsage;
     InitializeInputDriverHook();
-    if (g_bRewritePacketExtensions_0049cb48 == 0) {
-        LoadInputCursorShape(g_szInputCursorPacketName_0049cba0,
+    if (g_bRewritePacketExtensions == 0) {
+        LoadInputCursorShape(g_szInputCursorPacketName,
                              0, 0x13);
     } else {
         RewritePacketFilenameForInstalledData(
-            g_szInputCursorPacketName_0049cba0);
-        LoadInputCursorShape(g_szInputCursorPacketName_0049cba0,
+            g_szInputCursorPacketName);
+        LoadInputCursorShape(g_szInputCursorPacketName,
                              0, 0x0d);
     }
     FinalizeInputDriverHook();
-    SetInputViewport(&g_stScrViewInfo_005d21a0);
-    g_nCurrentInputTickInterval_005c8448 = 20;
-    g_nEventRepeatDelayState_005c80d6 = 20;
-    g_bMouseCursorEnabled_005c80e6 = 1;
-    g_cKeypadMouseSpeedValue_005c83e6 = 3;
+    SetInputViewport(&g_101_stScrViewInfo);
+    g_86_nCurrentInputTickInterval = 20;
+    g_88_nEventRepeatDelayState = 20;
+    g_26_bMouseCursorEnabled = 1;
+    g_cKeypadMouseSpeedValue = 3;
 }
 
 #pragma function(strcat)
@@ -77,90 +77,90 @@ void LoadOriginFxDrivers(void)
     int shipMemoryBytes;
     short paletteResult;
 
-    g_nCurrentGraphicsModeDetectedValue_005c80d2 = QueryCurrentGraphicsMode();
-    g_nNearHeapMaxDescriptors_00493048 = 0x20c;
+    g_14_nCurrentGraphicsModeDetectedValue = QueryCurrentGraphicsMode();
+    g_nNearHeapMaxDescriptors = 0x20c;
     IsSoundHardwarePresent(8);
-    if (g_bPumpMessagesWhileLoadingState_005c8ddc != 0)
+    if (g_2_bPumpMessagesWhileLoadingState != 0)
         MessagePumpHook(4);
-    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
+    if (g_19_bStoredHighMemoryEnabled == 0)
         printf("No ");
     printf("Expanded Memory Detected.\n");
-    g_bOriginFxDriverActive_0049cbb0 = 0;
-    if (LoadGraphicsDriver(g_bRewritePacketExtensions_0049cb48) == 0)
+    g_bOriginFxDriverActive = 0;
+    if (LoadGraphicsDriver(g_bRewritePacketExtensions) == 0)
         exit_squadron("Failed to load Origin-FX drivers");
     InitializeMouseCursorDepth(0);
-    g_nInputDoubleClickInterval_00493050 = 2;
+    g_nInputDoubleClickInterval = 2;
     EMStartUp();
-    g_dwInitialSpareMemory_005c8dd0 =
+    g_dwInitialSpareMemory =
         GetLargestFreeMemoryBlockByType(0);
     availableMemory = (int)GetAvailableFarMemoryByType(4);
-    g_nAvailableGameMemoryNumber_005c8de0 = 0xc63e0;
+    g_nAvailableGameMemoryNumber = 0xc63e0;
     availableMemory = 0x7c0600;
-    if (g_bSpeechResourcesEnabled_0049cc2c != 0 &&
-        g_bStoredHighMemoryEnabled_005c80e4 != 0) {
-        g_bSpeechEnabledFlag_005c8de8 = 0;
-        if (g_nMinimumMemoryNoMusic_0049cc20 + 0x1000 <
-            (int)g_dwInitialSpareMemory_005c8dd0) {
+    if (g_bSpeechResourcesEnabled != 0 &&
+        g_19_bStoredHighMemoryEnabled != 0) {
+        g_bSpeechEnabledFlag = 0;
+        if (g_nMinimumMemoryNoMusic + 0x1000 <
+            (int)g_dwInitialSpareMemory) {
             if (InitializeSoundBlaster(
-                    g_nAudioBlasterPortSettingValue_005c8dde,
-                    g_nVoiceBlasterIrqSetting_005c8dd8) == 0) {
-                g_bSpeechEnabledFlag_005c8de8 = 1;
+                    g_3_nAudioBlasterPortSettingValue,
+                    g_3_nVoiceBlasterIrqSetting) == 0) {
+                g_bSpeechEnabledFlag = 1;
                 printf("Speech Enabled.\n");
             }
         }
     }
 #ifndef SDL_PORT
-    if (g_bStoredHighMemoryEnabled_005c80e4 != 0)
+    if (g_19_bStoredHighMemoryEnabled != 0)
         InitializeHighMemoryGraphicsBuffers();
 #endif
     memoryLogFile = fopen("mem.$$$", "w+");
     LogMemoryStateToFile(memoryLogFile);
     if (memoryLogFile != 0)
         fclose(memoryLogFile);
-    if (g_bStoredHighMemoryEnabled_005c80e4 == 0) {
-        g_bExpandedShipGraphicsEnabled_004931a4 = 0;
-        g_nMinimumMemoryNoMusic_0049cc20 = 0x42680;
+    if (g_19_bStoredHighMemoryEnabled == 0) {
+        g_bExpandedShipGraphicsEnabled = 0;
+        g_nMinimumMemoryNoMusic = 0x42680;
     }
-    if (g_bRewritePacketExtensions_0049cb48 == 1) {
-        g_nMinimumMemoryNoMusic_0049cc20 -= 20000;
-        g_nMinimumMemoryFullMusic_0049cc24 -= 20000;
-        g_nMinimumMemoryAlternate_0049cc28 -= 20000;
+    if (g_bRewritePacketExtensions == 1) {
+        g_nMinimumMemoryNoMusic -= 20000;
+        g_nMinimumMemoryFullMusic -= 20000;
+        g_nMinimumMemoryAlternate -= 20000;
     }
     shipMemoryBytes =
-        (int)g_nExpandedShipMemoryKb_0049cbac << 10;
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3) {
-        if (g_nMusicDriverMode_0049be8c == 1)
-            g_nMusicMemoryNeed_005c8dcc = 0x1b800;
-        else if (g_nMusicDriverMode_0049be8c == 2)
-            g_nMusicMemoryNeed_005c8dcc = 0x13800;
-        if (g_bStoredHighMemoryEnabled_005c80e4 != 0)
-            requiredBytes += g_nMusicMemoryNeed_005c8dcc;
+        (int)g_nExpandedShipMemoryKb << 10;
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3) {
+        if (g_nMusicDriverMode == 1)
+            g_8_nMusicMemoryNeed = 0x1b800;
+        else if (g_nMusicDriverMode == 2)
+            g_8_nMusicMemoryNeed = 0x13800;
+        if (g_19_bStoredHighMemoryEnabled != 0)
+            requiredBytes += g_8_nMusicMemoryNeed;
     }
     SetFrameTimerPeriodDirect(0x78);
-    g_nAvailableGameMemoryNumber_005c8de0 = 0xc63e0;
+    g_nAvailableGameMemoryNumber = 0xc63e0;
     availableMemory = 0x7c0600;
     if (availableMemory > requiredBytes) {
-        g_nAvailableGameMemoryNumber_005c8de0 = 0xc63e0;
-        g_nMemConfiguration_005c8dc8 = 2;
+        g_nAvailableGameMemoryNumber = 0xc63e0;
+        g_98_nMemConfiguration = 2;
         printf("Expanded Memory fully used.\n");
     } else {
-        g_nAvailableGameMemoryNumber_005c8de0 =
-            (int)g_dwInitialSpareMemory_005c8dd0 -
-            g_nMinimumMemoryNoMusic_0049cc20;
-        if (g_nAvailableGameMemoryNumber_005c8de0 < 0)
-            exit_squadron(g_szNotEnoughMemoryMessage_0049cbb8);
-        g_nMemConfiguration_005c8dc8 = 0;
-        if (g_nMusicDriverMode_0049be8c == 1 ||
-            g_nMusicDriverMode_0049be8c == 2) {
-            if (g_nMinimumMemoryFullMusic_0049cc24 <
-                    (int)g_dwInitialSpareMemory_005c8dd0 &&
+        g_nAvailableGameMemoryNumber =
+            (int)g_dwInitialSpareMemory -
+            g_nMinimumMemoryNoMusic;
+        if (g_nAvailableGameMemoryNumber < 0)
+            exit_squadron(g_szNotEnoughMemoryMessage);
+        g_98_nMemConfiguration = 0;
+        if (g_nMusicDriverMode == 1 ||
+            g_nMusicDriverMode == 2) {
+            if (g_nMinimumMemoryFullMusic <
+                    (int)g_dwInitialSpareMemory &&
                 (int)GetAvailableFarMemoryByType(4) >
-                    g_nMusicMemoryNeed_005c8dcc) {
-                g_nAvailableGameMemoryNumber_005c8de0 =
-                    (int)g_dwInitialSpareMemory_005c8dd0 -
-                    g_nMinimumMemoryFullMusic_0049cc24;
-                g_nMemConfiguration_005c8dc8 = 1;
+                    g_8_nMusicMemoryNeed) {
+                g_nAvailableGameMemoryNumber =
+                    (int)g_dwInitialSpareMemory -
+                    g_nMinimumMemoryFullMusic;
+                g_98_nMemConfiguration = 1;
                 printf("Full");
             } else {
                 printf("Limited");
@@ -172,33 +172,33 @@ void LoadOriginFxDrivers(void)
     LoadJoystickCalibrationFile(9, 9, 1, 1);
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ConfigureDefaultSpacePalette(
-        g_acExpectedGraphicsModes_00493078[
-            g_bRewritePacketExtensions_0049cb48]);
-    if (g_acExpectedGraphicsModes_00493078[
-            g_bRewritePacketExtensions_0049cb48] !=
+        g_acExpectedGraphicsModes[
+            g_bRewritePacketExtensions]);
+    if (g_acExpectedGraphicsModes[
+            g_bRewritePacketExtensions] !=
         QueryCurrentGraphicsMode())
         exit_squadron(
             "Requested graphics display mode not available.");
     LoadGamePaletteFile();
     InitializeGameTextContexts();
     paletteResult = InitializePostPaletteState();
-    if (g_nMusicDriverMode_0049be8c == 3)
+    if (g_nMusicDriverMode == 3)
         SetMusicTickRateHook(0x1e00);
     else
         SetMusicTickRateHook(0x3c);
-    g_nFrameSkip_0049d764 = 1;
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3)
+    g_nFrameSkip = 1;
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3)
         InitializeMusicResources();
     initialize_direction_view_frames();
     strcat(packetName,
-           itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+           itoa((int)g_nSelectedCampaignSlot,
                  campaignDigits, 10));
-    g_pStartupStellarPacket_005d212c =
+    g_13_pStartupStellarPacket =
         LoadPacketAllocated(packetName, 0);
-    if (g_nOriginDevUnlock_0049d774 != 0)
+    if (g_nOriginDevUnlock != 0)
         _unlink("logfile.txt");
-    if (g_nShowMemoryStatus_0049d784 != 0) {
+    if (g_nShowMemoryStatus != 0) {
         _unlink("track0.txt");
         _unlink("track1.txt");
         _unlink("track2.txt");
@@ -223,36 +223,36 @@ void InitializeHighMemoryGraphicsBuffers(void)
 {
     unsigned int highMemoryEnd;
 
-    g_pHighMemoryBlockA_004901f8 =
-        AllocateDefaultMemory((unsigned int)g_wHighMemoryBlockBytes_004901fc);
-    g_dwHighMemoryParagraphValue_005d3fb4 =
-        IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
-    highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
-        g_dwHighMemoryParagraphValue_005d3fb4;
+    g_pHighMemoryBlockA =
+        AllocateDefaultMemory((unsigned int)g_wHighMemoryBlockBytes);
+    g_dwHighMemoryParagraphValue =
+        IdentityDword((DwordPtr)g_pHighMemoryBlockA);
+    highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes +
+        g_dwHighMemoryParagraphValue;
     /* The DOS build shrank and reallocated block A until it ended inside the
      * addressable window.  The Win32 port reduced the test to a constant, so
      * the retry body is compiled but never runs. */
     while (0) {
-        g_wHighMemoryBlockBytes_004901fc =
-            g_wHighMemoryBlockBytes_004901fc - 1;
-        FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
-        g_pHighMemoryBlockA_004901f8 = 0;
-        g_pHighMemoryBlockA_004901f8 = AllocateDefaultMemory(
-            (unsigned int)g_wHighMemoryBlockBytes_004901fc);
-        g_dwHighMemoryParagraphValue_005d3fb4 =
-            IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
-        highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes_004901fc +
-            g_dwHighMemoryParagraphValue_005d3fb4;
+        g_wHighMemoryBlockBytes =
+            g_wHighMemoryBlockBytes - 1;
+        FreePacketAndClear(&g_pHighMemoryBlockA, 4);
+        g_pHighMemoryBlockA = 0;
+        g_pHighMemoryBlockA = AllocateDefaultMemory(
+            (unsigned int)g_wHighMemoryBlockBytes);
+        g_dwHighMemoryParagraphValue =
+            IdentityDword((DwordPtr)g_pHighMemoryBlockA);
+        highMemoryEnd = (unsigned int)g_wHighMemoryBlockBytes +
+            g_dwHighMemoryParagraphValue;
     }
-    g_pHighMemoryBlockB_00490200 =
+    g_pHighMemoryBlockB =
         AllocateDefaultMemory(CANNED_SCENE_SNAPSHOT_BYTES);
-    if (g_pHighMemoryBlockB_00490200 == 0 ||
-        g_pHighMemoryBlockA_004901f8 == 0) {
-        FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
-        FreePacketAndClear(&g_pHighMemoryBlockB_00490200, 4);
-        g_bHighMemoryBuffersSetState_005d2ad8 = 0;
+    if (g_pHighMemoryBlockB == 0 ||
+        g_pHighMemoryBlockA == 0) {
+        FreePacketAndClear(&g_pHighMemoryBlockA, 4);
+        FreePacketAndClear(&g_pHighMemoryBlockB, 4);
+        g_78_bHighMemoryBuffersSetState = 0;
     } else {
-        g_bHighMemoryBuffersSetState_005d2ad8 = 1;
+        g_78_bHighMemoryBuffersSetState = 1;
     }
 }
 
@@ -261,50 +261,50 @@ void InitializeHighMemoryGraphicsBuffers(void)
  * InitializeHighMemoryGraphicsBuffers reserves. */
 void ReleaseHighMemoryGraphicsBuffers(void)
 {
-    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
+    if (g_78_bHighMemoryBuffersSetState == 0)
         return;
-    FreePacketAndClear(&g_pHighMemoryBlockA_004901f8, 4);
-    FreePacketAndClear(&g_pHighMemoryBlockB_00490200, 4);
+    FreePacketAndClear(&g_pHighMemoryBlockA, 4);
+    FreePacketAndClear(&g_pHighMemoryBlockB, 4);
 }
 
 /* Function start: 0x45C088 */
 void InitializeGameTextContexts(void)
 {
-    InitializeDIBScreenViewport(&g_stScrViewInfo_005d21a0,
-                                (unsigned char)g_cSecondaryViewBufferColour_0049cb4c);
-    g_stModalSourceWindow_005d2c50 = g_stScrViewInfo_005d21a0;
-    g_stDefaultStringContext_005d2d20.viewport =
-        &g_stModalSourceWindow_005d2c50;
-    g_stDefaultStringContext_005d2d20.text =
-        g_szDefaultTextBufferText_005d2b80;
-    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 1,
-                                  (unsigned char)g_ucPrimaryTextColour_0049cb64,
-                                  g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stDefaultStringContext_005d2d20);
+    InitializeDIBScreenViewport(&g_101_stScrViewInfo,
+                                (unsigned char)g_cSecondaryViewBufferColour);
+    g_2_stModalSourceWindow = g_101_stScrViewInfo;
+    g_3_stDefaultStringContext.viewport =
+        &g_2_stModalSourceWindow;
+    g_3_stDefaultStringContext.text =
+        g_6_szDefaultTextBufferText;
+    InitializeTextContextFromFont(&g_3_stDefaultStringContext, 1,
+                                  (unsigned char)g_ucPrimaryTextColour,
+                                  g_cSecondaryViewBufferColour);
+    SetTextContext(&g_3_stDefaultStringContext);
 
-    g_stFlightTextContext_005d21c0.viewport = &g_stViewScratchInfo_005d2b00;
-    g_stFlightTextContext_005d21c0.text = g_szDefaultTextBufferText_005d2b80;
-    g_stFlightTextContext_005d21c0.alignment = 2;
-    InitializeTextContextFromFont(&g_stFlightTextContext_005d21c0, 1,
-                                  g_cRedColour_0049cb5c, -1);
+    g_168_stFlightTextContext.viewport = &g_27_stViewScratchInfo;
+    g_168_stFlightTextContext.text = g_6_szDefaultTextBufferText;
+    g_168_stFlightTextContext.alignment = 2;
+    InitializeTextContextFromFont(&g_168_stFlightTextContext, 1,
+                                  g_cRedColour, -1);
 }
 
 /* Function start: 0x45C128 */
 void ResetGameTextContexts(void)
 {
-    g_stDefaultStringContext_005d2d20.viewport =
-        &g_stModalSourceWindow_005d2c50;
-    g_stDefaultStringContext_005d2d20.text =
-        g_szDefaultTextBufferText_005d2b80;
-    InitializeTextContextFromFont(&g_stDefaultStringContext_005d2d20, 1,
-                                  g_ucPrimaryTextColour_0049cb64,
-                                  g_cSecondaryViewBufferColour_0049cb4c);
-    SetTextContext(&g_stDefaultStringContext_005d2d20);
-    g_stFlightTextContext_005d21c0.viewport = &g_stViewScratchInfo_005d2b00;
-    g_stFlightTextContext_005d21c0.text = g_szDefaultTextBufferText_005d2b80;
-    g_stFlightTextContext_005d21c0.alignment = 2;
-    InitializeTextContextFromFont(&g_stFlightTextContext_005d21c0, 1,
-                                  g_cRedColour_0049cb5c, -1);
+    g_3_stDefaultStringContext.viewport =
+        &g_2_stModalSourceWindow;
+    g_3_stDefaultStringContext.text =
+        g_6_szDefaultTextBufferText;
+    InitializeTextContextFromFont(&g_3_stDefaultStringContext, 1,
+                                  g_ucPrimaryTextColour,
+                                  g_cSecondaryViewBufferColour);
+    SetTextContext(&g_3_stDefaultStringContext);
+    g_168_stFlightTextContext.viewport = &g_27_stViewScratchInfo;
+    g_168_stFlightTextContext.text = g_6_szDefaultTextBufferText;
+    g_168_stFlightTextContext.alignment = 2;
+    InitializeTextContextFromFont(&g_168_stFlightTextContext, 1,
+                                  g_cRedColour, -1);
 }
 
 /* Function start: 0x45C1A1 */
@@ -317,9 +317,9 @@ void initialize_direction_view_frame(short yaw, short pitch,
 
     rotate_about_j(yaw, &right, &forwardAxis);
     rotate_about_i(pitch, &up, &forwardAxis);
-    g_aDirectionLookRightVector_005d2210[frame] = right;
-    g_aDirectionViewUpVectorArray_005d2500[frame] = up;
-    g_aDirectionViewForwardAxisTable_005d27f0[frame] = forwardAxis;
+    g_9_aDirectionLookRightVector[frame] = right;
+    g_137_aDirectionViewUpVectorArray[frame] = up;
+    g_2_aDirectionViewForwardAxisTable[frame] = forwardAxis;
 }
 
 /* Function start: 0x45C279 */
@@ -353,22 +353,22 @@ void initialize_direction_view_frames(void)
 /* Function start: 0x45C35C */
 void LoadSpaceflightResources(void)
 {
-    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
+    if (g_19_bStoredHighMemoryEnabled == 0)
         return;
-    if (LoadShapeSet(g_aCommon3SpaceResources_0049c728,
+    if (LoadShapeSet(g_aCommon3SpaceResources,
                      4, "objects.vga") == 0)
         return;
-    LoadShapeSet(g_aMissionResourceDescriptors_0049c798,
+    LoadShapeSet(g_aMissionResourceDescriptors,
                  4, "objects.vga");
-    g_aObjectTypeData_00496d30[34].shapeSet =
-        g_aObjectTypeData_00496d30[35].shapeSet;
-    g_aObjectTypeData_00496d30[33].shapeSet =
-        g_aObjectTypeData_00496d30[34].shapeSet;
-    g_aObjectTypeData_00496d30[30].shapeSet =
-        g_aObjectTypeData_00496d30[33].shapeSet;
-    g_aObjectTypeData_00496d30[29].shapeSet =
-        g_aObjectTypeData_00496d30[30].shapeSet;
-    LoadShapeSet(g_aHighMemoryCockpitResources_0049c7e8,
+    g_aObjectTypeData[34].shapeSet =
+        g_aObjectTypeData[35].shapeSet;
+    g_aObjectTypeData[33].shapeSet =
+        g_aObjectTypeData[34].shapeSet;
+    g_aObjectTypeData[30].shapeSet =
+        g_aObjectTypeData[33].shapeSet;
+    g_aObjectTypeData[29].shapeSet =
+        g_aObjectTypeData[30].shapeSet;
+    LoadShapeSet(g_aHighMemoryCockpitResources,
                  4, "cockpit.vga");
 }
 
@@ -382,7 +382,7 @@ void FxDriverInitHook(void)
 /* Function start: 0x45C3FA */
 void StopMusicIfDriverActive(void)
 {
-    if (g_nMusicDriverMode_0049be8c != 0)
+    if (g_nMusicDriverMode != 0)
         StopMusicStream();
 }
 
@@ -392,33 +392,33 @@ void InitializeMusicResources(void)
     int resource;
 
     FadeMusic(200);
-    if (g_bStoredHighMemoryEnabled_005c80e4 != 0) {
+    if (g_19_bStoredHighMemoryEnabled != 0) {
         for (resource = 0; resource < 0x42; resource++) {
-            if (g_acMusicResourcePresent_0049cc30[resource] != 0) {
-                if (g_nMusicDriverMode_0049be8c == 1) {
-                    g_aTuneResources_005d13e0[resource].packet =
+            if (g_acMusicResourcePresent[resource] != 0) {
+                if (g_nMusicDriverMode == 1) {
+                    g_aTuneResources[resource].packet =
                         FetchDiskPacketRetrying(
                             "music.r00", (short)resource, 4);
                 } else {
-                    g_aTuneResources_005d13e0[resource].packet =
+                    g_aTuneResources[resource].packet =
                         FetchDiskPacketRetrying(
                             "music.a00", (short)resource, 4);
                 }
             } else {
-                g_aTuneResources_005d13e0[resource].packet = 0;
+                g_aTuneResources[resource].packet = 0;
             }
-            if (g_aTuneResources_005d13e0[resource].packet == 0)
+            if (g_aTuneResources[resource].packet == 0)
                 continue;
             else
-                g_aTuneResources_005d13e0[resource].loaded = 1;
+                g_aTuneResources[resource].loaded = 1;
         }
-    } else if (g_nMemConfiguration_005c8dc8 == 1) {
-        g_aLimitedMusicBuffers_0049bea0[0].buffer =
+    } else if (g_98_nMemConfiguration == 1) {
+        g_aLimitedMusicBuffers[0].buffer =
             AllocateTaggedMemory(0x33d0, 0x10);
-        g_aLimitedMusicBuffers_0049bea0[0].state = -1;
-        g_aLimitedMusicBuffers_0049bea0[1].buffer =
+        g_aLimitedMusicBuffers[0].state = -1;
+        g_aLimitedMusicBuffers[1].buffer =
             AllocateTaggedMemory(0x33d0, 0x10);
-        g_aLimitedMusicBuffers_0049bea0[1].state = -1;
+        g_aLimitedMusicBuffers[1].state = -1;
     }
 }
 
@@ -436,85 +436,85 @@ void main(short argc, char **argv)
     int campaignIsDigit;
     int missionIsDigit;
 
-    g_bRewritePacketExtensions_0049cb48 = 0;
-    g_bSpeechResourcesEnabled_0049cc2c = 1;
-    g_nAudioBlasterPortSettingValue_005c8dde = 2;
-    g_nVoiceBlasterIrqSetting_005c8dd8 = 5;
+    g_bRewritePacketExtensions = 0;
+    g_bSpeechResourcesEnabled = 1;
+    g_3_nAudioBlasterPortSettingValue = 2;
+    g_3_nVoiceBlasterIrqSetting = 5;
     for (argumentIndex = 0; argumentIndex < argc; argumentIndex++) {
         if (strcmp("Origin", argv[argumentIndex]) == 0)
-            g_nOriginDevUnlock_0049d774 = 1;
+            g_nOriginDevUnlock = 1;
 
         switch (argv[argumentIndex][0]) {
         case '?':
-            printf("Version %s.\n", g_pszGameVersion_0049b528);
+            printf("Version %s.\n", g_pszGameVersion);
         case '+':
             if (argv[argumentIndex][1] == 'w')
-                g_bRoomTransitionAnimationEnabled_00499c00 = 1;
+                g_bRoomTransitionAnimationEnabled = 1;
             if (argv[argumentIndex][1] == 'l')
-                g_bAutopilotDebugEnabled_00499bfc = 1;
+                g_bAutopilotDebugEnabled = 1;
             if (argv[argumentIndex][1] == 'e') {
-                g_bMemoryAdjustmentEnabled_0049cc84 = 1;
-                g_nStorageAdjustmentKbValue_005c8dda =
+                g_bMemoryAdjustmentEnabled = 1;
+                g_5_nStorageAdjustmentKbValue =
                     (short)atoi(argv[argumentIndex] + 2);
             }
             break;
         case '-':
             if (argv[argumentIndex][1] == 'm')
-                g_nShowMemoryStatus_0049d784 = 1;
+                g_nShowMemoryStatus = 1;
             if (argv[argumentIndex][1] == 'x')
-                g_bPumpMessagesWhileLoadingState_005c8ddc = 1;
+                g_2_bPumpMessagesWhileLoadingState = 1;
             if (argv[argumentIndex][1] == 't')
-                g_bPumpMessagesDuringLoad_0049cc7c = 1;
+                g_bPumpMessagesDuringLoad = 1;
             if (argv[argumentIndex][1] == 'f')
-                g_bSkipCampaignScenes_0049cc78 = 1;
-            if (g_nOriginDevUnlock_0049d774 != 0) {
+                g_bSkipCampaignScenes = 1;
+            if (g_nOriginDevUnlock != 0) {
                 switch (argv[argumentIndex][1]) {
                 case 'k':
-                    g_bPlayerDamageEnabled_0049d77c = 0;
+                    g_bPlayerDamageEnabled = 0;
                     break;
                 case 'b':
-                    g_bPlayerCollisionEnabled_0049d780 = 0;
+                    g_bPlayerCollisionEnabled = 0;
                     break;
                 }
             }
             break;
         case 'E':
         case 'e':
-            if (g_nOriginDevUnlock_0049d774 != 0)
-                g_stDirectMissionSelection_0049d798.launch = 1;
+            if (g_nOriginDevUnlock != 0)
+                g_stDirectMissionSelection.launch = 1;
             break;
         case 'T':
         case 't':
-            if (g_nOriginDevUnlock_0049d774 != 0) {
+            if (g_nOriginDevUnlock != 0) {
                 missionIsDigit = isdigit(argv[argumentIndex][1]);
                 if (missionIsDigit != 0) {
-                    g_stDirectMissionSelection_0049d798.mission =
+                    g_stDirectMissionSelection.mission =
                         (short)atoi(argv[argumentIndex] + 1);
                 } else {
-                    g_stDirectMissionSelection_0049d798.mission = (short)(
+                    g_stDirectMissionSelection.mission = (short)(
                         toupper(argv[argumentIndex][1]) - 'A');
                 }
-                if (g_stDirectMissionSelection_0049d798.mission > 3)
-                    g_stDirectMissionSelection_0049d798.mission = 0;
-                g_bDirectCampaignSelection_0049cc74 = 1;
+                if (g_stDirectMissionSelection.mission > 3)
+                    g_stDirectMissionSelection.mission = 0;
+                g_bDirectCampaignSelection = 1;
             }
             break;
         case 'V':
         case 'v':
-            if (g_nOriginDevUnlock_0049d774 != 0) {
-                g_nDirectSeries_0049d79c =
+            if (g_nOriginDevUnlock != 0) {
+                g_nDirectSeries =
                     (short)atoi(argv[argumentIndex] + 1);
-                g_bDirectCampaignSelection_0049cc74 = 1;
+                g_bDirectCampaignSelection = 1;
             }
             break;
         case 'Z':
         case 'z':
             campaignIsDigit = isdigit(argv[argumentIndex][1]);
             if (campaignIsDigit != 0) {
-                g_nSelectedStartingCampaign_005d3bf0 =
+                g_nSelectedStartingCampaign =
                     (short)(argv[argumentIndex][1] - '0');
             } else {
-                g_nSelectedStartingCampaign_005d3bf0 = 0;
+                g_nSelectedStartingCampaign = 0;
             }
             break;
         case 'R':
@@ -522,8 +522,8 @@ void main(short argc, char **argv)
             break;
         case 'X':
         case 'x':
-            g_bExpandedShipGraphicsEnabled_004931a4 = 1;
-            g_nExpandedShipMemoryKb_0049cbac =
+            g_bExpandedShipGraphicsEnabled = 1;
+            g_nExpandedShipMemoryKb =
                 (short)atoi(argv[argumentIndex] + 1);
             break;
         case 'A':
@@ -534,10 +534,10 @@ void main(short argc, char **argv)
             break;
         case 'C':
         case 'c':
-            g_bSpeechResourcesEnabled_0049cc2c = 1;
-            g_nAudioBlasterPortSettingValue_005c8dde =
+            g_bSpeechResourcesEnabled = 1;
+            g_3_nAudioBlasterPortSettingValue =
                 (short)(argv[argumentIndex][1] - '0');
-            g_nVoiceBlasterIrqSetting_005c8dd8 =
+            g_3_nVoiceBlasterIrqSetting =
                 (short)(argv[argumentIndex][2] - '0');
             break;
         }
@@ -548,59 +548,59 @@ void main(short argc, char **argv)
  * move the functions' symbol keys.  The colour list matches WC1's (blue,
  * yellow, red, dark green, primary text, orange, dark blue, ...); WC2 never
  * reads its dark blue or brown entries. */
-short g_bRewritePacketExtensions_0049cb48 = 0;
-unsigned char g_cSecondaryViewBufferColour_0049cb4c = 0;
-unsigned char g_bPrimaryViewBufferColour_0049cb50 = 15;
-unsigned char g_cBlueColour_0049cb54 = 0x25;
-unsigned char g_cYellowColour_0049cb58 = 0x42;
-unsigned char g_cRedColour_0049cb5c = 0x47;
-unsigned char g_cDarkGreenColour_0049cb60 = 0x5d;
-unsigned char g_ucPrimaryTextColour_0049cb64 = 0x5b;
-unsigned char g_ucHostileCapitalScannerColour_0049cb68 = 0x46;
-unsigned char g_cDarkBlueColour_0049cb6c = 0x27;
-unsigned char g_ucHomeCarrierScannerColour_0049cb70 = 0xa9;
-unsigned char g_ucPlayerNavLabelColour_0049cb74 = 0xa5;
-unsigned char g_ucNavObjectiveMarkerColour_0049cb78 = 0xb6;
-unsigned char g_ucDefaultTextColour_0049cb7c = 0x5c;
-unsigned char g_cBrownColour_0049cb80 = 0xe8;
-unsigned char g_ucAsteroidNavMarkerColour_0049cb84 = 0xf5;
-unsigned char g_cPrimaryViewBufferColour_0049cb88 = 0xf8;
-unsigned char g_abLegacyVideoModeColours_0049cb90[14] = {
+short g_bRewritePacketExtensions = 0; /* 0x0049cb48 */
+unsigned char g_cSecondaryViewBufferColour = 0; /* 0x0049cb4c */
+unsigned char g_bPrimaryViewBufferColour = 15; /* 0x0049cb50 */
+unsigned char g_cBlueColour = 0x25; /* 0x0049cb54 */
+unsigned char g_cYellowColour = 0x42; /* 0x0049cb58 */
+unsigned char g_cRedColour = 0x47; /* 0x0049cb5c */
+unsigned char g_cDarkGreenColour = 0x5d; /* 0x0049cb60 */
+unsigned char g_ucPrimaryTextColour = 0x5b; /* 0x0049cb64 */
+unsigned char g_ucHostileCapitalScannerColour = 0x46; /* 0x0049cb68 */
+unsigned char g_cDarkBlueColour = 0x27; /* 0x0049cb6c */
+unsigned char g_ucHomeCarrierScannerColour = 0xa9; /* 0x0049cb70 */
+unsigned char g_ucPlayerNavLabelColour = 0xa5; /* 0x0049cb74 */
+unsigned char g_ucNavObjectiveMarkerColour = 0xb6; /* 0x0049cb78 */
+unsigned char g_ucDefaultTextColour = 0x5c; /* 0x0049cb7c */
+unsigned char g_cBrownColour = 0xe8; /* 0x0049cb80 */
+unsigned char g_ucAsteroidNavMarkerColour = 0xf5; /* 0x0049cb84 */
+unsigned char g_cPrimaryViewBufferColour = 0xf8; /* 0x0049cb88 */
+unsigned char g_abLegacyVideoModeColours[14] = {
     9, 14, 4, 2, 10, 12, 15, 8, 7, 5, 2, 6, 7, 0
-};
-char g_szInputCursorPacketName_0049cba0[12] = "arrow.vga";
-short g_nExpandedShipMemoryKb_0049cbac = 0;
-short g_bOriginFxDriverActive_0049cbb0 = 0;
-char g_szNotEnoughMemoryMessage_0049cbb8[] =
+}; /* 0x0049cb90 */
+char g_szInputCursorPacketName[12] = "arrow.vga"; /* 0x0049cba0 */
+short g_nExpandedShipMemoryKb = 0; /* 0x0049cbac */
+short g_bOriginFxDriverActive = 0; /* 0x0049cbb0 */
+char g_szNotEnoughMemoryMessage[] =
     "You do not have enough memory to play Wing Commander 2.\n"
-    "Refer to your reference guide for assistance.";
-int g_nMinimumMemoryNoMusic_0049cc20 = 0x43238;
-int g_nMinimumMemoryFullMusic_0049cc24 = 0x49bb0;
-int g_nMinimumMemoryAlternate_0049cc28 = 0x43238;
-short g_bSpeechResourcesEnabled_0049cc2c = 0;
-signed char g_acMusicResourcePresent_0049cc30[66] = {
+    "Refer to your reference guide for assistance."; /* 0x0049cbb8 */
+int g_nMinimumMemoryNoMusic = 0x43238; /* 0x0049cc20 */
+int g_nMinimumMemoryFullMusic = 0x49bb0; /* 0x0049cc24 */
+int g_nMinimumMemoryAlternate = 0x43238; /* 0x0049cc28 */
+short g_bSpeechResourcesEnabled = 0; /* 0x0049cc2c */
+signed char g_acMusicResourcePresent[66] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
     0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0,
     0, 0
-};
-short g_bDirectCampaignSelection_0049cc74 = 0;
-short g_bSkipCampaignScenes_0049cc78 = 0;
-short g_bPumpMessagesDuringLoad_0049cc7c = 0;
-int g_nUnusedStartupWord_0049cc80 = 0;
-short g_bMemoryAdjustmentEnabled_0049cc84 = 0;
+}; /* 0x0049cc30 */
+short g_bDirectCampaignSelection = 0; /* 0x0049cc74 */
+short g_bSkipCampaignScenes = 0; /* 0x0049cc78 */
+short g_bPumpMessagesDuringLoad = 0; /* 0x0049cc7c */
+int g_nUnusedStartupWord = 0; /* 0x0049cc80 */
+short g_bMemoryAdjustmentEnabled = 0; /* 0x0049cc84 */
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_nMemConfiguration_005c8dc8;
-int g_nMusicMemoryNeed_005c8dcc;
-unsigned int g_dwInitialSpareMemory_005c8dd0;
-int g_nUnusedStartupValue_005c8dd4; /* never referenced */
-short g_nVoiceBlasterIrqSetting_005c8dd8;
-short g_nStorageAdjustmentKbValue_005c8dda;
-short g_bPumpMessagesWhileLoadingState_005c8ddc;
-short g_nAudioBlasterPortSettingValue_005c8dde;
-int g_nAvailableGameMemoryNumber_005c8de0;
-int g_nMissionResourceBudget_005c8de4;
-short g_bSpeechEnabledFlag_005c8de8;
+int g_98_nMemConfiguration; /* 0x005c8dc8 */
+int g_8_nMusicMemoryNeed; /* 0x005c8dcc */
+unsigned int g_dwInitialSpareMemory; /* 0x005c8dd0 */
+int g_3_nUnusedStartupValue; /* 0x005c8dd4 */ /* never referenced */
+short g_3_nVoiceBlasterIrqSetting; /* 0x005c8dd8 */
+short g_5_nStorageAdjustmentKbValue; /* 0x005c8dda */
+short g_2_bPumpMessagesWhileLoadingState; /* 0x005c8ddc */
+short g_3_nAudioBlasterPortSettingValue; /* 0x005c8dde */
+int g_nAvailableGameMemoryNumber; /* 0x005c8de0 */
+int g_11_nMissionResourceBudget; /* 0x005c8de4 */
+short g_bSpeechEnabledFlag; /* 0x005c8de8 */

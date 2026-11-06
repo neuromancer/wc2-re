@@ -145,27 +145,27 @@ struct IxSound {
 
 /* Sound-unit declaration order preserves the retail list comparisons. */
 #ifdef IX_SOUND_CPP
-extern IxSound *g_pWaitingSoundList_005c4b34;
+extern IxSound *g_1_pWaitingSoundList; /* 0x005c4b34 */
 #else
-extern unsigned int g_dwIxSystemBits_005c4b1c;
+extern unsigned int g_dwIxSystemBits; /* 0x005c4b1c */
 #endif
-extern IxSound *g_pFreeSoundHead_005c4b20;
-extern int g_nActiveVoices_005c4b28;
-extern int g_nSystemVoiceCount_005c4b2c;
-extern IxSound *g_pActiveSoundList_005c4b30;
-extern void *(__cdecl *g_pIxMalloc_004a0c18)(unsigned int);
-extern void (__cdecl *g_pIxFree_004a0c1c)(void *);
+extern IxSound *g_1_pFreeSoundHead; /* 0x005c4b20 */
+extern int g_nActiveVoices; /* 0x005c4b28 */
+extern int g_nSystemVoiceCount; /* 0x005c4b2c */
+extern IxSound *g_1_pActiveSoundList; /* 0x005c4b30 */
+extern void *(__cdecl *g_pIxMalloc)(unsigned int); /* 0x004a0c18 */
+extern void (__cdecl *g_pIxFree)(void *); /* 0x004a0c1c */
 
 /* Master volume and the stereo pan table (two shorts per position). */
-extern unsigned short g_nMasterVolume_004a0c14;
-extern short          g_anPanTable_005c4ee8[];
-extern CRITICAL_SECTION g_csMixer_005c5730;
+extern unsigned short g_nMasterVolume; /* 0x004a0c14 */
+extern short          g_3_anPanTable[]; /* 0x005c4ee8 */
+extern CRITICAL_SECTION g_7_csMixer; /* 0x005c5730 */
 
 #define IX_MIXER_BASE_RATE 22050    /* 0x5622, the divisor in set_frequency */
 
 /* Globals keep their original address in the name (see AGENTS.md). */
-extern IxVoice g_voices_005c52f0[];
-extern int     g_nVoiceCapacity_005c5748;
+extern IxVoice g_2_voices[]; /* 0x005c52f0 */
+extern int     g_nVoiceCapacity; /* 0x005c5748 */
 
 /* The ix source tree lived on D: -- each assert site carries its own copy of
  * this literal (the build did not use /Gf, so identical strings are not
@@ -214,9 +214,9 @@ struct IxStream {                       /* 0x38 bytes */
     IxStream &operator=(const IxStream &);
 };
 
-extern IxStream g_streams_005c5758[];
-extern int      g_nStreamCount_005c5750;
-extern int      g_nStreamsTaken_005c5754;
+extern IxStream g_1_streams[]; /* 0x005c5758 */
+extern int      g_3_nStreamCount; /* 0x005c5750 */
+extern int      g_nStreamsTaken; /* 0x005c5754 */
 
 #define IX_DSPS_FILE "D:\\rnd\\prj\\ix\\win95\\dsp\\dsps.cpp"
 void ix_dsps_alloc(int stream, unsigned int size, int frequency,
@@ -281,11 +281,11 @@ IxSound *ix_system_find_lowest_playing(IxSound *sound,
 int ix_system_find_free_voice(void);             /* 0x46A447 */
 
 /* The sample list and the queue of sounds waiting for a voice. */
-extern IxSample *g_pSampleList_005c4b24;
+extern IxSample *g_7_pSampleList; /* 0x005c4b24 */
 #ifdef IX_SOUND_CPP
-extern unsigned int g_dwIxSystemBits_005c4b1c;
+extern unsigned int g_dwIxSystemBits; /* 0x005c4b1c */
 #else
-extern IxSound *g_pWaitingSoundList_005c4b34;
+extern IxSound *g_1_pWaitingSoundList; /* 0x005c4b34 */
 #endif
 
 extern "C" void __fastcall ix_sound_start(IxSound *sound); /* 0x46A758 */
@@ -495,43 +495,43 @@ extern "C" unsigned int ix_file_read(FILE *file, void *destination,
                                       unsigned int bytes); /* 0x48C4E8 */
 extern "C" long ix_file_size(FILE *file);        /* 0x48C534 */
 
-extern unsigned int *g_pStreamerPacketOffsets_005c4b38;
-extern unsigned int g_dwStreamerThreadTick_005c4b3c;
-extern FILE *g_pFeederPackageDisk_005c4b44;
-extern IxStreamFile *g_pPumpIdleFiles_005c4b48;
-extern unsigned int g_adwPlayerBranchingStack_005c4b50[32];
-extern unsigned char *g_pReaderCompressedBuf_005c4bd0;
-extern IxStreamFile *g_pPlayerReadQueue_005c4bd4;
-extern unsigned int g_nStreamerAudioBufferSize_005c4bd8;
-extern unsigned char *g_pStreamerFileStore_005c4bdc;
-extern unsigned char g_bFeederLevel_005c4be0;
-extern HANDLE g_hStreamerWorker_005c4be4;
+extern unsigned int *g_7_pStreamerPacketOffsets; /* 0x005c4b38 */
+extern unsigned int g_18_dwStreamerThreadTick; /* 0x005c4b3c */
+extern FILE *g_1_pFeederPackageDisk; /* 0x005c4b44 */
+extern IxStreamFile *g_48_pPumpIdleFiles; /* 0x005c4b48 */
+extern unsigned int g_13_adwPlayerBranchingStack[32]; /* 0x005c4b50 */
+extern unsigned char *g_126_pReaderCompressedBuf; /* 0x005c4bd0 */
+extern IxStreamFile *g_1_pPlayerReadQueue; /* 0x005c4bd4 */
+extern unsigned int g_49_nStreamerAudioBufferSize; /* 0x005c4bd8 */
+extern unsigned char *g_pStreamerFileStore; /* 0x005c4bdc */
+extern unsigned char g_6_bFeederLevel; /* 0x005c4be0 */
+extern HANDLE g_4_hStreamerWorker; /* 0x005c4be4 */
 /* Keep the reader's disk-chunk comparison in retail operand order. */
 #ifdef IX_THREAD_CPP
-extern unsigned int g_nSpoolerDiskChunk_005c4c40;
+extern unsigned int g_nSpoolerDiskChunk; /* 0x005c4c40 */
 #else
-extern IxStreamerFileEntry *g_pReaderFileEntries_005c4be8;
+extern IxStreamerFileEntry *g_3_pReaderFileEntries; /* 0x005c4be8 */
 #endif
-extern IxStreamerHeader *g_pStreamPrologue_005c4bec;
-extern IxStreamerAudioChunk *g_pStreamerSoundChunks_005c4bf0;
-extern IxStreamerBranch *g_pStreamBranches_005c4bf4;
-extern IxStreamerFileChunk *g_pStreamerFileParts_005c4bf8;
-extern CRITICAL_SECTION g_csStreamerFileFifo_005c4c00;
-extern CRITICAL_SECTION g_csStreamWorker_005c4c18;
-extern unsigned int g_dwStreamSoundChunk_005c4c30;
-extern DWORD g_dwStreamThreadId_005c4c34;
-extern "C" unsigned int g_dwStreamerMode_005c4c38;
-extern HANDLE g_hStreamRouseEvent_005c4c3c;
+extern IxStreamerHeader *g_pStreamPrologue; /* 0x005c4bec */
+extern IxStreamerAudioChunk *g_15_pStreamerSoundChunks; /* 0x005c4bf0 */
+extern IxStreamerBranch *g_7_pStreamBranches; /* 0x005c4bf4 */
+extern IxStreamerFileChunk *g_17_pStreamerFileParts; /* 0x005c4bf8 */
+extern CRITICAL_SECTION g_csStreamerFileFifo; /* 0x005c4c00 */
+extern CRITICAL_SECTION g_49_csStreamWorker; /* 0x005c4c18 */
+extern unsigned int g_6_dwStreamSoundChunk; /* 0x005c4c30 */
+extern DWORD g_dwStreamThreadId; /* 0x005c4c34 */
+extern "C" unsigned int g_dwStreamerMode; /* 0x005c4c38 */
+extern HANDLE g_1_hStreamRouseEvent; /* 0x005c4c3c */
 #ifdef IX_THREAD_CPP
-extern IxStreamerFileEntry *g_pReaderFileEntries_005c4be8;
+extern IxStreamerFileEntry *g_3_pReaderFileEntries; /* 0x005c4be8 */
 #else
-extern unsigned int g_nSpoolerDiskChunk_005c4c40;
+extern unsigned int g_nSpoolerDiskChunk; /* 0x005c4c40 */
 #endif
-extern unsigned int g_nStreamerBytesEachSecond_005c4c44;
-extern unsigned short g_nStreamerVolume_0049e150;
-extern char g_cStreamerBranchTag_0049e154;
-extern unsigned int g_nStreamerBranchStackIndex_0049e158;
-extern CRITICAL_SECTION g_csStreamer_005c4c48;
-extern IxStreamerTrigger *g_pFeederTriggers_005c4c60;
+extern unsigned int g_16_nStreamerBytesEachSecond; /* 0x005c4c44 */
+extern unsigned short g_nStreamerVolume; /* 0x0049e150 */
+extern char g_cStreamerBranchTag; /* 0x0049e154 */
+extern unsigned int g_nStreamerBranchStackIndex; /* 0x0049e158 */
+extern CRITICAL_SECTION g_1_csStreamer; /* 0x005c4c48 */
+extern IxStreamerTrigger *g_6_pFeederTriggers; /* 0x005c4c60 */
 
 #endif /* IX_H */

@@ -26,7 +26,7 @@ void FormatTextTokens(void (*writer)(int),
     char number[64];
     short ch;
 
-    if (g_pCurrentTextContext_005c8d1c == 0)
+    if (g_29_pCurrentTextContext == 0)
         return;
     while ((ch = (signed char)*format++) != 0) {
         switch (ch) {
@@ -106,53 +106,53 @@ void FormatTextTokens(void (*writer)(int),
                     break;
                 case 'X':
 #ifdef SDL_PORT
-                    g_pCurrentTextContext_005c8d1c->cursorX =
+                    g_29_pCurrentTextContext->cursorX =
                         (short)va_arg(*arguments, int);
 #else
-                    g_pCurrentTextContext_005c8d1c->cursorX =
+                    g_29_pCurrentTextContext->cursorX =
                         va_arg(arguments, short);
 #endif
                     break;
                 case 'Y':
 #ifdef SDL_PORT
-                    g_pCurrentTextContext_005c8d1c->cursorY =
+                    g_29_pCurrentTextContext->cursorY =
                         (short)va_arg(*arguments, int);
 #else
-                    g_pCurrentTextContext_005c8d1c->cursorY =
+                    g_29_pCurrentTextContext->cursorY =
                         va_arg(arguments, short);
 #endif
                     break;
                 case 'B':
 #ifdef SDL_PORT
-                    g_pCurrentTextContext_005c8d1c->backgroundColour =
+                    g_29_pCurrentTextContext->backgroundColour =
                         (unsigned char)va_arg(*arguments, int);
 #else
-                    g_pCurrentTextContext_005c8d1c->backgroundColour =
+                    g_29_pCurrentTextContext->backgroundColour =
                         va_arg(arguments, unsigned char);
 #endif
                     break;
                 case 'F':
 #ifdef SDL_PORT
-                    g_pCurrentTextContext_005c8d1c->colour =
+                    g_29_pCurrentTextContext->colour =
                         (unsigned char)va_arg(*arguments, int);
 #else
-                    g_pCurrentTextContext_005c8d1c->colour =
+                    g_29_pCurrentTextContext->colour =
                         va_arg(arguments, unsigned char);
 #endif
                     break;
                 case 'P':
-                    if (g_bCinematicSpriteTextEnableStatus_005c82a7 == 0)
-                        DrawTextString(g_pCurrentTextContext_005c8d1c->text);
+                    if (g_9_bCinematicSpriteTextEnableStatus == 0)
+                        DrawTextString(g_29_pCurrentTextContext->text);
                     else
                         DrawWrappedCinematicText(
-                            g_pCurrentTextContext_005c8d1c->text);
+                            g_29_pCurrentTextContext->text);
                     break;
                 case 'J':
 #ifdef SDL_PORT
-                    g_pCurrentTextContext_005c8d1c->alignment =
+                    g_29_pCurrentTextContext->alignment =
                         (unsigned char)va_arg(*arguments, int);
 #else
-                    g_pCurrentTextContext_005c8d1c->alignment =
+                    g_29_pCurrentTextContext->alignment =
                         va_arg(arguments, unsigned char);
 #endif
                     break;
@@ -174,7 +174,7 @@ void DrawFormattedText(const char *format, ...)
     va_list arguments;
 
     va_start(arguments, format);
-    if (g_bCinematicSpriteTextEnableStatus_005c82a7 == 0) {
+    if (g_9_bCinematicSpriteTextEnableStatus == 0) {
         FormatTextTokens((void (*)(int))DrawTextCharacter, format,
 #ifdef SDL_PORT
                          &arguments);
@@ -191,8 +191,8 @@ void DrawFormattedText(const char *format, ...)
 #endif
     }
     va_end(arguments);
-    if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScrViewInfo_005d21a0.pixels)
+    if (g_29_pCurrentTextContext->viewport->pixels ==
+        g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }
 
@@ -202,10 +202,10 @@ void FormatTextBufferFromStart(const char *format, ...)
     va_list arguments;
 
     va_start(arguments, format);
-    if (g_pCurrentTextContext_005c8d1c == 0)
+    if (g_29_pCurrentTextContext == 0)
         return;
-    g_pCurrentTextContext_005c8d1c->textCursor =
-        g_pCurrentTextContext_005c8d1c->text;
+    g_29_pCurrentTextContext->textCursor =
+        g_29_pCurrentTextContext->text;
     FormatTextTokens((void (*)(int))AppendTextCharacter, format,
 #ifdef SDL_PORT
                      &arguments);
@@ -213,8 +213,8 @@ void FormatTextBufferFromStart(const char *format, ...)
                      arguments);
 #endif
     va_end(arguments);
-    if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScrViewInfo_005d21a0.pixels)
+    if (g_29_pCurrentTextContext->viewport->pixels ==
+        g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }
 
@@ -231,7 +231,7 @@ void AppendFormattedText(const char *format, ...)
                      arguments);
 #endif
     va_end(arguments);
-    if (g_pCurrentTextContext_005c8d1c->viewport->pixels ==
-        g_stScrViewInfo_005d21a0.pixels)
+    if (g_29_pCurrentTextContext->viewport->pixels ==
+        g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }

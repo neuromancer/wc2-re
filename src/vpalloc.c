@@ -22,7 +22,7 @@ void ClearViewport(Viewport *viewport, short colour);
 /* Function start: 0x45CA80 */
 short CalcRectangleArea(const Viewport *viewport)
 {
-    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
+    if (g_nSpacePaletteFadeMode != 0x13)
         LogDisplayMode("not MCGA");
     return (short)((viewport->bottom - viewport->top + 1) *
                    (viewport->right - viewport->left + 1));
@@ -44,13 +44,13 @@ short AllocateViewport(Viewport *viewport,
     width = viewport->right - viewport->left + 1;
     left = viewport->left;
     firstRow = viewport->top;
-    g_nAllocateViewportCalls_005c8dc4++;
-    if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
+    g_nAllocateViewportCalls++;
+    if (g_nSpacePaletteFadeMode != 0x13)
         LogDisplayMode("not MCGA");
     viewport->allocation = AllocateTaggedMemory(
         width * height, (unsigned short)(flags + 2));
-    g_apViewportAllocations_005d19c0[
-        g_nViewportAllocationCount_005d19bc++] = viewport->allocation;
+    g_apViewportAllocations[
+        g_nViewportAllocationCount++] = viewport->allocation;
     buffer = viewport->allocation;
     if (buffer == 0)
         return 0;
@@ -60,7 +60,7 @@ short AllocateViewport(Viewport *viewport,
     viewport->rowOffsets = AllocateTaggedMemory(
         (firstRow + height + 2) * 2, 0);
     if (viewport->rowOffsets == 0) {
-        if (g_nSpacePaletteFadeMode_004901e8 != 0x13)
+        if (g_nSpacePaletteFadeMode != 0x13)
             ReleasePacketHandle(viewport->allocation);
         return 0;
     }
@@ -76,4 +76,4 @@ short AllocateViewport(Viewport *viewport,
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_nAllocateViewportCalls_005c8dc4;
+int g_nAllocateViewportCalls; /* 0x005c8dc4 */

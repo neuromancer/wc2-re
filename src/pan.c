@@ -16,7 +16,7 @@ void PanToScreen(Viewport *source, Viewport *destination)
     short *basePalette;
     short *fadePalette;
 
-    if (g_nSpacePaletteFadeMode_004901e8 == 0x13) {
+    if (g_nSpacePaletteFadeMode == 0x13) {
         indices = AllocateTaggedMemory(256, 0);
         if (indices == 0)
             return;

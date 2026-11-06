@@ -68,8 +68,8 @@
     "reviewed_layout_issues": {
       "full": {
         "SOURCE_ORDER_DECREASE:0x005c338c": "src/dib.cpp's uninitialized C++ globals follow symbol hash order, not declaration order. Its trailing unused words occupy their annotated retail addresses in WC2.map (including 0x5C338C and 0x5C3394), before the earlier-declared debug buffer at 0x5C39F8. The rebuilt-layout audit still checks their placement.",
-        "SOURCE_ORDER_DECREASE:0x005c4b40": "src/ix/streamer.cpp's trailing g_nUnusedPumpWord_005c4b40 precedes the earlier-declared g_pFeederTriggers_005c4c60 in symbol hash order. Both link at their exact retail addresses (0x5C4B40 and 0x5C4C60), and the unit's rebuilt-layout audit reports no issues. Declaration order does not determine the order of these commons.",
-        "SOURCE_ORDER_DECREASE:0x005c4ee8": "src/ix/dsp.cpp's g_anPanTable_005c4ee8 follows g_pPrimarySoundBuffer_005c52ec in the source but precedes it in symbol hash order. Both occupy their exact retail addresses (0x5C4EE8 and 0x5C52EC), and the unit's rebuilt-layout audit reports no issues. Keep checking linked placement rather than treating their declaration order as allocation order.",
+        "SOURCE_ORDER_DECREASE:0x005c4b40": "src/ix/streamer.cpp's trailing g_38_nUnusedPumpWord precedes the earlier-declared g_6_pFeederTriggers in symbol hash order. Both link at their exact retail addresses (0x5C4B40 and 0x5C4C60), and the unit's rebuilt-layout audit reports no issues. Declaration order does not determine the order of these commons.",
+        "SOURCE_ORDER_DECREASE:0x005c4ee8": "src/ix/dsp.cpp's g_3_anPanTable follows g_1_pPrimarySoundBuffer in the source but precedes it in symbol hash order. Both occupy their exact retail addresses (0x5C4EE8 and 0x5C52EC), and the unit's rebuilt-layout audit reports no issues. Keep checking linked placement rather than treating their declaration order as allocation order.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x0048e0e0": "Read as a dword once and as a word three times; the speech-cache code and data counts are adjacent words that one site loads together.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x00493134": "Read as a word 32 times and as a dword twice; g_nSpaceFrame is a short and the wide reads take it with the next word.",
         "REBUILT_GLOBAL_SYMBOL_SPAN:0x00493134": "playWAVE at 0x0042418C intentionally reads g_nSpaceFrame through an int pointer: the retail CMP and MOV also read four bytes at 0x00493134. The short is linked at that exact address, and binary-comp confirms the four-byte storage window matches. Retain the short type used by the other callers; this is the same wide access already reviewed on the original side.",
@@ -78,15 +78,15 @@
         "REBUILT_GLOBAL_SYMBOL_SPAN:0x00499c4c": "RunCampaignScript at 0x00429261 loads this byte flag and its following alignment byte with MOVSX from a word in both images. The flag links at retail 0x00499C4C, and binary-comp confirms the two-byte window matches. Other accesses retain byte width.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x0049afe0": "Read as a byte three times and as a word twice; the flag is a byte.",
         "ORIGINAL_DIRECT_GLOBAL_SPAN:0x005c8dda": "Read as a word twice and as a dword once; the adjustment is a short.",
-        "REBUILT_GLOBAL_SYMBOL_SPAN:0x005c8dda": "RunGameApplication at 0x0046591A passes a dword read of this short to printf in both images. It includes the following g_bPumpMessagesWhileLoadingState word: the two symbols remain two bytes apart in the rebuilt map, and binary-comp confirms the four-byte window matches. The block's displacement from retail remains unresolved; this review covers the access width, not address identity.",
+        "REBUILT_GLOBAL_SYMBOL_SPAN:0x005c8dda": "RunGameApplication at 0x0046591A passes a dword read of this short to printf in both images. It includes the following g_2_bPumpMessagesWhileLoadingState word: the two symbols remain two bytes apart in the rebuilt map, and binary-comp confirms the four-byte window matches. The block's displacement from retail remains unresolved; this review covers the access width, not address identity.",
         "ORIGINAL_INDEXED_GLOBAL_ESCAPE:0x004926c0": "show_target_disp (0x43FAC0) reaches this only when the index is 20 or more, so 0x4926C0 is the base of an offset form and the array it indexes starts at 0x492710, past this global.",
         "ORIGINAL_INDEXED_GLOBAL_ESCAPE:0x005d2df0": "AdvanceSceneFlicStream (0x42E868) increments its initially zero slot before CMP [eax*8 + 0x5D2E08], so EAX ranges from 1 to 15 at that access. The effective addresses are 0x5D2E10 through 0x5D2E80: the shape fields of the fifteen SceneFlicCacheEntry records. The displacement is the array base minus one record, not storage inside the preceding text context; src/gameflow.c expresses this as table[slot - 1]. This review does not assert that the displaced rebuilt commons occupy retail addresses.",
         "REBUILT_LAYOUT_ADJACENT_SPLIT:0x00493188": "src/globals.c declares g_vToTarget and g_nFacingToTarget adjacent and in address order; MSVC puts the twelve-byte vector and the short in different uninitialised-data buckets, which the source cannot control.",
-        "REBUILT_INDEXED_GLOBAL_ESCAPE:0x004930a0": "Only the first row is this table's own storage: difflevl.000 is loaded straight into g_asDifficultyLevels_004930a8, the next eight bytes on, so GetAdaptiveTurnRate indexes on into the loaded packet exactly as the original does at 0x4102A0.",
-        "REBUILT_LAYOUT_ALIAS_SPLIT:0x004960f0": "The raw-source layout audit combines both SDL_PORT branches and uses the native ten-word evasion timer array. The reference build still declares eight words (COMM _DAT_004960f0:WORD:08H); only SDL reserves slots 8 and 9 separately from the following stress bytes.",
-        "REBUILT_LAYOUT_ALIAS_SPLIT:0x005b2818": "The raw-source layout audit combines both SDL_PORT branches and uses the native 4096-byte music filename buffer. The reference build retains the original 128 bytes (COMM _g_szStreamerPath_005b2818:BYTE:080H); only SDL expands it to avoid truncating installation paths.",
-        "REBUILT_LAYOUT_ALIAS_SPLIT:0x005b3740": "The raw-source layout audit combines both SDL_PORT branches and uses the native 4096-byte STREAMS directory buffer. The reference build retains the original 256 bytes (COMM _g_szStreamsPath_005b3740:BYTE:0100H); only SDL expands it for native installation paths.",
-        "REBUILT_GLOBAL_SYMBOL_SPAN:0x00499bfc": "auto_pilot_sequence (0x422B1C) loads the flag as a word where every other reader takes the byte, so src/auto.c reproduces that width; the byte it also reads is the alignment padding before g_bRoomTransitionAnimationEnabled_00499c00, which is why only the load width differs and not the value."
+        "REBUILT_INDEXED_GLOBAL_ESCAPE:0x004930a0": "Only the first row is this table's own storage: difflevl.000 is loaded straight into g_asDifficultyLevels, the next eight bytes on, so GetAdaptiveTurnRate indexes on into the loaded packet exactly as the original does at 0x4102A0.",
+        "REBUILT_LAYOUT_ALIAS_SPLIT:0x004960f0": "The raw-source layout audit combines both SDL_PORT branches and uses the native ten-word evasion timer array. The reference build still declares eight words in g_asProjectileEvasionTicks; only SDL reserves slots 8 and 9 separately from the following stress bytes.",
+        "REBUILT_LAYOUT_ALIAS_SPLIT:0x005b2818": "The raw-source layout audit combines both SDL_PORT branches and uses the native 4096-byte music filename buffer. The reference build retains the original 128 bytes in g_szStreamerDirectory; only SDL expands it to avoid truncating installation paths.",
+        "REBUILT_LAYOUT_ALIAS_SPLIT:0x005b3740": "The raw-source layout audit combines both SDL_PORT branches and uses the native 4096-byte STREAMS directory buffer. The reference build retains the original 256 bytes in g_9_szStreamsPath; only SDL expands it for native installation paths.",
+        "REBUILT_GLOBAL_SYMBOL_SPAN:0x00499bfc": "auto_pilot_sequence (0x422B1C) loads the flag as a word where every other reader takes the byte, so src/auto.c reproduces that width; the byte it also reads is the alignment padding before g_bRoomTransitionAnimationEnabled, which is why only the load width differs and not the value."
       }
     },
     "struct_formats": {
@@ -109,8 +109,8 @@
   },
   "calls": {
     "function_pointer_globals": {
-      "0x004a0c18": "g_pIxMalloc_004a0c18",
-      "0x004a0c1c": "g_pIxFree_004a0c1c"
+      "0x004a0c18": "g_pIxMalloc",
+      "0x004a0c1c": "g_pIxFree"
     },
     "known_crt": {
       "full": {

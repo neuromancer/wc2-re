@@ -15,13 +15,13 @@ short find_next_gun(short obj, short currentGun)
     ShipWeaponSlot *weaponSlot;
     short i;
 
-    loadoutTable = g_aShipWeapons_004956b0[obj];
+    loadoutTable = g_aShipWeapons[obj];
     foundCurrent = 0;
     earliest = -1;
     count = (signed char)loadoutTable[0];
     weaponSlot = (ShipWeaponSlot *)&loadoutTable[1];
     for (i = 0; i < count; i++, weaponSlot++) {
-        if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
+        if (g_aObjectTypeData[weaponSlot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE) {
             if (weaponSlot->type != OBJECT_DATA_TURRET_GUN) {
                 if (earliest == -1)
@@ -49,13 +49,13 @@ int select_guns(short selectedGun)
     short i;
     ShipWeaponSlot *weaponSlot;
 
-    weapons = g_aShipWeapons_004956b0[0];
+    weapons = g_aShipWeapons[0];
     any = 0;
     weaponCount = (signed char)weapons[0];
     i = 0;
     weaponSlot = (ShipWeaponSlot *)&weapons[1];
     for (; i < weaponCount; i++, weaponSlot++) {
-        if (g_aObjectTypeData_00496d30[weaponSlot->type].objectClass ==
+        if (g_aObjectTypeData[weaponSlot->type].objectClass ==
                 OBJECT_CLASS_PROJECTILE) {
             if (weaponSlot->type == selectedGun || selectedGun == 0x80) {
                 weaponSlot->disabled = 0;
@@ -73,8 +73,8 @@ int select_guns(short selectedGun)
 /* Function start: 0x46166D */
 void select_new_gun(void)
 {
-    g_nSelectedGunType_004934dc =
-        select_guns(find_next_gun(0, g_nSelectedGunType_004934dc));
+    g_nSelectedGunType =
+        select_guns(find_next_gun(0, g_nSelectedGunType));
     if (get_mode(0) == 1)
         InvalidateVduMode(0);
 }
@@ -87,54 +87,54 @@ void select_new_release_weapon(short preferredType)
     signed char index;
     short weaponType;
 
-    weaponCount = g_aShipWeapons_004956b0[0][0];
-    index = (signed char)g_nSelectedReleaseWeaponIndex_004934e0;
+    weaponCount = g_aShipWeapons[0][0];
+    index = (signed char)g_nSelectedReleaseWeaponIndex;
     index++;
     if (weaponCount <= index)
         index = 0;
-    if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
+    if (g_nSelectedReleaseWeaponIndex == -1) {
         if (preferredType != -1) {
             for (index = 0; weaponCount > index; index++) {
-                if (((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                if (((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                         index].type == preferredType) {
-                    ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                    ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                         index].disabled = 0;
-                    g_nSelectedReleaseWeaponIndex_004934e0 = index;
+                    g_nSelectedReleaseWeaponIndex = index;
                     break;
                 }
             }
         }
-        if (g_nSelectedReleaseWeaponIndex_004934e0 == -1) {
+        if (g_nSelectedReleaseWeaponIndex == -1) {
             for (index = 0; weaponCount > index; index++) {
                 weaponType =
-                    ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                    ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                         index].weaponType;
-                if (g_aObjectTypeData_00496d30[weaponType].objectClass !=
+                if (g_aObjectTypeData[weaponType].objectClass !=
                     OBJECT_CLASS_PROJECTILE) {
-                    ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                    ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                         index].disabled = 0;
-                    g_nSelectedReleaseWeaponIndex_004934e0 = index;
+                    g_nSelectedReleaseWeaponIndex = index;
                     break;
                 }
             }
         }
     } else {
         firstFound = index;
-        while (index != g_nSelectedReleaseWeaponIndex_004934e0) {
+        while (index != g_nSelectedReleaseWeaponIndex) {
             weaponType =
-                ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                     index].weaponType;
-            if (g_aObjectTypeData_00496d30[weaponType].objectClass !=
+            if (g_aObjectTypeData[weaponType].objectClass !=
                     OBJECT_CLASS_PROJECTILE &&
-                ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                     index].type !=
-                    ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
-                        g_nSelectedReleaseWeaponIndex_004934e0].type) {
-                ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
-                    g_nSelectedReleaseWeaponIndex_004934e0].disabled = 1;
-                ((ShipWeaponSlot *)&g_aShipWeapons_004956b0[0][1])[
+                    ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
+                        g_nSelectedReleaseWeaponIndex].type) {
+                ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
+                    g_nSelectedReleaseWeaponIndex].disabled = 1;
+                ((ShipWeaponSlot *)&g_aShipWeapons[0][1])[
                     index].disabled = 0;
-                g_nSelectedReleaseWeaponIndex_004934e0 = index;
+                g_nSelectedReleaseWeaponIndex = index;
                 break;
             }
             index++;

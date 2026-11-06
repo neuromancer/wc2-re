@@ -7,36 +7,36 @@
 #define DATAFILE_C
 #include "game.h"
 
-short g_nPacketError_0049ca90 = 0;
+short g_nPacketError = 0; /* 0x0049ca90 */
 
 /* Function start: 0x45A010 */
 short OpenDataFileOrDie(const char *path)
 {
     short fd = (short)_open(path, 0x8002);
 
-    g_nPacketError_0049ca90 = (short)errno;
+    g_nPacketError = (short)errno;
     return fd;
 }
 
 /* Function start: 0x45A04A */
 void CloseDataFile(unsigned short fd)
 {
-    g_nPacketError_0049ca90 = (short)_close(fd & 0xffff);
+    g_nPacketError = (short)_close(fd & 0xffff);
 }
 
 /* Function start: 0x45A06C */
 short WriteDataFileAtOffset(unsigned short fd, int offset,
                             unsigned int length, const void *data)
 {
-    g_nPacketError_0049ca90 = 0;
+    g_nPacketError = 0;
     if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szWriteDataFileError_005b38c8, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_szWriteDataFileError, "!lseek %d\n", offset);
+        g_nPacketError = (short)errno;
         return 0;
     }
     if (_write(fd, data, length) == -1) {
-        sprintf(g_szWriteDataFileError_005b38c8, "!write %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_szWriteDataFileError, "!write %d\n", offset);
+        g_nPacketError = (short)errno;
         return 0;
     }
     return 1;
@@ -49,8 +49,8 @@ short CreateDataFile(const char *path)
 
     fd = (unsigned short)_open(path, 0x8101, 0x180);
     if ((unsigned int)fd == (unsigned int)-1) {
-        sprintf(g_szCreateBlockFileError_005b3888, "!_open '%s'\n", path);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_szCreateBlockFileError, "!_open '%s'\n", path);
+        g_nPacketError = (short)errno;
         return 0;
     }
 #ifdef SDL_PORT
@@ -71,15 +71,15 @@ short CreateDataFile(const char *path)
 int ReadDataFileAtOffset(unsigned short fd, int offset,
                          unsigned int length, void *data)
 {
-    g_nPacketError_0049ca90 = 0;
+    g_nPacketError = 0;
     if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szReadDataFileFault_005b3848, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_1_szReadDataFileFault, "!lseek %d\n", offset);
+        g_nPacketError = (short)errno;
         return 0;
     }
     if (_read(fd, data, length) == -1) {
-        sprintf(g_szReadDataFileFault_005b3848, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_1_szReadDataFileFault, "!lseek %d\n", offset);
+        g_nPacketError = (short)errno;
         return 0;
     }
     return 1;
@@ -93,8 +93,8 @@ int SeekDataFile(unsigned short fd, int offset,
 
     position = _lseek(fd, offset, origin & 0xffff);
     if (position == -1) {
-        sprintf(g_szSeekDataFileFailure_005b3908, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
+        sprintf(g_szSeekDataFileFailure, "!lseek %d\n", offset);
+        g_nPacketError = (short)errno;
     }
     return position;
 }

@@ -12,20 +12,20 @@ void DrawCinematicFontCharacter(char character)
     short frame;
 
     if (IsCinematicFontCharacterPrintable((short)(signed char)character) == 0) {
-        g_pCurrentTextContext_005c8d1c->cursorX =
-            (short)(g_pCurrentTextContext_005c8d1c->cursorX + 5);
+        g_29_pCurrentTextContext->cursorX =
+            (short)(g_29_pCurrentTextContext->cursorX + 5);
         return;
     }
     frame = (short)((signed char)character - 0x21);
     GetShapeFrameBounds(&bounds.left, 0, 0,
-                        g_pCurrentTextContext_005c8d1c->font, frame);
-    DrawSpriteDefault(g_pCurrentTextContext_005c8d1c->viewport,
-                      g_pCurrentTextContext_005c8d1c->cursorX,
-                      g_pCurrentTextContext_005c8d1c->cursorY,
-                      g_pCurrentTextContext_005c8d1c->font, frame);
-    g_pCurrentTextContext_005c8d1c->cursorX = (short)(
+                        g_29_pCurrentTextContext->font, frame);
+    DrawSpriteDefault(g_29_pCurrentTextContext->viewport,
+                      g_29_pCurrentTextContext->cursorX,
+                      g_29_pCurrentTextContext->cursorY,
+                      g_29_pCurrentTextContext->font, frame);
+    g_29_pCurrentTextContext->cursorX = (short)(
         bounds.right - bounds.left +
-        g_pCurrentTextContext_005c8d1c->cursorX + 2);
+        g_29_pCurrentTextContext->cursorX + 2);
 }
 
 /* Function start: 0x43374E */
@@ -49,8 +49,8 @@ void DrawWrappedCinematicText(char *text)
 
     lineStart = text;
     viewportWidth = (short)(
-        g_pCurrentTextContext_005c8d1c->viewport->right -
-        g_pCurrentTextContext_005c8d1c->viewport->left + 1);
+        g_29_pCurrentTextContext->viewport->right -
+        g_29_pCurrentTextContext->viewport->left + 1);
     while (*lineStart != 0) {
         usedWidth = 0;
         end = lineStart;
@@ -77,19 +77,19 @@ void DrawWrappedCinematicText(char *text)
         }
         terminator = ch;
         *end = 0;
-        switch (g_pCurrentTextContext_005c8d1c->alignment) {
+        switch (g_29_pCurrentTextContext->alignment) {
         case 0:
-            g_pCurrentTextContext_005c8d1c->cursorX =
-                g_pCurrentTextContext_005c8d1c->viewport->left;
+            g_29_pCurrentTextContext->cursorX =
+                g_29_pCurrentTextContext->viewport->left;
             break;
         case 1:
-            g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-                g_pCurrentTextContext_005c8d1c->viewport->right -
+            g_29_pCurrentTextContext->cursorX = (short)(
+                g_29_pCurrentTextContext->viewport->right -
                 usedWidth + 1);
             break;
         case 2:
-            g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-                g_pCurrentTextContext_005c8d1c->viewport->left +
+            g_29_pCurrentTextContext->cursorX = (short)(
+                g_29_pCurrentTextContext->viewport->left +
                 (viewportWidth - usedWidth) / 2);
             break;
         }
@@ -97,8 +97,8 @@ void DrawWrappedCinematicText(char *text)
             DrawCinematicFontCharacter(*lineStart++);
         *lineStart = (char)terminator;
         if (terminator == '\n') {
-            g_pCurrentTextContext_005c8d1c->cursorY = (short)(
-                g_pCurrentTextContext_005c8d1c->cursorY +
+            g_29_pCurrentTextContext->cursorY = (short)(
+                g_29_pCurrentTextContext->cursorY +
                 MeasureCinematicFontLineHeight() + 1);
             lineStart++;
         }
@@ -113,7 +113,7 @@ short MeasureCinematicFontCharacterWidth(short character)
     if (IsCinematicFontCharacterPrintable(character) == 0)
         return 5;
     GetShapeFrameBounds(&bounds.left, 0, 0,
-                        g_pCurrentTextContext_005c8d1c->font,
+                        g_29_pCurrentTextContext->font,
                         (short)(character - 0x21));
     return (short)(bounds.right - bounds.left + 2);
 }
@@ -124,14 +124,14 @@ short MeasureCinematicFontLineHeight(void)
     ShortRect bounds;
 
     GetShapeFrameBounds(&bounds.left, 0, 0,
-                        g_pCurrentTextContext_005c8d1c->font, 0);
+                        g_29_pCurrentTextContext->font, 0);
     return (short)(bounds.bottom - bounds.top + 2);
 }
 
 /* Function start: 0x433AB0 */
 void InitializeCinematicTextRenderer(void)
 {
-    g_pfnRenderSceneFontCharacterHandler_005c8d30 =
+    g_36_pfnRenderSceneFontCharacterHandler =
         DrawCinematicFontCharacter;
-    g_pfnRenderSceneTextStringHandler_005c8cf4 = DrawWrappedCinematicText;
+    g_3_pfnRenderSceneTextStringHandler = DrawWrappedCinematicText;
 }

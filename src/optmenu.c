@@ -5,13 +5,13 @@
  */
 #include "game.h"
 
-unsigned char g_abTaggedAllocationPrefix_0049ca40[8] = {
+unsigned char g_abTaggedAllocationPrefix[8] = {
     'j', 'e', 'f', 'f', 0, 0, 0, 0
-};
-ShortRect g_stModalBounds_0049ca48 = {0x18, 0x28, 0x128, 0x3c};
-ModalTextPanel *g_pModalTextPanel_0049ca50 = 0;
-unsigned char *g_pCampaignChalkboardShape_0049ca54 = 0;
-short g_bDisableChalkboardReplay_0049ca58 = 0;
+}; /* 0x0049ca40 */
+ShortRect g_stModalBounds = {0x18, 0x28, 0x128, 0x3c}; /* 0x0049ca48 */
+ModalTextPanel *g_pModalTextPanel = 0; /* 0x0049ca50 */
+unsigned char *g_pCampaignChalkboardShape = 0; /* 0x0049ca54 */
+short g_bDisableChalkboardReplay = 0; /* 0x0049ca58 */
 
 /* Function start: 0x459160 */
 void EraseLastTextInputCharacter(void)
@@ -22,22 +22,22 @@ void EraseLastTextInputCharacter(void)
     short characterWidth;
     short length;
 
-    text = g_pCurrentTextContext_005c8d1c->text;
+    text = g_29_pCurrentTextContext->text;
     pixelWidth = MeasureTextPixelWidthClamped(text);
     length = DosStrlen(text);
     if (length != 0) {
         characterWidth = (short)GetFontCharWidth(text[length - 1]);
-        clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
+        clearArea = *g_29_pCurrentTextContext->viewport;
         clearArea.left += pixelWidth - characterWidth;
         clearArea.right = (short)(clearArea.left + characterWidth - 1);
-        clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
+        clearArea.top = g_29_pCurrentTextContext->cursorY;
         clearArea.bottom = (short)(clearArea.top +
             ReadWord((unsigned short *)
-                g_pCurrentTextContext_005c8d1c->font) - 1);
+                g_29_pCurrentTextContext->font) - 1);
         ClearViewport(&clearArea,
-                      g_pCurrentTextContext_005c8d1c->backgroundColour);
-        g_pCurrentTextContext_005c8d1c->cursorX = (short)(
-            g_pCurrentTextContext_005c8d1c->cursorX - characterWidth);
+                      g_29_pCurrentTextContext->backgroundColour);
+        g_29_pCurrentTextContext->cursorX = (short)(
+            g_29_pCurrentTextContext->cursorX - characterWidth);
     }
 }
 
@@ -48,7 +48,7 @@ void EraseTextContextBackground(TextContext *context)
 
     colour = context->backgroundColour;
     if (colour == 0xff)
-        colour = g_cSecondaryViewBufferColour_0049cb4c;
+        colour = g_cSecondaryViewBufferColour;
     ClearViewport(context->viewport, colour);
 }
 
@@ -56,17 +56,17 @@ void EraseTextContextBackground(TextContext *context)
 void DrawTextInputCursor(char character)
 {
     unsigned char savedBackground =
-        g_pCurrentTextContext_005c8d1c->backgroundColour;
-    unsigned char ink = g_pCurrentTextContext_005c8d1c->colour;
+        g_29_pCurrentTextContext->backgroundColour;
+    unsigned char ink = g_29_pCurrentTextContext->colour;
     short savedX;
     char glyph[2] = { character, 0 };
 
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    g_pCurrentTextContext_005c8d1c->cursorX++;
-    g_pCurrentTextContext_005c8d1c->backgroundColour = ink;
+    savedX = g_29_pCurrentTextContext->cursorX;
+    g_29_pCurrentTextContext->cursorX++;
+    g_29_pCurrentTextContext->backgroundColour = ink;
     DrawFormattedText(glyph);
-    g_pCurrentTextContext_005c8d1c->backgroundColour = savedBackground;
-    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+    g_29_pCurrentTextContext->backgroundColour = savedBackground;
+    g_29_pCurrentTextContext->cursorX = savedX;
 }
 
 /* Function start: 0x45930A */
@@ -74,10 +74,10 @@ void EraseCharacterAfterTextCursor(char character)
 {
     short savedX;
 
-    savedX = g_pCurrentTextContext_005c8d1c->cursorX;
-    g_pCurrentTextContext_005c8d1c->cursorX++;
+    savedX = g_29_pCurrentTextContext->cursorX;
+    g_29_pCurrentTextContext->cursorX++;
     ClearTextInputCharacter(character);
-    g_pCurrentTextContext_005c8d1c->cursorX = savedX;
+    g_29_pCurrentTextContext->cursorX = savedX;
 }
 
 /* Function start: 0x459348 */
@@ -87,14 +87,14 @@ void ClearTextInputCharacter(char character)
     short characterWidth;
 
     characterWidth = (short)GetFontCharWidth(character);
-    clearArea = *g_pCurrentTextContext_005c8d1c->viewport;
-    clearArea.left = g_pCurrentTextContext_005c8d1c->cursorX;
+    clearArea = *g_29_pCurrentTextContext->viewport;
+    clearArea.left = g_29_pCurrentTextContext->cursorX;
     clearArea.right = (short)(clearArea.left + characterWidth - 1);
-    clearArea.top = g_pCurrentTextContext_005c8d1c->cursorY;
+    clearArea.top = g_29_pCurrentTextContext->cursorY;
     clearArea.bottom = (short)(clearArea.top +
-        (short)ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) - 1);
+        (short)ReadWord((unsigned short *)g_29_pCurrentTextContext->font) - 1);
     ClearViewport(&clearArea,
-                  g_pCurrentTextContext_005c8d1c->backgroundColour);
+                  g_29_pCurrentTextContext->backgroundColour);
 }
 
 /* Function start: 0x4593D6 */
@@ -103,15 +103,15 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
                                short backgroundColour, short borderColour)
 {
     *(ShortRect *)&panel->left = bounds;
-    panel->previousContext = g_pCurrentTextContext_005c8d1c;
-    g_pCurrentTextContext_005c8d1c = &panel->context;
-    panel->context = g_stDefaultStringContext_005d2d20;
+    panel->previousContext = g_29_pCurrentTextContext;
+    g_29_pCurrentTextContext = &panel->context;
+    panel->context = g_3_stDefaultStringContext;
     if (fontIndex == -1)
         fontIndex = 1;
     InitializeTextContextFromFont(&panel->context, fontIndex,
                                   (unsigned char)clearColour,
                                   (signed char)backgroundColour);
-    panel->viewport = g_stModalSourceWindow_005d2c50;
+    panel->viewport = g_2_stModalSourceWindow;
     /* The panel and its viewports keep their bounds as four loose shorts;
      * the rectangle is copied between them as one 8-byte record. */
     *(ShortRect *)&panel->savedBackground.left = *(ShortRect *)&panel->left;
@@ -120,7 +120,7 @@ short InitializeModalTextPanel(ModalTextPanel *panel, short fontIndex,
         return 0;
     CopyViewportContents(&panel->viewport, &panel->savedBackground);
     panel->context.viewport = &panel->viewport;
-    panel->context.text = g_szTextBufferBuffer_005d1c40;
+    panel->context.text = g_16_szTextBufferBuffer;
     ResetStringBuilder(&panel->context);
     EraseTextContextBackground(&panel->context);
     DrawViewportBorder(&panel->viewport, panel->left, panel->top,
@@ -156,7 +156,7 @@ void RestoreModalTextPanel(ModalTextPanel *panel)
     MarkDibDirty();
     DIBslamReal();
     free_viewport(&panel->savedBackground);
-    g_pCurrentTextContext_005c8d1c = panel->previousContext;
+    g_29_pCurrentTextContext = panel->previousContext;
 }
 
 /* Function start: 0x4595EF */
@@ -170,35 +170,35 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
     va_start(argList, format);
     vsprintf(text, format, argList);
     va_end(argList);
-    bounds = g_stModalBounds_0049ca48;
-    if (g_pModalTextPanel_0049ca50 == 0) {
-        g_pModalTextPanel_0049ca50 = AllocateTaggedMemory(sizeof(ModalTextPanel), 0x40);
+    bounds = g_stModalBounds;
+    if (g_pModalTextPanel == 0) {
+        g_pModalTextPanel = AllocateTaggedMemory(sizeof(ModalTextPanel), 0x40);
     }
-    if (g_pModalTextPanel_0049ca50 == 0)
+    if (g_pModalTextPanel == 0)
         return 0;
-    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
-                                 g_stModalBounds_0049ca48,
-                                 g_cSecondaryViewBufferColour_0049cb4c,
-                                 g_cSecondaryViewBufferColour_0049cb4c,
-                                 g_cSecondaryViewBufferColour_0049cb4c) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
+    if (InitializeModalTextPanel(g_pModalTextPanel, fontIndex,
+                                 g_stModalBounds,
+                                 g_cSecondaryViewBufferColour,
+                                 g_cSecondaryViewBufferColour,
+                                 g_cSecondaryViewBufferColour) == 0) {
+        ReleasePacketHandle(g_pModalTextPanel);
+        g_pModalTextPanel = 0;
         return 0;
     }
     halfWidth = MeasureTextPixelWidthClamped(text) * 8 / 16;
-    RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
+    RestoreModalTextPanel(g_pModalTextPanel);
     bounds.left = 159 - halfWidth;
     bounds.right = 161 + halfWidth;
-    if (InitializeModalTextPanel(g_pModalTextPanel_0049ca50, fontIndex,
+    if (InitializeModalTextPanel(g_pModalTextPanel, fontIndex,
                                  bounds,
-                                 g_bPrimaryViewBufferColour_0049cb50,
-                                 g_cBlueColour_0049cb54,
-                                 g_cRedColour_0049cb5c) == 0) {
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
+                                 g_bPrimaryViewBufferColour,
+                                 g_cBlueColour,
+                                 g_cRedColour) == 0) {
+        ReleasePacketHandle(g_pModalTextPanel);
+        g_pModalTextPanel = 0;
         return 0;
     }
-    DrawModalTextPanel(g_pModalTextPanel_0049ca50, 0, 6, 2, text);
+    DrawModalTextPanel(g_pModalTextPanel, 0, 6, 2, text);
     MarkDibDirty();
     DIBslamReal();
     return 1;
@@ -207,10 +207,10 @@ short ShowModalTextPanel(short fontIndex, const char *format, ...)
 /* Function start: 0x45979B */
 void ReleaseModalTextPanel(void)
 {
-    if (g_pModalTextPanel_0049ca50 != 0) {
-        RestoreModalTextPanel(g_pModalTextPanel_0049ca50);
-        ReleasePacketHandle(g_pModalTextPanel_0049ca50);
-        g_pModalTextPanel_0049ca50 = 0;
+    if (g_pModalTextPanel != 0) {
+        RestoreModalTextPanel(g_pModalTextPanel);
+        ReleasePacketHandle(g_pModalTextPanel);
+        g_pModalTextPanel = 0;
     }
     MarkDibDirty();
     DIBslamReal();
@@ -237,30 +237,30 @@ short ReadTextInput(char *destination, short maximumLength,
     short characterCount;
 
     done = 0;
-    backgroundInk = g_pCurrentTextContext_005c8d1c->backgroundColour;
-    if (g_bRewritePacketExtensions_0049cb48 == 0)
-        g_pCurrentTextContext_005c8d1c->backgroundColour = 0x5e;
+    backgroundInk = g_29_pCurrentTextContext->backgroundColour;
+    if (g_bRewritePacketExtensions == 0)
+        g_29_pCurrentTextContext->backgroundColour = 0x5e;
     else
-        g_pCurrentTextContext_005c8d1c->backgroundColour = 2;
-    oldText = g_pCurrentTextContext_005c8d1c->text;
-    oldViewport = g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->text = textBuffer;
-    textX = g_pCurrentTextContext_005c8d1c->cursorX;
-    textY = g_pCurrentTextContext_005c8d1c->cursorY;
-    textArea = *g_pCurrentTextContext_005c8d1c->viewport;
-    g_pCurrentTextContext_005c8d1c->viewport = &textArea;
+        g_29_pCurrentTextContext->backgroundColour = 2;
+    oldText = g_29_pCurrentTextContext->text;
+    oldViewport = g_29_pCurrentTextContext->viewport;
+    g_29_pCurrentTextContext->text = textBuffer;
+    textX = g_29_pCurrentTextContext->cursorX;
+    textY = g_29_pCurrentTextContext->cursorY;
+    textArea = *g_29_pCurrentTextContext->viewport;
+    g_29_pCurrentTextContext->viewport = &textArea;
     DosStrcpy(textBuffer, destination);
     characterCount = DosStrlen(textBuffer);
 
     textArea.left = textX;
     textArea.top = textY;
     textArea.bottom = (short)(
-        (short)ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) +
+        (short)ReadWord((unsigned short *)g_29_pCurrentTextContext->font) +
         textY);
     textArea.right = (short)(textArea.left +
         MeasureTextPixelWidthClamped(textBuffer));
     ClearViewport(&textArea,
-                  g_pCurrentTextContext_005c8d1c->backgroundColour);
+                  g_29_pCurrentTextContext->backgroundColour);
     DrawFormattedText(textBuffer);
     DrawTextInputCursor(' ');
 
@@ -276,8 +276,8 @@ short ReadTextInput(char *destination, short maximumLength,
                 keyHandled++;
                 if (textBuffer[0] != 0)
                     EraseCharacterAfterTextCursor(' ');
-                g_pCurrentTextContext_005c8d1c->text = oldText;
-                g_pCurrentTextContext_005c8d1c->viewport = oldViewport;
+                g_29_pCurrentTextContext->text = oldText;
+                g_29_pCurrentTextContext->viewport = oldViewport;
                 return 0;
             case 13:
                 keyHandled++;
@@ -331,9 +331,9 @@ short ReadTextInput(char *destination, short maximumLength,
     }
 
     DosStrcpy(destination, textBuffer);
-    g_pCurrentTextContext_005c8d1c->text = oldText;
-    g_pCurrentTextContext_005c8d1c->viewport = oldViewport;
-    g_pCurrentTextContext_005c8d1c->backgroundColour = backgroundInk;
+    g_29_pCurrentTextContext->text = oldText;
+    g_29_pCurrentTextContext->viewport = oldViewport;
+    g_29_pCurrentTextContext->backgroundColour = backgroundInk;
     return 1;
 }
 
@@ -346,8 +346,8 @@ short ReadPersonnelTextField(unsigned int x, unsigned int y,
     short result;
 
     result = 0;
-    g_stDefaultStringContext_005d2d20.viewport =
-        &g_stScrViewInfo_005d21a0;
+    g_3_stDefaultStringContext.viewport =
+        &g_101_stScrViewInfo;
     SetTextCursor((unsigned short)x, (unsigned short)y);
     DrawFormattedText("%s", prompt);
     MarkDibDirty();
@@ -356,8 +356,8 @@ short ReadPersonnelTextField(unsigned int x, unsigned int y,
                       (short)required) != 0) {
         result = 1;
     }
-    g_stDefaultStringContext_005d2d20.viewport =
-        &g_stSecondaryViewBufferBlock_005d2c90;
+    g_3_stDefaultStringContext.viewport =
+        &g_stSecondaryViewBufferBlock;
     return result;
 }
 
@@ -374,30 +374,30 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
     FlushInputEvents();
     while ((selection = PollSceneHotspotInput(scene, 0, 0, 0, 0)) == 0) {
         DisableMouseCursorDrawing();
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
                           58, 175,
-                          g_pCampaignChalkboardShape_0049ca54, 3);
-        g_stDefaultStringContext_005d2d20.viewport =
-            &g_stSecondaryViewBufferBlock_005d2c90;
+                          g_pCampaignChalkboardShape, 3);
+        g_3_stDefaultStringContext.viewport =
+            &g_stSecondaryViewBufferBlock;
         InitializeTextContextFromFont(
-            &g_stDefaultStringContext_005d2d20, 0,
-            g_bPrimaryViewBufferColour_0049cb50, -1);
-        if (g_pszPersonnelFooter_00492658 != 0) {
+            &g_3_stDefaultStringContext, 0,
+            g_bPrimaryViewBufferColour, -1);
+        if (g_pszPersonnelFooter != 0) {
             SetTextCursor(
                 (unsigned short)((320 -
                     MeasureTextPixelWidthClamped(
-                        g_pszPersonnelFooter_00492658)) >> 1),
+                        g_pszPersonnelFooter)) >> 1),
                 180);
-            if (strcmp(g_pszPersonnelFooter_00492658,
+            if (strcmp(g_pszPersonnelFooter,
                        "Exit to DOS") != 0) {
                 DrawFormattedText("%S",
-                                  g_pszPersonnelFooter_00492658);
+                                  g_pszPersonnelFooter);
             } else {
                 DrawFormattedText("%S", "Exit the Game");
             }
         }
-        g_stDefaultStringContext_005d2d20.viewport =
-            &g_stScrViewInfo_005d21a0;
+        g_3_stDefaultStringContext.viewport =
+            &g_101_stScrViewInfo;
         EnableMouseCursorDrawing();
         RefreshMemoryStatusOverlay();
     }
@@ -417,66 +417,66 @@ short RunCampaignChalkboardMenu(short campaignSlot)
     again = 1;
     PreloadMusicTrack(0x35);
     spacetrack(0x35, 2, 1);
-    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock);
     while (selection == 0) {
-        g_bDisableChalkboardReplay_0049ca58 =
-            (short)(g_pCampaignGlobals_00499c94->field_0a == 0);
+        g_bDisableChalkboardReplay =
+            (short)(g_pCampaignGlobals->field_0a == 0);
         selection = PollCampaignChalkboardMenu(
-            g_pCampaignChalkboardShape_0049ca54);
+            g_pCampaignChalkboardShape);
         switch (selection) {
         case 1:
-            g_bDisableChalkboardReplay_0049ca58 = 0;
+            g_bDisableChalkboardReplay = 0;
             DisableMouseCursorDrawing();
-            FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
-            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            FreePacketAndClear(&g_pCampaignChalkboardShape, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock);
             StopMusicUnlessSuppressed();
             ReleaseMusicTrack(0x35);
-            g_pCampaignGlobals_00499c94->field_08 =
-                g_pCampaignGlobals_00499c94->field_0a;
+            g_pCampaignGlobals->field_08 =
+                g_pCampaignGlobals->field_0a;
             RunCampaignScript(campaignSlot);
-            g_pCampaignGlobals_00499c94->field_08 = 0;
+            g_pCampaignGlobals->field_08 = 0;
             result = 0;
             break;
         case 4:
             exit_squadron(0);
             break;
         case 3:
-            g_bDisableChalkboardReplay_0049ca58 = 0;
+            g_bDisableChalkboardReplay = 0;
             DisableMouseCursorDrawing();
             RunPilotSaveLoadMenu();
-            if (g_nOriginDevUnlock_0049d774 != 0)
-                strcpy(g_stCurrentPilotProfile_00493408.callsign,
+            if (g_nOriginDevUnlock != 0)
+                strcpy(g_stCurrentPilotProfile.callsign,
                        "CHEATER");
             DisableMouseCursorDrawing();
             RefreshCampaignChalkboardScreen(
-                (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
+                (short)(g_pCampaignGlobals->field_0e & 0xff));
             result = 1;
             break;
         case 5:
-            g_bDisableChalkboardReplay_0049ca58 = 0;
+            g_bDisableChalkboardReplay = 0;
             result = 1;
             break;
         case 2:
-            g_bDisableChalkboardReplay_0049ca58 = 0;
+            g_bDisableChalkboardReplay = 0;
             DisableMouseCursorDrawing();
-            FreePacketAndClear(&g_pCampaignChalkboardShape_0049ca54, 0);
-            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+            FreePacketAndClear(&g_pCampaignChalkboardShape, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock);
             StopMusicUnlessSuppressed();
             ReleaseMusicTrack(0x35);
-            ClearViewport(&g_stModalSourceWindow_005d2c50, 0);
+            ClearViewport(&g_2_stModalSourceWindow, 0);
             while (again != 0) {
                 RunCampaignScript(campaignSlot);
                 again = 0;
-                if (g_pCampaignGlobals_00499c94->field_16 != 0) {
+                if (g_pCampaignGlobals->field_16 != 0) {
                     again++;
-                    g_pCampaignGlobals_00499c94->field_08++;
+                    g_pCampaignGlobals->field_08++;
                 }
-                g_pCampaignGlobals_00499c94->field_16 = 0;
+                g_pCampaignGlobals->field_16 = 0;
             }
-            g_pCampaignGlobals_00499c94->field_08 =
-                g_pCampaignGlobals_00499c94->field_0a;
+            g_pCampaignGlobals->field_08 =
+                g_pCampaignGlobals->field_0a;
             InitializeCampaignChalkboardScreen(
-                (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
+                (short)(g_pCampaignGlobals->field_0e & 0xff));
             result = 1;
             break;
         }

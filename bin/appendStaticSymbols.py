@@ -3,9 +3,9 @@
 
 Resolve COFF section bases from public symbols and linked DIR32 relocations.
 This supplies address metadata to binary-comp; it never changes the executable
-or compares it with the original. Address suffixes identify reconstructed
-globals but are never used to calculate their linked addresses. Keep LINK's
-unmodified map as a separate file.
+or compares it with the original. Source comments record retail addresses;
+linked addresses come only from the rebuilt artifacts. Keep LINK's unmodified
+map as a separate file.
 """
 from __future__ import annotations
 
@@ -99,7 +99,7 @@ def recover(path: Path, entries, image: PEImage) -> list[tuple[str, int]]:
     local_names = {index: match.group(1)
                    for index, (name, _, section, storage) in symbols.items()
                    if section > 0 and storage == 3
-                   and (match := re.fullmatch(r'(_\w+_[0-9a-fA-F]{8})\$S\d+', name))}
+                   and (match := re.fullmatch(r'(_g_\w+)\$S\d+', name))}
     result = []
     for index, name in local_names.items():
         _, offset, section, _ = symbols[index]

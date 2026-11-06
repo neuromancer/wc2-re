@@ -5,29 +5,29 @@
  */
 #include "game.h"
 
-PilotProfile g_stDefaultPilotProfile_00492660 = { 0 };
-short g_bNewPilotCampaignInitialized_004926c0 = 0;
-short g_bDeveloperCampaignReady_004926c4 = 1;
-static char g_szStartingCampaignGlobalsFile_004926c8[] = "startglb.000";
+PilotProfile g_stDefaultPilotProfile = { 0 }; /* 0x00492660 */
+short g_bNewPilotCampaignInitialized = 0; /* 0x004926c0 */
+short g_bDeveloperCampaignReady = 1; /* 0x004926c4 */
+static char g_szStartingCampaignGlobalsFile[] = "startglb.000"; /* 0x004926c8 */
 
 /* Function start: 0x409850 */
 void InitializeNewPilotCampaign(short campaignSlot)
 {
-    g_nSelectedCampaignSlot_005d3bf2 = campaignSlot;
-    g_nSelectedStartingCampaign_005d3bf0 = -1;
+    g_nSelectedCampaignSlot = campaignSlot;
+    g_nSelectedStartingCampaign = -1;
     LoadStartingCampaignGlobals(0);
     SaveAndFreeTemporaryCampaignGlobals();
     LoadTemporaryCampaignGlobals();
-    if (g_pCampaignGlobals_00499c94 == 0)
+    if (g_pCampaignGlobals == 0)
         ReportFatalErrorCode("015");
-    g_pCampaignGlobals_00499c94->series = 1000;
-    g_pCampaignGlobals_00499c94->mission = 2000;
-    FadeViewportPaletteToColour(&g_stModalSourceWindow_005d2c50, 0, 1);
-    RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
-    ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+    g_pCampaignGlobals->series = 1000;
+    g_pCampaignGlobals->mission = 2000;
+    FadeViewportPaletteToColour(&g_2_stModalSourceWindow, 0, 1);
+    RunCampaignScript(g_nSelectedCampaignSlot);
+    ReleasePacketSlot((void **)&g_pCampaignGlobals);
     RestoreGamePalette();
     ResetGameTextContexts();
-    g_bNewPilotCampaignInitialized_004926c0 = 1;
+    g_bNewPilotCampaignInitialized = 1;
 }
 
 /* Function start: 0x4098F2 */
@@ -41,17 +41,17 @@ short RunCampaignContinuePromptLoop(unsigned char *promptShapes,
     while ((selection = PollSceneHotspotInput(promptShapes, 0, 0, 0, 0)) ==
            0) {
         DisableMouseCursorDrawing();
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
                           0, 0, fieldShape, 0);
         DrawConstellationField();
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
                           160, 66, promptShapes, promptFrame);
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
                           0, 126, promptShapes, 2);
         EnableMouseCursorDrawing();
         WaitForVerticalBlankThunk();
-        CopyViewportContents(&g_stSecondaryViewBufferBlock_005d2c90,
-                             &g_stScrViewInfo_005d21a0);
+        CopyViewportContents(&g_stSecondaryViewBufferBlock,
+                             &g_101_stScrViewInfo);
     }
     return selection;
 }
@@ -68,22 +68,22 @@ short PromptToContinueCampaign(short promptFrame)
     choice = 0;
     StopMusicUnlessSuppressed();
     free_view_buffer();
-    g_stSecondaryViewBufferBlock_005d2c90.left = 0;
-    g_stSecondaryViewBufferBlock_005d2c90.right = 319;
-    g_stSecondaryViewBufferBlock_005d2c90.top = 0;
-    g_stSecondaryViewBufferBlock_005d2c90.bottom = 199;
+    g_stSecondaryViewBufferBlock.left = 0;
+    g_stSecondaryViewBufferBlock.right = 319;
+    g_stSecondaryViewBufferBlock.top = 0;
+    g_stSecondaryViewBufferBlock.bottom = 199;
     if ((short)AllocateViewport(
-            &g_stSecondaryViewBufferBlock_005d2c90,
-            g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
+            &g_stSecondaryViewBufferBlock,
+            g_cSecondaryViewBufferColour, 0) == 0) {
         ReportFatalErrorCode("016");
     }
-    ClearViewport(&g_stSecondaryViewBufferBlock_005d2c90,
-                  g_cSecondaryViewBufferColour_0049cb4c);
+    ClearViewport(&g_stSecondaryViewBufferBlock,
+                  g_cSecondaryViewBufferColour);
     init_constellation(0);
-    InitializeConstellationField(&g_stSecondaryViewBufferBlock_005d2c90,
+    InitializeConstellationField(&g_stSecondaryViewBufferBlock,
                                  0, 16);
     SetMenuInputPump();
-    SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
+    SetInputViewport(&g_stSecondaryViewBufferBlock);
     EnableMouseCursorDrawing();
     promptShapes = FetchDiskPacketRetrying("continue.vga", 0, 0);
     starField = FetchDiskPacketRetrying("field.v00", 1, 0);
@@ -93,16 +93,16 @@ short PromptToContinueCampaign(short promptFrame)
         case 1:
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&starField, 0);
-            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
-            FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock);
+            FreePacketAndClear(&g_pConstellationSprite, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 1;
         case 2:
             FreePacketAndClear(&promptShapes, 0);
             FreePacketAndClear(&starField, 0);
-            free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
-            FreePacketAndClear(&g_pConstellationSprite_005d2c4c, 0);
+            free_viewport(&g_stSecondaryViewBufferBlock);
+            FreePacketAndClear(&g_pConstellationSprite, 0);
             ClearInputPump();
             DisableMouseCursorDrawing();
             return 0;
@@ -119,17 +119,17 @@ void ReleaseSpaceflightResources(void)
     short font;
 
     remove_nav_pointer();
-    g_bCockpitResourcesActive_0049c8e8 = 1;
+    g_bCockpitResourcesActive = 1;
     free_cockpit();
     free_all_slots();
     free_3Space();
     for (font = 0; font < 4; font++) {
-        if (g_apTextGlyphs_005d2200[font] != 0) {
-            ReleasePacketHandle(g_apTextGlyphs_005d2200[font]);
-            g_apTextGlyphs_005d2200[font] = 0;
+        if (g_36_apTextGlyphs[font] != 0) {
+            ReleasePacketHandle(g_36_apTextGlyphs[font]);
+            g_36_apTextGlyphs[font] = 0;
         }
     }
-    if (g_nShowMemoryStatus_0049d784 != 0) {
+    if (g_nShowMemoryStatus != 0) {
         ShowMemoryStatusDebug();
         WaitForAnyInputPress();
     }
@@ -151,79 +151,79 @@ short RunCampaignGameLoop(short campaignSlot)
     /* This base is zero-initialized in the retail image.  MSVC formed address
      * 0x22 here and nothing ever dereferences it; express the same integer
      * address without applying an offset to a null C pointer. */
-    g_pCurrentCampaignDataOffset_005c80c0 = (unsigned char *)((uintptr_t)DAT_005d300c + 0x22);
+    g_39_pCurrentCampaignDataOffset = (unsigned char *)((uintptr_t)g_1_pCampaignDataBase + 0x22);
 #else
-    g_pCurrentCampaignDataOffset_005c80c0 = DAT_005d300c + 0x22;
+    g_39_pCurrentCampaignDataOffset = g_1_pCampaignDataBase + 0x22;
 #endif
     ReleaseSpaceflightResources();
     LoadTemporaryCampaignGlobals();
-    if (g_nOriginDevUnlock_0049d774 != 0 &&
-        g_bDeveloperCampaignReady_004926c4 != 0 &&
-        g_bDirectCampaignSelection_0049cc74 != 0) {
-        g_pCampaignGlobals_00499c94->series =
-            g_nDirectSeries_0049d79c;
-        g_pCampaignGlobals_00499c94->mission =
-            g_stDirectMissionSelection_0049d798.mission;
+    if (g_nOriginDevUnlock != 0 &&
+        g_bDeveloperCampaignReady != 0 &&
+        g_bDirectCampaignSelection != 0) {
+        g_pCampaignGlobals->series =
+            g_nDirectSeries;
+        g_pCampaignGlobals->mission =
+            g_stDirectMissionSelection.mission;
     }
-    g_bDeveloperCampaignReady_004926c4 = 0;
-    g_pCampaignGlobals_00499c94->field_08 = 0;
-    g_pCampaignGlobals_00499c94->arcadeState = 0;
+    g_bDeveloperCampaignReady = 0;
+    g_pCampaignGlobals->field_08 = 0;
+    g_pCampaignGlobals->arcadeState = 0;
 
     while (campaignDone == 0) {
-        g_pCutsceneCockpitPalette_00499c0c =
+        g_pCutsceneCockpitPalette =
             AllocateScenePointerTable(1, 0x3420, 2, "HB1");
-        g_pActiveCutscenePixelsAddress_005c83dc =
-            g_pCutsceneCockpitPalette_00499c0c;
-        g_bCutsceneViewportPreallocated_00499c4c = 1;
+        g_13_pActiveCutscenePixelsAddress =
+            g_pCutsceneCockpitPalette;
+        g_bCutsceneViewportPreallocated = 1;
         RunCampaignScript(campaignSlot);
-        g_bCutsceneViewportPreallocated_00499c4c = 0;
+        g_bCutsceneViewportPreallocated = 0;
         InitializeCampaignChalkboardScreen(
-            (short)(g_pCampaignGlobals_00499c94->field_0e & 0xff));
-        g_pCampaignGlobals_00499c94->damageLevel = 0;
+            (short)(g_pCampaignGlobals->field_0e & 0xff));
+        g_pCampaignGlobals->damageLevel = 0;
         clear_cockpit_damage();
         while (RunCampaignChalkboardMenu(campaignSlot) != 0) {
-            if (g_pCampaignGlobals_00499c94->arcadeState >= 4)
+            if (g_pCampaignGlobals->arcadeState >= 4)
                 break;
         }
-        g_bNewPilotCampaignInitialized_004926c0 = 0;
-        ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-        g_pActiveCutscenePixelsAddress_005c83dc = 0;
+        g_bNewPilotCampaignInitialized = 0;
+        ReleasePacketSlot(&g_pCutsceneCockpitPalette);
+        g_13_pActiveCutscenePixelsAddress = 0;
         ClearInputPump();
-        if (g_nShowMemoryStatus_0049d784 != 0) {
+        if (g_nShowMemoryStatus != 0) {
             ShowMemoryStatusDebug();
             WaitForAnyInputPress();
         }
-        if (g_pCampaignGlobals_00499c94->arcadeState >= 4) {
-            g_pCampaignGlobals_00499c94->series = 1;
-            g_pCampaignGlobals_00499c94->mission = 0;
+        if (g_pCampaignGlobals->arcadeState >= 4) {
+            g_pCampaignGlobals->series = 1;
+            g_pCampaignGlobals->mission = 0;
             campaignDone++;
         }
         InitializeCampaignConstellationState(
-            g_pCampaignGlobals_00499c94, 1);
-        g_pCampaignGlobals_00499c94->arcadeState = 0;
+            g_pCampaignGlobals, 1);
+        g_pCampaignGlobals->arcadeState = 0;
         SaveAndFreeTemporaryCampaignGlobals();
         for (slot = 0; slot < 4; slot++) {
-            if (g_apTextGlyphs_005d2200[slot] != 0) {
-                ReleasePacketHandle(g_apTextGlyphs_005d2200[slot]);
-                g_apTextGlyphs_005d2200[slot] = 0;
+            if (g_36_apTextGlyphs[slot] != 0) {
+                ReleasePacketHandle(g_36_apTextGlyphs[slot]);
+                g_36_apTextGlyphs[slot] = 0;
             }
         }
         if (campaignDone != 0)
             return 0;
-        if (g_bPumpMessagesDuringLoad_0049cc7c != 0)
-            g_bCampaignFlightRunning_005c8430 = 1;
+        if (g_bPumpMessagesDuringLoad != 0)
+            g_6_bCampaignFlightRunning = 1;
 
         flightComplete = 0;
         while (flightComplete == 0) {
-            if (g_nShowMemoryStatus_0049d784 != 0) {
+            if (g_nShowMemoryStatus != 0) {
                 ShowMemoryStatusDebug();
                 WaitForAnyInputPress();
             }
-            g_nTrainSimActive_0049d758 = 0;
-            series = g_stCurrentPilotProfile_00493408.series;
-            g_nCurSeries_005c5870 = series;
-            mission = g_stCurrentPilotProfile_00493408.mission;
-            g_nCurrentLevel_005c5878 = mission;
+            g_nTrainSimActive = 0;
+            series = g_stCurrentPilotProfile.series;
+            g_nCurSeries = series;
+            mission = g_stCurrentPilotProfile.mission;
+            g_nCurrentLevel = mission;
             ResetGameTextContexts();
             OpenDiskDataFile(1);
             init_mission(series, mission);
@@ -235,13 +235,13 @@ short RunCampaignGameLoop(short campaignSlot)
             case 3:
                 ShowPlayerStrandingSequence();
                 flightComplete = 1;
-                g_nArcadeState_0049d75c = 3;
+                g_nArcadeState = 3;
                 break;
             case 4:
                 death_sequence();
                 if (PromptToContinueCampaign(0) != 0) {
-                    g_asShipSide_004955d0[0] = 0;
-                    g_bFriendlyFireWarningIssued_00492d5c = 0;
+                    g_asShipSide[0] = 0;
+                    g_bFriendlyFireWarningIssued = 0;
                     flightComplete = 0;
                     LoadSelectedPilotCampaign();
                 } else {
@@ -251,17 +251,17 @@ short RunCampaignGameLoop(short campaignSlot)
             case 2:
                 ShowPlayerEjectionSequence();
                 check_stranded();
-                if (g_nArcadeState_0049d75c == 3)
+                if (g_nArcadeState == 3)
                     ShowPlayerStrandingSequence();
                 if (PromptToContinueCampaign(1) != 0) {
-                    g_asShipSide_004955d0[0] = 0;
-                    g_bFriendlyFireWarningIssued_00492d5c = 0;
+                    g_asShipSide[0] = 0;
+                    g_bFriendlyFireWarningIssued = 0;
                     flightComplete = 0;
                     LoadSelectedPilotCampaign();
                 } else {
-                    if (g_nArcadeState_0049d75c == 5) {
+                    if (g_nArcadeState == 5) {
                         ejection_sequence(1000, 0);
-                        g_nArcadeState_0049d75c = 5;
+                        g_nArcadeState = 5;
                     }
                     flightComplete = 1;
                 }
@@ -271,66 +271,66 @@ short RunCampaignGameLoop(short campaignSlot)
                 flightComplete = 1;
                 break;
             }
-            if (g_nShowMemoryStatus_0049d784 != 0) {
+            if (g_nShowMemoryStatus != 0) {
                 ShowMemoryStatusDebug();
                 WaitForAnyInputPress();
             }
             ReleaseSpaceflightResources();
         }
 
-        g_stCurrentPilotProfile_00493408.field_43 +=
-            g_cPilotKillCountValue_005d2fa8;
-        g_stCurrentPilotProfile_00493408.field_41++;
-        g_bCampaignFlightRunning_005c8430 = 0;
+        g_stCurrentPilotProfile.field_43 +=
+            g_36_cPilotKillCountValue;
+        g_stCurrentPilotProfile.field_41++;
+        g_6_bCampaignFlightRunning = 0;
         LoadTemporaryCampaignGlobals();
         StoreMissionResultsInCampaignGlobals(
-            g_pCampaignGlobals_00499c94);
-        FreePacketAndClear(&g_pPilotStatus_005d2fcc, 0);
-        if (g_nShowMemoryStatus_0049d784 != 0) {
+            g_pCampaignGlobals);
+        FreePacketAndClear(&g_pPilotStatus, 0);
+        if (g_nShowMemoryStatus != 0) {
             ShowMemoryStatusDebug();
             WaitForAnyInputPress();
         }
         if (campaignDone == 0) {
-            g_pCutsceneCockpitPalette_00499c0c =
+            g_pCutsceneCockpitPalette =
                 AllocateScenePointerTable(1, 0x3420, 2, "HB2");
-            g_pActiveCutscenePixelsAddress_005c83dc =
-                g_pCutsceneCockpitPalette_00499c0c;
-            if (g_nArcadeState_0049d75c == 4) {
-                g_pCampaignGlobals_00499c94->series = 1000;
-                g_pCampaignGlobals_00499c94->mission = 5000;
-                g_pCampaignGlobals_00499c94->previousSeries =
-                    g_stCurrentPilotProfile_00493408.series;
-                g_pCampaignGlobals_00499c94->previousMission =
-                    g_stCurrentPilotProfile_00493408.mission;
-                g_pCampaignGlobals_00499c94->arcadeState = 4;
-                if (g_asShipSide_004955d0[0] == 1 ||
-                    g_bFriendlyFireWarningIssued_00492d5c != 0) {
-                    g_pCampaignGlobals_00499c94->shipMissionFlags[0] = 4;
+            g_13_pActiveCutscenePixelsAddress =
+                g_pCutsceneCockpitPalette;
+            if (g_nArcadeState == 4) {
+                g_pCampaignGlobals->series = 1000;
+                g_pCampaignGlobals->mission = 5000;
+                g_pCampaignGlobals->previousSeries =
+                    g_stCurrentPilotProfile.series;
+                g_pCampaignGlobals->previousMission =
+                    g_stCurrentPilotProfile.mission;
+                g_pCampaignGlobals->arcadeState = 4;
+                if (g_asShipSide[0] == 1 ||
+                    g_bFriendlyFireWarningIssued != 0) {
+                    g_pCampaignGlobals->shipMissionFlags[0] = 4;
                 }
-            } else if (g_nArcadeState_0049d75c == 5) {
-                g_pCampaignGlobals_00499c94->series = 1;
-                g_pCampaignGlobals_00499c94->mission = 0;
-                g_pCampaignGlobals_00499c94->arcadeState = 5;
-                g_pCampaignGlobals_00499c94->shipMissionFlags[0] = 4;
+            } else if (g_nArcadeState == 5) {
+                g_pCampaignGlobals->series = 1;
+                g_pCampaignGlobals->mission = 0;
+                g_pCampaignGlobals->arcadeState = 5;
+                g_pCampaignGlobals->shipMissionFlags[0] = 4;
             } else {
-                g_pCampaignGlobals_00499c94->field_08 =
-                    g_pCampaignGlobals_00499c94->field_0c;
+                g_pCampaignGlobals->field_08 =
+                    g_pCampaignGlobals->field_0c;
             }
-            g_pCampaignGlobals_00499c94->damageLevel =
+            g_pCampaignGlobals->damageLevel =
                 (short)calculate_damage_level();
-            if (g_nArcadeState_0049d75c != 3 &&
-                g_nArcadeState_0049d75c != 5) {
+            if (g_nArcadeState != 3 &&
+                g_nArcadeState != 5) {
                 RunCampaignScript(campaignSlot);
             }
-            g_pCampaignGlobals_00499c94->field_08 = 0;
-            ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-            g_pActiveCutscenePixelsAddress_005c83dc = 0;
-            g_nArcadeState_0049d75c =
-                g_pCampaignGlobals_00499c94->arcadeState;
-            g_pCampaignGlobals_00499c94->arcadeState = 0;
-            g_pCampaignGlobals_00499c94->damageLevel = 0;
-            if (g_nArcadeState_0049d75c > 2) {
-                ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
+            g_pCampaignGlobals->field_08 = 0;
+            ReleasePacketSlot(&g_pCutsceneCockpitPalette);
+            g_13_pActiveCutscenePixelsAddress = 0;
+            g_nArcadeState =
+                g_pCampaignGlobals->arcadeState;
+            g_pCampaignGlobals->arcadeState = 0;
+            g_pCampaignGlobals->damageLevel = 0;
+            if (g_nArcadeState > 2) {
+                ReleasePacketSlot((void **)&g_pCampaignGlobals);
                 LoadStartingCampaignGlobals(campaignSlot);
                 SaveAndFreeTemporaryCampaignGlobals();
                 return 0;
@@ -346,19 +346,19 @@ short RunCampaignGameLoop(short campaignSlot)
 /* Function start: 0x40A27A */
 void LoadStartingCampaignGlobals(short campaign)
 {
-    g_szStartingCampaignGlobalsFile_004926c8[11] =
+    g_szStartingCampaignGlobalsFile[11] =
         (char)(campaign + '0');
-    g_pCampaignGlobals_00499c94 =
-        LoadWholeDataFile(g_szStartingCampaignGlobalsFile_004926c8);
+    g_pCampaignGlobals =
+        LoadWholeDataFile(g_szStartingCampaignGlobalsFile);
 }
 
 /* Function start: 0x40A2A3 */
 short RunSelectedCampaign(void)
 {
-    return (short)RunCampaignGameLoop(g_nSelectedCampaignSlot_005d3bf2);
+    return (short)RunCampaignGameLoop(g_nSelectedCampaignSlot);
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-short g_nSelectedStartingCampaign_005d3bf0;
-short g_nSelectedCampaignSlot_005d3bf2;
+short g_nSelectedStartingCampaign; /* 0x005d3bf0 */
+short g_nSelectedCampaignSlot; /* 0x005d3bf2 */

@@ -90,8 +90,8 @@ short second; // 0x00498004
     def test_real_late_definitions_are_present(self):
         result = collector.definition_block(ROOT / "src" / "campglob.c")
         self.assertIn('= "TEMPGLOB.000"', result)
-        self.assertIn("g_aObjectTypeData_00496d30", result)
-        self.assertEqual(result.count("g_szTemporaryCampaignGlobalsFile_00499bc0"), 1)
+        self.assertIn("g_aObjectTypeData", result)
+        self.assertEqual(result.count("g_szTemporaryCampaignGlobalsFile"), 1)
 
     def test_active_initializer_macros_survive_collection(self):
         result = self.collect('''

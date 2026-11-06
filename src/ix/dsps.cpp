@@ -14,9 +14,9 @@
 #endif
 #include <stdlib.h>
 
-int      g_nStreamCount_005c5750;
-int      g_nStreamsTaken_005c5754;
-IxStream g_streams_005c5758[2];
+int      g_3_nStreamCount; /* 0x005c5750 */
+int      g_nStreamsTaken; /* 0x005c5754 */
+IxStream g_1_streams[2]; /* 0x005c5758 */
 
 /* The stream operations further down.  With the stream table's
  * initializer, their named parameters give this unit retail's symbol-key
@@ -33,34 +33,34 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
 {
     IxVoice *v;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 26);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) != 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) != 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 27);
         ix_log_printf("stream already allocated!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_PLAYING) != 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_PLAYING) != 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 28);
         ix_log_printf("stream still playing!");
         exit(-1);
     }
-    g_streams_005c5758[stream].buffer = new unsigned char[size];
-    if (g_streams_005c5758[stream].buffer == 0) {
+    g_1_streams[stream].buffer = new unsigned char[size];
+    if (g_1_streams[stream].buffer == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 32);
         ix_log_printf("failed to allocate stream buffer");
         exit(-1);
     }
-    g_streams_005c5758[stream].size = size;
-    g_streams_005c5758[stream].writePos = 0;
-    g_streams_005c5758[stream].playPos = g_streams_005c5758[stream].writePos;
-    g_streams_005c5758[stream].pending = g_streams_005c5758[stream].playPos;
-    InitializeCriticalSection(&g_streams_005c5758[stream].cs);
+    g_1_streams[stream].size = size;
+    g_1_streams[stream].writePos = 0;
+    g_1_streams[stream].playPos = g_1_streams[stream].writePos;
+    g_1_streams[stream].pending = g_1_streams[stream].playPos;
+    InitializeCriticalSection(&g_1_streams[stream].cs);
 
-    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
+    v = &g_2_voices[g_nVoiceCapacity + stream];
     v->flags = IX_VOICE_FLAG4 | 1;
     if (bps == 16)
         v->flags |= IX_VOICE_16BIT;
@@ -70,7 +70,7 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
         v->flags |= IX_VOICE_STEREO;
     else
         ;
-    v->cursor = g_streams_005c5758[stream].buffer;
+    v->cursor = g_1_streams[stream].buffer;
     v->start = v->cursor;
     v->end = v->cursor + size;
     v->volume = 0x7fff;
@@ -80,8 +80,8 @@ void ix_dsps_alloc(int stream, unsigned int size, int freq, int bps, int channel
     v->rightGainHi = (unsigned char)((unsigned short)v->volume >> 8);
     v->field_10 = 0;
     v->rate = (short)((freq << 8) / IX_MIXER_BASE_RATE);
-    g_nStreamsTaken_005c5754 = g_nStreamsTaken_005c5754 + 1;
-    g_streams_005c5758[stream].flags |= IX_STREAM_ALLOCATED;
+    g_nStreamsTaken = g_nStreamsTaken + 1;
+    g_1_streams[stream].flags |= IX_STREAM_ALLOCATED;
 }
 
 void ix_dsps_stop(int stream);
@@ -89,47 +89,47 @@ void ix_dsps_stop(int stream);
 /* Function start: 0x48ACCB */   /* source lines 62, 63 */
 void ix_dsps_free(int stream)
 {
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 62);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 63);
         ix_log_printf("stream is not allocated!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_PLAYING) != 0)
+    if ((g_1_streams[stream].flags & IX_STREAM_PLAYING) != 0)
         ix_dsps_stop(stream);
-    DeleteCriticalSection(&g_streams_005c5758[stream].cs);
-    delete[] g_streams_005c5758[stream].buffer;
-    g_nStreamsTaken_005c5754 = g_nStreamsTaken_005c5754 - 1;
-    g_streams_005c5758[stream].flags &= ~IX_STREAM_ALLOCATED;
+    DeleteCriticalSection(&g_1_streams[stream].cs);
+    delete[] g_1_streams[stream].buffer;
+    g_nStreamsTaken = g_nStreamsTaken - 1;
+    g_1_streams[stream].flags &= ~IX_STREAM_ALLOCATED;
 }
 
 /* Function start: 0x48ADE2 */   /* source lines 77, 78, 79 */
 void ix_dsps_prepare(int stream)
 {
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 77);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 78);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_PLAYING) != 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_PLAYING) != 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 79);
         ix_log_printf("stream is playing!");
         exit(-1);
     }
-    g_streams_005c5758[stream].playPos = 0;
-    g_streams_005c5758[stream].pending = g_streams_005c5758[stream].playPos;
-    g_streams_005c5758[stream].writePos = g_streams_005c5758[stream].pending;
-    g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].cursor =
-        g_streams_005c5758[stream].buffer;
+    g_1_streams[stream].playPos = 0;
+    g_1_streams[stream].pending = g_1_streams[stream].playPos;
+    g_1_streams[stream].writePos = g_1_streams[stream].pending;
+    g_2_voices[g_nVoiceCapacity + stream].cursor =
+        g_1_streams[stream].buffer;
 }
 
 /* Function start: 0x48AF38 */   /* source lines 87, 88, 89 */
@@ -137,48 +137,48 @@ void ix_dsps_play(int stream)
 {
     IxVoice *v;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 87);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 88);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_PLAYING) != 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_PLAYING) != 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 89);
         ix_log_printf("stream is already playing!");
         exit(-1);
     }
-    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
-    v->cursor = g_streams_005c5758[stream].playPos
-              + g_streams_005c5758[stream].buffer;
+    v = &g_2_voices[g_nVoiceCapacity + stream];
+    v->cursor = g_1_streams[stream].playPos
+              + g_1_streams[stream].buffer;
     v->flags |= IX_VOICE_ACTIVE;
-    g_streams_005c5758[stream].flags |= IX_STREAM_PLAYING;
+    g_1_streams[stream].flags |= IX_STREAM_PLAYING;
 }
 
 /* Function start: 0x48B068 */   /* source lines 99, 100, 101 */
 void ix_dsps_stop(int stream)
 {
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 99);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 100);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_PLAYING) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_PLAYING) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 101);
         ix_log_printf("stream isnt playing!");
         exit(-1);
     }
-    g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].flags &= ~IX_VOICE_ACTIVE;
-    g_streams_005c5758[stream].flags &= ~IX_STREAM_PLAYING;
+    g_2_voices[g_nVoiceCapacity + stream].flags &= ~IX_VOICE_ACTIVE;
+    g_1_streams[stream].flags &= ~IX_STREAM_PLAYING;
 }
 
 void ix_dsps_lock(int stream, unsigned int requestedBytes,
@@ -191,17 +191,17 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
 {
     IxVoice *v;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 109);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 110);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    v = &g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream];
+    v = &g_2_voices[g_nVoiceCapacity + stream];
     v->volume =
         (unsigned short)(((int)(vol & 0xffff) * 0x7fff) / 0xffff);
     v->leftGain = v->volume;
@@ -213,12 +213,12 @@ void ix_dsps_set_volume(int stream, unsigned short vol)
 /* Function start: 0x48B26B */   /* source line 122 */
 unsigned int ix_dsps_get_flags(int stream)
 {
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 122);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    return g_streams_005c5758[stream].flags;
+    return g_1_streams[stream].flags;
 }
 
 /* Function start: 0x48B2CF */   /* source lines 128, 129 */
@@ -227,40 +227,40 @@ int ix_dsps_get_buffer_free(int stream)
     int consumed;
     unsigned int played;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 128);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 129);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
     consumed = 0;
-    EnterCriticalSection(&g_streams_005c5758[stream].cs);
-    played = g_voices_005c52f0[g_nVoiceCapacity_005c5748 + stream].cursor
-           - g_streams_005c5758[stream].buffer;
-    if ((int)g_streams_005c5758[stream].pending < 0) {
-        g_streams_005c5758[stream].pending = 0;
-        g_streams_005c5758[stream].playPos = played;
-        LeaveCriticalSection(&g_streams_005c5758[stream].cs);
-        return g_streams_005c5758[stream].size;
+    EnterCriticalSection(&g_1_streams[stream].cs);
+    played = g_2_voices[g_nVoiceCapacity + stream].cursor
+           - g_1_streams[stream].buffer;
+    if ((int)g_1_streams[stream].pending < 0) {
+        g_1_streams[stream].pending = 0;
+        g_1_streams[stream].playPos = played;
+        LeaveCriticalSection(&g_1_streams[stream].cs);
+        return g_1_streams[stream].size;
     }
-    if (g_streams_005c5758[stream].playPos < played) {
-        consumed = played - g_streams_005c5758[stream].playPos;
-        g_streams_005c5758[stream].pending =
-            (int)g_streams_005c5758[stream].pending - consumed;
+    if (g_1_streams[stream].playPos < played) {
+        consumed = played - g_1_streams[stream].playPos;
+        g_1_streams[stream].pending =
+            (int)g_1_streams[stream].pending - consumed;
     }
-    else if (g_streams_005c5758[stream].playPos != played) {
-        consumed = (g_streams_005c5758[stream].size
-                   - g_streams_005c5758[stream].playPos) + played;
-        g_streams_005c5758[stream].pending =
-            (int)g_streams_005c5758[stream].pending - consumed;
+    else if (g_1_streams[stream].playPos != played) {
+        consumed = (g_1_streams[stream].size
+                   - g_1_streams[stream].playPos) + played;
+        g_1_streams[stream].pending =
+            (int)g_1_streams[stream].pending - consumed;
     }
-    g_streams_005c5758[stream].playPos = played;
-    LeaveCriticalSection(&g_streams_005c5758[stream].cs);
-    return g_streams_005c5758[stream].size - g_streams_005c5758[stream].pending;
+    g_1_streams[stream].playPos = played;
+    LeaveCriticalSection(&g_1_streams[stream].cs);
+    return g_1_streams[stream].size - g_1_streams[stream].pending;
 }
 
 /* Function start: 0x48B53B */   /* source lines 169, 172, 173 */
@@ -269,18 +269,18 @@ void ix_dsps_lock(int stream, unsigned int requestedBytes,
 {
     IxStream *s;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 169);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    s = &g_streams_005c5758[stream];
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_ALLOCATED) == 0) {
+    s = &g_1_streams[stream];
+    if ((g_1_streams[stream].flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 172);
         ix_log_printf("stream is not ready!");
         exit(-1);
     }
-    if ((g_streams_005c5758[stream].flags & IX_STREAM_LOCKED) != 0) {
+    if ((g_1_streams[stream].flags & IX_STREAM_LOCKED) != 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 173);
         ix_log_printf("stream is already locked!");
         exit(-1);
@@ -291,7 +291,7 @@ void ix_dsps_lock(int stream, unsigned int requestedBytes,
     s->lockLen = requestedBytes;
     *buffer = s->lockPtr;
     *lockedBytes = s->lockLen;
-    g_streams_005c5758[stream].flags |= IX_STREAM_LOCKED;
+    g_1_streams[stream].flags |= IX_STREAM_LOCKED;
 }
 
 /* Function start: 0x48B69C */   /* source lines 188, 191, 192 */
@@ -299,12 +299,12 @@ void ix_dsps_unlock(int stream)
 {
     IxStream *s;
 
-    if (stream < 0 || stream >= g_nStreamCount_005c5750) {
+    if (stream < 0 || stream >= g_3_nStreamCount) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 188);
         ix_log_printf("invalid stream index");
         exit(-1);
     }
-    s = &g_streams_005c5758[stream];
+    s = &g_1_streams[stream];
     if ((s->flags & IX_STREAM_ALLOCATED) == 0) {
         ix_log_printf("Fatal [%s - %d]:\n", IX_DSPS_FILE, 191);
         ix_log_printf("stream is not ready!");

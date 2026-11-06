@@ -5,13 +5,13 @@
  */
 #include "game.h"
 
-short g_nSpacePaletteFadeMode_004901e8 = -1;
+short g_nSpacePaletteFadeMode = -1; /* 0x004901e8 */
 
 /* Function start: 0x401840 */
 void ConfigureDefaultSpacePalette(short mode)
 {
     (void)mode;
-    g_nSpacePaletteFadeMode_004901e8 = 0x13;
+    g_nSpacePaletteFadeMode = 0x13;
     ApplySpacePaletteModeHook();
 }
 
@@ -25,7 +25,7 @@ short ReserveContiguousPaletteEntries(short entryCount)
     firstFree = 0;
     freeEntries = firstFree;
     for (entry = freeEntries; entry < 256; entry++) {
-        if (g_awPaletteEntryAllocation_005d4050[entry] != 0) {
+        if (g_awPaletteEntryAllocation[entry] != 0) {
             freeEntries = 0;
             firstFree = (short)(entry + 1);
         } else {
@@ -33,7 +33,7 @@ short ReserveContiguousPaletteEntries(short entryCount)
         }
         if (entryCount == freeEntries) {
             for (entry = 0; entry < entryCount; entry++) {
-                g_awPaletteEntryAllocation_005d4050[entry + firstFree] =
+                g_awPaletteEntryAllocation[entry + firstFree] =
                     entryCount;
             }
             return firstFree;
@@ -48,9 +48,9 @@ void ReleaseContiguousPaletteEntries(short firstEntry)
     short entry;
     short count;
 
-    count = g_awPaletteEntryAllocation_005d4050[firstEntry];
+    count = g_awPaletteEntryAllocation[firstEntry];
     for (entry = 0; count > entry; entry++)
-        g_awPaletteEntryAllocation_005d4050[entry + firstEntry] = 0;
+        g_awPaletteEntryAllocation[entry + firstEntry] = 0;
 }
 
 /* Function start: 0x401978 */
@@ -64,7 +64,7 @@ void PrintPaletteAllocationMap(void)
     for (y = entry; y < 4; y++) {
         for (x = 0; x < 0x40; x++) {
             printf("%c",
-                   g_awPaletteEntryAllocation_005d4050[entry++] == 0 ?
+                   g_awPaletteEntryAllocation[entry++] == 0 ?
                        '_' : '.');
         }
         printf("\n");
@@ -73,4 +73,4 @@ void PrintPaletteAllocationMap(void)
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-short g_awPaletteEntryAllocation_005d4050[256];
+short g_awPaletteEntryAllocation[256]; /* 0x005d4050 */

@@ -11,10 +11,10 @@ short WaitForQueuedInputPress(void)
     int savedQueueState;
     short key;
 
-    savedQueueState = g_bInputEventQueueEnabled_0049c248;
-    g_bInputEventQueueEnabled_0049c248 = 1;
+    savedQueueState = g_bInputEventQueueEnabled;
+    g_bInputEventQueueEnabled = 1;
     while ((key = (short)WaitForAnyInputPress()) == 0)
         ;
-    g_bInputEventQueueEnabled_0049c248 = savedQueueState;
+    g_bInputEventQueueEnabled = savedQueueState;
     return key;
 }

@@ -21,8 +21,8 @@ unsigned int GetAvailableMainMemory(void)
     return 0x7c0600;
     totalFree = 0;
     descriptorAddress =
-        g_nNearArenaSize_005d3050 + g_nNearHeapBase_005d3054 - 8;
-    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058) {
+        g_nNearArenaSize + g_1_nNearHeapBase - 8;
+    while (descriptorAddress >= g_nNearHeapFirstDescriptor) {
         descriptor = DosNearPtrToFar(descriptorAddress);
         if ((descriptor->sizeAndFlags & 0x80000000) == 0)
             totalFree += (int)(descriptor->sizeAndFlags & 0xfffff);
@@ -43,8 +43,8 @@ unsigned int GetLargestMainMemoryBlock(void)
     return 0x7c0600;
     largest = 0;
     descriptorAddress =
-        g_nNearArenaSize_005d3050 + g_nNearHeapBase_005d3054 - 8;
-    while (descriptorAddress >= g_nNearHeapFirstDescriptor_005d3058) {
+        g_nNearArenaSize + g_1_nNearHeapBase - 8;
+    while (descriptorAddress >= g_nNearHeapFirstDescriptor) {
         descriptor = DosNearPtrToFar(descriptorAddress);
         if ((descriptor->sizeAndFlags & 0x80000000) == 0 &&
             (int)(descriptor->sizeAndFlags & 0xfffff) > largest)

@@ -11,9 +11,9 @@
         .model flat, c
         option casemap:none
 
-        extern syscall ?g_voices_005c52f0@@3PAUIxVoice@@A:byte
-        extern syscall ?g_nVoiceCapacity_005c5748@@3HA:dword
-        extern syscall ?g_nStreamCount_005c5750@@3HA:dword
+        extern syscall ?g_2_voices@@3PAUIxVoice@@A:byte
+        extern syscall ?g_nVoiceCapacity@@3HA:dword
+        extern syscall ?g_3_nStreamCount@@3HA:dword
         public ix_dspv_mix
 
         .code
@@ -34,9 +34,9 @@ ix_dspv_mix proc
         mov ecx, dword ptr [ebp + 0Ch]
         shr ecx, 2
         rep stosd
-        mov ebx, offset ?g_voices_005c52f0@@3PAUIxVoice@@A
-        mov ecx, dword ptr [?g_nVoiceCapacity_005c5748@@3HA]
-        add ecx, dword ptr [?g_nStreamCount_005c5750@@3HA]
+        mov ebx, offset ?g_2_voices@@3PAUIxVoice@@A
+        mov ecx, dword ptr [?g_nVoiceCapacity@@3HA]
+        add ecx, dword ptr [?g_3_nStreamCount@@3HA]
 
     voice_loop:
         mov eax, dword ptr [ebx]

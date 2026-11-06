@@ -5,7 +5,7 @@
  */
 #include "game.h"
 
-short g_bEjectionSequencePending_00493058 = 0;
+short g_bEjectionSequencePending = 0; /* 0x00493058 */
 
 /* Function start: 0x421910 */
 void cleanup_objectives(void)
@@ -18,14 +18,14 @@ void cleanup_objectives(void)
     short navObjective;
 
     navObjective = 0;
-    home = find_ship_index(g_stMissionHeaderBlock_005d3e70.wingmanMissionShip);
-    proximityRadius = g_aMissionNavPoints_00491e98[
-        g_stMissionHeaderBlock_005d3e70.entryNavPoint].proximityRadius;
+    home = find_ship_index(g_13_stMissionHeaderBlock.wingmanMissionShip);
+    proximityRadius = g_aMissionNavPoints[
+        g_13_stMissionHeaderBlock.entryNavPoint].proximityRadius;
     while ((type =
-                g_aMissionObjectives_004932a8[navObjective].type) != -1 &&
+                g_aMissionObjectives[navObjective].type) != -1 &&
            navObjective < 8) {
         if (achieved(navObjective) == 0) {
-            missionIndex = g_aMissionObjectives_004932a8[navObjective].index;
+            missionIndex = g_aMissionObjectives[navObjective].index;
             switch (type) {
             case 0:
             case 1:
@@ -34,27 +34,27 @@ void cleanup_objectives(void)
                     flag_objective(navObjective, 2);
                 break;
             case 2:
-                switch (g_aMissionShips_00492290[missionIndex].missionType) {
+                switch (g_aMissionShips[missionIndex].missionType) {
                 case MISSION_TYPE_WARP_ARRIVE:
                 case MISSION_TYPE_COME_HOME:
                     shipObj = find_ship_index(missionIndex);
                     if (shipObj != -1 && home != -1 &&
                         distance_from_object(shipObj, home) < proximityRadius)
-                        g_aMissionShips_00492290[missionIndex].state = 1;
-                    if (g_aMissionShips_00492290[missionIndex].state == 1 &&
+                        g_aMissionShips[missionIndex].state = 1;
+                    if (g_aMissionShips[missionIndex].state == 1 &&
                         sighted(navObjective) != 0) {
                         flag_objective(navObjective, 2);
                         affect_mission_score(0, 8, -1);
                     }
                     break;
                 case MISSION_TYPE_GOTO_WARP:
-                    if (g_aMissionShips_00492290[missionIndex].state == 2) {
+                    if (g_aMissionShips[missionIndex].state == 2) {
                         flag_objective(navObjective, 2);
                         affect_mission_score(0, 8, -1);
                     }
                     break;
                 default:
-                    if (g_aMissionShips_00492290[missionIndex].state == 0 &&
+                    if (g_aMissionShips[missionIndex].state == 0 &&
                         sighted(navObjective) != 0) {
                         flag_objective(navObjective, 2);
                         affect_mission_score(0, 8, -1);
@@ -62,7 +62,7 @@ void cleanup_objectives(void)
                 }
                 break;
             case 4:
-                if (g_aMissionShips_00492290[missionIndex].state == 3)
+                if (g_aMissionShips[missionIndex].state == 3)
                     flag_objective(navObjective, 2);
                 break;
             }
@@ -74,7 +74,7 @@ void cleanup_objectives(void)
 /* Function start: 0x421BC6 */
 short IsShipRouting(short ship)
 {
-    if (g_asShipMissionType_00495de8[ship] == MISSION_TYPE_ROUT)
+    if (g_asShipMissionType[ship] == MISSION_TYPE_ROUT)
         return 1;
     else
         return 0;
@@ -101,9 +101,9 @@ short IsShipRouting(short ship);
 /* Function start: 0x421C35 */
 short disobey_formation(short ship)
 {
-    if (ship != g_nYourWingman_0049346c)
+    if (ship != g_nYourWingman)
         return 0;
-    switch (g_stWingmanIntelligence_00496138.formationDisobeyMode) {
+    switch (g_stWingmanIntelligence.formationDisobeyMode) {
     case 1:
         return report_kilrathi_rout(0);
     case 2:
@@ -121,7 +121,7 @@ short disobey_formation(short ship)
 short IsEngagementTargetDisallowed(short ship, short target)
 {
     return target == ship ||
-           g_asShipSide_004955d0[target] == g_asShipSide_004955d0[ship] ||
+           g_asShipSide[target] == g_asShipSide[ship] ||
            IsShipRouting(ship) != 0;
 }
 
@@ -133,17 +133,17 @@ short CanPlayerLand(void)
 
     ok = 0;
     for (index = 0; index < 10; index++) {
-        if (g_aeObjectClass_00495328[index] >= OBJECT_CLASS_SHIP &&
-            g_asShipSide_004955d0[index] == SIDE_KILRATHI)
+        if (g_aeObjectClass[index] >= OBJECT_CLASS_SHIP &&
+            g_asShipSide[index] == SIDE_KILRATHI)
             return 0;
     }
-    if (g_cPilotKillCountValue_005d2fa8 > 0)
+    if (g_36_cPilotKillCountValue > 0)
         ok = 1;
-    for (index = 0; index < g_cMissionObjectiveCount_00493294; index++) {
-        if (g_aMissionObjectives_004932a8[index].type != 1 &&
+    for (index = 0; index < g_cMissionObjectiveCount; index++) {
+        if (g_aMissionObjectives[index].type != 1 &&
             (achieved(index) != 0 ||
              (visited(index) != 0 &&
-              g_aMissionObjectives_004932a8[index].type != 2)))
+              g_aMissionObjectives[index].type != 2)))
             ok = 1;
     }
     return ok;
@@ -156,10 +156,10 @@ void request(short requester, short ship, short command);
 /* Function start: 0x421E6D */
 short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
 {
-    if (pilot <= 4 || ship != g_nYourWingman_0049346c)
+    if (pilot <= 4 || ship != g_nYourWingman)
         return 1;
     else
-        switch (g_stWingmanIntelligence_00496138.routDecisionMode) {
+        switch (g_stWingmanIntelligence.routDecisionMode) {
         case 1:
             return 0;
         case 2:
@@ -169,7 +169,7 @@ short ShouldWingmanAcceptRoutCommand(short ship, short pilot)
         case 4:
             return triumph(0);
         case 5:
-            return g_asShipMissionType_00495de8[ship] ==
+            return g_asShipMissionType[ship] ==
                    MISSION_TYPE_CANNED_SEQUENCE;
         default:
             return 1;
@@ -184,15 +184,15 @@ void request(short requester, short ship, short command)
     short target;
     short object;
 
-    target = g_acShipTarget_00495f20[requester];
+    target = g_acShipTarget[requester];
     switch (command) {
     case 0:
         break;
     case 3:
         if (ShouldWingmanAcceptRoutCommand(ship,
-                                           g_asPilotLevel_00495d60[ship]) != 0 &&
+                                           g_asPilotLevel[ship]) != 0 &&
             try2rout(ship) != 0) {
-            g_bEngageAllowed_0049612c = 0;
+            g_bEngageAllowed = 0;
             SendWingmanCommandAcknowledgement(ship, 1);
         } else {
             SendWingmanCommandAcknowledgement(ship, 0);
@@ -213,12 +213,12 @@ void request(short requester, short ship, short command)
         allow_engage();
         target = -1;
         for (object = 0; object < 10; object++) {
-            if (g_aeObjectClass_00495328[object] >= OBJECT_CLASS_SHIP &&
-                g_aeSpecialManeuver_00495600[object] !=
+            if (g_aeObjectClass[object] >= OBJECT_CLASS_SHIP &&
+                g_aeSpecialManeuver[object] !=
                     SPECIAL_MANEUVER_UNKNOWN_9 &&
-                g_asShipSide_004955d0[ship] !=
-                    g_asShipSide_004955d0[object] &&
-                g_acShipTarget_00495f20[object] == requester) {
+                g_asShipSide[ship] !=
+                    g_asShipSide[object] &&
+                g_acShipTarget[object] == requester) {
                 target = object;
                 break;
             }
@@ -232,7 +232,7 @@ void request(short requester, short ship, short command)
         break;
     case 4:
         allow_engage();
-        if (g_aeShipObjective_00495f08[ship] == OBJECTIVE_HOLD_FORMATION) {
+        if (g_aeShipObjective[ship] == OBJECTIVE_HOLD_FORMATION) {
             reset_objective(ship, OBJECTIVE_BREAK_FORMATION);
             SendWingmanCommandAcknowledgement(ship, 1);
         } else {
@@ -245,7 +245,7 @@ void request(short requester, short ship, short command)
             SendWingmanCommandAcknowledgement(ship, 0);
         } else {
             reset_objective(ship, OBJECTIVE_HOLD_FORMATION);
-            g_nAutoEngageTimer_00496130 = -150;
+            g_nAutoEngageTimer = -150;
             SendWingmanCommandAcknowledgement(ship, 1);
         }
         break;
@@ -255,23 +255,23 @@ void request(short requester, short ship, short command)
             alter_objective(ship, OBJECTIVE_BREAK_FORMATION);
             SendWingmanCommandAcknowledgement(ship, 0);
         } else {
-            g_nAutoEngageTimer_00496130 = -150;
+            g_nAutoEngageTimer = -150;
             SendWingmanCommandAcknowledgement(ship, 1);
         }
         break;
     case 7:
     case 8:
-        g_bRadioSilence_0049b780 = 0;
+        g_bRadioSilence = 0;
         SendWingmanCommandAcknowledgement(ship, 1);
         if (command == 7)
-            g_bRadioSilence_0049b780 = 1;
+            g_bRadioSilence = 1;
         else
-            g_bRadioSilence_0049b780 = 0;
+            g_bRadioSilence = 0;
         break;
     case 11:
         cleanup_objectives();
         if (CanPlayerLand() != 0) {
-            g_bLandingCommRequestPending_00492fa0 = 1;
+            g_bLandingCommRequestPending = 1;
             send_message(ship, 0x12);
         } else {
             send_message(ship, 0x13);
@@ -280,26 +280,26 @@ void request(short requester, short ship, short command)
     case 12:
         cleanup_objectives();
         if (CanPlayerLand() != 0) {
-            g_bLandingCommRequestPending_00492fa0 = 1;
+            g_bLandingCommRequestPending = 1;
             send_message(ship, 0x14);
-            g_bEjectionSequencePending_00493058 = 1;
+            g_bEjectionSequencePending = 1;
         } else {
             send_message(ship, 0x15);
         }
         break;
     case 9:
-        if (g_ucPendingEjectionTransition_0049b8ac != 0xff &&
-            g_bEjectionAwaitingCommCommand_0049b8b4 != 0) {
-            ejection_sequence(g_ucPendingEjectionTransition_0049b8ac, 1);
-            g_ucPendingEjectionTransition_0049b8ac = 0xff;
-            g_bEjectionAwaitingCommCommand_0049b8b4 = 0;
-        } else if (g_asShipMissionIndex_00495d00[ship] !=
-                   g_nHomeOperationShipIndexValue_005d1e22) {
+        if (g_ucPendingEjectionTransition != 0xff &&
+            g_bEjectionAwaitingCommCommand != 0) {
+            ejection_sequence(g_ucPendingEjectionTransition, 1);
+            g_ucPendingEjectionTransition = 0xff;
+            g_bEjectionAwaitingCommCommand = 0;
+        } else if (g_asShipMissionIndex[ship] !=
+                   g_6_nHomeOperationShipIndexValue) {
             send_message(ship, 0x11);
         } else {
             cleanup_objectives();
             if (CanPlayerLand() != 0) {
-                g_bLandingCommRequestPending_00492fa0 = 1;
+                g_bLandingCommRequestPending = 1;
                 send_message(ship, 0x10);
             } else {
                 send_message(ship, 0x11);
@@ -319,28 +319,28 @@ void request(short requester, short ship, short command)
     case 30:
     case 31:
         if (RandomBelow(100) < 70 ||
-            (g_asPilotLevel_00495d60[ship] == 5 &&
-             g_asShipSide_004955d0[ship] == SIDE_KILRATHI)) {
+            (g_asPilotLevel[ship] == 5 &&
+             g_asShipSide[ship] == SIDE_KILRATHI)) {
             send_message(ship,
                          (signed char)(command + 0x19 -
-                                       g_nEnemyTauntCommandBase_0049b76c));
-            g_nEnemyTauntCommandBase_0049b76c =
-                (short)(g_nEnemyTauntCommandBase_0049b76c | 1);
+                                       g_nEnemyTauntCommandBase));
+            g_nEnemyTauntCommandBase =
+                (short)(g_nEnemyTauntCommandBase | 1);
         }
-        if (g_acShipTarget_00495f20[ship] != requester &&
+        if (g_acShipTarget[ship] != requester &&
             IsShipRouting(ship) == 0)
             engage(ship, requester, OBJECTIVE_ENGAGE_ENEMY);
         break;
     case 10:
-        if (g_asShipSide_004955d0[target] != SIDE_KILRATHI) {
+        if (g_asShipSide[target] != SIDE_KILRATHI) {
             send_message(ship, 0xf);
-            g_asShipIdentified_00496078[ship] = 1;
+            g_asShipIdentified[ship] = 1;
         }
         break;
     case 13:
-        if (g_nYourWingman_0049346c != -1) {
+        if (g_nYourWingman != -1) {
             send_message(ship, 0xf);
-            g_bDisplayWingmanTargetData_0049347c = 1;
+            g_bDisplayWingmanTargetData = 1;
         }
         break;
     }

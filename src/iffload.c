@@ -5,19 +5,19 @@
  */
 #include "game.h"
 
-CutsceneObjectResourceList *g_pCutsceneSpriteResources_0049288c = 0;
-CutsceneObjectResourceList *g_pCutscenePlaneResources_00492890 = 0;
-CutsceneObjectResourceList *g_pCutsceneSequenceResources_00492894 = 0;
-CutsceneObjectResourceList *g_pCutsceneSceneResources_00492898 = 0;
-CutsceneTextResource *g_pCutsceneTextResources_0049289c = 0;
-CutsceneResourceTable *g_pCutsceneFontResources_004928a0 = 0;
-CutsceneResourceTable *g_pCutsceneSpeechResources_004928a4 = 0;
-CutsceneResourceTable *g_pCutsceneShapeResources_004928a8 = 0;
-CutsceneResourceTable *g_pCutsceneMouseResources_004928ac = 0;
-CutsceneResourceTable *g_pCutscenePaletteResources_004928b0 = 0;
-CutsceneResourceTable *g_pCutsceneFilmResources_004928b4 = 0;
-CutsceneResourceTable *g_pCutsceneFxResources_004928b8 = 0;
-CutsceneResourceTable *g_pCutsceneMusicResources_004928bc = 0;
+CutsceneObjectResourceList *g_pCutsceneSpriteResources = 0; /* 0x0049288c */
+CutsceneObjectResourceList *g_pCutscenePlaneResources = 0; /* 0x00492890 */
+CutsceneObjectResourceList *g_pCutsceneSequenceResources = 0; /* 0x00492894 */
+CutsceneObjectResourceList *g_pCutsceneSceneResources = 0; /* 0x00492898 */
+CutsceneTextResource *g_pCutsceneTextResources = 0; /* 0x0049289c */
+CutsceneResourceTable *g_pCutsceneFontResources = 0; /* 0x004928a0 */
+CutsceneResourceTable *g_pCutsceneSpeechResources = 0; /* 0x004928a4 */
+CutsceneResourceTable *g_pCutsceneShapeResources = 0; /* 0x004928a8 */
+CutsceneResourceTable *g_pCutsceneMouseResources = 0; /* 0x004928ac */
+CutsceneResourceTable *g_pCutscenePaletteResources = 0; /* 0x004928b0 */
+CutsceneResourceTable *g_pCutsceneFilmResources = 0; /* 0x004928b4 */
+CutsceneResourceTable *g_pCutsceneFxResources = 0; /* 0x004928b8 */
+CutsceneResourceTable *g_pCutsceneMusicResources = 0; /* 0x004928bc */
 
 /* Function start: 0x40D6B0 */
 void ReleasePacketSlot(void **slot)
@@ -157,12 +157,12 @@ short CreateCutsceneResourceInstance(int formType,
     switch (formType) {
     case 0x54525053:
         while (entry < 0x80) {
-            if (g_apSceneObjects_00499c38[entry] == 0) {
-                g_apSceneObjects_00499c38[entry] = AllocateScenePointerTable(
+            if (g_apSceneObjects[entry] == 0) {
+                g_apSceneObjects[entry] = AllocateScenePointerTable(
                     1, sizeof(SceneFlicObject), 0,
                     "Cannot Allocate Sprite Data");
-                sprite = g_apSceneObjects_00499c38[entry];
-                sprite->owner = g_nCutsceneResourceLevel_00499d98;
+                sprite = g_apSceneObjects[entry];
+                sprite->owner = g_nCutsceneResourceLevel;
                 sprite->field_3 = -1;
                 sprite->active = 1;
                 sprite->visible = 1;
@@ -181,12 +181,12 @@ short CreateCutsceneResourceInstance(int formType,
         break;
     case 0x454e4c50:
         while (entry < 0x40) {
-            if (g_apCutscenePlanes_00499c3c[entry] == 0) {
-                g_apCutscenePlanes_00499c3c[entry] = AllocateScenePointerTable(
+            if (g_apCutscenePlanes[entry] == 0) {
+                g_apCutscenePlanes[entry] = AllocateScenePointerTable(
                     1, sizeof(CutscenePlane), 0,
                     "Cannot Allocate Plane Data");
-                plane = g_apCutscenePlanes_00499c3c[entry];
-                plane->owner = g_nCutsceneResourceLevel_00499d98;
+                plane = g_apCutscenePlanes[entry];
+                plane->owner = g_nCutsceneResourceLevel;
                 plane->active = 1;
                 plane->visible = 1;
                 plane->scriptStart = list->scripts[index];
@@ -205,12 +205,12 @@ short CreateCutsceneResourceInstance(int formType,
         break;
     case 0x55514553:
         while (entry < 0x100) {
-            if (g_apCutsceneSequences_00499c40[entry] == 0) {
-                g_apCutsceneSequences_00499c40[entry] = AllocateScenePointerTable(
+            if (g_apCutsceneSequences[entry] == 0) {
+                g_apCutsceneSequences[entry] = AllocateScenePointerTable(
                     1, sizeof(CutsceneSequence), 0,
                     "Cannot allocate Sequence Data");
-                sequence = g_apCutsceneSequences_00499c40[entry];
-                sequence->owner = g_nCutsceneResourceLevel_00499d98;
+                sequence = g_apCutsceneSequences[entry];
+                sequence->owner = g_nCutsceneResourceLevel;
                 sequence->active = 1;
                 sequence->scriptStart = list->scripts[index];
                 sequence->scriptCursor = sequence->scriptStart;
@@ -228,12 +228,12 @@ short CreateCutsceneResourceInstance(int formType,
         break;
     case 0x454e4353:
         while (entry < 0x20) {
-            if (g_apCutsceneScenes_00499c44[entry] == 0) {
-                g_apCutsceneScenes_00499c44[entry] = AllocateScenePointerTable(
+            if (g_apCutsceneScenes[entry] == 0) {
+                g_apCutsceneScenes[entry] = AllocateScenePointerTable(
                     1, sizeof(CutsceneScene), 0,
                     "Cannot Allocate Script Data");
-                cutscene = g_apCutsceneScenes_00499c44[entry];
-                cutscene->owner = g_nCutsceneResourceLevel_00499d98;
+                cutscene = g_apCutsceneScenes[entry];
+                cutscene->owner = g_nCutsceneResourceLevel;
                 cutscene->active = 1;
                 cutscene->scriptStart = list->scripts[index];
                 cutscene->scriptCursor = cutscene->scriptStart;
@@ -290,7 +290,7 @@ signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                 upperHalf->symbolIndices[num] = id;
                 switch (formType) {
                 case 0x54525053:
-                    sprite = g_apSceneObjects_00499c38[id];
+                    sprite = g_apSceneObjects[id];
                     if (sprite->scriptCursor == 0) {
                         sprite->scriptStart = list->scripts[num];
                         sprite->scriptCursor = sprite->scriptStart;
@@ -298,7 +298,7 @@ signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                     }
                     break;
                 case 0x454e4c50:
-                    plane = g_apCutscenePlanes_00499c3c[id];
+                    plane = g_apCutscenePlanes[id];
                     if (plane->scriptCursor == 0) {
                         plane->scriptStart = list->scripts[num];
                         plane->scriptCursor = plane->scriptStart;
@@ -306,7 +306,7 @@ signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                     }
                     break;
                 case 0x55514553:
-                    sequence = g_apCutsceneSequences_00499c40[id];
+                    sequence = g_apCutsceneSequences[id];
                     if (sequence->scriptCursor == 0) {
                         sequence->scriptStart = list->scripts[num];
                         sequence->scriptCursor = sequence->scriptStart;
@@ -314,7 +314,7 @@ signed char LinkCutsceneObjectResources(CutsceneObjectResourceList *list,
                     }
                     break;
                 case 0x454e4353:
-                    cutscene = g_apCutsceneScenes_00499c44[id];
+                    cutscene = g_apCutsceneScenes[id];
                     if (cutscene->scriptCursor == 0) {
                         cutscene->scriptStart = list->scripts[num];
                         cutscene->scriptCursor = cutscene->scriptStart;
@@ -372,7 +372,7 @@ CutsceneResourceTable *PushCutsceneFileResource(
         1, sizeof(CutsceneResourceTable), 0,
         "Cannot allocate FileChunk");
     if (resource != 0) {
-        resource->owner = g_nCutsceneResourceLevel_00499d98;
+        resource->owner = g_nCutsceneResourceLevel;
         resource->next = *head;
         *head = resource;
     }
@@ -389,7 +389,7 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
     DecodeSceneResourceChunk(cursor, &decodedResource);
     resource->count = decodedResource.count;
     entryCount = resource->count;
-    resource->owner = g_nCutsceneResourceLevel_00499d98;
+    resource->owner = g_nCutsceneResourceLevel;
     resource->filenameIndices = decodedResource.data;
     resource->sectionIndices =
         entryCount + (const unsigned char *)decodedResource.data;
@@ -404,7 +404,7 @@ void DecodeCutsceneFileResource(CutsceneResourceTable *resource,
 
 /* Read into an unused local when a GLOB chunk is decoded (DOS g_ce02); no
  * code in the Win32 port writes it. */
-extern short g_nEarlierGlobalCount_005d2ec4;
+extern short g_nEarlierGlobalCount; /* 0x005d2ec4 */
 
 /* Function start: 0x40E31F */
 unsigned char ParseCutsceneContainer(void *scenePacket)
@@ -421,79 +421,79 @@ unsigned char ParseCutsceneContainer(void *scenePacket)
     InitializeCutsceneRuntimeResources();
     if (ReadNextSceneForm(&location, &containerEnd) != 0x50435343)
         return 0;
-    PushCutsceneObjectResource(&g_pCutsceneSpriteResources_0049288c);
-    PushCutsceneObjectResource(&g_pCutscenePlaneResources_00492890);
-    PushCutsceneObjectResource(&g_pCutsceneSequenceResources_00492894);
-    PushCutsceneObjectResource(&g_pCutsceneSceneResources_00492898);
-    PushCutsceneFileResource(&g_pCutsceneFxResources_004928b8);
-    PushCutsceneFileResource(&g_pCutsceneMusicResources_004928bc);
-    PushCutsceneFileResource(&g_pCutsceneMouseResources_004928ac);
-    PushCutsceneFileResource(&g_pCutsceneShapeResources_004928a8);
-    PushCutsceneFileResource(&g_pCutsceneFilmResources_004928b4);
-    PushCutsceneFileResource(&g_pCutsceneFontResources_004928a0);
-    PushCutsceneFileResource(&g_pCutsceneSpeechResources_004928a4);
-    PushCutsceneFileResource(&g_pCutscenePaletteResources_004928b0);
+    PushCutsceneObjectResource(&g_pCutsceneSpriteResources);
+    PushCutsceneObjectResource(&g_pCutscenePlaneResources);
+    PushCutsceneObjectResource(&g_pCutsceneSequenceResources);
+    PushCutsceneObjectResource(&g_pCutsceneSceneResources);
+    PushCutsceneFileResource(&g_pCutsceneFxResources);
+    PushCutsceneFileResource(&g_pCutsceneMusicResources);
+    PushCutsceneFileResource(&g_pCutsceneMouseResources);
+    PushCutsceneFileResource(&g_pCutsceneShapeResources);
+    PushCutsceneFileResource(&g_pCutsceneFilmResources);
+    PushCutsceneFileResource(&g_pCutsceneFontResources);
+    PushCutsceneFileResource(&g_pCutsceneSpeechResources);
+    PushCutsceneFileResource(&g_pCutscenePaletteResources);
     while (location < containerEnd) {
         switch ((long)ReadNextSceneForm(&location, &formEnd)) {
         case 0x54525053:
             DecodeCutsceneObjectResource(
-                g_pCutsceneSpriteResources_0049288c,
+                g_pCutsceneSpriteResources,
                 &location, formEnd, 0x54525053);
             break;
         case 0x454e4c50:
             DecodeCutsceneObjectResource(
-                g_pCutscenePlaneResources_00492890,
+                g_pCutscenePlaneResources,
                 &location, formEnd, 0x454e4c50);
             break;
         case 0x55514553:
             DecodeCutsceneObjectResource(
-                g_pCutsceneSequenceResources_00492894,
+                g_pCutsceneSequenceResources,
                 &location, formEnd, 0x55514553);
             break;
         case 0x454e4353:
             DecodeCutsceneObjectResource(
-                g_pCutsceneSceneResources_00492898,
+                g_pCutsceneSceneResources,
                 &location, formEnd, 0x454e4353);
             break;
         case 0x20205846:
             DecodeCutsceneFileResource(
-                g_pCutsceneFxResources_004928b8, &location);
+                g_pCutsceneFxResources, &location);
             break;
         case 0x2053554d:
             DecodeCutsceneFileResource(
-                g_pCutsceneMusicResources_004928bc, &location);
+                g_pCutsceneMusicResources, &location);
             break;
         case 0x204c4150:
             DecodeCutsceneFileResource(
-                g_pCutscenePaletteResources_004928b0, &location);
+                g_pCutscenePaletteResources, &location);
             break;
         case 0x544e4f46:
             DecodeCutsceneFileResource(
-                g_pCutsceneFontResources_004928a0, &location);
+                g_pCutsceneFontResources, &location);
             break;
         case 0x48435053:
             DecodeCutsceneFileResource(
-                g_pCutsceneSpeechResources_004928a4, &location);
+                g_pCutsceneSpeechResources, &location);
             break;
         case 0x4d4c4946:
             DecodeCutsceneFileResource(
-                g_pCutsceneFilmResources_004928b4, &location);
+                g_pCutsceneFilmResources, &location);
             break;
         case 0x50414853:
             DecodeCutsceneFileResource(
-                g_pCutsceneShapeResources_004928a8, &location);
+                g_pCutsceneShapeResources, &location);
             break;
         case 0x53554f4d:
             DecodeCutsceneFileResource(
-                g_pCutsceneMouseResources_004928ac, &location);
+                g_pCutsceneMouseResources, &location);
             break;
         case 0x424f4c47:
-            oldCount = g_nEarlierGlobalCount_005d2ec4;
+            oldCount = g_nEarlierGlobalCount;
             DecodeSceneResourceChunk(&location, &decodedResource);
             globalLength = *(short *)(
                 ((void **)decodedResource.data)[0]);
-            if (g_pCampaignGlobals_00499c94 == 0) {
-                g_pCampaignGlobals_00499c94 = AllocateScenePointerTable(
+            if (g_pCampaignGlobals == 0) {
+                g_pCampaignGlobals = AllocateScenePointerTable(
                     globalLength, 2, 0, "Cannot Reallocate Globals");
             }
             ReleasePacketSlot(&decodedResource.data);
@@ -503,10 +503,10 @@ unsigned char ParseCutsceneContainer(void *scenePacket)
             text = AllocateScenePointerTable(
                 1, sizeof(CutsceneTextResource), 0,
                 "Cannot Allocate Text Ptrs");
-            text->next = g_pCutsceneTextResources_0049289c;
-            text->owner = g_nCutsceneResourceLevel_00499d98;
+            text->next = g_pCutsceneTextResources;
+            text->owner = g_nCutsceneResourceLevel;
             text->entries = decodedResource.data;
-            g_pCutsceneTextResources_0049289c = text;
+            g_pCutsceneTextResources = text;
             break;
         default:
             location = formEnd;
@@ -626,7 +626,7 @@ CutsceneObjectResourceList *PushCutsceneObjectResource(
     if (resource != 0) {
         resource->next = *head;
         if (*head != 0) {
-            resource->owner = g_nCutsceneResourceLevel_00499d98;
+            resource->owner = g_nCutsceneResourceLevel;
             resource->dataCount = (*head)->dataCount;
             resource->inheritedDataCount = resource->dataCount;
             resource->scriptCount = (*head)->scriptCount;
@@ -654,48 +654,48 @@ void ReleaseCutsceneObjectResource(short owner,
         switch (formType) {
         case 0x54525053:
             for (index = 0; index < 0x80; index++) {
-                if (g_apSceneObjects_00499c38[index] != 0 &&
-                    g_apSceneObjects_00499c38[index]->owner == owner) {
+                if (g_apSceneObjects[index] != 0 &&
+                    g_apSceneObjects[index]->owner == owner) {
                     ReleasePacketSlot(
-                        (void **)&g_apSceneObjects_00499c38[index]->locals);
+                        (void **)&g_apSceneObjects[index]->locals);
                     ReleasePacketSlot(
-                        (void **)&g_apSceneObjects_00499c38[index]);
+                        (void **)&g_apSceneObjects[index]);
                 }
             }
             break;
         case 0x454e4c50:
             for (index = 0; index < 0x40; index++) {
-                if (g_apCutscenePlanes_00499c3c[index] != 0 &&
-                    g_apCutscenePlanes_00499c3c[index]->owner == owner) {
-                    plane = g_apCutscenePlanes_00499c3c[index];
+                if (g_apCutscenePlanes[index] != 0 &&
+                    g_apCutscenePlanes[index]->owner == owner) {
+                    plane = g_apCutscenePlanes[index];
                     ReleasePacketSlot((void **)&plane->locals);
                     ReleasePacketSlot((void **)&plane->spriteIndices);
                     ReleasePacketSlot(
-                        (void **)&g_apCutscenePlanes_00499c3c[index]);
+                        (void **)&g_apCutscenePlanes[index]);
                 }
             }
             break;
         case 0x55514553:
             for (index = 0; index < 0x100; index++) {
-                if (g_apCutsceneSequences_00499c40[index] != 0 &&
-                    g_apCutsceneSequences_00499c40[index]->owner == owner) {
-                    sequence = g_apCutsceneSequences_00499c40[index];
+                if (g_apCutsceneSequences[index] != 0 &&
+                    g_apCutsceneSequences[index]->owner == owner) {
+                    sequence = g_apCutsceneSequences[index];
                     ReleasePacketSlot((void **)&sequence->locals);
                     ReleasePacketSlot((void **)&sequence->planeIndices);
                     ReleasePacketSlot(
-                        (void **)&g_apCutsceneSequences_00499c40[index]);
+                        (void **)&g_apCutsceneSequences[index]);
                 }
             }
             break;
         case 0x454e4353:
             for (index = 0; index < 0x20; index++) {
-                if (g_apCutsceneScenes_00499c44[index] != 0 &&
-                    g_apCutsceneScenes_00499c44[index]->owner == owner) {
-                    cutscene = g_apCutsceneScenes_00499c44[index];
+                if (g_apCutsceneScenes[index] != 0 &&
+                    g_apCutsceneScenes[index]->owner == owner) {
+                    cutscene = g_apCutsceneScenes[index];
                     ReleasePacketSlot((void **)&cutscene->locals);
                     ReleasePacketSlot((void **)&cutscene->sequenceIndices);
                     ReleasePacketSlot(
-                        (void **)&g_apCutsceneScenes_00499c44[index]);
+                        (void **)&g_apCutsceneScenes[index]);
                 }
             }
             break;
@@ -763,31 +763,31 @@ void ReleaseCutsceneTextResource(short owner,
 void ReleaseCutsceneResourceLevel(short owner)
 {
     ReleaseCutsceneObjectResource(
-        owner, &g_pCutsceneSpriteResources_0049288c, 0x54525053);
+        owner, &g_pCutsceneSpriteResources, 0x54525053);
     ReleaseCutsceneObjectResource(
-        owner, &g_pCutscenePlaneResources_00492890, 0x454e4c50);
+        owner, &g_pCutscenePlaneResources, 0x454e4c50);
     ReleaseCutsceneObjectResource(
-        owner, &g_pCutsceneSequenceResources_00492894, 0x55514553);
+        owner, &g_pCutsceneSequenceResources, 0x55514553);
     ReleaseCutsceneObjectResource(
-        owner, &g_pCutsceneSceneResources_00492898, 0x454e4353);
+        owner, &g_pCutsceneSceneResources, 0x454e4353);
     if (owner != 0) {
         ReleaseCutsceneFileResource(
-            owner, &g_pCutsceneMusicResources_004928bc);
+            owner, &g_pCutsceneMusicResources);
     }
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneFxResources_004928b8);
+        owner, &g_pCutsceneFxResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneFontResources_004928a0);
+        owner, &g_pCutsceneFontResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneSpeechResources_004928a4);
+        owner, &g_pCutsceneSpeechResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneShapeResources_004928a8);
+        owner, &g_pCutsceneShapeResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneMouseResources_004928ac);
+        owner, &g_pCutsceneMouseResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutscenePaletteResources_004928b0);
+        owner, &g_pCutscenePaletteResources);
     ReleaseCutsceneFileResource(
-        owner, &g_pCutsceneFilmResources_004928b4);
+        owner, &g_pCutsceneFilmResources);
     ReleaseCutsceneTextResource(
-        owner, &g_pCutsceneTextResources_0049289c);
+        owner, &g_pCutsceneTextResources);
 }

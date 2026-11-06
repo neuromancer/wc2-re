@@ -5,7 +5,7 @@
  */
 #include "game.h"
 
-extern unsigned int g_dwCannedSceneSnapshotEnd_004961a4;
+extern unsigned int g_dwCannedSceneSnapshotEnd; /* 0x004961a4 */
 
 /* Function start: 0x446950 */
 void BeginInflightReplayHook(void)
@@ -16,30 +16,30 @@ void BeginInflightReplayHook(void)
 /* Function start: 0x446960 */
 void ResetCannedScenePlaybackBuffer(void)
 {
-    g_nCannedSceneWriteIndex_005d3fa8 = 0;
-    if (g_nCannedSceneRecordedFrameCountNumber_005d3faa == 0)
+    g_3_nCannedSceneWriteIndex = 0;
+    if (g_nCannedSceneRecordedFrameCountNumber == 0)
         new_view(5, 0);
 }
 
 /* Function start: 0x44698F */
 void FinishCannedScenePlayback(void)
 {
-    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
+    if (g_78_bHighMemoryBuffersSetState == 0)
         return;
-    g_pCannedSceneStateBlockRef_005d3fb0 =
-        (void *)IdentityDword((DwordPtr)g_pHighMemoryBlockB_00490200);
+    g_1_pCannedSceneStateBlockRef =
+        (void *)IdentityDword((DwordPtr)g_pHighMemoryBlockB);
 #ifndef SDL_PORT
-    memmove(&g_dwCannedSceneSnapshotStart_00493130,
-            g_pCannedSceneStateBlockRef_005d3fb0,
+    memmove(&g_dwCannedSceneSnapshotStart,
+            g_1_pCannedSceneStateBlockRef,
             CANNED_SCENE_SNAPSHOT_BYTES);
 #endif
-    if (g_nArcadeState_0049d75c != 4) {
+    if (g_nArcadeState != 4) {
         force_view(0, 0);
         SetHudMessageText("END INFLIGHT REPLAY",
-                          (unsigned short)g_cRedColour_0049cb5c,
+                          (unsigned short)g_cRedColour,
                           20);
     }
-    _unlink(g_szCannedSceneTapeFile_00490208);
+    _unlink(g_szCannedSceneTapeFile);
 }
 
 /* Function start: 0x446A1D */
@@ -49,21 +49,21 @@ unsigned short RestoreCannedSceneObjectState(
     short obj;
 
     obj = record->object;
-    g_aShipVelocity_00494898[obj] = record->velocity;
-    g_aShipUpVector_00493ec0[obj] = record->up;
-    g_aShipForwardVector_00494208[obj] = record->forward;
+    g_aShipVelocity[obj] = record->velocity;
+    g_aShipUpVector[obj] = record->up;
+    g_aShipForwardVector[obj] = record->forward;
     switch (record->mode) {
     case 0:
-        g_aeSpecialManeuver_00495600[obj] = 0;
+        g_aeSpecialManeuver[obj] = 0;
         break;
     case 2:
-        g_asShipManeuver_00495f48[obj] = 1;
+        g_asShipManeuver[obj] = 1;
         break;
     case 3:
-        g_asShipManeuver_00495f48[obj] = 0;
+        g_asShipManeuver[obj] = 0;
         break;
     case 1:
-        g_aeSpecialManeuver_00495600[obj] = 1;
+        g_aeSpecialManeuver[obj] = 1;
         break;
     case 7:
         BeginShipCloak(obj);
@@ -93,15 +93,15 @@ unsigned short ApplyCannedSceneObjectEventRecord(
     switch (record->event) {
     case 0:
         if (kind == OBJECT_DATA_STAR) {
-            ClearViewport(&g_stViewScratchInfo_005d2b00,
-                          g_bPrimaryViewBufferColour_0049cb50);
-            g_bViewportDirty_0049d76c++;
+            ClearViewport(&g_27_stViewScratchInfo,
+                          g_bPrimaryViewBufferColour);
+            g_bViewportDirty++;
         }
         set_objects_data(obj, kind, owner, 0);
-        g_aShipVelocity_00494898[obj] = record->velocity;
-        g_aShipPosition_00494550[obj] = record->position;
-        g_asObjectCounter_00494be0[obj] = record->counter;
-        g_asObjectScale_00494d90[obj] = record->scale;
+        g_aShipVelocity[obj] = record->velocity;
+        g_aShipPosition[obj] = record->position;
+        g_asObjectCounter[obj] = record->counter;
+        g_asObjectScale[obj] = record->scale;
         break;
     case 1:
         remove_object(obj);
@@ -155,38 +155,38 @@ void ApplyCannedSceneFrameEvents(void)
     CannedSceneRecordHeader *record;
 
     finished = 0;
-    if (g_bHighMemoryBuffersSetState_005d2ad8 == 0)
+    if (g_78_bHighMemoryBuffersSetState == 0)
         return;
-    g_dwHighMemoryParagraphValue_005d3fb4 =
-        IdentityDword((DwordPtr)g_pHighMemoryBlockA_004901f8);
+    g_dwHighMemoryParagraphValue =
+        IdentityDword((DwordPtr)g_pHighMemoryBlockA);
     while (finished == 0) {
         record = (CannedSceneRecordHeader *)(
             (unsigned int)(unsigned short)
-                g_nCannedSceneWriteIndex_005d3fa8 +
-            g_dwHighMemoryParagraphValue_005d3fb4);
-        if (record->frame == g_nSpaceFrame_00493134) {
+                g_3_nCannedSceneWriteIndex +
+            g_dwHighMemoryParagraphValue);
+        if (record->frame == g_nSpaceFrame) {
             switch (record->opcode) {
             case 0:
-                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                g_3_nCannedSceneWriteIndex = (short)(
+                    (unsigned short)g_3_nCannedSceneWriteIndex +
                     RestoreCannedSceneObjectState(
                         (CannedSceneObjectStateRecord *)record));
                 break;
             case 1:
-                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                g_3_nCannedSceneWriteIndex = (short)(
+                    (unsigned short)g_3_nCannedSceneWriteIndex +
                     ApplyCannedSceneSoundRecord(
                         (CannedSceneBriefingCharacterRecord *)record));
                 break;
             case 2:
-                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                g_3_nCannedSceneWriteIndex = (short)(
+                    (unsigned short)g_3_nCannedSceneWriteIndex +
                     ApplyCannedSceneMusicRecord(
                         (CannedSceneMusicCommandRecord *)record));
                 break;
             case 3:
-                g_nCannedSceneWriteIndex_005d3fa8 = (short)(
-                    (unsigned short)g_nCannedSceneWriteIndex_005d3fa8 +
+                g_3_nCannedSceneWriteIndex = (short)(
+                    (unsigned short)g_3_nCannedSceneWriteIndex +
                     ApplyCannedSceneObjectEventRecord(
                         (CannedSceneObjectEventRecord *)record));
                 break;
@@ -206,16 +206,16 @@ void ReadTapeInitialState(void)
 {
     short file;
 
-    file = OpenDataFileOrDie(g_szCannedSceneTapeFile_00490208);
+    file = OpenDataFileOrDie(g_szCannedSceneTapeFile);
     if (file == -1)
         ReportFatalErrorCode("025");
 #ifndef SDL_PORT
     ReadDataFileAtOffset((unsigned short)file,
-                         g_nCannedSceneFileOffset_005d3fac,
+                         g_4_nCannedSceneFileOffset,
                          CANNED_SCENE_SNAPSHOT_BYTES,
-                         &g_dwCannedSceneSnapshotStart_00493130);
+                         &g_dwCannedSceneSnapshotStart);
 #endif
-    g_nCannedSceneFileOffset_005d3fac += CANNED_SCENE_SNAPSHOT_BYTES;
+    g_4_nCannedSceneFileOffset += CANNED_SCENE_SNAPSHOT_BYTES;
     CloseDataFile((unsigned short)file);
 }
 
@@ -224,23 +224,23 @@ void LoadCannedScenePlaybackBuffer(void)
 {
     short file;
 
-    file = OpenDataFileOrDie(g_szCannedSceneTapeFile_00490208);
+    file = OpenDataFileOrDie(g_szCannedSceneTapeFile);
     if (file == -1)
         ReportFatalErrorCode("026");
     ReadDataFileAtOffset((unsigned short)file,
-                         g_nCannedSceneFileOffset_005d3fac,
-                         2, &g_nCannedSceneSegmentEndFrame_00490218);
-    g_nCannedSceneFileOffset_005d3fac += 2;
+                         g_4_nCannedSceneFileOffset,
+                         2, &g_nCannedSceneSegmentEndFrame);
+    g_4_nCannedSceneFileOffset += 2;
     ReadDataFileAtOffset((unsigned short)file,
-                         g_nCannedSceneFileOffset_005d3fac,
-                         2, &g_nCannedSceneWriteIndex_005d3fa8);
-    g_nCannedSceneFileOffset_005d3fac += 2;
+                         g_4_nCannedSceneFileOffset,
+                         2, &g_3_nCannedSceneWriteIndex);
+    g_4_nCannedSceneFileOffset += 2;
     ReadDataFileAtOffset(
-        (unsigned short)file, g_nCannedSceneFileOffset_005d3fac,
-        (unsigned int)(unsigned short)g_nCannedSceneWriteIndex_005d3fa8,
-        g_pHighMemoryBlockA_004901f8);
-    g_nCannedSceneFileOffset_005d3fac +=
-        (unsigned short)g_nCannedSceneWriteIndex_005d3fa8;
+        (unsigned short)file, g_4_nCannedSceneFileOffset,
+        (unsigned int)(unsigned short)g_3_nCannedSceneWriteIndex,
+        g_pHighMemoryBlockA);
+    g_4_nCannedSceneFileOffset +=
+        (unsigned short)g_3_nCannedSceneWriteIndex;
     CloseDataFile((unsigned short)file);
 }
 
@@ -251,17 +251,17 @@ void ProcessCannedSceneInput(void)
     short keyChanged;
     short eventType;
 
-    g_cPreviousKey_0049312c = g_cCurrentKey_00493128;
+    g_cPreviousKey = g_cCurrentKey;
     ServiceInputDevices(15);
     eventType = GetNextInputEvent(&nextEvent);
     if (eventType == 4) {
-        g_cCurrentKey_00493128 = (signed char)nextEvent.status;
-        if (g_cPreviousKey_0049312c !=
-            g_cCurrentKey_00493128)
+        g_cCurrentKey = (signed char)nextEvent.status;
+        if (g_cPreviousKey !=
+            g_cCurrentKey)
             keyChanged = 1;
         else
             keyChanged = 0;
-        switch (g_cCurrentKey_00493128) {
+        switch (g_cCurrentKey) {
         case 0x34:
             break;
         case 0x33:
@@ -285,13 +285,13 @@ void ProcessCannedSceneInput(void)
             new_view(15, 0);
             break;
         case 0x41:
-            if (g_acShipTarget_00495f20[0] != -1)
+            if (g_acShipTarget[0] != -1)
                 new_view(8, 0);
             break;
         case 0x43:
             if (keyChanged != 0) {
                 SelectNextExternalViewObject();
-                force_view(5, (short)g_cViewObject_0049313c);
+                force_view(5, (short)g_cViewObject);
             }
             break;
         }

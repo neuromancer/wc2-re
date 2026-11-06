@@ -12,10 +12,10 @@ typedef struct TitleActorMotion {
     short velocityY;
 } TitleActorMotion;
 
-char g_szTitleConductorFrames_00491c68[] =
-    "opoqopoqopoqopoqqrstrq";
+char g_szTitleConductorFrames[] =
+    "opoqopoqopoqopoqqrstrq"; /* 0x00491c68 */
 
-char *g_apszTitleActorFrames_00491c80[10] = {
+char *g_apszTitleActorFrames[10] = {
     "abcdefghijkaakkkkaaaalllllllmmll",
     "aaaaaaaabcddeeddccffgghhgghhiiih",
     "aaaaaaaaaabbccbbaaccccccccccaccc",
@@ -26,9 +26,9 @@ char *g_apszTitleActorFrames_00491c80[10] = {
     "abbbaacccdeeaaeeddaaaaaaaaaadacc",
     "aaaaaaaaabbbccbbbbccddddddccaaaa",
     "abccdefgghiijjiihhkkllmmllkkhnnn"
-};
+}; /* 0x00491c80 */
 
-TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
+TitleActorMotion g_aTitleActorMotion[10] = {
     { 58, 94, -1, 1 },
     { 186, 94, 0, 1 },
     { 278, 94, 1, 1 },
@@ -39,26 +39,26 @@ TitleActorMotion g_aTitleActorMotion_00491ca8[10] = {
     { 186, 110, 0, 3 },
     { 278, 110, 5, 3 },
     { 158, 74, 0, 4 }
-};
+}; /* 0x00491ca8 */
 
-unsigned char *g_pTitleFieldShape_00491cf8 = 0;
+unsigned char *g_pTitleFieldShape = 0; /* 0x00491cf8 */
 
-extern unsigned char *g_apTitleSections_005d3f70[13];
+extern unsigned char *g_apTitleSections[13]; /* 0x005d3f70 */
 
-extern void *g_pTitleMusic_005d3fa4;
+extern void *g_pTitleMusic; /* 0x005d3fa4 */
 
 #ifdef SDL_PORT
 /* Not an original mechanism. AnimateTitleOrchestra, PlayTitleConductorCue,
  * PushTitleOrchestraAway, RevealTitleLogo and ShowVictoryScreen below
  * each draw through a tight loop gated only by
- * g_nFrameSkipCountdown_0049d760/g_nFrameSkip_0049d764 (or, in
+ * g_nFrameSkipCountdown/g_nFrameSkip (or, in
  * ShowVictoryScreen's case, nothing at all) -- a render-skip counter
  * for slow machines (see ReportFramesSkipped, hudmsg.c), not a clock.
  * WaitForInputKey (disk.c) polls input every iteration but never blocks
  * on real elapsed time either. On the original, CPU speed alone kept
  * this roughly watchable; on modern hardware the whole sequence burns
  * through in a handful of milliseconds. The sequence's own exit
- * condition (g_nTitleMusicSequenceStage_0049be94, set from the live
+ * condition (g_nTitleMusicSequenceStage, set from the live
  * OriginFx music playback position, see SdlServiceOriginFxMusic in
  * sdl/music.c) already ties overall duration to real audio time -- this
  * floor only paces the visible per-frame rate within that, which needed
@@ -89,14 +89,14 @@ extern void *g_pTitleMusic_005d3fa4;
  * a real-386 capture (frame-differencing pass, not spot samples) shows
  * further sparks appearing roughly every ~1-1.3s after the first,
  * becoming continuous in the last ~2.4s (the
- * g_nTitleMusicSequenceStage_0049be94 > 4 guaranteed-spawn phase)
+ * g_nTitleMusicSequenceStage > 4 guaranteed-spawn phase)
  * until the finale ignites, spanning ~6.2s total -- far more than the
  * ~11 draws (at any per-frame rate) the reference build's own
  * loopCount <= 10 cap allows. Disassembling the real MS-DOS WC2.EXE
  * (D:\MSDOS\WC2\WC2.EXE, separate from and predating this Win32 port)
  * confirms that cap is Win32-specific: DOS's equivalent loop has no
  * iteration limit in music-driven mode at all, looping unconditionally
- * until g_nTitleMusicSequenceStage_0049be94 > 4 AND every firework has
+ * until g_nTitleMusicSequenceStage > 4 AND every firework has
  * finished animating (the same exit condition already used below) --
  * the 10-frame ceiling only exists as DOS's own non-music-driven
  * fallback, exactly matching frameCount below. The reference build
@@ -114,39 +114,39 @@ void Title_Sequence(void)
     short sectionIndex;
 
     waitCount = 0;
-    g_nInterfaceEventMode_005c8d3c = 0;
-    g_pTitleMusic_005d3fa4 =
+    g_18_nInterfaceEventMode = 0;
+    g_pTitleMusic =
         FetchDiskPacketRetrying("music.r00", 19, 0);
-    g_pTitleFieldShape_00491cf8 =
+    g_pTitleFieldShape =
         FetchDiskPacketRetrying("field.v00", 1, 0);
     for (sectionIndex = 0; sectionIndex < 12; sectionIndex++) {
-        g_apTitleSections_005d3f70[sectionIndex] =
+        g_apTitleSections[sectionIndex] =
             FetchDiskPacketRetrying("title.vga",
                                     (short)(sectionIndex + 1), 0);
     }
-    g_pTitleFireworkShape_005c8f58 =
-        g_apTitleSections_005d3f70[11];
-    g_apTitleSections_005d3f70[12] =
+    g_1_pTitleFireworkShape =
+        g_apTitleSections[11];
+    g_apTitleSections[12] =
         FetchDiskPacketRetrying("title.vga", 0, 0);
     InitializeConversationViewport();
-    g_bSceneEscapeRequested_0049d4b0 = 0;
+    g_bSceneEscapeRequested = 0;
     while (1) {
-        StartMusic(g_pTitleMusic_005d3fa4);
+        StartMusic(g_pTitleMusic);
         DrawTitleOrchestra();
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        if (g_bSceneEscapeRequested != 0)
             break;
         AnimateTitleOrchestra();
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        if (g_bSceneEscapeRequested != 0)
             break;
         PlayTitleConductorCue();
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        if (g_bSceneEscapeRequested != 0)
             break;
         PushTitleOrchestraAway();
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        if (g_bSceneEscapeRequested != 0)
             break;
         sectionIndex = RevealTitleLogo();
-        if (g_nMusicDriverMode_0049be8c == 2 ||
-            g_nMusicDriverMode_0049be8c == 1) {
+        if (g_nMusicDriverMode == 2 ||
+            g_nMusicDriverMode == 1) {
 #ifdef SDL_PORT
             /* waitCount < 3 alone was enough on the original: each
              * WaitForInputKey/ServiceInputDevices call cost real time just
@@ -160,49 +160,49 @@ void Title_Sequence(void)
              * settling and the first firework, confirmed against a real-386
              * capture: youtube.com/watch?v=uz78jS1RKOU, ~00:57-01:10). Pace
              * each check for real and raise the iteration cap so it can
-             * actually cover that span; g_nTitleMusicSequenceStage_0049be94
+             * actually cover that span; g_nTitleMusicSequenceStage
              * reaching 3 remains the real exit condition, same as before --
              * this cap is only the safety net against it never doing so. */
-            while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
+            while (g_nTitleMusicSequenceStage < 3 &&
                    waitCount < 200) {
                 SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #else
-            while (g_nTitleMusicSequenceStage_0049be94 < 3 &&
+            while (g_nTitleMusicSequenceStage < 3 &&
                    waitCount < 3) {
 #endif
                 if (WaitForInputKey() != 0)
-                    g_bSceneEscapeRequested_0049d4b0 = 1;
-                if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                    g_bSceneEscapeRequested = 1;
+                if (g_bSceneEscapeRequested != 0)
                     break;
                 waitCount++;
             }
         }
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+        if (g_bSceneEscapeRequested != 0)
             break;
         ShowVictoryScreen(sectionIndex);
         break;
     }
     StopMusic(0);
     FadeViewportPaletteToColour(
-        &g_stModalSourceWindow_005d2c50,
-        g_cSecondaryViewBufferColour_0049cb4c, 1);
-    ClearViewport(&g_stModalSourceWindow_005d2c50,
-                  g_cSecondaryViewBufferColour_0049cb4c);
+        &g_2_stModalSourceWindow,
+        g_cSecondaryViewBufferColour, 1);
+    ClearViewport(&g_2_stModalSourceWindow,
+                  g_cSecondaryViewBufferColour);
     RestoreGamePalette();
     for (sectionIndex = 0; sectionIndex < 13; sectionIndex++)
-        ReleasePacketHandle(g_apTitleSections_005d3f70[sectionIndex]);
-    FreePacketAndClear(&g_pTitleFieldShape_00491cf8, 0);
-    ReleasePacketHandle(g_pTitleMusic_005d3fa4);
+        ReleasePacketHandle(g_apTitleSections[sectionIndex]);
+    FreePacketAndClear(&g_pTitleFieldShape, 0);
+    ReleasePacketHandle(g_pTitleMusic);
     ResetScreenClipToFullHeight();
 }
 
 /* Function start: 0x40809D */
 void DrawTitleSky(short planetY)
 {
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
-                      g_pTitleFieldShape_00491cf8, 0);
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 160, planetY,
-                      g_apTitleSections_005d3f70[12], 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                      g_pTitleFieldShape, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 160, planetY,
+                      g_apTitleSections[12], 0);
 }
 
 /* Function start: 0x4080DF */
@@ -213,13 +213,13 @@ void DrawTitleOrchestra(void)
     DrawTitleSky(24);
     for (actor = 0; actor < 10; actor++) {
         DrawSpriteDefault(
-            &g_stSecondaryViewBufferBlock_005d2c90,
-            g_aTitleActorMotion_00491ca8[actor].x,
-            g_aTitleActorMotion_00491ca8[actor].y,
-            g_apTitleSections_005d3f70[actor + 1], 0);
+            &g_stSecondaryViewBufferBlock,
+            g_aTitleActorMotion[actor].x,
+            g_aTitleActorMotion[actor].y,
+            g_apTitleSections[actor + 1], 0);
     }
-    PanToScreen(&g_stSecondaryViewBufferBlock_005d2c90,
-                &g_stScrViewInfo_005d21a0);
+    PanToScreen(&g_stSecondaryViewBufferBlock,
+                &g_101_stScrViewInfo);
 }
 
 /* Random-range callee from the event manager. */
@@ -237,64 +237,64 @@ void AnimateTitleOrchestra(void)
     minimumFrame = 0;
     totalFrames = 0;
     repeat = 0;
-    g_nFrameSkipCountdown_0049d760 = 1;
+    g_nFrameSkipCountdown = 1;
     do {
         for (frameNumber = minimumFrame; frameNumber < 32; frameNumber++) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
 #ifdef SDL_PORT
                 SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
                 DrawTitleSky(24);
                 for (actorIndex = 0; actorIndex < 10; actorIndex++) {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBufferBlock_005d2c90,
-                        g_aTitleActorMotion_00491ca8[actorIndex].x,
-                        g_aTitleActorMotion_00491ca8[actorIndex].y,
-                        g_apTitleSections_005d3f70[actorIndex + 1],
-                        (short)(g_apszTitleActorFrames_00491c80[actorIndex]
+                        &g_stSecondaryViewBufferBlock,
+                        g_aTitleActorMotion[actorIndex].x,
+                        g_aTitleActorMotion[actorIndex].y,
+                        g_apTitleSections[actorIndex + 1],
+                        (short)(g_apszTitleActorFrames[actorIndex]
                                     [frameNumber] - 'a'));
                 }
                 RefreshMemoryStatusOverlay();
             }
             if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0)
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 1 ||
+                g_bSceneEscapeRequested != 0)
                 return;
             totalFrames++;
         }
         minimumFrame = (short)(
             (unsigned short)RandomInRange(0, 13) + 9);
         for (frameNumber = 31; frameNumber >= minimumFrame; frameNumber--) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
 #ifdef SDL_PORT
                 SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
                 DrawTitleSky(24);
                 for (actorIndex = 0; actorIndex < 10; actorIndex++) {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBufferBlock_005d2c90,
-                        g_aTitleActorMotion_00491ca8[actorIndex].x,
-                        g_aTitleActorMotion_00491ca8[actorIndex].y,
-                        g_apTitleSections_005d3f70[actorIndex + 1],
-                        (short)(g_apszTitleActorFrames_00491c80[actorIndex]
+                        &g_stSecondaryViewBufferBlock,
+                        g_aTitleActorMotion[actorIndex].x,
+                        g_aTitleActorMotion[actorIndex].y,
+                        g_apTitleSections[actorIndex + 1],
+                        (short)(g_apszTitleActorFrames[actorIndex]
                                     [frameNumber] - 'a'));
                 }
                 RefreshMemoryStatusOverlay();
             }
             if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 1 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0)
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 1 ||
+                g_bSceneEscapeRequested != 0)
                 return;
             totalFrames++;
         }
-        if ((g_nMusicDriverMode_0049be8c == 0 ||
-             g_nMusicDriverMode_0049be8c == 3) &&
+        if ((g_nMusicDriverMode == 0 ||
+             g_nMusicDriverMode == 3) &&
             totalFrames > 30)
             return;
         repeat++;
@@ -311,107 +311,107 @@ void PlayTitleConductorCue(void)
     short actor;
 
     repeat = 0;
-    g_nFrameSkipCountdown_0049d760 = 1;
+    g_nFrameSkipCountdown = 1;
     for (cueNumber = 0; cueNumber < 20; cueNumber++) {
-        if (g_szTitleConductorFrames_00491c68[cueNumber] == 'p') {
-            if (g_nMusicDriverMode_0049be8c == 2)
-                g_nFrameSkipCountdown_0049d760 = 1;
-            else if (g_nMusicDriverMode_0049be8c == 1)
-                g_nFrameSkipCountdown_0049d760 = 1;
-        } else if (g_szTitleConductorFrames_00491c68[cueNumber] == 'q') {
-            if (g_nMusicDriverMode_0049be8c == 2)
-                g_nFrameSkipCountdown_0049d760 = 1;
-            else if (g_nMusicDriverMode_0049be8c == 1)
-                g_nFrameSkipCountdown_0049d760 = 1;
+        if (g_szTitleConductorFrames[cueNumber] == 'p') {
+            if (g_nMusicDriverMode == 2)
+                g_nFrameSkipCountdown = 1;
+            else if (g_nMusicDriverMode == 1)
+                g_nFrameSkipCountdown = 1;
+        } else if (g_szTitleConductorFrames[cueNumber] == 'q') {
+            if (g_nMusicDriverMode == 2)
+                g_nFrameSkipCountdown = 1;
+            else if (g_nMusicDriverMode == 1)
+                g_nFrameSkipCountdown = 1;
         }
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+        g_nFrameSkipCountdown--;
+        if (g_nFrameSkipCountdown < 1) {
+            g_nFrameSkipCountdown = g_nFrameSkip;
 #ifdef SDL_PORT
             SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
             DrawTitleSky(24);
             for (actor = 0; actor < 9; actor++) {
                 DrawSpriteDefault(
-                    &g_stSecondaryViewBufferBlock_005d2c90,
-                    g_aTitleActorMotion_00491ca8[actor].x,
-                    g_aTitleActorMotion_00491ca8[actor].y,
-                    g_apTitleSections_005d3f70[actor + 1],
-                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
+                    &g_stSecondaryViewBufferBlock,
+                    g_aTitleActorMotion[actor].x,
+                    g_aTitleActorMotion[actor].y,
+                    g_apTitleSections[actor + 1],
+                    (short)(g_apszTitleActorFrames[actor][31]
                                 - 'a'));
             }
             DrawSpriteDefault(
-                &g_stSecondaryViewBufferBlock_005d2c90,
-                g_aTitleActorMotion_00491ca8[9].x,
-                g_aTitleActorMotion_00491ca8[9].y,
-                g_apTitleSections_005d3f70[10],
-                (short)(g_szTitleConductorFrames_00491c68[cueNumber] - 'a'));
+                &g_stSecondaryViewBufferBlock,
+                g_aTitleActorMotion[9].x,
+                g_aTitleActorMotion[9].y,
+                g_apTitleSections[10],
+                (short)(g_szTitleConductorFrames[cueNumber] - 'a'));
             RefreshMemoryStatusOverlay();
         }
         if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
             return;
     }
 
     DrawTitleSky(24);
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[0].x,
-        g_aTitleActorMotion_00491ca8[0].y,
-        g_apTitleSections_005d3f70[1],
-        (short)(g_apszTitleActorFrames_00491c80[0][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[1].x,
-        g_aTitleActorMotion_00491ca8[1].y,
-        g_apTitleSections_005d3f70[2],
-        (short)(g_apszTitleActorFrames_00491c80[1][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[2].x,
-        g_aTitleActorMotion_00491ca8[2].y,
-        g_apTitleSections_005d3f70[3],
-        (short)(g_apszTitleActorFrames_00491c80[2][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[3].x,
-        g_aTitleActorMotion_00491ca8[3].y,
-        g_apTitleSections_005d3f70[4],
-        (short)(g_apszTitleActorFrames_00491c80[3][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[4].x,
-        g_aTitleActorMotion_00491ca8[4].y,
-        g_apTitleSections_005d3f70[5],
-        (short)(g_apszTitleActorFrames_00491c80[4][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[5].x,
-        g_aTitleActorMotion_00491ca8[5].y,
-        g_apTitleSections_005d3f70[6],
-        (short)(g_apszTitleActorFrames_00491c80[5][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[6].x,
-        g_aTitleActorMotion_00491ca8[6].y,
-        g_apTitleSections_005d3f70[7],
-        (short)(g_apszTitleActorFrames_00491c80[6][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[7].x,
-        g_aTitleActorMotion_00491ca8[7].y,
-        g_apTitleSections_005d3f70[8],
-        (short)(g_apszTitleActorFrames_00491c80[7][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[8].x,
-        g_aTitleActorMotion_00491ca8[8].y,
-        g_apTitleSections_005d3f70[9],
-        (short)(g_apszTitleActorFrames_00491c80[8][31] - 'a'));
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
-        g_aTitleActorMotion_00491ca8[9].x,
-        g_aTitleActorMotion_00491ca8[9].y,
-        g_apTitleSections_005d3f70[10],
-        (short)(g_szTitleConductorFrames_00491c68[20] - 'a'));
-    if (g_nMusicDriverMode_0049be8c == 2 ||
-        g_nMusicDriverMode_0049be8c == 1) {
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[0].x,
+        g_aTitleActorMotion[0].y,
+        g_apTitleSections[1],
+        (short)(g_apszTitleActorFrames[0][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[1].x,
+        g_aTitleActorMotion[1].y,
+        g_apTitleSections[2],
+        (short)(g_apszTitleActorFrames[1][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[2].x,
+        g_aTitleActorMotion[2].y,
+        g_apTitleSections[3],
+        (short)(g_apszTitleActorFrames[2][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[3].x,
+        g_aTitleActorMotion[3].y,
+        g_apTitleSections[4],
+        (short)(g_apszTitleActorFrames[3][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[4].x,
+        g_aTitleActorMotion[4].y,
+        g_apTitleSections[5],
+        (short)(g_apszTitleActorFrames[4][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[5].x,
+        g_aTitleActorMotion[5].y,
+        g_apTitleSections[6],
+        (short)(g_apszTitleActorFrames[5][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[6].x,
+        g_aTitleActorMotion[6].y,
+        g_apTitleSections[7],
+        (short)(g_apszTitleActorFrames[6][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[7].x,
+        g_aTitleActorMotion[7].y,
+        g_apTitleSections[8],
+        (short)(g_apszTitleActorFrames[7][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[8].x,
+        g_aTitleActorMotion[8].y,
+        g_apTitleSections[9],
+        (short)(g_apszTitleActorFrames[8][31] - 'a'));
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
+        g_aTitleActorMotion[9].x,
+        g_aTitleActorMotion[9].y,
+        g_apTitleSections[10],
+        (short)(g_szTitleConductorFrames[20] - 'a'));
+    if (g_nMusicDriverMode == 2 ||
+        g_nMusicDriverMode == 1) {
         do {
             if (WaitForInputKey() != 0)
-                g_bSceneEscapeRequested_0049d4b0 = 1;
-            if (g_nTitleMusicSequenceStage_0049be94 >= 2 ||
-                g_bSceneEscapeRequested_0049d4b0 != 0) {
+                g_bSceneEscapeRequested = 1;
+            if (g_nTitleMusicSequenceStage >= 2 ||
+                g_bSceneEscapeRequested != 0) {
                 RefreshMemoryStatusOverlay();
                 break;
             }
@@ -428,15 +428,15 @@ void DrawScaledTitleLogo(short y, short scale)
     short bounds[4];
 
     GetTransformedShapeBounds(
-        &g_stSecondaryViewBufferBlock_005d2c90, 162, y,
-        g_apTitleSections_005d3f70[0], 1, 0, scale, 0, bounds);
-    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90, bounds[0], y,
-                     g_apTitleSections_005d3f70[0], 0, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90, 163, y,
-                     g_apTitleSections_005d3f70[0], 1, 0, scale, 0);
-    DrawSpriteScaled(&g_stSecondaryViewBufferBlock_005d2c90,
+        &g_stSecondaryViewBufferBlock, 162, y,
+        g_apTitleSections[0], 1, 0, scale, 0, bounds);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock, bounds[0], y,
+                     g_apTitleSections[0], 0, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock, 163, y,
+                     g_apTitleSections[0], 1, 0, scale, 0);
+    DrawSpriteScaled(&g_stSecondaryViewBufferBlock,
                      (short)(bounds[2] + 1), y,
-                     g_apTitleSections_005d3f70[0], 2, 0, scale, 0);
+                     g_apTitleSections[0], 2, 0, scale, 0);
 }
 
 /* Function start: 0x4088A9 */
@@ -447,50 +447,50 @@ void PushTitleOrchestraAway(void)
     short actor;
     short step;
 
-    g_nFrameSkipCountdown_0049d760 = 1;
+    g_nFrameSkipCountdown = 1;
     for (step = 1; step < 120;
          step = (short)(step + step / 4 + 1)) {
-        g_nFrameSkipCountdown_0049d760--;
-        if (g_nFrameSkipCountdown_0049d760 < 1) {
-            g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+        g_nFrameSkipCountdown--;
+        if (g_nFrameSkipCountdown < 1) {
+            g_nFrameSkipCountdown = g_nFrameSkip;
 #ifdef SDL_PORT
             SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
             DrawTitleSky(24);
             for (actor = 0; actor < 9; actor++) {
-                x = (short)(g_aTitleActorMotion_00491ca8[actor].x +
-                    g_aTitleActorMotion_00491ca8[actor].velocityX *
+                x = (short)(g_aTitleActorMotion[actor].x +
+                    g_aTitleActorMotion[actor].velocityX *
                         step);
-                y = (short)(g_aTitleActorMotion_00491ca8[actor].y +
-                    g_aTitleActorMotion_00491ca8[actor].velocityY *
+                y = (short)(g_aTitleActorMotion[actor].y +
+                    g_aTitleActorMotion[actor].velocityY *
                         step);
                 DrawSpriteScaled(
-                    &g_stSecondaryViewBufferBlock_005d2c90, x, y,
-                    g_apTitleSections_005d3f70[actor + 1],
-                    (short)(g_apszTitleActorFrames_00491c80[actor][31]
+                    &g_stSecondaryViewBufferBlock, x, y,
+                    g_apTitleSections[actor + 1],
+                    (short)(g_apszTitleActorFrames[actor][31]
                                 - 'a'),
                     0,
-                    (short)(g_aTitleActorMotion_00491ca8[actor].velocityY *
+                    (short)(g_aTitleActorMotion[actor].velocityY *
                                 step * 4 + 0x100),
                     0);
             }
-            x = (short)(g_aTitleActorMotion_00491ca8[9].x +
-                g_aTitleActorMotion_00491ca8[9].velocityX * step);
-            y = (short)(g_aTitleActorMotion_00491ca8[9].y +
-                g_aTitleActorMotion_00491ca8[9].velocityY * step);
+            x = (short)(g_aTitleActorMotion[9].x +
+                g_aTitleActorMotion[9].velocityX * step);
+            y = (short)(g_aTitleActorMotion[9].y +
+                g_aTitleActorMotion[9].velocityY * step);
             DrawSpriteScaled(
-                &g_stSecondaryViewBufferBlock_005d2c90, x, y,
-                g_apTitleSections_005d3f70[10],
-                (short)(g_szTitleConductorFrames_00491c68[21] - 'a'),
+                &g_stSecondaryViewBufferBlock, x, y,
+                g_apTitleSections[10],
+                (short)(g_szTitleConductorFrames[21] - 'a'),
                 0,
-                (short)(g_aTitleActorMotion_00491ca8[9].velocityY *
+                (short)(g_aTitleActorMotion[9].velocityY *
                             step * 4 + 0x100),
                 0);
             RefreshMemoryStatusOverlay();
         }
         if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
             break;
     }
 }
@@ -512,7 +512,7 @@ short RevealTitleLogo(void)
     aborted = 0;
     logoCovers = 0;
     titleY = 59;
-    g_nFrameSkipCountdown_0049d760 = 1;
+    g_nFrameSkipCountdown = 1;
     distance = 5000;
     planetDelay = 0;
     logoTimer = 0;
@@ -534,44 +534,44 @@ short RevealTitleLogo(void)
             logoTimer = 100;
         }
         if (redraw != 0) {
-            g_nFrameSkipCountdown_0049d760--;
-            if (g_nFrameSkipCountdown_0049d760 < 1) {
-                g_nFrameSkipCountdown_0049d760 = g_nFrameSkip_0049d764;
+            g_nFrameSkipCountdown--;
+            if (g_nFrameSkipCountdown < 1) {
+                g_nFrameSkipCountdown = g_nFrameSkip;
 #ifdef SDL_PORT
                 SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
-                DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90,
+                DrawSpriteDefault(&g_stSecondaryViewBufferBlock,
                                   0, 0,
-                                  g_pTitleFieldShape_00491cf8, 0);
+                                  g_pTitleFieldShape, 0);
                 GetTransformedShapeBounds(
-                    &g_stSecondaryViewBufferBlock_005d2c90, 162, titleY,
-                    g_apTitleSections_005d3f70[0], 1, 0,
+                    &g_stSecondaryViewBufferBlock, 162, titleY,
+                    g_apTitleSections[0], 1, 0,
                     scale, 0, extent);
                 if (extent[3] < planetY)
                     logoCovers = 1;
                 if (logoCovers == 0) {
                     DrawScaledTitleLogo(titleY, scale);
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBufferBlock_005d2c90,
+                        &g_stSecondaryViewBufferBlock,
                         160, planetY,
-                        g_apTitleSections_005d3f70[12], 0);
+                        g_apTitleSections[12], 0);
                 } else {
                     DrawSpriteDefault(
-                        &g_stSecondaryViewBufferBlock_005d2c90,
+                        &g_stSecondaryViewBufferBlock,
                         160, planetY,
-                        g_apTitleSections_005d3f70[12], 0);
+                        g_apTitleSections[12], 0);
                     DrawScaledTitleLogo(titleY, scale);
                 }
                 RefreshMemoryStatusOverlay();
             }
         }
         if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
             return titleY;
     }
-    DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
-                      g_pTitleFieldShape_00491cf8, 0);
+    DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                      g_pTitleFieldShape, 0);
     DrawScaledTitleLogo(titleY, scale);
     RefreshMemoryStatusOverlay();
     return titleY;
@@ -595,9 +595,9 @@ void ShowVictoryScreen(short logoY)
     InitializeFireworks();
     do {
         if (fadeOut == 0) {
-            if (g_nMusicDriverMode_0049be8c == 2 ||
-                g_nMusicDriverMode_0049be8c == 1) {
-                if (g_nTitleMusicSequenceStage_0049be94 >= 4) {
+            if (g_nMusicDriverMode == 2 ||
+                g_nMusicDriverMode == 1) {
+                if (g_nTitleMusicSequenceStage >= 4) {
                     spawnFirework = (short)(
                         (unsigned short)RandomInRange(0, 0) == 0);
                 } else {
@@ -611,13 +611,13 @@ void ShowVictoryScreen(short logoY)
         }
         if (spawnFirework != 0 && fadeOut == 0) {
             for (firework = 0; firework < 5; firework++) {
-                if (g_aFireworks_005c8df0[firework].frame == -1) {
-                    g_aFireworks_005c8df0[firework].frame = 0;
-                    g_aFireworks_005c8df0[firework].x =
+                if (g_16_aFireworks[firework].frame == -1) {
+                    g_16_aFireworks[firework].frame = 0;
+                    g_16_aFireworks[firework].x =
                         RandomInRange(0, 319);
-                    g_aFireworks_005c8df0[firework].y =
+                    g_16_aFireworks[firework].y =
                         RandomInRange(0, 127);
-                    g_aFireworks_005c8df0[firework].variant =
+                    g_16_aFireworks[firework].variant =
                         RandomInRange(0, 2);
                     break;
                 }
@@ -631,25 +631,25 @@ void ShowVictoryScreen(short logoY)
          * slowing each individual draw down. */
         SdlPaceTitleFrame(TITLE_FRAME_TICKS);
 #endif
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
-                          g_pTitleFieldShape_00491cf8, 0);
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                          g_pTitleFieldShape, 0);
         inactive = TheEndFireWorks(
-            &g_stSecondaryViewBufferBlock_005d2c90, 5);
+            &g_stSecondaryViewBufferBlock, 5);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         frameCount++;
         if (fadeOut == 1 && inactive == 5)
             break;
-        if (g_nMusicDriverMode_0049be8c == 2 ||
-            g_nMusicDriverMode_0049be8c == 1) {
-            if (g_nTitleMusicSequenceStage_0049be94 >= 5)
+        if (g_nMusicDriverMode == 2 ||
+            g_nMusicDriverMode == 1) {
+            if (g_nTitleMusicSequenceStage >= 5)
                 fadeOut = 1;
         } else if (frameCount > 10) {
             fadeOut = 1;
         }
         if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
             return;
         loopCount++;
 #ifndef SDL_PORT
@@ -666,45 +666,45 @@ void ShowVictoryScreen(short logoY)
     } while (1);
 
     for (firework = 0; firework < 29; firework++) {
-        g_aFireworks_005c8df0[firework].frame = 0;
-        g_aFireworks_005c8df0[firework].x = RandomInRange(0, 319);
-        g_aFireworks_005c8df0[firework].y = RandomInRange(0, 127);
-        g_aFireworks_005c8df0[firework].variant = RandomInRange(0, 2);
+        g_16_aFireworks[firework].frame = 0;
+        g_16_aFireworks[firework].x = RandomInRange(0, 319);
+        g_16_aFireworks[firework].y = RandomInRange(0, 127);
+        g_16_aFireworks[firework].variant = RandomInRange(0, 2);
     }
     inactive = 0;
     finalEmptyCount = 0;
     while (inactive != 30) {
         finalEmptyCount++;
         if (finalEmptyCount == 4) {
-            g_aFireworks_005c8df0[29].frame = 0;
-            g_aFireworks_005c8df0[29].x = RandomInRange(0, 319);
-            g_aFireworks_005c8df0[29].y = RandomInRange(0, 127);
-            g_aFireworks_005c8df0[29].variant = RandomInRange(0, 2);
+            g_16_aFireworks[29].frame = 0;
+            g_16_aFireworks[29].x = RandomInRange(0, 319);
+            g_16_aFireworks[29].y = RandomInRange(0, 127);
+            g_16_aFireworks[29].variant = RandomInRange(0, 2);
         }
 #ifdef SDL_PORT
         SdlPaceTitleFrame(TITLE_FIREWORKS_TICKS);
 #endif
-        DrawSpriteDefault(&g_stSecondaryViewBufferBlock_005d2c90, 0, 0,
-                          g_pTitleFieldShape_00491cf8, 0);
+        DrawSpriteDefault(&g_stSecondaryViewBufferBlock, 0, 0,
+                          g_pTitleFieldShape, 0);
         inactive = TheEndFireWorks(
-            &g_stSecondaryViewBufferBlock_005d2c90, 30);
+            &g_stSecondaryViewBufferBlock, 30);
         DrawScaledTitleLogo(logoY, 0x100);
         RefreshMemoryStatusOverlay();
         if (WaitForInputKey() != 0)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
-        if (g_bSceneEscapeRequested_0049d4b0 != 0)
+            g_bSceneEscapeRequested = 1;
+        if (g_bSceneEscapeRequested != 0)
             return;
     }
 
     for (firework = 29; firework >= 0; firework--) {
-        if (g_aFireworks_005c8df0[firework].frame != -1) {
+        if (g_16_aFireworks[firework].frame != -1) {
             ((void (__cdecl *)(int, short))FlushSoundEffect)(
-                g_aFireworks_005c8df0[firework].soundHandle, firework);
+                g_16_aFireworks[firework].soundHandle, firework);
         }
     }
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-unsigned char *g_apTitleSections_005d3f70[13];
-void *g_pTitleMusic_005d3fa4;
+unsigned char *g_apTitleSections[13]; /* 0x005d3f70 */
+void *g_pTitleMusic; /* 0x005d3fa4 */

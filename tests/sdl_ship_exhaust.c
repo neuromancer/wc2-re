@@ -44,36 +44,36 @@ int main(void)
     float enhancedY;
     unsigned int test;
 
-    memset(&g_aObjectTypeData_00496d30[OBJECT_DATA_THRUSTERS], 0,
-           sizeof(g_aObjectTypeData_00496d30[OBJECT_DATA_THRUSTERS]));
-    g_aObjectTypeData_00496d30[OBJECT_DATA_THRUSTERS].objectClass =
+    memset(&g_aObjectTypeData[OBJECT_DATA_THRUSTERS], 0,
+           sizeof(g_aObjectTypeData[OBJECT_DATA_THRUSTERS]));
+    g_aObjectTypeData[OBJECT_DATA_THRUSTERS].objectClass =
         OBJECT_CLASS_FIXED_OBJECT;
-    g_aObjectTypeData_00496d30[OBJECT_DATA_THRUSTERS].field_18 =
+    g_aObjectTypeData[OBJECT_DATA_THRUSTERS].field_18 =
         OBJECT_DATA_THRUSTERS;
-    g_apObjectExhaustShape_004953b8[ship] = (unsigned char *)animation;
-    g_anShipSpeed_00494e20[ship] = 100;
-    g_acShipExhaustHeat_00495660[ship] = 1;
-    g_aeSpecialManeuver_00495600[ship] = SPECIAL_MANEUVER_NONE;
-    g_nScreenWidth_0049d4d8 = 320;
-    g_nStoredScreenViewCentreX_005c80d8 = 160;
-    g_nViewCenterY_005c80da = 100;
+    g_apObjectExhaustShape[ship] = (unsigned char *)animation;
+    g_anShipSpeed[ship] = 100;
+    g_acShipExhaustHeat[ship] = 1;
+    g_aeSpecialManeuver[ship] = SPECIAL_MANEUVER_NONE;
+    g_nScreenWidth = 320;
+    g_15_nStoredScreenViewCentreX = 160;
+    g_37_nViewCenterY = 100;
     for (test = 0; test < sizeof(cases) / sizeof(cases[0]); test++) {
         for (object = 0; object < SPACE_OBJECT_COUNT; object++)
-            g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
-        g_aeObjectClass_00495328[ship] = cases[test].objectClass;
-        g_asObjectType_00495298[ship] = cases[test].objectType;
-        g_bExpandedShipGraphicsEnabled_004931a4 = cases[test].expandedGraphics;
-        g_asObjectViewFrame_00493508[ship] = cases[test].spriteFrame;
-        g_asLoadedShipViewFrame_00495d18[ship] = cases[test].loadedFrame;
-        g_asObjectScreenX_00493598[ship] = 80;
-        g_asObjectScreenY_00493628[ship] = -40;
-        g_asObjectDistance_00493ae8[ship] = 500;
-        g_asObjectScreenScale_00493a58[ship] = 512;
-        g_asObjectScreenAngle_004936b8[ship] = 90;
-        g_asObjectFlip_004939c8[ship] = 0x20;
-        g_aObjectViewPosition_0059afa0[ship].x = 0x10000;
-        g_aObjectViewPosition_0059afa0[ship].y = -0x8000;
-        g_aObjectViewPosition_0059afa0[ship].z = 0x20000;
+            g_aeObjectClass[object] = OBJECT_CLASS_NULL;
+        g_aeObjectClass[ship] = cases[test].objectClass;
+        g_asObjectType[ship] = cases[test].objectType;
+        g_bExpandedShipGraphicsEnabled = cases[test].expandedGraphics;
+        g_asObjectViewFrame[ship] = cases[test].spriteFrame;
+        g_asLoadedShipViewFrame[ship] = cases[test].loadedFrame;
+        g_asObjectScreenX[ship] = 80;
+        g_asObjectScreenY[ship] = -40;
+        g_asObjectDistance[ship] = 500;
+        g_asObjectScreenScale[ship] = 512;
+        g_asObjectScreenAngle[ship] = 90;
+        g_asObjectFlip[ship] = 0x20;
+        g_aObjectViewPosition[ship].x = 0x10000;
+        g_aObjectViewPosition[ship].y = -0x8000;
+        g_aObjectViewPosition[ship].z = 0x20000;
 
         place_exhaust_on_ships();
         if (cases[test].expectedFrame >= 2) {
@@ -90,11 +90,11 @@ int main(void)
         expectedDistance = cases[test].expectedFrame == 0 ? 490 : 510;
         expectedSpriteFrame = cases[test].expectedFrame == 0 ? 12 : 14;
         if (find_child_object(ship, OBJECT_CLASS_FIXED_OBJECT) != exhaust ||
-            g_asObjectScreenX_00493598[exhaust] != expectedX ||
-            g_asObjectScreenY_00493628[exhaust] != expectedY ||
-            g_asObjectScreenAngle_004936b8[exhaust] != expectedAngle ||
-            g_asObjectViewFrame_00493508[exhaust] < expectedSpriteFrame ||
-            g_asObjectViewFrame_00493508[exhaust] > expectedSpriteFrame + 1) {
+            g_asObjectScreenX[exhaust] != expectedX ||
+            g_asObjectScreenY[exhaust] != expectedY ||
+            g_asObjectScreenAngle[exhaust] != expectedAngle ||
+            g_asObjectViewFrame[exhaust] < expectedSpriteFrame ||
+            g_asObjectViewFrame[exhaust] > expectedSpriteFrame + 1) {
             fprintf(stderr, "exhaust case %u: attachment uses the wrong ship view\n",
                     test);
             return 1;
@@ -107,12 +107,12 @@ int main(void)
         expectedX = cases[test].expectedFrame == 0 ? 248 : 216;
         expectedY = cases[test].expectedFrame == 0 ? 12 : 100;
         SdlGetThrusterScreenPosition(exhaust, &enhancedX, &enhancedY);
-        if (g_asObjectScreenX_00493598[exhaust] +
-                g_nStoredScreenViewCentreX_005c80d8 != expectedX ||
-            g_asObjectScreenY_00493628[exhaust] +
-                g_nViewCenterY_005c80da != expectedY ||
+        if (g_asObjectScreenX[exhaust] +
+                g_15_nStoredScreenViewCentreX != expectedX ||
+            g_asObjectScreenY[exhaust] +
+                g_37_nViewCenterY != expectedY ||
             enhancedX != expectedX || enhancedY != expectedY ||
-            g_asObjectDistance_00493ae8[exhaust] != expectedDistance) {
+            g_asObjectDistance[exhaust] != expectedDistance) {
             fprintf(stderr, "exhaust case %u: attachment did not follow the ship\n",
                     test);
             return 1;
@@ -120,24 +120,24 @@ int main(void)
 
         /* On the next frame the ship moves and unrolls. Reuse the exhaust
          * slot, as the flight renderer does, and retain its subpixel anchor. */
-        g_aeObjectClass_00495328[exhaust] = OBJECT_CLASS_NULL;
-        g_asObjectScreenX_00493598[ship] = 40;
-        g_asObjectScreenY_00493628[ship] = 20;
-        g_asObjectScreenAngle_004936b8[ship] = 0;
-        g_asObjectFlip_004939c8[ship] = 0;
-        g_aObjectViewPosition_0059afa0[ship].x = 0x8100;
-        g_aObjectViewPosition_0059afa0[ship].y = 0x4100;
+        g_aeObjectClass[exhaust] = OBJECT_CLASS_NULL;
+        g_asObjectScreenX[ship] = 40;
+        g_asObjectScreenY[ship] = 20;
+        g_asObjectScreenAngle[ship] = 0;
+        g_asObjectFlip[ship] = 0;
+        g_aObjectViewPosition[ship].x = 0x8100;
+        g_aObjectViewPosition[ship].y = 0x4100;
         place_exhaust_on_ships();
         reposition_fixed_child_objects();
         expectedX = cases[test].expectedFrame == 0 ? 152 : 240;
         expectedY = cases[test].expectedFrame == 0 ? 128 : 96;
         expectedAngle = cases[test].expectedFrame == 0 ? 0 : 90;
         SdlGetThrusterScreenPosition(exhaust, &enhancedX, &enhancedY);
-        if (g_asObjectScreenX_00493598[exhaust] +
-                g_nStoredScreenViewCentreX_005c80d8 != expectedX ||
-            g_asObjectScreenY_00493628[exhaust] +
-                g_nViewCenterY_005c80da != expectedY ||
-            g_asObjectScreenAngle_004936b8[exhaust] != expectedAngle ||
+        if (g_asObjectScreenX[exhaust] +
+                g_15_nStoredScreenViewCentreX != expectedX ||
+            g_asObjectScreenY[exhaust] +
+                g_37_nViewCenterY != expectedY ||
+            g_asObjectScreenAngle[exhaust] != expectedAngle ||
             enhancedX != expectedX + 0.3125f ||
             enhancedY != expectedY + 0.3125f) {
             fprintf(stderr, "exhaust case %u: attachment retained its old transform\n",

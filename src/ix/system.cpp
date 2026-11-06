@@ -11,33 +11,33 @@
 #include "ix.h"
 #include <memory.h>
 
-unsigned int g_dwIxSystemBits_005c4b1c;
-IxSound *g_pFreeSoundHead_005c4b20;
-IxSample *g_pSampleList_005c4b24;
-int g_nActiveVoices_005c4b28;
-int g_nSystemVoiceCount_005c4b2c;
-IxSound *g_pActiveSoundList_005c4b30;
-IxSound *g_pWaitingSoundList_005c4b34;
+unsigned int g_dwIxSystemBits; /* 0x005c4b1c */
+IxSound *g_1_pFreeSoundHead; /* 0x005c4b20 */
+IxSample *g_7_pSampleList; /* 0x005c4b24 */
+int g_nActiveVoices; /* 0x005c4b28 */
+int g_nSystemVoiceCount; /* 0x005c4b2c */
+IxSound *g_1_pActiveSoundList; /* 0x005c4b30 */
+IxSound *g_1_pWaitingSoundList; /* 0x005c4b34 */
 
 #define IX_SYSTEM_FILE "D:\\Rnd\\prj\\ix\\src\\sound\\system.cpp"
 
 /* Function start: 0x469C80 */   /* source line 33 */
 extern "C" int ix_system_init(void)
 {
-    if ((g_dwIxSystemBits_005c4b1c & 1) == 0) {
+    if ((g_dwIxSystemBits & 1) == 0) {
         if (ix_dsp_init() != 0) {
             ix_log_printf("Warning [%s - %d]:\n", IX_SYSTEM_FILE, 33);
             ix_log_printf("Failed to init DSP");
             return -1;
         }
-        g_nActiveVoices_005c4b28 = 0;
-        g_nSystemVoiceCount_005c4b2c = ix_dsp_get_voice_count();
-        g_pWaitingSoundList_005c4b34 = 0;
-        g_pActiveSoundList_005c4b30 = g_pWaitingSoundList_005c4b34;
-        g_pFreeSoundHead_005c4b20 = g_pActiveSoundList_005c4b30;
-        g_pSampleList_005c4b24 = 0;
+        g_nActiveVoices = 0;
+        g_nSystemVoiceCount = ix_dsp_get_voice_count();
+        g_1_pWaitingSoundList = 0;
+        g_1_pActiveSoundList = g_1_pWaitingSoundList;
+        g_1_pFreeSoundHead = g_1_pActiveSoundList;
+        g_7_pSampleList = 0;
         ix_system_set_master_volume(0xffff);
-        g_dwIxSystemBits_005c4b1c |= 1;
+        g_dwIxSystemBits |= 1;
     }
     return 0;
 }
@@ -45,8 +45,8 @@ extern "C" int ix_system_init(void)
 /* Function start: 0x469D27 */
 extern "C" void ix_system_service_sounds(void)
 {
-    if (g_pWaitingSoundList_005c4b34 != 0) {
-        IxSound *sound = g_pWaitingSoundList_005c4b34;
+    if (g_1_pWaitingSoundList != 0) {
+        IxSound *sound = g_1_pWaitingSoundList;
         unsigned int now = ix_dsp_get_tick();
 
         while (sound != 0) {
@@ -59,8 +59,8 @@ extern "C" void ix_system_service_sounds(void)
         }
     }
 
-    if (g_pActiveSoundList_005c4b30 != 0) {
-        IxSound *sound = g_pActiveSoundList_005c4b30;
+    if (g_1_pActiveSoundList != 0) {
+        IxSound *sound = g_1_pActiveSoundList;
 
         while (sound != 0) {
             IxSound *next = sound->next;
@@ -92,11 +92,11 @@ extern "C" void ix_system_service_sounds(void)
 /* Function start: 0x469E73 */
 extern "C" void ix_system_shutdown(void)
 {
-    if ((g_dwIxSystemBits_005c4b1c & 1) != 0) {
+    if ((g_dwIxSystemBits & 1) != 0) {
         ix_system_delete_all_sounds();
         ix_system_delete_all_samples();
         ix_dsp_shutdown();
-        g_dwIxSystemBits_005c4b1c &= ~1U;
+        g_dwIxSystemBits &= ~1U;
     }
 }
 
@@ -121,18 +121,18 @@ extern "C" void ix_system_set_master_volume(unsigned short volume)
 /* Function start: 0x469EF7 */
 extern "C" int ix_system_get_voice_count(void)
 {
-    return g_nSystemVoiceCount_005c4b2c;
+    return g_nSystemVoiceCount;
 }
 
 /* Function start: 0x469F0C */   /* source line 137 */
 extern "C" void ix_system_set_voice_count(int voiceCount)
 {
-    if (g_nActiveVoices_005c4b28 != 0) {
+    if (g_nActiveVoices != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SYSTEM_FILE, 137);
         ix_log_printf("Not a good ideal to change the number of voices while some are playing.");
     }
     ix_dsp_set_voice_count(voiceCount);
-    g_nSystemVoiceCount_005c4b2c = ix_dsp_get_voice_count();
+    g_nSystemVoiceCount = ix_dsp_get_voice_count();
 }
 
 /* Function start: 0x469F63 */
@@ -140,7 +140,7 @@ extern "C" IxSample *ix_system_new_sample(void)
 {
     IxSample *sample;
 
-    sample = (IxSample *)g_pIxMalloc_004a0c18(sizeof(IxSample));
+    sample = (IxSample *)g_pIxMalloc(sizeof(IxSample));
     if (sample != 0)
         sample->ix_sample_construct();
     return sample;
@@ -151,7 +151,7 @@ extern "C" void ix_system_delete_sample(IxSample *sample)
 {
     if (sample != 0) {
         sample->ix_sample_destruct();
-        g_pIxFree_004a0c1c(sample);
+        g_pIxFree(sample);
     }
 }
 
@@ -161,7 +161,7 @@ extern "C" void ix_system_delete_all_samples(void)
     IxSample *sample;
     IxSample *next;
 
-    sample = g_pSampleList_005c4b24;
+    sample = g_7_pSampleList;
     while (sample != 0) {
         next = sample->next;
         ix_system_delete_sample(sample);
@@ -174,7 +174,7 @@ extern "C" IxSound *ix_system_new_sound(IxSample *sample)
 {
     IxSound *sound;
 
-    sound = (IxSound *)g_pIxMalloc_004a0c18(sizeof(IxSound));
+    sound = (IxSound *)g_pIxMalloc(sizeof(IxSound));
     if (sound != 0)
         sound->ix_system_sound_construct_centred(sample);
     return sound;
@@ -189,7 +189,7 @@ extern "C" void ix_system_delete_sound(IxSound *sound)
             ix_sound_stop(sound);
         }
         sound->ix_sound_unlink_from_free_list();
-        g_pIxFree_004a0c1c(sound);
+        g_pIxFree(sound);
     }
 }
 
@@ -202,15 +202,15 @@ extern "C" int ix_sound_is_live(const IxSound *sound)
 
     if (sound == 0)
         return 0;
-    for (walk = g_pActiveSoundList_005c4b30; walk != 0; walk = walk->next) {
+    for (walk = g_1_pActiveSoundList; walk != 0; walk = walk->next) {
         if (walk == sound)
             return 1;
     }
-    for (walk = g_pWaitingSoundList_005c4b34; walk != 0; walk = walk->next) {
+    for (walk = g_1_pWaitingSoundList; walk != 0; walk = walk->next) {
         if (walk == sound)
             return 1;
     }
-    for (walk = g_pFreeSoundHead_005c4b20; walk != 0; walk = walk->next) {
+    for (walk = g_1_pFreeSoundHead; walk != 0; walk = walk->next) {
         if (walk == sound)
             return 1;
     }
@@ -226,19 +226,19 @@ extern "C" void ix_system_delete_all_sounds(void)
     IxSound *waitingNext;
     IxSound *freeNext;
 
-    current = g_pActiveSoundList_005c4b30;
+    current = g_1_pActiveSoundList;
     while (current != 0) {
         activeNext = current->next;
         ix_system_delete_sound(current);
         current = activeNext;
     }
-    current = g_pWaitingSoundList_005c4b34;
+    current = g_1_pWaitingSoundList;
     while (current != 0) {
         waitingNext = current->next;
         ix_system_delete_sound(current);
         current = waitingNext;
     }
-    current = g_pFreeSoundHead_005c4b20;
+    current = g_1_pFreeSoundHead;
     while (current != 0) {
         freeNext = current->next;
         ix_system_delete_sound(current);
@@ -254,7 +254,7 @@ int ix_system_release_voice(IxSound *sound)
     ix_dspv_clear_active(voice);
     sound->voice = -1;
     sound->flags &= ~IX_SOUND_HAS_VOICE;
-    g_nActiveVoices_005c4b28--;
+    g_nActiveVoices--;
     return voice;
 }
 
@@ -305,7 +305,7 @@ void ix_system_assign_voice(IxSound *sound, int voice)
     sound->flags &= ~(IX_SOUND_VOLUME_DIRTY |
                       IX_SOUND_FREQUENCY_DIRTY |
                       IX_SOUND_PAN_DIRTY);
-    g_nActiveVoices_005c4b28++;
+    g_nActiveVoices++;
 }
 
 /* Function start: 0x46A3A1 */
@@ -345,7 +345,7 @@ int ix_system_find_free_voice(void)
 {
     int voice = 0;
 
-    while (voice < g_nSystemVoiceCount_005c4b2c) {
+    while (voice < g_nSystemVoiceCount) {
         if ((ix_dspv_get_flags(voice) & IX_VOICE_ACTIVE) == 0)
             return voice;
         voice++;

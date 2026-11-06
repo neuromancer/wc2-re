@@ -26,37 +26,37 @@ int main(void)
     short object;
     unsigned int scenario;
 
-    g_nAudioEnabled_0049c244 = 0;
-    g_bHighMemoryBuffersReady_005d2ad8 = 0;
-    g_aObjectTypeData_00496d30[0].collisionRadius = 100;
+    g_nAudioEnabled = 0;
+    g_78_bHighMemoryBuffersSetState = 0;
+    g_aObjectTypeData[0].collisionRadius = 100;
     for (object = 1; object <= 2; object++) {
-        g_aeObjectClass_00495328[object] = OBJECT_CLASS_CAPITAL_SHIP;
-        g_acObjectType_00493980[object] = 0;
-        g_asObjectCollisionRadius_004950e8[object] = 100;
-        g_asShipMaximumVelocity_00495f70[object] = 100;
+        g_aeObjectClass[object] = OBJECT_CLASS_CAPITAL_SHIP;
+        g_acObjectType[object] = 0;
+        g_asObjectCollisionRadius[object] = 100;
+        g_asShipMaximumVelocity[object] = 100;
         init_ijk(object);
     }
-    g_asShipSide_004955d0[1] = SIDE_KILRATHI;
-    g_asShipSide_004955d0[2] = SIDE_IMPERIAL;
+    g_asShipSide[1] = SIDE_KILRATHI;
+    g_asShipSide[2] = SIDE_IMPERIAL;
 
     for (scenario = 0;
          scenario < sizeof(targetOffsets) / sizeof(targetOffsets[0]);
          scenario++) {
         ship = scenario == 9 ? 2 : 1;
         target = ship == 1 ? 2 : 1;
-        g_acShipTarget_00495f20[ship] = (signed char)target;
+        g_acShipTarget[ship] = (signed char)target;
         for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++)
-            g_aeObjectClass_00495328[object] = OBJECT_CLASS_NULL;
-        g_aShipPosition_00494550[ship].x = 700 * 256;
-        g_aShipPosition_00494550[ship].y = -900 * 256;
-        g_aShipPosition_00494550[ship].z = 1200 * 256;
-        g_aShipPosition_00494550[target].x =
-            g_aShipPosition_00494550[ship].x + targetOffsets[scenario].x * 256;
-        g_aShipPosition_00494550[target].y =
-            g_aShipPosition_00494550[ship].y + targetOffsets[scenario].y * 256;
-        g_aShipPosition_00494550[target].z =
-            g_aShipPosition_00494550[ship].z + targetOffsets[scenario].z * 256;
-        targetPosition = g_aShipPosition_00494550[target];
+            g_aeObjectClass[object] = OBJECT_CLASS_NULL;
+        g_aShipPosition[ship].x = 700 * 256;
+        g_aShipPosition[ship].y = -900 * 256;
+        g_aShipPosition[ship].z = 1200 * 256;
+        g_aShipPosition[target].x =
+            g_aShipPosition[ship].x + targetOffsets[scenario].x * 256;
+        g_aShipPosition[target].y =
+            g_aShipPosition[ship].y + targetOffsets[scenario].y * 256;
+        g_aShipPosition[target].z =
+            g_aShipPosition[ship].z + targetOffsets[scenario].z * 256;
+        targetPosition = g_aShipPosition[target];
         aim = targetPosition;
         /* A led shot must use the supplied point, not the target's current
          * position. Keep each component distinct from the shooter's too. */
@@ -69,13 +69,13 @@ int main(void)
         if (scenario >= 8) {
             /* Exercise the strike AI for both factions, including its target
              * lead: (6000 - 100 - 100) / 250 gives 23 travel ticks. */
-            g_aShipWeapons_004956b0[ship][0] = 1;
-            weapon = (ShipWeaponSlot *)&g_aShipWeapons_004956b0[ship][1];
+            g_aShipWeapons[ship][0] = 1;
+            weapon = (ShipWeaponSlot *)&g_aShipWeapons[ship][1];
             weapon->type = 0x0d;
-            DAT_005d1bd0[ship] = 0;
-            DAT_005d1c10[ship] = 0;
-            zero_vector(&g_aShipVelocity_00494898[target]);
-            g_aShipVelocity_00494898[target].y = 20 * 256;
+            g_2_asFlakCooldownTable[ship] = 0;
+            g_asSpikeriLaunchCountdown[ship] = 0;
+            zero_vector(&g_aShipVelocity[target]);
+            g_aShipVelocity[target].y = 20 * 256;
             aim.y += 23 * 20 * 256;
             capital_ship_strike_mission(ship);
         } else {
@@ -86,8 +86,8 @@ int main(void)
             fprintf(stderr, "capital shot %u: projectile was not created\n", scenario);
             return 1;
         }
-        position = &g_aShipPosition_00494550[projectile];
-        velocity = &g_aShipVelocity_00494898[projectile];
+        position = &g_aShipPosition[projectile];
+        velocity = &g_aShipVelocity[projectile];
         dx = (double)aim.x - position->x;
         dy = (double)aim.y - position->y;
         dz = (double)aim.z - position->z;
@@ -102,10 +102,10 @@ int main(void)
                     scenario);
             return 1;
         }
-        if (g_asObjectType_00495298[projectile] != 0x0d ||
-            g_asObjectDamage_00495178[projectile] != 300 ||
-            g_asObjectCounter_00494be0[projectile] != 100 ||
-            memcmp(&targetPosition, &g_aShipPosition_00494550[target],
+        if (g_asObjectType[projectile] != 0x0d ||
+            g_asObjectDamage[projectile] != 300 ||
+            g_asObjectCounter[projectile] != 100 ||
+            memcmp(&targetPosition, &g_aShipPosition[target],
                    sizeof(targetPosition)) != 0) {
             fprintf(stderr, "capital shot %u: projectile or target state corrupted\n",
                     scenario);
@@ -115,10 +115,10 @@ int main(void)
 
     /* A full object pool must leave the ships alone and emit no projectile. */
     for (object = 10; object <= SPACE_LAST_MOVING_OBJECT; object++)
-        g_aeObjectClass_00495328[object] = OBJECT_CLASS_MINE;
+        g_aeObjectClass[object] = OBJECT_CLASS_MINE;
     SpawnCapitalFlakProjectile(0, ship, aim.x, aim.y, aim.z);
     if (CountShipProjectiles(ship) != 0 ||
-        g_acShipTarget_00495f20[ship] != target) {
+        g_acShipTarget[ship] != target) {
         fprintf(stderr, "capital shot: exhausted object pool changed ship state\n");
         return 1;
     }

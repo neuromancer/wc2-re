@@ -16,54 +16,54 @@ void LoadMissionData(short series, short mission)
     char fileName[13] = "module.00";
 
     strcat(fileName,
-           itoa((int)g_nSelectedCampaignSlot_005d3bf2,
+           itoa((int)g_nSelectedCampaignSlot,
                  campaignSlot, 10));
 
     packet = FetchDiskPacketRetrying(fileName, 0, 0);
     position = series * 0x60;
     position += mission * 0x18;
     source = packet + position;
-    DosMemmove(&g_stMissionHeaderBlock_005d3e70, source, 0x18);
+    DosMemmove(&g_13_stMissionHeaderBlock, source, 0x18);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 1, 0);
     position = series * 0xfc8;
     position += mission * 0x3f2;
     source = packet + position;
-    DosMemmove(g_aMissionNavPoints_00491e98, source, 0x3f2);
+    DosMemmove(g_aMissionNavPoints, source, 0x3f2);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 2, 0);
     position = series * 0x800;
     position += mission * 0x200;
     source = packet + position;
-    DosMemmove(g_aMissionObjectiveSources_005d3c70, source, 0x200);
+    DosMemmove(g_69_aMissionObjectiveSources, source, 0x200);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 3, 0);
     position = series * 0xf00;
     position += mission * 0x3c0;
     source = packet + position;
-    DosMemmove(g_aMissionShips_00492290, source, 0x3c0);
+    DosMemmove(g_aMissionShips, source, 0x3c0);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 4, 0);
     position = series * 0xa0;
     position += mission * 0x28;
     source = packet + position;
-    DosMemmove(g_abMissionAuxBlockBytes_005d3c10, source, 0x28);
+    DosMemmove(g_5_abMissionAuxBlockBytes, source, 0x28);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 5, 0);
     position = series * 0x28;
     source = packet + position;
-    DosMemmove(g_abSeriesAuxData_005d3c40, source, 0x28);
+    DosMemmove(g_abSeriesAuxData, source, 0x28);
     ReleasePacketHandle(packet);
 
     packet = FetchDiskPacketRetrying(fileName, 6, 0);
     position = series * 0x378;
     position += mission * 0xde;
     source = packet + position;
-    DosMemmove(g_abMissionBriefingData_005d3e90, source, 0xde);
+    DosMemmove(g_abMissionBriefingData, source, 0xde);
     ReleasePacketHandle(packet);
 }

@@ -33,20 +33,20 @@ void *PushMemoryStackFrame(void *memory, int offset)
 #ifndef SDL_PORT
         printf("push %p by %d\n", memory, offset);
 #endif
-        if (g_nPacketHandleCount_005d1020 == 0x1000)
+        if (g_nPacketHandleCount == 0x1000)
             exit_squadron("qq mem push overflow");
-        g_aiPacketHandleOffsets_005cd020[
-            g_nPacketHandleCount_005d1020] = offset;
+        g_aiPacketHandleOffsets[
+            g_nPacketHandleCount] = offset;
         if (offset < 0) {
             memory = (unsigned char *)memory - offset;
-            g_apPacketHandlesTable_005c9020[
-                g_nPacketHandleCount_005d1020] = memory;
+            g_9_apPacketHandlesTable[
+                g_nPacketHandleCount] = memory;
         } else {
             memory = (unsigned char *)memory + offset;
-            g_apPacketHandlesTable_005c9020[
-                g_nPacketHandleCount_005d1020] = memory;
+            g_9_apPacketHandlesTable[
+                g_nPacketHandleCount] = memory;
         }
-        g_nPacketHandleCount_005d1020++;
+        g_nPacketHandleCount++;
     }
     return memory;
 }
@@ -56,9 +56,9 @@ int IsPushedPacketHandle(void *handle)
 {
     int index;
 
-    for (index = 0; index < g_nPacketHandleCount_005d1020; index++) {
-        if (g_apPacketHandlesTable_005c9020[index] == handle) {
-            return g_aiPacketHandleOffsets_005cd020[index] < 0;
+    for (index = 0; index < g_nPacketHandleCount; index++) {
+        if (g_9_apPacketHandlesTable[index] == handle) {
+            return g_aiPacketHandleOffsets[index] < 0;
         }
     }
     return 0;
@@ -69,20 +69,20 @@ void *MapPacketHandleToBlock(void *handle)
 {
     int i;
 
-    for (i = 0; i < g_nPacketHandleCount_005d1020; i++) {
-        if (g_apPacketHandlesTable_005c9020[i] == handle) {
-            if (g_aiPacketHandleOffsets_005cd020[i] < 0)
+    for (i = 0; i < g_nPacketHandleCount; i++) {
+        if (g_9_apPacketHandlesTable[i] == handle) {
+            if (g_aiPacketHandleOffsets[i] < 0)
                 handle = (unsigned char *)handle +
-                    g_aiPacketHandleOffsets_005cd020[i];
+                    g_aiPacketHandleOffsets[i];
             else
                 handle = (unsigned char *)handle -
-                    g_aiPacketHandleOffsets_005cd020[i];
-            g_nPacketHandleCount_005d1020--;
-            g_apPacketHandlesTable_005c9020[i] =
-                g_apPacketHandlesTable_005c9020[g_nPacketHandleCount_005d1020];
-            g_aiPacketHandleOffsets_005cd020[i] =
-                g_aiPacketHandleOffsets_005cd020[
-                    g_nPacketHandleCount_005d1020];
+                    g_aiPacketHandleOffsets[i];
+            g_nPacketHandleCount--;
+            g_9_apPacketHandlesTable[i] =
+                g_9_apPacketHandlesTable[g_nPacketHandleCount];
+            g_aiPacketHandleOffsets[i] =
+                g_aiPacketHandleOffsets[
+                    g_nPacketHandleCount];
             return MapPacketHandleToBlock(handle);
         }
     }
@@ -107,13 +107,13 @@ void *AllocateTaggedMemory(unsigned int size, short flags)
 #ifdef SDL_PORT
         *(unsigned char **)memory = 0;
         memcpy((unsigned char *)memory + sizeof(unsigned char *),
-               g_abTaggedAllocationPrefix_0049ca40,
-               sizeof(g_abTaggedAllocationPrefix_0049ca40));
+               g_abTaggedAllocationPrefix,
+               sizeof(g_abTaggedAllocationPrefix));
         memory = PushMemoryStackFrame(
             memory, -(int)(8 + sizeof(unsigned char *)));
 #else
-        memcpy(memory, g_abTaggedAllocationPrefix_0049ca40,
-               sizeof(g_abTaggedAllocationPrefix_0049ca40));
+        memcpy(memory, g_abTaggedAllocationPrefix,
+               sizeof(g_abTaggedAllocationPrefix));
         memory = PushMemoryStackFrame(memory, -8);
 #endif
     }
@@ -129,11 +129,11 @@ void ReleasePacketHandle(void *handle)
     if (handle == 0)
         return;
     for (group = 0; group < 4; group++) {
-        if (g_apPacketReferenceGroups_0049b898[group] != 0) {
+        if (g_apPacketReferenceGroups[group] != 0) {
             for (entry = 0; entry < 0x25; entry++) {
-                if (g_apPacketReferenceGroups_0049b898[group][entry] ==
+                if (g_apPacketReferenceGroups[group][entry] ==
                     handle)
-                    g_apPacketReferenceGroups_0049b898[group][entry] = 0;
+                    g_apPacketReferenceGroups[group][entry] = 0;
             }
         }
     }
@@ -160,6 +160,6 @@ unsigned int GetLargestFreeMemoryBlockByType(short memoryType)
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-void *g_apPacketHandlesTable_005c9020[0x1000];
-int g_aiPacketHandleOffsets_005cd020[0x1000];
-int g_nPacketHandleCount_005d1020;
+void *g_9_apPacketHandlesTable[0x1000]; /* 0x005c9020 */
+int g_aiPacketHandleOffsets[0x1000]; /* 0x005cd020 */
+int g_nPacketHandleCount; /* 0x005d1020 */

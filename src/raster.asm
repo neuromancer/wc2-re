@@ -75,32 +75,32 @@
         public  DissolveRasterClip
         public  FadeRasterPaletteToPalette
         public  CollectRasterClipColours
-        public  g_anRLEQuarterCosine_00405cbb
-        public  g_abIffBmhdChunkId_00406f74
-        public  g_abIffCmapChunkId_00406f78
-        public  g_abIffBodyChunkId_00406f7c
-        public  g_apRasterDriverCallbacks_00490278
-        public  g_szRasterDriverName_004902ac
-        public  g_pRLEEncodeBuffer_004902b9
-        public  g_nRLEPendingSkip_004902bd
-        public  g_pRLEScanlineStart_004902c1
-        public  g_pRLEScanCursor_004902c5
-        public  g_pRLEOutputCursor_004902c9
-        public  g_pRLELiteralStart_004902cd
-        public  g_nRLEEncodedMinimumX_004902e1
-        public  g_nRLEEncodedMinimumY_004902e5
-        public  g_nRLEEncodedMaximumX_004902e9
-        public  g_nRLEEncodedMaximumY_004902ed
-        public  g_abRasterDecodeBuffer_004907f1
-        public  g_abRasterPaletteUsageScratch_004914f1
-        public  g_abRasterFadeAccumulator_004917f1
-        public  g_abGifLZWCodeMasks_00491af1
-        public  g_abGifInterlaceRowSteps_00491afa
-        public  g_abGifInterlaceRowStarts_00491aff
-        public  g_pGifRasterTarget_00491b04
-        public  g_abRasterPaletteTranslation_00491b08
-        public  g_aRLETransformVertices_00491c08
-        public  g_anRLESourceSteps_00491c58
+        public  g_anRLEQuarterCosine
+        public  g_abIffBmhdChunkId
+        public  g_abIffCmapChunkId
+        public  g_abIffBodyChunkId
+        public  g_apRasterDriverCallbacks
+        public  g_szRasterDriverName
+        public  g_pRLEEncodeBuffer
+        public  g_nRLEPendingSkip
+        public  g_pRLEScanlineStart
+        public  g_pRLEScanCursor
+        public  g_pRLEOutputCursor
+        public  g_pRLELiteralStart
+        public  g_nRLEEncodedMinimumX
+        public  g_nRLEEncodedMinimumY
+        public  g_nRLEEncodedMaximumX
+        public  g_nRLEEncodedMaximumY
+        public  g_abRasterDecodeBuffer
+        public  g_abRasterPaletteUsageScratch
+        public  g_abRasterFadeAccumulator
+        public  g_abGifLZWCodeMasks
+        public  g_abGifInterlaceRowSteps
+        public  g_abGifInterlaceRowStarts
+        public  g_pGifRasterTarget
+        public  g_abRasterPaletteTranslation
+        public  g_aRLETransformVertices
+        public  g_anRLESourceSteps
 
         .code
 
@@ -119,7 +119,7 @@ CopyRasterDriverName proc
         pop es
         mov esi, dword ptr [ebp+8]
         call dword ptr [esi]
-        mov edi, offset g_szRasterDriverName_004902ac
+        mov edi, offset g_szRasterDriverName
 L402450:
         mov bl, byte ptr [eax]
         mov byte ptr [edi], bl
@@ -127,7 +127,7 @@ L402450:
         inc eax
         or bl, bl
         jne L402450
-        mov eax, offset g_szRasterDriverName_004902ac
+        mov eax, offset g_szRasterDriverName
         pop es
         pop edi
         pop esi
@@ -150,7 +150,7 @@ InstallRasterDriverCallbacks proc
         push ds
         pop es
         mov esi, dword ptr [ebp+8]
-        mov edi, offset g_apRasterDriverCallbacks_00490278
+        mov edi, offset g_apRasterDriverCallbacks
         mov ecx, 0Dh
         rep movsd
         pop es
@@ -2305,7 +2305,7 @@ SetPaletteTranslationTable proc
         push ds
         pop es
         mov esi, dword ptr [ebp+8]
-        mov edi, offset g_abRasterPaletteTranslation_00491b08
+        mov edi, offset g_abRasterPaletteTranslation
         mov ecx, 40h
         rep movsd
         pop es
@@ -2549,7 +2549,7 @@ L403880:
         xor eax, eax
         mov al, byte ptr [esi]
         inc esi
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         push ecx
         and ecx, 3
         rep stosb
@@ -2577,16 +2577,16 @@ L4038B1:
         jl L4038FA
 L4038BC:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         mov al, byte ptr [esi+1]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+1], al
         mov al, byte ptr [esi+2]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+2], al
         mov al, byte ptr [esi+3]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+3], al
         add esi, 4
         add edi, 4
@@ -2596,7 +2596,7 @@ L4038BC:
         jge L4038BC
 L4038FA:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         inc esi
         inc edi
@@ -2714,7 +2714,7 @@ L4039DA:
         xor eax, eax
         mov al, byte ptr [esi]
         inc esi
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         push ecx
         and ecx, 3
         rep stosb
@@ -2753,16 +2753,16 @@ L403A29:
         jl L403A8A
 L403A4C:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         mov al, byte ptr [esi+1]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+1], al
         mov al, byte ptr [esi+2]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+2], al
         mov al, byte ptr [esi+3]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+3], al
         add esi, 4
         add edi, 4
@@ -2772,7 +2772,7 @@ L403A4C:
         jge L403A4C
 L403A8A:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         inc esi
         inc edi
@@ -2932,7 +2932,7 @@ L403BB2:
         xor eax, eax
         mov al, byte ptr [esi]
         inc esi
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         push ecx
         and ecx, 3
         rep stosb
@@ -2959,16 +2959,16 @@ L403BE3:
         jl L403C2F
 L403BF1:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         mov al, byte ptr [esi+1]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+1], al
         mov al, byte ptr [esi+2]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+2], al
         mov al, byte ptr [esi+3]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi+3], al
         add esi, 4
         add edi, 4
@@ -2978,7 +2978,7 @@ L403BF1:
         jge L403BF1
 L403C2F:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [edi], al
         inc esi
         inc edi
@@ -3046,19 +3046,19 @@ L403C91:
         mov edx, dword ptr [ebp+1Ch]
         mov dword ptr [ebx], edx
         mov dword ptr [esi+4], 0
-        mov dword ptr [g_aRLETransformVertices_00491c08+0Ch], 0
-        mov dword ptr [g_aRLETransformVertices_00491c08+48h], 0
+        mov dword ptr [g_aRLETransformVertices+0Ch], 0
+        mov dword ptr [g_aRLETransformVertices+48h], 0
         mov dword ptr [esi+8], 0
-        mov dword ptr [g_aRLETransformVertices_00491c08+10h], 0
-        mov dword ptr [g_aRLETransformVertices_00491c08+24h], 0
+        mov dword ptr [g_aRLETransformVertices+10h], 0
+        mov dword ptr [g_aRLETransformVertices+24h], 0
         mov dword ptr [ebx+4], eax
         mov dword ptr [esi+0Ch], eax
-        mov dword ptr [g_aRLETransformVertices_00491c08+20h], eax
-        mov dword ptr [g_aRLETransformVertices_00491c08+34h], eax
+        mov dword ptr [g_aRLETransformVertices+20h], eax
+        mov dword ptr [g_aRLETransformVertices+34h], eax
         mov dword ptr [ebx+8], ecx
         mov dword ptr [esi+10h], ecx
-        mov dword ptr [g_aRLETransformVertices_00491c08+38h], ecx
-        mov dword ptr [g_aRLETransformVertices_00491c08+4Ch], ecx
+        mov dword ptr [g_aRLETransformVertices+38h], ecx
+        mov dword ptr [g_aRLETransformVertices+4Ch], ecx
         push dword ptr [ebp+10h]
         push dword ptr [ebp+0Ch]
         call GetRLEImageOrigin
@@ -3185,10 +3185,10 @@ L403E41:
         add esp, 18h
         mov eax, dword ptr [ebp-38h]
         add eax, dword ptr [ebp-4Ch]
-        mov dword ptr [g_aRLETransformVertices_00491c08], eax
+        mov dword ptr [g_aRLETransformVertices], eax
         mov eax, dword ptr [ebp-34h]
         add eax, dword ptr [ebp-50h]
-        mov dword ptr [g_aRLETransformVertices_00491c08+4], eax
+        mov dword ptr [g_aRLETransformVertices+4], eax
         mov eax, dword ptr [ebp-44h]
         mov dword ptr [ebp-30h], eax
         mov dword ptr [ebp-2Ch], 0
@@ -3205,16 +3205,16 @@ L403E41:
         add esp, 18h
         mov eax, dword ptr [ebp-38h]
         add eax, dword ptr [ebp-4Ch]
-        mov dword ptr [g_aRLETransformVertices_00491c08+14h], eax
+        mov dword ptr [g_aRLETransformVertices+14h], eax
         mov eax, dword ptr [ebp-34h]
         add eax, dword ptr [ebp-50h]
-        mov dword ptr [g_aRLETransformVertices_00491c08+18h], eax
+        mov dword ptr [g_aRLETransformVertices+18h], eax
         mov eax, dword ptr [ebp-0ECh]
-        add dword ptr [g_aRLETransformVertices_00491c08], eax
-        add dword ptr [g_aRLETransformVertices_00491c08+14h], eax
+        add dword ptr [g_aRLETransformVertices], eax
+        add dword ptr [g_aRLETransformVertices+14h], eax
         mov eax, dword ptr [ebp-0F0h]
-        add dword ptr [g_aRLETransformVertices_00491c08+4], eax
-        add dword ptr [g_aRLETransformVertices_00491c08+18h], eax
+        add dword ptr [g_aRLETransformVertices+4], eax
+        add dword ptr [g_aRLETransformVertices+18h], eax
         mov eax, dword ptr [ebp-44h]
         mov ebx, dword ptr [ebp-48h]
         mov dword ptr [ebp-30h], eax
@@ -3232,10 +3232,10 @@ L403E41:
         add esp, 18h
         mov eax, dword ptr [ebp-38h]
         add eax, dword ptr [ebp-4Ch]
-        mov dword ptr [g_aRLETransformVertices_00491c08+28h], eax
+        mov dword ptr [g_aRLETransformVertices+28h], eax
         mov eax, dword ptr [ebp-34h]
         add eax, dword ptr [ebp-50h]
-        mov dword ptr [g_aRLETransformVertices_00491c08+2Ch], eax
+        mov dword ptr [g_aRLETransformVertices+2Ch], eax
         mov eax, dword ptr [ebp-48h]
         mov dword ptr [ebp-30h], 0
         mov dword ptr [ebp-2Ch], eax
@@ -3252,16 +3252,16 @@ L403E41:
         add esp, 18h
         mov eax, dword ptr [ebp-38h]
         add eax, dword ptr [ebp-4Ch]
-        mov dword ptr [g_aRLETransformVertices_00491c08+3Ch], eax
+        mov dword ptr [g_aRLETransformVertices+3Ch], eax
         mov eax, dword ptr [ebp-34h]
         add eax, dword ptr [ebp-50h]
-        mov dword ptr [g_aRLETransformVertices_00491c08+40h], eax
+        mov dword ptr [g_aRLETransformVertices+40h], eax
         mov eax, dword ptr [ebp-0ECh]
-        add dword ptr [g_aRLETransformVertices_00491c08+28h], eax
-        add dword ptr [g_aRLETransformVertices_00491c08+3Ch], eax
+        add dword ptr [g_aRLETransformVertices+28h], eax
+        add dword ptr [g_aRLETransformVertices+3Ch], eax
         mov eax, dword ptr [ebp-0F0h]
-        add dword ptr [g_aRLETransformVertices_00491c08+2Ch], eax
-        add dword ptr [g_aRLETransformVertices_00491c08+40h], eax
+        add dword ptr [g_aRLETransformVertices+2Ch], eax
+        add dword ptr [g_aRLETransformVertices+40h], eax
         lea ebx, dword ptr [ebp-14h]
         mov eax, dword ptr [ebx]
         mov dword ptr [ebp-58h], eax
@@ -3270,7 +3270,7 @@ L403E41:
         mov dword ptr [ebp-54h], ecx
         push ds
         pop es
-        mov ebx, offset g_aRLETransformVertices_00491c08
+        mov ebx, offset g_aRLETransformVertices
         mov eax, ebx
         add eax, 50h
         mov dword ptr [ebp-64h], ebx
@@ -3566,13 +3566,13 @@ L40439F:
         pop edx
         pop ebx
         add edx, eax
-        mov dword ptr [g_anRLESourceSteps_00491c58], edx
+        mov dword ptr [g_anRLESourceSteps], edx
         add edx, ecx
-        mov dword ptr [g_anRLESourceSteps_00491c58+4], edx
+        mov dword ptr [g_anRLESourceSteps+4], edx
         add ebx, eax
-        mov dword ptr [g_anRLESourceSteps_00491c58+8], ebx
+        mov dword ptr [g_anRLESourceSteps+8], ebx
         add ebx, ecx
-        mov dword ptr [g_anRLESourceSteps_00491c58+0Ch], ebx
+        mov dword ptr [g_anRLESourceSteps+0Ch], ebx
         mov ecx, dword ptr [ebp-0D4h]
         sub ecx, dword ptr [ebp-0C0h]
         jg L40462F
@@ -3627,7 +3627,7 @@ L40445C:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         mov bl, byte ptr [esi]
         cmp bl, 0FFh
         je L404477
@@ -3638,7 +3638,7 @@ L404477:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         mov bl, byte ptr [esi]
         cmp bl, 0FFh
         je L404492
@@ -3649,7 +3649,7 @@ L404492:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         mov bl, byte ptr [esi]
         cmp bl, 0FFh
         je L4044AD
@@ -3660,7 +3660,7 @@ L4044AD:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         mov bl, byte ptr [esi]
         cmp bl, 0FFh
         je L4044C8
@@ -3671,7 +3671,7 @@ L4044C8:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         mov bl, byte ptr [esi]
         cmp bl, 0FFh
         je L4044E3
@@ -3682,7 +3682,7 @@ L4044E3:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         add edi, 6
         sub dword ptr [esp], 6
         js L4045A5
@@ -3699,7 +3699,7 @@ L404514:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         dec dword ptr [esp]
         js L4045A5
         mov bl, byte ptr [esi]
@@ -3712,7 +3712,7 @@ L404534:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         dec dword ptr [esp]
         js L4045A5
         mov bl, byte ptr [esi]
@@ -3725,7 +3725,7 @@ L404554:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         dec dword ptr [esp]
         js L4045A5
         mov bl, byte ptr [esi]
@@ -3738,7 +3738,7 @@ L404574:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
         dec dword ptr [esp]
         js L4045A5
         mov bl, byte ptr [esi]
@@ -3751,7 +3751,7 @@ L404594:
         adc ebx, ebx
         add ecx, ebp
         adc ebx, ebx
-        add esi, dword ptr [ebx*4+g_anRLESourceSteps_00491c58]
+        add esi, dword ptr [ebx*4+g_anRLESourceSteps]
 L4045A5:
         add esp, 4
         pop ebp
@@ -4209,7 +4209,7 @@ L404A1E:
         mov esi, dword ptr [ebp+8]
         mov ebx, dword ptr [esi]
         mov edi, dword ptr [ebp+18h]
-        mov dword ptr [g_pRLEEncodeBuffer_004902b9], edi
+        mov dword ptr [g_pRLEEncodeBuffer], edi
         or edi, edi
         je L404A6C
         mov eax, dword ptr [esi+0Ch]
@@ -4248,52 +4248,52 @@ L404A6C:
         sub eax, dword ptr [ebp-1Ch]
         mov dword ptr [ebp-0Ch], eax
         mov eax, 7FFFFFFFh
-        mov dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
-        mov dword ptr [g_nRLEEncodedMinimumY_004902e5], eax
+        mov dword ptr [g_nRLEEncodedMinimumX], eax
+        mov dword ptr [g_nRLEEncodedMinimumY], eax
         neg eax
-        mov dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
-        mov dword ptr [g_nRLEEncodedMaximumY_004902ed], eax
+        mov dword ptr [g_nRLEEncodedMaximumX], eax
+        mov dword ptr [g_nRLEEncodedMaximumY], eax
         mov eax, dword ptr [ebp-20h]
         imul dword ptr [ebp-30h]
         add eax, dword ptr [ebp-2Ch]
         add eax, dword ptr [ebp-1Ch]
-        mov dword ptr [g_pRLEScanlineStart_004902c1], eax
+        mov dword ptr [g_pRLEScanlineStart], eax
         mov esi, eax
         mov eax, dword ptr [ebp-20h]
         mov dword ptr [ebp-10h], eax
         jmp L404B5C
 L404AC5:
-        mov edi, dword ptr [g_pRLEScanlineStart_004902c1]
-        mov dword ptr [g_pRLEScanCursor_004902c5], edi
+        mov edi, dword ptr [g_pRLEScanlineStart]
+        mov dword ptr [g_pRLEScanCursor], edi
         mov ecx, dword ptr [ebp-8]
         mov dword ptr [ebp-14h], ecx
         mov al, byte ptr [ebp+0Ch]
         repe scasb
         je L404B50
-        mov eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
+        mov eax, dword ptr [g_nRLEEncodedMinimumY]
         cmp eax, dword ptr [ebp-10h]
         jl L404AEB
         mov eax, dword ptr [ebp-10h]
 L404AEB:
-        mov dword ptr [g_nRLEEncodedMinimumY_004902e5], eax
-        mov eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
+        mov dword ptr [g_nRLEEncodedMinimumY], eax
+        mov eax, dword ptr [g_nRLEEncodedMaximumY]
         cmp eax, dword ptr [ebp-10h]
         jg L404AFD
         mov eax, dword ptr [ebp-10h]
 L404AFD:
-        mov dword ptr [g_nRLEEncodedMaximumY_004902ed], eax
+        mov dword ptr [g_nRLEEncodedMaximumY], eax
         mov eax, dword ptr [ebp-24h]
         sub eax, ecx
-        cmp eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        cmp eax, dword ptr [g_nRLEEncodedMinimumX]
         jl L404B14
-        mov eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        mov eax, dword ptr [g_nRLEEncodedMinimumX]
 L404B14:
-        mov dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
-        mov eax, dword ptr [g_pRLEScanlineStart_004902c1]
+        mov dword ptr [g_nRLEEncodedMinimumX], eax
+        mov eax, dword ptr [g_pRLEScanlineStart]
         add eax, dword ptr [ebp-8]
         dec eax
         mov edi, eax
-        mov dword ptr [g_pRLEScanCursor_004902c5], edi
+        mov dword ptr [g_pRLEScanCursor], edi
         mov ecx, dword ptr [ebp-8]
         mov dword ptr [ebp-14h], ecx
         mov al, byte ptr [ebp+0Ch]
@@ -4303,14 +4303,14 @@ L404B14:
         je L404B50
         mov eax, dword ptr [ebp-1Ch]
         add eax, ecx
-        cmp eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        cmp eax, dword ptr [g_nRLEEncodedMaximumX]
         jg L404B4B
-        mov eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        mov eax, dword ptr [g_nRLEEncodedMaximumX]
 L404B4B:
-        mov dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
+        mov dword ptr [g_nRLEEncodedMaximumX], eax
 L404B50:
         mov eax, dword ptr [ebp-30h]
-        add dword ptr [g_pRLEScanlineStart_004902c1], eax
+        add dword ptr [g_pRLEScanlineStart], eax
         inc dword ptr [ebp-10h]
 L404B5C:
         mov eax, dword ptr [ebp-10h]
@@ -4319,32 +4319,32 @@ L404B5C:
         mov edi, dword ptr [ebp+18h]
         or edi, edi
         je L404B9B
-        mov eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        mov eax, dword ptr [g_nRLEEncodedMinimumX]
         sub eax, dword ptr [ebp+10h]
         mov dword ptr [edi+8], eax
-        mov eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
+        mov eax, dword ptr [g_nRLEEncodedMinimumY]
         sub eax, dword ptr [ebp+14h]
         mov dword ptr [edi+0Ch], eax
-        mov eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        mov eax, dword ptr [g_nRLEEncodedMaximumX]
         sub eax, dword ptr [ebp+10h]
         mov dword ptr [edi+10h], eax
-        mov eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
+        mov eax, dword ptr [g_nRLEEncodedMaximumY]
         sub eax, dword ptr [ebp+14h]
         mov dword ptr [edi+14h], eax
 L404B9B:
         add edi, 18h
-        mov dword ptr [g_pRLEOutputCursor_004902c9], edi
-        mov eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        mov dword ptr [g_pRLEOutputCursor], edi
+        mov eax, dword ptr [g_nRLEEncodedMaximumX]
         inc eax
-        sub eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        sub eax, dword ptr [g_nRLEEncodedMinimumX]
         mov dword ptr [ebp-18h], eax
-        mov eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
+        mov eax, dword ptr [g_nRLEEncodedMinimumY]
         imul dword ptr [ebp-30h]
         add eax, dword ptr [ebp-2Ch]
-        add eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        add eax, dword ptr [g_nRLEEncodedMinimumX]
         mov esi, eax
-        mov dword ptr [g_pRLEScanlineStart_004902c1], esi
-        mov eax, dword ptr [g_nRLEEncodedMinimumY_004902e5]
+        mov dword ptr [g_pRLEScanlineStart], esi
+        mov eax, dword ptr [g_nRLEEncodedMinimumY]
         mov dword ptr [ebp-10h], eax
         jmp L404BF3
 L404BD6:
@@ -4354,13 +4354,13 @@ L404BD6:
         call EncodeRLEScanline
         add esp, 0Ch
         mov eax, dword ptr [ebp-30h]
-        add dword ptr [g_pRLEScanlineStart_004902c1], eax
+        add dword ptr [g_pRLEScanlineStart], eax
         inc dword ptr [ebp-10h]
 L404BF3:
         mov eax, dword ptr [ebp-10h]
-        cmp eax, dword ptr [g_nRLEEncodedMaximumY_004902ed]
+        cmp eax, dword ptr [g_nRLEEncodedMaximumY]
         jle L404BD6
-        mov eax, dword ptr [g_pRLEOutputCursor_004902c9]
+        mov eax, dword ptr [g_pRLEOutputCursor]
         sub eax, dword ptr [ebp+18h]
         pop es
         pop edi
@@ -4418,7 +4418,7 @@ L404C55:
         movzx ecx, al
         mov eax, 0
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [esi], al
         inc esi
         mov al, byte ptr [esi]
@@ -4432,7 +4432,7 @@ L404C73:
         mov eax, 0
 L404C7B:
         mov al, byte ptr [esi]
-        mov al, byte ptr [eax+g_abRasterPaletteTranslation_00491b08]
+        mov al, byte ptr [eax+g_abRasterPaletteTranslation]
         mov byte ptr [esi], al
         inc esi
         loop L404C7B
@@ -4470,8 +4470,8 @@ EncodeRLEScanline proc
         cld
         push ds
         pop es
-        mov esi, dword ptr [g_pRLEScanlineStart_004902c1]
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov esi, dword ptr [g_pRLEScanlineStart]
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 0
         push 0
@@ -4500,7 +4500,7 @@ L404CE7:
         je L404D9A
         cmp ah, byte ptr [ebp+0Ch]
         jne L404D25
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 1
         push 1
@@ -4517,7 +4517,7 @@ L404D25:
         xor ah, al
         cmp ah, byte ptr [ebp+0Ch]
         jne L404D51
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 1
         push 1
@@ -4536,7 +4536,7 @@ L404D51:
         xor ah, al
         cmp ah, byte ptr [ebp+0Ch]
         jne L404D81
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 1
         push 1
@@ -4546,7 +4546,7 @@ L404D51:
 L404D81:
         or al, al
         jne L404D25
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 3
         push 1
@@ -4562,7 +4562,7 @@ L404D9A:
         xor al, ah
         je L404D9A
         xor ah, al
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 1
         push 2
@@ -4580,7 +4580,7 @@ L404DCD:
         xor al, ah
         je L404DCD
         xor ah, al
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 1
         push 3
@@ -4588,7 +4588,7 @@ L404DCD:
         add esp, 0Ch
         jmp L404CE7
 L404DFC:
-        mov dword ptr [g_pRLEScanCursor_004902c5], esi
+        mov dword ptr [g_pRLEScanCursor], esi
         push dword ptr [ebp+10h]
         push 0
         push dword ptr [ebp-4]
@@ -4622,8 +4622,8 @@ EmitRLEScanlineRun proc
         pop es
         push eax
         push ecx
-        mov esi, dword ptr [g_pRLELiteralStart_004902cd]
-        mov edi, dword ptr [g_pRLEOutputCursor_004902c9]
+        mov esi, dword ptr [g_pRLELiteralStart]
+        mov edi, dword ptr [g_pRLEOutputCursor]
         mov eax, dword ptr [ebp+8]
         cmp eax, 2
         je L404E83
@@ -4636,12 +4636,12 @@ EmitRLEScanlineRun proc
         cmp eax, 0
         jne L404FF0
         xor eax, eax
-        mov dword ptr [g_nRLEPendingSkip_004902bd], eax
-        mov esi, dword ptr [g_pRLEScanCursor_004902c5]
-        mov dword ptr [g_pRLELiteralStart_004902cd], esi
+        mov dword ptr [g_nRLEPendingSkip], eax
+        mov esi, dword ptr [g_pRLEScanCursor]
+        mov dword ptr [g_pRLELiteralStart], esi
         jmp L404FF0
 L404E83:
-        mov ebx, dword ptr [g_nRLEPendingSkip_004902bd]
+        mov ebx, dword ptr [g_nRLEPendingSkip]
         or ebx, ebx
         je L404EC2
 L404E8D:
@@ -4651,7 +4651,7 @@ L404E8D:
         mov ecx, 0FFh
 L404E9C:
         sub ebx, ecx
-        cmp dword ptr [g_pRLEEncodeBuffer_004902b9], 0
+        cmp dword ptr [g_pRLEEncodeBuffer], 0
         je L404EB3
         mov al, 1
         mov byte ptr [edi], al
@@ -4666,23 +4666,23 @@ L404EB6:
         add esi, ecx
         or ebx, ebx
         jne L404E8D
-        mov dword ptr [g_nRLEPendingSkip_004902bd], ebx
+        mov dword ptr [g_nRLEPendingSkip], ebx
 L404EC2:
-        mov ebx, dword ptr [g_pRLEScanCursor_004902c5]
+        mov ebx, dword ptr [g_pRLEScanCursor]
         sub ebx, esi
         sub ebx, dword ptr [ebp+0Ch]
         mov eax, dword ptr [ebp+10h]
         add eax, esi
-        sub eax, dword ptr [g_pRLEScanlineStart_004902c1]
-        cmp eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        sub eax, dword ptr [g_pRLEScanlineStart]
+        cmp eax, dword ptr [g_nRLEEncodedMinimumX]
         jge L404EE5
-        mov dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
+        mov dword ptr [g_nRLEEncodedMinimumX], eax
 L404EE5:
         add eax, ebx
         dec eax
-        cmp eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        cmp eax, dword ptr [g_nRLEEncodedMaximumX]
         jle L404EF7
-        mov dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
+        mov dword ptr [g_nRLEEncodedMaximumX], eax
         jmp L404F21
 L404EF7:
         mov ecx, ebx
@@ -4690,7 +4690,7 @@ L404EF7:
         jl L404F03
         mov ecx, 7Fh
 L404F03:
-        cmp dword ptr [g_pRLEEncodeBuffer_004902b9], 0
+        cmp dword ptr [g_pRLEEncodeBuffer], 0
         je L404F1A
         mov al, cl
         add al, al
@@ -4710,7 +4710,7 @@ L404F21:
         jne L404EF7
         jmp L404FF0
 L404F2A:
-        mov ebx, dword ptr [g_nRLEPendingSkip_004902bd]
+        mov ebx, dword ptr [g_nRLEPendingSkip]
         or ebx, ebx
         je L404F69
 L404F34:
@@ -4720,7 +4720,7 @@ L404F34:
         mov ecx, 0FFh
 L404F43:
         sub ebx, ecx
-        cmp dword ptr [g_pRLEEncodeBuffer_004902b9], 0
+        cmp dword ptr [g_pRLEEncodeBuffer], 0
         je L404F5A
         mov al, 1
         mov byte ptr [edi], al
@@ -4735,23 +4735,23 @@ L404F5D:
         add esi, ecx
         or ebx, ebx
         jne L404F34
-        mov dword ptr [g_nRLEPendingSkip_004902bd], ebx
+        mov dword ptr [g_nRLEPendingSkip], ebx
 L404F69:
-        mov ebx, dword ptr [g_pRLEScanCursor_004902c5]
+        mov ebx, dword ptr [g_pRLEScanCursor]
         sub ebx, esi
         sub ebx, dword ptr [ebp+0Ch]
         mov eax, dword ptr [ebp+10h]
         add eax, esi
-        sub eax, dword ptr [g_pRLEScanlineStart_004902c1]
-        cmp eax, dword ptr [g_nRLEEncodedMinimumX_004902e1]
+        sub eax, dword ptr [g_pRLEScanlineStart]
+        cmp eax, dword ptr [g_nRLEEncodedMinimumX]
         jge L404F8C
-        mov dword ptr [g_nRLEEncodedMinimumX_004902e1], eax
+        mov dword ptr [g_nRLEEncodedMinimumX], eax
 L404F8C:
         add eax, ebx
         dec eax
-        cmp eax, dword ptr [g_nRLEEncodedMaximumX_004902e9]
+        cmp eax, dword ptr [g_nRLEEncodedMaximumX]
         jle L404F9E
-        mov dword ptr [g_nRLEEncodedMaximumX_004902e9], eax
+        mov dword ptr [g_nRLEEncodedMaximumX], eax
         jmp L404FC9
 L404F9E:
         mov ecx, ebx
@@ -4763,7 +4763,7 @@ L404FAA:
         mov al, cl
         add al, al
         inc al
-        cmp dword ptr [g_pRLEEncodeBuffer_004902b9], 0
+        cmp dword ptr [g_pRLEEncodeBuffer], 0
         je L404FC2
         mov byte ptr [edi], al
         inc edi
@@ -4780,21 +4780,21 @@ L404FC9:
         jne L404F9E
         jmp L404FF0
 L404FCF:
-        mov ebx, dword ptr [g_pRLEScanCursor_004902c5]
+        mov ebx, dword ptr [g_pRLEScanCursor]
         sub ebx, esi
         sub ebx, dword ptr [ebp+0Ch]
-        mov dword ptr [g_nRLEPendingSkip_004902bd], ebx
+        mov dword ptr [g_nRLEPendingSkip], ebx
         jmp L404FF0
 L404FE2:
         xor eax, eax
-        cmp dword ptr [g_pRLEEncodeBuffer_004902b9], 0
+        cmp dword ptr [g_pRLEEncodeBuffer], 0
         je L404FEF
         mov byte ptr [edi], al
 L404FEF:
         inc edi
 L404FF0:
-        mov dword ptr [g_pRLEOutputCursor_004902c9], edi
-        mov dword ptr [g_pRLELiteralStart_004902cd], esi
+        mov dword ptr [g_pRLEOutputCursor], edi
+        mov dword ptr [g_pRLELiteralStart], esi
         pop ecx
         pop eax
         pop es
@@ -6203,7 +6203,7 @@ L405CB5:
 FillRasterEllipse endp
 
 ; Quarter-wave cosine table, 901 entries, 16.16 fixed point.
-g_anRLEQuarterCosine_00405cbb dd 10000h, 10000h, 10000h, 0FFFFh, 0FFFEh, 0FFFEh, 0FFFCh, 0FFFBh
+g_anRLEQuarterCosine dd 10000h, 10000h, 10000h, 0FFFFh, 0FFFEh, 0FFFEh, 0FFFCh, 0FFFBh
                               dd 0FFFAh, 0FFF8h, 0FFF6h, 0FFF4h, 0FFF2h, 0FFEFh, 0FFECh, 0FFEAh
                               dd 0FFE6h, 0FFE3h, 0FFE0h, 0FFDCh, 0FFD8h, 0FFD4h, 0FFD0h, 0FFCBh
                               dd 0FFC7h, 0FFC2h, 0FFBDh, 0FFB7h, 0FFB2h, 0FFACh, 0FFA6h, 0FFA0h
@@ -6344,18 +6344,18 @@ L406AED:
         cmp ebx, 384h
         ja L406B18
         shl ebx, 2
-        mov eax, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb]
+        mov eax, dword ptr [ebx+g_anRLEQuarterCosine]
         neg ebx
-        mov edx, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb+0E10h]
+        mov edx, dword ptr [ebx+g_anRLEQuarterCosine+0E10h]
         jmp L406B77
 L406B18:
         neg ebx
         add ebx, 708h
         shl ebx, 2
-        mov eax, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb]
+        mov eax, dword ptr [ebx+g_anRLEQuarterCosine]
         neg eax
         neg ebx
-        mov edx, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb+0E10h]
+        mov edx, dword ptr [ebx+g_anRLEQuarterCosine+0E10h]
         jmp L406B77
 L406B35:
         neg ebx
@@ -6363,19 +6363,19 @@ L406B35:
         cmp ebx, 384h
         ja L406B5A
         shl ebx, 2
-        mov eax, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb]
+        mov eax, dword ptr [ebx+g_anRLEQuarterCosine]
         neg ebx
-        mov edx, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb+0E10h]
+        mov edx, dword ptr [ebx+g_anRLEQuarterCosine+0E10h]
         neg edx
         jmp L406B77
 L406B5A:
         neg ebx
         add ebx, 708h
         shl ebx, 2
-        mov eax, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb]
+        mov eax, dword ptr [ebx+g_anRLEQuarterCosine]
         neg eax
         neg ebx
-        mov edx, dword ptr [ebx+g_anRLEQuarterCosine_00405cbb+0E10h]
+        mov edx, dword ptr [ebx+g_anRLEQuarterCosine+0E10h]
         neg edx
 L406B77:
         mov ebx, dword ptr [ebp+0Ch]
@@ -6909,9 +6909,9 @@ L406F6E:
 BlitRawScanline endp
 
 ; IFF chunk identifiers.
-g_abIffBmhdChunkId_00406f74 db 'BMHD'
-g_abIffCmapChunkId_00406f78 db 'CMAP'
-g_abIffBodyChunkId_00406f7c db 'BODY'
+g_abIffBmhdChunkId db 'BMHD'
+g_abIffCmapChunkId db 'CMAP'
+g_abIffBodyChunkId db 'BODY'
 
 ; Function start: 0x00406F80
 ; unsigned char *FindIFFChunkData(const char *chunkId, const unsigned char
@@ -6989,7 +6989,7 @@ DecodeIFFImage proc
         xor eax, 4D424C49h
         mov dword ptr [ebp-4], eax
         push dword ptr [ebp+0Ch]
-        push offset g_abIffBmhdChunkId_00406f74
+        push offset g_abIffBmhdChunkId
         call FindIFFChunkData
         add esp, 8
         mov esi, eax
@@ -7037,7 +7037,7 @@ L407031:
 L407087:
         mov dword ptr [ebp-0Ch], eax
         push dword ptr [ebp+0Ch]
-        push offset g_abIffBodyChunkId_00406f7c
+        push offset g_abIffBodyChunkId
         call FindIFFChunkData
         add esp, 8
         mov dword ptr [ebp-10h], eax
@@ -7045,7 +7045,7 @@ L40709D:
         mov esi, dword ptr [ebp-10h]
         cmp dword ptr [ebp-2Ch], 1
         jne L4070F8
-        mov edi, offset g_abRasterPaletteUsageScratch_004914f1
+        mov edi, offset g_abRasterPaletteUsageScratch
         mov edx, dword ptr [ebp-34h]
         add edx, edi
 L4070B0:
@@ -7081,7 +7081,7 @@ L4070D1:
         jmp L4070B0
 L4070EE:
         mov dword ptr [ebp-10h], esi
-        mov esi, offset g_abRasterPaletteUsageScratch_004914f1
+        mov esi, offset g_abRasterPaletteUsageScratch
         jmp L407100
 L4070F8:
         mov eax, esi
@@ -7090,7 +7090,7 @@ L4070F8:
 L407100:
         cmp dword ptr [ebp-4], 0
         jne L407162
-        mov edi, offset g_abRasterDecodeBuffer_004907f1
+        mov edi, offset g_abRasterDecodeBuffer
         mov eax, dword ptr [ebp-30h]
         mov dword ptr [ebp-18h], eax
         mov dword ptr [ebp-1Ch], eax
@@ -7120,7 +7120,7 @@ L407133:
         jne L40711A
 L40714A:
         push dword ptr [ebp-0Ch]
-        push offset g_abRasterDecodeBuffer_004907f1
+        push offset g_abRasterDecodeBuffer
         push dword ptr [ebp-28h]
         push dword ptr [ebp+8]
         call BlitRawScanline
@@ -7161,7 +7161,7 @@ CopyILBMPalette proc
         push ds
         pop es
         push dword ptr [ebp+8]
-        push offset g_abIffCmapChunkId_00406f78
+        push offset g_abIffCmapChunkId
         call FindIFFChunkData
         add esp, 8
         mov esi, eax
@@ -7194,7 +7194,7 @@ GetILBMImageSize proc
         push ds
         pop es
         push dword ptr [ebp+8]
-        push offset g_abIffBmhdChunkId_00406f74
+        push offset g_abIffBmhdChunkId
         call FindIFFChunkData
         add esp, 8
         mov esi, eax
@@ -7238,7 +7238,7 @@ DecodePCXImage proc
         mov dword ptr [ebp-4], eax
         add esi, 80h
 L407222:
-        mov edi, offset g_abRasterDecodeBuffer_004907f1
+        mov edi, offset g_abRasterDecodeBuffer
         mov edx, edi
         add edx, dword ptr [ebp-4]
 L40722C:
@@ -7258,7 +7258,7 @@ L407242:
         cmp edi, edx
         jl L40722C
         push dword ptr [ebp-4]
-        push offset g_abRasterDecodeBuffer_004907f1
+        push offset g_abRasterDecodeBuffer
         push ebx
         push dword ptr [ebp+8]
         call BlitRawScanline
@@ -7398,7 +7398,7 @@ L407331:
         add dword ptr [edi+18h], 8
 L407349:
         mov ebx, edx
-        movzx eax, byte ptr [ebx+g_abGifLZWCodeMasks_00491af1]
+        movzx eax, byte ptr [ebx+g_abGifLZWCodeMasks]
         mov ebx, dword ptr [edi+14h]
         and ebx, eax
         push ebx
@@ -7443,15 +7443,15 @@ AppendGIFLZWDictionaryEntry endp
 ; Stores one decoded GIF pixel, following the interlace order.
 EmitGIFDecodedPixel proc
         mov ebx, dword ptr [edi+8]
-        mov byte ptr [ebx+g_abRasterDecodeBuffer_004907f1], al
+        mov byte ptr [ebx+g_abRasterDecodeBuffer], al
         inc dword ptr [edi+8]
         dec dword ptr [edi+20h]
         cmp dword ptr [edi+20h], 0
         jne L407424
         push dword ptr [edi+24h]
-        push offset g_abRasterDecodeBuffer_004907f1
+        push offset g_abRasterDecodeBuffer
         push dword ptr [edi+0Ch]
-        push dword ptr [g_pGifRasterTarget_00491b04]
+        push dword ptr [g_pGifRasterTarget]
         call BlitRawScanline
         add esp, 10h
         mov dword ptr [edi+8], 0
@@ -7460,14 +7460,14 @@ EmitGIFDecodedPixel proc
         cmp byte ptr [edi+2Ch], 0
         je L407412
         movzx ebx, byte ptr [edi+2Dh]
-        movzx eax, byte ptr [ebx+g_abGifInterlaceRowSteps_00491afa]
+        movzx eax, byte ptr [ebx+g_abGifInterlaceRowSteps]
         add dword ptr [edi+0Ch], eax
         mov eax, dword ptr [edi+0Ch]
         cmp eax, dword ptr [edi+28h]
         jl L407410
         inc byte ptr [edi+2Dh]
         movzx ebx, byte ptr [edi+2Dh]
-        movzx eax, byte ptr [ebx+g_abGifInterlaceRowStarts_00491aff]
+        movzx eax, byte ptr [ebx+g_abGifInterlaceRowStarts]
         mov dword ptr [edi+0Ch], eax
 L407410:
         jmp L407424
@@ -7497,7 +7497,7 @@ ExpandGIFLZWImage proc
         push ds
         pop es
         mov edi, dword ptr [ebp+8]
-        mov dword ptr [g_pGifRasterTarget_00491b04], edi
+        mov dword ptr [g_pGifRasterTarget], edi
         mov edi, dword ptr [ebp+10h]
         mov eax, 0
         mov ecx, 2Eh
@@ -8190,7 +8190,7 @@ CollectUniqueRLEPaletteFrames endp
 
 ; Maximal-length LFSR feedback masks for DissolveRasterClip, indexed by
 ; register width from 2.
-g_adwRasterDissolveTaps_0040792e dd 3, 6, 0Ch, 14h, 30h, 60h, 0B8h, 110h
+g_adwRasterDissolveTaps dd 3, 6, 0Ch, 14h, 30h, 60h, 0B8h, 110h
                                  dd 240h, 500h, 0CA0h, 1B00h, 3500h, 6000h, 0B400h, 12000h
                                  dd 20400h, 72000h, 90000h, 140000h, 300000h, 420000h, 0D80000h, 1200000h
                                  dd 3880000h, 7200000h, 9000000h, 14000000h, 32800000h, 48000000h, 0A3000000h
@@ -8291,7 +8291,7 @@ L407A3C:
         xor ebx, ebx
         mov ecx, dword ptr [ebp-28h]
 L407A66:
-        mov dword ptr [ebx*4+g_apRasterDissolveSourceRows_004902f1], edi
+        mov dword ptr [ebx*4+g_apRasterDissolveSourceRows], edi
         inc ebx
         add edi, dword ptr [ebp-44h]
         loop L407A66
@@ -8378,7 +8378,7 @@ L407AFB:
         xor ebx, ebx
         mov ecx, dword ptr [ebp-30h]
 L407B25:
-        mov dword ptr [ebx*4+g_abRasterDecodeBuffer_004907f1+700h], edi
+        mov dword ptr [ebx*4+g_abRasterDecodeBuffer+700h], edi
         inc ebx
         add edi, dword ptr [ebp-68h]
         loop L407B25
@@ -8410,7 +8410,7 @@ L407B66:
         inc ebx
         shr eax, 1
         jne L407B66
-        mov eax, dword ptr [ebx*4+g_adwRasterDissolveTaps_0040792e-8]
+        mov eax, dword ptr [ebx*4+g_adwRasterDissolveTaps-8]
         mov dword ptr [ebp-10h], eax
         cmp dword ptr [ebp+14h], 0
         jne L407B8E
@@ -8463,9 +8463,9 @@ L407BBC:
         jl L407B8E
         cmp eax, dword ptr [ebp-40h]
         jg L407B8E
-        mov edi, dword ptr [ebx*4+g_abRasterDecodeBuffer_004907f1+700h]
+        mov edi, dword ptr [ebx*4+g_abRasterDecodeBuffer+700h]
         add edi, esi
-        mov eax, dword ptr [ebx*4+g_apRasterDissolveSourceRows_004902f1]
+        mov eax, dword ptr [ebx*4+g_apRasterDissolveSourceRows]
         add esi, eax
         movsb
         cmp dword ptr [ebp+10h], 0
@@ -8495,7 +8495,7 @@ FadeRasterPaletteToPalette proc
         cld
         push ds
         pop es
-        mov edi, offset g_abRasterPaletteUsageScratch_004914f1
+        mov edi, offset g_abRasterPaletteUsageScratch
         mov eax, 0
         mov ecx, 40h
         rep stosd
@@ -8506,24 +8506,24 @@ FadeRasterPaletteToPalette proc
         inc ecx
         imul ecx, eax
         mov esi, dword ptr [esi]
-        mov edi, offset g_abRasterDecodeBuffer_004907f1+300h
+        mov edi, offset g_abRasterDecodeBuffer+300h
         mov dword ptr [ebp-4], 0FFFFFFFFh
 L407C5B:
         mov eax, 0
         lodsb
-        cmp byte ptr [eax+g_abRasterPaletteUsageScratch_004914f1], 0
+        cmp byte ptr [eax+g_abRasterPaletteUsageScratch], 0
         jne L407C8E
-        or byte ptr [eax+g_abRasterPaletteUsageScratch_004914f1], 1
+        or byte ptr [eax+g_abRasterPaletteUsageScratch], 1
         stosb
         inc dword ptr [ebp-4]
         mov ebx, eax
         shl ebx, 1
         add ebx, eax
-        add ebx, offset g_abRasterDecodeBuffer_004907f1
+        add ebx, offset g_abRasterDecodeBuffer
         push ecx
         push ebx
         push eax
-        call dword ptr [g_apRasterDriverCallbacks_00490278+20h]
+        call dword ptr [g_apRasterDriverCallbacks+20h]
         add esp, 8
         pop ecx
 L407C8E:
@@ -8534,21 +8534,21 @@ L407C8E:
         mov ebx, 0
         mov esi, dword ptr [ebp+0Ch]
 L407CA3:
-        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer_004907f1+300h]
+        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer+300h]
         mov ebx, eax
         shl ebx, 1
         add ebx, eax
         mov edx, 2
 L407CB5:
         mov ah, 0FFh
-        mov al, byte ptr [ebx+g_abRasterDecodeBuffer_004907f1]
+        mov al, byte ptr [ebx+g_abRasterDecodeBuffer]
         sub al, byte ptr [ebx+esi]
         jge L407CC6
         mov ah, 1
         neg al
 L407CC6:
-        mov byte ptr [ebx+g_abRasterPaletteUsageScratch_004914f1], ah
-        mov byte ptr [ebx+g_abRasterDecodeBuffer_004907f1+400h], al
+        mov byte ptr [ebx+g_abRasterPaletteUsageScratch], ah
+        mov byte ptr [ebx+g_abRasterDecodeBuffer+400h], al
         cmp al, byte ptr [ebp-8]
         jle L407CDA
         mov byte ptr [ebp-8], al
@@ -8559,7 +8559,7 @@ L407CDA:
         dec ecx
         jns L407CA3
         mov ecx, dword ptr [ebp-4]
-        mov edi, offset g_abRasterFadeAccumulator_004917f1
+        mov edi, offset g_abRasterFadeAccumulator
         mov al, byte ptr [ebp-8]
         shr al, 1
         mov ah, al
@@ -8580,30 +8580,30 @@ L407CDA:
 L407D22:
         mov ecx, dword ptr [ebp-4]
 L407D25:
-        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer_004907f1+300h]
+        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer+300h]
         mov ebx, eax
         shl ebx, 1
         add ebx, eax
         mov edx, 2
 L407D37:
-        mov al, byte ptr [edx+ebx+g_abRasterFadeAccumulator_004917f1]
-        add al, byte ptr [edx+ebx+g_abRasterDecodeBuffer_004907f1+400h]
+        mov al, byte ptr [edx+ebx+g_abRasterFadeAccumulator]
+        add al, byte ptr [edx+ebx+g_abRasterDecodeBuffer+400h]
         cmp al, byte ptr [ebp-8]
         jl L407D5B
         sub al, byte ptr [ebp-8]
-        mov ah, byte ptr [edx+ebx+g_abRasterPaletteUsageScratch_004914f1]
-        add byte ptr [edx+ebx+g_abRasterDecodeBuffer_004907f1], ah
+        mov ah, byte ptr [edx+ebx+g_abRasterPaletteUsageScratch]
+        add byte ptr [edx+ebx+g_abRasterDecodeBuffer], ah
 L407D5B:
-        mov byte ptr [edx+ebx+g_abRasterFadeAccumulator_004917f1], al
+        mov byte ptr [edx+ebx+g_abRasterFadeAccumulator], al
         dec edx
         jns L407D37
         push ecx
         mov eax, ebx
-        add eax, offset g_abRasterDecodeBuffer_004907f1
+        add eax, offset g_abRasterDecodeBuffer
         push eax
-        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer_004907f1+300h]
+        movzx eax, byte ptr [ecx+g_abRasterDecodeBuffer+300h]
         push eax
-        call dword ptr [g_apRasterDriverCallbacks_00490278+24h]
+        call dword ptr [g_apRasterDriverCallbacks+24h]
         add esp, 8
         pop ecx
         dec ecx
@@ -8613,7 +8613,7 @@ L407D5B:
         cmp word ptr [ebp-0Eh], 1
         jl L407D9C
 L407D90:
-        call dword ptr [g_apRasterDriverCallbacks_00490278+14h]
+        call dword ptr [g_apRasterDriverCallbacks+14h]
         dec word ptr [ebp-0Eh]
         jne L407D90
 L407D9C:
@@ -8642,7 +8642,7 @@ CollectRasterClipColours proc
         cld
         push ds
         pop es
-        mov edi, offset g_abRasterPaletteUsageScratch_004914f1
+        mov edi, offset g_abRasterPaletteUsageScratch
         mov eax, 0
         mov ecx, 40h
         rep stosd
@@ -8668,9 +8668,9 @@ CollectRasterClipColours proc
 L407DFA:
         mov eax, 0
         movzx eax, byte ptr [ecx+esi]
-        cmp byte ptr [eax+g_abRasterPaletteUsageScratch_004914f1], 0
+        cmp byte ptr [eax+g_abRasterPaletteUsageScratch], 0
         jne L407E1C
-        or byte ptr [eax+g_abRasterPaletteUsageScratch_004914f1], 1
+        or byte ptr [eax+g_abRasterPaletteUsageScratch], 1
         inc dword ptr [ebp-4]
         cmp edi, 0
         je L407E1C
@@ -8694,33 +8694,33 @@ CollectRasterClipColours endp
 
         .data
 
-g_apRasterDriverCallbacks_00490278 dd 0Dh dup (0)
-g_szRasterDriverName_004902ac db 'MCGA.DLL', 5 dup (0)
-g_pRLEEncodeBuffer_004902b9 dd 0
-g_nRLEPendingSkip_004902bd dd 0
-g_pRLEScanlineStart_004902c1 dd 0
-g_pRLEScanCursor_004902c5 dd 0
-g_pRLEOutputCursor_004902c9 dd 0
-g_pRLELiteralStart_004902cd dd 0
+g_apRasterDriverCallbacks dd 0Dh dup (0)
+g_szRasterDriverName db 'MCGA.DLL', 5 dup (0)
+g_pRLEEncodeBuffer dd 0
+g_nRLEPendingSkip dd 0
+g_pRLEScanlineStart dd 0
+g_pRLEScanCursor dd 0
+g_pRLEOutputCursor dd 0
+g_pRLELiteralStart dd 0
 ; Unreferenced.
         db 10h dup (0)
-g_nRLEEncodedMinimumX_004902e1 dd 0
-g_nRLEEncodedMinimumY_004902e5 dd 0
-g_nRLEEncodedMaximumX_004902e9 dd 0
-g_nRLEEncodedMaximumY_004902ed dd 0
+g_nRLEEncodedMinimumX dd 0
+g_nRLEEncodedMinimumY dd 0
+g_nRLEEncodedMaximumX dd 0
+g_nRLEEncodedMaximumY dd 0
 ; Source row addresses for DissolveRasterClip.
-g_apRasterDissolveSourceRows_004902f1 dd 140h dup (0)
+g_apRasterDissolveSourceRows dd 140h dup (0)
 ; Image decode buffer; DissolveRasterClip keeps its target row
 ; addresses at +700h.
-g_abRasterDecodeBuffer_004907f1 db 0D00h dup (0)
-g_abRasterPaletteUsageScratch_004914f1 db 300h dup (0)
-g_abRasterFadeAccumulator_004917f1 db 300h dup (0)
-g_abGifLZWCodeMasks_00491af1 db 0, 1, 3, 7, 0Fh, 1Fh, 3Fh, 7Fh, 0FFh
-g_abGifInterlaceRowSteps_00491afa db 8, 8, 4, 2, 0
-g_abGifInterlaceRowStarts_00491aff db 0, 4, 2, 1, 0
-g_pGifRasterTarget_00491b04 dd 0
-g_abRasterPaletteTranslation_00491b08 db 100h dup (0)
-g_aRLETransformVertices_00491c08 dd 14h dup (0)
-g_anRLESourceSteps_00491c58 dd 4 dup (0)
+g_abRasterDecodeBuffer db 0D00h dup (0)
+g_abRasterPaletteUsageScratch db 300h dup (0)
+g_abRasterFadeAccumulator db 300h dup (0)
+g_abGifLZWCodeMasks db 0, 1, 3, 7, 0Fh, 1Fh, 3Fh, 7Fh, 0FFh
+g_abGifInterlaceRowSteps db 8, 8, 4, 2, 0
+g_abGifInterlaceRowStarts db 0, 4, 2, 1, 0
+g_pGifRasterTarget dd 0
+g_abRasterPaletteTranslation db 100h dup (0)
+g_aRLETransformVertices dd 14h dup (0)
+g_anRLESourceSteps dd 4 dup (0)
 
         end

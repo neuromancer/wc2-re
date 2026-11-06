@@ -7,8 +7,8 @@
 #define MUSIC_C
 #include "game.h"
 
-static int g_nActiveMusicStreamMask_0049be9c;
-static signed char g_acMusicTrackStreamFlags_0049beb8[72];
+static int g_nActiveMusicStreamMask; /* 0x0049be9c */
+static signed char g_acMusicTrackStreamFlags[72]; /* 0x0049beb8 */
 
 /* Function start: 0x452A00 */
 void StopMusicStream(void)
@@ -29,7 +29,7 @@ void SetMusicOn(short enabled)
 /* Function start: 0x452A26 */
 void StopMusic(short enabled)
 {
-    g_nCurrentMusicTrack_0049be98 = -1;
+    g_nCurrentMusicTrack = -1;
     Streamer_stop();
 }
 
@@ -97,7 +97,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
     if (track == -1)
         return 0;
 
-    streamFlags = g_acMusicTrackStreamFlags_0049beb8[track];
+    streamFlags = g_acMusicTrackStreamFlags[track];
     SoundDebugPrintf("queue_next_music %d %x\n", track, streamFlags);
     if (track >= 0x40)
         streamerCommand = track - 0x2c;
@@ -107,7 +107,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
     if (command == 4) {
         SoundDebugPrintf("queue_stop\n");
         StopMusic(enabled);
-        g_nCurrentMusicTrack_0049be98 = -1;
+        g_nCurrentMusicTrack = -1;
         return;
     }
 
@@ -119,16 +119,16 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
         return 1;
     }
 #endif
-    if ((streamFlags & g_nActiveMusicStreamMask_0049be9c) == 0) {
+    if ((streamFlags & g_nActiveMusicStreamMask) == 0) {
         if ((streamFlags & 1) != 0) {
             Streamer_open("gameflow.str");
-            g_nActiveMusicStreamMask_0049be9c = 1;
+            g_nActiveMusicStreamMask = 1;
         } else if ((streamFlags & 2) != 0) {
             Streamer_open("spaceflt.str");
-            g_nActiveMusicStreamMask_0049be9c = 2;
+            g_nActiveMusicStreamMask = 2;
         } else if ((streamFlags & 0x10) != 0) {
             Streamer_open("gametwo.str");
-            g_nActiveMusicStreamMask_0049be9c = 0x10;
+            g_nActiveMusicStreamMask = 0x10;
         } else {
             SoundDebugPrintf("**** unknown stream for track %d\n", track);
             StopMusic(0);
@@ -136,10 +136,10 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
         }
         SetStreamerIntensity(0x32);
     } else {
-        g_nCurrentMusicTrack_0049be98 = track;
+        g_nCurrentMusicTrack = track;
     }
 
-    if (g_nActiveMusicStreamMask_0049be9c == 2) {
+    if (g_nActiveMusicStreamMask == 2) {
         if ((streamFlags & 4) != 0) {
             SetStreamerIntensity(streamerCommand);
         } else if ((streamFlags & 8) != 0) {
@@ -154,7 +154,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
         ForceStreamerTrigger(streamerCommand);
     }
 
-    if (g_nCannedSceneMode_0049021c == 0)
+    if (g_nCannedSceneMode == 0)
         RecordMusicCommandHook(track, command, enabled);
     return 1;
 }
@@ -162,25 +162,25 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
 /* Function start: 0x452CF4 */
 void spacetrack(int track, int mode, int enabled)
 {
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3)
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3)
         ProcessMusicScriptCommand(track, mode, enabled);
 }
 
 /* Function start: 0x452D32 */
 void StopMusicUnlessSuppressed(void)
 {
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3)
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3)
         StopMusic(0);
 }
 
 /* Function start: 0x452D66 */
 unsigned int IsMusicTrackComplete(void)
 {
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3 &&
-        g_nMusicTrackComplete_0049be88 != 0)
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3 &&
+        g_nMusicTrackComplete != 0)
         return 1;
     return 0;
 }
@@ -188,15 +188,15 @@ unsigned int IsMusicTrackComplete(void)
 /* Function start: 0x452DB0 */
 void wait_for_end_of_music(void)
 {
-    if (g_nMusicDriverMode_0049be8c != 0 &&
-        g_nMusicDriverMode_0049be8c != 3) {
-        if (g_nWaitForMusicEnabled_0049beac == 0) {
+    if (g_nMusicDriverMode != 0 &&
+        g_nMusicDriverMode != 3) {
+        if (g_nWaitForMusicEnabled == 0) {
             StopMusic(0);
             return;
         }
         SetMusBreakpt(0, 0);
-        while (g_nMusicTrackComplete_0049be88 == 0) {
-            if (g_bSceneEscapeRequested_0049d4b0 != 0 ||
+        while (g_nMusicTrackComplete == 0) {
+            if (g_bSceneEscapeRequested != 0 ||
                 WaitForInputKey() != 0) {
                 StopMusic(0);
                 return;
@@ -208,29 +208,29 @@ void wait_for_end_of_music(void)
 /* Function start: 0x452E46 */
 void new_space_music_changes(short attacker, short victim)
 {
-    if (g_nInFlightMusicActive_0049bf08 != 0) {
-        if (g_asShipSide_004955d0[victim] == SIDE_KILRATHI) {
+    if (g_nInFlightMusicActive != 0) {
+        if (g_asShipSide[victim] == SIDE_KILRATHI) {
             if (report_kilrathi_rout(1) == 0) {
                 spacetrack(10, 1, 0);
             } else if (attacker == 0) {
-                if (g_acShipPortrait_00495d88[victim] != -1 ||
+                if (g_acShipPortrait[victim] != -1 ||
                     RandomInRange(0, 3) == 0)
                     spacetrack(9, 3, 0);
                 else
                     spacetrack(6, 3, 0);
             }
         } else {
-            if (g_nYourWingman_0049346c == victim) {
+            if (g_nYourWingman == victim) {
                 spacetrack(8, 3, 0);
                 return;
             }
-            if (g_asShipSide_004955d0[victim] == SIDE_IMPERIAL) {
-                if ((g_asShipMissionType_00495de8[0] ==
+            if (g_asShipSide[victim] == SIDE_IMPERIAL) {
+                if ((g_asShipMissionType[0] ==
                          MISSION_TYPE_DEFEND ||
-                     g_asShipMissionType_00495de8[0] ==
+                     g_asShipMissionType[0] ==
                          MISSION_TYPE_ESCORT) &&
-                    g_asShipMissionIndex_00495d00[victim] ==
-                        g_asShipMissionParameter_00495e00[0]) {
+                    g_asShipMissionIndex[victim] ==
+                        g_asShipMissionParameter[0]) {
                     spacetrack(11, 3, 0);
                     return;
                 }
@@ -245,7 +245,7 @@ int changetrack(void)
 {
     int track;
 
-    switch (g_asShipMissionType_00495de8[0]) {
+    switch (g_asShipMissionType[0]) {
     case MISSION_TYPE_STRIKE:
         track = 17;
         break;
@@ -260,10 +260,10 @@ int changetrack(void)
         track = 15;
         break;
     }
-    if (g_aMissionObjectives_004932a8[
-            g_cCurrentObjective_004931cc].type == OBJECTIVE_HOME_BASE) {
+    if (g_aMissionObjectives[
+            g_cCurrentObjective].type == OBJECTIVE_HOME_BASE) {
         if (triumph(0) != 0) {
-            if (g_asShipMissionType_00495de8[0] != MISSION_TYPE_PATROL)
+            if (g_asShipMissionType[0] != MISSION_TYPE_PATROL)
                 track = 14;
             else
                 track = 13;
@@ -280,13 +280,13 @@ void gametrack(void)
     int track;
 
     track = -1;
-    if (g_nInFlightMusicActive_0049bf08 == 0)
+    if (g_nInFlightMusicActive == 0)
         return;
-    if (g_nCombatMusicActive_0049bf04 != 0) {
-        if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-            g_nMusicTrackComplete_0049be88 != 0) {
-            if (g_nInitialFlightMusicPending_0049bf00 != 0)
-                g_nInitialFlightMusicPending_0049bf00 = 0;
+    if (g_nCombatMusicActive != 0) {
+        if ((g_nSpaceFrame & 0xf) == 0 ||
+            g_nMusicTrackComplete != 0) {
+            if (g_nInitialFlightMusicPending != 0)
+                g_nInitialFlightMusicPending = 0;
             if (FindMissileTargetingObject(0) != 0) {
                 track = 3;
             } else if (detect_enemy_tail(0) != -1) {
@@ -302,19 +302,19 @@ void gametrack(void)
                 else
                     track = 0;
             }
-            if (g_nMissionMusicTrackOverride_00496144 != 0)
-                track = g_nMissionMusicTrackOverride_00496144;
+            if (g_nMissionMusicTrackOverride != 0)
+                track = g_nMissionMusicTrackOverride;
             if (report_kilrathi_rout(1) == 0)
-                g_nCombatMusicActive_0049bf04 = 0;
+                g_nCombatMusicActive = 0;
         }
-    } else if ((g_nSpaceFrame_00493134 & 0xf) == 0 ||
-               g_nMusicTrackComplete_0049be88 != 0) {
-        if (g_bJumpSequenceActive_004962f0 != 0)
+    } else if ((g_nSpaceFrame & 0xf) == 0 ||
+               g_nMusicTrackComplete != 0) {
+        if (g_bJumpSequenceActive != 0)
             track = 0x2f;
         else
             track = changetrack();
         if (report_kilrathi_rout(2) != 0)
-            g_nCombatMusicActive_0049bf04 = 1;
+            g_nCombatMusicActive = 1;
     }
     spacetrack(track, 1, 0);
 }
@@ -333,53 +333,53 @@ void servicetrack(void)
     FixedVector lead;
     FixedVector predicted;
 
-    if (g_nMusicDriverMode_0049be8c == 0)
+    if (g_nMusicDriverMode == 0)
         return;
     gametrack();
-    if (g_bFlightSoundEffectsEnabled_0049beb0 != 0) {
+    if (g_bFlightSoundEffectsEnabled != 0) {
         for (ship = 0; ship < SPACE_OBJECT_COUNT;
              ship++) {
-            if (g_nPassingShipSoundObject_0049bf10 == ship &&
-                g_aeObjectClass_00495328[ship] < OBJECT_CLASS_SHIP)
-                g_nPassingShipSoundObject_0049bf10 = -1;
-            switch (g_aeObjectClass_00495328[ship]) {
+            if (g_nPassingShipSoundObject == ship &&
+                g_aeObjectClass[ship] < OBJECT_CLASS_SHIP)
+                g_nPassingShipSoundObject = -1;
+            switch (g_aeObjectClass[ship]) {
             case OBJECT_CLASS_SHIP:
             case OBJECT_CLASS_CAPITAL_SHIP:
             case OBJECT_CLASS_BASE:
-                if (g_asObjectScreenX_00493598[ship] != -32767 &&
-                    (unsigned short)g_asObjectDistance_00493ae8[ship] < 0x384) {
-                    if (g_nPassingShipSoundObject_0049bf10 == -1) {
-                        ScaleFixedVector(&g_aShipVelocity_00494898[ship], 0x1400,
+                if (g_asObjectScreenX[ship] != -32767 &&
+                    (unsigned short)g_asObjectDistance[ship] < 0x384) {
+                    if (g_nPassingShipSoundObject == -1) {
+                        ScaleFixedVector(&g_aShipVelocity[ship], 0x1400,
                                          &lead);
-                        AddFixedVectors(&g_aShipPosition_00494550[ship], &lead,
+                        AddFixedVectors(&g_aShipPosition[ship], &lead,
                                         &predicted);
                         ComputeVectorDelta(
-                            &g_aShipPosition_00494550[EYE_OBJECT],
+                            &g_aShipPosition[EYE_OBJECT],
                             &predicted, &lead);
                         ComputeVectorDelta(
-                            &g_aShipPosition_00494550[EYE_OBJECT],
-                            &g_aShipPosition_00494550[ship], &predicted);
+                            &g_aShipPosition[EYE_OBJECT],
+                            &g_aShipPosition[ship], &predicted);
                         if (dot_product(&lead, &predicted) < 0xdd) {
-                            if (ship == 0 && g_bJumpSequenceActive_004962f0 != 0)
+                            if (ship == 0 && g_bJumpSequenceActive != 0)
                                 continue;
-                            g_nPassingShipSoundObject_0049bf10 = ship;
-                            g_nPassingShipSoundCountdown_0049bf14 = 6;
+                            g_nPassingShipSoundObject = ship;
+                            g_nPassingShipSoundCountdown = 6;
                             volume = 12;
-                            g_abSoundEffectDefinitions_0049bf18[0xa] =
+                            g_abSoundEffectDefinitions[0xa] =
                                 (unsigned char)volume;
-                            *(short *)&g_abSoundEffectDefinitions_0049bf18[0xc] = 2;
-                            g_abSoundEffectDefinitions_0049bf18[0xe] = 0x70;
-                            if (g_nSpaceFrame_00493134 >
-                                g_nPassingShipSndCooldown_005d156c) {
-                                g_nPassingShipSndCooldown_005d156c =
-                                    g_nSpaceFrame_00493134 + 24;
+                            *(short *)&g_abSoundEffectDefinitions[0xc] = 2;
+                            g_abSoundEffectDefinitions[0xe] = 0x70;
+                            if (g_nSpaceFrame >
+                                g_nPassingShipSndCooldown) {
+                                g_nPassingShipSndCooldown =
+                                    g_nSpaceFrame + 24;
                                 PlaySfxWaveFileByNumber(2, ship, 0);
                             }
                         }
-                    } else if (g_nPassingShipSoundObject_0049bf10 == ship) {
-                        g_nPassingShipSoundCountdown_0049bf14--;
-                        if (g_nPassingShipSoundCountdown_0049bf14 == 0)
-                            g_nPassingShipSoundObject_0049bf10 = -1;
+                    } else if (g_nPassingShipSoundObject == ship) {
+                        g_nPassingShipSoundCountdown--;
+                        if (g_nPassingShipSoundCountdown == 0)
+                            g_nPassingShipSoundObject = -1;
                     }
                 }
                 break;
@@ -392,15 +392,15 @@ void servicetrack(void)
 void ResetSoundState(void)
 {
     FlushSoundEffects();
-    g_bAfterburnerSfxActive_005d3864 = 0;
-    g_nSevereDmgWarningSfxHandle_005d1ec0 = 0;
+    g_3_bAfterburnerSfxActive = 0;
+    g_4_nSevereDmgWarningSfxHandle = 0;
 }
 
 /* Function start: 0x4534BA */
 void ResetSoundStateForScene(void)
 {
     ResetSoundState();
-    g_bFlightSoundEffectsEnabled_0049beb0 = 0;
+    g_bFlightSoundEffectsEnabled = 0;
 }
 
 /* Function start: 0x4534D3 */
@@ -410,7 +410,7 @@ void ResetSoundStateForFlight(void)
 {
     return;
     ResetSoundState();
-    g_bFlightSoundEffectsEnabled_0049beb0 = 1;
+    g_bFlightSoundEffectsEnabled = 1;
 }
 
 /* Function start: 0x4534F1 */
@@ -423,7 +423,7 @@ void DisableMusicForSceneHook(void)
 /* Function start: 0x4534FC */
 void EnableMusicForScene(void)
 {
-    g_nWaitForMusicEnabled_0049beac = 1;
+    g_nWaitForMusicEnabled = 1;
     SetMusicOn(1);
 }
 
@@ -436,7 +436,7 @@ int LogUnknownSoundEffect(const unsigned char *definition,
 {
     SoundDebugPrintf("Playing SFX <UNKNOWN>\n");
     return 0;
-    if (g_bFlightSoundEffectsEnabled_0049beb0 != 0) {
+    if (g_bFlightSoundEffectsEnabled != 0) {
         return StartSoundEffectHook(definition, sourceObject, pan, volume,
                                     looping, priority);
     } else {
@@ -471,29 +471,29 @@ void sound_effect(signed char soundNumber, short sourceObject, short looping)
 
     SoundDebugPrintf("Playing SFX #%d\n", soundNumber);
     return;
-    if (g_nMusicDriverMode_0049be8c == 0 ||
-        g_bFlightSoundEffectsEnabled_0049beb0 == 0)
+    if (g_nMusicDriverMode == 0 ||
+        g_bFlightSoundEffectsEnabled == 0)
         return;
-    ComputeVectorDelta(&g_aShipPosition_00494550[EYE_OBJECT],
-                       &g_aShipPosition_00494550[sourceObject], &offset);
+    ComputeVectorDelta(&g_aShipPosition[EYE_OBJECT],
+                       &g_aShipPosition[sourceObject], &offset);
     length = Vector_magnitude(&offset);
     volume = MaxShort(0, (short)(0x7f - ((length / 500) >> 8)));
     if (volume < 10)
         return;
-    if (g_nCannedSceneMode_0049021c == 0)
+    if (g_nCannedSceneMode == 0)
         RecordCannedSceneBriefingCharacter(soundNumber, sourceObject,
                                            looping);
     if (soundNumber == 8) {
-        sampleIndex = (short)((g_nAlternateSampleToggle_005d1570 & 1) + 0x40);
-        g_nAlternateSampleToggle_005d1570++;
+        sampleIndex = (short)((g_10_nAlternateSampleToggle & 1) + 0x40);
+        g_10_nAlternateSampleToggle++;
     } else {
         sampleIndex = sourceObject;
     }
     NormalizeFixedVector(&offset);
-    side = dot_product(&offset, &g_aShipRightVector_00493b78[EYE_OBJECT]);
+    side = dot_product(&offset, &g_aShipRightVector[EYE_OBJECT]);
     balance = (short)(0x40 - ((side << 6) >> 8));
-    g_anObjectSoundEffects_005d1580[sourceObject] = StartSoundEffectHook(
-        &g_abSoundEffectDefinitions_0049bf18[(soundNumber - 1) * 8],
+    g_14_anObjectSoundEffects[sourceObject] = StartSoundEffectHook(
+        &g_abSoundEffectDefinitions[(soundNumber - 1) * 8],
         effectHandle, volume, balance, sampleIndex, looping);
 }
 
@@ -514,14 +514,14 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     }
 #endif
     if (sourceObject != -1) {
-        ComputeVectorDelta(&g_aShipPosition_00494550[EYE_OBJECT],
-                           &g_aShipPosition_00494550[sourceObject],
+        ComputeVectorDelta(&g_aShipPosition[EYE_OBJECT],
+                           &g_aShipPosition[sourceObject],
                            &delta);
         magnitude = Vector_magnitude(&delta);
         distance = magnitude;
         if (distance > 32000)
             distance = 32000;
-        g_aiSoundEffectSourceActiveValue_005d12c0[sourceObject] = 1;
+        g_aiSoundEffectSourceActiveValue[sourceObject] = 1;
     } else {
         distance = 72000;
     }
@@ -531,39 +531,39 @@ void PlaySfxWaveFileByNumber(int soundNumber, int sourceObject, int looping)
     SoundDebugPrintf(
         "Playing SFX #%d on obj: %d with volume of %d\n",
         soundNumber, sourceObject, distance);
-    sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
-    playWAVE(g_szSfxWavePath_005b3650, looping, distance);
+    sprintf(g_szSfxWavePath, "sfx%02i.wav", soundNumber);
+    playWAVE(g_szSfxWavePath, looping, distance);
 }
 
 /* This unit's initialized data, after its functions so that the tables do
  * not move the functions' symbol keys. */
-short g_nMusicTrackComplete_0049be88 = 1;
-short g_nMusicDriverMode_0049be8c = 1;
-short g_nCutsceneMusicVolume_0049be90 = 0;
-short g_nTitleMusicSequenceStage_0049be94 = 0;
-int g_nCurrentMusicTrack_0049be98 = -1;
-static int g_nActiveMusicStreamMask_0049be9c = 0;
-struct LimitedMusicBuffer g_aLimitedMusicBuffers_0049bea0[2] = {
+short g_nMusicTrackComplete = 1; /* 0x0049be88 */
+short g_nMusicDriverMode = 1; /* 0x0049be8c */
+short g_nCutsceneMusicVolume = 0; /* 0x0049be90 */
+short g_nTitleMusicSequenceStage = 0; /* 0x0049be94 */
+int g_nCurrentMusicTrack = -1; /* 0x0049be98 */
+static int g_nActiveMusicStreamMask = 0; /* 0x0049be9c */
+struct LimitedMusicBuffer g_aLimitedMusicBuffers[2] = {
     { 0, -1 },
     { 0, -1 }
-};
-short g_nWaitForMusicEnabled_0049beac = 1;
-short g_bFlightSoundEffectsEnabled_0049beb0 = 1;
-static signed char g_acMusicTrackStreamFlags_0049beb8[72] = {
+}; /* 0x0049bea0 */
+short g_nWaitForMusicEnabled = 1; /* 0x0049beac */
+short g_bFlightSoundEffectsEnabled = 1; /* 0x0049beb0 */
+static signed char g_acMusicTrackStreamFlags[72] = {
     6, 6, 6, 6, 6, 6, 10, 10, 10, 10, 10, 10,
     6, 6, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0,
     0, 0, 0, 6, 16, 16, 0, 6, 6, 16, 16, 0,
     16, 16, 16, 16, 16, 6, 10, 1, 1, 1, 1, 7,
     1, 1, 1, 1, 1, 1, 1, 6, 6, 6, 1, 16,
     16, 1, 1, 16, 16, 16, 0, 0, 0, 0, 0, 0
-};
-short g_nInitialFlightMusicPending_0049bf00 = 1;
-short g_nCombatMusicActive_0049bf04 = 0;
-short g_nInFlightMusicActive_0049bf08 = 0;
-int g_nUnusedMusicWord_0049bf0c = 0;
-short g_nPassingShipSoundObject_0049bf10 = -1;
-short g_nPassingShipSoundCountdown_0049bf14 = 0;
-unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
+}; /* 0x0049beb8 */
+short g_nInitialFlightMusicPending = 1; /* 0x0049bf00 */
+short g_nCombatMusicActive = 0; /* 0x0049bf04 */
+short g_nInFlightMusicActive = 0; /* 0x0049bf08 */
+int g_nUnusedMusicWord1 = 0; /* 0x0049bf0c */
+short g_nPassingShipSoundObject = -1; /* 0x0049bf10 */
+short g_nPassingShipSoundCountdown = 0; /* 0x0049bf14 */
+unsigned char g_abSoundEffectDefinitions[0x1b8] = {
     0, 104, 48, 64, 120, 0, 0, 0,
     2, 55, 48, 96, 2, 0, 0, 0,
     0, 39, 48, 64, 60, 0, 0, 0,
@@ -619,13 +619,13 @@ unsigned char g_abSoundEffectDefinitions_0049bf18[0x1b8] = {
     4, 77, 48, 96, 200, 0, 0, 0,
     4, 83, 48, 127, 90, 0, 0, 0,
     0, 92, 48, 96, 120
-};
+}; /* 0x0049bf18 */
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_aiSoundEffectSourceActiveValue_005d12c0[SPACE_OBJECT_COUNT];
-MusicResource g_aTuneResources_005d13e0[66];
-int g_nPassingShipSndCooldown_005d156c;
-short g_nAlternateSampleToggle_005d1570;
-int g_anObjectSoundEffects_005d1580[SPACE_OBJECT_COUNT];
-int g_nUnusedMusicWord_005d1698; /* never referenced */
+int g_aiSoundEffectSourceActiveValue[SPACE_OBJECT_COUNT]; /* 0x005d12c0 */
+MusicResource g_aTuneResources[66]; /* 0x005d13e0 */
+int g_nPassingShipSndCooldown; /* 0x005d156c */
+short g_10_nAlternateSampleToggle; /* 0x005d1570 */
+int g_14_anObjectSoundEffects[SPACE_OBJECT_COUNT]; /* 0x005d1580 */
+int g_2_nUnusedMusicWord2; /* 0x005d1698 */ /* never referenced */

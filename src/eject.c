@@ -10,17 +10,17 @@ void ShowPlayerEjectionSequence(void)
 {
     InputPumpContext *savedInputContext;
 
-    savedInputContext = g_stPersonnelMousePointerState_005c8470.context;
-    ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 0x19), 0);
+    savedInputContext = g_37_stPersonnelMousePointerState.context;
+    ejection_sequence((short)(g_stCurrentPilotProfile.playerShipType + 0x19), 0);
     if (savedInputContext != 0)
         SetInputViewport(savedInputContext->viewport);
     ConfigureInputPump(1, 0);
-    g_nInterfaceEventMode_005c8d3c = 1;
-    g_nEventRepeatDelayState_005c80d6 = 0x14;
+    g_18_nInterfaceEventMode = 1;
+    g_88_nEventRepeatDelayState = 0x14;
 }
 
 /* Function start: 0x438080 */
 void ShowPlayerStrandingSequence(void)
 {
-    ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 500), 0);
+    ejection_sequence((short)(g_stCurrentPilotProfile.playerShipType + 500), 0);
 }

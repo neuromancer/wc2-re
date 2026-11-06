@@ -7,10 +7,10 @@
 
 #include <stdarg.h>
 
-int g_nDebugOverlayConsoleCount_0049cb24 = 0;
-DWORD g_dwDebugOverlayKey_0049cb28 = 0;
-DWORD g_dwDebugOverlayKeyLatch_0049cb2c = 0;
-HHOOK g_hDebugKeyboardHook_0049cb30 = 0;
+int g_nDebugOverlayConsoleCount = 0; /* 0x0049cb24 */
+DWORD g_dwDebugOverlayKey = 0; /* 0x0049cb28 */
+DWORD g_dwDebugOverlayKeyLatch = 0; /* 0x0049cb2c */
+HHOOK g_hDebugKeyboardHook = 0; /* 0x0049cb30 */
 
 #pragma function(memcpy, memset, strcpy)
 /* Function start: 0x45AC50 */
@@ -27,7 +27,7 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
 #endif
 
     busyWait = waitMode;
-    g_nDebugOverlayConsoleCount_0049cb24++;
+    g_nDebugOverlayConsoleCount++;
     window = targetWindow;
     columns = columnCount;
     rows = rowCount;
@@ -59,8 +59,8 @@ DebugOverlayConsole::DebugOverlayConsole(HINSTANCE module,
     characterWidth = textMetrics.tmMaxCharWidth;
     characterHeight = textMetrics.tmHeight;
 
-    if (g_hDebugKeyboardHook_0049cb30 == 0) {
-        g_hDebugKeyboardHook_0049cb30 =
+    if (g_hDebugKeyboardHook == 0) {
+        g_hDebugKeyboardHook =
             SetWindowsHookExA(WH_KEYBOARD, (HOOKPROC)DebugKeyboardHookProc,
                               module, 0);
     }
@@ -84,9 +84,9 @@ DebugOverlayConsole::~DebugOverlayConsole(void)
 
     animationState = 2;
     shutdownKey = 0x103;
-    if (--g_nDebugOverlayConsoleCount_0049cb24 == 0) {
+    if (--g_nDebugOverlayConsoleCount == 0) {
 #ifndef SDL_PORT
-        UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
+        UnhookWindowsHookEx(g_hDebugKeyboardHook);
 #endif
     }
     free(textBuffer);
@@ -156,19 +156,19 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
 #ifdef SDL_PORT
     (void)code;
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_0049cb28 = (DWORD)key;
-        g_dwDebugOverlayKeyLatch_0049cb2c = g_dwDebugOverlayKey_0049cb28;
+        g_dwDebugOverlayKey = (DWORD)key;
+        g_dwDebugOverlayKeyLatch = g_dwDebugOverlayKey;
     }
     return 0;
 #else
     if (code < 0)
-        return CallNextHookEx(g_hDebugKeyboardHook_0049cb30,
+        return CallNextHookEx(g_hDebugKeyboardHook,
                               code, key, flags);
     if ((flags & 0x40000000) != 0) {
-        g_dwDebugOverlayKey_0049cb28 = key;
-        g_dwDebugOverlayKeyLatch_0049cb2c = g_dwDebugOverlayKey_0049cb28;
+        g_dwDebugOverlayKey = key;
+        g_dwDebugOverlayKeyLatch = g_dwDebugOverlayKey;
     }
-    return CallNextHookEx(g_hDebugKeyboardHook_0049cb30,
+    return CallNextHookEx(g_hDebugKeyboardHook,
                           code, key, flags);
 #endif
 }
@@ -288,22 +288,22 @@ char DebugOverlayConsole::WaitForKey(void)
 #ifdef SDL_PORT
     char key;
 
-    while (g_dwDebugOverlayKey_0049cb28 == 0 &&
+    while (g_dwDebugOverlayKey == 0 &&
            PumpWindowMessages(0) != 0) {
         if (busyWait == 0)
             SDL_Delay(1);
     }
-    if (g_dwDebugOverlayKey_0049cb28 == 0)
+    if (g_dwDebugOverlayKey == 0)
         return 0x1b;
-    key = (char)g_dwDebugOverlayKey_0049cb28;
-    g_dwDebugOverlayKey_0049cb28 = 0;
+    key = (char)g_dwDebugOverlayKey;
+    g_dwDebugOverlayKey = 0;
     return key;
 #else
     MSG message;
     DWORD key;
 
     if (busyWait == 0) {
-        while (g_dwDebugOverlayKey_0049cb28 == 0) {
+        while (g_dwDebugOverlayKey == 0) {
             while (PeekMessageA(&message, 0, 0, 0, 0) != 0) {
                 if (message.message == WM_QUIT)
                     return 0;
@@ -314,11 +314,11 @@ char DebugOverlayConsole::WaitForKey(void)
             }
         }
     } else {
-        while (g_dwDebugOverlayKey_0049cb28 == 0) {
+        while (g_dwDebugOverlayKey == 0) {
         }
     }
-    key = g_dwDebugOverlayKey_0049cb28;
-    g_dwDebugOverlayKey_0049cb28 = 0;
+    key = g_dwDebugOverlayKey;
+    g_dwDebugOverlayKey = 0;
     return (char)key;
 #endif
 }

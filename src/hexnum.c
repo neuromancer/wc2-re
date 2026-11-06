@@ -6,7 +6,7 @@
 #include "game.h"
 
 /* Digit values by position; a space reads as 0. */
-static char g_szHexDigits_0049be70[] = "0123456789ABCDEF ";
+static char g_szHexDigits[] = "0123456789ABCDEF "; /* 0x0049be70 */
 
 /* Function start: 0x452930 */
 /* Converts up to four hexadecimal digits; anything else gives 0.  A space
@@ -24,12 +24,12 @@ short ParseHexNumber(char *text)
         return 0;
     for (position = length - 1; position > -1; position--) {
         value <<= 4;
-        match = DosStrchr(g_szHexDigits_0049be70, toupper(text[position]));
+        match = DosStrchr(g_szHexDigits, toupper(text[position]));
         if (match == 0)
             return 0;
         if (*match == ' ')
-            match = g_szHexDigits_0049be70;
-        value += match - g_szHexDigits_0049be70;
+            match = g_szHexDigits;
+        value += match - g_szHexDigits;
     }
     return value;
 }

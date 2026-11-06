@@ -14,7 +14,7 @@ void CALLBACK FrameTimerCallback(UINT timerId, UINT message,
     (void)user;
     (void)first;
     (void)second;
-    g_nFrameTimerWaitTicksValue_005c844c = 0;
+    g_5_nFrameTimerWaitTicksValue = 0;
 }
 
 /* Function start: 0x40A2E7 */
@@ -25,23 +25,23 @@ void SetMultimediaTimerCallback(int period)
     int milliseconds = period * 1000 / 60;
 
     if (period == 0) {
-        g_nFrameTimerWaitTicksValue_005c844c = 0;
-        if (g_uFrameTimerEventId_005d3bec != 0) {
-            timeKillEvent(g_uFrameTimerEventId_005d3bec);
-            g_uFrameTimerEventId_005d3bec = 0;
+        g_5_nFrameTimerWaitTicksValue = 0;
+        if (g_uFrameTimerEventId != 0) {
+            timeKillEvent(g_uFrameTimerEventId);
+            g_uFrameTimerEventId = 0;
         }
         return;
     }
-    if (g_uFrameTimerEventId_005d3bec != 0) {
-        timeKillEvent(g_uFrameTimerEventId_005d3bec);
-        g_uFrameTimerEventId_005d3bec = 0;
+    if (g_uFrameTimerEventId != 0) {
+        timeKillEvent(g_uFrameTimerEventId);
+        g_uFrameTimerEventId = 0;
     }
-    g_nFrameTimerWaitTicksValue_005c844c = 1;
-    g_uFrameTimerEventId_005d3bec = timeSetEvent(milliseconds, milliseconds,
+    g_5_nFrameTimerWaitTicksValue = 1;
+    g_uFrameTimerEventId = timeSetEvent(milliseconds, milliseconds,
                                 FrameTimerCallback, 0, 0);
     return;
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-unsigned int g_uFrameTimerEventId_005d3bec;
+unsigned int g_uFrameTimerEventId; /* 0x005d3bec */

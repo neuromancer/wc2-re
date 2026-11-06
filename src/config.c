@@ -20,7 +20,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 
     argumentCount = 0;
     argumentIndex = 1;
-    destination = g_szTextBufferBuffer_005d1c40;
+    destination = g_16_szTextBufferBuffer;
 #ifdef SDL_PORT
     if (SdlResolvePath("wc2.cfg", resolvedPath,
                           sizeof(resolvedPath)))
@@ -36,7 +36,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
             fclose(file);
             break;
         }
-        g_pInitialArguments_005c57f0[argumentCount++] =
+        g_pInitialArguments[argumentCount++] =
             destination;
         destination = strchr(destination, 0);
         destination++;
@@ -44,7 +44,7 @@ short LoadWingCmdrCfgFile(short argc, char **argv)
 
     while (argc-- != 0) {
         strcpy(destination, argv[argumentIndex++]);
-        g_pInitialArguments_005c57f0[argumentCount++] = destination;
+        g_pInitialArguments[argumentCount++] = destination;
         destination = strchr(destination, 0);
         destination++;
     }

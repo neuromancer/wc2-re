@@ -10,7 +10,7 @@
 #ifdef SDL_PORT
 /* Quarter-wave 16.16 cosine table embedded with the original raster
  * assembly.  Indices are tenths of a degree from 0 through 90 degrees. */
-const int g_anRLEQuarterCosine_00405cbb[901] = {
+const int g_anRLEQuarterCosine[901] = {
     65536, 65536, 65536, 65535, 65534, 65534, 65532, 65531,
     65530, 65528, 65526, 65524, 65522, 65519, 65516, 65514,
     65510, 65507, 65504, 65500, 65496, 65492, 65488, 65483,
@@ -124,14 +124,14 @@ const int g_anRLEQuarterCosine_00405cbb[901] = {
     2287, 2173, 2059, 1944, 1830, 1716, 1601, 1487,
     1372, 1258, 1144, 1029, 915, 801, 686, 572,
     458, 343, 229, 114, 0
-};
+}; /* 0x00405cbb */
 
 /* IFF chunk identifiers embedded between the original raster routines. */
-const unsigned char g_abIffBmhdChunkId_00406f74[4] = {
+const unsigned char g_abIffBmhdChunkId[4] = {
     'B', 'M', 'H', 'D'
-};
-const unsigned char g_abIffCmapChunkId_00406f78[4] = { 'C', 'M', 'A', 'P' };
-const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
+}; /* 0x00406f74 */
+const unsigned char g_abIffCmapChunkId[4] = { 'C', 'M', 'A', 'P' }; /* 0x00406f78 */
+const unsigned char g_abIffBodyChunkId[4] = { 'B', 'O', 'D', 'Y' }; /* 0x00406f7c */
 #endif
 
 
@@ -140,41 +140,41 @@ const unsigned char g_abIffBodyChunkId_00406f7c[4] = { 'B', 'O', 'D', 'Y' };
 
 /* Raster library state: native storage is in src/raster.asm. */
 #ifdef SDL_PORT
-void *g_apRasterDriverCallbacks_00490278[13];
-char g_szRasterDriverName_004902ac[13] = "MCGA.DLL";
-unsigned char *g_pRLEEncodeBuffer_004902b9;
-int g_nRLEPendingSkip_004902bd;
-unsigned char *g_pRLEScanlineStart_004902c1;
-unsigned char *g_pRLEScanCursor_004902c5;
-unsigned char *g_pRLEOutputCursor_004902c9;
-unsigned char *g_pRLELiteralStart_004902cd;
-int g_nRLEEncodedMinimumX_004902e1;
-int g_nRLEEncodedMinimumY_004902e5;
-int g_nRLEEncodedMaximumX_004902e9;
-int g_nRLEEncodedMaximumY_004902ed;
-unsigned char g_abRasterDecodeBuffer_004907f1[0xd00];
-unsigned char g_abRasterPaletteUsageScratch_004914f1[0x300];
-unsigned char g_abRasterFadeAccumulator_004917f1[0x300];
-const unsigned char g_abGifLZWCodeMasks_00491af1[9] = {
+void *g_apRasterDriverCallbacks[13]; /* 0x00490278 */
+char g_szRasterDriverName[13] = "MCGA.DLL"; /* 0x004902ac */
+unsigned char *g_pRLEEncodeBuffer; /* 0x004902b9 */
+int g_nRLEPendingSkip; /* 0x004902bd */
+unsigned char *g_pRLEScanlineStart; /* 0x004902c1 */
+unsigned char *g_pRLEScanCursor; /* 0x004902c5 */
+unsigned char *g_pRLEOutputCursor; /* 0x004902c9 */
+unsigned char *g_pRLELiteralStart; /* 0x004902cd */
+int g_nRLEEncodedMinimumX; /* 0x004902e1 */
+int g_nRLEEncodedMinimumY; /* 0x004902e5 */
+int g_nRLEEncodedMaximumX; /* 0x004902e9 */
+int g_nRLEEncodedMaximumY; /* 0x004902ed */
+unsigned char g_abRasterDecodeBuffer[0xd00]; /* 0x004907f1 */
+unsigned char g_abRasterPaletteUsageScratch[0x300]; /* 0x004914f1 */
+unsigned char g_abRasterFadeAccumulator[0x300]; /* 0x004917f1 */
+const unsigned char g_abGifLZWCodeMasks[9] = {
     0x00, 0x01, 0x03, 0x07, 0x0f, 0x1f, 0x3f, 0x7f, 0xff
-};
-const unsigned char g_abGifInterlaceRowSteps_00491afa[5] = {
+}; /* 0x00491af1 */
+const unsigned char g_abGifInterlaceRowSteps[5] = {
     8, 8, 4, 2, 0
-};
-const unsigned char g_abGifInterlaceRowStarts_00491aff[5] = {
+}; /* 0x00491afa */
+const unsigned char g_abGifInterlaceRowStarts[5] = {
     0, 4, 2, 1, 0
-};
-RasterClip *g_pGifRasterTarget_00491b04;
-unsigned char g_abRasterPaletteTranslation_00491b08[256];
-RLETransformVertex g_aRLETransformVertices_00491c08[4];
-int g_anRLESourceSteps_00491c58[4];
+}; /* 0x00491aff */
+RasterClip *g_pGifRasterTarget; /* 0x00491b04 */
+unsigned char g_abRasterPaletteTranslation[256]; /* 0x00491b08 */
+RLETransformVertex g_aRLETransformVertices[4]; /* 0x00491c08 */
+int g_anRLESourceSteps[4]; /* 0x00491c58 */
 #endif
 
 #ifdef SDL_PORT
 /* Retail has no storage here: GetAdaptiveTurnRate reads series 0 from the
  * eight bytes before the difficulty table, which end joycal.c's literals
  * ("l" of "j.cal" and padding).  The port keeps those values. */
-short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
+short g_aasSeriesMissionTurnRate[1][4] = { { 108, 0, 0, 0 } }; /* 0x004930a0 */
 #endif
 
 
@@ -183,11 +183,11 @@ short g_aasSeriesMissionTurnRate_004930a0[1][4] = { { 108, 0, 0, 0 } };
 
 #ifdef SDL_PORT
 /* Eye-space cache used only by the native renderer. */
-FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
+FixedVector g_aObjectViewPosition[SPACE_OBJECT_COUNT]; /* 0x0059afa0 */
 #endif
 #ifdef SDL_PORT
 /* The SDL adapters use these too, so the port keeps them shared. */
-InputEventState g_stFoundInputEvent_005c3af8;
-unsigned char g_abInputCursorBehind_005c3b10[0x1000];
-char g_szSfxWavePath_005b3650[0x40];
+InputEventState g_1_stFoundInputEvent; /* 0x005c3af8 */
+unsigned char g_abInputCursorBehind[0x1000]; /* 0x005c3b10 */
+char g_szSfxWavePath[0x40]; /* 0x005b3650 */
 #endif

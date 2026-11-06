@@ -5,11 +5,11 @@
  */
 #include "game.h"
 
-const int g_nJoystickUnavailableSample_0048e054 = -1;
+const int g_nJoystickUnavailableSample = -1; /* 0x0048e054 */
 
-signed char g_acExpectedGraphicsModes_00493078[5] = {
+signed char g_acExpectedGraphicsModes[5] = {
     0x13, 0x0d, 4, 9, 7
-};
+}; /* 0x00493078 */
 
 /* Function start: 0x423480 */
 short LoadJoystickCalibrationFile(short horizontalRange,
@@ -37,14 +37,14 @@ short LoadJoystickCalibrationFile(short horizontalRange,
         horizontalRange++;
     if (verticalRange == 0)
         verticalRange++;
-    g_nControllerFailureValue_005d176c =
-        g_nJoystickUnavailableSample_0048e054;
-    SampleBothJoysticks(stickSamples, g_nJoystickUnavailableSample_0048e054);
-    if (stickSamples[0].x != g_nJoystickUnavailableSample_0048e054 &&
-        stickSamples[0].y != g_nJoystickUnavailableSample_0048e054)
+    g_4_nControllerFailureValue =
+        g_nJoystickUnavailableSample;
+    SampleBothJoysticks(stickSamples, g_nJoystickUnavailableSample);
+    if (stickSamples[0].x != g_nJoystickUnavailableSample &&
+        stickSamples[0].y != g_nJoystickUnavailableSample)
         activeDevice = 0;
-    else if (stickSamples[1].x != g_nJoystickUnavailableSample_0048e054 &&
-             stickSamples[1].y != g_nJoystickUnavailableSample_0048e054)
+    else if (stickSamples[1].x != g_nJoystickUnavailableSample &&
+             stickSamples[1].y != g_nJoystickUnavailableSample)
         activeDevice = 1;
 
     if (activeDevice != -1) {
@@ -63,8 +63,8 @@ short LoadJoystickCalibrationFile(short horizontalRange,
                 fileError = _read(file, &restX, 2) <= 0;
             if (fileError == 0)
                 fileError = _read(file, &restY, 2) <= 0;
-            g_nJoystickCentreXNumber_005d1768 = (unsigned int)restX;
-            g_nJoystickCentreY_005d1764 = (unsigned int)restY;
+            g_1_nJoystickCentreXNumber = (unsigned int)restX;
+            g_2_nJoystickCentreY = (unsigned int)restY;
             _close(file);
             if (fileError != 0)
                 _unlink("j.cal");
@@ -76,70 +76,70 @@ short LoadJoystickCalibrationFile(short horizontalRange,
                                (short *)&maxX,
                                (short *)&minY,
                                (short *)&maxY);
-            g_nJoystickCentreXNumber_005d1768 =
+            g_1_nJoystickCentreXNumber =
                 ((int)minX + (int)maxX) / 2;
-            g_nJoystickCentreY_005d1764 =
+            g_2_nJoystickCentreY =
                 ((int)minY + (int)maxY) / 2;
         }
 
-        if (g_nJoystickCentreXNumber_005d1768 > 10) {
-            g_nJoystickCalibrationMinimumXNumber_005d2ff4 =
-                g_nJoystickCentreXNumber_005d1768 - 10;
-            g_nControllerCalibrationMaximumX_005d3000 =
-                g_nJoystickCentreXNumber_005d1768 + 10;
+        if (g_1_nJoystickCentreXNumber > 10) {
+            g_2_nJoystickCalibrationMinimumXNumber =
+                g_1_nJoystickCentreXNumber - 10;
+            g_2_nControllerCalibrationMaximumX =
+                g_1_nJoystickCentreXNumber + 10;
         } else {
-            g_nControllerCalibrationMaximumX_005d3000 =
-                g_nJoystickCentreXNumber_005d1768;
-            g_nJoystickCalibrationMinimumXNumber_005d2ff4 =
-                g_nControllerCalibrationMaximumX_005d3000;
+            g_2_nControllerCalibrationMaximumX =
+                g_1_nJoystickCentreXNumber;
+            g_2_nJoystickCalibrationMinimumXNumber =
+                g_2_nControllerCalibrationMaximumX;
         }
-        if (g_nJoystickCentreY_005d1764 > 10) {
-            g_nJoystickCalibrationMinimumY_005d2ff0 =
-                g_nJoystickCentreY_005d1764 - 10;
-            g_nJoystickTuningTopY_005d3004 =
-                g_nJoystickCentreY_005d1764 + 10;
+        if (g_2_nJoystickCentreY > 10) {
+            g_nJoystickCalibrationMinimumY =
+                g_2_nJoystickCentreY - 10;
+            g_7_nJoystickTuningTopY =
+                g_2_nJoystickCentreY + 10;
         } else {
-            g_nJoystickTuningTopY_005d3004 =
-                g_nJoystickCentreY_005d1764;
-            g_nJoystickCalibrationMinimumY_005d2ff0 =
-                g_nJoystickTuningTopY_005d3004;
+            g_7_nJoystickTuningTopY =
+                g_2_nJoystickCentreY;
+            g_nJoystickCalibrationMinimumY =
+                g_7_nJoystickTuningTopY;
         }
 
-        g_nJsRightScaleWord_005d175c =
-            g_nJoystickCalibrationMinimumXNumber_005d2ff4 /
+        g_1_nJsRightScaleWord =
+            g_2_nJoystickCalibrationMinimumXNumber /
             (int)horizontalRange;
-        g_nControllerLeftScaleValue_005d1740 =
-            g_nJsRightScaleWord_005d175c;
-        g_nJoystickDownScaleWord_005d1760 =
-            g_nJoystickCalibrationMinimumY_005d2ff0 /
+        g_12_nControllerLeftScaleValue =
+            g_1_nJsRightScaleWord;
+        g_12_nJoystickDownScaleWord =
+            g_nJoystickCalibrationMinimumY /
             (int)verticalRange;
-        g_nJoystickUpScaleWord_005d173c =
-            g_nJoystickDownScaleWord_005d1760;
-        if (g_nControllerLeftScaleValue_005d1740 == 0)
-            g_nControllerLeftScaleValue_005d1740++;
-        if (g_nJoystickUpScaleWord_005d173c == 0)
-            g_nJoystickUpScaleWord_005d173c++;
-        if (g_nJsRightScaleWord_005d175c == 0)
-            g_nJsRightScaleWord_005d175c++;
-        if (g_nJoystickDownScaleWord_005d1760 == 0)
-            g_nJoystickDownScaleWord_005d1760++;
+        g_59_nJoystickUpScaleWord =
+            g_12_nJoystickDownScaleWord;
+        if (g_12_nControllerLeftScaleValue == 0)
+            g_12_nControllerLeftScaleValue++;
+        if (g_59_nJoystickUpScaleWord == 0)
+            g_59_nJoystickUpScaleWord++;
+        if (g_1_nJsRightScaleWord == 0)
+            g_1_nJsRightScaleWord++;
+        if (g_12_nJoystickDownScaleWord == 0)
+            g_12_nJoystickDownScaleWord++;
 
-        g_nJoystickMinimumXNumber_005d174c =
-            g_nJoystickCentreXNumber_005d1768 -
-            horizontalRange * g_nControllerLeftScaleValue_005d1740;
-        g_nJsMinimumY_005d1750 =
-            g_nJoystickCentreY_005d1764 -
-            verticalRange * g_nJoystickUpScaleWord_005d173c;
-        g_nJoystickMaximumXValue_005d1744 =
-            horizontalRange * g_nControllerLeftScaleValue_005d1740 +
-            g_nJoystickCentreXNumber_005d1768;
-        g_nJoystickMaximumY_005d1748 =
-            verticalRange * g_nJoystickUpScaleWord_005d173c +
-            g_nJoystickCentreY_005d1764;
-        g_nJoystickHorizDeadZone_005d172c = horizontalDeadZone;
-        g_nControllerVerticalDeadZoneWord_005d1728 = verticalDeadZone;
+        g_12_nJoystickMinimumXNumber =
+            g_1_nJoystickCentreXNumber -
+            horizontalRange * g_12_nControllerLeftScaleValue;
+        g_2_nJsMinimumY =
+            g_2_nJoystickCentreY -
+            verticalRange * g_59_nJoystickUpScaleWord;
+        g_4_nJoystickMaximumXValue =
+            horizontalRange * g_12_nControllerLeftScaleValue +
+            g_1_nJoystickCentreXNumber;
+        g_nJoystickMaximumY =
+            verticalRange * g_59_nJoystickUpScaleWord +
+            g_2_nJoystickCentreY;
+        g_nJoystickHorizDeadZone = horizontalDeadZone;
+        g_nControllerVerticalDeadZoneWord = verticalDeadZone;
     }
-    g_nActiveInputDeviceWord_005d1726 = activeDevice;
+    g_8_nActiveInputDeviceWord = activeDevice;
     return activeDevice;
 }
 
@@ -150,99 +150,99 @@ short ReadCalibratedJoystick(void)
     short normalizedY;
     short inputDevice;
 
-    inputDevice = g_nActiveInputDeviceWord_005d1726;
-    if (g_nActiveInputDeviceWord_005d1726 == -1)
+    inputDevice = g_8_nActiveInputDeviceWord;
+    if (g_8_nActiveInputDeviceWord == -1)
         return 0;
     SampleJoystickDevice(
-        &g_aInputDeviceSamplesList_005d1780[inputDevice], inputDevice,
-        g_nControllerFailureValue_005d176c);
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].x ==
-            g_nControllerFailureValue_005d176c ||
-        g_aInputDeviceSamplesList_005d1780[inputDevice].y ==
-            g_nControllerFailureValue_005d176c) {
-        g_aInputDeviceSamplesList_005d1780[inputDevice].x =
-            g_aInputDeviceSamplesList_005d1780[inputDevice].y =
-            g_aInputDeviceSamplesList_005d1780[inputDevice].buttons = 0;
-        g_nActiveInputDeviceWord_005d1726 = -1;
+        &g_aInputDeviceSamplesList[inputDevice], inputDevice,
+        g_4_nControllerFailureValue);
+    if (g_aInputDeviceSamplesList[inputDevice].x ==
+            g_4_nControllerFailureValue ||
+        g_aInputDeviceSamplesList[inputDevice].y ==
+            g_4_nControllerFailureValue) {
+        g_aInputDeviceSamplesList[inputDevice].x =
+            g_aInputDeviceSamplesList[inputDevice].y =
+            g_aInputDeviceSamplesList[inputDevice].buttons = 0;
+        g_8_nActiveInputDeviceWord = -1;
         return 0;
     }
 
-    g_nJoystickRawX_005d2ff8 =
-        g_aInputDeviceSamplesList_005d1780[inputDevice].x;
-    g_nStickRawY_005d2ffc =
-        g_aInputDeviceSamplesList_005d1780[inputDevice].y;
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].x <
-        g_nJoystickMinimumXNumber_005d174c)
-        g_aInputDeviceSamplesList_005d1780[inputDevice].x =
-            g_nJoystickMinimumXNumber_005d174c;
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].x >
-        g_nJoystickMaximumXValue_005d1744)
-        g_aInputDeviceSamplesList_005d1780[inputDevice].x =
-            g_nJoystickMaximumXValue_005d1744;
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].y <
-        g_nJsMinimumY_005d1750)
-        g_aInputDeviceSamplesList_005d1780[inputDevice].y =
-            g_nJsMinimumY_005d1750;
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].y >
-        g_nJoystickMaximumY_005d1748)
-        g_aInputDeviceSamplesList_005d1780[inputDevice].y =
-            g_nJoystickMaximumY_005d1748;
+    g_3_nJoystickRawX =
+        g_aInputDeviceSamplesList[inputDevice].x;
+    g_nStickRawY =
+        g_aInputDeviceSamplesList[inputDevice].y;
+    if (g_aInputDeviceSamplesList[inputDevice].x <
+        g_12_nJoystickMinimumXNumber)
+        g_aInputDeviceSamplesList[inputDevice].x =
+            g_12_nJoystickMinimumXNumber;
+    if (g_aInputDeviceSamplesList[inputDevice].x >
+        g_4_nJoystickMaximumXValue)
+        g_aInputDeviceSamplesList[inputDevice].x =
+            g_4_nJoystickMaximumXValue;
+    if (g_aInputDeviceSamplesList[inputDevice].y <
+        g_2_nJsMinimumY)
+        g_aInputDeviceSamplesList[inputDevice].y =
+            g_2_nJsMinimumY;
+    if (g_aInputDeviceSamplesList[inputDevice].y >
+        g_nJoystickMaximumY)
+        g_aInputDeviceSamplesList[inputDevice].y =
+            g_nJoystickMaximumY;
 
     normalizedY = 0;
     normalizedX = normalizedY;
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].x <
-        g_nJoystickCentreXNumber_005d1768) {
-        normalizedX = (short)((g_nJoystickCentreXNumber_005d1768 -
-            g_aInputDeviceSamplesList_005d1780[inputDevice].x) /
-            g_nControllerLeftScaleValue_005d1740);
-        if (normalizedX <= g_nJoystickHorizDeadZone_005d172c)
+    if (g_aInputDeviceSamplesList[inputDevice].x <
+        g_1_nJoystickCentreXNumber) {
+        normalizedX = (short)((g_1_nJoystickCentreXNumber -
+            g_aInputDeviceSamplesList[inputDevice].x) /
+            g_12_nControllerLeftScaleValue);
+        if (normalizedX <= g_nJoystickHorizDeadZone)
             normalizedX = 0;
         else if (normalizedX != 0)
             normalizedX = (short)-normalizedX;
-    } else if (g_aInputDeviceSamplesList_005d1780[inputDevice].x >
-               g_nJoystickCentreXNumber_005d1768) {
+    } else if (g_aInputDeviceSamplesList[inputDevice].x >
+               g_1_nJoystickCentreXNumber) {
         normalizedX = (short)((
-            g_aInputDeviceSamplesList_005d1780[inputDevice].x -
-            g_nJoystickCentreXNumber_005d1768) /
-            g_nJsRightScaleWord_005d175c);
-        if (normalizedX <= g_nJoystickHorizDeadZone_005d172c)
+            g_aInputDeviceSamplesList[inputDevice].x -
+            g_1_nJoystickCentreXNumber) /
+            g_1_nJsRightScaleWord);
+        if (normalizedX <= g_nJoystickHorizDeadZone)
             normalizedX = 0;
     }
 
-    if (g_aInputDeviceSamplesList_005d1780[inputDevice].y <
-        g_nJoystickCentreY_005d1764) {
-        normalizedY = (short)((g_nJoystickCentreY_005d1764 -
-            g_aInputDeviceSamplesList_005d1780[inputDevice].y) /
-            g_nJoystickUpScaleWord_005d173c);
-        if (normalizedY <= g_nControllerVerticalDeadZoneWord_005d1728)
+    if (g_aInputDeviceSamplesList[inputDevice].y <
+        g_2_nJoystickCentreY) {
+        normalizedY = (short)((g_2_nJoystickCentreY -
+            g_aInputDeviceSamplesList[inputDevice].y) /
+            g_59_nJoystickUpScaleWord);
+        if (normalizedY <= g_nControllerVerticalDeadZoneWord)
             normalizedY = 0;
         else if (normalizedY != 0)
             normalizedY = (short)-normalizedY;
-    } else if (g_aInputDeviceSamplesList_005d1780[inputDevice].y >
-               g_nJoystickCentreY_005d1764) {
+    } else if (g_aInputDeviceSamplesList[inputDevice].y >
+               g_2_nJoystickCentreY) {
         normalizedY = (short)((
-            g_aInputDeviceSamplesList_005d1780[inputDevice].y -
-            g_nJoystickCentreY_005d1764) /
-            g_nJoystickDownScaleWord_005d1760);
-        if (normalizedY <= g_nControllerVerticalDeadZoneWord_005d1728)
+            g_aInputDeviceSamplesList[inputDevice].y -
+            g_2_nJoystickCentreY) /
+            g_12_nJoystickDownScaleWord);
+        if (normalizedY <= g_nControllerVerticalDeadZoneWord)
             normalizedY = 0;
     }
-    g_aInputDeviceSamplesList_005d1780[inputDevice].x = (int)normalizedX;
-    g_aInputDeviceSamplesList_005d1780[inputDevice].y = (int)normalizedY;
+    g_aInputDeviceSamplesList[inputDevice].x = (int)normalizedX;
+    g_aInputDeviceSamplesList[inputDevice].y = (int)normalizedY;
     return 1;
 }
 
 /* Unreferenced driver names; WC1's joystick unit has the same pair. */
-static char g_szTMDriverName_00493080[] = "TM.DRV";
-static char g_szSuperTMDriverName_00493088[] = "SUPERTM.DRV";
+static char g_szTMDriverName[] = "TM.DRV"; /* 0x00493080 */
+static char g_szSuperTMDriverName[] = "SUPERTM.DRV"; /* 0x00493088 */
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_nJoystickCalibrationMinimumY_005d2ff0;
-int g_nJoystickCalibrationMinimumXNumber_005d2ff4;
-int g_nJoystickRawX_005d2ff8;
-int g_nStickRawY_005d2ffc;
-int g_nControllerCalibrationMaximumX_005d3000;
-int g_nJoystickTuningTopY_005d3004;
-char g_nUnusedJoycalValue_005d3008; /* never referenced */
-unsigned char *DAT_005d300c;
+int g_nJoystickCalibrationMinimumY; /* 0x005d2ff0 */
+int g_2_nJoystickCalibrationMinimumXNumber; /* 0x005d2ff4 */
+int g_3_nJoystickRawX; /* 0x005d2ff8 */
+int g_nStickRawY; /* 0x005d2ffc */
+int g_2_nControllerCalibrationMaximumX; /* 0x005d3000 */
+int g_7_nJoystickTuningTopY; /* 0x005d3004 */
+char g_nUnusedJoycalValue; /* 0x005d3008 */ /* never referenced */
+unsigned char *g_1_pCampaignDataBase; /* 0x005d300c */

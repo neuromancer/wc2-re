@@ -16,10 +16,11 @@ statics = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(statics)
 
 
-def coff_fixture(section_name=".data", addend=0, public_data=False):
+def coff_fixture(section_name=".data", addend=0, public_data=False,
+                 private_name="_g_private_00499000$S123"):
     """A public function referencing a private global four bytes into data."""
     symbols = [("_PublicFunction", 0, 1, 2),
-               ("_g_private_00499000$S123", 4, 2, 3)]
+               (private_name, 4, 2, 3)]
     if public_data:
         symbols.append(("_PublicData", 0, 2, 2))
     strings = bytearray(b"\0" * 4)
@@ -71,6 +72,14 @@ class PrivateSymbolTest(unittest.TestCase):
     def test_address_suffix_is_not_used_as_linked_address(self):
         result = self.recover(coff_fixture(), LinkedImage(0x502004))
         self.assertEqual(result, [("_g_private_00499000", 0x502004)])
+
+    def test_address_free_and_numeric_prefix_names(self):
+        for name in ("_g_private", "_g_7_private"):
+            with self.subTest(name=name):
+                result = self.recover(
+                    coff_fixture(private_name=name + "$S123"),
+                    LinkedImage(0x502004))
+                self.assertEqual(result, [(name, 0x502004)])
 
     def test_readonly_data_with_negative_addend_and_library_member(self):
         entries = [SimpleNamespace(symbol="_PublicFunction",

@@ -11,14 +11,14 @@ char *CopyRasterDriverName(void *const *callbacks)
     const char *(*getName)(void);
 
     getName = (const char *(*)(void))callbacks[0];
-    strcpy(g_szRasterDriverName_004902ac, getName());
-    return g_szRasterDriverName_004902ac;
+    strcpy(g_szRasterDriverName, getName());
+    return g_szRasterDriverName;
 }
 
 void InstallRasterDriverCallbacks(void *const *callbacks)
 {
-    memcpy(g_apRasterDriverCallbacks_00490278, callbacks,
-           sizeof(g_apRasterDriverCallbacks_00490278));
+    memcpy(g_apRasterDriverCallbacks, callbacks,
+           sizeof(g_apRasterDriverCallbacks));
 }
 
 unsigned int SetRasterClipPixel(RasterClip *clip, int x, int y,
@@ -130,7 +130,7 @@ unsigned int DrawClippedLine(RasterClip *clip, int x1, int y1,
             if (mode == 0)
                 *pixel = (unsigned char)colour;
             else if (mode == 1)
-                *pixel = g_abRasterPaletteTranslation_00491b08[*pixel];
+                *pixel = g_abRasterPaletteTranslation[*pixel];
         }
         if (x1 == x2 && y1 == y2) {
             done = 1;
@@ -331,7 +331,7 @@ int DrawRLEImageUnclipped(RasterClip *clip, RLEFrameHeader *header,
 
 void SetPaletteTranslationTable(const unsigned char *translation)
 {
-    memcpy(g_abRasterPaletteTranslation_00491b08, translation, 256);
+    memcpy(g_abRasterPaletteTranslation, translation, 256);
 }
 
 int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
@@ -391,7 +391,7 @@ int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
                     while (count-- != 0) {
                         unsigned char value;
 
-                        value = g_abRasterPaletteTranslation_00491b08[*commands++];
+                        value = g_abRasterPaletteTranslation[*commands++];
                         if (drawX >= clipLeft && drawX <= clipRight &&
                             drawY >= clipTop && drawY <= clipBottom)
                             surface->pixels[drawY * width + drawX] = value;
@@ -400,7 +400,7 @@ int DrawRLEImageColor(RasterClip *clip, unsigned char *shape, int frame,
                 } else {
                     unsigned char value;
 
-                    value = g_abRasterPaletteTranslation_00491b08[*commands++];
+                    value = g_abRasterPaletteTranslation[*commands++];
                     while (count-- != 0) {
                         if (drawX >= clipLeft && drawX <= clipRight &&
                             drawY >= clipTop && drawY <= clipBottom)
@@ -453,11 +453,11 @@ int DrawRLEImageColorUnclipped(RasterClip *clip, RLEFrameHeader *header,
                 if ((command & 1) != 0) {
                     while (count-- != 0)
                         *destination++ =
-                            g_abRasterPaletteTranslation_00491b08[*commands++];
+                            g_abRasterPaletteTranslation[*commands++];
                 } else {
                     unsigned char value;
 
-                    value = g_abRasterPaletteTranslation_00491b08[*commands++];
+                    value = g_abRasterPaletteTranslation[*commands++];
                     memset(destination, value, count);
                     destination += count;
                 }
@@ -476,20 +476,20 @@ void GetRLETransformTrig(int angleTenths, int *cosine, int *sine)
     if (angle < 0)
         angle += 3600;
     if (angle <= 900) {
-        *cosine = g_anRLEQuarterCosine_00405cbb[angle];
-        *sine = g_anRLEQuarterCosine_00405cbb[900 - angle];
+        *cosine = g_anRLEQuarterCosine[angle];
+        *sine = g_anRLEQuarterCosine[900 - angle];
     } else if (angle <= 1800) {
         angle = 1800 - angle;
-        *cosine = -g_anRLEQuarterCosine_00405cbb[angle];
-        *sine = g_anRLEQuarterCosine_00405cbb[900 - angle];
+        *cosine = -g_anRLEQuarterCosine[angle];
+        *sine = g_anRLEQuarterCosine[900 - angle];
     } else if (angle <= 2700) {
         angle -= 1800;
-        *cosine = -g_anRLEQuarterCosine_00405cbb[angle];
-        *sine = -g_anRLEQuarterCosine_00405cbb[900 - angle];
+        *cosine = -g_anRLEQuarterCosine[angle];
+        *sine = -g_anRLEQuarterCosine[900 - angle];
     } else {
         angle = 3600 - angle;
-        *cosine = g_anRLEQuarterCosine_00405cbb[angle];
-        *sine = -g_anRLEQuarterCosine_00405cbb[900 - angle];
+        *cosine = g_anRLEQuarterCosine[angle];
+        *sine = -g_anRLEQuarterCosine[900 - angle];
     }
 }
 

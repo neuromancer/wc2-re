@@ -5,14 +5,14 @@
  */
 #include "game.h"
 
-const char *g_pszPacketReadOperation_00492b0c = "reading from disk";
-const char *g_pszPacketAllocateOperation_00492b10 = "allocating memory";
-const char *g_pszPacketLoadErrorFormat_00492b14 =
+const char *g_pszPacketReadOperation = "reading from disk"; /* 0x00492b0c */
+const char *g_pszPacketAllocateOperation = "allocating memory"; /* 0x00492b10 */
+const char *g_pszPacketLoadErrorFormat =
     "Sorry, an error has occurred while %s.\n"
     "Please note the following information:\n"
     "%Fs #%d (ERR %d  PS%ld  LB%ld  FL%d) at %s\n"
     "Check your configuration.  If this problem persists, please\n"
-    "call Origin Systems' service line.  We are sorry for the inconvenience.";
+    "call Origin Systems' service line.  We are sorry for the inconvenience."; /* 0x00492b14 */
 
 #pragma function(memset)
 /* Function start: 0x40F020 */
@@ -71,27 +71,27 @@ void ReportPacketLoadError(void *packet, char *fileName,
     const char *action;
 
     if (packet != 0 &&
-        (g_nPacketError_0049ca90 == 0 || g_nPacketError_0049ca90 == 8))
+        (g_nPacketError == 0 || g_nPacketError == 8))
         return;
-    if (packet == 0 && g_nPacketError_0049ca90 == 8)
+    if (packet == 0 && g_nPacketError == 8)
         return;
-    savedPacketError = g_nPacketError_0049ca90;
+    savedPacketError = g_nPacketError;
     if (section != -1)
         packetSize = GetNamedPacketSize(fileName, section);
     LogMemoryUsage();
-    g_nPacketError_0049ca90 = savedPacketError;
-    if (g_nOriginDevUnlock_0049d774 == 0) {
+    g_nPacketError = savedPacketError;
+    if (g_nOriginDevUnlock == 0) {
         if (packet == 0 || section == -1)
-            action = g_pszPacketAllocateOperation_00492b10;
+            action = g_pszPacketAllocateOperation;
         else
-            action = g_pszPacketReadOperation_00492b0c;
-        sprintf(g_szDefaultTextBufferText_005d2b80,
-                g_pszPacketLoadErrorFormat_00492b14,
+            action = g_pszPacketReadOperation;
+        sprintf(g_6_szDefaultTextBufferText,
+                g_pszPacketLoadErrorFormat,
                 action, fileName, (int)section,
-                (int)g_nPacketError_0049ca90, packetSize,
+                (int)g_nPacketError, packetSize,
                 GetLargestFreeMemoryBlockByType(retry), (int)retry,
                 sourceTag);
-        FatalErrorAndExit(g_szDefaultTextBufferText_005d2b80);
+        FatalErrorAndExit(g_6_szDefaultTextBufferText);
     } else {
         printf("Error: %Fs, packet %d\n", fileName, (int)section);
         printf("packet size: %ld\n", packetSize);
@@ -117,7 +117,7 @@ void AppendPacketLoadDebugLog(char *fileName, short section,
     strncpy(truncatedFileName, fileName, strlen(truncatedFileName));
     sprintf(logLine, "\n%s, #%d, %Fp", truncatedFileName,
             (int)section, packet);
-    if (g_nShowMemoryStatus_0049d784 != 0) {
+    if (g_nShowMemoryStatus != 0) {
         ltoa((long)GetNamedPacketSize(fileName, section),
               truncatedFileName, 10);
         strcat(logLine, ",Size:");
@@ -139,7 +139,7 @@ void RewritePacketFilenameForInstalledData(char *fileName)
     char *extension;
     char *dot;
 
-    if (g_bRewritePacketExtensions_0049cb48 == 1) {
+    if (g_bRewritePacketExtensions == 1) {
         extension = DosStrchr(fileName, '.');
         dot = extension;
         extension++;
@@ -154,12 +154,12 @@ void *LoadPacketIntoBuffer(char *fileName, short section,
 {
     void *packet;
 
-    if (g_bRewritePacketExtensions_0049cb48 == 1)
+    if (g_bRewritePacketExtensions == 1)
         RewritePacketFilenameForInstalledData(fileName);
     packet = LoadNamedPacket(fileName, section, destination, 0, 0,
                              registerHandle);
     ReportPacketLoadError(destination, fileName, 0, section, "RP");
-    if (g_nOriginDevUnlock_0049d774 != 0)
+    if (g_nOriginDevUnlock != 0)
         AppendPacketLoadDebugLog(fileName, section, packet);
     return packet;
 }
@@ -173,7 +173,7 @@ void *LoadPacketAllocated(char *fileName, short section)
     int bytes;
 
     triesLeft = 5;
-    if (g_bRewritePacketExtensions_0049cb48 == 1)
+    if (g_bRewritePacketExtensions == 1)
         RewritePacketFilenameForInstalledData(fileName);
     bytes = (int)GetNamedPacketSize(fileName, section);
     buffer = AllocateTaggedMemory((int)(short)bytes, 0x40);
@@ -181,15 +181,15 @@ void *LoadPacketAllocated(char *fileName, short section)
         do {
             LoadNamedPacket(fileName, section, buffer, 0, 0, 1);
             triesLeft--;
-        } while (triesLeft > 0 && g_nPacketError_0049ca90 != 0 &&
-                 g_nPacketError_0049ca90 != 8);
+        } while (triesLeft > 0 && g_nPacketError != 0 &&
+                 g_nPacketError != 8);
     } else {
         sprintf(errorText, "Error in LPN:  %Fs, #%d\n",
                 fileName, (int)section);
         exit_squadron(errorText);
     }
     ReportPacketLoadError(buffer, fileName, 0, section, "LPN");
-    if (g_nOriginDevUnlock_0049d774 != 0)
+    if (g_nOriginDevUnlock != 0)
         AppendPacketLoadDebugLog(fileName, section, buffer);
     return buffer;
 }
@@ -205,7 +205,7 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
 
     result = 0;
     retries = 5;
-    if (g_bRewritePacketExtensions_0049cb48 == 1)
+    if (g_bRewritePacketExtensions == 1)
         RewritePacketFilenameForInstalledData(fileName);
     do {
         FreePacketAndClear(&result, flags);
@@ -215,11 +215,11 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
         largestBlock = GetLargestMainMemoryBlock();
         available = GetAvailableMainMemory();
         retries--;
-    } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
-             g_nPacketError_0049ca90 != 8);
+    } while (retries > 0 && g_nPacketError != 0 &&
+             g_nPacketError != 8);
 
-    if (result == 0 && g_stViewScratchInfo_005d2b00.pixels != 0) {
-        free_viewport(&g_stViewScratchInfo_005d2b00);
+    if (result == 0 && g_27_stViewScratchInfo.pixels != 0) {
+        free_viewport(&g_27_stViewScratchInfo);
         do {
             FreePacketAndClear(&result, flags);
             largestBlock = GetLargestMainMemoryBlock();
@@ -228,34 +228,34 @@ void *FetchDiskPacketRetrying(char *fileName, short section,
             largestBlock = GetLargestMainMemoryBlock();
             available = GetAvailableMainMemory();
             retries--;
-        } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
-                 g_nPacketError_0049ca90 != 8);
-        if (AllocateViewport(&g_stViewScratchInfo_005d2b00,
-                             g_cPrimaryViewBufferColour_0049cb88,
+        } while (retries > 0 && g_nPacketError != 0 &&
+                 g_nPacketError != 8);
+        if (AllocateViewport(&g_27_stViewScratchInfo,
+                             g_cPrimaryViewBufferColour,
                              0x20) == 0) {
             ReportPacketLoadError(0, fileName, flags, flags, "LP2");
         }
     }
     if (result == 0 &&
-        g_stSecondaryViewBufferBlock_005d2c90.pixels != 0) {
-        free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
+        g_stSecondaryViewBufferBlock.pixels != 0) {
+        free_viewport(&g_stSecondaryViewBufferBlock);
         do {
             FreePacketAndClear(&result, flags);
             result = LoadNamedPacket(fileName, section, 0, flags, 0, 1);
             retries--;
-        } while (retries > 0 && g_nPacketError_0049ca90 != 0 &&
-                 g_nPacketError_0049ca90 != 8);
-        if (AllocateViewport(&g_stSecondaryViewBufferBlock_005d2c90,
-                             g_cSecondaryViewBufferColour_0049cb4c,
+        } while (retries > 0 && g_nPacketError != 0 &&
+                 g_nPacketError != 8);
+        if (AllocateViewport(&g_stSecondaryViewBufferBlock,
+                             g_cSecondaryViewBufferColour,
                              0) == 0) {
             ReportPacketLoadError(0, fileName, flags, section, "LP3");
         }
     }
     if (result == 0 && (flags & 4) == 0 &&
-        g_nPacketError_0049ca90 != 0 && g_nPacketError_0049ca90 != 8) {
+        g_nPacketError != 0 && g_nPacketError != 8) {
         ReportPacketLoadError(result, fileName, flags, section, "LP4");
     }
-    if (g_nOriginDevUnlock_0049d774 != 0) {
+    if (g_nOriginDevUnlock != 0) {
         AppendPacketLoadDebugLog(fileName, section, result);
     }
     return result;
@@ -266,16 +266,16 @@ void InitializeTextContextFromFont(TextContext *context, short fontIndex,
                                    unsigned char colour,
                                    signed char background)
 {
-    if (g_apTextGlyphs_005d2200[fontIndex] == 0) {
+    if (g_36_apTextGlyphs[fontIndex] == 0) {
         if (fontIndex == 1) {
-            g_apTextGlyphs_005d2200[fontIndex] =
+            g_36_apTextGlyphs[fontIndex] =
                 FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0x10);
         } else {
-            g_apTextGlyphs_005d2200[fontIndex] =
+            g_36_apTextGlyphs[fontIndex] =
                 FetchDiskPacketRetrying("fonts.fnt", fontIndex, 0);
         }
     }
-    context->font = g_apTextGlyphs_005d2200[fontIndex];
+    context->font = g_36_apTextGlyphs[fontIndex];
     context->colour = colour;
     context->backgroundColour = (unsigned char)background;
     SetTextContext(context);
@@ -286,9 +286,9 @@ void ReleaseTextFont(short fontIndex)
 {
     if (fontIndex == 1)
         return;
-    if (g_apTextGlyphs_005d2200[fontIndex] != 0) {
-        ReleasePacketHandle(g_apTextGlyphs_005d2200[fontIndex]);
-        g_apTextGlyphs_005d2200[fontIndex] = 0;
+    if (g_36_apTextGlyphs[fontIndex] != 0) {
+        ReleasePacketHandle(g_36_apTextGlyphs[fontIndex]);
+        g_36_apTextGlyphs[fontIndex] = 0;
     }
 }
 
@@ -340,7 +340,7 @@ short WaitForInputKey(void)
 
     key = 0;
     done = 0;
-    previousPump = g_pfnCurrentInputPump_005c840c;
+    previousPump = g_176_pfnCurrentInputPump;
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ServiceInputDevices(15);
     press = FindQueuedInputEvent(1);
@@ -368,8 +368,8 @@ unsigned short WaitForAnyInputPress(void)
 
     acknowledged = 0;
     result = 0x0d;
-    savedKeyboardMouse = g_bKeyboardMouseEnabled_0049be68;
-    g_bKeyboardMouseEnabled_0049be68 = 0;
+    savedKeyboardMouse = g_bKeyboardMouseEnabled;
+    g_bKeyboardMouseEnabled = 0;
     while (acknowledged == 0) {
         switch (PollInputEvent(&polled, 15)) {
         case 4:
@@ -381,11 +381,11 @@ unsigned short WaitForAnyInputPress(void)
             break;
         }
     }
-    g_bKeyboardMouseEnabled_0049be68 = savedKeyboardMouse;
+    g_bKeyboardMouseEnabled = savedKeyboardMouse;
     return result;
 }
 
 /* Unreferenced in WC2.  WC1's disk unit has the same 0x50 word as its
  * prompt border colour. */
-int g_nUnusedDiskWord_00492b18 = 0;
-short g_nUnusedDiskPromptBorderColour_00492b1c = 0x50;
+int g_nUnusedDiskWord = 0; /* 0x00492b18 */
+short g_nUnusedDiskPromptBorderColour = 0x50; /* 0x00492b1c */

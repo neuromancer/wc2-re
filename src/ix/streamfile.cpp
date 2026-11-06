@@ -13,7 +13,7 @@ unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
                                                 unsigned int bytes)
 {
     ix_stream_file_wait();
-    EnterCriticalSection(&g_csStreamerFileFifo_005c4c00);
+    EnterCriticalSection(&g_csStreamerFileFifo);
     if (position + bytes > size)
         bytes = size - position;
     if (bytes > 0) {
@@ -23,17 +23,17 @@ unsigned int IxStreamFile::ix_stream_file_read(void *newDestination,
         if (previous != 0)
             previous->next = next;
         if (next == 0)
-            g_pPumpIdleFiles_005c4b48 = previous;
+            g_48_pPumpIdleFiles = previous;
         else
             next->previous = previous;
-        previous = g_pPlayerReadQueue_005c4bd4;
+        previous = g_1_pPlayerReadQueue;
         next = 0;
-        if (g_pPlayerReadQueue_005c4bd4 != 0)
-            g_pPlayerReadQueue_005c4bd4->next = this;
-        g_pPlayerReadQueue_005c4bd4 = this;
+        if (g_1_pPlayerReadQueue != 0)
+            g_1_pPlayerReadQueue->next = this;
+        g_1_pPlayerReadQueue = this;
     }
-    LeaveCriticalSection(&g_csStreamerFileFifo_005c4c00);
-    SetEvent(g_hStreamRouseEvent_005c4c3c);
+    LeaveCriticalSection(&g_csStreamerFileFifo);
+    SetEvent(g_1_hStreamRouseEvent);
     return bytes;
 }
 

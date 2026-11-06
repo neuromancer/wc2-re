@@ -7,4 +7,4 @@
  */
 #include "game.h"
 
-char *g_pszGameVersion_0049b528 = "1.03F-95";
+char *g_pszGameVersion = "1.03F-95"; /* 0x0049b528 */

@@ -7,9 +7,9 @@
 #define GR_C
 #include "game.h"
 
-const int g_nViewportStaticRandomRange_0048e060 = 3;
+const int g_nViewportStaticRandomRange = 3; /* 0x0048e060 */
 
-unsigned char g_abPaletteTranslation_00496338[256] = {
+unsigned char g_abPaletteTranslation[256] = {
       0,   1,   2,   3,   4,   5,   6,   7,
       8,   9,  10,  11,  12,  13,  14,  15,
      16,  17,  18,  19,  20,  21,  22,  23,
@@ -42,8 +42,8 @@ unsigned char g_abPaletteTranslation_00496338[256] = {
     232, 233, 234, 235, 236, 237, 238, 239,
     240, 241, 242, 243, 244, 245, 246, 247,
     248, 249, 250, 251, 252, 253, 254, 255
-};
-unsigned short g_awAbsoluteCosine_00496438[360] = {
+}; /* 0x00496338 */
+unsigned short g_awAbsoluteCosine[360] = {
     255, 255, 255, 255, 255, 255, 255, 254, 254, 253, 252, 251,
     250, 250, 248, 247, 246, 245, 243, 242, 241, 239, 237, 236,
     234, 232, 230, 228, 226, 224, 221, 219, 217, 215, 212, 210,
@@ -74,8 +74,8 @@ unsigned short g_awAbsoluteCosine_00496438[360] = {
     207, 210, 212, 215, 217, 219, 221, 224, 226, 228, 230, 232,
     234, 236, 237, 239, 241, 242, 243, 245, 246, 247, 248, 250,
     250, 251, 252, 253, 254, 254, 255, 255, 255, 255, 255, 255
-};
-unsigned short g_awAbsoluteSine_00496708[360] = {
+}; /* 0x00496438 */
+unsigned short g_awAbsoluteSine[360] = {
       0,   4,   9,  13,  18,  22,  27,  31,  36,  40,  45,  49,
      53,  58,  62,  66,  71,  75,  79,  83,  88,  92,  96, 100,
     104, 108, 112, 116, 120, 124, 128, 131, 136, 139, 143, 147,
@@ -106,7 +106,7 @@ unsigned short g_awAbsoluteSine_00496708[360] = {
     150, 147, 143, 139, 136, 131, 128, 124, 120, 116, 112, 108,
     104, 100,  96,  92,  88,  83,  79,  74,  71,  66,  62,  58,
      53,  49,  45,  40,  36,  31,  27,  22,  18,  13,   9,   4
-};
+}; /* 0x00496708 */
 
 #ifdef VPORT_DEBUG
 /* Diagnostic helper for `make vport-debug`; not part of the original, so it
@@ -126,16 +126,16 @@ static const char *DescribeUnregisteredViewport(const Viewport *viewport)
             (int)viewport->left, (int)viewport->top,
             (int)viewport->right, (int)viewport->bottom,
             (void *)viewport->allocation,
-            (void *)g_stScrViewInfo_005d21a0.pixels,
+            (void *)g_101_stScrViewInfo.pixels,
             (void *)GetDIBPixelBuffer(),
-            g_nViewportAllocationCount_005d19bc);
+            g_nViewportAllocationCount);
     cursor = text + strlen(text);
-    shown = g_nViewportAllocationCount_005d19bc;
+    shown = g_nViewportAllocationCount;
     if (shown > 6)
         shown = 6;
     for (entry = 0; entry < shown; entry++) {
         sprintf(cursor, " %p",
-                (void *)g_apViewportAllocations_005d19c0[entry]);
+                (void *)g_apViewportAllocations[entry]);
         cursor += strlen(cursor);
     }
     return text;
@@ -380,14 +380,14 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 
     if (viewport->left < 0)
         return;
-    if (viewport->pixels != g_stScrViewInfo_005d21a0.pixels) {
+    if (viewport->pixels != g_101_stScrViewInfo.pixels) {
         for (offset = 0;
-             offset < g_nViewportAllocationCount_005d19bc &&
-                 g_apViewportAllocations_005d19c0[offset] !=
+             offset < g_nViewportAllocationCount &&
+                 g_apViewportAllocations[offset] !=
                      viewport->pixels;
              offset++) {
         }
-        if (offset >= g_nViewportAllocationCount_005d19bc)
+        if (offset >= g_nViewportAllocationCount)
 #ifdef VPORT_DEBUG
             /* Diagnostic build (make vport-debug): name the viewport that is
              * not in the allocation registry so the caller can be identified
@@ -397,7 +397,7 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
             exit_squadron("bad vport");
 #endif
     }
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     offset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]);
     nextOffset = SignExtendClipCoord(
@@ -419,17 +419,17 @@ void ValidateViewportBounds(Viewport *viewport, RasterSurface *surface,
 /* Function start: 0x425B9E */
 void ClipViewportToScreen(Viewport *viewport)
 {
-    ValidateViewportBounds(viewport, &g_stRasterBitmap_004a2670,
-                           &g_stScreenLimits_004b2088);
+    ValidateViewportBounds(viewport, &g_1_stRasterBitmap,
+                           &g_stScreenLimits);
 }
 
 #pragma function(memset)
 /* Function start: 0x425BBF */
 void SetSolidColourTranslation(unsigned char colour)
 {
-    memset(g_abSolidColourTranslation_004b2710, colour, 255);
-    g_abSolidColourTranslation_004b2710[255] = 0xff;
-    SetPaletteTranslationTable(g_abSolidColourTranslation_004b2710);
+    memset(g_abSolidColourTranslation, colour, 255);
+    g_abSolidColourTranslation[255] = 0xff;
+    SetPaletteTranslationTable(g_abSolidColourTranslation);
 }
 
 #pragma function(memcpy)
@@ -463,7 +463,7 @@ void PrepareShapeRLEData(unsigned char *shape)
     if (GetPreparedShapeData(shape) != 0)
         return;
 
-    emit = g_abShapeRLEScratch_004b2810;
+    emit = g_13_abShapeRLEScratch;
     memcpy(emit, "1.00", 4);
     emit += 4;
     frameLimit = GetShapeFrameCount(shape);
@@ -474,7 +474,7 @@ void PrepareShapeRLEData(unsigned char *shape)
     emit += frameLimit << 3;
 
     for (frameNum = 0; frameNum < frameLimit; frameNum++) {
-        frameOffset = (int)(emit - g_abShapeRLEScratch_004b2810);
+        frameOffset = (int)(emit - g_13_abShapeRLEScratch);
         memcpy(offsetTable, &frameOffset, 4);
         offsetTable += 8;
         GetShapeFrameExtents(shape, (short)frameNum, &width, &height,
@@ -537,11 +537,11 @@ void PrepareShapeRLEData(unsigned char *shape)
         ReleasePacketHandle(bitmap);
     }
 
-    bytes = (int)(emit - g_abShapeRLEScratch_004b2810);
-    if (bytes > (int)sizeof(g_abShapeRLEScratch_004b2810))
+    bytes = (int)(emit - g_13_abShapeRLEScratch);
+    if (bytes > (int)sizeof(g_13_abShapeRLEScratch))
         exit_squadron("qq copy overflow");
     packed = AllocateTaggedMemory(bytes, 0);
-    memcpy(packed, g_abShapeRLEScratch_004b2810, bytes);
+    memcpy(packed, g_13_abShapeRLEScratch, bytes);
 #ifdef SDL_PORT
     memcpy(shape - 8 - sizeof(unsigned char *), &packed,
            sizeof(packed));
@@ -588,23 +588,23 @@ void DrawSpriteTransformed(Viewport *viewport, int x, int y,
         }
     }
     if (blendMode != 0) {
-        RotateRLEImage(&g_stScreenLimits_004b2088,
+        RotateRLEImage(&g_stScreenLimits,
                        GetPreparedShapeData(shape), frame,
                        x - viewport->left, y - viewport->top,
-                       g_abShapeTransformScratch_004a2688,
+                       g_abShapeTransformScratch,
                        angle * 10, scaleX * 256, scaleY * 256, 1);
     } else {
-        RotateRLEImage(&g_stScreenLimits_004b2088,
+        RotateRLEImage(&g_stScreenLimits,
                        GetPreparedShapeData(shape), frame,
                        x - viewport->left, y - viewport->top,
-                       g_abShapeTransformScratch_004a2688,
+                       g_abShapeTransformScratch,
                        angle * 10, scaleX * 256, scaleY * 256, 0);
     }
     ReadPerformanceCounter(&t3);
-    g_nShapePrepareTicks_005d2fd0 += t1.LowPart - t0.LowPart;
-    g_nShapeClipTicksValue_005d2fd4 += t2.LowPart - t1.LowPart;
-    g_nShapeDrawTicks_005d2fd8 += t3.LowPart - t2.LowPart;
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    g_nShapePrepareTicks += t1.LowPart - t0.LowPart;
+    g_1_nShapeClipTicksValue += t2.LowPart - t1.LowPart;
+    g_nShapeDrawTicks += t3.LowPart - t2.LowPart;
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }
 
@@ -638,8 +638,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     bg = context->backgroundColour;
     fontFg = context->font[2];
     fontBg = context->font[3];
-    g_abPaletteTranslation_00496338[fontFg] = fg;
-    g_abPaletteTranslation_00496338[fontBg] = bg;
+    g_abPaletteTranslation[fontFg] = fg;
+    g_abPaletteTranslation[fontBg] = bg;
 #ifndef SDL_PORT
     /* Preserve the retail Win32 port's signed-char comparisons. */
     if (character == 0x81 || character == 0x84 || character == 0x8e ||
@@ -691,7 +691,7 @@ void DrawFontGlyph(char character, TextContext *context, int height,
                            view->pixels;
                 }
                 for (column = width; column-- != 0;) {
-                    translatedPixel = g_abPaletteTranslation_00496338[*bitmap];
+                    translatedPixel = g_abPaletteTranslation[*bitmap];
                     if (translatedPixel != 0xff)
                         *dest = translatedPixel;
                     bitmap++;
@@ -731,8 +731,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
 #endif
         }
     }
-    g_abPaletteTranslation_00496338[fontFg] = fontFg;
-    g_abPaletteTranslation_00496338[fontBg] = fontBg;
+    g_abPaletteTranslation[fontFg] = fontFg;
+    g_abPaletteTranslation[fontBg] = fontBg;
     return;
 }
 
@@ -1123,7 +1123,7 @@ void RestoreSpriteBackground(Viewport *viewport, unsigned char *background,
             commands += 2;
         }
     }
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     (void)color;
 }
@@ -1171,10 +1171,10 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
         &srcClip, 0, 0, &targetClip, 0, 0, 0xffffffff);
     if (result != 0)
         abs(result);
-    if (g_nCockpitDisplayMode_0049d71c == 9)
+    if (g_nCockpitDisplayMode == 9)
         return;
-    if (g_bRenderingSpaceFrame_0049d858 != 0 &&
-        g_bSceneDisplayUpdateActive_00499bb8 == 0) {
+    if (g_bRenderingSpaceFrame != 0 &&
+        g_bSceneDisplayUpdateActive == 0) {
         return;
     }
     if (GetDIBPixelBuffer() == destination->pixels) {
@@ -1190,7 +1190,7 @@ void ClearViewport(Viewport *viewport, short colour)
         if (viewport->left < 0)
             return;
         ClipViewportToScreen(viewport);
-        FillRasterClip(&g_stScreenLimits_004b2088, colour);
+        FillRasterClip(&g_stScreenLimits, colour);
     }
 }
 
@@ -1201,7 +1201,7 @@ void DrawViewportPixel(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    SetRasterClipPixel(&g_stScreenLimits_004b2088, (int)x - viewport->left,
+    SetRasterClipPixel(&g_stScreenLimits, (int)x - viewport->left,
                        (int)y - viewport->top, colour);
 }
 
@@ -1211,7 +1211,7 @@ short GetViewportPixel(Viewport *viewport, short x, short y)
     if (viewport->left < 0)
         return 0;
     ClipViewportToScreen(viewport);
-    return (short)ReadRasterClipPixel(&g_stScreenLimits_004b2088,
+    return (short)ReadRasterClipPixel(&g_stScreenLimits,
                                       (int)x - viewport->left,
                                       (int)y - viewport->top);
 }
@@ -1223,7 +1223,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stScreenLimits_004b2088,
+    DrawClippedLine(&g_stScreenLimits,
                     x1 - viewport->left, y1 - viewport->top,
                     x2 - viewport->left, y2 - viewport->top,
                     0, colour);
@@ -1232,7 +1232,7 @@ void DrawViewportLine(Viewport *viewport, short x1, short y1,
 /* Left and right edge of each scanline of the polygon being filled, two
  * ints per row.  Only FillPolygon uses it; WC1's optimized build kept the
  * same 1,648 bytes in gr.c without a reference. */
-static int g_anPolyExtents_004b20a0[412];
+static int g_anPolyExtents[412]; /* 0x004b20a0 */
 
 /* Function start: 0x4272A5 */
 /* Fills a convex polygon: clips it against the viewport's top, right,
@@ -1419,14 +1419,14 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
                 y1 = y;
             }
             for (y = y0; y <= y1; y++)
-                g_anPolyExtents_004b20a0[y * 2 + side] = x0;
+                g_anPolyExtents[y * 2 + side] = x0;
         } else if (y1 == y0) {
             if (x1 > x0) {
-                g_anPolyExtents_004b20a0[y0 * 2] = x0;
-                g_anPolyExtents_004b20a0[y0 * 2 + 1] = x1;
+                g_anPolyExtents[y0 * 2] = x0;
+                g_anPolyExtents[y0 * 2 + 1] = x1;
             } else {
-                g_anPolyExtents_004b20a0[y0 * 2] = x1;
-                g_anPolyExtents_004b20a0[y0 * 2 + 1] = x0;
+                g_anPolyExtents[y0 * 2] = x1;
+                g_anPolyExtents[y0 * 2 + 1] = x0;
             }
         } else {
             if (y1 < y0) {
@@ -1439,37 +1439,37 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
             }
             fractionStep = 1.0f / ((y1 - y0) + 1.0f);
             frac = 0;
-            g_anPolyExtents_004b20a0[y0 * 2 + side] = x0;
+            g_anPolyExtents[y0 * 2 + side] = x0;
             for (y = y0; y <= y1; y++) {
-                g_anPolyExtents_004b20a0[y * 2 + side] =
+                g_anPolyExtents[y * 2 + side] =
                     (x1 - x0) * frac + x0;
                 frac += fractionStep;
             }
-            g_anPolyExtents_004b20a0[y1 * 2 + side] = x1;
+            g_anPolyExtents[y1 * 2 + side] = x1;
         }
     }
 
     i = polyB[topIndex].y * 2;
-    if (g_anPolyExtents_004b20a0[i + 1] < g_anPolyExtents_004b20a0[i]) {
+    if (g_anPolyExtents[i + 1] < g_anPolyExtents[i]) {
         for (y = polyB[topIndex].y; y < polyB[bottomIndex].y; y++) {
             i = y * 2;
-            x0 = g_anPolyExtents_004b20a0[i];
-            g_anPolyExtents_004b20a0[i] = g_anPolyExtents_004b20a0[i + 1];
-            g_anPolyExtents_004b20a0[i + 1] = x0;
+            x0 = g_anPolyExtents[i];
+            g_anPolyExtents[i] = g_anPolyExtents[i + 1];
+            g_anPolyExtents[i + 1] = x0;
         }
     }
 
     stride = viewport->rowOffsets[1];
     row = viewport->pixels;
     row += (polyB[topIndex].y - viewport->top) * stride;
-    rowBounds = &g_anPolyExtents_004b20a0[polyB[topIndex].y * 2];
+    rowBounds = &g_anPolyExtents[polyB[topIndex].y * 2];
     x = viewport->left;
     for (y = polyB[topIndex].y; y <= polyB[bottomIndex].y; y++) {
         memset(row + (rowBounds[0] - x), colour, abs(rowBounds[1] - rowBounds[0]) + 1);
         row += stride;
         rowBounds += 2;
     }
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }
 
@@ -1478,7 +1478,7 @@ void FillPolygon(Viewport *viewport, ShortPoint *points, int count,
 void triangle(Viewport *viewport, ShortPoint *points, int colour)
 {
     FillPolygon(viewport, points, 3, colour);
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     RasterLineHook("triangle");
     return;
@@ -1489,7 +1489,7 @@ void triangle(Viewport *viewport, ShortPoint *points, int colour)
  * implement the driver's shaded triangle and only reports the call. */
 void shaded_triangle(Viewport *viewport)
 {
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     RasterLineHook("shaded_triangle");
     return;
@@ -1507,7 +1507,7 @@ void DrawFilledViewportRect(Viewport *viewport, short left, short top,
         return;
     ClipViewportToScreen(viewport);
     for (y = 0; y <= rows; y++) {
-        DrawClippedLine(&g_stScreenLimits_004b2088,
+        DrawClippedLine(&g_stScreenLimits,
                         left - viewport->left,
                         y + top - viewport->top,
                         right - viewport->left,
@@ -1523,19 +1523,19 @@ void DrawViewportBorder(Viewport *viewport, short left, short top,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawClippedLine(&g_stScreenLimits_004b2088,
+    DrawClippedLine(&g_stScreenLimits,
                     left - viewport->left, top - viewport->top,
                     right - viewport->left, top - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stScreenLimits_004b2088,
+    DrawClippedLine(&g_stScreenLimits,
                     left - viewport->left, bottom - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stScreenLimits_004b2088,
+    DrawClippedLine(&g_stScreenLimits,
                     left - viewport->left, top - viewport->top,
                     left - viewport->left, bottom - viewport->top,
                     0, colour);
-    DrawClippedLine(&g_stScreenLimits_004b2088,
+    DrawClippedLine(&g_stScreenLimits,
                     right - viewport->left, top - viewport->top,
                     right - viewport->left, bottom - viewport->top,
                     0, colour);
@@ -1549,9 +1549,9 @@ void DrawViewportEllipse(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
+    DrawRasterEllipse(&g_stScreenLimits, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     return;
 }
@@ -1564,9 +1564,9 @@ void FillViewportEllipse(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    FillRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
+    FillRasterEllipse(&g_stScreenLimits, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     return;
 }
@@ -1579,9 +1579,9 @@ void DrawViewportEllipseShadow(Viewport *viewport, short x, short y,
     if (viewport->left < 0)
         return;
     ClipViewportToScreen(viewport);
-    DrawRasterEllipse(&g_stScreenLimits_004b2088, x, y, horizontalRadius,
+    DrawRasterEllipse(&g_stScreenLimits, x, y, horizontalRadius,
                       verticalRadius, colour);
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     return;
 }
@@ -1593,7 +1593,7 @@ void shadow_draw(Viewport *viewport)
 {
     if (viewport->left < 0)
         return;
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (viewport->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     RasterLineHook("shadow_draw");
     return;
@@ -1719,9 +1719,9 @@ short GetTransformedShapeBounds(Viewport *viewport, short x, short y,
         frameLeft = *(short *)frameHeader;
         topExtent = *(short *)(frameHeader + 4);
         frameBottom = *(short *)(frameHeader + 6);
-        cosTerm = g_awAbsoluteCosine_00496438[angle] * scale;
+        cosTerm = g_awAbsoluteCosine[angle] * scale;
         cosTerm >>= 8;
-        s = g_awAbsoluteSine_00496708[angle] * scale;
+        s = g_awAbsoluteSine[angle] * scale;
         s >>= 8;
         if (cosTerm == 0)
             cosTerm++;
@@ -1804,7 +1804,7 @@ void CopyViewportRuns(Viewport *source, Viewport *destination,
         destinationX = *runs;
         runs++;
     }
-    if (destination->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (destination->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
 }
 
@@ -1815,7 +1815,7 @@ void fizzle_fade(Viewport *source, Viewport *destination)
 {
     if (destination->left < 0)
         return;
-    if (destination->pixels == g_stScrViewInfo_005d21a0.pixels)
+    if (destination->pixels == g_101_stScrViewInfo.pixels)
         MarkDibDirty();
     RasterLineHook("fizzle_fade");
     return;
@@ -1837,7 +1837,7 @@ void snow_viewport(Viewport *viewport, int effect,
 
     if (viewport->left < 0)
         return;
-    if (viewport->pixels == g_stScrViewInfo_005d21a0.pixels) {
+    if (viewport->pixels == g_101_stScrViewInfo.pixels) {
         left = viewport->left;
         topY = viewport->top;
         endX = viewport->right;
@@ -1848,10 +1848,10 @@ void snow_viewport(Viewport *viewport, int effect,
                    viewport->pixels;
             countdown = rowWidth;
             while (countdown-- != 0) {
-                if (RandomBelow(g_nViewportStaticRandomRange_0048e060) == 1)
+                if (RandomBelow(g_nViewportStaticRandomRange) == 1)
                     *dest = (unsigned char)colour;
                 else
-                    *dest = g_cSecondaryViewBufferColour_0049cb4c;
+                    *dest = g_cSecondaryViewBufferColour;
                 dest++;
             }
         }
@@ -1863,6 +1863,6 @@ void snow_viewport(Viewport *viewport, int effect,
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
-int g_nShapePrepareTicks_005d2fd0;
-int g_nShapeClipTicksValue_005d2fd4;
-int g_nShapeDrawTicks_005d2fd8;
+int g_nShapePrepareTicks; /* 0x005d2fd0 */
+int g_1_nShapeClipTicksValue; /* 0x005d2fd4 */
+int g_nShapeDrawTicks; /* 0x005d2fd8 */

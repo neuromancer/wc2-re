@@ -88,12 +88,12 @@ typedef struct TestRadioHotkey {
 } TestRadioHotkey;
 
 static const TestRadioHotkey g_aTestRadioHotkeys[] = {
-    {SDL_SCANCODE_B, SDLK_b, &g_bMenuBHotkey_005d1290},
-    {SDL_SCANCODE_F, SDLK_f, &g_bAltFHotkeyFlag_005d127c},
-    {SDL_SCANCODE_A, SDLK_a, &g_bMenuAHotkey_005d1294},
-    {SDL_SCANCODE_H, SDLK_h, &g_bAltHHotkey_005d128c},
-    {SDL_SCANCODE_D, SDLK_d, &g_bAltDChordState_005d1280},
-    {SDL_SCANCODE_T, SDLK_t, &g_bMenuTHotkeySwitch_005d1298}
+    {SDL_SCANCODE_B, SDLK_b, &g_4_bMenuBHotkey},
+    {SDL_SCANCODE_F, SDLK_f, &g_2_bAltFHotkeyFlag},
+    {SDL_SCANCODE_A, SDLK_a, &g_bMenuAHotkey},
+    {SDL_SCANCODE_H, SDLK_h, &g_2_bAltHHotkey},
+    {SDL_SCANCODE_D, SDLK_d, &g_6_bAltDChordState},
+    {SDL_SCANCODE_T, SDLK_t, &g_6_bMenuTHotkeySwitch}
 };
 
 int main(int argumentCount, char **arguments)
@@ -132,7 +132,7 @@ int main(int argumentCount, char **arguments)
     window = SDL_CreateWindow("SDL event test", 0, 0, 640, 400, 0);
     if (window == 0)
         goto cleanup;
-    g_hMainWindow_005d10e0 = (HWND)window;
+    g_10_hMainWindow = (HWND)window;
 
     stage = 2;
     SdlSetMouseGrab(1);
@@ -178,11 +178,11 @@ int main(int argumentCount, char **arguments)
         goto cleanup;
 
     stage = 32;
-    g_bSpaceFlightActive_005c586c = 1;
-    g_nArcadeState_0049d75c = 0;
-    g_nCannedSceneMode_0049021c = 0;
-    g_bJumpSequenceActive_004962f0 = 0;
-    g_pfnCurrentInputPump_005c840c = get_player_input;
+    g_1_bSpaceFlightActive = 1;
+    g_nArcadeState = 0;
+    g_nCannedSceneMode = 0;
+    g_bJumpSequenceActive = 0;
+    g_176_pfnCurrentInputPump = get_player_input;
     for (index = 0;
          index < (int)(sizeof(g_aTestRadioHotkeys) /
                        sizeof(g_aTestRadioHotkeys[0]));
@@ -209,9 +209,9 @@ int main(int argumentCount, char **arguments)
     }
 
     stage = 33;
-    g_bAltDChordState_005d1280 = 0;
-    g_bAltHHotkey_005d128c = 0;
-    g_bMenuTHotkeySwitch_005d1298 = 0;
+    g_6_bAltDChordState = 0;
+    g_2_bAltHHotkey = 0;
+    g_6_bMenuTHotkeySwitch = 0;
     if (!PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_D,
                            SDLK_d, KMOD_LALT, 1) ||
         !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_D,
@@ -221,31 +221,31 @@ int main(int argumentCount, char **arguments)
         !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_H,
                            SDLK_h, KMOD_NONE, 0))
         goto cleanup;
-    g_bSpaceFlightActive_005c586c = 0;
+    g_1_bSpaceFlightActive = 0;
     if (!PushKeyboardEvent(window, SDL_KEYDOWN, SDL_SCANCODE_T,
                            SDLK_t, KMOD_LALT, 0) ||
         !PushKeyboardEvent(window, SDL_KEYUP, SDL_SCANCODE_T,
                            SDLK_t, KMOD_LALT, 0))
         goto cleanup;
     SdlPumpEvents();
-    if (g_bAltDChordState_005d1280 != 0 ||
-        g_bAltHHotkey_005d128c != 0 ||
-        g_bMenuTHotkeySwitch_005d1298 != 0)
+    if (g_6_bAltDChordState != 0 ||
+        g_2_bAltHHotkey != 0 ||
+        g_6_bMenuTHotkeySwitch != 0)
         goto cleanup;
-    g_bSpaceFlightActive_005c586c = 0;
-    g_pfnCurrentInputPump_005c840c = 0;
+    g_1_bSpaceFlightActive = 0;
+    g_176_pfnCurrentInputPump = 0;
 
     stage = 30;
     memset(pixels, 0, sizeof(pixels));
     for (index = 0; index < 17; index++)
         rowOffsets[index] = (unsigned short)(index * 16);
-    g_stScrViewInfo_005d21a0.pixels = pixels;
-    g_stScrViewInfo_005d21a0.rowOffsets = rowOffsets;
-    g_stScrViewInfo_005d21a0.left = 0;
-    g_stScrViewInfo_005d21a0.top = 0;
-    g_stScrViewInfo_005d21a0.right = 15;
-    g_stScrViewInfo_005d21a0.bottom = 15;
-    SdlDrawViewportStatic(&g_stScrViewInfo_005d21a0, 3, 0x5d);
+    g_101_stScrViewInfo.pixels = pixels;
+    g_101_stScrViewInfo.rowOffsets = rowOffsets;
+    g_101_stScrViewInfo.left = 0;
+    g_101_stScrViewInfo.top = 0;
+    g_101_stScrViewInfo.right = 15;
+    g_101_stScrViewInfo.bottom = 15;
+    SdlDrawViewportStatic(&g_101_stScrViewInfo, 3, 0x5d);
     colouredPixelCount = 0;
     for (index = 0; index < 256; index++) {
         if (pixels[index] == 0x5d)
@@ -264,24 +264,24 @@ int main(int argumentCount, char **arguments)
     constellationShape =
         InitializeSolidTestSprite(constellationStorage, 0x17);
     memset(pixels, 0, sizeof(pixels));
-    g_stViewScratchInfo_005d2b00 = g_stScrViewInfo_005d21a0;
-    g_nScreenWidth_0049d4d8 = 16;
-    g_nStoredScreenViewCentreX_005c80d8 = 8;
-    g_nViewCenterY_005c80da = 8;
-    g_nNavPointerObject_004931b8 = -1;
-    g_anStoredObjectSortedIndicesData_005c82c0[0] = 0;
-    g_anStoredObjectSortedIndicesData_005c82c0[1] = -1;
-    g_asObjectType_00495298[0] = OBJECT_DATA_LASER_CANNON;
-    g_aeObjectClass_00495328[0] = OBJECT_CLASS_PLANET;
-    g_asObjectScreenX_00493598[0] = 0;
-    g_asObjectScreenY_00493628[0] = 0;
-    g_asObjectViewFrame_00493508[0] = 0;
-    g_asObjectScreenAngle_004936b8[0] = 0;
-    g_asObjectScreenScale_00493a58[0] = 0x200;
-    g_asObjectFlip_004939c8[0] = 0;
-    g_aObjectViewPosition_0059afa0[0].z = 0;
-    g_apObjectShape_00493868[0] = planetShape;
-    g_pConstellationSprite_005d2c4c = constellationShape;
+    g_27_stViewScratchInfo = g_101_stScrViewInfo;
+    g_nScreenWidth = 16;
+    g_15_nStoredScreenViewCentreX = 8;
+    g_37_nViewCenterY = 8;
+    g_nNavPointerObject = -1;
+    g_56_anStoredObjectSortedIndicesData[0] = 0;
+    g_56_anStoredObjectSortedIndicesData[1] = -1;
+    g_asObjectType[0] = OBJECT_DATA_LASER_CANNON;
+    g_aeObjectClass[0] = OBJECT_CLASS_PLANET;
+    g_asObjectScreenX[0] = 0;
+    g_asObjectScreenY[0] = 0;
+    g_asObjectViewFrame[0] = 0;
+    g_asObjectScreenAngle[0] = 0;
+    g_asObjectScreenScale[0] = 0x200;
+    g_asObjectFlip[0] = 0;
+    g_aObjectViewPosition[0].z = 0;
+    g_apObjectShape[0] = planetShape;
+    g_pConstellationSprite = constellationShape;
     draw_sorted_objects_to_buffer();
     planetPixelCount = 0;
     for (index = 0; index < 256; index++) {
@@ -292,7 +292,7 @@ int main(int argumentCount, char **arguments)
     }
     if (planetPixelCount == 0)
         goto cleanup;
-    g_cPrimaryViewBufferColour_0049cb88 = 9;
+    g_cPrimaryViewBufferColour = 9;
     intro_drawbackgroundships();
     for (index = 0; index < 256; index++) {
         if (pixels[index] == 0x42)
@@ -314,10 +314,10 @@ int main(int argumentCount, char **arguments)
     if (instanceId < 0)
         goto cleanup;
 
-    g_pfnCurrentInputPump_005c840c = get_player_input;
-    g_nArcadeState_0049d75c = 0;
-    g_acVduModeStackDepth_004934c8[1] = 1;
-    g_aaiVduModeStack_00493498[1][0] = 0;
+    g_176_pfnCurrentInputPump = get_player_input;
+    g_nArcadeState = 0;
+    g_acVduModeStackDepth[1] = 1;
+    g_aaiVduModeStack[1][0] = 0;
     stage = 5;
     if (!SdlSetJoystickMode("4button-4axis") ||
         !SdlSetJoystickAxesMode("twin-stick-roll"))
@@ -327,7 +327,7 @@ int main(int argumentCount, char **arguments)
     activeSlot = 0;
     while (activeSlot < 2) {
         FlushInputEvents();
-        g_nActiveInputDeviceWord_005d1726 = (short)activeSlot;
+        g_8_nActiveInputDeviceWord = (short)activeSlot;
         SdlApplyJoystickFlightControls();
         SdlHandleJoystickButtonEvent(instanceId, 5, 1, 0);
         eventType = GetNextInputEvent(&input);
@@ -342,16 +342,16 @@ int main(int argumentCount, char **arguments)
 
     FlushInputEvents();
     stage = 7;
-    g_bSceneEscapeRequested_0049d4b0 = 0;
+    g_bSceneEscapeRequested = 0;
     SdlHandleJoystickButtonEvent(instanceId, 8, 1, 0);
-    if (g_bSceneEscapeRequested_0049d4b0 == 0 ||
+    if (g_bSceneEscapeRequested == 0 ||
         GetNextInputEvent(&input) != 4 || input.status != 1)
         goto cleanup;
 
     FlushInputEvents();
     stage = 8;
     SdlEndJoystickSpaceflight();
-    g_bInputEventQueueEnabled_0049c248 = 1;
+    g_bInputEventQueueEnabled = 1;
     SdlHandleJoystickButtonEvent(instanceId, 3, 1, 0);
     if (GetNextInputEvent(&input) != 5 || input.status != 0x15 ||
         input.value != 'y')
@@ -368,8 +368,8 @@ cleanup:
         fprintf(stderr, "SDL event compatibility failure at stage %d\n",
                 stage);
     FlushInputEvents();
-    g_apObjectShape_00493868[0] = 0;
-    g_pConstellationSprite_005d2c4c = 0;
+    g_apObjectShape[0] = 0;
+    g_pConstellationSprite = 0;
     ReleasePreparedTestSprite(planetShape);
     ReleasePreparedTestSprite(constellationShape);
     SdlSetMouseGrab(0);
@@ -378,7 +378,7 @@ cleanup:
     if (deviceIndex >= 0)
         SDL_JoystickDetachVirtual(deviceIndex);
 #endif
-    g_hMainWindow_005d10e0 = 0;
+    g_10_hMainWindow = 0;
     if (window != 0)
         SDL_DestroyWindow(window);
     SDL_Quit();
