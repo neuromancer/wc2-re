@@ -381,7 +381,7 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
 }
 
 /* Function start: 0x42C373 */
-void LoadCutsceneCockpitOverlay(int scriptValue)
+void LoadCutsceneCockpitOverlay(short scriptValue)
 {
     if (g_pCutsceneCockpitPacket_00499c04 == 0) {
         g_pCutsceneCockpitPacket_00499c04 = LoadNamedPacket(
@@ -391,7 +391,7 @@ void LoadCutsceneCockpitOverlay(int scriptValue)
 }
 
 /* Function start: 0x42C3A7 */
-void DrawCutsceneCockpitOverlay(int unused, short verticalOffset)
+void DrawCutsceneCockpitOverlay(short unused, short verticalOffset)
 {
     short hits;
     short x;
@@ -2138,19 +2138,19 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                     switch (g_pFilmInputFlag_005d2f08->status) {
                     case 2:
                         g_cCutsceneSpeechSpeed_00499eb4 = 0;
-                        break;
+                        goto cutscene_input_processed;
                     case 3:
                         g_cCutsceneSpeechSpeed_00499eb4 = 2;
-                        break;
+                        goto cutscene_input_processed;
                     case 4:
                         g_cCutsceneSpeechSpeed_00499eb4 = 4;
-                        break;
+                        goto cutscene_input_processed;
                     case 5:
                         g_cCutsceneSpeechSpeed_00499eb4 = 6;
-                        break;
+                        goto cutscene_input_processed;
                     case 6:
                         g_cCutsceneSpeechSpeed_00499eb4 = 8;
-                        break;
+                        goto cutscene_input_processed;
                     case 0x19:
                         WaitForCutsceneInputEvent();
                         if ((g_pFilmInputFlag_005d2f08->modifiers &
@@ -2159,7 +2159,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                         } else {
                             WaitForCutsceneInputEvent();
                         }
-                        break;
+                        goto cutscene_input_processed;
                     case 0x11:
                         WaitForCutsceneInputEvent();
                         if ((g_pFilmInputFlag_005d2f08->modifiers &
@@ -2170,34 +2170,31 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                                 g_pCampaignGlobals_00499c94->mission + 'A',
                                 g_pCampaignGlobals_00499c94->field_08 + 1);
                         }
-                        break;
-                    default:
-                        goto handle_queued_cutscene_input;
-                    }
-                } else {
-handle_queued_cutscene_input:
-                    if (g_wDigiPlaying_0049bb60 == 0 &&
-                        (FindQueuedInputEvent(4) != 0 ||
-                         FindQueuedInputEvent(1) != 0)) {
-                        ReleaseSceneFlicPackets();
-                        ReleaseCutsceneSoundEffects(-1);
-                        if (g_bSceneEscapeRequested_0049d4b0 != 0) {
-                            ReleaseCutsceneSpeechPackets();
-                            g_bCutsceneSpeechActive_00499eb8 = 0;
-                            g_bCutsceneSkipFrame_00499c54 = 1;
-                            g_bCutsceneSkipAll_00499c58 = 1;
-                            g_bSceneEscapeRequested_0049d4b0 = 0;
-                            return 0;
-                        }
-                        g_bMovieStringAdvanceState_005d2ed0 = 0;
-                        g_pszCutsceneSpeechCursor_00499eb0 = 0;
-                        g_bCutsceneSkipFrame_00499c54 = 1;
-                        g_nNextCutsceneFrameClock_00499c90 =
-                            g_nInputClock_005c84a8;
-                        inputSeen = 1;
+                        goto cutscene_input_processed;
                     }
                 }
+                if (g_wDigiPlaying_0049bb60 == 0 &&
+                    (FindQueuedInputEvent(4) != 0 ||
+                     FindQueuedInputEvent(1) != 0)) {
+                    ReleaseSceneFlicPackets();
+                    ReleaseCutsceneSoundEffects(-1);
+                    if (g_bSceneEscapeRequested_0049d4b0 != 0) {
+                        ReleaseCutsceneSpeechPackets();
+                        g_bCutsceneSpeechActive_00499eb8 = 0;
+                        g_bCutsceneSkipFrame_00499c54 = 1;
+                        g_bCutsceneSkipAll_00499c58 = 1;
+                        g_bSceneEscapeRequested_0049d4b0 = 0;
+                        return 0;
+                    }
+                    g_bMovieStringAdvanceState_005d2ed0 = 0;
+                    g_pszCutsceneSpeechCursor_00499eb0 = 0;
+                    g_bCutsceneSkipFrame_00499c54 = 1;
+                    g_nNextCutsceneFrameClock_00499c90 =
+                        g_nInputClock_005c84a8;
+                    inputSeen = 1;
+                }
             }
+cutscene_input_processed:
             if (g_wDigiPlaying_0049bb60 == 0 &&
                 TakeInputPressCount() != 0 && inputSeen == 0) {
                 ReleaseSceneFlicPackets();
@@ -2344,7 +2341,7 @@ handle_queued_cutscene_input:
             break;
         case 0x17:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
-            *topOperand = (short)(*topOperand < value);
+            *topOperand = *topOperand >= value ? 0 : 1;
             break;
         case 0x18:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
@@ -2352,7 +2349,7 @@ handle_queued_cutscene_input:
             break;
         case 0x19:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
-            *topOperand = (short)(*topOperand <= value);
+            *topOperand = *topOperand > value ? 0 : 1;
             break;
         case 0x1a:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
@@ -2542,9 +2539,15 @@ handle_queued_cutscene_input:
                                     (short)(signed char)*scriptBytes++);
             break;
         case 0x25:
+#ifdef SDL_PORT
             PushCutsceneScriptValue(&topOperand, scriptValueStack,
                                     *(short *)scriptBytes);
             scriptBytes += 2;
+#else
+            /* The original word cursor uses MSVC's pointer aliasing. */
+            PushCutsceneScriptValue(&topOperand, scriptValueStack,
+                                    *(*(short **)&scriptBytes)++);
+#endif
             break;
         case 0x26:
             if (g_pCampaignGlobals_00499c94 == 0)
@@ -2943,8 +2946,8 @@ handle_queued_cutscene_input:
                      * (sdl/events.c) the instant Escape is pressed -- but
                      * nothing here ever reads that flag. The real
                      * escape-to-skip conversion lives in the outer script
-                     * loop above (case dispatch loop, "handle_queued_
-                     * cutscene_input"), which only runs BETWEEN opcodes.
+                     * loop above (the queued-input dispatch), which only
+                     * runs BETWEEN opcodes.
                      * A long wait (this opcode is script-timed, often
                      * paced to the scene's music/dialogue) blocks that
                      * outer loop from ever running again until the wait
@@ -3088,9 +3091,16 @@ handle_queued_cutscene_input:
         case 0xa4:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
             switch (value) {
+            case -2:
+                g_bCutsceneSkipFrame_00499c54 =
+                    g_bCutsceneSkipAll_00499c58 = 1;
+                break;
+            case -1:
+                g_bCutsceneSkipFrame_00499c54 = 1;
+                break;
             case 0:
-                g_bCutsceneSkipAll_00499c58 = 0;
-                g_bCutsceneSkipFrame_00499c54 = 0;
+                g_bCutsceneSkipFrame_00499c54 =
+                    g_bCutsceneSkipAll_00499c58 = 0;
                 ServiceInputDevices(-1);
                 FlushPendingInputEvents();
                 break;
@@ -3098,13 +3108,6 @@ handle_queued_cutscene_input:
                 g_bCutsceneSkipFrame_00499c54 = 0;
                 ServiceInputDevices(-1);
                 FlushPendingInputEvents();
-                break;
-            case -2:
-                g_bCutsceneSkipAll_00499c58 = 1;
-                g_bCutsceneSkipFrame_00499c54 = 1;
-                break;
-            case -1:
-                g_bCutsceneSkipFrame_00499c54 = 1;
                 break;
             }
             break;
@@ -3175,7 +3178,7 @@ handle_queued_cutscene_input:
                      g_acObjectType_00493980[g_nYourWingman_0049346c]].
                      damageCapacity >> 1) - 1 <=
                 g_asObjectDamage_00495178[g_nYourWingman_0049346c]) {
-                value = 1;
+                value++;
             }
             PushCutsceneScriptValue(&topOperand, scriptValueStack, value);
             break;
@@ -3251,9 +3254,12 @@ handle_queued_cutscene_input:
             StartInteractiveMusic(value);
             break;
         case 0x92:
-            value = *(short *)scriptBytes;
+#ifdef SDL_PORT
+            StopMusic(*(short *)scriptBytes);
             scriptBytes += 2;
-            StopMusic(value);
+#else
+            StopMusic(*(*(short **)&scriptBytes)++);
+#endif
             g_pSceneMusicPacket_00499c08 = 0;
             break;
         case 0x85:
@@ -3290,32 +3296,32 @@ handle_queued_cutscene_input:
             }
             /* A preallocated viewport falls through to the frame check. */
         case 0x7c:
-            if (g_bCutsceneViewportPreallocated_00499c4c == 0 &&
-                g_bCutsceneSkipFrame_00499c54 == 0) {
-                while (g_nInputClock_005c84a8 <
-                       g_nNextCutsceneFrameClock_00499c90) {
-                    PumpWindowMessages(0);
+            if (g_bCutsceneViewportPreallocated_00499c4c != 0 ||
+                g_bCutsceneSkipFrame_00499c54 != 0)
+                break;
+            while (g_nInputClock_005c84a8 <
+                   g_nNextCutsceneFrameClock_00499c90) {
+                PumpWindowMessages(0);
 #ifdef SDL_PORT
-                    /* See issue #33; same fix as case 0x6b above. This
-                     * runs every cutscene frame, so most frames' delay is
-                     * short enough not to matter, but a shot with a long
-                     * configured frame delay (e.g. paced to music) can
-                     * still eat a pending Escape the same way 0x6b did. */
-                    if (g_bSceneEscapeRequested_0049d4b0 != 0)
-                        break;
+                /* See issue #33; same fix as case 0x6b above. This
+                 * runs every cutscene frame, so most frames' delay is
+                 * short enough not to matter, but a shot with a long
+                 * configured frame delay (e.g. paced to music) can
+                 * still eat a pending Escape the same way 0x6b did. */
+                if (g_bSceneEscapeRequested_0049d4b0 != 0)
+                    break;
 #endif
-                }
-                PresentCutsceneFrame(&g_stSecondaryViewBufferBlock_005d2c90,
-                                     &g_stSceneFlicScratchViewport_005d2eb0);
-                if (g_pMemoryLogFile_00499da8 != 0)
-                    LogChangedCutsceneWorkBuffers();
-                RestoreCutsceneTextBacking();
-                g_bMovieFramePresented_005d2de0 = 1;
-                if (g_nCutsceneFrameDelay_00499c8c != 0) {
-                    g_nNextCutsceneFrameClock_00499c90 =
-                        g_nInputClock_005c84a8 +
-                        g_nCutsceneFrameDelay_00499c8c;
-                }
+            }
+            PresentCutsceneFrame(&g_stSecondaryViewBufferBlock_005d2c90,
+                                 &g_stSceneFlicScratchViewport_005d2eb0);
+            if (g_pMemoryLogFile_00499da8 != 0)
+                LogChangedCutsceneWorkBuffers();
+            RestoreCutsceneTextBacking();
+            g_bMovieFramePresented_005d2de0 = 1;
+            if (g_nCutsceneFrameDelay_00499c8c != 0) {
+                g_nNextCutsceneFrameClock_00499c90 =
+                    g_nInputClock_005c84a8 +
+                    g_nCutsceneFrameDelay_00499c8c;
             }
             break;
         case 0x6d:
@@ -3470,7 +3476,7 @@ handle_queued_cutscene_input:
                 PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
             break;
         case 0x8f:
-            value = *(short *)scriptBytes;
+            g_nCutsceneResourceScratchValue_005d2e9c = *(short *)scriptBytes;
             scriptBytes += 2;
             /* The original divides by 0x3b (59), not 0x3c (60).
              * g_nInputClock_005c84a8 (what this delay is measured against,
@@ -3495,10 +3501,10 @@ handle_queued_cutscene_input:
              */
 #ifdef SDL_PORT
             g_nCutsceneFrameDelay_00499c8c =
-                (unsigned short)(0x3c / value);
+                (unsigned short)(0x3c / g_nCutsceneResourceScratchValue_005d2e9c);
 #else
             g_nCutsceneFrameDelay_00499c8c =
-                (unsigned short)(0x3b / value);
+                (unsigned short)(0x3b / g_nCutsceneResourceScratchValue_005d2e9c);
 #endif
             break;
         case 0x75:
@@ -3706,8 +3712,8 @@ handle_queued_cutscene_input:
                 }
                 g_pLinkedCutsceneSprite_00499c64->scriptCursor =
                     g_pLinkedCutsceneSprite_00499c64->scriptStart;
-                g_pLinkedCutsceneSprite_00499c64->delayFrames = 0;
-                g_pLinkedCutsceneSprite_00499c64->waitTicks = 0;
+                g_pLinkedCutsceneSprite_00499c64->waitTicks =
+                    g_pLinkedCutsceneSprite_00499c64->delayFrames = 0;
                 ReleaseCutsceneSpriteShape(
                     g_pLinkedCutsceneSprite_00499c64);
                 g_pLinkedCutsceneSprite_00499c64->owner =
@@ -3791,11 +3797,13 @@ handle_queued_cutscene_input:
             break;
         }
     }
+    return 0;
 }
 
 /* Keep this callee declaration here: CL 4.1's symbol order controls the
  * following function's comparison operands. */
-char *DosStrchr(const char *text, short character);
+void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
+                                 short index, int resourceType);
 
 /* Function start: 0x432DCC */
 char *GetPackedStringByIndex(CutsceneResourceTable *resources,

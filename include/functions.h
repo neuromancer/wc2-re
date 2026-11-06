@@ -1242,7 +1242,7 @@ short IsSpriteFrameOverlappingRect(const ShortRect *rectangle,
                                    short x, short y,
                                    unsigned char *shape,
                                    short frame);                      /* 0x46505E */
-void FadeMusic(int duration);                                          /* 0x452AE5 */
+void FadeMusic(short duration);                                        /* 0x452AE5 */
 void SetMusicOn(short enabled);                                         /* 0x452A1B */
 void StopMusicStream(void);                                            /* 0x452A00 */
 void StopMusic(short enabled);                                         /* 0x452A26 */
@@ -1611,8 +1611,8 @@ void AddCutsceneMusicNode(CutsceneMusicNode **head,
 void RouteCutsceneViewportToDisplay(void);                           /* 0x42BFB8 */
 void ClearActiveCutscenePixelAlias(void);                            /* 0x42C04B */
 signed char IsCutsceneSpeechLoaded(void);                            /* 0x42C0A2 */
-void LoadCutsceneCockpitOverlay(int scriptValue);                    /* 0x42C373 */
-void DrawCutsceneCockpitOverlay(int unused,
+void LoadCutsceneCockpitOverlay(short scriptValue);                  /* 0x42C373 */
+void DrawCutsceneCockpitOverlay(short unused,
                                 short verticalOffset);               /* 0x42C3A7 */
 void FatalCutsceneError(const char *format, ...);                     /* 0x42C725 */
 CutsceneResourceTable *FindActiveCutsceneFileResources(

@@ -75,7 +75,7 @@ void FlushSoundEffects(void)
 }
 
 /* Function start: 0x452AE5 */
-void FadeMusic(int duration)
+void FadeMusic(short duration)
 {
 }
 
