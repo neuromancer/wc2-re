@@ -16,8 +16,8 @@ The PE `TimeDateStamp` and all three `IMAGE_DEBUG_DIRECTORY` timestamps are
 `bin/stampPeTimestamp.py` restores those four fields after linking. It
 validates the PE32 header, the file-backed debug directory, matching link
 times, and the zero image checksum before writing. It does not modify code,
-data, section sizes, or debug payloads. CodeView's separate PDB signature
-(`0x32385F33`), age (`22`), and embedded PDB path remain separate matching work.
+data, section sizes, or debug payloads. The separate CodeView identity is
+produced by LINK from a seeded PDB, as described below.
 
 LINK's `/OUT:Debug/wc2.exe` reproduces the retail `IMAGE_DEBUG_MISC`
 executable-name record, including its 272-byte payload and trailing zeros.
@@ -37,9 +37,35 @@ The Makefile rebuilds wibo when its path implementation or CMake file changes.
 
 Binary-comp confirms that this path change leaves `.text`, `.data`, `.idata`,
 `.reloc`, and the MISC/FPO payloads byte-identical to the preceding build.
-Only CodeView's size field changes in `.rdata`, from 59 to 41. The CodeView
-payload now differs in five bytes belonging to its signature and age; those
-fields still depend on PDB creation and relink history and remain unresolved.
+Only CodeView's size field changes in `.rdata`, from 59 to 41.
+
+`bin/createPdbSeed.c` is a build utility using the actual `MSPDB41.DLL` C API.
+It creates a PDB with initial signature `0x32385F33`, then write-opens it
+until its age is 21. The Makefile copies that seed before each link. LINK's
+write-open advances the age to retail's 22 and emits all 41 CodeView bytes
+exactly, including signature, age, and path. The utility verifies the linked
+PDB through read-only API calls; neither the PDB nor the CodeView record is
+patched. Game objects and all five PE section payloads remain unchanged.
+
+The installed DLL proves the API behavior: `PDBOpenEx` increments an existing
+database's age at `0x10309C83`. For a new database, `0x10309C95` loads the
+caller-supplied signature and uses the clock only when it is zero;
+`0x10309CA9/0x10309CB0` store the signature and initialize age zero.
+Microsoft's published [PDB implementation](https://github.com/microsoft/microsoft-pdb/blob/master/PDB/dbi/pdb.cpp)
+also documents the initial-signature argument and write-open age increment,
+although its newer databases start at age one. The utility checks the legacy
+implementation version `19950814` and every expected age.
+
+`make test-pdb-seed` checks creation, age zero, non-mutating verification,
+rejection of existing output, wrong identities, and missing/invalid inputs.
+Two forced links after independently regenerating the seed produce identical
+714,240-byte executables under binary-comp's strict comparison. This removes
+PDB relink history as a source of executable nondeterminism.
+
+The remaining scalar COFF/optional-header differences are `SizeOfCode`,
+`SizeOfInitializedData`, and `AddressOfEntryPoint`, all consequences of the
+unresolved image layout. Section and debug-record offsets still differ.
+
 All 126 FPO records already have the retail sizes, local/parameter counts,
 and flags; their start RVAs remain shifted with the CRT code. The FPO payload
 has 252 differing bytes, all in those start-address fields.

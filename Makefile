@@ -124,6 +124,11 @@ MAPFILE = WC2.map
 OUT_DIR = out
 LINK_DRIVE_C = $(abspath $(OUT_DIR)/drive-c)
 LINK_PDB_DIR = $(LINK_DRIVE_C)/WCB/wc2/Debug
+PDB_SEED_TOOL = $(OUT_DIR)/createPdbSeed.exe
+PDB_SEED = $(OUT_DIR)/wc2-pdb-seed.pdb
+ORIGINAL_PDB_SIGNATURE = 0x32385F33
+ORIGINAL_PDB_AGE = 22
+PDB_SEED_AGE = 21
 LINKMAPFILE = $(OUT_DIR)/WC2.link.map
 # PE header and three debug-directory entries: 1996-09-24 17:41:25 UTC.
 ORIGINAL_TIMESTAMP = 0x32481D45
@@ -1076,11 +1081,29 @@ $(IX_LIBS): | $(MSVCRT_DLL)
 	@rm -f $@
 	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
 
-$(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
+$(PDB_SEED_TOOL): bin/createPdbSeed.c | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(OUT_DIR)
+	env INCLUDE='$(MSVC_INC)' LIB='$(GAME_LIBPATH)' $(CC) /nologo /MT $< \
+		/Fo$(OUT_DIR)/createPdbSeed.obj /Fe$@ /link kernel32.lib
+
+$(PDB_SEED): $(PDB_SEED_TOOL) Makefile $(MSVC41_DIR)/Bin/MSPDB41.DLL
+	@rm -f $@.tmp
+	env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) create \
+		$(MSVC41_DIR)/Bin/MSPDB41.DLL $@.tmp $(ORIGINAL_PDB_SIGNATURE) $(PDB_SEED_AGE)
+	@mv $@.tmp $@
+
+test-pdb-seed: $(PDB_SEED_TOOL)
+	python3 tests/test_pdb_seed.py
+
+$(TARGET): $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(LINK_TARGET)) "$(LINK_PDB_DIR)"
+	@cp -f $(PDB_SEED) "$(LINK_PDB_DIR)/wc2.pdb"
 	env LIB='$(GAME_LIBPATH)' WIBO_DRIVE_C='$(LINK_DRIVE_C)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
 		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
 		$(IX_LIBS_AFTER_CRT) /OUT:$(LINK_TARGET)
+	@env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) verify \
+		$(MSVC41_DIR)/Bin/MSPDB41.DLL "$(LINK_PDB_DIR)/wc2.pdb" \
+		$(ORIGINAL_PDB_SIGNATURE) $(ORIGINAL_PDB_AGE)
 	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP)
 	@cp -f $(LINK_TARGET) $@
 	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
@@ -1464,6 +1487,7 @@ clean-modern:
 
 .PHONY: \
 	all \
+	test-pdb-seed \
 	audit-addresses \
 	audit-compiler-glue \
 	audit-auto-complete-globals \

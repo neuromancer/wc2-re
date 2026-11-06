@@ -241,7 +241,7 @@ cutscene rename and PDB-path recovery each add ten matching positions. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
-and the CodeView/PDB metadata. Passing the declared-global data comparison
+and shifted addresses in the FPO records. Passing the declared-global data comparison
 does not resolve those differences.
 
 Linking to `Debug/wc2.exe` reproduces all 272 bytes of the retail
@@ -257,10 +257,18 @@ Mapping the linker's `C:` drive to `out/drive-c` lets LINK itself reproduce
 the retail PDB path and 41-byte CodeView record size. The path-conversion
 tests pass, and binary-comp confirms that all normalized function rows,
 `.text`, `.data`, `.idata`, `.reloc`, and the MISC/FPO payloads are unchanged.
-The one changed byte in `.rdata` is CodeView's size field. The record now
-matches 36/41 retail bytes, with five differing bytes in the PDB signature
-and age. Those metadata fields and the record's file offset remain open;
-the path correction does not remove the 512-byte whole-file size deficit.
+The one changed byte in `.rdata` is CodeView's size field. That step matches
+36/41 retail bytes, leaving five differing bytes in the signature and age.
+
+The PDB-seed build utility closes that gap through `MSPDB41.DLL`'s own API
+(see [COMPILER.md](COMPILER.md)). LINK now emits the exact 41-byte retail
+CodeView payload, and read-only queries confirm the matching signature and
+age in its PDB. All five PE section payloads, MISC/FPO payloads, and normalized
+function rows remain unchanged. Two forced relinks also produce identical
+executables after timestamp restoration. The CodeView record remains 512
+file bytes early, so the strict positional result stays at 139,455 matching
+positions despite its corrected identity. The common file suffix grows to
+286 bytes. Image size and layout remain incomplete.
 
 Packing the proven nine-byte personnel mouse sample preserves all function
 scores and corrects its internal field offsets, including the unaligned flags
