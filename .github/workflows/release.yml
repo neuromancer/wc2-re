@@ -2,8 +2,6 @@ name: Release
 
 on:
   push:
-    branches:
-      - "fix/release-reference"
     tags:
       - "v*.*.*"
   workflow_dispatch:
@@ -99,7 +97,6 @@ jobs:
           retention-days: 7
 
   build-modern-unix:
-    if: github.ref != 'refs/heads/fix/release-reference'
     needs: metadata
     strategy:
       fail-fast: false
@@ -179,7 +176,6 @@ jobs:
           retention-days: 7
 
   build-modern-windows:
-    if: github.ref != 'refs/heads/fix/release-reference'
     needs: metadata
     runs-on: windows-2025
     timeout-minutes: 30
