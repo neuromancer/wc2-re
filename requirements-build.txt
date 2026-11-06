@@ -1,0 +1,2 @@
+# PE metadata and linker map helpers used by the reference build.
+binary-comp @ git+https://github.com/gg-sl-oss/binary-comp.git@e9bf84ca58f3a95a832f11e715b6239344c19d58

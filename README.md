@@ -216,8 +216,14 @@ mismatch, including when the executable is already up to date. The original
 executable is not required to compile it:
 
 ```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python3 -m pip install -r requirements-build.txt
 make -j
 ```
+
+Python 3.10 or newer and the pinned `binary-comp` package are needed to set
+the executable's link timestamps and generate its complete symbol map.
 
 To run it, provide a Kilrathi Saga disc image. The Makefile substitutes the
 reconstructed executable and launches it under DREAMM:
@@ -250,11 +256,11 @@ in the matching build. GitHub Actions publishes the site on pushes to `main`.
 
 ## Reconstruction workflow
 
-[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) is required only for
-comparison and verification commands:
+[`binary-comp`](https://github.com/gg-sl-oss/binary-comp) also provides
+comparison and verification commands. Install its optional analysis dependencies:
 
 ```sh
-python3 -m pip install "binary-comp[all] @ git+https://github.com/gg-sl-oss/binary-comp.git"
+python3 -m pip install -r requirements-build.txt "capstone>=5" "tree-sitter>=0.20" "tree-sitter-cpp>=0.20"
 make compare-func FUNC=WinMain
 make verify
 ```

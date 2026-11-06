@@ -11,7 +11,9 @@ permissions:
 
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: false
+  # A replacement tag supersedes its previous build; distinct versions still
+  # run independently, and manual builds retain their existing queue behavior.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   metadata:
@@ -60,7 +62,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential ca-certificates clang cmake curl file \
-            libclang-dev libdigest-sha-perl make ninja-build zip
+            libclang-dev libdigest-sha-perl make ninja-build python3-venv zip
+      - name: Install reference build Python dependencies
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -r requirements-build.txt
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
       - name: Build reconstructed Win32 executable
         run: make -j2 WC2.EXE
       - name: Validate reconstructed executable

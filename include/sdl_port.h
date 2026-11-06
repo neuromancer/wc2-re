@@ -407,6 +407,8 @@ int SdlVsnprintf(char *buffer, size_t size, const char *format,
 
 #ifdef _WIN32
 #define fopen SdlFopen
+/* The Windows CRT exports the underscore spelling of this DOS-era name. */
+#define ultoa _ultoa
 #else
 #define _close close
 #define _read read
