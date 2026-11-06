@@ -178,6 +178,18 @@ occupy displaced storage. All 1,149 shared global map records retain their
 addresses across these two header changes. See [PATTERNS.md](PATTERNS.md)
 for the declaration keys and the limits of these comparisons.
 
+Further unit-specific header ordering restores four joystick-calibration
+products, two additions in the memory-query routines, and the three-term
+speech-position sum. The latter's initial 19-byte count addition now
+matches literally, versus 15/19 before; its whole raw function span improves
+from 91.1% to 92.4%. All 1,280 named global map records retain their addresses.
+Instruction sizes, normalized report rows, the 562 byte-identical spans,
+and the whole-file positional result remain unchanged. Calibration still
+checks two scale values in the opposite order from retail, despite its
+normalized `EXACT` result. The retained memory-query and speech code after
+early returns also needs linear-disassembly inspection; the reachable
+exports alone do not describe these corrections.
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively

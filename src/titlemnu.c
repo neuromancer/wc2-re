@@ -3,6 +3,7 @@
  *
  *  Retail object 0x418770-0x4199EF (link order; see docs/ORDER.md).
  */
+#define TITLEMNU_C
 #include "game.h"
 
 /* Function start: 0x418770 */

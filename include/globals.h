@@ -80,8 +80,14 @@ extern const unsigned short g_wDmaHalfBytes_0048e0e4;
 extern unsigned short g_wDmaAddressA_0049bb64;
 #endif
 extern unsigned short g_wDmaAddressB_0049bb68;
+/* The speech-position sum loads count B, count A, then position. */
+#ifdef SPEECH_C
+extern unsigned short g_wDigiPosition_005d171c;
+extern unsigned short g_wDmaCountA_0049bb6c;
+#else
 extern unsigned short g_wDmaCountA_0049bb6c;
 extern unsigned short g_wDmaCountB_0049bb70;
+#endif
 extern int g_nDmaHalfSelect_0049bb74;
 extern short g_nDigiLastBlock_0049bb78;
 extern const int g_nJoystickUnavailableSample_0048e054;
@@ -1278,7 +1284,11 @@ extern MusicResource g_aTuneResources_005d13e0[66];
 extern void *g_pDigiData_005d1710;
 extern unsigned short g_wDigiLeft_005d1714;
 extern void *g_pDmaBufferPointer_005d1718;
+#ifdef SPEECH_C
+extern unsigned short g_wDmaCountB_0049bb70;
+#else
 extern unsigned short g_wDigiPosition_005d171c;
+#endif
 extern void *g_pDigiSample_005d1720;
 extern unsigned char g_ucDmaPageValue_005d1724;
 extern int g_nPassingShipSndCooldown_005d156c;
@@ -1413,8 +1423,8 @@ extern unsigned char *g_apViewportAllocations_005d19c0[128];
 extern int g_nFreeViewportCalls_005d1bc0;
 extern short g_nMissionMedalScore_005a8116;
 extern short g_nCampaignDataSet_005a8118;
-/* The near-heap unit loads arena size before base in its end-address sums. */
-#ifdef NEARHEAP_C
+/* Both heap units load arena size before base in their end-address sums. */
+#if defined(NEARHEAP_C) || defined(MEMFREE_C)
 extern volatile int g_nNearHeapBase_005d3054;
 extern volatile int g_nNearArenaSize_005d3050;
 #else
@@ -1678,8 +1688,14 @@ extern int g_nJoystickMinimumXNumber_005d174c;
 extern int g_nJsMinimumY_005d1750;
 extern int g_nJoystickRawX_005d2ff8;
 extern int g_nStickRawY_005d2ffc;
+/* Calibration's four scale products depend on these declaration keys. */
+#ifdef TITLEMNU_C
+extern int g_nControllerHorizontalRange_005d1758;
+extern int g_nJoystickVerticalRangeNumber_005d1754;
+#else
 extern int g_nJoystickVerticalRangeNumber_005d1754;
 extern int g_nControllerHorizontalRange_005d1758;
+#endif
 extern int g_nJsRightScaleWord_005d175c;
 extern int g_nJoystickDownScaleWord_005d1760;
 extern int g_nJoystickCentreY_005d1764;

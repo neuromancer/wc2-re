@@ -382,6 +382,18 @@ header order. The normalized comparison remains 12/134 differing encodings
 because relocation normalization masks the exchanged global operands; the
 separate DMA-page comparison still has the wrong expression shape.
 
+The speech-position update in `PlaySpeechPacketBuffer` (`0x0044F3A4`)
+also depends on declaration order. Rotating the position/count-A/count-B
+declarations gives them keys 20181/20182/21116, respectively, in `SPEECH_C`.
+Retail adds count B to count A before adding the position; the earlier
+header order made C2 add position to count B first. Only those three load
+operands change in the unit's compiler listing, and the local symbol stream
+is identical. The first 19 bytes of the sum at retail `0x0044F500` now
+match literally, versus 15/19 before. The position's storage remains
+`0x2D0` early, so the rest of the update still differs. This code follows
+an early return: inspect the linear disassembly as well as the reachable
+export when auditing it.
+
 `NEARHEAP_C` exchanges arena-size and heap-base declarations at keys
 21245/21246. Retail loads arena size before adding base in all fifteen
 end-address sums across eight near-heap functions. The older ordering
@@ -391,6 +403,22 @@ change only those two keys, and instruction sizes and normalized comparisons
 stay unchanged. These globals remain `0x2D0` bytes early with the surrounding
 storage, so correcting operand order does not establish literal identity
 for the near-heap functions.
+
+`MEMFREE_C` uses the same two-key exchange for the end-address additions
+in `GetAvailableMainMemory` (`0x00469AD0`) and
+`GetLargestMainMemoryBlock` (`0x00469B49`). Both additions survive after
+early returns and load size before base in retail. Their local symbol
+streams and instruction sizes are unchanged; the only instruction changes
+are the two pairs of global operands. Storage placement remains unresolved.
+
+`TITLEMNU_C` exchanges vertical and horizontal joystick-range declarations
+at keys 21481/21482. This restores all four scale-product operand orders in
+`CalibrateJoystickInteractive` (`0x00418770`) without changing its 1,444
+instruction bytes or local symbol stream. Relocation normalization reports
+zero differences both before and after this correction. It also masks a
+separate statement-order discrepancy: retail checks the left, up, right,
+then down scales for zero; the source checks left, right, up, then down.
+That discrepancy remains under the mapped-function body restriction.
 
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key

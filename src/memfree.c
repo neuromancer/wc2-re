@@ -3,6 +3,7 @@
  *
  *  Retail object 0x469AD0-0x469BDF (link order; see docs/ORDER.md).
  */
+#define MEMFREE_C
 #include "game.h"
 #ifndef SDL_PORT
 #include <malloc.h>
