@@ -91,6 +91,7 @@ The native port includes these fixes and optional features:
 | Background planets drawn with their own sprite and scale (WCDX fix) | always on |
 | Static on knocked-out cockpit displays | always on |
 | Neutral adaptive difficulty and half-size asteroid collision radii | `--balanced-difficulty` |
+| Cheat mode: invulnerability and no collisions | Launcher checkbox or `--cheats` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |

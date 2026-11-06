@@ -84,6 +84,9 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             g_bSdlBalancedDifficulty = 1;
             launcherOptions->balancedDifficulty = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_BALANCED;
+        } else if (strcmp(argument, "--cheats") == 0) {
+            launcherOptions->cheatMode = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CHEATS;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
@@ -340,6 +343,13 @@ int main(int argumentCount, char **arguments)
             return 1;
     }
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
+    if (launcherOptions.cheatMode) {
+        /* CheckLauncherAndConfig (0x453C95) uses the same combination for
+         * Saga's Cheater setting. Both DOS and Saga data share these flags. */
+        g_nOriginDevUnlock = 1;
+        g_bPlayerDamageEnabled = 0;
+        g_bPlayerCollisionEnabled = 0;
+    }
 #ifdef _WIN32
     ImmDisableIME((DWORD)-1);
 #endif

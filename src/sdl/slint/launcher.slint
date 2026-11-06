@@ -23,6 +23,7 @@ export component LauncherWindow inherits Window {
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
+    in-out property <bool> cheat-mode;
     in-out property <bool> joystick-rumble;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
@@ -147,6 +148,20 @@ export component LauncherWindow inherits Window {
                         checked <=> root.balanced-difficulty;
                     }
 
+                    CheckBox {
+                        height: 26px;
+                        text: "Cheat mode";
+                        checked <=> root.cheat-mode;
+                    }
+
+                    Text {
+                        text: "Invulnerability and no collisions";
+                        color: Palette.foreground;
+                        opacity: 0.65;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        vertical-stretch: 0;
+                    }
                 }
             }
         }

@@ -32,7 +32,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_BALANCED = 1 << 2,
     SDL_LAUNCHER_EXPLICIT_RUMBLE = 1 << 3,
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE = 1 << 4,
-    SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5,
+    SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6
 };
 
 typedef struct SdlLauncherOptions {
@@ -40,6 +41,7 @@ typedef struct SdlLauncherOptions {
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;
+    int cheatMode;
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
