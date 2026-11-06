@@ -98,6 +98,16 @@ bytes at 99.28% mnemonic similarity. The remaining six bytes are the two
 original stores of `Unlock` results at `0x0045DEC5` and `0x0045DEE4`; they
 require assignments in the mapped body, beyond name and header recovery.
 
+Four local renames in `DIBupdate` (`0x0045E060`) put the source pointer,
+destination pointer, and row width at retail `-4/-8/-0x0C`. The decoded
+instruction-extent comparison improves from 62/141 to 53/141 differing
+encodings, with the same 445 code bytes against retail's 534. All 57 parsed
+C++ symbol records retain their keys. The frame remains `0x80` bytes against
+retail's `0xA4`: two rectangle locals and the row counter are missing. The
+height and result remain 32 bytes above their retail slots, and the surface
+description remains 36 bytes above its slot. Renaming cannot supply that
+absent storage or its setup.
+
 Three more name-only corrections recover the local slots in the text-input,
 save/load-menu, and window-procedure frames. The counts below come from
 `binary-comp`'s `compare_function_bytes` API over decoded instruction extents,

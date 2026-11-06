@@ -155,6 +155,12 @@ functions, reducing the byte-identical mapped-span count from 586 to 580.
 Correcting one function does not necessarily improve a positional metric
 while other size differences remain.
 
+Four later renames recover `DIBupdate`'s leading source, destination, and
+width slots, reducing differing instruction encodings from 62/141 to 53/141.
+Its code remains 89 bytes short; the two rectangle records and row counter
+are still absent. The full normalized report, file sizes, strict positional
+comparison, and byte-identical mapped-span count remain unchanged at this step.
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively

@@ -190,6 +190,16 @@ object-order arrays to `0x46` entries. The pause-state loop in
 These accesses support the current declarations, not larger arrays inferred
 from their neighbours' addresses.
 
+The current map localizes the 720-byte uninitialized-data deficit to this
+event-manager band: annotated globals before it have retail addresses;
+after its two leading turret words and their alignment, subsequent bands
+remain uniformly `0x2D0` bytes early. This is not evidence for adding
+720 bytes of storage without declarations. The apparent movie-text/cache
+overlap reported later in `gameflow.c` is unrelated: the FLIC lookup at
+`0x0042E868` increments its index before using displacement `0x005D2E08`.
+Indices 1 through 15 access cache entries at `0x005D2E10` through
+`0x005D2E80`, leaving the preceding 27-byte text context untouched.
+
 `InflightComputer` saves and restores 33 bytes at `0x005C8470` (eight `MOVSD`s
 and one `MOVSB`). This is the personnel cursor record: x/y are at `+0/+2`,
 the shape pointer at `+0x0D`, frame at `+0x11`, scratch pointer at `+0x13`, and

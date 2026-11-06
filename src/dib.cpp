@@ -817,12 +817,12 @@ void DIBslamReal(void)
 void DIBupdate(int left, int top, int right, int bottom)
 {
 #ifndef SDL_PORT
-    unsigned char *destination;
+    unsigned char *destPixels;
     unsigned char *source;
-    DDSURFACEDESC surface;
-    int width;
+    DDSURFACEDESC surfaceDetails;
+    int byteWidth;
     int height;
-    HRESULT result;
+    HRESULT hResult;
 #endif
 
     if (g_nDisplayModeCascade_0049cea0 > 0)
@@ -850,32 +850,32 @@ void DIBupdate(int left, int top, int right, int bottom)
     if (!SdlPresentIndexedFrame(g_pDisplayPixelBuffer_005b3978, g_abColourShadow_005c3450))
         DIBerror("DIBupdate", -1);
 #else
-    width = right - left + 1;
+    byteWidth = right - left + 1;
     height = bottom - top + 1;
-    memset(&surface, 0, sizeof(surface));
-    surface.dwSize = sizeof(surface);
-    result = IDirectDrawSurface_Lock(
-        g_pPrimarySurface_0049ce94, 0, &surface,
+    memset(&surfaceDetails, 0, sizeof(surfaceDetails));
+    surfaceDetails.dwSize = sizeof(surfaceDetails);
+    hResult = IDirectDrawSurface_Lock(
+        g_pPrimarySurface_0049ce94, 0, &surfaceDetails,
         DDLOCK_WAIT, 0);
-    if (result != DD_OK) {
+    if (hResult != DD_OK) {
         IDirectDrawSurface_Unlock(
-            g_pPrimarySurface_0049ce94, surface.lpSurface);
-        DIBerror("DIBupdate   primary->Lock", result);
+            g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
+        DIBerror("DIBupdate   primary->Lock", hResult);
     }
 
-    destination = (unsigned char *)surface.lpSurface
-                + surface.lPitch * top + left;
+    destPixels = (unsigned char *)surfaceDetails.lpSurface
+                + surfaceDetails.lPitch * top + left;
     source = g_pDisplayPixelBuffer_005b3978 + g_nDisplayRowBytes_005b397c * top + left;
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
     while (height > 0) {
-        memcpy(destination, source, width);
-        destination += surface.lPitch;
+        memcpy(destPixels, source, byteWidth);
+        destPixels += surfaceDetails.lPitch;
         source += g_nDisplayRowBytes_005b397c;
         height--;
     }
     IDirectDrawSurface_Unlock(
-        g_pPrimarySurface_0049ce94, surface.lpSurface);
+        g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
 #endif
 }
 
