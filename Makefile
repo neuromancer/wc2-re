@@ -1019,6 +1019,11 @@ $(MSVC41_STAMP): $(MSVC41_ARCHIVE) $(MSVC41_SUPPORT_ARCHIVE) $(MSVC410_LIBS_ARCH
 		rm -rf "$$msvc41_support" "$$msvc410_libs"; \
 		trap - 0
 
+# The PDB seed names this DLL as a direct prerequisite. Declare how the
+# compiler install supplies it so a clean parallel build can schedule it.
+$(MSVC41_DIR)/Bin/MSPDB41.DLL: | $(MSVC41_STAMP)
+	@test -f "$@"
+
 msvc41-toolchain: $(MSVCRT_DLL)
 
 $(MSVCRT_DLL): $(MSVCRT_SOURCE) | $(MSVC41_STAMP)
