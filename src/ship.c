@@ -1278,8 +1278,6 @@ void check_computer_damage(void)
     damage_your_component(3, 1, 3);
 }
 
-void set_objects_data(short obj, short type, short owner, short matchObjectClass);
-
 /* Function start: 0x412FA9 */
 short IsOnlyShipGun(short ship, short weapon)
 {

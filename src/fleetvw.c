@@ -6,17 +6,17 @@
 #include "game.h"
 
 /* Function start: 0x44ADE0 */
-void SetFleetOverviewView(int initializeCockpit)
+void SetFleetOverviewView(short initializeCockpit)
 {
     FixedVector centre;
     FixedVector axes;
     FixedVector viewOffset;
-    int shipCount;
+    short shipCount;
     int furthestRange;
     int playerRange;
     int cameraDistance;
     int range;
-    int shipSlot;
+    short shipSlot;
 
     axes.x = 0xff;
     axes.y = 0xff;
@@ -31,29 +31,23 @@ void SetFleetOverviewView(int initializeCockpit)
         zero_vector(&g_aShipVelocity_00494898[EYE_OBJECT]);
     }
 
-    shipSlot = 0;
-    do {
+    for (shipSlot = 0; shipSlot < 10; shipSlot++) {
         if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP)
             shipCount++;
-        shipSlot++;
-    } while (shipSlot < 10);
+    }
 
     if (shipCount > 1) {
         zero_vector(&centre);
-        shipSlot = 0;
-        do {
+        for (shipSlot = 0; shipSlot < 10; shipSlot++) {
             if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP) {
                 centre.x += g_aShipPosition_00494550[shipSlot].x / shipCount;
                 centre.y += g_aShipPosition_00494550[shipSlot].y / shipCount;
                 centre.z += g_aShipPosition_00494550[shipSlot].z / shipCount;
             }
-            shipSlot++;
-        } while (shipSlot < 10);
+        }
 
         furthestRange = 0x4b000;
-        playerRange = 0xff;
-        shipSlot = 9;
-        do {
+        for (shipSlot = 9; shipSlot >= 0; shipSlot--) {
             if (g_aeObjectClass_00495328[shipSlot] >= OBJECT_CLASS_SHIP) {
                 ComputeVectorDelta(&centre,
                                    &g_aShipPosition_00494550[shipSlot],
@@ -64,17 +58,17 @@ void SetFleetOverviewView(int initializeCockpit)
                 if (shipSlot == 0)
                     playerRange = range;
             }
-            shipSlot--;
-        } while (shipSlot >= 0);
-        if (furthestRange <= 0x1f4000)
-            playerRange = furthestRange;
+        }
+        if (furthestRange > 0x1f4000)
+            cameraDistance = playerRange;
+        else
+            cameraDistance = furthestRange;
     } else {
-        furthestRange = 0x4b000;
-        playerRange = 0x4b000;
+        cameraDistance = furthestRange = playerRange = 0x4b000;
         position_relative_ijk(&centre, 0, 400, 400, 400);
     }
 
-    cameraDistance = (playerRange >> 3) * 9 + 0x2bc00;
+    cameraDistance = (cameraDistance >> 3) * 9 + 0x2bc00;
     g_aShipPosition_00494550[SCRATCH_VIEW_OBJECT] = centre;
     g_aShipRightVector_00493b78[SCRATCH_VIEW_OBJECT] = axes;
     g_aShipUpVector_00493ec0[SCRATCH_VIEW_OBJECT] = axes;

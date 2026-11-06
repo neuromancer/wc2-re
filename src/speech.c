@@ -240,7 +240,7 @@ short InitializeSoundBlaster(short port, short irq)
         dmaEnd = dmaAddress +
             ((int)((unsigned int)g_wDmaHalfBytes_0048e0e4 * 2) /
              16);
-        if ((dmaEnd & 0xfffff000) != (dmaAddress & 0xfffff000)) {
+        if ((dmaEnd >> 12) != (dmaAddress >> 12)) {
             oldBuffer =
                 g_pDmaBufferPointer_005d1718;
             g_pDmaBufferPointer_005d1718 =

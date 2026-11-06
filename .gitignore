@@ -30,6 +30,9 @@ wibo
 # Ghidra export (large; regenerate from the WC project)
 code-full/
 
+# Keep reconstruction notes local.
+/docs/
+
 # Original binary and game data (never vendored).  The whole tree, not just
 # data/full/: disc images land directly in data/ and one of them is 605 MB.
 data/

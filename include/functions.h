@@ -380,7 +380,7 @@ void ShowVictoryScreen(short logoY);                                  /* 0x408CC
 void CalibrateJoystickInteractive();                                  /* 0x418770 */
 void WaitForJoystickButtonRelease(void);                               /* 0x418D14 */
 void WaitForJoystickButtonPress(void);                                 /* 0x418D5F */
-void SetFleetOverviewView(int initializeCockpit);                     /* 0x44ADE0 */
+void SetFleetOverviewView(short initializeCockpit);                   /* 0x44ADE0 */
 unsigned int rotate_eye_to_goal(void);                                 /* 0x419C10 */
 short GetVectorMagnitude(const FixedVector *vector);                   /* 0x419CDC */
 unsigned int set_eye_direction_and_position(void);                     /* 0x419D01 */

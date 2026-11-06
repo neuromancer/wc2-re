@@ -250,13 +250,13 @@ int ix_dsps_get_buffer_free(int stream)
     if (g_streams_005c5758[stream].playPos < played) {
         consumed = played - g_streams_005c5758[stream].playPos;
         g_streams_005c5758[stream].pending =
-            g_streams_005c5758[stream].pending - consumed;
+            (int)g_streams_005c5758[stream].pending - consumed;
     }
     else if (g_streams_005c5758[stream].playPos != played) {
         consumed = (g_streams_005c5758[stream].size
                    - g_streams_005c5758[stream].playPos) + played;
         g_streams_005c5758[stream].pending =
-            g_streams_005c5758[stream].pending - consumed;
+            (int)g_streams_005c5758[stream].pending - consumed;
     }
     g_streams_005c5758[stream].playPos = played;
     LeaveCriticalSection(&g_streams_005c5758[stream].cs);
