@@ -4,6 +4,8 @@
 The retail image records 1996-09-24 17:41:25 UTC in all four fields. LINK
 writes the current time and offers no timestamp override. This changes only
 those timestamp dwords; CodeView's separate PDB signature and age are retained.
+With --clear-misc-reserved, also zero IMAGE_DEBUG_MISC.Reserved[3], which
+LINK leaves uninitialized on some hosts. The retail image has zeroes there.
 """
 
 import argparse
@@ -48,12 +50,30 @@ def timestamp_offsets(image):
     return offsets
 
 
-def stamp(path, timestamp):
+def misc_reserved_offsets(image, timestamps):
+    offsets = []
+    for timestamp in timestamps[1:]:
+        kind, size, _, raw = struct.unpack_from("<IIII", image.data, timestamp + 8)
+        if kind != 4:  # IMAGE_DEBUG_TYPE_MISC
+            continue
+        if size < 12 or size % 4 or raw + size > len(image.data):
+            raise ValueError("invalid miscellaneous debug record length")
+        data_type, length, unicode = struct.unpack_from("<IIB", image.data, raw)
+        if data_type != 1 or length != size or unicode not in (0, 1):
+            raise ValueError("expected an IMAGE_DEBUG_MISC_EXENAME record")
+        offsets.append(raw + 9)
+    return offsets
+
+
+def stamp(path, timestamp, clear_misc_reserved=False):
     image = PEImage(str(path))
     offsets = timestamp_offsets(image)
+    reserved = misc_reserved_offsets(image, offsets) if clear_misc_reserved else []
     data = bytearray(image.data)
     for offset in offsets:
         struct.pack_into("<I", data, offset, timestamp)
+    for offset in reserved:
+        data[offset:offset + 3] = b"\0\0\0"
     Path(path).write_bytes(data)
     return len(offsets)
 
@@ -62,11 +82,15 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("image", type=Path)
     parser.add_argument("timestamp", type=lambda value: int(value, 0))
+    parser.add_argument("--clear-misc-reserved", action="store_true",
+                        help="zero the reserved bytes of miscellaneous debug records")
     args = parser.parse_args()
     if not 0 <= args.timestamp <= 0xFFFFFFFF:
         parser.error("timestamp must fit an unsigned dword")
-    count = stamp(args.image, args.timestamp)
+    count = stamp(args.image, args.timestamp, args.clear_misc_reserved)
     print(f"Set {count} link timestamps to 0x{args.timestamp:08X}")
+    if args.clear_misc_reserved:
+        print("Normalized IMAGE_DEBUG_MISC reserved bytes")
 
 
 if __name__ == "__main__":

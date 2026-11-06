@@ -222,8 +222,10 @@ python3 -m pip install -r requirements-build.txt
 make -j
 ```
 
-Python 3.10 or newer and the pinned `binary-comp` package are needed to set
-the executable's link timestamps and generate its complete symbol map.
+Python 3.10 or newer and the pinned `binary-comp` package are needed to normalize
+the executable's link metadata and generate its complete symbol map. Metadata
+normalization sets the retail timestamps and clears three reserved debug bytes
+that the linker leaves uninitialized on some hosts.
 
 To run it, provide a Kilrathi Saga disc image. The Makefile substitutes the
 reconstructed executable and launches it under DREAMM:

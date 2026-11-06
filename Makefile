@@ -1118,14 +1118,15 @@ $(TARGET):: $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols
 	@env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) verify \
 		$(MSVC41_DIR)/Bin/MSPDB41.DLL "$(LINK_PDB_DIR)/wc2.pdb" \
 		$(ORIGINAL_PDB_SIGNATURE) $(ORIGINAL_PDB_AGE)
-	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP)
+	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP) \
+		--clear-misc-reserved
 	@cp -f $(LINK_TARGET) $@
 	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
 		--rebuilt $(TARGET) --output $(MAPFILE) $(OBJS)
 
 # A prerequisite-free double-colon rule runs after the link rule on every
 # invocation, including an up-to-date build, without forcing a relink.
-# Keep the hash check after timestamp stamping and the final executable copy.
+# Keep the hash check after link metadata normalization and the final copy.
 $(TARGET)::
 	@printf '%s  %s\n' "$(ORIGINAL_SHA256)" "$@" | shasum -a 256 -c -
 
