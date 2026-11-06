@@ -12,10 +12,10 @@ void SetFleetOverviewView(short initializeCockpit)
     FixedVector axes;
     FixedVector viewOffset;
     short shipCount;
-    int furthestRange;
+    int range;
     int playerRange;
     int cameraDistance;
-    int range;
+    int furthestRange;
     short shipSlot;
 
     axes.x = 0xff;

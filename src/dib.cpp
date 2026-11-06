@@ -877,7 +877,9 @@ void DIBupdate(int left, int top, int right, int bottom)
 
     destPixels = (unsigned char *)surfaceDetails.lpSurface
                 + surfaceDetails.lPitch * top + left;
-    source = g_pDisplayPixelBuffer_005b3978 + g_nDisplayRowBytes_005b397c * top + left;
+    /* Convert the completed row address before applying the column offset. */
+    source = (unsigned char *)((unsigned long)g_pDisplayPixelBuffer_005b3978
+                              + g_nDisplayRowBytes_005b397c * top) + left;
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
     for (currentLine = 0; height > currentLine; currentLine++) {
