@@ -509,6 +509,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/video_state.c
 MODERN_GAME_HOST_SRCS = \
 	src/sdl/audio.c \
+	src/sdl/campaign.c \
 	src/sdl/cutscene.c \
 	src/sdl/difficulty.c \
 	src/sdl/events.c \
@@ -579,6 +580,7 @@ MODERN_INPUT_CORE_OBJS = \
 	$(MODERN_OUT_DIR)/obj/globals.o \
 	$(MODERN_OUT_DIR)/obj/sysinput.o
 MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_text_compat \
+	sdl_save_handles \
 	sdl_dos_resources sdl_input_compat sdl_event_compat sdl_video_compat \
 	sdl_ship_evasion sdl_adaptive_difficulty sdl_turret_guns sdl_ship_exhaust \
 	sdl_capital_weapons sdl_music_paths sdl_mission_objectives sdl_cutscene_input
@@ -713,6 +715,11 @@ $(MODERN_OUT_DIR)/obj/sound.o: MODERN_CPPFLAGS += \
 	-Dix_system_new_sound=SdlNewWaveSound
 $(MODERN_OUT_DIR)/obj/sound.o: Makefile
 
+# Keep the retail-address body intact; only native callers use campaign.c.
+$(MODERN_OUT_DIR)/obj/personnel.o: MODERN_CPPFLAGS += \
+	-DHasSavedPilotCampaign=SdlRetailHasSavedPilotCampaign
+$(MODERN_OUT_DIR)/obj/personnel.o: Makefile
+
 $(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_TEST_CPPFLAGS) $(MODERN_CFLAGS) \
@@ -744,6 +751,7 @@ $(MODERN_TARGET): \
 # These checks supply their own main, but also reach the launcher's cutscene-
 # exit callback through the resource objects.
 $(MODERN_OUT_DIR)/tests/sdl_crt_compat$(MODERN_EXE_SUFFIX) \
+$(MODERN_OUT_DIR)/tests/sdl_save_handles$(MODERN_EXE_SUFFIX) \
 $(MODERN_OUT_DIR)/tests/sdl_cutscene_input$(MODERN_EXE_SUFFIX): $(MODERN_TEST_LAUNCHER_OBJ)
 
 # The host compatibility layer reaches into the game core for packet loads and

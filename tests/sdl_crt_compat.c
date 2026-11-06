@@ -20,6 +20,8 @@ int main(int argumentCount, char **arguments)
     int file;
     int failed;
     int pathResolved;
+    intptr_t findHandle;
+    struct _finddata_t found;
 
     failed = 0;
     if (GetCurrentDirectoryA(sizeof(currentDirectory),
@@ -104,7 +106,17 @@ int main(int argumentCount, char **arguments)
         failed = 1;
     else if (_close(file) != 0)
         failed = 1;
+    findHandle = _findfirst(casePath, &found);
+    if (findHandle == -1)
+        failed = 1;
+    else if (_findclose(findHandle) != 0 || found.size != 0)
+        failed = 1;
     if (_unlink(casePath) != 0)
         failed = 1;
+    findHandle = _findfirst(casePath, &found);
+    if (findHandle != -1) {
+        _findclose(findHandle);
+        failed = 1;
+    }
     return failed;
 }
