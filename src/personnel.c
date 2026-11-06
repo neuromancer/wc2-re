@@ -1403,23 +1403,23 @@ void ShowNoTransferablePilots(void)
 /* Function start: 0x436A8F */
 short RunPilotDatabaseMenu(void)
 {
-    short done = 0;
-    short actionHandled = 0;
-    char firstName[13] = "Christopher";
-    char lastName[13] = "Blair";
+    short finishedDatabase = 0;
+    short actionHandledFlag = 0;
+    char firstNameText[13] = "Christopher";
+    char surname[13] = "Blair";
     char callsign[13] = "Maverick";
-    short result = 0;
-    char text[80];
+    short accepted = 0;
+    char captionBuffer[80];
     SaveGameDiskRecord *record;
-    PilotRecord *pilot;
-    short file;
+    PilotRecord *pilotRecord;
+    short handle;
     short inputResult;
     short transferCount;
-    short index;
-    short selected;
-    short hover;
-    short previousDrive;
-    int key;
+    short saveSlot;
+    short choice;
+    short hoverCommand;
+    short driveToRestore;
+    int commandCode;
 
     g_stSecondaryViewBufferBlock_005d2c90.left = 0;
     g_stSecondaryViewBufferBlock_005d2c90.right = 319;
@@ -1449,15 +1449,15 @@ short RunPilotDatabaseMenu(void)
     if (record == 0) {
         ReportFatalErrorCode("013");
     }
-    for (index = 0; index < 8; index++) {
-        g_apszPersonnelImportCaptionsTable_005d2100[index] =
+    for (saveSlot = 0; saveSlot < 8; saveSlot++) {
+        g_apszPersonnelImportCaptionsTable_005d2100[saveSlot] =
             AllocateTaggedMemory(0x50, 0x40);
-        if (g_apszPersonnelImportCaptionsTable_005d2100[index] == 0) {
+        if (g_apszPersonnelImportCaptionsTable_005d2100[saveSlot] == 0) {
             ReportFatalErrorCode("014");
         }
     }
     SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
-    while (done == 0) {
+    while (finishedDatabase == 0) {
         DisableMouseCursorDrawing();
         g_stDefaultStringContext_005d2d20.viewport =
             &g_stSecondaryViewBufferBlock_005d2c90;
@@ -1472,9 +1472,9 @@ short RunPilotDatabaseMenu(void)
         DrawFormattedText("TERRAN CONFEDERATION NAVY");
         SetTextCursor(0x60, 0x1c);
         DrawFormattedText("PERSONNEL DATABASE");
-        hover = 0x26;
+        hoverCommand = 0x26;
         g_nPersonnelMenuHighlight_0049a6a0 = -1;
-        DrawPersonnelMenuChoices(hover);
+        DrawPersonnelMenuChoices(hoverCommand);
         DisableMouseCursorDrawing();
         SetPersonnelMousePosition(200, 0x36);
         RefreshMemoryStatusOverlay();
@@ -1485,25 +1485,25 @@ short RunPilotDatabaseMenu(void)
                 g_stPersonnelCursor_005c8470.x < 0xea) {
                 if (g_stPersonnelCursor_005c8470.y >= 0x30 &&
                     g_stPersonnelCursor_005c8470.y <= 0x43) {
-                    hover = 0x14;
-                    DrawPersonnelMenuChoices(hover);
+                    hoverCommand = 0x14;
+                    DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
                 } else if (g_stPersonnelCursor_005c8470.y >= 0x44 &&
                            g_stPersonnelCursor_005c8470.y <= 0x57) {
-                    hover = 0x2e;
-                    DrawPersonnelMenuChoices(hover);
+                    hoverCommand = 0x2e;
+                    DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 1);
                 } else {
-                    hover = -1;
-                    DrawPersonnelMenuChoices(hover);
+                    hoverCommand = -1;
+                    DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
                         g_pInputManagerState_005c8464->cursorShape, 0);
                 }
             } else {
-                hover = -1;
-                DrawPersonnelMenuChoices(hover);
+                hoverCommand = -1;
+                DrawPersonnelMenuChoices(hoverCommand);
                 SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
                                     0);
             }
@@ -1512,22 +1512,22 @@ short RunPilotDatabaseMenu(void)
             g_bPersonnelMenuDrawing_0049a6c0 = 1;
             EnableMouseCursorDrawing();
             RefreshMemoryStatusOverlay();
-            actionHandled = 0;
+            actionHandledFlag = 0;
             if ((g_cCurrentKey_00493128 == PERSONNEL_KEY_ENTER ||
                  g_cCurrentKey_00493128 == PERSONNEL_KEY_SPACE) &&
-                hover != -1) {
-                g_cCurrentKey_00493128 = (signed char)hover;
+                hoverCommand != -1) {
+                g_cCurrentKey_00493128 = (signed char)hoverCommand;
             }
             if ((g_cCurrentKey_00493128 == PERSONNEL_KEY_ENTER ||
                  g_cCurrentKey_00493128 == PERSONNEL_KEY_SPACE) &&
-                hover == -1) {
-                done++;
-                actionHandled++;
+                hoverCommand == -1) {
+                finishedDatabase++;
+                actionHandledFlag++;
             }
-            key = toupper((int)g_cCurrentKey_00493128);
-            if (key == PERSONNEL_KEY_T) {
-                previousDrive = 99;
-                actionHandled = 1;
+            commandCode = toupper((int)g_cCurrentKey_00493128);
+            if (commandCode == PERSONNEL_KEY_T) {
+                driveToRestore = 99;
+                actionHandledFlag = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
                     &g_stSecondaryViewBufferBlock_005d2c90);
@@ -1535,30 +1535,30 @@ short RunPilotDatabaseMenu(void)
                 InitializeTextContextFromFont(
                     &g_stDefaultStringContext_005d2d20, 1,
                     (unsigned char)g_nMenuDarkColour_005c5876, -1);
-                selected = SelectLegacyGameSource();
-                if (selected == -1) {
-                    result = 0;
+                choice = SelectLegacyGameSource();
+                if (choice == -1) {
+                    accepted = 0;
                 } else {
-                    done = (short)LocateLegacySaveGame(selected);
-                    if (done == 0) {
+                    finishedDatabase = (short)LocateLegacySaveGame(choice);
+                    if (finishedDatabase == 0) {
                         ShowNoTransferablePilots();
-                        result = 0;
+                        accepted = 0;
                         g_cCurrentKey_00493128 = 0x14;
                     } else {
-                        file = (short)_open(g_szLegacySaveFolder_005d2130,
+                        handle = (short)_open(g_szLegacySaveFolder_005d2130,
                                             0x8000);
                         transferCount = 0;
-                        for (index = 0; index < 8; index++) {
-                            _read(file, record, 0x33c);
+                        for (saveSlot = 0; saveSlot < 8; saveSlot++) {
+                            _read(handle, record, 0x33c);
                             if (record->occupied != 0 &&
                                 record->campaign.campaignIndex ==
-                                    selected) {
-                                pilot = &record->pilots[8];
+                                    choice) {
+                                pilotRecord = &record->pilots[8];
                                 strcpy(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
                                     g_apszShortPilotRankNames_0049a620[
-                                        pilot->rank]);
+                                        pilotRecord->rank]);
                                 strcat(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
@@ -1566,7 +1566,7 @@ short RunPilotDatabaseMenu(void)
                                 strcat(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
-                                    pilot->callsign);
+                                    pilotRecord->callsign);
                                 strcat(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
@@ -1574,49 +1574,49 @@ short RunPilotDatabaseMenu(void)
                                 strcat(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount],
-                                    pilot->name);
-                                itoa(pilot->missions, text, 10);
+                                    pilotRecord->name);
+                                itoa(pilotRecord->missions, captionBuffer, 10);
                                 strcpy(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x28,
-                                    text);
-                                itoa(pilot->kills, text, 10);
+                                    captionBuffer);
+                                itoa(pilotRecord->kills, captionBuffer, 10);
                                 strcpy(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x2c,
-                                    text);
-                                itoa(index, text, 10);
+                                    captionBuffer);
+                                itoa(saveSlot, captionBuffer, 10);
                                 strcpy(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
                                         transferCount] + 0x3c,
-                                    text);
+                                    captionBuffer);
                                 transferCount++;
                             }
                         }
-                        _close(file);
+                        _close(handle);
                         if (transferCount == 0) {
                             ShowNoTransferablePilots();
-                            result = 0;
+                            accepted = 0;
                             g_cCurrentKey_00493128 = 0x14;
-                            done = 0;
+                            finishedDatabase = 0;
                         } else {
-                            selected = SelectTransferredPilot(
+                            choice = SelectTransferredPilot(
                                 transferCount);
-                            if (selected == -1) {
-                                done = 0;
-                                result = 0;
+                            if (choice == -1) {
+                                finishedDatabase = 0;
+                                accepted = 0;
                                 g_cCurrentKey_00493128 = 0x14;
                             } else {
-                                index = (short)atoi(
+                                saveSlot = (short)atoi(
                                     g_apszPersonnelImportCaptionsTable_005d2100[
-                                        selected] + 0x3c);
-                                file = (short)_open(
+                                        choice] + 0x3c);
+                                handle = (short)_open(
                                     g_szLegacySaveFolder_005d2130, 0x8000);
-                                lseek(file, (long)index * 0x33c, 0);
-                                _read(file, record, 0x33c);
-                                pilot = &record->pilots[8];
-                                _close(file);
-                                PersonnelDriveHook(previousDrive);
+                                lseek(handle, (long)saveSlot * 0x33c, 0);
+                                _read(handle, record, 0x33c);
+                                pilotRecord = &record->pilots[8];
+                                _close(handle);
+                                PersonnelDriveHook(driveToRestore);
                                 InitializeTextContextFromFont(
                                     &g_stDefaultStringContext_005d2d20, 1,
                                     (unsigned char)
@@ -1626,54 +1626,54 @@ short RunPilotDatabaseMenu(void)
                                 RestorePersonnelMenuBackground(
                                     &g_stSecondaryViewBufferBlock_005d2c90);
                                 RefreshMemoryStatusOverlay();
-                                strcpy(text,
+                                strcpy(captionBuffer,
                                        g_apszShortPilotRankNames_0049a620[
-                                           pilot->rank]);
-                                strcat(text, " ");
-                                strcat(text, pilot->name);
-                                strcat(text, "'s first name?");
+                                           pilotRecord->rank]);
+                                strcat(captionBuffer, " ");
+                                strcat(captionBuffer, pilotRecord->name);
+                                strcat(captionBuffer, "'s first name?");
                                 SetTextCursor(0x32, 0x32);
-                                DrawFormattedText(text);
+                                DrawFormattedText(captionBuffer);
                                 RefreshMemoryStatusOverlay();
                                 ReadPersonnelTextField(
-                                    0x32, 0x3c, 1, "", firstName,
+                                    0x32, 0x3c, 1, "", firstNameText,
                                     0x0c, 0, 0);
                                 strcpy(
                                     g_stPilotNameVariables_00499ef8.firstName,
-                                    firstName);
+                                    firstNameText);
                                 strcpy(
                                     g_stPilotNameVariables_00499ef8.lastName,
-                                    pilot->name);
+                                    pilotRecord->name);
                                 strcpy(
                                     g_stPilotNameVariables_00499ef8.callsign,
-                                    pilot->callsign);
+                                    pilotRecord->callsign);
                                 strcpy(
                                     g_stCurrentPilotProfile_00493408.firstName,
-                                    firstName);
+                                    firstNameText);
                                 strcpy(
                                     g_stCurrentPilotProfile_00493408.lastName,
-                                    pilot->name);
+                                    pilotRecord->name);
                                 strcpy(
                                     g_stCurrentPilotProfile_00493408.callsign,
-                                    pilot->callsign);
+                                    pilotRecord->callsign);
                                 g_stCurrentPilotProfile_00493408.rank = 2;
                                 g_stCurrentPilotProfile_00493408.field_41 =
-                                    pilot->missions;
+                                    pilotRecord->missions;
                                 g_stCurrentPilotProfile_00493408.field_43 =
-                                    pilot->kills;
+                                    pilotRecord->kills;
                                 LoadStartingCampaignGlobals(0);
                                 SaveAndFreeTemporaryCampaignGlobals();
                                 OpenDiskDataFile(1);
-                                done = 1;
-                                result = 1;
+                                finishedDatabase = 1;
+                                accepted = 1;
                             }
                         }
                     }
                 }
-                PersonnelDriveHook(previousDrive);
-            } else if (key == PERSONNEL_KEY_C) {
-                result = 1;
-                actionHandled = 1;
+                PersonnelDriveHook(driveToRestore);
+            } else if (commandCode == PERSONNEL_KEY_C) {
+                accepted = 1;
+                actionHandledFlag = 1;
                 DisableMouseCursorDrawing();
                 RestorePersonnelMenuBackground(
                     &g_stSecondaryViewBufferBlock_005d2c90);
@@ -1682,21 +1682,21 @@ short RunPilotDatabaseMenu(void)
                     &g_stDefaultStringContext_005d2d20, 1,
                     (unsigned char)g_nMenuSelectedCol_005c5874, -1);
                 inputResult = ReadPersonnelTextField(
-                    0x32, 0x1e, 2, "Enter first name: ", firstName,
+                    0x32, 0x1e, 2, "Enter first name: ", firstNameText,
                     0x0b, 0, 0);
                 if (inputResult != 0) {
                     strcpy(g_stPilotNameVariables_00499ef8.firstName,
-                           firstName);
+                           firstNameText);
                     strcpy(g_stCurrentPilotProfile_00493408.firstName,
-                           firstName);
+                           firstNameText);
                     inputResult = ReadPersonnelTextField(
-                        0x32, 0x32, 2, "Enter last name: ", lastName,
+                        0x32, 0x32, 2, "Enter last name: ", surname,
                         0x0b, 0, 0);
                     if (inputResult != 0) {
                         strcpy(g_stPilotNameVariables_00499ef8.lastName,
-                               lastName);
+                               surname);
                         strcpy(g_stCurrentPilotProfile_00493408.lastName,
-                               lastName);
+                               surname);
                         inputResult = ReadPersonnelTextField(
                             0x32, 0x46, 2, "Enter callsign: ", callsign,
                             0x0b, 0, 0);
@@ -1716,12 +1716,12 @@ short RunPilotDatabaseMenu(void)
                     }
                 }
                 if (inputResult == 0) {
-                    result = 0;
+                    accepted = 0;
                 }
-                done++;
+                finishedDatabase++;
                 g_cCurrentKey_00493128 = 0x2e;
             }
-            if (actionHandled == 0) {
+            if (actionHandledFlag == 0) {
                 g_cCurrentKey_00493128 = (signed char)0x80;
             }
         }
@@ -1735,11 +1735,11 @@ short RunPilotDatabaseMenu(void)
     g_stDefaultStringContext_005d2d20.viewport =
         &g_stScrViewInfo_005d21a0;
     ReleasePacketHandle(record);
-    for (index = 0; index < 8; index++) {
+    for (saveSlot = 0; saveSlot < 8; saveSlot++) {
         ReleasePacketHandle(
-            g_apszPersonnelImportCaptionsTable_005d2100[index]);
+            g_apszPersonnelImportCaptionsTable_005d2100[saveSlot]);
     }
     free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
     FlushInputEvents();
-    return result;
+    return accepted;
 }

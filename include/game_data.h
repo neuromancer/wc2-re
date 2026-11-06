@@ -1475,7 +1475,7 @@ typedef struct SaveGameRecord {
 
 typedef struct SaveGameDiskRecord {
     char description[17];                    /* +0x000 */
-    unsigned char occupied;                  /* +0x011 */
+    signed char occupied;                    /* +0x011 */
     PilotRecord pilots[9];                   /* +0x012 */
     SaveGameDiskCampaignState campaign;      /* +0x168 */
     SaveGameDiskObjective objectives[16];    /* +0x1AC */

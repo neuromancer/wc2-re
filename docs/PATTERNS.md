@@ -126,6 +126,35 @@ These edits preserve declaration order, types, literals, and expressions;
 the `/Bk` records preserve the local symbol keys. The remaining operand,
 control-flow, and frame-size differences require separate body corrections.
 
+Thirteen local renames in `RunPilotDatabaseMenu` (`0x00436A8F`) recover
+fourteen corresponding slots throughout the function: the caption buffer
+at `-0x50`, first name at `-0x60`, hover command at `-0x64`, result at
+`-0x6C`, callsign at `-0x7C`, handled flag at `-0x80`, done flag at `-0x84`,
+save record at `-0x88`, saved drive at `-0x8C`, slot index at `-0x90`,
+transfer count at `-0x94`, surname at `-0xA4`, text-input result at `-0xAC`,
+and file handle at `-0xB0`. The instruction-extent comparison drops from
+188/788 to 50/788 differing encodings. Correct long stack displacements add
+114 code bytes, reducing the code deficit from 133 to 19 bytes. With two
+fewer alignment bytes, the mapped-span deficit falls from 127 to 15.
+
+The `0xB4` frame is still eight bytes shorter than retail's `0xBC` frame.
+The reconstruction reuses `choice` at `-0xA8` for both source selection
+and the later pilot selection, where retail uses a separate `-0x68` slot.
+It also reuses `pilotRecord` at `-0xB4`, where retail uses `-0xB8` after
+reopening the selected save. The explicit `commandCode` now occupies
+`-0x68`; this is not the retail switch temporary at `-0xBC`. These remaining
+slot and control-flow differences need body corrections. No variable was
+added, removed, retyped, or reordered; all 84 scalar/parameter and five array
+keys in the unit's `/Bk` records are preserved.
+
+The disk-save record's `occupied` byte at `+0x11` must be signed: retail
+uses `MOVSX` before its zero test. Correcting `SaveGameDiskRecord` in the
+header replaces the unsigned load sequence with that instruction and
+reduces the differing encodings further to 48/788. It removes one code
+byte, leaving a 20-byte code deficit. This record type has only this reader;
+the nonzero test has the same result for every byte value. The record's
+`0x33C` size and all C1 keys stay unchanged.
+
 `SetFleetOverviewView` (`0x0044ADE0`) also has the correct `0x3C` frame size
 but initially had misplaced locals. Four renames reproduce all nine slots:
 `centre` at `-0x0C`, `cameraDistance` at `-0x10`, `shipSlot` at `-0x14`,
@@ -290,6 +319,16 @@ member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key
 hash; a member read outweighs a scalar. `fire_computer_graphic_missile`
 compares the released weapon's y against `viewport.bottom`, so y has to be a
 record member (`ReleaseWeaponPosition`) before any key matters.
+
+`fire_afterburner` is another weight mismatch. The current product's C2
+signature is `0x11E`, below the vector-magnitude call's `0x14B`, so C2
+evaluates the vector call first; retail evaluates the product first.
+Enumerating all four participating symbol hashes leaves the product at
+least two below the vector call. Declaration order and local names alone
+therefore cannot reverse these operands with the current expression trees.
+An isolated `long`-to-`int` spelling change for the magnitude return type
+also leaves the order unchanged. The mapped expression still needs separate
+recovery; do not keep sweeping header keys for this case.
 
 The signature-logging C2 copy from `../wc1-re/out/c2sig` runs on WC2's `/Bk`
 intermediates (copy it and `msvcrt40.dll` into `out/c2trace`). Its log shows

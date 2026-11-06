@@ -173,14 +173,14 @@ span difference due to padding. The full normalized report is unchanged:
 its `SIZE` label does not expose the improved stack operands. File and
 section sizes are also unchanged.
 
-The latest local-name corrections reduce `InflightComputer`'s differing
-instruction encodings from 62/307 to 36/307 and `player_input`'s from
+The navigation and input local-name corrections reduce `InflightComputer`'s
+differing instruction encodings from 62/307 to 36/307 and `player_input`'s from
 163/431 to 82/431. These renames leave the full report and image sizes
 unchanged. A separate `#pragma function(abs)` restores `player_input`'s two
 retail CRT calls, reducing its differences to 76/431 and raising mnemonic
 similarity to 95.36%. Its code-size delta grows from +1 to +9; the final
 `calculate_damage_level` span gains eight alignment bytes, so `.text` grows
-by 16 bytes overall. The 41 span deltas now sum to +238 bytes.
+by 16 bytes overall. At that step the 41 span deltas sum to +238 bytes.
 
 The only other changed normalized row is `CopyStringAndReturnEnd`, now
 `BYTES 1/22`. Its unreachable `strcpy` call at retail `0x004624F9` is absent
@@ -200,6 +200,16 @@ from 89.7% to 93.9%, and `SetMouseCursorShape` from 87.3% to 89.6%.
 The full normalized report, section sizes, byte-identical span count, and
 strict whole-file positional result remain unchanged at this step.
 
+The pilot database menu's thirteen local renames reduce differing
+instruction encodings from 188/788 to 50/788. Correcting its disk-save
+record's byte signedness in the header reduces them further to 48/788.
+Its code is now 20 bytes short of retail, instead of 133. The mapped span
+moves from `SIZE -127` to `SIZE -15` after alignment, and mnemonic similarity
+rises from 98.48% to 98.73%. This is the only changed row in the full
+normalized report. `.text` grows by 112 bytes, reducing its deficit to 592 bytes;
+the 41 reported span deltas sum to +350 bytes. The function's frame and
+variable reuse remain incomplete, as detailed in [PATTERNS.md](PATTERNS.md).
+
 The unnormalized `binary-comp exe --functions` comparison finds
 558 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
@@ -213,13 +223,13 @@ delta is a count of source defects.
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,628 |
+| `.text` virtual bytes | 576,332 | 575,740 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473BA0` |
+| Entry point | `0x00473E50` | `0x00473C10` |
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,584 identical file positions out of 714,752 (19.5290%). Address
+reports 139,435 identical file positions out of 714,752 (19.5082%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
