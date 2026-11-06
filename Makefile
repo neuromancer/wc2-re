@@ -85,7 +85,7 @@ CFLAGS = $(CFLAGS_CORE)
 # members the game itself needs, at 0x00473E50.  The image's MISC and
 # CodeView debug records name Debug/wc2.exe and C:\WCB\wc2\Debug\wc2.pdb.
 LINKFLAGS = /nologo /SUBSYSTEM:WINDOWS /DEBUG /INCREMENTAL:NO \
-	/PDB:$(OUT_DIR)/wc2.pdb /ALIGN:4096
+	/PDB:C:/WCB/wc2/Debug/wc2.pdb /ALIGN:4096
 
 # DDRAW.DLL and DSOUND.DLL are bound statically through the import table, so
 # import libraries are required at link time.  The MSVC420 submodule already
@@ -122,6 +122,8 @@ TARGET = WC2.EXE
 LINK_TARGET = Debug/wc2.exe
 MAPFILE = WC2.map
 OUT_DIR = out
+LINK_DRIVE_C = $(abspath $(OUT_DIR)/drive-c)
+LINK_PDB_DIR = $(LINK_DRIVE_C)/WCB/wc2/Debug
 LINKMAPFILE = $(OUT_DIR)/WC2.link.map
 # PE header and three debug-directory entries: 1996-09-24 17:41:25 UTC.
 ORIGINAL_TIMESTAMP = 0x32481D45
@@ -916,7 +918,7 @@ WIBO_PRESET = release-macos
 WIBO_BIN = wibo-src/build/release/wibo
 endif
 
-$(WIBO):
+$(WIBO): wibo-src/src/files.cpp wibo-src/CMakeLists.txt
 	cd wibo-src && cmake --preset $(WIBO_PRESET) && cmake --build --preset $(WIBO_PRESET)
 	ln -sf $(WIBO_BIN) $@
 
@@ -1074,9 +1076,9 @@ $(IX_LIBS): | $(MSVCRT_DLL)
 	@rm -f $@
 	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
 
-$(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(MSVCRT_DLL)
-	@mkdir -p $(dir $(LINK_TARGET))
-	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
+$(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
+	@mkdir -p $(dir $(LINK_TARGET)) "$(LINK_PDB_DIR)"
+	env LIB='$(GAME_LIBPATH)' WIBO_DRIVE_C='$(LINK_DRIVE_C)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
 		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
 		$(IX_LIBS_AFTER_CRT) /OUT:$(LINK_TARGET)
 	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP)

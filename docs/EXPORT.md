@@ -236,8 +236,8 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,445 identical file positions out of 714,752 (19.5096%). The
-cutscene rename adds ten matching positions to the previous checkpoint. Address
+reports 139,455 identical file positions out of 714,752 (19.5110%). The
+cutscene rename and PDB-path recovery each add ten matching positions. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
@@ -251,7 +251,16 @@ unchanged from the preceding build. The payload remains 512 file bytes
 early, so correcting its text reduces accidental positional agreement by
 six bytes (from 139,590); it does not fix the image's layout. LINK also
 increments the PDB age on relink. The usual `WC2.EXE` is an identical copy
-of the linked image; CodeView's PDB path, signature, and age remain open.
+of the linked image.
+
+Mapping the linker's `C:` drive to `out/drive-c` lets LINK itself reproduce
+the retail PDB path and 41-byte CodeView record size. The path-conversion
+tests pass, and binary-comp confirms that all normalized function rows,
+`.text`, `.data`, `.idata`, `.reloc`, and the MISC/FPO payloads are unchanged.
+The one changed byte in `.rdata` is CodeView's size field. The record now
+matches 36/41 retail bytes, with five differing bytes in the PDB signature
+and age. Those metadata fields and the record's file offset remain open;
+the path correction does not remove the 512-byte whole-file size deficit.
 
 Packing the proven nine-byte personnel mouse sample preserves all function
 scores and corrects its internal field offsets, including the unaligned flags

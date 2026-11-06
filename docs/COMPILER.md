@@ -24,8 +24,22 @@ executable-name record, including its 272-byte payload and trailing zeros.
 The build links to that path, restores the link timestamps, then copies the
 image to the usual `WC2.EXE` target. This changes no code, data, import, or
 relocation bytes. The debug payload still starts 512 file bytes before its
-retail location because the preceding image remains shorter. The separate
-CodeView PDB path, signature, and age are not corrected by the output path.
+retail location because the preceding image remains shorter.
+
+The linker runs with wibo's optional `WIBO_DRIVE_C` mapping rooted at
+`out/drive-c` and `/PDB:C:/WCB/wc2/Debug/wc2.pdb`. LINK therefore emits the
+retail `C:\WCB\wc2\Debug\wc2.pdb` path directly, with the matching 41-byte
+CodeView `NB10` record. The actual PDB lives at
+`out/drive-c/WCB/wc2/Debug/wc2.pdb`. No post-link path patch is needed.
+Without the mapping, wibo returns every absolute host path with a `Z:`
+prefix; its default behavior is unchanged outside the linker invocation.
+The Makefile rebuilds wibo when its path implementation or CMake file changes.
+
+Binary-comp confirms that this path change leaves `.text`, `.data`, `.idata`,
+`.reloc`, and the MISC/FPO payloads byte-identical to the preceding build.
+Only CodeView's size field changes in `.rdata`, from 59 to 41. The CodeView
+payload now differs in five bytes belonging to its signature and age; those
+fields still depend on PDB creation and relink history and remain unresolved.
 All 126 FPO records already have the retail sizes, local/parameter counts,
 and flags; their start RVAs remain shifted with the CRT code. The FPO payload
 has 252 differing bytes, all in those start-address fields.
