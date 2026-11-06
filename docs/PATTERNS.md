@@ -51,6 +51,23 @@ returning once produces a 16-bit move. Likewise, swapping `if` and `else` arms
 changes fall-through direction, especially in `/Od` `ix` code. Follow the
 original jumps and epilogue placement.
 
+### Inline declarations in debug builds
+
+An `inline` declaration still affects layout when `/Od` prevents expansion
+at call sites. In the game-side wave unit, `IxSample::ix_sample_set_looping`
+and `ix_sound_get_sample` require separate 16-byte-aligned COMDAT sections.
+Declaring them `inline` in the headers makes CL 4.1 emit those sections
+without moving or modifying their definitions. The bodies remain 51 and
+28 bytes, and their callers retain the original calls. The C-facing accessor
+prototype keeps `inline` behind `__cplusplus`.
+
+The ordinary wave-unit code ends at retail `0x004249F4`. The compiler/linker
+then supply twelve padding bytes before the looping setter at `0x00424A00`,
+thirteen before the accessor at `0x00424A40`, and four before the next unit
+at `0x00424A60`. All 23 functions' emitted instructions remain unchanged.
+Keep `/Gy` disabled: the inline declarations alone produce the required
+sections and alignment.
+
 ### Locals in `/Od` code
 
 When the original stores an array element address in a stack slot, declare the

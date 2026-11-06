@@ -19,6 +19,7 @@ current placement claims.
 
 | Reconstructed source | Range | Evidence |
 | --- | --- | --- |
+| `src/sound.c` | `0x00423CA0`–`0x00424A5F` | Ordinary wave code followed by two inline COMDATs at `0x00424A00` and `0x00424A40`; their 12/13/4-byte alignment gaps are reproduced by header declarations |
 | `src/dibtime.cpp` | `0x0045CCB0`-`0x0045CD2B` | Two scalar dynamic initializer pairs referenced by consecutive `CRT$XCU` entries; immediately precedes `ThrottleFrameAndDrawFps` |
 
 The timing unit is linked between `src/music.c` and `src/screen.c`, matching

@@ -1197,6 +1197,9 @@ void FreeWaveTable(void);                                           /* 0x423ED1 
 ActiveSoundEntry *AllocateActiveSoundEntry(void);                     /* 0x423F3F */
 void RemoveActiveSoundEntry(ActiveSoundEntry *entry);                 /* 0x423FAB */
 ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample);    /* 0x42405E */
+#ifdef __cplusplus
+inline
+#endif
 IxSample * __fastcall ix_sound_get_sample(IxSound *sound);            /* 0x424A40 */
 void ReleaseFinishedSoundEntries(void);                              /* 0x4240AE */
 void StopSoundsUsingWave(const char *name);                          /* 0x424113 */

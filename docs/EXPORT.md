@@ -122,7 +122,7 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,627 normalized `EXACT`, 19 same-size byte differences, and 31 differing
+1,630 normalized `EXACT`, 19 same-size byte differences, and 28 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
@@ -265,6 +265,20 @@ and the entry point advances to `0x00473C20`. Strict positional agreement
 gains 437 bytes, reaching 139,914/714,752 (19.5752%). See [ORDER.md](ORDER.md)
 for the recovered units and the inferred `streamfile.cpp` name.
 
+Restoring the wave-audio accessors' `inline` declarations makes CL 4.1
+emit their separate COMDAT sections. The compiler and linker restore the
+12/13/4-byte padding gaps around those sections; all 23 function bodies and
+instruction sequences remain unchanged. `SaveVolumeSettingsToRegistry`,
+`IxSample::ix_sample_set_looping`, and `ix_sound_get_sample` become normalized
+and raw-span exact. These are the only changed normalized report rows.
+There are 28 differing spans, net +382 bytes including library gaps.
+Raw-identical spans increase from 585 to 592, with seven gained and none
+lost. All 1,339 named global addresses remain unchanged. `.text` grows by
+16 bytes, reducing its deficit to 560, and the entry point moves to
+`0x00473C30`. Strict positional agreement gains 70 bytes, reaching
+139,984/714,752 (19.5850%). See [PATTERNS.md](PATTERNS.md) for the distinction
+between inline declarations and call-site expansion in this debug build.
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
@@ -344,30 +358,31 @@ rows and image sizes remain unchanged. The displaced function's changed
 stack operands lose seven accidental whole-file positional matches.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-585 byte-identical mapped spans and 261 functions at their retail addresses.
+592 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
 count from 580; correct local instruction changes can disrupt earlier
 accidental agreement between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 31 spans nor their net size
+library gaps as described above, so neither the 28 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,756 |
+| `.text` virtual bytes | 576,332 | 575,772 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473C20` |
+| Entry point | `0x00473E50` | `0x00473C30` |
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,914 identical file positions out of 714,752 (19.5752%). The first
+reports 139,984 identical file positions out of 714,752 (19.5850%). The first
 cutscene rename and PDB-path recovery each added ten matching positions;
 the later flag renames removed seven, and the DIB/near-heap header ordering
 adds 25; the IEEE mantissa correction adds one, the streamer correction
 removes four, the sound-priority correction adds seven, and the recovered
-sound/streamer boundaries add 437. Address
+sound/streamer boundaries add 437. Inline-accessor packaging adds another 70.
+Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

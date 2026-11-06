@@ -589,10 +589,9 @@ void IxSample::ix_sample_set_looping(int enabled)
         flags &= ~2U;
 }
 
-/* The IxSound accessor FindActiveSoundEntryBySample reaches through.  It is
- * an inline member in the ix headers, so every translation unit that calls it
- * gets its own out-of-line copy; this is the one the sound unit emitted, and
- * it lands at the end of the unit because nothing else references it. */
+/* The inline accessor called by FindActiveSoundEntryBySample. Its declaration
+ * makes the debug compiler emit a separate COMDAT, matching the aligned
+ * out-of-line copy after this unit's main code. */
 /* Function start: 0x424A40 */
 IxSample * __fastcall ix_sound_get_sample(IxSound *sound)
 {

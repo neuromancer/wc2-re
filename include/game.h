@@ -176,7 +176,7 @@ typedef struct IxSample IxSample;
 struct IxSample {
     unsigned int flags;
 #ifdef __cplusplus
-    void ix_sample_set_looping(int enabled);
+    inline void ix_sample_set_looping(int enabled);
     int ix_sample_load_wav(void *data, int bytes);
     int ix_sample_load_raw(void *data, int bytes, int frequency,
                            int bitsPerSample, int channels);
