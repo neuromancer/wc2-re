@@ -292,8 +292,10 @@ unsigned short HasSavedPilotCampaign(void)
     file = (short)_open(g_szPersonnelFileName_0049a6a8, 0x8000);
     if (file < 0)
         return 0;
-    if (lseek((int)file, (stateBytes + 0x86) << 3, 0) !=
-        (stateBytes + 0x86) << 3) {
+    /* The complements preserve the offset and make CL 4.1 evaluate it
+     * before lseek, as in retail; neither complement emits an instruction. */
+    if (~~((stateBytes + 0x86) << 3) !=
+        lseek((int)file, (stateBytes + 0x86) << 3, 0)) {
         _close((int)file);
         return 0;
     }

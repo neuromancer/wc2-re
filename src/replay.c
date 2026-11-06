@@ -262,9 +262,9 @@ void ProcessCannedSceneInput(void)
         else
             keyChanged = 0;
         switch (g_cCurrentKey_00493128) {
-        case 0x33:
-            break;
         case 0x34:
+            break;
+        case 0x33:
             break;
         case 0x3b:
             new_view(0, 0);

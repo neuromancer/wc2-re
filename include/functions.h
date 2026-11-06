@@ -1506,11 +1506,11 @@ char *CopyStringAndReturnEnd(char *destination,
 short DosStrlen(const char *s);                                       /* 0x46250B */
 short ParseHexNumber(char *text);                                     /* 0x452930 */
 #ifdef SDL_PORT
-void DosMemcpy(void *dst, const void *src, size_t n);
+void DosMemmove(void *dst, const void *src, size_t n);
 #else
 /* Callers push a 16-bit length (MOV AX,[n] / PUSH EAX); the definition
  * reads the full dword and masks it. */
-void DosMemcpy(void *dst, const void *src, unsigned short n);         /* 0x462527 */
+void DosMemmove(void *dst, const void *src, unsigned short n);         /* 0x462527 */
 #endif
 void DosMemset(void *destination, unsigned int count,
                short value);                                        /* 0x462550 */

@@ -143,12 +143,14 @@ void UpdateDamageDisplay(void)
                 g_stHarmSpritePosition_005d42b0 =
                     g_aDamageDisplayPositions_00490068[
                         g_cDamageDisplayPart_005d42a6];
+                /* CL 4.1 folds ~~ after ordering operands, preserving the
+                 * retail origin-first loads without extra instructions. */
                 g_stHarmSpritePosition_005d42b0.x =
                     (short)(g_stHarmSpritePosition_005d42b0.x +
-                            g_nWeaponDisplayOriginXValue_005d4254);
+                            ~~g_nWeaponDisplayOriginXValue_005d4254);
                 g_stHarmSpritePosition_005d42b0.y =
                     (short)(g_stHarmSpritePosition_005d42b0.y +
-                            g_nArmsDisplayOriginY_005d4256);
+                            ~~g_nArmsDisplayOriginY_005d4256);
                 CaptureSpriteBackground(
                     &g_stLeftwardVduPortBlock_005d2180,
                     g_pDamageDisplayBackground_00490060,
@@ -236,10 +238,10 @@ void UpdateDamageDisplay(void)
                 g_cDamageDisplayPart_005d42a6];
         g_stHarmSpritePosition_005d42b0.x =
             (short)(g_stHarmSpritePosition_005d42b0.x +
-                    g_nWeaponDisplayOriginXValue_005d4254);
+                    ~~g_nWeaponDisplayOriginXValue_005d4254);
         g_stHarmSpritePosition_005d42b0.y =
             (short)(g_stHarmSpritePosition_005d42b0.y +
-                    g_nArmsDisplayOriginY_005d4256);
+                    ~~g_nArmsDisplayOriginY_005d4256);
         CaptureSpriteBackground(
             &g_stLeftwardVduPortBlock_005d2180,
             g_pDamageDisplayBackground_00490060,

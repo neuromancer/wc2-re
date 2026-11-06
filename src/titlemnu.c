@@ -100,10 +100,10 @@ void CalibrateJoystickInteractive()
         g_nJoystickVerticalRangeNumber_005d1754;
     if (g_nControllerLeftScaleValue_005d1740 == 0)
         g_nControllerLeftScaleValue_005d1740++;
-    if (g_nJsRightScaleWord_005d175c == 0)
-        g_nJsRightScaleWord_005d175c++;
     if (g_nJoystickUpScaleWord_005d173c == 0)
         g_nJoystickUpScaleWord_005d173c++;
+    if (g_nJsRightScaleWord_005d175c == 0)
+        g_nJsRightScaleWord_005d175c++;
     if (g_nJoystickDownScaleWord_005d1760 == 0)
         g_nJoystickDownScaleWord_005d1760++;
 

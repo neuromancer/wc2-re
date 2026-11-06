@@ -528,7 +528,7 @@ short RemoveCutsceneMemberIndex(short count, unsigned char *indices,
 
     for (member = 0; member < count; member++) {
         if (indices[member] == (unsigned char)index) {
-            DosMemcpy(indices, &indices[member + 1], (size_t)(15 - member));
+            DosMemmove(indices, &indices[member + 1], (size_t)(15 - member));
             count--;
         }
     }
@@ -1101,8 +1101,8 @@ void RunLoadedCutscene(void)
                 (int)(short)GetOriginalFreeMemory());
     }
     g_pszFilmWorkScratch_005d2ecc = 0;
-    g_pszFilmPrintStore_005d2f10 = 0;
     g_pszCutsceneFormattedText_005d2dc8 = 0;
+    g_pszFilmPrintStore_005d2f10 = 0;
     ClearActiveCutscenePixelAlias();
     ReleaseCutsceneViewport(&g_stCutsceneTextBackingPort_005d2db0);
     ReleaseCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90);

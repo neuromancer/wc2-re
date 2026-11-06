@@ -914,12 +914,12 @@ void Mcorkscrew(short ship)
             case 0:
                 g_anYawGoal_004954c0[ship] = -20;
                 break;
+            case 2:
+                g_anYawGoal_004954c0[ship] = 20;
+                break;
             case 1:
             case 3:
                 g_anRollGoal_004954d8[ship] = 20;
-                break;
-            case 2:
-                g_anYawGoal_004954c0[ship] = 20;
                 break;
             }
             g_asShipCount_00495ff8[ship] = 4;

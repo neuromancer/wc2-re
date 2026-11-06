@@ -144,7 +144,7 @@ void initialize_cockpit(signed char mode)
             g_pCockpitViewFrameInfo_005d1088 =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_apCockpitViewShapes_005d1040[0]);
-            DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
+            DosMemmove(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameInfo_005d1088,
                       COCKPIT_VIEW_COPY_BYTES(4));
         } else {
@@ -236,7 +236,7 @@ void initialize_cockpit(signed char mode)
             g_pCockpitViewFrameInfo_005d1088 =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_apCockpitViewShapes_005d1040[1]);
-            DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
+            DosMemmove(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameInfo_005d1088,
                       COCKPIT_VIEW_COPY_BYTES(5));
         } else {
@@ -263,7 +263,7 @@ void initialize_cockpit(signed char mode)
                 g_pCockpitViewFrameInfo_005d1088 =
                     (unsigned char *)IdentityDword(
                         (DwordPtr)g_apCockpitViewShapes_005d1040[1]);
-                DosMemcpy(
+                DosMemmove(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameInfo_005d1088,
                     COCKPIT_VIEW_COPY_BYTES(5));
@@ -293,7 +293,7 @@ void initialize_cockpit(signed char mode)
                 g_pCockpitViewFrameInfo_005d1088 =
                     (unsigned char *)IdentityDword(
                         (DwordPtr)g_apCockpitViewShapes_005d1040[2]);
-                DosMemcpy(
+                DosMemmove(
                     g_pCockpitBackgroundPacket_0049a5f0,
                     g_pCockpitViewFrameInfo_005d1088,
                     COCKPIT_VIEW_COPY_BYTES(6));
@@ -326,7 +326,7 @@ void initialize_cockpit(signed char mode)
             g_pCockpitViewFrameInfo_005d1088 =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_apCockpitViewShapes_005d1040[3]);
-            DosMemcpy(g_pCockpitBackgroundPacket_0049a5f0,
+            DosMemmove(g_pCockpitBackgroundPacket_0049a5f0,
                       g_pCockpitViewFrameInfo_005d1088,
                       COCKPIT_VIEW_COPY_BYTES(7));
         } else {

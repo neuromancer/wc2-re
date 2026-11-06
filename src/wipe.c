@@ -1312,12 +1312,12 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
             lead_width = half_source_width - 1;
         if (*wipe_trailing_edge < half_source_width) {
             band_width = (short)(lead_width - *wipe_trailing_edge);
-            memcpy(destination->pixels + dst_row_offsets_lower[bands_processed] +
+            memmove(destination->pixels + dst_row_offsets_lower[bands_processed] +
                        *wipe_trailing_edge + dest_right_x + 1,
                    source->pixels + lower_src_row_offsets[bands_processed] +
                        *wipe_trailing_edge + source_right_x + 1,
                    band_width);
-            memcpy(destination->pixels +
+            memmove(destination->pixels +
                        (dst_row_offsets_lower[bands_processed] + dst_midpoint_left -
                         1 - *wipe_trailing_edge) - band_width,
                    source->pixels +
@@ -1330,12 +1330,12 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                 dst_row_offsets_lower - bands_processed - 1 >= destination->rowOffsets)
 #endif
             {
-            memcpy(destination->pixels + *(dst_row_offsets_lower - bands_processed - 1) +
+            memmove(destination->pixels + *(dst_row_offsets_lower - bands_processed - 1) +
                        *wipe_trailing_edge + dest_right_x,
                    source->pixels + *(lower_src_row_offsets - bands_processed - 1) +
                        *wipe_trailing_edge + source_right_x,
                    band_width);
-            memcpy(destination->pixels +
+            memmove(destination->pixels +
                        (*(dst_row_offsets_lower - bands_processed - 1) +
                         dst_midpoint_left - *wipe_trailing_edge) - band_width,
                    source->pixels +

@@ -626,11 +626,11 @@ void escort_mission(short obj)
         reset_objective(obj, OBJECTIVE_HOME_BASE);
 
     switch (g_aeShipObjective_00495f08[obj]) {
-    case OBJECTIVE_HOME_BASE:
-        return_to_buddy(obj, buddy);
-        break;
     case OBJECTIVE_WANDER:
         escort_buddy(obj, buddy);
+        break;
+    case OBJECTIVE_HOME_BASE:
+        return_to_buddy(obj, buddy);
         break;
     case OBJECTIVE_ENGAGE_ENEMY:
         maneuvering(obj, check_engage_target(obj));
@@ -1502,7 +1502,7 @@ void FF_missile_intelligence(short obj)
                     (g_asShipSide_004955d0[
                          g_acObjectOwner_00495208[obj]] !=
                          g_asShipSide_004955d0[other] ||
-                     g_acShipDestroyedWeaponCount_00495680[other] == -1)) {
+                     g_acShipCommunicator_00495680[other] == -1)) {
                     g_nTargetRange_0049319c =
                         distance_from_object(obj, other);
                     if (g_nTargetRange_0049319c < 9000) {

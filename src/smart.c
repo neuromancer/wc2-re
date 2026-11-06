@@ -696,7 +696,7 @@ void handle_stress(short obj, short event)
     case 7:
         g_acShipStress_00496100[obj] += aggressiveness;
         break;
-    default:
+    case 0:
         break;
     }
     damage = evaluate_damage(obj);
@@ -717,7 +717,8 @@ void handle_stress(short obj, short event)
         g_acShipStress_00496100[obj] = 0;
 }
 
-void handle_stress(short obj, short event);
+/* The unnamed parameter preserves later C1 symbol keys after case 0. */
+void handle_stress(short obj, short);
 unsigned int reset_objective(short ship, short objective);
 unsigned int reset_stress(short obj);
 

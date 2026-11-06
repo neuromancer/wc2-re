@@ -517,9 +517,9 @@ short DosStrlen(const char *s)
 }
 
 /* Function start: 0x462527 */
-void DosMemcpy(void *dst, const void *src, size_t n)
+void DosMemmove(void *dst, const void *src, size_t n)
 {
-    memcpy(dst, src, n & 0xffff);
+    memmove(dst, src, n & 0xffff);
     return;
 }
 
@@ -713,7 +713,7 @@ void QueueInputEvent(int type, int x, int y, int value,
             return;
         }
         g_pInputEventTail_0049d4b8 = g_pInputEventHead_0049d4b4;
-        g_pInputEventHead_0049d4b4->next = 0;
+        g_pInputEventTail_0049d4b8->next = 0;
         g_pInputEventTail_0049d4b8->previous = 0;
     } else {
         g_pInputEventTail_0049d4b8->next = AllocateInputEvent();

@@ -57,8 +57,10 @@ void StoreMissionResultsInCampaignGlobals(CampaignGlobals *globals)
         globals->pilotStatus[index] = g_pPilotStatus_005d2fcc[index];
 
     for (index = 0; index < 8; index++) {
+        /* Preserve retail's achieved/sighted/visited call order in CL 4.1;
+         * the complements fold away without changing the flags. */
         globals->objectiveFlags[index] =
-            achieved(index) | sighted(index) | visited(index);
+            ~~(achieved(index) | sighted(index)) | visited(index);
         globals->objectiveSighted[index] = sighted(index);
     }
     for (index = 0; index < 16; index++)

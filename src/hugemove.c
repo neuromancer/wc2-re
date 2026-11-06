@@ -38,18 +38,18 @@ void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
                 source = DosNearPtrToFar(DosFarPtrToNear(source) - 0xffff);
                 destination = DosNearPtrToFar(
                     DosFarPtrToNear(destination) - 0xffff);
-                DosMemcpy(destination, source, 0xffff);
+                DosMemmove(destination, source, 0xffff);
             } else
                 break;
         }
         count += 0xffff;
         source = DosNearPtrToFar(DosFarPtrToNear(source) - count);
         destination = DosNearPtrToFar(DosFarPtrToNear(destination) - count);
-        DosMemcpy(destination, source, (unsigned int)count);
+        DosMemmove(destination, source, (unsigned int)count);
     } else {
         for (;;) {
             if ((count -= 0xffff) > -1) {
-                DosMemcpy(destination, source, 0xffff);
+                DosMemmove(destination, source, 0xffff);
                 source = DosNearPtrToFar(DosFarPtrToNear(source) + 0xffff);
                 destination = DosNearPtrToFar(
                     DosFarPtrToNear(destination) + 0xffff);
@@ -57,7 +57,7 @@ void CopyHugeMemoryOverlapSafe(void *destination, void *source, int count)
                 break;
         }
         count += 0xffff;
-        DosMemcpy(destination, source, (unsigned int)count);
+        DosMemmove(destination, source, (unsigned int)count);
     }
 #endif
 }

@@ -676,8 +676,10 @@ void check_for_lost_control(short obj)
                            turnScale / 100 + turnAbility);
         turnAbility = (short)(g_aObjectTypeData_00496d30[type].rollRate *
                            turnScale / 100 + turnAbility);
-        overshoot = (short)(abs(g_anObjectRollRotation_00495058[obj]) +
-                            abs(g_anObjectYawRotation_00494fc8[obj]) +
+        /* These identities retain retail's roll/yaw/pitch call order in
+         * CL 4.1, then fold away before instruction emission. */
+        overshoot = (short)(~~(~~abs(g_anObjectRollRotation_00495058[obj]) +
+                            abs(g_anObjectYawRotation_00494fc8[obj])) +
                             abs(g_anObjectPitchRotation_00494f38[obj]));
         overshoot = (short)(overshoot / turnAbility);
         /* The original passes the overshoot the callee ignores. */
@@ -1189,9 +1191,9 @@ short internal_damage(short attacker, short owner, short victim,
             case 8:
                 if (quadrant != 0)
                     break;
-                if (g_acShipCommunicator_00495670[victim] != -1) {
+                if (g_acShipCommunicator_00495680[victim] != -1) {
                     damage--;
-                    g_acShipCommunicator_00495670[victim] = -1;
+                    g_acShipCommunicator_00495680[victim] = -1;
                 }
                 break;
             case 0:
@@ -1204,9 +1206,9 @@ short internal_damage(short attacker, short owner, short victim,
             case 6:
                 if (quadrant != 0)
                     break;
-                if (g_acShipDestroyedWeaponCount_00495680[victim] < 5) {
+                if (g_acShipComputerDamage_00495670[victim] < 5) {
                     damage--;
-                    g_acShipDestroyedWeaponCount_00495680[victim]++;
+                    g_acShipComputerDamage_00495670[victim]++;
                 }
                 break;
             case 5:
@@ -1361,7 +1363,7 @@ short your_internal_damage(short attacker, short owner, short damage,
             if (roll < 7) {
                 damage_your_component(4, 2, 3);
                 if (g_acPlayerComponentDamage_00493470[4] >= 4)
-                    g_acShipDestroyedWeaponCount_00495680[0] = -1;
+                    g_acShipCommunicator_00495680[0] = -1;
             } else {
                 damage_your_component(5, 4, 4);
             }
@@ -1380,8 +1382,8 @@ short your_internal_damage(short attacker, short owner, short damage,
                 damage++;
                 break;
             }
-            if (g_acShipCommunicator_00495670[0] < 5) {
-                g_acShipCommunicator_00495670[0]++;
+            if (g_acShipComputerDamage_00495670[0] < 5) {
+                g_acShipComputerDamage_00495670[0]++;
                 check_computer_damage();
             }
             break;
@@ -2174,10 +2176,10 @@ void fire(short obj, short target)
                 case 7:
                     shouldFire = g_nFacingToTarget_00493194 > 70;
                     break;
-                case 8:
+                case 10:
                     shouldFire = g_nFacingToTarget_00493194 > 80;
                     break;
-                case 10:
+                case 8:
                     shouldFire = g_nFacingToTarget_00493194 > 80;
                     break;
                 case 9:
@@ -2816,7 +2818,9 @@ void fire_afterburner(short obj, short time)
 {
     if (g_asObjectType_00495298[obj] == 0x33)
         return;
-    if (get_ship_max_velocity(obj) * 0x500 >
+    /* CL 4.1 folds these complements after ordering the operands. Keep
+     * this value-preserving form for the retail limit-first comparison. */
+    if (~~(get_ship_max_velocity(obj) * 0x500) >
             Vector_magnitude(&g_aShipVelocity_00494898[obj])) {
         set_special(obj, SPECIAL_MANEUVER_AFTERBURNER);
         if (g_aeSpecialManeuver_00495600[obj] !=

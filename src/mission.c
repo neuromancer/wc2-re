@@ -1156,8 +1156,8 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
     g_asLoadedShipViewFrame_00495d18[obj] =
         g_acShipLastAttacker_004955c0[obj] =
             g_acShipPendingMessage_00495d98[obj] = -1;
-    g_acShipDestroyedWeaponCount_00495680[obj] =
-        g_acShipCommunicator_00495670[obj] =
+    g_acShipCommunicator_00495680[obj] =
+        g_acShipComputerDamage_00495670[obj] =
             g_asShipFriendlyFireCooldown_00496090[obj] =
                 g_asObjectDamage_00495178[obj] =
                     g_acShipIonDriveDamage_004956a0[obj] =

@@ -356,12 +356,14 @@ void FireTargetCameraGuns(void)
                     (short)(g_nGunShowEnergyPercent_005c8d4e -
                             projectileData->animationDelay / 2);
                 /* The two gun offsets per display sit inside the gun
-                 * display configuration record at +0x88. */
+                 * display configuration record at +0x88. The ~~ identities
+                 * make CL 4.1 emit the up term first, matching retail;
+                 * neither complement survives instruction emission. */
                 g_aShipPosition_00494550[projectile].x =
-                    (*(ShortVector (*)[2][2])(
+                    ~~((*(ShortVector (*)[2][2])(
                         g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplaySlot_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[EYE_OBJECT].x +
+                        g_aShipUpVector_00493ec0[EYE_OBJECT].x) +
                     (*(ShortVector (*)[2][2])(
                         g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplaySlot_005c8dc0][shot].z *
@@ -374,10 +376,10 @@ void FireTargetCameraGuns(void)
                             EYE_OBJECT].x +
                     g_aShipPosition_00494550[EYE_OBJECT].x;
                 g_aShipPosition_00494550[projectile].y =
-                    (*(ShortVector (*)[2][2])(
+                    ~~((*(ShortVector (*)[2][2])(
                         g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplaySlot_005c8dc0][shot].y *
-                        g_aShipUpVector_00493ec0[EYE_OBJECT].y +
+                        g_aShipUpVector_00493ec0[EYE_OBJECT].y) +
                     (*(ShortVector (*)[2][2])(
                         g_abGunDisplayConfiguration_0049d340 + 0x88))[
                         g_nGunDisplaySlot_005c8dc0][shot].z *

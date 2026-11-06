@@ -1217,7 +1217,7 @@ extern signed char g_cCurrentNavPointIndex_00493298;
 extern FixedVector g_aShipPosition_00494550[SPACE_OBJECT_COUNT];
 extern short g_asObjectScreenScale_00493a58[SPACE_OBJECT_COUNT];
 extern short g_asShipAfterburnerTimer_004955a8[10];
-extern signed char g_acShipCommunicator_00495670[16];
+extern signed char g_acShipComputerDamage_00495670[16];
 extern signed char g_cMissionObjectiveCount_00493294;
 extern short g_asObjectFlip_004939c8[SPACE_OBJECT_COUNT];
 extern signed char g_acViableTarget_00496180[16];
@@ -1336,7 +1336,7 @@ extern short g_asLoadedShipViewFrame_00495d18[12];
 extern signed char g_acObjectCollisionGraceTicks_00494d48[
     SPACE_OBJECT_COUNT];
 extern ObjectResourceSlot g_aObjectResourceSlots_00493398[5];
-extern signed char g_acShipDestroyedWeaponCount_00495680[16];
+extern signed char g_acShipCommunicator_00495680[16];
 extern signed char g_acShipIonDriveDamage_004956a0[16];
 extern short g_nEyeRollGoal_00493148;
 extern short g_nEyeYawGoal_00493144;

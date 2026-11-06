@@ -105,7 +105,7 @@ unsigned short InitializeNearHeap(void)
                     g_nNearHeapRelocationBytes_0049304c;
                 if (g_nNearHeapMaxDescriptors_00493048 * 8 <
                     g_nNearArenaSize_005d3050) {
-                    DosMemcpy(
+                    DosMemmove(
                         DosNearPtrToFar(g_nNearArenaSize_005d3050 +
                                         g_nNearHeapBase_005d3054),
                         DosNearPtrToFar(
@@ -127,7 +127,7 @@ unsigned short InitializeNearHeap(void)
 void ShutdownNearHeap(void)
 {
     if (g_nNearHeapRelocationBytes_0049304c != 0) {
-        DosMemcpy(
+        DosMemmove(
             DosNearPtrToFar(
                 0x9c000 - g_nNearHeapRelocationBytes_0049304c),
             DosNearPtrToFar(

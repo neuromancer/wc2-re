@@ -98,7 +98,7 @@ void ShowModalMessage(const char *format, ...)
         ReleaseModalTextPanel();
         return;
     }
-    SystemDebugPrintf(text);
+    printf(text);
     AcknowledgeModalMessage();
 }
 

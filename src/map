@@ -1384,7 +1384,7 @@
 0x004624A7 DosStrcpy
 0x004624C7 CopyStringAndReturnEnd
 0x0046250B DosStrlen
-0x00462527 DosMemcpy
+0x00462527 DosMemmove
 0x00462550 DosMemset
 0x0046257A InitializePostPaletteState
 0x0046258D RecordStartTimeHook

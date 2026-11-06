@@ -50,13 +50,14 @@ unsigned int rotate_eye_to_goal(void)
 {
     short totalError;
 
+    /* CL 4.1 folds ~~ after selecting retail's roll-first call order. */
     totalError = (short)(abs(g_anObjectPitchRotation_00494f38[
                                 EYE_OBJECT] -
                             g_nEyePitchGoal_00493140) +
                          abs(g_anObjectYawRotation_00494fc8[
                                  EYE_OBJECT] -
                             g_nEyeYawGoal_00493144) +
-                         abs(g_anObjectRollRotation_00495058[
+                         ~~abs(g_anObjectRollRotation_00495058[
                                  EYE_OBJECT] -
                             g_nEyeRollGoal_00493148));
     match_rotation_goal(&g_anObjectPitchRotation_00494f38[

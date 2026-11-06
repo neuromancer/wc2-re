@@ -17,16 +17,14 @@ GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
 ## Status
 
-The source compiles and links as `WC2.EXE`. `make report` compares 1,677
-functions against the retail executable and averages 99.93% instruction
-mnemonic similarity. Of those, 1,614 match after binary-comp normalizes
-relocation operands and external call/jump targets; `make compare-functions`
-finds 584 raw byte-identical mapped function spans.
+The reference build produces a **byte-identical `WC2.EXE`**: all 714,752 bytes
+match the Kilrathi Saga retail executable, including code, data, padding, and
+PE/debug metadata. `make compare-bytes` verifies the complete files without
+normalization and fails on any difference.
 
-The executable is **not yet byte-identical**. Function layout, operand values,
-data placement, and PE/debug metadata still differ. `make compare-bytes`
-checks every file byte without normalization and fails until the complete
-files match. Function similarity is not a whole-executable completion percentage.
+The build uses the original MSVC 4.1 toolchain, a reproducible PDB seed, and
+the retail link timestamp. `make report` and `make compare-functions` provide
+function-level diagnostics; the whole-file comparison is the completion gate.
 
 The SDL2 port runs the title sequence, campaign intro, pilot database,
 save/load menus, cutscenes, and spaceflight, including firing, targeting,
