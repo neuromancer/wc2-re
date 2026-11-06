@@ -31,7 +31,7 @@ short easy2see(short obj)
     if (g_asObjectScreenX_00493598[obj] == (short)0x8001) {
         return 0;
     } else {
-        x = (short)(g_asObjectScreenX_00493598[obj] + g_nViewCenterX_005c80d8);
+        x = (short)(g_asObjectScreenX_00493598[obj] + g_nStoredScreenViewCentreX_005c80d8);
         y = (short)(g_asObjectScreenY_00493628[obj] + g_nViewCenterY_005c80da);
         return GetTransformedShapeBounds(
             &g_stViewScratchInfo_005d2b00, x, y, g_apObjectShape_00493868[obj],

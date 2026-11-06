@@ -569,7 +569,7 @@ BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
         (unsigned int)((int)SdlReadJoystickAxis(device, 1) + 32768);
     information->wZpos = 0;
     buttonState = 0;
-    if (g_pfnInputPump_005c840c == get_player_input &&
+    if (g_pfnCurrentInputPump_005c840c == get_player_input &&
         g_eSdlJoystickMode != SDL_JOYSTICK_ORIGINAL) {
         if (SdlReadJoystickButton(device, 0))
             buttonState = 1;
@@ -677,7 +677,7 @@ void SdlApplyJoystickFlightControls(void)
     int axisCount;
 
     g_bSdlJoystickSpaceflightActive = 1;
-    if (g_pfnInputPump_005c840c != get_player_input ||
+    if (g_pfnCurrentInputPump_005c840c != get_player_input ||
         g_eSdlJoystickMode == SDL_JOYSTICK_ORIGINAL) {
         SdlUpdateJoystickRumble();
         return;
@@ -939,7 +939,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     }
 
     spaceflightActive = g_bSdlJoystickSpaceflightActive &&
-        g_pfnInputPump_005c840c == get_player_input &&
+        g_pfnCurrentInputPump_005c840c == get_player_input &&
         g_nArcadeState_0049d75c == 0;
     eventType = pressed ? 4 : 5;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {

@@ -72,7 +72,7 @@ void *PacketLoad(const char *filename, short section,
             data = destination;
             if (data == 0)
                 data = AllocateTaggedMemory(outputSize, flags);
-            g_pLastPacketAllocation_005c80e0 = data;
+            g_pLibraryCurrentLastPacketAllocation_005c80e0 = data;
             if (data == 0) {
                 g_nPacketError_0049ca90 = 4;
             } else if (!SdlDecompressOriginLzw(
@@ -81,7 +81,7 @@ void *PacketLoad(const char *filename, short section,
                 if (allocatedPacket != 0)
                     ReleasePacketHandle(data);
                 data = 0;
-                g_pLastPacketAllocation_005c80e0 = 0;
+                g_pLibraryCurrentLastPacketAllocation_005c80e0 = 0;
                 g_nPacketError_0049ca90 = 6;
             }
             free(compressedData);
@@ -106,9 +106,9 @@ void *PacketLoad(const char *filename, short section,
             }
             data = destination;
             if (data == 0) {
-                g_pLastPacketAllocation_005c80e0 = AllocateTaggedMemory(
+                g_pLibraryCurrentLastPacketAllocation_005c80e0 = AllocateTaggedMemory(
                     handle.dataSize, (short)(flags | 0x40));
-                data = g_pLastPacketAllocation_005c80e0;
+                data = g_pLibraryCurrentLastPacketAllocation_005c80e0;
                 if (data == 0)
                     g_nPacketError_0049ca90 = 4;
             }

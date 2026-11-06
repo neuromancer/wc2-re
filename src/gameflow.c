@@ -123,7 +123,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
     }
     if (g_wDigiPlaying_0049bb60 != 0)
         speechSpeed = 0;
-    sprite->waitStart = g_nInputClock_005c84a8;
+    sprite->waitStart = g_nInputTimerTicks_005c84a8;
     if (g_pszCutsceneSpeechCursor_00499eb0 == 0)
         g_pszCutsceneSpeechCursor_00499eb0 = g_pszCurrentCutsceneText_00499da4;
     speaker = (signed char)toupper(*g_pszCutsceneSpeechCursor_00499eb0);
@@ -158,7 +158,7 @@ void AnimateCutsceneSpeakerMouth(SceneFlicObject *sprite)
                      "period=%ldms cache=%d speech=%d\n",
                      (char)(speaker >= ' ' ? speaker : '.'),
                      (int)speechSpeed, (int)ticks,
-                     (int)sprite->waitTicks, (int)g_nInputClock_005c84a8,
+                     (int)sprite->waitTicks, (int)g_nInputTimerTicks_005c84a8,
                      g_nFramePeriodMillis_005c343c,
                      (int)g_wDigiPlaying_0049bb60,
                      (int)g_bSpeechSoundActive_004a2660);
@@ -271,7 +271,7 @@ void RouteCutsceneViewportToDisplay(void)
             fprintf(g_pMemoryLogFile_00499da8, "Rerouted LZ.\n");
         WriteDetailedMemoryStateReport();
     }
-    g_pActiveCutscenePixels_005c83dc = firstRow;
+    g_pActiveCutscenePixelsAddress_005c83dc = firstRow;
 }
 
 /* Function start: 0x42C04B */
@@ -283,8 +283,8 @@ void ClearActiveCutscenePixelAlias(void)
         g_cCutsceneVideoMode_00499c48 == 0x13) {
         firstRow = g_stSecondaryViewBufferBlock_005d2c90.pixels +
             g_stSecondaryViewBufferBlock_005d2c90.rowOffsets[0];
-        if (g_pActiveCutscenePixels_005c83dc == firstRow)
-            g_pActiveCutscenePixels_005c83dc = 0;
+        if (g_pActiveCutscenePixelsAddress_005c83dc == firstRow)
+            g_pActiveCutscenePixelsAddress_005c83dc = 0;
     }
 }
 
@@ -348,7 +348,7 @@ void DrawCutsceneTextAt(short x, short y, short viewportIndex,
             MinShort(g_stCutsceneTextBounds_00499ee0.bottom,
                      g_stCutsceneDrawingTextSettingsInfo_005d2f60.viewport->bottom);
     }
-    if (g_bCinematicSpriteFontEnabled_005c82a7 == 0) {
+    if (g_bCinematicSpriteTextEnableStatus_005c82a7 == 0) {
         if (x > -1) {
             g_pCurrentTextContext_005c8d1c->cursorX =
                 (short)(g_pCurrentTextContext_005c8d1c->viewport->left + x);
@@ -585,7 +585,7 @@ void PresentCutsceneFrame(Viewport *source, Viewport *destination)
             0, 0, debugFrameNumber, g_nCutsceneFrameDelay_00499c8c,
             g_nCutsceneSpritesDrawn_00499c10,
             g_bMovieFramePresented_005d2de0,
-            g_nInputClock_005c84a8);
+            g_nInputTimerTicks_005c84a8);
     }
     if (g_nFrameSkipCountdown_0049d760 == 0) {
         ConsumeCutscenePalettePacket(0, 0x100, 1);
@@ -791,7 +791,7 @@ void AddCutsceneMusicNode(CutsceneMusicNode **head, short resourceIndex)
     if (g_nMusicDriverMode_0049be8c != 1 &&
         g_nMusicDriverMode_0049be8c != 2)
         return;
-    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
         return;
     if (head == 0)
         return;
@@ -1108,7 +1108,7 @@ void RunLoadedCutscene(void)
     ReleaseCutsceneViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     if (g_bSceneCockpitLoaded_005d2d66 != 0) {
         ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-        g_pActiveCutscenePixels_005c83dc = 0;
+        g_pActiveCutscenePixelsAddress_005c83dc = 0;
     }
     g_nInputPollPeriod_0049d6d8 = savedInputPollPeriod;
     g_pCurrentTextContext_005c8d1c = savedTextContext;
@@ -1146,7 +1146,7 @@ void ExecuteCutsceneScene(CutsceneScene *scene)
     if (g_bCutsceneSkipFrame_00499c54 == 0 &&
         g_bCutsceneViewportPreallocated_00499c4c == 0) {
         g_nNextCutsceneFrameClock_00499c90 =
-            g_nInputClock_005c84a8 + g_nCutsceneFrameDelay_00499c8c;
+            g_nInputTimerTicks_005c84a8 + g_nCutsceneFrameDelay_00499c8c;
     }
     if (g_bCutsceneSkipAll_00499c58 == 0)
         RunCutsceneScript(&scene->scriptCursor, 3);
@@ -1447,7 +1447,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
         }
         while (g_bCutsceneSkipFrame_00499c54 == 0 &&
                (int)g_nNextCutsceneFrameClock_00499c90 >
-                   (int)g_nInputClock_005c84a8) {
+                   (int)g_nInputTimerTicks_005c84a8) {
             PumpWindowMessages(0);
 #ifdef SDL_PORT
             /* See issue #33 (review on PR #34): this sequence-presentation
@@ -1485,7 +1485,7 @@ void ExecuteCutsceneSequence(CutsceneSequence *sequence,
                     RestoreCutsceneTextBacking();
                     if (g_nCutsceneFrameDelay_00499c8c != 0) {
                         g_nNextCutsceneFrameClock_00499c90 =
-                            g_nInputClock_005c84a8 +
+                            g_nInputTimerTicks_005c84a8 +
                             g_nCutsceneFrameDelay_00499c8c;
                     }
                 }
@@ -1518,7 +1518,7 @@ void UpdateCutscenePlaneObject(CutscenePlane *plane,
     if (plane->waitTicks != 0) {
         if (g_bCutsceneViewportPreallocated_00499c4c == 0 &&
             g_bCutsceneSkipFrame_00499c54 == 0 &&
-            g_nInputClock_005c84a8 < plane->waitStart + plane->waitTicks) {
+            g_nInputTimerTicks_005c84a8 < plane->waitStart + plane->waitTicks) {
             blocked++;
         } else {
             plane->waitTicks = 0;
@@ -1558,7 +1558,7 @@ void UpdateCutsceneSpriteObject(SceneFlicObject *sprite)
     if (sprite->waitTicks != 0) {
         if (g_bCutsceneViewportPreallocated_00499c4c == 0 &&
             g_bCutsceneSkipFrame_00499c54 == 0 &&
-            g_nInputClock_005c84a8 < sprite->waitStart + sprite->waitTicks) {
+            g_nInputTimerTicks_005c84a8 < sprite->waitStart + sprite->waitTicks) {
             waiting++;
         } else {
             sprite->waitTicks = 0;
@@ -1807,7 +1807,7 @@ void UpdateMap(char *text, short objective)
                     g_pCampaignGlobals_00499c94->mission);
     Build_objective_list();
     g_cCurrentObjective_004931cc = (signed char)objective;
-    g_pActiveCutscenePixels_005c83dc = 0;
+    g_pActiveCutscenePixelsAddress_005c83dc = 0;
     BriefingMap_DisplayMap();
     g_bBriefingMapActive_0049bcb0 = 0;
     RouteCutsceneViewportToDisplay();
@@ -1828,8 +1828,8 @@ void UpdateMap(char *text, short objective)
     g_bCutsceneTextRestorePending_00499da0 = 1;
     RestoreCutsceneTextBacking();
     ServiceInputDevices(-1);
-    deadline = g_nInputClock_005c84a8 + 600;
-    while ((int)g_nInputClock_005c84a8 < deadline &&
+    deadline = g_nInputTimerTicks_005c84a8 + 600;
+    while ((int)g_nInputTimerTicks_005c84a8 < deadline &&
            g_bCutsceneSkipFrame_00499c54 == 0 &&
            g_bCutsceneViewportPreallocated_00499c4c == 0) {
         if (ServiceInputDevices(-1) != 0) {
@@ -1998,6 +1998,9 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     short *scriptLocal;
     short baseValue;
     int inputSeen;
+    /* Retail reserves 100 unreferenced bytes between topOperand and
+     * scriptBytes. The original declaration and purpose are unknown. */
+    unsigned char unreferencedFrameStorage[100];
     short *topOperand;
     signed char protectCondition;
     signed char shouldContinue;
@@ -2116,7 +2119,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                       (int)objectType,
                       (int)g_bCutsceneSkipFrame_00499c54,
                       (int)g_bCutsceneSkipAll_00499c58,
-                      (int)g_nInputClock_005c84a8);
+                      (int)g_nInputTimerTicks_005c84a8);
             ReleaseSceneFlicPackets();
             ReleaseCutsceneSoundEffects(-1);
             ReleaseCutsceneSpeechPackets();
@@ -2190,7 +2193,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
                     g_pszCutsceneSpeechCursor_00499eb0 = 0;
                     g_bCutsceneSkipFrame_00499c54 = 1;
                     g_nNextCutsceneFrameClock_00499c90 =
-                        g_nInputClock_005c84a8;
+                        g_nInputTimerTicks_005c84a8;
                     inputSeen = 1;
                 }
             }
@@ -2211,13 +2214,13 @@ cutscene_input_processed:
                 g_pszCutsceneSpeechCursor_00499eb0 = 0;
                 g_bCutsceneSkipFrame_00499c54 = 1;
                 g_nNextCutsceneFrameClock_00499c90 =
-                    g_nInputClock_005c84a8;
+                    g_nInputTimerTicks_005c84a8;
                 FlushInputEvents();
             }
             if (objectType == 2 &&
                 g_pCurrentCutsceneSequence_00499c80->waitTicks +
                     g_pCurrentCutsceneSequence_00499c80->waitStart <
-                    (int)g_nInputClock_005c84a8) {
+                    (int)g_nInputTimerTicks_005c84a8) {
                 g_pCurrentCutsceneSequence_00499c80->waitTicks = 0;
             }
             if (objectType == 2 &&
@@ -2450,9 +2453,9 @@ cutscene_input_processed:
         case 0x7e: {
             int waitUntil;
 
-            waitUntil = g_nInputClock_005c84a8 +
+            waitUntil = g_nInputTimerTicks_005c84a8 +
                 PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
-            while (g_nInputClock_005c84a8 < waitUntil &&
+            while (g_nInputTimerTicks_005c84a8 < waitUntil &&
                    g_bCutsceneSkipFrame_00499c54 == 0 &&
                    g_bCutsceneViewportPreallocated_00499c4c == 0) {
                 if (ServiceInputDevices(-1) != 0) {
@@ -2739,7 +2742,7 @@ cutscene_input_processed:
 #endif
             g_pCurrentCutsceneSprite_00499c78->waitTicks = value;
             g_pCurrentCutsceneSprite_00499c78->waitStart =
-                g_nInputClock_005c84a8;
+                g_nInputTimerTicks_005c84a8;
             if (objectType == 0) {
                 *scriptCursor = scriptBytes;
                 return shouldContinue;
@@ -2904,7 +2907,7 @@ cutscene_input_processed:
 #endif
             g_pCurrentCutscenePlane_00499c7c->waitTicks = value;
             g_pCurrentCutscenePlane_00499c7c->waitStart =
-                g_nInputClock_005c84a8;
+                g_nInputTimerTicks_005c84a8;
             if (objectType == 1) {
                 *scriptCursor = scriptBytes;
                 return shouldContinue;
@@ -2935,7 +2938,7 @@ cutscene_input_processed:
         case 0x6b:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
             if (value != 0 && g_bCutsceneSkipFrame_00499c54 == 0) {
-                while (g_nInputClock_005c84a8 <
+                while (g_nInputTimerTicks_005c84a8 <
                        g_pCurrentCutsceneSequence_00499c80->waitStart +
                            g_pCurrentCutsceneSequence_00499c80->waitTicks) {
                     PumpWindowMessages(0);
@@ -2964,7 +2967,7 @@ cutscene_input_processed:
             }
             g_pCurrentCutsceneSequence_00499c80->waitTicks = value;
             g_pCurrentCutsceneSequence_00499c80->waitStart =
-                g_nInputClock_005c84a8;
+                g_nInputTimerTicks_005c84a8;
             break;
         case 0x81:
             value = PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
@@ -3191,7 +3194,7 @@ cutscene_input_processed:
                     FindActiveCutsceneFileResources(
                         g_pCutsceneFontResources_004928a0),
                     *scriptBytes++, 1);
-            g_bCinematicSpriteFontEnabled_005c82a7 =
+            g_bCinematicSpriteTextEnableStatus_005c82a7 =
                 (signed char)*scriptBytes++;
             g_nCutsceneFontOwnerNumber_005d2fa0 =
                 g_nActiveCutsceneResourceLevel_00499d9c;
@@ -3299,7 +3302,7 @@ cutscene_input_processed:
             if (g_bCutsceneViewportPreallocated_00499c4c != 0 ||
                 g_bCutsceneSkipFrame_00499c54 != 0)
                 break;
-            while (g_nInputClock_005c84a8 <
+            while (g_nInputTimerTicks_005c84a8 <
                    g_nNextCutsceneFrameClock_00499c90) {
                 PumpWindowMessages(0);
 #ifdef SDL_PORT
@@ -3320,7 +3323,7 @@ cutscene_input_processed:
             g_bMovieFramePresented_005d2de0 = 1;
             if (g_nCutsceneFrameDelay_00499c8c != 0) {
                 g_nNextCutsceneFrameClock_00499c90 =
-                    g_nInputClock_005c84a8 +
+                    g_nInputTimerTicks_005c84a8 +
                     g_nCutsceneFrameDelay_00499c8c;
             }
             break;
@@ -3479,7 +3482,7 @@ cutscene_input_processed:
             g_nCutsceneResourceScratchValue_005d2e9c = *(short *)scriptBytes;
             scriptBytes += 2;
             /* The original divides by 0x3b (59), not 0x3c (60).
-             * g_nInputClock_005c84a8 (what this delay is measured against,
+             * g_nInputTimerTicks_005c84a8 (what this delay is measured against,
              * see PumpWindowMessages/winmain.c) ticks in exact 1/60s units
              * -- confirmed independently by CUTSCENE_MOUTH_MIN_TICKS=3
              * meaning exactly 3/60s=50ms=one 20fps frame elsewhere in this
@@ -3803,7 +3806,7 @@ cutscene_input_processed:
 /* Keep this callee declaration here: CL 4.1's symbol order controls the
  * following function's comparison operands. */
 void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
-                                 short index, int resourceType);
+                                 short index, int);
 
 /* Function start: 0x432DCC */
 char *GetPackedStringByIndex(CutsceneResourceTable *resources,
@@ -3886,7 +3889,7 @@ void *LoadCachedCutsceneResource(CutsceneResourceTable *resources,
     }
     while (packet == 0) {
         if (g_nSceneFlicContext_00499c50 == 4 &&
-            g_bHighMemoryResourcesEnabled_005c80e4 == 0) {
+            g_bStoredHighMemoryEnabled_005c80e4 == 0) {
             g_nSceneFlicContext_00499c50 = 0x40;
             break;
         }

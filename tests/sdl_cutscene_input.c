@@ -75,7 +75,7 @@ int main(int argumentCount, char **arguments)
     }
     g_hMainWindow_005d10e0 = (HWND)window;
     g_bKeyboardMouseEnabled_0049be68 = 0;
-    g_pfnInputPump_005c840c = 0;
+    g_pfnCurrentInputPump_005c840c = 0;
     SdlPumpEvents();
     FlushInputEvents();
     result = 1;
@@ -136,7 +136,7 @@ int main(int argumentCount, char **arguments)
         goto cleanup;
     SdlPumpEvents();
     if (FindQueuedInputEvent(5) == 0 ||
-        g_abInputKeyState_005c80f0[0x39] != 0 ||
+        g_abKeyboardEventStates_005c80f0[0x39] != 0 ||
         !CheckCutsceneAdvance(1) || !CheckCutsceneAdvance(0))
         goto cleanup;
     result = 0;

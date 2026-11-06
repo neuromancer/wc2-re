@@ -1125,14 +1125,14 @@ void InflightComputer(void)
     objectivesVisible = 0;
     savedNav = (short)g_cCurrentNavPointIndex_00493298;
     g_bInflightComputerActive_0049bcb4 = 1;
-    savedCursor = g_stPersonnelCursor_005c8470;
+    savedCursor = g_stPersonnelMousePointerState_005c8470;
 
     if (message_showing() != 0)
         EndCommMenu();
     DisableMouseCursorDrawing();
-    g_nUiInputMode_005c8d3c = 0;
+    g_nInterfaceEventMode_005c8d3c = 0;
     free_view_buffer();
-    g_cScreenViewMode_005c82a6 = -1;
+    g_cStoredViewDisplayModeValue_005c82a6 = -1;
     cockpitShape = FetchDiskPacketRetrying("cockpit.vga", 1, 0);
     ClearViewport(&g_stScrViewInfo_005d21a0,
                   g_cSecondaryViewBufferColour_0049cb4c);
@@ -1164,8 +1164,8 @@ void InflightComputer(void)
         SetRectBounds(&navViewport, 0x20, 0x18, 0xb6, 0x9f);
         SetInputViewport(&navViewport);
         SetMenuInputPump();
-        g_nInputRepeatDelay_005c80d6 = 10;
-        g_bInputCursorEnabled_005c80e6 = 6;
+        g_nEventRepeatDelayState_005c80d6 = 10;
+        g_bMouseCursorEnabled_005c80e6 = 6;
         CentreMouseOnCurrentNavObjective();
 
         do {
@@ -1183,7 +1183,7 @@ void InflightComputer(void)
                     &g_stElapsedCampaignDate_005d170c;
             FormatNavCoordinates(
                 (unsigned char *)g_pElapsedCampaignDatePointer_005d3e8c);
-            frame = g_nInputClock_005c84a8 / 15;
+            frame = g_nInputTimerTicks_005c84a8 / 15;
             g_stNavLabelTextContextInfo_005d16f0.viewport =
                 &g_stScrViewInfo_005d21a0;
             if (frame % 2 != 0)
@@ -1196,8 +1196,8 @@ void InflightComputer(void)
             UpdateInflightNavText((short)((frame / 4) % 2));
             SetRectBounds(&g_stScrViewInfo_005d21a0, 0, 0, 0x13f, 0xc7);
             SetMouseCursorShape(
-                g_pInputManagerState_005c8464->cursorShape, 0);
-            g_nUiInputMode_005c8d3c = 1;
+                g_pEventManager_005c8464->cursorShape, 0);
+            g_nInterfaceEventMode_005c8d3c = 1;
             EnableMouseCursorDrawing();
             /* The original passes a second argument the callee ignores. */
             switch (PollInputEvent(&inputEvent, 0xf)) {
@@ -1238,9 +1238,9 @@ void InflightComputer(void)
     ReleasePacketHandle(g_pNavMapShape_0049bc48);
     SetTextContext(&g_stDefaultStringContext_005d2d20);
     PlaySfxWaveFileByNumber(0x19, -1, 0);
-    g_stPersonnelCursor_005c8470 = savedCursor;
-    SetPersonnelMousePosition(g_stPersonnelCursor_005c8470.x,
-                              g_stPersonnelCursor_005c8470.y);
+    g_stPersonnelMousePointerState_005c8470 = savedCursor;
+    SetPersonnelMousePosition(g_stPersonnelMousePointerState_005c8470.x,
+                              g_stPersonnelMousePointerState_005c8470.y);
     force_view(0, 0);
     InitializeSpaceFlightInput();
     g_bInflightComputerActive_0049bcb4 = 0;

@@ -9,15 +9,15 @@
 
 extern unsigned char g_abPauseInputState_005c85d0[0x100];
 
-extern unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
+extern unsigned char g_abPreviousPauseKeyStatuses_005c86e0[0x100];
 
 #pragma function(strcpy)
 /* Function start: 0x465780 */
 void SetPersonnelCursorPosition(int x, int y, short unused1,
                                 short unused2)
 {
-    g_stPersonnelCursor_005c8470.x = x;
-    g_stPersonnelCursor_005c8470.y = y;
+    g_stPersonnelMousePointerState_005c8470.x = x;
+    g_stPersonnelMousePointerState_005c8470.y = y;
 }
 
 /* Function start: 0x46579D */
@@ -40,7 +40,7 @@ short LogMemoryUsage(void)
         _chdir("..");
         g_bParentDirectorySelected_0049d78c++;
     }
-    ConfigureDefaultSpacePalette(g_nDetectedGraphicsMode_005c80d2);
+    ConfigureDefaultSpacePalette(g_nCurrentGraphicsModeDetectedValue_005c80d2);
     if (g_nOriginDevUnlock_0049d774 != 0) {
         printf("Series %d, Mission %d (%c)\n",
                (int)g_nCurSeries_005c5870,
@@ -100,7 +100,7 @@ void RunGameApplication(short argc, char **argv)
     argumentCount = LoadWingCmdrCfgFile(argc, argv);
     _chdir("gamedat");
     printf("Loading WING COMMANDER 2.  Please wait...\n");
-    g_bHighMemoryResourcesEnabled_005c80e4 = 1;
+    g_bStoredHighMemoryEnabled_005c80e4 = 1;
     g_stDefaultPilotProfile_00492660.field_5e = 5;
     memcpy(&g_stCurrentPilotProfile_00493408,
            &g_stDefaultPilotProfile_00492660,
@@ -256,7 +256,7 @@ void dump_buffer_to_screen(void)
         CopyViewportContents(
             &g_stViewScratchInfo_005d2b00, &g_stScrViewInfo_005d21a0);
     } else {
-        switch (g_cScreenViewMode_005c82a6) {
+        switch (g_cStoredViewDisplayModeValue_005c82a6) {
         case 4:
             g_stScrViewInfo_005d21a0.top = 24;
             CopyViewportContents(
@@ -424,10 +424,10 @@ void get_player_input(void)
         g_nActiveInputDeviceWord_005d1726].buttons & 3);
     g_wSavedInputDeviceButtonState_005c4b14 =
         g_wFlightInputButtonState_0049d7c0 =
-        g_wInputDeviceButtonState_005c8432;
+        g_wInputDeviceButtonStatus_005c8432;
     g_wFlightInputButtonState_0049d7c0 &= (short)~0x1f;
     g_wFlightInputButtonState_0049d7c0 |= buttons;
-    g_wInputDeviceButtonState_005c8432 =
+    g_wInputDeviceButtonStatus_005c8432 =
         g_wFlightInputButtonState_0049d7c0;
     if ((buttons & 1) != 0) {
         TranslatePolledInputEvent(10, (unsigned int)buttons);
@@ -458,7 +458,7 @@ void get_player_input(void)
     }
     g_stCurrentFlightInput_0049d7b0 =
         g_aInputDeviceSamplesList_005d1780[g_nActiveInputDeviceWord_005d1726];
-    g_wInputDeviceButtonState_005c8432 =
+    g_wInputDeviceButtonStatus_005c8432 =
         g_wSavedInputDeviceButtonState_005c4b14;
 }
 
@@ -781,7 +781,7 @@ short player_input(void)
                     (short)((g_stViewScratchInfo_005d2b00.top +
                              g_stViewScratchInfo_005d2b00.bottom) / 2));
                 g_nCockpitControlState_0049d7ac = 1;
-                g_stPersonnelCursor_005c8470.frame = 2;
+                g_stPersonnelMousePointerState_005c8470.frame = 2;
             }
             dx = (short)(message.x -
                 (g_stViewScratchInfo_005d2b00.right -
@@ -789,8 +789,8 @@ short player_input(void)
             mouseY = (short)(message.y -
                 (g_stViewScratchInfo_005d2b00.bottom -
                  g_stViewScratchInfo_005d2b00.top) / 2);
-            g_stPersonnelCursor_005c8470.x = message.x;
-            g_stPersonnelCursor_005c8470.y = message.y;
+            g_stPersonnelMousePointerState_005c8470.x = message.x;
+            g_stPersonnelMousePointerState_005c8470.y = message.y;
             absX = (short)abs((int)dx);
             verticalDistance = (short)abs((int)mouseY);
             threshold = 0;
@@ -938,7 +938,7 @@ short player_input(void)
         (g_stCurrentFlightInput_0049d7b0.buttons & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
     if ((g_cCurrentKey_00493128 & 0x80) != 0 &&
-        (g_wPendingButtonMask_005c80d4 & 1) != 0)
+        (g_wQueuedButtonsState_005c80d4 & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
 #ifdef SDL_PORT
     SdlApplyJoystickFlightControls();
@@ -989,8 +989,8 @@ short HandleSpaceFlightControls(void)
     short pauseScan;
     short object;
 
-    g_bInputCursorEnabled_005c80e6 = 1;
-    g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
+    g_bMouseCursorEnabled_005c80e6 = 1;
+    g_nEventRepeatDelayState_005c80d6 = g_bMouseCursorEnabled_005c80e6;
     if (g_nCurrentView_00492fa8 == 4) {
         inputConsumed = HandleFleetOverviewInput();
     } else {
@@ -1187,7 +1187,7 @@ short HandleSpaceFlightControls(void)
             g_nCockpitControlState_0049d7ac = 0;
             if (GetF1KeyLatch() == 0)
                 break;
-            if (g_cScreenViewMode_005c82a6 == 0) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 0) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1196,7 +1196,7 @@ short HandleSpaceFlightControls(void)
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
                     initialize_cockpit(
-                        ++g_cScreenViewMode_005c82a6 - 1);
+                        ++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
@@ -1204,7 +1204,7 @@ short HandleSpaceFlightControls(void)
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
                     initialize_cockpit(
-                        ++g_cScreenViewMode_005c82a6 - 1);
+                        ++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1228,7 +1228,7 @@ short HandleSpaceFlightControls(void)
         case 0x3c:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 2) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 2) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1236,14 +1236,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1267,7 +1267,7 @@ short HandleSpaceFlightControls(void)
         case 0x3d:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 1) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 1) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1275,14 +1275,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1306,7 +1306,7 @@ short HandleSpaceFlightControls(void)
         case 0x3e:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 3) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 3) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1314,14 +1314,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1345,7 +1345,7 @@ short HandleSpaceFlightControls(void)
         case 0x3f:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 5) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 5) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1353,14 +1353,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1384,7 +1384,7 @@ short HandleSpaceFlightControls(void)
         case 0x40:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 15) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 15) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1392,14 +1392,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1423,7 +1423,7 @@ short HandleSpaceFlightControls(void)
         case 0x41:
             if (g_nTargetCameraFrame_0049d3e8 == 1)
                 ClearTargetCameraView();
-            if (g_cScreenViewMode_005c82a6 == 8) {
+            if (g_cStoredViewDisplayModeValue_005c82a6 == 8) {
                 g_nCockpitDisplayMode_0049d71c =
                     g_nCockpitDisplayMode_0049d71c == 0;
                 free_view_buffer();
@@ -1431,14 +1431,14 @@ short HandleSpaceFlightControls(void)
                     g_bFullScreenSpaceView_0049d718 = 0;
                     SetViewportRect(&g_stViewScratchInfo_005d2b00,
                                     0, 0, 319, 199);
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 } else {
                     g_bFullScreenSpaceView_0049d718 = 1;
                     SetViewportRect(
                         &g_stViewScratchInfo_005d2b00, 0, 0,
                         (short)(g_nScreenWidth_0049d4d8 - 1),
                         (short)(g_nScreenHeight_0049d4dc - 1));
-                    initialize_cockpit(++g_cScreenViewMode_005c82a6 - 1);
+                    initialize_cockpit(++g_cStoredViewDisplayModeValue_005c82a6 - 1);
                 }
             } else if (g_acShipTarget_00495f20[0] != -1) {
                 g_nCockpitControlState_0049d7ac = 0;
@@ -1591,7 +1591,7 @@ pause_spaceflight:
         SetFrameTimerPeriodDirect(1);
         for (pauseScan = 0; pauseScan < 0x100; pauseScan++) {
             g_abPauseInputState_005c85d0[pauseScan] = 0;
-            g_abPreviousPauseInputState_005c86e0[pauseScan] =
+            g_abPreviousPauseKeyStatuses_005c86e0[pauseScan] =
                 g_abPauseInputState_005c85d0[pauseScan];
         }
         ServiceInputDevices(-1);
@@ -1776,7 +1776,7 @@ unsigned int DrawSpaceSceneFrame(void)
     SdlBeginSpaceFrame(
         (const struct ScreenViewportGeometry *)
             g_pScreenViewportGeometry_005c82b0,
-        (int)g_cScreenViewMode_005c82a6,
+        (int)g_cStoredViewDisplayModeValue_005c82a6,
         /* Match dump_buffer_to_screen's active copy mode.  The stored
            preference has the opposite sense and omits cockpit offsets. */
         g_nCockpitDisplayMode_0049d71c > 0,
@@ -1882,7 +1882,7 @@ int RunSpaceFlight(short entryNavPoint)
     short result;
     short i;
 
-    savedUiInputMode = g_nUiInputMode_005c8d3c;
+    savedUiInputMode = g_nInterfaceEventMode_005c8d3c;
     g_bSpaceFlightActive_005c586c = 1;
     g_nCockpitDisplayMode_0049d71c = 0;
     if (g_bFullScreenSpaceView_0049d718 == 0)
@@ -1894,8 +1894,8 @@ int RunSpaceFlight(short entryNavPoint)
     g_nFrameSkipCountdown_0049d760 = 1;
     InitializeSpaceFlightInput();
     g_nSpaceExplosionFlashActive_00492fb4 = 0;
-    savedInputDelay = g_nInputRepeatDelay_005c80d6;
-    savedInputContext = g_stPersonnelCursor_005c8470.context;
+    savedInputDelay = g_nEventRepeatDelayState_005c80d6;
+    savedInputContext = g_stPersonnelMousePointerState_005c8470.context;
     ReleaseSceneMusicPacket();
     init_inflight_music();
 
@@ -1915,8 +1915,8 @@ int RunSpaceFlight(short entryNavPoint)
         new_view(0, 0);
         free_view_buffer();
         SetViewportRect(&g_stViewScratchInfo_005d2b00, 0, 0, 319, 199);
-        g_cScreenViewMode_005c82a6++;
-        initialize_cockpit(g_cScreenViewMode_005c82a6 - 1);
+        g_cStoredViewDisplayModeValue_005c82a6++;
+        initialize_cockpit(g_cStoredViewDisplayModeValue_005c82a6 - 1);
         g_nCockpitControlState_0049d7ac =
             g_nCockpitControlGoal_0049d7d0 = 0;
         initialize_view_buffer();
@@ -1985,8 +1985,8 @@ int RunSpaceFlight(short entryNavPoint)
     free_inflight_music();
     ConfigureInputPump(1, 0);
     g_nCockpitControlState_0049d7ac = 0;
-    g_nUiInputMode_005c8d3c = savedUiInputMode;
-    g_nInputRepeatDelay_005c80d6 = savedInputDelay;
+    g_nInterfaceEventMode_005c8d3c = savedUiInputMode;
+    g_nEventRepeatDelayState_005c80d6 = savedInputDelay;
     g_bSpaceFlightActive_005c586c = 0;
     return g_nArcadeState_0049d75c;
 }

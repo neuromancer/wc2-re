@@ -79,8 +79,8 @@ void PollPersonnelMenuInput(void)
     while ((eventType = GetNextInputEvent(&event)) != 0) {
         switch (eventType) {
         case 3:
-            g_stPersonnelCursor_005c8470.x = event.x;
-            g_stPersonnelCursor_005c8470.y = event.y;
+            g_stPersonnelMousePointerState_005c8470.x = event.x;
+            g_stPersonnelMousePointerState_005c8470.y = event.y;
             break;
         case 7:
             break;
@@ -597,32 +597,32 @@ short SelectPersonnelFileSlot(void)
     SetPersonnelMousePosition(0xdc, 0x12);
     while (g_cCurrentKey_00493128 == (signed char)0x80) {
         PollPersonnelMenuInput();
-        if (g_stPersonnelCursor_005c8470.x > 0x28 &&
-            g_stPersonnelCursor_005c8470.x < 0xec) {
-            if (g_stPersonnelCursor_005c8470.y >= 0x12 &&
-                g_stPersonnelCursor_005c8470.y <= 0x1c) {
+        if (g_stPersonnelMousePointerState_005c8470.x > 0x28 &&
+            g_stPersonnelMousePointerState_005c8470.x < 0xec) {
+            if (g_stPersonnelMousePointerState_005c8470.y >= 0x12 &&
+                g_stPersonnelMousePointerState_005c8470.y <= 0x1c) {
                 hover = 0x0b;
                 HighlightPersonnelFileSlot(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 1);
-            } else if (g_stPersonnelCursor_005c8470.y >= 0x1d &&
-                       g_stPersonnelCursor_005c8470.y <= 0x6e) {
-                hover = (short)((g_stPersonnelCursor_005c8470.y - 0x1d) /
+                    g_pEventManager_005c8464->cursorShape, 1);
+            } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x1d &&
+                       g_stPersonnelMousePointerState_005c8470.y <= 0x6e) {
+                hover = (short)((g_stPersonnelMousePointerState_005c8470.y - 0x1d) /
                                 12 + 2);
                 HighlightPersonnelFileSlot(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 1);
+                    g_pEventManager_005c8464->cursorShape, 1);
             } else {
                 hover = -1;
                 HighlightPersonnelFileSlot(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 0);
+                    g_pEventManager_005c8464->cursorShape, 0);
             }
         } else {
             hover = -1;
             HighlightPersonnelFileSlot(hover);
             SetMouseCursorShape(
-                g_pInputManagerState_005c8464->cursorShape, 0);
+                g_pEventManager_005c8464->cursorShape, 0);
         }
         g_bPersonnelMenuDrawing_0049a6c0 = 0;
         DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -756,33 +756,33 @@ short SelectTransferredPilot(short count)
     SetPersonnelMousePosition(0xdc, 0x12);
     while (g_cCurrentKey_00493128 == (signed char)0x80) {
         PollPersonnelMenuInput();
-        if (g_stPersonnelCursor_005c8470.x > 0x28 &&
-            g_stPersonnelCursor_005c8470.x < 0xec) {
-            if (g_stPersonnelCursor_005c8470.y >= 0x1e &&
-                g_stPersonnelCursor_005c8470.y <= 0x27) {
+        if (g_stPersonnelMousePointerState_005c8470.x > 0x28 &&
+            g_stPersonnelMousePointerState_005c8470.x < 0xec) {
+            if (g_stPersonnelMousePointerState_005c8470.y >= 0x1e &&
+                g_stPersonnelMousePointerState_005c8470.y <= 0x27) {
                 hover = 0x0b;
                 HighlightTransferredPilot(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 1);
-            } else if (g_stPersonnelCursor_005c8470.y >= 0x28 &&
-                       g_stPersonnelCursor_005c8470.y <=
+                    g_pEventManager_005c8464->cursorShape, 1);
+            } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x28 &&
+                       g_stPersonnelMousePointerState_005c8470.y <=
                            (count - 2) * 10 + 0x31) {
-                hover = (short)((g_stPersonnelCursor_005c8470.y - 0x28) /
+                hover = (short)((g_stPersonnelMousePointerState_005c8470.y - 0x28) /
                                 10 + 2);
                 HighlightTransferredPilot(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 1);
+                    g_pEventManager_005c8464->cursorShape, 1);
             } else {
                 hover = -1;
                 HighlightTransferredPilot(hover);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
+                SetMouseCursorShape(g_pEventManager_005c8464->cursorShape,
                                     0);
             }
         } else {
             hover = -1;
             HighlightTransferredPilot(hover);
             SetMouseCursorShape(
-                g_pInputManagerState_005c8464->cursorShape, 0);
+                g_pEventManager_005c8464->cursorShape, 0);
         }
         g_bPersonnelMenuDrawing_0049a6c0 = 0;
         DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -929,37 +929,37 @@ void RunPilotSaveLoadMenu(void)
         g_cCurrentKey_00493128 = (signed char)0x80;
         while (g_cCurrentKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
-            if (g_stPersonnelCursor_005c8470.x > 0x28 &&
-                g_stPersonnelCursor_005c8470.x < 0xea) {
-                if (g_stPersonnelCursor_005c8470.y >= 0x30 &&
-                    g_stPersonnelCursor_005c8470.y <= 0x43) {
+            if (g_stPersonnelMousePointerState_005c8470.x > 0x28 &&
+                g_stPersonnelMousePointerState_005c8470.x < 0xea) {
+                if (g_stPersonnelMousePointerState_005c8470.y >= 0x30 &&
+                    g_stPersonnelMousePointerState_005c8470.y <= 0x43) {
                     hover = 0x26;
                     DrawPilotSaveMenuChoices(hover);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
-                } else if (g_stPersonnelCursor_005c8470.y >= 0x44 &&
-                           g_stPersonnelCursor_005c8470.y <= 0x57) {
+                        g_pEventManager_005c8464->cursorShape, 1);
+                } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x44 &&
+                           g_stPersonnelMousePointerState_005c8470.y <= 0x57) {
                     hover = 0x1f;
                     DrawPilotSaveMenuChoices(hover);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
-                } else if (g_stPersonnelCursor_005c8470.y >= 0x58 &&
-                           g_stPersonnelCursor_005c8470.y <= 0x6b) {
+                        g_pEventManager_005c8464->cursorShape, 1);
+                } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x58 &&
+                           g_stPersonnelMousePointerState_005c8470.y <= 0x6b) {
                     hover = 0x20;
                     DrawPilotSaveMenuChoices(hover);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
+                        g_pEventManager_005c8464->cursorShape, 1);
                 } else {
                     hover = -1;
                     DrawPilotSaveMenuChoices(hover);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 0);
+                        g_pEventManager_005c8464->cursorShape, 0);
                 }
             } else {
                 hover = -1;
                 DrawPilotSaveMenuChoices(hover);
                 SetMouseCursorShape(
-                    g_pInputManagerState_005c8464->cursorShape, 0);
+                    g_pEventManager_005c8464->cursorShape, 0);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;
             DrawPersonnelMenuBackdrop(g_pPersonnelMenuBackdrop_0049a6b8);
@@ -1242,30 +1242,30 @@ short SelectLegacyGameSource(void)
         g_cCurrentKey_00493128 = (signed char)0x80;
         while (g_cCurrentKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
-            if (g_stPersonnelCursor_005c8470.x > 0x1e &&
-                g_stPersonnelCursor_005c8470.x < 0xe0) {
-                if (g_stPersonnelCursor_005c8470.y >= 0x26 &&
-                    g_stPersonnelCursor_005c8470.y <= 0x39) {
+            if (g_stPersonnelMousePointerState_005c8470.x > 0x1e &&
+                g_stPersonnelMousePointerState_005c8470.x < 0xe0) {
+                if (g_stPersonnelMousePointerState_005c8470.y >= 0x26 &&
+                    g_stPersonnelMousePointerState_005c8470.y <= 0x39) {
                     focus = PERSONNEL_KEY_W;
                     DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
-                } else if (g_stPersonnelCursor_005c8470.y >= 0x3a &&
-                           g_stPersonnelCursor_005c8470.y <= 0x4d) {
+                        g_pEventManager_005c8464->cursorShape, 1);
+                } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x3a &&
+                           g_stPersonnelMousePointerState_005c8470.y <= 0x4d) {
                     focus = PERSONNEL_KEY_D;
                     DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
+                        g_pEventManager_005c8464->cursorShape, 1);
                 } else {
                     focus = -1;
                     DrawPersonnelSourceChoices(focus);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 0);
+                        g_pEventManager_005c8464->cursorShape, 0);
                 }
             } else {
                 focus = -1;
                 DrawPersonnelSourceChoices(focus);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
+                SetMouseCursorShape(g_pEventManager_005c8464->cursorShape,
                                     0);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;
@@ -1481,30 +1481,30 @@ short RunPilotDatabaseMenu(void)
         g_cCurrentKey_00493128 = (signed char)0x80;
         while (g_cCurrentKey_00493128 == (signed char)0x80) {
             PollPersonnelMenuInput();
-            if (g_stPersonnelCursor_005c8470.x > 0x28 &&
-                g_stPersonnelCursor_005c8470.x < 0xea) {
-                if (g_stPersonnelCursor_005c8470.y >= 0x30 &&
-                    g_stPersonnelCursor_005c8470.y <= 0x43) {
+            if (g_stPersonnelMousePointerState_005c8470.x > 0x28 &&
+                g_stPersonnelMousePointerState_005c8470.x < 0xea) {
+                if (g_stPersonnelMousePointerState_005c8470.y >= 0x30 &&
+                    g_stPersonnelMousePointerState_005c8470.y <= 0x43) {
                     hoverCommand = 0x14;
                     DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
-                } else if (g_stPersonnelCursor_005c8470.y >= 0x44 &&
-                           g_stPersonnelCursor_005c8470.y <= 0x57) {
+                        g_pEventManager_005c8464->cursorShape, 1);
+                } else if (g_stPersonnelMousePointerState_005c8470.y >= 0x44 &&
+                           g_stPersonnelMousePointerState_005c8470.y <= 0x57) {
                     hoverCommand = 0x2e;
                     DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 1);
+                        g_pEventManager_005c8464->cursorShape, 1);
                 } else {
                     hoverCommand = -1;
                     DrawPersonnelMenuChoices(hoverCommand);
                     SetMouseCursorShape(
-                        g_pInputManagerState_005c8464->cursorShape, 0);
+                        g_pEventManager_005c8464->cursorShape, 0);
                 }
             } else {
                 hoverCommand = -1;
                 DrawPersonnelMenuChoices(hoverCommand);
-                SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape,
+                SetMouseCursorShape(g_pEventManager_005c8464->cursorShape,
                                     0);
             }
             g_bPersonnelMenuDrawing_0049a6c0 = 0;

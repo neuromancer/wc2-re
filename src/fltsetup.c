@@ -114,7 +114,7 @@ void initialize_cockpit(signed char mode)
     if (message_showing())
         EndCommMenu();
 
-    if (g_nCockpitDisplayMode_0049d71c == 0 && g_cScreenViewMode_005c82a6 == mode) {
+    if (g_nCockpitDisplayMode_0049d71c == 0 && g_cStoredViewDisplayModeValue_005c82a6 == mode) {
         if (g_stViewScratchInfo_005d2b00.pixels != 0)
             ClearViewport(&g_stViewScratchInfo_005d2b00, g_cPrimaryViewBufferColour_0049cb88);
         else
@@ -129,7 +129,7 @@ void initialize_cockpit(signed char mode)
     g_stScrViewInfo_005d21a0.bottom = 199;
     ClearViewport(&g_stModalSourceWindow_005d2c50, g_cSecondaryViewBufferColour_0049cb4c);
 
-    g_cScreenViewMode_005c82a6 = mode;
+    g_cStoredViewDisplayModeValue_005c82a6 = mode;
     strcpy(g_szCockpitAssetFilenameText_005d1030, "pcship.v");
     itoa((int)g_aObjectTypeData_00496d30[
               g_acObjectType_00493980[0]].resourceType,
@@ -163,7 +163,7 @@ void initialize_cockpit(signed char mode)
         g_stCockpitBackgroundViewportRecord_005d1050.pixels = 0;
         g_stCockpitBackgroundViewportRecord_005d1050.allocation = 0;
         g_stCockpitBackgroundViewportRecord_005d1050.rowOffsets = 0;
-        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+        if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
             AllocateViewport(
                 &g_stCockpitBackgroundViewportRecord_005d1050,
                 g_cSecondaryViewBufferColour_0049cb4c, 0) == 0) {
@@ -735,7 +735,7 @@ void InitializeCockpitResources(short shipType)
                 g_nObjectType63Index_00492d68].field_18 == 0x3f)
             break;
     }
-    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+    if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
         HasShipCockpitGunDisplay(0) != 0) {
         g_aObjectTypeData_00496d30[
             g_nObjectType62Index_00492d64].shapeSet =
@@ -839,7 +839,7 @@ void init_3Space_objects(short scene)
         return;
     else
         g_b3SpaceObjectsActive_0049c8ec = 1;
-    g_cScreenViewMode_005c82a6 = -1;
+    g_cStoredViewDisplayModeValue_005c82a6 = -1;
     remove_all_3d_objects();
     g_nSpaceFrame_00493134 =
         g_nRenderedSpaceFrame_00493138 =
@@ -889,7 +889,7 @@ void load_common_3Space_objects(void)
         g_aObjectTypeData_00496d30[15].animation;
     g_aObjectTypeData_00496d30[17].animation =
         g_aObjectTypeData_00496d30[18].animation;
-    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+    if (g_bStoredHighMemoryEnabled_005c80e4 != 0) {
         if (g_nResourcePaletteState_005c57e6 == 0) {
             g_pGenericMissileShape_0049c8f0 =
                 FetchDiskPacketRetrying("missile.v00", 0, 4);

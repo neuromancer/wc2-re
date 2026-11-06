@@ -37,7 +37,7 @@ void LoadGamePaletteFile(void)
 /* Function start: 0x45B905 */
 void EMShutDown(void)
 {
-    if (g_bInputManagerInitialized_005c80ca != 0)
+    if (g_bEventManagerInitializationState_005c80ca != 0)
         ShutdownEventManager();
 }
 
@@ -46,7 +46,7 @@ void EMStartUp(void)
 {
     if (InitializeInputManagerMemory(20) == 0)
         ReportFatalErrorCode("020");
-    g_pfnEventManagerShutdown_005c8be0 = (void (*)(void))LogMemoryUsage;
+    g_pfnEventShutdownCallback_005c8be0 = (void (*)(void))LogMemoryUsage;
     InitializeInputDriverHook();
     if (g_bRewritePacketExtensions_0049cb48 == 0) {
         LoadInputCursorShape(g_szInputCursorPacketName_0049cba0,
@@ -59,10 +59,10 @@ void EMStartUp(void)
     }
     FinalizeInputDriverHook();
     SetInputViewport(&g_stScrViewInfo_005d21a0);
-    g_nInputTickInterval_005c8448 = 20;
-    g_nInputRepeatDelay_005c80d6 = 20;
-    g_bInputCursorEnabled_005c80e6 = 1;
-    g_cKeypadMouseSpeed_005c83e6 = 3;
+    g_nCurrentInputTickInterval_005c8448 = 20;
+    g_nEventRepeatDelayState_005c80d6 = 20;
+    g_bMouseCursorEnabled_005c80e6 = 1;
+    g_cKeypadMouseSpeedValue_005c83e6 = 3;
 }
 
 #pragma function(strcat)
@@ -77,12 +77,12 @@ void LoadOriginFxDrivers(void)
     int shipMemoryBytes;
     short paletteResult;
 
-    g_nDetectedGraphicsMode_005c80d2 = QueryCurrentGraphicsMode();
+    g_nCurrentGraphicsModeDetectedValue_005c80d2 = QueryCurrentGraphicsMode();
     g_nNearHeapMaxDescriptors_00493048 = 0x20c;
     IsSoundHardwarePresent(8);
     if (g_bPumpMessagesWhileLoadingState_005c8ddc != 0)
         MessagePumpHook(4);
-    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
         printf("No ");
     printf("Expanded Memory Detected.\n");
     g_bOriginFxDriverActive_0049cbb0 = 0;
@@ -97,7 +97,7 @@ void LoadOriginFxDrivers(void)
     g_nAvailableGameMemoryNumber_005c8de0 = 0xc63e0;
     availableMemory = 0x7c0600;
     if (g_bSpeechResourcesEnabled_0049cc2c != 0 &&
-        g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+        g_bStoredHighMemoryEnabled_005c80e4 != 0) {
         g_bSpeechEnabledFlag_005c8de8 = 0;
         if (g_nMinimumMemoryNoMusic_0049cc20 + 0x1000 <
             (int)g_dwInitialSpareMemory_005c8dd0) {
@@ -110,14 +110,14 @@ void LoadOriginFxDrivers(void)
         }
     }
 #ifndef SDL_PORT
-    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
+    if (g_bStoredHighMemoryEnabled_005c80e4 != 0)
         InitializeHighMemoryGraphicsBuffers();
 #endif
     memoryLogFile = fopen("mem.$$$", "w+");
     LogMemoryStateToFile(memoryLogFile);
     if (memoryLogFile != 0)
         fclose(memoryLogFile);
-    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0) {
+    if (g_bStoredHighMemoryEnabled_005c80e4 == 0) {
         g_bExpandedShipGraphicsEnabled_004931a4 = 0;
         g_nMinimumMemoryNoMusic_0049cc20 = 0x42680;
     }
@@ -134,7 +134,7 @@ void LoadOriginFxDrivers(void)
             g_nMusicMemoryNeed_005c8dcc = 0x1b800;
         else if (g_nMusicDriverMode_0049be8c == 2)
             g_nMusicMemoryNeed_005c8dcc = 0x13800;
-        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0)
+        if (g_bStoredHighMemoryEnabled_005c80e4 != 0)
             requiredBytes += g_nMusicMemoryNeed_005c8dcc;
     }
     SetFrameTimerPeriodDirect(0x78);
@@ -353,7 +353,7 @@ void initialize_direction_view_frames(void)
 /* Function start: 0x45C35C */
 void LoadSpaceflightResources(void)
 {
-    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
         return;
     if (LoadShapeSet(g_aCommon3SpaceResources_0049c728,
                      4, "objects.vga") == 0)
@@ -392,7 +392,7 @@ void InitializeMusicResources(void)
     int resource;
 
     FadeMusic(200);
-    if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+    if (g_bStoredHighMemoryEnabled_005c80e4 != 0) {
         for (resource = 0; resource < 0x42; resource++) {
             if (g_acMusicResourcePresent_0049cc30[resource] != 0) {
                 if (g_nMusicDriverMode_0049be8c == 1) {

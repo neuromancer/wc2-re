@@ -151,7 +151,7 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
     int restoreMouseCursor;
 
     restoreMouseCursor =
-        g_bInputCursorBackgroundCaptured_005c80c4 != 0 &&
+        g_bCurrentInputCursorBackgroundCapturedState_005c80c4 != 0 &&
         g_stScrViewInfo_005d21a0.pixels == pixels;
 
     if (g_bEgaDitherEnabled && pixels != 0) {

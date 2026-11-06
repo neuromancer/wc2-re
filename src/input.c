@@ -35,13 +35,13 @@ short UpdateInputDeviceTransitions(short raw)
         if (changed != 0) {
             g_asControlsButton1ChangedValues_005d3034[activeDevice]++;
             if ((buttons & 1) != 0) {
-                if (g_nInputClock_005c84a8 -
+                if (g_nInputTimerTicks_005c84a8 -
                     g_anControlsButton1PressTime_005d3040[activeDevice] <=
                         g_nInputDoubleClickInterval_00493050 *
-                        g_nInputTickScale_005c8d24)
+                        g_nEventClockScaleValue_005c8d24)
                     g_asControlsButton1DoubleClickTable_005d3030[activeDevice]++;
                 g_anControlsButton1PressTime_005d3040[activeDevice] =
-                    g_nInputClock_005c84a8;
+                    g_nInputTimerTicks_005c84a8;
             }
         }
         changed = buttons & 2;
@@ -49,13 +49,13 @@ short UpdateInputDeviceTransitions(short raw)
         if (changed != 0) {
             g_asInputButton2ChangedList_005d3038[activeDevice]++;
             if ((buttons & 2) != 0) {
-                if (g_nInputClock_005c84a8 -
+                if (g_nInputTimerTicks_005c84a8 -
                     g_anInputButton2PushTime_005d3028[activeDevice] <=
                         g_nInputDoubleClickInterval_00493050 *
-                        g_nInputTickScale_005c8d24)
+                        g_nEventClockScaleValue_005c8d24)
                     g_asInputButton2DoubleClickValues_005d3048[activeDevice]++;
                 g_anInputButton2PushTime_005d3028[activeDevice] =
-                    g_nInputClock_005c84a8;
+                    g_nInputTimerTicks_005c84a8;
             }
         }
         g_asPreviousInputButtonsList_005d303c[activeDevice] = buttons;
@@ -102,11 +102,11 @@ void PollJoystickButtonEvents(void)
                     [g_nActiveInputDeviceWord_005d1726].buttons & 2) >> 1) + 1,
                 1, doubleClick);
         }
-        g_stPersonnelMouse_005c8d00.secondaryButton =
+        g_stPersonnelMouseData_005c8d00.secondaryButton =
             (unsigned char)g_aInputDeviceSamplesList_005d1780
                 [g_nActiveInputDeviceWord_005d1726].buttons;
-        g_stPersonnelMouse_005c8d00.primaryButton =
-            g_stPersonnelMouse_005c8d00.secondaryButton;
+        g_stPersonnelMouseData_005c8d00.primaryButton =
+            g_stPersonnelMouseData_005c8d00.secondaryButton;
         g_bInputPollingGuard_005d304c--;
     }
 }
@@ -120,19 +120,19 @@ void PollMenuInputDevices(void)
     changes = 0;
     if (g_nActiveInputDeviceWord_005d1726 == -1)
         return;
-    g_stPersonnelMouse_005c8d00.x = g_stQueuedMouse_005c83f0.x;
-    g_stPersonnelMouse_005c8d00.y = g_stQueuedMouse_005c83f0.y;
+    g_stPersonnelMouseData_005c8d00.x = g_stEventQueuePointerData_005c83f0.x;
+    g_stPersonnelMouseData_005c8d00.y = g_stEventQueuePointerData_005c83f0.y;
     if (g_bInputPollingGuard_005d304c == 0) {
         g_bInputPollingGuard_005d304c++;
         UpdateInputDeviceTransitions(0);
 
         if (g_asControlsButton1ChangedValues_005d3034
                 [g_nActiveInputDeviceWord_005d1726] != 0) {
-            g_stPersonnelMouse_005c8d00.x +=
+            g_stPersonnelMouseData_005c8d00.x +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].x *
                 g_nMenuPointerSpeed_00493054;
-            g_stPersonnelMouse_005c8d00.y +=
+            g_stPersonnelMouseData_005c8d00.y +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].y *
                 g_nMenuPointerSpeed_00493054;
@@ -148,11 +148,11 @@ void PollMenuInputDevices(void)
         }
         if (g_asInputButton2ChangedList_005d3038
                 [g_nActiveInputDeviceWord_005d1726] != 0) {
-            g_stPersonnelMouse_005c8d00.x +=
+            g_stPersonnelMouseData_005c8d00.x +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].x *
                 g_nMenuPointerSpeed_00493054;
-            g_stPersonnelMouse_005c8d00.y +=
+            g_stPersonnelMouseData_005c8d00.y +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].y *
                 g_nMenuPointerSpeed_00493054;
@@ -167,11 +167,11 @@ void PollMenuInputDevices(void)
             changes++;
         }
         if (changes == 0) {
-            g_stPersonnelMouse_005c8d00.x +=
+            g_stPersonnelMouseData_005c8d00.x +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].x *
                 g_nMenuPointerSpeed_00493054;
-            g_stPersonnelMouse_005c8d00.y +=
+            g_stPersonnelMouseData_005c8d00.y +=
                 g_aInputDeviceSamplesList_005d1780
                     [g_nActiveInputDeviceWord_005d1726].y *
                 g_nMenuPointerSpeed_00493054;
@@ -182,50 +182,50 @@ void PollMenuInputDevices(void)
                     [g_nActiveInputDeviceWord_005d1726].x);
             if (changes != 0) {
                 FlushInputEvents();
-                g_stPersonnelMouse_005c8d00.x =
-                    g_stPersonnelMouse_005c8d00.x > 0
-                        ? g_stPersonnelMouse_005c8d00.x : 0;
-                g_stPersonnelMouse_005c8d00.x =
-                    g_stPersonnelMouse_005c8d00.x < 319
-                        ? g_stPersonnelMouse_005c8d00.x : 319;
-                g_stPersonnelMouse_005c8d00.y =
-                    g_stPersonnelMouse_005c8d00.y > 0
-                        ? g_stPersonnelMouse_005c8d00.y : 0;
-                g_stPersonnelMouse_005c8d00.y =
-                    g_stPersonnelMouse_005c8d00.y < 199
-                        ? g_stPersonnelMouse_005c8d00.y : 199;
-                SetMousePosition(g_stPersonnelMouse_005c8d00.x,
-                                 g_stPersonnelMouse_005c8d00.y);
+                g_stPersonnelMouseData_005c8d00.x =
+                    g_stPersonnelMouseData_005c8d00.x > 0
+                        ? g_stPersonnelMouseData_005c8d00.x : 0;
+                g_stPersonnelMouseData_005c8d00.x =
+                    g_stPersonnelMouseData_005c8d00.x < 319
+                        ? g_stPersonnelMouseData_005c8d00.x : 319;
+                g_stPersonnelMouseData_005c8d00.y =
+                    g_stPersonnelMouseData_005c8d00.y > 0
+                        ? g_stPersonnelMouseData_005c8d00.y : 0;
+                g_stPersonnelMouseData_005c8d00.y =
+                    g_stPersonnelMouseData_005c8d00.y < 199
+                        ? g_stPersonnelMouseData_005c8d00.y : 199;
+                SetMousePosition(g_stPersonnelMouseData_005c8d00.x,
+                                 g_stPersonnelMouseData_005c8d00.y);
             }
         }
 
-        g_stPersonnelMouse_005c8d00.secondaryButton =
+        g_stPersonnelMouseData_005c8d00.secondaryButton =
             (unsigned char)g_aInputDeviceSamplesList_005d1780
                 [g_nActiveInputDeviceWord_005d1726].buttons;
-        g_stPersonnelMouse_005c8d00.primaryButton =
-            g_stPersonnelMouse_005c8d00.secondaryButton;
-        g_stPersonnelMouse_005c8d00.x =
-            g_stPersonnelMouse_005c8d00.x > 0
-                ? g_stPersonnelMouse_005c8d00.x : 0;
-        g_stPersonnelMouse_005c8d00.x =
-            g_stPersonnelMouse_005c8d00.x < 319
-                ? g_stPersonnelMouse_005c8d00.x : 319;
-        g_stPersonnelMouse_005c8d00.y =
-            g_stPersonnelMouse_005c8d00.y > 0
-                ? g_stPersonnelMouse_005c8d00.y : 0;
-        g_stPersonnelMouse_005c8d00.y =
-            g_stPersonnelMouse_005c8d00.y < 199
-                ? g_stPersonnelMouse_005c8d00.y : 199;
+        g_stPersonnelMouseData_005c8d00.primaryButton =
+            g_stPersonnelMouseData_005c8d00.secondaryButton;
+        g_stPersonnelMouseData_005c8d00.x =
+            g_stPersonnelMouseData_005c8d00.x > 0
+                ? g_stPersonnelMouseData_005c8d00.x : 0;
+        g_stPersonnelMouseData_005c8d00.x =
+            g_stPersonnelMouseData_005c8d00.x < 319
+                ? g_stPersonnelMouseData_005c8d00.x : 319;
+        g_stPersonnelMouseData_005c8d00.y =
+            g_stPersonnelMouseData_005c8d00.y > 0
+                ? g_stPersonnelMouseData_005c8d00.y : 0;
+        g_stPersonnelMouseData_005c8d00.y =
+            g_stPersonnelMouseData_005c8d00.y < 199
+                ? g_stPersonnelMouseData_005c8d00.y : 199;
         if (changes != 0) {
             if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
                 DisableMouseCursorDrawing();
-            g_stQueuedMouse_005c83f0.x = g_stPersonnelMouse_005c8d00.x;
-            g_stQueuedMouse_005c83f0.y = g_stPersonnelMouse_005c8d00.y;
-            g_stQueuedMouse_005c83f0.primaryButton =
-                g_stPersonnelMouse_005c8d00.primaryButton;
-            g_stQueuedMouse_005c83f0.secondaryButton =
-                g_stPersonnelMouse_005c8d00.secondaryButton;
-            g_stQueuedMouse_005c83f0.flags = g_stPersonnelMouse_005c8d00.flags;
+            g_stEventQueuePointerData_005c83f0.x = g_stPersonnelMouseData_005c8d00.x;
+            g_stEventQueuePointerData_005c83f0.y = g_stPersonnelMouseData_005c8d00.y;
+            g_stEventQueuePointerData_005c83f0.primaryButton =
+                g_stPersonnelMouseData_005c8d00.primaryButton;
+            g_stEventQueuePointerData_005c83f0.secondaryButton =
+                g_stPersonnelMouseData_005c8d00.secondaryButton;
+            g_stEventQueuePointerData_005c83f0.flags = g_stPersonnelMouseData_005c8d00.flags;
             if (g_bSceneDisplayUpdateActive_00499bb8 == 0)
                 EnableMouseCursorDrawing();
         }

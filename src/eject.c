@@ -10,13 +10,13 @@ void ShowPlayerEjectionSequence(void)
 {
     InputPumpContext *savedInputContext;
 
-    savedInputContext = g_stPersonnelCursor_005c8470.context;
+    savedInputContext = g_stPersonnelMousePointerState_005c8470.context;
     ejection_sequence((short)(g_stCurrentPilotProfile_00493408.playerShipType + 0x19), 0);
     if (savedInputContext != 0)
         SetInputViewport(savedInputContext->viewport);
     ConfigureInputPump(1, 0);
-    g_nUiInputMode_005c8d3c = 1;
-    g_nInputRepeatDelay_005c80d6 = 0x14;
+    g_nInterfaceEventMode_005c8d3c = 1;
+    g_nEventRepeatDelayState_005c80d6 = 0x14;
 }
 
 /* Function start: 0x438080 */

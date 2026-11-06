@@ -414,10 +414,10 @@ int main(int argumentCount, char **arguments)
         InitGameClockRandomEpoch();
         CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
         g_dwGameZeroTime_005d12b4 = (unsigned int)time(0);
-        g_pfnInputPump_005c840c = 0;
+        g_pfnCurrentInputPump_005c840c = 0;
         SDL_ShowCursor(SDL_DISABLE);
         /* The same sequence WinMain runs once the window exists. */
-        g_nInputClock_005c84a8 = 0;
+        g_nInputTimerTicks_005c84a8 = 0;
         AllocateApplicationScratchBuffer();
         g_bApplicationControllerActive_0049c25c = 1;
         /* RunGameApplication receives the number of arguments after argv[0].

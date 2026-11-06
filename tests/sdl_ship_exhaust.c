@@ -55,7 +55,7 @@ int main(void)
     g_acShipExhaustHeat_00495660[ship] = 1;
     g_aeSpecialManeuver_00495600[ship] = SPECIAL_MANEUVER_NONE;
     g_nScreenWidth_0049d4d8 = 320;
-    g_nViewCenterX_005c80d8 = 160;
+    g_nStoredScreenViewCentreX_005c80d8 = 160;
     g_nViewCenterY_005c80da = 100;
     for (test = 0; test < sizeof(cases) / sizeof(cases[0]); test++) {
         for (object = 0; object < SPACE_OBJECT_COUNT; object++)
@@ -108,7 +108,7 @@ int main(void)
         expectedY = cases[test].expectedFrame == 0 ? 12 : 100;
         SdlGetThrusterScreenPosition(exhaust, &enhancedX, &enhancedY);
         if (g_asObjectScreenX_00493598[exhaust] +
-                g_nViewCenterX_005c80d8 != expectedX ||
+                g_nStoredScreenViewCentreX_005c80d8 != expectedX ||
             g_asObjectScreenY_00493628[exhaust] +
                 g_nViewCenterY_005c80da != expectedY ||
             enhancedX != expectedX || enhancedY != expectedY ||
@@ -134,7 +134,7 @@ int main(void)
         expectedAngle = cases[test].expectedFrame == 0 ? 0 : 90;
         SdlGetThrusterScreenPosition(exhaust, &enhancedX, &enhancedY);
         if (g_asObjectScreenX_00493598[exhaust] +
-                g_nViewCenterX_005c80d8 != expectedX ||
+                g_nStoredScreenViewCentreX_005c80d8 != expectedX ||
             g_asObjectScreenY_00493628[exhaust] +
                 g_nViewCenterY_005c80da != expectedY ||
             g_asObjectScreenAngle_004936b8[exhaust] != expectedAngle ||

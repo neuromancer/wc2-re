@@ -144,7 +144,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
                  strlen(g_szFrameFrequencyString_005b3950));
     }
 
-    if (g_stQueuedMouse_005c83f0.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
+    if (g_stEventQueuePointerData_005c83f0.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
         while (timeGetTime() < g_dwNextFrameDeadline_0049cea4) {
             Sleep(0);
             RefreshMouseCursorDisplay();
@@ -672,9 +672,9 @@ void DIBslamReal(void)
          * input to something that does end up on the presented screen.
          * Stamp the arrow only when input isn't targeting the flight
          * buffer specifically. */
-        if (g_stQueuedMouse_005c83f0.shape != 0 &&
-            g_stQueuedMouse_005c83f0.viewport != 0 &&
-            g_stQueuedMouse_005c83f0.viewport != &g_stViewScratchInfo_005d2b00 &&
+        if (g_stEventQueuePointerData_005c83f0.shape != 0 &&
+            g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+            g_stEventQueuePointerData_005c83f0.viewport != &g_stViewScratchInfo_005d2b00 &&
             g_stScrViewInfo_005d21a0.pixels == g_pDisplayPixelBuffer_005b3978) {
             CaptureMouseCursorBackground();
             DrawMouseCursor();
@@ -750,8 +750,8 @@ void DIBslamReal(void)
 #endif
 
 #ifdef SDL_PORT
-        if (g_stQueuedMouse_005c83f0.viewport != 0 &&
-            g_stQueuedMouse_005c83f0.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
+        if (g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+            g_stEventQueuePointerData_005c83f0.viewport->pixels == g_pDisplayPixelBuffer_005b3978) {
             RestoreMouseCursorBackground();
         }
 #else

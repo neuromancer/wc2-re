@@ -84,7 +84,7 @@ short HandleFleetOverviewInput(void)
                     (short)((g_stViewScratchInfo_005d2b00.top +
                              g_stViewScratchInfo_005d2b00.bottom) / 2));
                 g_nCockpitControlState_0049d7ac = 1;
-                g_stPersonnelCursor_005c8470.frame = 2;
+                g_stPersonnelMousePointerState_005c8470.frame = 2;
             }
             scrollX = (short)(
                 state.x -
@@ -94,8 +94,8 @@ short HandleFleetOverviewInput(void)
                 state.y -
                 (g_stViewScratchInfo_005d2b00.bottom -
                  g_stViewScratchInfo_005d2b00.top) / 2);
-            g_stPersonnelCursor_005c8470.x = state.x;
-            g_stPersonnelCursor_005c8470.y = state.y;
+            g_stPersonnelMousePointerState_005c8470.x = state.x;
+            g_stPersonnelMousePointerState_005c8470.y = state.y;
             absX = (short)abs(scrollX);
             yAbs = (short)abs(scrollY);
             deadZone = 0;
@@ -172,9 +172,9 @@ short HandleFleetOverviewInput(void)
                 g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
                 action == 0;
             pauseModifiers =
-                (short)((unsigned short)g_wInputDeviceButtonState_005c8432 & 0x1800);
+                (short)((unsigned short)g_wInputDeviceButtonStatus_005c8432 & 0x1800);
             otherKeys =
-                (short)((unsigned short)g_wInputDeviceButtonState_005c8432 & 0x600);
+                (short)((unsigned short)g_wInputDeviceButtonStatus_005c8432 & 0x600);
             switch ((signed char)g_cCurrentKey_00493128) {
             case 0x1c:
             case 0x39:
@@ -241,7 +241,7 @@ short HandleFleetOverviewInput(void)
     }
     if (g_nAimCameraMode_005c8d50 == 0 &&
         (g_cCurrentKey_00493128 & 0x80) != 0 &&
-        (g_wPendingButtonMask_005c80d4 & 1) != 0)
+        (g_wQueuedButtonsState_005c80d4 & 1) != 0)
         g_cCurrentKey_00493128 = 0x39;
     if (g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
         g_cCurrentKey_00493128 == 0x39) {
@@ -758,7 +758,7 @@ void ToggleTargetCameraTracking(void)
     } else if (g_acShipTarget_00495f20[0] != -1) {
         g_nTargetCameraObject_0049d338 =
             (short)g_acShipTarget_00495f20[0];
-        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+        if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
             g_aObjectTypeData_00496d30[
                 g_nObjectType62Index_00492d64].shapeSet != 0 &&
             g_aObjectTypeData_00496d30[

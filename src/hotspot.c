@@ -223,9 +223,9 @@ short PollSceneHotspotInput(void *scenePacket, short offsetX,
         g_pszPersonnelFooter_00492658 = 0;
     }
     if (selection != 0) {
-        SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape, 1);
+        SetMouseCursorShape(g_pEventManager_005c8464->cursorShape, 1);
     } else if (g_bPersonnelMenuDrawing_0049a6c0 != 0) {
-        SetMouseCursorShape(g_pInputManagerState_005c8464->cursorShape, 0);
+        SetMouseCursorShape(g_pEventManager_005c8464->cursorShape, 0);
     }
     g_bSceneBackdropClicked_005c9018 = 0;
     if (inputEvent->type != 1) {

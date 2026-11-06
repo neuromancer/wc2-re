@@ -475,7 +475,7 @@ unsigned int new_view(int view, short obj)
                 (short)(1 - g_bAlternateChaseView_00492fac);
         goto finished;
     }
-    if (view <= 3 && g_cScreenViewMode_005c82a6 == view) {
+    if (view <= 3 && g_cStoredViewDisplayModeValue_005c82a6 == view) {
         if (g_nCurrentView_00492fa8 == -1)
             g_nCurrentView_00492fa8 = view;
         goto finished;

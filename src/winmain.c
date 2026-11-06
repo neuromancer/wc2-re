@@ -189,7 +189,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     CreateDebugOverlayConsole(instance, g_hMainWindow_005d10e0, 60, 20);
     g_dwGameZeroTime_005d12b4 = (unsigned int)time(0);
     ShowCursor(FALSE);
-    g_pfnInputPump_005c840c = 0;
+    g_pfnCurrentInputPump_005c840c = 0;
     clip.left = 0;
     clip.top = 0;
     clip.right = 320;
@@ -197,7 +197,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous,
     ClipCursor(&clip);
 
     _onexit((_onexit_t)AbortToDesktop);
-    g_nInputClock_005c84a8 = 0;
+    g_nInputTimerTicks_005c84a8 = 0;
     AllocateApplicationScratchBuffer();
     g_bApplicationControllerActive_0049c25c = 1;
     /* argc is zero, so the argument vector is never read. */
@@ -380,16 +380,16 @@ unsigned int PumpWindowMessages(int skipMessages)
 #endif
 
     done = 0;
-    g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_lGameClockStartData_005d12b8;
-    g_nInputClock_005c84a8 *= 60;
-    g_nInputClock_005c84a8 /= 1000;
+    g_nInputTimerTicks_005c84a8 = GetTickCount();
+    g_nInputTimerTicks_005c84a8 -= g_lGameClockStartData_005d12b8;
+    g_nInputTimerTicks_005c84a8 *= 60;
+    g_nInputTimerTicks_005c84a8 /= 1000;
     if (skipMessages == 0) {
         if (g_bWindowMessagePumpActive_0049c2e4 != 0)
             return 1;
         g_bWindowMessagePumpActive_0049c2e4 = 1;
-        if (g_pfnInputPump_005c840c != 0)
-            g_pfnInputPump_005c840c();
+        if (g_pfnCurrentInputPump_005c840c != 0)
+            g_pfnCurrentInputPump_005c840c();
         KeyboardMousePump();
 #ifdef SDL_PORT
         SdlPumpEvents();
@@ -424,10 +424,10 @@ unsigned int PumpWindowMessages(int skipMessages)
 #endif
         g_bWindowMessagePumpActive_0049c2e4 = 0;
     }
-    g_nInputClock_005c84a8 = GetTickCount();
-    g_nInputClock_005c84a8 -= g_lGameClockStartData_005d12b8;
-    g_nInputClock_005c84a8 *= 60;
-    g_nInputClock_005c84a8 /= 1000;
+    g_nInputTimerTicks_005c84a8 = GetTickCount();
+    g_nInputTimerTicks_005c84a8 -= g_lGameClockStartData_005d12b8;
+    g_nInputTimerTicks_005c84a8 *= 60;
+    g_nInputTimerTicks_005c84a8 /= 1000;
     return g_bMainWindowRunning_005d12ac;
 }
 
@@ -575,13 +575,13 @@ LRESULT CALLBACK MainWindowProc(HWND window, UINT message,
         mouseInput = 1;
         break;
     case WM_MOUSEMOVE:
-        if (g_bSuppressNextMouseMove_005c843c == 0) {
+        if (g_bIgnoreNextCursorMoveFlag_005c843c == 0) {
             QueueInputEvent(3, pointerPositionX,
                             cursorY, 0,
                             primaryButtonDown, secondaryDown, 0, 0, 0);
             mouseInput = 1;
         } else {
-            g_bSuppressNextMouseMove_005c843c = 0;
+            g_bIgnoreNextCursorMoveFlag_005c843c = 0;
         }
         break;
     case WM_KEYDOWN:

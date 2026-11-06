@@ -131,7 +131,7 @@ short MeasureCinematicFontLineHeight(void)
 /* Function start: 0x433AB0 */
 void InitializeCinematicTextRenderer(void)
 {
-    g_pfnDrawCinematicFontCharacter_005c8d30 =
+    g_pfnRenderSceneFontCharacterHandler_005c8d30 =
         DrawCinematicFontCharacter;
-    g_pfnDrawCinematicTextString_005c8cf4 = DrawWrappedCinematicText;
+    g_pfnRenderSceneTextStringHandler_005c8cf4 = DrawWrappedCinematicText;
 }

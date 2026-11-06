@@ -340,7 +340,7 @@ short WaitForInputKey(void)
 
     key = 0;
     done = 0;
-    previousPump = g_pfnInputPump_005c840c;
+    previousPump = g_pfnCurrentInputPump_005c840c;
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ServiceInputDevices(15);
     press = FindQueuedInputEvent(1);

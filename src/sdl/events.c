@@ -380,7 +380,7 @@ static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 #else
     modifierPressed = (event->keysym.mod & KMOD_ALT) != 0 ||
         (SDL_GetModState() & KMOD_ALT) != 0 ||
-        g_abInputKeyState_005c80f0[0x38] != 0;
+        g_abKeyboardEventStates_005c80f0[0x38] != 0;
 #endif
     return enterPressed && modifierPressed;
 }
@@ -512,7 +512,7 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         g_nArcadeState_0049d75c == 0 &&
         g_nCannedSceneMode_0049021c == 0 &&
         g_bJumpSequenceActive_004962f0 == 0 &&
-        g_pfnInputPump_005c840c == get_player_input)
+        g_pfnCurrentInputPump_005c840c == get_player_input)
         SdlLatchAltRadioHotkey(virtualKey);
     if (event->keysym.scancode == SDL_SCANCODE_F1)
         g_bF1KeyDown_0049c240 = pressed && event->repeat == 0;
@@ -606,8 +606,8 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
 
     if (event->type == SDL_MOUSEMOTION) {
-        if (g_bSuppressNextMouseMove_005c843c != 0) {
-            g_bSuppressNextMouseMove_005c843c = 0;
+        if (g_bIgnoreNextCursorMoveFlag_005c843c != 0) {
+            g_bIgnoreNextCursorMoveFlag_005c843c = 0;
             return;
         }
         SdlQueueMouseMotion((unsigned short)mouseX,

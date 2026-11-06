@@ -546,8 +546,8 @@ void RecordStartTimeHook(void)
 /* Function start: 0x46259D */
 short InitializeInputManagerMemory(short eventQueueSize)
 {
-    g_bInputManagerInitialized_005c80ca = 1;
-    g_pInputManagerState_005c8464 =
+    g_bEventManagerInitializationState_005c80ca = 1;
+    g_pEventManager_005c8464 =
         (InputManagerState *)AllocateTaggedMemory(0x21, 0x40);
     return 1;
 }
@@ -555,8 +555,8 @@ short InitializeInputManagerMemory(short eventQueueSize)
 /* Function start: 0x4625CB */
 void ShutdownEventManager(void)
 {
-    g_bInputManagerInitialized_005c80ca = 0;
-    ReleasePacketHandle(g_pInputManagerState_005c8464);
+    g_bEventManagerInitializationState_005c80ca = 0;
+    ReleasePacketHandle(g_pEventManager_005c8464);
     return;
 }
 
@@ -614,15 +614,15 @@ void TranslatePolledInputEvent(unsigned short type, unsigned int value)
     case 3:
         mouse = &g_stHostMouseTextBlock_005d10d0;
         QueueInputEvent(type,
-                        g_stQueuedMouse_005c83f0.x,
-                        g_stQueuedMouse_005c83f0.y,
+                        g_stEventQueuePointerData_005c83f0.x,
+                        g_stEventQueuePointerData_005c83f0.y,
                         0, 0, 0, 0, 0, 0);
         break;
     case 1:
         mouse = &g_stHostMouseTextBlock_005d10d0;
         QueueInputEvent(type,
-                        g_stQueuedMouse_005c83f0.x,
-                        g_stQueuedMouse_005c83f0.y,
+                        g_stEventQueuePointerData_005c83f0.x,
+                        g_stEventQueuePointerData_005c83f0.y,
                         0,
                         mouse->primaryButton,
                         mouse->secondaryButton,
@@ -642,8 +642,8 @@ void QueueInputEventAtCursor(unsigned int type, short primaryButton,
     /* Preserve the original 16-bit event ID. */
     unsigned int eventType = type & 0xffff;
 
-    QueueInputEvent(eventType, g_stQueuedMouse_005c83f0.x,
-                    g_stQueuedMouse_005c83f0.y, 0,
+    QueueInputEvent(eventType, g_stEventQueuePointerData_005c83f0.x,
+                    g_stEventQueuePointerData_005c83f0.y, 0,
                     primaryButton, secondaryButton, 0, 0, 0);
 }
 
@@ -654,18 +654,18 @@ InputEvent *AllocateInputEvent(void)
 
     if (g_nInputEventPoolInitialized_0049d4bc != 0) {
         for (index = 0; index < 0x100; index++) {
-            if (g_anInputEventSlotUsed_005c87e0[index] == 0) {
-                g_anInputEventSlotUsed_005c87e0[index] = 1;
+            if (g_anCurrentInputEventEntryAllocation_005c87e0[index] == 0) {
+                g_anCurrentInputEventEntryAllocation_005c87e0[index] = 1;
                 return &g_aInputEventArray_005c5890[index];
             }
         }
     } else {
         memset(g_aInputEventArray_005c5890, 0,
                sizeof(g_aInputEventArray_005c5890));
-        memset(g_anInputEventSlotUsed_005c87e0, 0,
-               sizeof(g_anInputEventSlotUsed_005c87e0));
+        memset(g_anCurrentInputEventEntryAllocation_005c87e0, 0,
+               sizeof(g_anCurrentInputEventEntryAllocation_005c87e0));
         g_nInputEventPoolInitialized_0049d4bc = 1;
-        g_anInputEventSlotUsed_005c87e0[0] = 1;
+        g_anCurrentInputEventEntryAllocation_005c87e0[0] = 1;
         return &g_aInputEventArray_005c5890[0];
     }
     return 0;
@@ -679,7 +679,7 @@ void ReleaseInputEvent(InputEvent *event)
 
     for (slot = 0; slot < 0x100; slot++) {
         if (&g_aInputEventArray_005c5890[slot] == event)
-            g_anInputEventSlotUsed_005c87e0[slot] = 0;
+            g_anCurrentInputEventEntryAllocation_005c87e0[slot] = 0;
     }
     return;
 }
@@ -737,12 +737,12 @@ void QueueInputEvent(int type, int x, int y, int value,
     g_pInputEventTail_0049d4b8->field_18 = field18;
     g_pInputEventTail_0049d4b8->status = 1;
     if (g_pInputEventTail_0049d4b8->type == 3) {
-        g_stQueuedMouse_005c83f0.x = g_pInputEventTail_0049d4b8->x;
-        g_stQueuedMouse_005c83f0.y = g_pInputEventTail_0049d4b8->y;
+        g_stEventQueuePointerData_005c83f0.x = g_pInputEventTail_0049d4b8->x;
+        g_stEventQueuePointerData_005c83f0.y = g_pInputEventTail_0049d4b8->y;
     }
     if (g_pInputEventTail_0049d4b8->type == 2) {
         g_nInputDoubleClickDeadline_0049d4c0 =
-            g_nInputClock_005c84a8 + 25;
+            g_nInputTimerTicks_005c84a8 + 25;
         g_nPreviousPrimaryButton_0049d4c4 = primaryButton;
         g_nPreviousSecondaryButton_0049d4c8 = secondaryButton;
     }
@@ -754,7 +754,7 @@ void QueueInputEvent(int type, int x, int y, int value,
             (g_pInputEventTail_0049d4b8->secondaryButton != 0 &&
              g_nPreviousSecondaryButton_0049d4c8 != 0)) {
             if (g_nInputDoubleClickDeadline_0049d4c0 >
-                g_nInputClock_005c84a8) {
+                g_nInputTimerTicks_005c84a8) {
                 g_nInputDoubleClickDeadline_0049d4c0 = 0;
                 g_pInputEventTail_0049d4b8->status = 2;
                 g_nPreviousPrimaryButton_0049d4c4 = 0;
@@ -840,26 +840,26 @@ int GetNextInputEvent(InputEventState *state)
     int type;
 
     clearQueue = 0;
-    if (g_nNextInputQueueFlushTick_0049d4cc < g_nInputClock_005c84a8)
+    if (g_nNextInputQueueFlushTick_0049d4cc < g_nInputTimerTicks_005c84a8)
         FlushInputEvents();
-    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputTimerTicks_005c84a8 + 20;
     type = 0;
     if (g_pInputEventHead_0049d4b4 != 0) {
         posX = (int)g_pInputEventHead_0049d4b4->x;
         posY = (int)g_pInputEventHead_0049d4b4->y;
-        if (g_stQueuedMouse_005c83f0.viewport != 0) {
-            if ((int)g_stQueuedMouse_005c83f0.viewport->left > posX)
+        if (g_stEventQueuePointerData_005c83f0.viewport != 0) {
+            if ((int)g_stEventQueuePointerData_005c83f0.viewport->left > posX)
                 g_pInputEventHead_0049d4b4->x =
-                    g_stQueuedMouse_005c83f0.viewport->left;
-            else if ((int)g_stQueuedMouse_005c83f0.viewport->right < posX)
+                    g_stEventQueuePointerData_005c83f0.viewport->left;
+            else if ((int)g_stEventQueuePointerData_005c83f0.viewport->right < posX)
                 g_pInputEventHead_0049d4b4->x =
-                    g_stQueuedMouse_005c83f0.viewport->right;
-            if ((int)g_stQueuedMouse_005c83f0.viewport->top > posY)
+                    g_stEventQueuePointerData_005c83f0.viewport->right;
+            if ((int)g_stEventQueuePointerData_005c83f0.viewport->top > posY)
                 g_pInputEventHead_0049d4b4->y =
-                    g_stQueuedMouse_005c83f0.viewport->top;
-            else if ((int)g_stQueuedMouse_005c83f0.viewport->bottom < posY)
+                    g_stEventQueuePointerData_005c83f0.viewport->top;
+            else if ((int)g_stEventQueuePointerData_005c83f0.viewport->bottom < posY)
                 g_pInputEventHead_0049d4b4->y =
-                    g_stQueuedMouse_005c83f0.viewport->bottom;
+                    g_stEventQueuePointerData_005c83f0.viewport->bottom;
         }
 
         state->status = (short)g_pInputEventHead_0049d4b4->status;
@@ -867,9 +867,9 @@ int GetNextInputEvent(InputEventState *state)
             (short)g_pInputEventHead_0049d4b4->modifiers;
         switch (g_pInputEventHead_0049d4b4->type) {
         case 2:
-            g_stQueuedMouse_005c83f0.x = g_pInputEventHead_0049d4b4->x;
-            g_stQueuedMouse_005c83f0.y = g_pInputEventHead_0049d4b4->y;
-            g_stQueuedMouse_005c83f0.primaryButton = 0;
+            g_stEventQueuePointerData_005c83f0.x = g_pInputEventHead_0049d4b4->x;
+            g_stEventQueuePointerData_005c83f0.y = g_pInputEventHead_0049d4b4->y;
+            g_stEventQueuePointerData_005c83f0.primaryButton = 0;
             state->x = g_pInputEventHead_0049d4b4->x;
             state->y = g_pInputEventHead_0049d4b4->y;
             *(unsigned int *)&state->value =
@@ -880,11 +880,11 @@ int GetNextInputEvent(InputEventState *state)
             type = 2;
             break;
         case 1:
-            g_stQueuedMouse_005c83f0.x = g_pInputEventHead_0049d4b4->x;
-            g_stQueuedMouse_005c83f0.y = g_pInputEventHead_0049d4b4->y;
-            g_stQueuedMouse_005c83f0.primaryButton =
+            g_stEventQueuePointerData_005c83f0.x = g_pInputEventHead_0049d4b4->x;
+            g_stEventQueuePointerData_005c83f0.y = g_pInputEventHead_0049d4b4->y;
+            g_stEventQueuePointerData_005c83f0.primaryButton =
                 (unsigned char)g_pInputEventHead_0049d4b4->primaryButton;
-            g_stQueuedMouse_005c83f0.secondaryButton =
+            g_stEventQueuePointerData_005c83f0.secondaryButton =
                 (unsigned char)g_pInputEventHead_0049d4b4->secondaryButton;
             state->x = g_pInputEventHead_0049d4b4->x;
             state->y = g_pInputEventHead_0049d4b4->y;
@@ -902,8 +902,8 @@ int GetNextInputEvent(InputEventState *state)
                 (int)g_pInputEventHead_0049d4b4->value;
             state->value = (short)g_pInputEventHead_0049d4b4->field_18;
             state->status = (short)g_pInputEventHead_0049d4b4->field_14;
-            state->x = g_stQueuedMouse_005c83f0.x;
-            state->y = g_stQueuedMouse_005c83f0.y;
+            state->x = g_stEventQueuePointerData_005c83f0.x;
+            state->y = g_stEventQueuePointerData_005c83f0.y;
             type = 4;
             break;
         case 5:
@@ -912,8 +912,8 @@ int GetNextInputEvent(InputEventState *state)
                 (int)g_pInputEventHead_0049d4b4->value;
             state->value = (short)g_pInputEventHead_0049d4b4->field_18;
             state->status = (short)g_pInputEventHead_0049d4b4->field_14;
-            state->x = g_stQueuedMouse_005c83f0.x;
-            state->y = g_stQueuedMouse_005c83f0.y;
+            state->x = g_stEventQueuePointerData_005c83f0.x;
+            state->y = g_stEventQueuePointerData_005c83f0.y;
             type = 5;
             break;
         case 6:
@@ -928,8 +928,8 @@ int GetNextInputEvent(InputEventState *state)
             type = (int)g_pInputEventHead_0049d4b4->type;
             break;
         case 3:
-            g_stQueuedMouse_005c83f0.x = g_pInputEventHead_0049d4b4->x;
-            g_stQueuedMouse_005c83f0.y = g_pInputEventHead_0049d4b4->y;
+            g_stEventQueuePointerData_005c83f0.x = g_pInputEventHead_0049d4b4->x;
+            g_stEventQueuePointerData_005c83f0.y = g_pInputEventHead_0049d4b4->y;
             state->x = g_pInputEventHead_0049d4b4->x;
             state->y = g_pInputEventHead_0049d4b4->y;
             type = 3;
@@ -947,8 +947,8 @@ int GetNextInputEvent(InputEventState *state)
             FlushInputEvents();
         }
     } else {
-        state->x = g_stQueuedMouse_005c83f0.x;
-        state->y = g_stQueuedMouse_005c83f0.y;
+        state->x = g_stEventQueuePointerData_005c83f0.x;
+        state->y = g_stEventQueuePointerData_005c83f0.y;
     }
     return type;
 }
@@ -968,7 +968,7 @@ short PeekInputEvent(InputEventState *state, short type)
     InputEvent *event;
 
     flags = 0;
-    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputTimerTicks_005c84a8 + 20;
     for (event = g_pInputEventHead_0049d4b4;
          event != 0 && event->type != type;
          event = event->next)
@@ -1007,15 +1007,15 @@ InputEventState *FindQueuedInputEvent(int type)
     InputEvent *event;
 
     modifiers = 0;
-    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputTimerTicks_005c84a8 + 20;
     for (event = g_pInputEventHead_0049d4b4;
          event != 0 && event->type != type;
          event = event->next)
         ;
     if (event != 0) {
         if (event->type == 3) {
-            g_stQueuedMouse_005c83f0.x = g_pInputEventHead_0049d4b4->x;
-            g_stQueuedMouse_005c83f0.y = g_pInputEventHead_0049d4b4->y;
+            g_stEventQueuePointerData_005c83f0.x = g_pInputEventHead_0049d4b4->x;
+            g_stEventQueuePointerData_005c83f0.y = g_pInputEventHead_0049d4b4->y;
         }
         g_stFoundInputEvent_005c3af8.type = (int)event->type;
         *(unsigned int *)&g_stFoundInputEvent_005c3af8.value =
@@ -1048,7 +1048,7 @@ InputEventState *FindQueuedInputEvent(int type)
 /* Function start: 0x46354F */
 void FlushInputEvents(void)
 {
-    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputTimerTicks_005c84a8 + 20;
     ReleaseInputEventQueue();
     return;
 }
@@ -1098,34 +1098,34 @@ void CheckCursor(void)
 void CaptureMouseCursorBackground(void)
 {
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-        g_stQueuedMouse_005c83f0.viewport != 0 &&
-        g_stQueuedMouse_005c83f0.shape != 0) {
+        g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+        g_stEventQueuePointerData_005c83f0.shape != 0) {
         CaptureSpriteBackground(&g_stScrViewInfo_005d21a0,
                                 g_abInputCursorBehind_005c3b10,
-                                g_stQueuedMouse_005c83f0.x,
-                                g_stQueuedMouse_005c83f0.y,
-                                g_stQueuedMouse_005c83f0.shape,
-                                g_stQueuedMouse_005c83f0.frame);
-        g_nCapturedInputCursorX_005c817c = (int)g_stQueuedMouse_005c83f0.x;
-        g_nCapturedInputCursorY_005c8178 = (int)g_stQueuedMouse_005c83f0.y;
+                                g_stEventQueuePointerData_005c83f0.x,
+                                g_stEventQueuePointerData_005c83f0.y,
+                                g_stEventQueuePointerData_005c83f0.shape,
+                                g_stEventQueuePointerData_005c83f0.frame);
+        g_nCapturedInputCursorX_005c817c = (int)g_stEventQueuePointerData_005c83f0.x;
+        g_nSavedPointerY_005c8178 = (int)g_stEventQueuePointerData_005c83f0.y;
         if (g_nCapturedInputCursorX_005c817c - 16 <
-            g_nInputCursorDirtyLeft_005c85c0)
-            g_nInputCursorDirtyLeft_005c85c0 =
+            g_nPointerDirtyLeft_005c85c0)
+            g_nPointerDirtyLeft_005c85c0 =
                 g_nCapturedInputCursorX_005c817c - 16;
-        if (g_nInputCursorDirtyRight_005c845c <
+        if (g_nCursorDirtyRightValue_005c845c <
             g_nCapturedInputCursorX_005c817c + 16)
-            g_nInputCursorDirtyRight_005c845c =
+            g_nCursorDirtyRightValue_005c845c =
                 g_nCapturedInputCursorX_005c817c + 16;
-        if (g_nCapturedInputCursorY_005c8178 - 16 <
+        if (g_nSavedPointerY_005c8178 - 16 <
             g_nInputCursorDirtyTop_005c85c4)
             g_nInputCursorDirtyTop_005c85c4 =
-                g_nCapturedInputCursorY_005c8178 - 16;
-        if (g_nInputCursorDirtyBottom_005c8460 <
-            g_nCapturedInputCursorY_005c8178 + 16)
-            g_nInputCursorDirtyBottom_005c8460 =
-                g_nCapturedInputCursorY_005c8178 + 16;
-        g_bInputCursorDirty_005c8450 = 1;
-        g_bInputCursorBackgroundCaptured_005c80c4 = 1;
+                g_nSavedPointerY_005c8178 - 16;
+        if (g_nPointerDirtyBottom_005c8460 <
+            g_nSavedPointerY_005c8178 + 16)
+            g_nPointerDirtyBottom_005c8460 =
+                g_nSavedPointerY_005c8178 + 16;
+        g_bPointerDirtyValue_005c8450 = 1;
+        g_bCurrentInputCursorBackgroundCapturedState_005c80c4 = 1;
     }
     return;
 }
@@ -1134,30 +1134,30 @@ void CaptureMouseCursorBackground(void)
 void DrawMouseCursor(void)
 {
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-        g_stQueuedMouse_005c83f0.viewport != 0 &&
-        g_stQueuedMouse_005c83f0.shape != 0) {
+        g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+        g_stEventQueuePointerData_005c83f0.shape != 0) {
         DrawSpriteDefault(&g_stScrViewInfo_005d21a0,
-                          g_stQueuedMouse_005c83f0.x,
-                          g_stQueuedMouse_005c83f0.y,
-                          g_stQueuedMouse_005c83f0.shape,
-                          g_stQueuedMouse_005c83f0.frame);
-        if ((int)g_stQueuedMouse_005c83f0.x - 16 <
-            g_nInputCursorDirtyLeft_005c85c0)
-            g_nInputCursorDirtyLeft_005c85c0 =
-                (int)g_stQueuedMouse_005c83f0.x - 16;
-        if (g_nInputCursorDirtyRight_005c845c <
-            (int)g_stQueuedMouse_005c83f0.x + 16)
-            g_nInputCursorDirtyRight_005c845c =
-                (int)g_stQueuedMouse_005c83f0.x + 16;
-        if ((int)g_stQueuedMouse_005c83f0.y - 16 <
+                          g_stEventQueuePointerData_005c83f0.x,
+                          g_stEventQueuePointerData_005c83f0.y,
+                          g_stEventQueuePointerData_005c83f0.shape,
+                          g_stEventQueuePointerData_005c83f0.frame);
+        if ((int)g_stEventQueuePointerData_005c83f0.x - 16 <
+            g_nPointerDirtyLeft_005c85c0)
+            g_nPointerDirtyLeft_005c85c0 =
+                (int)g_stEventQueuePointerData_005c83f0.x - 16;
+        if (g_nCursorDirtyRightValue_005c845c <
+            (int)g_stEventQueuePointerData_005c83f0.x + 16)
+            g_nCursorDirtyRightValue_005c845c =
+                (int)g_stEventQueuePointerData_005c83f0.x + 16;
+        if ((int)g_stEventQueuePointerData_005c83f0.y - 16 <
             g_nInputCursorDirtyTop_005c85c4)
             g_nInputCursorDirtyTop_005c85c4 =
-                (int)g_stQueuedMouse_005c83f0.y - 16;
-        if (g_nInputCursorDirtyBottom_005c8460 <
-            (int)g_stQueuedMouse_005c83f0.y + 16)
-            g_nInputCursorDirtyBottom_005c8460 =
-                (int)g_stQueuedMouse_005c83f0.y + 16;
-        g_bInputCursorDirty_005c8450 = 1;
+                (int)g_stEventQueuePointerData_005c83f0.y - 16;
+        if (g_nPointerDirtyBottom_005c8460 <
+            (int)g_stEventQueuePointerData_005c83f0.y + 16)
+            g_nPointerDirtyBottom_005c8460 =
+                (int)g_stEventQueuePointerData_005c83f0.y + 16;
+        g_bPointerDirtyValue_005c8450 = 1;
     }
     return;
 }
@@ -1166,32 +1166,32 @@ void DrawMouseCursor(void)
 void RestoreMouseCursorBackground(void)
 {
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-        g_stQueuedMouse_005c83f0.viewport != 0 &&
-        g_stQueuedMouse_005c83f0.shape != 0 &&
-        g_bInputCursorBackgroundCaptured_005c80c4 != 0) {
+        g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+        g_stEventQueuePointerData_005c83f0.shape != 0 &&
+        g_bCurrentInputCursorBackgroundCapturedState_005c80c4 != 0) {
         RestoreSpriteBackground(&g_stScrViewInfo_005d21a0,
                                 g_abInputCursorBehind_005c3b10,
                                 (short)g_nCapturedInputCursorX_005c817c,
-                                (short)g_nCapturedInputCursorY_005c8178,
-                                g_stQueuedMouse_005c83f0.shape,
-                                g_stQueuedMouse_005c83f0.frame);
+                                (short)g_nSavedPointerY_005c8178,
+                                g_stEventQueuePointerData_005c83f0.shape,
+                                g_stEventQueuePointerData_005c83f0.frame);
         if (g_nCapturedInputCursorX_005c817c - 16 <
-            g_nInputCursorDirtyLeft_005c85c0)
-            g_nInputCursorDirtyLeft_005c85c0 =
+            g_nPointerDirtyLeft_005c85c0)
+            g_nPointerDirtyLeft_005c85c0 =
                 g_nCapturedInputCursorX_005c817c - 16;
-        if (g_nInputCursorDirtyRight_005c845c <
+        if (g_nCursorDirtyRightValue_005c845c <
             g_nCapturedInputCursorX_005c817c + 16)
-            g_nInputCursorDirtyRight_005c845c =
+            g_nCursorDirtyRightValue_005c845c =
                 g_nCapturedInputCursorX_005c817c + 16;
-        if (g_nCapturedInputCursorY_005c8178 - 16 <
+        if (g_nSavedPointerY_005c8178 - 16 <
             g_nInputCursorDirtyTop_005c85c4)
             g_nInputCursorDirtyTop_005c85c4 =
-                g_nCapturedInputCursorY_005c8178 - 16;
-        if (g_nInputCursorDirtyBottom_005c8460 <
-            g_nCapturedInputCursorY_005c8178 + 16)
-            g_nInputCursorDirtyBottom_005c8460 =
-                g_nCapturedInputCursorY_005c8178 + 16;
-        g_bInputCursorBackgroundCaptured_005c80c4 = 0;
+                g_nSavedPointerY_005c8178 - 16;
+        if (g_nPointerDirtyBottom_005c8460 <
+            g_nSavedPointerY_005c8178 + 16)
+            g_nPointerDirtyBottom_005c8460 =
+                g_nSavedPointerY_005c8178 + 16;
+        g_bCurrentInputCursorBackgroundCapturedState_005c80c4 = 0;
     }
     return;
 }
@@ -1199,18 +1199,18 @@ void RestoreMouseCursorBackground(void)
 /* Function start: 0x4638F1 */
 void RefreshMouseCursorDisplay(void)
 {
-    g_nInputCursorDirtyLeft_005c85c0 = 319;
-    g_nInputCursorDirtyRight_005c845c = 0;
+    g_nPointerDirtyLeft_005c85c0 = 319;
+    g_nCursorDirtyRightValue_005c845c = 0;
     g_nInputCursorDirtyTop_005c85c4 = 199;
-    g_nInputCursorDirtyBottom_005c8460 = 0;
-    g_bInputCursorDirty_005c8450 = 0;
-    g_bInputCursorBackgroundCaptured_005c80c4 = 0;
+    g_nPointerDirtyBottom_005c8460 = 0;
+    g_bPointerDirtyValue_005c8450 = 0;
+    g_bCurrentInputCursorBackgroundCapturedState_005c80c4 = 0;
     CaptureMouseCursorBackground();
     DrawMouseCursor();
-    DIBupdate(g_nInputCursorDirtyLeft_005c85c0,
+    DIBupdate(g_nPointerDirtyLeft_005c85c0,
               g_nInputCursorDirtyTop_005c85c4,
-              g_nInputCursorDirtyRight_005c845c,
-              g_nInputCursorDirtyBottom_005c8460);
+              g_nCursorDirtyRightValue_005c845c,
+              g_nPointerDirtyBottom_005c8460);
     RestoreMouseCursorBackground();
     return;
 }
@@ -1231,16 +1231,16 @@ void ResumeMouseCursorHook(void)
     maxX = 0;
     minY = 199;
     maxY = 0;
-    g_stQueuedMouse_005c83f0.shapeChanged = 1;
+    g_stEventQueuePointerData_005c83f0.shapeChanged = 1;
     changed = 0;
-    if (g_stQueuedMouse_005c83f0.viewport != 0) {
+    if (g_stEventQueuePointerData_005c83f0.viewport != 0) {
         if (g_pDrawnInputCursorShape_0049d4d0 != 0) {
-            RestoreSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+            RestoreSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                     g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnCursorX_005c80ac,
                                     (short)g_nMouseRenderY_005c80a8,
                                     g_pDrawnInputCursorShape_0049d4d0,
-                                    g_stQueuedMouse_005c83f0.frame);
+                                    g_stEventQueuePointerData_005c83f0.frame);
             g_pDrawnInputCursorShape_0049d4d0 = 0;
             if (g_nDrawnCursorX_005c80ac - 16 < minX)
                 minX = g_nDrawnCursorX_005c80ac - 16;
@@ -1253,20 +1253,20 @@ void ResumeMouseCursorHook(void)
             changed = 1;
         }
         if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-            g_stQueuedMouse_005c83f0.shape != 0) {
-            CaptureSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+            g_stEventQueuePointerData_005c83f0.shape != 0) {
+            CaptureSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                     g_abInputCursorBehind_005c3b10,
-                                    g_stQueuedMouse_005c83f0.x,
-                                    g_stQueuedMouse_005c83f0.y,
-                                    g_stQueuedMouse_005c83f0.shape,
-                                    g_stQueuedMouse_005c83f0.frame);
-            DrawSpriteDefault(g_stQueuedMouse_005c83f0.viewport, g_stQueuedMouse_005c83f0.x,
-                              g_stQueuedMouse_005c83f0.y,
-                              g_stQueuedMouse_005c83f0.shape,
-                              g_stQueuedMouse_005c83f0.frame);
-            g_pDrawnInputCursorShape_0049d4d0 = g_stQueuedMouse_005c83f0.shape;
-            g_nDrawnCursorX_005c80ac = g_stQueuedMouse_005c83f0.x;
-            g_nMouseRenderY_005c80a8 = g_stQueuedMouse_005c83f0.y;
+                                    g_stEventQueuePointerData_005c83f0.x,
+                                    g_stEventQueuePointerData_005c83f0.y,
+                                    g_stEventQueuePointerData_005c83f0.shape,
+                                    g_stEventQueuePointerData_005c83f0.frame);
+            DrawSpriteDefault(g_stEventQueuePointerData_005c83f0.viewport, g_stEventQueuePointerData_005c83f0.x,
+                              g_stEventQueuePointerData_005c83f0.y,
+                              g_stEventQueuePointerData_005c83f0.shape,
+                              g_stEventQueuePointerData_005c83f0.frame);
+            g_pDrawnInputCursorShape_0049d4d0 = g_stEventQueuePointerData_005c83f0.shape;
+            g_nDrawnCursorX_005c80ac = g_stEventQueuePointerData_005c83f0.x;
+            g_nMouseRenderY_005c80a8 = g_stEventQueuePointerData_005c83f0.y;
             if (g_nDrawnCursorX_005c80ac - 16 < minX)
                 minX = g_nDrawnCursorX_005c80ac - 16;
             if (g_nDrawnCursorX_005c80ac + 16 > maxX)
@@ -1297,30 +1297,30 @@ void EnableMouseCursorDrawing(void)
     return;
     g_nMouseCursorDrawDepth_0049d4d4++;
     return;
-    if (g_stQueuedMouse_005c83f0.viewport != 0 && g_stQueuedMouse_005c83f0.shape != 0)
-        CaptureSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+    if (g_stEventQueuePointerData_005c83f0.viewport != 0 && g_stEventQueuePointerData_005c83f0.shape != 0)
+        CaptureSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                 g_abInputCursorBehind_005c3b10,
-                                g_stQueuedMouse_005c83f0.x,
-                                g_stQueuedMouse_005c83f0.y,
-                                g_stQueuedMouse_005c83f0.shape,
-                                g_stQueuedMouse_005c83f0.frame);
-    g_pDrawnInputCursorShape_0049d4d0 = g_stQueuedMouse_005c83f0.shape;
+                                g_stEventQueuePointerData_005c83f0.x,
+                                g_stEventQueuePointerData_005c83f0.y,
+                                g_stEventQueuePointerData_005c83f0.shape,
+                                g_stEventQueuePointerData_005c83f0.frame);
+    g_pDrawnInputCursorShape_0049d4d0 = g_stEventQueuePointerData_005c83f0.shape;
     return;
-    g_stQueuedMouse_005c83f0.shapeChanged = 1;
+    g_stEventQueuePointerData_005c83f0.shapeChanged = 1;
     minX = 319;
     maxX = 0;
     minY = 199;
     maxY = 0;
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
-        g_stQueuedMouse_005c83f0.viewport != 0 &&
-        g_stQueuedMouse_005c83f0.shape != 0) {
+        g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+        g_stEventQueuePointerData_005c83f0.shape != 0) {
         if (g_pDrawnInputCursorShape_0049d4d0 != 0) {
-            RestoreSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+            RestoreSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                     g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnCursorX_005c80ac,
                                     (short)g_nMouseRenderY_005c80a8,
-                                    g_stQueuedMouse_005c83f0.shape,
-                                    g_stQueuedMouse_005c83f0.frame);
+                                    g_stEventQueuePointerData_005c83f0.shape,
+                                    g_stEventQueuePointerData_005c83f0.frame);
             if (g_nDrawnCursorX_005c80ac - 16 < minX)
                 minX = g_nDrawnCursorX_005c80ac - 16;
             if (g_nDrawnCursorX_005c80ac + 16 > maxX)
@@ -1330,19 +1330,19 @@ void EnableMouseCursorDrawing(void)
             if (g_nMouseRenderY_005c80a8 + 16 > maxY)
                 maxY = g_nMouseRenderY_005c80a8 + 16;
         }
-        CaptureSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+        CaptureSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                 g_abInputCursorBehind_005c3b10,
-                                g_stQueuedMouse_005c83f0.x,
-                                g_stQueuedMouse_005c83f0.y,
-                                g_stQueuedMouse_005c83f0.shape,
-                                g_stQueuedMouse_005c83f0.frame);
-        DrawSpriteDefault(g_stQueuedMouse_005c83f0.viewport, g_stQueuedMouse_005c83f0.x,
-                          g_stQueuedMouse_005c83f0.y,
-                          g_stQueuedMouse_005c83f0.shape,
-                          g_stQueuedMouse_005c83f0.frame);
+                                g_stEventQueuePointerData_005c83f0.x,
+                                g_stEventQueuePointerData_005c83f0.y,
+                                g_stEventQueuePointerData_005c83f0.shape,
+                                g_stEventQueuePointerData_005c83f0.frame);
+        DrawSpriteDefault(g_stEventQueuePointerData_005c83f0.viewport, g_stEventQueuePointerData_005c83f0.x,
+                          g_stEventQueuePointerData_005c83f0.y,
+                          g_stEventQueuePointerData_005c83f0.shape,
+                          g_stEventQueuePointerData_005c83f0.frame);
         g_pDrawnInputCursorShape_0049d4d0 = (unsigned char *)1;
-        g_nDrawnCursorX_005c80ac = g_stQueuedMouse_005c83f0.x;
-        g_nMouseRenderY_005c80a8 = g_stQueuedMouse_005c83f0.y;
+        g_nDrawnCursorX_005c80ac = g_stEventQueuePointerData_005c83f0.x;
+        g_nMouseRenderY_005c80a8 = g_stEventQueuePointerData_005c83f0.y;
         if (g_nDrawnCursorX_005c80ac - 16 < minX)
             minX = g_nDrawnCursorX_005c80ac - 16;
         if (g_nDrawnCursorX_005c80ac + 16 > maxX)
@@ -1369,14 +1369,14 @@ void DisableMouseCursorDrawing(void)
     return;
     if (g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pDrawnInputCursorShape_0049d4d0 != 0) {
-        if (g_stQueuedMouse_005c83f0.viewport != 0 &&
-            g_stQueuedMouse_005c83f0.shape != 0) {
-            RestoreSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+        if (g_stEventQueuePointerData_005c83f0.viewport != 0 &&
+            g_stEventQueuePointerData_005c83f0.shape != 0) {
+            RestoreSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                     g_abInputCursorBehind_005c3b10,
                                     (short)g_nDrawnCursorX_005c80ac,
                                     (short)g_nMouseRenderY_005c80a8,
-                                    g_stQueuedMouse_005c83f0.shape,
-                                    g_stQueuedMouse_005c83f0.frame);
+                                    g_stEventQueuePointerData_005c83f0.shape,
+                                    g_stEventQueuePointerData_005c83f0.frame);
             DIBupdate(g_nDrawnCursorX_005c80ac - 16,
                       g_nMouseRenderY_005c80a8 - 16,
                       g_nDrawnCursorX_005c80ac + 16,
@@ -1391,28 +1391,28 @@ void DisableMouseCursorDrawing(void)
 /* Function start: 0x463EEE */
 void SetMouseCursorShape(unsigned char *shape, short frame)
 {
-    g_stQueuedMouse_005c83f0.shapeChanged = 1;
-    if (g_stQueuedMouse_005c83f0.viewport != 0 &&
+    g_stEventQueuePointerData_005c83f0.shapeChanged = 1;
+    if (g_stEventQueuePointerData_005c83f0.viewport != 0 &&
         g_nMouseCursorDrawDepth_0049d4d4 > 0 &&
         g_pDrawnInputCursorShape_0049d4d0 != 0) {
-        RestoreSpriteBackground(g_stQueuedMouse_005c83f0.viewport,
+        RestoreSpriteBackground(g_stEventQueuePointerData_005c83f0.viewport,
                                 g_abInputCursorBehind_005c3b10,
                                 (short)g_nDrawnCursorX_005c80ac,
                                 (short)g_nMouseRenderY_005c80a8,
                                 g_pDrawnInputCursorShape_0049d4d0,
-                                g_stQueuedMouse_005c83f0.frame);
+                                g_stEventQueuePointerData_005c83f0.frame);
         g_pDrawnInputCursorShape_0049d4d0 = 0;
     }
-    g_stQueuedMouse_005c83f0.shape = shape;
-    g_stQueuedMouse_005c83f0.frame = frame;
+    g_stEventQueuePointerData_005c83f0.shape = shape;
+    g_stEventQueuePointerData_005c83f0.frame = frame;
     return;
 }
 
 /* Function start: 0x463F74 */
 void SetMouseHomePosition(short x, short y)
 {
-    g_stQueuedMouse_005c83f0.x = x;
-    g_stQueuedMouse_005c83f0.y = y;
+    g_stEventQueuePointerData_005c83f0.x = x;
+    g_stEventQueuePointerData_005c83f0.y = y;
     SetInputCursorHostPosition(x, y);
     return;
 }
@@ -1420,8 +1420,8 @@ void SetMouseHomePosition(short x, short y)
 /* Function start: 0x463FAA */
 void ApplyPackedMousePosition(ShortPoint point)
 {
-    g_stQueuedMouse_005c83f0.x = point.x;
-    g_stQueuedMouse_005c83f0.y = point.y;
+    g_stEventQueuePointerData_005c83f0.x = point.x;
+    g_stEventQueuePointerData_005c83f0.y = point.y;
     SetInputCursorHostPosition(point.x, point.y);
     return;
 }
@@ -1431,8 +1431,8 @@ void ApplyPackedMousePosition(ShortPoint point)
  * position SetMouseHomePosition stored. */
 void GetMouseHomePosition(ShortPoint *position)
 {
-    position->x = g_stQueuedMouse_005c83f0.x;
-    position->y = g_stQueuedMouse_005c83f0.y;
+    position->x = g_stEventQueuePointerData_005c83f0.x;
+    position->y = g_stEventQueuePointerData_005c83f0.y;
     return;
 }
 
@@ -1458,13 +1458,13 @@ void SetFrameTimerPeriodDirect(short p)
 /* Function start: 0x464055 */
 void WaitForFrameTick(void)
 {
-    while (g_nFrameTimerPending_005c844c != 0) ;
+    while (g_nFrameTimerWaitTicksValue_005c844c != 0) ;
 }
 
 /* Function start: 0x464072 */
 short IsFrameTickElapsed(void)
 {
-    return g_nFrameTimerPending_005c844c == 0;
+    return g_nFrameTimerWaitTicksValue_005c844c == 0;
 }
 
 #pragma function(memset)
@@ -1490,9 +1490,9 @@ void DumpFarHeapHook(void)
 /* Function start: 0x4640F4 */
 unsigned short EnableHighMemoryResources(void)
 {
-    g_bHighMemoryResourcesEnabled_005c80e4 = 1;
-    DAT_005c8458 = 0x1000;
-    DAT_005c82a4 = 0x1000;
+    g_bStoredHighMemoryEnabled_005c80e4 = 1;
+    g_nStoredHighMemoryResourceSetupWord_005c8458 = 0x1000;
+    g_nHighMemoryInitValue_005c82a4 = 0x1000;
     return 1;
 }
 
@@ -1627,21 +1627,21 @@ void FlushBiosKeys(void)
 /* Function start: 0x46428B */
 void ClearInputKeyStatePreservingModifiers(void)
 {
-    unsigned int control = g_abInputKeyState_005c80f0[0x1d];
-    unsigned int alt = g_abInputKeyState_005c80f0[0x38];
+    unsigned int control = g_abKeyboardEventStates_005c80f0[0x1d];
+    unsigned int alt = g_abKeyboardEventStates_005c80f0[0x38];
 
-    memset(g_abInputKeyState_005c80f0, 0,
-           sizeof(g_abInputKeyState_005c80f0));
-    g_abInputKeyState_005c80f0[0x1d] = control;
-    g_abInputKeyState_005c80f0[0x38] = alt;
+    memset(g_abKeyboardEventStates_005c80f0, 0,
+           sizeof(g_abKeyboardEventStates_005c80f0));
+    g_abKeyboardEventStates_005c80f0[0x1d] = control;
+    g_abKeyboardEventStates_005c80f0[0x38] = alt;
     ClearDebugPauseFlags();
 }
 
 /* Function start: 0x4642D6 */
 void ClearInputKeyState(void)
 {
-    memset(g_abInputKeyState_005c80f0, 0,
-           sizeof(g_abInputKeyState_005c80f0));
+    memset(g_abKeyboardEventStates_005c80f0, 0,
+           sizeof(g_abKeyboardEventStates_005c80f0));
     ClearDebugPauseFlags();
 }
 
@@ -1664,7 +1664,7 @@ void KeyboardNullHook(void)
 void SetInputKeyState(int scanCode, unsigned char pressed)
 {
     if (scanCode >= 0 && scanCode < 0x80) {
-        g_abInputKeyState_005c80f0[scanCode] = pressed;
+        g_abKeyboardEventStates_005c80f0[scanCode] = pressed;
         return;
     }
     SystemDebugPrintf("keyboard almost messed up\n");
@@ -1691,8 +1691,8 @@ void BuildObjectDepthOrder(void)
     ceiling = -999999999;
     furthest = -1;
     nextObject = furthest;
-    memset(g_anObjectDepthPlaced_005c8180, 0,
-           sizeof(g_anObjectDepthPlaced_005c8180));
+    memset(g_anPlacedObjectDepths_005c8180, 0,
+           sizeof(g_anPlacedObjectDepths_005c8180));
     for (scan = 0; scan < SPACE_OBJECT_COUNT; scan++) {
         if (ceiling <
             (int)(unsigned short)g_asObjectDistance_00493ae8[scan]) {
@@ -1704,15 +1704,15 @@ void BuildObjectDepthOrder(void)
     placed = 0;
     nextObject = furthest;
     for (scan = 0; scan < SPACE_OBJECT_COUNT; scan++) {
-        g_anSortedObject_005c82c0[placed] = nextObject;
+        g_anStoredObjectSortedIndicesData_005c82c0[placed] = nextObject;
         if (nextObject == -1)
             return;
-        g_anObjectDepthPlaced_005c8180[nextObject] = 1;
+        g_anPlacedObjectDepths_005c8180[nextObject] = 1;
         nextFarthest = -1;
         nextObject = nextFarthest;
         for (test = 0; test < SPACE_OBJECT_COUNT;
              test++) {
-            if (g_anObjectDepthPlaced_005c8180[test] == 0 &&
+            if (g_anPlacedObjectDepths_005c8180[test] == 0 &&
                 g_asObjectScreenX_00493598[test] != (short)0x8001 &&
                 nextFarthest <
                     (int)(unsigned short)
@@ -1747,7 +1747,7 @@ void draw_sorted_objects_to_buffer(void)
 
     for (sortedIndex = 0; sortedIndex < SPACE_OBJECT_COUNT;
          sortedIndex++) {
-        object = g_anSortedObject_005c82c0[sortedIndex];
+        object = g_anStoredObjectSortedIndicesData_005c82c0[sortedIndex];
         if (object < 0)
             break;
         if (g_asObjectType_00495298[object] < 0)
@@ -1761,7 +1761,7 @@ void draw_sorted_objects_to_buffer(void)
          * that is what proves it is the same projection and not an object the
          * game placed some other way. */
         enhancedScreenX = (float)(short)(
-            g_asObjectScreenX_00493598[object] + g_nViewCenterX_005c80d8);
+            g_asObjectScreenX_00493598[object] + g_nStoredScreenViewCentreX_005c80d8);
         enhancedScreenY = (float)(short)(
             g_asObjectScreenY_00493628[object] + g_nViewCenterY_005c80da);
         if (objectClass != OBJECT_CLASS_NULL &&
@@ -1781,7 +1781,7 @@ void draw_sorted_objects_to_buffer(void)
             if (projectedScreenX == g_asObjectScreenX_00493598[object] &&
                 projectedScreenY == g_asObjectScreenY_00493628[object]) {
                 enhancedScreenX =
-                    (float)g_nViewCenterX_005c80d8 +
+                    (float)g_nStoredScreenViewCentreX_005c80d8 +
                     (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) * 0.5 *
                              g_aObjectViewPosition_0059afa0[object].x) /
                             g_aObjectViewPosition_0059afa0[object].z);
@@ -1811,7 +1811,7 @@ void draw_sorted_objects_to_buffer(void)
                 drawObject = object;
                 g_asObjectDrawX_00493748[drawObject] = (short)(
                     g_asObjectScreenX_00493598[drawObject] +
-                    g_nViewCenterX_005c80d8);
+                    g_nStoredScreenViewCentreX_005c80d8);
                 g_asObjectDrawY_004937d8[drawObject] = (short)(
                     g_asObjectScreenY_00493628[drawObject] +
                     g_nViewCenterY_005c80da);
@@ -1849,7 +1849,7 @@ void draw_sorted_objects_to_buffer(void)
                 drawObject = object;
                 g_asObjectDrawX_00493748[drawObject] = (short)(
                     g_asObjectScreenX_00493598[drawObject] +
-                    g_nViewCenterX_005c80d8);
+                    g_nStoredScreenViewCentreX_005c80d8);
                 g_asObjectDrawY_004937d8[drawObject] = (short)(
                     g_asObjectScreenY_00493628[drawObject] +
                     g_nViewCenterY_005c80da);
@@ -1941,13 +1941,13 @@ void intro_drawbackgroundships(void)
 /* Function start: 0x4648C5 */
 void set_up_screen_viewport(signed char mode)
 {
-    g_cScreenViewMode_005c82a6 = mode;
-    switch (g_cScreenViewMode_005c82a6) {
+    g_cStoredViewDisplayModeValue_005c82a6 = mode;
+    switch (g_cStoredViewDisplayModeValue_005c82a6) {
     case 4:
     case 5:
         g_pScreenViewportGeometry_005c82b0 =
             &g_aScreenViewportGeometry_0049d4e8[
-                (int)g_cScreenViewMode_005c82a6];
+                (int)g_cStoredViewDisplayModeValue_005c82a6];
         break;
     default:
         g_pScreenViewportGeometry_005c82b0 =
@@ -1962,32 +1962,32 @@ void set_up_screen_viewport(signed char mode)
         g_nCockpitDisplayMode_0049d71c != -2) {
         g_nScreenWidth_0049d4d8 =
             g_pScreenViewportGeometry_005c82b0->width;
-        g_nViewCenterX_005c80d8 =
+        g_nStoredScreenViewCentreX_005c80d8 =
             (short)(g_nScreenWidth_0049d4d8 / 2);
         g_nScreenHeight_0049d4dc =
             g_pScreenViewportGeometry_005c82b0->height;
         g_nViewCenterY_005c80da =
             (short)(g_nScreenHeight_0049d4dc / 2);
-        g_nViewportOriginX_005c849e =
+        g_nViewportLeftOrigin_005c849e =
             g_pScreenViewportGeometry_005c82b0->originX;
-        g_nViewportOriginY_005c849c =
+        g_nViewportOffsetY_005c849c =
             g_pScreenViewportGeometry_005c82b0->originY;
-        g_nViewCenterX_005c80d8 += g_nViewportOriginX_005c849e;
-        g_nViewCenterY_005c80da += g_nViewportOriginY_005c849c;
+        g_nStoredScreenViewCentreX_005c80d8 += g_nViewportLeftOrigin_005c849e;
+        g_nViewCenterY_005c80da += g_nViewportOffsetY_005c849c;
         g_nScreenWidth_0049d4d8 = 320;
         g_nScreenHeight_0049d4dc = 200;
     } else {
         g_nScreenWidth_0049d4d8 =
             g_pScreenViewportGeometry_005c82b0->width;
-        g_nViewCenterX_005c80d8 =
+        g_nStoredScreenViewCentreX_005c80d8 =
             (short)(g_nScreenWidth_0049d4d8 / 2);
         g_nScreenHeight_0049d4dc =
             g_pScreenViewportGeometry_005c82b0->height;
         g_nViewCenterY_005c80da =
             (short)(g_nScreenHeight_0049d4dc / 2);
-        g_nViewportOriginX_005c849e =
+        g_nViewportLeftOrigin_005c849e =
             g_pScreenViewportGeometry_005c82b0->originX;
-        g_nViewportOriginY_005c849c =
+        g_nViewportOffsetY_005c849c =
             g_pScreenViewportGeometry_005c82b0->originY;
     }
     return;
@@ -2193,16 +2193,16 @@ unsigned int shrink(int *component)
 short ServiceInputDevices(short deviceMask)
 {
     (void)deviceMask;
-    g_nNextInputQueueFlushTick_0049d4cc = g_nInputClock_005c84a8 + 20;
+    g_nNextInputQueueFlushTick_0049d4cc = g_nInputTimerTicks_005c84a8 + 20;
     if (g_nInputPollPeriod_0049d6d8 == 1)
         PumpWindowMessages(1);
     else
         PumpWindowMessages(0);
-    if (g_nNextInputPollTick_0049d6d4 <= g_nInputClock_005c84a8) {
+    if (g_nNextInputPollTick_0049d6d4 <= g_nInputTimerTicks_005c84a8) {
         FlushInputEvents();
         PumpWindowMessages(0);
         g_nNextInputPollTick_0049d6d4 +=
-            g_nInputClock_005c84a8 + g_nInputPollPeriod_0049d6d8;
+            g_nInputTimerTicks_005c84a8 + g_nInputPollPeriod_0049d6d8;
         return 1;
     }
     PumpWindowMessages(1);
@@ -2214,7 +2214,7 @@ short ServiceInputDevices(short deviceMask)
 /* Function start: 0x464E06 */
 void SetInputViewport(Viewport *viewport)
 {
-    g_stQueuedMouse_005c83f0.viewport = viewport;
+    g_stEventQueuePointerData_005c83f0.viewport = viewport;
     return;
 }
 
@@ -2234,7 +2234,7 @@ void SetMenuInputPump(void)
 int ConfigureInputPump(int slot, void (*pump)(void))
 {
     if (slot == 1)
-        g_pfnInputPump_005c840c = pump;
+        g_pfnCurrentInputPump_005c840c = pump;
     return 0;
 }
 
@@ -2247,8 +2247,8 @@ short LoadInputCursorShape(const char *filename, short section,
     (void)flags;
     if (filename != 0) {
         shape = LoadNamedPacket(filename, section, 0, 0, 0, 1);
-        g_stQueuedMouse_005c83f0.shape = shape;
-        g_pInputManagerState_005c8464->cursorShape = shape;
+        g_stEventQueuePointerData_005c83f0.shape = shape;
+        g_pEventManager_005c8464->cursorShape = shape;
         if (shape == 0)
             return 0;
     }
@@ -2525,21 +2525,21 @@ void SplitGameClockTicksForNav(unsigned char *parts)
 /* Function start: 0x4656CC */
 void AllocateApplicationScratchBuffer(void)
 {
-    g_stPersonnelCursor_005c8470.scratchBuffer =
+    g_stPersonnelMousePointerState_005c8470.scratchBuffer =
         AllocateTaggedMemory(0x1000, 0);
 }
 
 /* Function start: 0x4656EB */
 void ReleaseApplicationScratchBuffer(void)
 {
-    ReleasePacketHandle(g_stPersonnelCursor_005c8470.scratchBuffer);
-    g_stPersonnelCursor_005c8470.scratchBuffer = 0;
+    ReleasePacketHandle(g_stPersonnelMousePointerState_005c8470.scratchBuffer);
+    g_stPersonnelMousePointerState_005c8470.scratchBuffer = 0;
 }
 
 /* Function start: 0x46570E */
 unsigned char *GetInputCursorShape(void)
 {
-    return g_stQueuedMouse_005c83f0.shape;
+    return g_stEventQueuePointerData_005c83f0.shape;
 }
 
 /* This unit's initialized data, after its functions so that it does not
@@ -2609,58 +2609,89 @@ int g_nNextInputPollTick_0049d6d4 = 0;
 short g_nInputPollPeriod_0049d6d8 = 0;
 
 /* The public input state occupies the retail commons block at
- * 0x005C80A8-0x005C8D3D, immediately after main.c's event pool. */
+ * 0x005C80A8-0x005C8D3D, immediately after main.c's event pool.
+ * Unused byte arrays represent gaps that alignment cannot account for.
+ * Retail /DEBUG linking retains unused commons; their original names,
+ * types and individual declaration boundaries are unknown. */
 int g_nMouseRenderY_005c80a8;
 int g_nDrawnCursorX_005c80ac;
-unsigned char *DAT_005c80c0;
-int g_bInputCursorBackgroundCaptured_005c80c4;
-short g_bInputManagerInitialized_005c80ca;
-short g_nDetectedGraphicsMode_005c80d2;
-short g_wPendingButtonMask_005c80d4;
-unsigned char g_nInputRepeatDelay_005c80d6;
-short g_nViewCenterX_005c80d8;
+unsigned char g_abUnusedInputData_005c80b0[16];
+unsigned char *g_pCurrentCampaignDataOffset_005c80c0;
+int g_bCurrentInputCursorBackgroundCapturedState_005c80c4;
+unsigned char g_abUnreferencedEventStorage_005c80c8[2];
+short g_bEventManagerInitializationState_005c80ca;
+unsigned char g_abUnreferencedInputBuffer_005c80cc[4];
+unsigned char g_abUnusedInputSpace_005c80d0[2];
+short g_nCurrentGraphicsModeDetectedValue_005c80d2;
+short g_wQueuedButtonsState_005c80d4;
+unsigned char g_nEventRepeatDelayState_005c80d6;
+short g_nStoredScreenViewCentreX_005c80d8;
 short g_nViewCenterY_005c80da;
-void *g_pLastPacketAllocation_005c80e0;
-short g_bHighMemoryResourcesEnabled_005c80e4;
-unsigned char g_bInputCursorEnabled_005c80e6;
-unsigned char g_abInputKeyState_005c80f0[0x80];
-int g_nCapturedInputCursorY_005c8178;
+unsigned char g_abUnusedLibraryBytes_005c80dc[4];
+void *g_pLibraryCurrentLastPacketAllocation_005c80e0;
+short g_bStoredHighMemoryEnabled_005c80e4;
+unsigned char g_bMouseCursorEnabled_005c80e6;
+unsigned char g_abKeyboardEventStates_005c80f0[0x80];
+unsigned char g_abUnusedLibraryInputBuffer_005c8170[8];
+int g_nSavedPointerY_005c8178;
 int g_nCapturedInputCursorX_005c817c;
-int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
-short DAT_005c82a4;
-signed char g_cScreenViewMode_005c82a6;
-signed char g_bCinematicSpriteFontEnabled_005c82a7;
+int g_anPlacedObjectDepths_005c8180[SPACE_OBJECT_COUNT];
+unsigned char g_abUnreferencedInputStorage_005c8298[8];
+unsigned char g_abUnusedLibrarySpaceData_005c82a0[4];
+short g_nHighMemoryInitValue_005c82a4;
+signed char g_cStoredViewDisplayModeValue_005c82a6;
+signed char g_bCinematicSpriteTextEnableStatus_005c82a7;
+unsigned char g_abUnusedInputSystemBuffer_005c82a8[8];
 const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_005c82b0;
-int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
-unsigned char *g_pActiveCutscenePixels_005c83dc;
-signed char g_cKeypadMouseSpeed_005c83e6;
-QueuedMouseState g_stQueuedMouse_005c83f0;
-void (*g_pfnInputPump_005c840c)(void);
-short g_nEmsIsrBusy_005c841c;
-signed char DAT_005c8430;
-short g_wInputDeviceButtonState_005c8432;
-int g_bSuppressNextMouseMove_005c843c;
-short g_nInputTickInterval_005c8448;
-volatile int g_nFrameTimerPending_005c844c;
-int g_bInputCursorDirty_005c8450;
-short DAT_005c8458;
-int g_nInputCursorDirtyRight_005c845c;
-int g_nInputCursorDirtyBottom_005c8460;
-InputManagerState *g_pInputManagerState_005c8464;
-MouseCursorState g_stPersonnelCursor_005c8470;
-short g_nViewportOriginY_005c849c;
-short g_nViewportOriginX_005c849e;
-volatile int g_nInputClock_005c84a8;
-int g_nInputCursorDirtyLeft_005c85c0;
+int g_anStoredObjectSortedIndicesData_005c82c0[SPACE_OBJECT_COUNT];
+unsigned char g_abUnreferencedInputStorage_005c83d8[4];
+unsigned char *g_pActiveCutscenePixelsAddress_005c83dc;
+unsigned char g_abUnusedEventBuffer_005c83e0[6];
+signed char g_cKeypadMouseSpeedValue_005c83e6;
+QueuedMouseState g_stEventQueuePointerData_005c83f0;
+void (*g_pfnCurrentInputPump_005c840c)(void);
+unsigned char g_abUnusedInputSpace_005c8410[12];
+short g_nEmsIsrBusyValue_005c841c;
+unsigned char g_abUnusedInputSpace_005c8420[16];
+signed char g_bCampaignFlightRunning_005c8430;
+short g_wInputDeviceButtonStatus_005c8432;
+unsigned char g_abUnusedLibraryInputBufferData_005c8434[4];
+unsigned char g_abUnusedInputSystemBytes_005c8438[4];
+int g_bIgnoreNextCursorMoveFlag_005c843c;
+unsigned char g_abUnusedEventSpace_005c8440[8];
+short g_nCurrentInputTickInterval_005c8448;
+volatile int g_nFrameTimerWaitTicksValue_005c844c;
+int g_bPointerDirtyValue_005c8450;
+unsigned char g_abUnreferencedInputData_005c8454[4];
+short g_nStoredHighMemoryResourceSetupWord_005c8458;
+int g_nCursorDirtyRightValue_005c845c;
+int g_nPointerDirtyBottom_005c8460;
+InputManagerState *g_pEventManager_005c8464;
+MouseCursorState g_stPersonnelMousePointerState_005c8470;
+unsigned char g_abUnusedInputStorage_005c8494[4];
+unsigned char g_abUnusedInputStorage_005c8498[4];
+short g_nViewportOffsetY_005c849c;
+short g_nViewportLeftOrigin_005c849e;
+unsigned char g_abUnusedEventStorage_005c84a0[8];
+volatile int g_nInputTimerTicks_005c84a8;
+unsigned char g_abUnusedEventManagerBuffer_005c84b0[272];
+int g_nPointerDirtyLeft_005c85c0;
 int g_nInputCursorDirtyTop_005c85c4;
 unsigned char g_abPauseInputState_005c85d0[0x100];
-unsigned char g_abPreviousPauseInputState_005c86e0[0x100];
-int g_anInputEventSlotUsed_005c87e0[0x100];
-void (*g_pfnEventManagerShutdown_005c8be0)(void);
-void (*g_pfnDrawCinematicTextString_005c8cf4)(char *text);
-PersonnelMouseSample g_stPersonnelMouse_005c8d00;
+unsigned char g_abUnusedLibraryInputData_005c86d0[16];
+unsigned char g_abPreviousPauseKeyStatuses_005c86e0[0x100];
+int g_anCurrentInputEventEntryAllocation_005c87e0[0x100];
+void (*g_pfnEventShutdownCallback_005c8be0)(void);
+unsigned char g_abUnusedLibrarySpace_005c8bf0[260];
+void (*g_pfnRenderSceneTextStringHandler_005c8cf4)(char *text);
+PersonnelMouseSample g_stPersonnelMouseData_005c8d00;
+unsigned char g_abUnusedInputMemoryData_005c8d10[12];
 TextContext *g_pCurrentTextContext_005c8d1c;
-int g_nInputTickScale_005c8d24;
-void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
-short g_nUiInputMode_005c8d3c;
+unsigned char g_abUnusedLibraryBuffer_005c8d20[4];
+int g_nEventClockScaleValue_005c8d24;
+unsigned char g_abUnreferencedEventData_005c8d28[8];
+void (*g_pfnRenderSceneFontCharacterHandler_005c8d30)(char character);
+unsigned char g_abUnusedLibraryBuffer_005c8d34[4];
+unsigned char g_abUnusedLibraryData_005c8d38[4];
+short g_nInterfaceEventMode_005c8d3c;

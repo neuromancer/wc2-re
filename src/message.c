@@ -17,12 +17,12 @@ void InitializeSpaceFlightInput(void)
 {
     ClearInputPump();
     InitializeInputDriverHook();
-    g_bInputCursorEnabled_005c80e6 = 1;
-    g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
+    g_bMouseCursorEnabled_005c80e6 = 1;
+    g_nEventRepeatDelayState_005c80d6 = g_bMouseCursorEnabled_005c80e6;
     g_nFlightControlCommandValue_005d1798 = 0;
     ConfigureInputPump(1, get_player_input);
     SetInputViewport(&g_stViewScratchInfo_005d2b00);
-    g_nUiInputMode_005c8d3c = 0;
+    g_nInterfaceEventMode_005c8d3c = 0;
 }
 
 /* Function start: 0x437A44 */

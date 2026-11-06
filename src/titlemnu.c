@@ -279,10 +279,10 @@ short RunTitleScreen(void)
     logo = 0;
     background = 0;
     sfxHandle = 0;
-    g_nUiInputMode_005c8d3c = 0;
+    g_nInterfaceEventMode_005c8d3c = 0;
     SetMenuInputPump();
     DisableMouseCursorDrawing();
-    g_nUiInputMode_005c8d3c = 0;
+    g_nInterfaceEventMode_005c8d3c = 0;
     ClearViewport(&g_stModalSourceWindow_005d2c50,
                   g_cSecondaryViewBufferColour_0049cb4c);
     g_stSecondaryViewBufferBlock_005d2c90.left = 0;
@@ -459,7 +459,7 @@ short RunTitleScreen(void)
     sfxHandle = 0;
     canContinueCampaign = (short)HasSavedPilotCampaign();
     SetMenuInputPump();
-    g_nUiInputMode_005c8d3c = 1;
+    g_nInterfaceEventMode_005c8d3c = 1;
     SetInputViewport(&g_stSecondaryViewBufferBlock_005d2c90);
     SetPersonnelMousePosition(159, 159);
     EnableMouseCursorDrawing();

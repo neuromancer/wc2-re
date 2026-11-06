@@ -182,7 +182,7 @@ int main(int argumentCount, char **arguments)
     g_nArcadeState_0049d75c = 0;
     g_nCannedSceneMode_0049021c = 0;
     g_bJumpSequenceActive_004962f0 = 0;
-    g_pfnInputPump_005c840c = get_player_input;
+    g_pfnCurrentInputPump_005c840c = get_player_input;
     for (index = 0;
          index < (int)(sizeof(g_aTestRadioHotkeys) /
                        sizeof(g_aTestRadioHotkeys[0]));
@@ -233,7 +233,7 @@ int main(int argumentCount, char **arguments)
         g_bMenuTHotkeySwitch_005d1298 != 0)
         goto cleanup;
     g_bSpaceFlightActive_005c586c = 0;
-    g_pfnInputPump_005c840c = 0;
+    g_pfnCurrentInputPump_005c840c = 0;
 
     stage = 30;
     memset(pixels, 0, sizeof(pixels));
@@ -266,11 +266,11 @@ int main(int argumentCount, char **arguments)
     memset(pixels, 0, sizeof(pixels));
     g_stViewScratchInfo_005d2b00 = g_stScrViewInfo_005d21a0;
     g_nScreenWidth_0049d4d8 = 16;
-    g_nViewCenterX_005c80d8 = 8;
+    g_nStoredScreenViewCentreX_005c80d8 = 8;
     g_nViewCenterY_005c80da = 8;
     g_nNavPointerObject_004931b8 = -1;
-    g_anSortedObject_005c82c0[0] = 0;
-    g_anSortedObject_005c82c0[1] = -1;
+    g_anStoredObjectSortedIndicesData_005c82c0[0] = 0;
+    g_anStoredObjectSortedIndicesData_005c82c0[1] = -1;
     g_asObjectType_00495298[0] = OBJECT_DATA_LASER_CANNON;
     g_aeObjectClass_00495328[0] = OBJECT_CLASS_PLANET;
     g_asObjectScreenX_00493598[0] = 0;
@@ -314,7 +314,7 @@ int main(int argumentCount, char **arguments)
     if (instanceId < 0)
         goto cleanup;
 
-    g_pfnInputPump_005c840c = get_player_input;
+    g_pfnCurrentInputPump_005c840c = get_player_input;
     g_nArcadeState_0049d75c = 0;
     g_acVduModeStackDepth_004934c8[1] = 1;
     g_aaiVduModeStack_00493498[1][0] = 0;

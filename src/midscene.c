@@ -157,7 +157,7 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
         if (g_pPilotStatus_005d2fcc[
                 g_acShipPortrait_00495d88[g_nYourWingman_0049346c]] == 0)
             remove_object(g_nYourWingman_0049346c);
-        g_cScreenViewMode_005c82a6 = -1;
+        g_cStoredViewDisplayModeValue_005c82a6 = -1;
         force_view(0, 0);
     }
     if (g_bAutopilotDebugEnabled_00499bfc != 0)

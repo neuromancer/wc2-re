@@ -114,7 +114,7 @@ void Title_Sequence(void)
     short sectionIndex;
 
     waitCount = 0;
-    g_nUiInputMode_005c8d3c = 0;
+    g_nInterfaceEventMode_005c8d3c = 0;
     g_pTitleMusic_005d3fa4 =
         FetchDiskPacketRetrying("music.r00", 19, 0);
     g_pTitleFieldShape_00491cf8 =

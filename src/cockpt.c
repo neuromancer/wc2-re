@@ -289,7 +289,7 @@ short DrawHudMessageSlot(HudMessageSlot *slot)
         return 1;
 
     previousDrawColour = slot->drawColour;
-    if (((int)g_nInputClock_005c84a8 / 40) % 3 == 0)
+    if (((int)g_nInputTimerTicks_005c84a8 / 40) % 3 == 0)
         slot->drawColour = g_cSecondaryViewBufferColour_0049cb4c;
     else
         slot->drawColour = slot->colour;
@@ -2153,7 +2153,7 @@ void print_message_text(char *text, unsigned short colour)
     menuContext = g_stDefaultStringContext_005d2d20;
     menuContext.viewport = &menuViewport;
     topY = (short)(g_stHudMessageOrigin_0049ae90.y +
-                       g_nViewportOriginY_005c849c);
+                       g_nViewportOffsetY_005c849c);
     SetRectBounds(&menuViewport,
                   g_stHudMessageOrigin_0049ae90.x,
                   topY,
@@ -2207,7 +2207,7 @@ void ShowHudTextLine(void)
         g_pHudMessageBackground_0049b28c,
         0,
         (short)(g_stHudMessageOrigin_0049ae90.y +
-                g_nViewportOriginY_005c849c),
+                g_nViewportOffsetY_005c849c),
         g_pHudMessageFrameShape_0049b288,
         0);
     g_nHudMessageBackgroundDepth_0049b294++;
@@ -2222,7 +2222,7 @@ void RestoreHudMessageBackground(void)
             g_pHudMessageBackground_0049b28c,
             0,
             (short)(g_stHudMessageOrigin_0049ae90.y +
-                    g_nViewportOriginY_005c849c),
+                    g_nViewportOffsetY_005c849c),
             g_pHudMessageFrameShape_0049b288,
             0);
     }
@@ -2279,7 +2279,7 @@ void draw_target_box(unsigned short colour, signed char object,
                 g_asObjectScreenX_00493598[object] != -0x7fff;
         if (visible != 0) {
             midX = (short)(g_asObjectScreenX_00493598[object] +
-                              g_nViewCenterX_005c80d8);
+                              g_nStoredScreenViewCentreX_005c80d8);
             midY = (short)(g_asObjectScreenY_00493628[object] +
                               g_nViewCenterY_005c80da);
             if ((short)GetTransformedShapeBounds(
@@ -2587,7 +2587,7 @@ void UpdateTargetLeadIndicator(void)
                                   eyeRelative.x),
                     eyeRelative.z);
             g_nTargetLeadIndicatorX_0049afe8 =
-                (short)(g_nViewCenterX_005c80d8 +
+                (short)(g_nStoredScreenViewCentreX_005c80d8 +
                         g_nTargetLeadIndicatorX_0049afe8);
             g_nTargetLeadingIndicatorY_005d1c2a =
                 (short)DivideFixed(
@@ -2639,8 +2639,8 @@ void overlay_head_up_display(void)
 {
     ShortRect reticleBounds;
 
-    reticleBounds.left = (short)(g_nViewCenterX_005c80d8 - 2);
-    reticleBounds.right = (short)(g_nViewCenterX_005c80d8 + 2);
+    reticleBounds.left = (short)(g_nStoredScreenViewCentreX_005c80d8 - 2);
+    reticleBounds.right = (short)(g_nStoredScreenViewCentreX_005c80d8 + 2);
     reticleBounds.top = (short)(g_nViewCenterY_005c80da - 2);
     reticleBounds.bottom = (short)(g_nViewCenterY_005c80da + 2);
     target_locking(g_acShipTarget_00495f20[0]);
@@ -2728,21 +2728,21 @@ void overlay_head_up_display(void)
             g_bMissileLockAcquired_0049b2b0++;
             DrawSpriteDefault(
                 &g_stViewScratchInfo_005d2b00,
-                (short)(g_nViewCenterX_005c80d8 + 1),
+                (short)(g_nStoredScreenViewCentreX_005c80d8 + 1),
                 g_nViewCenterY_005c80da,
                 g_pCabinHudImage_005d21f4, 4);
         } else {
             g_bMissileLockAcquired_0049b2b0 = 0;
             DrawSpriteDefault(
                 &g_stViewScratchInfo_005d2b00,
-                g_nViewCenterX_005c80d8,
+                g_nStoredScreenViewCentreX_005c80d8,
                 g_nViewCenterY_005c80da,
                 g_pCabinHudImage_005d21f4, 0);
         }
     } else {
         DrawSpriteDefault(
             &g_stViewScratchInfo_005d2b00,
-            g_nViewCenterX_005c80d8,
+            g_nStoredScreenViewCentreX_005c80d8,
             g_nViewCenterY_005c80da,
             g_pCabinHudImage_005d21f4, 0);
     }
@@ -2750,15 +2750,15 @@ void overlay_head_up_display(void)
     if (g_nCockpitControlState_0049d7ac == 1) {
         CaptureSpriteBackground(
             &g_stViewScratchInfo_005d2b00,
-            (unsigned char *)g_stPersonnelCursor_005c8470.scratchBuffer,
-            g_stPersonnelCursor_005c8470.x,
-            g_stPersonnelCursor_005c8470.y,
-            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
+            (unsigned char *)g_stPersonnelMousePointerState_005c8470.scratchBuffer,
+            g_stPersonnelMousePointerState_005c8470.x,
+            g_stPersonnelMousePointerState_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelMousePointerState_005c8470.frame);
         DrawSpriteDefault(
             &g_stViewScratchInfo_005d2b00,
-            g_stPersonnelCursor_005c8470.x,
-            g_stPersonnelCursor_005c8470.y,
-            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
+            g_stPersonnelMousePointerState_005c8470.x,
+            g_stPersonnelMousePointerState_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelMousePointerState_005c8470.frame);
     }
 }
 
@@ -2777,10 +2777,10 @@ void RestoreTransientCockpitGraphics(void)
     if (g_nCockpitControlState_0049d7ac == 1)
         RestoreSpriteBackground(
             &g_stViewScratchInfo_005d2b00,
-            (unsigned char *)g_stPersonnelCursor_005c8470.scratchBuffer,
-            g_stPersonnelCursor_005c8470.x,
-            g_stPersonnelCursor_005c8470.y,
-            GetInputCursorShape(), g_stPersonnelCursor_005c8470.frame);
+            (unsigned char *)g_stPersonnelMousePointerState_005c8470.scratchBuffer,
+            g_stPersonnelMousePointerState_005c8470.x,
+            g_stPersonnelMousePointerState_005c8470.y,
+            GetInputCursorShape(), g_stPersonnelMousePointerState_005c8470.frame);
     if (g_bTargetLockActive_0049ae80 != 0)
         RestoreTargetLeadIndicator();
     if (g_cEarlierTargetObjectValue_005d1d8e != -1) {
@@ -2876,7 +2876,7 @@ void build_your_target_list(short *hasEnemy)
                         (short)0x8001) {
                     posX = (short)(
                         g_asObjectScreenX_00493598[specialSlot] +
-                        g_nViewCenterX_005c80d8);
+                        g_nStoredScreenViewCentreX_005c80d8);
                     posY = (short)(
                         g_asObjectScreenY_00493628[specialSlot] +
                         g_nViewCenterY_005c80da);
@@ -2889,7 +2889,7 @@ void build_your_target_list(short *hasEnemy)
                         g_asObjectFlip_004939c8[specialSlot], frameBounds);
                     if (IsSpriteFrameOverlappingRect(
                             (const ShortRect *)frameBounds,
-                            g_nViewCenterX_005c80d8,
+                            g_nStoredScreenViewCentreX_005c80d8,
                             g_nViewCenterY_005c80da,
                             g_pCabinHudImage_005d21f4,
                             0) != 0) {

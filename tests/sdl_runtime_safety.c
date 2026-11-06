@@ -126,7 +126,7 @@ int main(int argumentCount, char **arguments)
     zero_vector(&g_aShipPosition_00494550[EYE_OBJECT]);
     g_asObjectCollisionRadius_004950e8[EYE_OBJECT] = 0;
     g_nScreenWidth_0049d4d8 = 320;
-    g_nViewCenterX_005c80d8 = 160;
+    g_nStoredScreenViewCentreX_005c80d8 = 160;
     g_nViewCenterY_005c80da = 100;
     g_aeObjectClass_00495328[ship] = OBJECT_CLASS_PROJECTILE;
     g_asObjectCollisionRadius_004950e8[ship] = 0;
@@ -202,7 +202,7 @@ int main(int argumentCount, char **arguments)
         g_apszCutsceneSpeechFiles_005d2ee0[0] = "speech.s00";
         g_pszCutsceneFormattedText_005d2dc8 = 0;
         g_nAudioEnabled_0049c244 = 1;
-        g_bCinematicSpriteFontEnabled_005c82a7 = 0;
+        g_bCinematicSpriteTextEnableStatus_005c82a7 = 0;
 
         DrawCutsceneTextAt(-1, -1, 2, caption);
         if (g_stCutsceneDrawingTextContext_005d2f60.cursorY != 13)

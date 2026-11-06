@@ -151,9 +151,9 @@ short RunCampaignGameLoop(short campaignSlot)
     /* This base is zero-initialized in the retail image.  MSVC formed address
      * 0x22 here and nothing ever dereferences it; express the same integer
      * address without applying an offset to a null C pointer. */
-    DAT_005c80c0 = (unsigned char *)((uintptr_t)DAT_005d300c + 0x22);
+    g_pCurrentCampaignDataOffset_005c80c0 = (unsigned char *)((uintptr_t)DAT_005d300c + 0x22);
 #else
-    DAT_005c80c0 = DAT_005d300c + 0x22;
+    g_pCurrentCampaignDataOffset_005c80c0 = DAT_005d300c + 0x22;
 #endif
     ReleaseSpaceflightResources();
     LoadTemporaryCampaignGlobals();
@@ -172,7 +172,7 @@ short RunCampaignGameLoop(short campaignSlot)
     while (campaignDone == 0) {
         g_pCutsceneCockpitPalette_00499c0c =
             AllocateScenePointerTable(1, 0x3420, 2, "HB1");
-        g_pActiveCutscenePixels_005c83dc =
+        g_pActiveCutscenePixelsAddress_005c83dc =
             g_pCutsceneCockpitPalette_00499c0c;
         g_bCutsceneViewportPreallocated_00499c4c = 1;
         RunCampaignScript(campaignSlot);
@@ -187,7 +187,7 @@ short RunCampaignGameLoop(short campaignSlot)
         }
         g_bNewPilotCampaignInitialized_004926c0 = 0;
         ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-        g_pActiveCutscenePixels_005c83dc = 0;
+        g_pActiveCutscenePixelsAddress_005c83dc = 0;
         ClearInputPump();
         if (g_nShowMemoryStatus_0049d784 != 0) {
             ShowMemoryStatusDebug();
@@ -211,7 +211,7 @@ short RunCampaignGameLoop(short campaignSlot)
         if (campaignDone != 0)
             return 0;
         if (g_bPumpMessagesDuringLoad_0049cc7c != 0)
-            DAT_005c8430 = 1;
+            g_bCampaignFlightRunning_005c8430 = 1;
 
         flightComplete = 0;
         while (flightComplete == 0) {
@@ -281,7 +281,7 @@ short RunCampaignGameLoop(short campaignSlot)
         g_stCurrentPilotProfile_00493408.field_43 +=
             g_cPilotKillCountValue_005d2fa8;
         g_stCurrentPilotProfile_00493408.field_41++;
-        DAT_005c8430 = 0;
+        g_bCampaignFlightRunning_005c8430 = 0;
         LoadTemporaryCampaignGlobals();
         StoreMissionResultsInCampaignGlobals(
             g_pCampaignGlobals_00499c94);
@@ -293,7 +293,7 @@ short RunCampaignGameLoop(short campaignSlot)
         if (campaignDone == 0) {
             g_pCutsceneCockpitPalette_00499c0c =
                 AllocateScenePointerTable(1, 0x3420, 2, "HB2");
-            g_pActiveCutscenePixels_005c83dc =
+            g_pActiveCutscenePixelsAddress_005c83dc =
                 g_pCutsceneCockpitPalette_00499c0c;
             if (g_nArcadeState_0049d75c == 4) {
                 g_pCampaignGlobals_00499c94->series = 1000;
@@ -324,7 +324,7 @@ short RunCampaignGameLoop(short campaignSlot)
             }
             g_pCampaignGlobals_00499c94->field_08 = 0;
             ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-            g_pActiveCutscenePixels_005c83dc = 0;
+            g_pActiveCutscenePixelsAddress_005c83dc = 0;
             g_nArcadeState_0049d75c =
                 g_pCampaignGlobals_00499c94->arcadeState;
             g_pCampaignGlobals_00499c94->arcadeState = 0;

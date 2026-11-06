@@ -24,7 +24,7 @@ short g_bCommSpeechPlaying_0049b7a0 = 0;
 /* Function start: 0x447300 */
 void LoadCommPortraitResources(short portrait)
 {
-    if (g_bHighMemoryResourcesEnabled_005c80e4 == 0)
+    if (g_bStoredHighMemoryEnabled_005c80e4 == 0)
         return;
     FreePacketAndClear(&g_pCommPortraitResource_0049b788, 4);
     g_pCommPortraitResource_0049b788 =

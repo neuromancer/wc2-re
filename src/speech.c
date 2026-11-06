@@ -120,7 +120,7 @@ void SoundBlasterEndOfInterrupt(void)
 {
     return;
     EmsRestoreMapping();
-    if (g_nEmsIsrBusy_005c841c == 0)
+    if (g_nEmsIsrBusyValue_005c841c == 0)
         SoundBlasterOut(0x20, 0x20);
 }
 

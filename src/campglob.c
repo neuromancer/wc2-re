@@ -133,7 +133,7 @@ void RunCampaignScript(short campaignSlot)
     unsigned int totalFar;
     unsigned int largestFarMemoryBlock;
 
-    inputMode = g_nUiInputMode_005c8d3c;
+    inputMode = g_nInterfaceEventMode_005c8d3c;
     memcpy(campaignFileName, "campaign.s0", 12);
     campaignFileName[12] = 0;
     if (g_bSkipCampaignVideo_0049c270 != 0)
@@ -165,9 +165,9 @@ void RunCampaignScript(short campaignSlot)
         ParseCutsceneContainer(scenePacket);
         g_bSceneDisplayUpdateActive_00499bb8 = 1;
         DisableMouseCursorDrawing();
-        g_nUiInputMode_005c8d3c = 0;
+        g_nInterfaceEventMode_005c8d3c = 0;
         RunLoadedCutscene();
-        g_nUiInputMode_005c8d3c = inputMode;
+        g_nInterfaceEventMode_005c8d3c = inputMode;
         g_bSceneDisplayUpdateActive_00499bb8 = 0;
         g_bSceneEscapeRequested_0049d4b0 = 0;
     }

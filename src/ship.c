@@ -3019,7 +3019,7 @@ void reposition_fixed_child_objects(void)
                 if (g_asObjectType_00495298[child] == 0x2b) {
                     /* Match the anchor to the enhanced owner transform. */
                     parentScreenX =
-                        (float)g_nViewCenterX_005c80d8 +
+                        (float)g_nStoredScreenViewCentreX_005c80d8 +
                         (float)(((double)(g_nScreenWidth_0049d4d8 & ~1) *
                                  0.5 *
                                  g_aObjectViewPosition_0059afa0[owner].x) /

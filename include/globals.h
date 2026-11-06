@@ -185,7 +185,7 @@ extern ShortPoint g_stHudMessageOrigin_0049ae90;
 #ifdef EVENTMGR_C
 extern short g_nViewCenterY_005c80da;
 #else
-extern short g_nViewportOriginY_005c849c;
+extern short g_nViewportOffsetY_005c849c;
 #endif
 extern signed char g_cOverlayMessageView_005d1c37;
 extern short g_bDisplayWingmanTargetData_0049347c;
@@ -431,7 +431,7 @@ extern short g_nCutsceneResourceLevel_00499d98;
 extern short g_nActiveCutsceneResourceLevel_00499d9c;
 extern void *g_pCutsceneCockpitPacket_00499c04;
 extern void *g_pCutsceneCockpitPalette_00499c0c;
-extern unsigned char *g_pActiveCutscenePixels_005c83dc;
+extern unsigned char *g_pActiveCutscenePixelsAddress_005c83dc;
 extern short g_nCutsceneSpritesDrawn_00499c10;
 extern const char *g_apszCutsceneObjectTypeNames_00499c18[4];
 extern CutsceneSoundEffect *g_pCutsceneSoundEffects_00499c28;
@@ -471,7 +471,7 @@ extern char *g_pszCutsceneSpeechCursor_00499eb0;
 extern signed char g_cCutsceneSpeechSpeed_00499eb4;
 extern signed char g_bCutsceneSpeechActive_00499eb8;
 #ifdef GAMEFLOW_C
-extern volatile int g_nInputClock_005c84a8;
+extern volatile int g_nInputTimerTicks_005c84a8;
 #else
 extern signed char g_bCutsceneTextBoundsOverride_00499edc;
 #endif
@@ -714,19 +714,19 @@ extern char g_szUnidentifiedCommRecipient_0049b84c[16];
 extern char g_szCommHeadingNewline_0049b85c[4];
 extern char g_szChooseCommPrompt_0049b860[8];
 extern char g_szCommMenuChoiceFormat_0049b868[8];
-extern short g_bHighMemoryResourcesEnabled_005c80e4;
-extern short DAT_005c82a4;
-extern short DAT_005c8458;
-extern short g_bInputManagerInitialized_005c80ca;
-extern unsigned char g_nInputRepeatDelay_005c80d6;
-extern unsigned char g_bInputCursorEnabled_005c80e6;
-extern short g_nUiInputMode_005c8d3c;
+extern short g_bStoredHighMemoryEnabled_005c80e4;
+extern short g_nHighMemoryInitValue_005c82a4;
+extern short g_nStoredHighMemoryResourceSetupWord_005c8458;
+extern short g_bEventManagerInitializationState_005c80ca;
+extern unsigned char g_nEventRepeatDelayState_005c80d6;
+extern unsigned char g_bMouseCursorEnabled_005c80e6;
+extern short g_nInterfaceEventMode_005c8d3c;
 extern short g_nVoiceBlasterIrqSetting_005c8dd8;
 extern short g_nStorageAdjustmentKbValue_005c8dda;
 extern short g_bPumpMessagesWhileLoadingState_005c8ddc;
 extern short g_nAudioBlasterPortSettingValue_005c8dde;
 extern unsigned int g_dwInitialSpareMemory_005c8dd0;
-extern short g_nDetectedGraphicsMode_005c80d2;
+extern short g_nCurrentGraphicsModeDetectedValue_005c80d2;
 extern int g_nMemConfiguration_005c8dc8;
 extern int g_nMusicMemoryNeed_005c8dcc;
 extern int g_nAvailableGameMemoryNumber_005c8de0;
@@ -1023,7 +1023,7 @@ typedef struct QueuedMouseState {
     unsigned char shapeChanged;       /* +0x1B */
 } QueuedMouseState;
 #pragma pack(pop)
-extern QueuedMouseState g_stQueuedMouse_005c83f0;
+extern QueuedMouseState g_stEventQueuePointerData_005c83f0;
 /* Retain these predecessor declarations only where C1 needs their symbol
  * slots; its C++ front end assigns five more keys to the packed record. */
 #ifndef __cplusplus
@@ -1064,29 +1064,29 @@ extern char g_szStreamerDirectory_005b2818[4096];
 extern char g_szStreamerDirectory_005b2818[128];
 #endif
 extern unsigned char g_bInputMode_0059a848;
-extern int g_anObjectDepthPlaced_005c8180[SPACE_OBJECT_COUNT];
+extern int g_anPlacedObjectDepths_005c8180[SPACE_OBJECT_COUNT];
 extern short DAT_0059a9f0;
-extern signed char g_cScreenViewMode_005c82a6;
+extern signed char g_cStoredViewDisplayModeValue_005c82a6;
 extern const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_005c82b0;
 #ifdef EVENTMGR_C
-extern short g_nViewportOriginX_005c849e;
-extern short g_nViewportOriginY_005c849c;
+extern short g_nViewportLeftOrigin_005c849e;
+extern short g_nViewportOffsetY_005c849c;
 #else
-extern short g_nViewCenterX_005c80d8;
+extern short g_nStoredScreenViewCentreX_005c80d8;
 extern short g_nViewCenterY_005c80da;
 #endif
-extern unsigned char g_abInputKeyState_005c80f0[0x80];
-extern MouseCursorState g_stPersonnelCursor_005c8470;
+extern unsigned char g_abKeyboardEventStates_005c80f0[0x80];
+extern MouseCursorState g_stPersonnelMousePointerState_005c8470;
 extern void (*DAT_0059ab2c)(void);
-extern volatile int g_nFrameTimerPending_005c844c;
+extern volatile int g_nFrameTimerWaitTicksValue_005c844c;
 #ifdef EVENTMGR_C
-extern short g_nViewCenterX_005c80d8;
+extern short g_nStoredScreenViewCentreX_005c80d8;
 #else
-extern short g_nViewportOriginX_005c849e;
+extern short g_nViewportLeftOrigin_005c849e;
 #endif
 extern short DAT_0059ab64;
-extern int g_anInputEventSlotUsed_005c87e0[0x100];
+extern int g_anCurrentInputEventEntryAllocation_005c87e0[0x100];
 extern short g_nQueuedInputX_005c83f0;
 extern short g_nQueuedInputY_005c83f2;
 extern unsigned char g_bQueuedPrimaryButton_005c83f4;
@@ -1105,23 +1105,23 @@ extern unsigned char g_bInputCursorShapeChanged_005c840b;
 EVENTMGR_STATIC unsigned char g_abInputCursorBehind_005c3b10[0x1000];
 extern int g_nMouseRenderY_005c80a8;
 extern int g_nDrawnCursorX_005c80ac;
-extern unsigned char *DAT_005c80c0;
-extern int g_bInputCursorBackgroundCaptured_005c80c4;
-extern int g_nCapturedInputCursorY_005c8178;
+extern unsigned char *g_pCurrentCampaignDataOffset_005c80c0;
+extern int g_bCurrentInputCursorBackgroundCapturedState_005c80c4;
+extern int g_nSavedPointerY_005c8178;
 extern int g_nCapturedInputCursorX_005c817c;
-extern int g_bInputCursorDirty_005c8450;
-extern int g_nInputCursorDirtyRight_005c845c;
-extern int g_nInputCursorDirtyBottom_005c8460;
-extern int g_nInputCursorDirtyLeft_005c85c0;
+extern int g_bPointerDirtyValue_005c8450;
+extern int g_nCursorDirtyRightValue_005c845c;
+extern int g_nPointerDirtyBottom_005c8460;
+extern int g_nPointerDirtyLeft_005c85c0;
 extern int g_nInputCursorDirtyTop_005c85c4;
 EVENTMGR_STATIC InputEventState g_stFoundInputEvent_005c3af8;
-extern signed char g_bCinematicSpriteFontEnabled_005c82a7;
+extern signed char g_bCinematicSpriteTextEnableStatus_005c82a7;
 extern TextContext *g_pCurrentTextContext_005c8d1c;
-extern void (*g_pfnDrawCinematicFontCharacter_005c8d30)(char character);
-extern void (*g_pfnDrawCinematicTextString_005c8cf4)(char *text);
+extern void (*g_pfnRenderSceneFontCharacterHandler_005c8d30)(char character);
+extern void (*g_pfnRenderSceneTextStringHandler_005c8cf4)(char *text);
 extern short g_aasGunCooldown_005c8d70[10][3];
 extern short DAT_0059ab34;
-extern int g_anSortedObject_005c82c0[SPACE_OBJECT_COUNT];
+extern int g_anStoredObjectSortedIndicesData_005c82c0[SPACE_OBJECT_COUNT];
 extern FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
 #if defined(SPC_C)
 extern short g_anObjectYawRotation_00494fc8[SPACE_OBJECT_COUNT];
@@ -1378,7 +1378,7 @@ extern int g_nPassingShipSndCooldown_005d156c;
 extern short g_nAlternateSampleToggle_005d1570;
 extern int g_anObjectSoundEffects_005d1580[SPACE_OBJECT_COUNT];
 extern int g_nAllocateViewportCalls_005c8dc4;
-extern void *g_pLastPacketAllocation_005c80e0;
+extern void *g_pLibraryCurrentLastPacketAllocation_005c80e0;
 extern FireworkState g_aFireworks_005c8df0[30];
 extern unsigned char *g_pTitleFireworkShape_005c8f58;
 extern Viewport *g_pConstellationWindow_005c8f5c;
@@ -1481,8 +1481,8 @@ extern short g_nLastFoundShip_005d2fc8;
 extern unsigned int g_dwOriginalFreeMemory_005a7cd8;
 extern unsigned char *g_pMouseCursorResource_005a7cdc;
 extern int g_bAfterburnerSfxActive_005d3864;
-extern signed char DAT_005c8430;
-extern int g_bSuppressNextMouseMove_005c843c;
+extern signed char g_bCampaignFlightRunning_005c8430;
+extern int g_bIgnoreNextCursorMoveFlag_005c843c;
 extern FixedVector g_vNormalizedToTgt_005d3bd0;
 extern signed char g_cPilotHandFrameCode_005d1c30;
 extern short g_nScreenMessageTimeNumber_005d1c32;
@@ -1654,7 +1654,7 @@ extern int g_nSfxVolumeSetting_0049d74c;
 extern int g_nMusicVolumeSetting_0049d750;
 extern short g_bViewportDirty_0049d76c;
 extern int g_anVolumeLevels_0049d720[11];
-extern int g_nInputTickScale_005c8d24;
+extern int g_nEventClockScaleValue_005c8d24;
 extern short g_asControlsButton1DoubleClickTable_005d3030[2];
 extern short g_asControlsButton1ChangedValues_005d3034[2];
 extern short g_asInputButton2ChangedList_005d3038[2];
@@ -1669,21 +1669,21 @@ extern int g_nNextInputQueueFlushTick_0049d4cc;
 extern int g_nNextInputPollTick_0049d6d4;
 extern short g_nInputPollPeriod_0049d6d8;
 extern Viewport *g_pInputViewport_005c8403;
-extern void (*g_pfnInputPump_005c840c)(void);
-extern short g_nEmsIsrBusy_005c841c;
-extern InputManagerState *g_pInputManagerState_005c8464;
+extern void (*g_pfnCurrentInputPump_005c840c)(void);
+extern short g_nEmsIsrBusyValue_005c841c;
+extern InputManagerState *g_pEventManager_005c8464;
 extern InputPumpContext *g_pActiveInputContext_005c8487;
-extern void (*g_pfnEventManagerShutdown_005c8be0)(void);
-extern short g_nInputTickInterval_005c8448;
-extern signed char g_cKeypadMouseSpeed_005c83e6;
+extern void (*g_pfnEventShutdownCallback_005c8be0)(void);
+extern short g_nCurrentInputTickInterval_005c8448;
+extern signed char g_cKeypadMouseSpeedValue_005c83e6;
 #ifdef GAMEFLOW_C
 extern signed char g_bCutsceneTextBoundsOverride_00499edc;
 #else
-extern volatile int g_nInputClock_005c84a8;
+extern volatile int g_nInputTimerTicks_005c84a8;
 #endif
 extern void *g_pApplicationScratchBuffer_005c8483;
 extern short g_nUiCursorFrame_005c8481;
-extern short g_wInputDeviceButtonState_005c8432;
+extern short g_wInputDeviceButtonStatus_005c8432;
 extern short g_nSelectedStartingCampaign_005d3bf0;
 extern short g_nSelectedCampaignSlot_005d3bf2;
 extern DwordPtr g_dwHighMemoryParagraphValue_005d3fb4;
@@ -1753,8 +1753,8 @@ MAIN_STATIC short g_wSavedInputDeviceButtonState_005c4b14;
 extern short g_bDiscreteFlightInputWaiting_005c57e4;
 extern short g_bPolledFlightInputQueued_005c587a;
 extern int g_bPlayerInputActive_005c8090;
-extern short g_wPendingButtonMask_005c80d4;
-extern PersonnelMouseSample g_stPersonnelMouse_005c8d00;
+extern short g_wQueuedButtonsState_005c80d4;
+extern PersonnelMouseSample g_stPersonnelMouseData_005c8d00;
 /* Obsolete field declarations retain C1's numbering; they have no definitions. */
 extern short g_nPersonnelMouseY_005c8d02;
 extern unsigned char g_bPersonnelPrimaryButton_005c8d04;

@@ -542,7 +542,7 @@ void load_ship(short resourceType, short objectType,
                 g_aObjectTypeData_00496d30[slot].shape =
                     g_aObjectResourceSlots_00493398[slot].shape;
                 if (objectClass == OBJECT_CLASS_SHIP &&
-                    g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+                    g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
                     g_nResourcePaletteState_005c57e6 == 0) {
                     g_aObjectResourceSlots_00493398[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 4, 4);
@@ -570,7 +570,7 @@ void load_ship(short resourceType, short objectType,
                         g_aObjectTypeData_00496d30[slot].shape;
                 }
             } else {
-                if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+                if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
                     g_nResourcePaletteState_005c57e6 == 0) {
                     g_apPacketReferenceGroups_0049b898[slot] =
                         (void **)calloc(0x25, HOST_POINTER_SIZE);
@@ -632,7 +632,7 @@ void free_ship(short slot)
              OBJECT_CLASS_SHIP)) {
         if (g_nResourcePaletteState_005c57e6 == 0)
             release_capital_ship_shapes(resourceType);
-        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0 &&
+        if (g_bStoredHighMemoryEnabled_005c80e4 != 0 &&
             g_nResourcePaletteState_005c57e6 == 0 &&
             g_apPacketReferenceGroups_0049b898[slot] != 0) {
             refCount = g_apPacketReferenceGroups_0049b898[slot];
@@ -1082,7 +1082,7 @@ short set_up_next_wave(void)
     prevWave = g_nCurrentWave_004931c0;
     g_nCurrentWave_004931c0++;
     if (waveRecord->type == prevWave) {
-        if (g_bHighMemoryResourcesEnabled_005c80e4 != 0) {
+        if (g_bStoredHighMemoryEnabled_005c80e4 != 0) {
             for (obj = 10; obj < SPACE_OBJECT_COUNT; obj++) {
                 if (g_asObjectType_00495298[obj] == OBJECT_TYPE_TORPEDO)
                     remove_object(obj);

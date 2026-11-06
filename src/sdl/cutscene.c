@@ -35,7 +35,7 @@ void SdlRunSelectedCampaignCutscene(void)
 
     g_pCutsceneCockpitPalette_00499c0c =
         AllocateScenePointerTable(1, 0x3420, 2, "HB1");
-    g_pActiveCutscenePixels_005c83dc =
+    g_pActiveCutscenePixelsAddress_005c83dc =
         g_pCutsceneCockpitPalette_00499c0c;
     g_bCutsceneViewportPreallocated_00499c4c = 1;
     RunCampaignScript(g_nSelectedCampaignSlot_005d3bf2);
@@ -58,7 +58,7 @@ void SdlRunSelectedCampaignCutscene(void)
         g_nYourWingman_0049346c = savedWingman;
     }
     ReleasePacketSlot(&g_pCutsceneCockpitPalette_00499c0c);
-    g_pActiveCutscenePixels_005c83dc = 0;
+    g_pActiveCutscenePixelsAddress_005c83dc = 0;
     ReleasePacketSlot((void **)&g_pCampaignGlobals_00499c94);
     fprintf(stderr, "Cutscene completed; exiting.\n");
 }

@@ -141,7 +141,7 @@ void FormatTextTokens(void (*writer)(int),
 #endif
                     break;
                 case 'P':
-                    if (g_bCinematicSpriteFontEnabled_005c82a7 == 0)
+                    if (g_bCinematicSpriteTextEnableStatus_005c82a7 == 0)
                         DrawTextString(g_pCurrentTextContext_005c8d1c->text);
                     else
                         DrawWrappedCinematicText(
@@ -174,7 +174,7 @@ void DrawFormattedText(const char *format, ...)
     va_list arguments;
 
     va_start(arguments, format);
-    if (g_bCinematicSpriteFontEnabled_005c82a7 == 0) {
+    if (g_bCinematicSpriteTextEnableStatus_005c82a7 == 0) {
         FormatTextTokens((void (*)(int))DrawTextCharacter, format,
 #ifdef SDL_PORT
                          &arguments);
