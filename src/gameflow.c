@@ -2006,7 +2006,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     short index;
     short runtimeIndex;
     short waitTicks;
-    int inputHandled;
+    int inputSeen;
     int waitUntil;
     signed char returnValue;
     signed char branchGuard;
@@ -2016,7 +2016,7 @@ signed char RunCutsceneScript(unsigned char **scriptCursor,
     returnValue = 1;
     branchGuard = 1;
     stack = stackStorage + 10;
-    inputHandled = 0;
+    inputSeen = 0;
     if (instruction == 0)
         FatalCutsceneError(
             "ERROR: Running script for UNLINKED EXTERNAL (%s)",
@@ -2204,12 +2204,12 @@ handle_queued_cutscene_input:
                         g_bCutsceneSkipFrame_00499c54 = 1;
                         g_nNextCutsceneFrameClock_00499c90 =
                             g_nInputClock_005c84a8;
-                        inputHandled = 1;
+                        inputSeen = 1;
                     }
                 }
             }
             if (g_wDigiPlaying_0049bb60 == 0 &&
-                TakeInputPressCount() != 0 && inputHandled == 0) {
+                TakeInputPressCount() != 0 && inputSeen == 0) {
                 ReleaseSceneFlicPackets();
                 ReleaseCutsceneSoundEffects(-1);
                 if (g_bSceneEscapeRequested_0049d4b0 != 0) {

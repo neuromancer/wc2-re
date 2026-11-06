@@ -155,6 +155,24 @@ byte, leaving a 20-byte code deficit. This record type has only this reader;
 the nonzero test has the same result for every byte value. The record's
 `0x33C` size and all C1 keys stay unchanged.
 
+`RunCutsceneScript` (`0x0042F1FD`) has a partial name-only recovery:
+renaming `inputHandled` to `inputSeen` moves it from bucket 8 to bucket 1.
+Reverse declaration order then puts the input flag at `-4` and the primary
+operand `value` at `-8`, matching the retail flag and the operand's dominant
+slot. The instruction-extent comparison improves from 1,617/3,672 to
+1,519/3,672 differing encodings. All 242 parsed scalar, parameter, and array
+symbol keys in the unit are preserved. Code remains 437 bytes short, and
+the full normalized report is unchanged.
+
+This does not recover the interpreter's full frame. It remains `0xA8`
+bytes instead of retail's `0x130`; retail puts the instruction pointer at
+`-0x80` and the ten-word stack at `-0x9C`. The exported instructions do not
+explain the gap between the leading slots and those objects. Do not fill it
+with guessed storage. The source also reuses `value` for some operations
+that use separate retail slots, so `-8` is not correct for every use. A
+larger probe placing six leading slots at their apparent retail offsets
+regressed the same binary-comp comparison to 1,725/3,672 and was discarded.
+
 `SetFleetOverviewView` (`0x0044ADE0`) also has the correct `0x3C` frame size
 but initially had misplaced locals. Four renames reproduce all nine slots:
 `centre` at `-0x0C`, `cameraDistance` at `-0x10`, `shipSlot` at `-0x14`,

@@ -210,6 +210,13 @@ normalized report. `.text` grows by 112 bytes, reducing its deficit to 592 bytes
 the 41 reported span deltas sum to +350 bytes. The function's frame and
 variable reuse remain incomplete, as detailed in [PATTERNS.md](PATTERNS.md).
 
+The cutscene interpreter's input-flag rename puts the flag and primary
+operand at retail `-4/-8`, reducing differing instruction encodings from
+1,617/3,672 to 1,519/3,672. Its code remains 437 bytes short. All rows in the
+full normalized report and all section sizes stay unchanged; the `SIZE`
+label does not expose this operand improvement. The frame and variable
+reuse remain incomplete (see [PATTERNS.md](PATTERNS.md)).
+
 The unnormalized `binary-comp exe --functions` comparison finds
 558 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
@@ -229,7 +236,8 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,435 identical file positions out of 714,752 (19.5082%). Address
+reports 139,445 identical file positions out of 714,752 (19.5096%). The
+cutscene rename adds ten matching positions to the previous checkpoint. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
