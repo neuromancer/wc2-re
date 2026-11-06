@@ -216,6 +216,9 @@ void ReleaseModalTextPanel(void)
     DIBslamReal();
 }
 
+/* This callee declaration preserves CL 4.1's comparison operand order below. */
+void DrawTextInputCursor(char character);
+
 /* Function start: 0x4597E3 */
 short ReadTextInput(char *destination, short maximumLength,
                     volatile short mode,
@@ -226,12 +229,12 @@ short ReadTextInput(char *destination, short maximumLength,
     char *oldText;
     short textX;
     short textY;
-    short length;
     short done;
     short keyHandled;
     unsigned char backgroundInk;
     short inputCode;
     char textBuffer[40];
+    short characterCount;
 
     done = 0;
     backgroundInk = g_pCurrentTextContext_005c8d1c->backgroundColour;
@@ -247,7 +250,7 @@ short ReadTextInput(char *destination, short maximumLength,
     textArea = *g_pCurrentTextContext_005c8d1c->viewport;
     g_pCurrentTextContext_005c8d1c->viewport = &textArea;
     DosStrcpy(textBuffer, destination);
-    length = DosStrlen(textBuffer);
+    characterCount = DosStrlen(textBuffer);
 
     textArea.left = textX;
     textArea.top = textY;
@@ -284,13 +287,13 @@ short ReadTextInput(char *destination, short maximumLength,
                 done++;
                 break;
             default:
-                if (inputCode == 8 && length != 0) {
+                if (inputCode == 8 && characterCount != 0) {
                     EraseCharacterAfterTextCursor(' ');
                     EraseLastTextInputCharacter();
                     DrawTextInputCursor(' ');
-                    length--;
-                    textBuffer[length] = 0;
-                } else if (length < maximumLength &&
+                    characterCount--;
+                    textBuffer[characterCount] = 0;
+                } else if (characterCount < maximumLength &&
                            ((allowPathSeparators != 0 &&
                              (inputCode == ':' || inputCode == '\\')) ||
 #ifdef SDL_PORT
@@ -298,7 +301,7 @@ short ReadTextInput(char *destination, short maximumLength,
 #else
                             isalnum(inputCode) ||
 #endif
-                            (inputCode == ' ' && length != 0))) {
+                            (inputCode == ' ' && characterCount != 0))) {
                     switch (mode) {
                     case 1:
                         inputCode = (short)toupper(inputCode);
@@ -311,9 +314,9 @@ short ReadTextInput(char *destination, short maximumLength,
                     if (inputCode == 0)
                         break;
                     EraseCharacterAfterTextCursor(' ');
-                    textBuffer[length] = (char)inputCode;
-                    length++;
-                    textBuffer[length] = 0;
+                    textBuffer[characterCount] = (char)inputCode;
+                    characterCount++;
+                    textBuffer[characterCount] = 0;
                     SetTextCursor((unsigned short)textX,
                                   (unsigned short)textY);
                     DrawFormattedText(textBuffer);

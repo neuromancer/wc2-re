@@ -121,9 +121,13 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             IxAiffCommonChunk *common;
 
             common = (IxAiffCommonChunk *)(chunk + 1);
-            common->channels = IX_SWAP_WORD(common->channels);
+            common->channels = (short)(
+                (((unsigned int)common->channels << 8) & 0xff00) |
+                ((common->channels >> 8) & 0xff));
             common->sampleFrames = IX_SWAP_DWORD(common->sampleFrames);
-            common->bitsPerSample = IX_SWAP_WORD(common->bitsPerSample);
+            common->bitsPerSample = (short)(
+                ((common->bitsPerSample & 0xff00) >> 8) |
+                ((common->bitsPerSample & 0xff) << 8));
             sampleRate = (int)ix_sample_convert_from_ieee_extended(common->sampleRate);
             rateNumerator = 1;
             rateDenominator = rateNumerator;
@@ -173,14 +177,14 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
 
         case 0x444e5353: {
             int samplesRemaining;
-            short *samples;
+            unsigned short *samples;
 
             buffer = (unsigned char *)ix_dsp_alloc(chunk->size);
             sampleCount = chunk->size / bytesPerFrame;
             if (loopEnd == (unsigned int)-1)
                 loopEnd = sampleCount;
             if (bitsPerSample == 16) {
-                samples = (short *)(chunk + 1);
+                samples = (unsigned short *)(chunk + 1);
                 samplesRemaining = sampleCount * channels;
                 while (samplesRemaining--) {
                     *samples = IX_SWAP_WORD(*samples);
@@ -190,6 +194,8 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             ix_dsp_copy(buffer, chunk + 1, chunk->size);
             break;
         }
+        default:
+            break;
         }
         chunk = (IxSampleChunk *)((unsigned char *)chunk +
                                   chunk->size + sizeof(IxSampleChunk));
@@ -317,8 +323,6 @@ int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
     flags |= IX_SAMPLE_READY;
     return 0;
 }
-
-double __cdecl ldexp(double value, int exponent);
 
 /* Function start: 0x46BBCC */
 long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)
