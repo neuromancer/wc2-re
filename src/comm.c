@@ -3,6 +3,7 @@
  *
  *  Retail object 0x447300-0x44856F (link order; see docs/ORDER.md).
  */
+#define COMM_C
 #include "game.h"
 
 short g_nEnemyTauntCommandBase_0049b76c = 20;

@@ -3,6 +3,7 @@
  *
  *  Retail object 0x442770-0x44655F (link order; see docs/ORDER.md).
  */
+#define BRAINS_C
 #include "game.h"
 
 short g_nEnemySighting_0049b670 = 0x7fff;

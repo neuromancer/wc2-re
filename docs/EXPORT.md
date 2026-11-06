@@ -190,6 +190,17 @@ normalized `EXACT` result. The retained memory-query and speech code after
 early returns also needs linear-disassembly inspection; the reachable
 exports alone do not describe these corrections.
 
+Nine equality comparisons and two viewport-centre additions also had
+reversed global operands hidden by normalization. Unit-specific declaration
+ordering restores them while preserving every local symbol stream and all
+4,512 linker-map symbol addresses. Eight comparison sequences now match
+literally (103/103 bytes, up from 77/103); `check_objectives` now matches its
+whole 98-byte span. This raises the byte-identical span count from 562 to
+563 with no lost identical spans. The normalized report, image sizes, and
+whole-file positional result remain unchanged. The viewport routine's raw
+span loses one accidental matching byte because its correctly selected
+globals still occupy the wrong addresses (see [PATTERNS.md](PATTERNS.md)).
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
@@ -269,7 +280,7 @@ rows and image sizes remain unchanged. The displaced function's changed
 stack operands lose seven accidental whole-file positional matches.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-562 byte-identical mapped spans and 261 functions at their retail addresses.
+563 byte-identical mapped spans and 261 functions at their retail addresses.
 Restoring the `abs` calls shifts later code and lowers the identical-span
 count from 580; correct local instruction changes can disrupt earlier
 accidental agreement between relative call operands while size errors remain.

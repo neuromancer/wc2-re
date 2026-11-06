@@ -420,6 +420,38 @@ separate statement-order discrepancy: retail checks the left, up, right,
 then down scales for zero; the source checks left, right, up, then down.
 That discrepancy remains under the mapped-function body restriction.
 
+Equality comparisons can hide the same ordering problem: relocation
+normalization masks the two global operands even when C2 loads them in the
+opposite order. The following declaration exchanges recover nine retail
+comparisons without changing types, expressions, local symbols, or sizes:
+
+| Unit | Comparisons corrected | Exchanged C1 keys |
+| --- | --- | --- |
+| `spc.c` | canned-scene segment end and space frame | 20332 / 20951 |
+| `brains.c` | enemy sighting and current wave | 20191 / 20727 |
+| `gameflow.c` | linked/current plane and sequence | 20471 / 20474; 20472 / 20475 |
+| `main.c` | pending/displayed HUD text and playback frame counts | 20253 / 20254; 21420 / 21421 |
+| `cockpt.c` | displayed/current objective range | 20268 / 21026 |
+| `comm.c` | requested/loaded communication portrait | 20413 / 20668 |
+| `ix/mixer.cpp` | mixer and primary sound-buffer pointers | 26530 / 26532 |
+
+The core exchanges are scoped to their owning units; the mixer exchanges
+its two file-scope extern declarations. Only the eighteen load/compare
+operands change in their compiler listings. Eight comparison sequences
+now match literally, totaling 103/103 bytes versus 77/103 before. The
+remaining playback comparison still references displaced storage.
+`check_objectives` (`0x0043B089`) now matches its entire 98-byte mapped span,
+including calls, versus 94/98 before.
+
+In `EVENTMGR_C`, exchanging centre-X/origin-X keys 20908/20914 and
+centre-Y/origin-Y keys 20909/20260 restores the two additions in
+`set_up_screen_viewport` (`0x004648C5`). Retail loads each centre before
+its origin. All local symbol records remain identical, and these four
+load operands are the unit's only instruction changes. The globals retain
+their displaced addresses: the corrected order loses one accidental byte
+match in the raw span, from 360/409 to 359/409, despite matching retail's
+operand selection. The event-manager storage layout remains unresolved.
+
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key
 hash; a member read outweighs a scalar. `fire_computer_graphic_missile`

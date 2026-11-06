@@ -3,6 +3,7 @@
  *
  *  Retail object 0x4380B0-0x43FABF (link order; see docs/ORDER.md).
  */
+#define COCKPT_C
 #include "game.h"
 
 short g_bTargetLockActive_0049ae80 = 0;

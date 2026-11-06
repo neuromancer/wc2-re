@@ -26,9 +26,9 @@ extern unsigned int g_dwMixerScratchSize_005c4ed4;
 extern unsigned int g_dwMixWriteOffset_005c4ecc;
 extern LPDIRECTSOUND g_pDirectSound_005c4ed0;
 extern unsigned int g_dwSoundOptions_005c4ed8;
-extern LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
-extern unsigned int g_dwDsoundTick_005c52e8;
 extern LPDIRECTSOUNDBUFFER g_pPrimarySoundBuffer_005c52ec;
+extern unsigned int g_dwDsoundTick_005c52e8;
+extern LPDIRECTSOUNDBUFFER g_pMixerBuffer_005c4ee0;
 
 BOOL CALLBACK ix_dsp_open_driver(LPGUID guid, LPSTR description,
                                  LPSTR module, LPVOID context);

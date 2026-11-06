@@ -3,6 +3,7 @@
  *
  *  Retail object 0x42BB70-0x43340F (link order; see docs/ORDER.md).
  */
+#define GAMEFLOW_C
 #include "game.h"
 
 static char g_szLastCutsceneWorkBuffer_00499ec0[16];

@@ -100,7 +100,11 @@ extern const unsigned short g_wDmaHalfBytes_0048e0e4;
 #endif
 extern short g_nAutopilotFormationShipCount_00493060;
 extern unsigned char g_cRedColour_0049cb5c;
+#ifdef BRAINS_C
+extern short g_nCurrentWave_004931c0;
+#else
 extern short g_nEnemySighting_0049b670;
+#endif
 extern short g_bHomeObjectiveFlagged_0049b674;
 extern void **g_apPacketReferenceGroups_0049b898[5];
 extern short g_anPilotTurnInterval_0049b9c0[8];
@@ -165,14 +169,24 @@ extern char g_szCompNavigation_0049b3c0[16];
 extern char g_szDestinationFormat_0049b3d0[20];
 extern char g_szNavigationRangeLabel_0049b3e4[12];
 extern char g_szNewObjectivePrompt_0049b3f0[20];
+#ifdef MAIN_C
+extern char *g_pszDisplayedHudMessage_0049aff0;
+extern char *g_pszPendingHudMessage_0049afec;
+#else
 extern char *g_pszPendingHudMessage_0049afec;
 extern char *g_pszDisplayedHudMessage_0049aff0;
+#endif
 extern unsigned char *g_pHudMessageFrameShape_0049b288;
 extern unsigned char *g_pHudMessageBackground_0049b28c;
 extern short g_bCaptureHudMessageBackground_0049b290;
 extern short g_nHudMessageBackgroundDepth_0049b294;
 extern ShortPoint g_stHudMessageOrigin_0049ae90;
+/* Viewport setup adds centres before origins in the event-manager unit. */
+#ifdef EVENTMGR_C
+extern short g_nViewCenterY_005c80da;
+#else
 extern short g_nViewportOriginY_005c849c;
+#endif
 extern signed char g_cOverlayMessageView_005d1c37;
 extern short g_bDisplayWingmanTargetData_0049347c;
 extern signed char g_cLastPilotHandFrame_0049aff4;
@@ -180,7 +194,11 @@ extern short g_asPilotHandOffsets_0049aff8[34];
 extern short g_nScannerTargetObject_0049b07c;
 extern Viewport g_stTrainSimRightVduSource_0049b2c0;
 extern Viewport g_stTrainSimLeftVduSource_0049b2d8;
+#ifdef COCKPT_C
+extern int g_nCurrentObjectiveRange_004931c8;
+#else
 extern int g_nDisplayedObjectiveRange_0049b078;
+#endif
 extern int g_aiForwardScannerGridRows_0049b080[78];
 extern int g_aiTargetCameraScannerGridRows_0049b1b8[50];
 extern short g_nTargetLockMarkerX_0049b298;
@@ -261,7 +279,11 @@ extern int g_nTrainSimActive_0049d758;
 extern short g_nCannedSceneMode_0049021c;
 extern char g_szCannedSceneTapeFile_00490208[9];
 extern short g_nCannedSceneBufferNearCapacityFlag_00490214;
+#ifdef SPC_C
+extern short g_nSpaceFrame_00493134;
+#else
 extern short g_nCannedSceneSegmentEndFrame_00490218;
+#endif
 extern short g_nCannedSceneStateRecordMarker_00490220;
 /* taperec.c passes these codes as literals; the declarations hold the
  * header's symbol count (see the damage strings below). */
@@ -359,7 +381,11 @@ extern unsigned char g_aShipIntelligenceData_005d3060[5][0x51];
 extern short g_asShipIntelState_0049b678[10];
 extern signed char g_acShipPortrait_00495d88[12];
 extern short g_asShipTactic_00495f30[12];
+#ifdef COMM_C
+extern short g_nCommPortraitIndex_0049b79c;
+#else
 extern short g_nLoadedCommPortraitPilot_004931c4;
+#endif
 extern int g_nMissionMusicTrackOverride_00496144;
 extern short g_nWingmanTargetingMode_0049613c;
 extern short g_bCockpitDamageFrame0Shown_0049b2b4;
@@ -418,11 +444,21 @@ extern void (*g_apCutsceneSpriteHandlers_00499c5c[1])(
     SceneFlicObject *sprite);
 extern signed char g_bCutsceneDrawingEnabled_00499c60;
 extern SceneFlicObject *g_pLinkedCutsceneSprite_00499c64;
-extern CutscenePlane *g_pLinkedCutscenePlane_00499c68;
-extern CutsceneSequence *g_pLinkedCutsceneSequence_00499c6c;
-extern SceneFlicObject *g_pCurrentCutsceneSprite_00499c78;
+#ifdef GAMEFLOW_C
 extern CutscenePlane *g_pCurrentCutscenePlane_00499c7c;
 extern CutsceneSequence *g_pCurrentCutsceneSequence_00499c80;
+#else
+extern CutscenePlane *g_pLinkedCutscenePlane_00499c68;
+extern CutsceneSequence *g_pLinkedCutsceneSequence_00499c6c;
+#endif
+extern SceneFlicObject *g_pCurrentCutsceneSprite_00499c78;
+#ifdef GAMEFLOW_C
+extern CutscenePlane *g_pLinkedCutscenePlane_00499c68;
+extern CutsceneSequence *g_pLinkedCutsceneSequence_00499c6c;
+#else
+extern CutscenePlane *g_pCurrentCutscenePlane_00499c7c;
+extern CutsceneSequence *g_pCurrentCutsceneSequence_00499c80;
+#endif
 extern CutsceneScene *g_pCurrentCutsceneScene_00499c84;
 extern short g_nCutsceneFrameTick_00499c88;
 extern unsigned short g_nCutsceneFrameDelay_00499c8c;
@@ -650,7 +686,11 @@ extern short g_bCommSpeechPlaying_0049b7a0;
 extern signed char g_cCommMenuRecipient_0049b790;
 extern short g_nCommSpeakerObject_0049b794;
 extern short g_nCommSpeakerRating_0049b798;
+#ifdef COMM_C
+extern short g_nLoadedCommPortraitPilot_004931c4;
+#else
 extern short g_nCommPortraitIndex_0049b79c;
+#endif
 extern unsigned char *g_pCommPortraitResource_0049b788;
 extern unsigned char *g_pCommVduFrameResource_0049b78c;
 /* comm.c pools these strings as literals; the dead names below keep the
@@ -722,7 +762,11 @@ extern short g_nSpacePaletteFadeMode_004901e8;
  * compiler's DirectX 2 ddraw.h (it takes the slot of an older name). */
 extern const GUID CLSID_DirectDrawClipper;
 extern LPDIRECTDRAW2 g_pDirectDraw2_0049ce90;
+#ifdef BRAINS_C
+extern short g_nEnemySighting_0049b670;
+#else
 extern short g_nCurrentWave_004931c0;
+#endif
 extern short g_bUseEyePositionForHazards_0049327c;
 extern signed char g_abHazardObjects_00493280[0x14];
 extern short g_nEyePitchRate_0049314c;
@@ -1017,13 +1061,22 @@ extern short DAT_0059a9f0;
 extern signed char g_cScreenViewMode_005c82a6;
 extern const ScreenViewportGeometry * volatile
     g_pScreenViewportGeometry_005c82b0;
+#ifdef EVENTMGR_C
+extern short g_nViewportOriginX_005c849e;
+extern short g_nViewportOriginY_005c849c;
+#else
 extern short g_nViewCenterX_005c80d8;
 extern short g_nViewCenterY_005c80da;
+#endif
 extern unsigned char g_abInputKeyState_005c80f0[0x80];
 extern MouseCursorState g_stPersonnelCursor_005c8470;
 extern void (*DAT_0059ab2c)(void);
 extern volatile int g_nFrameTimerPending_005c844c;
+#ifdef EVENTMGR_C
+extern short g_nViewCenterX_005c80d8;
+#else
 extern short g_nViewportOriginX_005c849e;
+#endif
 extern short DAT_0059ab64;
 extern int g_anInputEventSlotUsed_005c87e0[0x100];
 extern short g_nQueuedInputX_005c83f0;
@@ -1065,7 +1118,11 @@ extern FixedVector g_aObjectViewPosition_0059afa0[SPACE_OBJECT_COUNT];
 extern short g_anObjectPitchRotation_00494f38[SPACE_OBJECT_COUNT];
 extern int g_anShipSpeed_00494e20[SPACE_OBJECT_COUNT];
 extern int g_nNextSfx16PlaybackFrame_004a2668;
+#ifdef SPC_C
+extern short g_nCannedSceneSegmentEndFrame_00490218;
+#else
 extern short g_nSpaceFrame_00493134;
+#endif
 extern short g_nCurrentNavPoint_004931bc;
 extern short g_nCurStellarSystem_005d169c;
 /* The current pilot profile's score and ship type fields; these names stay
@@ -1177,7 +1234,11 @@ extern short g_aeShipObjective_00495f08[12];
 extern short g_asShipIdentified_00496078[12];
 extern short g_asShipFriendlyFireCooldown_00496090[10];
 extern short g_asObjectViewFrame_00493508[SPACE_OBJECT_COUNT];
+#ifdef COCKPT_C
+extern int g_nDisplayedObjectiveRange_0049b078;
+#else
 extern int g_nCurrentObjectiveRange_004931c8;
+#endif
 extern signed char g_acShipLastAttacker_004955c0[16];
 extern unsigned char *g_apObjectShape_00493868[SPACE_OBJECT_COUNT];
 extern short g_anFlightInput_004931a8[3];
@@ -1616,8 +1677,13 @@ extern unsigned int g_dwRestoredSceneMusicState_005d14e8;
 extern short g_nCannedSceneWriteIndex_005d3fa8;
 extern int g_nCannedSceneFileOffset_005d3fac;
 extern void *g_pCannedSceneStateBlockRef_005d3fb0;
+#ifdef MAIN_C
+extern short g_nCannedSceneFrameCount_005d404c;
+extern short g_nCannedSceneRecordedFrameCountNumber_005d3faa;
+#else
 extern short g_nCannedSceneRecordedFrameCountNumber_005d3faa;
 extern short g_nCannedSceneFrameCount_005d404c;
+#endif
 extern short g_awPaletteEntryAllocation_005d4050[256];
 extern short g_asCannedSceneFrameStarts_005d3fc0[70];
 

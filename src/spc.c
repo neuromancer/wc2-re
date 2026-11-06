@@ -3,6 +3,7 @@
  *
  *  Retail object 0x419C10-0x41E4DF (link order; see docs/ORDER.md).
  */
+#define SPC_C
 #include "game.h"
 
 signed char g_bLandingCommRequestPending_00492fa0 = 0;
