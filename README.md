@@ -197,7 +197,9 @@ SDL2 and the other platform runtime libraries remain dynamic.
 
 The default target downloads and checksum-verifies the MSVC 4.1 package, then
 builds `WC2.EXE`, `WC2.map`, and compiler-generated assembly under `out/`. The
-original executable is not required to compile it:
+build verifies `WC2.EXE` against the pinned retail SHA-256 and fails on any
+mismatch, including when the executable is already up to date. The original
+executable is not required to compile it:
 
 ```sh
 make -j

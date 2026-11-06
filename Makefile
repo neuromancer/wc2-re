@@ -9,8 +9,8 @@
 # PE header reports linker 3.10.6038, exactly matching the MSVC 4.1 package.
 #
 # Common entry points:
-#   make                 # build WC2.EXE
-#   make WC2.EXE         # build WC2.EXE
+#   make                 # build WC2.EXE and verify its retail SHA-256
+#   make WC2.EXE         # build WC2.EXE and verify its retail SHA-256
 #   make run             # build and launch in DREAMM
 #   make report          # WC2 per-function similarity report on this branch
 #   make order           # compilation-unit boundary hints
@@ -132,6 +132,8 @@ PDB_SEED_AGE = 21
 LINKMAPFILE = $(OUT_DIR)/WC2.link.map
 # PE header and three debug-directory entries: 1996-09-24 17:41:25 UTC.
 ORIGINAL_TIMESTAMP = 0x32481D45
+# SHA-256 of the complete 714,752-byte Kilrathi Saga retail executable.
+ORIGINAL_SHA256 = f5e133e8eca8eb1a02e21a7d1afbb44d082e384a38d39db58a694371fa583bbe
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
@@ -1097,7 +1099,7 @@ $(PDB_SEED): $(PDB_SEED_TOOL) Makefile $(MSVC41_DIR)/Bin/MSPDB41.DLL
 test-pdb-seed: $(PDB_SEED_TOOL)
 	python3 tests/test_pdb_seed.py
 
-$(TARGET): $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
+$(TARGET):: $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(LINK_TARGET)) "$(LINK_PDB_DIR)"
 	@cp -f $(PDB_SEED) "$(LINK_PDB_DIR)/wc2.pdb"
 	env LIB='$(GAME_LIBPATH)' WIBO_DRIVE_C='$(LINK_DRIVE_C)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
@@ -1110,6 +1112,12 @@ $(TARGET): $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.
 	@cp -f $(LINK_TARGET) $@
 	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
 		--rebuilt $(TARGET) --output $(MAPFILE) $(OBJS)
+
+# A prerequisite-free double-colon rule runs after the link rule on every
+# invocation, including an up-to-date build, without forcing a relink.
+# Keep the hash check after timestamp stamping and the final executable copy.
+$(TARGET)::
+	@printf '%s  %s\n' "$(ORIGINAL_SHA256)" "$@" | shasum -a 256 -c -
 
 # Recreate missing analysis metadata without changing the executable. LINK's
 # original map is retained; private addresses come from COFF and relocations.
