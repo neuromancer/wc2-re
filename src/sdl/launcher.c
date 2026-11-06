@@ -79,9 +79,11 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
             launcherOptions->enhancedRenderer = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_ENHANCED;
         } else if (strcmp(argument, "--balanced-difficulty") == 0) {
             g_bSdlBalancedDifficulty = 1;
             launcherOptions->balancedDifficulty = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_BALANCED;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
@@ -89,6 +91,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
             SdlSetJoystickRumbleEnabled(1);
             launcherOptions->joystickRumble = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_RUMBLE;
         } else if (strncmp(argument, "--joystick-mode=", 16) == 0) {
             if (!SdlSetJoystickMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick mode: %s\n",
@@ -98,6 +101,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->joystickMode = SdlFindLauncherChoice(
                 argument + 16, g_apszSdlLauncherJoystickModes,
                 SDL_arraysize(g_apszSdlLauncherJoystickModes));
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE;
         } else if (strncmp(argument, "--joystick-axes=", 16) == 0) {
             if (!SdlSetJoystickAxesMode(argument + 16)) {
                 fprintf(stderr, "Unknown joystick axes mode: %s\n",
@@ -107,8 +111,10 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->joystickAxes = SdlFindLauncherChoice(
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES;
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
         } else {
             arguments[outputArgumentIndex++] = argument;
         }

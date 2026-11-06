@@ -1,122 +1,40 @@
 #include "launcher.h"
 #include "launcher_api.h"
+#include "launcher_config.h"
+#include "launcher_paths.h"
 #include "wc2_logo.h"
 
 #include <nfd.h>
 #include <slint.h>
 
 #include <algorithm>
-#include <array>
+#include <cstdio>
 #include <cstring>
 #include <filesystem>
-#include <fstream>
-#include <optional>
 #include <string>
-#include <string_view>
 #include <system_error>
 
 namespace {
 
 namespace fs = std::filesystem;
 
-struct DirectoryStatus {
-    bool valid;
-    std::string message;
-};
+using namespace wc2_launcher;
 
-std::string path_to_utf8(const fs::path &path)
-{
-    const auto utf8 = path.u8string();
-    return std::string(utf8.begin(), utf8.end());
-}
-
-fs::path path_from_utf8(std::string_view value)
-{
-    std::u8string utf8;
-
-    utf8.reserve(value.size());
-    for (const unsigned char character : value)
-        utf8.push_back(static_cast<char8_t>(character));
-    return fs::path(utf8);
-}
-
-bool equal_ascii_case(std::string_view left, std::string_view right)
-{
-    if (left.size() != right.size())
-        return false;
-    return std::equal(
-        left.begin(), left.end(), right.begin(),
-        [](unsigned char leftCharacter, unsigned char rightCharacter) {
-            if (leftCharacter >= 'A' && leftCharacter <= 'Z')
-                leftCharacter = static_cast<unsigned char>(
-                    leftCharacter + ('a' - 'A'));
-            if (rightCharacter >= 'A' && rightCharacter <= 'Z')
-                rightCharacter = static_cast<unsigned char>(
-                    rightCharacter + ('a' - 'A'));
-            return leftCharacter == rightCharacter;
-        });
-}
-
-std::optional<fs::path> find_child_case_insensitive(
-    const fs::path &directory, std::string_view expected)
-{
-    std::error_code error;
-    fs::directory_iterator iterator(directory, error);
-    const fs::directory_iterator end;
-
-    while (!error && iterator != end) {
-        if (equal_ascii_case(path_to_utf8(iterator->path().filename()),
-                             expected))
-            return iterator->path();
-        iterator.increment(error);
-    }
-    return std::nullopt;
-}
-
-DirectoryStatus validate_game_directory(std::string_view directoryText)
-{
-    const fs::path directory = path_from_utf8(directoryText);
-    std::error_code error;
-
-    if (!fs::is_directory(directory, error)) {
-        return {false, "The selected path is not a directory."};
-    }
-    const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
-    if (!gameData) {
-        return {false, "GAMEDAT was not found in this directory."};
-    }
-    const auto cockpit = find_child_case_insensitive(*gameData, "COCKPIT.VGA");
-    if (!cockpit) {
-        return {false, "GAMEDAT/COCKPIT.VGA is missing."};
-    }
-
-    std::ifstream cockpitFile(*cockpit, std::ios::binary);
-    std::array<unsigned char, 8> header = {};
-
-    if (!cockpitFile) {
-        return {false, "GAMEDAT/COCKPIT.VGA could not be read."};
-    }
-    cockpitFile.read(reinterpret_cast<char *>(header.data()), header.size());
-    if (cockpitFile.gcount() != static_cast<std::streamsize>(header.size())) {
-        return {false, "GAMEDAT/COCKPIT.VGA is too small to identify."};
-    }
-    if (header[7] == 0xc1)
-        return {true, "Wing Commander II DOS data found."};
-
-    const auto streams = find_child_case_insensitive(directory, "STREAMS");
-    if (!streams) {
-        return {false, "The sibling STREAMS directory is missing."};
-    }
-    if (!find_child_case_insensitive(*streams, "GAMEFLOW.STR")) {
-        return {false, "STREAMS/GAMEFLOW.STR is missing."};
-    }
-    return {true, "Wing Commander II Kilrathi Saga data found."};
-}
-
-void refresh_window(LauncherWindow &window)
+void refresh_window(LauncherWindow &window,
+                    std::vector<GameInstallation> &installations)
 {
     const std::string directory(window.get_game_directory());
     const DirectoryStatus status = validate_game_directory(directory);
+    const int selected = add_game_installation(installations, directory);
+    std::vector<slint::SharedString> choices;
+    choices.emplace_back(installations.empty()
+        ? "No game data found — add a path" : "Select game data…");
+    for (const auto &installation : installations)
+        choices.emplace_back(installation.edition + " — " + installation.directory);
+
+    window.set_installations(std::make_shared<slint::VectorModel<slint::SharedString>>(choices));
+    window.set_installation_index(selected + 1);
+    window.set_has_installations(!installations.empty());
 
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
@@ -134,7 +52,8 @@ void report_picker_error(LauncherWindow &window, std::string message,
     window.set_status_text(slint::SharedString(message));
 }
 
-void browse_for_game_directory(LauncherWindow &window)
+void browse_for_game_directory(LauncherWindow &window,
+                               std::vector<GameInstallation> &installations)
 {
     const std::string currentDirectory(window.get_game_directory());
     std::string defaultDirectory;
@@ -164,7 +83,7 @@ void browse_for_game_directory(LauncherWindow &window)
     const std::string selection(selectedDirectory);
     NFD_FreePathU8(selectedDirectory);
     window.set_game_directory(slint::SharedString(selection));
-    refresh_window(window);
+    refresh_window(window, installations);
 }
 
 } // namespace
@@ -176,6 +95,18 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     if (options == nullptr)
         return SDL_LAUNCHER_ERROR;
+    const auto configPath = launcher_config_path();
+    load_launcher_config(configPath, *options);
+    auto installations = discover_game_installations();
+
+    std::string initialDirectory(options->gameDirectory);
+    if (!validate_game_directory(initialDirectory).valid && !installations.empty()) {
+        initialDirectory = installations.front().directory;
+    } else if (initialDirectory.empty()) {
+        std::error_code error;
+        const auto currentDirectory = fs::current_path(error);
+        initialDirectory = error ? "." : path_to_utf8(currentDirectory);
+    }
 
     auto window = LauncherWindow::create();
     accepted = false;
@@ -183,23 +114,49 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_title_artwork(
         slint::private_api::load_image_from_embedded_data(
             wc2_launcher_artwork::kWingCommanderLogoPng, "png"));
-    window->set_game_directory(slint::SharedString(options->gameDirectory));
+    window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
     window->set_joystick_rumble(options->joystickRumble != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
-    refresh_window(*window);
+    refresh_window(*window, installations);
 
-    window->on_configuration_changed([&window]() {
-        refresh_window(*window);
+    window->on_installation_selected([&window, &installations](int index) {
+        if (index > 0 && static_cast<size_t>(index) <= installations.size())
+            window->set_game_directory(slint::SharedString(installations[index - 1].directory));
+        refresh_window(*window, installations);
     });
-    window->on_launch_requested([&window, &accepted]() {
-        refresh_window(*window);
+    window->on_launch_requested([&window, &accepted, &installations]() {
+        refresh_window(*window, installations);
         if (!window->get_path_valid())
             return;
+        std::error_code error;
+        const std::string directory(window->get_game_directory());
+        const auto absoluteDirectory = fs::absolute(path_from_utf8(directory), error);
+        if (error) {
+            report_picker_error(*window, "Cannot resolve the game directory",
+                                error.message().c_str());
+            return;
+        }
+        const auto absoluteText = path_to_utf8(absoluteDirectory);
+        if (absoluteText.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY) {
+            report_picker_error(*window, "The game directory path is too long", nullptr);
+            return;
+        }
+        fs::current_path(absoluteDirectory, error);
+        if (error) {
+            report_picker_error(*window, "Cannot open the game directory",
+                                error.message().c_str());
+            return;
+        }
+        window->set_game_directory(slint::SharedString(absoluteText));
         accepted = true;
+        /* Hide while the event loop still runs: on Linux the request takes
+           effect only when the loop processes it, so hiding after the loop
+           left the launcher on screen during the game. */
+        window->hide();
         slint::quit_event_loop();
     });
     window->on_cancel_requested([]() {
@@ -210,7 +167,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     /* NFD_Init records Cocoa's activation policy. Initialize it from the
      * callback, after winit launches NSApplication, so NFD_Quit cannot restore
      * the temporary pre-launch Prohibited policy before SDL takes over. */
-    window->on_browse_requested([&window, &pickerInitialized]() {
+    window->on_browse_requested([&window, &pickerInitialized, &installations]() {
         if (!pickerInitialized) {
             if (NFD_Init() != NFD_OKAY) {
                 report_picker_error(
@@ -220,7 +177,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             }
             pickerInitialized = true;
         }
-        browse_for_game_directory(*window);
+        browse_for_game_directory(*window, installations);
     });
     slint::run_event_loop();
     if (pickerInitialized)
@@ -240,5 +197,8 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickRumble = window->get_joystick_rumble();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
+    if (!configPath.empty() && !save_launcher_config(configPath, *options))
+        std::fprintf(stderr, "Cannot save launcher settings: %s\n",
+                     path_to_utf8(configPath).c_str());
     return SDL_LAUNCHER_ACCEPTED;
 }

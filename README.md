@@ -177,7 +177,7 @@ same dependencies. The capture below shows it running natively on macOS.
   <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
 </p>
 
-Building it additionally requires CMake 3.21 or newer and Rust 1.88 or newer.
+Building it additionally requires CMake 3.21 or newer and Rust 1.92 or newer.
 On Linux, install the D-Bus development files as well; the folder picker uses
 the desktop portal instead of GTK:
 
@@ -187,10 +187,20 @@ out-modern/wc2-modern-gui
 ```
 
 `make run-modern-gui` opens it with the repository's Kilrathi Saga data path.
-The launcher has a native folder picker and validates the selected DOS or
-Kilrathi Saga directory before starting the game. Its central title artwork is
+The launcher automatically finds WC2 installations beside the executable,
+in the working directory, and in common Heroic, GOG, Steam, and Windows
+EA/Origin library paths. It recognizes the DOS and Kilrathi Saga editions,
+including Heroic's `Wing Commander II/DOS` and
+`Wing Commander II/Kilrathi_Saga` layouts. Choose an installation from the
+dropdown or use **Add path…** to select another directory containing `GAMEDAT`.
+The launcher validates the data before enabling **Start game** and remembers
+the selected directory and options in `wc2-launcher.ini` in the user's SDL
+preferences directory. Explicit command-line options override saved settings;
+WC1's launcher preferences are kept separate.
+
+Its central title artwork is
 decoded from the final `WC2LOGO.VGA` menu layers with `BRIEF.PAL`, cropped to a
-small 247x101 image, and embedded in the executable. Slint 1.16.1 and [Native
+small 247x101 image, and embedded in the executable. Slint 1.18.1 and [Native
 File Dialog Extended 1.3.0](https://github.com/btzy/nativefiledialog-extended)
 are fetched at pinned tags and linked statically into `wc2-modern-gui`. Release
 archives install that integrated build under the usual `wc2-modern` name;

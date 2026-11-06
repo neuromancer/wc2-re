@@ -11,8 +11,8 @@ The SDL2 release archives may include runtime libraries from:
   GCC-exception-3.1: https://gcc.gnu.org/
 - YMFM, under the BSD-3-Clause license:
   https://github.com/aaronsgiles/ymfm
-- Slint 1.16.1, under GPL-3.0-only for this GPLv3 application:
-  https://github.com/slint-ui/slint
+- Slint 1.18.1, under GPL-3.0-only for this GPLv3 application:
+  https://github.com/slint-ui/slint/tree/v1.18.1
 - Native File Dialog Extended 1.3.0, under the zlib license:
   https://github.com/btzy/nativefiledialog-extended
 
