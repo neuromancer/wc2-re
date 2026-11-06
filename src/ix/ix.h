@@ -146,11 +146,10 @@ struct IxSound {
 /* Sound-unit declaration order preserves the retail list comparisons. */
 #ifdef IX_SOUND_CPP
 extern IxSound *g_pWaitingSoundList_005c4b34;
-extern IxSample *g_pSampleList_005c4b24;
 #else
 extern unsigned int g_dwIxSystemBits_005c4b1c;
-extern IxSound *g_pFreeSoundHead_005c4b20;
 #endif
+extern IxSound *g_pFreeSoundHead_005c4b20;
 extern int g_nActiveVoices_005c4b28;
 extern int g_nSystemVoiceCount_005c4b2c;
 extern IxSound *g_pActiveSoundList_005c4b30;
@@ -282,11 +281,10 @@ IxSound *ix_system_find_lowest_playing(IxSound *sound,
 int ix_system_find_free_voice(void);             /* 0x46A447 */
 
 /* The sample list and the queue of sounds waiting for a voice. */
+extern IxSample *g_pSampleList_005c4b24;
 #ifdef IX_SOUND_CPP
-extern IxSound *g_pFreeSoundHead_005c4b20;
 extern unsigned int g_dwIxSystemBits_005c4b1c;
 #else
-extern IxSample *g_pSampleList_005c4b24;
 extern IxSound *g_pWaitingSoundList_005c4b34;
 #endif
 
@@ -417,9 +415,8 @@ struct IxStreamFile {
     int ix_stream_file_is_reading();
 };
 
-/* In C++, () and (void) have identical signatures. CL 4.1 counts the
- * latter as a parameter symbol; sound.cpp requires the former context. */
-#ifdef IX_SOUND_CPP
+/* C++ empty parameter lists recover each sound/sample unit's declaration context. */
+#if defined(IX_SOUND_CPP) || defined(IX_SAMPLE_CPP)
 extern "C" int ix_streamer_init();           /* 0x46BD50 */
 extern "C" void ix_streamer_destroy();       /* 0x46BE6F */
 extern "C" void ix_streamer_configure(int option, void *value); /* 0x46BF1E */
@@ -430,6 +427,22 @@ extern "C" void ix_streamer_audio_play();    /* 0x46C7F3 */
 extern "C" void ix_streamer_audio_stop();    /* 0x46C853 */
 void ix_streamer_audio_pause();              /* 0x46C8B6 */
 void ix_streamer_audio_reprepare();          /* 0x46C90F */
+extern "C" void ix_streamer_set_intensity(unsigned char intensity); /* 0x46C96B */
+unsigned char ix_streamer_get_intensity();   /* 0x46C9AC */
+extern "C" void ix_streamer_set_trigger(char trigger); /* 0x46C9C1 */
+char ix_streamer_get_trigger();              /* 0x46CA19 */
+extern "C" void ix_streamer_force_trigger(char trigger); /* 0x46CA2E */
+extern "C" void ix_streamer_set_volume(unsigned short vol); /* 0x46CBBE */
+extern "C" unsigned short ix_streamer_get_volume(); /* 0x46CC3B */
+unsigned int ix_streamer_get_audio_chunk();  /* 0x46CC51 */
+void ix_streamer_seek_chunk(unsigned int chunk); /* 0x46CC66 */
+unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x46CCC0 */
+IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x46CD55 */
+#ifdef IX_SOUND_CPP
+unsigned int ix_streamer_service_audio();    /* 0x46D2C0 */
+#else
+unsigned int ix_streamer_service_audio(void);    /* 0x46D2C0 */
+#endif
 #else
 extern "C" int ix_streamer_init(void);           /* 0x46BD50 */
 extern "C" void ix_streamer_destroy(void);       /* 0x46BE6F */
@@ -441,7 +454,6 @@ extern "C" void ix_streamer_audio_play(void);    /* 0x46C7F3 */
 extern "C" void ix_streamer_audio_stop(void);    /* 0x46C853 */
 void ix_streamer_audio_pause(void);              /* 0x46C8B6 */
 void ix_streamer_audio_reprepare(void);          /* 0x46C90F */
-#endif
 extern "C" void ix_streamer_set_intensity(unsigned char intensity); /* 0x46C96B */
 unsigned char ix_streamer_get_intensity(void);   /* 0x46C9AC */
 extern "C" void ix_streamer_set_trigger(char trigger); /* 0x46C9C1 */
@@ -454,6 +466,7 @@ void ix_streamer_seek_chunk(unsigned int chunk); /* 0x46CC66 */
 unsigned int ix_streamer_hash_name(unsigned char *name); /* 0x46CCC0 */
 IxStreamerFileEntry *ix_streamer_find_entry(unsigned int hash); /* 0x46CD55 */
 unsigned int ix_streamer_service_audio(void);    /* 0x46D2C0 */
+#endif
 IxStreamFile *ix_streamer_open_file(unsigned char *name,
                                     unsigned char priority); /* 0x46CDE3 */
 void ix_streamer_close_file(IxStreamFile *streamFile); /* 0x46D05D */

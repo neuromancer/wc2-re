@@ -391,7 +391,8 @@ requires the active-list load before `this` and after `playingSound`.
 A global-declaration exchange alone cannot satisfy both; the partial
 waiting-list change was rejected.
 
-The complete correction is scoped to `IX_SOUND_CPP`. Seven no-argument
+Before recovering the object boundaries, the correction was scoped to
+`IX_SOUND_CPP`. Seven no-argument
 streamer declarations use the equivalent C++ spelling `()` instead of
 `(void)`, moving all 19 sound-unit parameter/local keys down seven without
 changing any stack offset. `this` becomes key 26429 (load signature `0x2B`)
@@ -414,6 +415,23 @@ alignment grows by two bytes. Subsequent object addresses and section sizes
 remain unchanged. Removing names from prototype parameters is not an
 alternative to the `()` spelling: CL 4.1 still allocates those unnamed C++
 parameter symbols, as the seven-parameter voice-helper probe confirms.
+
+Recovering the actual sound/sample boundaries changes that context again
+(see [ORDER.md](ORDER.md)). `sound.cpp` now starts with its eight initialization
+and setter methods, and `sample.cpp` starts with its constructor/destructor.
+To retain every emitted instruction, `IX_SOUND_CPP` uses twelve empty
+streamer parameter lists, and `IX_SAMPLE_CPP` uses eleven. The latter
+removes exactly the eleven keys added before the AIFF loader by the two
+sample methods, restoring the existing keys of all four loaders/converters.
+
+The free-sound-head/sample-list declaration exchange is no longer needed:
+the sample destructor has moved to its own unit. Their ordinary order now
+preserves both units' comparisons. The sound-specific waiting-list/system-bits
+exchange remains. These are declaration-context corrections only; all 75
+definitions in the six sound/streamer units, including their local names,
+types, declarations, and expressions, remain byte-for-byte unchanged as
+source. Compiler listings retain the same instruction sequences. The
+recovered object padding changes linked spans and relative call operands.
 
 Locals take keys in declaration order, but frame slots follow name buckets.
 When the locals of a function all have distinct buckets, reordering their

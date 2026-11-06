@@ -30,7 +30,7 @@ frame throttle.
 ```text
 0x00401000  game core (command-line objects)
 0x00469C80  ix sound library: system.cpp, sound.cpp, sample.cpp
-0x0046BD50  ix streamer library: streamer.cpp, thread.cpp (stream files last)
+0x0046BD50  ix streamer library: streamer.cpp, thread.cpp, streamfile.cpp
 0x0046DF08  import thunks of the first search pass (DDRAW ... ADVAPI32)
 0x0046E0E0  LIBCMTD members the game needs, in first-reference order
 0x00473E50  wincrt0.obj, then the CRT members only the CRT and ix need
@@ -42,25 +42,44 @@ frame throttle.
             then those the file module needs (fseek, ftell, fread, fwrite)
 ```
 
-The final source-written function in `thread.cpp` is
+The final source-written function in `streamfile.cpp` is
 `IxStreamFile::ix_stream_file_is_reading` at `0x0046DED9`; its return is at
 `0x0046DF06`, immediately before the first-pass import thunks.
 
-The source-file order above does not by itself prove separate compilation
-units. Retail has no padding between `system.cpp` and `sound.cpp`, between
-`sound.cpp` and `sample.cpp`, or between `streamer.cpp` and `thread.cpp`.
-Our individual CL 4.1 objects request 16-byte `.text` alignment, adding
-padding at those boundaries. Isolated `/G3`, `/Gy`, and `/Zp1` builds all
-retain that alignment; `/Gy` additionally splits every function into its
-own 16-byte-aligned COMDAT and is inconsistent with the observed layout.
+The sound and streamer libraries now use these recovered object boundaries:
 
-Compiling the three sound sources together and the two streamer sources
-together is a candidate for recovering those boundaries. The initial
-include-based probe compiles and links, but only 65 of the 75 functions
-retain exact normalized instruction encodings, versus 74 in the separate
-build. Changed declaration context and compiler pragmas must be understood
-before adopting it. The production build remains separate; do not infer
-original object boundaries solely from diagnostic `__FILE__` paths.
+| Source | Retail range, including trailing padding | Functions |
+| --- | --- | ---: |
+| `src/ix/system.cpp` | `0x00469C80`–`0x0046A49F` | 19 |
+| `src/ix/sound.cpp` | `0x0046A4A0`–`0x0046B12F` | 14 |
+| `src/ix/sample.cpp` | `0x0046B130`–`0x0046BD4F` | 6 |
+| `src/ix/streamer.cpp` | `0x0046BD50`–`0x0046D10F` | 23 |
+| `src/ix/thread.cpp` | `0x0046D110`–`0x0046DCFF` | 7 |
+| `src/ix/streamfile.cpp` | `0x0046DD00`–`0x0046DF07` | 6 |
+
+The earlier split placed the first eight sound methods in `system.cpp`,
+the sample constructor/destructor in `sound.cpp`, the worker entry and
+audio-service routine in `streamer.cpp`, and the six stream-file methods
+in `thread.cpp`. Those cuts fell inside retail code without alignment gaps.
+The original gaps instead follow `ix_system_find_free_voice` (seven bytes),
+`ix_sound_is_playing` (ten), `ix_streamer_close_file` (seven), and
+`ix_thread_get_audio_chunk_size` (ten), before the 16-byte boundaries above.
+`streamfile.cpp` is an inferred filename: its class identifies the subsystem,
+but no retail diagnostic string names that source file.
+
+Moving whole definitions to these units restores all four gaps using the
+compiler and linker defaults. All 75 annotated definitions and their emitted
+instruction sequences remain unchanged; the existing AIFF mismatch remains.
+Seven alignment-related report rows become normalized-byte exact. Named
+global storage retains all 1,339 linked addresses, while `.text` grows by
+16 bytes. The sound/sample declaration context needed to preserve operand
+order is recorded in [PATTERNS.md](PATTERNS.md).
+
+Do not infer object boundaries solely from diagnostic `__FILE__` paths or
+combine whole libraries to remove the misplaced gaps. Separate CL 4.1
+objects already supply the required 16-byte alignment at the recovered
+boundaries. `/G3` and `/Zp1` do not change it; `/Gy` additionally aligns
+every function and conflicts with the retail layout.
 
 LINK 3.10 pulls each library member when its symbol is first needed: by each
 command-line object in turn, then the entry point, then each pulled member,

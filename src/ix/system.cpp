@@ -1,9 +1,9 @@
 /*
  *  ix / D:\Rnd\prj\ix\src\sound\system.cpp
  *
- *  Original address range: 0x00447200 - 0x00447CD7   (27 functions)
- *  Range is exact: recovered from this module's own assert __FILE__ anchors in
- *  the shipped debug build (see docs/ORDER.md).
+ *  Retail address range: 0x00469C80 - 0x0046A49F (19 functions)
+ *  Object boundaries follow retail padding and alignment; diagnostic paths
+ *  identify the source subsystem (see docs/ORDER.md).
  *
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
@@ -351,90 +351,4 @@ int ix_system_find_free_voice(void)
         voice++;
     }
     return -1;
-}
-
-/* Function start: 0x46A4A0 */
-void IxSound::ix_system_sound_init(IxSample *newSample,
-                                   unsigned char newBasePriority,
-                                   unsigned int initialVolume,
-                                   int newPitchOffset,
-                                   unsigned short newPan)
-{
-    flags = IX_SOUND_ALLOCATED;
-    voice = -1;
-    sample = newSample;
-    pitchOffset = newPitchOffset;
-    volume = 0xffff;
-    pan = newPan;
-    basePriority = newBasePriority;
-    previous = 0;
-    next = previous;
-    stopTime = (unsigned int)-1;
-    startTime = stopTime;
-    priority = ((int)volume << 8) / 0xffff +
-               (pitchOffset << 8) / 0xac44 + basePriority;
-    next = g_pFreeSoundHead_005c4b20;
-    previous = 0;
-    if (g_pFreeSoundHead_005c4b20 != 0)
-        g_pFreeSoundHead_005c4b20->previous = this;
-    g_pFreeSoundHead_005c4b20 = this;
-}
-
-/* Function start: 0x46A597 */
-void IxSound::ix_system_sound_construct(IxSample *newSample,
-                                        unsigned char newBasePriority)
-{
-    ix_system_sound_init(newSample, newBasePriority, 0xffff, 0, 0);
-}
-
-/* Function start: 0x46A5C8 */
-void IxSound::ix_system_sound_construct_centred(IxSample *newSample)
-{
-    ix_system_sound_init(newSample, 0x80, 0xffff, 0, 0);
-}
-
-/* Function start: 0x46A5FA */
-void IxSound::ix_sound_unlink_from_free_list(void)
-{
-    if (this == g_pFreeSoundHead_005c4b20)
-        g_pFreeSoundHead_005c4b20 = next;
-    if (next != 0)
-        next->previous = previous;
-    if (previous != 0)
-        previous->next = next;
-    flags &= ~IX_SOUND_ALLOCATED;
-}
-
-/* Function start: 0x46A667 */
-void IxSound::ix_system_sound_set_volume(unsigned short newVolume)
-{
-    flags |= IX_SOUND_VOLUME_DIRTY;
-    volume = newVolume;
-    ix_sound_reprioritise();
-}
-
-/* Function start: 0x46A698 */
-void IxSound::ix_system_sound_set_pan(unsigned short newPan)
-{
-    flags |= IX_SOUND_PAN_DIRTY;
-    pan = newPan;
-}
-
-/* Function start: 0x46A6C4 */
-void IxSound::ix_system_sound_set_frequency(int newPitchOffset)
-{
-    flags |= IX_SOUND_FREQUENCY_DIRTY;
-    if (-(int)(sample->frequency - 1) <= newPitchOffset) {
-        pitchOffset = newPitchOffset < 0xac44 ? newPitchOffset : 0xac44;
-    } else {
-        pitchOffset = -(int)(sample->frequency - 1);
-    }
-    ix_sound_reprioritise();
-}
-
-/* Function start: 0x46A72F */
-void IxSound::ix_system_sound_set_priority(unsigned char newBasePriority)
-{
-    basePriority = newBasePriority;
-    ix_sound_reprioritise();
 }

@@ -1,9 +1,9 @@
 /*
  *  ix / D:\Rnd\Prj\ix\Src\Streamer\streamer.cpp
  *
- *  Original address range: 0x00442750 - 0x00443DA5   (25 functions)
- *  Range is exact: recovered from this module's own assert __FILE__ anchors in
- *  the shipped debug build (see docs/ORDER.md).
+ *  Retail address range: 0x0046BD50 - 0x0046D10F (23 functions)
+ *  Object boundaries follow retail padding and alignment; diagnostic paths
+ *  identify the source subsystem (see docs/ORDER.md).
  *
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
@@ -652,109 +652,6 @@ void ix_streamer_close_file(IxStreamFile *streamFile)
         ix_file_close(streamFile->file);
     CloseHandle(streamFile->completionEvent);
     g_pIxFree_004a0c1c(streamFile);
-}
-
-/* Function start: 0x46D110 */
-DWORD WINAPI ix_streamer_thread_proc(void *parameter)
-{
-    DWORD timeout;
-
-    timeout = 0;
-    EnterCriticalSection(&g_csStreamWorker_005c4c18);
-    g_dwStreamerMode_005c4c38 |= IX_STREAMER_THREAD_RUNNING;
-    while ((g_dwStreamerMode_005c4c38 & IX_STREAMER_SHUTDOWN) == 0) {
-        g_dwStreamerThreadTick_005c4b3c++;
-        EnterCriticalSection(&g_csStreamer_005c4c48);
-        if ((g_dwStreamerMode_005c4c38 & IX_STREAMER_FILE_OPEN) != 0) {
-            if ((g_dwStreamerMode_005c4c38 &
-                 IX_STREAMER_REPREPARE_AUDIO) != 0) {
-                if ((g_dwStreamerMode_005c4c38 &
-                     IX_STREAMER_DSP_PLAYING) != 0) {
-                    ix_dsps_stop(0);
-                    g_dwStreamerMode_005c4c38 &=
-                        ~IX_STREAMER_DSP_PLAYING;
-                }
-                ix_dsps_prepare(0);
-                g_dwStreamerMode_005c4c38 &=
-                    ~(IX_STREAMER_REPREPARE_AUDIO |
-                      IX_STREAMER_END_TRIGGERED);
-            }
-            if ((g_dwStreamerMode_005c4c38 &
-                 (IX_STREAMER_HAS_AUDIO | IX_STREAMER_AUDIO_PLAYING)) ==
-                (IX_STREAMER_HAS_AUDIO | IX_STREAMER_AUDIO_PLAYING)) {
-                timeout = ix_streamer_service_audio();
-                if ((g_dwStreamerMode_005c4c38 &
-                     IX_STREAMER_AUDIO_PAUSED) != 0) {
-                    if ((g_dwStreamerMode_005c4c38 &
-                         IX_STREAMER_DSP_PAUSED) == 0) {
-                        ix_dsps_stop(0);
-                        g_dwStreamerMode_005c4c38 |=
-                            IX_STREAMER_DSP_PAUSED;
-                    }
-                } else {
-                    if ((g_dwStreamerMode_005c4c38 &
-                         IX_STREAMER_DSP_PAUSED) != 0) {
-                        ix_dsps_play(0);
-                        g_dwStreamerMode_005c4c38 &=
-                            ~IX_STREAMER_DSP_PAUSED;
-                    }
-                }
-            } else {
-                timeout = ix_thread_service_streams();
-                if ((g_dwStreamerMode_005c4c38 &
-                     IX_STREAMER_DSP_PLAYING) != 0) {
-                    ix_dsps_stop(0);
-                    g_dwStreamerMode_005c4c38 &=
-                        ~(IX_STREAMER_DSP_PLAYING |
-                          IX_STREAMER_DSP_PAUSED);
-                }
-            }
-            LeaveCriticalSection(&g_csStreamer_005c4c48);
-            WaitForSingleObject(g_hStreamRouseEvent_005c4c3c, timeout);
-            ResetEvent(g_hStreamRouseEvent_005c4c3c);
-        } else {
-            if ((g_dwStreamerMode_005c4c38 & IX_STREAMER_DSP_PLAYING) != 0) {
-                ix_dsps_stop(0);
-                g_dwStreamerMode_005c4c38 &=
-                    ~(IX_STREAMER_DSP_PLAYING | IX_STREAMER_DSP_PAUSED);
-            }
-            LeaveCriticalSection(&g_csStreamer_005c4c48);
-            WaitForSingleObject(g_hStreamRouseEvent_005c4c3c, INFINITE);
-            ResetEvent(g_hStreamRouseEvent_005c4c3c);
-        }
-    }
-    g_dwStreamerMode_005c4c38 &= ~IX_STREAMER_THREAD_RUNNING;
-    LeaveCriticalSection(&g_csStreamWorker_005c4c18);
-    (void)parameter;
-    return 0;
-}
-
-/* Function start: 0x46D2C0 */
-unsigned int ix_streamer_service_audio(void)
-{
-    unsigned int bytesUntilStop;
-
-    if ((g_dwStreamerMode_005c4c38 & IX_STREAMER_END_TRIGGERED) != 0) {
-        bytesUntilStop = g_pStreamPrologue_005c4bec->audioBufferSize -
-                         ix_dsps_get_buffer_free(0);
-        Sleep((bytesUntilStop * 1000U) /
-              g_nStreamerBytesEachSecond_005c4c44);
-        g_dwStreamerMode_005c4c38 &= 0xfffff7db;
-        ix_dsps_stop(0);
-    } else if ((g_dwStreamerMode_005c4c38 &
-                IX_STREAMER_DSP_PLAYING) == 0) {
-        g_dwStreamerMode_005c4c38 |= IX_STREAMER_DSP_PLAYING;
-        ix_dsps_prepare(0);
-        while (ix_thread_get_audio_chunk_size() <
-               (unsigned int)ix_dsps_get_buffer_free(0))
-            ix_thread_lock_stream_buffer();
-        ix_dsps_play(0);
-    } else {
-        while (ix_thread_get_audio_chunk_size() <
-               (unsigned int)ix_dsps_get_buffer_free(0))
-            ix_thread_lock_stream_buffer();
-    }
-    return ix_thread_service_streams();
 }
 
 /* Never referenced; retail reserves its storage after the thread tick. */

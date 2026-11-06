@@ -425,7 +425,8 @@ SRCS_IX_SOUND = \
 	src/ix/sample.cpp
 SRCS_IX_STREAMER = \
 	src/ix/streamer.cpp \
-	src/ix/thread.cpp
+	src/ix/thread.cpp \
+	src/ix/streamfile.cpp
 SRCS_IX_DSP = \
 	src/ix/dsp.cpp \
 	src/ix/dspv.cpp \
@@ -484,6 +485,7 @@ MODERN_GAMEPLAY_CXX_C_SRCS = \
 MODERN_IX_SRCS = \
 	src/ix/streamer.cpp \
 	src/ix/thread.cpp \
+	src/ix/streamfile.cpp \
 	src/ix/dsp.cpp \
 	src/ix/dsps.cpp \
 	src/ix/mixer.cpp \
