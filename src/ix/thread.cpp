@@ -8,6 +8,7 @@
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
+#define IX_THREAD_CPP
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
@@ -19,21 +20,21 @@
 /* Function start: 0x46D3A6 */   /* source line(s) 196: File chunk without packet! */
 void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
 {
-    unsigned int packagePosition;
-    IxStreamerFileChunk *fileChunk;
+    unsigned int archiveOffset;
+    IxStreamerFileChunk *sourceChunk;
     unsigned int chunkIndex;
-    unsigned int chunkCount;
-    IxStreamerFileEntry *entry;
-    unsigned int chunkOffset;
-    unsigned int chunkBytes;
-    unsigned char *source;
-    unsigned int copyBytes;
-    unsigned int middle;
+    unsigned int unreadChunks;
+    IxStreamerFileEntry *directoryRecord;
+    unsigned int offsetInPart;
+    unsigned int partDataSize;
+    unsigned char *readSource;
+    unsigned int byteCount;
+    unsigned int midpoint;
     unsigned int firstPacket;
-    unsigned int *packet;
-    unsigned int lastPacket;
+    unsigned int *selectedPacket;
+    unsigned int endPacket;
 
-    entry = streamFile->entry;
+    directoryRecord = streamFile->entry;
     streamFile->serviceTick = g_dwStreamerThreadTick_005c4b3c;
     if ((g_dwStreamerMode_005c4c38 & 0x100) != 0) {
         ix_file_seek(streamFile->file, streamFile->position);
@@ -57,68 +58,68 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
         return;
     }
 
-    chunkIndex = entry->firstChunk;
-    chunkCount = entry->chunkCount;
-    fileChunk = &g_pStreamerFileParts_005c4bf8[chunkIndex];
-    packagePosition = (unsigned int)ix_file_tell(
+    chunkIndex = directoryRecord->firstChunk;
+    unreadChunks = directoryRecord->chunkCount;
+    sourceChunk = &g_pStreamerFileParts_005c4bf8[chunkIndex];
+    archiveOffset = (unsigned int)ix_file_tell(
         g_pFeederPackageDisk_005c4b44);
-    while (chunkCount--) {
-        if (fileChunk->fileOffset <= streamFile->position &&
-            fileChunk->fileEnd > streamFile->position) {
-            chunkBytes = fileChunk->fileEnd - fileChunk->fileOffset;
+    while (unreadChunks--) {
+        if (sourceChunk->fileOffset <= streamFile->position &&
+            sourceChunk->fileEnd > streamFile->position) {
+            partDataSize = sourceChunk->fileEnd - sourceChunk->fileOffset;
             if (chunkIndex != g_nSpoolerDiskChunk_005c4c40) {
-                firstPacket = fileChunk->firstPacket;
-                lastPacket = fileChunk->packetCount + firstPacket;
-                packet = 0;
+                firstPacket = sourceChunk->firstPacket;
+                endPacket = sourceChunk->packetCount + firstPacket;
+                selectedPacket = 0;
                 g_nSpoolerDiskChunk_005c4c40 = chunkIndex;
-                while (lastPacket > firstPacket) {
-                    middle = (lastPacket + firstPacket) >> 1;
-                    packet = &g_pStreamerPacketOffsets_005c4b38[middle];
-                    if (*packet < packagePosition)
-                        firstPacket = middle + 1;
-                    else if (*packet > packagePosition)
-                        lastPacket = middle;
+                while (endPacket > firstPacket) {
+                    midpoint = (endPacket + firstPacket) >> 1;
+                    selectedPacket = &g_pStreamerPacketOffsets_005c4b38[midpoint];
+                    if (*selectedPacket < archiveOffset)
+                        firstPacket = midpoint + 1;
+                    else if (*selectedPacket > archiveOffset)
+                        endPacket = midpoint;
                     else
                         break;
                 }
-                if (packet == 0) {
+                if (selectedPacket == 0) {
                     ix_log_printf("Fatal [%s - %d]:\n", IX_THREAD_FILE, 196);
                     ix_log_printf("File chunk without packet!");
                     exit(-1);
                 }
-                if (fileChunk->packedSize < 0) {
-                    ix_file_seek(g_pFeederPackageDisk_005c4b44, *packet);
+                if (sourceChunk->packedSize < 0) {
+                    ix_file_seek(g_pFeederPackageDisk_005c4b44, *selectedPacket);
                     ix_file_read(g_pFeederPackageDisk_005c4b44,
                                  g_pReaderCompressedBuf_005c4bd0,
-                                 -fileChunk->packedSize);
+                                 -sourceChunk->packedSize);
 #ifdef SDL_PORT
                     ix_lzo1x_decompress(
                         g_pReaderCompressedBuf_005c4bd0,
-                        g_pStreamerFileStore_005c4bdc, chunkBytes,
-                        (unsigned int)-fileChunk->packedSize);
+                        g_pStreamerFileStore_005c4bdc, partDataSize,
+                        (unsigned int)-sourceChunk->packedSize);
 #else
                     ix_lzo1x_decompress(g_pReaderCompressedBuf_005c4bd0,
                                         g_pStreamerFileStore_005c4bdc,
-                                        chunkBytes);
+                                        partDataSize);
 #endif
                 } else {
-                    ix_file_seek(g_pFeederPackageDisk_005c4b44, *packet);
+                    ix_file_seek(g_pFeederPackageDisk_005c4b44, *selectedPacket);
                     ix_file_read(g_pFeederPackageDisk_005c4b44,
                                  g_pStreamerFileStore_005c4bdc,
-                                 fileChunk->packedSize);
+                                 sourceChunk->packedSize);
                 }
             }
-            source = g_pStreamerFileStore_005c4bdc;
-            copyBytes = streamFile->remaining;
-            chunkOffset = streamFile->position - fileChunk->fileOffset;
-            chunkBytes = chunkBytes - chunkOffset;
-            source += chunkOffset;
-            if (copyBytes > chunkBytes)
-                copyBytes = chunkBytes;
-            memcpy(streamFile->destination, source, copyBytes);
-            streamFile->destination += copyBytes;
-            streamFile->position += copyBytes;
-            streamFile->remaining = streamFile->remaining - copyBytes;
+            readSource = g_pStreamerFileStore_005c4bdc;
+            byteCount = streamFile->remaining;
+            offsetInPart = streamFile->position - sourceChunk->fileOffset;
+            partDataSize = partDataSize - offsetInPart;
+            readSource += offsetInPart;
+            if (byteCount > partDataSize)
+                byteCount = partDataSize;
+            memcpy(streamFile->destination, readSource, byteCount);
+            streamFile->destination += byteCount;
+            streamFile->position += byteCount;
+            streamFile->remaining = streamFile->remaining - byteCount;
             if (streamFile->remaining == 0) {
                 EnterCriticalSection(&g_csStreamerFileFifo_005c4c00);
                 if (streamFile->previous != 0)
@@ -138,7 +139,7 @@ void ix_thread_handle_file_chunk(IxStreamFile *streamFile)
             }
             return;
         }
-        fileChunk++;
+        sourceChunk++;
         chunkIndex++;
     }
 }

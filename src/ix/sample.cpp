@@ -290,8 +290,7 @@ int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
     return 0;
 }
 
-void *ix_dsp_copy(void *destination, const void *source,
-                  unsigned int bytes);
+double __cdecl ldexp(double value, int exponent);
 
 /* Function start: 0x46BBCC */
 long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)

@@ -122,7 +122,7 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,618 normalized `EXACT`, 19 same-size byte differences, and 40 differing
+1,619 normalized `EXACT`, 19 same-size byte differences, and 39 differing
 spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
 These are different measurements from literal byte identity.
 
@@ -216,6 +216,28 @@ count remains 563, and the strict whole-file result remains 19.5135%.
 See [PATTERNS.md](PATTERNS.md) for the declaration keys and the rejected
 damage-coordinate and timer-order variants.
 
+Replacing the redundant copy prototype before the IEEE sample-rate converter
+with its `ldexp` callee declaration restores both mantissa assembly orders.
+The 100-byte sequences now match literally, versus 90/100 before, and
+normalized instruction differences fall from 10/116 to zero. The raw mapped
+span improves from 96.1% to 98.7%; its `SIZE -1` report label remains because
+the span includes the following library-alignment gap. All normalized
+report rows, symbol addresses, image sizes, and the 563 byte-identical spans
+remain unchanged. The strict whole-file comparison gains one positional
+match, reaching 139,474/714,752 (19.5136%).
+
+Eleven local renames and a thread-specific header exchange then make
+`ix_thread_handle_file_chunk` normalized-byte exact: zero differing
+encodings out of 307, down from 69, with the retail 1,056-byte size.
+Its raw mapped span improves from 39.7% to 98.7%; displaced call targets
+still prevent literal identity. The ten following thread functions move
+one byte earlier, while the next library boundary and all section sizes
+stay unchanged. The full report changes only the reader's `SIZE +1` to
+`EXACT` and the last thread method's alignment-inclusive span from
+`SIZE +471` to `SIZE +472`. There are now 39 differing spans, still net
++350 bytes. The byte-identical span count remains 563. Whole-file positional
+agreement loses four accidental matches, reaching 139,470/714,752 (19.5131%).
+
 Local-name recovery also covers `ReadTextInput`,
 `RunPilotSaveLoadMenu`, and `MainWindowProc`. Their differing instruction
 encodings decrease from 115 to 47, 222 to 77, and 220 to 146 respectively
@@ -301,7 +323,7 @@ count from 580; correct local instruction changes can disrupt earlier
 accidental agreement between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
 at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 40 spans nor their net size
+library gaps as described above, so neither the 39 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
@@ -313,10 +335,11 @@ delta is a count of source defects.
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,473 identical file positions out of 714,752 (19.5135%). The first
+reports 139,470 identical file positions out of 714,752 (19.5131%). The first
 cutscene rename and PDB-path recovery each added ten matching positions;
 the later flag renames removed seven, and the DIB/near-heap header ordering
-adds 25. Address
+adds 25; the IEEE mantissa correction adds one and the streamer correction
+removes four. Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,

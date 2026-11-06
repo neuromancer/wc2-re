@@ -338,6 +338,61 @@ the adjacent `ix_stream_file_wait` declaration to `()` preserves the existing
 ix operand orders; adding `(void)` declarations shifts them. The restored
 method's 46 instruction bytes match the retail image literally.
 
+The file-scope prototype immediately before
+`IxSample::ix_sample_convert_from_ieee_extended` also determines its byte
+assembly order. Replacing the redundant three-parameter `ix_dsp_copy`
+declaration with the two-parameter `ldexp` declaration moves the converter's
+seven parameter/local keys down by one; `src` moves from 26710 to 26709.
+`ldexp` retains the signature and C linkage already provided by `<math.h>`.
+All stack offsets remain unchanged, and the preceding AIFF, WAV, and raw
+loaders emit identical instructions.
+
+This restores the high mantissa's byte order to 2, 3, 4, 5 and the low
+mantissa's order to 8, 7, 6, 9, as retail emits them. The 100-byte pair of
+assembly sequences now matches literally, versus 90/100 before. Across the
+converter's 116 decoded instructions, normalized differing encodings fall
+from ten to zero. Its 378 instruction bytes already had the correct size;
+the mapped span remains one byte shorter because it includes the alignment
+gap before the streamer library. All 4,512 linker-map addresses remain
+unchanged. Removing the redundant prototype without replacing it shifts
+the keys by three and leaves eight differing encodings.
+
+Do not apply a whole-function key shift to the AIFF loader merely to fix
+its two header-word swaps. Moving the unused WAV record declaration below
+the loader fixes those two sequences but reverses a previously correct
+dword swap, increasing differing encodings from 29/351 to 30/351. For the
+current C2 expression trees, no common key shift satisfies all five
+observed word/dword operand orders. The sample-data byte-swap loop also
+has a different expression shape. The declaration-move probe is rejected.
+
+`ix_thread_handle_file_chunk` needs both local-name recovery and one
+thread-specific declaration exchange. Eleven local renames place all
+thirteen declared locals at retail offsets `-4` through `-0x34`, in
+declaration order; the compiler temporary remains at `-0x38`. Types,
+declaration order, expressions, member names, and string literals are
+unchanged. All 44 local/parameter records in the unit retain their C1 keys.
+Renames alone reduce differing instruction encodings from 69/307 to 25/307.
+
+Under `IX_THREAD_CPP`, exchanging the reader-directory and disk-chunk
+declarations at keys 26348/26359 lowers the disk-chunk load signature from
+`0x2A` to `0x20`, below `chunkIndex`'s `0x25`. At retail `0x0046D52A`, C2
+then loads the global and compares the local, reproducing the shorter
+absolute-load encoding. This removes the extra code byte and makes all
+307 decoded instructions normalized-byte exact, at 1,056 bytes. The ten
+following thread methods move one byte earlier; the library's end alignment
+absorbs that byte, leaving subsequent objects and all section sizes unchanged.
+
+The audit of 100%-mnemonic functions with size differences also finds four
+reversed list comparisons in `IxSound::ix_sound_reprioritise`. Merely moving
+the waiting-list declaration fixes two and removes two code bytes, but
+leaves the active-list comparisons wrong. Their current load signatures
+are `this = 0x22`, active list `= 0x23`, and `playingSound = 0x26`; retail
+requires the active-list load before `this` and after `playingSound`.
+A global-declaration exchange alone cannot satisfy both. The partial
+waiting-list change is rejected; this function still has 32/228 differing
+encodings and two excess code bytes. Its 100% mnemonic score does not
+establish an instruction match.
+
 Locals take keys in declaration order, but frame slots follow name buckets.
 When the locals of a function all have distinct buckets, reordering their
 declarations permutes their keys without moving a slot or changing the unit's

@@ -467,7 +467,12 @@ extern unsigned int g_nStreamerAudioBufferSize_005c4bd8;
 extern unsigned char *g_pStreamerFileStore_005c4bdc;
 extern unsigned char g_bFeederLevel_005c4be0;
 extern HANDLE g_hStreamerWorker_005c4be4;
+/* Keep the reader's disk-chunk comparison in retail operand order. */
+#ifdef IX_THREAD_CPP
+extern unsigned int g_nSpoolerDiskChunk_005c4c40;
+#else
 extern IxStreamerFileEntry *g_pReaderFileEntries_005c4be8;
+#endif
 extern IxStreamerHeader *g_pStreamPrologue_005c4bec;
 extern IxStreamerAudioChunk *g_pStreamerSoundChunks_005c4bf0;
 extern IxStreamerBranch *g_pStreamBranches_005c4bf4;
@@ -478,7 +483,11 @@ extern unsigned int g_dwStreamSoundChunk_005c4c30;
 extern DWORD g_dwStreamThreadId_005c4c34;
 extern "C" unsigned int g_dwStreamerMode_005c4c38;
 extern HANDLE g_hStreamRouseEvent_005c4c3c;
+#ifdef IX_THREAD_CPP
+extern IxStreamerFileEntry *g_pReaderFileEntries_005c4be8;
+#else
 extern unsigned int g_nSpoolerDiskChunk_005c4c40;
+#endif
 extern unsigned int g_nStreamerBytesEachSecond_005c4c44;
 extern unsigned short g_nStreamerVolume_0049e150;
 extern char g_cStreamerBranchTag_0049e154;
