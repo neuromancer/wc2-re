@@ -88,10 +88,10 @@ DebugOverlayConsole::~DebugOverlayConsole(void)
 #ifndef SDL_PORT
         UnhookWindowsHookEx(g_hDebugKeyboardHook_0049cb30);
 #endif
-        free(textBuffer);
-        free(dirtyLines);
-        free(spinnerCharacters);
     }
+    free(textBuffer);
+    free(dirtyLines);
+    free(spinnerCharacters);
     (void)shutdownKey;
     return;
 }
@@ -157,7 +157,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
     (void)code;
     if ((flags & 0x40000000) != 0) {
         g_dwDebugOverlayKey_0049cb28 = (DWORD)key;
-        g_dwDebugOverlayKeyLatch_0049cb2c = (DWORD)key;
+        g_dwDebugOverlayKeyLatch_0049cb2c = g_dwDebugOverlayKey_0049cb28;
     }
     return 0;
 #else
@@ -166,7 +166,7 @@ extern "C" LRESULT CALLBACK DebugKeyboardHookProc(int code, WPARAM key,
                               code, key, flags);
     if ((flags & 0x40000000) != 0) {
         g_dwDebugOverlayKey_0049cb28 = key;
-        g_dwDebugOverlayKeyLatch_0049cb2c = key;
+        g_dwDebugOverlayKeyLatch_0049cb2c = g_dwDebugOverlayKey_0049cb28;
     }
     return CallNextHookEx(g_hDebugKeyboardHook_0049cb30,
                           code, key, flags);

@@ -122,9 +122,25 @@ completion claim.
 ## Matching checkpoint (2026-11-06)
 
 The current `binary-comp report --bytes` covers 1,677 annotated functions:
-1,630 normalized `EXACT`, 19 same-size byte differences, and 28 differing
-spans. Its mean mnemonic similarity is 99.93%; 1,660 functions score 100%.
+1,626 normalized `EXACT`, 27 same-size byte differences, and 24 differing
+spans. Its mean mnemonic similarity is 99.94%; 1,659 functions score 100%.
 These are different measurements from literal byte identity.
+
+The first mapped-body correction batch makes the debug-console destructor,
+keyboard hook, radial wipe, and `DIBslamReal` instruction-exact. The debug
+unit's trailing-padding row also becomes `EXACT`. `DIBupdate` recovers its
+full 534-byte extent with two remaining operand differences. The damage
+routine improves from 95/563 to 33/563 differing encodings and from 17
+missing bytes to one excess byte. Its restored control flow also shifts C1
+label keys, introducing operand-order differences in nine later ship
+functions. The net normalized `EXACT` count therefore decreases by four;
+those differences remain unresolved. See [PATTERNS.md](PATTERNS.md) for the
+affected functions and the assembly evidence.
+
+The same batch increases literal matching spans from 592 to 649 and grows
+`.text` by 128 bytes. All 1,339 named globals retain their linked addresses.
+`make verify` and all three `make modern-test` modes pass; strict whole-file
+identity still fails. The remaining uninitialized-data deficit is 720 bytes.
 
 Local-name recovery in `BlitWipeRadialBands` reduces its normalized byte
 differences from 90 instruction encodings to four out of 263. Its stack slots
@@ -358,30 +374,30 @@ rows and image sizes remain unchanged. The displaced function's changed
 stack operands lose seven accidental whole-file positional matches.
 
 The unnormalized `binary-comp exe --functions` comparison finds
-592 byte-identical mapped spans and 261 functions at their retail addresses.
-Restoring the `abs` calls shifts later code and lowers the identical-span
-count from 580; correct local instruction changes can disrupt earlier
-accidental agreement between relative call operands while size errors remain.
+649 byte-identical mapped spans and 606 functions at their retail addresses.
+Correct local instruction changes can disrupt earlier accidental agreement
+between relative call operands while size errors remain.
 The first address drift follows `inflict_damage`: the next function starts
-at `0x0041261C`, 17 bytes before retail `0x0041262D`. Span sizes can include
-library gaps as described above, so neither the 28 spans nor their net size
+at `0x0041262E`, one byte after retail `0x0041262D`. Span sizes can include
+library gaps as described above, so neither the 24 spans nor their net size
 delta is a count of source defects.
 
 | Whole-image measurement | Retail | Rebuilt |
 | --- | ---: | ---: |
 | File bytes | 714,752 | 714,240 |
-| `.text` virtual bytes | 576,332 | 575,772 |
+| `.text` virtual bytes | 576,332 | 575,900 |
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
-| Entry point | `0x00473E50` | `0x00473C30` |
+| Entry point | `0x00473E50` | `0x00473CB0` |
 
 `make compare-bytes` still fails. With the link timestamps, input-frame
 corrections, CRT calls, and retail executable-name record restored, it
-reports 139,984 identical file positions out of 714,752 (19.5850%). The first
+reports 231,019 identical file positions out of 714,752 (32.3216%). The first
 cutscene rename and PDB-path recovery each added ten matching positions;
 the later flag renames removed seven, and the DIB/near-heap header ordering
 adds 25; the IEEE mantissa correction adds one, the streamer correction
 removes four, the sound-priority correction adds seven, and the recovered
-sound/streamer boundaries add 437. Inline-accessor packaging adds another 70.
+sound/streamer boundaries add 437. Inline-accessor packaging adds another 70,
+and the first mapped-body corrections add 91,035.
 Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes

@@ -1325,23 +1325,21 @@ void BlitWipeRadialBands(Viewport *source, Viewport *destination,
                         *wipe_trailing_edge) - band_width,
                    band_width);
 #ifdef SDL_PORT
-            /* top_center_row is remaining_upper_rows - 1, so on the last band the
-             * backwards index reaches rowOffsets[-1].  The original read
-             * whatever happened to precede the table; skip the upper half. */
-            if (src_top_rows - bands_processed - 1 >= source->rowOffsets &&
-                destination_top_rows - bands_processed - 1 >= destination->rowOffsets)
+            /* Odd heights reach rowOffsets[-1] on the last upper band. */
+            if (lower_src_row_offsets - bands_processed - 1 >= source->rowOffsets &&
+                dst_row_offsets_lower - bands_processed - 1 >= destination->rowOffsets)
 #endif
             {
-            memcpy(destination->pixels + *(destination_top_rows - bands_processed - 1) +
+            memcpy(destination->pixels + *(dst_row_offsets_lower - bands_processed - 1) +
                        *wipe_trailing_edge + dest_right_x,
-                   source->pixels + *(src_top_rows - bands_processed - 1) +
+                   source->pixels + *(lower_src_row_offsets - bands_processed - 1) +
                        *wipe_trailing_edge + source_right_x,
                    band_width);
             memcpy(destination->pixels +
-                       (*(destination_top_rows - bands_processed - 1) +
+                       (*(dst_row_offsets_lower - bands_processed - 1) +
                         dst_midpoint_left - *wipe_trailing_edge) - band_width,
                    source->pixels +
-                       (*(src_top_rows - bands_processed - 1) + src_left_center -
+                       (*(lower_src_row_offsets - bands_processed - 1) + src_left_center -
                         *wipe_trailing_edge) - band_width,
                    band_width);
             }

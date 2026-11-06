@@ -878,13 +878,13 @@ short inflict_damage(short attacker, short victim, short damage,
         g_aeObjectClass_00495328[victim] < OBJECT_CLASS_MISSILE)
         return 0;
 
-    if (g_aeObjectClass_00495328[victim] < OBJECT_CLASS_SHIP) {
+    else if (g_aeObjectClass_00495328[victim] < OBJECT_CLASS_SHIP) {
         g_asObjectDamage_00495178[victim] =
             (short)(g_asObjectDamage_00495178[victim] + damage);
         if (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[victim]].damageCapacity == -1)
             return 0;
-        if (g_aObjectTypeData_00496d30[
+        else if (g_aObjectTypeData_00496d30[
                 g_acObjectType_00493980[victim]].damageCapacity <=
             g_asObjectDamage_00495178[victim])
             return explode(attacker, victim);
@@ -978,25 +978,26 @@ short inflict_damage(short attacker, short victim, short damage,
             g_aasShipShield_00495518[victim][1] < 1000) {
             protection = &g_aasShipShield_00495518[victim][quadrant];
             damage = (short)(damage - *protection);
-            if (damage <= 0) {
+            if (damage > 0) {
+                *protection = 0;
+            } else {
                 *protection = (short)-damage;
                 if (attacker != -1 &&
                     g_aeObjectClass_00495328[attacker] ==
                         OBJECT_CLASS_PROJECTILE) {
                     if (victim == 0)
-                        PlaySfxWaveFileByNumber(10, 0, 0);
+                        PlaySfxWaveFileByNumber(10, victim, 0);
                     else
                         PlaySfxWaveFileByNumber(10, victim, 0);
                 }
                 return 0;
             }
-            *protection = 0;
         }
         if (attacker != -1 &&
             g_aeObjectClass_00495328[attacker] ==
                 OBJECT_CLASS_PROJECTILE) {
             if (victim == 0)
-                PlaySfxWaveFileByNumber(9, 0, 0);
+                PlaySfxWaveFileByNumber(9, victim, 0);
             else
                 PlaySfxWaveFileByNumber(9, victim, 0);
         }
@@ -1036,11 +1037,15 @@ short inflict_damage(short attacker, short victim, short damage,
                     DecreaseAdaptiveDifficulty();
             }
             return destroyed;
+        } else {
+            *protection = (short)-damage;
+            return 0;
         }
-        *protection = (short)-damage;
-        return 0;
     }
+#ifdef SDL_PORT
+    /* Keep the native fallback when a non-ship survives the hit. */
     return 0;
+#endif
 }
 
 /* Function start: 0x41262D */

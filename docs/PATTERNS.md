@@ -44,6 +44,48 @@ source with a different underlying type.
 Equivalent C can produce different instruction order. Match the original
 control-flow shape rather than merely its result.
 
+### Mapped-body corrections (2026-11-06)
+
+Following explicit authorization to correct mapped bodies, the debug-console
+destructor now frees all three buffers independently of the last-console
+test. Only the keyboard unhook belongs inside that test. The keyboard hook
+latches the stored key global, matching the retail reload at `0x0045B08D`.
+Both functions have zero normalized instruction-byte differences. The hook's
+two restored bytes also recover the console unit's fourteen trailing padding
+bytes without explicit padding.
+
+`BlitWipeRadialBands` now uses the lower source/destination row pointers for
+both backward copies, removing its four operand differences. The SDL guard
+uses the same pointers and still skips the out-of-range final upper row for
+odd heights. `DIBslamReal` stores both final surface-unlock results, restoring
+six bytes and making all 277 decoded instructions match.
+
+`DIBupdate` now initializes the two rectangles seen at `0x0045E132` through
+`0x0045E15F`, uses a separate row counter, stores the final unlock result,
+and keeps the retail clamp `else` branches and explicit return. These restore
+its `0xA4` frame and all 534 code bytes. Two encodings still differ: the
+source-address sum adds the left offset and pixel-buffer base in reverse
+order. Declaring the row counter before `height` gives the original loop
+comparison without changing their hash-assigned stack slots.
+
+`inflict_damage` now retains the retail `else` branches, shield-overflow
+fall-through, and two victim arguments in the player-hit sound calls. The
+reference function also keeps retail's non-ship fall-through; SDL retains its
+existing zero-return fallback. Its instruction-extent mismatch falls from
+95/563 to 33/563 and its size changes from 17 missing bytes to one excess
+byte. The remaining armor-address calculation and wingman comparison need
+operand-order recovery.
+
+The damage control-flow corrections allocate four additional C1 label keys.
+Later named local/parameter keys shift by four, producing operand-order
+differences in nine otherwise unchanged ship functions: `call_enemy`,
+`IsOnlyShipGun`, `analyze_kill`, `explosion_shock_wave`, `Explosion`, `fire`,
+`reposition_fixed_child_objects`, `replenish_shields`, and
+`replenish_weapon_energy_bank`. Removing unnecessary braces does not change
+those keys or instructions. These differences remain in the checkpoint;
+the full normalized report must be checked after body changes even when
+`make verify` passes.
+
 ### Returns and branches
 
 An early return may produce a full-register move where assigning to a local and

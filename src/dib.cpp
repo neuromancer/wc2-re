@@ -738,10 +738,10 @@ void DIBslamReal(void)
         }
 
         if (g_nDisplayModeCascade_0049cea0 > 0) {
-            IDirectDrawSurface_Unlock(
+            status = IDirectDrawSurface_Unlock(
                 g_pSecondarySurface_0049ce98, surfaceDetails.lpSurface);
         } else {
-            IDirectDrawSurface_Unlock(
+            status = IDirectDrawSurface_Unlock(
                 g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
         }
 #else
@@ -821,6 +821,9 @@ void DIBupdate(int left, int top, int right, int bottom)
     unsigned char *source;
     DDSURFACEDESC surfaceDetails;
     int byteWidth;
+    RECT targetRect;
+    RECT updateSource;
+    int currentLine;
     int height;
     HRESULT hResult;
 #endif
@@ -833,7 +836,7 @@ void DIBupdate(int left, int top, int right, int bottom)
         return;
     if (right < 0)
         return;
-    if (right > 319)
+    else if (right > 319)
         right = 319;
     if (top < 0)
         top = 0;
@@ -841,7 +844,7 @@ void DIBupdate(int left, int top, int right, int bottom)
         return;
     if (bottom < 0)
         return;
-    if (bottom > 199)
+    else if (bottom > 199)
         bottom = 199;
 
 #ifdef SDL_PORT
@@ -852,6 +855,15 @@ void DIBupdate(int left, int top, int right, int bottom)
 #else
     byteWidth = right - left + 1;
     height = bottom - top + 1;
+    /* Retail initializes both rectangles even though Lock does not use them. */
+    targetRect.left = left;
+    targetRect.top = top;
+    targetRect.right = byteWidth;
+    targetRect.bottom = height;
+    updateSource.left = left;
+    updateSource.top = top;
+    updateSource.right = byteWidth;
+    updateSource.bottom = height;
     memset(&surfaceDetails, 0, sizeof(surfaceDetails));
     surfaceDetails.dwSize = sizeof(surfaceDetails);
     hResult = IDirectDrawSurface_Lock(
@@ -868,15 +880,15 @@ void DIBupdate(int left, int top, int right, int bottom)
     source = g_pDisplayPixelBuffer_005b3978 + g_nDisplayRowBytes_005b397c * top + left;
     IDirectDraw2_WaitForVerticalBlank(
         g_pDirectDraw2_0049ce90, DDWAITVB_BLOCKBEGIN, 0);
-    while (height > 0) {
+    for (currentLine = 0; height > currentLine; currentLine++) {
         memcpy(destPixels, source, byteWidth);
         destPixels += surfaceDetails.lPitch;
         source += g_nDisplayRowBytes_005b397c;
-        height--;
     }
-    IDirectDrawSurface_Unlock(
+    hResult = IDirectDrawSurface_Unlock(
         g_pPrimarySurface_0049ce94, surfaceDetails.lpSurface);
 #endif
+    return;
 }
 
 /* Function start: 0x45E276 */
