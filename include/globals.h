@@ -72,7 +72,13 @@ extern int g_nMinimumMemoryAlternate_0049cc28;
 extern unsigned short g_wSoundBlasterPort_0049bb58;
 extern unsigned short g_wSoundBlasterIrq_0049bb5c;
 extern unsigned short g_wDigiPlaying_0049bb60;
+/* Speech's DMA-address addition needs these two declaration keys exchanged;
+ * other units retain their existing order (docs/PATTERNS.md). */
+#ifdef SPEECH_C
+extern const unsigned short g_wDmaHalfBytes_0048e0e4;
+#else
 extern unsigned short g_wDmaAddressA_0049bb64;
+#endif
 extern unsigned short g_wDmaAddressB_0049bb68;
 extern unsigned short g_wDmaCountA_0049bb6c;
 extern unsigned short g_wDmaCountB_0049bb70;
@@ -81,7 +87,11 @@ extern short g_nDigiLastBlock_0049bb78;
 extern const int g_nJoystickUnavailableSample_0048e054;
 extern const int g_nViewportStaticRandomRange_0048e060;
 extern const int g_nDigiSampleBytes_0048e0e0;
+#ifdef SPEECH_C
+extern unsigned short g_wDmaAddressA_0049bb64;
+#else
 extern const unsigned short g_wDmaHalfBytes_0048e0e4;
+#endif
 extern short g_nAutopilotFormationShipCount_00493060;
 extern unsigned char g_cRedColour_0049cb5c;
 extern short g_nEnemySighting_0049b670;

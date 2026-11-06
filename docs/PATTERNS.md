@@ -234,6 +234,15 @@ remaining differences include mouse-button branch ordering and the
 equivalent but differently encoded clamping comparisons against +/-8
 instead of +/-9.
 
+In `HandleSpaceFlightControls` (`0x0046733D`), renaming `inputHandled` to
+`inputConsumed` and `control` to `controlHeld` puts the handled-input flag
+at retail `-4`, exchanging its slot with the control-key flag. This reduces
+differing encodings from 391/1,503 to 388/1,503, with all 68 parsed C1
+symbol records retaining their keys. Code remains 14 bytes longer than
+retail, and the frame remains `0x60` against `0x84`. The other named locals
+still occupy `-8` through `-0x18` rather than retail's `-0x64` through
+`-0x74`; names cannot supply the unexplained intervening storage.
+
 Locals declared in a nested block get their slots after every function-scope
 local, below them in the frame, whatever their keys; hoist such a local to the
 top of the function when the original slot order needs it
@@ -349,6 +358,18 @@ size correction and the trailing alignment span. Moving only the forward
 vector fixes the gun routine but breaks camera-eye ordering. These are
 verified matching declaration orders, not a claim to have recovered the
 original header text; function bodies and all declared types are unchanged.
+
+`SPEECH_C` exchanges `g_wDmaAddressA_0049bb64` and
+`g_wDmaHalfBytes_0048e0e4` at keys 20179/20188. This restores the final
+addition in `InitializeSoundBlaster` (`0x0044F84F`): half-buffer size loads
+into AX before the first DMA address loads into CX. The 25-byte sequence at
+retail `0x0044FA0B` now matches literally, versus 19/25 bytes before the
+swap, as checked by `binary-comp byte-compare`. The local `/Bk` symbol
+stream is byte-identical, and the only instruction changes in the unit's
+compiler listing are those two load addresses. Other units retain their
+header order. The normalized comparison remains 12/134 differing encodings
+because relocation normalization masks the exchanged global operands; the
+separate DMA-page comparison still has the wrong expression shape.
 
 A struct member and a plain global differ in tree weight, not only in key: a
 member read is `LD(ADD(sym,off))`. Two operands of equal weight compare by key

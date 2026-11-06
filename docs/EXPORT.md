@@ -197,6 +197,16 @@ Both builds still call `strcpy`; the wrapper's source and instruction
 sequence are unchanged. This is an unresolved image-layout difference,
 not an additional source-level defect introduced by the pragma.
 
+Two later flight-control renames put the handled-input flag at retail
+`-4`, reducing `HandleSpaceFlightControls`' differing encodings from
+391/1,503 to 388/1,503. A speech-only header-order correction restores
+`InitializeSoundBlaster`'s final DMA-address addition: its 25-byte sequence
+now matches literally, up from 19/25 bytes. Relocation normalization masks
+the exchanged global operands, so that improvement does not change its
+normalized score. Both changes leave the full normalized report, section
+sizes, byte-identical function-span count, and strict positional result
+unchanged (see [PATTERNS.md](PATTERNS.md)).
+
 The event-manager naming correction places its drawn-cursor coordinates at
 retail `0x005C80A8/0x005C80AC` without changing storage sizes or instruction
 selection (see [ORDER.md](ORDER.md)). The raw function-span comparison

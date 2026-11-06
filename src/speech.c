@@ -3,6 +3,7 @@
  *
  *  Retail object 0x44F300-0x44FA6F (link order; see docs/ORDER.md).
  */
+#define SPEECH_C
 #include "game.h"
 
 const int g_nDigiSampleBytes_0048e0e0 = 0xfffa;

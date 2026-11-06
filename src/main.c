@@ -974,9 +974,9 @@ void AcknowledgeModalMessage(void)
 /* Function start: 0x46733D */
 short HandleSpaceFlightControls(void)
 {
-    short inputHandled;
+    short inputConsumed;
     short notRepeated;
-    short control;
+    short controlHeld;
     short modifiers;
     short keyState;
     short object;
@@ -984,15 +984,15 @@ short HandleSpaceFlightControls(void)
     g_bInputCursorEnabled_005c80e6 = 1;
     g_nInputRepeatDelay_005c80d6 = g_bInputCursorEnabled_005c80e6;
     if (g_nCurrentView_00492fa8 == 4) {
-        inputHandled = HandleFleetOverviewInput();
+        inputConsumed = HandleFleetOverviewInput();
     } else {
-        inputHandled = player_input();
+        inputConsumed = player_input();
         players_flight_dynamics();
     }
     notRepeated =
         g_cPreviousKey_0049312c != g_cCurrentKey_00493128 &&
-        inputHandled == 0;
-    control = (short)GetControlKeyState();
+        inputConsumed == 0;
+    controlHeld = (short)GetControlKeyState();
     modifiers = (short)GetKeyboardModifiers();
 
     if (g_bMenuBHotkey_005d1290 != 0 &&
@@ -1074,7 +1074,7 @@ short HandleSpaceFlightControls(void)
             }
             break;
         case 0x1e:
-            if (notRepeated && control == 0) {
+            if (notRepeated && controlHeld == 0) {
                 g_nCockpitControlState_0049d7ac = 0;
                 if (get_mode(1) != 5)
                     SelectCockpitVduMode(1, 5);
@@ -1110,7 +1110,7 @@ short HandleSpaceFlightControls(void)
             }
             break;
         case 0x12:
-            if (notRepeated && control != 0 &&
+            if (notRepeated && controlHeld != 0 &&
                 g_acPlayerComponentDamage_00493470[7] != 4) {
                 if (RandomInRange(
                         0, g_acPlayerComponentDamage_00493470[7]) == 0)
@@ -1126,11 +1126,11 @@ short HandleSpaceFlightControls(void)
             }
             break;
         case 0x32:
-            if (notRepeated && control == 0)
+            if (notRepeated && controlHeld == 0)
                 SetMessageDisplaySpeed();
             break;
         case 0x2f:
-            if (notRepeated && control == 0) {
+            if (notRepeated && controlHeld == 0) {
                 g_bVideoImagesSuppressed_0049b784 =
                     g_bVideoImagesSuppressed_0049b784 == 0;
                 if (g_bVideoImagesSuppressed_0049b784 != 0)
@@ -1161,7 +1161,7 @@ short HandleSpaceFlightControls(void)
             }
             break;
         case 0x1f:
-            if (control != 0 && notRepeated) {
+            if (controlHeld != 0 && notRepeated) {
                 if (g_nSfxVolumeSetting_0049d74c == 0)
                     g_nSfxVolumeSetting_0049d74c = 20;
                 else
@@ -1491,7 +1491,7 @@ short HandleSpaceFlightControls(void)
     switch ((signed char)g_cCurrentKey_00493128) {
     case 0x0d:
     case 0x4e:
-        if (control != 0) {
+        if (controlHeld != 0) {
             ReportFramesSkipped(1);
         } else {
             accelerate(1);
@@ -1502,7 +1502,7 @@ short HandleSpaceFlightControls(void)
         break;
     case 0x0c:
     case 0x4a:
-        if (control != 0) {
+        if (controlHeld != 0) {
             ReportFramesSkipped(-1);
         } else {
             accelerate(-1);
@@ -1549,7 +1549,7 @@ short HandleSpaceFlightControls(void)
         }
         break;
     case 0x14:
-        if (notRepeated && control == 0) {
+        if (notRepeated && controlHeld == 0) {
             SelectCockpitVduMode(1, 3);
             g_bDisplayWingmanTargetData_0049347c = 0;
         }
@@ -1564,12 +1564,12 @@ short HandleSpaceFlightControls(void)
         }
         break;
     case 0x2f:
-        if (notRepeated && control != 0)
+        if (notRepeated && controlHeld != 0)
             ShowVersionBanner();
         break;
     case 0x24:
         if (notRepeated) {
-            if (control != 0)
+            if (controlHeld != 0)
                 CalibrateJoystickInteractive();
             else
                 TryBeginStarSystemJump();
@@ -1580,7 +1580,7 @@ short HandleSpaceFlightControls(void)
 pause_spaceflight:
 #endif
         g_bPauseInputActive_0049ac9c = 1;
-        ShowGamePausedBanner((short)(control < 1));
+        ShowGamePausedBanner((short)(controlHeld < 1));
         g_bPauseInputActive_0049ac9c = 0;
         SetFrameTimerPeriodDirect(1);
         for (keyState = 0; keyState < 0x100; keyState++) {
@@ -1594,7 +1594,7 @@ pause_spaceflight:
             g_nCockpitControlGoal_0049d7d0;
         break;
     case 0x20:
-        if (notRepeated && control == 0 &&
+        if (notRepeated && controlHeld == 0 &&
             IsCockpitWeaponShapeLoaded() != 0)
             SelectCockpitVduMode(0, 2);
         break;
@@ -1617,7 +1617,7 @@ pause_spaceflight:
         }
         break;
     case 0x32:
-        if (notRepeated && control != 0) {
+        if (notRepeated && controlHeld != 0) {
             if (g_nMusicVolumeSetting_0049d750 == 0)
                 g_nMusicVolumeSetting_0049d750 = 20;
             else
@@ -1633,7 +1633,7 @@ pause_spaceflight:
 
     switch ((signed char)g_cCurrentKey_00493128) {
     case 0x48:
-        if (control != 0) {
+        if (controlHeld != 0) {
             g_nSfxVolumeSetting_0049d74c++;
             if (g_nSfxVolumeSetting_0049d74c > 20)
                 g_nSfxVolumeSetting_0049d74c = 20;
@@ -1647,7 +1647,7 @@ pause_spaceflight:
         }
         break;
     case 0x50:
-        if (control != 0) {
+        if (controlHeld != 0) {
             g_nSfxVolumeSetting_0049d74c--;
             if (g_nSfxVolumeSetting_0049d74c < 0)
                 g_nSfxVolumeSetting_0049d74c = 0;
@@ -1661,7 +1661,7 @@ pause_spaceflight:
         }
         break;
     case 0x4d:
-        if (control != 0) {
+        if (controlHeld != 0) {
             g_nMusicVolumeSetting_0049d750++;
             if (g_nMusicVolumeSetting_0049d750 > 20)
                 g_nMusicVolumeSetting_0049d750 = 20;
@@ -1675,7 +1675,7 @@ pause_spaceflight:
         }
         break;
     case 0x4b:
-        if (control != 0) {
+        if (controlHeld != 0) {
             g_nMusicVolumeSetting_0049d750--;
             if (g_nMusicVolumeSetting_0049d750 < 0)
                 g_nMusicVolumeSetting_0049d750 = 0;
@@ -1693,7 +1693,7 @@ pause_spaceflight:
     if (g_nOriginDevUnlock_0049d774 != 0) {
         switch ((signed char)g_cCurrentKey_00493128) {
         case 0x52:
-            if (notRepeated && control != 0) {
+            if (notRepeated && controlHeld != 0) {
                 for (object = 1; object < 10; object++) {
                     if (g_asShipSide_004955d0[object] !=
                             g_asShipSide_004955d0[0] &&
@@ -1706,7 +1706,7 @@ pause_spaceflight:
             }
             break;
         case 0x53:
-            if (notRepeated && control != 0 &&
+            if (notRepeated && controlHeld != 0 &&
                 g_bDebugBreakEnabled_0049c238 != 0) {
                 object = g_acShipTarget_00495f20[0];
                 if (object != -1) {
