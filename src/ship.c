@@ -3,6 +3,7 @@
  *
  *  Retail object 0x410020-0x41754F (link order; see docs/ORDER.md).
  */
+#define SHIP_C
 #include "game.h"
 
 short g_bAiMissileFiringEnabled_00492d58 = 1;
@@ -352,8 +353,8 @@ void remove_weapon(short obj, short weapon)
 /* Function start: 0x41090F */
 void InitializeShipWeaponTypeIndices(short obj)
 {
-    short weaponIndex;
     short weaponCount;
+    short weaponIndex;
 
     weaponCount = (short)(signed char)
         g_aObjectTypeData_00496d30[
@@ -1045,11 +1046,6 @@ short inflict_damage(short attacker, short victim, short damage,
 #endif
 }
 
-/* Keep this declaration context after the damage code: CL 4.1's symbol keys
- * determine its operand order and those of the following ship functions. */
-short HasShipCockpitGunDisplay(short ship);
-void rotate_object_to_goal(short obj);
-
 /* Function start: 0x41262D */
 short pilot_hit(short obj)
 {
@@ -1111,6 +1107,11 @@ void call_enemy(short obj)
             g_acShipTarget_00495f20[other] = obj;
     }
 }
+
+/* CL 4.1 uses this declaration context when ordering the ship operands. */
+short HasShipCockpitGunDisplay(short ship);
+void rotate_object_to_goal(short obj);
+short RandomBelow(short n);
 
 /* Function start: 0x4128A7 */
 short internal_damage(short attacker, short owner, short victim,

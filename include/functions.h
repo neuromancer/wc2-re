@@ -1462,7 +1462,11 @@ void intelligence_events(short obj);
 void intelligence_events(int obj);                                      /* 0x41FF37 */
 #endif
 void chase_speed(short obj, short range);                              /* 0x440571 */
+#ifdef SHIP_C
+short RandomBelow(short);                                             /* 0x4618E0 */
+#else
 short RandomBelow(short n);                                           /* 0x4618E0 */
+#endif
 void SeedRandomFromClock(void);                                               /* 0x4618FF */
 unsigned short GetRandomWord(void);                                  /* 0x461922 */
 unsigned short RandomInRange(unsigned short lo, unsigned short hi);     /* 0x461942 */
