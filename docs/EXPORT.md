@@ -217,14 +217,23 @@ delta is a count of source defects.
 | `.data` virtual bytes, including zero-filled storage | 1,332,200 | 1,331,480 |
 | Entry point | `0x00473E50` | `0x00473BA0` |
 
-`make compare-bytes` still fails. With the link timestamps restored and
-the input-frame corrections and CRT calls restored, it reports 139,590
-identical file positions out of 714,752 (19.5299%). Address
+`make compare-bytes` still fails. With the link timestamps, input-frame
+corrections, CRT calls, and retail executable-name record restored, it
+reports 139,584 identical file positions out of 714,752 (19.5290%). Address
 drift changes encoded operands and shifts subsequent bytes, so that number
 is not a percentage of reconstruction work completed. Remaining work includes
 instruction shape, uninitialized-data layout, library boundary alignment,
 and the CodeView/PDB metadata. Passing the declared-global data comparison
 does not resolve those differences.
+
+Linking to `Debug/wc2.exe` reproduces all 272 bytes of the retail
+`IMAGE_DEBUG_MISC` payload. `binary-comp byte-compare` confirms both that
+record's identity and that `.text`, `.data`, `.idata`, and `.reloc` are
+unchanged from the preceding build. The payload remains 512 file bytes
+early, so correcting its text reduces accidental positional agreement by
+six bytes (from 139,590); it does not fix the image's layout. LINK also
+increments the PDB age on relink. The usual `WC2.EXE` is an identical copy
+of the linked image; CodeView's PDB path, signature, and age remain open.
 
 Packing the proven nine-byte personnel mouse sample preserves all function
 scores and corrects its internal field offsets, including the unaligned flags

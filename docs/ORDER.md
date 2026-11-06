@@ -181,6 +181,15 @@ the gaps are unused or establish their declarations: calculated accesses
 and unreferenced storage remain possible. Do not fill them with guessed
 globals merely to reach the next known address.
 
+The observed array extents do not account for those gaps. `ClearInputKeyState`
+(`0x004642D6`) clears `0x80` bytes; `AllocateInputEvent` (`0x00462890`)
+clears `0x400` slot-use bytes and scans `0x100` entries.
+`BuildObjectDepthOrder` (`0x0046436E`) clears `0x118` bytes and limits both
+object-order arrays to `0x46` entries. The pause-state loop in
+`HandleSpaceFlightControls` stops at `0x100`, matching both 256-byte arrays.
+These accesses support the current declarations, not larger arrays inferred
+from their neighbours' addresses.
+
 `InflightComputer` saves and restores 33 bytes at `0x005C8470` (eight `MOVSD`s
 and one `MOVSB`). This is the personnel cursor record: x/y are at `+0/+2`,
 the shape pointer at `+0x0D`, frame at `+0x11`, scratch pointer at `+0x13`, and

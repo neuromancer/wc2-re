@@ -118,6 +118,8 @@ CRT_LIBS = libcmtd.lib oldnames.lib
 # ---------------------------------------------------------------------------
 
 TARGET = WC2.EXE
+# LINK records this spelling in IMAGE_DEBUG_MISC, as in the retail image.
+LINK_TARGET = Debug/wc2.exe
 MAPFILE = WC2.map
 OUT_DIR = out
 LINKMAPFILE = $(OUT_DIR)/WC2.link.map
@@ -1073,10 +1075,12 @@ $(IX_LIBS): | $(MSVCRT_DLL)
 	$(LIBEXE) /nologo /OUT:$@ $(filter %.obj,$^)
 
 $(TARGET): $(LINK_OBJS) $(IX_LIBS) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(MSVCRT_DLL)
+	@mkdir -p $(dir $(LINK_TARGET))
 	env LIB='$(GAME_LIBPATH)' $(LINK) $(LINKFLAGS) /MAP:$(LINKMAPFILE) \
 		$(LINK_OBJS) $(IX_LIBS_BEFORE_CRT) $(GAME_LIBS) $(CRT_LIBS) \
-		$(IX_LIBS_AFTER_CRT) /OUT:$@
-	@python3 bin/stampPeTimestamp.py $@ $(ORIGINAL_TIMESTAMP)
+		$(IX_LIBS_AFTER_CRT) /OUT:$(LINK_TARGET)
+	@python3 bin/stampPeTimestamp.py $(LINK_TARGET) $(ORIGINAL_TIMESTAMP)
+	@cp -f $(LINK_TARGET) $@
 	@python3 bin/appendStaticSymbols.py --map $(LINKMAPFILE) \
 		--rebuilt $(TARGET) --output $(MAPFILE) $(OBJS)
 
@@ -1444,7 +1448,7 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 
 clean:
 	rm -rf $(OUT_DIR)/*.obj $(OUT_DIR)/*.asm $(OUT_DIR)/*.stdout \
-	       $(OUT_DIR)/ix $(TARGET) $(MAPFILE) $(LINKMAPFILE)
+	       $(OUT_DIR)/ix $(TARGET) $(LINK_TARGET) $(MAPFILE) $(LINKMAPFILE)
 
 clean-run:
 	rm -f "$(RUN_DIR)/WC2.EXE" "$(RUN_DIR)/WC2.ORI.EXE" \

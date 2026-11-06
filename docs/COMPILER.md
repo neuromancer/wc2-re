@@ -17,7 +17,18 @@ The PE `TimeDateStamp` and all three `IMAGE_DEBUG_DIRECTORY` timestamps are
 validates the PE32 header, the file-backed debug directory, matching link
 times, and the zero image checksum before writing. It does not modify code,
 data, section sizes, or debug payloads. CodeView's separate PDB signature
-(`0x32385F33`), age (`22`), and embedded paths remain separate matching work.
+(`0x32385F33`), age (`22`), and embedded PDB path remain separate matching work.
+
+LINK's `/OUT:Debug/wc2.exe` reproduces the retail `IMAGE_DEBUG_MISC`
+executable-name record, including its 272-byte payload and trailing zeros.
+The build links to that path, restores the link timestamps, then copies the
+image to the usual `WC2.EXE` target. This changes no code, data, import, or
+relocation bytes. The debug payload still starts 512 file bytes before its
+retail location because the preceding image remains shorter. The separate
+CodeView PDB path, signature, and age are not corrected by the output path.
+All 126 FPO records already have the retail sizes, local/parameter counts,
+and flags; their start RVAs remain shifted with the CRT code. The FPO payload
+has 252 differing bytes, all in those start-address fields.
 
 ### WC2 DirectDraw timing initializer unit
 
