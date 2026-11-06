@@ -144,6 +144,13 @@ jobs:
           else
             brew install lzo sdl2
           fi
+      - name: Install macOS packaging tools
+        if: matrix.platform == 'macos'
+        run: |
+          packaging_venv="$RUNNER_TEMP/wc2-macos-packaging"
+          python3 -m venv "$packaging_venv"
+          "$packaging_venv/bin/python" -m pip install -r packaging/requirements-macos.txt
+          echo "DMGBUILD=$packaging_venv/bin/dmgbuild" >> "$GITHUB_ENV"
       - name: Build SDL2 release port
         run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
@@ -197,11 +204,20 @@ jobs:
               exit 1
             fi
           done
+      - name: Package macOS app and disk image
+        if: matrix.platform == 'macos'
+        run: |
+          packaging/package-macos.sh \
+            "${{ needs.metadata.outputs.version }}" \
+            "${{ matrix.architecture }}" \
+            out-modern/wc2-modern-gui
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-${{ matrix.platform }}-${{ matrix.architecture }}
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.dmg
           if-no-files-found: error
           retention-days: 7
 
@@ -314,7 +330,8 @@ jobs:
         working-directory: release-assets
         run: |
           test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
-          sha256sum -- *.zip | sort -k2 > SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
+          sha256sum -- *.zip *.dmg | sort -k2 > SHA256SUMS
       - name: Publish GitHub Release
         working-directory: release-assets
         env:
@@ -329,6 +346,7 @@ jobs:
           fi
           gh release create "$RELEASE_TAG" \
             ./*.zip \
+            ./*.dmg \
             ./SHA256SUMS \
             --verify-tag \
             --generate-notes \

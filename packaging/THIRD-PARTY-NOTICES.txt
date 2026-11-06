@@ -1,7 +1,7 @@
 Bundled runtime components
 ==========================
 
-The SDL2 release archives may include runtime libraries from:
+The SDL2 release packages may include runtime libraries from:
 
 - SDL 2, under the zlib license: https://www.libsdl.org/
 - LZO 2, under GPL-2.0-or-later: https://www.oberhumer.com/opensource/lzo/
@@ -17,4 +17,4 @@ The SDL2 release archives may include runtime libraries from:
   https://github.com/btzy/nativefiledialog-extended
 
 The exact set is platform-dependent. System libraries supplied by Windows,
-macOS, or the Linux distribution are not copied into these archives.
+macOS, or the Linux distribution are not copied into these packages.
