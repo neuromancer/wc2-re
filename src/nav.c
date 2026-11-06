@@ -1112,7 +1112,6 @@ void InflightComputer(void)
     Viewport navViewport;
     InputEventState inputEvent;
     unsigned char *cockpitShape;
-    int inputType;
     int frame;
     int markerColor;
     short done;
@@ -1150,7 +1149,6 @@ void InflightComputer(void)
         if (hidden_objective(objective) == 0 &&
             IsObjectiveInDisplayedSystem(objective) != 0) {
             objectivesVisible = 1;
-            break;
         }
     }
     MarkDibDirty();
@@ -1202,23 +1200,22 @@ void InflightComputer(void)
             g_nUiInputMode_005c8d3c = 1;
             EnableMouseCursorDrawing();
             /* The original passes a second argument the callee ignores. */
-            inputType = PollInputEvent(&inputEvent, 0xf);
-            switch (inputType) {
-            case 1:
-                done = 1;
-                break;
+            switch (PollInputEvent(&inputEvent, 0xf)) {
             case 4:
             case 6:
-                if ((short)inputEvent.value == 0x1c ||
-                    (short)inputEvent.value == 0x39) {
-                    done = 1;
-                } else if ((short)inputEvent.value == 0x31) {
-                    cycle_next_objective();
-                    if (IsObjectiveInDisplayedSystem(
-                            (short)g_cCurrentObjective_004931cc) == 0)
-                        FollowSelectedObjectiveSystem();
-                    CentreMouseOnCurrentNavObjective();
+                if (inputEvent.status != 0x1c &&
+                    inputEvent.status != 0x39) {
+                    if (inputEvent.status == 0x31) {
+                        cycle_next_objective();
+                        if (IsObjectiveInDisplayedSystem(
+                                (short)g_cCurrentObjective_004931cc) == 0)
+                            FollowSelectedObjectiveSystem();
+                        CentreMouseOnCurrentNavObjective();
+                    }
+                    break;
                 }
+            case 1:
+                done = 1;
                 break;
             }
             SelectNavObjectiveAtPoint(
@@ -1236,11 +1233,11 @@ void InflightComputer(void)
         }
         free_viewport(&g_stSecondaryViewBufferBlock_005d2c90);
         DisableMouseCursorDrawing();
-        ReleasePacketHandle(g_pNavMapShape_0049bc48);
-        SetTextContext(&g_stDefaultStringContext_005d2d20);
-        PlaySfxWaveFileByNumber(0x19, -1, 0);
     }
 
+    ReleasePacketHandle(g_pNavMapShape_0049bc48);
+    SetTextContext(&g_stDefaultStringContext_005d2d20);
+    PlaySfxWaveFileByNumber(0x19, -1, 0);
     g_stPersonnelCursor_005c8470 = savedCursor;
     SetPersonnelMousePosition(g_stPersonnelCursor_005c8470.x,
                               g_stPersonnelCursor_005c8470.y);

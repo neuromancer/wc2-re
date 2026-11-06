@@ -231,7 +231,6 @@ short ReadTextInput(char *destination, short maximumLength,
     short keyHandled;
     unsigned char backgroundInk;
     short inputCode;
-    int keyClass;
     char textBuffer[40];
 
     done = 0;
@@ -252,13 +251,13 @@ short ReadTextInput(char *destination, short maximumLength,
 
     textArea.left = textX;
     textArea.top = textY;
-    textArea.bottom = (short)(textArea.top +
-        ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font));
+    textArea.bottom = (short)(
+        (short)ReadWord((unsigned short *)g_pCurrentTextContext_005c8d1c->font) +
+        textY);
     textArea.right = (short)(textArea.left +
         MeasureTextPixelWidthClamped(textBuffer));
     ClearViewport(&textArea,
                   g_pCurrentTextContext_005c8d1c->backgroundColour);
-    textArea.right = oldViewport->right;
     DrawFormattedText(textBuffer);
     DrawTextInputCursor(' ');
 
@@ -279,10 +278,10 @@ short ReadTextInput(char *destination, short maximumLength,
                 return 0;
             case 13:
                 keyHandled++;
-                if (textBuffer[0] != 0) {
-                    EraseCharacterAfterTextCursor(' ');
-                    done++;
-                }
+                if (textBuffer[0] == 0)
+                    break;
+                EraseCharacterAfterTextCursor(' ');
+                done++;
                 break;
             default:
                 if (inputCode == 8 && length != 0) {
@@ -291,48 +290,35 @@ short ReadTextInput(char *destination, short maximumLength,
                     DrawTextInputCursor(' ');
                     length--;
                     textBuffer[length] = 0;
-                    keyHandled++;
-                    break;
-                }
-                if (maximumLength <= length) {
-                    keyHandled++;
-                    break;
-                }
-                if (allowPathSeparators == 0 ||
-                    (inputCode != ':' && inputCode != '\\')) {
+                } else if (length < maximumLength &&
+                           ((allowPathSeparators != 0 &&
+                             (inputCode == ':' || inputCode == '\\')) ||
 #ifdef SDL_PORT
-                    keyClass = isalnum((unsigned char)inputCode);
+                            isalnum((unsigned char)inputCode) ||
 #else
-                    if (__mb_cur_max > 1)
-                        keyClass = _isctype(inputCode, 0x107);
-                    else
-                        keyClass = _pctype[inputCode] & 0x107;
+                            isalnum(inputCode) ||
 #endif
-                    if (keyClass == 0 &&
-                        (inputCode != ' ' || length == 0)) {
-                        keyHandled++;
+                            (inputCode == ' ' && length != 0))) {
+                    switch (mode) {
+                    case 1:
+                        inputCode = (short)toupper(inputCode);
+                        break;
+                    case 2:
+                        if (inputCode < '0' || inputCode > '9')
+                            inputCode = 0;
                         break;
                     }
+                    if (inputCode == 0)
+                        break;
+                    EraseCharacterAfterTextCursor(' ');
+                    textBuffer[length] = (char)inputCode;
+                    length++;
+                    textBuffer[length] = 0;
+                    SetTextCursor((unsigned short)textX,
+                                  (unsigned short)textY);
+                    DrawFormattedText(textBuffer);
+                    DrawTextInputCursor(' ');
                 }
-                switch (mode) {
-                case 1:
-                    inputCode = (short)toupper(inputCode);
-                    break;
-                case 2:
-                    if (inputCode < '0' || inputCode > '9')
-                        inputCode = 0;
-                    break;
-                }
-                if (inputCode == 0)
-                    continue;
-                EraseCharacterAfterTextCursor(' ');
-                textBuffer[length] = (char)inputCode;
-                length++;
-                textBuffer[length] = 0;
-                SetTextCursor((unsigned short)textX,
-                              (unsigned short)textY);
-                DrawFormattedText(textBuffer);
-                DrawTextInputCursor(' ');
                 keyHandled++;
                 break;
             }
