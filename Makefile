@@ -16,6 +16,7 @@
 #   make order           # compilation-unit boundary hints
 #   make verify          # primary recovery verification checklist
 #   make progress        # reimplementation progress summary
+#   make site            # build the Win32 source browser for GitHub Pages
 
 # ---------------------------------------------------------------------------
 # Original toolchain
@@ -1478,6 +1479,16 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 		-launch WC2.EXE > debug.log
 
 # ---------------------------------------------------------------------------
+# Source browser
+# ---------------------------------------------------------------------------
+
+# Same static Doxygen/Pygments browser as wc1-re. Only the Win32 branches
+# are staged; the matching sources are never rewritten. No game data or
+# original toolchain is needed. Output: out/site/html/index.html.
+site:
+	@sh site/build.sh $(SRCS)
+
+# ---------------------------------------------------------------------------
 # Cleanup and phony declarations
 # ---------------------------------------------------------------------------
 
@@ -1496,6 +1507,7 @@ clean-modern:
 	rm -rf $(MODERN_OUT_DIR)
 
 .PHONY: \
+	site \
 	all \
 	test-pdb-seed \
 	audit-addresses \

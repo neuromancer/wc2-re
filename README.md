@@ -12,6 +12,9 @@ the original DOS game data.
 
 No retail game data files are included.
 
+Browse the [reconstructed Win32 source](https://neuromancer.github.io/wc2-re/)
+with searchable Doxygen references, subsystem groups and assembly listings.
+
 If you find this project useful, you can [support its development through
 GitHub Sponsors](https://github.com/sponsors/neuromancer).
 
@@ -214,6 +217,25 @@ make run ISO=/path/to/kilrathi-saga.iso
 
 Use `make run-original` for the retail executable in the same environment, and
 `make debug` to start DREAMM's debugger.
+
+## Source browser
+
+The [Doxygen website](https://neuromancer.github.io/wc2-re/) presents the
+Win32 sources that reproduce the retail executable, with SDL-only branches
+removed. Files are grouped by subsystem and listed in link order, using the
+same theme and publishing pipeline as
+[wc1-re](https://neuromancer.github.io/wc1-re/).
+
+Install Doxygen 1.18.0, `unifdef` and Pygments (`pygmentize`), then run:
+
+```sh
+make site
+```
+
+Open `out/site/html/index.html` locally. This target needs neither game data
+nor the MSVC toolchain. File descriptions live in `site/files.tsv`, so
+documentation edits preserve the source line numbers used by live assertions
+in the matching build. GitHub Actions publishes the site on pushes to `main`.
 
 ## Reconstruction workflow
 
