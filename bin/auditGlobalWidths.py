@@ -6,7 +6,7 @@ The original always accesses a global at its real width, so a global declared
 declared two bytes too wide.  Every call site of such a global emits the wrong
 operand size, so one declaration fix moves many functions at once.
 
-Reads include/globals.h for `extern <type> <name>_00<addr>;` declarations and
+Reads include/globals.h for extern declarations with address comments and
 code-full/*.disassembled.txt for the widths the original actually uses.
 
     python3 bin/auditGlobalWidths.py
@@ -15,6 +15,8 @@ import collections
 import os
 import re
 import sys
+
+from binary_comp.analyzers.globals import address_for_declaration
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HEADER = os.path.join(ROOT, 'include', 'globals.h')
@@ -29,17 +31,22 @@ SCALAR_SIZES = {
 OPERAND_SIZES = {'byte': 1, 'word': 2, 'dword': 4, 'qword': 8}
 
 DECL = re.compile(
-    r'extern\s+(.+?)\s+(\**)((?:g_\w+|DAT)_00([0-9a-fA-F]{6}))\s*;\s*$')
+    r'extern\s+(.+?)\s+(\**)(g_\w+|DAT_\w+)\s*;(.*)$')
 ACCESS = re.compile(r'\b(byte|word|dword|qword) ptr \[0x([0-9a-f]{6})\]')
 
 
 def declared_scalars():
     scalars = {}
-    for line in open(HEADER):
+    with open(HEADER) as handle:
+        lines = handle.readlines()
+    for line in lines:
         match = DECL.match(line.strip())
         if not match:
             continue
-        base, stars, name, address = match.groups()
+        base, stars, name, trailing = match.groups()
+        address = address_for_declaration(name, "", "", trailing)
+        if address is None:
+            continue
         if stars:
             size = 4
         else:
@@ -47,7 +54,7 @@ def declared_scalars():
                 base.replace('const ', '').replace('volatile ', '').strip())
         if size is None:
             continue
-        scalars[int(address, 16)] = (name, base + stars, size)
+        scalars[address] = (name, base + stars, size)
     return scalars
 
 

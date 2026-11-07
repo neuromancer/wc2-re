@@ -3,55 +3,50 @@ import {
     CheckBox,
     ComboBox,
     GroupBox,
-    HorizontalBox,
-    LineEdit,
     Palette,
     VerticalBox
 } from "std-widgets.slint";
 
 export component LauncherWindow inherits Window {
     title: "Wing Commander II";
-    preferred-width: 660px;
-    /* The device combo box is one more row in the joystick group, so the
-     * window asks for the room it takes whenever that row is offered. */
-    preferred-height: 690px + (root.multiple-joysticks ? 64px : 0px);
-    min-width: 580px;
+    preferred-width: 760px;
+    preferred-height: 620px + (root.joystick-devices.length > 2 ? 44px : 0px);
+    min-width: 640px;
     min-height: 520px;
     background: Palette.background;
 
-    private property <bool> multiple-joysticks:
-        root.joystick-devices.length > 1;
-
     in property <image> title-artwork;
     in-out property <string> game-directory;
+    in property <[string]> installations;
+    in property <bool> has-installations;
+    in-out property <int> installation-index;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
+    in-out property <bool> cheat-mode;
     in-out property <bool> joystick-rumble;
-    in-out property <bool> show-frame-rate;
-    in-out property <bool> cockpitless;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
-    in-out property <int> joystick-device-index;
-
+    // The first entry is Automatic, followed by the detected devices.
     in property <[string]> joystick-devices;
+    in-out property <int> joystick-device-index;
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
     in property <string> status-text: "Choose a Wing Commander II directory.";
 
-    callback configuration-changed();
     callback browse-requested();
+    callback installation-selected(int);
     callback launch-requested();
     callback cancel-requested();
 
     VerticalBox {
-        padding: 14px;
-        spacing: 7px;
+        padding: 18px;
+        spacing: 12px;
 
         Rectangle {
-            preferred-height: 105px;
-            min-height: 90px;
+            height: 88px;
+            vertical-stretch: 0;
             background: #000018;
             border-radius: 6px;
 
@@ -68,98 +63,107 @@ export component LauncherWindow inherits Window {
 
         GroupBox {
             title: "Game installation";
+            vertical-stretch: 0;
 
-            VerticalBox {
-                spacing: 5px;
+            VerticalLayout {
+                spacing: 8px;
+                alignment: start;
 
-                Text {
-                    text: "Directory containing GAMEDAT";
-                    color: Palette.foreground;
-                }
+                HorizontalLayout {
+                    spacing: 8px;
+                    height: 34px;
 
-                HorizontalBox {
-                    spacing: 6px;
-
-                    LineEdit {
+                    ComboBox {
                         horizontal-stretch: 1;
-                        text <=> root.game-directory;
-                        placeholder-text: "/path/to/WC2";
-                        edited(_) => {
-                            root.configuration-changed();
-                        }
-                        accepted(_) => {
-                            root.configuration-changed();
+                        enabled: root.has-installations;
+                        model: root.installations;
+                        current-index <=> root.installation-index;
+                        selected(_) => {
+                            root.installation-selected(self.current-index);
                         }
                     }
 
                     Button {
-                        text: "Browse…";
+                        text: "Add path…";
                         clicked => {
                             root.browse-requested();
                         }
                     }
                 }
 
-                HorizontalBox {
+                if root.picker-error || !root.path-valid : HorizontalLayout {
                     spacing: 8px;
+                    vertical-stretch: 0;
 
                     Text {
-                        text: root.picker-error ? "!" : root.path-valid ? "✓" : "●";
-                        color: root.picker-error ? #b3261e : root.path-valid ? #17803d : #b45f06;
+                        text: root.picker-error ? "!" : "●";
+                        color: root.picker-error ? #b3261e : #b45f06;
                         font-size: 14px;
                     }
 
                     Text {
                         horizontal-stretch: 1;
                         text: root.status-text;
-                        color: root.picker-error ? #b3261e : root.path-valid ? #17803d : #b45f06;
+                        color: root.picker-error ? #b3261e : #b45f06;
                         wrap: word-wrap;
                     }
                 }
             }
         }
 
-        GroupBox {
-            title: "Graphics and gameplay";
+        HorizontalLayout {
+            spacing: 18px;
+            vertical-stretch: 0;
 
-            VerticalBox {
-                spacing: 4px;
+            GroupBox {
+                title: "Graphics";
+                horizontal-stretch: 1;
 
-                HorizontalBox {
-                    spacing: 10px;
+                VerticalLayout {
+                    spacing: 8px;
+                    alignment: start;
 
                     CheckBox {
-                        horizontal-stretch: 1;
+                        height: 26px;
                         text: "Enhanced OpenGL";
                         checked <=> root.enhanced-renderer;
                     }
 
                     CheckBox {
-                        horizontal-stretch: 1;
+                        height: 26px;
                         text: "EGA 16-colour dithering";
                         checked <=> root.ega-dither;
                     }
+                }
+            }
+
+            GroupBox {
+                title: "Gameplay";
+                horizontal-stretch: 1;
+
+                VerticalLayout {
+                    spacing: 8px;
+                    alignment: start;
 
                     CheckBox {
-                        horizontal-stretch: 1;
+                        height: 26px;
                         text: "Balanced difficulty";
                         checked <=> root.balanced-difficulty;
                     }
-                }
-
-                HorizontalBox {
-                    spacing: 10px;
 
                     CheckBox {
-                        horizontal-stretch: 1;
-                        text: "Show frame-rate counter";
-                        checked <=> root.show-frame-rate;
+                        height: 26px;
+                        text: "Cheat mode";
+                        checked <=> root.cheat-mode;
                     }
 
-                    CheckBox {
-                        horizontal-stretch: 1;
-                        text: "Cockpitless view";
-                        checked <=> root.cockpitless;
+                    Text {
+                        text: "Invulnerability and no collisions";
+                        color: Palette.foreground;
+                        opacity: 0.65;
+                        font-size: 12px;
+                        wrap: word-wrap;
+                        vertical-stretch: 0;
                     }
                 }
             }
@@ -167,12 +171,14 @@ export component LauncherWindow inherits Window {
 
         GroupBox {
             title: "Joystick";
+            vertical-stretch: 0;
 
-            VerticalBox {
-                spacing: 5px;
+            VerticalLayout {
+                spacing: 10px;
 
-                if root.multiple-joysticks : HorizontalBox {
-                    spacing: 8px;
+                if root.joystick-devices.length > 2 : HorizontalLayout {
+                    spacing: 10px;
+                    height: 34px;
 
                     Text {
                         text: "Device";
@@ -188,62 +194,78 @@ export component LauncherWindow inherits Window {
                     }
                 }
 
-                HorizontalBox {
-                    spacing: 8px;
+                GridLayout {
+                    spacing: 10px;
 
-                    Text {
-                        text: "Control mode";
-                        vertical-alignment: center;
-                        width: 105px;
-                        color: Palette.foreground;
+                    Row {
+
+                        Text {
+                            text: "Control mode";
+                            vertical-alignment: center;
+                            width: 105px;
+                            color: Palette.foreground;
+                        }
+
+                        ComboBox {
+                            height: 34px;
+                            horizontal-stretch: 1;
+                            model: [
+                                "Original — two axes / two buttons",
+                                "WCAT — four buttons / two axes",
+                                "WCAT — four buttons / four axes"
+                            ];
+                            current-index <=> root.joystick-mode-index;
+                        }
+
                     }
 
-                    ComboBox {
-                        horizontal-stretch: 1;
-                        model: [
-                            "Original — two axes / two buttons",
-                            "WCAT — four buttons / two axes",
-                            "WCAT — four buttons / four axes"
-                        ];
-                        current-index <=> root.joystick-mode-index;
+                    Row {
+
+                        Text {
+                            text: "Axis layout";
+                            vertical-alignment: center;
+                            width: 105px;
+                            color: Palette.foreground;
+                        }
+
+                        ComboBox {
+                            height: 34px;
+                            horizontal-stretch: 1;
+                            enabled: root.joystick-mode-index == 2;
+                            model: [
+                                "Twin-stick roll",
+                                "Twin-stick yaw",
+                                "HOTAS yaw",
+                                "HOTAS roll",
+                                "Linear throttle",
+                                "Rudder yaw",
+                                "Rudder roll"
+                            ];
+                            current-index <=> root.joystick-axes-index;
+                        }
                     }
 
                     CheckBox {
+                        row: 2;
+                        col: 1;
+                        height: 26px;
                         text: "Rumble";
                         checked <=> root.joystick-rumble;
-                    }
-                }
-
-                HorizontalBox {
-                    spacing: 8px;
-
-                    Text {
-                        text: "Axis layout";
-                        vertical-alignment: center;
-                        width: 105px;
-                        color: Palette.foreground;
-                    }
-
-                    ComboBox {
-                        horizontal-stretch: 1;
-                        enabled: root.joystick-mode-index == 2;
-                        model: [
-                            "Twin-stick roll",
-                            "Twin-stick yaw",
-                            "HOTAS yaw",
-                            "HOTAS roll",
-                            "Linear throttle",
-                            "Rudder yaw",
-                            "Rudder roll"
-                        ];
-                        current-index <=> root.joystick-axes-index;
                     }
                 }
             }
         }
 
-        HorizontalBox {
+        // Resizing gives extra space to this gap, not to the controls above.
+        Rectangle {
+            min-height: 0px;
+            vertical-stretch: 1;
+        }
+
+        HorizontalLayout {
             spacing: 8px;
+            height: 34px;
+            vertical-stretch: 0;
 
             Text {
                 horizontal-stretch: 1;
@@ -261,7 +283,7 @@ export component LauncherWindow inherits Window {
             }
 
             Button {
-                text: "Launch WC2";
+                text: "Start game";
                 enabled: root.path-valid;
                 primary: true;
                 clicked => {

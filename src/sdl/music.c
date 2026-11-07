@@ -27,7 +27,7 @@
 #define SDL_ADLIB_TIMBRE_SECTION 1
 #define SDL_SOUND_RECORD_SIZE 8U
 #define SDL_SOUND_RECORD_COUNT \
-    (unsigned int)(sizeof(g_abSoundEffectDefinitions_0049bf18) / \
+    (unsigned int)(sizeof(g_abSoundEffectDefinitions) / \
                    SDL_SOUND_RECORD_SIZE)
 /* Guns fire faster than a single OriginFX channel can restart, so successive
  * shots alternate between two tags and overlap on two channels instead of
@@ -103,7 +103,7 @@ static unsigned int SdlCalculateDosAudioGain(int volumeSetting)
         tableIndex = 0;
     else if (tableIndex > 10)
         tableIndex = 10;
-    level = g_anVolumeLevels_0049d720[tableIndex];
+    level = g_anVolumeLevels[tableIndex];
     if (level < 0)
         level = 0;
     else if (level > 64000)
@@ -113,18 +113,18 @@ static unsigned int SdlCalculateDosAudioGain(int volumeSetting)
 
 static void SdlUpdateDosAdlibMusicVolume(void)
 {
-    if (g_nSdlMusicVolumeSetting == g_nMusicVolumeSetting_0049d750 &&
-        g_nSdlSoundVolumeSetting == g_nSfxVolumeSetting_0049d74c)
+    if (g_nSdlMusicVolumeSetting == g_nMusicVolumeSetting &&
+        g_nSdlSoundVolumeSetting == g_nSfxVolumeSetting)
         return;
     if (g_nSdlMusicVolumeSetting !=
-        g_nMusicVolumeSetting_0049d750) {
-        g_nSdlMusicVolumeSetting = g_nMusicVolumeSetting_0049d750;
+        g_nMusicVolumeSetting) {
+        g_nSdlMusicVolumeSetting = g_nMusicVolumeSetting;
         g_nSdlDosMusicGain =
             SdlCalculateDosAudioGain(g_nSdlMusicVolumeSetting);
     }
     if (g_nSdlSoundVolumeSetting !=
-        g_nSfxVolumeSetting_0049d74c) {
-        g_nSdlSoundVolumeSetting = g_nSfxVolumeSetting_0049d74c;
+        g_nSfxVolumeSetting) {
+        g_nSdlSoundVolumeSetting = g_nSfxVolumeSetting;
         g_nSdlDosSoundGain =
             SdlCalculateDosAudioGain(g_nSdlSoundVolumeSetting);
     }
@@ -185,7 +185,7 @@ int SdlInitializeOriginFxAudio(int usingDosData)
         /* The player reads the game's own record table because flight code
          * retunes entries in place. */
         g_pSdlOriginFxSoundPlayer = SdlCreateOriginFxSoundPlayer(
-            g_abSoundEffectDefinitions_0049bf18,
+            g_abSoundEffectDefinitions,
             SDL_SOUND_RECORD_COUNT,
             g_pSdlDosAdlibTimbres,
             g_nSdlDosAdlibTimbreSize);
@@ -237,10 +237,10 @@ void SdlSetOriginFxMusicTrack(int track)
 {
     if (g_bSdlOriginFxMusicSelected == 0)
         return;
-    if (g_nCurrentMusicTrack_0049be98 == track)
+    if (g_nCurrentMusicTrack == track)
         return;
-    g_nCurrentMusicTrack_0049be98 = track;
-    g_nMusicTrackComplete_0049be88 = 0;
+    g_nCurrentMusicTrack = track;
+    g_nMusicTrackComplete = 0;
 }
 
 int SdlOriginalTitleMusicReady(void)
@@ -255,14 +255,14 @@ int SdlStartOriginalTitleMusic(void)
 {
     if (!SdlOriginalTitleMusicReady())
         return 0;
-    g_nTitleMusicSequenceStage_0049be94 = 0;
-    g_nCurrentMusicTrack_0049be98 = 19;
-    g_nMusicTrackComplete_0049be88 = 0;
+    g_nTitleMusicSequenceStage = 0;
+    g_nCurrentMusicTrack = 19;
+    g_nMusicTrackComplete = 0;
     g_bSdlOriginalTitleMusicActive = 1;
     SdlServiceOriginFxMusic();
-    if (g_nCurrentMusicTrack_0049be98 != 19)
+    if (g_nCurrentMusicTrack != 19)
         g_bSdlOriginalTitleMusicActive = 0;
-    return g_nCurrentMusicTrack_0049be98 == 19;
+    return g_nCurrentMusicTrack == 19;
 }
 
 static int SdlStartDosSoundEffect(int soundNumber, int volume, int pan,
@@ -302,13 +302,13 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
     if (sourceObject != -1) {
         if (sourceObject < 0 || sourceObject >=  SPACE_OBJECT_COUNT)
             return 0;
-        ComputeVectorDelta(&g_aShipPosition_00494550[ EYE_OBJECT],
-                           &g_aShipPosition_00494550[sourceObject],
+        ComputeVectorDelta(&g_aShipPosition[ EYE_OBJECT],
+                           &g_aShipPosition[sourceObject],
                            &delta);
         magnitude = Vector_magnitude(&delta);
         NormalizeFixedVector(&delta);
         stereoOffset = dot_product(
-            &delta, &g_aShipRightVector_00493b78[ EYE_OBJECT]);
+            &delta, &g_aShipRightVector[ EYE_OBJECT]);
         scaledPan = stereoOffset * SDL_SOUND_CENTRE_PAN;
         if (scaledPan < 0)
             scaledPan = -((-scaledPan + 0xff) / 0x100);
@@ -319,7 +319,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
             pan = 0;
         else if (pan > 127)
             pan = 127;
-        g_aiSoundEffectSourceActive_005d12c0[sourceObject] = 1;
+        g_aiSoundEffectSourceActiveValue[sourceObject] = 1;
     }
 
     if (g_bSdlOriginFxSoundSelected != 0) {
@@ -336,7 +336,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
                 soundNumber, volume, pan, sourceObject, looping))
             return 0;
         if (sourceObject == -1) {
-            g_bAfterburnerSfxActive_005d3864 =
+            g_3_bAfterburnerSfxActive =
                 soundNumber == SDL_AFTERBURNER_SOUND_NUMBER;
         }
         return 1;
@@ -353,9 +353,9 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
     SoundDebugPrintf(
         "Playing SFX #%d on obj: %d with volume of %d\n",
         soundNumber, sourceObject, distance);
-    sprintf(g_szSfxWavePath_005b3650, "sfx%02i.wav", soundNumber);
+    sprintf(g_szSfxWavePath, "sfx%02i.wav", soundNumber);
     SdlPlayWaveWithPan(
-        g_szSfxWavePath_005b3650, looping, distance, pan);
+        g_szSfxWavePath, looping, distance, pan);
     return 1;
 }
 
@@ -366,8 +366,8 @@ void SdlStopDosSoundEffects(void)
      * into those resources, so it must not survive that sound teardown: a
      * later speech clip can otherwise make ServiceSoundSystem write through
      * the freed pointer when playback finishes. */
-    g_pLinkedCutsceneSprite_00499c64 = 0;
-    g_bAfterburnerSfxActive_005d3864 = 0;
+    g_pLinkedCutsceneSprite = 0;
+    g_3_bAfterburnerSfxActive = 0;
     if (g_pSdlDosMusicMutex == 0 ||
         g_pSdlOriginFxSoundPlayer == 0)
         return;
@@ -409,14 +409,14 @@ void SdlServiceOriginFxMusic(void)
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
     SdlUpdateDosAdlibMusicVolume();
-    desiredTrack = g_nCurrentMusicTrack_0049be98;
+    desiredTrack = g_nCurrentMusicTrack;
     if (g_bSdlOriginalTitleMusicActive != 0 &&
         desiredTrack != 19)
         g_bSdlOriginalTitleMusicActive = 0;
     if (g_bSdlOriginalTitleMusicActive != 0 &&
         g_nSdlActiveMusicTrack == 19 &&
         g_pSdlOriginFxPlayer != 0) {
-        g_nTitleMusicSequenceStage_0049be94 = (short)
+        g_nTitleMusicSequenceStage = (short)
             SdlOriginFxPlayerSequencePosition(
                 g_pSdlOriginFxPlayer);
     }
@@ -432,18 +432,18 @@ void SdlServiceOriginFxMusic(void)
         SdlDeleteDosAdlibTrack();
         if (finishedTrack == 19)
             g_bSdlOriginalTitleMusicActive = 0;
-        g_nMusicTrackComplete_0049be88 = 1;
-        if (g_nCurrentMusicTrack_0049be98 == finishedTrack)
-            g_nCurrentMusicTrack_0049be98 = -1;
+        g_nMusicTrackComplete = 1;
+        if (g_nCurrentMusicTrack == finishedTrack)
+            g_nCurrentMusicTrack = -1;
     }
-    desiredTrack = g_nCurrentMusicTrack_0049be98;
+    desiredTrack = g_nCurrentMusicTrack;
     if (desiredTrack == g_nSdlActiveMusicTrack) {
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
         return;
     }
     if (desiredTrack < 0) {
         SdlDeleteDosAdlibTrack();
-        g_nMusicTrackComplete_0049be88 = 1;
+        g_nMusicTrackComplete = 1;
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
         return;
     }
@@ -466,8 +466,8 @@ void SdlServiceOriginFxMusic(void)
             (unsigned int)desiredTrack, &midi, &midiSize)) {
         SoundDebugPrintf(
             "no AdLib sequence for track %d\n", desiredTrack);
-        g_nCurrentMusicTrack_0049be98 = -1;
-        g_nMusicTrackComplete_0049be88 = 1;
+        g_nCurrentMusicTrack = -1;
+        g_nMusicTrackComplete = 1;
         return;
     }
     player = SdlCreateOriginFxPlayer(
@@ -477,13 +477,13 @@ void SdlServiceOriginFxMusic(void)
     if (player == 0) {
         fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
                 desiredTrack);
-        g_nCurrentMusicTrack_0049be98 = -1;
-        g_nMusicTrackComplete_0049be88 = 1;
+        g_nCurrentMusicTrack = -1;
+        g_nMusicTrackComplete = 1;
         return;
     }
 
     SDL_LockMutex(g_pSdlDosMusicMutex);
-    if (g_nCurrentMusicTrack_0049be98 != desiredTrack) {
+    if (g_nCurrentMusicTrack != desiredTrack) {
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
         SdlDestroyOriginFxPlayer(player);
         return;
@@ -491,7 +491,7 @@ void SdlServiceOriginFxMusic(void)
     SdlDeleteDosAdlibTrack();
     g_pSdlOriginFxPlayer = player;
     g_nSdlActiveMusicTrack = desiredTrack;
-    g_nMusicTrackComplete_0049be88 = 0;
+    g_nMusicTrackComplete = 0;
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 

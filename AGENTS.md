@@ -72,8 +72,11 @@ The Ghidra-exported disassembly is in `code-full`. The reimplementation lives in
   originally. Most game state is `short`, and 814 functions carry a measurable 16-bit-operand
   density. If your build emits 32-bit operations where the original used 16-bit, the type is
   wrong — use `short`, not `int`.
-- Global variables may be renamed from `DAT_x` to `g_<hungarian><Name>_<address>`; the
-  address MUST be preserved in the name. Functions must NOT carry the address in their name.
+- Global variables use `g_<hungarian><Name>` without an address suffix. Preserve
+  the retail address in a trailing `/* 0x004928a0 */` declaration comment for
+  binary-comp audits. Numeric prefixes such as `g_1_<hungarian><Name>` are
+  allowed where needed to preserve MSVC's name-hashed storage order.
+  Functions must NOT carry the address in their name.
 - **Name every function you implement.** An operational label (`DoLocalFn5450`,
   `HelperOf430FC0C`, `ReturnConst0v5`) is acceptable only while a function is an unwritten
   stub. Once written it takes the developer's own name if the binary states one

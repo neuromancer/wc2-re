@@ -2,7 +2,6 @@
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
-#define SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY 16
 
 enum SdlLauncherResult {
     SDL_LAUNCHER_UNAVAILABLE = -2,
@@ -27,30 +26,41 @@ enum SdlLauncherJoystickAxes {
     SDL_LAUNCHER_AXES_RUDDER_ROLL = 6
 };
 
+enum SdlLauncherExplicitOption {
+    SDL_LAUNCHER_EXPLICIT_ENHANCED = 1 << 0,
+    SDL_LAUNCHER_EXPLICIT_EGA = 1 << 1,
+    SDL_LAUNCHER_EXPLICIT_BALANCED = 1 << 2,
+    SDL_LAUNCHER_EXPLICIT_RUMBLE = 1 << 3,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE = 1 << 4,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5,
+    SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6
+};
+
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;
+    int cheatMode;
     int joystickRumble;
-    int showFrameRate;
-    int cockpitless;
     int joystickMode;
     int joystickAxes;
-    int joystickDevice;
+    /* Instance IDs survive enumeration changes while the launcher is open.
+     * GUID/path identify the device again if it is unplugged and reconnected. */
+    int joystickInstanceId;
+    int joystickGuidUnique;
+    char joystickGuid[33];
+    char joystickPath[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    /* Command-line values take precedence over saved GUI settings. */
+    unsigned int explicitOptions;
 } SdlLauncherOptions;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/* Accepting also sets the working directory to the selected installation. */
 int SdlRunLauncherGui(SdlLauncherOptions *options);
-
-/* Fills names[] with the detected joysticks in SDL device order and returns
- * how many entries it wrote; the returned positions are the device indices
- * SdlSetJoystickDeviceIndex() expects. */
-int SdlListLauncherJoystickDevices(
-    const char *names[SDL_LAUNCHER_JOYSTICK_DEVICE_CAPACITY]);
 
 #ifdef __cplusplus
 }

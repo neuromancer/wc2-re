@@ -378,20 +378,20 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
     memcpy(destination, pixels, sizeof(g_renderer.spaceFrameBase));
     /* Undraw the cursor exactly the way RestoreMouseCursorBackground does:
      * same save area, same captured position, same guards. */
-    if (g_bInputCursorBackgroundCaptured_005c80c4 == 0 ||
-        g_nMouseCursorDrawDepth_0049d4d4 <= 0 ||
-        g_pInputViewport_005c8403 == 0 ||
-        g_pInputCursorShape_005c83f9 == 0 ||
-        g_stScreenViewport_005d21a0.pixels != pixels)
+    if (g_6_bCurrentInputCursorBackgroundCapturedState == 0 ||
+        g_nMouseCursorDrawDepth <= 0 ||
+        g_16_stEventQueuePointerData.viewport == 0 ||
+        g_16_stEventQueuePointerData.shape == 0 ||
+        g_101_stScrViewInfo.pixels != pixels)
         return;
-    viewport = g_stScreenViewport_005d21a0;
+    viewport = g_101_stScrViewInfo;
     viewport.pixels = destination;
     viewport.allocation = destination;
-    RestoreSpriteBackground(&viewport, g_abInputCursorBackground_005c3b10,
-                            (short)g_nCapturedInputCursorX_005c817c,
-                            (short)g_nCapturedInputCursorY_005c8178,
-                            g_pInputCursorShape_005c83f9,
-                            g_nInputCursorFrame_005c83fd);
+    RestoreSpriteBackground(&viewport, g_abInputCursorBehind,
+                            (short)g_4_nCapturedInputCursorX,
+                            (short)g_10_nSavedPointerY,
+                            g_16_stEventQueuePointerData.shape,
+                            g_16_stEventQueuePointerData.frame);
 }
 
 static void *LoadGlFunction(const char *name, int *functionsAvailable)
@@ -1016,7 +1016,7 @@ static void BuildSpaceViewMask(const ScreenViewportGeometry *geometry,
         x = *run++;
         y = *run++;
         length = (unsigned short)*run++;
-        /* fizzle_fade copies each run with one memcpy into a screen whose
+        /* CopyViewportRuns copies each run with one memcpy into a screen whose
            rows are 320 contiguous bytes, so the count is a byte length and
            a run may cover whole rows: the mode 4 geometry copies 320x128
            as the single run (0, 24, 40960). */
@@ -1316,7 +1316,7 @@ int SdlGlRendererPresent(const unsigned char *pixels,
     } else if (g_renderer.frameState == GL_FRAME_IDLE &&
                g_renderer.hasLayerSnapshot) {
         CopyBaseWithoutMouse(g_renderer.presentedFrame, pixels);
-        if (g_bSpaceFlightActive_005c586c != 0) {
+        if (g_1_bSpaceFlightActive != 0) {
             memcpy(g_renderer.spaceFrameBase, g_renderer.presentedFrame,
                    sizeof(g_renderer.spaceFrameBase));
             drawSprites = 1;

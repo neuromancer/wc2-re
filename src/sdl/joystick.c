@@ -51,7 +51,10 @@ static int g_bSdlJoystickSpaceflightActive;
 static int g_bSdlTwoAxisModifierActive;
 static int g_nSdlCommunicationMenuSelection;
 static int g_nSdlRumblingJoystick = -1;
-static int g_nSdlPreferredJoystickDevice = -1;
+static SDL_JoystickID g_nSdlPreferredJoystickInstance = -1;
+static SDL_JoystickGUID g_stSdlPreferredJoystickGuid;
+static char *g_pszSdlPreferredJoystickPath;
+static int g_bSdlPreferredJoystickGuidUnique;
 static Uint16 g_wSdlRumbleLow;
 static Uint16 g_wSdlRumbleHigh;
 static Uint32 g_dwSdlRumbleDeadline;
@@ -100,9 +103,20 @@ void SdlEnableJoystickDebug(void)
     g_bSdlJoystickDebug = 1;
 }
 
-void SdlSetJoystickDeviceIndex(int deviceIndex)
+void SdlSetPreferredJoystick(SDL_JoystickID instanceId,
+                                 const char *guid, const char *path,
+                                 int guidUnique)
 {
-    g_nSdlPreferredJoystickDevice = deviceIndex >= 0 ? deviceIndex : -1;
+    g_nSdlPreferredJoystickInstance = instanceId;
+    g_stSdlPreferredJoystickGuid = SDL_JoystickGetGUIDFromString(guid);
+    SDL_free(g_pszSdlPreferredJoystickPath);
+    g_pszSdlPreferredJoystickPath = path[0] != '\0' ? SDL_strdup(path) : 0;
+    g_bSdlPreferredJoystickGuidUnique = guidUnique;
+}
+
+int SdlHasPreferredJoystick(void)
+{
+    return g_nSdlPreferredJoystickInstance >= 0;
 }
 
 void SdlSetJoystickRumbleEnabled(int enabled)
@@ -158,7 +172,7 @@ static void SdlUpdateJoystickRumble(void)
 
     if (!g_bSdlJoystickRumbleEnabled)
         return;
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (!g_bSdlJoystickSpaceflightActive || activeSlot < 0 ||
         activeSlot >= 2 ||
         g_aSdlJoystickDevices[activeSlot].joystick == 0) {
@@ -171,10 +185,10 @@ static void SdlUpdateJoystickRumble(void)
 
     low = 0;
     high = 0;
-    if (g_anShipFuel_00495638[0] > 0 &&
-        g_aeSpecialManeuver_00495600[0] ==
+    if (g_anShipFuel[0] > 0 &&
+        g_aeSpecialManeuver[0] ==
             SPECIAL_MANEUVER_AFTERBURNER &&
-        g_asShipAfterburnerTimer_004955a8[0] > 0) {
+        g_asShipAfterburnerTimer[0] > 0) {
         low = 0x6000;
         high = 0x3000;
     }
@@ -467,13 +481,53 @@ static void SdlOpenJoystick(int deviceIndex)
     }
 }
 
+static int SdlFindPreferredJoystick(int deviceCount)
+{
+    SDL_JoystickGUID guid;
+    const char *path;
+    int deviceIndex;
+    int candidate;
+    int matches;
+
+    if (!SdlHasPreferredJoystick())
+        return -1;
+    /* An attached device keeps its instance ID even if other devices leave. */
+    for (deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+        if (SDL_JoystickGetDeviceInstanceID(deviceIndex) ==
+            g_nSdlPreferredJoystickInstance)
+            return deviceIndex;
+    }
+
+    candidate = -1;
+    matches = 0;
+    for (deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+        guid = SDL_JoystickGetDeviceGUID(deviceIndex);
+        if (memcmp(&guid, &g_stSdlPreferredJoystickGuid, sizeof(guid)) != 0)
+            continue;
+        path = 0;
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+        path = SDL_JoystickPathForIndex(deviceIndex);
+#endif
+        if (g_pszSdlPreferredJoystickPath != 0 && path != 0 &&
+            strcmp(path, g_pszSdlPreferredJoystickPath) == 0)
+            return deviceIndex;
+        candidate = deviceIndex;
+        matches++;
+    }
+    /* A GUID identifies a model, not an individual unit. Only use it alone
+     * if that model was unique in the launcher and is still unambiguous. */
+    return g_bSdlPreferredJoystickGuidUnique && matches == 1 ? candidate : -1;
+}
+
 static void SdlRefreshJoysticks(void)
 {
     SdlJoystickDevice *device;
     int deviceCount;
     int deviceIndex;
+    int preferredIndex;
     int slot;
 
+    SDL_LockJoysticks();
     slot = 0;
     while (slot < 2) {
         device = &g_aSdlJoystickDevices[slot];
@@ -484,18 +538,27 @@ static void SdlRefreshJoysticks(void)
     }
 
     deviceCount = SDL_NumJoysticks();
-    /* The launcher's device opens first so it lands in slot 0, the joystick
-     * the game reads as the player's; the rest keep SDL's own order. */
-    if (g_nSdlPreferredJoystickDevice >= 0 &&
-        g_nSdlPreferredJoystickDevice < deviceCount)
-        SdlOpenJoystick(g_nSdlPreferredJoystickDevice);
+    preferredIndex = SdlFindPreferredJoystick(deviceCount);
+    if (preferredIndex >= 0) {
+        g_nSdlPreferredJoystickInstance =
+            SDL_JoystickGetDeviceInstanceID(preferredIndex);
+        if (g_aSdlJoystickDevices[0].joystick == 0 ||
+            g_aSdlJoystickDevices[0].instanceId != g_nSdlPreferredJoystickInstance) {
+            /* Reclaim the primary slot even when fallback devices filled both
+             * slots during a disconnection. Rebuild the secondary in SDL order. */
+            for (slot = 0; slot < 2; slot++)
+                SdlCloseJoystick(&g_aSdlJoystickDevices[slot]);
+            g_bSdlTwoAxisModifierActive = 0;
+            SdlOpenJoystick(preferredIndex);
+        }
+    }
     deviceIndex = 0;
     while (deviceIndex < deviceCount &&
            SdlFindFreeJoystickSlot() != -1) {
-        if (deviceIndex != g_nSdlPreferredJoystickDevice)
-            SdlOpenJoystick(deviceIndex);
+        SdlOpenJoystick(deviceIndex);
         deviceIndex++;
     }
+    SDL_UnlockJoysticks();
 }
 
 static Sint16 SdlReadJoystickAxis(
@@ -583,7 +646,7 @@ BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
         (unsigned int)((int)SdlReadJoystickAxis(device, 1) + 32768);
     information->wZpos = 0;
     buttonState = 0;
-    if (g_pfnInputPump_005c840c == get_player_input &&
+    if (g_176_pfnCurrentInputPump == get_player_input &&
         g_eSdlJoystickMode != SDL_JOYSTICK_ORIGINAL) {
         if (SdlReadJoystickButton(device, 0))
             buttonState = 1;
@@ -616,7 +679,7 @@ static int SdlReadExtraJoystickAxes(Sint16 *first, Sint16 *second)
     SdlJoystickDevice *other;
     int activeSlot;
 
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (activeSlot < 0 || activeSlot >= 2)
         return 0;
     device = &g_aSdlJoystickDevices[activeSlot];
@@ -673,11 +736,11 @@ static void SdlApplyLinearThrottle(Sint16 raw)
     int targetSpeed;
     unsigned int position;
 
-    maximumSpeed = (int)g_asShipMaximumVelocity_00495f70[0] << 8;
+    maximumSpeed = (int)g_asShipMaximumVelocity[0] << 8;
     position = (unsigned int)((int)raw + 32768);
     targetSpeed = (int)(((int64_t)(65535U - position) * maximumSpeed) /
                         65535);
-    celerate(0, targetSpeed - g_anShipSpeed_00494e20[0]);
+    celerate(0, targetSpeed - g_anShipSpeed[0]);
 }
 
 void SdlApplyJoystickFlightControls(void)
@@ -691,17 +754,17 @@ void SdlApplyJoystickFlightControls(void)
     int axisCount;
 
     g_bSdlJoystickSpaceflightActive = 1;
-    if (g_pfnInputPump_005c840c != get_player_input ||
+    if (g_176_pfnCurrentInputPump != get_player_input ||
         g_eSdlJoystickMode == SDL_JOYSTICK_ORIGINAL) {
         SdlUpdateJoystickRumble();
         return;
     }
-    activeSlot = (int)g_nActiveInputDevice_005d1726;
+    activeSlot = (int)g_8_nActiveInputDeviceWord;
     if (activeSlot < 0 || activeSlot >= 2) {
         SdlUpdateJoystickRumble();
         return;
     }
-    sample = &g_aInputDeviceSamples_005d1780[activeSlot];
+    sample = &g_aInputDeviceSamplesList[activeSlot];
     if (SdlReadJoystickButton(
             &g_aSdlJoystickDevices[activeSlot], 2))
         your_afterburner();
@@ -712,15 +775,15 @@ void SdlApplyJoystickFlightControls(void)
         if (SdlReadJoystickButton(
                 &g_aSdlJoystickDevices[activeSlot], 3)) {
             g_bSdlTwoAxisModifierActive = 1;
-            g_nYawInput_004931aa = 0;
-            g_nPitchInput_004931a8 = 0;
-            g_nRollInput_004931ac = (short)sample->x;
+            g_anFlightInput[1] = 0;
+            g_anFlightInput[0] = 0;
+            g_anFlightInput[2] = (short)sample->x;
             accelerate((short)-(sample->y / 2));
         } else if (g_bSdlTwoAxisModifierActive) {
             g_bSdlTwoAxisModifierActive = 0;
-            g_nRollInput_004931ac = 0;
-            g_nYawInput_004931aa = (short)sample->x;
-            g_nPitchInput_004931a8 = (short)-sample->y;
+            g_anFlightInput[2] = 0;
+            g_anFlightInput[1] = (short)sample->x;
+            g_anFlightInput[0] = (short)-sample->y;
         }
         return;
     }
@@ -733,24 +796,24 @@ void SdlApplyJoystickFlightControls(void)
 
     switch (g_eSdlJoystickAxesMode) {
     case SDL_JOYSTICK_AXES_TWIN_STICK_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_JOYSTICK_AXES_TWIN_STICK_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         if (axisCount > 1)
             accelerate((short)-(second / 2));
         break;
     case SDL_JOYSTICK_AXES_HOTAS_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
     case SDL_JOYSTICK_AXES_HOTAS_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         if (axisCount > 1)
             SdlApplyLinearThrottle(secondRaw);
         break;
@@ -762,11 +825,11 @@ void SdlApplyJoystickFlightControls(void)
             SdlApplyLinearThrottle(firstRaw);
         break;
     case SDL_JOYSTICK_AXES_RUDDER_YAW:
-        g_nRollInput_004931ac = (short)sample->x;
-        g_nYawInput_004931aa = first;
+        g_anFlightInput[2] = (short)sample->x;
+        g_anFlightInput[1] = first;
         break;
     case SDL_JOYSTICK_AXES_RUDDER_ROLL:
-        g_nRollInput_004931ac = first;
+        g_anFlightInput[2] = first;
         break;
     }
 }
@@ -821,19 +884,19 @@ static void SdlQueueScanCodePress(unsigned short scanCode)
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse.  WC2 key events are
        type 4 for a press and type 5 for a release. */
-    QueueInputEvent(5, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
-    QueueInputEvent(4, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+    QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
 }
 
 int SdlGetCommunicationMenuSelection(void)
 {
-    if (g_nCommMenuChoiceCount_0049b770 <= 0) {
+    if (g_nCommMenuChoiceCount <= 0) {
         g_nSdlCommunicationMenuSelection = 0;
         return -1;
     }
-    if (g_nCommMenuReuseMode_0049b774 == 0 ||
+    if (g_nCommMenuReuseMode == 0 ||
         g_nSdlCommunicationMenuSelection >=
-            g_nCommMenuChoiceCount_0049b770)
+            g_nCommMenuChoiceCount)
         g_nSdlCommunicationMenuSelection = 0;
     return g_nSdlCommunicationMenuSelection;
 }
@@ -849,7 +912,7 @@ static int SdlHandleCommunicationDpad(int button)
     case SDL_JOYSTICK_BUTTON_DPAD_UP:
         if (selection != -1) {
             if (selection == 0)
-                selection = g_nCommMenuChoiceCount_0049b770;
+                selection = g_nCommMenuChoiceCount;
             g_nSdlCommunicationMenuSelection = selection - 1;
             InvalidateVduMode(1);
         }
@@ -857,7 +920,7 @@ static int SdlHandleCommunicationDpad(int button)
     case SDL_JOYSTICK_BUTTON_DPAD_DOWN:
         if (selection != -1) {
             selection++;
-            if (selection >= g_nCommMenuChoiceCount_0049b770)
+            if (selection >= g_nCommMenuChoiceCount)
                 selection = 0;
             g_nSdlCommunicationMenuSelection = selection;
             InvalidateVduMode(1);
@@ -940,7 +1003,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726)
+    if (slot == -1 || slot != (int)g_8_nActiveInputDeviceWord)
         return;
     device = &g_aSdlJoystickDevices[slot];
     if (controllerEvent) {
@@ -953,12 +1016,12 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     }
 
     spaceflightActive = g_bSdlJoystickSpaceflightActive &&
-        g_pfnInputPump_005c840c == get_player_input &&
-        g_nArcadeState_0049d75c == 0;
-    eventType = pressed ? 4 : 5;
+        g_176_pfnCurrentInputPump == get_player_input &&
+        g_nArcadeState == 0;
+    eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {
         if (pressed)
-            g_bSceneEscapeRequested_0049d4b0 = 1;
+            g_bSceneEscapeRequested = 1;
         QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0x01, 0);
         return;
     }
@@ -970,9 +1033,9 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     if (!pressed)
         return;
     if (button == SDL_JOYSTICK_BUTTON_Y &&
-        !spaceflightActive && g_bInputEventQueueEnabled_0049c248 != 0) {
-        QueueInputEvent(5, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
-        QueueInputEvent(4, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
+        !spaceflightActive && g_bInputEventQueueEnabled != 0) {
+        QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
+        QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, 'Y', 0, 0, 0, 0x15, 'y');
         return;
     }
     if (!spaceflightActive ||
@@ -1000,7 +1063,7 @@ void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
     int slot;
 
     slot = SdlFindJoystick(instanceId);
-    if (slot == -1 || slot != (int)g_nActiveInputDevice_005d1726 ||
+    if (slot == -1 || slot != (int)g_8_nActiveInputDeviceWord ||
         hat != 0)
         return;
     device = &g_aSdlJoystickDevices[slot];
@@ -1053,7 +1116,7 @@ void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which)
     SdlRefreshJoysticks();
     if (type == SDL_JOYDEVICEADDED &&
         g_bSdlJoystickInputStarted &&
-        g_nActiveInputDevice_005d1726 == -1)
+        g_8_nActiveInputDeviceWord == -1)
         LoadJoystickCalibrationFile(9, 9, 1, 1);
 }
 
@@ -1070,4 +1133,8 @@ void SdlShutdownJoysticks(void)
     g_bSdlJoystickSpaceflightActive = 0;
     g_bSdlTwoAxisModifierActive = 0;
     g_nSdlCommunicationMenuSelection = 0;
+    SDL_free(g_pszSdlPreferredJoystickPath);
+    g_pszSdlPreferredJoystickPath = 0;
+    g_nSdlPreferredJoystickInstance = -1;
+    g_bSdlPreferredJoystickGuidUnique = 0;
 }

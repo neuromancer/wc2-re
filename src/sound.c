@@ -1,20 +1,188 @@
 /*
- *  Wave playback, volume settings and INSTALL.DAT.
+ *  Wave playback, sound bookkeeping and volume settings.
  *
- *  Address range 0x42b400-0x42cfff (provisional -- see docs/ORDER.md).
- *  Boundary evidence: playWAVE/PlaySnowStaticSound/LoadInstallDat; string band 0x46A46C-0x46A710.
+ *  Retail object 0x423CA0-0x424A5F (link order; see docs/ORDER.md).
  */
 #include "game.h"
 
-#ifndef SDL_PORT
-#pragma function(memcmp)
-#pragma function(strcpy)
-#endif
+ActiveSoundEntry *g_pActiveSoundHead = 0; /* 0x004961a8 */
+ActiveSoundEntry *g_pActiveSoundTail = 0; /* 0x004961ac */
+int g_bAudioSystemInitialized = 0; /* 0x004961b0 */
+WaveTableEntry *g_pWaveTableHead = 0; /* 0x004961b4 */
+WaveTableEntry *g_pWaveTableTail = 0; /* 0x004961b8 */
+
+/* Uninitialized C++ definitions: this unit's .bss, which LINK orders by the
+ * identifiers' hash keys (the spellings follow the original addresses). */
+WaveTableEntry *g_1_pVoiceWav; /* 0x004a2650 */
+WaveTableEntry *g_pSnowStaticClip; /* 0x004a2654 */
+IxSound *g_pSpeechSnd; /* 0x004a2658 */
+int g_16_nSpeechCompletionDelay; /* 0x004a265c */
+int g_bSpeechSoundActive; /* 0x004a2660 */
+IxSound *g_9_pSnowStaticAudio; /* 0x004a2664 */
+int g_9_nNextSfx16PlaybackFrame; /* 0x004a2668 */
+int g_bSpeechPlaybackDone; /* 0x004a266c */
+
+/* Function start: 0x423CA0 */
+void InitializeAudioSystem(HWND window)
+{
+    if (g_nAudioEnabled == 0)
+        return;
+    if (g_bAudioSystemInitialized == 0) {
+        ix_system_configure(3, (void *)1);
+        ix_system_configure(0, window);
+        ix_system_init();
+        ix_system_set_voice_count(0x10);
+        g_bAudioSystemInitialized = 1;
+    }
+}
+
+/* Function start: 0x423D02 */
+void ServiceAudioStream(void)
+{
+    if (g_nAudioEnabled == 0)
+        return;
+    if (g_bAudioSystemInitialized != 0) {
+        ix_system_delete_all_sounds();
+        ix_system_delete_all_samples();
+        ix_system_shutdown();
+        FreeWaveTable();
+        g_bAudioSystemInitialized = 0;
+    }
+    return;
+}
+
+/* Function start: 0x423D4F */
+WaveTableEntry *AllocateWaveTableEntry(void)
+{
+    if (g_pWaveTableHead == 0) {
+        g_pWaveTableHead =
+            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+        g_pWaveTableTail = g_pWaveTableHead;
+    } else {
+        g_pWaveTableTail->next =
+            (WaveTableEntry *)malloc(sizeof(WaveTableEntry));
+        g_pWaveTableTail = g_pWaveTableTail->next;
+    }
+    g_pWaveTableTail->next = 0;
+    return g_pWaveTableTail;
+}
+
+#pragma function(strcmp)
+/* Function start: 0x423DBB */
+WaveTableEntry *FindWaveTableEntryByName(const char *name)
+{
+    WaveTableEntry *entry = g_pWaveTableHead;
+
+    while (entry != 0) {
+        if (strcmp(entry->name, name) == 0)
+            return entry;
+        entry = entry->next;
+    }
+    return 0;
+}
+
+/* Sound-object callees from the ix library. */
+int __fastcall ix_sound_is_playing(IxSound *sound);
+void ix_system_delete_sound(IxSound *sound);
+
+/* Function start: 0x423E12 */
+void RemoveWaveTableEntry(WaveTableEntry *target)
+{
+    WaveTableEntry *entry;
+    WaveTableEntry *prev;
+
+    entry = g_pWaveTableHead;
+    prev = 0;
+    while (entry != 0 && entry != target) {
+        prev = entry;
+        entry = entry->next;
+    }
+    if (entry != 0) {
+        if (prev != 0)
+            prev->next = entry->next;
+        if (entry == g_pWaveTableTail && prev != 0)
+            g_pWaveTableTail = prev;
+        if (entry == g_pWaveTableHead)
+            g_pWaveTableHead = entry->next;
+        free(entry->name);
+        free(entry);
+    }
+    return;
+}
+
+/* Function start: 0x423ED1 */
+void FreeWaveTable(void)
+{
+    WaveTableEntry *entry;
+    WaveTableEntry *next;
+
+    entry = g_pWaveTableHead;
+    next = 0;
+    while (entry != 0) {
+        next = entry->next;
+        free(entry->name);
+        free(entry);
+        entry = next;
+    }
+    g_pWaveTableHead = g_pWaveTableTail = 0;
+    return;
+}
+
+/* Function start: 0x423F3F */
+ActiveSoundEntry *AllocateActiveSoundEntry(void)
+{
+    if (g_pActiveSoundHead == 0) {
+        g_pActiveSoundHead =
+            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+        g_pActiveSoundTail = g_pActiveSoundHead;
+    } else {
+        g_pActiveSoundTail->next =
+            (ActiveSoundEntry *)malloc(sizeof(ActiveSoundEntry));
+        g_pActiveSoundTail = g_pActiveSoundTail->next;
+    }
+    g_pActiveSoundTail->next = 0;
+    return g_pActiveSoundTail;
+}
+
+/* Function start: 0x423FAB */
+void RemoveActiveSoundEntry(ActiveSoundEntry *target)
+{
+    ActiveSoundEntry *entry = g_pActiveSoundHead;
+    ActiveSoundEntry *prev = 0;
+
+    while (entry != 0 && entry != target) {
+        prev = entry;
+        entry = entry->next;
+    }
+    if (entry != 0) {
+        if (prev != 0)
+            prev->next = entry->next;
+        if (g_pActiveSoundTail == entry && prev != 0)
+            g_pActiveSoundTail = prev;
+        if (g_pActiveSoundHead == entry)
+            g_pActiveSoundHead = entry->next;
+        free(entry);
+    }
+}
+
+/* Function start: 0x42405E */
+ActiveSoundEntry *FindActiveSoundEntryBySample(IxSample *sample)
+{
+    ActiveSoundEntry *entry;
+
+    entry = g_pActiveSoundHead;
+    while (entry != 0) {
+        if (ix_sound_get_sample(entry->sound) == sample)
+            return entry;
+        entry = entry->next;
+    }
+    return 0;
+}
 
 /* Function start: 0x4240AE */
 void ReleaseFinishedSoundEntries(void)
 {
-    ActiveSoundEntry *entry = g_pActiveSoundHead_004961a8;
+    ActiveSoundEntry *entry = g_pActiveSoundHead;
 
     while (entry != 0) {
         ActiveSoundEntry *next = entry->next;
@@ -30,41 +198,49 @@ void ReleaseFinishedSoundEntries(void)
 /* Function start: 0x424113 */
 void StopSoundsUsingWave(const char *name)
 {
-    WaveTableEntry *wave;
+    WaveTableEntry *waveEntry;
     ActiveSoundEntry *entry;
 
-    if (g_nAudioEnabled_0049c244 != 0) {
-        wave = FindWaveTableEntryByName(name);
-        if (wave != 0) {
-            for (;;) {
-                entry = FindActiveSoundEntryBySample(wave->sample);
-                if (entry == 0)
-                    break;
-                ix_system_delete_sound(entry->sound);
-                RemoveActiveSoundEntry(entry);
-            }
+    if (g_nAudioEnabled == 0)
+        return;
+    waveEntry = FindWaveTableEntryByName(name);
+    if (waveEntry != 0) {
+        while ((entry = FindActiveSoundEntryBySample(waveEntry->sample)) != 0) {
+            ix_system_delete_sound(entry->sound);
+            RemoveActiveSoundEntry(entry);
         }
     }
 }
 
+#pragma function(memcmp, strcpy, strlen)
 /* Function start: 0x42418C */
 void playWAVE(const char *filename, int looping, int volume)
 {
-    char error[100];
-    WaveTableEntry *wave;
-    ActiveSoundEntry *active;
-    IxSound *sound;
+    char errorMsg[100];
+    long size;
+    IxSound *voice;
+    int fd;
     unsigned char *fileData;
-    long fileSize;
-    int file;
+    WaveTableEntry *wave;
 
     if (memcmp(filename, "sfx16.wav", 9) == 0) {
-        if (g_nSpaceFrame_00493134 <= g_nNextSfx16PlaybackFrame_004a2668)
+#ifdef SDL_PORT
+        if (g_nSpaceFrame > g_9_nNextSfx16PlaybackFrame)
+            g_9_nNextSfx16PlaybackFrame =
+                g_nSpaceFrame + 100;
+        else
             return;
-        g_nNextSfx16PlaybackFrame_004a2668 =
-            g_nSpaceFrame_00493134 + 100;
+#else
+        /* This unit reads the frame counter as a dword. */
+        if (*(int *)&g_nSpaceFrame >
+            g_9_nNextSfx16PlaybackFrame)
+            g_9_nNextSfx16PlaybackFrame =
+                *(int *)&g_nSpaceFrame + 100;
+        else
+            return;
+#endif
     }
-    if (g_nAudioEnabled_0049c244 == 0)
+    if (g_nAudioEnabled == 0)
         return;
     volume /= 2;
     ReleaseFinishedSoundEntries();
@@ -72,48 +248,52 @@ void playWAVE(const char *filename, int looping, int volume)
     wave = FindWaveTableEntryByName(filename);
     if (wave != 0) {
         if (looping != 0) {
+            ActiveSoundEntry *active;
+
             active = AllocateActiveSoundEntry();
             active->sound = ix_system_new_sound(wave->sample);
             active->sound->ix_system_sound_set_volume(volume);
             ix_sound_start(active->sound);
         } else {
-            sound = ix_system_new_sound(wave->sample);
-            sound->ix_sound_set_delete_on_stop(1);
-            sound->ix_system_sound_set_volume(volume);
-            ix_sound_start(sound);
+            voice = ix_system_new_sound(wave->sample);
+            voice->ix_sound_set_delete_on_stop(1);
+            voice->ix_system_sound_set_volume(volume);
+            ix_sound_start(voice);
         }
-        return;
-    }
-
-    file = _open(filename, 0x8000);
-    if (file == -1) {
-        sprintf(error, "playWAVE Unable to open file '%s'", filename);
-        MessageBoxA(0, error, "Error", MB_ICONHAND);
-        exit(1);
-    }
-    fileSize = _filelength(file);
-    fileData = (unsigned char *)malloc((unsigned int)fileSize);
-    _read(file, fileData, (unsigned int)fileSize);
-    _close(file);
-
-    wave = AllocateWaveTableEntry();
-    wave->sample = ix_system_new_sample();
-    wave->sample->ix_sample_load_wav(fileData, fileSize);
-    if (looping == 0) {
-        sound = ix_system_new_sound(wave->sample);
-        sound->ix_sound_set_delete_on_stop(1);
-        sound->ix_system_sound_set_volume(volume);
-        ix_sound_start(sound);
     } else {
-        wave->sample->ix_sample_set_looping(1);
-        active = AllocateActiveSoundEntry();
-        active->sound = ix_system_new_sound(wave->sample);
-        active->sound->ix_system_sound_set_volume(volume);
-        ix_sound_start(active->sound);
+        fd = _open(filename, 0x8000);
+        if (fd == -1) {
+            sprintf(errorMsg, "playWAVE Unable to open file '%s'", filename);
+            MessageBoxA(0, errorMsg, "Error", MB_ICONHAND);
+            exit(1);
+        }
+        size = filelength(fd);
+        fileData = (unsigned char *)malloc((unsigned int)size);
+        _read(fd, fileData, (unsigned int)size);
+        _close(fd);
+
+        wave = AllocateWaveTableEntry();
+        wave->sample = ix_system_new_sample();
+        wave->sample->ix_sample_load_wav(fileData, size);
+        if (looping != 0) {
+            ActiveSoundEntry *active;
+
+            wave->sample->ix_sample_set_looping(1);
+            active = AllocateActiveSoundEntry();
+            active->sound = ix_system_new_sound(wave->sample);
+            active->sound->ix_system_sound_set_volume(volume);
+            ix_sound_start(active->sound);
+        } else {
+            voice = ix_system_new_sound(wave->sample);
+            voice->ix_sound_set_delete_on_stop(1);
+            voice->ix_system_sound_set_volume(volume);
+            ix_sound_start(voice);
+        }
+        wave->name = (char *)malloc(strlen(filename) + 1);
+        strcpy(wave->name, filename);
+        free(fileData);
     }
-    wave->name = (char *)malloc(strlen(filename) + 1);
-    strcpy(wave->name, filename);
-    free(fileData);
+    return;
 }
 
 /* Function start: 0x424417 */
@@ -129,36 +309,38 @@ void PlayRawSpeechBuffer(void *buffer, size_t size, int interrupt)
     }
     SoundDebugPrintf(
         "Playing RAW with length of %d stop=%d\n", size, interrupt);
-    if (g_pSpeechSound_004a2658 != 0 &&
-        g_bSpeechSoundActive_004a2660 != 0) {
-        if (interrupt == 0)
-            return;
-        ix_sound_stop(g_pSpeechSound_004a2658);
+    if (g_pSpeechSnd != 0 &&
+        g_bSpeechSoundActive != 0) {
+        if (interrupt != 0) {
+            ix_sound_stop(g_pSpeechSnd);
 #ifdef SDL_PORT
-        /* This sound carries delete-on-stop, so the stop above has already
-           freed it; the original released the dead block anyway. */
-        if (ix_sound_is_live(g_pSpeechSound_004a2658))
-            ix_sound_release(g_pSpeechSound_004a2658);
-        g_pSpeechSound_004a2658 = 0;
+            /* This sound carries delete-on-stop, so the stop above has
+               already freed it; the original released the dead block
+               anyway. */
+            if (ix_sound_is_live(g_pSpeechSnd))
+                ix_sound_release(g_pSpeechSnd);
+            g_pSpeechSnd = 0;
 #else
-        ix_sound_release(g_pSpeechSound_004a2658);
+            ix_sound_release(g_pSpeechSnd);
 #endif
+        } else
+            return;
     }
-    g_pSpeechWave_004a2650 = AllocateWaveTableEntry();
-    g_pSpeechWave_004a2650->sample = ix_system_new_sample();
-    g_pSpeechWave_004a2650->sample->ix_sample_load_raw(
+    g_1_pVoiceWav = AllocateWaveTableEntry();
+    g_1_pVoiceWav->sample = ix_system_new_sample();
+    g_1_pVoiceWav->sample->ix_sample_load_raw(
         buffer, size, 0x29ab, 8, 1);
-    g_pSpeechSound_004a2658 = ix_system_new_sound(
-        g_pSpeechWave_004a2650->sample);
-    g_pSpeechSound_004a2658->ix_sound_set_delete_on_stop(1);
-    g_pSpeechSound_004a2658->ix_system_sound_set_volume(65000);
-    ix_sound_start(g_pSpeechSound_004a2658);
-    g_pSpeechWave_004a2650->name =
+    g_pSpeechSnd = ix_system_new_sound(
+        g_1_pVoiceWav->sample);
+    g_pSpeechSnd->ix_sound_set_delete_on_stop(1);
+    g_pSpeechSnd->ix_system_sound_set_volume(65000);
+    ix_sound_start(g_pSpeechSnd);
+    g_1_pVoiceWav->name =
         (char *)malloc(strlen("RAW") + 1);
-    strcpy(g_pSpeechWave_004a2650->name, "RAW");
-    g_bSpeechSoundActive_004a2660 = 1;
-    g_nSpeechCompletionDelay_004a265c = 0;
-    if (g_bSpaceFlightActive_005c586c == 0)
+    strcpy(g_1_pVoiceWav->name, "RAW");
+    g_bSpeechSoundActive = 1;
+    g_16_nSpeechCompletionDelay = 0;
+    if (g_1_bSpaceFlightActive == 0)
         SetCinematicFrameTiming(20.0f);
 }
 
@@ -172,20 +354,20 @@ void stop_all_sounds(void)
     ix_system_delete_all_samples();
     FreeWaveTable();
 #ifdef SDL_PORT
-    g_pSpeechSound_004a2658 = 0;
-    g_pSpeechWave_004a2650 = 0;
-    g_bSpeechSoundActive_004a2660 = 0;
-    g_nSpeechCompletionDelay_004a265c = 0;
+    g_pSpeechSnd = 0;
+    g_1_pVoiceWav = 0;
+    g_bSpeechSoundActive = 0;
+    g_16_nSpeechCompletionDelay = 0;
 #endif
-    if (g_pSnowStaticSound_004a2664 != 0) {
+    if (g_9_pSnowStaticAudio != 0) {
         /* The bulk delete already stops, unlinks, and frees every IxSound.
            The original's following calls therefore use a stale pointer. */
 #ifndef SDL_PORT
-        ix_sound_stop(g_pSnowStaticSound_004a2664);
-        ix_sound_release(g_pSnowStaticSound_004a2664);
+        ix_sound_stop(g_9_pSnowStaticAudio);
+        ix_sound_release(g_9_pSnowStaticAudio);
 #endif
-        g_pSnowStaticSound_004a2664 = 0;
-        g_pSnowStaticWave_004a2654 = 0;
+        g_9_pSnowStaticAudio = 0;
+        g_pSnowStaticClip = 0;
     }
 }
 
@@ -193,7 +375,7 @@ void stop_all_sounds(void)
 void PlaySnowStaticSound(void)
 {
     unsigned char *fileData;
-    long fileSize;
+    long size;
     int file;
 
 #ifdef SDL_PORT
@@ -201,131 +383,131 @@ void PlaySnowStaticSound(void)
     if (SdlUsingOriginFxSoundEffects())
         return;
 #endif
-    if (g_nAudioEnabled_0049c244 != 0) {
-        ReleaseFinishedSoundEntries();
-        if (g_pSnowStaticSound_004a2664 == 0) {
-            file = _open("sfx22.wav", 0x8000);
-            if (file == -1) {
-                MessageBoxA(0,
-                            "playWAVE Unable to open file 'sfx23",
-                            "Notice", MB_ICONHAND);
-                exit(1);
-            }
-            fileSize = _filelength(file);
-            fileData = (unsigned char *)malloc((unsigned int)fileSize);
-            _read(file, fileData, (unsigned int)fileSize);
-            _close(file);
-
-            g_pSnowStaticWave_004a2654 = AllocateWaveTableEntry();
-            g_pSnowStaticWave_004a2654->sample = ix_system_new_sample();
-            g_pSnowStaticWave_004a2654->sample->ix_sample_load_wav(
-                fileData, fileSize);
-            g_pSnowStaticSound_004a2664 = ix_system_new_sound(
-                g_pSnowStaticWave_004a2654->sample);
-            g_pSnowStaticSound_004a2664->ix_system_sound_set_volume(50000);
-            ix_sound_start(g_pSnowStaticSound_004a2664);
-
-            g_pSnowStaticWave_004a2654->name =
-                (char *)malloc(strlen("SNOW") + 1);
-            strcpy(g_pSnowStaticWave_004a2654->name, "SNOW");
-            free(fileData);
-        } else if (ix_sound_is_playing(
-                       g_pSnowStaticSound_004a2664) == 0) {
-            ix_sound_start(g_pSnowStaticSound_004a2664);
+    if (g_nAudioEnabled == 0)
+        return;
+    ReleaseFinishedSoundEntries();
+    if (g_9_pSnowStaticAudio == 0) {
+        file = _open("sfx22.wav", 0x8000);
+        if (file == -1) {
+            MessageBoxA(0,
+                        "playWAVE Unable to open file 'sfx23",
+                        "Notice", MB_ICONHAND);
+            exit(1);
         }
+        size = filelength(file);
+        fileData = (unsigned char *)malloc((unsigned int)size);
+        _read(file, fileData, (unsigned int)size);
+        _close(file);
+
+        g_pSnowStaticClip = AllocateWaveTableEntry();
+        g_pSnowStaticClip->sample = ix_system_new_sample();
+        g_pSnowStaticClip->sample->ix_sample_load_wav(
+            fileData, size);
+        g_9_pSnowStaticAudio = ix_system_new_sound(
+            g_pSnowStaticClip->sample);
+        g_9_pSnowStaticAudio->ix_system_sound_set_volume(50000);
+        ix_sound_start(g_9_pSnowStaticAudio);
+
+        g_pSnowStaticClip->name =
+            (char *)malloc(strlen("SNOW") + 1);
+        strcpy(g_pSnowStaticClip->name, "SNOW");
+        free(fileData);
+    } else if (ix_sound_is_playing(
+                   g_9_pSnowStaticAudio) == 0) {
+        ix_sound_start(g_9_pSnowStaticAudio);
     }
 }
 
 /* Function start: 0x42476B */
 void ServiceSoundSystem(void)
 {
-    if (g_nAudioEnabled_0049c244 != 0) {
-        ix_system_service_sounds();
+    if (g_nAudioEnabled == 0)
+        return;
+    ix_system_service_sounds();
 #ifdef SDL_PORT
-        /* This whole block is a port-only rewrite of the original's
-         * speech-completion handling (see the #else branch for that);
-         * kept behind SDL_PORT so the reference build stays byte-
-         * comparable to the original for verification.
-         *
-         * The speech sound is delete-on-stop, so the call above can have
-         * freed it already this frame. Evaluate liveness into a local
-         * before touching g_pSpeechSound_004a2658, so a same-frame free
-         * still runs the stopped-handling block below instead of being
-         * skipped because the pointer already reads as 0. */
-        int speechIsLive = g_pSpeechSound_004a2658 != 0 &&
-                            ix_sound_is_live(g_pSpeechSound_004a2658);
-        if (g_pSpeechSound_004a2658 != 0 &&
-            (!speechIsLive || ix_sound_is_playing(g_pSpeechSound_004a2658) == 0) &&
-            g_nSpeechCompletionDelay_004a265c <= 20) {
-            /* g_nSpeechCompletionDelay_004a265c gates re-entry instead of
-             * g_bSpeechSoundActive_004a2660: it resets to 0 in
-             * PlayRawSpeechBuffer whenever a new clip starts, so this
-             * block still only fires once per stopped clip, but the reset
-             * below can run on the first frame audio is observed stopped
-             * rather than waiting for the full grace period. */
-            if (g_nSpeechCompletionDelay_004a265c == 0) {
-                /* The cutscene script polls g_bCutsceneTextAdvance_005d2ed0
-                 * (opcode 0x9c, screens.c) to know when speech has
-                 * finished before advancing to the next line, so clearing
-                 * these here -- immediately on stop, not after the grace
-                 * period below -- keeps both the mouth and the next
-                 * line's start in sync with when audio actually ends. */
-                g_bSpeechSoundActive_004a2660 = 0;
-                if (g_bSpaceFlightActive_005c586c == 0) {
-                    g_bCutsceneSpeechActive_00499eb8 = 0;
-                    g_bCutsceneTextAdvance_005d2ed0 = 0;
-                    g_pszCutsceneSpeechCursor_00499eb0 = 0;
-                    /* g_pCurrentCutsceneSprite_00499c78 is whichever
-                     * object happens to be executing its own script
-                     * opcodes at the moment this runs (set/restored
-                     * around every sprite/plane's dispatch) -- not
-                     * necessarily the speaker. g_pLinkedCutsceneSprite_
-                     * 00499c64 is the sprite opcode 0x8a actually armed
-                     * for mouth animation, the same one
-                     * AnimateCutsceneSpeakerMouth (screens.c) itself
-                     * resets to frame 11 on its own early-return paths. */
-                    if (g_pLinkedCutsceneSprite_00499c64 != 0) {
-                        g_pLinkedCutsceneSprite_00499c64->currentFrame = 11;
-                        g_pLinkedCutsceneSprite_00499c64->waitTicks = 0;
-                    }
+    /* This whole block is a port-only rewrite of the original's
+     * speech-completion handling (see the #else branch for that);
+     * kept behind SDL_PORT so the reference build stays byte-
+     * comparable to the original for verification.
+     *
+     * The speech sound is delete-on-stop, so the call above can have
+     * freed it already this frame. Evaluate liveness into a local
+     * before touching g_pSpeechSnd, so a same-frame free
+     * still runs the stopped-handling block below instead of being
+     * skipped because the pointer already reads as 0. */
+    int speechIsLive = g_pSpeechSnd != 0 &&
+                        ix_sound_is_live(g_pSpeechSnd);
+    if (g_pSpeechSnd != 0 &&
+        (!speechIsLive || ix_sound_is_playing(g_pSpeechSnd) == 0) &&
+        g_16_nSpeechCompletionDelay <= 20) {
+        /* g_16_nSpeechCompletionDelay gates re-entry instead of
+         * g_bSpeechSoundActive: it resets to 0 in
+         * PlayRawSpeechBuffer whenever a new clip starts, so this
+         * block still only fires once per stopped clip, but the reset
+         * below can run on the first frame audio is observed stopped
+         * rather than waiting for the full grace period. */
+        if (g_16_nSpeechCompletionDelay == 0) {
+            /* The cutscene script polls g_2_bMovieStringAdvanceState
+             * (opcode 0x9c, screens.c) to know when speech has
+             * finished before advancing to the next line, so clearing
+             * these here -- immediately on stop, not after the grace
+             * period below -- keeps both the mouth and the next
+             * line's start in sync with when audio actually ends. */
+            g_bSpeechSoundActive = 0;
+            if (g_1_bSpaceFlightActive == 0) {
+                g_bCutsceneSpeechActive = 0;
+                g_2_bMovieStringAdvanceState = 0;
+                g_pszCutsceneSpeechCursor = 0;
+                /* g_pCurrentCutsceneSprite is whichever
+                 * object happens to be executing its own script
+                 * opcodes at the moment this runs (set/restored
+                 * around every sprite/plane's dispatch) -- not
+                 * necessarily the speaker. g_pLinkedCutsceneSprite_
+                 * 00499c64 is the sprite opcode 0x8a actually armed
+                 * for mouth animation, the same one
+                 * AnimateCutsceneSpeakerMouth (screens.c) itself
+                 * resets to frame 11 on its own early-return paths. */
+                if (g_pLinkedCutsceneSprite != 0) {
+                    g_pLinkedCutsceneSprite->currentFrame = 11;
+                    g_pLinkedCutsceneSprite->waitTicks = 0;
                 }
             }
-            g_nSpeechCompletionDelay_004a265c++;
-            if (g_bSpaceFlightActive_005c586c != 0) {
-                g_bSpeechPlaybackComplete_004a266c = 1;
-            }
-            if (g_nSpeechCompletionDelay_004a265c > 20) {
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    g_nInputPressCount_0049c258 = 1;
-            }
         }
-        if (!speechIsLive)
-            g_pSpeechSound_004a2658 = 0;
-#else
-        if (g_pSpeechSound_004a2658 != 0 &&
-            ix_sound_is_playing(g_pSpeechSound_004a2658) == 0 &&
-            g_bSpeechSoundActive_004a2660 != 0) {
-            g_nSpeechCompletionDelay_004a265c++;
-            if (g_bSpaceFlightActive_005c586c != 0) {
-                g_bSpeechPlaybackComplete_004a266c = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
-            }
-            if (g_nSpeechCompletionDelay_004a265c > 20) {
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    g_nInputPressCount_0049c258 = 1;
-                g_bSpeechSoundActive_004a2660 = 0;
-                if (g_bSpaceFlightActive_005c586c == 0)
-                    SetCinematicFrameTiming(70.0f);
-            }
+        g_16_nSpeechCompletionDelay++;
+        if (g_1_bSpaceFlightActive != 0) {
+            g_bSpeechPlaybackDone = 1;
         }
-#endif
+        if (g_16_nSpeechCompletionDelay > 20) {
+            if (g_1_bSpaceFlightActive == 0)
+                g_nInputPressCount = 1;
+        }
     }
+    if (!speechIsLive)
+        g_pSpeechSnd = 0;
+#else
+    if (g_pSpeechSnd != 0 &&
+        ix_sound_is_playing(g_pSpeechSnd) == 0 &&
+        g_bSpeechSoundActive != 0) {
+        g_16_nSpeechCompletionDelay++;
+        if (g_1_bSpaceFlightActive != 0) {
+            g_bSpeechPlaybackDone = 1;
+            g_bSpeechSoundActive = 0;
+        }
+        if (g_16_nSpeechCompletionDelay > 20) {
+            if (g_1_bSpaceFlightActive == 0)
+                g_nInputPressCount = 1;
+            g_bSpeechSoundActive = 0;
+            if (g_1_bSpaceFlightActive == 0)
+                SetCinematicFrameTiming(70.0f);
+        }
+    }
+#endif
 }
 
 /* Function start: 0x42482E */
 void SetSoundEffectsVolume(int volume)
 {
-    if (g_nAudioEnabled_0049c244 == 0)
+    if (g_nAudioEnabled == 0)
         return;
     ix_system_set_master_volume((unsigned short)volume);
 }
@@ -344,6 +526,11 @@ void RegistryStoreValue(HKEY key, LPCSTR name, DWORD type,
     RegSetValueExA(key, name, 0, type, data, size);
 }
 
+/* One copy of each registry value name serves both the load and the save:
+ * the original has a single address for each. */
+static char g_szMusicVolumeValueName[] = "MusicVolume"; /* 0x004961c0 */
+static char g_szSfxVolumeValueName[] = "SFXVolume"; /* 0x004961d0 */
+
 /* Function start: 0x4248B4 */
 void LoadVolumeSettingsFromRegistry(void)
 {
@@ -352,26 +539,27 @@ void LoadVolumeSettingsFromRegistry(void)
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        if (RegistryQueryValue(key, "MusicVolume", REG_DWORD,
-                               (LPBYTE)&g_nMusicVolumeSetting_0049d750,
-                               sizeof(g_nMusicVolumeSetting_0049d750)) !=
+        if (RegistryQueryValue(key, g_szMusicVolumeValueName, REG_DWORD,
+                               (LPBYTE)&g_nMusicVolumeSetting,
+                               sizeof(g_nMusicVolumeSetting)) !=
             ERROR_SUCCESS) {
-            g_nMusicVolumeSetting_0049d750 = 0x14;
-            RegistryStoreValue(key, "MusicVolume", REG_DWORD,
-                               (const BYTE *)&g_nMusicVolumeSetting_0049d750,
-                               sizeof(g_nMusicVolumeSetting_0049d750));
+            g_nMusicVolumeSetting = 0x14;
+            RegistryStoreValue(key, g_szMusicVolumeValueName, REG_DWORD,
+                               (const BYTE *)&g_nMusicVolumeSetting,
+                               sizeof(g_nMusicVolumeSetting));
         }
-        if (RegistryQueryValue(key, "SFXVolume", REG_DWORD,
-                               (LPBYTE)&g_nSfxVolumeSetting_0049d74c,
-                               sizeof(g_nSfxVolumeSetting_0049d74c)) !=
+        if (RegistryQueryValue(key, g_szSfxVolumeValueName, REG_DWORD,
+                               (LPBYTE)&g_nSfxVolumeSetting,
+                               sizeof(g_nSfxVolumeSetting)) !=
             ERROR_SUCCESS) {
-            g_nSfxVolumeSetting_0049d74c = 0x14;
-            RegistryStoreValue(key, "SFXVolume", REG_DWORD,
-                               (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
-                               sizeof(g_nSfxVolumeSetting_0049d74c));
+            g_nSfxVolumeSetting = 0x14;
+            RegistryStoreValue(key, g_szSfxVolumeValueName, REG_DWORD,
+                               (const BYTE *)&g_nSfxVolumeSetting,
+                               sizeof(g_nSfxVolumeSetting));
         }
-        RegCloseKey(key);
     }
+    RegCloseKey(key);
+    return;
 }
 
 /* Function start: 0x424980 */
@@ -382,12 +570,12 @@ void SaveVolumeSettingsToRegistry(void)
     if (RegOpenKeyExA(HKEY_LOCAL_MACHINE,
                       "Software\\Origin Systems\\WC: Kilrathi Saga",
                       0, KEY_ALL_ACCESS, &key) == ERROR_SUCCESS) {
-        RegistryStoreValue(key, "MusicVolume", REG_DWORD,
-                           (const BYTE *)&g_nMusicVolumeSetting_0049d750,
-                           sizeof(g_nMusicVolumeSetting_0049d750));
-        RegistryStoreValue(key, "SFXVolume", REG_DWORD,
-                           (const BYTE *)&g_nSfxVolumeSetting_0049d74c,
-                           sizeof(g_nSfxVolumeSetting_0049d74c));
+        RegistryStoreValue(key, g_szMusicVolumeValueName, REG_DWORD,
+                           (const BYTE *)&g_nMusicVolumeSetting,
+                           sizeof(g_nMusicVolumeSetting));
+        RegistryStoreValue(key, g_szSfxVolumeValueName, REG_DWORD,
+                           (const BYTE *)&g_nSfxVolumeSetting,
+                           sizeof(g_nSfxVolumeSetting));
     }
     RegCloseKey(key);
 }
@@ -401,348 +589,11 @@ void IxSample::ix_sample_set_looping(int enabled)
         flags &= ~2U;
 }
 
-/* The IxSound accessor FindActiveSoundEntryBySample reaches through.  It is
- * an inline member in the ix headers, so every translation unit that calls it
- * gets its own out-of-line copy; this is the one the sound unit emitted, and
- * it lands at the end of the unit because nothing else references it. */
+/* The inline accessor called by FindActiveSoundEntryBySample. Its declaration
+ * makes the debug compiler emit a separate COMDAT, matching the aligned
+ * out-of-line copy after this unit's main code. */
 /* Function start: 0x424A40 */
 IxSample * __fastcall ix_sound_get_sample(IxSound *sound)
 {
     return sound->sample;
-}
-
-/* Function start: 0x432DCC */
-char *GetPackedStringByIndex(CutsceneResourceTable *resources,
-                             short index)
-{
-    char *text;
-    short stringIndex;
-
-    text = resources->packedFilenames;
-    for (stringIndex = 0; stringIndex < index; stringIndex++) {
-        text = DosStrchr(text, 0);
-        text++;
-    }
-    return text;
-}
-
-/* Function start: 0x432E23 */
-void RewriteDiskFileGraphicsExtensions(char *fileName)
-{
-    char *extensionPosition;
-
-    if (g_cCutsceneVideoMode_00499c48 == 13) {
-        extensionPosition = DosStrchr(fileName, '.');
-#ifdef SDL_PORT
-        if (extensionPosition != 0) {
-            extensionPosition++;
-            if (toupper((int)*extensionPosition) == 'V')
-                *extensionPosition = 'E';
-        }
-#else
-        if (extensionPosition++ != 0 &&
-            toupper((int)*extensionPosition) == 'V')
-            *extensionPosition = 'E';
-#endif
-    }
-}
-
-/* Function start: 0x432E83 */
-void RewriteCutsceneMusicExtensionForDriver(char *filename)
-{
-    char *extension;
-
-    extension = DosStrchr(filename, '.');
-    if (extension++ != 0 && *extension != 0) {
-        if (g_nMusicDriverMode_0049be8c == 2)
-            *extension = 'A';
-        else
-            *extension = 'R';
-    }
-}
-
-/* Function start: 0x432EE4 */
-void RewriteCutsceneMusicExtensionForRetry(char *filename)
-{
-    char *extension;
-
-    extension = DosStrchr(filename, '.');
-    if (extension++ != 0 && *extension != 0)
-        *extension = 'R';
-}
-
-/* Function start: 0x401000 */
-short LoadWingCmdrCfgFile(short argc, char **argv)
-{
-    FILE *file;
-    short argumentCount;
-    char *destination;
-    short argumentIndex;
-    short scanResult;
-#ifdef SDL_PORT
-    char resolvedPath[PATH_MAX];
-#endif
-
-    argumentIndex = 1;
-    argumentCount = 0;
-    destination = g_szTextScratchBuffer_005d1c40;
-#ifdef SDL_PORT
-    if (SdlResolvePath("wc2.cfg", resolvedPath,
-                          sizeof(resolvedPath)))
-        file = fopen(resolvedPath, "rb");
-    else
-        file = 0;
-#else
-    file = fopen("wc2.cfg", "rb");
-#endif
-    while (file != 0) {
-        scanResult = (short)fscanf(file, "%s", destination);
-        if (scanResult == -1) {
-            fclose(file);
-            break;
-        }
-        g_pStartupArguments_005c57f0[argumentCount++] =
-            destination;
-        destination = strchr(destination, 0) + 1;
-    }
-
-    while (argc-- != 0) {
-        strcpy(destination, argv[argumentIndex++]);
-        g_pStartupArguments_005c57f0[argumentCount++] = destination;
-        destination = strchr(destination, 0) + 1;
-    }
-    return (short)(argumentCount - 1);
-}
-
-/* Function start: 0x401120 */
-void show_damage_disp(void)
-{
-    signed char component;
-    signed char plural;
-    char message[40];
-
-    g_nDamageDisplayState_005d42ae = 0;
-    g_cDamagedComponentCount_005d42a7 = 0;
-    for (component = 0; component < 9; component++) {
-        if (g_acPlayerComponentDamage_00493470[component] >= 1)
-            g_cDamagedComponentCount_005d42a7++;
-    }
-
-    set_new_vdu(0);
-    DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
-               g_stLeftVduViewport_005d2180.left,
-               g_stLeftVduViewport_005d2180.top,
-               g_szDamageReport_00490190, 2);
-    DrawViewportLine(&g_stLeftVduViewport_005d2180,
-                     (short)(g_stLeftVduViewport_005d2180.left + 2),
-                     (short)(g_stLeftVduViewport_005d2180.top + 6),
-                     (short)(g_stLeftVduViewport_005d2180.right - 2),
-                     (short)(g_stLeftVduViewport_005d2180.top + 6),
-                     g_ucPrimaryTextColour_0049cb64);
-    if (g_cDamagedComponentCount_005d42a7 == 0) {
-        DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
-                   g_stLeftVduViewport_005d2180.left,
-                   (short)(g_stLeftVduViewport_005d2180.top + 20),
-                   g_szNoInternalDamage_004901a0, 2);
-    } else {
-        g_nWeaponDisplayOriginX_005d4254 =
-            (short)(g_stLeftVduViewport_005d2180.left +
-                    g_nWeaponDisplayOffsetX_0049ae8c);
-        g_nWeaponDisplayOriginY_005d4256 =
-            (short)(g_nWeaponDisplayOffsetY_0049ae8e +
-                    g_stLeftVduViewport_005d2180.top);
-        DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
-                          g_nWeaponDisplayOriginX_005d4254,
-                          g_nWeaponDisplayOriginY_005d4256,
-                          g_pCockpitWeaponShape_005d2b54, 0);
-        if (g_bForceDamageDisplayRedraw_0049b2ec == 0) {
-            g_nDamageDisplayTicks_005d4250 = 1;
-            g_nDamageDisplayPhase_005d42b4 = 1;
-        }
-        if (g_cDamagedComponentCount_005d42a7 != 1)
-            plural = 's';
-        else
-            plural = ' ';
-        sprintf(message, g_szDamagedUnitCountFormat_004901b4,
-                (int)g_cDamagedComponentCount_005d42a7, (int)plural);
-        ShowComponentHitHudMessage(message,
-                                   g_ucPrimaryTextColour_0049cb64, -1);
-    }
-}
-
-/* Function start: 0x4012E1 */
-void UpdateDamageDisplay(void)
-{
-    short componentCount;
-    signed char component;
-    signed char attempts;
-    signed char damage;
-
-    componentCount = (short)g_cDamagedComponentCount_005d42a7;
-    g_cDamagedComponentCount_005d42a7 = 0;
-    for (attempts = 0; attempts < 9; attempts++) {
-        if (g_acPlayerComponentDamage_00493470[attempts] >= 1)
-            g_cDamagedComponentCount_005d42a7++;
-    }
-
-    if ((short)g_cDamagedComponentCount_005d42a7 != componentCount) {
-        InvalidateVduMode(0);
-        return;
-    }
-    if (g_cDamagedComponentCount_005d42a7 == 0)
-        return;
-
-    if (g_nCockpitDisplayMode_0049d71c == 0) {
-        g_nDamageDisplayTicks_005d4250--;
-        if (g_nDamageDisplayTicks_005d4250 > 0)
-            return;
-        if (g_nDamageDisplayPhase_005d42b4 == 1) {
-            g_nDamageDisplayTicks_005d4250 = 25;
-            component = g_cDamageDisplayComponent_005d42a6;
-            attempts = 0;
-            do {
-                component++;
-                if (component >= 9)
-                    component = 0;
-                damage = g_acPlayerComponentDamage_00493470[component];
-                if (damage >= 1) {
-                    g_cDamageDisplayComponent_005d42a6 = component;
-                    break;
-                }
-                attempts++;
-            } while (attempts < 9);
-
-            sprintf(
-                g_szDamageStatusText_005d4260,
-                g_szDamageStatusFormat_004901c8,
-                g_apszComponentNames_00490090[
-                    g_cDamageDisplayComponent_005d42a6],
-                g_apszDamageSeverityNames_004900c8[(int)damage]);
-            DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
-                       (short)(g_stLeftVduViewport_005d2180.left + 1),
-                       (short)(g_stLeftVduViewport_005d2180.top + 7),
-                       g_szDamageStatusText_005d4260, 2);
-            g_cDamageDisplayFrame_005d42ac =
-                (signed char)g_abDamageDisplayFrames_004900b8[
-                    g_cDamageDisplayComponent_005d42a6];
-            g_stDamageSpritePosition_005d42b0 =
-                g_aDamageDisplayPositions_00490068[
-                    g_cDamageDisplayComponent_005d42a6];
-            g_stDamageSpritePosition_005d42b0.x =
-                (short)(g_stDamageSpritePosition_005d42b0.x +
-                        g_nWeaponDisplayOriginX_005d4254);
-            g_stDamageSpritePosition_005d42b0.y =
-                (short)(g_stDamageSpritePosition_005d42b0.y +
-                        g_nWeaponDisplayOriginY_005d4256);
-            CaptureSpriteBackground(
-                &g_stLeftVduViewport_005d2180,
-                g_pDamageDisplayBackground_00490060,
-                g_stDamageSpritePosition_005d42b0.x,
-                g_stDamageSpritePosition_005d42b0.y,
-                g_pCockpitWeaponShape_005d2b54,
-                (short)g_cDamageDisplayFrame_005d42ac);
-            DrawViewportLine(
-                &g_stLeftVduViewport_005d2180,
-                (short)(g_stLeftVduViewport_005d2180.left + 36),
-                (short)(g_stLeftVduViewport_005d2180.top + 22),
-                g_stDamageSpritePosition_005d42b0.x,
-                g_stDamageSpritePosition_005d42b0.y, 0xa9);
-            DrawSpriteDefault(
-                &g_stLeftVduViewport_005d2180,
-                g_stDamageSpritePosition_005d42b0.x,
-                g_stDamageSpritePosition_005d42b0.y,
-                g_pCockpitWeaponShape_005d2b54,
-                (short)g_cDamageDisplayFrame_005d42ac);
-        } else {
-            RestoreSpriteBackground(
-                &g_stLeftVduViewport_005d2180,
-                g_pDamageDisplayBackground_00490060,
-                g_stDamageSpritePosition_005d42b0.x,
-                g_stDamageSpritePosition_005d42b0.y,
-                g_pCockpitWeaponShape_005d2b54,
-                (short)g_cDamageDisplayFrame_005d42ac);
-            g_stLeftVduTextContext_005d2ae0.colour =
-                g_cSecondaryViewBufferColour_0049cb4c;
-            DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
-                       (short)(g_stLeftVduViewport_005d2180.left + 1),
-                       (short)(g_stLeftVduViewport_005d2180.top + 7),
-                       g_szDamageStatusText_005d4260, 2);
-            g_stLeftVduTextContext_005d2ae0.colour =
-                g_ucPrimaryTextColour_0049cb64;
-            DrawViewportLine(
-                &g_stLeftVduViewport_005d2180,
-                (short)(g_stLeftVduViewport_005d2180.left + 36),
-                (short)(g_stLeftVduViewport_005d2180.top + 22),
-                g_stDamageSpritePosition_005d42b0.x,
-                g_stDamageSpritePosition_005d42b0.y,
-                g_cSecondaryViewBufferColour_0049cb4c);
-            g_nDamageDisplayTicks_005d4250 = 4;
-        }
-        g_nDamageDisplayPhase_005d42b4 =
-            g_nDamageDisplayPhase_005d42b4 == 0;
-        return;
-    }
-
-    g_nDamageDisplayTicks_005d4250--;
-    if (g_nDamageDisplayTicks_005d4250 <= 0) {
-        if (g_nDamageDisplayPhase_005d42b4 == 1) {
-            g_nDamageDisplayTicks_005d4250 = 25;
-            component = g_cDamageDisplayComponent_005d42a6;
-            attempts = 0;
-            do {
-                component++;
-                if (component >= 9)
-                    component = 0;
-                damage = g_acPlayerComponentDamage_00493470[component];
-                if (damage >= 1) {
-                    g_cDamageDisplayComponent_005d42a6 = component;
-                    g_nDisplayedComponentDamage_005d42a8 = (int)damage;
-                    break;
-                }
-                attempts++;
-            } while (attempts < 9);
-        }
-        g_nDamageDisplayPhase_005d42b4 =
-            g_nDamageDisplayPhase_005d42b4 == 0;
-    }
-
-    sprintf(
-        g_szDamageStatusText_005d4260,
-        g_szDamageStatusFormatHighRes_004901d8,
-        g_apszComponentNames_00490090[g_cDamageDisplayComponent_005d42a6],
-        g_apszDamageSeverityNames_004900c8[
-            g_nDisplayedComponentDamage_005d42a8]);
-    DrawTextAt(&g_stLeftVduTextContext_005d2ae0,
-               (short)(g_stLeftVduViewport_005d2180.left + 1),
-               (short)(g_stLeftVduViewport_005d2180.top + 7),
-               g_szDamageStatusText_005d4260, 2);
-    g_cDamageDisplayFrame_005d42ac =
-        (signed char)g_abDamageDisplayFrames_004900b8[
-            g_cDamageDisplayComponent_005d42a6];
-    g_stDamageSpritePosition_005d42b0 =
-        g_aDamageDisplayPositions_00490068[
-            g_cDamageDisplayComponent_005d42a6];
-    g_stDamageSpritePosition_005d42b0.x =
-        (short)(g_stDamageSpritePosition_005d42b0.x +
-                g_nWeaponDisplayOriginX_005d4254);
-    g_stDamageSpritePosition_005d42b0.y =
-        (short)(g_stDamageSpritePosition_005d42b0.y +
-                g_nWeaponDisplayOriginY_005d4256);
-    CaptureSpriteBackground(
-        &g_stLeftVduViewport_005d2180,
-        g_pDamageDisplayBackground_00490060,
-        g_stDamageSpritePosition_005d42b0.x,
-        g_stDamageSpritePosition_005d42b0.y,
-        g_pCockpitWeaponShape_005d2b54,
-        (short)g_cDamageDisplayFrame_005d42ac);
-    DrawViewportLine(&g_stLeftVduViewport_005d2180,
-                     (short)(g_stLeftVduViewport_005d2180.left + 36),
-                     (short)(g_stLeftVduViewport_005d2180.top + 22),
-                     g_stDamageSpritePosition_005d42b0.x,
-                     g_stDamageSpritePosition_005d42b0.y, 0xa9);
-    DrawSpriteDefault(&g_stLeftVduViewport_005d2180,
-                      g_stDamageSpritePosition_005d42b0.x,
-                      g_stDamageSpritePosition_005d42b0.y,
-                      g_pCockpitWeaponShape_005d2b54,
-                      (short)g_cDamageDisplayFrame_005d42ac);
 }

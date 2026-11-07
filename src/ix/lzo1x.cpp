@@ -2,18 +2,20 @@
  * LZO1X decoder used by the packed ix streamer.
  *
  * The retail routine is hand-written x86: it keeps input/token state in EBX
- * and EDX and performs overlapping copies with REP MOVS.  Preserve that code
- * directly so packed stream chunks decode exactly as they did originally.
+ * and EDX and performs overlapping copies with REP MOVS.  It was an /Od
+ * function around an __asm block; its ALIGN 4 directives account for the
+ * padding inside it.  The bytes are identical to WC1's decoder.  Preserve
+ * that code directly so packed stream chunks decode exactly as they did
+ * originally.
  */
 #include "ix.h"
 #include <stdlib.h>
 #include <string.h>
 #ifdef SDL_PORT
+#include <errno.h>
 #include <limits.h>
 #include <lzo1x.h>
 #endif
-
-#pragma function(strcat)
 
 /* Function start: 0x48C290 */
 #ifdef SDL_PORT
@@ -35,22 +37,18 @@ extern "C" void ix_lzo1x_decompress(
     }
 }
 #else
-extern "C" __declspec(naked) void ix_lzo1x_decompress(
+extern "C" void ix_lzo1x_decompress(
     unsigned char *source, unsigned char *destination,
     unsigned int destinationBytes)
 {
     __asm {
-        push ebp
-        mov ebp, esp
-        push ebx
-        push esi
-        push edi
-        mov ebx, dword ptr [ebp + 8]
-        mov edi, dword ptr [ebp + 0ch]
+        mov ebx, source
+        mov edi, destination
         or ebx, ebx
         je lzo_finish_copy
         xor ecx, ecx
         jmp lzo_read_token
+        ALIGN 4
 
 lzo_copy_literals:
         lea esi, [ebx + 2]
@@ -110,6 +108,7 @@ lzo_large_token:
         mov edx, dword ptr [ebx]
         jns lzo_match_tail
         jmp lzo_large_token
+        ALIGN 4
 
 lzo_literal_token:
         add cl, cl
@@ -125,6 +124,7 @@ lzo_literal_token:
         mov edx, dword ptr [esi]
         jns lzo_match_tail
         jmp lzo_large_token
+        ALIGN 4
 
 lzo_final_literals:
         mov ecx, edx
@@ -133,7 +133,8 @@ lzo_final_literals:
         rep movsb
 
 lzo_finish_copy:
-        jmp lzo_finish_forward
+        jmp lzo_finish
+        ALIGN 4
 
 lzo_long_match:
         mov ecx, edx
@@ -166,6 +167,7 @@ lzo_long_match:
         mov edx, dword ptr [ebx]
         jns lzo_match_tail
         jmp lzo_large_token
+        ALIGN 4
 
 lzo_short_long_match:
         lea ecx, [edx + 5]
@@ -175,76 +177,7 @@ lzo_short_long_match:
         jns lzo_match_tail
         jmp lzo_large_token
 
-lzo_finish_forward:
-        jmp lzo_finish
-
 lzo_finish:
-        pop edi
-        pop esi
-        pop ebx
-        leave
-        ret
     }
 }
 #endif
-
-/* Function start: 0x48C420 */
-extern "C" FILE *ix_file_open(const char *path, int mode)
-{
-    char modeString[4];
-#ifdef SDL_PORT
-    char resolvedPath[PATH_MAX];
-#endif
-
-    modeString[0] = 0;
-    if ((mode & 1) != 0)
-        strcat(modeString, "r");
-    if ((mode & 2) != 0)
-        strcat(modeString, "w");
-    strcat(modeString, "b");
-#ifdef SDL_PORT
-    if (!SdlResolvePath(path, resolvedPath, sizeof(resolvedPath)))
-        return 0;
-    return fopen(resolvedPath, modeString);
-#else
-    return fopen(path, modeString);
-#endif
-}
-
-/* Function start: 0x48C48E */
-extern "C" void ix_file_close(FILE *file)
-{
-    fclose(file);
-}
-
-/* Function start: 0x48C4AA */
-extern "C" void ix_file_seek(FILE *file, long position)
-{
-    fseek(file, position, SEEK_SET);
-}
-
-/* Function start: 0x48C4CC */
-extern "C" long ix_file_tell(FILE *file)
-{
-    return ftell(file);
-}
-
-/* Function start: 0x48C4E8 */
-extern "C" unsigned int ix_file_read(FILE *file, void *destination,
-                                      unsigned int bytes)
-{
-    return fread(destination, 1, bytes, file);
-}
-
-/* Function start: 0x48C534 */
-extern "C" long ix_file_size(FILE *file)
-{
-    long position;
-    long size;
-
-    position = ftell(file);
-    fseek(file, 0, SEEK_END);
-    size = ftell(file);
-    fseek(file, position, SEEK_SET);
-    return size;
-}

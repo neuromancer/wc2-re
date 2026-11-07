@@ -619,9 +619,9 @@ static int CheckRetailDosSoundEffects(void)
         return 0;
     /* The retail records the flight code plays, against the retail bank. */
     recordCount = (unsigned int)(
-        sizeof(g_abSoundEffectDefinitions_0049bf18) / TEST_SOUND_RECORD_SIZE);
+        sizeof(g_abSoundEffectDefinitions) / TEST_SOUND_RECORD_SIZE);
     player = SdlCreateOriginFxSoundPlayer(
-        g_abSoundEffectDefinitions_0049bf18, recordCount,
+        g_abSoundEffectDefinitions, recordCount,
         timbres, timbreSize);
     free(timbres);
     if (player == 0)

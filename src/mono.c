@@ -1,146 +1,62 @@
 /*
- *  Win32 data-file wrappers, scaled interstitial text, canned sequences,
- *  and the MONODEBG.VXD developer console.
+ *  MONODEBG developer channel.
  *
- *  Address range 0x403500-0x403e4f (provisional -- see docs/ORDER.md).
- *  Boundary evidence: MonoDebug_install/MonoDebug_print anchor the final block;
- *  the Mac auto unit starts at visit_the_cinema (0x403e50).
+ *  Retail object 0x4377F0-0x4379EF (link order; see docs/ORDER.md).
  */
+/* This unit owns the mono storage declared in globals.h (as statics). */
+#define MONO_C
 #include "game.h"
 
-static char g_szSoundDebugBuffer_005d1f00[0xfa0];
-
-/* Function start: 0x45A04A */
-void CloseDataFile(unsigned short fd)
-{
-    g_nPacketError_0049ca90 = (short)_close(fd & 0xffff);
-}
-
-/* Function start: 0x45A06C */
-short WriteDataFileAtOffset(unsigned short fd, int offset,
-                            unsigned int length, const void *data)
-{
-    g_nPacketError_0049ca90 = 0;
-    if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szWriteDataFileError_005b38c8, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
-        return 0;
-    }
-    if (_write(fd, data, length) == -1) {
-        sprintf(g_szWriteDataFileError_005b38c8, "!write %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
-        return 0;
-    }
-    return 1;
-}
-
-/* Function start: 0x45A12D */
-short CreateDataFile(const char *path)
-{
-    unsigned short fd;
-
-    fd = (unsigned short)_open(path, 0x8101, 0x180);
-    if ((unsigned int)fd == (unsigned int)-1) {
-        sprintf(g_szCreateDataFileError_005b3888, "!_open '%s'\n", path);
-        g_nPacketError_0049ca90 = (short)errno;
-        return 0;
-    }
-#ifdef SDL_PORT
-    /* WC2 stores the descriptor in a word and then compares it against a
-     * full -1, so a failed open never reaches the branch above and the caller
-     * reports a bare error code instead.  The port says which file it could
-     * not create and why, because on a host the reason is usually the
-     * directory's permissions. */
-    if ((short)fd == -1) {
-        fprintf(stderr, "Unable to create '%s' in '%s': %s\n", path,
-                SdlDescribeWorkingDirectory(), strerror(errno));
-    }
-#endif
-    return (short)fd;
-}
-
-/* Function start: 0x45A19B */
-int ReadDataFileAtOffset(unsigned short fd, int offset,
-                         unsigned int length, void *data)
-{
-    g_nPacketError_0049ca90 = 0;
-    if (offset != -1 && _lseek(fd, offset, SEEK_SET) == -1) {
-        sprintf(g_szReadDataFileError_005b3848, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
-        return 0;
-    }
-    if (_read(fd, data, length) == -1) {
-        sprintf(g_szReadDataFileError_005b3848, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
-        return 0;
-    }
-    return 1;
-}
-
-/* Function start: 0x45A259 */
-int SeekDataFile(unsigned short fd, int offset,
-                 unsigned int origin)
-{
-    int position;
-
-    position = _lseek(fd, offset, origin & 0xffff);
-    if (position == -1) {
-        sprintf(g_szSeekDataFileError_005b3908, "!lseek %d\n", offset);
-        g_nPacketError_0049ca90 = (short)errno;
-    }
-    return position;
-}
-
-/* Function start: 0x437760 */
-void SplitGameClockTicks(unsigned char *parts)
-{
-    int ticks = (int)GetGameClockTicks();
-
-    parts[0] = (unsigned char)(ticks % 60);
-    ticks = ticks / 60;
-    parts[1] = (unsigned char)(ticks % 60);
-    ticks = ticks / 60;
-    parts[2] = (unsigned char)(ticks % 60);
-    ticks = ticks / 60;
-    parts[3] = (unsigned char)(ticks % 24);
-}
+extern char g_12_szSoundTraceScratch[0x200]; /* 0x005d1f00 */
 
 /* Function start: 0x4377F0 */
 void MonoDebug_install(void)
 {
     unsigned int version;
 
-    g_hMonoDebugDevice_005b30ec =
+    g_hMonoDebugDevice =
         CreateFileA("\\\\.\\MONODEBG.VXD", 0, 0, 0, CREATE_ALWAYS,
                     FILE_FLAG_DELETE_ON_CLOSE, 0);
-    if (g_hMonoDebugDevice_005b30ec == INVALID_HANDLE_VALUE)
+    if (g_hMonoDebugDevice == INVALID_HANDLE_VALUE)
         return;
 
-    if (!DeviceIoControl(g_hMonoDebugDevice_005b30ec, 1, 0, 0,
+    if (!DeviceIoControl(g_hMonoDebugDevice, 1, 0, 0,
                          &version, sizeof(version), 0, 0)) {
-        CloseHandle(g_hMonoDebugDevice_005b30ec);
+        CloseHandle(g_hMonoDebugDevice);
         return;
     }
     if (version != 0x20004) {
-        CloseHandle(g_hMonoDebugDevice_005b30ec);
+        CloseHandle(g_hMonoDebugDevice);
         exit_squadron("MonoDebug__install expecting version");
         return;
     }
-    if (!DeviceIoControl(g_hMonoDebugDevice_005b30ec, 2, 0, 0,
+    if (!DeviceIoControl(g_hMonoDebugDevice, 2, 0, 0,
                          0, 0, 0, 0)) {
-        CloseHandle(g_hMonoDebugDevice_005b30ec);
+        CloseHandle(g_hMonoDebugDevice);
         exit_squadron("MonoDebug__install init failed");
         return;
     }
-    g_bMonoDebugInstalled_005b30e8 = 1;
+    g_bMonoDebugInstalled = 1;
 }
 
 /* Function start: 0x4378D9 */
 void MonoDebug_remove(void)
 {
-    if (g_bMonoDebugInstalled_005b30e8 != 0) {
-        CloseHandle(g_hMonoDebugDevice_005b30ec);
-        g_bMonoDebugInstalled_005b30e8 = 0;
+    if (g_bMonoDebugInstalled != 0) {
+        CloseHandle(g_hMonoDebugDevice);
+        g_bMonoDebugInstalled = 0;
+    }
+}
+
+/* Function start: 0x437907 */
+/* Nothing in the shipped executable calls this.  It sends control code 3 to
+ * MONODEBG.VXD (install uses 1 and 2, print uses 9) and removes the channel
+ * when the driver rejects it; what code 3 asks the driver to do is unknown. */
+void SendMonoDebugCommand3(void)
+{
+    if (g_bMonoDebugInstalled != 0) {
+        if (!DeviceIoControl(g_hMonoDebugDevice, 3, 0, 0, 0, 0, 0, 0))
+            MonoDebug_remove();
     }
 }
 
@@ -150,16 +66,16 @@ void SoundDebugPrintf(const char *fmt, ...)
     va_list arguments;
 
     va_start(arguments, fmt);
-    vsprintf(g_szSoundDebugBuffer_005d1f00, fmt, arguments);
+    vsprintf(g_12_szSoundTraceScratch, fmt, arguments);
     va_end(arguments);
-    MonoDebug_print(g_szSoundDebugBuffer_005d1f00);
+    MonoDebug_print(g_12_szSoundTraceScratch);
 }
 
 /* Function start: 0x437983 */
 void MonoDebug_print(const char *text)
 {
-    if (g_bMonoDebugInstalled_005b30e8 != 0) {
-        if (!DeviceIoControl(g_hMonoDebugDevice_005b30ec, 9,
+    if (g_bMonoDebugInstalled != 0) {
+        if (!DeviceIoControl(g_hMonoDebugDevice, 9,
                              (void *)text, 0xfa0, 0, 0, 0, 0)) {
             exit_squadron("MonoDebug::print failed (buffer possibly on stack?!)");
             MonoDebug_remove();

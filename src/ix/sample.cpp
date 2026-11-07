@@ -1,13 +1,14 @@
 /*
  *  ix / D:\Rnd\prj\ix\src\sound\sample.cpp
  *
- *  Original address range: 0x0044879C - 0x004492DF   (4 functions)
- *  Range is exact: recovered from this module's own assert __FILE__ anchors in
- *  the shipped debug build (see docs/ORDER.md).
+ *  Retail address range: 0x0046B130 - 0x0046BD4F (6 functions)
+ *  Object boundaries follow retail padding and alignment; diagnostic paths
+ *  identify the source subsystem (see docs/ORDER.md).
  *
  *  Implement in ADDRESS ORDER -- MSVC emits functions in source order, so the
  *  list below is the original source order of this file.
  */
+#define IX_SAMPLE_CPP
 #include "ix.h"
 #include <math.h>
 
@@ -59,26 +60,53 @@ struct IxWaveFormat {
 #pragma pack(pop)
 #endif
 
+/* Function start: 0x46B130 */
+void IxSample::ix_sample_construct(void)
+{
+    flags = 0;
+    buffer = 0;
+    next = g_7_pSampleList;
+    previous = 0;
+    if (g_7_pSampleList != 0)
+        g_7_pSampleList->previous = this;
+    g_7_pSampleList = this;
+}
+
+/* Function start: 0x46B18F */
+void IxSample::ix_sample_destruct(void)
+{
+    if (buffer != 0) {
+        ix_dsp_free(buffer);
+        buffer = 0;
+    }
+    if (this == g_7_pSampleList)
+        g_7_pSampleList = next;
+    if (next != 0)
+        next->previous = previous;
+    if (previous != 0)
+        previous->next = next;
+}
+
 /* Function start: 0x46B21C */   /* source line(s) 166;169;170;193;195;197: sample already ready! | FORM id not found! | AIFF id not found! | Unsupported number of ch */
 int IxSample::ix_sample_load_aiff(void *data, int bytes)
 {
     unsigned char *end;
     IxSampleChunk *chunk;
 
-    unsigned char *file;
-    file = (unsigned char *)data;
+    unsigned char *form;
+    form = (unsigned char *)data;
     if ((flags & IX_SAMPLE_READY) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 166);
         ix_log_printf("sample already ready!");
         return -1;
     }
     flags |= IX_SAMPLE_LOADING;
-    if (*(unsigned int *)file != *(unsigned int *)"FORM") {
+    if (*(unsigned int *)form != *(unsigned int *)"FORM") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 169);
         ix_log_printf("FORM id not found!");
         return -1;
     }
-    if (*(unsigned int *)(file + 8) != *(unsigned int *)"AIFF") {
+    if (*(unsigned int *)(form + 8) != *(unsigned int *)"AIFF") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 170);
         ix_log_printf("AIFF id not found!");
         return -1;
@@ -93,9 +121,13 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             IxAiffCommonChunk *common;
 
             common = (IxAiffCommonChunk *)(chunk + 1);
-            common->channels = IX_SWAP_WORD(common->channels);
+            common->channels = (short)(
+                (((unsigned int)common->channels << 8) & 0xff00) |
+                ((common->channels >> 8) & 0xff));
             common->sampleFrames = IX_SWAP_DWORD(common->sampleFrames);
-            common->bitsPerSample = IX_SWAP_WORD(common->bitsPerSample);
+            common->bitsPerSample = (short)(
+                ((common->bitsPerSample & 0xff00) >> 8) |
+                ((common->bitsPerSample & 0xff) << 8));
             sampleRate = (int)ix_sample_convert_from_ieee_extended(common->sampleRate);
             rateNumerator = 1;
             rateDenominator = rateNumerator;
@@ -145,14 +177,14 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
 
         case 0x444e5353: {
             int samplesRemaining;
-            short *samples;
+            unsigned short *samples;
 
             buffer = (unsigned char *)ix_dsp_alloc(chunk->size);
             sampleCount = chunk->size / bytesPerFrame;
             if (loopEnd == (unsigned int)-1)
                 loopEnd = sampleCount;
             if (bitsPerSample == 16) {
-                samples = (short *)(chunk + 1);
+                samples = (unsigned short *)(chunk + 1);
                 samplesRemaining = sampleCount * channels;
                 while (samplesRemaining--) {
                     *samples = IX_SWAP_WORD(*samples);
@@ -162,6 +194,8 @@ int IxSample::ix_sample_load_aiff(void *data, int bytes)
             ix_dsp_copy(buffer, chunk + 1, chunk->size);
             break;
         }
+        default:
+            break;
         }
         chunk = (IxSampleChunk *)((unsigned char *)chunk +
                                   chunk->size + sizeof(IxSampleChunk));
@@ -177,20 +211,20 @@ int IxSample::ix_sample_load_wav(void *data, int bytes)
     unsigned char *end;
     IxSampleChunk *chunk;
 
-    unsigned char *file;
-    file = (unsigned char *)data;
+    unsigned char *riff;
+    riff = (unsigned char *)data;
     if ((flags & IX_SAMPLE_READY) != 0) {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 261);
         ix_log_printf("sample already ready!");
         return -1;
     }
     flags |= IX_SAMPLE_LOADING;
-    if (*(unsigned int *)file != *(unsigned int *)"RIFF") {
+    if (*(unsigned int *)riff != *(unsigned int *)"RIFF") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 264);
         ix_log_printf("RIFF id not found!");
         return -1;
     }
-    if (*(unsigned int *)(file + 8) != *(unsigned int *)"WAVE") {
+    if (*(unsigned int *)(riff + 8) != *(unsigned int *)"WAVE") {
         ix_log_printf("Warning [%s - %d]:\n", IX_SAMPLE_FILE, 265);
         ix_log_printf("WAVE id not found!");
         return -1;
@@ -253,6 +287,8 @@ int IxSample::ix_sample_load_wav(void *data, int bytes)
             ix_dsp_copy(buffer, chunk + 1, chunk->size);
             break;
         }
+        default:
+            break;
         }
         chunk = (IxSampleChunk *)((unsigned char *)chunk +
                                   chunk->size + sizeof(IxSampleChunk));
@@ -291,32 +327,33 @@ int IxSample::ix_sample_load_raw(void *data, int bytes, int newFrequency,
 /* Function start: 0x46BBCC */
 long IxSample::ix_sample_convert_from_ieee_extended(unsigned char *bytes)
 {
-    unsigned long lowMantissa;
-    int exponent;
-    double value;
-    unsigned long highMantissa;
-    unsigned char *source;
+    unsigned long loMant;
+    int expon;
+    double f;
+    unsigned long hiMant;
+    unsigned char *src;
 
-    source = bytes;
-    exponent = ((source[0] & 0x7f) << 8) | source[1];
-    highMantissa = ((unsigned long)source[2] << 24) |
-                   ((unsigned long)source[3] << 16) |
-                   ((unsigned long)source[4] << 8) |
-                   (unsigned long)source[5];
-    lowMantissa = ((unsigned long)source[6] << 24) |
-                  ((unsigned long)source[7] << 16) |
-                  ((unsigned long)source[8] << 8) |
-                  (unsigned long)source[9];
-    if (exponent == 0 && highMantissa == 0 && lowMantissa == 0) {
-        value = 0;
-    } else if (exponent == 0x7fff) {
-        value = HUGE_VAL;
+    src = bytes;
+    expon = ((src[0] & 0x7f) << 8) | (src[1] & 0xff);
+    hiMant = ((unsigned long)(src[2] & 0xff) << 24) |
+                   ((unsigned long)(src[3] & 0xff) << 16) |
+                   ((unsigned long)(src[4] & 0xff) << 8) |
+                   ((unsigned long)(src[5] & 0xff));
+    loMant = ((unsigned long)(src[6] & 0xff) << 24) |
+                  ((unsigned long)(src[7] & 0xff) << 16) |
+                  ((unsigned long)(src[8] & 0xff) << 8) |
+                  ((unsigned long)(src[9] & 0xff));
+    if (expon == 0 && hiMant == 0 && loMant == 0) {
+        f = 0;
+    } else if (expon == 0x7fff) {
+        f = HUGE_VAL;
     } else {
-        exponent -= 16383;
-        value = ldexp(IX_UNSIGNED_TO_DOUBLE(highMantissa), exponent -= 31);
-        value += ldexp(IX_UNSIGNED_TO_DOUBLE(lowMantissa), exponent -= 32);
+        expon -= 16383;
+        f = ldexp(IX_UNSIGNED_TO_DOUBLE(hiMant), expon -= 31);
+        f += ldexp(IX_UNSIGNED_TO_DOUBLE(loMant), expon -= 32);
     }
-    if ((source[0] & 0x80) != 0)
-        return (long)-value;
-    return (long)value;
+    if ((src[0] & 0x80) != 0)
+        return (long)-f;
+    else
+        return (long)f;
 }

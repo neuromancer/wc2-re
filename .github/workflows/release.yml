@@ -11,7 +11,9 @@ permissions:
 
 concurrency:
   group: release-${{ github.ref }}
-  cancel-in-progress: false
+  # A replacement tag supersedes its previous build; distinct versions still
+  # run independently, and manual builds retain their existing queue behavior.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 
 jobs:
   metadata:
@@ -60,9 +62,26 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             build-essential ca-certificates clang cmake curl file \
-            libclang-dev libdigest-sha-perl make ninja-build zip
+            libclang-dev libdigest-sha-perl make ninja-build python3-venv zip
+      - name: Install reference build Python dependencies
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -r requirements-build.txt
+          echo "$GITHUB_WORKSPACE/.venv/bin" >> "$GITHUB_PATH"
       - name: Build reconstructed Win32 executable
         run: make -j2 WC2.EXE
+      - name: Upload reference build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: reference-build-diagnostics
+          path: |
+            WC2.EXE
+            WC2.map
+            out/WC2.link.map
+            out/**/*.obj
+          if-no-files-found: warn
+          retention-days: 7
       - name: Validate reconstructed executable
         run: |
           test -s WC2.EXE
@@ -89,7 +108,7 @@ jobs:
           - runner: macos-15-intel
             platform: macos
             architecture: x86_64
-          - runner: macos-15
+          - runner: macos-26
             platform: macos
             architecture: arm64
     runs-on: ${{ matrix.runner }}
@@ -112,7 +131,26 @@ jobs:
             libsdl2-dev make patchelf pkg-config zip
       - name: Install macOS dependencies
         if: matrix.platform == 'macos'
-        run: brew install cmake lzo pkg-config sdl2
+        env:
+          MACOSX_DEPLOYMENT_TARGET: "15.0"
+        run: |
+          brew install cmake pkg-config
+          echo "MACOSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET" >> "$GITHUB_ENV"
+          if [[ "${{ matrix.architecture }}" == arm64 ]]; then
+            deps_prefix="$RUNNER_TEMP/wc2-macos-deps"
+            packaging/build-macos-deps.sh "$deps_prefix"
+            echo "$deps_prefix/bin" >> "$GITHUB_PATH"
+            echo "PKG_CONFIG_PATH=$deps_prefix/lib/pkgconfig" >> "$GITHUB_ENV"
+          else
+            brew install lzo sdl2
+          fi
+      - name: Install macOS packaging tools
+        if: matrix.platform == 'macos'
+        run: |
+          packaging_venv="$RUNNER_TEMP/wc2-macos-packaging"
+          python3 -m venv "$packaging_venv"
+          "$packaging_venv/bin/python" -m pip install -r packaging/requirements-macos.txt
+          echo "DMGBUILD=$packaging_venv/bin/dmgbuild" >> "$GITHUB_ENV"
       - name: Build SDL2 release port
         run: make -j2 modern-gui MODERN_RELEASE=1
       - name: Validate native release binary
@@ -148,11 +186,38 @@ jobs:
             "${{ matrix.platform }}" \
             "${{ matrix.architecture }}" \
             out-modern/wc2-modern-gui
+      - name: Validate macOS deployment targets
+        if: matrix.platform == 'macos'
+        run: |
+          for binary in dist/*/wc2-modern dist/*/*.dylib; do
+            if ! otool -l "$binary" | awk '
+              $1 == "minos" {
+                found = 1
+                split($2, version, ".")
+                if (version[1] > 15 ||
+                    (version[1] == 15 && (version[2] > 0 || version[3] > 0)))
+                  unsupported = 1
+              }
+              END { exit (!found || unsupported) }
+            '; then
+              echo "$binary does not declare support for macOS 15.0." >&2
+              exit 1
+            fi
+          done
+      - name: Package macOS app and disk image
+        if: matrix.platform == 'macos'
+        run: |
+          packaging/package-macos.sh \
+            "${{ needs.metadata.outputs.version }}" \
+            "${{ matrix.architecture }}" \
+            out-modern/wc2-modern-gui
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-${{ matrix.platform }}-${{ matrix.architecture }}
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*.dmg
           if-no-files-found: error
           retention-days: 7
 
@@ -182,6 +247,14 @@ jobs:
             mingw-w64-clang-x86_64-pkgconf
             mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
+      - name: Install NSIS packaging tools
+        shell: pwsh
+        run: |
+          choco install nsis --version=3.13.0 --yes --no-progress
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          if (!(Test-Path $compiler)) { throw "NSIS compiler not found: $compiler" }
+          "MAKENSIS=$compiler" >> $env:GITHUB_ENV
       - name: Build SDL2 release port
         shell: msys2 {0}
         run: >-
@@ -236,11 +309,20 @@ jobs:
           windows
           x86_64
           out-modern/wc2-modern-gui.exe
+      - name: Package Windows installer
+        shell: msys2 {0}
+        env:
+          RELEASE_VERSION: ${{ needs.metadata.outputs.version }}
+        run: |
+          packaging/package-windows.sh "$RELEASE_VERSION" x86_64 \
+            "dist/wc2-re-$RELEASE_VERSION-windows-x86_64-sdl2"
       - name: Upload SDL2 port
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: release-windows-x86_64
-          path: dist/*.zip
+          path: |
+            dist/*.zip
+            dist/*-setup.exe
           if-no-files-found: error
           retention-days: 7
 
@@ -265,7 +347,9 @@ jobs:
         working-directory: release-assets
         run: |
           test "$(find . -maxdepth 1 -name '*.zip' | wc -l)" -eq 5
-          sha256sum -- *.zip | sort -k2 > SHA256SUMS
+          test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
+          test "$(find . -maxdepth 1 -name '*-setup.exe' | wc -l)" -eq 1
+          sha256sum -- *.zip *.dmg *-setup.exe | sort -k2 > SHA256SUMS
       - name: Publish GitHub Release
         working-directory: release-assets
         env:
@@ -280,6 +364,8 @@ jobs:
           fi
           gh release create "$RELEASE_TAG" \
             ./*.zip \
+            ./*.dmg \
+            ./*-setup.exe \
             ./SHA256SUMS \
             --verify-tag \
             --generate-notes \
