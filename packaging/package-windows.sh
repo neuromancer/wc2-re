@@ -30,11 +30,13 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 compiler=${MAKENSIS:-makensis}
 script="$root/packaging/windows-installer.nsi"
 option_prefix=-
+path_separator=/
 case "$(uname -s)" in
     MINGW*|MSYS*|CYGWIN*)
         compiler=$(cygpath -u "$compiler")
         script=$(cygpath -m "$script")
         option_prefix=/
+        path_separator='\'
         ;;
 esac
 if ! command -v "$compiler" >/dev/null; then
@@ -71,7 +73,8 @@ for file in "$work/payload/"*; do
             exit 1
             ;;
     esac
-    printf 'File "payload/%s"\n' "$name" >> "$work/install-files.nsh"
+    # NSIS resolves source files using its host platform's path separator.
+    printf 'File "payload%s%s"\n' "$path_separator" "$name" >> "$work/install-files.nsh"
     printf 'Delete "$INSTDIR\\%s"\n' "$name" >> "$work/uninstall-files.nsh"
 done
 installed_size=$(du -sk "$work/payload" | awk '{print $1}')
