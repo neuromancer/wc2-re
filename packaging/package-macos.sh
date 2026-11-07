@@ -23,7 +23,7 @@ case "$architecture" in
     *) echo "Unsupported architecture: $architecture" >&2; exit 1 ;;
 esac
 binary="$(cd "$(dirname "$binary")" && pwd)/$(basename "$binary")"
-lipo -verify_arch "$architecture" "$binary"
+lipo "$binary" -verify_arch "$architecture"
 if ! nm -gU "$binary" | grep ' _SdlRunLauncherGui$' >/dev/null; then
     echo "The disk image requires the integrated modern-gui executable." >&2
     exit 1
@@ -71,7 +71,7 @@ for library in "$app/Contents/Frameworks/"*.dylib; do
     install_name_tool -id "@rpath/$(basename "$library")" "$library"
 done
 for executable in "$app/Contents/MacOS/wc2-modern" "$app/Contents/Frameworks/"*.dylib; do
-    lipo -verify_arch "$architecture" "$executable"
+    lipo "$executable" -verify_arch "$architecture"
     minimum=$(xcrun vtool -show-build "$executable" | awk '/minos/ {print $2}')
     if ! awk -v version="$minimum" 'BEGIN {
         split(version, parts, "."); exit !(version != "" &&
