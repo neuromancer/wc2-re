@@ -205,6 +205,23 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
     return 1;
 }
 
+int SdlCanDrawMenuCursor(void)
+{
+    const Viewport *inputViewport = g_16_stEventQueuePointerData.viewport;
+
+    /* DIBmakeDIB installs the pixels before InitializeDIBScreenViewport
+     * supplies their row offsets. Palette loading waits for vertical blank
+     * in between, when the cursor shape is already loaded but drawing is
+     * not safe yet. Freed input viewports must also stop cursor redraws. */
+    return g_nMouseCursorDrawDepth > 0 &&
+        g_16_stEventQueuePointerData.shape != 0 &&
+        inputViewport != 0 && inputViewport != &g_27_stViewScratchInfo &&
+        inputViewport->pixels != 0 && inputViewport->rowOffsets != 0 &&
+        g_18_pDisplayPixelBuffer != 0 &&
+        g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer &&
+        g_101_stScrViewInfo.rowOffsets != 0;
+}
+
 void SdlWaitForVerticalBlank(void)
 {
     SDL_Rect dest;
@@ -212,12 +229,7 @@ void SdlWaitForVerticalBlank(void)
     /* Menu loops also wait here before drawing their next frame. Present
      * the existing screen with a fresh cursor instead of replaying the
      * cached texture and its older cursor position for another refresh. */
-    if (g_nMouseCursorDrawDepth > 0 &&
-        g_16_stEventQueuePointerData.shape != 0 &&
-        g_16_stEventQueuePointerData.viewport != 0 &&
-        g_16_stEventQueuePointerData.viewport != &g_27_stViewScratchInfo &&
-        g_18_pDisplayPixelBuffer != 0 &&
-        g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer) {
+    if (SdlCanDrawMenuCursor()) {
         SdlPumpEvents();
         RefreshMouseCursorDisplay();
         return;
