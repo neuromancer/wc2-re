@@ -48,7 +48,13 @@ short LoadJoystickCalibrationFile(short horizontalRange,
         activeDevice = 1;
 
     if (activeDevice != -1) {
+#ifdef SDL_PORT
+        /* SDL already normalizes axes. A legacy calibration belongs to its
+         * old slot/device and must not override an explicit launcher choice. */
+        file = SdlHasPreferredJoystick() ? -1 : _open("j.cal", 0x8000);
+#else
         file = _open("j.cal", 0x8000);
+#endif
         if (file != -1) {
             fileError = _read(file, &activeDevice, 2) <= 0;
             if (fileError == 0)

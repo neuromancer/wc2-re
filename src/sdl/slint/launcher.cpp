@@ -6,11 +6,13 @@
 
 #include <nfd.h>
 #include <slint.h>
+#include <SDL.h>
 
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <system_error>
 
@@ -19,6 +21,41 @@ namespace {
 namespace fs = std::filesystem;
 
 using namespace wc2_launcher;
+
+struct LauncherJoystick {
+    SDL_JoystickID instanceId;
+    SDL_JoystickGUID guid;
+    std::string path;
+};
+
+std::vector<LauncherJoystick> list_joysticks(LauncherWindow &window)
+{
+    std::vector<LauncherJoystick> joysticks;
+    std::vector<slint::SharedString> names = {"Automatic"};
+
+    SDL_JoystickUpdate();
+    SDL_LockJoysticks();
+    const int count = SDL_NumJoysticks();
+    for (int index = 0; index < count; ++index) {
+        const auto instanceId = SDL_JoystickGetDeviceInstanceID(index);
+        if (instanceId < 0)
+            continue;
+        const char *name = SDL_JoystickNameForIndex(index);
+        const char *path = nullptr;
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+        path = SDL_JoystickPathForIndex(index);
+#endif
+        joysticks.push_back({instanceId, SDL_JoystickGetDeviceGUID(index),
+                             path != nullptr ? path : ""});
+        names.emplace_back(std::to_string(index + 1) + " — " +
+                            (name != nullptr ? name : "Unnamed joystick"));
+    }
+    SDL_UnlockJoysticks();
+    window.set_joystick_devices(
+        std::make_shared<slint::VectorModel<slint::SharedString>>(names));
+    window.set_joystick_device_index(0);
+    return joysticks;
+}
 
 void refresh_window(LauncherWindow &window,
                     std::vector<GameInstallation> &installations)
@@ -122,6 +159,12 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_joystick_rumble(options->joystickRumble != 0);
     window->set_joystick_mode_index(options->joystickMode);
     window->set_joystick_axes_index(options->joystickAxes);
+    // Keep the subsystem alive through the SDL handoff so IDs stay valid.
+    SDL_SetMainReady();
+    const bool joystickInitialized = SDL_InitSubSystem(SDL_INIT_JOYSTICK) == 0;
+    std::vector<LauncherJoystick> joysticks;
+    if (joystickInitialized)
+        joysticks = list_joysticks(*window);
     refresh_window(*window, installations);
 
     window->on_installation_selected([&window, &installations](int index) {
@@ -184,12 +227,18 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     if (pickerInitialized)
         NFD_Quit();
     window->hide();
-    if (!accepted)
+    if (!accepted) {
+        if (joystickInitialized)
+            SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return SDL_LAUNCHER_CANCELLED;
+    }
 
     const std::string gameDirectory(window->get_game_directory());
-    if (gameDirectory.size() >= sizeof(options->gameDirectory))
+    if (gameDirectory.size() >= sizeof(options->gameDirectory)) {
+        if (joystickInitialized)
+            SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
         return SDL_LAUNCHER_ERROR;
+    }
     std::memcpy(options->gameDirectory, gameDirectory.c_str(),
                 gameDirectory.size() + 1);
     options->enhancedRenderer = window->get_enhanced_renderer();
@@ -199,6 +248,23 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickRumble = window->get_joystick_rumble();
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
+    options->joystickInstanceId = -1;
+    options->joystickGuidUnique = 0;
+    options->joystickGuid[0] = '\0';
+    options->joystickPath[0] = '\0';
+    const int deviceIndex = window->get_joystick_device_index() - 1;
+    if (deviceIndex >= 0 && static_cast<size_t>(deviceIndex) < joysticks.size()) {
+        const auto &device = joysticks[deviceIndex];
+        options->joystickInstanceId = device.instanceId;
+        options->joystickGuidUnique = std::count_if(
+            joysticks.begin(), joysticks.end(), [&device](const LauncherJoystick &other) {
+                return std::memcmp(&device.guid, &other.guid, sizeof(device.guid)) == 0;
+            }) == 1;
+        SDL_JoystickGetGUIDString(device.guid, options->joystickGuid,
+                                  sizeof(options->joystickGuid));
+        if (device.path.size() < sizeof(options->joystickPath))
+            std::memcpy(options->joystickPath, device.path.c_str(), device.path.size() + 1);
+    }
     if (!configPath.empty() && !save_launcher_config(configPath, *options))
         std::fprintf(stderr, "Cannot save launcher settings: %s\n",
                      path_to_utf8(configPath).c_str());

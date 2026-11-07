@@ -45,6 +45,12 @@ typedef struct SdlLauncherOptions {
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
+    /* Instance IDs survive enumeration changes while the launcher is open.
+     * GUID/path identify the device again if it is unplugged and reconnected. */
+    int joystickInstanceId;
+    int joystickGuidUnique;
+    char joystickGuid[33];
+    char joystickPath[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
 } SdlLauncherOptions;

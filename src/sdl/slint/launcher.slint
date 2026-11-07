@@ -10,7 +10,7 @@ import {
 export component LauncherWindow inherits Window {
     title: "Wing Commander II";
     preferred-width: 760px;
-    preferred-height: 620px;
+    preferred-height: 620px + (root.joystick-devices.length > 2 ? 44px : 0px);
     min-width: 640px;
     min-height: 520px;
     background: Palette.background;
@@ -27,6 +27,9 @@ export component LauncherWindow inherits Window {
     in-out property <bool> joystick-rumble;
     in-out property <int> joystick-mode-index;
     in-out property <int> joystick-axes-index;
+    // The first entry is Automatic, followed by the detected devices.
+    in property <[string]> joystick-devices;
+    in-out property <int> joystick-device-index;
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
@@ -170,63 +173,85 @@ export component LauncherWindow inherits Window {
             title: "Joystick";
             vertical-stretch: 0;
 
-            GridLayout {
+            VerticalLayout {
                 spacing: 10px;
 
-                Row {
+                if root.joystick-devices.length > 2 : HorizontalLayout {
+                    spacing: 10px;
+                    height: 34px;
 
                     Text {
-                        text: "Control mode";
+                        text: "Device";
                         vertical-alignment: center;
                         width: 105px;
                         color: Palette.foreground;
                     }
 
                     ComboBox {
-                        height: 34px;
                         horizontal-stretch: 1;
-                        model: [
-                            "Original — two axes / two buttons",
-                            "WCAT — four buttons / two axes",
-                            "WCAT — four buttons / four axes"
-                        ];
-                        current-index <=> root.joystick-mode-index;
-                    }
-
-                }
-
-                Row {
-
-                    Text {
-                        text: "Axis layout";
-                        vertical-alignment: center;
-                        width: 105px;
-                        color: Palette.foreground;
-                    }
-
-                    ComboBox {
-                        height: 34px;
-                        horizontal-stretch: 1;
-                        enabled: root.joystick-mode-index == 2;
-                        model: [
-                            "Twin-stick roll",
-                            "Twin-stick yaw",
-                            "HOTAS yaw",
-                            "HOTAS roll",
-                            "Linear throttle",
-                            "Rudder yaw",
-                            "Rudder roll"
-                        ];
-                        current-index <=> root.joystick-axes-index;
+                        model: root.joystick-devices;
+                        current-index <=> root.joystick-device-index;
                     }
                 }
 
-                CheckBox {
-                    row: 2;
-                    col: 1;
-                    height: 26px;
-                    text: "Rumble";
-                    checked <=> root.joystick-rumble;
+                GridLayout {
+                    spacing: 10px;
+
+                    Row {
+
+                        Text {
+                            text: "Control mode";
+                            vertical-alignment: center;
+                            width: 105px;
+                            color: Palette.foreground;
+                        }
+
+                        ComboBox {
+                            height: 34px;
+                            horizontal-stretch: 1;
+                            model: [
+                                "Original — two axes / two buttons",
+                                "WCAT — four buttons / two axes",
+                                "WCAT — four buttons / four axes"
+                            ];
+                            current-index <=> root.joystick-mode-index;
+                        }
+
+                    }
+
+                    Row {
+
+                        Text {
+                            text: "Axis layout";
+                            vertical-alignment: center;
+                            width: 105px;
+                            color: Palette.foreground;
+                        }
+
+                        ComboBox {
+                            height: 34px;
+                            horizontal-stretch: 1;
+                            enabled: root.joystick-mode-index == 2;
+                            model: [
+                                "Twin-stick roll",
+                                "Twin-stick yaw",
+                                "HOTAS yaw",
+                                "HOTAS roll",
+                                "Linear throttle",
+                                "Rudder yaw",
+                                "Rudder roll"
+                            ];
+                            current-index <=> root.joystick-axes-index;
+                        }
+                    }
+
+                    CheckBox {
+                        row: 2;
+                        col: 1;
+                        height: 26px;
+                        text: "Rumble";
+                        checked <=> root.joystick-rumble;
+                    }
                 }
             }
         }

@@ -93,6 +93,10 @@ uses the original-resolution scene so dithering applies consistently.
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
 
 The default joystick mode retains the original two-axis, two-button controls.
+When several devices are connected, the launcher's **Device** selector chooses
+the primary joystick for that session; **Automatic** keeps the existing order.
+An explicit choice overrides legacy `j.cal` calibration. If it disconnects,
+another device can take over until the selected joystick reconnects.
 The optional four-button modes add afterburner, targeting, weapons, navigation,
 autopilot, communications, and speed controls. Axis layouts are
 `twin-stick-roll`, `twin-stick-yaw`, `hotas-yaw`, `hotas-roll`,

@@ -51,6 +51,10 @@ static int g_bSdlJoystickSpaceflightActive;
 static int g_bSdlTwoAxisModifierActive;
 static int g_nSdlCommunicationMenuSelection;
 static int g_nSdlRumblingJoystick = -1;
+static SDL_JoystickID g_nSdlPreferredJoystickInstance = -1;
+static SDL_JoystickGUID g_stSdlPreferredJoystickGuid;
+static char *g_pszSdlPreferredJoystickPath;
+static int g_bSdlPreferredJoystickGuidUnique;
 static Uint16 g_wSdlRumbleLow;
 static Uint16 g_wSdlRumbleHigh;
 static Uint32 g_dwSdlRumbleDeadline;
@@ -97,6 +101,22 @@ int SdlSetJoystickAxesMode(const char *name)
 void SdlEnableJoystickDebug(void)
 {
     g_bSdlJoystickDebug = 1;
+}
+
+void SdlSetPreferredJoystick(SDL_JoystickID instanceId,
+                                 const char *guid, const char *path,
+                                 int guidUnique)
+{
+    g_nSdlPreferredJoystickInstance = instanceId;
+    g_stSdlPreferredJoystickGuid = SDL_JoystickGetGUIDFromString(guid);
+    SDL_free(g_pszSdlPreferredJoystickPath);
+    g_pszSdlPreferredJoystickPath = path[0] != '\0' ? SDL_strdup(path) : 0;
+    g_bSdlPreferredJoystickGuidUnique = guidUnique;
+}
+
+int SdlHasPreferredJoystick(void)
+{
+    return g_nSdlPreferredJoystickInstance >= 0;
 }
 
 void SdlSetJoystickRumbleEnabled(int enabled)
@@ -461,12 +481,53 @@ static void SdlOpenJoystick(int deviceIndex)
     }
 }
 
+static int SdlFindPreferredJoystick(int deviceCount)
+{
+    SDL_JoystickGUID guid;
+    const char *path;
+    int deviceIndex;
+    int candidate;
+    int matches;
+
+    if (!SdlHasPreferredJoystick())
+        return -1;
+    /* An attached device keeps its instance ID even if other devices leave. */
+    for (deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+        if (SDL_JoystickGetDeviceInstanceID(deviceIndex) ==
+            g_nSdlPreferredJoystickInstance)
+            return deviceIndex;
+    }
+
+    candidate = -1;
+    matches = 0;
+    for (deviceIndex = 0; deviceIndex < deviceCount; deviceIndex++) {
+        guid = SDL_JoystickGetDeviceGUID(deviceIndex);
+        if (memcmp(&guid, &g_stSdlPreferredJoystickGuid, sizeof(guid)) != 0)
+            continue;
+        path = 0;
+#if SDL_VERSION_ATLEAST(2, 24, 0)
+        path = SDL_JoystickPathForIndex(deviceIndex);
+#endif
+        if (g_pszSdlPreferredJoystickPath != 0 && path != 0 &&
+            strcmp(path, g_pszSdlPreferredJoystickPath) == 0)
+            return deviceIndex;
+        candidate = deviceIndex;
+        matches++;
+    }
+    /* A GUID identifies a model, not an individual unit. Only use it alone
+     * if that model was unique in the launcher and is still unambiguous. */
+    return g_bSdlPreferredJoystickGuidUnique && matches == 1 ? candidate : -1;
+}
+
 static void SdlRefreshJoysticks(void)
 {
     SdlJoystickDevice *device;
+    int deviceCount;
     int deviceIndex;
+    int preferredIndex;
     int slot;
 
+    SDL_LockJoysticks();
     slot = 0;
     while (slot < 2) {
         device = &g_aSdlJoystickDevices[slot];
@@ -476,12 +537,28 @@ static void SdlRefreshJoysticks(void)
         slot++;
     }
 
+    deviceCount = SDL_NumJoysticks();
+    preferredIndex = SdlFindPreferredJoystick(deviceCount);
+    if (preferredIndex >= 0) {
+        g_nSdlPreferredJoystickInstance =
+            SDL_JoystickGetDeviceInstanceID(preferredIndex);
+        if (g_aSdlJoystickDevices[0].joystick == 0 ||
+            g_aSdlJoystickDevices[0].instanceId != g_nSdlPreferredJoystickInstance) {
+            /* Reclaim the primary slot even when fallback devices filled both
+             * slots during a disconnection. Rebuild the secondary in SDL order. */
+            for (slot = 0; slot < 2; slot++)
+                SdlCloseJoystick(&g_aSdlJoystickDevices[slot]);
+            g_bSdlTwoAxisModifierActive = 0;
+            SdlOpenJoystick(preferredIndex);
+        }
+    }
     deviceIndex = 0;
-    while (deviceIndex < SDL_NumJoysticks() &&
+    while (deviceIndex < deviceCount &&
            SdlFindFreeJoystickSlot() != -1) {
         SdlOpenJoystick(deviceIndex);
         deviceIndex++;
     }
+    SDL_UnlockJoysticks();
 }
 
 static Sint16 SdlReadJoystickAxis(
@@ -1056,4 +1133,8 @@ void SdlShutdownJoysticks(void)
     g_bSdlJoystickSpaceflightActive = 0;
     g_bSdlTwoAxisModifierActive = 0;
     g_nSdlCommunicationMenuSelection = 0;
+    SDL_free(g_pszSdlPreferredJoystickPath);
+    g_pszSdlPreferredJoystickPath = 0;
+    g_nSdlPreferredJoystickInstance = -1;
+    g_bSdlPreferredJoystickGuidUnique = 0;
 }

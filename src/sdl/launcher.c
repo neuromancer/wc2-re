@@ -131,6 +131,7 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
 static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
 {
     memset(options, 0, sizeof(*options));
+    options->joystickInstanceId = -1;
     if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
                              options->gameDirectory) == 0)
         strcpy(options->gameDirectory, ".");
@@ -163,6 +164,9 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
     *useEnhancedRenderer = options->enhancedRenderer;
     g_bSdlBalancedDifficulty = options->balancedDifficulty;
     SdlSetJoystickRumbleEnabled(options->joystickRumble);
+    SdlSetPreferredJoystick(options->joystickInstanceId,
+                             options->joystickGuid, options->joystickPath,
+                             options->joystickGuidUnique);
     SdlSetJoystickMode(
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
