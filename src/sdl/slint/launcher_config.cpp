@@ -28,6 +28,8 @@ struct IntegerSetting {
 };
 
 constexpr IntegerSetting integerSettings[] = {
+    {"fullscreen", &SdlLauncherOptions::fullscreen,
+     SDL_LAUNCHER_EXPLICIT_FULLSCREEN, 1},
     {"enhanced_renderer", &SdlLauncherOptions::enhancedRenderer,
      SDL_LAUNCHER_EXPLICIT_ENHANCED, 1},
     {"ega_dither", &SdlLauncherOptions::egaDither,

@@ -20,6 +20,7 @@ export component LauncherWindow inherits Window {
     in property <[string]> installations;
     in property <bool> has-installations;
     in-out property <int> installation-index;
+    in-out property <bool> start-fullscreen;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
@@ -122,6 +123,12 @@ export component LauncherWindow inherits Window {
                 VerticalLayout {
                     spacing: 8px;
                     alignment: start;
+
+                    CheckBox {
+                        height: 26px;
+                        text: "Start in fullscreen";
+                        checked <=> root.start-fullscreen;
+                    }
 
                     CheckBox {
                         height: 26px;

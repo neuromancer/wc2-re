@@ -152,6 +152,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         slint::private_api::load_image_from_embedded_data(
             wc2_launcher_artwork::kWingCommanderLogoPng, "png"));
     window->set_game_directory(slint::SharedString(initialDirectory));
+    window->set_start_fullscreen(options->fullscreen != 0);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
@@ -241,6 +242,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     }
     std::memcpy(options->gameDirectory, gameDirectory.c_str(),
                 gameDirectory.size() + 1);
+    options->fullscreen = window->get_start_fullscreen();
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->balancedDifficulty = window->get_balanced_difficulty();

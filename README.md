@@ -39,6 +39,8 @@ on Windows). Starting without arguments opens the graphical launcher. It
 detects common WC2 installations, including Heroic, GOG, and Steam libraries;
 use **Add path…** for another directory containing `GAMEDAT`. Choose an
 installation and select **Start game**. The launcher remembers your settings.
+Enable **Start in fullscreen** under **Graphics** to open the game in desktop
+fullscreen mode.
 
 Command-line arguments start the game directly from the working directory;
 add `--gui` to open the launcher first:
@@ -47,6 +49,9 @@ add `--gui` to open the launcher first:
 cd /path/to/WC2
 /path/to/wc2-modern --enhanced --joystick-rumble
 ```
+
+Use `--fullscreen` or `--windowed` to choose the startup display mode. With
+`--gui`, these also override the saved fullscreen setting in the launcher.
 
 <p align="center">
   <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
@@ -61,6 +66,7 @@ sound effects. Optional features can be combined:
 
 | Fix or feature | Enable with |
 | --- | --- |
+| Start in fullscreen | Launcher checkbox or `--fullscreen` |
 | Neutral adaptive difficulty and half-size asteroid collision radii | `--balanced-difficulty` |
 | Cheat mode: invulnerability and no collisions | Launcher checkbox or `--cheats` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |

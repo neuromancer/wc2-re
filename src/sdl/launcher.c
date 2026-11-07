@@ -76,6 +76,10 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strcmp(argument, "--fullscreen") == 0 ||
+                   strcmp(argument, "--windowed") == 0) {
+            launcherOptions->fullscreen = strcmp(argument, "--fullscreen") == 0;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_FULLSCREEN;
         } else if (strcmp(argument, "--enhanced") == 0) {
             *useEnhancedRenderer = 1;
             launcherOptions->enhancedRenderer = 1;
@@ -373,6 +377,8 @@ int main(int argumentCount, char **arguments)
     }
 
     windowFlags = SDL_WINDOW_RESIZABLE;
+    if (launcherOptions.fullscreen && !checkOnly)
+        windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     if (!SdlConfigureVideoWindow(&windowFlags)) {
         fprintf(stderr, "SDL video configuration failed: %s\n",
                 SDL_GetError());

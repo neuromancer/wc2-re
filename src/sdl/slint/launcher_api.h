@@ -33,11 +33,13 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_RUMBLE = 1 << 3,
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_MODE = 1 << 4,
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5,
-    SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6
+    SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6,
+    SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 7
 };
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    int fullscreen;
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;
