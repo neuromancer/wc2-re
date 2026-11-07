@@ -56,6 +56,7 @@ typedef DWORD (*LPTHREAD_START_ROUTINE)(LPVOID);
 typedef void (*SdlAudioMixer)(void *, unsigned int);
 
 struct DiskFileRecord;
+struct PacketSectionHandle;
 struct ScreenViewportGeometry;
 struct Viewport;
 typedef struct SdlOriginFxPlayer SdlOriginFxPlayer;
@@ -244,6 +245,8 @@ void SdlShutdownVideo(void);
 int SdlTranslateScanCode(SDL_Scancode scanCode);
 void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
+int SdlPatchPacketSection(const char *filename, short section,
+                          struct PacketSectionHandle *handle);
 int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,

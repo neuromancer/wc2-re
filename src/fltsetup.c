@@ -58,19 +58,28 @@ int LoadPacketResourceList(PacketResourceDescriptor *resources,
                            short flags, int availableBytes,
                            char *defaultFileName)
 {
+#ifndef SDL_PORT
     int packetSize;
+#endif
 
     while (resources->resource != 0) {
         if (*resources->resource == 0) {
+#ifndef SDL_PORT
             packetSize = (int)GetNamedPacketSize(
                 defaultFileName, resources->section);
-            if (packetSize < availableBytes) {
+            if (packetSize < availableBytes)
+#endif
+            {
+                /* WCDX bypasses the obsolete DOS resource budget. Actual
+                 * allocation failures still stop this load on the SDL host. */
                 *resources->resource = FetchDiskPacketRetrying(
                     defaultFileName, resources->section, flags);
                 if (*resources->resource == 0)
                     return availableBytes;
+#ifndef SDL_PORT
                 else
                     availableBytes -= packetSize;
+#endif
             }
         }
         resources++;

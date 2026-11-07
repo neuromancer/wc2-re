@@ -60,16 +60,42 @@ short OpenPacketSection(const char *filename, short section,
             out->dataOffset = start;
             out->position = 0;
             out->dataSize = length;
+#ifdef SDL_PORT
+            out->patchedData = 0;
+            if (!SdlPatchPacketSection(filename, section, out))
+                goto failed;
+#endif
             return 1;
         }
     }
 failed:
+#ifdef SDL_PORT
+    {
+        /* Closing the archive must not hide a patch read/allocation error. */
+        short error = g_nPacketError;
+
+        CloseDataFile((unsigned short)handle);
+        g_nPacketError = error;
+    }
+#else
     CloseDataFile((unsigned short)handle);
+#endif
     return 0;
 }
 
 /* Function start: 0x44F1C7 */
 void CloseDataFileByHandle(unsigned short *handle)
 {
+#ifdef SDL_PORT
+    PacketSectionHandle *section = (PacketSectionHandle *)handle;
+    short error = g_nPacketError;
+
+    free(section->patchedData);
+    section->patchedData = 0;
+#endif
     CloseDataFile(*handle);
+#ifdef SDL_PORT
+    if (error != 0)
+        g_nPacketError = error;
+#endif
 }

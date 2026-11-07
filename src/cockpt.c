@@ -3317,7 +3317,11 @@ void explosion_draw(int useBackgroundViewport)
             }
         }
     }
+#ifndef SDL_PORT
+    /* WCDX keeps this sheet for later hits and cockpit redraws. The SDL
+     * port releases it with the other ship-specific cockpit resources. */
     FreePacketAndClear(&g_pPendingCockpitDamageShape, 0);
+#endif
 }
 
 /* Function start: 0x43E9E2 */
@@ -3351,7 +3355,9 @@ void DrawPendingCockpitDamage(void)
             g_pPendingCockpitDamageShape,
             g_36_nPendingDashDamageValue);
     }
+#ifndef SDL_PORT
     FreePacketAndClear(&g_pPendingCockpitDamageShape, 0);
+#endif
 }
 
 /* Function start: 0x43EAE3 */
@@ -3400,8 +3406,11 @@ void cockpit_explosion(void)
         }
         return;
     }
+#ifndef SDL_PORT
+    /* The shared explosion animation must survive its first playback. */
     FreePacketAndClear(
         (unsigned char **)&g_pCockpitExplosionShape, 0);
+#endif
 }
 
 /* Function start: 0x43EC50 */

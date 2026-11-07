@@ -16,6 +16,18 @@ short ReadPacketSectionData(PacketSectionHandle *handle,
     int offset;
     int end;
 
+#ifdef SDL_PORT
+    if (handle->patchedData != 0) {
+        if (destination == 0 || handle->position > handle->dataSize)
+            return 0;
+        if (length > handle->dataSize - handle->position)
+            length = handle->dataSize - handle->position;
+        memcpy(destination, handle->patchedData + handle->position, length);
+        handle->position += length;
+        g_nPacketError = 0;
+        return 1;
+    }
+#endif
     offset = (int)(handle->dataOffset + handle->position);
     end = (int)(handle->dataOffset + handle->dataSize);
     if (destination == 0)
