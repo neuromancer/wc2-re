@@ -144,6 +144,23 @@ void ThrottleFrameAndDrawFps(HDC dc)
                  strlen(g_59_szFrameFrequencyString));
     }
 
+#ifdef SDL_PORT
+    while (timeGetTime() < g_dwNextFrameDeadline) {
+        /* Match DIBslamReal's menu cursor eligibility, including screens
+         * composed in the secondary buffer. Poll host events during the
+         * wait without running game input or consuming queued clicks. */
+        if (g_nMouseCursorDrawDepth > 0 &&
+            g_16_stEventQueuePointerData.shape != 0 &&
+            g_16_stEventQueuePointerData.viewport != 0 &&
+            g_16_stEventQueuePointerData.viewport != &g_27_stViewScratchInfo &&
+            g_18_pDisplayPixelBuffer != 0 &&
+            g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer) {
+            SdlPumpEvents();
+            RefreshMouseCursorDisplay();
+        }
+        Sleep(1);
+    }
+#else
     if (g_16_stEventQueuePointerData.viewport->pixels == g_18_pDisplayPixelBuffer) {
         while (timeGetTime() < g_dwNextFrameDeadline) {
             Sleep(0);
@@ -153,6 +170,7 @@ void ThrottleFrameAndDrawFps(HDC dc)
         while (timeGetTime() < g_dwNextFrameDeadline)
             Sleep(0);
     }
+#endif
 
     if (g_bShowFrameRate != 0) {
         if (g_lPreviousFrameTick != 0) {
@@ -672,10 +690,15 @@ void DIBslamReal(void)
          * input to something that does end up on the presented screen.
          * Stamp the arrow only when input isn't targeting the flight
          * buffer specifically. */
-        if (g_16_stEventQueuePointerData.shape != 0 &&
+        if (g_nMouseCursorDrawDepth > 0 &&
+            g_16_stEventQueuePointerData.shape != 0 &&
             g_16_stEventQueuePointerData.viewport != 0 &&
             g_16_stEventQueuePointerData.viewport != &g_27_stViewScratchInfo &&
             g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer) {
+            /* A menu can present several times per game frame. Refresh the
+             * host position for each presentation, even if vsync leaves no
+             * time for the frame limiter's idle cursor redraws. */
+            SdlPumpEvents();
             CaptureMouseCursorBackground();
             DrawMouseCursor();
         }

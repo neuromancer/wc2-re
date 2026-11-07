@@ -1102,9 +1102,45 @@ void CheckCursor(void)
 /* Function start: 0x4635E3 */
 void CaptureMouseCursorBackground(void)
 {
+#ifdef SDL_PORT
+    InputEvent *event;
+    int x;
+    int y;
+#endif
+
     if (g_nMouseCursorDrawDepth > 0 &&
         g_16_stEventQueuePointerData.viewport != 0 &&
         g_16_stEventQueuePointerData.shape != 0) {
+#ifdef SDL_PORT
+        /* Motion events can be coalesced between game frames. Draw at the
+         * newest queued position without consuming a click or moving the
+         * pointer state used by game logic to its later coordinates. */
+        x = g_16_stEventQueuePointerData.x;
+        y = g_16_stEventQueuePointerData.y;
+        for (event = g_pInputEventTail; event != 0; event = event->previous) {
+            if (event->type == INPUT_EVENT_MOUSE_MOVE ||
+                event->type == INPUT_EVENT_BUTTON_DOWN ||
+                event->type == INPUT_EVENT_BUTTON_UP) {
+                x = event->x;
+                y = event->y;
+                break;
+            }
+        }
+        if (x < g_16_stEventQueuePointerData.viewport->left)
+            x = g_16_stEventQueuePointerData.viewport->left;
+        else if (x > g_16_stEventQueuePointerData.viewport->right)
+            x = g_16_stEventQueuePointerData.viewport->right;
+        if (y < g_16_stEventQueuePointerData.viewport->top)
+            y = g_16_stEventQueuePointerData.viewport->top;
+        else if (y > g_16_stEventQueuePointerData.viewport->bottom)
+            y = g_16_stEventQueuePointerData.viewport->bottom;
+        CaptureSpriteBackground(&g_101_stScrViewInfo,
+                                g_abInputCursorBehind, x, y,
+                                g_16_stEventQueuePointerData.shape,
+                                g_16_stEventQueuePointerData.frame);
+        g_4_nCapturedInputCursorX = x;
+        g_10_nSavedPointerY = y;
+#else
         CaptureSpriteBackground(&g_101_stScrViewInfo,
                                 g_abInputCursorBehind,
                                 g_16_stEventQueuePointerData.x,
@@ -1113,6 +1149,7 @@ void CaptureMouseCursorBackground(void)
                                 g_16_stEventQueuePointerData.frame);
         g_4_nCapturedInputCursorX = (int)g_16_stEventQueuePointerData.x;
         g_10_nSavedPointerY = (int)g_16_stEventQueuePointerData.y;
+#endif
         if (g_4_nCapturedInputCursorX - 16 <
             g_148_nPointerDirtyLeft)
             g_148_nPointerDirtyLeft =
@@ -1141,6 +1178,16 @@ void DrawMouseCursor(void)
     if (g_nMouseCursorDrawDepth > 0 &&
         g_16_stEventQueuePointerData.viewport != 0 &&
         g_16_stEventQueuePointerData.shape != 0) {
+#ifdef SDL_PORT
+        /* Both callers capture immediately before drawing. Use that same
+         * position for drawing and restoration to avoid cursor trails;
+         * the capture step has already recorded these dirty bounds. */
+        DrawSpriteDefault(&g_101_stScrViewInfo,
+                          (short)g_4_nCapturedInputCursorX,
+                          (short)g_10_nSavedPointerY,
+                          g_16_stEventQueuePointerData.shape,
+                          g_16_stEventQueuePointerData.frame);
+#else
         DrawSpriteDefault(&g_101_stScrViewInfo,
                           g_16_stEventQueuePointerData.x,
                           g_16_stEventQueuePointerData.y,
@@ -1162,6 +1209,7 @@ void DrawMouseCursor(void)
             (int)g_16_stEventQueuePointerData.y + 16)
             g_15_nPointerDirtyBottom =
                 (int)g_16_stEventQueuePointerData.y + 16;
+#endif
         g_26_bPointerDirtyValue = 1;
     }
     return;

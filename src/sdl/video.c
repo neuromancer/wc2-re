@@ -209,6 +209,20 @@ void SdlWaitForVerticalBlank(void)
 {
     SDL_Rect dest;
 
+    /* Menu loops also wait here before drawing their next frame. Present
+     * the existing screen with a fresh cursor instead of replaying the
+     * cached texture and its older cursor position for another refresh. */
+    if (g_nMouseCursorDrawDepth > 0 &&
+        g_16_stEventQueuePointerData.shape != 0 &&
+        g_16_stEventQueuePointerData.viewport != 0 &&
+        g_16_stEventQueuePointerData.viewport != &g_27_stViewScratchInfo &&
+        g_18_pDisplayPixelBuffer != 0 &&
+        g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer) {
+        SdlPumpEvents();
+        RefreshMouseCursorDisplay();
+        return;
+    }
+
     if (SdlUsingGlRenderer()) {
         SdlGlRendererWaitForVerticalBlank();
         return;
