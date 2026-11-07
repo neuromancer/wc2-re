@@ -490,6 +490,13 @@ short RunTitleScreen(void)
     while (menuChoice == 0) {
         menuChoice = (signed char)RunTitleMenuInputLoop(
             buttons, logo, background, canContinueCampaign);
+#ifdef SDL_PORT
+        /* Confirm before campaign selection or pilot creation can replace
+         * the hidden Continue checkpoint. Keep the title menu on decline. */
+        if (menuChoice == 1 && canContinueCampaign != 0 &&
+            !SdlConfirmContinueOverwrite())
+            menuChoice = 0;
+#endif
     }
     DisableMouseCursorDrawing();
     FreePacketAndClear(&buttons, 0);

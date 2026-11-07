@@ -185,6 +185,7 @@ void SdlStopAudio(void);
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
 void SdlPaceTitleFrame(int ticks);
+int SdlConfirmContinueOverwrite(void);
 extern int g_bSdlCutsceneOnly;
 extern int g_bSdlBalancedDifficulty;
 short SdlGetBalancedCollisionRadius(short object);

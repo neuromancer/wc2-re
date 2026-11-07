@@ -53,6 +53,10 @@ cd /path/to/WC2
 Use `--fullscreen` or `--windowed` to choose the startup display mode. With
 `--gui`, these also override the saved fullscreen setting in the launcher.
 
+WC2 automatically saves a **Continue** checkpoint. Starting a new campaign
+asks **Overwrite Continue save? (Y/N)** if that checkpoint is occupied.
+Press **Y** to proceed, or **N** or **Esc** to keep it and return to the title menu.
+
 <p align="center">
   <a href="screenshots/graphical-launcher.png"><img src="screenshots/graphical-launcher.png" width="520" alt="Wing Commander II graphical launcher on macOS"></a>
 </p>

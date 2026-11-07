@@ -1,5 +1,33 @@
 #include "game.h"
 
+int SdlConfirmContinueOverwrite(void)
+{
+    int confirmed;
+    int savedCursorDepth;
+    int reply;
+
+    confirmed = 0;
+    savedCursorDepth = g_nMouseCursorDrawDepth;
+    DisableMouseCursorDrawing();
+    SdlSuspendMouseGrab();
+    if (ShowModalTextPanel(1, "Overwrite Continue save? (Y/N)") != 0) {
+        /* Consume the press that selected New Game before accepting an
+         * answer. Enter and mouse clicks never authorize an overwrite. */
+        FlushPendingInputPresses();
+        FlushInputEvents();
+        do {
+            reply = toupper((unsigned char)WaitForQueuedInputPress());
+        } while (reply != 'Y' && reply != 'N' && reply != 0x1b);
+        confirmed = reply == 'Y';
+        FlushPendingInputPresses();
+        FlushInputEvents();
+        ReleaseModalTextPanel();
+    }
+    SdlResumeMouseGrab();
+    g_nMouseCursorDrawDepth = savedCursorDepth;
+    return confirmed;
+}
+
 /* The native build selects this implementation instead of narrowing a host
  * find handle to the reconstructed DOS-width local in personnel.c. */
 unsigned short HasSavedPilotCampaign(void)
