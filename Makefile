@@ -1379,7 +1379,8 @@ debug: $(TARGET) run-check | $(DREAMM_BIN)
 
 # Same static Doxygen/Pygments browser as wc1-re. Only the Win32 branches
 # are staged; the matching sources are never rewritten. No game data or
-# original toolchain is needed. Output: out/site/html/index.html.
+# original toolchain is needed. Needs clang, doxygen, unifdef and pygmentize.
+# Output: out/site/html/index.html.
 site:
 	@sh site/build.sh $(SRCS)
 

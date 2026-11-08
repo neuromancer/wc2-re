@@ -32,6 +32,18 @@ strip_file() {
     *)
         unifdef -x2 -B -USDL_PORT -USDL_PORT_LEGACY_DEBUG_OUTPUT \
             -UANALYSIS_BUILD -UVPORT_DEBUG -o "$stage/$1" "$1"
+        # Expand only translation markers. Shield the original directives so
+        # headers, conditionals and other macro definitions stay in the listing.
+        sed -E -e '/^#define (_|N_|C_|NC_)\(/d' \
+            -e 's/^([[:blank:]]*)#/\1WC2_SITE_DIRECTIVE /' \
+            "$stage/$1" > "$out/preprocess.c"
+        clang -E -CC -undef -nostdinc -x c \
+            '-D_(text)=text' '-DN_(text)=text' \
+            '-DC_(context,text)=text' '-DNC_(context,text)=text' \
+            "$out/preprocess.c" -o "$out/preprocess.out"
+        sed -e '/^# /d' -e '/./,$!d' \
+            -e 's/^\([[:blank:]]*\)WC2_SITE_DIRECTIVE /\1#/' \
+            "$out/preprocess.out" > "$stage/$1"
         ;;
     esac
 }
