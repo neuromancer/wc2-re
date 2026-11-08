@@ -501,6 +501,14 @@ void main(short argc, char **argv)
             break;
         case 'V':
         case 'v':
+#ifdef SDL_PORT
+            /* DOS wc2.cfg uses a bare V for VGA. With cheats enabled,
+             * the Win32 developer parser otherwise treats atoi("") as
+             * series 0 and skips New Game/Continue. Explicit V<number>
+             * arguments still select a developer campaign. */
+            if (argv[argumentIndex][1] == 0)
+                break;
+#endif
             if (g_nOriginDevUnlock != 0) {
                 g_nDirectSeries =
                     (short)atoi(argv[argumentIndex] + 1);
