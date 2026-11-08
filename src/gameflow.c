@@ -1054,6 +1054,10 @@ void RunLoadedCutscene(void)
     g_cShowMemoryStatus = 1;
     FlushSoundEffects();
     g_nInputPollPeriod = 1;
+#ifdef SDL_PORT
+    /* A menu's old polling deadline must not delay cutscene skip input. */
+    g_nNextInputPollTick = g_196_nInputTimerTicks;
+#endif
     g_cCutsceneVideoMode =
         (signed char)QueryCurrentGraphicsMode();
     ClearCutsceneViewport(&g_2_stModalSourceWindow, 0);
@@ -2931,6 +2935,17 @@ cutscene_input_processed:
                 PopCutsceneScriptValue(&topOperand, scriptValueStack + 10);
             break;
         case 0x6a:
+#ifdef SDL_PORT
+            /* Scripts can spin on this timer read without drawing another
+             * frame. Keep skip input responsive and yield while it runs. */
+            if (g_pCurrentCutsceneSequence->waitTicks > 0 &&
+                g_bCutsceneSkipFrame == 0 &&
+                g_bCutsceneViewportPreallocated == 0) {
+                PumpWindowMessages(0);
+                if (g_bSceneEscapeRequested == 0 && g_nInputPressCount == 0)
+                    Sleep(1);
+            }
+#endif
             if (g_bCutsceneSkipFrame != 0)
                 g_pCurrentCutsceneSequence->waitTicks = 0;
             PushCutsceneScriptValue(&topOperand, scriptValueStack,

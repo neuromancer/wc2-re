@@ -113,6 +113,11 @@ void Title_Sequence(void)
     int waitCount;
     short sectionIndex;
 
+#ifdef SDL_PORT
+    /* Startup enables the software cursor. Hide it for the orchestra;
+     * RunTitleScreen shows it again when the menu buttons are ready. */
+    DisableMouseCursorDrawing();
+#endif
     waitCount = 0;
     g_18_nInterfaceEventMode = 0;
     g_pTitleMusic =

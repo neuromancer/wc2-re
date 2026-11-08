@@ -2254,6 +2254,13 @@ short ServiceInputDevices(short deviceMask)
     if (g_nNextInputPollTick <= g_196_nInputTimerTicks) {
         FlushInputEvents();
         PumpWindowMessages(0);
+#ifdef SDL_PORT
+        /* Cutscenes request one poll per game tick. Adding the clock to
+         * the previous deadline makes that interval grow on every poll. */
+        if (g_nInputPollPeriod == 1)
+            g_nNextInputPollTick = g_196_nInputTimerTicks + 1;
+        else
+#endif
         g_nNextInputPollTick +=
             g_196_nInputTimerTicks + g_nInputPollPeriod;
         return 1;
