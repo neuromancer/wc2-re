@@ -245,6 +245,7 @@ jobs:
             mingw-w64-clang-x86_64-lzo2
             mingw-w64-clang-x86_64-ntldd
             mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-python
             mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
       - name: Install NSIS packaging tools
