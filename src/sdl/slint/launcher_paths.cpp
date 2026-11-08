@@ -81,47 +81,46 @@ static bool has_readable_file(const fs::path &directory, std::string_view name)
 DirectoryStatus validate_game_directory(std::string_view directoryText)
 {
     if (directoryText.empty())
-        return {false, "Choose a Wing Commander II directory."};
+        return {false, LauncherMessage::ChooseDirectory};
     if (directoryText.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY)
-        return {false, "The directory path is too long."};
+        return {false, LauncherMessage::PathTooLong};
 
     const fs::path directory = path_from_utf8(directoryText);
     std::error_code error;
     if (!fs::is_directory(directory, error))
-        return {false, "The selected path is not a directory."};
+        return {false, LauncherMessage::NotDirectory};
     const auto gameData = find_child_case_insensitive(directory, "GAMEDAT");
     if (!gameData || !fs::is_directory(*gameData, error))
-        return {false, "Choose a WC2 directory containing GAMEDAT."};
+        return {false, LauncherMessage::ChooseDataDirectory};
 
     const auto cockpit = find_child_case_insensitive(*gameData, "COCKPIT.VGA");
     if (!cockpit || !fs::is_regular_file(*cockpit, error))
-        return {false, "GAMEDAT/COCKPIT.VGA is missing."};
+        return {false, LauncherMessage::MissingCockpit};
     std::ifstream cockpitFile(*cockpit, std::ios::binary);
     std::array<unsigned char, 8> header = {};
     cockpitFile.read(reinterpret_cast<char *>(header.data()), header.size());
     if (cockpitFile.gcount() != static_cast<std::streamsize>(header.size()))
-        return {false, "GAMEDAT/COCKPIT.VGA is unreadable or too small to identify."};
+        return {false, LauncherMessage::UnreadableCockpit};
     // WC1 also has COCKPIT.VGA. Require WC2's campaign and gameflow files
     // before accepting a data root, including one chosen manually.
     for (const auto name : {"CAMPAIGN.S00", "GAMEFLOW.S00"}) {
         if (!has_readable_file(*gameData, name))
-            return {false, std::string("GAMEDAT/") + name +
-                " is missing or unreadable. Select a WC2 installation."};
+            return {false, LauncherMessage::MissingGameFile, name};
     }
 
     // Match SdlUsingDosData: the Saga conversion changed 0xc1 to 0xe0.
     if (header[7] == 0xc1)
-        return {true, "DOS"};
+        return {true, LauncherMessage::Dos};
     if (header[7] != 0xe0)
-        return {false, "GAMEDAT/COCKPIT.VGA is not recognized WC2 data."};
+        return {false, LauncherMessage::UnknownCockpit};
     const auto streams = find_child_case_insensitive(directory, "STREAMS");
     if (!streams || !fs::is_directory(*streams, error))
-        return {false, "Kilrathi Saga data needs a sibling STREAMS directory."};
+        return {false, LauncherMessage::NeedsStreams};
     for (const auto name : {"GAMEFLOW.STR", "GAMETWO.STR", "SPACEFLT.STR"}) {
         if (!has_readable_file(*streams, name))
-            return {false, std::string("STREAMS/") + name + " is missing or unreadable."};
+            return {false, LauncherMessage::MissingStreamFile, name};
     }
-    return {true, "Kilrathi Saga"};
+    return {true, LauncherMessage::KilrathiSaga};
 }
 
 int add_game_installation(std::vector<GameInstallation> &installations,

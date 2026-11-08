@@ -76,6 +76,13 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strncmp(argument, "--language=", 11) == 0) {
+            if (strcmp(argument + 11, "en") && strcmp(argument + 11, "es")) {
+                fprintf(stderr, "Unknown language: %s (expected en or es)\n", argument + 11);
+                return 0;
+            }
+            launcherOptions->language = !strcmp(argument + 11, "es");
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_LANGUAGE;
         } else if (strcmp(argument, "--fullscreen") == 0 ||
                    strcmp(argument, "--windowed") == 0) {
             launcherOptions->fullscreen = strcmp(argument, "--fullscreen") == 0;
@@ -254,6 +261,11 @@ int main(int argumentCount, char **arguments)
             return 1;
     }
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
+    if (!SdlSetLanguage(launcherOptions.language)) {
+        fprintf(stderr, "Cannot load translation: %s\n", SDL_GetError());
+        return 1;
+    }
+    atexit(SdlShutdownTranslations);
     if (launcherOptions.cheatMode) {
         /* CheckLauncherAndConfig (0x453C95) uses the same combination for
          * Saga's Cheater setting. Both DOS and Saga data share these flags. */

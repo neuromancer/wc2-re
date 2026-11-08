@@ -42,6 +42,11 @@ installation and select **Start game**. The launcher remembers your settings.
 Enable **Start in fullscreen** under **Graphics** to open the game in desktop
 fullscreen mode.
 
+Choose **Language → Español** for Spanish dialogue, menus, game UI and
+launcher text, or use `--language=es` (`--language=en` restores English).
+Translations support the base game with DOS or Kilrathi Saga data. See
+[translations](translations/README.md) for coverage and editing instructions.
+
 Command-line arguments start the game directly from the working directory;
 add `--gui` to open the launcher first:
 

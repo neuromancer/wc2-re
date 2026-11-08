@@ -1346,7 +1346,11 @@ extern int g_nJoystickCalibrationMinimumY; /* 0x005d2ff0 */
 extern int g_2_nJoystickCalibrationMinimumXNumber; /* 0x005d2ff4 */
 extern int g_2_nControllerCalibrationMaximumX; /* 0x005d3000 */
 extern int g_7_nJoystickTuningTopY; /* 0x005d3004 */
+#ifdef SDL_PORT
+extern char g_szOnScreenMessageBuffer[256];
+#else
 extern char g_szOnScreenMessageBuffer[52]; /* 0x005d1890 */
+#endif
 extern char g_szCommMessageTextText[0x58]; /* 0x005d18f0 */
 extern char *g_48_apCommunicationTextPacketsTable[50]; /* 0x005d17c0 */
 extern signed char g_abCommMenuChoiceCommand[7]; /* 0x005d1948 */

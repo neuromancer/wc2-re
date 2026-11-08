@@ -1,0 +1,194 @@
+# Launcher translations shared with wc1-re; local additions under ../../../LICENSE.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: es\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "LauncherWindow"
+msgid "Select game data…"
+msgstr "Selecciona los datos del juego…"
+
+msgctxt "LauncherWindow"
+msgid "No game data found — add a path"
+msgstr "No se encontraron datos — añade una carpeta"
+
+msgctxt "LauncherWindow"
+msgid "Automatic"
+msgstr "Automático"
+
+msgctxt "LauncherWindow"
+msgid "Unnamed joystick"
+msgstr "Joystick sin nombre"
+
+msgctxt "LauncherWindow"
+msgid "Choose a Wing Commander II directory."
+msgstr "Elija una carpeta de Wing Commander II."
+
+msgctxt "LauncherWindow"
+msgid "The directory path is too long."
+msgstr "La ruta de la carpeta es demasiado larga."
+
+msgctxt "LauncherWindow"
+msgid "The selected path is not a directory."
+msgstr "La ruta seleccionada no es una carpeta."
+
+msgctxt "LauncherWindow"
+msgid "Choose a WC2 directory containing GAMEDAT."
+msgstr "Elija una carpeta de WC2 que contenga GAMEDAT."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is missing."
+msgstr "Falta GAMEDAT/COCKPIT.VGA."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is unreadable or too small to identify."
+msgstr "GAMEDAT/COCKPIT.VGA no se puede leer o es demasiado pequeño para identificarlo."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/{} is missing or unreadable. Select a WC2 installation."
+msgstr "GAMEDAT/{} no existe o no se puede leer. Elija una instalación de WC2."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is not recognized WC2 data."
+msgstr "GAMEDAT/COCKPIT.VGA no contiene datos reconocidos de WC2."
+
+msgctxt "LauncherWindow"
+msgid "Kilrathi Saga data needs a sibling STREAMS directory."
+msgstr "Los datos de Kilrathi Saga necesitan una carpeta STREAMS junto a GAMEDAT."
+
+msgctxt "LauncherWindow"
+msgid "STREAMS/{} is missing or unreadable."
+msgstr "STREAMS/{} no existe o no se puede leer."
+
+msgctxt "LauncherWindow"
+msgid "The folder picker failed"
+msgstr "Falló el selector de carpetas"
+
+msgctxt "LauncherWindow"
+msgid "The folder picker could not be initialized"
+msgstr "No se pudo iniciar el selector de carpetas"
+
+msgctxt "LauncherWindow"
+msgid "Cannot resolve the game directory"
+msgstr "No se pudo resolver la ruta del juego"
+
+msgctxt "LauncherWindow"
+msgid "Cannot open the game directory"
+msgstr "No se pudo abrir la carpeta del juego"
+
+msgctxt "LauncherWindow"
+msgid "Game installation"
+msgstr "Instalación del juego"
+
+msgctxt "LauncherWindow"
+msgid "Add path…"
+msgstr "Añadir carpeta…"
+
+msgctxt "LauncherWindow"
+msgid "Graphics"
+msgstr "Gráficos"
+
+msgctxt "LauncherWindow"
+msgid "Start in fullscreen"
+msgstr "Pantalla completa al iniciar"
+
+msgctxt "LauncherWindow"
+msgid "Enhanced OpenGL"
+msgstr "OpenGL mejorado"
+
+msgctxt "LauncherWindow"
+msgid "EGA 16-colour dithering"
+msgstr "Tramado EGA de 16 colores"
+
+msgctxt "LauncherWindow"
+msgid "Gameplay"
+msgstr "Juego"
+
+msgctxt "LauncherWindow"
+msgid "Balanced difficulty"
+msgstr "Dificultad equilibrada"
+
+msgctxt "LauncherWindow"
+msgid "Language"
+msgstr "Idioma"
+
+msgctxt "LauncherWindow"
+msgid "Cheat mode"
+msgstr "Trucos"
+
+msgctxt "LauncherWindow"
+msgid "Invulnerability and no collisions"
+msgstr "Invulnerabilidad y sin colisiones"
+
+msgctxt "LauncherWindow"
+msgid "Joystick"
+msgstr "Mando"
+
+msgctxt "LauncherWindow"
+msgid "Device"
+msgstr "Dispositivo"
+
+msgctxt "LauncherWindow"
+msgid "Control mode"
+msgstr "Modo de control"
+
+msgctxt "LauncherWindow"
+msgid "Original — two axes / two buttons"
+msgstr "Original — 2 ejes / 2 botones"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / two axes"
+msgstr "WCAT — 4 botones / 2 ejes"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / four axes"
+msgstr "WCAT — 4 botones / 4 ejes"
+
+msgctxt "LauncherWindow"
+msgid "Axis layout"
+msgstr "Asignación de ejes"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick roll"
+msgstr "Doble palanca: alabeo"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick yaw"
+msgstr "Doble palanca: guiñada"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS yaw"
+msgstr "HOTAS: guiñada"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS roll"
+msgstr "HOTAS: alabeo"
+
+msgctxt "LauncherWindow"
+msgid "Linear throttle"
+msgstr "Acelerador lineal"
+
+msgctxt "LauncherWindow"
+msgid "Rudder yaw"
+msgstr "Timón: guiñada"
+
+msgctxt "LauncherWindow"
+msgid "Rudder roll"
+msgstr "Timón: alabeo"
+
+msgctxt "LauncherWindow"
+msgid "Rumble"
+msgstr "Vibración"
+
+msgctxt "LauncherWindow"
+msgid "Close this window to cancel."
+msgstr "Cierra esta ventana para cancelar."
+
+msgctxt "LauncherWindow"
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgctxt "LauncherWindow"
+msgid "Start game"
+msgstr "Iniciar juego"

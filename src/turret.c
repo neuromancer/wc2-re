@@ -961,7 +961,7 @@ void UpdateSavedTorpedoTargetLock(void)
             g_acPlayerComponentDamage[5] >= 4) {
             ClearSavedTorpedoTargetLock();
             SetHudMessageText(
-                "Torpedo Lock Lost",
+                _("Torpedo Lock Lost"),
                 (unsigned short)g_cYellowColour,
                 20);
             handle_collisions(0);
@@ -976,7 +976,7 @@ void UpdateSavedTorpedoTargetLock(void)
         }
         if (g_nSavedTargetLockCountdown == 0) {
             SetHudMessageText(
-                "Torpedo Locked!",
+                _("Torpedo Locked!"),
                 (unsigned short)g_cYellowColour,
                 20);
             g_bSavedTargetLockAcquired = 1;

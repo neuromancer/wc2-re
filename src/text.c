@@ -11,6 +11,9 @@ void DrawCinematicFontCharacter(char character)
     ShortRect bounds;
     short frame;
 
+#ifdef SDL_PORT
+    character = (char)SdlCinematicFontCharacter(character);
+#endif
     if (IsCinematicFontCharacterPrintable((short)(signed char)character) == 0) {
         g_29_pCurrentTextContext->cursorX =
             (short)(g_29_pCurrentTextContext->cursorX + 5);
@@ -60,8 +63,13 @@ void DrawWrappedCinematicText(char *text)
             advance = MeasureCinematicFontCharacterWidth(ch);
             usedWidth = (short)(usedWidth + advance);
             if (viewportWidth <= usedWidth) {
+#ifdef SDL_PORT
+                if (isalnum((unsigned char)ch) != 0) {
+                    while (isalpha((unsigned char)ch) != 0) {
+#else
                 if (isalnum(ch) != 0) {
                     while (isalpha(ch) != 0) {
+#endif
                         usedWidth = (short)(usedWidth - advance);
                         end--;
                         ch = (signed char)*end;
@@ -110,6 +118,9 @@ short MeasureCinematicFontCharacterWidth(short character)
 {
     ShortRect bounds;
 
+#ifdef SDL_PORT
+    character = SdlCinematicFontCharacter(character);
+#endif
     if (IsCinematicFontCharacterPrintable(character) == 0)
         return 5;
     GetShapeFrameBounds(&bounds.left, 0, 0,

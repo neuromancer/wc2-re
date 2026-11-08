@@ -7,10 +7,17 @@ import {
     VerticalBox
 } from "std-widgets.slint";
 
+export enum LauncherMessage {
+    choose-directory, path-too-long, not-directory, choose-data-directory,
+    missing-cockpit, unreadable-cockpit, missing-game-file, unknown-cockpit,
+    needs-streams, missing-stream-file, picker-failed, picker-init-failed,
+    cannot-resolve-directory, cannot-open-directory, dos, kilrathi-saga
+}
+
 export component LauncherWindow inherits Window {
     title: "Wing Commander II";
     preferred-width: 760px;
-    preferred-height: 620px + (root.joystick-devices.length > 2 ? 44px : 0px);
+    preferred-height: 660px + (root.joystick-devices.length > 2 ? 44px : 0px);
     min-width: 640px;
     min-height: 520px;
     background: Palette.background;
@@ -21,6 +28,7 @@ export component LauncherWindow inherits Window {
     in property <bool> has-installations;
     in-out property <int> installation-index;
     in-out property <bool> start-fullscreen;
+    in-out property <int> language-index;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
@@ -34,10 +42,35 @@ export component LauncherWindow inherits Window {
 
     in property <bool> path-valid: false;
     in property <bool> picker-error: false;
-    in property <string> status-text: "Choose a Wing Commander II directory.";
+    in property <LauncherMessage> status;
+    in property <string> status-detail;
+    out property <string> status-text: message-text(root.status, root.status-detail);
+    out property <string> installation-prompt: root.has-installations
+        ? @tr("Select game data…") : @tr("No game data found — add a path");
+    out property <string> automatic-joystick: @tr("Automatic");
+    out property <string> unnamed-joystick: @tr("Unnamed joystick");
+
+    public pure function message-text(message: LauncherMessage, detail: string) -> string {
+        if message == LauncherMessage.choose-directory { return @tr("Choose a Wing Commander II directory."); }
+        if message == LauncherMessage.path-too-long { return @tr("The directory path is too long."); }
+        if message == LauncherMessage.not-directory { return @tr("The selected path is not a directory."); }
+        if message == LauncherMessage.choose-data-directory { return @tr("Choose a WC2 directory containing GAMEDAT."); }
+        if message == LauncherMessage.missing-cockpit { return @tr("GAMEDAT/COCKPIT.VGA is missing."); }
+        if message == LauncherMessage.unreadable-cockpit { return @tr("GAMEDAT/COCKPIT.VGA is unreadable or too small to identify."); }
+        if message == LauncherMessage.missing-game-file { return @tr("GAMEDAT/{} is missing or unreadable. Select a WC2 installation.", detail); }
+        if message == LauncherMessage.unknown-cockpit { return @tr("GAMEDAT/COCKPIT.VGA is not recognized WC2 data."); }
+        if message == LauncherMessage.needs-streams { return @tr("Kilrathi Saga data needs a sibling STREAMS directory."); }
+        if message == LauncherMessage.missing-stream-file { return @tr("STREAMS/{} is missing or unreadable.", detail); }
+        if message == LauncherMessage.picker-failed { return @tr("The folder picker failed") + (detail == "" ? "" : ": " + detail); }
+        if message == LauncherMessage.picker-init-failed { return @tr("The folder picker could not be initialized") + (detail == "" ? "" : ": " + detail); }
+        if message == LauncherMessage.cannot-resolve-directory { return @tr("Cannot resolve the game directory") + (detail == "" ? "" : ": " + detail); }
+        if message == LauncherMessage.cannot-open-directory { return @tr("Cannot open the game directory") + (detail == "" ? "" : ": " + detail); }
+        return "";
+    }
 
     callback browse-requested();
     callback installation-selected(int);
+    callback language-selected(int);
     callback launch-requested();
     callback cancel-requested();
 
@@ -63,7 +96,7 @@ export component LauncherWindow inherits Window {
         }
 
         GroupBox {
-            title: "Game installation";
+            title: @tr("Game installation");
             vertical-stretch: 0;
 
             VerticalLayout {
@@ -85,9 +118,26 @@ export component LauncherWindow inherits Window {
                     }
 
                     Button {
-                        text: "Add path…";
+                        text: @tr("Add path…");
                         clicked => {
                             root.browse-requested();
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    height: 34px;
+                    Text {
+                        text: @tr("Language");
+                        vertical-alignment: center;
+                    }
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: ["English", "Español"];
+                        current-index: root.language-index;
+                        selected(_) => {
+                            root.language-selected(self.current-index);
                         }
                     }
                 }
@@ -117,7 +167,7 @@ export component LauncherWindow inherits Window {
             vertical-stretch: 0;
 
             GroupBox {
-                title: "Graphics";
+                title: @tr("Graphics");
                 horizontal-stretch: 1;
 
                 VerticalLayout {
@@ -126,26 +176,26 @@ export component LauncherWindow inherits Window {
 
                     CheckBox {
                         height: 26px;
-                        text: "Start in fullscreen";
+                        text: @tr("Start in fullscreen");
                         checked <=> root.start-fullscreen;
                     }
 
                     CheckBox {
                         height: 26px;
-                        text: "Enhanced OpenGL";
+                        text: @tr("Enhanced OpenGL");
                         checked <=> root.enhanced-renderer;
                     }
 
                     CheckBox {
                         height: 26px;
-                        text: "EGA 16-colour dithering";
+                        text: @tr("EGA 16-colour dithering");
                         checked <=> root.ega-dither;
                     }
                 }
             }
 
             GroupBox {
-                title: "Gameplay";
+                title: @tr("Gameplay");
                 horizontal-stretch: 1;
 
                 VerticalLayout {
@@ -154,18 +204,18 @@ export component LauncherWindow inherits Window {
 
                     CheckBox {
                         height: 26px;
-                        text: "Balanced difficulty";
+                        text: @tr("Balanced difficulty");
                         checked <=> root.balanced-difficulty;
                     }
 
                     CheckBox {
                         height: 26px;
-                        text: "Cheat mode";
+                        text: @tr("Cheat mode");
                         checked <=> root.cheat-mode;
                     }
 
                     Text {
-                        text: "Invulnerability and no collisions";
+                        text: @tr("Invulnerability and no collisions");
                         color: Palette.foreground;
                         opacity: 0.65;
                         font-size: 12px;
@@ -177,7 +227,7 @@ export component LauncherWindow inherits Window {
         }
 
         GroupBox {
-            title: "Joystick";
+            title: @tr("Joystick");
             vertical-stretch: 0;
 
             VerticalLayout {
@@ -188,7 +238,7 @@ export component LauncherWindow inherits Window {
                     height: 34px;
 
                     Text {
-                        text: "Device";
+                        text: @tr("Device");
                         vertical-alignment: center;
                         width: 105px;
                         color: Palette.foreground;
@@ -207,7 +257,7 @@ export component LauncherWindow inherits Window {
                     Row {
 
                         Text {
-                            text: "Control mode";
+                            text: @tr("Control mode");
                             vertical-alignment: center;
                             width: 105px;
                             color: Palette.foreground;
@@ -217,9 +267,9 @@ export component LauncherWindow inherits Window {
                             height: 34px;
                             horizontal-stretch: 1;
                             model: [
-                                "Original — two axes / two buttons",
-                                "WCAT — four buttons / two axes",
-                                "WCAT — four buttons / four axes"
+                                @tr("Original — two axes / two buttons"),
+                                @tr("WCAT — four buttons / two axes"),
+                                @tr("WCAT — four buttons / four axes")
                             ];
                             current-index <=> root.joystick-mode-index;
                         }
@@ -229,7 +279,7 @@ export component LauncherWindow inherits Window {
                     Row {
 
                         Text {
-                            text: "Axis layout";
+                            text: @tr("Axis layout");
                             vertical-alignment: center;
                             width: 105px;
                             color: Palette.foreground;
@@ -240,13 +290,13 @@ export component LauncherWindow inherits Window {
                             horizontal-stretch: 1;
                             enabled: root.joystick-mode-index == 2;
                             model: [
-                                "Twin-stick roll",
-                                "Twin-stick yaw",
-                                "HOTAS yaw",
-                                "HOTAS roll",
-                                "Linear throttle",
-                                "Rudder yaw",
-                                "Rudder roll"
+                                @tr("Twin-stick roll"),
+                                @tr("Twin-stick yaw"),
+                                @tr("HOTAS yaw"),
+                                @tr("HOTAS roll"),
+                                @tr("Linear throttle"),
+                                @tr("Rudder yaw"),
+                                @tr("Rudder roll")
                             ];
                             current-index <=> root.joystick-axes-index;
                         }
@@ -256,7 +306,7 @@ export component LauncherWindow inherits Window {
                         row: 2;
                         col: 1;
                         height: 26px;
-                        text: "Rumble";
+                        text: @tr("Rumble");
                         checked <=> root.joystick-rumble;
                     }
                 }
@@ -276,21 +326,21 @@ export component LauncherWindow inherits Window {
 
             Text {
                 horizontal-stretch: 1;
-                text: "Close this window to cancel.";
+                text: @tr("Close this window to cancel.");
                 color: Palette.foreground;
                 opacity: 0.65;
                 vertical-alignment: center;
             }
 
             Button {
-                text: "Cancel";
+                text: @tr("Cancel");
                 clicked => {
                     root.cancel-requested();
                 }
             }
 
             Button {
-                text: "Start game";
+                text: @tr("Start game");
                 enabled: root.path-valid;
                 primary: true;
                 clicked => {

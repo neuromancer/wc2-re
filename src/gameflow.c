@@ -1364,6 +1364,9 @@ void ClearCutsceneTextViewport(void)
 /* Function start: 0x42DF80 */
 void ExpandCutsceneText(const unsigned char *source, char *destination)
 {
+#ifdef SDL_PORT
+    SdlExpandCutsceneText(source, destination);
+#else
     char character;
     char *out;
     unsigned int number[4];
@@ -1408,6 +1411,7 @@ void ExpandCutsceneText(const unsigned char *source, char *destination)
             *out++ = character;
         }
     }
+#endif
 }
 
 /* Function start: 0x42E12A */
@@ -1910,7 +1914,7 @@ void DrawCinematicMemoryStatus(const char *message)
                     g_47_nCutsceneMemDelta,
                     g_28_nCutsceneInitialAvailableMemoryWord);
         } else {
-            strcpy(text, "Game Paused");
+            strcpy(text, _("Game Paused"));
         }
         g_16_stCutsceneDrawingTextSettingsInfo =
             g_2_stCutsceneMessageCtxInfo;

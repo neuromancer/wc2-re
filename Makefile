@@ -504,6 +504,7 @@ MODERN_BASE_HOST_SRCS = \
 	src/sdl/input.c \
 	src/sdl/resources.c \
 	src/sdl/data_patches.c \
+	src/sdl/translation.c \
 	src/sdl/registry.c \
 	src/sdl/thread.c \
 	src/sdl/timer.c \
@@ -530,7 +531,9 @@ MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 MODERN_GUI_SOURCE_DIR = src/sdl/slint
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
+MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat
 MODERN_GUI_SRCS = \
+	$(wildcard translations/*/LC_MESSAGES/*.po) \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
@@ -600,9 +603,26 @@ modern: $(MODERN_TARGET)
 # default without arguments, or explicitly with --gui alongside other options.
 modern-gui: $(MODERN_GUI_TARGET)
 
+.PHONY: modern-translations
+modern-translations: $(MODERN_TRANSLATIONS)
+
+.PHONY: update-translations
+update-translations:
+	python3 bin/compileTranslations.py --update-ui
+
+.PHONY: update-launcher-translations
+SLINT_TR_EXTRACTOR ?= slint-tr-extractor
+update-launcher-translations:
+	@mkdir -p $(MODERN_OUT_DIR)
+	$(SLINT_TR_EXTRACTOR) --package-name wc2-re -o $(MODERN_OUT_DIR)/launcher.pot $(MODERN_GUI_SOURCE_DIR)/launcher.slint
+	msgmerge --update --backup=none --no-fuzzy-matching --no-wrap translations/es/LC_MESSAGES/launcher.po $(MODERN_OUT_DIR)/launcher.pot
+
+$(MODERN_TRANSLATIONS): bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
+	python3 bin/compileTranslations.py --source translations/es --output $@
+
 # Slint enables full Rust LTO upstream; the small launcher does not need its
 # substantial clean-build cost.
-$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) Makefile
+$(MODERN_GUI_TARGET): $(MODERN_GUI_GAME_OBJS) $(MODERN_GUI_SRCS) $(MODERN_TRANSLATIONS) Makefile
 	@command -v $(MODERN_CMAKE) >/dev/null 2>&1 || { \
 		echo "CMake 3.21 or newer is required for modern-gui." >&2; \
 		exit 1; \
@@ -687,6 +707,7 @@ $(MODERN_OUT_DIR)/obj/personnel.o: MODERN_CPPFLAGS += \
 $(MODERN_OUT_DIR)/obj/personnel.o: Makefile
 
 $(MODERN_TARGET): \
+		$(MODERN_TRANSLATIONS) \
 		$(MODERN_LAUNCHER_OBJ) \
 		$(MODERN_BASE_HOST_OBJS) \
 		$(MODERN_GAME_HOST_OBJS) \
@@ -694,7 +715,7 @@ $(MODERN_TARGET): \
 		$(MODERN_IX_OBJS)
 	@mkdir -p $(dir $@)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
+		$(filter %.o,$^) $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 

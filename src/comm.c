@@ -139,8 +139,8 @@ void BuildCommunicationRecipientMenu(void)
     short target;
 
     ResetCommMenuChoices(g_nCommMenuReuseMode);
-    OpenCommMenuForTarget("VID-COM SYSTEM\n\nSend message to?\n\n",
-                          "SELECT");
+    OpenCommMenuForTarget(_("VID-COM SYSTEM\n\nSend message to?\n\n"),
+                          _("SELECT"));
     if (wingman_dead() != 0) {
         SelectCommRecipient(g_acShipTarget[0]);
         return;
@@ -158,10 +158,10 @@ void BuildCommunicationRecipientMenu(void)
         if (g_asShipSide[target] == SIDE_KILRATHI &&
             g_aeObjectClass[target] >= OBJECT_CLASS_SHIP) {
             if (g_asShipIdentified[target] != 0)
-                AppendCommMenuChoice("ENEMY TARGET", 2);
+                AppendCommMenuChoice(_("ENEMY TARGET"), 2);
             else
                 AppendCommMenuChoice(
-                    "UNIDENTIFIED", 2);
+                    _("UNIDENTIFIED"), 2);
         } else if (g_asShipSide[target] == SIDE_IMPERIAL) {
             if (g_aeObjectClass[target] >= OBJECT_CLASS_SHIP &&
                 g_asShipMissionType[target] ==
@@ -179,7 +179,7 @@ void BuildCommunicationRecipientMenu(void)
                                          3);
                 else
                     AppendCommMenuChoice(
-                        "UNIDENTIFIED", 3);
+                        _("UNIDENTIFIED"), 3);
             } else if (g_ucPendingEjectionTransition != 0xff &&
                        g_bEjectionAwaitingCommCommand != 0 &&
                        g_asObjectType[target] >=
@@ -306,14 +306,14 @@ void BuildCommunicationCommandMenu(void)
     if (IsCommChoiceMenuOpen() != 0) {
         if (g_nCommMenuChoiceCount >= 5)
             strcpy(g_4_szCommMenuHeadingStore,
-                   "VID-COM SYSTEM\nTo: ");
+                   _("VID-COM SYSTEM\nTo: "));
         else
             strcpy(g_4_szCommMenuHeadingStore,
-                   "VID-COM SYSTEM\n\nTo: ");
+                   _("VID-COM SYSTEM\n\nTo: "));
         if (g_asShipIdentified[
                 g_cCommMenuRecipient] == 0)
             strcat(g_4_szCommMenuHeadingStore,
-                   "UNIDENTIFIED");
+                   _("UNIDENTIFIED"));
         else
             strcat(g_4_szCommMenuHeadingStore,
                    g_apShipMissionRecord[
@@ -321,7 +321,7 @@ void BuildCommunicationCommandMenu(void)
         strcat(g_4_szCommMenuHeadingStore,
                "\n");
         OpenCommMenuForTarget(g_4_szCommMenuHeadingStore,
-                              "CHOOSE");
+                              _("CHOOSE"));
     }
 }
 
@@ -494,8 +494,8 @@ char *ExpandCommMessageTokens(const char *text)
             break;
         case 'R':
             DosStrcat(g_16_szTextBufferBuffer,
-                      g_apszPilotRankNames[
-                          g_stCurrentPilotProfile.rank]);
+                      _(g_apszPilotRankNames[
+                          g_stCurrentPilotProfile.rank]));
             if (g_16_szTextBufferBuffer[
                     DosStrlen(g_16_szTextBufferBuffer) - 1] == '.' &&
                 *marker == '.') {
@@ -528,7 +528,11 @@ void real_vid_transmit(short obj, short message)
     int size;
     char callsign[20];
     char packetFile[16];
+#ifdef SDL_PORT
+    char text[128]; /* 87-byte translated packet, ship name and separator. */
+#else
     char text[84];
+#endif
     char *expanded;
     char indexText[8];
 
@@ -598,9 +602,14 @@ void real_vid_transmit(short obj, short message)
         if (g_asShipIdentified[obj] != 0)
             sprintf(callsign, g_apShipMissionRecord[obj]->name);
         else
-            sprintf(callsign, "UNKNOWN");
+            sprintf(callsign, _("UNKNOWN"));
+#ifdef SDL_PORT
+        snprintf(text, sizeof(text), "%s: %s", callsign,
+                 g_szCommMessageTextText);
+#else
         sprintf(text, "%s: %Fs", callsign,
                 g_szCommMessageTextText);
+#endif
         expanded = ExpandCommMessageTokens(text);
         ShowCentredPrompt(expanded, MeasureMessageWidth(text));
     }
@@ -609,7 +618,11 @@ void real_vid_transmit(short obj, short message)
 /* Linker commons defined here.  LINK lays a unit's commons out by the
  * identifiers' hash keys, so these spellings follow the original addresses. */
 char *g_48_apCommunicationTextPacketsTable[50]; /* 0x005d17c0 */
+#ifdef SDL_PORT
+char g_szOnScreenMessageBuffer[256];
+#else
 char g_szOnScreenMessageBuffer[52]; /* 0x005d1890 */
+#endif
 int g_11_nUnusedCommWordWord[5]; /* 0x005d18d0 */ /* never referenced */
 char g_szCommMessageTextText[0x58]; /* 0x005d18f0 */
 signed char g_abCommMenuChoiceCommand[7]; /* 0x005d1948 */

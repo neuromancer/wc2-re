@@ -1,0 +1,161 @@
+################################################################################
+#########   Traducción  Wing Commander II: Vengeance of the Kilrathi   #########
+#########               + Special Operations 1 & 2                     #########
+################################################################################
+Autor................: L@Zar0
+Revisión del texto...: darkpadawan
+Fecha................: 25/04/2021
+Versión:.............: 1.1
+
+
+
+1.- INTRODUCCIÓN
+2.- INSTALACIÓN
+3.- DESINSTALACIÓN
+4.- SUBTÍTULOS Y VOCES
+5.- ASPECTOS DE LA TRADUCCIÓN
+6.- TRANSFERENCIA DE PERSONAJES
+7.- AGRADECIMIENTOS
+8.- LICENCIA
+
+
+
+1.- INTRODUCCIÓN
+
+Wing Commander II: Vengeance of the Kilrathi, junto con las expansiones Special Operations 1 & 2 es
+la continuación de Wing Commander junto con las expansiones Misiones Secretas 1 & 2. En castellano,
+Wing Commander II: La venganza de los Kilrathi (Operaciones Especiales 1 y 2), a partir de ahora WC2.
+
+Aunque no es obligatorio haber jugado la primera parte, es recomendable al 99,99% puesto que hay personajes, situaciones, lugares que se mencionan del juego antecesor y sigue en cierto modo la aventura.
+
+Personalmente me ha gustado muchísimo más esta segunda parte que la primera (a excepción quizás de la expansión Misiones Secretas 2), pero está repleta no solo de simulación espacial, si no también de cinemáticas que trasladan de forma correcta los sucesos de la historia.
+
+Esta traducción incluye la traducción tanto de textos como de gráficos al castellano, para WC2. La traducción se ha realizado sobre la versión original en diskettes, pero tendría que servir igualmente para la versión GOG, por ejemplo, ya que comparando los archivos son exactamente los mismo. Ver el apartado correspondiente indicando los aspectos de la traducción.
+
+Esta vez el juego no incluye una protección anticopia, así que solo hay una versión de la taducción.
+
+La traducción se ha probado bastante, pero como las misiones pueden terminar en derrota o en victoria, y hay diferentes caminos para llegar al final, no se ha comprobado al 100% el juego. Si hay algún problema, postead en los foros de http://www.clandlan.net.
+
+Como siempre, gracias por usar esta traducción.
+
+
+
+2.- INSTALACIÓN
+
+La traducción del juego está pensada para la versión MS-DOS en diskettes, pero debería servir igualmente para otras versiones como la de GOG.
+
+El instalador en principio copia todos los archivos, los de Wing Commander II y los de las Operaciones Especiales 1 y 2, pero se puede jugar habiendo solo instalado Wing Commander II sin las expansiones.
+
+Una vez ejecutado el instalador, solo hay que seleccionar la carpeta donde se encuentra instalado WC2.
+
+Si se usa DOSBox, es recomendable usar estos parámetros donde cabe:
+
+output=ddraw
+core=normal
+cputype=auto
+cycles=5000
+
+Estos parámetros también sirven para el WC1. Sin embargo, en determinadas ocasiones, quizás cycles=5000 sea un valor muy alto, y se tenga que reducir. Pero por lo general en WC2 a mí me ha ido bien.
+
+También suele ser necesario cambiar la forma de cargar el juego en el archivo .conf de DOSBox.
+
+Para ello se recomienda usar:
+
+loadfix -32 WC2.EXE
+
+ó (a mi me ha ido un poco mejor tal vez):
+
+loadfix -64 WC2.EXE
+
+Esto también se aplica a los ejecutables de las Operaciones Especiales. La versión de GOG ya viene con el loadfix -32.
+
+
+
+3.- DESINSTALACIÓN
+
+Mejor volver a instalar la versión original en inglés. ;)
+Las partidas guardadas sirven igual.
+
+
+4.- SUBTÍTULOS Y VOCES
+
+A diferencia del WC1, para el WC2 existe (en inglés) una expansión llamada Speech Pack, que incluye las voces por ejemplo para la cinemática de introducción y fin, además de las voces de comunicación en vuelo. El resto de cinemáticas a mi saber NO tienen voces.
+
+Sin embargo, si se activan las voces, se anulan los textos de las cinemáticas y de las comunicaciones en vuelo y no aparecen subtítulos.
+
+He modificado los ejecutables para que en las cinemáticas aparezcan los subtítulos usando las voces si se activa el Speech Pack, aunque las comunicaciones en vuelo no tendrán dichos subtítulos. Que cada cual lo configure a su gusto.
+
+Para configurar la activación de las voces, hay que editar el archivo WC2.CFG.
+
+Estos valores son para activar VGA, Roland (sin voces), hay que cambiarlos en el archivo. Normalmente la versión GOG viene con el sonido Adlib:
+
+v r
+
+Estos valores son para activar VGA, Roland MT-32, y las voces con tarjeta Sound Blaster en IRQ 5:
+
+v r c25 d1
+
+
+
+5.- ASPECTOS DE LA TRADUCCIÓN
+
+Igual que con WC1, he usado las herramientas WCToolbox para extraer e importar los textos y los gráficos. En nuestro país, también salió Wing Commander II con la caja y manual en castellano, aunque desconozco si salieron las Operaciones Especiales 1 y 2. Y mucho menos no salió el Speech Pack. El juego siempre estuvo en inglés.
+
+Aparte de todo esto, hay algunos aspectos:
+
+* Esta vez he estado más limitado en cuestión de fuentes y solo he podido usar los primeros 128 caracteres. Eso significa que he substituido los caracteres tipo [ ] < >, etc... por los caracteres acentuados, ñ...
+
+Las mayúsculas de todas las fuentes se han dejado sin acentos por el mismo motivo que con el WC1.
+
+El set 1 de fuentes (hay 4 sets 0-3), tiene caracteres como la 'ñ', 'ó' y 'ú' que se han puesto en una posición diferente del carácter estándar de MS-DOS porque ya estaban ocupados por otros glifos. Al desconocer su uso, he preferido mantener los glifos originales.
+
+* En el trato de nuestro personaje tanto con el resto de compañeros del escuadrón como viceversa he decidido usar la terminología de 'usted', sobretodo por el respeto que presupone hablar con un superior en jerga militar, aún sabiendo que lo ascienden y posiblemente ya no tiene sentido, pero como no podemos determinar si el rango de nuestro personaje es mayor o menor que el rango del personaje con el que habla, he dejado dicha terminología de forma generalizada.
+
+* La gran mayoría de nombres propios, diría que un 98-99%, los he dejado en inglés, como el original. Nombres de sistemas o planetas, nombres de armamento, naves, clases de naves, etc...
+
+* La traducción está basada en la última versión inglesa conocida, para el WC2.EXE he usado la X5.1 y para las Operaciones Especiales la X1.2F. No conozco un parche para las Operaciones especiales 2.
+
+* Arreglada la cabina de la Sabre (PCSHIP.V04), la parte del VISOR DE ARMAS.
+  Se ha desplazado un píxel a la izquierda la información de las armas para una correcta presentación.
+
+* Arreglo/mod para el punto de mira de la nave (verde).
+  Ahora es como el del Wing Commander 1, más brillante (cockpit.vga).
+
+* Arreglo de PALCOMM.T08. No lee bien los subtítulos pq busca el archivo PALCOMM.ST8, el cual no existe.
+  Se ha copiado el archivo PALCOMM.T08 como PALCOMM.ST8.
+
+* Arreglados algunos mensajes de texto en comunicaciones con los pilotos piratas del archivo COMMUNIC.T29.
+  No aparecían porque estaban situados en una línea errónea respecto el archivo de voces COMMUNIC.S29.
+
+* Añadido el archivo SECTOR.001, con el nombre del Sector para Operaciones Especiales 1.
+  Originalmente no aparece el nombre del Sector en el VDU NAVEGACION.
+
+* Trato femenino para el nombre de las naves, p.ej. "TCS Concordia" -> "la TCS Concordia".
+  En la documentación o manuales suele aparecer en masculino.
+
+
+
+6.- TRANSFERENCIA DE PERSONAJES
+
+El orden lógico de jugabilidad sería WC2, Operaciones Especiales 1 y Operaciones Especiales 2. Normalmente, es lógico empezar las Operaciones Especiales en la última misión del juego anterior.
+
+Cabe mencionar que en Wing Commander II también podremos importar los personajes de Wing Commander, incluidas las Misiones Secretas.
+
+Para importar una partida en cualquiera de los juegos, al iniciar una partida, ya nos presenta la opción de transferir el personaje después de ver la introducción.
+
+
+
+7.- AGRADECIMIENTOS
+
+- A UnnamedCharacter por la WCToolbox. La usada para esta traducción es la 6.0.0 Beta1.
+  https://www.wcnews.com/chatzone/threads/wing-commander-toolbox.27769/
+- EA y Origin: Por la distribución y creación de este juego tan adictivo.
+- www.clandlan.net por dejarme colgar las traducciones.
+
+
+
+8.- LICENCIA
+
+Esta traducción es gratuita y cualquiera la puede usar o modificar como quiera. Se encuentra bajo licencia GPL v3.0. Agradecería que se pidiera permiso para cualquier tipo de modificación, podéis encontrarme como L@Zar0 en www.clandlan.net que ofrece traducciones de videojuegos (NO videojuegos completos) de forma gratuita. En cualquier caso, no se debe cobrar por esta traducción.
+
+Ni el autor ni el lugar de descarga se responsabilizan de los posibles problemas o inconvenientes que puedan surgir por el uso de este software.

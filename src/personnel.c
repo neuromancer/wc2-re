@@ -9,18 +9,18 @@ unsigned char *g_pCockpitBackgroundPacket = 0; /* 0x0049a5f0 */
 unsigned char *g_apCockpitVduOverlayShapes[2] = { 0 }; /* 0x0049a5f8 */
 int g_nLegacySaveSource = 0; /* 0x0049a600 */
 const char *g_apszPilotRankNames[5] = {
-    "2ND LT.",
-    "1ST LT.",
-    "CAPTAIN",
-    "MAJOR",
-    "LT. COL."
+    N_("2ND LT."),
+    N_("1ST LT."),
+    N_("CAPTAIN"),
+    N_("MAJOR"),
+    N_("LT. COL.")
 }; /* 0x0049a608 */
 const char *g_apszShortPilotRankNames[5] = {
-    "2ND LT",
-    "1ST LT",
-    "CAPT.",
-    "MAJOR",
-    "LT COL"
+    N_("2ND LT"),
+    N_("1ST LT"),
+    N_("CAPT."),
+    N_("MAJOR"),
+    N_("LT COL")
 }; /* 0x0049a620 */
 
 /* The save-slot signature is a 0x24-byte record, not a 34-byte string: the
@@ -233,9 +233,9 @@ void DrawPersonnelMenuBackdrop(void *scenePacket)
         SetTextCursor(
             (unsigned short)((320 -
                 MeasureTextPixelWidthClamped(
-                    g_pszPersonnelFooter)) >> 1),
+                    C_("hotspot", g_pszPersonnelFooter))) >> 1),
             180);
-        DrawFormattedText("%S", g_pszPersonnelFooter);
+        DrawFormattedText("%S", C_("hotspot", g_pszPersonnelFooter));
     }
 }
 
@@ -397,7 +397,7 @@ void DrawPilotSaveMenuChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x5a, 0x38);
-    DrawFormattedText("[L]oad a personnel file");
+    DrawFormattedText(_("[L]oad a personnel file"));
     if (choice == PERSONNEL_KEY_S) {
         InitializeTextContextFromFont(
             &g_3_stDefaultStringContext, 1,
@@ -408,7 +408,7 @@ void DrawPilotSaveMenuChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x5a, 0x4c);
-    DrawFormattedText("[S]ave a personnel file");
+    DrawFormattedText(_("[S]ave a personnel file"));
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
             &g_3_stDefaultStringContext, 1,
@@ -419,7 +419,7 @@ void DrawPilotSaveMenuChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x5a, 0x60);
-    DrawFormattedText("[D]elete a personnel file");
+    DrawFormattedText(_("[D]elete a personnel file"));
     g_nPersonnelMenuHighlight = choice;
     EnableMouseCursorDrawing();
 }
@@ -442,7 +442,7 @@ void DrawPersonnelSourceChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x50, 0x2e);
-    DrawFormattedText("[W]ing Commander");
+    DrawFormattedText(_("[W]ing Commander"));
     if (choice == PERSONNEL_KEY_D) {
         InitializeTextContextFromFont(
             &g_3_stDefaultStringContext, 1,
@@ -453,7 +453,7 @@ void DrawPersonnelSourceChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x50, 0x42);
-    DrawFormattedText("[D]os Version of Wing Commander");
+    DrawFormattedText(_("[D]os Version of Wing Commander"));
     g_nPersonnelMenuHighlight = choice;
     EnableMouseCursorDrawing();
 }
@@ -476,7 +476,7 @@ void DrawPersonnelMenuChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x3c, 0x38);
-    DrawFormattedText("[T]ransfer an existing personnel file");
+    DrawFormattedText(_("[T]ransfer an existing personnel file"));
     if (choice == PERSONNEL_KEY_C) {
         InitializeTextContextFromFont(
             &g_3_stDefaultStringContext, 1,
@@ -487,7 +487,7 @@ void DrawPersonnelMenuChoices(short choice)
             (unsigned char)g_10_nMenuDarkColour, -1);
     }
     SetTextCursor(0x3c, 0x4c);
-    DrawFormattedText("[C]reate a new personnel file");
+    DrawFormattedText(_("[C]reate a new personnel file"));
     g_nPersonnelMenuHighlight = choice;
     EnableMouseCursorDrawing();
 }
@@ -512,8 +512,8 @@ void DrawPersonnelFileSlot(short slot)
         DrawFormattedText(
             "%d--%s %c. \"%s\" %s",
             slot,
-            g_apszShortPilotRankNames[
-                g_apPersonnelPilotProfiles[slot]->rank],
+            _(g_apszShortPilotRankNames[
+                g_apPersonnelPilotProfiles[slot]->rank]),
             g_apPersonnelPilotProfiles[slot]->firstName[0],
             g_apPersonnelPilotProfiles[slot]->callsign,
             g_apPersonnelPilotProfiles[slot]->lastName);
@@ -521,8 +521,8 @@ void DrawPersonnelFileSlot(short slot)
         DrawFormattedText(
             "%d--%s %s \"%s\" %s",
             slot,
-            g_apszPilotRankNames[
-                g_apPersonnelPilotProfiles[slot]->rank],
+            _(g_apszPilotRankNames[
+                g_apPersonnelPilotProfiles[slot]->rank]),
             g_apPersonnelPilotProfiles[slot]->firstName,
             g_apPersonnelPilotProfiles[slot]->callsign,
             g_apPersonnelPilotProfiles[slot]->lastName);
@@ -740,9 +740,9 @@ short SelectTransferredPilot(short count)
                                       g_10_nMenuDarkColour,
                                   -1);
     SetTextCursor(0x32, 0x0f);
-    DrawFormattedText("Select a character to transfer");
+    DrawFormattedText(_("Select a character to transfer"));
     SetTextCursor(0xba, 0x16);
-    DrawFormattedText("Missions Kills");
+    DrawFormattedText(_("Missions Kills"));
     InitializeTextContextFromFont(&g_3_stDefaultStringContext, 1,
                                   (unsigned char)
                                       g_10_nMenuDarkColour,
@@ -920,9 +920,9 @@ void RunPilotSaveLoadMenu(void)
             &g_3_stDefaultStringContext, 1,
             (unsigned char)g_10_nMenuDarkColour, -1);
         SetTextCursor(0x50, 0x12);
-        DrawFormattedText("TERRAN CONFEDERATION NAVY");
+        DrawFormattedText(_("TERRAN CONFEDERATION NAVY"));
         SetTextCursor(0x60, 0x1c);
-        DrawFormattedText("PERSONNEL DATABASE");
+        DrawFormattedText(_("PERSONNEL DATABASE"));
         hover = 0x26;
         g_nPersonnelMenuHighlight = -1;
         DrawPilotSaveMenuChoices(hover);
@@ -992,9 +992,9 @@ void RunPilotSaveLoadMenu(void)
                     &g_3_stDefaultStringContext, 2,
                     (unsigned char)g_10_nMenuDarkColour, -1);
                 SetTextCursor(0x50, 0x0c);
-                DrawFormattedText("Select a game to load");
+                DrawFormattedText(_("Select a game to load"));
                 SetTextCursor(0xb8, 0x0c);
-                DrawFormattedText("Missions Kills");
+                DrawFormattedText(_("Missions Kills"));
                 slot = SelectPersonnelFileSlot();
                 if (slot != -1 &&
                     g_apPersonnelFileSlots[slot]->occupied != 0) {
@@ -1057,9 +1057,9 @@ void RunPilotSaveLoadMenu(void)
                     &g_3_stDefaultStringContext, 2,
                     (unsigned char)g_10_nMenuDarkColour, -1);
                 SetTextCursor(0xb8, 0x0c);
-                DrawFormattedText("Missions Kills");
+                DrawFormattedText(_("Missions Kills"));
                 SetTextCursor(0x50, 0x0c);
-                DrawFormattedText("Select a slot to delete");
+                DrawFormattedText(_("Select a slot to delete"));
                 slot = SelectPersonnelFileSlot();
                 if (slot != -1 &&
                     g_apPersonnelFileSlots[slot]->occupied != 0) {
@@ -1071,22 +1071,22 @@ void RunPilotSaveLoadMenu(void)
                         (unsigned char)g_10_nMenuDarkColour, -1);
                     confirm = 1;
                     SetTextCursor(0x32, 0x32);
-                    DrawFormattedText("Are you sure?");
+                    DrawFormattedText(_("Are you sure?"));
                     InitializeTextContextFromFont(
                         &g_3_stDefaultStringContext, 2,
                         (unsigned char)g_nMenuSelectedCol,
                         (unsigned char)g_3_nOptionMessageColour);
                     SetTextCursor(0x6a, 0x32);
-                    DrawFormattedText("Yes");
+                    DrawFormattedText(_("Yes"));
                     RefreshMemoryStatusOverlay();
                     reply = (char)WaitForQueuedInputPress();
                     while (reply != 0x0d) {
                         SetTextCursor(0x6a, 0x32);
                         if (toupper(reply) == 'Y') {
-                            DrawFormattedText("Yes");
+                            DrawFormattedText(_("Yes"));
                             confirm = 1;
                         } else {
-                            DrawFormattedText("No ");
+                            DrawFormattedText(_("No "));
                             confirm = 0;
                         }
                         RefreshMemoryStatusOverlay();
@@ -1113,9 +1113,9 @@ void RunPilotSaveLoadMenu(void)
                     &g_3_stDefaultStringContext, 2,
                     (unsigned char)g_10_nMenuDarkColour, -1);
                 SetTextCursor(0xb8, 0x0c);
-                DrawFormattedText("Missions Kills");
+                DrawFormattedText(_("Missions Kills"));
                 SetTextCursor(0x50, 0x0c);
-                DrawFormattedText("Select a slot to save in");
+                DrawFormattedText(_("Select a slot to save in"));
                 RefreshMemoryStatusOverlay();
                 slot = SelectPersonnelFileSlot();
                 if (slot != -1) {
@@ -1129,22 +1129,22 @@ void RunPilotSaveLoadMenu(void)
                     confirm = 1;
                     if (g_apPersonnelFileSlots[slot]->occupied != 0) {
                         SetTextCursor(0x32, 0x32);
-                        DrawFormattedText("Are you sure?");
+                        DrawFormattedText(_("Are you sure?"));
                         InitializeTextContextFromFont(
                             &g_3_stDefaultStringContext, 2,
                             (unsigned char)g_nMenuSelectedCol,
                             (unsigned char)g_3_nOptionMessageColour);
                         SetTextCursor(0x6a, 0x32);
-                        DrawFormattedText("Yes");
+                        DrawFormattedText(_("Yes"));
                         RefreshMemoryStatusOverlay();
                         reply = (char)WaitForQueuedInputPress();
                         while (reply != 0x0d) {
                             SetTextCursor(0x6a, 0x32);
                             if (toupper(reply) == 'Y') {
-                                DrawFormattedText("Yes");
+                                DrawFormattedText(_("Yes"));
                                 confirm = 1;
                             } else {
-                                DrawFormattedText("No ");
+                                DrawFormattedText(_("No "));
                                 confirm = 0;
                             }
                             RefreshMemoryStatusOverlay();
@@ -1159,7 +1159,7 @@ void RunPilotSaveLoadMenu(void)
                         g_apPersonnelFileSlots[slot]->occupied = 1;
                         g_apPersonnelFileSlots[slot]->description[0] = 0;
                         SetTextCursor(0x32, 0x46);
-                        DrawFormattedText("%s", "Saved game comments:");
+                        DrawFormattedText("%s", _("Saved game comments:"));
                         RefreshMemoryStatusOverlay();
                         InitializeTextContextFromFont(
                             &g_3_stDefaultStringContext, 2,
@@ -1236,7 +1236,7 @@ short SelectLegacyGameSource(void)
             &g_3_stDefaultStringContext, 1,
             (unsigned char)g_10_nMenuDarkColour, -1);
         SetTextCursor(0x3c, 0x1e);
-        DrawFormattedText("Transfer a character from:");
+        DrawFormattedText(_("Transfer a character from:"));
         RefreshMemoryStatusOverlay();
         g_nPersonnelMenuHighlight = -1;
         DrawPersonnelSourceChoices(focus);
@@ -1343,15 +1343,15 @@ short LocateLegacySaveGame(short source)
         strcpy(g_1_szLegacySaveFolder, "");
         RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock);
         SetTextCursor(0x32, 0x28);
-        DrawFormattedText("Please enter the full path name of");
+        DrawFormattedText(_("Please enter the full path name of"));
         SetTextCursor(0x32, 0x34);
-        DrawFormattedText("your %s saved game file.", nameList[source]);
+        DrawFormattedText(_("your %s saved game file."), nameList[source]);
         SetTextCursor(0x32, 0x40);
-        DrawFormattedText("Example: c:\\wing\\gamedat");
+        DrawFormattedText(_("Example: c:\\wing\\gamedat"));
         RefreshMemoryStatusOverlay();
         DisableMouseCursorDrawing();
         pathEntered = ReadPersonnelTextField(
-            0x32, 0x50, 2, "Path name: ",
+            0x32, 0x50, 2, _("Path name: "),
             g_1_szLegacySaveFolder, 0x19, 0, 1);
         EnableMouseCursorDrawing();
     }
@@ -1396,7 +1396,7 @@ void ShowNoTransferablePilots(void)
 {
     RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock);
     SetTextCursor(0x50, 0x3c);
-    DrawFormattedText("No valid characters found.");
+    DrawFormattedText(_("No valid characters found."));
     RefreshMemoryStatusOverlay();
     g_cCurrentKey = (signed char)0x80;
     WaitForAnyInputPress();
@@ -1471,9 +1471,9 @@ short RunPilotDatabaseMenu(void)
             &g_3_stDefaultStringContext, 1,
             (unsigned char)g_10_nMenuDarkColour, -1);
         SetTextCursor(0x50, 0x12);
-        DrawFormattedText("TERRAN CONFEDERATION NAVY");
+        DrawFormattedText(_("TERRAN CONFEDERATION NAVY"));
         SetTextCursor(0x60, 0x1c);
-        DrawFormattedText("PERSONNEL DATABASE");
+        DrawFormattedText(_("PERSONNEL DATABASE"));
         hoverCommand = 0x26;
         g_nPersonnelMenuHighlight = -1;
         DrawPersonnelMenuChoices(hoverCommand);
@@ -1559,8 +1559,8 @@ short RunPilotDatabaseMenu(void)
                                 strcpy(
                                     g_3_apszPersonnelImportCaptionsTable[
                                         transferCount],
-                                    g_apszShortPilotRankNames[
-                                        pilotRecord->rank]);
+                                    _(g_apszShortPilotRankNames[
+                                        pilotRecord->rank]));
                                 strcat(
                                     g_3_apszPersonnelImportCaptionsTable[
                                         transferCount],
@@ -1630,12 +1630,19 @@ short RunPilotDatabaseMenu(void)
                                 RestorePersonnelMenuBackground(
                                     &g_stSecondaryViewBufferBlock);
                                 RefreshMemoryStatusOverlay();
+#ifdef SDL_PORT
+                                snprintf(captionBuffer, sizeof(captionBuffer),
+                                         _("First name of %s %s?"),
+                                         _(g_apszShortPilotRankNames[selectedPilot->rank]),
+                                         selectedPilot->name);
+#else
                                 strcpy(captionBuffer,
-                                       g_apszShortPilotRankNames[
-                                           selectedPilot->rank]);
+                                       _(g_apszShortPilotRankNames[
+                                           selectedPilot->rank]));
                                 strcat(captionBuffer, " ");
                                 strcat(captionBuffer, selectedPilot->name);
                                 strcat(captionBuffer, "'s first name?");
+#endif
                                 SetTextCursor(0x32, 0x32);
                                 DrawFormattedText(captionBuffer);
                                 RefreshMemoryStatusOverlay();
@@ -1687,7 +1694,7 @@ short RunPilotDatabaseMenu(void)
                     &g_3_stDefaultStringContext, 1,
                     (unsigned char)g_nMenuSelectedCol, -1);
                 inputResult = ReadPersonnelTextField(
-                    0x32, 0x1e, 2, "Enter first name: ", firstNameText,
+                    0x32, 0x1e, 2, _("Enter first name: "), firstNameText,
                     0x0b, 0, 0);
                 if (inputResult != 0) {
                     strcpy(g_stPilotNameVariables.firstName,
@@ -1695,7 +1702,7 @@ short RunPilotDatabaseMenu(void)
                     strcpy(g_stCurrentPilotProfile.firstName,
                            firstNameText);
                     inputResult = ReadPersonnelTextField(
-                        0x32, 0x32, 2, "Enter last name: ", surname,
+                        0x32, 0x32, 2, _("Enter last name: "), surname,
                         0x0b, 0, 0);
                     if (inputResult != 0) {
                         strcpy(g_stPilotNameVariables.lastName,
@@ -1703,7 +1710,7 @@ short RunPilotDatabaseMenu(void)
                         strcpy(g_stCurrentPilotProfile.lastName,
                                surname);
                         inputResult = ReadPersonnelTextField(
-                            0x32, 0x46, 2, "Enter callsign: ", callsign,
+                            0x32, 0x46, 2, _("Enter callsign: "), callsign,
                             0x0b, 0, 0);
                         if (inputResult != 0) {
                             strcpy(g_stPilotNameVariables.callsign,

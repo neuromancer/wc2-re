@@ -57,6 +57,10 @@ add_library(wc2-slint-gui STATIC
     wc2_logo.h
 )
 target_link_libraries(wc2-slint-gui PRIVATE Slint::Slint nfd::nfd PkgConfig::WC2_SDL2)
+set_target_properties(wc2-slint-gui PROPERTIES
+    SLINT_BUNDLE_TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/../../../translations"
+    SLINT_TRANSLATION_DOMAIN launcher
+)
 slint_target_sources(wc2-slint-gui launcher.slint)
 
 if(UNIX AND NOT APPLE)

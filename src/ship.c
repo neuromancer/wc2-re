@@ -1398,7 +1398,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                 if (IsOnlyShipGun(0, (short)weapon) == 0) {
                     remove_weapon(0, (short)weapon);
                     ShowComponentHitHudMessage(
-                        "Weapon destroyed",
+                        _("Weapon destroyed"),
                         g_cRedColour, 8);
                 }
             }
@@ -1443,7 +1443,7 @@ short your_internal_damage(short attacker, short owner, short damage,
                 g_anShipFuel[0] < 0)
                 return explode(attacker, 0);
             ShowComponentHitHudMessage(
-                "Fuel tanks hit",
+                _("Fuel tanks hit"),
                 g_cRedColour, 8);
             break;
         case 1:
@@ -2775,7 +2775,7 @@ short fire_missile(short ship)
                     g_nTargetLockCountdown != 0) {
                     if (get_mode(0) == 1)
                         ShowComponentHitHudMessage(
-                            "Need Lock",
+                            _("Need Lock"),
                             g_cYellowColour, 3);
                     return -1;
                 }

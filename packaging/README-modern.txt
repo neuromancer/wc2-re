@@ -5,7 +5,7 @@ This archive contains the work-in-progress native SDL2 port. Release binaries
 are optimized and do not include the AddressSanitizer or
 UndefinedBehaviorSanitizer instrumentation used by development builds.
 
-No copyrighted game data is included. Extract every file in this archive into
+Original game files are required. Extract every file in this archive into
 an installed Kilrathi Saga or DOS WC2 directory, then start wc2-modern
 (wc2-modern.exe on Windows) from that directory. Keep the bundled runtime
 libraries beside the executable.
@@ -13,6 +13,11 @@ libraries beside the executable.
 The graphical launcher opens automatically when the executable is started
 without arguments. Command-line arguments start the game directly unless
 --gui is also present.
+
+Choose Language > Español or use --language=es for Spanish base-game
+dialogue, radio text, menus, game UI and launcher text. Voices remain unchanged.
+Keep the translations directory beside the executable. Use --language=en to
+return to English.
 
 Select Cheat mode in the launcher's Gameplay section, or use --cheats on the
 command line, to enable invulnerability and disable player collisions with

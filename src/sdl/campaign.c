@@ -10,7 +10,7 @@ int SdlConfirmContinueOverwrite(void)
     savedCursorDepth = g_nMouseCursorDrawDepth;
     DisableMouseCursorDrawing();
     SdlSuspendMouseGrab();
-    if (ShowModalTextPanel(1, "Overwrite Continue save? (Y/N)") != 0) {
+    if (ShowModalTextPanel(1, _("Overwrite Continue save? (Y/N)")) != 0) {
         /* Consume the press that selected New Game before accepting an
          * answer. Enter and mouse clicks never authorize an overwrite. */
         FlushPendingInputPresses();

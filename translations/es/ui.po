@@ -1,0 +1,718 @@
+# Spanish UI wording shared with wc1-re and extended for WC2.
+# Upstream terms: ../upstream/Leeme.txt. Local additions: ../../LICENSE.
+msgid ""
+msgstr ""
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+#: src/campglob.c:323
+msgid "wc2:2c0f9e664e8927e1"
+msgstr "Láser"
+
+#: src/campglob.c:327
+msgid "wc2:e08e83371e653e02"
+msgstr "Neutrones"
+
+#: src/campglob.c:331
+msgid "wc2:9faae5eb1f89c1f1"
+msgstr "Masa"
+
+#: src/campglob.c:334
+msgid "wc2:14e8d8459b83ed84"
+msgstr "Partículas"
+
+#: src/campglob.c:351
+msgid "wc2:0dbe005c12363e96"
+msgstr "Dardo DF"
+
+#: src/campglob.c:355
+msgid "wc2:c060984334b85fbd"
+msgstr "Jabalina HS"
+
+#: src/campglob.c:358
+msgid "wc2:f523e12b0516a9ac"
+msgstr "Pilum FF"
+
+#: src/campglob.c:361
+msgid "wc2:f84fc8638dff8e58"
+msgstr "Spiculum IR"
+
+#: src/campglob.c:365
+msgid "wc2:25ca349aaddcfe08"
+msgstr "Torpedo"
+
+#: src/campglob.c:368
+msgid "wc2:869d6e37642b69b6"
+msgstr "Señuelos"
+
+#: src/campglob.c:372
+msgid "wc2:f8d322bc14c77180"
+msgstr "Puercoespín"
+
+#: src/campglob.c:485
+msgid "wc2:49489e947c76bab2"
+msgstr "cápsula de datos"
+
+#: src/cockpt.c:52
+msgid "wc2:669b18c6d2d9c95b"
+msgstr "Nada"
+
+#: src/cockpt.c:95
+msgid "wc2:ad462f34674b4855"
+msgstr "MISIL FIJADO "
+
+#: src/cockpt.c:468
+msgid "wc2:57c50fd5fb3c960f"
+msgstr "Punto de salto"
+
+#: src/cockpt.c:482 src/cockpt.c:1458 src/jump.c:170
+#, c-format
+msgid "wc2:409e9fd0bb4a6821 %s"
+msgstr "Esperar: %s"
+
+#: src/cockpt.c:489
+msgid "wc2:77813da41d3ec97f"
+msgstr "Ya estás cerca"
+
+#: src/cockpt.c:491
+msgid "wc2:13843d4d945ec24b"
+msgstr "Enemigo cerca"
+
+#: src/cockpt.c:493
+msgid "wc2:ac044f783ed2be09"
+msgstr "Peligro cerca"
+
+#: src/cockpt.c:893
+#, c-format
+msgid "wc2:8d7e12aa5b8e4a6c %s"
+msgstr "IMP %s"
+
+#: src/cockpt.c:997
+msgid "wc2:e130dea33f624d63"
+msgstr "VISOR DE ARMAS"
+
+#: src/cockpt.c:1018
+msgid "wc2:fbc28c35662989a7"
+msgstr "Todos"
+
+#: src/cockpt.c:1024
+#, c-format
+msgid ""
+"\n"
+"wc2:6aabfaf18d108ce5 %s"
+msgstr ""
+"\n"
+"Arma:%s"
+
+#: src/cockpt.c:1025
+#, c-format
+msgid ""
+"\n"
+"wc2:96f2cf1e1dc9b8a9 %s"
+msgstr ""
+"\n"
+"Cañón:%s"
+
+#: src/cockpt.c:1211
+msgid "wc2:0ce101121cd01df7"
+msgstr "Otro sistema"
+
+#: src/cockpt.c:1214
+msgid "wc2:17c1c291f7a56678"
+msgstr "CALCULANDO"
+
+#: src/cockpt.c:1231
+msgid "wc2:50fed8c6357d587b"
+msgstr "NADA"
+
+#: src/cockpt.c:1236 src/comm.c:605 src/target.c:85
+#, c-format
+msgid "wc2:08c643c98b44bb79"
+msgstr "DESCONOCIDO"
+
+#: src/cockpt.c:1243
+msgid "wc2:a5c7e05076d51f14"
+msgstr "NAVEGACION"
+
+#: src/cockpt.c:1244
+#, c-format
+msgid ""
+"\n"
+"\n"
+"wc2:50f428949148c211 %s"
+msgstr ""
+"\n"
+"\n"
+"DESTINO\n"
+" %s"
+
+#: src/cockpt.c:1246
+msgid ""
+"\n"
+"\n"
+"wc2:4855de797a013768"
+msgstr ""
+"\n"
+"\n"
+"DISTANCIA\n"
+" "
+
+#: src/cockpt.c:1248
+msgid ""
+"\n"
+"\n"
+"wc2:de52ee517128c9c1 (N)"
+msgstr ""
+"\n"
+"\n"
+"(N)uevo Objetivo"
+
+#: src/cockpt.c:1448
+msgid "wc2:9c6b3241d550d3fd"
+msgstr "Ya visitado"
+
+#: src/cockpt.c:1451
+msgid "wc2:5794134af3122832"
+msgstr "Objetivo alcanzado"
+
+#: src/cockpt.c:2568
+msgid "wc2:e1ad65fbf28ee155"
+msgstr "FUERA DE ALCANCE"
+
+#: src/cockpt.c:2661
+msgid "wc2:34c247da54d73fa0"
+msgstr "ITTS ACTIVADO"
+
+#: src/comm.c:142
+msgid ""
+"wc2:374942ee28d568f6\n"
+"\n"
+msgstr ""
+"VIDEO-COM\n"
+"\n"
+"¿Para quién?\n"
+"\n"
+
+#: src/comm.c:143
+msgid "wc2:7da73cc0f538da0d"
+msgstr "SELECCIONAR"
+
+#: src/comm.c:161
+msgid "wc2:09a2c2983b0bb2e4"
+msgstr "ENEMIGO"
+
+#: src/comm.c:164 src/comm.c:182 src/comm.c:316
+msgid "wc2:aeedfdff888339af"
+msgstr "SIN IDENTIFICAR"
+
+#: src/comm.c:309
+msgid "wc2:ea7e482dc653881a"
+msgstr ""
+"VIDEO-COM\n"
+"Para: "
+
+#: src/comm.c:312
+msgid "wc2:45c8c14f96417eaa"
+msgstr ""
+"VIDEO-COM\n"
+"\n"
+"Para: "
+
+#: src/comm.c:324
+msgid "wc2:170722454a11ffa0"
+msgstr "ELEGIR"
+
+#: src/damage.c:14
+msgid "wc2:646c9b67995535dd"
+msgstr "Motor Iones"
+
+#: src/damage.c:15
+msgid "wc2:a85920ea4e3b7f57"
+msgstr "Generador"
+
+#: src/damage.c:16
+msgid "wc2:5cf2a727d5ea630f"
+msgstr "Escudo"
+
+#: src/damage.c:17
+msgid "wc2:5dea61c44c5a85e1"
+msgstr "Ordenador"
+
+#: src/damage.c:18
+msgid "wc2:e3d7514660a78828"
+msgstr "InterCom"
+
+#: src/damage.c:19
+msgid "wc2:ad6e2333546b139f"
+msgstr "Rastreador"
+
+#: src/damage.c:20
+msgid "wc2:3709aa99006fc183"
+msgstr "Amortiguador"
+
+#: src/damage.c:21
+msgid "wc2:d60267286951e990"
+msgstr "Eyector"
+
+#: src/damage.c:22
+msgid "wc2:5821014e8b82aa72"
+msgstr "Reparaciones"
+
+#: src/damage.c:28
+msgid "wc2:091d5d07b5b33dcf"
+msgstr "Ok"
+
+#: src/damage.c:29
+msgid "wc2:3b0ab4b52326316f"
+msgstr "Leve"
+
+#: src/damage.c:30
+msgid "wc2:0f3b0ae12a710300"
+msgstr "Moderado"
+
+#: src/damage.c:31
+msgid "wc2:47534eace1cc3220"
+msgstr "Grave"
+
+#: src/damage.c:32
+msgid "wc2:25a147555f2c106c"
+msgstr "Destruido"
+
+#: src/damage.c:53
+msgid "wc2:1d0480830133829a"
+msgstr "INFORME DE DAÑOS"
+
+#: src/damage.c:64
+msgid "wc2:f542a57c72848d02"
+msgstr ""
+"SIN DAÑOS\n"
+"\n"
+"INTERNOS"
+
+#: src/damage.c:84
+#, c-format
+msgid "wc2:e7010562db525ecd %d %c"
+msgstr "Daños: %d Módulo%c"
+
+#: src/damage.c:132 src/damage.c:225
+#, c-format
+msgid "wc2:bf18aab7f6f517f6 %s %s"
+msgstr ""
+"%s\n"
+"Daño: %s"
+
+#: src/dib.cpp:199
+#, c-format
+msgid "wc2:4861a28f71cae832 %.1f"
+msgstr "FPS máximos de vuelo: %.1f"
+
+#: src/gameflow.c:1917
+msgid "wc2:aa329d819ef7a2eb"
+msgstr "Juego en pausa"
+
+#: src/jump.c:146
+msgid "wc2:ec5d3c4195d32a6b"
+msgstr "Enemigo cerca"
+
+#: src/jump.c:154
+msgid "wc2:099a6fc99624a9c5"
+msgstr "Sin carga"
+
+#: src/jump.c:181
+msgid "wc2:a3abc9098dc5d3d4"
+msgstr "No hay salto"
+
+#: src/main.c:1147
+msgid "wc2:5e2c649b7ce98d28"
+msgstr "VIDEOS SUPRIMIDOS"
+
+#: src/main.c:1150
+msgid "wc2:c4a0a904e2dd287f"
+msgstr "VIDEOS ACTIVADOS"
+
+#: src/main.c:1181 src/main.c:1651 src/main.c:1665
+#, c-format
+msgid "wc2:216c83b2ec0fd159 %d"
+msgstr "VOLUMEN DE EFECTOS: %d."
+
+#: src/main.c:1470
+msgid "wc2:6e03d9124173780f"
+msgstr "CAMARA DE MISIL SI"
+
+#: src/main.c:1473
+msgid "wc2:641d5305374c7d53"
+msgstr "CAMARA DE MISIL NO"
+
+#: src/main.c:1635 src/main.c:1679 src/main.c:1693
+#, c-format
+msgid "wc2:e4679c2e5587e161 %d"
+msgstr "VOLUMEN DE MUSICA: %d."
+
+#: src/message.c:203
+msgid "wc2:80c2f43f7c22212b"
+msgstr " PAUSA "
+
+#: src/message.c:219
+#, c-format
+msgid "wc2:9292cae61e079007 %s"
+msgstr " WING COMMANDER VER. %s "
+
+#: src/message.c:228
+#, c-format
+msgid "wc2:78b9576c7ab1a847 %d"
+msgstr "VELOCIDAD DEL TEXTO %d."
+
+#: src/message.c:240
+#, c-format
+msgid "wc2:d5445962e13677dc %d"
+msgstr "SALTO DE FRAMES %d."
+
+#: src/nav.c:45
+msgid "wc2:1c182e1c2529027b"
+msgstr "Patrulla"
+
+#: src/nav.c:46
+msgid "wc2:a3c9ae5839fab735"
+msgstr "Escolta"
+
+#: src/nav.c:47
+msgid "wc2:58a3c1ecd4dd06cf"
+msgstr "Ataque"
+
+#: src/nav.c:48
+msgid "wc2:5859bb2031491281"
+msgstr "Defensa"
+
+#: src/nav.c:49
+msgid "wc2:28e73d8b57e91956"
+msgstr "Ala"
+
+#: src/nav.c:50
+msgid "wc2:fd0cf385070d5261"
+msgstr "Huir"
+
+#: src/nav.c:51
+msgid "wc2:0631067e57b93858"
+msgstr "Ir a salto"
+
+#: src/nav.c:52
+msgid "wc2:b830a2e5f9def7a6"
+msgstr "Fin de salto"
+
+#: src/nav.c:53
+msgid "wc2:16b3606b313c03d2"
+msgstr "Encuentro"
+
+#: src/nav.c:54
+msgid "wc2:d83e9df7c9797f00"
+msgstr "Volver a base"
+
+#: src/nav.c:55
+msgid "wc2:3297c10ed4056b02"
+msgstr "Cisterna"
+
+#: src/nav.c:56
+msgid "wc2:6d02db19e21eb2e9"
+msgstr "Remolcar"
+
+#: src/nav.c:57
+msgid "wc2:471e9f03195561ed"
+msgstr "Retirarse"
+
+#: src/nav.c:61
+msgid "wc2:3a9bcafca153efd3"
+msgstr "Más objetivos en otro sistema."
+
+#: src/nav.c:728
+msgid "wc2:ff0b8c840efc1379"
+msgstr "Asteroides"
+
+#: src/nav.c:736
+msgid "wc2:414c8fc929d85e7f"
+msgstr "Minas"
+
+#: src/nav.c:826
+msgid "wc2:7d0c217f4860383c %X %Y %s"
+msgstr "%X%YHora estándar %s"
+
+#: src/nav.c:877
+msgid "wc2:3d9938cacbaa8834"
+msgstr "RUTA DE LA MISION"
+
+#: src/nav.c:880
+msgid "wc2:7f9e657585eeb7e7"
+msgstr "BASE PRINCIPAL"
+
+#: src/nav.c:930
+#, c-format
+msgid "wc2:bdc101cc853f8931 %s\n"
+msgstr " Sector: %s\n"
+
+#: src/nav.c:933
+#, c-format
+msgid ""
+"wc2:90267bffbebb8ff2 %s\n"
+"\n"
+msgstr ""
+"Sistema: %s\n"
+"\n"
+
+#: src/nav.c:945
+msgid ""
+"\n"
+"wc2:40492dafc2f85e28\n"
+msgstr ""
+"\n"
+"Notas\n"
+
+#: src/nav.c:956
+msgid "wc2:483f21e3318ed17c %X %Y %d %d %d"
+msgstr "%X%Y                         Posición: %d.%d.%d"
+
+#: src/nav.c:990
+msgid "wc2:887303767b6676a2"
+msgstr "Informe Mapa Nav"
+
+#: src/nav.c:1072
+msgid "wc2:453506620052447c"
+msgstr "ConFed Barrido Nav"
+
+#: src/optmenu.c:396
+msgid "wc2:7fe62040cf9b2e24"
+msgstr "Salir del juego"
+
+#: src/personnel.c:12
+msgid "wc2:1d5c70c65b2275d1"
+msgstr "ALFEREZ"
+
+#: src/personnel.c:13
+msgid "wc2:16aa23ac5eb0c885"
+msgstr "TENIENTE"
+
+#: src/personnel.c:14
+msgid "wc2:3734423899e3cc0b"
+msgstr "CAPITAN"
+
+#: src/personnel.c:15 src/personnel.c:22
+msgid "wc2:a9dfcc16de5cac22"
+msgstr "MAYOR"
+
+#: src/personnel.c:16
+msgid "wc2:432ec6df13549d1f"
+msgstr "TTE. COL."
+
+#: src/personnel.c:19
+msgid "wc2:d3f31e06edf74045"
+msgstr "ALF."
+
+#: src/personnel.c:20
+msgid "wc2:f78c0314fe73c0c9"
+msgstr "TTE."
+
+#: src/personnel.c:21
+msgid "wc2:1daa6594d2c179e9"
+msgstr "CAP."
+
+#: src/personnel.c:23
+msgid "wc2:fbca853d515c807f"
+msgstr "TTE COL"
+
+#: src/personnel.c:400
+msgid "wc2:770027934f82880e [L]"
+msgstr "[L] Cargar un expediente"
+
+#: src/personnel.c:411
+msgid "wc2:51c013875b8a9703 [S]"
+msgstr "[S] Guardar un expediente"
+
+#: src/personnel.c:422
+msgid "wc2:7977044e82484a8b [D]"
+msgstr "[D] Borrar un expediente"
+
+#: src/personnel.c:445
+msgid "wc2:c723e67eb335d5cc [W]"
+msgstr "[W]ing Commander"
+
+#: src/personnel.c:456
+msgid "wc2:2ee699c63183f881 [D]"
+msgstr "[D] Versión DOS de Wing Commander"
+
+#: src/personnel.c:479
+msgid "wc2:b8b7d4c41b62239a [T]"
+msgstr "[T] Transferir un expediente"
+
+#: src/personnel.c:490
+msgid "wc2:8b775326f5c794e6 [C]"
+msgstr "[C] Crear un expediente"
+
+#: src/personnel.c:743
+msgid "wc2:c2248bf9a708d081"
+msgstr "Seleccione un personaje"
+
+#: src/personnel.c:745 src/personnel.c:997 src/personnel.c:1060
+#: src/personnel.c:1116
+msgid "wc2:2571329d1c88de07"
+msgstr "Misiones Bajas"
+
+#: src/personnel.c:923 src/personnel.c:1474
+msgid "wc2:a224e166bc1fcc1c"
+msgstr "ARMADA DE LA CONFEDERACION"
+
+#: src/personnel.c:925 src/personnel.c:1476
+msgid "wc2:dde6e497a024ae94"
+msgstr "BASE DE DATOS DEL PERSONAL"
+
+#: src/personnel.c:995
+msgid "wc2:e11135bb0d652f4f"
+msgstr "Seleccione una partida"
+
+#: src/personnel.c:1062
+msgid "wc2:fdd6f8056a317bb6"
+msgstr "Seleccione un archivo que borrar"
+
+#: src/personnel.c:1074 src/personnel.c:1132
+msgid "wc2:268ecd1cef45a9a8"
+msgstr "¿Está seguro?"
+
+#: src/personnel.c:1080 src/personnel.c:1086 src/personnel.c:1138
+#: src/personnel.c:1144
+msgid "wc2:cb489a1a173ac3f0"
+msgstr "Sí"
+
+#: src/personnel.c:1089 src/personnel.c:1147
+msgid "wc2:37644219c3482cce"
+msgstr "No "
+
+#: src/personnel.c:1118
+msgid "wc2:c0f236cfe66f4153"
+msgstr "Seleccione dónde guardar"
+
+#: src/personnel.c:1162
+msgid "wc2:308973545eefa8ca"
+msgstr "Comentarios de la partida:"
+
+#: src/personnel.c:1239
+msgid "wc2:b07c28160401cf40"
+msgstr "Transferir un personaje desde:"
+
+#: src/personnel.c:1346
+msgid "wc2:336c6a0147e603b2"
+msgstr "Introduzca la ruta completa de"
+
+#: src/personnel.c:1348
+#, c-format
+msgid "wc2:6594787100fb2049 %s"
+msgstr "su partida guardada de %s."
+
+#: src/personnel.c:1350
+msgid "wc2:f2cc4968b5592c02"
+msgstr "Ejemplo: c:\\wing\\gamedat"
+
+#: src/personnel.c:1354
+msgid "wc2:57277bfc673cfccb"
+msgstr "Ruta: "
+
+#: src/personnel.c:1399
+msgid "wc2:606439a5cacedd4a"
+msgstr "No se encontraron personajes."
+
+#: src/personnel.c:1635
+#, c-format
+msgid "wc2:2afc44d568e9b346 %s %s"
+msgstr "¿Nombre de %s %s?"
+
+#: src/personnel.c:1697
+msgid "wc2:c515d7740c143898"
+msgstr "Nombre: "
+
+#: src/personnel.c:1705
+msgid "wc2:2daf0d8919bbb99c"
+msgstr "Apellido: "
+
+#: src/personnel.c:1713
+msgid "wc2:6c9e951d76dcb9d8"
+msgstr "Indicativo: "
+
+#: src/replay.c:38
+msgid "wc2:35c3ecafcb64f58a"
+msgstr "FIN DE LA REPETICION"
+
+#: src/sdl/campaign.c:13
+msgid "wc2:43f2536aa3b749c4 (Y/N)"
+msgstr "¿Sobrescribir Continuar? (Y/N)"
+
+#: src/ship.c:1401
+msgid "wc2:4a6f83d15b2d33ea"
+msgstr "Arma destruida"
+
+#: src/ship.c:1446
+msgid "wc2:2fb234bf5051ca4d"
+msgstr "Impacto: Depósito"
+
+#: src/ship.c:2778
+msgid "wc2:0ae715aa6be3d120"
+msgstr "Sin Fijar"
+
+#: src/target.c:49
+msgid "wc2:07a035d723c0a256"
+msgstr "  OBJETIVO FIJADO"
+
+#: src/target.c:54
+msgid "wc2:215bf7c9a8268573"
+msgstr "    AUTOFIJADO"
+
+#: src/target.c:74
+msgid ""
+"\n"
+"wc2:72185237b1eb2dae"
+msgstr ""
+"\n"
+"Obj.:"
+
+#: src/target.c:76
+msgid "wc2:c8ecf3fec5bbf9c1"
+msgstr " Ninguno"
+
+#: src/target.c:87
+msgid ""
+"\n"
+"wc2:76b0a402b4b69fa4"
+msgstr ""
+"\n"
+"Dist.: "
+
+#: src/target.c:182
+msgid "wc2:b348d97fa79f7ad8"
+msgstr "MUY LEJOS"
+
+#: src/target.c:197
+msgid "wc2:07fe2502884b1695"
+msgstr "TRANSMISION"
+
+#: src/titlemnu.c:36
+msgid "wc2:2335b57e73dbf9d6"
+msgstr "Desactive el autodisparo y pulse un botón"
+
+#: src/titlemnu.c:44
+msgid "wc2:8d808d60a9f85743"
+msgstr "Palanca ARRIBA A LA IZQUIERDA; pulse un botón"
+
+#: src/titlemnu.c:57
+msgid "wc2:1d959c9914aa0ab9"
+msgstr "Palanca ABAJO A LA DERECHA; pulse un botón"
+
+#: src/titlemnu.c:70
+msgid "wc2:6a456bc0bb92e5a6"
+msgstr "Centre la palanca y pulse un botón"
+
+#: src/titlemnu.c:125
+msgid "wc2:dacf22cfd04ca91e"
+msgstr "¡FALLO! Centre la palanca y pulse un botón"
+
+#: src/turret.c:964
+msgid "wc2:e9eb564663411f73"
+msgstr "Fijación perdida"
+
+#: src/turret.c:979
+msgid "wc2:1abedb2b3fb7cf7d"
+msgstr "¡Torpedo fijado!"

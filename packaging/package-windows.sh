@@ -62,10 +62,12 @@ cp "$package_dir/wc2-modern.exe" "$package_dir/"*.dll "$work/payload/"
 cp "$root/LICENSE" "$work/payload/LICENSE.txt"
 cp "$root/third_party/ymfm/LICENSE" "$work/payload/YMFM-LICENSE.txt"
 cp "$root/packaging/THIRD-PARTY-NOTICES.txt" "$work/payload/"
+cp -R "$package_dir/translations" "$work/payload/"
 
 # Generate exact install/uninstall lists from the same payload. Never remove
 # arbitrary DLLs, game data, saves, or launcher preferences during uninstall.
 for file in "$work/payload/"*; do
+    test -f "$file" || continue
     name=$(basename "$file")
     case "$name" in
         *[!A-Za-z0-9._+-]*)
@@ -77,6 +79,20 @@ for file in "$work/payload/"*; do
     printf 'File "payload%s%s"\n' "$path_separator" "$name" >> "$work/install-files.nsh"
     printf 'Delete "$INSTDIR\\%s"\n' "$name" >> "$work/uninstall-files.nsh"
 done
+printf 'SetOutPath "$INSTDIR\\translations"\n' >> "$work/install-files.nsh"
+for file in "$work/payload/translations/"*; do
+    name=$(basename "$file")
+    case "$name" in
+        *[!A-Za-z0-9._+-]*)
+            echo "Unsupported translation filename: $name" >&2
+            exit 1
+            ;;
+    esac
+    printf 'File "payload%stranslations%s%s"\n' "$path_separator" "$path_separator" "$name" >> "$work/install-files.nsh"
+    printf 'Delete "$INSTDIR\\translations\\%s"\n' "$name" >> "$work/uninstall-files.nsh"
+done
+printf 'SetOutPath "$INSTDIR"\n' >> "$work/install-files.nsh"
+printf 'RMDir "$INSTDIR\\translations"\n' >> "$work/uninstall-files.nsh"
 installed_size=$(du -sk "$work/payload" | awk '{print $1}')
 (
     cd "$work"

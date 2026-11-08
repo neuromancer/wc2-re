@@ -23,7 +23,14 @@
 
 #ifdef SDL_PORT
 #include "sdl_port.h"
+#define _(text) SdlTranslateText("", (text))
+#define C_(context, text) SdlTranslateText((context), (text))
+#else
+#define _(text) text
+#define C_(context, text) text
 #endif
+#define N_(text) text
+#define NC_(context, text) text
 
 #ifndef ANALYSIS_BUILD
 #ifndef SDL_PORT

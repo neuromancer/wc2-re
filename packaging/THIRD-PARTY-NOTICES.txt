@@ -22,6 +22,20 @@ The SDL2 release packages may include runtime libraries from:
 The exact set is platform-dependent. System libraries supplied by Windows,
 macOS, or the Linux distribution are not copied into these packages.
 
+Spanish translation
+===================
+
+Base-game text, translated artwork and accent glyphs come from L@Zar0 and darkpadawan's
+Wing Commander II Spanish translation, version 1.1 (2021).
+The upstream notice declares GPL v3.0 and an additional no-charge term.
+Its complete terms and credits accompany the catalog in
+translations/Spanish-README.txt (inside Contents/MacOS on macOS).
+Editable translation sources and import provenance are included in this
+release's source tag under translations/.
+
+Source archive:
+https://www.mediafire.com/file/pvkt604rsnrr82f/WC2_OPS1y2_V1.1.zip/file
+
 Community fixes
 ===============
 

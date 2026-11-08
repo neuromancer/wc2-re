@@ -320,18 +320,18 @@ ObjectTypeData g_aObjectTypeData[OBJECT_DATA_COUNT] = {
     { 0 },
     { 0 },
     {
-        "Laser cannon", OBJECT_CLASS_PROJECTILE, 0, 7, 10, 0, 512, 7,
+        N_("Laser cannon"), OBJECT_CLASS_PROJECTILE, 0, 7, 10, 0, 512, 7,
         30, 25, 0, 160
     },
     {
-        "Neutron gun", OBJECT_CLASS_PROJECTILE, 0, 8, 10, 1, 832, 14,
+        N_("Neutron gun"), OBJECT_CLASS_PROJECTILE, 0, 8, 10, 1, 832, 14,
         20, 40, 0, 140
     },
     {
-        "Mass driver", OBJECT_CLASS_PROJECTILE, 0, 9, 10, 0, 512, 9, 25, 30, 0, 120
+        N_("Mass driver"), OBJECT_CLASS_PROJECTILE, 0, 9, 10, 0, 512, 9, 25, 30, 0, 120
     },
     {
-        "Particle cannon", OBJECT_CLASS_PROJECTILE, 0, 10, 10, 0, 512,
+        N_("Particle cannon"), OBJECT_CLASS_PROJECTILE, 0, 10, 10, 0, 512,
         9, 30, 53, 0, 220
     },
     { "", OBJECT_CLASS_PROJECTILE, 0, 11, 10, 0, 512, 7, 30, 25, 0, 160 },
@@ -348,28 +348,28 @@ ObjectTypeData g_aObjectTypeData[OBJECT_DATA_COUNT] = {
         0, 150
     },
     {
-        "Dart DF", OBJECT_CLASS_MISSILE, 0, 15, 20, 5, 768, 500, 120,
+        N_("Dart DF"), OBJECT_CLASS_MISSILE, 0, 15, 20, 5, 768, 500, 120,
         4, 14500, 150, 0, 0, 1433, 15, 15, 15, 100
     },
     {
-        "Javelin HS", OBJECT_CLASS_MISSILE, 0, 16, 20, 5, 768, 400, 140, 4, 13500, 150, 0, 0, 1689, 11, 11, 11, 100
+        N_("Javelin HS"), OBJECT_CLASS_MISSILE, 0, 16, 20, 5, 768, 400, 140, 4, 13500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
     {
-        "Pilum FF", OBJECT_CLASS_MISSILE, 0, 17, 20, 5, 768, 400, 160, 4, 10500, 150, 0, 0, 1689, 11, 11, 11, 100
+        N_("Pilum FF"), OBJECT_CLASS_MISSILE, 0, 17, 20, 5, 768, 400, 160, 4, 10500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
     {
-        "Spiculum IR", OBJECT_CLASS_MISSILE, 0, 18, 20, 5, 768, 400,
+        N_("Spiculum IR"), OBJECT_CLASS_MISSILE, 0, 18, 20, 5, 768, 400,
         110, 4, 11500, 150, 0, 0, 1689, 11, 11, 11, 100
     },
     {
-        "Torpedo", OBJECT_CLASS_MISSILE, 0, 19, 55, 10, 1280, 400, 8200, 20, 30000, 50, 0, 0, 512, 4, 4, 4, 500
+        N_("Torpedo"), OBJECT_CLASS_MISSILE, 0, 19, 55, 10, 1280, 400, 8200, 20, 30000, 50, 0, 0, 512, 4, 4, 4, 500
     },
     {
-        "Chaff Pod", OBJECT_CLASS_MISSILE, 0, 20, 50, 1, 768, 400, 160, 4, 1000, 90, 0, (unsigned char
+        N_("Chaff Pod"), OBJECT_CLASS_MISSILE, 0, 20, 50, 1, 768, 400, 160, 4, 1000, 90, 0, (unsigned char
         *)g_asChaffPodAnimation, 1689, 11, 11, 11, 100
     },
     {
-        "Porcupine", OBJECT_CLASS_MINE, 0, 21, 20, 5, 768, 110, 120,
+        N_("Porcupine"), OBJECT_CLASS_MINE, 0, 21, 20, 5, 768, 110, 120,
         4, 20000, 20, 20, (unsigned char *)g_asMineAnimation,
         0, 0, 2, 2
     },
@@ -482,7 +482,7 @@ ObjectTypeData g_aObjectTypeData[OBJECT_DATA_COUNT] = {
         1
     },
     {
-        "data capsule", OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0, 0, 0, 0, 0, (unsigned char
+        N_("data capsule"), OBJECT_CLASS_DEBRIS, 0, 61, 1, 10, 1024, 0, 0, 0, 0, 0, 0, (unsigned char
         *)g_asDataCapsuleAnimation, 0, 0, 1
     },
     {

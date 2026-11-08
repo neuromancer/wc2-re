@@ -49,7 +49,7 @@ unsigned char *g_pReleaseWeaponDisplayBackground = 0; /* 0x0049b05c */
 signed char g_cReleaseWeaponDisplayFrame = -1; /* 0x0049b060 */
 signed char g_cReleaseWeaponDisplayTicks = 0; /* 0x0049b064 */
 signed char g_cReleaseWeaponDisplayState = 0; /* 0x0049b068 */
-static char g_szNoWeaponSelected[8] = "None"; /* 0x0049b070 */
+static char g_szNoWeaponSelected[8] = N_("None"); /* 0x0049b070 */
 int g_nDisplayedObjectiveRange = 40000; /* 0x0049b078 */
 short g_nScannerTargetObject = -1; /* 0x0049b07c */
 int g_aiForwardScannerGridRows[78] = {
@@ -92,7 +92,7 @@ int g_aiTargetCameraScannerGridRows[50] = {
     0, 1, 2, 3,
     -2
 }; /* 0x0049b1b8 */
-const char *g_pszMissileLocked = "MISSILE LOCKED "; /* 0x0049b280 */
+const char *g_pszMissileLocked = N_("MISSILE LOCKED "); /* 0x0049b280 */
 signed char g_bTargetBracketVisible = 1; /* 0x0049b284 */
 unsigned char *g_pHudMessageFrameShape = 0; /* 0x0049b288 */
 unsigned char *g_pHudMessageBackground = 0; /* 0x0049b28c */
@@ -465,7 +465,7 @@ short auto_pilot_valid(short showReason)
         return 0;
     if (IsMissionObjectiveOutOfSystem(
             (short)g_cCurrentObjective) != 0)
-        reason = "Jump Point";
+        reason = _("Jump Point");
     range = distance_from_point(
         0, &g_aMissionObjectives[
                (signed char)g_cCurrentObjective].position);
@@ -479,18 +479,18 @@ short auto_pilot_valid(short showReason)
                 &g_aMissionObjectives[
                     (signed char)g_cCurrentObjective].position,
                 &g_aShipDestination[object]) == 0) {
-            sprintf(g_pszAutopilotWaitReason, "Wait for %s",
+            sprintf(g_pszAutopilotWaitReason, _("Wait for %s"),
                     g_apShipMissionRecord[object]->name);
             reason = g_pszAutopilotWaitReason;
             break;
         }
     }
     if (range < 8000) {
-        reason = "Already Near";
+        reason = _("Already Near");
     } else if (kilrathi_near(0, 16000) != 0) {
-        reason = "Enemy Near";
+        reason = _("Enemy Near");
     } else if (g_pActiveHazardField != 0) {
-        reason = "Hazard Near";
+        reason = _("Hazard Near");
     }
     if (showReason != 0 && reason != 0)
         CockpitMessage(reason, g_cYellowColour, 3);
@@ -890,8 +890,8 @@ signed char damage_your_component(char component, char amount,
         }
     }
     if (get_mode(0) == 2 || get_mode(0) == 1) {
-        sprintf(text, "%s HIT",
-                g_apszComponentNames[(int)component]);
+        sprintf(text, _("%s HIT"),
+                _(g_apszComponentNames[(int)component]));
         ShowComponentHitHudMessage(text, g_cRedColour, 5);
     }
     return g_acPlayerComponentDamage[(int)component];
@@ -994,7 +994,7 @@ void show_weapon_disp(void)
     set_new_vdu(0);
     DrawTextAt(&g_5_stLeftVduStringContextRecord,
                g_2_stLeftwardVduPortBlock.left,
-               g_2_stLeftwardVduPortBlock.top, "WEAPON DISPLAY", 2);
+               g_2_stLeftwardVduPortBlock.top, _("WEAPON DISPLAY"), 2);
     DrawViewportLine(&g_2_stLeftwardVduPortBlock,
                      g_2_stLeftwardVduPortBlock.left + 2,
                      g_2_stLeftwardVduPortBlock.top + 5,
@@ -1015,14 +1015,14 @@ void show_weapon_disp(void)
         gunCaption = g_szNoWeaponSelected;
         break;
     case 0x80:
-        gunCaption = "Full Guns";
+        gunCaption = _("Full Guns");
         break;
     default:
         gunCaption = g_aObjectTypeData[
             g_nSelectedGunType].displayName;
     }
-    DrawFormattedText("\nWeapon:%s", releaseLabel);
-    DrawFormattedText("\nGun:%s", gunCaption);
+    DrawFormattedText(_("\nWeapon:%s"), _(releaseLabel));
+    DrawFormattedText(_("\nGun:%s"), _(gunCaption));
 
     g_5_nWeaponDisplayOriginXValue =
         (short)(g_2_stLeftwardVduPortBlock.left +
@@ -1208,10 +1208,10 @@ void DrawCalculatingLabel(void)
 {
     if (IsMissionObjectiveOutOfSystem(
             (short)g_cCurrentObjective) != 0) {
-        DrawCockpitReadout(0, "Out-system");
+        DrawCockpitReadout(0, _("Out-system"));
     } else {
         if (g_nCurrentObjectiveRange <= 0) {
-            DrawCockpitReadout(0, "CALCULATING");
+            DrawCockpitReadout(0, _("CALCULATING"));
         } else {
             strcpy(g_16_szTextBufferBuffer +
                        strlen(ltoa((long)g_nCurrentObjectiveRange,
@@ -1228,24 +1228,24 @@ void DrawCalculatingLabel(void)
 const char *objective_name(short objective)
 {
     if (objective >= (short)g_cMissionObjectiveCount)
-        return "NONE";
+        return _("NONE");
     else if (*g_aMissionObjectives[objective].name != '?' ||
              sighted(objective) != 0)
         return g_aMissionObjectives[objective].displayName;
     else
-        return "UNKNOWN";
+        return _("UNKNOWN");
 }
 
 /* Function start: 0x43A3F8 */
 void show_navigation_disp(void)
 {
     DrawTextAt(&g_1_stRightVduTextContextBlock, g_4_stRightVduView.left, g_4_stRightVduView.top,
-               "COMP NAVIGATION", 2);
-    DrawFormattedText("\n\nDESTINATION\n %s",
+               _("COMP NAVIGATION"), 2);
+    DrawFormattedText(_("\n\nDESTINATION\n %s"),
                       objective_name((short)g_cCurrentObjective));
-    DrawFormattedText("\n\nRANGE\n ");
+    DrawFormattedText(_("\n\nRANGE\n "));
     InitializeCockpitReadout(0, &g_1_stRightVduTextContextBlock);
-    DrawFormattedText("\n\n(N)ew Objective");
+    DrawFormattedText(_("\n\n(N)ew Objective"));
     DrawCalculatingLabel();
 }
 
@@ -1445,17 +1445,17 @@ void flag_reached(short objective, short reached)
             g_aMissionObjectives[objective].index ==
                 g_asShipMissionParameter[0]) {
             if (visited(objective) != 0) {
-                CockpitMessage("Already Visited",
+                CockpitMessage(_("Already Visited"),
                                g_cYellowColour, 4);
             } else {
-                CockpitMessage("Objective Reached",
+                CockpitMessage(_("Objective Reached"),
                                g_cYellowColour, 4);
             }
             moveOn = visit = 1;
         } else if (type != 1 ||
                    g_aMissionShips[carrierShip].state != 1) {
             sprintf(g_pszAutopilotWaitReason,
-                    "Wait for %s",
+                    _("Wait for %s"),
                     g_apShipMissionRecord[carrierObject]->name);
             CockpitMessage(g_pszAutopilotWaitReason,
                            g_cYellowColour, 4);
@@ -1988,7 +1988,7 @@ void lock_off(void)
             g_bTargetLockMode = 0;
         }
     }
-    remove_message(g_pszMissileLocked);
+    remove_message(_(g_pszMissileLocked));
     g_nTargetLockCountdown = -1;
     g_nTargetLockMusicCooldown = -98;
 }
@@ -2019,7 +2019,7 @@ short decrement_lock_time(short screenX)
             if (g_bTargetLockAcquired != 0) {
                 if (CheckTargetLockMalfunction() == 0)
                     PlaySfxWaveFileByNumber(0x16, -1, 0);
-                CockpitMessage(g_pszMissileLocked,
+                CockpitMessage(_(g_pszMissileLocked),
                                g_cRedColour, 2);
             } else if (((ShipWeaponSlot *)(
                            g_aShipWeapons[0] + 1))[
@@ -2565,7 +2565,7 @@ void UpdateTargetLeadIndicator(void)
     if (HasInRangeGunForTargetLead(
             distance_from_point(0, &meetPoint)) == 0) {
         SetHudMessageText(
-            "OUT OF RANGE",
+            _("OUT OF RANGE"),
             g_cRedColour, 20);
         g_bTargetLockActive = 0;
         return;
@@ -2658,7 +2658,7 @@ void overlay_head_up_display(void)
         (signed char)g_bTargetLockDisplayEnabled != 0) {
         g_bTargetLockActive = 1;
         SetHudMessageText(
-            "ITTS ENGAGED",
+            _("ITTS ENGAGED"),
             g_cRedColour, 20);
     }
     if (g_acShipTarget[0] == -1 ||

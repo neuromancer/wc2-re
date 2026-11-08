@@ -64,6 +64,7 @@ portable="$work/portable/$archive-sdl2"
 app="$work/image/Wing Commander II.app"
 mkdir -p "$app/Contents/"{MacOS,Frameworks,Resources}
 mv "$portable/wc2-modern" "$app/Contents/MacOS/wc2-modern"
+mv "$portable/translations" "$app/Contents/MacOS/translations"
 mv "$portable/"*.dylib "$app/Contents/Frameworks/"
 cp "$portable/"*LICENSE.txt "$portable/THIRD-PARTY-NOTICES.txt" "$app/Contents/Resources/"
 

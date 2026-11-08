@@ -64,6 +64,11 @@ short OpenPacketSection(const char *filename, short section,
             out->patchedData = 0;
             if (!SdlPatchPacketSection(filename, section, out))
                 goto failed;
+            if (!SdlTranslatePacketSection(filename, section, out)) {
+                free(out->patchedData);
+                out->patchedData = 0;
+                goto failed;
+            }
 #endif
             return 1;
         }

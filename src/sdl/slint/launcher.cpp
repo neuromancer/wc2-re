@@ -31,7 +31,7 @@ struct LauncherJoystick {
 std::vector<LauncherJoystick> list_joysticks(LauncherWindow &window)
 {
     std::vector<LauncherJoystick> joysticks;
-    std::vector<slint::SharedString> names = {"Automatic"};
+    std::vector<slint::SharedString> names = {window.get_automatic_joystick()};
 
     SDL_JoystickUpdate();
     SDL_LockJoysticks();
@@ -48,7 +48,7 @@ std::vector<LauncherJoystick> list_joysticks(LauncherWindow &window)
         joysticks.push_back({instanceId, SDL_JoystickGetDeviceGUID(index),
                              path != nullptr ? path : ""});
         names.emplace_back(std::to_string(index + 1) + " — " +
-                            (name != nullptr ? name : "Unnamed joystick"));
+                            (name != nullptr ? std::string(name) : std::string(window.get_unnamed_joystick())));
     }
     SDL_UnlockJoysticks();
     window.set_joystick_devices(
@@ -64,10 +64,10 @@ void refresh_window(LauncherWindow &window,
     const DirectoryStatus status = validate_game_directory(directory);
     const int selected = add_game_installation(installations, directory);
     std::vector<slint::SharedString> choices;
-    choices.emplace_back(installations.empty()
-        ? "No game data found — add a path" : "Select game data…");
+    window.set_has_installations(!installations.empty());
+    choices.emplace_back(window.get_installation_prompt());
     for (const auto &installation : installations)
-        choices.emplace_back(installation.edition + " — " + installation.directory);
+        choices.emplace_back(std::string(installation.edition == LauncherMessage::Dos ? "DOS" : "Kilrathi Saga") + " — " + installation.directory);
 
     window.set_installations(std::make_shared<slint::VectorModel<slint::SharedString>>(choices));
     window.set_installation_index(selected + 1);
@@ -75,18 +75,16 @@ void refresh_window(LauncherWindow &window,
 
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
-    window.set_status_text(slint::SharedString(status.message));
+    window.set_status(status.message);
+    window.set_status_detail(slint::SharedString(status.detail));
 }
 
-void report_picker_error(LauncherWindow &window, std::string message,
+void report_picker_error(LauncherWindow &window, LauncherMessage message,
                          const char *details)
 {
-    if (details != nullptr && details[0] != '\0') {
-        message += ": ";
-        message += details;
-    }
     window.set_picker_error(true);
-    window.set_status_text(slint::SharedString(message));
+    window.set_status(message);
+    window.set_status_detail(details ? details : "");
 }
 
 void browse_for_game_directory(LauncherWindow &window,
@@ -112,7 +110,7 @@ void browse_for_game_directory(LauncherWindow &window,
     if (result == NFD_CANCEL)
         return;
     if (result != NFD_OKAY || selectedDirectory == nullptr) {
-        report_picker_error(window, "The folder picker failed",
+        report_picker_error(window, LauncherMessage::PickerFailed,
                             NFD_GetError());
         return;
     }
@@ -146,6 +144,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     }
 
     auto window = LauncherWindow::create();
+    slint::select_bundled_translation(options->language == 1 ? "es" : "en");
     accepted = false;
     pickerInitialized = false;
     window->set_title_artwork(
@@ -153,6 +152,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             wc2_launcher_artwork::kWingCommanderLogoPng, "png"));
     window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_start_fullscreen(options->fullscreen != 0);
+    window->set_language_index(options->language);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
@@ -168,6 +168,22 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         joysticks = list_joysticks(*window);
     refresh_window(*window, installations);
 
+    window->on_language_selected([&window, &installations](int language) {
+        const auto unnamed = window->get_unnamed_joystick();
+        if (!slint::select_bundled_translation(language == 1 ? "es" : "en"))
+            return;
+        window->set_language_index(language == 1 ? 1 : 0);
+        auto devices = window->get_joystick_devices();
+        for (size_t i = 0; i < devices->row_count(); ++i) {
+            const auto value = devices->row_data(i);
+            if (i == 0)
+                devices->set_row_data(i, window->get_automatic_joystick());
+            else if (value && std::string(*value) == std::to_string(i) + " — " + std::string(unnamed))
+                devices->set_row_data(i, slint::SharedString(std::to_string(i) + " — " + std::string(window->get_unnamed_joystick())));
+        }
+        refresh_window(*window, installations);
+    });
+
     window->on_installation_selected([&window, &installations](int index) {
         if (index > 0 && static_cast<size_t>(index) <= installations.size())
             window->set_game_directory(slint::SharedString(installations[index - 1].directory));
@@ -181,18 +197,18 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         const std::string directory(window->get_game_directory());
         const auto absoluteDirectory = fs::absolute(path_from_utf8(directory), error);
         if (error) {
-            report_picker_error(*window, "Cannot resolve the game directory",
+            report_picker_error(*window, LauncherMessage::CannotResolveDirectory,
                                 error.message().c_str());
             return;
         }
         const auto absoluteText = path_to_utf8(absoluteDirectory);
         if (absoluteText.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY) {
-            report_picker_error(*window, "The game directory path is too long", nullptr);
+            report_picker_error(*window, LauncherMessage::PathTooLong, nullptr);
             return;
         }
         fs::current_path(absoluteDirectory, error);
         if (error) {
-            report_picker_error(*window, "Cannot open the game directory",
+            report_picker_error(*window, LauncherMessage::CannotOpenDirectory,
                                 error.message().c_str());
             return;
         }
@@ -216,7 +232,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         if (!pickerInitialized) {
             if (NFD_Init() != NFD_OKAY) {
                 report_picker_error(
-                    *window, "The folder picker could not be initialized",
+                    *window, LauncherMessage::PickerInitFailed,
                     NFD_GetError());
                 return;
             }
@@ -243,6 +259,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     std::memcpy(options->gameDirectory, gameDirectory.c_str(),
                 gameDirectory.size() + 1);
     options->fullscreen = window->get_start_fullscreen();
+    options->language = std::max(0, window->get_language_index());
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->balancedDifficulty = window->get_balanced_difficulty();

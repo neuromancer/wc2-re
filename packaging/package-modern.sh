@@ -43,6 +43,10 @@ cp packaging/README-modern.txt "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"
 cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
+test -s "$(dirname "$binary")/translations/es.dat"
+mkdir "$stage_dir/translations"
+cp "$(dirname "$binary")/translations/"*.dat "$stage_dir/translations/"
+cp translations/upstream/Leeme.txt "$stage_dir/translations/Spanish-README.txt"
 
 if test "$platform" = windows; then
     executable="$stage_dir/wc2-modern.exe"

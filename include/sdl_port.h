@@ -247,6 +247,14 @@ void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 int SdlPatchPacketSection(const char *filename, short section,
                           struct PacketSectionHandle *handle);
+int SdlLoadTranslationCatalog(const char *path);
+int SdlSetLanguage(int language);
+void SdlShutdownTranslations(void);
+char *SdlTranslateText(const char *context, const char *source);
+int SdlTranslatePacketSection(const char *filename, short section,
+                              struct PacketSectionHandle *handle);
+void SdlExpandCutsceneText(const unsigned char *source, char *destination);
+short SdlCinematicFontCharacter(short character);
 int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t sourceSize,
                               unsigned char *destination,

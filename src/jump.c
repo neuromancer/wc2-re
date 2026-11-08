@@ -143,7 +143,7 @@ void TryBeginStarSystemJump(void)
         if (g_aeObjectClass[object] == OBJECT_CLASS_SHIP &&
             g_asShipSide[object] == SIDE_KILRATHI) {
             set_global_message(
-                "Enemy near",
+                _("Enemy near"),
                 g_cYellowColour, 3);
             return;
         }
@@ -151,7 +151,7 @@ void TryBeginStarSystemJump(void)
     if (g_acJumpDriveUsedBySystem[
             g_nCurStellarSystem] != 0) {
         set_global_message(
-            "Capacitors Empty",
+            _("Capacitors Empty"),
             g_cYellowColour, 3);
         return;
     }
@@ -167,7 +167,7 @@ void TryBeginStarSystemJump(void)
                     g_cCurrentObjective].position,
                 &g_aShipDestination[object]) == 0) {
             sprintf(g_pszAutopilotWaitReason,
-                    "Wait for %s",
+                    _("Wait for %s"),
                     g_apShipMissionRecord[object]->name);
             set_global_message(
                 g_pszAutopilotWaitReason,
@@ -178,7 +178,7 @@ void TryBeginStarSystemJump(void)
     if (g_aMissionNavPoints[
             g_nCurrentNavPoint].field_2e == 0) {
         set_global_message(
-            "No jump point",
+            _("No jump point"),
             g_cYellowColour, 3);
         return;
     }

@@ -1,5 +1,6 @@
 #ifndef WC2_SLINT_LAUNCHER_PATHS_H
 #define WC2_SLINT_LAUNCHER_PATHS_H
+#include "launcher.h"
 
 #include <filesystem>
 #include <string>
@@ -10,12 +11,13 @@ namespace wc2_launcher {
 
 struct DirectoryStatus {
     bool valid;
-    std::string message;
+    LauncherMessage message;
+    std::string detail = {};
 };
 
 struct GameInstallation {
     std::string directory;
-    std::string edition;
+    LauncherMessage edition;
 };
 
 std::string path_to_utf8(const std::filesystem::path &path);

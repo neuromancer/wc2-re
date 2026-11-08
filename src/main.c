@@ -1144,10 +1144,10 @@ short HandleSpaceFlightControls(void)
                     g_bVideoImagesSuppressed == 0;
                 if (g_bVideoImagesSuppressed != 0)
                     SetHudMessageText(
-                        "VIDEO IMAGES SUPRESSED",
+                        _("VIDEO IMAGES SUPRESSED"),
                         g_cRedColour, 20);
                 else
-                    SetHudMessageText("VIDEO IMAGES ENABLED",
+                    SetHudMessageText(_("VIDEO IMAGES ENABLED"),
                                       g_ucPrimaryTextColour, 20);
             }
             break;
@@ -1178,7 +1178,7 @@ short HandleSpaceFlightControls(void)
                 SetSoundEffectsVolume(
                     g_anVolumeLevels[
                         g_nSfxVolumeSetting / 2]);
-                ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+                ShowOnScreenMessage(0, _("SFX VOLUME: %d."),
                                     g_nSfxVolumeSetting / 2);
             }
             break;
@@ -1467,10 +1467,10 @@ short HandleSpaceFlightControls(void)
                 g_nCockpitControlState = 0;
                 g_bMissileCameraEnabled ^= 1;
                 if (g_bMissileCameraEnabled != 0)
-                    SetHudMessageText("MISSILE CAMERA ON",
+                    SetHudMessageText(_("MISSILE CAMERA ON"),
                                       g_cRedColour, 20);
                 else
-                    SetHudMessageText("MISSILE CAMERA OFF",
+                    SetHudMessageText(_("MISSILE CAMERA OFF"),
                                       g_ucPrimaryTextColour, 20);
             }
             break;
@@ -1632,7 +1632,7 @@ pause_spaceflight:
             SetMusicStreamVolume(
                 (unsigned short)g_anVolumeLevels[
                     g_nMusicVolumeSetting / 2]);
-            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+            ShowOnScreenMessage(0, _("MUSIC VOLUME: %d."),
                                 g_nMusicVolumeSetting / 2);
         }
         break;
@@ -1648,7 +1648,7 @@ pause_spaceflight:
             SetSoundEffectsVolume(
                 g_anVolumeLevels[
                     g_nSfxVolumeSetting / 2]);
-            ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+            ShowOnScreenMessage(0, _("SFX VOLUME: %d."),
                                 g_nSfxVolumeSetting / 2);
             return 0;
         }
@@ -1662,7 +1662,7 @@ pause_spaceflight:
                 g_anVolumeLevels[
                     g_nSfxVolumeSetting / 2]);
             SaveVolumeSettingsToRegistry();
-            ShowOnScreenMessage(0, "SFX VOLUME: %d.",
+            ShowOnScreenMessage(0, _("SFX VOLUME: %d."),
                                 g_nSfxVolumeSetting / 2);
             return 0;
         }
@@ -1676,7 +1676,7 @@ pause_spaceflight:
             SetMusicStreamVolume(
                 (unsigned short)g_anVolumeLevels[
                     g_nMusicVolumeSetting / 2]);
-            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+            ShowOnScreenMessage(0, _("MUSIC VOLUME: %d."),
                                 g_nMusicVolumeSetting / 2);
             return 0;
         }
@@ -1690,7 +1690,7 @@ pause_spaceflight:
             SetMusicStreamVolume(
                 (unsigned short)g_anVolumeLevels[
                     g_nMusicVolumeSetting / 2]);
-            ShowOnScreenMessage(0, "MUSIC VOLUME: %d.",
+            ShowOnScreenMessage(0, _("MUSIC VOLUME: %d."),
                                 g_nMusicVolumeSetting / 2);
             return 0;
         }

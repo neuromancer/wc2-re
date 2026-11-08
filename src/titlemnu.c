@@ -33,7 +33,7 @@ void CalibrateJoystickInteractive()
     InitializeTextContextFromFont(&g_3_stDefaultStringContext, 1,
         g_bPrimaryViewBufferColour, (signed char)g_cSecondaryViewBufferColour);
     if (ShowModalTextPanel(1,
-        "Turn AUTO FIRE off if present, press a button") != 0) {
+        _("Turn AUTO FIRE off if present, press a button")) != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
         WaitForJoystickButtonRelease();
@@ -41,7 +41,7 @@ void CalibrateJoystickInteractive()
     }
 
     if (ShowModalTextPanel(1,
-        "Move stick to the UPPER LEFT, press a button") != 0) {
+        _("Move stick to the UPPER LEFT, press a button")) != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(sample, g_8_nActiveInputDeviceWord, 0x7fff);
@@ -54,7 +54,7 @@ void CalibrateJoystickInteractive()
     }
 
     if (ShowModalTextPanel(1,
-        "Move stick to the LOWER RIGHT, press a button") != 0) {
+        _("Move stick to the LOWER RIGHT, press a button")) != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(sample, g_8_nActiveInputDeviceWord, 0x7fff);
@@ -67,7 +67,7 @@ void CalibrateJoystickInteractive()
     }
 
     if (ShowModalTextPanel(1,
-        "Center Joystick, press a button") != 0) {
+        _("Center Joystick, press a button")) != 0) {
         DIBslamReal();
         WaitForJoystickButtonPress();
         SampleJoystickDevice(sample, g_8_nActiveInputDeviceWord, 0x7fff);
@@ -122,7 +122,7 @@ void CalibrateJoystickInteractive()
     if (g_4_nJoystickMaximumXValue <= g_12_nJoystickMinimumXNumber ||
         g_nJoystickMaximumY <= g_2_nJsMinimumY) {
         if (ShowModalTextPanel(1,
-            "FAILED! Center Joystick, press a button") != 0) {
+            _("FAILED! Center Joystick, press a button")) != 0) {
             DIBslamReal();
             WaitForJoystickButtonPress();
             WaitForJoystickButtonRelease();
@@ -202,9 +202,9 @@ short RunCampaignSelectionFrame(void *scene, void *field)
             SetTextCursor(
                 (unsigned short)((320 -
                     MeasureTextPixelWidthClamped(
-                        g_pszPersonnelFooter)) >> 1),
+                        C_("hotspot", g_pszPersonnelFooter))) >> 1),
                 180);
-            DrawFormattedText("%S", g_pszPersonnelFooter);
+            DrawFormattedText("%S", C_("hotspot", g_pszPersonnelFooter));
             g_3_stDefaultStringContext.viewport =
                 &g_101_stScrViewInfo;
         }

@@ -35,7 +35,7 @@ void FinishCannedScenePlayback(void)
 #endif
     if (g_nArcadeState != 4) {
         force_view(0, 0);
-        SetHudMessageText("END INFLIGHT REPLAY",
+        SetHudMessageText(_("END INFLIGHT REPLAY"),
                           (unsigned short)g_cRedColour,
                           20);
     }

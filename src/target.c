@@ -46,12 +46,12 @@ void show_target_disp(void)
         DrawFormattedText(
             "%F%s%F",
             (unsigned int)g_cRedColour,
-            "   LOCKED TARGET",
+            _("   LOCKED TARGET"),
             (unsigned int)g_ucDefaultTextColour);
     } else {
         DrawFormattedText("%F%s",
                           (unsigned int)g_ucDefaultTextColour,
-                          "  AUTO TARGETTING");
+                          _("  AUTO TARGETTING"));
     }
     ship = g_acShipTarget[0];
     if (ship != -1 && g_anShipCloakState[ship] == 1 &&
@@ -71,9 +71,9 @@ void show_target_disp(void)
         g_bDisplayWingmanTargetData = 0;
     }
     g_cTargetDisplayObject = (signed char)ship;
-    DrawFormattedText("\nTarget:");
+    DrawFormattedText(_("\nTarget:"));
     if (ship == -1) {
-        DrawFormattedText(" None");
+        DrawFormattedText(_(" None"));
         return;
     }
     typeData = &g_aObjectTypeData[g_acObjectType[ship]];
@@ -82,9 +82,9 @@ void show_target_disp(void)
                           g_apShipMissionRecord[ship]->name);
     } else {
         DrawFormattedText(" %s",
-                          "UNKNOWN");
+                          _("UNKNOWN"));
     }
-    DrawFormattedText("\nRange : ");
+    DrawFormattedText(_("\nRange : "));
     InitializeCockpitReadout(1, &g_1_stRightVduTextContextBlock);
     if (g_asObjectScreenX[ship] == -32767 &&
         g_bDisplayWingmanTargetData == 0) {
@@ -179,7 +179,7 @@ void DrawTargetRangeReadout(void)
                     30000 ||
                 (unsigned short)g_asObjectDistance[target] < 0) {
                 strcpy(g_16_szTextBufferBuffer,
-                       "TOO FAR");
+                       _("TOO FAR"));
             } else {
                 strcpy(g_16_szTextBufferBuffer +
                            strlen(itoa((unsigned short)
@@ -194,7 +194,7 @@ void DrawTargetRangeReadout(void)
         }
         if (g_bDisplayWingmanTargetData != 0) {
             strcpy(g_16_szTextBufferBuffer,
-                   "DATA XMIT");
+                   _("DATA XMIT"));
         }
         DrawCockpitReadout(1, g_16_szTextBufferBuffer);
         if (g_nTargetLockCountdown == 0) {

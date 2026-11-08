@@ -196,7 +196,7 @@ void ReportSpaceFlightMaxFps(float adjustment)
     else if (g_fSpaceFlightFrameRate > 32.0)
         g_fSpaceFlightFrameRate = 32.0f;
     sprintf(g_18_szSpaceFlightBestFpsMessage,
-            "Space Flight Max FPS : %.1f",
+            _("Space Flight Max FPS : %.1f"),
             (double)g_fSpaceFlightFrameRate);
     SetHudMessageText(g_18_szSpaceFlightBestFpsMessage, 0x50, 0x14);
     if (g_nFrameTimingMode == 1)

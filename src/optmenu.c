@@ -386,14 +386,14 @@ short PollCampaignChalkboardMenu(unsigned char *scene)
             SetTextCursor(
                 (unsigned short)((320 -
                     MeasureTextPixelWidthClamped(
-                        g_pszPersonnelFooter)) >> 1),
+                        C_("hotspot", g_pszPersonnelFooter))) >> 1),
                 180);
             if (strcmp(g_pszPersonnelFooter,
                        "Exit to DOS") != 0) {
                 DrawFormattedText("%S",
-                                  g_pszPersonnelFooter);
+                                  C_("hotspot", g_pszPersonnelFooter));
             } else {
-                DrawFormattedText("%S", "Exit the Game");
+                DrawFormattedText("%S", _("Exit the Game"));
             }
         }
         g_3_stDefaultStringContext.viewport =

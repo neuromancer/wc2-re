@@ -200,7 +200,7 @@ void ShowOnScreenMessage(short duration, const char *format, ...)
 void ShowGamePausedBanner(short showBanner)
 {
     if (showBanner != 0) {
-        ShowOnScreenMessage(9999, "GAME PAUSED");
+        ShowOnScreenMessage(9999, _("GAME PAUSED"));
     } else {
 #ifdef SDL_PORT
         SdlSuspendMouseGrab();
@@ -216,7 +216,7 @@ void ShowGamePausedBanner(short showBanner)
 /* Function start: 0x437F77 */
 void ShowVersionBanner(void)
 {
-    ShowOnScreenMessage(9999, "WING COMMANDER VER. %s",
+    ShowOnScreenMessage(9999, _("WING COMMANDER VER. %s"),
                         g_pszGameVersion);
 }
 
@@ -225,7 +225,7 @@ void SetMessageDisplaySpeed(void)
 {
     g_cMessageSpeed =
         (unsigned char)(((signed char)g_cMessageSpeed + 1) % 5);
-    ShowOnScreenMessage(0, "MESSAGES SPEED IS NOW %d.",
+    ShowOnScreenMessage(0, _("MESSAGES SPEED IS NOW %d."),
                         (signed char)g_cMessageSpeed + 1);
 }
 
@@ -237,7 +237,7 @@ void ReportFramesSkipped(short adjustment)
 {
     g_nFrameSkip = MinShort(
         MaxShort((short)(g_nFrameSkip + adjustment), 1), 5);
-    ShowOnScreenMessage(0, "%d FRAMES SKIPPED.",
+    ShowOnScreenMessage(0, _("%d FRAMES SKIPPED."),
                         g_nFrameSkip - 1);
 }
 
