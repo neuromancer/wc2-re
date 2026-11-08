@@ -127,6 +127,14 @@ Install a C/C++ compiler plus the SDL2 and LZO2 development packages, then run
 on Windows). `make run-modern` uses Kilrathi Saga data in `data/wc2-full`;
 `make run-modern-dos` uses DOS data in `data/dos`.
 
+For regression checks, `make modern-test-cutscenes` runs the 50 populated
+base-campaign cutscene sequences with SDL's dummy video and audio drivers,
+including mission-data loads reached by briefing scripts. Set `MODERN_RUN_DIR`
+to the installed game directory and `MODERN_CUTSCENE_JOBS=1` for a serial run
+(default: four parallel processes). Logs go to `out-modern/cutscene-asan/`;
+the command fails on process errors or sanitizer reports. Full flight startup
+is separate: `make run-modern-mission SERIES=1 MISSION=0`.
+
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler. Linux builds need the D-Bus and Fontconfig
 development packages. It produces `out-modern/wc2-modern-gui`, which release

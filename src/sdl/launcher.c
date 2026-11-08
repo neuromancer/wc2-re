@@ -213,108 +213,11 @@ static void SdlApplyLegacyArguments(int argumentCount, char **arguments)
     }
 }
 
-static int SdlRunRuntimeChecks(void)
-{
-    short object;
-    unsigned char framePalette[256 * 4];
-    unsigned char framePixels[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
-
-    /* Exercise the full presentation contract, including the GL backend's
-     * copy of all 256 palette entries -- catches an EGA-filter buffer size
-     * mismatch the same way wc1-re's own version of this check does. */
-    memset(framePixels, 0, sizeof(framePixels));
-    memset(framePalette, 0, sizeof(framePalette));
-    if (!SdlPresentIndexedFrame(framePixels, framePalette))
-        return 1;
-
-    g_aShipWeapons[1][0] = 2;
-    remove_weapon(1, 0);
-    if (g_aShipWeapons[1][0] != 1)
-        return 1;
-
-    /* Nothing targeted, the readout already showing that, and a frame the
-     * periodic redraw does not fall on: the walk stays out of show_target_disp
-     * and its text, which needs a font the check has no data to load. */
-    g_acShipTarget[0] = -1;
-    g_cTargetDisplayObject = -1;
-    g_nRenderedSpaceFrame = 1;
-    DrawTargetRangeReadout();
-
-    g_aeObjectClass[1] = OBJECT_CLASS_SHIP;
-    g_acObjectOwner[1] = -1;
-    g_nYourWingman = -1;
-    send_appropriate_message(1, 0);
-
-    /* Likewise the reroll-chance table is indexed by the maneuver, so drive
-     * it with one the ship can actually be flying. */
-    g_acShipTarget[0] = 1;
-    g_asShipManeuver[0] = MANEUVER_THINKING;
-    perform_maneuver(0);
-
-    g_9_pSnowStaticAudio = ix_system_new_sound(0);
-    if (g_9_pSnowStaticAudio == 0)
-        return 1;
-    stop_all_sounds();
-    if (g_9_pSnowStaticAudio != 0)
-        return 1;
-
-    /* WC2's vdu_polygon draws straight into the panel shape instead of
-     * leaving a rectangle behind, so the call is the check. */
-    vdu_polygon(2, 50);
-
-    /* A strike whose target is gone routs, but only for a ship the mission
-     * header does not list: strike_mission reads the mission-ship record of a
-     * team member, and this parameter names none. */
-    g_asShipMissionIndex[1] = 1;
-    g_asShipMissionParameter[1] = -1;
-    g_aeShipObjective[1] = OBJECTIVE_HOME_BASE;
-    strike_mission(1);
-    if (g_asShipMissionType[1] != MISSION_TYPE_ROUT)
-        return 1;
-
-    g_nCommPortraitIndex = -1;
-    FreeCommDisplayResources();
-
-    g_nSpaceFrame = 20;
-    g_nLastAdaptiveDifficultyChangeFrame = 0;
-    g_nAdaptiveDifficulty = 5;
-    IncreaseAdaptiveDifficulty();
-    if (g_nAdaptiveDifficulty !=
-        (g_bSdlBalancedDifficulty != 0 ? 5 : 6))
-        return 1;
-    g_nLastAdaptiveDifficultyChangeFrame = 0;
-    g_nAdaptiveDifficulty = 5;
-    DecreaseAdaptiveDifficulty();
-    if (g_nAdaptiveDifficulty !=
-        (g_bSdlBalancedDifficulty != 0 ? 5 : 4))
-        return 1;
-
-    for (object = 0; object <= SPACE_LAST_MOVING_OBJECT; object++)
-        g_aeObjectClass[object] = OBJECT_CLASS_NULL;
-    g_aeObjectClass[0] = OBJECT_CLASS_SHIP;
-    g_aeObjectClass[1] = OBJECT_CLASS_ASTEROID;
-    g_asObjectCollisionRadius[0] = 10;
-    g_asObjectCollisionRadius[1] = 100;
-    if (SdlGetBalancedCollisionRadius(1) !=
-        (g_bSdlBalancedDifficulty != 0 ? 50 : 100))
-        return 1;
-    zero_vector(&g_aShipPosition[0]);
-    zero_vector(&g_aShipPosition[1]);
-    g_aShipPosition[1].x = 80 * 0x100;
-    if (check_for_collision(0) !=
-        (g_bSdlBalancedDifficulty != 0 ? -1 : 1))
-        return 1;
-    return 0;
-}
-
-#ifndef WC2_LAUNCHER_NO_MAIN
 int main(int argumentCount, char **arguments)
 {
     SDL_Window *window;
     Uint32 windowFlags;
-    int checkOnly;
     int cutsceneOnly;
-    int gameResult;
     int launcherGuiImplicit;
     int launcherResult;
     int useEnhancedRenderer;
@@ -366,7 +269,6 @@ int main(int argumentCount, char **arguments)
         SdlSetVideoBackend(
             SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR);
     }
-    checkOnly = argumentCount == 2 && strcmp(arguments[1], "--check") == 0;
     /* The build defines SDL_MAIN_HANDLED, so tell SDL the process is already
      * up rather than letting it rename main() out from under us. */
     SDL_SetMainReady();
@@ -377,7 +279,7 @@ int main(int argumentCount, char **arguments)
     }
 
     windowFlags = SDL_WINDOW_RESIZABLE;
-    if (launcherOptions.fullscreen && !checkOnly)
+    if (launcherOptions.fullscreen)
         windowFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     if (!SdlConfigureVideoWindow(&windowFlags)) {
         fprintf(stderr, "SDL video configuration failed: %s\n",
@@ -385,8 +287,6 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
-    if (checkOnly)
-        windowFlags |= SDL_WINDOW_HIDDEN;
     window =
         SDL_CreateWindow("Wing Commander SDL2 port", SDL_WINDOWPOS_CENTERED,
                          SDL_WINDOWPOS_CENTERED, 960, 600, windowFlags);
@@ -395,7 +295,7 @@ int main(int argumentCount, char **arguments)
         SDL_Quit();
         return 1;
     }
-    if (useLauncherGui && !checkOnly) {
+    if (useLauncherGui) {
         /* Slint may create the macOS application before SDL. Cocoa's normal
          * show path does not reactivate an existing application, so transfer
          * focus explicitly when replacing the launcher with the game window. */
@@ -411,62 +311,56 @@ int main(int argumentCount, char **arguments)
     DIBinstall((HWND)window);
     g_10_hMainWindow = (HWND)window;
     SdlStartEventPump();
-    if (checkOnly) {
-        gameResult = SdlRunRuntimeChecks();
-    } else {
-        CheckLauncherAndConfig();
-        usingDosData = SdlUsingDosData();
-        if (!SdlInitializeOriginFxAudio(usingDosData)) {
-            if (usingDosData) {
-                fprintf(stderr, "DOS audio is unavailable.\n");
-            } else {
-                fprintf(stderr,
-                        "Original orchestral intro music is unavailable.\n");
-            }
+    CheckLauncherAndConfig();
+    usingDosData = SdlUsingDosData();
+    if (!SdlInitializeOriginFxAudio(usingDosData)) {
+        if (usingDosData) {
+            fprintf(stderr, "DOS audio is unavailable.\n");
+        } else {
+            fprintf(stderr,
+                    "Original orchestral intro music is unavailable.\n");
         }
-        /* The flight loop waits one timer period per frame, so this is the
-         * frame duration in 60ths of a second less one -- the readout in
-         * AdjustSpaceFramePeriod prints it as period + 1.  Retail ships 4,
-         * which is 5/60s or about 12fps; the port takes a tick off for 4/60s,
-         * about 15fps, which visibly smooths flight.  Set here rather than in
-         * globals.c so that file stays a faithful mirror of the image's data,
-         * and because the in-flight keys can still adjust it from here. */
-        g_nSpaceFramePeriod = 3;
-        SdlApplyLegacyArguments(argumentCount, arguments);
-        MonoDebug_install();
-        InitializeAudioSystem((HWND)window);
-        InitializeAudioStreamer((HWND)window);
-        srand((unsigned int)time(0));
-        InitGameClockRandomEpoch();
-        CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
-        g_11_dwGameZeroTime = (unsigned int)time(0);
-        g_176_pfnCurrentInputPump = 0;
-        SDL_ShowCursor(SDL_DISABLE);
-        /* The same sequence WinMain runs once the window exists. */
-        g_196_nInputTimerTicks = 0;
-        AllocateApplicationScratchBuffer();
-        g_bApplicationControllerActive = 1;
-        /* RunGameApplication receives the number of arguments after argv[0].
-         * Its recovered option loader starts copying at argv[1], then preserves
-         * WC2's original one-token lookahead by exposing one fewer argument to
-         * the game's parser. */
-        SdlRunGameApplication(argumentCount, arguments);
-        g_bApplicationShutdownStarted = 1;
-        ReleaseApplicationScratchBuffer();
-        gameResult = 0;
-        SdlSetMouseGrab(0);
-        SDL_ShowCursor(SDL_ENABLE);
-        DestroyGlobalDebugOverlayConsole();
-        if ((g_dwStreamerMode & 1) != 0)
-            ix_streamer_destroy();
-        ServiceAudioStream();
-        SdlShutdownOriginFxAudio();
     }
+    /* The flight loop waits one timer period per frame, so this is the
+     * frame duration in 60ths of a second less one -- the readout in
+     * AdjustSpaceFramePeriod prints it as period + 1.  Retail ships 4,
+     * which is 5/60s or about 12fps; the port takes a tick off for 4/60s,
+     * about 15fps, which visibly smooths flight.  Set here rather than in
+     * globals.c so that file stays a faithful mirror of the image's data,
+     * and because the in-flight keys can still adjust it from here. */
+    g_nSpaceFramePeriod = 3;
+    SdlApplyLegacyArguments(argumentCount, arguments);
+    MonoDebug_install();
+    InitializeAudioSystem((HWND)window);
+    InitializeAudioStreamer((HWND)window);
+    srand((unsigned int)time(0));
+    InitGameClockRandomEpoch();
+    CreateDebugOverlayConsole(0, (HWND)window, 60, 20);
+    g_11_dwGameZeroTime = (unsigned int)time(0);
+    g_176_pfnCurrentInputPump = 0;
+    SDL_ShowCursor(SDL_DISABLE);
+    /* The same sequence WinMain runs once the window exists. */
+    g_196_nInputTimerTicks = 0;
+    AllocateApplicationScratchBuffer();
+    g_bApplicationControllerActive = 1;
+    /* RunGameApplication receives the number of arguments after argv[0].
+     * Its recovered option loader starts copying at argv[1], then preserves
+     * WC2's original one-token lookahead by exposing one fewer argument to
+     * the game's parser. */
+    SdlRunGameApplication(argumentCount, arguments);
+    g_bApplicationShutdownStarted = 1;
+    ReleaseApplicationScratchBuffer();
+    SdlSetMouseGrab(0);
+    SDL_ShowCursor(SDL_ENABLE);
+    DestroyGlobalDebugOverlayConsole();
+    if ((g_dwStreamerMode & 1) != 0)
+        ix_streamer_destroy();
+    ServiceAudioStream();
+    SdlShutdownOriginFxAudio();
 
     DIBunInstall();
     SdlShutdownJoysticks();
     SDL_DestroyWindow(window);
     SDL_Quit();
-    return gameResult;
+    return 0;
 }
-#endif

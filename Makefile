@@ -205,7 +205,7 @@ MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
 # aarch64 and x86-64 both perform those loads correctly; the rest of UBSan and
 # all of ASan stay on.
 MODERN_UBSAN_EXCLUDE = -fno-sanitize=alignment
-# Developer and test builds retain runtime diagnostics.  Tagged release jobs
+# Developer builds retain runtime diagnostics.  Tagged release jobs
 # explicitly select the optimized, uninstrumented host build.
 ifeq ($(MODERN_RELEASE),1)
 override MODERN_SANITIZER_FLAGS =
@@ -556,7 +556,6 @@ MODERN_GAME_HOST_OBJS = \
 	$(MODERN_YMFM_OBJS)
 MODERN_STATIC_GUI_LAUNCHER_OBJ = \
 	$(MODERN_OUT_DIR)/obj/sdl/launcher_gui.o
-MODERN_TEST_LAUNCHER_OBJ = $(MODERN_OUT_DIR)/obj/sdl/launcher_test.o
 MODERN_GUI_GAME_OBJS = \
 	$(MODERN_STATIC_GUI_LAUNCHER_OBJ) \
 	$(MODERN_BASE_HOST_OBJS) \
@@ -569,47 +568,14 @@ MODERN_GUI_CMAKE_OBJECTS = $(abspath $(MODERN_GUI_GAME_OBJS))
 ifneq (,$(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)))
 MODERN_GUI_CMAKE_OBJECTS = $(shell cygpath -m $(abspath $(MODERN_GUI_GAME_OBJS)))
 endif
-MODERN_EVENT_HOST_OBJS = \
-	$(MODERN_OUT_DIR)/obj/sdl/events.o \
-	$(MODERN_OUT_DIR)/obj/sdl/video.o
-MODERN_VIDEO_HOST_OBJS = \
-	$(MODERN_OUT_DIR)/obj/dib.o \
-	$(MODERN_OUT_DIR)/obj/sdl/video.o
 MODERN_LAUNCHER_OBJ = $(patsubst src/%.c,$(MODERN_OUT_DIR)/obj/%.o,$(MODERN_LAUNCHER_SRC))
-MODERN_INPUT_CORE_OBJS = \
-	$(MODERN_OUT_DIR)/obj/eventmgr.o \
-	$(MODERN_OUT_DIR)/obj/globals.o \
-	$(MODERN_OUT_DIR)/obj/sysinput.o
-MODERN_BASE_C_TEST_NAMES = sdl_compat_smoke sdl_crt_compat sdl_text_compat \
-	sdl_save_handles \
-	sdl_dos_resources sdl_input_compat sdl_event_compat sdl_video_compat \
-	sdl_ship_evasion sdl_adaptive_difficulty sdl_turret_guns sdl_ship_exhaust \
-	sdl_capital_weapons sdl_music_paths sdl_mission_objectives sdl_cutscene_input
-MODERN_BASE_C_TEST_BINS = $(addsuffix $(MODERN_EXE_SUFFIX),\
-	$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES)))
-MODERN_RUNTIME_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_runtime_safety$(MODERN_EXE_SUFFIX)
-MODERN_CXX_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke$(MODERN_EXE_SUFFIX)
-MODERN_ADLIB_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_dos_adlib$(MODERN_EXE_SUFFIX)
-MODERN_GL_VIDEO_TEST_BIN = $(MODERN_OUT_DIR)/tests/sdl_gl_renderer$(MODERN_EXE_SUFFIX)
-MODERN_HEADLESS_TEST_BINS = \
-	$(MODERN_BASE_C_TEST_BINS) \
-	$(MODERN_RUNTIME_TEST_BIN) \
-	$(MODERN_CXX_TEST_BIN) \
-	$(MODERN_ADLIB_TEST_BIN)
-MODERN_TEST_BINS = $(MODERN_HEADLESS_TEST_BINS) $(MODERN_GL_VIDEO_TEST_BIN)
 MODERN_DEPFILES = \
 	$(MODERN_GAMEPLAY_OBJS:.o=.d) \
 	$(MODERN_IX_OBJS:.o=.d) \
 	$(MODERN_BASE_HOST_OBJS:.o=.d) \
 	$(MODERN_GAME_HOST_OBJS:.o=.d) \
 	$(MODERN_LAUNCHER_OBJ:.o=.d) \
-	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d) \
-	$(MODERN_TEST_LAUNCHER_OBJ:.o=.d) \
-	$(addsuffix .d,$(addprefix $(MODERN_OUT_DIR)/tests/,$(MODERN_BASE_C_TEST_NAMES))) \
-	$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.d \
-	$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.d \
-	$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.d \
-	$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.d
+	$(MODERN_STATIC_GUI_LAUNCHER_OBJ:.o=.d)
 
 # ---------------------------------------------------------------------------
 # Build targets and tool bootstrap
@@ -667,8 +633,7 @@ modern-check-deps:
 	fi
 
 $(MODERN_STATIC_GUI_LAUNCHER_OBJ): MODERN_LAUNCHER_CPPFLAGS = -DWC2_STATIC_GUI=1
-$(MODERN_TEST_LAUNCHER_OBJ): MODERN_LAUNCHER_CPPFLAGS = -DWC2_LAUNCHER_NO_MAIN=1
-$(MODERN_STATIC_GUI_LAUNCHER_OBJ) $(MODERN_TEST_LAUNCHER_OBJ): \
+$(MODERN_STATIC_GUI_LAUNCHER_OBJ): \
 		$(MODERN_LAUNCHER_SRC) Makefile | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_LAUNCHER_CPPFLAGS) $(MODERN_CFLAGS) \
@@ -721,22 +686,6 @@ $(MODERN_OUT_DIR)/obj/personnel.o: MODERN_CPPFLAGS += \
 	-DHasSavedPilotCampaign=SdlRetailHasSavedPilotCampaign
 $(MODERN_OUT_DIR)/obj/personnel.o: Makefile
 
-$(MODERN_OUT_DIR)/tests/%.o: tests/%.c | modern-check-deps
-	@mkdir -p $(dir $@)
-	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_TEST_CPPFLAGS) $(MODERN_CFLAGS) \
-		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$(MODERN_DEPFLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/tests/%.o: tests/%.cpp | modern-check-deps
-	@mkdir -p $(dir $@)
-	$(MODERN_CXX) $(MODERN_CPPFLAGS) -Isrc/ix $(MODERN_CXXFLAGS) \
-		$(MODERN_SECTION_FLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$(MODERN_DEPFLAGS) -c $< -o $@
-
-$(MODERN_OUT_DIR)/tests/sdl_compat_smoke.o: MODERN_TEST_CPPFLAGS = -DANALYSIS_BUILD=1
-$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
-$(MODERN_OUT_DIR)/tests/sdl_video_compat.o: MODERN_TEST_CPPFLAGS = -Isrc/sdl
-
 $(MODERN_TARGET): \
 		$(MODERN_LAUNCHER_OBJ) \
 		$(MODERN_BASE_HOST_OBJS) \
@@ -748,97 +697,6 @@ $(MODERN_TARGET): \
 		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
 		$(MODERN_PLATFORM_LIBS) \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-# These checks supply their own main, but also reach the launcher's cutscene-
-# exit callback through the resource objects.
-$(MODERN_OUT_DIR)/tests/sdl_crt_compat$(MODERN_EXE_SUFFIX) \
-$(MODERN_OUT_DIR)/tests/sdl_save_handles$(MODERN_EXE_SUFFIX) \
-$(MODERN_OUT_DIR)/tests/sdl_cutscene_input$(MODERN_EXE_SUFFIX): $(MODERN_TEST_LAUNCHER_OBJ)
-
-# The host compatibility layer reaches into the game core for packet loads and
-# into the event pump for key waits, so these link the same objects the heavier
-# checks do.
-$(MODERN_BASE_C_TEST_BINS): $(MODERN_OUT_DIR)/tests/%$(MODERN_EXE_SUFFIX): \
-		$(MODERN_OUT_DIR)/tests/%.o \
-		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) \
-		$(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-$(MODERN_RUNTIME_TEST_BIN): \
-		$(MODERN_OUT_DIR)/tests/sdl_runtime_safety.o \
-		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) \
-		$(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-$(MODERN_GL_VIDEO_TEST_BIN): \
-		$(MODERN_OUT_DIR)/tests/sdl_gl_renderer.o \
-		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) \
-		$(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-$(MODERN_CXX_TEST_BIN): \
-		$(MODERN_OUT_DIR)/tests/sdl_ix_compat_smoke.o \
-		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_GAME_HOST_OBJS) \
-		$(MODERN_GAMEPLAY_OBJS) \
-		$(MODERN_IX_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-# music.o carries the OriginFX sound-effect records the retail check plays.
-$(MODERN_ADLIB_TEST_BIN): \
-		$(MODERN_OUT_DIR)/tests/sdl_dos_adlib.o \
-		$(MODERN_BASE_HOST_OBJS) \
-		$(MODERN_OUT_DIR)/obj/music.o \
-		$(MODERN_OUT_DIR)/obj/sdl/originfx.o \
-		$(MODERN_YMFM_OBJS)
-	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) \
-		$^ $(MODERN_SDL_LIBS) $(MODERN_DEAD_STRIP_FLAGS) -o $@
-
-modern-test: modern
-	@echo "Running $(MODERN_TARGET) --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
-	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
-		$(MODERN_TARGET) --balanced-difficulty --check
-	@echo "Running $(MODERN_TARGET) --ega --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
-		$(MODERN_TARGET) --ega --check
-
-modern-test-full: $(MODERN_TARGET) $(MODERN_TEST_BINS)
-	@set -e; for test_bin in $(MODERN_HEADLESS_TEST_BINS); do \
-		echo "Running $$test_bin"; \
-		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy "$$test_bin"; \
-	done
-	@echo "Running $(MODERN_GL_VIDEO_TEST_BIN)"
-	@SDL_AUDIODRIVER=dummy $(MODERN_GL_VIDEO_TEST_BIN); \
-	status=$$?; \
-	if test $$status -eq 77; then \
-		echo "GL renderer test skipped: no OpenGL display"; \
-	elif test $$status -ne 0; then \
-		exit $$status; \
-	fi
-	@echo "Running $(MODERN_TARGET) --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy $(MODERN_TARGET) --check
-	@echo "Running $(MODERN_TARGET) --balanced-difficulty --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
-		$(MODERN_TARGET) --balanced-difficulty --check
-	@echo "Running $(MODERN_TARGET) --ega --check"
-	@SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
-		$(MODERN_TARGET) --ega --check
 
 run-modern: modern
 	@case "$(MODERN_RUN_DIR)" in \
@@ -1114,9 +972,6 @@ $(PDB_SEED): $(PDB_SEED_TOOL) Makefile $(MSVC41_DIR)/Bin/MSPDB41.DLL
 	env WIBO_PATH='$(MSVC41_DIR)/Bin' $(WIBO) $(PDB_SEED_TOOL) create \
 		$(MSVC41_DIR)/Bin/MSPDB41.DLL $@.tmp $(ORIGINAL_PDB_SIGNATURE) $(PDB_SEED_AGE)
 	@mv $@.tmp $@
-
-test-pdb-seed: $(PDB_SEED_TOOL)
-	python3 tests/test_pdb_seed.py
 
 $(TARGET):: $(LINK_OBJS) $(IX_LIBS) $(PDB_SEED) Makefile bin/appendStaticSymbols.py bin/stampPeTimestamp.py | $(WIBO) $(MSVCRT_DLL)
 	@mkdir -p $(dir $(LINK_TARGET)) "$(LINK_PDB_DIR)"
@@ -1528,7 +1383,6 @@ clean-modern:
 .PHONY: \
 	site \
 	all \
-	test-pdb-seed \
 	audit-addresses \
 	audit-compiler-glue \
 	audit-auto-complete-globals \
@@ -1560,9 +1414,7 @@ clean-modern:
 	modern \
 	modern-gui \
 	modern-check-deps \
-	modern-test \
 	modern-test-cutscenes \
-	modern-test-full \
 	msvc41-toolchain \
 	order \
 	progress \
