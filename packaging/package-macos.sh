@@ -64,7 +64,9 @@ portable="$work/portable/$archive-sdl2"
 app="$work/image/Wing Commander II.app"
 mkdir -p "$app/Contents/"{MacOS,Frameworks,Resources}
 mv "$portable/wc2-modern" "$app/Contents/MacOS/wc2-modern"
-mv "$portable/translations" "$app/Contents/MacOS/translations"
+# SDL_GetBasePath() resolves to Contents/Resources for an application bundle.
+# Keep catalogs out of the code directory so bundle signing treats them as data.
+mv "$portable/translations" "$app/Contents/Resources/"
 mv "$portable/"*.dylib "$app/Contents/Frameworks/"
 cp "$portable/"*LICENSE.txt "$portable/THIRD-PARTY-NOTICES.txt" "$app/Contents/Resources/"
 

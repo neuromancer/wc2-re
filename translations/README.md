@@ -12,7 +12,8 @@ launcher has its own translation catalog. Voices remain unchanged. The
 upstream translation's reordered COMMUNIC.T29 packets and Special Operations
 resources are excluded.
 
-The game reads `translations/es.dat` beside its executable. Editable UTF-8
+The game reads `translations/es.dat` beside its executable, or under
+`Contents/Resources` in the macOS app bundle. Editable UTF-8
 PO files are compiled into WC2's single-byte text and accent glyphs, following
 wc1-re's WCT2 catalog approach. English fallback comes from the user's original
 game data and the recovered source. Game files on disk are never rewritten.

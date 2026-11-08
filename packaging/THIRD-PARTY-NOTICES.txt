@@ -29,7 +29,7 @@ Base-game text, translated artwork and accent glyphs come from L@Zar0 and darkpa
 Wing Commander II Spanish translation, version 1.1 (2021).
 The upstream notice declares GPL v3.0 and an additional no-charge term.
 Its complete terms and credits accompany the catalog in
-translations/Spanish-README.txt (inside Contents/MacOS on macOS).
+translations/Spanish-README.txt (inside Contents/Resources in the macOS app).
 Editable translation sources and import provenance are included in this
 release's source tag under translations/.
 
