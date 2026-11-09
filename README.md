@@ -203,13 +203,17 @@ Special thanks to:
 - [Origin Systems](https://en.wikipedia.org/wiki/Origin_Systems), who created
   *Wing Commander II* and developed its *Kilrathi Saga* port;
 - [Electronic Arts](https://www.ea.com/) for publishing *Wing Commander: The
-  Kilrathi Saga*;
-- [GOG](https://www.gog.com/en/game/wing_commander_1_2) for keeping *Wing
-  Commander 1 + 2* readily available;
+  Kilrathi Saga* and releasing *Wing Commander II: Vengeance of the Kilrathi:
+  35th Anniversary Edition*;
+- digital game stores ([GOG](https://www.gog.com/en/game/wing_commander_ii_vengeance_of_the_kilrathi_35th_anniversary_edition) and
+  [Steam](https://store.steampowered.com/app/2008730/Wing_Commander_II_Vengeance_of_the_Kilrathi_35th_Anniversary_Edition/))
+  for keeping *Wing Commander II* readily available;
 - AllTinker for the [W.C.A.T. overhaul](https://alltinker.itch.io/wcat), whose
   fixes and analysis of the DOS release have been valuable references;
 - the [WCDX project](https://github.com/Bekenn/wcdx) for its pioneering
   compatibility work on the *Kilrathi Saga* release;
+- L@Zar0 for creating the Spanish translation and darkpadawan for reviewing
+  its text, shared under the [upstream GPL v3.0 notice](translations/upstream/Leeme.txt);
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
@@ -218,5 +222,7 @@ Special thanks to:
 
 ## License
 
-See [LICENSE](LICENSE). OpenAI Codex and Anthropic Claude were used during the
-reconstruction.
+This project is licensed under the GNU General Public License version 3
+(GPLv3). See [LICENSE](LICENSE) for the full text.
+
+OpenAI Codex and Anthropic Claude were used during the reconstruction.
