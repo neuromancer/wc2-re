@@ -1026,7 +1026,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         return;
     }
     if (button == SDL_JOYSTICK_BUTTON_START) {
-        if (spaceflightActive && pressed)
+        if ((spaceflightActive || g_bPauseInputActive != 0) && pressed)
             SdlQueueScanCodePress(0x19);
         return;
     }

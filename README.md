@@ -107,6 +107,8 @@ uses the original-resolution scene so dithering applies consistently.
 | Gamepad Back | Escape/back |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
 
+Pause and quit controls remain available during autopilot.
+
 The default joystick mode retains the original two-axis, two-button controls.
 When several devices are connected, the launcher's **Device** selector chooses
 the primary joystick for that session; **Automatic** keeps the existing order.

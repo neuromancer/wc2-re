@@ -502,6 +502,9 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
         return 0;
     }
     scanCode = SdlTranslateScanCode(event->keysym.scancode);
+    if (event->repeat != 0 && g_bAutopilotSequenceActive != 0 &&
+        (scanCode == 0x01 || scanCode == 0x19))
+        return 0;
     virtualKey = SdlTranslateVirtualKey(event->keysym.sym);
     if ((event->keysym.mod & KMOD_ALT) != 0 ||
         event->keysym.scancode == SDL_SCANCODE_LALT ||
@@ -642,6 +645,35 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
 void SdlStartEventPump(void)
 {
     g_16_bMainWindowRunning = 1;
+}
+
+void SdlServiceAutopilotInput(void)
+{
+    InputEvent *event;
+    int pauseRequested;
+
+    /* Autopilot bypasses HandleSpaceFlightControls in both its cinematic
+     * and travel loops. Open the pause dialog only after the message pump
+     * releases its reentrancy guard, so the dialog can poll input too. */
+    PumpWindowMessages(0);
+    pauseRequested = 0;
+    for (event = g_pInputEventHead; event != 0; event = event->next) {
+        if (event->type == INPUT_EVENT_KEY_DOWN &&
+            (event->field_14 == 0x01 || event->field_14 == 0x19))
+            pauseRequested = 1;
+    }
+    /* Flight commands entered during autopilot must not replay on arrival.
+     * Inspect the whole queue first: consuming a mouse move through
+     * GetNextInputEvent would discard any pause key behind it. */
+    FlushInputEvents();
+    g_bSceneEscapeRequested = 0;
+    if (pauseRequested) {
+        g_bPauseInputActive = 1;
+        ShowGamePausedBanner(1);
+        g_bPauseInputActive = 0;
+        FlushInputEvents();
+        g_bSceneEscapeRequested = 0;
+    }
 }
 
 void SdlPumpEvents(void)

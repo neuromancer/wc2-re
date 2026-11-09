@@ -38,6 +38,9 @@ void visit_the_cinema(int view, int obj, short frames)
      * narrowing explicit changes the register setup and loses an exact match. */
     force_view(view, obj);
     while (frames-- > 0) {
+#ifdef SDL_PORT
+        SdlServiceAutopilotInput();
+#endif
         Update_3Space();
         RenderSpaceViewFrame();
         MarkDibDirty();
@@ -235,6 +238,9 @@ void auto_pilot_sequence(void)
     g_nTrainSimActive = 4;
     visit_the_cinema(13, 0, 90);
     while (g_nTrainSimActive == 4) {
+#ifdef SDL_PORT
+        SdlServiceAutopilotInput();
+#endif
         ComputeVectorDelta(&g_aShipPosition[0],
                            &destination, &advance);
         NormalizeFixedVector(&advance);
