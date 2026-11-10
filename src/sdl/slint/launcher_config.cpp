@@ -28,6 +28,8 @@ struct IntegerSetting {
 };
 
 constexpr IntegerSetting integerSettings[] = {
+    {"campaign", &SdlLauncherOptions::campaign,
+     SDL_LAUNCHER_EXPLICIT_CAMPAIGN, 1},
     {"language", &SdlLauncherOptions::language,
      SDL_LAUNCHER_EXPLICIT_LANGUAGE, 1},
     {"fullscreen", &SdlLauncherOptions::fullscreen,

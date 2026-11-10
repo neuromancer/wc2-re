@@ -396,7 +396,14 @@ void set_objects_data(short obj, short type, short owner,
             g_aeObjectClass[obj] = OBJECT_CLASS_DUST;
             return;
         }
-        if (g_aObjectTypeData[type].shapeSet == 0) {
+        if (
+#ifdef SDL_PORT
+            /* Special resource IDs (data capsule 61 and cockpit objects
+             * 62/63) are mapped to table slots below. They have no fallback
+             * case here and must not index the table before that mapping. */
+            type >= 0 && type < OBJECT_DATA_COUNT &&
+#endif
+            g_aObjectTypeData[type].shapeSet == 0) {
             switch (type) {
             case OBJECT_DATA_EXPLOSION_MEDIUM:
                 type = OBJECT_DATA_EXPLOSION_SMALL;

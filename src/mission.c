@@ -1138,6 +1138,16 @@ void set_formation_position(short obj, const MissionShipRecord *record)
         if (source == 0 &&
             g_bMissionShipInitializationInProgress == 0)
             return;
+#ifdef SDL_PORT
+        if (source == -1) {
+            /* A formation can arrive before its leader is in the active
+             * sphere. Use the leader's mission orientation in that case. */
+            init_ijk(obj);
+            alter_yaw((short)-leader->pitch, obj);
+            alter_pitch((short)-leader->yaw, obj);
+            alter_roll(leader->roll, obj);
+        } else
+#endif
         copy_frame(source, obj);
         set_sphere_point(leader, &g_aShipPosition[obj]);
         offset_location(obj, &g_aShipFormationOffset[obj],

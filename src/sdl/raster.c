@@ -6,6 +6,65 @@
  */
 #include "game.h"
 
+/* A wipe temporarily moves viewport edges beyond the allocated plane. SO1
+ * uses 126-row planes in transitions that otherwise assume a full screen.
+ * Limit the copy to actual pixels, excluding the debug allocator's fence. */
+static int SdlViewportCopyExtent(const Viewport *viewport, int *width, int *height)
+{
+    GuardedAllocation *allocation;
+    unsigned int pixelBytes = 0;
+    unsigned int rowBytes = 0;
+    int offset;
+    int stride;
+    int rows;
+
+    if (viewport->pixels == 0 || viewport->rowOffsets == 0 ||
+        viewport->left < 0 || viewport->top < 0)
+        return 0;
+    for (allocation = g_pGuardedAllocationHead; allocation; allocation = allocation->next) {
+        if (allocation->block == viewport->pixels)
+            pixelBytes = allocation->size;
+        if (allocation->block == viewport->rowOffsets)
+            rowBytes = allocation->size;
+    }
+    if (viewport->pixels == g_101_stScrViewInfo.pixels) {
+        pixelBytes = g_nScreenWidth * g_nScreenHeight;
+        if (rowBytes == 0)
+            rowBytes = (g_nScreenHeight + 2) * sizeof(short);
+    }
+    if (pixelBytes == 0 || (viewport->top + 2) * sizeof(short) > rowBytes)
+        return 0;
+    stride = (unsigned short)(viewport->rowOffsets[viewport->top + 1] -
+                               viewport->rowOffsets[viewport->top]);
+    offset = SignExtendClipCoord(viewport->rowOffsets[viewport->top]) + viewport->left;
+    if (stride <= 0 || offset < 0 || (unsigned int)offset >= pixelBytes)
+        return 0;
+    *width = MinShort(viewport->right - viewport->left + 1,
+                      stride - offset % stride);
+    if (*width <= 0 || (unsigned int)*width > pixelBytes - offset)
+        return 0;
+    rows = (pixelBytes - offset - *width) / stride + 1;
+    *height = MinShort(viewport->bottom - viewport->top + 1, rows);
+    return *height > 0;
+}
+
+int SdlClipViewportCopy(Viewport *source, Viewport *destination)
+{
+    int sourceWidth, sourceHeight, destinationWidth, destinationHeight;
+    int width, height;
+
+    if (!SdlViewportCopyExtent(source, &sourceWidth, &sourceHeight) ||
+        !SdlViewportCopyExtent(destination, &destinationWidth, &destinationHeight))
+        return 0;
+    width = MinShort(sourceWidth, destinationWidth);
+    height = MinShort(sourceHeight, destinationHeight);
+    source->right = source->left + width - 1;
+    destination->right = destination->left + width - 1;
+    source->bottom = source->top + height - 1;
+    destination->bottom = destination->top + height - 1;
+    return 1;
+}
+
 char *CopyRasterDriverName(void *const *callbacks)
 {
     const char *(*getName)(void);

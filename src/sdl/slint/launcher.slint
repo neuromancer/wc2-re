@@ -17,7 +17,7 @@ export enum LauncherMessage {
 export component LauncherWindow inherits Window {
     title: "Wing Commander II";
     preferred-width: 760px;
-    preferred-height: 660px + (root.joystick-devices.length > 2 ? 44px : 0px);
+    preferred-height: 702px + (root.joystick-devices.length > 2 ? 44px : 0px);
     min-width: 640px;
     min-height: 520px;
     background: Palette.background;
@@ -29,6 +29,7 @@ export component LauncherWindow inherits Window {
     in-out property <int> installation-index;
     in-out property <bool> start-fullscreen;
     in-out property <int> language-index;
+    in-out property <int> campaign-index;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
@@ -71,6 +72,7 @@ export component LauncherWindow inherits Window {
     callback browse-requested();
     callback installation-selected(int);
     callback language-selected(int);
+    callback campaign-selected(int);
     callback launch-requested();
     callback cancel-requested();
 
@@ -138,6 +140,23 @@ export component LauncherWindow inherits Window {
                         current-index: root.language-index;
                         selected(_) => {
                             root.language-selected(self.current-index);
+                        }
+                    }
+                }
+
+                HorizontalLayout {
+                    spacing: 8px;
+                    height: 34px;
+                    Text {
+                        text: @tr("Campaign");
+                        vertical-alignment: center;
+                    }
+                    ComboBox {
+                        horizontal-stretch: 1;
+                        model: ["Wing Commander II", "Special Operations 1"];
+                        current-index: root.campaign-index;
+                        selected(_) => {
+                            root.campaign-selected(self.current-index);
                         }
                     }
                 }

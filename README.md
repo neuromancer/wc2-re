@@ -46,6 +46,17 @@ installation and select **Start game**. The launcher remembers your settings.
 Enable **Start in fullscreen** under **Graphics** to open the game in desktop
 fullscreen mode.
 
+Choose **Campaign → Special Operations 1**, or pass `--campaign=so1`, to play
+SO1 using an installation containing its expansion files alongside the base
+game's `GAMEDAT` files. `--campaign=wc2` selects the base campaign.
+SO1 uses **SAVEGAME.SO1** and separate temporary state; base-game saves remain
+in **SAVEGAME.WC2**. Starting a new SO1 campaign offers to transfer the pilot
+from your WC2 Continue checkpoint. SO1 currently uses English campaign dialogue
+and original AdLib music, including with Kilrathi Saga data.
+SO1 support is experimental; remaining original-game anomalies are tracked in
+[#8](https://github.com/neuromancer/wc2-re/issues/8) and
+[#9](https://github.com/neuromancer/wc2-re/issues/9).
+
 Choose **Language → Español** for Spanish dialogue, menus, game UI and
 launcher text, or use `--language=es` (`--language=en` restores English).
 Translations support the base game with DOS or Kilrathi Saga data. See
@@ -145,6 +156,8 @@ to the installed game directory and `MODERN_CUTSCENE_JOBS=1` for a serial run
 (default: four parallel processes). Logs go to `out-modern/cutscene-asan/`;
 the command fails on process errors or sanitizer reports. Full flight startup
 is separate: `make run-modern-mission SERIES=1 MISSION=0`.
+Set `CAMPAIGN=so1` for SO1's 20 mission sequences or direct flight, and
+`CUTSCENE_PHASE=postflight` to test debriefings instead of preflight scenes.
 
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler. Linux builds need the D-Bus and Fontconfig

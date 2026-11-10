@@ -1,3 +1,5 @@
+/* Keep the Windows CRT's time-width aliases available to our search shim. */
+#define SDL_NATIVE_CRT_SEARCH
 #include "sdl_port.h"
 
 /* This file implements the game's open and unlink on the host's own calls. */
@@ -78,6 +80,7 @@ int SdlResolvePath(const char *path, char *resolved,
 
     if (path == 0 || resolved == 0 || resolvedSize == 0)
         return 0;
+    path = SdlCampaignPath(path);
     pathLength = strlen(path);
     if (pathLength >= sizeof(normalized))
         return 0;
@@ -440,7 +443,7 @@ int SdlUnlink(const char *path)
     wchar_t *widePath;
     int result;
 
-    widePath = SdlUtf8ToWide(path);
+    widePath = SdlUtf8ToWide(SdlCampaignPath(path));
     if (widePath == 0)
         return -1;
     result = _wunlink(widePath);
@@ -453,7 +456,7 @@ int SdlOpen(const char *path, int flags, ...)
     wchar_t *widePath;
     int file;
 
-    widePath = SdlUtf8ToWide(path);
+    widePath = SdlUtf8ToWide(SdlCampaignPath(path));
     if (widePath == 0)
         return -1;
     if ((flags & 0x0100) != 0) {
@@ -469,6 +472,45 @@ int SdlOpen(const char *path, int flags, ...)
     }
     SDL_free(widePath);
     return file;
+}
+
+/* As on POSIX, retain small handles: the game's save menus store them in
+ * shorts, whereas a native Windows CRT search handle is pointer-sized. */
+static intptr_t g_aSdlNativeFindHandles[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+
+intptr_t SdlFindFirst(const char *pattern, struct _finddata_t *found)
+{
+    intptr_t native;
+    int slot;
+
+    for (slot = 0; slot < 8; slot++) {
+        if (g_aSdlNativeFindHandles[slot] == -1) {
+            native = _findfirst(SdlCampaignPath(pattern), found);
+            if (native == -1)
+                return -1;
+            g_aSdlNativeFindHandles[slot] = native;
+            return slot + 1;
+        }
+    }
+    return -1;
+}
+
+int SdlFindNext(intptr_t handle, struct _finddata_t *found)
+{
+    if (handle < 1 || handle > 8 || g_aSdlNativeFindHandles[handle - 1] == -1)
+        return -1;
+    return _findnext(g_aSdlNativeFindHandles[handle - 1], found);
+}
+
+int SdlFindClose(intptr_t handle)
+{
+    int result;
+
+    if (handle < 1 || handle > 8 || g_aSdlNativeFindHandles[handle - 1] == -1)
+        return -1;
+    result = _findclose(g_aSdlNativeFindHandles[handle - 1]);
+    g_aSdlNativeFindHandles[handle - 1] = -1;
+    return result;
 }
 
 FILE *SdlFopen(const char *path, const char *mode)

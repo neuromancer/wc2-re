@@ -246,6 +246,11 @@ void SdlShutdownVideo(void);
 int SdlTranslateScanCode(SDL_Scancode scanCode);
 void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
+extern int g_nSdlCampaign;
+const char *SdlCampaignPath(const char *path);
+int SdlSelectCampaign(int campaign);
+int SdlTryImportSo1Pilot(void);
+int SdlClipViewportCopy(struct Viewport *source, struct Viewport *destination);
 int SdlPatchPacketSection(const char *filename, short section,
                           struct PacketSectionHandle *handle);
 int SdlLoadTranslationCatalog(const char *path);
@@ -377,6 +382,18 @@ long SdlFindFirst(const char *pattern, struct _finddata_t *found);
 int SdlFindNext(long handle, struct _finddata_t *found);
 int SdlFindClose(long handle);
 
+#else
+intptr_t SdlFindFirst(const char *pattern, struct _finddata_t *found);
+int SdlFindNext(intptr_t handle, struct _finddata_t *found);
+int SdlFindClose(intptr_t handle);
+#ifndef SDL_NATIVE_CRT_SEARCH
+#undef _findfirst
+#undef _findnext
+#undef _findclose
+#define _findfirst SdlFindFirst
+#define _findnext SdlFindNext
+#define _findclose SdlFindClose
+#endif
 #endif
 
 /* None of what follows is POSIX-specific: a Windows host needs it too.  The

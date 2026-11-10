@@ -168,6 +168,11 @@ void RunGameApplication(short argc, char **argv)
                             BarracksScreen();
                         InitializeNewPilotCampaign(
                             g_nSelectedCampaignSlot);
+#ifdef SDL_PORT
+                        if (SdlTryImportSo1Pilot())
+                            selectionMade = 1;
+                        else
+#endif
                         selectionMade = RunPilotDatabaseMenu();
                         break;
                     case 1:

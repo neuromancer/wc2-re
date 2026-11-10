@@ -42,7 +42,8 @@ void SdlRunSelectedCampaignCutscene(void)
     g_bCutsceneViewportPreallocated = 0;
 
     g_pCampaignGlobals->field_08 =
-        g_pCampaignGlobals->field_0a;
+        g_bSdlCutsceneOnly == 2 ? g_pCampaignGlobals->field_0c :
+                                g_pCampaignGlobals->field_0a;
     fprintf(stderr,
             "Running campaign cutscene: series %d, mission %d, entry %d.\n",
             g_pCampaignGlobals->series,

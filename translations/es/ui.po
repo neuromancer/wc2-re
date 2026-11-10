@@ -716,3 +716,8 @@ msgstr "Fijación perdida"
 #: src/turret.c:979
 msgid "wc2:1abedb2b3fb7cf7d"
 msgstr "¡Torpedo fijado!"
+
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:2b083956c664a768 %s (Y/N)"
+msgstr "¿Transferir el piloto %s de WC2 a SO1? (Y/N)"

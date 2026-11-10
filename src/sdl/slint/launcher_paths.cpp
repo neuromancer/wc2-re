@@ -78,7 +78,7 @@ static bool has_readable_file(const fs::path &directory, std::string_view name)
         std::ifstream(*path, std::ios::binary).peek() != std::ifstream::traits_type::eof();
 }
 
-DirectoryStatus validate_game_directory(std::string_view directoryText)
+DirectoryStatus validate_game_directory(std::string_view directoryText, int campaign)
 {
     if (directoryText.empty())
         return {false, LauncherMessage::ChooseDirectory};
@@ -106,6 +106,15 @@ DirectoryStatus validate_game_directory(std::string_view directoryText)
     for (const auto name : {"CAMPAIGN.S00", "GAMEFLOW.S00"}) {
         if (!has_readable_file(*gameData, name))
             return {false, LauncherMessage::MissingGameFile, name};
+    }
+
+    if (campaign == 1) {
+        for (const auto name : {"CAMPAIGN.S01", "GAMEFLOW.S01", "MODULE.001",
+                                "SERIES.S01", "STARTGLB.001", "ALTSHIPS.001",
+                                "SHIP.V15", "PCSHIP.V15", "MUSIC.A01"}) {
+            if (!has_readable_file(*gameData, name))
+                return {false, LauncherMessage::MissingGameFile, name};
+        }
     }
 
     // Match SdlUsingDosData: the Saga conversion changed 0xc1 to 0xe0.

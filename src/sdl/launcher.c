@@ -76,6 +76,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         argument = arguments[argumentIndex];
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
+        } else if (strncmp(argument, "--campaign=", 11) == 0) {
+            if (strcmp(argument + 11, "wc2") && strcmp(argument + 11, "so1")) {
+                fprintf(stderr, "Unknown campaign: %s (expected wc2 or so1)\n",
+                        argument + 11);
+                return 0;
+            }
+            launcherOptions->campaign = !strcmp(argument + 11, "so1");
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CAMPAIGN;
         } else if (strncmp(argument, "--language=", 11) == 0) {
             if (strcmp(argument + 11, "en") && strcmp(argument + 11, "es")) {
                 fprintf(stderr, "Unknown language: %s (expected en or es)\n", argument + 11);
@@ -100,6 +108,8 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CHEATS;
         } else if (strcmp(argument, "--cutscene-only") == 0) {
             *cutsceneOnly = 1;
+        } else if (strcmp(argument, "--cutscene-only=postflight") == 0) {
+            *cutsceneOnly = 2;
         } else if (strcmp(argument, "--joystick-debug") == 0) {
             SdlEnableJoystickDebug();
         } else if (strcmp(argument, "--joystick-rumble") == 0) {
@@ -260,6 +270,8 @@ int main(int argumentCount, char **arguments)
                                      &useEnhancedRenderer))
             return 1;
     }
+    if (!SdlSelectCampaign(launcherOptions.campaign))
+        return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
     if (!SdlSetLanguage(launcherOptions.language)) {
         fprintf(stderr, "Cannot load translation: %s\n", SDL_GetError());

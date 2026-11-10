@@ -657,3 +657,8 @@ msgstr ""
 #: src/turret.c:979
 msgid "wc2:1abedb2b3fb7cf7d"
 msgstr ""
+
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:2b083956c664a768 %s (Y/N)"
+msgstr ""

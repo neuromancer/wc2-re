@@ -162,11 +162,20 @@ MODERN_ARGS ?=
 SERIES ?= 1
 MISSION ?= 0
 MISSION_FLAGS ?=
+CAMPAIGN ?= wc2
+CUTSCENE_PHASE ?= preflight
+ifeq ($(CAMPAIGN),so1)
+MODERN_CUTSCENE_SERIES = 1 2 3 4 5
+MODERN_CUTSCENE_SELECTORS := $(foreach series,$(MODERN_CUTSCENE_SERIES),\
+	$(addprefix v$(series)-t,0 1 2 3))
+else
 MODERN_CUTSCENE_SERIES = 1 2 3 4 5 6 7 8 9 10 11 12 13
-MODERN_CUTSCENE_JOBS ?= 4
 MODERN_CUTSCENE_SELECTORS := $(filter-out v7-t3 v13-t3,\
 	$(foreach series,$(MODERN_CUTSCENE_SERIES),\
 		$(addprefix v$(series)-t,0 1 2 3)))
+endif
+MODERN_CUTSCENE_JOBS ?= 4
+MODERN_CUTSCENE_FLAG = $(if $(filter postflight,$(CUTSCENE_PHASE)),--cutscene-only=postflight,--cutscene-only)
 
 MODERN_CC ?= cc
 MODERN_CXX ?= c++
@@ -752,18 +761,19 @@ run-modern-dos: run-modern
 # tokens "Origin vN tN e".  The modern build forwards these through the recovered
 # WC2 option loader just as a native argument vector would be handled.
 # The option loader exposes one fewer token than it reads, so retain a sentinel.
-run-modern-mission: MODERN_ARGS = Origin v$(SERIES) t$(MISSION) e \
+run-modern-mission: MODERN_ARGS = --campaign=$(CAMPAIGN) Origin v$(SERIES) t$(MISSION) e \
 	$(MISSION_FLAGS) ignored
 run-modern-mission: run-modern
 
 # Run the campaign cutscene selected by the original developer arguments.  The
 # SDL host invokes the campaign VM directly and exits when it returns.
-run-modern-cutscene: MODERN_ARGS = --cutscene-only Origin v$(SERIES) \
+run-modern-cutscene: MODERN_ARGS = --campaign=$(CAMPAIGN) $(MODERN_CUTSCENE_FLAG) Origin v$(SERIES) \
 	t$(MISSION) ignored
 run-modern-cutscene: run-modern
 
 # MODULE.000 has four mission slots per series.  The base campaign uses every
 # slot in series 1-13 except the empty fourth slots in series 7 and 13.
+# SO1's MODULE.001 uses all four slots in series 1-5.
 modern-test-cutscenes: modern
 	+@status=0; \
 	$(MAKE) --no-print-directory --keep-going \
@@ -774,7 +784,7 @@ modern-test-cutscenes: modern
 		echo "Cutscene sanitizer sweep failed; inspect the logs above." >&2; \
 		exit $$status; \
 	fi; \
-	echo "Cutscene sanitizer sweep passed: 50 sequences."
+	echo "Cutscene sanitizer sweep passed: $(words $(MODERN_CUTSCENE_SELECTORS)) $(CAMPAIGN) $(CUTSCENE_PHASE) sequences."
 
 modern-test-cutscene-%: modern
 	@selector="$*"; \
@@ -789,7 +799,7 @@ modern-test-cutscene-%: modern
 		echo "Modern run directory does not exist: $$modern_run_dir" >&2; \
 		exit 1; \
 	}; \
-	log_dir="$(CURDIR)/$(MODERN_OUT_DIR)/cutscene-asan"; \
+	log_dir="$(CURDIR)/$(MODERN_OUT_DIR)/cutscene-asan/$(CAMPAIGN)/$(CUTSCENE_PHASE)"; \
 	mkdir -p "$$log_dir"; \
 	log="$$log_dir/$$selector.log"; \
 	echo "Running cutscene $$selector"; \
@@ -797,7 +807,7 @@ modern-test-cutscene-%: modern
 		SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy \
 		ASAN_OPTIONS=halt_on_error=1:abort_on_error=1 \
 		UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
-		"$(CURDIR)/$(MODERN_TARGET)" --cutscene-only \
+		"$(CURDIR)/$(MODERN_TARGET)" --campaign=$(CAMPAIGN) $(MODERN_CUTSCENE_FLAG) \
 		Origin "v$$series" "t$$mission" ignored \
 		>"$$log" 2>&1; \
 	status=$$?; \

@@ -1151,6 +1151,15 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
     int result;
     RasterClip srcClip;
     RasterSurface dstSurface;
+#ifdef SDL_PORT
+    Viewport sourceCopy = *source;
+    Viewport destinationCopy = *destination;
+
+    if (!SdlClipViewportCopy(&sourceCopy, &destinationCopy))
+        return;
+    source = &sourceCopy;
+    destination = &destinationCopy;
+#endif
 
     if (destination->left < 0)
         return;

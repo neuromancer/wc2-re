@@ -35,13 +35,15 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES = 1 << 5,
     SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6,
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 7,
-    SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 8
+    SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 8,
+    SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9
 };
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
     int language; /* 0: English, 1: Spanish */
+    int campaign; /* 0: WC2, 1: Special Operations 1 */
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;

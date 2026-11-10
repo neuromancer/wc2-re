@@ -154,7 +154,15 @@ void ejection_sequence(short outcome, signed char restoreCockpit)
         g_bSpaceViewBufferEnabled = 1;
         initialize_view_buffer();
         ClearTransientObjectsForEjection();
-        if (g_pPilotStatus[
+        if (
+#ifdef SDL_PORT
+            /* SO1 can resume a mid-flight scene after the wingman has
+             * already been removed. There is no portrait at index -1. */
+            g_nYourWingman >= 0 && g_nYourWingman < 10 &&
+            g_acShipPortrait[g_nYourWingman] >= 0 &&
+            g_acShipPortrait[g_nYourWingman] < 32 &&
+#endif
+            g_pPilotStatus[
                 g_acShipPortrait[g_nYourWingman]] == 0)
             remove_object(g_nYourWingman);
         g_1_cStoredViewDisplayModeValue = -1;

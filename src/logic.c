@@ -922,6 +922,11 @@ void get_follow_point(short obj, FixedVector *point)
     pathStep = (short)g_abShipNavPointIndex[obj];
     while (++pathStep < MISSION_OBJECTIVE_COUNT) {
         navObjective = (short)g_abFlightPath[pathStep];
+#ifdef SDL_PORT
+        /* Skipping a vanished mobile objective can reach the path sentinel. */
+        if (navObjective < 0 || navObjective >= g_cMissionObjectiveCount)
+            return;
+#endif
         switch (g_aMissionObjectives[navObjective].type) {
         case 0:
             *point = g_aMissionObjectives[navObjective].position;
@@ -932,7 +937,16 @@ void get_follow_point(short obj, FixedVector *point)
                 (short)g_aMissionObjectives[navObjective].index;
             shipObj = find_ship_index(missionIndex);
             if (shipObj == -1)
+#ifdef SDL_PORT
+            {
+                /* A mobile objective names a mission ship, not a nav point.
+                 * SO1 uses indices up to 15, including ships in other systems. */
+                if (!locate_ship(missionIndex, point))
+                    continue;
+            }
+#else
                 *point = g_aMissionNavPoints[missionIndex].position;
+#endif
             else
                 *point = g_aShipPosition[shipObj];
             g_abShipNavPointIndex[obj] = (signed char)pathStep;

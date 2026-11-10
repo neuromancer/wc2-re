@@ -557,10 +557,14 @@ static int SdlTranslatePacketData(const char *filename, short section,
     const char *name = TranslationBasename(filename);
     *output = 0;
     *outputSize = size;
+    /* The bundled campaign translation contains only the base game's data.
+     * SO1 uses some of the same logical names with different text records. */
     if (!catalog || section < 0 || size > TRANSLATION_LIMIT)
         return 1;
     if (!SDL_strcasecmp(name, "FONTS.FNT") && section < 3 && fonts[section].glyphs)
         return TranslateFont(section, source, size, output, outputSize);
+    if (g_nSdlCampaign != 0)
+        return 1;
     if (!SDL_strcasecmp(name, "SERIES.S00"))
         return TranslateCutscene("SERIES.S00", section, source, size, output, outputSize);
     if (!SDL_strcasecmp(name, "INCIDENT.S00"))

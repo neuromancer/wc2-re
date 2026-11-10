@@ -30,6 +30,7 @@ typedef struct SdlDataPatch {
 } SdlDataPatch;
 
 #include "data_patches.h"
+#include "so1_patches.h"
 
 static const char *SdlDataBasename(const char *filename)
 {
@@ -85,7 +86,7 @@ int SdlPatchPacketSection(const char *filename, short section,
                          PacketSectionHandle *handle)
 {
     const SdlDataPatch *patch;
-    const char *basename = SdlDataBasename(filename);
+    const char *basename = SdlDataBasename(SdlCampaignPath(filename));
     unsigned char *stored = 0;
     unsigned char *decoded = 0;
     unsigned char *result = 0;
@@ -97,16 +98,18 @@ int SdlPatchPacketSection(const char *filename, short section,
     int count;
     int success = 0;
     short error = g_nPacketError;
+    const size_t patchCount = SDL_arraysize(packetPatches) + SDL_arraysize(so1PacketPatches);
 
-    for (index = 0; index < SDL_arraysize(packetPatches); index++) {
-        patch = &packetPatches[index];
+    for (index = 0; index < patchCount; index++) {
+        patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
+                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section &&
             SDL_strcasecmp(basename, patch->filename) == 0 &&
             (handle->compression == 1 || handle->compression == 0x20 ||
              handle->dataSize == patch->sourceSize))
             break;
     }
-    if (index == SDL_arraysize(packetPatches))
+    if (index == patchCount)
         return 1;
 
     /* Bound temporary storage before reading an archive supplied by the
@@ -136,13 +139,14 @@ int SdlPatchPacketSection(const char *filename, short section,
         decodedSize = (Uint32)stored[0] | ((Uint32)stored[1] << 8) |
             ((Uint32)stored[2] << 16) | ((Uint32)stored[3] << 24);
     }
-    for (index = 0; index < SDL_arraysize(packetPatches); index++) {
-        patch = &packetPatches[index];
+    for (index = 0; index < patchCount; index++) {
+        patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
+                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section && decodedSize == patch->sourceSize &&
             SDL_strcasecmp(basename, patch->filename) == 0)
             break;
     }
-    if (index == SDL_arraysize(packetPatches)) {
+    if (index == patchCount) {
         success = 1;
         goto done;
     }
@@ -160,14 +164,15 @@ int SdlPatchPacketSection(const char *filename, short section,
         stored = 0;
     }
     crc = SDL_crc32(0, decoded, decodedSize);
-    for (index = 0; index < SDL_arraysize(packetPatches); index++) {
-        patch = &packetPatches[index];
+    for (index = 0; index < patchCount; index++) {
+        patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
+                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section && decodedSize == patch->sourceSize &&
             crc == patch->sourceCrc &&
             SDL_strcasecmp(basename, patch->filename) == 0)
             break;
     }
-    if (index == SDL_arraysize(packetPatches)) {
+    if (index == patchCount) {
         success = 1;
         goto done;
     }

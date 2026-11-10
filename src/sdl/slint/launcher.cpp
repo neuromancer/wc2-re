@@ -61,7 +61,7 @@ void refresh_window(LauncherWindow &window,
                     std::vector<GameInstallation> &installations)
 {
     const std::string directory(window.get_game_directory());
-    const DirectoryStatus status = validate_game_directory(directory);
+    const DirectoryStatus status = validate_game_directory(directory, window.get_campaign_index());
     const int selected = add_game_installation(installations, directory);
     std::vector<slint::SharedString> choices;
     window.set_has_installations(!installations.empty());
@@ -153,6 +153,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_game_directory(slint::SharedString(initialDirectory));
     window->set_start_fullscreen(options->fullscreen != 0);
     window->set_language_index(options->language);
+    window->set_campaign_index(options->campaign);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
@@ -168,6 +169,10 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         joysticks = list_joysticks(*window);
     refresh_window(*window, installations);
 
+    window->on_campaign_selected([&window, &installations](int campaign) {
+        window->set_campaign_index(campaign);
+        refresh_window(*window, installations);
+    });
     window->on_language_selected([&window, &installations](int language) {
         const auto unnamed = window->get_unnamed_joystick();
         if (!slint::select_bundled_translation(language == 1 ? "es" : "en"))
@@ -260,6 +265,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
                 gameDirectory.size() + 1);
     options->fullscreen = window->get_start_fullscreen();
     options->language = std::max(0, window->get_language_index());
+    options->campaign = std::max(0, window->get_campaign_index());
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
     options->balancedDifficulty = window->get_balanced_difficulty();
