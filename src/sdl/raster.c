@@ -28,9 +28,12 @@ static int SdlViewportCopyExtent(const Viewport *viewport, int *width, int *heig
             rowBytes = allocation->size;
     }
     if (viewport->pixels == g_101_stScrViewInfo.pixels) {
-        pixelBytes = g_nScreenWidth * g_nScreenHeight;
+        /* g_nScreenWidth/Height describe the current space view, which can
+         * exclude most of the cockpit. Copies to the screen use the full
+         * DIB allocation, including the panel and pilot's hand below it. */
+        pixelBytes = g_28_nDisplayRowBytes * g_38_nSurfaceHeight;
         if (rowBytes == 0)
-            rowBytes = (g_nScreenHeight + 2) * sizeof(short);
+            rowBytes = (g_38_nSurfaceHeight + 2) * sizeof(short);
     }
     if (pixelBytes == 0 || (viewport->top + 2) * sizeof(short) > rowBytes)
         return 0;

@@ -42,13 +42,14 @@ and keep the bundled runtime libraries beside `wc2-modern` (`wc2-modern.exe`
 on Windows). Starting without arguments opens the graphical launcher. It
 detects common WC2 installations, including Heroic, GOG, and Steam libraries;
 use **Add path…** for another directory containing `GAMEDAT`. Choose an
-installation and select **Start game**. The launcher remembers your settings.
+installation and select **Start WC2**. The launcher remembers your settings.
 Enable **Start in fullscreen** under **Graphics** to open the game in desktop
 fullscreen mode.
 
-Choose **Campaign → Special Operations 1**, or pass `--campaign=so1`, to play
-SO1 using an installation containing its expansion files alongside the base
-game's `GAMEDAT` files. `--campaign=wc2` selects the base campaign.
+Select **Start SO1** in the launcher, or pass `--campaign=so1`, to play SO1.
+The **Start SO1** button appears only when the selected installation contains
+the required expansion files alongside the base game's `GAMEDAT` files.
+`--campaign=wc2` selects the base campaign.
 SO1 uses **SAVEGAME.SO1** and separate temporary state; base-game saves remain
 in **SAVEGAME.WC2**. Starting a new SO1 campaign offers to transfer the pilot
 from your WC2 Continue checkpoint. SO1 currently uses English campaign dialogue

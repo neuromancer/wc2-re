@@ -6,10 +6,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "LauncherWindow"
-msgid "Campaign"
-msgstr "Campaña"
-
-msgctxt "LauncherWindow"
 msgid "Select game data…"
 msgstr "Selecciona los datos del juego…"
 
@@ -194,5 +190,9 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 msgctxt "LauncherWindow"
-msgid "Start game"
-msgstr "Iniciar juego"
+msgid "Start WC2"
+msgstr "Iniciar WC2"
+
+msgctxt "LauncherWindow"
+msgid "Start SO1"
+msgstr "Iniciar SO1"

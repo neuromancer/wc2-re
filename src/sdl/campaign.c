@@ -28,59 +28,70 @@ const char *SdlCampaignPath(const char *path)
     return path;
 }
 
-int SdlSelectCampaign(int campaign)
+static int SdlPrepareCampaignFiles(int campaign, const char *directory)
 {
     static const char *const required[] = {
-        "GAMEDAT/CAMPAIGN.S01", "GAMEDAT/GAMEFLOW.S01",
-        "GAMEDAT/MODULE.001", "GAMEDAT/SERIES.S01",
-        "GAMEDAT/STARTGLB.001", "GAMEDAT/ALTSHIPS.001",
-        "GAMEDAT/SHIP.V15", "GAMEDAT/PCSHIP.V15",
-        "GAMEDAT/MUSIC.A01"
+        "CAMPAIGN.S01", "GAMEFLOW.S01", "MODULE.001", "SERIES.S01",
+        "STARTGLB.001", "ALTSHIPS.001", "SHIP.V15", "PCSHIP.V15",
+        "MUSIC.A01"
     };
     size_t index;
     int file;
     unsigned char *initialState;
     size_t initialSize;
     char resolved[4096];
+    char path[64];
+    char temporary[64];
 
     if (campaign < 0 || campaign > 1)
         return 0;
     if (campaign == 1) {
         for (index = 0; index < SDL_arraysize(required); index++) {
-            file = _open(required[index], 0x8000);
+            snprintf(path, sizeof(path), "%s/%s", directory, required[index]);
+            file = _open(path, 0x8000);
             if (file < 0) {
                 fprintf(stderr, "Special Operations 1 requires %s.\n",
-                        required[index]);
+                        path);
                 return 0;
             }
             _close(file);
-        }
-        /* New DOS installs need not contain a TEMPGLOB file. It is scratch
-         * state, but the title menu and direct-flight entry read it before
-         * the New Game path has a chance to initialize it. */
-        file = _open("GAMEDAT/TEMPGLOB.001", 0x8000);
-        if (file >= 0) {
-            _close(file);
-        } else {
-            if (!SdlResolvePath("GAMEDAT/STARTGLB.001", resolved, sizeof(resolved)))
-                return 0;
-            initialState = SDL_LoadFile(resolved, &initialSize);
-            if (initialState == 0)
-                return 0;
-            file = _open("GAMEDAT/TEMPGLOB.001", 0x8501, 0x180);
-            if (file < 0 || _write(file, initialState, initialSize) != initialSize) {
-                fprintf(stderr, "Unable to initialize SO1 temporary campaign state.\n");
-                if (file >= 0) {
-                    _close(file);
-                    _unlink("GAMEDAT/TEMPGLOB.001");
-                }
-                SDL_free(initialState);
-                return 0;
-            }
-            _close(file);
-            SDL_free(initialState);
         }
     }
+    /* Both campaigns need scratch state before the menu checks Continue.
+     * Explicit paths bypass the active campaign's filename redirection. */
+    snprintf(temporary, sizeof(temporary), "%s/TEMPGLOB.%03d", directory, campaign);
+    file = _open(temporary, 0x8000);
+    if (file >= 0) {
+        _close(file);
+    } else {
+        snprintf(path, sizeof(path), "%s/STARTGLB.%03d", directory, campaign);
+        if (!SdlResolvePath(path, resolved, sizeof(resolved)))
+            return 0;
+        initialState = SDL_LoadFile(resolved, &initialSize);
+        if (initialState == 0) {
+            fprintf(stderr, "Unable to read %s: %s\n", path, SDL_GetError());
+            return 0;
+        }
+        file = _open(temporary, 0x8501, 0x180);
+        if (file < 0 || _write(file, initialState, initialSize) != initialSize) {
+            fprintf(stderr, "Unable to initialize %s.\n", temporary);
+            if (file >= 0) {
+                _close(file);
+                _unlink(temporary);
+            }
+            SDL_free(initialState);
+            return 0;
+        }
+        _close(file);
+        SDL_free(initialState);
+    }
+    return 1;
+}
+
+int SdlSelectCampaign(int campaign)
+{
+    if (!SdlPrepareCampaignFiles(campaign, "GAMEDAT"))
+        return 0;
     g_nSdlCampaign = campaign;
     return 1;
 }
@@ -154,7 +165,7 @@ int SdlTryImportSo1Pilot(void)
     if (pilot.rank < 0 || pilot.rank >= 5)
         return 0;
     snprintf(prompt, sizeof(prompt), _("Transfer WC2 pilot %s to SO1? (Y/N)"), pilot.callsign);
-    if (!ShowModalTextPanel(1, prompt))
+    if (!ShowModalTextPanel(1, "%s", prompt))
         return 0;
     FlushPendingInputPresses();
     FlushInputEvents();
