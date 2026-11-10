@@ -6,8 +6,12 @@ library rebuild with Microsoft Visual C++ 4.1 into a **byte-identical
 `WC2.EXE`**: all 714,752 bytes match the retail executable.
 
 A native SDL2 port and optional graphical launcher are available for Windows,
-Linux, and macOS. They support Kilrathi Saga data and have partial support for
-the original DOS game data.
+Linux, and macOS. The port supports game data from the **original DOS release**
+(partial support), the **Windows release (Kilrathi Saga)**, and the
+**35th Anniversary Edition**.
+
+Built from the **reconstructed original source**, the port adds **no new graphics**
+and keeps **savegames compatible with the original game**.
 
 No retail game data files are included.
 
