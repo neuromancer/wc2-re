@@ -1301,7 +1301,14 @@ short IsOnlyShipGun(short ship, short weapon)
             if (weapon != candidate &&
                 g_aObjectTypeData[
                     (signed char)((ShipWeaponSlot *)
-                        (g_aShipWeapons[ship] + 1))[weapon].
+                        (g_aShipWeapons[ship] + 1))[
+#ifdef SDL_PORT
+                            /* Retail rechecks weapon instead of candidate. */
+                            candidate
+#else
+                            weapon
+#endif
+                        ].
                             weaponType].objectClass ==
                     OBJECT_CLASS_PROJECTILE)
                 otherGuns++;
