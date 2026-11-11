@@ -54,6 +54,8 @@ static SdlOriginFxPlayer *g_pSdlOriginFxSoundPlayer;
 static size_t g_nSdlDosMusicArchiveSize;
 static unsigned char *g_pSdlSo1MusicArchive;
 static size_t g_nSdlSo1MusicArchiveSize;
+static unsigned char *g_pSdlSo2MusicArchive;
+static size_t g_nSdlSo2MusicArchiveSize;
 static size_t g_nSdlDosAdlibTimbreSize;
 static size_t g_nSdlTitleMusicArchiveSize;
 static unsigned int g_nSdlDosMusicGain;
@@ -145,6 +147,9 @@ int SdlInitializeOriginFxAudio(int usingDosData)
     const char *so1MusicCandidates[2] = {
         "GAMEDAT/MUSIC.A01", "MUSIC.A01"
     };
+    const char *so2MusicCandidates[2] = {
+        "GAMEDAT/MUSIC.A02", "MUSIC.A02"
+    };
     const char *timbreCandidates[2] = {
         "GAMEDAT/WING2.TIM",
         "WING2.TIM"
@@ -154,18 +159,24 @@ int SdlInitializeOriginFxAudio(int usingDosData)
 
     if (g_bSdlDosMusicInitialized != 0)
         return 1;
-    if (g_nSdlCampaign == 1) {
+    if (g_nSdlCampaign != 0) {
         g_pSdlSo1MusicArchive = SdlLoadDosMusicFile(
             so1MusicCandidates, 2, &g_nSdlSo1MusicArchiveSize);
         if (g_pSdlSo1MusicArchive == 0)
             goto failed;
     }
-    if (usingDosData != 0 || g_nSdlCampaign == 1) {
+    if (g_nSdlCampaign == 2) {
+        g_pSdlSo2MusicArchive = SdlLoadDosMusicFile(
+            so2MusicCandidates, 2, &g_nSdlSo2MusicArchiveSize);
+        if (g_pSdlSo2MusicArchive == 0)
+            goto failed;
+    }
+    if (usingDosData != 0 || g_nSdlCampaign != 0) {
         g_pSdlDosMusicArchive = SdlLoadDosMusicFile(
             musicCandidates, 2, &g_nSdlDosMusicArchiveSize);
         if (g_pSdlDosMusicArchive == 0) {
             fprintf(stderr, "Unable to load GAMEDAT/MUSIC.A00.\n");
-            return 0;
+            goto failed;
         }
     }
     g_pSdlTitleMusicArchive = SdlLoadDosMusicFile(
@@ -212,7 +223,7 @@ int SdlInitializeOriginFxAudio(int usingDosData)
         goto failed;
     g_bSdlDosMusicInitialized = 1;
     SdlUpdateDosAdlibMusicVolume();
-    if (g_nSdlCampaign == 1)
+    if (g_nSdlCampaign != 0)
         g_bSdlOriginFxMusicSelected = 1;
     if (usingDosData != 0) {
         g_bSdlOriginFxMusicSelected = 1;
@@ -468,12 +479,18 @@ void SdlServiceOriginFxMusic(void)
     musicArchive = g_pSdlDosMusicArchive;
     musicArchiveSize = g_nSdlDosMusicArchiveSize;
     section = desiredTrack;
-    /* GAMEFLOW.S01's MUS table appends MUSIC.R01 sections 0, 1, 2
-     * after the 67 base tracks. MUSIC.A01 uses the same section numbers. */
-    if (g_nSdlCampaign == 1 && desiredTrack >= 67 && desiredTrack <= 69) {
+    /* Both expansions append MUSIC.R01 sections 0, 1, 2 after the 67 base
+     * tracks. SO2 also appends MUSIC.R02 section 0. The AdLib archives use
+     * the same section numbers as these GAMEFLOW MUS tables. */
+    if (g_nSdlCampaign != 0 && desiredTrack >= 67 && desiredTrack <= 69) {
         musicArchive = g_pSdlSo1MusicArchive;
         musicArchiveSize = g_nSdlSo1MusicArchiveSize;
         section = desiredTrack - 67;
+    }
+    if (g_nSdlCampaign == 2 && desiredTrack == 70) {
+        musicArchive = g_pSdlSo2MusicArchive;
+        musicArchiveSize = g_nSdlSo2MusicArchiveSize;
+        section = 0;
     }
     if (g_bSdlOriginalTitleMusicActive != 0 &&
         desiredTrack == 19) {
@@ -536,6 +553,9 @@ void SdlShutdownOriginFxAudio(void)
     SDL_free(g_pSdlSo1MusicArchive);
     g_pSdlSo1MusicArchive = 0;
     g_nSdlSo1MusicArchiveSize = 0;
+    SDL_free(g_pSdlSo2MusicArchive);
+    g_pSdlSo2MusicArchive = 0;
+    g_nSdlSo2MusicArchiveSize = 0;
     SDL_free(g_pSdlTitleMusicArchive);
     g_pSdlTitleMusicArchive = 0;
     free(g_pSdlDosAdlibTimbres);

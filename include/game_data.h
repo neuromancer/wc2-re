@@ -1638,7 +1638,17 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 /* perform_maneuver (0x4426A0) admits maneuvers 0 through 0x31. */
 #define MANEUVER_HANDLER_COUNT 50
 
+#ifdef SDL_PORT
+/* SO2 adds the Mace missile and its nuclear explosion after WC2's table.
+ * Their serialized object types are 64/65, not these table indices. */
+#define OBJECT_DATA_COUNT 51
+#define OBJECT_DATA_MACE 49
+#define OBJECT_DATA_NUCLEAR_EXPLOSION 50
+#define OBJECT_TYPE_MACE 64
+#define OBJECT_TYPE_NUCLEAR_EXPLOSION 65
+#else
 #define OBJECT_DATA_COUNT 49
+#endif
 #define OBJECT_DATA_INDEX(sourceType) ((sourceType) - 12)
 /* The records the reconstructed table names or its classes and frame lists
  * identify.  The gun and missile block is where WC2 diverges most: it carries

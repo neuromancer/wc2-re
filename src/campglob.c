@@ -245,6 +245,13 @@ static short g_asExplosionLargeAnimation[20] = {
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
     (short)0xa000, 0, 0
 }; /* 0x00496b20 */
+#ifdef SDL_PORT
+/* SO2.exe 0x00498020: each original NUKE.VGA frame lasts two ticks. */
+static short g_asNuclearExplosionAnimation[28] = {
+    0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,
+    7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, (short)0xa000, 0
+};
+#endif
 static short g_asLaserSparkAnimation[8] = {
     0, 1, 2, 3, 4, 5, (short)0xa000, 0
 }; /* 0x00496b48 */
@@ -493,6 +500,18 @@ ObjectTypeData g_aObjectTypeData[OBJECT_DATA_COUNT] = {
         "", OBJECT_CLASS_FIXED_OBJECT, 0, 63, 0, 0, 192, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 1
     }
+#ifdef SDL_PORT
+    /* SO2.exe 0x0049B0C3 and 0x0049B1B6, at the original 243-byte stride. */
+    , {
+        N_("Mace"), OBJECT_CLASS_MISSILE, 0, OBJECT_TYPE_MACE,
+        55, 10, 1280, 400, 200, 20, 32760, 50, 0, 0, 512, 4, 4, 4, 500
+    },
+    {
+        "", OBJECT_CLASS_EXPLOSION, 0, OBJECT_TYPE_NUCLEAR_EXPLOSION,
+        0, 0, 8704, 0, 0, -1, 32760, 0, 0,
+        (unsigned char *)g_asNuclearExplosionAnimation, 0, 0, 1
+    }
+#endif
 }; /* 0x00496d30 */
 int g_nUnusedObjectDataWord = 0; /* 0x00499bb4 */   /* no references in the original */
 int g_bSceneDisplayUpdateActive = 0; /* 0x00499bb8 */

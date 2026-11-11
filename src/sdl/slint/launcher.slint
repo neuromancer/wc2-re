@@ -42,6 +42,7 @@ export component LauncherWindow inherits Window {
 
     in property <bool> path-valid: false;
     in property <bool> has-so1: false;
+    in property <bool> has-so2: false;
     in property <bool> picker-error: false;
     in property <LauncherMessage> status;
     in property <string> status-detail;
@@ -353,6 +354,13 @@ export component LauncherWindow inherits Window {
                 text: @tr("Start SO1");
                 clicked => {
                     root.launch-requested(1);
+                }
+            }
+
+            if root.has-so2 : Button {
+                text: @tr("Start SO2");
+                clicked => {
+                    root.launch-requested(2);
                 }
             }
         }

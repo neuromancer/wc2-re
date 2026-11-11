@@ -898,6 +898,17 @@ void load_common_3Space_objects(void)
         g_aObjectTypeData[15].animation;
     g_aObjectTypeData[17].animation =
         g_aObjectTypeData[18].animation;
+#ifdef SDL_PORT
+    /* SO2.exe 0x423062 shares the standard missile art and exhaust. */
+    g_aObjectTypeData[OBJECT_DATA_MACE].shapeSet =
+        g_aObjectTypeData[19].shapeSet;
+    g_aObjectTypeData[OBJECT_DATA_MACE].animation =
+        g_aObjectTypeData[19].animation;
+    if (g_nSdlCampaign == 2 &&
+        g_aObjectTypeData[OBJECT_DATA_NUCLEAR_EXPLOSION].shapeSet == 0)
+        g_aObjectTypeData[OBJECT_DATA_NUCLEAR_EXPLOSION].shapeSet =
+            FetchDiskPacketRetrying("nuke.vga", 0, 4);
+#endif
     if (g_19_bStoredHighMemoryEnabled != 0) {
         if (g_1_nResourcePaletteState == 0) {
             g_pGenericMissileShape =
@@ -943,6 +954,12 @@ void free_3Space_objects(void)
 {
     FreeShapeSet(g_aCommon3SpaceResources, 0);
     free_ship(4);
+#ifdef SDL_PORT
+    g_aObjectTypeData[OBJECT_DATA_MACE].shapeSet = 0;
+    g_aObjectTypeData[OBJECT_DATA_MACE].animation = 0;
+    FreePacketAndClear(
+        &g_aObjectTypeData[OBJECT_DATA_NUCLEAR_EXPLOSION].shapeSet, 0);
+#endif
     g_aObjectTypeData[OBJECT_DATA_PILUM_FF].shapeSet =
         g_aObjectTypeData[OBJECT_DATA_SPICULUM_IR].shapeSet =
             g_aObjectTypeData[OBJECT_DATA_DART_DF].shapeSet = 0;

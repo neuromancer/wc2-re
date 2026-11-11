@@ -892,8 +892,15 @@ void house_keep_objects(void)
                 remove_object(obj);
             break;
         case OBJECT_CLASS_EXPLOSION:
-            if (g_asObjectType[obj] == 0x25 &&
-                g_asObjectAnimationIndex[obj] == 0x0c &&
+            if (((g_asObjectType[obj] == 0x25 &&
+                  g_asObjectAnimationIndex[obj] == 0x0c)
+#ifdef SDL_PORT
+                 /* SO2.exe 0x4412D7 flashes the first six animation ticks. */
+                 || (g_asObjectType[obj] == OBJECT_TYPE_NUCLEAR_EXPLOSION &&
+                     g_asObjectAnimationIndex[obj] >= 0 &&
+                     g_asObjectAnimationIndex[obj] <= 5)
+#endif
+                ) &&
                 g_asObjectScreenX[obj] != (short)0x8001) {
                 if (g_nSpacePaletteFadeMode == 0x13) {
                     g_nSpaceBlastFlashIncrement = 0;
@@ -915,6 +922,14 @@ void house_keep_objects(void)
                     g_bViewportDirty++;
                 }
             }
+#ifdef SDL_PORT
+            if (g_asObjectType[obj] == OBJECT_TYPE_NUCLEAR_EXPLOSION &&
+                g_asObjectAnimationIndex[obj] == 6) {
+                /* SO2.exe 0x441395 clears the current hazard field. */
+                remove_all_hazards();
+                g_nHazardFieldCount = 0;
+            }
+#endif
             break;
         case OBJECT_CLASS_DEBRIS:
             if (g_asObjectType[obj] == 0x3d ||
@@ -958,7 +973,11 @@ void house_keep_objects(void)
                             *(int *)&g_aObjectTypeData[
                                 g_acObjectType[obj]].lifetime);
                         if (g_asObjectType[obj] ==
-                                OBJECT_DATA_DART_DUMB_FIRE_MISSILE) {
+                                OBJECT_DATA_DART_DUMB_FIRE_MISSILE
+#ifdef SDL_PORT
+                            || g_asObjectType[obj] == OBJECT_TYPE_MACE
+#endif
+                            ) {
                             vector_component_in_dir(
                                 &g_aShipVelocity[obj],
                                 &g_aShipForwardVector[obj],
@@ -1748,6 +1767,9 @@ void object_intelligence(short obj)
                 get_facing_range_from_object(obj, target);
             switch (g_asObjectType[obj]) {
             case OBJECT_DATA_DART_DUMB_FIRE_MISSILE:
+#ifdef SDL_PORT
+            case OBJECT_TYPE_MACE:
+#endif
                 g_anShipSpeed[obj] =
                     (get_ship_max_velocity(obj) + 10) * 0x100;
                 break;

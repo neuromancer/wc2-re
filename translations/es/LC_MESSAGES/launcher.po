@@ -196,3 +196,7 @@ msgstr "Iniciar WC2"
 msgctxt "LauncherWindow"
 msgid "Start SO1"
 msgstr "Iniciar SO1"
+
+msgctxt "LauncherWindow"
+msgid "Start SO2"
+msgstr "Iniciar SO2"

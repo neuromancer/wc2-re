@@ -114,6 +114,11 @@ void warp(short obj)
 /* Function start: 0x424E8C */
 void MarkPilotDead(short pilot)
 {
+#ifdef SDL_PORT
+    /* Expansion comm portraits can be outside the saved pilot roster. */
+    if (pilot < 0 || pilot >= 32)
+        return;
+#endif
     g_pPilotStatus[pilot] = 0;
 }
 

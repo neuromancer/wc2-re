@@ -43,7 +43,7 @@ typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
     int language; /* 0: English, 1: Spanish */
-    int campaign; /* 0: WC2, 1: Special Operations 1 */
+    int campaign; /* 0: WC2, 1: Special Operations 1, 2: Special Operations 2 */
     int enhancedRenderer;
     int egaDither;
     int balancedDifficulty;

@@ -76,6 +76,7 @@ void refresh_window(LauncherWindow &window,
     window.set_picker_error(false);
     window.set_path_valid(status.valid);
     window.set_has_so1(status.valid && validate_game_directory(directory, 1).valid);
+    window.set_has_so2(status.valid && validate_game_directory(directory, 2).valid);
     window.set_status(status.message);
     window.set_status_detail(slint::SharedString(status.detail));
 }
@@ -194,7 +195,9 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->on_launch_requested([&window, &accepted, &installations, &selectedCampaign](int campaign) {
         refresh_window(*window, installations);
         if (!window->get_path_valid() ||
-            (campaign == 1 && !window->get_has_so1()))
+            (campaign == 1 && !window->get_has_so1()) ||
+            (campaign == 2 && !window->get_has_so2()) ||
+            campaign < 0 || campaign > 2)
             return;
         std::error_code error;
         const std::string directory(window->get_game_directory());

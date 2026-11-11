@@ -169,7 +169,7 @@ void RunGameApplication(short argc, char **argv)
                         InitializeNewPilotCampaign(
                             g_nSelectedCampaignSlot);
 #ifdef SDL_PORT
-                        if (SdlTryImportSo1Pilot())
+                        if (SdlTryImportExpansionPilot())
                             selectionMade = 1;
                         else
 #endif

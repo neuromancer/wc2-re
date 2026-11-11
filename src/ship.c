@@ -51,6 +51,10 @@ short g_aeShipHitDebrisTypes[4] = {
     OBJECT_DATA_O_RING
 }; /* 0x00492e10 */
 short g_bExplosionTraversalIdle = 1; /* 0x00492e18 */
+#ifdef SDL_PORT
+/* SO2.exe 0x0049EA60 / explode 0x00455758: nested blasts share one visit set. */
+static short g_nSdlExplosionDepth;
+#endif
 signed char g_acGunRefireDelay[4] = {5, 9, 3, 4}; /* 0x00492e1c */
 
 /* Function start: 0x410020 */
@@ -366,6 +370,13 @@ void InitializeShipWeaponTypeIndices(short obj)
             g_aShipWeapons[obj][
                 weaponIndex * sizeof(ShipWeaponSlot) + 1 +
                 offsetof(ShipWeaponSlot, type)];
+#ifdef SDL_PORT
+        /* SO2.exe 0x45168F: serialized Mace type 64 uses table slot 49. */
+        if (((ShipWeaponSlot *)(g_aShipWeapons[obj] + 1))[
+                weaponIndex].type == OBJECT_TYPE_MACE)
+            ((ShipWeaponSlot *)(g_aShipWeapons[obj] + 1))[
+                weaponIndex].weaponType = OBJECT_DATA_MACE;
+#endif
     }
 }
 
@@ -440,6 +451,13 @@ void set_objects_data(short obj, short type, short owner,
             g_acObjectType[obj] =
                 (signed char)g_nObjectType63Index;
         }
+#ifdef SDL_PORT
+        /* SO2.exe 0x45199B keeps resource types separate from table slots. */
+        if (type == OBJECT_TYPE_MACE)
+            g_acObjectType[obj] = OBJECT_DATA_MACE;
+        if (type == OBJECT_TYPE_NUCLEAR_EXPLOSION)
+            g_acObjectType[obj] = OBJECT_DATA_NUCLEAR_EXPLOSION;
+#endif
         typeData =
             &g_aObjectTypeData[g_acObjectType[obj]];
         source = typeData;
@@ -872,7 +890,12 @@ short inflict_damage(short attacker, short victim, short damage,
          g_aasShipShield[victim][1] >= 1000) &&
         attacker != -1 && g_asObjectType[attacker] != 0x0d &&
         g_asObjectType[attacker] != 0x0e &&
-        g_asObjectType[attacker] != 0x13)
+        g_asObjectType[attacker] != 0x13
+#ifdef SDL_PORT
+        /* SO2.exe 0x452C01: the Mace also penetrates phase shields. */
+        && g_asObjectType[attacker] != OBJECT_TYPE_MACE
+#endif
+        )
         return 0;
     if (attacker != -1 &&
         g_aeObjectClass[attacker] == OBJECT_CLASS_PROJECTILE &&
@@ -1798,15 +1821,25 @@ void explosion_shock_wave(short obj, short blastDamage)
             range = MaxShort(0,
                 (short)(FixedToShortSaturating(Vector_magnitude(&delta)) -
                         g_asObjectCollisionRadius[target]));
-            if (range > 1000 ||
+            if ((range > 1000 ||
                 (g_aeObjectClass[target] == OBJECT_CLASS_MISSILE &&
                  ((g_asMissileProximityFuseValues[target] + 1) * 100 <
                       range ||
-                  g_asShipTactic[target] != 4))) {
+                  g_asShipTactic[target] != 4)))
+#ifdef SDL_PORT
+                /* SO2.exe 0x454F5B: Mace blasts reach beyond 1000 metres. */
+                && g_asObjectType[obj] != OBJECT_TYPE_MACE
+#endif
+                ) {
                 damage = 0;
             } else {
                 if (range > 750)
+#ifdef SDL_PORT
+                    range = g_asObjectType[obj] == OBJECT_TYPE_MACE &&
+                            range > 2000 ? 60 : 40;
+#else
                     range = 40;
+#endif
                 else if (range > 500)
                     range = 30;
                 else
@@ -1816,7 +1849,11 @@ void explosion_shock_wave(short obj, short blastDamage)
                     g_aeObjectClass[target] >=
                         OBJECT_CLASS_CAPITAL_SHIP &&
                     g_aeObjectClass[obj] == OBJECT_CLASS_MISSILE &&
-                    g_asObjectType[obj] != OBJECT_DATA_TORPEDO)
+                    g_asObjectType[obj] != OBJECT_DATA_TORPEDO
+#ifdef SDL_PORT
+                    && g_asObjectType[obj] != OBJECT_TYPE_MACE
+#endif
+                    )
                     damage = 0;
                 if (target == 0)
                     damage = MaxShort(1, (short)(damage * 3 >> 2));
@@ -1825,6 +1862,16 @@ void explosion_shock_wave(short obj, short blastDamage)
                 NormalizeFixedVector(&delta);
                 ScaleFixedVector(&delta, (int)damage << 8, &force);
                 apply_force_to_objects_center(&force, target);
+#ifdef SDL_PORT
+                /* SO2.exe 0x45512B: outside 2000 metres the blast pushes
+                 * objects but does not damage them. Inside, cap at 4000. */
+                if (g_asObjectType[obj] == OBJECT_TYPE_MACE) {
+                    if (range < 60)
+                        inflict_damage(obj, target,
+                                       MinShort(4000, (short)(damage * 8)),
+                                       &delta);
+                } else
+#endif
                 if (g_asObjectType[obj] != OBJECT_DATA_TORPEDO) {
                     inflict_damage(obj, target,
                                    MinShort(200, damage), &delta);
@@ -1955,6 +2002,13 @@ short Explosion(short obj)
             debris = obj;
             set_objects_data(debris, OBJECT_DATA_EXPLOSION_LARGE,
                              g_acObjectOwner[obj], 0);
+#ifdef SDL_PORT
+        } else if (g_asObjectType[obj] == OBJECT_TYPE_MACE) {
+            /* SO2.exe 0x4556B0: retain the missile owner for kill credit. */
+            debris = obj;
+            set_objects_data(debris, OBJECT_TYPE_NUCLEAR_EXPLOSION,
+                             g_acObjectOwner[obj], 0);
+#endif
         } else {
             debris = obj;
             set_objects_data(debris, OBJECT_DATA_EXPLOSION_SMALL,
@@ -1975,17 +2029,35 @@ short explode(short attacker, short victim)
 
     if (victim < 10)
         g_anShipCloakState[victim] = 2;
+#ifdef SDL_PORT
+    if (g_nSdlExplosionDepth == 0) {
+#else
     if (g_bExplosionTraversalIdle != 0) {
+#endif
         for (object = 0; object < SPACE_OBJECT_COUNT; object++)
             g_10_abExplosionEntityDoneBytes[object] = 0;
     }
+#ifdef SDL_PORT
+    g_nSdlExplosionDepth++;
+    if (g_10_abExplosionEntityDoneBytes[victim] != 0 ||
+        g_aeSpecialManeuver[victim] == SPECIAL_MANEUVER_UNKNOWN_9) {
+        g_nSdlExplosionDepth--;
+        return 1;
+    }
+    g_10_abExplosionEntityDoneBytes[victim] = 1;
+#else
     g_bExplosionTraversalIdle = 0;
     if (g_10_abExplosionEntityDoneBytes[victim] != 0)
         return 1;
     else
         g_10_abExplosionEntityDoneBytes[victim] = 1;
+#endif
     result = ResolveObjectDestruction(attacker, victim);
+#ifdef SDL_PORT
+    g_nSdlExplosionDepth--;
+#else
     g_bExplosionTraversalIdle = 1;
+#endif
     return result;
 }
 
@@ -2572,7 +2644,12 @@ short fire_weapon(short obj, short weapon)
     weaponDataIndex =
         ((ShipWeaponSlot *)&g_aShipWeapons[obj][1])[
             weapon].weaponType;
+#ifdef SDL_PORT
+    /* SO2.exe 0x456DBB indexes the mapped loadout field, not type 64. */
+    weaponClass = g_aObjectTypeData[weaponDataIndex].objectClass;
+#else
     weaponClass = g_aObjectTypeData[typeCode].objectClass;
+#endif
     if (typeCode == 0x0c) {
         typeCode = 7;
         weaponClass = 8;
@@ -2649,6 +2726,15 @@ short fire_weapon(short obj, short weapon)
             g_asObjectCounter[missile] = 5;
             g_acObjectCollisionGraceTicks[missile] = 20;
             switch (typeCode) {
+#ifdef SDL_PORT
+            case OBJECT_TYPE_MACE:
+                /* SO2.exe 0x4571CC: unguided, five-tick launch delay. */
+                steady_object(missile);
+                g_acShipTarget[missile] = -1;
+                g_anShipSpeed[missile] =
+                    get_ship_max_velocity(missile) << 8;
+                break;
+#endif
             case 0x0f:
                 steady_object(missile);
                 g_acShipTarget[missile] =
@@ -2745,6 +2831,9 @@ short fire_weapon(short obj, short weapon)
         case 0x11:
         case 0x12:
         case 0x13:
+#ifdef SDL_PORT
+        case OBJECT_TYPE_MACE:
+#endif
             PlaySfxWaveFileByNumber(1, missile, 0);
             break;
         }

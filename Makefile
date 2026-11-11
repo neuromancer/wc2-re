@@ -164,7 +164,7 @@ MISSION ?= 0
 MISSION_FLAGS ?=
 CAMPAIGN ?= wc2
 CUTSCENE_PHASE ?= preflight
-ifeq ($(CAMPAIGN),so1)
+ifneq ($(filter so1 so2,$(CAMPAIGN)),)
 MODERN_CUTSCENE_SERIES = 1 2 3 4 5
 MODERN_CUTSCENE_SELECTORS := $(foreach series,$(MODERN_CUTSCENE_SERIES),\
 	$(addprefix v$(series)-t,0 1 2 3))
@@ -773,7 +773,7 @@ run-modern-cutscene: run-modern
 
 # MODULE.000 has four mission slots per series.  The base campaign uses every
 # slot in series 1-13 except the empty fourth slots in series 7 and 13.
-# SO1's MODULE.001 uses all four slots in series 1-5.
+# SO1's MODULE.001 and SO2's MODULE.002 use all four slots in series 1-5.
 modern-test-cutscenes: modern
 	+@status=0; \
 	$(MAKE) --no-print-directory --keep-going \

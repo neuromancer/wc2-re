@@ -68,6 +68,13 @@ void set_sphere_point(const MissionShipRecord *record,
 /* Function start: 0x44B239 */
 short is_alive(signed char pilot)
 {
+#ifdef SDL_PORT
+    /* SO2 S2M1 gives Maniac comm portrait 36. Campaign saves contain only
+     * 32 persistent pilot flags; a portrait outside that roster has no
+     * recorded death to suppress its mission ship. */
+    if (pilot < 0 || pilot >= 32)
+        return 1;
+#endif
     return g_pPilotStatus[pilot];
 
 }

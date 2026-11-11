@@ -662,3 +662,17 @@ msgstr ""
 #, c-format
 msgid "wc2:2b083956c664a768 %s (Y/N)"
 msgstr ""
+
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:07aa7341dc6065a4 %s (Y/N)"
+msgstr ""
+
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:72d2acce35c8f98b %s (Y/N)"
+msgstr ""
+
+#: src/campglob.c
+msgid "wc2:49fc4aaed01aa937"
+msgstr ""

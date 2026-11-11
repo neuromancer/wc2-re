@@ -77,12 +77,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         if (strcmp(argument, "--gui") == 0) {
             *useLauncherGui = 1;
         } else if (strncmp(argument, "--campaign=", 11) == 0) {
-            if (strcmp(argument + 11, "wc2") && strcmp(argument + 11, "so1")) {
-                fprintf(stderr, "Unknown campaign: %s (expected wc2 or so1)\n",
+            if (strcmp(argument + 11, "wc2") && strcmp(argument + 11, "so1") &&
+                strcmp(argument + 11, "so2")) {
+                fprintf(stderr, "Unknown campaign: %s (expected wc2, so1 or so2)\n",
                         argument + 11);
                 return 0;
             }
-            launcherOptions->campaign = !strcmp(argument + 11, "so1");
+            launcherOptions->campaign = !strcmp(argument + 11, "so2") ? 2 :
+                                        !strcmp(argument + 11, "so1");
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CAMPAIGN;
         } else if (strncmp(argument, "--language=", 11) == 0) {
             if (strcmp(argument + 11, "en") && strcmp(argument + 11, "es")) {

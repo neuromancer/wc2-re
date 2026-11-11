@@ -1199,6 +1199,12 @@ short achieved(short objective)
 /* Function start: 0x43A29E */
 void flag_objective(short objective, unsigned char flags)
 {
+#ifdef SDL_PORT
+    /* SO2 S3M3 can land without a return-home objective. find_objective
+     * returns -1 in that case, so there is no flag record to update. */
+    if (objective < 0 || objective >= MISSION_OBJECTIVE_COUNT)
+        return;
+#endif
     g_aMissionObjectives[objective].flags |= flags;
 }
 

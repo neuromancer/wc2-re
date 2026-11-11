@@ -58,6 +58,16 @@ SO1 support is experimental; remaining original-game anomalies are tracked in
 [#8](https://github.com/neuromancer/wc2-re/issues/8) and
 [#9](https://github.com/neuromancer/wc2-re/issues/9).
 
+Select **Start SO2**, or pass `--campaign=so2`, to play SO2. Its launcher button
+appears only when the required expansion data is detected. SO2 includes the
+Morningstar's **Mace weapon** and original explosion graphics, uses
+**SAVEGAME.SO2** and separate temporary state, and offers to transfer your SO1
+Continue pilot (or WC2's if no valid SO1 checkpoint exists). Campaign dialogue
+is English, with original AdLib music. **SO2 support is experimental**: all
+mission starts, navigation entries and default cutscene sequences pass
+sanitizer checks, but a full campaign playthrough remains unverified. See
+[SO2 implementation and validation](src/sdl/SO2.md).
+
 Choose **Language → Español** for Spanish dialogue, menus, game UI and
 launcher text, or use `--language=es` (`--language=en` restores English).
 Translations support the base game with DOS or Kilrathi Saga data. See
@@ -157,7 +167,8 @@ to the installed game directory and `MODERN_CUTSCENE_JOBS=1` for a serial run
 (default: four parallel processes). Logs go to `out-modern/cutscene-asan/`;
 the command fails on process errors or sanitizer reports. Full flight startup
 is separate: `make run-modern-mission SERIES=1 MISSION=0`.
-Set `CAMPAIGN=so1` for SO1's 20 mission sequences or direct flight, and
+Set `CAMPAIGN=so1` or `CAMPAIGN=so2` for either expansion's 20 mission
+sequences or direct flight, and
 `CUTSCENE_PHASE=postflight` to test debriefings instead of preflight scenes.
 
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust

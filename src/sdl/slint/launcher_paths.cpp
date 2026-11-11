@@ -116,6 +116,16 @@ DirectoryStatus validate_game_directory(std::string_view directoryText, int camp
                 return {false, LauncherMessage::MissingGameFile, name};
         }
     }
+    if (campaign == 2) {
+        for (const auto name : {"CAMPAIGN.S02", "GAMEFLOW.S02", "MODULE.002",
+                                "SERIES.S02", "STARTGLB.002", "ALTSHIPS.002",
+                                "INCIDENT.S02", "SECTOR.002", "SHIP.V41",
+                                "PCSHIP.V41", "SHIP.V48", "NUKE.VGA",
+                                "MUSIC.A01", "MUSIC.A02"}) {
+            if (!has_readable_file(*gameData, name))
+                return {false, LauncherMessage::MissingGameFile, name};
+        }
+    }
 
     // Match SdlUsingDosData: the Saga conversion changed 0xc1 to 0xe0.
     if (header[7] == 0xc1)

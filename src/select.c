@@ -21,7 +21,13 @@ short find_next_gun(short obj, short currentGun)
     count = (signed char)loadoutTable[0];
     weaponSlot = (ShipWeaponSlot *)&loadoutTable[1];
     for (i = 0; i < count; i++, weaponSlot++) {
-        if (g_aObjectTypeData[weaponSlot->type].objectClass ==
+        if (g_aObjectTypeData[
+#ifdef SDL_PORT
+                weaponSlot->weaponType
+#else
+                weaponSlot->type
+#endif
+                ].objectClass ==
                 OBJECT_CLASS_PROJECTILE) {
             if (weaponSlot->type != OBJECT_DATA_TURRET_GUN) {
                 if (earliest == -1)
@@ -55,7 +61,13 @@ int select_guns(short selectedGun)
     i = 0;
     weaponSlot = (ShipWeaponSlot *)&weapons[1];
     for (; i < weaponCount; i++, weaponSlot++) {
-        if (g_aObjectTypeData[weaponSlot->type].objectClass ==
+        if (g_aObjectTypeData[
+#ifdef SDL_PORT
+                weaponSlot->weaponType
+#else
+                weaponSlot->type
+#endif
+                ].objectClass ==
                 OBJECT_CLASS_PROJECTILE) {
             if (weaponSlot->type == selectedGun || selectedGun == 0x80) {
                 weaponSlot->disabled = 0;

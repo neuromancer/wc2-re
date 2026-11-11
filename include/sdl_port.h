@@ -249,7 +249,7 @@ int SdlUsingDosData(void);
 extern int g_nSdlCampaign;
 const char *SdlCampaignPath(const char *path);
 int SdlSelectCampaign(int campaign);
-int SdlTryImportSo1Pilot(void);
+int SdlTryImportExpansionPilot(void);
 int SdlClipViewportCopy(struct Viewport *source, struct Viewport *destination);
 int SdlPatchPacketSection(const char *filename, short section,
                           struct PacketSectionHandle *handle);

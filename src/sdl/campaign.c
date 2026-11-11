@@ -2,27 +2,28 @@
 
 int g_nSdlCampaign;
 
-/* SO1's STARTGLB.001 uses campaign slot zero, just like the base game.
- * Select its files at the host boundary rather than changing the serialized
+/* Both expansions' STARTGLB files use campaign slot zero, like the base game.
+ * Select their files at the host boundary rather than changing the serialized
  * campaign globals or the retail engine's campaign numbering. Only bare game
  * filenames are redirected; explicit paths (including pilot imports) are not.
  * Keep saves and temporary state separate from the base campaign. */
 const char *SdlCampaignPath(const char *path)
 {
-    static const char *const names[][2] = {
-        { "campaign.s00", "campaign.s01" },
-        { "module.000", "module.001" },
-        { "altships.000", "altships.001" },
-        { "startglb.000", "startglb.001" },
-        { "tempglob.000", "tempglob.001" },
-        { "savegame.wc2", "savegame.so1" }
+    static const char *const names[][3] = {
+        { "campaign.s00", "campaign.s01", "campaign.s02" },
+        { "module.000", "module.001", "module.002" },
+        { "altships.000", "altships.001", "altships.002" },
+        { "startglb.000", "startglb.001", "startglb.002" },
+        { "tempglob.000", "tempglob.001", "tempglob.002" },
+        { "savegame.wc2", "savegame.so1", "savegame.so2" },
+        { "sector.000", "sector.000", "sector.002" }
     };
     size_t index;
 
-    if (g_nSdlCampaign == 1 && path != 0) {
+    if (g_nSdlCampaign >= 1 && g_nSdlCampaign <= 2 && path != 0) {
         for (index = 0; index < SDL_arraysize(names); index++) {
             if (SDL_strcasecmp(path, names[index][0]) == 0)
-                return names[index][1];
+                return names[index][g_nSdlCampaign];
         }
     }
     return path;
@@ -30,11 +31,19 @@ const char *SdlCampaignPath(const char *path)
 
 static int SdlPrepareCampaignFiles(int campaign, const char *directory)
 {
-    static const char *const required[] = {
+    static const char *const so1Required[] = {
         "CAMPAIGN.S01", "GAMEFLOW.S01", "MODULE.001", "SERIES.S01",
         "STARTGLB.001", "ALTSHIPS.001", "SHIP.V15", "PCSHIP.V15",
         "MUSIC.A01"
     };
+    static const char *const so2Required[] = {
+        "CAMPAIGN.S02", "GAMEFLOW.S02", "MODULE.002", "SERIES.S02",
+        "STARTGLB.002", "ALTSHIPS.002", "INCIDENT.S02", "SECTOR.002",
+        "SHIP.V41", "PCSHIP.V41", "SHIP.V48", "NUKE.VGA",
+        "MUSIC.A01", "MUSIC.A02"
+    };
+    const char *const *required;
+    size_t requiredCount;
     size_t index;
     int file;
     unsigned char *initialState;
@@ -43,21 +52,24 @@ static int SdlPrepareCampaignFiles(int campaign, const char *directory)
     char path[64];
     char temporary[64];
 
-    if (campaign < 0 || campaign > 1)
+    if (campaign < 0 || campaign > 2)
         return 0;
-    if (campaign == 1) {
-        for (index = 0; index < SDL_arraysize(required); index++) {
+    if (campaign != 0) {
+        required = campaign == 1 ? so1Required : so2Required;
+        requiredCount = campaign == 1 ? SDL_arraysize(so1Required) :
+                                       SDL_arraysize(so2Required);
+        for (index = 0; index < requiredCount; index++) {
             snprintf(path, sizeof(path), "%s/%s", directory, required[index]);
             file = _open(path, 0x8000);
             if (file < 0) {
-                fprintf(stderr, "Special Operations 1 requires %s.\n",
-                        path);
+                fprintf(stderr, "Special Operations %d requires %s.\n",
+                        campaign, path);
                 return 0;
             }
             _close(file);
         }
     }
-    /* Both campaigns need scratch state before the menu checks Continue.
+    /* All campaigns need scratch state before the menu checks Continue.
      * Explicit paths bypass the active campaign's filename redirection. */
     snprintf(temporary, sizeof(temporary), "%s/TEMPGLOB.%03d", directory, campaign);
     file = _open(temporary, 0x8000);
@@ -124,20 +136,26 @@ int SdlConfirmContinueOverwrite(void)
     return confirmed;
 }
 
-int SdlTryImportSo1Pilot(void)
+int SdlTryImportExpansionPilot(void)
 {
+    static const char *const sources[] = {
+        "./savegame.so1", "./savegame.wc2"
+    };
     PilotProfile pilot;
     unsigned short words;
     short occupied;
     int file;
     int slotBytes;
     int reply;
+    int source;
+    int valid;
+    const char *question;
     char signature[36];
-    char prompt[128];
+    char prompt[52];
 
-    if (g_nSdlCampaign != 1)
+    if (g_nSdlCampaign != 1 && g_nSdlCampaign != 2)
         return 0;
-    file = _open("startglb.001", 0x8000);
+    file = _open("startglb.000", 0x8000);
     if (file < 0)
         return 0;
     reply = _read(file, &words, sizeof(words));
@@ -145,26 +163,35 @@ int SdlTryImportSo1Pilot(void)
     if (reply != sizeof(words) || words < sizeof(CampaignGlobals) / 2)
         return 0;
     slotBytes = words * 2 + 0x86;
-    /* An explicit relative path bypasses SO1's save filename selection. */
-    file = _open("./savegame.wc2", 0x8000);
-    if (file < 0)
-        return 0;
-    if (_filelength(file) != slotBytes * 9 ||
-        _lseek(file, slotBytes * 8, SEEK_SET) != slotBytes * 8 ||
-        _read(file, &occupied, sizeof(occupied)) != sizeof(occupied) || !occupied ||
-        _read(file, &pilot, sizeof(pilot)) != sizeof(pilot) ||
-        _read(file, signature, sizeof(signature)) != sizeof(signature) ||
-        memcmp(signature, "Wing Commander II (c) 1991 Origin", 31) != 0) {
+    /* Explicit paths bypass campaign redirection. For SO2, prefer the SO1
+     * Continue checkpoint; fall back to WC2 if SO1 has no valid checkpoint. */
+    for (source = g_nSdlCampaign == 2 ? 0 : 1; source < 2; source++) {
+        file = _open(sources[source], 0x8000);
+        if (file < 0)
+            continue;
+        valid = _filelength(file) == slotBytes * 9 &&
+            _lseek(file, slotBytes * 8, SEEK_SET) == slotBytes * 8 &&
+            _read(file, &occupied, sizeof(occupied)) == sizeof(occupied) && occupied &&
+            _read(file, &pilot, sizeof(pilot)) == sizeof(pilot) &&
+            _read(file, signature, sizeof(signature)) == sizeof(signature) &&
+            memcmp(signature, "Wing Commander II (c) 1991 Origin", 31) == 0;
         _close(file);
-        return 0;
+        if (valid && pilot.rank >= 0 && pilot.rank < 5)
+            break;
     }
-    _close(file);
+    if (source == 2)
+        return 0;
     pilot.firstName[sizeof(pilot.firstName) - 1] = 0;
     pilot.lastName[sizeof(pilot.lastName) - 1] = 0;
     pilot.callsign[sizeof(pilot.callsign) - 1] = 0;
-    if (pilot.rank < 0 || pilot.rank >= 5)
-        return 0;
-    snprintf(prompt, sizeof(prompt), _("Transfer WC2 pilot %s to SO1? (Y/N)"), pilot.callsign);
+    if (g_nSdlCampaign == 1)
+        question = _("Transfer WC2 pilot %s to SO1? (Y/N)");
+    else if (source == 0)
+        question = _("Transfer SO1 pilot %s to SO2? (Y/N)");
+    else
+        question = _("Transfer WC2 pilot %s to SO2? (Y/N)");
+    /* ShowModalTextPanel also has a 52-byte formatting buffer. */
+    snprintf(prompt, sizeof(prompt), question, pilot.callsign);
     if (!ShowModalTextPanel(1, "%s", prompt))
         return 0;
     FlushPendingInputPresses();
