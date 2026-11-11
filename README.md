@@ -46,6 +46,13 @@ installation and select **Start WC2**. The launcher remembers your settings.
 Enable **Start in fullscreen** under **Graphics** to open the game in desktop
 fullscreen mode.
 
+**Steam Deck / Linux (experimental):** install the `.flatpak` in Desktop Mode
+with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
+add **Wing Commander II (Experimental)** to Steam as a non-Steam game. These
+packages have not been tested on Steam Deck; please report controls, saving and
+suspend/resume results in [Issues](https://github.com/neuromancer/wc2-re/issues).
+Install newer bundles the same way; automatic app updates are not configured.
+
 Select **Start SO1** in the launcher, or pass `--campaign=so1`, to play SO1.
 The **Start SO1** button appears only when the selected installation contains
 the required expansion files alongside the base game's `GAMEDAT` files.

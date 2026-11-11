@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.neuromancer.wc2</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <name>Wing Commander II (Experimental)</name>
+  <summary>Experimental SDL2 port of Wing Commander II</summary>
+  <description>
+    <p>Play Wing Commander II: Vengeance of the Kilrathi and its Special
+    Operations 1 and 2 expansions using your own original game files.
+    Supports Kilrathi Saga and DOS data.</p>
+    <p>This Flatpak is experimental and has not been validated on Steam Deck.
+    Please report installation, controls, saving and suspend/resume results.</p>
+    <p>Original game files are not included.</p>
+  </description>
+  <launchable type="desktop-id">io.github.neuromancer.wc2.desktop</launchable>
+  <url type="homepage">https://github.com/neuromancer/wc2-re</url>
+  <url type="bugtracker">https://github.com/neuromancer/wc2-re/issues</url>
+  <releases>
+    <release version="@VERSION@" date="@DATE@" type="development"/>
+  </releases>
+</component>
