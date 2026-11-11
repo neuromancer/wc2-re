@@ -3,7 +3,8 @@
   "upstream_archive_sha256": "1137ab167fd1c80bf5ceb74a94cb9b040cac2a1dfd5a17697a1be507aa8a61d5",
   "upstream_version": "1.4",
   "author": "paxiu1984",
-  "license": "GPL v3.0 with an additional no-charge term, by permission of paxiu1984",
+  "license": "GPL v3.0 with an additional no-charge term",
+  "license_url": "https://steamcommunity.com/sharedfiles/filedetails/?id=3834561725",
   "english_sha256": {
     "dos": {
       "BUTTONS.V00": "b2c3694b89d643f32aded342191a7927056b2d888c00e88599b3005d7f601bf0",

@@ -1,6 +1,6 @@
-# Polish translation by paxiu1984, patch version 1.4 (2026). Used with
-# permission under GPL v3.0 with an additional no-charge term.
-# See ../upstream/CZYTAJ_MNIE.txt for the upstream notice and credits.
+# Polish translation by paxiu1984, patch version 1.4 (2026), released under
+# GPL v3.0 with an additional no-charge term. See
+# ../upstream/Polish-credits-and-license.txt and ../upstream/CZYTAJ_MNIE.txt.
 # Strings marked as local additions are not in the upstream patch.
 msgid ""
 msgstr ""

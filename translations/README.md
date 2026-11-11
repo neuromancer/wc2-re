@@ -69,10 +69,13 @@ matching wc1-re catalog entries, with additions for WC2; see their PO headers.
 
 The imported Polish text, artwork and glyphs are by **paxiu1984**, from patch
 version 1.4 (2026), distributed as `WC2_Spolszczenie_PL_v1.1_latka.zip`,
-which builds on L@Zar0 and darkpadawan's Spanish version.
-paxiu1984 permitted their use here under GPL v3.0 with an additional
-no-charge term, as for the Spanish translation; the
-[upstream notice](upstream/CZYTAJ_MNIE.txt) accompanies the catalog.
+which builds on L@Zar0 and darkpadawan's Spanish version and was tested by
+the clandlan.net and wcnews.com communities. Its
+[credits and license](upstream/Polish-credits-and-license.txt), from
+paxiu1984's [Steam guide](https://steamcommunity.com/sharedfiles/filedetails/?id=3834561725),
+release the translation under GPL v3.0 and forbid selling it, as the Spanish
+notice does; the archive's [README](upstream/CZYTAJ_MNIE.txt) accompanies the
+catalog too.
 [pl/provenance.json](pl/provenance.json) records the archive hash, the
 English inputs and the corrections: letters move from the punctuation slots
 the patch repurposes to CP1250, four punctuation marks it encodes with those
@@ -86,4 +89,4 @@ need neither the upstream archives nor an import tool. The imports exclude
 executables, voices, gameplay changes and the Polish voice-subtitle file.
 One Python script, `bin/compileTranslations.py`, compiles game catalogs and
 refreshes marked UI strings. Release archives and both installers include
-the compiled catalogs and both upstream notices.
+the compiled catalogs and the upstream notices.

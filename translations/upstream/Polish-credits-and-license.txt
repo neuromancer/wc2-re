@@ -1,0 +1,43 @@
+Source: paxiu1984, "Polskie spolszczenie - Wing Commander II + Special
+Operations 1 i 2 / Polish translation", Steam Community guide, section
+"Podziękowania i licencja / Credits and license" (posted 6 November 2026,
+retrieved 11 November 2026):
+https://steamcommunity.com/sharedfiles/filedetails/?id=3834561725
+
+Podziękowania
+- L@Zar0 (tłumaczenie) i darkpadawan (korekta): hiszpańska wersja Wing
+  Commandera, na której opiera się ten projekt
+- Lance Burns: mod WCAT / AllTinker
+- James Touton i Pat Caron: Wcdx (Kilrathi Saga)
+- clandlan.net, wcnews.com i cała społeczność Wing Commander oraz wszyscy
+  testerzy
+
+Licencja i prawa
+Łatka jest darmowa i niekomercyjna, nie wolno jej sprzedawać. Praca autorów
+spolszczenia (teksty, narzędzia) jest udostępniona na zasadach GNU GPL v3;
+podawaj autorów i źródło. Łatka zawiera tylko różnice względem oryginalnych
+plików, bez plików gry. Licencja nie obejmuje gry ani materiałów EA / Origin
+Systems. Wing Commander jest znakiem towarowym lub własnością EA / Origin
+Systems; projekt jest fanowski i nie jest autoryzowany ani wspierany przez EA.
+Pliki zostaną zdjęte na prośbę właściciela praw.
+
+Spolszczenie: paxiu1984
+
+------------------------------------------------------------------------------
+
+Credits and license
+- L@Zar0 (translation) and darkpadawan (proofreading): the Spanish
+  localization of Wing Commander that this project builds on
+- Lance Burns: the WCAT / AllTinker mod
+- James Touton and Pat Caron: Wcdx (Kilrathi Saga)
+- clandlan.net, wcnews.com, the whole Wing Commander community and all testers
+
+The patch is free and non-commercial and must not be sold. The work of the
+localization authors (texts, tools) is released under the GNU GPL v3; credit
+the authors and the source. The patch contains only differences against the
+original files, no game files. The license does not cover the game or any
+EA / Origin Systems material. Wing Commander is a trademark or property of
+EA / Origin Systems; this is a fan project, not authorized or supported by EA.
+Files will be removed at the rights holder's request.
+
+Translation: paxiu1984

@@ -260,8 +260,10 @@ Special thanks to:
   its text, shared under the [upstream GPL v3.0 notice](translations/upstream/Leeme.txt);
   their Spanish version was also the base of the Polish translation;
 - paxiu1984 for creating the Polish translation of *Wing Commander II* and
-  both *Special Operations*, shared with permission under GPL v3.0 with the
-  same no-charge term (see its [upstream notice](translations/upstream/CZYTAJ_MNIE.txt));
+  both *Special Operations*, shared under its
+  [upstream GPL v3.0 notice](translations/upstream/Polish-credits-and-license.txt),
+  and the [clandlan.net](https://www.clandlan.net/) and
+  [wcnews.com](https://www.wcnews.com/) communities that tested it;
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's

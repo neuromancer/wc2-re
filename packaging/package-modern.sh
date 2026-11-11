@@ -49,6 +49,8 @@ mkdir "$stage_dir/translations"
 cp "$(dirname "$binary")/translations/"*.dat "$stage_dir/translations/"
 cp translations/upstream/Leeme.txt "$stage_dir/translations/Spanish-README.txt"
 cp translations/upstream/CZYTAJ_MNIE.txt "$stage_dir/translations/Polish-README.txt"
+cp translations/upstream/Polish-credits-and-license.txt \
+    "$stage_dir/translations/Polish-LICENSE.txt"
 
 if test "$platform" = windows; then
     executable="$stage_dir/wc2-modern.exe"
