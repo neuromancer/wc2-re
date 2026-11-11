@@ -1,0 +1,692 @@
+# Polish translation by paxiu1984, patch version 1.4 (2026). Used with
+# permission under GPL v3.0 with an additional no-charge term.
+# See ../upstream/CZYTAJ_MNIE.txt for the upstream notice and credits.
+# Strings marked as local additions are not in the upstream patch.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+
+#: src/campglob.c:323
+msgid "wc2:2c0f9e664e8927e1"
+msgstr "Laser"
+
+#: src/campglob.c:327
+msgid "wc2:e08e83371e653e02"
+msgstr "Neutronowe"
+
+#: src/campglob.c:331
+msgid "wc2:9faae5eb1f89c1f1"
+msgstr "Dz. masowe"
+
+#: src/campglob.c:334
+msgid "wc2:14e8d8459b83ed84"
+msgstr "Cząsteczkowe"
+
+#: src/campglob.c:351
+msgid "wc2:0dbe005c12363e96"
+msgstr ""
+
+#: src/campglob.c:355
+msgid "wc2:c060984334b85fbd"
+msgstr ""
+
+#: src/campglob.c:358
+msgid "wc2:f523e12b0516a9ac"
+msgstr ""
+
+#: src/campglob.c:361
+msgid "wc2:f84fc8638dff8e58"
+msgstr ""
+
+#: src/campglob.c:365
+msgid "wc2:25ca349aaddcfe08"
+msgstr "Torpeda"
+
+#: src/campglob.c:368
+msgid "wc2:869d6e37642b69b6"
+msgstr "Dipole"
+
+#: src/campglob.c:372
+msgid "wc2:f8d322bc14c77180"
+msgstr "Miny"
+
+# Local addition; not in the upstream patch.
+#: src/campglob.c:485
+msgid "wc2:49489e947c76bab2"
+msgstr "kapsuła danych"
+
+#: src/cockpt.c:52
+msgid "wc2:669b18c6d2d9c95b"
+msgstr "Brak"
+
+#: src/cockpt.c:95
+msgid "wc2:ad462f34674b4855"
+msgstr "CEL NAMIERZONY "
+
+#: src/cockpt.c:468
+msgid "wc2:57c50fd5fb3c960f"
+msgstr "Pkt skoku"
+
+#: src/cockpt.c:482 src/cockpt.c:1458 src/jump.c:170
+#, c-format
+msgid "wc2:409e9fd0bb4a6821 %s"
+msgstr "Czekaj: %s"
+
+#: src/cockpt.c:489
+msgid "wc2:77813da41d3ec97f"
+msgstr "Już blisko"
+
+#: src/cockpt.c:491
+msgid "wc2:13843d4d945ec24b"
+msgstr "Wróg obok"
+
+#: src/cockpt.c:493
+msgid "wc2:ac044f783ed2be09"
+msgstr "Zagrożenie"
+
+#: src/cockpt.c:893
+#, c-format
+msgid "wc2:8d7e12aa5b8e4a6c %s"
+msgstr "TRAFIENIE %s"
+
+#: src/cockpt.c:997
+msgid "wc2:e130dea33f624d63"
+msgstr "UZBROJENIE"
+
+#: src/cockpt.c:1018
+msgid "wc2:fbc28c35662989a7"
+msgstr "Wszystkie"
+
+#: src/cockpt.c:1024
+#, c-format
+msgid "\nwc2:6aabfaf18d108ce5 %s"
+msgstr "\nBroń: %s"
+
+#: src/cockpt.c:1025
+#, c-format
+msgid "\nwc2:96f2cf1e1dc9b8a9 %s"
+msgstr "\nDz.:%s"
+
+#: src/cockpt.c:1211
+msgid "wc2:0ce101121cd01df7"
+msgstr "Opuść układ"
+
+#: src/cockpt.c:1214
+msgid "wc2:17c1c291f7a56678"
+msgstr "OBLICZANIE"
+
+#: src/cockpt.c:1231
+msgid "wc2:50fed8c6357d587b"
+msgstr "BRAK"
+
+#: src/cockpt.c:1236 src/comm.c:605 src/target.c:85
+#, c-format
+msgid "wc2:08c643c98b44bb79"
+msgstr "NIEZN."
+
+#: src/cockpt.c:1243
+msgid "wc2:a5c7e05076d51f14"
+msgstr "NAWIGACJA"
+
+#: src/cockpt.c:1244
+#, c-format
+msgid "\n\nwc2:50f428949148c211 %s"
+msgstr "\n\nCEL\n %s"
+
+#: src/cockpt.c:1246
+msgid "\n\nwc2:4855de797a013768"
+msgstr "\n\nDYSTANS\n "
+
+#: src/cockpt.c:1248
+msgid "\n\nwc2:de52ee517128c9c1 (N)"
+msgstr "\n\n(N) Nowy cel"
+
+#: src/cockpt.c:1448
+msgid "wc2:9c6b3241d550d3fd"
+msgstr "Już odwiedzono"
+
+#: src/cockpt.c:1451
+msgid "wc2:5794134af3122832"
+msgstr "Cel osiągnięty"
+
+#: src/cockpt.c:2568
+msgid "wc2:e1ad65fbf28ee155"
+msgstr "POZA ZASIĘGIEM"
+
+#: src/cockpt.c:2661
+msgid "wc2:34c247da54d73fa0"
+msgstr "ITTS AKTYWNY"
+
+#: src/comm.c:142
+msgid "wc2:374942ee28d568f6\n\n"
+msgstr "WIDEOKOM.\n\nWyślij do:\n\n"
+
+#: src/comm.c:143
+msgid "wc2:7da73cc0f538da0d"
+msgstr "WYBÓR"
+
+#: src/comm.c:161
+msgid "wc2:09a2c2983b0bb2e4"
+msgstr "WRÓG"
+
+#: src/comm.c:164 src/comm.c:182 src/comm.c:316
+msgid "wc2:aeedfdff888339af"
+msgstr "NIEZNANY"
+
+#: src/comm.c:309
+msgid "wc2:ea7e482dc653881a"
+msgstr "WIDEOKOM.\nDo: "
+
+#: src/comm.c:312
+msgid "wc2:45c8c14f96417eaa"
+msgstr "WIDEOKOM.\n\nDo: "
+
+#: src/comm.c:324
+msgid "wc2:170722454a11ffa0"
+msgstr "WYBÓR"
+
+#: src/damage.c:14
+msgid "wc2:646c9b67995535dd"
+msgstr "Nap. jon."
+
+#: src/damage.c:15
+msgid "wc2:a85920ea4e3b7f57"
+msgstr "Generator"
+
+#: src/damage.c:16
+msgid "wc2:5cf2a727d5ea630f"
+msgstr "Gen. tarcz"
+
+#: src/damage.c:17
+msgid "wc2:5dea61c44c5a85e1"
+msgstr "Komputer"
+
+#: src/damage.c:18
+msgid "wc2:e3d7514660a78828"
+msgstr "Interkom"
+
+#: src/damage.c:19
+msgid "wc2:ad6e2333546b139f"
+msgstr "Namierzanie"
+
+#: src/damage.c:20
+msgid "wc2:3709aa99006fc183"
+msgstr "Amortyzatory"
+
+#: src/damage.c:21
+msgid "wc2:d60267286951e990"
+msgstr "Katapulta"
+
+#: src/damage.c:22
+msgid "wc2:5821014e8b82aa72"
+msgstr "Naprawy"
+
+# Local addition; not in the upstream patch.
+#: src/damage.c:28
+msgid "wc2:091d5d07b5b33dcf"
+msgstr "Brak"
+
+#: src/damage.c:29
+msgid "wc2:3b0ab4b52326316f"
+msgstr "Małe"
+
+#: src/damage.c:30
+msgid "wc2:0f3b0ae12a710300"
+msgstr "Średnie"
+
+#: src/damage.c:31
+msgid "wc2:47534eace1cc3220"
+msgstr "Duże"
+
+#: src/damage.c:32
+msgid "wc2:25a147555f2c106c"
+msgstr "Zniszcz."
+
+#: src/damage.c:53
+msgid "wc2:1d0480830133829a"
+msgstr "USZKODZENIA"
+
+#: src/damage.c:64
+msgid "wc2:f542a57c72848d02"
+msgstr "BRAK\n\nUSZKODZEŃ"
+
+#: src/damage.c:84
+#, c-format
+msgid "wc2:e7010562db525ecd %d %c"
+msgstr "Uszkodzone: %d"
+
+#: src/damage.c:132 src/damage.c:225
+#, c-format
+msgid "wc2:bf18aab7f6f517f6 %s %s"
+msgstr "%s\nUszk.: %s"
+
+# Local addition; not in the upstream patch.
+#: src/dib.cpp:199
+#, c-format
+msgid "wc2:4861a28f71cae832 %.1f"
+msgstr "Maks. FPS w locie: %.1f"
+
+#: src/gameflow.c:1917
+msgid "wc2:aa329d819ef7a2eb"
+msgstr " Pauza "
+
+#: src/jump.c:146
+msgid "wc2:ec5d3c4195d32a6b"
+msgstr "Wróg obok"
+
+#: src/jump.c:154
+msgid "wc2:099a6fc99624a9c5"
+msgstr "Zasobniki puste"
+
+#: src/jump.c:181
+msgid "wc2:a3abc9098dc5d3d4"
+msgstr "Brak bramy"
+
+#: src/main.c:1147
+msgid "wc2:5e2c649b7ce98d28"
+msgstr "OBRAZ WIDEO WYŁĄCZONY"
+
+#: src/main.c:1150
+msgid "wc2:c4a0a904e2dd287f"
+msgstr "OBRAZ WIDEO WŁĄCZONY"
+
+# Local addition; not in the upstream patch.
+#: src/main.c:1181 src/main.c:1651 src/main.c:1665
+#, c-format
+msgid "wc2:216c83b2ec0fd159 %d"
+msgstr "GŁOŚNOŚĆ EFEKTÓW: %d."
+
+#: src/main.c:1470
+msgid "wc2:6e03d9124173780f"
+msgstr "KAM. POCISKU WŁ."
+
+#: src/main.c:1473
+msgid "wc2:641d5305374c7d53"
+msgstr "KAM. POCISKU WYŁ."
+
+# Local addition; not in the upstream patch.
+#: src/main.c:1635 src/main.c:1679 src/main.c:1693
+#, c-format
+msgid "wc2:e4679c2e5587e161 %d"
+msgstr "GŁOŚNOŚĆ MUZYKI: %d."
+
+#: src/message.c:203
+msgid "wc2:80c2f43f7c22212b"
+msgstr " PAUZA "
+
+#: src/message.c:219
+#, c-format
+msgid "wc2:9292cae61e079007 %s"
+msgstr " WING COMMANDER WER. %s "
+
+#: src/message.c:228
+#, c-format
+msgid "wc2:78b9576c7ab1a847 %d"
+msgstr "SZYBKOŚĆ TEKSTU: %d."
+
+#: src/message.c:240
+#, c-format
+msgid "wc2:d5445962e13677dc %d"
+msgstr "POMINIĘTE KLATKI: %d."
+
+#: src/nav.c:45
+msgid "wc2:1c182e1c2529027b"
+msgstr "Patrol"
+
+#: src/nav.c:46
+msgid "wc2:a3c9ae5839fab735"
+msgstr "Eskorta"
+
+#: src/nav.c:47
+msgid "wc2:58a3c1ecd4dd06cf"
+msgstr "Atak"
+
+#: src/nav.c:48
+msgid "wc2:5859bb2031491281"
+msgstr "Obrona"
+
+#: src/nav.c:49
+msgid "wc2:28e73d8b57e91956"
+msgstr "Skrzydłowy"
+
+#: src/nav.c:50
+msgid "wc2:fd0cf385070d5261"
+msgstr "Ucieczka"
+
+#: src/nav.c:51
+msgid "wc2:0631067e57b93858"
+msgstr "Do skoku"
+
+#: src/nav.c:52
+msgid "wc2:b830a2e5f9def7a6"
+msgstr "Po skoku"
+
+#: src/nav.c:53
+msgid "wc2:16b3606b313c03d2"
+msgstr "Spotkanie"
+
+#: src/nav.c:54
+msgid "wc2:d83e9df7c9797f00"
+msgstr "Powrót"
+
+#: src/nav.c:55
+msgid "wc2:3297c10ed4056b02"
+msgstr "Cysterna"
+
+#: src/nav.c:56
+msgid "wc2:6d02db19e21eb2e9"
+msgstr "Holuj"
+
+#: src/nav.c:57
+msgid "wc2:471e9f03195561ed"
+msgstr "Przerwij"
+
+#: src/nav.c:61
+msgid "wc2:3a9bcafca153efd3"
+msgstr "Dalsze cele poza systemem."
+
+#: src/nav.c:728
+msgid "wc2:ff0b8c840efc1379"
+msgstr "Asteroidy"
+
+#: src/nav.c:736
+msgid "wc2:414c8fc929d85e7f"
+msgstr "Miny"
+
+#: src/nav.c:826
+msgid "wc2:7d0c217f4860383c %X %Y %s"
+msgstr "%X%YCzas stand. %s"
+
+#: src/nav.c:877
+msgid "wc2:3d9938cacbaa8834"
+msgstr "TRASA MISJI"
+
+#: src/nav.c:880
+msgid "wc2:7f9e657585eeb7e7"
+msgstr "BAZA"
+
+#: src/nav.c:930
+#, c-format
+msgid "wc2:bdc101cc853f8931 %s\n"
+msgstr "Sektor: %s\n"
+
+#: src/nav.c:933
+#, c-format
+msgid "wc2:90267bffbebb8ff2 %s\n\n"
+msgstr "System: %s\n\n"
+
+#: src/nav.c:945
+msgid "\nwc2:40492dafc2f85e28\n"
+msgstr "\nNotatki\n"
+
+#: src/nav.c:956
+msgid "wc2:483f21e3318ed17c %X %Y %d %d %d"
+msgstr "%X%Y                         Pozycja: %d.%d.%d"
+
+#: src/nav.c:990
+msgid "wc2:887303767b6676a2"
+msgstr "Mapa nawigacyjna"
+
+#: src/nav.c:1072
+msgid "wc2:453506620052447c"
+msgstr "Skan nawig. Konfed."
+
+# Local addition; not in the upstream patch.
+#: src/optmenu.c:396
+msgid "wc2:7fe62040cf9b2e24"
+msgstr "Wyjdź z gry"
+
+#: src/personnel.c:12
+msgid "wc2:1d5c70c65b2275d1"
+msgstr "PPOR."
+
+#: src/personnel.c:13
+msgid "wc2:16aa23ac5eb0c885"
+msgstr "POR."
+
+#: src/personnel.c:14
+msgid "wc2:3734423899e3cc0b"
+msgstr "KAPITAN"
+
+#: src/personnel.c:15 src/personnel.c:22
+msgid "wc2:a9dfcc16de5cac22"
+msgstr "MAJOR"
+
+#: src/personnel.c:16
+msgid "wc2:432ec6df13549d1f"
+msgstr "PPŁK."
+
+#: src/personnel.c:19
+msgid "wc2:d3f31e06edf74045"
+msgstr "PPOR"
+
+#: src/personnel.c:20
+msgid "wc2:f78c0314fe73c0c9"
+msgstr "POR"
+
+#: src/personnel.c:21
+msgid "wc2:1daa6594d2c179e9"
+msgstr "KPT."
+
+#: src/personnel.c:23
+msgid "wc2:fbca853d515c807f"
+msgstr "PPŁK"
+
+#: src/personnel.c:400
+msgid "wc2:770027934f82880e [L]"
+msgstr "[L] Wczytaj kartotekę pilota"
+
+#: src/personnel.c:411
+msgid "wc2:51c013875b8a9703 [S]"
+msgstr "[S] Zapisz kartotekę pilota"
+
+#: src/personnel.c:422
+msgid "wc2:7977044e82484a8b [D]"
+msgstr "[D] Usuń kartotekę pilota"
+
+#: src/personnel.c:445
+msgid "wc2:c723e67eb335d5cc [W]"
+msgstr ""
+
+# Local addition; not in the upstream patch.
+#: src/personnel.c:456
+msgid "wc2:2ee699c63183f881 [D]"
+msgstr "[D] Wersja DOS Wing Commander"
+
+#: src/personnel.c:479
+msgid "wc2:b8b7d4c41b62239a [T]"
+msgstr "[T] Przenieś istniejącą kartotekę pilota"
+
+#: src/personnel.c:490
+msgid "wc2:8b775326f5c794e6 [C]"
+msgstr "[C] Utwórz nową kartotekę pilota"
+
+#: src/personnel.c:743
+msgid "wc2:c2248bf9a708d081"
+msgstr "Wybierz postać do przeniesienia"
+
+#: src/personnel.c:745 src/personnel.c:997 src/personnel.c:1060
+#: src/personnel.c:1116
+msgid "wc2:2571329d1c88de07"
+msgstr "Misje  Zestrz."
+
+#: src/personnel.c:923 src/personnel.c:1474
+msgid "wc2:a224e166bc1fcc1c"
+msgstr "FLOTA KONFEDERACJI ZIEMSKIEJ"
+
+#: src/personnel.c:925 src/personnel.c:1476
+msgid "wc2:dde6e497a024ae94"
+msgstr "BAZA DANYCH PERSONELU"
+
+#: src/personnel.c:995
+msgid "wc2:e11135bb0d652f4f"
+msgstr "Wybierz grę do wczytania"
+
+#: src/personnel.c:1062
+msgid "wc2:fdd6f8056a317bb6"
+msgstr "Wybierz miejsce do usunięcia"
+
+#: src/personnel.c:1074 src/personnel.c:1132
+msgid "wc2:268ecd1cef45a9a8"
+msgstr "Na pewno?"
+
+#: src/personnel.c:1080 src/personnel.c:1086 src/personnel.c:1138
+#: src/personnel.c:1144
+msgid "wc2:cb489a1a173ac3f0"
+msgstr "Tak"
+
+#: src/personnel.c:1089 src/personnel.c:1147
+msgid "wc2:37644219c3482cce"
+msgstr "Nie"
+
+#: src/personnel.c:1118
+msgid "wc2:c0f236cfe66f4153"
+msgstr "Wybierz miejsce zapisu"
+
+#: src/personnel.c:1162
+msgid "wc2:308973545eefa8ca"
+msgstr "Opis zapisu gry:"
+
+#: src/personnel.c:1239
+msgid "wc2:b07c28160401cf40"
+msgstr "Przenieś postać z:"
+
+#: src/personnel.c:1346
+msgid "wc2:336c6a0147e603b2"
+msgstr "Podaj pełną ścieżkę do"
+
+#: src/personnel.c:1348
+#, c-format
+msgid "wc2:6594787100fb2049 %s"
+msgstr "zapisu gry %s."
+
+#: src/personnel.c:1350
+msgid "wc2:f2cc4968b5592c02"
+msgstr "Przykład: katalog GAMEDAT"
+
+#: src/personnel.c:1354
+msgid "wc2:57277bfc673cfccb"
+msgstr "Ścieżka: "
+
+#: src/personnel.c:1399
+msgid "wc2:606439a5cacedd4a"
+msgstr "Nie znaleziono postaci."
+
+# Local addition; not in the upstream patch.
+#: src/personnel.c:1635
+#, c-format
+msgid "wc2:2afc44d568e9b346 %s %s"
+msgstr "%s %s - imię?"
+
+#: src/personnel.c:1697
+msgid "wc2:c515d7740c143898"
+msgstr "Podaj imię: "
+
+#: src/personnel.c:1705
+msgid "wc2:2daf0d8919bbb99c"
+msgstr "Podaj nazwisko: "
+
+#: src/personnel.c:1713
+msgid "wc2:6c9e951d76dcb9d8"
+msgstr "Podaj pseudonim: "
+
+#: src/replay.c:38
+msgid "wc2:35c3ecafcb64f58a"
+msgstr "KONIEC POWTÓRKI LOTU"
+
+# Local addition; not in the upstream patch.
+#: src/sdl/campaign.c:13
+msgid "wc2:43f2536aa3b749c4 (Y/N)"
+msgstr "Nadpisać zapis kontynuacji? (Y/N)"
+
+#: src/ship.c:1401
+msgid "wc2:4a6f83d15b2d33ea"
+msgstr "Broń zniszczona"
+
+#: src/ship.c:1446
+msgid "wc2:2fb234bf5051ca4d"
+msgstr "Uszk. paliwa"
+
+#: src/ship.c:2778
+msgid "wc2:0ae715aa6be3d120"
+msgstr "Brak celu"
+
+#: src/target.c:49
+msgid "wc2:07a035d723c0a256"
+msgstr "  CEL NAMIERZONY"
+
+#: src/target.c:54
+msgid "wc2:215bf7c9a8268573"
+msgstr "  AUTONAMIERZANIE"
+
+#: src/target.c:74
+msgid "\nwc2:72185237b1eb2dae"
+msgstr "\nCel:"
+
+#: src/target.c:76
+msgid "wc2:c8ecf3fec5bbf9c1"
+msgstr " Brak"
+
+#: src/target.c:87
+msgid "\nwc2:76b0a402b4b69fa4"
+msgstr "\nDyst.: "
+
+#: src/target.c:182
+msgid "wc2:b348d97fa79f7ad8"
+msgstr "DALEKO"
+
+#: src/target.c:197
+msgid "wc2:07fe2502884b1695"
+msgstr "TRANSMIS."
+
+#: src/titlemnu.c:36
+msgid "wc2:2335b57e73dbf9d6"
+msgstr "Wyłącz AUTO FIRE o ile jest, naciśnij przycisk"
+
+#: src/titlemnu.c:44
+msgid "wc2:8d808d60a9f85743"
+msgstr "Drążek w LEWY GÓRNY róg, naciśnij przycisk"
+
+#: src/titlemnu.c:57
+msgid "wc2:1d959c9914aa0ab9"
+msgstr "Drążek w PRAWY DOLNY róg, naciśnij przycisk"
+
+#: src/titlemnu.c:70
+msgid "wc2:6a456bc0bb92e5a6"
+msgstr "Wyśrodkuj drążek, naciśnij przycisk"
+
+#: src/titlemnu.c:125
+msgid "wc2:dacf22cfd04ca91e"
+msgstr "BŁĄD! Wyśrodkuj drążek, naciśnij przycisk"
+
+#: src/turret.c:964
+msgid "wc2:e9eb564663411f73"
+msgstr "Utrata namiaru torpedy"
+
+#: src/turret.c:979
+msgid "wc2:1abedb2b3fb7cf7d"
+msgstr "Torpeda namierzona!"
+
+# Local addition; not in the upstream patch.
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:2b083956c664a768 %s (Y/N)"
+msgstr "Przenieść %s z WC2 do SO1? (Y/N)"
+
+# Local addition; not in the upstream patch.
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:07aa7341dc6065a4 %s (Y/N)"
+msgstr "Przenieść %s z SO1 do SO2? (Y/N)"
+
+# Local addition; not in the upstream patch.
+#: src/sdl/campaign.c
+#, c-format
+msgid "wc2:72d2acce35c8f98b %s (Y/N)"
+msgstr "Przenieść %s z WC2 do SO2? (Y/N)"
+
+#: src/campglob.c
+msgid "wc2:49fc4aaed01aa937"
+msgstr ""
+

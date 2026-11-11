@@ -1,0 +1,3920 @@
+# Polish translation by paxiu1984, patch version 1.4 (2026). Used with
+# permission under GPL v3.0 with an additional no-charge term.
+# See ../upstream/CZYTAJ_MNIE.txt for the upstream notice and credits.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+
+msgctxt "radio/COMMUNIC.T01/packet/1"
+msgid "wc2:6d28106865c020e8"
+msgstr "Non, nie mogę."
+
+msgctxt "radio/COMMUNIC.T01/packet/2"
+msgid "wc2:0d2ede188462ff77"
+msgstr "Widzę wroga."
+
+msgctxt "radio/COMMUNIC.T01/packet/3"
+msgid "wc2:b3601d29d8c65660"
+msgstr "Jakie rozkazy, dowódco?"
+
+msgctxt "radio/COMMUNIC.T01/packet/4"
+msgid "wc2:7b25d265112f94cf"
+msgstr "Pomocy!"
+
+msgctxt "radio/COMMUNIC.T01/packet/5"
+msgid "wc2:42656b2810a9dda7"
+msgstr "Wrogi myśliwiec zniszczony!\t"
+
+msgctxt "radio/COMMUNIC.T01/packet/6"
+msgid "wc2:aa33fe18a1ec2947"
+msgstr "Wrogi okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T01/packet/7"
+msgid "wc2:ec206250c7213fe3"
+msgstr "Doskonale, mon ami!"
+
+msgctxt "radio/COMMUNIC.T01/packet/8"
+msgid "wc2:7817cb9979f18e89"
+msgstr "Tracę sterowanie---POMOCY!"
+
+msgctxt "radio/COMMUNIC.T01/packet/9"
+msgid "wc2:07a42d90c2b5cbed"
+msgstr "Mon Dieu!  Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T01/packet/10"
+msgid "wc2:65840db680c47199"
+msgstr "Musimy się wycofać."
+
+msgctxt "radio/COMMUNIC.T01/packet/11"
+msgid "wc2:ee8f3a6c62adfad6"
+msgstr "Żegnaj, mon ami."
+
+msgctxt "radio/COMMUNIC.T01/packet/12"
+msgid "wc2:29a59ad230c1fa1f"
+msgstr "Uważaj!"
+
+msgctxt "radio/COMMUNIC.T01/packet/13"
+msgid "wc2:287c3de6e77d56e5"
+msgstr "Dlaczego do mnie strzelasz?"
+
+msgctxt "radio/COMMUNIC.T01/packet/14"
+msgid "wc2:757cc724f4412ea7"
+msgstr "Mon Dieu!  To ty jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T01/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T03/packet/0"
+msgid "wc2:dd71c3d3134d6e21"
+msgstr "Oczywiście, sir."
+
+msgctxt "radio/COMMUNIC.T03/packet/1"
+msgid "wc2:3350432d0e8bfaa7"
+msgstr "Nie mogę tego zrobić, sir."
+
+msgctxt "radio/COMMUNIC.T03/packet/2"
+msgid "wc2:a14b2c38f06a1ed7"
+msgstr "Okręty Kilrathi przed nami."
+
+msgctxt "radio/COMMUNIC.T03/packet/3"
+msgid "wc2:0a5a48e7cc2fc4c0"
+msgstr "Czy mogę atakować, sir?"
+
+msgctxt "radio/COMMUNIC.T03/packet/4"
+msgid "wc2:968e4dc757b8e3b0"
+msgstr "Potrzebuję pańskiej pomocy."
+
+msgctxt "radio/COMMUNIC.T03/packet/5"
+msgid "wc2:4ffa7bef00efa3b7"
+msgstr "Giń bez honoru!"
+
+msgctxt "radio/COMMUNIC.T03/packet/6"
+msgid "wc2:8795f2eb84778d3e"
+msgstr "Dołącz do Sivara, Kilra'hra!"
+
+msgctxt "radio/COMMUNIC.T03/packet/7"
+msgid "wc2:e8e1ca6521eb3d4f"
+msgstr "Bardzo imponujące, sir!"
+
+msgctxt "radio/COMMUNIC.T03/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T03/packet/10"
+msgid "wc2:5ab27d12fbca8612"
+msgstr "Nie możemy tu zostać, sir."
+
+msgctxt "radio/COMMUNIC.T03/packet/11"
+msgid "wc2:e02500da98693aa7"
+msgstr "Wracam do bazy, sir."
+
+msgctxt "radio/COMMUNIC.T03/packet/13"
+msgid "wc2:d1a1b9b76b96a464"
+msgstr "Zablokuj działka, sir."
+
+msgctxt "radio/COMMUNIC.T03/packet/14"
+msgid "wc2:22aae09ae0c950ff"
+msgstr "Sivar!  To ty jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T03/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T04/packet/0"
+msgid "wc2:7a72977766b7be59"
+msgstr "Nie ma sprawy, sir."
+
+msgctxt "radio/COMMUNIC.T04/packet/1"
+msgid "wc2:dee7458591ba4559"
+msgstr "Nie da rady, sir."
+
+msgctxt "radio/COMMUNIC.T04/packet/2"
+msgid "wc2:86a4afcc0f1fb784"
+msgstr "Hej, tarcza strzelnicza!"
+
+msgctxt "radio/COMMUNIC.T04/packet/3"
+msgid "wc2:0c721b70922739cf"
+msgstr "Zróbmy coś dobrego!"
+
+msgctxt "radio/COMMUNIC.T04/packet/4"
+msgid "wc2:243b7bece94fe6de"
+msgstr "Hej, współpracuj ze mną trochę!"
+
+msgctxt "radio/COMMUNIC.T04/packet/5"
+msgid "wc2:0b61e792eb0d64b1"
+msgstr "Jednego mam!"
+
+msgctxt "radio/COMMUNIC.T04/packet/6"
+msgid "wc2:b9f95fe2e74e30ec"
+msgstr "Stary, buchnęła jak pudełko zapałek!"
+
+msgctxt "radio/COMMUNIC.T04/packet/7"
+msgid "wc2:6eeedf099491438e"
+msgstr "Nieźle jak na starego."
+
+msgctxt "radio/COMMUNIC.T04/packet/8"
+msgid "wc2:4aa525a3210e36d9"
+msgstr "Skończyło mi się szczęście!  Nie chcę umierać!"
+
+msgctxt "radio/COMMUNIC.T04/packet/9"
+msgid "wc2:228dc690931690af"
+msgstr "Cholera!  Pora się katapultować!"
+
+msgctxt "radio/COMMUNIC.T04/packet/10"
+msgid "wc2:7cce225a8cb6ad5a"
+msgstr "To nie fair!  Pora uciekać, szefie!"
+
+msgctxt "radio/COMMUNIC.T04/packet/11"
+msgid "wc2:c61964d2e287a906"
+msgstr "Spadam stąd!"
+
+msgctxt "radio/COMMUNIC.T04/packet/12"
+msgid "wc2:d0703b8e287938ff"
+msgstr "Hej, wyglądam na Kilrathi?"
+
+msgctxt "radio/COMMUNIC.T04/packet/13"
+msgid "wc2:d0703b8e287938ff"
+msgstr "Hej, wyglądam na Kilrathi?"
+
+msgctxt "radio/COMMUNIC.T04/packet/14"
+msgid "wc2:585e747ca5479e87"
+msgstr "Jasna cholera, ty jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T04/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T06/packet/0"
+msgid "wc2:bccc76ac7559d82a"
+msgstr "Się robi, Maestro."
+
+msgctxt "radio/COMMUNIC.T06/packet/1"
+msgid "wc2:45cdc205baa36779"
+msgstr "Nie da rady, Maestro."
+
+msgctxt "radio/COMMUNIC.T06/packet/2"
+msgid "wc2:18a78ae1885d58ce"
+msgstr "Dorwijmy tych drani!"
+
+msgctxt "radio/COMMUNIC.T06/packet/3"
+msgid "wc2:f803a414ae8eba89"
+msgstr "Czekam na ciebie, Maestro."
+
+msgctxt "radio/COMMUNIC.T06/packet/4"
+msgid "wc2:a0bc326fb8da120f"
+msgstr "Kapitanie!  Potrzebuję pomocy!"
+
+msgctxt "radio/COMMUNIC.T06/packet/5"
+msgid "wc2:de68bc72e7ec1098"
+msgstr "Zharmonizuj to, futrzaku!"
+
+msgctxt "radio/COMMUNIC.T06/packet/6"
+msgid "wc2:f849de50cc96536f"
+msgstr "Zdjąłem okręt kapitalny!"
+
+msgctxt "radio/COMMUNIC.T06/packet/7"
+msgid "wc2:cb8f6629c8180bb8"
+msgstr "Nieźle, Maestro."
+
+msgctxt "radio/COMMUNIC.T06/packet/8"
+msgid "wc2:1a5b7f0187c43419"
+msgstr "Mój kokpit się pali!  KAPITANIE!"
+
+msgctxt "radio/COMMUNIC.T06/packet/9"
+msgid "wc2:8716f4103eb0027a"
+msgstr "Cholera!  Katapultuję się, kapitanie!"
+
+msgctxt "radio/COMMUNIC.T06/packet/10"
+msgid "wc2:fe867456c8181afe"
+msgstr "Skończmy to i wracajmy do domu!"
+
+msgctxt "radio/COMMUNIC.T06/packet/11"
+msgid "wc2:c54b892d230b0785"
+msgstr "Tu jesteś sam, Maestro."
+
+msgctxt "radio/COMMUNIC.T06/packet/12"
+msgid "wc2:cb813d90c292a5b2"
+msgstr "Ostrożnie!"
+
+msgctxt "radio/COMMUNIC.T06/packet/13"
+msgid "wc2:c395ae94bbeedfab"
+msgstr "Zablokuj działka, idioto!"
+
+msgctxt "radio/COMMUNIC.T06/packet/14"
+msgid "wc2:82e7d53e41c36f69"
+msgstr "Hej, próbujesz mnie zabić!"
+
+msgctxt "radio/COMMUNIC.T06/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T06/packet/23"
+msgid "wc2:c7ecbe81f264f8d5"
+msgstr "Więc myślisz, że możesz mnie pokonać, Maestro?"
+
+msgctxt "radio/COMMUNIC.T06/packet/25"
+msgid "wc2:a0e341ed0d902149"
+msgstr "To łatwiejsze, niż myślałem..."
+
+msgctxt "radio/COMMUNIC.T06/packet/26"
+msgid "wc2:6dd9c3065a333756"
+msgstr "Potem zniszczę Concordię..."
+
+msgctxt "radio/COMMUNIC.T06/packet/27"
+msgid "wc2:18d9c440229da1cc"
+msgstr "Tyle z tego idioty."
+
+msgctxt "radio/COMMUNIC.T06/packet/28"
+msgid "wc2:18d9c440229da1cc"
+msgstr "Tyle z tego idioty."
+
+msgctxt "radio/COMMUNIC.T06/packet/29"
+msgid "wc2:48c3c2f0591107d2"
+msgstr "Nieźle!  Ale to jeszcze nie koniec..."
+
+msgctxt "radio/COMMUNIC.T06/packet/30"
+msgid "wc2:eadb94398ab71179"
+msgstr "Niech cię diabli, kapitanie!  Do diabła z tobą!"
+
+msgctxt "radio/COMMUNIC.T08/packet/0"
+msgid "wc2:846a2ac0278970df"
+msgstr "Potwierdzam."
+
+msgctxt "radio/COMMUNIC.T08/packet/1"
+msgid "wc2:b258613142eaeca6"
+msgstr "Negatywne."
+
+msgctxt "radio/COMMUNIC.T08/packet/2"
+msgid "wc2:07fe5a96a60b8ae2"
+msgstr "Widzę wrogie okręty."
+
+msgctxt "radio/COMMUNIC.T08/packet/3"
+msgid "wc2:f08ace0de3d9faca"
+msgstr "Ruszajmy na nich, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T08/packet/4"
+msgid "wc2:6ff0014e26206282"
+msgstr "Potrzebuję twojej pomocy, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T08/packet/5"
+msgid "wc2:88f92512bdb238cd"
+msgstr "Mam go!"
+
+msgctxt "radio/COMMUNIC.T08/packet/6"
+msgid "wc2:02e563a9e40c1926"
+msgstr "Mam okręt kapitalny!"
+
+msgctxt "radio/COMMUNIC.T08/packet/7"
+msgid "wc2:6fc66f84927c9090"
+msgstr "Dobry strzał, chłopcze."
+
+msgctxt "radio/COMMUNIC.T08/packet/8"
+msgid "wc2:3e08425be79553dd"
+msgstr "Opuścić okręt, powtarzam, opuścić okręt!"
+
+msgctxt "radio/COMMUNIC.T08/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T08/packet/10"
+msgid "wc2:2bafe685c36ac117"
+msgstr "Powinniśmy się wycofać."
+
+msgctxt "radio/COMMUNIC.T08/packet/11"
+msgid "wc2:d579cccae08ff947"
+msgstr "Spadam stąd, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T08/packet/12"
+msgid "wc2:298528aa20febc18"
+msgstr "Uważaj, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T08/packet/13"
+msgid "wc2:298528aa20febc18"
+msgstr "Uważaj, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T08/packet/14"
+msgid "wc2:934a4ac8e3a233b0"
+msgstr "Nie mogę uwierzyć...jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T08/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T08/packet/22"
+msgid "wc2:e775251a0e8ef4d1"
+msgstr "Dobrze cię znów widzieć, chłopcze!"
+
+msgctxt "radio/COMMUNIC.T09/packet/0"
+msgid "wc2:b1b26f0461fe1ee3"
+msgstr "Potwierdzam, sir."
+
+msgctxt "radio/COMMUNIC.T09/packet/1"
+msgid "wc2:645880e77c83576a"
+msgstr "Negatywne, sir."
+
+msgctxt "radio/COMMUNIC.T09/packet/2"
+msgid "wc2:e8357a8b942a03d1"
+msgstr "Teraz mamy kłopoty..."
+
+msgctxt "radio/COMMUNIC.T09/packet/3"
+msgid "wc2:5549a062463bc483"
+msgstr "Wiem, że tego nie przeżyję..."
+
+msgctxt "radio/COMMUNIC.T09/packet/4"
+msgid "wc2:a7e89a8c85dcb3c5"
+msgstr "Zaraz umrę..."
+
+msgctxt "radio/COMMUNIC.T09/packet/5"
+msgid "wc2:6105d34416e87ea5"
+msgstr "Jeden myśliwiec mniej!"
+
+msgctxt "radio/COMMUNIC.T09/packet/6"
+msgid "wc2:0f569cd4b35f3018"
+msgstr "Jeden okręt kapitalny mniej!"
+
+msgctxt "radio/COMMUNIC.T09/packet/7"
+msgid "wc2:ea3c8fec348e6bfd"
+msgstr "Może jednak to przeżyjemy..."
+
+msgctxt "radio/COMMUNIC.T09/packet/8"
+msgid "wc2:b228d027481e5eeb"
+msgstr "Wiedziałem, że w końcu do tego dojdzie."
+
+msgctxt "radio/COMMUNIC.T09/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T09/packet/10"
+msgid "wc2:881969a4eece8a68"
+msgstr "Tu zginiemy."
+
+msgctxt "radio/COMMUNIC.T09/packet/11"
+msgid "wc2:fa7d6811210a40ca"
+msgstr "Mam nadzieję, że to przeżyjesz."
+
+msgctxt "radio/COMMUNIC.T09/packet/12"
+msgid "wc2:78cb4b67da29bb00"
+msgstr "Nienawidzę, gdy to robisz."
+
+msgctxt "radio/COMMUNIC.T09/packet/13"
+msgid "wc2:78cb4b67da29bb00"
+msgstr "Nienawidzę, gdy to robisz."
+
+msgctxt "radio/COMMUNIC.T09/packet/14"
+msgid "wc2:f1eb7849937c798d"
+msgstr "Powinienem był się domyślić, że jesteś zdrajcą."
+
+msgctxt "radio/COMMUNIC.T09/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T11/packet/0"
+msgid "wc2:7499003908a0474d"
+msgstr "Potwierdzam, kapitanie."
+
+msgctxt "radio/COMMUNIC.T11/packet/1"
+msgid "wc2:f1ac30022552312e"
+msgstr "Negatywne, kapitanie."
+
+msgctxt "radio/COMMUNIC.T11/packet/2"
+msgid "wc2:0bb380b7fc09b156"
+msgstr "Atakują nas, sir!"
+
+msgctxt "radio/COMMUNIC.T11/packet/3"
+msgid "wc2:9aba1b30c6ee4cf2"
+msgstr "Pozwolenie na atak?"
+
+msgctxt "radio/COMMUNIC.T11/packet/4"
+msgid "wc2:e9ff976162eaa56c"
+msgstr "Potrzebuję tu pomocy, kapitanie!"
+
+msgctxt "radio/COMMUNIC.T11/packet/5"
+msgid "wc2:6105d34416e87ea5"
+msgstr "Jeden myśliwiec mniej!"
+
+msgctxt "radio/COMMUNIC.T11/packet/6"
+msgid "wc2:0f569cd4b35f3018"
+msgstr "Jeden okręt kapitalny mniej!"
+
+msgctxt "radio/COMMUNIC.T11/packet/7"
+msgid "wc2:c30eb017234faf35"
+msgstr "Nieźle, sir."
+
+msgctxt "radio/COMMUNIC.T11/packet/8"
+msgid "wc2:d2c0c39f8f1c371b"
+msgstr "Tracę moc---osłony---KAPITANIE!"
+
+msgctxt "radio/COMMUNIC.T11/packet/9"
+msgid "wc2:4b782a0d2c72bb65"
+msgstr "Katapultuję się, kapitanie!"
+
+msgctxt "radio/COMMUNIC.T11/packet/10"
+msgid "wc2:0e1699ad5a13665b"
+msgstr "Szanse są przeciw nam, kapitanie."
+
+msgctxt "radio/COMMUNIC.T11/packet/11"
+msgid "wc2:4577e79b481e65bb"
+msgstr "Przepraszam, kapitanie, jesteś zdany na siebie."
+
+msgctxt "radio/COMMUNIC.T11/packet/12"
+msgid "wc2:abe9e29d3e0749be"
+msgstr "Uważaj na cel, kapitanie."
+
+msgctxt "radio/COMMUNIC.T11/packet/13"
+msgid "wc2:54584cde1469fafd"
+msgstr "Kapitanie, uważaj!"
+
+msgctxt "radio/COMMUNIC.T11/packet/14"
+msgid "wc2:fb7d0a09fccb8db1"
+msgstr "Jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T11/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T12/packet/23"
+msgid "wc2:036d5ec389545741"
+msgstr "Książę Thrakhath rzuca ci wyzwanie!"
+
+msgctxt "radio/COMMUNIC.T12/packet/24"
+msgid "wc2:e669cb0169161fc4"
+msgstr "Znów się spotykamy, człowieku!"
+
+msgctxt "radio/COMMUNIC.T12/packet/25"
+msgid "wc2:10cec10d7d981deb"
+msgstr "Jesteś utalentowany, jak na człowieka..."
+
+msgctxt "radio/COMMUNIC.T12/packet/26"
+msgid "wc2:412cc86a782ef5c8"
+msgstr "Teraz umrzesz."
+
+msgctxt "radio/COMMUNIC.T12/packet/27"
+msgid "wc2:1aa4f53b4ccb7024"
+msgstr "Niewielkie z ciebie wyzwanie, co?"
+
+msgctxt "radio/COMMUNIC.T12/packet/28"
+msgid "wc2:703ce393767319f2"
+msgstr "To nie było dla mnie wyzwanie."
+
+msgctxt "radio/COMMUNIC.T12/packet/29"
+msgid "wc2:acf48c805e97adae"
+msgstr "Nie możesz pokonać Następcy Kilrah!"
+
+msgctxt "radio/COMMUNIC.T12/packet/30"
+msgid "wc2:36f74319c2eb5ca1"
+msgstr "NIE!"
+
+msgctxt "radio/COMMUNIC.T14/packet/0"
+msgid "wc2:374a04865c104fbf"
+msgstr "Hai, kapitanie."
+
+msgctxt "radio/COMMUNIC.T14/packet/1"
+msgid "wc2:6dd62f08358b4c78"
+msgstr "Nie, kapitanie."
+
+msgctxt "radio/COMMUNIC.T14/packet/2"
+msgid "wc2:045efef2798b98fd"
+msgstr "Wrogie okręty przed nami."
+
+msgctxt "radio/COMMUNIC.T14/packet/3"
+msgid "wc2:f63f86e8d445f686"
+msgstr "Gotowa do walki."
+
+msgctxt "radio/COMMUNIC.T14/packet/4"
+msgid "wc2:b420db9ccec16cd5"
+msgstr "Potrzebuję twojej pomocy!"
+
+msgctxt "radio/COMMUNIC.T14/packet/5"
+msgid "wc2:d36b497477d2ecc8"
+msgstr "Zabiłam wrogiego myśliwca!"
+
+msgctxt "radio/COMMUNIC.T14/packet/6"
+msgid "wc2:aa33fe18a1ec2947"
+msgstr "Wrogi okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T14/packet/7"
+msgid "wc2:8e9c9126791f3f4b"
+msgstr "Doskonały strzał!"
+
+msgctxt "radio/COMMUNIC.T14/packet/8"
+msgid "wc2:949fd48efc318521"
+msgstr "Kapitanie, tengoku de omachishi te imasu!"
+
+msgctxt "radio/COMMUNIC.T14/packet/9"
+msgid "wc2:4b782a0d2c72bb65"
+msgstr "Katapultuję się, kapitanie!"
+
+msgctxt "radio/COMMUNIC.T14/packet/10"
+msgid "wc2:d077d3b11cd6b4a5"
+msgstr "Musimy teraz odejść."
+
+msgctxt "radio/COMMUNIC.T14/packet/11"
+msgid "wc2:91c2101a432c01a8"
+msgstr "Żegnaj, mój przyjacielu."
+
+msgctxt "radio/COMMUNIC.T14/packet/12"
+msgid "wc2:80b3d1e38b9f13ea"
+msgstr "Proszę, bądź ostrożny."
+
+msgctxt "radio/COMMUNIC.T14/packet/13"
+msgid "wc2:d3de22acab9cb53a"
+msgstr "Co robisz?"
+
+msgctxt "radio/COMMUNIC.T14/packet/14"
+msgid "wc2:68acf0fe6ef902ec"
+msgstr "Ty...ty jesteś zdrajcą!"
+
+msgctxt "radio/COMMUNIC.T14/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T15/packet/4"
+msgid "wc2:fabba26589278860"
+msgstr "Proszę o pomoc."
+
+msgctxt "radio/COMMUNIC.T15/packet/5"
+msgid "wc2:39bf56e356438fbd"
+msgstr "Zniszczyliśmy wrogiego myśliwca!"
+
+msgctxt "radio/COMMUNIC.T15/packet/6"
+msgid "wc2:05cdc001b1babc92"
+msgstr "Zniszczyliśmy okręt kapitalny!"
+
+msgctxt "radio/COMMUNIC.T15/packet/7"
+msgid "wc2:1ac03124434278e0"
+msgstr "Dobry strzał!"
+
+msgctxt "radio/COMMUNIC.T15/packet/8"
+msgid "wc2:d9734f3becb65763"
+msgstr "Opuścić okręt, powtarzam, opuścić okręt---"
+
+msgctxt "radio/COMMUNIC.T15/packet/12"
+msgid "wc2:b563de6fdc21cde5"
+msgstr "Uważaj, sir!"
+
+msgctxt "radio/COMMUNIC.T15/packet/13"
+msgid "wc2:e3f0ef3cac145bdb"
+msgstr "Zablokuj działka!"
+
+msgctxt "radio/COMMUNIC.T15/packet/14"
+msgid "wc2:9db8aae169a7ac6a"
+msgstr "Zniszcz ten okręt, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T15/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T15/packet/16"
+msgid "wc2:80c4507e61164418"
+msgstr "Potwierdzam, masz zezwolenie na lądowanie."
+
+msgctxt "radio/COMMUNIC.T15/packet/17"
+msgid "wc2:324653cc701c41bf"
+msgstr "Negatywne, nie lądować."
+
+msgctxt "radio/COMMUNIC.T15/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T15/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T15/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T15/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T15/packet/22"
+msgid "wc2:520ee0d980595e24"
+msgstr "Miło pana widzieć, sir."
+
+msgctxt "radio/COMMUNIC.T16/packet/0"
+msgid "wc2:b1b26f0461fe1ee3"
+msgstr "Potwierdzam, sir."
+
+msgctxt "radio/COMMUNIC.T16/packet/1"
+msgid "wc2:645880e77c83576a"
+msgstr "Negatywne, sir."
+
+msgctxt "radio/COMMUNIC.T16/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T16/packet/5"
+msgid "wc2:4ad573740719b234"
+msgstr "Wrogi myśliwiec zniszczony!"
+
+msgctxt "radio/COMMUNIC.T16/packet/6"
+msgid "wc2:cce20aba29db4403"
+msgstr "Okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T16/packet/7"
+msgid "wc2:25fe085082ee88a9"
+msgstr "Dobry strzał, sir!"
+
+msgctxt "radio/COMMUNIC.T16/packet/8"
+msgid "wc2:d9734f3becb65763"
+msgstr "Opuścić okręt, powtarzam, opuścić okręt---"
+
+msgctxt "radio/COMMUNIC.T16/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T16/packet/12"
+msgid "wc2:6494eeeb26166b85"
+msgstr "Uważaj na cel, sir!"
+
+msgctxt "radio/COMMUNIC.T16/packet/13"
+msgid "wc2:d1a1b0b76b969519"
+msgstr "Zablokuj działka, sir!"
+
+msgctxt "radio/COMMUNIC.T16/packet/14"
+msgid "wc2:9db8aae169a7ac6a"
+msgstr "Zniszcz ten okręt, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T16/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T16/packet/16"
+msgid "wc2:ed7a85cdde2da772"
+msgstr "Masz zezwolenie na lądowanie."
+
+msgctxt "radio/COMMUNIC.T16/packet/17"
+msgid "wc2:324653cc701c41bf"
+msgstr "Negatywne, nie lądować."
+
+msgctxt "radio/COMMUNIC.T16/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T16/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T16/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T16/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T16/packet/22"
+msgid "wc2:520ed7d980594ed9"
+msgstr "Miło pana widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T17/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T17/packet/5"
+msgid "wc2:4ad573740719b234"
+msgstr "Wrogi myśliwiec zniszczony!"
+
+msgctxt "radio/COMMUNIC.T17/packet/6"
+msgid "wc2:cce20aba29db4403"
+msgstr "Okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T17/packet/7"
+msgid "wc2:25fe085082ee88a9"
+msgstr "Dobry strzał, sir!"
+
+msgctxt "radio/COMMUNIC.T17/packet/8"
+msgid "wc2:d9734f3becb65763"
+msgstr "Opuścić okręt, powtarzam, opuścić okręt---"
+
+msgctxt "radio/COMMUNIC.T17/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T17/packet/12"
+msgid "wc2:6494eeeb26166b85"
+msgstr "Uważaj na cel, sir!"
+
+msgctxt "radio/COMMUNIC.T17/packet/13"
+msgid "wc2:d1a1b0b76b969519"
+msgstr "Zablokuj działka, sir!"
+
+msgctxt "radio/COMMUNIC.T17/packet/14"
+msgid "wc2:9db8aae169a7ac6a"
+msgstr "Zniszcz ten okręt, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T17/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T17/packet/16"
+msgid "wc2:ed7a85cdde2da772"
+msgstr "Masz zezwolenie na lądowanie."
+
+msgctxt "radio/COMMUNIC.T17/packet/17"
+msgid "wc2:324653cc701c41bf"
+msgstr "Negatywne, nie lądować."
+
+msgctxt "radio/COMMUNIC.T17/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T17/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T17/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T17/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T17/packet/22"
+msgid "wc2:520ed7d980594ed9"
+msgstr "Miło pana widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T18/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T18/packet/5"
+msgid "wc2:1af4eef10b46d8a8"
+msgstr "Hej, wrogi myśliwiec załatwiony!"
+
+msgctxt "radio/COMMUNIC.T18/packet/6"
+msgid "wc2:bae6e3c36da5a4a1"
+msgstr "Jasna cholera, okręt kapitalny rozwalony!"
+
+msgctxt "radio/COMMUNIC.T18/packet/7"
+msgid "wc2:25fe085082ee88a9"
+msgstr "Dobry strzał, sir!"
+
+msgctxt "radio/COMMUNIC.T18/packet/8"
+msgid "wc2:36f74319c2eb5ca1"
+msgstr "NIE!"
+
+msgctxt "radio/COMMUNIC.T18/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T18/packet/12"
+msgid "wc2:6494eeeb26166b85"
+msgstr "Uważaj na cel, sir!"
+
+msgctxt "radio/COMMUNIC.T18/packet/13"
+msgid "wc2:d1a1b0b76b969519"
+msgstr "Zablokuj działka, sir!"
+
+msgctxt "radio/COMMUNIC.T18/packet/14"
+msgid "wc2:a5a295273c967519"
+msgstr "Dorwij go, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T18/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T18/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T18/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T18/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T18/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T18/packet/22"
+msgid "wc2:520ed7d980594ed9"
+msgstr "Miło pana widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T19/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T19/packet/5"
+msgid "wc2:4ad573740719b234"
+msgstr "Wrogi myśliwiec zniszczony!"
+
+msgctxt "radio/COMMUNIC.T19/packet/6"
+msgid "wc2:cce20aba29db4403"
+msgstr "Okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T19/packet/7"
+msgid "wc2:25fe085082ee88a9"
+msgstr "Dobry strzał, sir!"
+
+msgctxt "radio/COMMUNIC.T19/packet/8"
+msgid "wc2:d9734f3becb65763"
+msgstr "Opuścić okręt, powtarzam, opuścić okręt---"
+
+msgctxt "radio/COMMUNIC.T19/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T19/packet/12"
+msgid "wc2:91a94568c26d53ed"
+msgstr "Ostrożnie, sir!"
+
+msgctxt "radio/COMMUNIC.T19/packet/13"
+msgid "wc2:97e3206071b9d30a"
+msgstr "Trafia pan w nas, sir!"
+
+msgctxt "radio/COMMUNIC.T19/packet/14"
+msgid "wc2:14506eff5b3e5e59"
+msgstr "Zatrzymaj go, próbuje nas zabić!"
+
+msgctxt "radio/COMMUNIC.T19/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T19/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T19/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T19/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T19/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T19/packet/22"
+msgid "wc2:520ed7d980594ed9"
+msgstr "Miło pana widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T20/packet/0"
+msgid "wc2:b1b26f0461fe1ee3"
+msgstr "Potwierdzam, sir."
+
+msgctxt "radio/COMMUNIC.T20/packet/1"
+msgid "wc2:645880e77c83576a"
+msgstr "Negatywne, sir."
+
+msgctxt "radio/COMMUNIC.T20/packet/2"
+msgid "wc2:045efef2798b98fd"
+msgstr "Wrogie okręty przed nami."
+
+msgctxt "radio/COMMUNIC.T20/packet/3"
+msgid "wc2:9aba1b30c6ee4cf2"
+msgstr "Pozwolenie na atak?"
+
+msgctxt "radio/COMMUNIC.T20/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T20/packet/5"
+msgid "wc2:33a44f3ee28e1fd9"
+msgstr "Jeden wrogi myśliwiec mniej!"
+
+msgctxt "radio/COMMUNIC.T20/packet/6"
+msgid "wc2:87f732010f6711c4"
+msgstr "Okręt kapitalny załatwiony!"
+
+msgctxt "radio/COMMUNIC.T20/packet/7"
+msgid "wc2:2a60972dbd37f1ee"
+msgstr "Dobra robota, sir!"
+
+msgctxt "radio/COMMUNIC.T20/packet/8"
+msgid "wc2:7b25d265112f94cf"
+msgstr "Pomocy!"
+
+msgctxt "radio/COMMUNIC.T20/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T20/packet/10"
+msgid "wc2:5566965644cf3dce"
+msgstr "Zalecam odwrót, sir."
+
+msgctxt "radio/COMMUNIC.T20/packet/11"
+msgid "wc2:e02500da98693aa7"
+msgstr "Wracam do bazy, sir."
+
+msgctxt "radio/COMMUNIC.T20/packet/12"
+msgid "wc2:6494eeeb26166b85"
+msgstr "Uważaj na cel, sir!"
+
+msgctxt "radio/COMMUNIC.T20/packet/13"
+msgid "wc2:d1a1b0b76b969519"
+msgstr "Zablokuj działka, sir!"
+
+msgctxt "radio/COMMUNIC.T20/packet/14"
+msgid "wc2:7e56656a8894233f"
+msgstr "Zatrzymaj go, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T20/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T20/packet/16"
+msgid "wc2:ed7a85cdde2da772"
+msgstr "Masz zezwolenie na lądowanie."
+
+msgctxt "radio/COMMUNIC.T20/packet/17"
+msgid "wc2:324653cc701c41bf"
+msgstr "Negatywne, nie lądować."
+
+msgctxt "radio/COMMUNIC.T20/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T20/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T20/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T20/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T20/packet/22"
+msgid "wc2:520ed7d980594ed9"
+msgstr "Miło pana widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T21/packet/0"
+msgid "wc2:b1b26f0461fe1ee3"
+msgstr "Potwierdzam, sir."
+
+msgctxt "radio/COMMUNIC.T21/packet/1"
+msgid "wc2:645880e77c83576a"
+msgstr "Negatywne, sir."
+
+msgctxt "radio/COMMUNIC.T21/packet/2"
+msgid "wc2:045efef2798b98fd"
+msgstr "Wrogie okręty przed nami."
+
+msgctxt "radio/COMMUNIC.T21/packet/3"
+msgid "wc2:9aba1b30c6ee4cf2"
+msgstr "Pozwolenie na atak?"
+
+msgctxt "radio/COMMUNIC.T21/packet/4"
+msgid "wc2:44c66fb75d0c8fee"
+msgstr "Proszę o pomoc, sir."
+
+msgctxt "radio/COMMUNIC.T21/packet/5"
+msgid "wc2:4ad573740719b234"
+msgstr "Wrogi myśliwiec zniszczony!"
+
+msgctxt "radio/COMMUNIC.T21/packet/6"
+msgid "wc2:cce20aba29db4403"
+msgstr "Okręt kapitalny zniszczony!"
+
+msgctxt "radio/COMMUNIC.T21/packet/7"
+msgid "wc2:25fe085082ee88a9"
+msgstr "Dobry strzał, sir!"
+
+msgctxt "radio/COMMUNIC.T21/packet/8"
+msgid "wc2:7fc19091b907607f"
+msgstr "Proszę o pomoc, sir!"
+
+msgctxt "radio/COMMUNIC.T21/packet/9"
+msgid "wc2:765c471291deff61"
+msgstr "Katapultuję się!"
+
+msgctxt "radio/COMMUNIC.T21/packet/10"
+msgid "wc2:5566965644cf3dce"
+msgstr "Zalecam odwrót, sir."
+
+msgctxt "radio/COMMUNIC.T21/packet/11"
+msgid "wc2:e02500da98693aa7"
+msgstr "Wracam do bazy, sir."
+
+msgctxt "radio/COMMUNIC.T21/packet/12"
+msgid "wc2:01940f2ff923c804"
+msgstr "Uważaj, sir!"
+
+msgctxt "radio/COMMUNIC.T21/packet/13"
+msgid "wc2:452ccb56fce6a574"
+msgstr "Trafia pan we mnie, sir!"
+
+msgctxt "radio/COMMUNIC.T21/packet/14"
+msgid "wc2:a5a295273c967519"
+msgstr "Dorwij go, to zdrajca!"
+
+msgctxt "radio/COMMUNIC.T21/packet/15"
+msgid "wc2:4f382d00b95053df"
+msgstr "Przesyłam dane."
+
+msgctxt "radio/COMMUNIC.T21/packet/16"
+msgid "wc2:ed7a85cdde2da772"
+msgstr "Masz zezwolenie na lądowanie."
+
+msgctxt "radio/COMMUNIC.T21/packet/17"
+msgid "wc2:324653cc701c41bf"
+msgstr "Negatywne, nie lądować."
+
+msgctxt "radio/COMMUNIC.T21/packet/18"
+msgid "wc2:9f90ee7ca58cfa46"
+msgstr "Potwierdzam, masz zezwolenie na dokowanie."
+
+msgctxt "radio/COMMUNIC.T21/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "radio/COMMUNIC.T21/packet/20"
+msgid "wc2:946f26bdef0f0bac"
+msgstr "Potwierdzam, masz zezwolenie na tankowanie."
+
+msgctxt "radio/COMMUNIC.T21/packet/21"
+msgid "wc2:e5d1fa1d5e5db5a7"
+msgstr "Negatywne, nie tankować."
+
+msgctxt "radio/COMMUNIC.T21/packet/22"
+msgid "wc2:6c538fc7375e0790"
+msgstr "Dobrze pana tu widzieć, sir!"
+
+msgctxt "radio/COMMUNIC.T22/packet/23"
+msgid "wc2:6cbf81cdc69c72af"
+msgstr "Khasra Czerwony Pazur cię zniszczy!"
+
+msgctxt "radio/COMMUNIC.T22/packet/24"
+msgid "wc2:b1adb96f1c26433b"
+msgstr "Tym razem Khasra cię zniszczy!\t"
+
+msgctxt "radio/COMMUNIC.T22/packet/25"
+msgid "wc2:2bda17396e81ec79"
+msgstr "Pomszczę śmierć mojego brata!"
+
+msgctxt "radio/COMMUNIC.T22/packet/26"
+msgid "wc2:8dd0ff7524afb882"
+msgstr "Teraz giniesz, człowieku!"
+
+msgctxt "radio/COMMUNIC.T22/packet/27"
+msgid "wc2:ca0ae0070baf8376"
+msgstr "Zabiłeś mojego brata!"
+
+msgctxt "radio/COMMUNIC.T22/packet/28"
+msgid "wc2:f8b57cc2ae578d93"
+msgstr "Teraz Khasra cię zabije!"
+
+msgctxt "radio/COMMUNIC.T22/packet/29"
+msgid "wc2:c35acac57c31a15f"
+msgstr "Nie możesz mnie pokonać!"
+
+msgctxt "radio/COMMUNIC.T22/packet/30"
+msgid "wc2:ac876768c7bf0e46"
+msgstr "Przeklęty człowieku!"
+
+msgctxt "radio/COMMUNIC.T23/packet/23"
+msgid "wc2:217aa7b3207d1261"
+msgstr "Rakti Pijący Krew cię pokona!"
+
+msgctxt "radio/COMMUNIC.T23/packet/24"
+msgid "wc2:1ff525b7283a45ca"
+msgstr "Znów się spotykamy, ludzki szumowino!"
+
+msgctxt "radio/COMMUNIC.T23/packet/25"
+msgid "wc2:25d9d7576e204a43"
+msgstr "Zabiję cię, ludzki szumowino!"
+
+msgctxt "radio/COMMUNIC.T23/packet/26"
+msgid "wc2:8ecca855ce2b52fd"
+msgstr "Wylizam twoją krew z moich pazurów!"
+
+msgctxt "radio/COMMUNIC.T23/packet/27"
+msgid "wc2:e9102dc3491109fb"
+msgstr "Boisz się śmierci, człowieku?"
+
+msgctxt "radio/COMMUNIC.T23/packet/28"
+msgid "wc2:67ec209425d9a9ad"
+msgstr "Ludzie krzyczą tak głośno, gdy umierają."
+
+msgctxt "radio/COMMUNIC.T23/packet/29"
+msgid "wc2:06a26f007d33703e"
+msgstr "Przeklinam cię, człowieku!"
+
+msgctxt "radio/COMMUNIC.T23/packet/30"
+msgid "wc2:36f74319c2eb5ca1"
+msgstr "NIE!"
+
+msgctxt "radio/COMMUNIC.T24/packet/23"
+msgid "wc2:325d606bce555696"
+msgstr "Kolejne zwycięstwo Kura!"
+
+msgctxt "radio/COMMUNIC.T24/packet/24"
+msgid "wc2:3d16b6058f7f40dc"
+msgstr "Tym razem mi nie uciekniesz!"
+
+msgctxt "radio/COMMUNIC.T24/packet/25"
+msgid "wc2:60f75c9ee53b6f6e"
+msgstr "Nie przeżyjesz tej walki!"
+
+msgctxt "radio/COMMUNIC.T24/packet/26"
+msgid "wc2:f39ab52f6c83b1a0"
+msgstr "Pobawię się moją zdobyczą..."
+
+msgctxt "radio/COMMUNIC.T24/packet/27"
+msgid "wc2:b5743e348af3466e"
+msgstr "Nie ułatwiaj mi zbytnio, małpo."
+
+msgctxt "radio/COMMUNIC.T24/packet/28"
+msgid "wc2:db42568befcac66d"
+msgstr "Czeka cię śmierć, człowieku."
+
+msgctxt "radio/COMMUNIC.T24/packet/29"
+msgid "wc2:c912df5ba89f7225"
+msgstr "Przeklęty bądź!"
+
+msgctxt "radio/COMMUNIC.T24/packet/30"
+msgid "wc2:622cacc486429edd"
+msgstr "Pomścijcie mnie, bracia!"
+
+msgctxt "radio/COMMUNIC.T25/packet/23"
+msgid "wc2:cb88201ee9b070aa"
+msgstr "Gwardia Imperialna cię zabije!"
+
+msgctxt "radio/COMMUNIC.T25/packet/24"
+msgid "wc2:26ff932459fa0b80"
+msgstr "Teraz giniesz, małpiszonie!"
+
+msgctxt "radio/COMMUNIC.T25/packet/25"
+msgid "wc2:5e8ac9b33c5218a9"
+msgstr "Wyczyszczę pazury na twoim trupie!"
+
+msgctxt "radio/COMMUNIC.T25/packet/26"
+msgid "wc2:4db446447ec45caf"
+msgstr "Będę ucztować na twoich trzewiach!"
+
+msgctxt "radio/COMMUNIC.T25/packet/27"
+msgid "wc2:4e4658ec877eddfc"
+msgstr "Śmierć wszystkim ludziom!"
+
+msgctxt "radio/COMMUNIC.T25/packet/28"
+msgid "wc2:ebd903fcb9f38e36"
+msgstr "Zabiję cię teraz!"
+
+msgctxt "radio/COMMUNIC.T25/packet/29"
+msgid "wc2:4704934db86d2782"
+msgstr "Nie pokonasz Drakhai!"
+
+msgctxt "radio/COMMUNIC.T25/packet/30"
+msgid "wc2:36f74319c2eb5ca1"
+msgstr "NIE!"
+
+msgctxt "radio/COMMUNIC.T26/packet/23"
+msgid "wc2:e8719a617a1dc5ee"
+msgstr "Giń, tchórzu z Terry!"
+
+msgctxt "radio/COMMUNIC.T26/packet/24"
+msgid "wc2:ebd903fcb9f38e36"
+msgstr "Zabiję cię teraz!"
+
+msgctxt "radio/COMMUNIC.T26/packet/25"
+msgid "wc2:cd01e24990bf87b1"
+msgstr "Żaden człowiek nie przeżyje!"
+
+msgctxt "radio/COMMUNIC.T26/packet/26"
+msgid "wc2:20bb079360921782"
+msgstr "Zniszczymy Terrę!"
+
+msgctxt "radio/COMMUNIC.T26/packet/27"
+msgid "wc2:f51749048b4fa16b"
+msgstr "Pora umierać, człowieku!"
+
+msgctxt "radio/COMMUNIC.T26/packet/28"
+msgid "wc2:a828f110535284ef"
+msgstr "Tchórzliwa śmierć!"
+
+msgctxt "radio/COMMUNIC.T26/packet/29"
+msgid "wc2:7c4947ec6cc62b4c"
+msgstr "Nigdy mnie nie zabijesz!"
+
+msgctxt "radio/COMMUNIC.T26/packet/30"
+msgid "wc2:c86ccd99ecbcb90e"
+msgstr "Jaaaa!"
+
+msgctxt "radio/COMMUNIC.T27/packet/23"
+msgid "wc2:2aa7376c1f6e98fa"
+msgstr "Nigdy nas nie pokonasz!"
+
+msgctxt "radio/COMMUNIC.T27/packet/24"
+msgid "wc2:73889d2fbb890a27"
+msgstr "Nie uciekniesz!"
+
+msgctxt "radio/COMMUNIC.T27/packet/25"
+msgid "wc2:3abcd8a19d85416e"
+msgstr "Zabijcie go szybko!"
+
+msgctxt "radio/COMMUNIC.T27/packet/26"
+msgid "wc2:e5feed211c5a8770"
+msgstr "Zabiję cię, małpo!"
+
+msgctxt "radio/COMMUNIC.T27/packet/27"
+msgid "wc2:4e4658ec877eddfc"
+msgstr "Śmierć wszystkim ludziom!"
+
+msgctxt "radio/COMMUNIC.T27/packet/28"
+msgid "wc2:487138acb2cb067d"
+msgstr "Kolejna martwa małpa!"
+
+msgctxt "radio/COMMUNIC.T27/packet/29"
+msgid "wc2:512c91727ef2fb6e"
+msgstr "Zniszczcie go!"
+
+msgctxt "radio/COMMUNIC.T27/packet/30"
+msgid "wc2:36f74319c2eb5ca1"
+msgstr "NIE!"
+
+msgctxt "radio/COMMUNIC.T28/packet/4"
+msgid "wc2:19cca8e3c1c890cb"
+msgstr "Niech cię diabli, Khasra!"
+
+msgctxt "radio/COMMUNIC.T28/packet/5"
+msgid "wc2:cfc69673addefea1"
+msgstr "Giń, zdrajco!"
+
+msgctxt "radio/COMMUNIC.T28/packet/7"
+msgid "wc2:18109d24b692b173"
+msgstr "Zabijcie ich wszystkich, pułkowniku!"
+
+msgctxt "radio/COMMUNIC.T28/packet/12"
+msgid "wc2:05565d248721759b"
+msgstr "Teraz umrzesz, pułkowniku!"
+
+msgctxt "radio/COMMUNIC.T28/packet/13"
+msgid "wc2:05565d248721759b"
+msgstr "Teraz umrzesz, pułkowniku!"
+
+msgctxt "radio/COMMUNIC.T28/packet/22"
+msgid "wc2:414dd61b21ce4106"
+msgstr "Nie próbuj mnie powstrzymać, pułkowniku!"
+
+msgctxt "radio/COMMUNIC.T29/packet/22"
+msgid "wc2:0b61b5be384a547b"
+msgstr "Chodź i weź to, gwiazdorze!"
+
+msgctxt "radio/COMMUNIC.T29/packet/24"
+msgid "wc2:7c4947ec6cc62b4c"
+msgstr "Nigdy mnie nie zabijesz!"
+
+msgctxt "radio/COMMUNIC.T29/packet/25"
+msgid "wc2:fec3d102959b1c52"
+msgstr "Nie ma szans!"
+
+msgctxt "radio/COMMUNIC.T29/packet/26"
+msgid "wc2:9a7a36f2b4137bd8"
+msgstr "Jesteś trupem!"
+
+msgctxt "radio/COMMUNIC.T29/packet/27"
+msgid "wc2:3f7044ada35c147c"
+msgstr "Łatwizna!"
+
+msgctxt "radio/COMMUNIC.T29/packet/28"
+msgid "wc2:37644319c3482e81"
+msgstr "Nie!"
+
+msgctxt "radio/COMMUNIC.T29/packet/29"
+msgid "wc2:7b25d265112f94cf"
+msgstr "Pomocy!"
+
+msgctxt "radio/COMMUNIC.T36/packet/0"
+msgid "wc2:5d563ccea509dc3a"
+msgstr "Czas na imprezę!"
+
+msgctxt "radio/COMMUNIC.T36/packet/1"
+msgid "wc2:8a3dafb7e296e884"
+msgstr "Nie ma mowy! "
+
+msgctxt "radio/COMMUNIC.T36/packet/2"
+msgid "wc2:163c52adc230efd2"
+msgstr "Oto nasza następna ofiara! "
+
+msgctxt "radio/COMMUNIC.T36/packet/3"
+msgid "wc2:a62e821f9645f7f3"
+msgstr "Dawać ich tu! "
+
+msgctxt "radio/COMMUNIC.T36/packet/4"
+msgid "wc2:e580d00d400e4c84"
+msgstr "Gdzie ty jesteś, do diabła? "
+
+msgctxt "radio/COMMUNIC.T36/packet/5"
+msgid "wc2:c245142d2a08c2a2"
+msgstr "Załatwiłem tego frajera na zimno! "
+
+msgctxt "radio/COMMUNIC.T36/packet/6"
+msgid "wc2:3ab86a6307cd19a9"
+msgstr "Jeden okręt kapitalny mniej! "
+
+msgctxt "radio/COMMUNIC.T36/packet/7"
+msgid "wc2:123d5a29c60b3754"
+msgstr "Latanie ze mną zaczyna na ciebie wpływać! "
+
+msgctxt "radio/COMMUNIC.T36/packet/8"
+msgid "wc2:58ea4ae23cfb6f88"
+msgstr "Rusz tu tyłek i mi pomóż! "
+
+msgctxt "radio/COMMUNIC.T36/packet/9"
+msgid "wc2:9b0fccc9786d917f"
+msgstr "Czas na jazdę na szalonym krześle! "
+
+msgctxt "radio/COMMUNIC.T36/packet/10"
+msgid "wc2:b2a8d78ae4616f51"
+msgstr "Ci goście grają dla mnie zbyt ostro! "
+
+msgctxt "radio/COMMUNIC.T36/packet/11"
+msgid "wc2:daa23e58d96880b3"
+msgstr "Chyba mama mnie woła, cześć! "
+
+msgctxt "radio/COMMUNIC.T36/packet/12"
+msgid "wc2:648c1c691c8ccc67"
+msgstr "Strzelaj do wroga, idioto! "
+
+msgctxt "radio/COMMUNIC.T36/packet/13"
+msgid "wc2:5784ebbcbaaa509d"
+msgstr "Po czyjej ty właściwie jesteś stronie?! "
+
+msgctxt "radio/COMMUNIC.T36/packet/14"
+msgid "wc2:69ab8a3a7e98babc"
+msgstr "Zabiję cię, zdrajco jeden! "
+
+msgctxt "radio/COMMUNIC.T36/packet/15"
+msgid "wc2:9c24a8a4327d0b90"
+msgstr "Oto dane. "
+
+msgctxt "radio/COMMUNIC.T37/packet/23"
+msgid "wc2:f600d07fb5a37be4"
+msgstr "Stań i walcz, szumowino! "
+
+msgctxt "radio/COMMUNIC.T37/packet/24"
+msgid "wc2:466381e1006e8ef6"
+msgstr "Tym razem jesteś skończony! "
+
+msgctxt "radio/COMMUNIC.T37/packet/25"
+msgid "wc2:e82727147350afcb"
+msgstr "Nie masz szans przeciw Mandarynom! "
+
+msgctxt "radio/COMMUNIC.T37/packet/26"
+msgid "wc2:8b2f150ac4006bea"
+msgstr "To twój najlepszy strzał, tchórzu?! "
+
+msgctxt "radio/COMMUNIC.T37/packet/27"
+msgid "wc2:ea232493944dd62f"
+msgstr "Czas, byś umarł! "
+
+msgctxt "radio/COMMUNIC.T37/packet/28"
+msgid "wc2:37c00bfe36591aa7"
+msgstr "Twój skrzydłowy nie żyje, a ty jesteś następny! "
+
+msgctxt "radio/COMMUNIC.T37/packet/29"
+msgid "wc2:0c46c704b7e97960"
+msgstr "Skończyło ci się szczęście. "
+
+msgctxt "radio/COMMUNIC.T37/packet/30"
+msgid "wc2:7cf13bc9906d6ba2"
+msgstr "Do zobaczenia w piekle! "
+
+msgctxt "radio/COMMUNIC.YOU/packet/0"
+msgid "wc2:056f3adc29b9c727"
+msgstr "Zapomnij..."
+
+msgctxt "radio/COMMUNIC.YOU/packet/1"
+msgid "wc2:93e35ab4dfe7bdb9"
+msgstr "Atakuj mój cel!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/2"
+msgid "wc2:af7bed1be963434d"
+msgstr "Pomóż mi tutaj!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/3"
+msgid "wc2:e473fd1c4c70b37d"
+msgstr "Wracaj do bazy."
+
+msgctxt "radio/COMMUNIC.YOU/packet/4"
+msgid "wc2:491fb15531f4b61f"
+msgstr "Rozproś się, atak!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/5"
+msgid "wc2:284100c20a32326a"
+msgstr "Trzymaj szyk!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/6"
+msgid "wc2:4e65f851e20260c9"
+msgstr "Do szyku, za mną."
+
+msgctxt "radio/COMMUNIC.YOU/packet/7"
+msgid "wc2:27eb505e5b0a3f1a"
+msgstr "Cisza radiowa."
+
+msgctxt "radio/COMMUNIC.YOU/packet/8"
+msgid "wc2:5a44a30e8afddf95"
+msgstr "Radio swobodne."
+
+msgctxt "radio/COMMUNIC.YOU/packet/9"
+msgid "wc2:5bcdfaa03935dc5d"
+msgstr "Lądowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YOU/packet/10"
+msgid "wc2:83986766cf96d258"
+msgstr "Zidentyfikuj się."
+
+msgctxt "radio/COMMUNIC.YOU/packet/11"
+msgid "wc2:c80b983b3aa65bab"
+msgstr "Dokowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YOU/packet/12"
+msgid "wc2:f0aadbf81d55266b"
+msgstr "Proszę o paliwo."
+
+msgctxt "radio/COMMUNIC.YOU/packet/13"
+msgid "wc2:eecb372b1cc02f3c"
+msgstr "Raport uszkodzeń."
+
+msgctxt "radio/COMMUNIC.YOU/packet/20"
+msgid "wc2:99964ce0fab7adc8"
+msgstr "Kotek chce się pobawić?"
+
+msgctxt "radio/COMMUNIC.YOU/packet/21"
+msgid "wc2:03c818da395de0a8"
+msgstr "Giń, draniu!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/22"
+msgid "wc2:c838cd68e05be740"
+msgstr "Zadław się kulą z sierści!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/23"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/24"
+msgid "wc2:015297e56ca32e36"
+msgstr "Smaż się w piekle, Jazz!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/25"
+msgid "wc2:a252ca0e6ea4925a"
+msgstr "Czujesz się szczęściarzem, gówniarzu?"
+
+msgctxt "radio/COMMUNIC.YOU/packet/26"
+msgid "wc2:80e558a14ee165e0"
+msgstr "To za Spirit!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/27"
+msgid "wc2:0d042459d3be0242"
+msgstr "O tak?"
+
+msgctxt "radio/COMMUNIC.YOU/packet/28"
+msgid "wc2:65b7adfd896e4fb2"
+msgstr "Czas umierać!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/29"
+msgid "wc2:551dc47505259297"
+msgstr "Cholera, Thrak!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/30"
+msgid "wc2:a51fd8ea64029d03"
+msgstr "Idź się naprawić, Książę!"
+
+msgctxt "radio/COMMUNIC.YOU/packet/31"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/0"
+msgid "wc2:056f3adc29b9c727"
+msgstr "Zapomnij..."
+
+msgctxt "radio/COMMUNIC.YU2/packet/1"
+msgid "wc2:93e35ab4dfe7bdb9"
+msgstr "Atakuj mój cel!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/2"
+msgid "wc2:af7bed1be963434d"
+msgstr "Pomóż mi tutaj!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/3"
+msgid "wc2:e473fd1c4c70b37d"
+msgstr "Wracaj do bazy."
+
+msgctxt "radio/COMMUNIC.YU2/packet/4"
+msgid "wc2:491fb15531f4b61f"
+msgstr "Rozproś się, atak!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/5"
+msgid "wc2:284100c20a32326a"
+msgstr "Trzymaj szyk!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/6"
+msgid "wc2:4e65f851e20260c9"
+msgstr "Do szyku, za mną."
+
+msgctxt "radio/COMMUNIC.YU2/packet/7"
+msgid "wc2:27eb505e5b0a3f1a"
+msgstr "Cisza radiowa."
+
+msgctxt "radio/COMMUNIC.YU2/packet/8"
+msgid "wc2:5a44a30e8afddf95"
+msgstr "Radio swobodne."
+
+msgctxt "radio/COMMUNIC.YU2/packet/9"
+msgid "wc2:5bcdfaa03935dc5d"
+msgstr "Lądowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YU2/packet/10"
+msgid "wc2:83986766cf96d258"
+msgstr "Zidentyfikuj się."
+
+msgctxt "radio/COMMUNIC.YU2/packet/11"
+msgid "wc2:c80b983b3aa65bab"
+msgstr "Dokowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YU2/packet/12"
+msgid "wc2:f0aadbf81d55266b"
+msgstr "Proszę o paliwo."
+
+msgctxt "radio/COMMUNIC.YU2/packet/13"
+msgid "wc2:eecb372b1cc02f3c"
+msgstr "Raport uszkodzeń."
+
+msgctxt "radio/COMMUNIC.YU2/packet/20"
+msgid "wc2:fbbbeb857333fe95"
+msgstr "Zjedz to, frajerze!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/21"
+msgid "wc2:03c818da395de0a8"
+msgstr "Giń, draniu!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/22"
+msgid "wc2:c838cd68e05be740"
+msgstr "Zadław się kulą z sierści!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/23"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/24"
+msgid "wc2:015297e56ca32e36"
+msgstr "Smaż się w piekle, Jazz!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/25"
+msgid "wc2:a252ca0e6ea4925a"
+msgstr "Czujesz się szczęściarzem, gówniarzu?"
+
+msgctxt "radio/COMMUNIC.YU2/packet/26"
+msgid "wc2:80e558a14ee165e0"
+msgstr "To za Spirit!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/27"
+msgid "wc2:0d042459d3be0242"
+msgstr "O tak?"
+
+msgctxt "radio/COMMUNIC.YU2/packet/28"
+msgid "wc2:65b7adfd896e4fb2"
+msgstr "Czas umierać!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/29"
+msgid "wc2:551dc47505259297"
+msgstr "Cholera, Thrak!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/30"
+msgid "wc2:a51fd8ea64029d03"
+msgstr "Idź się naprawić, Książę!"
+
+msgctxt "radio/COMMUNIC.YU2/packet/31"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/0"
+msgid "wc2:056f3adc29b9c727"
+msgstr "Zapomnij..."
+
+msgctxt "radio/COMMUNIC.YU3/packet/1"
+msgid "wc2:93e35ab4dfe7bdb9"
+msgstr "Atakuj mój cel!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/2"
+msgid "wc2:af7bed1be963434d"
+msgstr "Pomóż mi tutaj!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/3"
+msgid "wc2:e473fd1c4c70b37d"
+msgstr "Wracaj do bazy."
+
+msgctxt "radio/COMMUNIC.YU3/packet/4"
+msgid "wc2:491fb15531f4b61f"
+msgstr "Rozproś się, atak!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/5"
+msgid "wc2:284100c20a32326a"
+msgstr "Trzymaj szyk!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/6"
+msgid "wc2:4e65f851e20260c9"
+msgstr "Do szyku, za mną."
+
+msgctxt "radio/COMMUNIC.YU3/packet/7"
+msgid "wc2:27eb505e5b0a3f1a"
+msgstr "Cisza radiowa."
+
+msgctxt "radio/COMMUNIC.YU3/packet/8"
+msgid "wc2:5a44a30e8afddf95"
+msgstr "Radio swobodne."
+
+msgctxt "radio/COMMUNIC.YU3/packet/9"
+msgid "wc2:5bcdfaa03935dc5d"
+msgstr "Lądowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YU3/packet/10"
+msgid "wc2:83986766cf96d258"
+msgstr "Zidentyfikuj się."
+
+msgctxt "radio/COMMUNIC.YU3/packet/11"
+msgid "wc2:c80b983b3aa65bab"
+msgstr "Dokowanie, proszę."
+
+msgctxt "radio/COMMUNIC.YU3/packet/12"
+msgid "wc2:f0aadbf81d55266b"
+msgstr "Proszę o paliwo."
+
+msgctxt "radio/COMMUNIC.YU3/packet/13"
+msgid "wc2:eecb372b1cc02f3c"
+msgstr "Raport uszkodzeń."
+
+msgctxt "radio/COMMUNIC.YU3/packet/20"
+msgid "wc2:fbbbeb857333fe95"
+msgstr "Zjedz to, frajerze!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/21"
+msgid "wc2:03c818da395de0a8"
+msgstr "Giń, draniu!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/22"
+msgid "wc2:c838cd68e05be740"
+msgstr "Zadław się kulą z sierści!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/23"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/24"
+msgid "wc2:015297e56ca32e36"
+msgstr "Smaż się w piekle, Jazz!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/25"
+msgid "wc2:a252ca0e6ea4925a"
+msgstr "Czujesz się szczęściarzem, gówniarzu?"
+
+msgctxt "radio/COMMUNIC.YU3/packet/26"
+msgid "wc2:80e558a14ee165e0"
+msgstr "To za Spirit!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/27"
+msgid "wc2:0d042459d3be0242"
+msgstr "O tak?"
+
+msgctxt "radio/COMMUNIC.YU3/packet/28"
+msgid "wc2:65b7adfd896e4fb2"
+msgstr "Czas umierać!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/29"
+msgid "wc2:551dc47505259297"
+msgstr "Cholera, Thrak!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/30"
+msgid "wc2:a51fd8ea64029d03"
+msgstr "Idź się naprawić, Książę!"
+
+msgctxt "radio/COMMUNIC.YU3/packet/31"
+msgid "wc2:2eab9f5a926f4255"
+msgstr "Koniec gry, kotku!"
+
+msgctxt "radio/PALCOMM.T08/packet/18"
+msgid "wc2:066cb7036bd84be3"
+msgstr "Masz zezwolenie na dokowanie, chłopcze."
+
+msgctxt "radio/PALCOMM.T08/packet/19"
+msgid "wc2:7c7ae78ae7495d31"
+msgstr "Negatywne, nie dokować."
+
+msgctxt "module/MODULE.000/packet/2/record/32"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/34"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/35"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/37"
+msgid "wc2:9a785f347bee228b"
+msgstr "Wróć na Stację Caernarvon"
+
+msgctxt "module/MODULE.000/packet/2/record/40"
+msgid "wc2:f8ae2c8365bad2d6"
+msgstr "Obroń TCS Concordia przed atakiem wroga"
+
+msgctxt "module/MODULE.000/packet/2/record/41"
+msgid "wc2:3a8ac66e1202994b"
+msgstr "Ląduj na Concordii, dokonaj napraw."
+
+msgctxt "module/MODULE.000/packet/2/record/42"
+msgid "wc2:61396467cb767e23"
+msgstr "Wróć na Caernarvon"
+
+msgctxt "module/MODULE.000/packet/2/record/48"
+msgid "wc2:1647d620187953f1"
+msgstr "Leć do punktu nav"
+
+msgctxt "module/MODULE.000/packet/2/record/49"
+msgid "wc2:052cc28ee70404dd"
+msgstr "Leć do krążownika Fralthra"
+
+msgctxt "module/MODULE.000/packet/2/record/53"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/56"
+msgid "wc2:a7ea3dfdac736bcf"
+msgstr " Leć na Stację Caernarvon"
+
+msgctxt "module/MODULE.000/packet/2/record/57"
+msgid "wc2:5373fa5a9308091b"
+msgstr " Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/64"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/65"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/67"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/69"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/72"
+msgid "wc2:d607bd868a8ea651"
+msgstr "Leć do punktu nav"
+
+msgctxt "module/MODULE.000/packet/2/record/74"
+msgid "wc2:b175bf040fac034c"
+msgstr "Leć na Stację Niven"
+
+msgctxt "module/MODULE.000/packet/2/record/80"
+msgid "wc2:b391a07b84b0dae7"
+msgstr "Eskortuj Wolnych Kupców do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/82"
+msgid "wc2:34c8342cf3f6a039"
+msgstr "Eskortuj Wolnych Kupców do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/83"
+msgid "wc2:5e91c92fa73832d5"
+msgstr "Zaczekaj, aż Wolni Kupcy wykonają skok"
+
+msgctxt "module/MODULE.000/packet/2/record/84"
+msgid "wc2:5e91c92fa73832d5"
+msgstr "Zaczekaj, aż Wolni Kupcy wykonają skok"
+
+msgctxt "module/MODULE.000/packet/2/record/85"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/88"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/89"
+msgid "wc2:3e631c43ae087d4b"
+msgstr "Patroluj rejon, potem leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/91"
+msgid "wc2:6914b1481abec26b"
+msgstr "Patroluj rejon, potem spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/92"
+msgid "wc2:3433e89e62a7c338"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/93"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/96"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/98"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/100"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/101"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/104"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/106"
+msgid "wc2:4bb85bd387bf3848"
+msgstr "Spotkaj się z Wolnym Kupcem"
+
+msgctxt "module/MODULE.000/packet/2/record/107"
+msgid "wc2:70dba28f2bacab92"
+msgstr "Eskortuj Wolnego Kupca z powrotem na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/109"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/113"
+msgid "wc2:afbc0133c7a5cdcb"
+msgstr "Leć do wrogiej grupy bojowej zaprogramowaną trasą."
+
+msgctxt "module/MODULE.000/packet/2/record/114"
+msgid "wc2:c0bebfc7378f33d8"
+msgstr "Leć do wrogiej grupy bojowej"
+
+msgctxt "module/MODULE.000/packet/2/record/116"
+msgid "wc2:9f78d1bf15d88005"
+msgstr "Leć na Stację Olympus"
+
+msgctxt "module/MODULE.000/packet/2/record/120"
+msgid "wc2:c71dc5851a9c99a2"
+msgstr "Obroń Stację Olympus przed atakiem"
+
+msgctxt "module/MODULE.000/packet/2/record/121"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/128"
+msgid "wc2:640ed1b43b42072d"
+msgstr "Wykonaj skok"
+
+msgctxt "module/MODULE.000/packet/2/record/129"
+msgid "wc2:a510fe94424e09c9"
+msgstr "Zatankuj, kontynuuj misję."
+
+msgctxt "module/MODULE.000/packet/2/record/132"
+msgid "wc2:adc5bde785afbe1f"
+msgstr "Leć do wrogiego składu zaopatrzenia"
+
+msgctxt "module/MODULE.000/packet/2/record/133"
+msgid "wc2:4006d824bee7b1d6"
+msgstr "Wróć do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/134"
+msgid "wc2:4408f95c35b76a34"
+msgstr "Wykonaj skok powrotny na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/137"
+msgid "wc2:615e1c1e4afabf06"
+msgstr "Odzyskaj zestrzelonego pilota"
+
+msgctxt "module/MODULE.000/packet/2/record/139"
+msgid "wc2:71fcee52615461a7"
+msgstr "Wróć na Concordię "
+
+msgctxt "module/MODULE.000/packet/2/record/144"
+msgid "wc2:6694c07db0ff14ac"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/145"
+msgid "wc2:640ed1b43b42072d"
+msgstr "Wykonaj skok"
+
+msgctxt "module/MODULE.000/packet/2/record/146"
+msgid "wc2:8e36db06113ef3f8"
+msgstr "Spotkaj się z TCS Hector"
+
+msgctxt "module/MODULE.000/packet/2/record/147"
+msgid "wc2:02665ae7bb378adc"
+msgstr "Zaatakuj wrogi krążownik"
+
+msgctxt "module/MODULE.000/packet/2/record/148"
+msgid "wc2:6701482d27ea5931"
+msgstr "Wróć do punktu skokowego nową trasą."
+
+msgctxt "module/MODULE.000/packet/2/record/149"
+msgid "wc2:9b6a011a3e8e7768"
+msgstr "Wróć do punktu skokowego."
+
+msgctxt "module/MODULE.000/packet/2/record/150"
+msgid "wc2:47355840b131ea19"
+msgstr "Wykonaj skok."
+
+msgctxt "module/MODULE.000/packet/2/record/151"
+msgid "wc2:71fce452615450a9"
+msgstr "Wróć na Concordię."
+
+msgctxt "module/MODULE.000/packet/2/record/152"
+msgid "wc2:c18b0fcca0ee53ec"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/154"
+msgid "wc2:b94370622765551d"
+msgstr "Wykonaj skok, spotkaj się z kurierem."
+
+msgctxt "module/MODULE.000/packet/2/record/155"
+msgid "wc2:86f7bf251942f295"
+msgstr "Wróć na Concordię przez punkt skokowy"
+
+msgctxt "module/MODULE.000/packet/2/record/156"
+msgid "wc2:71fcee52615461a7"
+msgstr "Wróć na Concordię "
+
+msgctxt "module/MODULE.000/packet/2/record/160"
+msgid "wc2:c18b0fcca0ee53ec"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/162"
+msgid "wc2:628999cffe189d55"
+msgstr "Patroluj punkty nav"
+
+msgctxt "module/MODULE.000/packet/2/record/163"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/165"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/168"
+msgid "wc2:9f5a24d52d9bd600"
+msgstr "Spotkaj się z transportowcami"
+
+msgctxt "module/MODULE.000/packet/2/record/170"
+msgid "wc2:0c25848796cde6cc"
+msgstr "Eskortuj transportowce do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/171"
+msgid "wc2:6e61a4e08c33d6cd"
+msgstr "Zbadaj aktywność wroga"
+
+msgctxt "module/MODULE.000/packet/2/record/173"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/176"
+msgid "wc2:432d41e6c512f089"
+msgstr "Leć do TCS Agincourt zaprogramowaną trasą  "
+
+msgctxt "module/MODULE.000/packet/2/record/178"
+msgid "wc2:73cc50a62144f3a4"
+msgstr "Leć do TCS Agincourt zaprogramowaną trasą"
+
+msgctxt "module/MODULE.000/packet/2/record/179"
+msgid "wc2:9f134cfc6b0b4bf1"
+msgstr "Eskortuj Wolnego Kupca na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/180"
+msgid "wc2:9f134cfc6b0b4bf1"
+msgstr "Eskortuj Wolnego Kupca na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/184"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/185"
+msgid "wc2:071837305c5ec387"
+msgstr "Leć kursem do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/186"
+msgid "wc2:56749867ed71e61e"
+msgstr "Przejdź do ataku na wrogą bazę"
+
+msgctxt "module/MODULE.000/packet/2/record/188"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/192"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/194"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/196"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/197"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/200"
+msgid "wc2:206b57e1df2c3418"
+msgstr "Leć kursem ataku"
+
+msgctxt "module/MODULE.000/packet/2/record/202"
+msgid "wc2:3cb75f44ae9ce37b"
+msgstr "Zaatakuj wrogą grupę bojową"
+
+msgctxt "module/MODULE.000/packet/2/record/204"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/208"
+msgid "wc2:a7a3af39f6cbed93"
+msgstr "Spotkaj się z Bonnie Heather"
+
+msgctxt "module/MODULE.000/packet/2/record/209"
+msgid "wc2:cc51279787d8cc53"
+msgstr "Leć do punktu skokowego przez punkt nav"
+
+msgctxt "module/MODULE.000/packet/2/record/211"
+msgid "wc2:bcd9b97cdd05cb53"
+msgstr "Eskortuj Bonnie Heather do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/212"
+msgid "wc2:ab15f9617fdc44ff"
+msgstr "Patroluj rejon pod kątem aktywności skokowej"
+
+msgctxt "module/MODULE.000/packet/2/record/213"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/216"
+msgid "wc2:561f60b9545440e5"
+msgstr "Obroń Concordię przed atakiem"
+
+msgctxt "module/MODULE.000/packet/2/record/217"
+msgid "wc2:867e81c57ec03df0"
+msgstr "Eskortuj William Tell w ataku na niszczyciel Ralathów"
+
+msgctxt "module/MODULE.000/packet/2/record/218"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/224"
+msgid "wc2:06215848b1f8ee00"
+msgstr "Patroluj rejon pod kątem aktywności wroga"
+
+msgctxt "module/MODULE.000/packet/2/record/226"
+msgid "wc2:c18b0fcca0ee53ec"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/227"
+msgid "wc2:640ed1b43b42072d"
+msgstr "Wykonaj skok"
+
+msgctxt "module/MODULE.000/packet/2/record/232"
+msgid "wc2:89821ffcf85e3099"
+msgstr "Leć kursem do wrogiej placówki"
+
+msgctxt "module/MODULE.000/packet/2/record/233"
+msgid "wc2:89821ffcf85e3099"
+msgstr "Leć kursem do wrogiej placówki"
+
+msgctxt "module/MODULE.000/packet/2/record/235"
+msgid "wc2:8bed3a685604db71"
+msgstr "Uderz na wrogą placówkę"
+
+msgctxt "module/MODULE.000/packet/2/record/236"
+msgid "wc2:e9893014d7d232db"
+msgstr "Zaatakuj wrogą placówkę."
+
+msgctxt "module/MODULE.000/packet/2/record/237"
+msgid "wc2:2c5cde03a27d47e7"
+msgstr "Wróć na Concordię kursem z mapy nav"
+
+msgctxt "module/MODULE.000/packet/2/record/240"
+msgid "wc2:fc935fe621477e2b"
+msgstr "Leć kursem ataku na wrogą grupę bojową"
+
+msgctxt "module/MODULE.000/packet/2/record/241"
+msgid "wc2:a70ec1dfa1b04094"
+msgstr "Atakuj grupę bojową... pozwól Ralathom skoczyć"
+
+msgctxt "module/MODULE.000/packet/2/record/242"
+msgid "wc2:803ed8f45e25bf73"
+msgstr "Pozwól Ralathom skoczyć... skocz za nimi"
+
+msgctxt "module/MODULE.000/packet/2/record/243"
+msgid "wc2:a82e218a2b94ccf8"
+msgstr "Zniszcz wrogi okręt... nie pozwól mu przeżyć!"
+
+msgctxt "module/MODULE.000/packet/2/record/256"
+msgid "wc2:9f7fdbad49f25724"
+msgstr "Zaatakuj wrogi niszczyciel"
+
+msgctxt "module/MODULE.000/packet/2/record/258"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/264"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/265"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/267"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/268"
+msgid "wc2:8315bc0cff07e8a3"
+msgstr "Leć do nav 4"
+
+msgctxt "module/MODULE.000/packet/2/record/270"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/272"
+msgid "wc2:3ee622734c8d59ad"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/273"
+msgid "wc2:3ee622734c8d59ad"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/274"
+msgid "wc2:19707fb5353c5f5d"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/281"
+msgid "wc2:aad4a716ee4d288b"
+msgstr "Leć kursem ataku na K'Tithrak Mang"
+
+msgctxt "module/MODULE.000/packet/2/record/283"
+msgid "wc2:956b914ca5afab87"
+msgstr "Zaatakuj K'Tithrak Mang"
+
+msgctxt "module/MODULE.000/packet/2/record/284"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/288"
+msgid "wc2:af56ef4bbe3be7c7"
+msgstr "Leć do Kwatery Głównej przez nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/291"
+msgid "wc2:f89d8e345a8f8e31"
+msgstr "Leć do Polowej Kwatery Głównej"
+
+msgctxt "module/MODULE.000/packet/2/record/296"
+msgid "wc2:5694c4df7d845e59"
+msgstr " Zbadaj wykrytą aktywność"
+
+msgctxt "module/MODULE.000/packet/2/record/298"
+msgid "wc2:2a837576fb8b347b"
+msgstr "Leć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/304"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/306"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/307"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/308"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/310"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/312"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/314"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/315"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/317"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/320"
+msgid "wc2:1647d620187953f1"
+msgstr "Leć do punktu nav"
+
+msgctxt "module/MODULE.000/packet/2/record/321"
+msgid "wc2:ccca092675e125b0"
+msgstr "Uderz na wrogi niszczyciel"
+
+msgctxt "module/MODULE.000/packet/2/record/323"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/328"
+msgid "wc2:bfb55ffcc4219a5c"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/329"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/331"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/333"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/336"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/338"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/339"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/341"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/344"
+msgid "wc2:cd9fa4b574f863a4"
+msgstr "Leć do punktu skokowego "
+
+msgctxt "module/MODULE.000/packet/2/record/346"
+msgid "wc2:640ed1b43b42072d"
+msgstr "Wykonaj skok"
+
+msgctxt "module/MODULE.000/packet/2/record/347"
+msgid "wc2:2694c71b1aabe228"
+msgstr "Odbierz dane od kuriera"
+
+msgctxt "module/MODULE.000/packet/2/record/349"
+msgid "wc2:e7331a62fa2edac4"
+msgstr "Wykonaj skok powrotny na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/350"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/352"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/354"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/357"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/361"
+msgid "wc2:f7caffb0630b339e"
+msgstr "Leć kursem ataku na grupę bojową"
+
+msgctxt "module/MODULE.000/packet/2/record/363"
+msgid "wc2:a3b01486d8b48a05"
+msgstr "Leć kursem ataku na wrogi niszczyciel"
+
+msgctxt "module/MODULE.000/packet/2/record/365"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/368"
+msgid "wc2:71aba91ec5a4ca93"
+msgstr "Odeprzyj atak wroga  "
+
+msgctxt "module/MODULE.000/packet/2/record/377"
+msgid "wc2:a7a3af39f6cbed93"
+msgstr "Spotkaj się z Bonnie Heather"
+
+msgctxt "module/MODULE.000/packet/2/record/378"
+msgid "wc2:df2baddabda4d863"
+msgstr "Eskortuj Bonnie Heather do punktu skokowego"
+
+msgctxt "module/MODULE.000/packet/2/record/380"
+msgid "wc2:6147ceaf5277031b"
+msgstr "Spotkaj się z Concordią"
+
+msgctxt "module/MODULE.000/packet/2/record/385"
+msgid "wc2:1647d620187953f1"
+msgstr "Leć do punktu nav"
+
+msgctxt "module/MODULE.000/packet/2/record/387"
+msgid "wc2:88de60fbf5ef85d7"
+msgstr "Leć do wrogich lotniskowców"
+
+msgctxt "module/MODULE.000/packet/2/record/389"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/392"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/393"
+msgid "wc2:8315c20cff07f2d5"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/395"
+msgid "wc2:8315c10cff07f122"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.000/packet/2/record/396"
+msgid "wc2:8315bc0cff07e8a3"
+msgstr "Leć do nav 4"
+
+msgctxt "module/MODULE.000/packet/2/record/398"
+msgid "wc2:5afa09d2dfdb1e1d"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/400"
+msgid "wc2:3ee622734c8d59ad"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/401"
+msgid "wc2:3ee622734c8d59ad"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/402"
+msgid "wc2:3ee622734c8d59ad"
+msgstr "Ścigaj i pojmaj majora Colsona"
+
+msgctxt "module/MODULE.000/packet/2/record/408"
+msgid "wc2:93861fba3e04470b"
+msgstr "Leć na Stację Caernarvon"
+
+msgctxt "module/MODULE.000/packet/2/record/409"
+msgid "wc2:54302626dbf92d3f"
+msgstr " Leć do nadlatujących wrogich jednostek"
+
+msgctxt "module/MODULE.000/packet/2/record/411"
+msgid "wc2:d299985413e095d5"
+msgstr "Leć do nadlatujących wrogich jednostek"
+
+msgctxt "module/MODULE.000/packet/2/record/413"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.000/packet/2/record/416"
+msgid "wc2:d91eb41aa83a8ccc"
+msgstr "ZNISZCZ GO!!"
+
+msgctxt "module/MODULE.000/packet/2/record/424"
+msgid "wc2:c4dd759a64668cfa"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.000/packet/2/record/425"
+msgid "wc2:4aa0090c59f750b1"
+msgstr "Skanuj rejon"
+
+msgctxt "module/MODULE.000/packet/2/record/426"
+msgid "wc2:b015e3df57b28a25"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.000/packet/2/record/427"
+msgid "wc2:4aa0090c59f750b1"
+msgstr "Skanuj rejon"
+
+msgctxt "module/MODULE.000/packet/2/record/428"
+msgid "wc2:8ace806c711f3888"
+msgstr "wracaj"
+
+msgctxt "module/MODULE.000/packet/2/record/432"
+msgid "wc2:82a72e2b846da479"
+msgstr "Leć tam"
+
+msgctxt "module/MODULE.000/packet/2/record/433"
+msgid "wc2:308ed39227f85eda"
+msgstr "Zniszcz to"
+
+msgctxt "module/MODULE.000/packet/2/record/434"
+msgid "wc2:b8b7458cf38d2bb2"
+msgstr "Wracaj do domu"
+
+msgctxt "module/MODULE.000/packet/4/record/0"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.000/packet/4/record/1"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.000/packet/4/record/2"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.000/packet/4/record/3"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.000/packet/4/record/4"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/5"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/6"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/7"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/8"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/9"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/10"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/11"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/12"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/13"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/14"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/15"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/16"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/17"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/18"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/19"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/20"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/21"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/22"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/23"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/24"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/25"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/26"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/27"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/28"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/29"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/30"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/31"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/32"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/33"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/34"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/35"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/36"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/37"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/38"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/39"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/40"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/41"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/42"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/43"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/44"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/45"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/46"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/47"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/48"
+msgid "wc2:dd196f1faec5d40e"
+msgstr "Misja A"
+
+msgctxt "module/MODULE.000/packet/4/record/49"
+msgid "wc2:dd196e1faec5d25b"
+msgstr "Misja B"
+
+msgctxt "module/MODULE.000/packet/4/record/50"
+msgid "wc2:dd196d1faec5d0a8"
+msgstr "Misja C"
+
+msgctxt "module/MODULE.000/packet/4/record/51"
+msgid "wc2:dd19741faec5dc8d"
+msgstr "Misja D"
+
+msgctxt "module/MODULE.000/packet/4/record/52"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.000/packet/4/record/53"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.000/packet/4/record/54"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.000/packet/4/record/55"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.000/packet/4/record/56"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.000/packet/4/record/57"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.000/packet/4/record/58"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.000/packet/4/record/59"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.000/packet/4/record/60"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.000/packet/4/record/61"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.000/packet/4/record/62"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.000/packet/4/record/63"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.000/packet/5/record/14"
+msgid "wc2:b723b9553f81dfc5"
+msgstr "Seria 14"
+
+msgctxt "module/MODULE.000/packet/5/record/15"
+msgid "wc2:b723b8553f81de12"
+msgstr "Seria 15"
+
+msgctxt "module/MODULE.001/packet/2/record/0"
+msgid "wc2:f349ebecc118670f"
+msgstr "Zniszcz to, wracaj do domu"
+
+msgctxt "module/MODULE.001/packet/2/record/32"
+msgid "wc2:8348aa0cff3323a6"
+msgstr "Leć do nav 1 "
+
+msgctxt "module/MODULE.001/packet/2/record/34"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/36"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.001/packet/2/record/38"
+msgid "wc2:cb20a3903fbbfe21"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/40"
+msgid "wc2:fa3cea7e4b8f214c"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/42"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/44"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.001/packet/2/record/45"
+msgid "wc2:cb20a3903fbbfe21"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/48"
+msgid "wc2:b4b3e1c348bdf45d"
+msgstr "Concordia"
+
+msgctxt "module/MODULE.001/packet/2/record/49"
+msgid "wc2:40536628cc7f5859"
+msgstr "Leć na stację Pembroke"
+
+msgctxt "module/MODULE.001/packet/2/record/51"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.001/packet/2/record/57"
+msgid "wc2:6694c07db0ff14ac"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.001/packet/2/record/58"
+msgid "wc2:bc3182ed57fa2eb1"
+msgstr "System Rigel - oczyść rejon skoku dla Concordii"
+
+msgctxt "module/MODULE.001/packet/2/record/59"
+msgid "wc2:333589c542a5f087"
+msgstr "System Rigel - oczyść rejon skoku dla Concordii"
+
+msgctxt "module/MODULE.001/packet/2/record/61"
+msgid "wc2:803c1b29559d8264"
+msgstr "Wróć do systemu Pembroke"
+
+msgctxt "module/MODULE.001/packet/2/record/62"
+msgid "wc2:6a79c201080847b2"
+msgstr "Wróć do bazy przez nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/63"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.001/packet/2/record/64"
+msgid "wc2:eba504f4d385c418"
+msgstr "Rozpoznanie nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/66"
+msgid "wc2:f023c9d84d849a10"
+msgstr "Leć do nav 2 - nadaj do Gettysburga"
+
+msgctxt "module/MODULE.001/packet/2/record/67"
+msgid "wc2:456a1ade82d5f2e2"
+msgstr "Zbadaj źródło sygnału alarmowego"
+
+msgctxt "module/MODULE.001/packet/2/record/71"
+msgid "wc2:a092a2843e4b8a41"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/72"
+msgid "wc2:2265a28d9989df95"
+msgstr "Patroluj nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/74"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/76"
+msgid "wc2:7e21f11b147ea7b4"
+msgstr "Spotkaj się z Bear"
+
+msgctxt "module/MODULE.001/packet/2/record/77"
+msgid "wc2:4437554df628e853"
+msgstr "Leć kursem do nav 4"
+
+msgctxt "module/MODULE.001/packet/2/record/79"
+msgid "wc2:73a566fcf37ae261"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/80"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/82"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/84"
+msgid "wc2:62abf1303b67761c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.001/packet/2/record/85"
+msgid "wc2:82746d71a03443d5"
+msgstr "Ląduj na Gettysburgu"
+
+msgctxt "module/MODULE.001/packet/2/record/87"
+msgid "wc2:0975e90cf78d3f75"
+msgstr "Wróć do bazy, jeśli misja zostanie przerwana"
+
+msgctxt "module/MODULE.001/packet/2/record/88"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/89"
+msgid "wc2:2f7485da2fc922cf"
+msgstr "Oczyść rejon skoku"
+
+msgctxt "module/MODULE.001/packet/2/record/91"
+msgid "wc2:d8efcdcd2aab56cb"
+msgstr "Zniszcz piracki skład zaopatrzenia"
+
+msgctxt "module/MODULE.001/packet/2/record/93"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.001/packet/2/record/96"
+msgid "wc2:8315bf0cff07edbc"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/97"
+msgid "wc2:f39f61d3c0ecdb8c"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.001/packet/2/record/98"
+msgid "wc2:e4f93ed6efaf329c"
+msgstr "Aktywuj skok"
+
+msgctxt "module/MODULE.001/packet/2/record/102"
+msgid "wc2:5fce2ade3e0841e2"
+msgstr "Ląduj na Olympusie"
+
+msgctxt "module/MODULE.001/packet/2/record/104"
+msgid "wc2:62abf3303b677982"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/105"
+msgid "wc2:78901991064f9994"
+msgstr "Leć na spotkanie z Sh'ar N'Tanya"
+
+msgctxt "module/MODULE.001/packet/2/record/107"
+msgid "wc2:ba0a70c687e924cb"
+msgstr "Eskortuj okręty do punktu skokowego  "
+
+msgctxt "module/MODULE.001/packet/2/record/109"
+msgid "wc2:62abf2303b6777cf"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.001/packet/2/record/111"
+msgid "wc2:170f99512b8bf796"
+msgstr "Wróć do bazy Olympus"
+
+msgctxt "module/MODULE.001/packet/2/record/112"
+msgid "wc2:b5e8f3a8fd1d653b"
+msgstr "Spotkaj się z kadetami"
+
+msgctxt "module/MODULE.001/packet/2/record/113"
+msgid "wc2:0ad84a1a481be68e"
+msgstr "Leć do nav 2 na ćwiczenia manewrowe"
+
+msgctxt "module/MODULE.001/packet/2/record/115"
+msgid "wc2:62abf1303b67761c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.001/packet/2/record/117"
+msgid "wc2:170f99512b8bf796"
+msgstr "Wróć do bazy Olympus"
+
+msgctxt "module/MODULE.001/packet/2/record/120"
+msgid "wc2:e1379b4031e28f80"
+msgstr " Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/122"
+msgid "wc2:8faf2f88f4fff4da"
+msgstr "Leć do nav 2, odzyskaj kapsułę z danymi"
+
+msgctxt "module/MODULE.001/packet/2/record/124"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.001/packet/2/record/126"
+msgid "wc2:a092a2843e4b8a41"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/130"
+msgid "wc2:26c01a6c37b1654a"
+msgstr "Przystąp do ataku na grupę bojową"
+
+msgctxt "module/MODULE.001/packet/2/record/132"
+msgid "wc2:73a566fcf37ae261"
+msgstr "Wróć do bazy"
+
+msgctxt "module/MODULE.001/packet/2/record/136"
+msgid "wc2:bd5025d50c558c1f"
+msgstr "Obroń Olympus przed atakiem wroga"
+
+msgctxt "module/MODULE.001/packet/2/record/137"
+msgid "wc2:f39f61d3c0ecdb8c"
+msgstr "Leć do punktu skokowego"
+
+msgctxt "module/MODULE.001/packet/2/record/138"
+msgid "wc2:8e62a8533996fead"
+msgstr "Rozpoznaj rejon"
+
+msgctxt "module/MODULE.001/packet/2/record/140"
+msgid "wc2:38f7871a2ea74263"
+msgstr "Zadokuj do Bonnie H."
+
+msgctxt "module/MODULE.001/packet/2/record/144"
+msgid "wc2:4dda52c532e10787"
+msgstr "Odeprzyj wrogie siły"
+
+msgctxt "module/MODULE.001/packet/2/record/154"
+msgid "wc2:fe4b53775d0610f1"
+msgstr "Zniszcz wrogą grupę bojową"
+
+msgctxt "module/MODULE.001/packet/2/record/156"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.001/packet/2/record/160"
+msgid "wc2:804b31435904acdb"
+msgstr "Obroń Concordię przed wrogim atakiem"
+
+msgctxt "module/MODULE.001/packet/2/record/168"
+msgid "wc2:d8a9c8cb962b9ff5"
+msgstr "Spotkaj się z Clydesdale'ami"
+
+msgctxt "module/MODULE.001/packet/2/record/169"
+msgid "wc2:2ab3eb7a25a214bb"
+msgstr "Eskortuj Clydesdale'e do punktu skokowego"
+
+msgctxt "module/MODULE.001/packet/2/record/170"
+msgid "wc2:bab247f06707e847"
+msgstr "Zniszcz piracką bazę"
+
+msgctxt "module/MODULE.001/packet/2/record/172"
+msgid "wc2:d930ecee5bbfa4a7"
+msgstr "Wróć na Olympus"
+
+msgctxt "module/MODULE.001/packet/2/record/176"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.001/packet/2/record/178"
+msgid "wc2:e9c01d7d1ee3f812"
+msgstr "Spotkaj się z Sabres "
+
+msgctxt "module/MODULE.001/packet/2/record/181"
+msgid "wc2:2de40ad21675e733"
+msgstr "Wróć na Stację Olympus"
+
+msgctxt "module/MODULE.001/packet/2/record/184"
+msgid "wc2:2fedbaf3a1eabeb1"
+msgstr "Wyeliminuj wrogą grupę bojową"
+
+msgctxt "module/MODULE.001/packet/2/record/186"
+msgid "wc2:b18ba7333b11a57e"
+msgstr "Wróć na Concordię "
+
+msgctxt "module/MODULE.001/packet/4/record/0"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/1"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/2"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/3"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/4"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/5"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/6"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/7"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/8"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/9"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/10"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/11"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/12"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/13"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/14"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/15"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/16"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/17"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/18"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/19"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/20"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/21"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/22"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/23"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/24"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/25"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/26"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/27"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/28"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/29"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/30"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/31"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/32"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/33"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/34"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/35"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/36"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/37"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/38"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/39"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/40"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/41"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/42"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/43"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/44"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/45"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/46"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/47"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/48"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/49"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/50"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/51"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/52"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/53"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/54"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/55"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/56"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/57"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/58"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/59"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/4/record/60"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.001/packet/4/record/61"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.001/packet/4/record/62"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.001/packet/4/record/63"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.001/packet/5/record/0"
+msgid "wc2:f5dc13a3ccf22ae0"
+msgstr "Seria 0"
+
+msgctxt "module/MODULE.001/packet/5/record/5"
+msgid "wc2:f5dc18a3ccf2335f"
+msgstr "Seria 5"
+
+msgctxt "module/MODULE.001/packet/5/record/6"
+msgid "wc2:f5dc19a3ccf23512"
+msgstr "Seria 6"
+
+msgctxt "module/MODULE.001/packet/5/record/7"
+msgid "wc2:f5dc1aa3ccf236c5"
+msgstr "Seria 7"
+
+msgctxt "module/MODULE.001/packet/5/record/8"
+msgid "wc2:f5dc1ba3ccf23878"
+msgstr "Seria 8"
+
+msgctxt "module/MODULE.001/packet/5/record/9"
+msgid "wc2:f5dc1ca3ccf23a2b"
+msgstr "Seria 9"
+
+msgctxt "module/MODULE.001/packet/5/record/10"
+msgid "wc2:b723b5553f81d8f9"
+msgstr "Seria 10"
+
+msgctxt "module/MODULE.001/packet/5/record/11"
+msgid "wc2:b723b4553f81d746"
+msgstr "Seria 11"
+
+msgctxt "module/MODULE.001/packet/5/record/12"
+msgid "wc2:b723b3553f81d593"
+msgstr "Seria 12"
+
+msgctxt "module/MODULE.001/packet/5/record/13"
+msgid "wc2:b723b2553f81d3e0"
+msgstr "Seria 13"
+
+msgctxt "module/MODULE.001/packet/5/record/14"
+msgid "wc2:b723b9553f81dfc5"
+msgstr "Seria 14"
+
+msgctxt "module/MODULE.001/packet/5/record/15"
+msgid "wc2:b723b8553f81de12"
+msgstr "Seria 15"
+
+msgctxt "module/MODULE.002/packet/2/record/33"
+msgid "wc2:ebe18969a2034e95"
+msgstr "Eskortuj transport więźniów na spotkanie"
+
+msgctxt "module/MODULE.002/packet/2/record/35"
+msgid "wc2:a20b00ba47fb03fb"
+msgstr "Ląduj na Concordii"
+
+msgctxt "module/MODULE.002/packet/2/record/40"
+msgid "wc2:2265a28d9989df95"
+msgstr "Patroluj nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/42"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/44"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/47"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/50"
+msgid "wc2:0c51f9c22d92ad15"
+msgstr "Uratuj katapultowanego pilota w nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/52"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/56"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/58"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/59"
+msgid "wc2:6ff16811e2b25325"
+msgstr "Wróć do bazy przez nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/61"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/62"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/64"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/65"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/67"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/69"
+msgid "wc2:d69d6fb41cd5b9c9"
+msgstr "Leć do nav 4"
+
+msgctxt "module/MODULE.002/packet/2/record/71"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/72"
+msgid "wc2:5cde78c5f63b0838"
+msgstr "Obroń Concordię przed atakiem wroga"
+
+msgctxt "module/MODULE.002/packet/2/record/80"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/81"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/83"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/85"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/88"
+msgid "wc2:8348aa0cff3323a6"
+msgstr "Leć do nav 1 "
+
+msgctxt "module/MODULE.002/packet/2/record/90"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/96"
+msgid "wc2:f7abf0d4134e1917"
+msgstr "Leć do punktu spotkania"
+
+msgctxt "module/MODULE.002/packet/2/record/97"
+msgid "wc2:1c4487b9524086e1"
+msgstr "Spotkaj się z Iguana"
+
+msgctxt "module/MODULE.002/packet/2/record/98"
+msgid "wc2:1d09db5f592c6a1c"
+msgstr "Wróć przez nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/100"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/104"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/105"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/106"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/107"
+msgid "wc2:d69d6fb41cd5b9c9"
+msgstr "Leć do nav 4"
+
+msgctxt "module/MODULE.002/packet/2/record/109"
+msgid "wc2:d69d6eb41cd5b816"
+msgstr "Leć do nav 5"
+
+msgctxt "module/MODULE.002/packet/2/record/111"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/112"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/114"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/116"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/117"
+msgid "wc2:36107938a560fe25"
+msgstr "Spotkaj się z Paladin"
+
+msgctxt "module/MODULE.002/packet/2/record/120"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/122"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/124"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/127"
+msgid "wc2:3ea3bd90be9af052"
+msgstr "Zadokuj do Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/129"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/131"
+msgid "wc2:9090c94d2ca186f8"
+msgstr "Wróć do Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/136"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/138"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/140"
+msgid "wc2:57cfe2ffda2c3a32"
+msgstr "Zadokuj do Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/146"
+msgid "wc2:cc62e8b2f468ca0d"
+msgstr "Zniszcz Ayer's Rock"
+
+msgctxt "module/MODULE.002/packet/2/record/148"
+msgid "wc2:642542202f82e3d8"
+msgstr "Wróć do Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/152"
+msgid "wc2:05fd1abf4e50f4d7"
+msgstr "Leć do punktu skokowego w nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/154"
+msgid "wc2:1fef05ca85314ca5"
+msgstr "Wykonaj skok"
+
+msgctxt "module/MODULE.002/packet/2/record/156"
+msgid "wc2:a20b00ba47fb03fb"
+msgstr "Ląduj na Concordii"
+
+msgctxt "module/MODULE.002/packet/2/record/157"
+msgid "wc2:a20b00ba47fb03fb"
+msgstr "Ląduj na Concordii"
+
+msgctxt "module/MODULE.002/packet/2/record/160"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/162"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/164"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/166"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/168"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/170"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/172"
+msgid "wc2:6ff16811e2b25325"
+msgstr "Wróć do bazy przez nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/174"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/2/record/176"
+msgid "wc2:b60d0746c8f19d38"
+msgstr "Zaczekaj, aż Gamal Gan wykona skok"
+
+msgctxt "module/MODULE.002/packet/2/record/178"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/180"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/182"
+msgid "wc2:982739ebe11093aa"
+msgstr "Spotkaj się z Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/183"
+msgid "wc2:57cfe2ffda2c3a32"
+msgstr "Zadokuj do Gamal Gan"
+
+msgctxt "module/MODULE.002/packet/2/record/184"
+msgid "wc2:d69d72b41cd5bee2"
+msgstr "Leć do nav 1"
+
+msgctxt "module/MODULE.002/packet/2/record/186"
+msgid "wc2:d69d71b41cd5bd2f"
+msgstr "Leć do nav 2"
+
+msgctxt "module/MODULE.002/packet/2/record/188"
+msgid "wc2:d69d70b41cd5bb7c"
+msgstr "Leć do nav 3"
+
+msgctxt "module/MODULE.002/packet/2/record/190"
+msgid "wc2:399097e6cfe0d9aa"
+msgstr "Wróć na Concordię"
+
+msgctxt "module/MODULE.002/packet/4/record/0"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/1"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/2"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/3"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/4"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/5"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/6"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/7"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/8"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/9"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/10"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/11"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/12"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/13"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/14"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/15"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/16"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/17"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/18"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/19"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/20"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/21"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/22"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/23"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/24"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/25"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/26"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/27"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/28"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/29"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/30"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/31"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/32"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/33"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/34"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/35"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/36"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/37"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/38"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/39"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/40"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/41"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/42"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/43"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/44"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/45"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/46"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/47"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/48"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/49"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/50"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/51"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/52"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/53"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/54"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/55"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/56"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/57"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/58"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/59"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/4/record/60"
+msgid "wc2:dd19801faec5f0f1"
+msgstr "Misja 0"
+
+msgctxt "module/MODULE.002/packet/4/record/61"
+msgid "wc2:dd197f1faec5ef3e"
+msgstr "Misja 1"
+
+msgctxt "module/MODULE.002/packet/4/record/62"
+msgid "wc2:dd197e1faec5ed8b"
+msgstr "Misja 2"
+
+msgctxt "module/MODULE.002/packet/4/record/63"
+msgid "wc2:dd197d1faec5ebd8"
+msgstr "Misja 3"
+
+msgctxt "module/MODULE.002/packet/5/record/0"
+msgid "wc2:f5dc13a3ccf22ae0"
+msgstr "Seria 0"
+
+msgctxt "module/MODULE.002/packet/5/record/6"
+msgid "wc2:f5dc19a3ccf23512"
+msgstr "Seria 6"
+
+msgctxt "module/MODULE.002/packet/5/record/7"
+msgid "wc2:f5dc1aa3ccf236c5"
+msgstr "Seria 7"
+
+msgctxt "module/MODULE.002/packet/5/record/8"
+msgid "wc2:f5dc1ba3ccf23878"
+msgstr "Seria 8"
+
+msgctxt "module/MODULE.002/packet/5/record/9"
+msgid "wc2:f5dc1ca3ccf23a2b"
+msgstr "Seria 9"
+
+msgctxt "module/MODULE.002/packet/5/record/10"
+msgid "wc2:b723b5553f81d8f9"
+msgstr "Seria 10"
+
+msgctxt "module/MODULE.002/packet/5/record/11"
+msgid "wc2:b723b4553f81d746"
+msgstr "Seria 11"
+
+msgctxt "module/MODULE.002/packet/5/record/12"
+msgid "wc2:b723b3553f81d593"
+msgstr "Seria 12"
+
+msgctxt "module/MODULE.002/packet/5/record/13"
+msgid "wc2:b723b2553f81d3e0"
+msgstr "Seria 13"
+
+msgctxt "module/MODULE.002/packet/5/record/14"
+msgid "wc2:b723b9553f81dfc5"
+msgstr "Seria 14"
+
+msgctxt "module/MODULE.002/packet/5/record/15"
+msgid "wc2:b723b8553f81de12"
+msgstr "Seria 15"
+
+msgctxt "hotspot"
+msgid "wc2:06eaaf4e669666d8"
+msgstr "Lot na misję"
+
+msgctxt "hotspot"
+msgid "wc2:d5d41335706f714f"
+msgstr "Zobacz fabułę"
+
+msgctxt "hotspot"
+msgid "wc2:e3af125895b570c9"
+msgstr "Zapisz / wczytaj grę"
+
+msgctxt "hotspot"
+msgid "wc2:3b815a16343225b0"
+msgstr "Wyjdź do DOS-a"
+
+msgctxt "hotspot"
+msgid "wc2:6769a43739072d01"
+msgstr "Wyłącz komputer"
+

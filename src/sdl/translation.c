@@ -2,8 +2,16 @@
  * bin/compileTranslations.py. Resources are translated in memory: original
  * scene commands, conditions, timing and animation remain byte-for-byte intact. */
 #include "game.h"
+#include "slint/launcher_api.h"
 
 #define TRANSLATION_LIMIT (16U * 1024U * 1024U)
+
+enum TranslationResource {
+    TRANSLATION_OTHER,
+    TRANSLATION_SCENE,
+    TRANSLATION_MODULE,
+    TRANSLATION_RADIO
+};
 
 typedef struct TranslationMessage {
     const char *context;
@@ -28,6 +36,9 @@ typedef struct TranslationArtwork {
 } TranslationArtwork;
 
 static unsigned char *catalog;
+static int catalogLanguage;
+/* Set for SO1 and SO2 when the catalog includes their dialogue. */
+static int expansionTranslated[3];
 static TranslationMessage *messages;
 static size_t messageCount;
 static TranslationFont fonts[3];
@@ -61,6 +72,8 @@ void SdlShutdownTranslations(void)
     SDL_free(catalog);
     messages = 0;
     catalog = 0;
+    catalogLanguage = SDL_LAUNCHER_LANGUAGE_ENGLISH;
+    memset(expansionTranslated, 0, sizeof(expansionTranslated));
     messageCount = 0;
     artwork = 0;
     artworkCount = 0;
@@ -128,6 +141,9 @@ int SdlLoadTranslationCatalog(const char *path)
         messages[index].context = fields[0];
         messages[index].id = fields[1];
         messages[index].text = fields[2];
+        if (strncmp(fields[0], "cutscene/SERIES.S0", 18) == 0 &&
+            (fields[0][18] == '1' || fields[0][18] == '2') && fields[0][19] == '/')
+            expansionTranslated[fields[0][18] - '0'] = 1;
         if (index) {
             int order = strcmp(messages[index - 1].context, fields[0]);
             if (order > 0 || (order == 0 && strcmp(messages[index - 1].id, fields[1]) >= 0))
@@ -230,22 +246,28 @@ int SdlSetLanguage(int language)
 {
     char *base;
     char path[4096];
+    const char *code;
     int result;
 
-    if (language == 0) {
+    if (language == SDL_LAUNCHER_LANGUAGE_ENGLISH) {
         SdlShutdownTranslations();
         return 1;
     }
-    if (language != 1)
+    if (language == SDL_LAUNCHER_LANGUAGE_SPANISH)
+        code = "es";
+    else if (language == SDL_LAUNCHER_LANGUAGE_POLISH)
+        code = "pl";
+    else
         return 0;
     base = SDL_GetBasePath();
     if (!base)
         return 0;
-    result = SDL_snprintf(path, sizeof(path), "%stranslations/es.dat", base);
+    result = SDL_snprintf(path, sizeof(path), "%stranslations/%s.dat", base, code);
     SDL_free(base);
-    if (result < 0 || result >= (int)sizeof(path))
+    if (result < 0 || result >= (int)sizeof(path) || !SdlLoadTranslationCatalog(path))
         return 0;
-    return SdlLoadTranslationCatalog(path);
+    catalogLanguage = language;
+    return 1;
 }
 
 static const char *FindTranslation(const char *context, const char *source)
@@ -284,10 +306,22 @@ char *SdlTranslateText(const char *context, const char *source)
     return (char *)FindTranslation(context, source);
 }
 
+/* The credits use ARTDATA.V00/7's sprite alphabet, not FONTS.FNT. The Spanish
+ * artwork draws its accented letters over punctuation there. Polish adds no
+ * credit glyphs, so its Windows-1250 letters are drawn as their base letters. */
 short SdlCinematicFontCharacter(short character)
 {
-    if (catalog) {
-        /* The credits use ARTDATA.V00/7's sprite alphabet, not FONTS.FNT. */
+    static const char polishLetters[] =
+        "\x8c\x8f\x9c\x9f\xa3\xa5\xaf\xb3\xb9\xbf\xc6\xca\xd1\xd3\xe6\xea\xf1\xf3";
+    static const char polishBaseLetters[] = "SZszLAZlazCENOceno";
+    const char *letter;
+
+    if (catalogLanguage == SDL_LAUNCHER_LANGUAGE_POLISH && character != 0) {
+        letter = strchr(polishLetters, (char)character);
+        if (letter)
+            return polishBaseLetters[letter - polishLetters];
+    }
+    if (catalogLanguage == SDL_LAUNCHER_LANGUAGE_SPANISH) {
         switch ((unsigned char)character) {
         case 0xe1: return '[';
         case 0xe9: return '\\';
@@ -495,16 +529,50 @@ static int TranslateCutscene(const char *name, short section,
     return 1;
 }
 
+/* Text resources of WC2 and both expansions. COMMUNIC.Tnn and PALCOMM.Tnn
+ * hold the text of the matching .Snn speech packets; the expansions' own
+ * executables read COMMUNIC.YU2 and YU3 in place of COMMUNIC.YOU. */
+static int TranslationResourceKind(const char *name)
+{
+    static const char *const scenes[] = {
+        "SERIES.S00", "SERIES.S01", "SERIES.S02",
+        "INCIDENT.S00", "INCIDENT.S01", "INCIDENT.S02"
+    };
+    static const char *const modules[] = {
+        "MODULE.000", "MODULE.001", "MODULE.002"
+    };
+    static const char *const players[] = {
+        "COMMUNIC.YOU", "COMMUNIC.YU2", "COMMUNIC.YU3"
+    };
+    size_t index;
+    size_t length = strlen(name);
+
+    for (index = 0; index < SDL_arraysize(scenes); index++) {
+        if (!SDL_strcasecmp(name, scenes[index]))
+            return TRANSLATION_SCENE;
+    }
+    for (index = 0; index < SDL_arraysize(modules); index++) {
+        if (!SDL_strcasecmp(name, modules[index]))
+            return TRANSLATION_MODULE;
+    }
+    for (index = 0; index < SDL_arraysize(players); index++) {
+        if (!SDL_strcasecmp(name, players[index]))
+            return TRANSLATION_RADIO;
+    }
+    if (((length == 12 && !SDL_strncasecmp(name, "COMMUNIC.T", 10)) ||
+         (length == 11 && !SDL_strncasecmp(name, "PALCOMM.T", 9))) &&
+        SDL_isdigit((unsigned char)name[length - 2]) &&
+        SDL_isdigit((unsigned char)name[length - 1]))
+        return TRANSLATION_RADIO;
+    return TRANSLATION_OTHER;
+}
+
 static int TranslationUsesPacket(const char *name, short section)
 {
     size_t index;
     if (!SDL_strcasecmp(name, "FONTS.FNT"))
         return section >= 0 && section < 3 && fonts[section].glyphs;
-    if (!SDL_strcasecmp(name, "SERIES.S00") || !SDL_strcasecmp(name, "INCIDENT.S00"))
-        return 1;
-    if (!SDL_strcasecmp(name, "MODULE.000") || !SDL_strcasecmp(name, "COMMUNIC.YOU") ||
-        (strlen(name) == 12 && !SDL_strncasecmp(name, "COMMUNIC.T", 10) &&
-         name[10] >= '0' && name[10] <= '2' && name[11] >= '0' && name[11] <= '9'))
+    if (TranslationResourceKind(name) != TRANSLATION_OTHER)
         return 1;
     for (index = 0; index < artworkCount; index++) {
         if (section == artwork[index].section && !SDL_strcasecmp(name, artwork[index].filename))
@@ -513,8 +581,9 @@ static int TranslationUsesPacket(const char *name, short section)
     return 0;
 }
 
-static int TranslateModule(short section, const unsigned char *source, size_t size,
-                            unsigned char **output)
+static int TranslateModule(const char *name, short section,
+                           const unsigned char *source, size_t size,
+                           unsigned char **output)
 {
     size_t stride, offset, capacity, index;
     switch (section) {
@@ -532,8 +601,8 @@ static int TranslateModule(short section, const unsigned char *source, size_t si
         char context[96];
         if (!memchr(original, 0, capacity))
             continue;
-        SDL_snprintf(context, sizeof(context), "module/MODULE.000/packet/%d/record/%u",
-                     section, (unsigned int)index);
+        SDL_snprintf(context, sizeof(context), "module/%s/packet/%d/record/%u",
+                     name, section, (unsigned int)index);
         translated = FindTranslation(context, original);
         if (translated == original || strlen(translated) >= capacity ||
             ((original[0] == '.') != (translated[0] == '.')))
@@ -550,32 +619,38 @@ static int TranslateModule(short section, const unsigned char *source, size_t si
     return 1;
 }
 
-static int SdlTranslatePacketData(const char *filename, short section,
+/* name is the file actually read: an expansion's MODULE.00n, not the
+ * MODULE.000 the engine requests. Contexts use its upper-case name. */
+static int SdlTranslatePacketData(const char *name, short section,
                                  const unsigned char *source, size_t size,
                                  unsigned char **output, size_t *outputSize)
 {
-    const char *name = TranslationBasename(filename);
+    char canonical[16];
+    int kind;
+
     *output = 0;
     *outputSize = size;
-    /* The bundled campaign translation contains only the base game's data.
-     * The expansions reuse some logical names with different text records. */
     if (!catalog || section < 0 || size > TRANSLATION_LIMIT)
         return 1;
     if (!SDL_strcasecmp(name, "FONTS.FNT") && section < 3 && fonts[section].glyphs)
         return TranslateFont(section, source, size, output, outputSize);
-    if (g_nSdlCampaign != 0)
+    /* Translate an expansion only with a catalog that includes its dialogue,
+     * rather than mixing in the base-game text and artwork it shares. */
+    if (g_nSdlCampaign != 0 &&
+        (g_nSdlCampaign < 0 || g_nSdlCampaign > 2 || !expansionTranslated[g_nSdlCampaign]))
         return 1;
-    if (!SDL_strcasecmp(name, "SERIES.S00"))
-        return TranslateCutscene("SERIES.S00", section, source, size, output, outputSize);
-    if (!SDL_strcasecmp(name, "INCIDENT.S00"))
-        return TranslateCutscene("INCIDENT.S00", section, source, size, output, outputSize);
-    if (!SDL_strcasecmp(name, "MODULE.000"))
-        return TranslateModule(section, source, size, output);
-    if (!SDL_strncasecmp(name, "COMMUNIC.", 9) && memchr(source, 0, size)) {
-        char canonical[16], context[96];
+    kind = TranslationResourceKind(name);
+    if (kind == TRANSLATION_OTHER)
+        return TranslateArtwork(name, section, source, size, output, outputSize);
+    SDL_strlcpy(canonical, name, sizeof(canonical));
+    SDL_strupr(canonical);
+    if (kind == TRANSLATION_SCENE)
+        return TranslateCutscene(canonical, section, source, size, output, outputSize);
+    if (kind == TRANSLATION_MODULE)
+        return TranslateModule(canonical, section, source, size, output);
+    if (memchr(source, 0, size)) {
+        char context[96];
         const char *translated;
-        SDL_strlcpy(canonical, name, sizeof(canonical));
-        SDL_strupr(canonical);
         SDL_snprintf(context, sizeof(context), "radio/%s/packet/%d", canonical, section);
         translated = FindTranslation(context, (const char *)source);
         if (translated != (const char *)source && strlen(translated) < 88) {
@@ -585,12 +660,11 @@ static int SdlTranslatePacketData(const char *filename, short section,
                 return 0;
             memcpy(*output, translated, *outputSize);
         }
-        return 1;
     }
-    return TranslateArtwork(name, section, source, size, output, outputSize);
+    return 1;
 }
 
-/* Keep WC2's name/value placeholders, but allow the CP1252 glyphs used by
+/* Keep WC2's name/value placeholders, but allow the code-page glyphs used by
  * external catalogs. Bound expansion to the existing 256-byte workspace. */
 void SdlExpandCutsceneText(const unsigned char *source, char *destination)
 {
@@ -630,7 +704,7 @@ void SdlExpandCutsceneText(const unsigned char *source, char *destination)
 int SdlTranslatePacketSection(const char *filename, short section,
                               PacketSectionHandle *handle)
 {
-    const char *name = TranslationBasename(filename);
+    const char *name = TranslationBasename(SdlCampaignPath(filename));
     unsigned char *stored = 0;
     unsigned char *decoded = 0;
     unsigned char *result = 0;
@@ -671,7 +745,7 @@ int SdlTranslatePacketSection(const char *filename, short section,
             decoded = stored;
         }
     }
-    success = SdlTranslatePacketData(filename, section, decoded, size, &result, &resultSize);
+    success = SdlTranslatePacketData(name, section, decoded, size, &result, &resultSize);
 done:
     if (decoded != stored && decoded != handle->patchedData)
         free(decoded);

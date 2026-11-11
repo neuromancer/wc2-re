@@ -36,6 +36,22 @@ release's source tag under translations/.
 Source archive:
 https://www.mediafire.com/file/pvkt604rsnrr82f/WC2_OPS1y2_V1.1.zip/file
 
+Polish translation
+==================
+
+Text, translated menu artwork and Polish letter glyphs for the base game and
+both Special Operations come from paxiu1984's Wing Commander II Polish patch,
+version 1.4 (2026), which builds on L@Zar0 and darkpadawan's Spanish
+translation. paxiu1984 permitted its use under GPL v3.0 with an
+additional no-charge term, as for the Spanish translation; the game's rights
+belong to Electronic Arts. The upstream notice and credits accompany the catalog in
+translations/Polish-README.txt (inside Contents/Resources in the macOS app).
+Editable translation sources and import provenance are included in this
+release's source tag under translations/.
+
+Source archive: WC2_Spolszczenie_PL_v1.1_latka.zip
+SHA-256 1137ab167fd1c80bf5ceb74a94cb9b040cac2a1dfd5a17697a1be507aa8a61d5
+
 Community fixes
 ===============
 

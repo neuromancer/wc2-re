@@ -540,7 +540,9 @@ MODERN_LAUNCHER_SRC = src/sdl/launcher.c
 MODERN_GUI_SOURCE_DIR = src/sdl/slint
 MODERN_GUI_BUILD_DIR = $(MODERN_OUT_DIR)/slint-gui
 MODERN_GUI_BUILD_TYPE ?= Release
-MODERN_TRANSLATIONS = $(MODERN_OUT_DIR)/translations/es.dat
+MODERN_TRANSLATION_LANGUAGES = es pl
+MODERN_TRANSLATIONS = \
+	$(MODERN_TRANSLATION_LANGUAGES:%=$(MODERN_OUT_DIR)/translations/%.dat)
 MODERN_GUI_SRCS = \
 	$(wildcard translations/*/LC_MESSAGES/*.po) \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
@@ -624,10 +626,15 @@ SLINT_TR_EXTRACTOR ?= slint-tr-extractor
 update-launcher-translations:
 	@mkdir -p $(MODERN_OUT_DIR)
 	$(SLINT_TR_EXTRACTOR) --package-name wc2-re -o $(MODERN_OUT_DIR)/launcher.pot $(MODERN_GUI_SOURCE_DIR)/launcher.slint
-	msgmerge --update --backup=none --no-fuzzy-matching --no-wrap translations/es/LC_MESSAGES/launcher.po $(MODERN_OUT_DIR)/launcher.pot
+	for language in $(MODERN_TRANSLATION_LANGUAGES); do \
+		msgmerge --update --backup=none --no-fuzzy-matching --no-wrap \
+			translations/$$language/LC_MESSAGES/launcher.po \
+			$(MODERN_OUT_DIR)/launcher.pot || exit 1; \
+	done
 
-$(MODERN_TRANSLATIONS): bin/compileTranslations.py $(wildcard translations/es/*.po) $(wildcard translations/es/*.json)
-	python3 bin/compileTranslations.py --source translations/es --output $@
+$(MODERN_OUT_DIR)/translations/%.dat: bin/compileTranslations.py \
+		$(wildcard translations/*/*.po) $(wildcard translations/*/*.json)
+	python3 bin/compileTranslations.py --source translations/$* --output $@
 
 # Slint enables full Rust LTO upstream; the small launcher does not need its
 # substantial clean-build cost.

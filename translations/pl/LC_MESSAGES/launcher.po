@@ -1,0 +1,203 @@
+# Polish launcher translation. A local addition under ../../../LICENSE; the
+# upstream Polish patch has no launcher.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+msgctxt "LauncherWindow"
+msgid "Select game data…"
+msgstr "Wybierz dane gry…"
+
+msgctxt "LauncherWindow"
+msgid "No game data found — add a path"
+msgstr "Nie znaleziono danych gry — dodaj ścieżkę"
+
+msgctxt "LauncherWindow"
+msgid "Automatic"
+msgstr "Automatycznie"
+
+msgctxt "LauncherWindow"
+msgid "Unnamed joystick"
+msgstr "Joystick bez nazwy"
+
+msgctxt "LauncherWindow"
+msgid "Choose a Wing Commander II directory."
+msgstr "Wybierz katalog Wing Commander II."
+
+msgctxt "LauncherWindow"
+msgid "The directory path is too long."
+msgstr "Ścieżka katalogu jest za długa."
+
+msgctxt "LauncherWindow"
+msgid "The selected path is not a directory."
+msgstr "Wybrana ścieżka nie jest katalogiem."
+
+msgctxt "LauncherWindow"
+msgid "Choose a WC2 directory containing GAMEDAT."
+msgstr "Wybierz katalog WC2 zawierający GAMEDAT."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is missing."
+msgstr "Brak pliku GAMEDAT/COCKPIT.VGA."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is unreadable or too small to identify."
+msgstr "Nie można odczytać GAMEDAT/COCKPIT.VGA lub plik jest za mały, by go rozpoznać."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/{} is missing or unreadable. Select a WC2 installation."
+msgstr "Brak pliku GAMEDAT/{} lub nie można go odczytać. Wybierz instalację WC2."
+
+msgctxt "LauncherWindow"
+msgid "GAMEDAT/COCKPIT.VGA is not recognized WC2 data."
+msgstr "GAMEDAT/COCKPIT.VGA nie zawiera rozpoznanych danych WC2."
+
+msgctxt "LauncherWindow"
+msgid "Kilrathi Saga data needs a sibling STREAMS directory."
+msgstr "Dane Kilrathi Saga wymagają katalogu STREAMS obok GAMEDAT."
+
+msgctxt "LauncherWindow"
+msgid "STREAMS/{} is missing or unreadable."
+msgstr "Brak pliku STREAMS/{} lub nie można go odczytać."
+
+msgctxt "LauncherWindow"
+msgid "The folder picker failed"
+msgstr "Wybór katalogu nie powiódł się"
+
+msgctxt "LauncherWindow"
+msgid "The folder picker could not be initialized"
+msgstr "Nie można otworzyć okna wyboru katalogu"
+
+msgctxt "LauncherWindow"
+msgid "Cannot resolve the game directory"
+msgstr "Nie można ustalić ścieżki katalogu gry"
+
+msgctxt "LauncherWindow"
+msgid "Cannot open the game directory"
+msgstr "Nie można otworzyć katalogu gry"
+
+msgctxt "LauncherWindow"
+msgid "Game installation"
+msgstr "Instalacja gry"
+
+msgctxt "LauncherWindow"
+msgid "Add path…"
+msgstr "Dodaj ścieżkę…"
+
+msgctxt "LauncherWindow"
+msgid "Graphics"
+msgstr "Grafika"
+
+msgctxt "LauncherWindow"
+msgid "Start in fullscreen"
+msgstr "Uruchom na pełnym ekranie"
+
+msgctxt "LauncherWindow"
+msgid "Enhanced OpenGL"
+msgstr "Ulepszony OpenGL"
+
+msgctxt "LauncherWindow"
+msgid "EGA 16-colour dithering"
+msgstr "Dithering EGA (16 kolorów)"
+
+msgctxt "LauncherWindow"
+msgid "Gameplay"
+msgstr "Rozgrywka"
+
+msgctxt "LauncherWindow"
+msgid "Balanced difficulty"
+msgstr "Zrównoważony poziom trudności"
+
+msgctxt "LauncherWindow"
+msgid "Language"
+msgstr "Język"
+
+msgctxt "LauncherWindow"
+msgid "Cheat mode"
+msgstr "Kody"
+
+msgctxt "LauncherWindow"
+msgid "Invulnerability and no collisions"
+msgstr "Nieśmiertelność i brak kolizji"
+
+msgctxt "LauncherWindow"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "LauncherWindow"
+msgid "Device"
+msgstr "Urządzenie"
+
+msgctxt "LauncherWindow"
+msgid "Control mode"
+msgstr "Tryb sterowania"
+
+msgctxt "LauncherWindow"
+msgid "Original — two axes / two buttons"
+msgstr "Oryginalny — 2 osie / 2 przyciski"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / two axes"
+msgstr "WCAT — 4 przyciski / 2 osie"
+
+msgctxt "LauncherWindow"
+msgid "WCAT — four buttons / four axes"
+msgstr "WCAT — 4 przyciski / 4 osie"
+
+msgctxt "LauncherWindow"
+msgid "Axis layout"
+msgstr "Układ osi"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick roll"
+msgstr "Dwa drążki: przechylenie"
+
+msgctxt "LauncherWindow"
+msgid "Twin-stick yaw"
+msgstr "Dwa drążki: odchylenie"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS yaw"
+msgstr "HOTAS: odchylenie"
+
+msgctxt "LauncherWindow"
+msgid "HOTAS roll"
+msgstr "HOTAS: przechylenie"
+
+msgctxt "LauncherWindow"
+msgid "Linear throttle"
+msgstr "Przepustnica liniowa"
+
+msgctxt "LauncherWindow"
+msgid "Rudder yaw"
+msgstr "Pedały steru: odchylenie"
+
+msgctxt "LauncherWindow"
+msgid "Rudder roll"
+msgstr "Pedały steru: przechylenie"
+
+msgctxt "LauncherWindow"
+msgid "Rumble"
+msgstr "Wibracje"
+
+msgctxt "LauncherWindow"
+msgid "Close this window to cancel."
+msgstr "Zamknij to okno, aby anulować."
+
+msgctxt "LauncherWindow"
+msgid "Cancel"
+msgstr "Anuluj"
+
+msgctxt "LauncherWindow"
+msgid "Start WC2"
+msgstr "Uruchom WC2"
+
+msgctxt "LauncherWindow"
+msgid "Start SO1"
+msgstr "Uruchom SO1"
+
+msgctxt "LauncherWindow"
+msgid "Start SO2"
+msgstr "Uruchom SO2"

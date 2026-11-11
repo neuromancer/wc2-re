@@ -10,6 +10,13 @@ enum SdlLauncherResult {
     SDL_LAUNCHER_ACCEPTED = 1
 };
 
+/* Game catalogs: none, translations/es.dat and translations/pl.dat. */
+enum SdlLauncherLanguage {
+    SDL_LAUNCHER_LANGUAGE_ENGLISH = 0,
+    SDL_LAUNCHER_LANGUAGE_SPANISH = 1,
+    SDL_LAUNCHER_LANGUAGE_POLISH = 2
+};
+
 enum SdlLauncherJoystickMode {
     SDL_LAUNCHER_JOYSTICK_ORIGINAL = 0,
     SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_TWO_AXIS = 1,
@@ -42,7 +49,7 @@ enum SdlLauncherExplicitOption {
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
     int fullscreen;
-    int language; /* 0: English, 1: Spanish */
+    int language; /* SdlLauncherLanguage */
     int campaign; /* 0: WC2, 1: Special Operations 1, 2: Special Operations 2 */
     int enhancedRenderer;
     int egaDither;

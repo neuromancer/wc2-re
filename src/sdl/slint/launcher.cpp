@@ -28,6 +28,27 @@ struct LauncherJoystick {
     std::string path;
 };
 
+int supported_language(int language)
+{
+    return language == SDL_LAUNCHER_LANGUAGE_SPANISH ||
+                   language == SDL_LAUNCHER_LANGUAGE_POLISH
+               ? language
+               : SDL_LAUNCHER_LANGUAGE_ENGLISH;
+}
+
+// Slint bundles translations/<locale>/LC_MESSAGES/launcher.po.
+const char *launcher_locale(int language)
+{
+    switch (supported_language(language)) {
+    case SDL_LAUNCHER_LANGUAGE_SPANISH:
+        return "es";
+    case SDL_LAUNCHER_LANGUAGE_POLISH:
+        return "pl";
+    default:
+        return "en";
+    }
+}
+
 std::vector<LauncherJoystick> list_joysticks(LauncherWindow &window)
 {
     std::vector<LauncherJoystick> joysticks;
@@ -147,7 +168,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     }
 
     auto window = LauncherWindow::create();
-    slint::select_bundled_translation(options->language == 1 ? "es" : "en");
+    slint::select_bundled_translation(launcher_locale(options->language));
     accepted = false;
     pickerInitialized = false;
     window->set_title_artwork(
@@ -173,9 +194,9 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     window->on_language_selected([&window, &installations](int language) {
         const auto unnamed = window->get_unnamed_joystick();
-        if (!slint::select_bundled_translation(language == 1 ? "es" : "en"))
+        if (!slint::select_bundled_translation(launcher_locale(language)))
             return;
-        window->set_language_index(language == 1 ? 1 : 0);
+        window->set_language_index(supported_language(language));
         auto devices = window->get_joystick_devices();
         for (size_t i = 0; i < devices->row_count(); ++i) {
             const auto value = devices->row_data(i);

@@ -87,11 +87,17 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                                         !strcmp(argument + 11, "so1");
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_CAMPAIGN;
         } else if (strncmp(argument, "--language=", 11) == 0) {
-            if (strcmp(argument + 11, "en") && strcmp(argument + 11, "es")) {
-                fprintf(stderr, "Unknown language: %s (expected en or es)\n", argument + 11);
+            if (strcmp(argument + 11, "en") == 0) {
+                launcherOptions->language = SDL_LAUNCHER_LANGUAGE_ENGLISH;
+            } else if (strcmp(argument + 11, "es") == 0) {
+                launcherOptions->language = SDL_LAUNCHER_LANGUAGE_SPANISH;
+            } else if (strcmp(argument + 11, "pl") == 0) {
+                launcherOptions->language = SDL_LAUNCHER_LANGUAGE_POLISH;
+            } else {
+                fprintf(stderr, "Unknown language: %s (expected en, es or pl)\n",
+                        argument + 11);
                 return 0;
             }
-            launcherOptions->language = !strcmp(argument + 11, "es");
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_LANGUAGE;
         } else if (strcmp(argument, "--fullscreen") == 0 ||
                    strcmp(argument, "--windowed") == 0) {

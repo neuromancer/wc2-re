@@ -15,9 +15,10 @@ without arguments. Command-line arguments start the game directly unless
 --gui is also present.
 
 Choose Language > Español or use --language=es for Spanish base-game
-dialogue, radio text, menus, game UI and launcher text. Voices remain unchanged.
-Keep the translations directory beside the executable. Use --language=en to
-return to English.
+dialogue, radio text, menus, game UI and launcher text. Choose Language >
+Polski or use --language=pl for the same in Polish, including both Special
+Operations. Voices remain unchanged. Keep the translations directory beside
+the executable. Use --language=en to return to English.
 
 Select Cheat mode in the launcher's Gameplay section, or use --cheats on the
 command line, to enable invulnerability and disable player collisions with

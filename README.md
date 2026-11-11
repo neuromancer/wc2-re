@@ -68,9 +68,10 @@ mission starts, navigation entries and default cutscene sequences pass
 sanitizer checks, but a full campaign playthrough remains unverified. See
 [SO2 implementation and validation](src/sdl/SO2.md).
 
-Choose **Language → Español** for Spanish dialogue, menus, game UI and
-launcher text, or use `--language=es` (`--language=en` restores English).
-Translations support the base game with DOS or Kilrathi Saga data. See
+Choose **Language → Español** or **Language → Polski** for Spanish or Polish
+dialogue, menus, game UI and launcher text, or use `--language=es` or
+`--language=pl` (`--language=en` restores English). Both translations work
+with DOS or Kilrathi Saga data; Polish also covers SO1 and SO2. See
 [translations](translations/README.md) for coverage and editing instructions.
 
 Command-line arguments start the game directly from the working directory;
@@ -257,6 +258,10 @@ Special thanks to:
   compatibility work on the *Kilrathi Saga* release;
 - L@Zar0 for creating the Spanish translation and darkpadawan for reviewing
   its text, shared under the [upstream GPL v3.0 notice](translations/upstream/Leeme.txt);
+  their Spanish version was also the base of the Polish translation;
+- paxiu1984 for creating the Polish translation of *Wing Commander II* and
+  both *Special Operations*, shared with permission under GPL v3.0 with the
+  same no-charge term (see its [upstream notice](translations/upstream/CZYTAJ_MNIE.txt));
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's

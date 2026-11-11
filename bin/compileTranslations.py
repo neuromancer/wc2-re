@@ -58,7 +58,8 @@ def keyed_po(document):
     return re.sub(r'^msgid "[^\n]*"(?:\n"[^\n]*")*', replace, document, flags=re.MULTILINE)
 
 
-def update_ui_catalog(root):
+def extract_ui_template(root):
+    """Marked game UI strings, still with their English msgids."""
     sources = sorted(path.relative_to(root).as_posix()
                      for path in (root / "src").rglob("*")
                      if path.suffix in (".c", ".cpp", ".h"))
@@ -71,7 +72,11 @@ def update_ui_catalog(root):
             "--add-comments=TRANSLATORS:", "--no-wrap", "--sort-by-file",
             "--omit-header", "--output", str(output), *sources,
         ], cwd=root, check=True)
-        body = output.read_text(encoding="utf-8")
+        return output.read_text(encoding="utf-8")
+
+
+def update_ui_catalog(root):
+    body = extract_ui_template(root)
     header = ('# UI strings extracted from _(), N_(), C_() and NC_().\n'
               'msgid ""\nmsgstr ""\n'
               '"Project-Id-Version: wc2-re\\n"\n'
@@ -81,8 +86,7 @@ def update_ui_catalog(root):
     template = root / "translations/templates/ui.pot"
     template.parent.mkdir(parents=True, exist_ok=True)
     template.write_text(keyed_po(header + body), encoding="utf-8")
-    catalog = root / "translations/es/ui.po"
-    if catalog.exists():
+    for catalog in sorted((root / "translations").glob("*/ui.po")):
         # Never fuzzily pair changed format strings or keyboard shortcuts.
         subprocess.run(["msgmerge", "--update", "--backup=none",
                         "--no-fuzzy-matching", "--no-wrap", str(catalog), str(template)], check=True)
@@ -163,6 +167,15 @@ def build_catalog(directory):
     messages = {}
     skipped = 0
     seen_keys = set()
+    glyph_path = directory / "glyphs.json"
+    fonts = json.loads(glyph_path.read_text()) if glyph_path.exists() else {"schema": 1, "fonts": []}
+    if fonts.get("schema") != 1:
+        raise ValueError("Unsupported glyph schema")
+    # Glyphs occupy the code page's letter slots. Both keep WC2's control
+    # bytes free: no CP1252 or CP1250 letter is 0x40 or 0x85-0x89.
+    encoding = fonts.get("encoding", "cp1252")
+    if encoding not in ("cp1252", "cp1250"):
+        raise ValueError(f"Unsupported catalog encoding: {encoding}")
     for path in sorted(directory.glob("*.po")):
         for entry, fuzzy, font, capacity in read_po(path):
             context = entry.get("msgctxt", "")
@@ -180,7 +193,10 @@ def build_catalog(directory):
                 # Keep exact directives, including WC2's %X/%Y/%F/%P commands.
                 if Counter(re.findall(KEY_LABEL, source)) != Counter(re.findall(KEY_LABEL, translated)):
                     raise ValueError(f"Keyboard shortcut labels differ: {source!r}")
-                if re.findall(FORMAT_TOKEN, source) != re.findall(FORMAT_TOKEN, translated):
+                # Surplus trailing arguments are ignored, so a translation
+                # may omit trailing directives, such as an English plural %c.
+                directives = re.findall(FORMAT_TOKEN, translated)
+                if re.findall(FORMAT_TOKEN, source)[:len(directives)] != directives:
                     raise ValueError(f"Format directives differ: {source!r}")
                 if re.search(r"%[0-9]+\$|%[^A-Za-z%]*\*", translated):
                     raise ValueError(f"Unsupported positional/dynamic format: {source!r}")
@@ -188,7 +204,7 @@ def build_catalog(directory):
                 raise ValueError(f"Campaign placeholders differ: {context}")
             if Counter(re.findall(r"\{[^{}]+\}", source)) != Counter(re.findall(r"\{[^{}]+\}", translated)):
                 raise ValueError(f"Cutscene placeholders differ: {context}")
-            encoded = translated.encode("cp1252")
+            encoded = translated.encode(encoding)
             if context.startswith("cutscene/"):
                 if any(byte in encoded for byte in (0x40, 0x85, 0x86, 0x87, 0x88, 0x89)):
                     raise ValueError(f"Reserved cutscene character: {context}")
@@ -220,10 +236,6 @@ def build_catalog(directory):
             messages[key] = fields
     if not messages:
         raise ValueError("No translations found")
-    glyph_path = directory / "glyphs.json"
-    fonts = json.loads(glyph_path.read_text()) if glyph_path.exists() else {"schema": 1, "fonts": []}
-    if fonts.get("schema") != 1:
-        raise ValueError("Unsupported glyph schema")
     output = bytearray(b"WCT2" + struct.pack("<II", len(messages), len(fonts["fonts"])))
     for key in sorted(messages):
         fields = tuple(field + b"\0" for field in messages[key])

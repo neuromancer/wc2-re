@@ -1,0 +1,82 @@
+======================================================================
+ WING COMMANDER II  -  POLSKA WERSJA JĘZYKOWA  (ŁATKA, wersja 1.4)
+ Wing Commander II + Special Operations 1 i 2
+ Autor spolszczenia: paxiu1984
+======================================================================
+
+[PL]
+CO TO JEST
+Łatka z polskimi tekstami do Wing Commander II i dodatków Special Operations 1
+i 2: odprawy, rozmowy, cele misji, menu, interfejs, czcionka z polskimi
+literami, przetłumaczone najważniejsze grafiki (przyciski menu, ekrany po
+śmierci, koszary) oraz napisy przy angielskim głosie (intro, scenki, rozmowy w
+locie).
+
+To jest ŁATKA, nie gra. Nie zawiera pełnych plików Electronic Arts - działa na
+Twojej własnej, legalnie zakupionej kopii (GOG lub Steam: Wing Commander II 35th
+Anniversary Edition albo starsza instalacja GOG).
+
+OBSŁUGIWANE WERSJE
+- Wersja DOS z Anniversary (folder DOS)        - pasuje do oryginalnych plików
+- Wersja WCAT z Anniversary (folder WCAT)      - dopasowana do plików WCAT
+  (WCAT: launcher przy każdym starcie sam odtwarza EXE, więc łatka dodaje mały program PLPATCH.COM,
+  który tuż przed grą ponownie nakłada polskie teksty i napisy. WC2.bat, SO1.bat i SO2.bat są zmienione.)
+- Kilrathi Saga / Wcdx (folder Kilrathi_Saga)  - EKSPERYMENTALNIE: zmieniane są tylko
+  pliki tekstowe i grafiki z folderu GAMEDAT. Menu i komunikaty w samym programie
+  (Wing2.exe, SO1.exe, SO2.exe) zostają po angielsku, a napisów przy głosie tam nie
+  dodano. Ta wersja jest w trakcie testów.
+- Starsza instalacja GOG (WC2.EXE i GAMEDAT w jednym folderze)
+
+JAK ZAŁATAĆ (krótko)
+1. Zrób kopię zapasową folderu gry (zalecane).
+2. Rozpakuj tę paczkę w dowolne miejsce.
+3. Uruchom ZASTOSUJ_SPOLSZCZENIE.bat i podaj folder gry (Enter = propozycja skryptu).
+4. Skrypt sprawdza sumy kontrolne. Jeśli plik nie jest oryginałem, NIC nie zmienia
+   i pisze, który plik się nie zgadza.
+5. Oryginały trafiają do podfolderu Kopia_oryginalow_WC2PL. Powrót do angielskiego:
+   PRZYWROC_ORYGINAL.bat.
+Szczegóły: INSTRUKCJA_INSTALACJI.txt
+
+WAŻNE
+- Steam / GOG mogą po aktualizacji lub weryfikacji plików przywrócić oryginały.
+  Wtedy uruchom ZASTOSUJ_SPOLSZCZENIE.bat jeszcze raz.
+- Łatka pomija wersje, których pliki zmienił inny mod (nie nadpisuje ich).
+- Napisy w wersji DOS wymagają wc2.cfg z parametrem a904 (skrypt dopisuje go sam,
+  gdy go brakuje).
+
+OGRANICZENIA
+- Duże litery z ogonkami są nieco niższe od zwykłych (ograniczenie czcionki gry).
+- Teksty w programach (EXE) nie mogą być dłuższe niż oryginał, więc część napisów
+  jest skrócona.
+- Małe etykiety kokpitu, AIRLOCK i tytuły "Origin presents" zostają po angielsku.
+
+DLA TŁUMACZY / AI
+Folder Dla_tlumaczy: INSTRUKCJA_DLA_AI.txt (jak przetłumaczyć kolejną grę z serii z
+pomocą AI, w tym napisy przy głosie i naprawy intro), słownik tłumaczenia oraz
+arkusz Excel z tekstami (EN / PL).
+
+LICENCJA I PRAWA
+Łatkę można swobodnie i nieodpłatnie rozpowszechniać razem z tym plikiem. Prawa do
+gry Wing Commander należą do Electronic Arts. Łatka nie jest produktem EA, GOG ani
+Valve i nie jest przez nich wspierana. Używasz na własne ryzyko.
+
+PODZIĘKOWANIA
+L@Zar0 i darkpadawan (hiszpańska wersja jako baza), twórcy WCAT (Lance Burns) i Wcdx
+(James Touton, Pat Caron) oraz wszyscy testerzy.
+
+[EN]
+Polish language patch for Wing Commander II + Special Operations 1 & 2 (Anniversary
+Edition and older GOG). It contains no complete EA files: it is applied to your own
+legally owned copy (SHA256-verified, backups are made, nothing is changed if files do
+not match). DOS and WCAT versions are supported; Kilrathi Saga (Wcdx) is experimental
+(game data files only). Run ZASTOSUJ_SPOLSZCZENIE.bat, enter the game folder. Restore
+with PRZYWROC_ORYGINAL.bat. Translation author: paxiu1984. Free to share; game rights
+belong to Electronic Arts.
+
+ZMIANY W WERSJI 1.4
+ - Naprawiono brak glosu pilotow w komunikatach radiowych w locie
+   (skrzydlowy znow mowi, a tekst komunikatu jest wyswietlany razem z glosem).
+   Dotyczy WC2, Special Operations 1 i 2 (DOS i WCAT).
+ - Domyslna sciezka instalatora: dodano folder
+   "Wing Commander II 35th Anniversary Edition".
+ - Jesli masz wersje 1.3, zainstaluj 1.4 ponownie (kopia oryginalow juz jest).
