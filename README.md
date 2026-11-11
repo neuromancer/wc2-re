@@ -171,6 +171,18 @@ Set `CAMPAIGN=so1` or `CAMPAIGN=so2` for either expansion's 20 mission
 sequences or direct flight, and
 `CUTSCENE_PHASE=postflight` to test debriefings instead of preflight scenes.
 
+For seeded flight crash tests, use:
+
+```sh
+make check-random GAME_DATA=/path/to/WC2 RANDOM_ARGS='--seed 1 --ticks 600 --jobs 4 --keep-going'
+```
+
+This adapts WC1's CLI flight tester to WC2, SO1 and SO2 with DOS or Saga data.
+It copies assets into temporary installations, exercises combat and rendering
+at active navigation points, and saves logs and replay commands under
+`out-modern/flight-*/`. See [flight testing and current findings](src/sdl/FLIGHT_TESTS.md)
+for selecting a campaign, replaying a failure, and test coverage limits.
+
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler. Linux builds need the D-Bus and Fontconfig
 development packages. It produces `out-modern/wc2-modern-gui`, which release

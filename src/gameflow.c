@@ -3351,6 +3351,36 @@ cutscene_input_processed:
             if (g_bCutsceneDrawingEnabled == 0 &&
                 (g_bCutsceneSkipFrame != 0 ||
                  g_bCutsceneViewportPreallocated != 0)) {
+#ifdef SDL_PORT
+                /* A FLIC sprite only advances, and reaches its last frame
+                 * and goes inactive, when it is drawn.  A key press ends
+                 * the FLICs already playing (ReleaseSceneFlicPackets), but
+                 * one the script starts while the skip is still in force is
+                 * never drawn.  A sequence waiting for it to finish then
+                 * loops forever without reading input: SO1's mid-flight
+                 * pickup scene hangs if Space is pressed before its
+                 * pickup.v00 animation starts.  End such a FLIC as if its
+                 * last frame had played. */
+                if (g_bCutsceneSkipFrame != 0 &&
+                    g_bCutsceneViewportPreallocated == 0) {
+                    SceneFlicObject *skippedSprite;
+
+                    if (*scriptBytes != 0xff)
+                        skippedSprite = g_apSceneObjects[
+                            FindActiveCutsceneObjectResources(
+                                g_pCutsceneSpriteResources)->
+                                scriptSymbolIndices[*scriptBytes]];
+                    else
+                        skippedSprite = g_pCurrentCutsceneSprite;
+                    if (skippedSprite != 0 &&
+                        skippedSprite->drawType == 4 &&
+                        skippedSprite->active != 0) {
+                        skippedSprite->currentFrame =
+                            skippedSprite->finalFrame;
+                        AdvanceSceneFlicStream(skippedSprite);
+                    }
+                }
+#endif
                 scriptBytes++;
                 break;
             }

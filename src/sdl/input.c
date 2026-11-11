@@ -152,13 +152,25 @@ DWORD SdlGetTicks(void)
     return SDL_GetTicks();
 }
 
+static const Uint8 *g_pSdlKeyboardSnapshot;
+
+/* SDL_PushEvent does not update SDL's polled keyboard state. Native flight
+ * tests supply the same held keys through both input paths, as in WC1. */
+void SdlSetKeyboardSnapshot(const Uint8 *keys)
+{
+    g_pSdlKeyboardSnapshot = keys;
+}
+
 int SdlGetAsyncKeyState(int virtualKey)
 {
     const Uint8 *keys;
     SDL_Scancode scanCode;
 
-    SDL_PumpEvents();
-    keys = SDL_GetKeyboardState(0);
+    keys = g_pSdlKeyboardSnapshot;
+    if (keys == 0) {
+        SDL_PumpEvents();
+        keys = SDL_GetKeyboardState(0);
+    }
     switch (virtualKey) {
     case VK_SHIFT:
         return (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT])

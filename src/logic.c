@@ -365,8 +365,15 @@ short FindMissileTargetingObject(short obj)
 
     for (other = 0; other < 10; other++) {
         if (g_aeObjectClass[other] == OBJECT_CLASS_MISSILE &&
-            g_acShipTarget[other] == obj)
+            g_acShipTarget[other] == obj) {
+#ifdef SDL_PORT
+            /* Mkill_missile then aims at g_nTargetShip, which the original
+             * leaves as whatever the last AI scan found, often -1.  Aim it
+             * at this missile, as the WC1 port does. */
+            g_nTargetShip = other;
+#endif
             return other;
+        }
     }
     return 0;
 }

@@ -820,7 +820,38 @@ modern-test-cutscene-%: modern
 	fi; \
 	echo "Passed cutscene $$selector"
 
--include $(MODERN_DEPFILES)
+$(MODERN_OUT_DIR)/obj/flight_probe.o: bin/checkFlight.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/flight_events.o: src/sdl/events.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		-DSdlPumpEvents=SdlPumpFlightProbeHostEvents $(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/obj/flight_input.o: src/sdl/input.c | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		-DSDL_ShowSimpleMessageBox=SdlFlightProbeMessageBox \
+		-DSDL_GetTicks=SdlFlightProbeGetTicks -DSDL_Delay=SdlFlightProbeDelay \
+		$(MODERN_DEPFLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/flight-probe$(MODERN_EXE_SUFFIX): $(MODERN_OUT_DIR)/obj/flight_probe.o \
+		$(MODERN_OUT_DIR)/obj/flight_events.o $(MODERN_OUT_DIR)/obj/flight_input.o \
+		$(filter-out $(MODERN_OUT_DIR)/obj/sdl/input.o,$(MODERN_BASE_HOST_OBJS)) \
+		$(filter-out $(MODERN_OUT_DIR)/obj/sdl/events.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-random
+check-random: $(MODERN_OUT_DIR)/flight-probe$(MODERN_EXE_SUFFIX)
+	python3 bin/runGameTests.py "$<" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" $(RANDOM_ARGS)
+
+-include $(MODERN_DEPFILES) $(MODERN_OUT_DIR)/obj/flight_probe.d \
+	$(MODERN_OUT_DIR)/obj/flight_events.d $(MODERN_OUT_DIR)/obj/flight_input.d
 
 ifeq ($(UNAME_S),Linux)
 WIBO_PRESET = release64-clang

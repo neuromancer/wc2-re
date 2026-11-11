@@ -46,7 +46,17 @@ void ix_dspv_clear_active(int voice)
         ix_log_printf("%d Invalid voice index!", voice);
         exit(-1);
     }
+#ifdef SDL_PORT
+    /* Retail clears the flag without the mixer lock.  Callers free the
+     * voice's sample next (stop_all_sounds deletes every sample), and the
+     * SDL callback may be partway through mixing it; waiting for the lock
+     * lets that pass finish first. */
+    EnterCriticalSection(&g_7_csMixer);
     g_2_voices[voice].flags &= ~IX_VOICE_ACTIVE;
+    LeaveCriticalSection(&g_7_csMixer);
+#else
+    g_2_voices[voice].flags &= ~IX_VOICE_ACTIVE;
+#endif
 }
 
 unsigned int ix_dspv_get_flags(int voice);

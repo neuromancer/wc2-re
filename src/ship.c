@@ -2766,9 +2766,27 @@ short fire_weapon(short obj, short weapon)
             case 0x13:
                 g_acShipTarget[missile] =
                     g_acShipTarget[obj];
+#ifdef SDL_PORT
+                /* View 4 is the player's torpedo-lock view.  Retail tests
+                 * only the view, so a torpedo any ship launches meanwhile
+                 * takes the player's saved lock, or -1 when none is saved.
+                 * Keep that lock for the player's own shot. */
+                if (obj == 0 && g_nCurrentView == 4)
+#else
                 if (g_nCurrentView == 4)
+#endif
                     g_acShipTarget[missile] =
                         (signed char)g_nSavedPlayerTarget;
+#ifdef SDL_PORT
+                if (g_acShipTarget[missile] == -1) {
+                    /* Retail measures to "object -1": the scratch view
+                     * object's forward vector precedes the position table,
+                     * and zero padding precedes the radius table. */
+                    triggerDistance = (short)(distance_from_point(
+                        obj, &g_aShipForwardVector[SCRATCH_VIEW_OBJECT]) /
+                        1000);
+                } else
+#endif
                 triggerDistance = (short)(distance_from_object(
                     obj, g_acShipTarget[missile]) / 1000);
                 if (triggerDistance > 9 ||

@@ -385,7 +385,17 @@ void release_all_capital_ship_shapes(void)
                 OBJECT_CLASS_CAPITAL_SHIP ||
             (g_bExpandedShipGraphicsEnabled != 0 &&
              g_aeObjectClass[obj] == OBJECT_CLASS_SHIP)) {
+#ifdef SDL_PORT
+            /* As in remove_object: a preloaded view belongs to the resource
+             * slot, and two ships of a type can share one, so retail could
+             * free it twice here.  Free only the ship's own packet. */
+            if (g_abObjectShapeOwned[obj] != 0)
+                FreePacketAndClear(&g_apObjectShape[obj], 0);
+            g_apObjectShape[obj] = 0;
+            g_abObjectShapeOwned[obj] = 0;
+#else
             FreePacketAndClear(&g_apObjectShape[obj], 0);
+#endif
             g_asLoadedShipViewFrame[obj] = -1;
         }
     }
@@ -410,7 +420,16 @@ void release_capital_ship_shapes(short resourceType)
             if (g_aObjectTypeData[
                     g_acObjectType[obj]].resourceType ==
                 resourceType) {
+#ifdef SDL_PORT
+                /* free_ship releases the preloaded views next; free only
+                 * packets the ships loaded themselves (see remove_object). */
+                if (g_abObjectShapeOwned[obj] != 0)
+                    FreePacketAndClear(&g_apObjectShape[obj], 0);
+                g_apObjectShape[obj] = 0;
+                g_abObjectShapeOwned[obj] = 0;
+#else
                 FreePacketAndClear(&g_apObjectShape[obj], 0);
+#endif
                 g_asLoadedShipViewFrame[obj] = -1;
             }
         }
@@ -612,8 +631,19 @@ void load_ship(short resourceType, short objectType,
                         resourceType) {
                         g_apObjectExhaustShape[entry] =
                             g_aObjectResourceSlots[slot].animation;
+#ifdef SDL_PORT
+                        /* Only the ship's own view packet is freed; a
+                         * preloaded one belongs to a resource slot (see
+                         * remove_object). */
+                        if (g_abObjectShapeOwned[entry] != 0)
+                            FreePacketAndClear(
+                                &g_apObjectShape[entry], 0);
+                        g_apObjectShape[entry] = 0;
+                        g_abObjectShapeOwned[entry] = 0;
+#else
                         FreePacketAndClear(
                             &g_apObjectShape[entry], 0);
+#endif
                         g_asLoadedShipViewFrame[entry] = -1;
                     }
                 }
@@ -1387,6 +1417,29 @@ void init_intelligence_data(short obj)
                 }
             }
         }
+#ifdef SDL_PORT
+        if (index < 0 || index >= MISSION_NAV_POINT_COUNT) {
+            /* No nav point lists this target, so index is still its
+             * mission-ship number.  Retail reads that "nav point" past the
+             * ten-entry table: six bytes of padding later, the mission-ship
+             * records start 0x3F8 bytes after the table, at 0x492290.  The
+             * raiders aimed at targets 10 and 15 in series 6's first and
+             * series 4's fourth missions take their spot from those record
+             * bytes.  Copy the same bytes; an index whose read would leave
+             * the records keeps the current nav point. */
+            int retailOffset = index * (int)sizeof(MissionNavPoint) +
+                               (int)offsetof(MissionNavPoint, position) -
+                               0x3f8;
+
+            if (retailOffset >= 0 &&
+                retailOffset <= (int)(sizeof(g_aMissionShips) -
+                                      sizeof(FixedVector)))
+                memcpy(&g_aShipMissionSpot[obj],
+                       (unsigned char *)g_aMissionShips + retailOffset,
+                       sizeof(FixedVector));
+            break;
+        }
+#endif
         g_aShipMissionSpot[obj] =
             g_aMissionNavPoints[index].position;
         break;

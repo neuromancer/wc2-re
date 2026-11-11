@@ -406,6 +406,14 @@ unsigned int maintain_formation(short obj)
     FixedVector destination;
 
     leader = g_asShipWingLeader[obj];
+#ifdef SDL_PORT
+    /* imperial_formation also runs for a ship that leads its wing (leader
+     * -1).  Retail then follows "object -1", built from the neighbouring
+     * tables' last entries; as in the WC1 port, a ship without a leader has
+     * no formation destination to follow. */
+    if (leader == -1)
+        return 0;
+#endif
     compute_formation_destination(leader,
                                   &g_aShipFormationOffset[obj],
                                   &destination);

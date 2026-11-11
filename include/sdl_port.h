@@ -179,6 +179,7 @@ DWORD RegSetValueExA(HKEY key, const char *name, DWORD reserved,
 
 DWORD SdlGetTicks(void);
 int SdlGetAsyncKeyState(int virtualKey);
+void SdlSetKeyboardSnapshot(const Uint8 *keys);
 int SdlStartAudio(SdlAudioMixer mixer,
                      CRITICAL_SECTION *criticalSection,
                      unsigned int *tick);

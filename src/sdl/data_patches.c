@@ -6,7 +6,8 @@
  * Patches identify a filename, packet section, length and CRC32.
  * Unknown or already corrected assets pass through unchanged. Edits
  * are relative to the original decoded section.
- * See data_patches.h and bin/buildDataPatches.py for the documented fixes. */
+ * See data_patches.h and bin/buildDataPatches.py for the documented fixes,
+ * and mission_patches.h for mission data the original games cannot load. */
 #include "game.h"
 
 typedef struct SdlDataEdit {
@@ -30,7 +31,7 @@ typedef struct SdlDataPatch {
 } SdlDataPatch;
 
 #include "data_patches.h"
-#include "so1_patches.h"
+#include "mission_patches.h"
 
 static const char *SdlDataBasename(const char *filename)
 {
@@ -98,11 +99,11 @@ int SdlPatchPacketSection(const char *filename, short section,
     int count;
     int success = 0;
     short error = g_nPacketError;
-    const size_t patchCount = SDL_arraysize(packetPatches) + SDL_arraysize(so1PacketPatches);
+    const size_t patchCount = SDL_arraysize(packetPatches) + SDL_arraysize(missionPacketPatches);
 
     for (index = 0; index < patchCount; index++) {
         patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
-                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
+                    &missionPacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section &&
             SDL_strcasecmp(basename, patch->filename) == 0 &&
             (handle->compression == 1 || handle->compression == 0x20 ||
@@ -141,7 +142,7 @@ int SdlPatchPacketSection(const char *filename, short section,
     }
     for (index = 0; index < patchCount; index++) {
         patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
-                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
+                    &missionPacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section && decodedSize == patch->sourceSize &&
             SDL_strcasecmp(basename, patch->filename) == 0)
             break;
@@ -166,7 +167,7 @@ int SdlPatchPacketSection(const char *filename, short section,
     crc = SDL_crc32(0, decoded, decodedSize);
     for (index = 0; index < patchCount; index++) {
         patch = index < SDL_arraysize(packetPatches) ? &packetPatches[index] :
-                    &so1PacketPatches[index - SDL_arraysize(packetPatches)];
+                    &missionPacketPatches[index - SDL_arraysize(packetPatches)];
         if (section == patch->section && decodedSize == patch->sourceSize &&
             crc == patch->sourceCrc &&
             SDL_strcasecmp(basename, patch->filename) == 0)

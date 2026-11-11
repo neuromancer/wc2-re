@@ -896,7 +896,21 @@ void remove_object(short obj)
         if (g_aeObjectClass[obj] >= OBJECT_CLASS_CAPITAL_SHIP ||
             (g_aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
              g_asObjectType[obj] == 0x33))
+#ifdef SDL_PORT
+        {
+            /* get_right_shape lends these ships a view packet that their
+             * resource slot preloaded (g_abObjectShapeOwned 0), and loads
+             * one for the ship only when none was preloaded.  Retail frees
+             * either kind here, so destroying a ship frees a preloaded view
+             * under every other ship of its type showing that view.  Free
+             * only a packet this ship owns; free_ship releases the rest. */
+            if (g_abObjectShapeOwned[obj] != 0)
+                FreePacketAndClear(&g_apObjectShape[obj], 0);
+            g_abObjectShapeOwned[obj] = 0;
+        }
+#else
             FreePacketAndClear(&g_apObjectShape[obj], 0);
+#endif
         g_asShipSide[obj] = SIDE_NEUTRAL;
         g_acShipPortrait[obj] = -1;
         g_acShipPendingMessage[obj] = -1;
