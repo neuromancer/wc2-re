@@ -118,7 +118,7 @@ sound effects. Optional features can be combined:
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
 | Joystick diagnostics on stderr | `--joystick-debug` |
-| Frame-rate counter | `-f` |
+| Frame-rate counter in the window title | `-f` |
 | Cockpitless view | `-c` |
 
 The enhanced renderer keeps the original artwork, palettes, cockpit, and HUD;

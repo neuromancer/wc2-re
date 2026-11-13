@@ -114,13 +114,15 @@ BOOL SetCurrentDirectoryA(const char *path)
     return SdlChangeDirectory(path) == 0;
 }
 
+/* ThrottleFrameAndDrawFps is the only caller: it draws the -f frame rate
+ * over the window. There is no window DC here, so show it in the title. */
 BOOL TextOutA(HDC dc, int x, int y, const char *text, int length)
 {
     (void)dc;
     (void)x;
     (void)y;
-    (void)text;
-    (void)length;
+    if (text != 0 && length > 0)
+        SdlShowFrameRateText(text);
     return TRUE;
 }
 

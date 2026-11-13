@@ -198,6 +198,7 @@ void SdlDrawViewportStatic(struct Viewport *viewport, int effect,
 void SdlSuspendMouseGrab(void);
 void SdlResumeMouseGrab(void);
 int SdlCanDrawMenuCursor(void);
+void SdlShowFrameRateText(const char *text);
 int SdlInitializeVideo(SDL_Window *window);
 int SdlPresentIndexedFrame(const unsigned char *pixels,
                               const unsigned char *palette);

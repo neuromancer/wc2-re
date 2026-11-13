@@ -205,6 +205,29 @@ int SdlPresentIndexedFrame(const unsigned char *pixels,
     return 1;
 }
 
+/* Show the measured frame rate after the window's own title, twice a second
+ * so that the title stays readable. */
+void SdlShowFrameRateText(const char *text)
+{
+    static char baseTitle[128];
+    static Uint32 lastUpdate;
+    SDL_Window *window = (SDL_Window *)g_10_hMainWindow;
+    char title[192];
+    Uint32 now;
+
+    if (window == 0)
+        return;
+    now = SDL_GetTicks();
+    if (lastUpdate != 0 && now - lastUpdate < 500)
+        return;
+    lastUpdate = now;
+    if (baseTitle[0] == 0)
+        SDL_strlcpy(baseTitle, SDL_GetWindowTitle(window), sizeof(baseTitle));
+    SDL_snprintf(title, sizeof(title), "%s - %.1f fps", baseTitle,
+                 SDL_strtod(text, 0));
+    SDL_SetWindowTitle(window, title);
+}
+
 int SdlCanDrawMenuCursor(void)
 {
     const Viewport *inputViewport = g_16_stEventQueuePointerData.viewport;
