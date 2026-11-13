@@ -3146,11 +3146,26 @@ void DrawPilotHandFrame(void)
 {
     short x;
     short y;
+#ifdef SDL_PORT
+    int renderingSpaceFrame;
+#endif
 
     x = (short)(g_stPilotHandOrigin.x -
                 g_3_stDashViewport.left);
     y = (short)(g_stPilotHandOrigin.y -
                 g_3_stDashViewport.top);
+#ifdef SDL_PORT
+    /* The dash viewport is the screen, and update_cockpit runs after
+     * RunSpaceFlight clears g_bRenderingSpaceFrame, so the copy into it
+     * below presented a half-updated cockpit and waited out a space-flight
+     * frame period on every new hand pose before the flight loop presented
+     * and waited again. Steering through poses on consecutive frames cut
+     * the frame rate, and with it the per-frame game speed, by a third.
+     * Hold the flag across the copies and leave presenting to the flight
+     * loop, as the 35th Anniversary Edition's executable does. */
+    renderingSpaceFrame = g_bRenderingSpaceFrame;
+    g_bRenderingSpaceFrame = 1;
+#endif
     CopyViewportContents(&g_stPilotHandBackgroundViewportBlock,
                          &g_stPilotHandViewportRecord);
     DrawSpriteDefault(&g_stPilotHandViewportRecord, x, y,
@@ -3165,6 +3180,9 @@ void DrawPilotHandFrame(void)
         g_pPilotHandAnimationShapePtr, 0x11);
     CopyViewportContents(&g_stPilotHandViewportRecord,
                          &g_3_stDashViewport);
+#ifdef SDL_PORT
+    g_bRenderingSpaceFrame = renderingSpaceFrame;
+#endif
     g_cLastPilotHandFrame = g_14_cPilotHandFrameCode;
 }
 
