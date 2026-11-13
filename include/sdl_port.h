@@ -186,7 +186,7 @@ int SdlStartAudio(SdlAudioMixer mixer,
 void SdlStopAudio(void);
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
-void SdlServiceAutopilotInput(void);
+int SdlServiceAutopilotInput(int allowSkip);
 void SdlPaceTitleFrame(int ticks);
 int SdlConfirmContinueOverwrite(void);
 extern int g_bSdlCutsceneOnly;

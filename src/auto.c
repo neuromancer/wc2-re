@@ -27,6 +27,9 @@ void visit_the_cinema(int view, int obj, short frames)
     int originalUnlock;
     int savedInputFlag;
     int savedKeyboardFlag;
+#ifdef SDL_PORT
+    int skipRequested = 0;
+#endif
 
     originalUnlock = g_nOriginDevUnlock;
     savedInputFlag = g_bPlayerDamageEnabled;
@@ -39,10 +42,27 @@ void visit_the_cinema(int view, int obj, short frames)
     force_view(view, obj);
     while (frames-- > 0) {
 #ifdef SDL_PORT
-        SdlServiceAutopilotInput();
-#endif
+        /* Esc ends the fly-by. The frames it cuts still advance the
+         * simulation, undrawn, so the formation reaches the state it would
+         * have reached had the player watched the whole sequence. */
+        if (skipRequested == 0)
+            skipRequested = SdlServiceAutopilotInput(1);
+        Update_3Space();
+        if (skipRequested != 0)
+            continue;
+        /* Retail renders this view with g_bRenderingSpaceFrame clear, so
+         * the copy to the screen in dump_buffer_to_screen presents the
+         * frame and the DIBslamReal below presents it again. Each present
+         * waits out a space-flight frame period, which slowed the fly-by
+         * to half the space-flight frame limit. Mark the render the way
+         * RunSpaceFlight does, so each frame is presented once. */
+        g_bRenderingSpaceFrame = 1;
+        RenderSpaceViewFrame();
+        g_bRenderingSpaceFrame = 0;
+#else
         Update_3Space();
         RenderSpaceViewFrame();
+#endif
         MarkDibDirty();
         DIBslamReal();
     }
@@ -239,7 +259,7 @@ void auto_pilot_sequence(void)
     visit_the_cinema(13, 0, 90);
     while (g_nTrainSimActive == 4) {
 #ifdef SDL_PORT
-        SdlServiceAutopilotInput();
+        SdlServiceAutopilotInput(0);
 #endif
         ComputeVectorDelta(&g_aShipPosition[0],
                            &destination, &advance);

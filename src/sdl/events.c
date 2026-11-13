@@ -647,19 +647,26 @@ void SdlStartEventPump(void)
     g_16_bMainWindowRunning = 1;
 }
 
-void SdlServiceAutopilotInput(void)
+/* Returns nonzero when allowSkip is set and the player pressed Esc, which
+ * then asks to end the fly-by instead of pausing. */
+int SdlServiceAutopilotInput(int allowSkip)
 {
     InputEvent *event;
     int pauseRequested;
+    int skipRequested;
 
     /* Autopilot bypasses HandleSpaceFlightControls in both its cinematic
      * and travel loops. Open the pause dialog only after the message pump
      * releases its reentrancy guard, so the dialog can poll input too. */
     PumpWindowMessages(0);
     pauseRequested = 0;
+    skipRequested = 0;
     for (event = g_pInputEventHead; event != 0; event = event->next) {
-        if (event->type == INPUT_EVENT_KEY_DOWN &&
-            (event->field_14 == 0x01 || event->field_14 == 0x19))
+        if (event->type != INPUT_EVENT_KEY_DOWN)
+            continue;
+        if (event->field_14 == 0x01 && allowSkip)
+            skipRequested = 1;
+        else if (event->field_14 == 0x01 || event->field_14 == 0x19)
             pauseRequested = 1;
     }
     /* Flight commands entered during autopilot must not replay on arrival.
@@ -674,6 +681,7 @@ void SdlServiceAutopilotInput(void)
         FlushInputEvents();
         g_bSceneEscapeRequested = 0;
     }
+    return skipRequested;
 }
 
 void SdlPumpEvents(void)

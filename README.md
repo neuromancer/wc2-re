@@ -137,11 +137,13 @@ uses the original-resolution scene so dithering applies consistently.
 | `Cmd+Q` (macOS) | Quit the game |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
 | `Esc` (spaceflight) | Close communications, or pause |
+| `Esc` (autopilot fly-by) | Skip the fly-by |
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Escape/back |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
 
-Pause and quit controls remain available during autopilot.
+Pause (`P` or Gamepad Start) and quit controls remain available during
+autopilot.
 
 The default joystick mode retains the original two-axis, two-button controls.
 When several devices are connected, the launcher's **Device** selector chooses
