@@ -2345,7 +2345,16 @@ void FlushPendingInputEvents(void)
 /* Function start: 0x464F25 */
 long GetNamedPacketSize(const char *filename, short section)
 {
+#ifdef SDL_PORT
+    /* GetPacketSize reports a missing packet as (unsigned int)-1, which
+     * retail's 32-bit long turns into -1. A 64-bit long widens it to
+     * 4294967295 instead, so a "> 0" test passes and the caller loads the
+     * missing packet and exits; real_vid_transmit does for a speaker with
+     * no communic.t file. Keep retail's -1. */
+    return (int)GetPacketSize(filename, section);
+#else
     return GetPacketSize(filename, section);
+#endif
 }
 
 /* Function start: 0x464F45 */

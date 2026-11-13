@@ -226,6 +226,18 @@ extern "C" void ix_system_delete_all_sounds(void)
     IxSound *waitingNext;
     IxSound *freeNext;
 
+#ifdef SDL_PORT
+    /* Retail deletes the playing sounds first.  Stopping one hands its voice
+     * to the highest waiting sound, which moves to the head of the active
+     * list behind this walk and survives it, still mixing a sample that
+     * stop_all_sounds frees next.  Delete the waiting sounds first. */
+    current = g_1_pWaitingSoundList;
+    while (current != 0) {
+        waitingNext = current->next;
+        ix_system_delete_sound(current);
+        current = waitingNext;
+    }
+#endif
     current = g_1_pActiveSoundList;
     while (current != 0) {
         activeNext = current->next;

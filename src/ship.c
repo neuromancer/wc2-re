@@ -1656,6 +1656,15 @@ void Create_explosion_debris(short obj)
             break;
         set_objects_data(fragment,
                          g_aaeExplosionDebris[set][index], -1, 0);
+#ifdef SDL_PORT
+        /* A ship can outlive its resource slot: new_sphere_shapes frees the
+         * slots the next nav point does not preload.  No slot then holds its
+         * wing, and retail takes one from past the five slots. */
+        if (g_asObjectType[fragment] == OBJECT_DATA_SHIP_WING && i == 5) {
+            remove_object(fragment);
+            continue;
+        }
+#endif
         if (g_asObjectType[fragment] == OBJECT_DATA_SHIP_WING)
             g_apObjectShape[fragment] =
                 g_aObjectResourceSlots[i].field_12;
@@ -1897,7 +1906,19 @@ short ShipExplosion(short obj)
     if (explosion == -1) {
         if (g_aeObjectClass[obj] >=
             OBJECT_CLASS_CAPITAL_SHIP)
+#ifdef SDL_PORT
+        {
+            /* As in remove_object: a view packet the ship's resource slot
+             * preloaded is shared with every ship of its type, so free only
+             * one this ship loaded itself. */
+            if (g_abObjectShapeOwned[obj] != 0)
+                FreePacketAndClear(&g_apObjectShape[obj], 0);
+            g_apObjectShape[obj] = 0;
+            g_abObjectShapeOwned[obj] = 0;
+        }
+#else
             FreePacketAndClear(&g_apObjectShape[obj], 0);
+#endif
         g_asLoadedShipViewFrame[obj] = -1;
         explosion = obj;
     } else {

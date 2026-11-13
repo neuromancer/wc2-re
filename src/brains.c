@@ -21,6 +21,18 @@ void cruise_home(short obj)
         if (g_aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
             g_asShipSide[obj] == g_asShipSide[0] &&
             distance_from_object(obj, 0) > 16000) {
+#ifdef SDL_PORT
+            /* set_up_action_sphere records a routed ship it removes as gone
+             * (state 3).  A team member travels with the player and leaves
+             * only here, so retail keeps its record at 0 and the next set-up
+             * of its first nav point brings it back.  In SO1 S4M0, with
+             * Hobbes dead, that makes Landis the player's wingman, and his
+             * INTEL.021 is in no release: the game exits. */
+            if (g_asShipMissionType[obj] == MISSION_TYPE_ROUT &&
+                g_asShipMissionIndex[obj] >= 0 &&
+                g_asShipMissionIndex[obj] < MISSION_SHIP_COUNT)
+                g_aMissionShips[g_asShipMissionIndex[obj]].state = 3;
+#endif
             remove_object(obj);
             return;
         }
@@ -79,7 +91,18 @@ void coming_home(short obj)
         point_ship_behind_object(obj, home);
         if (g_aeObjectClass[obj] == OBJECT_CLASS_SHIP &&
             g_asObjectCollisionRadius[obj] + 800 > range)
+#ifdef SDL_PORT
+        {
+            /* Landing at home ends a routed ship too; see cruise_home. */
+            if (g_asShipMissionType[obj] == MISSION_TYPE_ROUT &&
+                g_asShipMissionIndex[obj] >= 0 &&
+                g_asShipMissionIndex[obj] < MISSION_SHIP_COUNT)
+                g_aMissionShips[g_asShipMissionIndex[obj]].state = 3;
             remove_object(obj);
+        }
+#else
+            remove_object(obj);
+#endif
         break;
     case TACTIC_NONE:
         reset_tactic(obj, TACTIC_CRUISE);

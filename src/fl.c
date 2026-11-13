@@ -150,6 +150,15 @@ void maneuver_complete(short ship)
 /* Function start: 0x440642 */
 void Mline_up_drop(short ship, short target)
 {
+#ifdef SDL_PORT
+    /* perform_maneuver also sends an inactive target here, and a ship can
+       have none (-1); retail then lines up on the twelve bytes before
+       g_aShipPosition.  Without a target the drop has nothing to line up. */
+    if (target < 0) {
+        maneuver_complete(ship);
+        return;
+    }
+#endif
     /* The shipped comparison normalizes this test to 0/1, then compares it
        with 9.  We therefore believe this completion path is unreachable. */
     if ((g_aeSpecialManeuver[target] ==
@@ -933,6 +942,14 @@ void Mcorkscrew(short ship)
 /* Function start: 0x442252 */
 void Mveer_away(short ship, short target)
 {
+#ifdef SDL_PORT
+    /* As Mline_up_drop: perform_maneuver sends a missing target (-1) here,
+       and retail steers away from the ship before object 0. */
+    if (target < 0) {
+        maneuver_complete(ship);
+        return;
+    }
+#endif
     switch (g_acShipSequence[ship]) {
     case 0:
         if (g_nFacingToTarget > 80)

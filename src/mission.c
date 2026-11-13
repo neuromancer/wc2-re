@@ -463,6 +463,19 @@ void load_ship(short resourceType, short objectType,
     void **packetRefs;
 
     if (resourceType != -1) {
+#ifdef SDL_PORT
+        /* The capital-ship branch below never sets the slot's shapeSet, so
+         * this check passes again on every call.  load_all_slots runs at
+         * each nav sphere, and retail then refetches the slot's 41 packets
+         * over the previous set, which is never freed.  Their handles fill
+         * the table until PushMemoryStackFrame exits with "qq mem push
+         * overflow".  Keep a capital slot that still holds this ship. */
+        if (g_aObjectResourceSlots[slot].shapeSet == 0 &&
+            g_aObjectResourceSlots[slot].shape != 0 &&
+            g_aObjectResourceSlots[slot].resourceType == resourceType &&
+            g_aObjectResourceSlots[slot].objectType == objectType)
+            return;
+#endif
         if (g_aObjectResourceSlots[slot].shapeSet == 0) {
             g_aObjectResourceSlots[slot].resourceType = resourceType;
             if (objectClass == OBJECT_CLASS_MISSILE)
@@ -682,6 +695,21 @@ void free_ship(short slot)
         FreePacketAndClear(
             &g_aObjectResourceSlots[slot].shape, 8);
         g_aObjectTypeData[slot].shape = 0;
+#ifdef SDL_PORT
+        /* new_sphere_shapes frees a slot the next nav does not preload, but
+         * its ships can stay in the sphere, still drawn: get_right_shape
+         * loads their views itself.  Retail leaves their exhaust records,
+         * and the type's for the next load_all_slots, in the freed
+         * packet; place_exhaust_on_ships then reads it. */
+        for (obj = 0; obj < 10; obj++) {
+            if (g_apObjectExhaustShape[obj] ==
+                g_aObjectResourceSlots[slot].animation)
+                g_apObjectExhaustShape[obj] = 0;
+        }
+        if (g_aObjectTypeData[slot].animation ==
+            g_aObjectResourceSlots[slot].animation)
+            g_aObjectTypeData[slot].animation = 0;
+#endif
         FreePacketAndClear(
             &g_aObjectResourceSlots[slot].animation, 8);
         if (g_1_nResourcePaletteState == 0) {
@@ -1018,7 +1046,18 @@ void set_up_action_sphere(short navPoint)
             if (g_aeObjectClass[leftover] >= OBJECT_CLASS_CAPITAL_SHIP ||
                 (g_bExpandedShipGraphicsEnabled != 0 &&
                  g_aeObjectClass[leftover] == OBJECT_CLASS_SHIP))
+#ifdef SDL_PORT
+            {
+                /* As in remove_object: free only a view packet the ship
+                 * loaded itself, not one its type shares. */
+                if (g_abObjectShapeOwned[leftover] != 0)
+                    FreePacketAndClear(&g_apObjectShape[leftover], 0);
+                g_apObjectShape[leftover] = 0;
+                g_abObjectShapeOwned[leftover] = 0;
+            }
+#else
                 FreePacketAndClear(&g_apObjectShape[leftover], 0);
+#endif
             if (g_asObjectScreenX[leftover] != -32767 &&
                 g_bJumpSequenceActive == 0)
                 explode(-1, leftover);
@@ -1467,6 +1506,18 @@ void init_intelligence_data(short obj)
         shipIntelFile = 0;
         if (g_asPilotLevel[obj] == RATING_ACE_SPIRIT) {
             intelNum = g_acShipPortrait[obj];
+#ifdef SDL_PORT
+            /* SO1's portrait-21 aces (Landis in S4M0, Zoe in S5M0) have no
+             * INTEL.021 in any release, and retail exits with a disk error
+             * if one becomes the player's wingman (see cruise_home).  Fly
+             * them on their ship type's file, as other pilots fly. */
+            snprintf(filename, sizeof(filename), "intel.0%02d", intelNum);
+            if (GetNamedPacketSize(filename, 0) <= 0) {
+                intelNum = g_aObjectTypeData[
+                    g_acObjectType[obj]].resourceType;
+                shipIntelFile = 1;
+            }
+#endif
         } else if (g_asPilotLevel[obj] < RATING_ACE_SPIRIT) {
             intelNum = g_aObjectTypeData[
                 g_acObjectType[obj]].resourceType;
@@ -1526,7 +1577,9 @@ void init_intelligence_data(short obj)
                  * The music and comm fields that follow are only ever read
                  * from the meta copy in the branch below, so nothing
                  * wants the last four bytes on this path. */
-                {
+                /* A ship type's file has no section 1; such a wingman keeps
+                 * the modes init_mission cleared. */
+                if (shipIntelFile == 0) {
                     ShipIntelligenceMetadata wingmanIntel;
 
                     LoadPacketIntoBuffer(filename, 1,
@@ -1566,6 +1619,11 @@ void init_intelligence_data(short obj)
             }
         }
     }
+#ifdef SDL_PORT
+    /* Retail never frees this buffer, so each ship set up leaks it and a
+     * packet handle (see load_ship). */
+    ReleasePacketHandle(meta);
+#endif
 }
 
 /* Linker commons defined here.  LINK lays a unit's commons out by the
