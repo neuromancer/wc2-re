@@ -5,6 +5,10 @@ typedef struct SdlJoystickDevice {
     SDL_Joystick *joystick;
     SDL_JoystickID instanceId;
     Uint8 hatState;
+    /* Mapped controllers' analog triggers, as pressed buttons: bit 0 LT,
+       bit 1 RT. Polling and events latch them separately. */
+    Uint8 triggersHeld;
+    Uint8 triggersPressed;
     int rumbleSupport; /* -1 unavailable, 0 untested, 1 available */
 } SdlJoystickDevice;
 
@@ -390,6 +394,8 @@ static void SdlCloseJoystick(SdlJoystickDevice *device)
     device->joystick = 0;
     device->instanceId = -1;
     device->hatState = SDL_HAT_CENTERED;
+    device->triggersHeld = 0;
+    device->triggersPressed = 0;
     device->rumbleSupport = 0;
 }
 
@@ -456,6 +462,8 @@ static void SdlOpenJoystick(int deviceIndex)
     device->joystick = joystick;
     device->instanceId = SDL_JoystickInstanceID(joystick);
     device->hatState = SDL_HAT_CENTERED;
+    device->triggersHeld = 0;
+    device->triggersPressed = 0;
     device->rumbleSupport = 0;
 #if SDL_VERSION_ATLEAST(2, 0, 18)
     if (g_bSdlJoystickRumbleEnabled) {
@@ -625,6 +633,38 @@ static int SdlReadJoystickButton(
     return SDL_JoystickGetButton(device->joystick, button) != 0;
 }
 
+/* Mapped controllers report LT and RT as axes, 0 to 32767: past half travel
+ * a trigger presses, below a quarter it releases. 1 when the latch changed. */
+#define SDL_PORT_TRIGGER_PRESS 16384
+#define SDL_PORT_TRIGGER_RELEASE 8192
+
+static int SdlLatchTrigger(Uint8 *latch, Uint8 bit, Sint16 value)
+{
+    if (!(*latch & bit) && value >= SDL_PORT_TRIGGER_PRESS) {
+        *latch |= bit;
+        return 1;
+    }
+    if ((*latch & bit) && value < SDL_PORT_TRIGGER_RELEASE) {
+        *latch &= (Uint8)~bit;
+        return 1;
+    }
+    return 0;
+}
+
+/* In flight RT is a second joystick button 0 (guns, as A) and LT a second
+ * button 1 (B: missile, or the original roll/throttle modifier). */
+static int SdlReadJoystickTrigger(SdlJoystickDevice *device, int button)
+{
+    Uint8 bit = button == 0 ? 2 : button == 1 ? 1 : 0;
+
+    if (device->controller == 0 || bit == 0)
+        return 0;
+    SdlLatchTrigger(&device->triggersHeld, bit,
+        SDL_GameControllerGetAxis(device->controller, bit == 2 ?
+            SDL_CONTROLLER_AXIS_TRIGGERRIGHT : SDL_CONTROLLER_AXIS_TRIGGERLEFT));
+    return (device->triggersHeld & bit) != 0;
+}
+
 BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
 {
     SdlJoystickDevice *device;
@@ -648,12 +688,14 @@ BOOL SdlReadJoystick(unsigned int deviceIndex, JOYINFO *information)
     buttonState = 0;
     if (g_176_pfnCurrentInputPump == get_player_input &&
         g_eSdlJoystickMode != SDL_JOYSTICK_ORIGINAL) {
-        if (SdlReadJoystickButton(device, 0))
+        if (SdlReadJoystickButton(device, 0) || SdlReadJoystickTrigger(device, 0))
             buttonState = 1;
     } else {
         buttonIndex = 0;
         while (buttonIndex < 2) {
-            if (SdlReadJoystickButton(device, buttonIndex))
+            if (SdlReadJoystickButton(device, buttonIndex) ||
+                (g_176_pfnCurrentInputPump == get_player_input &&
+                 SdlReadJoystickTrigger(device, buttonIndex)))
                 buttonState |= 1U << buttonIndex;
             buttonIndex++;
         }
@@ -834,6 +876,13 @@ void SdlApplyJoystickFlightControls(void)
     }
 }
 
+int SdlSpaceflightInputActive(void)
+{
+    return g_bSdlJoystickSpaceflightActive &&
+        g_176_pfnCurrentInputPump == get_player_input &&
+        g_nArcadeState == 0;
+}
+
 void SdlEndJoystickSpaceflight(void)
 {
     g_bSdlJoystickSpaceflightActive = 0;
@@ -886,6 +935,42 @@ static void SdlQueueScanCodePress(unsigned short scanCode)
        type 4 for a press and type 5 for a release. */
     QueueInputEvent(INPUT_EVENT_KEY_UP, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
     QueueInputEvent(INPUT_EVENT_KEY_DOWN, 0, 0, scanCode, 0, 0, 0, scanCode, 0);
+}
+
+/* In flight the View (Back) button steps through the views of F1-F5:
+ * front, left, right, rear and chase, then front again. F2 shows view 2,
+ * F3 view 1, F4 view 3 and F5 view 5. On a ship with turrets the side and
+ * rear keys may show a turret instead, which is view 4 for all of them; the
+ * cockpit new_view loaded for it (initialize_cockpit) still names the key's
+ * view. In the front view F1 would turn the cockpit off, so it is only sent
+ * from another view, with the latch its handler checks (as a key press sets
+ * it). */
+static void SdlCycleFlightView(void)
+{
+    unsigned short scanCode;
+    int view;
+
+    view = g_nCurrentView == 4 ? g_1_cStoredViewDisplayModeValue : g_nCurrentView;
+    switch (view) {
+    case 0:
+        scanCode = 0x3c;
+        break;
+    case 2:
+        scanCode = 0x3d;
+        break;
+    case 1:
+        scanCode = 0x3e;
+        break;
+    case 3:
+        scanCode = 0x3f;
+        break;
+    default:
+        scanCode = 0x3b;
+        break;
+    }
+    if (scanCode == 0x3b)
+        g_bF1KeyDown = 1;
+    SdlQueueScanCodePress(scanCode);
 }
 
 int SdlGetCommunicationMenuSelection(void)
@@ -1020,6 +1105,13 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         g_nArcadeState == 0;
     eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {
+        /* View cycles the views in flight. Elsewhere, and during the
+         * autopilot, where Escape skips the fly-by, it is Escape. */
+        if (spaceflightActive && g_bAutopilotSequenceActive == 0) {
+            if (pressed)
+                SdlCycleFlightView();
+            return;
+        }
         if (pressed)
             g_bSceneEscapeRequested = 1;
         QueueInputEvent(eventType, 0, 0, 0x1b, 0, 0, 0, 0x01, 0);
@@ -1053,6 +1145,30 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
         fflush(stdout);
     }
     SdlQueueScanCodePress(scanCode);
+}
+
+/* Mapped controllers' trigger axes: in flight RT presses A and LT presses
+ * B, as SdlReadJoystick also polls them. Elsewhere A and B events do
+ * nothing. */
+void SdlHandleJoystickTriggerEvent(SDL_JoystickID instanceId, Uint8 axis,
+                                   Sint16 value)
+{
+    SdlJoystickDevice *device;
+    Uint8 bit;
+    int slot;
+
+    bit = axis == SDL_CONTROLLER_AXIS_TRIGGERRIGHT ? 2 :
+        axis == SDL_CONTROLLER_AXIS_TRIGGERLEFT ? 1 : 0;
+    slot = SdlFindJoystick(instanceId);
+    if (bit == 0 || slot == -1)
+        return;
+    device = &g_aSdlJoystickDevices[slot];
+    if (device->controller == 0 ||
+        !SdlLatchTrigger(&device->triggersPressed, bit, value))
+        return;
+    SdlHandleJoystickButtonEvent(instanceId,
+        bit == 2 ? SDL_CONTROLLER_BUTTON_A : SDL_CONTROLLER_BUTTON_B,
+        (device->triggersPressed & bit) != 0, 1);
 }
 
 void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,

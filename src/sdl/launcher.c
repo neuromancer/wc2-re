@@ -200,6 +200,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
         g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    SdlSetKeyBindings(options->keyBindings);
     return 1;
 }
 

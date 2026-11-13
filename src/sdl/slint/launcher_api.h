@@ -2,6 +2,7 @@
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
+#define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
 
 enum SdlLauncherResult {
     SDL_LAUNCHER_UNAVAILABLE = -2,
@@ -64,6 +65,9 @@ typedef struct SdlLauncherOptions {
     int joystickGuidUnique;
     char joystickGuid[33];
     char joystickPath[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    /* Flight keys and mouse buttons changed in the controls window, one
+     * "action=bindings" line each (see src/sdl/keymap.c). */
+    char keyBindings[SDL_LAUNCHER_KEY_BINDINGS_CAPACITY];
     /* Command-line values take precedence over saved GUI settings. */
     unsigned int explicitOptions;
 } SdlLauncherOptions;

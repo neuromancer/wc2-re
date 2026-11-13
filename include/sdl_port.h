@@ -235,9 +235,34 @@ void SdlQueueJoystickDamageRumble(int damage);
 void SdlQueueJoystickCollisionRumble(int collisionSpeed);
 void SdlApplyJoystickFlightControls(void);
 void SdlEndJoystickSpaceflight(void);
+/* WC2 is flying and reading its flight controls (not a menu or the map). */
+int SdlSpaceflightInputActive(void);
+/* Keyboard and mouse rebinding (keymap.c): the launcher's changed bindings,
+ * one "action=bindings" line each. */
+void SdlSetKeyBindings(const char *bindings);
+void SdlKeymapInvalidate(void);
+/* The key the game should see for a key event, and in *modifiers the
+ * modifiers it should see with it; SDL_SCANCODE_UNKNOWN drops the event. */
+SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 *modifiers, int pressed);
+/* The keys the game should see held, given the keys that are. */
+const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
+/* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
+int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
+/* Mouse rebinding, in flight: whether the bindings use the mouse; whether a
+ * button is one of the game's own two; the game's two buttons as the bound
+ * buttons press them; and the key, with its modifiers, that another bound
+ * button or a wheel step presses. */
+int SdlKeymapMouseActive(void);
+int SdlKeymapIsGameButton(Uint8 button);
+void SdlKeymapGameButtons(Uint32 buttons, int *primary, int *secondary);
+SDL_Scancode SdlKeymapMouseKey(Uint8 button, Uint16 *modifiers);
+SDL_Scancode SdlKeymapWheelKey(int direction, Uint16 *modifiers);
 void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
                                       int button, int pressed,
                                       int controllerEvent);
+/* A mapped controller's trigger axis: in flight RT presses A and LT B. */
+void SdlHandleJoystickTriggerEvent(SDL_JoystickID instanceId, Uint8 axis,
+                                   Sint16 value);
 void SdlHandleJoystickHatEvent(SDL_JoystickID instanceId,
                                   Uint8 hat, Uint8 value);
 void SdlHandleJoystickDeviceEvent(Uint32 type, Sint32 which);

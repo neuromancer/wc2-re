@@ -103,8 +103,8 @@ Press **Y** to proceed, or **N** or **Esc** to keep it and return to the title m
 ### Fixes and features
 
 The port includes resizable, aspect-correct display, gamepad hot-plug support,
-mouse-wheel throttle, cinematic captions, corrected planet scaling, and static
-on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
+rebindable keyboard and mouse controls, mouse-wheel throttle, cinematic
+captions, corrected planet scaling, and static on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
 sound effects. Optional features can be combined:
 
 | Fix or feature | Enable with |
@@ -138,9 +138,15 @@ uses the original-resolution scene so dithering applies consistently.
 | Mouse wheel (spaceflight) | Increase or decrease speed |
 | `Esc` (spaceflight) | Close communications, or pause |
 | `Esc` (autopilot fly-by) | Skip the fly-by |
+| Gamepad RT / LT (spaceflight) | Same as A / B: fire guns / roll and speed (missiles in the WCAT layouts) |
 | Gamepad Start (spaceflight) | Pause or resume |
-| Gamepad Back | Escape/back |
+| Gamepad Back | Cycle views in spaceflight; Escape/back during the fly-by and elsewhere |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+
+The launcher's **Show controls…** window shows every binding. Click a key or
+mouse input to change it, or **+** to add a second one; changes apply when the
+game starts. Wingman orders such as `Alt+A` can move to single keys. `Esc` and
+the communication message keys `1`–`9` cannot be changed.
 
 Pause (`P` or Gamepad Start) and quit controls remain available during
 autopilot.

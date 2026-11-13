@@ -370,7 +370,12 @@ static int SdlIsFullscreenShortcut(const SDL_KeyboardEvent *event)
 {
     int enterPressed;
     int modifierPressed;
+    int changed;
 
+    changed = SdlKeymapFullscreenShortcut(event->keysym.scancode,
+                                          event->keysym.mod | SDL_GetModState());
+    if (changed >= 0)
+        return changed;
     enterPressed = event->keysym.sym == SDLK_RETURN ||
         event->keysym.sym == SDLK_KP_ENTER ||
         event->keysym.scancode == SDL_SCANCODE_RETURN ||
@@ -422,7 +427,7 @@ static void SdlToggleFullscreen(Uint32 windowId)
  * see 0 -- "no key yet" -- for them, and its caller would loop past the
  * keypress waiting for a different one that never came. See issue #21
  * (Enter never submits a pilot-name text field). */
-static int SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
+static int SdlKeyCharacter(Uint16 modifiers, int virtualKey)
 {
     int shifted;
 
@@ -431,7 +436,7 @@ static int SdlKeyCharacter(const SDL_KeyboardEvent *event, int virtualKey)
         return virtualKey;
     if (virtualKey < ' ' || virtualKey > '~')
         return 0;
-    shifted = (event->keysym.mod & (KMOD_SHIFT | KMOD_CAPS)) != 0;
+    shifted = (modifiers & (KMOD_SHIFT | KMOD_CAPS)) != 0;
     if (virtualKey >= 'A' && virtualKey <= 'Z')
         return shifted ? virtualKey : virtualKey - 'A' + 'a';
     return virtualKey;
@@ -484,11 +489,145 @@ static void SdlLatchAltRadioHotkey(int virtualKey)
     g_27_nLastAltCommandScanNumberWord = 0;
 }
 
+static int SdlIsAltRadioHotkey(int virtualKey)
+{
+    return virtualKey == 'A' || virtualKey == 'B' || virtualKey == 'D' ||
+        virtualKey == 'F' || virtualKey == 'H' || virtualKey == 'T';
+}
+
+/* In flight, the original reads an Alt chord as a system key
+ * (MainWindowProc's WM_SYSKEYDOWN): a wingman command's chord latches the
+ * command and is not queued as a key press, so Alt+A does not also engage
+ * the autopilot. Its release is dropped with it. */
+static Uint8 g_abSdlRadioChordKeys[SDL_NUM_SCANCODES];
+
+/* Queues one key for the game: an SDL key event, or a key that a rebound
+ * key, mouse button or wheel step stands for. */
+static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol,
+                            Uint16 modifiers, int pressed, int repeat)
+{
+    int scanCode;
+    int virtualKey;
+
+    scanCode = SdlTranslateScanCode(key);
+    if (repeat != 0 && g_bAutopilotSequenceActive != 0 &&
+        (scanCode == 0x01 || scanCode == 0x19))
+        return;
+    virtualKey = SdlTranslateVirtualKey(symbol);
+    if ((modifiers & KMOD_ALT) != 0 ||
+        key == SDL_SCANCODE_LALT ||
+        key == SDL_SCANCODE_RALT)
+        g_69_dwSysKeyValue = pressed ? (unsigned int)virtualKey : 0;
+    if (key > SDL_SCANCODE_UNKNOWN && key < SDL_NUM_SCANCODES) {
+        if (!pressed && g_abSdlRadioChordKeys[key] != 0) {
+            g_abSdlRadioChordKeys[key] = 0;
+            return;
+        }
+        if (pressed && (modifiers & KMOD_ALT) != 0 &&
+            SdlIsAltRadioHotkey(virtualKey) &&
+            g_1_bSpaceFlightActive != 0 &&
+            g_nArcadeState == 0 &&
+            g_nCannedSceneMode == 0 &&
+            g_bJumpSequenceActive == 0 &&
+            g_176_pfnCurrentInputPump == get_player_input) {
+            if (repeat == 0)
+                SdlLatchAltRadioHotkey(virtualKey);
+            g_abSdlRadioChordKeys[key] = 1;
+            return;
+        }
+    }
+    if (key == SDL_SCANCODE_F1)
+        g_bF1KeyDown = pressed && repeat == 0;
+    if (pressed && scanCode == 1)
+        g_bSceneEscapeRequested = 1;
+    if (scanCode != 0) {
+        /* WC2 queues one event per key, the way MainWindowProc does: type 4
+         * for a press and 5 for a release, the virtual key in value -- which
+         * is what WaitForAnyInputPress hands back and ReadTextInput reads as
+         * a character -- with the scan code and the character alongside it.
+         * WC1's numbering put presses on type 3, which is WC2's mouse move,
+         * so a keypress read as a pointer twitch and Enter never arrived. */
+        /* TakeInputPressCount consumes and clears pending presses. A key
+         * release must not cancel an unconsumed key or mouse press. */
+        if (pressed && repeat == 0)
+            g_nInputPressCount++;
+        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                        (unsigned short)g_6_stHostMouseTextBlock.x,
+                        (unsigned short)g_6_stHostMouseTextBlock.y,
+                        (unsigned short)virtualKey, 0, 0, 0,
+                        (unsigned int)scanCode,
+                        (unsigned int)SdlKeyCharacter(modifiers, virtualKey));
+        SetInputKeyState(scanCode, (unsigned char)pressed);
+        SdlTraceInputEvent(pressed ? "keydn" : "keyup",
+                              pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
+                              scanCode, virtualKey,
+                              g_6_stHostMouseTextBlock.x,
+                              g_6_stHostMouseTextBlock.y);
+    }
+    if (!pressed) {
+        g_dwDebugOverlayKey = (DWORD)virtualKey;
+        g_dwDebugOverlayKeyLatch = (DWORD)virtualKey;
+    }
+}
+
+/* The key a translated game key stands for: a letter as on the US layout,
+ * which the wingman commands read, and other keys as SDL names them. */
+static SDL_Keycode SdlGameKeySymbol(SDL_Scancode key)
+{
+    if (key >= SDL_SCANCODE_A && key <= SDL_SCANCODE_Z)
+        return (SDL_Keycode)(SDLK_a + (key - SDL_SCANCODE_A));
+    return SDL_GetKeyFromScancode(key);
+}
+
+/* Mouse buttons bound to an action press its key, repeating like a held
+ * key; each records the key it pressed so the release matches it. */
+#define SDL_MOUSE_KEY_DELAY 250
+#define SDL_MOUSE_KEY_REPEAT 33
+
+static SDL_Scancode g_aSdlMouseKeys[8];
+static Uint16 g_awSdlMouseKeyModifiers[8];
+static Uint32 g_adwSdlMouseKeyRepeat[8];
+
+static void SdlPressMouseKey(Uint8 button, SDL_Scancode key, Uint16 modifiers,
+                             int pressed)
+{
+    if (button >= sizeof(g_aSdlMouseKeys) / sizeof(g_aSdlMouseKeys[0]))
+        return;
+    if (pressed) {
+        if (key == SDL_SCANCODE_UNKNOWN)
+            return;
+        g_aSdlMouseKeys[button] = key;
+        g_awSdlMouseKeyModifiers[button] = modifiers;
+        g_adwSdlMouseKeyRepeat[button] = SDL_GetTicks() + SDL_MOUSE_KEY_DELAY;
+        SdlQueueGameKey(key, SdlGameKeySymbol(key), modifiers, 1, 0);
+    } else if (g_aSdlMouseKeys[button] != SDL_SCANCODE_UNKNOWN) {
+        key = g_aSdlMouseKeys[button];
+        g_aSdlMouseKeys[button] = SDL_SCANCODE_UNKNOWN;
+        SdlQueueGameKey(key, SdlGameKeySymbol(key), g_awSdlMouseKeyModifiers[button], 0, 0);
+    }
+}
+
+static void SdlRepeatMouseKeys(void)
+{
+    Uint32 now = SDL_GetTicks();
+    size_t button;
+
+    for (button = 0; button < sizeof(g_aSdlMouseKeys) / sizeof(g_aSdlMouseKeys[0]); button++) {
+        SDL_Scancode key = g_aSdlMouseKeys[button];
+
+        if (key == SDL_SCANCODE_UNKNOWN || (Sint32)(now - g_adwSdlMouseKeyRepeat[button]) < 0)
+            continue;
+        g_adwSdlMouseKeyRepeat[button] = now + SDL_MOUSE_KEY_REPEAT;
+        SdlQueueGameKey(key, SdlGameKeySymbol(key), g_awSdlMouseKeyModifiers[button], 1, 1);
+    }
+}
+
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
     int pressed;
-    int scanCode;
-    int virtualKey;
+    SDL_Scancode key;
+    SDL_Keycode symbol;
+    Uint16 modifiers;
 
     pressed = event->type == SDL_KEYDOWN;
     if (pressed && event->repeat == 0 && event->keysym.sym == SDLK_q &&
@@ -501,55 +640,13 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
             SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    scanCode = SdlTranslateScanCode(event->keysym.scancode);
-    if (event->repeat != 0 && g_bAutopilotSequenceActive != 0 &&
-        (scanCode == 0x01 || scanCode == 0x19))
+    /* In flight, rebound keys stand in for the keys the game reads. */
+    modifiers = event->keysym.mod;
+    key = SdlKeymapTranslateKey(event->keysym.scancode, &modifiers, pressed);
+    if (key == SDL_SCANCODE_UNKNOWN)
         return 0;
-    virtualKey = SdlTranslateVirtualKey(event->keysym.sym);
-    if ((event->keysym.mod & KMOD_ALT) != 0 ||
-        event->keysym.scancode == SDL_SCANCODE_LALT ||
-        event->keysym.scancode == SDL_SCANCODE_RALT)
-        g_69_dwSysKeyValue = pressed ? (unsigned int)virtualKey : 0;
-    if (pressed && event->repeat == 0 &&
-        (event->keysym.mod & KMOD_ALT) != 0 &&
-        g_1_bSpaceFlightActive != 0 &&
-        g_nArcadeState == 0 &&
-        g_nCannedSceneMode == 0 &&
-        g_bJumpSequenceActive == 0 &&
-        g_176_pfnCurrentInputPump == get_player_input)
-        SdlLatchAltRadioHotkey(virtualKey);
-    if (event->keysym.scancode == SDL_SCANCODE_F1)
-        g_bF1KeyDown = pressed && event->repeat == 0;
-    if (pressed && scanCode == 1)
-        g_bSceneEscapeRequested = 1;
-    if (scanCode != 0) {
-        /* WC2 queues one event per key, the way MainWindowProc does: type 4
-         * for a press and 5 for a release, the virtual key in value -- which
-         * is what WaitForAnyInputPress hands back and ReadTextInput reads as
-         * a character -- with the scan code and the character alongside it.
-         * WC1's numbering put presses on type 3, which is WC2's mouse move,
-         * so a keypress read as a pointer twitch and Enter never arrived. */
-        /* TakeInputPressCount consumes and clears pending presses. A key
-         * release must not cancel an unconsumed key or mouse press. */
-        if (pressed && event->repeat == 0)
-            g_nInputPressCount++;
-        QueueInputEvent(pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
-                        (unsigned short)g_6_stHostMouseTextBlock.x,
-                        (unsigned short)g_6_stHostMouseTextBlock.y,
-                        (unsigned short)virtualKey, 0, 0, 0,
-                        (unsigned int)scanCode,
-                        (unsigned int)SdlKeyCharacter(event, virtualKey));
-        SetInputKeyState(scanCode, (unsigned char)pressed);
-        SdlTraceInputEvent(pressed ? "keydn" : "keyup",
-                              pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
-                              scanCode, virtualKey,
-                              g_6_stHostMouseTextBlock.x,
-                              g_6_stHostMouseTextBlock.y);
-    }
-    if (!pressed) {
-        g_dwDebugOverlayKey = (DWORD)virtualKey;
-        g_dwDebugOverlayKeyLatch = (DWORD)virtualKey;
-    }
+    symbol = key == event->keysym.scancode ? event->keysym.sym : SdlGameKeySymbol(key);
+    SdlQueueGameKey(key, symbol, modifiers, pressed, event->repeat);
     return 0;
 }
 
@@ -564,6 +661,23 @@ static void SdlHandleMouseWheelEvent(const SDL_MouseWheelEvent *event)
     if (wheelY == 0)
         return;
     scanCode = wheelY > 0 ? 0x0d : 0x0c;
+    if (SdlKeymapMouseActive()) {
+        /* In flight, the wheel presses the key of the action bound to it; a
+         * wingman command goes through the Alt latch. */
+        Uint16 modifiers = 0;
+        SDL_Scancode key = SdlKeymapWheelKey(wheelY, &modifiers);
+
+        if (key == SDL_SCANCODE_UNKNOWN)
+            return;
+        if ((modifiers & KMOD_ALT) != 0) {
+            SdlQueueGameKey(key, SdlGameKeySymbol(key), modifiers, 1, 0);
+            SdlQueueGameKey(key, SdlGameKeySymbol(key), modifiers, 0, 0);
+            return;
+        }
+        scanCode = SdlTranslateScanCode(key);
+        if (scanCode == 0)
+            return;
+    }
     /* player_input samples one transition before consuming the remaining
        queue, so lead with the release for this impulse.  WC2's key events are
        4 for a press and 5 for a release. */
@@ -609,6 +723,27 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
         mouseY = 199;
     primaryButton = (buttons & SDL_BUTTON_LMASK) != 0;
     secondaryButton = (buttons & SDL_BUTTON_RMASK) != 0;
+    if (SdlKeymapMouseActive()) {
+        /* In flight, the bound buttons stand in for the game's two buttons,
+           and other bound buttons press their action's key. */
+        SdlKeymapGameButtons(buttons, &primaryButton, &secondaryButton);
+        if (event->type != SDL_MOUSEMOTION &&
+            !SdlKeymapIsGameButton(event->button.button)) {
+            Uint16 modifiers = 0;
+            SDL_Scancode key = SdlKeymapMouseKey(event->button.button, &modifiers);
+
+            SdlPressMouseKey(event->button.button, key, modifiers,
+                             event->type == SDL_MOUSEBUTTONDOWN);
+            g_6_stHostMouseTextBlock.x = mouseX;
+            g_6_stHostMouseTextBlock.y = mouseY;
+            g_6_stHostMouseTextBlock.primaryButton = primaryButton;
+            g_6_stHostMouseTextBlock.secondaryButton = secondaryButton;
+            return;
+        }
+    } else if (event->type == SDL_MOUSEBUTTONUP) {
+        /* Release a key that a button pressed during flight. */
+        SdlPressMouseKey(event->button.button, SDL_SCANCODE_UNKNOWN, 0, 0);
+    }
 
     if (event->type == SDL_MOUSEMOTION) {
         if (g_2_bIgnoreNextCursorMoveFlag != 0) {
@@ -689,6 +824,7 @@ void SdlPumpEvents(void)
     SDL_Event event;
 
     SdlServiceOriginFxMusic();
+    SdlRepeatMouseKeys();
     while (SDL_PollEvent(&event)) {
         SdlLogJoystickEvent(&event);
         switch (event.type) {
@@ -707,6 +843,9 @@ void SdlPumpEvents(void)
         case SDL_MOUSEWHEEL:
             SdlHandleMouseWheelEvent(&event.wheel);
             break;
+        case SDL_KEYMAPCHANGED:
+            SdlKeymapInvalidate();
+            break;
         case SDL_MOUSEMOTION:
         case SDL_MOUSEBUTTONDOWN:
         case SDL_MOUSEBUTTONUP:
@@ -724,6 +863,10 @@ void SdlPumpEvents(void)
                                              event.type ==
                                                  SDL_CONTROLLERBUTTONDOWN,
                                              1);
+            break;
+        case SDL_CONTROLLERAXISMOTION:
+            SdlHandleJoystickTriggerEvent(event.caxis.which, event.caxis.axis,
+                                          event.caxis.value);
             break;
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:

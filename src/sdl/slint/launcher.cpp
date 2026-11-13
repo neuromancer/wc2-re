@@ -9,12 +9,16 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <charconv>
 #include <cstdio>
 #include <cstring>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string>
+#include <string_view>
 #include <system_error>
+#include <vector>
 
 namespace {
 
@@ -144,6 +148,317 @@ void browse_for_game_directory(LauncherWindow &window,
     refresh_window(window, installations);
 }
 
+using KeyboardBindings = slint::VectorModel<std::shared_ptr<slint::Model<InputBinding>>>;
+
+/* The controls window's rows and the bindings shown for them. */
+struct BindingTable {
+    std::shared_ptr<slint::Model<InputRow>> rows;
+    std::shared_ptr<KeyboardBindings> bindings;
+};
+
+BindingTable binding_table(const ControlsWindow &controls)
+{
+    return {controls.get_keyboard_rows(),
+            std::dynamic_pointer_cast<KeyboardBindings>(controls.get_keyboard_bindings())};
+}
+
+/* A copy of the original bindings, row by row, that the controls window can
+   change. */
+std::shared_ptr<KeyboardBindings> default_bindings(const slint::Model<InputRow> &rows)
+{
+    auto table = std::make_shared<KeyboardBindings>();
+    for (size_t row = 0; row < rows.row_count(); ++row) {
+        std::vector<InputBinding> bindings;
+        const auto data = rows.row_data(row);
+        if (data && data->bindings) {
+            for (size_t slot = 0; slot < data->bindings->row_count(); ++slot)
+                bindings.push_back(data->bindings->row_data(slot).value_or(InputBinding {}));
+        }
+        table->push_back(std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
+    }
+    return table;
+}
+
+/* Input names are stored percent-encoded outside a-z, 0-9 and "-", so "+"
+   joins a modifier to its key and "," separates bindings (see
+   src/sdl/keymap.c). */
+std::string encode_input(std::string_view input)
+{
+    static constexpr char digits[] = "0123456789abcdef";
+    std::string text;
+    for (const unsigned char character : input) {
+        if ((character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') ||
+            character == '-') {
+            text += static_cast<char>(character);
+        } else {
+            text += '%';
+            text += digits[character >> 4];
+            text += digits[character & 15];
+        }
+    }
+    return text;
+}
+
+std::optional<std::string> decode_input(std::string_view text)
+{
+    std::string input;
+    for (size_t index = 0; index < text.size(); ++index) {
+        if (text[index] != '%') {
+            input += text[index];
+            continue;
+        }
+        unsigned int byte = 0;
+        if (index + 2 >= text.size() ||
+            std::from_chars(text.data() + index + 1, text.data() + index + 3, byte, 16).ptr !=
+                text.data() + index + 3)
+            return std::nullopt;
+        input += static_cast<char>(byte);
+        index += 2;
+    }
+    if (input.empty())
+        return std::nullopt;
+    return input;
+}
+
+std::string encode_binding(const InputBinding &binding)
+{
+    std::string text;
+    for (size_t part = 0; binding.inputs && part < binding.inputs->row_count(); ++part) {
+        if (part > 0)
+            text += '+';
+        text += encode_input(std::string_view(binding.inputs->row_data(part).value_or(
+            slint::SharedString())));
+    }
+    return text;
+}
+
+std::string encode_bindings(const slint::Model<InputBinding> &bindings)
+{
+    std::string text;
+    for (size_t slot = 0; slot < bindings.row_count(); ++slot) {
+        if (slot > 0)
+            text += ',';
+        text += encode_binding(bindings.row_data(slot).value_or(InputBinding {}));
+    }
+    return text;
+}
+
+/* The rows whose bindings differ from the original keys, as the launcher
+   settings' [keys] lines. */
+std::string changed_key_bindings(const ControlsWindow &controls)
+{
+    std::string text;
+    const auto table = binding_table(controls);
+    for (size_t row = 0; table.bindings && row < table.rows->row_count() &&
+                         row < table.bindings->row_count(); ++row) {
+        const auto data = table.rows->row_data(row);
+        const auto current = table.bindings->row_data(row).value_or(nullptr);
+        if (!data || data->id.empty() || data->fixed || !data->bindings || !current)
+            continue;
+        const auto value = encode_bindings(*current);
+        if (value != encode_bindings(*data->bindings))
+            text += std::string(std::string_view(data->id)) + '=' + value + '\n';
+    }
+    return text;
+}
+
+/* How many bindings a row takes: its own limit, or the window's. */
+size_t binding_limit(const ControlsWindow &controls, const InputRow &row)
+{
+    return static_cast<size_t>(row.limit > 0 ? row.limit : controls.get_max_bindings());
+}
+
+/* The index of the row with this id, or -1. */
+int table_row(const BindingTable &table, std::string_view id)
+{
+    for (size_t row = 0; row < table.rows->row_count(); ++row) {
+        const auto data = table.rows->row_data(row);
+        if (data && std::string_view(data->id) == id)
+            return static_cast<int>(row);
+    }
+    return -1;
+}
+
+/* One row's current bindings, if it exists. */
+std::shared_ptr<slint::VectorModel<InputBinding>> table_bindings(const BindingTable &table, int row)
+{
+    if (!table.bindings || row < 0 || static_cast<size_t>(row) >= table.bindings->row_count())
+        return nullptr;
+    return std::dynamic_pointer_cast<slint::VectorModel<InputBinding>>(
+        table.bindings->row_data(row).value_or(nullptr));
+}
+
+/* The missile and roll rows show the game's two mouse buttons: whatever the
+   guns and afterburner rows hold now. */
+void refresh_mouse_rows(const BindingTable &table)
+{
+    const auto button = [&table](std::string_view id) -> std::optional<slint::SharedString> {
+        const auto bindings = table_bindings(table, table_row(table, id));
+        if (!bindings || bindings->row_count() == 0)
+            return std::nullopt;
+        const auto binding = bindings->row_data(0).value_or(InputBinding {});
+        if (!binding.inputs || binding.inputs->row_count() == 0)
+            return std::nullopt;
+        return binding.inputs->row_data(0);
+    };
+    const auto gesture = [](std::vector<slint::SharedString> inputs) {
+        InputBinding binding;
+        binding.inputs = std::make_shared<slint::VectorModel<slint::SharedString>>(std::move(inputs));
+        binding.joiner = "+";
+        binding.fixed = true;
+        return std::vector<InputBinding> {binding};
+    };
+    const auto guns = button("mouse-guns");
+    const auto afterburner = button("mouse-afterburner");
+    const auto missile = table_row(table, "mouse-missile");
+    const auto roll = table_row(table, "mouse-roll");
+    if (!table.bindings || missile < 0 || roll < 0)
+        return;
+    table.bindings->set_row_data(missile, std::make_shared<slint::VectorModel<InputBinding>>(
+        guns && afterburner ? gesture({*guns, *afterburner}) : std::vector<InputBinding> {}));
+    table.bindings->set_row_data(roll, std::make_shared<slint::VectorModel<InputBinding>>(
+        afterburner ? gesture({*afterburner, "mouse-move"}) : std::vector<InputBinding> {}));
+}
+
+/* Puts saved [keys] lines into the window's current bindings. A saved
+   binding that matches a fixed original one keeps it, with its hint. */
+void apply_key_bindings(const ControlsWindow &controls, std::string_view saved)
+{
+    const auto table = binding_table(controls);
+    const auto &rows = table.rows;
+    while (table.bindings && !saved.empty()) {
+        const auto end = saved.find('\n');
+        const auto line = saved.substr(0, end);
+        saved = end == std::string_view::npos ? std::string_view() : saved.substr(end + 1);
+        const auto separator = line.find('=');
+        if (separator == std::string_view::npos)
+            continue;
+        const auto id = line.substr(0, separator);
+        auto value = line.substr(separator + 1);
+        for (size_t row = 0; row < rows->row_count() && row < table.bindings->row_count(); ++row) {
+            const auto data = rows->row_data(row);
+            if (!data || data->fixed || std::string_view(data->id) != id)
+                continue;
+            const auto limit = binding_limit(controls, *data);
+            const bool unbound = value.empty();
+            std::vector<InputBinding> bindings;
+            while (!value.empty() && bindings.size() < limit) {
+                const auto comma = value.find(',');
+                auto text = value.substr(0, comma);
+                value = comma == std::string_view::npos ? std::string_view() : value.substr(comma + 1);
+                std::vector<slint::SharedString> inputs;
+                while (!text.empty()) {
+                    const auto plus = text.find('+');
+                    if (const auto input = decode_input(text.substr(0, plus)))
+                        inputs.emplace_back(*input);
+                    text = plus == std::string_view::npos ? std::string_view() : text.substr(plus + 1);
+                }
+                const auto mouse = [](const slint::SharedString &input) {
+                    const std::string_view name(input);
+                    return name.starts_with("mouse-") || name.starts_with("wheel-");
+                };
+                if (inputs.empty() || inputs.size() > 2 ||
+                    (data->mouse_only && (inputs.size() > 1 || !std::string_view(inputs[0]).starts_with("mouse-"))) ||
+                    (inputs.size() > 1 && (mouse(inputs[0]) || mouse(inputs[1]))))
+                    continue;
+                InputBinding binding;
+                binding.inputs = std::make_shared<slint::VectorModel<slint::SharedString>>(inputs);
+                binding.joiner = inputs.size() > 1 ? "+" : "";
+                for (size_t slot = 0; data->bindings && slot < data->bindings->row_count(); ++slot) {
+                    const auto original = data->bindings->row_data(slot).value_or(InputBinding {});
+                    if (original.fixed && encode_binding(original) == encode_binding(binding))
+                        binding = original;
+                }
+                bindings.push_back(binding);
+            }
+            /* An empty value leaves the input unbound; nothing valid in a
+               value leaves the row as it was. */
+            if (unbound || !bindings.empty())
+                table.bindings->set_row_data(row, std::make_shared<slint::VectorModel<InputBinding>>(std::move(bindings)));
+            break;
+        }
+    }
+    refresh_mouse_rows(table);
+}
+
+/* The controls window starts from the launcher's joystick selectors and has
+   its own; choosing a layout there changes the launcher's selectors too. Its
+   keyboard bindings start from the saved ones, and changed_key_bindings()
+   reads them back for the game. */
+slint::ComponentHandle<ControlsWindow> create_controls_window(
+    const slint::ComponentHandle<LauncherWindow> &window, std::string_view savedBindings = {})
+{
+    auto controls = ControlsWindow::create();
+#ifdef __APPLE__
+    controls->set_apple_keys(true);
+#endif
+    controls->set_joystick_mode(window->get_joystick_mode_index());
+    controls->set_joystick_axes(window->get_joystick_axes_index());
+    controls->set_keyboard_bindings(default_bindings(*controls->get_keyboard_rows()));
+    apply_key_bindings(*controls, savedBindings);
+    controls->on_binding_changed(
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls)](
+            int row, int slot, InputBinding binding) {
+            const auto controlsWindow = self.lock();
+            if (!controlsWindow)
+                return;
+            const auto table = binding_table(**controlsWindow);
+            const auto bindings = table_bindings(table, row);
+            const auto data = table.rows->row_data(row);
+            if (!bindings || !data || slot < 0)
+                return;
+            /* The guns and afterburner buttons cannot share a button: giving
+               one the other's swaps them. */
+            const std::string id(std::string_view(data->id));
+            if (id == "mouse-guns" || id == "mouse-afterburner") {
+                const auto other = table_bindings(
+                    table, table_row(table, id == "mouse-guns" ? "mouse-afterburner" : "mouse-guns"));
+                if (other && other->row_count() > 0 &&
+                    encode_binding(other->row_data(0).value_or(InputBinding {})) == encode_binding(binding)) {
+                    if (bindings->row_count() > 0)
+                        other->set_row_data(0, bindings->row_data(0).value_or(InputBinding {}));
+                    else
+                        other->erase(0);
+                }
+            }
+            if (static_cast<size_t>(slot) < bindings->row_count())
+                bindings->set_row_data(slot, binding);
+            else if (bindings->row_count() < binding_limit(**controlsWindow, *data))
+                bindings->push_back(binding);
+            refresh_mouse_rows(table);
+        });
+    controls->on_binding_removed(
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls)](int row, int slot) {
+            const auto controlsWindow = self.lock();
+            if (!controlsWindow)
+                return;
+            const auto table = binding_table(**controlsWindow);
+            const auto bindings = table_bindings(table, row);
+            if (bindings && slot >= 0 && static_cast<size_t>(slot) < bindings->row_count())
+                bindings->erase(slot);
+            refresh_mouse_rows(table);
+        });
+    controls->on_bindings_reset(
+        [self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
+            const auto controlsWindow = self.lock();
+            if (!controlsWindow)
+                return;
+            (*controlsWindow)->set_keyboard_bindings(
+                default_bindings(*(*controlsWindow)->get_keyboard_rows()));
+        });
+    controls->on_layout_changed(
+        [launcher = slint::ComponentWeakHandle<LauncherWindow>(window),
+         self = slint::ComponentWeakHandle<ControlsWindow>(controls)]() {
+            const auto launcherWindow = launcher.lock();
+            const auto controlsWindow = self.lock();
+            if (!launcherWindow || !controlsWindow)
+                return;
+            (*launcherWindow)->set_joystick_mode_index((*controlsWindow)->get_joystick_mode());
+            (*launcherWindow)->set_joystick_axes_index((*controlsWindow)->get_joystick_axes());
+        });
+    return controls;
+}
+
 } // namespace
 
 int SdlRunLauncherGui(SdlLauncherOptions *options)
@@ -169,6 +484,20 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     auto window = LauncherWindow::create();
     slint::select_bundled_translation(launcher_locale(options->language));
+    /* The controls window opens on request and follows the launcher's
+       joystick selectors, which its own selectors also change; it never
+       outlives the launcher. */
+    std::optional<slint::ComponentHandle<ControlsWindow>> controls;
+    const auto sync_controls = [&window, &controls]() {
+        if (!controls)
+            return;
+        (*controls)->set_joystick_mode(window->get_joystick_mode_index());
+        (*controls)->set_joystick_axes(window->get_joystick_axes_index());
+    };
+    const auto hide_controls = [&controls]() {
+        if (controls)
+            (*controls)->hide();
+    };
     accepted = false;
     pickerInitialized = false;
     window->set_title_artwork(
@@ -208,12 +537,26 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         refresh_window(*window, installations);
     });
 
-    window->on_installation_selected([&window, &installations](int index) {
+    window->on_installation_selected([&window, &installations, hide_controls](int index) {
         if (index > 0 && static_cast<size_t>(index) <= installations.size())
             window->set_game_directory(slint::SharedString(installations[index - 1].directory));
         refresh_window(*window, installations);
+        if (!window->get_controls_available())
+            hide_controls();
     });
-    window->on_launch_requested([&window, &accepted, &installations, &selectedCampaign](int campaign) {
+    window->on_controls_requested([&window, &controls, options, sync_controls]() {
+        if (!controls)
+            controls = create_controls_window(window, options->keyBindings);
+        sync_controls();
+        (*controls)->show();
+    });
+    window->on_controls_layout_changed(sync_controls);
+    window->window().on_close_requested([hide_controls]() {
+        hide_controls();
+        return slint::CloseRequestResponse::HideWindow;
+    });
+    window->on_launch_requested([&window, &accepted, &installations, &selectedCampaign,
+                                 &controls, options, hide_controls](int campaign) {
         refresh_window(*window, installations);
         if (!window->get_path_valid() ||
             (campaign == 1 && !window->get_has_so1()) ||
@@ -241,14 +584,22 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         }
         window->set_game_directory(slint::SharedString(absoluteText));
         selectedCampaign = campaign;
+        /* The changed bindings go to the game and the launcher settings. */
+        if (controls) {
+            const auto keyBindings = changed_key_bindings(**controls);
+            if (keyBindings.size() < sizeof(options->keyBindings))
+                std::memcpy(options->keyBindings, keyBindings.c_str(), keyBindings.size() + 1);
+        }
         accepted = true;
+        hide_controls();
         /* Hide while the event loop still runs: on Linux the request takes
            effect only when the loop processes it, so hiding after the loop
            left the launcher on screen during the game. */
         window->hide();
         slint::quit_event_loop();
     });
-    window->on_cancel_requested([]() {
+    window->on_cancel_requested([hide_controls]() {
+        hide_controls();
         slint::quit_event_loop();
     });
 
@@ -256,7 +607,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     /* NFD_Init records Cocoa's activation policy. Initialize it from the
      * callback, after winit launches NSApplication, so NFD_Quit cannot restore
      * the temporary pre-launch Prohibited policy before SDL takes over. */
-    window->on_browse_requested([&window, &pickerInitialized, &installations]() {
+    window->on_browse_requested([&window, &pickerInitialized, &installations, hide_controls]() {
         if (!pickerInitialized) {
             if (NFD_Init() != NFD_OKAY) {
                 report_picker_error(
@@ -267,8 +618,11 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             pickerInitialized = true;
         }
         browse_for_game_directory(*window, installations);
+        if (!window->get_controls_available())
+            hide_controls();
     });
     slint::run_event_loop();
+    hide_controls();
     if (pickerInitialized)
         NFD_Quit();
     window->hide();

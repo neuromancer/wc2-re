@@ -7,6 +7,8 @@ import {
     VerticalBox
 } from "std-widgets.slint";
 
+export { ControlsWindow, PadControl } from "controls.slint";
+
 export enum LauncherMessage {
     choose-directory, path-too-long, not-directory, choose-data-directory,
     missing-cockpit, unreadable-cockpit, missing-game-file, unknown-cockpit,
@@ -68,6 +70,20 @@ export component LauncherWindow inherits Window {
         if message == LauncherMessage.cannot-resolve-directory { return @tr("Cannot resolve the game directory") + (detail == "" ? "" : ": " + detail); }
         if message == LauncherMessage.cannot-open-directory { return @tr("Cannot open the game directory") + (detail == "" ? "" : ": " + detail); }
         return "";
+    }
+
+    // The controls window covers WC2's DOS and Kilrathi Saga data.
+    out property <bool> controls-available: root.path-valid
+        && (root.status == LauncherMessage.dos || root.status == LauncherMessage.kilrathi-saga);
+    callback controls-requested();
+    // The selectors the controls window follows while it is open.
+    callback controls-layout-changed();
+
+    changed joystick-mode-index => {
+        root.controls-layout-changed();
+    }
+    changed joystick-axes-index => {
+        root.controls-layout-changed();
     }
 
     callback browse-requested();
@@ -304,12 +320,26 @@ export component LauncherWindow inherits Window {
                         }
                     }
 
-                    CheckBox {
+                    HorizontalLayout {
                         row: 2;
                         col: 1;
-                        height: 26px;
-                        text: @tr("Rumble");
-                        checked <=> root.joystick-rumble;
+                        spacing: 8px;
+
+                        CheckBox {
+                            height: 26px;
+                            text: @tr("Rumble");
+                            checked <=> root.joystick-rumble;
+                        }
+
+                        Rectangle { horizontal-stretch: 1; }
+
+                        Button {
+                            text: @tr("Show controls…");
+                            enabled: root.controls-available;
+                            clicked => {
+                                root.controls-requested();
+                            }
+                        }
                     }
                 }
             }

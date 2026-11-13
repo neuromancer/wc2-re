@@ -87,6 +87,26 @@ std::filesystem::path launcher_config_path()
     return path;
 }
 
+/* A [keys] line: an action name and its bindings, both plain ASCII with
+ * other bytes percent-encoded (see src/sdl/keymap.c). */
+bool valid_key_binding(std::string_view action, std::string_view bindings)
+{
+    if (action.empty())
+        return false;
+    for (const char character : action) {
+        if (!((character >= 'a' && character <= 'z') ||
+              (character >= '0' && character <= '9') || character == '-'))
+            return false;
+    }
+    for (const char character : bindings) {
+        if (!((character >= 'a' && character <= 'z') ||
+              (character >= '0' && character <= '9') ||
+              character == '-' || character == '%' || character == '+' || character == ','))
+            return false;
+    }
+    return true;
+}
+
 void load_launcher_config(const std::filesystem::path &path,
                           SdlLauncherOptions &options)
 {
@@ -95,7 +115,9 @@ void load_launcher_config(const std::filesystem::path &path,
     std::ifstream input(path, std::ios::binary);
     std::string line;
     bool inLauncherSection = false;
+    bool inKeysSection = false;
     bool firstLine = true;
+    std::string keyBindings;
 
     while (std::getline(input, line)) {
         std::string_view text(line);
@@ -109,13 +131,21 @@ void load_launcher_config(const std::filesystem::path &path,
             continue;
         if (text.front() == '[') {
             inLauncherSection = text == "[launcher]";
+            inKeysSection = text == "[keys]";
             continue;
         }
         const auto separator = text.find('=');
-        if (!inLauncherSection || separator == std::string_view::npos)
+        if ((!inLauncherSection && !inKeysSection) || separator == std::string_view::npos)
             continue;
         const auto key = trim_setting(text.substr(0, separator));
         auto value = trim_setting(text.substr(separator + 1));
+        if (inKeysSection) {
+            /* An empty value is an action with no keys left. */
+            if (valid_key_binding(key, value) &&
+                keyBindings.size() + key.size() + value.size() + 2 < sizeof(options.keyBindings))
+                keyBindings.append(key).append("=").append(value).append("\n");
+            continue;
+        }
         if (value.empty())
             continue;
         if (key == "game_directory") {
@@ -144,6 +174,7 @@ void load_launcher_config(const std::filesystem::path &path,
             break;
         }
     }
+    std::memcpy(options.keyBindings, keyBindings.c_str(), keyBindings.size() + 1);
 }
 
 bool save_launcher_config(const std::filesystem::path &path,
@@ -160,6 +191,13 @@ bool save_launcher_config(const std::filesystem::path &path,
            << "game_directory=\"" << options.gameDirectory << "\"\n";
     for (const auto &setting : integerSettings)
         output << setting.name << '=' << options.*setting.member << '\n';
+    const std::string_view keyBindings(options.keyBindings,
+                                       strnlen(options.keyBindings, sizeof(options.keyBindings)));
+    if (!keyBindings.empty()) {
+        output << "[keys]\n" << keyBindings;
+        if (keyBindings.back() != '\n')
+            output << '\n';
+    }
     output.close();
 
     std::error_code error;

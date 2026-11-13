@@ -61,7 +61,16 @@ set_target_properties(wc2-slint-gui PROPERTIES
     SLINT_BUNDLE_TRANSLATIONS "${CMAKE_CURRENT_SOURCE_DIR}/../../../translations"
     SLINT_TRANSLATION_DOMAIN launcher
 )
+# Embed images such as the controls window's SC Controller artwork; Slint's
+# C++ default would load them from the source tree at run time.
+set_property(TARGET wc2-slint-gui PROPERTY SLINT_EMBED_RESOURCES embed-files)
 slint_target_sources(wc2-slint-gui launcher.slint)
+
+add_executable(wc2-launcher-check EXCLUDE_FROM_ALL ../../../bin/checkLauncher.cpp)
+target_link_libraries(wc2-launcher-check PRIVATE
+    wc2-slint-gui Slint::Slint nfd::nfd PkgConfig::WC2_SDL2)
+enable_testing()
+add_test(NAME launcher-controls COMMAND wc2-launcher-check)
 
 if(UNIX AND NOT APPLE)
     # Slint's static Rust library uses Fontconfig to find system fonts.

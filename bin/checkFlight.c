@@ -8,7 +8,8 @@
  * the cockpit rather than the full-screen view. Action bits 0-5 select a
  * control; bit 6 keeps the controls already held. Hold bits 0-5 give 1..64
  * ticks and bits 6-7 multiply them by 1, 2, 4 or 8. WC2_FLIGHT_TRACE prints
- * where each input started and ended. */
+ * where each input started and ended. WC2_FLIGHT_KEYS rebinds the flight keys
+ * and mouse buttons, in the launcher's [keys] form. */
 #include "game.h"
 #include <sanitizer/common_interface_defs.h>
 #include <sys/stat.h>
@@ -654,6 +655,8 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     const char *campaignName = getenv("WC2_FLIGHT_CAMPAIGN");
     const char *ticks = getenv("WC2_FLIGHT_TICKS");
     const char *seeds = getenv("WC2_FLIGHT_SEEDS");
+    /* Rebound keys and mouse buttons, as the launcher's [keys] lines. */
+    const char *keyBindings = getenv("WC2_FLIGHT_KEYS");
     int filterCampaign = -1;
     int series, mission, nav, legs, cases = 0;
     int list = getenv("WC2_FLIGHT_LIST") != NULL;
@@ -664,6 +667,8 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     inputActive = 1;
     gameThread = SDL_ThreadID();
     traceInputs = getenv("WC2_FLIGHT_TRACE") != NULL;
+    if (keyBindings != NULL)
+        SdlSetKeyBindings(keyBindings);
     Require(scratch != NULL, "use runGameTests.py to prepare disposable data");
     if (campaignName)
         fuzzCampaign = atoi(campaignName);

@@ -530,6 +530,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
 	src/sdl/joystick.c \
+	src/sdl/keymap.c \
 	src/sdl/music.c \
 	src/sdl/raster.c \
 	src/sdl/video.c
@@ -549,7 +550,9 @@ MODERN_TRANSLATIONS = \
 	$(MODERN_TRANSLATION_LANGUAGES:%=$(MODERN_OUT_DIR)/translations/%.dat)
 MODERN_GUI_SRCS = \
 	$(wildcard translations/*/LC_MESSAGES/*.po) \
+	$(wildcard third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg) \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
+	$(MODERN_GUI_SOURCE_DIR)/controls.slint \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
 	$(MODERN_GUI_SOURCE_DIR)/launcher_api.h \
@@ -618,6 +621,12 @@ modern: $(MODERN_TARGET)
 # default without arguments, or explicitly with --gui alongside other options.
 modern-gui: $(MODERN_GUI_TARGET)
 
+# The launcher's controls window, offscreen (bin/checkLauncher.cpp).
+.PHONY: check-launcher
+check-launcher: modern-gui
+	CARGO_PROFILE_RELEASE_LTO=false $(MODERN_CMAKE) --build $(MODERN_GUI_BUILD_DIR) --config $(MODERN_GUI_BUILD_TYPE) --target wc2-launcher-check
+	ctest --test-dir $(MODERN_GUI_BUILD_DIR) -C $(MODERN_GUI_BUILD_TYPE) --output-on-failure
+
 .PHONY: modern-translations
 modern-translations: $(MODERN_TRANSLATIONS)
 
@@ -629,7 +638,8 @@ update-translations:
 SLINT_TR_EXTRACTOR ?= slint-tr-extractor
 update-launcher-translations:
 	@mkdir -p $(MODERN_OUT_DIR)
-	$(SLINT_TR_EXTRACTOR) --package-name wc2-re -o $(MODERN_OUT_DIR)/launcher.pot $(MODERN_GUI_SOURCE_DIR)/launcher.slint
+	$(SLINT_TR_EXTRACTOR) --package-name wc2-re -o $(MODERN_OUT_DIR)/launcher.pot \
+		$(MODERN_GUI_SOURCE_DIR)/launcher.slint $(MODERN_GUI_SOURCE_DIR)/controls.slint
 	for language in $(MODERN_TRANSLATION_LANGUAGES); do \
 		msgmerge --update --backup=none --no-fuzzy-matching --no-wrap \
 			translations/$$language/LC_MESSAGES/launcher.po \
@@ -855,6 +865,33 @@ check-fuzz-so1: fuzz-flight
 check-fuzz-so2: fuzz-flight
 	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX)" \
 		"$(if $(SO2_DATA),$(SO2_DATA),$(FUZZ_DATA))" --campaign so2 $(FUZZ_ARGS)
+
+# The keyboard and mouse rebinding of src/sdl/keymap.c, on its own.
+$(MODERN_OUT_DIR)/keymap-probe: bin/checkKeymap.c src/sdl/keymap.c src/sdl/keymap_actions.h include/sdl_port.h | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
+		bin/checkKeymap.c src/sdl/keymap.c $(MODERN_SDL_LIBS) -o $@
+
+.PHONY: check-keymap
+check-keymap: $(MODERN_OUT_DIR)/keymap-probe
+	SDL_VIDEODRIVER=dummy $(MODERN_OUT_DIR)/keymap-probe
+
+# Controller triggers and the View button through the game's SDL paths, on an
+# SDL virtual controller (bin/checkGamepad.c).
+$(MODERN_OUT_DIR)/obj/gamepad_probe.o: bin/checkGamepad.c include/game.h include/sdl_port.h | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/gamepad-probe: $(MODERN_OUT_DIR)/obj/gamepad_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-gamepad
+check-gamepad: $(MODERN_OUT_DIR)/gamepad-probe
+	$(MODERN_OUT_DIR)/gamepad-probe
 
 ifeq ($(MODERN_FUZZING),1)
 $(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c | modern-check-deps

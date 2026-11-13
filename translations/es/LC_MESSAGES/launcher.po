@@ -86,6 +86,10 @@ msgid "Add path…"
 msgstr "Añadir carpeta…"
 
 msgctxt "LauncherWindow"
+msgid "Language"
+msgstr "Idioma"
+
+msgctxt "LauncherWindow"
 msgid "Graphics"
 msgstr "Gráficos"
 
@@ -108,10 +112,6 @@ msgstr "Juego"
 msgctxt "LauncherWindow"
 msgid "Balanced difficulty"
 msgstr "Dificultad equilibrada"
-
-msgctxt "LauncherWindow"
-msgid "Language"
-msgstr "Idioma"
 
 msgctxt "LauncherWindow"
 msgid "Cheat mode"
@@ -182,6 +182,10 @@ msgid "Rumble"
 msgstr "Vibración"
 
 msgctxt "LauncherWindow"
+msgid "Show controls…"
+msgstr "Ver controles…"
+
+msgctxt "LauncherWindow"
 msgid "Close this window to cancel."
 msgstr "Cierra esta ventana para cancelar."
 
@@ -200,3 +204,611 @@ msgstr "Iniciar SO1"
 msgctxt "LauncherWindow"
 msgid "Start SO2"
 msgstr "Iniciar SO2"
+
+msgctxt "ControlsWindow"
+msgid "Wing Commander II controls"
+msgstr "Controles de Wing Commander II"
+
+msgctxt "ControlsWindow"
+msgid "Original — two axes / two buttons"
+msgstr "Original — 2 ejes / 2 botones"
+
+msgctxt "ControlsWindow"
+msgid "WCAT — four buttons / two axes"
+msgstr "WCAT — 4 botones / 2 ejes"
+
+msgctxt "ControlsWindow"
+msgid "WCAT — four buttons / four axes"
+msgstr "WCAT — 4 botones / 4 ejes"
+
+msgctxt "ControlsWindow"
+msgid "Twin-stick roll"
+msgstr "Doble palanca: alabeo"
+
+msgctxt "ControlsWindow"
+msgid "Twin-stick yaw"
+msgstr "Doble palanca: guiñada"
+
+msgctxt "ControlsWindow"
+msgid "HOTAS yaw"
+msgstr "HOTAS: guiñada"
+
+msgctxt "ControlsWindow"
+msgid "HOTAS roll"
+msgstr "HOTAS: alabeo"
+
+msgctxt "ControlsWindow"
+msgid "Linear throttle"
+msgstr "Acelerador lineal"
+
+msgctxt "ControlsWindow"
+msgid "Rudder yaw"
+msgstr "Timón: guiñada"
+
+msgctxt "ControlsWindow"
+msgid "Rudder roll"
+msgstr "Timón: alabeo"
+
+msgctxt "ControlsWindow"
+msgid "Flight"
+msgstr "Vuelo"
+
+msgctxt "ControlsWindow"
+msgid "Dive"
+msgstr "Picar"
+
+msgctxt "ControlsWindow"
+msgid "Climb"
+msgstr "Ascender"
+
+msgctxt "ControlsWindow"
+msgid "Turn left"
+msgstr "Girar a la izquierda"
+
+msgctxt "ControlsWindow"
+msgid "Turn right"
+msgstr "Girar a la derecha"
+
+msgctxt "ControlsWindow"
+msgid "Dive and turn left"
+msgstr "Picar y girar a la izquierda"
+
+msgctxt "ControlsWindow"
+msgid "Dive and turn right"
+msgstr "Picar y girar a la derecha"
+
+msgctxt "ControlsWindow"
+msgid "Climb and turn left"
+msgstr "Ascender y girar a la izquierda"
+
+msgctxt "ControlsWindow"
+msgid "Climb and turn right"
+msgstr "Ascender y girar a la derecha"
+
+msgctxt "ControlsWindow"
+msgid "Stop turning"
+msgstr "Dejar de girar"
+
+msgctxt "ControlsWindow"
+msgid "Roll left"
+msgstr "Alabeo a la izquierda"
+
+msgctxt "ControlsWindow"
+msgid "Roll right"
+msgstr "Alabeo a la derecha"
+
+msgctxt "ControlsWindow"
+msgid "Sharp turns and rolls"
+msgstr "Giros y alabeos bruscos"
+
+msgctxt "ControlsWindow"
+msgid "hold with a turn key"
+msgstr "mantener con una tecla de giro"
+
+msgctxt "ControlsWindow"
+msgid "Speed up"
+msgstr "Acelerar"
+
+msgctxt "ControlsWindow"
+msgid "Slow down"
+msgstr "Frenar"
+
+msgctxt "ControlsWindow"
+msgid "Full speed"
+msgstr "Velocidad máxima"
+
+msgctxt "ControlsWindow"
+msgid "Immediate stop"
+msgstr "Parada inmediata"
+
+msgctxt "ControlsWindow"
+msgid "Afterburner"
+msgstr "Postquemador"
+
+msgctxt "ControlsWindow"
+msgid "hold"
+msgstr "mantener"
+
+msgctxt "ControlsWindow"
+msgid "Weapons"
+msgstr "Armas"
+
+msgctxt "ControlsWindow"
+msgid "Fire guns"
+msgstr "Disparar cañones"
+
+msgctxt "ControlsWindow"
+msgid "Fire missile"
+msgstr "Lanzar misil"
+
+msgctxt "ControlsWindow"
+msgid "Gun type, or tractor beam"
+msgstr "Tipo de cañón o rayo tractor"
+
+msgctxt "ControlsWindow"
+msgid "Weapon system"
+msgstr "Sistema de armas"
+
+msgctxt "ControlsWindow"
+msgid "Mouse"
+msgstr "Ratón"
+
+msgctxt "ControlsWindow"
+msgid "double-click and hold"
+msgstr "doble clic y mantener"
+
+msgctxt "ControlsWindow"
+msgid "both buttons"
+msgstr "ambos botones"
+
+msgctxt "ControlsWindow"
+msgid "Roll and change speed"
+msgstr "Alabeo y cambio de velocidad"
+
+msgctxt "ControlsWindow"
+msgid "hold and move"
+msgstr "mantener y mover"
+
+msgctxt "ControlsWindow"
+msgid "Cockpit"
+msgstr "Cabina"
+
+msgctxt "ControlsWindow"
+msgid "Targeting computer, change target"
+msgstr "Ordenador de puntería, cambiar de objetivo"
+
+msgctxt "ControlsWindow"
+msgid "Lock target"
+msgstr "Fijar objetivo"
+
+msgctxt "ControlsWindow"
+msgid "Damage display"
+msgstr "Pantalla de daños"
+
+msgctxt "ControlsWindow"
+msgid "Navigation display, then map"
+msgstr "Pantalla de navegación, luego mapa"
+
+msgctxt "ControlsWindow"
+msgid "Autopilot"
+msgstr "Piloto automático"
+
+msgctxt "ControlsWindow"
+msgid "Hyperjump"
+msgstr "Salto hiperespacial"
+
+msgctxt "ControlsWindow"
+msgid "Broadsword only"
+msgstr "Solo en el Broadsword"
+
+msgctxt "ControlsWindow"
+msgid "Eject"
+msgstr "Eyectarse"
+
+msgctxt "ControlsWindow"
+msgid "Wingman"
+msgstr "Compañero"
+
+msgctxt "ControlsWindow"
+msgid "Communications"
+msgstr "Comunicaciones"
+
+msgctxt "ControlsWindow"
+msgid "Choose a message"
+msgstr "Elegir mensaje"
+
+msgctxt "ControlsWindow"
+msgid "Attack my target"
+msgstr "Atacar mi objetivo"
+
+msgctxt "ControlsWindow"
+msgid "Break and attack"
+msgstr "Romper y atacar"
+
+msgctxt "ControlsWindow"
+msgid "Request a damage report"
+msgstr "Pedir informe de daños"
+
+msgctxt "ControlsWindow"
+msgid "Form on my wing"
+msgstr "Formar en mi ala"
+
+msgctxt "ControlsWindow"
+msgid "Help me out here"
+msgstr "Ayúdame aquí"
+
+msgctxt "ControlsWindow"
+msgid "Taunt the targeted enemy"
+msgstr "Provocar al enemigo fijado"
+
+msgctxt "ControlsWindow"
+msgid "Views"
+msgstr "Vistas"
+
+msgctxt "ControlsWindow"
+msgid "Front view; again: cockpit on/off"
+msgstr "Vista frontal; otra vez: con/sin cabina"
+
+msgctxt "ControlsWindow"
+msgid "Left view or left turret"
+msgstr "Vista izquierda o torreta izquierda"
+
+msgctxt "ControlsWindow"
+msgid "Right view or right turret"
+msgstr "Vista derecha o torreta derecha"
+
+msgctxt "ControlsWindow"
+msgid "Rear view or rear turret"
+msgstr "Vista trasera o torreta trasera"
+
+msgctxt "ControlsWindow"
+msgid "Chase view"
+msgstr "Vista de persecución"
+
+msgctxt "ControlsWindow"
+msgid "Battle view"
+msgstr "Vista de batalla"
+
+msgctxt "ControlsWindow"
+msgid "Tactical view"
+msgstr "Vista táctica"
+
+msgctxt "ControlsWindow"
+msgid "Missile camera on/off"
+msgstr "Activar/desactivar cámara de misil"
+
+msgctxt "ControlsWindow"
+msgid "Tailing views"
+msgstr "Vistas de seguimiento"
+
+msgctxt "ControlsWindow"
+msgid "Game"
+msgstr "Juego"
+
+msgctxt "ControlsWindow"
+msgid "Pause"
+msgstr "Pausa"
+
+msgctxt "ControlsWindow"
+msgid "Message duration"
+msgstr "Duración de los mensajes"
+
+msgctxt "ControlsWindow"
+msgid "Comm videos on/off"
+msgstr "Activar/desactivar vídeos de comunicación"
+
+msgctxt "ControlsWindow"
+msgid "Music on/off"
+msgstr "Activar/desactivar música"
+
+msgctxt "ControlsWindow"
+msgid "Sound on/off"
+msgstr "Activar/desactivar sonido"
+
+msgctxt "ControlsWindow"
+msgid "Full screen"
+msgstr "Pantalla completa"
+
+msgctxt "ControlsWindow"
+msgid "Home"
+msgstr "Inicio"
+
+msgctxt "ControlsWindow"
+msgid "End"
+msgstr "Fin"
+
+msgctxt "ControlsWindow"
+msgid "PgUp"
+msgstr "RePág"
+
+msgctxt "ControlsWindow"
+msgid "PgDn"
+msgstr "AvPág"
+
+msgctxt "ControlsWindow"
+msgid "Ins"
+msgstr "Insert"
+
+msgctxt "ControlsWindow"
+msgid "Del"
+msgstr "Supr"
+
+msgctxt "ControlsWindow"
+msgid "Backspace"
+msgstr "Retroceso"
+
+msgctxt "ControlsWindow"
+msgid "Tab"
+msgstr "Tab"
+
+msgctxt "ControlsWindow"
+msgid "Space"
+msgstr "Espacio"
+
+msgctxt "ControlsWindow"
+msgid "Enter"
+msgstr "Intro"
+
+msgctxt "ControlsWindow"
+msgid "Esc"
+msgstr "Esc"
+
+msgctxt "ControlsWindow"
+msgid "Shift"
+msgstr "Mayús"
+
+msgctxt "ControlsWindow"
+msgid "Ctrl"
+msgstr "Ctrl"
+
+msgctxt "ControlsWindow"
+msgid "Alt"
+msgstr "Alt"
+
+msgctxt "ControlsWindow"
+msgid "Caps Lock"
+msgstr "Bloq Mayús"
+
+msgctxt "ControlsWindow"
+msgid "Scroll Lock"
+msgstr "Bloq Despl"
+
+msgctxt "ControlsWindow"
+msgid "Print Screen"
+msgstr "Impr Pant"
+
+msgctxt "ControlsWindow"
+msgid "Menu"
+msgstr "Menú"
+
+msgctxt "ControlsWindow"
+msgid "Keypad 5"
+msgstr "5 del teclado numérico"
+
+msgctxt "ControlsWindow"
+msgid "Mouse movement"
+msgstr "Movimiento del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Left mouse button"
+msgstr "Botón izquierdo del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Right mouse button"
+msgstr "Botón derecho del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Middle mouse button"
+msgstr "Botón central del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Mouse button 4"
+msgstr "Botón 4 del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Mouse button 5"
+msgstr "Botón 5 del ratón"
+
+msgctxt "ControlsWindow"
+msgid "Mouse wheel up"
+msgstr "Rueda del ratón hacia arriba"
+
+msgctxt "ControlsWindow"
+msgid "Mouse wheel down"
+msgstr "Rueda del ratón hacia abajo"
+
+msgctxt "ControlsWindow"
+msgid "roll and pitch"
+msgstr "alabeo y cabeceo"
+
+msgctxt "ControlsWindow"
+msgid "pitch and yaw"
+msgstr "cabeceo y guiñada"
+
+msgctxt "ControlsWindow"
+msgid "fire guns"
+msgstr "disparar cañones"
+
+msgctxt "ControlsWindow"
+msgid "cycle views"
+msgstr "cambiar de vista"
+
+msgctxt "ControlsWindow"
+msgid "pause"
+msgstr "pausa"
+
+msgctxt "ControlsWindow"
+msgid "hold to roll and change speed"
+msgstr "mantener: alabeo y velocidad"
+
+msgctxt "ControlsWindow"
+msgid "fire missile"
+msgstr "lanzar misil"
+
+msgctxt "ControlsWindow"
+msgid "afterburner"
+msgstr "postquemador"
+
+msgctxt "ControlsWindow"
+msgid "change target"
+msgstr "cambiar de objetivo"
+
+msgctxt "ControlsWindow"
+msgid "gun type"
+msgstr "tipo de cañón"
+
+msgctxt "ControlsWindow"
+msgid "weapon system"
+msgstr "sistema de armas"
+
+msgctxt "ControlsWindow"
+msgid "navigation display"
+msgstr "pantalla de navegación"
+
+msgctxt "ControlsWindow"
+msgid "autopilot"
+msgstr "piloto automático"
+
+msgctxt "ControlsWindow"
+msgid "full speed"
+msgstr "velocidad máxima"
+
+msgctxt "ControlsWindow"
+msgid "immediate stop"
+msgstr "parada inmediata"
+
+msgctxt "ControlsWindow"
+msgid "communications"
+msgstr "comunicaciones"
+
+msgctxt "ControlsWindow"
+msgid "lock target"
+msgstr "fijar objetivo"
+
+msgctxt "ControlsWindow"
+msgid "roll, speed"
+msgstr "alabeo, velocidad"
+
+msgctxt "ControlsWindow"
+msgid "yaw, speed"
+msgstr "guiñada, velocidad"
+
+msgctxt "ControlsWindow"
+msgid "yaw, throttle position"
+msgstr "guiñada, acelerador"
+
+msgctxt "ControlsWindow"
+msgid "roll, throttle position"
+msgstr "alabeo, acelerador"
+
+msgctxt "ControlsWindow"
+msgid "throttle position"
+msgstr "posición del acelerador"
+
+msgctxt "ControlsWindow"
+msgid "yaw"
+msgstr "guiñada"
+
+msgctxt "ControlsWindow"
+msgid "roll"
+msgstr "alabeo"
+
+msgctxt "ControlsWindow"
+msgid "Original joystick: A and B together fire a missile; double-click B and hold it for the afterburner."
+msgstr "Joystick original: A y B a la vez lanzan un misil; pulsa B dos veces y mantenlo para el postquemador."
+
+msgctxt "ControlsWindow"
+msgid "In the communications display, the D-pad's up and down choose, right sends and left closes."
+msgstr "En la pantalla de comunicaciones, arriba y abajo en la cruceta eligen, derecha envía e izquierda cierra."
+
+msgctxt "ControlsWindow"
+msgid "Y answers Yes in prompts; Back is Escape outside flight."
+msgstr "Y responde Sí en las preguntas; Back es Escape fuera del vuelo."
+
+msgctxt "ControlsWindow"
+msgid "Game controller — Wing Commander II"
+msgstr "Mando — Wing Commander II"
+
+msgctxt "ControlsWindow"
+msgid "Keyboard and mouse — Wing Commander II"
+msgstr "Teclado y ratón — Wing Commander II"
+
+msgctxt "ControlsWindow"
+msgid "Game controller"
+msgstr "Mando"
+
+msgctxt "ControlsWindow"
+msgid "Keyboard and mouse"
+msgstr "Teclado y ratón"
+
+msgctxt "ControlsWindow"
+msgid "Control mode"
+msgstr "Modo de control"
+
+msgctxt "ControlsWindow"
+msgid "Axis layout"
+msgstr "Asignación de ejes"
+
+msgctxt "ControlsWindow"
+msgid "Left stick"
+msgstr "Palanca izquierda"
+
+msgctxt "ControlsWindow"
+msgid "move"
+msgstr "mover"
+
+msgctxt "ControlsWindow"
+msgid "click"
+msgstr "pulsar"
+
+msgctxt "ControlsWindow"
+msgid "D-pad"
+msgstr "Cruceta"
+
+msgctxt "ControlsWindow"
+msgid "Buttons"
+msgstr "Botones"
+
+msgctxt "ControlsWindow"
+msgid "Right stick"
+msgstr "Palanca derecha"
+
+msgctxt "ControlsWindow"
+msgid "In flight. Click a key or button to change it, or + to add one; changes apply when the game starts."
+msgstr "En vuelo. Haz clic en una tecla o botón para cambiarlo, o en + para añadir otro; los cambios se aplican al iniciar el juego."
+
+msgctxt "ControlsWindow"
+msgid "Game input"
+msgstr "Acción del juego"
+
+msgctxt "ControlsWindow"
+msgid "Key or mouse"
+msgstr "Tecla o ratón"
+
+msgctxt "ControlsWindow"
+msgid "The keypad works too: 8, 2, 4 and 6 act as the arrows, 7, 9, 1 and 3 as the diagonals, 0 and . roll, * is the afterburner and + and − change speed. This port adds Escape to pause and the mouse wheel for speed. Two inputs at most per action; Escape and the message keys cannot be changed."
+msgstr "El teclado numérico también sirve: 8, 2, 4 y 6 actúan como las flechas, 7, 9, 1 y 3 como las diagonales, 0 y . alabean, * es el postquemador y + y − cambian la velocidad. Esta versión añade Escape para pausar y la rueda del ratón para la velocidad. Dos entradas como máximo por acción; Escape y las teclas de mensajes no se pueden cambiar."
+
+msgctxt "ControlsWindow"
+msgid "Restore defaults"
+msgstr "Restaurar valores"
+
+msgctxt "ControlsWindow"
+msgid "Change binding"
+msgstr "Cambiar asignación"
+
+msgctxt "ControlsWindow"
+msgid "Click a mouse button in this box. Esc cancels."
+msgstr "Haz clic con un botón del ratón en este recuadro. Esc cancela."
+
+msgctxt "ControlsWindow"
+msgid "Press a key, or click or scroll in this box with the mouse. Esc cancels."
+msgstr "Pulsa una tecla, o haz clic o gira la rueda del ratón en este recuadro. Esc cancela."
+
+msgctxt "ControlsWindow"
+msgid "Remove"
+msgstr "Quitar"
+
+msgctxt "ControlsWindow"
+msgid "Cancel"
+msgstr "Cancelar"
