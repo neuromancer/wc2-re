@@ -1130,6 +1130,16 @@ void RunLoadedCutscene(void)
     if (g_pMemoryLogFile != 0)
         fclose(g_pMemoryLogFile);
     g_cShowMemoryStatus = (signed char)previousMemoryStatus;
+#ifdef SDL_PORT
+    /* PlayRawSpeechBuffer drops the cinematic rate to 20 frames per second
+     * for a voiced line, and the port no longer raises it back to 70 when
+     * the line ends (see ServiceSoundSystem), so after one spoken line
+     * every menu and later cutscene stayed at 20 until a flight ended.
+     * Hand whatever follows this cutscene the default rate. Scenes played
+     * during spaceflight keep the space-flight rate. */
+    if (g_1_bSpaceFlightActive == 0)
+        SetDefaultFrameTiming();
+#endif
 }
 
 /* Function start: 0x42D81C */
