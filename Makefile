@@ -215,8 +215,12 @@ MODERN_SECTION_FLAGS = -ffunction-sections -fdata-sections
 # all of ASan stay on.
 MODERN_UBSAN_EXCLUDE = -fno-sanitize=alignment
 # Developer builds retain runtime diagnostics.  Tagged release jobs
-# explicitly select the optimized, uninstrumented host build.
-ifeq ($(MODERN_RELEASE),1)
+# explicitly select the optimized, uninstrumented host build.  The flight
+# fuzzer adds coverage to every object and keeps going after UBSan reports.
+ifeq ($(MODERN_FUZZING),1)
+override MODERN_SANITIZER_FLAGS = -g -O1 -fsanitize=fuzzer-no-link,address,undefined \
+	$(MODERN_UBSAN_EXCLUDE) -fsanitize-recover=undefined -fno-omit-frame-pointer
+else ifeq ($(MODERN_RELEASE),1)
 override MODERN_SANITIZER_FLAGS =
 else
 override MODERN_SANITIZER_FLAGS = -fsanitize=address,undefined \
@@ -827,11 +831,40 @@ modern-test-cutscene-%: modern
 	fi; \
 	echo "Passed cutscene $$selector"
 
-$(MODERN_OUT_DIR)/obj/flight_probe.o: bin/checkFlight.c | modern-check-deps
+FUZZ_CC ?= clang
+FUZZ_CXX ?= clang++
+FUZZ_OUT_DIR ?= out-modern/fuzz
+FUZZ_DATA = $(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))
+
+# Compile every game object with coverage, separately from normal SDL builds.
+# One campaign per process: each campaign loads its own ship and mission data.
+.PHONY: fuzz-flight check-fuzz check-fuzz-so1 check-fuzz-so2
+fuzz-flight:
+	$(MAKE) MODERN_OUT_DIR="$(FUZZ_OUT_DIR)" MODERN_CC="$(FUZZ_CC)" \
+		MODERN_CXX="$(FUZZ_CXX)" MODERN_FUZZING=1 \
+		"$(FUZZ_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX)"
+
+check-fuzz: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX)" \
+		"$(FUZZ_DATA)" --campaign wc2 $(FUZZ_ARGS)
+
+check-fuzz-so1: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX)" \
+		"$(if $(SO1_DATA),$(SO1_DATA),$(FUZZ_DATA))" --campaign so1 $(FUZZ_ARGS)
+
+check-fuzz-so2: fuzz-flight
+	python3 bin/runGameTests.py "$(FUZZ_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX)" \
+		"$(if $(SO2_DATA),$(SO2_DATA),$(FUZZ_DATA))" --campaign so2 $(FUZZ_ARGS)
+
+ifeq ($(MODERN_FUZZING),1)
+$(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
+# The fuzzer runs the game on a simulated clock: its copy of input.c reads the
+# fuzzer's ticks and sleeps, and its copy of events.c leaves SdlPumpEvents to
+# the fuzzer, which advances that clock and the text of mid-flight scenes.
 $(MODERN_OUT_DIR)/obj/flight_events.o: src/sdl/events.c | modern-check-deps
 	@mkdir -p $(dir $@)
 	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) \
@@ -844,20 +877,22 @@ $(MODERN_OUT_DIR)/obj/flight_input.o: src/sdl/input.c | modern-check-deps
 		-DSDL_GetTicks=SdlFlightProbeGetTicks -DSDL_Delay=SdlFlightProbeDelay \
 		$(MODERN_DEPFLAGS) -c $< -o $@
 
-$(MODERN_OUT_DIR)/flight-probe$(MODERN_EXE_SUFFIX): $(MODERN_OUT_DIR)/obj/flight_probe.o \
+$(MODERN_OUT_DIR)/flight-fuzzer$(MODERN_EXE_SUFFIX): $(MODERN_OUT_DIR)/obj/flight_fuzzer.o \
 		$(MODERN_OUT_DIR)/obj/flight_events.o $(MODERN_OUT_DIR)/obj/flight_input.o \
 		$(filter-out $(MODERN_OUT_DIR)/obj/sdl/input.o,$(MODERN_BASE_HOST_OBJS)) \
 		$(filter-out $(MODERN_OUT_DIR)/obj/sdl/events.o,$(MODERN_GAME_HOST_OBJS)) \
 		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
 	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
 		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
-		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+		$(MODERN_DEAD_STRIP_FLAGS) -fsanitize=fuzzer -o $@
 
-.PHONY: check-random
-check-random: $(MODERN_OUT_DIR)/flight-probe$(MODERN_EXE_SUFFIX)
-	python3 bin/runGameTests.py "$<" "$(if $(GAME_DATA),$(GAME_DATA),$(MODERN_RUN_DIR))" $(RANDOM_ARGS)
+# Sanitizer flag changes must not leave stale objects in the fuzz tree.
+$(MODERN_OUT_DIR)/obj/flight_fuzzer.o $(MODERN_OUT_DIR)/obj/flight_events.o \
+		$(MODERN_OUT_DIR)/obj/flight_input.o $(MODERN_BASE_HOST_OBJS) \
+		$(MODERN_GAME_HOST_OBJS) $(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS): Makefile
+endif
 
--include $(MODERN_DEPFILES) $(MODERN_OUT_DIR)/obj/flight_probe.d \
+-include $(MODERN_DEPFILES) $(MODERN_OUT_DIR)/obj/flight_fuzzer.d \
 	$(MODERN_OUT_DIR)/obj/flight_events.d $(MODERN_OUT_DIR)/obj/flight_input.d
 
 ifeq ($(UNAME_S),Linux)

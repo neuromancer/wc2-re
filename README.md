@@ -179,17 +179,22 @@ Set `CAMPAIGN=so1` or `CAMPAIGN=so2` for either expansion's 20 mission
 sequences or direct flight, and
 `CUTSCENE_PHASE=postflight` to test debriefings instead of preflight scenes.
 
-For seeded flight crash tests, use:
+To fuzz spaceflight with libFuzzer (Clang with libFuzzer support, such as
+Homebrew's LLVM on macOS), use:
 
 ```sh
-make check-random GAME_DATA=/path/to/WC2 RANDOM_ARGS='--seed 1 --ticks 600 --jobs 4 --keep-going'
+make check-fuzz GAME_DATA=/path/to/WC2 FUZZ_ARGS='-- -max_total_time=3600'
+make check-fuzz-so1 SO1_DATA=/path/to/WC2 FUZZ_ARGS='-- -max_total_time=3600'
+make check-fuzz-so2 SO2_DATA=/path/to/WC2 FUZZ_ARGS='-- -max_total_time=3600'
 ```
 
-This adapts WC1's CLI flight tester to WC2, SO1 and SO2 with DOS or Saga data.
-It copies assets into temporary installations, exercises combat and rendering
-at active navigation points, and saves logs and replay commands under
-`out-modern/flight-*/`. See [flight testing and current findings](src/sdl/FLIGHT_TESTS.md)
-for selecting a campaign, replaying a failure, and test coverage limits.
+This adapts WC1's flight fuzzer to WC2, SO1 and SO2 with DOS or Saga data.
+Each input picks a mission, a start (later flight-path legs, a nav point or
+the cockpit) and a sequence of flight controls. The runner copies assets into
+a temporary installation, keeps the corpus and crash inputs under
+`out-modern/fuzz/`, and prints a replay command. See
+[flight fuzzing and findings](src/sdl/FLIGHT_TESTS.md) for the input format,
+replaying a failure, and coverage limits.
 
 The graphical launcher (`make -j modern-gui`) also needs CMake 3.21+, Rust
 1.92+, and a C++20 compiler. Linux builds need the D-Bus and Fontconfig
