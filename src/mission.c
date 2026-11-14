@@ -1402,6 +1402,16 @@ short init_ship(short missionShip, short navPoint)
             Set_up_ship_info(obj, missionShip, (signed char)navPoint);
             if (record->field_13 != 0)
                 ApplyAlternateShipType(obj);
+#ifdef SDL_PORT
+            /* SO2.exe 0x43A980: the Gamal Gan reuses the Dorkathi
+             * transport's resource, drawn at scale 2000 with a collision
+             * radius of 10. The name is compared without regard to case. */
+            if (g_nSdlCampaign == 2 &&
+                SDL_strcasecmp(record->name, "Gamal Gan") == 0) {
+                g_asObjectCollisionRadius[obj] = 10;
+                g_asObjectScale[obj] = 2000;
+            }
+#endif
             find_next_ship_turn_slot(obj);
             check_futurion(obj);
         }
