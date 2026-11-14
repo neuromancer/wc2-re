@@ -276,6 +276,13 @@ void imperial_formation(short obj)
             g_nYourWingman == -1) {
             if (g_nAutoEngageTimer < -1)
                 g_nAutoEngageTimer++;
+#ifdef SDL_PORT
+            /* SO1.exe 0x442E65 and SO2.exe 0x404E85: with no wingman of
+             * the player's, ships in formation ask to engage at once; the
+             * timer below only ever starts for that wingman. */
+            else if (g_nSdlCampaign != 0 && obj != g_nYourWingman)
+                try2allow_engage(obj);
+#endif
             else if (g_nAutoEngageTimer != -1 &&
                      --g_nAutoEngageTimer == 0)
                 try2allow_engage(obj);
