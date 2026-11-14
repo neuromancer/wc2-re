@@ -66,7 +66,7 @@ static int SdlPrepareCampaignFiles(int campaign, const char *directory)
         "CAMPAIGN.S02", "GAMEFLOW.S02", "MODULE.002", "SERIES.S02",
         "STARTGLB.002", "ALTSHIPS.002", "INCIDENT.S02", "SECTOR.002",
         "SHIP.V41", "PCSHIP.V41", "SHIP.V48", "NUKE.VGA",
-        "MUSIC.A01", "MUSIC.A02", "COMMUNIC.YU3"
+        "MUSIC.A01", "MUSIC.A02", "COMMUNIC.YU3", "FIELD.V02"
     };
     const char *const *required;
     size_t requiredCount;

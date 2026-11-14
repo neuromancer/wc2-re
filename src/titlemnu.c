@@ -306,7 +306,13 @@ short RunTitleScreen(void)
         &g_stSecondaryViewBufferBlock, 0, 0x10);
     buttons = FetchDiskPacketRetrying("buttons.v00", 0, 0);
     logo = FetchDiskPacketRetrying("wc2logo.vga", 0, 0);
+#ifdef SDL_PORT
+    /* SO2.exe 0x436F45 draws the title over its own FIELD.V02 picture. */
+    background = FetchDiskPacketRetrying(
+        g_nSdlCampaign == 2 ? "field.v02" : "field.v00", 1, 0);
+#else
     background = FetchDiskPacketRetrying("field.v00", 1, 0);
+#endif
     FlushInputEvents();
     ClearDebugPauseFlags();
     if (WaitForInputKey() != 0)
@@ -425,9 +431,17 @@ short RunTitleScreen(void)
     if (g_bRoomTransitionAnimationEnabled != 0) {
         wipeState = AllocateTaggedMemory(0xce, 0);
         if (wipeState != 0) {
+#ifdef SDL_PORT
+            /* SO2.exe 0x4373C5 dissolves into the menu in 10 steps. */
+            InitializeViewportWipe(&g_stSecondaryViewBufferBlock,
+                                   &screenCopy, wipeType,
+                                   g_nSdlCampaign == 2 ? 10 : 0x3c, 0,
+                                   wipeState);
+#else
             InitializeViewportWipe(&g_stSecondaryViewBufferBlock,
                                    &screenCopy, wipeType, 0x3c, 0,
                                    wipeState);
+#endif
             done = 0;
             while (done == 0) {
                 done = AdvanceViewportWipe(wipeState);
