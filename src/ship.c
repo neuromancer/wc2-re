@@ -1244,9 +1244,17 @@ short internal_damage(short attacker, short owner, short victim,
             case 0:
                 /* The test has an empty body in the shipped game, so a pilot
                  * hit always costs a point of damage. */
+#ifdef SDL_PORT
+                /* SO1.exe 0x422EC2 and SO2.exe 0x453AC1 (and both DOS
+                 * expansions) spend it only when pilot_hit() returns
+                 * nonzero; otherwise the loop spends it on another system. */
+                if (pilot_hit(victim) != 0 || g_nSdlCampaign == 0)
+                    damage--;
+#else
                 if (pilot_hit(victim) != 0) {
                 }
                 damage--;
+#endif
                 break;
             case 6:
                 if (quadrant != 0)
@@ -1478,9 +1486,16 @@ short your_internal_damage(short attacker, short owner, short damage,
             if (g_acShipDamage[0] == 1) {
                 /* A stray semicolon in the original: the retail test of
                  * pilot_hit() branches to the decrement either way. */
+#ifdef SDL_PORT
+                /* SO1.exe 0x423663 and SO2.exe 0x454262 decrement only
+                 * when pilot_hit() returns nonzero. */
+                if (pilot_hit(0) != 0 || g_nSdlCampaign == 0)
+                    damage--;
+#else
                 if (pilot_hit(0) != 0)
                     ;
                 damage--;
+#endif
             } else if ((short)g_acShipDamage[0] >
                        g_aObjectTypeData[craftType].
                            damageCapacity) {
