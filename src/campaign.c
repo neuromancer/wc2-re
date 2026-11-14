@@ -238,7 +238,12 @@ short RunCampaignGameLoop(short campaignSlot)
                 g_nArcadeState = 3;
                 break;
             case 4:
-                death_sequence();
+#ifdef SDL_PORT
+                /* SO2.exe 0x4451D4: after a scene that showed the death,
+                 * such as the bomb at Nav 3, skip the cockpit sequence. */
+                if (g_bSdlScriptedDeath == 0)
+#endif
+                    death_sequence();
                 if (PromptToContinueCampaign(0) != 0) {
                     g_asShipSide[0] = 0;
                     g_bFriendlyFireWarningIssued = 0;

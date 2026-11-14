@@ -1,6 +1,9 @@
 #include "game.h"
 
 int g_nSdlCampaign;
+/* SO2.exe's flag at 0x49B2B0: the campaign script set arcade state 4, so a
+ * scene has already shown the player's death. */
+short g_bSdlScriptedDeath;
 
 /* Both expansions' STARTGLB files use campaign slot zero, like the base game.
  * Select their files at the host boundary rather than changing the serialized

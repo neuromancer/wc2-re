@@ -119,6 +119,11 @@ void InitializeCampaignConstellationState(CampaignGlobals *globals,
         g_stCurrentPilotProfile.mission = globals->mission;
     }
     g_nArcadeState = (int)globals->arcadeState;
+#ifdef SDL_PORT
+    /* SO2.exe 0x41845A: note when the campaign script itself ended the
+     * flight in the player's death, as a mid-flight scene can. */
+    g_bSdlScriptedDeath = g_nSdlCampaign == 2 && g_nArcadeState == 4;
+#endif
 }
 
 #pragma function(strcat)
