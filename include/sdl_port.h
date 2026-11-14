@@ -339,6 +339,8 @@ int SdlStartOriginalTitleMusic(void);
 int SdlOriginalTitleSequenceAvailable(void);
 void SdlRunSelectedCampaignCutscene(void);
 void SdlFinishCutsceneOnly(void);
+struct FixedVector;
+int SdlSoundEffectPan(const struct FixedVector *direction);
 int SdlPlayGameSoundEffect(int soundNumber, int sourceObject,
                               int looping);
 void SdlPlayWaveWithPan(const char *filename, int looping,

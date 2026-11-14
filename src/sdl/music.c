@@ -311,12 +311,33 @@ static int SdlStartDosSoundEffect(int soundNumber, int volume, int pan,
     return result;
 }
 
+/* The pan, 0 left to 127 right as the DOS and Kilrathi Saga effect players
+ * take it, for a unit direction from the camera. Its component along the
+ * camera's right vector is positive for objects drawn right of the view's
+ * centre. */
+int SdlSoundEffectPan(const FixedVector *direction)
+{
+    int scaledPan;
+    int pan;
+
+    scaledPan = dot_product(direction, &g_aShipRightVector[ EYE_OBJECT]) *
+        SDL_SOUND_CENTRE_PAN;
+    if (scaledPan < 0)
+        scaledPan = -((-scaledPan + 0xff) / 0x100);
+    else
+        scaledPan /= 0x100;
+    pan = SDL_SOUND_CENTRE_PAN + scaledPan;
+    if (pan < 0)
+        pan = 0;
+    else if (pan > 127)
+        pan = 127;
+    return pan;
+}
+
 int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
 {
     FixedVector delta;
     long magnitude;
-    int scaledPan;
-    int stereoOffset;
     int distance;
     int volume;
     int pan;
@@ -331,18 +352,7 @@ int SdlPlayGameSoundEffect(int soundNumber, int sourceObject, int looping)
                            &delta);
         magnitude = Vector_magnitude(&delta);
         NormalizeFixedVector(&delta);
-        stereoOffset = dot_product(
-            &delta, &g_aShipRightVector[ EYE_OBJECT]);
-        scaledPan = stereoOffset * SDL_SOUND_CENTRE_PAN;
-        if (scaledPan < 0)
-            scaledPan = -((-scaledPan + 0xff) / 0x100);
-        else
-            scaledPan /= 0x100;
-        pan -= scaledPan;
-        if (pan < 0)
-            pan = 0;
-        else if (pan > 127)
-            pan = 127;
+        pan = SdlSoundEffectPan(&delta);
         g_aiSoundEffectSourceActiveValue[sourceObject] = 1;
     }
 
