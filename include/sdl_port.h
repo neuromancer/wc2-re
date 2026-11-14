@@ -275,6 +275,7 @@ void SdlWaitForVerticalBlank(void);
 int SdlUsingDosData(void);
 extern int g_nSdlCampaign;
 extern short g_bSdlScriptedDeath;
+int SdlIsDepartingCommContact(short ship);
 const char *SdlCampaignPath(const char *path);
 int SdlSelectCampaign(int campaign);
 int SdlTryImportExpansionPilot(void);

@@ -27,6 +27,18 @@ void LoadCommPortraitResources(short portrait)
     if (g_19_bStoredHighMemoryEnabled == 0)
         return;
     FreePacketAndClear(&g_pCommPortraitResource, 4);
+#ifdef SDL_PORT
+    /* SO1.exe 0x450719 (and SO2.exe): the expansions' portraits come from
+     * vdu.v01, Bear's (10) from section 3 and those from 28 on from section
+     * portrait - 28. Section 28 of vdu.v00 is the frame drawn around them. */
+    if (g_nSdlCampaign != 0 && portrait == 10)
+        g_pCommPortraitResource =
+            FetchDiskPacketRetrying("vdu.v01", 3, 4);
+    else if (g_nSdlCampaign != 0 && portrait > 27)
+        g_pCommPortraitResource =
+            FetchDiskPacketRetrying("vdu.v01", (short)(portrait - 28), 4);
+    else
+#endif
     g_pCommPortraitResource =
         FetchDiskPacketRetrying("vdu.v00", portrait, 4);
     if (g_pCommVduFrameResource == 0) {
@@ -111,12 +123,23 @@ void CloseCommChoiceMenu(void)
 /* Function start: 0x44756F */
 short wingman_dead(void)
 {
+#ifdef SDL_PORT
+    /* SO1.exe 0x4509AB: a wingman leaving with comm portrait 28 is out of
+     * contact too. */
+    if (SdlIsDepartingCommContact(g_nYourWingman))
+        return 1;
+#endif
     return g_nYourWingman == -1;
 }
 
 /* Function start: 0x44759B */
 short have_target(void)
 {
+#ifdef SDL_PORT
+    /* SO1.exe 0x450A36: so is such a target. */
+    if (SdlIsDepartingCommContact(g_acShipTarget[0]))
+        return 0;
+#endif
     return unactive(g_acShipTarget[0]) == 0;
 }
 
@@ -129,6 +152,11 @@ short CanOpenCommMenu(void)
 /* Function start: 0x44760F */
 void SelectCommRecipient(short recipient)
 {
+#ifdef SDL_PORT
+    /* SO1.exe 0x450AF9: and the menu cannot select one. */
+    if (SdlIsDepartingCommContact(recipient))
+        return;
+#endif
     g_cCommMenuRecipient = recipient;
     g_cPendingCommMenuAction = 2;
 }
@@ -535,11 +563,28 @@ void real_vid_transmit(short obj, short message)
 #endif
     char *expanded;
     char indexText[8];
+#ifdef SDL_PORT
+    short commFile;
+#endif
 
     g_nCommSpeakerObject = obj;
     g_nCommSpeakerRating =
         g_acShipPortrait[g_nCommSpeakerObject];
     g_nCommPortraitIndex = g_nCommSpeakerRating;
+#ifdef SDL_PORT
+    /* SO1.exe 0x4518B8 (and SO2.exe): the expansions' speakers without
+     * comm files of their own use other pilots' -- Bear (10) and 30-34
+     * file 20, 35 file 21 -- and portrait 14 never transmits. */
+    commFile = g_nCommPortraitIndex;
+    if (g_nSdlCampaign != 0) {
+        if (commFile == 10 || (commFile >= 30 && commFile <= 34))
+            commFile = 20;
+        else if (commFile == 35)
+            commFile = 21;
+        if (g_nCommPortraitIndex == 14)
+            return;
+    }
+#endif
     if (g_nCommPortraitIndex == -1)
         return;
     g_bCommSpeechPlaying = 0;
@@ -567,10 +612,22 @@ void real_vid_transmit(short obj, short message)
         }
     }
     strcpy(packetFile, "communic.s");
+#ifdef SDL_PORT
+    if (commFile < 10)
+        strcat(packetFile, "0");
+    itoa((int)commFile, indexText, 10);
+    strcat(packetFile, indexText);
+    /* Paladin's docking replies (messages 0x12 and 0x13) come from
+     * palcomm.s08 in the expansions. */
+    if (g_nSdlCampaign != 0 && commFile == 8 &&
+        (message == 0x12 || message == 0x13))
+        strcpy(packetFile, "palcomm.s08");
+#else
     if (g_nCommPortraitIndex < 10)
         strcat(packetFile, "0");
     itoa((int)g_nCommPortraitIndex, indexText, 10);
     strcat(packetFile, indexText);
+#endif
     size = GetNamedPacketSize(packetFile, message);
     g_nCommMessageIndex = message;
     if (g_bSpeechEnabledFlag != 0 && size > 0 &&
@@ -595,7 +652,14 @@ void real_vid_transmit(short obj, short message)
     }
     /* The sampled line and its subtitle share a packet number: "communic.s"
      * carries the speech, "communic.t" the text. */
+#ifdef SDL_PORT
+    /* The expansions also write the 't' at index 9 of "palcomm.s08",
+     * naming a missing "palcomm.st8". Change the extension's letter instead,
+     * so PALCOMM.T08's text appears when the reply is not spoken. */
+    strrchr(packetFile, '.')[1] = 't';
+#else
     packetFile[9] = 't';
+#endif
     if (GetNamedPacketSize(packetFile, message) > 0) {
         LoadPacketIntoBuffer(packetFile, message,
                              g_szCommMessageTextText, 0);

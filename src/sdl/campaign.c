@@ -5,6 +5,19 @@ int g_nSdlCampaign;
  * scene has already shown the player's death. */
 short g_bSdlScriptedDeath;
 
+/* SO1.exe 0x4509AB, 0x450A36 and 0x450AF9 (identical in SO2.exe): a Confed
+ * ship with comm portrait 28, Thrakhath in SO1 series 4 mission 3, is out of
+ * contact while it flies to its warp point. The expansions index the tables
+ * without checking the ship number; outside them nothing is departing. */
+int SdlIsDepartingCommContact(short ship)
+{
+    return g_nSdlCampaign != 0 && ship >= 0 &&
+           ship < (short)SDL_arraysize(g_acShipPortrait) &&
+           g_acShipPortrait[ship] == 0x1c &&
+           g_asShipSide[ship] == SIDE_IMPERIAL &&
+           g_asShipMissionType[ship] == MISSION_TYPE_GOTO_WARP;
+}
+
 /* Both expansions' STARTGLB files use campaign slot zero, like the base game.
  * Select their files at the host boundary rather than changing the serialized
  * campaign globals or the retail engine's campaign numbering. Only bare game
