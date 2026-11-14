@@ -1844,16 +1844,18 @@ void draw_sorted_objects_to_buffer(void)
             objectClass != OBJECT_CLASS_FIXED_OBJECT &&
             object != g_nNavPointerObject &&
             g_aObjectViewPosition[object].z != 0) {
-            projectedScreenX = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth & ~1) << 7,
-                    g_aObjectViewPosition[object].x),
-                g_aObjectViewPosition[object].z) >> 8);
-            projectedScreenY = (short)(DivideFixed(
-                MultiplyFixed(
-                    (short)(g_nScreenWidth & ~1) << 7,
-                    g_aObjectViewPosition[object].y),
-                g_aObjectViewPosition[object].z) >> 8);
+            /* transform_objects_to_your_view's own divide, which truncates
+             * toward zero. WC1's form, ending in ">> 8", rounds down: left
+             * of and above the centre it never matched, so those objects
+             * moved a whole game pixel at a time (issue #62). */
+            projectedScreenX = (short)DivideFixed(
+                MultiplyFixed(g_nScreenWidth >> 1,
+                              g_aObjectViewPosition[object].x),
+                g_aObjectViewPosition[object].z);
+            projectedScreenY = (short)DivideFixed(
+                MultiplyFixed(g_nScreenWidth >> 1,
+                              g_aObjectViewPosition[object].y),
+                g_aObjectViewPosition[object].z);
             if (projectedScreenX == g_asObjectScreenX[object] &&
                 projectedScreenY == g_asObjectScreenY[object]) {
                 enhancedScreenX =

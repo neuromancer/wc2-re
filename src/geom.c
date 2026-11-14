@@ -1061,6 +1061,9 @@ void transform_objects_to_your_view(void)
     short obj;
     int radius;
     short screenZoom;
+#ifdef SDL_PORT
+    double exactZoom;
+#endif
 
     draw_nav_pointer();
     for (obj = 0; obj <= SPACE_LAST_MOVING_OBJECT; obj++) {
@@ -1121,12 +1124,27 @@ void transform_objects_to_your_view(void)
             if (range <= radius)
                 range = radius + 1;
             if (g_aeObjectClass[obj] >= OBJECT_CLASS_EXPLOSION) {
+#ifdef SDL_PORT
+                /* Wing2.exe takes the screen-width-to-range ratio with only
+                 * eight fraction bits, so a distant object's scale held still
+                 * and then jumped: the Concordia's by a third at 11 km and by
+                 * a quarter at 9 km (issue #62). WC1 keeps eight more bits,
+                 * and DOS WC2 scales smoothly. Take the same scale without
+                 * truncating the ratio, in double so a ship close enough to
+                 * fill the view cannot overflow. */
+                exactZoom = (double)(unsigned short)g_asObjectScale[obj] *
+                            (double)(g_nScreenWidth & ~1) * 128.0 /
+                            (double)(range -
+                                     g_asObjectCollisionRadius[obj] * 0x100);
+                screenZoom = (short)(exactZoom < 0x2000 ? exactZoom : 0x2000);
+#else
                 screenZoom = (short)MultiplyFixed(
                     (unsigned short)g_asObjectScale[obj],
                     DivideFixed(
                         (g_nScreenWidth & ~1) << 7,
                         range -
                             g_asObjectCollisionRadius[obj] * 0x100));
+#endif
                 screenZoom = MaxShort(0, MinShort(0x2000, screenZoom));
                 g_asObjectScreenScale[obj] = screenZoom;
                 if ((unsigned short)g_asObjectScreenScale[obj] <= 4) {
