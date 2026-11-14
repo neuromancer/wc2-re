@@ -893,6 +893,23 @@ $(MODERN_OUT_DIR)/gamepad-probe: $(MODERN_OUT_DIR)/obj/gamepad_probe.o \
 check-gamepad: $(MODERN_OUT_DIR)/gamepad-probe
 	$(MODERN_OUT_DIR)/gamepad-probe
 
+# Mouse buttons in flight through the game's SDL event path and player_input
+# (bin/checkMouse.c).
+$(MODERN_OUT_DIR)/obj/mouse_probe.o: bin/checkMouse.c include/game.h include/sdl_port.h | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/mouse-probe: $(MODERN_OUT_DIR)/obj/mouse_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-mouse
+check-mouse: $(MODERN_OUT_DIR)/mouse-probe
+	$(MODERN_OUT_DIR)/mouse-probe
+
 ifeq ($(MODERN_FUZZING),1)
 $(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c | modern-check-deps
 	@mkdir -p $(dir $@)

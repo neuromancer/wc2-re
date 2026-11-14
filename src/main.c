@@ -700,6 +700,12 @@ short IsInputEventQueued(int type)
 
 #pragma function(abs)
 
+#ifdef SDL_PORT
+/* The key the mouse buttons pressed in flight: 0x39 for the guns, which the
+ * left button chooses, or 0x1c for a missile, which both choose. */
+static signed char g_cSdlMouseButtonKey;
+#endif
+
 /* Function start: 0x466B02 */
 short player_input(void)
 {
@@ -753,6 +759,22 @@ short player_input(void)
     }
 
     buttons = mouse->secondaryButton * 2 | mouse->primaryButton;
+#ifdef SDL_PORT
+    /* Retail releases g_cCurrentKey only on a frame with no mouse motion
+     * queued, or with a key release. A click made while steering therefore
+     * kept the guns firing until the mouse stopped, and kept Enter down, so
+     * pressing both buttons again fired no missile. Release the key that the
+     * mouse buttons pressed once a button that chose it is up. Read the held
+     * buttons, not the release event: GetNextInputEvent discards the rest of
+     * the queue after a motion event. */
+    if ((g_cSdlMouseButtonKey == 0x39 &&
+         (buttons & INPUT_BUTTON_PRIMARY) == 0) ||
+        (g_cSdlMouseButtonKey == 0x1c && buttons != INPUT_BUTTON_BOTH)) {
+        if (g_cCurrentKey == g_cSdlMouseButtonKey)
+            g_cCurrentKey |= (signed char)0x80;
+        g_cSdlMouseButtonKey = 0;
+    }
+#endif
     if (buttons != 0) {
         if ((buttons & INPUT_BUTTON_PRIMARY) != 0) {
             if ((buttons & INPUT_BUTTON_SECONDARY) != 0) {
@@ -769,6 +791,10 @@ short player_input(void)
     } else {
         g_bMouseFireButtonLatched = 0;
     }
+#ifdef SDL_PORT
+    if (buttons == INPUT_BUTTON_BOTH)
+        g_cSdlMouseButtonKey = 0x1c;
+#endif
 
     while ((inputCode = GetNextInputEvent(&message)) != INPUT_EVENT_NONE) {
         switch (inputCode) {
@@ -905,6 +931,9 @@ short player_input(void)
                 } else {
                     fire_players_lasers();
                 }
+#ifdef SDL_PORT
+                g_cSdlMouseButtonKey = g_cCurrentKey;
+#endif
             }
             if (message.value == INPUT_BUTTON_SECONDARY && message.status > 1)
                 g_bSecondaryMouseButtonHeld = 1;
@@ -914,6 +943,8 @@ short player_input(void)
         case INPUT_EVENT_KEY_DOWN:
 #ifdef SDL_PORT
             trailingKeyRelease = 0;
+            /* A key now holds g_cCurrentKey; its own release frees it. */
+            g_cSdlMouseButtonKey = 0;
 #endif
             g_nCockpitControlGoal = 0;
             g_cCurrentKey = (signed char)message.status;
