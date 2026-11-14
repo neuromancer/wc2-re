@@ -149,7 +149,13 @@ void initialize_cockpit(signed char mode)
 
     switch (mode) {
     case 0:
-        if (g_2_apCockpitViewShapes[0] != 0) {
+        if (g_2_apCockpitViewShapes[0] != 0
+#ifdef SDL_PORT
+            /* SO2.exe 0x4216E1 (and its other views): copy a cached view
+             * only into an allocated background buffer. */
+            && (g_nSdlCampaign != 2 || g_pCockpitBackgroundPacket != 0)
+#endif
+            ) {
             g_pCockpitViewFrameInfo =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_2_apCockpitViewShapes[0]);
@@ -241,7 +247,12 @@ void initialize_cockpit(signed char mode)
         set_up_screen_viewport(0);
         break;
     case 1:
-        if (g_2_apCockpitViewShapes[1] != 0) {
+        if (g_2_apCockpitViewShapes[1] != 0
+#ifdef SDL_PORT
+            /* SO2.exe 0x4219D9 */
+            && (g_nSdlCampaign != 2 || g_pCockpitBackgroundPacket != 0)
+#endif
+            ) {
             g_pCockpitViewFrameInfo =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_2_apCockpitViewShapes[1]);
@@ -268,7 +279,12 @@ void initialize_cockpit(signed char mode)
         break;
     case 2:
         if (g_nCurrentView == 4) {
-            if (g_2_apCockpitViewShapes[1] != 0) {
+            if (g_2_apCockpitViewShapes[1] != 0
+#ifdef SDL_PORT
+                /* SO2.exe 0x421AD5 */
+                && (g_nSdlCampaign != 2 || g_pCockpitBackgroundPacket != 0)
+#endif
+                ) {
                 g_pCockpitViewFrameInfo =
                     (unsigned char *)IdentityDword(
                         (DwordPtr)g_2_apCockpitViewShapes[1]);
@@ -298,7 +314,12 @@ void initialize_cockpit(signed char mode)
                 ReleasePacketHandle(backdrop);
             }
         } else {
-            if (g_2_apCockpitViewShapes[2] != 0) {
+            if (g_2_apCockpitViewShapes[2] != 0
+#ifdef SDL_PORT
+                /* SO2.exe 0x421BBA */
+                && (g_nSdlCampaign != 2 || g_pCockpitBackgroundPacket != 0)
+#endif
+                ) {
                 g_pCockpitViewFrameInfo =
                     (unsigned char *)IdentityDword(
                         (DwordPtr)g_2_apCockpitViewShapes[2]);
@@ -331,7 +352,12 @@ void initialize_cockpit(signed char mode)
         set_up_screen_viewport(2);
         break;
     case 3:
-        if (g_2_apCockpitViewShapes[3] != 0) {
+        if (g_2_apCockpitViewShapes[3] != 0
+#ifdef SDL_PORT
+            /* SO2.exe 0x421CA9 */
+            && (g_nSdlCampaign != 2 || g_pCockpitBackgroundPacket != 0)
+#endif
+            ) {
             g_pCockpitViewFrameInfo =
                 (unsigned char *)IdentityDword(
                     (DwordPtr)g_2_apCockpitViewShapes[3]);
