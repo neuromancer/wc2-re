@@ -40,7 +40,9 @@ const char *SdlCampaignPath(const char *path)
         { "startglb.000", "startglb.001", "startglb.002" },
         { "tempglob.000", "tempglob.001", "tempglob.002" },
         { "savegame.wc2", "savegame.so1", "savegame.so2" },
-        { "sector.000", "sector.000", "sector.002" }
+        { "sector.000", "sector.000", "sector.002" },
+        /* The player's radio lines: SO1.exe and SO2.exe change one taunt. */
+        { "communic.you", "communic.yu2", "communic.yu3" }
     };
     size_t index;
 
@@ -58,13 +60,13 @@ static int SdlPrepareCampaignFiles(int campaign, const char *directory)
     static const char *const so1Required[] = {
         "CAMPAIGN.S01", "GAMEFLOW.S01", "MODULE.001", "SERIES.S01",
         "STARTGLB.001", "ALTSHIPS.001", "SHIP.V15", "PCSHIP.V15",
-        "MUSIC.A01"
+        "MUSIC.A01", "COMMUNIC.YU2"
     };
     static const char *const so2Required[] = {
         "CAMPAIGN.S02", "GAMEFLOW.S02", "MODULE.002", "SERIES.S02",
         "STARTGLB.002", "ALTSHIPS.002", "INCIDENT.S02", "SECTOR.002",
         "SHIP.V41", "PCSHIP.V41", "SHIP.V48", "NUKE.VGA",
-        "MUSIC.A01", "MUSIC.A02"
+        "MUSIC.A01", "MUSIC.A02", "COMMUNIC.YU3"
     };
     const char *const *required;
     size_t requiredCount;
