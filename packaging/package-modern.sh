@@ -115,9 +115,15 @@ else
             awk '/=>/ { sub(/^.*=> /, ""); sub(/ \(0x.*$/, ""); print }'
     )
 
-    test -f "$stage_dir/SDL2.dll"
-    test -f "$stage_dir/liblzo2-2.dll"
-    test -f "$stage_dir/libunwind.dll"
+    # The loop above copies every MSYS2 DLL the executable loads. Rust 1.100
+    # stopped linking the static Slint library to libunwind, so libunwind.dll
+    # is no longer one of them.
+    for required in SDL2.dll liblzo2-2.dll; do
+        if test ! -f "$stage_dir/$required"; then
+            echo "Windows release is missing $required" >&2
+            exit 1
+        fi
+    done
 fi
 
 (

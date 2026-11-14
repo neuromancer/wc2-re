@@ -19,7 +19,7 @@ if test "$architecture" != x86_64; then
     exit 1
 fi
 package_dir=$(cd "$package_dir" && pwd)
-for required in wc2-modern.exe SDL2.dll liblzo2-2.dll libunwind.dll; do
+for required in wc2-modern.exe SDL2.dll liblzo2-2.dll; do
     if test ! -f "$package_dir/$required"; then
         echo "Missing Windows release file: $package_dir/$required" >&2
         exit 1
