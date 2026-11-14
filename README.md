@@ -72,8 +72,7 @@ Morningstar's **Mace weapon** and original explosion graphics, uses
 Continue pilot (or WC2's if no valid SO1 checkpoint exists). Campaign dialogue
 is English, with original AdLib music. **SO2 support is experimental**: all
 mission starts, navigation entries and default cutscene sequences pass
-sanitizer checks, but a full campaign playthrough remains unverified. See
-[SO2 implementation and validation](src/sdl/SO2.md).
+sanitizer checks, but a full campaign playthrough remains unverified.
 
 Choose **Language → Español** or **Language → Polski** for Spanish or Polish
 dialogue, menus, game UI and launcher text, or use `--language=es` or

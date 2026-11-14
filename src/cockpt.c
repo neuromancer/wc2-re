@@ -470,7 +470,15 @@ short auto_pilot_valid(short showReason)
         0, &g_aMissionObjectives[
                (signed char)g_cCurrentObjective].position);
     for (object = 1; object < 10; object++) {
-        if (g_aeObjectClass[object] >= OBJECT_CLASS_CAPITAL_SHIP &&
+        if ((g_aeObjectClass[object] >= OBJECT_CLASS_CAPITAL_SHIP
+#ifdef SDL_PORT
+             /* SO2.exe 0x423FF5: SO2 also waits for fighters leaving by
+              * this nav point's warp point, such as Maniac in series 1
+              * mission 4. */
+             || (g_nSdlCampaign == 2 &&
+                 g_aeObjectClass[object] == OBJECT_CLASS_SHIP)
+#endif
+             ) &&
             g_asShipMissionType[object] ==
                 MISSION_TYPE_GOTO_WARP &&
             g_asShipMissionParameter[object] ==

@@ -389,14 +389,16 @@ static void FlightStep(void)
 #define ESCORT_WAIT_TICKS 3600
 
 /* auto_pilot_valid's "Wait for" rule: a capital ship heading for this nav
- * point's warp point keeps autopilot off until it has jumped. Leaving
- * earlier would take ships on the player's wing along, which play cannot. */
+ * point's warp point keeps autopilot off until it has jumped, and in SO2 a
+ * fighter does too. Leaving earlier would take ships on the player's wing
+ * along, which play cannot. */
 static int WaitingForWarpingShip(void)
 {
     short ship;
 
     for (ship = 1; ship < 10; ship++) {
-        if (g_aeObjectClass[ship] >= OBJECT_CLASS_CAPITAL_SHIP &&
+        if (g_aeObjectClass[ship] >= (g_nSdlCampaign == 2 ? OBJECT_CLASS_SHIP
+                                                          : OBJECT_CLASS_CAPITAL_SHIP) &&
             g_asShipMissionType[ship] == MISSION_TYPE_GOTO_WARP &&
             g_asShipMissionParameter[ship] == g_nCurrentNavPoint &&
             !equ_vector(&g_aMissionObjectives[(signed char)g_cCurrentObjective].position,
