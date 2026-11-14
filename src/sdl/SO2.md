@@ -29,6 +29,8 @@ remains byte-identical to retail.
   launch, fuse, blast damage, phase-shield penetration and chained explosions.
   Its nuclear effect uses the original `NUKE.VGA` frames, palette flash and
   hazard-field clearing. No replacement graphics or new controls are added.
+- The Morningstar can use jump points, as in the original SO2 engine. Series
+  4 mission 4 needs this to reach Jazz and the Concordia.
 - Cutscene test targets accept `CAMPAIGN=so2` for series 1–5, missions 0–3.
 
 ## Native corrections
@@ -108,6 +110,7 @@ SHA-256 `70175ab4fab5632deeac4d35f2c988255ec8af39b9a761b71554b7bc2a8a587a`.
 | Blast range/damage, nuclear conversion and nested explosion traversal | `0x00454E54`, `0x004556B0`, `0x00455758` |
 | Flash, hazard clearing, arming and unguided speed | `0x004412D7`, `0x00441395`, `0x004415D1`, `0x00443837` |
 | Original out-of-roster pilot access | Caller `0x004380B5`, lookup `0x00437669`, 32-entry allocation `0x0041837B` |
+| Morningstar star-system jumps | `TryBeginStarSystemJump` `0x0046739F`, resource test `0x004673C7` |
 
 To exercise a Morningstar mission or the previously failing Maniac startup:
 

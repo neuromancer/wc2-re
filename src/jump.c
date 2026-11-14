@@ -141,8 +141,17 @@ void TryBeginStarSystemJump(void)
 {
     short object;
 
-    if (g_asObjectType[0] != 0x33 ||
-        g_bJumpSequenceActive != 0)
+    if ((g_asObjectType[0] != 0x33 ||
+         g_bJumpSequenceActive != 0)
+#ifdef SDL_PORT
+        /* SO2.exe 0x4673C7: the Morningstar (resource type 0x29 in the
+         * player's type slot) also has a jump drive, and SO2 skips the
+         * active-jump test for it. Flight controls are not read during a
+         * jump, and a second jump finds the capacitors empty. */
+        && (g_nSdlCampaign != 2 ||
+            g_aObjectTypeData[0].resourceType != 0x29)
+#endif
+        )
         return;
     for (object = 0; object < 10; object++) {
         if (g_aeObjectClass[object] == OBJECT_CLASS_SHIP &&
