@@ -1302,12 +1302,36 @@ void get_right_shape(short obj, FixedVector *direction)
     } else if (shipClass == OBJECT_CLASS_BASE) {
         directionIndex =
             (short)(directionIndex + DIRECTION_VIEW_COUNT * 2);
+#ifdef SDL_PORT
+        /* SO2.exe 0x40B339: Ayer's Rock (resource 48) uses the fourth table
+         * section, a view of its own for each direction. The Kilrathi Saga
+         * build lacks that section and reads past the table; DOS SO2.EXE
+         * has it. */
+        if (g_nSdlCampaign == 2 && shipType == 0x30)
+            directionIndex =
+                (short)(directionIndex + DIRECTION_VIEW_COUNT);
+#endif
     }
+#ifdef SDL_PORT
+    /* SO2.exe 0x40B351: resources 48 and 49 skip the frame 0 and frame 36
+     * turns; Ayer's Rock turns its bottom view, frame 61, instead. */
+    if (g_acDirectionShapeFrame[directionIndex] == 0 &&
+        !(g_nSdlCampaign == 2 && (shipType == 0x30 || shipType == 0x31)))
+        twist = (short)(twist + 90);
+    if (g_nSdlCampaign == 2 && shipType == 0x30) {
+        if (g_acDirectionShapeFrame[directionIndex] == 0x3d)
+            twist = (short)(twist + 90);
+    } else if (!(g_nSdlCampaign == 2 && shipType == 0x31) &&
+               g_acDirectionShapeFrame[directionIndex] == 0x24 &&
+               shipClass != OBJECT_CLASS_MISSILE)
+        twist = (short)(twist - 90);
+#else
     if (g_acDirectionShapeFrame[directionIndex] == 0)
         twist = (short)(twist + 90);
     if (g_acDirectionShapeFrame[directionIndex] == 0x24 &&
         shipClass != OBJECT_CLASS_MISSILE)
         twist = (short)(twist - 90);
+#endif
     g_asObjectFlip[obj] =
         (short)(g_acDirectionShapeFlip[directionIndex] << 4);
     twist = (short)(twist % 360);
@@ -1352,8 +1376,20 @@ void get_right_shape(short obj, FixedVector *direction)
                 if (strlen(numberString) == 1)
                     strcat(fileName, "0");
                 strcat(fileName, numberString);
+#ifdef SDL_PORT
+                /* SO2.exe 0x40B683: Ayer's Rock's views from 37 on follow
+                 * the four records in sections 37-40. */
+                g_apObjectShape[obj] = FetchDiskPacketRetrying(
+                    fileName,
+                    (short)(g_asLoadedShipViewFrame[obj] +
+                            (g_nSdlCampaign == 2 && shipType == 0x30 &&
+                                     g_asLoadedShipViewFrame[obj] >= 0x25
+                                 ? 4 : 0)),
+                    0);
+#else
                 g_apObjectShape[obj] = FetchDiskPacketRetrying(
                     fileName, g_asLoadedShipViewFrame[obj], 0);
+#endif
                 CheckHeapBlockSignature(g_apObjectShape[obj]);
                 g_abObjectShapeOwned[obj] = 1;
             }

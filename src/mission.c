@@ -611,8 +611,14 @@ void load_ship(short resourceType, short objectType,
             } else {
                 if (g_19_bStoredHighMemoryEnabled != 0 &&
                     g_1_nResourcePaletteState == 0) {
+#ifdef SDL_PORT
+                    g_apPacketReferenceGroups[slot] =
+                        (void **)calloc(SdlShipViewCount(resourceType),
+                                        HOST_POINTER_SIZE);
+#else
                     g_apPacketReferenceGroups[slot] =
                         (void **)calloc(0x25, HOST_POINTER_SIZE);
+#endif
                     packetRefs =
                         g_apPacketReferenceGroups[slot];
                     if (packetRefs == 0)
@@ -623,6 +629,17 @@ void load_ship(short resourceType, short objectType,
                         if (packetRefs[section] == 0)
                             break;
                     }
+#ifdef SDL_PORT
+                    /* SO2.exe 0x438A79: Ayer's Rock's further views. */
+                    for (section = 0x25;
+                         section < SdlShipViewCount(resourceType);
+                         section++) {
+                        packetRefs[section] = FetchDiskPacketRetrying(
+                            fileName, (short)(section + 4), 4);
+                        if (packetRefs[section] == 0)
+                            break;
+                    }
+#endif
                     g_aObjectResourceSlots[slot].field_12 =
                         FetchDiskPacketRetrying(fileName, 0x27, 4);
                 }
@@ -689,6 +706,12 @@ void free_ship(short slot)
             for (section = 0; section < 0x25; section++) {
                 FreePacketAndClear(&refCount[section], 8);
             }
+#ifdef SDL_PORT
+            /* SO2.exe 0x438D7D: and Ayer's Rock's further views. */
+            for (section = 0x25; section < SdlShipViewCount(resourceType);
+                 section++)
+                FreePacketAndClear(&refCount[section], 4);
+#endif
             ReleasePacketHandle(refCount);
             g_apPacketReferenceGroups[slot] = 0;
         }

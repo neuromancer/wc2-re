@@ -9,6 +9,14 @@ short g_bSdlScriptedDeath;
  * ship with comm portrait 28, Thrakhath in SO1 series 4 mission 3, is out of
  * contact while it flies to its warp point. The expansions index the tables
  * without checking the ship number; outside them nothing is departing. */
+/* SO2.exe 0x4389C5: capital ships and bases load 37 views, but SO2's Ayer's
+ * Rock (resource 48) has 62. The 25 beyond the usual set follow the four
+ * records in sections 37-40, in sections 41-65. */
+int SdlShipViewCount(short resourceType)
+{
+    return g_nSdlCampaign == 2 && resourceType == 0x30 ? 0x3e : 0x25;
+}
+
 int SdlIsDepartingCommContact(short ship)
 {
     return g_nSdlCampaign != 0 && ship >= 0 &&

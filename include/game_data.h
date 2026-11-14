@@ -1626,7 +1626,13 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #define EYE_OBJECT 67
 #define SCRATCH_VIEW_OBJECT 69
 #define DIRECTION_VIEW_COUNT 62
+#ifdef SDL_PORT
+/* DOS SO2.EXE's direction tables carry a fourth section, for Ayer's Rock in
+ * SO2 (see get_right_shape). The Kilrathi Saga's SO2.exe kept only three. */
+#define DIRECTION_SHAPE_TABLE_COUNT 4
+#else
 #define DIRECTION_SHAPE_TABLE_COUNT 3
+#endif
 /* WC2's object-type table drops the twelve extra ship records WC1 carried --
  * WC1 numbers 22 ships and bases, WC2 ten -- so the table is 46 records at the
  * 243-byte stride the code uses, and every type from the shared block on is
