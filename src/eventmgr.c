@@ -841,11 +841,30 @@ int GetNextInputEvent(InputEventState *state)
     int posY;
     int clearQueue;
     int type;
+#ifdef SDL_PORT
+    InputEvent *later;
+#endif
 
     clearQueue = 0;
     if (g_nNextInputQueueFlushTick < g_196_nInputTimerTicks)
         FlushInputEvents();
     g_nNextInputQueueFlushTick = g_196_nInputTimerTicks + 20;
+#ifdef SDL_PORT
+    /* Retail reads the first queued motion event and then drops the whole
+     * queue behind it, so a key or click made while the mouse moved was
+     * lost. Skip motion that later motion replaces instead, so the newest
+     * position is the one read, and keep the keys and clicks (below). */
+    while (g_pInputEventHead != 0 &&
+           g_pInputEventHead->type == INPUT_EVENT_MOUSE_MOVE) {
+        for (later = g_pInputEventHead->next;
+             later != 0 && later->type != INPUT_EVENT_MOUSE_MOVE;
+             later = later->next)
+            ;
+        if (later == 0)
+            break;
+        RemoveInputEvent(g_pInputEventHead);
+    }
+#endif
     type = INPUT_EVENT_NONE;
     if (g_pInputEventHead != 0) {
         posX = (int)g_pInputEventHead->x;
@@ -946,8 +965,12 @@ int GetNextInputEvent(InputEventState *state)
         }
         RemoveInputEvent(g_pInputEventHead);
         if (clearQueue != 0) {
+#ifndef SDL_PORT
             ReleaseInputEventQueue();
             FlushInputEvents();
+#endif
+            /* The port keeps the rest: no later motion is queued (see the
+             * top), and keys and clicks still count. */
         }
     } else {
         state->x = g_16_stEventQueuePointerData.x;

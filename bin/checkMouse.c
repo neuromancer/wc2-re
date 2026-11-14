@@ -1,8 +1,10 @@
-/* Mouse buttons in WC2 flight, through the port's SDL event path and
+/* Mouse buttons and keys in WC2 flight, through the port's SDL event path and
  * player_input. A press chooses the key its buttons stand for -- Space fires
  * the guns, Enter a missile -- and retail released that key only on a frame
  * without mouse motion, so a click made while steering kept the guns firing
- * until the mouse stopped (issue #61). No game assets are needed. */
+ * until the mouse stopped (issue #61). Retail also dropped whatever was queued
+ * behind a motion event, so a key pressed while steering was lost (issue #63).
+ * No game assets are needed. */
 #include "game.h"
 
 static Uint32 buttons;
@@ -149,8 +151,41 @@ int main(int argc, char **argv)
     Steer();
     Require(Frame() != 0x39, "releasing Space stops the guns");
 
+    /* Keys and clicks made between two motions in one frame still count. */
+    Steer();
+    Key(SDL_SCANCODE_TAB, 1);
+    Steer();
+    Require(Frame() == 0x0f, "Tab lights the afterburner while steering");
+    Steer();
+    Require(Frame() == 0x0f, "held Tab keeps it lit while steering");
+    Steer();
+    Key(SDL_SCANCODE_TAB, 0);
+    Steer();
+    Require(Frame() != 0x0f, "releasing Tab while steering puts it out");
+    Steer();
+    Key(SDL_SCANCODE_C, 1);
+    Key(SDL_SCANCODE_C, 0);
+    Steer();
+    Require(Frame() == 0x2e, "C opens communications while steering");
+    Steer();
+    Button(SDL_BUTTON_LEFT, 1);
+    Steer();
+    Require(Frame() == 0x39, "a click between two motions fires the guns");
+    Steer();
+    Button(SDL_BUTTON_LEFT, 0);
+    Steer();
+    Require(Frame() != 0x39, "and its release stops them");
+    /* Steer() alternates the pointer between two positions. */
+    Steer();
+    Key(SDL_SCANCODE_C, 1);
+    Key(SDL_SCANCODE_C, 0);
+    Steer();
+    Frame();
+    Require(g_37_stPersonnelMousePointerState.x == pointerX,
+            "steering follows the newest motion of the frame");
+
     SDL_Quit();
-    puts("PASS: mouse buttons release the guns and missiles they fire, "
-         "even while steering.");
+    puts("PASS: mouse buttons release the guns and missiles they fire, and keys "
+         "and clicks count, even while steering.");
     return 0;
 }
