@@ -91,6 +91,15 @@ short ShipHasCloakingDevice(short ship)
 short CanShipWeaponDamageTarget(short ship, short target)
 {
     if (g_aeObjectClass[ship] == OBJECT_CLASS_SHIP) {
+#ifdef SDL_PORT
+        /* fire() runs without a target (-1) when a ship that has lost its
+         * own fires at what it faces, such as a missile closing on it. The
+         * original then reads the four bytes in front of this table, which
+         * WC2, SO1 and SO2 all fill with ship 9's maximum shields. */
+        if (target < 0)
+            return g_aasShipMaximumShield[9][0] < 1000 &&
+                   g_aasShipMaximumShield[9][1] < 1000;
+#endif
         if (g_aasShipShield[target][0] >= 1000 ||
             g_aasShipShield[target][1] >= 1000)
             return 0;
@@ -101,6 +110,12 @@ short CanShipWeaponDamageTarget(short ship, short target)
 /* Function start: 0x410161 */
 short IsCapitalShipObject(short obj)
 {
+#ifdef SDL_PORT
+    /* For no object (-1) the original reads the zero padding in front of
+     * the class table, in WC2, SO1 and SO2 alike: not a capital ship. */
+    if (obj < 0)
+        return 0;
+#endif
     if (g_aeObjectClass[obj] >= OBJECT_CLASS_CAPITAL_SHIP)
         return 1;
     return 0;
@@ -2237,6 +2252,10 @@ void fire(short obj, short target)
     short type;
     FixedVector direction;
     short nearestRange;
+#ifdef SDL_PORT
+    short aimFacing;
+    short aimHeading;
+#endif
 
     ready = g_asObjectCounter[obj] <= 0;
     if (g_asShipFriendlyFireCooldown[obj] > 0)
@@ -2251,6 +2270,10 @@ void fire(short obj, short target)
     else
         missileOk = 0;
     if (missileOk != 0 &&
+#ifdef SDL_PORT
+        /* No target is no capital ship; see IsCapitalShipObject. */
+        target >= 0 &&
+#endif
         g_aeObjectClass[target] >= OBJECT_CLASS_CAPITAL_SHIP &&
         g_nYourWingman == obj &&
         (unsigned short)RandomInRange(0, 100) > 10)
@@ -2310,7 +2333,14 @@ void fire(short obj, short target)
                 firedObject = fire_weapon(obj, slot);
                 if (g_anShipCloakState[obj] == 1)
                     ResetShipCloakState(obj);
+#ifdef SDL_PORT
+                /* With no target the original aims this shot at index -1
+                 * of the position table: object 69's forward vector, taken
+                 * as a point. Leave it on the heading fire_weapon gave it. */
+                if (type == 12 && target >= 0) {
+#else
                 if (type == 12) {
+#endif
                     ComputeVectorDelta(
                         &g_aShipPosition[firedObject],
                         &g_aShipPosition[target], &direction);
@@ -2330,6 +2360,10 @@ void fire(short obj, short target)
                     if (shouldFire != 0 &&
                         g_asShipSide[obj] == SIDE_KILRATHI) {
                         nearestRange = g_nTargetRange;
+#ifdef SDL_PORT
+                        aimFacing = g_nFacingToTarget;
+                        aimHeading = g_nTargetFacing;
+#endif
                         other = 1;
                         for (; other < 10; other++) {
                             if (g_aeObjectClass[other] ==
@@ -2344,6 +2378,18 @@ void fire(short obj, short target)
                                 }
                             }
                         }
+#ifdef SDL_PORT
+                        /* The scan above measured other ships; this measures
+                         * the target again for the remaining weapons. With
+                         * no target the original measures index -1 of the
+                         * position, radius and heading tables, which hold no
+                         * ship, so restore what the caller aimed at. */
+                        if (target < 0) {
+                            g_nTargetRange = nearestRange;
+                            g_nFacingToTarget = aimFacing;
+                            g_nTargetFacing = aimHeading;
+                        } else
+#endif
                         get_facing_range_from_object(obj, target);
                     }
                     break;
