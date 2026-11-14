@@ -209,9 +209,11 @@ void SdlCompleteSpaceFrame(void);
 void SdlCancelSpaceFrame(void);
 void SdlSetThrusterScreenPosition(short object, float x, float y);
 void SdlGetThrusterScreenPosition(short object, float *x, float *y);
+void SdlSetObjectScreenScale(short object, short gameScale, double exactScale);
+float SdlGetObjectScreenScale(short object, short gameScale);
 int SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
-    unsigned char *shape, short frame, short angle, short scale,
+    unsigned char *shape, short frame, short angle, float scale,
     short flip);
 int SdlSetCursorPosition(int x, int y);
 BOOL SdlReadJoystick(unsigned int device, JOYINFO *information);

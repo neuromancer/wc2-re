@@ -1939,7 +1939,9 @@ void draw_sorted_objects_to_buffer(void)
                             g_apObjectShape[drawObject],
                             g_asObjectViewFrame[drawObject],
                             g_asObjectScreenAngle[drawObject],
-                            g_asObjectScreenScale[drawObject],
+                            SdlGetObjectScreenScale(
+                                (short)drawObject,
+                                g_asObjectScreenScale[drawObject]),
                             g_asObjectFlip[drawObject]))
 #endif
                     DrawSpriteScaled(

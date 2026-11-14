@@ -175,7 +175,7 @@ typedef struct GlSprite {
     float x;
     float y;
     short angle;
-    short scale;
+    float scale; /* 8.8 units, unrounded where the game's scale allows */
     short flip;
     short clipLeft;
     short clipTop;
@@ -843,7 +843,7 @@ static void SetSpriteVertexMetadata(GlVertex *vertex,
     vertex->clipBottom = (float)sprite->clipBottom + 0.5f;
     vertex->magnification =
         outputScale *
-        (sprite->scale < 0 ? -(float)sprite->scale : (float)sprite->scale) /
+        (sprite->scale < 0 ? -sprite->scale : sprite->scale) /
         256.0f;
     vertex->atlasLayer = (float)cachedFrame->atlasLayer;
 }
@@ -870,7 +870,7 @@ static void BuildRecordedSpriteVertices(const GlSprite *sprite,
     GetRLETransformTrig((int)sprite->angle * 10, &fixedCosine, &fixedSine);
     cosine = (float)fixedCosine / 65536.0f;
     sine = (float)fixedSine / 65536.0f;
-    scaleX = (float)sprite->scale / 256.0f;
+    scaleX = sprite->scale / 256.0f;
     scaleY = scaleX;
     if ((sprite->flip & 0x10) != 0)
         scaleX = -scaleX;
@@ -1222,7 +1222,7 @@ void SdlGlRendererCancelSpaceFrame(void)
 
 int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
                                       float y, unsigned char *shape,
-                                      short frame, short angle, short scale,
+                                      short frame, short angle, float scale,
                                       short flip)
 {
     const GlCachedFrame *cachedFrame;
@@ -1262,7 +1262,8 @@ int SdlGlRendererRecordSpaceSprite(const Viewport *viewport, float x,
        nothing.  Its unrotated fast path has no such limit.  MIDGAME.V03
        holds two 325x325 frames that reach this, so keep the same silence
        instead of drawing what the original never shows. */
-    if (pixelCount > 0xfa00 && !(angle == 0 && scale == 0x100 && flip == 0))
+    if (pixelCount > 0xfa00 &&
+        !(angle == 0 && (short)scale == 0x100 && flip == 0))
         return 0;
     frameTableOffset = frame * 4 + 4;
     memcpy(&shapeTableEnd, shape + 4, sizeof(shapeTableEnd));

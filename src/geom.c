@@ -1147,6 +1147,12 @@ void transform_objects_to_your_view(void)
 #endif
                 screenZoom = MaxShort(0, MinShort(0x2000, screenZoom));
                 g_asObjectScreenScale[obj] = screenZoom;
+#ifdef SDL_PORT
+                /* The enhanced layer draws at the unrounded scale. */
+                SdlSetObjectScreenScale(obj, screenZoom,
+                                        exactZoom < 0x2000 ? exactZoom
+                                                           : 0x2000);
+#endif
                 if ((unsigned short)g_asObjectScreenScale[obj] <= 4) {
                     g_asObjectScreenX[obj] = (short)0x8001;
                     continue;

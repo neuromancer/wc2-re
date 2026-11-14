@@ -37,7 +37,7 @@ void SdlGlRendererCompleteSpaceFrame(void);
 void SdlGlRendererCancelSpaceFrame(void);
 int SdlGlRendererRecordSpaceSprite(const struct Viewport *viewport, float x,
                                       float y, unsigned char *shape,
-                                      short frame, short angle, short scale,
+                                      short frame, short angle, float scale,
                                       short flip);
 
 #endif

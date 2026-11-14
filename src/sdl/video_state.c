@@ -17,6 +17,30 @@ void SdlGetThrusterScreenPosition(short object, float *x, float *y)
     *y = g_afThrusterScreenY[object];
 }
 
+/* Each object's unrounded screen scale for the enhanced layer, with the 8.8
+ * scale the game stored at the same time. */
+static float g_afExactScreenScale[SPACE_OBJECT_COUNT];
+static short g_asExactScreenScaleBase[SPACE_OBJECT_COUNT];
+
+void SdlSetObjectScreenScale(short object, short gameScale, double exactScale)
+{
+    if (object < 0 || object >= SPACE_OBJECT_COUNT)
+        return;
+    g_afExactScreenScale[object] = (float)exactScale;
+    g_asExactScreenScaleBase[object] = gameScale;
+}
+
+/* The unrounded scale while the game's own is still the one stored with it;
+ * a scale the game set some other way is used as it is. */
+float SdlGetObjectScreenScale(short object, short gameScale)
+{
+    if (object >= 0 && object < SPACE_OBJECT_COUNT &&
+        g_asExactScreenScaleBase[object] == gameScale &&
+        g_afExactScreenScale[object] > 0.0f)
+        return g_afExactScreenScale[object];
+    return (float)gameScale;
+}
+
 void SdlSetVideoBackend(SdlVideoBackend backend)
 {
     if (backend == SDL_VIDEO_BACKEND_GL_SHARP_BILINEAR)

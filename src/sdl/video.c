@@ -301,7 +301,7 @@ void SdlCancelSpaceFrame(void)
 
 int SdlRecordSpaceSprite(
     const struct Viewport *viewport, float x, float y,
-    unsigned char *shape, short frame, short angle, short scale,
+    unsigned char *shape, short frame, short angle, float scale,
     short flip)
 {
     /* The enhanced/GL layer records sprites using raw VGA palette indices;

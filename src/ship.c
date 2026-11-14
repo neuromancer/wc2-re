@@ -3150,6 +3150,7 @@ void reposition_fixed_child_objects(void)
     float parentScreenX;
     float parentScreenY;
     float sineFloat;
+    float ownerExactScale;
 #endif
 
     for (child = 10; child <= SPACE_LAST_MOVING_OBJECT; child++) {
@@ -3226,8 +3227,18 @@ void reposition_fixed_child_objects(void)
                                         &fixedCosine, &fixedSine);
                     cosineFloat = (float)fixedCosine / 65536.0f;
                     sineFloat = (float)fixedSine / 65536.0f;
+                    /* Place the anchor at the owner's unrounded scale, as
+                     * the enhanced layer draws the owner. */
+                    ownerExactScale = SdlGetObjectScreenScale(
+                        owner, g_asObjectScreenScale[owner]);
                     attachmentRight = (float)right / 256.0f;
                     attachmentUp = (float)up / 256.0f;
+                    if (g_asObjectScreenScale[owner] > 0) {
+                        attachmentRight *= ownerExactScale /
+                                           g_asObjectScreenScale[owner];
+                        attachmentUp *= ownerExactScale /
+                                        g_asObjectScreenScale[owner];
+                    }
                     SdlSetThrusterScreenPosition(
                         child,
                         parentScreenX + attachmentRight * cosineFloat -
@@ -3242,6 +3253,14 @@ void reposition_fixed_child_objects(void)
                 (unsigned short)g_asObjectScale[child] *
                 (unsigned short)g_asObjectScreenScale[owner] >>
                 8);
+#ifdef SDL_PORT
+            SdlSetObjectScreenScale(
+                child, g_asObjectScreenScale[child],
+                (double)(unsigned short)g_asObjectScale[child] *
+                    SdlGetObjectScreenScale(owner,
+                                            g_asObjectScreenScale[owner]) /
+                    256.0);
+#endif
         }
     }
 }
