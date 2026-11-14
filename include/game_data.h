@@ -1633,6 +1633,12 @@ typedef char BarracksAnimationState_size_must_be_0x68[
 #else
 #define DIRECTION_SHAPE_TABLE_COUNT 3
 #endif
+#ifdef SDL_PORT
+/* SO1.exe and SO2.exe add COLONEL, the rank both expansions give the player. */
+#define PILOT_RANK_COUNT 6
+#else
+#define PILOT_RANK_COUNT 5
+#endif
 /* WC2's object-type table drops the twelve extra ship records WC1 carried --
  * WC1 numbers 22 ships and bases, WC2 ten -- so the table is 46 records at the
  * 243-byte stride the code uses, and every type from the shared block on is

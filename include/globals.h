@@ -878,7 +878,7 @@ extern RasterClip *g_pGifRasterTarget; /* 0x00491b04 */
 extern unsigned char g_abRasterPaletteTranslation[256]; /* 0x00491b08 */
 extern RLETransformVertex g_aRLETransformVertices[4]; /* 0x00491c08 */
 extern int g_anRLESourceSteps[4]; /* 0x00491c58 */
-extern const char *g_apszPilotRankNames[5]; /* 0x0049a608 */
+extern const char *g_apszPilotRankNames[PILOT_RANK_COUNT]; /* 0x0049a608 */
 /* The rank names are literals in personnel.c's tables; these dead names
  * keep the header's symbol count. */
 extern char g_szSecondLieutenantRank[8]; /* 0x0049a6d8 */
@@ -1748,7 +1748,7 @@ extern short g_sPersonnelPreviousInput; /* 0x0049a6bc */
 extern short g_bPersonnelMenuDrawing; /* 0x0049a6c0 */
 extern signed char g_bPersonnelPrimaryInputDown; /* 0x0049a6d4 */
 extern const char *g_apszSaveGameFileNames[3]; /* 0x0049a6c8 */
-extern const char *g_apszShortPilotRankNames[5]; /* 0x0049a620 */
+extern const char *g_apszShortPilotRankNames[PILOT_RANK_COUNT]; /* 0x0049a620 */
 extern void *g_pActiveScenePacket; /* 0x00492654 */
 extern short g_nPersonnelCursorX; /* 0x005c8470 */
 extern short g_nPersonnelCursorY; /* 0x005c8472 */

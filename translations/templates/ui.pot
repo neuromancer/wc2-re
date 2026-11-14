@@ -450,6 +450,10 @@ msgstr ""
 msgid "wc2:432ec6df13549d1f"
 msgstr ""
 
+#: src/personnel.c:18
+msgid "wc2:02f7a235e70eec55"
+msgstr ""
+
 #: src/personnel.c:19
 msgid "wc2:d3f31e06edf74045"
 msgstr ""
@@ -464,6 +468,10 @@ msgstr ""
 
 #: src/personnel.c:23
 msgid "wc2:fbca853d515c807f"
+msgstr ""
+
+#: src/personnel.c:28
+msgid "wc2:1fe8b39c7cbddf2d"
 msgstr ""
 
 #: src/personnel.c:400

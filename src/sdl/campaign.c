@@ -202,7 +202,8 @@ int SdlTryImportExpansionPilot(void)
             _read(file, signature, sizeof(signature)) == sizeof(signature) &&
             memcmp(signature, "Wing Commander II (c) 1991 Origin", 31) == 0;
         _close(file);
-        if (valid && pilot.rank >= 0 && pilot.rank < 5)
+        /* An SO1 pilot is already a colonel, rank 5. */
+        if (valid && pilot.rank >= 0 && pilot.rank < PILOT_RANK_COUNT)
             break;
     }
     if (source == 2)
@@ -232,6 +233,9 @@ int SdlTryImportExpansionPilot(void)
         return 0;
 
     LoadStartingCampaignGlobals(0);
+    /* Both expansions make a transferred pilot a colonel, as they do a new
+     * one (SO1.exe 0x404549, SO2.exe 0x466BCD). */
+    pilot.rank = 5;
     pilot.series = g_pCampaignGlobals->series;
     pilot.mission = g_pCampaignGlobals->mission;
     pilot.missionScore = 0;

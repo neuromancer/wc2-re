@@ -8,19 +8,25 @@
 unsigned char *g_pCockpitBackgroundPacket = 0; /* 0x0049a5f0 */
 unsigned char *g_apCockpitVduOverlayShapes[2] = { 0 }; /* 0x0049a5f8 */
 int g_nLegacySaveSource = 0; /* 0x0049a600 */
-const char *g_apszPilotRankNames[5] = {
+const char *g_apszPilotRankNames[PILOT_RANK_COUNT] = {
     N_("2ND LT."),
     N_("1ST LT."),
     N_("CAPTAIN"),
     N_("MAJOR"),
     N_("LT. COL.")
+#ifdef SDL_PORT
+    , N_("COLONEL")
+#endif
 }; /* 0x0049a608 */
-const char *g_apszShortPilotRankNames[5] = {
+const char *g_apszShortPilotRankNames[PILOT_RANK_COUNT] = {
     N_("2ND LT"),
     N_("1ST LT"),
     N_("CAPT."),
     N_("MAJOR"),
     N_("LT COL")
+#ifdef SDL_PORT
+    , N_("COL.")
+#endif
 }; /* 0x0049a620 */
 
 /* The save-slot signature is a 0x24-byte record, not a 34-byte string: the
@@ -1667,7 +1673,14 @@ short RunPilotDatabaseMenu(void)
                                 strcpy(
                                     g_stCurrentPilotProfile.callsign,
                                     selectedPilot->callsign);
+#ifdef SDL_PORT
+                                /* SO1.exe 0x404549 and SO2.exe 0x466BCD make
+                                 * the expansions' pilots colonels. */
+                                g_stCurrentPilotProfile.rank =
+                                    g_nSdlCampaign != 0 ? 5 : 2;
+#else
                                 g_stCurrentPilotProfile.rank = 2;
+#endif
                                 g_stCurrentPilotProfile.field_41 =
                                     selectedPilot->missions;
                                 g_stCurrentPilotProfile.field_43 =
@@ -1718,7 +1731,13 @@ short RunPilotDatabaseMenu(void)
                             strcpy(
                                 g_stCurrentPilotProfile.callsign,
                                 callsign);
+#ifdef SDL_PORT
+                            /* SO1.exe 0x404713 and SO2.exe 0x466D97. */
+                            g_stCurrentPilotProfile.rank =
+                                g_nSdlCampaign != 0 ? 5 : 2;
+#else
                             g_stCurrentPilotProfile.rank = 2;
+#endif
                             g_stCurrentPilotProfile.field_41 = 0;
                             g_stCurrentPilotProfile.field_43 = 0;
                             LoadStartingCampaignGlobals(0);
