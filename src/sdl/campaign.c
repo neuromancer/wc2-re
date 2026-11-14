@@ -40,6 +40,8 @@ const char *SdlCampaignPath(const char *path)
         { "startglb.000", "startglb.001", "startglb.002" },
         { "tempglob.000", "tempglob.001", "tempglob.002" },
         { "savegame.wc2", "savegame.so1", "savegame.so2" },
+        /* SO1.exe 0x41E9A4 opens sector.001, which DOS data lacks; the
+         * Kilrathi Saga copy reads "Vega", but SO1 is set in Enigma. */
         { "sector.000", "sector.000", "sector.002" },
         /* The player's radio lines: SO1.exe and SO2.exe change one taunt. */
         { "communic.you", "communic.yu2", "communic.yu3" }
