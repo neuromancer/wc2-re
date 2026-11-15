@@ -80,6 +80,11 @@ dialogue, menus, game UI and launcher text, or use `--language=es` or
 with DOS or Kilrathi Saga data; Polish also covers SO1 and SO2. See
 [translations](translations/README.md) for coverage and editing instructions.
 
+A DOS installation you have patched yourself with the German translation
+(`wc2en2de`) shows its German text, including the menus and cockpit messages
+of its German `WC2.EXE`. The launcher's **Language** menu then shows
+**German** only, and some artwork may stay in English.
+
 Command-line arguments start the game directly from the working directory;
 add `--gui` to open the launcher first:
 

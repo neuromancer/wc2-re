@@ -13,6 +13,8 @@ struct DirectoryStatus {
     bool valid;
     LauncherMessage message;
     std::string detail = {};
+    // WC2.EXE from the German patch for the DOS release.
+    bool germanText = false;
 };
 
 struct GameInstallation {

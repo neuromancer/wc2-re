@@ -35,6 +35,14 @@ typedef struct TranslationArtwork {
     unsigned short section;
 } TranslationArtwork;
 
+typedef struct SdlExecutableText {
+    Uint64 hash;
+    Uint32 offset;
+    Uint16 length;
+} SdlExecutableText;
+
+#include "executable_text.h"
+
 static unsigned char *catalog;
 static int catalogLanguage;
 /* Set for SO1 and SO2 when the catalog includes their dialogue. */
@@ -44,6 +52,10 @@ static size_t messageCount;
 static TranslationFont fonts[3];
 static TranslationArtwork *artwork;
 static size_t artworkCount;
+/* A player's German DOS WC2.EXE, kept whole; entries point into it. */
+static unsigned char *germanImage;
+static const char *germanTexts[SDL_arraysize(sdlExecutableTexts)];
+static int germanTextCount;
 
 static unsigned int ReadTranslation16(const unsigned char *p)
 {
@@ -242,6 +254,42 @@ invalid:
     return 0;
 }
 
+/* The catalogs add glyphs to the original English fonts and nothing else. */
+static int FontMatches(const TranslationFont *font, const unsigned char *source, size_t size)
+{
+    return size >= 772 && ReadTranslation16(source) == font->height &&
+        source[2] == font->ink && source[3] == font->background &&
+        SDL_crc32(0, source, size) == font->crc;
+}
+
+/* A player's own translation replaces FONTS.FNT, as the German patch does
+ * for its umlauts. Missing data is left to the game's own error. */
+static int InstalledFontsMatch(void)
+{
+    char path[4096];
+    unsigned char *archive;
+    size_t size;
+    short section;
+    int match = 1;
+
+    if (!SdlResolvePath("GAMEDAT/FONTS.FNT", path, sizeof(path)))
+        return 1;
+    archive = SDL_LoadFile(path, &size);
+    if (!archive)
+        return 1;
+    for (section = 0; section < (short)SDL_arraysize(fonts) && match; section++) {
+        unsigned char *decoded = 0;
+        size_t decodedSize = 0;
+        if (!fonts[section].glyphs)
+            continue;
+        match = SdlExtractOriginPacketSection(archive, size, section, &decoded, &decodedSize) &&
+            FontMatches(&fonts[section], decoded, decodedSize);
+        free(decoded);
+    }
+    SDL_free(archive);
+    return match;
+}
+
 int SdlSetLanguage(int language)
 {
     char *base;
@@ -266,24 +314,37 @@ int SdlSetLanguage(int language)
     SDL_free(base);
     if (result < 0 || result >= (int)sizeof(path) || !SdlLoadTranslationCatalog(path))
         return 0;
+    if (!InstalledFontsMatch()) {
+        fprintf(stderr, "FONTS.FNT is patched; showing the installed text, not the selected language.\n");
+        SdlShutdownTranslations();
+        return 1;
+    }
     catalogLanguage = language;
     return 1;
+}
+
+/* FNV-1a over the original CP437 bytes, matching message_key(). */
+static Uint64 TranslationHash(const char *text)
+{
+    Uint64 hash = 14695981039346656037ULL;
+    const unsigned char *byte = (const unsigned char *)text;
+
+    for (; *byte; byte++) {
+        hash ^= *byte;
+        hash *= 1099511628211ULL;
+    }
+    return hash;
 }
 
 static const char *FindTranslation(const char *context, const char *source)
 {
     size_t first = 0;
     size_t end = messageCount;
-    Uint64 hash = 14695981039346656037ULL;
-    const unsigned char *byte = (const unsigned char *)source;
+    Uint64 hash;
     char id[21];
     if (!messageCount || !source)
         return source;
-    /* FNV-1a over the original CP437 bytes, matching message_key(). */
-    for (; *byte; byte++) {
-        hash ^= *byte;
-        hash *= 1099511628211ULL;
-    }
+    hash = TranslationHash(source);
     SDL_snprintf(id, sizeof(id), "wc2:%08x%08x",
                  (unsigned int)(hash >> 32), (unsigned int)hash);
     while (first < end) {
@@ -301,9 +362,168 @@ static const char *FindTranslation(const char *context, const char *source)
     return source;
 }
 
+/* Next printf conversion after text: its '*' widths, length modifiers and
+ * conversion character, or "?" for a dangling '%'. */
+static const char *NextConversion(const char *text, char conversion[8])
+{
+    size_t length = 0;
+
+    while ((text = strchr(text, '%')) != 0) {
+        text++;
+        if (*text == '%') {
+            text++;
+            continue;
+        }
+        while (*text && strchr("-+ #0", *text))
+            text++;
+        while ((*text == '*' || SDL_isdigit((unsigned char)*text)) && length < 2) {
+            if (*text++ == '*')
+                conversion[length++] = '*';
+        }
+        if (*text == '.') {
+            text++;
+            while ((*text == '*' || SDL_isdigit((unsigned char)*text)) && length < 3) {
+                if (*text++ == '*')
+                    conversion[length++] = '*';
+            }
+        }
+        while (*text && strchr("hlLqjztFN", *text) && length < 6)
+            conversion[length++] = *text++;
+        conversion[length++] = *text ? *text++ : '?';
+        conversion[length] = 0;
+        return text;
+    }
+    return 0;
+}
+
+/* A translation may move or rewrite text, never change what it formats. */
+static int SameConversions(const char *source, const char *translated)
+{
+    char expected[8];
+    char actual[8];
+
+    for (;;) {
+        source = NextConversion(source, expected);
+        translated = NextConversion(translated, actual);
+        if (!source || !translated)
+            return !source && !translated;
+        if (strcmp(expected, actual) != 0)
+            return 0;
+    }
+}
+
+static const char *FindGermanText(const char *source)
+{
+    size_t first = 0;
+    size_t end = SDL_arraysize(sdlExecutableTexts);
+    Uint64 hash;
+
+    if (!germanImage || !source)
+        return source;
+    hash = TranslationHash(source);
+    while (first < end) {
+        size_t middle = first + (end - first) / 2;
+        if (hash < sdlExecutableTexts[middle].hash) {
+            end = middle;
+        } else if (hash > sdlExecutableTexts[middle].hash) {
+            first = middle + 1;
+        } else {
+            const char *text = germanTexts[middle];
+            return text && SameConversions(source, text) ? text : source;
+        }
+    }
+    return source;
+}
+
+void SdlShutdownGermanText(void)
+{
+    SDL_free(germanImage);
+    germanImage = 0;
+    germanTextCount = 0;
+    memset(germanTexts, 0, sizeof(germanTexts));
+}
+
+/* The German patch for the DOS release (wc2en2de) replaces WC2.EXE with
+ * Origin's German build GE1.7F. The port ships no translated text: it reads
+ * the player's own executable at the offsets bin/buildExecutableText.py
+ * aligned with the English strings. Returns the image with texts filled in,
+ * or NULL for any other file. */
+static unsigned char *ReadGermanText(const char *path, const char **texts, int *count)
+{
+    SDL_RWops *file;
+    unsigned char *image;
+    size_t index;
+    int translated = 0;
+
+    *count = 0;
+    file = SDL_RWFromFile(path, "rb");
+    if (!file)
+        return 0;
+    if (SDL_RWsize(file) != SDL_EXECUTABLE_TEXT_FILE_SIZE) {
+        SDL_RWclose(file);
+        return 0;
+    }
+    image = SDL_malloc(SDL_EXECUTABLE_TEXT_FILE_SIZE);
+    if (!image || SDL_RWread(file, image, 1, SDL_EXECUTABLE_TEXT_FILE_SIZE) !=
+            SDL_EXECUTABLE_TEXT_FILE_SIZE ||
+        SDL_crc32(0, image, SDL_EXECUTABLE_TEXT_HEADER_SIZE) != SDL_EXECUTABLE_TEXT_HEADER_CRC) {
+        SDL_RWclose(file);
+        SDL_free(image);
+        return 0;
+    }
+    SDL_RWclose(file);
+    for (index = 0; index < SDL_arraysize(sdlExecutableTexts); index++) {
+        const SdlExecutableText *entry = &sdlExecutableTexts[index];
+        const char *text = (const char *)image + entry->offset;
+        if ((size_t)entry->offset + entry->length >= SDL_EXECUTABLE_TEXT_FILE_SIZE ||
+            text[entry->length] != 0 || strlen(text) != entry->length)
+            continue;
+        texts[index] = text;
+        translated++;
+    }
+    if (!translated) {
+        SDL_free(image);
+        return 0;
+    }
+    *count = translated;
+    return image;
+}
+
+/* Returns the number of German UI strings, or 0 for any other file. */
+int SdlLoadGermanText(const char *path)
+{
+    SdlShutdownGermanText();
+    germanImage = ReadGermanText(path, germanTexts, &germanTextCount);
+    return germanTextCount;
+}
+
+/* The launcher's check: the same count, without keeping the text. */
+int SdlCountGermanText(const char *path)
+{
+    const char **texts = SDL_calloc(SDL_arraysize(sdlExecutableTexts), sizeof(*texts));
+    unsigned char *image;
+    int count = 0;
+
+    if (!texts)
+        return 0;
+    image = ReadGermanText(path, texts, &count);
+    SDL_free(image);
+    SDL_free(texts);
+    return count;
+}
+
+int SdlUsingGermanText(void)
+{
+    return germanTextCount != 0;
+}
+
 char *SdlTranslateText(const char *context, const char *source)
 {
-    return (char *)FindTranslation(context, source);
+    const char *text = FindTranslation(context, source);
+
+    if (text == source)
+        text = FindGermanText(source);
+    return (char *)text;
 }
 
 /* The credits use ARTDATA.V00/7's sprite alphabet, not FONTS.FNT. The Spanish
@@ -345,9 +565,7 @@ static int TranslateFont(short section, const unsigned char *source, size_t size
     size_t total = size;
     size_t index;
 
-    if (size < 772 || ReadTranslation16(source) != font->height ||
-        source[2] != font->ink || source[3] != font->background ||
-        SDL_crc32(0, source, size) != font->crc) {
+    if (!FontMatches(font, source, size)) {
         SDL_SetError("Translation requires the original WC2 fonts");
         return 0;
     }

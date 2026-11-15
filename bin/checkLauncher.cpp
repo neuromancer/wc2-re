@@ -11,7 +11,17 @@
 #include "../src/sdl/keymap_actions.h"
 #include <chrono>
 #include <cstdlib>
+#include <fstream>
 #include <thread>
+
+// The game reads real executables; fixtures mark a German WC2.EXE by its
+// first line.
+extern "C" int SdlCountGermanText(const char *path)
+{
+    std::ifstream file(path);
+    std::string line;
+    return std::getline(file, line) && line == "translated" ? 121 : 0;
+}
 
 struct TestWindow : slint::platform::WindowAdapter {
     slint::platform::SoftwareRenderer pixels {slint::platform::SoftwareRenderer::RepaintBufferType::NewBuffer};
@@ -164,6 +174,42 @@ int main(int argc, char **argv)
     controlsWindow->invoke_bindings_reset();
     require(changed_key_bindings(*controlsWindow).empty(), "restore defaults resets every row");
 
+    {
+        // The German patch for the DOS release replaces WC2.EXE; its own text
+        // replaces what Spanish and Polish translate.
+        std::error_code error;
+        const auto fixture = fs::temp_directory_path(error) / "wc2-launcher-german";
+        fs::remove_all(fixture, error);
+        fs::create_directories(fixture / "GAMEDAT");
+        const char dosHeader[8] = {28, 0, 0, 0, 28, 0, 0, static_cast<char>(0xc1)};
+        std::ofstream(fixture / "GAMEDAT/COCKPIT.VGA", std::ios::binary).write(dosHeader, 8);
+        std::ofstream(fixture / "GAMEDAT/CAMPAIGN.S00") << "x";
+        std::ofstream(fixture / "GAMEDAT/GAMEFLOW.S00") << "x";
+        std::vector<GameInstallation> installations;
+        window->set_game_directory(slint::SharedString(path_to_utf8(fixture)));
+        refresh_window(*window, installations);
+        require(window->get_path_valid() && !window->get_german_text() &&
+                window->get_language_choices()->row_count() == 3,
+                "an English DOS install offers every language");
+        set_language(*window, SDL_LAUNCHER_LANGUAGE_POLISH);
+        require(window->get_language_index() == SDL_LAUNCHER_LANGUAGE_POLISH,
+                "Polish selected for an English install");
+        std::ofstream(fixture / "WC2.EXE") << "translated\n";
+        refresh_window(*window, installations);
+        require(window->get_german_text() && window->get_language_choices()->row_count() == 1 &&
+                window->get_language_choices()->row_data(0) == slint::SharedString("German") &&
+                window->get_language_index() == SDL_LAUNCHER_LANGUAGE_ENGLISH,
+                "a German WC2.EXE offers only German, switching Polish back");
+        set_language(*window, SDL_LAUNCHER_LANGUAGE_SPANISH);
+        require(window->get_language_index() == SDL_LAUNCHER_LANGUAGE_ENGLISH,
+                "Spanish refused for a German install");
+        fs::remove(fixture / "WC2.EXE", error);
+        refresh_window(*window, installations);
+        require(!window->get_german_text() && window->get_language_choices()->row_count() == 3,
+                "an English install offers every language again");
+        fs::remove_all(fixture, error);
+    }
+
     if (argc > 1) {
         controlsWindow->show();
         controlsView->dimensions = slint::PhysicalSize {{1040, 660}};
@@ -201,6 +247,7 @@ int main(int argc, char **argv)
             controlsWindow->window().dispatch_pointer_scroll_event(slint::LogicalPosition {{500, 300}}, 0, 8000);
         }
     }
-    std::puts("PASS: the controls window shows WC2's controller and keyboard bindings and saves changes.");
+    std::puts("PASS: the controls window shows WC2's controller and keyboard bindings and saves changes,"
+              " and a German WC2.EXE limits the language menu to German.");
     return 0;
 }

@@ -78,6 +78,8 @@ extern "C" {
 
 /* Accepting also sets the working directory to the selected installation. */
 int SdlRunLauncherGui(SdlLauncherOptions *options);
+/* German UI strings in a player's German DOS WC2.EXE (0 for any other). */
+int SdlCountGermanText(const char *path);
 
 #ifdef __cplusplus
 }

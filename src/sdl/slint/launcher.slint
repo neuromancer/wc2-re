@@ -31,6 +31,11 @@ export component LauncherWindow inherits Window {
     in-out property <int> installation-index;
     in-out property <bool> start-fullscreen;
     in-out property <int> language-index;
+    // A DOS install patched with the German translation keeps its own text.
+    in property <bool> german-text: false;
+    out property <[string]> language-choices: root.german-text
+        ? ["German"]
+        : ["English", "Español", "Polski"];
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
     in-out property <bool> balanced-difficulty;
@@ -152,7 +157,7 @@ export component LauncherWindow inherits Window {
                     }
                     ComboBox {
                         horizontal-stretch: 1;
-                        model: ["English", "Español", "Polski"];
+                        model: root.language-choices;
                         current-index: root.language-index;
                         selected(_) => {
                             root.language-selected(self.current-index);

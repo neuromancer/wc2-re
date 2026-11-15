@@ -82,6 +82,25 @@ std::vector<LauncherJoystick> list_joysticks(LauncherWindow &window)
     return joysticks;
 }
 
+void set_language(LauncherWindow &window, int language)
+{
+    // The German patch's own text replaces what Spanish and Polish translate.
+    if (window.get_german_text())
+        language = SDL_LAUNCHER_LANGUAGE_ENGLISH;
+    const auto unnamed = window.get_unnamed_joystick();
+    if (!slint::select_bundled_translation(launcher_locale(language)))
+        return;
+    window.set_language_index(supported_language(language));
+    auto devices = window.get_joystick_devices();
+    for (size_t i = 0; devices && i < devices->row_count(); ++i) {
+        const auto value = devices->row_data(i);
+        if (i == 0)
+            devices->set_row_data(i, window.get_automatic_joystick());
+        else if (value && std::string(*value) == std::to_string(i) + " — " + std::string(unnamed))
+            devices->set_row_data(i, slint::SharedString(std::to_string(i) + " — " + std::string(window.get_unnamed_joystick())));
+    }
+}
+
 void refresh_window(LauncherWindow &window,
                     std::vector<GameInstallation> &installations)
 {
@@ -102,6 +121,9 @@ void refresh_window(LauncherWindow &window,
     window.set_path_valid(status.valid);
     window.set_has_so1(status.valid && validate_game_directory(directory, 1).valid);
     window.set_has_so2(status.valid && validate_game_directory(directory, 2).valid);
+    window.set_german_text(status.valid && status.germanText);
+    if (window.get_german_text() && window.get_language_index() != SDL_LAUNCHER_LANGUAGE_ENGLISH)
+        set_language(window, SDL_LAUNCHER_LANGUAGE_ENGLISH);
     window.set_status(status.message);
     window.set_status_detail(slint::SharedString(status.detail));
 }
@@ -522,18 +544,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     refresh_window(*window, installations);
 
     window->on_language_selected([&window, &installations](int language) {
-        const auto unnamed = window->get_unnamed_joystick();
-        if (!slint::select_bundled_translation(launcher_locale(language)))
-            return;
-        window->set_language_index(supported_language(language));
-        auto devices = window->get_joystick_devices();
-        for (size_t i = 0; i < devices->row_count(); ++i) {
-            const auto value = devices->row_data(i);
-            if (i == 0)
-                devices->set_row_data(i, window->get_automatic_joystick());
-            else if (value && std::string(*value) == std::to_string(i) + " — " + std::string(unnamed))
-                devices->set_row_data(i, slint::SharedString(std::to_string(i) + " — " + std::string(window->get_unnamed_joystick())));
-        }
+        set_language(*window, language);
         refresh_window(*window, installations);
     });
 

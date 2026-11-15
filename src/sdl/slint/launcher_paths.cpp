@@ -128,18 +128,27 @@ DirectoryStatus validate_game_directory(std::string_view directoryText, int camp
     }
 
     // Match SdlUsingDosData: the Saga conversion changed 0xc1 to 0xe0.
-    if (header[7] == 0xc1)
-        return {true, LauncherMessage::Dos};
-    if (header[7] != 0xe0)
-        return {false, LauncherMessage::UnknownCockpit};
-    const auto streams = find_child_case_insensitive(directory, "STREAMS");
-    if (!streams || !fs::is_directory(*streams, error))
-        return {false, LauncherMessage::NeedsStreams};
-    for (const auto name : {"GAMEFLOW.STR", "GAMETWO.STR", "SPACEFLT.STR"}) {
-        if (!has_readable_file(*streams, name))
-            return {false, LauncherMessage::MissingStreamFile, name};
+    DirectoryStatus status {true, LauncherMessage::Dos};
+    if (header[7] != 0xc1) {
+        if (header[7] != 0xe0)
+            return {false, LauncherMessage::UnknownCockpit};
+        const auto streams = find_child_case_insensitive(directory, "STREAMS");
+        if (!streams || !fs::is_directory(*streams, error))
+            return {false, LauncherMessage::NeedsStreams};
+        for (const auto name : {"GAMEFLOW.STR", "GAMETWO.STR", "SPACEFLT.STR"}) {
+            if (!has_readable_file(*streams, name))
+                return {false, LauncherMessage::MissingStreamFile, name};
+        }
+        status.message = LauncherMessage::KilrathiSaga;
     }
-    return {true, LauncherMessage::KilrathiSaga};
+    // The German patch for the DOS release replaces WC2.EXE with Origin's
+    // German build, whose UI text the game then shows.
+    if (campaign == 0) {
+        const auto executable = find_child_case_insensitive(directory, "WC2.EXE");
+        status.germanText = executable &&
+            SdlCountGermanText(path_to_utf8(*executable).c_str()) > 0;
+    }
+    return status;
 }
 
 int add_game_installation(std::vector<GameInstallation> &installations,

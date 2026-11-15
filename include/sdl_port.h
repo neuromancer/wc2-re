@@ -289,6 +289,11 @@ int SdlLoadTranslationCatalog(const char *path);
 int SdlSetLanguage(int language);
 void SdlShutdownTranslations(void);
 char *SdlTranslateText(const char *context, const char *source);
+/* A player's German DOS WC2.EXE, from the German patch for the DOS release. */
+int SdlLoadGermanText(const char *path);
+int SdlCountGermanText(const char *path);
+int SdlUsingGermanText(void);
+void SdlShutdownGermanText(void);
 int SdlTranslatePacketSection(const char *filename, short section,
                               struct PacketSectionHandle *handle);
 void SdlExpandCutsceneText(const unsigned char *source, char *destination);

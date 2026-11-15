@@ -268,6 +268,7 @@ int main(int argumentCount, char **arguments)
     int useLauncherGui;
     int usingDosData;
     SdlLauncherOptions launcherOptions;
+    char germanExecutable[4096];
 
     launcherGuiImplicit = argumentCount == 1;
     SdlInitializeLauncherOptions(&launcherOptions);
@@ -300,7 +301,17 @@ int main(int argumentCount, char **arguments)
     if (!SdlSelectCampaign(launcherOptions.campaign))
         return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
-    if (!SdlSetLanguage(launcherOptions.language)) {
+    /* A player's German patch for the DOS release brings its own UI text in
+     * WC2.EXE; the selectable catalogs translate the English data. */
+    if (SdlResolvePath("WC2.EXE", germanExecutable, sizeof(germanExecutable)) &&
+        SdlLoadGermanText(germanExecutable) > 0) {
+        fprintf(stderr, "Using the German text in WC2.EXE%s.\n",
+                launcherOptions.language != SDL_LAUNCHER_LANGUAGE_ENGLISH ?
+                    " instead of the selected language" : "");
+        atexit(SdlShutdownGermanText);
+    }
+    if (!SdlSetLanguage(SdlUsingGermanText() ? SDL_LAUNCHER_LANGUAGE_ENGLISH :
+                        launcherOptions.language)) {
         fprintf(stderr, "Cannot load translation: %s\n", SDL_GetError());
         return 1;
     }
