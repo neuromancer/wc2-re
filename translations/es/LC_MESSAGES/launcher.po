@@ -6,6 +6,18 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "LauncherWindow"
+msgid "AdLib"
+msgstr "AdLib"
+
+msgctxt "LauncherWindow"
+msgid "Roland MT-32"
+msgstr "Roland MT-32"
+
+msgctxt "LauncherWindow"
+msgid "Digital"
+msgstr "Digital"
+
+msgctxt "LauncherWindow"
 msgid "Select game data…"
 msgstr "Selecciona los datos del juego…"
 
@@ -92,6 +104,26 @@ msgstr "Añadir carpeta…"
 msgctxt "LauncherWindow"
 msgid "Language"
 msgstr "Idioma"
+
+msgctxt "LauncherWindow"
+msgid "Music"
+msgstr "Música"
+
+msgctxt "LauncherWindow"
+msgid "MT-32 ROMs…"
+msgstr "ROM del MT-32…"
+
+msgctxt "LauncherWindow"
+msgid "MT-32: {}"
+msgstr "MT-32: {}"
+
+msgctxt "LauncherWindow"
+msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music."
+msgstr "Elige la carpeta con tus ROM de MT-32 o CM-32L; mientras tanto, el juego usa la música AdLib."
+
+msgctxt "LauncherWindow"
+msgid "The game plays AdLib music: {}"
+msgstr "El juego usa la música AdLib: {}"
 
 msgctxt "LauncherWindow"
 msgid "Options"

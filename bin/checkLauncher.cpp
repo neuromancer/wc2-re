@@ -3,8 +3,8 @@
  * the keyboard and mouse table and the action list that the game shares
  * (src/sdl/keymap_actions.h), saving and reading back changed bindings, the
  * guns and afterburner buttons' swap, the German patch's language menu, the
- * joystick dead zone setting and the calibration page, which calibrates SDL
- * virtual flight sticks. With an argument it also saves BMP previews named
+ * joystick dead zone setting, the calibration page, which calibrates SDL
+ * virtual flight sticks, and the Music row and its MT-32 line. With an argument it also saves BMP previews named
  * after it: every tab, the calibration page, the Steam Deck's 1280x800 at a
  * scale of 1.2 and a 640x480 window that scrolls. */
 #include "../src/sdl/slint/slint_static.h"
@@ -24,6 +24,20 @@ extern "C" int SdlCountGermanText(const char *path)
     std::ifstream file(path);
     std::string line;
     return std::getline(file, line) && line == "translated" ? 121 : 0;
+}
+
+// The check has no MT-32 ROMs: a folder holding cm32l.rom stands for a
+// usable set (src/sdl/mt32.c describes real ones).
+extern "C" int SdlDescribeMt32Roms(const char *directory, const char *machine,
+                                   char *text, size_t textSize)
+{
+    std::error_code error;
+    const bool usable = directory != nullptr && *directory != '\0' &&
+        fs::exists(path_from_utf8(directory) / "cm32l.rom", error);
+    (void)machine;
+    std::snprintf(text, textSize, "%s", usable ? "CM-32L test ROMs (cm32l_1_02)"
+                                               : "No MT-32 or CM-32L ROMs.");
+    return usable;
 }
 
 struct TestWindow : slint::platform::WindowAdapter {
@@ -224,6 +238,59 @@ int main(int argc, char **argv)
                 "an English install offers every language again");
     }
 
+    // The Music row: a DOS install offers the AdLib and the MT-32, a Kilrathi
+    // Saga install also its digital music, and the MT-32 line says whether
+    // the ROMs can play.
+    {
+        require(window->get_dos_data() && window->get_music_available() &&
+                window->get_music_choices()->row_count() == 2,
+                "a DOS install offers the AdLib and the MT-32");
+        window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
+        show_music_device(*window);
+        require(window->get_music_index() == 1, "the MT-32 is the DOS install's second choice");
+        const auto saga = fs::temp_directory_path(error) / "wc2-launcher-saga";
+        fs::remove_all(saga, error);
+        fs::create_directories(saga / "GAMEDAT");
+        fs::create_directories(saga / "STREAMS");
+        const char sagaHeader[8] = {28, 0, 0, 0, 28, 0, 0, static_cast<char>(0xe0)};
+        std::ofstream(saga / "GAMEDAT/COCKPIT.VGA", std::ios::binary).write(sagaHeader, 8);
+        std::ofstream(saga / "GAMEDAT/CAMPAIGN.S00") << "x";
+        std::ofstream(saga / "GAMEDAT/GAMEFLOW.S00") << "x";
+        for (const char *name : {"GAMEFLOW.STR", "GAMETWO.STR", "SPACEFLT.STR"})
+            std::ofstream(saga / "STREAMS" / name) << "x";
+        window->set_game_directory(slint::SharedString(path_to_utf8(saga)));
+        refresh_window(*window, installations);
+        require(window->get_path_valid() && !window->get_dos_data() &&
+                window->get_music_choices()->row_count() == 3 && window->get_music_index() == 2,
+                "a Kilrathi Saga install offers digital, AdLib and MT-32 music");
+        window->set_game_directory(slint::SharedString(path_to_utf8(fixture)));
+        refresh_window(*window, installations);
+        fs::remove_all(saga, error);
+
+        refresh_mt32_roms(*window, "", "");
+        require(!window->get_mt32_roms_set() && !window->get_mt32_ready(), "no ROM folder yet");
+        const auto roms = fs::temp_directory_path(error) / "wc2-launcher-roms";
+        fs::create_directories(roms);
+        std::ofstream(roms / "cm32l.rom") << "x";
+        refresh_mt32_roms(*window, path_to_utf8(roms), "");
+        require(window->get_mt32_roms_set() && window->get_mt32_ready() &&
+                std::string(window->get_mt32_detail()) == "CM-32L test ROMs (cm32l_1_02)",
+                "a usable ROM folder");
+
+        SdlLauncherOptions music = {};
+        music.musicDevice = SDL_LAUNCHER_MUSIC_MT32;
+        std::snprintf(music.mt32Roms, sizeof(music.mt32Roms), "%s", path_to_utf8(roms).c_str());
+        std::snprintf(music.mt32Model, sizeof(music.mt32Model), "%s", "mt32_1_07");
+        require(save_launcher_config(fixture / "music.ini", music), "save the music settings");
+        SdlLauncherOptions restored = {};
+        load_launcher_config(fixture / "music.ini", restored);
+        require(restored.musicDevice == SDL_LAUNCHER_MUSIC_MT32 &&
+                std::string(restored.mt32Roms) == path_to_utf8(roms) &&
+                std::string(restored.mt32Model) == "mt32_1_07", "the music settings survive a restart");
+        fs::remove_all(roms, error);
+        refresh_mt32_roms(*window, "", "");
+    }
+
     // The dead zone is a percentage saved with the other settings.
     {
         SdlLauncherOptions zone = {};
@@ -411,7 +478,8 @@ int main(int argc, char **argv)
     }
     fs::remove_all(fixture, error);
     std::puts("PASS: the tabbed launcher shows WC2's controller and keyboard bindings and saves changes,"
-              " a German WC2.EXE limits the language menu to German, the dead zone is saved, and the"
-              " calibration page calibrates virtual sticks, the chosen one as joystick 1.");
+              " a German WC2.EXE limits the language menu to German, the music choices fit the"
+              " installation and are saved, the dead zone is saved, and the calibration page"
+              " calibrates virtual sticks, the chosen one as joystick 1.");
     return 0;
 }

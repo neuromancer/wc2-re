@@ -43,6 +43,7 @@ cp packaging/README-modern.txt "$stage_dir/README.txt"
 cp packaging/THIRD-PARTY-NOTICES.txt \
     "$stage_dir/THIRD-PARTY-NOTICES.txt"
 cp third_party/ymfm/LICENSE "$stage_dir/YMFM-LICENSE.txt"
+cp third_party/munt/COPYING.LESSER.txt "$stage_dir/MUNT-LICENSE.txt"
 test -s "$(dirname "$binary")/translations/es.dat"
 test -s "$(dirname "$binary")/translations/pl.dat"
 mkdir "$stage_dir/translations"

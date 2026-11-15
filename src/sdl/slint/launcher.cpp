@@ -106,6 +106,16 @@ void set_language(LauncherWindow &window, int language)
     }
 }
 
+/* The music choice that shows the device: a DOS install lists only the
+ * AdLib and the MT-32. */
+void show_music_device(LauncherWindow &window)
+{
+    const int device = std::clamp(window.get_music_device(), 0, 2);
+
+    window.set_music_index(window.get_dos_data() ? (device == SDL_LAUNCHER_MUSIC_MT32 ? 1 : 0)
+                                                 : device);
+}
+
 void refresh_window(LauncherWindow &window,
                     std::vector<GameInstallation> &installations)
 {
@@ -126,6 +136,9 @@ void refresh_window(LauncherWindow &window,
     window.set_path_valid(status.valid);
     window.set_has_so1(status.valid && validate_game_directory(directory, 1).valid);
     window.set_has_so2(status.valid && validate_game_directory(directory, 2).valid);
+    window.set_dos_data(status.valid && status.message == LauncherMessage::Dos);
+    window.set_music_available(status.valid);
+    show_music_device(window);
     window.set_german_text(status.valid && status.germanText);
     if (window.get_german_text() && window.get_language_index() != SDL_LAUNCHER_LANGUAGE_ENGLISH)
         set_language(window, SDL_LAUNCHER_LANGUAGE_ENGLISH);
@@ -141,10 +154,10 @@ void report_picker_error(LauncherWindow &window, LauncherMessage message,
     window.set_status_detail(details ? details : "");
 }
 
-void browse_for_game_directory(LauncherWindow &window,
-                               std::vector<GameInstallation> &installations)
+/* The folder the player picks, starting from the current one; empty when
+ * the player cancels or the picker fails, which it reports. */
+std::string pick_folder(LauncherWindow &window, const std::string &currentDirectory)
 {
-    const std::string currentDirectory(window.get_game_directory());
     std::string defaultDirectory;
     std::error_code error;
 
@@ -156,21 +169,39 @@ void browse_for_game_directory(LauncherWindow &window,
                 defaultDirectory = path_to_utf8(absolute);
         }
     }
-
     nfdu8char_t *selectedDirectory = nullptr;
     const nfdresult_t result = NFD_PickFolderU8(
         &selectedDirectory,
         defaultDirectory.empty() ? nullptr : defaultDirectory.c_str());
     if (result == NFD_CANCEL)
-        return;
+        return {};
     if (result != NFD_OKAY || selectedDirectory == nullptr) {
-        report_picker_error(window, LauncherMessage::PickerFailed,
-                            NFD_GetError());
-        return;
+        report_picker_error(window, LauncherMessage::PickerFailed, NFD_GetError());
+        return {};
     }
-
     const std::string selection(selectedDirectory);
     NFD_FreePathU8(selectedDirectory);
+    return selection;
+}
+
+/* What the ROM folder holds, for the MT-32 line under the music choice. */
+void refresh_mt32_roms(LauncherWindow &window, const std::string &roms,
+                       const std::string &model)
+{
+    char detail[SDL_LAUNCHER_DIRECTORY_CAPACITY + 256] = "";
+
+    window.set_mt32_roms_set(!roms.empty());
+    window.set_mt32_ready(!roms.empty() &&
+                          SdlDescribeMt32Roms(roms.c_str(), model.c_str(), detail, sizeof(detail)));
+    window.set_mt32_detail(slint::SharedString(detail));
+}
+
+void browse_for_game_directory(LauncherWindow &window,
+                               std::vector<GameInstallation> &installations)
+{
+    const std::string selection = pick_folder(window, std::string(window.get_game_directory()));
+    if (selection.empty())
+        return;
     window.set_game_directory(slint::SharedString(selection));
     refresh_window(window, installations);
 }
@@ -805,6 +836,23 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     if (joystickInitialized)
         joysticks = list_joysticks(*window);
     refresh_window(*window, installations);
+    window->set_music_device(std::clamp(options->musicDevice, 0, 2));
+    show_music_device(*window);
+    std::string mt32Roms(options->mt32Roms);
+    const std::string mt32Model(options->mt32Model);
+    refresh_mt32_roms(*window, mt32Roms, mt32Model);
+    window->on_music_selected([&window](int index) {
+        int device = std::clamp(index, 0, 2);
+
+        /* A DOS install lists only the AdLib and the MT-32; its AdLib
+         * keeps whichever AdLib choice applies to Kilrathi Saga installs. */
+        if (window->get_dos_data())
+            device = index == 1 ? SDL_LAUNCHER_MUSIC_MT32
+                : window->get_music_device() == SDL_LAUNCHER_MUSIC_MT32
+                ? SDL_LAUNCHER_MUSIC_DEFAULT : window->get_music_device();
+        window->set_music_device(device);
+        show_music_device(*window);
+    });
 
     window->on_language_selected([&window, &installations](int language) {
         set_language(*window, language);
@@ -890,18 +938,33 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
 
     window->show();
     /* NFD_Init records Cocoa's activation policy. Initialize it from the
-     * callback, after winit launches NSApplication, so NFD_Quit cannot restore
+     * callbacks, after winit launches NSApplication, so NFD_Quit cannot restore
      * the temporary pre-launch Prohibited policy before SDL takes over. */
-    window->on_browse_requested([&window, &pickerInitialized, &installations, stop_calibration]() {
-        if (!pickerInitialized) {
-            if (NFD_Init() != NFD_OKAY) {
-                report_picker_error(
-                    *window, LauncherMessage::PickerInitFailed,
-                    NFD_GetError());
-                return;
-            }
-            pickerInitialized = true;
+    const auto start_picker = [&window, &pickerInitialized]() {
+        if (pickerInitialized)
+            return true;
+        if (NFD_Init() != NFD_OKAY) {
+            report_picker_error(*window, LauncherMessage::PickerInitFailed, NFD_GetError());
+            return false;
         }
+        pickerInitialized = true;
+        return true;
+    };
+    window->on_mt32_browse_requested([&window, &mt32Roms, &mt32Model, start_picker]() {
+        if (!start_picker())
+            return;
+        const std::string selection = pick_folder(*window, mt32Roms);
+        if (selection.empty() || selection.size() >= SDL_LAUNCHER_DIRECTORY_CAPACITY)
+            return;
+        mt32Roms = selection;
+        refresh_mt32_roms(*window, mt32Roms, mt32Model);
+        // Choosing ROMs asks for the MT-32.
+        window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
+        show_music_device(*window);
+    });
+    window->on_browse_requested([&window, &installations, stop_calibration, start_picker]() {
+        if (!start_picker())
+            return;
         browse_for_game_directory(*window, installations);
         stop_calibration();
     });
@@ -935,6 +998,9 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->joystickMode = std::max(0, window->get_joystick_mode_index());
     options->joystickAxes = std::max(0, window->get_joystick_axes_index());
     options->joystickDeadZone = dead_zone_percent(window->get_joystick_dead_zone());
+    options->musicDevice = std::clamp(window->get_music_device(), 0, 2);
+    if (mt32Roms.size() < sizeof(options->mt32Roms))
+        std::memcpy(options->mt32Roms, mt32Roms.c_str(), mt32Roms.size() + 1);
     options->joystickInstanceId = -1;
     options->joystickGuidUnique = 0;
     options->joystickGuid[0] = '\0';

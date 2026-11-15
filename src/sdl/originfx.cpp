@@ -166,6 +166,9 @@ struct SdlOriginFxPlayer {
     unsigned char melodicVoiceCount;
     unsigned char rhythmRegister;
     int stereoPanningEnabled;
+    /* Not owned: an MT-32 that plays the song instead of the OPL2. */
+    SdlMt32Synth *mt32;
+    int mt32Started;
     int finished;
     OriginFxChannel channels[ORIGINFX_CHANNEL_COUNT];
     OriginFxVoice voices[ORIGINFX_VOICE_STATE_COUNT];
@@ -197,6 +200,8 @@ struct SdlOriginFxPlayer {
         melodicVoiceCount(ORIGINFX_MELODIC_VOICE_COUNT),
         rhythmRegister(0),
         stereoPanningEnabled(0),
+        mt32(0),
+        mt32Started(0),
         finished(0)
     {
         memset(channels, 0, sizeof(channels));
@@ -1351,6 +1356,11 @@ static void OriginFxDispatchEvent(SdlOriginFxPlayer *player,
     unsigned int command;
     unsigned int note;
 
+    if (player->mt32 != 0) {
+        SdlMt32MusicEvent(player->mt32, event->status, event->data1,
+                          event->data2);
+        return;
+    }
     channelIndex = event->status & 0x0fU;
     command = event->status & 0xf0U;
     channel = &player->channels[channelIndex];
@@ -1429,7 +1439,11 @@ static int OriginFxJumpTrack(SdlOriginFxPlayer *player, unsigned int track,
     if (target < (long long)player->trackStart[track] ||
         target >= (long long)player->trackEnd[track])
         return 0;
-    OriginFxAllNotesOff(player, player->trackStatus[track] & 0x0f);
+    if (player->mt32 != 0)
+        SdlMt32Controller(player->mt32,
+                          (player->trackStatus[track] & 0x0fU) + 1, 123, 0);
+    else
+        OriginFxAllNotesOff(player, player->trackStatus[track] & 0x0f);
     *cursor = (size_t)target;
     return 1;
 }
@@ -1531,7 +1545,9 @@ static int OriginFxRunSequencer(SdlOriginFxPlayer *player)
             case 1:
                 if (player->leaveAtLoop != 0) {
                     player->trackCursor[track] = cursor;
-                    OriginFxAllNotesOff(player, -1);
+                    /* An MT-32 song's stepper stops it (StopSong). */
+                    if (player->mt32 == 0)
+                        OriginFxAllNotesOff(player, -1);
                     return 1;
                 }
                 break;
@@ -1701,6 +1717,52 @@ SdlOriginFxPlayer *SdlCreateOriginFxPlayer(
         return 0;
     }
     return player;
+}
+
+/* A song for an MT-32. STRAX.DRV section 0 passes the song's MIDI on; the
+ * MT-32 holds the WING2.TIM instruments that SdlCreateMt32Synth uploaded. */
+SdlOriginFxPlayer *SdlCreateOriginFxMt32Player(
+    const unsigned char *midi, size_t midiSize, SdlMt32Synth *synth)
+{
+    SdlOriginFxPlayer *player;
+
+    if (synth == 0)
+        return 0;
+    player = new (std::nothrow) SdlOriginFxPlayer;
+    if (player == 0)
+        return 0;
+    player->mt32 = synth;
+    if (!OriginFxLoadMidi(player, midi, midiSize)) {
+        delete player;
+        return 0;
+    }
+    return player;
+}
+
+/* Advances an MT-32 song by one output frame, which SdlMixMt32 renders: the
+ * sequencer's 60 Hz ticks of OriginFxAdvanceService, without the OPL2's
+ * voices; the MT-32 plays the effects itself. The song starts with
+ * RewindSong's controller reset (DOS 062:137c) and ends with StopSong
+ * (062:11ee). */
+int SdlStepOriginFxPlayer(SdlOriginFxPlayer *player)
+{
+    if (player == 0 || player->mt32 == 0 || player->finished != 0)
+        return 0;
+    if (player->mt32Started == 0) {
+        player->mt32Started = 1;
+        SdlMt32RewindSong(player->mt32);
+    }
+    player->serviceAccumulator += ORIGINFX_SERVICE_RATE;
+    while (player->serviceAccumulator >= ORIGINFX_OUTPUT_RATE &&
+           player->finished == 0) {
+        player->serviceAccumulator -= ORIGINFX_OUTPUT_RATE;
+        if (OriginFxRunSequencer(player)) {
+            SdlMt32StopSong(player->mt32);
+            player->finished = 1;
+        }
+        player->sequenceClock -= ORIGINFX_SEQUENCER_TICK;
+    }
+    return player->finished == 0;
 }
 
 SdlOriginFxPlayer *SdlCreateOriginFxSoundPlayer(
