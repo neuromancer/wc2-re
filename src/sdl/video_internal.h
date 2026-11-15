@@ -16,6 +16,8 @@ typedef enum SdlVideoBackend {
 void SdlSetVideoBackend(SdlVideoBackend backend);
 int SdlUsingGlRenderer(void);
 void SdlSetEgaDitherEnabled(int enabled);
+/* Hi-res HUD text in the enhanced renderer (wc1-re issue 29). */
+void SdlSetHiResHudFonts(int enabled);
 int SdlConfigureVideoWindow(Uint32 *windowFlags);
 void SdlCalculateOutputViewport(int width, int height, int *left,
                                    int *bottom, int *viewportWidth,

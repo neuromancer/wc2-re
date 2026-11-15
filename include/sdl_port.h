@@ -303,6 +303,15 @@ int SdlDecompressOriginLzw(const unsigned char *source,
                               unsigned char *destination,
                               size_t destinationSize,
                               size_t *writtenSize);
+/* DrawFontGlyph's and CopyViewportContents's hooks for the enhanced
+ * renderer's hi-res HUD text. */
+int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
+                       int width, int height, unsigned char character,
+                       unsigned char colour, unsigned char background,
+                       int centered);
+void SdlEndHiResGlyph(void);
+void SdlCopyHiResGlyphs(const struct Viewport *source,
+                        const struct Viewport *destination);
 int SdlExtractOriginPacketSection(const unsigned char *archive,
                                      size_t archiveSize,
                                      unsigned int sectionIndex,

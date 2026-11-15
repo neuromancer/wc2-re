@@ -44,7 +44,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6,
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 7,
     SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 8,
-    SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9
+    SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9,
+    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 10
 };
 
 typedef struct SdlLauncherOptions {
@@ -54,6 +55,8 @@ typedef struct SdlLauncherOptions {
     int campaign; /* 0: WC2, 1: Special Operations 1, 2: Special Operations 2 */
     int enhancedRenderer;
     int egaDither;
+    /* Cockpit text in a finer game font, with the enhanced renderer. */
+    int hiResHudFonts;
     int balancedDifficulty;
     int cheatMode;
     int joystickRumble;

@@ -147,6 +147,9 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
+        } else if (strcmp(argument, "--hires-hud") == 0) {
+            launcherOptions->hiResHudFonts = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_HIRES_HUD;
         } else {
             arguments[outputArgumentIndex++] = argument;
         }
@@ -301,6 +304,7 @@ int main(int argumentCount, char **arguments)
     if (!SdlSelectCampaign(launcherOptions.campaign))
         return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
+    SdlSetHiResHudFonts(launcherOptions.hiResHudFonts);
     /* A player's German patch for the DOS release brings its own UI text in
      * WC2.EXE; the selectable catalogs translate the English data. */
     if (SdlResolvePath("WC2.EXE", germanExecutable, sizeof(germanExecutable)) &&
