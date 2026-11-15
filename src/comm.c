@@ -648,14 +648,19 @@ void real_vid_transmit(short obj, short message)
 #endif
         LoadAndPlaySpeechPacket(packetFile, message);
         g_bCommSpeechPlaying = 1;
+#ifdef SDL_PORT
+        /* WC2 either spoke a line or printed it, on DOS as in the Kilrathi
+         * Saga. The port prints a spoken line too, as its subtitle. */
+#else
         return;
+#endif
     }
     /* The sampled line and its subtitle share a packet number: "communic.s"
      * carries the speech, "communic.t" the text. */
 #ifdef SDL_PORT
     /* The expansions also write the 't' at index 9 of "palcomm.s08",
      * naming a missing "palcomm.st8". Change the extension's letter instead,
-     * so PALCOMM.T08's text appears when the reply is not spoken. */
+     * so that PALCOMM.T08's text appears. */
     strrchr(packetFile, '.')[1] = 't';
 #else
     packetFile[9] = 't';
@@ -675,7 +680,18 @@ void real_vid_transmit(short obj, short message)
                 g_szCommMessageTextText);
 #endif
         expanded = ExpandCommMessageTokens(text);
+#ifdef SDL_PORT
+        /* A subtitle stays up until check_message sees the speech end. While
+         * that wait is set, showing a message would end the transmission and
+         * close the speaker's VDU, so the wait is set again afterwards. */
+        if (g_bCommSpeechPlaying != 0)
+            clear_message_time();
+#endif
         ShowCentredPrompt(expanded, MeasureMessageWidth(text));
+#ifdef SDL_PORT
+        if (g_bCommSpeechPlaying != 0)
+            set_message_time(-1);
+#endif
     }
 }
 

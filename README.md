@@ -108,7 +108,7 @@ Press **Y** to proceed, or **N** or **Esc** to keep it and return to the title m
 
 The port includes resizable, aspect-correct display, gamepad hot-plug support,
 rebindable keyboard and mouse controls, mouse-wheel throttle, cinematic
-captions, corrected planet scaling, and static on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
+captions, subtitles for spoken in-flight messages, corrected planet scaling, and static on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
 sound effects. Optional features can be combined:
 
 | Fix or feature | Enable with |
