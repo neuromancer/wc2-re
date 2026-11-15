@@ -888,6 +888,12 @@ unsigned int DrawRasterEllipse(RasterClip *clip, int x, int y,
     int offsetX;
     int offsetY;
 
+    /* As the original (0x40567C), a flat ellipse is a line. With both radii
+     * zero the loops below never end; SO1's nav map draws its small hazards
+     * so (issue #64). */
+    if (horizontalRadius == 0 || verticalRadius == 0)
+        return DrawClippedLine(clip, x - horizontalRadius, y - verticalRadius,
+                               x + horizontalRadius, y + verticalRadius, 0, colour);
     if (horizontalRadius < 0 || verticalRadius < 0)
         return (unsigned int)-3;
     radiusX2 = (long long)horizontalRadius * horizontalRadius;
