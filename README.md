@@ -48,9 +48,11 @@ fullscreen mode.
 
 **Steam Deck / Linux (experimental):** install the `.flatpak` in Desktop Mode
 with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
-add **Wing Commander II (Experimental)** to Steam as a non-Steam game. These
-packages have not been tested on Steam Deck; please report controls, saving and
-suspend/resume results in [Issues](https://github.com/neuromancer/wc2-re/issues).
+add **Wing Commander II (Experimental)** to Steam as a non-Steam game. In Game
+Mode the launcher fills the screen, with its settings and controls in tabs and
+the joystick calibration in the same window. These packages have not been
+tested on Steam Deck; please report controls, saving and suspend/resume results
+in [Issues](https://github.com/neuromancer/wc2-re/issues).
 Install newer bundles the same way; automatic app updates are not configured.
 
 Select **Start SO1** in the launcher, or pass `--campaign=so1`, to play SO1.
@@ -121,6 +123,8 @@ sound effects. Optional features can be combined:
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
+| Joystick dead zone, 0% to 33% of the stick's travel (22%, the original's, by default) | Launcher slider or `--joystick-dead-zone=N` |
+| Joystick calibration that writes `GAMEDAT/j.cal` as the game's own does; the game now reads all of that file, not only the centre | Launcher **Calibrate…** |
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter in the window title | `-f` |
 | Cockpitless view | `-c` |
@@ -146,10 +150,11 @@ uses the original-resolution scene so dithering applies consistently.
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Cycle views in spaceflight; Escape/back during the fly-by and elsewhere |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+| `Ctrl+J` or `Alt+C` (menus and spaceflight) | Calibrate the joystick, as in the original |
 
-The launcher's **Show controls…** window shows every binding. Click a key or
-mouse input to change it, or **+** to add a second one; changes apply when the
-game starts. Wingman orders such as `Alt+A` can move to single keys. `Esc` and
+The launcher's **Joystick** and **Keyboard and mouse** tabs show every
+binding. Click a key or mouse input to change it, or **+** to add a second one;
+changes apply when the game starts. Wingman orders such as `Alt+A` can move to single keys. `Esc` and
 the communication message keys `1`–`9` cannot be changed.
 
 Pause (`P` or Gamepad Start) and quit controls remain available during
@@ -158,7 +163,8 @@ autopilot.
 The default joystick mode retains the original two-axis, two-button controls.
 When several devices are connected, the launcher's **Device** selector chooses
 the primary joystick for that session; **Automatic** keeps the existing order.
-An explicit choice overrides legacy `j.cal` calibration. If it disconnects,
+A joystick chosen there is joystick 1: the game applies a `j.cal` calibration
+only to it, and the launcher's calibration offers only it. If it disconnects,
 another device can take over until the selected joystick reconnects.
 The optional four-button modes add afterburner, targeting, weapons, navigation,
 autopilot, communications, and speed controls. Axis layouts are

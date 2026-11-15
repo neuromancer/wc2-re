@@ -169,7 +169,12 @@ void LoadOriginFxDrivers(void)
         }
     }
     LoadSpaceflightResources();
+#ifdef SDL_PORT
+    LoadJoystickCalibrationFile(9, 9, SdlGetJoystickDeadZoneSteps(),
+                                SdlGetJoystickDeadZoneSteps());
+#else
     LoadJoystickCalibrationFile(9, 9, 1, 1);
+#endif
     ConfigureInputPump(1, PollJoystickButtonEvents);
     ConfigureDefaultSpacePalette(
         g_acExpectedGraphicsModes[

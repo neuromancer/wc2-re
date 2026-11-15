@@ -48,13 +48,7 @@ short LoadJoystickCalibrationFile(short horizontalRange,
         activeDevice = 1;
 
     if (activeDevice != -1) {
-#ifdef SDL_PORT
-        /* SDL already normalizes axes. A legacy calibration belongs to its
-         * old slot/device and must not override an explicit launcher choice. */
-        file = SdlHasPreferredJoystick() ? -1 : _open("j.cal", 0x8000);
-#else
         file = _open("j.cal", 0x8000);
-#endif
         if (file != -1) {
             fileError = _read(file, &activeDevice, 2) <= 0;
             if (fileError == 0)
@@ -75,6 +69,20 @@ short LoadJoystickCalibrationFile(short horizontalRange,
             if (fileError != 0)
                 _unlink("j.cal");
         }
+#ifdef SDL_PORT
+        /* Ignore a j.cal for a missing joystick or from another device, such
+         * as the DOS game's gameport counts, or one that would take slot 0's
+         * place from a joystick chosen in the launcher; take SDL's full
+         * range instead. */
+        if (fileError == 0 &&
+            !SdlAcceptJoystickCalibration(activeDevice, minX, minY, maxX, maxY,
+                                          restX, restY)) {
+            fileError = 1;
+            activeDevice =
+                stickSamples[0].x != g_nJoystickUnavailableSample &&
+                stickSamples[0].y != g_nJoystickUnavailableSample ? 0 : 1;
+        }
+#endif
 
         if (fileError != 0) {
             GetJoystickDevCaps(activeDevice,
@@ -144,6 +152,14 @@ short LoadJoystickCalibrationFile(short horizontalRange,
             g_2_nJoystickCentreY;
         g_nJoystickHorizDeadZone = horizontalDeadZone;
         g_nControllerVerticalDeadZoneWord = verticalDeadZone;
+#ifdef SDL_PORT
+        /* The original keeps only j.cal's centre and makes both sides as
+         * long as the centre is high. Restore the recorded extremes as
+         * CalibrateJoystickInteractive set them. */
+        if (fileError == 0)
+            SdlRestoreJoystickCalibration(minX, minY, maxX, maxY,
+                                          horizontalRange, verticalRange);
+#endif
     }
     g_8_nActiveInputDeviceWord = activeDevice;
     return activeDevice;
@@ -177,6 +193,10 @@ short ReadCalibratedJoystick(void)
         g_aInputDeviceSamplesList[inputDevice].x;
     g_nStickRawY =
         g_aInputDeviceSamplesList[inputDevice].y;
+#ifdef SDL_PORT
+    /* A dead zone between the original's whole steps. */
+    SdlShapeJoystickDeadZone(&g_aInputDeviceSamplesList[inputDevice]);
+#endif
     if (g_aInputDeviceSamplesList[inputDevice].x <
         g_12_nJoystickMinimumXNumber)
         g_aInputDeviceSamplesList[inputDevice].x =

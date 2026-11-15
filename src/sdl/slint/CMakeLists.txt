@@ -51,6 +51,8 @@ add_library(wc2-slint-gui STATIC
     launcher.cpp
     launcher_config.cpp
     launcher_config.h
+    launcher_joystick.cpp
+    launcher_joystick.h
     launcher_paths.cpp
     launcher_paths.h
     slint_static.h

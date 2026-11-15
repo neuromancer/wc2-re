@@ -1,6 +1,8 @@
 #ifndef WC2_SDL_SLINT_LAUNCHER_API_H
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
+#include "../joystick_calibration.h"
+
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
 #define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
 
@@ -44,7 +46,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_CHEATS = 1 << 6,
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 7,
     SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 8,
-    SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9
+    SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9,
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 10
 };
 
 typedef struct SdlLauncherOptions {
@@ -59,6 +62,9 @@ typedef struct SdlLauncherOptions {
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
+    /* Percent of travel, 0 to SDL_JOYSTICK_DEAD_ZONE_MAXIMUM; the original's
+     * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
+    int joystickDeadZone;
     /* Instance IDs survive enumeration changes while the launcher is open.
      * GUID/path identify the device again if it is unplugged and reconnected. */
     int joystickInstanceId;

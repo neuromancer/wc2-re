@@ -5,6 +5,7 @@
 
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -144,6 +145,20 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES;
+        } else if (strncmp(argument, "--joystick-dead-zone=", 21) == 0) {
+            char *end;
+            long percent = strtol(argument + 21, &end, 10);
+
+            if (end == argument + 21 || *end != '\0' || percent < 0 ||
+                percent > SDL_JOYSTICK_DEAD_ZONE_MAXIMUM) {
+                fprintf(stderr, "Invalid joystick dead zone: %s (use 0 to %d percent; "
+                        "the original is %d).\n", argument + 21,
+                        SDL_JOYSTICK_DEAD_ZONE_MAXIMUM, SDL_JOYSTICK_DEAD_ZONE_ORIGINAL);
+                return 0;
+            }
+            SdlSetJoystickDeadZone((int)percent);
+            launcherOptions->joystickDeadZone = (int)percent;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
@@ -161,6 +176,7 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
 {
     memset(options, 0, sizeof(*options));
     options->joystickInstanceId = -1;
+    options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
     if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
                              options->gameDirectory) == 0)
         strcpy(options->gameDirectory, ".");
@@ -200,6 +216,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
         g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {
+        fprintf(stderr, "Invalid joystick dead zone.\n");
+        return 0;
+    }
     SdlSetKeyBindings(options->keyBindings);
     return 1;
 }

@@ -228,6 +228,18 @@ void SdlSetPreferredJoystick(SDL_JoystickID instanceId,
                                  const char *guid, const char *path,
                                  int guidUnique);
 int SdlHasPreferredJoystick(void);
+/* The joystick dead zone, a percentage of travel (src/sdl/joystick_calibration.h). */
+int SdlSetJoystickDeadZone(int percent);
+short SdlGetJoystickDeadZoneSteps(void);
+int SdlAcceptJoystickCalibration(short device,
+                                 unsigned short minimumX, unsigned short minimumY,
+                                 unsigned short maximumX, unsigned short maximumY,
+                                 unsigned short centreX, unsigned short centreY);
+void SdlRestoreJoystickCalibration(unsigned short minimumX, unsigned short minimumY,
+                                   unsigned short maximumX, unsigned short maximumY,
+                                   short horizontalRange, short verticalRange);
+struct InputDeviceSample;
+void SdlShapeJoystickDeadZone(struct InputDeviceSample *sample);
 void SdlEnableJoystickDebug(void);
 void SdlSetJoystickRumbleEnabled(int enabled);
 void SdlLogJoystickEvent(const SDL_Event *event);
