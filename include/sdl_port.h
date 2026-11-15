@@ -318,6 +318,8 @@ void SdlDestroyOriginFxPlayer(SdlOriginFxPlayer *player);
 int SdlOriginFxPlayerFinished(const SdlOriginFxPlayer *player);
 unsigned int SdlOriginFxPlayerSequencePosition(
     const SdlOriginFxPlayer *player);
+void SdlLeaveOriginFxSongAtLoop(SdlOriginFxPlayer *player);
+void SdlSetOriginFxMusicBranch(SdlOriginFxPlayer *player, int branch);
 int SdlPlayOriginFxSoundEffect(
     SdlOriginFxPlayer *player, unsigned int soundNumber,
     int volume, int pan, int tag, int priority);
@@ -337,7 +339,12 @@ int SdlInitializeOriginFxAudio(int usingDosData);
 int SdlUsingOriginFxMusic(void);
 int SdlUsingOriginFxSoundEffects(void);
 int SdlHandlesGameSoundEffects(void);
-void SdlSetOriginFxMusicTrack(int track);
+/* WC2's DOS music commands (module 003 MusicCommand, 062 PlaySongNow and
+ * QueueNextSong) for MUSIC.A00 tracks. */
+int SdlOriginFxMusicCommand(int track, int command);
+void SdlPlayOriginFxMusicNow(int track);
+void SdlLeaveOriginFxMusicAtLoop(void);
+void SdlStopOriginFxMusic(void);
 void SdlMixOriginFxAudio(short *samples, unsigned int frameCount);
 int SdlOriginalTitleMusicReady(void);
 int SdlStartOriginalTitleMusic(void);

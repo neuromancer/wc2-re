@@ -19,6 +19,12 @@ void StopMusicStream(void)
 /* Function start: 0x452A10 */
 void SetMusBreakpt(int first, int second)
 {
+#ifdef SDL_PORT
+    /* DOS WC2 queues no song here (QueueNextSong(0, 0)) so that the playing
+     * one ends at its next exit rather than looping while the game waits. */
+    if (SdlUsingOriginFxMusic())
+        SdlLeaveOriginFxMusicAtLoop();
+#endif
 }
 
 /* Function start: 0x452A1B */
@@ -30,6 +36,9 @@ void SetMusicOn(short enabled)
 void StopMusic(short enabled)
 {
     g_nCurrentMusicTrack = -1;
+#ifdef SDL_PORT
+    SdlStopOriginFxMusic();
+#endif
     Streamer_stop();
 }
 
@@ -47,6 +56,14 @@ short StartMusic(void *music)
 short StartInteractiveMusic(int track)
 {
     SoundDebugPrintf("startIntMusic %d\n", track);
+#ifdef SDL_PORT
+    /* The gameflow's music opcode plays the scene's song at once in DOS WC2
+     * (PlaySongNow); the song loops until the next one. */
+    if (SdlUsingOriginFxMusic()) {
+        SdlPlayOriginFxMusicNow(track);
+        return track;
+    }
+#endif
     ProcessMusicScriptCommand(track, 1, 0);
     return track;
 }
@@ -115,7 +132,7 @@ unsigned short ProcessMusicScriptCommand(int track, int command, short enabled)
     /* A DOS install has no streams to queue.  Its music is the MUSIC.A00
      * section that carries this very track number. */
     if (SdlUsingOriginFxMusic()) {
-        SdlSetOriginFxMusicTrack(track);
+        SdlOriginFxMusicCommand(track, command);
         return 1;
     }
 #endif

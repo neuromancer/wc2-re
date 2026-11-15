@@ -62,6 +62,8 @@ static unsigned int g_nSdlDosMusicGain;
 static unsigned int g_nSdlDosSoundGain;
 static unsigned int g_nSdlDosRapidFireTag;
 static int g_nSdlActiveMusicTrack = -1;
+/* The track waiting for the playing song to end (DOS g_pendingScore). */
+static int g_nSdlQueuedMusicTrack = -1;
 static int g_nSdlMusicVolumeSetting = -1;
 static int g_nSdlSoundVolumeSetting = -1;
 static int g_bSdlDosMusicInitialized;
@@ -256,15 +258,69 @@ int SdlHandlesGameSoundEffects(void)
 
 /* The music script normally queues a Kilrathi Saga stream here.  A DOS install
  * has no streams, so the track number becomes the MUSIC.A00 section the service
- * loop below plays instead. */
-void SdlSetOriginFxMusicTrack(int track)
+ * loop below plays, commanded as WC2's DOS MusicCommand (003:00fd) did: while
+ * another track is queued, or for the one already playing, nothing happens.
+ * Otherwise 1 and 3 queue the track to follow the playing song from that
+ * song's next exit (QueueNextSong), so flight music changes on the beat and a
+ * launch theme is not cut off.  0 plays at once, and so does 2, whose
+ * cross-fade the game always asks to last one tick. */
+int SdlOriginFxMusicCommand(int track, int command)
+{
+    if (g_bSdlOriginFxMusicSelected == 0 || track < 0)
+        return 0;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    if (g_nSdlQueuedMusicTrack >= 0 || track == g_nCurrentMusicTrack) {
+        SDL_UnlockMutex(g_pSdlDosMusicMutex);
+        return 0;
+    }
+    if ((command == 1 || command == 3) &&
+        g_pSdlOriginFxPlayer != 0 &&
+        !SdlOriginFxPlayerFinished(g_pSdlOriginFxPlayer) &&
+        g_nSdlActiveMusicTrack == g_nCurrentMusicTrack) {
+        g_nSdlQueuedMusicTrack = track;
+        SdlLeaveOriginFxSongAtLoop(g_pSdlOriginFxPlayer);
+    } else {
+        g_nCurrentMusicTrack = track;
+        g_nMusicTrackComplete = 0;
+    }
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+    return 1;
+}
+
+/* PlaySongNow (DOS 062:1980), as the gameflow's music opcode and the torpedo
+ * lock use it: the song restarts at once and nothing stays queued. */
+void SdlPlayOriginFxMusicNow(int track)
 {
     if (g_bSdlOriginFxMusicSelected == 0)
         return;
-    if (g_nCurrentMusicTrack == track)
-        return;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    g_nSdlQueuedMusicTrack = -1;
+    if (track == g_nSdlActiveMusicTrack)
+        SdlDeleteDosAdlibTrack();
     g_nCurrentMusicTrack = track;
     g_nMusicTrackComplete = 0;
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+}
+
+/* QueueNextSong(0, 0), which WC2 calls before waiting for the music to end:
+ * the playing song leaves at its next exit instead of looping. */
+void SdlLeaveOriginFxMusicAtLoop(void)
+{
+    if (g_bSdlOriginFxMusicSelected == 0)
+        return;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    SdlLeaveOriginFxSongAtLoop(g_pSdlOriginFxPlayer);
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
+}
+
+/* FadeOutMusic(0) also drops the queued track. */
+void SdlStopOriginFxMusic(void)
+{
+    if (g_bSdlOriginFxMusicSelected == 0)
+        return;
+    SDL_LockMutex(g_pSdlDosMusicMutex);
+    g_nSdlQueuedMusicTrack = -1;
+    SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 
 int SdlOriginalTitleMusicReady(void)
@@ -467,10 +523,20 @@ void SdlServiceOriginFxMusic(void)
         SdlDeleteDosAdlibTrack();
         if (finishedTrack == 19)
             g_bSdlOriginalTitleMusicActive = 0;
-        g_nMusicTrackComplete = 1;
-        if (g_nCurrentMusicTrack == finishedTrack)
-            g_nCurrentMusicTrack = -1;
+        if (g_nSdlQueuedMusicTrack >= 0) {
+            /* The timer handler starts the queued song once the playing one
+             * has stopped (062:125c). */
+            g_nCurrentMusicTrack = g_nSdlQueuedMusicTrack;
+            g_nSdlQueuedMusicTrack = -1;
+        } else {
+            g_nMusicTrackComplete = 1;
+            if (g_nCurrentMusicTrack == finishedTrack)
+                g_nCurrentMusicTrack = -1;
+        }
     }
+    /* The gameflow's opcode 0xb4 value selects the branches of a song's 0xFE
+     * type 4 and 5 events (DOS g_musicBranch). */
+    SdlSetOriginFxMusicBranch(g_pSdlOriginFxPlayer, g_nCutsceneMusicVolume);
     desiredTrack = g_nCurrentMusicTrack;
     if (desiredTrack == g_nSdlActiveMusicTrack) {
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
@@ -478,6 +544,7 @@ void SdlServiceOriginFxMusic(void)
     }
     if (desiredTrack < 0) {
         SdlDeleteDosAdlibTrack();
+        g_nSdlQueuedMusicTrack = -1;
         g_nMusicTrackComplete = 1;
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
         return;
@@ -538,6 +605,7 @@ void SdlServiceOriginFxMusic(void)
         return;
     }
     SdlDeleteDosAdlibTrack();
+    SdlSetOriginFxMusicBranch(player, g_nCutsceneMusicVolume);
     g_pSdlOriginFxPlayer = player;
     g_nSdlActiveMusicTrack = desiredTrack;
     g_nMusicTrackComplete = 0;
@@ -578,6 +646,7 @@ void SdlShutdownOriginFxAudio(void)
     g_nSdlDosMusicGain = 0;
     g_nSdlDosSoundGain = 0;
     g_nSdlDosRapidFireTag = 0;
+    g_nSdlQueuedMusicTrack = -1;
     g_bSdlOriginFxMusicSelected = 0;
     g_bSdlOriginFxSoundSelected = 0;
     g_bSdlOriginalTitleMusicActive = 0;

@@ -2116,7 +2116,17 @@ void target_locking(signed char target)
                 if (g_nTargetLockMusicCooldown > 100)
                     g_nTargetLockMusicCooldown = 100;
                 if (starting_lock(300) != 0)
+#ifdef SDL_PORT
+                {
+                    /* DOS WC2 starts the lock song at once (PlaySongNow). */
+                    if (SdlUsingOriginFxMusic())
+                        SdlPlayOriginFxMusicNow(0x2a);
+                    else
+                        ProcessMusicScriptCommand(0x2a, 1, 0);
+                }
+#else
                     ProcessMusicScriptCommand(0x2a, 1, 0);
+#endif
                 else
                     decrement_lock_time(x);
             }
