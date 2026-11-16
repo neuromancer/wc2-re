@@ -118,7 +118,7 @@ sound effects. Optional features can be combined:
 | Cheat mode: invulnerability and no collisions | Launcher checkbox or `--cheats` |
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
-| Experimental: cockpit and nav map text in the game's finer conversation font, with the enhanced renderer | Launcher checkbox or `--hires-hud` |
+| Experimental: compact cockpit and nav labels in the game's 8-pixel font, HUD messages and radio subtitles in its 11-pixel font, with the enhanced renderer | Launcher checkbox or `--hires-hud` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |

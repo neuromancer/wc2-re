@@ -676,7 +676,8 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     {
 #ifdef SDL_PORT
         /* The enhanced renderer can show HUD-font text in a finer font. */
-        hiResGlyph = context->font == g_36_apTextGlyphs[2] &&
+        hiResGlyph = (context->font == g_36_apTextGlyphs[2] ||
+                      context->font == g_36_apTextGlyphs[1]) &&
             SdlBeginHiResGlyph(view, context->cursorX, y, width, height,
                                (unsigned char)character, fg, bg,
                                context->alignment == 2);

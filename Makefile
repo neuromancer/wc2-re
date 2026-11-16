@@ -957,6 +957,25 @@ $(MODERN_OUT_DIR)/mouse-probe: $(MODERN_OUT_DIR)/obj/mouse_probe.o \
 check-mouse: $(MODERN_OUT_DIR)/mouse-probe
 	$(MODERN_OUT_DIR)/mouse-probe
 
+# Actual game text calls and font packets through the CPU side of the HUD
+# overlay; no OpenGL display is needed. GAME_DATA accepts DOS or Saga data.
+$(MODERN_OUT_DIR)/obj/hud_fonts_probe.o: bin/checkHudFonts.c src/sdl/gl_renderer.c \
+		$(GAME_HEADERS) src/sdl/video_internal.h | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/hud-fonts-probe: $(MODERN_OUT_DIR)/obj/hud_fonts_probe.o \
+		$(MODERN_BASE_HOST_OBJS) \
+		$(filter-out $(MODERN_OUT_DIR)/obj/sdl/gl_renderer.o,$(MODERN_GAME_HOST_OBJS)) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-hud-fonts
+check-hud-fonts: $(MODERN_OUT_DIR)/hud-fonts-probe
+	$(MODERN_OUT_DIR)/hud-fonts-probe "$(abspath $(FUZZ_DATA))"
+
 ifeq ($(MODERN_FUZZING),1)
 $(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c | modern-check-deps
 	@mkdir -p $(dir $@)
