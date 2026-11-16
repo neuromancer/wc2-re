@@ -785,6 +785,12 @@ void check_message(void)
                         SPECIAL_MANEUVER_UNKNOWN_9 &&
                     g_pCommPortraitResource != 0) {
                     g_nCommDeathSequenceFrame = 1;
+#ifdef SDL_PORT
+                    /* The speaker's death plays out on the VDU, and the
+                     * line's subtitle (real_vid_transmit) ends here. */
+                    RestoreHudMessageBackground();
+                    g_pszPendingHudMessage = 0;
+#endif
                 } else {
                     EndCommMenu();
                 }

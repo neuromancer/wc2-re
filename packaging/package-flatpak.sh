@@ -15,7 +15,7 @@ app_id=io.github.neuromancer.wc2
 runtime_version=25.08
 dist_dir=${DIST_DIR:-dist}
 build_dir="$dist_dir/flatpak-$version"
-bundle="$dist_dir/wc2-re-$version-linux-x86_64-experimental.flatpak"
+bundle="$dist_dir/wc2-re-$version-linux-x86_64.flatpak"
 if test -e "$build_dir" || test -e "$bundle"; then
     echo "Flatpak staging path already exists: $version" >&2
     exit 1
@@ -53,11 +53,17 @@ if grep -q 'not found' "$build_dir/dependencies.txt"; then
     exit 1
 fi
 
-# Home and removable media contain user-selected installations and WC2 saves.
+# Home, removable media and other mounted drives hold user-selected and Steam
+# installations, and WC2 saves beside their data. Home access excludes
+# ~/.var/app, so the Steam Flatpak's default library is granted on its own.
 # Device access also supports controllers on older SteamOS Flatpak versions.
 flatpak build-finish "$build_dir" --command=wc2-modern \
     --share=ipc --socket=x11 --socket=wayland --socket=pulseaudio --device=all \
-    --filesystem=home --filesystem=/run/media --filesystem=/media
+    --filesystem=home --filesystem=/run/media --filesystem=/media --filesystem=/mnt \
+    --filesystem=~/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps \
+    --filesystem=~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps
+# The branch keeps its first name: a bundle on another branch would install
+# beside earlier ones instead of replacing them.
 flatpak build-export "$build_dir/repo" "$build_dir" experimental
 flatpak build-bundle --arch=x86_64 \
     --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \

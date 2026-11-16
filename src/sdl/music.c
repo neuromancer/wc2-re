@@ -1,4 +1,5 @@
-/* SDL2-only OriginFX/AdLib playback for Wing Commander II data.
+/* SDL2-only OriginFX playback of WC2's DOS music and sound effects on an
+ * AdLib or an MT-32, for DOS data and, by choice, Kilrathi Saga data.
  *
  *  A DOS install carries its music as GAMEDAT/MUSIC.A00: sixty-seven packet
  *  sections, one standard MIDI file each, indexed by the very track number the
@@ -17,6 +18,12 @@
  *  The Kilrathi Saga release normally uses recordings.  It nevertheless
  *  retains the DOS music and timbre archives, which supply the restored title
  *  sequence while the regular Win32 streams and wave effects remain active.
+ *  The player can choose the DOS scores instead, on an AdLib or an MT-32.
+ *
+ *  An MT-32 plays MUSIC.R00 (R01 and R02 for the expansions) with WING2.TIM
+ *  section 0's instruments, as WC2.EXE does with sound option R, and plays
+ *  the sound effects too, sharing its channels with the music
+ *  (src/sdl/mt32.c).
  */
 #include "game.h"
 
@@ -24,7 +31,12 @@
 #include <stdlib.h>
 
 #define SDL_MUSIC_PATH_SIZE 4096
+/* WING2.TIM, like STRAX.DRV, has a section per device: 0 MT-32, 1 AdLib,
+ * 2 PC speaker. */
+#define SDL_MT32_TIMBRE_SECTION 0
 #define SDL_ADLIB_TIMBRE_SECTION 1
+/* The audio device's rate, which the OriginFX players render at. */
+#define SDL_ORIGINFX_SAMPLE_RATE 22050
 #define SDL_SOUND_RECORD_SIZE 8U
 #define SDL_SOUND_RECORD_COUNT \
     (unsigned int)(sizeof(g_abSoundEffectDefinitions) / \
@@ -51,6 +63,10 @@ static unsigned char *g_pSdlDosAdlibTimbres;
 static unsigned char *g_pSdlTitleMusicArchive;
 static SdlOriginFxPlayer *g_pSdlOriginFxPlayer;
 static SdlOriginFxPlayer *g_pSdlOriginFxSoundPlayer;
+/* With MT-32 ROMs one MT-32 plays the music and the sound effects, which
+ * share its channels as in WC2.EXE. */
+static SdlMt32Synth *g_pSdlMt32;
+static int g_nSdlMusicDevice = SDL_PORT_MUSIC_INSTALLED;
 static size_t g_nSdlDosMusicArchiveSize;
 static unsigned char *g_pSdlSo1MusicArchive;
 static size_t g_nSdlSo1MusicArchiveSize;
@@ -94,6 +110,9 @@ static unsigned char *SdlLoadDosMusicFile(
 
 static void SdlDeleteDosAdlibTrack(void)
 {
+    /* StopSong (062:11ee) silences the MT-32's music channels. */
+    if (g_pSdlOriginFxPlayer != 0)
+        SdlMt32StopSong(g_pSdlMt32);
     SdlDestroyOriginFxPlayer(g_pSdlOriginFxPlayer);
     g_pSdlOriginFxPlayer = 0;
     g_nSdlActiveMusicTrack = -1;
@@ -133,61 +152,114 @@ static void SdlUpdateDosAdlibMusicVolume(void)
         g_nSdlSoundVolumeSetting = g_nSfxVolumeSetting;
         g_nSdlDosSoundGain =
             SdlCalculateDosAudioGain(g_nSdlSoundVolumeSetting);
+        /* Silent effects are off, and SoundEffectsOff (003:06fe) stops
+         * the playing ones, which gives the MT-32's channels back to the
+         * music. */
+        if (g_nSdlDosSoundGain == 0) {
+            if (g_pSdlMt32 != 0)
+                SdlStopMt32Effects(g_pSdlMt32);
+            else
+                SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
+        }
     }
+    /* The MT-32 mixes the music and the effects itself, so the settings
+     * scale their MIDI volumes instead, 256 being full. */
+    SdlSetMt32Volumes(g_pSdlMt32,
+                      (int)(g_nSdlDosMusicGain * 256U / 0x7fffU),
+                      (int)(g_nSdlDosSoundGain * 256U / 0x7fffU));
+}
+
+void SdlSetMusicDevice(int device)
+{
+    g_nSdlMusicDevice = device;
+}
+
+int SdlGetMusicDevice(void)
+{
+    return g_nSdlMusicDevice;
+}
+
+/* The MT-32's song step for SdlMixMt32: one output frame of the song. The
+ * service loop starts the queued song once this one has ended. */
+static void SdlStepMt32Song(void *context)
+{
+    (void)context;
+    if (g_pSdlOriginFxPlayer != 0)
+        SdlStepOriginFxPlayer(g_pSdlOriginFxPlayer);
+}
+
+/* With MT-32 music chosen, one MT-32 with WING2.TIM's MT-32 instruments;
+ * without usable ROMs the game keeps AdLib music. */
+static void SdlStartMt32(const unsigned char *timbreArchive,
+                         size_t timbreArchiveSize)
+{
+    unsigned char *timbres;
+    size_t timbreSize;
+    char description[PATH_MAX + 256];
+
+    if (g_nSdlMusicDevice != SDL_PORT_MUSIC_MT32)
+        return;
+    if (!SdlDescribeMt32Roms(SdlGetMt32RomDirectory(), SdlGetMt32Machine(),
+                             description, sizeof(description))) {
+        fprintf(stderr, "MT-32 unavailable, playing AdLib music: %s\n", description);
+        return;
+    }
+    if (!SdlExtractOriginPacketSection(timbreArchive, timbreArchiveSize,
+                                       SDL_MT32_TIMBRE_SECTION,
+                                       &timbres, &timbreSize)) {
+        fprintf(stderr, "Unable to decode WING2.TIM's MT-32 instruments; "
+                "playing AdLib music.\n");
+        return;
+    }
+    g_pSdlMt32 = SdlCreateMt32Synth(SDL_ORIGINFX_SAMPLE_RATE, timbres, timbreSize,
+                                    g_abSoundEffectDefinitions,
+                                    SDL_SOUND_RECORD_COUNT);
+    free(timbres);
+    if (g_pSdlMt32 == 0) {
+        fprintf(stderr, "MT-32 unavailable, playing AdLib music: %s\n", SDL_GetError());
+        return;
+    }
+    fprintf(stderr, "MT-32: %s\n", description);
 }
 
 int SdlInitializeOriginFxAudio(int usingDosData)
 {
-    const char *musicCandidates[2] = {
+    const char *adlibMusicCandidates[2] = {
         "GAMEDAT/MUSIC.A00",
         "MUSIC.A00"
+    };
+    const char *rolandMusicCandidates[2] = {
+        "GAMEDAT/MUSIC.R00",
+        "MUSIC.R00"
     };
     const char *titleMusicCandidates[2] = {
         "GAMEDAT/MUSIC.R00",
         "MUSIC.R00"
     };
-    const char *so1MusicCandidates[2] = {
+    const char *adlibSo1MusicCandidates[2] = {
         "GAMEDAT/MUSIC.A01", "MUSIC.A01"
     };
-    const char *so2MusicCandidates[2] = {
+    const char *rolandSo1MusicCandidates[2] = {
+        "GAMEDAT/MUSIC.R01", "MUSIC.R01"
+    };
+    const char *adlibSo2MusicCandidates[2] = {
         "GAMEDAT/MUSIC.A02", "MUSIC.A02"
+    };
+    const char *rolandSo2MusicCandidates[2] = {
+        "GAMEDAT/MUSIC.R02", "MUSIC.R02"
     };
     const char *timbreCandidates[2] = {
         "GAMEDAT/WING2.TIM",
         "WING2.TIM"
     };
+    const char *const *musicCandidates;
+    const char *const *so1MusicCandidates;
+    const char *const *so2MusicCandidates;
     unsigned char *timbreArchive;
     size_t timbreArchiveSize;
 
     if (g_bSdlDosMusicInitialized != 0)
         return 1;
-    if (g_nSdlCampaign != 0) {
-        g_pSdlSo1MusicArchive = SdlLoadDosMusicFile(
-            so1MusicCandidates, 2, &g_nSdlSo1MusicArchiveSize);
-        if (g_pSdlSo1MusicArchive == 0)
-            goto failed;
-    }
-    if (g_nSdlCampaign == 2) {
-        g_pSdlSo2MusicArchive = SdlLoadDosMusicFile(
-            so2MusicCandidates, 2, &g_nSdlSo2MusicArchiveSize);
-        if (g_pSdlSo2MusicArchive == 0)
-            goto failed;
-    }
-    if (usingDosData != 0 || g_nSdlCampaign != 0) {
-        g_pSdlDosMusicArchive = SdlLoadDosMusicFile(
-            musicCandidates, 2, &g_nSdlDosMusicArchiveSize);
-        if (g_pSdlDosMusicArchive == 0) {
-            fprintf(stderr, "Unable to load GAMEDAT/MUSIC.A00.\n");
-            goto failed;
-        }
-    }
-    g_pSdlTitleMusicArchive = SdlLoadDosMusicFile(
-        titleMusicCandidates, 2, &g_nSdlTitleMusicArchiveSize);
-    if (g_pSdlTitleMusicArchive == 0 &&
-        usingDosData == 0) {
-        fprintf(stderr, "Unable to load GAMEDAT/MUSIC.R00.\n");
-        goto failed;
-    }
     timbreArchive = SdlLoadDosMusicFile(
         timbreCandidates, 2, &timbreArchiveSize);
     if (timbreArchive == 0) {
@@ -203,9 +275,44 @@ int SdlInitializeOriginFxAudio(int usingDosData)
         fprintf(stderr, "Unable to decode OriginFX AdLib timbres.\n");
         goto failed;
     }
+    SdlStartMt32(timbreArchive, timbreArchiveSize);
     SDL_free(timbreArchive);
-
-    if (usingDosData != 0) {
+    /* LoadMusicScores (127:08c7): MUSIC.R00 for the Roland, else MUSIC.A00;
+     * the expansions' own scores likewise. */
+    musicCandidates = g_pSdlMt32 != 0 ? rolandMusicCandidates : adlibMusicCandidates;
+    so1MusicCandidates = g_pSdlMt32 != 0 ? rolandSo1MusicCandidates
+                                         : adlibSo1MusicCandidates;
+    so2MusicCandidates = g_pSdlMt32 != 0 ? rolandSo2MusicCandidates
+                                         : adlibSo2MusicCandidates;
+    if (g_nSdlCampaign != 0) {
+        g_pSdlSo1MusicArchive = SdlLoadDosMusicFile(
+            so1MusicCandidates, 2, &g_nSdlSo1MusicArchiveSize);
+        if (g_pSdlSo1MusicArchive == 0)
+            goto failed;
+    }
+    if (g_nSdlCampaign == 2) {
+        g_pSdlSo2MusicArchive = SdlLoadDosMusicFile(
+            so2MusicCandidates, 2, &g_nSdlSo2MusicArchiveSize);
+        if (g_pSdlSo2MusicArchive == 0)
+            goto failed;
+    }
+    if (usingDosData != 0 || g_nSdlCampaign != 0 ||
+        g_nSdlMusicDevice != SDL_PORT_MUSIC_INSTALLED) {
+        g_pSdlDosMusicArchive = SdlLoadDosMusicFile(
+            musicCandidates, 2, &g_nSdlDosMusicArchiveSize);
+        if (g_pSdlDosMusicArchive == 0) {
+            fprintf(stderr, "Unable to load %s.\n", musicCandidates[0]);
+            goto failed;
+        }
+    }
+    g_pSdlTitleMusicArchive = SdlLoadDosMusicFile(
+        titleMusicCandidates, 2, &g_nSdlTitleMusicArchiveSize);
+    if (g_pSdlTitleMusicArchive == 0 &&
+        usingDosData == 0) {
+        fprintf(stderr, "Unable to load GAMEDAT/MUSIC.R00.\n");
+        goto failed;
+    }
+    if (usingDosData != 0 && g_pSdlMt32 == 0) {
         /* The player reads the game's own record table because flight code
          * retunes entries in place. */
         g_pSdlOriginFxSoundPlayer = SdlCreateOriginFxSoundPlayer(
@@ -225,12 +332,22 @@ int SdlInitializeOriginFxAudio(int usingDosData)
         goto failed;
     g_bSdlDosMusicInitialized = 1;
     SdlUpdateDosAdlibMusicVolume();
-    if (g_nSdlCampaign != 0)
+    /* OriginFX plays every track for DOS data, the expansions and a
+     * Kilrathi Saga install whose player chose the DOS scores. */
+    if (usingDosData != 0 || g_nSdlCampaign != 0 ||
+        g_nSdlMusicDevice != SDL_PORT_MUSIC_INSTALLED)
         g_bSdlOriginFxMusicSelected = 1;
-    if (usingDosData != 0) {
-        g_bSdlOriginFxMusicSelected = 1;
+    /* And the sound effects for DOS data, or on the MT-32, so that one MT-32
+     * plays everything as in WC2.EXE. With digital or AdLib music the
+     * Kilrathi Saga keeps its digital effects. */
+    if (usingDosData != 0 || g_pSdlMt32 != 0)
         g_bSdlOriginFxSoundSelected = 1;
-        fprintf(stderr, "DOS OriginFX/AdLib audio enabled.\n");
+    if (usingDosData != 0) {
+        fprintf(stderr, "DOS OriginFX audio enabled on the %s.\n",
+                g_pSdlMt32 != 0 ? "MT-32" : "AdLib");
+    } else if (g_bSdlOriginFxMusicSelected != 0 && g_bSdlCutsceneOnly == 0) {
+        fprintf(stderr, "DOS music enabled on the %s.\n",
+                g_pSdlMt32 != 0 ? "MT-32" : "AdLib");
     } else if (g_bSdlCutsceneOnly == 0) {
         fprintf(stderr, "Original orchestral intro music enabled.\n");
     }
@@ -352,17 +469,26 @@ static int SdlStartDosSoundEffect(int soundNumber, int volume, int pan,
 
     if (g_bSdlDosMusicInitialized == 0 ||
         g_pSdlDosMusicMutex == 0 ||
-        g_pSdlOriginFxSoundPlayer == 0)
+        (g_pSdlOriginFxSoundPlayer == 0 && g_pSdlMt32 == 0))
         return 0;
     SDL_LockMutex(g_pSdlDosMusicMutex);
+    /* PlayEffect (003:0748) starts nothing while the effects are off. */
+    if (g_nSdlDosSoundGain == 0) {
+        SDL_UnlockMutex(g_pSdlDosMusicMutex);
+        return 0;
+    }
     if (soundNumber == SDL_GUN_SOUND_NUMBER) {
         tag = SDL_GUN_SOUND_FIRST_TAG +
             (int)(g_nSdlDosRapidFireTag & 1U);
         g_nSdlDosRapidFireTag++;
     }
-    result = SdlPlayOriginFxSoundEffect(
-        g_pSdlOriginFxSoundPlayer,
-        (unsigned int)soundNumber, volume, pan, tag, priority);
+    if (g_pSdlMt32 != 0)
+        result = SdlStartMt32Effect(
+            g_pSdlMt32, (unsigned int)soundNumber, volume, pan, tag, priority);
+    else
+        result = SdlPlayOriginFxSoundEffect(
+            g_pSdlOriginFxSoundPlayer,
+            (unsigned int)soundNumber, volume, pan, tag, priority);
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
     return result;
 }
@@ -459,10 +585,13 @@ void SdlStopDosSoundEffects(void)
     g_pLinkedCutsceneSprite = 0;
     g_3_bAfterburnerSfxActive = 0;
     if (g_pSdlDosMusicMutex == 0 ||
-        g_pSdlOriginFxSoundPlayer == 0)
+        (g_pSdlOriginFxSoundPlayer == 0 && g_pSdlMt32 == 0))
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
-    SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
+    if (g_pSdlMt32 != 0)
+        SdlStopMt32Effects(g_pSdlMt32);
+    else
+        SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
     SDL_UnlockMutex(g_pSdlDosMusicMutex);
 }
 
@@ -472,6 +601,11 @@ void SdlMixOriginFxAudio(short *samples, unsigned int frameCount)
         g_pSdlDosMusicMutex == 0 || samples == 0)
         return;
     SDL_LockMutex(g_pSdlDosMusicMutex);
+    if (g_pSdlMt32 != 0) {
+        SdlMixMt32(g_pSdlMt32, samples, frameCount, 1, SdlStepMt32Song, 0);
+        SDL_UnlockMutex(g_pSdlDosMusicMutex);
+        return;
+    }
     if (g_pSdlOriginFxPlayer != 0) {
         SdlMixOriginFxPlayer(
             g_pSdlOriginFxPlayer, samples,
@@ -558,7 +692,8 @@ void SdlServiceOriginFxMusic(void)
     section = desiredTrack;
     /* Both expansions append MUSIC.R01 sections 0, 1, 2 after the 67 base
      * tracks. SO2 also appends MUSIC.R02 section 0. The AdLib archives use
-     * the same section numbers as these GAMEFLOW MUS tables. */
+     * the same section numbers as these GAMEFLOW MUS tables; with an MT-32
+     * these archives are the Roland ones themselves. */
     if (g_nSdlCampaign != 0 && desiredTrack >= 67 && desiredTrack <= 69) {
         musicArchive = g_pSdlSo1MusicArchive;
         musicArchiveSize = g_nSdlSo1MusicArchiveSize;
@@ -586,9 +721,11 @@ void SdlServiceOriginFxMusic(void)
         g_nMusicTrackComplete = 1;
         return;
     }
-    player = SdlCreateOriginFxPlayer(
-        midi, midiSize, g_pSdlDosAdlibTimbres,
-        g_nSdlDosAdlibTimbreSize);
+    player = g_pSdlMt32 != 0
+        ? SdlCreateOriginFxMt32Player(midi, midiSize, g_pSdlMt32)
+        : SdlCreateOriginFxPlayer(
+            midi, midiSize, g_pSdlDosAdlibTimbres,
+            g_nSdlDosAdlibTimbreSize);
     free(midi);
     if (player == 0) {
         fprintf(stderr, "Unable to parse OriginFX music track %d.\n",
@@ -620,6 +757,8 @@ void SdlShutdownOriginFxAudio(void)
     SdlStopOriginFxSoundEffects(g_pSdlOriginFxSoundPlayer);
     SdlDestroyOriginFxPlayer(g_pSdlOriginFxSoundPlayer);
     g_pSdlOriginFxSoundPlayer = 0;
+    SdlDestroyMt32Synth(g_pSdlMt32);
+    g_pSdlMt32 = 0;
     if (g_pSdlDosMusicMutex != 0)
         SDL_UnlockMutex(g_pSdlDosMusicMutex);
     if (g_pSdlDosMusicMutex != 0) {

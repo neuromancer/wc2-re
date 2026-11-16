@@ -5,6 +5,7 @@
 
 #include <setjmp.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef _WIN32
@@ -17,6 +18,13 @@ static int g_bSdlCutsceneExitArmed;
 static const char *const g_apszSdlLauncherJoystickModes[] = {
     "original", "4button-2axis", "4button-4axis"
 };
+
+static const char *const g_apszSdlLauncherMusic[] = {
+    "default", "adlib", "mt32"
+};
+
+/* --mt32-check waits for every option, so a later --mt32-roms counts. */
+static int g_bSdlMt32CheckRequested;
 
 static const char *const g_apszSdlLauncherJoystickAxes[] = {
     "twin-stick-roll", "twin-stick-yaw", "hotas-yaw", "hotas-roll",
@@ -36,6 +44,22 @@ static int SdlFindLauncherChoice(const char *name,
         choice++;
     }
     return 0;
+}
+
+/* The game later changes into GAMEDAT, so keep the ROM folder absolute. */
+static int SdlSetMt32RomArgument(const char *directory, SdlLauncherOptions *options)
+{
+    char current[PATH_MAX];
+
+    if (directory[0] == '\0')
+        return 0;
+    if (directory[0] == '/' || directory[0] == '\\' ||
+        (directory[0] != '\0' && directory[1] == ':'))
+        return SDL_strlcpy(options->mt32Roms, directory, sizeof(options->mt32Roms)) <
+            sizeof(options->mt32Roms);
+    return GetCurrentDirectoryA(sizeof(current), current) &&
+        SDL_snprintf(options->mt32Roms, sizeof(options->mt32Roms), "%s/%s", current,
+                     directory) < (int)sizeof(options->mt32Roms);
 }
 
 void SdlFinishCutsceneOnly(void)
@@ -144,6 +168,55 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
                 argument + 16, g_apszSdlLauncherJoystickAxes,
                 SDL_arraysize(g_apszSdlLauncherJoystickAxes));
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_AXES;
+        } else if (strncmp(argument, "--joystick-dead-zone=", 21) == 0) {
+            char *end;
+            long percent = strtol(argument + 21, &end, 10);
+
+            if (end == argument + 21 || *end != '\0' || percent < 0 ||
+                percent > SDL_JOYSTICK_DEAD_ZONE_MAXIMUM) {
+                fprintf(stderr, "Invalid joystick dead zone: %s (use 0 to %d percent; "
+                        "the original is %d).\n", argument + 21,
+                        SDL_JOYSTICK_DEAD_ZONE_MAXIMUM, SDL_JOYSTICK_DEAD_ZONE_ORIGINAL);
+                return 0;
+            }
+            SdlSetJoystickDeadZone((int)percent);
+            launcherOptions->joystickDeadZone = (int)percent;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
+        } else if (strncmp(argument, "--music=", 8) == 0) {
+            int music;
+
+            for (music = 0; music < (int)SDL_arraysize(g_apszSdlLauncherMusic); music++) {
+                if (strcmp(argument + 8, g_apszSdlLauncherMusic[music]) == 0)
+                    break;
+            }
+            if (music == (int)SDL_arraysize(g_apszSdlLauncherMusic)) {
+                fprintf(stderr, "Unknown music: %s (use default, adlib or mt32)\n",
+                        argument + 8);
+                return 0;
+            }
+            launcherOptions->musicDevice = music;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+        } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
+            if (!SdlSetMt32RomArgument(argument + 12, launcherOptions)) {
+                fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
+                return 0;
+            }
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MT32_ROMS;
+            /* A ROM folder alone asks for the MT-32. */
+            if (!(launcherOptions->explicitOptions & SDL_LAUNCHER_EXPLICIT_MUSIC)) {
+                launcherOptions->musicDevice = SDL_LAUNCHER_MUSIC_MT32;
+                launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+            }
+        } else if (strncmp(argument, "--mt32-model=", 13) == 0) {
+            if (SDL_strlcpy(launcherOptions->mt32Model, argument + 13,
+                            sizeof(launcherOptions->mt32Model)) >=
+                sizeof(launcherOptions->mt32Model)) {
+                fprintf(stderr, "Invalid MT-32 model: %s\n", argument + 13);
+                return 0;
+            }
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MT32_MODEL;
+        } else if (strcmp(argument, "--mt32-check") == 0) {
+            g_bSdlMt32CheckRequested = 1;
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
@@ -164,6 +237,7 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
 {
     memset(options, 0, sizeof(*options));
     options->joystickInstanceId = -1;
+    options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
     if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
                              options->gameDirectory) == 0)
         strcpy(options->gameDirectory, ".");
@@ -203,6 +277,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
         g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {
+        fprintf(stderr, "Invalid joystick dead zone.\n");
+        return 0;
+    }
     SdlSetKeyBindings(options->keyBindings);
     return 1;
 }
@@ -281,6 +359,15 @@ int main(int argumentCount, char **arguments)
                                    &useLauncherGui,
                                    &launcherOptions))
         return 1;
+    if (g_bSdlMt32CheckRequested) {
+        char description[PATH_MAX + 256];
+        int usable = SdlDescribeMt32Roms(launcherOptions.mt32Roms,
+                                         launcherOptions.mt32Model,
+                                         description, sizeof(description));
+
+        printf("%s\n", description);
+        return usable ? 0 : 1;
+    }
     if (useLauncherGui) {
         launcherResult = SdlOpenLauncherGui(&launcherOptions);
         if (launcherResult == SDL_LAUNCHER_UNAVAILABLE &&
@@ -305,6 +392,9 @@ int main(int argumentCount, char **arguments)
         return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
     SdlSetHiResHudFonts(launcherOptions.hiResHudFonts);
+    /* The launcher or the command line chose the music. */
+    SdlSetMusicDevice(launcherOptions.musicDevice);
+    SdlSetMt32Roms(launcherOptions.mt32Roms, launcherOptions.mt32Model);
     /* A player's German patch for the DOS release brings its own UI text in
      * WC2.EXE; the selectable catalogs translate the English data. */
     if (SdlResolvePath("WC2.EXE", germanExecutable, sizeof(germanExecutable)) &&
@@ -384,6 +474,8 @@ int main(int argumentCount, char **arguments)
     if (!SdlInitializeOriginFxAudio(usingDosData)) {
         if (usingDosData) {
             fprintf(stderr, "DOS audio is unavailable.\n");
+        } else if (launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT) {
+            fprintf(stderr, "DOS music is unavailable.\n");
         } else {
             fprintf(stderr,
                     "Original orchestral intro music is unavailable.\n");

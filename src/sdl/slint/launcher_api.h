@@ -1,6 +1,10 @@
 #ifndef WC2_SDL_SLINT_LAUNCHER_API_H
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
+#include "../joystick_calibration.h"
+
+#include <stddef.h>
+
 #define SDL_LAUNCHER_DIRECTORY_CAPACITY 4096
 #define SDL_LAUNCHER_KEY_BINDINGS_CAPACITY 4096
 
@@ -45,8 +49,21 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_FULLSCREEN = 1 << 7,
     SDL_LAUNCHER_EXPLICIT_LANGUAGE = 1 << 8,
     SDL_LAUNCHER_EXPLICIT_CAMPAIGN = 1 << 9,
-    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 10
+    SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 10,
+    SDL_LAUNCHER_EXPLICIT_MUSIC = 1 << 11,
+    SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 12,
+    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 13,
+    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 14
 };
+
+/* The music the game plays (SDL_PORT_MUSIC_* in include/sdl_port.h). */
+enum SdlLauncherMusic {
+    SDL_LAUNCHER_MUSIC_DEFAULT = 0, /* Kilrathi Saga streams, DOS AdLib */
+    SDL_LAUNCHER_MUSIC_ADLIB = 1,
+    SDL_LAUNCHER_MUSIC_MT32 = 2
+};
+
+#define SDL_LAUNCHER_MT32_MODEL_CAPACITY 32
 
 typedef struct SdlLauncherOptions {
     char gameDirectory[SDL_LAUNCHER_DIRECTORY_CAPACITY];
@@ -62,6 +79,14 @@ typedef struct SdlLauncherOptions {
     int joystickRumble;
     int joystickMode;
     int joystickAxes;
+    /* Percent of travel, 0 to SDL_JOYSTICK_DEAD_ZONE_MAXIMUM; the original's
+     * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
+    int joystickDeadZone;
+    int musicDevice;
+    /* The player's MT-32 or CM-32L ROMs, and optionally the libmt32emu
+     * machine to use (empty: the best one the folder has). */
+    char mt32Roms[SDL_LAUNCHER_DIRECTORY_CAPACITY];
+    char mt32Model[SDL_LAUNCHER_MT32_MODEL_CAPACITY];
     /* Instance IDs survive enumeration changes while the launcher is open.
      * GUID/path identify the device again if it is unplugged and reconnected. */
     int joystickInstanceId;
@@ -83,6 +108,10 @@ extern "C" {
 int SdlRunLauncherGui(SdlLauncherOptions *options);
 /* German UI strings in a player's German DOS WC2.EXE (0 for any other). */
 int SdlCountGermanText(const char *path);
+/* 1 when the folder has a playable MT-32 or CM-32L ROM pair, describing it;
+ * otherwise 0 and the reason (src/sdl/mt32.c). */
+int SdlDescribeMt32Roms(const char *directory, const char *machine,
+                        char *text, size_t textSize);
 
 #ifdef __cplusplus
 }

@@ -61,6 +61,7 @@ mkdir "$work/payload"
 cp "$package_dir/wc2-modern.exe" "$package_dir/"*.dll "$work/payload/"
 cp "$root/LICENSE" "$work/payload/LICENSE.txt"
 cp "$root/third_party/ymfm/LICENSE" "$work/payload/YMFM-LICENSE.txt"
+cp "$root/third_party/munt/COPYING.LESSER.txt" "$work/payload/MUNT-LICENSE.txt"
 cp "$root/packaging/THIRD-PARTY-NOTICES.txt" "$work/payload/"
 cp -R "$package_dir/translations" "$work/payload/"
 

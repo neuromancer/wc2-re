@@ -379,9 +379,12 @@ void PlaySnowStaticSound(void)
     int file;
 
 #ifdef SDL_PORT
-    /* DOS data has no sampled static sound. */
-    if (SdlUsingOriginFxSoundEffects())
+    /* VduEffect (005:3745) plays the static as sound 0x17, like the VDUs'
+     * other noises, on the AdLib or the MT-32. */
+    if (SdlUsingOriginFxSoundEffects()) {
+        PlaySfxWaveFileByNumber(0x17, -1, 0);
         return;
+    }
 #endif
     if (g_nAudioEnabled == 0)
         return;

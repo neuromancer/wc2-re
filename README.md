@@ -46,12 +46,12 @@ installation and select **Start WC2**. The launcher remembers your settings.
 Enable **Start in fullscreen** under **Graphics** to open the game in desktop
 fullscreen mode.
 
-**Steam Deck / Linux (experimental):** install the `.flatpak` in Desktop Mode
-with `flatpak install --user ./downloaded.flatpak` (replace the filename), then
-add **Wing Commander II (Experimental)** to Steam as a non-Steam game. These
-packages have not been tested on Steam Deck; please report controls, saving and
-suspend/resume results in [Issues](https://github.com/neuromancer/wc2-re/issues).
-Install newer bundles the same way; automatic app updates are not configured.
+**Steam Deck / Linux:** install the `.flatpak` in Desktop Mode with
+`flatpak install --user ./downloaded.flatpak` (replace the filename), then add
+**Wing Commander II** to Steam as a non-Steam game. In Game Mode the launcher
+fills the screen, with its settings and controls in tabs and the joystick
+calibration in the same window. Install newer bundles the same way; automatic
+app updates are not configured.
 
 Select **Start SO1** in the launcher, or pass `--campaign=so1`, to play SO1.
 The **Start SO1** button appears only when the selected installation contains
@@ -108,7 +108,7 @@ Press **Y** to proceed, or **N** or **Esc** to keep it and return to the title m
 
 The port includes resizable, aspect-correct display, gamepad hot-plug support,
 rebindable keyboard and mouse controls, mouse-wheel throttle, cinematic
-captions, corrected planet scaling, and static on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
+captions, subtitles for spoken in-flight messages, corrected planet scaling, and static on damaged cockpit displays. DOS data uses AdLib music and synthesized OriginFX
 sound effects. Optional features can be combined:
 
 | Fix or feature | Enable with |
@@ -122,9 +122,24 @@ sound effects. Optional features can be combined:
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
+| Joystick dead zone, 0% to 33% of the stick's travel (22%, the original's, by default) | Launcher slider or `--joystick-dead-zone=N` |
+| Joystick calibration that writes `GAMEDAT/j.cal` as the game's own does; the game now reads all of that file, not only the centre | Launcher **Calibrate…** |
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter in the window title | `-f` |
 | Cockpitless view | `-c` |
+
+**Roland MT-32 music:** the DOS scores can play on an emulated MT-32 or
+CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
+*Special Operations*). Put your own control and PCM ROM files in a folder,
+choose **Roland MT-32** under **Music** in the launcher, and select the folder
+with **MT-32 ROMs…**. The launcher names the machine it found, preferring the
+CM-32L. The MT-32 plays the sound effects too, sharing its channels with the
+music as the original does. A *Kilrathi Saga* installation can instead keep
+its own digital music or play the AdLib scores, and both keep its digital
+sound effects. Without usable ROMs the game plays the AdLib music. The command
+line takes `--music=default|adlib|mt32`, `--mt32-roms=DIR`, `--mt32-model=ID`
+(such as `mt32_1_07`) and `--mt32-check`, which reports what a ROM folder
+holds.
 
 The enhanced renderer keeps the original artwork, palettes, cockpit, and HUD;
 only space objects are redrawn at output resolution. Combining it with `--ega`
@@ -147,10 +162,11 @@ uses the original-resolution scene so dithering applies consistently.
 | Gamepad Start (spaceflight) | Pause or resume |
 | Gamepad Back | Cycle views in spaceflight; Escape/back during the fly-by and elsewhere |
 | Gamepad Y (`Y/N` prompts) | Confirm Yes |
+| `Ctrl+J` or `Alt+C` (menus and spaceflight) | Calibrate the joystick, as in the original |
 
-The launcher's **Show controls…** window shows every binding. Click a key or
-mouse input to change it, or **+** to add a second one; changes apply when the
-game starts. Wingman orders such as `Alt+A` can move to single keys. `Esc` and
+The launcher's **Joystick** and **Keyboard and mouse** tabs show every
+binding. Click a key or mouse input to change it, or **+** to add a second one;
+changes apply when the game starts. Wingman orders such as `Alt+A` can move to single keys. `Esc` and
 the communication message keys `1`–`9` cannot be changed.
 
 Pause (`P` or Gamepad Start) and quit controls remain available during
@@ -159,7 +175,8 @@ autopilot.
 The default joystick mode retains the original two-axis, two-button controls.
 When several devices are connected, the launcher's **Device** selector chooses
 the primary joystick for that session; **Automatic** keeps the existing order.
-An explicit choice overrides legacy `j.cal` calibration. If it disconnects,
+A joystick chosen there is joystick 1: the game applies a `j.cal` calibration
+only to it, and the launcher's calibration offers only it. If it disconnects,
 another device can take over until the selected joystick reconnects.
 The optional four-button modes add afterburner, targeting, weapons, navigation,
 autopilot, communications, and speed controls. Axis layouts are
@@ -292,7 +309,9 @@ Special thanks to:
 - Aaron Giles for the [DREAMM emulator](https://dreamm.aarongiles.com/), used
   to run and study the original release, and
   [ymfm](https://github.com/aaronsgiles/ymfm), which powers the SDL2 port's
-  AdLib emulation; and
+  AdLib emulation;
+- the [Munt project](https://github.com/munt/munt), whose libmt32emu
+  (LGPL-2.1 or later) emulates the Roland MT-32 and CM-32L; and
 - DaisenryakuFan for providing very advanced source reconstructions for the DOS releases of several Wing Commander titles.
 
 ## License
