@@ -973,8 +973,10 @@ $(MODERN_OUT_DIR)/hud-fonts-probe: $(MODERN_OUT_DIR)/obj/hud_fonts_probe.o \
 		$(MODERN_DEAD_STRIP_FLAGS) -o $@
 
 .PHONY: check-hud-fonts
-check-hud-fonts: $(MODERN_OUT_DIR)/hud-fonts-probe
-	$(MODERN_OUT_DIR)/hud-fonts-probe "$(abspath $(FUZZ_DATA))"
+check-hud-fonts: $(MODERN_OUT_DIR)/hud-fonts-probe $(MODERN_TRANSLATIONS)
+	$(MODERN_OUT_DIR)/hud-fonts-probe "$(abspath $(FUZZ_DATA))" \
+		"$(abspath $(MODERN_OUT_DIR))/translations/es.dat" \
+		"$(abspath $(MODERN_OUT_DIR))/translations/pl.dat"
 
 ifeq ($(MODERN_FUZZING),1)
 $(MODERN_OUT_DIR)/obj/flight_fuzzer.o: bin/checkFlight.c | modern-check-deps

@@ -462,14 +462,13 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
 
 static void DrawGlQuad(const GlVertex *vertices);
 
-/* A private copy of the replacement font, so the game's own font
- * releases never invalidate the layer's glyphs. */
+/* Keep a private copy, loaded through the same patched/translated packet
+ * path as the game's fonts. Its lifetime does not depend on scene fonts. */
 static int LoadHiResFont(void)
 {
     static const char *const candidates[2] = {"FONTS.FNT", "GAMEDAT/FONTS.FNT"};
-    char path[4096];
-    unsigned char *archive;
-    size_t archiveSize;
+    short savedError;
+    long size;
     size_t index;
 
     if (g_pHiResFont != 0)
@@ -477,25 +476,39 @@ static int LoadHiResFont(void)
     if (g_bHiResFontUnavailable)
         return 0;
     g_bHiResFontUnavailable = 1;
+    savedError = g_nPacketError;
     for (index = 0; index < SDL_arraysize(candidates); index++) {
-        if (!SdlResolvePath(candidates[index], path, sizeof(path)))
+        size = GetNamedPacketSize(candidates[index], GL_HIRES_TEXT_FONT);
+        if (size < 772 || size > 65535)
             continue;
-        archive = (unsigned char *)SDL_LoadFile(path, &archiveSize);
-        if (archive == 0)
+        g_pHiResFont = malloc((size_t)size);
+        if (g_pHiResFont == 0)
             continue;
-        if (SdlExtractOriginPacketSection(archive, archiveSize,
-                                          GL_HIRES_TEXT_FONT, &g_pHiResFont,
-                                          &g_nHiResFontSize) &&
-            g_nHiResFontSize >= 772) {
-            SDL_free(archive);
+        if (LoadNamedPacket(candidates[index], GL_HIRES_TEXT_FONT,
+                            g_pHiResFont, 0, 0, 0) != 0) {
+            g_nHiResFontSize = (size_t)size;
             g_bHiResFontUnavailable = 0;
-            return 1;
+            break;
         }
         free(g_pHiResFont);
         g_pHiResFont = 0;
-        SDL_free(archive);
     }
-    return 0;
+    g_nPacketError = savedError;
+    return g_pHiResFont != 0;
+}
+
+/* A catalog change must discard both the cached font and recorded glyphs.
+ * Keep the user's option, so the next draw loads the newly selected font. */
+void SdlResetHiResHudFont(void)
+{
+    free(g_pHiResFont);
+    g_pHiResFont = 0;
+    g_nHiResFontSize = 0;
+    g_bHiResFontUnavailable = 0;
+    g_nHiResGlyphCount = 0;
+    g_nHiResOffscreenGlyphCount = 0;
+    g_bHiResGlyphPending = 0;
+    g_renderer.hiResLayerVisible = 0;
 }
 
 /* The hi-res font's bitmap of a character, or NULL when it has none. */
@@ -504,6 +517,7 @@ static const unsigned char *FindHiResGlyph(unsigned char character,
 {
     const unsigned char *data = g_pHiResFont;
     size_t offset;
+    size_t pixel;
 
     if (data == 0)
         return 0;
@@ -514,7 +528,16 @@ static const unsigned char *FindHiResGlyph(unsigned char character,
     if (*width == 0 || *height <= 0 || offset < 772 ||
         offset + (size_t)*width * (size_t)*height > g_nHiResFontSize)
         return 0;
-    return data + offset;
+    /* Original unused code-page slots can have a width and a valid offset
+     * but no ink. Preserve the game's glyph instead of covering it with a
+     * blank replacement. Spaces intentionally have no ink. */
+    if (character == ' ' || character == 0xa0)
+        return data + offset;
+    for (pixel = 0; pixel < (size_t)*width * (size_t)*height; pixel++) {
+        if (data[offset + pixel] != 0xff && data[offset + pixel] != data[3])
+            return data + offset;
+    }
+    return 0;
 }
 
 void SdlSetHiResHudFonts(int enabled)
@@ -1768,8 +1791,7 @@ void SdlGlRendererShutdown(void)
         if (g_renderer.overlayProgram != 0)
             g_renderer.gl.DeleteProgram(g_renderer.overlayProgram);
     }
-    g_nHiResGlyphCount = 0;
-    g_nHiResOffscreenGlyphCount = 0;
+    SdlResetHiResHudFont();
     if (g_renderer.context != 0)
         SDL_GL_DeleteContext(g_renderer.context);
     memset(&g_renderer, 0, sizeof(g_renderer));

@@ -79,6 +79,7 @@ static const char *TranslationBasename(const char *filename)
 
 void SdlShutdownTranslations(void)
 {
+    SdlResetHiResHudFont();
     free(messages);
     free(artwork);
     SDL_free(catalog);

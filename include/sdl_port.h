@@ -317,6 +317,7 @@ int SdlDecompressOriginLzw(const unsigned char *source,
                               size_t *writtenSize);
 /* DrawFontGlyph's and CopyViewportContents's hooks for the enhanced
  * renderer's hi-res HUD text. */
+void SdlResetHiResHudFont(void);
 int SdlBeginHiResGlyph(const struct Viewport *view, int cursorX, int y,
                        int width, int height, unsigned char character,
                        unsigned char colour, unsigned char background,

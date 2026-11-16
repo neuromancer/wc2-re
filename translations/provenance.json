@@ -48,7 +48,8 @@
     "Restore {callsign} in SERIES.S00/38/text/15",
     "Decode INCIDENT.S00/105 with the scrolling credits alphabet",
     "Exclude transcoded uninitialized memory in unused MODULE.000 records",
-    "Compose translated opening credits with the director correction; bake caption placement into the artwork"
+    "Compose translated opening credits with the director correction; bake caption placement into the artwork",
+    "Add the missing 8-pixel Ñ and 8- and 6-pixel ü glyphs locally, using the existing letters and accent style"
   ],
   "resource_messages": 724,
   "artwork_packets": 20,

@@ -46,6 +46,15 @@ the game ignores surplus arguments; `msgfmt -c` still reports those entries.
 Each language's `glyphs.json` selects its code page: CP1252 for Spanish and
 CP1250 for Polish. WC2's six control bytes remain reserved in cutscenes.
 
+The high-resolution HUD loads its 11-pixel font through the same translated
+packet loader and discards its cached font when the catalog changes. A blank
+replacement glyph leaves the game's original glyph visible. All accented
+characters currently used by the Spanish and Polish catalogs are covered in
+all three fonts. The Spanish 8-pixel `Ñ` and the 8- and 6-pixel `ü` are local
+additions composed from the existing letters and accent style. Run
+`make check-hud-fonts` to check translated glyph coverage, cockpit and radio
+rendering, blank fallback and catalog switching with the installed game data.
+
 ```sh
 make modern-translations          # rebuild the external game catalogs without relinking
 make modern modern-gui            # also build the executables

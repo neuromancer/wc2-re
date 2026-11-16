@@ -111,6 +111,142 @@ static void CheckHudCursor(unsigned char *pixels)
     free(layer);
 }
 
+static void CheckBlankHudFallback(unsigned char *pixels)
+{
+    unsigned char *font = g_36_apTextGlyphs[2];
+    unsigned char saved[3] = {font[4 + 0xe1], font[260 + 0xe1], font[516 + 0xe1]};
+    unsigned char snapshot[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    TextContext text = {0};
+    int width;
+    int height;
+
+    RequireHudFont(FindHiResGlyph(0xe1, &width, &height) == 0,
+                   "an unused but structurally valid blank glyph is unavailable");
+    RequireHudFont(FindHiResGlyph(' ', &width, &height) != 0,
+                   "spaces remain valid replacement glyphs");
+    /* Simulate a partial translation with a visible small-font character
+     * and no corresponding replacement in the larger font. */
+    font[4 + 0xe1] = font[4 + 'A'];
+    font[260 + 0xe1] = font[260 + 'A'];
+    font[516 + 0xe1] = font[516 + 'A'];
+    SdlSetHiResHudFonts(0);
+    SdlSetHiResHudFonts(1);
+    memset(pixels, 0, sizeof(snapshot));
+    text.viewport = &g_101_stScrViewInfo;
+    text.font = font;
+    text.colour = 42;
+    SetTextContext(&text);
+    SetTextCursor(20, 20);
+    DrawFormattedText("\xe1");
+    memcpy(snapshot, pixels, sizeof(snapshot));
+    RequireHudFont(memchr(pixels, text.colour, sizeof(snapshot)) != 0,
+                   "the source font supplies a visible fallback");
+    BuildHiResLayer(pixels);
+    RequireHudFont(g_nHiResGlyphCount == 0 && !g_renderer.hiResLayerVisible &&
+                   !memcmp(pixels, snapshot, sizeof(snapshot)),
+                   "a blank replacement leaves the native glyph visible");
+    font[4 + 0xe1] = saved[0];
+    font[260 + 0xe1] = saved[1];
+    font[516 + 0xe1] = saved[2];
+}
+
+static void CheckTranslatedHudFonts(const char *catalogPath,
+                                    const unsigned char *characters,
+                                    unsigned char *pixels)
+{
+    TextContext text = {0};
+    const unsigned char *character;
+    unsigned char *font;
+    unsigned char snapshot[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    long sizes[3];
+    size_t pixel;
+    int section;
+    int width;
+    int height;
+    int offset;
+    int ink;
+    int renderedInk;
+    char letter[2] = {0, 0};
+
+    RequireHudFont(SdlLoadTranslationCatalog(catalogPath), "load a translation catalog");
+    RequireHudFont(g_pHiResFont == 0 && g_nHiResGlyphCount == 0 &&
+                   g_nHiResOffscreenGlyphCount == 0 && !g_renderer.hiResLayerVisible,
+                   "changing catalogs invalidates the font and recorded text");
+    for (section = 0; section < 3; section++) {
+        free(g_36_apTextGlyphs[section]);
+        sizes[section] = GetNamedPacketSize("GAMEDAT/FONTS.FNT", (short)section);
+        RequireHudFont(sizes[section] >= 772 && sizes[section] <= 65535,
+                       "get the translated font packet size");
+        font = malloc((size_t)sizes[section]);
+        RequireHudFont(font != 0 && LoadNamedPacket("GAMEDAT/FONTS.FNT",
+                       (short)section, font, 0, 0, 0) == font,
+                       "load the game font through the translation pipeline");
+        g_36_apTextGlyphs[section] = font;
+        height = font[0] | (font[1] << 8);
+        for (character = characters; *character; character++) {
+            width = font[4 + *character];
+            offset = font[260 + *character] | (font[516 + *character] << 8);
+            RequireHudFont(width > 0 && offset >= 772 &&
+                           offset + width * height <= sizes[section],
+                           "every translated character has a valid glyph in all three fonts");
+            ink = 0;
+            for (pixel = 0; pixel < (size_t)width * height; pixel++)
+                ink += font[offset + pixel] != font[3] && font[offset + pixel] != 0xff;
+            RequireHudFont(ink > 0, "every translated character has visible ink");
+        }
+    }
+    g_nPacketError = 7;
+    RequireHudFont(LoadHiResFont() && g_nPacketError == 7,
+                   "auxiliary font loading preserves the game's packet error state");
+    RequireHudFont(g_nHiResFontSize == (size_t)sizes[0] &&
+                   !memcmp(g_pHiResFont, g_36_apTextGlyphs[0], g_nHiResFontSize),
+                   "the overlay receives the same translated font as the game");
+    /* The overlay must own its copy even when a scene releases its font. */
+    free(g_36_apTextGlyphs[0]);
+    g_36_apTextGlyphs[0] = 0;
+    text.viewport = &g_101_stScrViewInfo;
+    text.font = g_36_apTextGlyphs[2];
+    text.colour = 42;
+    for (character = characters; *character; character++) {
+        SdlSetHiResHudFonts(0);
+        SdlSetHiResHudFonts(1);
+        memset(pixels, 0, sizeof(snapshot));
+        letter[0] = (char)*character;
+        SetTextContext(&text);
+        SetTextCursor(20, 20);
+        DrawFormattedText("%s", letter);
+        memcpy(snapshot, pixels, sizeof(snapshot));
+        CheckHudGlyphs(pixels);
+        RequireHudFont(g_nHiResGlyphCount == 1 &&
+                       g_aHiResGlyphs[0].character == *character &&
+                       !memcmp(pixels, snapshot, sizeof(snapshot)),
+                       "accented cockpit text reaches the overlay without changing the base");
+        font = g_pHiResFont;
+        width = font[4 + *character];
+        height = font[0] | (font[1] << 8);
+        offset = font[260 + *character] | (font[516 + *character] << 8);
+        ink = 0;
+        renderedInk = 0;
+        for (pixel = 0; pixel < (size_t)width * height; pixel++)
+            ink += font[offset + pixel] != font[3] && font[offset + pixel] != 0xff;
+        for (pixel = 0; pixel < sizeof(g_renderer.hiResLayer); pixel += 2)
+            renderedInk += g_renderer.hiResLayer[pixel + 1] != 0 &&
+                g_renderer.hiResLayer[pixel] == text.colour;
+        RequireHudFont(renderedInk == ink,
+                       "all translated glyph ink is rendered in the larger font");
+    }
+    SdlSetHiResHudFonts(0);
+    SdlSetHiResHudFonts(1);
+    memset(pixels, 0, sizeof(snapshot));
+    g_3_stDefaultStringContext = text;
+    g_3_stDefaultStringContext.font = g_36_apTextGlyphs[1];
+    g_168_stFlightTextContext = g_3_stDefaultStringContext;
+    print_message_text((char *)characters, text.colour);
+    CheckHudGlyphs(pixels);
+    RequireHudFont(g_nHiResGlyphCount == strlen((const char *)characters),
+                   "radio subtitles capture every translated character");
+}
+
 int main(int argc, char **argv)
 {
     unsigned char pixels[320 * 200] = {0};
@@ -136,8 +272,8 @@ int main(int argc, char **argv)
     int offset;
     unsigned char expected;
 
-    RequireHudFont(argc == 2 && _chdir(argv[1]) == 0,
-                   "pass a WC2 installation directory");
+    RequireHudFont(argc == 4 && _chdir(argv[1]) == 0,
+                   "pass a WC2 installation directory and the Spanish/Polish catalogs");
     RequireHudFont(SdlResolvePath("GAMEDAT/FONTS.FNT", path, sizeof(path)),
                    "find the installed font archive");
     archive = SDL_LoadFile(path, &archiveSize);
@@ -271,9 +407,19 @@ int main(int argc, char **argv)
     DrawTextAt(&text, 4, 24, "NAV 3", 0);
     RequireHudFont(g_nHiResOffscreenGlyphCount == 0,
                    "non-flight screens keep their original text");
+    g_1_bSpaceFlightActive = 1;
+    CheckBlankHudFallback(pixels);
+    /* Full accented alphabets used by these catalogs, in CP1252/CP1250. */
+    CheckTranslatedHudFonts(argv[2], (const unsigned char *)
+        "\xa1\xbf\xd1\xe1\xe9\xed\xf1\xf3\xfa\xfc", pixels);
+    CheckTranslatedHudFonts(argv[3], (const unsigned char *)
+        "\x8c\x8f\x9c\x9f\xa3\xa5\xaf\xb3\xb9\xbf\xc6\xca\xd1\xd3\xe6\xea\xf1\xf3", pixels);
+    SdlShutdownTranslations();
+    RequireHudFont(LoadHiResFont() && FindHiResGlyph(0xe1, &width, &height) == 0,
+                   "returning to English clears translated glyphs from the cache");
     for (index = 0; index < 3; index++)
         free(g_36_apTextGlyphs[index]);
-    free(g_pHiResFont);
-    puts("HUD fonts: larger gauges/VDUs/nav labels, subtitles, cursor overlap, copying and fallback passed.");
+    SdlResetHiResHudFont();
+    puts("HUD fonts: larger text, subtitles, cursor overlap, copying, translated glyphs and blank fallback passed.");
     return 0;
 }
