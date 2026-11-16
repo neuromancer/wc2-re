@@ -82,6 +82,17 @@ int main(int argc, char **argv)
     window->set_joystick_mode_index(0);
     window->set_joystick_axes_index(0);
 
+    // Enhanced rendering does not opt into HUD fonts or discard the choice.
+    require(!window->get_hires_hud_fonts(), "HUD fonts default to off in the GUI");
+    const bool enhancedRenderer = window->get_enhanced_renderer();
+    window->set_enhanced_renderer(true);
+    require(!window->get_hires_hud_fonts(), "enhanced rendering leaves HUD fonts off");
+    window->set_hires_hud_fonts(true);
+    window->set_enhanced_renderer(false);
+    require(window->get_hires_hud_fonts(), "disabling enhanced rendering preserves the HUD-font choice");
+    window->set_enhanced_renderer(enhancedRenderer);
+    window->set_hires_hud_fonts(false);
+
     // The Joystick tab labels the game controller for the chosen layout.
     const auto binding = [&window](PadControl control) {
         return std::string(window->invoke_pad_binding(control));
@@ -291,13 +302,21 @@ int main(int argc, char **argv)
         refresh_mt32_roms(*window, "", "");
     }
 
-    // The HUD-font override must not mask the separately saved dead zone.
+    // HUD fonts default to off and retain either saved choice across sessions.
     {
+        SdlLauncherOptions restored = {};
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.hiResHudFonts == 0, "HUD fonts stay off without a settings file");
+        std::ofstream(fixture / "hud.ini") << "[launcher]\nenhanced_renderer=1\n";
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.enhancedRenderer == 1 && restored.hiResHudFonts == 0,
+                "older settings with enhanced rendering leave HUD fonts off");
+
         SdlLauncherOptions saved = {};
         saved.hiResHudFonts = 1;
         saved.joystickDeadZone = 5;
         require(save_launcher_config(fixture / "hud.ini", saved), "save HUD fonts and dead zone");
-        SdlLauncherOptions restored = {};
+        restored = {};
         load_launcher_config(fixture / "hud.ini", restored);
         require(restored.hiResHudFonts == 1 && restored.joystickDeadZone == 5,
                 "HUD fonts and dead zone survive a restart independently");
@@ -311,6 +330,14 @@ int main(int argc, char **argv)
         load_launcher_config(fixture / "hud.ini", restored);
         require(restored.hiResHudFonts == 1 && restored.joystickDeadZone == 0,
                 "a dead-zone override still loads the saved HUD fonts");
+
+        saved.hiResHudFonts = 0;
+        require(save_launcher_config(fixture / "hud.ini", saved), "save HUD fonts disabled again");
+        restored = {};
+        restored.hiResHudFonts = 1;
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.hiResHudFonts == 0 && restored.joystickDeadZone == 5,
+                "the saved off choice replaces a previously enabled HUD-font setting");
     }
 
     // The dead zone is a percentage saved with the other settings.
