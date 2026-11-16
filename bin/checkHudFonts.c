@@ -20,6 +20,88 @@ static void CheckHudGlyphs(const unsigned char *pixels)
                    "the overlay uses the larger 11-pixel font");
 }
 
+static void CheckHudMessageRedraw(unsigned char *pixels, char *message)
+{
+    unsigned char *layer = malloc(sizeof(g_renderer.hiResLayer));
+    unsigned char background[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    GlHiResGlyph *first;
+    char *text;
+    unsigned int count;
+    int reply;
+    int refresh;
+    int pixel;
+    int left;
+    int right;
+    int y;
+
+    RequireHudFont(layer != 0, "allocate a message redraw snapshot");
+    SdlSetHiResHudFonts(0);
+    SdlSetHiResHudFonts(1);
+    g_pHudMessageFrameShape = LoadNamedPacket("GAMEDAT/MESSAGE.V00", 0, 0, 0, 0, 1);
+    RequireHudFont(g_pHudMessageFrameShape != 0, "load the real message background shape");
+    g_pHudMessageBackground = AllocateTaggedMemory(
+        MeasureShapeFrameStorage(g_pHudMessageFrameShape, 0), 0);
+    for (reply = 0; reply < 2; reply++) {
+        /* A shorter response moves both ends. Exercise black space and a
+         * patterned cockpit background through the real capture/restore. */
+        text = message + reply * 2;
+        for (pixel = 0; pixel < (int)sizeof(background); pixel++)
+            background[pixel] = reply ? (unsigned char)(1 + pixel % 7) : 0;
+        memcpy(pixels, background, sizeof(background));
+        g_bCaptureHudMessageBackground = 1;
+        SetHudTextColour(text, 42);
+        CheckHudGlyphs(pixels);
+        count = g_nHiResGlyphCount;
+        RequireHudFont(count == strlen(text), "a reply contains only its own glyphs");
+        memcpy(layer, g_renderer.hiResLayer, sizeof(g_renderer.hiResLayer));
+        /* A cockpit frame refresh can leave the ends of a subtitle untouched.
+         * Draw the same message after restoring only the middle of its row. */
+        for (refresh = 0; refresh < 4; refresh++) {
+            left = g_aHiResGlyphs[0].x + g_aHiResGlyphs[0].width;
+            right = g_aHiResGlyphs[count - 1].x;
+            if (refresh & 1) {
+                left -= g_aHiResGlyphs[0].width / 2;
+                right += g_aHiResGlyphs[count - 1].width / 2;
+            }
+            for (y = 0; y < SDL_FRAME_HEIGHT; y++)
+                memcpy(pixels + y * SDL_FRAME_WIDTH + left,
+                       background + y * SDL_FRAME_WIDTH + left, (size_t)(right - left));
+            SetHudTextColour(text, 42);
+            CheckHudGlyphs(pixels);
+            RequireHudFont(g_nHiResGlyphCount == count &&
+                           !memcmp(layer, g_renderer.hiResLayer, sizeof(g_renderer.hiResLayer)),
+                           "redrawing a subtitle preserves its first and last glyphs");
+        }
+        /* A newly rendered scene pixel must replace the older background
+         * even where the previous frame contained subtitle ink. */
+        first = &g_aHiResGlyphs[0];
+        for (pixel = 0; pixel < first->width * first->height; pixel++) {
+            if (first->before[pixel] != first->after[pixel])
+                break;
+        }
+        RequireHudFont(pixel < first->width * first->height, "find subtitle ink");
+        pixels[(first->y + pixel / first->width) * SDL_FRAME_WIDTH +
+               first->x + pixel % first->width] = 43;
+        SetHudTextColour(text, 42);
+        CheckHudGlyphs(pixels);
+        RequireHudFont(g_aHiResGlyphs[0].before[pixel] == 43,
+                       "a refreshed scene pixel remains in the subtitle background");
+        ClearHudMessageDisplay(0);
+        BuildHiResLayer(pixels);
+        RequireHudFont(!g_renderer.hiResLayerVisible && g_nHiResGlyphCount == 0,
+                       "erasing a message removes all of its recorded glyphs");
+        RequireHudFont(!memcmp(pixels, background, sizeof(background)),
+                       "the message background is restored by the game");
+    }
+    ReleasePacketHandle(g_pHudMessageBackground);
+    ReleasePacketHandle(g_pHudMessageFrameShape);
+    g_pHudMessageBackground = 0;
+    g_pHudMessageFrameShape = 0;
+    g_pszPendingHudMessage = 0;
+    g_pszDisplayedHudMessage = 0;
+    free(layer);
+}
+
 static void CheckHudCursor(unsigned char *pixels)
 {
     /* One 3x3 cross with hotspot (1,1), transparent corners, black arms
@@ -245,6 +327,7 @@ static void CheckTranslatedHudFonts(const char *catalogPath,
     CheckHudGlyphs(pixels);
     RequireHudFont(g_nHiResGlyphCount == strlen((const char *)characters),
                    "radio subtitles capture every translated character");
+    CheckHudMessageRedraw(pixels, (char *)characters);
 }
 
 int main(int argc, char **argv)
@@ -363,6 +446,7 @@ int main(int argc, char **argv)
     g_49_nViewportOffsetY = 5;
     print_message_text("Shadow: Returning to base.", 42);
     CheckHudGlyphs(pixels);
+    CheckHudMessageRedraw(pixels, "Shadow: Returning to base.");
     SdlSetHiResHudFonts(0);
     SdlSetHiResHudFonts(1);
 
@@ -420,6 +504,6 @@ int main(int argc, char **argv)
     for (index = 0; index < 3; index++)
         free(g_36_apTextGlyphs[index]);
     SdlResetHiResHudFont();
-    puts("HUD fonts: larger text, subtitles, cursor overlap, copying, translated glyphs and blank fallback passed.");
+    puts("HUD fonts: larger text, subtitle redraws, cursor overlap, copying, translated glyphs and blank fallback passed.");
     return 0;
 }

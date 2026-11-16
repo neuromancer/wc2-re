@@ -565,11 +565,17 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
                        int centered)
 {
     GlHiResGlyph *glyph;
+    const GlHiResGlyph *previous;
+    const GlHiResGlyph *recorded;
     const unsigned char *screen;
+    unsigned int count;
+    unsigned int index;
+    unsigned int kept;
     long offset;
     long stride;
     int hiResWidth;
     int hiResHeight;
+    int pixel;
     int row;
 
     g_bHiResGlyphPending = 0;
@@ -589,6 +595,18 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
             view->top != g_stHudMessageOrigin.y + g_49_nViewportOffsetY ||
             view->bottom != view->top + 60)
             return 0;
+        /* ClearHudMessageDisplay repaints the subtitle in the space clear
+         * colour before restoring its saved background. Those erase glyphs
+         * can match an empty black frame indefinitely; they are not text. */
+        if (colour == g_cPrimaryViewBufferColour) {
+            kept = 0;
+            for (index = 0; index < g_nHiResGlyphCount; index++) {
+                if (g_aHiResGlyphs[index].height != 8)
+                    g_aHiResGlyphs[kept++] = g_aHiResGlyphs[index];
+            }
+            g_nHiResGlyphCount = kept;
+            return 0;
+        }
     }
     if (!LoadHiResFont() ||
         FindHiResGlyph(character, &hiResWidth, &hiResHeight) == 0)
@@ -624,6 +642,29 @@ int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
     for (row = 0; row < height; row++)
         memcpy(glyph->before + row * width,
                view->pixels + offset + (long)row * stride, (size_t)width);
+    /* Transparent HUD text is redrawn every flight frame, but the cockpit
+     * copy may leave some of its old pixels in place, especially at a line's
+     * ends. Reuse the clean background under surviving ink instead of
+     * capturing the old low-resolution letter as part of that background.
+     * Compare per pixel because the copy can cut through a glyph's cell. */
+    if (background == 0xff) {
+        recorded = view->pixels == screen ? g_aHiResGlyphs : g_aHiResOffscreenGlyphs;
+        count = view->pixels == screen ? g_nHiResGlyphCount : g_nHiResOffscreenGlyphCount;
+        for (index = 0; index < count; index++) {
+            previous = &recorded[index];
+            if (previous->buffer != glyph->buffer || previous->stride != glyph->stride ||
+                previous->x != glyph->x || previous->y != glyph->y ||
+                previous->width != width || previous->height != height ||
+                previous->character != character || previous->background != 0xff)
+                continue;
+            for (pixel = 0; pixel < width * height; pixel++) {
+                if (previous->after[pixel] != previous->before[pixel] &&
+                    glyph->before[pixel] == previous->after[pixel])
+                    glyph->before[pixel] = previous->before[pixel];
+            }
+            break;
+        }
+    }
     g_bHiResGlyphPending = 1;
     return 1;
 }
