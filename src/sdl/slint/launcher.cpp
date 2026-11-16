@@ -823,6 +823,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     window->set_language_index(options->language);
     window->set_enhanced_renderer(options->enhancedRenderer != 0);
     window->set_ega_dither(options->egaDither != 0);
+    window->set_hires_hud_fonts(options->hiResHudFonts != 0);
     window->set_balanced_difficulty(options->balancedDifficulty != 0);
     window->set_cheat_mode(options->cheatMode != 0);
     window->set_joystick_rumble(options->joystickRumble != 0);
@@ -992,6 +993,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     options->campaign = selectedCampaign;
     options->enhancedRenderer = window->get_enhanced_renderer();
     options->egaDither = window->get_ega_dither();
+    options->hiResHudFonts = window->get_hires_hud_fonts();
     options->balancedDifficulty = window->get_balanced_difficulty();
     options->cheatMode = window->get_cheat_mode();
     options->joystickRumble = window->get_joystick_rumble();

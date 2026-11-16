@@ -632,6 +632,9 @@ void DrawFontGlyph(char character, TextContext *context, int height,
     int dy;
     int dx;
     unsigned char *bitmap;
+#ifdef SDL_PORT
+    int hiResGlyph;
+#endif
 
     drawY = y;
     view = context->viewport;
@@ -672,6 +675,12 @@ void DrawFontGlyph(char character, TextContext *context, int height,
 #endif
     {
 #ifdef SDL_PORT
+        /* The enhanced renderer can show HUD-font text in a finer font. */
+        hiResGlyph = (context->font == g_36_apTextGlyphs[2] ||
+                      context->font == g_36_apTextGlyphs[1]) &&
+            SdlBeginHiResGlyph(view, context->cursorX, y, width, height,
+                               (unsigned char)character, fg, bg,
+                               context->alignment == 2);
         bitmap = (context->font[(unsigned char)character + 0x204] << 8) +
                  context->font[(unsigned char)character + 0x104] +
                  context->font;
@@ -731,6 +740,10 @@ void DrawFontGlyph(char character, TextContext *context, int height,
             context->cursorX += context->font[character + 4];
 #endif
         }
+#ifdef SDL_PORT
+        if (hiResGlyph)
+            SdlEndHiResGlyph();
+#endif
     }
     g_abPaletteTranslation[fontFg] = fontFg;
     g_abPaletteTranslation[fontBg] = fontBg;
@@ -1179,6 +1192,11 @@ void CopyViewportContents(Viewport *source, Viewport *destination)
                            &targetClip);
     result = BlitRasterClip(
         &srcClip, 0, 0, &targetClip, 0, 0, 0xffffffff);
+#ifdef SDL_PORT
+    /* Hi-res HUD text drawn off screen, such as the nav map's labels,
+     * follows the copy. */
+    SdlCopyHiResGlyphs(source, destination);
+#endif
     if (result != 0)
         abs(result);
     if (g_nCockpitDisplayMode == 9)

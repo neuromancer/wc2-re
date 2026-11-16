@@ -220,6 +220,9 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--ega") == 0) {
             launcherOptions->egaDither = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_EGA;
+        } else if (strcmp(argument, "--hires-hud") == 0) {
+            launcherOptions->hiResHudFonts = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_HIRES_HUD;
         } else {
             arguments[outputArgumentIndex++] = argument;
         }
@@ -388,6 +391,7 @@ int main(int argumentCount, char **arguments)
     if (!SdlSelectCampaign(launcherOptions.campaign))
         return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
+    SdlSetHiResHudFonts(launcherOptions.hiResHudFonts);
     /* The launcher or the command line chose the music. */
     SdlSetMusicDevice(launcherOptions.musicDevice);
     SdlSetMt32Roms(launcherOptions.mt32Roms, launcherOptions.mt32Model);

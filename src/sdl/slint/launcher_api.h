@@ -52,7 +52,8 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE = 1 << 10,
     SDL_LAUNCHER_EXPLICIT_MUSIC = 1 << 11,
     SDL_LAUNCHER_EXPLICIT_MT32_ROMS = 1 << 12,
-    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 13
+    SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 13,
+    SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 14
 };
 
 /* The music the game plays (SDL_PORT_MUSIC_* in include/sdl_port.h). */
@@ -71,6 +72,8 @@ typedef struct SdlLauncherOptions {
     int campaign; /* 0: WC2, 1: Special Operations 1, 2: Special Operations 2 */
     int enhancedRenderer;
     int egaDither;
+    /* Cockpit text in a finer game font, with the enhanced renderer. */
+    int hiResHudFonts;
     int balancedDifficulty;
     int cheatMode;
     int joystickRumble;

@@ -291,6 +291,28 @@ int main(int argc, char **argv)
         refresh_mt32_roms(*window, "", "");
     }
 
+    // The HUD-font override must not mask the separately saved dead zone.
+    {
+        SdlLauncherOptions saved = {};
+        saved.hiResHudFonts = 1;
+        saved.joystickDeadZone = 5;
+        require(save_launcher_config(fixture / "hud.ini", saved), "save HUD fonts and dead zone");
+        SdlLauncherOptions restored = {};
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.hiResHudFonts == 1 && restored.joystickDeadZone == 5,
+                "HUD fonts and dead zone survive a restart independently");
+        restored = {};
+        restored.explicitOptions = SDL_LAUNCHER_EXPLICIT_HIRES_HUD;
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.hiResHudFonts == 0 && restored.joystickDeadZone == 5,
+                "a HUD-font override still loads the saved dead zone");
+        restored = {};
+        restored.explicitOptions = SDL_LAUNCHER_EXPLICIT_JOYSTICK_DEAD_ZONE;
+        load_launcher_config(fixture / "hud.ini", restored);
+        require(restored.hiResHudFonts == 1 && restored.joystickDeadZone == 0,
+                "a dead-zone override still loads the saved HUD fonts");
+    }
+
     // The dead zone is a percentage saved with the other settings.
     {
         SdlLauncherOptions zone = {};

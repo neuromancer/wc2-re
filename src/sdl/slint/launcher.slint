@@ -66,6 +66,7 @@ export component LauncherWindow inherits Window {
     in property <string> mt32-detail;
     in-out property <bool> enhanced-renderer;
     in-out property <bool> ega-dither;
+    in-out property <bool> hires-hud-fonts;
     in-out property <bool> balanced-difficulty;
     in-out property <bool> cheat-mode;
     in-out property <bool> joystick-rumble;
@@ -366,6 +367,12 @@ export component LauncherWindow inherits Window {
                                         height: 26px;
                                         text: @tr("EGA 16-colour dithering");
                                         checked <=> root.ega-dither;
+                                    }
+
+                                    CheckBox {
+                                        text: @tr("Hi-res HUD fonts");
+                                        enabled: root.enhanced-renderer;
+                                        checked <=> root.hires-hud-fonts;
                                     }
                                 }
                             }

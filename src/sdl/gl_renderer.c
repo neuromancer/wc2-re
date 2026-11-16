@@ -305,6 +305,54 @@ static const GLchar g_spriteFragmentShaderSource[] =
     "        discard;\n"
     "}\n";
 
+/* Hi-res HUD text (wc1-re issue 29): cockpit text, nav labels and HUD
+ * messages use FONTS.FNT's 11-pixel conversation font (section 0) at native
+ * size on a 640x400 layer. Each recorded cell stays covered while the frame
+ * shows it, with the mouse cursor composited above the text. */
+#define GL_HIRES_SCALE 2
+#define GL_HIRES_WIDTH (SDL_FRAME_WIDTH * GL_HIRES_SCALE)
+#define GL_HIRES_HEIGHT (SDL_FRAME_HEIGHT * GL_HIRES_SCALE)
+#define GL_HIRES_GLYPH_CAPACITY 1024
+/* Text drawn off screen, such as the nav map's labels, until it is copied. */
+#define GL_HIRES_OFFSCREEN_GLYPH_CAPACITY 512
+#define GL_HIRES_CELL_WIDTH 16
+#define GL_HIRES_CELL_HEIGHT 8
+#define GL_HIRES_TEXT_FONT 0
+
+typedef struct GlHiResGlyph {
+    const unsigned char *buffer;
+    unsigned short stride;
+    short x;
+    short y;
+    unsigned char width;
+    unsigned char height;
+    unsigned char character;
+    unsigned char colour;
+    unsigned char background;
+    unsigned char centered;
+    unsigned char before[GL_HIRES_CELL_WIDTH * GL_HIRES_CELL_HEIGHT];
+    unsigned char after[GL_HIRES_CELL_WIDTH * GL_HIRES_CELL_HEIGHT];
+} GlHiResGlyph;
+
+/* The layer is an index and a coverage byte per 640x400 pixel. */
+static const GLchar g_overlayFragmentShaderSource[] =
+    "#version 150\n"
+    "uniform sampler2D u_indices;\n"
+    "uniform sampler2D u_palette;\n"
+    "in vec2 v_texCoord;\n"
+    "out vec4 outputColour;\n"
+    "void main()\n"
+    "{\n"
+    "    ivec2 size = textureSize(u_indices, 0);\n"
+    "    ivec2 point = ivec2(v_texCoord * vec2(size));\n"
+    "    point = clamp(point, ivec2(0), size - ivec2(1));\n"
+    "    vec2 texel = texelFetch(u_indices, point, 0).rg;\n"
+    "    if (texel.g < 0.5)\n"
+    "        discard;\n"
+    "    int index = int(floor(texel.r * 255.0 + 0.5));\n"
+    "    outputColour = texelFetch(u_palette, ivec2(index, 0), 0);\n"
+    "}\n";
+
 typedef struct GlRenderer {
     SDL_Window *window;
     SDL_GLContext context;
@@ -317,6 +365,12 @@ typedef struct GlRenderer {
     GLuint paletteTexture;
     GLuint maskTexture;
     GLuint spriteAtlasTexture;
+    GLuint overlayProgram;
+    GLuint overlayTexture;
+    GLint overlayIndicesUniform;
+    GLint overlayPaletteUniform;
+    int hiResLayerVisible;
+    int hiResLayerDirty;
     GLint baseIndicesUniform;
     GLint basePaletteUniform;
     GLint spriteIndicesUniform;
@@ -342,12 +396,24 @@ typedef struct GlRenderer {
     unsigned char spaceFrameBase[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
     unsigned char presentedFrame[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
     unsigned char presentedPalette[256 * 4];
+    unsigned char hiResCheckFrame[SDL_FRAME_WIDTH * SDL_FRAME_HEIGHT];
+    unsigned char hiResLayer[GL_HIRES_WIDTH * GL_HIRES_HEIGHT * 2];
     GlCachedFrame cachedFrames[GL_CACHED_FRAME_CAPACITY];
     GlSprite recordedSprites[GL_RECORDED_SPRITE_CAPACITY];
     GlVertex spriteVertices[GL_SPRITE_VERTEX_COUNT];
 } GlRenderer;
 
 static GlRenderer g_renderer;
+static int g_bHiResHudFonts;
+static unsigned char *g_pHiResFont;
+static size_t g_nHiResFontSize;
+static int g_bHiResFontUnavailable;
+static GlHiResGlyph g_aHiResGlyphs[GL_HIRES_GLYPH_CAPACITY];
+static unsigned int g_nHiResGlyphCount;
+static GlHiResGlyph g_aHiResOffscreenGlyphs[GL_HIRES_OFFSCREEN_GLYPH_CAPACITY];
+static unsigned int g_nHiResOffscreenGlyphCount;
+static GlHiResGlyph g_stPendingHiResGlyph;
+static int g_bHiResGlyphPending;
 
 static void ResetRecordedSprites(void)
 {
@@ -392,6 +458,573 @@ static void CopyBaseWithoutMouse(unsigned char *destination,
                             (short)g_10_nSavedPointerY,
                             g_16_stEventQueuePointerData.shape,
                             g_16_stEventQueuePointerData.frame);
+}
+
+static void DrawGlQuad(const GlVertex *vertices);
+
+/* Keep a private copy, loaded through the same patched/translated packet
+ * path as the game's fonts. Its lifetime does not depend on scene fonts. */
+static int LoadHiResFont(void)
+{
+    static const char *const candidates[2] = {"FONTS.FNT", "GAMEDAT/FONTS.FNT"};
+    short savedError;
+    long size;
+    size_t index;
+
+    if (g_pHiResFont != 0)
+        return 1;
+    if (g_bHiResFontUnavailable)
+        return 0;
+    g_bHiResFontUnavailable = 1;
+    savedError = g_nPacketError;
+    for (index = 0; index < SDL_arraysize(candidates); index++) {
+        size = GetNamedPacketSize(candidates[index], GL_HIRES_TEXT_FONT);
+        if (size < 772 || size > 65535)
+            continue;
+        g_pHiResFont = malloc((size_t)size);
+        if (g_pHiResFont == 0)
+            continue;
+        if (LoadNamedPacket(candidates[index], GL_HIRES_TEXT_FONT,
+                            g_pHiResFont, 0, 0, 0) != 0) {
+            g_nHiResFontSize = (size_t)size;
+            g_bHiResFontUnavailable = 0;
+            break;
+        }
+        free(g_pHiResFont);
+        g_pHiResFont = 0;
+    }
+    g_nPacketError = savedError;
+    return g_pHiResFont != 0;
+}
+
+/* A catalog change must discard both the cached font and recorded glyphs.
+ * Keep the user's option, so the next draw loads the newly selected font. */
+void SdlResetHiResHudFont(void)
+{
+    free(g_pHiResFont);
+    g_pHiResFont = 0;
+    g_nHiResFontSize = 0;
+    g_bHiResFontUnavailable = 0;
+    g_nHiResGlyphCount = 0;
+    g_nHiResOffscreenGlyphCount = 0;
+    g_bHiResGlyphPending = 0;
+    g_renderer.hiResLayerVisible = 0;
+}
+
+/* The hi-res font's bitmap of a character, or NULL when it has none. */
+static const unsigned char *FindHiResGlyph(unsigned char character,
+                                           int *width, int *height)
+{
+    const unsigned char *data = g_pHiResFont;
+    size_t offset;
+    size_t pixel;
+
+    if (data == 0)
+        return 0;
+    *width = data[4 + character];
+    *height = data[0] | (data[1] << 8);
+    offset = (size_t)data[0x104 + character] |
+             ((size_t)data[0x204 + character] << 8);
+    if (*width == 0 || *height <= 0 || offset < 772 ||
+        offset + (size_t)*width * (size_t)*height > g_nHiResFontSize)
+        return 0;
+    /* Original unused code-page slots can have a width and a valid offset
+     * but no ink. Preserve the game's glyph instead of covering it with a
+     * blank replacement. Spaces intentionally have no ink. */
+    if (character == ' ' || character == 0xa0)
+        return data + offset;
+    for (pixel = 0; pixel < (size_t)*width * (size_t)*height; pixel++) {
+        if (data[offset + pixel] != 0xff && data[offset + pixel] != data[3])
+            return data + offset;
+    }
+    return 0;
+}
+
+void SdlSetHiResHudFonts(int enabled)
+{
+    g_bHiResHudFonts = enabled != 0;
+    if (!g_bHiResHudFonts) {
+        g_nHiResGlyphCount = 0;
+        g_nHiResOffscreenGlyphCount = 0;
+    }
+}
+
+static int SdlHiResHudFontsActive(void)
+{
+    return g_bHiResHudFonts && g_renderer.context != 0 &&
+        g_renderer.overlayProgram != 0 && g_1_bSpaceFlightActive != 0;
+}
+
+/* Called by DrawFontGlyph before it draws a HUD-font character: keeps what
+ * the cell showed. The address follows the game's own first-row rule, and
+ * only a cell laid out in plain rows of its buffer is taken. Text drawn off
+ * screen keeps its buffer's coordinates until SdlCopyHiResGlyphs. */
+int SdlBeginHiResGlyph(const Viewport *view, int cursorX, int y, int width,
+                       int height, unsigned char character,
+                       unsigned char colour, unsigned char background,
+                       int centered)
+{
+    GlHiResGlyph *glyph;
+    const GlHiResGlyph *previous;
+    const GlHiResGlyph *recorded;
+    const unsigned char *screen;
+    unsigned int count;
+    unsigned int index;
+    unsigned int kept;
+    long offset;
+    long stride;
+    int hiResWidth;
+    int hiResHeight;
+    int pixel;
+    int row;
+
+    g_bHiResGlyphPending = 0;
+    screen = g_101_stScrViewInfo.pixels;
+    if (!SdlHiResHudFontsActive() || view == 0 || view->pixels == 0 ||
+        view->rowOffsets == 0 || screen == 0 || width <= 0 ||
+        height < 2 || width > GL_HIRES_CELL_WIDTH ||
+        height > GL_HIRES_CELL_HEIGHT || y < 0)
+        return 0;
+    if (height != 6) {
+        /* print_message_text copies the default 8-pixel context and clips it
+         * to this cockpit-specific message area. Other users of that font,
+         * including nav descriptions and modal menus, keep their own text. */
+        if (height != 8 || !centered || background != 0xff ||
+            view->pixels != screen || view->left != g_stHudMessageOrigin.x ||
+            view->right != 319 - g_stHudMessageOrigin.x ||
+            view->top != g_stHudMessageOrigin.y + g_49_nViewportOffsetY ||
+            view->bottom != view->top + 60)
+            return 0;
+        /* ClearHudMessageDisplay repaints the subtitle in the space clear
+         * colour before restoring its saved background. Those erase glyphs
+         * can match an empty black frame indefinitely; they are not text. */
+        if (colour == g_cPrimaryViewBufferColour) {
+            kept = 0;
+            for (index = 0; index < g_nHiResGlyphCount; index++) {
+                if (g_aHiResGlyphs[index].height != 8)
+                    g_aHiResGlyphs[kept++] = g_aHiResGlyphs[index];
+            }
+            g_nHiResGlyphCount = kept;
+            return 0;
+        }
+    }
+    if (!LoadHiResFont() ||
+        FindHiResGlyph(character, &hiResWidth, &hiResHeight) == 0)
+        return 0;
+    if (view->top == y && (view->rowOffsets[y] & 0x8000) != 0)
+        offset = cursorX;
+    else
+        offset = (long)view->rowOffsets[y] + cursorX;
+    stride = (long)view->rowOffsets[y + 1] - view->rowOffsets[y];
+    if (view->pixels == screen && stride != SDL_FRAME_WIDTH)
+        return 0;
+    if (offset < 0 || stride < width || stride > 0xffff ||
+        offset % stride + width > stride ||
+        (view->pixels == screen &&
+         offset / stride + height > SDL_FRAME_HEIGHT))
+        return 0;
+    for (row = 1; row < height; row++) {
+        if ((long)view->rowOffsets[y + row] + cursorX !=
+            offset + (long)row * stride)
+            return 0;
+    }
+    glyph = &g_stPendingHiResGlyph;
+    glyph->buffer = view->pixels;
+    glyph->stride = (unsigned short)stride;
+    glyph->x = (short)(offset % stride);
+    glyph->y = (short)(offset / stride);
+    glyph->width = (unsigned char)width;
+    glyph->height = (unsigned char)height;
+    glyph->character = character;
+    glyph->colour = colour;
+    glyph->background = background;
+    glyph->centered = centered != 0;
+    for (row = 0; row < height; row++)
+        memcpy(glyph->before + row * width,
+               view->pixels + offset + (long)row * stride, (size_t)width);
+    /* Transparent HUD text is redrawn every flight frame, but the cockpit
+     * copy may leave some of its old pixels in place, especially at a line's
+     * ends. Reuse the clean background under surviving ink instead of
+     * capturing the old low-resolution letter as part of that background.
+     * Compare per pixel because the copy can cut through a glyph's cell. */
+    if (background == 0xff) {
+        recorded = view->pixels == screen ? g_aHiResGlyphs : g_aHiResOffscreenGlyphs;
+        count = view->pixels == screen ? g_nHiResGlyphCount : g_nHiResOffscreenGlyphCount;
+        for (index = 0; index < count; index++) {
+            previous = &recorded[index];
+            if (previous->buffer != glyph->buffer || previous->stride != glyph->stride ||
+                previous->x != glyph->x || previous->y != glyph->y ||
+                previous->width != width || previous->height != height ||
+                previous->character != character || previous->background != 0xff)
+                continue;
+            for (pixel = 0; pixel < width * height; pixel++) {
+                if (previous->after[pixel] != previous->before[pixel] &&
+                    glyph->before[pixel] == previous->after[pixel])
+                    glyph->before[pixel] = previous->before[pixel];
+            }
+            break;
+        }
+    }
+    g_bHiResGlyphPending = 1;
+    return 1;
+}
+
+/* Keeps a glyph in a list, replacing one recorded at the same place. A full
+ * list starts over: text still shown is recorded again when next drawn, and
+ * until then it simply shows in the game's own font. */
+static void StoreHiResGlyph(GlHiResGlyph *glyphs, unsigned int *count,
+                            unsigned int capacity, const GlHiResGlyph *glyph)
+{
+    unsigned int index;
+
+    for (index = 0; index < *count; index++) {
+        if (glyphs[index].buffer == glyph->buffer &&
+            glyphs[index].x == glyph->x && glyphs[index].y == glyph->y)
+            break;
+    }
+    if (index == *count) {
+        if (*count == capacity)
+            *count = index = 0;
+        (*count)++;
+    }
+    glyphs[index] = *glyph;
+}
+
+static int HiResGlyphMatches(const GlHiResGlyph *glyph,
+                             const unsigned char *pixels, long stride,
+                             int x, int y)
+{
+    int row;
+
+    for (row = 0; row < glyph->height; row++) {
+        if (memcmp(glyph->after + row * glyph->width,
+                   pixels + (long)(y + row) * stride + x, glyph->width) != 0)
+            return 0;
+    }
+    return 1;
+}
+
+/* After the game drew the glyph: keep the cell's new pixels and replace any
+ * earlier glyph recorded at the same place. */
+void SdlEndHiResGlyph(void)
+{
+    GlHiResGlyph *glyph;
+    const unsigned char *cell;
+    int row;
+
+    if (!g_bHiResGlyphPending)
+        return;
+    g_bHiResGlyphPending = 0;
+    glyph = &g_stPendingHiResGlyph;
+    cell = glyph->buffer + (long)glyph->y * glyph->stride + glyph->x;
+    for (row = 0; row < glyph->height; row++)
+        memcpy(glyph->after + row * glyph->width,
+               cell + (long)row * glyph->stride, glyph->width);
+    if (glyph->buffer == g_101_stScrViewInfo.pixels)
+        StoreHiResGlyph(g_aHiResGlyphs, &g_nHiResGlyphCount,
+                        GL_HIRES_GLYPH_CAPACITY, glyph);
+    else
+        StoreHiResGlyph(g_aHiResOffscreenGlyphs, &g_nHiResOffscreenGlyphCount,
+                        GL_HIRES_OFFSCREEN_GLYPH_CAPACITY, glyph);
+}
+
+/* After CopyViewportContents copied an off-screen buffer to the screen:
+ * the glyphs that buffer still shows within the copied area follow it,
+ * shifted from the source's corner to the destination's. The ones it no
+ * longer shows there are forgotten. */
+void SdlCopyHiResGlyphs(const Viewport *source, const Viewport *destination)
+{
+    const unsigned char *screen;
+    GlHiResGlyph copied;
+    const GlHiResGlyph *glyph;
+    long stride;
+    unsigned int index;
+    unsigned int kept;
+    int inside;
+    int x;
+    int y;
+
+    screen = g_101_stScrViewInfo.pixels;
+    if (!SdlHiResHudFontsActive() || source == 0 || destination == 0 ||
+        screen == 0 || destination->pixels != screen ||
+        source->pixels == screen || source->rowOffsets == 0 ||
+        source->top < 0 || source->top >= source->bottom ||
+        g_nHiResOffscreenGlyphCount == 0)
+        return;
+    stride = (long)source->rowOffsets[source->top + 1] -
+             source->rowOffsets[source->top];
+    kept = 0;
+    for (index = 0; index < g_nHiResOffscreenGlyphCount; index++) {
+        glyph = &g_aHiResOffscreenGlyphs[index];
+        inside = glyph->buffer == source->pixels && glyph->stride == stride &&
+            glyph->x >= source->left && glyph->y >= source->top &&
+            glyph->x + glyph->width - 1 <= source->right &&
+            glyph->y + glyph->height - 1 <= source->bottom;
+        if (inside && !HiResGlyphMatches(glyph, source->pixels, stride,
+                                         glyph->x, glyph->y))
+            continue;
+        if (kept != index)
+            g_aHiResOffscreenGlyphs[kept] = *glyph;
+        glyph = &g_aHiResOffscreenGlyphs[kept++];
+        if (!inside)
+            continue;
+        x = glyph->x - source->left + destination->left;
+        y = glyph->y - source->top + destination->top;
+        if (x < 0 || y < 0 || x + glyph->width > SDL_FRAME_WIDTH ||
+            y + glyph->height > SDL_FRAME_HEIGHT)
+            continue;
+        copied = *glyph;
+        copied.buffer = screen;
+        copied.stride = SDL_FRAME_WIDTH;
+        copied.x = (short)x;
+        copied.y = (short)y;
+        StoreHiResGlyph(g_aHiResGlyphs, &g_nHiResGlyphCount,
+                        GL_HIRES_GLYPH_CAPACITY, &copied);
+    }
+    g_nHiResOffscreenGlyphCount = kept;
+}
+
+static int HiResGlyphStillShown(const GlHiResGlyph *glyph,
+                                const unsigned char *frame)
+{
+    return HiResGlyphMatches(glyph, frame, SDL_FRAME_WIDTH, glyph->x,
+                             glyph->y);
+}
+
+/* The hi-res font keeps its letter spacing in each glyph's leading columns. */
+static int HiResLeadingBlank(const unsigned char *bitmap, int width,
+                             int height)
+{
+    int column;
+    int row;
+    unsigned char value;
+
+    for (column = 0; column < width; column++) {
+        for (row = 0; row < height; row++) {
+            value = bitmap[row * width + column];
+            if (value != 0xff && value != g_pHiResFont[3])
+                return column;
+        }
+    }
+    return width;
+}
+
+/* Rows top to bottom, then left to right, so a line's glyphs are adjacent. */
+static int CompareHiResGlyphs(const void *left, const void *right)
+{
+    const GlHiResGlyph *first = (const GlHiResGlyph *)left;
+    const GlHiResGlyph *second = (const GlHiResGlyph *)right;
+
+    if (first->y != second->y)
+        return first->y - second->y;
+    return first->x - second->x;
+}
+
+static void SetHiResPixel(int x, int y, unsigned char index)
+{
+    unsigned char *pixel;
+
+    if (x < 0 || y < 0 || x >= GL_HIRES_WIDTH || y >= GL_HIRES_HEIGHT)
+        return;
+    pixel = g_renderer.hiResLayer + ((size_t)y * GL_HIRES_WIDTH + x) * 2;
+    pixel[0] = index;
+    pixel[1] = 0xff;
+}
+
+/* Reuse the cursor's restore spans as an opacity mask, including clipping
+ * and its hotspot. Comparing the frame before/after drawing would miss
+ * opaque cursor pixels whose colour matches the background. Copy the
+ * already drawn cursor above the text at the base frame's 2x scale. */
+static void CompositeHiResMouseCursor(const unsigned char *pixels)
+{
+    unsigned char coverage[sizeof(g_abInputCursorBehind)];
+    Viewport viewport;
+    int x;
+    int y;
+    int column;
+    int row;
+
+    if (g_6_bCurrentInputCursorBackgroundCapturedState == 0 ||
+        g_nMouseCursorDrawDepth <= 0 ||
+        g_16_stEventQueuePointerData.viewport == 0 ||
+        g_16_stEventQueuePointerData.shape == 0 ||
+        g_101_stScrViewInfo.pixels != pixels)
+        return;
+    /* Glyph validation has finished with this scratch frame. */
+    memset(g_renderer.hiResCheckFrame, 0, sizeof(g_renderer.hiResCheckFrame));
+    memset(coverage, 0xff, sizeof(coverage));
+    viewport = g_101_stScrViewInfo;
+    viewport.pixels = g_renderer.hiResCheckFrame;
+    viewport.allocation = g_renderer.hiResCheckFrame;
+    RestoreSpriteBackground(&viewport, coverage,
+                            (short)g_4_nCapturedInputCursorX,
+                            (short)g_10_nSavedPointerY,
+                            g_16_stEventQueuePointerData.shape,
+                            g_16_stEventQueuePointerData.frame);
+    for (y = 0; y < SDL_FRAME_HEIGHT; y++) {
+        for (x = 0; x < SDL_FRAME_WIDTH; x++) {
+            if (g_renderer.hiResCheckFrame[y * SDL_FRAME_WIDTH + x] == 0)
+                continue;
+            for (row = 0; row < GL_HIRES_SCALE; row++) {
+                for (column = 0; column < GL_HIRES_SCALE; column++)
+                    SetHiResPixel(x * GL_HIRES_SCALE + column,
+                                  y * GL_HIRES_SCALE + row,
+                                  pixels[y * SDL_FRAME_WIDTH + x]);
+            }
+        }
+    }
+}
+
+/* Drops the glyphs the frame no longer shows, then paints the others: each
+ * cell's background at double size first, and then the hi-res glyphs. A run
+ * of adjacent cells is set with the hi-res font's own spacing, centred when
+ * the game centred it and otherwise from its left edge. A run a few pixels
+ * wider than its cells, as digits are, starts in its first glyph's leading
+ * blank columns and then closes gaps of two or more blank columns; ink is
+ * never cut. */
+static void BuildHiResLayer(const unsigned char *pixels)
+{
+    const GlHiResGlyph *glyph;
+    const unsigned char *bitmap;
+    unsigned int index;
+    unsigned int kept;
+    unsigned char value;
+    unsigned char fontInk;
+    unsigned char fontBackground;
+    int width;
+    int height;
+    int left;
+    int top;
+    int total;
+    int overflow;
+    int lead;
+    int row;
+    int column;
+    unsigned int first;
+    unsigned int last;
+
+    g_renderer.hiResLayerVisible = 0;
+    if (!SdlHiResHudFontsActive()) {
+        g_nHiResGlyphCount = 0;
+        g_nHiResOffscreenGlyphCount = 0;
+        return;
+    }
+    CopyBaseWithoutMouse(g_renderer.hiResCheckFrame, pixels);
+    kept = 0;
+    for (index = 0; index < g_nHiResGlyphCount; index++) {
+        if (HiResGlyphStillShown(&g_aHiResGlyphs[index],
+                                 g_renderer.hiResCheckFrame))
+            g_aHiResGlyphs[kept++] = g_aHiResGlyphs[index];
+    }
+    g_nHiResGlyphCount = kept;
+    if (kept == 0)
+        return;
+    memset(g_renderer.hiResLayer, 0, sizeof(g_renderer.hiResLayer));
+    for (index = 0; index < kept; index++) {
+        glyph = &g_aHiResGlyphs[index];
+        for (row = 0; row < glyph->height * GL_HIRES_SCALE; row++) {
+            for (column = 0; column < glyph->width * GL_HIRES_SCALE;
+                 column++) {
+                value = glyph->background != 0xff
+                    ? glyph->background
+                    : glyph->before[(row / GL_HIRES_SCALE) * glyph->width +
+                                    column / GL_HIRES_SCALE];
+                SetHiResPixel(glyph->x * GL_HIRES_SCALE + column,
+                              glyph->y * GL_HIRES_SCALE + row, value);
+            }
+        }
+    }
+    qsort(g_aHiResGlyphs, kept, sizeof(g_aHiResGlyphs[0]),
+          CompareHiResGlyphs);
+    for (first = 0; first < kept; first = last) {
+        last = first + 1;
+        while (last < kept &&
+               g_aHiResGlyphs[last].y == g_aHiResGlyphs[last - 1].y &&
+               g_aHiResGlyphs[last].height == g_aHiResGlyphs[last - 1].height &&
+               g_aHiResGlyphs[last].x ==
+                   g_aHiResGlyphs[last - 1].x + g_aHiResGlyphs[last - 1].width)
+            last++;
+        total = 0;
+        for (index = first; index < last; index++) {
+            if (FindHiResGlyph(g_aHiResGlyphs[index].character, &width,
+                               &height) != 0)
+                total += width;
+        }
+        left = g_aHiResGlyphs[first].x * GL_HIRES_SCALE;
+        overflow = total -
+            ((g_aHiResGlyphs[last - 1].x + g_aHiResGlyphs[last - 1].width) *
+                 GL_HIRES_SCALE - left);
+        if (g_aHiResGlyphs[first].centered) {
+            left -= overflow / 2;
+            overflow = 0;
+        } else if (overflow > 0) {
+            bitmap = FindHiResGlyph(g_aHiResGlyphs[first].character, &width,
+                                    &height);
+            lead = bitmap != 0 ? HiResLeadingBlank(bitmap, width, height) : 0;
+            if (lead > overflow)
+                lead = overflow;
+            left -= lead;
+            overflow -= lead;
+        }
+        for (index = first; index < last; index++) {
+            glyph = &g_aHiResGlyphs[index];
+            bitmap = FindHiResGlyph(glyph->character, &width, &height);
+            if (bitmap == 0)
+                continue;
+            fontInk = g_pHiResFont[2];
+            fontBackground = g_pHiResFont[3];
+            if (overflow > 0 && index > first &&
+                HiResLeadingBlank(bitmap, width, height) >= 2) {
+                left--;
+                overflow--;
+            }
+            top = glyph->y * GL_HIRES_SCALE;
+            if (height < glyph->height * GL_HIRES_SCALE)
+                top += (glyph->height * GL_HIRES_SCALE - height) / 2;
+            for (row = 0; row < height; row++) {
+                for (column = 0; column < width; column++) {
+                    value = bitmap[row * width + column];
+                    if (value == 0xff || value == fontBackground)
+                        continue;
+                    SetHiResPixel(left + column, top + row,
+                                  value == fontInk ? glyph->colour : value);
+                }
+            }
+            left += width;
+        }
+    }
+    CompositeHiResMouseCursor(pixels);
+    g_renderer.hiResLayerVisible = 1;
+    g_renderer.hiResLayerDirty = 1;
+}
+
+static void DrawHiResLayer(void)
+{
+    const GlVertex vertices[4] = {
+        {-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {-0.5f, 199.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {319.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f},
+        {319.5f, 199.5f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+         0.0f, 0.0f, 0.0f, 0.0f}};
+
+    g_renderer.gl.ActiveTexture(GL_TEXTURE4);
+    g_renderer.gl.BindTexture(GL_TEXTURE_2D, g_renderer.overlayTexture);
+    if (g_renderer.hiResLayerDirty) {
+        g_renderer.gl.TexImage2D(GL_TEXTURE_2D, 0, GL_RG8, GL_HIRES_WIDTH,
+                                 GL_HIRES_HEIGHT, 0, GL_RG, GL_UNSIGNED_BYTE,
+                                 g_renderer.hiResLayer);
+        g_renderer.hiResLayerDirty = 0;
+    }
+    g_renderer.gl.Disable(GL_BLEND);
+    g_renderer.gl.UseProgram(g_renderer.overlayProgram);
+    g_renderer.gl.ActiveTexture(GL_TEXTURE1);
+    g_renderer.gl.BindTexture(GL_TEXTURE_2D, g_renderer.paletteTexture);
+    g_renderer.gl.Uniform1i(g_renderer.overlayIndicesUniform, 4);
+    g_renderer.gl.Uniform1i(g_renderer.overlayPaletteUniform, 1);
+    DrawGlQuad(vertices);
 }
 
 static void *LoadGlFunction(const char *name, int *functionsAvailable)
@@ -987,6 +1620,8 @@ static int RenderGlFrame(const unsigned char *pixels,
     DrawBaseFrame();
     if (drawSprites)
         DrawRecordedSprites((float)viewportWidth / SDL_FRAME_WIDTH);
+    if (g_renderer.hiResLayerVisible)
+        DrawHiResLayer();
     SDL_GL_SwapWindow(g_renderer.window);
     return 1;
 }
@@ -1139,6 +1774,24 @@ int SdlGlRendererInitialize(SDL_Window *window)
         SdlGlRendererShutdown();
         return 0;
     }
+    /* The hi-res HUD text layer is optional: without it the HUD keeps the
+     * game's own fonts. */
+    g_renderer.overlayProgram = LinkGlProgram(g_overlayFragmentShaderSource);
+    if (g_renderer.overlayProgram != 0) {
+        g_renderer.gl.GenTextures(1, &g_renderer.overlayTexture);
+        g_renderer.overlayIndicesUniform = g_renderer.gl.GetUniformLocation(
+            g_renderer.overlayProgram, "u_indices");
+        g_renderer.overlayPaletteUniform = g_renderer.gl.GetUniformLocation(
+            g_renderer.overlayProgram, "u_palette");
+        if (g_renderer.overlayTexture == 0 ||
+            g_renderer.overlayIndicesUniform < 0 ||
+            g_renderer.overlayPaletteUniform < 0) {
+            g_renderer.gl.DeleteProgram(g_renderer.overlayProgram);
+            g_renderer.overlayProgram = 0;
+        } else {
+            ConfigureGlTexture(GL_TEXTURE_2D, g_renderer.overlayTexture);
+        }
+    }
     g_renderer.gl.Disable(GL_DITHER);
     SDL_GL_SetSwapInterval(1);
     memset(g_renderer.viewMask, 0xff, sizeof(g_renderer.viewMask));
@@ -1160,6 +1813,8 @@ void SdlGlRendererShutdown(void)
         textures[2] = g_renderer.maskTexture;
         textures[3] = g_renderer.spriteAtlasTexture;
         g_renderer.gl.DeleteTextures(4, textures);
+        if (g_renderer.overlayTexture != 0)
+            g_renderer.gl.DeleteTextures(1, &g_renderer.overlayTexture);
     }
     if (canDeleteResources && g_renderer.gl.DeleteBuffers != 0 &&
         g_renderer.vertexBuffer != 0) {
@@ -1174,7 +1829,10 @@ void SdlGlRendererShutdown(void)
             g_renderer.gl.DeleteProgram(g_renderer.baseProgram);
         if (g_renderer.spriteProgram != 0)
             g_renderer.gl.DeleteProgram(g_renderer.spriteProgram);
+        if (g_renderer.overlayProgram != 0)
+            g_renderer.gl.DeleteProgram(g_renderer.overlayProgram);
     }
+    SdlResetHiResHudFont();
     if (g_renderer.context != 0)
         SDL_GL_DeleteContext(g_renderer.context);
     memset(&g_renderer, 0, sizeof(g_renderer));
@@ -1330,6 +1988,7 @@ int SdlGlRendererPresent(const unsigned char *pixels,
             g_renderer.hasLayerSnapshot = 0;
         }
     }
+    BuildHiResLayer(pixels);
     memcpy(g_renderer.presentedFrame, pixels,
            sizeof(g_renderer.presentedFrame));
     memcpy(g_renderer.presentedPalette, palette,
