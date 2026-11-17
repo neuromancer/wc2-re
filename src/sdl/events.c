@@ -579,6 +579,14 @@ static SDL_Keycode SdlGameKeySymbol(SDL_Scancode key)
     return SDL_GetKeyFromScancode(key);
 }
 
+/* A custom controller binding uses the same flight action as a key or
+ * mouse binding, including WC2's Alt radio commands and the F1 latch. */
+void SdlQueuePadKeyPress(SDL_Scancode key, Uint16 modifiers)
+{
+    SdlQueueGameKey(key, SdlGameKeySymbol(key), modifiers, 0, 0);
+    SdlQueueGameKey(key, SdlGameKeySymbol(key), modifiers, 1, 0);
+}
+
 /* Mouse buttons bound to an action press its key, repeating like a held
  * key; each records the key it pressed so the release matches it. */
 #define SDL_MOUSE_KEY_DELAY 250

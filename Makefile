@@ -580,6 +580,11 @@ MODERN_TRANSLATION_LANGUAGES = es pl
 MODERN_TRANSLATIONS = \
 	$(MODERN_TRANSLATION_LANGUAGES:%=$(MODERN_OUT_DIR)/translations/%.dat)
 MODERN_GUI_SRCS = \
+	src/sdl/pad_bindings.h \
+	src/sdl/joystick_calibration.h \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_axes.cpp \
+	$(MODERN_GUI_SOURCE_DIR)/launcher_axes.h \
+	$(wildcard $(MODERN_GUI_SOURCE_DIR)/generic-*.svg) \
 	$(wildcard translations/*/LC_MESSAGES/*.po) \
 	$(wildcard third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg) \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \

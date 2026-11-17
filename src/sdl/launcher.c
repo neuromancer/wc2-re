@@ -16,7 +16,7 @@ static jmp_buf g_stSdlCutsceneExit;
 static int g_bSdlCutsceneExitArmed;
 
 static const char *const g_apszSdlLauncherJoystickModes[] = {
-    "original", "4button-2axis", "4button-4axis"
+    "original", "4button-2axis", "4button-4axis", "custom"
 };
 
 static const char *const g_apszSdlLauncherMusic[] = {
@@ -261,7 +261,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
 {
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
         options->joystickMode >
-            SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS ||
+            SDL_LAUNCHER_JOYSTICK_CUSTOM ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
         options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
         fprintf(stderr, "The GUI returned invalid joystick options.\n");
@@ -277,6 +277,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
     SdlSetJoystickAxesMode(
         g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
+    SdlSetPadBindings(options->padBindings);
     if (!SdlSetJoystickDeadZone(options->joystickDeadZone)) {
         fprintf(stderr, "Invalid joystick dead zone.\n");
         return 0;

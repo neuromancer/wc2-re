@@ -905,3 +905,293 @@ msgstr "Zapisz pozycję"
 msgctxt "CalibrationView"
 msgid "Calibrate"
 msgstr "Kalibruj"
+
+# Custom controller bindings and live input display, adapted from wc1-re.
+msgctxt "ControlsView"
+msgid "Pitch down"
+msgstr "Pochyl nos w dół"
+
+msgctxt "ControlsView"
+msgid "Pitch up"
+msgstr "Podnieś nos"
+
+msgctxt "ControlsView"
+msgid "Yaw right"
+msgstr "Skręć w prawo"
+
+msgctxt "ControlsView"
+msgid "Yaw left"
+msgstr "Skręć w lewo"
+
+msgctxt "ControlsView"
+msgid "Pitch"
+msgstr "Pochylenie"
+
+msgctxt "ControlsView"
+msgid "Yaw"
+msgstr "Odchylenie"
+
+msgctxt "ControlsView"
+msgid "Roll"
+msgstr "Przechylenie"
+
+msgctxt "ControlsView"
+msgid "Speed"
+msgstr "Prędkość"
+
+msgctxt "ControlsView"
+msgid "Throttle position"
+msgstr "Położenie przepustnicy"
+
+msgctxt "ControlsView"
+msgid "{} (analog)"
+msgstr "{} (analogowo)"
+
+msgctxt "ControlsView"
+msgid "{}, reversed"
+msgstr "{}, odwrócone"
+
+msgctxt "ControlsView"
+msgid "Fires while held."
+msgstr "Strzela, gdy przycisk jest wciśnięty."
+
+msgctxt "ControlsView"
+msgid "Burns while held."
+msgstr "Włącza dopalacz, gdy przycisk jest wciśnięty."
+
+msgctxt "ControlsView"
+msgid "Turns at the full rate while held, with a turn button or key."
+msgstr "Skręca z pełną szybkością, gdy przycisk jest wciśnięty razem z przyciskiem lub klawiszem skrętu."
+
+msgctxt "ControlsView"
+msgid "Changes speed while held."
+msgstr "Zmienia prędkość, gdy przycisk jest wciśnięty."
+
+msgctxt "ControlsView"
+msgid "Steers while held."
+msgstr "Steruje, gdy przycisk jest wciśnięty."
+
+msgctxt "ControlsView"
+msgid "Once per press."
+msgstr "Raz na naciśnięcie."
+
+msgctxt "ControlsView"
+msgid "Right dives and left climbs."
+msgstr "W prawo opuszcza nos, a w lewo go podnosi."
+
+msgctxt "ControlsView"
+msgid "Up dives and down climbs, as with the original joystick."
+msgstr "W górę opuszcza nos, a w dół go podnosi, jak oryginalny joystick."
+
+msgctxt "ControlsView"
+msgid "Right turns right and left turns left."
+msgstr "W prawo skręca w prawo, a w lewo skręca w lewo."
+
+msgctxt "ControlsView"
+msgid "Up turns right and down turns left."
+msgstr "W górę skręca w prawo, a w dół skręca w lewo."
+
+msgctxt "ControlsView"
+msgid "Right rolls right and left rolls left."
+msgstr "W prawo przechyla w prawo, a w lewo przechyla w lewo."
+
+msgctxt "ControlsView"
+msgid "Up rolls right and down rolls left."
+msgstr "W górę przechyla w prawo, a w dół przechyla w lewo."
+
+msgctxt "ControlsView"
+msgid "Right speeds up and left slows down, faster the further it goes."
+msgstr "W prawo przyspiesza, a w lewo zwalnia; większe wychylenie przyspiesza zmianę."
+
+msgctxt "ControlsView"
+msgid "Up speeds up and down slows down, faster the further it goes."
+msgstr "W górę przyspiesza, a w dół zwalnia; większe wychylenie przyspiesza zmianę."
+
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully right is full speed and fully left stops."
+msgstr "Ustawia prędkość jak dźwignia przepustnicy: skrajnie w prawo daje pełną prędkość, a skrajnie w lewo zatrzymuje."
+
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully up is full speed and fully down stops."
+msgstr "Ustawia prędkość jak dźwignia przepustnicy: skrajnie w górę daje pełną prędkość, a skrajnie w dół zatrzymuje."
+
+msgctxt "ControlsView"
+msgid "Keyboard and mouse: {}."
+msgstr "Klawiatura i mysz: {}."
+
+msgctxt "ControlsView"
+msgid "The input does nothing in flight."
+msgstr "Ten element sterujący nie działa w locie."
+
+msgctxt "ControlsView"
+msgid "Steps through the front, left, right, rear and chase views."
+msgstr "Przełącza kolejno widok z przodu, z lewej, z prawej, z tyłu i zza statku."
+
+msgctxt "ControlsView"
+msgid "While held, what yaws rolls instead and what pitches changes speed, as the original joystick's second button does."
+msgstr "Gdy przycisk jest wciśnięty, odchylenie zmienia się w przechylenie, a pochylenie zmienia prędkość, jak drugi przycisk oryginalnego joysticka."
+
+msgctxt "ControlsView"
+msgid "{}, faster the further the trigger is pressed."
+msgstr "{}; mocniejsze wciśnięcie spustu przyspiesza zmianę."
+
+msgctxt "ControlsView"
+msgid "Sets the speed like a throttle lever: fully pressed is full speed and released stops."
+msgstr "Ustawia prędkość jak dźwignia przepustnicy: pełne wciśnięcie daje pełną prędkość, a zwolnienie zatrzymuje."
+
+msgctxt "ControlsView"
+msgid "Reversed: the other way round."
+msgstr "Odwrócone: w przeciwnym kierunku."
+
+msgctxt "ControlsView"
+msgid "To rebind it, choose Custom in Control mode."
+msgstr "Aby zmienić przypisanie, wybierz tryb Własny w polu Tryb sterowania."
+
+msgctxt "ControlsView"
+msgid "X axis"
+msgstr "Oś X"
+
+msgctxt "ControlsView"
+msgid "Y axis"
+msgstr "Oś Y"
+
+msgctxt "ControlsView"
+msgid "Z axis"
+msgstr "Oś Z"
+
+msgctxt "ControlsView"
+msgid "X rotation"
+msgstr "Obrót wokół X"
+
+msgctxt "ControlsView"
+msgid "Y rotation"
+msgstr "Obrót wokół Y"
+
+msgctxt "ControlsView"
+msgid "Z rotation"
+msgstr "Obrót wokół Z"
+
+msgctxt "ControlsView"
+msgid "Slider"
+msgstr "Suwak"
+
+msgctxt "ControlsView"
+msgid "Dial"
+msgstr "Pokrętło"
+
+msgctxt "ControlsView"
+msgid "Wheel"
+msgstr "Kierownica"
+
+msgctxt "ControlsView"
+msgid "Rudder"
+msgstr "Ster kierunku"
+
+msgctxt "ControlsView"
+msgid "Throttle"
+msgstr "Przepustnica"
+
+msgctxt "ControlsView"
+msgid "Accelerator"
+msgstr "Pedał gazu"
+
+msgctxt "ControlsView"
+msgid "Brake"
+msgstr "Hamulec"
+
+msgctxt "ControlsView"
+msgid "Axis {}"
+msgstr "Oś {}"
+
+msgctxt "ControlsView"
+msgid "Hat {}"
+msgstr "Hat {}"
+
+msgctxt "ControlsView"
+msgid "Button {}"
+msgstr "Przycisk {}"
+
+msgctxt "ControlsView"
+msgid "left and right"
+msgstr "w lewo i w prawo"
+
+msgctxt "ControlsView"
+msgid "up and down"
+msgstr "w górę i w dół"
+
+msgctxt "ControlsView"
+msgid "Press an input on the controller, or click it, to change it; changes apply when the game starts."
+msgstr "Naciśnij przycisk kontrolera lub kliknij element sterujący, aby zmienić przypisanie; zmiany obowiązują po uruchomieniu gry."
+
+msgctxt "ControlsView"
+msgid "Original joystick: buttons 1 and 2 together fire a missile; double-click button 2 and hold it for the afterburner."
+msgstr "Oryginalny joystick: przyciski 1 i 2 razem odpalają pocisk; naciśnij dwukrotnie przycisk 2 i przytrzymaj go, aby włączyć dopalacz."
+
+msgctxt "ControlsView"
+msgid "In the communications display, hat 1's up and down choose, right sends and left closes."
+msgstr "Na ekranie łączności kierunki góra i dół hata 1 wybierają wiadomość, prawo ją wysyła, a lewo zamyka ekran."
+
+msgctxt "ControlsView"
+msgid "Button 4 answers Yes in prompts; button 9 is Escape outside flight."
+msgstr "Przycisk 4 odpowiada Tak w oknach pytań; poza lotem przycisk 9 działa jak Escape."
+
+msgctxt "ControlsView"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "ControlsView"
+msgid "Game controller"
+msgstr "Kontroler gier"
+
+msgctxt "ControlsView"
+msgid "{n} button"
+msgid_plural "{n} buttons"
+msgstr[0] "{n} przycisk"
+msgstr[1] "{n} przyciski"
+msgstr[2] "{n} przycisków"
+
+msgctxt "ControlsView"
+msgid "{n} hat"
+msgid_plural "{n} hats"
+msgstr[0] "{n} hat"
+msgstr[1] "{n} haty"
+msgstr[2] "{n} hatów"
+
+msgctxt "ControlsView"
+msgid "{n} axis"
+msgid_plural "{n} axes"
+msgstr[0] "{n} oś"
+msgstr[1] "{n} osie"
+msgstr[2] "{n} osi"
+
+msgctxt "ControlsView"
+msgid "Axes"
+msgstr "Osie"
+
+msgctxt "ControlsView"
+msgid "Reversed"
+msgstr "Odwrócone"
+
+msgctxt "ControlsView"
+msgid "None"
+msgstr "Brak"
+
+msgctxt "ControlsView"
+msgid "Cycle views"
+msgstr "Przełączaj widoki"
+
+msgctxt "ControlsView"
+msgid "Hold to roll and change speed"
+msgstr "Przytrzymaj, aby przechylać i zmieniać prędkość"
+
+msgctxt "ControlsView"
+msgid "Analog"
+msgstr "Analogowo"
+
+msgctxt "LauncherWindow"
+msgid "Hi-res HUD fonts"
+msgstr "Czcionki HUD w wysokiej rozdzielczości"
+
+msgctxt "LauncherWindow"
+msgid "Custom — your own bindings"
+msgstr "Własny — własne przypisania"
