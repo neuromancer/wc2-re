@@ -470,6 +470,110 @@ int main(int argc, char **argv)
         require(window->get_page() == 0, "Back returns to the tabs");
     }
 
+    // Custom controls use WC2's flight actions and persist all 68 bindings.
+    {
+        bool kept = false;
+        prepare_pad(window, {}, kept);
+        window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_CUSTOM);
+        window->invoke_custom_pad_requested();
+        require(kept && window->get_pad_codes()->row_count() == SDL_PAD_CONTROLS,
+                "Custom starts with bindings for gamepads and raw joysticks");
+        require(pad_code(*window, 0, "jump") && pad_code(*window, 0, "attack-my-target") &&
+                !pad_code(*window, SDL_PAD_LEFT_STICK_X, "fire-guns"),
+                "WC2 jump and radio actions can be buttons, but an axis cannot fire a key");
+        window->invoke_pad_code_changed(SDL_PAD_LEFT_STICK_X, *pad_code(*window, SDL_PAD_LEFT_STICK_X, "roll"));
+        window->invoke_pad_code_changed(SDL_PAD_LEFT_STICK_Y, *pad_code(*window, SDL_PAD_LEFT_STICK_Y, "throttle"));
+        window->invoke_pad_code_changed(SDL_PAD_RIGHT_STICK_Y, *pad_code(*window, SDL_PAD_RIGHT_STICK_Y, "-pitch"));
+        window->invoke_pad_code_changed(SDL_PAD_STICK_BUTTON + 31, *pad_code(*window, SDL_PAD_STICK_BUTTON + 31, "jump"));
+        window->invoke_pad_code_changed(SDL_PAD_STICK_AXIS + 7, *pad_code(*window, SDL_PAD_STICK_AXIS + 7, "-throttle"));
+        SdlLauncherOptions saved = {};
+        saved.joystickMode = SDL_LAUNCHER_JOYSTICK_CUSTOM;
+        const auto bindings = pad_bindings(*window);
+        require(std::count(bindings.begin(), bindings.end(), '\n') == SDL_PAD_CONTROLS &&
+                bindings.size() < sizeof(saved.padBindings), "all controls fit the saved binding buffer");
+        std::snprintf(saved.padBindings, sizeof(saved.padBindings), "%s", bindings.c_str());
+        require(save_launcher_config(fixture / "custom.ini", saved), "save Custom bindings");
+        SdlLauncherOptions restored = {};
+        load_launcher_config(fixture / "custom.ini", restored);
+        require(restored.joystickMode == SDL_LAUNCHER_JOYSTICK_CUSTOM &&
+                std::string(restored.padBindings) == bindings, "Custom mode and all bindings survive a restart");
+        window->set_pad_codes(pad_codes(*window, 0, restored.padBindings));
+        require(pad_bindings(*window) == bindings, "saved functions restore the GUI choices without loss");
+        window->set_joystick_mode_index(0);
+        require(pad_bindings(*window) == bindings, "switching to Original preserves Custom bindings");
+        window->invoke_pad_reset();
+        require(pad_function(*window, SDL_PAD_LEFT_STICK_X,
+                            window->get_pad_codes()->row_data(SDL_PAD_LEFT_STICK_X).value()) == "yaw",
+                "Restore defaults restores the chosen axis layout");
+        // Driver descriptions can put the throttle before the twist axis.
+        const auto named = named_axis_functions({AxisKind::X, AxisKind::Y, AxisKind::Slider, AxisKind::RotationZ}, 0);
+        require(named == std::vector<std::string> {"yaw", "pitch", "-throttle", "-roll"},
+                "named axes select and reverse throttle and twist according to their input order");
+    }
+
+    // The live Joystick tab and calibration use the same automatic priorities.
+    {
+        SDL_SetMainReady();
+        SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "1");
+        require(SDL_InitSubSystem(SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER) == 0, "start the live joystick fixture");
+        const int pedalsIndex = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_UNKNOWN, 2, 2, 0);
+        const int throttleIndex = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_THROTTLE, 2, 2, 0);
+        const int stickIndex = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_FLIGHT_STICK, 8, 32, 2);
+        SDL_Joystick *pedals = SDL_JoystickOpen(pedalsIndex);
+        SDL_Joystick *stick = SDL_JoystickOpen(stickIndex);
+        require(pedals && stick && throttleIndex >= 0, "attach pedals before a throttle and a full flight stick");
+        SDL_JoystickSetVirtualAxis(pedals, 0, 32767);
+        {
+            JoystickReader reader;
+            require(reader.start() && reader.read(0).x == 32768 && reader.read(1).x == 65535,
+                    "the launcher agrees with the game: stick first, unknown pedals next");
+            reader.prefer(SDL_JoystickInstanceID(pedals));
+            reader.update();
+            require(reader.read(0).x == 65535 && !reader.read(1).connected,
+                    "an explicit choice is joystick 1 in the launcher");
+            reader.prefer(-1);
+            reader.update();
+            const auto snapshot = reader.snapshot(0);
+            require(snapshot.connected && !snapshot.mapped && snapshot.joystick &&
+                    snapshot.axes == 8 && snapshot.buttons == 32 && snapshot.hats == 2,
+                    "a raw stick reports all supported inputs");
+        }
+        {
+            auto liveWindow = LauncherWindow::create();
+            bool kept = false;
+            prepare_pad(liveWindow, {}, kept);
+            liveWindow->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_CUSTOM);
+            liveWindow->set_settings_tab(2);
+            PadSession session(liveWindow);
+            int pressedControl = -1;
+            liveWindow->on_pad_pressed([&pressedControl](int control) { pressedControl = control; });
+            session.show();
+            require(liveWindow->get_pad_device().axes == 8 && !liveWindow->get_pad_device().mapped,
+                    "the live tab shows the actual flight stick");
+            SDL_JoystickSetVirtualButton(stick, 31, 1);
+            SDL_JoystickSetVirtualHat(stick, 1, SDL_HAT_RIGHT);
+            SDL_JoystickSetVirtualAxis(stick, 7, -32768);
+            liveWindow->invoke_pad_slot_chosen(0);
+            require(pressedControl == SDL_PAD_STICK_BUTTON + 31 &&
+                    liveWindow->get_pad_held()->row_data(SDL_PAD_STICK_HAT + 7).value_or(false) &&
+                    liveWindow->get_pad_axis_values()->row_data(7).value_or(0) == -1,
+                    "the live tab highlights button 32 and hat 2, shows axis 8, and requests binding on a press");
+            session.prefer(SDL_JoystickInstanceID(pedals));
+            require(liveWindow->get_pad_device().axes == 2,
+                    "changing the launcher's device choice updates the live input panel");
+            session.hide();
+            require(!liveWindow->get_pad_device().connected, "leaving the Joystick tab stops its reader");
+        }
+        SDL_JoystickClose(stick);
+        SDL_JoystickClose(pedals);
+        SDL_JoystickDetachVirtual(stickIndex);
+        SDL_JoystickDetachVirtual(throttleIndex);
+        SDL_JoystickDetachVirtual(pedalsIndex);
+        SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
+    }
+
+    bool previewBindingsKept = false;
+    prepare_pad(window, {}, previewBindingsKept);
     if (argc > 1) {
         window->show();
         const auto save = [&window, view, argv](int width, int height, float scale, const std::string &suffix) {
@@ -496,10 +600,35 @@ int main(int argc, char **argv)
                 save(800, 660, 1.0f, "-" + language + "-tab" + std::to_string(tab) + ".bmp");
             }
             window->set_settings_tab(2);
-            for (int mode = 1; mode < 3; ++mode) {
+            for (int mode = 1; mode < 4; ++mode) {
                 window->set_joystick_mode_index(mode);
                 save(800, 660, 1.0f, "-" + language + "-pad" + std::to_string(mode) + ".bmp");
             }
+            PadDevice raw {};
+            raw.connected = true;
+            raw.joystick = true;
+            raw.name = "Flight stick";
+            raw.axes = 8;
+            raw.buttons = 32;
+            raw.hats = 2;
+            window->set_pad_device(raw);
+            window->set_pad_axis_kinds(std::make_shared<slint::VectorModel<int>>(
+                std::vector<int> {1, 2, 7, 6, 10, 11, 3, 8}));
+            window->set_pad_axis_values(std::make_shared<slint::VectorModel<float>>(
+                std::vector<float> {0.2f, -0.5f, 1.0f, 0.0f, -0.2f, -0.8f, 0.0f, 0.0f}));
+            std::vector<bool> held(SDL_PAD_CONTROLS, false);
+            held[SDL_PAD_STICK_BUTTON + 31] = true;
+            held[SDL_PAD_STICK_HAT + 7] = true;
+            window->set_pad_held(std::make_shared<slint::VectorModel<bool>>(held));
+            window->invoke_pad_reset();
+            save(800, 660, 1.0f, "-" + language + "-stick.bmp");
+            window->invoke_pad_pressed(SDL_PAD_STICK_BUTTON + 31);
+            save(800, 660, 1.0f, "-" + language + "-stick-chooser.bmp");
+            window->window().dispatch_key_press_event("\x1b");
+            window->window().dispatch_key_release_event("\x1b");
+            window->set_pad_device({});
+            window->set_pad_axis_kinds(std::make_shared<slint::VectorModel<int>>());
+            window->invoke_pad_reset();
             window->set_joystick_mode_index(0);
             window->set_settings_tab(3);
             for (int page = 1; page <= 3; ++page) {

@@ -121,6 +121,7 @@ sound effects. Optional features can be combined:
 | Experimental: cockpit text, nav labels, HUD messages and radio subtitles in the game's larger 11-pixel font, with the enhanced renderer | Launcher checkbox or `--hires-hud` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
+| Rebind gamepad buttons, triggers and axes, or a flight stick’s own inputs | Launcher **Custom** control mode or `--joystick-mode=custom` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
 | Joystick dead zone, 0% to 33% of the stick's travel (22%, the original's, by default) | Launcher slider or `--joystick-dead-zone=N` |
 | Joystick calibration that writes `GAMEDAT/j.cal` as the game's own does; the game now reads all of that file, not only the centre | Launcher **Calibrate…** |
@@ -174,7 +175,9 @@ autopilot.
 
 The default joystick mode retains the original two-axis, two-button controls.
 When several devices are connected, the launcher's **Device** selector chooses
-the primary joystick for that session; **Automatic** keeps the existing order.
+the primary joystick for that session. **Automatic** gives free slots to gamepads
+and flight sticks first, then unknown devices, then throttles, wheels and other
+controllers. Calibration uses the same order.
 A joystick chosen there is joystick 1: the game applies a `j.cal` calibration
 only to it, and the launcher's calibration offers only it. If it disconnects,
 another device can take over until the selected joystick reconnects.
@@ -182,6 +185,24 @@ The optional four-button modes add afterburner, targeting, weapons, navigation,
 autopilot, communications, and speed controls. Axis layouts are
 `twin-stick-roll`, `twin-stick-yaw`, `hotas-yaw`, `hotas-roll`,
 `linear-throttle`, `rudder-yaw`, and `rudder-roll`.
+
+Choose **Custom — your own bindings** on the **Joystick** tab to change each
+input. Gamepads show a drawing with a row for each button, trigger and stick
+axis. Other joysticks list their own inputs: up to 32 buttons, two hats and
+eight axes, with axis names when the operating system supplies them. Held
+inputs light up; pressing a button or hat direction opens its action chooser,
+and clicking an input does the same. Buttons can use WC2 flight actions,
+including hyperjump and radio commands, cycle the views, or act as a held
+roll-and-speed modifier. Axes can pitch, yaw, roll, change speed or set the
+throttle position, with optional reversal; gamepad triggers can use either
+button actions or analog functions.
+
+Custom starts from the four-button, four-axis layout, using named stick,
+twist and throttle axes where available. **Restore defaults** restores that
+layout. The launcher saves the mode and bindings in the `[pad]` section of
+`wc2-launcher.ini` when starting the game, including bindings kept while
+another mode is selected. Menus retain their usual controls, and the first
+hat or D-pad still navigates the communications display.
 
 ## Build from source
 

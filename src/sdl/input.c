@@ -174,7 +174,7 @@ int SdlGetAsyncKeyState(int virtualKey)
         keys = SDL_GetKeyboardState(0);
     }
     /* In flight, rebound keys hold the keys the game polls. */
-    keys = SdlKeymapKeyboardState(keys);
+    keys = SdlPadKeyboardState(SdlKeymapKeyboardState(keys));
     switch (virtualKey) {
     case VK_SHIFT:
         return (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT])
