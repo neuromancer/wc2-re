@@ -253,10 +253,39 @@ jobs:
         with:
           fetch-depth: 1
           persist-credentials: false
+      # A mirror that stalls during pacman's database sync fails the whole
+      # release, as it did for v0.9.12's first build. Install once more into
+      # a fresh location before giving up; the second install replaces the
+      # msys2 shell the later steps use.
       - name: Install MSYS2 Clang and dependencies
+        id: msys2
+        continue-on-error: true
         uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
         with:
           msystem: CLANG64
+          update: true
+          install: >-
+            make
+            zip
+            mingw-w64-clang-x86_64-clang
+            mingw-w64-clang-x86_64-cmake
+            mingw-w64-clang-x86_64-lld
+            mingw-w64-clang-x86_64-lzo2
+            mingw-w64-clang-x86_64-ntldd
+            mingw-w64-clang-x86_64-pkgconf
+            mingw-w64-clang-x86_64-python
+            mingw-w64-clang-x86_64-rust
+            mingw-w64-clang-x86_64-SDL2
+      - name: Wait before retrying the MSYS2 installation
+        if: steps.msys2.outcome == 'failure'
+        shell: pwsh
+        run: Start-Sleep -Seconds 60
+      - name: Retry MSYS2 Clang and dependencies
+        if: steps.msys2.outcome == 'failure'
+        uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+        with:
+          msystem: CLANG64
+          location: ${{ runner.temp }}\msys2-retry
           update: true
           install: >-
             make
