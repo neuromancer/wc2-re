@@ -49,12 +49,26 @@ hold bytes:
 - Hold bits 0–5 give 1–64 flight updates and bits 6–7 multiply them by 1, 2,
   4 or 8. The most recent held key repeats every four updates.
 
-`--ticks` (default 600, at most 3600) caps the controlled updates of an input
-and sets libFuzzer's `-max_len`. Pause, quit, joystick calibration and the
-in-flight computer (`N` with the navigation VDU up) wait for other input and
-stay out of the action set. The fuzzer writes small seeds for
-every selected mission: a start after zero to three legs, the cockpit start,
-and one for each active nav point.
+`--ticks` (default 600, at most 18000) caps the controlled updates of an input
+and sets libFuzzer's `-max_len`. Each update advances four 1/60-second game
+ticks, so 18000 updates cover 20 simulated minutes, time enough to fly between
+nav points without autopilot. Pause, quit and joystick calibration wait for
+other input and stay out of the action set. `N` with the navigation VDU up
+opens the in-flight computer, which takes the actions that follow: `N` picks
+the next nav point, a pointer position picks the nav point under it, and a
+mouse button, Space or Return closes it. Other keys do nothing there, and the
+computer closes with Space after eight actions or at the end of the input.
+The fuzzer writes small seeds for every selected mission: a start after zero
+to three legs, the cockpit start, and one for each active nav point.
+
+Besides sanitizer reports and fatal exits, two checks fail an input at the
+update that breaks them, before anything draws through the damage. Before
+every update the harness checks the viewport registry behind "bad vport": the
+screen keeps the display pixels, each registered buffer is a live allocation
+listed once, and every allocated flight viewport is registered. Before every
+update and again before drawing, it checks that each ship's resource slot
+still holds the type the ship had. `WC2_FLIGHT_INVULNERABLE=1` turns off player damage, as the
+developer option `-k` does, so that long inputs reach late waves and scenes.
 
 ## Running and replaying
 

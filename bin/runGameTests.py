@@ -33,7 +33,7 @@ def main():
     parser.add_argument("data", type=Path, help="installation containing GAMEDAT (STREAMS optional)")
     parser.add_argument("--campaign", choices=CAMPAIGNS, help="defaults to --case's campaign, else wc2")
     parser.add_argument("--ticks", type=positive, default=600,
-                        help="maximum controlled flight ticks per input (1..3600)")
+                        help="maximum controlled flight updates per input (1..18000; 15 per simulated second)")
     parser.add_argument("--case", help="restrict to one mission, e.g. so2:3:1 (mission is zero-based)")
     parser.add_argument("--timeout", type=positive, default=120, help="seconds per input")
     parser.add_argument("--corpus", type=Path, help="persistent input corpus; defaults beside the fuzzer")
@@ -44,8 +44,8 @@ def main():
     fuzz_flags = arguments[split + 1:]
     if any(not flag.startswith("-") for flag in fuzz_flags):
         parser.error("use --corpus or --replay for input paths; only libFuzzer flags follow --")
-    if args.ticks > 3600:
-        parser.error("ticks must be in 1..3600")
+    if args.ticks > 18000:
+        parser.error("ticks must be in 1..18000")
     case = None
     if args.case:
         try:

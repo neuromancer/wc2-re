@@ -26,9 +26,11 @@ typedef struct FlightAction {
 /* Keys and mouse events reach player_input and HandleSpaceFlightControls
  * through the port's SDL translation; Shift, Ctrl and Alt combine with held
  * keys (Alt gives the radio commands A, B, D, F, H and T). Pause (P, Esc),
- * quit (Cmd+Q), joystick calibration (Ctrl+J) and the in-flight computer
- * (N on the navigation VDU) wait for other input and stay out. Ctrl+S and M only change sound or text settings, and pressing
- * both buttons comes from keeping one held. */
+ * quit (Cmd+Q) and joystick calibration (Ctrl+J) wait for other input and
+ * stay out. N on the navigation VDU opens the in-flight computer, which takes
+ * the actions that follow (DriveInflightComputer). Ctrl+S and M only change
+ * sound or text settings, and pressing both buttons comes from keeping one
+ * held. */
 static const FlightAction actions[] = {
     {ACTION_NONE, SDL_SCANCODE_UNKNOWN, 0, 0},
     {ACTION_KEY, SDL_SCANCODE_UP, 0, 0}, {ACTION_KEY, SDL_SCANCODE_DOWN, 0, 0},
@@ -90,6 +92,12 @@ static int seriesFilter = -1, missionFilter = -1;
 static int tickLimit = 600;
 static int inputActive;
 static int traceInputs;
+static int viewportsBeforeFlight;
+static int viewportsMostInFlight;
+/* The input being flown; the in-flight computer reads its actions too. */
+static const uint8_t *inputData;
+static size_t inputSize;
+static size_t inputPosition;
 static char prefPath[PATH_MAX];
 
 /* Settings that flight keys toggle and no mission resets. */
@@ -193,14 +201,19 @@ static void StepProbeClock(void)
     g_196_nInputTimerTicks = (int)(milliseconds - g_13_lGameClockStartData) * 60 / 1000;
 }
 
+static void DriveInflightComputer(int entering);
+
 /* Mid-flight rescues and dialogue still run through the real scene engine.
  * Advance their text, like the cutscene checks, without injecting flight keys.
+ * The in-flight computer takes the input's next actions instead.
  * Each scene pump, and every 64th pump of another wait, is a clock step. */
 void SdlPumpEvents(void)
 {
     static unsigned int scenePolls;
     static int wasInScene;
+    static int wasInComputer;
     int inScene = g_bSceneDisplayUpdateActive != 0;
+    int inComputer = g_bInflightComputerActive != 0 && gameThread == SDL_ThreadID();
 
     if (inScene != wasInScene) {
         if (traceInputs)
@@ -208,6 +221,16 @@ void SdlPumpEvents(void)
                     probeTicks);
         wasInScene = inScene;
     }
+    if (inComputer != wasInComputer) {
+        if (traceInputs)
+            fprintf(stderr, "TRACE in-flight computer %s at %u ticks, nav %d\n",
+                    inComputer ? "opens" : "closes", probeTicks, g_cCurrentNavPointIndex);
+        wasInComputer = inComputer;
+        if (inComputer)
+            DriveInflightComputer(1);
+    }
+    if (inComputer && !inScene)
+        DriveInflightComputer(0);
     if (inScene && ++scenePolls % 47 == 0) {
         SDL_Event event = {0};
         event.type = SDL_KEYDOWN;
@@ -304,14 +327,12 @@ static void QueueMouseEvent(Uint32 type, Uint8 button, int wheel)
     Require(SDL_PushEvent(&event) == 1, "queue mouse event through SDL");
 }
 
-/* Ctrl+J opens the interactive joystick calibration, and N with the
- * navigation VDU already up opens the in-flight computer, as in WC1. Both
- * wait for input that the fuzzer cannot give while they run. */
+/* Ctrl+J opens the interactive joystick calibration, which waits for input
+ * that the fuzzer cannot give while it runs. */
 static int OpensModalScreen(SDL_Scancode code)
 {
     return (code == SDL_SCANCODE_J && keys[SDL_SCANCODE_LCTRL]) ||
-        (code == SDL_SCANCODE_LCTRL && keys[SDL_SCANCODE_J]) ||
-        (code == SDL_SCANCODE_N && get_mode(1) == 5);
+        (code == SDL_SCANCODE_LCTRL && keys[SDL_SCANCODE_J]);
 }
 
 static void ApplyFlightAction(const FlightAction *action)
@@ -365,9 +386,159 @@ static void ReleaseFlightControls(void)
     repeatedKey = SDL_SCANCODE_UNKNOWN;
 }
 
+static void TapKey(SDL_Scancode code)
+{
+    SDL_Event event = {0};
+
+    event.type = SDL_KEYDOWN;
+    event.key.state = SDL_PRESSED;
+    event.key.keysym.scancode = code;
+    event.key.keysym.sym = SDL_GetKeyFromScancode(code);
+    Require(SDL_PushEvent(&event) == 1, "queue in-flight computer key");
+    event.type = SDL_KEYUP;
+    event.key.state = SDL_RELEASED;
+    Require(SDL_PushEvent(&event) == 1, "queue in-flight computer key");
+}
+
+/* The in-flight computer (N with the navigation VDU up) runs its own loop
+ * until a click, Space, Return or Escape. The controls held when it opened
+ * are let go, then every eighth poll takes the input's next action there: N
+ * picks the next nav point, pointer positions pick the nav point under the
+ * pointer, and a button, Space or Return leaves. Other keys do nothing there,
+ * and the computer leaves with Space after eight actions or at the end of the
+ * input. */
+static void DriveInflightComputer(int entering)
+{
+    static unsigned int polls;
+    static unsigned int taken;
+    const FlightAction *action;
+
+    if (entering) {
+        ReleaseFlightControls();
+        polls = taken = 0;
+        return;
+    }
+    if (++polls % 8 != 0)
+        return;
+    if (taken++ >= 8 || inputData == NULL || inputPosition + 1 >= inputSize) {
+        TapKey(SDL_SCANCODE_SPACE);
+        return;
+    }
+    action = &actions[(inputData[inputPosition] & 63) % SDL_arraysize(actions)];
+    inputPosition += 2;
+    switch (action->kind) {
+    case ACTION_KEY:
+        TapKey(action->key);
+        break;
+    case ACTION_POINTER:
+        pointerX = action->x;
+        pointerY = action->y;
+        QueueMouseEvent(SDL_MOUSEMOTION, 0, 0);
+        break;
+    case ACTION_BUTTONS:
+        buttons |= SDL_BUTTON_LMASK;
+        QueueMouseEvent(SDL_MOUSEBUTTONDOWN, SDL_BUTTON_LEFT, 0);
+        buttons &= ~SDL_BUTTON_LMASK;
+        QueueMouseEvent(SDL_MOUSEBUTTONUP, SDL_BUTTON_LEFT, 0);
+        break;
+    default:
+        break;
+    }
+}
+
+/* ValidateViewportBounds exits with "bad vport" when it draws into a viewport
+ * whose pixels are neither the screen's nor in the 128-entry allocation
+ * registry. Check the registry and the viewports flight draws into before
+ * every update, so a stale free shows at the update that made it rather than
+ * at the next drawing call: the screen keeps the display pixels, every
+ * registered buffer is a live allocation listed once, and every allocated
+ * flight viewport is registered. */
+static void CheckFlightViewports(void)
+{
+    static Viewport *const viewports[] = {
+        &g_27_stViewScratchInfo, &g_stPilotHandViewportRecord,
+        &g_stPilotHandBackgroundViewportBlock, &g_stSecondaryViewBufferBlock,
+        &g_9_stCutsceneTextBackingPort, &g_stCockpitBackgroundViewportRecord,
+        &g_3_stDashViewport, &g_2_stLeftwardVduPortBlock, &g_4_stRightVduView,
+        &g_9_stCockpitMeterPort, &g_2_stModalSourceWindow,
+        &g_6_stConversationTextViewport, &g_10_stCutsceneStringViewportBlock,
+        &g_15_stSceneFlicScratchViewport, &g_stTrainSimLeftVduSource,
+        &g_stTrainSimRightVduSource,
+    };
+    const GuardedAllocation *allocation;
+    const Viewport *viewport;
+    size_t index;
+    int entry, other;
+
+    Require(g_101_stScrViewInfo.pixels != NULL &&
+            g_101_stScrViewInfo.pixels == g_18_pDisplayPixelBuffer,
+            "screen viewport keeps the display pixels");
+    Require(g_nViewportAllocationCount >= 0 && g_nViewportAllocationCount <= 128,
+            "viewport registry stays within its 128 entries");
+    for (entry = 0; entry < g_nViewportAllocationCount; entry++) {
+        for (other = entry + 1; other < g_nViewportAllocationCount; other++)
+            Require(g_apViewportAllocations[other] != g_apViewportAllocations[entry],
+                    "viewport registry lists each buffer once");
+        for (allocation = g_pGuardedAllocationHead;
+             allocation != NULL && allocation->block != g_apViewportAllocations[entry];
+             allocation = allocation->next) {
+        }
+        Require(allocation != NULL, "registered viewport buffers are live allocations");
+    }
+    for (index = 0; index < SDL_arraysize(viewports); index++) {
+        viewport = viewports[index];
+        if (viewport->pixels == NULL || viewport->left < 0 ||
+            viewport->pixels == g_101_stScrViewInfo.pixels)
+            continue;
+        for (entry = 0; entry < g_nViewportAllocationCount &&
+             g_apViewportAllocations[entry] != viewport->pixels; entry++) {
+        }
+        if (entry >= g_nViewportAllocationCount)
+            fprintf(stderr, "Viewport %zu (%p) has pixels %p outside the registry\n", index,
+                    (const void *)viewport, (void *)viewport->pixels);
+        Require(entry < g_nViewportAllocationCount,
+                "allocated flight viewports stay in the registry");
+    }
+}
+
+/* A ship reaches its type's records and shapes through its resource slot
+ * (g_acObjectType), and new_sphere_shapes gives the slots of types the next
+ * nav point does not preload to the types it does. A ship still in the sphere
+ * on such a slot would turn into the new type, and get_right_shape would load
+ * a capital ship's views from that type's file. Check before every update that
+ * each ship's slot still holds the resource it had. */
+static short trackedMissionShip[10];
+static short trackedResource[10];
+
+static void CheckShipResources(int reset)
+{
+    short obj, resource;
+
+    for (obj = 1; obj < 10; obj++) {
+        if (reset || g_aeObjectClass[obj] < OBJECT_CLASS_SHIP) {
+            trackedMissionShip[obj] = -1;
+            continue;
+        }
+        resource = g_aObjectTypeData[g_acObjectType[obj]].resourceType;
+        if (trackedMissionShip[obj] == g_asShipMissionIndex[obj] &&
+            trackedResource[obj] != resource)
+            fprintf(stderr, "Ship %d (mission ship %d) changed from resource %d to %d\n", obj,
+                    g_asShipMissionIndex[obj], trackedResource[obj], resource);
+        Require(trackedMissionShip[obj] != g_asShipMissionIndex[obj] ||
+                trackedResource[obj] == resource,
+                "ships keep their resource slot's type");
+        trackedMissionShip[obj] = g_asShipMissionIndex[obj];
+        trackedResource[obj] = resource;
+    }
+}
+
 /* One RunSpaceFlight frame, without its frame-timer wait. */
 static void FlightStep(void)
 {
+    if (g_nViewportAllocationCount > viewportsMostInFlight)
+        viewportsMostInFlight = g_nViewportAllocationCount;
+    CheckFlightViewports();
+    CheckShipResources(0);
     StepProbeClock();
     SdlPumpEvents();
     if (!g_bJumpSequenceActive)
@@ -375,6 +546,8 @@ static void FlightStep(void)
     Update_3Space();
     if (g_nArcadeState != 0)
         return;
+    /* A nav sphere set up during the update is drawn in the same frame. */
+    CheckShipResources(0);
     g_bRenderingSpaceFrame = 1;
     RenderSpaceViewFrame();
     g_bRenderingSpaceFrame = 0;
@@ -591,6 +764,9 @@ static void EndFlight(void)
     ReleaseSpaceflightResources();
     if (traceInputs)
         fprintf(stderr, "TRACE %d packet handles after the flight\n", g_nPacketHandleCount);
+    if (traceInputs)
+        fprintf(stderr, "TRACE %d viewports after the flight, %d before, at most %d\n",
+                g_nViewportAllocationCount, viewportsBeforeFlight, viewportsMostInFlight);
 }
 
 static int ActionIndex(unsigned char kind, SDL_Scancode key, short x)
@@ -679,7 +855,7 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
                 filterCampaign == fuzzCampaign, "campaign:series:mission filter");
     if (ticks)
         tickLimit = atoi(ticks);
-    Require(fuzzCampaign >= 0 && fuzzCampaign < 3 && tickLimit > 0 && tickLimit <= 3600,
+    Require(fuzzCampaign >= 0 && fuzzCampaign < 3 && tickLimit > 0 && tickLimit <= 18000,
             "valid campaign and tick budget");
     snprintf(prefPath, sizeof(prefPath), "%s/PREFS/", scratch);
     Require(mkdir(prefPath, 0700) == 0 || errno == EEXIST, "create disposable preferences");
@@ -708,6 +884,10 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     g_nMenuSelectedCol = 10;
     g_3_nOptionMessageColour = 0x5e;
     g_bPlayerDamageEnabled = g_bPlayerCollisionEnabled = 1;
+    /* WC2_FLIGHT_INVULNERABLE keeps the player alive, as the developer
+     * option -k does, so that long inputs reach late waves and scenes. */
+    if (getenv("WC2_FLIGHT_INVULNERABLE") != NULL)
+        g_bPlayerDamageEnabled = 0;
     LoadStartingCampaignGlobals(0);
     InitializeCampaignConstellationState(g_pCampaignGlobals, 1);
     SaveAndFreeTemporaryCampaignGlobals();
@@ -765,7 +945,6 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     const FlightAction *action;
     int series, mission, start, entryNav = -1, tick = 0, hold, frame;
     int startLeg, reachedLeg;
-    size_t position;
     unsigned int seed;
 
     if (size < 10)
@@ -816,16 +995,22 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     SdlPumpEvents();
     FlushInputEvents();
     ClearInputKeyState();
+    viewportsBeforeFlight = viewportsMostInFlight = g_nViewportAllocationCount;
+    CheckShipResources(1);
     BeginFlight(series, mission, entryNav, (start & 0x40) != 0);
     startLeg = g_cCurrentNavPointIndex;
     if (entryNav == -1)
         TravelFlightPath(start & 15);
     reachedLeg = g_cCurrentNavPointIndex;
-    for (position = 8; position + 1 < size && tick < tickLimit && !g_nArcadeState; position += 2) {
-        if (!(data[position] & 0x40))
+    inputData = data;
+    inputSize = size;
+    for (inputPosition = 8; inputPosition + 1 < size && tick < tickLimit && !g_nArcadeState;) {
+        if (!(data[inputPosition] & 0x40))
             ReleaseFlightControls();
-        action = &actions[(data[position] & 63) % SDL_arraysize(actions)];
-        hold = (1 + (data[position + 1] & 63)) << (data[position + 1] >> 6);
+        action = &actions[(data[inputPosition] & 63) % SDL_arraysize(actions)];
+        hold = (1 + (data[inputPosition + 1] & 63)) << (data[inputPosition + 1] >> 6);
+        /* The in-flight computer takes the actions after the one opening it. */
+        inputPosition += 2;
         ApplyFlightAction(action);
         for (frame = 0; frame < hold && tick < tickLimit && !g_nArcadeState; frame++, tick++) {
             /* Keyboard repeat applies to the most recent key. */
@@ -845,6 +1030,7 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
                 g_anShipSpeed[0], g_aShipPosition[0].x, g_aShipPosition[0].y, g_aShipPosition[0].z,
                 (probeTicks * 1000 + 59) / 60 + probeExtraMilliseconds, probeLongestStep);
     EndFlight();
+    inputData = NULL;
     inputActive = 0;
     return 0;
 }
