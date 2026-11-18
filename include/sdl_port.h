@@ -296,6 +296,7 @@ extern int g_nSdlCampaign;
 extern short g_bSdlScriptedDeath;
 int SdlIsDepartingCommContact(short ship);
 int SdlShipViewCount(short resourceType);
+short SdlUnclaimedShapeSlot(short slot);
 const char *SdlCampaignPath(const char *path);
 int SdlSelectCampaign(int campaign);
 int SdlTryImportExpansionPilot(void);

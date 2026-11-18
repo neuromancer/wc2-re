@@ -913,11 +913,18 @@ void new_sphere_shapes(MissionNavPoint *navPoint)
             if (navPoint->preloadLogicalFiles[preload] == 0x3d ||
                 navPoint->preloadLogicalFiles[preload] == 0x2c) {
                 slot = get_shape_slot();
+#ifdef SDL_PORT
+                /* Not a slot freed above under a ship still in the sphere. */
+                slot = SdlUnclaimedShapeSlot(slot);
+#endif
                 load_ship(0,
                           navPoint->preloadLogicalFiles[preload], 0,
                           slot);
             } else if (!shape_loaded(type)) {
                 slot = get_shape_slot();
+#ifdef SDL_PORT
+                slot = SdlUnclaimedShapeSlot(slot);
+#endif
                 if (slot != -1) {
                     objectClass = navPoint->preloadObjectClasses[preload];
                     load_ship(type,
@@ -1086,6 +1093,21 @@ void set_up_action_sphere(short navPoint)
                 explode(-1, leftover);
             else
                 remove_object(leftover);
+#ifdef SDL_PORT
+            /* new_sphere_shapes below frees the resource slots of types the
+             * new nav point does not preload and loads its own types into
+             * them.  explode spares an ace's first kill and a Confed capital
+             * ship with an ejection scene, such as SO1's Concordia, and leaves
+             * a ship it destroys on its slot while it dies.  A ship left
+             * there takes the records and shapes of whatever type reuses the
+             * slot, and get_right_shape then loads a capital ship's views
+             * from that type's file.  A fighter's has five sections, so the
+             * game exits with a disk error ("ship.v05 #17") or draws one of
+             * its records as a view.  Remove the ship, as off-screen
+             * leftovers are; its explosion, if any, has begun. */
+            if (g_aeObjectClass[leftover] >= OBJECT_CLASS_SHIP)
+                remove_object(leftover);
+#endif
         }
     }
     remove_all_hazards();

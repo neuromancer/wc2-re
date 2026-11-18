@@ -26,6 +26,33 @@ int SdlIsDepartingCommContact(short ship)
            g_asShipMissionType[ship] == MISSION_TYPE_GOTO_WARP;
 }
 
+/* new_sphere_shapes frees the resource slots of types the next nav point or
+ * wave does not preload, while a ship can still be in the sphere on one: a
+ * ship travelling with the player, such as WC2's Kamekh, a survivor of the
+ * last wave, or one still dying.  The ship reaches its type only through the
+ * slot's index, so it takes the records of whatever type is loaded there
+ * next, and get_right_shape loads a capital ship's views from that type's
+ * file.  Given get_shape_slot's choice, prefer a free slot that no object
+ * uses; keep the choice when every free slot is used. */
+short SdlUnclaimedShapeSlot(short slot)
+{
+    short candidate;
+    short obj;
+
+    for (candidate = 0; candidate < 5; candidate++) {
+        if (g_aObjectResourceSlots[candidate].resourceType != -1)
+            continue;
+        for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
+            if (g_aeObjectClass[obj] >= OBJECT_CLASS_MISSILE &&
+                g_acObjectType[obj] == candidate)
+                break;
+        }
+        if (obj == SPACE_OBJECT_COUNT)
+            return candidate;
+    }
+    return slot;
+}
+
 /* Both expansions' STARTGLB files use campaign slot zero, like the base game.
  * Select their files at the host boundary rather than changing the serialized
  * campaign globals or the retail engine's campaign numbering. Only bare game
