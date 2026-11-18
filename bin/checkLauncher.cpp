@@ -501,6 +501,52 @@ int main(int argc, char **argv)
         require(pad_bindings(*window) == bindings, "saved functions restore the GUI choices without loss");
         window->set_joystick_mode_index(0);
         require(pad_bindings(*window) == bindings, "switching to Original preserves Custom bindings");
+        window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_STEAM_DECK);
+        const auto deck = window->get_steam_deck_codes();
+        require(pad_function(*window, 0, deck->row_data(0).value()) == "jump" &&
+                pad_function(*window, 4, deck->row_data(4).value()) == "next-missile" &&
+                pad_function(*window, 5, deck->row_data(5).value()) == "next-gun" &&
+                pad_function(*window, 10, deck->row_data(10).value()) == "afterburner" &&
+                pad_function(*window, 16, deck->row_data(16).value()) == "roll" &&
+                pad_function(*window, 17, deck->row_data(17).value()) == "speed" &&
+                pad_function(*window, 18, deck->row_data(18).value()) == "yaw" &&
+                pad_function(*window, 19, deck->row_data(19).value()) == "pitch",
+                "the Deck diagram shows the requested actions and stick functions");
+        saved.joystickMode = window->get_joystick_mode_index();
+        saved.joystickDeadZone = 22;
+        saved.joystickRumble = 1;
+        require(save_launcher_config(fixture / "deck.ini", saved), "save the Deck preset");
+        load_launcher_config(fixture / "deck.ini", restored);
+        require(restored.joystickMode == SDL_LAUNCHER_JOYSTICK_STEAM_DECK &&
+                restored.joystickDeadZone == 22 && restored.joystickRumble == 1 &&
+                std::string(restored.padBindings) == bindings && pad_bindings(*window) == bindings,
+                "Deck mode survives restart without changing Custom bindings, dead zone or rumble");
+        window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_CUSTOM);
+        require(pad_bindings(*window) == bindings, "returning from Deck to Custom restores the user's choices");
+        for (int source = SDL_PAD_SOURCE_AUTO; source <= SDL_PAD_SOURCE_JOYSTICK; ++source) {
+            window->set_joystick_source_index(source);
+            require(pad_bindings(*window) == bindings, "changing the source preserves every Custom binding");
+            saved.joystickMode = SDL_LAUNCHER_JOYSTICK_CUSTOM;
+            saved.joystickSource = source;
+            require(save_launcher_config(fixture / "custom.ini", saved), "save the Custom source");
+            load_launcher_config(fixture / "custom.ini", restored);
+            require(restored.joystickSource == source && std::string(restored.padBindings) == bindings,
+                    "each source and all bindings survive a restart");
+        }
+        window->set_joystick_source_index(SDL_PAD_SOURCE_STEAM_DECK);
+        window->invoke_pad_reset();
+        require(pad_function(*window, 16, window->get_pad_codes()->row_data(16).value()) == "roll" &&
+                pad_function(*window, SDL_PAD_STICK_AXIS + 7,
+                    window->get_pad_codes()->row_data(SDL_PAD_STICK_AXIS + 7).value()) == "-throttle",
+                "Deck defaults restore its preset while preserving numbered joystick edits");
+        window->invoke_pad_code_changed(12, *pad_code(*window, 12, "damage-display"));
+        window->set_joystick_source_index(SDL_PAD_SOURCE_JOYSTICK);
+        window->invoke_pad_reset();
+        require(pad_function(*window, 12, window->get_pad_codes()->row_data(12).value()) == "damage-display" &&
+                pad_function(*window, SDL_PAD_STICK_AXIS + 7,
+                    window->get_pad_codes()->row_data(SDL_PAD_STICK_AXIS + 7).value()).empty(),
+                "Joystick defaults preserve mapped edits and reset the numbered inputs");
+        window->set_joystick_source_index(SDL_PAD_SOURCE_AUTO);
         window->invoke_pad_reset();
         require(pad_function(*window, SDL_PAD_LEFT_STICK_X,
                             window->get_pad_codes()->row_data(SDL_PAD_LEFT_STICK_X).value()) == "yaw",
@@ -569,12 +615,55 @@ int main(int argc, char **argv)
         SDL_JoystickDetachVirtual(stickIndex);
         SDL_JoystickDetachVirtual(throttleIndex);
         SDL_JoystickDetachVirtual(pedalsIndex);
+        const int deckIndex = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER, 6, 19, 0);
+        char guid[33];
+        SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(deckIndex), guid, sizeof(guid));
+        const std::string mapping = std::string(guid) +
+            ",Deck fixture,a:b0,dpup:b11,dpdown:b12,dpleft:b13,dpright:b14,"
+            "paddle1:b15,paddle2:b16,paddle3:b17,paddle4:b18,leftx:a2,lefty:a3,rightx:a0,righty:a1,";
+        require(deckIndex >= 0 && SDL_GameControllerAddMapping(mapping.c_str()) >= 0,
+                "map a Deck with native rear buttons for the live diagram");
+        SDL_Joystick *deck = SDL_JoystickOpen(deckIndex);
+        require(deck != nullptr, "open the Deck fixture");
+        {
+            JoystickReader reader;
+            require(reader.start(), "start the Deck reader");
+            const std::array<int, 4> directions {14, 12, 15, 13};
+            for (int paddle = 0; paddle < 4; ++paddle) {
+                SDL_JoystickSetVirtualButton(deck, 15 + paddle, 1);
+                reader.update();
+                require(reader.snapshot(0, true).held[directions[paddle]] &&
+                        !reader.snapshot(0).held[directions[paddle]],
+                        "the Deck diagram highlights the correct rear/D-pad action only in its preset");
+                SDL_JoystickSetVirtualButton(deck, 15 + paddle, 0);
+                reader.update();
+                require(!reader.snapshot(0, true).held[directions[paddle]], "rear highlight releases");
+            }
+            SDL_JoystickSetVirtualButton(deck, 0, 1);
+            SDL_JoystickSetVirtualAxis(deck, 0, 32767);
+            SDL_JoystickSetVirtualAxis(deck, 2, -32768);
+            reader.use_raw(true);
+            reader.update();
+            require(!reader.snapshot(0).mapped && reader.snapshot(0).held[SDL_PAD_STICK_BUTTON] &&
+                    !reader.snapshot(0).held[0] && reader.read(0).x == 65535,
+                    "Joystick source exposes numbered controls and calibration axes on a mapped gamepad");
+            reader.use_raw(false);
+            reader.update();
+            require(reader.snapshot(0).mapped && reader.snapshot(0).held[0] &&
+                    !reader.snapshot(0).held[SDL_PAD_STICK_BUTTON] && reader.read(0).x == 0,
+                    "changing back restores mapped control numbering and calibration axes");
+            SDL_JoystickSetVirtualButton(deck, 0, 0);
+        }
+        SDL_JoystickClose(deck);
+        SDL_JoystickDetachVirtual(deckIndex);
         SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER | SDL_INIT_JOYSTICK);
     }
 
     bool previewBindingsKept = false;
     prepare_pad(window, {}, previewBindingsKept);
     if (argc > 1) {
+        window->set_title_artwork(slint::private_api::load_image_from_embedded_data(
+            wc2_launcher_artwork::kWingCommanderLogoPng, "png"));
         window->show();
         const auto save = [&window, view, argv](int width, int height, float scale, const std::string &suffix) {
             view->dimensions = slint::PhysicalSize {{static_cast<uint32_t>(width), static_cast<uint32_t>(height)}};
@@ -600,10 +689,21 @@ int main(int argc, char **argv)
                 save(800, 660, 1.0f, "-" + language + "-tab" + std::to_string(tab) + ".bmp");
             }
             window->set_settings_tab(2);
-            for (int mode = 1; mode < 4; ++mode) {
+            for (int mode = 1; mode <= SDL_LAUNCHER_JOYSTICK_STEAM_DECK; ++mode) {
                 window->set_joystick_mode_index(mode);
                 save(800, 660, 1.0f, "-" + language + "-pad" + std::to_string(mode) + ".bmp");
             }
+            window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_CUSTOM);
+            for (int source = SDL_PAD_SOURCE_GAMEPAD; source <= SDL_PAD_SOURCE_JOYSTICK; ++source) {
+                window->set_joystick_source_index(source);
+                window->invoke_pad_reset();
+                save(800, 660, 1.0f, "-" + language + "-source" + std::to_string(source) + ".bmp");
+                if (source == SDL_PAD_SOURCE_STEAM_DECK) {
+                    window->invoke_pad_pressed(12);
+                    save(800, 660, 1.0f, "-" + language + "-deck-chooser.bmp");
+                }
+            }
+            window->set_joystick_source_index(SDL_PAD_SOURCE_AUTO);
             PadDevice raw {};
             raw.connected = true;
             raw.joystick = true;
@@ -649,6 +749,30 @@ int main(int argc, char **argv)
         window->set_page(2);
         save(1280, 800, 1.2f, "-deck-calibration.bmp");
         window->set_page(0);
+        window->set_settings_tab(2);
+        window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_STEAM_DECK);
+        window->set_joystick_dead_zone(22);
+        window->set_joystick_rumble(true);
+        window->set_joystick_devices(std::make_shared<slint::VectorModel<slint::SharedString>>(
+            std::vector<slint::SharedString> {"Automatic", "Steam Deck Controller"}));
+        window->set_joystick_device_index(1);
+        save(1280, 800, 1.2f, "-steam-deck.bmp");
+        window->set_joystick_mode_index(SDL_LAUNCHER_JOYSTICK_CUSTOM);
+        window->set_joystick_source_index(SDL_PAD_SOURCE_STEAM_DECK);
+        window->invoke_pad_reset();
+        save(1280, 800, 1.2f, "-custom-steam-deck.bmp");
+        // Click the right rear's first binding, at the rendered scale, to
+        // check the new Deck rows use the same chooser as a gamepad.
+        const slint::LogicalPosition rearBinding {{180 / 1.2f, 620 / 1.2f}};
+        window->window().dispatch_pointer_press_event(rearBinding, slint::PointerEventButton::Left);
+        window->window().dispatch_pointer_release_event(rearBinding, slint::PointerEventButton::Left);
+        save(1280, 800, 1.2f, "-custom-steam-deck-click.bmp");
+        const slint::LogicalPosition cycleViews {{500 / 1.2f, 362 / 1.2f}};
+        window->window().dispatch_pointer_press_event(cycleViews, slint::PointerEventButton::Left);
+        window->window().dispatch_pointer_release_event(cycleViews, slint::PointerEventButton::Left);
+        require(pad_function(*window, 14, window->get_pad_codes()->row_data(14).value()) == "cycle-views",
+                "clicking a rear binding edits its shared D-pad action through the chooser");
+        save(1280, 800, 1.2f, "-custom-steam-deck-edited.bmp");
         // A window smaller than the pages scrolls.
         window->set_settings_tab(2);
         save(640, 480, 1.0f, "-small.bmp");

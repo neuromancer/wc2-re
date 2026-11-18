@@ -2,6 +2,7 @@
  * and views, device priority, and Custom gamepad and raw joystick bindings.
  * No game assets are needed. */
 #include "game.h"
+#include "../src/sdl/pad_bindings.h"
 
 static SDL_Joystick *pad;
 
@@ -206,6 +207,177 @@ static void SetHat(int hat, Uint8 value)
     SdlPumpEvents();
 }
 
+static void CheckSteamDeck(void)
+{
+    static const struct {
+        int button;
+        unsigned int scan;
+    } actions[] = {
+        {0, 0x24}, {9, 0x11}, {10, 0x22}, {4, 0x1e}, {6, 0x19}, {8, 0x14},
+        {11, 0x31}, {12, 0x20}, {13, 0x2e}, {14, 0x26},
+        /* Native SDL paddle order: R4, L4, R5, L5. */
+        {15, 0x2e}, {16, 0x31}, {17, 0x26}, {18, 0x20}
+    };
+    size_t index;
+    int speed;
+
+    CalibrateCustomStick();
+    Require(SdlSetJoystickMode("steam-deck"), "select the Steam Deck preset");
+    SdlSetJoystickAxesMode("linear-throttle");
+    SdlSetPadBindings("a=eject\nleft-stick-x=yaw\nleft-stick-y=throttle\n");
+    g_anShipSpeed[0] = 100 << 8;
+    SetAxis(0, 32767);
+    SetAxis(1, -32768);
+    SetAxis(2, -32768);
+    SetAxis(3, -32768);
+    CustomFrame();
+    Require(g_anFlightInput[2] == 9 && g_anFlightInput[1] == -9 && g_anFlightInput[0] == 9,
+            "Deck left X rolls; right X yaws and right Y pitches, ignoring Custom and legacy axis overrides");
+    Require(g_anShipSpeed[0] > (100 << 8) && g_anShipSpeed[0] < (400 << 8),
+            "Deck left Y increases speed relatively, not as an absolute throttle");
+    for (index = 0; index < 4; index++)
+        SetAxis((int)index, 0);
+    speed = g_anShipSpeed[0];
+    CustomFrame();
+    Require(g_anFlightInput[0] == 0 && g_anFlightInput[1] == 0 && g_anFlightInput[2] == 0 &&
+            g_anShipSpeed[0] == speed, "centred Deck sticks stop turning and retain the chosen speed");
+    SetAxis(1, 32767);
+    CustomFrame();
+    Require(g_anShipSpeed[0] < speed, "pulling the left stick back reduces speed");
+    SetAxis(1, 0);
+    CustomFrame();
+    g_anShipFuel[0] = 100;
+    g_aObjectTypeData[g_acObjectType[0]].maximumVelocity = 400;
+    g_aeSpecialManeuver[0] = SPECIAL_MANEUVER_NONE;
+    SetButton(7, 1);
+    CustomFrame();
+    Require(g_aeSpecialManeuver[0] == SPECIAL_MANEUVER_AFTERBURNER && g_asShipAfterburnerTimer[0] == 8,
+            "Deck L3 engages the afterburner while held");
+    SetButton(7, 0);
+    g_aeSpecialManeuver[0] = SPECIAL_MANEUVER_NONE;
+    g_asShipAfterburnerTimer[0] = 0;
+    CustomFrame();
+    Require(g_asShipAfterburnerTimer[0] == 0, "released L3 stops requesting afterburner bursts");
+    g_anShipFuel[0] = 0;
+    FlushInputEvents();
+    for (index = 0; index < SDL_arraysize(actions); index++) {
+        SetButton(actions[index].button, 1);
+        SetButton(actions[index].button, 0);
+        Require(QueuedPress(actions[index].scan), "Deck buttons, D-pad and native paddles send their assigned actions");
+    }
+    g_nCurrentView = 0;
+    g_1_cStoredViewDisplayModeValue = 0;
+    SetButton(3, 1);
+    SetButton(3, 0);
+    Require(QueuedPress(0x3c), "Deck Y cycles views");
+    SetButton(1, 1);
+    SetButton(2, 1);
+    Require(!AnyQueuedPress() && PolledButtons() == 0, "Deck B and X remain unassigned");
+    SetButton(1, 0);
+    SetButton(2, 0);
+    SetAxis(PAD_LEFT_TRIGGER, 32767);
+    Require(QueuedPress(0x1c), "Deck L2 fires a missile");
+    SetAxis(PAD_LEFT_TRIGGER, 0);
+    SetAxis(PAD_RIGHT_TRIGGER, 32767);
+    Require(PolledButtons() == 1, "Deck R2 fires guns while held");
+    SetAxis(PAD_RIGHT_TRIGGER, 0);
+    Require(PolledButtons() == 0, "Deck R2 releases the guns");
+    SetButton(18, 1);
+    CustomFrame();
+    CustomFrame();
+    Require(SdlPadKeyboardState(SDL_GetKeyboardState(NULL))[SDL_SCANCODE_D],
+            "a held L5 still holds damage after its press latch expires");
+    SetButton(12, 1);
+    SetButton(18, 0);
+    CustomFrame();
+    CustomFrame();
+    Require(SdlPadKeyboardState(SDL_GetKeyboardState(NULL))[SDL_SCANCODE_D],
+            "releasing L5 leaves a held physical D-pad down active");
+    SetButton(12, 0);
+    CustomFrame();
+    CustomFrame();
+    Require(!SdlPadKeyboardState(SDL_GetKeyboardState(NULL))[SDL_SCANCODE_D],
+            "releasing both inputs releases their shared action");
+    FlushInputEvents();
+
+    /* Rear buttons must also navigate communications, not trigger their
+       normal flight actions through a separate path. */
+    g_acVduModeStackDepth[1] = 0;
+    g_aaiVduModeStack[1][0] = 4;
+    g_nCommMenuChoiceCount = 3;
+    g_nCommMenuReuseMode = 0;
+    Require(SdlGetCommunicationMenuSelection() == 0, "start with the first radio choice");
+    g_nCommMenuReuseMode = 1;
+    SetButton(18, 1);
+    SetButton(18, 0);
+    Require(SdlGetCommunicationMenuSelection() == 1 && !AnyQueuedPress(), "L5 chooses the next radio item");
+    SetButton(16, 1);
+    SetButton(16, 0);
+    Require(SdlGetCommunicationMenuSelection() == 0 && !AnyQueuedPress(), "L4 chooses the previous radio item");
+    SetButton(17, 1);
+    SetButton(17, 0);
+    Require(QueuedPress(0x02), "R5 sends the selected radio item");
+    SetButton(15, 1);
+    SetButton(15, 0);
+    Require(QueuedPress(0x01), "R4 closes communications");
+    g_aaiVduModeStack[1][0] = 0;
+    g_nCommMenuChoiceCount = 0;
+    SdlSetJoystickMode("custom");
+    SdlSetPadBindings("a=jump\n");
+    SetButton(16, 1);
+    SetButton(16, 0);
+    Require(!AnyQueuedPress(), "leaving the Deck preset stops its paddle aliases");
+    SdlSetJoystickAxesMode("twin-stick-roll");
+}
+
+static void CheckCustomSources(void)
+{
+    CalibrateCustomStick();
+    Require(!SdlSetJoystickSource(-1) && !SdlSetJoystickSource(4), "reject an unknown input source");
+    Require(SdlSetJoystickSource(SDL_PAD_SOURCE_STEAM_DECK), "select Custom Steam Deck");
+    SdlSetPadBindings("a=jump\ndpad-up=damage-display\nbutton-1=navigation\naxis-1=\naxis-2=\n"
+                      "axis-3=\naxis-4=\naxis-5=roll\n");
+    SetButton(16, 1);
+    Require(QueuedPress(0x20), "Custom L4 follows the edited D-pad binding");
+    CustomFrame();
+    CustomFrame();
+    Require(SdlPadKeyboardState(SDL_GetKeyboardState(NULL))[SDL_SCANCODE_D],
+            "a Custom rear button holds its edited action");
+    SetButton(16, 0);
+    CustomFrame();
+    CustomFrame();
+    Require(SdlSetJoystickSource(SDL_PAD_SOURCE_GAMEPAD), "switch to Gamepad");
+    SetButton(16, 1);
+    SetButton(16, 0);
+    Require(!AnyQueuedPress(), "Gamepad does not alias the rear buttons");
+    SetButton(0, 1);
+    SetButton(0, 0);
+    Require(QueuedPress(0x24), "switching source preserves mapped bindings");
+    Require(SdlSetJoystickSource(SDL_PAD_SOURCE_JOYSTICK), "use numbered inputs on a mapped controller");
+    SetButton(0, 1);
+    SetButton(0, 0);
+    Require(QueuedPress(0x31), "Joystick uses the raw button binding instead of A");
+    SetAxis(4, 32767);
+    CustomFrame();
+    Require(g_anFlightInput[2] == 9, "Joystick can bind a mapped gamepad's fifth raw axis");
+    SetAxis(4, 0);
+    CustomFrame();
+    Require(SdlSetJoystickMode("steam-deck"), "select the fixed Deck preset with Joystick saved");
+    SdlSetPadBindings("");
+    SetButton(0, 1);
+    SetButton(0, 0);
+    Require(QueuedPress(0x24), "the preset ignores Custom's saved source");
+    SdlSetJoystickMode("custom");
+    SdlSetPadBindings("a=jump\nbutton-1=navigation\n");
+    SetButton(0, 1);
+    SetButton(0, 0);
+    Require(QueuedPress(0x31), "returning to Custom restores the numbered source");
+    SdlSetJoystickSource(SDL_PAD_SOURCE_AUTO);
+    SetButton(0, 1);
+    SetButton(0, 0);
+    Require(QueuedPress(0x24), "Automatic restores the controller mapping");
+}
+
 static void CheckCustomFlightStick(void)
 {
     int device = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_FLIGHT_STICK, 8, 32, 2);
@@ -232,6 +404,11 @@ static void CheckCustomFlightStick(void)
     Require(PolledButtons() == 1, "raw button 32 can fire the guns");
     SetButton(31, 0);
     FlushInputEvents();
+    SdlSetJoystickSource(SDL_PAD_SOURCE_GAMEPAD);
+    SetButton(31, 1);
+    Require(PolledButtons() == 0 && !AnyQueuedPress(), "Gamepad never uses an unmapped stick's raw bindings");
+    SetButton(31, 0);
+    SdlSetJoystickSource(SDL_PAD_SOURCE_AUTO);
     SetHat(1, SDL_HAT_UP);
     Require(QueuedPress(0x12) && SdlGetAsyncKeyState(VK_CONTROL), "the second hat can eject with Ctrl");
     SetHat(1, SDL_HAT_RIGHT);
@@ -280,13 +457,14 @@ int main(int argc, char **argv)
             "initialize headless SDL input");
     g_nInputEventPoolInitialized = 1;
     CheckDevicePriority();
-    device = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER, 6, 15, 0);
+    device = SDL_JoystickAttachVirtual(SDL_JOYSTICK_TYPE_GAMECONTROLLER, 6, 19, 0);
     Require(device >= 0, "attach a virtual controller");
     SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(device), guid, sizeof(guid));
     SDL_snprintf(mapping, sizeof(mapping),
         "%s,Gamepad probe,a:b0,b:b1,x:b2,y:b3,back:b4,guide:b5,start:b6,leftstick:b7,"
         "rightstick:b8,leftshoulder:b9,rightshoulder:b10,dpup:b11,dpdown:b12,dpleft:b13,"
-        "dpright:b14,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:+a4,righttrigger:+a5,",
+        "dpright:b14,paddle1:b15,paddle2:b16,paddle3:b17,paddle4:b18,"
+        "leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:+a4,righttrigger:+a5,",
         guid);
     Require(SDL_GameControllerAddMapping(mapping) >= 0 && SDL_IsGameController(device),
             "map the virtual controller with analog triggers");
@@ -363,11 +541,13 @@ int main(int argc, char **argv)
     FlushInputEvents();
 
     CheckCustomGamepad();
+    CheckSteamDeck();
+    CheckCustomSources();
     SdlShutdownJoysticks();
     SDL_JoystickClose(pad);
     Require(SDL_JoystickDetachVirtual(device) == 0, "detach the virtual controller");
     CheckCustomFlightStick();
     SDL_Quit();
-    puts("PASS: WC2 controller layouts, automatic device priority, Custom gamepad and raw flight-stick bindings.");
+    puts("PASS: WC2 controller layouts, device priority, Custom bindings and the Steam Deck preset, including native paddles.");
     return 0;
 }

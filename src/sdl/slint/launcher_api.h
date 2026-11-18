@@ -2,6 +2,7 @@
 #define WC2_SDL_SLINT_LAUNCHER_API_H
 
 #include "../joystick_calibration.h"
+#include "../pad_bindings.h"
 
 #include <stddef.h>
 
@@ -27,7 +28,8 @@ enum SdlLauncherJoystickMode {
     SDL_LAUNCHER_JOYSTICK_ORIGINAL = 0,
     SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_TWO_AXIS = 1,
     SDL_LAUNCHER_JOYSTICK_FOUR_BUTTON_FOUR_AXIS = 2,
-    SDL_LAUNCHER_JOYSTICK_CUSTOM = 3
+    SDL_LAUNCHER_JOYSTICK_CUSTOM = 3,
+    SDL_LAUNCHER_JOYSTICK_STEAM_DECK = 4
 };
 
 enum SdlLauncherJoystickAxes {
@@ -80,6 +82,7 @@ typedef struct SdlLauncherOptions {
     int cheatMode;
     int joystickRumble;
     int joystickMode;
+    int joystickSource; /* SdlPadSource, used by Custom. */
     int joystickAxes;
     /* Percent of travel, 0 to SDL_JOYSTICK_DEAD_ZONE_MAXIMUM; the original's
      * is SDL_JOYSTICK_DEAD_ZONE_ORIGINAL. */
