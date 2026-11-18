@@ -16,7 +16,7 @@ static jmp_buf g_stSdlCutsceneExit;
 static int g_bSdlCutsceneExitArmed;
 
 static const char *const g_apszSdlLauncherJoystickModes[] = {
-    "original", "4button-2axis", "4button-4axis", "custom"
+    "original", "4button-2axis", "4button-4axis", "custom", "steam-deck"
 };
 
 static const char *const g_apszSdlLauncherMusic[] = {
@@ -261,7 +261,7 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
 {
     if (options->joystickMode < SDL_LAUNCHER_JOYSTICK_ORIGINAL ||
         options->joystickMode >
-            SDL_LAUNCHER_JOYSTICK_CUSTOM ||
+            SDL_LAUNCHER_JOYSTICK_STEAM_DECK ||
         options->joystickAxes < SDL_LAUNCHER_AXES_TWIN_STICK_ROLL ||
         options->joystickAxes > SDL_LAUNCHER_AXES_RUDDER_ROLL) {
         fprintf(stderr, "The GUI returned invalid joystick options.\n");
@@ -275,6 +275,10 @@ static int SdlApplyLauncherOptions(const SdlLauncherOptions *options,
                              options->joystickGuidUnique);
     SdlSetJoystickMode(
         g_apszSdlLauncherJoystickModes[options->joystickMode]);
+    if (!SdlSetJoystickSource(options->joystickSource)) {
+        fprintf(stderr, "The GUI returned an invalid joystick source.\n");
+        return 0;
+    }
     SdlSetJoystickAxesMode(
         g_apszSdlLauncherJoystickAxes[options->joystickAxes]);
     SdlSetPadBindings(options->padBindings);

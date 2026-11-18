@@ -64,12 +64,14 @@ public:
     void stop();
     // The joystick chosen on the Joystick tab, or -1 for automatic.
     void prefer(SDL_JoystickID instance);
+    // Read numbered inputs even when SDL also has a gamepad mapping.
+    void use_raw(bool raw);
     // Reads the devices, opening new ones and closing those unplugged.
     void update();
     // Each slot's device name; empty for a free slot.
     std::array<std::string, 2> names() const;
     JoystickPosition read(int slot) const;
-    PadSnapshot snapshot(int slot) const;
+    PadSnapshot snapshot(int slot, bool steamDeck = false) const;
 
 private:
     struct Device {
@@ -80,11 +82,12 @@ private:
     };
 
     static void close(Device &device);
-    static void open(int index, Device &device);
+    void open(int index, Device &device);
 
     std::array<Device, 2> devices {};
     SDL_JoystickID preferred = -1;
     bool active = false;
+    bool raw = false;
 };
 
 // GAMEDAT/j.cal in an installation, matching an existing file's case;

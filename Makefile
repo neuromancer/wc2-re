@@ -587,9 +587,13 @@ MODERN_GUI_SRCS = \
 	$(wildcard $(MODERN_GUI_SOURCE_DIR)/generic-*.svg) \
 	$(wildcard translations/*/LC_MESSAGES/*.po) \
 	$(wildcard third_party/sc-controller/images/*.svg third_party/sc-controller/images/*/*.svg) \
+	$(wildcard third_party/steam-deck/*.svg) \
 	$(MODERN_GUI_SOURCE_DIR)/CMakeLists.txt \
 	$(MODERN_GUI_SOURCE_DIR)/calibration.slint \
 	$(MODERN_GUI_SOURCE_DIR)/controls.slint \
+	$(MODERN_GUI_SOURCE_DIR)/control_connector.slint \
+	$(MODERN_GUI_SOURCE_DIR)/steamdeck.slint \
+	$(MODERN_GUI_SOURCE_DIR)/steamdeck-top.svg \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.cpp \
 	$(MODERN_GUI_SOURCE_DIR)/launcher.slint \
 	$(MODERN_GUI_SOURCE_DIR)/launcher_api.h \
@@ -680,7 +684,7 @@ update-launcher-translations:
 	@mkdir -p $(MODERN_OUT_DIR)
 	$(SLINT_TR_EXTRACTOR) --package-name wc2-re -o $(MODERN_OUT_DIR)/launcher.pot \
 		$(MODERN_GUI_SOURCE_DIR)/launcher.slint $(MODERN_GUI_SOURCE_DIR)/controls.slint \
-		$(MODERN_GUI_SOURCE_DIR)/calibration.slint
+		$(MODERN_GUI_SOURCE_DIR)/calibration.slint $(MODERN_GUI_SOURCE_DIR)/steamdeck.slint
 	for language in $(MODERN_TRANSLATION_LANGUAGES); do \
 		msgmerge --update --backup=none --no-fuzzy-matching --no-wrap \
 			translations/$$language/LC_MESSAGES/launcher.po \

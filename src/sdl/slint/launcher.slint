@@ -71,6 +71,7 @@ export component LauncherWindow inherits Window {
     in-out property <bool> cheat-mode;
     in-out property <bool> joystick-rumble;
     in-out property <int> joystick-mode-index;
+    in-out property <int> joystick-source-index;
     in-out property <int> joystick-axes-index;
     // Percent of travel (src/sdl/joystick_calibration.h).
     in-out property <float> joystick-dead-zone: 22;
@@ -149,6 +150,7 @@ export component LauncherWindow inherits Window {
     // The Custom joystick mode's bindings (controls.slint); the launcher
     // fills them in when the mode is first chosen.
     in property <[int]> pad-codes;
+    in property <[int]> steam-deck-codes;
     callback pad-code-changed <=> pad-view.pad-code-changed;
     callback pad-reset <=> pad-view.pad-reset;
     callback custom-pad-requested();
@@ -486,21 +488,22 @@ export component LauncherWindow inherits Window {
                                     @tr("Original — two axes / two buttons"),
                                     @tr("WCAT — four buttons / two axes"),
                                     @tr("WCAT — four buttons / four axes"),
-                                    @tr("Custom — your own bindings")
+                                    @tr("Custom — your own bindings"),
+                                    @tr("Steam Deck")
                                 ];
                                 current-index <=> root.joystick-mode-index;
                             }
 
                             Rectangle { width: 6px; }
 
-                            Text {
+                            if root.joystick-mode-index < 3: Text {
                                 text: @tr("Axis layout");
                                 vertical-alignment: center;
                                 color: Palette.foreground;
                             }
 
                             // Custom mode binds each axis individually.
-                            ComboBox {
+                            if root.joystick-mode-index < 3: ComboBox {
                                 horizontal-stretch: 2;
                                 enabled: root.joystick-mode-index == 2;
                                 model: [
@@ -513,6 +516,24 @@ export component LauncherWindow inherits Window {
                                     @tr("Rudder roll")
                                 ];
                                 current-index <=> root.joystick-axes-index;
+                            }
+                            if root.joystick-mode-index == 3: Text {
+                                text: @tr("Source");
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                            }
+                            if root.joystick-mode-index == 3: ComboBox {
+                                horizontal-stretch: 2;
+                                model: [@tr("Automatic"), @tr("Gamepad"), @tr("Steam Deck"), @tr("ControlSource" => "Joystick")];
+                                current-index <=> root.joystick-source-index;
+                            }
+                            if root.joystick-mode-index == 4: Text {
+                                horizontal-stretch: 2;
+                                text: @tr("Left: roll + speed · Right: yaw + pitch");
+                                wrap: word-wrap;
+                                vertical-alignment: center;
+                                color: Palette.foreground;
+                                font-size: 12px;
                             }
                         }
 
@@ -572,8 +593,9 @@ export component LauncherWindow inherits Window {
                                 visible: root.controls-available;
                                 page: 0;
                                 joystick-mode: root.joystick-mode-index;
+                                joystick-source: root.joystick-source-index;
                                 joystick-axes: root.joystick-axes-index;
-                                pad-codes: root.pad-codes;
+                                pad-codes: root.joystick-mode-index == 4 ? root.steam-deck-codes : root.pad-codes;
                                 pad-device: root.pad-device;
                                 pad-held: root.pad-held;
                                 pad-axis-values: root.pad-axis-values;

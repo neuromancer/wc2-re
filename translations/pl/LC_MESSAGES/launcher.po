@@ -1195,3 +1195,95 @@ msgstr "Czcionki HUD w wysokiej rozdzielczości"
 msgctxt "LauncherWindow"
 msgid "Custom — your own bindings"
 msgstr "Własny — własne przypisania"
+
+msgctxt "LauncherWindow"
+msgid "Steam Deck"
+msgstr "Steam Deck"
+
+msgctxt "LauncherWindow"
+msgid "Left: roll + speed · Right: yaw + pitch"
+msgstr "Lewy: przechył + prędkość · Prawy: odchylenie + pochylenie"
+
+msgctxt "SteamDeckView"
+msgid "Left shoulder buttons"
+msgstr "Przyciski L1 / L2"
+
+msgctxt "SteamDeckView"
+msgid "Right shoulder buttons"
+msgstr "Przyciski R1 / R2"
+
+msgctxt "SteamDeckView"
+msgid "View"
+msgstr "Widok"
+
+msgctxt "SteamDeckView"
+msgid "Menu"
+msgstr "Menu"
+
+msgctxt "SteamDeckView"
+msgid "Top view"
+msgstr "Widok z góry"
+
+msgctxt "SteamDeckView"
+msgid "Rear buttons"
+msgstr "Tylne przyciski"
+
+msgctxt "SteamDeckView"
+msgid "Right rear / D-pad"
+msgstr "Tył prawy / krzyżak"
+
+msgctxt "SteamDeckView"
+msgid "Left rear / D-pad"
+msgstr "Tył lewy / krzyżak"
+
+msgctxt "ControlsView"
+msgid "Steam Input: assign L4 to ↑, L5 to ↓, R4 to ← and R5 to →. In communications, ↑/↓ choose, → sends and ← closes. L3/R3 are stick clicks. Y answers Yes; View is Escape outside flight."
+msgstr "Steam Input: przypisz L4 do ↑, L5 do ↓, R4 do ← i R5 do →. W łączności ↑/↓ wybiera, → wysyła, a ← zamyka. L3/R3 to wciśnięcia drążków. Y odpowiada Tak; Widok działa jak Escape poza lotem."
+
+msgctxt "SteamDeckView"
+msgid "Left stick"
+msgstr "Lewa gałka"
+
+msgctxt "SteamDeckView"
+msgid "Right stick"
+msgstr "Prawa gałka"
+
+msgctxt "SteamDeckView"
+msgid "D-pad"
+msgstr "Krzyżak"
+
+msgctxt "SteamDeckView"
+msgid "Buttons"
+msgstr "Przyciski"
+
+msgctxt "LauncherWindow"
+msgid "Source"
+msgstr "Źródło"
+
+msgctxt "LauncherWindow"
+msgid "Gamepad"
+msgstr "Gamepad"
+
+msgctxt "ControlSource"
+msgid "Joystick"
+msgstr "Joystick"
+
+msgctxt "ControlsView"
+msgid "View"
+msgstr "Widok"
+
+msgctxt "ControlsView"
+msgid "Click a binding or press its control to change it. Rear buttons mirror the D-pad."
+msgstr "Kliknij przypisanie lub naciśnij przycisk, aby je zmienić. Tylne przyciski mają te same przypisania co krzyżak."
+
+msgctxt "ControlsView"
+msgid "This device has no gamepad mapping. Choose Joystick to bind its numbered inputs."
+msgstr "To urządzenie nie ma mapowania gamepada. Wybierz Joystick, aby przypisać jego numerowane wejścia."
+
+msgctxt "ControlsView"
+msgid "Joystick — not connected"
+msgstr "Joystick — niepodłączony"
+
+msgctxt "ControlsView"
+msgid "Connect a joystick to see its inputs, or edit bindings offline."
+msgstr "Podłącz joystick, aby zobaczyć jego wejścia, lub edytuj przypisania bez podłączania."

@@ -223,6 +223,7 @@ BOOL SdlReadJoystickAxisRange(unsigned int device,
                                  unsigned int *yMinimum,
                                  unsigned int *yMaximum);
 int SdlSetJoystickMode(const char *name);
+int SdlSetJoystickSource(int source);
 int SdlSetJoystickAxesMode(const char *name);
 /* Custom buttons, hats and axes, serialized as control=function lines. */
 void SdlSetPadBindings(const char *bindings);

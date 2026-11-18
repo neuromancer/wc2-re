@@ -122,12 +122,23 @@ sound effects. Optional features can be combined:
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Rebind gamepad buttons, triggers and axes, or a flight stick’s own inputs | Launcher **Custom** control mode or `--joystick-mode=custom` |
+| Steam Deck preset with a front/rear control diagram | Launcher **Steam Deck** control mode or `--joystick-mode=steam-deck` |
 | Twin-stick, HOTAS, throttle, and rudder layouts | `--joystick-axes=<layout>` |
 | Joystick dead zone, 0% to 33% of the stick's travel (22%, the original's, by default) | Launcher slider or `--joystick-dead-zone=N` |
 | Joystick calibration that writes `GAMEDAT/j.cal` as the game's own does; the game now reads all of that file, not only the centre | Launcher **Calibrate…** |
 | Joystick diagnostics on stderr | `--joystick-debug` |
 | Frame-rate counter in the window title | `-f` |
 | Cockpitless view | `-c` |
+
+**Steam Deck preset:** follows the layout shared in [#66](https://github.com/neuromancer/wc2-re/issues/66),
+with roll/speed on the left stick and yaw/pitch on the right. Native rear
+buttons mirror the D-pad: L4 = up (navigation/map), L5 = down (damage),
+R4 = left (communications), R5 = right (lock target). With Steam Input,
+assign those same directions to the rear buttons in Steam's controller
+layout. The individual paddle order is a POC choice; the reporter specified
+mirroring the D-pad without specifying the order. Selecting this optional
+preset is saved across sessions and preserves existing Custom bindings,
+dead zone, calibration and rumble settings.
 
 **Roland MT-32 music:** the DOS scores can play on an emulated MT-32 or
 CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
@@ -187,8 +198,10 @@ autopilot, communications, and speed controls. Axis layouts are
 `linear-throttle`, `rudder-yaw`, and `rudder-roll`.
 
 Choose **Custom — your own bindings** on the **Joystick** tab to change each
-input. Gamepads show a drawing with a row for each button, trigger and stick
-axis. Other joysticks list their own inputs: up to 32 buttons, two hats and
+input. **Source** selects **Automatic**, **Gamepad**, **Steam Deck** or **Joystick**.
+Automatic follows the connected device. Gamepad and Steam Deck show editable
+diagrams; the Deck's rear buttons share the D-pad bindings. Joystick lists
+numbered inputs, even for devices recognized as gamepads: up to 32 buttons, two hats and
 eight axes, with axis names when the operating system supplies them. Held
 inputs light up; pressing a button or hat direction opens its action chooser,
 and clicking an input does the same. Buttons can use WC2 flight actions,
@@ -198,10 +211,13 @@ throttle position, with optional reversal; gamepad triggers can use either
 button actions or analog functions.
 
 Custom starts from the four-button, four-axis layout, using named stick,
-twist and throttle axes where available. **Restore defaults** restores that
-layout. The launcher saves the mode and bindings in the `[pad]` section of
-`wc2-launcher.ini` when starting the game, including bindings kept while
-another mode is selected. Menus retain their usual controls, and the first
+twist and throttle axes where available. **Restore defaults** restores the
+displayed input family's bindings, using the Deck preset when that source is
+selected. Switching sources preserves edits; Gamepad and Steam Deck share
+their bindings, while numbered joystick inputs have separate bindings.
+The launcher saves the mode, source and bindings in `wc2-launcher.ini` when
+starting the game, including bindings kept while another mode is selected.
+Menus retain their usual controls, and the first
 hat or D-pad still navigates the communications display.
 
 ## Build from source
