@@ -267,6 +267,9 @@ SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 *modifiers, int pres
 const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
 /* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
 int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
+/* In flight, whether the player bound an action to the key with Alt or
+ * Command held. */
+int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers);
 /* Mouse rebinding, in flight: whether the bindings use the mouse; whether a
  * button is one of the game's own two; the game's two buttons as the bound
  * buttons press them; and the key, with its modifiers, that another bound
