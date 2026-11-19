@@ -529,6 +529,7 @@ MODERN_GAME_HOST_SRCS = \
 	src/sdl/difficulty.c \
 	src/sdl/events.c \
 	src/sdl/gl_renderer.c \
+	src/sdl/interpolation.c \
 	src/sdl/joystick.c \
 	src/sdl/keymap.c \
 	src/sdl/mt32.c \

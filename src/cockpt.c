@@ -2059,6 +2059,12 @@ void target_locking(signed char target)
     short x;
     short y;
 
+#ifdef SDL_PORT
+    /* An interpolated frame shows the lock; only the game's steps advance
+       it and sound its tones. */
+    if (SdlDrawingInterpolatedFrame())
+        return;
+#endif
     if (g_nCurrentView == 4)
         return;
     if (target == -1 ||
@@ -2594,6 +2600,13 @@ void UpdateTargetLeadIndicator(void)
         &targetMotion, &meetPoint);
     if (HasInRangeGunForTargetLead(
             distance_from_point(0, &meetPoint)) == 0) {
+#ifdef SDL_PORT
+        /* Between two steps the target can pass out of range where neither
+           step had it; only a step disengages the ITTS, and its message
+           would clear another. */
+        if (SdlDrawingInterpolatedFrame())
+            return;
+#endif
         SetHudMessageText(
             _("OUT OF RANGE"),
             g_cRedColour, 20);
@@ -2674,7 +2687,13 @@ void overlay_head_up_display(void)
     reticleBounds.top = (short)(g_37_nViewCenterY - 2);
     reticleBounds.bottom = (short)(g_37_nViewCenterY + 2);
     target_locking(g_acShipTarget[0]);
-    if (g_nTargetCameraFrame == 0 &&
+    if (
+#ifdef SDL_PORT
+        /* Nor does an interpolated frame engage the ITTS: its message
+           would clear another. */
+        !SdlDrawingInterpolatedFrame() &&
+#endif
+        g_nTargetCameraFrame == 0 &&
         g_acShipTarget[0] != -1 &&
         g_aeObjectClass[
             g_acShipTarget[0]] <
@@ -2732,6 +2751,11 @@ void overlay_head_up_display(void)
     if (g_nCurrentView != 4 ||
         g_nAimCameraMode != 1) {
         if (g_nTargetLockCountdown == 0) {
+#ifdef SDL_PORT
+            /* The bracket blinks with the game's steps. */
+            if (SdlDrawingInterpolatedFrame()) {
+            } else
+#endif
             if (g_nRenderedSpaceFrame % 2 == 0)
                 g_bTargetBracketVisible ^= 1;
             if (g_bTargetBracketVisible == 1)

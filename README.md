@@ -119,6 +119,7 @@ sound effects. Optional features can be combined:
 | OpenGL space objects rendered at output resolution | `--enhanced` |
 | Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
 | Experimental: cockpit text, nav labels, HUD messages and radio subtitles in the game's larger 11-pixel font, with the enhanced renderer | Launcher checkbox or `--hires-hud` |
+| Smooth spaceflight: frames drawn between the game's steps at the display's refresh rate, one step behind the game | Launcher checkbox or `--interpolate` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Rebind gamepad buttons, triggers and axes, or a flight stick’s own inputs | Launcher **Custom** control mode or `--joystick-mode=custom` |

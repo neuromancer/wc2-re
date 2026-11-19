@@ -1807,6 +1807,9 @@ unsigned int DrawSpaceSceneFrame(void)
     transform_objects_to_your_view();
     update_star_field();
     place_exhaust_on_ships();
+#ifdef SDL_PORT
+    SdlSnapshotFlightChildren(paletteCycleActive == 0);
+#endif
     reposition_fixed_child_objects();
     BuildObjectDepthOrder();
 #ifdef SDL_PORT
@@ -1970,6 +1973,7 @@ int RunSpaceFlight(short entryNavPoint)
     g_nArcadeState = 0;
 #ifdef SDL_PORT
     SdlSetMouseGrab(1);
+    SdlResetFrameInterpolation();
 #endif
 
     while (g_nArcadeState == 0) {
@@ -1989,24 +1993,35 @@ int RunSpaceFlight(short entryNavPoint)
         if (result == -1) {
             g_nArcadeState = 5;
         } else {
+#ifdef SDL_PORT
+            SdlCaptureFlightPoses();
+#endif
             Update_3Space();
             if (g_nArcadeState != 0)
                 break;
             g_bRenderingSpaceFrame = 1;
             RenderSpaceViewFrame();
             g_bRenderingSpaceFrame = 0;
+#ifdef SDL_PORT
+            SdlCaptureFlightView();
+#endif
             update_cockpit();
             if (g_pszPendingHudMessage != 0)
                 SetHudTextColour(g_pszPendingHudMessage,
                                   g_18_nHudMessageColour);
         }
         MarkDibDirty();
+#ifdef SDL_PORT
+        /* Interpolated frames lead up to a drawn step while waiting. */
+        SdlDeferFlightFrame();
+#endif
         DIBslamReal();
         WaitForFrameTick();
     }
 
 #ifdef SDL_PORT
     SdlSetMouseGrab(0);
+    SdlResetFrameInterpolation();
     SdlCancelSpaceFrame();
 #endif
     SetViewportRect(&g_27_stViewScratchInfo, 0, 0,

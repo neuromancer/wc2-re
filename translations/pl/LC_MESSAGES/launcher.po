@@ -1193,6 +1193,10 @@ msgid "Hi-res HUD fonts"
 msgstr "Czcionki HUD w wysokiej rozdzielczości"
 
 msgctxt "LauncherWindow"
+msgid "Smooth spaceflight"
+msgstr "Płynny lot kosmiczny"
+
+msgctxt "LauncherWindow"
 msgid "Custom — your own bindings"
 msgstr "Własny — własne przypisania"
 

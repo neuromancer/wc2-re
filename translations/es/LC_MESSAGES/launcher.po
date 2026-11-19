@@ -1189,6 +1189,10 @@ msgid "Hi-res HUD fonts"
 msgstr "Fuentes del HUD de alta resolución"
 
 msgctxt "LauncherWindow"
+msgid "Smooth spaceflight"
+msgstr "Vuelo espacial fluido"
+
+msgctxt "LauncherWindow"
 msgid "Custom — your own bindings"
 msgstr "Personalizado — tus propias asignaciones"
 

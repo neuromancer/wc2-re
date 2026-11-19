@@ -207,6 +207,18 @@ void SdlBeginSpaceFrame(
     int fullViewportCopy, unsigned char clearColour);
 void SdlCompleteSpaceFrame(void);
 void SdlCancelSpaceFrame(void);
+/* Spaceflight frame interpolation (src/sdl/interpolation.c). */
+void SdlSetFrameInterpolation(int enabled);
+void SdlResetFrameInterpolation(void);
+void SdlCaptureFlightPoses(void);
+void SdlSnapshotFlightChildren(int drawObjects);
+void SdlCaptureFlightView(void);
+void SdlDeferFlightFrame(void);
+int SdlFlightFrameDeferred(void);
+int SdlDrawingInterpolatedFrame(void);
+int SdlKeepStepShipView(short obj);
+void SdlDrawInterpolatedFlightFrame(int alpha);
+void SdlPresentInterpolatedFlightFrames(DWORD deadline, long interval);
 void SdlSetThrusterScreenPosition(short object, float x, float y);
 void SdlGetThrusterScreenPosition(short object, float *x, float *y);
 void SdlSetObjectScreenScale(short object, short gameScale, double exactScale);

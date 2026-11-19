@@ -40,6 +40,8 @@ constexpr IntegerSetting integerSettings[] = {
      SDL_LAUNCHER_EXPLICIT_EGA, 1},
     {"hires_hud_fonts", &SdlLauncherOptions::hiResHudFonts,
      SDL_LAUNCHER_EXPLICIT_HIRES_HUD, 1},
+    {"frame_interpolation", &SdlLauncherOptions::frameInterpolation,
+     SDL_LAUNCHER_EXPLICIT_INTERPOLATION, 1},
     {"balanced_difficulty", &SdlLauncherOptions::balancedDifficulty,
      SDL_LAUNCHER_EXPLICIT_BALANCED, 1},
     {"cheat_mode", &SdlLauncherOptions::cheatMode,

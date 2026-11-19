@@ -145,6 +145,8 @@ void ThrottleFrameAndDrawFps(HDC dc)
     }
 
 #ifdef SDL_PORT
+    SdlPresentInterpolatedFlightFrames(g_dwNextFrameDeadline,
+                                       g_17_nFramePeriodMillis);
     while (timeGetTime() < g_dwNextFrameDeadline) {
         /* Match DIBslamReal's menu cursor eligibility, including screens
          * composed in the secondary buffer. Poll host events during the
@@ -759,7 +761,9 @@ void DIBslamReal(void)
                 g_pPrimarySurface, surfaceDetails.lpSurface);
         }
 #else
-        if (!SdlPresentIndexedFrame(g_18_pDisplayPixelBuffer, g_3_abColourShadow))
+        /* An interpolated spaceflight frame is presented by the throttle. */
+        if (!SdlFlightFrameDeferred() &&
+            !SdlPresentIndexedFrame(g_18_pDisplayPixelBuffer, g_3_abColourShadow))
             DIBerror("DIBslamReal", -1);
 #endif
 

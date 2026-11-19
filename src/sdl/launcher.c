@@ -223,6 +223,9 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
         } else if (strcmp(argument, "--hires-hud") == 0) {
             launcherOptions->hiResHudFonts = 1;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_HIRES_HUD;
+        } else if (strcmp(argument, "--interpolate") == 0) {
+            launcherOptions->frameInterpolation = 1;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_INTERPOLATION;
         } else {
             arguments[outputArgumentIndex++] = argument;
         }
@@ -397,6 +400,7 @@ int main(int argumentCount, char **arguments)
         return 1;
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
     SdlSetHiResHudFonts(launcherOptions.hiResHudFonts);
+    SdlSetFrameInterpolation(launcherOptions.frameInterpolation);
     /* The launcher or the command line chose the music. */
     SdlSetMusicDevice(launcherOptions.musicDevice);
     SdlSetMt32Roms(launcherOptions.mt32Roms, launcherOptions.mt32Model);

@@ -1368,6 +1368,12 @@ void get_right_shape(short obj, FixedVector *direction)
          shipClass == OBJECT_CLASS_SHIP)) {
         if (g_acDirectionShapeFrame[directionIndex] !=
             g_asLoadedShipViewFrame[obj]) {
+#ifdef SDL_PORT
+            /* An interpolated frame keeps the view the step loaded: loading
+               one frees the view buffer and reads the disk. */
+            if (SdlKeepStepShipView(obj))
+                return;
+#endif
             for (slotIndex = 0; slotIndex < 4; slotIndex++) {
                 if (g_aObjectResourceSlots[slotIndex].resourceType ==
                     shipType)
