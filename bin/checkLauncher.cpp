@@ -4,9 +4,10 @@
  * (src/sdl/keymap_actions.h), saving and reading back changed bindings, the
  * guns and afterburner buttons' swap, the German patch's language menu, the
  * joystick dead zone setting, the calibration page, which calibrates SDL
- * virtual flight sticks, and the Music row and its MT-32 line. With an argument it also saves BMP previews named
- * after it: every tab, the calibration page, the Steam Deck's 1280x800 at a
- * scale of 1.2 and a 640x480 window that scrolls. */
+ * virtual flight sticks, and the Music and Sound rows and their MT-32 line.
+ * With an argument it also saves BMP previews named after it: every tab, the
+ * calibration page, the Steam Deck's 1280x800 at a scale of 1.2 and a
+ * 640x480 window that scrolls. */
 #include "../src/sdl/slint/slint_static.h"
 #include "../src/sdl/slint/launcher.cpp"
 #include <slint-platform.h>
@@ -249,16 +250,34 @@ int main(int argc, char **argv)
                 "an English install offers every language again");
     }
 
-    // The Music row: a DOS install offers the AdLib and the MT-32, a Kilrathi
-    // Saga install also its digital music, and the MT-32 line says whether
-    // the ROMs can play.
+    // The Music and Sound rows: a DOS install offers the AdLib and the MT-32
+    // for each, a Kilrathi Saga install also its digital music and effects,
+    // and the MT-32 line, with its ROMs button, says whether the ROMs can
+    // play once either row chooses the MT-32.
     {
         require(window->get_dos_data() && window->get_music_available() &&
                 window->get_music_choices()->row_count() == 2,
                 "a DOS install offers the AdLib and the MT-32");
         window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
-        show_music_device(*window);
-        require(window->get_music_index() == 1, "the MT-32 is the DOS install's second choice");
+        window->set_sound_device(SDL_LAUNCHER_SOUND_DEFAULT);
+        show_audio_devices(*window);
+        require(window->get_music_index() == 1 && window->get_sound_index() == 0,
+                "the MT-32 is the DOS install's second choice, the AdLib its first");
+        require(window->get_mt32_chosen(), "MT-32 music shows the MT-32 line");
+        window->set_music_device(
+            chosen_audio_device(*window, 0, window->get_music_device()));
+        show_audio_devices(*window);
+        require(window->get_music_device() == SDL_LAUNCHER_MUSIC_DEFAULT &&
+                !window->get_mt32_chosen(), "choosing the AdLib hides the MT-32 line");
+        window->set_sound_device(
+            chosen_audio_device(*window, 1, window->get_sound_device()));
+        show_audio_devices(*window);
+        require(window->get_sound_device() == SDL_LAUNCHER_SOUND_MT32 &&
+                window->get_sound_index() == 1 && window->get_music_index() == 0 &&
+                window->get_mt32_chosen(),
+                "MT-32 effects with AdLib music show the MT-32 line");
+        window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
+        show_audio_devices(*window);
         const auto saga = fs::temp_directory_path(error) / "wc2-launcher-saga";
         fs::remove_all(saga, error);
         fs::create_directories(saga / "GAMEDAT");
@@ -272,8 +291,16 @@ int main(int argc, char **argv)
         window->set_game_directory(slint::SharedString(path_to_utf8(saga)));
         refresh_window(*window, installations);
         require(window->get_path_valid() && !window->get_dos_data() &&
-                window->get_music_choices()->row_count() == 3 && window->get_music_index() == 2,
-                "a Kilrathi Saga install offers digital, AdLib and MT-32 music");
+                window->get_music_choices()->row_count() == 3 && window->get_music_index() == 2 &&
+                window->get_sound_index() == 2,
+                "a Kilrathi Saga install offers digital, AdLib and MT-32 music and effects");
+        window->set_sound_device(
+            chosen_audio_device(*window, 1, window->get_sound_device()));
+        show_audio_devices(*window);
+        require(window->get_sound_device() == SDL_LAUNCHER_SOUND_ADLIB &&
+                window->get_sound_index() == 1 && window->get_music_index() == 2,
+                "a Kilrathi Saga install takes AdLib effects with MT-32 music");
+        window->set_sound_device(SDL_LAUNCHER_SOUND_MT32);
         window->set_game_directory(slint::SharedString(path_to_utf8(fixture)));
         refresh_window(*window, installations);
         fs::remove_all(saga, error);
@@ -290,14 +317,33 @@ int main(int argc, char **argv)
 
         SdlLauncherOptions music = {};
         music.musicDevice = SDL_LAUNCHER_MUSIC_MT32;
+        music.soundDevice = SDL_LAUNCHER_SOUND_ADLIB;
         std::snprintf(music.mt32Roms, sizeof(music.mt32Roms), "%s", path_to_utf8(roms).c_str());
         std::snprintf(music.mt32Model, sizeof(music.mt32Model), "%s", "mt32_1_07");
         require(save_launcher_config(fixture / "music.ini", music), "save the music settings");
         SdlLauncherOptions restored = {};
+        restored.soundDevice = SDL_LAUNCHER_SOUND_UNSET;
         load_launcher_config(fixture / "music.ini", restored);
+        SdlResolveLauncherSound(&restored);
         require(restored.musicDevice == SDL_LAUNCHER_MUSIC_MT32 &&
+                restored.soundDevice == SDL_LAUNCHER_SOUND_ADLIB &&
                 std::string(restored.mt32Roms) == path_to_utf8(roms) &&
                 std::string(restored.mt32Model) == "mt32_1_07", "the music settings survive a restart");
+
+        // Settings saved before the Sound menu: the effects follow MT-32
+        // music onto the MT-32, and otherwise stay the installation's own.
+        std::ofstream(fixture / "old-mt32.ini") << "[launcher]\nmusic_device=2\n";
+        std::ofstream(fixture / "old-adlib.ini") << "[launcher]\nmusic_device=1\n";
+        SdlLauncherOptions oldMt32 = {};
+        SdlLauncherOptions oldAdlib = {};
+        oldMt32.soundDevice = oldAdlib.soundDevice = SDL_LAUNCHER_SOUND_UNSET;
+        load_launcher_config(fixture / "old-mt32.ini", oldMt32);
+        load_launcher_config(fixture / "old-adlib.ini", oldAdlib);
+        SdlResolveLauncherSound(&oldMt32);
+        SdlResolveLauncherSound(&oldAdlib);
+        require(oldMt32.soundDevice == SDL_LAUNCHER_SOUND_MT32 &&
+                oldAdlib.soundDevice == SDL_LAUNCHER_SOUND_DEFAULT,
+                "older settings keep their sound effects");
         fs::remove_all(roms, error);
         refresh_mt32_roms(*window, "", "");
     }
@@ -780,8 +826,8 @@ int main(int argc, char **argv)
     }
     fs::remove_all(fixture, error);
     std::puts("PASS: the tabbed launcher shows WC2's controller and keyboard bindings and saves changes,"
-              " a German WC2.EXE limits the language menu to German, the music choices fit the"
-              " installation and are saved, the dead zone is saved, and the calibration page"
+              " a German WC2.EXE limits the language menu to German, the music and sound choices"
+              " fit the installation and are saved, the dead zone is saved, and the calibration page"
               " calibrates virtual sticks, the chosen one as joystick 1.");
     return 0;
 }

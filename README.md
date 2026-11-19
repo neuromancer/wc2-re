@@ -141,18 +141,22 @@ mirroring the D-pad without specifying the order. Selecting this optional
 preset is saved across sessions and preserves existing Custom bindings,
 dead zone, calibration and rumble settings.
 
-**Roland MT-32 music:** the DOS scores can play on an emulated MT-32 or
+**Music and sound effects:** the launcher's **Music** and **Sound** menus
+choose each on its own. A *Kilrathi Saga* installation offers its own
+**Digital** music and effects, or the DOS ones on an **AdLib** or a
+**Roland MT-32**; a DOS installation offers the AdLib and the MT-32.
+
+**Roland MT-32:** the DOS music and effects can play on an emulated MT-32 or
 CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
 *Special Operations*). Put your own control and PCM ROM files in a folder,
-choose **Roland MT-32** under **Music** in the launcher, and select the folder
-with **MT-32 ROMs…**. The launcher names the machine it found, preferring the
-CM-32L. The MT-32 plays the sound effects too, sharing its channels with the
-music as the original does. A *Kilrathi Saga* installation can instead keep
-its own digital music or play the AdLib scores, and both keep its digital
-sound effects. Without usable ROMs the game plays the AdLib music. The command
-line takes `--music=default|adlib|mt32`, `--mt32-roms=DIR`, `--mt32-model=ID`
-(such as `mt32_1_07`) and `--mt32-check`, which reports what a ROM folder
-holds.
+choose **Roland MT-32** under **Music** or **Sound** in the launcher, and
+select the folder with **MT-32 ROMs…**, which appears with it. The launcher
+names the machine it found, preferring the CM-32L. Music and effects on one
+MT-32 share its channels as the original does. Without usable ROMs the AdLib
+plays instead. The command line takes `--music=default|adlib|mt32`,
+`--sound=default|adlib|mt32`, `--mt32-roms=DIR`, `--mt32-model=ID` (such as
+`mt32_1_07`) and `--mt32-check`, which reports what a ROM folder holds.
+Without `--sound`, the effects follow MT-32 music onto the MT-32.
 
 The enhanced renderer keeps the original artwork, palettes, cockpit, and HUD;
 only space objects are redrawn at output resolution. Combining it with `--ega`

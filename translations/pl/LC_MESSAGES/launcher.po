@@ -111,6 +111,10 @@ msgid "Music"
 msgstr "Muzyka"
 
 msgctxt "LauncherWindow"
+msgid "Sound"
+msgstr "Efekty dźwiękowe"
+
+msgctxt "LauncherWindow"
 msgid "MT-32 ROMs…"
 msgstr "ROM-y MT-32…"
 
@@ -119,12 +123,12 @@ msgid "MT-32: {}"
 msgstr "MT-32: {}"
 
 msgctxt "LauncherWindow"
-msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the game plays AdLib music."
-msgstr "Wybierz folder z ROM-ami MT-32 lub CM-32L; do tego czasu gra używa muzyki AdLib."
+msgid "Choose the folder with your MT-32 or CM-32L ROMs; until then the AdLib plays instead."
+msgstr "Wybierz folder z ROM-ami MT-32 lub CM-32L; do tego czasu używany jest AdLib."
 
 msgctxt "LauncherWindow"
-msgid "The game plays AdLib music: {}"
-msgstr "Gra używa muzyki AdLib: {}"
+msgid "The AdLib plays instead: {}"
+msgstr "Używany jest AdLib: {}"
 
 msgctxt "LauncherWindow"
 msgid "Options"

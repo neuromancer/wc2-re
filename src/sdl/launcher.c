@@ -23,6 +23,10 @@ static const char *const g_apszSdlLauncherMusic[] = {
     "default", "adlib", "mt32"
 };
 
+static const char *const g_apszSdlLauncherSound[] = {
+    "default", "adlib", "mt32"
+};
+
 /* --mt32-check waits for every option, so a later --mt32-roms counts. */
 static int g_bSdlMt32CheckRequested;
 
@@ -196,6 +200,20 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             }
             launcherOptions->musicDevice = music;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_MUSIC;
+        } else if (strncmp(argument, "--sound=", 8) == 0) {
+            int sound;
+
+            for (sound = 0; sound < (int)SDL_arraysize(g_apszSdlLauncherSound); sound++) {
+                if (strcmp(argument + 8, g_apszSdlLauncherSound[sound]) == 0)
+                    break;
+            }
+            if (sound == (int)SDL_arraysize(g_apszSdlLauncherSound)) {
+                fprintf(stderr, "Unknown sound: %s (use default, adlib or mt32)\n",
+                        argument + 8);
+                return 0;
+            }
+            launcherOptions->soundDevice = sound;
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_SOUND;
         } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
             if (!SdlSetMt32RomArgument(argument + 12, launcherOptions)) {
                 fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
@@ -241,6 +259,7 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
     memset(options, 0, sizeof(*options));
     options->joystickInstanceId = -1;
     options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
+    options->soundDevice = SDL_LAUNCHER_SOUND_UNSET;
     if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
                              options->gameDirectory) == 0)
         strcpy(options->gameDirectory, ".");
@@ -401,8 +420,16 @@ int main(int argumentCount, char **arguments)
     SdlSetEgaDitherEnabled(launcherOptions.egaDither);
     SdlSetHiResHudFonts(launcherOptions.hiResHudFonts);
     SdlSetFrameInterpolation(launcherOptions.frameInterpolation);
-    /* The launcher or the command line chose the music. */
+    /* The launcher or the command line chose the music and the sound
+     * effects. */
+    SdlResolveLauncherSound(&launcherOptions);
+    if (launcherOptions.soundDevice < SDL_LAUNCHER_SOUND_DEFAULT ||
+        launcherOptions.soundDevice > SDL_LAUNCHER_SOUND_MT32) {
+        fprintf(stderr, "Invalid sound selection.\n");
+        return 1;
+    }
     SdlSetMusicDevice(launcherOptions.musicDevice);
+    SdlSetSoundDevice(launcherOptions.soundDevice);
     SdlSetMt32Roms(launcherOptions.mt32Roms, launcherOptions.mt32Model);
     /* A player's German patch for the DOS release brings its own UI text in
      * WC2.EXE; the selectable catalogs translate the English data. */
@@ -485,6 +512,8 @@ int main(int argumentCount, char **arguments)
             fprintf(stderr, "DOS audio is unavailable.\n");
         } else if (launcherOptions.musicDevice != SDL_LAUNCHER_MUSIC_DEFAULT) {
             fprintf(stderr, "DOS music is unavailable.\n");
+        } else if (launcherOptions.soundDevice != SDL_LAUNCHER_SOUND_DEFAULT) {
+            fprintf(stderr, "DOS sound effects are unavailable.\n");
         } else {
             fprintf(stderr,
                     "Original orchestral intro music is unavailable.\n");

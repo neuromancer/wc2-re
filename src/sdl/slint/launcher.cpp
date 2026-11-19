@@ -107,14 +107,33 @@ void set_language(LauncherWindow &window, int language)
     }
 }
 
-/* The music choice that shows the device: a DOS install lists only the
- * AdLib and the MT-32. */
-void show_music_device(LauncherWindow &window)
-{
-    const int device = std::clamp(window.get_music_device(), 0, 2);
+static_assert(SDL_LAUNCHER_SOUND_DEFAULT == SDL_LAUNCHER_MUSIC_DEFAULT &&
+                  SDL_LAUNCHER_SOUND_ADLIB == SDL_LAUNCHER_MUSIC_ADLIB &&
+                  SDL_LAUNCHER_SOUND_MT32 == SDL_LAUNCHER_MUSIC_MT32,
+              "the Music and Sound menus share their devices' numbers");
 
-    window.set_music_index(window.get_dos_data() ? (device == SDL_LAUNCHER_MUSIC_MT32 ? 1 : 0)
-                                                 : device);
+/* The Music or Sound choice that shows a device: a DOS install lists only
+ * the AdLib and the MT-32. */
+int audio_choice(const LauncherWindow &window, int device)
+{
+    device = std::clamp(device, 0, 2);
+    return window.get_dos_data() ? (device == SDL_LAUNCHER_MUSIC_MT32 ? 1 : 0) : device;
+}
+
+/* The device a Music or Sound choice selects. A DOS install's AdLib keeps
+ * whichever AdLib choice applies to Kilrathi Saga installs. */
+int chosen_audio_device(const LauncherWindow &window, int index, int current)
+{
+    if (!window.get_dos_data())
+        return std::clamp(index, 0, 2);
+    return index == 1 ? SDL_LAUNCHER_MUSIC_MT32
+        : current == SDL_LAUNCHER_MUSIC_MT32 ? SDL_LAUNCHER_MUSIC_DEFAULT : current;
+}
+
+void show_audio_devices(LauncherWindow &window)
+{
+    window.set_music_index(audio_choice(window, window.get_music_device()));
+    window.set_sound_index(audio_choice(window, window.get_sound_device()));
 }
 
 void refresh_window(LauncherWindow &window,
@@ -139,7 +158,7 @@ void refresh_window(LauncherWindow &window,
     window.set_has_so2(status.valid && validate_game_directory(directory, 2).valid);
     window.set_dos_data(status.valid && status.message == LauncherMessage::Dos);
     window.set_music_available(status.valid);
-    show_music_device(window);
+    show_audio_devices(window);
     window.set_german_text(status.valid && status.germanText);
     if (window.get_german_text() && window.get_language_index() != SDL_LAUNCHER_LANGUAGE_ENGLISH)
         set_language(window, SDL_LAUNCHER_LANGUAGE_ENGLISH);
@@ -1121,6 +1140,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
         return SDL_LAUNCHER_ERROR;
     const auto configPath = launcher_config_path();
     load_launcher_config(configPath, *options);
+    SdlResolveLauncherSound(options);
     auto installations = discover_game_installations();
 
     std::string initialDirectory(options->gameDirectory);
@@ -1198,21 +1218,18 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     prepare_pad(window, options->padBindings, padBindingsKept);
     refresh_window(*window, installations);
     window->set_music_device(std::clamp(options->musicDevice, 0, 2));
-    show_music_device(*window);
+    window->set_sound_device(std::clamp(options->soundDevice, 0, 2));
+    show_audio_devices(*window);
     std::string mt32Roms(options->mt32Roms);
     const std::string mt32Model(options->mt32Model);
     refresh_mt32_roms(*window, mt32Roms, mt32Model);
     window->on_music_selected([&window](int index) {
-        int device = std::clamp(index, 0, 2);
-
-        /* A DOS install lists only the AdLib and the MT-32; its AdLib
-         * keeps whichever AdLib choice applies to Kilrathi Saga installs. */
-        if (window->get_dos_data())
-            device = index == 1 ? SDL_LAUNCHER_MUSIC_MT32
-                : window->get_music_device() == SDL_LAUNCHER_MUSIC_MT32
-                ? SDL_LAUNCHER_MUSIC_DEFAULT : window->get_music_device();
-        window->set_music_device(device);
-        show_music_device(*window);
+        window->set_music_device(chosen_audio_device(*window, index, window->get_music_device()));
+        show_audio_devices(*window);
+    });
+    window->on_sound_selected([&window](int index) {
+        window->set_sound_device(chosen_audio_device(*window, index, window->get_sound_device()));
+        show_audio_devices(*window);
     });
 
     window->on_language_selected([&window, &installations](int language) {
@@ -1319,9 +1336,6 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
             return;
         mt32Roms = selection;
         refresh_mt32_roms(*window, mt32Roms, mt32Model);
-        // Choosing ROMs asks for the MT-32.
-        window->set_music_device(SDL_LAUNCHER_MUSIC_MT32);
-        show_music_device(*window);
     });
     window->on_browse_requested([&window, &installations, stop_calibration, start_picker]() {
         if (!start_picker())
@@ -1369,6 +1383,7 @@ int SdlRunLauncherGui(SdlLauncherOptions *options)
     }
     options->joystickDeadZone = dead_zone_percent(window->get_joystick_dead_zone());
     options->musicDevice = std::clamp(window->get_music_device(), 0, 2);
+    options->soundDevice = std::clamp(window->get_sound_device(), 0, 2);
     if (mt32Roms.size() < sizeof(options->mt32Roms))
         std::memcpy(options->mt32Roms, mt32Roms.c_str(), mt32Roms.size() + 1);
     options->joystickInstanceId = -1;
