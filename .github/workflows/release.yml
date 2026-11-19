@@ -299,12 +299,32 @@ jobs:
             mingw-w64-clang-x86_64-python
             mingw-w64-clang-x86_64-rust
             mingw-w64-clang-x86_64-SDL2
+      # Chocolatey's community feed sometimes answers 503 for a while. Try it
+      # three times a minute apart, then install NSIS 3.13 from its own
+      # SourceForge release, pinned by the installer's SHA-256 (SourceForge
+      # lists its MD5 as fc89531a76bdfd648bcff120c6fab0c7).
       - name: Install NSIS packaging tools
         shell: pwsh
         run: |
-          choco install nsis --version=3.13.0 --yes --no-progress
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $compiler = Join-Path ${env:ProgramFiles(x86)} 'NSIS\makensis.exe'
+          for ($attempt = 1; $attempt -le 3; $attempt++) {
+            choco install nsis --version=3.13.0 --yes --no-progress
+            if ($LASTEXITCODE -eq 0) { break }
+            if ($attempt -lt 3) { Start-Sleep -Seconds 60 }
+          }
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Chocolatey failed; installing NSIS 3.13 from SourceForge.'
+            $setup = Join-Path $env:RUNNER_TEMP 'nsis-3.13-setup.exe'
+            curl.exe -fL --retry 5 --retry-delay 15 -o $setup `
+              'https://downloads.sourceforge.net/project/nsis/NSIS%203/3.13/nsis-3.13-setup.exe'
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $hash = (Get-FileHash -Algorithm SHA256 $setup).Hash
+            if ($hash -ne 'DB9A1038BBC0E53FEF24F423FD609979BD578E942F1BE1198DB186D1C42652A3') {
+              throw "Unexpected NSIS installer SHA-256: $hash"
+            }
+            $installer = Start-Process -FilePath $setup -ArgumentList '/S' -Wait -PassThru
+            if ($installer.ExitCode -ne 0) { throw "NSIS installer exited with $($installer.ExitCode)" }
+          }
           if (!(Test-Path $compiler)) { throw "NSIS compiler not found: $compiler" }
           "MAKENSIS=$compiler" >> $env:GITHUB_ENV
       - name: Build SDL2 release port
