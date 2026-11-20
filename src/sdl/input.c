@@ -185,36 +185,38 @@ int SdlGetAsyncKeyState(int virtualKey)
     case VK_CLEAR:
         scanCode = SDL_SCANCODE_KP_5;
         break;
+    /* The keypad steers as these keys do in SdlTranslateScanCode, as it
+     * does on Windows with Num Lock off. */
     case VK_PRIOR:
-        scanCode = SDL_SCANCODE_PAGEUP;
-        break;
+        return (keys[SDL_SCANCODE_PAGEUP] || keys[SDL_SCANCODE_KP_9])
+            ? 0x8000 : 0;
     case VK_NEXT:
-        scanCode = SDL_SCANCODE_PAGEDOWN;
-        break;
+        return (keys[SDL_SCANCODE_PAGEDOWN] || keys[SDL_SCANCODE_KP_3])
+            ? 0x8000 : 0;
     case VK_END:
-        scanCode = SDL_SCANCODE_END;
-        break;
+        return (keys[SDL_SCANCODE_END] || keys[SDL_SCANCODE_KP_1])
+            ? 0x8000 : 0;
     case VK_HOME:
-        scanCode = SDL_SCANCODE_HOME;
-        break;
+        return (keys[SDL_SCANCODE_HOME] || keys[SDL_SCANCODE_KP_7])
+            ? 0x8000 : 0;
     case VK_LEFT:
-        scanCode = SDL_SCANCODE_LEFT;
-        break;
+        return (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_KP_4])
+            ? 0x8000 : 0;
     case VK_UP:
-        scanCode = SDL_SCANCODE_UP;
-        break;
+        return (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_KP_8])
+            ? 0x8000 : 0;
     case VK_RIGHT:
-        scanCode = SDL_SCANCODE_RIGHT;
-        break;
+        return (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_KP_6])
+            ? 0x8000 : 0;
     case VK_DOWN:
-        scanCode = SDL_SCANCODE_DOWN;
-        break;
+        return (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_KP_2])
+            ? 0x8000 : 0;
     case VK_INSERT:
-        scanCode = SDL_SCANCODE_INSERT;
-        break;
+        return (keys[SDL_SCANCODE_INSERT] || keys[SDL_SCANCODE_KP_0])
+            ? 0x8000 : 0;
     case VK_DELETE:
-        scanCode = SDL_SCANCODE_DELETE;
-        break;
+        return (keys[SDL_SCANCODE_DELETE] || keys[SDL_SCANCODE_KP_PERIOD])
+            ? 0x8000 : 0;
     case 0xbc:
         scanCode = SDL_SCANCODE_COMMA;
         break;

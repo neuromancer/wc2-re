@@ -1384,6 +1384,50 @@ const Uint8 *SdlPadKeyboardState(const Uint8 *keys)
     return copied ? heldKeys : keys;
 }
 
+/* Issue #67: the Kilrathi Saga's WC2 steers from key events. Each press or
+ * system repeat of a steering key turns one step harder, and any key's
+ * release levels every axis, so a held key turned only as fast as the
+ * system repeated it, and letting go of one of two directions stopped the
+ * other. WC1's Kilrathi Saga build reads the held keys every frame through
+ * the same PollKeyboardState instead, as the reporter found DOS WC2 to
+ * behave; WC2 itself does so only while a joystick moves. player_input calls
+ * this on the frames it reads no joystick: while the keyboard holds the axes
+ * it releases each one none of whose keys is held, then turns the held keys
+ * one step, as a repeat of them would. */
+void SdlSteerWithHeldKeys(void)
+{
+    static signed char lastSteeringKey = (signed char)0x80;
+    signed char currentKey;
+    signed char previousKey;
+    signed char key;
+    int diagonal;
+
+    key = (signed char)PollKeyboardState();
+    if (g_nCockpitControlState == 0) {
+        diagonal = GetAsyncKeyState(VK_HOME) || GetAsyncKeyState(VK_PRIOR) ||
+            GetAsyncKeyState(VK_END) || GetAsyncKeyState(VK_NEXT);
+        if (!diagonal && !GetAsyncKeyState(VK_UP) && !GetAsyncKeyState(VK_DOWN))
+            g_anFlightInput[0] = 0;
+        if (!diagonal && !GetAsyncKeyState(VK_LEFT) && !GetAsyncKeyState(VK_RIGHT))
+            g_anFlightInput[1] = 0;
+        if (!GetAsyncKeyState(VK_INSERT) && !GetAsyncKeyState(0xbc) &&
+            !GetAsyncKeyState(VK_DELETE) && !GetAsyncKeyState(0xbe))
+            g_anFlightInput[2] = 0;
+    }
+    if (key == 0) {
+        lastSteeringKey = (signed char)0x80;
+        return;
+    }
+    currentKey = g_cCurrentKey;
+    previousKey = g_cPreviousKey;
+    g_cCurrentKey = key;
+    g_cPreviousKey = lastSteeringKey;
+    process_player_input();
+    g_cCurrentKey = currentKey;
+    g_cPreviousKey = previousKey;
+    lastSteeringKey = key;
+}
+
 void SdlApplyJoystickFlightControls(void)
 {
     InputDeviceSample *sample;

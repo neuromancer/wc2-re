@@ -722,11 +722,6 @@ short player_input(void)
     short mouseY;
     int savedPlayerInputActive;
     HostMouseMessage *mouse;
-#ifdef SDL_PORT
-    signed char trailingKeyRelease;
-
-    trailingKeyRelease = 0;
-#endif
 
     keyHandled = 0;
     mouse = &g_6_stHostMouseTextBlock;
@@ -751,10 +746,16 @@ short player_input(void)
         g_cCurrentKey |= (signed char)0x80;
         if (g_19_bPolledFlightInputQueued == 0 &&
             g_nCockpitControlState == 0) {
+#ifdef SDL_PORT
+            /* SdlSteerWithHeldKeys releases only the axes whose keys are
+             * up (issue #67). */
+            g_bMouseMoveEventQueued = 0;
+#else
             g_anFlightInput[1] =
                 g_anFlightInput[0] =
                 g_anFlightInput[2] =
                 g_bMouseMoveEventQueued = 0;
+#endif
         }
     }
 
@@ -942,31 +943,25 @@ short player_input(void)
             keyHandled = 1;
         case INPUT_EVENT_KEY_DOWN:
 #ifdef SDL_PORT
-            trailingKeyRelease = 0;
             /* A key now holds g_cCurrentKey; its own release frees it. */
             g_cSdlMouseButtonKey = 0;
 #endif
             g_nCockpitControlGoal = 0;
             g_cCurrentKey = (signed char)message.status;
-            process_player_input();
-            break;
 #ifdef SDL_PORT
-        case INPUT_EVENT_KEY_UP:
-            trailingKeyRelease = 1;
-            break;
+            /* Without a joystick reading, SdlSteerWithHeldKeys turns the
+             * held keys once a frame below, whatever the system repeats. */
+            if (g_19_bPolledFlightInputQueued != 0)
+                process_player_input();
+#else
+            process_player_input();
 #endif
+            break;
         }
     }
 #ifdef SDL_PORT
-    /* Apply a final key release after draining earlier repeat events. */
-    if (trailingKeyRelease != 0 &&
-        g_19_bPolledFlightInputQueued == 0 &&
-        g_nCockpitControlState == 0) {
-        g_anFlightInput[1] =
-            g_anFlightInput[0] =
-            g_anFlightInput[2] =
-            g_bMouseMoveEventQueued = 0;
-    }
+    if (g_19_bPolledFlightInputQueued == 0)
+        SdlSteerWithHeldKeys();
 #endif
 
     if (g_bSecondaryMouseButtonHeld == 1)

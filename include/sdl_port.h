@@ -265,6 +265,7 @@ void SdlQueueJoystickWeaponRumble(int weaponType);
 void SdlQueueJoystickDamageRumble(int damage);
 void SdlQueueJoystickCollisionRumble(int collisionSpeed);
 void SdlApplyJoystickFlightControls(void);
+void SdlSteerWithHeldKeys(void);
 void SdlEndJoystickSpaceflight(void);
 /* WC2 is flying and reading its flight controls (not a menu or the map). */
 int SdlSpaceflightInputActive(void);
