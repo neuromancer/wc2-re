@@ -59,7 +59,19 @@ enum SdlLauncherExplicitOption {
     SDL_LAUNCHER_EXPLICIT_MT32_MODEL = 1 << 13,
     SDL_LAUNCHER_EXPLICIT_HIRES_HUD = 1 << 14,
     SDL_LAUNCHER_EXPLICIT_INTERPOLATION = 1 << 15,
-    SDL_LAUNCHER_EXPLICIT_SOUND = 1 << 16
+    SDL_LAUNCHER_EXPLICIT_SOUND = 1 << 16,
+    SDL_LAUNCHER_EXPLICIT_FLIGHT_FPS = 1 << 17
+};
+
+/* Spaceflight's frame rate, which the game's speed follows, in half frames a
+ * second: Normal is the Kilrathi Saga's 20, Slow 15, the pace its frame timer
+ * held the Kilrathi Saga's WC2 to, and [ and ] in flight set any rate from 8
+ * to 32 in half steps. */
+enum SdlLauncherFlightFps {
+    SDL_LAUNCHER_FLIGHT_FPS_MINIMUM = 16,
+    SDL_LAUNCHER_FLIGHT_FPS_SLOW = 30,
+    SDL_LAUNCHER_FLIGHT_FPS_NORMAL = 40,
+    SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM = 64
 };
 
 /* The music the game plays (SDL_PORT_MUSIC_* in include/sdl_port.h). */
@@ -104,6 +116,7 @@ typedef struct SdlLauncherOptions {
     int joystickDeadZone;
     int musicDevice;
     int soundDevice;
+    int flightFpsHalves; /* SdlLauncherFlightFps */
     /* The player's MT-32 or CM-32L ROMs, and optionally the libmt32emu
      * machine to use (empty: the best one the folder has). */
     char mt32Roms[SDL_LAUNCHER_DIRECTORY_CAPACITY];
@@ -124,6 +137,35 @@ typedef struct SdlLauncherOptions {
     unsigned int explicitOptions;
 } SdlLauncherOptions;
 
+/* A frame rate as written in the settings and on the command line, "20" or
+ * "18.5", in half frames a second; -1 when it is not one. */
+static inline int SdlParseFlightFps(const char *text)
+{
+    int whole = 0;
+    int digits = 0;
+    int halves;
+
+    while (*text >= '0' && *text <= '9' && digits < 3) {
+        whole = whole * 10 + (*text++ - '0');
+        digits++;
+    }
+    if (digits == 0)
+        return -1;
+    halves = whole * 2;
+    if (*text == '.') {
+        text++;
+        if (*text == '5')
+            halves++;
+        else if (*text != '0')
+            return -1;
+        text++;
+    }
+    if (*text != '\0' || halves < SDL_LAUNCHER_FLIGHT_FPS_MINIMUM ||
+        halves > SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM)
+        return -1;
+    return halves;
+}
+
 /* Without a Sound choice, as in settings saved before it existed, the
  * sound effects follow MT-32 music onto the MT-32. */
 static inline void SdlResolveLauncherSound(SdlLauncherOptions *options)
@@ -139,6 +181,9 @@ extern "C" {
 
 /* Accepting also sets the working directory to the selected installation. */
 int SdlRunLauncherGui(SdlLauncherOptions *options);
+/* Keeps a frame rate set in flight with the launcher's settings, where its
+ * Speed choice shows it. */
+void SdlSaveLauncherFlightFps(int halves);
 /* German UI strings in a player's German DOS WC2.EXE (0 for any other). */
 int SdlCountGermanText(const char *path);
 /* 1 when the folder has a playable MT-32 or CM-32L ROM pair, describing it;

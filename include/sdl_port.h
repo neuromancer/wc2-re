@@ -188,6 +188,13 @@ void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
 int SdlServiceAutopilotInput(int allowSkip);
 int SdlAutopilotSequenceRunning(void);
+/* Spaceflight's frame rate cap, which the game's speed follows, in half
+ * frames a second: 40 (20 FPS) by default, 16 to 64 (8 to 32 FPS). It also
+ * sets RunSpaceFlight's frame timer so that the cap alone sets the pace. */
+void SdlSetFlightFrameRate(int halves);
+/* Keeps the rate the player sets in flight with [ and ], in half frames a
+ * second; the GUI launcher saves it with its settings. */
+void SdlSetFlightFpsSaver(void (*saver)(int halves));
 void SdlPaceTitleFrame(int ticks);
 int SdlConfirmContinueOverwrite(void);
 extern int g_bSdlCutsceneOnly;
@@ -281,9 +288,8 @@ SDL_Scancode SdlKeymapTranslateKey(SDL_Scancode key, Uint16 *modifiers, int pres
 const Uint8 *SdlKeymapKeyboardState(const Uint8 *keys);
 /* 1 or 0 when the full-screen keys were changed, -1 when they were not. */
 int SdlKeymapFullscreenShortcut(SDL_Scancode key, Uint16 modifiers);
-/* In flight, whether the player bound an action to the key with Alt or
- * Command held. */
-int SdlKeymapBindsChord(SDL_Scancode key, Uint16 modifiers);
+/* In flight, whether an action the player bound takes this key press. */
+int SdlKeymapBindsKey(SDL_Scancode key, Uint16 modifiers);
 /* Mouse rebinding, in flight: whether the bindings use the mouse; whether a
  * button is one of the game's own two; the game's two buttons as the bound
  * buttons press them; and the key, with its modifiers, that another bound

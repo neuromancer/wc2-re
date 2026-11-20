@@ -4,7 +4,8 @@
  * (src/sdl/keymap_actions.h), saving and reading back changed bindings, the
  * guns and afterburner buttons' swap, the German patch's language menu, the
  * joystick dead zone setting, the calibration page, which calibrates SDL
- * virtual flight sticks, and the Music and Sound rows and their MT-32 line.
+ * virtual flight sticks, the Music and Sound rows and their MT-32 line, and
+ * the Speed choice, its flight_fps setting and the rate kept from flight.
  * With an argument it also saves BMP previews named after it: every tab, the
  * calibration page, the Steam Deck's 1280x800 at a scale of 1.2 and a
  * 640x480 window that scrolls. */
@@ -16,6 +17,7 @@
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
+#include <iterator>
 #include <thread>
 
 // The game reads real executables; fixtures mark a German WC2.EXE by its
@@ -407,6 +409,90 @@ int main(int argc, char **argv)
         require(slint::select_bundled_translation("es") && describe(22) == "22% (original)" &&
                 slint::select_bundled_translation("pl") && describe(22) == "22% (oryginalna)" &&
                 describe(5) == "5%" && slint::select_bundled_translation("en"), "and translates it");
+    }
+
+    // The Speed choice is spaceflight's frame rate, saved as flight_fps; a
+    // rate set in flight with [ and ] rewrites only that line, and the window
+    // offers it as Custom.
+    {
+        const auto contents = [](const fs::path &path) {
+            std::ifstream input(path, std::ios::binary);
+            return std::string(std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>());
+        };
+        SdlLauncherOptions speed = {};
+        speed.flightFpsHalves = 37;
+        require(save_launcher_config(fixture / "speed.ini", speed), "save a flight frame rate");
+        require(contents(fixture / "speed.ini").find("\nflight_fps=18.5\n") != std::string::npos,
+                "the rate is written as frames a second");
+        SdlLauncherOptions restored = {};
+        restored.flightFpsHalves = SDL_LAUNCHER_FLIGHT_FPS_NORMAL;
+        load_launcher_config(fixture / "speed.ini", restored);
+        require(restored.flightFpsHalves == 37, "18.5 fps survives a restart");
+        restored.flightFpsHalves = SDL_LAUNCHER_FLIGHT_FPS_SLOW;
+        restored.explicitOptions = SDL_LAUNCHER_EXPLICIT_FLIGHT_FPS;
+        load_launcher_config(fixture / "speed.ini", restored);
+        require(restored.flightFpsHalves == SDL_LAUNCHER_FLIGHT_FPS_SLOW,
+                "--flight-fps wins over the saved rate");
+        for (const char *bad : {"7", "33", "abc", "20.25", "18.7", "-20", "1e2"}) {
+            std::ofstream(fixture / "bad-speed.ini") << "[launcher]\nflight_fps=" << bad << "\n";
+            SdlLauncherOptions ignored = {};
+            ignored.flightFpsHalves = SDL_LAUNCHER_FLIGHT_FPS_NORMAL;
+            load_launcher_config(fixture / "bad-speed.ini", ignored);
+            require(ignored.flightFpsHalves == SDL_LAUNCHER_FLIGHT_FPS_NORMAL,
+                    "a rate other than 8 to 32 in half steps is ignored");
+        }
+        require(SdlParseFlightFps("8") == 16 && SdlParseFlightFps("32.0") == 64 &&
+                SdlParseFlightFps("16.5") == 33 && SdlParseFlightFps("32.5") == -1 &&
+                SdlParseFlightFps("") == -1 && SdlParseFlightFps("020") == 40,
+                "rates as the command line takes them");
+
+        // In flight only the rate changes; the other settings and sections stay.
+        std::ofstream(fixture / "flight.ini")
+            << "[launcher]\ngame_directory=\"/games/wc2\"\nflight_fps=20\njoystick_dead_zone=5\n"
+               "[keys]\npitch-down=k\n";
+        require(save_launcher_flight_fps(fixture / "flight.ini", 51), "keep a rate set in flight");
+        require(contents(fixture / "flight.ini") ==
+                    "[launcher]\ngame_directory=\"/games/wc2\"\nflight_fps=25.5\njoystick_dead_zone=5\n"
+                    "[keys]\npitch-down=k\n",
+                "the rate's line changes alone");
+        // Settings from before the Speed choice get the rate at the end of
+        // their [launcher] section, after a byte order mark and CRLF lines too.
+        std::ofstream(fixture / "older.ini") << "[launcher]\njoystick_dead_zone=5\n[keys]\npitch-down=k\n";
+        require(save_launcher_flight_fps(fixture / "older.ini", 32) &&
+                    contents(fixture / "older.ini") ==
+                        "[launcher]\njoystick_dead_zone=5\nflight_fps=16\n[keys]\npitch-down=k\n",
+                "older settings get the rate in their [launcher] section");
+        std::ofstream(fixture / "windows.ini", std::ios::binary)
+            << "\xef\xbb\xbf[launcher]\r\njoystick_dead_zone=5\r\n";
+        require(save_launcher_flight_fps(fixture / "windows.ini", 41), "add the rate to a Notepad file");
+        SdlLauncherOptions kept = {};
+        load_launcher_config(fixture / "windows.ini", kept);
+        require(kept.flightFpsHalves == 41 && kept.joystickDeadZone == 5, "which still loads");
+        std::ofstream(fixture / "keys-only.ini") << "[keys]\npitch-down=k\n";
+        require(!save_launcher_flight_fps(fixture / "keys-only.ini", 40) &&
+                    contents(fixture / "keys-only.ini") == "[keys]\npitch-down=k\n" &&
+                    !save_launcher_flight_fps(fixture / "missing.ini", 40) &&
+                    !fs::exists(fixture / "missing.ini") &&
+                    !save_launcher_flight_fps(fixture / "flight.ini", 65),
+                "nothing is written without launcher settings or for an invalid rate");
+
+        // The window offers Normal and Slow, and a rate set in flight as Custom.
+        const auto choice = [&window](int index) {
+            return std::string(window->get_speed_choices()->row_data(index).value_or(""));
+        };
+        require(window->get_flight_fps_halves() == SDL_LAUNCHER_FLIGHT_FPS_NORMAL &&
+                window->get_speed_choices()->row_count() == 2 &&
+                choice(0) == "Normal (20 FPS)" && choice(1) == "Slow (15 FPS)",
+                "Speed offers Normal and Slow");
+        window->set_custom_flight_fps_halves(37);
+        window->set_custom_flight_fps(slint::SharedString(flight_fps_text(37)));
+        require(window->get_speed_choices()->row_count() == 3 && choice(2) == "Custom (18.5 FPS)",
+                "and a rate set in flight as Custom");
+        require(slint::select_bundled_translation("pl") && choice(0) == "Normalna (20 FPS)" &&
+                choice(2) == "Własna (18.5 FPS)" && slint::select_bundled_translation("es") &&
+                choice(1) == "Lenta (15 FPS)" && slint::select_bundled_translation("en"),
+                "in each language");
+        window->set_custom_flight_fps_halves(0);
     }
 
     // The calibration page takes CalibrateJoystickInteractive's three
@@ -827,7 +913,8 @@ int main(int argc, char **argv)
     fs::remove_all(fixture, error);
     std::puts("PASS: the tabbed launcher shows WC2's controller and keyboard bindings and saves changes,"
               " a German WC2.EXE limits the language menu to German, the music and sound choices"
-              " fit the installation and are saved, the dead zone is saved, and the calibration page"
+              " fit the installation and are saved, the dead zone and the speed are saved, a speed set"
+              " in flight is kept, and the calibration page"
               " calibrates virtual sticks, the chosen one as joystick 1.");
     return 0;
 }

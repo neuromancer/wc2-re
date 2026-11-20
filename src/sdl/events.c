@@ -630,13 +630,31 @@ static void SdlRepeatMouseKeys(void)
     }
 }
 
-/* The frame rate shortcut's modifier: Alt, and on a Mac also Command, as
-   for Command-Return. */
-#ifdef __APPLE__
-#define SDL_FRAME_RATE_SHORTCUT (KMOD_GUI | KMOD_ALT)
-#else
-#define SDL_FRAME_RATE_SHORTCUT KMOD_ALT
-#endif
+static void (*g_pfnSdlFlightFpsSaver)(int halves);
+
+/* RunSpaceFlight waits for its frame timer, g_nSpaceFramePeriod 60ths of a
+ * second (SetMultimediaTimerCallback; AdjustSpaceFramePeriod's readout,
+ * written for DOS, prints it plus one), as well as for the frame rate cap.
+ * Retail ships 4, 15 steps a second at most whatever the cap; the port's 3
+ * allows the cap's 20, which visibly smooths flight. Above 20 FPS that timer
+ * would still hold flight at 20 steps a second, so there it runs at its
+ * shortest and the cap alone sets the pace. Set here rather than in
+ * globals.c so that file stays a faithful mirror of the image's data. */
+static void SdlFollowFlightFrameRate(void)
+{
+    g_nSpaceFramePeriod = g_fSpaceFlightFrameRate > 20.0f ? 1 : 3;
+}
+
+void SdlSetFlightFrameRate(int halves)
+{
+    g_fSpaceFlightFrameRate = halves / 2.0f;
+    SdlFollowFlightFrameRate();
+}
+
+void SdlSetFlightFpsSaver(void (*saver)(int halves))
+{
+    g_pfnSdlFlightFpsSaver = saver;
+}
 
 static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
 {
@@ -656,21 +674,27 @@ static int SdlHandleKeyboardEvent(const SDL_KeyboardEvent *event)
             SdlToggleFullscreen(event->windowID);
         return 0;
     }
-    /* Alt+N and Alt+M lower and raise spaceflight's frame rate cap by half a
-       frame a second, within 8 to 32, as the Kilrathi Saga's window procedure
-       does; on a Mac, Command or Option. As there, holding them repeats and
-       the game never sees the key, unless the player bound an action to it
-       with that modifier. The window procedure takes them on any screen, but
-       away from flight the HUD message they leave runs cockpit code for a
-       flight that has ended the next time, so here they work in flight. */
-    if (g_1_bSpaceFlightActive != 0 && g_nArcadeState == 0 &&
-        (event->keysym.sym == SDLK_n || event->keysym.sym == SDLK_m) &&
-        (event->keysym.mod & SDL_FRAME_RATE_SHORTCUT) != 0 &&
-        (event->keysym.mod & (KMOD_CTRL | KMOD_MODE |
-                              (KMOD_GUI & ~SDL_FRAME_RATE_SHORTCUT))) == 0 &&
-        !SdlKeymapBindsChord(event->keysym.scancode, event->keysym.mod)) {
-        if (pressed)
-            ReportSpaceFlightMaxFps(event->keysym.sym == SDLK_n ? -0.5f : 0.5f);
+    /* In flight, [ and ] (the two keys right of P, by position, whatever the
+       layout prints on them) lower and raise spaceflight's frame rate cap by
+       half a frame a second, within 8 to 32, as the Kilrathi Saga's Alt+N
+       and Alt+M do, and the game's speed follows it. Holding them repeats,
+       and the game never sees the key, unless the player bound an action to
+       it. The window procedure takes Alt+N and Alt+M on any screen, but away
+       from flight the HUD message they leave runs cockpit code for a flight
+       that has ended the next time, so these work in flight. On release the
+       launcher keeps the rate, as its Speed choice. */
+    if ((event->keysym.scancode == SDL_SCANCODE_LEFTBRACKET ||
+         event->keysym.scancode == SDL_SCANCODE_RIGHTBRACKET) &&
+        (event->keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI | KMOD_MODE)) == 0 &&
+        SdlSpaceflightInputActive() &&
+        !SdlKeymapBindsKey(event->keysym.scancode, event->keysym.mod)) {
+        if (pressed) {
+            ReportSpaceFlightMaxFps(event->keysym.scancode == SDL_SCANCODE_LEFTBRACKET
+                                        ? -0.5f : 0.5f);
+            SdlFollowFlightFrameRate();
+        } else if (g_pfnSdlFlightFpsSaver != 0) {
+            g_pfnSdlFlightFpsSaver((int)(g_fSpaceFlightFrameRate * 2.0f + 0.5f));
+        }
         return 0;
     }
     /* In flight, rebound keys stand in for the keys the game reads. */

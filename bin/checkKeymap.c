@@ -260,6 +260,20 @@ int main(void)
     g_bFlight = 0;
     Expect(!SdlKeymapMouseActive(), "menus keep the mouse as it is");
 
+    /* A key the player bound to an action, with its modifiers, takes it over
+     * from the port's own use of the key: [ and ] set the frame rate. */
+    g_bFlight = 1;
+    SdlSetKeyBindings("");
+    Expect(!SdlKeymapBindsKey(SDL_SCANCODE_LEFTBRACKET, 0), "[ is free without changes");
+    SdlSetKeyBindings("lock-target=%5b\n"
+                      "jump=alt+k\n");
+    Expect(SdlKeymapBindsKey(SDL_SCANCODE_LEFTBRACKET, 0), "a binding on [ takes it");
+    Expect(!SdlKeymapBindsKey(SDL_SCANCODE_RIGHTBRACKET, 0), "] stays free");
+    Expect(SdlKeymapBindsKey(SDL_SCANCODE_K, KMOD_LALT) && !SdlKeymapBindsKey(SDL_SCANCODE_K, 0),
+           "Alt+K is bound, K alone is not");
+    g_bFlight = 0;
+    Expect(!SdlKeymapBindsKey(SDL_SCANCODE_LEFTBRACKET, 0), "no binding takes [ outside flight");
+
     SDL_Quit();
     if (g_nFailures != 0)
         return 1;

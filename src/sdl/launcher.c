@@ -214,6 +214,14 @@ static int SdlParsePortArguments(int *argumentCount, char **arguments,
             }
             launcherOptions->soundDevice = sound;
             launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_SOUND;
+        } else if (strncmp(argument, "--flight-fps=", 13) == 0) {
+            launcherOptions->flightFpsHalves = SdlParseFlightFps(argument + 13);
+            if (launcherOptions->flightFpsHalves < 0) {
+                fprintf(stderr, "Invalid spaceflight frame rate: %s "
+                        "(8 to 32, in half steps)\n", argument + 13);
+                return 0;
+            }
+            launcherOptions->explicitOptions |= SDL_LAUNCHER_EXPLICIT_FLIGHT_FPS;
         } else if (strncmp(argument, "--mt32-roms=", 12) == 0) {
             if (!SdlSetMt32RomArgument(argument + 12, launcherOptions)) {
                 fprintf(stderr, "Invalid MT-32 ROM folder: %s\n", argument + 12);
@@ -260,6 +268,7 @@ static void SdlInitializeLauncherOptions(SdlLauncherOptions *options)
     options->joystickInstanceId = -1;
     options->joystickDeadZone = SDL_JOYSTICK_DEAD_ZONE_ORIGINAL;
     options->soundDevice = SDL_LAUNCHER_SOUND_UNSET;
+    options->flightFpsHalves = SDL_LAUNCHER_FLIGHT_FPS_NORMAL;
     if (GetCurrentDirectoryA(sizeof(options->gameDirectory),
                              options->gameDirectory) == 0)
         strcpy(options->gameDirectory, ".");
@@ -431,6 +440,17 @@ int main(int argumentCount, char **arguments)
     SdlSetMusicDevice(launcherOptions.musicDevice);
     SdlSetSoundDevice(launcherOptions.soundDevice);
     SdlSetMt32Roms(launcherOptions.mt32Roms, launcherOptions.mt32Model);
+    /* Spaceflight's frame rate, which the game's speed follows. */
+    if (launcherOptions.flightFpsHalves < SDL_LAUNCHER_FLIGHT_FPS_MINIMUM ||
+        launcherOptions.flightFpsHalves > SDL_LAUNCHER_FLIGHT_FPS_MAXIMUM) {
+        fprintf(stderr, "Invalid spaceflight frame rate.\n");
+        return 1;
+    }
+    SdlSetFlightFrameRate(launcherOptions.flightFpsHalves);
+#ifdef WC2_STATIC_GUI
+    /* A rate set in flight is kept for the launcher's Speed choice. */
+    SdlSetFlightFpsSaver(SdlSaveLauncherFlightFps);
+#endif
     /* A player's German patch for the DOS release brings its own UI text in
      * WC2.EXE; the selectable catalogs translate the English data. */
     if (SdlResolvePath("WC2.EXE", germanExecutable, sizeof(germanExecutable)) &&
@@ -519,14 +539,6 @@ int main(int argumentCount, char **arguments)
                     "Original orchestral intro music is unavailable.\n");
         }
     }
-    /* The flight loop waits one timer period per frame, so this is the
-     * frame duration in 60ths of a second less one -- the readout in
-     * AdjustSpaceFramePeriod prints it as period + 1.  Retail ships 4,
-     * which is 5/60s or about 12fps; the port takes a tick off for 4/60s,
-     * about 15fps, which visibly smooths flight.  Set here rather than in
-     * globals.c so that file stays a faithful mirror of the image's data,
-     * and because the in-flight keys can still adjust it from here. */
-    g_nSpaceFramePeriod = 3;
     SdlApplyLegacyArguments(argumentCount, arguments);
     MonoDebug_install();
     InitializeAudioSystem((HWND)window);

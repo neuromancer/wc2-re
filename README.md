@@ -120,6 +120,7 @@ sound effects. Optional features can be combined:
 | Authentic 16-colour EGA dithering from the DOS installer | `--ega` |
 | Experimental: cockpit text, nav labels, HUD messages and radio subtitles in the game's larger 11-pixel font, with the enhanced renderer | Launcher checkbox or `--hires-hud` |
 | Smooth spaceflight: frames drawn between the game's steps at the display's refresh rate, one step behind the game | Launcher checkbox or `--interpolate` |
+| Game speed: spaceflight's frame rate, 8 to 32 FPS (20 by default) | Launcher **Speed**, `[` and `]` in flight, or `--flight-fps=N` |
 | Heavy-weapon, damage, collision, and afterburner rumble | `--joystick-rumble` |
 | WCAT-style four-button joystick layouts | `--joystick-mode=4button-2axis` or `4button-4axis` |
 | Rebind gamepad buttons, triggers and axes, or a flight stick’s own inputs | Launcher **Custom** control mode or `--joystick-mode=custom` |
@@ -145,6 +146,14 @@ dead zone, calibration and rumble settings.
 choose each on its own. A *Kilrathi Saga* installation offers its own
 **Digital** music and effects, or the DOS ones on an **AdLib** or a
 **Roland MT-32**; a DOS installation offers the AdLib and the MT-32.
+
+**Game speed:** spaceflight advances one step per frame, so its frame rate
+sets the game's speed. The launcher's **Speed** offers **Normal** (20 FPS) and
+**Slow** (15 FPS, the pace of the *Kilrathi Saga*'s own WC2). In flight, `[`
+and `]` (the two keys right of `P`) lower and raise the rate in half steps
+from 8 to 32 FPS, as the *Kilrathi Saga*'s `Alt+N` and `Alt+M` did; the
+launcher keeps that rate and offers it as **Custom**. The command line takes
+`--flight-fps=N`.
 
 **Roland MT-32:** the DOS music and effects can play on an emulated MT-32 or
 CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
@@ -173,6 +182,7 @@ uses the original-resolution scene so dithering applies consistently.
 | `Cmd+Enter` (macOS), `Alt+Enter` (Windows and Linux) | Toggle fullscreen |
 | `Cmd+Q` (macOS) | Quit the game |
 | Mouse wheel (spaceflight) | Increase or decrease speed |
+| `[` / `]` (spaceflight) | Slow the game down / speed it up (the frame rate, 8 to 32 FPS) |
 | `Esc` (spaceflight) | Close communications, or pause |
 | `Esc` (autopilot fly-by) | Skip the fly-by |
 | Gamepad RT / LT (spaceflight) | Same as A / B: fire guns / roll and speed (missiles in the WCAT layouts) |

@@ -984,6 +984,23 @@ $(MODERN_OUT_DIR)/steering-probe: $(MODERN_OUT_DIR)/obj/steering_probe.o \
 check-steering: $(MODERN_OUT_DIR)/steering-probe
 	$(MODERN_OUT_DIR)/steering-probe
 
+# The frame rate keys, [ and ], in flight through the game's SDL event path
+# (bin/checkFrameRateKeys.c).
+$(MODERN_OUT_DIR)/obj/frame_rate_probe.o: bin/checkFrameRateKeys.c include/game.h include/sdl_port.h | modern-check-deps
+	@mkdir -p $(dir $@)
+	$(MODERN_CC) $(MODERN_CPPFLAGS) $(MODERN_CFLAGS) $(MODERN_SANITIZER_FLAGS) -c $< -o $@
+
+$(MODERN_OUT_DIR)/frame-rate-probe: $(MODERN_OUT_DIR)/obj/frame_rate_probe.o \
+		$(MODERN_BASE_HOST_OBJS) $(MODERN_GAME_HOST_OBJS) \
+		$(MODERN_GAMEPLAY_OBJS) $(MODERN_IX_OBJS)
+	$(MODERN_CXX) $(MODERN_CXXFLAGS) $(MODERN_SANITIZER_FLAGS) $^ \
+		$(MODERN_SDL_LIBS) $(MODERN_LZO_LIBS) $(MODERN_PLATFORM_LIBS) \
+		$(MODERN_DEAD_STRIP_FLAGS) -o $@
+
+.PHONY: check-frame-rate
+check-frame-rate: $(MODERN_OUT_DIR)/frame-rate-probe
+	$(MODERN_OUT_DIR)/frame-rate-probe
+
 # Actual game text calls and font packets through the CPU side of the HUD
 # overlay; no OpenGL display is needed. GAME_DATA accepts DOS or Saga data.
 $(MODERN_OUT_DIR)/obj/hud_fonts_probe.o: bin/checkHudFonts.c src/sdl/gl_renderer.c \
