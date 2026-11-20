@@ -187,6 +187,7 @@ void SdlStopAudio(void);
 void SdlOutputDebugString(const char *text);
 void SdlPumpEvents(void);
 int SdlServiceAutopilotInput(int allowSkip);
+int SdlAutopilotSequenceRunning(void);
 void SdlPaceTitleFrame(int ticks);
 int SdlConfirmContinueOverwrite(void);
 extern int g_bSdlCutsceneOnly;

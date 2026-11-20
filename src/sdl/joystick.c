@@ -1801,7 +1801,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     /* There another joystick's buttons are its own, by number, and
        SdlHandleJoystickHatEvent binds its hats. */
     if (custom && device->controller == 0 && !controllerEvent &&
-        !(button == SDL_JOYSTICK_BUTTON_BACK && g_bAutopilotSequenceActive != 0)) {
+        !(button == SDL_JOYSTICK_BUTTON_BACK && SdlAutopilotSequenceRunning())) {
         if (pressed && button < SDL_PAD_STICK_BUTTONS)
             SdlPressPadControl(SDL_PAD_STICK_BUTTON + button);
         return;
@@ -1809,7 +1809,7 @@ void SdlHandleJoystickButtonEvent(SDL_JoystickID instanceId,
     eventType = pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP;
     if (button == SDL_JOYSTICK_BUTTON_BACK) {
         /* View is Escape outside flight and during the autopilot fly-by. */
-        if (spaceflightActive && g_bAutopilotSequenceActive == 0) {
+        if (spaceflightActive && !SdlAutopilotSequenceRunning()) {
             if (pressed && custom)
                 SdlPressPadControl(button);
             else if (pressed)

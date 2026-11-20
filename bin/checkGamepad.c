@@ -416,11 +416,13 @@ static void CheckCustomFlightStick(void)
     SetHat(1, SDL_HAT_CENTERED);
     FlushInputEvents();
     g_bAutopilotSequenceActive = 1;
+    g_nTrainSimActive = 4;
     g_bSceneEscapeRequested = 0;
     SetButton(8, 1);
     SetButton(8, 0);
     Require(QueuedPress(0x01) && g_bSceneEscapeRequested, "raw button 9 still skips the autopilot fly-by");
     g_bAutopilotSequenceActive = 0;
+    g_nTrainSimActive = 0;
     g_bSceneEscapeRequested = 0;
     g_176_pfnCurrentInputPump = PollMenuInputDevices;
     SetButton(0, 1);
@@ -524,11 +526,19 @@ int main(int argc, char **argv)
     g_nCurrentView = 0;
     g_1_cStoredViewDisplayModeValue = 0;
     Require(!g_bSceneEscapeRequested, "View is not Escape in flight");
+    /* auto_pilot_sequence leaves its flag set when it refuses to engage;
+       only its fly-by and travel run with g_nTrainSimActive at 4. */
     g_bAutopilotSequenceActive = 1;
+    SetButton(PAD_BACK, 1);
+    SetButton(PAD_BACK, 0);
+    Require(QueuedPress(0x3c) && !g_bSceneEscapeRequested,
+            "View still steps the views after the autopilot refused");
+    g_nTrainSimActive = 4;
     SetButton(PAD_BACK, 1);
     SetButton(PAD_BACK, 0);
     Require(QueuedPress(0x01) && g_bSceneEscapeRequested, "View is Escape during the autopilot");
     g_bAutopilotSequenceActive = 0;
+    g_nTrainSimActive = 0;
     g_bSceneEscapeRequested = 0;
     g_176_pfnCurrentInputPump = PollMenuInputDevices;
     SetButton(PAD_BACK, 1);

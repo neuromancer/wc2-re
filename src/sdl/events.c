@@ -510,7 +510,7 @@ static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol,
     int virtualKey;
 
     scanCode = SdlTranslateScanCode(key);
-    if (repeat != 0 && g_bAutopilotSequenceActive != 0 &&
+    if (repeat != 0 && SdlAutopilotSequenceRunning() &&
         (scanCode == 0x01 || scanCode == 0x19))
         return;
     virtualKey = SdlTranslateVirtualKey(symbol);
@@ -813,6 +813,17 @@ static void SdlHandleMouseEvent(const SDL_Event *event)
 void SdlStartEventPump(void)
 {
     g_16_bMainWindowRunning = 1;
+}
+
+/* Whether the autopilot's fly-by or travel is running, whose loops read the
+ * keys through SdlServiceAutopilotInput. auto_pilot_sequence sets
+ * g_bAutopilotSequenceActive before auto_pilot_valid and leaves it set when
+ * that refuses, until an autopilot runs to the end; both loops run with
+ * g_nTrainSimActive at 4, as the game itself tests, and nothing else sets
+ * that. */
+int SdlAutopilotSequenceRunning(void)
+{
+    return g_bAutopilotSequenceActive != 0 && g_nTrainSimActive == 4;
 }
 
 /* Returns nonzero when allowSkip is set and the player pressed Esc, which
