@@ -47,6 +47,7 @@ void visit_the_cinema(int view, int obj, short frames)
          * have reached had the player watched the whole sequence. */
         if (skipRequested == 0)
             skipRequested = SdlServiceAutopilotInput(1);
+        SdlCaptureFlightPoses();
         Update_3Space();
         if (skipRequested != 0)
             continue;
@@ -64,6 +65,11 @@ void visit_the_cinema(int view, int obj, short frames)
         RenderSpaceViewFrame();
 #endif
         MarkDibDirty();
+#ifdef SDL_PORT
+        /* Interpolated frames lead up to each fly-by frame, which only the
+         * frame rate cap paces. */
+        SdlDeferFlightFrame(0);
+#endif
         DIBslamReal();
     }
     g_nOriginDevUnlock = originalUnlock;

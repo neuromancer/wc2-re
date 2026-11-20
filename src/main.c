@@ -2008,7 +2008,7 @@ int RunSpaceFlight(short entryNavPoint)
         MarkDibDirty();
 #ifdef SDL_PORT
         /* Interpolated frames lead up to a drawn step while waiting. */
-        SdlDeferFlightFrame();
+        SdlDeferFlightFrame(1);
 #endif
         DIBslamReal();
         WaitForFrameTick();

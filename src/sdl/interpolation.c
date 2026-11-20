@@ -8,13 +8,16 @@
  * last two steps: each object is moved and turned part of the way from
  * where the previous step left it, and the view is drawn again and
  * presented. The cockpit around the view keeps the step's own drawing.
+ * The autopilot's fly-by and the death camera, which step the simulation
+ * in loops of their own paced by the cap alone, are filled in the same way.
  *
  * An in-between frame runs the drawing half of RenderSpaceViewFrame with
  * the state it writes saved and restored, so the simulation never sees it.
  * What RunSpaceFlight drew over the view after it -- update_cockpit's
  * instruments, which the full-screen HUD draws over the view every step,
  * and the HUD message -- is laid over the new view as the step drew it,
- * and the message is drawn again. The frame does not respawn stars or place
+ * and the message is drawn again. The mouse-steering pointer is drawn
+ * where the mouse is at the time. The frame does not respawn stars or place
  * exhaust, which call rand(), nor advance the missile lock, engage the ITTS
  * or blink the target bracket, and it never loads a capital ship's view.
  * What is shown runs one step behind the simulation. */
@@ -43,8 +46,11 @@ typedef struct SavedRange {
 /* Everything an in-between frame writes: the poses it moves, the slot
    draw_nav_pointer takes or frees, what the view transform, sorting and
    drawing produce, the HUD's lock, lead and bracket state, the HUD
-   message's, and the cockpit display mode RenderSpaceViewFrame swaps
-   around its copy. */
+   message's, the cockpit display mode RenderSpaceViewFrame swaps around
+   its copy, the mouse-steering pointer, the screen's stale flag, which
+   drawing to the screen sets after the step's present has cleared it, and
+   the screen viewport, whose top dump_buffer_to_screen moves around its
+   copy: the death camera's frames run inside that copy, which presents. */
 static const SavedRange g_aSavedFlightState[] = {
     SAVED(g_aeObjectClass), SAVED(g_acObjectOwner), SAVED(g_nNavPointerObject),
     SAVED(g_aShipPosition), SAVED(g_aShipForwardVector),
@@ -68,7 +74,9 @@ static const SavedRange g_aSavedFlightState[] = {
     SAVED(g_18_nHudMessageColour), SAVED(g_3_cOverlayMessageView),
     SAVED(g_bCaptureHudMessageBackground), SAVED(g_nHudMessageBackgroundDepth),
     SAVED(g_29_pCurrentTextContext), SAVED(g_cLastPilotHandFrame),
-    SAVED(g_nCockpitDisplayMode)
+    SAVED(g_nCockpitDisplayMode), SAVED(g_bRenderingSpaceFrame),
+    SAVED(g_37_stPersonnelMousePointerState), SAVED(g_4_bScreenStale),
+    SAVED(g_101_stScrViewInfo)
 };
 
 static int g_bFrameInterpolation;
@@ -78,9 +86,21 @@ static int g_bPreviousPosesValid;
 static int g_bStepFrameDrawn;
 static int g_bStepDrewObjects;
 static DWORD g_dwStepStartTicks;
+/* Whether the step is one of RunSpaceFlight's own: those wait for its
+   frame timer as well as the frame rate cap, and draw the instruments and
+   the pending HUD message over the view. The autopilot's fly-by and the
+   death camera wait for the cap alone and draw nothing over the view. */
+static int g_bFlightLoopStep;
 /* The steps' period as measured, a running average: SDL fires the frame
    timer a little later than its period asks. */
 static long g_nMeasuredStepPeriod;
+/* The view and followed object each step was drawn with, and those the
+   previous poses were drawn with: a change of either is a cut, which the
+   eye does not move across. */
+static int g_nDrawnView = -1;
+static signed char g_cDrawnViewObject = -1;
+static int g_nCapturedView = -1;
+static signed char g_cCapturedViewObject = -1;
 static DWORD g_dwInterpolatedPresentMs = 16;
 static unsigned char *g_pSavedFlightState;
 static size_t g_nSavedFlightStateSize;
@@ -159,7 +179,8 @@ int SdlDrawingInterpolatedFrame(void)
     return g_bInterpolatedPass;
 }
 
-/* RunSpaceFlight, at its start and end: nothing to interpolate from. */
+/* RunSpaceFlight, at its start and end, and the death sequence at its end:
+   nothing to interpolate from, and no frame left waiting. */
 void SdlResetFrameInterpolation(void)
 {
     g_bPreviousPosesValid = 0;
@@ -169,7 +190,8 @@ void SdlResetFrameInterpolation(void)
     g_bFlightViewCaptured = 0;
 }
 
-/* RunSpaceFlight, before each Update_3Space. */
+/* Before each Update_3Space of a loop that draws spaceflight:
+   RunSpaceFlight, the autopilot's fly-by and the death camera. */
 void SdlCaptureFlightPoses(void)
 {
     long expected;
@@ -182,7 +204,7 @@ void SdlCaptureFlightPoses(void)
     now = timeGetTime();
     /* A step that took far longer than the timer and cap allow (a load, or
        a menu opened from the controls) says nothing about the cadence. */
-    if (g_bPreviousPosesValid) {
+    if (g_bPreviousPosesValid && g_bFlightLoopStep) {
         expected = (long)g_nSpaceFramePeriod * 1000 / 60;
         if (expected < g_17_nFramePeriodMillis)
             expected = g_17_nFramePeriodMillis;
@@ -193,6 +215,8 @@ void SdlCaptureFlightPoses(void)
     }
     g_dwStepStartTicks = now;
     g_bStepFrameDrawn = 0;
+    g_nCapturedView = g_nDrawnView;
+    g_cCapturedViewObject = g_cDrawnViewObject;
     for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         g_aPreviousPositions[obj] = g_aShipPosition[obj];
         g_aPreviousVelocities[obj] = g_aShipVelocity[obj];
@@ -221,6 +245,8 @@ void SdlSnapshotFlightChildren(int drawObjects)
     g_bStepDrewObjects = drawObjects != 0;
     g_bStepViewBufferValid = CopyStepViewBuffer(0);
     g_stStepViewBuffer = g_27_stViewScratchInfo;
+    g_nDrawnView = g_nCurrentView;
+    g_cDrawnViewObject = g_cViewObject;
 }
 
 /* RunSpaceFlight, after RenderSpaceViewFrame. */
@@ -234,10 +260,12 @@ void SdlCaptureFlightView(void)
     g_bFlightViewCaptured = 1;
 }
 
-/* RunSpaceFlight, before presenting: when the step drew a frame,
+/* Before the step's frame is presented: when the step drew one,
    DIBslamReal leaves its present to ThrottleFrameAndDrawFps, which
-   interpolates up to it. */
-void SdlDeferFlightFrame(void)
+   interpolates up to it. flightLoop tells RunSpaceFlight's own steps, which
+   draw over the view after SdlCaptureFlightView, from the fly-by's and the
+   death camera's, which draw nothing over it. */
+void SdlDeferFlightFrame(int flightLoop)
 {
     const unsigned char *screen;
     size_t pixel;
@@ -245,11 +273,16 @@ void SdlDeferFlightFrame(void)
     screen = g_18_pDisplayPixelBuffer;
     g_bFlightFrameDeferred =
         g_bFrameInterpolation && g_bChildOffsetsValid && g_bStepFrameDrawn &&
-        g_bFlightViewCaptured && screen != 0;
+        (g_bFlightViewCaptured || !flightLoop) && screen != 0;
+    g_bFlightLoopStep = flightLoop != 0;
     g_bStepFrameDrawn = 0;
     g_bFlightViewCaptured = 0;
     if (!g_bFlightFrameDeferred)
         return;
+    if (!flightLoop) {
+        memset(g_abFlightOverlayMask, 0, sizeof(g_abFlightOverlayMask));
+        return;
+    }
     memcpy(g_abFlightStepScreen, screen, sizeof(g_abFlightStepScreen));
     for (pixel = 0; pixel < FLIGHT_SCREEN_PIXELS; pixel++)
         g_abFlightOverlayMask[pixel] =
@@ -343,6 +376,37 @@ static int64_t LargestDifference(const FixedVector *current,
     return x > y ? (x > z ? x : z) : (y > z ? y : z);
 }
 
+/* How far an object can move in a step: its velocity before or after. */
+static int64_t StepSpeed(int obj)
+{
+    int64_t speed;
+
+    if (obj < 0 || obj >= SPACE_OBJECT_COUNT)
+        return 0;
+    speed = LargestComponent(&g_aShipVelocity[obj]);
+    if (LargestComponent(&g_aPreviousVelocities[obj]) > speed)
+        speed = LargestComponent(&g_aPreviousVelocities[obj]);
+    return speed;
+}
+
+/* The eye follows the player, or in an external view the ship it watches
+   or the target, and some views place it there without giving it a
+   velocity of its own. */
+static int64_t EyeStepSpeed(void)
+{
+    const int followed[] = {
+        EYE_OBJECT, 0, g_cViewObject, g_nExternalViewShip, g_acShipTarget[0]
+    };
+    int64_t speed = 0;
+    size_t index;
+
+    for (index = 0; index < SDL_arraysize(followed); index++) {
+        if (StepSpeed(followed[index]) > speed)
+            speed = StepSpeed(followed[index]);
+    }
+    return speed;
+}
+
 /* Moves each object part of the way back to its previous pose. A slot whose
    object changed, a jump its velocity does not explain (a respawn, the
    autopilot or a jump) and a sharp turn (a view change) show the step's own
@@ -356,7 +420,12 @@ static void InterpolatePoses(int alpha)
 
     for (obj = 0; obj < SPACE_OBJECT_COUNT; obj++) {
         /* The eye is no object of its own: the view sets it from the
-           player's or the camera's pose every step. */
+           player's or the camera's pose every step. A change of view, or of
+           the object an external view watches, is a cut. */
+        if (obj == EYE_OBJECT &&
+            (g_nCapturedView != g_nDrawnView ||
+             g_cCapturedViewObject != g_cDrawnViewObject))
+            continue;
         if (obj != EYE_OBJECT &&
             (g_aeObjectClass[obj] == OBJECT_CLASS_NULL ||
              g_aeObjectClass[obj] != g_aePreviousClass[obj] ||
@@ -369,9 +438,7 @@ static void InterpolatePoses(int alpha)
             continue;
         moved = LargestDifference(&g_aShipPosition[obj],
                                   &g_aPreviousPositions[obj]);
-        speed = LargestComponent(&g_aShipVelocity[obj]);
-        if (LargestComponent(&g_aPreviousVelocities[obj]) > speed)
-            speed = LargestComponent(&g_aPreviousVelocities[obj]);
+        speed = obj == EYE_OBJECT ? EyeStepSpeed() : StepSpeed(obj);
         if (moved <= 3 * speed + 256)
             LerpVector(&g_aShipPosition[obj], &g_aPreviousPositions[obj],
                        alpha);
@@ -392,6 +459,28 @@ static void InterpolatePoses(int alpha)
     }
 }
 
+/* Where the mouse is now, in the game's 320 by 200 as SdlHandleMouseEvent
+   maps it; 0 when it is over no window of the game. */
+static int LiveMousePointer(short *x, short *y)
+{
+    SDL_Window *window;
+    int windowX;
+    int windowY;
+    int logicalX;
+    int logicalY;
+
+    SDL_PumpEvents();
+    window = SDL_GetMouseFocus();
+    if (window == 0)
+        return 0;
+    SDL_GetMouseState(&windowX, &windowY);
+    if (!SdlMapWindowToLogical(window, windowX, windowY, &logicalX, &logicalY))
+        return 0;
+    *x = (short)SDL_max(0, SDL_min(logicalX, 319));
+    *y = (short)SDL_max(0, SDL_min(logicalY, 199));
+    return 1;
+}
+
 /* The drawing half of RenderSpaceViewFrame at alpha/256 of the way from
    the previous step to this one, under what the step drew after it;
    presented and then undone. */
@@ -402,9 +491,20 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
     size_t pixel;
     short hidePlayer;
     short obj;
+    short pointerX;
+    short pointerY;
 
     if (!SaveFlightState())
         return;
+    /* The copy to the screen presents the frame unless it is part of a
+       space frame, as it is in RunSpaceFlight's own drawing. */
+    g_bRenderingSpaceFrame = 1;
+    /* The mouse-steering pointer follows the mouse between the steps too;
+       the steps still read the mouse as before. */
+    if (g_nCockpitControlState == 1 && LiveMousePointer(&pointerX, &pointerY)) {
+        g_37_stPersonnelMousePointerState.x = pointerX;
+        g_37_stPersonnelMousePointerState.y = pointerY;
+    }
     if (g_bPreviousPosesValid && alpha < 256)
         InterpolatePoses(alpha);
     memcpy(g_asStepFlip, g_asObjectFlip, sizeof(g_asStepFlip));
@@ -458,7 +558,7 @@ void SdlDrawInterpolatedFlightFrame(int alpha)
         if (g_abFlightOverlayMask[pixel])
             screen[pixel] = g_abFlightStepScreen[pixel];
     }
-    if (g_pszPendingHudMessage != 0)
+    if (g_bFlightLoopStep && g_pszPendingHudMessage != 0)
         SetHudTextColour(g_pszPendingHudMessage, g_18_nHudMessageColour);
     g_bInterpolatedPass = 0;
     SdlPresentIndexedFrame(g_18_pDisplayPixelBuffer, g_3_abColourShadow);
@@ -482,18 +582,23 @@ void SdlPresentInterpolatedFlightFrames(DWORD deadline, long interval)
     int alpha;
     int frames;
 
-    if (!g_bFlightFrameDeferred)
+    if (!g_bFlightFrameDeferred || g_bInterpolatedPass)
         return;
     g_bFlightFrameDeferred = 0;
-    timerInterval = (long)g_nSpaceFramePeriod * 1000 / 60;
-    if (interval < timerInterval)
-        interval = timerInterval;
-    if (g_nMeasuredStepPeriod > interval &&
-        g_nMeasuredStepPeriod <= 2 * interval)
-        interval = g_nMeasuredStepPeriod;
-    due = g_dwStepStartTicks + (DWORD)interval;
-    if (deadline != 0 && (Sint32)(deadline - due) > 0)
-        due = deadline;
+    if (g_bFlightLoopStep) {
+        timerInterval = (long)g_nSpaceFramePeriod * 1000 / 60;
+        if (interval < timerInterval)
+            interval = timerInterval;
+        if (g_nMeasuredStepPeriod > interval &&
+            g_nMeasuredStepPeriod <= 2 * interval)
+            interval = g_nMeasuredStepPeriod;
+        due = g_dwStepStartTicks + (DWORD)interval;
+        if (deadline != 0 && (Sint32)(deadline - due) > 0)
+            due = deadline;
+    } else {
+        /* The fly-by and the death camera wait for the cap alone. */
+        due = deadline != 0 ? deadline : g_dwStepStartTicks + (DWORD)interval;
+    }
     frames = 0;
     lastAlpha = 0;
     for (;;) {

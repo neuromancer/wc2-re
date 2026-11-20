@@ -79,8 +79,19 @@ void death_sequence(void)
             ServiceInputDevices(-1);
             if (g_bSceneEscapeRequested == 1)
                 break;
+#ifdef SDL_PORT
+            /* The external view of the player's ship: interpolated frames
+             * lead up to each frame that the copy to the screen presents,
+             * paced by the frame rate cap alone. */
+            SdlCaptureFlightPoses();
+            if (Draw_3Space_Frame() != 0) {
+                SdlDeferFlightFrame(0);
+                dump_buffer_to_screen();
+            }
+#else
             if (Draw_3Space_Frame() != 0)
                 dump_buffer_to_screen();
+#endif
             switch (frame) {
             case 2:
                 Explosion(0);
@@ -89,6 +100,12 @@ void death_sequence(void)
         }
         break;
     }
+#ifdef SDL_PORT
+    /* new_view leaves the view alone while a cockpit explosion plays, and
+     * the copy of a cockpit view to the screen does not present: no frame
+     * left waiting is drawn once the ships are gone. */
+    SdlResetFrameInterpolation();
+#endif
     g_nArcadeState = 4;
     g_bSceneEscapeRequested = 0;
     free_all_slots();
