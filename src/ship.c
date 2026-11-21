@@ -1631,6 +1631,10 @@ void ProcessEnemyWaveCompletion(void)
     }
     check_next_wave();
     if (g_ucPendingEjectionTransition != 0xff &&
+#ifdef SDL_PORT
+        /* Only the fight that queued the scene arms it (issue #9). */
+        SdlQueuedSceneIsHere() &&
+#endif
         g_bEjectionWaitForEnemyWave != 0) {
         if (g_bEjectionTriggerImmediately != 0) {
             ejection_sequence(
@@ -1648,7 +1652,11 @@ void ProcessEnemyWaveCompletion(void)
                 g_aeObjectClass[obj] != OBJECT_CLASS_NULL)
                 return;
         }
-        if (g_ucPendingEjectionTransition != 0xff) {
+        if (g_ucPendingEjectionTransition != 0xff
+#ifdef SDL_PORT
+            && SdlQueuedSceneIsHere()
+#endif
+            ) {
             g_nEjectionSequenceState = 0;
             g_nPendingEjectionSequenceCount++;
         }

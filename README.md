@@ -155,6 +155,18 @@ from 8 to 32 FPS, as the *Kilrathi Saga*'s `Alt+N` and `Alt+M` did; the
 launcher keeps that rate and offers it as **Custom**. The command line takes
 `--flight-fps=N`.
 
+**Mission fixes:** three bugs that the DOS and *Kilrathi Saga* releases share
+are fixed ([#9](https://github.com/neuromancer/wc2-re/issues/9)). A cloaked
+ship decloaked only by firing, so one that stopped attacking stayed invisible
+for the rest of the mission and kept autopilot refused; a cloak now ends after
+a minute without firing, and the ship stays visible for half a minute before
+it can cloak again. Passing a nav point no longer counts as reaching a later
+return to it, so *Special Operations 1* series 1 mission 4 leads back to
+Rigel's jump point instead of pointing at the other system. A scene waiting for
+a nav point's fight to end, such as the bomb at Nav3 in *Special Operations 2*
+series 2 mission 3, plays only when that fight ends, not the next one
+elsewhere.
+
 **Roland MT-32:** the DOS music and effects can play on an emulated MT-32 or
 CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
 *Special Operations*). Put your own control and PCM ROM files in a folder,

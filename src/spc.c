@@ -1015,6 +1015,11 @@ void house_keep_objects(void)
             if (g_asShipCloakCooldown[obj] > 0)
                 g_asShipCloakCooldown[obj]--;
             g_asShipCloakElapsedFrames[obj]++;
+#ifdef SDL_PORT
+            /* A cloak no longer lasts forever (issue #9). */
+            if (obj > 0 && obj < 10)
+                SdlLimitShipCloak(obj);
+#endif
             if (g_asShipFriendlyFireCooldown[obj] > 0)
                 g_asShipFriendlyFireCooldown[obj]--;
             g_acShipExhaustHeat[obj] = 0;

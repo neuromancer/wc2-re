@@ -26,6 +26,108 @@ int SdlIsDepartingCommContact(short ship)
            g_asShipMissionType[ship] == MISSION_TYPE_GOTO_WARP;
 }
 
+/* Cloaked ships. A cloaked ship decloaks only when it fires (fire,
+ * 0x414DC0), and nothing else ends a cloak: one that stops attacking, or never
+ * gets a shot at an evading player, stays invisible for the rest of the
+ * mission while autopilot still counts it as near (issue #9). After a minute
+ * cloaked it decloaks as firing would, through ResetShipCloakState so that the
+ * flight recorder sees it, then waits half a minute before cloaking again.
+ * In the flight harness nearly every cloak ends by firing within 400 frames. */
+#define SDL_CLOAK_LIMIT_FRAMES 1200
+#define SDL_CLOAK_RECHARGE_FRAMES 600
+
+static short g_asSdlCloakRecharge[10];
+
+/* house_keep_objects, each frame, for the AI's ships 1-9. */
+void SdlLimitShipCloak(short ship)
+{
+    if (g_asSdlCloakRecharge[ship] > 0)
+        g_asSdlCloakRecharge[ship]--;
+    if (g_anShipCloakState[ship] == 1 &&
+        g_asShipCloakElapsedFrames[ship] >= SDL_CLOAK_LIMIT_FRAMES) {
+        ResetShipCloakState(ship);
+        g_asSdlCloakRecharge[ship] = SDL_CLOAK_RECHARGE_FRAMES;
+    }
+}
+
+int SdlShipCloakRecharged(short ship)
+{
+    return ship < 0 || ship >= (short)SDL_arraysize(g_asSdlCloakRecharge) ||
+           g_asSdlCloakRecharge[ship] == 0;
+}
+
+/* Set_up_ship_info, for a new ship in the slot. */
+void SdlResetShipCloakRecharge(short ship)
+{
+    if (ship >= 0 && ship < (short)SDL_arraysize(g_asSdlCloakRecharge))
+        g_asSdlCloakRecharge[ship] = 0;
+}
+
+/* Objectives that bring the flight path back to a nav point. The objective
+ * sweep (update_cockpit) marks any objective the player passes within 1500 m
+ * of as visited, current or not, and set_next_destination later skips it. A
+ * flight path that leaves a nav point and comes back to it, as SO1 series 1
+ * mission 4's return to Rigel's jump point does, so lost its way home on the
+ * way out: after Nav1 the nav computer pointed at the other system and
+ * autopilot answered "Jump Point" (issue #9). Such a later visible nav-point
+ * objective, still ahead on the flight path, with another nav point between it
+ * and the earlier visible objective at the same nav point, is not visited by
+ * passing it. */
+int SdlObjectiveIsPendingReturn(short objective)
+{
+    short nav;
+    int index;
+    int earlier;
+    int elsewhere;
+
+    if (g_aMissionObjectives[objective].type != 0 ||
+        hidden_objective(objective) != 0)
+        return 0;
+    nav = g_aMissionObjectives[objective].index;
+    for (index = g_cCurrentNavPointIndex + 1;
+         index < g_cMissionObjectiveCount && g_abFlightPath[index] != -1; index++) {
+        if (g_abFlightPath[index] != objective)
+            continue;
+        elsewhere = 0;
+        for (earlier = index - 1; earlier >= 0; earlier--) {
+            short other = g_abFlightPath[earlier];
+
+            if (g_aMissionObjectives[other].type != 0 || hidden_objective(other) != 0)
+                continue;
+            if (g_aMissionObjectives[other].index != nav)
+                elsewhere = 1;
+            else if (elsewhere)
+                return 1;
+        }
+    }
+    return 0;
+}
+
+/* Scenes queued for a nav point's fight. A wave command queues a mid-flight
+ * scene to play once the last Kilrathi of the sphere is gone, but the scene
+ * stayed queued after the player left, and the next sphere cleared of
+ * Kilrathi played it: SO2 series 2 mission 3's bomb at Nav3 killed a player
+ * who had heeded the warning and then cleared Nav1 (issue #9). The scene now
+ * arms only in the sphere that queued it; it stays queued meanwhile, so a
+ * player who returns and finishes that fight still gets it, as the missions
+ * that end the flight with scene 117 need. */
+static short g_nSdlQueuedSceneNavPoint = -1;
+
+/* ProcessMissionWaveCommands, for each scene command. Modes 0-3 and 5 queue
+ * the scene; 4 plays it at once and leaves any scene queued before alone. */
+void SdlNoteQueuedSceneNavPoint(int mode)
+{
+    if (mode >= 0 && mode <= 5 && mode != 4)
+        g_nSdlQueuedSceneNavPoint = g_nCurrentNavPoint;
+}
+
+/* ProcessEnemyWaveCompletion, before arming the queued scene. */
+int SdlQueuedSceneIsHere(void)
+{
+    return g_nSdlQueuedSceneNavPoint == -1 ||
+           g_nSdlQueuedSceneNavPoint == g_nCurrentNavPoint;
+}
+
 /* new_sphere_shapes frees the resource slots of types the next nav point or
  * wave does not preload, while a ship can still be in the sphere on one: a
  * ship travelling with the player, such as WC2's Kamekh, a survivor of the

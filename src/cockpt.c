@@ -1481,7 +1481,14 @@ void flag_reached(short objective, short reached)
                            g_cYellowColour, 4);
         }
     }
-    if (type != 1 && visit != 0) {
+    if (type != 1 && visit != 0
+#ifdef SDL_PORT
+        /* Passing a nav point the flight path returns to later does not
+         * visit the return (issue #9). */
+        && (g_cCurrentObjective == objective ||
+            SdlObjectiveIsPendingReturn(objective) == 0)
+#endif
+        ) {
         if (visited(objective) == 0 && carrierObject != -1 &&
             g_aMissionObjectives[objective].index ==
                 g_asShipMissionParameter[0] &&

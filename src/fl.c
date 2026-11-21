@@ -661,6 +661,10 @@ void Mzip_past(short ship, short target)
 void ShipAiState47(short ship, short target)
 {
     if (g_asShipCloakCooldown[ship] == 0 &&
+#ifdef SDL_PORT
+        /* A ship whose cloak timed out recharges first (issue #9). */
+        SdlShipCloakRecharged(ship) &&
+#endif
         g_anShipCloakState[ship] == 0) {
         maneuver_complete(ship);
         BeginShipCloak(ship);

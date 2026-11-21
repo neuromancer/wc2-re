@@ -659,6 +659,10 @@ void process_maneuver_node(short obj, short event)
 
         if (event != 5 &&
             g_asShipCloakCooldown[obj] == 0 &&
+#ifdef SDL_PORT
+            /* A ship whose cloak timed out recharges first (issue #9). */
+            SdlShipCloakRecharged(obj) &&
+#endif
             g_anShipCloakState[obj] == 0)
             maneuver = 0x2f;
     }

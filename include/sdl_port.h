@@ -318,6 +318,14 @@ int SdlUsingDosData(void);
 extern int g_nSdlCampaign;
 extern short g_bSdlScriptedDeath;
 int SdlIsDepartingCommContact(short ship);
+/* Fixes of the original's own bugs, shared by WC2 and both expansions in
+ * their DOS and Kilrathi Saga releases (src/sdl/campaign.c, issue #9). */
+void SdlLimitShipCloak(short ship);
+int SdlShipCloakRecharged(short ship);
+void SdlResetShipCloakRecharge(short ship);
+int SdlObjectiveIsPendingReturn(short objective);
+void SdlNoteQueuedSceneNavPoint(int mode);
+int SdlQueuedSceneIsHere(void);
 int SdlShipViewCount(short resourceType);
 short SdlUnclaimedShapeSlot(short slot);
 const char *SdlCampaignPath(const char *path);

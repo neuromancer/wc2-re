@@ -975,6 +975,11 @@ void ProcessMissionWaveCommands(MissionNavPoint *navPoint)
             g_nPendingEjectionSequenceCount = 0;
             g_bEjectionAwaitingCommCommand = 0;
             g_bEjectionTriggerImmediately = 0;
+#ifdef SDL_PORT
+            /* The sphere whose fight a queued scene waits for (issue #9). */
+            SdlNoteQueuedSceneNavPoint(
+                (unsigned char)navPoint->waveCommands[offset + 2]);
+#endif
             switch ((unsigned char)
                         navPoint->waveCommands[offset + 2]) {
             case 0:
@@ -1340,6 +1345,9 @@ void Set_up_ship_info(short obj, short missionShip, signed char navPoint)
         g_anShipCloakState[obj] = 2;
     }
     g_asShipCloakCooldown[obj] = 0;
+#ifdef SDL_PORT
+    SdlResetShipCloakRecharge(obj);
+#endif
     reset_mission_type(obj, record->missionType);
     g_asShipMissionParameter[obj] = record->missionParameter;
     g_asShipWingLeader[obj] =
