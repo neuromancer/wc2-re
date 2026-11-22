@@ -1529,39 +1529,9 @@ short HandleSpaceFlightControls(void)
     }
 
 #ifdef SDL_PORT
-    /* A key held without OS auto-repeat (a controller remapper holds the key
-     * down) only acts on its keydown.  Consult the held state for the four
-     * actions that sustain, independently of each other so that holding the
-     * afterburner does not starve the guns or the throttle, and skip the one
-     * the discrete event above already acted on this frame. */
-    if (g_cCurrentKey != 0x0f && g_cCurrentKey != 0x37 &&
-        (g_77_abKeyboardEventStates[0x0f] != 0 ||
-         g_77_abKeyboardEventStates[0x37] != 0)) {
-        if (g_asObjectType[0] != 0x33)
-            your_afterburner();
-    }
-    if (g_cCurrentKey != 0x39 && g_77_abKeyboardEventStates[0x39] != 0) {
-        if (g_nCurrentView == 4)
-            FireTargetCameraGuns();
-        else
-            fire_players_lasers();
-    }
-    if (g_cCurrentKey != 0x0d && g_cCurrentKey != 0x4e &&
-        (g_77_abKeyboardEventStates[0x0d] != 0 ||
-         g_77_abKeyboardEventStates[0x4e] != 0)) {
-        if (controlHeld != 0)
-            ReportFramesSkipped(1);
-        else
-            accelerate(1);
-    }
-    if (g_cCurrentKey != 0x0c && g_cCurrentKey != 0x4a &&
-        (g_77_abKeyboardEventStates[0x0c] != 0 ||
-         g_77_abKeyboardEventStates[0x4a] != 0)) {
-        if (controlHeld != 0)
-            ReportFramesSkipped(-1);
-        else
-            accelerate(-1);
-    }
+    /* The afterburner, the guns and the throttle act while their keys are
+     * held, whichever key this frame's event chose (issue #6). */
+    SdlSustainHeldFlightKeys(controlHeld);
 #endif
 
     switch ((signed char)g_cCurrentKey) {

@@ -274,6 +274,8 @@ void SdlQueueJoystickDamageRumble(int damage);
 void SdlQueueJoystickCollisionRumble(int collisionSpeed);
 void SdlApplyJoystickFlightControls(void);
 void SdlSteerWithHeldKeys(void);
+/* The afterburner, guns and throttle keys held in flight (events.c). */
+void SdlSustainHeldFlightKeys(int controlHeld);
 void SdlEndJoystickSpaceflight(void);
 /* WC2 is flying and reading its flight controls (not a menu or the map). */
 int SdlSpaceflightInputActive(void);

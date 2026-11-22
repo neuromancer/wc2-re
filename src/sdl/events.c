@@ -501,6 +501,9 @@ static int SdlIsAltRadioHotkey(int virtualKey)
  * the autopilot. Its release is dropped with it. */
 static Uint8 g_abSdlRadioChordKeys[SDL_NUM_SCANCODES];
 
+/* When each game key last went down, for SdlSustainHeldFlightKeys. */
+static Uint32 g_adwSdlGameKeyPressTicks[0x80];
+
 /* Queues one key for the game: an SDL key event, or a key that a rebound
  * key, mouse button or wheel step stands for. */
 static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol,
@@ -557,6 +560,8 @@ static void SdlQueueGameKey(SDL_Scancode key, SDL_Keycode symbol,
                         (unsigned short)virtualKey, 0, 0, 0,
                         (unsigned int)scanCode,
                         (unsigned int)SdlKeyCharacter(modifiers, virtualKey));
+        if (pressed && repeat == 0 && scanCode > 0 && scanCode < 0x80)
+            g_adwSdlGameKeyPressTicks[scanCode] = SdlGetTicks();
         SetInputKeyState(scanCode, (unsigned char)pressed);
         SdlTraceInputEvent(pressed ? "keydn" : "keyup",
                               pressed ? INPUT_EVENT_KEY_DOWN : INPUT_EVENT_KEY_UP,
@@ -628,6 +633,53 @@ static void SdlRepeatMouseKeys(void)
         g_adwSdlMouseKeyRepeat[button] = now + SDL_MOUSE_KEY_REPEAT;
         SdlQueueGameKey(key, SdlGameKeySymbol(key), g_awSdlMouseKeyModifiers[button], 1, 1);
     }
+}
+
+/* The controls a player holds in flight: the afterburner (Tab, keypad *), the
+ * guns (Space) and the throttle (+ and -, on the keypad too). The game acts on
+ * one key a frame, the one its latest key event named, and drops it on the
+ * next frame without mouse motion, while the system repeats only the key
+ * pressed last. A held key therefore acted on its press, then waited out the
+ * system's repeat delay, and once another key went down it stopped for good:
+ * steering with the arrow keys silenced the guns and put out the afterburner
+ * until their key was pressed again (issue #6). HandleSpaceFlightControls
+ * calls this before it acts on the frame's key, and each of these controls
+ * whose key is held acts too, unless that key is the frame's own. The
+ * throttle first waits a quarter of a second, as the port's mouse and
+ * controller buttons do before repeating a key, so that a tap still moves it
+ * one step; Ctrl with + or -, the frame skip, steps only on key events. */
+#define SDL_HELD_KEY_DELAY 250
+
+/* The game's clock (SdlGetTicks), which the flight fuzzer simulates. */
+static int SdlGameKeyHeldLong(int scanCode)
+{
+    return g_77_abKeyboardEventStates[scanCode] != 0 &&
+           SdlGetTicks() - g_adwSdlGameKeyPressTicks[scanCode] >= SDL_HELD_KEY_DELAY;
+}
+
+void SdlSustainHeldFlightKeys(int controlHeld)
+{
+    signed char key = g_cCurrentKey;
+
+    if (key != 0x0f && key != 0x37 &&
+        (g_77_abKeyboardEventStates[0x0f] != 0 ||
+         g_77_abKeyboardEventStates[0x37] != 0) &&
+        g_asObjectType[0] != 0x33)
+        your_afterburner();
+    if (key != 0x39 && g_77_abKeyboardEventStates[0x39] != 0) {
+        if (g_nCurrentView == 4)
+            FireTargetCameraGuns();
+        else
+            fire_players_lasers();
+    }
+    if (controlHeld != 0)
+        return;
+    if (key != 0x0d && key != 0x4e &&
+        (SdlGameKeyHeldLong(0x0d) || SdlGameKeyHeldLong(0x4e)))
+        accelerate(1);
+    if (key != 0x0c && key != 0x4a &&
+        (SdlGameKeyHeldLong(0x0c) || SdlGameKeyHeldLong(0x4a)))
+        accelerate(-1);
 }
 
 static void (*g_pfnSdlFlightFpsSaver)(int halves);
