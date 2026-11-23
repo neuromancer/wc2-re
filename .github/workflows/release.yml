@@ -33,8 +33,10 @@ jobs:
           RUN_NUMBER: ${{ github.run_number }}
         run: |
           if [[ "$EVENT_NAME" == push && "$REF_TYPE" == tag ]]; then
-            if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Release tags must match vMAJOR.MINOR.PATCH: $REF_NAME" >&2
+            # A suffix such as -rc1 names a release candidate, published as a
+            # release all the same; the packages' numeric versions drop it.
+            if [[ ! "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z]+(\.[0-9A-Za-z]+)*)?$ ]]; then
+              echo "Release tags must match vMAJOR.MINOR.PATCH, optionally with a suffix such as -rc1: $REF_NAME" >&2
               exit 1
             fi
             echo "publish=true" >> "$GITHUB_OUTPUT"
