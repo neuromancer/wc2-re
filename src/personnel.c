@@ -1338,6 +1338,14 @@ short LocateLegacySaveGame(short source)
     InitializeTextContextFromFont(
         &g_3_stDefaultStringContext, 2,
         (unsigned char)g_10_nMenuDarkColour, -1);
+#ifdef SDL_PORT
+    /* A DOS WC1 beside WC2's install needs no typing (issue #71). */
+    if (g_nLegacySaveSource != 0 &&
+        (installedPath = SdlLegacyGameDataPath(1)) != 0) {
+        strcpy(g_1_szLegacySaveFolder, installedPath);
+        pathEntered = 1;
+    } else
+#endif
     if (g_nLegacySaveSource == 0) {
         installedPath = GetLegacyGameDataPath();
         if (installedPath != 0) {
@@ -1345,6 +1353,10 @@ short LocateLegacySaveGame(short source)
         } else {
             strcpy(g_1_szLegacySaveFolder, "");
         }
+#ifdef SDL_PORT
+        /* Retail tests pathEntered below without setting it on this path. */
+        pathEntered = 1;
+#endif
     } else {
         strcpy(g_1_szLegacySaveFolder, "");
         RestorePersonnelMenuBackground(&g_stSecondaryViewBufferBlock);
@@ -1394,6 +1406,10 @@ short LocateLegacySaveGame(short source)
     if (handle == -1) {
         return 0;
     }
+#ifdef SDL_PORT
+    /* The port has eight find handles; retail leaves this one open. */
+    _findclose(handle);
+#endif
     return 1;
 }
 
@@ -1557,7 +1573,21 @@ short RunPilotDatabaseMenu(void)
                                             0x8000);
                         transferCount = 0;
                         for (saveSlot = 0; saveSlot < 8; saveSlot++) {
+#ifdef SDL_PORT
+                            /* Another game's file: a short one has no more
+                             * games, and its strings and rank must stay in
+                             * their fields and in the rank table. */
+                            if (_read(handle, record, 0x33c) != 0x33c ||
+                                (unsigned short)record->pilots[8].rank >=
+                                    PILOT_RANK_COUNT)
+                                record->occupied = 0;
+                            record->pilots[8].name[
+                                sizeof(record->pilots[8].name) - 1] = '\0';
+                            record->pilots[8].callsign[
+                                sizeof(record->pilots[8].callsign) - 1] = '\0';
+#else
                             _read(handle, record, 0x33c);
+#endif
                             if (record->occupied != 0 &&
                                 record->campaign.campaignIndex ==
                                     choice) {
@@ -1624,6 +1654,12 @@ short RunPilotDatabaseMenu(void)
                                     g_1_szLegacySaveFolder, 0x8000);
                                 lseek(handle, (long)transferCount * 0x33c, 0);
                                 _read(handle, record, 0x33c);
+#ifdef SDL_PORT
+                                record->pilots[8].name[
+                                    sizeof(record->pilots[8].name) - 1] = '\0';
+                                record->pilots[8].callsign[
+                                    sizeof(record->pilots[8].callsign) - 1] = '\0';
+#endif
                                 selectedPilot = &record->pilots[8];
                                 _close(handle);
                                 PersonnelDriveHook(driveToRestore);

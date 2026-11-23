@@ -167,6 +167,16 @@ a nav point's fight to end, such as the bomb at Nav3 in *Special Operations 2*
 series 2 mission 3, plays only when that fight ends, not the next one
 elsewhere.
 
+**Wing Commander I pilots:** as in the original, a new game's personnel
+database can transfer a WC1 pilot (**[T]ransfer an existing personnel
+file**): it keeps the last name, callsign, missions and kills, asks for a
+first name (Christopher by default), and makes the pilot a captain.
+**[W]ing Commander** reads the saved games of the WC1 that
+[wc1-re](https://github.com/neuromancer/wc1-re)'s launcher plays, or of a
+*Kilrathi Saga* WC1 beside this install, as GOG puts Wing Commander I beside
+Wing Commander II. **[D]os Version of Wing Commander** reads a DOS WC1's beside
+it, or asks for that game's folder.
+
 **Roland MT-32:** the DOS music and effects can play on an emulated MT-32 or
 CM-32L, as WC2 plays its Roland scores (`MUSIC.R00`, and `R01`/`R02` for the
 *Special Operations*). Put your own control and PCM ROM files in a folder,

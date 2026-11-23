@@ -1767,7 +1767,13 @@ extern unsigned short g_wPersonnelInputFlags; /* 0x005c8d07 */
 extern int g_bSceneDisplayUpdateActive; /* 0x00499bb8 */
 extern short g_1_nCockpitArchiveVariantNumber; /* 0x005c901a */
 extern char *g_3_apszPersonnelImportCaptionsTable[8]; /* 0x005d2100 */
-extern char g_1_szLegacySaveFolder[0x30]; /* 0x005d2130 */
+#ifdef SDL_PORT
+/* The port finds WC1's saved games under host paths (issue #71). */
+#define LEGACY_SAVE_FOLDER_SIZE 0x420
+#else
+#define LEGACY_SAVE_FOLDER_SIZE 0x30
+#endif
+extern char g_1_szLegacySaveFolder[LEGACY_SAVE_FOLDER_SIZE]; /* 0x005d2130 */
 extern SceneResourceTable g_stSceneZoneTable; /* 0x005d3bf8 */
 extern SceneResourceTable g_stSceneTextList; /* 0x005d3c00 */
 extern char *g_pszPersonnelFooter; /* 0x00492658 */

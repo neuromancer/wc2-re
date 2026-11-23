@@ -3987,7 +3987,7 @@ short g_8_nSceneRegionRightWord; /* 0x005d2124 */
 short g_15_nSceneAreaLowestWord; /* 0x005d2126 */
 char g_1_nUnusedCockptSlotWord; /* 0x005d2128 */ /* never referenced */
 void *g_13_pStartupStellarPacket; /* 0x005d212c */
-char g_1_szLegacySaveFolder[0x30]; /* 0x005d2130 */
+char g_1_szLegacySaveFolder[LEGACY_SAVE_FOLDER_SIZE]; /* 0x005d2130 */
 Viewport g_3_stDashViewport; /* 0x005d2160 */
 Viewport g_2_stLeftwardVduPortBlock; /* 0x005d2180 */
 Viewport g_101_stScrViewInfo; /* 0x005d21a0 */

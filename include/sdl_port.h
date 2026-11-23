@@ -333,6 +333,10 @@ short SdlUnclaimedShapeSlot(short slot);
 const char *SdlCampaignPath(const char *path);
 int SdlSelectCampaign(int campaign);
 int SdlTryImportExpansionPilot(void);
+/* WC1's saved games for the personnel database's transfer (issue #71). */
+char *SdlLegacyGameDataPath(int dosVersion);
+int SdlFindLegacyGameData(int dosVersion, const char *preferences,
+                          const char *install, char *result, size_t size);
 int SdlClipViewportCopy(struct Viewport *source, struct Viewport *destination);
 int SdlPatchPacketSection(const char *filename, short section,
                           struct PacketSectionHandle *handle);

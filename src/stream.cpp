@@ -221,7 +221,8 @@ const char g_szCheaterValueName[] = "Cheater"; /* 0x0048e0c8 */
 char *GetLegacyGameDataPath(void)
 {
 #ifdef SDL_PORT
-    return 0;
+    /* No registry places WC1: look for it (src/sdl/campaign.c). */
+    return SdlLegacyGameDataPath(0);
 #else
     HKEY hKey;
     DWORD installed;

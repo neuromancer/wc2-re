@@ -383,6 +383,215 @@ int SdlTryImportExpansionPilot(void)
     return 1;
 }
 
+/* Issue #71. A new pilot can be a WC1 pilot: the personnel database's
+ * [T]ransfer lists the player's pilot of each WC1 game in SAVEGAME.WLD, asks
+ * for a first name and keeps the last name, callsign, missions and kills. The
+ * Kilrathi Saga offers its own WC1, which the registry places ("Installed To:"
+ * plus wc1\gamedat, GetLegacyGameDataPath), or a DOS one whose path the player
+ * types, 25 characters at most. The port has neither that registry nor such
+ * short paths, so it looks for WC1's GAMEDAT: for [W]ing Commander, the folder
+ * wc1-re's launcher keeps in launcher.ini, in the settings folder this port
+ * shares, then a Kilrathi Saga copy beside WC2's own install; for the [D]os
+ * version, a DOS copy beside it, before asking. Beside is GOG's layout, Wing
+ * Commander I next to Wing Commander II with Kilrathi_Saga and DOS inside, or
+ * the Kilrathi Saga's wc1 next to wc2. A folder counts if it holds
+ * SAVEGAME.WLD. */
+#define SDL_LEGACY_PATH_SIZE 0x400
+
+/* folder/SAVEGAME.WLD in any case: the folder as found, for the transfer to
+ * append the file name to. */
+static int SdlLegacySaveFolder(const char *folder, char *result, size_t size)
+{
+    char path[SDL_LEGACY_PATH_SIZE];
+    char resolved[SDL_LEGACY_PATH_SIZE];
+    char *leaf;
+    FILE *file;
+
+    if ((size_t)snprintf(path, sizeof(path), "%s/SAVEGAME.WLD", folder) >= sizeof(path) ||
+        !SdlResolvePath(path, resolved, sizeof(resolved)))
+        return 0;
+    file = fopen(resolved, "rb");
+    if (file == NULL)
+        return 0;
+    fclose(file);
+    leaf = strrchr(resolved, '/');
+    if (leaf == NULL || (size_t)(leaf - resolved) >= size)
+        return 0;
+    *leaf = '\0';
+    strcpy(result, resolved);
+    return 1;
+}
+
+static char *SdlSkipBlanks(char *text)
+{
+    while (*text == ' ' || *text == '\t')
+        text++;
+    return text;
+}
+
+/* wc1-re's launcher keeps the folder of the WC1 it plays in launcher.ini:
+ * [launcher] game_directory="...", quoted, its backslashes literal. */
+static int SdlReadWc1LauncherFolder(const char *preferences, char *folder, size_t size)
+{
+    char path[SDL_LEGACY_PATH_SIZE];
+    char line[SDL_LEGACY_PATH_SIZE + 64];
+    FILE *file;
+    int inLauncher = 0;
+    int found = 0;
+
+    if ((size_t)snprintf(path, sizeof(path), "%slauncher.ini", preferences) >= sizeof(path))
+        return 0;
+    file = fopen(path, "rb");
+    if (file == NULL)
+        return 0;
+    while (!found && fgets(line, sizeof(line), file) != NULL) {
+        char *text = line;
+        char *end;
+
+        if ((unsigned char)text[0] == 0xef && (unsigned char)text[1] == 0xbb &&
+            (unsigned char)text[2] == 0xbf)
+            text += 3;
+        text = SdlSkipBlanks(text);
+        end = text + strlen(text);
+        while (end > text && (end[-1] == '\n' || end[-1] == '\r' ||
+                              end[-1] == ' ' || end[-1] == '\t'))
+            *--end = '\0';
+        if (*text == '[') {
+            inLauncher = strcmp(text, "[launcher]") == 0;
+            continue;
+        }
+        if (!inLauncher || strncmp(text, "game_directory", 14) != 0)
+            continue;
+        text = SdlSkipBlanks(text + 14);
+        if (*text != '=')
+            continue;
+        text = SdlSkipBlanks(text + 1);
+        if (end - text >= 2 && *text == '"' && end[-1] == '"') {
+            text++;
+            *--end = '\0';
+        }
+        if (*text != '\0' && (size_t)(end - text) < size) {
+            memcpy(folder, text, (size_t)(end - text) + 1);
+            found = 1;
+        }
+    }
+    fclose(file);
+    return found;
+}
+
+/* The last component of a path, after either separator. */
+static char *SdlPathLeaf(char *path)
+{
+    char *leaf = path + strlen(path);
+
+    while (leaf > path && leaf[-1] != '/' && leaf[-1] != '\\')
+        leaf--;
+    return leaf;
+}
+
+/* WC1 beside WC2's install, the folder that holds WC2's GAMEDAT. */
+static int SdlFindBesideWc2(int dosVersion, const char *install, char *result, size_t size)
+{
+    static const char *const numerals[][2] = {
+        { " II", " I" }, { " II", "" }, { " 2", " 1" }, { " 2", "" }
+    };
+    char product[SDL_LEGACY_PATH_SIZE];
+    char candidate[SDL_LEGACY_PATH_SIZE];
+    char *leaf;
+    size_t length;
+    size_t numeral;
+
+    if (SDL_strlcpy(product, install, sizeof(product)) >= sizeof(product))
+        return 0;
+    length = strlen(product);
+    while (length > 1 && (product[length - 1] == '/' || product[length - 1] == '\\'))
+        product[--length] = '\0';
+    leaf = SdlPathLeaf(product);
+    /* The Kilrathi Saga installs each game in its own folder, wc1 beside wc2. */
+    if (SDL_strcasecmp(leaf, "wc2") == 0) {
+        leaf[2] = '1';
+        return !dosVersion &&
+            (size_t)snprintf(candidate, sizeof(candidate), "%s/GAMEDAT", product) <
+                sizeof(candidate) &&
+            SdlLegacySaveFolder(candidate, result, size);
+    }
+    /* GOG's Wing Commander II holds the DOS game, a DOS folder and the
+     * Kilrathi Saga's; its Wing Commander I has a DOS and a Kilrathi_Saga. */
+    if ((SDL_strcasecmp(leaf, "Kilrathi_Saga") == 0 || SDL_strcasecmp(leaf, "DOS") == 0) &&
+        leaf > product) {
+        leaf[-1] = '\0';
+        leaf = SdlPathLeaf(product);
+    }
+    length = strlen(leaf);
+    for (numeral = 0; numeral < SDL_arraysize(numerals); numeral++) {
+        size_t suffix = strlen(numerals[numeral][0]);
+        int written;
+
+        if (length <= suffix ||
+            SDL_strcasecmp(leaf + length - suffix, numerals[numeral][0]) != 0)
+            continue;
+        written = snprintf(candidate, sizeof(candidate), "%.*s%s/%s",
+                           (int)(leaf - product + length - suffix), product,
+                           numerals[numeral][1],
+                           dosVersion ? "DOS/GAMEDAT" : "Kilrathi_Saga/GAMEDAT");
+        if (written > 0 && (size_t)written < sizeof(candidate) &&
+            SdlLegacySaveFolder(candidate, result, size))
+            return 1;
+        if (!dosVersion)
+            continue;
+        /* A DOS game can also sit in the product folder, as GOG's WC2 does. */
+        written = snprintf(candidate, sizeof(candidate), "%.*s%s/GAMEDAT",
+                           (int)(leaf - product + length - suffix), product,
+                           numerals[numeral][1]);
+        if (written > 0 && (size_t)written < sizeof(candidate) &&
+            SdlLegacySaveFolder(candidate, result, size))
+            return 1;
+    }
+    return 0;
+}
+
+/* The GAMEDAT that holds WC1's SAVEGAME.WLD: wc1-re's or the Kilrathi Saga's,
+ * or with dosVersion a DOS one. preferences is this port's settings folder,
+ * ending in a separator, and install the folder of WC2's GAMEDAT; either may
+ * be NULL. */
+int SdlFindLegacyGameData(int dosVersion, const char *preferences,
+                          const char *install, char *result, size_t size)
+{
+    char folder[SDL_LEGACY_PATH_SIZE];
+    char candidate[SDL_LEGACY_PATH_SIZE];
+
+    if (!dosVersion && preferences != NULL &&
+        SdlReadWc1LauncherFolder(preferences, folder, sizeof(folder)) &&
+        (size_t)snprintf(candidate, sizeof(candidate), "%s/GAMEDAT", folder) <
+            sizeof(candidate) &&
+        SdlLegacySaveFolder(candidate, result, size))
+        return 1;
+    return install != NULL && SdlFindBesideWc2(dosVersion, install, result, size);
+}
+
+/* GetLegacyGameDataPath, and LocateLegacySaveGame for the DOS version: WC1's
+ * GAMEDAT in g_15_szLegacyGameDataPath, or 0. The game runs in WC2's GAMEDAT. */
+char *SdlLegacyGameDataPath(int dosVersion)
+{
+    char install[SDL_LEGACY_PATH_SIZE];
+    char *preferences;
+    char *leaf;
+    int found;
+
+    if (GetCurrentDirectoryA(sizeof(install), install) == 0)
+        install[0] = '\0';
+    leaf = SdlPathLeaf(install);
+    if (SDL_strcasecmp(leaf, "gamedat") == 0 && leaf > install)
+        leaf[-1] = '\0';
+    preferences = SDL_GetPrefPath("Origin Systems", "WC Kilrathi Saga");
+    found = SdlFindLegacyGameData(dosVersion, preferences,
+                                  install[0] != '\0' ? install : NULL,
+                                  g_15_szLegacyGameDataPath,
+                                  sizeof(g_15_szLegacyGameDataPath));
+    SDL_free(preferences);
+    return found ? g_15_szLegacyGameDataPath : 0;
+}
+
 /* The native build selects this implementation instead of narrowing a host
  * find handle to the reconstructed DOS-width local in personnel.c. */
 unsigned short HasSavedPilotCampaign(void)
