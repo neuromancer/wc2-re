@@ -85,6 +85,35 @@ static int NewMissile(void)
     return Frame() == 0x1c && g_cPreviousKey != g_cCurrentKey;
 }
 
+/* A flight frame with the pointer moved to (x, y). */
+static void MoveTo(int x, int y)
+{
+    SDL_Event event = {0};
+
+    pointerX = x;
+    pointerY = y;
+    event.type = SDL_MOUSEMOTION;
+    event.motion.state = buttons;
+    event.motion.x = x;
+    event.motion.y = y;
+    Require(SDL_PushEvent(&event) == 1, "queue a mouse motion");
+    Frame();
+}
+
+/* The view F1 leaves: the cockpit's is the 320x136 window above the
+ * dashboard; the cockpitless one fills the screen and keeps the cockpit's
+ * reticle at (160, 68). F1 also restarts mouse steering. */
+static void SetView(int cockpitless)
+{
+    g_27_stViewScratchInfo.left = 0;
+    g_27_stViewScratchInfo.top = 0;
+    g_27_stViewScratchInfo.right = 319;
+    g_27_stViewScratchInfo.bottom = cockpitless ? 199 : 135;
+    g_15_nStoredScreenViewCentreX = 160;
+    g_37_nViewCenterY = 68;
+    g_nCockpitControlState = 0;
+}
+
 int main(int argc, char **argv)
 {
     int frame;
@@ -184,8 +213,28 @@ int main(int argc, char **argv)
     Require(g_37_stPersonnelMousePointerState.x == pointerX,
             "steering follows the newest motion of the frame");
 
+    /* Steering centres on the reticle in both views, and switching views
+     * leaves that centre under the pointer (issue #72). */
+    SetView(1);
+    MoveTo(160, 68);
+    Require(g_anFlightInput[0] == 0 && g_anFlightInput[1] == 0,
+            "the pointer on the cockpitless view's reticle flies straight");
+    MoveTo(160, 100);
+    Require(g_anFlightInput[0] > 0, "below the reticle pitches down");
+    MoveTo(160, 68);
+    SetView(0);
+    MoveTo(160, 69);
+    Require(g_anFlightInput[0] == 0 && g_anFlightInput[1] == 0,
+            "switching to the cockpit does not jolt the pitch");
+    MoveTo(160, 68);
+    SetView(1);
+    MoveTo(160, 69);
+    Require(g_anFlightInput[0] == 0 && g_anFlightInput[1] == 0,
+            "nor does switching back");
+
     SDL_Quit();
-    puts("PASS: mouse buttons release the guns and missiles they fire, and keys "
-         "and clicks count, even while steering.");
+    puts("PASS: mouse buttons release the guns and missiles they fire, keys and "
+         "clicks count while steering, and steering centres on the reticle in "
+         "both views.");
     return 0;
 }

@@ -326,6 +326,23 @@ void SdlResumeMouseGrab(void)
     SdlApplyMouseGrab();
 }
 
+/* Issue #72: mouse steering centres on the reticle, the view's centre.
+ * Retail centred it on the middle of the view's rectangle: in the cockpit
+ * that is the reticle, but the cockpitless view (F1) fills the screen and
+ * keeps the cockpit's reticle, so flying straight took the pointer 31 pixels
+ * below it, and switching views moved that point under the pointer. */
+void SdlCentreFlightMouse(void)
+{
+    SetPersonnelMousePosition(g_15_nStoredScreenViewCentreX, g_37_nViewCenterY);
+}
+
+/* The pointer's offset from that centre, which player_input steers by. */
+void SdlFlightMouseOffset(short x, short y, short *dx, short *dy)
+{
+    *dx = (short)(x - g_15_nStoredScreenViewCentreX);
+    *dy = (short)(y - g_37_nViewCenterY);
+}
+
 static int SdlHandleWindowEvent(const SDL_WindowEvent *event)
 {
     SDL_Window *window;

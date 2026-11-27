@@ -205,6 +205,9 @@ void SdlDrawViewportStatic(struct Viewport *viewport, int effect,
                               unsigned short colour);
 void SdlSuspendMouseGrab(void);
 void SdlResumeMouseGrab(void);
+/* Mouse steering's centre, the reticle (events.c, issue #72). */
+void SdlCentreFlightMouse(void);
+void SdlFlightMouseOffset(short x, short y, short *dx, short *dy);
 int SdlCanDrawMenuCursor(void);
 void SdlShowFrameRateText(const char *text);
 int SdlInitializeVideo(SDL_Window *window);

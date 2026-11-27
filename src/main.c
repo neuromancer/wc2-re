@@ -513,9 +513,13 @@ void process_player_input(void)
             finished++;
             break;
         case 0x4c:
+#ifdef SDL_PORT
+            SdlCentreFlightMouse();
+#else
             SetPersonnelMousePosition(
                 (short)((g_27_stViewScratchInfo.left + g_27_stViewScratchInfo.right) / 2),
                 (short)((g_27_stViewScratchInfo.top + g_27_stViewScratchInfo.bottom) / 2));
+#endif
             g_anFlightInput[1] =
                 g_anFlightInput[0] =
                 g_anFlightInput[2] = 0;
@@ -808,20 +812,28 @@ short player_input(void)
                     SPECIAL_MANEUVER_AFTERBURNER)
                 boostControl = 0;
             if (g_nCockpitControlState == 0) {
+#ifdef SDL_PORT
+                SdlCentreFlightMouse();
+#else
                 SetPersonnelMousePosition(
                     (short)((g_27_stViewScratchInfo.left +
                              g_27_stViewScratchInfo.right) / 2),
                     (short)((g_27_stViewScratchInfo.top +
                              g_27_stViewScratchInfo.bottom) / 2));
+#endif
                 g_nCockpitControlState = 1;
                 g_37_stPersonnelMousePointerState.frame = 2;
             }
+#ifdef SDL_PORT
+            SdlFlightMouseOffset(message.x, message.y, &dx, &mouseY);
+#else
             dx = (short)(message.x -
                 (g_27_stViewScratchInfo.right -
                  g_27_stViewScratchInfo.left) / 2 + 1);
             mouseY = (short)(message.y -
                 (g_27_stViewScratchInfo.bottom -
                  g_27_stViewScratchInfo.top) / 2);
+#endif
             g_37_stPersonnelMousePointerState.x = message.x;
             g_37_stPersonnelMousePointerState.y = message.y;
             absX = (short)abs((int)dx);
@@ -869,11 +881,15 @@ short player_input(void)
                 g_anFlightInput[2] = 0;
                 g_anFlightInput[1] = g_nMouseYawInput = 0;
                 g_anFlightInput[0] = g_nMousePitchInput = 0;
+#ifdef SDL_PORT
+                SdlCentreFlightMouse();
+#else
                 SetPersonnelMousePosition(
                     (short)((g_27_stViewScratchInfo.left +
                              g_27_stViewScratchInfo.right) / 2),
                     (short)((g_27_stViewScratchInfo.top +
                              g_27_stViewScratchInfo.bottom) / 2));
+#endif
             } else {
                 g_anFlightInput[2] = 0;
                 g_anFlightInput[1] =
@@ -1965,11 +1981,15 @@ int RunSpaceFlight(short entryNavPoint)
     }
 
     copy_frame(0, 0x44);
+#ifdef SDL_PORT
+    SdlCentreFlightMouse();
+#else
     SetPersonnelMousePosition(
         (short)((g_27_stViewScratchInfo.left +
                  g_27_stViewScratchInfo.right) / 2),
         (short)((g_27_stViewScratchInfo.top +
                  g_27_stViewScratchInfo.bottom) / 2));
+#endif
     g_nCockpitControlState = 0;
     g_nArcadeState = 0;
 #ifdef SDL_PORT
